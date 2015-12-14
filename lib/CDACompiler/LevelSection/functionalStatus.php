@@ -28,21 +28,22 @@ use Exception;
 class functionalStatus
 {
     /**
-     * @param $Data
+     * @param $PortionData
      * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-        // ...
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -52,7 +53,14 @@ class functionalStatus
     {
         return [
             'FunctionalStatus' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\functionalStatusOrganizer::Structure(),
+                LevelEntry\functionalStatusObservation::Structure(),
+                LevelEntry\caregiverCharacteristics::Structure(),
+                LevelEntry\assessmentScaleObservation::Structure(),
+                LevelEntry\nonMedicinalSupplyActivity::Structure(),
+                LevelEntry\selfCareActivitiesADLAndIADL::Structure(),
+                LevelEntry\sensoryAndSpeechStatus::Structure()
             ]
         ];
     }
@@ -91,21 +99,96 @@ class functionalStatus
                 ]
             ];
 
-            // Assessment Scale Observation
-            // ...
-            // Caregiver Characteristics
-            // ...
-            // Functional Status Observation (V2)
-            // ...
-            // Functional Status Organizer (V2)
-            // ...
-            // Non-Medicinal Supply Activity (V2)
-            // ...
-            // Self-Care Activities (ADL and IADL) (NEW)
-            // ...
-            // Sensory and Speech Status (NEW)
-            // ...
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Functional Status Organizer (V2)
+            if(count($PortionData['FunctionalStatusOrganizer']) > 0)
+            {
+                foreach ($PortionData['FunctionalStatusOrganizer'] as $FunctionalStatusOrganizer)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\functionalStatusOrganizer::Insert(
+                        $FunctionalStatusOrganizer,
+                        $CompleteData
+                    );
+                }
+            }
 
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Functional Status Observation (V2)
+            if(count($PortionData['FunctionalStatusObservation']) > 0)
+            {
+                foreach ($PortionData['FunctionalStatusObservation'] as $FunctionalStatusObservation)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\functionalStatusObservation::Insert(
+                        $FunctionalStatusObservation,
+                        $CompleteData
+                    );
+                }
+            }
+
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Caregiver Characteristics
+            if(count($PortionData['CaregiverCharacteristics']) > 0)
+            {
+                foreach ($PortionData['CaregiverCharacteristics'] as $CaregiverCharacteristics)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\caregiverCharacteristics::Insert(
+                        $CaregiverCharacteristics,
+                        $CompleteData
+                    );
+                }
+            }
+
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Assessment Scale Observation
+            if(count($PortionData['AssessmentScaleObservation']) > 0)
+            {
+                foreach ($PortionData['AssessmentScaleObservation'] as $AssessmentScaleObservation)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\assessmentScaleObservation::Insert(
+                        $AssessmentScaleObservation,
+                        $CompleteData
+                    );
+                }
+            }
+
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Non-Medicinal Supply Activity (V2)
+            if(count($PortionData['NonMedicinalSupplyActivity']) > 0)
+            {
+                foreach ($PortionData['AssessmentScaleObservation'] as $NonMedicinalSupplyActivity)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\nonMedicinalSupplyActivity::Insert(
+                        $NonMedicinalSupplyActivity,
+                        $CompleteData
+                    );
+                }
+            }
+
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Self-Care Activities (ADL and IADL) (NEW)
+            if(count($PortionData['SelfCareActivitiesADLAndIADL']) > 0)
+            {
+                foreach ($PortionData['SelfCareActivitiesADLAndIADL'] as $SelfCareActivitiesADLAndIADL)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\selfCareActivitiesADLAndIADL::Insert(
+                        $SelfCareActivitiesADLAndIADL,
+                        $CompleteData
+                    );
+                }
+            }
+
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Sensory and Speech Status (NEW)
+            if(count($PortionData['SensoryAndSpeechStatus']) > 0)
+            {
+                foreach ($PortionData['SensoryAndSpeechStatus'] as $SensoryAndSpeechStatus)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\sensoryAndSpeechStatus::Insert(
+                        $SensoryAndSpeechStatus,
+                        $CompleteData
+                    );
+                }
+            }
 
             return $Section;
         }

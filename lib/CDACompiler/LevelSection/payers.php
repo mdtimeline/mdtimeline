@@ -31,20 +31,22 @@ use Exception;
 class payers
 {
     /**
-     * @param $Data
+     * @param $PortionData
      * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -54,30 +56,27 @@ class payers
     {
         return [
             'Payers' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\coverageActivity::Structure()
             ]
         ];
     }
 
     /**
-     * @param $Data
+     * @param $PortionData
      * @return array|Exception
      */
-    public static function Insert($Data)
+    public static function Insert($PortionData, $CompleteData)
     {
         try
         {
             // Validate first
-            self::Validate($Data['Payers']);
+            self::Validate($PortionData['Payers']);
 
             $Section = [
                 'component' => [
                     'section' => [
-                        'templateId' => [
-                            '@attributes' => [
-                                'root' => '2.16.840.1.113883.10.20.22.2.18.2'
-                            ]
-                        ],
+                        'templateId' => Component::templateId('2.16.840.1.113883.10.20.22.2.18.2'),
                         'code' => [
                             '@attributes' => [
                                 'code' => '48768-6',
@@ -87,13 +86,23 @@ class payers
                             ]
                         ],
                         'title' => 'Payers',
-                        'text' => self::Narrative($Data['Payers'])
+                        'text' => self::Narrative($PortionData)
                     ]
                 ]
             ];
 
-            // Coverage Activity (V2)
-            // ...
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Coverage Activity (V2)
+            if(count($PortionData['CoverageActivity']) > 0)
+            {
+                foreach ($PortionData['CoverageActivity'] as $CoverageActivity)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\coverageActivity::Insert(
+                        $CoverageActivity,
+                        $CompleteData
+                    );
+                }
+            }
 
             return $Section;
         }

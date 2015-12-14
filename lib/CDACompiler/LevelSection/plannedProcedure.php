@@ -17,22 +17,23 @@ use Exception;
 
 class plannedProcedure
 {
-
     /**
-     * @param $Data
+     * @param $PortionData
+     * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -42,7 +43,8 @@ class plannedProcedure
     {
         return [
             'PlannedProcedure' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\plannedProcedure::Structure()
             ]
         ];
     }
@@ -82,11 +84,15 @@ class plannedProcedure
                 ]
             ];
 
-            // Planned Procedure (V2) [0..*]
-            foreach($PortionData['PlannedProcedure']['PlannedProcedures'] as $PlannedProcedure) {
-                $Section['component']['section']['entry'][] = [
-                    'procedure' => LevelEntry\plannedProcedure::Insert($PlannedProcedure, $CompleteData)
-                ];
+            // MAY contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Planned Procedure (V2)
+            if(count($PortionData['PlannedProcedure']) > 0) {
+                foreach ($PortionData['PlannedProcedure'] as $PlannedProcedure) {
+                    $Section['component']['section']['entry'][] = LevelEntry\plannedProcedure::Insert(
+                        $PlannedProcedure,
+                        $CompleteData
+                    );
+                }
             }
 
             return $Section;

@@ -25,8 +25,10 @@ class allergies
      */
     private static function Validate($PortionData)
     {
-        if(!isset($PortionData['Allergies']))
-            throw new Exception('2.4 Allergies Section (entries required) (V2)');
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
+        if(count($PortionData['AllergyConcernAct'])<0)
+            throw new Exception('SHALL contain exactly one [1..1] Allergy Concern Act (V2) ');
     }
 
     /**
@@ -34,20 +36,23 @@ class allergies
      */
     private static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrative'];
     }
 
+    /**
+     * @param $PortionData
+     * @return array
+     */
     public static function Structure($PortionData)
     {
         return [
             'Allergies' => [
-                allergyConcernAct::Structure()
+                LevelEntry\allergyConcernAct::Structure()
             ]
         ];
     }
 
     /**
-     * @param $PortionData
      * @param $CompleteData
      * @return array|Exception
      */
@@ -75,20 +80,27 @@ class allergies
                             ]
                         ],
                         'title' => 'Allergies',
-                        'text' => self::Narrative($PortionData['Allergies'])
+                        'text' => self::Narrative($PortionData['Narrated'])
                     ]
                 ]
             ];
 
-            // 3.7 Allergy Concern Act (V2)
-            foreach($PortionData['Allergies'] as $Allergy)
+            // SHOULD contain zero or more [1..*] entry (CONF:7804) such that it
+            // SHALL contain exactly one [1..1] Allergy Concern Act (V2)
+            if(count($PortionData['AllergyConcernAct']) > 0)
             {
-                $Section['component']['section']['entry'][] = [
-                    '@attributes' => [
-                        'typeCode' => 'DRIV'
-                    ],
-                    'act' => allergyConcernAct::Insert($Allergy, $CompleteData)
-                ];
+                foreach ($PortionData['AllergyConcernAct'] as $AllergyConcernAct)
+                {
+                    $Section['component']['section']['entry'][] = [
+                        '@attributes' => [
+                            'typeCode' => 'DRIV'
+                        ],
+                        LevelEntry\allergyConcernAct::Insert(
+                            $AllergyConcernAct,
+                            $CompleteData
+                        )
+                    ];
+                }
             }
 
             return $Section;

@@ -18,22 +18,23 @@ use Exception;
 
 class procedureFindings
 {
-
     /**
-     * @param $Data
+     * @param $PortionData
+     * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -43,7 +44,8 @@ class procedureFindings
     {
         return [
             'ProcedureFindings' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\indication::Structure()
             ]
         ];
     }
@@ -63,12 +65,7 @@ class procedureFindings
             $Section = [
                 'component' => [
                     'section' => [
-                        'templateId' => [
-                            '@attributes' => [
-                                'root' => '2.16.840.1.113883.10.20.22.2.29.2',
-                                'extension' => $PortionData['ProcedureIndications']['date']
-                            ]
-                        ],
+                        'templateId' => Component::templateId('2.16.840.1.113883.10.20.22.2.29.2'),
                         'code' => [
                             '@attributes' => [
                                 'code' => '59768-2',
@@ -78,16 +75,20 @@ class procedureFindings
                             ]
                         ],
                         'title' => 'Procedure Indications',
-                        'text' => self::Narrative($PortionData['ProcedureIndications'])
+                        'text' => self::Narrative($PortionData)
                     ]
                 ]
             ];
 
-            // Indication (V2)
-            foreach($PortionData['ProcedureIndications']['Indications'] as $Indication) {
-                $Section['component']['section']['entry'][] = [
-                    'observation' => LevelEntry\indication::Insert($Indication, $CompleteData)
-                ];
+            // MAY contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Indication (V2)
+            if(count($PortionData['Indication']) > 0) {
+                foreach ($PortionData['Indication'] as $Indication) {
+                    $Section['component']['section']['entry'][] = LevelEntry\indication::Insert(
+                        $Indication,
+                        $CompleteData
+                    );
+                }
             }
 
             return $Section;

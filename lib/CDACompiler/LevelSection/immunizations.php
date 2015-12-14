@@ -21,21 +21,24 @@ use Exception;
 class immunizations
 {
     /**
-     * @param $Data
+     * @param $PortionData
      * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-        // ...
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
+        if(count($PortionData['ImmunizationActivity']) < 0)
+            throw new Exception('SHALL contain exactly one [1..1] Immunization Activity (V2)');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -45,21 +48,22 @@ class immunizations
     {
         return [
             'Immunizations' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\immunizationActivity::Structure()
             ]
         ];
     }
 
     /**
-     * @param $Data
+     * @param $PortionData
      * @return array|Exception
      */
-    public static function Insert($Data)
+    public static function Insert($PortionData, $CompleteData)
     {
         try
         {
             // Validate first
-            self::Validate($Data['Immunizations']);
+            self::Validate($PortionData);
 
             $Section = [
                 'component' => [
@@ -78,21 +82,23 @@ class immunizations
                             ]
                         ],
                         'title' => 'History of Immunizations',
-                        'text' => self::Narrative($Data['Immunizations'])
+                        'text' => self::Narrative($PortionData)
                     ]
                 ]
             ];
 
-            // Immunization Activity (V2) [1..*]
-            foreach($Data['Immunizations']['Activities'] as $Activity) {
-                $Section['component']['section']['entry'][] = [
-                    '@attributes' => [
-                        'typeCode' => 'DRIV'
-                    ],
-                    'act' => LevelEntry\immunizationActivity::Insert($Activity, $Data)
-                ];
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Immunization Activity (V2)
+            if(count($PortionData['ImmunizationActivity']) > 0)
+            {
+                foreach ($PortionData['ImmunizationActivity'] as $ImmunizationActivity)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\immunizationActivity::Insert(
+                        $ImmunizationActivity,
+                        $CompleteData
+                    );
+                }
             }
-
 
             return $Section;
         }

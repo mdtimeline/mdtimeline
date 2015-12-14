@@ -15,20 +15,22 @@ use Exception;
 class surgeryDescription
 {
     /**
-     * @param $Data
+     * @param $PortionData
      * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrative'];
     }
 
     /**
@@ -38,21 +40,21 @@ class surgeryDescription
     {
         return [
             'SurgeryDescription' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text'
             ]
         ];
     }
 
     /**
-     * @param $Data
+     * @param $PortionData
      * @return array|Exception
      */
-    public static function Insert($Data)
+    public static function Insert($PortionData)
     {
         try
         {
             // Validate first
-            self::Validate($Data['SurgeryDescription']);
+            self::Validate($PortionData);
 
             $Section = [
                 'component' => [
@@ -71,7 +73,7 @@ class surgeryDescription
                             ]
                         ],
                         'title' => 'Surgical Drains',
-                        'text' => self::Narrative($Data['SurgeryDescription'])
+                        'text' => self::Narrative($PortionData)
                     ]
                 ]
             ];

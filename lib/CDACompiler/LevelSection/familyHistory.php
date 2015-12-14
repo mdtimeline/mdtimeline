@@ -19,21 +19,22 @@ use Exception;
 class familyHistory
 {
     /**
-     * @param $Data
+     * @param $PortionData
      * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-        // ...
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -43,7 +44,8 @@ class familyHistory
     {
         return [
             'FamilyHistory' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\familyHistoryOrganizer::Structure()
             ]
         ];
     }
@@ -82,8 +84,18 @@ class familyHistory
                 ]
             ];
 
-            // 3.33	Family History Organizer
-            // ...
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Family History Organizer
+            if(count($PortionData['FamilyHistoryOrganizer']) > 0)
+            {
+                foreach ($PortionData['FamilyHistoryOrganizer'] as $FamilyHistoryOrganizer)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\familyHistoryOrganizer::Insert(
+                        $FamilyHistoryOrganizer,
+                        $CompleteData
+                    );
+                }
+            }
 
             return $Section;
         }

@@ -21,18 +21,21 @@ use Exception;
 class DICOMObjectCatalog
 {
     /**
-     * @param $Data
+     * @param $PortionData
      * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
+        if(count($PortionData['StudyAct'])<0)
+            throw new Exception('SHALL contain exactly one [1..1] Study Act');
+
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
 
     }
@@ -44,7 +47,7 @@ class DICOMObjectCatalog
     {
         return [
             'DICOMObjectCatalog' => [
-
+                LevelEntry\studyAct::Structure()
             ]
         ];
     }
@@ -56,8 +59,7 @@ class DICOMObjectCatalog
      */
     public static function Insert($PortionData, $CompleteData)
     {
-        try
-        {
+        try {
             // Validate first
             self::Validate($PortionData);
 
@@ -85,11 +87,17 @@ class DICOMObjectCatalog
                 ]
             ];
 
-            // Study Act [1..*]
-            foreach($PortionData['DICOMObjectCatalog'] as $Catalog) {
-                $Section['component']['section']['entry'][] = [
-                    'act' => LevelEntry\studyAct::Insert($Catalog, $CompleteData)
-                ];
+            // MAY contain zero or more [1..*] entry
+            // SHALL contain exactly one [1..1] Study Act
+            if(count($PortionData['StudyAct']) > 0)
+            {
+                foreach ($PortionData['StudyAct'] as $StudyAct)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\studyAct::Insert(
+                        $StudyAct,
+                        $CompleteData
+                    );
+                }
             }
 
             return $Section;

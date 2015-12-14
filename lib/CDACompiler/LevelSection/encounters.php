@@ -24,21 +24,24 @@ use Exception;
 class encounters
 {
     /**
-     * @param $Data
+     * @param $PortionData
      * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-        // ...
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
+        if(count($PortionData['EncounterActivity']) < 0)
+            throw new Exception('SHALL contain exactly one [1..1] Encounter Activity (V2)');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -48,7 +51,8 @@ class encounters
     {
         return [
             'Encounters' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\encounterActivity::Structure()
             ]
         ];
     }
@@ -87,9 +91,18 @@ class encounters
                 ]
             ];
 
-            // Encounter Activity (V2)
-            // ...
-
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Encounter Activity (V2)
+            if(count($PortionData['EncounterActivity']) > 0)
+            {
+                foreach ($PortionData['EncounterActivity'] as $EncounterActivity)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\encounterActivity::Insert(
+                        $EncounterActivity,
+                        $CompleteData
+                    );
+                }
+            }
 
             return $Section;
         }

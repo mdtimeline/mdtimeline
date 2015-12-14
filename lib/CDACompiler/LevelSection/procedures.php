@@ -27,20 +27,22 @@ use Exception;
 class procedures
 {
     /**
-     * @param $Data
+     * @param $PortionData
      * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -50,21 +52,23 @@ class procedures
     {
         return [
             'Procedures' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\patientReferralAct::Structure()
             ]
         ];
     }
 
     /**
-     * @param $Data
+     * @param $PortionData
+     * @param $CompleteData
      * @return array|Exception
      */
-    public static function Insert($Data)
+    public static function Insert($PortionData, $CompleteData)
     {
         try
         {
             // Validate first
-            self::Validate($Data);
+            self::Validate($PortionData);
 
             $Section = [
                 'component' => [
@@ -83,18 +87,21 @@ class procedures
                             ]
                         ],
                         'title' => 'Procedures',
-                        'text' => self::Narrative($Data)
+                        'text' => self::Narrative($PortionData)
                     ]
                 ]
             ];
 
-            // Procedure Activity Act (V2)
-            // ...
-            // Procedure Activity Observation (V2)
-            // ...
-            // Procedure Activity Procedure (V2)
-            // ...
-
+            // MAY contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Patient Referral Act (NEW)
+            if(count($PortionData['PatientReferralAct']) > 0) {
+                foreach ($PortionData['PatientReferralAct'] as $PatientReferralAct) {
+                    $Section['component']['section']['entry'][] = LevelEntry\patientReferralAct::Insert(
+                        $PatientReferralAct,
+                        $CompleteData
+                    );
+                }
+            }
 
             return $Section;
         }

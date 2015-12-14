@@ -20,22 +20,23 @@ use Exception;
 
 class physicalFindingsOfSkin
 {
-
     /**
-     * @param $Data
+     * @param $PortionData
+     * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -45,7 +46,8 @@ class physicalFindingsOfSkin
     {
         return [
             'PhysicalFindingsOfSkin' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\woundClassObservation::Structure()
             ]
         ];
     }
@@ -65,12 +67,7 @@ class physicalFindingsOfSkin
             $Section = [
                 'component' => [
                     'section' => [
-                        'templateId' => [
-                            '@attributes' => [
-                                'root' => '2.16.840.1.113883.10.20.22.2.63',
-                                'extension' => $PortionData['PhysicalFindingsOfSkin']['date']
-                            ]
-                        ],
+                        'templateId' => Component::templateId('2.16.840.1.113883.10.20.22.2.63'),
                         'code' => [
                             '@attributes' => [
                                 'code' => '8709-8',
@@ -85,11 +82,15 @@ class physicalFindingsOfSkin
                 ]
             ];
 
-            // Wound Observation (NEW)
-            foreach($PortionData['PhysicalFindingsOfSkin']['WoundObservations'] as $Observation) {
-                $Section['component']['section']['entry'][] = [
-                    'organizer' => LevelEntry\woundObservation::Insert($Observation, $CompleteData)
-                ];
+            // MAY contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Wound Class Observation
+            if(count($PortionData['WoundsClassObservation']) > 0) {
+                foreach ($PortionData['WoundsClassObservation'] as $WoundsClassObservation) {
+                    $Section['component']['section']['entry'][] = LevelEntry\woundClassObservation::Insert(
+                        $WoundsClassObservation,
+                        $CompleteData
+                    );
+                }
             }
 
             return $Section;

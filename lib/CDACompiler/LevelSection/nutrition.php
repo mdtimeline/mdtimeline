@@ -19,22 +19,23 @@ use Exception;
 
 class nutrition
 {
-
     /**
-     * @param $Data
+     * @param $PortionData
+     * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -44,7 +45,8 @@ class nutrition
     {
         return [
             'Nutrition' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\nutritionalStatusObservation::Structure()
             ]
         ];
     }
@@ -64,12 +66,7 @@ class nutrition
             $Section = [
                 'component' => [
                     'section' => [
-                        'templateId' => [
-                            '@attributes' => [
-                                'root' => '2.16.840.1.113883.10.20.2.5.2',
-                                'extension' => $PortionData['Nutrition']['date']
-                            ]
-                        ],
+                        'templateId' => Component::templateId('2.16.840.1.113883.10.20.2.5.2'),
                         'code' => [
                             '@attributes' => [
                                 'code' => '61144-2',
@@ -84,11 +81,17 @@ class nutrition
                 ]
             ];
 
-            // Nutritional Status Observation (NEW) [0..*]
-            foreach($PortionData['Nutrition']['Observations'] as $Observation) {
-                $Section['component']['section']['entry'][] = [
-                    'observation' => LevelEntry\nutritionalStatusObservation::Insert($Observation, $CompleteData)
-                ];
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Nutritional Status Observation (NEW)
+            if(count($PortionData['NutritionalStatusObservation']) > 0)
+            {
+                foreach ($PortionData['NutritionalStatusObservation'] as $NutritionalStatusObservation)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\nutritionalStatusObservation::Insert(
+                        $NutritionalStatusObservation,
+                        $CompleteData
+                    );
+                }
             }
 
             return $Section;

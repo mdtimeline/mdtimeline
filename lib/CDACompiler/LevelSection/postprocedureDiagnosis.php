@@ -19,21 +19,22 @@ use Exception;
 class postprocedureDiagnosis
 {
     /**
-     * @param $Data
+     * @param $PortionData
      * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-        // ...
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -43,7 +44,8 @@ class postprocedureDiagnosis
     {
         return [
             'PostprocedureDiagnosis' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\postprocedureDiagnosis::Structure()
             ]
         ];
     }
@@ -82,14 +84,15 @@ class postprocedureDiagnosis
                 ]
             ];
 
-            // Postprocedure Diagnosis (V2) [0..1]
-            foreach($PortionData['PostprocedureDiagnosis']['Activity'] as $Activity) {
-                $Section['component']['section']['entry'][] = [
-                    '@attributes' => [
-                        'typeCode' => 'DRIV'
-                    ],
-                    'act' => LevelEntry\postprocedureDiagnosis::Insert($Activity, $CompleteData)
-                ];
+            // MAY contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Postprocedure Diagnosis (V2)
+            if(count($PortionData['PostprocedureDiagnosis']) > 0) {
+                foreach ($PortionData['PostprocedureDiagnosis'] as $PostprocedureDiagnosis) {
+                    $Section['component']['section']['entry'][] = LevelEntry\postprocedureDiagnosis::Insert(
+                        $PostprocedureDiagnosis,
+                        $CompleteData
+                    );
+                }
             }
 
             return $Section;

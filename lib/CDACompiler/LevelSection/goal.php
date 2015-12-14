@@ -21,21 +21,22 @@ use Exception;
 class goal
 {
     /**
-     * @param $Data
+     * @param $PortionData
      * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-        // ...
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -45,7 +46,8 @@ class goal
     {
         return [
             'Goal' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\goalObservation::Structure()
             ]
         ];
     }
@@ -84,8 +86,18 @@ class goal
                 ]
             ];
 
-            // Goal Observation (NEW)
-            // ...
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Goal Observation (NEW)
+            if(count($PortionData['GoalObservation']) > 0)
+            {
+                foreach ($PortionData['GoalObservation'] as $GoalObservation)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\goalObservation::Insert(
+                        $GoalObservation,
+                        $CompleteData
+                    );
+                }
+            }
 
 
             return $Section;

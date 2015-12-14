@@ -18,22 +18,23 @@ use Exception;
 
 class procedureFindings
 {
-
     /**
-     * @param $Data
+     * @param $PortionData
+     * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -43,7 +44,8 @@ class procedureFindings
     {
         return [
             'ProcedureFindings' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\problemObservation::Structure()
             ]
         ];
     }
@@ -63,12 +65,7 @@ class procedureFindings
             $Section = [
                 'component' => [
                     'section' => [
-                        'templateId' => [
-                            '@attributes' => [
-                                'root' => '2.16.840.1.113883.10.20.22.2.28',
-                                'extension' => $PortionData['ProcedureFindings']['date']
-                            ]
-                        ],
+                        'templateId' => Component::templateId('2.16.840.1.113883.10.20.22.2.28'),
                         'code' => [
                             '@attributes' => [
                                 'code' => '59776-5',
@@ -78,16 +75,20 @@ class procedureFindings
                             ]
                         ],
                         'title' => 'Procedure Finding',
-                        'text' => self::Narrative($PortionData['ProcedureFindings'])
+                        'text' => self::Narrative($PortionData)
                     ]
                 ]
             ];
 
-            // Problem Observation (V2) [0..*]
-            foreach($PortionData['ProcedureFindings'] as $Observation) {
-                $Section['component']['section']['entry'][] = [
-                    'observation' => LevelEntry\problemObservation::Insert($Observation, $CompleteData)
-                ];
+            // MAY contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Problem Observation (V2)
+            if(count($PortionData['ProblemObservation']) > 0) {
+                foreach ($PortionData['ProblemObservation'] as $ProblemObservation) {
+                    $Section['component']['section']['entry'][] = LevelEntry\problemObservation::Insert(
+                        $ProblemObservation,
+                        $CompleteData
+                    );
+                }
             }
 
             return $Section;

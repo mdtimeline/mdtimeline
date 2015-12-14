@@ -27,53 +27,51 @@ class advanceDirectives
 {
 
     /**
-     * @param $Data
+     * @param $PortionData
      * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-        if(count($Data['AdvanceDirectiveOrganizer']) < 1)
+        if(!isset($PortionData['Narrated']) < 1)
+            throw new Exception('SHALL contain exactly one [1..1] text');
+        if(count($PortionData['AdvanceDirectives'])<0)
             throw new Exception('SHALL contain exactly one [1..1] Advance Directive Organizer (NEW)');
     }
 
     /**
-     * @param $Data
+     * @param $PortionData
      * @return mixed
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-        return $Data['Narrated'];
+        return $PortionData['Narrated'];
     }
 
     public static function Structure()
     {
         return [
             'AdvanceDirectives' => [
-                advanceDirectiveOrganizer::Structure()
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\advanceDirectiveOrganizer::Structure()
             ]
         ];
     }
 
     /**
-     * @param $Data
+     * @param $PortionData
      * @return array|Exception
      */
-    public static function Insert($Data)
+    public static function Insert($PortionData, $CompleteData)
     {
         try
         {
             // Validate first
-            self::Validate($Data);
+            self::Validate($PortionData);
 
             $Section = [
                 'component' => [
                     'section' => [
-                        'templateId' => [
-                            '@attributes' => [
-                                'root' => '2.16.840.1.113883.10.20.22.2.21',
-                                'extension' => $Data['AdvanceDirectives']['date']
-                            ]
-                        ],
+                        'templateId' => Component::templateId('2.16.840.1.113883.10.20.22.2.21'),
                         'code' => [
                             '@attributes' => [
                                 'code' => '42348-3',
@@ -82,20 +80,26 @@ class advanceDirectives
                             ]
                         ],
                         'title' => 'Advance Directives',
-                        'text' => self::Narrative($Data['AdvanceDirectives'])
+                        'text' => self::Narrative($PortionData)
                     ]
                 ]
             ];
 
             // SHALL contain at least one [1..*] entry
             // SHALL contain exactly one [1..1] Advance Directive Organizer (NEW)
-            foreach($Data['AdvanceDirectives'] as $AdvanceDirective) {
-                $Section['component']['section']['entry'][] = [
-                    '@attributes' => [
-                        'typeCode' => 'DRIV'
-                    ],
-                    'organizer' => LevelEntry\advanceDirectiveOrganizer::Insert($AdvanceDirective, $Data)
-                ];
+            if(count($PortionData['AdvanceDirectives'])>0)
+            {
+                foreach ($PortionData['AdvanceDirectives'] as $AdvanceDirective) {
+                    $Section['component']['section']['entry'][] = [
+                        '@attributes' => [
+                            'typeCode' => 'DRIV'
+                        ],
+                        LevelEntry\advanceDirectiveOrganizer::Insert(
+                            $AdvanceDirective,
+                            $CompleteData
+                        )
+                    ];
+                }
             }
 
             return $Section;

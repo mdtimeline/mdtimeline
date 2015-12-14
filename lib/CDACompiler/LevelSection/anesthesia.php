@@ -21,22 +21,22 @@ use Exception;
 class anesthesia
 {
     /**
-     * @param $Data
+     * @param $PortionData
      * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-        if(!isset($Data['Anesthesia']))
-            throw new Exception('2.5 Anesthesia Section (V2) - Not found, skipping...');
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -46,21 +46,24 @@ class anesthesia
     {
         return [
             'Anesthesia' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\procedureActivityProcedure::Structure(),
+                LevelEntry\medicationActivity::Structure()
             ]
         ];
     }
 
     /**
-     * @param $Data
+     * @param $PortionData
+     * @param $CompleteData
      * @return array|Exception
      */
-    public static function Insert($Data)
+    public static function Insert($PortionData, $CompleteData)
     {
         try
         {
             // Validate first
-            self::Validate($Data['Anesthesia']);
+            self::Validate($PortionData['Anesthesia']);
 
             $Section = [
                 'component' => [
@@ -79,16 +82,46 @@ class anesthesia
                             ]
                         ],
                         'title' => 'Procedure Anesthesia',
-                        'text' => self::Narrative($Data['Anesthesia'])
+                        'text' => self::Narrative($PortionData)
                     ]
                 ]
             ];
 
-            // 3.83	Procedure Activity Procedure (V2)
-            // ...
+            // MAY contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Procedure Activity Procedure (V2)
+            if(count($PortionData['ProcedureActivityProcedure']) > 0)
+            {
+                foreach ($PortionData['ProcedureActivityProcedure'] as $ProcedureActivityProcedure)
+                {
+                    $Section['component']['section']['entry'][] = [
+                        '@attributes' => [
+                            'typeCode' => 'DRIV'
+                        ],
+                        LevelEntry\procedureActivityProcedure::Insert(
+                            $ProcedureActivityProcedure,
+                            $CompleteData
+                        )
+                    ];
+                }
+            }
 
-            // 3.51	Medication Activity (V2)
-            // ...
+            // MAY contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Medication Activity (V2)
+            if(count($PortionData['MedicationActivity']) > 0)
+            {
+                foreach ($PortionData['MedicationActivity'] as $MedicationActivity)
+                {
+                    $Section['component']['section']['entry'][] = [
+                        '@attributes' => [
+                            'typeCode' => 'DRIV'
+                        ],
+                        LevelEntry\medicationActivity::Insert(
+                            $MedicationActivity,
+                            $CompleteData
+                        )
+                    ];
+                }
+            }
 
             return $Section;
         }

@@ -20,22 +20,23 @@ use Exception;
 
 class medicationsAdministered
 {
-
-    /**
-     * @param $Data
+    /***
+     * @param $PortionData
+     * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -45,7 +46,8 @@ class medicationsAdministered
     {
         return [
             'MedicationsAdministered' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\medicationActivity::Structure()
             ]
         ];
     }
@@ -65,12 +67,7 @@ class medicationsAdministered
             $Section = [
                 'component' => [
                     'section' => [
-                        'templateId' => [
-                            '@attributes' => [
-                                'root' => '2.16.840.1.113883.10.20.22.2.38.2',
-                                'extension' => $PortionData['MedicationsAdministered']['date']
-                            ]
-                        ],
+                        'templateId' => Component::templateId('2.16.840.1.113883.10.20.22.2.38.2'),
                         'code' => [
                             '@attributes' => [
                                 'code' => '29549-3',
@@ -85,14 +82,17 @@ class medicationsAdministered
                 ]
             ];
 
-            // 3.51	Medication Activity (V2) [0..*]
-            foreach($PortionData['MedicationsAdministered']['Activity'] as $Activity) {
-                $Section['component']['section']['entry'][] = [
-                    '@attributes' => [
-                        'typeCode' => 'DRIV'
-                    ],
-                    'act' => LevelEntry\medicationsActivity::Insert($Activity, $CompleteData)
-                ];
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Medication Activity (V2)
+            if(count($PortionData['MedicationActivity']) > 0)
+            {
+                foreach ($PortionData['MedicationActivity'] as $MedicationActivity)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\medicationActivity::Insert(
+                        $MedicationActivity,
+                        $CompleteData
+                    );
+                }
             }
 
             return $Section;

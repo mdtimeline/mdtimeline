@@ -20,21 +20,22 @@ use Exception;
 class preoperativeDiagnosis
 {
     /**
-     * @param $Data
+     * @param $PortionData
      * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-        // ...
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -44,7 +45,8 @@ class preoperativeDiagnosis
     {
         return [
             'PreoperativeDiagnosis' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\preoperativeDiagnosis::Structure()
             ]
         ];
     }
@@ -83,14 +85,15 @@ class preoperativeDiagnosis
                 ]
             ];
 
-            // Preoperative Diagnosis (V2) [0..1]
-            foreach($PortionData['PostprocedureDiagnosis']['Activity'] as $Activity) {
-                $Section['component']['section']['entry'][] = [
-                    '@attributes' => [
-                        'typeCode' => 'DRIV'
-                    ],
-                    'act' => LevelEntry\preoperativeDiagnosis::Insert($Activity, $CompleteData)
-                ];
+            // MAY contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Preoperative Diagnosis (V2)
+            if(count($PortionData['PreoperativeDiagnosis']) > 0) {
+                foreach ($PortionData['PreoperativeDiagnosis'] as $PreoperativeDiagnosis) {
+                    $Section['component']['section']['entry'][] = LevelEntry\preoperativeDiagnosis::Insert(
+                        $PreoperativeDiagnosis,
+                        $CompleteData
+                    );
+                }
             }
 
             return $Section;

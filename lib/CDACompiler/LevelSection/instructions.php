@@ -17,22 +17,23 @@ use Exception;
 
 class instructions
 {
-
     /**
-     * @param $Data
+     * @param $PortionData
+     * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -42,7 +43,8 @@ class instructions
     {
         return [
             'Instructions' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\instruction::Structure()
             ]
         ];
     }
@@ -82,14 +84,17 @@ class instructions
                 ]
             ];
 
-            // 3.48	Instruction (V2) [0..*]
-            foreach($PortionData['Instructions']['Activity'] as $Activity) {
-                $Section['component']['section']['entry'][] = [
-                    '@attributes' => [
-                        'typeCode' => 'DRIV'
-                    ],
-                    'act' => LevelEntry\instruction::Insert($Activity, $CompleteData)
-                ];
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Instruction (V2)
+            if(count($PortionData['Instruction']) > 0)
+            {
+                foreach ($PortionData['Instruction'] as $Instruction)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\instruction::Insert(
+                        $Instruction,
+                        $CompleteData
+                    );
+                }
             }
 
             return $Section;

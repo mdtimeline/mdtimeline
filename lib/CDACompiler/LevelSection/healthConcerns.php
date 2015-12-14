@@ -19,22 +19,23 @@ use Exception;
 
 class healthConcerns
 {
-
     /**
-     * @param $Data
+     * @param $PortionData
+     * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -44,7 +45,9 @@ class healthConcerns
     {
         return [
             'HealthConcerns' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\healthStatusObservation::Structure(),
+                LevelEntry\healthConcernAct::Structure()
             ]
         ];
     }
@@ -84,15 +87,31 @@ class healthConcerns
                 ]
             ];
 
-            // Compile Health Status Observation (V2) [1..1]
-            $Section['component']['section']['entry'][] = [
-                'observation' => LevelEntry\healthStatusObservation::Insert($PortionData, $CompleteData)
-            ];
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Health Status Observation (V2)
+            if(count($PortionData['HealthStatusObservation']) > 0)
+            {
+                foreach ($PortionData['HealthStatusObservation'] as $HealthStatusObservation)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\healthStatusObservation::Insert(
+                        $HealthStatusObservation,
+                        $CompleteData
+                    );
+                }
+            }
 
-            // Compile Health Status Observation (V2) [1..1]
-            $Section['component']['section']['entry'][] = [
-                'act' => LevelEntry\healthConcern::Insert($PortionData, $CompleteData)
-            ];
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Health Concern Act (NEW)
+            if(count($PortionData['HealthConcernAct']) > 0)
+            {
+                foreach ($PortionData['HealthConcernAct'] as $HealthConcernAct)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\healthConcernAct::Insert(
+                        $HealthConcernAct,
+                        $CompleteData
+                    );
+                }
+            }
 
             return $Section;
         }

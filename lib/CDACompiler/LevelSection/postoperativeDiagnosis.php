@@ -1,13 +1,12 @@
 <?php
 
 /**
- * 2.71	Reason for Referral Section (V2)
+ * 2.57	Postoperative Diagnosis Section
  *
- * This section contains the reason(s) for a patient’s referral by a provider to a consulting provider. An optional
- * Chief Complaint section may capture the patient’s description of the reason for the consultation.
+ * The Postoperative Diagnosis section records the diagnosis or diagnoses discovered or confirmed during the surgery.
+ * Often it is the same as the preoperative diagnosis.
  *
  * Contains:
- * Patient Referral Act (NEW)
  *
  */
 
@@ -16,7 +15,7 @@ namespace LevelSection;
 use LevelEntry;
 use Exception;
 
-class reasonForReferral
+class postoperativeDiagnosis
 {
     /**
      * @param $PortionData
@@ -24,6 +23,8 @@ class reasonForReferral
      */
     private static function Validate($PortionData)
     {
+        if(!isset($PortionData['title']))
+            throw new Exception('SHALL contain exactly one [1..1] title');
         if(!isset($PortionData['Narrated']))
             throw new Exception('SHALL contain exactly one [1..1] text');
     }
@@ -31,6 +32,7 @@ class reasonForReferral
     /**
      * Build the Narrative part of this section
      * @param $PortionData
+     * @throws Exception
      */
     public static function Narrative($PortionData)
     {
@@ -43,9 +45,9 @@ class reasonForReferral
     public static function Structure()
     {
         return [
-            'ReasonForReferral' => [
-                'Narrated' => 'SHALL contain exactly one [1..1] text',
-                LevelEntry\patientReferralAct::Structure()
+            'PostoperativeDiagnosis' => [
+                'title' => 'SHALL contain exactly one [1..1] title',
+                'Narrated' => 'SHALL contain exactly one [1..1] text'
             ]
         ];
     }
@@ -65,35 +67,20 @@ class reasonForReferral
             $Section = [
                 'component' => [
                     'section' => [
-                        'templateId' => [
-                            '@attributes' => [
-                                'root' => '1.3.6.1.4.1.19376.1.5.3.1.3.1.2'
-                            ]
-                        ],
+                        'templateId' => Component::templateId('2.16.840.1.113883.10.20.22.2.35'),
                         'code' => [
                             '@attributes' => [
-                                'code' => '42349-1',
-                                'displayName' => 'Reason for Referral',
+                                'code' => '10218-6',
+                                'displayName' => 'POSTOPERATIVE DIAGNOSIS',
                                 'codeSystem' => '2.16.840.1.113883.6.1',
                                 'codeSystemName' => 'LOINC'
                             ]
                         ],
-                        'title' => 'Reason for Referral',
-                        'text' => self::Narrative($PortionData)
+                        'title' => $PortionData['title'],
+                        'text' => self::Narrative($PortionData['Narrated'])
                     ]
                 ]
             ];
-
-            // MAY contain zero or more [0..*] entry
-            // SHALL contain exactly one [1..1] Patient Referral Act (NEW)
-            if(count($PortionData['ReasonForReferral']['Observations'])>1) {
-                foreach ($PortionData['ReasonForReferral']['Observations'] as $Observation) {
-                    $Section['component']['section']['entry'][] = LevelEntry\patientReferralAct::Insert(
-                        $Observation,
-                        $CompleteData
-                    );
-                }
-            }
 
             return $Section;
         }

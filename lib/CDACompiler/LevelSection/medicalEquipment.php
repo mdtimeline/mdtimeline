@@ -28,21 +28,22 @@ use Exception;
 class medicalEquipment
 {
     /**
-     * @param $Data
+     * @param $PortionData
      * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-        // ...
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -52,7 +53,10 @@ class medicalEquipment
     {
         return [
             'MedicalEquipment' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\medicalEquipmentOrganizer::Structure(),
+                LevelEntry\nonMedicinalSupplyActivity::Structure(),
+                LevelEntry\procedureActivityProcedure::Structure()
             ]
         ];
     }
@@ -91,12 +95,44 @@ class medicalEquipment
                 ]
             ];
 
-            // Medical Equipment Organizer (NEW)
-            // ...
-            // Non-Medicinal Supply Activity (V2)
-            // ...
-            // Procedure Activity Procedure (V2)
-            // ...
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Medical Equipment Organizer (NEW)
+            if(count($PortionData['MedicalEquipmentOrganizer']) > 0)
+            {
+                foreach ($PortionData['MedicalEquipmentOrganizer'] as $MedicalEquipmentOrganizer)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\medicalEquipmentOrganizer::Insert(
+                        $MedicalEquipmentOrganizer,
+                        $CompleteData
+                    );
+                }
+            }
+
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Non-Medicinal Supply Activity (V2)
+            if(count($PortionData['NonMedicinalSupplyActivity']) > 0)
+            {
+                foreach ($PortionData['NonMedicinalSupplyActivity'] as $NonMedicinalSupplyActivity)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\nonMedicinalSupplyActivity::Insert(
+                        $NonMedicinalSupplyActivity,
+                        $CompleteData
+                    );
+                }
+            }
+
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Procedure Activity Procedure (V2)
+            if(count($PortionData['ProcedureActivityProcedure']) > 0)
+            {
+                foreach ($PortionData['ProcedureActivityProcedure'] as $ProcedureActivityProcedure)
+                {
+                    $Section['component']['section']['entry'][] = LevelEntry\procedureActivityProcedure::Insert(
+                        $ProcedureActivityProcedure,
+                        $CompleteData
+                    );
+                }
+            }
 
             return $Section;
         }

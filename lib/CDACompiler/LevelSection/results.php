@@ -35,21 +35,24 @@ use Exception;
 class results
 {
     /**
-     * @param $Data
+     * @param $PortionData
      * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-        // ...
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
+        if(count($PortionData['ResultOrganizer'])<1)
+            throw new Exception('SHALL contain exactly one [1..1] Result Organizer (V2)');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrative'];
     }
 
     /**
@@ -59,21 +62,23 @@ class results
     {
         return [
             'Results' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\resultOrganizer::Structure()
             ]
         ];
     }
 
     /**
-     * @param $Data
+     * @param $PortionData
+     * @param $CompleteData
      * @return array|Exception
      */
-    public static function Insert($Data)
+    public static function Insert($PortionData, $CompleteData)
     {
         try
         {
             // Validate first
-            self::Validate($Data);
+            self::Validate($PortionData);
 
             $Section = [
                 'templateId' => [
@@ -90,14 +95,24 @@ class results
                     ]
                 ],
                 'title' => 'Relevant Diagnostic est and/or Laboratory Data',
-                'text' => self::Narrative($Data)
+                'text' => self::Narrative($PortionData)
             ];
 
-            // Health Status Observation (V2)
-            // ...
-            // Problem Concern Act (Condition) (V2)
-            // ...
-
+            // MAY contain zero or more [1..*] entry
+            // SHALL contain exactly one [1..1] Result Organizer (V2)
+            if(count($PortionData['ResultOrganizer']) > 0) {
+                foreach ($PortionData['ResultOrganizer'] as $ResultOrganizer) {
+                    $Section['component']['section']['entry'][] = [
+                        '@attributes' => [
+                            'typeCode' => 'DRIV'
+                        ],
+                        LevelEntry\resultOrganizer::Insert(
+                            $ResultOrganizer,
+                            $CompleteData
+                        )
+                    ];
+                }
+            }
 
             return $Section;
         }

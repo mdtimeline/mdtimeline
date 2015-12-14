@@ -19,6 +19,7 @@ class operativeNoteFluids
 
     /**
      * @param $PortionData
+     * @throws Exception
      */
     private static function Validate($PortionData)
     {
@@ -34,7 +35,7 @@ class operativeNoteFluids
      */
     public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**

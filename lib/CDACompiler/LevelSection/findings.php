@@ -19,20 +19,22 @@ use Exception;
 class findings
 {
     /**
-     * @param $Data
+     * @param $PortionData
      * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHOULD contain only the direct observations in the report, with topics such as Reason for Study, History, and Impression placed in separate sections.  However, in cases where the source of report content provides a single block of text not separated into these sections, that text SHALL be placed in the Findings section');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -42,21 +44,22 @@ class findings
     {
         return [
             'Findings' => [
-
+                'Narrated' => 'SHOULD contain only the direct observations in the report, with topics such as Reason for Study, History, and Impression placed in separate sections.  However, in cases where the source of report content provides a single block of text not separated into these sections, that text SHALL be placed in the Findings section'
             ]
+
         ];
     }
 
     /**
-     * @param $Data
+     * @param $PortionData
      * @return array|Exception
      */
-    public static function Insert($Data)
+    public static function Insert($PortionData, $CompleteData)
     {
         try
         {
             // Validate first
-            self::Validate($Data['Findings']);
+            self::Validate($PortionData);
 
             $Section = [
                 'component' => [
@@ -75,7 +78,7 @@ class findings
                             ]
                         ],
                         'title' => 'Findings',
-                        'text' => self::Narrative($Data['Findings'])
+                        'text' => self::Narrative($PortionData)
                     ]
                 ]
             ];

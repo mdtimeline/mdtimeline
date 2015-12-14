@@ -44,22 +44,22 @@ use Exception;
 class planOfTreatment
 {
     /**
-     * @param $Data
+     * @param $PortionData
      * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-        if(!isset($Data['Allergies']))
-            throw new Exception('2.4 Allergies Section (entries required) (V2)');
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -69,6 +69,16 @@ class planOfTreatment
     {
         return [
             'PlanOfTreatment' => [
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\plannedObservation::Structure(),
+                LevelEntry\plannedEncounter::Structure(),
+                LevelEntry\plannedAct::Structure(),
+                LevelEntry\plannedProcedure::Structure(),
+                LevelEntry\plannedSubstanceAdministration::Structure(),
+                LevelEntry\plannedSupply::Structure(),
+                LevelEntry\instruction::Structure(),
+                LevelEntry\handoffCommunication::Structure(),
+                LevelEntry\nutritionRecommendations::Structure()
 
             ]
         ];
@@ -88,12 +98,7 @@ class planOfTreatment
 
             $Section = [
                 'component' => [
-                    'section' => [
-                        'templateId' => [
-                            '@attributes' => [
-                                'root' => '2.16.840.1.113883.10.20.22.2.10.1.2'
-                            ]
-                        ],
+                    'section' => Component::templateId('2.16.840.1.113883.10.20.22.2.10.1.2'),
                         'code' => [
                             '@attributes' => [
                                 'code' => '18776-5',
@@ -102,31 +107,109 @@ class planOfTreatment
                                 'codeSystemName' => 'LOINC'
                             ]
                         ],
-                        'title' => 'Treatment Plan',
-                        'text' => self::Narrative($PortionData)
-                    ]
+                    'title' => 'Treatment Plan',
+                    'text' => self::Narrative($PortionData)
                 ]
             ];
 
-            // Handoff Communication (NEW)
-            // ...
-            // Instruction (V2)
-            // ...
-            // Nutrition Recommendations (NEW)
-            // ...
-            // Planned Act (V2)
-            // ...
-            // Planned Encounter (V2)
-            // ...
-            // Planned Observation (V2)
-            // ...
-            // Planned Procedure (V2)
-            // ...
-            // Planned Substance Administration (V2)
-            // ...
-            // Planned Supply (V2)
-            // ...
+            // MAY contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Planned Observation (V2)
+            if(count($PortionData['PlannedObservation']) > 0) {
+                foreach ($PortionData['PlannedObservation'] as $PlannedObservation) {
+                    $Section['component']['section']['entry'][] = LevelEntry\plannedObservation::Insert(
+                        $PlannedObservation,
+                        $CompleteData
+                    );
+                }
+            }
 
+            // MAY contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Planned Encounter (V2)
+            if(count($PortionData['PlannedEncounter']) > 0) {
+                foreach ($PortionData['PlannedEncounter'] as $PlannedEncounter) {
+                    $Section['component']['section']['entry'][] = LevelEntry\plannedEncounter::Insert(
+                        $PlannedEncounter,
+                        $CompleteData
+                    );
+                }
+            }
+
+            // MAY contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Planned Act (V2)
+            if(count($PortionData['PlannedAct']) > 0) {
+                foreach ($PortionData['PlannedAct'] as $PlannedAct) {
+                    $Section['component']['section']['entry'][] = LevelEntry\plannedAct::Insert(
+                        $PlannedAct,
+                        $CompleteData
+                    );
+                }
+            }
+
+            // MAY contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Planned Procedure (V2)
+            if(count($PortionData['PlannedProcedure']) > 0) {
+                foreach ($PortionData['PlannedProcedure'] as $PlannedProcedure) {
+                    $Section['component']['section']['entry'][] = LevelEntry\plannedProcedure::Insert(
+                        $PlannedProcedure,
+                        $CompleteData
+                    );
+                }
+            }
+
+            // MAY contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Planned Substance Administration (V2)
+            if(count($PortionData['PlannedSubstanceAdministration']) > 0) {
+                foreach ($PortionData['PlannedSubstanceAdministration'] as $PlannedSubstanceAdministration) {
+                    $Section['component']['section']['entry'][] = LevelEntry\plannedSubstanceAdministration::Insert(
+                        $PlannedSubstanceAdministration,
+                        $CompleteData
+                    );
+                }
+            }
+
+            // MAY contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Planned Supply (V2)
+            if(count($PortionData['PlannedSupply']) > 0) {
+                foreach ($PortionData['PlannedSupply'] as $PlannedSupply) {
+                    $Section['component']['section']['entry'][] = LevelEntry\plannedSupply::Insert(
+                        $PlannedSupply,
+                        $CompleteData
+                    );
+                }
+            }
+
+            // MAY contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Instruction (V2)
+            if(count($PortionData['Instruction']) > 0) {
+                foreach ($PortionData['Instruction'] as $Instruction) {
+                    $Section['component']['section']['entry'][] = LevelEntry\instruction::Insert(
+                        $Instruction,
+                        $CompleteData
+                    );
+                }
+            }
+
+            // MAY contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Handoff Communication (NEW)
+            if(count($PortionData['HandoffCommunication']) > 0) {
+                foreach ($PortionData['HandoffCommunication'] as $HandoffCommunication) {
+                    $Section['component']['section']['entry'][] = LevelEntry\handoffCommunication::Insert(
+                        $HandoffCommunication,
+                        $CompleteData
+                    );
+                }
+            }
+
+            // MAY contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Nutrition Recommendations (NEW)
+            if(count($PortionData['NutritionRecommendations']) > 0) {
+                foreach ($PortionData['NutritionRecommendations'] as $NutritionRecommendations) {
+                    $Section['component']['section']['entry'][] = LevelEntry\nutritionRecommendations::Insert(
+                        $NutritionRecommendations,
+                        $CompleteData
+                    );
+                }
+            }
 
             return $Section;
         }

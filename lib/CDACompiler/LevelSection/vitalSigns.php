@@ -23,22 +23,24 @@ use Exception;
 class vitalSigns
 {
     /**
-     * @param $Data
+     * @param $PortionData
      * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-        if(!isset($Data['Allergies']))
-            throw new Exception('2.4 Allergies Section (entries required) (V2)');
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
+        if(count($PortionData['VitalSignsOrganizer']) < 1)
+            throw new Exception('SHALL contain exactly one [1..1] Vital Signs Organizer (V2)');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -48,21 +50,22 @@ class vitalSigns
     {
         return [
             'VitalSigns' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text',
+                LevelEntry\vitalSignsOrganizer::Structure()
             ]
         ];
     }
 
     /**
-     * @param $Data
+     * @param $PortionData
      * @return array|Exception
      */
-    public static function Insert($Data)
+    public static function Insert($PortionData, $CompleteData)
     {
         try
         {
             // Validate first
-            self::Validate($Data['VitalSigns']);
+            self::Validate($PortionData['VitalSigns']);
 
             $Section = [
                 'component' => [
@@ -81,13 +84,21 @@ class vitalSigns
                             ]
                         ],
                         'title' => 'Vital Signs',
-                        'text' => self::Narrative($Data['VitalSigns'])
+                        'text' => self::Narrative($PortionData['VitalSigns'])
                     ]
                 ]
             ];
 
-            // 3.108 Vital Signs Organizer (V2)
-            // ...
+            // SHOULD contain zero or more [0..*] entry
+            // SHALL contain exactly one [1..1] Vital Signs Organizer (V2)
+            if(count($PortionData['VitalSignsOrganizer']) > 0) {
+                foreach ($PortionData['VitalSignsOrganizer'] as $VitalSignsOrganizer) {
+                    $Section['component']['section']['entry'][] = LevelEntry\vitalSignsOrganizer::Insert(
+                        $VitalSignsOrganizer,
+                        $CompleteData
+                    );
+                }
+            }
 
             return $Section;
         }

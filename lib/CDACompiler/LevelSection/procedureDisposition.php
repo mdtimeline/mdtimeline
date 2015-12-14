@@ -17,22 +17,23 @@ use Exception;
 
 class procedureDisposition
 {
-
     /**
-     * @param $Data
+     * @param $PortionData
+     * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
-
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrated'];
     }
 
     /**
@@ -42,7 +43,7 @@ class procedureDisposition
     {
         return [
             'ProcedureDisposition' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text'
             ]
         ];
     }
@@ -62,12 +63,7 @@ class procedureDisposition
             $Section = [
                 'component' => [
                     'section' => [
-                        'templateId' => [
-                            '@attributes' => [
-                                'root' => '2.16.840.1.113883.10.20.18.2.12',
-                                'extension' => $PortionData['ProcedureDisposition']['date']
-                            ]
-                        ],
+                        'templateId' => Component::templateId('2.16.840.1.113883.10.20.18.2.12'),
                         'code' => [
                             '@attributes' => [
                                 'code' => '59775-7',
@@ -77,7 +73,7 @@ class procedureDisposition
                             ]
                         ],
                         'title' => 'Procedure Disposition',
-                        'text' => self::Narrative($PortionData['ProcedureDisposition'])
+                        'text' => self::Narrative($PortionData)
                     ]
                 ]
             ];

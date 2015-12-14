@@ -20,20 +20,22 @@ use Exception;
 class reviewOfSystems
 {
     /**
-     * @param $Data
+     * @param $PortionData
      * @throws Exception
      */
-    private static function Validate($Data)
+    private static function Validate($PortionData)
     {
+        if(!isset($PortionData['Narrated']))
+            throw new Exception('SHALL contain exactly one [1..1] text');
     }
 
     /**
      * Build the Narrative part of this section
-     * @param $Data
+     * @param $PortionData
      */
-    public static function Narrative($Data)
+    public static function Narrative($PortionData)
     {
-
+        return $PortionData['Narrative'];
     }
 
     /**
@@ -43,7 +45,7 @@ class reviewOfSystems
     {
         return [
             'ReviewOfSystems' => [
-
+                'Narrated' => 'SHALL contain exactly one [1..1] text'
             ]
         ];
     }
@@ -53,12 +55,12 @@ class reviewOfSystems
      * @param $CompleteData
      * @return array|Exception
      */
-    public static function Insert($Data)
+    public static function Insert($PortionData, $CompleteData)
     {
         try
         {
             // Validate first
-            self::Validate($Data['ReviewOfSystems']);
+            self::Validate($PortionData['ReviewOfSystems']);
 
             $Section = [
                 'component' => [
@@ -77,7 +79,7 @@ class reviewOfSystems
                             ]
                         ],
                         'title' => 'Review Of Systems',
-                        'text' => self::Narrative($Data['ReviewOfSystems'])
+                        'text' => self::Narrative($PortionData)
                     ]
                 ]
             ];

@@ -37,8 +37,8 @@ Ext.define('App.view.patient.Documents', {
 				remoteFilter: true,
 				remoteSort: false,
 				autoSync: false,
-				pageSize: 200,
-				groupField: 'docType'
+				pageSize: 500,
+				groupField: 'docTypeCode'
 			}),
 			docCtrl = App.app.getController('patient.Documents');
 
@@ -54,11 +54,12 @@ Ext.define('App.view.patient.Documents', {
 					{
 						ftype: 'grouping',
 						hideGroupedHeader: true,
+						startCollapsed: me.startCollapsed || false,
 						groupHeaderTpl: Ext.create('Ext.XTemplate',
-							'{columnName}: {name:this.getGroupName}',
+							'{children:this.getGroupName}',
 							{
-								getGroupName: function(name){
-									return docCtrl.getGroupName(name);
+								getGroupName: function(children){
+									return docCtrl.getGroupName(children[0].store, children[0]);
 								}
 							}
 						)
@@ -101,7 +102,8 @@ Ext.define('App.view.patient.Documents', {
 						itemId: 'docType',
 						renderer: function(v, meta, record){
 							if(record.get('entered_in_error')){
-								meta.tdCls += ' entered-in-error '
+								meta.tdCls += ' entered-in-error ';
+								meta.tdAttr = 'data-qtip="' + _('error_note') + ': ' + record.get('error_note') + '"';
 							}
 							return v;
 						}
@@ -113,10 +115,13 @@ Ext.define('App.view.patient.Documents', {
 						format: g('date_display_format'),
 						itemId: 'groupDate',
 						renderer: function(v, meta, record){
+							var val = v != null ? Ext.Date.format(v, g('date_display_format')) : '-';
+
 							if(record.get('entered_in_error')){
-								meta.tdCls += ' entered-in-error '
+								meta.tdCls += ' entered-in-error ';
+								meta.tdAttr = 'data-qtip="' + _('error_note') + ': ' + record.get('error_note') + '"';
 							}
-							return v != null ? Ext.Date.format(v, g('date_display_format')) : '-';
+							return val;
 						}
 					},
 					{
@@ -129,7 +134,8 @@ Ext.define('App.view.patient.Documents', {
 						},
 						renderer: function(v, meta, record){
 							if(record.get('entered_in_error')){
-								meta.tdCls += ' entered-in-error '
+								meta.tdCls += ' entered-in-error ';
+								meta.tdAttr = 'data-qtip="' + _('error_note') + ': ' + record.get('error_note') + '"';
 							}
 							return v;
 						}
@@ -140,7 +146,8 @@ Ext.define('App.view.patient.Documents', {
 						width: 70,
 						renderer: function(v, meta, record){
 							if(record.get('entered_in_error')){
-								meta.tdCls += ' entered-in-error '
+								meta.tdCls += ' entered-in-error ';
+								meta.tdAttr = 'data-qtip="' + _('error_note') + ': ' + record.get('error_note') + '"';
 							}
 							return app.boolRenderer(v);
 						}
@@ -157,7 +164,7 @@ Ext.define('App.view.patient.Documents', {
 						xtype: 'button',
 						text: _('category'),
 						enableToggle: true,
-						action: 'docType',
+						action: 'docTypeCode',
 						pressed: true,
 						disabled: true,
 						toggleGroup: 'documentgridgroup'

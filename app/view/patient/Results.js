@@ -23,18 +23,25 @@ Ext.define('App.view.patient.Results', {
 		'Ext.grid.plugin.RowEditing',
         'Ext.tab.Panel',
 		'App.store.patient.PatientsOrders',
-		'App.ux.LiveLabsSearch'
+		'App.ux.LiveLabsSearch',
+        'App.ux.LiveRadsSearch'
 	],
 	title: _('results'),
 	xtype: 'patientresultspanel',
 	layout: 'border',
+    border: false,
 	items: [
 		{
+            /**
+             * Order Grid
+             * ----------
+             */
 			xtype: 'grid',
             itemId: 'orderResultsGrid',
 			action: 'orders',
 			region: 'center',
 			split: true,
+            border: false,
 			columnLines: true,
 			allowDeselect: true,
 			store: Ext.create('App.store.patient.PatientsOrders', {
@@ -42,6 +49,7 @@ Ext.define('App.view.patient.Results', {
 			}),
 			plugins: [
 				{
+                    pluginId: 'resultRowEditor',
 					ptype: 'rowediting',
 					errorSummary: false
 				}
@@ -52,7 +60,7 @@ Ext.define('App.view.patient.Results', {
 					width: 25,
 					items: [
 						{
-							icon: 'resources/images/icons/blueInfo.png',  // Use a URL in the icon config
+							icon: 'resources/images/icons/blueInfo.png',
 							tooltip: 'Get Info',
 							handler: function(grid, rowIndex, colIndex, item, e, record){
 								App.app.getController('InfoButton').doGetInfo(
@@ -66,16 +74,23 @@ Ext.define('App.view.patient.Results', {
 				},
                 {
                     header: _('type'),
-                    width: 80,
+                    width: 100,
                     dataIndex: 'order_type',
-                    align: 'center',
-                    renderer: function(value){
-                        if(value === 'lab'){
-                            return 'Laboratory';
-                        }
-                        if(value === 'rad'){
-                            return 'Radiology';
-                        }
+                    editor: {
+                        xtype: 'combobox',
+                        itemId: 'orderTypeCombo',
+                        store: Ext.create('Ext.data.Store', {
+                            fields: ['type', 'order_type'],
+                            data: [
+                                {"type": "Laboratory", "order_type": "lab"},
+                                {"type": "Radiology", "order_type": "rad"}
+                            ]
+                        }),
+                        allowBlank: false,
+                        editable: false,
+                        queryMode: 'local',
+                        displayField: 'type',
+                        valueField: 'order_type'
                     }
                 },
                 {
@@ -92,16 +107,11 @@ Ext.define('App.view.patient.Results', {
                     }
                 },
 				{
-					header: _('orders'),
+					header: _('order_description'),
 					dataIndex: 'description',
 					menuDisabled: true,
 					resizable: false,
-					flex: 1,
-					editor: {
-						xtype: 'labslivetsearch',
-						itemId: 'rxLabOrderLabsLiveSearch',
-						allowBlank: false
-					}
+					flex: 1
 				},
 				{
 					header: _('status'),
@@ -114,30 +124,36 @@ Ext.define('App.view.patient.Results', {
 			bbar: [
 				'->',
 				{
-					text: _('new_lab_result'),
-					itemId: 'OrderResultNewOrderBtn',
-					iconCls: 'icoAdd'
-				},
-                '|',
-                {
-                    text: _('new_radiology_result'),
-                    itemId: 'ResultNewRadiologyBtn',
-                    iconCls: 'icoAdd'
-                }
+					text: _('new_result'),
+					itemId: 'NewOrderResultBtn',
+					iconCls: 'icoAdd',
+                    disabled: true
+				}
 			]
 		},
         {
-            xtype: 'tabpanel',
+            /**
+             * Orders Card [ Laboratory or Radiology ]
+             * ---------------------------------------
+             */
+            xtype: 'panel',
+            border: false,
             region: 'south',
             split: true,
-            itemId: 'documentTypeTab',
-            height: 400,
+            itemId: 'documentTypeCard',
+            height: 350,
+            hidden: true,
+            layout: 'card',
+            activeItem: 0,
             items: [
                 {
-                    title: _('lab_observations'),
-                    xtype: 'form',
-                    frame: true,
-                    itemId: 'OrderResultForm',
+                    /**
+                     * Laboratory Order Panel
+                     * ---------------------
+                     */
+                    xtype: 'panel',
+                    frame: false,
+                    itemId: 'laboratoryResultPanel',
                     layout: {
                         type: 'border'
                     },
@@ -151,9 +167,9 @@ Ext.define('App.view.patient.Results', {
                     ],
                     items: [
                         {
-                            xtype: 'panel',
+                            xtype: 'form',
                             title: _('report_info'),
-                            itemId: 'reportInfoForm',
+                            itemId: 'laboratoryResultForm',
                             region: 'west',
                             collapsible: true,
                             autoScroll: true,
@@ -249,6 +265,7 @@ Ext.define('App.view.patient.Results', {
                             flex: 1,
                             region: 'center',
                             split: true,
+                            border: false,
                             columnLines: true,
                             plugins: [
                                 {
@@ -294,15 +311,24 @@ Ext.define('App.view.patient.Results', {
                                             blue = ['B', 'S', 'U', 'D', 'R', 'I'],
                                             green = ['N'];
 
-                                        if(Ext.Array.contains(green, record.data.abnormal_flag)){
+                                        if(Ext.Array.contains(green, record.data.abnormal_flag))
+                                        {
                                             return '<span style="color:green;">' + v + '</span>';
-                                        }else if(Ext.Array.contains(blue, record.data.abnormal_flag)){
+                                        }
+                                        else if(Ext.Array.contains(blue, record.data.abnormal_flag))
+                                        {
                                             return '<span style="color:blue;">' + v + '</span>';
-                                        }else if(Ext.Array.contains(orange, record.data.abnormal_flag)){
+                                        }
+                                        else if(Ext.Array.contains(orange, record.data.abnormal_flag))
+                                        {
                                             return '<span style="color:orange;">' + v + '</span>';
-                                        }else if(Ext.Array.contains(red, record.data.abnormal_flag)){
+                                        }
+                                        else if(Ext.Array.contains(red, record.data.abnormal_flag))
+                                        {
                                             return '<span style="color:red;">' + v + '</span>';
-                                        }else{
+                                        }
+                                        else
+                                        {
                                             return v;
                                         }
                                     }
@@ -330,15 +356,24 @@ Ext.define('App.view.patient.Results', {
                                             blue = ['B', 'S', 'U', 'D', 'R', 'I'],
                                             green = ['N'];
 
-                                        if(Ext.Array.contains(green, v)){
+                                        if(Ext.Array.contains(green, v))
+                                        {
                                             return '<span style="color:green;">' + v + '</span>';
-                                        }else if(Ext.Array.contains(blue, v)){
+                                        }
+                                        else if(Ext.Array.contains(blue, v))
+                                        {
                                             return '<span style="color:blue;">' + v + '</span>';
-                                        }else if(Ext.Array.contains(orange, v)){
+                                        }
+                                        else if(Ext.Array.contains(orange, v))
+                                        {
                                             return '<span style="color:orange;">' + v + '</span>';
-                                        }else if(Ext.Array.contains(red, v)){
+                                        }
+                                        else if(Ext.Array.contains(red, v))
+                                        {
                                             return '<span style="color:red;">' + v + '</span>';
-                                        }else{
+                                        }
+                                        else
+                                        {
                                             return v;
                                         }
                                     }
@@ -403,9 +438,12 @@ Ext.define('App.view.patient.Results', {
                     ]
                 },
                 {
-                    xtype: 'form',
-                    title: _('radiology_observations'),
-                    itemId: 'radiologyResultForm',
+                    /**
+                     * Radiology Order Panel
+                     * ---------------------
+                     */
+                    xtype: 'panel',
+                    itemId: 'radiologyResultPanel',
                     frame: true,
                     layout: {
                         type: 'border'

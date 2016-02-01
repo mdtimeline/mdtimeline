@@ -53,16 +53,12 @@ Ext.define('App.ux.LiveRadsSearch', {
 			store: me.store,
 			displayField: 'loinc_name',
 			valueField: 'loinc_name',
-			emptyText: _('search') + '...',
+			emptyText: _('radiology_search') + '...',
 			typeAhead: false,
 			hideTrigger: true,
 			minChars: 1,
 			listConfig: {
 				loadingText: _('searching') + '...',
-				//emptyText	: 'No matching posts found.',
-				//---------------------------------------------------------------------
-				// Custom rendering template for each item
-				//---------------------------------------------------------------------
 				getInnerTpl: function(){
 					return '<div class="search-item"><h3>{loinc_name} ({loinc_number})</h3></div>';
 				}

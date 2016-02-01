@@ -62,12 +62,14 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 		me.callParent(arguments);
 	},
 
-	checkValidation: function(){
-		if(app.patient.pid){
-			var me = this,
-				form = me.down('form').getForm(),
-				record = form.getRecord();
-
+	checkValidation: function()
+    {
+        var me = this,
+            form = me.down('form').getForm(),
+            record = form.getRecord();
+        
+		if(app.patient.pid)
+        {
 			if(!record && a('add_encounters')){
 
 				me.loadRecord(
@@ -115,11 +117,7 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 			form = me.encForm.getForm(),
 			values = form.getValues(),
 			record = form.getRecord(),
-			isNew = record.data.eid === 0 ;
-
-		say('isValid');
-		say(form.isValid());
-
+			isNew = record.data.eid === 0;
 		if(form.isValid()){
 			if((isNew && a('add_encounters') || (!isNew && a('edit_encounters')))){
 				record.set(values);
@@ -143,8 +141,6 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 	},
 
 	loadRecord: function(record){
-		say(record);
-
 		this.encForm.getForm().loadRecord(record);
 	},
 

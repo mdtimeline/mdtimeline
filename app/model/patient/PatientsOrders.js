@@ -101,13 +101,42 @@ Ext.define('App.model.patient.PatientsOrders', {
 		{
 			name: 'order_type',
 			type: 'string',
-			comment: 'rad || lab',
+			comment: 'Order is radiology or laboratory.',
 			index: true
 		},
+        {
+            name: 'type',
+            type: 'string',
+            store: false,
+            convert: function(v, record)
+            {
+                switch(record.data.order_type)
+                {
+                    case 'lab':
+                        return _('laboratory');
+                        break;
+                    case 'rad':
+                        return _('radiology');
+                        break;
+                }
+            }
+        },
 		{
 			name: 'note',
 			type: 'string'
-		}
+		},
+        {
+            name: 'void',
+            type: 'boolean',
+            defaultValue: false,
+            comment: 'VOID the Order'
+        },
+        {
+            name: 'void_comment',
+            type: 'string',
+            comment: 'VOID Comments',
+            len: 100
+        }
 	],
 	proxy: {
 		type: 'direct',

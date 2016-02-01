@@ -25,16 +25,18 @@ Ext.override(Ext.form.Basic, {
 		// added the loadrecord to the form panel
         this.owner.fireEvent('loadrecord', this, this._record);
 
-		return this.setValues(record.getData());
+		return this.setValues(
+            record.getData()
+        );
     },
 
 	reset: function(resetRecord) {
-		Ext.suspendLayouts();
-
 		var me     = this,
 			fields = me.getFields().items,
 			f,
 			fLen   = fields.length;
+
+        Ext.suspendLayouts();
 
 		for (f = 0; f < fLen; f++) {
 			fields[f].reset();
@@ -206,7 +208,7 @@ Ext.override(Ext.AbstractComponent, {
 
         //added
         if(me.acl === false) {
-            say('enable access denied (ACL)');
+            say('Access denied (ACL)');
             return me;
         }
 
@@ -328,13 +330,9 @@ Ext.override(Ext.Component, {
 
 });
 
-
 Ext.override(Ext.data.writer.Writer, {
 	writeAllFields: false
 });
-
-
-
 
 Ext.override(Ext.data.proxy.Server, {
     // remoteGroup default to true
@@ -487,14 +485,6 @@ Ext.override(Ext.data.reader.Reader, {
 					'<p>'+ (typeof e.where != 'undefined' ? e.where.replace(/\n/g,'<br>') : e.data) +'</p>',
 				'error'
 			);
-//			Ext.Msg.show({
-//				title:'Exception!',
-//				msg:'<p><span style="font-weight:bold">'+ response.message +'</span></p><hr>' +
-//					'<p>'+ response.where.replace(/\n/g,'<br>') +'</p>',
-//				styleHtmlContent:true,
-//				buttons:Ext.Msg.OK,
-//				icon: Ext.Msg.ERROR
-//			});
 		});
 	}
 });
@@ -509,13 +499,11 @@ Ext.override(Ext.data.Store, {
 
 		if (modifiedFieldNames && Ext.Array.indexOf(modifiedFieldNames, groupField) !== -1) {
 
-
 			if (me.buffered) {
 				Ext.Error.raise({
 					msg: 'Cannot move records between groups in a buffered store record'
 				});
 			}
-
 
 			items = groups.items;
 			for (i = 0, len = items.length; i < len; ++i) {
@@ -534,11 +522,8 @@ Ext.override(Ext.data.Store, {
 			}
 			group.add(record);
 
-
-
 			me.data.remove(record);
 			me.data.insert(me.data.findInsertionIndex(record, me.generateComparator()), record);
-
 
 			for (i = 0, len = this.getCount(); i < len; i++) {
 				me.data.items[i].index = i;
@@ -798,8 +783,10 @@ Ext.override(Ext.container.Container, {
      * @param form
      */
     setFormFieldsClean: function(form){
-        var me = this, fields = form.getFields().items;
-        for(var i = 0; i < fields.length; i++){
+        var me = this,
+            fields = form.getFields().items,
+            i;
+        for(i = 0; i < fields.length; i++){
             if(fields[i].hasChanged){
                 me.setFieldClean(fields[i]);
             }
@@ -874,6 +861,20 @@ Ext.override(Ext.container.Container, {
             return '<div style="margin-left:auto; margin-right:auto; width:16px; height:16px"><img src="resources/images/icons/yes.gif" /></div>';
         }else if(val == '0' || val == false || val == 'false'){
             return '<div style="margin-left:auto; margin-right:auto; width:16px; height:16px"><img src="resources/images/icons/no.gif" /></div>';
+        }
+        return val;
+    },
+
+    /**
+     * A custom renderer to show VOIDed records in a Grid Panel.
+     * @param val
+     * @returns {*}
+     */
+    voidRenderer: function(val){
+        if(val == '1' || val == true || val == 'true'){
+            return '<div style="margin-left:auto; margin-right:auto; width:16px; height:16px"><img src="resources/images/icons/close_exit.png" /></div>';
+        }else if(val == '0' || val == false || val == 'false'){
+            return '';
         }
         return val;
     },

@@ -30,7 +30,15 @@ class ReportGenerator
     {
         try
         {
-            $this->site = $site;
+            if($_REQUEST['site'])
+            {
+                $this->site = $_REQUEST['site'];
+            }
+            else
+            {
+                $this->site = $site;
+            }
+
             if(!defined('_GaiaEXEC')) define('_GaiaEXEC', 1);
             require_once('../../../registry.php');
             require_once("../../../sites/$this->site/conf.php");

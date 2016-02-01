@@ -98,6 +98,13 @@ class Matcha {
 					PDO::ATTR_PERSISTENT => false,
 				));
 
+                // Check if the current version of PDO::MySQL has this parameter available
+                // If not activate it.
+                if( defined( 'PDO::MYSQL_ATTR_MAX_BUFFER_SIZE' ) )
+                {
+                    // Increase the size to 5MB
+                    self::$__conn->setAttribute(PDO::MYSQL_ATTR_MAX_BUFFER_SIZE, 1024 * 1024 * 5);
+                }
 				self::$__conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 				self::$__conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 				self::$__conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
@@ -243,6 +250,7 @@ class Matcha {
 		try{
 			if(!$table)
 				$table = (string)(is_array(MatchaModel::$__senchaModel['table']) ? MatchaModel::$__senchaModel['table']['name'] : MatchaModel::$__senchaModel['table']);
+
 
 			$colName = isset($column['mapping']) ? $column['mapping'] : $column['name'];
 			if(self::__rendercolumnsyntax($column) == true)

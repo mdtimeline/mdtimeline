@@ -27,7 +27,6 @@ class User {
 	 */
 	private $u;
 
-
 	/**
 	 * @var ACL
 	 */
@@ -229,7 +228,6 @@ class User {
 						       OR `u`.`username` LIKE ?');
 			$records = $this->u->all([$params->query, $params->query, $params->query ]);
 		}else{
-
 			foreach($acls as &$acl){
 				$acl = '`ap`.`perm_key` = \'' . $acl . '\'';
 			}

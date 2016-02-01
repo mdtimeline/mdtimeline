@@ -82,7 +82,8 @@ Ext.define('App.controller.patient.Medications', {
 				click: me.onPatientMedicationReconciledBtnClick
 			},
 			'#PatientMedicationUserLiveSearch': {
-				select: me.onPatientMedicationUserLiveSearchSelect
+				select: me.onPatientMedicationUserLiveSearchSelect,
+                reset: me.onPatientMedicationUserLiveSearchReset
 			},
 
 			// administer controls
@@ -153,7 +154,7 @@ Ext.define('App.controller.patient.Medications', {
 			title: app.user.title,
 			fname: app.user.fname,
 			mname: app.user.mname,
-			lname: app.user.lname,
+			lname: app.user.lname
 		});
 
 		grid.editingPlugin.startEdit(0, 0);
@@ -173,9 +174,21 @@ Ext.define('App.controller.patient.Medications', {
 	onPatientMedicationUserLiveSearchSelect: function(cmb, records){
 		var user = records[0],
 			record = cmb.up('form').getForm().getRecord();
-
+        record.set({fname: user.data.fname});
+        record.set({lname: user.data.lname});
+        record.set({mname: user.data.mname});
+        record.set({title: user.data.title});
 		record.set({administered_uid: user.data.id});
 	},
+
+    onPatientMedicationUserLiveSearchReset: function(cmb){
+        var record = cmb.up('form').getForm().getRecord();
+        record.set({fname: ''});
+        record.set({lname: ''});
+        record.set({mname: ''});
+        record.set({title: ''});
+        record.set({administered_uid: ''});
+    },
 
 	onAddPatientMedicationBtnClick: function(){
 		var me = this,

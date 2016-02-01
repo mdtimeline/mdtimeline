@@ -333,7 +333,11 @@ Ext.define('App.view.patient.Encounter', {
 							tooltip: _('print_progress_note'),
 							scope: me,
 							handler: function(){
-								var win = window.open('print.html', 'win', 'left=20,top=20,width=700,height=700,toolbar=0,resizable=1,location=1,scrollbars=1,menubar=0,directories=0');
+								var win = window.open(
+                                    'print.html',
+                                    'win',
+                                    'left=20,top=20,width=700,height=700,toolbar=0,resizable=1,location=1,scrollbars=1,menubar=0,directories=0'
+                                );
 								var dom = me.progressNote.body.dom;
 								var wrap = document.createElement('div');
 								var html = wrap.appendChild(dom.cloneNode(true));
@@ -351,7 +355,6 @@ Ext.define('App.view.patient.Encounter', {
 
 		me.panelToolBar = Ext.create('Ext.toolbar.Toolbar', {
 			dock: 'top',
-			//			ui:'footer',
 			defaults: {
 				scope: me,
 				handler: me.onToolbarBtnHandler
@@ -513,7 +516,11 @@ Ext.define('App.view.patient.Encounter', {
 	 */
 	onEncounterUpdate: function(SaveBtn){
 		var me = this,
-			form;
+			form,
+            values,
+            store,
+            record,
+            storeIndex;
 
 		if(SaveBtn.action == "encounter"){
 			form = me.newEncounterWindow.down('form').getForm();
@@ -522,10 +529,7 @@ Ext.define('App.view.patient.Encounter', {
 		}
 
 		if(form.isValid()){
-			var values = form.getValues(),
-				store,
-				record,
-				storeIndex;
+			values = form.getValues();
 
 			if(SaveBtn.action == 'encounter'){
 

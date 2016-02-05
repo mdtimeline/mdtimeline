@@ -20,12 +20,36 @@
 class ReportGenerator
 {
 
+    /**
+     * @var
+     */
     private $request;
+
+    /**
+     * @var
+     */
     public $reportDir;
+
+    /**
+     * @var
+     */
     public $format;
+
+    /**
+     * @var
+     */
     private $conn;
+
+    /**
+     * @var string
+     */
     private $site;
 
+    /**
+     * ReportGenerator constructor.
+     * It all begins here.
+     * @param string $site
+     */
     function __construct($site = 'default')
     {
         try
@@ -44,6 +68,7 @@ class ReportGenerator
             require_once("../../../sites/$this->site/conf.php");
             require_once('../../../classes/MatchaHelper.php');
             require_once('../../../classes/Array2XML.php');
+            return true;
         }
         catch(Exception $Error)
         {
@@ -52,6 +77,11 @@ class ReportGenerator
         }
     }
 
+    /**
+     * Set the REQUEST for sending.
+     * @param $REQUEST
+     * @return bool|Exception
+     */
     function setRequest($REQUEST)
     {
         try
@@ -61,6 +91,7 @@ class ReportGenerator
             $this->request = json_decode($REQUEST['params'], true);
             $this->reportDir = $REQUEST['reportDir'];
             $this->format = $REQUEST['format'];
+            return true;
         }
         catch(Exception $Error)
         {
@@ -68,7 +99,9 @@ class ReportGenerator
             return $Error;
         }
     }
-
+    /**
+     * @return Exception|string
+     */
     function getXSLTemplate()
     {
         try
@@ -90,17 +123,22 @@ class ReportGenerator
         }
     }
 
+    /**
+     * @return Exception|string
+     */
     function getXMLDocument()
     {
         try
         {
             $filePointer = "../reports/$this->reportDir/reportStatement.sql";
+            $PrepareField = [];
+
             if(file_exists($filePointer) && is_readable($filePointer))
             {
                 // Important connection parameter, this will allow multiple
                 // prepare tags with the same name.
                 $this->conn = Matcha::getConn();
-                $this->conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+                $this->conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
                 // Get the report SQL statement content
                 $fileContent = file_get_contents($filePointer);
@@ -128,13 +166,23 @@ class ReportGenerator
                 $Queries = explode(';', $PreparedSQL);
 
                 // Run all the SQL Statement separated by `;` in the file
+                $records = null;
                 foreach($Queries as $Query)
                 {
                     if(strlen(trim($Query)) > 0)
                     {
-                        $SQL = $this->conn->prepare($Query);
-                        $SQL->execute();
-                        $records[] = $SQL->fetchAll(PDO::FETCH_ASSOC);
+                        // Is just a SET @ variable, if yes query but not try to
+                        // fetch any records. SET does not return any dataSet
+                        if($this->checkIfVariable($Query))
+                        {
+                            $this->conn->query($Query);
+                        }
+                        else
+                        {
+                            $SQL = $this->conn->prepare($Query);
+                            $SQL->execute();
+                            $records[] = $SQL->fetchAll(PDO::FETCH_ASSOC);
+                        }
                     }
                 }
 
@@ -153,9 +201,22 @@ class ReportGenerator
         }
         catch(Exception $Error)
         {
-            error_log(print_r($Error,true));
+            error_log(print_r($Error->getMessage(),true));
             return $Error;
         }
+    }
+
+    /**
+     * checkIfVariable
+     * Check in the SQL statement if the current line is a variable, if not return false.
+     * @param $Statement
+     * @return bool
+     */
+    function checkIfVariable($Statement)
+    {
+        preg_match('/(?:set)+[^@]*@*/i', $Statement, $matches);
+        if(count($matches) >= 1) return true;
+        return false;
     }
 
     /**
@@ -167,7 +228,7 @@ class ReportGenerator
      * @param array $variables
      * @return mixed|string
      */
-    function PostPrepare($sqlStatement = '', $variables = array())
+    function PostPrepare($sqlStatement = '', $variables = [])
     {
         foreach($variables as $key => $variable)
         {

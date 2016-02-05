@@ -727,19 +727,16 @@ class MatchaCUP {
 				$this->sql = $this->buildUpdateSqlStatement($data, $where);
 				$this->rowsAffected = Matcha::$__conn->exec($this->sql);
 				self::callBackMethod([
-					//					'crc32' => crc32($this->sql),
 					'event' => 'UPDATE',
 					'sql' => $this->sql,
 					'data' => $data,
 					'table' => $this->table
 				]);
 				$this->record = $data;
-
 				// single object handler
 			} elseif(is_object($record)) {
 				$this->isSenchaRequest = true;
 				$this->record = $this->saveRecord($record);
-
 				// multiple objects handler
 			} else {
 				$this->isSenchaRequest = true;

@@ -1601,11 +1601,18 @@ Ext.define('App.ux.grid.LiveSearchGridPanel', {
 
 			me.store.each(function(record, idx){
 
-				var td = Ext.fly(me.view.getNode(record)).down('td'),
-					cell, matches, cellHTML, is_special;
+				var fly = Ext.fly(me.view.getNode(record)),
+					td, cell, matches, cellHTML, is_special;
 
+				if(fly == null) return;
+
+				td = fly.down('td');
 
 				while(td){
+
+					if(td == null){
+						break;
+					}
 
 					is_special = false;
 
@@ -2515,7 +2522,7 @@ Ext.define('App.ux.LiveImmunizationSearch', {
 	hideLabel: true,
 	displayField: 'name',
 	valueField: 'cvx_code',
-	emptyText: _('search_for_a_immunizations') + '...',
+	emptyText: _('immunization_search') + '...',
 	typeAhead: true,
 	minChars: 1,
 	initComponent: function(){
@@ -2556,62 +2563,6 @@ Ext.define('App.ux.LiveImmunizationSearch', {
 				loadingText: _('searching') + '...',
 				getInnerTpl: function(){
 					return '<div class="search-item">CVX - {cvx_code}: <span style="font-weight: normal;" class="list-status-{status}">{name} ({status})</span></div>';
-				}
-			},
-			pageSize: 10
-		});
-
-		me.callParent();
-	}
-});
-
-Ext.define('App.ux.LiveMedicationSearch', {
-	extend: 'Ext.form.ComboBox',
-	alias: 'widget.medicationlivetsearch',
-
-	initComponent: function(){
-		var me = this;
-
-		Ext.define('liveMedicationsSearchModel', {
-			extend: 'Ext.data.Model',
-			fields: [
-				{ name: 'id' },
-				{ name: 'PROPRIETARYNAME' },
-				{ name: 'PRODUCTNDC' },
-				{ name: 'NONPROPRIETARYNAME' },
-				{ name: 'ACTIVE_NUMERATOR_STRENGTH' },
-				{ name: 'ACTIVE_INGRED_UNIT' }
-			],
-			proxy: {
-				type: 'direct',
-				api: {
-					read: 'Rxnorm.getRXNORMLiveSearch'
-				},
-				reader: {
-					totalProperty: 'totals',
-					root: 'rows'
-				}
-			}
-		});
-
-		me.store = Ext.create('Ext.data.Store', {
-			model: 'liveMedicationsSearchModel',
-			pageSize: 10,
-			autoLoad: false
-		});
-
-		Ext.apply(this, {
-			store: me.store,
-			displayField: 'PROPRIETARYNAME',
-			valueField: 'id',
-			emptyText: _('search_for_a_medication') + '...',
-			typeAhead: false,
-			hideTrigger: true,
-			minChars: 1,
-			listConfig: {
-				loadingText: _('searching') + '...',
-				getInnerTpl: function(){
-					return '<div class="search-item"><h3>{PROPRIETARYNAME}<span style="font-weight: normal"> ({NONPROPRIETARYNAME}) </span></h3>{ACTIVE_NUMERATOR_STRENGTH} | {ACTIVE_INGRED_UNIT}</div>';
 				}
 			},
 			pageSize: 10
@@ -9948,13 +9899,17 @@ Ext.define('App.ux.window.Window', {
 
 	setReadOnly: function() {
 		var forms = this.query('form'),
-			readOnly = app.patient.readOnly;
-		for(var j = 0; j < forms.length; j++) {
-			var form = forms[j], items;
+			readOnly = app.patient.readOnly,
+            j,
+            form,
+            k,
+            items;
+		for(j = 0; j < forms.length; j++) {
+			form = forms[j], items;
 			if(form.readOnly != readOnly){
 				form.readOnly = readOnly;
 				items = form.getForm().getFields().items;
-				for(var k = 0; k < items.length; k++) {
+				for(k = 0; k < items.length; k++) {
 					items[k].setReadOnly(readOnly);
 				}
 			}
@@ -9963,9 +9918,11 @@ Ext.define('App.ux.window.Window', {
 	},
 
 	setButtonsDisabled:function(buttons){
-		var disable = app.patient.readOnly;
-		for(var i = 0; i < buttons.length; i++) {
-			var btn = buttons[i];
+		var disable = app.patient.readOnly,
+            i,
+            btn;
+		for(i = 0; i < buttons.length; i++) {
+			btn = buttons[i];
 			if(btn.disabled != disable){
 				btn.disabled = disable;
 				btn.setDisabled(disable)
@@ -9997,10 +9954,11 @@ Ext.define('App.ux.window.Window', {
 	},
 
 	getFormItems: function(formPanel, formToRender, callback) {
-		formPanel.removeAll();
+        var items;
 
+		formPanel.removeAll();
 		FormLayoutEngine.getFields({formToRender: formToRender}, function(provider, response) {
-			var items = eval(response.result);
+			items = eval(response.result);
 			formPanel.add(items);
 			if(typeof callback == 'function') {
 				callback(formPanel, items, true);
@@ -10053,14 +10011,16 @@ Ext.define('App.ux.window.Window', {
 	},
 
 	passwordVerificationWin: function(callback) {
-		var msg = Ext.Msg.prompt(_('password_verification'), _('please_enter_your_password') + ':', function(btn, password) {
+        var msg, f;
+		msg = Ext.Msg.prompt(_('password_verification'), _('please_enter_your_password') + ':', function(btn, password) {
 			callback(btn, password);
 		});
-		var f = msg.textField.getInputId();
+		f = msg.textField.getInputId();
 		document.getElementById(f).type = 'password';
 		return msg;
 	}
 });
+
 Ext.define('App.view.search.PatientSearch',
 {
 	extend : 'App.ux.RenderPanel',
@@ -10470,7 +10430,7 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 
 		Ext.apply(this, {
 			store: me.store,
-			emptyText: _('search') + '...',
+			emptyText: _('medication_search') + '...',
 			typeAhead: false,
 			hideTrigger: true,
 			minChars: 3,
@@ -21003,7 +20963,13 @@ Ext.define('App.view.dashboard.panel.PortalDropZone', {
     notifyOver: function(dd, e, data) {
         var xy = e.getXY(),
             portal = this.portal,
-            proxy = dd.proxy;
+            proxy = dd.proxy,
+            cw,
+            colIndex,
+            colRight,
+            cols,
+            len,
+            cmatch;
 
         // case column widths
         if (!this.grid) {
@@ -21011,7 +20977,7 @@ Ext.define('App.view.dashboard.panel.PortalDropZone', {
         }
 
         // handle case scroll where scrollbars appear during drag
-        var cw = portal.body.dom.clientWidth;
+        cw = portal.body.dom.clientWidth;
         if (!this.lastCW) {
             // set initial client width
             this.lastCW = cw;
@@ -21023,11 +20989,11 @@ Ext.define('App.view.dashboard.panel.PortalDropZone', {
         }
 
         // determine column
-        var colIndex = 0,
-            colRight = 0,
-            cols = this.grid.columnX,
-            len = cols.length,
-            cmatch = false;
+        colIndex = 0,
+        colRight = 0,
+        cols = this.grid.columnX,
+        len = cols.length,
+        cmatch = false;
 
         for (len; colIndex < len; colIndex++) {
             colRight = cols[colIndex].x + cols[colIndex].w;
@@ -23523,8 +23489,6 @@ Ext.define('App.view.patient.DoctorsNotes', {
 				{
 					icon: 'resources/images/icons/cross.png',
 					tooltip: _('remove')
-					//					scope: me,
-					//					handler: me.onRemoveClick
 				}
 			]
 		},
@@ -23666,6 +23630,7 @@ Ext.define('App.view.patient.DoctorsNotes', {
 		}
 	]
 });
+
 Ext.define('App.store.patient.PatientImmunization', {
 	extend: 'Ext.data.Store',
 	model: 'App.model.patient.PatientImmunization'
@@ -24868,12 +24833,16 @@ Ext.define('App.view.patient.Results', {
         'Ext.tab.Panel',
 		'App.store.patient.PatientsOrders',
 		'App.ux.LiveLabsSearch',
-        'App.ux.LiveRadsSearch'
+        'App.ux.LiveRadsSearch',
+        'App.ux.window.voidComment'
 	],
 	title: _('results'),
 	xtype: 'patientresultspanel',
 	layout: 'border',
     border: false,
+    init: function() {
+        var voidCommentWindow;
+    },
 	items: [
 		{
             /**
@@ -24917,9 +24886,44 @@ Ext.define('App.view.patient.Results', {
 					]
 				},
                 {
+                    header: _('void'),
+                    itemid: 'voidField',
+                    groupable: false,
+                    width: 30,
+                    align: 'center',
+                    dataIndex: 'void',
+                    tooltip: _('void'),
+                    editor:
+                    {
+                        xtype: 'checkbox',
+                        listeners:
+                        {
+                            change: function( chkbox )
+                            {
+                                if(!this.voidCommentWindow)
+                                    this.voidCommentWindow = Ext.create('App.ux.window.voidComment');
+                                this.voidCommentWindow.showAt(chkbox.getXY());
+                            }
+                        }
+                    },
+                    renderer: function(v, meta, record)
+                    {
+                        return app.voidRenderer(v);
+                    }
+                },
+                {
                     header: _('type'),
                     width: 100,
                     dataIndex: 'order_type',
+                    renderer: function(v, meta, record)
+                    {
+                        var style = '';
+                        if(record.data.void) style = 'text-decoration: line-through;';
+                        if(record.data.order_type == 'lab')
+                            return '<span style="'+style+'">'+_('laboratory')+'</span>';
+                        if(record.data.order_type == 'rad')
+                            return '<span style="'+style+'">'+_('radiology')+'</span>';
+                    },
                     editor: {
                         xtype: 'combobox',
                         itemId: 'orderTypeCombo',
@@ -24948,6 +24952,15 @@ Ext.define('App.view.patient.Results', {
                     editor: {
                         xtype: 'datefield',
                         allowBlank: false
+                    },
+                    renderer: function(v, meta, record)
+                    {
+                        var dataOrdered = record.data.date_ordered;
+                        if(record.data.void)
+                        {
+                            return '<span style="text-decoration: line-through;">'+dataOrdered+'</span>';
+                        }
+                        return '<span>'+dataOrdered+'</span>';
                     }
                 },
 				{
@@ -24955,14 +24968,30 @@ Ext.define('App.view.patient.Results', {
 					dataIndex: 'description',
 					menuDisabled: true,
 					resizable: false,
-					flex: 1
+					flex: 1,
+                    renderer: function(v, meta, record)
+                    {
+                        if(record.data.void)
+                        {
+                            return '<span style="text-decoration: line-through;">'+ v + '</span>';
+                        }
+                        return '<span>'+ v + '</span>';
+                    }
 				},
 				{
 					header: _('status'),
 					dataIndex: 'status',
 					menuDisabled: true,
 					resizable: false,
-					width: 60
+					width: 60,
+                    renderer: function(v, meta, record)
+                    {
+                        if(record.data.void)
+                        {
+                            return '<span style="text-decoration: line-through;">'+ v + '</span>';
+                        }
+                        return '<span>'+ v + '</span>';
+                    }
 				}
 			],
 			bbar: [
@@ -31619,7 +31648,7 @@ Ext.define('App.view.administration.PreventiveCare',
 						}],
 						bbar :
 						{
-							xtype : 'medicationlivetsearch',
+							xtype : 'rxnormlivetsearch',
 							margin : 5,
 							fieldLabel : _('add_problem'),
 							hideLabel : false,
@@ -31878,6 +31907,7 @@ Ext.define('App.view.administration.PreventiveCare',
 	}
 });
 //ens servicesPage class
+
 Ext.define('App.model.administration.AclGroup', {
 	extend: 'Ext.data.Model',
 	table: {
@@ -44856,10 +44886,12 @@ Ext.define('App.view.patient.LabOrders', {
             align: 'center',
             dataIndex: 'void',
             tooltip: _('void'),
-            editor: {
+            editor:
+            {
                 xtype: 'checkbox'
             },
-            renderer: function(v, meta, record){
+            renderer: function(v, meta, record)
+            {
                 return app.voidRenderer(v);
             }
 		},
@@ -45344,7 +45376,7 @@ Ext.define('App.ux.LiveSnomedProcedureSearch', {
 	hideLabel: true,
 	displayField: 'FullySpecifiedName',
 	valueField: 'ConceptId',
-	emptyText: _('search') + '...',
+	emptyText: _('procedure_search') + '...',
 	typeAhead: false,
 	hideTrigger: true,
 	minChars: 3,
@@ -46876,7 +46908,7 @@ Ext.define('App.ux.LiveSnomedProblemSearch', {
 	hideLabel: true,
 	displayField: 'FullySpecifiedName',
 	valueField: 'ConceptId',
-	emptyText: _('search') + '...',
+	emptyText: _('problem_search') + '...',
 	typeAhead: false,
 	hideTrigger: true,
 	minChars: 3,
@@ -46945,6 +46977,7 @@ Ext.define('App.ux.LiveSnomedProblemSearch', {
 		});
 	}
 });
+
 Ext.define('App.view.patient.SmokingStatus', {
 	extend: 'Ext.grid.Panel',
 	requires: [
@@ -51067,8 +51100,9 @@ Ext.define('App.view.patient.Summary', {
 				columns: [
 					{
 						xtype: 'datecolumn',
-						format: 'Y-m-d',
+						format: 'Y-m-d h:i:s',
 						text: _('date'),
+                        with: 220,
 						dataIndex: 'date'
 					},
 					{
@@ -51442,6 +51476,7 @@ Ext.define('App.view.patient.Summary', {
 		}
 	}
 });
+
 Ext.define('App.controller.administration.Roles', {
 	extend: 'Ext.app.Controller',
 
@@ -51900,7 +51935,7 @@ Ext.define('App.controller.Scanner', {
 		};
 
 		me.ws.onerror = function(){
-			app.msg(_('oops'), _('no_scanner_service_found'), true);
+			say(_('no_scanner_service_found'));
 		};
 
 		me.ws.onmessage = function(evt){
@@ -55751,7 +55786,7 @@ Ext.define('App.ux.LiveAllergiesSearch', {
 
 		Ext.apply(this, {
 			store: me.store,
-			emptyText: _('search') + '...',
+			emptyText: _('allergy_search') + '...',
 			typeAhead: false,
 			hideTrigger: true,
 			minChars: 3,
@@ -55767,6 +55802,7 @@ Ext.define('App.ux.LiveAllergiesSearch', {
 		me.callParent();
 	}
 });
+
 Ext.define('App.view.patient.Allergies', {
 	extend: 'Ext.grid.Panel',
 	requires: [
@@ -56398,12 +56434,6 @@ Ext.define('App.view.patient.Encounter', {
 			);
 		}
 
-		//if(me.enableFamilyHistory && a('access_family_history')){
-		//	me.familyHistoryPanel = me.encounterTabPanel.add(
-		//		Ext.create('App.view.patient.encounter.FamilyHistory')
-		//	);
-		//}
-
 		if(me.enableItemsToReview && a('access_itmes_to_review')){
 			me.itemsToReview = me.encounterTabPanel.add(
 				Ext.create('App.view.patient.ItemsToReview', {
@@ -56822,8 +56852,11 @@ Ext.define('App.view.patient.Encounter', {
 		App.model.patient.Encounter.load(eid, {
 			scope: me,
 			callback: function(record){
+                var timer,
+                    data;
+
 				me.encounter = record;
-				var data = me.encounter.data;
+				data = me.encounter.data;
 
 				// set pid globally for convenient use
 				me.pid = data.pid;
@@ -56841,7 +56874,7 @@ Ext.define('App.view.patient.Encounter', {
 					me.setButtonsDisabled(me.getButtonsToDisable());
 				}else{
 					if(me.stopTimer()){
-						var timer = me.timer(data.service_date, data.close_date),
+						timer = me.timer(data.service_date, data.close_date),
 							patient = app.patient;
 
 						me.updateTitle(patient.name + ' - ' + patient.sexSymbol + ' - ' + patient.age.str + ' - ' + Ext.Date.format(me.currEncounterStartDate, 'F j, Y, g:i:s a') + ' (' + _('closed_encounter') + ')', app.patient.readOnly, timer);
@@ -56854,20 +56887,6 @@ Ext.define('App.view.patient.Encounter', {
 					store.on('write', me.getProgressNote, me);
 					me.reviewSysPanel.getForm().loadRecord(store.getAt(0));
 				}
-
-				//if(me.familyHistoryPanel){
-				//	store = me.encounter.familyhistory();
-				//	store.on('write', me.getProgressNote, me);
-				//	if(!store.last()){
-				//		store.add({
-				//			pid: data.pid,
-				//			eid: data.eid,
-				//			create_uid: app.user.id,
-				//			create_date: new Date()
-				//		});
-				//	}
-				//	me.familyHistoryPanel.getForm().loadRecord(store.last());
-				//}
 
 				if(me.reviewSysCkPanel){
 					store = me.encounter.reviewofsystemschecks();
@@ -56904,9 +56923,6 @@ Ext.define('App.view.patient.Encounter', {
 
 				App.app.getController('patient.ProgressNotesHistory').loadPatientProgressHistory(data.pid, data.eid);
 
-
-				//if(app.PreventiveCareWindow) app.PreventiveCareWindow.loadPatientPreventiveCare();
-
 				app.setEncounterClose(record.isClose());
 
 				app.fireEvent('encounterload', me.encounter);
@@ -56942,11 +56958,12 @@ Ext.define('App.view.patient.Encounter', {
 				}
 
 				Encounter.signEncounter(values, function(provider, response){
+                    var params;
 					if(response.result.success){
 						if(me.stopTimer()){
-
+S;
 							/** default data for notes and reminder **/
-							var params = {
+							params = {
 								pid: me.pid,
 								eid: me.eid,
 								uid: app.user.id,
@@ -57014,27 +57031,6 @@ Ext.define('App.view.patient.Encounter', {
 			//me.progressNote.tpl.overwrite(me.progressNote.body, response.result);
 		//});
 	},
-
-	//getProgressNotesHistory: function(){
-	//	var me = this,
-	//		soaps;
-	//
-	//	me.progressHistory.removeAll();
-	//	Encounter.getSoapHistory({pid: me.encounter.data.pid, eid: me.encounter.data.eid}, function(provider, response){
-	//		soaps = response.result;
-	//		for(var i = 0; i < soaps.length; i++){
-	//			me.progressHistory.add(Ext.create('Ext.form.FieldSet', {
-	//				styleHtmlContent: true,
-	//				title: '<span style="font-weight: bold; font-size: 14px;">' + soaps[i].service_date + '</span>',
-	//				html: '<strong>' + _('chief_complaint') + ':</strong> ' + (soaps[i].brief_description ? Ext.String.htmlDecode(soaps[i].brief_description) : 'none') + '<br>' +
-	//				'<strong>' + _('subjective') + ':</strong> ' + (soaps[i].subjective ? Ext.String.htmlDecode(soaps[i].subjective) : 'none') + '<br>' +
-	//				'<strong>' + _('objective') + ':</strong> ' + (soaps[i].objective ? Ext.String.htmlDecode(soaps[i].objective) : 'none') + '<br>' +
-	//				'<strong>' + _('assessment') + ':</strong> ' + (soaps[i].assessment ? Ext.String.htmlDecode(soaps[i].assessment) : 'none') + '<br>' +
-	//				'<strong>' + _('plan') + ':</strong> ' + (soaps[i].plan ? Ext.String.htmlDecode(soaps[i].plan) : 'none')
-	//			}))
-	//		}
-	//	})
-	//},
 
 	onTapPanelChange: function(panel){
 		//if(panel.card.itemId == 'encounter'){

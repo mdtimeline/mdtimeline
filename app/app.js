@@ -24957,9 +24957,7 @@ Ext.define('App.view.patient.Results', {
                     {
                         var dataOrdered = record.data.date_ordered;
                         if(record.data.void)
-                        {
                             return '<span style="text-decoration: line-through;">'+dataOrdered+'</span>';
-                        }
                         return '<span>'+dataOrdered+'</span>';
                     }
                 },
@@ -24972,9 +24970,7 @@ Ext.define('App.view.patient.Results', {
                     renderer: function(v, meta, record)
                     {
                         if(record.data.void)
-                        {
                             return '<span style="text-decoration: line-through;">'+ v + '</span>';
-                        }
                         return '<span>'+ v + '</span>';
                     }
 				},
@@ -24987,9 +24983,7 @@ Ext.define('App.view.patient.Results', {
                     renderer: function(v, meta, record)
                     {
                         if(record.data.void)
-                        {
                             return '<span style="text-decoration: line-through;">'+ v + '</span>';
-                        }
                         return '<span>'+ v + '</span>';
                     }
 				}
@@ -57797,16 +57791,6 @@ Ext.define('App.view.Viewport', {
                             text: _('forums'),
 	                        action: 'supportBtn',
 	                        src: 'http://gaiaehr.org/forums/'
-                        },
-                        '-',
-                        {
-                            text: '<span style="color: red">'+_('FACTORY RESET')+'</span>',
-                            scope: me,
-	                        //TODO: VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
-	                        //TODO: remove this!!! hide if not localhost for now
-	                        //TODO: VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
-	                        hidden: window.location.hostname != 'localhost',
-                            handler: me.resetApp
                         }
                     ]
                 }
@@ -58601,25 +58585,6 @@ Ext.define('App.view.Viewport', {
 	        maxWidth: 1200,
 	        modal: false
         });
-    },
-
-    resetApp:function(){
-	    Ext.Msg.show({
-		    title:'WAIT!!! FOR DEBUG ONLY',
-		    msg: 'This will erase all patients and related data. Do you want to continue?',
-		    buttons: Ext.Msg.YESNO,
-		    icon: Ext.Msg.QUESTION,
-		    fn:function(btn){
-				if(btn == 'yes'){
-					Ext.Ajax.request({
-						url: 'sql/factoryReset.php',
-						success: function(response){
-							alert(response.responseText);
-						}
-					});
-				}
-		    }
-	    });
     },
 
 	fullname: function(title, fname, name, lname){

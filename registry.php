@@ -80,9 +80,34 @@ $_SESSION['client']['os'] = (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERV
 // default site
 $site = (isset($_GET['site']) ? $_GET['site'] : 'default');
 
-if(!isset($_SESSION['styles'])){
-	$_SESSION['styles'] = [];
+/**
+ * Enable the error and also set the ROOT directory for
+ * the error log. But checks if the files exists and is
+ * writable.
+ *
+ * NOTE: This should be part of Matcha::Connect
+ */
+error_reporting(-1);
+ini_set('display_errors', 1);
+$logPath = ROOT.'/sites/'.$site.'/log/';
+$logFile = 'error_log.txt';
+$oldUmask = umask(0);
+clearstatcache();
+// Check the directory first.
+if(!file_exists($logPath)) mkdir($logPath, 0775, true);
+// Check the log file.
+if(!file_exists($logPath.$logFile))
+{
+    touch($logPath.$logFile);
+    chmod($logPath.$logFile, 0775);
 }
+if(is_writable($logPath.$logFile)) ini_set('error_log', $logPath.$logFile);
+umask($oldUmask);
+
+//
+//if(!isset($_SESSION['styles'])){
+//	$_SESSION['styles'] = [];
+//}
 
 if(file_exists(ROOT. '/sites/' . $site . '/conf.php')){
 	include_once(ROOT. '/sites/' . $site . '/conf.php');

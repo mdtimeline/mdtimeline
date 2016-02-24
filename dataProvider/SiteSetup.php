@@ -30,6 +30,7 @@ class SiteSetup {
 	function __construct() {
 		chdir(ROOT);
         error_reporting(-1);
+		$olSMASK = umask(0);
         ini_set('display_errors', 'On');
         if(file_exists(ROOT.'/log/install_error_log.txt'))
         {
@@ -38,6 +39,7 @@ class SiteSetup {
                 ini_set('error_log', ROOT.'/log/install_error_log.txt');
             }
         }
+		umask($olSMASK);
 	}
 
 	/*
@@ -321,9 +323,11 @@ class SiteSetup {
     private function createDirectory($dirPath){
         try
         {
+	        $oldMask = umask(0);
             if(!file_exists($dirPath)) mkdir($dirPath, 0755, true);
             if(!is_writable($dirPath)) chmod($dirPath, 0755);
             return true;
+	        umask($oldMask);
         }
         catch(Exception $Error)
         {
@@ -343,7 +347,9 @@ class SiteSetup {
     {
         try
         {
+	        $oldMask = umask(0);
             if(!file_exists($file)) touch($file);
+	        umask($oldMask);
             return true;
         }
         catch(Exception $Error)
@@ -380,7 +386,7 @@ class SiteSetup {
                         return ['success' => true];
                     } else {
                         FileManager::rmdir_recursive("sites/$params->siteId");
-                        throw new Exception($this->conn->errorInfo());
+                        throw new Exception($this->conn->errorInfo()[2]);
                     }
 
                 } else {

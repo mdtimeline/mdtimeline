@@ -8,6 +8,7 @@ Ext.define('Modules.reportcenter.view.ReportCenter', {
 	pageTitle: _('report_center'),
     itemId: 'ReportCenterPanel',
     requires: [
+        'App.ux.grid.GridToHtml'
     ],
     pageBody: [
         // Report List
@@ -60,9 +61,25 @@ Ext.define('Modules.reportcenter.view.ReportCenter', {
             maximized: false,
             minimizable: false,
             modal: false,
+            autoScroll: false,
             items:[
-                filterDisplayPanel,
-                dataGridPanel
+                {
+                    xtype: 'panel',
+                    region: 'center',
+                    itemId: 'reportPanel',
+                    autoScroll: false,
+                    items:[
+                        {
+                            xtype: 'panel',
+                            frame: false,
+                            border: false,
+                            itemId: 'filterDisplayPanel',
+                            region: 'north',
+                            html: '',
+                            autoScroll: true
+                        }
+                    ]
+                }
             ],
             dockedItems: [{
                 xtype: 'toolbar',
@@ -70,20 +87,22 @@ Ext.define('Modules.reportcenter.view.ReportCenter', {
                 items: [
                     {
                         xtype: 'button',
-                        text: _('create_pdf'),
-                        itemId: 'createPdf'
-                    },
-                    '-',
-                    {
-                        xtype: 'button',
-                        text: _('create_html'),
-                        itemId: 'createHtml'
+                        text: _('render'),
+                        itemId: 'render'
                     },
                     '->',
                     {
                         xtype: 'button',
+                        text: _('create_pdf'),
+                        itemId: 'createPdf',
+                        disabled: true
+                    },
+                    '-',
+                    {
+                        xtype: 'button',
                         text: _('print'),
-                        itemId: 'print'
+                        itemId: 'print',
+                        disabled: true
                     }
                 ]
             }]

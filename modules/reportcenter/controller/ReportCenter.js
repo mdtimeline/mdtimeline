@@ -44,8 +44,8 @@ Ext.define('Modules.reportcenter.controller.ReportCenter', {
             selector: '#reportWindow #reportRender'
         },
         {
-            ref: 'PrintButton',
-            selector: '#reportWindow #print'
+            ref: 'ExportButton',
+            selector: '#reportWindow #export'
         },
         {
             ref: 'ReportPanel',
@@ -71,8 +71,8 @@ Ext.define('Modules.reportcenter.controller.ReportCenter', {
             '#reportWindow':{
                 beforehide: me.onReportWindowBeforeHide
             },
-            '#reportWindow #print':{
-                click: me.onPrint
+            '#reportWindow #export':{
+                click: me.onExport
             },
             '#reportWindow #render':{
                 click: me.onRender
@@ -144,26 +144,44 @@ Ext.define('Modules.reportcenter.controller.ReportCenter', {
 
         // Clear the HTML in the filter display panel
         // and destroys the Data Grid, on the reportWindow
-        if(this.getReportFilterPanel()) this.getReportFilterPanel().update('', true);
+        this.getFilterDisplayPanel().update('');
         if(reportDataGrid) reportDataGrid.destroy();
     },
 
     /**
-     * Print report event, this procedure will print the report on the printer.
+     * Export report event, this procedure will export the report.
      */
-    onPrint: function()
+    onExport: function()
     {
-        var reportDataGrid = Ext.ComponentQuery.query('#reportWindow #reportDataGrid')[0];
-        Ext.ux.grid.Printer.stylesheetPath = 'app/ux/grid/gridPrinterCss/print.css';
-        Ext.ux.grid.Printer.mainTitle = this.reportInformation.title;
-        Ext.ux.grid.Printer.filtersHtml = this.getFilterDisplayPanel().body.dom.outerHTML;
-        Ext.ux.grid.Printer.printAutomatically = false;
-        Ext.ux.grid.Printer.print(reportDataGrid);
+        var reportDataGrid = Ext.ComponentQuery.query('#reportWindow #reportDataGrid')[0],
+            me = this,
+            data = me.getFilterDisplayPanel().body.dom.outerHTML;
+
+        // Call the Audit Log, server method to save audit log
+        TransactionLog.saveExportLog(data, function(response)
+        {
+            if(response.success)
+            {
+                // Prepare the print friendly HTML, this will open a new tab or window with
+                // the HTML data ready to print.
+                Ext.ux.grid.Printer.stylesheetPath = 'app/ux/grid/gridPrinterCss/print.css';
+                Ext.ux.grid.Printer.mainTitle = me.reportInformation.title;
+                Ext.ux.grid.Printer.filtersHtml = data;
+                Ext.ux.grid.Printer.printAutomatically = false;
+                Ext.ux.grid.Printer.print(reportDataGrid);
+            }
+            else
+            {
+                Ext.Msg.alert(_('error'), 'Could not save audit log into database.');
+            }
+            return;
+        });
     },
 
-    onRender: function(){
+    onRender: function()
+    {
         this.generateDocument('html');
-        this.getPrintButton().enable();
+        this.getExportButton().enable();
     },
 
     /**
@@ -179,10 +197,12 @@ Ext.define('Modules.reportcenter.controller.ReportCenter', {
             parameters = {},
             Index,
             sumarizedParameters,
-            me = this;
+            me = this,
+            reportDataGrid;
 
         // Validate the form, check if a field as a validation rule
-        if(!form.isValid()) {
+        if(!form.isValid())
+        {
             Ext.Msg.alert(_('error'), _('please_check_form'));
             return;
         }
@@ -200,6 +220,7 @@ Ext.define('Modules.reportcenter.controller.ReportCenter', {
             parameters[Index] = {};
             switch(fields.items[Index].xtype){
                 case 'datefield':
+                case 'timefield':
                     parameters[Index].name = fields.items[Index].name;
                     if(fields.items[Index].submitFormat) {
                         parameters[Index].value = Ext.util.Format.date(
@@ -229,12 +250,12 @@ Ext.define('Modules.reportcenter.controller.ReportCenter', {
         // object, the server will parse several files and bring back a welll formatted Sencha Ext object
         // in a string, and then run de code in JavaScript.
         ReportGenerator.buildDataGrid(summarizedParameters, function(response){
-            var senchaCode;
             if(response.success)
             {
                 me.getReportPanel().add(
                     eval(Ext.htmlDecode(response.data))
                 );
+                me.reportDataGrid = Ext.ComponentQuery.query('#reportWindow #reportDataGrid')[0];
             }
             else
             {
@@ -248,10 +269,10 @@ Ext.define('Modules.reportcenter.controller.ReportCenter', {
             var dataStore;
             if(response.success)
             {
+                me.getFilterDisplayPanel().update(response.filters.data);
                 dataStore = Ext.getStore('reportStore');
                 dataStore.clearData();
                 dataStore.loadData(response.data);
-                me.getFilterDisplayPanel().update(response.filters.data);
             }
             else
             {

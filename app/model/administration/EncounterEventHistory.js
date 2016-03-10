@@ -16,72 +16,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.model.administration.TransactionLog', {
+Ext.define('App.model.administration.EncounterEventHistory', {
     extend: 'Ext.data.Model',
     table: {
-        name: 'audit_transaction_log',
-        comment: 'Data INSERT UPDATE DELETE Logs'
+        name: 'encounter_event_history',
+        comment: 'Encounter Event History'
     },
     fields: [
         {
-            name: 'id',
-            type: 'int'
-        },
-        {
-            name: 'date',
-            type: 'date',
-            dateFormat: 'Y-m-d H:i:s',
-            comment: 'Date of the event'
-        },
-        {
-            name: 'pid',
+            name: 'c',
             type: 'int',
-            comment: 'Patient ID'
+            comment: 'Encounter Event History ID'
         },
         {
             name: 'eid',
             type: 'int',
-            comment: 'Encounter ID'
+            comment: 'Encounter ID',
+            index: true
+        },
+        {
+            name: 'pid',
+            type: 'int',
+            comment: 'Patient ID',
+            index: true
         },
         {
             name: 'uid',
             type: 'int',
-            comment: 'User ID'
+            comment: 'User ID',
+            index: true
         },
         {
             name: 'fid',
             type: 'int',
-            comment: 'Facility ID'
+            comment: 'Facility ID',
+            index: true
         },
         {
             name: 'event',
             type: 'string',
-            len: 10,
-            comment: 'Event UPDATE INSERT DELETE'
-        },
-        {
-            name: 'table_name',
-            type: 'string',
-            len: 60
-        },
-        {
-            name: 'sql_string',
-            type: 'string',
-            dataType: 'mediumtext'
-        },
-        {
-            name: 'data',
-            type: 'array',
-            dataType: 'mediumtext',
-            comment: 'serialized data',
-            convert: function (v, record) {
-                return record.serializeEventData(v);
-            }
-        },
-        {
-            name: 'ip',
-            type: 'string',
-            len: 40
+            len: 200,
+            comment: 'Event description'
         },
         {
             name: 'user_title',
@@ -127,12 +102,12 @@ Ext.define('App.model.administration.TransactionLog', {
             name: 'user_name',
             type: 'string',
             store: false,
-            convert: function (v, record) {
+            convert: function(v, record){
                 var str = '';
-                if (record.data.user_title) str += record.data.user_title + ' ';
-                if (record.data.user_fname) str += record.data.user_fname + ' ';
-                if (record.data.user_mname) str += record.data.user_mname + ' ';
-                if (record.data.user_lname) str += record.data.user_lname;
+                if(record.data.user_title) str += record.data.user_title + ' ';
+                if(record.data.user_fname) str += record.data.user_fname + ' ';
+                if(record.data.user_mname) str += record.data.user_mname + ' ';
+                if(record.data.user_lname) str += record.data.user_lname;
                 return str;
             }
         },
@@ -140,42 +115,32 @@ Ext.define('App.model.administration.TransactionLog', {
             name: 'patient_name',
             type: 'string',
             store: false,
-            convert: function (v, record) {
+            convert: function(v, record){
                 var str = '';
-                if (record.data.patient_title) str += record.data.patient_title + ' ';
-                if (record.data.patient_fname) str += record.data.patient_fname + ' ';
-                if (record.data.patient_mname) str += record.data.patient_mname + ' ';
-                if (record.data.patient_lname) str += record.data.patient_lname;
+                if(record.data.patient_title) str += record.data.patient_title + ' ';
+                if(record.data.patient_fname) str += record.data.patient_fname + ' ';
+                if(record.data.patient_mname) str += record.data.patient_mname + ' ';
+                if(record.data.patient_lname) str += record.data.patient_lname;
                 return str;
             }
         },
         {
-            name: 'valid',
-            type: 'bool',
-            store: false
-        },
-        {
-            name: 'checksum',
-            type: 'string',
-            len: 80
+            name: 'date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s',
+            comment: 'Date of the event'
         }
     ],
     proxy: {
         type: 'direct',
         api: {
-            read: 'TransactionLog.getLogs'
+            read: 'EncounterEventHistory.getLogs',
+            create: 'EncounterEventHistory.setLog',
+            update: 'EncounterEventHistory.setLog'
         },
         reader: {
+            totalProperty: 'totals',
             root: 'data'
         }
-    },
-    serializeEventData: function (data) {
-        var str = '';
-        Ext.Object.each(data, function (key, value) {
-            str += key + ' - ' + value + '<br>';
-        });
-        return str;
-
-
     }
 });

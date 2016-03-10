@@ -68,7 +68,8 @@ Ext.define('Modules.reportcenter.view.ReportCenter', {
                     xtype: 'panel',
                     region: 'center',
                     itemId: 'reportPanel',
-                    autoScroll: false,
+                    layout: 'border',
+                    autoScroll: true,
                     items:[
                         {
                             xtype: 'panel',
@@ -94,8 +95,8 @@ Ext.define('Modules.reportcenter.view.ReportCenter', {
                     '->',
                     {
                         xtype: 'button',
-                        text: _('print'),
-                        itemId: 'print',
+                        text: _('export'),
+                        itemId: 'export',
                         disabled: true
                     }
                 ]

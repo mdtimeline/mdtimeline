@@ -2169,5 +2169,25 @@ $API = [
 				'len' => 1
             ]
         ]
+    ],
+    'TransactionLog' => [
+        'methods' => [
+            'saveExportLog' => [
+                'len' => 1
+            ]
+        ]
+    ],
+    'EncounterEventHistory' => [
+        'methods' => [
+            'getLogs' => [
+                'len' => 1
+            ],
+            'getLog' => [
+                'len' => 1
+            ],
+            'setLog' => [
+                'len' => 1
+            ]
+        ]
     ]
 ];

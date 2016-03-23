@@ -31,7 +31,7 @@ header("Access-Control-Allow-Origin: *");
 				globals = {},
 				ext = '<?php print EXTJS ?>',
 				version = '<?php print VERSION ?>',
-				site = '<?php print $site ?>',
+				site = '<?php print SITE ?>',
 				requires,
 				AppClipboard;
 		</script>
@@ -64,8 +64,8 @@ header("Access-Control-Allow-Origin: *");
 		<script type="text/javascript" src="lib/<?php print EXTJS ?>/ext-all-debug.js" charset="utf-8"></script>
 
 		<!-- JSrouter and Ext.deirect API files -->
-		<script src="JSrouter.php?site=<?php print $site ?>" charset="utf-8"></script>
-		<script src="data/api.php?site=<?php print $site ?>" charset="utf-8"></script>
+		<script src="JSrouter.php?site=<?php print SITE ?>" charset="utf-8"></script>
+		<script src="data/api.php?site=<?php print SITE ?>" charset="utf-8"></script>
 		<script type="text/javascript" src="lib/ZeroClipboard/ZeroClipboard.js" charset="utf-8"></script>
 		<script type="text/javascript" src="lib/darkroomjs/vendor/fabric.js" charset="utf-8"></script>
 		<script type="text/javascript" src="lib/darkroomjs/build/js/darkroom.min.js" charset="utf-8"></script>
@@ -480,6 +480,7 @@ header("Access-Control-Allow-Origin: *");
 					'patient.charts.WeightForAgeInf',
 					'patient.charts.WeightForRecumbentInf',
 					'patient.charts.WeightForStature',
+                    'patient.DrugInteractions',
 					'areas.PatientArea',
 					'areas.PoolArea',
 					'areas.PoolDropAreas'
@@ -562,6 +563,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.LaboratoryTypes',
 	                'patient.MeaningfulUseAlert',
 	                'patient.Medications',
+                    'patient.DrugInteractions',
                     'patient.RxOrders',
 	                'patient.Notes',
 	                'patient.Patient',

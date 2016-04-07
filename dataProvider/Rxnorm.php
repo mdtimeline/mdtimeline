@@ -74,8 +74,68 @@ class Rxnorm {
 		return $rec['ATV'];
 	}
 
-	public function getDoseformAbbreviateByCODE($CODE)
-    {
+    public function getIngredient($RxNormCode){
+
+        // Fetch the RxNorm entire record, this because we need the entire RxNorm Concepts record
+        $Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE CODE=:code AND (TTY='SCD' OR TTY='SBD')");
+        $Statement->execute([':code' => $RxNormCode]);
+        $RxNormRecord = $Statement->fetchAll(PDO::FETCH_ASSOC);
+
+        // If the record has the Branded Record execute SQL to extract
+        // the ingredient of that branded drug
+        if($RxNormRecord['TTY']=='SBD') {
+            // Fetch the relationship for ingredient
+            $Statement = $this->db->prepare("SELECT * FROM rxnrel WHERE RXCUI2=:rxcui AND RELA='has_ingredient'");
+            $Statement->execute([':rxcui' => $RxNormRecord['RXCUI']]);
+            $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
+
+            // Fetch the relationship for trademark
+            $Statement = $this->db->prepare("SELECT * FROM rxnrel WHERE RXCUI1=:rxcui AND RELA='has_tradename'");
+            $Statement->execute([':rxcui' => $Record['RXCUI1']]);
+            $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
+
+            // Extract the ingredient
+            $Statement = $this->db->prepare("SELECT * FROM gaiadb.rxnconso WHERE RXCUI=:rxcui AND SAB='RXNORM'");
+            $Statement->execute([':rxcui' => $Record['RXCUI2']]);
+            $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
+
+            return $Record;
+        }
+        // If the record has the Clinical record execute SQL to
+        // narrow the ingredient only
+        elseif($RxNormRecord['TTY']=='SCD') {
+            // Fetch the relationship for consists of...
+            $Statement = $this->db->prepare("SELECT * FROM rxnrel WHERE RXCUI2=:rxcui AND RELA='consists_of'");
+            $Statement->execute([':rxcui' => $RxNormRecord['RXCUI']]);
+            $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
+
+            // Fetch the relationship for ingredient of...
+            $Statement = $this->db->prepare("SELECT * FROM rxnrel WHERE RXCUI1=:rxcui AND RELA='ingredient_of'");
+            $Statement->execute([':rxcui' => $Record['RXCUI1']]);
+            $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
+
+            // Extract the ingredient
+            $Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE RXCUI=:rxcui AND SAB='RXNORM'");
+            $Statement->execute([':rxcui' => $Record['RXCUI2']]);
+            $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
+
+            return $Record;
+        }
+        elseif($RxNormRecord['TTY']=='BN'){
+            $Statement = $this->db->prepare("SELECT * FROM rxnrel WHERE RXCUI1=:rxcui AND RELA='has_tradename'");
+            $Statement->execute([':rxcui' => $RxNormRecord['RXCUI']]);
+            $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
+
+            // Extract the ingredient
+            $Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE RXCUI=:rxcui AND SAB='RXNORM'");
+            $Statement->execute([':rxcui' => $Record['RXCUI2']]);
+            $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
+
+            return $Record;
+        }
+    }
+
+	public function getDoseformAbbreviateByCODE($CODE) {
 		$sth = $this->db->prepare("SELECT ATV
 		                     FROM rxnsat
 		                    WHERE `CODE` = :c
@@ -120,6 +180,15 @@ class Rxnorm {
      							    LIMIT 100");
 		$sth->execute([ ':q1' => '%'.$params->query.'%', ':q2' => $params->query ]);
 		$records = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+        // Look for the GS Code
+        foreach($records as $key => $record)
+        {
+            $sth = $this->db->prepare("SELECT * FROM rxnconso WHERE SAB='GS' AND RXCUI='".$record['CODE']."'");
+            $sth->execute();
+            $records[$key]['GS_CODE']  = $sth->fetch(PDO::FETCH_ASSOC)['CODE'];
+        }
+
 		$total = count($records);
 		$records = array_slice($records, $params->start, $params->limit);
 		return [
@@ -162,10 +231,8 @@ class Rxnorm {
 	public function getRXNORMAllergyLiveSearch(stdClass $params) {
 		$sth = $this->db->prepare("SELECT *
 								 	 FROM rxnconso
-									WHERE (SAB='RXNORM'
-									AND TTY = 'IN'
-									 OR TTY = 'PIN'
-									 OR TTY = 'BN')
+									WHERE SAB='RXNORM'
+									AND (TTY = 'IN' OR TTY = 'PIN' OR TTY = 'BN')
 									AND RXCUI LIKE :q1
 									OR STR LIKE :q2
 							 	 GROUP BY RXCUI LIMIT 100");

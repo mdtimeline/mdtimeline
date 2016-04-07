@@ -45,12 +45,12 @@ class AccAccount
 
     function __construct()
     {
-        $this->services = new Services();
-        $this->insurance  = new Insurance();
+        $this->services = new \Services();
+        $this->insurance  = new \Insurance();
         return;
     }
 
-	public function getVisitCheckOutCharges(stdClass $params)
+	public function getVisitCheckOutCharges(\stdClass $params)
     {
         $invoice = array();
         $insurance = $this->insurance->getPatientPrimaryInsuranceByPid($params->pid);
@@ -75,15 +75,3 @@ class AccAccount
     }
 
 }
-
-//
-//$params = new stdClass();
-//$params->filter = 2;
-//$params->pid = '7';
-//$params->eid = '1';
-//$params->start = 0;
-//$params->limit = 25;
-//
-//$t = new Billing();
-//print '<pre>';
-//print_r($t->getLastRevisionByCode('ICD9'));

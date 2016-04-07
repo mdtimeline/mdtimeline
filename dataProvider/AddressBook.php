@@ -25,7 +25,7 @@ class AddressBook {
 
 	function __construct() {
         if($this->a == NULL)
-            $this->a = MatchaModel::setSenchaModel('App.model.miscellaneous.AddressBook');
+            $this->a = \MatchaModel::setSenchaModel('App.model.miscellaneous.AddressBook');
 	}
 
 	/**

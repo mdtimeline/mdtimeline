@@ -10897,6 +10897,7 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 		'App.model.administration.MedicationInstruction'
 	],
 	alias: 'widget.rxnormlivetsearch',
+    itemId: 'RxNormLiveSearch',
 	hideLabel: true,
 	displayField: 'STR',
 	valueField: 'RXCUI',
@@ -10914,6 +10915,10 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 					name: 'CODE',
 					type: 'string'
 				},
+                {
+                    name: 'GS_CODE',
+                    type: 'string'
+                },
 				{
 					name: 'NDC',
 					type: 'string'
@@ -13191,6 +13196,23 @@ Ext.define('App.model.administration.ReferringProvider', {
 			len: 40
 		},
 		{
+			name: 'username',
+			type: 'string',
+			len: 40,
+			index: true
+		},
+		{
+			name: 'password',
+			type: 'string',
+			len: 300,
+			encrypt: true
+		},
+		{
+			name: 'authorized',
+			type: 'bool',
+			index: true
+		},
+		{
 			name: 'title',
 			type: 'string',
 			len: 10
@@ -13286,7 +13308,8 @@ Ext.define('App.model.administration.ReferringProvider', {
 		},
 		{
 			name: 'active',
-			type: 'bool'
+			type: 'bool',
+			index: true
 		},
 		{
 			name: 'create_uid',
@@ -17345,11 +17368,22 @@ Ext.define('App.model.patient.Medications', {
 			type: 'string',
 			len: 40
 		},
+        {
+            name: 'GS_CODE',
+            type: 'string',
+            len: 40
+        },
 		{
 			name: 'RXCUI',
 			type: 'string',
 			len: 40
 		},
+        {
+            name: 'GS_CODE',
+            type: 'string',
+            len: 40,
+            comment: 'Gold Standard code'
+        },
 		{
 			name: 'NDC',
 			type: 'string',
@@ -23882,8 +23916,6 @@ Ext.define('App.store.patient.DoctorsNotes', {
 	autoLoad: false
 });
 
-
-
 Ext.define('App.view.patient.DoctorsNotes', {
 	extend: 'Ext.grid.Panel',
 	requires: [
@@ -24084,10 +24116,12 @@ Ext.define('App.store.patient.PatientActiveProblems', {
 });
 Ext.define('App.store.patient.Medications', {
 	extend: 'Ext.data.Store',
+    storeId: 'patientMedicationsStore',
 	model     : 'App.model.patient.Medications',
     groupField: 'STR',
     startCollapsed: true
 });
+
 Ext.define('App.view.patient.ItemsToReview', {
 	extend: 'Ext.panel.Panel',
 	alias: 'widget.itemstoreview',
@@ -29759,24 +29793,32 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
 	extend: 'Ext.grid.Panel',
 	xtype: 'referringproviderspanel',
 	requires: [
-
+		'Ext.ux.SlidingPager'
 	],
 	title: _('referring_providers'),
 
 	initComponent: function(){
 		var me = this;
 
+		me.store = Ext.create('App.store.administration.ReferringProviders', {
+			autoSync: false,
+			remoteSort: true,
+			sorters: [
+				{
+					property: 'lname',
+					direction: 'ASC'
+				}
+			]
+		});
+		
 		Ext.apply(me, {
-			store: Ext.create('App.store.administration.ReferringProviders', {
-				autoSync: false
-			}),
 			columns: [
 				{
 					width: 200,
 					text: _('name'),
 					sortable: true,
 					renderer:function(v, meta, record){
-						return record.data.title + ' ' + record.data.fname + ' ' + record.data.mname + ' ' + record.data.lname;
+						return record.data.title + ' ' + record.data.lname + ', ' + record.data.fname + ' ' + record.data.mname;
 					}
 				},
 				{
@@ -29997,6 +30039,52 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
 							]
 						},
 						{
+							xtype: 'fieldcontainer',
+							layout: {
+								type: 'hbox',
+								defaultMargins: {
+									top: 0,
+									right: 5,
+									bottom: 0,
+									left: 0
+								}
+							},
+							items: [
+								{
+									xtype: 'textfield',
+									fieldLabel: _('username'),
+									labelWidth: 130,
+									labelAlign: 'right',
+									minLength: 5,
+									maxLength: 15,
+									name: 'username'
+								},
+								{
+									xtype: 'textfield',
+									fieldLabel: _('password'),
+									labelWidth: 130,
+									labelAlign: 'right',
+									minLength: 8,
+									maxLength: 15,
+									name: 'password',
+									inputType: 'password',
+									vtype: 'strength',
+									strength: 24,
+									plugins: {
+										ptype: 'passwordstrength'
+									}
+								},
+								{
+									xtype: 'checkbox',
+									fieldLabel: _('authorized'),
+									labelWidth: 130,
+									labelAlign: 'right',
+									name: 'authorized'
+								}
+
+							]
+						},
+						{
 							height: 50,
 							xtype: 'textareafield',
 							name: 'notes',
@@ -30009,6 +30097,7 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
 					]
 				})
 			],
+
 			dockedItems: [
 				{
 					xtype: 'toolbar',
@@ -30022,6 +30111,14 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
 							itemId: 'referringProviderAddBtn',
 						}
 					]
+				},
+				{
+					xtype: 'pagingtoolbar',
+					dock: 'bottom',
+					pageSize: 25,
+					store: me.store,
+					displayInfo: true,
+					plugins: Ext.create('Ext.ux.SlidingPager')
 				}
 			]
 		});
@@ -35902,14 +35999,22 @@ Ext.define('App.controller.administration.HL7', {
 	},
 
 	serverStartHandler: function(record){
-		HL7ServerHandler.start({ id: record.data.id, ip: record.data.ip, port: record.data.port }, function(provider, response){
+		HL7ServerHandler.start({
+            id: record.data.id,
+            ip: record.data.ip,
+            port: record.data.port
+        }, function(provider, response){
 			record.set({'online': response.result.online, token: response.result.token});
 			record.commit();
 		});
 	},
 
 	serverStopHandler: function(record){
-		HL7ServerHandler.stop({ token: record.data.token, ip: record.data.ip, port: record.data.port }, function(provider, response){
+		HL7ServerHandler.stop({
+            token: record.data.token,
+            ip: record.data.ip,
+            port: record.data.port
+        }, function(provider, response){
 			record.set({'online': response.result.online});
 			record.commit();
 		});
@@ -35940,6 +36045,7 @@ Ext.define('App.controller.administration.HL7', {
 	}
 
 });
+
 Ext.define('App.controller.administration.DecisionSupport', {
 	extend: 'Ext.app.Controller',
 
@@ -41478,9 +41584,9 @@ Ext.define('App.controller.patient.Medications', {
 			'viewport': {
 				encounterload: me.onViewportEncounterLoad
 			},
-			'patientmedicationspanel': {
-				activate: me.onMedicationsPanelActive
-			},
+            'patientmedicationspanel': {
+                activate: me.onMedicationsPanelActive
+            },
 			'#patientMedicationsGrid': {
 				beforeedit: me.onPatientMedicationsGridBeforeEdit
 			},
@@ -41536,6 +41642,7 @@ Ext.define('App.controller.patient.Medications', {
 		form.getRecord().set({
 			RXCUI: records[0].data.RXCUI,
 			CODE: records[0].data.CODE,
+            GS_CODE: records[0].data.GS_CODE,
 			NDC: records[0].data.NDC
 		});
 	},
@@ -41625,6 +41732,7 @@ Ext.define('App.controller.patient.Medications', {
 		form.getRecord().set({
 			RXCUI: records[0].data.RXCUI,
 			CODE: records[0].data.CODE,
+            GS_CODE: records[0].data.GS_CODE,
 			NDC: records[0].data.NDC
 		});
 	},
@@ -41633,23 +41741,24 @@ Ext.define('App.controller.patient.Medications', {
 		this.onMedicationsPanelActive();
 	},
 
-	onMedicationsPanelActive: function(){
-		var store = this.getPatientMedicationsGrid().getStore(),
-			reconciled = this.getPatientMedicationReconciledBtn().pressed;
+    onMedicationsPanelActive: function(){
+        var store = this.getPatientMedicationsGrid().getStore(),
+            reconciled = this.getPatientMedicationReconciledBtn().pressed;
 
-		store.clearFilter(true);
-		store.load({
-			filters: [
-				{
-					property: 'pid',
-					value: app.patient.pid
-				}
-			],
-			params: {
-				reconciled: reconciled
-			}
-		});
-	}
+        store.clearFilter(true);
+        store.load({
+            filters: [
+                {
+                    property: 'pid',
+                    value: app.patient.pid
+                }
+            ],
+            params: {
+                reconciled: reconciled
+            }
+        });
+    }
+
 });
 
 Ext.define('App.controller.patient.Patient', {
@@ -45637,19 +45746,6 @@ Ext.define('App.view.patient.encounter.AdministeredMedications', {
 		autoSync: false
 	}),
 	columns: [
-		//{
-		//	xtype: 'actioncolumn',
-		//	width: 25,
-		//	items: [
-		//		{
-		//			icon: 'resources/images/icons/blueInfo.png',  // Use a URL in the icon config
-		//			tooltip: 'Get Info',
-		//			handler: function(grid, rowIndex, colIndex, item, e, record){
-		//				App.app.getController('InfoButton').doGetInfo(record.data.RXCUI, 'RXCUI', record.data.STR);
-		//			}
-		//		}
-		//	]
-		//},
 		{
 			header: _('medication'),
 			flex: 1,
@@ -45722,8 +45818,8 @@ Ext.define('App.view.patient.encounter.AdministeredMedications', {
 		}
 	]
 
-
 });
+
 Ext.define('App.view.patient.DecisionSupportWarningPanel', {
 	extend: 'Ext.panel.Panel',
 	xtype: 'decisionsupportwarningpanel',
@@ -56375,12 +56471,6 @@ Ext.define('App.view.patient.windows.Medical', {
 			h = Ext.getBody().getHeight() < 700 ? (Ext.getBody().getHeight() - 100) : 600;
 		p.setSize(w, h);
 		this.alignTo(Ext.getBody(), 'c-c');
-
-//		say(p);
-//		say(Ext.getBody().getWidth());
-//		say(w);
-//		say(Ext.getBody().getHeight());
-//		say(h);
 	},
 
 	onMedicalWinClose: function(){
@@ -56389,6 +56479,7 @@ Ext.define('App.view.patient.windows.Medical', {
 		}
 	}
 });
+
 Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 	extend: 'App.ux.form.fields.CheckBoxWithText',
 	alias: 'widget.checkboxwithfamilyhistory',
@@ -56710,15 +56801,15 @@ Ext.define('App.view.patient.Encounter', {
 			);
 		}
 
-		//if(me.enableEncHistory && a('access_enc_history')){
-		//	me.EncounterEventHistory = me.administrativeTabPanel.add(
-		//		Ext.create('App.ux.grid.EventHistory', {
-		//			bodyStyle: 0,
-		//			title: _('encounter_history'),
-		//			store: me.encounterEventHistoryStore
-		//		})
-		//	);
-		//}
+		if(me.enableEncHistory && a('access_enc_history')){
+			me.EncounterEventHistory = me.administrativeTabPanel.add(
+				Ext.create('App.ux.grid.EventHistory', {
+					bodyStyle: 0,
+					title: _('encounter_history'),
+					store: me.encounterEventHistoryStore
+				})
+			);
+		}
 
 		/**
 		 * Progress Note
@@ -56906,7 +56997,6 @@ Ext.define('App.view.patient.Encounter', {
 		}else{
 			app.onMedicalWin(btn.action);
 		}
-
 	},
 
 	/**
@@ -56995,14 +57085,14 @@ Ext.define('App.view.patient.Encounter', {
 						}
 					});
 
-					//me.encounterEventHistoryStore.load({
-					//	filters: [
-					//		{
-					//			property: 'eid',
-					//			value: me.eid
-					//		}
-					//	]
-					//});
+					me.encounterEventHistoryStore.load({
+						filters: [
+							{
+								property: 'eid',
+								value: me.eid
+							}
+						]
+					});
 
 				}else{
 					app.accessDenied();
@@ -57099,13 +57189,13 @@ Ext.define('App.view.patient.Encounter', {
 
 				me.priorityCombo.setValue(data.priority);
 
-				//me.encounterEventHistoryStore.load({
-				//	filters: [
-				//		{
-				//			property: 'eid', value: me.eid
-				//		}
-				//	]
-				//});
+				me.encounterEventHistoryStore.load({
+					filters: [
+						{
+							property: 'eid', value: me.eid
+						}
+					]
+				});
 
 				if(me.CurrentProceduralTerminology){
 					me.CurrentProceduralTerminology.encounterCptStoreLoad(me.pid, me.eid, function(){
@@ -57153,7 +57243,7 @@ Ext.define('App.view.patient.Encounter', {
                     var params;
 					if(response.result.success){
 						if(me.stopTimer()){
-S;
+                            S;
 							/** default data for notes and reminder **/
 							params = {
 								pid: me.pid,
@@ -57412,7 +57502,6 @@ S;
 			patient = app.patient;
 
 		if(patient.pid && patient.eid){
-
 			me.updateTitle(patient.name + ' (' + _('visits') + ')', patient.readOnly, null);
 			me.setReadOnly(patient.readOnly);
 			callback(true);

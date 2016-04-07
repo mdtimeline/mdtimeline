@@ -40,10 +40,6 @@ Ext.define('App.controller.patient.Medications', {
 			ref: 'PatientMedicationUserLiveSearch',
 			selector: '#PatientMedicationUserLiveSearch'
 		},
-        {
-            ref: 'DrugInteractionGrid',
-            selector: '#drugInteractionGrid'
-        },
 
 		// administer refs
 		{
@@ -70,9 +66,9 @@ Ext.define('App.controller.patient.Medications', {
 			'viewport': {
 				encounterload: me.onViewportEncounterLoad
 			},
-			'patientmedicationspanel': {
-				activate: me.onMedicationsPanelActive
-			},
+            'patientmedicationspanel': {
+                activate: me.onMedicationsPanelActive
+            },
 			'#patientMedicationsGrid': {
 				beforeedit: me.onPatientMedicationsGridBeforeEdit
 			},
@@ -128,6 +124,7 @@ Ext.define('App.controller.patient.Medications', {
 		form.getRecord().set({
 			RXCUI: records[0].data.RXCUI,
 			CODE: records[0].data.CODE,
+            GS_CODE: records[0].data.GS_CODE,
 			NDC: records[0].data.NDC
 		});
 	},
@@ -217,6 +214,7 @@ Ext.define('App.controller.patient.Medications', {
 		form.getRecord().set({
 			RXCUI: records[0].data.RXCUI,
 			CODE: records[0].data.CODE,
+            GS_CODE: records[0].data.GS_CODE,
 			NDC: records[0].data.NDC
 		});
 	},
@@ -225,39 +223,22 @@ Ext.define('App.controller.patient.Medications', {
 		this.onMedicationsPanelActive();
 	},
 
-    /**
-     * On Medication TAB Panel activates clear the filters and load all the stores
-     * for this panel's data grids
-     */
-	onMedicationsPanelActive: function()
-    {
-		var medicationsStore = this.getPatientMedicationsGrid().getStore(),
-            drugInteractionStore = this.getDrugInteractionGrid().getStore(),
-			reconciled = this.getPatientMedicationReconciledBtn().pressed;
+    onMedicationsPanelActive: function(){
+        var store = this.getPatientMedicationsGrid().getStore(),
+            reconciled = this.getPatientMedicationReconciledBtn().pressed;
 
-        // Load the Medications Store of the patient
-        medicationsStore.clearFilter(true);
-        medicationsStore.load({
-			filters: [
-				{
-					property: 'pid',
-					value: app.patient.pid
-				}
-			],
-			params: {
-				reconciled: reconciled
-			}
-		});
-
-        // Load the Drug Interaction for those medications
-        drugInteractionStore.clearFilter(true);
-        drugInteractionStore.load({
+        store.clearFilter(true);
+        store.load({
             filters: [
                 {
                     property: 'pid',
                     value: app.patient.pid
                 }
-            ]
+            ],
+            params: {
+                reconciled: reconciled
+            }
         });
-	}
+    }
+
 });

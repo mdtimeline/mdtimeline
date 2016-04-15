@@ -92,8 +92,9 @@ class HL7Server {
 	 */
 	protected $updateKey = 'pid';
 
-	function __construct($port = '9000', $site = 'default') {
-		$this->site = $site;
+	function __construct($port = 9000, $site = 'default') {
+		$this->site = defined('site_id') ? site_id : $site;
+
 		if(!defined('_GaiaEXEC'))
 			define('_GaiaEXEC', 1);
 		require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
@@ -122,7 +123,7 @@ class HL7Server {
         /**
          * User facilities
          */
-        $this->Facility = MatchaModel::setSenchaModel('App.model.administration.Facility');
+        $this->Facility = new Facilities();
 
 		/** Order Models */
         if(!isset($this->pOrder))
@@ -210,7 +211,7 @@ class HL7Server {
 		$ack = new HL7();
 		$msh = $ack->addSegment('MSH');
 		$msh->setValue('3.1', 'GaiaEHR'); // Sending Application
-		$msh->setValue('4.1', $this->Facility->getgetCurrentFacility(true)); // Sending Facility
+		$msh->setValue('4.1', $this->Facility->getCurrentFacility(true)); // Sending Facility
 		$msh->setValue('9.1', 'ACK');
 		$msh->setValue('11.1', 'P'); // P = Production
 		$msh->setValue('12.1', '2.5.1'); // HL7 version
@@ -314,6 +315,9 @@ class HL7Server {
 		foreach($msg->data['PATIENT_RESULT'] AS $patient_result){
 			$patient = isset($patient_result['PATIENT']) ? $patient_result['PATIENT'] : null;
 
+			// Patient validation...
+
+			
 			foreach($patient_result['ORDER_OBSERVATION'] AS $order){
 				$orc = $order['ORC'];
 				$obr = $order['OBR'];

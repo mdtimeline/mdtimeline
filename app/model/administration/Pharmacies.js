@@ -93,6 +93,11 @@ Ext.define('App.model.administration.Pharmacies', {
             store: false
         },
         {
+            name: 'phone_country_code',
+            type: 'string',
+            store: false
+        },
+        {
             name: 'phone_area_code',
             type: 'string',
             store: false
@@ -152,6 +157,9 @@ Ext.define('App.model.administration.Pharmacies', {
             read: 'Practice.getPharmacies',
             create: 'Practice.addPharmacy',
             update: 'Practice.updatePharmacy'
+        },
+        writer: {
+            writeAllFields: true
         }
     }
 });

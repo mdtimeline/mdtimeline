@@ -21,8 +21,8 @@ include_once(ROOT . '/dataProvider/Patient.php');
 include_once(ROOT . '/lib/HL7/HL7.php');
 include_once(ROOT . '/lib/HL7/HL7Client.php');
 
-class HL7Messages {
-
+class HL7Messages
+{
 	/**
 	 * @var PDO
 	 */
@@ -53,6 +53,12 @@ class HL7Messages {
      * @var MatchaCUP Encounter Services
      */
     private $EncounterServices;
+
+    /**
+     * Lists
+     * @var
+     */
+    private $ListOptions;
 
 	/**
 	 * @var MatchaCUP PatientImmunization
@@ -99,7 +105,8 @@ class HL7Messages {
 	 */
 	private $type;
 
-	function __construct() {
+	function __construct()
+    {
 		$this->hl7 = new HL7();
 		$this->conn = Matcha::getConn();
         if(!isset($this->p))
@@ -120,9 +127,12 @@ class HL7Messages {
             $this->c = MatchaModel::setSenchaModel('App.model.administration.HL7Client');
         if(!isset($this->f))
             $this->f = MatchaModel::setSenchaModel('App.model.administration.Facility');
+        if(!isset($this->ListOptions))
+            $this->ListOptions = MatchaModel::setSenchaModel('App.model.administration.ListOptions');
 	}
 
-	function broadcastADT($params){
+	function broadcastADT($params)
+    {
 		$this->c->addFilter('active', 1);
 		$clients = $this->c->load()->all();
 
@@ -135,7 +145,6 @@ class HL7Messages {
 			$this->sendADT($foo, $params->event);
 			unset($foo);
 		}
-
 		return [ 'success' => true ];
 	}
 
@@ -144,7 +153,8 @@ class HL7Messages {
 	 * @param $event
 	 * @throws Exception
 	 */
-	function sendADT($params, $event){
+	function sendADT($params, $event)
+    {
 
 		$this->to = $params->to;
 		$this->from = $params->from;
@@ -191,7 +201,6 @@ class HL7Messages {
 			unset($obx);
 
 			// Age - Reportedx
-
 			$obx = $this->hl7->addSegment('OBX');
 			$obx->setValue('1', 2);
 			$obx->setValue('2', 'NM');
@@ -245,7 +254,8 @@ class HL7Messages {
 	 * @param $orderControl
 	 * @throws Exception
 	 */
-	function sendServiceORM($to, $from, $service, $orderControl){
+	function sendServiceORM($to, $from, $service, $orderControl)
+    {
         try
         {
             $service = (object) $service;
@@ -259,7 +269,7 @@ class HL7Messages {
             $msh = $this->setMSH();
             $msh->setValue('9.1', 'ORM');
             $msh->setValue('9.2', 'O01');
-    //		$msh->setValue('9.3', 'ORM_O01');
+
             // PID
             $this->setPID();
             // PV1
@@ -268,7 +278,6 @@ class HL7Messages {
             $this->setORC($service, $orderControl);
             // OBR
             $this->setOBR($service, 1);
-
 
             if(is_array($service->dx_pointers)){
                 $dxIndex = 1;
@@ -302,10 +311,10 @@ class HL7Messages {
         {
             return ['success' => false];
         }
-
 	}
 
-	function sendVXU($params) {
+	function sendVXU($params)
+    {
         try
         {
             // set these globally to be used by MSH and PID
@@ -542,7 +551,8 @@ class HL7Messages {
         }
 	}
 
-	private function setMSH($includeNPI = false) {
+	private function setMSH($includeNPI = false)
+    {
 		$this->setEncounter();
 
 		// set these globally
@@ -565,7 +575,8 @@ class HL7Messages {
 		return $msh;
 	}
 
-	private function setEVN(){
+	private function setEVN()
+    {
 		$evn = $this->hl7->addSegment('EVN');
 		$evn->setValue('2.1', date('YmdHis'));
 		$evn->setValue('7.1', str_replace(' ', '', substr($this->from['name'], 0, 20)));
@@ -577,7 +588,8 @@ class HL7Messages {
 	 * @return Segments
 	 * @throws Exception
 	 */
-	private function setPID() {
+	private function setPID()
+    {
 
 		$this->patient = $this->p->load($this->patient)->one();
 
@@ -593,13 +605,6 @@ class HL7Messages {
 
 		$pid->setValue('1', 1);
 
-//		if($this->notEmpty($this->patient->pubpid)){
-//			$pid->setValue('2.3', $this->patient->pubpid);
-//		}else if($this->notEmpty($this->patient->pid)){
-//			$pid->setValue('2.3', $this->patient->pid);
-//		}
-//		if($this->notEmpty($this->patient->pubpid)){
-//			$pid->setValue('3.1', $this->patient->pubpid);
 		if($this->notEmpty($this->patient->pid)){
 			$pid->setValue('3.1', $this->patient->pid);
 		}
@@ -708,10 +713,17 @@ class HL7Messages {
 		if($this->notEmpty($this->patient->language)){
 			$pid->setValue('15.1', $this->patient->language);
 		}
+        
+        // Marital Status
 		if($this->notEmpty($this->patient->marital_status)){
+            $list = new stdClass();
+            $list->filter[0] = new stdClass();
+            $list->filter[0]->property = 'list_id';
+            $list->filter[0]->value = '12';
+            $ComboListRecord = $this->ListOptions->load($list)->one();
 			$pid->setValue('16.1', $this->patient->marital_status); // EthnicGroup Identifier
 			$pid->setValue('16.2', $this->hl7->marital($this->patient->marital_status)); // EthnicGroup Text
-			$pid->setValue('16.3', 'CDCREC'); // Name of Coding System
+			$pid->setValue('16.3', $ComboListRecord['code_type']); // Name of Coding System
 		}
 		if($this->notEmpty($this->patient->pubaccount)){
 			$pid->setValue('18.1', $this->patient->pubaccount);
@@ -731,22 +743,28 @@ class HL7Messages {
             }
 		}
 
-		if($this->notEmpty($this->patient->ethnicity)){
-			if($this->patient->ethnicity == 'H'){
-				$pid->setValue('22.1', '2135-2');
-				$pid->setValue('22.3', 'CDCREC');
-			}elseif($this->patient->ethnicity == 'N'){
-				$pid->setValue('22.1', '2186-5');
-				$pid->setValue('22.3', 'CDCREC');
-			}else{
-				$pid->setValue('22.1', '$this->patient->ethnicity');
-			}
+        // Ethnicity
+		if($this->notEmpty($this->patient->ethnicity)) {
+            $ethnicityList = new stdClass();
+            $ethnicityList->filter[0] = new stdClass();
+            $ethnicityList->filter[0]->property = 'list_id';
+            $ethnicityList->filter[0]->value = '59';
+            $ComboListRecord = $this->ListOptions->load($ethnicityList)->one();
+            $pid->setValue('22.1', $this->patient->ethnicity);
+            $pid->setValue('22.3', $ComboListRecord['code_type']);
 		}
+
 		if($this->notEmpty($this->patient->birth_place)){
 			$pid->setValue('23', $this->patient->birth_place);
 		}
+
+        // Birth Multiple
 		if($this->notEmpty($this->patient->birth_multiple)){
-			$pid->setValue('24', $this->patient->birth_multiple);
+            if($this->patient->birth_multiple){
+                $pid->setValue('24', 'Y');
+            }else{
+                $pid->setValue('24', 'N');
+            }
 		}
 		if($this->notEmpty($this->patient->birth_order)){
 			$pid->setValue('25', $this->patient->birth_order);
@@ -849,7 +867,8 @@ class HL7Messages {
 		}
 	}
 
-	private function setORC($order, $orderControl){
+	private function setORC($order, $orderControl)
+    {
 		if($order === false) return;
 
 		$orc = $this->hl7->addSegment('ORC');
@@ -948,7 +967,8 @@ class HL7Messages {
 	 * @param int $sequence
 	 * @throws Exception
 	 */
-	private function setOBR($observation, $sequence = 1){
+	private function setOBR($observation, $sequence = 1)
+    {
 
 		$obr = $this->hl7->addSegment('OBR');
 		$obr->setValue(1, $sequence);
@@ -1013,7 +1033,8 @@ class HL7Messages {
 	}
 
 
-	private function setDG1($diagnosis, $sequence = '1'){
+	private function setDG1($diagnosis, $sequence = '1')
+    {
 		$diagnosis = explode(":", $diagnosis);
 		$type = $this->encounter->close_date == '0000-00-00 00:00:00' ? 'W' :'F';
 
@@ -1025,13 +1046,15 @@ class HL7Messages {
 		$dg1->setValue('6', $type);
 	}
 
-	private function setEncounter(){
+	private function setEncounter()
+    {
 		$this->encounter = $this->e->load($this->encounter)->one();
 		if($this->encounter === false) return;
 		$this->encounter = (object) $this->encounter;
 	}
 
-	public function saveMsg() {
+	public function saveMsg()
+    {
 		$foo = new stdClass();
 		$foo->msg_type = $this->type;
 		$foo->message = $this->hl7->getMessage();
@@ -1095,6 +1118,3 @@ class HL7Messages {
 		return isset($var) && $var != '';
 	}
 }
-//print '<pre>';
-//$hl7 = new HL7Messages();
-//print_r($hl7->sendVXU());

@@ -40,12 +40,12 @@ Ext.define('App.view.login.Login', {
 		 */
 		me.winCopyright = Ext.create('widget.window', {
 			id: 'winCopyright',
-			title: 'GaiaEHR Copyright Notice',
+			title: 'MD Timeline Copyright Notice',
 			bodyStyle: 'background-color: #ffffff; padding: 5px;',
 			autoLoad: 'gpl-licence-en.html',
 			closeAction: 'hide',
 			width: 900,
-			height: '75%',
+			height: 600,
 			modal: false,
 			resizable: true,
 			draggable: true,
@@ -62,15 +62,16 @@ Ext.define('App.view.login.Login', {
 			waitMsgTarget: true,
 			frame: false,
 			border: false,
-			width: 483,
+			flex: 1,
 			padding: '0 0 5 0',
-			bodyPadding: '5 5 0 5',
+			bodyPadding: 20,
 			baseParams: {
 				auth: 'true'
 			},
 			fieldDefaults: {
 				msgTarget: 'side',
-				labelWidth: 300
+				labelWidth: 100,
+				labelAlign: 'top'
 			},
 			defaults: {
 				anchor: '100%'
@@ -137,27 +138,7 @@ Ext.define('App.view.login.Login', {
 					}
 				}
 			],
-			buttons: [
-				//{
-				//	xtype: 'checkbox',
-				//	name: 'checkin'
-				//},
-				//'Check-In Mode',
-				//'->',
-				{
-					text: _('reset'),
-					name: 'btn_reset',
-					scope: me,
-					handler: me.onFormReset
-				},
-				'-',
-				{
-					text: _('login'),
-					name: 'btn_login',
-					scope: me,
-					handler: me.loginSubmit
-				}
-			]
+
 		};
 
 		if(me.showSite){
@@ -194,10 +175,11 @@ Ext.define('App.view.login.Login', {
 
 		windowItems = [
 			{
-				xtype: 'box',
-				width: 483,
-				height: 135,
-				html: '<img src="resources/images/logon_header.png" />'
+				xtype: 'image',
+				width: 210,
+				height: 210,
+				padding: '20 0 10 10',
+				src: 'resources/images/logo_190_190.jpg'
 			}
 		];
 
@@ -211,25 +193,45 @@ Ext.define('App.view.login.Login', {
 		 * The Logon Window
 		 */
 		me.winLogon = Ext.create('widget.window', {
-			title: 'GaiaEHR Logon',
+			title: 'MD Timeline Logon',
 			closeAction: 'hide',
 			plain: true,
 			modal: false,
 			resizable: false,
 			draggable: false,
 			closable: false,
-			width: 495,
+			width: 450,
 			bodyStyle: 'background: #ffffff;',
 			autoShow: true,
 			layout: {
-				type: 'vbox',
-				align: 'stretch'
+				type: 'hbox'
 			},
 			items: windowItems,
 			listeners: {
 				scope: me,
 				afterrender: me.afterAppRender
-			}
+			},
+			buttons: [
+				//{
+				//	xtype: 'checkbox',
+				//	name: 'checkin'
+				//},
+				//'Check-In Mode',
+				//'->',
+				{
+					text: _('reset'),
+					name: 'btn_reset',
+					scope: me,
+					handler: me.onFormReset
+				},
+				'-',
+				{
+					text: _('login'),
+					name: 'btn_login',
+					scope: me,
+					handler: me.loginSubmit
+				}
+			]
 		});
 
 		me.listeners = {
@@ -266,7 +268,7 @@ Ext.define('App.view.login.Login', {
 			//checkInMode = formPanel.query('checkbox')[0].getValue();
 
 		if(form.isValid()){
-			formPanel.el.mask('Sending credentials...');
+			me.winLogon.el.mask('Sending credentials...');
 			//params.checkInMode = checkInMode;
 
 			authProcedures.login(params, function(provider, response){

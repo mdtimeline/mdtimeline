@@ -275,18 +275,13 @@ Ext.define('App.view.login.Login', {
 				if(response.result.success){
 					window.location.reload();
 				}else{
-					Ext.Msg.show({
-						title: 'Oops!',
-						msg: response.result.message,
-						buttons: Ext.Msg.OK,
-						icon: Ext.Msg.ERROR
-					});
+					me.msg('Oops!', response.result.message, true);
 					me.onFormReset();
-					formPanel.el.unmask();
+					me.winLogon.el.unmask();
 				}
 			});
 		}else{
-			this.msg('Oops!', 'Username And Password are required.');
+			me.msg('Oops!', 'Username And Password are required.', true);
 		}
 	},
 	/**
@@ -354,7 +349,7 @@ Ext.define('App.view.login.Login', {
 							}, 500, this);
 						}
 						else{
-							this.msg('Opps! Something went wrong...', 'No site found.');
+							me.msg('Opps! Something went wrong...', 'No site found.', true);
 						}
 					}
 				});

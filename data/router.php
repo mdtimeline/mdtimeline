@@ -123,6 +123,7 @@ function doRpc($cdata) {
 			(isset($_SESSION['user']['auth']) && $_SESSION['user']['auth'] == true) ||
 			(isset($_SESSION['user']['portal_authorized']) && $_SESSION['user']['portal_authorized'] == true ) ||
 			($action == 'authProcedures' && $method == 'login') ||
+			($action == 'authProcedures' && $method == 'ckAuth') ||
 			($action == 'PortalAuthorize' && $method == 'login') ||
 			($action == 'PortalAuthorize' && $method == 'check') ||
 			($action == 'CombosData' && $method == 'getActiveFacilities') ||

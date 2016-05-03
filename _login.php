@@ -23,7 +23,7 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta content="utf-8" http-equiv="encoding">
-    <title>GaiaEHR Logon Screen</title>
+    <title>MD Timeline Logon Screen</title>
     <script type="text/javascript" src="lib/<?php print EXTJS ?>/ext-all.js" charset="utf-8"></script>
     <link rel="stylesheet" type="text/css" href="resources/css/ext-all-gray.css">
     <link rel="stylesheet" type="text/css" href="resources/css/style_newui.css">
@@ -75,7 +75,7 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 <body id="login">
 <div id="msg-div"></div>
 <div id="copyright" style=" margin:0; overflow: auto; width: 100%; bottom: 0; left:0; padding: 5px 10px; ">
-	<div style="float: left">Copyright (C) 2011 GaiaEHR (Electronic Health Records) |:|  Open Source Software operating under <a href="javascript:void(0)" onClick="Ext.getCmp('winCopyright').show();">GPLv3</a> |:| v<?php print VERSION ?></div>
+	<div style="float: left">Copyright (C) 2016 MD Timeline (Electronic Health Records) |:|  Open Source Software operating under <a href="javascript:void(0)" onClick="Ext.getCmp('winCopyright').show();">GPLv3</a> |:| v<?php print VERSION ?></div>
     <div style="float: right;">by <a href="http://tranextgen.com/" target="_blank">The Right Answer, Inc.</a></div>
 </body>
 </html>

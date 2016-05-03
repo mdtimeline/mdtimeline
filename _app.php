@@ -37,7 +37,7 @@ header("Access-Control-Allow-Origin: *");
 		</script>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta content="utf-8" http-equiv="encoding">
-		<title>GaiaEHR :: Loading...</title>
+		<title>MD Timeline :: Loading...</title>
 		<link rel="stylesheet" type="text/css" href="resources/css/dashboard.css">
 		<link rel="stylesheet" type="text/css" href="resources/css/ext-all-gray.css">
 		<link rel="stylesheet" type="text/css" href="resources/css/style_newui.css">
@@ -52,7 +52,7 @@ header("Access-Control-Allow-Origin: *");
 		<div id="mainapp-loading" class="mitos-mask-msg x-mask-msg x-layer x-mask-msg-default x-border-box">
 			<div id="mainapp-x-mask-msg" class="x-mask-msg-inner">
 				<div class="x-mask-msg-text">
-					Loading GaiaEHR...
+					Loading MD Timeline...
 				</div>
 			</div>
 		</div>

@@ -466,7 +466,7 @@ Ext.define('App.view.Viewport', {
                     items: ['-', {
                         xtype: 'button',
                         frame: true,
-                        text: 'GaiaEHR Support',
+                        text: 'MD Timeline Support',
                         iconCls: 'icoHelp',
 	                    action: 'supportBtn',
 	                    src: 'http://gaiaehr.org/forums/'
@@ -545,34 +545,34 @@ Ext.define('App.view.Viewport', {
 	                    },
 	                    '-',
                         {
-                            text: 'Copyright (C) 2011 GaiaEHR (Electronic Health Records) |:|  Open Source Software operating under GPLv3 |:| v' + me.version,
+                            text: 'Copyright (C) 2016 MD Timeline (Electronic Health Records) |:|  Open Source Software operating under GPLv3 |:| v' + me.version,
                             iconCls: 'icoGreen',
                             disabled: true
                         },
                         '->',
-                        {
-                            text: _('news'),
-	                        action: 'supportBtn',
-	                        src: 'http://GaiaEHR.org/projects/GaiaEHR001/news'
-                        },
-                        '-',
-                        {
-                            text: _('wiki'),
-	                        action: 'supportBtn',
-	                        src: 'http://gaiaehr.org/'
-                        },
-                        '-',
-                        {
-                            text: _('issues'),
-	                        action: 'supportBtn',
-                            src: 'http://gaiaehr.org:8181/issues/?jql='
-                        },
-                        '-',
-                        {
-                            text: _('forums'),
-	                        action: 'supportBtn',
-	                        src: 'http://gaiaehr.org/forums/'
-                        }
+                        // {
+                        //     text: _('news'),
+	                     //    action: 'supportBtn',
+	                     //    src: 'http://GaiaEHR.org/projects/GaiaEHR001/news'
+                        // },
+                        // '-',
+                        // {
+                        //     text: _('wiki'),
+	                     //    action: 'supportBtn',
+	                     //    src: 'http://gaiaehr.org/'
+                        // },
+                        // '-',
+                        // {
+                        //     text: _('issues'),
+	                     //    action: 'supportBtn',
+                        //     src: 'http://gaiaehr.org:8181/issues/?jql='
+                        // },
+                        // '-',
+                        // {
+                        //     text: _('forums'),
+	                     //    action: 'supportBtn',
+	                     //    src: 'http://gaiaehr.org/forums/'
+                        // }
                     ]
                 }
             ]
@@ -642,7 +642,7 @@ Ext.define('App.view.Viewport', {
 	},
 
 	setWindowTitle:function(facility){
-		window.document.title = 'GaiaEHR :: ' + facility;
+		window.document.title = 'MD Timeline :: ' + facility;
 	},
 
     /**
@@ -1219,7 +1219,7 @@ Ext.define('App.view.Viewport', {
     },
 
 	/**
-     * When the application finishes loading all the GaiaEHR core.
+     * When the application finishes loading all the MD Timeline core.
      * Then it will load all the modules.
      */
     appRender: function(){

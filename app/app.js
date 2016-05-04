@@ -52657,8 +52657,9 @@ Ext.define('App.controller.patient.Documents', {
 		return this.getPatientDocumentErrorNoteWindow().show();
 	},
 
-	onPatientDocumentBeforeRender: function(){
+	onPatientDocumentBeforeRender: function(panel){
 		this.setViewerSite(app.user.site);
+		panel.defereOnActiveReload = false;
 	},
 
 	onDocumentEdit: function(data){
@@ -52729,11 +52730,21 @@ Ext.define('App.controller.patient.Documents', {
 			store.on('load', me.doSelectDocument, me);
 		}
 
+		if(panel.defereOnActiveReload) return;
+
+		me.doPatientDocumentReload(panel);
+	},
+
+	doPatientDocumentReload: function(panel, pid){
+		var me = this,
+			grid = panel.down('grid'),
+			store = grid.getStore();
+
 		store.clearFilter(true);
 		store.filter([
 			{
 				property: 'pid',
-				value: app.patient.pid
+				value: pid || app.patient.pid
 			}
 		]);
 	},

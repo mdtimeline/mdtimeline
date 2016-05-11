@@ -2807,18 +2807,18 @@ Ext.define('App.ux.AbstractPanel', {
 
 	boolRenderer: function(val) {
 		if(val == '1' || val == true || val == 'true') {
-			return '<div style="margin-left:auto; margin-right:auto; width:16"><img src="resources/images/icons/yes.gif" /></div>';
+			return '<div style="margin-left:auto; margin-right:auto; width:16"><img src="resources/images/icons/yes.png" /></div>';
 		} else if(val == '0' || val == false || val == 'false') {
-			return '<div style="margin-left:auto; margin-right:auto; width:16"><img src="resources/images/icons/no.gif" /></div>';
+			return '<div style="margin-left:auto; margin-right:auto; width:16"><img src="resources/images/icons/no.png" /></div>';
 		}
 		return val;
 	},
 
 	alertRenderer: function(val) {
 		if(val == '1' || val == true || val == 'true') {
-			return '<img style="padding-left: 13px" src="resources/images/icons/no.gif" />';
+			return '<img style="padding-left: 13px" src="resources/images/icons/no.png" />';
 		} else if(val == '0' || val == false || val == 'false') {
-			return '<img style="padding-left: 13px" src="resources/images/icons/yes.gif" />';
+			return '<img style="padding-left: 13px" src="resources/images/icons/yes.png" />';
 		}
 		return val;
 	},
@@ -10527,18 +10527,18 @@ Ext.define('App.ux.window.Window', {
 
 	boolRenderer: function(val) {
 		if(val == '1' || val == true || val == 'true') {
-			return '<img style="padding-left: 13px" src="resources/images/icons/yes.gif" />';
+			return '<img style="padding-left: 13px" src="resources/images/icons/yes.png" />';
 		} else if(val == '0' || val == false || val == 'false') {
-			return '<img style="padding-left: 13px" src="resources/images/icons/no.gif" />';
+			return '<img style="padding-left: 13px" src="resources/images/icons/no.png" />';
 		}
 		return val;
 	},
 
 	alertRenderer: function(val) {
 		if(val == '1' || val == true || val == 'true') {
-			return '<img style="padding-left: 13px" src="resources/images/icons/no.gif" />';
+			return '<img style="padding-left: 13px" src="resources/images/icons/no.png" />';
 		} else if(val == '0' || val == false || val == 'false') {
-			return '<img style="padding-left: 13px" src="resources/images/icons/yes.gif" />';
+			return '<img style="padding-left: 13px" src="resources/images/icons/yes.png" />';
 		}
 		return val;
 	},
@@ -13077,6 +13077,11 @@ Ext.define('App.model.administration.ReferringProviderFacility', {
 		},
 		{
 			name: 'referring_provider_id',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'facility_id',
 			type: 'int',
 			index: true
 		},
@@ -23460,9 +23465,9 @@ Ext.define('App.view.patient.encounter.CurrentProceduralTerminology', {
 
     status:function(val){
         if(val == '0') {
-            return '<img style="padding-left: 10px" src="resources/images/icons/no.gif" />';
+            return '<img style="padding-left: 10px" src="resources/images/icons/no.png" />';
         } else if(val == '1') {
-            return '<img style="padding-left: 10px" src="resources/images/icons/yes.gif" />';
+            return '<img style="padding-left: 10px" src="resources/images/icons/yes.png" />';
         } else if(val == '2') {
             return '<img style="padding-left: 10px" src="resources/images/icons/icohelp.png" />';
         }
@@ -25974,9 +25979,9 @@ Ext.define('App.view.patient.Visits', {
 
 		function open(val){
 			if(val !== null){
-				return '<img src="resources/images/icons/yes.gif" />';
+				return '<img src="resources/images/icons/yes.png" />';
 			}else{
-				return '<img src="resources/images/icons/no.gif" />';
+				return '<img src="resources/images/icons/no.png" />';
 			}
 		}
 
@@ -26077,9 +26082,9 @@ Ext.define('App.view.patient.Visits', {
 
 	openBool: function(val){
 		if(val !== null){
-			return '<img src="resources/images/icons/yes.gif" />';
+			return '<img src="resources/images/icons/yes.png" />';
 		}else{
-			return '<img src="resources/images/icons/no.gif" />';
+			return '<img src="resources/images/icons/no.png" />';
 		}
 	},
 
@@ -46074,11 +46079,11 @@ Ext.define('App.view.patient.Documents', {
 				},
 				frame: true,
 				itemId: 'patientDocumentViewerPanel',
-				style: 'background-color:#e7e7e7',
+				cls: 'document-viewer-backgroud',
 				items: [
 					{
 						xtype: 'miframe',
-						style: 'background-color:#e7e7e7',
+						style: 'document-viewer-backgroud',
 						autoMask: false,
 						flex: 1,
 						itemId: 'patientDocumentViewerFrame'
@@ -49619,14 +49624,14 @@ Ext.define('App.view.administration.Users', {
 												{
 													xtype: 'button',
 													text: _('active_all'),
-													icon: 'resources/images/icons/yes.gif',
+													icon: 'resources/images/icons/yes.png',
 													margin: '0 5 0 0',
 													itemId: 'UserGridEditFormProviderCredentializationActiveBtn'
 												},
 												{
 													xtype:'button',
 													text: _('inactive_all'),
-													icon: 'resources/images/icons/no.gif',
+													icon: 'resources/images/icons/no.png',
 													itemId: 'UserGridEditFormProviderCredentializationInactiveBtn'
 												}
 											],
@@ -55524,7 +55529,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 					xtype: 'actioncolumn',
 					tooltip: _('add_snippet'),
 					align: 'center',
-					icon: 'resources/images/icons/add.gif',
+					icon: 'resources/images/icons/add.png',
 					scope: me,
 					handler: function(grid, rowIndex, colIndex, actionItem, event, record){
 						snippetCtrl.onSnippetAddBtnClick(grid, rowIndex, colIndex, actionItem, event, record);

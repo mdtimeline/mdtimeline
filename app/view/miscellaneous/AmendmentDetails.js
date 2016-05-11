@@ -139,12 +139,12 @@ Ext.define('App.view.miscellaneous.AmendmentDetails', {
 		{
 			text: _('deny'),
 			itemId: 'AmendmentDetailsDenyBtn',
-			icon: 'resources/images/icons/no.gif'
+			icon: 'resources/images/icons/no.png'
 		},
 		{
 			text: _('approve'),
 			itemId: 'AmendmentDetailsApproveBtn',
-			icon: 'resources/images/icons/yes.gif'
+			icon: 'resources/images/icons/yes.png'
 		}
 	]
 });

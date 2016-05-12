@@ -34,7 +34,15 @@ session_start();
 setcookie(session_name(),session_id(),time()+86400, '/', null, false, true);
 
 define('_GaiaEXEC', 1);
-$site = isset($_SESSION['user']['site']) ? $_SESSION['user']['site'] : 'default';
+
+if(isset($_SESSION['user']['site'])){
+	$site = $_SESSION['user']['site'];
+}elseif($_REQUEST['site']){
+	$site = $_REQUEST['site'];
+}else{
+	$site = 'default';
+}
+
 if(!defined('_GaiaEXEC'))
 	define('_GaiaEXEC', 1);
 require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');

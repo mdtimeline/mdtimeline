@@ -241,11 +241,11 @@
 }
 
 .icoClose, .icoDelete {
-	background-image: url(../images/icons/no.gif) !important;
+	background-image: url(../images/icons/no.png) !important;
 }
 
 .icoAdd {
-	background-image: url(../images/icons/add.gif) !important;
+	background-image: url(../images/icons/add.png) !important;
 }
 
 .icoPreview {

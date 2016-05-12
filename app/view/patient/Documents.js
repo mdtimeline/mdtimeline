@@ -200,11 +200,11 @@ Ext.define('App.view.patient.Documents', {
 				},
 				frame: true,
 				itemId: 'patientDocumentViewerPanel',
-				style: 'background-color:#e7e7e7',
+				cls: 'document-viewer-backgroud',
 				items: [
 					{
 						xtype: 'miframe',
-						style: 'background-color:#e7e7e7',
+						style: 'document-viewer-backgroud',
 						autoMask: false,
 						flex: 1,
 						itemId: 'patientDocumentViewerFrame'

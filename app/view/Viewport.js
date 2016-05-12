@@ -358,6 +358,12 @@ Ext.define('App.view.Viewport', {
 				    }
 			    },
 			    {
+				    text: _('light_theme'),
+				    itemId:'AppThemeSwitcher',
+				    action: 'light',
+				    icon: 'resources/images/icons/theme.png'
+			    },
+			    {
 				    text: _('logout'),
 				    iconCls: 'icoLogout',
 				    action:'logout'

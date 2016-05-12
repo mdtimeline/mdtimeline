@@ -848,7 +848,7 @@ li .Deceased {
     border: solid 1px #CCC;
 }
 
-.RenderPanel .x-panel-body .x-box-inner x-panel {
+.RenderPanel .x-panel-body .x-box-inner .x-panel {
     background-color: #353535 !important;
 
 }
@@ -1039,8 +1039,17 @@ li .Deceased {
     padding: 5px;
 }
 
+.loginWindowBody,
+.loginFormBody {
+    background-color: transparent;
+}
+
 body#login {
-    background-image: url(../../images/login_bg.png) !important;
+    background-image: linear-gradient(
+            to top,
+            #1a1a1a,
+            #2e2e2e 30%
+    ); !important;
     background-position: bottom;
     background-attachment: fixed;
     background-repeat: repeat-x !important;
@@ -1058,14 +1067,14 @@ body#login {
 #copyright {
     font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
     font-size: 10px;
-    color: #333;
+    color: #C8C8C8;
     position: absolute;
     bottom: 5px;
     left: 10px;
 }
 
 #copyright a {
-    color: #333;;
+    color: #C8C8C8;;
 }
 
 /*#dashboard_title{*/

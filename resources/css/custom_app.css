@@ -848,7 +848,7 @@ li .Deceased {
     border: solid 1px #CCC;
 }
 
-.RenderPanel .x-panel-body .x-box-inner x-panel {
+.RenderPanel .x-panel-body .x-box-inner .x-panel {
     background-color: #fff !important;
 
 }
@@ -1039,8 +1039,17 @@ li .Deceased {
     padding: 5px;
 }
 
+.loginWindowBody,
+.loginFormBody {
+    background-color: white;
+}
+
 body#login {
-    background-image: url(../images/login_bg.png) !important;
+    background-image: linear-gradient(
+            to top,
+            #d6d6d6,
+            #f8f8f8 30%
+    ); !important;
     background-position: bottom;
     background-attachment: fixed;
     background-repeat: repeat-x !important;

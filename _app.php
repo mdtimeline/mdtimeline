@@ -117,7 +117,7 @@ header("Access-Control-Allow-Origin: *");
 	            var cookie = Ext.util.Cookies.get('mdtimeline_theme');
 	            var s;
 
-	            if((cookie && cookie == 'dark') || (!cookie && g('css_header') == 'dark')){
+	            if((cookie && cookie == 'dark')){
 		            globals.mdtimeline_theme = 'dark';
 		            link  = document.createElement('link');
 		            link.rel  = 'stylesheet';

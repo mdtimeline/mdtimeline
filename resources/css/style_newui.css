@@ -136,11 +136,11 @@
 }
 
 .icoZoneAreas {
-	background-image: url(../images/icons/icoZoneAreas.png) !important;
+	background-image: url(../images/icons/icoNineSquares.png) !important;
 }
 
 .icoZoneAreasBig {
-	background-image: url(../images/icons/icoZoneAreasBig.png) !important;
+	background-image: url(../images/icons/icoNineSquares.png) !important;
 }
 
 .icoDollar {
@@ -156,7 +156,7 @@
 }
 
 .icoPoolArea {
-	background-image: url(../images/icons/icoPoolArea.png) !important;
+	background-image: url(../images/icons/icoFourSquares.png) !important;
 }
 
 .icoPoolArea16 {
@@ -190,6 +190,14 @@
 
 .icoClock {
 	background-image: url(../images/icons/icoClock.png) !important;
+}
+
+.icoPin {
+	background-image: url(../images/icons/icoPin.png) !important;
+}
+
+.icoStow {
+	background-image: url(../images/icons/icoStow.png) !important;
 }
 
 .icoBackClock {

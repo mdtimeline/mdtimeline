@@ -213,7 +213,7 @@
 }
 
 .latest-vitals-items {
-    background-color: #66ccff;
+    background-color: #279DF9;
     border-radius: 2px 55px;
     border: solid 1px #999;
 }
@@ -779,7 +779,7 @@ li .Deceased {
 
 .drButton .x-btn-inner {
     font-size: 24px !important;
-    color: #666666;
+    color: #1A9BFC;
 }
 
 .patient-pool-btn {
@@ -858,6 +858,7 @@ li .Deceased {
     color: #cccccc;
     font-size: 22px;
     font-weight: 500;
+    line-height: 22px;
     padding: 2px 0 0 5px;
     text-shadow: 0 1px 0 #4f4f4f;
 }
@@ -926,7 +927,6 @@ li .Deceased {
     font-size: 24px;
     /*width: 100%;*/
     float: left;
-    border-bottom: 1px dotted #ccc;
 }
 
 .readOnly {

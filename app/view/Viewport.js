@@ -189,7 +189,7 @@ Ext.define('App.view.Viewport', {
 	            margin: '0 3 0 0',
                 cls: 'headerLargeBtn',
                 padding: 0,
-                iconCls: 'icoClock',
+                iconCls: 'icoPin',
                 scope: me,
                 handler: me.createNewEncounter,
                 tooltip: _('new_encounter')
@@ -202,7 +202,7 @@ Ext.define('App.view.Viewport', {
 		    margin: '0 3 0 0',
             cls: 'headerLargeBtn',
             padding: 0,
-            iconCls: 'icoArrowDown',
+            iconCls: 'icoStow',
             scope: me,
             handler: me.stowPatientRecord,
             tooltip: _('stow_patient_record')

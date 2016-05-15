@@ -1252,9 +1252,7 @@ Ext.define('App.view.Viewport', {
 
     removeAppMask: function(){
         if(Ext.get('mainapp-loading')) Ext.get('mainapp-loading').remove();
-        if(Ext.get('mainapp-loading-mask')) Ext.get('mainapp-loading-mask').fadeOut({
-            remove: true
-        });
+        if(Ext.get('mainapp-loading-mask')) Ext.get('mainapp-loading-mask').remove();
     },
 
     beforeAppRender: function(){

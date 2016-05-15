@@ -646,17 +646,14 @@
     z-index: 300001;
     left: 45%;
     top: 40%;
+    padding: 3px;
 }
 
 .mitos-mask-msg .x-mask-msg-inner {
-    background: url(../../images/loading.gif) no-repeat white center top !important;
-}
-
-.mitos-mask-msg .x-mask-msg-text {
-    background-color: transparent;
-    background-position: 5px 120px;
-    padding: 120px 10px 10px 26px;
-    margin: 0;
+    background: white url(../../images/loading.gif) no-repeat center !important;
+    width: 150px;
+    height: 150px;
+    padding: 0 !important;
 }
 
 .floorPlan {

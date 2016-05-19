@@ -42,8 +42,8 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
             return window.lang[key] || '*'+key+'*';
         };
 
-        window.say = function(args) {
-            console.log.apply(this, arguments);
+        window.say = function(args){
+	        console.log(args);
         };
 
         window.g = function(global){
@@ -61,50 +61,53 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
                 'App': 'app'
             }
         });
-        var head = document.getElementsByTagName('head')[0],
-            cookie = Ext.util.Cookies.get('mdtimeline_theme'),
-            link;
 
-        if((cookie && cookie == 'dark')){
-            link  = document.createElement('link');
-            link.rel  = 'stylesheet';
-            link.type = 'text/css';
-            link.href = 'resources/css/carbon/carbon.css';
-            link.media = 'all';
-            head.appendChild(link);
-            link  = document.createElement('link');
-            link.rel  = 'stylesheet';
-            link.type = 'text/css';
-            link.href = 'resources/css/carbon/style_newui.css';
-            link.media = 'all';
-            head.appendChild(link);
-            link  = document.createElement('link');
-            link.rel  = 'stylesheet';
-            link.type = 'text/css';
-            link.href = 'resources/css/carbon/custom_app.css';
-            link.media = 'all';
-            head.appendChild(link);
+        (function(){
+            var head = document.getElementsByTagName('head')[0],
+                cookie = Ext.util.Cookies.get('mdtimeline_theme'),
+                link;
 
-        }else{
-            link  = document.createElement('link');
-            link.rel  = 'stylesheet';
-            link.type = 'text/css';
-            link.href = 'resources/css/ext-all-gray.css';
-            link.media = 'all';
-            head.appendChild(link);
-            link  = document.createElement('link');
-            link.rel  = 'stylesheet';
-            link.type = 'text/css';
-            link.href = 'resources/css/style_newui.css';
-            link.media = 'all';
-            head.appendChild(link);
-            link  = document.createElement('link');
-            link.rel  = 'stylesheet';
-            link.type = 'text/css';
-            link.href = 'resources/css/custom_app.css';
-            link.media = 'all';
-            head.appendChild(link);
-        }
+            if((cookie && cookie == 'dark')){
+                link  = document.createElement('link');
+                link.rel  = 'stylesheet';
+                link.type = 'text/css';
+                link.href = 'resources/css/carbon/carbon.css';
+                link.media = 'all';
+                head.appendChild(link);
+                link  = document.createElement('link');
+                link.rel  = 'stylesheet';
+                link.type = 'text/css';
+                link.href = 'resources/css/carbon/style_newui.css';
+                link.media = 'all';
+                head.appendChild(link);
+                link  = document.createElement('link');
+                link.rel  = 'stylesheet';
+                link.type = 'text/css';
+                link.href = 'resources/css/carbon/custom_app.css';
+                link.media = 'all';
+                head.appendChild(link);
+
+            }else{
+                link  = document.createElement('link');
+                link.rel  = 'stylesheet';
+                link.type = 'text/css';
+                link.href = 'resources/css/ext-all-gray.css';
+                link.media = 'all';
+                head.appendChild(link);
+                link  = document.createElement('link');
+                link.rel  = 'stylesheet';
+                link.type = 'text/css';
+                link.href = 'resources/css/style_newui.css';
+                link.media = 'all';
+                head.appendChild(link);
+                link  = document.createElement('link');
+                link.rel  = 'stylesheet';
+                link.type = 'text/css';
+                link.href = 'resources/css/custom_app.css';
+                link.media = 'all';
+                head.appendChild(link);
+            }
+        })();
 
         for(var x = 0; x < App.data.length; x++){
             Ext.direct.Manager.addProvider(App.data[x]);

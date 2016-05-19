@@ -48,11 +48,7 @@ header("Access-Control-Allow-Origin: *");
 		<!-- Loading Mask -->
 		<div id="mainapp-loading-mask" class="x-mask mitos-mask" style="width: 100%; height: 100%"></div>
 		<div id="mainapp-loading" class="mitos-mask-msg x-mask-msg x-layer x-mask-msg-default x-border-box">
-			<div id="mainapp-x-mask-msg" class="x-mask-msg-inner">
-				<div class="x-mask-msg-text">
-					Loading MD Timeline...
-				</div>
-			</div>
+			<div id="mainapp-x-mask-msg" class="x-mask-msg-inner"></div>
 		</div>
 
         <!-- slide down message div -->
@@ -117,7 +113,7 @@ header("Access-Control-Allow-Origin: *");
 	            var cookie = Ext.util.Cookies.get('mdtimeline_theme');
 	            var s;
 
-	            if((cookie && cookie == 'dark') || (!cookie && g('css_header') == 'dark')){
+	            if((cookie && cookie == 'dark')){
 		            globals.mdtimeline_theme = 'dark';
 		            link  = document.createElement('link');
 		            link.rel  = 'stylesheet';

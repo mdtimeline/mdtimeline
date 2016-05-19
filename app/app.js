@@ -57766,7 +57766,7 @@ Ext.define('App.view.Viewport', {
 	            margin: '0 3 0 0',
                 cls: 'headerLargeBtn',
                 padding: 0,
-                iconCls: 'icoClock',
+                iconCls: 'icoPin',
                 scope: me,
                 handler: me.createNewEncounter,
                 tooltip: _('new_encounter')
@@ -57779,7 +57779,7 @@ Ext.define('App.view.Viewport', {
 		    margin: '0 3 0 0',
             cls: 'headerLargeBtn',
             padding: 0,
-            iconCls: 'icoArrowDown',
+            iconCls: 'icoStow',
             scope: me,
             handler: me.stowPatientRecord,
             tooltip: _('stow_patient_record')
@@ -58829,9 +58829,7 @@ Ext.define('App.view.Viewport', {
 
     removeAppMask: function(){
         if(Ext.get('mainapp-loading')) Ext.get('mainapp-loading').remove();
-        if(Ext.get('mainapp-loading-mask')) Ext.get('mainapp-loading-mask').fadeOut({
-            remove: true
-        });
+        if(Ext.get('mainapp-loading-mask')) Ext.get('mainapp-loading-mask').remove();
     },
 
     beforeAppRender: function(){

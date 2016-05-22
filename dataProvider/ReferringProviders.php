@@ -40,7 +40,7 @@ class ReferringProviders {
 
 	public function getReferringProvider($params){
 		// $this->getFacilities will try to find the facilities for the record
-		return $this->getFacilities($this->r->load($params)->one());
+		return $this->getFacilities($this->ReferringPhysician->load($params)->one());
 	}
 
 	public function addReferringProvider($params){

@@ -143,6 +143,9 @@ class Patient {
 		return $this->patient;
 	}
 
+	public function updatePatient($params){
+		return $this->p->save($params);
+	}
 
 	/**
 	 * @param $pid

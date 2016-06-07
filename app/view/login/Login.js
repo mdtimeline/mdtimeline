@@ -108,7 +108,12 @@ Ext.define('App.view.login.Login', {
 					anchor: '100%',
 					listeners: {
 						scope: me,
-						specialkey: me.onEnter
+						specialkey: me.onEnter,
+						afterrender:function(cmp){
+							cmp.inputEl.set({
+								autocomplete:'new-password'
+							});
+						}
 					}
 				},
 				{

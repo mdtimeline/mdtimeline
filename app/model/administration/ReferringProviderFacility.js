@@ -32,6 +32,11 @@ Ext.define('App.model.administration.ReferringProviderFacility', {
 			index: true
 		},
 		{
+			name: 'facility_id',
+			type: 'int',
+			index: true
+		},
+		{
 			name: 'name',
 			type: 'string',
 			len: 80

@@ -22,7 +22,7 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta content="utf-8" http-equiv="encoding">
-    <title>GaiaEHR :: New Site Setup</title>
+    <title>MD Timeline :: New Site Setup</title>
     <script type="text/javascript" src="lib/<?php print EXTJS ?>/ext-all.js"></script>
     <link rel="stylesheet" type="text/css" href="resources/css/ext-all-gray.css">
     <link rel="stylesheet" type="text/css" href="resources/css/style_newui.css">

@@ -91,7 +91,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 					xtype: 'actioncolumn',
 					tooltip: _('add_snippet'),
 					align: 'center',
-					icon: 'resources/images/icons/add.gif',
+					icon: 'resources/images/icons/add.png',
 					scope: me,
 					handler: function(grid, rowIndex, colIndex, actionItem, event, record){
 						snippetCtrl.onSnippetAddBtnClick(grid, rowIndex, colIndex, actionItem, event, record);

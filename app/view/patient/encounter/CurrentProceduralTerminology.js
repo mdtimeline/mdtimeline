@@ -300,9 +300,9 @@ Ext.define('App.view.patient.encounter.CurrentProceduralTerminology', {
 
     status:function(val){
         if(val == '0') {
-            return '<img style="padding-left: 10px" src="resources/images/icons/no.gif" />';
+            return '<img style="padding-left: 10px" src="resources/images/icons/no.png" />';
         } else if(val == '1') {
-            return '<img style="padding-left: 10px" src="resources/images/icons/yes.gif" />';
+            return '<img style="padding-left: 10px" src="resources/images/icons/yes.png" />';
         } else if(val == '2') {
             return '<img style="padding-left: 10px" src="resources/images/icons/icohelp.png" />';
         }

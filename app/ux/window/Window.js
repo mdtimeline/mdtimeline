@@ -92,18 +92,18 @@ Ext.define('App.ux.window.Window', {
 
 	boolRenderer: function(val) {
 		if(val == '1' || val == true || val == 'true') {
-			return '<img style="padding-left: 13px" src="resources/images/icons/yes.gif" />';
+			return '<img style="padding-left: 13px" src="resources/images/icons/yes.png" />';
 		} else if(val == '0' || val == false || val == 'false') {
-			return '<img style="padding-left: 13px" src="resources/images/icons/no.gif" />';
+			return '<img style="padding-left: 13px" src="resources/images/icons/no.png" />';
 		}
 		return val;
 	},
 
 	alertRenderer: function(val) {
 		if(val == '1' || val == true || val == 'true') {
-			return '<img style="padding-left: 13px" src="resources/images/icons/no.gif" />';
+			return '<img style="padding-left: 13px" src="resources/images/icons/no.png" />';
 		} else if(val == '0' || val == false || val == 'false') {
-			return '<img style="padding-left: 13px" src="resources/images/icons/yes.gif" />';
+			return '<img style="padding-left: 13px" src="resources/images/icons/yes.png" />';
 		}
 		return val;
 	},

@@ -37,11 +37,9 @@ header("Access-Control-Allow-Origin: *");
 		</script>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta content="utf-8" http-equiv="encoding">
-		<title>GaiaEHR :: Loading...</title>
+		<title>MD Timeline :: Loading...</title>
 		<link rel="stylesheet" type="text/css" href="resources/css/dashboard.css">
-		<link rel="stylesheet" type="text/css" href="resources/css/ext-all-gray.css">
-		<link rel="stylesheet" type="text/css" href="resources/css/style_newui.css">
-		<link rel="stylesheet" type="text/css" href="resources/css/custom_app.css">
+
         <link rel="stylesheet" type="text/css" href="resources/report/reportStyle.css">
 		<link rel="stylesheet" type="text/css" href="lib/darkroomjs/build/css/darkroom.min.css">
 		<link rel="shortcut icon" href="favicon.ico">
@@ -50,11 +48,7 @@ header("Access-Control-Allow-Origin: *");
 		<!-- Loading Mask -->
 		<div id="mainapp-loading-mask" class="x-mask mitos-mask" style="width: 100%; height: 100%"></div>
 		<div id="mainapp-loading" class="mitos-mask-msg x-mask-msg x-layer x-mask-msg-default x-border-box">
-			<div id="mainapp-x-mask-msg" class="x-mask-msg-inner">
-				<div class="x-mask-msg-text">
-					Loading GaiaEHR...
-				</div>
-			</div>
+			<div id="mainapp-x-mask-msg" class="x-mask-msg-inner"></div>
 		</div>
 
         <!-- slide down message div -->
@@ -101,7 +95,8 @@ header("Access-Control-Allow-Origin: *");
 
             (function(){
 
-	            var head = document.getElementsByTagName('head')[0];
+	            var head = document.getElementsByTagName('head')[0],
+		            link;
 
 	            /**
 	             * Ext Localization file
@@ -115,7 +110,75 @@ header("Access-Control-Allow-Origin: *");
 					'"><\/script>'
 				);
 
+	            var cookie = Ext.util.Cookies.get('mdtimeline_theme');
 	            var s;
+
+	            if((cookie && cookie == 'dark')){
+		            globals.mdtimeline_theme = 'dark';
+		            link  = document.createElement('link');
+		            link.rel  = 'stylesheet';
+		            link.type = 'text/css';
+		            link.href = 'resources/css/carbon/carbon.css';
+		            link.media = 'all';
+		            head.appendChild(link);
+		            link  = document.createElement('link');
+		            link.rel  = 'stylesheet';
+		            link.type = 'text/css';
+		            link.href = 'resources/css/carbon/style_newui.css';
+		            link.media = 'all';
+		            head.appendChild(link);
+		            link  = document.createElement('link');
+		            link.rel  = 'stylesheet';
+		            link.type = 'text/css';
+		            link.href = 'resources/css/carbon/custom_app.css';
+		            link.media = 'all';
+		            head.appendChild(link);
+
+		            if(window.dark_styles){
+			            for(s = 0; s < window.light_styles.length; s++){
+				            link  = document.createElement('link');
+				            link.rel  = 'stylesheet';
+				            link.type = 'text/css';
+				            link.href = window.dark_styles[s];
+				            link.media = 'all';
+				            head.appendChild(link);
+			            }
+		            }
+
+	            }else{
+		            globals.mdtimeline_theme = 'light';
+		            link  = document.createElement('link');
+		            link.rel  = 'stylesheet';
+		            link.type = 'text/css';
+		            link.href = 'resources/css/ext-all-gray.css';
+		            link.media = 'all';
+		            head.appendChild(link);
+		            link  = document.createElement('link');
+		            link.rel  = 'stylesheet';
+		            link.type = 'text/css';
+		            link.href = 'resources/css/style_newui.css';
+		            link.media = 'all';
+		            head.appendChild(link);
+		            link  = document.createElement('link');
+		            link.rel  = 'stylesheet';
+		            link.type = 'text/css';
+		            link.href = 'resources/css/custom_app.css';
+		            link.media = 'all';
+		            head.appendChild(link);
+
+		            if(window.light_styles){
+			            for(s = 0; s < window.light_styles.length; s++){
+				            link  = document.createElement('link');
+				            link.rel  = 'stylesheet';
+				            link.type = 'text/css';
+				            link.href = window.light_styles[s];
+				            link.media = 'all';
+				            head.appendChild(link);
+			            }
+		            }
+	            }
+
+
 	            /**
 	             * Modules Styles
 	             */
@@ -762,6 +825,7 @@ header("Access-Control-Allow-Origin: *");
 	                'Scanner',
 	                'ScriptCam',
 	                'Support',
+	                'Theme',
 
 	                'patient.ActiveProblems',
 	                'patient.AdvanceDirectives',

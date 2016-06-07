@@ -35,7 +35,7 @@ if (!defined('_GaiaEXEC')) die('No direct access allowed.');
 		</script>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta content="utf-8" http-equiv="encoding">
-		<title>GaiaEHR</title>
+		<title>MD Timeline</title>
 		<link rel="stylesheet" type="text/css" href="resources/css/ext-all-gray.css">
 		<link rel="stylesheet" type="text/css" href="resources/css/style_newui.css">
 		<link rel="stylesheet" type="text/css" href="resources/css/custom_app.css">

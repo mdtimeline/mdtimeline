@@ -428,6 +428,7 @@ module.exports = function(grunt){
 					'app/controller/Navigation.js',
 					'app/controller/ScriptCam.js',
 					'app/controller/Support.js',
+					'app/controller/Theme.js',
 					'app/controller/patient/ActiveProblems.js',
 					'app/controller/patient/AdvanceDirectives.js',
 					'app/controller/patient/Allergies.js',

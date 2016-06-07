@@ -20,6 +20,7 @@
 
 // TODO: This ROUTER much be part of Matcha::Connect to handle request from the client,
 // TODO: this way the Matcha::Connect is in control
+
 header('Content-type: text/html; charset=utf-8');
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
@@ -27,11 +28,12 @@ header("Expires: 0"); // Proxies.
 
 session_cache_limiter('private');
 session_cache_expire(1);
+session_regenerate_id(false);
 session_name('GaiaEHR');
 session_start();
-session_regenerate_id(false);
-setcookie(session_name(),session_id(),time()+86400, '/', "gaiaehr.com", false, true);
+setcookie(session_name(),session_id(),time()+86400, '/', null, false, true);
 
+define('_GaiaEXEC', 1);
 $site = isset($_SESSION['user']['site']) ? $_SESSION['user']['site'] : 'default';
 if(!defined('_GaiaEXEC'))
 	define('_GaiaEXEC', 1);
@@ -55,7 +57,8 @@ if(file_exists($conf)){
     include_once(ROOT . '/dataProvider/Globals.php');
     include_once(ROOT . '/dataProvider/Modules.php');
 
-	if(!isset($_SESSION['install']) || (isset($_SESSION['install']) && $_SESSION['install'] != true)) {
+	if(!isset($_SESSION['install']) || (isset($_SESSION['install']) && $_SESSION['install'] != true))
+    {
         $modules = new Modules();
         $API = array_merge($API, $modules->getEnabledModulesAPI());
     }

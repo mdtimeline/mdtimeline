@@ -59,6 +59,11 @@ Ext.define('App.model.administration.Facility', {
 			len: 25
 		},
 		{
+			name: 'email',
+			type: 'string',
+			len: 180
+		},
+		{
 			name: 'address',
 			type: 'string',
 			len: 120

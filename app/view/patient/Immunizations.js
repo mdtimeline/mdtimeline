@@ -232,8 +232,7 @@ Ext.define('App.view.patient.Immunizations', {
 												labelWidth: 115,
 												dateTimeFormat: 'Y-m-d H:i:s',
 												name: 'administered_date',
-                                                vtype: 'date',
-                                                allowBlank: false
+                                                vtype: 'date'
                                             }
 										]
 

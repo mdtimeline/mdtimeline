@@ -1653,5 +1653,8 @@ $LANG = array(
     'rule'                                  => 'Rule',
     'network_rules'                         => 'Network rules',
     'network_log'                           => 'Network log',
-    'search_for_a_physician'                => 'Search physician'
+    'search_for_a_physician'                => 'Search physician',
+    'light_theme'                           => 'Light Theme',
+    'dark_theme'                            => 'Dark Theme',
+    'theme_change_warning'                  => 'Application Refresh Required, Would You Like to Continue?',
 );

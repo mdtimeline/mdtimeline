@@ -18180,11 +18180,6 @@ Ext.define('App.model.patient.PatientImmunization', {
 		{
 			name: 'is_error',
 			type: 'bool'
-		},
-		{
-			name: 'error_note',
-			type: 'string',
-			len: 300
 		}
 	],
 	proxy: {
@@ -18527,13 +18522,6 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 			name: 'pid',
 			type: 'int',
 			index: true
-		},
-		{
-			name: 'study_uid',
-			type: 'string',
-			index: true,
-			len: 160,
-			comment: 'ID for external integration. Usually used for radilogy studies'
 		},
 		{
 			name: 'ordered_uid',
@@ -25308,42 +25296,39 @@ Ext.define('App.view.patient.Results', {
 	requires: [
 		'Ext.grid.plugin.CellEditing',
 		'Ext.grid.plugin.RowEditing',
-		'Ext.tab.Panel',
+        'Ext.tab.Panel',
 		'App.store.patient.PatientsOrders',
 		'App.ux.LiveLabsSearch',
-		'App.ux.LiveRadsSearch',
-		'App.ux.window.voidComment'
+        'App.ux.LiveRadsSearch',
+        'App.ux.window.voidComment'
 	],
 	title: _('results'),
 	xtype: 'patientresultspanel',
 	layout: 'border',
-	tbar: [
-		'->',
-		{
-			text: _('new_result'),
-			itemId: 'ResultsOrderNewBtn',
-			iconCls: 'icoAdd'
-		}
-	],
+    border: false,
+    init: function() {
+        var voidCommentWindow;
+    },
 	items: [
 		{
-			/**
-			 * Order Grid
-			 * ----------
-			 */
+            /**
+             * Order Grid
+             * ----------
+             */
 			xtype: 'grid',
-			itemId: 'ResultsOrdersGrid',
+            itemId: 'orderResultsGrid',
 			action: 'orders',
 			region: 'center',
+			split: true,
+            border: false,
 			columnLines: true,
 			allowDeselect: true,
-			frame: true,
 			store: Ext.create('App.store.patient.PatientsOrders', {
 				remoteFilter: true
 			}),
 			plugins: [
 				{
-					pluginId: 'ResultsOrdersGridRowEditor',
+                    pluginId: 'resultRowEditor',
 					ptype: 'rowediting',
 					errorSummary: false
 				}
@@ -25358,91 +25343,102 @@ Ext.define('App.view.patient.Results', {
 							tooltip: 'Get Info',
 							handler: function(grid, rowIndex, colIndex, item, e, record){
 								App.app.getController('InfoButton').doGetInfo(
-									record.data.code,
-									record.data.code_type,
-									record.data.description
-								);
+                                    record.data.code,
+                                    record.data.code_type,
+                                    record.data.description
+                                );
 							}
 						}
 					]
 				},
-				{
-					header: _('void'),
-					width: 30,
-					dataIndex: 'void',
-					tooltip: _('void'),
-					editor: {
-						xtype: 'checkbox',
-						itemid: 'ResultsOrdersGridOrderVoidCheckbox'
-					},
-					renderer: function(v, meta, record){
-						return app.voidRenderer(v);
-					}
-				},
-				{
-					header: _('type'),
-					width: 100,
-					dataIndex: 'order_type',
-					renderer: function(v, meta, record){
-						var style = '';
-						if(record.get('void')) style = 'text-decoration: line-through;';
-
-						if(record.data.order_type == 'lab')
-							return '<span style="' + style + '">' + _('laboratory') + '</span>';
-						if(record.data.order_type == 'rad')
-							return '<span style="' + style + '">' + _('radiology') + '</span>';
-					},
-					editor: {
-						xtype: 'combobox',
-						itemId: 'ResultsOrdersGridOrderTypeCombo',
-						store: Ext.create('Ext.data.Store', {
-							fields: ['type', 'order_type'],
-							data: [
-								{ 'type': 'Laboratory', 'order_type': 'lab' },
-								{ 'type': 'Radiology', 'order_type': 'rad' }
-							]
-						}),
-						allowBlank: false,
-						editable: false,
-						queryMode: 'local',
-						displayField: 'type',
-						valueField: 'order_type'
-					}
-				},
-				{
-					xtype: 'datecolumn',
-					format: 'Y-m-d',
-					header: _('date_ordered'),
-					dataIndex: 'date_ordered',
-					menuDisabled: true,
-					resizable: false,
-					width: 100,
-					editor: {
-						xtype: 'datefield',
-						allowBlank: false
-					},
-					renderer: function(v, meta, record){
-						var dataOrdered = record.data.date_ordered;
-						if(record.get('void'))
-							return '<span style="text-decoration: line-through;">' + dataOrdered + '</span>';
-						return '<span>' + dataOrdered + '</span>';
-					}
-				},
+                {
+                    header: _('void'),
+                    itemid: 'voidField',
+                    groupable: false,
+                    width: 30,
+                    align: 'center',
+                    dataIndex: 'void',
+                    tooltip: _('void'),
+                    editor:
+                    {
+                        xtype: 'checkbox',
+                        listeners:
+                        {
+                            change: function( chkbox )
+                            {
+                                if(!this.voidCommentWindow)
+                                    this.voidCommentWindow = Ext.create('App.ux.window.voidComment');
+                                this.voidCommentWindow.showAt(chkbox.getXY());
+                            }
+                        }
+                    },
+                    renderer: function(v, meta, record)
+                    {
+                        return app.voidRenderer(v);
+                    }
+                },
+                {
+                    header: _('type'),
+                    width: 100,
+                    dataIndex: 'order_type',
+                    renderer: function(v, meta, record)
+                    {
+                        var style = '';
+                        if(record.data.void) style = 'text-decoration: line-through;';
+                        if(record.data.order_type == 'lab')
+                            return '<span style="'+style+'">'+_('laboratory')+'</span>';
+                        if(record.data.order_type == 'rad')
+                            return '<span style="'+style+'">'+_('radiology')+'</span>';
+                    },
+                    editor: {
+                        xtype: 'combobox',
+                        itemId: 'orderTypeCombo',
+                        store: Ext.create('Ext.data.Store', {
+                            fields: ['type', 'order_type'],
+                            data: [
+                                {"type": "Laboratory", "order_type": "lab"},
+                                {"type": "Radiology", "order_type": "rad"}
+                            ]
+                        }),
+                        allowBlank: false,
+                        editable: false,
+                        queryMode: 'local',
+                        displayField: 'type',
+                        valueField: 'order_type'
+                    }
+                },
+                {
+                    xtype: 'datecolumn',
+                    format: 'Y-m-d',
+                    header: _('date_ordered'),
+                    dataIndex: 'date_ordered',
+                    menuDisabled: true,
+                    resizable: false,
+                    width: 100,
+                    editor: {
+                        xtype: 'datefield',
+                        allowBlank: false
+                    },
+                    renderer: function(v, meta, record)
+                    {
+                        var dataOrdered = record.data.date_ordered;
+                        if(record.data.void)
+                            return '<span style="text-decoration: line-through;">'+dataOrdered+'</span>';
+                        return '<span>'+dataOrdered+'</span>';
+                    }
+                },
 				{
 					header: _('order_description'),
 					dataIndex: 'description',
 					menuDisabled: true,
 					resizable: false,
 					flex: 1,
-					editor: {
-						xtype: 'labslivetsearch',
-						allowBlank: false
-					},
-					renderer: function(v, meta, record){
-						if(record.get('void'))
-							return '<span style="text-decoration: line-through;">' + v + '</span>';
-						return '<span>' + v + '</span>';
-					}
+                    renderer: function(v, meta, record)
+                    {
+                        if(record.data.void)
+                            return '<span style="text-decoration: line-through;">'+ v + '</span>';
+                        return '<span>'+ v + '</span>';
+                    }
 				},
 				{
 					header: _('status'),
@@ -25450,420 +25446,376 @@ Ext.define('App.view.patient.Results', {
 					menuDisabled: true,
 					resizable: false,
 					width: 60,
-					renderer: function(v, meta, record){
-						if(record.get('void'))
-							return '<span style="text-decoration: line-through;">' + v + '</span>';
-						return '<span>' + v + '</span>';
-					}
+                    renderer: function(v, meta, record)
+                    {
+                        if(record.data.void)
+                            return '<span style="text-decoration: line-through;">'+ v + '</span>';
+                        return '<span>'+ v + '</span>';
+                    }
+				}
+			],
+			bbar: [
+				'->',
+				{
+					text: _('new_result'),
+					itemId: 'NewOrderResultBtn',
+					iconCls: 'icoAdd',
+                    disabled: true
 				}
 			]
 		},
-		{
-			/**
-			 * Orders Card [ Laboratory or Radiology ]
-			 * ---------------------------------------
-			 */
-			xtype: 'panel',
-			border: false,
-			region: 'south',
-			split: true,
-			frame: true,
-			itemId: 'ResultsCardPanel',
-			height: 350,
-			hidden: true,
-			layout: 'card',
-			activeItem: 0,
-			bbar: [
-				{
-					text: _('sign'),
-					iconCls: 'icoSing',
-					disabled: true,
-					itemId: 'ResultsOrderSignBtn'
-				},
-				'->',
-				{
-					text: _('reset'),
-					action: 'ResultsOrderResetBtn'
-				},
-				{
-					text: _('save'),
-					action: 'ResultsOrderSaveBtn'
-				}
+        {
+            /**
+             * Orders Card [ Laboratory or Radiology ]
+             * ---------------------------------------
+             */
+            xtype: 'panel',
+            border: false,
+            region: 'south',
+            split: true,
+            itemId: 'documentTypeCard',
+            height: 350,
+            hidden: true,
+            layout: 'card',
+            activeItem: 0,
+            items: [
+                {
+                    /**
+                     * Laboratory Order Panel
+                     * ---------------------
+                     */
+                    xtype: 'panel',
+                    frame: false,
+                    itemId: 'laboratoryResultPanel',
+                    layout: {
+                        type: 'border'
+                    },
+                    tools: [
+                        {
+                            xtype: 'button',
+                            text: _('view_document'),
+                            icon: 'resources/images/icons/icoView.png',
+                            action: 'orderDocumentViewBtn'
+                        }
+                    ],
+                    items: [
+                        {
+                            xtype: 'form',
+                            title: _('report_info'),
+                            itemId: 'laboratoryResultForm',
+                            region: 'west',
+                            collapsible: true,
+                            autoScroll: true,
+                            width: 260,
+                            bodyPadding: 5,
+                            split: true,
+                            layout: {
+                                type: 'vbox',
+                                align: 'stretch'
+                            },
+                            items: [
+                                {
+                                    xtype: 'fieldset',
+                                    title: _('report_info'),
+                                    defaults: {
+                                        xtype: 'textfield',
+                                        anchor: '100%'
+                                    },
+                                    layout: 'anchor',
+                                    items: [
+                                        {
+                                            xtype: 'datefield',
+                                            fieldLabel: _('report_date'),
+                                            name: 'result_date',
+                                            format: 'Y-m-d',
+                                            allowBlank: false
+                                        },
+                                        {
+                                            fieldLabel: _('report_number'),
+                                            name: 'lab_order_id',
+                                            allowBlank: false
+                                        },
+                                        {
+                                            fieldLabel: _('status'),
+                                            name: 'result_status'
+                                        },
+                                        {
+                                            xtype: 'datefield',
+                                            fieldLabel: _('observation_date'),
+                                            name: 'observation_date',
+                                            format: 'Y-m-d',
+                                            allowBlank: false
+                                        },
+                                        {
+                                            fieldLabel: _('specimen'),
+                                            name: 'specimen_text'
+                                        },
+                                        {
+                                            xtype: 'textareafield',
+                                            fieldLabel: _('specimen_notes'),
+                                            name: 'specimen_notes',
+                                            height: 50
+                                        },
+                                        {
+                                            xtype: 'filefield',
+                                            labelAlign: 'top',
+                                            fieldLabel: _('upload_document'),
+                                            action: 'orderresultuploadfield',
+                                            submitValue: false
+                                        }
+                                    ]
+                                },
+                                {
+                                    xtype: 'fieldset',
+                                    title: _('laboratory_info'),
+                                    defaults: {
+                                        xtype: 'textfield',
+                                        anchor: '100%'
+                                    },
+                                    layout: 'anchor',
+                                    margin: 0,
+                                    collapsible: true,
+                                    collapsed: true,
+                                    items: [
+                                        {
+                                            fieldLabel: _('name'),
+                                            name: 'lab_name'
+                                        },
+                                        {
+                                            xtype: 'textareafield',
+                                            fieldLabel: _('address'),
+                                            name: 'lab_address',
+                                            height: 50
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            xtype: 'grid',
+                            itemId: 'observationsGrid',
+                            action: 'observations',
+                            flex: 1,
+                            region: 'center',
+                            split: true,
+                            border: false,
+                            columnLines: true,
+                            plugins: [
+                                {
+                                    ptype: 'cellediting',
+                                    clicksToEdit: 1
+                                }
+                            ],
+                            columns: [
+                                {
+                                    xtype: 'actioncolumn',
+                                    width: 25,
+                                    items: [
+                                        {
+                                            icon: 'resources/images/icons/blueInfo.png',  // Use a URL in the icon config
+                                            tooltip: 'Get Info',
+                                            handler: function(grid, rowIndex, colIndex, item, e, record){
+                                                App.app.getController('InfoButton').doGetInfo(
+                                                    record.data.code,
+                                                    record.data.code_type,
+                                                    record.data.code_text
+                                                );
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    text: _('name'),
+                                    menuDisabled: true,
+                                    dataIndex: 'code_text',
+                                    width: 350
+                                },
+                                {
+                                    text: _('value'),
+                                    menuDisabled: true,
+                                    dataIndex: 'value',
+                                    width: 180,
+                                    editor: {
+                                        xtype: 'textfield'
+                                    },
+                                    renderer: function(v, meta, record){
+                                        var red = ['LL', 'HH', '>', '<', 'AA', 'VS'],
+                                            orange = ['L', 'H', 'A', 'W', 'MS'],
+                                            blue = ['B', 'S', 'U', 'D', 'R', 'I'],
+                                            green = ['N'];
 
-			],
-			items: [
-				{
-					/**
-					 * Laboratory Order Panel
-					 * ---------------------
-					 */
-					xtype: 'panel',
-					frame: false,
-					itemId: 'ResultsLaboratoryPanel',
-					layout: {
-						type: 'border'
-					},
-					tools: [
-						{
-							xtype: 'button',
-							text: _('view_document'),
-							icon: 'resources/images/icons/icoView.png',
-							action: 'ResultsLaboratoryPanelDocumentViewBtn'
-						}
-					],
-					items: [
-						{
-							xtype: 'form',
-							title: _('report_info'),
-							itemId: 'ResultsLaboratoryForm',
-							region: 'west',
-							collapsible: true,
-							autoScroll: true,
-							width: 400,
-							bodyPadding: 5,
-							split: true,
-							layout: {
-								type: 'vbox',
-								align: 'stretch'
-							},
-							items: [
-								{
-									xtype: 'fieldset',
-									title: _('report_info'),
-									defaults: {
-										xtype: 'textfield',
-										anchor: '100%'
-									},
-									layout: 'anchor',
-									items: [
-										{
-											xtype: 'datefield',
-											fieldLabel: _('report_date'),
-											name: 'result_date',
-											format: 'Y-m-d',
-											allowBlank: false
-										},
-										{
-											fieldLabel: _('report_number'),
-											name: 'lab_order_id',
-											allowBlank: false
-										},
-										{
-											fieldLabel: _('status'),
-											name: 'result_status'
-										},
-										{
-											xtype: 'datefield',
-											fieldLabel: _('observation_date'),
-											name: 'observation_date',
-											format: 'Y-m-d',
-											allowBlank: false
-										},
-										{
-											fieldLabel: _('specimen'),
-											name: 'specimen_text'
-										},
-										{
-											xtype: 'textareafield',
-											fieldLabel: _('specimen_notes'),
-											name: 'specimen_notes',
-											height: 50
-										},
-										{
-											xtype: 'filefield',
-											labelAlign: 'top',
-											fieldLabel: _('upload_document'),
-											action: 'ResultsLaboratoryFormUploadField',
-											submitValue: false
-										}
-									]
-								},
-								{
-									xtype: 'fieldset',
-									title: _('laboratory_info'),
-									defaults: {
-										xtype: 'textfield',
-										anchor: '100%'
-									},
-									layout: 'anchor',
-									margin: 0,
-									collapsible: true,
-									collapsed: true,
-									items: [
-										{
-											fieldLabel: _('name'),
-											name: 'lab_name'
-										},
-										{
-											xtype: 'textareafield',
-											fieldLabel: _('address'),
-											name: 'lab_address',
-											height: 50
-										}
-									]
-								}
-							]
-						},
-						{
-							xtype: 'grid',
-							itemId: 'ResultsLaboratoryObservationsGrid',
-							action: 'observations',
-							flex: 1,
-							region: 'center',
-							split: true,
-							border: false,
-							columnLines: true,
-							plugins: [
-								{
-									ptype: 'cellediting',
-									clicksToEdit: 1
-								}
-							],
-							columns: [
-								{
-									xtype: 'actioncolumn',
-									width: 25,
-									items: [
-										{
-											icon: 'resources/images/icons/blueInfo.png',  // Use a URL in the icon config
-											tooltip: 'Get Info',
-											handler: function(grid, rowIndex, colIndex, item, e, record){
-												App.app.getController('InfoButton').doGetInfo(
-													record.data.code,
-													record.data.code_type,
-													record.data.code_text
-												);
-											}
-										}
-									]
-								},
-								{
-									text: _('name'),
-									menuDisabled: true,
-									dataIndex: 'code_text',
-									width: 350
-								},
-								{
-									text: _('value'),
-									menuDisabled: true,
-									dataIndex: 'value',
-									width: 180,
-									editor: {
-										xtype: 'textfield'
-									},
-									renderer: function(v, meta, record){
-										var red = ['LL', 'HH', '>', '<', 'AA', 'VS'],
-											orange = ['L', 'H', 'A', 'W', 'MS'],
-											blue = ['B', 'S', 'U', 'D', 'R', 'I'],
-											green = ['N'];
+                                        if(Ext.Array.contains(green, record.data.abnormal_flag))
+                                        {
+                                            return '<span style="color:green;">' + v + '</span>';
+                                        }
+                                        else if(Ext.Array.contains(blue, record.data.abnormal_flag))
+                                        {
+                                            return '<span style="color:blue;">' + v + '</span>';
+                                        }
+                                        else if(Ext.Array.contains(orange, record.data.abnormal_flag))
+                                        {
+                                            return '<span style="color:orange;">' + v + '</span>';
+                                        }
+                                        else if(Ext.Array.contains(red, record.data.abnormal_flag))
+                                        {
+                                            return '<span style="color:red;">' + v + '</span>';
+                                        }
+                                        else
+                                        {
+                                            return v;
+                                        }
+                                    }
+                                },
+                                {
+                                    text: _('units'),
+                                    menuDisabled: true,
+                                    dataIndex: 'units',
+                                    width: 75,
+                                    editor: {
+                                        xtype: 'textfield'
+                                    }
+                                },
+                                {
+                                    text: _('abnormal'),
+                                    menuDisabled: true,
+                                    dataIndex: 'abnormal_flag',
+                                    width: 75,
+                                    editor: {
+                                        xtype: 'textfield'
+                                    },
+                                    renderer: function(v, attr){
+                                        var red = ['LL', 'HH', '>', '<', 'AA', 'VS'],
+                                            orange = ['L', 'H', 'A', 'W', 'MS'],
+                                            blue = ['B', 'S', 'U', 'D', 'R', 'I'],
+                                            green = ['N'];
 
-										if(Ext.Array.contains(green, record.data.abnormal_flag)){
-											return '<span style="color:green;">' + v + '</span>';
-										}
-										else if(Ext.Array.contains(blue, record.data.abnormal_flag)){
-											return '<span style="color:blue;">' + v + '</span>';
-										}
-										else if(Ext.Array.contains(orange, record.data.abnormal_flag)){
-											return '<span style="color:orange;">' + v + '</span>';
-										}
-										else if(Ext.Array.contains(red, record.data.abnormal_flag)){
-											return '<span style="color:red;">' + v + '</span>';
-										}
-										else{
-											return v;
-										}
-									}
-								},
-								{
-									text: _('units'),
-									menuDisabled: true,
-									dataIndex: 'units',
-									width: 75,
-									editor: {
-										xtype: 'textfield'
-									}
-								},
-								{
-									text: _('abnormal'),
-									menuDisabled: true,
-									dataIndex: 'abnormal_flag',
-									width: 75,
-									editor: {
-										xtype: 'textfield'
-									},
-									renderer: function(v, attr){
-										var red = ['LL', 'HH', '>', '<', 'AA', 'VS'],
-											orange = ['L', 'H', 'A', 'W', 'MS'],
-											blue = ['B', 'S', 'U', 'D', 'R', 'I'],
-											green = ['N'];
-
-										if(Ext.Array.contains(green, v)){
-											return '<span style="color:green;">' + v + '</span>';
-										}
-										else if(Ext.Array.contains(blue, v)){
-											return '<span style="color:blue;">' + v + '</span>';
-										}
-										else if(Ext.Array.contains(orange, v)){
-											return '<span style="color:orange;">' + v + '</span>';
-										}
-										else if(Ext.Array.contains(red, v)){
-											return '<span style="color:red;">' + v + '</span>';
-										}
-										else{
-											return v;
-										}
-									}
-								},
-								{
-									text: _('range'),
-									menuDisabled: true,
-									dataIndex: 'reference_rage',
-									width: 150,
-									editor: {
-										xtype: 'textfield'
-									}
-								},
-								{
-									text: _('notes'),
-									menuDisabled: true,
-									dataIndex: 'notes',
-									width: 300,
-									editor: {
-										xtype: 'textfield'
-									}
-								},
-								{
-									text: _('status'),
-									menuDisabled: true,
-									dataIndex: 'observation_result_status',
-									width: 60,
-									editor: {
-										xtype: 'textfield'
-									}
-								}
-							]
-						}
-					]
-				},
-				{
-					/**
-					 * Radiology Order Panel
-					 * ---------------------
-					 */
-					xtype: 'panel',
-					itemId: 'ResultsRadiologyPanel',
-					frame: true,
-					layout: {
-						type: 'border'
-					},
-					items: [
-						{
-							xtype: 'form',
-							title: _('report'),
-							itemId: 'ResultsRadiologyForm',
-							region: 'west',
-							collapsible: true,
-							autoScroll: true,
-							width: 400,
-							bodyPadding: 5,
-							split: true,
-							layout: {
-								type: 'vbox',
-								align: 'stretch'
-							},
-							items: [
-								{
-									xtype: 'fieldset',
-									title: _('report'),
-									defaults: {
-										xtype: 'textfield',
-										anchor: '100%'
-									},
-									layout: 'anchor',
-									items: [
-										{
-											xtype: 'datefield',
-											fieldLabel: _('report_date'),
-											name: 'result_date',
-											format: 'Y-m-d',
-											allowBlank: false
-										},
-										{
-											fieldLabel: _('report_number'),
-											name: 'lab_order_id',
-											allowBlank: false
-										},
-										{
-											fieldLabel: _('status'),
-											name: 'result_status'
-										},
-										{
-											xtype: 'filefield',
-											fieldLabel: _('report'),
-											action: 'ResultsRadiologyFormUploadField',
-											submitValue: false
-										}
-									]
-								},
-								{
-									xtype: 'fieldset',
-									title: _('study'),
-									defaults: {
-										xtype: 'textfield',
-										anchor: '100%'
-									},
-									layout: 'anchor',
-									items: [
-										{
-											fieldLabel: _('link'),
-											name: 'study_link',
-											itemId: 'ResultsRadiologyFormStudyLinkField',
-											readOnly: true
-										},
-										{
-											xtype: 'button',
-											text: _('view'),
-											margin: '0 0 5 105',
-											itemId: 'ResultsRadiologyFormViewStudyBtn'
-										}
-									]
-								},
-								{
-									xtype: 'fieldset',
-									title: _('radiologist'),
-									defaults: {
-										xtype: 'textfield',
-										anchor: '100%'
-									},
-									layout: 'anchor',
-									margin: 0,
-									collapsible: true,
-									collapsed: true,
-									items: [
-										{
-											fieldLabel: _('name'),
-											name: 'radiologist_name'
-										},
-										{
-											xtype: 'textareafield',
-											fieldLabel: _('address'),
-											name: 'radiologist_address',
-											height: 50
-										}
-									]
-								}
-							]
-						},
-						{
-							xtype: 'miframe',
-							region: 'center',
-							style: 'background-color: white',
-							itemId: 'ResultsRadiologyDocumentIframe'
-						}
-					]
-				}
-			]
-		}
+                                        if(Ext.Array.contains(green, v))
+                                        {
+                                            return '<span style="color:green;">' + v + '</span>';
+                                        }
+                                        else if(Ext.Array.contains(blue, v))
+                                        {
+                                            return '<span style="color:blue;">' + v + '</span>';
+                                        }
+                                        else if(Ext.Array.contains(orange, v))
+                                        {
+                                            return '<span style="color:orange;">' + v + '</span>';
+                                        }
+                                        else if(Ext.Array.contains(red, v))
+                                        {
+                                            return '<span style="color:red;">' + v + '</span>';
+                                        }
+                                        else
+                                        {
+                                            return v;
+                                        }
+                                    }
+                                },
+                                {
+                                    text: _('range'),
+                                    menuDisabled: true,
+                                    dataIndex: 'reference_rage',
+                                    width: 150,
+                                    editor: {
+                                        xtype: 'textfield'
+                                    }
+                                },
+                                {
+                                    text: _('notes'),
+                                    menuDisabled: true,
+                                    dataIndex: 'notes',
+                                    width: 300,
+                                    editor: {
+                                        xtype: 'textfield'
+                                    }
+                                },
+                                {
+                                    text: _('status'),
+                                    menuDisabled: true,
+                                    dataIndex: 'observation_result_status',
+                                    width: 60,
+                                    editor: {
+                                        xtype: 'textfield'
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    dockedItems: [
+                        {
+                            xtype: 'toolbar',
+                            dock: 'bottom',
+                            ui: 'footer',
+                            itemId: 'OrderResultBottomToolbar',
+                            defaults: {
+                                minWidth: 75
+                            },
+                            items: [
+                                {
+                                    text: _('sign'),
+                                    iconCls: 'icoSing',
+                                    disabled: true,
+                                    itemId: 'OrderResultSignBtn'
+                                },
+                                '->',
+                                {
+                                    text: _('reset'),
+                                    action: 'orderResultResetBtn'
+                                },
+                                {
+                                    text: _('save'),
+                                    action: 'orderResultSaveBtn'
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    /**
+                     * Radiology Order Panel
+                     * ---------------------
+                     */
+                    xtype: 'panel',
+                    itemId: 'radiologyResultPanel',
+                    frame: true,
+                    layout: {
+                        type: 'border'
+                    },
+                    items: [
+                        {
+                        }
+                    ],
+                    dockedItems: [
+                        {
+                            xtype: 'toolbar',
+                            dock: 'bottom',
+                            ui: 'footer',
+                            itemId: 'radiologyResultBottomToolbar',
+                            defaults: {
+                                minWidth: 75
+                            },
+                            items: [
+                                {
+                                    text: _('sign'),
+                                    iconCls: 'icoSing',
+                                    disabled: true,
+                                    itemId: 'radiologyResultSignBtn'
+                                },
+                                '->',
+                                {
+                                    text: _('reset'),
+                                    action: 'radiologyResultResetBtn'
+                                },
+                                {
+                                    text: _('save'),
+                                    action: 'radiologyResultSaveBtn'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
 	]
 });
 
@@ -44845,8 +44797,7 @@ Ext.define('App.view.patient.Immunizations', {
 												labelWidth: 115,
 												dateTimeFormat: 'Y-m-d H:i:s',
 												name: 'administered_date',
-                                                vtype: 'date',
-                                                allowBlank: false
+                                                vtype: 'date'
                                             }
 										]
 
@@ -44978,6 +44929,7 @@ Ext.define('App.view.patient.Immunizations', {
 		}
 	]
 });
+
 Ext.define('App.view.patient.Medications', {
 	extend: 'Ext.panel.Panel',
 	requires: [
@@ -45107,7 +45059,11 @@ Ext.define('App.view.patient.Medications', {
 					width: 90,
 					dataIndex: 'begin_date',
 					sortable: false,
-					hideable: false
+					hideable: false,
+                    editor: {
+                        xtype: 'datefield',
+                        format: 'Y-m-d'
+                    }
 				},
 				{
 					xtype: 'datecolumn',
@@ -53278,134 +53234,128 @@ Ext.define('App.controller.patient.LabOrders', {
 	}
 });
 
-Ext.define('App.controller.patient.Results', {
+Ext.define('App.controller.patient.Results',
+{
 	extend: 'Ext.app.Controller',
 	requires: [
 		'App.view.administration.HL7MessageViewer'
 	],
 	refs: [
 		{
-			ref: 'ResultsPanel',
+			ref: 'resultsPanel',
 			selector: 'patientresultspanel'
 		},
 		{
-			ref: 'ResultsOrdersGrid',
-			selector: '#ResultsOrdersGrid'
+			ref: 'resultForm',
+			selector: 'patientresultspanel #OrderResultForm'
 		},
 		{
-			ref: 'ResultsCardPanel',
-			selector: '#ResultsCardPanel'
+			ref: 'observationsGrid',
+			selector: 'patientresultspanel #observationsGrid'
 		},
 		{
-			ref: 'ResultsOrderSignBtn',
-			selector: '#ResultsOrderSignBtn'
+			ref: 'ordersGrid',
+			selector: 'patientresultspanel > grid[action=orders]'
 		},
 		{
-			ref: 'ResultsOrderNewBtn',
-			selector: '#ResultsOrderNewBtn'
+			ref: 'uploadField',
+			selector: 'filefield[action=orderresultuploadfield]'
 		},
 		{
-			ref: 'ResultsOrderResetBtn',
-			selector: '#ResultsOrderResetBtn'
+			ref: 'messageField',
+			selector: 'hl7messageviewer > textareafield[action=message]'
 		},
 		{
-			ref: 'ResultsOrderSaveBtn',
-			selector: '#ResultsOrderSaveBtn'
-		},
-
-		// laboratory
-		{
-			ref: 'ResultsLaboratoryPanel',
-			selector: '#ResultsLaboratoryPanel'
+			ref: 'acknowledgeField',
+			selector: 'hl7messageviewer > textareafield[action=acknowledge]'
 		},
 		{
-			ref: 'ResultsLaboratoryForm',
-			selector: '#ResultsLaboratoryForm'
+			ref: 'OrderResultSignBtn',
+			selector: '#OrderResultSignBtn'
 		},
-		{
-			ref: 'ResultsLaboratoryObservationsGrid',
-			selector: '#ResultsLaboratoryObservationsGrid'
-		},
-		{
-			ref: 'ResultsLaboratoryFormUploadField',
-			selector: '#ResultsLaboratoryFormUploadField'
-		},
-
-		// Radiology
-		{
-			ref: 'ResultsRadiologyPanel',
-			selector: '#ResultsRadiologyPanel'
-		},
-		{
-			ref: 'ResultsRadiologyDocumentIframe',
-			selector: '#ResultsRadiologyDocumentIframe'
-		}
+        {
+            ref: 'DocumentTypeCard',
+            selector: 'patientresultspanel > #documentTypeCard'
+        },
+        {
+            ref: 'LaboratoryResultPanel',
+            selector: '#laboratoryResultPanel'
+        },
+        {
+            ref: 'LaboratoryResultForm',
+            selector: '#laboratoryResultForm'
+        },
+        {
+            ref: 'NewOrderResultBtn',
+            selector: '#NewOrderResultBtn'
+        }
 	],
 
-	init: function(){
+	init: function()
+    {
 		var me = this;
 		me.control({
 			'patientresultspanel': {
 				activate: me.onResultPanelActive
 			},
-			'#ResultsOrdersGrid': {
+			'patientresultspanel > grid[action=orders]': {
 				selectionchange: me.onOrderSelectionChange,
 				edit: me.onOrderSelectionEdit
 			},
-			'#ResultsLaboratoryFormUploadField': {
+			'filefield[action=orderresultuploadfield]': {
 				change: me.onOrderDocumentChange
 			},
-			'#ResultsLaboratoryOrderResetBtn': {
+			'button[action=orderResultResetBtn]': {
 				click: me.onResetOrderResultClicked
 			},
-			'#ResultsLaboratoryOrderSaveBtn': {
+			'button[action=orderResultSaveBtn]': {
 				click: me.onSaveOrderResultClicked
 			},
-			'#ResultsLaboratoryPanelDocumentViewBtn': {
+			'button[action=orderDocumentViewBtn]': {
 				click: me.onOrderDocumentViewBtnClicked
 			},
-			'#ResultsOrderNewBtn': {
+			'#NewOrderResultBtn': {
 				click: me.onNewOrderResultBtnClick
 			},
-			'#ResultsOrderSignBtn': {
+			'#OrderResultSignBtn': {
 				click: me.onOrderResultSignBtnClick
 			},
-			'#ResultsOrdersGridOrderTypeCombo': {
-				change: me.onOrderTypeSelect
-			},
-			'#ResultsOrdersGridRowEditor': {
-				beforeedit: me.onOrderResultGridRowEdit
-			},
-			'#ResultsOrdersGridOrderVoidCheckbox': {
-				change: me.onResultsOrdersGridOrderVoidCheckboxChange
-			}
+            '#orderTypeCombo':{
+                change: me.onOrderTypeSelect
+            },
+            '#resultRowEditor':{
+                beforeedit: me.onOrderResultGridRowEdit
+            }
 		});
 	},
 
-	onResultsOrdersGridOrderVoidCheckboxChange: function(){
-
-	},
-
-	onOrderResultSignBtnClick: function(){
+	onOrderResultSignBtnClick: function()
+    {
 		var me = this,
-			record;
+            record;
 
-		app.passwordVerificationWin(function(btn, password){
-			if(btn == 'ok'){
+		app.passwordVerificationWin(function(btn, password)
+        {
+			if(btn == 'ok')
+            {
 				User.verifyUserPass(password, function(success){
-					if(success){
-						record = me.getResultsLaboratoryForm().getRecord();
+					if(success)
+                    {
+                        record = me.getLaboratoryResultForm().getRecord();
 						record.set({signed_uid: app.user.id});
 						record.save({
-							success: function(){
+							success: function()
+                            {
 								app.msg(_('sweet'), _('result_signed'));
 							},
-							failure: function(){
+							failure: function()
+                            {
 								app.msg(_('sweet'), _('record_error'), true);
 							}
 						});
 					}
-					else{
+                    else
+                    {
 						me.onOrderResultSignBtnClick();
 					}
 				});
@@ -53413,83 +53363,92 @@ Ext.define('App.controller.patient.Results', {
 		});
 	},
 
-	onOrderSelectionEdit: function(editor, e){
+	onOrderSelectionEdit: function(editor, e)
+    {
 		this.getOrderResult(e.record);
 	},
 
-	onNewOrderResultBtnClick: function(btn){
-		var grid = this.getResultsOrdersGrid(),
+    onNewOrderResultBtnClick: function(btn){
+		var grid = btn.up('grid'),
 			store = grid.getStore(),
 			records,
-			fields;
-
+            fields;
 		grid.editingPlugin.cancelEdit();
 		records = store.add({
 			pid: app.patient.pid,
 			uid: app.user.id,
-			order_type: 'lab',
+            order_type: 'lab',
 			status: 'Pending'
 		});
-		grid.getPlugin('ResultsOrdersGridRowEditor').startEdit(records[0], 0);
+		grid.getPlugin('resultRowEditor').startEdit(records[0], 0);
 
-		// Focus the second column when editing.
-		fields = grid.getPlugin('ResultsOrdersGridRowEditor').getEditor();
-		fields.items.items[2].focus();
-		fields.items.items[1].setValue('lab');
+        // Focus the second column when editing.
+        fields = grid.getPlugin('resultRowEditor').getEditor();
+        fields.items.items[2].focus();
+        fields.items.items[1].setValue('lab');
 
-		// By Default when adding a new record, it will be a Laboratory
-		grid.columns[4].setEditor({
-			xtype: 'labslivetsearch',
-			allowBlank: false,
-			flex: 1
-		});
-	},
+        // By Default when adding a new record, it will be a Laboratory
+        grid.columns[3].setEditor({
+            xtype: 'labslivetsearch',
+            itemId: 'labOrderLiveSearch',
+            allowBlank: false,
+            flex: 1
+        });
+    },
 
-	onOrderResultGridRowEdit: function(editor, context, eOpts){
-		//say(context);
-	},
+    onOrderResultGridRowEdit: function(editor, context, eOpts)
+    {
+        //say(context);
+    },
 
-	onOrderTypeSelect: function(combo, newValue, oldValue, eOpts){
-		var grid = combo.up('grid');
+    onOrderTypeSelect: function(combo, newValue, oldValue, eOpts)
+    {
+        var grid = combo.up('grid');
 
-		if(newValue === 'lab'){
-			// Change the Card panel, to show the Laboratory results form
-			this.getResultsCardPanel().getLayout().setActiveItem('ResultsLaboratoryPanel');
-			// Change the field to look for laboratories
-			grid.columns[4].setEditor({
-				xtype: 'labslivetsearch',
-				allowBlank: false,
-				flex: 1,
-				value: ''
-			});
-			// Enabled the New Order Result Properties
-			//this.getResultsOrderNewBtn().disable(false);
-		}
+        if(newValue === 'lab')
+        {
+            // Change the Card panel, to show the Laboratory results form
+            this.getDocumentTypeCard().getLayout().setActiveItem('laboratoryResultPanel');
+            // Change the field to look for laboratories
+            grid.columns[3].setEditor({
+                xtype: 'labslivetsearch',
+                itemId: 'labOrderLiveSearch',
+                allowBlank: false,
+                flex: 1,
+                value: ''
+            });
+            // Enabled the New Order Result Properties
+            this.getNewOrderResultBtn().disable(false);
+        }
 
-		if(newValue === 'rad'){
-			// Change the Card panel, to show the Radiology results form
-			this.getResultsCardPanel().getLayout().setActiveItem('ResultsRadiologyPanel');
-			// Change the field to look for radiologies
-			grid.columns[4].setEditor({
-				xtype: 'radslivetsearch',
-				allowBlank: false,
-				flex: 1,
-				value: ''
-			});
-			// Enabled the New Order Result Properties
-			//this.getResultsOrderNewBtn().disable(false);
-		}
-	},
+        if(newValue === 'rad')
+        {
+            // Change the Card panel, to show the Radiology results form
+            this.getDocumentTypeCard().getLayout().setActiveItem('radiologyResultPanel');
+            // Change the field to look for radiologies
+            grid.columns[3].setEditor({
+                xtype: 'radslivetsearch',
+                itemId: 'radsOrderLiveSearch',
+                allowBlank: false,
+                flex: 1,
+                value: ''
+            });
+            // Enabled the New Order Result Properties
+            this.getNewOrderResultBtn().disable(false);
+        }
+    },
 
-	onResultPanelActive: function(){
+	onResultPanelActive: function()
+    {
 		this.setResultPanel();
 	},
 
 	setResultPanel: function(){
 		var me = this,
-			ordersStore = me.getResultsOrdersGrid().getStore();
+			ordersStore = me.getOrdersGrid().getStore();
 
-		if(app.patient){
+		if(app.patient)
+        {
 			ordersStore.clearFilter(true);
 			ordersStore.filter([
 				{
@@ -53498,54 +53457,60 @@ Ext.define('App.controller.patient.Results', {
 				}
 			]);
 		}
-		else{
+        else
+        {
 			ordersStore.clearFilter(true);
 			ordersStore.load();
 		}
 	},
 
-	onOrderSelectionChange: function(model, records){
+	onOrderSelectionChange: function(model, records)
+    {
+        if(!this.getDocumentTypeCard().isVisible())
+            this.getDocumentTypeCard().setVisible(true);
 
-		var carDpanel = this.getResultsCardPanel();
+        if(records[0])
+        {
+            if (records[0].data.order_type === 'lab')
+                this.getDocumentTypeCard().getLayout().setActiveItem('laboratoryResultPanel');
 
-		if(!carDpanel.isVisible())
-			carDpanel.setVisible(true);
+            if (records[0].data.order_type === 'rad')
+                this.getDocumentTypeCard().getLayout().setActiveItem('radiologyResultPanel');
 
-		if(records[0]){
-			if(records[0].data.order_type === 'lab')
-				carDpanel.getLayout().setActiveItem('ResultsLaboratoryPanel');
-
-			if(records[0].data.order_type === 'rad')
-				carDpanel.getLayout().setActiveItem('ResultsRadiologyPanel');
-
-			if(records.length > 0){
-				this.getOrderResult(records[0]);
-			}
-			else{
-				this.resetOrderResultForm();
-			}
-		}
+            if (records.length > 0)
+            {
+                this.getOrderResult(records[0]);
+            }
+            else
+            {
+                this.resetOrderResultForm();
+            }
+        }
 	},
 
-	getOrderResult: function(orderRecord){
+	getOrderResult: function(orderRecord)
+    {
 		var me = this,
-			form = me.getResultsLaboratoryForm(),
+			form = me.getLaboratoryResultForm(),
 			resultsStore = orderRecord.results(),
-			observationGrid = me.getResultsLaboratoryObservationsGrid(),
+			observationGrid = me.getObservationsGrid(),
 			observationStore,
-			newResult,
-			i;
+            newResult,
+            i;
 
 		observationGrid.editingPlugin.cancelEdit();
 		resultsStore.load({
 			callback: function(records){
-				if(records.length > 0){
+				if(records.length > 0)
+                {
 					form.loadRecord(records[0]);
-					me.getResultsOrderSignBtn().setDisabled(records[0].data.signed_uid > 0);
+					me.getOrderResultSignBtn().setDisabled(records[0].data.signed_uid > 0);
 					observationStore = records[0].observations();
 					observationGrid.reconfigure(observationStore);
 					observationStore.load();
-				}else{
+				}
+                else
+                {
 					newResult = resultsStore.add({
 						pid: orderRecord.data.pid,
 						code: orderRecord.data.code,
@@ -53555,15 +53520,18 @@ Ext.define('App.controller.patient.Results', {
 						create_date: new Date()
 					});
 					form.loadRecord(newResult[0]);
-					me.getResultsOrderSignBtn().setDisabled(true);
+					me.getOrderResultSignBtn().setDisabled(true);
 					observationStore = newResult[0].observations();
 					observationGrid.reconfigure(observationStore);
 					observationStore.load({
-						params: {
+						params:
+                        {
 							loinc: orderRecord.data.code
 						},
-						callback: function(ObsRecords){
-							for(i = 0; i < ObsRecords.length; i++){
+						callback: function(ObsRecords)
+                        {
+							for(i = 0; i < ObsRecords.length; i++)
+                            {
 								ObsRecords[i].phantom = true;
 							}
 						}
@@ -53573,14 +53541,16 @@ Ext.define('App.controller.patient.Results', {
 		});
 	},
 
-	onResetOrderResultClicked: function(){
+	onResetOrderResultClicked: function()
+    {
 		this.resetOrderResultForm();
 	},
 
-	resetOrderResultForm: function(){
+	resetOrderResultForm: function()
+    {
 		var me = this,
-			form = me.getResultsLaboratoryForm(),
-			observationGrid = me.getResultsLaboratoryObservationsGrid(),
+			form = me.getLaboratoryResultForm(),
+			observationGrid = me.getObservationsGrid(),
 			store = Ext.create('App.store.patient.PatientsOrderObservations');
 
 		form.reset();
@@ -53588,23 +53558,27 @@ Ext.define('App.controller.patient.Results', {
 		observationGrid.reconfigure(store);
 	},
 
-	onSaveOrderResultClicked: function(){
+	onSaveOrderResultClicked: function()
+    {
 		var me = this,
-			form = me.getResultsLaboratoryForm(),
+			form = me.getLaboratoryResultForm(),
 			values = form.getValues(),
-			files = me.getResultsLaboratoryFormUploadField().getEl().down('input[type=file]').dom.files,
+			files = me.getUploadField().getEl().down('input[type=file]').dom.files,
 			reader = new FileReader();
 
-		// The form is not valid, go ahead and warn the user.
-		if(!form.isValid()){
+        // The form is not valid, go ahead and warn the user.
+		if(!form.isValid())
+        {
 			app.msg(_('oops'), _('required_fields_missing'), true);
 			return;
 		}
 
-		if(files.length > 0){
+		if(files.length > 0)
+        {
 			reader.onload = (function(){
-				return function(e){
-					var sm = me.getResultsOrdersGrid().getSelectionModel(),
+				return function(e)
+                {
+					var sm = me.getOrdersGrid().getSelectionModel(),
 						order = sm.getSelection(),
 						params = {
 							pid: order[0].data.pid,
@@ -53626,15 +53600,17 @@ Ext.define('App.controller.patient.Results', {
 			})(files[0]);
 			reader.readAsDataURL(files[0]);
 		}
-		else{
+        else
+        {
 			me.saveOrderResult(form, values);
 		}
 	},
 
-	saveOrderResult: function(form, values){
+	saveOrderResult: function(form, values)
+    {
 		var me = this,
 			record = form.getRecord(),
-			sm = me.getResultsOrdersGrid().getSelectionModel(),
+			sm = me.getOrdersGrid().getSelectionModel(),
 			order = sm.getSelection(),
 			observationData = [];
 
@@ -53642,15 +53618,17 @@ Ext.define('App.controller.patient.Results', {
 			observations = observationStore.data.items;
 
 		record.set(values);
-		record.save({
+        record.save({
 			success: function(rec){
 
-				for(var i = 0; i < observations.length; i++){
+				for(var i = 0; i < observations.length; i++)
+                {
 					observations[i].set({result_id: rec.data.id});
 				}
 
 				observationStore.sync({
-					callback: function(batch, options){
+					callback:function(batch, options)
+                    {
 
 					}
 				});
@@ -53661,9 +53639,10 @@ Ext.define('App.controller.patient.Results', {
 		});
 	},
 
-	onOrderDocumentViewBtnClicked: function(){
+	onOrderDocumentViewBtnClicked: function()
+    {
 		var me = this,
-			form = me.getResultsLaboratoryForm(),
+			form = me.getLaboratoryResultForm(),
 			record = form.getRecord(),
 			recordData = record.data.documentId.split('|'),
 			type = null,
@@ -53673,25 +53652,32 @@ Ext.define('App.controller.patient.Results', {
 		if(recordData[0]) type = recordData[0];
 		if(recordData[1]) id = recordData[1];
 
-		if(type && id){
-			if(type == 'hl7'){
+		if(type && id)
+        {
+			if(type == 'hl7')
+            {
 				win = Ext.widget('hl7messageviewer').show();
 				win.body.mask(_('loading...'));
-				HL7Messages.getMessageById(id, function(provider, response){
+				HL7Messages.getMessageById(id, function(provider, response)
+                {
 					me.getMessageField().setValue(response.result.message);
 					me.getAcknowledgeField().setValue(response.result.response);
 					win.body.unmask();
 				});
-			} else if(type == 'doc'){
+			}
+            else if(type == 'doc')
+            {
 				app.onDocumentView(id);
 			}
 		}
-		else{
+        else
+        {
 			app.msg(_('oops'), _('no_document_found'), true)
 		}
 	},
 
-	onOrderDocumentChange: function(field){
+	onOrderDocumentChange: function(field)
+    {
 		//		say(field);
 		//		say(document.getElementById(field.inputEl.id).files[0]);
 		//		say(field.inputEl);

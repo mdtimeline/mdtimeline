@@ -64,7 +64,8 @@ if(file_exists($conf)){
     }
 }
 
-class BogusAction {
+class BogusAction
+{
 	public $action;
 	public $method;
 	public $data;

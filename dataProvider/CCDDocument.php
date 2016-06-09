@@ -61,8 +61,8 @@ include_once(ROOT . '/dataProvider/DiagnosisCodes.php');
 include_once(ROOT . '/dataProvider/Facilities.php');
 include_once(ROOT . '/dataProvider/CombosData.php');
 
-class CCDDocument {
-
+class CCDDocument
+{
 	/**
 	 * @var int
 	 */
@@ -690,7 +690,6 @@ class CCDDocument {
                 'HP'
             );
         }
-        //error_log(print_r($recordTarget['patientRole']['telecom'],true));
 
 		// Patient Name
 		$recordTarget['patientRole']['patient']['name'] = [
@@ -5808,6 +5807,7 @@ class CCDDocument {
  */
 if(isset($_REQUEST['pid']) && isset($_REQUEST['action'])){
     try {
+
         // Check token for security
         include_once(ROOT . '/sites/' . $_REQUEST['site'] . '/conf.php');
         include_once(ROOT . '/classes/MatchaHelper.php');

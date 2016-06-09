@@ -33,9 +33,9 @@ Ext.define('App.view.patient.Visits', {
 
 		function open(val){
 			if(val !== null){
-				return '<img src="resources/images/icons/yes.gif" />';
+				return '<img src="resources/images/icons/yes.png" />';
 			}else{
-				return '<img src="resources/images/icons/no.gif" />';
+				return '<img src="resources/images/icons/no.png" />';
 			}
 		}
 
@@ -136,9 +136,9 @@ Ext.define('App.view.patient.Visits', {
 
 	openBool: function(val){
 		if(val !== null){
-			return '<img src="resources/images/icons/yes.gif" />';
+			return '<img src="resources/images/icons/yes.png" />';
 		}else{
-			return '<img src="resources/images/icons/no.gif" />';
+			return '<img src="resources/images/icons/no.png" />';
 		}
 	},
 

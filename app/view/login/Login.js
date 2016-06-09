@@ -57,24 +57,24 @@ Ext.define('App.view.login.Login', {
 		 */
 		me.formLogin = {
 			xtype: 'form',
-			bodyStyle: 'background: #ffffff; padding:5px 5px 0',
+			bodyCls: 'loginFormBody',
 			defaultType: 'textfield',
 			waitMsgTarget: true,
 			frame: false,
 			border: false,
 			flex: 1,
-			padding: '0 0 5 0',
 			bodyPadding: 20,
 			baseParams: {
 				auth: 'true'
+			},
+			layout: {
+				type: 'vbox',
+				align: 'stretch'
 			},
 			fieldDefaults: {
 				msgTarget: 'side',
 				labelWidth: 100,
 				labelAlign: 'top'
-			},
-			defaults: {
-				anchor: '100%'
 			},
 			items: [
 				{
@@ -88,6 +88,7 @@ Ext.define('App.view.login.Login', {
 					maxLength: 12,
 					allowBlank: false,
 					validationEvent: false,
+					anchor: '100%',
 					listeners: {
 						scope: me,
 						specialkey: me.onEnter
@@ -104,9 +105,15 @@ Ext.define('App.view.login.Login', {
 					allowBlank: false,
 					minLength: 4,
 					maxLength: 12,
+					anchor: '100%',
 					listeners: {
 						scope: me,
-						specialkey: me.onEnter
+						specialkey: me.onEnter,
+						afterrender:function(cmp){
+							cmp.inputEl.set({
+								autocomplete:'new-password'
+							});
+						}
 					}
 				},
 				{
@@ -118,6 +125,7 @@ Ext.define('App.view.login.Login', {
 					editable: false,
 					hidden: true,
 					storeAutoLoad: false,
+					anchor: '100%',
 					listeners: {
 						scope: me,
 						specialkey: me.onEnter,
@@ -131,13 +139,14 @@ Ext.define('App.view.login.Login', {
 					fieldLabel: _('language'),
 					allowBlank: false,
 					editable: false,
+					anchor: '100%',
 					listeners: {
 						scope: me,
 						specialkey: me.onEnter,
 						select: me.onLangSelect
 					}
 				}
-			],
+			]
 
 		};
 
@@ -173,13 +182,15 @@ Ext.define('App.view.login.Login', {
 			}]);
 		}
 
+		var theme = Ext.util.Cookies.get('mdtimeline_theme');
+
 		windowItems = [
 			{
 				xtype: 'image',
 				width: 210,
 				height: 210,
 				padding: '20 0 10 10',
-				src: 'resources/images/logo_190_190.jpg'
+				src: (theme == 'dark' ? 'resources/images/logo_190_190_dark.png' : 'resources/images/logo_190_190.jpg')
 			}
 		];
 
@@ -201,7 +212,7 @@ Ext.define('App.view.login.Login', {
 			draggable: false,
 			closable: false,
 			width: 450,
-			bodyStyle: 'background: #ffffff;',
+			bodyCls: 'loginWindowBody',
 			autoShow: true,
 			layout: {
 				type: 'hbox'

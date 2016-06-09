@@ -142,6 +142,10 @@ Ext.define('App.model.administration.ReferringProvider', {
 			len: 25
 		},
 		{
+			name: 'allow_mail_notifications',
+			type: 'bool'
+		},
+		{
 			name: 'active',
 			type: 'bool',
 			index: true

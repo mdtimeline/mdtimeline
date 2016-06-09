@@ -57,6 +57,10 @@ $global['url']  = URL;
 $global['host']  = HOST;
 $global['site']  = site_dir;
 
+if(!defined('THEME')) {
+	define('THEME', $global['css_header']);
+}
+
 print 'globals = '. json_encode( $global ).';';
 
 if(!isset($_SESSION['site']['error']) && (isset($_SESSION['user']) && $_SESSION['user']['auth'] == true)){
@@ -98,6 +102,12 @@ if(!isset($_SESSION['site']['error']) && (isset($_SESSION['user']) && $_SESSION[
 
 	if(isset($_SESSION['styles'])){
 		print 'window.styles = ' . json_encode($_SESSION['styles']) . ';';
+	}
+	if(isset($_SESSION['light_styles'])){
+		print 'window.light_styles = ' . json_encode($_SESSION['light_styles']) . ';';
+	}
+	if(isset($_SESSION['dark_styles'])){
+		print 'window.dark_styles = ' . json_encode($_SESSION['dark_styles']) . ';';
 	}
 
 	if(isset($_SESSION['scripts'])){

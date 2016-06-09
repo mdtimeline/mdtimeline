@@ -149,6 +149,8 @@ if(file_exists(ROOT . '/sites/' . SITE . '/conf.php')){
 		unset($Modules);
 
 		$_SESSION['styles'] = [];
+		$_SESSION['light_styles'] = [];
+		$_SESSION['dark_styles'] = [];
 
 		foreach($modules as $module){
 			/**
@@ -161,6 +163,23 @@ if(file_exists(ROOT . '/sites/' . SITE . '/conf.php')){
 					$_SESSION['styles'][] = $css;
 				}
 			}
+
+			if(isset($module['light_styles'])){
+				foreach($module['light_styles'] AS $style){
+					$css = 'modules/' . $module['name'] . '/resources/css/' . $style;
+					if(is_array(isset($_SESSION['light_styles']) && $_SESSION['light_styles']) && array_search($css, $_SESSION['light_styles']) !== false) continue;
+					$_SESSION['light_styles'][] = $css;
+				}
+			}
+
+			if(isset($module['dark_styles'])){
+				foreach($module['dark_styles'] AS $style){
+					$css = 'modules/' . $module['name'] . '/resources/css/' . $style;
+					if(is_array(isset($_SESSION['dark_styles']) && $_SESSION['dark_styles']) && array_search($css, $_SESSION['dark_styles']) !== false) continue;
+					$_SESSION['dark_styles'][] = $css;
+				}
+			}
+			
 			/**
 			 * Scripts
 			 */

@@ -337,14 +337,14 @@ Ext.define('App.view.administration.Users', {
 												{
 													xtype: 'button',
 													text: _('active_all'),
-													icon: 'resources/images/icons/yes.gif',
+													icon: 'resources/images/icons/yes.png',
 													margin: '0 5 0 0',
 													itemId: 'UserGridEditFormProviderCredentializationActiveBtn'
 												},
 												{
 													xtype:'button',
 													text: _('inactive_all'),
-													icon: 'resources/images/icons/no.gif',
+													icon: 'resources/images/icons/no.png',
 													itemId: 'UserGridEditFormProviderCredentializationInactiveBtn'
 												}
 											],

@@ -25,7 +25,7 @@ Ext.define('App.view.administration.practice.ProviderNumbers', {
 	],
 	xtype: 'providersnumberspanel',
 	title: _('provider_numbers'),
-	store: Ext.create('App.store.administration.InsuranceNumbers'),
+	//store: Ext.create('App.store.administration.InsuranceNumbers'),
 	border: false,
 	frame: false,
 	columnLines: true,

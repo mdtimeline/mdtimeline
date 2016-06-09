@@ -88,7 +88,7 @@ function pdfff_fill_pdffile_and_dump_to_http($file, $fill_func, $operation = 'fi
         $cmd = 'cat';
         $DO_DUMP = true;
     } else
-        $cmd = 'java -jar pdfformfiller.jar ' . $file . ' -font "/Applications/MAMP/htdocs/gaiaehr/resources/fonts/Merriweather.ttf"' .
+        $cmd = 'java -jar pdfformfiller.jar ' . $file . ' ' .
                 $flatten . ' 2>&1';
 
     $descriptorspec = array(

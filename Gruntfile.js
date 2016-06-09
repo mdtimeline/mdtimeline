@@ -295,8 +295,6 @@ module.exports = function(grunt){
 					'app/view/administration/practice/Laboratories.js',
 					'app/store/administration/Pharmacies.js',
 					'app/view/administration/practice/Pharmacies.js',
-					'app/model/administration/InsuranceNumber.js',
-					'app/store/administration/InsuranceNumbers.js',
 					'app/view/administration/practice/ProviderNumbers.js',
 					'app/view/administration/practice/Specialties.js',
 					'app/view/administration/practice/ReferringProviders.js',

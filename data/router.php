@@ -113,7 +113,8 @@ if(isset($data)){
 	}
 }
 
-function doRpc($cdata) {
+function doRpc($cdata)
+{
 	global $API, $module;
 	try {
 		if(!isset($cdata->action)){
@@ -138,7 +139,8 @@ function doRpc($cdata) {
 			($action == 'i18nRouter' && $method == 'getAvailableLanguages') ||
             ($action == 'CombosData' && $method == 'getTimeZoneList') || // Used by SiteSetup
             ($action == 'CombosData' && $method == 'getThemes') // Used by SiteSetup
-		){
+		)
+        {
 
 			$mdef = $a['methods'][$method];
 			if(!$mdef){
@@ -222,6 +224,7 @@ function utf8_encode_deep(&$input) {
 }
 
 $response = null;
+
 if(is_array($data)){
 	$response = array();
 	foreach($data as $d){
@@ -240,11 +243,16 @@ if($isForm && $isUpload){
 	print $json;
 	print '</textarea></body></html>';
 } else {
-	header('Content-Type: application/json; charset=utf-8');
+	header('Content-Type: application/json;'); // charset=utf-8');
 	$json = htmlentities(json_encode($response), ENT_NOQUOTES | ENT_SUBSTITUTE , 'UTF-8');
     $json = json_encode($response);
     $json = mb_convert_encoding($json, 'UTF-8');
+
 	print $json;
+
+
+    //print $response;
+
 }
 
 /**

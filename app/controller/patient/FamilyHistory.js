@@ -43,6 +43,10 @@ Ext.define('App.controller.patient.FamilyHistory', {
 	init: function(){
 		var me = this;
 		me.control({
+            'familyhistorywindow #FamilyHistoryForm':{
+                show: me.onFamilyHistoryFormShow,
+                resize: me.onFamilyHistoryFormResize
+            },
 			'patientfamilyhistorypanel': {
 				activate: me.onFamilyHistoryGridActivate
 			},
@@ -57,6 +61,18 @@ Ext.define('App.controller.patient.FamilyHistory', {
 			}
 		});
 	},
+
+    onFamilyHistoryFormResize: function (width, height, oldWidth, oldHeight, eOpts){
+        console.log('oldHeight: '+oldHeight);
+        console.log('Height: '+height);
+        this.getFamilyHistoryForm().setHeight(339);
+    },
+
+    onFamilyHistoryFormShow: function (form){
+        console.log('Hello');
+        console.log(this.getFamilyHistoryForm().getHeight());
+        //this.getFamilyHistoryForm().setAutoScroll(true);
+    },
 
 	onFamilyHistoryGridActivate: function(grid){
 		var store = grid.getStore();
@@ -132,7 +148,6 @@ Ext.define('App.controller.patient.FamilyHistory', {
 		store.add(histories);
 		store.sync();
 		this.getFamilyHistoryWindow().close();
-
 	},
 
 	onFamilyHistoryWindowCancelBtnClick:function(){

@@ -75,14 +75,7 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 		me.textField = me.items.items[1];
 
 		me.chekboxField.on('change', me.setTextField, me);
-
-		// this dummy is necessary because Ext.Editor will not check whether an inputEl is present or not
-//		this.inputEl = {
-//			dom: {},
-//			swallowEvent: function(){
-//			}
-//		};
-//
+        
 		me.initField();
 	},
 

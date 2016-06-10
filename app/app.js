@@ -40899,12 +40899,17 @@ Ext.define('App.controller.patient.FamilyHistory', {
 
 	onFamilyHistoryWindowSaveBtnClick:function(){
 		var grid = this.getFamilyHistoryGrid(),
+            panel = this.getFamilyHistoryForm(),
 			form = this.getFamilyHistoryForm().getForm(),
 			store = grid.getStore(),
 			values = form.getValues(),
 			histories = [],
 			isValid =  true,
             foo;
+
+        // Disable the Scroll for a moment, this to not allow the form
+        // scrolls up.
+        panel.setAutoScroll(false);
 
 		Ext.Object.each(values, function(key, value){
 
@@ -40931,6 +40936,8 @@ Ext.define('App.controller.patient.FamilyHistory', {
 				create_date: new Date()
 			});
 		});
+
+        panel.setAutoScroll(true);
 
 		if(histories.length == 0){
 			app.msg(_('oops'), _('no_history_selected'), true);
@@ -56587,7 +56594,7 @@ Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 			if(val[1] != '0' && val[1].split){
 				var relation = val[1].split(':');
 				this.textField.select(relation[1] || relation[0] || '');
-			}else{
+			} else {
 				this.textField.setValue('');
 			}
 
@@ -56597,6 +56604,7 @@ Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 		this.textField.setValue('');
 	}
 });
+
 Ext.define('App.view.patient.Encounter', {
 	extend: 'App.ux.RenderPanel',
 	pageTitle: _('encounter'),

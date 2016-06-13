@@ -62,16 +62,10 @@ Ext.define('App.controller.patient.FamilyHistory', {
 		});
 	},
 
-    onFamilyHistoryFormResize: function (width, height, oldWidth, oldHeight, eOpts){
-        console.log('oldHeight: '+oldHeight);
-        console.log('Height: '+height);
-        this.getFamilyHistoryForm().setHeight(339);
+    onFamilyHistoryFormResize: function (width, height, oldWidth, oldHeight){
     },
 
     onFamilyHistoryFormShow: function (form){
-        console.log('Hello');
-        console.log(this.getFamilyHistoryForm().getHeight());
-        //this.getFamilyHistoryForm().setAutoScroll(true);
     },
 
 	onFamilyHistoryGridActivate: function(grid){

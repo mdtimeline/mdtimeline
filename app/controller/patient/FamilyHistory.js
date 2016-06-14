@@ -62,9 +62,20 @@ Ext.define('App.controller.patient.FamilyHistory', {
 		});
 	},
 
+    /**
+     * This events are created to try to fix the CLICK and SCROLL UP issue.
+     * @param width
+     * @param height
+     * @param oldWidth
+     * @param oldHeight
+     */
     onFamilyHistoryFormResize: function (width, height, oldWidth, oldHeight){
     },
 
+    /**
+     * This events are created to try to fix the CLICK and SCROLL UP issue.
+     * @param form
+     */
     onFamilyHistoryFormShow: function (form){
     },
 

@@ -19,10 +19,10 @@
 
 session_cache_limiter('private');
 session_cache_expire(1);
-session_name('GaiaEHR');
+session_name('mdTimeLine');
 session_start();
 session_regenerate_id(false);
-setcookie(session_name(),session_id(),time()+86400, '/', "gaiaphr.com", false, true);
+setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 
 header('Content-type: text/html; charset=utf-8');
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.

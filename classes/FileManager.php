@@ -18,9 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 if (!isset($_SESSION)) {
-    session_name('GaiaEHR');
-    session_start();
     session_cache_limiter('private');
+    session_cache_expire(1);
+    session_name('mdTimeLine');
+    session_start();
+    session_regenerate_id(false);
+    setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 }
 class FileManager
 {
@@ -43,6 +46,7 @@ class FileManager
         try
         {
             $this->tempDir = site_temp_path . '/';
+            error_log($this->tempDir);
             if(!file_exists($this->tempDir)) mkdir($this->tempDir, 0777, true);
             if(!is_writable($this->tempDir)) chmod($this->tempDir, 0777);
         }

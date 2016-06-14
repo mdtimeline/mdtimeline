@@ -18,9 +18,12 @@
  */
 
 if(!isset($_SESSION)){
-	session_name('GaiaEHR');
-	session_start();
-	session_cache_limiter('private');
+    session_cache_limiter('private');
+    session_cache_expire(1);
+    session_name('mdTimeLine');
+    session_start();
+    session_regenerate_id(false);
+    setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 }
 if(!defined('_GaiaEXEC')) define('_GaiaEXEC', 1);
 include_once ('../registry.php');

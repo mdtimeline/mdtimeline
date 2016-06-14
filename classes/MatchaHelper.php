@@ -20,10 +20,10 @@
 if (!isset($_SESSION)) {
     session_cache_limiter('private');
     session_cache_expire(1);
-    session_name('GaiaEHR');
+    session_name('mdTimeLine');
     session_start();
     session_regenerate_id(false);
-    setcookie(session_name(), session_id(), time() + 86400, '/', "gaiaehr.com", false, true);
+    setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 }
 ini_set('max_input_time', '1500');
 ini_set('max_execution_time', '1500');

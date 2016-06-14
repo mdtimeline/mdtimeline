@@ -28,10 +28,10 @@ header("Expires: 0"); // Proxies.
 
 session_cache_limiter('private');
 session_cache_expire(1);
-session_name('GaiaEHR');
+session_name('mdTimeLine');
 session_start();
 session_regenerate_id(false);
-setcookie(session_name(),session_id(),time()+86400, '/', null, false, true);
+setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 
 define('_GaiaEXEC', 1);
 $site = isset($_SESSION['user']['site']) ? $_SESSION['user']['site'] : 'default';

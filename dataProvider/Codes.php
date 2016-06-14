@@ -203,7 +203,7 @@ class Codes
 			}
 			if($this->error === false) {
 				if($dir != false) {
-					$this->file->chmodReclusive($dir, 0764);
+					$this->file->chmodReclusive($dir, 0774);
 					$success = false;
 					$name    = $params->codeType;
 					if($params->codeType == 'ICD9' || $params->codeType == 'ICD10') {

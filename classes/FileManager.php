@@ -48,8 +48,8 @@ class FileManager
         {
             $this->tempDir = site_temp_path . '/';
             $oldmask = umask(0);
-            if(!file_exists($this->tempDir)) mkdir($this->tempDir, 0764, true);
-            if(!is_writable($this->tempDir)) chmod($this->tempDir, 0764);
+            if(!file_exists($this->tempDir)) mkdir($this->tempDir, 0774, true);
+            if(!is_writable($this->tempDir)) chmod($this->tempDir, 0774);
             umask($oldmask);
         }
         catch(Exception $Error)
@@ -60,9 +60,9 @@ class FileManager
 
     public function cleanUp()
     {
-        if (is_dir($this->workingDir)) {
-            $this->deleteWorkingDir();
-        }
+//        if (is_dir($this->workingDir)) {
+//            $this->deleteWorkingDir();
+//        }
     }
 
     public function moveUploadedFileToTempDir($file)
@@ -132,8 +132,8 @@ class FileManager
     {
         $workingDir = $this->tempDir . $this->getTempDirAvailableName();
         if (!is_dir($workingDir)) {
-            if (mkdir($workingDir, 0764, true)) {
-                chmod($workingDir, 0764);
+            if (mkdir($workingDir, 0774, true)) {
+                chmod($workingDir, 0774);
                 $this->workingDir = $workingDir;
                 return true;
             } else {

@@ -45,12 +45,12 @@ class MatchaLog extends Matcha
         $oldUmask = umask(0);
         clearstatcache();
         // Check the directory first.
-        if(!file_exists($this->__logPath)) mkdir($this->__logPath, 0764, true);
+        if(!file_exists($this->__logPath)) mkdir($this->__logPath, 0774, true);
         // Check the log file.
         if(!file_exists($this->__logPath.$this->__logFile))
         {
             touch($this->__logPath.$this->__logFile);
-            chmod($this->__logPath.$this->__logFile, 0764);
+            chmod($this->__logPath.$this->__logFile, 0774);
         }
         if(is_writable($this->__logPath.$this->__logFile)) ini_set('error_log', $this->__logPath.$this->__logFile);
         umask($oldUmask);

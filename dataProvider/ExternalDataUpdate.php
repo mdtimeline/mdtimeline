@@ -232,7 +232,7 @@ class ExternalDataUpdate
             {
 				if($dir != false)
                 {
-					$this->file->chmodReclusive($dir, 0764);
+					$this->file->chmodReclusive($dir, 0774);
 					$success = false;
 					$name = $params->codeType;
 					if($params->codeType == 'ICD9' || $params->codeType == 'ICD10')
@@ -1005,10 +1005,13 @@ class ExternalDataUpdate
 	 */
 	private function loadSnomedData($dir, $sub_path)
     {
-		// This max executin time, is temporary
+		// This max execution time, is temporary
 		// Match should control this time, in INIT time of loading the library
 		// And it should be configurable too.
 		@ini_set('max_execution_time', 0);
+
+        // Create the directory if don't exist.
+        mkdir($dir . $sub_path, 0774, true);
 
 		if(is_dir($dir . $sub_path) && $handle = opendir($dir . $sub_path))
         {

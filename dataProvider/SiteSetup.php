@@ -340,8 +340,8 @@ class SiteSetup {
         try
         {
 	        $oldMask = umask(0);
-            if(!file_exists($dirPath)) mkdir($dirPath, 0764, true);
-            if(!is_writable($dirPath)) chmod($dirPath, 0764);
+            if(!file_exists($dirPath)) mkdir($dirPath, 0774, true);
+            if(!is_writable($dirPath)) chmod($dirPath, 0774);
 	        umask($oldMask);
             return true;
         }

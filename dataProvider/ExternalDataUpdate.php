@@ -1010,16 +1010,13 @@ class ExternalDataUpdate
 		// And it should be configurable too.
 		@ini_set('max_execution_time', 0);
 
-        // Create the directory if don't exist.
-        mkdir($dir . $sub_path, 0774, true);
-
 		if(is_dir($dir . $sub_path) && $handle = opendir($dir . $sub_path))
         {
+
 			while(false !== ($filename = readdir($handle)))
             {
 				if($filename != '.' && $filename != '..' && !strpos($filename, 'zip'))
                 {
-
 					$path = $dir . $sub_path . $filename;
 
 					$load_script = "LOAD DATA LOCAL INFILE '#FILENAME#' into table #TABLE# fields terminated by '\\t' ESCAPED BY '' lines terminated by '\\n' ignore 1 lines ";

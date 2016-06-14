@@ -112,6 +112,7 @@ class FileManager
         if (class_exists('ZipArchive')) {
             $zip = new ZipArchive();
             if ($zip->open($file) === true) {
+                $toDir = $toDir . '/';
                 $zip->extractTo($toDir);
                 $zip->close();
                 if ($deleteSrcFile) {

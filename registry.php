@@ -115,7 +115,7 @@ if(file_exists($logPath) && is_writable($logPath)){
 	clearstatcache();
 	if(!file_exists($logPath . $logFile)){
 		touch($logPath . $logFile);
-		chmod($logPath . $logFile, 0775);
+		chmod($logPath . $logFile, 0764);
 	}
 	if(is_writable($logPath . $logFile))
 		ini_set('error_log', $logPath . $logFile);
@@ -179,7 +179,7 @@ if(file_exists(ROOT . '/sites/' . SITE . '/conf.php')){
 					$_SESSION['dark_styles'][] = $css;
 				}
 			}
-			
+
 			/**
 			 * Scripts
 			 */

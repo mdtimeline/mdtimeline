@@ -437,8 +437,8 @@ class DocumentHandler {
 			$this->docType = (isset($params->docType)) ? $params->docType : 'orphanDocuments';
 		}
 		$path = site_path . '/patients/' . $this->pid . '/' . strtolower(str_replace(' ', '_', $this->docType)) . '/';
-		if(is_dir($path) || mkdir($path, 0777, true)){
-			chmod($path, 0777);
+		if(is_dir($path) || mkdir($path, 0764, true)){
+			chmod($path, 0764);
 		}
 		return $this->workingDir = $path;
 	}

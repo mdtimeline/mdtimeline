@@ -324,7 +324,7 @@ class dicom_convert {
 		}
 
 		if(!file_exists($temp_dir)){
-			mkdir($temp_dir, 0777);
+			mkdir($temp_dir, 0764);
 		}
 
 		# Split each frame into a jpeg

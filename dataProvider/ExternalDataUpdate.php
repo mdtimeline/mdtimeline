@@ -232,7 +232,7 @@ class ExternalDataUpdate
             {
 				if($dir != false)
                 {
-					$this->file->chmodReclusive($dir, 0777);
+					$this->file->chmodReclusive($dir, 0764);
 					$success = false;
 					$name = $params->codeType;
 					if($params->codeType == 'ICD9' || $params->codeType == 'ICD10')

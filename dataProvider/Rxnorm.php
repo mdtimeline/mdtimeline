@@ -224,7 +224,7 @@ class Rxnorm
 							   INNER JOIN `rxnsat`
 								       ON `rxnconso`.`RXCUI` = `rxnsat`.`RXCUI`
 								      AND `rxnconso`.`SAB` = 'RXNORM'
-								      AND `rxnsat`.`ATN` = 'NDC'
+								      AND (`rxnsat`.`ATN` = 'NDC' OR `rxnsat`.`ATN` = 'UMLSAUI' OR `rxnsat`.`ATN` = 'UMLSCUI')
 								      AND (`rxnconso`.`TTY` = 'SCD' OR `rxnconso`.`TTY` = 'SBD' OR `rxnconso`.`TTY` = 'SBDC')
 								    WHERE (`rxnconso`.`STR` LIKE :q1 OR `rxnconso`.`RXCUI` = :q2)
 							     GROUP BY `rxnconso`.`STR`

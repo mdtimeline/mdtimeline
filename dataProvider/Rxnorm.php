@@ -225,7 +225,7 @@ class Rxnorm
 								       ON `rxnconso`.`RXCUI` = `rxnsat`.`RXCUI`
 								      AND `rxnconso`.`SAB` = 'RXNORM'
 								      AND `rxnsat`.`ATN` = 'NDC'
-								      AND (`rxnconso`.`TTY` = 'SCD' OR `rxnconso`.`TTY` = 'SBD')
+								      AND (`rxnconso`.`TTY` = 'SCD' OR `rxnconso`.`TTY` = 'SBD' OR `rxnconso`.`TTY` = 'SBDC')
 								    WHERE (`rxnconso`.`STR` LIKE :q1 OR `rxnconso`.`RXCUI` = :q2)
 							     GROUP BY `rxnconso`.`STR`
      							    LIMIT 100");

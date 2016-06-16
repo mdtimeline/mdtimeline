@@ -40856,6 +40856,10 @@ Ext.define('App.controller.patient.FamilyHistory', {
 	init: function(){
 		var me = this;
 		me.control({
+            'familyhistorywindow #FamilyHistoryForm':{
+                show: me.onFamilyHistoryFormShow,
+                resize: me.onFamilyHistoryFormResize
+            },
 			'patientfamilyhistorypanel': {
 				activate: me.onFamilyHistoryGridActivate
 			},
@@ -40870,6 +40874,23 @@ Ext.define('App.controller.patient.FamilyHistory', {
 			}
 		});
 	},
+
+    /**
+     * This events are created to try to fix the CLICK and SCROLL UP issue.
+     * @param width
+     * @param height
+     * @param oldWidth
+     * @param oldHeight
+     */
+    onFamilyHistoryFormResize: function (width, height, oldWidth, oldHeight){
+    },
+
+    /**
+     * This events are created to try to fix the CLICK and SCROLL UP issue.
+     * @param form
+     */
+    onFamilyHistoryFormShow: function (form){
+    },
 
 	onFamilyHistoryGridActivate: function(grid){
 		var store = grid.getStore();
@@ -40899,17 +40920,12 @@ Ext.define('App.controller.patient.FamilyHistory', {
 
 	onFamilyHistoryWindowSaveBtnClick:function(){
 		var grid = this.getFamilyHistoryGrid(),
-            panel = this.getFamilyHistoryForm(),
 			form = this.getFamilyHistoryForm().getForm(),
 			store = grid.getStore(),
 			values = form.getValues(),
 			histories = [],
 			isValid =  true,
             foo;
-
-        // Disable the Scroll for a moment, this to not allow the form
-        // scrolls up.
-        panel.setAutoScroll(false);
 
 		Ext.Object.each(values, function(key, value){
 
@@ -40937,8 +40953,6 @@ Ext.define('App.controller.patient.FamilyHistory', {
 			});
 		});
 
-        panel.setAutoScroll(true);
-
 		if(histories.length == 0){
 			app.msg(_('oops'), _('no_history_selected'), true);
 			return;
@@ -40952,7 +40966,6 @@ Ext.define('App.controller.patient.FamilyHistory', {
 		store.add(histories);
 		store.sync();
 		this.getFamilyHistoryWindow().close();
-
 	},
 
 	onFamilyHistoryWindowCancelBtnClick:function(){
@@ -55083,14 +55096,7 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 		me.textField = me.items.items[1];
 
 		me.chekboxField.on('change', me.setTextField, me);
-
-		// this dummy is necessary because Ext.Editor will not check whether an inputEl is present or not
-//		this.inputEl = {
-//			dom: {},
-//			swallowEvent: function(){
-//			}
-//		};
-//
+        
 		me.initField();
 	},
 
@@ -55147,6 +55153,7 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 		return this.chekboxField.isValid() && this.textField.isValid();
 	}
 });
+
 Ext.define('App.view.patient.RxOrders', {
 	extend: 'Ext.grid.Panel',
 	requires: [
@@ -56570,13 +56577,11 @@ Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 			txtValue;
 
 		if(ckValue != '0'){
-
 			ckValue += ':' + this.chekboxField.boxLabel;
-
 			var store = this.textField.getStore(),
 				rec = store.getById(this.textField.getSubmitValue());
 			txtValue = rec ? rec.get('code_type') + ':' + rec.get('code') + ':' + rec.get('option_name') : '0';
-		}else{
+		} else {
 			txtValue = '0';
 		}
 

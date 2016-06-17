@@ -6,6 +6,7 @@ SET @MedicationCode = :medication_code;
 SET @MedicationAllergyCode = :allergy_code;
 
 SELECT patient.*,
+  CONCAT(patient.fname, ' ', patient.mname, ' ', patient.lname) as patient_name,
   DATE_FORMAT(patient.DOB, '%d %b %y') as DateOfBirth,
   Race.option_name as Race,
   Ethnicity.option_name as Ethnicity,

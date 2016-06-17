@@ -168,6 +168,11 @@ Ext.define('App.model.patient.PatientImmunization', {
 		{
 			name: 'is_error',
 			type: 'bool'
+		},
+		{
+			name: 'error_note',
+			type: 'string',
+			len: 300
 		}
 	],
 	proxy: {

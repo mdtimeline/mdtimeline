@@ -305,6 +305,16 @@ class HL7Server {
 		return $this->s->load()->one();
 	}
 
+	protected function getPatientByPid($pid){
+		$sql = 'SELECT * from patient WHERE `pid`= :pid OR `pubpid`= :pubpid';
+		return $this->p->sql($sql)->one([':pid' => $pid, ':pubpid' => $pid]);
+	}
+
+	protected function getPatientByAccountNumber($account_no){
+		$sql = 'SELECT * from patient WHERE `pubaccount`=?';
+		return $this->p->sql($sql)->one([$account_no]);
+	}
+
 	/**
 	 * @param $hl7 HL7
 	 * @param $msg
@@ -327,13 +337,21 @@ class HL7Server {
 
 				$orderId = $orc[2][1];
 				$patientId = $patient['PID'][3][0][1];
-				$orderRecord = $this->pOrder->load(array('id' => $orderId, 'pid' => $patientId))->one();
+				$patient_record = $this->getPatientByPid($patientId);
+
+				if($patient_record == false){
+					$this->ackStatus = 'AR';
+					$this->ackMessage = "Unable to find patient record '$patientId'";
+					break 2;
+				}
+
+				$orderRecord = $this->pOrder->load(array('id' => $orderId, 'pid' => $patient_record['pid']))->one();
 				/**
 				 * id not found set the error and break twice to get out of all the loops
 				 */
 				if($orderRecord === false){
 					$this->ackStatus = 'AR';
-					$this->ackMessage = "Unable to find order number '$orderId' for patient ID '$patientId'";
+					$this->ackMessage = "Unable to find order number '$orderId' for patient '$patientId'";
 					break 2;
 				}
 				$foo = new stdClass();

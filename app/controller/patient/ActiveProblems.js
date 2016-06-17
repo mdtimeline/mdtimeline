@@ -83,8 +83,9 @@ Ext.define('App.controller.patient.ActiveProblems', {
         this.onActiveProblemsGridActive();
     },
 
-	onActiveProblemsGridActive:function(grid){
-		var store = grid.getStore(),
+	onActiveProblemsGridActive:function(){
+		var grid = this.getActiveProblemsGrid(),
+            store = grid.getStore(),
             reconciled = this.getPatientProblemsReconciledBtn().pressed;
 
 		store.clearFilter(true);

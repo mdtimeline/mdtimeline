@@ -6,6 +6,7 @@ SET @MedicationCode = :medication_code;
 SET @MedicationAllergyCode = :allergy_code;
 
 SELECT patient.*,
+  CONCAT(patient.fname, ' ', patient.mname, ' ', patient.lname) as patient_name,
   DATE_FORMAT(patient.DOB, '%d %b %y') as DateOfBirth,
   Race.option_name as Race,
   Ethnicity.option_name as Ethnicity,
@@ -31,17 +32,17 @@ SELECT distinct(pid) as pid, provider_uid, service_date
 	FROM encounters
 	WHERE CASE
 		WHEN (@StartDate IS NOT NULL AND @EndDate IS NULL)
-		THEN (encounters.service_date BETWEEN @StartDate AND NOW())
+		THEN (encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND NOW())
 		ELSE 1=1
 	END
 	AND CASE
 		WHEN (@StartDate IS NOT NULL AND @EndDate IS NOT NULL)
-		THEN (encounters.service_date BETWEEN @StartDate AND @EndDate)
+		THEN (encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND CONCAT(@EndDate, ' ', '23:00:00'))
 		ELSE 1=1
 	END
 	AND CASE
 		WHEN (@StartDate IS NULL AND @EndDate IS NOT NULL)
-		THEN (encounters.service_date BETWEEN @StartDate AND @EndDate)
+		THEN (encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND CONCAT(@EndDate, ' ','23:00:00'))
 		ELSE 1=1
 	END
 	AND CASE
@@ -95,17 +96,17 @@ END
 
 AND CASE
 	WHEN (@StartDate IS NOT NULL AND @EndDate IS NULL)
-	THEN (encounters.service_date BETWEEN @StartDate AND NOW())
+	THEN (encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND NOW())
 	ELSE 1=1
 END
 AND CASE
 	WHEN (@StartDate IS NOT NULL AND @EndDate IS NOT NULL)
-	THEN (encounters.service_date BETWEEN @StartDate AND @EndDate)
+	THEN (encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND CONCAT(@EndDate, ' ', '23:00:00'))
 	ELSE 1=1
 END
 AND CASE
 	WHEN (@StartDate IS NULL AND @EndDate IS NOT NULL)
-	THEN (encounters.service_date BETWEEN @StartDate AND @EndDate)
+	THEN (encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND CONCAT(@EndDate, ' ', '23:00:00'))
 	ELSE 1=1
 END
 

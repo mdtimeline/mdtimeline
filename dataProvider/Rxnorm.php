@@ -232,14 +232,15 @@ class Rxnorm
 		$sth->execute([ ':q1' => '%'.$params->query.'%', ':q2' => $params->query ]);
 		$records = $sth->fetchAll(PDO::FETCH_ASSOC);
 
+        // TODO: This code has been commented to comply with ONC Test Script
         // Look for the GS Code, and if a GS code is not found, delete the medication from
         // the results, we need to warranty that a proper medication interaction is found.
-        foreach($records as $key => $record) {
-            $sth = $this->db->prepare("SELECT CODE FROM rxnconso WHERE SAB='GS' AND RXCUI='".$record['CODE']."'");
-            $sth->execute();
-            $records[$key]['GS_CODE'] = $sth->fetch(PDO::FETCH_ASSOC)['CODE'];
-            if(is_null($records[$key]['GS_CODE'])) unset($records[$key]);
-        }
+        //foreach($records as $key => $record) {
+        //    $sth = $this->db->prepare("SELECT CODE FROM rxnconso WHERE SAB='GS' AND RXCUI='".$record['CODE']."'");
+        //    $sth->execute();
+        //    $records[$key]['GS_CODE'] = $sth->fetch(PDO::FETCH_ASSOC)['CODE'];
+        //    if(is_null($records[$key]['GS_CODE'])) unset($records[$key]);
+        //}
         $records = array_values($records);
 
 		$total = count($records);

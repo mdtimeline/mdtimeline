@@ -70,8 +70,13 @@ header("Access-Control-Allow-Origin: *");
                 return window.lang[key] || '*'+key+'*';
             };
 
-            window.say = function(args){
-	            console.log(args);
+            window.say = function(msg){
+				var type = typeof msg;
+	            if (type == 'string' || type == 'number') {
+		            console.log('%c ' + msg, 'color: green;font-weight:bold;');
+	            }else{
+		            console.log(msg);
+	            }
             };
 
             window.g = function(global){
@@ -794,6 +799,7 @@ header("Access-Control-Allow-Origin: *");
 	                'administration.CPT',
 	                'administration.DataPortability',
 	                'administration.DecisionSupport',
+	                'administration.Documents',
 	                'administration.FacilityStructure',
 	                'administration.HL7',
 	                'administration.Practice',

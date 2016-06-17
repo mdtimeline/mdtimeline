@@ -188,9 +188,19 @@ Ext.define('App.view.patient.ActiveProblems', {
 			iconCls: 'icoAdd'
 		}
 	],
-	bbar: ['->', {
-		text: _('review'),
-		itemId: 'review_active_problems',
-		action: 'encounterRecordAdd'
-	}]
+	bbar: [
+        '-',
+        {
+            text: _('reconciled'),
+            itemId: 'PatientProblemsReconciledBtn',
+            enableToggle: true,
+            pressed: true
+        },
+        '->',
+        {
+		    text: _('review'),
+		    itemId: 'review_active_problems',
+		    action: 'encounterRecordAdd'
+	    }
+    ]
 });

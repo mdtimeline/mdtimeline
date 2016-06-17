@@ -33,7 +33,11 @@ Ext.define('App.controller.patient.ActiveProblems', {
 		{
 			ref: 'AddActiveProblemBtn',
 			selector: 'patientactiveproblemspanel #addActiveProblemBtn'
-		}
+		},
+        {
+            ref: 'PatientProblemsReconciledBtn',
+            selector: '#PatientProblemsReconciledBtn'
+        }
 	],
 
 	init: function(){
@@ -50,7 +54,10 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			},
 			'patientactiveproblemspanel #addActiveProblemBtn':{
 				click: me.onAddActiveProblemBtnClick
-			}
+			},
+            '#PatientProblemsReconciledBtn': {
+                click: me.onPatientProblemsReconciledBtnClick
+            },
 		});
 	},
 
@@ -72,16 +79,26 @@ Ext.define('App.controller.patient.ActiveProblems', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
+    onPatientProblemsReconciledBtnClick: function(){
+        this.onActiveProblemsGridActive();
+    },
+
 	onActiveProblemsGridActive:function(grid){
-		var store = grid.getStore();
+		var store = grid.getStore(),
+            reconciled = this.getPatientProblemsReconciledBtn().pressed;
 
 		store.clearFilter(true);
-		store.filter([
-			{
-				property: 'pid',
-				value: app.patient.pid
-			}
-		]);
+        store.load({
+            filters: [
+                {
+                    property: 'pid',
+                    value: app.patient.pid
+                }
+            ],
+            params: {
+                reconciled: reconciled
+            }
+        });
 	},
 
 	onActiveProblemLiveSearchSelect:function(cmb, records){
@@ -104,4 +121,5 @@ Ext.define('App.controller.patient.ActiveProblems', {
 		});
 
 	}
+
 });

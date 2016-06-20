@@ -1657,4 +1657,7 @@ $LANG = array(
     'light_theme'                           => 'Light Theme',
     'dark_theme'                            => 'Dark Theme',
     'theme_change_warning'                  => 'Application Refresh Required, Would You Like to Continue?',
+	'view'                                  => 'View',
+	'radiologist'                           => 'Radiologist',
+	'unable_to_open_new_tab'                => 'Unable To Open New Tab',
 );

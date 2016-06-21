@@ -114,13 +114,12 @@ Ext.define('Modules.reportcenter.controller.ReportCenter', {
         );
 
         // Configure the initial report panel layout, and finally show it.
-        reportWindow.setHeight(600);
+        reportWindow.setHeight(700);
         reportWindow.setWidth(me.reportInformation.reportWindowWidth);
         reportWindow.doLayout();
         this.getReportFilterPanel().setWidth(me.reportInformation.filterPanelWidth);
         this.getFilterDisplayPanel().setHeight(me.reportInformation.filterDisplayHeight);
         reportWindow.setTitle(_('report_window') + ' ( ' + me.reportInformation.title + ' )');
-        reportWindow.render(Ext.getBody());
         reportWindow.show();
     },
 

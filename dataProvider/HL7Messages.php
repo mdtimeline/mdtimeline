@@ -273,8 +273,8 @@ class HL7Messages {
 			$this->encounter = $service->eid;
 			$this->type = 'ORM';
 
-			if(isset($params->map_codes_types)){
-				$this->map_codes_types = $params->map_codes_types;
+			if(isset($service->map_codes_types)){
+				$this->map_codes_types = $service->map_codes_types;
 			}
 
 			// MSH

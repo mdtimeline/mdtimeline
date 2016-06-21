@@ -212,6 +212,135 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                     ]
                 }
             ]
+        },
+        {
+            items: [
+                {
+                    xtype: 'panel',
+                    layout: 'column',
+                    border: false,
+                    frame: false,
+                    items: [
+                        {
+                            xtype: 'gaiaehr.ethnicitycombo',
+                            hideLabel: true,
+                            columnWidth: 1,
+                            name: 'race',
+                            displayField: 'option_name',
+                            enableKeyEvents: true,
+                            value: null,
+                            listeners: {
+                                select: function (combo, records, eOpts) {
+                                    var field = Ext.ComponentQuery.query('reportFilter #race_name')[0];
+                                    field.setValue(records[0].data.option_name);
+                                }
+                            }
+                        },
+                        {
+                            xtype: 'hiddenfield',
+                            itemId: 'race_name',
+                            name: 'race_name',
+                            value: ''
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            items: [
+                {
+                    xtype: 'panel',
+                    layout: 'column',
+                    border: false,
+                    frame: false,
+                    items: [
+                        {
+                            xtype: 'gaiaehr.racecombo',
+                            hideLabel: true,
+                            columnWidth: 1,
+                            name: 'ethnicity',
+                            displayField: 'option_name',
+                            enableKeyEvents: true,
+                            value: null,
+                            listeners: {
+                                select: function (combo, records, eOpts) {
+                                    var field = Ext.ComponentQuery.query('reportFilter #ethnicity_name')[0];
+                                    field.setValue(records[0].data.option_name);
+                                }
+                            }
+                        },
+                        {
+                            xtype: 'hiddenfield',
+                            itemId: 'ethnicity_name',
+                            name: 'ethnicity_name',
+                            value: ''
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            items: [
+                {
+                    xtype: 'panel',
+                    layout: 'column',
+                    border: false,
+                    frame: false,
+                    items: [
+                        {
+                            xtype: 'gaiaehr.sexcombo',
+                            hideLabel: true,
+                            columnWidth: 1,
+                            name: 'sex',
+                            displayField: 'sex',
+                            enableKeyEvents: true,
+                            value: null,
+                            listeners: {
+                                select: function (combo, records, eOpts) {
+                                    var field = Ext.ComponentQuery.query('reportFilter #sex_name')[0];
+                                    field.setValue(records[0].data.option_name);
+                                }
+                            }
+                        },
+                        {
+                            xtype: 'hiddenfield',
+                            itemId: 'sex_name',
+                            name: 'sex_name',
+                            value: ''
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            items: [
+                {
+                    xtype: 'panel',
+                    layout: 'column',
+                    border: false,
+                    frame: false,
+                    items: [
+                        {
+                            xtype: 'numberfield',
+                            hideLabel: true,
+                            columnWidth: 0.50,
+                            name: 'ageFrom',
+                            enableKeyEvents: true,
+                            value: null,
+                            emptyText: _('ageFrom')
+                        },
+                        {
+                            xtype: 'numberfield',
+                            hideLabel: true,
+                            columnWidth: 0.50,
+                            name: 'ageTo',
+                            enableKeyEvents: true,
+                            value: null,
+                            emptyText: _('ageTo')
+                        }
+                    ]
+                }
+            ]
         }
     ]
 });

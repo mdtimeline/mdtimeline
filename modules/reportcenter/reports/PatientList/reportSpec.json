@@ -8,7 +8,7 @@
   "dir":"reportcenter/reports/PatientList",
   "category":"ONC Meaningful Use",
   "reportWindowWidth": 1096,
-  "filterPanelWidth": 250,
+  "filterPanelWidth": 220,
   "filterDisplayHeight": 140,
   "gridFields":{
     "ProviderName": {

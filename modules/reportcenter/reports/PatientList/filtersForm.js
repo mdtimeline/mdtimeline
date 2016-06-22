@@ -22,8 +22,8 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
         'Ext.form.field.Date',
         'App.ux.combo.ActiveProviders',
         'App.ux.combo.Allergies',
-        'App.ux.LiveRXNORMSearch',
-        'Modules.reportcenter.reports.PatientList.ux.LiveRXNORMSearchReport'
+        'Modules.reportcenter.reports.PatientList.ux.LiveRXNORMSearchReport',
+        'Modules.reportcenter.reports.PatientList.ux.ComboOptionListReport'
     ],
     xtype: 'reportFilter',
     region: 'west',
@@ -337,6 +337,76 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                             enableKeyEvents: true,
                             value: null,
                             emptyText: _('ageTo')
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            items: [
+                {
+                    xtype: 'panel',
+                    layout: 'column',
+                    border: false,
+                    frame: false,
+                    items: [
+                        {
+                            xtype: 'listcomboreport',
+                            list: 12,
+                            id: 'marital',
+                            hideLabel: true,
+                            emptyText: _('patient_marital_status'),
+                            columnWidth: 1,
+                            name: 'marital',
+                            enableKeyEvents: true,
+                            value: null,
+                            listeners: {
+                                select: function (combo, records, eOpts) {
+                                    var field = Ext.ComponentQuery.query('reportFilter #marital_name')[0];
+                                    field.setValue(records[0].data.option_name);
+                                }
+                            }
+                        },
+                        {
+                            xtype: 'hiddenfield',
+                            itemId: 'marital_name',
+                            name: 'marital_name',
+                            value: ''
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            items: [
+                {
+                    xtype: 'panel',
+                    layout: 'column',
+                    border: false,
+                    frame: false,
+                    items: [
+                        {
+                            xtype: 'listcomboreport',
+                            list: 10,
+                            id: 'language',
+                            hideLabel: true,
+                            emptyText: _('language'),
+                            columnWidth: 1,
+                            name: 'language',
+                            enableKeyEvents: true,
+                            value: null,
+                            listeners: {
+                                select: function (combo, records, eOpts) {
+                                    var field = Ext.ComponentQuery.query('reportFilter #language_name')[0];
+                                    field.setValue(records[0].data.option_name);
+                                }
+                            }
+                        },
+                        {
+                            xtype: 'hiddenfield',
+                            itemId: 'language_name',
+                            name: 'language_name',
+                            value: ''
                         }
                     ]
                 }

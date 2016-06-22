@@ -9,6 +9,8 @@ SET @EthnicityCode = :ethnicity;
 SET @SexCode = :sex;
 SET @AgeFrom = :ageFrom;
 SET @AgeTo = :ageTo;
+SET @MaritalCode = :marital;
+SET @LanguageCode = :language;
 
 SELECT patient.*,
   CONCAT(patient.fname, ' ', patient.mname, ' ', patient.lname) as patient_name,
@@ -139,6 +141,18 @@ END
 AND CASE
 	WHEN @SexCode IS NOT NULL
 	THEN patient.sex = @SexCode
+	ELSE 1=1
+END
+
+AND CASE
+	WHEN @MaritalCode IS NOT NULL
+	THEN patient.marital_status = @MaritalCode
+	ELSE 1=1
+END
+
+AND CASE
+	WHEN @LanguageCode IS NOT NULL
+	THEN patient.language = @LanguageCode
 	ELSE 1=1
 END
 

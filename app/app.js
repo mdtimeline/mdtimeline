@@ -8258,12 +8258,13 @@ Ext.define('App.ux.combo.Ethnicity', {
 			queryMode   : 'local',
 			displayField: 'option_name',
 			valueField  : 'option_value',
-			emptyText   : _('select'),
+			emptyText   : _('race'),
 			store       : me.store
 		}, null);
 		me.callParent(arguments);
 	}
 });
+
 Ext.define('App.ux.combo.Facilities', {
 	extend: 'Ext.form.ComboBox',
 	alias: 'widget.mitos.facilitiescombo',
@@ -9886,12 +9887,13 @@ Ext.define('App.ux.combo.Race', {
 			queryMode   : 'local',
 			displayField: 'option_name',
 			valueField  : 'option_value',
-			emptyText   : _('select'),
+			emptyText   : _('ethnicity'),
 			store       : me.store
 		}, null);
 		me.callParent(arguments);
 	}
 });
+
 Ext.define('App.ux.combo.Roles', {
 	extend       : 'Ext.form.ComboBox',
 	alias        : 'widget.mitos.rolescombo',
@@ -9961,12 +9963,13 @@ Ext.define('App.ux.combo.Sex', {
 			queryMode   : 'local',
 			displayField: 'option_name',
 			valueField  : 'option_value',
-			emptyText   : _('select'),
+			emptyText   : _('sex'),
 			store       : me.store
 		}, null);
 		me.callParent(arguments);
 	}
 });
+
 Ext.define('App.ux.combo.Surgery', {
 	extend       : 'Ext.form.ComboBox',
 	alias        : 'widget.mitos.surgerycombo',
@@ -41049,8 +41052,8 @@ Ext.define('App.controller.patient.HL7', {
 	],
 	refs: [
 		{
-			ref: '#Adt04MessageBtn',
-			selector: 'Adt04MessageBtn'
+			ref: 'SyndromicSurveillanceBtn',
+			selector: '#SyndromicSurveillanceBtn'
 		}
 	],
 
@@ -41060,7 +41063,7 @@ Ext.define('App.controller.patient.HL7', {
 			'#soapForm': {
 				render: me.onSoapFormRender
 			},
-			'#Adt04MessageBtn': {
+			'#SyndromicSurveillanceBtn': {
 				click: me.onAdt04MessageBtnClick
 			}
 		});
@@ -41070,8 +41073,9 @@ Ext.define('App.controller.patient.HL7', {
 		if(a('hl7_send_adt04')){
 			form.getDockedItems()[0].insert(0, {
 				xtype:'button',
-				text: _('adt04'),
-				itemId: 'Adt04MessageBtn'
+				text: _('syndromic_surveillance'),
+				tooltip: _('report_syndromic_surveillance'),
+				itemId: 'SyndromicSurveillanceBtn'
 			});
 		}
 	},
@@ -41082,7 +41086,10 @@ Ext.define('App.controller.patient.HL7', {
 			pid: app.patient.pid,
 			eid: app.patient.eid,
 			fid: app.user.facility,
-			event: 'A04'
+			event: 'A04',
+			map_codes_types: {
+				'ethnicity': 'CDCREC'
+			}
 		}, function(response){
 		});
 	}

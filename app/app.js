@@ -40984,6 +40984,7 @@ Ext.define('App.controller.patient.FamilyHistory', {
 			Ext.create('App.view.patient.windows.FamilyHistory');
 		}
 		this.getFamilyHistoryWindow().show();
+        this.getFamilyHistoryWindow().setAutoScroll(true);
 	},
 
 	onFamilyHistoryWindowSaveBtnClick:function(){

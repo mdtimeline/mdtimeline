@@ -113,15 +113,17 @@ Ext.define('App.controller.patient.FamilyHistory', {
 			values = form.getValues(),
 			histories = [],
 			isValid =  true,
-            foo;
+            foo,
+            condition,
+            relation;
 
 		Ext.Object.each(values, function(key, value){
 
 			if(value == '0~0') return;
 
-			foo = value.split('~'),
-				condition = foo[0].split(':'),
-				relation = foo[1].split(':');
+			foo = value.split('~');
+            condition = foo[0].split(':');
+            relation = foo[1].split(':');
 
 			if(isValid && relation[0] == '0'){
 				isValid = false;

@@ -92,8 +92,12 @@ class Rxnorm
             $Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE CODE=:gs_code");
             $Statement->execute([':gs_code' => $GSCode]);
             $RxNormRecord = $Statement->fetchAll(PDO::FETCH_ASSOC);
-            $RxNormRecord = $RxNormRecord[0];
-            return $RxNormRecord['RXCUI'];
+            if(count($RxNormRecord) > 0){
+                $RxNormRecord = $RxNormRecord[0];
+                return $RxNormRecord['RXCUI'];
+            } else {
+                return;
+            }
         }
     }
 

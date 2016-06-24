@@ -345,8 +345,6 @@ Ext.define('App.controller.miscellaneous.Amendments', {
 			assigned_user = searchField.getValue();
 
 		if(!searchField.isValid()) return;
-
-
 		me.getAmendmentDetailsWindow().mask(_('saving'));
 
 		record.set({
@@ -370,9 +368,7 @@ Ext.define('App.controller.miscellaneous.Amendments', {
 
 
 	doUpdatePatientData: function(data, pid, eid){
-
 		if(data.demographics){
-
 			var panel = app.getActivePanel();
 			if(panel.itemId == 'PatientSummaryPanel'){
 				var values = {};

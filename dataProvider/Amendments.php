@@ -17,46 +17,51 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-class Amendments {
+class Amendments
+{
 
-	/**
-	 * @var MatchaCUP
-	 */
-	private $a;
+    /**
+     * @var MatchaCUP
+     */
+    private $a;
 
-	function __construct() {
-        if($this->a == NULL)
+    function __construct()
+    {
+        if ($this->a == NULL)
             $this->a = MatchaModel::setSenchaModel('App.model.miscellaneous.Amendment');
-		$this->a->setOrFilterProperties(['assigned_to_uid']);
-	}
+        $this->a->setOrFilterProperties(['assigned_to_uid']);
+    }
 
-	public function getAmendment($params) {
-		Matcha::pauseLog(true);
-		$records = $this->a->load($params)->leftJoin([
-			'title' => 'response_title',
-			'fname' => 'response_fname',
-			'mname' => 'response_mname',
-			'lname' => 'response_lname'
-		], 'users', 'response_uid', 'id')->one();
-		Matcha::pauseLog(false);
-		return $records;
-	}
+    public function getAmendment($params)
+    {
+        Matcha::pauseLog(true);
+        $records = $this->a->load($params)->leftJoin([
+             'title' => 'response_title',
+             'fname' => 'response_fname',
+             'mname' => 'response_mname',
+             'lname' => 'response_lname'
+         ], 'users', 'response_uid', 'id')->one();
+        Matcha::pauseLog(false);
+        return $records;
+    }
 
-	public function getAmendments($params) {
-		Matcha::pauseLog(true);
-		$records =  $this->a->load($params)->leftJoin([
-			'title' => 'response_title',
-			'fname' => 'response_fname',
-			'mname' => 'response_mname',
-			'lname' => 'response_lname'
-		], 'users', 'response_uid', 'id')->all();
-		Matcha::pauseLog(false);
-		return $records;
-	}
+    public function getAmendments($params)
+    {
+        Matcha::pauseLog(true);
+        $records = $this->a->load($params)->leftJoin([
+             'title' => 'response_title',
+             'fname' => 'response_fname',
+             'mname' => 'response_mname',
+             'lname' => 'response_lname'
+         ], 'users', 'response_uid', 'id')->all();
+        Matcha::pauseLog(false);
+        return $records;
+    }
 
-	public function addAmendment($params) {
-		return $this->a->save($params);
-	}
+    public function addAmendment($params)
+    {
+        return $this->a->save($params);
+    }
 
     /**
      * This method will update the patient demographic data into the database
@@ -67,57 +72,62 @@ class Amendments {
      * @param $params
      * @return array|object
      */
-	public function updateAmendment($params) {
-		return $this->a->save($params);
-	}
+    public function updateAmendment($params)
+    {
+        error_log(print_r($params,true));
+        return $this->a->save($params);
+    }
 
-	public function destroyAmendment($params) {
-		return $this->a->destroy($params);
-	}
+    public function destroyAmendment($params)
+    {
+        return $this->a->destroy($params);
+    }
 
-	public function getUnreadAmendments($getUnAssigned){
-		$filter = new stdClass();
-		$filter->filter[0] = new stdClass();
-		$filter->filter[0]->property = 'is_read';
-		$filter->filter[0]->value = '0';
+    public function getUnreadAmendments($getUnAssigned)
+    {
+        $filter = new stdClass();
+        $filter->filter[0] = new stdClass();
+        $filter->filter[0]->property = 'is_read';
+        $filter->filter[0]->value = '0';
 
-		if(!$getUnAssigned){
-			$filter->filter[1] = new stdClass();
-			$filter->filter[1]->property = 'assigned_to_uid';
-			$filter->filter[1]->value = $_SESSION['user']['id'];
-		}else{
-			$filter->filter[1] = new stdClass();
-			$filter->filter[1]->property = 'assigned_to_uid';
-			$filter->filter[1]->value = $_SESSION['user']['id'];
+        if (!$getUnAssigned) {
+            $filter->filter[1] = new stdClass();
+            $filter->filter[1]->property = 'assigned_to_uid';
+            $filter->filter[1]->value = $_SESSION['user']['id'];
+        } else {
+            $filter->filter[1] = new stdClass();
+            $filter->filter[1]->property = 'assigned_to_uid';
+            $filter->filter[1]->value = $_SESSION['user']['id'];
 
-			$filter->filter[2] = new stdClass();
-			$filter->filter[2]->property = 'assigned_to_uid';
-			$filter->filter[2]->value = '0';
-		}
-		return $this->getAmendments($filter);
-	}
+            $filter->filter[2] = new stdClass();
+            $filter->filter[2]->property = 'assigned_to_uid';
+            $filter->filter[2]->value = '0';
+        }
+        return $this->getAmendments($filter);
+    }
 
-	public function getUnViewedAmendments($getUnAssigned){
-		$filter = new stdClass();
-		$filter->filter[0] = new stdClass();
-		$filter->filter[0]->property = 'is_viewed';
-		$filter->filter[0]->value = '0';
+    public function getUnViewedAmendments($getUnAssigned)
+    {
+        $filter = new stdClass();
+        $filter->filter[0] = new stdClass();
+        $filter->filter[0]->property = 'is_viewed';
+        $filter->filter[0]->value = '0';
 
-		if(!$getUnAssigned){
-			$filter->filter[1] = new stdClass();
-			$filter->filter[1]->property = 'assigned_to_uid';
-			$filter->filter[1]->value = $_SESSION['user']['id'];
-		}else{
-			$filter->filter[1] = new stdClass();
-			$filter->filter[1]->property = 'assigned_to_uid';
-			$filter->filter[1]->value = $_SESSION['user']['id'];
+        if (!$getUnAssigned) {
+            $filter->filter[1] = new stdClass();
+            $filter->filter[1]->property = 'assigned_to_uid';
+            $filter->filter[1]->value = $_SESSION['user']['id'];
+        } else {
+            $filter->filter[1] = new stdClass();
+            $filter->filter[1]->property = 'assigned_to_uid';
+            $filter->filter[1]->value = $_SESSION['user']['id'];
 
-			$filter->filter[2] = new stdClass();
-			$filter->filter[2]->property = 'assigned_to_uid';
-			$filter->filter[2]->value = '0';
-		}
-		return $this->getAmendments($filter);
-	}
+            $filter->filter[2] = new stdClass();
+            $filter->filter[2]->property = 'assigned_to_uid';
+            $filter->filter[2]->value = '0';
+        }
+        return $this->getAmendments($filter);
+    }
 
 }
 

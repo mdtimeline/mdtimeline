@@ -373,6 +373,7 @@ header("Access-Control-Allow-Origin: *");
 		            'App.ux.combo.CodesTypes',
 		            'App.ux.combo.Combo',
                     'App.ux.combo.ComboOptionList',
+                    'App.ux.combo.ComboOptionListSimple',
 		            'App.ux.combo.CVXManufacturers',
 		            'App.ux.combo.CVXManufacturersForCvx',
 		            'App.ux.combo.EncounterICDS',

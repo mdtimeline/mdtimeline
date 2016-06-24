@@ -351,7 +351,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                     frame: false,
                     items: [
                         {
-                            xtype: 'listcomboreport',
+                            xtype: 'listcombo',
                             list: 12,
                             id: 'marital',
                             hideLabel: true,

@@ -779,7 +779,7 @@ class HL7Messages {
 			$pid->setValue('3.4', $this->namesace_id);
 			$pid->setValue('3.5', 'MR', $index); // IDNumber Type (HL70203) MR = Medical Record
 			$index++;
-		}elseif($this->notEmpty($this->patient->pid)){
+		} elseif($this->notEmpty($this->patient->pid)) {
 			$pid->setValue('3.1', $this->patient->pid, $index);
 			$pid->setValue('3.4', $this->namesace_id);
 			$pid->setValue('3.5', 'MR', $index);  // IDNumber Type (HL70203) MR = Medical Record
@@ -832,26 +832,35 @@ class HL7Messages {
 			$pid->setValue('10.3', 'CDCREC'); // Race Name of Coding System
 		}
 
+		$has_address = false;
 		if($this->notEmpty($this->patient->physical_address)){
-			if($this->notEmpty($this->patient->physical_address))
-				$pid->setValue('11.1.1', $this->patient->physical_address . ' ' . $this->patient->physical_address_cont);
+			$pid->setValue('11.1.1', $this->patient->physical_address . ' ' . $this->patient->physical_address_cont);
+			$has_address = true;
+		}
 
-			if($this->notEmpty($this->patient->physical_city))
-				$pid->setValue('11.3', $this->patient->physical_city);
+		if($this->notEmpty($this->patient->physical_city)){
+			$pid->setValue('11.3', $this->patient->physical_city);
+			$has_address = true;
+		}
 
-			if($this->notEmpty($this->patient->physical_state)){
-				$pid->setValue('11.4', $this->patient->physical_state);
-			}
-			if($this->notEmpty($this->patient->physical_zip)){
-				$pid->setValue('11.5', $this->patient->physical_zip);
-			}
-			if($this->notEmpty($this->patient->physical_country)){
-				$pid->setValue('11.6', $this->patient->physical_country);
-			}
+		if($this->notEmpty($this->patient->physical_state)){
+			$pid->setValue('11.4', $this->patient->physical_state);
+			$has_address = true;
+		}
+		if($this->notEmpty($this->patient->physical_zip)){
+			$pid->setValue('11.5', $this->patient->physical_zip);
+			$has_address = true;
+		}
+		if($this->notEmpty($this->patient->physical_country)){
+			$pid->setValue('11.6', $this->patient->physical_country);
+			$has_address = true;
+		}
+
+		if($has_address){
 			$pid->setValue('11.7', 'L'); // Address Type L = Legal Address
 			$pid->setValue('11.9', '25025');
 		}
-
+		
 		$index = 0;
 		if($this->notEmpty($this->patient->phone_home)){
 			$phone = $this->phone($this->patient->phone_home);

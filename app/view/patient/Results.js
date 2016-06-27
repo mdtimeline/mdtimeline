@@ -322,7 +322,7 @@ Ext.define('App.view.patient.Results', {
 									items: [
 										{
 											icon: 'resources/images/icons/blueInfo.png',  // Use a URL in the icon config
-											tooltip: 'Get Info',
+											tooltip: _('get_info'),
 											handler: function(grid, rowIndex, colIndex, item, e, record){
 												App.app.getController('InfoButton').doGetInfo(
 													record.data.code,

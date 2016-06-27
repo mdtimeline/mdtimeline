@@ -3331,8 +3331,8 @@ Ext.define('App.ux.LivePatientSearch', {
 	hideTrigger: true,
     validateBlank: true,
     submitValue: true,
-	minChars: 0,
-	queryDelay: 200,
+	minChars: 1,
+	queryDelay: 500,
 	initComponent: function(){
 		var me = this;
 
@@ -9498,37 +9498,37 @@ Ext.define('App.ux.combo.PaymentCategory', {
 	}
 });
 Ext.define('App.ux.combo.Pharmacies', {
-	extend       : 'Ext.form.ComboBox',
-	alias        : 'widget.mitos.pharmaciescombo',
-	initComponent: function() {
+	extend: 'Ext.form.ComboBox',
+	alias: 'widget.mitos.pharmaciescombo',
+	initComponent: function(){
 		var me = this;
 
 		Ext.define('PharmaciesComboModel', {
 			extend: 'Ext.data.Model',
 			fields: [
-				{name: 'option_name' },
-				{name: 'option_value' }
+				{name: 'option_name'},
+				{name: 'option_value'}
 			],
-			proxy : {
-				type       : 'direct',
-				api        : {
-					read: CombosData.getActivePharmacies
+			proxy: {
+				type: 'direct',
+				api: {
+					read: 'CombosData.getActivePharmacies'
 				}
 			}
 		});
 
 		me.store = Ext.create('Ext.data.Store', {
-			model   : 'PharmaciesComboModel',
+			model: 'PharmaciesComboModel',
 			autoLoad: false
 		});
 
 		Ext.apply(this, {
-			editable    : false,
+			editable: false,
 			//queryMode   : 'local',
 			displayField: 'option_name',
-			valueField  : 'option_value',
-			emptyText   : _('select'),
-			store       : me.store
+			valueField: 'option_value',
+			emptyText: _('select'),
+			store: me.store
 		}, null);
 		me.callParent(arguments);
 	}
@@ -18054,6 +18054,11 @@ Ext.define('App.model.patient.PatientImmunization', {
 			index: true
 		},
 		{
+			name: 'facility_id',
+			type: 'int',
+			index: true
+		},
+		{
 			name: 'uid',
 			type: 'int'
 		},
@@ -18151,16 +18156,55 @@ Ext.define('App.model.patient.PatientImmunization', {
 			len: 180
 		},
 		{
-			name: 'education_date',
+			name: 'education_resource_1_id',
+			type: 'int'
+		},
+		{
+			name: 'education_resource_2_id',
+			type: 'int'
+		},
+		{
+			name: 'education_resource_3_id',
+			type: 'int'
+		},
+		{
+			name: 'education_presented_1_date',
 			type: 'date',
-			dataType: 'date',
-			dateFormat: 'Y-m-d'
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'education_presented_2_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'education_presented_3_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'vfc_code',
+			type: 'string',
+			len: 40
+		},
+		{
+			name: 'information_source_code',
+			type: 'string',
+			len: 10
+		},
+		{
+			name: 'refusal_reason_code',
+			type: 'string',
+			len: 10
 		},
         {
-            name: 'education_doc_published',
-            type: 'date',
-            dataType: 'date',
-            dateFormat: 'Y-m-d'
+            name: 'is_presumed_immunity',
+            type: 'bool'
+        },
+        {
+            name: 'presumed_immunity_code',
+	        type: 'string',
+	        len: 20
         },
 		{
 			name: 'note',
@@ -21087,6 +21131,20 @@ Ext.define('App.model.patient.Patient',{
             type: 'bool'
         },
         {
+            name: 'allow_guardian_web_portal',
+            type: 'bool'
+        },
+        {
+            name: 'allow_emergency_contact_web_portal',
+            type: 'bool'
+        },
+        {
+            name: 'organ_donor_code',
+            type: 'string',
+	        len: 10,
+	        defaultValue: 'U'
+        },
+        {
             name: 'occupation',
             type: 'string',
             comment: 'patient occupation',
@@ -21293,6 +21351,11 @@ Ext.define('App.model.patient.Patient',{
 	        len: 35
         },
         {
+            name: 'postal_country',
+            type: 'string',
+	        len: 35
+        },
+        {
             name: 'physical_address',
             type: 'string',
 	        len: 40
@@ -21317,6 +21380,41 @@ Ext.define('App.model.patient.Patient',{
             type: 'string',
 	        len: 35
         },
+        {
+            name: 'physical_country',
+            type: 'string',
+	        len: 35
+        },
+	    {
+		    name: 'mother_fname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'mother_mname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'mother_lname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'father_fname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'father_mname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'father_lname',
+		    type: 'string',
+		    len: 80
+	    },
 	    {
 		    name: 'guardians_relation',
 		    type: 'string',
@@ -21348,6 +21446,47 @@ Ext.define('App.model.patient.Patient',{
 	        len: 10
         },
         {
+            name: 'guardians_address',
+            type: 'string',
+            len: 35
+        },
+        {
+            name: 'guardians_address_cont',
+            type: 'string',
+            len: 35
+        },
+        {
+            name: 'guardians_city',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'guardians_state',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'guardians_country',
+            type: 'string',
+            len: 80
+        },
+        {
+            name: 'guardians_zip',
+            type: 'string',
+            len: 15
+        },
+        {
+            name: 'guardian_portal_password',
+            type: 'string',
+            dataType: 'blob',
+            encrypt: true
+        },
+        {
+            name: 'guardian_portal_username',
+            type: 'string',
+            len: 40
+        },
+        {
             name: 'emergency_contact_relation',
             type: 'string',
 	        len: 20
@@ -21376,6 +21515,47 @@ Ext.define('App.model.patient.Patient',{
             name: 'emergency_contact_phone_type',
             type: 'string',
             len: 10
+        },
+	    {
+		    name: 'emergency_contact_address',
+		    type: 'string',
+		    len: 35
+	    },
+	    {
+		    name: 'emergency_contact_address_cont',
+		    type: 'string',
+		    len: 35
+	    },
+	    {
+		    name: 'emergency_contact_city',
+		    type: 'string',
+		    len: 40
+	    },
+	    {
+		    name: 'emergency_contact_state',
+		    type: 'string',
+		    len: 40
+	    },
+	    {
+		    name: 'emergency_contact_country',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'emergency_contact_zip',
+		    type: 'string',
+		    len: 15
+	    },
+        {
+            name: 'emergency_contact_portal_password',
+            type: 'string',
+            dataType: 'blob',
+            encrypt: true
+        },
+        {
+            name: 'emergency_contact_portal_username',
+            type: 'string',
+            len: 40
         }
     ],
     idProperty: 'pid',
@@ -25618,7 +25798,7 @@ Ext.define('App.view.patient.Results', {
 									items: [
 										{
 											icon: 'resources/images/icons/blueInfo.png',  // Use a URL in the icon config
-											tooltip: 'Get Info',
+											tooltip: _('get_info'),
 											handler: function(grid, rowIndex, colIndex, item, e, record){
 												App.app.getController('InfoButton').doGetInfo(
 													record.data.code,
@@ -41100,14 +41280,16 @@ Ext.define('App.controller.patient.HL7', {
 
 Ext.define('App.controller.patient.Immunizations', {
 	extend: 'Ext.app.Controller',
-	requires: [
-
-	],
+	requires: [],
 	refs: [
-        {
-            ref: 'SubmitImmunizationWindow',
-            selector: '#SubmitImmunizationWindow'
-        },
+		{
+			ref: 'SubmitImmunizationWindow',
+			selector: '#SubmitImmunizationWindow'
+		},
+		{
+			ref: 'SubmitImmunizationGrid',
+			selector: '#SubmitImmunizationGrid'
+		},
 		{
 			ref: 'ImmunizationPanel',
 			selector: 'patientimmunizationspanel'
@@ -41135,48 +41317,111 @@ Ext.define('App.controller.patient.Immunizations', {
 		{
 			ref: 'SubmitVxuBtn',
 			selector: 'patientimmunizationspanel #submitVxuBtn'
+		},
+		{
+			ref: 'ImmunizationsPresumedImmunityCheckbox',
+			selector: '#ImmunizationsPresumedImmunityCheckbox'
+		},
+		{
+			ref: 'ImmunizationsImmunizationSearch',
+			selector: '#ImmunizationsImmunizationSearch'
+		},
+		{
+			ref: 'ImmunizationsDisorderCombo',
+			selector: '#ImmunizationsDisorderCombo'
+		},
+		{
+			ref: 'ImmunizationsPresumedImmunityCheckbox',
+			selector: '#ImmunizationsPresumedImmunityCheckbox'
 		}
 	],
 
 	init: function(){
 		var me = this;
 		me.control({
-			'patientimmunizationspanel':{
+			'patientimmunizationspanel': {
 				activate: me.onPatientImmunizationsPanelActive
 			},
-			'patientimmunizationspanel #patientImmunizationsGrid':{
+			'patientimmunizationspanel #patientImmunizationsGrid': {
 				selectionchange: me.onPatientImmunizationsGridSelectionChange,
 				beforeedit: me.onPatientImmunizationsGridBeforeEdit,
 				edit: me.onPatientImmunizationsGridEdit
 			},
-			'patientimmunizationspanel #cvxGrid':{
+			'patientimmunizationspanel #cvxGrid': {
 				expand: me.onCvxGridExpand
 			},
-			'patientimmunizationspanel #submitVxuBtn':{
+			'patientimmunizationspanel #submitVxuBtn': {
 				click: me.onSubmitVxuBtnClick
 			},
-			'patientimmunizationspanel #reviewImmunizationsBtn':{
+			'patientimmunizationspanel #reviewImmunizationsBtn': {
 				click: me.onReviewImmunizationsBtnClick
 			},
-			'patientimmunizationspanel #addImmunizationBtn':{
+			'patientimmunizationspanel #addImmunizationBtn': {
 				click: me.onAddImmunizationBtnClick
 			},
-			'form #immunizationsearch':{
+			'#ImmunizationsImmunizationSearch': {
 				select: me.onImmunizationSearchSelect
 			},
-			'#patientImmunizationsEditFormAdministeredByField':{
+			'#patientImmunizationsEditFormAdministeredByField': {
 				select: me.onPatientImmunizationsEditFormAdministeredByFieldSelect
 			},
-            '#SubmitImmunizationWindow #ActiveFacilitiesCombo':{
-                change: me.onActiveFacilitiesChange
-            },
-            '#SubmitImmunizationWindow #ApplicationCombo':{
-                change: me.onApplicationChange
-            }
+			'#SubmitImmunizationWindow #ActiveFacilitiesCombo': {
+				change: me.onActiveFacilitiesChange
+			},
+			'#SubmitImmunizationWindow #ApplicationCombo': {
+				change: me.onApplicationChange
+			},
+			'#ImmunizationsPresumedImmunityCheckbox': {
+				afterrender: me.onImmunizationsPresumedImmunityCheckboxAfterRender
+			}
 		});
 	},
 
-	onPatientImmunizationsEditFormAdministeredByFieldSelect:function(comb, records){
+	onImmunizationsPresumedImmunityCheckboxAfterRender: function(checkbox){
+		var me = this;
+
+		checkbox.el.on('click', function(){
+			Ext.Function.defer(function(){
+				me.onImmunizationsPresumedImmunityCheckboxClick(checkbox);
+			}, 100);
+
+		});
+	},
+
+	onImmunizationsPresumedImmunityCheckboxClick: function(checkbox){
+
+		var record = checkbox.up('form').getForm().getRecord(),
+			checked = checkbox.getValue();
+
+		this.setImmunizationFields(checked);
+
+		this.getImmunizationsImmunizationSearch().reset();
+		this.getImmunizationsDisorderCombo().reset();
+
+		if(checked){
+			record.set({
+				presumed_immunity_code: '',
+				code: '998',
+				code_type: 'CVX',
+				vaccine_name: 'no vaccine administered'
+			});
+		}else{
+			record.set({
+				code: '',
+				code_type: '',
+				vaccine_name: ''
+			});
+		}
+	},
+
+	setImmunizationFields: function(presumed_immunity){
+		this.getImmunizationsDisorderCombo().setVisible(presumed_immunity);
+		this.getImmunizationsDisorderCombo().setDisabled(!presumed_immunity);
+		this.getImmunizationsImmunizationSearch().setVisible(!presumed_immunity);
+		this.getImmunizationsImmunizationSearch().setDisabled(presumed_immunity);
+	},
+
+	onPatientImmunizationsEditFormAdministeredByFieldSelect: function(comb, records){
 		var record = comb.up('form').getForm().getRecord();
 
 		record.set({
@@ -41188,11 +41433,11 @@ Ext.define('App.controller.patient.Immunizations', {
 		});
 	},
 
-	onImmunizationSearchSelect:function(combo, record){
-		var form =  combo.up('form').getForm();
+	onImmunizationSearchSelect: function(combo, record){
+		var form = combo.up('form').getForm();
 
 		this.getCvxMvxCombo().getStore().load({
-			params:{
+			params: {
 				cvx_code: record[0].data.cvx_code
 			}
 		});
@@ -41202,16 +41447,18 @@ Ext.define('App.controller.patient.Immunizations', {
 		});
 	},
 
-	onCvxGridExpand:function(grid){
+	onCvxGridExpand: function(grid){
 		grid.getStore().load();
 	},
 
-	onPatientImmunizationsGridSelectionChange:function(sm, selected){
+	onPatientImmunizationsGridSelectionChange: function(sm, selected){
 		this.getSubmitVxuBtn().setDisabled(selected.length === 0);
 	},
 
-	onPatientImmunizationsGridBeforeEdit:function(plugin, context){
+	onPatientImmunizationsGridBeforeEdit: function(plugin, context){
 		var field = plugin.editor.getForm().findField('administered_by');
+
+		this.setImmunizationFields(context.record.get('is_presumed_immunity'));
 
 		field.forceSelection = false;
 		Ext.Function.defer(function(){
@@ -41220,33 +41467,26 @@ Ext.define('App.controller.patient.Immunizations', {
 		}, 200);
 	},
 
-	onPatientImmunizationsGridEdit:function(plugin, context){
+	onPatientImmunizationsGridEdit: function(plugin, context){
 		app.fireEvent('immunizationedit', this, context.record);
 	},
 
-	onPatientImmunizationsPanelActive:function(){
+	onPatientImmunizationsPanelActive: function(){
 		this.loadPatientImmunizations();
 	},
 
-	onSubmitVxuBtnClick:function(){
+	onSubmitVxuBtnClick: function(){
 		var me = this,
-			selected = me.getImmunizationsGrid().getSelectionModel().getSelection(),
-			immunizations = [];
-
+			selected = me.getImmunizationsGrid().getSelectionModel().getSelection();
 		me.vxuWindow = me.getVxuWindow();
-
-		for(var i=0; i < selected.length; i++){
-			immunizations.push(selected[i].data);
-		}
-
-		me.vxuWindow.getComponent('list').update(immunizations);
+		me.vxuWindow.down('grid').getStore().loadData(selected);
 	},
 
-	onReviewImmunizationsBtnClick:function(){
+	onReviewImmunizationsBtnClick: function(){
 
 	},
 
-	onAddImmunizationBtnClick:function(){
+	onAddImmunizationBtnClick: function(){
 		var grid = this.getImmunizationsGrid(),
 			store = grid.getStore();
 
@@ -41256,6 +41496,7 @@ Ext.define('App.controller.patient.Immunizations', {
 			uid: app.user.id,
 			pid: app.patient.pid,
 			eid: app.patient.eid,
+			facility_id: app.user.facility,
 			create_date: new Date(),
 			begin_date: new Date()
 
@@ -41263,7 +41504,7 @@ Ext.define('App.controller.patient.Immunizations', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	loadPatientImmunizations:function(){
+	loadPatientImmunizations: function(){
 		var store = this.getImmunizationsGrid().getStore();
 		store.clearFilter(true);
 		store.filter([
@@ -41276,74 +41517,93 @@ Ext.define('App.controller.patient.Immunizations', {
 
 	getVxuWindow: function(){
 		var me = this;
-		return Ext.widget('window',{
+
+		if(this.getSubmitImmunizationWindow()){
+			return this.getSubmitImmunizationWindow().show();
+		}
+
+		return Ext.widget('window', {
 			title: _('submit_hl7_vxu'),
 			closable: false,
-            itemId: 'SubmitImmunizationWindow',
+			itemId: 'SubmitImmunizationWindow',
 			modal: true,
-			bodyStyle:'background-color:white',
-			defaults:{
-				xtype:'container',
-				border:false,
-				margin:10
-			},
-			items:[
+			bodyStyle: 'background-color:white',
+			items: [
 				{
-					html: _('please_verify_the_information')+':',
-					margin: '10 10 0 10'
+					xtype: 'grid',
+					title: _('please_verify_the_information'),
+					store: Ext.create('App.store.patient.PatientImmunization'),
+					width: 700,
+					minHeight: 50,
+					maxHeight: 200,
+					itemId: 'SubmitImmunizationGrid',
+					viewConfig: {
+						plugins: {
+							ptype: 'gridviewdragdrop',
+							dragText: 'Drag and drop to reorganize'
+						}
+					},
+					columns: [
+						{
+							text: _('code'),
+							dataIndex: 'code'
+						},
+						{
+							text: _('vaccine_name'),
+							dataIndex: 'vaccine_name',
+							flex: 1
+						},
+						{
+							text: _('administer_amount'),
+							dataIndex: 'administer_amount'
+						},
+						{
+							text: _('administer_units'),
+							dataIndex: 'administer_units'
+						},
+						{
+							text: _('date_administered'),
+							dataIndex: 'date_administered'
+						}
+					]
 				},
 				{
-					width:700,
-					minHeight:50,
-					maxHeight:200,
-					itemId:'list',
-					margin:'0 10 20 10',
-					styleHtmlContent: true,
-					tpl: new Ext.XTemplate(
-						'<ul>',
-						'<tpl for=".">',     // interrogate the kids property within the data
-						'   <li>CVX:{code} - {vaccine_name} {administer_amount} {administer_units} {date_administered}</li>',
-							'</tpl>' +
-							'</ul>'
-					)
-				},
-                {
-                    xtype: 'uxiframe',
-                    itemId: 'downloadHL7',
-                    hidden: true
-                }
+					xtype: 'uxiframe',
+					itemId: 'downloadHL7',
+					hidden: true
+				}
 			],
-			buttons:[
-				me.vxuFrom = Ext.create('App.ux.combo.ActiveFacilities',{
+			buttons: [
+				me.vxuFrom = Ext.create('App.ux.combo.ActiveFacilities', {
 					fieldLabel: _('send_from'),
 					emptyText: _('select'),
-                    itemId: 'ActiveFacilitiesCombo',
+					itemId: 'ActiveFacilitiesCombo',
 					labelWidth: 60,
-					store: Ext.create('App.store.administration.HL7Clients',{
-						filters:[
+					store: Ext.create('App.store.administration.HL7Clients', {
+						filters: [
 							{
-								property:'active',
-								value:true
+								property: 'active',
+								value: true
 							}
 						]
 					})
 				}),
-				me.vxuTo = Ext.widget('combobox',{
-					xtype:'combobox',
+				me.vxuTo = Ext.widget('combobox', {
+					xtype: 'combobox',
 					fieldLabel: _('send_to'),
 					emptyText: _('select'),
 					allowBlank: false,
-                    itemId: 'ApplicationCombo',
+					itemId: 'ApplicationCombo',
 					forceSelection: true,
-                    editable: false,
+					editable: false,
 					labelWidth: 60,
 					displayField: 'application_name',
 					valueField: 'id',
-					store: Ext.create('App.store.administration.HL7Clients',{
-						filters:[
+					store: Ext.create('App.store.administration.HL7Clients', {
+						filters: [
 							{
-								property:'active',
-								value:true
+								property: 'active',
+								value: true
 							}
 						]
 					})
@@ -41351,22 +41611,22 @@ Ext.define('App.controller.patient.Immunizations', {
 				{
 					text: _('send'),
 					scope: me,
-                    itemId: 'send',
+					itemId: 'send',
 					handler: me.doSendVxu,
-                    action: 'send',
-                    disabled: true
+					action: 'send',
+					disabled: true
 				},
-                {
-                    text: _('download'),
-                    scope: me,
-                    itemId: 'download',
-                    handler: me.doDownloadVxu,
-                    action: 'download',
-                    disabled: true
-                },
 				{
-					text:_('cancel'),
-					handler:function(){
+					text: _('download'),
+					scope: me,
+					itemId: 'download',
+					handler: me.doDownloadVxu,
+					action: 'download',
+					disabled: true
+				},
+				{
+					text: _('cancel'),
+					handler: function(){
 						me.vxuWindow.close();
 					}
 				}
@@ -41374,85 +41634,85 @@ Ext.define('App.controller.patient.Immunizations', {
 		}).show();
 	},
 
-    /**
-     * Only activate the send, & download button when facilities and application has been
-     * selected
-     * @param me
-     * @param newValue
-     * @param oldValue
-     */
-    onActiveFacilitiesChange: function(me, newValue, oldValue){
-        if(Ext.ComponentQuery.query('#ApplicationCombo')[0].getValue()){
-            Ext.ComponentQuery.query('#SubmitImmunizationWindow #send')[0].setDisabled(false);
-            Ext.ComponentQuery.query('#SubmitImmunizationWindow #download')[0].setDisabled(false);
-        }
-    },
+	/**
+	 * Only activate the send, & download button when facilities and application has been
+	 * selected
+	 * @param me
+	 * @param newValue
+	 * @param oldValue
+	 */
+	onActiveFacilitiesChange: function(me, newValue, oldValue){
+		if(Ext.ComponentQuery.query('#ApplicationCombo')[0].getValue()){
+			Ext.ComponentQuery.query('#SubmitImmunizationWindow #send')[0].setDisabled(false);
+			Ext.ComponentQuery.query('#SubmitImmunizationWindow #download')[0].setDisabled(false);
+		}
+	},
 
-    /**
-     * Only activate the send, & download button when facilities and application has been
-     * selected
-     * @param me
-     * @param newValue
-     * @param oldValue
-     */
-    onApplicationChange: function(me, newValue, oldValue){
-        if(Ext.ComponentQuery.query('#ActiveFacilitiesCombo')[0].getValue()){
-            Ext.ComponentQuery.query('#SubmitImmunizationWindow #send')[0].setDisabled(false);
-            Ext.ComponentQuery.query('#SubmitImmunizationWindow #download')[0].setDisabled(false);
-        }
-    },
+	/**
+	 * Only activate the send, & download button when facilities and application has been
+	 * selected
+	 * @param me
+	 * @param newValue
+	 * @param oldValue
+	 */
+	onApplicationChange: function(me, newValue, oldValue){
+		if(Ext.ComponentQuery.query('#ActiveFacilitiesCombo')[0].getValue()){
+			Ext.ComponentQuery.query('#SubmitImmunizationWindow #send')[0].setDisabled(false);
+			Ext.ComponentQuery.query('#SubmitImmunizationWindow #download')[0].setDisabled(false);
+		}
+	},
 
-    doDownloadVxu:function(btn){
-        var me = this,
-            sm = me.getImmunizationsGrid().getSelectionModel(),
-            ImmunizationSelection = sm.getSelection(),
-            params = {},
-            immunizations = [],
-            form;
-
-        if(me.vxuTo.isValid()){
-
-            for(var i=0; i < ImmunizationSelection.length; i++){
-                immunizations.push(ImmunizationSelection[i].data.id);
-                params.pid = ImmunizationSelection[i].data.pid;
-            }
-
-            me.vxuWindow.el.mask(_('download'));
-            Ext.create('Ext.form.Panel', {
-                renderTo: Ext.ComponentQuery.query('#SubmitImmunizationWindow #downloadHL7')[0].el,
-                standardSubmit: true,
-                url: 'dataProvider/Download.php'
-            }).submit({
-                params: {
-                    'pid': params.pid,
-                    'from': me.vxuFrom.getValue(),
-                    'to': me.vxuTo.getValue(),
-                    'immunizations': Ext.encode(immunizations)
-                },
-                success: function(form, action) {
-                    // Audit log here
-                }
-            });
-
-            me.vxuWindow.el.unmask();
-            me.vxuWindow.close();
-            sm.deselectAll();
-
-        }
-    },
-
-	doSendVxu:function(btn){
+	doDownloadVxu: function(btn){
 		var me = this,
 			sm = me.getImmunizationsGrid().getSelectionModel(),
-            ImmunizationSelection = sm.getSelection(),
+			ImmunizationSelection = sm.getSelection(),
+			params = {},
+			immunizations = [],
+			form;
+
+		if(me.vxuTo.isValid()){
+
+			for(var i = 0; i < ImmunizationSelection.length; i++){
+				immunizations.push(ImmunizationSelection[i].data.id);
+				params.pid = ImmunizationSelection[i].data.pid;
+			}
+
+			me.vxuWindow.el.mask(_('download'));
+			Ext.create('Ext.form.Panel', {
+				renderTo: Ext.ComponentQuery.query('#SubmitImmunizationWindow #downloadHL7')[0].el,
+				standardSubmit: true,
+				url: 'dataProvider/Download.php'
+			}).submit({
+				params: {
+					'pid': params.pid,
+					'from': me.vxuFrom.getValue(),
+					'to': me.vxuTo.getValue(),
+					'immunizations': Ext.encode(immunizations)
+				},
+				success: function(form, action){
+					// Audit log here
+				}
+			});
+
+			me.vxuWindow.el.unmask();
+			me.vxuWindow.close();
+			sm.deselectAll();
+
+		}
+	},
+
+	doSendVxu: function(btn){
+		var me = this,
+			sm = me.getImmunizationsGrid().getSelectionModel(),
+			records = this.getSubmitImmunizationGrid().getStore().data.items,
 			params = {},
 			immunizations = [];
 
 		if(me.vxuTo.isValid()){
 
-			for(var i=0; i < ImmunizationSelection.length; i++){
-				immunizations.push(ImmunizationSelection[i].data.id);
-                params.pid = ImmunizationSelection[i].data.pid;
+			for(var i = 0; i < records.length; i++){
+				Ext.Array.push(immunizations, records[i].get('id'));
+				params.pid = records[i].get('pid');
 			}
 
 			params.from = me.vxuFrom.getValue();
@@ -44684,7 +44944,8 @@ Ext.define('App.view.patient.Immunizations', {
 		'App.ux.grid.RowFormEditing',
 		'App.store.patient.CVXCodes',
 		'App.ux.form.fields.DateTime',
-		'App.ux.LiveUserSearch'
+		'App.ux.LiveUserSearch',
+		'App.ux.combo.EducationResources'
 	],
 	xtype: 'patientimmunizationspanel',
 	title: _('immunizations'),
@@ -44802,32 +45063,51 @@ Ext.define('App.view.patient.Immunizations', {
 										/**
 										 * Line one
 										 */
-										xtype: 'fieldcontainer',
+										xtype: 'container',
 										layout: 'hbox',
-										itemId: 'line1',
-										defaults: {
-											margin: '0 10 0 0',
-											xtype: 'textfield'
-										},
 										items: [
 											{
-												xtype: 'immunizationlivesearch',
-												itemId: 'immunizationsearch',
-												fieldLabel: _('name'),
-												name: 'vaccine_name',
-												valueField: 'name',
-												hideLabel: false,
-												allowBlank: false,
-												enableKeyEvents: true,
-												width: 625
+												xtype: 'container',
+												layout: 'vbox',
+												margin: '0 0 10 0',
+												items: [
+													{
+														xtype: 'immunizationlivesearch',
+														itemId: 'ImmunizationsImmunizationSearch',
+														fieldLabel: _('name'),
+														name: 'vaccine_name',
+														valueField: 'name',
+														hideLabel: false,
+														allowBlank: false,
+														enableKeyEvents: true,
+														width: 475
+													},
+													{
+														xtype: 'gaiaehr.combo',
+														fieldLabel: _('disorder'),
+														itemId: 'ImmunizationsDisorderCombo',
+														width: 475,
+														list: 140,
+														queryMode: 'local',
+														loadStore: true,
+														editable: false,
+														allowBlank: false,
+														name: 'presumed_immunity_code'
+													}
+												]
+											},
+											{
+												xtype: 'checkbox',
+												name: 'is_presumed_immunity',
+												fieldLabel: 'Presumed Immunity',
+												width: 145,
+												itemId: 'ImmunizationsPresumedImmunityCheckbox',
+												labelAlign: 'right',
+												labelWidth: 125
 											}
 										]
-
 									},
 									{
-										/**
-										 * Line two
-										 */
 										xtype: 'fieldcontainer',
 										layout: 'hbox',
 										defaults: {
@@ -44866,9 +45146,6 @@ Ext.define('App.view.patient.Immunizations', {
 
 									},
 									{
-										/**
-										 * Line three
-										 */
 										xtype: 'fieldcontainer',
 										layout: 'hbox',
 										defaults: {
@@ -44948,25 +45225,111 @@ Ext.define('App.view.patient.Immunizations', {
 										]
 									},
 									{
-										xtype: 'datefield',
-										width: 250,
-										margin: '0 0 0 5',
-										fieldLabel: _('education'),
-										name: 'education_date'
-									},
-                                    {
-                                        xtype: 'datefield',
-                                        width: 250,
-                                        margin: '0 0 0 5',
-                                        fieldLabel: _('doc_published'),
-                                        name: 'education_doc_published'
-                                    }
+										xtype: 'checkboxfield',
+										fieldLabel: _('entered_in_error'),
+										name: 'is_error'
+									}
 								]
 							},
 							{
-								xtype: 'checkboxfield',
-								boxLabel: _('entered_in_error'),
-								name: 'is_error'
+								xtype: 'container',
+								items: [
+									{
+										xtype: 'gaiaehr.combo',
+										list: 138,
+										width: 550,
+										name: 'information_source_code',
+										fieldLabel: _('info_source'),
+										margin: '0 0 5 0',
+										loadStore: true,
+										editable: false
+									},
+									{
+										xtype: 'gaiaehr.combo',
+										list: 139,
+										width: 550,
+										name: 'refusal_reason_code',
+										fieldLabel: _('refusal_reason'),
+										margin: '0 0 5 0',
+										loadStore: true,
+										editable: false
+									},
+									{
+										xtype: 'gaiaehr.combo',
+										fieldLabel: _('vfc'),
+										name: 'vfc_code',
+										list: 135,
+										width: 550,
+										margin: '0 0 5 0',
+										loadStore: true,
+										editable: false
+									},
+									{
+										xtype: 'container',
+									    layout: 'hbox',
+										items: [
+											{
+												xtype: 'container',
+												items: [
+													{
+														xtype: 'educationresourcescombo',
+														width: 250,
+														margin: '0 5 5 0',
+														fieldLabel: _('publication'),
+														name: 'education_resource_1_id',
+														codeType: 'CVX'
+													},
+													{
+														xtype: 'datefield',
+														width: 250,
+														margin: '0 5 5 0',
+														fieldLabel: _('given_date'),
+														name: 'education_presented_1_date',
+														submitFormat: 'Y-m-d H:i:s'
+													}
+												]
+											},
+											{
+												xtype: 'container',
+												items: [
+													{
+														xtype: 'educationresourcescombo',
+														width: 145,
+														margin: '0 5 5 0',
+														name: 'education_resource_2_id',
+														codeType: 'CVX'
+													},
+													{
+														xtype: 'datefield',
+														width: 145,
+														margin: '0 5 5 0',
+														name: 'education_presented_2_date',
+														submitFormat: 'Y-m-d H:i:s'
+													}
+												]
+											},
+											{
+												xtype: 'container',
+												items: [
+													{
+														xtype: 'educationresourcescombo',
+														width: 145,
+														margin: '0 0 5 0',
+														name: 'education_resource_3_id',
+														codeType: 'CVX'
+													},
+													{
+														xtype: 'datefield',
+														width: 145,
+														margin: '0 0 5 0',
+														name: 'education_presented_3_date',
+														submitFormat: 'Y-m-d H:i:s'
+													}
+												]
+											}
+										]
+									}
+								]
 							}
 						]
 					}
@@ -50590,14 +50953,16 @@ Ext.define('App.view.patient.Patient', {
 	},
 	xtype: 'patientdeomgraphics',
 	itemId: 'PatientDemographicsPanel',
+
 	newPatient: true,
 	pid: null,
+
 	defaultPatientImage: 'resources/images/patientPhotoPlaceholder.jpg',
 	defaultQRCodeImage: 'resources/images/QRCodeImage.png',
 
 	initComponent: function(){
 		var me = this,
-            configs;
+			configs;
 
 		me.store = Ext.create('App.store.patient.Patient');
 		me.patientAlertsStore = Ext.create('App.store.patient.MeaningfulUseAlert');
@@ -50644,7 +51009,1171 @@ Ext.define('App.view.patient.Patient', {
 					fieldDefaults: {
 						labelAlign: 'right',
 						msgTarget: 'side'
-					}
+					},
+					items: [
+						{
+							xtype: (me.compactDemographics ? 'tabpanel' : 'panel'),
+							itemId: 'Demographics',
+							border: false,
+							height: 300,
+							defaults: {
+								autoScroll: true
+							},
+							items: [
+								{
+									xtype: 'panel',
+									title: 'Who',
+									hideLabel: false,
+									collapsible: true,
+									enableKeyEvents: true,
+									checkboxToggle: false,
+									collapsed: false,
+									action: 'DemographicWhoFieldSet',
+									border: false,
+									bodyBorder: false,
+									bodyPadding: 10,
+									items: [
+										{
+											xtype: 'fieldcontainer',
+											fieldLabel: 'Extermal IDs Rec# Acc#',
+											labelWidth: 149,
+											hideLabel: false,
+											layout: 'hbox',
+											width: 660,
+											items: [
+												{
+													xtype: 'textfield',
+													fieldLabel: 'External Rec#',
+													emptyText: 'External Rec#',
+													labelWidth: 149,
+													hideLabel: true,
+													enableKeyEvents: true,
+													width: 175,
+													margin: '0 5 0 0',
+													name: 'pubpid'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: 'External Acc#',
+													emptyText: 'External Acc#',
+													hideLabel: true,
+													enableKeyEvents: true,
+													width: 175,
+													name: 'pubaccount'
+												}
+											]
+										},
+										{
+											xtype: 'fieldcontainer',
+											fieldLabel: 'Full Name',
+											labelWidth: 149,
+											layout: 'hbox',
+											width: 660,
+											items: [
+												{
+													xtype: 'gaiaehr.combo',
+													emptyText: 'Title',
+													width: 70,
+													margin: '0 5 0 0',
+													name: 'title',
+													list: 22,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'textfield',
+													emptyText: 'First Name',
+													width: 100,
+													margin: '0 5 0 0',
+													allowBlank: false,
+													maxLength: 35,
+													name: 'fname'
+												},
+												{
+													xtype: 'textfield',
+													emptyText: 'Middle Name',
+													enableKeyEvents: true,
+													width: 100,
+													margin: '0 5 0 0',
+													maxLength: 35,
+													name: 'mname'
+												},
+												{
+													xtype: 'textfield',
+													emptyText: 'Last Name',
+													width: 215,
+													margin: '0 5 0 0',
+													allowBlank: false,
+													maxLength: 35,
+													name: 'lname'
+												}
+											]
+
+										},
+										{
+											xtype: 'fieldcontainer',
+											fieldLabel: 'Sex DOB Status S.S.',
+											labelWidth: 149,
+											hideLabel: false,
+											layout: 'hbox',
+											width: 660,
+											collapsible: false,
+											checkboxToggle: false,
+											collapsed: false,
+											items: [
+												{
+													xtype: 'gaiaehr.combo',
+													fieldLabel: 'Sex',
+													hideLabel: true,
+													enableKeyEvents: true,
+													emptyText: 'Sex',
+													name: 'sex',
+													width: 70,
+													margin: '0 5 0 0',
+													allowBlank: false,
+													list: 95,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'mitos.datetime',
+													emptyText: 'DOB',
+													labelWidth: 30,
+													enableKeyEvents: true,
+													width: 205,
+													margin: '0 5 0 0',
+													allowBlank: false,
+													name: 'DOB',
+													collapsible: false,
+													checkboxToggle: false,
+													collapsed: false
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													emptyText: 'Marital Status',
+													width: 110,
+													margin: '0 5 0 0',
+													name: 'marital_status',
+													list: 12,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'textfield',
+													emptyText: 'Social Security',
+													name: 'SS',
+													width: 100,
+													margin: '0 5 0 0'
+												}
+											]
+										},
+										{
+											xtype: 'fieldcontainer',
+											fieldLabel: 'Driver Lic. Sate Exp. Date',
+											labelWidth: 149,
+											hideLabel: false,
+											layout: 'hbox',
+											width: 660,
+											items: [
+												{
+													xtype: 'textfield',
+													emptyText: 'Driver License',
+													labelWidth: 149,
+													enableKeyEvents: true,
+													width: 175,
+													margin: '0 5 0 0',
+													name: 'drivers_license'
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													width: 175,
+													margin: '0 5 0 0',
+													name: 'drivers_license_state',
+													list: 20,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'datefield',
+													width: 140,
+													margin: '0 5 0 0',
+													name: 'drivers_license_exp',
+													format: 'Y-m-d'
+												}
+											]
+										},
+										{
+											xtype: 'gaiaehr.combo',
+											fieldLabel: 'Ethnicity',
+											labelWidth: 149,
+											hideLabel: false,
+											width: 400,
+											margin: '0 5 5 0',
+											name: 'ethnicity',
+											list: 59,
+											loadStore: true,
+											forceSelection: true
+										},
+										{
+											xtype: 'gaiaehr.combo',
+											fieldLabel: 'Race',
+											labelWidth: 149,
+											hideLabel: false,
+											width: 400,
+											margin: '0 5 5 0',
+											name: 'race',
+											list: 14,
+											loadStore: true,
+											forceSelection: true
+										},
+										{
+											xtype: 'gaiaehr.combo',
+											fieldLabel: 'Language',
+											labelWidth: 149,
+											hideLabel: false,
+											width: 400,
+											margin: '0 5 5 0',
+											name: 'language',
+											list: 10,
+											loadStore: true,
+											forceSelection: true
+										}
+									]
+								},
+								{
+									xtype: 'panel',
+									title: 'Additional Info.',
+									layout: 'column',
+									collapsible: true,
+									enableKeyEvents: true,
+									checkboxToggle: false,
+									collapsed: false,
+									border: false,
+									bodyBorder: false,
+									bodyPadding: 10,
+									items: [
+										{
+											xtype: 'container',
+											width: 370,
+											items: [
+												{
+													xtype: 'textfield',
+													fieldLabel: 'Alias Name',
+													labelWidth: 149,
+													hideLabel: false,
+													width: 350,
+													name: 'alias'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: 'Birth Place',
+													labelWidth: 149,
+													hideLabel: false,
+													width: 350,
+													name: 'birth_place'
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													fieldLabel: 'Citizenship',
+													labelWidth: 149,
+													hideLabel: false,
+													width: 350,
+													name: 'citizenship',
+													list: 104,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'fieldcontainer',
+													fieldLabel: 'Multiple Birth',
+													labelWidth: 149,
+													hideLabel: false,
+													layout: 'hbox',
+													width: 350,
+													items: [
+														{
+															xtype: 'checkbox',
+															margin: '0 10 5 0',
+															boxLabel: ' ',
+															name: 'birth_multiple'
+														},
+														{
+															xtype: 'numberfield',
+															fieldLabel: 'Order',
+															labelWidth: 50,
+															hideLabel: false,
+															width: 165,
+															value: 1,
+															maxValue: 15,
+															minValue: 1,
+															name: 'birth_order'
+														}
+													]
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													fieldLabel: 'Deceased',
+													labelWidth: 149,
+													hideLabel: false,
+													width: 350,
+													boxLabel: 'Yes',
+													name: 'deceased',
+													list: 103,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'mitos.datetime',
+													fieldLabel: 'Death Date',
+													labelWidth: 149,
+													hideLabel: false,
+													width: 350,
+													margin: '0 5 5 0',
+													name: 'death_date'
+												}
+											]
+										},
+										{
+											xtype: 'container',
+											items: [
+												{
+													xtype: 'activeproviderscombo',
+													fieldLabel: 'Primary Provider',
+													width: 300,
+													name: 'primary_provider',
+													forceSelection: true
+												},
+												{
+													xtype: 'activefacilitiescombo',
+													fieldLabel: 'Primary Facility',
+													width: 300,
+													name: 'primary_facility',
+													displayField: 'option_name',
+													valueField: 'option_value',
+													queryMode: 'local',
+													forceSelection: true
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													fieldLabel: 'Veteran',
+													width: 300,
+													boxLabel: 'Yes',
+													name: 'is_veteran',
+													list: 103,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'fieldcontainer',
+													fieldLabel: 'Mother\'s Name',
+													layout: 'hbox',
+													width: 660,
+													items: [
+														{
+															xtype: 'textfield',
+															emptyText: 'First Name',
+															width: 100,
+															margin: '0 5 0 0',
+															maxLength: 35,
+															name: 'mother_fname'
+														},
+														{
+															xtype: 'textfield',
+															emptyText: 'Middle Name',
+															width: 100,
+															margin: '0 5 0 0',
+															maxLength: 35,
+															name: 'mother_mname'
+														},
+														{
+															xtype: 'textfield',
+															emptyText: 'Last Name',
+															width: 215,
+															margin: '0 5 0 0',
+															maxLength: 35,
+															name: 'mother_lname'
+														}
+													]
+												},
+												{
+													xtype: 'fieldcontainer',
+													fieldLabel: 'Father\'s Name',
+													layout: 'hbox',
+													width: 660,
+													items: [
+														{
+															xtype: 'textfield',
+															emptyText: 'First Name',
+															width: 100,
+															margin: '0 5 0 0',
+															maxLength: 35,
+															name: 'father_fname'
+														},
+														{
+															xtype: 'textfield',
+															emptyText: 'Middle Name',
+															width: 100,
+															margin: '0 5 0 0',
+															maxLength: 35,
+															name: 'father_mname'
+														},
+														{
+															xtype: 'textfield',
+															emptyText: 'Last Name',
+															width: 215,
+															margin: '0 5 0 0',
+															maxLength: 35,
+															name: 'father_lname'
+														}
+													]
+												}
+											]
+										}
+									]
+								},
+								{
+									xtype: 'panel',
+									title: 'Choices',
+									hideLabel: false,
+									collapsible: true,
+									enableKeyEvents: true,
+									checkboxToggle: false,
+									collapsed: false,
+									border: false,
+									bodyBorder: false,
+									bodyPadding: 10,
+									items: [
+										{
+											xtype: 'container',
+											layout: 'hbox',
+											items:[
+												{
+													xtype: 'container',
+													layout: 'vbox',
+													items:[
+														{
+															xtype: 'activeproviderscombo',
+															fieldLabel: 'Provider',
+															labelWidth: 100,
+															margin: '0 5 5 0',
+															name: 'provider',
+															forceSelection: true
+														},
+														{
+															xtype: 'mitos.pharmaciescombo',
+															fieldLabel: 'Pharmacy',
+															labelWidth: 100,
+															margin: '0 5 5 0',
+															name: 'pharmacy',
+															forceSelection: true,
+															emptyText: 'Select'
+														},
+														{
+															xtype: 'gaiaehr.combo',
+															fieldLabel: 'HIPAA Notice',
+															labelWidth: 100,
+															margin: '0 5 5 0',
+															name: 'hipaa_notice',
+															list: 1,
+															loadStore: true,
+															forceSelection: true
+														}
+													]
+												},
+												{
+													xtype: 'container',
+													layout: 'vbox',
+													items:[
+														{
+															xtype: 'gaiaehr.combo',
+															name: 'organ_donor_code',
+															fieldLabel: 'Organ Donor',
+															list: 137,
+															width: 500,
+															loadStore: true,
+															editable: false
+														},
+														{
+															xtype: 'container',
+															layout: 'hbox',
+															margin: '0 0 0 10',
+															items: [
+																{
+																	xtype: 'checkbox',
+																	width: 150,
+																	margin: '0 5 0 0',
+																	boxLabel: 'Allow Voice Msg',
+																	name: 'allow_voice_msg'
+																},
+																{
+																	xtype: 'checkbox',
+																	width: 150,
+																	margin: '0 5 0 0',
+																	boxLabel: 'Allow Mail Msg',
+																	name: 'allow_mail_msg'
+																},
+																{
+																	xtype: 'checkbox',
+																	width: 240,
+																	margin: '0 5 0 0',
+																	boxLabel: 'Allow Immunization Registry Use',
+																	name: 'allow_immunization_registry'
+																},
+																{
+																	xtype: 'checkbox',
+																	margin: '0 5 0 0',
+																	boxLabel: 'Allow Health Information Exchange',
+																	name: 'allow_health_info_exchange'
+																}
+															]
+														},
+														{
+															xtype: 'container',
+															layout: 'hbox',
+															margin: '5 0 0 10',
+															items: [
+																{
+																	xtype: 'checkbox',
+																	width: 150,
+																	margin: '0 5 0 0',
+																	boxLabel: ' Allow SMS',
+																	name: 'allow_sms'
+																},
+																{
+																	xtype: 'checkbox',
+																	width: 150,
+																	margin: '0 5 0 0',
+																	boxLabel: 'Allow Email',
+																	name: 'allow_email'
+																},
+																{
+																	xtype: 'checkbox',
+																	width: 240,
+																	margin: '0 5 0 0',
+																	boxLabel: 'Allow Immunization Info Sharing',
+																	name: 'allow_immunization_info_sharing'
+																}
+															]
+														}
+													]
+												}
+											]
+										},
+										{
+											xtype: 'container',
+											layout: 'hbox',
+											margin: '0 0 10 10',
+											items: [
+												{
+													xtype: 'fieldset',
+													title: 'Allow Patient Web Portal',
+													checkboxName: 'allow_patient_web_portal',
+													checkboxToggle: true,
+													width: 320,
+													margin: '0 5 0 0',
+													items: [
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Web Portal Username',
+															labelWidth: 149,
+															name: 'portal_username'
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Web Portal Password',
+															labelWidth: 149,
+															name: 'portal_password',
+															inputType: 'password'
+														}
+													]
+												},
+												{
+													xtype: 'fieldset',
+													title: 'Allow Patient Guardian Access Web Portal',
+													checkboxName: 'allow_guardian_web_portal',
+													checkboxToggle: true,
+													collapsible: false,
+													width: 320,
+													margin: '0 5 0 0',
+													items: [
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Web Portal Username',
+															labelWidth: 149,
+															name: 'guardian_portal_username'
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Web Portal Password',
+															labelWidth: 149,
+															name: 'guardian_portal_password',
+															inputType: 'password'
+														}
+													]
+												},
+												{
+													xtype: 'fieldset',
+													title: 'Allow Patient Emergency Contact Access Web Portal',
+													checkboxName: 'allow_emergency_contact_web_portal',
+													checkboxToggle: true,
+													width: 320,
+													margin: '0 5 0 0',
+													items: [
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Web Portal Username',
+															labelWidth: 149,
+															name: 'emergency_contact_portal_username'
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Web Portal Password',
+															labelWidth: 149,
+															name: 'emergency_contact_portal_password',
+															inputType: 'password'
+														}
+													]
+												}
+											]
+										}
+									]
+								},
+								{
+									xtype: 'panel',
+									title: 'Employer',
+									hideLabel: false,
+									collapsible: true,
+									enableKeyEvents: true,
+									checkboxToggle: false,
+									collapsed: false,
+									border: false,
+									bodyBorder: false,
+									bodyPadding: 10,
+									items: [
+										{
+											xtype: 'textfield',
+											fieldLabel: 'Occupation',
+											labelWidth: 149,
+											hideLabel: false,
+											emptyText: 'Occupation',
+											name: 'occupation',
+											width: 350,
+											margin: '0 5 5 0'
+										},
+										{
+											xtype: 'textfield',
+											fieldLabel: 'Employer Name',
+											labelWidth: 149,
+											hideLabel: false,
+											emptyText: 'Employer Name',
+											name: 'employer_name',
+											width: 350,
+											margin: '0 5 5 0'
+										},
+										{
+											xtype: 'textfield',
+											fieldLabel: 'Employer Address',
+											labelWidth: 149,
+											hideLabel: false,
+											emptyText: 'Street',
+											name: 'employer_address',
+											width: 609,
+											margin: '0 5 5 0'
+										},
+										{
+											xtype: 'fieldcontainer',
+											fieldLabel: 'Employer Address Cont.',
+											labelWidth: 149,
+											hideLabel: false,
+											layout: 'hbox',
+											width: 609,
+											items: [
+												{
+													xtype: 'textfield',
+													emptyText: 'City',
+													name: 'employer_city',
+													width: 130,
+													margin: '0 5 5 0'
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													margin: '0 5 5 0',
+													width: 130,
+													name: 'employer_state',
+													emptyText: 'State',
+													list: 20,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													emptyText: 'Country',
+													name: 'employer_country',
+													width: 100,
+													margin: '0 5 5 0',
+													list: 3,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'textfield',
+													emptyText: 'Zip Code',
+													name: 'employer_postal_code',
+													width: 80,
+													margin: '0 5 5 0'
+												}
+											]
+										}
+									]
+								},
+								{
+									xtype: 'panel',
+									title: 'Contact',
+									layout: 'column',
+									collapsible: true,
+									enableKeyEvents: true,
+									checkboxToggle: false,
+									collapsed: false,
+									itemId: 'DemographicsContactFieldSet',
+									border: false,
+									bodyBorder: false,
+									bodyPadding: 10,
+									items: [
+										{
+											xtype: 'container',
+											margin: '0 10 0 0',
+											items: [
+												{
+													xtype: 'gaiaehr.combo',
+													fieldLabel: 'Publicity',
+													labelWidth: 60,
+													name: 'phone_publicity',
+													list: 132,
+													loadStore: true,
+													forceSelection: true,
+													width: 300
+												},
+												{
+													xtype: 'fieldset',
+													title: 'Phones',
+													items: [
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Home',
+															labelWidth: 50,
+															emptyText: '000-000-0000',
+															name: 'phone_home',
+															width: 250
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Mobile',
+															labelWidth: 50,
+															emptyText: '000-000-0000',
+															name: 'phone_mobile',
+															width: 250
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Work',
+															labelWidth: 50,
+															margin: '0 5 0 0',
+															emptyText: '000-000-0000',
+															name: 'phone_work',
+															width: 250
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Ext.',
+															labelWidth: 50,
+															name: 'phone_work_ext',
+															width: 250
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Fax',
+															emptyText: '000-000-0000',
+															labelWidth: 50,
+															name: 'phone_fax',
+															width: 250
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Email',
+															emptyText: 'example@email.com',
+															labelWidth: 50,
+															name: 'email',
+															width: 250
+														}
+													]
+												}
+											]
+										},
+										{
+											xtype: 'container',
+											layout: 'vbox',
+											margin: '0 10 0 0',
+											items: [
+												{
+													xtype: 'fieldset',
+													title: 'Postal Address',
+													collapsible: false,
+													checkboxToggle: false,
+													collapsed: false,
+													items: [
+														{
+															xtype: 'textfield',
+															emptyText: 'Street',
+															labelWidth: 50,
+															width: 370,
+															name: 'postal_address'
+														},
+														{
+															xtype: 'textfield',
+															emptyText: '(optional)',
+															labelWidth: 50,
+															width: 370,
+															name: 'postal_address_cont'
+														},
+														{
+															xtype: 'container',
+															layout: 'hbox',
+															width: 370,
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: 'City',
+																	labelWidth: 50,
+																	margin: '0 5 5 0',
+																	name: 'postal_city'
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: 'State',
+																	labelWidth: 50,
+																	margin: '0 5 0 0',
+																	name: 'postal_state'
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: 'Zip',
+																	labelWidth: 50,
+																	width: 92,
+																	name: 'postal_zip'
+																}
+															]
+														},
+														{
+															xtype: 'textfield',
+															emptyText: 'Country',
+															labelWidth: 50,
+															width: 100,
+															name: 'postal_country'
+														}
+													]
+												},
+												{
+													xtype: 'fieldset',
+													title: 'Physical Address',
+													items: [
+														{
+															xtype: 'textfield',
+															emptyText: 'Street',
+															labelWidth: 50,
+															width: 370,
+															name: 'physical_address'
+														},
+														{
+															xtype: 'textfield',
+															emptyText: '(optional)',
+															labelWidth: 50,
+															width: 370,
+															name: 'physical_address_cont'
+														},
+														{
+															xtype: 'container',
+															layout: 'hbox',
+															width: 370,
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: 'City',
+																	labelWidth: 50,
+																	margin: '0 5 5 0',
+																	name: 'physical_city'
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: 'State',
+																	labelWidth: 50,
+																	margin: '0 5 0 0',
+																	name: 'physical_state'
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: 'Zip',
+																	labelWidth: 50,
+																	width: 92,
+																	margin: '0 5 0 0',
+																	name: 'physical_zip'
+																}
+															]
+														},
+														{
+															xtype: 'textfield',
+															emptyText: 'Country',
+															labelWidth: 50,
+															width: 100,
+															name: 'physical_country'
+														}
+													]
+												}
+											]
+										}, {
+											xtype: 'container',
+											layout: 'vbox',
+											items: [
+												{
+													xtype: 'fieldset',
+													title: 'Emergency Contact',
+													collapsible: false,
+													checkboxToggle: false,
+													collapsed: false,
+													items: [
+														{
+															xtype: 'gaiaehr.combo',
+															fieldLabel: 'Relation',
+															labelWidth: 50,
+															name: 'emergency_contact_relation',
+															list: 134,
+															loadStore: true,
+															forceSelection: true
+														},
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: 'Name',
+															labelWidth: 50,
+															layout: 'hbox',
+															items: [
+																{
+																	xtype: 'textfield',
+																	enableKeyEvents: true,
+																	margin: '0 5 0 0',
+																	name: 'emergency_contact_fname'
+																},
+																{
+																	xtype: 'textfield',
+																	enableKeyEvents: true,
+																	width: 75,
+																	margin: '0 5 0 0',
+																	name: 'emergency_contact_mname'
+																},
+																{
+																	xtype: 'textfield',
+																	enableKeyEvents: true,
+																	width: 150,
+																	name: 'emergency_contact_lname'
+																}
+															]
+														},
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: 'Phone',
+															labelWidth: 50,
+															hideLabel: false,
+															layout: 'hbox',
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: '000-000-0000',
+																	margin: '0 5 5 0',
+																	name: 'emergency_contact_phone'
+																},
+																{
+																	xtype: 'gaiaehr.combo',
+																	emptyText: 'Phone Type',
+																	name: 'emergency_contact_phone_type',
+																	list: 136,
+																	loadStore: true,
+																	forceSelection: true
+																}
+															]
+														},
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: _('address'),
+															labelWidth: 50,
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: 'Street',
+																	width: 370,
+																	name: 'emergency_contact_address'
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: '(optional)',
+																	width: 370,
+																	name: 'emergency_contact_address_cont'
+																},
+																{
+																	xtype: 'container',
+																	layout: 'hbox',
+																	width: 370,
+																	items: [
+																		{
+																			xtype: 'textfield',
+																			emptyText: 'City',
+																			margin: '0 5 5 0',
+																			name: 'emergency_contact_city'
+																		},
+																		{
+																			xtype: 'textfield',
+																			emptyText: 'State',
+																			margin: '0 5 0 0',
+																			name: 'emergency_contact_state'
+																		},
+																		{
+																			xtype: 'textfield',
+																			emptyText: 'Zip',
+																			width: 92,
+																			margin: '0 5 0 0',
+																			name: 'emergency_contact_zip'
+																		}
+																	]
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: 'Country',
+																	labelWidth: 50,
+																	width: 100,
+																	name: 'emergency_contact_country'
+																}
+															]
+														}
+													]
+												},
+												{
+													xtype: 'fieldset',
+													title: 'Guardian\'s Contact',
+													collapsible: false,
+													checkboxToggle: false,
+													collapsed: false,
+													items: [
+														{
+															xtype: 'gaiaehr.combo',
+															fieldLabel: 'Relation',
+															labelWidth: 50,
+															name: 'guardians_relation',
+															list: 134,
+															loadStore: true,
+															forceSelection: true
+														},
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: 'Name',
+															labelWidth: 50,
+															hideLabel: false,
+															layout: 'hbox',
+															items: [
+																{
+																	xtype: 'textfield',
+																	margin: '0 5 0 0',
+																	name: 'guardians_fname'
+																}, {
+																	xtype: 'textfield',
+																	width: 75,
+																	margin: '0 5 0 0',
+																	name: 'guardians_mname'
+																}, {
+																	xtype: 'textfield',
+																	width: 150,
+																	name: 'guardians_lname'
+																}
+															]
+														},
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: 'Phone',
+															labelWidth: 50,
+															layout: 'hbox',
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: '000-000-0000',
+																	labelWidth: 50,
+																	margin: '0 5 5 0',
+																	name: 'guardians_phone'
+																}, {
+																	xtype: 'gaiaehr.combo',
+																	name: 'guardians_phone_type',
+																	list: 136,
+																	loadStore: true,
+																	forceSelection: true
+																}
+															]
+														},
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: _('address'),
+															labelWidth: 50,
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: 'Street',
+																	width: 370,
+																	name: 'guardians_address'
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: '(optional)',
+																	width: 370,
+																	name: 'guardians_address_cont'
+																},
+																{
+																	xtype: 'container',
+																	layout: 'hbox',
+																	width: 370,
+																	items: [
+																		{
+																			xtype: 'textfield',
+																			emptyText: 'City',
+																			margin: '0 5 5 0',
+																			name: 'guardians_city'
+																		},
+																		{
+																			xtype: 'textfield',
+																			emptyText: 'State',
+																			margin: '0 5 0 0',
+																			name: 'guardians_state'
+																		},
+																		{
+																			xtype: 'textfield',
+																			emptyText: 'Zip',
+																			width: 92,
+																			margin: '0 5 0 0',
+																			name: 'guardians_zip'
+																		}
+																	]
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: 'Country',
+																	labelWidth: 50,
+																	width: 100,
+																	name: 'guardians_country'
+																}
+															]
+														}
+													]
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
 				})
 			]
 		};
@@ -50732,300 +52261,82 @@ Ext.define('App.view.patient.Patient', {
 	beforePanelRender: function(){
 		var me = this,
 			whoPanel,
-			PatientContactsTab;
+			form = me.demoForm.getForm(),
+			fname = form.findField('fname'),
+			mname = form.findField('mname'),
+			lname = form.findField('lname'),
+			sex = form.findField('sex'),
+			dob = form.findField('DOB'),
+			crtl;
 
-        // Part of the Override custome function, this function calls the FormBuilder (a PHP method)
-        // to dynamically insert the fields configured on the administration panel. All the fields
-        // are in the GaiaEHR database.
-		me.getFormItems(me.demoForm, 1, function(formPanel){
+		if(fname) fname.vtype = 'nonspecialcharacters';
+		if(mname) mname.vtype = 'nonspecialcharacters';
+		if(lname) lname.vtype = 'nonspecialcharacters';
 
-			var form = me.demoForm.getForm(),
-				fname = form.findField('fname'),
-				mname = form.findField('mname'),
-				lname = form.findField('lname'),
-				sex = form.findField('sex'),
-				dob = form.findField('DOB'),
-                crtl;
+		if(dob) dob.setMaxValue(new Date());
 
-			if(fname) fname.vtype = 'nonspecialcharacters';
-			if(mname) mname.vtype = 'nonspecialcharacters';
-			if(lname) lname.vtype = 'nonspecialcharacters';
+		if(me.newPatient){
+			crtl = App.app.getController('patient.Patient');
 
-			if(dob) dob.setMaxValue(new Date());
-
-			if(me.newPatient){
-				crtl = App.app.getController('patient.Patient');
-
-				fname.on('blur', crtl.checkForPossibleDuplicates, crtl);
-				lname.on('blur', crtl.checkForPossibleDuplicates, crtl);
-				sex.on('blur', crtl.checkForPossibleDuplicates, crtl);
-				dob.dateField.on('blur', crtl.checkForPossibleDuplicates, crtl);
-			}else{
-				whoPanel = formPanel.query('[action=DemographicWhoFieldSet]')[0];
-				whoPanel.insert(0,
-					me.patientImages = Ext.create('Ext.panel.Panel', {
-						action: 'patientImage',
-						layout: 'hbox',
-						style: 'float:right',
-						bodyPadding: 5,
-						height: 160,
-						width: 255,
-						items: [
-							{
-								xtype: 'image',
-								width: 119,
-								height: 119,
-								itemId: 'image',
-								margin: '0 5 0 0',
-								src: me.defaultPatientImage
-							},
-							{
-								xtype: 'textareafield',
-								name: 'image',
-								hidden: true
-							},
-							{
-								xtype: 'image',
-								itemId: 'qrcode',
-								width: 119,
-								height: 119,
-								margin: 0,
-								src: me.defaultQRCodeImage
+			fname.on('blur', crtl.checkForPossibleDuplicates, crtl);
+			lname.on('blur', crtl.checkForPossibleDuplicates, crtl);
+			sex.on('blur', crtl.checkForPossibleDuplicates, crtl);
+			dob.dateField.on('blur', crtl.checkForPossibleDuplicates, crtl);
+		}else{
+			whoPanel = me.demoForm.query('[action=DemographicWhoFieldSet]')[0];
+			whoPanel.insert(0,
+				me.patientImages = Ext.create('Ext.panel.Panel', {
+					action: 'patientImage',
+					layout: 'hbox',
+					style: 'float:right',
+					bodyPadding: 5,
+					height: 160,
+					width: 255,
+					items: [
+						{
+							xtype: 'image',
+							width: 119,
+							height: 119,
+							itemId: 'image',
+							margin: '0 5 0 0',
+							src: me.defaultPatientImage
+						},
+						{
+							xtype: 'textareafield',
+							name: 'image',
+							hidden: true
+						},
+						{
+							xtype: 'image',
+							itemId: 'qrcode',
+							width: 119,
+							height: 119,
+							margin: 0,
+							src: me.defaultQRCodeImage
+						}
+					],
+					bbar: [
+						'-',
+						{
+							text: _('take_picture'),
+							action: 'onWebCam'
+							//handler: me.getPhotoIdWindow
+						},
+						'-',
+						'->',
+						'-',
+						{
+							text: _('print_qrcode'),
+							scope: me,
+							handler: function(){
+								window.printQRCode(app.patient.pid);
 							}
-						],
-						bbar: [
-							'-',
-							{
-								text: _('take_picture'),
-								action: 'onWebCam'
-								//handler: me.getPhotoIdWindow
-							},
-							'-',
-							'->',
-							'-',
-							{
-								text: _('print_qrcode'),
-								scope: me,
-								handler: function(){
-									window.printQRCode(app.patient.pid);
-								}
-							},
-							'-'
-						]
-					})
-				);
-
-				//Patient Contacts
-				PatientContactsTab = Ext.ComponentQuery.query('#Demographics')[0];
-				PatientContactsTab.add(
-					me.patientContacts = Ext.create('Ext.grid.Panel', {
-						itemId: 'PatientSummaryContactsPanel',
-						bodyPadding: 0,
-						title: _('contacts'),
-						store: me.patientContacsStore,
-						columns: [
-							{
-								text: _('name'),
-								dataIndex: 'fullname',
-								flex: 1
-							},
-							{
-								header: _('relationship'),
-								dataIndex: 'relationship_name'
-							},
-							{
-								header: _('active'),
-								dataIndex: 'active',
-								renderer: me.boolRenderer
-							}
-						],
-						plugins: Ext.create('App.ux.grid.RowFormEditing', {
-							autoCancel: false,
-							errorSummary: false,
-							clicksToEdit: 2,
-							items: [
-								{
-									xtype: 'container',
-									layout: 'hbox',
-									defaults: {
-										margin: '5 10 0 0'
-									},
-									items: [
-										{
-											xtype: 'container',
-											layout: 'vbox',
-											defaults: {
-												layout: '50%',
-												margin: '5 10 0 0'
-											},
-											items: [
-												{
-													xtype: 'fieldcontainer',
-													layout: 'hbox',
-													fieldLabel: _('name'),
-													defaults: {
-														layout: '100%',
-														xtype: 'textfield'
-													},
-													items: [
-														{
-															name: 'first_name',
-															emptyText: _('first_name'),
-															width: 150,
-															maxLength: 100,
-															allowBlank: false
-														},
-														{
-															name: 'middle_name',
-															emptyText: _('middle_name'),
-															width: 120,
-															maxLength: 100
-														},
-														{
-															name: 'last_name',
-															emptyText: _('last_name'),
-															width: 150,
-															maxLength: 100
-														}
-													]
-												},
-												{
-													xtype: 'gaiaehr.listcombo',
-													fieldLabel: _('relationship'),
-													name: 'relationship',
-													displayField: 'option_name',
-													valueField: 'option_value',
-													width: 350,
-													loadStore: true,
-													queryMode: 'local',
-													list: 134
-												},
-												{
-													xtype: 'fieldcontainer',
-													layout: 'hbox',
-													fieldLabel: _('phone'),
-													defaults: {
-														xtype: 'textfield',
-														vtype: 'numeric'
-													},
-													items: [
-														{
-															name: 'phone_use_code',
-															emptyText: _('code'),
-															width: 50,
-															maxLength: 4
-														},
-														{
-															name: 'phone_area_code',
-															emptyText: _('area_code'),
-															width: 50,
-															maxLength: 4
-														},
-														{
-															name: 'phone_local_number',
-															emptyText: _('local_number'),
-															width: 120,
-															maxLength: 7
-														}
-													]
-												},
-												{
-													fieldLabel: _('address'),
-													xtype: 'textfield',
-													name: 'street_mailing_address',
-													emptyText: _('street'),
-													width: 610,
-													maxLength: 200
-												},
-												{
-													xtype: 'fieldcontainer',
-													layout: 'hbox',
-													fieldLabel: _('address_cont'),
-													defaults: {
-														xtype: 'textfield'
-													},
-													items: [
-														{
-															name: 'city',
-															emptyText: _('city'),
-															width: 125,
-															maxLength: 70
-														},
-														{
-															xtype: 'gaiaehr.listcombo',
-															name: 'state',
-															emptyText: _('state'),
-															displayField: 'option_name',
-															valueField: 'option_value',
-															width: 125,
-															loadStore: true,
-															queryMode: 'local',
-															list: 20
-														},
-														{
-															xtype: 'gaiaehr.listcombo',
-															name: 'country',
-															emptyText: _('country'),
-															displayField: 'option_name',
-															valueField: 'option_value',
-															width: 125,
-															loadStore: true,
-															queryMode: 'local',
-															list: 3
-														},
-														{
-															emptyText: _('zip'),
-															name: 'zip',
-															width: 125,
-															maxLength: 20
-														}
-													]
-												}
-											]
-										},
-										{
-											xtype: 'fieldcontainer',
-											layout: 'vbox',
-											defaults: {
-												layout: '50%',
-												margin: '5 10 0 0'
-											},
-											items: [
-												{
-													xtype: 'gaiaehr.listcombo',
-													name: 'publicity',
-													fieldLabel: _('publicity'),
-													emptyText: _('select'),
-													displayField: 'option_name',
-													valueField: 'option_value',
-													width: 400,
-													loadStore: true,
-													queryMode: 'local',
-													list: 132
-												},
-												{
-													xtype: 'checkboxfield',
-													name: 'active',
-													fieldLabel: _('active')
-												}
-											]
-										}
-									]
-								}
-							]
-						}),
-						tbar: [
-							{
-								text: _('add_contact'),
-								iconCls: 'icoAdd',
-								action: 'patientContact',
-								handler: me.onAddNewContact
-							}
-						]
-					})
-				);
-			}
-		});
+						},
+						'-'
+					]
+				})
+			);
+		}
 	},
 
 	onAddNewContact: function(btn){

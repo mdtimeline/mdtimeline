@@ -58494,7 +58494,7 @@ Ext.define('App.view.Viewport', {
 	doEmergencyAccess:function(){
 		ACL.emergencyAccess(app.user.id, function(success){
 			if(success){
-				window.location = './';
+				window.location.reload();
 				return;
 			}
 			Ext.Msg.alert(_('oops'), _('emergency_access_error'));

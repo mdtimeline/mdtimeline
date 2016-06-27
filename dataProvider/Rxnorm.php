@@ -229,7 +229,7 @@ class Rxnorm
 								       ON `rxnconso`.`RXCUI` = `rxnsat`.`RXCUI`
 								      AND `rxnconso`.`SAB` = 'RXNORM'
 								      AND (`rxnsat`.`ATN` = 'NDC' OR `rxnsat`.`ATN` = 'UMLSAUI' OR `rxnsat`.`ATN` = 'UMLSCUI')
-								      AND (`rxnconso`.`TTY` = 'SCD' OR `rxnconso`.`TTY` = 'SBD' OR `rxnconso`.`TTY` = 'SBDC')
+								      AND (`rxnconso`.`TTY` = 'SCD' OR `rxnconso`.`TTY` = 'SBD' OR `rxnconso`.`TTY` = 'SBDC' OR TTY='SCDG' OR TTY='IN')
 								    WHERE (`rxnconso`.`STR` LIKE :q1 OR `rxnconso`.`RXCUI` = :q2)
 							     GROUP BY `rxnconso`.`STR`
      							    LIMIT 100");
@@ -245,7 +245,7 @@ class Rxnorm
         //    $records[$key]['GS_CODE'] = $sth->fetch(PDO::FETCH_ASSOC)['CODE'];
         //    if(is_null($records[$key]['GS_CODE'])) unset($records[$key]);
         //}
-        $records = array_values($records);
+        //$records = array_values($records);
 
 		$total = count($records);
 		$records = array_slice($records, $params->start, $params->limit);
@@ -291,11 +291,11 @@ class Rxnorm
         try
         {
             $sth = $this->db->prepare("SELECT *
-								 	 FROM rxnconso
-									WHERE SAB='RXNORM'
-									AND (TTY = 'IN' OR TTY = 'PIN' OR TTY = 'BN' OR TTY='MIN')
-									AND (RXCUI LIKE :q1 OR STR LIKE :q2)
-							 	 GROUP BY RXCUI LIMIT 100");
+                 FROM rxnconso
+                WHERE SAB='RXNORM'
+                AND (TTY = 'IN' OR TTY = 'PIN' OR TTY = 'BN' OR TTY='MIN' OR TTY='SBD' OR TTY='SBDC' OR TTY='SBDF' OR TTY='SCDG')
+                AND (RXCUI LIKE :q1 OR STR LIKE :q2)
+             GROUP BY RXCUI LIMIT 100");
             $sth->execute([
                 ':q1' => $params->query.'%',
                 ':q2' => '%'.$params->query.'%'

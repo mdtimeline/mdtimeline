@@ -24,7 +24,8 @@ Ext.define('App.view.patient.Immunizations', {
 		'App.ux.grid.RowFormEditing',
 		'App.store.patient.CVXCodes',
 		'App.ux.form.fields.DateTime',
-		'App.ux.LiveUserSearch'
+		'App.ux.LiveUserSearch',
+		'App.ux.combo.EducationResources'
 	],
 	xtype: 'patientimmunizationspanel',
 	title: _('immunizations'),
@@ -142,32 +143,51 @@ Ext.define('App.view.patient.Immunizations', {
 										/**
 										 * Line one
 										 */
-										xtype: 'fieldcontainer',
+										xtype: 'container',
 										layout: 'hbox',
-										itemId: 'line1',
-										defaults: {
-											margin: '0 10 0 0',
-											xtype: 'textfield'
-										},
 										items: [
 											{
-												xtype: 'immunizationlivesearch',
-												itemId: 'immunizationsearch',
-												fieldLabel: _('name'),
-												name: 'vaccine_name',
-												valueField: 'name',
-												hideLabel: false,
-												allowBlank: false,
-												enableKeyEvents: true,
-												width: 625
+												xtype: 'container',
+												layout: 'vbox',
+												margin: '0 0 10 0',
+												items: [
+													{
+														xtype: 'immunizationlivesearch',
+														itemId: 'ImmunizationsImmunizationSearch',
+														fieldLabel: _('name'),
+														name: 'vaccine_name',
+														valueField: 'name',
+														hideLabel: false,
+														allowBlank: false,
+														enableKeyEvents: true,
+														width: 475
+													},
+													{
+														xtype: 'gaiaehr.combo',
+														fieldLabel: _('disorder'),
+														itemId: 'ImmunizationsDisorderCombo',
+														width: 475,
+														list: 140,
+														queryMode: 'local',
+														loadStore: true,
+														editable: false,
+														allowBlank: false,
+														name: 'presumed_immunity_code'
+													}
+												]
+											},
+											{
+												xtype: 'checkbox',
+												name: 'is_presumed_immunity',
+												fieldLabel: 'Presumed Immunity',
+												width: 145,
+												itemId: 'ImmunizationsPresumedImmunityCheckbox',
+												labelAlign: 'right',
+												labelWidth: 125
 											}
 										]
-
 									},
 									{
-										/**
-										 * Line two
-										 */
 										xtype: 'fieldcontainer',
 										layout: 'hbox',
 										defaults: {
@@ -206,9 +226,6 @@ Ext.define('App.view.patient.Immunizations', {
 
 									},
 									{
-										/**
-										 * Line three
-										 */
 										xtype: 'fieldcontainer',
 										layout: 'hbox',
 										defaults: {
@@ -288,25 +305,111 @@ Ext.define('App.view.patient.Immunizations', {
 										]
 									},
 									{
-										xtype: 'datefield',
-										width: 250,
-										margin: '0 0 0 5',
-										fieldLabel: _('education'),
-										name: 'education_date'
-									},
-                                    {
-                                        xtype: 'datefield',
-                                        width: 250,
-                                        margin: '0 0 0 5',
-                                        fieldLabel: _('doc_published'),
-                                        name: 'education_doc_published'
-                                    }
+										xtype: 'checkboxfield',
+										fieldLabel: _('entered_in_error'),
+										name: 'is_error'
+									}
 								]
 							},
 							{
-								xtype: 'checkboxfield',
-								boxLabel: _('entered_in_error'),
-								name: 'is_error'
+								xtype: 'container',
+								items: [
+									{
+										xtype: 'gaiaehr.combo',
+										list: 138,
+										width: 550,
+										name: 'information_source_code',
+										fieldLabel: _('info_source'),
+										margin: '0 0 5 0',
+										loadStore: true,
+										editable: false
+									},
+									{
+										xtype: 'gaiaehr.combo',
+										list: 139,
+										width: 550,
+										name: 'refusal_reason_code',
+										fieldLabel: _('refusal_reason'),
+										margin: '0 0 5 0',
+										loadStore: true,
+										editable: false
+									},
+									{
+										xtype: 'gaiaehr.combo',
+										fieldLabel: _('vfc'),
+										name: 'vfc_code',
+										list: 135,
+										width: 550,
+										margin: '0 0 5 0',
+										loadStore: true,
+										editable: false
+									},
+									{
+										xtype: 'container',
+									    layout: 'hbox',
+										items: [
+											{
+												xtype: 'container',
+												items: [
+													{
+														xtype: 'educationresourcescombo',
+														width: 250,
+														margin: '0 5 5 0',
+														fieldLabel: _('publication'),
+														name: 'education_resource_1_id',
+														codeType: 'CVX'
+													},
+													{
+														xtype: 'datefield',
+														width: 250,
+														margin: '0 5 5 0',
+														fieldLabel: _('given_date'),
+														name: 'education_presented_1_date',
+														submitFormat: 'Y-m-d H:i:s'
+													}
+												]
+											},
+											{
+												xtype: 'container',
+												items: [
+													{
+														xtype: 'educationresourcescombo',
+														width: 145,
+														margin: '0 5 5 0',
+														name: 'education_resource_2_id',
+														codeType: 'CVX'
+													},
+													{
+														xtype: 'datefield',
+														width: 145,
+														margin: '0 5 5 0',
+														name: 'education_presented_2_date',
+														submitFormat: 'Y-m-d H:i:s'
+													}
+												]
+											},
+											{
+												xtype: 'container',
+												items: [
+													{
+														xtype: 'educationresourcescombo',
+														width: 145,
+														margin: '0 0 5 0',
+														name: 'education_resource_3_id',
+														codeType: 'CVX'
+													},
+													{
+														xtype: 'datefield',
+														width: 145,
+														margin: '0 0 5 0',
+														name: 'education_presented_3_date',
+														submitFormat: 'Y-m-d H:i:s'
+													}
+												]
+											}
+										]
+									}
+								]
 							}
 						]
 					}

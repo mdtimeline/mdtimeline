@@ -1661,4 +1661,10 @@ $LANG = array(
 	'unable_to_open_new_tab'                => 'Unable To Open New Tab',
 	'syndromic_surveillance'                => 'Syndromic Surveillance',
 	'report_syndromic_surveillance'         => 'Report Syndromic Surveillance',
+	'vfc'                                   => 'VFC',
+	'disorder'                              => 'Disorder',
+	'info_source'                           => 'Info Source',
+	'refusal_reason'                        => 'Refusal Reason',
+	'publication'                           => 'Publication',
+	'given_date'                            => 'Given Date',
 );

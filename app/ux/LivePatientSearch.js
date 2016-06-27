@@ -31,8 +31,8 @@ Ext.define('App.ux.LivePatientSearch', {
 	hideTrigger: true,
     validateBlank: true,
     submitValue: true,
-	minChars: 0,
-	queryDelay: 200,
+	minChars: 1,
+	queryDelay: 500,
 	initComponent: function(){
 		var me = this;
 

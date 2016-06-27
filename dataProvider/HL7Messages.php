@@ -108,6 +108,10 @@ class HL7Messages {
 	 * @var stdClass
 	 */
 	private $map_codes_types;
+	
+	private $fid;
+
+	private $namesace_id = 'MDTL001';
 
 	function __construct() {
 		$this->hl7 = new HL7();
@@ -130,6 +134,8 @@ class HL7Messages {
 			$this->c = MatchaModel::setSenchaModel('App.model.administration.HL7Client');
 		if(!isset($this->f))
 			$this->f = MatchaModel::setSenchaModel('App.model.administration.Facility');
+		if(!isset($this->d))
+			$this->d = MatchaModel::setSenchaModel('App.model.administration.EducationResource');
 		if(!isset($this->ListOptions))
 			$this->ListOptions = MatchaModel::setSenchaModel('App.model.administration.ListOptions');
 	}
@@ -360,12 +366,42 @@ class HL7Messages {
 			foreach($params->immunizations AS $i){
 
 				$immu = $this->i->load($i)->one();
+				$obx_group_sub_id = 1;
 
 				// ORC - 4.5.1 ORC - Common Order Segment
 				$ORC = $this->hl7->addSegment('ORC');
 				$ORC->setValue('1', 'RE'); //HL70119
 				$ORC->setValue('3.1', 'GAIA10001');
 				$ORC->setValue('3.2', $immu['id']);
+
+				if($this->notEmpty($immu['administered_uid'])){
+					$this->u->clearFilters();
+					$this->u->addFilter('id', $immu['administered_uid']);
+					$administered_by = $this->u->load()->one();
+					if($administered_by !== false){
+						$ORC->setValue('10.1', $administered_by['id']);
+						$ORC->setValue('10.2.1', $administered_by['lname']);
+						$ORC->setValue('10.3', $administered_by['fname']);
+						$ORC->setValue('10.4', $administered_by['mname']);
+						$ORC->setValue('10.9.1', $this->namesace_id);
+						$ORC->setValue('10.10', 'L');
+					}
+				}
+
+				if($this->notEmpty($immu['created_uid'])){
+					$this->u->clearFilters();
+					$this->u->addFilter('id', $immu['created_uid']);
+					$ordered_by = $this->u->load()->one();
+					if($ordered_by !== false){
+						$ORC->setValue('12.1', $ordered_by['id']);
+						$ORC->setValue('12.2.1', $ordered_by['lname']);
+						$ORC->setValue('12.3', $ordered_by['fname']);
+						$ORC->setValue('12.4', $ordered_by['mname']);
+						$ORC->setValue('12.9.1', $this->namesace_id);
+						$ORC->setValue('12.10', 'L');
+					}
+				}
+
 
 				// RXA - 4.14.7 RXA - Pharmacy/Treatment Administration Segment
 				$RXA = $this->hl7->addSegment('RXA');
@@ -375,22 +411,76 @@ class HL7Messages {
 				$RXA->setValue('5.1', $immu['code']); //Identifier
 				$RXA->setValue('5.2', $immu['vaccine_name']); //Text
 				$RXA->setValue('5.3', $immu['code_type']); //Name of Coding System
+
 				if($this->isPresent($immu['administer_amount'])){
 					$RXA->setValue('6', $immu['administer_amount']); //Administered Amount
 					$RXA->setValue('7.1', $immu['administer_units']); //Identifier
 					$RXA->setValue('7.2', $immu['administer_units']); // Text
 					$RXA->setValue('7.3', 'UCUM'); //Name of Coding System HL70396
+					$administered = true;
 				} else {
 					$RXA->setValue('6', '999'); //Administered Amount
+					$administered = false;
 				}
-				$RXA->setValue('15', $immu['lot_number']); //Substance LotNumbers
-				// get immunization manufacturer info
-				$mvx = $immunization->getMvxByCode($immu['manufacturer']);
-				$mText = isset($mvx['manufacturer']) ? $mvx['manufacturer'] : '';
-				//Substance ManufacturerName
-				$RXA->setValue('17.1', $immu['manufacturer']); //Identifier
-				$RXA->setValue('17.2', $mText); //Text
-				$RXA->setValue('17.3', 'MVX'); //Name of Coding System HL70396
+
+				if($this->notEmpty($immu['information_source_code'])){
+					$this->ListOptions->clearFilters();
+					$this->ListOptions->addFilter('list_id', 138);
+					$this->ListOptions->addFilter('option_value', $immu['information_source_code']);
+					$Record = $this->ListOptions->load()->one();
+					$RXA->setValue('9.1', $Record['option_value']);
+					$RXA->setValue('9.2', $Record['option_name']);
+					$RXA->setValue('9.3', 'NIP001');
+				}
+
+				if($this->notEmpty($immu['administered_uid'])){
+					if(isset($administered_by) && $administered_by !== false){
+						$RXA->setValue('10.1', $administered_by['id']);
+						$RXA->setValue('10.2.1', $administered_by['lname']);
+						$RXA->setValue('10.3', $administered_by['fname']);
+						$RXA->setValue('10.4', $administered_by['mname']);
+						$RXA->setValue('10.9.1', $this->namesace_id);
+						$RXA->setValue('10.10', 'L');
+					}
+				}
+
+				if($this->notEmpty($immu['facility_id']) && $administered){
+					$RXA->setValue('11.4.1', $immu['facility_id']);
+				}
+
+				if($this->notEmpty($immu['exp_date'])){
+					$RXA->setValue('16.1', $this->date($immu['exp_date']));
+				}
+
+				$RXA->setValue('15', $immu['lot_number']);
+
+				if($this->notEmpty($immu['manufacturer'])){
+					// get immunization manufacturer info
+					$mvx = $immunization->getMvxByCode($immu['manufacturer']);
+					$mText = isset($mvx['manufacturer']) ? $mvx['manufacturer'] : '';
+					//Substance ManufacturerName
+					$RXA->setValue('17.1', $immu['manufacturer']); //Identifier
+					$RXA->setValue('17.2', $mText); //Text
+					$RXA->setValue('17.3', 'MVX'); //Name of Coding System HL70396
+				}
+
+				if($this->notEmpty($immu['refusal_reason_code'])){
+					$this->ListOptions->clearFilters();
+					$this->ListOptions->addFilter('list_id', 139);
+					$this->ListOptions->addFilter('option_value', $immu['refusal_reason_code']);
+					$Record = $this->ListOptions->load()->one();
+					if($Record !== false){
+						$RXA->setValue('18.1', $Record['option_value']);
+						$RXA->setValue('18.2', $Record['option_name']);
+						$RXA->setValue('18.3', 'NIP002');
+						$RXA->setValue('20', 'RE');
+					}
+				}else if($immu['code'] == '998'){
+					$RXA->setValue('20', 'NA');
+				}else{
+					$RXA->setValue('20', 'CP'); //complete
+				}
+
 				$RXA->setValue('21', 'A'); //Action Code
 
 				// RXR - 4.14.2 RXR - Pharmacy/Treatment Route Segment
@@ -414,24 +504,23 @@ class HL7Messages {
 				$RXR->setValue('2.3', $Record['code_type']);
 
 				// OBX - 7.4.2 OBX - Observation/Result Segment
-				$filters = new stdClass();
-				$filters->filter[0]->property = 'eid';
-				$filters->filter[0]->value = $immu['eid'];
-				$filters->filter[1]->property = 'pid';
-				$filters->filter[1]->value = $immu['pid'];
-				$Records = $EncounterServices->getEncounterServicesByEIDandPID($filters);
-				unset($filters);
+				$this->ListOptions->clearFilters();
+				$this->ListOptions->addFilter('list_id', 135);
+				$this->ListOptions->addFilter('option_value', $immu['vfc_code']);
+				$Record = $this->ListOptions->load()->one();
+
 				$obxCount = 1;
-				foreach($Records as $Record){
+
+				if($Record !== false){
 					$OBX = $this->hl7->addSegment('OBX');
 					$OBX->setValue('1', $obxCount);
 					$OBX->setValue('2', 'CE');
 					$OBX->setValue('3.1', '64994-7');
 					$OBX->setValue('3.2', 'Vaccine funding program eligibility category');
 					$OBX->setValue('3.3', 'LN');
-					$OBX->setValue('4', $Record['eid']);
-					$OBX->setValue('5.1', $Record['financial_class']);
-					$OBX->setValue('5.2', $Record['financial_name']);
+					$OBX->setValue('4', isset($immu['eid']) && $immu['eid'] > 0 ? $immu['eid'] : '0');
+					$OBX->setValue('5.1', $Record['option_value']);
+					$OBX->setValue('5.2', $Record['option_name']);
 					$OBX->setValue('5.3', $Record['code_type']);
 					$OBX->setValue('11', 'F');
 					$OBX->setValue('17.1', 'VXC40');
@@ -439,37 +528,164 @@ class HL7Messages {
 					$OBX->setValue('17.3', 'CDCPHINVS');
 					$obxCount++;
 				}
-				$OBX = $this->hl7->addSegment('OBX');
-				$OBX->setValue('1', $obxCount);
-				$OBX->setValue('2', 'CE');
-				$OBX->setValue('3.1', '30956-7');
-				$OBX->setValue('3.2', 'vaccine type');
-				$OBX->setValue('3.3', 'LN');
-				$OBX->setValue('4', $immu['id']);
-				$OBX->setValue('5.1', $immu['code']);
-				$OBX->setValue('5.2', $immu['vaccine_name']);
-				$OBX->setValue('5.3', $immu['code_type']);
-				$OBX->setValue('11', 'F');
-				$obxCount++;
-				$OBX = $this->hl7->addSegment('OBX');
-				$OBX->setValue('1', $obxCount);
-				$OBX->setValue('2', 'TS');
-				$OBX->setValue('3.1', '29768-9');
-				$OBX->setValue('3.2', 'Date vaccine information statement published');
-				$OBX->setValue('3.3', 'LN');
-				$OBX->setValue('4', $immu['id']);
-				$OBX->setValue('5', $this->date($immu['education_doc_published'], false));
-				$OBX->setValue('11', 'F');
-				$obxCount++;
-				$OBX = $this->hl7->addSegment('OBX');
-				$OBX->setValue('1', $obxCount);
-				$OBX->setValue('2', 'TS');
-				$OBX->setValue('3.1', '29769-7');
-				$OBX->setValue('3.2', 'Date vaccine information statement presented');
-				$OBX->setValue('3.3', 'LN');
-				$OBX->setValue('4', $immu['id']);
-				$OBX->setValue('5', $this->date($immu['education_date'], false));
-				$OBX->setValue('11', 'F');
+
+				if($this->notEmpty($immu['education_resource_1_id']) && $immu['education_resource_1_id'] > 0){
+					$document = $this->d->load(['id' => $immu['education_resource_1_id']])->one();
+					if($document !==  false){
+						$OBX = $this->hl7->addSegment('OBX');
+						$OBX->setValue('1', $obxCount);
+						$OBX->setValue('2', 'CE');
+						$OBX->setValue('3.1', '30956-7');
+						$OBX->setValue('3.2', 'vaccine type');
+						$OBX->setValue('3.3', 'LN');
+						$OBX->setValue('4', $immu['education_resource_1_id']);
+						$OBX->setValue('5.1', $document['code']);
+						$OBX->setValue('5.2', $document['code_text']);
+						$OBX->setValue('5.3', $document['code_type']);
+						$OBX->setValue('11', 'F');
+						$obxCount++;
+
+						if($this->notEmpty($document['publication_date'])){
+							$OBX = $this->hl7->addSegment('OBX');
+							$OBX->setValue('1', $obxCount);
+							$OBX->setValue('2', 'TS');
+							$OBX->setValue('3.1', '29768-9');
+							$OBX->setValue('3.2', 'Date vaccine information statement published');
+							$OBX->setValue('3.3', 'LN');
+							$OBX->setValue('4', $immu['education_resource_1_id']);
+							$OBX->setValue('5', $this->date($document['publication_date'], false));
+							$OBX->setValue('11', 'F');
+							$obxCount++;
+						}
+					}
+
+					if($this->notEmpty($immu['education_presented_1_date'])){
+						$OBX = $this->hl7->addSegment('OBX');
+						$OBX->setValue('1', $obxCount);
+						$OBX->setValue('2', 'TS');
+						$OBX->setValue('3.1', '29769-7');
+						$OBX->setValue('3.2', 'Date vaccine information statement presented');
+						$OBX->setValue('3.3', 'LN');
+						$OBX->setValue('4', $immu['education_resource_1_id']);
+						$OBX->setValue('5', $this->date($immu['education_presented_1_date'], false));
+						$OBX->setValue('11', 'F');
+						$obxCount++;
+					}
+				}
+
+				if($this->notEmpty($immu['education_resource_2_id']) && $immu['education_resource_2_id'] > 0){
+					$document = $this->d->load(['id' => $immu['education_resource_2_id']])->one();
+					if($document !==  false){
+						$OBX = $this->hl7->addSegment('OBX');
+						$OBX->setValue('1', $obxCount);
+						$OBX->setValue('2', 'CE');
+						$OBX->setValue('3.1', '30956-7');
+						$OBX->setValue('3.2', 'vaccine type');
+						$OBX->setValue('3.3', 'LN');
+						$OBX->setValue('4', $immu['education_resource_2_id']);
+						$OBX->setValue('5.1', $document['code']);
+						$OBX->setValue('5.2', $document['code_text']);
+						$OBX->setValue('5.3', $document['code_type']);
+						$OBX->setValue('11', 'F');
+						$obxCount++;
+
+						if($this->notEmpty($document['publication_date'])){
+							$OBX = $this->hl7->addSegment('OBX');
+							$OBX->setValue('1', $obxCount);
+							$OBX->setValue('2', 'TS');
+							$OBX->setValue('3.1', '29768-9');
+							$OBX->setValue('3.2', 'Date vaccine information statement published');
+							$OBX->setValue('3.3', 'LN');
+							$OBX->setValue('4', $immu['education_resource_2_id']);
+							$OBX->setValue('5', $this->date($document['publication_date'], false));
+							$OBX->setValue('11', 'F');
+							$obxCount++;
+						}
+					}
+
+					if($this->notEmpty($immu['education_presented_2_date'])){
+						$OBX = $this->hl7->addSegment('OBX');
+						$OBX->setValue('1', $obxCount);
+						$OBX->setValue('2', 'TS');
+						$OBX->setValue('3.1', '29769-7');
+						$OBX->setValue('3.2', 'Date vaccine information statement presented');
+						$OBX->setValue('3.3', 'LN');
+						$OBX->setValue('4', $immu['education_resource_2_id']);
+						$OBX->setValue('5', $this->date($immu['education_presented_2_date'], false));
+						$OBX->setValue('11', 'F');
+						$obxCount++;
+					}
+				}
+
+
+				if($this->notEmpty($immu['education_resource_3_id']) && $immu['education_resource_3_id'] > 0){
+					$document = $this->d->load(['id' => $immu['education_resource_3_id']])->one();
+					if($document !==  false){
+						$OBX = $this->hl7->addSegment('OBX');
+						$OBX->setValue('1', $obxCount);
+						$OBX->setValue('2', 'CE');
+						$OBX->setValue('3.1', '30956-7');
+						$OBX->setValue('3.2', 'vaccine type');
+						$OBX->setValue('3.3', 'LN');
+						$OBX->setValue('4', $immu['education_resource_3_id']);
+						$OBX->setValue('5.1', $document['code']);
+						$OBX->setValue('5.2', $document['code_text']);
+						$OBX->setValue('5.3', $document['code_type']);
+						$OBX->setValue('11', 'F');
+						$obxCount++;
+
+						if($this->notEmpty($document['publication_date'])){
+							$OBX = $this->hl7->addSegment('OBX');
+							$OBX->setValue('1', $obxCount);
+							$OBX->setValue('2', 'TS');
+							$OBX->setValue('3.1', '29768-9');
+							$OBX->setValue('3.2', 'Date vaccine information statement published');
+							$OBX->setValue('3.3', 'LN');
+							$OBX->setValue('4', $immu['education_resource_3_id']);
+							$OBX->setValue('5', $this->date($document['publication_date'], false));
+							$OBX->setValue('11', 'F');
+							$obxCount++;
+						}
+					}
+
+					if($this->notEmpty($immu['education_presented_3_date'])){
+						$OBX = $this->hl7->addSegment('OBX');
+						$OBX->setValue('1', $obxCount);
+						$OBX->setValue('2', 'TS');
+						$OBX->setValue('3.1', '29769-7');
+						$OBX->setValue('3.2', 'Date vaccine information statement presented');
+						$OBX->setValue('3.3', 'LN');
+						$OBX->setValue('4', $immu['education_resource_3_id']);
+						$OBX->setValue('5', $this->date($immu['education_presented_3_date'], false));
+						$OBX->setValue('11', 'F');
+						$obxCount++;
+					}
+				}
+
+
+
+				if($this->notEmpty($immu['is_presumed_immunity']) && $this->notEmpty($immu['presumed_immunity_code'])){
+
+					$this->ListOptions->clearFilters();
+					$this->ListOptions->addFilter('list_id', 140);
+					$this->ListOptions->addFilter('option_value', $immu['presumed_immunity_code']);
+					$Record = $this->ListOptions->load()->one();
+
+					if($Record !== false){
+						$OBX = $this->hl7->addSegment('OBX');
+						$OBX->setValue('1', $obxCount);
+						$OBX->setValue('2', 'CE');
+						$OBX->setValue('3.1', '59784-9');
+						$OBX->setValue('3.2', 'Disease with presumed immunity');
+						$OBX->setValue('3.3', 'LN');
+						$OBX->setValue('4', $immu['id']);
+						$OBX->setValue('5.1', $Record['option_value']);
+						$OBX->setValue('5.2', $Record['option_name']);
+						$OBX->setValue('5.3', $Record['code_type']);
+						$OBX->setValue('11', 'F');
+						$obxCount++;
+					}
+				}
 			}
 
 			$msgRecord = $this->saveMsg();
@@ -502,6 +718,8 @@ class HL7Messages {
 
 	private function setMSH($includeNPI = false) {
 		$this->setEncounter();
+
+		$this->fid = $this->from;
 
 		// set these globally
 		$this->to = $this->c->load($this->to)->one();
@@ -549,11 +767,25 @@ class HL7Messages {
 
 		$pid->setValue('1', 1);
 
-		if($this->notEmpty($this->patient->pid)){
-			$pid->setValue('3.1', $this->patient->pid);
+		$index = 0;
+		if($this->notEmpty($this->patient->pubpid)){
+			$pid->setValue('3.1', $this->patient->pubpid, $index);
+			$pid->setValue('3.4', $this->namesace_id);
+			$pid->setValue('3.5', 'MR', $index); // IDNumber Type (HL70203) MR = Medical Record
+			$index++;
+		}elseif($this->notEmpty($this->patient->pid)){
+			$pid->setValue('3.1', $this->patient->pid, $index);
+			$pid->setValue('3.4', $this->namesace_id);
+			$pid->setValue('3.5', 'MR', $index);  // IDNumber Type (HL70203) MR = Medical Record
+			$index++;
 		}
-		$pid->setValue('3.4', 'GaiaEHR');
-		$pid->setValue('3.5', 'MR'); // IDNumber Type (HL70203) MR = Medical Record
+		// added SS if exist
+		if($this->notEmpty($this->patient->SS)){
+			$pid->setValue('3.1', $this->patient->SS, $index);
+			$pid->setValue('3.4', 'SSA', $index);
+			$pid->setValue('3.5', 'SS', $index); // IDNumber Type (HL70203) SS = Social Security
+		}
+		unset($index);
 
 		if($this->patient->age['DMY']['years'] == 0){
 			//			$pid->setValue('5.1.1', '', 0);
@@ -571,20 +803,15 @@ class HL7Messages {
 			$pid->setValue('5.7', 'L');
 		}
 
-		// This has to be taken on Patient Contacts
-		$filters = new stdClass();
-		$filters->filter[0] = new stdClass();
-		$filters->filter[1] = new stdClass();
-		$filters->filter[0]->property = 'pid';
-		$filters->filter[0]->value = $this->patient->pid;
-		$filters->filter[1]->property = 'relationship';
-		$filters->filter[1]->value = 'MTH';
-		$ContactRecord = $this->PatientContacts->load($filters)->one();
-		if($this->notEmpty($ContactRecord)){
-			$pid->setValue('6.1', $ContactRecord['first_name'] . ' ' . $ContactRecord['middle_name'] . ' ' . $ContactRecord['last_name']);
-			$pid->setValue('6.2', $ContactRecord['first_name'] . ' ' . $ContactRecord['middle_name'] . ' ' . $ContactRecord['last_name']);
+		if($this->notEmpty($this->patient->mother_lname)){
+			$pid->setValue('6.1.1', $this->patient->mother_lname);
 		}
-
+		if($this->notEmpty($this->patient->mother_fname)){
+			$pid->setValue('6.2', $this->patient->mother_fname);
+		}
+		if($this->notEmpty($this->patient->mother_mname)){
+			$pid->setValue('6.3', $this->patient->mother_mname);
+		}
 		if($this->notEmpty($this->patient->DOB)){
 			$pid->setValue('7.1', $this->date($this->patient->DOB));
 		}
@@ -600,45 +827,41 @@ class HL7Messages {
 			$pid->setValue('10.3', 'CDCREC'); // Race Name of Coding System
 		}
 
-		// Patient Address taken Patient Contact (SELF)
-		$filters = new stdClass();
-		$filters->filter[0] = new stdClass();
-		$filters->filter[1] = new stdClass();
-		$filters->filter[0]->property = 'pid';
-		$filters->filter[0]->value = $this->patient->pid;
-		$filters->filter[1]->property = 'relationship';
-		$filters->filter[1]->value = 'SEL';
-		$ContactRecord = $this->PatientContacts->load($filters)->one();
-		if($this->notEmpty($ContactRecord['street_mailing_address'])){
-			if($this->notEmpty($ContactRecord['street_mailing_address']))
-				$pid->setValue('11.1.1', $ContactRecord['street_mailing_address']);
+		if($this->notEmpty($this->patient->physical_address)){
+			if($this->notEmpty($this->patient->physical_address))
+				$pid->setValue('11.1.1', $this->patient->physical_address . ' ' . $this->patient->physical_address_cont);
 
-			if($this->notEmpty($ContactRecord['city']))
-				$pid->setValue('11.3', $ContactRecord['city']);
+			if($this->notEmpty($this->patient->physical_city))
+				$pid->setValue('11.3', $this->patient->physical_city);
 
-			if($this->notEmpty($ContactRecord['state'])){
-				$pid->setValue('11.4', $ContactRecord['state']);
+			if($this->notEmpty($this->patient->physical_state)){
+				$pid->setValue('11.4', $this->patient->physical_state);
 			}
-			if($this->notEmpty($ContactRecord['zip'])){
-				$pid->setValue('11.5', $ContactRecord['zip']);
+			if($this->notEmpty($this->patient->physical_zip)){
+				$pid->setValue('11.5', $this->patient->physical_zip);
 			}
-			if($this->notEmpty($ContactRecord['country'])){
-				$pid->setValue('11.6', $ContactRecord['country']);
+			if($this->notEmpty($this->patient->physical_country)){
+				$pid->setValue('11.6', $this->patient->physical_country);
 			}
-			if($this->notEmpty($ContactRecord['street_mailing_address'])){
-				$pid->setValue('11.7', 'L'); // Address Type L = Legal Address
-			}
+			$pid->setValue('11.7', 'L'); // Address Type L = Legal Address
 			$pid->setValue('11.9', '25025');
 		}
-		// Patient Phone Number taken from Patient Contact (SELF)
-		if($this->notEmpty($ContactRecord['phone_use_code']) && $this->notEmpty($ContactRecord['phone_area_code']) && $this->notEmpty($ContactRecord['phone_local_number'])){
 
-			$phone = $this->phone($ContactRecord['phone_use_code'] . $ContactRecord['phone_area_code'] . $ContactRecord['phone_local_number']);
-
-			$pid->setValue('13.2', 'PRN'); // PhoneNumber‐Home
-			$pid->setValue('13.6', $ContactRecord['zip']); // Area/City Code
-			$pid->setValue('13.7', $phone); // LocalNumber
+		$index = 0;
+		if($this->notEmpty($this->patient->phone_home)){
+			$phone = $this->phone($this->patient->phone_home);
+			$pid->setValue('13.2', 'PRN', $index);              // PhoneNumber‐Home
+			$pid->setValue('13.3', 'PH', $index);               // PhoneNumber‐Home
+			$pid->setValue('13.6', $phone['area'], $index);     // Area/City Code
+			$pid->setValue('13.7', $phone['number'], $index);   // LocalNumber
+			$index++;
 		}
+		if($this->notEmpty($this->patient->email)){
+			$pid->setValue('13.2', 'NET', $index);
+			$pid->setValue('13.4', $this->patient->email, $index);
+		}
+		unset($index);
+
 		if($this->notEmpty($this->patient->language)){
 			$pid->setValue('15.1', $this->patient->language);
 		}
@@ -657,9 +880,10 @@ class HL7Messages {
 		if($this->notEmpty($this->patient->pubaccount)){
 			$pid->setValue('18.1', $this->patient->pubaccount);
 		}
-		if($this->notEmpty($this->patient->SS)){
-			$pid->setValue('19', $this->patient->SS);
-		}
+
+//		if($this->notEmpty($this->patient->SS)){
+//			$pid->setValue('19', $this->patient->SS);
+//		}
 
 		// Patient Drivers License Information
 		if($this->notEmpty($this->patient->drivers_license)){
@@ -676,10 +900,11 @@ class HL7Messages {
 		if($this->notEmpty($this->patient->ethnicity)){
 			$this->ListOptions->clearFilters();
 			$this->ListOptions->addFilter('list_id', 59);
-			$this->ListOptions->addFilter('code', $this->patient->ethnicity);
+			$this->ListOptions->addFilter('option_value', $this->patient->ethnicity);
 			$buff = $this->ListOptions->load()->one();
 			$ethnicity = $this->mapCode($this->patient->ethnicity, $buff['code_type'], 'ethnicity');
 			$pid->setValue('22.1', $ethnicity['code']);
+			$pid->setValue('22.2', $buff['option_name']);
 			$pid->setValue('22.3', $ethnicity['code_type']);
 		}
 
@@ -806,23 +1031,38 @@ class HL7Messages {
 		$filters->filter[1] = new stdClass();
 
 		// Load the List option model, to do lookups in the Value Code Sets
-		$this->ListOptions->clearFilters();
-		$this->ListOptions->addFilter('list_id',132);
-		$this->ListOptions->addFilter('code',$patient->phone_publicity);
-		$listOptionsRecord = $this->ListOptions->load()->one();
+
 
 		// PD1 - 3.4.10 PD1 - Patient Additional Demographic Segment
 		// If the Publicity is set, on the patient contacts compile this HL7 Message line
 
-		if($listOptionsRecord !== false){
-			$PD1 = $this->hl7->addSegment('PD1');
-			$PD1->setValue('11.1', $listOptionsRecord['option_value']);
-			$PD1->setValue('11.2', $listOptionsRecord['option_name']);
-			$PD1->setValue('11.3', $listOptionsRecord['code_type']);
-			$PD1->setValue('16', 'A');
-			$PD1->setValue('17', $this->date($patient->create_date, false));
-			$PD1->setValue('18', $this->date($patient->create_date, false));
+		$PD1 = $this->hl7->addSegment('PD1');
+
+		if($this->notEmpty($patient->organ_donor_code)){
+			$PD1->setValue('8', $patient->organ_donor_code);
 		}
+
+		if($this->notEmpty($patient->phone_publicity)){
+			$this->ListOptions->clearFilters();
+			$this->ListOptions->addFilter('list_id', 132);
+			$this->ListOptions->addFilter('code', $patient->phone_publicity);
+			$listOptionsRecord = $this->ListOptions->load()->one();
+			if($listOptionsRecord !== false){
+				$PD1->setValue('11.1', $listOptionsRecord['option_value']);
+				$PD1->setValue('11.2', $listOptionsRecord['option_name']);
+				$PD1->setValue('11.3', $listOptionsRecord['code_type']);
+				$PD1->setValue('18', $this->date($patient->create_date, false));
+			}
+		}
+
+		if($this->notEmpty($patient->allow_immunization_info_sharing)){
+			$PD1->setValue('12', 'N');
+			$PD1->setValue('13', $this->date($patient->create_date, false));
+		}
+
+		$PD1->setValue('16', 'A');
+		$PD1->setValue('17', $this->date($patient->create_date, false));
+
 
 	}
 
@@ -856,7 +1096,7 @@ class HL7Messages {
 				$NK1->setValue('3.3', $listOptionsRecord['code_type']);
 			}
 
-			$NK1->setValue('4.1.2', $patient->guardians_address . ' ' . $patient->guardians_address_cont);
+			$NK1->setValue('4.1.1', $patient->guardians_address . ' ' . $patient->guardians_address_cont);
 			$NK1->setValue('4.3', $patient->guardians_city);
 			$NK1->setValue('4.4', $patient->guardians_state);
 			$NK1->setValue('4.5', $patient->guardians_zip);
@@ -1159,7 +1399,7 @@ class HL7Messages {
 			'-'
 		], '', $phone);
 		return [
-			'zip' => substr($phone, 0, 3),
+			'area' => substr($phone, 0, 3),
 			'number' => substr($phone, 3, 9)
 		];
 	}

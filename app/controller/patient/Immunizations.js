@@ -18,14 +18,16 @@
 
 Ext.define('App.controller.patient.Immunizations', {
 	extend: 'Ext.app.Controller',
-	requires: [
-
-	],
+	requires: [],
 	refs: [
-        {
-            ref: 'SubmitImmunizationWindow',
-            selector: '#SubmitImmunizationWindow'
-        },
+		{
+			ref: 'SubmitImmunizationWindow',
+			selector: '#SubmitImmunizationWindow'
+		},
+		{
+			ref: 'SubmitImmunizationGrid',
+			selector: '#SubmitImmunizationGrid'
+		},
 		{
 			ref: 'ImmunizationPanel',
 			selector: 'patientimmunizationspanel'
@@ -53,48 +55,111 @@ Ext.define('App.controller.patient.Immunizations', {
 		{
 			ref: 'SubmitVxuBtn',
 			selector: 'patientimmunizationspanel #submitVxuBtn'
+		},
+		{
+			ref: 'ImmunizationsPresumedImmunityCheckbox',
+			selector: '#ImmunizationsPresumedImmunityCheckbox'
+		},
+		{
+			ref: 'ImmunizationsImmunizationSearch',
+			selector: '#ImmunizationsImmunizationSearch'
+		},
+		{
+			ref: 'ImmunizationsDisorderCombo',
+			selector: '#ImmunizationsDisorderCombo'
+		},
+		{
+			ref: 'ImmunizationsPresumedImmunityCheckbox',
+			selector: '#ImmunizationsPresumedImmunityCheckbox'
 		}
 	],
 
 	init: function(){
 		var me = this;
 		me.control({
-			'patientimmunizationspanel':{
+			'patientimmunizationspanel': {
 				activate: me.onPatientImmunizationsPanelActive
 			},
-			'patientimmunizationspanel #patientImmunizationsGrid':{
+			'patientimmunizationspanel #patientImmunizationsGrid': {
 				selectionchange: me.onPatientImmunizationsGridSelectionChange,
 				beforeedit: me.onPatientImmunizationsGridBeforeEdit,
 				edit: me.onPatientImmunizationsGridEdit
 			},
-			'patientimmunizationspanel #cvxGrid':{
+			'patientimmunizationspanel #cvxGrid': {
 				expand: me.onCvxGridExpand
 			},
-			'patientimmunizationspanel #submitVxuBtn':{
+			'patientimmunizationspanel #submitVxuBtn': {
 				click: me.onSubmitVxuBtnClick
 			},
-			'patientimmunizationspanel #reviewImmunizationsBtn':{
+			'patientimmunizationspanel #reviewImmunizationsBtn': {
 				click: me.onReviewImmunizationsBtnClick
 			},
-			'patientimmunizationspanel #addImmunizationBtn':{
+			'patientimmunizationspanel #addImmunizationBtn': {
 				click: me.onAddImmunizationBtnClick
 			},
-			'form #immunizationsearch':{
+			'#ImmunizationsImmunizationSearch': {
 				select: me.onImmunizationSearchSelect
 			},
-			'#patientImmunizationsEditFormAdministeredByField':{
+			'#patientImmunizationsEditFormAdministeredByField': {
 				select: me.onPatientImmunizationsEditFormAdministeredByFieldSelect
 			},
-            '#SubmitImmunizationWindow #ActiveFacilitiesCombo':{
-                change: me.onActiveFacilitiesChange
-            },
-            '#SubmitImmunizationWindow #ApplicationCombo':{
-                change: me.onApplicationChange
-            }
+			'#SubmitImmunizationWindow #ActiveFacilitiesCombo': {
+				change: me.onActiveFacilitiesChange
+			},
+			'#SubmitImmunizationWindow #ApplicationCombo': {
+				change: me.onApplicationChange
+			},
+			'#ImmunizationsPresumedImmunityCheckbox': {
+				afterrender: me.onImmunizationsPresumedImmunityCheckboxAfterRender
+			}
 		});
 	},
 
-	onPatientImmunizationsEditFormAdministeredByFieldSelect:function(comb, records){
+	onImmunizationsPresumedImmunityCheckboxAfterRender: function(checkbox){
+		var me = this;
+
+		checkbox.el.on('click', function(){
+			Ext.Function.defer(function(){
+				me.onImmunizationsPresumedImmunityCheckboxClick(checkbox);
+			}, 100);
+
+		});
+	},
+
+	onImmunizationsPresumedImmunityCheckboxClick: function(checkbox){
+
+		var record = checkbox.up('form').getForm().getRecord(),
+			checked = checkbox.getValue();
+
+		this.setImmunizationFields(checked);
+
+		this.getImmunizationsImmunizationSearch().reset();
+		this.getImmunizationsDisorderCombo().reset();
+
+		if(checked){
+			record.set({
+				presumed_immunity_code: '',
+				code: '998',
+				code_type: 'CVX',
+				vaccine_name: 'no vaccine administered'
+			});
+		}else{
+			record.set({
+				code: '',
+				code_type: '',
+				vaccine_name: ''
+			});
+		}
+	},
+
+	setImmunizationFields: function(presumed_immunity){
+		this.getImmunizationsDisorderCombo().setVisible(presumed_immunity);
+		this.getImmunizationsDisorderCombo().setDisabled(!presumed_immunity);
+		this.getImmunizationsImmunizationSearch().setVisible(!presumed_immunity);
+		this.getImmunizationsImmunizationSearch().setDisabled(presumed_immunity);
+	},
+
+	onPatientImmunizationsEditFormAdministeredByFieldSelect: function(comb, records){
 		var record = comb.up('form').getForm().getRecord();
 
 		record.set({
@@ -106,11 +171,11 @@ Ext.define('App.controller.patient.Immunizations', {
 		});
 	},
 
-	onImmunizationSearchSelect:function(combo, record){
-		var form =  combo.up('form').getForm();
+	onImmunizationSearchSelect: function(combo, record){
+		var form = combo.up('form').getForm();
 
 		this.getCvxMvxCombo().getStore().load({
-			params:{
+			params: {
 				cvx_code: record[0].data.cvx_code
 			}
 		});
@@ -120,16 +185,18 @@ Ext.define('App.controller.patient.Immunizations', {
 		});
 	},
 
-	onCvxGridExpand:function(grid){
+	onCvxGridExpand: function(grid){
 		grid.getStore().load();
 	},
 
-	onPatientImmunizationsGridSelectionChange:function(sm, selected){
+	onPatientImmunizationsGridSelectionChange: function(sm, selected){
 		this.getSubmitVxuBtn().setDisabled(selected.length === 0);
 	},
 
-	onPatientImmunizationsGridBeforeEdit:function(plugin, context){
+	onPatientImmunizationsGridBeforeEdit: function(plugin, context){
 		var field = plugin.editor.getForm().findField('administered_by');
+
+		this.setImmunizationFields(context.record.get('is_presumed_immunity'));
 
 		field.forceSelection = false;
 		Ext.Function.defer(function(){
@@ -138,33 +205,26 @@ Ext.define('App.controller.patient.Immunizations', {
 		}, 200);
 	},
 
-	onPatientImmunizationsGridEdit:function(plugin, context){
+	onPatientImmunizationsGridEdit: function(plugin, context){
 		app.fireEvent('immunizationedit', this, context.record);
 	},
 
-	onPatientImmunizationsPanelActive:function(){
+	onPatientImmunizationsPanelActive: function(){
 		this.loadPatientImmunizations();
 	},
 
-	onSubmitVxuBtnClick:function(){
+	onSubmitVxuBtnClick: function(){
 		var me = this,
-			selected = me.getImmunizationsGrid().getSelectionModel().getSelection(),
-			immunizations = [];
-
+			selected = me.getImmunizationsGrid().getSelectionModel().getSelection();
 		me.vxuWindow = me.getVxuWindow();
-
-		for(var i=0; i < selected.length; i++){
-			immunizations.push(selected[i].data);
-		}
-
-		me.vxuWindow.getComponent('list').update(immunizations);
+		me.vxuWindow.down('grid').getStore().loadData(selected);
 	},
 
-	onReviewImmunizationsBtnClick:function(){
+	onReviewImmunizationsBtnClick: function(){
 
 	},
 
-	onAddImmunizationBtnClick:function(){
+	onAddImmunizationBtnClick: function(){
 		var grid = this.getImmunizationsGrid(),
 			store = grid.getStore();
 
@@ -174,6 +234,7 @@ Ext.define('App.controller.patient.Immunizations', {
 			uid: app.user.id,
 			pid: app.patient.pid,
 			eid: app.patient.eid,
+			facility_id: app.user.facility,
 			create_date: new Date(),
 			begin_date: new Date()
 
@@ -181,7 +242,7 @@ Ext.define('App.controller.patient.Immunizations', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	loadPatientImmunizations:function(){
+	loadPatientImmunizations: function(){
 		var store = this.getImmunizationsGrid().getStore();
 		store.clearFilter(true);
 		store.filter([
@@ -194,74 +255,93 @@ Ext.define('App.controller.patient.Immunizations', {
 
 	getVxuWindow: function(){
 		var me = this;
-		return Ext.widget('window',{
+
+		if(this.getSubmitImmunizationWindow()){
+			return this.getSubmitImmunizationWindow().show();
+		}
+
+		return Ext.widget('window', {
 			title: _('submit_hl7_vxu'),
 			closable: false,
-            itemId: 'SubmitImmunizationWindow',
+			itemId: 'SubmitImmunizationWindow',
 			modal: true,
-			bodyStyle:'background-color:white',
-			defaults:{
-				xtype:'container',
-				border:false,
-				margin:10
-			},
-			items:[
+			bodyStyle: 'background-color:white',
+			items: [
 				{
-					html: _('please_verify_the_information')+':',
-					margin: '10 10 0 10'
+					xtype: 'grid',
+					title: _('please_verify_the_information'),
+					store: Ext.create('App.store.patient.PatientImmunization'),
+					width: 700,
+					minHeight: 50,
+					maxHeight: 200,
+					itemId: 'SubmitImmunizationGrid',
+					viewConfig: {
+						plugins: {
+							ptype: 'gridviewdragdrop',
+							dragText: 'Drag and drop to reorganize'
+						}
+					},
+					columns: [
+						{
+							text: _('code'),
+							dataIndex: 'code'
+						},
+						{
+							text: _('vaccine_name'),
+							dataIndex: 'vaccine_name',
+							flex: 1
+						},
+						{
+							text: _('administer_amount'),
+							dataIndex: 'administer_amount'
+						},
+						{
+							text: _('administer_units'),
+							dataIndex: 'administer_units'
+						},
+						{
+							text: _('date_administered'),
+							dataIndex: 'date_administered'
+						}
+					]
 				},
 				{
-					width:700,
-					minHeight:50,
-					maxHeight:200,
-					itemId:'list',
-					margin:'0 10 20 10',
-					styleHtmlContent: true,
-					tpl: new Ext.XTemplate(
-						'<ul>',
-						'<tpl for=".">',     // interrogate the kids property within the data
-						'   <li>CVX:{code} - {vaccine_name} {administer_amount} {administer_units} {date_administered}</li>',
-							'</tpl>' +
-							'</ul>'
-					)
-				},
-                {
-                    xtype: 'uxiframe',
-                    itemId: 'downloadHL7',
-                    hidden: true
-                }
+					xtype: 'uxiframe',
+					itemId: 'downloadHL7',
+					hidden: true
+				}
 			],
-			buttons:[
-				me.vxuFrom = Ext.create('App.ux.combo.ActiveFacilities',{
+			buttons: [
+				me.vxuFrom = Ext.create('App.ux.combo.ActiveFacilities', {
 					fieldLabel: _('send_from'),
 					emptyText: _('select'),
-                    itemId: 'ActiveFacilitiesCombo',
+					itemId: 'ActiveFacilitiesCombo',
 					labelWidth: 60,
-					store: Ext.create('App.store.administration.HL7Clients',{
-						filters:[
+					store: Ext.create('App.store.administration.HL7Clients', {
+						filters: [
 							{
-								property:'active',
-								value:true
+								property: 'active',
+								value: true
 							}
 						]
 					})
 				}),
-				me.vxuTo = Ext.widget('combobox',{
-					xtype:'combobox',
+				me.vxuTo = Ext.widget('combobox', {
+					xtype: 'combobox',
 					fieldLabel: _('send_to'),
 					emptyText: _('select'),
 					allowBlank: false,
-                    itemId: 'ApplicationCombo',
+					itemId: 'ApplicationCombo',
 					forceSelection: true,
-                    editable: false,
+					editable: false,
 					labelWidth: 60,
 					displayField: 'application_name',
 					valueField: 'id',
-					store: Ext.create('App.store.administration.HL7Clients',{
-						filters:[
+					store: Ext.create('App.store.administration.HL7Clients', {
+						filters: [
 							{
-								property:'active',
-								value:true
+								property: 'active',
+								value: true
 							}
 						]
 					})
@@ -269,22 +349,22 @@ Ext.define('App.controller.patient.Immunizations', {
 				{
 					text: _('send'),
 					scope: me,
-                    itemId: 'send',
+					itemId: 'send',
 					handler: me.doSendVxu,
-                    action: 'send',
-                    disabled: true
+					action: 'send',
+					disabled: true
 				},
-                {
-                    text: _('download'),
-                    scope: me,
-                    itemId: 'download',
-                    handler: me.doDownloadVxu,
-                    action: 'download',
-                    disabled: true
-                },
 				{
-					text:_('cancel'),
-					handler:function(){
+					text: _('download'),
+					scope: me,
+					itemId: 'download',
+					handler: me.doDownloadVxu,
+					action: 'download',
+					disabled: true
+				},
+				{
+					text: _('cancel'),
+					handler: function(){
 						me.vxuWindow.close();
 					}
 				}
@@ -292,85 +372,85 @@ Ext.define('App.controller.patient.Immunizations', {
 		}).show();
 	},
 
-    /**
-     * Only activate the send, & download button when facilities and application has been
-     * selected
-     * @param me
-     * @param newValue
-     * @param oldValue
-     */
-    onActiveFacilitiesChange: function(me, newValue, oldValue){
-        if(Ext.ComponentQuery.query('#ApplicationCombo')[0].getValue()){
-            Ext.ComponentQuery.query('#SubmitImmunizationWindow #send')[0].setDisabled(false);
-            Ext.ComponentQuery.query('#SubmitImmunizationWindow #download')[0].setDisabled(false);
-        }
-    },
+	/**
+	 * Only activate the send, & download button when facilities and application has been
+	 * selected
+	 * @param me
+	 * @param newValue
+	 * @param oldValue
+	 */
+	onActiveFacilitiesChange: function(me, newValue, oldValue){
+		if(Ext.ComponentQuery.query('#ApplicationCombo')[0].getValue()){
+			Ext.ComponentQuery.query('#SubmitImmunizationWindow #send')[0].setDisabled(false);
+			Ext.ComponentQuery.query('#SubmitImmunizationWindow #download')[0].setDisabled(false);
+		}
+	},
 
-    /**
-     * Only activate the send, & download button when facilities and application has been
-     * selected
-     * @param me
-     * @param newValue
-     * @param oldValue
-     */
-    onApplicationChange: function(me, newValue, oldValue){
-        if(Ext.ComponentQuery.query('#ActiveFacilitiesCombo')[0].getValue()){
-            Ext.ComponentQuery.query('#SubmitImmunizationWindow #send')[0].setDisabled(false);
-            Ext.ComponentQuery.query('#SubmitImmunizationWindow #download')[0].setDisabled(false);
-        }
-    },
+	/**
+	 * Only activate the send, & download button when facilities and application has been
+	 * selected
+	 * @param me
+	 * @param newValue
+	 * @param oldValue
+	 */
+	onApplicationChange: function(me, newValue, oldValue){
+		if(Ext.ComponentQuery.query('#ActiveFacilitiesCombo')[0].getValue()){
+			Ext.ComponentQuery.query('#SubmitImmunizationWindow #send')[0].setDisabled(false);
+			Ext.ComponentQuery.query('#SubmitImmunizationWindow #download')[0].setDisabled(false);
+		}
+	},
 
-    doDownloadVxu:function(btn){
-        var me = this,
-            sm = me.getImmunizationsGrid().getSelectionModel(),
-            ImmunizationSelection = sm.getSelection(),
-            params = {},
-            immunizations = [],
-            form;
-
-        if(me.vxuTo.isValid()){
-
-            for(var i=0; i < ImmunizationSelection.length; i++){
-                immunizations.push(ImmunizationSelection[i].data.id);
-                params.pid = ImmunizationSelection[i].data.pid;
-            }
-
-            me.vxuWindow.el.mask(_('download'));
-            Ext.create('Ext.form.Panel', {
-                renderTo: Ext.ComponentQuery.query('#SubmitImmunizationWindow #downloadHL7')[0].el,
-                standardSubmit: true,
-                url: 'dataProvider/Download.php'
-            }).submit({
-                params: {
-                    'pid': params.pid,
-                    'from': me.vxuFrom.getValue(),
-                    'to': me.vxuTo.getValue(),
-                    'immunizations': Ext.encode(immunizations)
-                },
-                success: function(form, action) {
-                    // Audit log here
-                }
-            });
-
-            me.vxuWindow.el.unmask();
-            me.vxuWindow.close();
-            sm.deselectAll();
-
-        }
-    },
-
-	doSendVxu:function(btn){
+	doDownloadVxu: function(btn){
 		var me = this,
 			sm = me.getImmunizationsGrid().getSelectionModel(),
-            ImmunizationSelection = sm.getSelection(),
+			ImmunizationSelection = sm.getSelection(),
+			params = {},
+			immunizations = [],
+			form;
+
+		if(me.vxuTo.isValid()){
+
+			for(var i = 0; i < ImmunizationSelection.length; i++){
+				immunizations.push(ImmunizationSelection[i].data.id);
+				params.pid = ImmunizationSelection[i].data.pid;
+			}
+
+			me.vxuWindow.el.mask(_('download'));
+			Ext.create('Ext.form.Panel', {
+				renderTo: Ext.ComponentQuery.query('#SubmitImmunizationWindow #downloadHL7')[0].el,
+				standardSubmit: true,
+				url: 'dataProvider/Download.php'
+			}).submit({
+				params: {
+					'pid': params.pid,
+					'from': me.vxuFrom.getValue(),
+					'to': me.vxuTo.getValue(),
+					'immunizations': Ext.encode(immunizations)
+				},
+				success: function(form, action){
+					// Audit log here
+				}
+			});
+
+			me.vxuWindow.el.unmask();
+			me.vxuWindow.close();
+			sm.deselectAll();
+
+		}
+	},
+
+	doSendVxu: function(btn){
+		var me = this,
+			sm = me.getImmunizationsGrid().getSelectionModel(),
+			records = this.getSubmitImmunizationGrid().getStore().data.items,
 			params = {},
 			immunizations = [];
 
 		if(me.vxuTo.isValid()){
 
-			for(var i=0; i < ImmunizationSelection.length; i++){
-				immunizations.push(ImmunizationSelection[i].data.id);
-                params.pid = ImmunizationSelection[i].data.pid;
+			for(var i = 0; i < records.length; i++){
+				Ext.Array.push(immunizations, records[i].get('id'));
+				params.pid = records[i].get('pid');
 			}
 
 			params.from = me.vxuFrom.getValue();

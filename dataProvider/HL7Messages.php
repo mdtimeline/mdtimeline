@@ -113,6 +113,8 @@ class HL7Messages {
 
 	private $namesace_id = 'MDTL001';
 
+	private $anonymous = false;
+
 	function __construct() {
 		$this->hl7 = new HL7();
 		$this->conn = Matcha::getConn();
@@ -146,6 +148,10 @@ class HL7Messages {
 
 		if(isset($params->map_codes_types)){
 			$this->map_codes_types = $params->map_codes_types;
+		}
+
+		if(isset($params->anonymous)){
+			$this->anonymous = $params->anonymous;
 		}
 
 		foreach($clients as $client){
@@ -787,8 +793,7 @@ class HL7Messages {
 		}
 		unset($index);
 
-		if($this->patient->age['DMY']['years'] == 0){
-			//			$pid->setValue('5.1.1', '', 0);
+		if($this->anonimus){
 			$pid->setValue('5.7', 'S', 1);
 		} else {
 			if($this->notEmpty($this->patient->lname)){

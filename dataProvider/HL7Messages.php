@@ -183,6 +183,11 @@ class HL7Messages {
 			$this->map_codes_types = $params->map_codes_types;
 		}
 
+		if(isset($params->anonymous)){
+			$this->anonymous = $params->anonymous;
+		}
+
+
 		// MSH
 		$msh = $this->setMSH(true);
 		$msh->setValue('9.1', 'ADT');
@@ -860,7 +865,7 @@ class HL7Messages {
 			$pid->setValue('11.7', 'L'); // Address Type L = Legal Address
 			$pid->setValue('11.9', '25025');
 		}
-		
+
 		$index = 0;
 		if($this->notEmpty($this->patient->phone_home)){
 			$phone = $this->phone($this->patient->phone_home);

@@ -793,7 +793,7 @@ class HL7Messages {
 		}
 		unset($index);
 
-		if($this->anonimus){
+		if($this->anonymous){
 			$pid->setValue('5.7', 'S', 1);
 		} else {
 			if($this->notEmpty($this->patient->lname)){

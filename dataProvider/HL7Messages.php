@@ -74,6 +74,10 @@ class HL7Messages {
 	/**
 	 * @var MatchaCUP User
 	 */
+	private $dx;
+	/**
+	 * @var MatchaCUP User
+	 */
 	private $u;
 	/**
 	 * @var MatchaCUP Referring Provider/Physician
@@ -103,43 +107,38 @@ class HL7Messages {
 	 * @var string
 	 */
 	private $type;
-
 	/**
 	 * @var stdClass
 	 */
 	private $map_codes_types;
-	
+	/**
+	 * @var
+	 */
 	private $fid;
-
-	private $namesace_id = 'MDTL001';
-
+	/**
+	 * @var string
+	 */
+	private $namespace_id = 'MDTL001';
+	/**
+	 * @var bool
+	 */
 	private $anonymous = false;
 
 	function __construct() {
 		$this->hl7 = new HL7();
 		$this->conn = Matcha::getConn();
-		if(!isset($this->p))
-			$this->p = MatchaModel::setSenchaModel('App.model.patient.Patient');
-		if(!isset($this->PatientContacts))
-			$this->PatientContacts = MatchaModel::setSenchaModel('App.model.patient.PatientContacts');
-		if(!isset($this->EncounterServices))
-			$this->EncounterServices = MatchaModel::setSenchaModel('App.model.patient.EncounterService');
-		if(!isset($this->e))
-			$this->e = MatchaModel::setSenchaModel('App.model.patient.Encounter');
-		if(!isset($this->u))
-			$this->u = MatchaModel::setSenchaModel('App.model.administration.User');
-		if(!isset($this->ReferringProvider))
-			$this->ReferringProvider = MatchaModel::setSenchaModel('App.model.administration.ReferringProvider');
-		if(!isset($this->m))
-			$this->m = MatchaModel::setSenchaModel('App.model.administration.HL7Message');
-		if(!isset($this->c))
-			$this->c = MatchaModel::setSenchaModel('App.model.administration.HL7Client');
-		if(!isset($this->f))
-			$this->f = MatchaModel::setSenchaModel('App.model.administration.Facility');
-		if(!isset($this->d))
-			$this->d = MatchaModel::setSenchaModel('App.model.administration.EducationResource');
-		if(!isset($this->ListOptions))
-			$this->ListOptions = MatchaModel::setSenchaModel('App.model.administration.ListOptions');
+		$this->p = MatchaModel::setSenchaModel('App.model.patient.Patient');
+		$this->PatientContacts = MatchaModel::setSenchaModel('App.model.patient.PatientContacts');
+		$this->EncounterServices = MatchaModel::setSenchaModel('App.model.patient.EncounterService');
+		$this->e = MatchaModel::setSenchaModel('App.model.patient.Encounter');
+		$this->u = MatchaModel::setSenchaModel('App.model.administration.User');
+		$this->ReferringProvider = MatchaModel::setSenchaModel('App.model.administration.ReferringProvider');
+		$this->m = MatchaModel::setSenchaModel('App.model.administration.HL7Message');
+		$this->c = MatchaModel::setSenchaModel('App.model.administration.HL7Client');
+		$this->f = MatchaModel::setSenchaModel('App.model.administration.Facility');
+		$this->d = MatchaModel::setSenchaModel('App.model.administration.EducationResource');
+		$this->dx = MatchaModel::setSenchaModel('App.model.administration.EncounterDx');
+		$this->ListOptions = MatchaModel::setSenchaModel('App.model.administration.ListOptions');
 	}
 
 	function broadcastADT($params) {
@@ -201,8 +200,8 @@ class HL7Messages {
 
 		$this->setEVN();
 
-		// PID
 		$this->setPID();
+
 		$this->setPV1();
 
 		// Continue with message
@@ -246,12 +245,19 @@ class HL7Messages {
 			$obx->setValue('5.9', $this->encounter->brief_description);
 			$obx->setValue('11', 'F');
 
-			$dg1 = $this->hl7->addSegment('DG1');
-			$dg1->setValue('1', 1);
-			$dg1->setValue('3.1', '4871');
-			$dg1->setValue('3.2', 'Influenza with other respiratory manifestations');
-			$dg1->setValue('3.3', 'I9CDX');
-			$dg1->setValue('6', 'W');
+			// get diagnosis...
+			$diagnoses = $this->dx->load(['eid' => $this->encounter->eid])->all();
+			$index = 1;
+			foreach($diagnoses as $diagnosis){
+				$dg1 = $this->hl7->addSegment('DG1');
+				$dg1->setValue('1', $index);
+				$dg1->setValue('3.1', $diagnosis['code']);
+				$dg1->setValue('3.2', $diagnosis['long_desc']);
+				$dg1->setValue('3.3', $this->cleanCodeType($diagnosis['code_type']));
+				$dg1->setValue('6', $diagnosis['dx_type']);
+				$index++;
+			}
+			unset($index);
 		}
 
 		$msgRecord = $this->saveMsg();
@@ -394,7 +400,7 @@ class HL7Messages {
 						$ORC->setValue('10.2.1', $administered_by['lname']);
 						$ORC->setValue('10.3', $administered_by['fname']);
 						$ORC->setValue('10.4', $administered_by['mname']);
-						$ORC->setValue('10.9.1', $this->namesace_id);
+						$ORC->setValue('10.9.1', $this->namespace_id);
 						$ORC->setValue('10.10', 'L');
 					}
 				}
@@ -408,7 +414,7 @@ class HL7Messages {
 						$ORC->setValue('12.2.1', $ordered_by['lname']);
 						$ORC->setValue('12.3', $ordered_by['fname']);
 						$ORC->setValue('12.4', $ordered_by['mname']);
-						$ORC->setValue('12.9.1', $this->namesace_id);
+						$ORC->setValue('12.9.1', $this->namespace_id);
 						$ORC->setValue('12.10', 'L');
 					}
 				}
@@ -450,7 +456,7 @@ class HL7Messages {
 						$RXA->setValue('10.2.1', $administered_by['lname']);
 						$RXA->setValue('10.3', $administered_by['fname']);
 						$RXA->setValue('10.4', $administered_by['mname']);
-						$RXA->setValue('10.9.1', $this->namesace_id);
+						$RXA->setValue('10.9.1', $this->namespace_id);
 						$RXA->setValue('10.10', 'L');
 					}
 				}
@@ -781,12 +787,12 @@ class HL7Messages {
 		$index = 0;
 		if($this->notEmpty($this->patient->pubpid)){
 			$pid->setValue('3.1', $this->patient->pubpid, $index);
-			$pid->setValue('3.4', $this->namesace_id);
+			$pid->setValue('3.4', $this->namespace_id);
 			$pid->setValue('3.5', 'MR', $index); // IDNumber Type (HL70203) MR = Medical Record
 			$index++;
 		} elseif($this->notEmpty($this->patient->pid)) {
 			$pid->setValue('3.1', $this->patient->pid, $index);
-			$pid->setValue('3.4', $this->namesace_id);
+			$pid->setValue('3.4', $this->namespace_id);
 			$pid->setValue('3.5', 'MR', $index);  // IDNumber Type (HL70203) MR = Medical Record
 			$index++;
 		}
@@ -1429,6 +1435,17 @@ class HL7Messages {
 
 	private function isPresent($var) {
 		return isset($var) && $var != '';
+	}
+
+	private function cleanCodeType($code_type){
+
+		switch($code_type){
+			case 'ICD9':
+				$code_type = 'I9CDX';
+				break;
+		}
+
+		return $code_type;
 	}
 
 	private function mapCode($code, $code_type, $type){

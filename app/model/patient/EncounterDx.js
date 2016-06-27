@@ -53,6 +53,12 @@ Ext.define('App.model.patient.EncounterDx', {
 			index: true
 		},
 		{
+			name: 'dx_type',
+			type: 'string',
+			index: true,
+			len: 5
+		},
+		{
 			name: 'code',
 			type: 'string',
 			len: 25

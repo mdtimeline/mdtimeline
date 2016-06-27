@@ -23783,7 +23783,10 @@ Ext.define('App.view.patient.encounter.ICDs', {
 					{
 						xtype:'combobox',
 						store: Ext.create('Ext.data.Store', {
-							fields: ['option', { name:'value', type: 'int' }],
+							fields: [
+								{ name:'option', type: 'auto' },
+								{ name:'value', type: 'int' }
+							],
 							data : [
 								{ option:'DX:1', value: 1 },
 								{ option:'DX:2', value: 2 },
@@ -23805,6 +23808,31 @@ Ext.define('App.view.patient.encounter.ICDs', {
 						margin: '0 3 0 0',
 						forceSelection: true,
 						editable: false
+					},
+					{
+						xtype:'combobox',
+						store: Ext.create('Ext.data.Store', {
+							fields: [
+								{ name:'code', type: 'string' },
+								{ name:'code_text', type: 'string' }
+							],
+							data : [
+								{ code:'A', code_text: 'Admitting' },
+								{ code:'F', code_text: 'Final' },
+								{ code:'W', code_text: 'Working' }
+							]
+						}),
+						width: 100,
+						itemId: this.id + '-dx-type-cmb',
+						queryMode: 'local',
+						displayField: 'code_text',
+						valueField: 'code',
+						margin: '0 3 0 0',
+						forceSelection: true,
+						allowBlank: false,
+						submitValue: false,
+						editable: false,
+						value: 'F'
 					},
 					{
 						xtype: 'liveicdxsearch',
@@ -23934,9 +23962,14 @@ Ext.define('App.view.patient.encounter.ICDs', {
 	onLiveIcdSelect: function(field, record){
 		var me = this,
 			soap = me.up('form').getForm().getRecord(),
-			group = me.getDxGroupCombo().getValue(),
+			group_cmb = me.getDxGroupCombo(),
+			group = group_cmb.getValue(),
+			type_cmb = me.getDxTypeCombo(),
+			type = type_cmb.getValue(),
 			order = me.getNextOrder(group),
 			dxRecords;
+
+		if(!group_cmb.isValid() && !type_cmb.isValid()) return;
 
 		dxRecords = this.store.add({
 			pid: soap.data.pid,
@@ -23944,6 +23977,7 @@ Ext.define('App.view.patient.encounter.ICDs', {
 			uid: app.user.id,
 			code: record[0].data.code,
 			dx_group: group,
+			dx_type: type,
 			dx_order: order,
 			code_type: record[0].data.code_type,
 			code_text: record[0].data.code_text
@@ -23983,9 +24017,9 @@ Ext.define('App.view.patient.encounter.ICDs', {
 		this.getDxCell(group, order).add({
 			xtype: 'panel',
 			closable: true,
-			title: record.data.code,
+			title: (record.get('code') + ' (' + record.get('dx_type')+ ')'),
 			dxRecord: record,
-			width: 100,
+			width: 120,
 			margin: '0 5 0 0',
 			name: this.name,
 			editable: false,
@@ -24007,6 +24041,10 @@ Ext.define('App.view.patient.encounter.ICDs', {
 
 	getDxGroupCombo: function(){
 		return this.query('#' + this.id + '-group-cmb')[0];
+	},
+
+	getDxTypeCombo: function(){
+		return this.query('#' + this.id + '-dx-type-cmb')[0];
 	},
 
 	getNextOrder: function(group){
@@ -45047,6 +45085,12 @@ Ext.define('App.model.patient.EncounterDx', {
 			name: 'dx_order',
 			type: 'int',
 			index: true
+		},
+		{
+			name: 'dx_type',
+			type: 'string',
+			index: true,
+			len: 5
 		},
 		{
 			name: 'code',

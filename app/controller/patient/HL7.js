@@ -58,7 +58,7 @@ Ext.define('App.controller.patient.HL7', {
 			fid: app.user.facility,
 			event: 'A04',
 			map_codes_types: {
-				ethnicity: 'CDCREC'
+				ethnicity: 'CDCREC',
 				anonymous: true
 			}
 		}, function(response){

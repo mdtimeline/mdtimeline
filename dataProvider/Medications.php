@@ -48,8 +48,6 @@ class Medications
             unset($params->active);
         }
 
-        error_log(print_r($params,true));
-
         if (isset($params->reconciled) && $params->reconciled == true) {
             $groups = new stdClass();
             $groups->group[0] = new stdClass();

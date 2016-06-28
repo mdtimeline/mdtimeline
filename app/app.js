@@ -17703,11 +17703,6 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 			type: 'string'
 		},
 		{
-			name: 'status',
-			type: 'string',
-			len: 40
-		},
-		{
 			name: 'status_code',
 			type: 'string',
 			len: 20
@@ -17759,6 +17754,7 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 		}
 	}
 });
+
 Ext.define('App.model.patient.PatientArrivalLog', {
 	extend: 'Ext.data.Model',
 	fields: [
@@ -39327,6 +39323,10 @@ Ext.define('App.controller.patient.ActiveProblems', {
         {
             ref: 'PatientProblemsReconciledBtn',
             selector: '#PatientProblemsReconciledBtn'
+        },
+        {
+            ref: 'PatientProblemsActiveBtn',
+            selector: '#PatientProblemsActiveBtn'
         }
 	],
 
@@ -39348,6 +39348,9 @@ Ext.define('App.controller.patient.ActiveProblems', {
             '#PatientProblemsReconciledBtn': {
                 click: me.onPatientProblemsReconciledBtnClick
             },
+            '#PatientProblemsActiveBtn': {
+                click: me.onPatientProblemsActiveBtnClick
+            }
 		});
 	},
 
@@ -39373,10 +39376,15 @@ Ext.define('App.controller.patient.ActiveProblems', {
         this.onActiveProblemsGridActive();
     },
 
+    onPatientProblemsActiveBtnClick: function(){
+        this.onActiveProblemsGridActive();
+    },
+
 	onActiveProblemsGridActive:function(){
 		var grid = this.getActiveProblemsGrid(),
             store = grid.getStore(),
-            reconciled = this.getPatientProblemsReconciledBtn().pressed;
+            reconciled = this.getPatientProblemsReconciledBtn().pressed,
+            active = this.getPatientProblemsActiveBtn().pressed;
 
 		store.clearFilter(true);
         store.load({
@@ -39387,7 +39395,8 @@ Ext.define('App.controller.patient.ActiveProblems', {
                 }
             ],
             params: {
-                reconciled: reconciled
+                reconciled: reconciled,
+                active: active
             }
         });
 	},
@@ -55862,11 +55871,15 @@ Ext.define('App.view.patient.ActiveProblems', {
 			format: 'Y-m-d',
 			dataIndex: 'end_date'
 		},
-		{
-			header: _('status'),
-			width: 80,
-			dataIndex: 'status'
-		}
+        {
+            header: _('active?'),
+            groupable: false,
+            width: 60,
+            dataIndex: 'active',
+            renderer: function(v){
+                return app.boolRenderer(v);
+            }
+        }
 	],
 	plugins: Ext.create('App.ux.grid.RowFormEditing', {
 		autoCancel: false,
@@ -55943,14 +55956,6 @@ Ext.define('App.view.patient.ActiveProblems', {
 						},
 						items: [
 							{
-								fieldLabel: _('status'),
-								xtype: 'gaiaehr.combo',
-								list: 112,
-								itemId: 'ActiveProblemStatusCombo',
-								name: 'status',
-								allowBlank: false
-							},
-							{
 								fieldLabel: _('begin_date'),
 								xtype: 'datefield',
 								format: 'Y-m-d',
@@ -55984,6 +55989,13 @@ Ext.define('App.view.patient.ActiveProblems', {
             itemId: 'PatientProblemsReconciledBtn',
             enableToggle: true,
             pressed: true
+        },
+        '-',
+        {
+            text: _('active'),
+            itemId: 'PatientProblemsActiveBtn',
+            enableToggle: true,
+            pressed: false
         },
         '->',
         {

@@ -36,6 +36,10 @@ Ext.define('App.controller.patient.Medications', {
 			ref: 'PatientMedicationReconciledBtn',
 			selector: '#PatientMedicationReconciledBtn'
 		},
+        {
+            ref: 'PatientMedicationActiveBtn',
+            selector: '#PatientMedicationActiveBtn'
+        },
 		{
 			ref: 'PatientMedicationUserLiveSearch',
 			selector: '#PatientMedicationUserLiveSearch'
@@ -78,9 +82,12 @@ Ext.define('App.controller.patient.Medications', {
 			'#patientMedicationLiveSearch': {
 				select: me.onMedicationLiveSearchSelect
 			},
-			'#PatientMedicationReconciledBtn': {
-				click: me.onPatientMedicationReconciledBtnClick
+			'#PatientMedicationActiveBtn': {
+				click: me.onPatientMedicationActiveBtnClick
 			},
+            '#PatientMedicationReconciledBtn': {
+                click: me.onPatientMedicationReconciledBtnClick
+            },
 			'#PatientMedicationUserLiveSearch': {
 				select: me.onPatientMedicationUserLiveSearchSelect,
                 reset: me.onPatientMedicationUserLiveSearchReset
@@ -223,9 +230,14 @@ Ext.define('App.controller.patient.Medications', {
 		this.onMedicationsPanelActive();
 	},
 
+    onPatientMedicationActiveBtnClick: function(){
+        this.onMedicationsPanelActive();
+    },
+
     onMedicationsPanelActive: function(){
         var store = this.getPatientMedicationsGrid().getStore(),
-            reconciled = this.getPatientMedicationReconciledBtn().pressed;
+            reconciled = this.getPatientMedicationReconciledBtn().pressed,
+            active = this.getPatientMedicationActiveBtn().pressed;
 
         store.clearFilter(true);
         store.load({
@@ -236,7 +248,8 @@ Ext.define('App.controller.patient.Medications', {
                 }
             ],
             params: {
-                reconciled: reconciled
+                reconciled: reconciled,
+                active: active
             }
         });
     }

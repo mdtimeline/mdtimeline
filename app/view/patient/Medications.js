@@ -189,6 +189,12 @@ Ext.define('App.view.patient.Medications', {
 					pressed: true
 				},
 				'-',
+                {
+                    text: _('active'),
+                    itemId: 'PatientMedicationActiveBtn',
+                    enableToggle: true,
+                    pressed: false
+                },
 				'->',
 				{
 					text: _('review'),

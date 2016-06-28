@@ -11539,6 +11539,11 @@ Ext.define('App.model.administration.DocumentsTemplates', {
 			comment: 'Documentation Templates ID'
 		},
 		{
+			name: 'facility_id',
+			type: 'int',
+			index: true
+		},
+		{
 			name: 'title',
 			type: 'string',
 			len: 50
@@ -11576,15 +11581,16 @@ Ext.define('App.model.administration.DocumentsTemplates', {
 		{
 			name: 'updated_by_uid',
 			type: 'int'
+		},
+		{
+			name: 'facility_name',
+			type: 'string',
+			store: false
 		}
 	]
 });
 Ext.define('App.model.administration.DocumentToken', {
 	extend: 'Ext.data.Model',
-	table: {
-		name: 'documenttoken',
-		comment: 'Document Tokens'
-	},
 	fields: [
 		{
 			name: 'id',
@@ -33912,6 +33918,10 @@ Ext.define('App.store.administration.DocumentToken', {
             token: '[PATIENT_ID]'
         },
         {
+            title: _('patient_record_number'),
+            token: '[PATIENT_RECORD_NUMBER]'
+        },
+        {
             title: _('patient_name'),
             token: '[PATIENT_NAME]'
         },
@@ -34322,6 +34332,34 @@ Ext.define('App.store.administration.DocumentToken', {
 	    {
             title: _('referral_to'),
             token: '[REFERRAL_TO_TEXT]'
+        },
+	    {
+            title: _('rad_report_body'),
+            token: '[REPORT_ACCESSIONS]'
+        },
+	    {
+            title: _('report_body'),
+            token: '[REPORT_BODY]'
+        },
+	    {
+            title: _('report_interpreter'),
+            token: '[REPORT_INTERPRETER]'
+        },
+	    {
+            title: _('report_transcriptionist'),
+            token: '[REPORT_TRANSCRIPTIONIST]'
+        },
+	    {
+            title: _('report_signature'),
+            token: '[REPORT_SIGNATURE]'
+        },
+	    {
+            title: _('line'),
+            token: '[LINE]'
+        },
+	    {
+            title: _('time_now'),
+            token: '[TIME_NOW]'
         }
     ]
 });
@@ -36218,6 +36256,30 @@ Ext.define('App.controller.administration.HL7', {
 		{
 			ref: 'HL7ClientsGrid',
 			selector: '#hl7clientsgrid'
+		},
+		{
+			ref: 'HL7MessagesWindow',
+			selector: '#HL7MessagesWindow'
+		},
+		{
+			ref: 'HL7MessagesGrid',
+			selector: '#HL7MessagesGrid'
+		},
+		{
+			ref: 'HL7MessageViewerWindow',
+			selector: '#HL7MessageViewerWindow'
+		},
+		{
+			ref: 'HL7MessageViewerWindowWarnings',
+			selector: '#HL7MessageViewerWindowWarnings'
+		},
+		{
+			ref: 'HL7MessageViewerWindowMessageField',
+			selector: '#HL7MessageViewerWindowMessageField'
+		},
+		{
+			ref: 'HL7MessageViewerWindowAcknowledgeField',
+			selector: '#HL7MessageViewerWindowAcknowledgeField'
 		}
 	],
 
@@ -36243,6 +36305,12 @@ Ext.define('App.controller.administration.HL7', {
 			},
 			'#hl7clientsgrid #removeHL7ClientBtn': {
 				click: me.onRemoveHL7ClientBtnClick
+			},
+			'#HL7MessagesViewBtn': {
+				click: me.onHL7MessagesViewBtnClick
+			},
+			'#HL7MessagesGrid': {
+				itemdblclick: me.onHL7MessagesGridItemDblClick
 			}
 		});
 
@@ -36320,6 +36388,49 @@ Ext.define('App.controller.administration.HL7', {
 		var multiField = plugin.editor.query('multitextfield')[0],
 			values = multiField.getValue();
 		e.record.set({ allow_ips: values });
+	},
+
+	onHL7MessagesViewBtnClick: function(){
+		this.showHL7MessagesWindow();
+		this.getHL7MessagesGrid().getStore().load();
+	},
+
+	onHL7MessagesGridItemDblClick: function(grid, record){
+		this.viewHL7MessageDetailById(record.get('id'));
+	},
+
+	viewHL7MessageDetailById: function(message_id){
+		var me = this;
+
+		me.showHL7MessageDetailWindow();
+
+		HL7Messages.getMessageById(message_id, function(provider, response){
+
+			var warnings = (response.result.hash !== response.result.current_hash) ?
+				'<span style="color: red">' : '<span style="color: green">';
+			warnings += '<b>' + _('stored_hash') + ':</b> ' + response.result.hash + '<br>';
+			warnings += '<b>' + _('current_hash') + ':</b> ' + response.result.current_hash + '<br>';
+			warnings += '</span>';
+
+			me.getHL7MessageViewerWindowWarnings().update(warnings);
+			me.getHL7MessageViewerWindowMessageField().setValue(response.result.message);
+			me.getHL7MessageViewerWindowAcknowledgeField().setValue(response.result.response);
+
+		});
+	},
+
+	showHL7MessageDetailWindow: function(){
+		if(!this.getHL7MessageViewerWindow()){
+			Ext.create('App.view.administration.HL7MessageViewer');
+		}
+		return this.getHL7MessageViewerWindow().show();
+	},
+
+	showHL7MessagesWindow: function(){
+		if(!this.getHL7MessagesWindow()){
+			Ext.create('App.view.administration.HL7Messages');
+		}
+		return this.getHL7MessagesWindow().show();
 	}
 
 });
@@ -36616,6 +36727,117 @@ Ext.define('App.controller.administration.DecisionSupport', {
 	doRemoveRuleConcept: function(record){
 		record.store.remove(record);
 	}
+
+});
+
+Ext.define('App.controller.administration.Documents', {
+	extend: 'Ext.app.Controller',
+
+	refs: [
+		{
+			ref: 'AdministrationDocuments',
+			selector: '#AdministrationDocuments'
+		},
+		{
+			ref: 'AdministrationDocumentsDefaultsGrid',
+			selector: '#AdministrationDocumentsDefaultsGrid'
+		},
+		{
+			ref: 'AdministrationDocumentsTemplatesGrid',
+			selector: '#AdministrationDocumentsTemplatesGrid'
+		},
+		{
+			ref: 'AdministrationDocumentsTemplatesEditorForm',
+			selector: '#AdministrationDocumentsTemplatesEditorForm'
+		},
+		{
+			ref: 'AdministrationDocumentsTokensGrid',
+			selector: '#AdministrationDocumentsTokensGrid'
+		},
+		{
+			ref: 'AdministrationDocumentsTokenTextField',
+			selector: '#AdministrationDocumentsTokenTextField'
+		},
+		{
+			ref: 'AdministrationDocumentsNewTemplateBtn',
+			selector: '#AdministrationDocumentsNewTemplateBtn'
+		}
+	],
+
+	init: function(){
+		var me = this;
+
+		me.control({
+			'#AdministrationDocuments': {
+				activate: me.onAdministrationDocumentsActive
+			},
+			'#AdministrationDocumentsTokensGrid': {
+				afterrender: me.onAdministrationDocumentsTokensGridAfterRender
+			},
+			'#AdministrationDocumentsNewTemplateBtn': {
+				click: me.onAdministrationDocumentsNewTemplateBtnClick
+			},
+			'#AdministrationDocumentsNewDefaulTemplateBtn': {
+				click: me.onAdministrationDocumentsNewDefaulTemplateBtnClick
+			}
+		});
+	},
+
+	onAdministrationDocumentsActive: function(){
+
+	},
+
+	onAdministrationDocumentsNewTemplateBtnClick: function(){
+		var me = this,
+			grid = me.getAdministrationDocumentsNewTemplateBtn(),
+			store = grid.getStore();
+
+		grid.editingPlugin.cancelEdit();
+		store.insert(0,
+			{
+				title: _('new_document'),
+				template_type: 'documenttemplate',
+				date: new Date(),
+				type: 1
+			});
+		grid.editingPlugin.startEdit(0, 0);
+	},
+
+	onAdministrationDocumentsNewDefaulTemplateBtnClick: function(){
+		var me = this,
+			grid = me.getAdministrationDocumentsDefaultsGrid(),
+			store = grid.getStore();
+
+		grid.editingPlugin.cancelEdit();
+		store.insert(0,
+			{
+				title: _('new_defaults'),
+				template_type: 'defaulttemplate',
+				date: new Date(),
+				type: 1
+			});
+		grid.editingPlugin.startEdit(0, 0);
+	},
+	
+	onAdministrationDocumentsTokensGridAfterRender: function(grid){
+
+	},
+
+	doCopy: function(grid, record){
+
+		if(!document.queryCommandSupported('copy')){
+			app.msg(_('oops'), _('text_copy_not_supported_by_browser'), true);
+			return;
+		}
+
+		var me = this;
+		grid.editingPlugin.startEdit(record, 0);
+		me.getAdministrationDocumentsTokenTextField().inputEl.dom.select();
+		document.execCommand("copy");
+		app.msg(_('sweet'), _('text_copyed'));
+
+	}
+
 
 });
 
@@ -47661,10 +47883,12 @@ Ext.define('App.view.administration.HL7MessageViewer', {
 		align: 'stretch'
 	},
 	title: _('hl7_viewer'),
+	itemId: 'HL7MessageViewerWindow',
 	width: 800,
 	height: 450,
 	bodyPadding: 10,
 	maximizable: true,
+	modal: true,
 	bodyStyle: 'background-color:white',
 	defaults: {
 		xtype: 'textareafield',
@@ -47672,13 +47896,20 @@ Ext.define('App.view.administration.HL7MessageViewer', {
 	},
 	items: [
 		{
+			xtype: 'container',
+			itemId: 'HL7MessageViewerWindowWarnings',
+			height: 40
+		},
+		{
 			fieldLabel: _('message'),
-			action: 'message',
+			itemId: 'HL7MessageViewerWindowMessageField',
+			readOnly: true,
 			flex: 1
 		},
 		{
 			fieldLabel: _('acknowledge'),
-			action: 'acknowledge',
+			itemId: 'HL7MessageViewerWindowAcknowledgeField',
+			readOnly: true,
 			flex: 1
 		}
 	]
@@ -49420,13 +49651,13 @@ Ext.define('App.view.administration.DataManager', {
 //ens servicesPage class
 Ext.define('App.view.administration.Documents', {
 	extend: 'App.ux.RenderPanel',
-	id: 'panelDocuments',
 	pageTitle: _('document_template_editor'),
 	pageLayout: 'border',
 	requires: [
 		'App.ux.grid.Button',
 		'Ext.grid.Panel'
 	],
+	itemId: 'AdministrationDocuments',
 	initComponent: function(){
 
 		var me = this;
@@ -49436,51 +49667,6 @@ Ext.define('App.view.administration.Documents', {
 		// *************************************************************************************
 		me.templatesDocumentsStore = Ext.create('App.store.administration.DocumentsTemplates');
 		me.defaultsDocumentsStore = Ext.create('App.store.administration.DefaultDocuments');
-		me.tokenStore = Ext.create('App.store.administration.DocumentToken');
-
-		//		me.HeaderFootergrid = Ext.create('Ext.grid.Panel', {
-		//			title      : _('header_footer_templates'),
-		//			region     : 'south',
-		//			height     : 250,
-		//			split      : true,
-		//			hideHeaders: true,
-		//			store      : me.headersAndFooterStore,
-		//			columns    : [
-		//				{
-		//					flex     : 1,
-		//					sortable : true,
-		//					dataIndex: 'title',
-		//                    editor:{
-		//                        xtype:'textfield',
-		//                        allowBlank:false
-		//                    }
-		//				},
-		//				{
-		//					icon: 'resources/images/icons/delete.png',
-		//					tooltip: _('remove'),
-		//					scope:me,
-		//					handler: me.onRemoveDocument
-		//				}
-		//			],
-		//			listeners  : {
-		//				scope    : me,
-		//				itemclick: me.onDocumentsGridItemClick
-		//			},
-		//			tbar       :[
-		//                '->',
-		//                {
-		//                    text : _('new'),
-		//                    scope: me,
-		//                    handler: me.newHeaderOrFooterTemplate
-		//                }
-		//            ],
-		//            plugins:[
-		//                me.rowEditor2 = Ext.create('Ext.grid.plugin.RowEditing', {
-		//                    clicksToEdit: 2
-		//                })
-		//
-		//            ]
-		//		});
 
 		me.DocumentsDefaultsGrid = Ext.create('Ext.grid.Panel', {
 			title: _('documents_defaults'),
@@ -49489,6 +49675,7 @@ Ext.define('App.view.administration.Documents', {
 			border: true,
 			store: me.defaultsDocumentsStore,
 			hideHeaders: true,
+			itemId: 'AdministrationDocumentsDefaultsGrid',
 			columns: [
 				{
 					flex: 1,
@@ -49514,7 +49701,8 @@ Ext.define('App.view.administration.Documents', {
 				{
 					text: _('new'),
 					scope: me,
-					handler: me.newDefaultTemplates
+					handler: me.newDefaultTemplates,
+					itemId: 'AdministrationDocumentsNewDefaulTemplateBtn',
 				}],
 			plugins: [me.rowEditor3 = Ext.create('Ext.grid.plugin.RowEditing',
 				{
@@ -49530,6 +49718,7 @@ Ext.define('App.view.administration.Documents', {
 			split: true,
 			store: me.templatesDocumentsStore,
 			hideHeaders: true,
+			itemId: 'AdministrationDocumentsTemplatesGrid',
 			columns: [
 				{
 					flex: 1,
@@ -49555,7 +49744,8 @@ Ext.define('App.view.administration.Documents', {
 				{
 					text: _('new'),
 					scope: me,
-					handler: me.newDocumentTemplate
+					itemId: 'AdministrationDocumentsNewTemplateBtn',
+					//handler: me.newDocumentTemplate
 				}],
 			plugins: [me.rowEditor = Ext.create('Ext.grid.plugin.RowEditing',
 				{
@@ -49580,6 +49770,7 @@ Ext.define('App.view.administration.Documents', {
 			border: true,
 			split: true,
 			hideHeaders: true,
+			itemId: 'AdministrationDocumentsTemplatesEditorForm',
 			items: {
 				xtype: 'htmleditor',
 				enableFontSize: false,
@@ -49607,16 +49798,28 @@ Ext.define('App.view.administration.Documents', {
 			border: true,
 			split: true,
 			hideHeaders: true,
-			store: me.tokenStore,
+			store: Ext.create('App.store.administration.DocumentToken'),
 			disableSelection: true,
+			itemId: 'AdministrationDocumentsTokensGrid',
 			viewConfig: {
 				stripeRows: false
 			},
+			plugins: [
+				{
+					ptype: 'cellediting'
+
+				}
+			],
 			columns: [
 				{
 					flex: 1,
 					sortable: false,
-					dataIndex: 'token'
+					dataIndex: 'token',
+					editor: {
+						xtype: 'textfield',
+						editable: false,
+						itemId: 'AdministrationDocumentsTokenTextField'
+					}
 				},
 				{
 					xtype: 'actioncolumn',
@@ -49627,49 +49830,12 @@ Ext.define('App.view.administration.Documents', {
 							tooltip: _('copy'),
 							margin: '0 5 0 0',
 							handler: function(grid, rowIndex, colIndex, item, e, record){
+								app.getController('administration.Documents').doCopy(grid, record);
 
-
-//								btn.btnEl.set({
-//									'data-clipboard-text': btn.record.data.token
-//								});
-//								AppClipboard.clip(btn.btnEl.dom);
 							}
 						}
 					]
 				}
-//				{
-//					xtype:'gridbutton',
-//					width: 35,
-//					items:[
-//						{
-//							xtype:'button',
-//							icon:'resources/images/icons/copy.png',
-//							listeners:{
-//								render:function(btn){
-//									btn.btnEl.set({
-//										'data-clipboard-text': btn.record.data.token
-//									});
-//									AppClipboard.clip(btn.btnEl.dom);
-//								}
-//							}
-//						}
-//					]
-//
-//				}
-//				{
-//					dataIndex: 'token',
-//					width: 30,
-//					xtype: "templatecolumn",
-//					tpl: new Ext.XTemplate("" +
-//						"<object id='clipboard{token}' codebase='http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0' width='16' height='16' align='middle'>",
-//						"<param name='allowScriptAccess' value='always' />",
-//						"<param name='allowFullScreen' value='false' />",
-//						"<param name='movie' value='lib/ClipBoard/clipboard.swf' />",
-//						"<param name='quality' value='high' />", "<param name='bgcolor' value='#ffffff' />",
-//						"<param name='flashvars' value='callback=copyToClipBoard&callbackArg={token}' />",
-//						"<embed src='lib/ClipBoard/clipboard.swf' flashvars='callback=copyToClipBoard&callbackArg={token}' quality='high' bgcolor='#ffffff' width='16' height='16' name='clipboard{token}' align='middle' allowscriptaccess='always' allowfullscreen='false' type='application/x-shockwave-flash' pluginspage='http://www.adobe.com/go/getflashplayer' />",
-//						"</object>", null)
-//				}
 			]
 		});
 
@@ -49751,7 +49917,8 @@ Ext.define('App.view.administration.Documents', {
 	//    },
 
 	copyToClipBoard: function(grid, rowIndex, colIndex){
-		var rec = grid.getStore().getAt(rowIndex), text = rec.get('token');
+		var rec = grid.getStore().getAt(rowIndex),
+			text = rec.get('token');
 	},
 
 	onRemoveDocument: function(){
@@ -54337,13 +54504,21 @@ Ext.define('App.controller.patient.Documents', {
 			message;
 		DocumentHandler.checkDocHash(rec.data, function(provider, response){
 			success = response.result.success;
-			message = '<b>' + _(success ? 'hash_validation_passed' : 'hash_validation_failed') + '</b><br>' + Ext.String.htmlDecode(response.result.msg);
 
-			if(window.dual){
-				dual.msg(_(success ? 'sweet' : 'oops'), message, !success)
+			if(success){
+				message = '<span style="color: green"><b>' + _('hash_validation_passed') + '</b>'
 			}else{
-				app.msg(_(success ? 'sweet' : 'oops'), message, !success)
+				message = '<span style="color: red"><b>' + _('hash_validation_failed') + '</b>'
 			}
+
+			message += '<br><br>' + Ext.String.htmlDecode(response.result.msg) + '</span>';
+
+			Ext.Msg.show({
+				title: success ? _('sweet') : _('oops'),
+				msg: message,
+				buttons: Ext.Msg.OK,
+				icon: success ? Ext.Msg.INFO : Ext.Msg.WARNING
+			});
 		});
 	},
 
@@ -55222,27 +55397,18 @@ Ext.define('App.controller.patient.Results', {
 			form = me.getResultsLaboratoryForm(),
 			record = form.getRecord(),
 			recordData = record.data.documentId.split('|'),
-			type = null,
-			id = null,
-			win;
+			type, id;
 
 		if(recordData[0]) type = recordData[0];
 		if(recordData[1]) id = recordData[1];
 
 		if(type && id){
 			if(type == 'hl7'){
-				win = Ext.widget('hl7messageviewer').show();
-				win.body.mask(_('loading...'));
-				HL7Messages.getMessageById(id, function(provider, response){
-					me.getMessageField().setValue(response.result.message);
-					me.getAcknowledgeField().setValue(response.result.response);
-					win.body.unmask();
-				});
+				app.getController('administration.HL7').viewHL7MessageDetailById(id);
 			} else if(type == 'doc'){
 				app.onDocumentView(id);
 			}
-		}
-		else{
+		}else{
 			app.msg(_('oops'), _('no_document_found'), true)
 		}
 	},

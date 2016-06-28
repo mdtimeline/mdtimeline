@@ -33,6 +33,8 @@ class ActiveProblems
 
     public function getPatientActiveProblems($params)
     {
+        error_log(print_r($params,true));
+
         // Manage the active and inactive problems
         if(isset($params->active) && $params->active == true) {
             $params->filter[1] = new stdClass();

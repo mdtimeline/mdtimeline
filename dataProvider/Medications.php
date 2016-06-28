@@ -41,6 +41,7 @@ class Medications
 
     public function getPatientMedications($params)
     {
+        // Manage the active and inactive problems
         if(isset($params->active) && $params->active == true) {
             $params->filter[1] = new stdClass();
             $params->filter[1]->property = 'end_date';

@@ -33,29 +33,21 @@ class ActiveProblems
 
     public function getPatientActiveProblems($params)
     {
+        // Manage the active and inactive problems
+        if(isset($params->active) && $params->active == true) {
+            $params->filter[1] = new stdClass();
+            $params->filter[1]->property = 'end_date';
+            $params->filter[1]->operator = 'IS NULL';
+            unset($params->active);
+        }
+
         if (isset($params->reconciled) && $params->reconciled == true) {
             $groups = new stdClass();
             $groups->group[0] = new stdClass();
             $groups->group[0]->property = 'code';
             $records = $this->a->load($params)->group($groups)->all();
-            foreach ($records as $i => $record) {
-                if (strtotime($record['end_date']) &&
-                    strtotime($record['end_date']) <= strtotime(date('Y-m-d')) &&
-                    $record['end_date'] != '0000-00-00'
-                ) {
-                    unset($records[$i]);
-                }
-            }
         } else {
             $records = $this->a->load($params)->all();
-            foreach ($records as $i => $record) {
-                if (strtotime($record['end_date']) &&
-                    strtotime($record['end_date']) <= strtotime(date('Y-m-d')) &&
-                    $record['end_date'] != '0000-00-00'
-                ) {
-                    unset($records[$i]);
-                }
-            }
         }
         return array_values($records);
     }

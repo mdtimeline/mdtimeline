@@ -37,6 +37,10 @@ Ext.define('App.controller.patient.ActiveProblems', {
         {
             ref: 'PatientProblemsReconciledBtn',
             selector: '#PatientProblemsReconciledBtn'
+        },
+        {
+            ref: 'PatientProblemsActiveBtn',
+            selector: '#PatientProblemsActiveBtn'
         }
 	],
 
@@ -58,6 +62,9 @@ Ext.define('App.controller.patient.ActiveProblems', {
             '#PatientProblemsReconciledBtn': {
                 click: me.onPatientProblemsReconciledBtnClick
             },
+            '#PatientProblemsActiveBtn': {
+                click: me.onPatientProblemsActiveBtnClick
+            }
 		});
 	},
 
@@ -83,10 +90,15 @@ Ext.define('App.controller.patient.ActiveProblems', {
         this.onActiveProblemsGridActive();
     },
 
+    onPatientProblemsActiveBtnClick: function(){
+        this.onActiveProblemsGridActive();
+    },
+
 	onActiveProblemsGridActive:function(){
 		var grid = this.getActiveProblemsGrid(),
             store = grid.getStore(),
-            reconciled = this.getPatientProblemsReconciledBtn().pressed;
+            reconciled = this.getPatientProblemsReconciledBtn().pressed,
+            active = this.getPatientProblemsActiveBtn().pressed;
 
 		store.clearFilter(true);
         store.load({
@@ -97,7 +109,8 @@ Ext.define('App.controller.patient.ActiveProblems', {
                 }
             ],
             params: {
-                reconciled: reconciled
+                reconciled: reconciled,
+                active: active
             }
         });
 	},

@@ -73,11 +73,15 @@ Ext.define('App.view.patient.ActiveProblems', {
 			format: 'Y-m-d',
 			dataIndex: 'end_date'
 		},
-		{
-			header: _('status'),
-			width: 80,
-			dataIndex: 'status'
-		}
+        {
+            header: _('active?'),
+            groupable: false,
+            width: 60,
+            dataIndex: 'active',
+            renderer: function(v){
+                return app.boolRenderer(v);
+            }
+        }
 	],
 	plugins: Ext.create('App.ux.grid.RowFormEditing', {
 		autoCancel: false,
@@ -154,14 +158,6 @@ Ext.define('App.view.patient.ActiveProblems', {
 						},
 						items: [
 							{
-								fieldLabel: _('status'),
-								xtype: 'gaiaehr.combo',
-								list: 112,
-								itemId: 'ActiveProblemStatusCombo',
-								name: 'status',
-								allowBlank: false
-							},
-							{
 								fieldLabel: _('begin_date'),
 								xtype: 'datefield',
 								format: 'Y-m-d',
@@ -195,6 +191,13 @@ Ext.define('App.view.patient.ActiveProblems', {
             itemId: 'PatientProblemsReconciledBtn',
             enableToggle: true,
             pressed: true
+        },
+        '-',
+        {
+            text: _('active'),
+            itemId: 'PatientProblemsActiveBtn',
+            enableToggle: true,
+            pressed: false
         },
         '->',
         {

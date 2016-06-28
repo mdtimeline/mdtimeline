@@ -131,13 +131,13 @@ class HL7Messages {
 		$this->PatientContacts = MatchaModel::setSenchaModel('App.model.patient.PatientContacts');
 		$this->EncounterServices = MatchaModel::setSenchaModel('App.model.patient.EncounterService');
 		$this->e = MatchaModel::setSenchaModel('App.model.patient.Encounter');
+		$this->dx = MatchaModel::setSenchaModel('App.model.patient.EncounterDx');
 		$this->u = MatchaModel::setSenchaModel('App.model.administration.User');
 		$this->ReferringProvider = MatchaModel::setSenchaModel('App.model.administration.ReferringProvider');
 		$this->m = MatchaModel::setSenchaModel('App.model.administration.HL7Message');
 		$this->c = MatchaModel::setSenchaModel('App.model.administration.HL7Client');
 		$this->f = MatchaModel::setSenchaModel('App.model.administration.Facility');
 		$this->d = MatchaModel::setSenchaModel('App.model.administration.EducationResource');
-		$this->dx = MatchaModel::setSenchaModel('App.model.administration.EncounterDx');
 		$this->ListOptions = MatchaModel::setSenchaModel('App.model.administration.ListOptions');
 	}
 

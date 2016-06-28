@@ -5,6 +5,7 @@ GaiaEHR
 GaiaEHR.iml
 gaiaehr.iml
 contrib/snomed/*
+contrib/rxnorm/*
 temp
 /modules/advancetasks
 /modules/appointments

@@ -98,6 +98,11 @@ Ext.define('App.model.administration.HL7Message', {
 			name: 'hash',
 			type: 'string',
 			len: 300
+		},
+		{
+			name: 'current_hash',
+			type: 'string',
+			store: false
 		}
 	],
 	proxy: {

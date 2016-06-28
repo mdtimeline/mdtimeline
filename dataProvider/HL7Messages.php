@@ -135,6 +135,7 @@ class HL7Messages {
 		$this->u = MatchaModel::setSenchaModel('App.model.administration.User');
 		$this->ReferringProvider = MatchaModel::setSenchaModel('App.model.administration.ReferringProvider');
 		$this->m = MatchaModel::setSenchaModel('App.model.administration.HL7Message');
+		$this->m->autoTrim = false;
 		$this->c = MatchaModel::setSenchaModel('App.model.administration.HL7Client');
 		$this->f = MatchaModel::setSenchaModel('App.model.administration.Facility');
 		$this->d = MatchaModel::setSenchaModel('App.model.administration.EducationResource');
@@ -1373,11 +1374,19 @@ class HL7Messages {
 	}
 
 	public function getMessage($params) {
-		return $this->m->load($params)->one();
+		$record = $this->m->load($params)->one();
+		if($record !== false){
+			$record['current_hash'] = hash('sha256', $record['message']);
+		}
+		return $record;
 	}
 
 	public function getMessageById($id) {
-		return $this->m->load($id)->one();
+		$record = $this->m->load($id)->one();
+		if($record !== false){
+			$record['current_hash'] = hash('sha256', $record['message']);
+		}
+		return $record;
 	}
 
 	public function getRecipients($params) {

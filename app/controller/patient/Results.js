@@ -522,27 +522,18 @@ Ext.define('App.controller.patient.Results', {
 			form = me.getResultsLaboratoryForm(),
 			record = form.getRecord(),
 			recordData = record.data.documentId.split('|'),
-			type = null,
-			id = null,
-			win;
+			type, id;
 
 		if(recordData[0]) type = recordData[0];
 		if(recordData[1]) id = recordData[1];
 
 		if(type && id){
 			if(type == 'hl7'){
-				win = Ext.widget('hl7messageviewer').show();
-				win.body.mask(_('loading...'));
-				HL7Messages.getMessageById(id, function(provider, response){
-					me.getMessageField().setValue(response.result.message);
-					me.getAcknowledgeField().setValue(response.result.response);
-					win.body.unmask();
-				});
+				app.getController('administration.HL7').viewHL7MessageDetailById(id);
 			} else if(type == 'doc'){
 				app.onDocumentView(id);
 			}
-		}
-		else{
+		}else{
 			app.msg(_('oops'), _('no_document_found'), true)
 		}
 	},

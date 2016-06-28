@@ -274,7 +274,13 @@ Ext.define('App.view.administration.HL7', {
 						itemId: 'removeHL7ServerBtn',
 						disabled: true
 					},
-					'-'
+					'-',
+					'->',
+					'-',
+					{
+						text: _('messages'),
+						itemId: 'HL7MessagesViewBtn'
+					}
 				]
 			})
 		},

@@ -252,7 +252,7 @@ class HL7Messages {
 				$dg1 = $this->hl7->addSegment('DG1');
 				$dg1->setValue('1', $index);
 				$dg1->setValue('3.1', $diagnosis['code']);
-				$dg1->setValue('3.2', $diagnosis['long_desc']);
+				$dg1->setValue('3.2', $diagnosis['code_text']);
 				$dg1->setValue('3.3', $this->cleanCodeType($diagnosis['code_type']));
 				$dg1->setValue('6', $diagnosis['dx_type']);
 				$index++;

@@ -379,7 +379,6 @@ class MatchaCUP {
 				$this->nolimitsql = "SELECT $columns FROM `" . $this->table . "` $_where $_group $_sort";
 				$this->sql = "SELECT $columns FROM `" . $this->table . "` $_where $_group $_sort $_limits";
 			}
-            error_log(print_r($this,true));
 			return $this;
 		} catch(PDOException $e) {
 			return MatchaErrorHandler::__errorProcess($e);

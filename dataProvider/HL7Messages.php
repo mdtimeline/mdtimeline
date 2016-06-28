@@ -268,14 +268,7 @@ class HL7Messages {
 			$response = $this->Send();
 		}
 
-		if($response['success']){
-			$msgRecord->status = 3;
-			$this->m->save($msgRecord);
-		} else {
-			$msgRecord->status = preg_match('/^socket/', $response['message']) ? 2 : 4; // if socket error put back in queue
-			$msgRecord->error = $response['message'];
-			$this->m->save($msgRecord);
-		}
+		$this->saveResponse($msgRecord, $response);
 
 	}
 
@@ -330,16 +323,8 @@ class HL7Messages {
 				$response = $this->Send();
 			}
 
-			$msgRecord->response = $response['message'];
+			$this->saveResponse($msgRecord, $response);
 
-			if($response['success']){
-				$msgRecord->status = 3;
-				$this->m->save($msgRecord);
-			} else {
-				$msgRecord->status = preg_match('/^socket/', $response['message']) ? 2 : 4; // if socket error put back in queue
-				$msgRecord->error = $response['message'];
-				$this->m->save($msgRecord);
-			}
 			return ['success' => true];
 		} catch(Exception $Error) {
 			return ['success' => false];
@@ -717,16 +702,8 @@ class HL7Messages {
 				$response = $this->Send();
 			}
 
-			$msgRecord->response = $response['message'];
+			$this->saveResponse($msgRecord, $response);
 
-			if($response['success']){
-				$msgRecord->status = 3;
-				$this->m->save($msgRecord);
-			} else {
-				$msgRecord->status = preg_match('/^socket/', $response['message']) ? 2 : 4; // if socket error put back in queue
-				$msgRecord->error = $response['message'];
-				$this->m->save($msgRecord);
-			}
 			return ['success' => true];
 		} catch(Exception $Error) {
 			return ['success' => false];
@@ -1372,11 +1349,12 @@ class HL7Messages {
 		$foo->date_processed = date('Y-m-d H:i:s');
 		$foo->isOutbound = true;
 		$foo->status = 1; // 0 = hold, 1 = processing, 2 = queue, 3 = processed, 4 = error
-		$foo->foreign_address = $this->to['address'] . (isset($this->to['port']) ? $this->to['port'] : '');
+		$foo->foreign_address = $this->to['address'] . ':' . (isset($this->to['port']) ? $this->to['port'] : '');
 		$foo->foreign_facility = $this->to['facility'];
 		$foo->foreign_application = $this->to['application_name'];
+		$foo->hash = hash('sha256', $foo->message);
 		$foo = $this->m->save($foo);
-		$this->msg = (object)$foo['data'];
+		$this->msg = (object) $foo['data'];
 		return $this->msg;
 	}
 
@@ -1404,6 +1382,19 @@ class HL7Messages {
 
 	public function getRecipients($params) {
 		return $this->c->load($params)->all();
+	}
+
+	private function saveResponse($msgRecord, $response){
+		$msgRecord->response = $response['message'];
+
+		if($response['success']){
+			$msgRecord->status = 3;
+			$this->m->save($msgRecord);
+		} else {
+			$msgRecord->status = preg_match('/^socket/', $response['message']) ? 2 : 4; // if socket error put back in queue
+			$msgRecord->error = $response['message'];
+			$this->m->save($msgRecord);
+		}
 	}
 
 	private function date($date, $returnTime = true) {

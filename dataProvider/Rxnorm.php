@@ -17,8 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-class Rxnorm
-{
+class Rxnorm {
 	/**
 	 * @var PDO
 	 */
@@ -29,19 +28,17 @@ class Rxnorm
 	 */
 	private $i;
 
-	function __construct()
-    {
+	function __construct() {
 		$this->db = Matcha::getConn();
 	}
 
-	function setInstructionModel()
-    {
-		if(isset($this->i)) return $this->i;
+	function setInstructionModel() {
+		if(isset($this->i))
+			return $this->i;
 		return $this->i = MatchaModel::setSenchaModel('App.model.administration.MedicationInstruction');
 	}
 
-	public function getStrengthByCODE($CODE)
-    {
+	public function getStrengthByCODE($CODE) {
 		$sth = $this->db->prepare("SELECT ATV
 		                     FROM rxnsat
 		                    WHERE `CODE` = :c
@@ -63,8 +60,7 @@ class Rxnorm
 		return $rec['ATV'];
 	}
 
-	public function getDoseformByCODE($CODE)
-    {
+	public function getDoseformByCODE($CODE) {
 		$sth = $this->db->prepare("SELECT ATV
 		                     FROM rxnsat
 		                    WHERE `CODE` = :c
@@ -75,120 +71,126 @@ class Rxnorm
 		return $rec['ATV'];
 	}
 
-    /**
-     * Method to convert from Gold Standard Code to RxNorm code.
-     * @param $GSCode
-     * @return mixed
-     */
-    public function  getMetathesaurusRxNormCode($GSCode)
-    {
-        $Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE CODE=:gs_code AND TTY='MTH_RXN_CD'");
-        $Statement->execute([':gs_code' => $GSCode]);
-        $RxNormRecord = $Statement->fetchAll(PDO::FETCH_ASSOC);
-        if(count($RxNormRecord) > 0){
-            $RxNormRecord = $RxNormRecord[0];
-            return $RxNormRecord['RXCUI'];
-        } else {
-            $Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE CODE=:gs_code");
-            $Statement->execute([':gs_code' => $GSCode]);
-            $RxNormRecord = $Statement->fetchAll(PDO::FETCH_ASSOC);
-            if(count($RxNormRecord) > 0){
-                $RxNormRecord = $RxNormRecord[0];
-                return $RxNormRecord['RXCUI'];
-            } else {
-                return;
-            }
-        }
-    }
+	/**
+	 * Method to convert from Gold Standard Code to RxNorm code.
+	 * @param $GSCode
+	 * @return mixed
+	 */
+	public function getMetathesaurusRxNormCode($GSCode) {
+		$Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE CODE=:gs_code AND TTY='MTH_RXN_CD'");
+		$Statement->execute([':gs_code' => $GSCode]);
+		$RxNormRecord = $Statement->fetchAll(PDO::FETCH_ASSOC);
+		if(count($RxNormRecord) > 0){
+			$RxNormRecord = $RxNormRecord[0];
+			return $RxNormRecord['RXCUI'];
+		} else {
+			$Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE CODE=:gs_code");
+			$Statement->execute([':gs_code' => $GSCode]);
+			$RxNormRecord = $Statement->fetchAll(PDO::FETCH_ASSOC);
+			if(count($RxNormRecord) > 0){
+				$RxNormRecord = $RxNormRecord[0];
+				return $RxNormRecord['RXCUI'];
+			} else {
+				return;
+			}
+		}
+	}
 
-    /**
-     * getIngredient
-     * Method to do search in the RxNorm medication by it's ingredients, this depends if the search
-     * is made by SCD, SCDG (Clinic) or SBDC, SBD (Brand)
-     * @param $RxNormCode
-     * @return array
-     */
-    public function getIngredient($RxNormCode)
-    {
-        // Fetch the RxNorm entire record, this because we need the entire RxNorm Concepts record
-        $Statement = $this->db->prepare("
+	/**
+	 * getIngredient
+	 * Method to do search in the RxNorm medication by it's ingredients, this depends if the search
+	 * is made by SCD, SCDG (Clinic) or SBDC, SBD (Brand)
+	 * @param $RxNormCode
+	 * @return array
+	 */
+	public function getIngredient($RxNormCode) {
+		// Fetch the RxNorm entire record, this because we need the entire RxNorm Concepts record
+		$Statement = $this->db->prepare("
             SELECT * 
             FROM rxnconso 
             WHERE CODE=:code 
             AND (TTY='SCDG' OR TTY='SCD' OR TTY='SBD' OR TTY='SBDC' OR TTY='MIN')");
-        $Statement->execute([':code' => $RxNormCode]);
-        $RxNormRecord = $Statement->fetchAll(PDO::FETCH_ASSOC);
-        if(count($RxNormRecord) > 0) {
-            $RxNormRecord = $RxNormRecord[0];
-        } else {
-            return [];
-        }
-        switch($RxNormRecord['TTY']){
-            // If the record has the Branded Record execute SQL to extract
-            // the ingredient of that branded drug
-            case 'SBD':
-            case 'SBDC':
-                // Fetch the relationship for ingredient
-                $Statement = $this->db->prepare("SELECT * FROM rxnrel WHERE RXCUI2=:rxcui AND RELA='has_ingredient'");
-                $Statement->execute([':rxcui' => $RxNormRecord['RXCUI']]);
-                $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
-                if(count($Record[0]) <= 0) $Record[0] = [];
-                $Record = $Record[0];
-                // Fetch the relationship for trademark
-                $Statement = $this->db->prepare("SELECT * FROM rxnrel WHERE RXCUI1=:rxcui AND RELA='has_tradename'");
-                $Statement->execute([':rxcui' => $Record['RXCUI1']]);
-                $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
-                if(count($Record[0]) <= 0) $Record[0] = [];
-                $Record = $Record[0];
-                // Extract the ingredient
-                $Statement = $this->db->prepare("SELECT * FROM gaiadb.rxnconso WHERE RXCUI=:rxcui AND SAB='RXNORM'");
-                $Statement->execute([':rxcui' => $Record['RXCUI2']]);
-                $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
-                if(count($Record[0]) <= 0) $Record[0] = [];
-                $Record = $Record[0];
-                break;
-            // If the record has the Clinical record execute SQL to
-            // narrow the ingredient only
-            case 'SCD':
-            case 'SCDG':
-                // Fetch the relationship for consists of...
-                $Statement = $this->db->prepare("SELECT * FROM rxnrel WHERE RXCUI2=:rxcui AND RELA='consists_of'");
-                $Statement->execute([':rxcui' => $RxNormRecord['RXCUI']]);
-                $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
-                if(count($Record[0]) <= 0) $Record[0] = [];
-                $Record = $Record[0];
-                // Fetch the relationship for ingredient of...
-                $Statement = $this->db->prepare("SELECT * FROM rxnrel WHERE RXCUI1=:rxcui AND RELA='ingredient_of'");
-                $Statement->execute([':rxcui' => $Record['RXCUI1']]);
-                $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
-                if(count($Record[0]) <= 0) $Record[0] = [];
-                $Record = $Record[0];
-                // Extract the ingredient
-                $Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE RXCUI=:rxcui AND SAB='RXNORM'");
-                $Statement->execute([':rxcui' => $Record['RXCUI2']]);
-                $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
-                if(count($Record[0]) <= 0) $Record[0] = [];
-                $Record = $Record[0];
-                break;
-            case 'BN':
-                $Statement = $this->db->prepare("SELECT * FROM rxnrel WHERE RXCUI1=:rxcui AND RELA='has_tradename'");
-                $Statement->execute([':rxcui' => $RxNormRecord['RXCUI']]);
-                $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
-                if(count($Record[0]) <= 0) $Record[0] = [];
-                $Record = $Record[0];
-                // Extract the ingredient
-                $Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE RXCUI=:rxcui AND SAB='RXNORM'");
-                $Statement->execute([':rxcui' => $Record['RXCUI2']]);
-                $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
-                if(count($Record[0]) <= 0) $Record[0] = [];
-                $Record = $Record[0];
-                break;
-            case 'MIN':
-                $Record = $RxNormRecord;
-                break;
-        }
-        return $Record;
-    }
+		$Statement->execute([':code' => $RxNormCode]);
+		$RxNormRecord = $Statement->fetchAll(PDO::FETCH_ASSOC);
+		if(count($RxNormRecord) > 0){
+			$RxNormRecord = $RxNormRecord[0];
+		} else {
+			return [];
+		}
+		switch($RxNormRecord['TTY']) {
+			// If the record has the Branded Record execute SQL to extract
+			// the ingredient of that branded drug
+			case 'SBD':
+			case 'SBDC':
+				// Fetch the relationship for ingredient
+				$Statement = $this->db->prepare("SELECT * FROM rxnrel WHERE RXCUI2=:rxcui AND RELA='has_ingredient'");
+				$Statement->execute([':rxcui' => $RxNormRecord['RXCUI']]);
+				$Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
+				if(count($Record[0]) <= 0)
+					$Record[0] = [];
+				$Record = $Record[0];
+				// Fetch the relationship for trademark
+				$Statement = $this->db->prepare("SELECT * FROM rxnrel WHERE RXCUI1=:rxcui AND RELA='has_tradename'");
+				$Statement->execute([':rxcui' => $Record['RXCUI1']]);
+				$Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
+				if(count($Record[0]) <= 0)
+					$Record[0] = [];
+				$Record = $Record[0];
+				// Extract the ingredient
+				$Statement = $this->db->prepare("SELECT * FROM gaiadb.rxnconso WHERE RXCUI=:rxcui AND SAB='RXNORM'");
+				$Statement->execute([':rxcui' => $Record['RXCUI2']]);
+				$Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
+				if(count($Record[0]) <= 0)
+					$Record[0] = [];
+				$Record = $Record[0];
+				break;
+			// If the record has the Clinical record execute SQL to
+			// narrow the ingredient only
+			case 'SCD':
+			case 'SCDG':
+				// Fetch the relationship for consists of...
+				$Statement = $this->db->prepare("SELECT * FROM rxnrel WHERE RXCUI2=:rxcui AND RELA='consists_of'");
+				$Statement->execute([':rxcui' => $RxNormRecord['RXCUI']]);
+				$Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
+				if(count($Record[0]) <= 0)
+					$Record[0] = [];
+				$Record = $Record[0];
+				// Fetch the relationship for ingredient of...
+				$Statement = $this->db->prepare("SELECT * FROM rxnrel WHERE RXCUI1=:rxcui AND RELA='ingredient_of'");
+				$Statement->execute([':rxcui' => $Record['RXCUI1']]);
+				$Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
+				if(count($Record[0]) <= 0)
+					$Record[0] = [];
+				$Record = $Record[0];
+				// Extract the ingredient
+				$Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE RXCUI=:rxcui AND SAB='RXNORM'");
+				$Statement->execute([':rxcui' => $Record['RXCUI2']]);
+				$Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
+				if(count($Record[0]) <= 0)
+					$Record[0] = [];
+				$Record = $Record[0];
+				break;
+			case 'BN':
+				$Statement = $this->db->prepare("SELECT * FROM rxnrel WHERE RXCUI1=:rxcui AND RELA='has_tradename'");
+				$Statement->execute([':rxcui' => $RxNormRecord['RXCUI']]);
+				$Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
+				if(count($Record[0]) <= 0)
+					$Record[0] = [];
+				$Record = $Record[0];
+				// Extract the ingredient
+				$Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE RXCUI=:rxcui AND SAB='RXNORM'");
+				$Statement->execute([':rxcui' => $Record['RXCUI2']]);
+				$Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
+				if(count($Record[0]) <= 0)
+					$Record[0] = [];
+				$Record = $Record[0];
+				break;
+			case 'MIN':
+				$Record = $RxNormRecord;
+				break;
+		}
+		return $Record;
+	}
 
 	public function getDoseformAbbreviateByCODE($CODE) {
 		$sth = $this->db->prepare("SELECT ATV
@@ -221,31 +223,49 @@ class Rxnorm
 		return $rec['STR'];
 	}
 
-	public function getRXNORMLiveSearch(stdClass $params)
-    {
+	public function getRXNORMLiveSearch(stdClass $params) {
+
+		$include_ingredients = isset($params->include_ingredients) ? $params->include_ingredients : false;
+		$ingredients = $include_ingredients ? 'OR TTY=\'IN\'' : '';
+
+		$include_groups = isset($params->include_groups) ? $params->include_groups : false;
+		$groups = $include_groups ? 'OR `rxnconso`.`TTY` = \'SBDC\' OR TTY=\'SCDG\'' : '';
+
+		$include_umls = isset($params->include_umls) ? $params->include_umls : false;
+		$umls = $include_umls ? 'OR `rxnsat`.`ATN` = \'UMLSAUI\' OR `rxnsat`.`ATN` = \'UMLSCUI\'' : '';
+
+		if(is_numeric($params->query)){
+			$where = '`rxnconso`.`RXCUI` = :q';
+			$query = [':q' => $params->query];
+		} else {
+			$where = '`rxnconso`.`STR` LIKE :q';
+			$query = [':q' => '%' . $params->query . '%'];
+		}
+		
 		$sth = $this->db->prepare("SELECT `rxnconso`.*, `rxnsat`.`ATV` AS NDC
 									 FROM `rxnconso`
 							   INNER JOIN `rxnsat`
 								       ON `rxnconso`.`RXCUI` = `rxnsat`.`RXCUI`
-								      AND `rxnconso`.`SAB` = 'RXNORM'
-								      AND (`rxnsat`.`ATN` = 'NDC' OR `rxnsat`.`ATN` = 'UMLSAUI' OR `rxnsat`.`ATN` = 'UMLSCUI')
-								      AND (`rxnconso`.`TTY` = 'SCD' OR `rxnconso`.`TTY` = 'SBD' OR `rxnconso`.`TTY` = 'SBDC' OR TTY='SCDG' OR TTY='IN')
-								    WHERE (`rxnconso`.`STR` LIKE :q1 OR `rxnconso`.`RXCUI` = :q2)
+									      AND `rxnconso`.`SAB` = 'RXNORM'
+									      AND (`rxnsat`.`ATN` = 'NDC' $umls)
+									      AND (`rxnconso`.`TTY` = 'SCD' OR `rxnconso`.`TTY` = 'SBD' {$groups} {$ingredients})
+								    WHERE ($where)
 							     GROUP BY `rxnconso`.`STR`
+							     ORDER BY `rxnconso`.`TTY` DESC
      							    LIMIT 100");
-		$sth->execute([ ':q1' => '%'.$params->query.'%', ':q2' => $params->query ]);
+		$sth->execute($query);
 		$records = $sth->fetchAll(PDO::FETCH_ASSOC);
 
-        // TODO: This code has been commented to comply with ONC Test Script
-        // Look for the GS Code, and if a GS code is not found, delete the medication from
-        // the results, we need to warranty that a proper medication interaction is found.
-        //foreach($records as $key => $record) {
-        //    $sth = $this->db->prepare("SELECT CODE FROM rxnconso WHERE SAB='GS' AND RXCUI='".$record['CODE']."'");
-        //    $sth->execute();
-        //    $records[$key]['GS_CODE'] = $sth->fetch(PDO::FETCH_ASSOC)['CODE'];
-        //    if(is_null($records[$key]['GS_CODE'])) unset($records[$key]);
-        //}
-        //$records = array_values($records);
+		// TODO: This code has been commented to comply with ONC Test Script
+		// Look for the GS Code, and if a GS code is not found, delete the medication from
+		// the results, we need to warranty that a proper medication interaction is found.
+		//foreach($records as $key => $record) {
+		//    $sth = $this->db->prepare("SELECT CODE FROM rxnconso WHERE SAB='GS' AND RXCUI='".$record['CODE']."'");
+		//    $sth->execute();
+		//    $records[$key]['GS_CODE'] = $sth->fetch(PDO::FETCH_ASSOC)['CODE'];
+		//    if(is_null($records[$key]['GS_CODE'])) unset($records[$key]);
+		//}
+		//$records = array_values($records);
 
 		$total = count($records);
 		$records = array_slice($records, $params->start, $params->limit);
@@ -286,34 +306,32 @@ class Rxnorm
 	 * @param stdClass $params
 	 * @return array
 	 */
-	public function getRXNORMAllergyLiveSearch(stdClass $params)
-    {
-        try
-        {
-            $sth = $this->db->prepare("SELECT *
+	public function getRXNORMAllergyLiveSearch(stdClass $params) {
+		try {
+			$sth = $this->db->prepare("SELECT *
                  FROM rxnconso
                 WHERE SAB='RXNORM'
                 AND (TTY = 'IN' OR TTY = 'PIN' OR TTY = 'BN' OR TTY='MIN' OR TTY='SBD' OR TTY='SBDC' OR TTY='SBDF' OR TTY='SCDG')
                 AND (RXCUI LIKE :q1 OR STR LIKE :q2)
              GROUP BY RXCUI LIMIT 100");
-            $sth->execute([
-                ':q1' => $params->query.'%',
-                ':q2' => '%'.$params->query.'%'
-            ]);
-            $records = $sth->fetchAll(PDO::FETCH_ASSOC);
-            $total = count($records);
-            $records = array_slice($records, $params->start, $params->limit);
-            return [
-                'totals' => $total,
-                'rows' => $records
-            ];
-        }catch(Exception $Error){
-            error_log($Error->getMessage());
-            return [
-                'totals' => 0,
-                'rows' => []
-            ];
-        }
+			$sth->execute([
+				':q1' => $params->query . '%',
+				':q2' => '%' . $params->query . '%'
+			]);
+			$records = $sth->fetchAll(PDO::FETCH_ASSOC);
+			$total = count($records);
+			$records = array_slice($records, $params->start, $params->limit);
+			return [
+				'totals' => $total,
+				'rows' => $records
+			];
+		} catch(Exception $Error) {
+			error_log($Error->getMessage());
+			return [
+				'totals' => 0,
+				'rows' => []
+			];
+		}
 	}
 
 	public function getMedicationAttributesByRxcui($rxcui) {

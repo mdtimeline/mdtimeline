@@ -479,8 +479,8 @@ class MatchaCUP {
 				if(is_array($this->phantomFields) && in_array($foo->property, $this->phantomFields))
 					continue;
 				if(!isset($foo->value)){
-					$operator = (isset($foo->operator) && $foo->operator != '=') ? $foo->operator : '';
-					$whereArray[$foo->property][] = "`$this->table`.`$foo->property` $operator";
+                    $operator = (isset($foo->operator) && $foo->operator != '=') ? 'IS NOT' : 'IS';
+                    $whereArray[$foo->property][] = "`$this->table`.`$foo->property` $operator NULL";
 				} else {
 					$operator = isset($foo->operator) ? $foo->operator : '=';
 					if(is_array($foo->value)){

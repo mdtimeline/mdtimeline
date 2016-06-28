@@ -45,7 +45,7 @@ class Medications
         if(isset($params->active) && $params->active == true) {
             $params->filter[1] = new stdClass();
             $params->filter[1]->property = 'end_date';
-            $params->filter[1]->operator = 'IS NULL';
+            $params->filter[1]->value = null;
             unset($params->active);
         }
 
@@ -65,10 +65,7 @@ class Medications
 
     public function getPatientMedicationsOrders($params)
     {
-        $params->filter[1] = new stdClass();
-        $params->filter[1]->property = 'date_ordered';
-        $params->filter[1]->operator = 'IS NOT NULL';
-
+        $this->m->addFilter('date_ordered', null, '!=');
         if (isset($params->reconciled) && $params->reconciled == true) {
             $groups = new stdClass();
             $groups->group[0] = new stdClass();

@@ -232,11 +232,12 @@ Ext.define('App.view.patient.encounter.ICDs', {
 			eid: soap.data.eid,
 			uid: app.user.id,
 			code: record[0].data.code,
+			code_text: record[0].data.code_text,
+			code_type: record[0].data.code_type,
 			dx_group: group,
 			dx_type: type,
 			dx_order: order,
-			code_type: record[0].data.code_type,
-			code_text: record[0].data.code_text
+
 		});
 
 		me.addIcd(dxRecords[0], group, order);

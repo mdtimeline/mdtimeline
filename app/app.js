@@ -23980,11 +23980,12 @@ Ext.define('App.view.patient.encounter.ICDs', {
 			eid: soap.data.eid,
 			uid: app.user.id,
 			code: record[0].data.code,
+			code_text: record[0].data.code_text,
+			code_type: record[0].data.code_type,
 			dx_group: group,
 			dx_type: type,
 			dx_order: order,
-			code_type: record[0].data.code_type,
-			code_text: record[0].data.code_text
+
 		});
 
 		me.addIcd(dxRecords[0], group, order);
@@ -45115,15 +45116,7 @@ Ext.define('App.model.patient.EncounterDx', {
 		{
 			name: 'code_text',
 			type: 'string',
-			store: false,
-			convert: function(v, record){
-				return v == '' ? record.data.long_desc : v;
-			}
-		},
-		{
-			name: 'long_desc',
-			type: 'string',
-			store: false
+			len: 300
 		}
 	],
 	proxy: {
@@ -54401,13 +54394,21 @@ Ext.define('App.controller.patient.Documents', {
 			message;
 		DocumentHandler.checkDocHash(rec.data, function(provider, response){
 			success = response.result.success;
-			message = '<b>' + _(success ? 'hash_validation_passed' : 'hash_validation_failed') + '</b><br>' + Ext.String.htmlDecode(response.result.msg);
 
-			if(window.dual){
-				dual.msg(_(success ? 'sweet' : 'oops'), message, !success)
+			if(success){
+				message = '<span style="color: green"><b>' + _('hash_validation_passed') + '</b>'
 			}else{
-				app.msg(_(success ? 'sweet' : 'oops'), message, !success)
+				message = '<span style="color: red"><b>' + _('hash_validation_failed') + '</b>'
 			}
+
+			message += '<br><br>' + Ext.String.htmlDecode(response.result.msg) + '</span>';
+
+			Ext.Msg.show({
+				title: success ? _('sweet') : _('oops'),
+				msg: message,
+				buttons: Ext.Msg.OK,
+				icon: success ? Ext.Msg.INFO : Ext.Msg.WARNING
+			});
 		});
 	},
 

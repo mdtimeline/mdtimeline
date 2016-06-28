@@ -11539,11 +11539,6 @@ Ext.define('App.model.administration.DocumentsTemplates', {
 			comment: 'Documentation Templates ID'
 		},
 		{
-			name: 'facility_id',
-			type: 'int',
-			index: true
-		},
-		{
 			name: 'title',
 			type: 'string',
 			len: 50
@@ -11581,16 +11576,15 @@ Ext.define('App.model.administration.DocumentsTemplates', {
 		{
 			name: 'updated_by_uid',
 			type: 'int'
-		},
-		{
-			name: 'facility_name',
-			type: 'string',
-			store: false
 		}
 	]
 });
 Ext.define('App.model.administration.DocumentToken', {
 	extend: 'Ext.data.Model',
+	table: {
+		name: 'documenttoken',
+		comment: 'Document Tokens'
+	},
 	fields: [
 		{
 			name: 'id',
@@ -33923,10 +33917,6 @@ Ext.define('App.store.administration.DocumentToken', {
             token: '[PATIENT_ID]'
         },
         {
-            title: _('patient_record_number'),
-            token: '[PATIENT_RECORD_NUMBER]'
-        },
-        {
             title: _('patient_name'),
             token: '[PATIENT_NAME]'
         },
@@ -34337,34 +34327,6 @@ Ext.define('App.store.administration.DocumentToken', {
 	    {
             title: _('referral_to'),
             token: '[REFERRAL_TO_TEXT]'
-        },
-	    {
-            title: _('rad_report_body'),
-            token: '[REPORT_ACCESSIONS]'
-        },
-	    {
-            title: _('report_body'),
-            token: '[REPORT_BODY]'
-        },
-	    {
-            title: _('report_interpreter'),
-            token: '[REPORT_INTERPRETER]'
-        },
-	    {
-            title: _('report_transcriptionist'),
-            token: '[REPORT_TRANSCRIPTIONIST]'
-        },
-	    {
-            title: _('report_signature'),
-            token: '[REPORT_SIGNATURE]'
-        },
-	    {
-            title: _('line'),
-            token: '[LINE]'
-        },
-	    {
-            title: _('time_now'),
-            token: '[TIME_NOW]'
         }
     ]
 });
@@ -36659,117 +36621,6 @@ Ext.define('App.controller.administration.DecisionSupport', {
 	doRemoveRuleConcept: function(record){
 		record.store.remove(record);
 	}
-
-});
-
-Ext.define('App.controller.administration.Documents', {
-	extend: 'Ext.app.Controller',
-
-	refs: [
-		{
-			ref: 'AdministrationDocuments',
-			selector: '#AdministrationDocuments'
-		},
-		{
-			ref: 'AdministrationDocumentsDefaultsGrid',
-			selector: '#AdministrationDocumentsDefaultsGrid'
-		},
-		{
-			ref: 'AdministrationDocumentsTemplatesGrid',
-			selector: '#AdministrationDocumentsTemplatesGrid'
-		},
-		{
-			ref: 'AdministrationDocumentsTemplatesEditorForm',
-			selector: '#AdministrationDocumentsTemplatesEditorForm'
-		},
-		{
-			ref: 'AdministrationDocumentsTokensGrid',
-			selector: '#AdministrationDocumentsTokensGrid'
-		},
-		{
-			ref: 'AdministrationDocumentsTokenTextField',
-			selector: '#AdministrationDocumentsTokenTextField'
-		},
-		{
-			ref: 'AdministrationDocumentsNewTemplateBtn',
-			selector: '#AdministrationDocumentsNewTemplateBtn'
-		}
-	],
-
-	init: function(){
-		var me = this;
-
-		me.control({
-			'#AdministrationDocuments': {
-				activate: me.onAdministrationDocumentsActive
-			},
-			'#AdministrationDocumentsTokensGrid': {
-				afterrender: me.onAdministrationDocumentsTokensGridAfterRender
-			},
-			'#AdministrationDocumentsNewTemplateBtn': {
-				click: me.onAdministrationDocumentsNewTemplateBtnClick
-			},
-			'#AdministrationDocumentsNewDefaulTemplateBtn': {
-				click: me.onAdministrationDocumentsNewDefaulTemplateBtnClick
-			}
-		});
-	},
-
-	onAdministrationDocumentsActive: function(){
-
-	},
-
-	onAdministrationDocumentsNewTemplateBtnClick: function(){
-		var me = this,
-			grid = me.getAdministrationDocumentsNewTemplateBtn(),
-			store = grid.getStore();
-
-		grid.editingPlugin.cancelEdit();
-		store.insert(0,
-			{
-				title: _('new_document'),
-				template_type: 'documenttemplate',
-				date: new Date(),
-				type: 1
-			});
-		grid.editingPlugin.startEdit(0, 0);
-	},
-
-	onAdministrationDocumentsNewDefaulTemplateBtnClick: function(){
-		var me = this,
-			grid = me.getAdministrationDocumentsDefaultsGrid(),
-			store = grid.getStore();
-
-		grid.editingPlugin.cancelEdit();
-		store.insert(0,
-			{
-				title: _('new_defaults'),
-				template_type: 'defaulttemplate',
-				date: new Date(),
-				type: 1
-			});
-		grid.editingPlugin.startEdit(0, 0);
-	},
-	
-	onAdministrationDocumentsTokensGridAfterRender: function(grid){
-
-	},
-
-	doCopy: function(grid, record){
-
-		if(!document.queryCommandSupported('copy')){
-			app.msg(_('oops'), _('text_copy_not_supported_by_browser'), true);
-			return;
-		}
-
-		var me = this;
-		grid.editingPlugin.startEdit(record, 0);
-		me.getAdministrationDocumentsTokenTextField().inputEl.dom.select();
-		document.execCommand("copy");
-		app.msg(_('sweet'), _('text_copyed'));
-
-	}
-
 
 });
 
@@ -42209,6 +42060,10 @@ Ext.define('App.controller.patient.Medications', {
 			ref: 'PatientMedicationReconciledBtn',
 			selector: '#PatientMedicationReconciledBtn'
 		},
+        {
+            ref: 'PatientMedicationActiveBtn',
+            selector: '#PatientMedicationActiveBtn'
+        },
 		{
 			ref: 'PatientMedicationUserLiveSearch',
 			selector: '#PatientMedicationUserLiveSearch'
@@ -42251,9 +42106,12 @@ Ext.define('App.controller.patient.Medications', {
 			'#patientMedicationLiveSearch': {
 				select: me.onMedicationLiveSearchSelect
 			},
-			'#PatientMedicationReconciledBtn': {
-				click: me.onPatientMedicationReconciledBtnClick
+			'#PatientMedicationActiveBtn': {
+				click: me.onPatientMedicationActiveBtnClick
 			},
+            '#PatientMedicationReconciledBtn': {
+                click: me.onPatientMedicationReconciledBtnClick
+            },
 			'#PatientMedicationUserLiveSearch': {
 				select: me.onPatientMedicationUserLiveSearchSelect,
                 reset: me.onPatientMedicationUserLiveSearchReset
@@ -42396,9 +42254,14 @@ Ext.define('App.controller.patient.Medications', {
 		this.onMedicationsPanelActive();
 	},
 
+    onPatientMedicationActiveBtnClick: function(){
+        this.onMedicationsPanelActive();
+    },
+
     onMedicationsPanelActive: function(){
         var store = this.getPatientMedicationsGrid().getStore(),
-            reconciled = this.getPatientMedicationReconciledBtn().pressed;
+            reconciled = this.getPatientMedicationReconciledBtn().pressed,
+            active = this.getPatientMedicationActiveBtn().pressed;
 
         store.clearFilter(true);
         store.load({
@@ -42409,7 +42272,8 @@ Ext.define('App.controller.patient.Medications', {
                 }
             ],
             params: {
-                reconciled: reconciled
+                reconciled: reconciled,
+                active: active
             }
         });
     }
@@ -45758,6 +45622,12 @@ Ext.define('App.view.patient.Medications', {
 					pressed: true
 				},
 				'-',
+                {
+                    text: _('active'),
+                    itemId: 'PatientMedicationActiveBtn',
+                    enableToggle: true,
+                    pressed: false
+                },
 				'->',
 				{
 					text: _('review'),
@@ -49542,13 +49412,13 @@ Ext.define('App.view.administration.DataManager', {
 //ens servicesPage class
 Ext.define('App.view.administration.Documents', {
 	extend: 'App.ux.RenderPanel',
+	id: 'panelDocuments',
 	pageTitle: _('document_template_editor'),
 	pageLayout: 'border',
 	requires: [
 		'App.ux.grid.Button',
 		'Ext.grid.Panel'
 	],
-	itemId: 'AdministrationDocuments',
 	initComponent: function(){
 
 		var me = this;
@@ -49558,6 +49428,51 @@ Ext.define('App.view.administration.Documents', {
 		// *************************************************************************************
 		me.templatesDocumentsStore = Ext.create('App.store.administration.DocumentsTemplates');
 		me.defaultsDocumentsStore = Ext.create('App.store.administration.DefaultDocuments');
+		me.tokenStore = Ext.create('App.store.administration.DocumentToken');
+
+		//		me.HeaderFootergrid = Ext.create('Ext.grid.Panel', {
+		//			title      : _('header_footer_templates'),
+		//			region     : 'south',
+		//			height     : 250,
+		//			split      : true,
+		//			hideHeaders: true,
+		//			store      : me.headersAndFooterStore,
+		//			columns    : [
+		//				{
+		//					flex     : 1,
+		//					sortable : true,
+		//					dataIndex: 'title',
+		//                    editor:{
+		//                        xtype:'textfield',
+		//                        allowBlank:false
+		//                    }
+		//				},
+		//				{
+		//					icon: 'resources/images/icons/delete.png',
+		//					tooltip: _('remove'),
+		//					scope:me,
+		//					handler: me.onRemoveDocument
+		//				}
+		//			],
+		//			listeners  : {
+		//				scope    : me,
+		//				itemclick: me.onDocumentsGridItemClick
+		//			},
+		//			tbar       :[
+		//                '->',
+		//                {
+		//                    text : _('new'),
+		//                    scope: me,
+		//                    handler: me.newHeaderOrFooterTemplate
+		//                }
+		//            ],
+		//            plugins:[
+		//                me.rowEditor2 = Ext.create('Ext.grid.plugin.RowEditing', {
+		//                    clicksToEdit: 2
+		//                })
+		//
+		//            ]
+		//		});
 
 		me.DocumentsDefaultsGrid = Ext.create('Ext.grid.Panel', {
 			title: _('documents_defaults'),
@@ -49566,7 +49481,6 @@ Ext.define('App.view.administration.Documents', {
 			border: true,
 			store: me.defaultsDocumentsStore,
 			hideHeaders: true,
-			itemId: 'AdministrationDocumentsDefaultsGrid',
 			columns: [
 				{
 					flex: 1,
@@ -49592,8 +49506,7 @@ Ext.define('App.view.administration.Documents', {
 				{
 					text: _('new'),
 					scope: me,
-					handler: me.newDefaultTemplates,
-					itemId: 'AdministrationDocumentsNewDefaulTemplateBtn',
+					handler: me.newDefaultTemplates
 				}],
 			plugins: [me.rowEditor3 = Ext.create('Ext.grid.plugin.RowEditing',
 				{
@@ -49609,7 +49522,6 @@ Ext.define('App.view.administration.Documents', {
 			split: true,
 			store: me.templatesDocumentsStore,
 			hideHeaders: true,
-			itemId: 'AdministrationDocumentsTemplatesGrid',
 			columns: [
 				{
 					flex: 1,
@@ -49635,8 +49547,7 @@ Ext.define('App.view.administration.Documents', {
 				{
 					text: _('new'),
 					scope: me,
-					itemId: 'AdministrationDocumentsNewTemplateBtn',
-					//handler: me.newDocumentTemplate
+					handler: me.newDocumentTemplate
 				}],
 			plugins: [me.rowEditor = Ext.create('Ext.grid.plugin.RowEditing',
 				{
@@ -49661,7 +49572,6 @@ Ext.define('App.view.administration.Documents', {
 			border: true,
 			split: true,
 			hideHeaders: true,
-			itemId: 'AdministrationDocumentsTemplatesEditorForm',
 			items: {
 				xtype: 'htmleditor',
 				enableFontSize: false,
@@ -49689,28 +49599,16 @@ Ext.define('App.view.administration.Documents', {
 			border: true,
 			split: true,
 			hideHeaders: true,
-			store: Ext.create('App.store.administration.DocumentToken'),
+			store: me.tokenStore,
 			disableSelection: true,
-			itemId: 'AdministrationDocumentsTokensGrid',
 			viewConfig: {
 				stripeRows: false
 			},
-			plugins: [
-				{
-					ptype: 'cellediting'
-
-				}
-			],
 			columns: [
 				{
 					flex: 1,
 					sortable: false,
-					dataIndex: 'token',
-					editor: {
-						xtype: 'textfield',
-						editable: false,
-						itemId: 'AdministrationDocumentsTokenTextField'
-					}
+					dataIndex: 'token'
 				},
 				{
 					xtype: 'actioncolumn',
@@ -49721,12 +49619,49 @@ Ext.define('App.view.administration.Documents', {
 							tooltip: _('copy'),
 							margin: '0 5 0 0',
 							handler: function(grid, rowIndex, colIndex, item, e, record){
-								app.getController('administration.Documents').doCopy(grid, record);
 
+
+//								btn.btnEl.set({
+//									'data-clipboard-text': btn.record.data.token
+//								});
+//								AppClipboard.clip(btn.btnEl.dom);
 							}
 						}
 					]
 				}
+//				{
+//					xtype:'gridbutton',
+//					width: 35,
+//					items:[
+//						{
+//							xtype:'button',
+//							icon:'resources/images/icons/copy.png',
+//							listeners:{
+//								render:function(btn){
+//									btn.btnEl.set({
+//										'data-clipboard-text': btn.record.data.token
+//									});
+//									AppClipboard.clip(btn.btnEl.dom);
+//								}
+//							}
+//						}
+//					]
+//
+//				}
+//				{
+//					dataIndex: 'token',
+//					width: 30,
+//					xtype: "templatecolumn",
+//					tpl: new Ext.XTemplate("" +
+//						"<object id='clipboard{token}' codebase='http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0' width='16' height='16' align='middle'>",
+//						"<param name='allowScriptAccess' value='always' />",
+//						"<param name='allowFullScreen' value='false' />",
+//						"<param name='movie' value='lib/ClipBoard/clipboard.swf' />",
+//						"<param name='quality' value='high' />", "<param name='bgcolor' value='#ffffff' />",
+//						"<param name='flashvars' value='callback=copyToClipBoard&callbackArg={token}' />",
+//						"<embed src='lib/ClipBoard/clipboard.swf' flashvars='callback=copyToClipBoard&callbackArg={token}' quality='high' bgcolor='#ffffff' width='16' height='16' name='clipboard{token}' align='middle' allowscriptaccess='always' allowfullscreen='false' type='application/x-shockwave-flash' pluginspage='http://www.adobe.com/go/getflashplayer' />",
+//						"</object>", null)
+//				}
 			]
 		});
 
@@ -49808,8 +49743,7 @@ Ext.define('App.view.administration.Documents', {
 	//    },
 
 	copyToClipBoard: function(grid, rowIndex, colIndex){
-		var rec = grid.getStore().getAt(rowIndex),
-			text = rec.get('token');
+		var rec = grid.getStore().getAt(rowIndex), text = rec.get('token');
 	},
 
 	onRemoveDocument: function(){
@@ -54394,21 +54328,13 @@ Ext.define('App.controller.patient.Documents', {
 			message;
 		DocumentHandler.checkDocHash(rec.data, function(provider, response){
 			success = response.result.success;
+			message = '<b>' + _(success ? 'hash_validation_passed' : 'hash_validation_failed') + '</b><br>' + Ext.String.htmlDecode(response.result.msg);
 
-			if(success){
-				message = '<span style="color: green"><b>' + _('hash_validation_passed') + '</b>'
+			if(window.dual){
+				dual.msg(_(success ? 'sweet' : 'oops'), message, !success)
 			}else{
-				message = '<span style="color: red"><b>' + _('hash_validation_failed') + '</b>'
+				app.msg(_(success ? 'sweet' : 'oops'), message, !success)
 			}
-
-			message += '<br><br>' + Ext.String.htmlDecode(response.result.msg) + '</span>';
-
-			Ext.Msg.show({
-				title: success ? _('sweet') : _('oops'),
-				msg: message,
-				buttons: Ext.Msg.OK,
-				icon: success ? Ext.Msg.INFO : Ext.Msg.WARNING
-			});
 		});
 	},
 

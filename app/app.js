@@ -23984,8 +23984,7 @@ Ext.define('App.view.patient.encounter.ICDs', {
 			code_type: record[0].data.code_type,
 			dx_group: group,
 			dx_type: type,
-			dx_order: order,
-
+			dx_order: order
 		});
 
 		me.addIcd(dxRecords[0], group, order);

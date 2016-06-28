@@ -93,6 +93,11 @@ Ext.define('App.model.administration.HL7Message', {
 			type: 'string',
 			len: 60,
 			comment: 'Reference number or file name'
+		},
+		{
+			name: 'hash',
+			type: 'string',
+			len: 300
 		}
 	],
 	proxy: {

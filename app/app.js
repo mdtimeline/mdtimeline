@@ -17703,11 +17703,6 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 			type: 'string'
 		},
 		{
-			name: 'status',
-			type: 'string',
-			len: 40
-		},
-		{
 			name: 'status_code',
 			type: 'string',
 			len: 20
@@ -17759,6 +17754,7 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 		}
 	}
 });
+
 Ext.define('App.model.patient.PatientArrivalLog', {
 	extend: 'Ext.data.Model',
 	fields: [
@@ -36222,30 +36218,6 @@ Ext.define('App.controller.administration.HL7', {
 		{
 			ref: 'HL7ClientsGrid',
 			selector: '#hl7clientsgrid'
-		},
-		{
-			ref: 'HL7MessagesWindow',
-			selector: '#HL7MessagesWindow'
-		},
-		{
-			ref: 'HL7MessagesGrid',
-			selector: '#HL7MessagesGrid'
-		},
-		{
-			ref: 'HL7MessageViewerWindow',
-			selector: '#HL7MessageViewerWindow'
-		},
-		{
-			ref: 'HL7MessageViewerWindowWarnings',
-			selector: '#HL7MessageViewerWindowWarnings'
-		},
-		{
-			ref: 'HL7MessageViewerWindowMessageField',
-			selector: '#HL7MessageViewerWindowMessageField'
-		},
-		{
-			ref: 'HL7MessageViewerWindowAcknowledgeField',
-			selector: '#HL7MessageViewerWindowAcknowledgeField'
 		}
 	],
 
@@ -36271,12 +36243,6 @@ Ext.define('App.controller.administration.HL7', {
 			},
 			'#hl7clientsgrid #removeHL7ClientBtn': {
 				click: me.onRemoveHL7ClientBtnClick
-			},
-			'#HL7MessagesViewBtn': {
-				click: me.onHL7MessagesViewBtnClick
-			},
-			'#HL7MessagesGrid': {
-				itemdblclick: me.onHL7MessagesGridItemDblClick
 			}
 		});
 
@@ -36354,49 +36320,6 @@ Ext.define('App.controller.administration.HL7', {
 		var multiField = plugin.editor.query('multitextfield')[0],
 			values = multiField.getValue();
 		e.record.set({ allow_ips: values });
-	},
-
-	onHL7MessagesViewBtnClick: function(){
-		this.showHL7MessagesWindow();
-		this.getHL7MessagesGrid().getStore().load();
-	},
-
-	onHL7MessagesGridItemDblClick: function(grid, record){
-		this.viewHL7MessageDetailById(record.get('id'));
-	},
-
-	viewHL7MessageDetailById: function(message_id){
-		var me = this;
-
-		me.showHL7MessageDetailWindow();
-
-		HL7Messages.getMessageById(message_id, function(provider, response){
-
-			var warnings = (response.result.hash !== response.result.current_hash) ?
-				'<span style="color: red">' : '<span style="color: green">';
-			warnings += '<b>' + _('stored_hash') + ':</b> ' + response.result.hash + '<br>';
-			warnings += '<b>' + _('current_hash') + ':</b> ' + response.result.current_hash + '<br>';
-			warnings += '</span>';
-
-			me.getHL7MessageViewerWindowWarnings().update(warnings);
-			me.getHL7MessageViewerWindowMessageField().setValue(response.result.message);
-			me.getHL7MessageViewerWindowAcknowledgeField().setValue(response.result.response);
-
-		});
-	},
-
-	showHL7MessageDetailWindow: function(){
-		if(!this.getHL7MessageViewerWindow()){
-			Ext.create('App.view.administration.HL7MessageViewer');
-		}
-		return this.getHL7MessageViewerWindow().show();
-	},
-
-	showHL7MessagesWindow: function(){
-		if(!this.getHL7MessagesWindow()){
-			Ext.create('App.view.administration.HL7Messages');
-		}
-		return this.getHL7MessagesWindow().show();
 	}
 
 });
@@ -39400,6 +39323,10 @@ Ext.define('App.controller.patient.ActiveProblems', {
         {
             ref: 'PatientProblemsReconciledBtn',
             selector: '#PatientProblemsReconciledBtn'
+        },
+        {
+            ref: 'PatientProblemsActiveBtn',
+            selector: '#PatientProblemsActiveBtn'
         }
 	],
 
@@ -39421,6 +39348,9 @@ Ext.define('App.controller.patient.ActiveProblems', {
             '#PatientProblemsReconciledBtn': {
                 click: me.onPatientProblemsReconciledBtnClick
             },
+            '#PatientProblemsActiveBtn': {
+                click: me.onPatientProblemsActiveBtnClick
+            }
 		});
 	},
 
@@ -39446,10 +39376,15 @@ Ext.define('App.controller.patient.ActiveProblems', {
         this.onActiveProblemsGridActive();
     },
 
+    onPatientProblemsActiveBtnClick: function(){
+        this.onActiveProblemsGridActive();
+    },
+
 	onActiveProblemsGridActive:function(){
 		var grid = this.getActiveProblemsGrid(),
             store = grid.getStore(),
-            reconciled = this.getPatientProblemsReconciledBtn().pressed;
+            reconciled = this.getPatientProblemsReconciledBtn().pressed,
+            active = this.getPatientProblemsActiveBtn().pressed;
 
 		store.clearFilter(true);
         store.load({
@@ -39460,7 +39395,8 @@ Ext.define('App.controller.patient.ActiveProblems', {
                 }
             ],
             params: {
-                reconciled: reconciled
+                reconciled: reconciled,
+                active: active
             }
         });
 	},
@@ -47725,12 +47661,10 @@ Ext.define('App.view.administration.HL7MessageViewer', {
 		align: 'stretch'
 	},
 	title: _('hl7_viewer'),
-	itemId: 'HL7MessageViewerWindow',
 	width: 800,
 	height: 450,
 	bodyPadding: 10,
 	maximizable: true,
-	modal: true,
 	bodyStyle: 'background-color:white',
 	defaults: {
 		xtype: 'textareafield',
@@ -47738,20 +47672,13 @@ Ext.define('App.view.administration.HL7MessageViewer', {
 	},
 	items: [
 		{
-			xtype: 'container',
-			itemId: 'HL7MessageViewerWindowWarnings',
-			height: 40
-		},
-		{
 			fieldLabel: _('message'),
-			itemId: 'HL7MessageViewerWindowMessageField',
-			readOnly: true,
+			action: 'message',
 			flex: 1
 		},
 		{
 			fieldLabel: _('acknowledge'),
-			itemId: 'HL7MessageViewerWindowAcknowledgeField',
-			readOnly: true,
+			action: 'acknowledge',
 			flex: 1
 		}
 	]
@@ -53312,7 +53239,8 @@ Ext.define('App.view.patient.Summary', {
 			me.stores[i].clearFilter(true);
 			me.stores[i].load({
 				params: {
-					pid: me.pid
+					pid: me.pid,
+                    active: true
 				},
 				filters: [
 					{
@@ -55294,18 +55222,27 @@ Ext.define('App.controller.patient.Results', {
 			form = me.getResultsLaboratoryForm(),
 			record = form.getRecord(),
 			recordData = record.data.documentId.split('|'),
-			type, id;
+			type = null,
+			id = null,
+			win;
 
 		if(recordData[0]) type = recordData[0];
 		if(recordData[1]) id = recordData[1];
 
 		if(type && id){
 			if(type == 'hl7'){
-				app.getController('administration.HL7').viewHL7MessageDetailById(id);
+				win = Ext.widget('hl7messageviewer').show();
+				win.body.mask(_('loading...'));
+				HL7Messages.getMessageById(id, function(provider, response){
+					me.getMessageField().setValue(response.result.message);
+					me.getAcknowledgeField().setValue(response.result.response);
+					win.body.unmask();
+				});
 			} else if(type == 'doc'){
 				app.onDocumentView(id);
 			}
-		}else{
+		}
+		else{
 			app.msg(_('oops'), _('no_document_found'), true)
 		}
 	},
@@ -55935,11 +55872,15 @@ Ext.define('App.view.patient.ActiveProblems', {
 			format: 'Y-m-d',
 			dataIndex: 'end_date'
 		},
-		{
-			header: _('status'),
-			width: 80,
-			dataIndex: 'status'
-		}
+        {
+            header: _('active?'),
+            groupable: false,
+            width: 60,
+            dataIndex: 'active',
+            renderer: function(v){
+                return app.boolRenderer(v);
+            }
+        }
 	],
 	plugins: Ext.create('App.ux.grid.RowFormEditing', {
 		autoCancel: false,
@@ -56016,14 +55957,6 @@ Ext.define('App.view.patient.ActiveProblems', {
 						},
 						items: [
 							{
-								fieldLabel: _('status'),
-								xtype: 'gaiaehr.combo',
-								list: 112,
-								itemId: 'ActiveProblemStatusCombo',
-								name: 'status',
-								allowBlank: false
-							},
-							{
 								fieldLabel: _('begin_date'),
 								xtype: 'datefield',
 								format: 'Y-m-d',
@@ -56057,6 +55990,13 @@ Ext.define('App.view.patient.ActiveProblems', {
             itemId: 'PatientProblemsReconciledBtn',
             enableToggle: true,
             pressed: true
+        },
+        '-',
+        {
+            text: _('active'),
+            itemId: 'PatientProblemsActiveBtn',
+            enableToggle: true,
+            pressed: false
         },
         '->',
         {

@@ -613,7 +613,8 @@ Ext.define('App.view.patient.Summary', {
 			me.stores[i].clearFilter(true);
 			me.stores[i].load({
 				params: {
-					pid: me.pid
+					pid: me.pid,
+                    active: true
 				},
 				filters: [
 					{

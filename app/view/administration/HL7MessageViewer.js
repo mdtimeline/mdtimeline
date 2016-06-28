@@ -25,10 +25,12 @@ Ext.define('App.view.administration.HL7MessageViewer', {
 		align: 'stretch'
 	},
 	title: _('hl7_viewer'),
+	itemId: 'HL7MessageViewerWindow',
 	width: 800,
 	height: 450,
 	bodyPadding: 10,
 	maximizable: true,
+	modal: true,
 	bodyStyle: 'background-color:white',
 	defaults: {
 		xtype: 'textareafield',
@@ -36,13 +38,20 @@ Ext.define('App.view.administration.HL7MessageViewer', {
 	},
 	items: [
 		{
+			xtype: 'container',
+			itemId: 'HL7MessageViewerWindowWarnings',
+			height: 40
+		},
+		{
 			fieldLabel: _('message'),
-			action: 'message',
+			itemId: 'HL7MessageViewerWindowMessageField',
+			readOnly: true,
 			flex: 1
 		},
 		{
 			fieldLabel: _('acknowledge'),
-			action: 'acknowledge',
+			itemId: 'HL7MessageViewerWindowAcknowledgeField',
+			readOnly: true,
 			flex: 1
 		}
 	]

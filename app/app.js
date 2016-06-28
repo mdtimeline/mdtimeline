@@ -36260,6 +36260,30 @@ Ext.define('App.controller.administration.HL7', {
 		{
 			ref: 'HL7ClientsGrid',
 			selector: '#hl7clientsgrid'
+		},
+		{
+			ref: 'HL7MessagesWindow',
+			selector: '#HL7MessagesWindow'
+		},
+		{
+			ref: 'HL7MessagesGrid',
+			selector: '#HL7MessagesGrid'
+		},
+		{
+			ref: 'HL7MessageViewerWindow',
+			selector: '#HL7MessageViewerWindow'
+		},
+		{
+			ref: 'HL7MessageViewerWindowWarnings',
+			selector: '#HL7MessageViewerWindowWarnings'
+		},
+		{
+			ref: 'HL7MessageViewerWindowMessageField',
+			selector: '#HL7MessageViewerWindowMessageField'
+		},
+		{
+			ref: 'HL7MessageViewerWindowAcknowledgeField',
+			selector: '#HL7MessageViewerWindowAcknowledgeField'
 		}
 	],
 
@@ -36285,6 +36309,12 @@ Ext.define('App.controller.administration.HL7', {
 			},
 			'#hl7clientsgrid #removeHL7ClientBtn': {
 				click: me.onRemoveHL7ClientBtnClick
+			},
+			'#HL7MessagesViewBtn': {
+				click: me.onHL7MessagesViewBtnClick
+			},
+			'#HL7MessagesGrid': {
+				itemdblclick: me.onHL7MessagesGridItemDblClick
 			}
 		});
 
@@ -36362,6 +36392,49 @@ Ext.define('App.controller.administration.HL7', {
 		var multiField = plugin.editor.query('multitextfield')[0],
 			values = multiField.getValue();
 		e.record.set({ allow_ips: values });
+	},
+
+	onHL7MessagesViewBtnClick: function(){
+		this.showHL7MessagesWindow();
+		this.getHL7MessagesGrid().getStore().load();
+	},
+
+	onHL7MessagesGridItemDblClick: function(grid, record){
+		this.viewHL7MessageDetailById(record.get('id'));
+	},
+
+	viewHL7MessageDetailById: function(message_id){
+		var me = this;
+
+		me.showHL7MessageDetailWindow();
+
+		HL7Messages.getMessageById(message_id, function(provider, response){
+
+			var warnings = (response.result.hash !== response.result.current_hash) ?
+				'<span style="color: red">' : '<span style="color: green">';
+			warnings += '<b>' + _('stored_hash') + ':</b> ' + response.result.hash + '<br>';
+			warnings += '<b>' + _('current_hash') + ':</b> ' + response.result.current_hash + '<br>';
+			warnings += '</span>';
+
+			me.getHL7MessageViewerWindowWarnings().update(warnings);
+			me.getHL7MessageViewerWindowMessageField().setValue(response.result.message);
+			me.getHL7MessageViewerWindowAcknowledgeField().setValue(response.result.response);
+
+		});
+	},
+
+	showHL7MessageDetailWindow: function(){
+		if(!this.getHL7MessageViewerWindow()){
+			Ext.create('App.view.administration.HL7MessageViewer');
+		}
+		return this.getHL7MessageViewerWindow().show();
+	},
+
+	showHL7MessagesWindow: function(){
+		if(!this.getHL7MessagesWindow()){
+			Ext.create('App.view.administration.HL7Messages');
+		}
+		return this.getHL7MessagesWindow().show();
 	}
 
 });
@@ -47782,10 +47855,12 @@ Ext.define('App.view.administration.HL7MessageViewer', {
 		align: 'stretch'
 	},
 	title: _('hl7_viewer'),
+	itemId: 'HL7MessageViewerWindow',
 	width: 800,
 	height: 450,
 	bodyPadding: 10,
 	maximizable: true,
+	modal: true,
 	bodyStyle: 'background-color:white',
 	defaults: {
 		xtype: 'textareafield',
@@ -47793,13 +47868,20 @@ Ext.define('App.view.administration.HL7MessageViewer', {
 	},
 	items: [
 		{
+			xtype: 'container',
+			itemId: 'HL7MessageViewerWindowWarnings',
+			height: 40
+		},
+		{
 			fieldLabel: _('message'),
-			action: 'message',
+			itemId: 'HL7MessageViewerWindowMessageField',
+			readOnly: true,
 			flex: 1
 		},
 		{
 			fieldLabel: _('acknowledge'),
-			action: 'acknowledge',
+			itemId: 'HL7MessageViewerWindowAcknowledgeField',
+			readOnly: true,
 			flex: 1
 		}
 	]
@@ -55286,27 +55368,18 @@ Ext.define('App.controller.patient.Results', {
 			form = me.getResultsLaboratoryForm(),
 			record = form.getRecord(),
 			recordData = record.data.documentId.split('|'),
-			type = null,
-			id = null,
-			win;
+			type, id;
 
 		if(recordData[0]) type = recordData[0];
 		if(recordData[1]) id = recordData[1];
 
 		if(type && id){
 			if(type == 'hl7'){
-				win = Ext.widget('hl7messageviewer').show();
-				win.body.mask(_('loading...'));
-				HL7Messages.getMessageById(id, function(provider, response){
-					me.getMessageField().setValue(response.result.message);
-					me.getAcknowledgeField().setValue(response.result.response);
-					win.body.unmask();
-				});
+				app.getController('administration.HL7').viewHL7MessageDetailById(id);
 			} else if(type == 'doc'){
 				app.onDocumentView(id);
 			}
-		}
-		else{
+		}else{
 			app.msg(_('oops'), _('no_document_found'), true)
 		}
 	},

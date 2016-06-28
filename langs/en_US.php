@@ -1668,4 +1668,7 @@ $LANG = array(
 	'refusal_reason'                        => 'Refusal Reason',
 	'publication'                           => 'Publication',
 	'given_date'                            => 'Given Date',
+	'hl7_messages'                          => 'HL7 Messages',
+	'stored_hash'                            => 'Stored Hash',
+	'current_hash'                          => 'Current Hash',
 );

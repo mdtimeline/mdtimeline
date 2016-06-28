@@ -57,6 +57,10 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 					}
 				},
 				{
+					name: 'TTY',
+					type: 'auto'
+				},
+				{
 					name: 'DST',
 					type: 'auto'
 				},
@@ -125,7 +129,7 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 			listConfig: {
 				loadingText: _('searching') + '...',
 				getInnerTpl: function(){
-					return '<div class="search-item">{STR} ( <b>RxNorm:</b> {RXCUI} <b>NDC:</b> {NDC} )</div>';
+					return '<div class="search-item {[values.TTY == "SCD" ? "lightGreenBg" : "" ]}">{STR} ( <b>RxNorm:</b> {RXCUI} <b>NDC:</b> {NDC} )</div>';
 				}
 			},
 			pageSize: 25,

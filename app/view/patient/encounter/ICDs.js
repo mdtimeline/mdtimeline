@@ -269,8 +269,9 @@ Ext.define('App.view.patient.encounter.ICDs', {
 	},
 
 	addIcd: function(record, group, order){
+		var me = this;
 
-		this.getDxCell(group, order).add({
+		me.getDxCell(group, order).add({
 			xtype: 'panel',
 			closable: true,
 			title: (record.get('code') + ' (' + record.get('dx_type')+ ')'),
@@ -283,6 +284,11 @@ Ext.define('App.view.patient.encounter.ICDs', {
 			draggable: {
 				moveOnDrag: false,
 				ddGroup: 'group-' + group + '-dx'
+			},
+			listeners: {
+				close: function(cmp){
+					me.store.remove(cmp.dxRecord);
+				}
 			}
 		});
 	},

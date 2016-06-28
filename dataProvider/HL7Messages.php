@@ -1441,6 +1441,7 @@ class HL7Messages {
 
 		switch($code_type){
 			case 'ICD9':
+			case 'ICD9-DX':
 				$code_type = 'I9CDX';
 				break;
 		}

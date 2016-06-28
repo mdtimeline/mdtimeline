@@ -23825,7 +23825,7 @@ Ext.define('App.view.patient.encounter.ICDs', {
 						width: 100,
 						itemId: this.id + '-dx-type-cmb',
 						queryMode: 'local',
-						displayField: 'dx_type',
+						displayField: 'code_text',
 						valueField: 'code',
 						margin: '0 3 0 0',
 						forceSelection: true,

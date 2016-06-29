@@ -115,7 +115,9 @@ Ext.define('App.controller.patient.Results', {
 				click: me.onResultsOrderSaveBtnClick
 			},
 
-
+			'#ResultsLabsLiveSearchField': {
+				select: me.onResultsLabsLiveSearchFieldSelect
+			},
 			'#ResultsLaboratoryPanelDocumentViewBtn': {
 				click: me.onOrderDocumentViewBtnClicked
 			},
@@ -137,6 +139,14 @@ Ext.define('App.controller.patient.Results', {
 			'#ResultsRadiologyFormViewStudyBtn': {
 				click: me.onResultsRadiologyFormViewStudyBtnClick
 			}
+		});
+	},
+
+	onResultsLabsLiveSearchFieldSelect: function(cmb, records){
+		cmb.up('form').getRecord().set({
+			code: records[0].get('loinc_number'),
+			code_text: records[0].get('loinc_name'),
+			code_type: 'LOINC'
 		});
 	},
 
@@ -170,8 +180,8 @@ Ext.define('App.controller.patient.Results', {
 		});
 	},
 
-	onOrderSelectionEdit: function(editor, e){
-		this.getOrderResult(e.record);
+	onOrderSelectionEdit: function(editor, context){
+		this.getLabOrderResult(context.record);
 	},
 
 	onNewOrderResultBtnClick: function(btn){
@@ -197,6 +207,7 @@ Ext.define('App.controller.patient.Results', {
 		// By Default when adding a new record, it will be a Laboratory
 		grid.columns[4].setEditor({
 			xtype: 'labslivetsearch',
+			itemId: 'ResultsLabsLiveSearchField',
 			allowBlank: false,
 			flex: 1
 		});
@@ -215,6 +226,7 @@ Ext.define('App.controller.patient.Results', {
 			// Change the field to look for laboratories
 			grid.columns[4].setEditor({
 				xtype: 'labslivetsearch',
+				itemId: 'ResultsLabsLiveSearchField',
 				allowBlank: false,
 				flex: 1,
 				value: ''

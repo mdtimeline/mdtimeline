@@ -149,6 +149,7 @@ Ext.define('App.view.patient.Results', {
 					flex: 1,
 					editor: {
 						xtype: 'labslivetsearch',
+						itemId: 'ResultsLabsLiveSearchField',
 						allowBlank: false
 					},
 					renderer: function(v, meta, record){

@@ -850,15 +850,15 @@ class HL7Messages {
 			$pid->setValue('11.9', '25025');
 		}
 
-		$index = 0;
+		$index = 1;
 		if($this->notEmpty($this->patient->phone_home)){
 			$phone = $this->phone($this->patient->phone_home);
 			$pid->setValue('13.2', 'PRN', $index);              // PhoneNumber‐Home
 			$pid->setValue('13.3', 'PH', $index);               // PhoneNumber‐Home
 			$pid->setValue('13.6', $phone['area'], $index);     // Area/City Code
 			$pid->setValue('13.7', $phone['number'], $index);   // LocalNumber
-			$index++;
 		}
+		$index++;
 		if($this->notEmpty($this->patient->email)){
 			$pid->setValue('13.2', 'NET', $index);
 			$pid->setValue('13.4', $this->patient->email, $index);

@@ -908,6 +908,9 @@ $API = [
 	 */
 	'FamilyHistory' => [
 		'methods' => [
+            'deleteFamilyHistory' => [
+                'len' => 1
+            ],
 			'getFamilyHistory' => [
 				'len' => 1
             ],

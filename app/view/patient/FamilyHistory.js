@@ -47,7 +47,10 @@ Ext.define('App.view.patient.FamilyHistory', {
 			items: [
 				{
 					icon: 'resources/images/icons/cross.png',
-					tooltip: _('remove')
+					tooltip: _('remove'),
+                    handler: function(grid, rowIndex, colIndex, item, e, record){
+                        App.app.getController('patient.FamilyHistory').onDeactivateRecord(grid, record);
+                    }
 				}
 			]
 		},

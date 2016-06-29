@@ -1669,6 +1669,8 @@ $LANG = array(
 	'publication'                           => 'Publication',
 	'given_date'                            => 'Given Date',
 	'hl7_messages'                          => 'HL7 Messages',
-	'stored_hash'                            => 'Stored Hash',
+	'stored_hash'                           => 'Stored Hash',
 	'current_hash'                          => 'Current Hash',
+    'removal'                               => 'Removal',
+    'sure_for_removal'                      => 'Are you sure to remove this record?'
 );

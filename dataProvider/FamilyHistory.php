@@ -29,9 +29,6 @@ class FamilyHistory {
             $this->fh = MatchaModel::setSenchaModel('App.model.patient.FamilyHistory');
 	}
 
-    //------------------------------------------------------------------------------------------------------------------
-    // Main Sencha Model Getter and Setters
-    //------------------------------------------------------------------------------------------------------------------
 	/**
 	 * @param stdClass $params
 	 * @return array

@@ -43,10 +43,6 @@ Ext.define('App.controller.patient.FamilyHistory', {
 	init: function(){
 		var me = this;
 		me.control({
-            'familyhistorywindow #FamilyHistoryForm':{
-                show: me.onFamilyHistoryFormShow,
-                resize: me.onFamilyHistoryFormResize
-            },
 			'patientfamilyhistorypanel': {
 				activate: me.onFamilyHistoryGridActivate
 			},
@@ -63,20 +59,30 @@ Ext.define('App.controller.patient.FamilyHistory', {
 	},
 
     /**
-     * This events are created to try to fix the CLICK and SCROLL UP issue.
-     * @param width
-     * @param height
-     * @param oldWidth
-     * @param oldHeight
+     * This event is called from the view, and not from the controller itself.
+     * @param grid
+     * @param record
      */
-    onFamilyHistoryFormResize: function (width, height, oldWidth, oldHeight){
-    },
-
-    /**
-     * This events are created to try to fix the CLICK and SCROLL UP issue.
-     * @param form
-     */
-    onFamilyHistoryFormShow: function (form){
+    onDeactivateRecord: function(grid, record){
+        var store,
+            params = {
+                id: record.data.id,
+                pid: record.data.pid,
+                eid: record.data.eid
+            };
+        Ext.Msg.show({
+            title:_('removal'),
+            msg: _('sure_for_removal'),
+            buttons: Ext.Msg.YESNO,
+            icon: Ext.Msg.QUESTION,
+            fn: function(btn) {
+                if (btn === 'yes') {
+                    store = grid.getStore();
+                    FamilyHistory.deleteFamilyHistory(params, function(response){});
+                    store.load();
+                }
+            }
+        });
     },
 
 	onFamilyHistoryGridActivate: function(grid){

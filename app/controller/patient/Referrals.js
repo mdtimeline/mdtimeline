@@ -34,7 +34,6 @@ Ext.define('App.controller.patient.Referrals', {
 			ref: 'PrintReferralBtn',
 			selector: '#printReferralBtn'
 		},
-
 		{
 			ref: 'ReferralProviderCombo',
 			selector: '#ReferralProviderCombo'

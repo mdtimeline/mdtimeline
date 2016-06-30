@@ -215,7 +215,7 @@ function utf8_encode_deep(&$input) {
 	} else if (is_object($input)) {
 		$vars = array_keys(get_object_vars($input));
 		foreach ($vars as $var) {
-			utf8_encode_deep($input->$var);
+			utf8_encode_deep($input->{$var});
 		}
 	}
 }

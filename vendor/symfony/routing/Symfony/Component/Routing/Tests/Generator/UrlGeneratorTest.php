@@ -654,7 +654,7 @@ class UrlGeneratorTest extends \PHPUnit_Framework_TestCase
         $context = new RequestContext('/app.php');
         foreach ($parameters as $key => $value) {
             $method = 'set'.$key;
-            $context->$method($value);
+            $context->{$method}($value);
         }
         $generator = new UrlGenerator($routes, $context, $logger);
 

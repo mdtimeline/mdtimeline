@@ -109,7 +109,7 @@ class Arrays {
 			foreach($array as $name => $value){
 				$name = strtolower(trim($name));
 				if(!empty($name)){
-					$object->$name = self::arrayToObject($value);
+					$object->{$name} = self::arrayToObject($value);
 				}
 			}
 			return $object;

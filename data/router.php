@@ -35,8 +35,15 @@ setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, tru
 
 define('_GaiaEXEC', 1);
 $site = isset($_SESSION['user']['site']) ? $_SESSION['user']['site'] : 'default';
-if(!defined('_GaiaEXEC'))
-	define('_GaiaEXEC', 1);
+
+if(isset($_SESSION['user']['site'])){
+	$site = $_SESSION['user']['site'];
+} elseif($_REQUEST['site']){
+	$site = $_REQUEST['site'];
+}else{
+	$site = 'default';
+}
+
 require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
 
 

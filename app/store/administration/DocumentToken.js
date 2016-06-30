@@ -25,6 +25,10 @@ Ext.define('App.store.administration.DocumentToken', {
             token: '[PATIENT_ID]'
         },
         {
+            title: _('patient_record_number'),
+            token: '[PATIENT_RECORD_NUMBER]'
+        },
+        {
             title: _('patient_name'),
             token: '[PATIENT_NAME]'
         },
@@ -435,6 +439,34 @@ Ext.define('App.store.administration.DocumentToken', {
 	    {
             title: _('referral_to'),
             token: '[REFERRAL_TO_TEXT]'
+        },
+	    {
+            title: _('rad_report_body'),
+            token: '[REPORT_ACCESSIONS]'
+        },
+	    {
+            title: _('report_body'),
+            token: '[REPORT_BODY]'
+        },
+	    {
+            title: _('report_interpreter'),
+            token: '[REPORT_INTERPRETER]'
+        },
+	    {
+            title: _('report_transcriptionist'),
+            token: '[REPORT_TRANSCRIPTIONIST]'
+        },
+	    {
+            title: _('report_signature'),
+            token: '[REPORT_SIGNATURE]'
+        },
+	    {
+            title: _('line'),
+            token: '[LINE]'
+        },
+	    {
+            title: _('time_now'),
+            token: '[TIME_NOW]'
         }
     ]
 });

@@ -18,10 +18,6 @@
 
 Ext.define('App.model.administration.DocumentToken', {
 	extend: 'Ext.data.Model',
-	table: {
-		name: 'documenttoken',
-		comment: 'Document Tokens'
-	},
 	fields: [
 		{
 			name: 'id',

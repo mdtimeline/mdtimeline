@@ -21,7 +21,7 @@ if(!isset($_SESSION)){
     session_cache_expire(1);
     session_name('mdTimeLine');
     session_start();
-    session_regenerate_id(false);
+    if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
     setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 }
 
@@ -119,8 +119,8 @@ if(isset($_SESSION['user']) && (isset($_SESSION['user']['auth']) && $_SESSION['u
 		$d = MatchaModel::setSenchaModel('App.model.patient.PatientDocuments');
 		$doc = $d->load($_REQUEST['id'])->one();
 		if($doc === false){
-			error_log('No Document Found, Please contact Support Desk. Thank You!');
-			die('No Document Found, Please contact Support Desk. Thank You!');
+			error_log('No Document Found for id ' . $_REQUEST['id']);
+			die();
 		}
 		$doc = (object)$doc;
 		$doc->is_temp = 'false';
@@ -131,8 +131,8 @@ if(isset($_SESSION['user']) && (isset($_SESSION['user']['auth']) && $_SESSION['u
 			$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $doc->document_instance);
 			$data = $dd->load($doc->document_id)->one();
 			if($data == false){
-				error_log('No Document Found, Please contact Support Desk. Thank You!');
-				die('No Document Data Found, Please contact Support Desk. Thank You!');
+				error_log('No Document Found For id ' . $doc->document_id);
+				die();
 			}
 			$data = (object)$data;
 			$document = base64ToBinary($data->document, $doc->encrypted, $is_image);

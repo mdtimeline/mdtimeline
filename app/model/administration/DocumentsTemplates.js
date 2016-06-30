@@ -30,6 +30,11 @@ Ext.define('App.model.administration.DocumentsTemplates', {
 			comment: 'Documentation Templates ID'
 		},
 		{
+			name: 'facility_id',
+			type: 'int',
+			index: true
+		},
+		{
 			name: 'title',
 			type: 'string',
 			len: 50
@@ -67,6 +72,11 @@ Ext.define('App.model.administration.DocumentsTemplates', {
 		{
 			name: 'updated_by_uid',
 			type: 'int'
+		},
+		{
+			name: 'facility_name',
+			type: 'string',
+			store: false
 		}
 	]
 });

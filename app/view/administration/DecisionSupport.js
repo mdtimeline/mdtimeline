@@ -57,6 +57,12 @@ Ext.define('App.view.administration.DecisionSupport', {
 					sortable: true,
 					dataIndex: 'description'
 				},
+                {
+                    width: 100,
+                    header: _('category'),
+                    sortable: true,
+                    dataIndex: 'category_name'
+                },
 				{
 					width: 100,
 					header: _('age_start'),
@@ -187,10 +193,8 @@ Ext.define('App.view.administration.DecisionSupport', {
 												xtype: 'numberfield',
 												fieldLabel: _('age_start'),
 												name: 'age_start',
-
 												value: 0,
 												minValue: 0
-
 											},
 											{
 												xtype: 'textfield',
@@ -226,7 +230,52 @@ Ext.define('App.view.administration.DecisionSupport', {
 												margin: '0 10 5 0'
 											}
 										]
-									}
+									},
+                                    {
+                                        /**
+                                         * Line four
+                                         */
+                                        xtype: 'fieldcontainer',
+                                        layout: 'hbox',
+                                        defaults: {
+                                            margin: '0 10 0 0',
+                                            action: 'field'
+                                        },
+                                        items: [
+                                            {
+                                                xtype: 'combo',
+                                                fieldLabel: _('category'),
+                                                name: 'category',
+                                                queryMode: 'local',
+                                                displayField: 'category_name',
+                                                valueField: 'category',
+                                                store: Ext.create('Ext.data.Store', {
+                                                    fields: [
+                                                        'category_name',
+                                                        'category'
+                                                    ],
+                                                    data : [
+                                                        {
+                                                            "category":"C",
+                                                            "category_name":"Clinical"
+                                                        },
+                                                        {
+                                                            "category":"A",
+                                                            "category_name":"Administrative"
+                                                        },
+                                                        {
+                                                            "category":"P",
+                                                            "category_name":"Physician"
+                                                        },
+                                                        {
+                                                            "category":"N",
+                                                            "category_name":"Nurse"
+                                                        }
+                                                    ]
+                                                })
+                                            }
+                                        ]
+                                    }
 								]
 							},
 							// TAB Procedures

@@ -48,6 +48,7 @@ $LANG = array(
     'medications'							=> 'Medications',
     'floor_areas'							=> 'Floor Areas',
     'roles'									=> 'Roles',
+    'role'									=> 'Role',
     'layouts'								=> 'Layouts',
     'lists'									=> 'Lists',
     'event_log'								=> 'Event Log',

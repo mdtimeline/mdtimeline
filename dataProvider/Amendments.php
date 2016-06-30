@@ -74,7 +74,6 @@ class Amendments
      */
     public function updateAmendment($params)
     {
-        error_log(print_r($params,true));
         return $this->a->save($params);
     }
 

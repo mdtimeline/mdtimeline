@@ -487,24 +487,28 @@ class HL7Messages {
 				$RXA->setValue('21', 'A'); //Action Code
 
 				// RXR - 4.14.2 RXR - Pharmacy/Treatment Route Segment
-				$RXR = $this->hl7->addSegment('RXR');
-				// Route
-
-				$this->ListOptions->clearFilters();
-				$this->ListOptions->addFilter('list_id', 6);
-				$this->ListOptions->addFilter('option_value', $immu['route']);
-				$Record = $this->ListOptions->load()->one();
-				$RXR->setValue('1.1', $Record['option_value']);
-				$RXR->setValue('1.2', $Record['option_name']);
-				$RXR->setValue('1.3', $Record['code_type']);
-				// Administration Site
-				$this->ListOptions->clearFilters();
-				$this->ListOptions->addFilter('list_id', 119);
-				$this->ListOptions->addFilter('code', $immu['administration_site']);
-				$Record = $this->ListOptions->load()->one();
-				$RXR->setValue('2.1', $Record['option_value']);
-				$RXR->setValue('2.2', $Record['option_name']);
-				$RXR->setValue('2.3', $Record['code_type']);
+				if(
+					$this->notEmpty($immu['route']) ||
+					$this->notEmpty($immu['administration_site'])
+				){
+					$RXR = $this->hl7->addSegment('RXR');
+					// Route
+					$this->ListOptions->clearFilters();
+					$this->ListOptions->addFilter('list_id', 6);
+					$this->ListOptions->addFilter('option_value', $immu['route']);
+					$Record = $this->ListOptions->load()->one();
+					$RXR->setValue('1.1', $Record['option_value']);
+					$RXR->setValue('1.2', $Record['option_name']);
+					$RXR->setValue('1.3', $Record['code_type']);
+					// Administration Site
+					$this->ListOptions->clearFilters();
+					$this->ListOptions->addFilter('list_id', 119);
+					$this->ListOptions->addFilter('code', $immu['administration_site']);
+					$Record = $this->ListOptions->load()->one();
+					$RXR->setValue('2.1', $Record['option_value']);
+					$RXR->setValue('2.2', $Record['option_name']);
+					$RXR->setValue('2.3', $Record['code_type']);
+				}
 
 				// OBX - 7.4.2 OBX - Observation/Result Segment
 				$this->ListOptions->clearFilters();

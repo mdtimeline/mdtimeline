@@ -30,13 +30,20 @@ session_cache_limiter('private');
 session_cache_expire(1);
 session_name('mdTimeLine');
 session_start();
-session_regenerate_id(false);
+if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
 setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 
 define('_GaiaEXEC', 1);
 $site = isset($_SESSION['user']['site']) ? $_SESSION['user']['site'] : 'default';
-if(!defined('_GaiaEXEC'))
-	define('_GaiaEXEC', 1);
+
+if(isset($_SESSION['user']['site'])){
+	$site = $_SESSION['user']['site'];
+} elseif($_REQUEST['site']){
+	$site = $_REQUEST['site'];
+}else{
+	$site = 'default';
+}
+
 require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
 
 
@@ -208,7 +215,7 @@ function utf8_encode_deep(&$input) {
 	} else if (is_object($input)) {
 		$vars = array_keys(get_object_vars($input));
 		foreach ($vars as $var) {
-			utf8_encode_deep($input->$var);
+			utf8_encode_deep($input->{$var});
 		}
 	}
 }

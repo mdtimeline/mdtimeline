@@ -19,8 +19,6 @@
  */
 class Medications
 {
-
-
     /**
      * @var MatchaCUP
      */
@@ -115,7 +113,6 @@ class Medications
                 ->group($groups)
                 ->all();
         }
-
         return $this->m->load()
             ->leftJoin(['title', 'fname', 'mname', 'lname'], 'users', 'administered_uid', 'id')
             ->all();

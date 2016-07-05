@@ -854,7 +854,7 @@ class HL7Messages {
 			$pid->setValue('11.9', '25025');
 		}
 
-		$index = 1;
+		$index = 0;
 		if($this->notEmpty($this->patient->phone_home)){
 			$phone = $this->phone($this->patient->phone_home);
 			$pid->setValue('13.2', 'PRN', $index);              // PhoneNumber‐Home

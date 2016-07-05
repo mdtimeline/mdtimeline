@@ -245,8 +245,8 @@ class Rxnorm
                           AND `rxnconso`.`SAB` = 'RXNORM'
                           AND (`rxnsat`.`ATN` = 'NDC' $umls)
                           AND (`rxnconso`.`TTY` = 'SCD' OR `rxnconso`.`TTY` = 'SBD' {$groups} {$ingredients})
-                          AND `rxcui` IN (SELECT CODE FROM `rxnconso` WHERE `SAB`='GS') IS NOT NULL
                     WHERE ($where)
+                    AND `rxnconso`.`rxcui` IN (SELECT CODE FROM `rxnconso` WHERE `SAB`='GS') IS NOT NULL
                  GROUP BY `rxnconso`.`STR`
                  ORDER BY `rxnconso`.`TTY` DESC
                     LIMIT 100");

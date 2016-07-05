@@ -7,9 +7,9 @@
   "description":"Enable a user to electronically and dynamically select, sort, access, and create patient lists by: date and time; and based on each one and at least one combinations.",
   "dir":"reportcenter/reports/PatientList",
   "category":"ONC Meaningful Use",
-  "reportWindowWidth": 1096,
-  "filterPanelWidth": 250,
-  "filterDisplayHeight": 140,
+  "reportWindowWidth": 1196,
+  "filterPanelWidth": 220,
+  "filterDisplayHeight": 170,
   "gridFields":{
     "ProviderName": {
       "name": "Provider Name",

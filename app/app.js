@@ -3331,8 +3331,8 @@ Ext.define('App.ux.LivePatientSearch', {
 	hideTrigger: true,
     validateBlank: true,
     submitValue: true,
-	minChars: 0,
-	queryDelay: 200,
+	minChars: 1,
+	queryDelay: 500,
 	initComponent: function(){
 		var me = this;
 
@@ -8258,12 +8258,13 @@ Ext.define('App.ux.combo.Ethnicity', {
 			queryMode   : 'local',
 			displayField: 'option_name',
 			valueField  : 'option_value',
-			emptyText   : _('select'),
+			emptyText   : _('race'),
 			store       : me.store
 		}, null);
 		me.callParent(arguments);
 	}
 });
+
 Ext.define('App.ux.combo.Facilities', {
 	extend: 'Ext.form.ComboBox',
 	alias: 'widget.mitos.facilitiescombo',
@@ -9497,37 +9498,37 @@ Ext.define('App.ux.combo.PaymentCategory', {
 	}
 });
 Ext.define('App.ux.combo.Pharmacies', {
-	extend       : 'Ext.form.ComboBox',
-	alias        : 'widget.mitos.pharmaciescombo',
-	initComponent: function() {
+	extend: 'Ext.form.ComboBox',
+	alias: 'widget.mitos.pharmaciescombo',
+	initComponent: function(){
 		var me = this;
 
 		Ext.define('PharmaciesComboModel', {
 			extend: 'Ext.data.Model',
 			fields: [
-				{name: 'option_name' },
-				{name: 'option_value' }
+				{name: 'option_name'},
+				{name: 'option_value'}
 			],
-			proxy : {
-				type       : 'direct',
-				api        : {
-					read: CombosData.getActivePharmacies
+			proxy: {
+				type: 'direct',
+				api: {
+					read: 'CombosData.getActivePharmacies'
 				}
 			}
 		});
 
 		me.store = Ext.create('Ext.data.Store', {
-			model   : 'PharmaciesComboModel',
+			model: 'PharmaciesComboModel',
 			autoLoad: false
 		});
 
 		Ext.apply(this, {
-			editable    : false,
+			editable: false,
 			//queryMode   : 'local',
 			displayField: 'option_name',
-			valueField  : 'option_value',
-			emptyText   : _('select'),
-			store       : me.store
+			valueField: 'option_value',
+			emptyText: _('select'),
+			store: me.store
 		}, null);
 		me.callParent(arguments);
 	}
@@ -9886,12 +9887,13 @@ Ext.define('App.ux.combo.Race', {
 			queryMode   : 'local',
 			displayField: 'option_name',
 			valueField  : 'option_value',
-			emptyText   : _('select'),
+			emptyText   : _('ethnicity'),
 			store       : me.store
 		}, null);
 		me.callParent(arguments);
 	}
 });
+
 Ext.define('App.ux.combo.Roles', {
 	extend       : 'Ext.form.ComboBox',
 	alias        : 'widget.mitos.rolescombo',
@@ -9961,12 +9963,13 @@ Ext.define('App.ux.combo.Sex', {
 			queryMode   : 'local',
 			displayField: 'option_name',
 			valueField  : 'option_value',
-			emptyText   : _('select'),
+			emptyText   : _('sex'),
 			store       : me.store
 		}, null);
 		me.callParent(arguments);
 	}
 });
+
 Ext.define('App.ux.combo.Surgery', {
 	extend       : 'Ext.form.ComboBox',
 	alias        : 'widget.mitos.surgerycombo',
@@ -10934,6 +10937,10 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 					}
 				},
 				{
+					name: 'TTY',
+					type: 'auto'
+				},
+				{
 					name: 'DST',
 					type: 'auto'
 				},
@@ -11002,7 +11009,7 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 			listConfig: {
 				loadingText: _('searching') + '...',
 				getInnerTpl: function(){
-					return '<div class="search-item">{STR} ( <b>RxNorm:</b> {RXCUI} <b>NDC:</b> {NDC} )</div>';
+					return '<div class="search-item {[values.TTY == "SCD" ? "lightGreenBg" : "" ]}">{STR}<br><b>RxNorm:</b> {RXCUI} <b>NDC:</b> {NDC}</div>';
 				}
 			},
 			pageSize: 25,
@@ -11532,6 +11539,11 @@ Ext.define('App.model.administration.DocumentsTemplates', {
 			comment: 'Documentation Templates ID'
 		},
 		{
+			name: 'facility_id',
+			type: 'int',
+			index: true
+		},
+		{
 			name: 'title',
 			type: 'string',
 			len: 50
@@ -11569,15 +11581,16 @@ Ext.define('App.model.administration.DocumentsTemplates', {
 		{
 			name: 'updated_by_uid',
 			type: 'int'
+		},
+		{
+			name: 'facility_name',
+			type: 'string',
+			store: false
 		}
 	]
 });
 Ext.define('App.model.administration.DocumentToken', {
 	extend: 'Ext.data.Model',
-	table: {
-		name: 'documenttoken',
-		comment: 'Document Tokens'
-	},
 	fields: [
 		{
 			name: 'id',
@@ -17696,11 +17709,6 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 			type: 'string'
 		},
 		{
-			name: 'status',
-			type: 'string',
-			len: 40
-		},
-		{
 			name: 'status_code',
 			type: 'string',
 			len: 20
@@ -17752,6 +17760,7 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 		}
 	}
 });
+
 Ext.define('App.model.patient.PatientArrivalLog', {
 	extend: 'Ext.data.Model',
 	fields: [
@@ -18051,6 +18060,11 @@ Ext.define('App.model.patient.PatientImmunization', {
 			index: true
 		},
 		{
+			name: 'facility_id',
+			type: 'int',
+			index: true
+		},
+		{
 			name: 'uid',
 			type: 'int'
 		},
@@ -18148,16 +18162,55 @@ Ext.define('App.model.patient.PatientImmunization', {
 			len: 180
 		},
 		{
-			name: 'education_date',
+			name: 'education_resource_1_id',
+			type: 'int'
+		},
+		{
+			name: 'education_resource_2_id',
+			type: 'int'
+		},
+		{
+			name: 'education_resource_3_id',
+			type: 'int'
+		},
+		{
+			name: 'education_presented_1_date',
 			type: 'date',
-			dataType: 'date',
-			dateFormat: 'Y-m-d'
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'education_presented_2_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'education_presented_3_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'vfc_code',
+			type: 'string',
+			len: 40
+		},
+		{
+			name: 'information_source_code',
+			type: 'string',
+			len: 10
+		},
+		{
+			name: 'refusal_reason_code',
+			type: 'string',
+			len: 10
 		},
         {
-            name: 'education_doc_published',
-            type: 'date',
-            dataType: 'date',
-            dateFormat: 'Y-m-d'
+            name: 'is_presumed_immunity',
+            type: 'bool'
+        },
+        {
+            name: 'presumed_immunity_code',
+	        type: 'string',
+	        len: 20
         },
 		{
 			name: 'note',
@@ -18629,10 +18682,6 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 			len: 40
 		},
 		{
-			name: 'specimen_notes',
-			type: 'string'
-		},
-		{
 			name: 'documentId',
 			type: 'string',
 			comment: 'this is the document or hl7 message id - example -> doc|123 or hl7|123',
@@ -18654,7 +18703,17 @@ Ext.define('App.model.patient.PatientsOrderResult', {
             type: 'string',
             comment: 'VOID comments',
             len: 100
-        }
+        },
+		{
+			name: 'specimen_notes',
+			type: 'string',
+			len: 600
+		},
+		{
+			name: 'study_link',
+			type: 'string',
+			len: 600
+		}
 	],
 	proxy: {
 		type: 'direct',
@@ -21078,6 +21137,20 @@ Ext.define('App.model.patient.Patient',{
             type: 'bool'
         },
         {
+            name: 'allow_guardian_web_portal',
+            type: 'bool'
+        },
+        {
+            name: 'allow_emergency_contact_web_portal',
+            type: 'bool'
+        },
+        {
+            name: 'organ_donor_code',
+            type: 'string',
+	        len: 10,
+	        defaultValue: 'U'
+        },
+        {
             name: 'occupation',
             type: 'string',
             comment: 'patient occupation',
@@ -21284,6 +21357,11 @@ Ext.define('App.model.patient.Patient',{
 	        len: 35
         },
         {
+            name: 'postal_country',
+            type: 'string',
+	        len: 35
+        },
+        {
             name: 'physical_address',
             type: 'string',
 	        len: 40
@@ -21308,6 +21386,41 @@ Ext.define('App.model.patient.Patient',{
             type: 'string',
 	        len: 35
         },
+        {
+            name: 'physical_country',
+            type: 'string',
+	        len: 35
+        },
+	    {
+		    name: 'mother_fname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'mother_mname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'mother_lname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'father_fname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'father_mname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'father_lname',
+		    type: 'string',
+		    len: 80
+	    },
 	    {
 		    name: 'guardians_relation',
 		    type: 'string',
@@ -21339,6 +21452,47 @@ Ext.define('App.model.patient.Patient',{
 	        len: 10
         },
         {
+            name: 'guardians_address',
+            type: 'string',
+            len: 35
+        },
+        {
+            name: 'guardians_address_cont',
+            type: 'string',
+            len: 35
+        },
+        {
+            name: 'guardians_city',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'guardians_state',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'guardians_country',
+            type: 'string',
+            len: 80
+        },
+        {
+            name: 'guardians_zip',
+            type: 'string',
+            len: 15
+        },
+        {
+            name: 'guardian_portal_password',
+            type: 'string',
+            dataType: 'blob',
+            encrypt: true
+        },
+        {
+            name: 'guardian_portal_username',
+            type: 'string',
+            len: 40
+        },
+        {
             name: 'emergency_contact_relation',
             type: 'string',
 	        len: 20
@@ -21367,6 +21521,47 @@ Ext.define('App.model.patient.Patient',{
             name: 'emergency_contact_phone_type',
             type: 'string',
             len: 10
+        },
+	    {
+		    name: 'emergency_contact_address',
+		    type: 'string',
+		    len: 35
+	    },
+	    {
+		    name: 'emergency_contact_address_cont',
+		    type: 'string',
+		    len: 35
+	    },
+	    {
+		    name: 'emergency_contact_city',
+		    type: 'string',
+		    len: 40
+	    },
+	    {
+		    name: 'emergency_contact_state',
+		    type: 'string',
+		    len: 40
+	    },
+	    {
+		    name: 'emergency_contact_country',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'emergency_contact_zip',
+		    type: 'string',
+		    len: 15
+	    },
+        {
+            name: 'emergency_contact_portal_password',
+            type: 'string',
+            dataType: 'blob',
+            encrypt: true
+        },
+        {
+            name: 'emergency_contact_portal_username',
+            type: 'string',
+            len: 40
         }
     ],
     idProperty: 'pid',
@@ -23588,7 +23783,10 @@ Ext.define('App.view.patient.encounter.ICDs', {
 					{
 						xtype:'combobox',
 						store: Ext.create('Ext.data.Store', {
-							fields: ['option', { name:'value', type: 'int' }],
+							fields: [
+								{ name:'option', type: 'auto' },
+								{ name:'value', type: 'int' }
+							],
 							data : [
 								{ option:'DX:1', value: 1 },
 								{ option:'DX:2', value: 2 },
@@ -23610,6 +23808,31 @@ Ext.define('App.view.patient.encounter.ICDs', {
 						margin: '0 3 0 0',
 						forceSelection: true,
 						editable: false
+					},
+					{
+						xtype:'combobox',
+						store: Ext.create('Ext.data.Store', {
+							fields: [
+								{ name:'code', type: 'string' },
+								{ name:'code_text', type: 'string' }
+							],
+							data : [
+								{ code:'A', code_text: 'Admitting' },
+								{ code:'F', code_text: 'Final' },
+								{ code:'W', code_text: 'Working' }
+							]
+						}),
+						width: 100,
+						itemId: this.id + '-dx-type-cmb',
+						queryMode: 'local',
+						displayField: 'code_text',
+						valueField: 'code',
+						margin: '0 3 0 0',
+						forceSelection: true,
+						allowBlank: false,
+						submitValue: false,
+						editable: false,
+						value: 'F'
 					},
 					{
 						xtype: 'liveicdxsearch',
@@ -23739,19 +23962,25 @@ Ext.define('App.view.patient.encounter.ICDs', {
 	onLiveIcdSelect: function(field, record){
 		var me = this,
 			soap = me.up('form').getForm().getRecord(),
-			group = me.getDxGroupCombo().getValue(),
+			group_cmb = me.getDxGroupCombo(),
+			group = group_cmb.getValue(),
+			type_cmb = me.getDxTypeCombo(),
+			type = type_cmb.getValue(),
 			order = me.getNextOrder(group),
 			dxRecords;
+
+		if(!group_cmb.isValid() && !type_cmb.isValid()) return;
 
 		dxRecords = this.store.add({
 			pid: soap.data.pid,
 			eid: soap.data.eid,
 			uid: app.user.id,
 			code: record[0].data.code,
-			dx_group: group,
-			dx_order: order,
+			code_text: record[0].data.code_text,
 			code_type: record[0].data.code_type,
-			code_text: record[0].data.code_text
+			dx_group: group,
+			dx_type: type,
+			dx_order: order
 		});
 
 		me.addIcd(dxRecords[0], group, order);
@@ -23784,13 +24013,14 @@ Ext.define('App.view.patient.encounter.ICDs', {
 	},
 
 	addIcd: function(record, group, order){
+		var me = this;
 
-		this.getDxCell(group, order).add({
+		me.getDxCell(group, order).add({
 			xtype: 'panel',
 			closable: true,
-			title: record.data.code,
+			title: (record.get('code') + ' (' + record.get('dx_type')+ ')'),
 			dxRecord: record,
-			width: 100,
+			width: 120,
 			margin: '0 5 0 0',
 			name: this.name,
 			editable: false,
@@ -23798,6 +24028,11 @@ Ext.define('App.view.patient.encounter.ICDs', {
 			draggable: {
 				moveOnDrag: false,
 				ddGroup: 'group-' + group + '-dx'
+			},
+			listeners: {
+				close: function(cmp){
+					me.store.remove(cmp.dxRecord);
+				}
 			}
 		});
 	},
@@ -23812,6 +24047,10 @@ Ext.define('App.view.patient.encounter.ICDs', {
 
 	getDxGroupCombo: function(){
 		return this.query('#' + this.id + '-group-cmb')[0];
+	},
+
+	getDxTypeCombo: function(){
+		return this.query('#' + this.id + '-dx-type-cmb')[0];
 	},
 
 	getNextOrder: function(group){
@@ -25436,6 +25675,7 @@ Ext.define('App.view.patient.Results', {
 					flex: 1,
 					editor: {
 						xtype: 'labslivetsearch',
+						itemId: 'ResultsLabsLiveSearchField',
 						allowBlank: false
 					},
 					renderer: function(v, meta, record){
@@ -25473,24 +25713,7 @@ Ext.define('App.view.patient.Results', {
 			hidden: true,
 			layout: 'card',
 			activeItem: 0,
-			bbar: [
-				{
-					text: _('sign'),
-					iconCls: 'icoSing',
-					disabled: true,
-					itemId: 'ResultsOrderSignBtn'
-				},
-				'->',
-				{
-					text: _('reset'),
-					action: 'ResultsOrderResetBtn'
-				},
-				{
-					text: _('save'),
-					action: 'ResultsOrderSaveBtn'
-				}
 
-			],
 			items: [
 				{
 					/**
@@ -25626,7 +25849,7 @@ Ext.define('App.view.patient.Results', {
 									items: [
 										{
 											icon: 'resources/images/icons/blueInfo.png',  // Use a URL in the icon config
-											tooltip: 'Get Info',
+											tooltip: _('get_info'),
 											handler: function(grid, rowIndex, colIndex, item, e, record){
 												App.app.getController('InfoButton').doGetInfo(
 													record.data.code,
@@ -25798,10 +26021,11 @@ Ext.define('App.view.patient.Results', {
 											name: 'result_status'
 										},
 										{
-											xtype: 'filefield',
+											xtype: 'fileuploadfield',
 											fieldLabel: _('report'),
-											action: 'ResultsRadiologyFormUploadField',
-											submitValue: false
+											itemId: 'ResultsRadiologyFormUploadField',
+											submitValue: false,
+											allowBlank: false
 										}
 									]
 								},
@@ -25815,15 +26039,9 @@ Ext.define('App.view.patient.Results', {
 									layout: 'anchor',
 									items: [
 										{
-											fieldLabel: _('link'),
-											name: 'study_link',
-											itemId: 'ResultsRadiologyFormStudyLinkField',
-											readOnly: true
-										},
-										{
 											xtype: 'button',
 											text: _('view'),
-											margin: '0 0 5 105',
+											margin: '0 0 8 0',
 											itemId: 'ResultsRadiologyFormViewStudyBtn'
 										}
 									]
@@ -25861,6 +26079,23 @@ Ext.define('App.view.patient.Results', {
 							itemId: 'ResultsRadiologyDocumentIframe'
 						}
 					]
+				}
+			],
+			buttons: [
+				{
+					text: _('sign'),
+					iconCls: 'icoSing',
+					disabled: true,
+					itemId: 'ResultsOrderSignBtn'
+				},
+				'->',
+				{
+					text: _('reset'),
+					itemId: 'ResultsOrderResetBtn'
+				},
+				{
+					text: _('save'),
+					itemId: 'ResultsOrderSaveBtn'
 				}
 			]
 		}
@@ -33684,6 +33919,10 @@ Ext.define('App.store.administration.DocumentToken', {
             token: '[PATIENT_ID]'
         },
         {
+            title: _('patient_record_number'),
+            token: '[PATIENT_RECORD_NUMBER]'
+        },
+        {
             title: _('patient_name'),
             token: '[PATIENT_NAME]'
         },
@@ -34094,6 +34333,34 @@ Ext.define('App.store.administration.DocumentToken', {
 	    {
             title: _('referral_to'),
             token: '[REFERRAL_TO_TEXT]'
+        },
+	    {
+            title: _('rad_report_body'),
+            token: '[REPORT_ACCESSIONS]'
+        },
+	    {
+            title: _('report_body'),
+            token: '[REPORT_BODY]'
+        },
+	    {
+            title: _('report_interpreter'),
+            token: '[REPORT_INTERPRETER]'
+        },
+	    {
+            title: _('report_transcriptionist'),
+            token: '[REPORT_TRANSCRIPTIONIST]'
+        },
+	    {
+            title: _('report_signature'),
+            token: '[REPORT_SIGNATURE]'
+        },
+	    {
+            title: _('line'),
+            token: '[LINE]'
+        },
+	    {
+            title: _('time_now'),
+            token: '[TIME_NOW]'
         }
     ]
 });
@@ -35990,6 +36257,30 @@ Ext.define('App.controller.administration.HL7', {
 		{
 			ref: 'HL7ClientsGrid',
 			selector: '#hl7clientsgrid'
+		},
+		{
+			ref: 'HL7MessagesWindow',
+			selector: '#HL7MessagesWindow'
+		},
+		{
+			ref: 'HL7MessagesGrid',
+			selector: '#HL7MessagesGrid'
+		},
+		{
+			ref: 'HL7MessageViewerWindow',
+			selector: '#HL7MessageViewerWindow'
+		},
+		{
+			ref: 'HL7MessageViewerWindowWarnings',
+			selector: '#HL7MessageViewerWindowWarnings'
+		},
+		{
+			ref: 'HL7MessageViewerWindowMessageField',
+			selector: '#HL7MessageViewerWindowMessageField'
+		},
+		{
+			ref: 'HL7MessageViewerWindowAcknowledgeField',
+			selector: '#HL7MessageViewerWindowAcknowledgeField'
 		}
 	],
 
@@ -36015,6 +36306,12 @@ Ext.define('App.controller.administration.HL7', {
 			},
 			'#hl7clientsgrid #removeHL7ClientBtn': {
 				click: me.onRemoveHL7ClientBtnClick
+			},
+			'#HL7MessagesViewBtn': {
+				click: me.onHL7MessagesViewBtnClick
+			},
+			'#HL7MessagesGrid': {
+				itemdblclick: me.onHL7MessagesGridItemDblClick
 			}
 		});
 
@@ -36092,6 +36389,49 @@ Ext.define('App.controller.administration.HL7', {
 		var multiField = plugin.editor.query('multitextfield')[0],
 			values = multiField.getValue();
 		e.record.set({ allow_ips: values });
+	},
+
+	onHL7MessagesViewBtnClick: function(){
+		this.showHL7MessagesWindow();
+		this.getHL7MessagesGrid().getStore().load();
+	},
+
+	onHL7MessagesGridItemDblClick: function(grid, record){
+		this.viewHL7MessageDetailById(record.get('id'));
+	},
+
+	viewHL7MessageDetailById: function(message_id){
+		var me = this;
+
+		me.showHL7MessageDetailWindow();
+
+		HL7Messages.getMessageById(message_id, function(provider, response){
+
+			var warnings = (response.result.hash !== response.result.current_hash) ?
+				'<span style="color: red">' : '<span style="color: green">';
+			warnings += '<b>' + _('stored_hash') + ':</b> ' + response.result.hash + '<br>';
+			warnings += '<b>' + _('current_hash') + ':</b> ' + response.result.current_hash + '<br>';
+			warnings += '</span>';
+
+			me.getHL7MessageViewerWindowWarnings().update(warnings);
+			me.getHL7MessageViewerWindowMessageField().setValue(response.result.message);
+			me.getHL7MessageViewerWindowAcknowledgeField().setValue(response.result.response);
+
+		});
+	},
+
+	showHL7MessageDetailWindow: function(){
+		if(!this.getHL7MessageViewerWindow()){
+			Ext.create('App.view.administration.HL7MessageViewer');
+		}
+		return this.getHL7MessageViewerWindow().show();
+	},
+
+	showHL7MessagesWindow: function(){
+		if(!this.getHL7MessagesWindow()){
+			Ext.create('App.view.administration.HL7Messages');
+		}
+		return this.getHL7MessagesWindow().show();
 	}
 
 });
@@ -36388,6 +36728,117 @@ Ext.define('App.controller.administration.DecisionSupport', {
 	doRemoveRuleConcept: function(record){
 		record.store.remove(record);
 	}
+
+});
+
+Ext.define('App.controller.administration.Documents', {
+	extend: 'Ext.app.Controller',
+
+	refs: [
+		{
+			ref: 'AdministrationDocuments',
+			selector: '#AdministrationDocuments'
+		},
+		{
+			ref: 'AdministrationDocumentsDefaultsGrid',
+			selector: '#AdministrationDocumentsDefaultsGrid'
+		},
+		{
+			ref: 'AdministrationDocumentsTemplatesGrid',
+			selector: '#AdministrationDocumentsTemplatesGrid'
+		},
+		{
+			ref: 'AdministrationDocumentsTemplatesEditorForm',
+			selector: '#AdministrationDocumentsTemplatesEditorForm'
+		},
+		{
+			ref: 'AdministrationDocumentsTokensGrid',
+			selector: '#AdministrationDocumentsTokensGrid'
+		},
+		{
+			ref: 'AdministrationDocumentsTokenTextField',
+			selector: '#AdministrationDocumentsTokenTextField'
+		},
+		{
+			ref: 'AdministrationDocumentsNewTemplateBtn',
+			selector: '#AdministrationDocumentsNewTemplateBtn'
+		}
+	],
+
+	init: function(){
+		var me = this;
+
+		me.control({
+			'#AdministrationDocuments': {
+				activate: me.onAdministrationDocumentsActive
+			},
+			'#AdministrationDocumentsTokensGrid': {
+				afterrender: me.onAdministrationDocumentsTokensGridAfterRender
+			},
+			'#AdministrationDocumentsNewTemplateBtn': {
+				click: me.onAdministrationDocumentsNewTemplateBtnClick
+			},
+			'#AdministrationDocumentsNewDefaulTemplateBtn': {
+				click: me.onAdministrationDocumentsNewDefaulTemplateBtnClick
+			}
+		});
+	},
+
+	onAdministrationDocumentsActive: function(){
+
+	},
+
+	onAdministrationDocumentsNewTemplateBtnClick: function(){
+		var me = this,
+			grid = me.getAdministrationDocumentsNewTemplateBtn(),
+			store = grid.getStore();
+
+		grid.editingPlugin.cancelEdit();
+		store.insert(0,
+			{
+				title: _('new_document'),
+				template_type: 'documenttemplate',
+				date: new Date(),
+				type: 1
+			});
+		grid.editingPlugin.startEdit(0, 0);
+	},
+
+	onAdministrationDocumentsNewDefaulTemplateBtnClick: function(){
+		var me = this,
+			grid = me.getAdministrationDocumentsDefaultsGrid(),
+			store = grid.getStore();
+
+		grid.editingPlugin.cancelEdit();
+		store.insert(0,
+			{
+				title: _('new_defaults'),
+				template_type: 'defaulttemplate',
+				date: new Date(),
+				type: 1
+			});
+		grid.editingPlugin.startEdit(0, 0);
+	},
+	
+	onAdministrationDocumentsTokensGridAfterRender: function(grid){
+
+	},
+
+	doCopy: function(grid, record){
+
+		if(!document.queryCommandSupported('copy')){
+			app.msg(_('oops'), _('text_copy_not_supported_by_browser'), true);
+			return;
+		}
+
+		var me = this;
+		grid.editingPlugin.startEdit(record, 0);
+		me.getAdministrationDocumentsTokenTextField().inputEl.dom.select();
+		document.execCommand("copy");
+		app.msg(_('sweet'), _('text_copyed'));
+
+	}
+
 
 });
 
@@ -37790,8 +38241,6 @@ Ext.define('App.controller.miscellaneous.Amendments', {
 			assigned_user = searchField.getValue();
 
 		if(!searchField.isValid()) return;
-
-
 		me.getAmendmentDetailsWindow().mask(_('saving'));
 
 		record.set({
@@ -37815,9 +38264,7 @@ Ext.define('App.controller.miscellaneous.Amendments', {
 
 
 	doUpdatePatientData: function(data, pid, eid){
-
 		if(data.demographics){
-
 			var panel = app.getActivePanel();
 			if(panel.itemId == 'PatientSummaryPanel'){
 				var values = {};
@@ -37831,6 +38278,7 @@ Ext.define('App.controller.miscellaneous.Amendments', {
 	}
 
 });
+
 Ext.define('App.controller.AlwaysOnTop', {
 	extend: 'Ext.app.Controller',
 
@@ -39094,7 +39542,15 @@ Ext.define('App.controller.patient.ActiveProblems', {
 		{
 			ref: 'AddActiveProblemBtn',
 			selector: 'patientactiveproblemspanel #addActiveProblemBtn'
-		}
+		},
+        {
+            ref: 'PatientProblemsReconciledBtn',
+            selector: '#PatientProblemsReconciledBtn'
+        },
+        {
+            ref: 'PatientProblemsActiveBtn',
+            selector: '#PatientProblemsActiveBtn'
+        }
 	],
 
 	init: function(){
@@ -39111,7 +39567,13 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			},
 			'patientactiveproblemspanel #addActiveProblemBtn':{
 				click: me.onAddActiveProblemBtnClick
-			}
+			},
+            '#PatientProblemsReconciledBtn': {
+                click: me.onPatientProblemsReconciledBtnClick
+            },
+            '#PatientProblemsActiveBtn': {
+                click: me.onPatientProblemsActiveBtnClick
+            }
 		});
 	},
 
@@ -39133,16 +39595,33 @@ Ext.define('App.controller.patient.ActiveProblems', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	onActiveProblemsGridActive:function(grid){
-		var store = grid.getStore();
+    onPatientProblemsReconciledBtnClick: function(){
+        this.onActiveProblemsGridActive();
+    },
+
+    onPatientProblemsActiveBtnClick: function(){
+        this.onActiveProblemsGridActive();
+    },
+
+	onActiveProblemsGridActive:function(){
+		var grid = this.getActiveProblemsGrid(),
+            store = grid.getStore(),
+            reconciled = this.getPatientProblemsReconciledBtn().pressed,
+            active = this.getPatientProblemsActiveBtn().pressed;
 
 		store.clearFilter(true);
-		store.filter([
-			{
-				property: 'pid',
-				value: app.patient.pid
-			}
-		]);
+        store.load({
+            filters: [
+                {
+                    property: 'pid',
+                    value: app.patient.pid
+                }
+            ],
+            params: {
+                reconciled: reconciled,
+                active: active
+            }
+        });
 	},
 
 	onActiveProblemLiveSearchSelect:function(cmb, records){
@@ -39165,6 +39644,7 @@ Ext.define('App.controller.patient.ActiveProblems', {
 		});
 
 	}
+
 });
 
 Ext.define('App.controller.patient.AdvanceDirectives', {
@@ -39924,22 +40404,28 @@ Ext.define('App.controller.patient.CCD', {
 
 	onViewCcdBtnClick: function(btn){
 		btn.up('panel').query('miframe')[0].setSrc(
-			'dataProvider/CCDDocument.php?action=view&site=' + window.site +
+			'dataProvider/CCDDocument.php?' +
+            'action=view' +
+            '&site=' + window.site +
 			'&pid=' + app.patient.pid +
 			'&eid=' + this.getEid(btn) +
 			'&exclude=' + this.getExclusions(btn) +
 			'&token=' + app.user.token
 		);
+        btn.up('panel').query('miframe')[0].el.unmask();
 	},
 
 	onArchiveCcdBtnClick: function(btn){
 		btn.up('panel').query('miframe')[0].setSrc(
-			'dataProvider/CCDDocument.php?action=archive&site=' + window.site +
+			'dataProvider/CCDDocument.php?' +
+            'action=archive&' +
+            'site=' + window.site +
 			'&pid=' + app.patient.pid +
 			'&eid=' + this.getEid(btn) +
 			'&exclude=' + this.getExclusions(btn) +
 			'&token=' + app.user.token
 		);
+        btn.up('panel').query('miframe')[0].el.unmask();
 	},
 
 	onExportCcdBtnClick: function(btn){
@@ -39950,6 +40436,7 @@ Ext.define('App.controller.patient.CCD', {
 			'&exclude=' + this.getExclusions(btn) +
 			'&token=' + app.user.token
 		);
+        btn.up('panel').query('miframe')[0].el.unmask();
 	},
 
 	onPatientCcdPanelEncounterCmbSelect: function(cmb, records){
@@ -39961,6 +40448,7 @@ Ext.define('App.controller.patient.CCD', {
 			'&exclude=' + this.getExclusions(cmb) +
 			'&token=' + app.user.token
 		);
+        btn.up('panel').query('miframe')[0].el.unmask();
 	},
 
 	onPrintCcdBtnClick: function(btn){
@@ -40911,6 +41399,33 @@ Ext.define('App.controller.patient.FamilyHistory', {
 		});
 	},
 
+    /**
+     * This event is called from the view, and not from the controller itself.
+     * @param grid
+     * @param record
+     */
+    onDeactivateRecord: function(grid, record){
+        var store,
+            params = {
+                id: record.data.id,
+                pid: record.data.pid,
+                eid: record.data.eid
+            };
+        Ext.Msg.show({
+            title:_('removal'),
+            msg: _('sure_for_removal'),
+            buttons: Ext.Msg.YESNO,
+            icon: Ext.Msg.QUESTION,
+            fn: function(btn) {
+                if (btn === 'yes') {
+                    store = grid.getStore();
+                    FamilyHistory.deleteFamilyHistory(params, function(response){});
+                    store.load();
+                }
+            }
+        });
+    },
+
 	onFamilyHistoryGridActivate: function(grid){
 		var store = grid.getStore();
 
@@ -40935,6 +41450,7 @@ Ext.define('App.controller.patient.FamilyHistory', {
 			Ext.create('App.view.patient.windows.FamilyHistory');
 		}
 		this.getFamilyHistoryWindow().show();
+        this.getFamilyHistoryWindow().setAutoScroll(true);
 	},
 
 	onFamilyHistoryWindowSaveBtnClick:function(){
@@ -40944,15 +41460,17 @@ Ext.define('App.controller.patient.FamilyHistory', {
 			values = form.getValues(),
 			histories = [],
 			isValid =  true,
-            foo;
+            foo,
+            condition,
+            relation;
 
 		Ext.Object.each(values, function(key, value){
 
 			if(value == '0~0') return;
 
-			foo = value.split('~'),
-				condition = foo[0].split(':'),
-				relation = foo[1].split(':');
+			foo = value.split('~');
+            condition = foo[0].split(':');
+            relation = foo[1].split(':');
 
 			if(isValid && relation[0] == '0'){
 				isValid = false;
@@ -40985,7 +41503,6 @@ Ext.define('App.controller.patient.FamilyHistory', {
 		store.add(histories);
 		store.sync();
 		this.getFamilyHistoryWindow().close();
-
 	},
 
 	onFamilyHistoryWindowCancelBtnClick:function(){
@@ -41001,8 +41518,8 @@ Ext.define('App.controller.patient.HL7', {
 	],
 	refs: [
 		{
-			ref: '#Adt04MessageBtn',
-			selector: 'Adt04MessageBtn'
+			ref: 'SyndromicSurveillanceBtn',
+			selector: '#SyndromicSurveillanceBtn'
 		}
 	],
 
@@ -41012,7 +41529,7 @@ Ext.define('App.controller.patient.HL7', {
 			'#soapForm': {
 				render: me.onSoapFormRender
 			},
-			'#Adt04MessageBtn': {
+			'#SyndromicSurveillanceBtn': {
 				click: me.onAdt04MessageBtnClick
 			}
 		});
@@ -41022,8 +41539,9 @@ Ext.define('App.controller.patient.HL7', {
 		if(a('hl7_send_adt04')){
 			form.getDockedItems()[0].insert(0, {
 				xtype:'button',
-				text: _('adt04'),
-				itemId: 'Adt04MessageBtn'
+				text: _('syndromic_surveillance'),
+				tooltip: _('report_syndromic_surveillance'),
+				itemId: 'SyndromicSurveillanceBtn'
 			});
 		}
 	},
@@ -41034,7 +41552,11 @@ Ext.define('App.controller.patient.HL7', {
 			pid: app.patient.pid,
 			eid: app.patient.eid,
 			fid: app.user.facility,
-			event: 'A04'
+			event: 'A04',
+			anonymous: true,
+			map_codes_types: {
+				ethnicity: 'CDCREC'
+			}
 		}, function(response){
 		});
 	}
@@ -41045,14 +41567,16 @@ Ext.define('App.controller.patient.HL7', {
 
 Ext.define('App.controller.patient.Immunizations', {
 	extend: 'Ext.app.Controller',
-	requires: [
-
-	],
+	requires: [],
 	refs: [
-        {
-            ref: 'SubmitImmunizationWindow',
-            selector: '#SubmitImmunizationWindow'
-        },
+		{
+			ref: 'SubmitImmunizationWindow',
+			selector: '#SubmitImmunizationWindow'
+		},
+		{
+			ref: 'SubmitImmunizationGrid',
+			selector: '#SubmitImmunizationGrid'
+		},
 		{
 			ref: 'ImmunizationPanel',
 			selector: 'patientimmunizationspanel'
@@ -41080,48 +41604,111 @@ Ext.define('App.controller.patient.Immunizations', {
 		{
 			ref: 'SubmitVxuBtn',
 			selector: 'patientimmunizationspanel #submitVxuBtn'
+		},
+		{
+			ref: 'ImmunizationsPresumedImmunityCheckbox',
+			selector: '#ImmunizationsPresumedImmunityCheckbox'
+		},
+		{
+			ref: 'ImmunizationsImmunizationSearch',
+			selector: '#ImmunizationsImmunizationSearch'
+		},
+		{
+			ref: 'ImmunizationsDisorderCombo',
+			selector: '#ImmunizationsDisorderCombo'
+		},
+		{
+			ref: 'ImmunizationsPresumedImmunityCheckbox',
+			selector: '#ImmunizationsPresumedImmunityCheckbox'
 		}
 	],
 
 	init: function(){
 		var me = this;
 		me.control({
-			'patientimmunizationspanel':{
+			'patientimmunizationspanel': {
 				activate: me.onPatientImmunizationsPanelActive
 			},
-			'patientimmunizationspanel #patientImmunizationsGrid':{
+			'patientimmunizationspanel #patientImmunizationsGrid': {
 				selectionchange: me.onPatientImmunizationsGridSelectionChange,
 				beforeedit: me.onPatientImmunizationsGridBeforeEdit,
 				edit: me.onPatientImmunizationsGridEdit
 			},
-			'patientimmunizationspanel #cvxGrid':{
+			'patientimmunizationspanel #cvxGrid': {
 				expand: me.onCvxGridExpand
 			},
-			'patientimmunizationspanel #submitVxuBtn':{
+			'patientimmunizationspanel #submitVxuBtn': {
 				click: me.onSubmitVxuBtnClick
 			},
-			'patientimmunizationspanel #reviewImmunizationsBtn':{
+			'patientimmunizationspanel #reviewImmunizationsBtn': {
 				click: me.onReviewImmunizationsBtnClick
 			},
-			'patientimmunizationspanel #addImmunizationBtn':{
+			'patientimmunizationspanel #addImmunizationBtn': {
 				click: me.onAddImmunizationBtnClick
 			},
-			'form #immunizationsearch':{
+			'#ImmunizationsImmunizationSearch': {
 				select: me.onImmunizationSearchSelect
 			},
-			'#patientImmunizationsEditFormAdministeredByField':{
+			'#patientImmunizationsEditFormAdministeredByField': {
 				select: me.onPatientImmunizationsEditFormAdministeredByFieldSelect
 			},
-            '#SubmitImmunizationWindow #ActiveFacilitiesCombo':{
-                change: me.onActiveFacilitiesChange
-            },
-            '#SubmitImmunizationWindow #ApplicationCombo':{
-                change: me.onApplicationChange
-            }
+			'#SubmitImmunizationWindow #ActiveFacilitiesCombo': {
+				change: me.onActiveFacilitiesChange
+			},
+			'#SubmitImmunizationWindow #ApplicationCombo': {
+				change: me.onApplicationChange
+			},
+			'#ImmunizationsPresumedImmunityCheckbox': {
+				afterrender: me.onImmunizationsPresumedImmunityCheckboxAfterRender
+			}
 		});
 	},
 
-	onPatientImmunizationsEditFormAdministeredByFieldSelect:function(comb, records){
+	onImmunizationsPresumedImmunityCheckboxAfterRender: function(checkbox){
+		var me = this;
+
+		checkbox.el.on('click', function(){
+			Ext.Function.defer(function(){
+				me.onImmunizationsPresumedImmunityCheckboxClick(checkbox);
+			}, 100);
+
+		});
+	},
+
+	onImmunizationsPresumedImmunityCheckboxClick: function(checkbox){
+
+		var record = checkbox.up('form').getForm().getRecord(),
+			checked = checkbox.getValue();
+
+		this.setImmunizationFields(checked);
+
+		this.getImmunizationsImmunizationSearch().reset();
+		this.getImmunizationsDisorderCombo().reset();
+
+		if(checked){
+			record.set({
+				presumed_immunity_code: '',
+				code: '998',
+				code_type: 'CVX',
+				vaccine_name: 'no vaccine administered'
+			});
+		}else{
+			record.set({
+				code: '',
+				code_type: '',
+				vaccine_name: ''
+			});
+		}
+	},
+
+	setImmunizationFields: function(presumed_immunity){
+		this.getImmunizationsDisorderCombo().setVisible(presumed_immunity);
+		this.getImmunizationsDisorderCombo().setDisabled(!presumed_immunity);
+		this.getImmunizationsImmunizationSearch().setVisible(!presumed_immunity);
+		this.getImmunizationsImmunizationSearch().setDisabled(presumed_immunity);
+	},
+
+	onPatientImmunizationsEditFormAdministeredByFieldSelect: function(comb, records){
 		var record = comb.up('form').getForm().getRecord();
 
 		record.set({
@@ -41133,11 +41720,11 @@ Ext.define('App.controller.patient.Immunizations', {
 		});
 	},
 
-	onImmunizationSearchSelect:function(combo, record){
-		var form =  combo.up('form').getForm();
+	onImmunizationSearchSelect: function(combo, record){
+		var form = combo.up('form').getForm();
 
 		this.getCvxMvxCombo().getStore().load({
-			params:{
+			params: {
 				cvx_code: record[0].data.cvx_code
 			}
 		});
@@ -41147,16 +41734,18 @@ Ext.define('App.controller.patient.Immunizations', {
 		});
 	},
 
-	onCvxGridExpand:function(grid){
+	onCvxGridExpand: function(grid){
 		grid.getStore().load();
 	},
 
-	onPatientImmunizationsGridSelectionChange:function(sm, selected){
+	onPatientImmunizationsGridSelectionChange: function(sm, selected){
 		this.getSubmitVxuBtn().setDisabled(selected.length === 0);
 	},
 
-	onPatientImmunizationsGridBeforeEdit:function(plugin, context){
+	onPatientImmunizationsGridBeforeEdit: function(plugin, context){
 		var field = plugin.editor.getForm().findField('administered_by');
+
+		this.setImmunizationFields(context.record.get('is_presumed_immunity'));
 
 		field.forceSelection = false;
 		Ext.Function.defer(function(){
@@ -41165,33 +41754,26 @@ Ext.define('App.controller.patient.Immunizations', {
 		}, 200);
 	},
 
-	onPatientImmunizationsGridEdit:function(plugin, context){
+	onPatientImmunizationsGridEdit: function(plugin, context){
 		app.fireEvent('immunizationedit', this, context.record);
 	},
 
-	onPatientImmunizationsPanelActive:function(){
+	onPatientImmunizationsPanelActive: function(){
 		this.loadPatientImmunizations();
 	},
 
-	onSubmitVxuBtnClick:function(){
+	onSubmitVxuBtnClick: function(){
 		var me = this,
-			selected = me.getImmunizationsGrid().getSelectionModel().getSelection(),
-			immunizations = [];
-
+			selected = me.getImmunizationsGrid().getSelectionModel().getSelection();
 		me.vxuWindow = me.getVxuWindow();
-
-		for(var i=0; i < selected.length; i++){
-			immunizations.push(selected[i].data);
-		}
-
-		me.vxuWindow.getComponent('list').update(immunizations);
+		me.vxuWindow.down('grid').getStore().loadData(selected);
 	},
 
-	onReviewImmunizationsBtnClick:function(){
+	onReviewImmunizationsBtnClick: function(){
 
 	},
 
-	onAddImmunizationBtnClick:function(){
+	onAddImmunizationBtnClick: function(){
 		var grid = this.getImmunizationsGrid(),
 			store = grid.getStore();
 
@@ -41201,6 +41783,7 @@ Ext.define('App.controller.patient.Immunizations', {
 			uid: app.user.id,
 			pid: app.patient.pid,
 			eid: app.patient.eid,
+			facility_id: app.user.facility,
 			create_date: new Date(),
 			begin_date: new Date()
 
@@ -41208,7 +41791,7 @@ Ext.define('App.controller.patient.Immunizations', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	loadPatientImmunizations:function(){
+	loadPatientImmunizations: function(){
 		var store = this.getImmunizationsGrid().getStore();
 		store.clearFilter(true);
 		store.filter([
@@ -41221,74 +41804,93 @@ Ext.define('App.controller.patient.Immunizations', {
 
 	getVxuWindow: function(){
 		var me = this;
-		return Ext.widget('window',{
+
+		if(this.getSubmitImmunizationWindow()){
+			return this.getSubmitImmunizationWindow().show();
+		}
+
+		return Ext.widget('window', {
 			title: _('submit_hl7_vxu'),
 			closable: false,
-            itemId: 'SubmitImmunizationWindow',
+			itemId: 'SubmitImmunizationWindow',
 			modal: true,
-			bodyStyle:'background-color:white',
-			defaults:{
-				xtype:'container',
-				border:false,
-				margin:10
-			},
-			items:[
+			bodyStyle: 'background-color:white',
+			items: [
 				{
-					html: _('please_verify_the_information')+':',
-					margin: '10 10 0 10'
+					xtype: 'grid',
+					title: _('please_verify_the_information'),
+					store: Ext.create('App.store.patient.PatientImmunization'),
+					width: 700,
+					minHeight: 50,
+					maxHeight: 200,
+					itemId: 'SubmitImmunizationGrid',
+					viewConfig: {
+						plugins: {
+							ptype: 'gridviewdragdrop',
+							dragText: 'Drag and drop to reorganize'
+						}
+					},
+					columns: [
+						{
+							text: _('code'),
+							dataIndex: 'code'
+						},
+						{
+							text: _('vaccine_name'),
+							dataIndex: 'vaccine_name',
+							flex: 1
+						},
+						{
+							text: _('administer_amount'),
+							dataIndex: 'administer_amount'
+						},
+						{
+							text: _('administer_units'),
+							dataIndex: 'administer_units'
+						},
+						{
+							text: _('date_administered'),
+							dataIndex: 'date_administered'
+						}
+					]
 				},
 				{
-					width:700,
-					minHeight:50,
-					maxHeight:200,
-					itemId:'list',
-					margin:'0 10 20 10',
-					styleHtmlContent: true,
-					tpl: new Ext.XTemplate(
-						'<ul>',
-						'<tpl for=".">',     // interrogate the kids property within the data
-						'   <li>CVX:{code} - {vaccine_name} {administer_amount} {administer_units} {date_administered}</li>',
-							'</tpl>' +
-							'</ul>'
-					)
-				},
-                {
-                    xtype: 'uxiframe',
-                    itemId: 'downloadHL7',
-                    hidden: true
-                }
+					xtype: 'uxiframe',
+					itemId: 'downloadHL7',
+					hidden: true
+				}
 			],
-			buttons:[
-				me.vxuFrom = Ext.create('App.ux.combo.ActiveFacilities',{
+			buttons: [
+				me.vxuFrom = Ext.create('App.ux.combo.ActiveFacilities', {
 					fieldLabel: _('send_from'),
 					emptyText: _('select'),
-                    itemId: 'ActiveFacilitiesCombo',
+					itemId: 'ActiveFacilitiesCombo',
 					labelWidth: 60,
-					store: Ext.create('App.store.administration.HL7Clients',{
-						filters:[
+					store: Ext.create('App.store.administration.HL7Clients', {
+						filters: [
 							{
-								property:'active',
-								value:true
+								property: 'active',
+								value: true
 							}
 						]
 					})
 				}),
-				me.vxuTo = Ext.widget('combobox',{
-					xtype:'combobox',
+				me.vxuTo = Ext.widget('combobox', {
+					xtype: 'combobox',
 					fieldLabel: _('send_to'),
 					emptyText: _('select'),
 					allowBlank: false,
-                    itemId: 'ApplicationCombo',
+					itemId: 'ApplicationCombo',
 					forceSelection: true,
-                    editable: false,
+					editable: false,
 					labelWidth: 60,
 					displayField: 'application_name',
 					valueField: 'id',
-					store: Ext.create('App.store.administration.HL7Clients',{
-						filters:[
+					store: Ext.create('App.store.administration.HL7Clients', {
+						filters: [
 							{
-								property:'active',
-								value:true
+								property: 'active',
+								value: true
 							}
 						]
 					})
@@ -41296,22 +41898,22 @@ Ext.define('App.controller.patient.Immunizations', {
 				{
 					text: _('send'),
 					scope: me,
-                    itemId: 'send',
+					itemId: 'send',
 					handler: me.doSendVxu,
-                    action: 'send',
-                    disabled: true
+					action: 'send',
+					disabled: true
 				},
-                {
-                    text: _('download'),
-                    scope: me,
-                    itemId: 'download',
-                    handler: me.doDownloadVxu,
-                    action: 'download',
-                    disabled: true
-                },
 				{
-					text:_('cancel'),
-					handler:function(){
+					text: _('download'),
+					scope: me,
+					itemId: 'download',
+					handler: me.doDownloadVxu,
+					action: 'download',
+					disabled: true
+				},
+				{
+					text: _('cancel'),
+					handler: function(){
 						me.vxuWindow.close();
 					}
 				}
@@ -41319,85 +41921,85 @@ Ext.define('App.controller.patient.Immunizations', {
 		}).show();
 	},
 
-    /**
-     * Only activate the send, & download button when facilities and application has been
-     * selected
-     * @param me
-     * @param newValue
-     * @param oldValue
-     */
-    onActiveFacilitiesChange: function(me, newValue, oldValue){
-        if(Ext.ComponentQuery.query('#ApplicationCombo')[0].getValue()){
-            Ext.ComponentQuery.query('#SubmitImmunizationWindow #send')[0].setDisabled(false);
-            Ext.ComponentQuery.query('#SubmitImmunizationWindow #download')[0].setDisabled(false);
-        }
-    },
+	/**
+	 * Only activate the send, & download button when facilities and application has been
+	 * selected
+	 * @param me
+	 * @param newValue
+	 * @param oldValue
+	 */
+	onActiveFacilitiesChange: function(me, newValue, oldValue){
+		if(Ext.ComponentQuery.query('#ApplicationCombo')[0].getValue()){
+			Ext.ComponentQuery.query('#SubmitImmunizationWindow #send')[0].setDisabled(false);
+			Ext.ComponentQuery.query('#SubmitImmunizationWindow #download')[0].setDisabled(false);
+		}
+	},
 
-    /**
-     * Only activate the send, & download button when facilities and application has been
-     * selected
-     * @param me
-     * @param newValue
-     * @param oldValue
-     */
-    onApplicationChange: function(me, newValue, oldValue){
-        if(Ext.ComponentQuery.query('#ActiveFacilitiesCombo')[0].getValue()){
-            Ext.ComponentQuery.query('#SubmitImmunizationWindow #send')[0].setDisabled(false);
-            Ext.ComponentQuery.query('#SubmitImmunizationWindow #download')[0].setDisabled(false);
-        }
-    },
+	/**
+	 * Only activate the send, & download button when facilities and application has been
+	 * selected
+	 * @param me
+	 * @param newValue
+	 * @param oldValue
+	 */
+	onApplicationChange: function(me, newValue, oldValue){
+		if(Ext.ComponentQuery.query('#ActiveFacilitiesCombo')[0].getValue()){
+			Ext.ComponentQuery.query('#SubmitImmunizationWindow #send')[0].setDisabled(false);
+			Ext.ComponentQuery.query('#SubmitImmunizationWindow #download')[0].setDisabled(false);
+		}
+	},
 
-    doDownloadVxu:function(btn){
-        var me = this,
-            sm = me.getImmunizationsGrid().getSelectionModel(),
-            ImmunizationSelection = sm.getSelection(),
-            params = {},
-            immunizations = [],
-            form;
-
-        if(me.vxuTo.isValid()){
-
-            for(var i=0; i < ImmunizationSelection.length; i++){
-                immunizations.push(ImmunizationSelection[i].data.id);
-                params.pid = ImmunizationSelection[i].data.pid;
-            }
-
-            me.vxuWindow.el.mask(_('download'));
-            Ext.create('Ext.form.Panel', {
-                renderTo: Ext.ComponentQuery.query('#SubmitImmunizationWindow #downloadHL7')[0].el,
-                standardSubmit: true,
-                url: 'dataProvider/Download.php'
-            }).submit({
-                params: {
-                    'pid': params.pid,
-                    'from': me.vxuFrom.getValue(),
-                    'to': me.vxuTo.getValue(),
-                    'immunizations': Ext.encode(immunizations)
-                },
-                success: function(form, action) {
-                    // Audit log here
-                }
-            });
-
-            me.vxuWindow.el.unmask();
-            me.vxuWindow.close();
-            sm.deselectAll();
-
-        }
-    },
-
-	doSendVxu:function(btn){
+	doDownloadVxu: function(btn){
 		var me = this,
 			sm = me.getImmunizationsGrid().getSelectionModel(),
-            ImmunizationSelection = sm.getSelection(),
+			ImmunizationSelection = sm.getSelection(),
+			params = {},
+			immunizations = [],
+			form;
+
+		if(me.vxuTo.isValid()){
+
+			for(var i = 0; i < ImmunizationSelection.length; i++){
+				immunizations.push(ImmunizationSelection[i].data.id);
+				params.pid = ImmunizationSelection[i].data.pid;
+			}
+
+			me.vxuWindow.el.mask(_('download'));
+			Ext.create('Ext.form.Panel', {
+				renderTo: Ext.ComponentQuery.query('#SubmitImmunizationWindow #downloadHL7')[0].el,
+				standardSubmit: true,
+				url: 'dataProvider/Download.php'
+			}).submit({
+				params: {
+					'pid': params.pid,
+					'from': me.vxuFrom.getValue(),
+					'to': me.vxuTo.getValue(),
+					'immunizations': Ext.encode(immunizations)
+				},
+				success: function(form, action){
+					// Audit log here
+				}
+			});
+
+			me.vxuWindow.el.unmask();
+			me.vxuWindow.close();
+			sm.deselectAll();
+
+		}
+	},
+
+	doSendVxu: function(btn){
+		var me = this,
+			sm = me.getImmunizationsGrid().getSelectionModel(),
+			records = this.getSubmitImmunizationGrid().getStore().data.items,
 			params = {},
 			immunizations = [];
 
 		if(me.vxuTo.isValid()){
 
-			for(var i=0; i < ImmunizationSelection.length; i++){
-				immunizations.push(ImmunizationSelection[i].data.id);
-                params.pid = ImmunizationSelection[i].data.pid;
+			for(var i = 0; i < records.length; i++){
+				Ext.Array.push(immunizations, records[i].get('id'));
+				params.pid = records[i].get('pid');
 			}
 
 			params.from = me.vxuFrom.getValue();
@@ -41695,6 +42297,10 @@ Ext.define('App.controller.patient.Medications', {
 			ref: 'PatientMedicationReconciledBtn',
 			selector: '#PatientMedicationReconciledBtn'
 		},
+        {
+            ref: 'PatientMedicationActiveBtn',
+            selector: '#PatientMedicationActiveBtn'
+        },
 		{
 			ref: 'PatientMedicationUserLiveSearch',
 			selector: '#PatientMedicationUserLiveSearch'
@@ -41737,9 +42343,12 @@ Ext.define('App.controller.patient.Medications', {
 			'#patientMedicationLiveSearch': {
 				select: me.onMedicationLiveSearchSelect
 			},
-			'#PatientMedicationReconciledBtn': {
-				click: me.onPatientMedicationReconciledBtnClick
+			'#PatientMedicationActiveBtn': {
+				click: me.onPatientMedicationActiveBtnClick
 			},
+            '#PatientMedicationReconciledBtn': {
+                click: me.onPatientMedicationReconciledBtnClick
+            },
 			'#PatientMedicationUserLiveSearch': {
 				select: me.onPatientMedicationUserLiveSearchSelect,
                 reset: me.onPatientMedicationUserLiveSearchReset
@@ -41882,9 +42491,14 @@ Ext.define('App.controller.patient.Medications', {
 		this.onMedicationsPanelActive();
 	},
 
+    onPatientMedicationActiveBtnClick: function(){
+        this.onMedicationsPanelActive();
+    },
+
     onMedicationsPanelActive: function(){
         var store = this.getPatientMedicationsGrid().getStore(),
-            reconciled = this.getPatientMedicationReconciledBtn().pressed;
+            reconciled = this.getPatientMedicationReconciledBtn().pressed,
+            active = this.getPatientMedicationActiveBtn().pressed;
 
         store.clearFilter(true);
         store.load({
@@ -41895,7 +42509,8 @@ Ext.define('App.controller.patient.Medications', {
                 }
             ],
             params: {
-                reconciled: reconciled
+                reconciled: reconciled,
+                active: active
             }
         });
     }
@@ -42350,7 +42965,6 @@ Ext.define('App.controller.patient.Referrals', {
 			ref: 'PrintReferralBtn',
 			selector: '#printReferralBtn'
 		},
-
 		{
 			ref: 'ReferralProviderCombo',
 			selector: '#ReferralProviderCombo'
@@ -44584,6 +45198,12 @@ Ext.define('App.model.patient.EncounterDx', {
 			index: true
 		},
 		{
+			name: 'dx_type',
+			type: 'string',
+			index: true,
+			len: 5
+		},
+		{
 			name: 'code',
 			type: 'string',
 			len: 25
@@ -44596,15 +45216,7 @@ Ext.define('App.model.patient.EncounterDx', {
 		{
 			name: 'code_text',
 			type: 'string',
-			store: false,
-			convert: function(v, record){
-				return v == '' ? record.data.long_desc : v;
-			}
-		},
-		{
-			name: 'long_desc',
-			type: 'string',
-			store: false
+			len: 300
 		}
 	],
 	proxy: {
@@ -44629,7 +45241,8 @@ Ext.define('App.view.patient.Immunizations', {
 		'App.ux.grid.RowFormEditing',
 		'App.store.patient.CVXCodes',
 		'App.ux.form.fields.DateTime',
-		'App.ux.LiveUserSearch'
+		'App.ux.LiveUserSearch',
+		'App.ux.combo.EducationResources'
 	],
 	xtype: 'patientimmunizationspanel',
 	title: _('immunizations'),
@@ -44747,32 +45360,51 @@ Ext.define('App.view.patient.Immunizations', {
 										/**
 										 * Line one
 										 */
-										xtype: 'fieldcontainer',
+										xtype: 'container',
 										layout: 'hbox',
-										itemId: 'line1',
-										defaults: {
-											margin: '0 10 0 0',
-											xtype: 'textfield'
-										},
 										items: [
 											{
-												xtype: 'immunizationlivesearch',
-												itemId: 'immunizationsearch',
-												fieldLabel: _('name'),
-												name: 'vaccine_name',
-												valueField: 'name',
-												hideLabel: false,
-												allowBlank: false,
-												enableKeyEvents: true,
-												width: 625
+												xtype: 'container',
+												layout: 'vbox',
+												margin: '0 0 10 0',
+												items: [
+													{
+														xtype: 'immunizationlivesearch',
+														itemId: 'ImmunizationsImmunizationSearch',
+														fieldLabel: _('name'),
+														name: 'vaccine_name',
+														valueField: 'name',
+														hideLabel: false,
+														allowBlank: false,
+														enableKeyEvents: true,
+														width: 475
+													},
+													{
+														xtype: 'gaiaehr.combo',
+														fieldLabel: _('disorder'),
+														itemId: 'ImmunizationsDisorderCombo',
+														width: 475,
+														list: 140,
+														queryMode: 'local',
+														loadStore: true,
+														editable: false,
+														allowBlank: false,
+														name: 'presumed_immunity_code'
+													}
+												]
+											},
+											{
+												xtype: 'checkbox',
+												name: 'is_presumed_immunity',
+												fieldLabel: 'Presumed Immunity',
+												width: 145,
+												itemId: 'ImmunizationsPresumedImmunityCheckbox',
+												labelAlign: 'right',
+												labelWidth: 125
 											}
 										]
-
 									},
 									{
-										/**
-										 * Line two
-										 */
 										xtype: 'fieldcontainer',
 										layout: 'hbox',
 										defaults: {
@@ -44811,9 +45443,6 @@ Ext.define('App.view.patient.Immunizations', {
 
 									},
 									{
-										/**
-										 * Line three
-										 */
 										xtype: 'fieldcontainer',
 										layout: 'hbox',
 										defaults: {
@@ -44837,8 +45466,7 @@ Ext.define('App.view.patient.Immunizations', {
 												labelWidth: 115,
 												dateTimeFormat: 'Y-m-d H:i:s',
 												name: 'administered_date',
-                                                vtype: 'date',
-                                                allowBlank: false
+                                                vtype: 'date'
                                             }
 										]
 
@@ -44894,25 +45522,111 @@ Ext.define('App.view.patient.Immunizations', {
 										]
 									},
 									{
-										xtype: 'datefield',
-										width: 250,
-										margin: '0 0 0 5',
-										fieldLabel: _('education'),
-										name: 'education_date'
-									},
-                                    {
-                                        xtype: 'datefield',
-                                        width: 250,
-                                        margin: '0 0 0 5',
-                                        fieldLabel: _('doc_published'),
-                                        name: 'education_doc_published'
-                                    }
+										xtype: 'checkboxfield',
+										fieldLabel: _('entered_in_error'),
+										name: 'is_error'
+									}
 								]
 							},
 							{
-								xtype: 'checkboxfield',
-								boxLabel: _('entered_in_error'),
-								name: 'is_error'
+								xtype: 'container',
+								items: [
+									{
+										xtype: 'gaiaehr.combo',
+										list: 138,
+										width: 550,
+										name: 'information_source_code',
+										fieldLabel: _('info_source'),
+										margin: '0 0 5 0',
+										loadStore: true,
+										editable: false
+									},
+									{
+										xtype: 'gaiaehr.combo',
+										list: 139,
+										width: 550,
+										name: 'refusal_reason_code',
+										fieldLabel: _('refusal_reason'),
+										margin: '0 0 5 0',
+										loadStore: true,
+										editable: false
+									},
+									{
+										xtype: 'gaiaehr.combo',
+										fieldLabel: _('vfc'),
+										name: 'vfc_code',
+										list: 135,
+										width: 550,
+										margin: '0 0 5 0',
+										loadStore: true,
+										editable: false
+									},
+									{
+										xtype: 'container',
+									    layout: 'hbox',
+										items: [
+											{
+												xtype: 'container',
+												items: [
+													{
+														xtype: 'educationresourcescombo',
+														width: 250,
+														margin: '0 5 5 0',
+														fieldLabel: _('publication'),
+														name: 'education_resource_1_id',
+														codeType: 'CVX'
+													},
+													{
+														xtype: 'datefield',
+														width: 250,
+														margin: '0 5 5 0',
+														fieldLabel: _('given_date'),
+														name: 'education_presented_1_date',
+														submitFormat: 'Y-m-d H:i:s'
+													}
+												]
+											},
+											{
+												xtype: 'container',
+												items: [
+													{
+														xtype: 'educationresourcescombo',
+														width: 145,
+														margin: '0 5 5 0',
+														name: 'education_resource_2_id',
+														codeType: 'CVX'
+													},
+													{
+														xtype: 'datefield',
+														width: 145,
+														margin: '0 5 5 0',
+														name: 'education_presented_2_date',
+														submitFormat: 'Y-m-d H:i:s'
+													}
+												]
+											},
+											{
+												xtype: 'container',
+												items: [
+													{
+														xtype: 'educationresourcescombo',
+														width: 145,
+														margin: '0 0 5 0',
+														name: 'education_resource_3_id',
+														codeType: 'CVX'
+													},
+													{
+														xtype: 'datefield',
+														width: 145,
+														margin: '0 0 5 0',
+														name: 'education_presented_3_date',
+														submitFormat: 'Y-m-d H:i:s'
+													}
+												]
+											}
+										]
+									}
+								]
 							}
 						]
 					}
@@ -44970,6 +45684,7 @@ Ext.define('App.view.patient.Immunizations', {
 		}
 	]
 });
+
 Ext.define('App.view.patient.Medications', {
 	extend: 'Ext.panel.Panel',
 	requires: [
@@ -45099,7 +45814,11 @@ Ext.define('App.view.patient.Medications', {
 					width: 90,
 					dataIndex: 'begin_date',
 					sortable: false,
-					hideable: false
+					hideable: false,
+                    editor: {
+                        xtype: 'datefield',
+                        format: 'Y-m-d'
+                    }
 				},
 				{
 					xtype: 'datecolumn',
@@ -45139,6 +45858,12 @@ Ext.define('App.view.patient.Medications', {
 					pressed: true
 				},
 				'-',
+                {
+                    text: _('active'),
+                    itemId: 'PatientMedicationActiveBtn',
+                    enableToggle: true,
+                    pressed: false
+                },
 				'->',
 				{
 					text: _('review'),
@@ -45269,7 +45994,6 @@ Ext.define('App.view.patient.LabOrders', {
 	},
 	store: Ext.create('App.store.patient.PatientsOrders', {
 		storeId: 'LabOrderStore',
-		groupField: 'date_ordered',
 		remoteFilter: true,
 		pageSize: 200,
 		sorters: [
@@ -45292,11 +46016,6 @@ Ext.define('App.view.patient.LabOrders', {
 	selModel: Ext.create('Ext.selection.CheckboxModel', {
 		showHeaderCheckbox: false
 	}),
-	features: [
-		{
-			ftype: 'grouping'
-		}
-	],
 	plugins: [
 		{
 			ptype: 'rowediting',
@@ -47170,10 +47889,12 @@ Ext.define('App.view.administration.HL7MessageViewer', {
 		align: 'stretch'
 	},
 	title: _('hl7_viewer'),
+	itemId: 'HL7MessageViewerWindow',
 	width: 800,
 	height: 450,
 	bodyPadding: 10,
 	maximizable: true,
+	modal: true,
 	bodyStyle: 'background-color:white',
 	defaults: {
 		xtype: 'textareafield',
@@ -47181,13 +47902,20 @@ Ext.define('App.view.administration.HL7MessageViewer', {
 	},
 	items: [
 		{
+			xtype: 'container',
+			itemId: 'HL7MessageViewerWindowWarnings',
+			height: 40
+		},
+		{
 			fieldLabel: _('message'),
-			action: 'message',
+			itemId: 'HL7MessageViewerWindowMessageField',
+			readOnly: true,
 			flex: 1
 		},
 		{
 			fieldLabel: _('acknowledge'),
-			action: 'acknowledge',
+			itemId: 'HL7MessageViewerWindowAcknowledgeField',
+			readOnly: true,
 			flex: 1
 		}
 	]
@@ -48929,13 +49657,13 @@ Ext.define('App.view.administration.DataManager', {
 //ens servicesPage class
 Ext.define('App.view.administration.Documents', {
 	extend: 'App.ux.RenderPanel',
-	id: 'panelDocuments',
 	pageTitle: _('document_template_editor'),
 	pageLayout: 'border',
 	requires: [
 		'App.ux.grid.Button',
 		'Ext.grid.Panel'
 	],
+	itemId: 'AdministrationDocuments',
 	initComponent: function(){
 
 		var me = this;
@@ -48945,51 +49673,6 @@ Ext.define('App.view.administration.Documents', {
 		// *************************************************************************************
 		me.templatesDocumentsStore = Ext.create('App.store.administration.DocumentsTemplates');
 		me.defaultsDocumentsStore = Ext.create('App.store.administration.DefaultDocuments');
-		me.tokenStore = Ext.create('App.store.administration.DocumentToken');
-
-		//		me.HeaderFootergrid = Ext.create('Ext.grid.Panel', {
-		//			title      : _('header_footer_templates'),
-		//			region     : 'south',
-		//			height     : 250,
-		//			split      : true,
-		//			hideHeaders: true,
-		//			store      : me.headersAndFooterStore,
-		//			columns    : [
-		//				{
-		//					flex     : 1,
-		//					sortable : true,
-		//					dataIndex: 'title',
-		//                    editor:{
-		//                        xtype:'textfield',
-		//                        allowBlank:false
-		//                    }
-		//				},
-		//				{
-		//					icon: 'resources/images/icons/delete.png',
-		//					tooltip: _('remove'),
-		//					scope:me,
-		//					handler: me.onRemoveDocument
-		//				}
-		//			],
-		//			listeners  : {
-		//				scope    : me,
-		//				itemclick: me.onDocumentsGridItemClick
-		//			},
-		//			tbar       :[
-		//                '->',
-		//                {
-		//                    text : _('new'),
-		//                    scope: me,
-		//                    handler: me.newHeaderOrFooterTemplate
-		//                }
-		//            ],
-		//            plugins:[
-		//                me.rowEditor2 = Ext.create('Ext.grid.plugin.RowEditing', {
-		//                    clicksToEdit: 2
-		//                })
-		//
-		//            ]
-		//		});
 
 		me.DocumentsDefaultsGrid = Ext.create('Ext.grid.Panel', {
 			title: _('documents_defaults'),
@@ -48998,6 +49681,7 @@ Ext.define('App.view.administration.Documents', {
 			border: true,
 			store: me.defaultsDocumentsStore,
 			hideHeaders: true,
+			itemId: 'AdministrationDocumentsDefaultsGrid',
 			columns: [
 				{
 					flex: 1,
@@ -49023,7 +49707,8 @@ Ext.define('App.view.administration.Documents', {
 				{
 					text: _('new'),
 					scope: me,
-					handler: me.newDefaultTemplates
+					handler: me.newDefaultTemplates,
+					itemId: 'AdministrationDocumentsNewDefaulTemplateBtn',
 				}],
 			plugins: [me.rowEditor3 = Ext.create('Ext.grid.plugin.RowEditing',
 				{
@@ -49039,6 +49724,7 @@ Ext.define('App.view.administration.Documents', {
 			split: true,
 			store: me.templatesDocumentsStore,
 			hideHeaders: true,
+			itemId: 'AdministrationDocumentsTemplatesGrid',
 			columns: [
 				{
 					flex: 1,
@@ -49064,7 +49750,8 @@ Ext.define('App.view.administration.Documents', {
 				{
 					text: _('new'),
 					scope: me,
-					handler: me.newDocumentTemplate
+					itemId: 'AdministrationDocumentsNewTemplateBtn',
+					//handler: me.newDocumentTemplate
 				}],
 			plugins: [me.rowEditor = Ext.create('Ext.grid.plugin.RowEditing',
 				{
@@ -49089,6 +49776,7 @@ Ext.define('App.view.administration.Documents', {
 			border: true,
 			split: true,
 			hideHeaders: true,
+			itemId: 'AdministrationDocumentsTemplatesEditorForm',
 			items: {
 				xtype: 'htmleditor',
 				enableFontSize: false,
@@ -49116,16 +49804,28 @@ Ext.define('App.view.administration.Documents', {
 			border: true,
 			split: true,
 			hideHeaders: true,
-			store: me.tokenStore,
+			store: Ext.create('App.store.administration.DocumentToken'),
 			disableSelection: true,
+			itemId: 'AdministrationDocumentsTokensGrid',
 			viewConfig: {
 				stripeRows: false
 			},
+			plugins: [
+				{
+					ptype: 'cellediting'
+
+				}
+			],
 			columns: [
 				{
 					flex: 1,
 					sortable: false,
-					dataIndex: 'token'
+					dataIndex: 'token',
+					editor: {
+						xtype: 'textfield',
+						editable: false,
+						itemId: 'AdministrationDocumentsTokenTextField'
+					}
 				},
 				{
 					xtype: 'actioncolumn',
@@ -49136,49 +49836,12 @@ Ext.define('App.view.administration.Documents', {
 							tooltip: _('copy'),
 							margin: '0 5 0 0',
 							handler: function(grid, rowIndex, colIndex, item, e, record){
+								app.getController('administration.Documents').doCopy(grid, record);
 
-
-//								btn.btnEl.set({
-//									'data-clipboard-text': btn.record.data.token
-//								});
-//								AppClipboard.clip(btn.btnEl.dom);
 							}
 						}
 					]
 				}
-//				{
-//					xtype:'gridbutton',
-//					width: 35,
-//					items:[
-//						{
-//							xtype:'button',
-//							icon:'resources/images/icons/copy.png',
-//							listeners:{
-//								render:function(btn){
-//									btn.btnEl.set({
-//										'data-clipboard-text': btn.record.data.token
-//									});
-//									AppClipboard.clip(btn.btnEl.dom);
-//								}
-//							}
-//						}
-//					]
-//
-//				}
-//				{
-//					dataIndex: 'token',
-//					width: 30,
-//					xtype: "templatecolumn",
-//					tpl: new Ext.XTemplate("" +
-//						"<object id='clipboard{token}' codebase='http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0' width='16' height='16' align='middle'>",
-//						"<param name='allowScriptAccess' value='always' />",
-//						"<param name='allowFullScreen' value='false' />",
-//						"<param name='movie' value='lib/ClipBoard/clipboard.swf' />",
-//						"<param name='quality' value='high' />", "<param name='bgcolor' value='#ffffff' />",
-//						"<param name='flashvars' value='callback=copyToClipBoard&callbackArg={token}' />",
-//						"<embed src='lib/ClipBoard/clipboard.swf' flashvars='callback=copyToClipBoard&callbackArg={token}' quality='high' bgcolor='#ffffff' width='16' height='16' name='clipboard{token}' align='middle' allowscriptaccess='always' allowfullscreen='false' type='application/x-shockwave-flash' pluginspage='http://www.adobe.com/go/getflashplayer' />",
-//						"</object>", null)
-//				}
 			]
 		});
 
@@ -49260,7 +49923,8 @@ Ext.define('App.view.administration.Documents', {
 	//    },
 
 	copyToClipBoard: function(grid, rowIndex, colIndex){
-		var rec = grid.getStore().getAt(rowIndex), text = rec.get('token');
+		var rec = grid.getStore().getAt(rowIndex),
+			text = rec.get('token');
 	},
 
 	onRemoveDocument: function(){
@@ -50537,14 +51201,16 @@ Ext.define('App.view.patient.Patient', {
 	},
 	xtype: 'patientdeomgraphics',
 	itemId: 'PatientDemographicsPanel',
+
 	newPatient: true,
 	pid: null,
+
 	defaultPatientImage: 'resources/images/patientPhotoPlaceholder.jpg',
 	defaultQRCodeImage: 'resources/images/QRCodeImage.png',
 
 	initComponent: function(){
 		var me = this,
-            configs;
+			configs;
 
 		me.store = Ext.create('App.store.patient.Patient');
 		me.patientAlertsStore = Ext.create('App.store.patient.MeaningfulUseAlert');
@@ -50591,7 +51257,1171 @@ Ext.define('App.view.patient.Patient', {
 					fieldDefaults: {
 						labelAlign: 'right',
 						msgTarget: 'side'
-					}
+					},
+					items: [
+						{
+							xtype: (me.compactDemographics ? 'tabpanel' : 'panel'),
+							itemId: 'Demographics',
+							border: false,
+							height: 300,
+							defaults: {
+								autoScroll: true
+							},
+							items: [
+								{
+									xtype: 'panel',
+									title: 'Who',
+									hideLabel: false,
+									collapsible: true,
+									enableKeyEvents: true,
+									checkboxToggle: false,
+									collapsed: false,
+									action: 'DemographicWhoFieldSet',
+									border: false,
+									bodyBorder: false,
+									bodyPadding: 10,
+									items: [
+										{
+											xtype: 'fieldcontainer',
+											fieldLabel: 'Extermal IDs Rec# Acc#',
+											labelWidth: 149,
+											hideLabel: false,
+											layout: 'hbox',
+											width: 660,
+											items: [
+												{
+													xtype: 'textfield',
+													fieldLabel: 'External Rec#',
+													emptyText: 'External Rec#',
+													labelWidth: 149,
+													hideLabel: true,
+													enableKeyEvents: true,
+													width: 175,
+													margin: '0 5 0 0',
+													name: 'pubpid'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: 'External Acc#',
+													emptyText: 'External Acc#',
+													hideLabel: true,
+													enableKeyEvents: true,
+													width: 175,
+													name: 'pubaccount'
+												}
+											]
+										},
+										{
+											xtype: 'fieldcontainer',
+											fieldLabel: 'Full Name',
+											labelWidth: 149,
+											layout: 'hbox',
+											width: 660,
+											items: [
+												{
+													xtype: 'gaiaehr.combo',
+													emptyText: 'Title',
+													width: 70,
+													margin: '0 5 0 0',
+													name: 'title',
+													list: 22,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'textfield',
+													emptyText: 'First Name',
+													width: 100,
+													margin: '0 5 0 0',
+													allowBlank: false,
+													maxLength: 35,
+													name: 'fname'
+												},
+												{
+													xtype: 'textfield',
+													emptyText: 'Middle Name',
+													enableKeyEvents: true,
+													width: 100,
+													margin: '0 5 0 0',
+													maxLength: 35,
+													name: 'mname'
+												},
+												{
+													xtype: 'textfield',
+													emptyText: 'Last Name',
+													width: 215,
+													margin: '0 5 0 0',
+													allowBlank: false,
+													maxLength: 35,
+													name: 'lname'
+												}
+											]
+
+										},
+										{
+											xtype: 'fieldcontainer',
+											fieldLabel: 'Sex DOB Status S.S.',
+											labelWidth: 149,
+											hideLabel: false,
+											layout: 'hbox',
+											width: 660,
+											collapsible: false,
+											checkboxToggle: false,
+											collapsed: false,
+											items: [
+												{
+													xtype: 'gaiaehr.combo',
+													fieldLabel: 'Sex',
+													hideLabel: true,
+													enableKeyEvents: true,
+													emptyText: 'Sex',
+													name: 'sex',
+													width: 70,
+													margin: '0 5 0 0',
+													allowBlank: false,
+													list: 95,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'mitos.datetime',
+													emptyText: 'DOB',
+													labelWidth: 30,
+													enableKeyEvents: true,
+													width: 205,
+													margin: '0 5 0 0',
+													allowBlank: false,
+													name: 'DOB',
+													collapsible: false,
+													checkboxToggle: false,
+													collapsed: false
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													emptyText: 'Marital Status',
+													width: 110,
+													margin: '0 5 0 0',
+													name: 'marital_status',
+													list: 12,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'textfield',
+													emptyText: 'Social Security',
+													name: 'SS',
+													width: 100,
+													margin: '0 5 0 0'
+												}
+											]
+										},
+										{
+											xtype: 'fieldcontainer',
+											fieldLabel: 'Driver Lic. Sate Exp. Date',
+											labelWidth: 149,
+											hideLabel: false,
+											layout: 'hbox',
+											width: 660,
+											items: [
+												{
+													xtype: 'textfield',
+													emptyText: 'Driver License',
+													labelWidth: 149,
+													enableKeyEvents: true,
+													width: 175,
+													margin: '0 5 0 0',
+													name: 'drivers_license'
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													width: 175,
+													margin: '0 5 0 0',
+													name: 'drivers_license_state',
+													list: 20,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'datefield',
+													width: 140,
+													margin: '0 5 0 0',
+													name: 'drivers_license_exp',
+													format: 'Y-m-d'
+												}
+											]
+										},
+										{
+											xtype: 'gaiaehr.combo',
+											fieldLabel: 'Ethnicity',
+											labelWidth: 149,
+											hideLabel: false,
+											width: 400,
+											margin: '0 5 5 0',
+											name: 'ethnicity',
+											list: 59,
+											loadStore: true,
+											forceSelection: true
+										},
+										{
+											xtype: 'gaiaehr.combo',
+											fieldLabel: 'Race',
+											labelWidth: 149,
+											hideLabel: false,
+											width: 400,
+											margin: '0 5 5 0',
+											name: 'race',
+											list: 14,
+											loadStore: true,
+											forceSelection: true
+										},
+										{
+											xtype: 'gaiaehr.combo',
+											fieldLabel: 'Language',
+											labelWidth: 149,
+											hideLabel: false,
+											width: 400,
+											margin: '0 5 5 0',
+											name: 'language',
+											list: 10,
+											loadStore: true,
+											forceSelection: true
+										}
+									]
+								},
+								{
+									xtype: 'panel',
+									title: 'Additional Info.',
+									layout: 'column',
+									collapsible: true,
+									enableKeyEvents: true,
+									checkboxToggle: false,
+									collapsed: false,
+									border: false,
+									bodyBorder: false,
+									bodyPadding: 10,
+									items: [
+										{
+											xtype: 'container',
+											width: 370,
+											items: [
+												{
+													xtype: 'textfield',
+													fieldLabel: 'Alias Name',
+													labelWidth: 149,
+													hideLabel: false,
+													width: 350,
+													name: 'alias'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: 'Birth Place',
+													labelWidth: 149,
+													hideLabel: false,
+													width: 350,
+													name: 'birth_place'
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													fieldLabel: 'Citizenship',
+													labelWidth: 149,
+													hideLabel: false,
+													width: 350,
+													name: 'citizenship',
+													list: 104,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'fieldcontainer',
+													fieldLabel: 'Multiple Birth',
+													labelWidth: 149,
+													hideLabel: false,
+													layout: 'hbox',
+													width: 350,
+													items: [
+														{
+															xtype: 'checkbox',
+															margin: '0 10 5 0',
+															boxLabel: ' ',
+															name: 'birth_multiple'
+														},
+														{
+															xtype: 'numberfield',
+															fieldLabel: 'Order',
+															labelWidth: 50,
+															hideLabel: false,
+															width: 165,
+															value: 1,
+															maxValue: 15,
+															minValue: 1,
+															name: 'birth_order'
+														}
+													]
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													fieldLabel: 'Deceased',
+													labelWidth: 149,
+													hideLabel: false,
+													width: 350,
+													boxLabel: 'Yes',
+													name: 'deceased',
+													list: 103,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'mitos.datetime',
+													fieldLabel: 'Death Date',
+													labelWidth: 149,
+													hideLabel: false,
+													width: 350,
+													margin: '0 5 5 0',
+													name: 'death_date'
+												}
+											]
+										},
+										{
+											xtype: 'container',
+											items: [
+												{
+													xtype: 'activeproviderscombo',
+													fieldLabel: 'Primary Provider',
+													width: 300,
+													name: 'primary_provider',
+													forceSelection: true
+												},
+												{
+													xtype: 'activefacilitiescombo',
+													fieldLabel: 'Primary Facility',
+													width: 300,
+													name: 'primary_facility',
+													displayField: 'option_name',
+													valueField: 'option_value',
+													queryMode: 'local',
+													forceSelection: true
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													fieldLabel: 'Veteran',
+													width: 300,
+													boxLabel: 'Yes',
+													name: 'is_veteran',
+													list: 103,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'fieldcontainer',
+													fieldLabel: 'Mother\'s Name',
+													layout: 'hbox',
+													width: 660,
+													items: [
+														{
+															xtype: 'textfield',
+															emptyText: 'First Name',
+															width: 100,
+															margin: '0 5 0 0',
+															maxLength: 35,
+															name: 'mother_fname'
+														},
+														{
+															xtype: 'textfield',
+															emptyText: 'Middle Name',
+															width: 100,
+															margin: '0 5 0 0',
+															maxLength: 35,
+															name: 'mother_mname'
+														},
+														{
+															xtype: 'textfield',
+															emptyText: 'Last Name',
+															width: 215,
+															margin: '0 5 0 0',
+															maxLength: 35,
+															name: 'mother_lname'
+														}
+													]
+												},
+												{
+													xtype: 'fieldcontainer',
+													fieldLabel: 'Father\'s Name',
+													layout: 'hbox',
+													width: 660,
+													items: [
+														{
+															xtype: 'textfield',
+															emptyText: 'First Name',
+															width: 100,
+															margin: '0 5 0 0',
+															maxLength: 35,
+															name: 'father_fname'
+														},
+														{
+															xtype: 'textfield',
+															emptyText: 'Middle Name',
+															width: 100,
+															margin: '0 5 0 0',
+															maxLength: 35,
+															name: 'father_mname'
+														},
+														{
+															xtype: 'textfield',
+															emptyText: 'Last Name',
+															width: 215,
+															margin: '0 5 0 0',
+															maxLength: 35,
+															name: 'father_lname'
+														}
+													]
+												}
+											]
+										}
+									]
+								},
+								{
+									xtype: 'panel',
+									title: 'Choices',
+									hideLabel: false,
+									collapsible: true,
+									enableKeyEvents: true,
+									checkboxToggle: false,
+									collapsed: false,
+									border: false,
+									bodyBorder: false,
+									bodyPadding: 10,
+									items: [
+										{
+											xtype: 'container',
+											layout: 'hbox',
+											items:[
+												{
+													xtype: 'container',
+													layout: 'vbox',
+													items:[
+														{
+															xtype: 'activeproviderscombo',
+															fieldLabel: 'Provider',
+															labelWidth: 100,
+															margin: '0 5 5 0',
+															name: 'provider',
+															forceSelection: true
+														},
+														{
+															xtype: 'mitos.pharmaciescombo',
+															fieldLabel: 'Pharmacy',
+															labelWidth: 100,
+															margin: '0 5 5 0',
+															name: 'pharmacy',
+															forceSelection: true,
+															emptyText: 'Select'
+														},
+														{
+															xtype: 'gaiaehr.combo',
+															fieldLabel: 'HIPAA Notice',
+															labelWidth: 100,
+															margin: '0 5 5 0',
+															name: 'hipaa_notice',
+															list: 1,
+															loadStore: true,
+															forceSelection: true
+														}
+													]
+												},
+												{
+													xtype: 'container',
+													layout: 'vbox',
+													items:[
+														{
+															xtype: 'gaiaehr.combo',
+															name: 'organ_donor_code',
+															fieldLabel: 'Organ Donor',
+															list: 137,
+															width: 500,
+															loadStore: true,
+															editable: false
+														},
+														{
+															xtype: 'container',
+															layout: 'hbox',
+															margin: '0 0 0 10',
+															items: [
+																{
+																	xtype: 'checkbox',
+																	width: 150,
+																	margin: '0 5 0 0',
+																	boxLabel: 'Allow Voice Msg',
+																	name: 'allow_voice_msg'
+																},
+																{
+																	xtype: 'checkbox',
+																	width: 150,
+																	margin: '0 5 0 0',
+																	boxLabel: 'Allow Mail Msg',
+																	name: 'allow_mail_msg'
+																},
+																{
+																	xtype: 'checkbox',
+																	width: 240,
+																	margin: '0 5 0 0',
+																	boxLabel: 'Allow Immunization Registry Use',
+																	name: 'allow_immunization_registry'
+																},
+																{
+																	xtype: 'checkbox',
+																	margin: '0 5 0 0',
+																	boxLabel: 'Allow Health Information Exchange',
+																	name: 'allow_health_info_exchange'
+																}
+															]
+														},
+														{
+															xtype: 'container',
+															layout: 'hbox',
+															margin: '5 0 0 10',
+															items: [
+																{
+																	xtype: 'checkbox',
+																	width: 150,
+																	margin: '0 5 0 0',
+																	boxLabel: ' Allow SMS',
+																	name: 'allow_sms'
+																},
+																{
+																	xtype: 'checkbox',
+																	width: 150,
+																	margin: '0 5 0 0',
+																	boxLabel: 'Allow Email',
+																	name: 'allow_email'
+																},
+																{
+																	xtype: 'checkbox',
+																	width: 240,
+																	margin: '0 5 0 0',
+																	boxLabel: 'Allow Immunization Info Sharing',
+																	name: 'allow_immunization_info_sharing'
+																}
+															]
+														}
+													]
+												}
+											]
+										},
+										{
+											xtype: 'container',
+											layout: 'hbox',
+											margin: '0 0 10 10',
+											items: [
+												{
+													xtype: 'fieldset',
+													title: 'Allow Patient Web Portal',
+													checkboxName: 'allow_patient_web_portal',
+													checkboxToggle: true,
+													width: 320,
+													margin: '0 5 0 0',
+													items: [
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Web Portal Username',
+															labelWidth: 149,
+															name: 'portal_username'
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Web Portal Password',
+															labelWidth: 149,
+															name: 'portal_password',
+															inputType: 'password'
+														}
+													]
+												},
+												{
+													xtype: 'fieldset',
+													title: 'Allow Patient Guardian Access Web Portal',
+													checkboxName: 'allow_guardian_web_portal',
+													checkboxToggle: true,
+													collapsible: false,
+													width: 320,
+													margin: '0 5 0 0',
+													items: [
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Web Portal Username',
+															labelWidth: 149,
+															name: 'guardian_portal_username'
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Web Portal Password',
+															labelWidth: 149,
+															name: 'guardian_portal_password',
+															inputType: 'password'
+														}
+													]
+												},
+												{
+													xtype: 'fieldset',
+													title: 'Allow Patient Emergency Contact Access Web Portal',
+													checkboxName: 'allow_emergency_contact_web_portal',
+													checkboxToggle: true,
+													width: 320,
+													margin: '0 5 0 0',
+													items: [
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Web Portal Username',
+															labelWidth: 149,
+															name: 'emergency_contact_portal_username'
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Web Portal Password',
+															labelWidth: 149,
+															name: 'emergency_contact_portal_password',
+															inputType: 'password'
+														}
+													]
+												}
+											]
+										}
+									]
+								},
+								{
+									xtype: 'panel',
+									title: 'Employer',
+									hideLabel: false,
+									collapsible: true,
+									enableKeyEvents: true,
+									checkboxToggle: false,
+									collapsed: false,
+									border: false,
+									bodyBorder: false,
+									bodyPadding: 10,
+									items: [
+										{
+											xtype: 'textfield',
+											fieldLabel: 'Occupation',
+											labelWidth: 149,
+											hideLabel: false,
+											emptyText: 'Occupation',
+											name: 'occupation',
+											width: 350,
+											margin: '0 5 5 0'
+										},
+										{
+											xtype: 'textfield',
+											fieldLabel: 'Employer Name',
+											labelWidth: 149,
+											hideLabel: false,
+											emptyText: 'Employer Name',
+											name: 'employer_name',
+											width: 350,
+											margin: '0 5 5 0'
+										},
+										{
+											xtype: 'textfield',
+											fieldLabel: 'Employer Address',
+											labelWidth: 149,
+											hideLabel: false,
+											emptyText: 'Street',
+											name: 'employer_address',
+											width: 609,
+											margin: '0 5 5 0'
+										},
+										{
+											xtype: 'fieldcontainer',
+											fieldLabel: 'Employer Address Cont.',
+											labelWidth: 149,
+											hideLabel: false,
+											layout: 'hbox',
+											width: 609,
+											items: [
+												{
+													xtype: 'textfield',
+													emptyText: 'City',
+													name: 'employer_city',
+													width: 130,
+													margin: '0 5 5 0'
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													margin: '0 5 5 0',
+													width: 130,
+													name: 'employer_state',
+													emptyText: 'State',
+													list: 20,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													emptyText: 'Country',
+													name: 'employer_country',
+													width: 100,
+													margin: '0 5 5 0',
+													list: 3,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'textfield',
+													emptyText: 'Zip Code',
+													name: 'employer_postal_code',
+													width: 80,
+													margin: '0 5 5 0'
+												}
+											]
+										}
+									]
+								},
+								{
+									xtype: 'panel',
+									title: 'Contact',
+									layout: 'column',
+									collapsible: true,
+									enableKeyEvents: true,
+									checkboxToggle: false,
+									collapsed: false,
+									itemId: 'DemographicsContactFieldSet',
+									border: false,
+									bodyBorder: false,
+									bodyPadding: 10,
+									items: [
+										{
+											xtype: 'container',
+											margin: '0 10 0 0',
+											items: [
+												{
+													xtype: 'gaiaehr.combo',
+													fieldLabel: 'Publicity',
+													labelWidth: 60,
+													name: 'phone_publicity',
+													list: 132,
+													loadStore: true,
+													forceSelection: true,
+													width: 300
+												},
+												{
+													xtype: 'fieldset',
+													title: 'Phones',
+													items: [
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Home',
+															labelWidth: 50,
+															emptyText: '000-000-0000',
+															name: 'phone_home',
+															width: 250
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Mobile',
+															labelWidth: 50,
+															emptyText: '000-000-0000',
+															name: 'phone_mobile',
+															width: 250
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Work',
+															labelWidth: 50,
+															margin: '0 5 0 0',
+															emptyText: '000-000-0000',
+															name: 'phone_work',
+															width: 250
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Ext.',
+															labelWidth: 50,
+															name: 'phone_work_ext',
+															width: 250
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Fax',
+															emptyText: '000-000-0000',
+															labelWidth: 50,
+															name: 'phone_fax',
+															width: 250
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Email',
+															emptyText: 'example@email.com',
+															labelWidth: 50,
+															name: 'email',
+															width: 250
+														}
+													]
+												}
+											]
+										},
+										{
+											xtype: 'container',
+											layout: 'vbox',
+											margin: '0 10 0 0',
+											items: [
+												{
+													xtype: 'fieldset',
+													title: 'Postal Address',
+													collapsible: false,
+													checkboxToggle: false,
+													collapsed: false,
+													items: [
+														{
+															xtype: 'textfield',
+															emptyText: 'Street',
+															labelWidth: 50,
+															width: 370,
+															name: 'postal_address'
+														},
+														{
+															xtype: 'textfield',
+															emptyText: '(optional)',
+															labelWidth: 50,
+															width: 370,
+															name: 'postal_address_cont'
+														},
+														{
+															xtype: 'container',
+															layout: 'hbox',
+															width: 370,
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: 'City',
+																	labelWidth: 50,
+																	margin: '0 5 5 0',
+																	name: 'postal_city'
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: 'State',
+																	labelWidth: 50,
+																	margin: '0 5 0 0',
+																	name: 'postal_state'
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: 'Zip',
+																	labelWidth: 50,
+																	width: 92,
+																	name: 'postal_zip'
+																}
+															]
+														},
+														{
+															xtype: 'textfield',
+															emptyText: 'Country',
+															labelWidth: 50,
+															width: 100,
+															name: 'postal_country'
+														}
+													]
+												},
+												{
+													xtype: 'fieldset',
+													title: 'Physical Address',
+													items: [
+														{
+															xtype: 'textfield',
+															emptyText: 'Street',
+															labelWidth: 50,
+															width: 370,
+															name: 'physical_address'
+														},
+														{
+															xtype: 'textfield',
+															emptyText: '(optional)',
+															labelWidth: 50,
+															width: 370,
+															name: 'physical_address_cont'
+														},
+														{
+															xtype: 'container',
+															layout: 'hbox',
+															width: 370,
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: 'City',
+																	labelWidth: 50,
+																	margin: '0 5 5 0',
+																	name: 'physical_city'
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: 'State',
+																	labelWidth: 50,
+																	margin: '0 5 0 0',
+																	name: 'physical_state'
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: 'Zip',
+																	labelWidth: 50,
+																	width: 92,
+																	margin: '0 5 0 0',
+																	name: 'physical_zip'
+																}
+															]
+														},
+														{
+															xtype: 'textfield',
+															emptyText: 'Country',
+															labelWidth: 50,
+															width: 100,
+															name: 'physical_country'
+														}
+													]
+												}
+											]
+										}, {
+											xtype: 'container',
+											layout: 'vbox',
+											items: [
+												{
+													xtype: 'fieldset',
+													title: 'Emergency Contact',
+													collapsible: false,
+													checkboxToggle: false,
+													collapsed: false,
+													items: [
+														{
+															xtype: 'gaiaehr.combo',
+															fieldLabel: 'Relation',
+															labelWidth: 50,
+															name: 'emergency_contact_relation',
+															list: 134,
+															loadStore: true,
+															forceSelection: true
+														},
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: 'Name',
+															labelWidth: 50,
+															layout: 'hbox',
+															items: [
+																{
+																	xtype: 'textfield',
+																	enableKeyEvents: true,
+																	margin: '0 5 0 0',
+																	name: 'emergency_contact_fname'
+																},
+																{
+																	xtype: 'textfield',
+																	enableKeyEvents: true,
+																	width: 75,
+																	margin: '0 5 0 0',
+																	name: 'emergency_contact_mname'
+																},
+																{
+																	xtype: 'textfield',
+																	enableKeyEvents: true,
+																	width: 150,
+																	name: 'emergency_contact_lname'
+																}
+															]
+														},
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: 'Phone',
+															labelWidth: 50,
+															hideLabel: false,
+															layout: 'hbox',
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: '000-000-0000',
+																	margin: '0 5 5 0',
+																	name: 'emergency_contact_phone'
+																},
+																{
+																	xtype: 'gaiaehr.combo',
+																	emptyText: 'Phone Type',
+																	name: 'emergency_contact_phone_type',
+																	list: 136,
+																	loadStore: true,
+																	forceSelection: true
+																}
+															]
+														},
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: _('address'),
+															labelWidth: 50,
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: 'Street',
+																	width: 370,
+																	name: 'emergency_contact_address'
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: '(optional)',
+																	width: 370,
+																	name: 'emergency_contact_address_cont'
+																},
+																{
+																	xtype: 'container',
+																	layout: 'hbox',
+																	width: 370,
+																	items: [
+																		{
+																			xtype: 'textfield',
+																			emptyText: 'City',
+																			margin: '0 5 5 0',
+																			name: 'emergency_contact_city'
+																		},
+																		{
+																			xtype: 'textfield',
+																			emptyText: 'State',
+																			margin: '0 5 0 0',
+																			name: 'emergency_contact_state'
+																		},
+																		{
+																			xtype: 'textfield',
+																			emptyText: 'Zip',
+																			width: 92,
+																			margin: '0 5 0 0',
+																			name: 'emergency_contact_zip'
+																		}
+																	]
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: 'Country',
+																	labelWidth: 50,
+																	width: 100,
+																	name: 'emergency_contact_country'
+																}
+															]
+														}
+													]
+												},
+												{
+													xtype: 'fieldset',
+													title: 'Guardian\'s Contact',
+													collapsible: false,
+													checkboxToggle: false,
+													collapsed: false,
+													items: [
+														{
+															xtype: 'gaiaehr.combo',
+															fieldLabel: 'Relation',
+															labelWidth: 50,
+															name: 'guardians_relation',
+															list: 134,
+															loadStore: true,
+															forceSelection: true
+														},
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: 'Name',
+															labelWidth: 50,
+															hideLabel: false,
+															layout: 'hbox',
+															items: [
+																{
+																	xtype: 'textfield',
+																	margin: '0 5 0 0',
+																	name: 'guardians_fname'
+																}, {
+																	xtype: 'textfield',
+																	width: 75,
+																	margin: '0 5 0 0',
+																	name: 'guardians_mname'
+																}, {
+																	xtype: 'textfield',
+																	width: 150,
+																	name: 'guardians_lname'
+																}
+															]
+														},
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: 'Phone',
+															labelWidth: 50,
+															layout: 'hbox',
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: '000-000-0000',
+																	labelWidth: 50,
+																	margin: '0 5 5 0',
+																	name: 'guardians_phone'
+																}, {
+																	xtype: 'gaiaehr.combo',
+																	name: 'guardians_phone_type',
+																	list: 136,
+																	loadStore: true,
+																	forceSelection: true
+																}
+															]
+														},
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: _('address'),
+															labelWidth: 50,
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: 'Street',
+																	width: 370,
+																	name: 'guardians_address'
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: '(optional)',
+																	width: 370,
+																	name: 'guardians_address_cont'
+																},
+																{
+																	xtype: 'container',
+																	layout: 'hbox',
+																	width: 370,
+																	items: [
+																		{
+																			xtype: 'textfield',
+																			emptyText: 'City',
+																			margin: '0 5 5 0',
+																			name: 'guardians_city'
+																		},
+																		{
+																			xtype: 'textfield',
+																			emptyText: 'State',
+																			margin: '0 5 0 0',
+																			name: 'guardians_state'
+																		},
+																		{
+																			xtype: 'textfield',
+																			emptyText: 'Zip',
+																			width: 92,
+																			margin: '0 5 0 0',
+																			name: 'guardians_zip'
+																		}
+																	]
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: 'Country',
+																	labelWidth: 50,
+																	width: 100,
+																	name: 'guardians_country'
+																}
+															]
+														}
+													]
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
 				})
 			]
 		};
@@ -50679,300 +52509,82 @@ Ext.define('App.view.patient.Patient', {
 	beforePanelRender: function(){
 		var me = this,
 			whoPanel,
-			PatientContactsTab;
+			form = me.demoForm.getForm(),
+			fname = form.findField('fname'),
+			mname = form.findField('mname'),
+			lname = form.findField('lname'),
+			sex = form.findField('sex'),
+			dob = form.findField('DOB'),
+			crtl;
 
-        // Part of the Override custome function, this function calls the FormBuilder (a PHP method)
-        // to dynamically insert the fields configured on the administration panel. All the fields
-        // are in the GaiaEHR database.
-		me.getFormItems(me.demoForm, 1, function(formPanel){
+		if(fname) fname.vtype = 'nonspecialcharacters';
+		if(mname) mname.vtype = 'nonspecialcharacters';
+		if(lname) lname.vtype = 'nonspecialcharacters';
 
-			var form = me.demoForm.getForm(),
-				fname = form.findField('fname'),
-				mname = form.findField('mname'),
-				lname = form.findField('lname'),
-				sex = form.findField('sex'),
-				dob = form.findField('DOB'),
-                crtl;
+		if(dob) dob.setMaxValue(new Date());
 
-			if(fname) fname.vtype = 'nonspecialcharacters';
-			if(mname) mname.vtype = 'nonspecialcharacters';
-			if(lname) lname.vtype = 'nonspecialcharacters';
+		if(me.newPatient){
+			crtl = App.app.getController('patient.Patient');
 
-			if(dob) dob.setMaxValue(new Date());
-
-			if(me.newPatient){
-				crtl = App.app.getController('patient.Patient');
-
-				fname.on('blur', crtl.checkForPossibleDuplicates, crtl);
-				lname.on('blur', crtl.checkForPossibleDuplicates, crtl);
-				sex.on('blur', crtl.checkForPossibleDuplicates, crtl);
-				dob.dateField.on('blur', crtl.checkForPossibleDuplicates, crtl);
-			}else{
-				whoPanel = formPanel.query('[action=DemographicWhoFieldSet]')[0];
-				whoPanel.insert(0,
-					me.patientImages = Ext.create('Ext.panel.Panel', {
-						action: 'patientImage',
-						layout: 'hbox',
-						style: 'float:right',
-						bodyPadding: 5,
-						height: 160,
-						width: 255,
-						items: [
-							{
-								xtype: 'image',
-								width: 119,
-								height: 119,
-								itemId: 'image',
-								margin: '0 5 0 0',
-								src: me.defaultPatientImage
-							},
-							{
-								xtype: 'textareafield',
-								name: 'image',
-								hidden: true
-							},
-							{
-								xtype: 'image',
-								itemId: 'qrcode',
-								width: 119,
-								height: 119,
-								margin: 0,
-								src: me.defaultQRCodeImage
+			fname.on('blur', crtl.checkForPossibleDuplicates, crtl);
+			lname.on('blur', crtl.checkForPossibleDuplicates, crtl);
+			sex.on('blur', crtl.checkForPossibleDuplicates, crtl);
+			dob.dateField.on('blur', crtl.checkForPossibleDuplicates, crtl);
+		}else{
+			whoPanel = me.demoForm.query('[action=DemographicWhoFieldSet]')[0];
+			whoPanel.insert(0,
+				me.patientImages = Ext.create('Ext.panel.Panel', {
+					action: 'patientImage',
+					layout: 'hbox',
+					style: 'float:right',
+					bodyPadding: 5,
+					height: 160,
+					width: 255,
+					items: [
+						{
+							xtype: 'image',
+							width: 119,
+							height: 119,
+							itemId: 'image',
+							margin: '0 5 0 0',
+							src: me.defaultPatientImage
+						},
+						{
+							xtype: 'textareafield',
+							name: 'image',
+							hidden: true
+						},
+						{
+							xtype: 'image',
+							itemId: 'qrcode',
+							width: 119,
+							height: 119,
+							margin: 0,
+							src: me.defaultQRCodeImage
+						}
+					],
+					bbar: [
+						'-',
+						{
+							text: _('take_picture'),
+							action: 'onWebCam'
+							//handler: me.getPhotoIdWindow
+						},
+						'-',
+						'->',
+						'-',
+						{
+							text: _('print_qrcode'),
+							scope: me,
+							handler: function(){
+								window.printQRCode(app.patient.pid);
 							}
-						],
-						bbar: [
-							'-',
-							{
-								text: _('take_picture'),
-								action: 'onWebCam'
-								//handler: me.getPhotoIdWindow
-							},
-							'-',
-							'->',
-							'-',
-							{
-								text: _('print_qrcode'),
-								scope: me,
-								handler: function(){
-									window.printQRCode(app.patient.pid);
-								}
-							},
-							'-'
-						]
-					})
-				);
-
-				//Patient Contacts
-				PatientContactsTab = Ext.ComponentQuery.query('#Demographics')[0];
-				PatientContactsTab.add(
-					me.patientContacts = Ext.create('Ext.grid.Panel', {
-						itemId: 'PatientSummaryContactsPanel',
-						bodyPadding: 0,
-						title: _('contacts'),
-						store: me.patientContacsStore,
-						columns: [
-							{
-								text: _('name'),
-								dataIndex: 'fullname',
-								flex: 1
-							},
-							{
-								header: _('relationship'),
-								dataIndex: 'relationship_name'
-							},
-							{
-								header: _('active'),
-								dataIndex: 'active',
-								renderer: me.boolRenderer
-							}
-						],
-						plugins: Ext.create('App.ux.grid.RowFormEditing', {
-							autoCancel: false,
-							errorSummary: false,
-							clicksToEdit: 2,
-							items: [
-								{
-									xtype: 'container',
-									layout: 'hbox',
-									defaults: {
-										margin: '5 10 0 0'
-									},
-									items: [
-										{
-											xtype: 'container',
-											layout: 'vbox',
-											defaults: {
-												layout: '50%',
-												margin: '5 10 0 0'
-											},
-											items: [
-												{
-													xtype: 'fieldcontainer',
-													layout: 'hbox',
-													fieldLabel: _('name'),
-													defaults: {
-														layout: '100%',
-														xtype: 'textfield'
-													},
-													items: [
-														{
-															name: 'first_name',
-															emptyText: _('first_name'),
-															width: 150,
-															maxLength: 100,
-															allowBlank: false
-														},
-														{
-															name: 'middle_name',
-															emptyText: _('middle_name'),
-															width: 120,
-															maxLength: 100
-														},
-														{
-															name: 'last_name',
-															emptyText: _('last_name'),
-															width: 150,
-															maxLength: 100
-														}
-													]
-												},
-												{
-													xtype: 'gaiaehr.listcombo',
-													fieldLabel: _('relationship'),
-													name: 'relationship',
-													displayField: 'option_name',
-													valueField: 'option_value',
-													width: 350,
-													loadStore: true,
-													queryMode: 'local',
-													list: 134
-												},
-												{
-													xtype: 'fieldcontainer',
-													layout: 'hbox',
-													fieldLabel: _('phone'),
-													defaults: {
-														xtype: 'textfield',
-														vtype: 'numeric'
-													},
-													items: [
-														{
-															name: 'phone_use_code',
-															emptyText: _('code'),
-															width: 50,
-															maxLength: 4
-														},
-														{
-															name: 'phone_area_code',
-															emptyText: _('area_code'),
-															width: 50,
-															maxLength: 4
-														},
-														{
-															name: 'phone_local_number',
-															emptyText: _('local_number'),
-															width: 120,
-															maxLength: 7
-														}
-													]
-												},
-												{
-													fieldLabel: _('address'),
-													xtype: 'textfield',
-													name: 'street_mailing_address',
-													emptyText: _('street'),
-													width: 610,
-													maxLength: 200
-												},
-												{
-													xtype: 'fieldcontainer',
-													layout: 'hbox',
-													fieldLabel: _('address_cont'),
-													defaults: {
-														xtype: 'textfield'
-													},
-													items: [
-														{
-															name: 'city',
-															emptyText: _('city'),
-															width: 125,
-															maxLength: 70
-														},
-														{
-															xtype: 'gaiaehr.listcombo',
-															name: 'state',
-															emptyText: _('state'),
-															displayField: 'option_name',
-															valueField: 'option_value',
-															width: 125,
-															loadStore: true,
-															queryMode: 'local',
-															list: 20
-														},
-														{
-															xtype: 'gaiaehr.listcombo',
-															name: 'country',
-															emptyText: _('country'),
-															displayField: 'option_name',
-															valueField: 'option_value',
-															width: 125,
-															loadStore: true,
-															queryMode: 'local',
-															list: 3
-														},
-														{
-															emptyText: _('zip'),
-															name: 'zip',
-															width: 125,
-															maxLength: 20
-														}
-													]
-												}
-											]
-										},
-										{
-											xtype: 'fieldcontainer',
-											layout: 'vbox',
-											defaults: {
-												layout: '50%',
-												margin: '5 10 0 0'
-											},
-											items: [
-												{
-													xtype: 'gaiaehr.listcombo',
-													name: 'publicity',
-													fieldLabel: _('publicity'),
-													emptyText: _('select'),
-													displayField: 'option_name',
-													valueField: 'option_value',
-													width: 400,
-													loadStore: true,
-													queryMode: 'local',
-													list: 132
-												},
-												{
-													xtype: 'checkboxfield',
-													name: 'active',
-													fieldLabel: _('active')
-												}
-											]
-										}
-									]
-								}
-							]
-						}),
-						tbar: [
-							{
-								text: _('add_contact'),
-								iconCls: 'icoAdd',
-								action: 'patientContact',
-								handler: me.onAddNewContact
-							}
-						]
-					})
-				);
-			}
-		});
+						},
+						'-'
+					]
+				})
+			);
+		}
 	},
 
 	onAddNewContact: function(btn){
@@ -51800,7 +53412,8 @@ Ext.define('App.view.patient.Summary', {
 			me.stores[i].clearFilter(true);
 			me.stores[i].load({
 				params: {
-					pid: me.pid
+					pid: me.pid,
+                    active: true
 				},
 				filters: [
 					{
@@ -52897,13 +54510,21 @@ Ext.define('App.controller.patient.Documents', {
 			message;
 		DocumentHandler.checkDocHash(rec.data, function(provider, response){
 			success = response.result.success;
-			message = '<b>' + _(success ? 'hash_validation_passed' : 'hash_validation_failed') + '</b><br>' + Ext.String.htmlDecode(response.result.msg);
 
-			if(window.dual){
-				dual.msg(_(success ? 'sweet' : 'oops'), message, !success)
+			if(success){
+				message = '<span style="color: green"><b>' + _('hash_validation_passed') + '</b>'
 			}else{
-				app.msg(_(success ? 'sweet' : 'oops'), message, !success)
+				message = '<span style="color: red"><b>' + _('hash_validation_failed') + '</b>'
 			}
+
+			message += '<br><br>' + Ext.String.htmlDecode(response.result.msg) + '</span>';
+
+			Ext.Msg.show({
+				title: success ? _('sweet') : _('oops'),
+				msg: message,
+				buttons: Ext.Msg.OK,
+				icon: success ? Ext.Msg.INFO : Ext.Msg.WARNING
+			});
 		});
 	},
 
@@ -53311,7 +54932,7 @@ Ext.define('App.controller.patient.Results', {
 			selector: '#ResultsOrderSaveBtn'
 		},
 
-		// laboratory
+		// Laboratory
 		{
 			ref: 'ResultsLaboratoryPanel',
 			selector: '#ResultsLaboratoryPanel'
@@ -53321,18 +54942,31 @@ Ext.define('App.controller.patient.Results', {
 			selector: '#ResultsLaboratoryForm'
 		},
 		{
-			ref: 'ResultsLaboratoryObservationsGrid',
-			selector: '#ResultsLaboratoryObservationsGrid'
-		},
-		{
 			ref: 'ResultsLaboratoryFormUploadField',
 			selector: '#ResultsLaboratoryFormUploadField'
 		},
+		{
+			ref: 'ResultsLaboratoryObservationsGrid',
+			selector: '#ResultsLaboratoryObservationsGrid'
+		},
+
 
 		// Radiology
 		{
 			ref: 'ResultsRadiologyPanel',
 			selector: '#ResultsRadiologyPanel'
+		},
+		{
+			ref: 'ResultsRadiologyForm',
+			selector: '#ResultsRadiologyForm'
+		},
+		{
+			ref: 'ResultsRadiologyFormUploadField',
+			selector: '#ResultsRadiologyFormUploadField'
+		},
+		{
+			ref: 'ResultsRadiologyFormViewStudyBtn',
+			selector: '#ResultsRadiologyFormViewStudyBtn'
 		},
 		{
 			ref: 'ResultsRadiologyDocumentIframe',
@@ -53353,11 +54987,17 @@ Ext.define('App.controller.patient.Results', {
 			'#ResultsLaboratoryFormUploadField': {
 				change: me.onOrderDocumentChange
 			},
-			'#ResultsLaboratoryOrderResetBtn': {
-				click: me.onResetOrderResultClicked
+
+
+			'#ResultsOrderResetBtn': {
+				click: me.onResultsOrderResetBtnClick
 			},
-			'#ResultsLaboratoryOrderSaveBtn': {
-				click: me.onSaveOrderResultClicked
+			'#ResultsOrderSaveBtn': {
+				click: me.onResultsOrderSaveBtnClick
+			},
+
+			'#ResultsLabsLiveSearchField': {
+				select: me.onResultsLabsLiveSearchFieldSelect
 			},
 			'#ResultsLaboratoryPanelDocumentViewBtn': {
 				click: me.onOrderDocumentViewBtnClicked
@@ -53376,7 +55016,18 @@ Ext.define('App.controller.patient.Results', {
 			},
 			'#ResultsOrdersGridOrderVoidCheckbox': {
 				change: me.onResultsOrdersGridOrderVoidCheckboxChange
+			},
+			'#ResultsRadiologyFormViewStudyBtn': {
+				click: me.onResultsRadiologyFormViewStudyBtnClick
 			}
+		});
+	},
+
+	onResultsLabsLiveSearchFieldSelect: function(cmb, records){
+		cmb.up('form').getRecord().set({
+			code: records[0].get('loinc_number'),
+			code_text: records[0].get('loinc_name'),
+			code_type: 'LOINC'
 		});
 	},
 
@@ -53392,7 +55043,7 @@ Ext.define('App.controller.patient.Results', {
 			if(btn == 'ok'){
 				User.verifyUserPass(password, function(success){
 					if(success){
-						record = me.getResultsLaboratoryForm().getRecord();
+						record = me.getActiveForm().getForm().getRecord();
 						record.set({signed_uid: app.user.id});
 						record.save({
 							success: function(){
@@ -53402,8 +55053,7 @@ Ext.define('App.controller.patient.Results', {
 								app.msg(_('sweet'), _('record_error'), true);
 							}
 						});
-					}
-					else{
+					}else{
 						me.onOrderResultSignBtnClick();
 					}
 				});
@@ -53411,8 +55061,8 @@ Ext.define('App.controller.patient.Results', {
 		});
 	},
 
-	onOrderSelectionEdit: function(editor, e){
-		this.getOrderResult(e.record);
+	onOrderSelectionEdit: function(editor, context){
+		this.getLabOrderResult(context.record);
 	},
 
 	onNewOrderResultBtnClick: function(btn){
@@ -53438,6 +55088,7 @@ Ext.define('App.controller.patient.Results', {
 		// By Default when adding a new record, it will be a Laboratory
 		grid.columns[4].setEditor({
 			xtype: 'labslivetsearch',
+			itemId: 'ResultsLabsLiveSearchField',
 			allowBlank: false,
 			flex: 1
 		});
@@ -53456,6 +55107,7 @@ Ext.define('App.controller.patient.Results', {
 			// Change the field to look for laboratories
 			grid.columns[4].setEditor({
 				xtype: 'labslivetsearch',
+				itemId: 'ResultsLabsLiveSearchField',
 				allowBlank: false,
 				flex: 1,
 				value: ''
@@ -53467,7 +55119,7 @@ Ext.define('App.controller.patient.Results', {
 		if(newValue === 'rad'){
 			// Change the Card panel, to show the Radiology results form
 			this.getResultsCardPanel().getLayout().setActiveItem('ResultsRadiologyPanel');
-			// Change the field to look for radiologies
+			// Change the field to look for radiologists
 			grid.columns[4].setEditor({
 				xtype: 'radslivetsearch',
 				allowBlank: false,
@@ -53509,33 +55161,36 @@ Ext.define('App.controller.patient.Results', {
 		if(!carDpanel.isVisible())
 			carDpanel.setVisible(true);
 
-		if(records[0]){
-			if(records[0].data.order_type === 'lab')
+		if(records.length > 0){
+			if(records[0].data.order_type === 'lab'){
 				carDpanel.getLayout().setActiveItem('ResultsLaboratoryPanel');
-
-			if(records[0].data.order_type === 'rad')
+				if(records.length > 0){
+					this.getLabOrderResult(records[0]);
+				}
+			}else if(records[0].data.order_type === 'rad'){
 				carDpanel.getLayout().setActiveItem('ResultsRadiologyPanel');
-
-			if(records.length > 0){
-				this.getOrderResult(records[0]);
-			}
-			else{
+				if(records.length > 0){
+					this.getRadOrderResult(records[0]);
+				}
+			}else{
 				this.resetOrderResultForm();
 			}
+		}else{
+			this.resetOrderResultForm();
 		}
 	},
 
-	getOrderResult: function(orderRecord){
+	getLabOrderResult: function(order_record){
 		var me = this,
 			form = me.getResultsLaboratoryForm(),
-			resultsStore = orderRecord.results(),
+			results_store = order_record.results(),
 			observationGrid = me.getResultsLaboratoryObservationsGrid(),
 			observationStore,
 			newResult,
 			i;
 
 		observationGrid.editingPlugin.cancelEdit();
-		resultsStore.load({
+		results_store.load({
 			callback: function(records){
 				if(records.length > 0){
 					form.loadRecord(records[0]);
@@ -53544,12 +55199,12 @@ Ext.define('App.controller.patient.Results', {
 					observationGrid.reconfigure(observationStore);
 					observationStore.load();
 				}else{
-					newResult = resultsStore.add({
-						pid: orderRecord.data.pid,
-						code: orderRecord.data.code,
-						code_text: orderRecord.data.description,
-						code_type: orderRecord.data.code_type,
-						ordered_uid: orderRecord.data.uid,
+					newResult = results_store.add({
+						pid: order_record.data.pid,
+						code: order_record.data.code,
+						code_text: order_record.data.description,
+						code_type: order_record.data.code_type,
+						ordered_uid: order_record.data.uid,
 						create_date: new Date()
 					});
 					form.loadRecord(newResult[0]);
@@ -53558,7 +55213,7 @@ Ext.define('App.controller.patient.Results', {
 					observationGrid.reconfigure(observationStore);
 					observationStore.load({
 						params: {
-							loinc: orderRecord.data.code
+							loinc: order_record.data.code
 						},
 						callback: function(ObsRecords){
 							for(i = 0; i < ObsRecords.length; i++){
@@ -53571,82 +55226,91 @@ Ext.define('App.controller.patient.Results', {
 		});
 	},
 
-	onResetOrderResultClicked: function(){
-		this.resetOrderResultForm();
-	},
+	getRadOrderResult: function(order_record){
 
-	resetOrderResultForm: function(){
 		var me = this,
-			form = me.getResultsLaboratoryForm(),
-			observationGrid = me.getResultsLaboratoryObservationsGrid(),
-			store = Ext.create('App.store.patient.PatientsOrderObservations');
+			form = me.getResultsRadiologyForm().getForm(),
+			results_store = order_record.results();
 
-		form.reset();
-		observationGrid.editingPlugin.cancelEdit();
-		observationGrid.reconfigure(store);
-	},
 
-	onSaveOrderResultClicked: function(){
-		var me = this,
-			form = me.getResultsLaboratoryForm(),
-			values = form.getValues(),
-			files = me.getResultsLaboratoryFormUploadField().getEl().down('input[type=file]').dom.files,
-			reader = new FileReader();
-
-		// The form is not valid, go ahead and warn the user.
-		if(!form.isValid()){
-			app.msg(_('oops'), _('required_fields_missing'), true);
-			return;
-		}
-
-		if(files.length > 0){
-			reader.onload = (function(){
-				return function(e){
-					var sm = me.getResultsOrdersGrid().getSelectionModel(),
-						order = sm.getSelection(),
-						params = {
-							pid: order[0].data.pid,
-							eid: order[0].data.eid,
-							uid: app.user.id,
-							docType: 'lab',
-							title: 'Lab #' + values.lab_order_id + ' Result',
-							document: e.target.result
-						};
-					File.savePatientBase64Document(params, function(provider, response){
-						if(response.result.success){
-							values.documentId = 'doc|' + response.result.id;
-							me.saveOrderResult(form, values);
-						}else{
-							app.msg(_('oops'), response.result.error)
-						}
+		results_store.load({
+			callback: function(records){
+				if(records.length > 0){
+					form.loadRecord(records[0]);
+					me.getResultsOrderSignBtn().setDisabled(records[0].data.signed_uid > 0);
+					me.loadRadiologyDocument(records[0]);
+					me.setViewStudyBtn(records[0]);
+				}else{
+					var newResult = results_store.add({
+						pid: order_record.data.pid,
+						code: order_record.data.code,
+						code_text: order_record.data.description,
+						code_type: order_record.data.code_type,
+						ordered_uid: order_record.data.uid,
+						create_date: new Date()
 					});
-				};
-			})(files[0]);
-			reader.readAsDataURL(files[0]);
+					form.loadRecord(newResult[0]);
+					me.loadRadiologyDocument(newResult[0]);
+					me.setViewStudyBtn(newResult[0]);
+				}
+			}
+		});
+
+	},
+	
+	setViewStudyBtn: function(result_record){
+
+		say(result_record);
+
+		this.getResultsRadiologyFormViewStudyBtn().setDisabled(result_record.get('study_link') == '');
+	},
+
+	onResultsRadiologyFormViewStudyBtnClick: function(){
+		var record = this.getActiveForm().getForm().getRecord();
+		var win = window.open(record.get('study_link'), 'dicom_viewer');
+
+		if(win){
+			win.focus();
+		} else{
+			app.msg(_('oops'), _('unable_to_open_new_tab'), true);
 		}
-		else{
-			me.saveOrderResult(form, values);
+	},
+	
+
+	/**
+	 * SAVE RESULTS FOMR
+	 */
+	onResultsOrderSaveBtnClick: function(){
+		var form = this.getActiveForm();
+
+		if(form.itemId == 'ResultsLaboratoryForm'){
+			this.saveLabOrderResultForm(form.getForm());
+		}else if(form.itemId == 'ResultsRadiologyForm'){
+			this.saveRadOrderResultForm(form.getForm());
 		}
 	},
 
-	saveOrderResult: function(form, values){
+	saveLabOrderResultForm: function(form){
 		var me = this,
-			record = form.getRecord(),
+			result_record = form.getRecord(),
 			sm = me.getResultsOrdersGrid().getSelectionModel(),
 			order = sm.getSelection(),
+			values = form.getValues(),
 			observationData = [];
 
-		var observationStore = record.observations(),
+		if(!form.isValid()) return;
+
+
+		var observationStore = result_record.observations(),
 			observations = observationStore.data.items;
 
-		record.set(values);
-		record.save({
+		result_record.set(values);
+		result_record.save({
 			success: function(rec){
 
 				for(var i = 0; i < observations.length; i++){
 					observations[i].set({result_id: rec.data.id});
 				}
-
 				observationStore.sync({
 					callback: function(batch, options){
 
@@ -53659,32 +55323,110 @@ Ext.define('App.controller.patient.Results', {
 		});
 	},
 
+	saveRadOrderResultForm: function(form){
+		if(!form.isValid()) return;
+
+		var me = this,
+			result_record = form.getRecord(),
+			values = form.getValues(),
+			reader = new FileReader();
+
+		reader.onload = function(e){
+			values.upload = e.target.result;
+			result_record.set(values);
+			result_record.save({
+				callback: function(){
+					me.loadRadiologyDocument(result_record);
+					app.msg(_('sweet'), _('record_save'));
+				}
+			});
+		};
+
+		reader.readAsDataURL(me.getResultsRadiologyFormUploadField().extractFileInput().files[0]);
+	},
+
+	loadRadiologyDocument: function(result_record){
+
+		var document_id = result_record.get('documentId'),
+			frame = this.getResultsRadiologyDocumentIframe();
+
+		if(document_id != ''){
+			var doc_id = document_id.split('|');
+			if(doc_id.length == 2){
+				frame.setSrc(
+					Ext.String.format(
+						'dataProvider/DocumentViewer.php?site={0}&token={1}&id={2}',
+						app.user.site,
+						app.user.token,
+						doc_id[1]
+					)
+				);
+			}
+		}else{
+			frame.setSrc('about:blank');
+		}
+	},
+
+	/**
+	 * RESET RESULTS FORM
+	 */
+	onResultsOrderResetBtnClick: function(){
+		this.resetOrderResultForm();
+	},
+
+	resetOrderResultForm: function(){
+		var form = this.getActiveForm();
+
+		if(form.itemId == 'ResultsLaboratoryForm'){
+			this.resetLabOrderResultForm(form.getForm());
+		}else if(form.itemId == 'ResultsRadiologyForm'){
+			this.resetRadOrderResultForm(form.getForm());
+		}
+
+		var card_panel = this.getResultsCardPanel();
+
+		if(card_panel.isVisible()){
+			card_panel.setVisible(false);
+		}
+	},
+
+	resetLabOrderResultForm: function(form){
+		var me = this,
+			observationGrid = me.getResultsLaboratoryObservationsGrid(),
+			store = Ext.create('App.store.patient.PatientsOrderObservations');
+
+		form.reset();
+		observationGrid.editingPlugin.cancelEdit();
+		observationGrid.reconfigure(store);
+	},
+
+	resetRadOrderResultForm: function(form){
+		form.reset();
+		this.getResultsRadiologyDocumentIframe().setSrc('about:blank');
+	},
+
+
+	getActiveForm: function(){
+		return this.getResultsCardPanel().getLayout().getActiveItem().down('form');
+	},
+
 	onOrderDocumentViewBtnClicked: function(){
 		var me = this,
 			form = me.getResultsLaboratoryForm(),
 			record = form.getRecord(),
 			recordData = record.data.documentId.split('|'),
-			type = null,
-			id = null,
-			win;
+			type, id;
 
 		if(recordData[0]) type = recordData[0];
 		if(recordData[1]) id = recordData[1];
 
 		if(type && id){
 			if(type == 'hl7'){
-				win = Ext.widget('hl7messageviewer').show();
-				win.body.mask(_('loading...'));
-				HL7Messages.getMessageById(id, function(provider, response){
-					me.getMessageField().setValue(response.result.message);
-					me.getAcknowledgeField().setValue(response.result.response);
-					win.body.unmask();
-				});
+				app.getController('administration.HL7').viewHL7MessageDetailById(id);
 			} else if(type == 'doc'){
 				app.onDocumentView(id);
 			}
-		}
-		else{
+		}else{
 			app.msg(_('oops'), _('no_document_found'), true)
 		}
 	},
@@ -54314,11 +56056,15 @@ Ext.define('App.view.patient.ActiveProblems', {
 			format: 'Y-m-d',
 			dataIndex: 'end_date'
 		},
-		{
-			header: _('status'),
-			width: 80,
-			dataIndex: 'status'
-		}
+        {
+            header: _('active?'),
+            groupable: false,
+            width: 60,
+            dataIndex: 'active',
+            renderer: function(v){
+                return app.boolRenderer(v);
+            }
+        }
 	],
 	plugins: Ext.create('App.ux.grid.RowFormEditing', {
 		autoCancel: false,
@@ -54395,14 +56141,6 @@ Ext.define('App.view.patient.ActiveProblems', {
 						},
 						items: [
 							{
-								fieldLabel: _('status'),
-								xtype: 'gaiaehr.combo',
-								list: 112,
-								itemId: 'ActiveProblemStatusCombo',
-								name: 'status',
-								allowBlank: false
-							},
-							{
 								fieldLabel: _('begin_date'),
 								xtype: 'datefield',
 								format: 'Y-m-d',
@@ -54429,11 +56167,28 @@ Ext.define('App.view.patient.ActiveProblems', {
 			iconCls: 'icoAdd'
 		}
 	],
-	bbar: ['->', {
-		text: _('review'),
-		itemId: 'review_active_problems',
-		action: 'encounterRecordAdd'
-	}]
+	bbar: [
+        '-',
+        {
+            text: _('reconciled'),
+            itemId: 'PatientProblemsReconciledBtn',
+            enableToggle: true,
+            pressed: true
+        },
+        '-',
+        {
+            text: _('active'),
+            itemId: 'PatientProblemsActiveBtn',
+            enableToggle: true,
+            pressed: false
+        },
+        '->',
+        {
+		    text: _('review'),
+		    itemId: 'review_active_problems',
+		    action: 'encounterRecordAdd'
+	    }
+    ]
 });
 
 Ext.define('App.view.patient.SocialPanel', {
@@ -54569,7 +56324,6 @@ Ext.define('App.view.patient.RadOrders', {
 	extend: 'Ext.grid.Panel',
 	requires: [
 		'Ext.grid.plugin.RowEditing',
-		'Ext.grid.feature.Grouping',
 		'Ext.selection.CheckboxModel',
 		'App.ux.combo.Combo',
 		'App.ux.LiveRadsSearch'
@@ -54583,7 +56337,6 @@ Ext.define('App.view.patient.RadOrders', {
 	itemId: 'RadOrders',
 	store: Ext.create('App.store.patient.PatientsOrders', {
 		storeId: 'RadOrderStore',
-		groupField: 'date_ordered',
 		remoteFilter: true,
 		pageSize: 200,
 		sorters: [
@@ -54596,11 +56349,6 @@ Ext.define('App.view.patient.RadOrders', {
 	selModel: Ext.create('Ext.selection.CheckboxModel', {
 		showHeaderCheckbox: false
 	}),
-	features: [
-		{
-			ftype: 'grouping'
-		}
-	],
 	plugins: [
 		{
 			ptype: 'rowediting',
@@ -54615,8 +56363,6 @@ Ext.define('App.view.patient.RadOrders', {
 				{
 					icon: 'resources/images/icons/cross.png',
 					tooltip: _('remove')
-//					scope: me,
-//					handler: me.onRemoveClick
 				}
 			]
 		},
@@ -54715,6 +56461,7 @@ Ext.define('App.view.patient.RadOrders', {
 		}
 	]
 });
+
 Ext.define('App.view.patient.encounter.CarePlanGoalsNewWindow', {
 	extend: 'Ext.window.Window',
 	requires: [
@@ -55096,14 +56843,7 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 		me.textField = me.items.items[1];
 
 		me.chekboxField.on('change', me.setTextField, me);
-
-		// this dummy is necessary because Ext.Editor will not check whether an inputEl is present or not
-//		this.inputEl = {
-//			dom: {},
-//			swallowEvent: function(){
-//			}
-//		};
-//
+        
 		me.initField();
 	},
 
@@ -55160,6 +56900,7 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 		return this.chekboxField.isValid() && this.textField.isValid();
 	}
 });
+
 Ext.define('App.view.patient.RxOrders', {
 	extend: 'Ext.grid.Panel',
 	requires: [
@@ -56583,13 +58324,11 @@ Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 			txtValue;
 
 		if(ckValue != '0'){
-
 			ckValue += ':' + this.chekboxField.boxLabel;
-
 			var store = this.textField.getStore(),
 				rec = store.getById(this.textField.getSubmitValue());
 			txtValue = rec ? rec.get('code_type') + ':' + rec.get('code') + ':' + rec.get('option_name') : '0';
-		}else{
+		} else {
 			txtValue = '0';
 		}
 
@@ -56607,7 +58346,7 @@ Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 			if(val[1] != '0' && val[1].split){
 				var relation = val[1].split(':');
 				this.textField.select(relation[1] || relation[0] || '');
-			}else{
+			} else {
 				this.textField.setValue('');
 			}
 
@@ -56617,6 +58356,7 @@ Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 		this.textField.setValue('');
 	}
 });
+
 Ext.define('App.view.patient.Encounter', {
 	extend: 'App.ux.RenderPanel',
 	pageTitle: _('encounter'),
@@ -58328,7 +60068,7 @@ Ext.define('App.view.Viewport', {
 	doEmergencyAccess:function(){
 		ACL.emergencyAccess(app.user.id, function(success){
 			if(success){
-				window.location = './';
+				window.location.reload();
 				return;
 			}
 			Ext.Msg.alert(_('oops'), _('emergency_access_error'));

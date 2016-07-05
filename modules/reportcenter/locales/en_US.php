@@ -44,5 +44,7 @@ $LANG = array(
     'not_equal'                             => 'Not equal',
     'remove_filter'                         => 'Remove Filter',
     'sort'                                  => 'Sort',
-    'select_provider'                       => 'Select provider'
+    'select_provider'                       => 'Select provider',
+    'ageFrom'                               => 'From age',
+    'ageTo'                                 => 'To age'
 );

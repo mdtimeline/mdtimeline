@@ -29,7 +29,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     public function testRouteParameters($parameter, $value, $getter)
     {
         $route = new Route(array($parameter => $value));
-        $this->assertEquals($route->$getter(), $value);
+        $this->assertEquals($route->{$getter}(), $value);
     }
 
     public function getValidParameters()

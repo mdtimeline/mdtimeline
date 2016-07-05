@@ -320,13 +320,21 @@ Ext.define('App.controller.patient.Documents', {
 			message;
 		DocumentHandler.checkDocHash(rec.data, function(provider, response){
 			success = response.result.success;
-			message = '<b>' + _(success ? 'hash_validation_passed' : 'hash_validation_failed') + '</b><br>' + Ext.String.htmlDecode(response.result.msg);
 
-			if(window.dual){
-				dual.msg(_(success ? 'sweet' : 'oops'), message, !success)
+			if(success){
+				message = '<span style="color: green"><b>' + _('hash_validation_passed') + '</b>'
 			}else{
-				app.msg(_(success ? 'sweet' : 'oops'), message, !success)
+				message = '<span style="color: red"><b>' + _('hash_validation_failed') + '</b>'
 			}
+
+			message += '<br><br>' + Ext.String.htmlDecode(response.result.msg) + '</span>';
+
+			Ext.Msg.show({
+				title: success ? _('sweet') : _('oops'),
+				msg: message,
+				buttons: Ext.Msg.OK,
+				icon: success ? Ext.Msg.INFO : Ext.Msg.WARNING
+			});
 		});
 	},
 

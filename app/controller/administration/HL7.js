@@ -31,6 +31,30 @@ Ext.define('App.controller.administration.HL7', {
 		{
 			ref: 'HL7ClientsGrid',
 			selector: '#hl7clientsgrid'
+		},
+		{
+			ref: 'HL7MessagesWindow',
+			selector: '#HL7MessagesWindow'
+		},
+		{
+			ref: 'HL7MessagesGrid',
+			selector: '#HL7MessagesGrid'
+		},
+		{
+			ref: 'HL7MessageViewerWindow',
+			selector: '#HL7MessageViewerWindow'
+		},
+		{
+			ref: 'HL7MessageViewerWindowWarnings',
+			selector: '#HL7MessageViewerWindowWarnings'
+		},
+		{
+			ref: 'HL7MessageViewerWindowMessageField',
+			selector: '#HL7MessageViewerWindowMessageField'
+		},
+		{
+			ref: 'HL7MessageViewerWindowAcknowledgeField',
+			selector: '#HL7MessageViewerWindowAcknowledgeField'
 		}
 	],
 
@@ -56,6 +80,12 @@ Ext.define('App.controller.administration.HL7', {
 			},
 			'#hl7clientsgrid #removeHL7ClientBtn': {
 				click: me.onRemoveHL7ClientBtnClick
+			},
+			'#HL7MessagesViewBtn': {
+				click: me.onHL7MessagesViewBtnClick
+			},
+			'#HL7MessagesGrid': {
+				itemdblclick: me.onHL7MessagesGridItemDblClick
 			}
 		});
 
@@ -133,6 +163,49 @@ Ext.define('App.controller.administration.HL7', {
 		var multiField = plugin.editor.query('multitextfield')[0],
 			values = multiField.getValue();
 		e.record.set({ allow_ips: values });
+	},
+
+	onHL7MessagesViewBtnClick: function(){
+		this.showHL7MessagesWindow();
+		this.getHL7MessagesGrid().getStore().load();
+	},
+
+	onHL7MessagesGridItemDblClick: function(grid, record){
+		this.viewHL7MessageDetailById(record.get('id'));
+	},
+
+	viewHL7MessageDetailById: function(message_id){
+		var me = this;
+
+		me.showHL7MessageDetailWindow();
+
+		HL7Messages.getMessageById(message_id, function(provider, response){
+
+			var warnings = (response.result.hash !== response.result.current_hash) ?
+				'<span style="color: red">' : '<span style="color: green">';
+			warnings += '<b>' + _('stored_hash') + ':</b> ' + response.result.hash + '<br>';
+			warnings += '<b>' + _('current_hash') + ':</b> ' + response.result.current_hash + '<br>';
+			warnings += '</span>';
+
+			me.getHL7MessageViewerWindowWarnings().update(warnings);
+			me.getHL7MessageViewerWindowMessageField().setValue(response.result.message);
+			me.getHL7MessageViewerWindowAcknowledgeField().setValue(response.result.response);
+
+		});
+	},
+
+	showHL7MessageDetailWindow: function(){
+		if(!this.getHL7MessageViewerWindow()){
+			Ext.create('App.view.administration.HL7MessageViewer');
+		}
+		return this.getHL7MessageViewerWindow().show();
+	},
+
+	showHL7MessagesWindow: function(){
+		if(!this.getHL7MessagesWindow()){
+			Ext.create('App.view.administration.HL7Messages');
+		}
+		return this.getHL7MessagesWindow().show();
 	}
 
 });

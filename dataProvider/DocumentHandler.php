@@ -81,12 +81,22 @@ class DocumentHandler {
 
 	/**
 	 * @param $params
+	 * @param $includeDocument
 	 *
 	 * @return mixed
 	 */
-	public function getPatientDocument($params){
+	public function getPatientDocument($params, $includeDocument = false){
 		$this->setPatientDocumentModel();
 		$record = $this->d->load($params)->one();
+
+		if($record !== false && $includeDocument){
+			$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $record['document_instance']);
+			$data = $dd->load($record['document_id'])->one();
+			if($data !== false){
+				$record['document'] = $data['document'];
+			}
+		}
+
 		return $record;
 	}
 
@@ -437,8 +447,8 @@ class DocumentHandler {
 			$this->docType = (isset($params->docType)) ? $params->docType : 'orphanDocuments';
 		}
 		$path = site_path . '/patients/' . $this->pid . '/' . strtolower(str_replace(' ', '_', $this->docType)) . '/';
-		if(is_dir($path) || mkdir($path, 0777, true)){
-			chmod($path, 0777);
+		if(is_dir($path) || mkdir($path, 0774, true)){
+			chmod($path, 0774);
 		}
 		return $this->workingDir = $path;
 	}
@@ -499,9 +509,9 @@ class DocumentHandler {
 	 * @return array
 	 */
 	public function checkDocHash($doc){
-		$doc = $this->getPatientDocument($doc->id);
+		$doc = $this->getPatientDocument($doc->id, true);
 		$hash = hash('sha256', $doc['document']);
-		return ['success' => $doc['hash'] == $hash, 'msg' => 'Stored Hash:' . $doc['hash'] . '<br>File hash:' . $hash];
+		return ['success' => $doc['hash'] == $hash, 'msg' => 'Stored Hash: ' . $doc['hash'] . '<br>File Hash: ' . $hash];
 	}
 
 	public function convertDocuments($quantity = 100){

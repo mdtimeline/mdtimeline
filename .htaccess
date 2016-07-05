@@ -14,21 +14,4 @@
   </ifModule>
 </filesMatch>
 
-#RewriteEngine On
-#RewriteRule (.*) temp/timezone.php?args=$1 [QSA]
-
-#RewriteEngine on
-#
-#
-#RewriteCond %{REQUEST_FILENAME} !-l
-#RewriteCond %{REQUEST_FILENAME} !-f
-#RewriteCond %{REQUEST_FILENAME} !-d
-#RewriteCond %{REQUEST_URI} /([a-z]{2}_[A-Z]{2}|[a-z]{2})/$
-#RewriteRule ^([a-z]{2}_[A-Z]{2}|[a-z]{2})/(.*)$ $2?lang=$1 [L,QSA]
-#
-#RewriteCond %{REQUEST_FILENAME} !-l
-#RewriteCond %{REQUEST_FILENAME} !-f
-#RewriteCond %{REQUEST_FILENAME} !-d
-#RewriteCond %{REQUEST_URI} /([a-z]{2}_[A-Z]{2}|[a-z]{2})/(\w*)/$
-#RewriteRule ^([a-z]{2}_[A-Z]{2}|[a-z]{2})/(\w*)/(.*) $3?lang=$1&site=$2 [L,QSA]
-
+Options -Indexes

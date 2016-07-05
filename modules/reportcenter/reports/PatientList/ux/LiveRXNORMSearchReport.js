@@ -1,6 +1,6 @@
 /**
- * GaiaEHR (Electronic Health Records)
- * Copyright (C) 2013 Certun, LLC.
+ * mdTimeLine (Electronic Health Records)
+ * Copyright (C) 2016 TRA, inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('Modules.reportcenter.reports.PatientList.LiveRXNORMSearchReport', {
+Ext.define('Modules.reportcenter.reports.PatientList.ux.LiveRXNORMSearchReport', {
 	extend: 'Ext.form.ComboBox',
 	requires:[
 		'App.model.administration.MedicationInstruction'

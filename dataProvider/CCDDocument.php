@@ -17,18 +17,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if(!isset($_SESSION)){
-    session_cache_limiter('private');
-    session_cache_expire(1);
-    session_regenerate_id(false);
-    session_name('GaiaEHR');
-    session_start();
-    setcookie(session_name(),session_id(),time()+86400, '/', null, false, true);
-}
-if(!defined('_GaiaEXEC')){
-	define('_GaiaEXEC', 1);
-	require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
-}
+header('Content-type: text/html; charset=utf-8');
+header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
+header("Pragma: no-cache"); // HTTP 1.0.
+header("Expires: 0"); // Proxies.
+
+session_cache_limiter('private');
+session_cache_expire(1);
+session_name('mdTimeLine');
+session_start();
+if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
+setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
+
+$site = isset($_SESSION['user']['site']) ? $_SESSION['user']['site'] : 'default';
+if(!defined('_GaiaEXEC'))
+    define('_GaiaEXEC', 1);
+require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
 
 include_once(ROOT . '/classes/UUID.php');
 include_once(ROOT . '/classes/Array2XML.php');
@@ -57,8 +61,8 @@ include_once(ROOT . '/dataProvider/DiagnosisCodes.php');
 include_once(ROOT . '/dataProvider/Facilities.php');
 include_once(ROOT . '/dataProvider/CombosData.php');
 
-class CCDDocument {
-
+class CCDDocument
+{
 	/**
 	 * @var int
 	 */
@@ -206,7 +210,7 @@ class CCDDocument {
 	 * CCDDocument constructor.
 	 */
 	function __construct()
-	{
+    {
 		$this->dateNow = date('Ymd');
 		$this->timeNow = date('YmdHisO');
 		$this->Encounter = new Encounter();
@@ -223,9 +227,9 @@ class CCDDocument {
      * @param $codeSystem
      * @return string
      */
-    function codes($codeSystem){
-        switch($codeSystem)
-        {
+    function codes($codeSystem)
+    {
+        switch($codeSystem) {
             case 'CPT':
                 return '2.16.840.1.113883.6.12';
                 break;
@@ -279,14 +283,16 @@ class CCDDocument {
 	/**
 	 * @param $pid
 	 */
-	public function setPid($pid) {
+	public function setPid($pid)
+    {
 		$this->pid = $pid;
 	}
 
 	/**
 	 * @param $eid
 	 */
-	public function setEid($eid) {
+	public function setEid($eid)
+    {
 		$this->eid = $eid == 'null' ? null : $eid;
 	}
 
@@ -308,19 +314,19 @@ class CCDDocument {
 	/**
 	 * @param $template
 	 */
-	public function setTemplate($template) {
+	public function setTemplate($template)
+    {
 		$this->template = $template;
 	}
 
 	/**
 	 * Method buildCCD()
 	 */
-	public function createCCD() {
+	public function createCCD()
+    {
 		try {
 
-			if(!isset($this->pid)){
-				throw new Exception('PID variable not set');
-			}
+			if(!isset($this->pid)) throw new Exception('PID variable not set');
 
 			$this->xmlData = [
 				'@attributes' => [
@@ -374,34 +380,42 @@ class CCDDocument {
 			/**
 			 * Build the CCR XML Object
 			 */
+            if(stripos(URL, '?')){
+                $DeleteQuery = substr(URL, stripos(URL, '?'));
+                $URL = str_replace($DeleteQuery, "", URL);
+            } else {
+                $URL = URL;
+            }
 			Array2XML::init(
                 '1.0',
                 'UTF-8',
                 true,
-                ['xml-stylesheet' => 'type="text/xsl" href="' . URL . '/lib/CCRCDA/schema/cda2.xsl"']
+                ['xml-stylesheet' => 'type="text/xsl" href="'.$URL.'/lib/CCRCDA/schema/cda2.xsl"']
             );
 			$this->xml = Array2XML::createXML('ClinicalDocument', $this->xmlData);
-		} catch(Exception $e) {
-			print $e->getMessage();
+		} catch(Exception $Error) {
+            error_log($Error->getMessage());
 		}
 	}
 
 	/**
 	 * Method view()
 	 */
-	public function view() {
+	public function view()
+    {
 		try {
 			header('Content-type: application/xml');
 			print $this->xml->saveXML();
-		} catch(Exception $e) {
-			print $e->getMessage();
+		} catch(Exception $Error) {
+            error_log($Error->getMessage());
 		}
 	}
 
 	/**
 	 * Method view()
 	 */
-	public function archive() {
+	public function archive()
+    {
 		try {
 			header('Content-type: application/xml');
 			$xml = $this->xml->saveXML();
@@ -423,15 +437,16 @@ class CCDDocument {
 			$DocumentHandler->addPatientDocument($document);
 			unset($DocumentHandler, $document, $name, $date);
 			print $xml;
-		} catch(Exception $e) {
-			print $e->getMessage();
+		} catch(Exception $Error) {
+            error_log($Error->getMessage());
 		}
 	}
 
 	/**
 	 * Method get()
 	 */
-	public function get() {
+	public function get()
+    {
 		try {
 			return $this->xml->saveXML();
 		} catch(Exception $e) {
@@ -442,7 +457,8 @@ class CCDDocument {
 	/**
 	 * Method export()
 	 */
-	public function export() {
+	public function export()
+    {
 		try {
             // Create a ZIP archive for delivery
 			$dir = site_temp_path . '/';
@@ -454,16 +470,16 @@ class CCDDocument {
 			header('Content-Disposition: attachment; filename="' . $filename . '.zip' . '"');
 			readfile($file);
 			unlink($file);
-		} catch(Exception $e) {
-			print $e->getMessage();
+		} catch(Exception $Error) {
+            error_log($Error->getMessage());
 		}
-
 	}
 
 	/**
 	 * @return string
 	 */
-	private function getFileName(){
+	private function getFileName()
+    {
 	    return strtolower(str_replace(
             ' ',
             '',
@@ -476,7 +492,8 @@ class CCDDocument {
 	 * @param $toDir
 	 * @param $fileName
 	 */
-	public function save($toDir, $fileName) {
+	public function save($toDir, $fileName)
+    {
 		try {
 			$filename = $fileName ? $fileName : $this->getFileName();
 			$this->zipIt($toDir, $filename);
@@ -488,14 +505,16 @@ class CCDDocument {
 	/**
 	 * @return mixed
 	 */
-	private function getTemplateId() {
+	private function getTemplateId()
+    {
 		return $this->templateIds[$this->template];
 	}
 
 	/**
 	 * Method setRequirements()
 	 */
-	private function setRequirements() {
+	private function setRequirements()
+    {
 		if($this->template == 'toc'){
 			$this->requiredAllergies = true;
 			$this->requiredVitals = true;
@@ -513,7 +532,8 @@ class CCDDocument {
 	/**
 	 * Method zipIt()
 	 */
-	private function zipIt($dir, $filename) {
+	private function zipIt($dir, $filename)
+    {
 		$zip = new ZipArchive();
 		$file = $dir . $filename . '.zip';
 		if($zip->open($file, ZipArchive::CREATE) !== true)
@@ -527,7 +547,8 @@ class CCDDocument {
 	/**
 	 * Method setHeader()
 	 */
-	private function setHeader() {
+	private function setHeader()
+    {
 		$this->xmlData['realmCode'] = [
 			'@attributes' => [
 				'code' => 'US'
@@ -739,20 +760,20 @@ class CCDDocument {
 
 		// Patient Race
 		if(isset($patientData['race']) && $patientData['race'] != ''){
-			$recordTarget['patientRole']['patient']['raceCode'] = [
+			$recordTarget['patientRole']['patient']['sdtc:raceCode'] = [
 				'@attributes' => [
 					'code' => $patientData['race'],
-					'codeSystemName' => 'Race &amp; Ethnicity - CDC',
+					'codeSystemName' => 'Detailed Race',
 					'displayName' => $this->CombosData->getDisplayValueByListIdAndOptionValue(14, $patientData['race']),
-					'codeSystem' => '2.16.840.1.113883.6.238'
+					'codeSystem' => '2.16.840.1.114222.4.11.876'
 				]
 			];
 		} else {
 			$recordTarget['patientRole']['patient']['raceCode'] = [
 				'@attributes' => [
 					'nullFlavor' => 'NA',
-					'codeSystemName' => 'Race &amp; Ethnicity - CDC',
-					'codeSystem' => '2.16.840.1.113883.6.238'
+					'codeSystemName' => 'Race & Ethnicity - CDC',
+					'codeSystem' => '2.16.840.1.114222.4.11.876'
 				]
 			];
 		}
@@ -762,7 +783,7 @@ class CCDDocument {
 			$recordTarget['patientRole']['patient']['ethnicGroupCode'] = [
 				'@attributes' => [
 					'code' => $patientData['ethnicity'] == 'H' ? '2135-2' : '2186-5',
-					'codeSystemName' => 'Race &amp; Ethnicity - CDC',
+					'codeSystemName' => 'Race & Ethnicity - CDC',
 					'displayName' => $this->CombosData->getDisplayValueByListIdAndOptionValue(
                         59,
                         $patientData['ethnicity']
@@ -774,7 +795,7 @@ class CCDDocument {
 			$recordTarget['patientRole']['patient']['ethnicGroupCode'] = [
 				'@attributes' => [
 					'nullFlavor' => 'NA',
-					'codeSystemName' => 'Race &amp; Ethnicity - CDC',
+					'codeSystemName' => 'Race & Ethnicity - CDC',
 					'codeSystem' => '2.16.840.1.113883.6.238'
 				]
 			];
@@ -789,14 +810,47 @@ class CCDDocument {
             ''
         );
 
-		// Patient Prefered language
+		// Patient preferred language communication
 		if(isset($patientData['language']) && $patientData['language'] != ''){
+            // Language Spoken
 			$recordTarget['patientRole']
             ['patient']
             ['languageCommunication']
             ['languageCode']
             ['@attributes']
             ['code'] = $patientData['language'];
+            // How well the patient spoke it
+            $recordTarget['patientRole']
+            ['patient']
+            ['languageCommunication']
+            ['proficiencyLevelCode'] = [
+                '@attributes' => [
+                   'code' => 'G',
+                   'displayName' => 'Good',
+                   'codeSystem' => '2.16.840.1.113883.5.61'
+                ]
+            ];
+            // This is the patient preferred language to sppoke
+            $recordTarget['patientRole']
+            ['patient']
+            ['languageCommunication']
+            ['preferenceInd'] = [
+                '@attributes' => [
+                    'value' => 'true'
+                ]
+            ];
+            // Language Ability Mode
+            $recordTarget['patientRole']
+            ['patient']
+            ['languageCommunication']
+            ['modeCode'] = [
+                '@attributes' => [
+                    'code' => 'ESP',
+                    'displayName' => 'Expressed spoken',
+                    'codeSystem' => '2.16.840.1.113883.5.60',
+                    'codeSystemName' => 'LanguageAbilityMode'
+                ]
+            ];
 		} else {
 			$recordTarget['patientRole']
             ['patient']
@@ -838,7 +892,8 @@ class CCDDocument {
      *
 	 * @return array
 	 */
-	private function getAuthor() {
+	private function getAuthor()
+    {
 		$author = [
 			'time' => [
 				'@attributes' => [
@@ -846,7 +901,6 @@ class CCDDocument {
 				]
 			]
 		];
-
 		$author['assignedAuthor'] = [
 			'id' => [
 				'@attributes' => [
@@ -855,6 +909,17 @@ class CCDDocument {
 				]
 			]
 		];
+        // Code
+        // https://phinvads.cdc.gov/vads/ViewValueSet.action?id=9FD34BBC-617F-DD11-B38D-00188B398520#
+        // TODO: Add a taxonomy field on the users form.
+        $author['assignedAuthor']['code'] = [
+            '@attributes' =>[
+                'code' => '163WA2000X',
+                'displayName' => 'Administrator',
+                'codeSystem' => '2.16.840.1.114222.4.11.1066',
+                'codeSystemName' => 'Healthcare Provider Taxonomy (NUCC - HIPAA)'
+            ]
+        ];
 		$author['assignedAuthor']['addr'] = $this->addressBuilder(
             'WP',
             $this->facility['address'] . ' ' . $this->facility['address_cont'],
@@ -921,7 +986,8 @@ class CCDDocument {
      *
 	 * @return array
 	 */
-	private function getCustodian() {
+	private function getCustodian()
+    {
 		$custodian = [
 			'assignedCustodian' => [
 				'representedCustodianOrganization' => [
@@ -961,7 +1027,8 @@ class CCDDocument {
      *
 	 * @return array
 	 */
-	private function getInformationRecipient() {
+	private function getInformationRecipient()
+    {
 		$recipient = [
 			'intendedRecipient' => [
 				'informationRecipient' => [
@@ -989,7 +1056,8 @@ class CCDDocument {
      *
 	 * @return array
 	 */
-	private function getAuthenticator() {
+	private function getAuthenticator()
+    {
 		$authenticator = [
 			'time' => [
 				'@attributes' => [
@@ -1035,7 +1103,8 @@ class CCDDocument {
 	 * Method getDocumentationOf()
 	 * @return array
 	 */
-	private function getDocumentationOf() {
+	private function getDocumentationOf()
+    {
 		$documentationOf = [
 			'serviceEvent' => [
 				'@attributes' => [
@@ -1157,8 +1226,8 @@ class CCDDocument {
      *
 	 * @return mixed
 	 */
-	private function getComponentOf() {
-
+	private function getComponentOf()
+    {
 		$componentOf['encompassingEncounter'] = [
 			'id' => [
 				'@attributes' => [
@@ -1167,13 +1236,11 @@ class CCDDocument {
 				]
 			]
 		];
-
 		$componentOf['encompassingEncounter']['code'] = [
 			'@attributes' => [
 				'nullFlavor' => 'UNK'
 			]
 		];
-
 		$componentOf['encompassingEncounter']['effectiveTime'] = [
 			'low' => [
 				'@attributes' => [
@@ -1189,7 +1256,6 @@ class CCDDocument {
 				]
 			]
 		];
-
 		$responsibleParty = [
 			'assignedEntity' => [
 				'id' => [
@@ -1264,7 +1330,8 @@ class CCDDocument {
 	 * Method getInformant()
 	 * @return array
 	 */
-	private function getInformant() {
+	private function getInformant()
+    {
 		$informant = [];
 
 		$informant['assignedEntity']['id']['@attributes'] = [
@@ -1301,8 +1368,8 @@ class CCDDocument {
      *
 	 * @return array
 	 */
-	private function getDataEnterer() {
-
+	private function getDataEnterer()
+    {
 		$dataEnterer['assignedEntity']['id']['@attributes'] = [
 			'root' => '2.16.840.1.113883.4.6',
 			'extension' => $this->facility['id']
@@ -1333,8 +1400,8 @@ class CCDDocument {
 	 * @param $uid
 	 * @return array|bool
 	 */
-	private function getPerformerByUid($uid) {
-
+	private function getPerformerByUid($uid)
+    {
 		$User = new User();
 		$user = $User->getUser($uid);
 		unset($User);
@@ -1423,11 +1490,13 @@ class CCDDocument {
 	 * Method addSection()
 	 * @param $section
 	 */
-	private function addSection($section) {
+	private function addSection($section)
+    {
 		$this->xmlData['component']['structuredBody']['component'][] = $section;
 	}
 
-	private function setReasonOfVisitSection() {
+	private function setReasonOfVisitSection()
+    {
 		if(isset($this->encounter)){
 			$reason = [
 				'templateId' => [
@@ -1450,7 +1519,8 @@ class CCDDocument {
 		}
 	}
 
-	private function setInstructionsSection() {
+	private function setInstructionsSection()
+    {
 		if(isset($this->encounter)){
 			$soap = $this->Encounter->getSoapByEid($this->encounter['eid']);
 
@@ -1502,7 +1572,8 @@ class CCDDocument {
 		}
 	}
 
-	private function setReasonForReferralSection() {
+	private function setReasonForReferralSection()
+    {
 		if(isset($this->encounter)){
 
 			$Referrals = new Referrals();
@@ -5735,25 +5806,31 @@ class CCDDocument {
  * Handle the request only if pid and action is available
  */
 if(isset($_REQUEST['pid']) && isset($_REQUEST['action'])){
-	// Check token for security
-	include_once(ROOT . '/sites/' . $_REQUEST['site'] . '/conf.php');
-	include_once(ROOT . '/classes/MatchaHelper.php');
-	$ccd = new CCDDocument();
-	if(isset($_REQUEST['eid']))
-		$ccd->setEid($_REQUEST['eid']);
-	if(isset($_REQUEST['pid']))
-		$ccd->setPid($_REQUEST['pid']);
-	if(isset($_REQUEST['exclude']))
-		$ccd->setExcludes($_REQUEST['exclude']);
-	$ccd->setTemplate('toc');
-	$ccd->createCCD();
+    try {
 
-	if($_REQUEST['action'] == 'view'){
-		$ccd->view();
-	} elseif($_REQUEST['action'] == 'export') {
-		$ccd->export();
-	} elseif($_REQUEST['action'] == 'archive') {
-		$ccd->archive();
-	}
+        // Check token for security
+        include_once(ROOT . '/sites/' . $_REQUEST['site'] . '/conf.php');
+        include_once(ROOT . '/classes/MatchaHelper.php');
+        $ccd = new CCDDocument();
+
+        if(isset($_REQUEST['eid'])) $ccd->setEid($_REQUEST['eid']);
+        if(isset($_REQUEST['pid'])) $ccd->setPid($_REQUEST['pid']);
+        if(isset($_REQUEST['exclude'])) $ccd->setExcludes($_REQUEST['exclude']);
+        $ccd->setTemplate('toc');
+        $ccd->createCCD();
+
+        switch($_REQUEST['action']){
+            case 'view':
+                $ccd->view();
+                break;
+            case 'export':
+                $ccd->export();
+                break;
+            case 'archive':
+                $ccd->archive();
+                break;
+        }
+    } catch(Exception $Error) {
+        error_log($Error->getMessage());
+    }
 }
-

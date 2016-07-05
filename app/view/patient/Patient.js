@@ -28,14 +28,16 @@ Ext.define('App.view.patient.Patient', {
 	},
 	xtype: 'patientdeomgraphics',
 	itemId: 'PatientDemographicsPanel',
+
 	newPatient: true,
 	pid: null,
+
 	defaultPatientImage: 'resources/images/patientPhotoPlaceholder.jpg',
 	defaultQRCodeImage: 'resources/images/QRCodeImage.png',
 
 	initComponent: function(){
 		var me = this,
-            configs;
+			configs;
 
 		me.store = Ext.create('App.store.patient.Patient');
 		me.patientAlertsStore = Ext.create('App.store.patient.MeaningfulUseAlert');
@@ -82,7 +84,1171 @@ Ext.define('App.view.patient.Patient', {
 					fieldDefaults: {
 						labelAlign: 'right',
 						msgTarget: 'side'
-					}
+					},
+					items: [
+						{
+							xtype: (me.compactDemographics ? 'tabpanel' : 'panel'),
+							itemId: 'Demographics',
+							border: false,
+							height: 300,
+							defaults: {
+								autoScroll: true
+							},
+							items: [
+								{
+									xtype: 'panel',
+									title: 'Who',
+									hideLabel: false,
+									collapsible: true,
+									enableKeyEvents: true,
+									checkboxToggle: false,
+									collapsed: false,
+									action: 'DemographicWhoFieldSet',
+									border: false,
+									bodyBorder: false,
+									bodyPadding: 10,
+									items: [
+										{
+											xtype: 'fieldcontainer',
+											fieldLabel: 'Extermal IDs Rec# Acc#',
+											labelWidth: 149,
+											hideLabel: false,
+											layout: 'hbox',
+											width: 660,
+											items: [
+												{
+													xtype: 'textfield',
+													fieldLabel: 'External Rec#',
+													emptyText: 'External Rec#',
+													labelWidth: 149,
+													hideLabel: true,
+													enableKeyEvents: true,
+													width: 175,
+													margin: '0 5 0 0',
+													name: 'pubpid'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: 'External Acc#',
+													emptyText: 'External Acc#',
+													hideLabel: true,
+													enableKeyEvents: true,
+													width: 175,
+													name: 'pubaccount'
+												}
+											]
+										},
+										{
+											xtype: 'fieldcontainer',
+											fieldLabel: 'Full Name',
+											labelWidth: 149,
+											layout: 'hbox',
+											width: 660,
+											items: [
+												{
+													xtype: 'gaiaehr.combo',
+													emptyText: 'Title',
+													width: 70,
+													margin: '0 5 0 0',
+													name: 'title',
+													list: 22,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'textfield',
+													emptyText: 'First Name',
+													width: 100,
+													margin: '0 5 0 0',
+													allowBlank: false,
+													maxLength: 35,
+													name: 'fname'
+												},
+												{
+													xtype: 'textfield',
+													emptyText: 'Middle Name',
+													enableKeyEvents: true,
+													width: 100,
+													margin: '0 5 0 0',
+													maxLength: 35,
+													name: 'mname'
+												},
+												{
+													xtype: 'textfield',
+													emptyText: 'Last Name',
+													width: 215,
+													margin: '0 5 0 0',
+													allowBlank: false,
+													maxLength: 35,
+													name: 'lname'
+												}
+											]
+
+										},
+										{
+											xtype: 'fieldcontainer',
+											fieldLabel: 'Sex DOB Status S.S.',
+											labelWidth: 149,
+											hideLabel: false,
+											layout: 'hbox',
+											width: 660,
+											collapsible: false,
+											checkboxToggle: false,
+											collapsed: false,
+											items: [
+												{
+													xtype: 'gaiaehr.combo',
+													fieldLabel: 'Sex',
+													hideLabel: true,
+													enableKeyEvents: true,
+													emptyText: 'Sex',
+													name: 'sex',
+													width: 70,
+													margin: '0 5 0 0',
+													allowBlank: false,
+													list: 95,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'mitos.datetime',
+													emptyText: 'DOB',
+													labelWidth: 30,
+													enableKeyEvents: true,
+													width: 205,
+													margin: '0 5 0 0',
+													allowBlank: false,
+													name: 'DOB',
+													collapsible: false,
+													checkboxToggle: false,
+													collapsed: false
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													emptyText: 'Marital Status',
+													width: 110,
+													margin: '0 5 0 0',
+													name: 'marital_status',
+													list: 12,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'textfield',
+													emptyText: 'Social Security',
+													name: 'SS',
+													width: 100,
+													margin: '0 5 0 0'
+												}
+											]
+										},
+										{
+											xtype: 'fieldcontainer',
+											fieldLabel: 'Driver Lic. Sate Exp. Date',
+											labelWidth: 149,
+											hideLabel: false,
+											layout: 'hbox',
+											width: 660,
+											items: [
+												{
+													xtype: 'textfield',
+													emptyText: 'Driver License',
+													labelWidth: 149,
+													enableKeyEvents: true,
+													width: 175,
+													margin: '0 5 0 0',
+													name: 'drivers_license'
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													width: 175,
+													margin: '0 5 0 0',
+													name: 'drivers_license_state',
+													list: 20,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'datefield',
+													width: 140,
+													margin: '0 5 0 0',
+													name: 'drivers_license_exp',
+													format: 'Y-m-d'
+												}
+											]
+										},
+										{
+											xtype: 'gaiaehr.combo',
+											fieldLabel: 'Ethnicity',
+											labelWidth: 149,
+											hideLabel: false,
+											width: 400,
+											margin: '0 5 5 0',
+											name: 'ethnicity',
+											list: 59,
+											loadStore: true,
+											forceSelection: true
+										},
+										{
+											xtype: 'gaiaehr.combo',
+											fieldLabel: 'Race',
+											labelWidth: 149,
+											hideLabel: false,
+											width: 400,
+											margin: '0 5 5 0',
+											name: 'race',
+											list: 14,
+											loadStore: true,
+											forceSelection: true
+										},
+										{
+											xtype: 'gaiaehr.combo',
+											fieldLabel: 'Language',
+											labelWidth: 149,
+											hideLabel: false,
+											width: 400,
+											margin: '0 5 5 0',
+											name: 'language',
+											list: 10,
+											loadStore: true,
+											forceSelection: true
+										}
+									]
+								},
+								{
+									xtype: 'panel',
+									title: 'Additional Info.',
+									layout: 'column',
+									collapsible: true,
+									enableKeyEvents: true,
+									checkboxToggle: false,
+									collapsed: false,
+									border: false,
+									bodyBorder: false,
+									bodyPadding: 10,
+									items: [
+										{
+											xtype: 'container',
+											width: 370,
+											items: [
+												{
+													xtype: 'textfield',
+													fieldLabel: 'Alias Name',
+													labelWidth: 149,
+													hideLabel: false,
+													width: 350,
+													name: 'alias'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: 'Birth Place',
+													labelWidth: 149,
+													hideLabel: false,
+													width: 350,
+													name: 'birth_place'
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													fieldLabel: 'Citizenship',
+													labelWidth: 149,
+													hideLabel: false,
+													width: 350,
+													name: 'citizenship',
+													list: 104,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'fieldcontainer',
+													fieldLabel: 'Multiple Birth',
+													labelWidth: 149,
+													hideLabel: false,
+													layout: 'hbox',
+													width: 350,
+													items: [
+														{
+															xtype: 'checkbox',
+															margin: '0 10 5 0',
+															boxLabel: ' ',
+															name: 'birth_multiple'
+														},
+														{
+															xtype: 'numberfield',
+															fieldLabel: 'Order',
+															labelWidth: 50,
+															hideLabel: false,
+															width: 165,
+															value: 1,
+															maxValue: 15,
+															minValue: 1,
+															name: 'birth_order'
+														}
+													]
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													fieldLabel: 'Deceased',
+													labelWidth: 149,
+													hideLabel: false,
+													width: 350,
+													boxLabel: 'Yes',
+													name: 'deceased',
+													list: 103,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'mitos.datetime',
+													fieldLabel: 'Death Date',
+													labelWidth: 149,
+													hideLabel: false,
+													width: 350,
+													margin: '0 5 5 0',
+													name: 'death_date'
+												}
+											]
+										},
+										{
+											xtype: 'container',
+											items: [
+												{
+													xtype: 'activeproviderscombo',
+													fieldLabel: 'Primary Provider',
+													width: 300,
+													name: 'primary_provider',
+													forceSelection: true
+												},
+												{
+													xtype: 'activefacilitiescombo',
+													fieldLabel: 'Primary Facility',
+													width: 300,
+													name: 'primary_facility',
+													displayField: 'option_name',
+													valueField: 'option_value',
+													queryMode: 'local',
+													forceSelection: true
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													fieldLabel: 'Veteran',
+													width: 300,
+													boxLabel: 'Yes',
+													name: 'is_veteran',
+													list: 103,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'fieldcontainer',
+													fieldLabel: 'Mother\'s Name',
+													layout: 'hbox',
+													width: 660,
+													items: [
+														{
+															xtype: 'textfield',
+															emptyText: 'First Name',
+															width: 100,
+															margin: '0 5 0 0',
+															maxLength: 35,
+															name: 'mother_fname'
+														},
+														{
+															xtype: 'textfield',
+															emptyText: 'Middle Name',
+															width: 100,
+															margin: '0 5 0 0',
+															maxLength: 35,
+															name: 'mother_mname'
+														},
+														{
+															xtype: 'textfield',
+															emptyText: 'Last Name',
+															width: 215,
+															margin: '0 5 0 0',
+															maxLength: 35,
+															name: 'mother_lname'
+														}
+													]
+												},
+												{
+													xtype: 'fieldcontainer',
+													fieldLabel: 'Father\'s Name',
+													layout: 'hbox',
+													width: 660,
+													items: [
+														{
+															xtype: 'textfield',
+															emptyText: 'First Name',
+															width: 100,
+															margin: '0 5 0 0',
+															maxLength: 35,
+															name: 'father_fname'
+														},
+														{
+															xtype: 'textfield',
+															emptyText: 'Middle Name',
+															width: 100,
+															margin: '0 5 0 0',
+															maxLength: 35,
+															name: 'father_mname'
+														},
+														{
+															xtype: 'textfield',
+															emptyText: 'Last Name',
+															width: 215,
+															margin: '0 5 0 0',
+															maxLength: 35,
+															name: 'father_lname'
+														}
+													]
+												}
+											]
+										}
+									]
+								},
+								{
+									xtype: 'panel',
+									title: 'Choices',
+									hideLabel: false,
+									collapsible: true,
+									enableKeyEvents: true,
+									checkboxToggle: false,
+									collapsed: false,
+									border: false,
+									bodyBorder: false,
+									bodyPadding: 10,
+									items: [
+										{
+											xtype: 'container',
+											layout: 'hbox',
+											items:[
+												{
+													xtype: 'container',
+													layout: 'vbox',
+													items:[
+														{
+															xtype: 'activeproviderscombo',
+															fieldLabel: 'Provider',
+															labelWidth: 100,
+															margin: '0 5 5 0',
+															name: 'provider',
+															forceSelection: true
+														},
+														{
+															xtype: 'mitos.pharmaciescombo',
+															fieldLabel: 'Pharmacy',
+															labelWidth: 100,
+															margin: '0 5 5 0',
+															name: 'pharmacy',
+															forceSelection: true,
+															emptyText: 'Select'
+														},
+														{
+															xtype: 'gaiaehr.combo',
+															fieldLabel: 'HIPAA Notice',
+															labelWidth: 100,
+															margin: '0 5 5 0',
+															name: 'hipaa_notice',
+															list: 1,
+															loadStore: true,
+															forceSelection: true
+														}
+													]
+												},
+												{
+													xtype: 'container',
+													layout: 'vbox',
+													items:[
+														{
+															xtype: 'gaiaehr.combo',
+															name: 'organ_donor_code',
+															fieldLabel: 'Organ Donor',
+															list: 137,
+															width: 500,
+															loadStore: true,
+															editable: false
+														},
+														{
+															xtype: 'container',
+															layout: 'hbox',
+															margin: '0 0 0 10',
+															items: [
+																{
+																	xtype: 'checkbox',
+																	width: 150,
+																	margin: '0 5 0 0',
+																	boxLabel: 'Allow Voice Msg',
+																	name: 'allow_voice_msg'
+																},
+																{
+																	xtype: 'checkbox',
+																	width: 150,
+																	margin: '0 5 0 0',
+																	boxLabel: 'Allow Mail Msg',
+																	name: 'allow_mail_msg'
+																},
+																{
+																	xtype: 'checkbox',
+																	width: 240,
+																	margin: '0 5 0 0',
+																	boxLabel: 'Allow Immunization Registry Use',
+																	name: 'allow_immunization_registry'
+																},
+																{
+																	xtype: 'checkbox',
+																	margin: '0 5 0 0',
+																	boxLabel: 'Allow Health Information Exchange',
+																	name: 'allow_health_info_exchange'
+																}
+															]
+														},
+														{
+															xtype: 'container',
+															layout: 'hbox',
+															margin: '5 0 0 10',
+															items: [
+																{
+																	xtype: 'checkbox',
+																	width: 150,
+																	margin: '0 5 0 0',
+																	boxLabel: ' Allow SMS',
+																	name: 'allow_sms'
+																},
+																{
+																	xtype: 'checkbox',
+																	width: 150,
+																	margin: '0 5 0 0',
+																	boxLabel: 'Allow Email',
+																	name: 'allow_email'
+																},
+																{
+																	xtype: 'checkbox',
+																	width: 240,
+																	margin: '0 5 0 0',
+																	boxLabel: 'Allow Immunization Info Sharing',
+																	name: 'allow_immunization_info_sharing'
+																}
+															]
+														}
+													]
+												}
+											]
+										},
+										{
+											xtype: 'container',
+											layout: 'hbox',
+											margin: '0 0 10 10',
+											items: [
+												{
+													xtype: 'fieldset',
+													title: 'Allow Patient Web Portal',
+													checkboxName: 'allow_patient_web_portal',
+													checkboxToggle: true,
+													width: 320,
+													margin: '0 5 0 0',
+													items: [
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Web Portal Username',
+															labelWidth: 149,
+															name: 'portal_username'
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Web Portal Password',
+															labelWidth: 149,
+															name: 'portal_password',
+															inputType: 'password'
+														}
+													]
+												},
+												{
+													xtype: 'fieldset',
+													title: 'Allow Patient Guardian Access Web Portal',
+													checkboxName: 'allow_guardian_web_portal',
+													checkboxToggle: true,
+													collapsible: false,
+													width: 320,
+													margin: '0 5 0 0',
+													items: [
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Web Portal Username',
+															labelWidth: 149,
+															name: 'guardian_portal_username'
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Web Portal Password',
+															labelWidth: 149,
+															name: 'guardian_portal_password',
+															inputType: 'password'
+														}
+													]
+												},
+												{
+													xtype: 'fieldset',
+													title: 'Allow Patient Emergency Contact Access Web Portal',
+													checkboxName: 'allow_emergency_contact_web_portal',
+													checkboxToggle: true,
+													width: 320,
+													margin: '0 5 0 0',
+													items: [
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Web Portal Username',
+															labelWidth: 149,
+															name: 'emergency_contact_portal_username'
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Web Portal Password',
+															labelWidth: 149,
+															name: 'emergency_contact_portal_password',
+															inputType: 'password'
+														}
+													]
+												}
+											]
+										}
+									]
+								},
+								{
+									xtype: 'panel',
+									title: 'Employer',
+									hideLabel: false,
+									collapsible: true,
+									enableKeyEvents: true,
+									checkboxToggle: false,
+									collapsed: false,
+									border: false,
+									bodyBorder: false,
+									bodyPadding: 10,
+									items: [
+										{
+											xtype: 'textfield',
+											fieldLabel: 'Occupation',
+											labelWidth: 149,
+											hideLabel: false,
+											emptyText: 'Occupation',
+											name: 'occupation',
+											width: 350,
+											margin: '0 5 5 0'
+										},
+										{
+											xtype: 'textfield',
+											fieldLabel: 'Employer Name',
+											labelWidth: 149,
+											hideLabel: false,
+											emptyText: 'Employer Name',
+											name: 'employer_name',
+											width: 350,
+											margin: '0 5 5 0'
+										},
+										{
+											xtype: 'textfield',
+											fieldLabel: 'Employer Address',
+											labelWidth: 149,
+											hideLabel: false,
+											emptyText: 'Street',
+											name: 'employer_address',
+											width: 609,
+											margin: '0 5 5 0'
+										},
+										{
+											xtype: 'fieldcontainer',
+											fieldLabel: 'Employer Address Cont.',
+											labelWidth: 149,
+											hideLabel: false,
+											layout: 'hbox',
+											width: 609,
+											items: [
+												{
+													xtype: 'textfield',
+													emptyText: 'City',
+													name: 'employer_city',
+													width: 130,
+													margin: '0 5 5 0'
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													margin: '0 5 5 0',
+													width: 130,
+													name: 'employer_state',
+													emptyText: 'State',
+													list: 20,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													emptyText: 'Country',
+													name: 'employer_country',
+													width: 100,
+													margin: '0 5 5 0',
+													list: 3,
+													loadStore: true,
+													forceSelection: true
+												},
+												{
+													xtype: 'textfield',
+													emptyText: 'Zip Code',
+													name: 'employer_postal_code',
+													width: 80,
+													margin: '0 5 5 0'
+												}
+											]
+										}
+									]
+								},
+								{
+									xtype: 'panel',
+									title: 'Contact',
+									layout: 'column',
+									collapsible: true,
+									enableKeyEvents: true,
+									checkboxToggle: false,
+									collapsed: false,
+									itemId: 'DemographicsContactFieldSet',
+									border: false,
+									bodyBorder: false,
+									bodyPadding: 10,
+									items: [
+										{
+											xtype: 'container',
+											margin: '0 10 0 0',
+											items: [
+												{
+													xtype: 'gaiaehr.combo',
+													fieldLabel: 'Publicity',
+													labelWidth: 60,
+													name: 'phone_publicity',
+													list: 132,
+													loadStore: true,
+													forceSelection: true,
+													width: 300
+												},
+												{
+													xtype: 'fieldset',
+													title: 'Phones',
+													items: [
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Home',
+															labelWidth: 50,
+															emptyText: '000-000-0000',
+															name: 'phone_home',
+															width: 250
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Mobile',
+															labelWidth: 50,
+															emptyText: '000-000-0000',
+															name: 'phone_mobile',
+															width: 250
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Work',
+															labelWidth: 50,
+															margin: '0 5 0 0',
+															emptyText: '000-000-0000',
+															name: 'phone_work',
+															width: 250
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Ext.',
+															labelWidth: 50,
+															name: 'phone_work_ext',
+															width: 250
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Fax',
+															emptyText: '000-000-0000',
+															labelWidth: 50,
+															name: 'phone_fax',
+															width: 250
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: 'Email',
+															emptyText: 'example@email.com',
+															labelWidth: 50,
+															name: 'email',
+															width: 250
+														}
+													]
+												}
+											]
+										},
+										{
+											xtype: 'container',
+											layout: 'vbox',
+											margin: '0 10 0 0',
+											items: [
+												{
+													xtype: 'fieldset',
+													title: 'Postal Address',
+													collapsible: false,
+													checkboxToggle: false,
+													collapsed: false,
+													items: [
+														{
+															xtype: 'textfield',
+															emptyText: 'Street',
+															labelWidth: 50,
+															width: 370,
+															name: 'postal_address'
+														},
+														{
+															xtype: 'textfield',
+															emptyText: '(optional)',
+															labelWidth: 50,
+															width: 370,
+															name: 'postal_address_cont'
+														},
+														{
+															xtype: 'container',
+															layout: 'hbox',
+															width: 370,
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: 'City',
+																	labelWidth: 50,
+																	margin: '0 5 5 0',
+																	name: 'postal_city'
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: 'State',
+																	labelWidth: 50,
+																	margin: '0 5 0 0',
+																	name: 'postal_state'
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: 'Zip',
+																	labelWidth: 50,
+																	width: 92,
+																	name: 'postal_zip'
+																}
+															]
+														},
+														{
+															xtype: 'textfield',
+															emptyText: 'Country',
+															labelWidth: 50,
+															width: 100,
+															name: 'postal_country'
+														}
+													]
+												},
+												{
+													xtype: 'fieldset',
+													title: 'Physical Address',
+													items: [
+														{
+															xtype: 'textfield',
+															emptyText: 'Street',
+															labelWidth: 50,
+															width: 370,
+															name: 'physical_address'
+														},
+														{
+															xtype: 'textfield',
+															emptyText: '(optional)',
+															labelWidth: 50,
+															width: 370,
+															name: 'physical_address_cont'
+														},
+														{
+															xtype: 'container',
+															layout: 'hbox',
+															width: 370,
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: 'City',
+																	labelWidth: 50,
+																	margin: '0 5 5 0',
+																	name: 'physical_city'
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: 'State',
+																	labelWidth: 50,
+																	margin: '0 5 0 0',
+																	name: 'physical_state'
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: 'Zip',
+																	labelWidth: 50,
+																	width: 92,
+																	margin: '0 5 0 0',
+																	name: 'physical_zip'
+																}
+															]
+														},
+														{
+															xtype: 'textfield',
+															emptyText: 'Country',
+															labelWidth: 50,
+															width: 100,
+															name: 'physical_country'
+														}
+													]
+												}
+											]
+										}, {
+											xtype: 'container',
+											layout: 'vbox',
+											items: [
+												{
+													xtype: 'fieldset',
+													title: 'Emergency Contact',
+													collapsible: false,
+													checkboxToggle: false,
+													collapsed: false,
+													items: [
+														{
+															xtype: 'gaiaehr.combo',
+															fieldLabel: 'Relation',
+															labelWidth: 50,
+															name: 'emergency_contact_relation',
+															list: 134,
+															loadStore: true,
+															forceSelection: true
+														},
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: 'Name',
+															labelWidth: 50,
+															layout: 'hbox',
+															items: [
+																{
+																	xtype: 'textfield',
+																	enableKeyEvents: true,
+																	margin: '0 5 0 0',
+																	name: 'emergency_contact_fname'
+																},
+																{
+																	xtype: 'textfield',
+																	enableKeyEvents: true,
+																	width: 75,
+																	margin: '0 5 0 0',
+																	name: 'emergency_contact_mname'
+																},
+																{
+																	xtype: 'textfield',
+																	enableKeyEvents: true,
+																	width: 150,
+																	name: 'emergency_contact_lname'
+																}
+															]
+														},
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: 'Phone',
+															labelWidth: 50,
+															hideLabel: false,
+															layout: 'hbox',
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: '000-000-0000',
+																	margin: '0 5 5 0',
+																	name: 'emergency_contact_phone'
+																},
+																{
+																	xtype: 'gaiaehr.combo',
+																	emptyText: 'Phone Type',
+																	name: 'emergency_contact_phone_type',
+																	list: 136,
+																	loadStore: true,
+																	forceSelection: true
+																}
+															]
+														},
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: _('address'),
+															labelWidth: 50,
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: 'Street',
+																	width: 370,
+																	name: 'emergency_contact_address'
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: '(optional)',
+																	width: 370,
+																	name: 'emergency_contact_address_cont'
+																},
+																{
+																	xtype: 'container',
+																	layout: 'hbox',
+																	width: 370,
+																	items: [
+																		{
+																			xtype: 'textfield',
+																			emptyText: 'City',
+																			margin: '0 5 5 0',
+																			name: 'emergency_contact_city'
+																		},
+																		{
+																			xtype: 'textfield',
+																			emptyText: 'State',
+																			margin: '0 5 0 0',
+																			name: 'emergency_contact_state'
+																		},
+																		{
+																			xtype: 'textfield',
+																			emptyText: 'Zip',
+																			width: 92,
+																			margin: '0 5 0 0',
+																			name: 'emergency_contact_zip'
+																		}
+																	]
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: 'Country',
+																	labelWidth: 50,
+																	width: 100,
+																	name: 'emergency_contact_country'
+																}
+															]
+														}
+													]
+												},
+												{
+													xtype: 'fieldset',
+													title: 'Guardian\'s Contact',
+													collapsible: false,
+													checkboxToggle: false,
+													collapsed: false,
+													items: [
+														{
+															xtype: 'gaiaehr.combo',
+															fieldLabel: 'Relation',
+															labelWidth: 50,
+															name: 'guardians_relation',
+															list: 134,
+															loadStore: true,
+															forceSelection: true
+														},
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: 'Name',
+															labelWidth: 50,
+															hideLabel: false,
+															layout: 'hbox',
+															items: [
+																{
+																	xtype: 'textfield',
+																	margin: '0 5 0 0',
+																	name: 'guardians_fname'
+																}, {
+																	xtype: 'textfield',
+																	width: 75,
+																	margin: '0 5 0 0',
+																	name: 'guardians_mname'
+																}, {
+																	xtype: 'textfield',
+																	width: 150,
+																	name: 'guardians_lname'
+																}
+															]
+														},
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: 'Phone',
+															labelWidth: 50,
+															layout: 'hbox',
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: '000-000-0000',
+																	labelWidth: 50,
+																	margin: '0 5 5 0',
+																	name: 'guardians_phone'
+																}, {
+																	xtype: 'gaiaehr.combo',
+																	name: 'guardians_phone_type',
+																	list: 136,
+																	loadStore: true,
+																	forceSelection: true
+																}
+															]
+														},
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: _('address'),
+															labelWidth: 50,
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: 'Street',
+																	width: 370,
+																	name: 'guardians_address'
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: '(optional)',
+																	width: 370,
+																	name: 'guardians_address_cont'
+																},
+																{
+																	xtype: 'container',
+																	layout: 'hbox',
+																	width: 370,
+																	items: [
+																		{
+																			xtype: 'textfield',
+																			emptyText: 'City',
+																			margin: '0 5 5 0',
+																			name: 'guardians_city'
+																		},
+																		{
+																			xtype: 'textfield',
+																			emptyText: 'State',
+																			margin: '0 5 0 0',
+																			name: 'guardians_state'
+																		},
+																		{
+																			xtype: 'textfield',
+																			emptyText: 'Zip',
+																			width: 92,
+																			margin: '0 5 0 0',
+																			name: 'guardians_zip'
+																		}
+																	]
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: 'Country',
+																	labelWidth: 50,
+																	width: 100,
+																	name: 'guardians_country'
+																}
+															]
+														}
+													]
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
 				})
 			]
 		};
@@ -170,300 +1336,82 @@ Ext.define('App.view.patient.Patient', {
 	beforePanelRender: function(){
 		var me = this,
 			whoPanel,
-			PatientContactsTab;
+			form = me.demoForm.getForm(),
+			fname = form.findField('fname'),
+			mname = form.findField('mname'),
+			lname = form.findField('lname'),
+			sex = form.findField('sex'),
+			dob = form.findField('DOB'),
+			crtl;
 
-        // Part of the Override custome function, this function calls the FormBuilder (a PHP method)
-        // to dynamically insert the fields configured on the administration panel. All the fields
-        // are in the GaiaEHR database.
-		me.getFormItems(me.demoForm, 1, function(formPanel){
+		if(fname) fname.vtype = 'nonspecialcharacters';
+		if(mname) mname.vtype = 'nonspecialcharacters';
+		if(lname) lname.vtype = 'nonspecialcharacters';
 
-			var form = me.demoForm.getForm(),
-				fname = form.findField('fname'),
-				mname = form.findField('mname'),
-				lname = form.findField('lname'),
-				sex = form.findField('sex'),
-				dob = form.findField('DOB'),
-                crtl;
+		if(dob) dob.setMaxValue(new Date());
 
-			if(fname) fname.vtype = 'nonspecialcharacters';
-			if(mname) mname.vtype = 'nonspecialcharacters';
-			if(lname) lname.vtype = 'nonspecialcharacters';
+		if(me.newPatient){
+			crtl = App.app.getController('patient.Patient');
 
-			if(dob) dob.setMaxValue(new Date());
-
-			if(me.newPatient){
-				crtl = App.app.getController('patient.Patient');
-
-				fname.on('blur', crtl.checkForPossibleDuplicates, crtl);
-				lname.on('blur', crtl.checkForPossibleDuplicates, crtl);
-				sex.on('blur', crtl.checkForPossibleDuplicates, crtl);
-				dob.dateField.on('blur', crtl.checkForPossibleDuplicates, crtl);
-			}else{
-				whoPanel = formPanel.query('[action=DemographicWhoFieldSet]')[0];
-				whoPanel.insert(0,
-					me.patientImages = Ext.create('Ext.panel.Panel', {
-						action: 'patientImage',
-						layout: 'hbox',
-						style: 'float:right',
-						bodyPadding: 5,
-						height: 160,
-						width: 255,
-						items: [
-							{
-								xtype: 'image',
-								width: 119,
-								height: 119,
-								itemId: 'image',
-								margin: '0 5 0 0',
-								src: me.defaultPatientImage
-							},
-							{
-								xtype: 'textareafield',
-								name: 'image',
-								hidden: true
-							},
-							{
-								xtype: 'image',
-								itemId: 'qrcode',
-								width: 119,
-								height: 119,
-								margin: 0,
-								src: me.defaultQRCodeImage
+			fname.on('blur', crtl.checkForPossibleDuplicates, crtl);
+			lname.on('blur', crtl.checkForPossibleDuplicates, crtl);
+			sex.on('blur', crtl.checkForPossibleDuplicates, crtl);
+			dob.dateField.on('blur', crtl.checkForPossibleDuplicates, crtl);
+		}else{
+			whoPanel = me.demoForm.query('[action=DemographicWhoFieldSet]')[0];
+			whoPanel.insert(0,
+				me.patientImages = Ext.create('Ext.panel.Panel', {
+					action: 'patientImage',
+					layout: 'hbox',
+					style: 'float:right',
+					bodyPadding: 5,
+					height: 160,
+					width: 255,
+					items: [
+						{
+							xtype: 'image',
+							width: 119,
+							height: 119,
+							itemId: 'image',
+							margin: '0 5 0 0',
+							src: me.defaultPatientImage
+						},
+						{
+							xtype: 'textareafield',
+							name: 'image',
+							hidden: true
+						},
+						{
+							xtype: 'image',
+							itemId: 'qrcode',
+							width: 119,
+							height: 119,
+							margin: 0,
+							src: me.defaultQRCodeImage
+						}
+					],
+					bbar: [
+						'-',
+						{
+							text: _('take_picture'),
+							action: 'onWebCam'
+							//handler: me.getPhotoIdWindow
+						},
+						'-',
+						'->',
+						'-',
+						{
+							text: _('print_qrcode'),
+							scope: me,
+							handler: function(){
+								window.printQRCode(app.patient.pid);
 							}
-						],
-						bbar: [
-							'-',
-							{
-								text: _('take_picture'),
-								action: 'onWebCam'
-								//handler: me.getPhotoIdWindow
-							},
-							'-',
-							'->',
-							'-',
-							{
-								text: _('print_qrcode'),
-								scope: me,
-								handler: function(){
-									window.printQRCode(app.patient.pid);
-								}
-							},
-							'-'
-						]
-					})
-				);
-
-				//Patient Contacts
-				PatientContactsTab = Ext.ComponentQuery.query('#Demographics')[0];
-				PatientContactsTab.add(
-					me.patientContacts = Ext.create('Ext.grid.Panel', {
-						itemId: 'PatientSummaryContactsPanel',
-						bodyPadding: 0,
-						title: _('contacts'),
-						store: me.patientContacsStore,
-						columns: [
-							{
-								text: _('name'),
-								dataIndex: 'fullname',
-								flex: 1
-							},
-							{
-								header: _('relationship'),
-								dataIndex: 'relationship_name'
-							},
-							{
-								header: _('active'),
-								dataIndex: 'active',
-								renderer: me.boolRenderer
-							}
-						],
-						plugins: Ext.create('App.ux.grid.RowFormEditing', {
-							autoCancel: false,
-							errorSummary: false,
-							clicksToEdit: 2,
-							items: [
-								{
-									xtype: 'container',
-									layout: 'hbox',
-									defaults: {
-										margin: '5 10 0 0'
-									},
-									items: [
-										{
-											xtype: 'container',
-											layout: 'vbox',
-											defaults: {
-												layout: '50%',
-												margin: '5 10 0 0'
-											},
-											items: [
-												{
-													xtype: 'fieldcontainer',
-													layout: 'hbox',
-													fieldLabel: _('name'),
-													defaults: {
-														layout: '100%',
-														xtype: 'textfield'
-													},
-													items: [
-														{
-															name: 'first_name',
-															emptyText: _('first_name'),
-															width: 150,
-															maxLength: 100,
-															allowBlank: false
-														},
-														{
-															name: 'middle_name',
-															emptyText: _('middle_name'),
-															width: 120,
-															maxLength: 100
-														},
-														{
-															name: 'last_name',
-															emptyText: _('last_name'),
-															width: 150,
-															maxLength: 100
-														}
-													]
-												},
-												{
-													xtype: 'gaiaehr.listcombo',
-													fieldLabel: _('relationship'),
-													name: 'relationship',
-													displayField: 'option_name',
-													valueField: 'option_value',
-													width: 350,
-													loadStore: true,
-													queryMode: 'local',
-													list: 134
-												},
-												{
-													xtype: 'fieldcontainer',
-													layout: 'hbox',
-													fieldLabel: _('phone'),
-													defaults: {
-														xtype: 'textfield',
-														vtype: 'numeric'
-													},
-													items: [
-														{
-															name: 'phone_use_code',
-															emptyText: _('code'),
-															width: 50,
-															maxLength: 4
-														},
-														{
-															name: 'phone_area_code',
-															emptyText: _('area_code'),
-															width: 50,
-															maxLength: 4
-														},
-														{
-															name: 'phone_local_number',
-															emptyText: _('local_number'),
-															width: 120,
-															maxLength: 7
-														}
-													]
-												},
-												{
-													fieldLabel: _('address'),
-													xtype: 'textfield',
-													name: 'street_mailing_address',
-													emptyText: _('street'),
-													width: 610,
-													maxLength: 200
-												},
-												{
-													xtype: 'fieldcontainer',
-													layout: 'hbox',
-													fieldLabel: _('address_cont'),
-													defaults: {
-														xtype: 'textfield'
-													},
-													items: [
-														{
-															name: 'city',
-															emptyText: _('city'),
-															width: 125,
-															maxLength: 70
-														},
-														{
-															xtype: 'gaiaehr.listcombo',
-															name: 'state',
-															emptyText: _('state'),
-															displayField: 'option_name',
-															valueField: 'option_value',
-															width: 125,
-															loadStore: true,
-															queryMode: 'local',
-															list: 20
-														},
-														{
-															xtype: 'gaiaehr.listcombo',
-															name: 'country',
-															emptyText: _('country'),
-															displayField: 'option_name',
-															valueField: 'option_value',
-															width: 125,
-															loadStore: true,
-															queryMode: 'local',
-															list: 3
-														},
-														{
-															emptyText: _('zip'),
-															name: 'zip',
-															width: 125,
-															maxLength: 20
-														}
-													]
-												}
-											]
-										},
-										{
-											xtype: 'fieldcontainer',
-											layout: 'vbox',
-											defaults: {
-												layout: '50%',
-												margin: '5 10 0 0'
-											},
-											items: [
-												{
-													xtype: 'gaiaehr.listcombo',
-													name: 'publicity',
-													fieldLabel: _('publicity'),
-													emptyText: _('select'),
-													displayField: 'option_name',
-													valueField: 'option_value',
-													width: 400,
-													loadStore: true,
-													queryMode: 'local',
-													list: 132
-												},
-												{
-													xtype: 'checkboxfield',
-													name: 'active',
-													fieldLabel: _('active')
-												}
-											]
-										}
-									]
-								}
-							]
-						}),
-						tbar: [
-							{
-								text: _('add_contact'),
-								iconCls: 'icoAdd',
-								action: 'patientContact',
-								handler: me.onAddNewContact
-							}
-						]
-					})
-				);
-			}
-		});
+						},
+						'-'
+					]
+				})
+			);
+		}
 	},
 
 	onAddNewContact: function(btn){

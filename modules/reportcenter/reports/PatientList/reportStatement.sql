@@ -4,9 +4,18 @@ SET @EndDate = :end_date;
 SET @ProblemCode = :problem_code;
 SET @MedicationCode = :medication_code;
 SET @MedicationAllergyCode = :allergy_code;
+SET @RaceCode = :race;
+SET @EthnicityCode = :ethnicity;
+SET @SexCode = :sex;
+SET @AgeFrom = :ageFrom;
+SET @AgeTo = :ageTo;
+SET @MaritalCode = :marital;
+SET @LanguageCode = :language;
 
 SELECT patient.*,
+  CONCAT(patient.fname, ' ', patient.mname, ' ', patient.lname) as patient_name,
   DATE_FORMAT(patient.DOB, '%d %b %y') as DateOfBirth,
+  TIMESTAMPDIFF(YEAR, patient.DOB, CURDATE()) AS Age,
   Race.option_name as Race,
   Ethnicity.option_name as Ethnicity,
   CONCAT(Provider.fname,' ',Provider.mname,' ',Provider.lname) as ProviderName,
@@ -31,17 +40,17 @@ SELECT distinct(pid) as pid, provider_uid, service_date
 	FROM encounters
 	WHERE CASE
 		WHEN (@StartDate IS NOT NULL AND @EndDate IS NULL)
-		THEN (encounters.service_date BETWEEN @StartDate AND NOW())
+		THEN (encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND NOW())
 		ELSE 1=1
 	END
 	AND CASE
 		WHEN (@StartDate IS NOT NULL AND @EndDate IS NOT NULL)
-		THEN (encounters.service_date BETWEEN @StartDate AND @EndDate)
+		THEN (encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND CONCAT(@EndDate, ' ', '23:00:00'))
 		ELSE 1=1
 	END
 	AND CASE
 		WHEN (@StartDate IS NULL AND @EndDate IS NOT NULL)
-		THEN (encounters.service_date BETWEEN @StartDate AND @EndDate)
+		THEN (encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND CONCAT(@EndDate, ' ','23:00:00'))
 		ELSE 1=1
 	END
 	AND CASE
@@ -95,17 +104,19 @@ END
 
 AND CASE
 	WHEN (@StartDate IS NOT NULL AND @EndDate IS NULL)
-	THEN (encounters.service_date BETWEEN @StartDate AND NOW())
+	THEN (encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND NOW())
 	ELSE 1=1
 END
+
 AND CASE
 	WHEN (@StartDate IS NOT NULL AND @EndDate IS NOT NULL)
-	THEN (encounters.service_date BETWEEN @StartDate AND @EndDate)
+	THEN (encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND CONCAT(@EndDate, ' ', '23:00:00'))
 	ELSE 1=1
 END
+
 AND CASE
 	WHEN (@StartDate IS NULL AND @EndDate IS NOT NULL)
-	THEN (encounters.service_date BETWEEN @StartDate AND @EndDate)
+	THEN (encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND CONCAT(@EndDate, ' ', '23:00:00'))
 	ELSE 1=1
 END
 
@@ -121,3 +132,32 @@ AND CASE
 	ELSE 1=1
 END
 
+AND CASE
+	WHEN @EthnicityCode IS NOT NULL
+	THEN patient.ethnicity = @EthnicityCode
+	ELSE 1=1
+END
+
+AND CASE
+	WHEN @SexCode IS NOT NULL
+	THEN patient.sex = @SexCode
+	ELSE 1=1
+END
+
+AND CASE
+	WHEN @MaritalCode IS NOT NULL
+	THEN patient.marital_status = @MaritalCode
+	ELSE 1=1
+END
+
+AND CASE
+	WHEN @LanguageCode IS NOT NULL
+	THEN patient.language = @LanguageCode
+	ELSE 1=1
+END
+
+HAVING CASE
+    WHEN @AgeFrom IS NOT NULL AND @AgeTo IS NOT NULL
+    THEN Age BETWEEN @AgeFrom AND @AgeTo
+    ELSE 1=1
+END

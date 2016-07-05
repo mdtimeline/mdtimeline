@@ -26,6 +26,25 @@ $API = [
             ]
         ]
     ],
+    'EducationResources' => [
+        'methods' => [
+            'getEducationResources' => [
+                'len' => 1
+            ],
+            'getEducationResource' => [
+                'len' => 1
+            ],
+            'addEducationResource' => [
+                'len' => 1
+            ],
+            'updateEducationResource' => [
+                'len' => 1
+            ],
+            'destroyEducationResource' => [
+                'len' => 1
+            ]
+        ]
+    ],
     /**
      * Accounting Billing Functions
      */
@@ -889,6 +908,9 @@ $API = [
 	 */
 	'FamilyHistory' => [
 		'methods' => [
+            'deleteFamilyHistory' => [
+                'len' => 1
+            ],
 			'getFamilyHistory' => [
 				'len' => 1
             ],

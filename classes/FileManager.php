@@ -18,10 +18,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 if (!isset($_SESSION)) {
-    session_name('GaiaEHR');
-    session_start();
     session_cache_limiter('private');
+    session_cache_expire(1);
+    session_name('mdTimeLine');
+    session_start();
+    if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
+    setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 }
+
 class FileManager
 {
     public $workingDir;
@@ -43,8 +47,10 @@ class FileManager
         try
         {
             $this->tempDir = site_temp_path . '/';
-            if(!file_exists($this->tempDir)) mkdir($this->tempDir, 0777, true);
-            if(!is_writable($this->tempDir)) chmod($this->tempDir, 0777);
+            $oldmask = umask(0);
+            if(!file_exists($this->tempDir)) mkdir($this->tempDir, 0774, true);
+            if(!is_writable($this->tempDir)) chmod($this->tempDir, 0774);
+            umask($oldmask);
         }
         catch(Exception $Error)
         {
@@ -54,9 +60,9 @@ class FileManager
 
     public function cleanUp()
     {
-        if (is_dir($this->workingDir)) {
-            $this->deleteWorkingDir();
-        }
+//        if (is_dir($this->workingDir)) {
+//            $this->deleteWorkingDir();
+//        }
     }
 
     public function moveUploadedFileToTempDir($file)
@@ -106,6 +112,7 @@ class FileManager
         if (class_exists('ZipArchive')) {
             $zip = new ZipArchive();
             if ($zip->open($file) === true) {
+                $toDir = $toDir . '/';
                 $zip->extractTo($toDir);
                 $zip->close();
                 if ($deleteSrcFile) {
@@ -124,10 +131,10 @@ class FileManager
 
     public function setWorkingDir()
     {
-        $workingDir = ROOT . '/temp/' . $this->getTempDirAvailableName();
+        $workingDir = $this->tempDir . $this->getTempDirAvailableName();
         if (!is_dir($workingDir)) {
-            if (mkdir($workingDir, 0777, true)) {
-                chmod($workingDir, 0777);
+            if (mkdir($workingDir, 0774, true)) {
+                chmod($workingDir, 0774);
                 $this->workingDir = $workingDir;
                 return true;
             } else {

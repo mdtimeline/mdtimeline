@@ -64,10 +64,10 @@
 
 session_cache_limiter('private');
 session_cache_expire(1);
-session_regenerate_id(false);
-session_name('GaiaEHR');
+session_name('mdTimeLine');
 session_start();
-setcookie(session_name(),session_id(),time()+86400, '/', null, false, true);
+if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
+setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 
 define('_GaiaEXEC', 1);
 

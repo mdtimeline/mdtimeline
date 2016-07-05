@@ -28,23 +28,22 @@ header("Expires: 0"); // Proxies.
 
 session_cache_limiter('private');
 session_cache_expire(1);
-session_regenerate_id(false);
-session_name('GaiaEHR');
+session_name('mdTimeLine');
 session_start();
-setcookie(session_name(),session_id(),time()+86400, '/', null, false, true);
+if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
+setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 
 define('_GaiaEXEC', 1);
+$site = isset($_SESSION['user']['site']) ? $_SESSION['user']['site'] : 'default';
 
 if(isset($_SESSION['user']['site'])){
 	$site = $_SESSION['user']['site'];
-}elseif($_REQUEST['site']){
+} elseif($_REQUEST['site']){
 	$site = $_REQUEST['site'];
 }else{
 	$site = 'default';
 }
 
-if(!defined('_GaiaEXEC'))
-	define('_GaiaEXEC', 1);
 require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
 
 
@@ -72,7 +71,8 @@ if(file_exists($conf)){
     }
 }
 
-class BogusAction {
+class BogusAction
+{
 	public $action;
 	public $method;
 	public $data;
@@ -131,13 +131,8 @@ function doRpc($cdata) {
 			(isset($_SESSION['user']['auth']) && $_SESSION['user']['auth'] == true) ||
 			(isset($_SESSION['user']['portal_authorized']) && $_SESSION['user']['portal_authorized'] == true ) ||
 			($action == 'authProcedures' && $method == 'login') ||
-			($action == 'authProcedures' && $method == 'ckAuth') ||
 			($action == 'PortalAuthorize' && $method == 'login') ||
 			($action == 'PortalAuthorize' && $method == 'check') ||
-			($action == 'PortalAuthorize' && $method == 'passwordReset') ||
-			($action == 'PortalRegister' && $method == 'validateInvitation') ||
-			($action == 'PortalRegister' && $method == 'validateUsername') ||
-			($action == 'PortalRegister' && $method == 'register') ||
 			($action == 'CombosData' && $method == 'getActiveFacilities') ||
 			($action == 'i18nRouter' && $method == 'getAvailableLanguages') ||
             ($action == 'CombosData' && $method == 'getTimeZoneList') || // Used by SiteSetup
@@ -220,7 +215,7 @@ function utf8_encode_deep(&$input) {
 	} else if (is_object($input)) {
 		$vars = array_keys(get_object_vars($input));
 		foreach ($vars as $var) {
-			utf8_encode_deep($input->$var);
+			utf8_encode_deep($input->{$var});
 		}
 	}
 }

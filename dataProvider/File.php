@@ -110,8 +110,8 @@ class File {
 	private function getDocumentDirByPidAndDocType($pid, $docType){
 		$dir = site_path . "/patients/$pid/$docType/";
 		if(!is_dir($dir)){
-			if(mkdir($dir, 0755, true)){
-				chmod($dir, 0755);
+			if(mkdir($dir, 0774, true)){
+				chmod($dir, 0774);
 				return $dir;
 			} else{
 				$this->error = true;

@@ -408,6 +408,7 @@ module.exports = function(grunt){
 					'app/controller/administration/FacilityStructure.js',
 					'app/controller/administration/HL7.js',
 					'app/controller/administration/DecisionSupport.js',
+					'app/controller/administration/Documents.js',
 					'app/controller/administration/Practice.js',
 					'app/controller/administration/ReferringProviders.js',
 					'app/controller/administration/Specialties.js',

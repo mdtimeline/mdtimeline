@@ -53,6 +53,12 @@ Ext.define('App.model.patient.EncounterDx', {
 			index: true
 		},
 		{
+			name: 'dx_type',
+			type: 'string',
+			index: true,
+			len: 5
+		},
+		{
 			name: 'code',
 			type: 'string',
 			len: 25
@@ -65,15 +71,7 @@ Ext.define('App.model.patient.EncounterDx', {
 		{
 			name: 'code_text',
 			type: 'string',
-			store: false,
-			convert: function(v, record){
-				return v == '' ? record.data.long_desc : v;
-			}
-		},
-		{
-			name: 'long_desc',
-			type: 'string',
-			store: false
+			len: 300
 		}
 	],
 	proxy: {

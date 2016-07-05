@@ -73,11 +73,6 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 			type: 'string'
 		},
 		{
-			name: 'status',
-			type: 'string',
-			len: 40
-		},
-		{
 			name: 'status_code',
 			type: 'string',
 			len: 20

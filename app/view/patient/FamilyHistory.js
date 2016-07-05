@@ -47,7 +47,10 @@ Ext.define('App.view.patient.FamilyHistory', {
 			items: [
 				{
 					icon: 'resources/images/icons/cross.png',
-					tooltip: _('remove')
+					tooltip: _('remove'),
+                    handler: function(grid, rowIndex, colIndex, item, e, record){
+                        App.app.getController('patient.FamilyHistory').onDeactivateRecord(grid, record);
+                    }
 				}
 			]
 		},
@@ -69,7 +72,14 @@ Ext.define('App.view.patient.FamilyHistory', {
 		{
 			header: _('relation'),
 			flex: 1,
-			dataIndex: 'relation'
+			dataIndex: 'relation',
+            editor:{
+                xtype: 'gaiaehr.listcombosimple',
+                list: 109,
+                id: 'relation',
+                name: 'relation',
+                value: null
+            }
 		},
 		{
 			header: _('status'),

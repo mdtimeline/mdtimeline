@@ -314,16 +314,17 @@ class MatchaCUP {
 				}
 
 				// group
-				if(isset($where->group) && isset($where->group[0]) && isset($where->group[0]->property) && in_array($where->group[0]->property, $this->fields)){
+                $_group = '';
+                if(isset($where->group)) {
+                    if(is_object($where->group)) $where->group = [ 0=>$where->group ];
+                    if(count($where->group) < 0) {
+                        $property = $where->group[0]->property;
+                        $direction = isset($where->group[0]->direction) ? $where->group[0]->direction : '';
+                        $_group = " GROUP BY `$property` $direction";
+                    }
+                }
 
-					$property = $where->group[0]->property;
-					$direction = isset($where->group[0]->direction) ? $where->group[0]->direction : '';
-					$_group = " GROUP BY `$property` $direction";
-				} else {
-					$_group = '';
-				}
-
-				// filter/where
+				// filter-where
 				if($isSimpleLoadRequest){
 					$_where = " WHERE `{$this->table}`.`{$this->primaryKey}` = '" . $where->{$this->primaryKey} . '\'';
 				} elseif((isset($where->filter) && isset($where->filter[0]->property)) || isset($this->filters)) {
@@ -353,10 +354,8 @@ class MatchaCUP {
 								}
 								$ors[] = $whereArrayItem;
 							}
-							if(count($ors) == 0)
-								continue;
+							if(count($ors) == 0) continue;
 							$ands[] = '(' . implode(' OR ', $ors) . ')';
-
 						}
 
 						$_where = 'WHERE ' . implode(' AND ', $ands);
@@ -480,8 +479,8 @@ class MatchaCUP {
 				if(is_array($this->phantomFields) && in_array($foo->property, $this->phantomFields))
 					continue;
 				if(!isset($foo->value)){
-					$operator = (isset($foo->operator) && $foo->operator != '=') ? 'IS NOT' : 'IS';
-					$whereArray[$foo->property][] = "`$this->table`.`$foo->property` $operator NULL";
+                    $operator = (isset($foo->operator) && $foo->operator != '=') ? 'IS NOT' : 'IS';
+                    $whereArray[$foo->property][] = "`$this->table`.`$foo->property` $operator NULL";
 				} else {
 					$operator = isset($foo->operator) ? $foo->operator : '=';
 					if(is_array($foo->value)){

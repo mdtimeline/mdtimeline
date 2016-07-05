@@ -22,8 +22,8 @@ Ext.define('App.controller.patient.HL7', {
 	],
 	refs: [
 		{
-			ref: '#Adt04MessageBtn',
-			selector: 'Adt04MessageBtn'
+			ref: 'SyndromicSurveillanceBtn',
+			selector: '#SyndromicSurveillanceBtn'
 		}
 	],
 
@@ -33,7 +33,7 @@ Ext.define('App.controller.patient.HL7', {
 			'#soapForm': {
 				render: me.onSoapFormRender
 			},
-			'#Adt04MessageBtn': {
+			'#SyndromicSurveillanceBtn': {
 				click: me.onAdt04MessageBtnClick
 			}
 		});
@@ -43,8 +43,9 @@ Ext.define('App.controller.patient.HL7', {
 		if(a('hl7_send_adt04')){
 			form.getDockedItems()[0].insert(0, {
 				xtype:'button',
-				text: _('adt04'),
-				itemId: 'Adt04MessageBtn'
+				text: _('syndromic_surveillance'),
+				tooltip: _('report_syndromic_surveillance'),
+				itemId: 'SyndromicSurveillanceBtn'
 			});
 		}
 	},
@@ -55,7 +56,11 @@ Ext.define('App.controller.patient.HL7', {
 			pid: app.patient.pid,
 			eid: app.patient.eid,
 			fid: app.user.facility,
-			event: 'A04'
+			event: 'A04',
+			anonymous: true,
+			map_codes_types: {
+				ethnicity: 'CDCREC'
+			}
 		}, function(response){
 		});
 	}

@@ -567,15 +567,18 @@ class Encounter {
 
 		$Immunizations = new Immunizations();
 		$immunizations = $Immunizations->getImmunizationsByEncounterID($eid);
+        
 		if(!empty($immunizations)){
 			$lis = '';
 			foreach($immunizations as $foo){
+				$administered_by = Person::fullname($foo['administered_fname'], $foo['administered_mname'], $foo['administered_lname']);
+
 				$lis .= '<li>Vaccine name: ' . $foo['vaccine_name'] . '<br>';
 				$lis .= 'Vaccine ID: (' . $foo['code_type'] . ')' . $foo['code'] . '<br>';
 				$lis .= 'Manufacturer: ' . $foo['manufacturer'] . '<br>';
 				$lis .= 'Lot Number: ' . $foo['lot_number'] . '<br>';
 				$lis .= 'Dose: ' . $foo['administer_amount'] . ' ' . $foo['administer_units'] . '<br>';
-				$lis .= 'Administered By: ' . $foo['administered_by'] . ' </li>';
+				$lis .= 'Administered By: ' . $administered_by . '</li>';
 			}
 			$ExtraData .= '<p>Immunizations:</p>';
 			$ExtraData .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';

@@ -554,7 +554,7 @@ class MatchaModel extends Matcha {
 
 			// check if the directory does not exist, if not create it.
 			if(!@opendir(self::$__app . '/' . strtolower(str_replace('.', '/', $modelDir)))){
-				$result = @mkdir(self::$__app . '/' . strtolower(str_replace('.', '/', $modelDir)), 0775, true);
+				$result = @mkdir(self::$__app . '/' . strtolower(str_replace('.', '/', $modelDir)), 0774, true);
 				if(!$result)
 					throw new Exception('Could not create the directory.');
 			}
@@ -736,7 +736,7 @@ class MatchaModel extends Matcha {
 			if(!@fwrite($fileObject, $jsSenchaModel, strlen($jsSenchaModel)))
 				throw new Exception('Could not write the Sencha Model file.');
 			@fclose($fileObject);
-			if(!@chmod($file, 0755))
+			if(!@chmod($file, 0774))
 				throw new Exception('Could not chmod the Sencha Model file.');
 			return true;
 		} catch(Exception $e) {

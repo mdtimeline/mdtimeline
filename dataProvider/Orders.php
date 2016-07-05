@@ -119,6 +119,28 @@ class Orders {
 	 */
 	public function addOrderResults($params){
 		$this->setResults();
+
+
+		if(isset($params->upload) && $params->upload != ''){
+			include_once (ROOT. '/dataProvider/DocumentHandler.php');
+			$DocumentHandler = new DocumentHandler();
+
+			$document = new stdClass();
+			$document->pid = isset($params->pid) ? $params->pid : 0;
+			$document->eid = isset($params->eid) ? $params->eid : 0;
+			$document->uid = $_SESSION['user']['id'];
+			$document->docType = 'Radiology Report';
+			$document->docTypeCode = 'RP';
+			$document->name = 'report.pdf';
+			$document->date = date('Y-m-d H:i:s');
+			$document->title = 'Radiology Report';
+			$document->document = $params->upload;
+			$document->encrypted = false;
+			$record = $DocumentHandler->addPatientDocument($document);
+			$params->documentId = 'doc|' . $record['data']->id;
+			unset($params->upload);
+		}
+
 		return $this->r->save($params);
 	}
 
@@ -128,6 +150,28 @@ class Orders {
 	 */
 	public function updateOrderResults($params){
 		$this->setResults();
+
+		if(isset($params->upload) && $params->upload != ''){
+			include_once (ROOT. '/dataProvider/DocumentHandler.php');
+			$DocumentHandler = new DocumentHandler();
+
+			$document = new stdClass();
+			$document->pid = isset($params->pid) ? $params->pid : 0;
+			$document->eid = isset($params->eid) ? $params->eid : 0;
+			$document->uid = $_SESSION['user']['id'];
+			$document->docType = 'Radiology Report';
+			$document->docTypeCode = 'RP';
+			$document->name = 'report.pdf';
+			$document->date = date('Y-m-d H:i:s');
+			$document->title = 'Radiology Report';
+			$document->document = $params->upload;
+			$document->encrypted = false;
+			$record = $DocumentHandler->addPatientDocument($document);
+			$params->documentId = 'doc|' . $record['data']->id;
+			unset($params->upload);
+		}
+
+
 		return $this->r->save($params);
 	}
 

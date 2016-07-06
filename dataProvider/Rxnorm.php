@@ -116,7 +116,7 @@ class Rxnorm
             SELECT * 
             FROM rxnconso 
             WHERE CODE=:code 
-            AND (TTY='SCDG' OR TTY='SCD' OR TTY='SBD' OR TTY='SBDC' OR TTY='MIN')");
+            AND (TTY='SCD' OR TTY='SBD' OR TTY='SCDG' OR TTY='SBDC')");
         $Statement->execute([':code' => $RxNormCode]);
         $RxNormRecord = $Statement->fetchAll(PDO::FETCH_ASSOC);
         if (count($RxNormRecord) > 0) {
@@ -142,7 +142,7 @@ class Rxnorm
                 if (count($Record) <= 0) break;
                 $Record = $Record[0];
                 // Extract the ingredient
-                $Statement = $this->db->prepare("SELECT * FROM gaiadb.rxnconso WHERE RXCUI=:rxcui AND SAB='RXNORM'");
+                $Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE RXCUI=:rxcui AND SAB='RXNORM'");
                 $Statement->execute([':rxcui' => $Record['RXCUI2']]);
                 $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
                 if (count($Record) <= 0) break;
@@ -159,27 +159,11 @@ class Rxnorm
                 if (count($Record) <= 0) break;
                 $Record = $Record[0];
                 // Extract the ingredient
-                $Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE RXCUI=:rxcui AND SAB='RXNORM' AND TTY='IN'");
+                $Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE RXCUI=:rxcui AND SAB='RXNORM' AND (TTY='IN' OR TTY='MIN')");
                 $Statement->execute([':rxcui' => $Record['RXCUI2']]);
                 $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
                 if (count($Record) <= 0) break;
                 $Record = $Record[0];
-                break;
-            case 'BN':
-                $Statement = $this->db->prepare("SELECT * FROM rxnrel WHERE RXCUI1=:rxcui AND RELA='has_tradename' LIMIT 1");
-                $Statement->execute([':rxcui' => $RxNormRecord['RXCUI']]);
-                $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
-                if (count($Record) <= 0) break;
-                $Record = $Record[0];
-                // Extract the ingredient
-                $Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE RXCUI=:rxcui AND SAB='RXNORM' AND TTY='IN'");
-                $Statement->execute([':rxcui' => $Record['RXCUI2']]);
-                $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
-                if (count($Record) <= 0) break;
-                $Record = $Record[0];
-                break;
-            case 'MIN':
-                $Record = $RxNormRecord;
                 break;
         }
         return $Record;
@@ -222,33 +206,34 @@ class Rxnorm
     public function getRXNORMLiveSearch(stdClass $params)
     {
         $include_ingredients = isset($params->include_ingredients) ? $params->include_ingredients : false;
-        $ingredients = $include_ingredients ? 'OR TTY=\'IN\'' : '';
+        $ingredients = $include_ingredients ? 'OR RX.TTY=\'IN\'' : '';
 
         $include_groups = isset($params->include_groups) ? $params->include_groups : false;
-        $groups = $include_groups ? 'OR `rxnconso`.`TTY` = \'SBDC\' OR TTY=\'SCDG\'' : '';
+        $groups = $include_groups ? 'OR RX.`TTY` = \'SBDC\' OR RX.`TTY`=\'SCDG\'' : '';
 
         $include_umls = isset($params->include_umls) ? $params->include_umls : false;
         $umls = $include_umls ? 'OR `rxnsat`.`ATN` = \'UMLSAUI\' OR `rxnsat`.`ATN` = \'UMLSCUI\'' : '';
 
         if (is_numeric($params->query)) {
-            $where = '`rxnconso`.`RXCUI` = :q';
+            $where = 'RX.`RXCUI` = :q';
             $query = [':q' => $params->query];
         } else {
-            $where = '`rxnconso`.`STR` LIKE :q';
+            $where = 'RX.`STR` LIKE :q';
             $query = [':q' => '%' . $params->query . '%'];
         }
 
-        $sth = $this->db->prepare("SELECT `rxnconso`.*, `rxnsat`.`ATV` AS NDC
-                     FROM `rxnconso`
+        $sth = $this->db->prepare("SELECT RX.*, `rxnsat`.`ATV` AS NDC, 
+                    (select code from rxnconso where SAB='GS' AND rxcui = RX.rxcui LIMIT 1) as GS_CODE
+                     FROM `rxnconso` AS RX
                INNER JOIN `rxnsat`
-                       ON `rxnconso`.`RXCUI` = `rxnsat`.`RXCUI`
-                          AND `rxnconso`.`SAB` = 'RXNORM'
+                       ON RX.`RXCUI` = `rxnsat`.`RXCUI`
+                          AND RX.`SAB` = 'RXNORM'
                           AND (`rxnsat`.`ATN` = 'NDC' $umls)
-                          AND (`rxnconso`.`TTY` = 'SCD' OR `rxnconso`.`TTY` = 'SBD' {$groups} {$ingredients})
+                          AND (RX.`TTY` = 'SCD' OR RX.`TTY` = 'SBD' {$groups} {$ingredients})
                     WHERE ($where)
-                    AND `rxnconso`.`rxcui` IN (SELECT CODE FROM `rxnconso` WHERE `SAB`='GS') IS NOT NULL
-                 GROUP BY `rxnconso`.`STR`
-                 ORDER BY `rxnconso`.`TTY` DESC
+                    AND (select code from `rxnconso` where SAB='GS' AND rxcui = RX.rxcui LIMIT 1) IS NOT NULL
+                 GROUP BY RX.`STR`
+                 ORDER BY RX.`TTY` DESC
                     LIMIT 100");
 
         $sth->execute($query);

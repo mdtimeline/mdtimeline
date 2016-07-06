@@ -546,19 +546,14 @@ Ext.define('App.view.patient.Encounter', {
 			}else{
 
 				if(a('edit_encounters')){
-
 					record = form.getRecord();
 					store = record.store;
 					values = me.addDefaultData(values);
 					record.set(values);
-
 					app.fireEvent('encounterbeforesync', me, store, form);
-
 					store.sync({
 						callback: function(){
-
 							app.fireEvent('encountersync', me, store, form);
-
 							me.msg('Sweet!', _('encounter_updated'));
 						}
 					});

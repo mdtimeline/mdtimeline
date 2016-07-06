@@ -364,24 +364,6 @@ class ACL {
 	}
 
 	/**
-	 * @param $perm_id
-	 * @return mixed
-	 */
-	private static function getPermNameByPermId($perm_id) {
-		$row = self::$AP->load(['perm_id' => $perm_id])->one();
-		return $row['perm_name'];
-	}
-
-	/**
-	 * @param $role_id
-	 * @return mixed
-	 */
-	private static function getRoleNameByRoleId($role_id) {
-		$row = self::$AR->load(['role_id' => $role_id])->one();
-		return $row['role_name'];
-	}
-
-	/**
 	 * @internal param $role
 	 * @return array
 	 */
@@ -459,17 +441,6 @@ class ACL {
 		}
 
 		return $perms;
-	}
-
-	/**
-	 * @param $role_id
-	 * @return bool
-	 */
-	private static function userHasRole($role_id) {
-		foreach(self::$user_roles as $k => $v)
-			if(floatval($v) === floatval($role_id))
-				return true;
-		return false;
 	}
 
 	public static function getAllUserPermsAccess() {

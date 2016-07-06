@@ -34,6 +34,11 @@ Ext.define('App.model.administration.DecisionSupportRule', {
 			defaultValue: 'C',
 			comment: 'C = Clinical A = Administrative P = Physician N = Nurse'
 		},
+        {
+            name: 'category_name',
+            type: 'string',
+            store: false
+        },
 		{
 			name: 'alert_type',
 			type: 'string',

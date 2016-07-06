@@ -6,6 +6,10 @@ GaiaEHR.iml
 gaiaehr.iml
 contrib/snomed/*
 contrib/rxnorm/*
+contrib/forms/*
+contrib/dsmiv/*
+contrib/icd9/*
+contrib/icd10/*
 /modules/advancetasks
 /modules/appointments
 /modules/phimail

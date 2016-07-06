@@ -77,32 +77,6 @@ class Rxnorm
     }
 
     /**
-     * Method to convert from Gold Standard Code to RxNorm code.
-     * @param $GSCode
-     * @return mixed
-     */
-    public function getMetathesaurusRxNormCode($GSCode)
-    {
-        $Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE CODE=:gs_code AND TTY='MTH_RXN_CD'");
-        $Statement->execute([':gs_code' => $GSCode]);
-        $RxNormRecord = $Statement->fetchAll(PDO::FETCH_ASSOC);
-        if (count($RxNormRecord) > 0) {
-            $RxNormRecord = $RxNormRecord[0];
-            return $RxNormRecord['RXCUI'];
-        } else {
-            $Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE CODE=:gs_code");
-            $Statement->execute([':gs_code' => $GSCode]);
-            $RxNormRecord = $Statement->fetchAll(PDO::FETCH_ASSOC);
-            if (count($RxNormRecord) > 0) {
-                $RxNormRecord = $RxNormRecord[0];
-                return $RxNormRecord['RXCUI'];
-            } else {
-                return;
-            }
-        }
-    }
-
-    /**
      * getIngredient
      * Method to do search in the RxNorm medication by it's ingredients, this depends if the search
      * is made by SCD, SCDG (Clinic) or SBDC, SBD (Brand)

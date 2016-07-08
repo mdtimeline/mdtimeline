@@ -95,16 +95,18 @@ $_SESSION['client']['os'] = (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERV
 
 // default site
 if(!defined('SITE')){
-	if(isset($_REQUEST['user']) && $_REQUEST['user']['site']){
-		define('SITE', $_REQUEST['user']['site']);
+	if(isset($_SESSION['user']) && $_SESSION['user']['site']){
+		define('SITE', $_SESSION['user']['site']);
 	}elseif(isset($_REQUEST['site'])){
 		define('SITE', $_REQUEST['site']);
 	}else{
 		define('SITE', 'default');
 	}
 }
-if(!isset($site))
-	$site = (isset($_REQUEST['site']) ? $_REQUEST['site'] : 'default');
+
+if(!isset($site)){
+	$site = SITE;
+}
 
 /**
  * Enable the error and also set the ROOT directory for

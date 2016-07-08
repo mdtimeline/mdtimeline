@@ -95,7 +95,7 @@ $_SESSION['client']['os'] = (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERV
 
 // default site
 if(!defined('SITE')){
-	if(isset($_SESSION['user']) && $_SESSION['user']['site']){
+	if(isset($_SESSION['user']) && isset($_SESSION['user']['site'])){
 		define('SITE', $_SESSION['user']['site']);
 	}elseif(isset($_REQUEST['site'])){
 		define('SITE', $_REQUEST['site']);

@@ -94,8 +94,15 @@ $_SESSION['client']['browser'] = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['
 $_SESSION['client']['os'] = (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Windows') === false ? 'Linux' : 'Windows');
 
 // default site
-if(!defined('SITE'))
-	define('SITE', (isset($_REQUEST['site']) ? $_REQUEST['site'] : 'default'));
+if(!defined('SITE')){
+	if(isset($_REQUEST['user']) && $_REQUEST['user']['site']){
+		define('SITE', $_REQUEST['user']['site']);
+	}elseif(isset($_REQUEST['site'])){
+		define('SITE', $_REQUEST['site']);
+	}else{
+		define('SITE', 'default');
+	}
+}
 if(!isset($site))
 	$site = (isset($_REQUEST['site']) ? $_REQUEST['site'] : 'default');
 

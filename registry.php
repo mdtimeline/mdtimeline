@@ -93,18 +93,15 @@ $_SESSION['server']['last_tid'] = null;
 $_SESSION['client']['browser'] = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 $_SESSION['client']['os'] = (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Windows') === false ? 'Linux' : 'Windows');
 
+include_once (ROOT . '/dataProvider/Site.php');
+
+Site::DoUserSiteValidation();
+
 // default site
 if(!defined('SITE')){
-	if(isset($_SESSION['user']) && isset($_SESSION['user']['site'])){
-		define('SITE', $_SESSION['user']['site']);
-	}elseif(isset($_REQUEST['site'])){
-		define('SITE', $_REQUEST['site']);
-	}else{
-		define('SITE', 'default');
-	}
-}
-
-if(!isset($site)){
+	$site = Site::GetSite();
+	define('SITE', $site);
+}else{
 	$site = SITE;
 }
 

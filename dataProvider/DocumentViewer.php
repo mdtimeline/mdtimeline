@@ -25,13 +25,28 @@ if(!isset($_SESSION)){
     setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 }
 
-if(!isset($_REQUEST['token']) || str_replace(' ', '+', $_REQUEST['token']) != $_SESSION['user']['token'])
+if(!isset($_REQUEST['token']) || str_replace(' ', '+', $_REQUEST['token']) != $_SESSION['user']['token']){
 	die('Not Authorized!');
+}
 
-if(!defined('_GaiaEXEC'))
+if(!defined('_GaiaEXEC')){
 	define('_GaiaEXEC', 1);
-require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
-require_once(ROOT . '/sites/' . $_REQUEST['site'] . '/conf.php');
+}
+
+if(!defined('ROOT')){
+	define('ROOT', str_replace('\\', '/', dirname(dirname(__FILE__))));
+}
+
+if(isset($_REQUEST['site'])){
+	if(!defined('SITE')){
+		define('SITE', $_REQUEST['site']);
+	}
+}
+
+require_once(ROOT . '/dataProvider/Site.php');
+\Site::$allowSiteSwitch = true;
+
+require_once(str_replace('\\', '/', dirname(__FILE__)) . '/../registry.php');
 
 ini_set('memory_limit', '1024M');
 ini_set('max_execution_time', 5);
@@ -215,6 +230,3 @@ HTML;
 } else {
 	print 'Not Authorized to be here, Please contact Support Desk. Thank You!';
 }
-
-
-

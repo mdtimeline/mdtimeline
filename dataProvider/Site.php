@@ -13,11 +13,11 @@ class Site {
 	/**
 	 * @return string
 	 */
-	public static function GetSite(){
+	public static function GetSite() {
 		$site = 'default';
 		if(isset($_SESSION['user']) && isset($_SESSION['user']['site'])){
 			$site = $_SESSION['user']['site'];
-		}elseif(isset($_REQUEST['site'])){
+		} elseif(isset($_REQUEST['site'])) {
 			$site = $_REQUEST['site'];
 		}
 		return $site;
@@ -26,7 +26,7 @@ class Site {
 	/**
 	 * @return bool|string
 	 */
-	public static function GetUserSite(){
+	public static function GetUserSite() {
 		$site = false;
 		if(isset($_SESSION['user']) && isset($_SESSION['user']['site'])){
 			$site = $_SESSION['user']['site'];
@@ -34,7 +34,7 @@ class Site {
 		return $site;
 	}
 
-	public static function GetRequestSite(){
+	public static function GetRequestSite() {
 		$site = 'default';
 		if(isset($_REQUEST['site'])){
 			$site = $_REQUEST['site'];
@@ -45,18 +45,18 @@ class Site {
 	/**
 	 * @return bool
 	 */
-	public static function DoUserSiteValidation(){
+	public static function DoUserSiteValidation() {
 		$userSite = self::GetUserSite();
 		$requestSite = self::GetRequestSite();
+		$authorized = isset($_SESSION['user']) && (
+				(isset($_SESSION['user']['auth']) && $_SESSION['user']['auth'] == true) ||
+				(isset($_SESSION['user']['portal_authorized']) && $_SESSION['user']['portal_authorized'] == true)
+			);
 
-		if( isset($_SESSION['user']) &&
-			isset($_SESSION['user']['auth']) &&
-			$_SESSION['user']['auth'] == true
-		){
+		if($authorized){
 			if(self::$allowSiteSwitch){
 				return true;
 			}
-
 			if($userSite !== false && $requestSite != $userSite){
 				$_SESSION['user'] = null;
 				return false;

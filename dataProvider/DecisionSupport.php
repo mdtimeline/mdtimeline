@@ -25,6 +25,7 @@ include_once(ROOT . '/dataProvider/Medications.php');
 include_once(ROOT . '/dataProvider/Procedures.php');
 include_once(ROOT . '/dataProvider/SocialHistory.php');
 include_once(ROOT . '/dataProvider/ActiveProblems.php');
+include_once(ROOT . '/dataProvider/ACL.php');
 include_once(ROOT . '/lib/Matcha/plugins/Carbon/Carbon.php');
 
 class DecisionSupport
@@ -38,6 +39,11 @@ class DecisionSupport
      * @var MatchaCUP Rule Items Model
      */
     private $rc;
+
+    /**
+     * @var Access Control List
+     */
+    private $ACL;
 
     /**
      * @var Patient
@@ -82,6 +88,8 @@ class DecisionSupport
             $this->r = MatchaModel::setSenchaModel('App.model.administration.DecisionSupportRule');
         if ($this->rc == NULL)
             $this->rc = MatchaModel::setSenchaModel('App.model.administration.DecisionSupportRuleConcept');
+
+        $this->ACL = new ACL($_SESSION['user']['id']);
         $this->Orders = new Orders();
         $this->Vitals = new Vitals();
         $this->Allergies = new Allergies();
@@ -93,7 +101,24 @@ class DecisionSupport
 
     public function getDecisionSupportRules($params)
     {
-        return $this->r->load($params)->all();
+        $records = $this->r->load($params)->all();
+        foreach($records['data'] as $key => $record){
+            switch($record['category']){
+                case 'C':
+                    $records['data'][$key]['category_name'] = 'Clinical';
+                    break;
+                case 'A':
+                    $records['data'][$key]['category_name'] = 'Administrative';
+                    break;
+                case 'P':
+                    $records['data'][$key]['category_name'] = 'Physician';
+                    break;
+                case 'N':
+                    $records['data'][$key]['category_name'] = 'Nurse';
+                    break;
+            }
+        }
+        return $records;
     }
 
     public function getDecisionSupportRule($params)
@@ -172,22 +197,48 @@ class DecisionSupport
                 $alerts[] = $rule;
             }
         }
-
         return $alerts;
     }
 
     private function setRules($alertType, $category = 'C')
     {
         $params = new stdClass();
-        $params->filter[0] = new stdClass();
-        $params->filter[0]->property = 'active';
-        $params->filter[0]->value = 1;
-        $params->filter[1] = new stdClass();
-        $params->filter[1]->property = 'alert_type';
-        $params->filter[1]->value = $alertType;
-        $params->filter[2] = new stdClass();
-        $params->filter[2]->property = 'category';
-        $params->filter[2]->value = $category;
+        $fKey = 0;
+        $params->filter[$fKey] = new stdClass();
+        $params->filter[$fKey]->property = 'active';
+        $params->filter[$fKey]->value = 1;
+        $fKey++;
+        $params->filter[$fKey] = new stdClass();
+        $params->filter[$fKey]->property = 'alert_type';
+        $params->filter[$fKey]->value = $alertType;
+
+        if($this->ACL->hasPermission('decision_support_administrator')) {
+            $fKey++;
+            $params->filter[$fKey] = new stdClass();
+            $params->filter[$fKey]->property = 'category';
+            $params->filter[$fKey]->value = 'A';
+        }
+
+        if($this->ACL->hasPermission('decision_support_clinical')) {
+            $fKey++;
+            $params->filter[$fKey] = new stdClass();
+            $params->filter[$fKey]->property = 'category';
+            $params->filter[$fKey]->value = 'C';
+        }
+
+        if($this->ACL->hasPermission('decision_support_physician')) {
+            $fKey++;
+            $params->filter[$fKey] = new stdClass();
+            $params->filter[$fKey]->property = 'category';
+            $params->filter[$fKey]->value = 'P';
+        }
+
+        if($this->ACL->hasPermission('decision_support_nurse')) {
+            $fKey++;
+            $params->filter[$fKey] = new stdClass();
+            $params->filter[$fKey]->property = 'category';
+            $params->filter[$fKey]->value = 'N';
+        }
 
         $this->rules = $this->getDecisionSupportRules($params);
         $this->rules = $this->rules['data'];
@@ -292,7 +343,10 @@ class DecisionSupport
         if (isset($rule['concepts']['PROC']) && !empty($rule['concepts']['PROC'])) {
             $count = 0;
             foreach ($rule['concepts']['PROC'] as $concept) {
-                $procedures = $this->Procedures->getPatientProceduresByPidAndCode($this->Patient->getPatientPid(), $concept['concept_code']);
+                $procedures = $this->Procedures->getPatientProceduresByPidAndCode(
+                    $this->Patient->getPatientPid(),
+                    $concept['concept_code']
+                );
                 if (empty($procedures)) continue;
                 if ($concept['frequency_interval'] == 0) {
                     $count++;
@@ -301,17 +355,19 @@ class DecisionSupport
                 $frequency = 0;
                 foreach ($procedures as $procedure) {
                     if ($this->isWithInterval(
-                            $procedure['create_date'],
-                            $concept['frequency_interval'],
-                            $concept['frequency_operator'],
-                            'Y-m-d H:i:s'))
-                    {
+                        $procedure['create_date'],
+                        $concept['frequency_interval'],
+                        $concept['frequency_operator'],
+                        'Y-m-d H:i:s')
+                    ) {
                         $frequency++;
                         if ($concept['frequency'] == $frequency) break;
                     }
                 }
 
-                if ($concept['frequency_operator'] == '' || $this->compare($frequency, $concept['frequency_operator'], $concept['frequency'])) {
+                if ($concept['frequency_operator'] == '' ||
+                    $this->compare($frequency, $concept['frequency_operator'], $concept['frequency'])
+                    ) {
                     $count++;
                 }
             }
@@ -329,7 +385,10 @@ class DecisionSupport
         if (isset($rule['concepts']['PROB']) && !empty($rule['concepts']['PROB'])) {
             $count = 0;
             foreach ($rule['concepts']['PROB'] as $concept) {
-                $problems = $this->ActiveProblems->getPatientActiveProblemByPidAndCode($this->Patient->getPatientPid(), $concept['concept_code']);
+                $problems = $this->ActiveProblems->getPatientActiveProblemByPidAndCode(
+                    $this->Patient->getPatientPid(),
+                    $concept['concept_code']
+                );
                 if (empty($problems)) continue;
                 if ($concept['frequency_interval'] == 0) {
                     $count++;
@@ -337,7 +396,11 @@ class DecisionSupport
                 }
                 $frequency = 0;
                 foreach ($problems as $problem) {
-                    if ($this->isWithInterval($problem['begin_date'], $concept['frequency_interval'], $concept['frequency_operator'], 'Y-m-d')) {
+                    if ($this->isWithInterval(
+                        $problem['begin_date'],
+                        $concept['frequency_interval'],
+                        $concept['frequency_operator'], 'Y-m-d')
+                    ) {
                         $frequency++;
                         if ($concept['frequency'] == $frequency) break;
                     }
@@ -362,7 +425,10 @@ class DecisionSupport
         if (isset($rule['concepts']['MEDI']) && !empty($rule['concepts']['MEDI'])) {
             $count = 0;
             foreach ($rule['concepts']['MEDI'] as $concept) {
-                $medications = $this->Medications->getPatientActiveMedicationsByPidAndCode($this->Patient->getPatientPid(), $concept['concept_code']);
+                $medications = $this->Medications->getPatientActiveMedicationsByPidAndCode(
+                    $this->Patient->getPatientPid(),
+                    $concept['concept_code']
+                );
                 if (empty($medications)) continue;
                 $count++;
             }
@@ -383,7 +449,10 @@ class DecisionSupport
         if (isset($rule['concepts']['ALLE']) && !empty($rule['concepts']['ALLE'])) {
             $count = 0;
             foreach ($rule['concepts']['ALLE'] as $concept) {
-                $allergies = $this->Allergies->getPatientActiveDrugAllergiesByPidAndCode($this->Patient->getPatientPid(), $concept['concept_code']);
+                $allergies = $this->Allergies->getPatientActiveDrugAllergiesByPidAndCode(
+                    $this->Patient->getPatientPid(),
+                    $concept['concept_code']
+                );
                 if (empty($allergies)) continue;
                 if ($concept['frequency_interval'] == 0) {
                     $count++;
@@ -414,7 +483,10 @@ class DecisionSupport
         if (isset($rule['concepts']['LAB']) && !empty($rule['concepts']['LAB'])) {
             $count = 0;
             foreach ($rule['concepts']['LAB'] as $concept) {
-                $observations = $this->Orders->getOrderResultObservationsByPidAndCode($this->Patient->getPatientPid(), $concept['concept_code']);
+                $observations = $this->Orders->getOrderResultObservationsByPidAndCode(
+                    $this->Patient->getPatientPid(),
+                    $concept['concept_code']
+                );
 
                 if (empty($observations) && $concept['frequency_operator'] != '<') continue;
 

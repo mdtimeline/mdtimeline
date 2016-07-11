@@ -93,11 +93,17 @@ $_SESSION['server']['last_tid'] = null;
 $_SESSION['client']['browser'] = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 $_SESSION['client']['os'] = (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Windows') === false ? 'Linux' : 'Windows');
 
+include_once (ROOT . '/dataProvider/Site.php');
+
+Site::DoUserSiteValidation();
+
 // default site
-if(!defined('SITE'))
-	define('SITE', (isset($_REQUEST['site']) ? $_REQUEST['site'] : 'default'));
-if(!isset($site))
-	$site = (isset($_REQUEST['site']) ? $_REQUEST['site'] : 'default');
+if(!defined('SITE')){
+	$site = Site::GetSite();
+	define('SITE', $site);
+}else{
+	$site = SITE;
+}
 
 /**
  * Enable the error and also set the ROOT directory for

@@ -72,10 +72,6 @@ setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, tru
 define('_GaiaEXEC', 1);
 
 if(!isset($_SESSION['install']) || (isset($_SESSION['install']) && $_SESSION['install'] != true)){
-	if(!defined('_GaiaEXEC'))
-		define('_GaiaEXEC', 1);
-	$site  = isset($_REQUEST['site']) ? $_REQUEST['site'] : 'default';
-    if(!defined('SITE')) define('SITE', (isset($_GET['site']) ? $_GET['site'] : 'default'));
 	require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
 	require_once(ROOT . '/sites/' . SITE . '/conf.php');
 	require_once(ROOT . '/classes/MatchaHelper.php');

@@ -137,6 +137,7 @@ Ext.define('App.controller.patient.RxOrders', {
 		form.getRecord().set({
 			RXCUI: record.data.RXCUI,
 			CODE: record.data.CODE,
+            GS_CODE: records.data.GS_CODE,
 			NDC: record.data.NDC
 		});
 

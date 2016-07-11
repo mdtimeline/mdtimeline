@@ -6,9 +6,13 @@ GaiaEHR.iml
 gaiaehr.iml
 contrib/snomed/*
 contrib/rxnorm/*
-temp
+contrib/forms/*
+contrib/dsmiv/*
+contrib/icd9/*
+contrib/icd10/*
 /modules/advancetasks
 /modules/appointments
 /modules/phimail
 /modules/drugtodrugtoallergy
-AutomatedMeasureCalculation
+/modules/erx
+/modules/reportcenter/reports/AutomatedMeasureCalculation

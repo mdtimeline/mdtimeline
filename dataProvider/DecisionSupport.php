@@ -101,16 +101,19 @@ class DecisionSupport
 
     public function getDecisionSupportRules($params)
     {
+        $append = null;
+        if(isset($params->filter)) $append = " WHERE active=".$params->filter[0]->value." AND alert_type='".$params->filter[1]->value."'";
+
         $sql = "SELECT support_rules.* 
-        FROM support_rules
-        WHERE active = ".$params->filter[0]->value."
-        AND alert_type = '".$params->filter[1]->value."'";
+        FROM support_rules".$append;
 
         $buildWhere = NULL;
-        foreach($params->filter as $filter){
-            if($filter->property == 'category'){
-                if(!$buildWhere) $buildWhere = " AND (";
-                $buildWhere .= "category = '$filter->value' OR ";
+        if(isset($params->filter)) {
+            foreach ($params->filter as $filter) {
+                if ($filter->property == 'category') {
+                    if (!$buildWhere) $buildWhere = " AND (";
+                    $buildWhere .= "category = '$filter->value' OR ";
+                }
             }
         }
         if($buildWhere) $buildWhere = substr($buildWhere, 0, -4) . ")";
@@ -263,6 +266,8 @@ class DecisionSupport
         foreach($params->filter as $key => $filter){
             if($filter->property == 'category') unset($params->filter[$key]);
         }
+
+        error_log(print_r($params,true));
 
         // change property to filter concepts
         $params->filter[0]->property = 'rule_id';

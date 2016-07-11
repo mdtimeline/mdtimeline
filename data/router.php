@@ -34,18 +34,11 @@ if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
 setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 
 define('_GaiaEXEC', 1);
-$site = isset($_SESSION['user']['site']) ? $_SESSION['user']['site'] : 'default';
-
-if(isset($_SESSION['user']['site'])){
-	$site = $_SESSION['user']['site'];
-} elseif($_REQUEST['site']){
-	$site = $_REQUEST['site'];
-}else{
-	$site = 'default';
-}
 
 require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
 
+include_once (ROOT . '/dataProvider/Site.php');
+$site = Site::GetSite();
 
 /**
  * Load the configuration for the router.php (rpc) Remote Procedure Calls
@@ -133,6 +126,7 @@ function doRpc($cdata) {
 			($action == 'authProcedures' && $method == 'login') ||
 			($action == 'PortalAuthorize' && $method == 'login') ||
 			($action == 'PortalAuthorize' && $method == 'check') ||
+			($action == 'PortalAuthorize' && $method == 'passwordReset') ||
 			($action == 'CombosData' && $method == 'getActiveFacilities') ||
 			($action == 'i18nRouter' && $method == 'getAvailableLanguages') ||
             ($action == 'CombosData' && $method == 'getTimeZoneList') || // Used by SiteSetup

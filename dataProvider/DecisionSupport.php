@@ -101,9 +101,24 @@ class DecisionSupport
 
     public function getDecisionSupportRules($params)
     {
-        $records = $this->r->load($params)->all();
-        foreach($records['data'] as $key => $record){
-            switch($record['category']){
+        $sql = "SELECT support_rules.* 
+        FROM support_rules
+        WHERE active = ".$params->filter[0]->value."
+        AND alert_type = '".$params->filter[1]->value."'";
+
+        $buildWhere = NULL;
+        foreach($params->filter as $filter){
+            if($filter->property == 'category'){
+                if(!$buildWhere) $buildWhere = " AND (";
+                $buildWhere .= "category = '$filter->value' OR ";
+            }
+        }
+        if($buildWhere) $buildWhere = substr($buildWhere, 0, -4) . ")";
+        $this->r->sql($sql . $buildWhere);
+        $records['data'] = $this->r->all();
+
+        foreach ($records['data'] as $key => $record) {
+            switch ($record['category']) {
                 case 'C':
                     $records['data'][$key]['category_name'] = 'Clinical';
                     break;
@@ -200,40 +215,41 @@ class DecisionSupport
         return $alerts;
     }
 
-    private function setRules($alertType, $category = 'C')
+    private function setRules($alertType)
     {
         $params = new stdClass();
         $fKey = 0;
         $params->filter[$fKey] = new stdClass();
         $params->filter[$fKey]->property = 'active';
         $params->filter[$fKey]->value = 1;
+
         $fKey++;
         $params->filter[$fKey] = new stdClass();
         $params->filter[$fKey]->property = 'alert_type';
         $params->filter[$fKey]->value = $alertType;
 
-        if($this->ACL->hasPermission('decision_support_administrator')) {
+        if ($this->ACL->hasPermission('decision_support_administrator')) {
             $fKey++;
             $params->filter[$fKey] = new stdClass();
             $params->filter[$fKey]->property = 'category';
             $params->filter[$fKey]->value = 'A';
         }
 
-        if($this->ACL->hasPermission('decision_support_clinical')) {
+        if ($this->ACL->hasPermission('decision_support_clinical')) {
             $fKey++;
             $params->filter[$fKey] = new stdClass();
             $params->filter[$fKey]->property = 'category';
             $params->filter[$fKey]->value = 'C';
         }
 
-        if($this->ACL->hasPermission('decision_support_physician')) {
+        if ($this->ACL->hasPermission('decision_support_physician')) {
             $fKey++;
             $params->filter[$fKey] = new stdClass();
             $params->filter[$fKey]->property = 'category';
             $params->filter[$fKey]->value = 'P';
         }
 
-        if($this->ACL->hasPermission('decision_support_nurse')) {
+        if ($this->ACL->hasPermission('decision_support_nurse')) {
             $fKey++;
             $params->filter[$fKey] = new stdClass();
             $params->filter[$fKey]->property = 'category';
@@ -243,8 +259,10 @@ class DecisionSupport
         $this->rules = $this->getDecisionSupportRules($params);
         $this->rules = $this->rules['data'];
 
-        // unset filter[2] to use $params to filter concepts
-        unset($params->filter[2]);
+        // Unset all the categories from params
+        foreach($params->filter as $key => $filter){
+            if($filter->property == 'category') unset($params->filter[$key]);
+        }
 
         // change property to filter concepts
         $params->filter[0]->property = 'rule_id';
@@ -367,7 +385,7 @@ class DecisionSupport
 
                 if ($concept['frequency_operator'] == '' ||
                     $this->compare($frequency, $concept['frequency_operator'], $concept['frequency'])
-                    ) {
+                ) {
                     $count++;
                 }
             }
@@ -445,7 +463,6 @@ class DecisionSupport
      */
     private function ckActiveMedicationAllergies($rule)
     {
-
         if (isset($rule['concepts']['ALLE']) && !empty($rule['concepts']['ALLE'])) {
             $count = 0;
             foreach ($rule['concepts']['ALLE'] as $concept) {
@@ -492,7 +509,8 @@ class DecisionSupport
 
                 $frequency = 0;
                 foreach ($observations as $observation) {
-                    if ($concept['value'] == '' || $this->compare($observation['value'], $concept['value_operator'], $concept['value'])) {
+                    if ($concept['value'] == '' ||
+                        $this->compare($observation['value'], $concept['value_operator'], $concept['value'])) {
 
                         if ($this->isWithInterval($observation['result_date'], $concept['frequency_interval'], $concept['frequency_operator'], 'Y-m-d')) {
                             $frequency++;

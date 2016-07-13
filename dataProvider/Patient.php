@@ -225,12 +225,61 @@ class Patient
      */
     public function getPatientByUsername($username)
     {
-
         $this->setPatientModel();
         $params = new stdClass();
         $params->filter[0] = new stdClass();
         $params->filter[0]->property = 'portal_username';
         $params->filter[0]->value = $username;
+        $this->patient = $this->p->load($params)->one();
+
+        if ($this->patient !== false) {
+            $this->patient['pic'] = $this->patient['image'];
+            $this->patient['age'] = $this->getPatientAge();
+            $this->patient['name'] = $this->getPatientFullName();
+        }
+
+        unset($params);
+        return $this->patient;
+    }
+
+    /**
+     * Return a patient record depending of its Guardian username
+     * @param $guardian_portal_username
+     *
+     * @return Patient Record
+     */
+    public function getPatientByGuardian($guardian_portal_username)
+    {
+        $this->setPatientModel();
+        $params = new stdClass();
+        $params->filter[0] = new stdClass();
+        $params->filter[0]->property = 'guardian_portal_username';
+        $params->filter[0]->value = $guardian_portal_username;
+        $this->patient = $this->p->load($params)->one();
+
+        if ($this->patient !== false) {
+            $this->patient['pic'] = $this->patient['image'];
+            $this->patient['age'] = $this->getPatientAge();
+            $this->patient['name'] = $this->getPatientFullName();
+        }
+
+        unset($params);
+        return $this->patient;
+    }
+
+    /**
+     * Return a patient record depending of its Emergency username
+     * @param $emergency_portal_username
+     *
+     * @return Patient Record
+     */
+    public function getPatientByEmergencyConact($emergency_portal_username)
+    {
+        $this->setPatientModel();
+        $params = new stdClass();
+        $params->filter[0] = new stdClass();
+        $params->filter[0]->property = 'emergency_contact_portal_username';
+        $params->filter[0]->value = $emergency_portal_username;
         $this->patient = $this->p->load($params)->one();
 
         if ($this->patient !== false) {

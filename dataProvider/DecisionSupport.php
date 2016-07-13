@@ -267,8 +267,6 @@ class DecisionSupport
             if($filter->property == 'category') unset($params->filter[$key]);
         }
 
-        error_log(print_r($params,true));
-
         // change property to filter concepts
         $params->filter[0]->property = 'rule_id';
         $params->filter[1]->property = 'concept_type';

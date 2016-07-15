@@ -18,14 +18,77 @@ class SoapHandler
 
     private $vDate = '/\d{4}-\d{2}-\d{2}/';
 
-    private $vDateTime = '/\d{4}-\d{2}-\d{2}/ \d{2}:\d{2}:\d{2}/';
+    /**
+     * This is the Mapping variable
+     * @var array
+     */
+    private $demographicsMap = [
+        'Pid' => 'pid',
+        'RecordNumber' => 'pubpid',
+        'AccountNumber' => 'pubaccount',
+        'Title' => 'title',
+        'FirstName' => 'fname',
+        'MiddleName' => 'mname',
+        'LastName' => 'lname',
+        'DateOfBirth' => 'DOB',
+        'Sex' => 'sex',
+        'MaritalStatus' => 'marital_status',
+        'Race' => 'race',
+        'Ethnicity' => 'ethnicity',
+        //'Religion' => 'pid',
+        'Language' => 'language',
+        'DriverLicence' => 'drivers_license',
+        'DriverLicenceState' => 'drivers_license_state',
+        'DriverLicenceExpirationDate' => 'drivers_license_exp',
+        'PhysicalAddressLineOne' => 'address',
+        'PhysicalAddressLineTwo' => 'address_cont',
+        'PhysicalCity' => 'city',
+        'PhysicalState' => 'state',
+        'PhysicalCountry' => 'country',
+        'PhysicalZipCode' => 'zipcode',
+        //'PostalAddressLineOne' => 'pid',
+        //'PostalAddressLineTwo' => 'pid',
+        //'PostalCity' => 'pid',
+        //'PostalState' => 'pid',
+        //'PostalZipCode' => 'pid',
+        'HomePhoneNumber' => 'home_phone',
+        'MobilePhoneNumber' => 'mobile_phone',
+        'WorkPhoneNumber' => 'work_phone',
+        'WorkPhoneExt' => 'work_phone_ext',
+        'Email' => 'email',
+        'ProfileImage' => 'image',
+        'IsBirthMultiple' => 'birth_multiple',
+        'BirthOrder' => 'birth_order',
+        'Deceased' => 'deceased',
+        'DeceaseDate' => 'death_date',
+        'MothersFirstName' => 'mothers_name',
+        //'MothersMiddleName' => 'pid',
+        //'MothersLastName' => 'pid',
+        'GuardiansFirstName' => 'guardians_name',
+        //'GuardiansMiddleName' => 'pid',
+        //'GuardiansLastName' => 'pid',
+        //'GuardiansPhone' => 'pid',
+        'EmergencyContactFirstName' => 'emer_contact',
+        //'EmergencyContactMiddleName' => 'pid',
+        //'EmergencyContactLastName' => 'pid',
+        'EmergencyContactPhone' => 'emer_phone',
+        'Occupation' => 'occupation',
+        'Employer' => 'employer_name',
+        'WebPortalUsername' => 'portal_username',
+        'WebPortalPassword' => 'portal_password',
+        'WebPortalAccess' => 'allow_patient_web_portal',
+        'EmergencyPortalAllow'      => 'allow_emergency_contact_web_portal',
+        'EmergencyPortalUsername'   => 'emergency_contact_portal_username',
+        'EmergencyPortalPassword'   => 'emergency_contact_portal_password',
+        'GuardianPortalAllow'       => 'allow_guardian_web_portal',
+        'GuardianPortalUsername'    => 'guardian_portal_password',
+        'GuardianPortalPassword'    => 'guardian_portal_username'
+    ];
 
     function constructor($params)
     {
         $this->params = $params;
-
         $this->site = isset($params->ServerSite) ? $params->ServerSite : 'default';
-
         $this->facility = isset($params->Facility) ? $params->Facility : '1';
 
         if (!defined('_GaiaEXEC')) define('_GaiaEXEC', 1);
@@ -70,28 +133,33 @@ class SoapHandler
         if (!isset($patient)) return $response;
 
         // Check the AUTH of a Patient Login
+        // Check for the password / allowance / Date of Birth of the Patient
         if ($patient->WebPortalPassword !== $params->Password ||
+            $patient->WebPortalAccess !== true ||
             substr($patient->DateOfBirth, 0, 10) !== $params->DateOfBirth
         ) {
             return $response;
         }
 
         // Check the AUTH of a Guardian Login
+        // Check for the password / allowance / Date of Birth of the Patient
         if ($patient->GuardianPortalPassword !== $params->Password ||
+            $patient->GuardianPortalAllow !== true ||
             substr($patient->DateOfBirth, 0, 10) !== $params->DateOfBirth
         ) {
             return $response;
         }
 
         // Check the AUTH of a Emergency Contact Login
+        // Check for the password / allowance / Date of Birth of the Patient
         if ($patient->EmergencyPortalPassword !== $params->Password ||
+            $patient->EmergencyPortalAllow !== true ||
             substr($patient->DateOfBirth, 0, 10) !== $params->DateOfBirth
         ) {
             return $response;
         }
 
         return $response;
-
 
         $response = [
             'Success' => true,
@@ -503,11 +571,7 @@ class SoapHandler
     private function convertPatient($data, $inbound)
     {
         $mapped = new \stdClass();
-
-        if (is_array($data)) {
-            $data = (object)$data;
-        }
-
+        if (is_array($data)) $data = (object)$data;
         if ($inbound) {
             foreach ($this->demographicsMap as $service => $gaia) {
                 if (isset($data->{$service})) {
@@ -535,69 +599,9 @@ class SoapHandler
         return $mapped;
     }
 
-    /**
-     * This is the Mapping variable
-     * @var array
-     */
-    private $demographicsMap = [
-        'Pid' => 'pid',
-        'RecordNumber' => 'pubpid',
-        'AccountNumber' => 'pubaccount',
-        'Title' => 'title',
-        'FirstName' => 'fname',
-        'MiddleName' => 'mname',
-        'LastName' => 'lname',
-        'DateOfBirth' => 'DOB',
-        'Sex' => 'sex',
-        'MaritalStatus' => 'marital_status',
-        'Race' => 'race',
-        'Ethnicity' => 'ethnicity',
-        //'Religion' => 'pid',
-        'Language' => 'language',
-        'DriverLicence' => 'drivers_license',
-        'DriverLicenceState' => 'drivers_license_state',
-        'DriverLicenceExpirationDate' => 'drivers_license_exp',
-        'PhysicalAddressLineOne' => 'address',
-        'PhysicalAddressLineTwo' => 'address_cont',
-        'PhysicalCity' => 'city',
-        'PhysicalState' => 'state',
-        'PhysicalCountry' => 'country',
-        'PhysicalZipCode' => 'zipcode',
-        //'PostalAddressLineOne' => 'pid',
-        //'PostalAddressLineTwo' => 'pid',
-        //'PostalCity' => 'pid',
-        //'PostalState' => 'pid',
-        //'PostalZipCode' => 'pid',
-        'HomePhoneNumber' => 'home_phone',
-        'MobilePhoneNumber' => 'mobile_phone',
-        'WorkPhoneNumber' => 'work_phone',
-        'WorkPhoneExt' => 'work_phone_ext',
-        'Email' => 'email',
-        'ProfileImage' => 'image',
-        'IsBirthMultiple' => 'birth_multiple',
-        'BirthOrder' => 'birth_order',
-        'Deceased' => 'deceased',
-        'DeceaseDate' => 'death_date',
-        'MothersFirstName' => 'mothers_name',
-        //'MothersMiddleName' => 'pid',
-        //'MothersLastName' => 'pid',
-        'GuardiansFirstName' => 'guardians_name',
-        //'GuardiansMiddleName' => 'pid',
-        //'GuardiansLastName' => 'pid',
-        //'GuardiansPhone' => 'pid',
-        'EmergencyContactFirstName' => 'emer_contact',
-        //'EmergencyContactMiddleName' => 'pid',
-        //'EmergencyContactLastName' => 'pid',
-        'EmergencyContactPhone' => 'emer_phone',
-        'Occupation' => 'occupation',
-        'Employer' => 'employer_name',
-        'WebPortalUsername' => 'portal_username',
-        'WebPortalPassword' => 'portal_password',
-        'WebPortalAccess' => 'allow_patient_web_portal',
-        'EmergencyPortalUsername' => 'emergency_contact_portal_username',
-        'EmergencyPortalPassword' => 'emergency_contact_portal_password',
-        'GuardianPortalUsername' => 'guardian_portal_password',
-        'GuardianPortalPassword' => 'guardian_portal_username'
-    ];
+    public function getPatientMessages(){
+
+    }
+
 
 }

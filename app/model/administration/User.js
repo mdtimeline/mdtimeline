@@ -261,11 +261,6 @@ Ext.define('App.model.administration.User', {
             type: 'string',
             len: 55
         },
-        {
-            name: 'interaction_severity',
-            type: 'string',
-            len: 5
-        },
 		{
 			name: 'postal_code',
 			type: 'string',

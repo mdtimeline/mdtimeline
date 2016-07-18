@@ -14059,10 +14059,10 @@ Ext.define('App.model.administration.User', {
 			len: 55
 		},
 		{
-			name: 'state',
-			type: 'string',
-			len: 55
-		},
+            name: 'state',
+            type: 'string',
+            len: 55
+        },
 		{
 			name: 'postal_code',
 			type: 'string',
@@ -43242,6 +43242,7 @@ Ext.define('App.controller.patient.RxOrders', {
 		form.getRecord().set({
 			RXCUI: record.data.RXCUI,
 			CODE: record.data.CODE,
+            GS_CODE: records.data.GS_CODE,
 			NDC: record.data.NDC
 		});
 
@@ -50269,6 +50270,40 @@ Ext.define('App.view.administration.Users', {
 															name: 'role_id',
 															allowBlank: false
 														}
+                                                        // {
+                                                        //     width: 300,
+                                                        //     xtype: 'combo',
+                                                        //     queryMode: 'local',
+                                                        //     fieldLabel: _('interaction_severity'),
+                                                        //     name: 'interaction_severity',
+                                                        //     allowBlank: false,
+                                                        //     displayField: 'severity_name',
+                                                        //     valueField: 'severity_value',
+                                                        //     store: Ext.create('Ext.data.Store', {
+                                                        //         fields: [
+                                                        //             'severity_name',
+                                                        //             'severity_value'
+                                                        //         ],
+                                                        //         data : [
+                                                        //             {
+                                                        //                 "severity_name":"All",
+                                                        //                 "severity_value":"all"
+                                                        //             },
+                                                        //             {
+                                                        //                 "severity_name":"High",
+                                                        //                 "severity_value":"high"
+                                                        //             },
+                                                        //             {
+                                                        //                 "severity_name":"Medium",
+                                                        //                 "severity_value":"medium"
+                                                        //             },
+                                                        //             {
+                                                        //                 "severity_name":"Low",
+                                                        //                 "severity_value":"low"
+                                                        //             }
+                                                        //         ]
+                                                        //     })
+                                                        // }
 													]
 												}
 											]
@@ -50472,7 +50507,7 @@ Ext.define('App.view.administration.Users', {
 		this.userStore.load();
 		callback(true);
 	}
-    
+
 });
 
 Ext.define('App.view.miscellaneous.AddressBook', {
@@ -58882,19 +58917,14 @@ Ext.define('App.view.patient.Encounter', {
 			}else{
 
 				if(a('edit_encounters')){
-
 					record = form.getRecord();
 					store = record.store;
 					values = me.addDefaultData(values);
 					record.set(values);
-
 					app.fireEvent('encounterbeforesync', me, store, form);
-
 					store.sync({
 						callback: function(){
-
 							app.fireEvent('encountersync', me, store, form);
-
 							me.msg('Sweet!', _('encounter_updated'));
 						}
 					});

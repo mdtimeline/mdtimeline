@@ -58,7 +58,7 @@ class Site {
 				return true;
 			}
 			if($userSite !== false && $requestSite != $userSite){
-				$_SESSION['user'] = null;
+				//$_SESSION['user'] = null;
 				return false;
 			}
 			return true;

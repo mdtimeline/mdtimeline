@@ -42,12 +42,12 @@ class MatchaSession extends Matcha
             ini_set('session.gc_probability', 1);
             ini_set('session.gc_divisor', 100);
 
-            session_cache_limiter('private');
-            session_cache_expire(1);
+            //session_cache_limiter('private');
+            //session_cache_expire(1);
             session_name($name);
             session_start();
-            if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
-            setcookie(session_name(),session_id(),time()+60, '/', null, false, true);
+//            if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
+//            setcookie(session_name(),session_id(),time()+60, '/', null, false, true);
 
             // Securing the Session
             $lifetime = 1800;

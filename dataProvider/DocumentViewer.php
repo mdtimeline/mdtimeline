@@ -18,11 +18,11 @@
  */
 if(!isset($_SESSION)){
     session_cache_limiter('private');
-    session_cache_expire(1);
+    //session_cache_expire(1);
     session_name('mdTimeLine');
     session_start();
-    if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
-    setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
+//    if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
+//    setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 }
 
 if(!isset($_REQUEST['token']) || str_replace(' ', '+', $_REQUEST['token']) != $_SESSION['user']['token']){
@@ -44,14 +44,19 @@ if(isset($_REQUEST['site'])){
 }
 
 require_once(ROOT . '/dataProvider/Site.php');
-\Site::$allowSiteSwitch = true;
+\Site::setAllowSiteSwitch(true);
 
 require_once(str_replace('\\', '/', dirname(__FILE__)) . '/../registry.php');
 
 ini_set('memory_limit', '1024M');
 ini_set('max_execution_time', 5);
 
-if(isset($_SESSION['user']) && (isset($_SESSION['user']['auth']) && $_SESSION['user']['auth'] == true) || (isset($_SESSION['user']['portal_authorized']) && $_SESSION['user']['portal_authorized'] == true)){
+if(
+	isset($_SESSION['user']) && (
+		(isset($_SESSION['user']['auth']) && $_SESSION['user']['auth'] == true) ||
+		(isset($_SESSION['user']['portal_authorized']) && $_SESSION['user']['portal_authorized'] == true)
+	)
+){
 	/**
 	 * init Matcha
 	 */

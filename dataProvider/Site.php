@@ -54,10 +54,16 @@ class Site {
 			);
 
 		if($authorized){
-			if(self::$allowSiteSwitch){
+			if(self::getAllowSiteSwitch()){
 				return true;
 			}
 			if($userSite !== false && $requestSite != $userSite){
+
+				error_log('**************** User set to null ********************');
+				error_log('$userSite = ' . $userSite);
+				error_log('$requestSite = ' . $requestSite);
+				error_log('******************************************************');
+
 				//$_SESSION['user'] = null;
 				return false;
 			}
@@ -65,5 +71,13 @@ class Site {
 		}
 
 		return true;
+	}
+
+	public static function setAllowSiteSwitch($allowSiteSwitch){
+		self::$allowSiteSwitch = $allowSiteSwitch;
+	}
+
+	public static function getAllowSiteSwitch(){
+		return self::$allowSiteSwitch;
 	}
 }

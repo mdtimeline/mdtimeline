@@ -74,7 +74,7 @@ class Site {
 				error_log('******************************************************');
 				error_log('******************************************************');
 
-				//$_SESSION['user'] = null;
+				$_SESSION['user'] = null;
 				return false;
 			}
 			return true;

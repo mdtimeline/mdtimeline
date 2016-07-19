@@ -180,13 +180,6 @@ class authProcedures {
 			$this->session->updateSession();
 			return array('authorized' => true, 'user' => $_SESSION['user']);
 		} elseif(isset($_SESSION['session_id']) && (isset($_SESSION['user']) && isset($_SESSION['user']['auth']) && !$_SESSION['user']['auth'])){
-			error_log('*****************************************');
-			error_log('*****************************************');
-			error_log('*****************************************');
-			error_log('Forced $this->unAuth();');
-			error_log('*****************************************');
-			error_log('*****************************************');
-			error_log('*****************************************');
 			$this->unAuth();
 			return array('authorized' => false);
 		}else{

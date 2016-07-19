@@ -24,18 +24,11 @@
 header('Content-type: text/html; charset=utf-8');
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
-//header("Expires: 0"); // Proxies.
-
-//ini_set('session.gc_maxlifetime', 24*60*60);
-//ini_set('session.gc_probability', 1);
-//ini_set('session.gc_divisor', 100);
 
 session_cache_limiter('private');
 session_name('mdTimeLine');
 session_start();
-//if(session_status() === PHP_SESSION_ACTIVE ){
-//	session_regenerate_id();
-//}
+
 define('_GaiaEXEC', 1);
 
 require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
@@ -190,17 +183,11 @@ function doRpc($cdata) {
 			}
 		}else{
 
-			error_log('***** un authorized ***********************************');
+			error_log('***** Not Authorized ***********************************');
 			if(isset($action)) error_log('$action = ' . print_r($action, true));
 			error_log('------------------------------------------------------');
 			if(isset($method)) error_log('$method = ' . print_r($method, true));
-			error_log('---------------------------------------------');
-			if(isset($_SESSION['user'])) error_log('$_SESSION[\'user\'] = ' . print_r($_SESSION['user'], true));
-			error_log('------------------------------------------------------');
-			if(isset($_SERVER)) error_log('$_SERVER = ' . print_r($_SERVER, true));
-			error_log('------------------------------------------------------');
-			if(isset($_REQUEST)) error_log('$_REQUEST = ' . print_r($_REQUEST, true));
-			error_log('*********************************************');
+			error_log('********************************************************');
 
 			throw new Exception('Not Authorized');
 		}
@@ -209,18 +196,6 @@ function doRpc($cdata) {
 		$r['type'] = 'exception';
 		$r['message'] = $e->getMessage();
 		$r['where'] = $e->getTraceAsString();
-	}
-
-	if(isset($_SESSION) && !isset($_SESSION['user'])){
-		error_log('****** no user ***********************************');
-		if(isset($action)) error_log('$action = ' . print_r($action, true));
-		error_log('------------------------------------------------------');
-		if(isset($method)) error_log('$method = ' . print_r($method, true));
-		error_log('------------------------------------------------------');
-		if(isset($_SERVER)) error_log('$_SERVER = ' . print_r($_SERVER, true));
-		error_log('------------------------------------------------------');
-		if(isset($_REQUEST)) error_log('$_REQUEST = ' . print_r($_REQUEST, true));
-		error_log('*********************************************');
 	}
 
 	return $r;

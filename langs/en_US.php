@@ -1673,6 +1673,5 @@ $LANG = array(
 	'stored_hash'                           => 'Stored Hash',
 	'current_hash'                          => 'Current Hash',
     'removal'                               => 'Removal',
-    'sure_for_removal'                      => 'Are you sure to remove this record?',
-    'interaction_severity'                  => 'Severity of DRUG interaction'
+    'sure_for_removal'                      => 'Are you sure to remove this record?'
 );

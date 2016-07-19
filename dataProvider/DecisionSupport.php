@@ -30,7 +30,6 @@ include_once(ROOT . '/lib/Matcha/plugins/Carbon/Carbon.php');
 
 class DecisionSupport
 {
-
     /**
      * @var MatchaCUP Rules Model
      */

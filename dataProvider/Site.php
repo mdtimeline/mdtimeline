@@ -59,9 +59,19 @@ class Site {
 			}
 			if($userSite !== false && $requestSite != $userSite){
 
-				error_log('**************** User set to null ********************');
+				error_log('******************************************************');
+				error_log('************** DoUserSiteValidation ******************');
+				error_log('******************************************************');
 				error_log('$userSite = ' . $userSite);
 				error_log('$requestSite = ' . $requestSite);
+				error_log('------------------------------------------------------');
+				if(isset($_SERVER)) error_log('$_SERVER = ' . print_r($_SERVER, true));
+				error_log('------------------------------------------------------');
+				if(isset($_REQUEST)) error_log('$_REQUEST = ' . print_r($_REQUEST, true));
+				error_log('------------------------------------------------------');
+				if(isset($_SESSION)) error_log('$_SESSION = ' . print_r($_SESSION, true));
+				error_log('******************************************************');
+				error_log('******************************************************');
 				error_log('******************************************************');
 
 				//$_SESSION['user'] = null;

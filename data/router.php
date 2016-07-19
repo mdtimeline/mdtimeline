@@ -190,9 +190,10 @@ function doRpc($cdata) {
 			}
 		}else{
 
-			error_log('*********************************************');
-			error_log(print_r($action, true));
-			error_log(print_r($method, true));
+			error_log('***** un authorized ***********************************');
+			if(isset($action)) error_log('$action = ' . print_r($action, true));
+			error_log('------------------------------------------------------');
+			if(isset($method)) error_log('$method = ' . print_r($method, true));
 			error_log('---------------------------------------------');
 			if(isset($_SESSION['user'])) error_log('$_SESSION[\'user\'] = ' . print_r($_SESSION['user'], true));
 			error_log('------------------------------------------------------');
@@ -211,7 +212,11 @@ function doRpc($cdata) {
 	}
 
 	if(isset($_SESSION) && !isset($_SESSION['user'])){
-		error_log('*********************************************');
+		error_log('****** no user ***********************************');
+		if(isset($action)) error_log('$action = ' . print_r($action, true));
+		error_log('------------------------------------------------------');
+		if(isset($method)) error_log('$method = ' . print_r($method, true));
+		error_log('------------------------------------------------------');
 		if(isset($_SERVER)) error_log('$_SERVER = ' . print_r($_SERVER, true));
 		error_log('------------------------------------------------------');
 		if(isset($_REQUEST)) error_log('$_REQUEST = ' . print_r($_REQUEST, true));

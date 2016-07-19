@@ -26,9 +26,9 @@ header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 //header("Expires: 0"); // Proxies.
 
-ini_set('session.gc_maxlifetime', 24*60*60);
-ini_set('session.gc_probability', 1);
-ini_set('session.gc_divisor', 100);
+//ini_set('session.gc_maxlifetime', 24*60*60);
+//ini_set('session.gc_probability', 1);
+//ini_set('session.gc_divisor', 100);
 
 session_cache_limiter('private');
 session_name('mdTimeLine');

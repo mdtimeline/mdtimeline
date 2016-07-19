@@ -17,9 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-ini_set('session.gc_maxlifetime', 24*60*60);
-ini_set('session.gc_probability', 1);
-ini_set('session.gc_divisor', 100);
+//ini_set('session.gc_maxlifetime', 24*60*60);
+//ini_set('session.gc_probability', 1);
+//ini_set('session.gc_divisor', 100);
 
 session_cache_limiter('private');
 session_name('mdTimeLine');

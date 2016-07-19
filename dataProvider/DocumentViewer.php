@@ -26,7 +26,17 @@ if(!isset($_SESSION)){
 //	if(session_status() === PHP_SESSION_ACTIVE ){
 //		session_regenerate_id();
 //	}
+
+	error_log('Entre!');
+
 }
+
+if(isset($_SESSION)){
+	error_log(print_r($_SESSION, true));
+}else{
+	error_log('No session found');
+}
+
 
 if(!isset($_REQUEST['token']) || str_replace(' ', '+', $_REQUEST['token']) != $_SESSION['user']['token']){
 	die('Not Authorized!');

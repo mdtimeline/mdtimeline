@@ -189,6 +189,18 @@ function doRpc($cdata) {
 				}
 			}
 		}else{
+
+			error_log('*********************************************');
+			error_log(print_r($action, true));
+			error_log(print_r($method, true));
+			error_log('---------------------------------------------');
+			if(isset($_SESSION['user'])) error_log('$_SESSION[\'user\'] = ' . print_r($_SESSION['user'], true));
+			error_log('------------------------------------------------------');
+			if(isset($_SERVER)) error_log('$_SERVER = ' . print_r($_SERVER, true));
+			error_log('------------------------------------------------------');
+			if(isset($_REQUEST)) error_log('$_REQUEST = ' . print_r($_REQUEST, true));
+			error_log('*********************************************');
+
 			throw new Exception('Not Authorized');
 		}
 

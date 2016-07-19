@@ -28,40 +28,40 @@ class MatchaSession extends Matcha
     {
         try
         {
-            header('Content-type: text/html; charset='.$charset);
-
-            // HTTP 1.1.
-            if ($cache) header("Cache-Control: no-cache, no-store, must-revalidate");
-
-            // HTTP 1.0.
-            if ($cache) header("Pragma: no-cache");
-
-            // Proxies.
-            if ($cache) header("Expires: 0");
-
-            ini_set('session.gc_probability', 1);
-            ini_set('session.gc_divisor', 100);
-
-            //session_cache_limiter('private');
-            //session_cache_expire(1);
-            session_name($name);
-            session_start();
-//            if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
-//            setcookie(session_name(),session_id(),time()+60, '/', null, false, true);
-
-            // Securing the Session
-            $lifetime = 1800;
-            session_cache_limiter('private');
-            session_set_cookie_params(
-                time()+$this->__lifetime,
-                $this->__name,
-                "localhost",
-                false,
-                $this->__httponly
-            );
-            session_cache_expire($this->__lifetime);
-            session_name($this->__name);
-            session_start();
+//            header('Content-type: text/html; charset='.$charset);
+//
+//            // HTTP 1.1.
+//            if ($cache) header("Cache-Control: no-cache, no-store, must-revalidate");
+//
+//            // HTTP 1.0.
+//            if ($cache) header("Pragma: no-cache");
+//
+//            // Proxies.
+//            if ($cache) header("Expires: 0");
+//
+//            ini_set('session.gc_probability', 1);
+//            ini_set('session.gc_divisor', 100);
+//
+//            //session_cache_limiter('private');
+//            //session_cache_expire(1);
+//            session_name($name);
+//            session_start();
+////            if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
+////            setcookie(session_name(),session_id(),time()+60, '/', null, false, true);
+//
+//            // Securing the Session
+//            $lifetime = 1800;
+//            session_cache_limiter('private');
+//            session_set_cookie_params(
+//                time()+$this->__lifetime,
+//                $this->__name,
+//                "localhost",
+//                false,
+//                $this->__httponly
+//            );
+//            session_cache_expire($this->__lifetime);
+//            session_name($this->__name);
+//            session_start();
         }
         catch(PDOException $e)
         {

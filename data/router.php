@@ -33,9 +33,9 @@ header("Pragma: no-cache"); // HTTP 1.0.
 session_cache_limiter('private');
 session_name('mdTimeLine');
 session_start();
-if(session_status() === PHP_SESSION_ACTIVE ){
-	session_regenerate_id();
-}
+//if(session_status() === PHP_SESSION_ACTIVE ){
+//	session_regenerate_id();
+//}
 define('_GaiaEXEC', 1);
 
 require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
@@ -209,6 +209,15 @@ function doRpc($cdata) {
 		$r['message'] = $e->getMessage();
 		$r['where'] = $e->getTraceAsString();
 	}
+
+	if(isset($_SESSION) && !isset($_SESSION['user'])){
+		error_log('*********************************************');
+		if(isset($_SERVER)) error_log('$_SERVER = ' . print_r($_SERVER, true));
+		error_log('------------------------------------------------------');
+		if(isset($_REQUEST)) error_log('$_REQUEST = ' . print_r($_REQUEST, true));
+		error_log('*********************************************');
+	}
+
 	return $r;
 }
 

@@ -23,9 +23,9 @@ if(!isset($_SESSION)){
 	session_cache_limiter('private');
 	session_name('mdTimeLine');
 	session_start();
-	if(session_status() === PHP_SESSION_ACTIVE ){
-		session_regenerate_id();
-	}
+//	if(session_status() === PHP_SESSION_ACTIVE ){
+//		session_regenerate_id();
+//	}
 }
 
 if(!isset($_REQUEST['token']) || str_replace(' ', '+', $_REQUEST['token']) != $_SESSION['user']['token']){

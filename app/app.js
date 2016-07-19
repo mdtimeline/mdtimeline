@@ -50270,40 +50270,6 @@ Ext.define('App.view.administration.Users', {
 															name: 'role_id',
 															allowBlank: false
 														}
-                                                        // {
-                                                        //     width: 300,
-                                                        //     xtype: 'combo',
-                                                        //     queryMode: 'local',
-                                                        //     fieldLabel: _('interaction_severity'),
-                                                        //     name: 'interaction_severity',
-                                                        //     allowBlank: false,
-                                                        //     displayField: 'severity_name',
-                                                        //     valueField: 'severity_value',
-                                                        //     store: Ext.create('Ext.data.Store', {
-                                                        //         fields: [
-                                                        //             'severity_name',
-                                                        //             'severity_value'
-                                                        //         ],
-                                                        //         data : [
-                                                        //             {
-                                                        //                 "severity_name":"All",
-                                                        //                 "severity_value":"all"
-                                                        //             },
-                                                        //             {
-                                                        //                 "severity_name":"High",
-                                                        //                 "severity_value":"high"
-                                                        //             },
-                                                        //             {
-                                                        //                 "severity_name":"Medium",
-                                                        //                 "severity_value":"medium"
-                                                        //             },
-                                                        //             {
-                                                        //                 "severity_name":"Low",
-                                                        //                 "severity_value":"low"
-                                                        //             }
-                                                        //         ]
-                                                        //     })
-                                                        // }
 													]
 												}
 											]

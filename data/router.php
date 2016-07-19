@@ -209,6 +209,15 @@ function doRpc($cdata) {
 		$r['message'] = $e->getMessage();
 		$r['where'] = $e->getTraceAsString();
 	}
+
+	if(isset($_SESSION) && !isset($_SESSION['user'])){
+		error_log('*********************************************');
+		if(isset($_SERVER)) error_log('$_SERVER = ' . print_r($_SERVER, true));
+		error_log('------------------------------------------------------');
+		if(isset($_REQUEST)) error_log('$_REQUEST = ' . print_r($_REQUEST, true));
+		error_log('*********************************************');
+	}
+
 	return $r;
 }
 

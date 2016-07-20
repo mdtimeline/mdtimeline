@@ -43238,11 +43238,11 @@ Ext.define('App.controller.patient.RxOrders', {
 		var form = combo.up('form').getForm(),
 			insCmb = this.getRxOrderMedicationInstructionsCombo(),
             store;
-
+        
 		form.getRecord().set({
 			RXCUI: record.data.RXCUI,
 			CODE: record.data.CODE,
-            GS_CODE: records.data.GS_CODE,
+            GS_CODE: record.data.GS_CODE,
 			NDC: record.data.NDC
 		});
 

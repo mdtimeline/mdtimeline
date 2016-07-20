@@ -74,6 +74,7 @@ class SnomedCodes {
 		$sth = $this->conn->prepare($sql);
 		$sth->execute([':c1' => '%'.$params->query.'%', ':c2' => $params->query.'%']);
 		$results = $sth->fetchAll(PDO::FETCH_ASSOC);
+
 		return [
 			'totals' => count($results),
 		    'data' => array_slice($results, $params->start, $params->limit)

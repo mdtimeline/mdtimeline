@@ -312,7 +312,7 @@ Ext.define('App.view.patient.Messages', {
 	 */
 	onNewMessage: function(){
 		var form = this.msgForm,
-			record = Ext.create('App.model.messages.Messages', {
+			record = Ext.create('App.model.patient.Messages', {
 				message_status: _('new'),
 				note_type: _('unassigned')
 			});

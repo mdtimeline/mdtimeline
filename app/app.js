@@ -14059,10 +14059,10 @@ Ext.define('App.model.administration.User', {
 			len: 55
 		},
 		{
-			name: 'state',
-			type: 'string',
-			len: 55
-		},
+            name: 'state',
+            type: 'string',
+            len: 55
+        },
 		{
 			name: 'postal_code',
 			type: 'string',
@@ -43238,10 +43238,11 @@ Ext.define('App.controller.patient.RxOrders', {
 		var form = combo.up('form').getForm(),
 			insCmb = this.getRxOrderMedicationInstructionsCombo(),
             store;
-
+        
 		form.getRecord().set({
 			RXCUI: record.data.RXCUI,
 			CODE: record.data.CODE,
+            GS_CODE: record.data.GS_CODE,
 			NDC: record.data.NDC
 		});
 
@@ -50472,7 +50473,7 @@ Ext.define('App.view.administration.Users', {
 		this.userStore.load();
 		callback(true);
 	}
-    
+
 });
 
 Ext.define('App.view.miscellaneous.AddressBook', {
@@ -58882,19 +58883,14 @@ Ext.define('App.view.patient.Encounter', {
 			}else{
 
 				if(a('edit_encounters')){
-
 					record = form.getRecord();
 					store = record.store;
 					values = me.addDefaultData(values);
 					record.set(values);
-
 					app.fireEvent('encounterbeforesync', me, store, form);
-
 					store.sync({
 						callback: function(){
-
 							app.fireEvent('encountersync', me, store, form);
-
 							me.msg('Sweet!', _('encounter_updated'));
 						}
 					});

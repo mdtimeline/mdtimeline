@@ -37,7 +37,7 @@
   KEY `IK_perm_key` (`perm_key`),
   KEY `IK_seq` (`seq`),
   KEY `IK_active` (`active`)
-) ENGINE=InnoDB AUTO_INCREMENT=158 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `acl_role_perms`;CREATE TABLE `acl_role_perms` (
+) ENGINE=InnoDB AUTO_INCREMENT=169 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `acl_role_perms`;CREATE TABLE `acl_role_perms` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `value` tinyint(1) DEFAULT NULL,
   `role_id` int(11) DEFAULT NULL,
@@ -162,6 +162,7 @@
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `documents_templates`;CREATE TABLE `documents_templates` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `facility_id` int(11) DEFAULT NULL,
   `title` varchar(50) DEFAULT NULL,
   `template_type` varchar(50) DEFAULT NULL,
   `body` text,
@@ -171,8 +172,20 @@
   `created_by_uid` int(11) DEFAULT NULL,
   `updated_by_uid` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `template_type` (`template_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `encounter_event_history`;CREATE TABLE `encounter_event_history` (
+  KEY `template_type` (`template_type`),
+  KEY `IK_facility_id` (`facility_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `education_resources`;CREATE TABLE `education_resources` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `code` varchar(15) DEFAULT NULL,
+  `code_text` varchar(300) DEFAULT NULL,
+  `code_type` varchar(10) DEFAULT NULL,
+  `title` varchar(180) DEFAULT NULL,
+  `publication_date` datetime DEFAULT NULL,
+  `version` varchar(10) DEFAULT NULL,
+  `path` varchar(600) DEFAULT NULL,
+  `activve` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;DROP TABLE IF EXISTS `encounter_event_history`;CREATE TABLE `encounter_event_history` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `eid` int(11) DEFAULT NULL COMMENT 'Encounter ID',
   `pid` int(11) DEFAULT NULL COMMENT 'Patient ID',
@@ -426,12 +439,12 @@
   KEY `IK_code` (`code`),
   KEY `IK_list_id` (`list_id`),
   KEY `IK_option_value` (`option_value`)
-) ENGINE=InnoDB AUTO_INCREMENT=3024 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `combo_lists`;CREATE TABLE `combo_lists` (
+) ENGINE=InnoDB AUTO_INCREMENT=3071 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `combo_lists`;CREATE TABLE `combo_lists` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) DEFAULT NULL COMMENT 'Title of the combo',
   `active` tinyint(1) DEFAULT NULL COMMENT 'Active?',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=137 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `rxinstructions`;CREATE TABLE `rxinstructions` (
+) ENGINE=InnoDB AUTO_INCREMENT=141 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `rxinstructions`;CREATE TABLE `rxinstructions` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `rxcui` varchar(255) DEFAULT NULL,
   `occurrence` int(11) DEFAULT NULL,
@@ -604,8 +617,11 @@
   PRIMARY KEY (`id`),
   KEY `pid` (`pid`),
   KEY `eid` (`eid`),
-  KEY `uid` (`uid`)
-) ENGINE=InnoDB AUTO_INCREMENT=1378001 DEFAULT CHARSET=utf8 COMMENT='Data INSERT UPDATE DELETE Logs';DROP TABLE IF EXISTS `users`;CREATE TABLE `users` (
+  KEY `uid` (`uid`),
+  KEY `IK_table_name` (`table_name`),
+  KEY `IK_event` (`event`),
+  KEY `IK_date` (`date`)
+) ENGINE=InnoDB AUTO_INCREMENT=26084 DEFAULT CHARSET=utf8 COMMENT='Data INSERT UPDATE DELETE Logs';DROP TABLE IF EXISTS `users`;CREATE TABLE `users` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `code` varchar(40) DEFAULT NULL,
   `role_id` int(11) DEFAULT NULL COMMENT 'acl_user_roles relation',
@@ -672,7 +688,7 @@
   `logout` int(11) DEFAULT NULL,
   `last_request` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5259 DEFAULT CHARSET=latin1;DROP TABLE IF EXISTS `patient_pools`;CREATE TABLE `patient_pools` (
+) ENGINE=InnoDB AUTO_INCREMENT=5296 DEFAULT CHARSET=latin1;DROP TABLE IF EXISTS `patient_pools`;CREATE TABLE `patient_pools` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `pid` bigint(20) DEFAULT NULL,
   `uid` bigint(20) DEFAULT NULL COMMENT 'user id that is treating the patient',
@@ -857,7 +873,7 @@
   PRIMARY KEY (`id`),
   KEY `pid` (`pid`),
   KEY `eid` (`eid`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `patient_appointment_requests`;CREATE TABLE `patient_appointment_requests` (
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `patient_appointment_requests`;CREATE TABLE `patient_appointment_requests` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `pid` int(11) DEFAULT NULL,
   `eid` int(11) DEFAULT NULL,
@@ -1176,7 +1192,7 @@
   PRIMARY KEY (`id`),
   KEY `pid` (`pid`),
   KEY `eid` (`eid`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `patient_notes`;CREATE TABLE `patient_notes` (
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `patient_notes`;CREATE TABLE `patient_notes` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `pid` int(11) DEFAULT NULL,
   `eid` int(11) DEFAULT NULL,
@@ -1219,6 +1235,9 @@
   `allow_immunization_info_sharing` tinyint(1) DEFAULT NULL,
   `allow_health_info_exchange` tinyint(1) DEFAULT NULL,
   `allow_patient_web_portal` tinyint(1) DEFAULT NULL,
+  `allow_guardian_web_portal` tinyint(1) DEFAULT NULL,
+  `allow_emergency_contact_web_portal` tinyint(1) DEFAULT NULL,
+  `organ_donor_code` varchar(10) DEFAULT NULL,
   `occupation` varchar(40) DEFAULT NULL COMMENT 'patient occupation',
   `employer_name` varchar(40) DEFAULT NULL COMMENT 'employer name',
   `employer_address` varchar(40) DEFAULT NULL COMMENT 'employer address',
@@ -1259,23 +1278,47 @@
   `postal_city` varchar(35) DEFAULT NULL,
   `postal_state` varchar(35) DEFAULT NULL,
   `postal_zip` varchar(35) DEFAULT NULL,
+  `postal_country` varchar(35) DEFAULT NULL,
   `physical_address` varchar(40) DEFAULT NULL,
   `physical_address_cont` varchar(40) DEFAULT NULL,
   `physical_city` varchar(35) DEFAULT NULL,
   `physical_state` varchar(35) DEFAULT NULL,
   `physical_zip` varchar(35) DEFAULT NULL,
+  `physical_country` varchar(35) DEFAULT NULL,
+  `mother_fname` varchar(80) DEFAULT NULL,
+  `mother_mname` varchar(80) DEFAULT NULL,
+  `mother_lname` varchar(80) DEFAULT NULL,
+  `father_fname` varchar(80) DEFAULT NULL,
+  `father_mname` varchar(80) DEFAULT NULL,
+  `father_lname` varchar(80) DEFAULT NULL,
   `guardians_relation` varchar(20) DEFAULT NULL,
   `guardians_fname` varchar(80) DEFAULT NULL,
   `guardians_mname` varchar(80) DEFAULT NULL,
   `guardians_lname` varchar(80) DEFAULT NULL,
   `guardians_phone` varchar(20) DEFAULT NULL,
   `guardians_phone_type` varchar(10) DEFAULT NULL,
+  `guardians_address` varchar(35) DEFAULT NULL,
+  `guardians_address_cont` varchar(35) DEFAULT NULL,
+  `guardians_city` varchar(40) DEFAULT NULL,
+  `guardians_state` varchar(40) DEFAULT NULL,
+  `guardians_country` varchar(80) DEFAULT NULL,
+  `guardians_zip` varchar(15) DEFAULT NULL,
+  `guardian_portal_password` blob,
+  `guardian_portal_username` varchar(40) DEFAULT NULL,
   `emergency_contact_relation` varchar(20) DEFAULT NULL,
   `emergency_contact_fname` varchar(80) DEFAULT NULL,
   `emergency_contact_mname` varchar(80) DEFAULT NULL,
   `emergency_contact_lname` varchar(80) DEFAULT NULL,
   `emergency_contact_phone` varchar(20) DEFAULT NULL,
   `emergency_contact_phone_type` varchar(10) DEFAULT NULL,
+  `emergency_contact_address` varchar(35) DEFAULT NULL,
+  `emergency_contact_address_cont` varchar(35) DEFAULT NULL,
+  `emergency_contact_city` varchar(40) DEFAULT NULL,
+  `emergency_contact_state` varchar(40) DEFAULT NULL,
+  `emergency_contact_country` varchar(80) DEFAULT NULL,
+  `emergency_contact_zip` varchar(15) DEFAULT NULL,
+  `emergency_contact_portal_password` blob,
+  `emergency_contact_portal_username` varchar(40) DEFAULT NULL,
   PRIMARY KEY (`pid`),
   KEY `fname` (`fname`),
   KEY `mname` (`mname`),
@@ -1287,7 +1330,9 @@
   KEY `drivers_license` (`drivers_license`),
   KEY `LiveSearchIndex` (`pid`,`pubpid`,`fname`,`mname`,`lname`,`SS`),
   KEY `pubaccount` (`pubaccount`),
-  KEY `IK_DOB` (`DOB`)
+  KEY `IK_DOB` (`DOB`),
+  KEY `IK_guardian_web_portal` (`allow_guardian_web_portal`,`guardian_portal_username`),
+  KEY `IK_emergency_contact_web_portal` (`allow_emergency_contact_web_portal`,`emergency_contact_portal_username`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9573 DEFAULT CHARSET=utf8 COMMENT='Patients/Demographics';DROP TABLE IF EXISTS `patient_active_problems`;CREATE TABLE `patient_active_problems` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `pid` int(11) DEFAULT NULL,
@@ -1299,7 +1344,6 @@
   `end_date` date DEFAULT NULL,
   `occurrence` varchar(255) DEFAULT NULL,
   `referred_by` varchar(50) DEFAULT NULL,
-  `status` varchar(40) DEFAULT NULL,
   `create_date` datetime DEFAULT NULL,
   `update_date` datetime DEFAULT NULL,
   `created_uid` bigint(20) DEFAULT NULL COMMENT 'created by User ID',
@@ -1310,7 +1354,7 @@
   PRIMARY KEY (`id`),
   KEY `pid` (`pid`),
   KEY `eid` (`eid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `patient_chart_checkout`;CREATE TABLE `patient_chart_checkout` (
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `patient_chart_checkout`;CREATE TABLE `patient_chart_checkout` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `pid` int(11) DEFAULT NULL,
   `uid` int(11) DEFAULT NULL,
@@ -1319,7 +1363,7 @@
   `pool_area_id` int(11) DEFAULT NULL,
   `read_only` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2653 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `patient_contacts`;CREATE TABLE `patient_contacts` (
+) ENGINE=InnoDB AUTO_INCREMENT=2766 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `patient_contacts`;CREATE TABLE `patient_contacts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `pid` int(11) NOT NULL,
   `uid` int(11) NOT NULL,
@@ -1356,6 +1400,10 @@
   `hash` varchar(255) DEFAULT NULL,
   `encrypted` tinyint(1) DEFAULT '0',
   `document` longblob,
+  `entered_in_error` tinyint(1) DEFAULT NULL,
+  `error_note` varchar(300) DEFAULT NULL,
+  `document_instance` varchar(10) DEFAULT NULL,
+  `document_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `eid` (`eid`),
   KEY `pid` (`pid`),
@@ -1373,6 +1421,7 @@
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `pid` int(11) DEFAULT NULL,
   `eid` int(11) DEFAULT NULL,
+  `facility_id` int(11) DEFAULT NULL,
   `uid` bigint(20) DEFAULT NULL,
   `code` varchar(10) DEFAULT NULL COMMENT 'vaccine code (CVX)',
   `code_type` varchar(15) DEFAULT NULL,
@@ -1383,8 +1432,19 @@
   `administered_date` datetime DEFAULT NULL,
   `administered_uid` int(11) DEFAULT NULL,
   `manufacturer` varchar(180) DEFAULT NULL,
+  `education_resource_1_id` int(11) DEFAULT NULL,
+  `education_resource_2_id` int(11) DEFAULT NULL,
+  `education_resource_3_id` int(11) DEFAULT NULL,
+  `education_presented_1_date` datetime DEFAULT NULL,
+  `education_presented_2_date` datetime DEFAULT NULL,
+  `education_presented_3_date` datetime DEFAULT NULL,
   `education_date` date DEFAULT NULL,
+  `vfc_code` varchar(40) DEFAULT NULL,
+  `information_source_code` varchar(10) DEFAULT NULL,
+  `refusal_reason_code` varchar(10) DEFAULT NULL,
   `education_doc_published` date DEFAULT NULL,
+  `is_presumed_immunity` tinyint(1) DEFAULT NULL,
+  `presumed_immunity_code` varchar(20) DEFAULT NULL,
   `note` varchar(300) DEFAULT NULL,
   `create_date` datetime DEFAULT NULL,
   `created_uid` bigint(20) DEFAULT NULL COMMENT 'created by User ID',
@@ -1393,9 +1453,11 @@
   `administration_site` varchar(40) DEFAULT NULL,
   `route` varchar(40) DEFAULT NULL,
   `is_error` tinyint(1) DEFAULT NULL,
+  `error_note` varchar(300) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `pid` (`pid`),
-  KEY `eid` (`eid`)
+  KEY `eid` (`eid`),
+  KEY `IK_facility_id` (`facility_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `patient_social_history`;CREATE TABLE `patient_social_history` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `eid` int(11) DEFAULT NULL COMMENT 'encounter id',
@@ -1477,6 +1539,8 @@
   `create_date` datetime DEFAULT NULL,
   `void` tinyint(1) DEFAULT NULL COMMENT 'VOID the order',
   `void_comment` varchar(100) DEFAULT NULL COMMENT 'VOID comments',
+  `study_uid` varchar(160) DEFAULT NULL,
+  `study_link` varchar(600) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `order_id` (`order_id`),
   KEY `lab_order_id` (`lab_order_id`),

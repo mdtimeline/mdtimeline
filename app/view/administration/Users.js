@@ -450,5 +450,5 @@ Ext.define('App.view.administration.Users', {
 		this.userStore.load();
 		callback(true);
 	}
-    
+
 });

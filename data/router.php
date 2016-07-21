@@ -24,14 +24,10 @@
 header('Content-type: text/html; charset=utf-8');
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
-header("Expires: 0"); // Proxies.
 
 session_cache_limiter('private');
-session_cache_expire(1);
 session_name('mdTimeLine');
 session_start();
-if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
-setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 
 define('_GaiaEXEC', 1);
 
@@ -110,7 +106,7 @@ function doRpc($cdata) {
 	global $API, $module;
 	try {
 		if(!isset($cdata->action)){
-			throw new Exception('Call to undefined action: ' . $cdata->action);
+			throw new Exception('Call to undefined action');
 		}
 		$action = $cdata->action;
 		$a = $API[$action];
@@ -124,6 +120,7 @@ function doRpc($cdata) {
 			(isset($_SESSION['user']['auth']) && $_SESSION['user']['auth'] == true) ||
 			(isset($_SESSION['user']['portal_authorized']) && $_SESSION['user']['portal_authorized'] == true ) ||
 			($action == 'authProcedures' && $method == 'login') ||
+			($action == 'authProcedures' && $method == 'ckAuth') ||
 			($action == 'PortalAuthorize' && $method == 'login') ||
 			($action == 'PortalAuthorize' && $method == 'check') ||
 			($action == 'PortalAuthorize' && $method == 'passwordReset') ||
@@ -186,6 +183,13 @@ function doRpc($cdata) {
 				}
 			}
 		}else{
+
+			error_log('***** Not Authorized ***********************************');
+			if(isset($action)) error_log('$action = ' . print_r($action, true));
+			error_log('------------------------------------------------------');
+			if(isset($method)) error_log('$method = ' . print_r($method, true));
+			error_log('********************************************************');
+
 			throw new Exception('Not Authorized');
 		}
 
@@ -194,6 +198,7 @@ function doRpc($cdata) {
 		$r['message'] = $e->getMessage();
 		$r['where'] = $e->getTraceAsString();
 	}
+
 	return $r;
 }
 

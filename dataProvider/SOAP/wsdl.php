@@ -362,7 +362,43 @@ $complexTypes['Patient'] = [
 		'type' => 'bool',
 		'minOccurs' => '0',
 		'document' => 'Patient Web Portal Allow Access'
-	]
+	],
+    [
+        'name' => 'EmergencyPortalAllow',
+        'type' => 'bool',
+        'minOccurs' => '0',
+        'document' => 'Emergency Portal Web Access'
+    ],
+    [
+        'name' => 'EmergencyPortalUsername',
+        'type' => 'string',
+        'minOccurs' => '0',
+        'document' => 'Emergency Portal Username'
+    ],
+    [
+        'name' => 'EmergencyPortalPassword',
+        'type' => 'string',
+        'minOccurs' => '0',
+        'document' => 'Emergency Portal Password'
+    ],
+    [
+        'name' => 'GuardianPortalAllow',
+        'type' => 'bool',
+        'minOccurs' => '0',
+        'document' => 'Guardian Portal Web Access'
+    ],
+    [
+        'name' => 'GuardianPortalUsername',
+        'type' => 'string',
+        'minOccurs' => '0',
+        'document' => 'Guardian Portal Username'
+    ],
+    [
+        'name' => 'GuardianPortalPassword',
+        'type' => 'string',
+        'minOccurs' => '0',
+        'document' => 'Guardian Portal Password'
+    ]
 
 ];
 

@@ -155,7 +155,7 @@
     },
     {
         "id": 36,
-        "perm_key": "access_gloabal_settings",
+        "perm_key": "access_global_settings",
         "perm_name": "Access to Global Settings",
         "perm_cat": "Administrators",
         "seq": 1

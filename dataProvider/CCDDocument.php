@@ -20,14 +20,14 @@
 header('Content-type: text/html; charset=utf-8');
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
-header("Expires: 0"); // Proxies.
+//header("Expires: 0"); // Proxies.
 
 session_cache_limiter('private');
-session_cache_expire(1);
+//session_cache_expire(1);
 session_name('mdTimeLine');
 session_start();
-if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
-setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
+//if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
+//setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 
 $site = isset($_SESSION['user']['site']) ? $_SESSION['user']['site'] : 'default';
 if(!defined('_GaiaEXEC'))

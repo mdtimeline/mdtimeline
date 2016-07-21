@@ -18,19 +18,12 @@
  */
 
 session_cache_limiter('private');
-session_cache_expire(1);
 session_name('mdTimeLine');
 session_start();
-if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
-setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 
 header('Content-type: text/html; charset=utf-8');
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
-header("Expires: 0"); // Proxies.
-
-ini_set('session.gc_probability', 1);
-ini_set('session.gc_divisor', 100);
 
 define('_GaiaEXEC', 1);
 

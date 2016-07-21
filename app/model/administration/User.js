@@ -257,10 +257,10 @@ Ext.define('App.model.administration.User', {
 			len: 55
 		},
 		{
-			name: 'state',
-			type: 'string',
-			len: 55
-		},
+            name: 'state',
+            type: 'string',
+            len: 55
+        },
 		{
 			name: 'postal_code',
 			type: 'string',

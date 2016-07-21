@@ -129,7 +129,7 @@ class Navigation
                 'text' => $this->i18n('messages'),
                 'leaf' => true,
                 'cls' => 'file',
-                'id' => 'App.view.messages.Messages'
+                'id' => 'App.view.patient.Messages'
             ];
         }
 		array_push($nav, $patient);

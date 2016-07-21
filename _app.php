@@ -559,11 +559,10 @@ header("Access-Control-Allow-Origin: *");
 					'patient.charts.WeightForAgeInf',
 					'patient.charts.WeightForRecumbentInf',
 					'patient.charts.WeightForStature',
+                    'patient.Messages',
 					'areas.PatientArea',
 					'areas.PoolArea',
-					'areas.PoolDropAreas',
-
-                    'messages.Messages'
+					'areas.PoolDropAreas'
 				],
                 stores:[
 	                'miscellaneous.AddressBook',
@@ -683,7 +682,7 @@ header("Access-Control-Allow-Origin: *");
 	                'areas.PatientAreas',
 	                'areas.PoolAreas',
 	                'areas.PoolDropAreas',
-                    'messages.Messages'
+                    'patient.Messages'
                 ],
                 views:[
 	                /**
@@ -696,7 +695,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.windows.NewEncounter',
 	                'patient.windows.ArrivalLog',
 	                'patient.windows.EncounterCheckOut',
-	                'patient.windows.DocumentErrorNote'
+	                'patient.windows.DocumentErrorNote',
 	                /**
 	                 * Load the patient related panels
 	                 */
@@ -711,7 +710,6 @@ header("Access-Control-Allow-Origin: *");
 	                /**
 	                 * Load the root related panels
 	                 */
-	                'messages.Messages',
 	                /**
 	                 * Load the areas related panels
 	                 */
@@ -753,6 +751,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.Visits',
 	                'patient.windows.Medical',
 	                'patient.VisitCheckout',
+                    'patient.Messages',
 	                /**
 	                 * Load the fees related panels
 	                 */

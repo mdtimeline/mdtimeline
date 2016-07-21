@@ -604,6 +604,7 @@ class DecisionSupport
      */
     private function isWithInterval($date, $interval, $operator = '=', $dateFormat = 'Y-m-d')
     {
+        if(!isset($interval[1])) return;
         $now = Carbon::now();
         $date = Carbon::createFromFormat($dateFormat, $date);
         switch (strtoupper($interval[1])) {

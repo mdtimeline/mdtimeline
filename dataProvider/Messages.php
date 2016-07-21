@@ -20,116 +20,119 @@
 include_once(ROOT . '/classes/Time.php');
 include_once(ROOT . '/dataProvider/Person.php');
 
-class Messages extends MatchaHelper {
-	/**
-	 * Data Objects
-	 */
-	private $Patient = null;
-	private $User = null;
-	private $Messages = null;
+class Messages extends MatchaHelper
+{
+    /**
+     * Data Objects
+     */
+    private $Patient = null;
+    private $User = null;
+    private $Messages = null;
 
-	//------------------------------------------------------------------------------------------------------------------
-	// Main Sencha Model Getter and Setters
-	//------------------------------------------------------------------------------------------------------------------
-	public function getMessages(stdClass $params) {
-		$messages = array();
-		$Where = new stdClass();
+    public function getMessages(stdClass $params)
+    {
+        $messages = array();
+        $Where = new stdClass();
 
-        if(!isset($this->Patient))
-			$this->Patient = MatchaModel::setSenchaModel('App.model.patient.Patient');
-        if(!isset($this->User))
-			$this->User = MatchaModel::setSenchaModel('App.model.administration.User');
-        if(!isset($this->Messages))
-			$this->Messages = MatchaModel::setSenchaModel('App.model.messages.Messages');
+        if (!isset($this->Patient))
+            $this->Patient = MatchaModel::setSenchaModel('App.model.patient.Patient');
+        if (!isset($this->User))
+            $this->User = MatchaModel::setSenchaModel('App.model.administration.User');
+        if (!isset($this->Messages))
+            $this->Messages = MatchaModel::setSenchaModel('App.model.messages.Messages');
 
-		$uid = $_SESSION['user']['id'];
+        $uid = $_SESSION['user']['id'];
 
-		if(isset($params->get)){
-			if($params->get == 'inbox'){
-				$Where->to_deleted = 0;
-				$Where->to_id = $uid;
-			}
-			if($params->get == 'sent'){
-				$Where->from_deleted = 0;
-				$Where->from_id = $uid;
-			}
-			if($params->get == 'trash'){
-				$Where->to_deleted = 1;
-				$Where->to_id = $uid;
-				$Where->from_deleted = 1;
-			}
-		} else {
-			$Where = null;
-		}
-		foreach($this->Messages->load($Where)->all() as $row){
-			$UserTo = $this->User->load(array('id' => $row['to_id']))->one();
-			$row['to_user'] = $UserTo['title'] . ' ' . Person::fullname($UserTo['fname'], $UserTo['mname'], $UserTo['lname']);
+        if (isset($params->get)) {
+            if ($params->get == 'inbox') {
+                $Where->to_deleted = 0;
+                $Where->to_id = $uid;
+            }
+            if ($params->get == 'sent') {
+                $Where->from_deleted = 0;
+                $Where->from_id = $uid;
+            }
+            if ($params->get == 'trash') {
+                $Where->to_deleted = 1;
+                $Where->to_id = $uid;
+                $Where->from_deleted = 1;
+            }
+        } else {
+            $Where = null;
+        }
+        foreach ($this->Messages->load($Where)->all() as $row) {
+            $UserTo = $this->User->load(array('id' => $row['to_id']))->one();
+            $row['to_user'] = $UserTo['title'] . ' ' . Person::fullname($UserTo['fname'], $UserTo['mname'], $UserTo['lname']);
 
-			$Patient = $this->Patient->load(array('pid' => $row['pid']))->one();
-			$row['patient_name'] = Person::fullname($Patient['fname'], $Patient['mname'], $Patient['lname']);
+            $Patient = $this->Patient->load(array('pid' => $row['pid']))->one();
+            $row['patient_name'] = Person::fullname($Patient['fname'], $Patient['mname'], $Patient['lname']);
 
-			$UserFrom = $this->User->load(array('id' => $row['from_id']))->one();
-			$row['from_user'] = $UserFrom['title'] . ' ' . Person::fullname($UserFrom['fname'], $UserFrom['mname'], $UserFrom['lname']);
-			array_push($messages, $row);
-		}
-		return $messages;
-	}
+            $UserFrom = $this->User->load(array('id' => $row['from_id']))->one();
+            $row['from_user'] = $UserFrom['title'] . ' ' . Person::fullname($UserFrom['fname'], $UserFrom['mname'], $UserFrom['lname']);
+            array_push($messages, $row);
+        }
+        return $messages;
+    }
 
-	public function sendNewMessage(stdClass $params) {
-		if($this->Messages == null)
-			$this->Messages = MatchaModel::setSenchaModel('App.model.messages.Messages');
-		$row = new stdClass();
-		$t = Time::getLocalTime('l jS \of F Y h:i:s A');
-		$row->body = 'On ' . $t . ' - <span style="font-weight:bold">' . $_SESSION['user']['name'] . '</span> - Wrote:<br><br>' . $params->body;
-		$row->pid = $params->pid;
-		$row->from_id = $_SESSION['user']['id'];
-		$row->to_id = $params->to_id;
-		$row->facility_id = $_SESSION['site']['dir'];
-		$row->authorized = $params->authorized;
-		$row->message_status = $params->message_status;
-		$row->subject = $params->subject;
-		$row->note_type = $params->note_type;
-		$this->Messages->save($row);
-	}
+    public function sendNewMessage(stdClass $params)
+    {
+        if ($this->Messages == null)
+            $this->Messages = MatchaModel::setSenchaModel('App.model.messages.Messages');
+        $row = new stdClass();
+        $t = Time::getLocalTime('l jS \of F Y h:i:s A');
+        $row->body = 'On ' . $t . ' - <span style="font-weight:bold">' . $_SESSION['user']['name'] . '</span> - Wrote:<br><br>' . $params->body;
+        $row->pid = $params->pid;
+        $row->from_id = $_SESSION['user']['id'];
+        $row->to_id = $params->to_id;
+        $row->facility_id = $_SESSION['site']['dir'];
+        $row->authorized = $params->authorized;
+        $row->message_status = $params->message_status;
+        $row->subject = $params->subject;
+        $row->note_type = $params->note_type;
+        $this->Messages->save($row);
+    }
 
-	public function replyMessage(stdClass $params) {
-		if($this->Messages == null)
-			$this->Messages = MatchaModel::setSenchaModel('App.model.messages.Messages');
-		$row = new stdClass();
-		$t = Time::getLocalTime('l jS \of F Y h:i:s A');
-		$row->body = 'On ' . $t . ' - <span style="font-weight:bold">' . $_SESSION['user']['name'] . '</span> - Wrote:<br><br>' . $params->body . '<br><br>';
-		$row->from_id = $_SESSION['user']['id'];
-		$row->to_id = $params->to_id;
-		$row->message_status = $params->message_status;
-		$row->subject = $params->subject;
-		$row->note_type = $params->note_type;
-		$row->to_deleted = 0;
-		$row->from_deleted = 0;
-		$row->id = $params->id;
-		$this->Messages->save($row);
-	}
+    public function replyMessage(stdClass $params)
+    {
+        if ($this->Messages == null)
+            $this->Messages = MatchaModel::setSenchaModel('App.model.messages.Messages');
+        $row = new stdClass();
+        $t = Time::getLocalTime('l jS \of F Y h:i:s A');
+        $row->body = 'On ' . $t . ' - <span style="font-weight:bold">' . $_SESSION['user']['name'] . '</span> - Wrote:<br><br>' . $params->body . '<br><br>';
+        $row->from_id = $_SESSION['user']['id'];
+        $row->to_id = $params->to_id;
+        $row->message_status = $params->message_status;
+        $row->subject = $params->subject;
+        $row->note_type = $params->note_type;
+        $row->to_deleted = 0;
+        $row->from_deleted = 0;
+        $row->id = $params->id;
+        $this->Messages->save($row);
+    }
 
-	public function deleteMessage(stdClass $params) {
-		if($this->Messages == null)
-			$this->Messages = MatchaModel::setSenchaModel('App.model.messages.Messages');
-		$row = new stdClass();
-		$row->id = $params->id;
-		$Message = $this->Messages->load(array('id' => $params->id), array(
-			'to_id',
-			'from_id'
-		))->one();
-		if($Message['to_id'] == $_SESSION['user']['id']){
-			$row->to_deleted = 1;
-		} elseif($Message['from_id'] == $_SESSION['user']['id']) {
-			$row->from_deleted = 1;
-		}
-		$this->Messages->save($row);
-	}
+    public function deleteMessage(stdClass $params)
+    {
+        if ($this->Messages == null)
+            $this->Messages = MatchaModel::setSenchaModel('App.model.messages.Messages');
+        $row = new stdClass();
+        $row->id = $params->id;
+        $Message = $this->Messages->load(array('id' => $params->id), array(
+            'to_id',
+            'from_id'
+        ))->one();
+        if ($Message['to_id'] == $_SESSION['user']['id']) {
+            $row->to_deleted = 1;
+        } elseif ($Message['from_id'] == $_SESSION['user']['id']) {
+            $row->from_deleted = 1;
+        }
+        $this->Messages->save($row);
+    }
 
-	public function updateMessage(stdClass $params) {
-		if($this->Messages == null)
-			$this->Messages = MatchaModel::setSenchaModel('App.model.messages.Messages');
-		$this->Messages->save($params);
-	}
+    public function updateMessage(stdClass $params)
+    {
+        if ($this->Messages == null)
+            $this->Messages = MatchaModel::setSenchaModel('App.model.messages.Messages');
+        $this->Messages->save($params);
+    }
 
 }

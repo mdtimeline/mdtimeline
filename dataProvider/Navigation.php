@@ -156,7 +156,7 @@ class Navigation
 			'iconCls' => 'icoLogo',
 			'id' => 'administration'
 		];
-		if($this->ACL->hasPermission('access_gloabal_settings')){
+		if($this->ACL->hasPermission('access_global_settings')){
 			$admin['children'][] = [
 				'text' => $this->i18n('global_settings'),
 				'leaf' => true,

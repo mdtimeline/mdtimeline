@@ -982,35 +982,35 @@
     {
         "id": 141,
         "role_key": "front_office",
-        "perm_key": "access_gloabal_settings",
+        "perm_key": "access_global_settings",
         "value": 0,
         "add_date": "0000-00-00 00:00:00"
     },
     {
         "id": 142,
         "role_key": "auditor",
-        "perm_key": "access_gloabal_settings",
+        "perm_key": "access_global_settings",
         "value": 0,
         "add_date": "0000-00-00 00:00:00"
     },
     {
         "id": 143,
         "role_key": "clinician",
-        "perm_key": "access_gloabal_settings",
+        "perm_key": "access_global_settings",
         "value": 0,
         "add_date": "0000-00-00 00:00:00"
     },
     {
         "id": 144,
         "role_key": "physician",
-        "perm_key": "access_gloabal_settings",
+        "perm_key": "access_global_settings",
         "value": 0,
         "add_date": "0000-00-00 00:00:00"
     },
     {
         "id": 145,
         "role_key": "administrator",
-        "perm_key": "access_gloabal_settings",
+        "perm_key": "access_global_settings",
         "value": 1,
         "add_date": "0000-00-00 00:00:00"
     },

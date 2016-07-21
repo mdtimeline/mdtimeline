@@ -561,7 +561,9 @@ header("Access-Control-Allow-Origin: *");
 					'patient.charts.WeightForStature',
 					'areas.PatientArea',
 					'areas.PoolArea',
-					'areas.PoolDropAreas'
+					'areas.PoolDropAreas',
+
+                    'messages.Messages'
 				],
                 stores:[
 	                'miscellaneous.AddressBook',
@@ -680,7 +682,8 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.charts.WeightForStature',
 	                'areas.PatientAreas',
 	                'areas.PoolAreas',
-	                'areas.PoolDropAreas'
+	                'areas.PoolDropAreas',
+                    'messages.Messages'
                 ],
                 views:[
 	                /**
@@ -693,7 +696,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.windows.NewEncounter',
 	                'patient.windows.ArrivalLog',
 	                'patient.windows.EncounterCheckOut',
-	                'patient.windows.DocumentErrorNote',
+	                'patient.windows.DocumentErrorNote'
 	                /**
 	                 * Load the patient related panels
 	                 */

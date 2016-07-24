@@ -559,7 +559,6 @@ header("Access-Control-Allow-Origin: *");
 					'patient.charts.WeightForAgeInf',
 					'patient.charts.WeightForRecumbentInf',
 					'patient.charts.WeightForStature',
-                    'patient.Messages',
 					'areas.PatientArea',
 					'areas.PoolArea',
 					'areas.PoolDropAreas'
@@ -681,8 +680,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.charts.WeightForStature',
 	                'areas.PatientAreas',
 	                'areas.PoolAreas',
-	                'areas.PoolDropAreas',
-                    'patient.Messages'
+	                'areas.PoolDropAreas'
                 ],
                 views:[
 	                /**
@@ -751,7 +749,6 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.Visits',
 	                'patient.windows.Medical',
 	                'patient.VisitCheckout',
-                    'patient.Messages',
 	                /**
 	                 * Load the fees related panels
 	                 */

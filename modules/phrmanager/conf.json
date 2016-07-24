@@ -1,0 +1,31 @@
+{
+    "title": "Portal Manager Module",
+    "name": "phrmanager",
+    "version": "1.0.0",
+    "extjs_version": "4.1.1a",
+    "author": "Gino Rivera Falu",
+    "description": "mdTimeLine PHR Manager Module",
+    "dir": "phrmanager",
+    "active": true,
+    "debug": false,
+    "locales": [
+        "en_US",
+        "es_PR"
+    ],
+    "permissions": [
+        {
+            "title": "Access to Portal Manager Module",
+            "key": "phr_manager_module_access",
+            "seq": 1
+        }
+    ],
+    "actionsAPI": {
+        "DIT": {
+            "methods": {
+                "GetDistinctDrugByRxcui": {
+                    "len": 1
+                }
+            }
+        }
+    }
+}

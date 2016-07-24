@@ -39,7 +39,7 @@ class Messages extends MatchaHelper
         if (!isset($this->User))
             $this->User = MatchaModel::setSenchaModel('App.model.administration.User');
         if (!isset($this->Messages))
-            $this->Messages = MatchaModel::setSenchaModel('App.model.messages.Messages');
+            $this->Messages = MatchaModel::setSenchaModel('App.model.patient.Messages');
 
         $uid = $_SESSION['user']['id'];
 

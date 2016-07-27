@@ -313,7 +313,7 @@ Ext.define('Modules.phrmanager.view.Messages', {
 	 */
 	onNewMessage: function(){
 		var form = this.msgForm,
-			record = Ext.create('Module.model.Messages', {
+			record = Ext.create('Modules.model.Messages', {
 				message_status: _('new'),
 				note_type: _('unassigned')
 			});

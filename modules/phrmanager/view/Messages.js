@@ -16,7 +16,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.view.patient.Messages', {
+Ext.define('Modules.phrmanager.view.Messages', {
 	extend: 'App.ux.RenderPanel',
 	id: 'panelMessages',
 	pageTitle: _('patient_messages') + ' (' + _('inbox') + ')',
@@ -28,7 +28,8 @@ Ext.define('App.view.patient.Messages', {
 		'App.ux.LivePatientSearch',
 		'App.ux.combo.MsgStatus',
 		'App.ux.combo.MsgNoteType',
-		'App.ux.combo.Users'],
+		'App.ux.combo.Users'
+    ],
 	initComponent: function(){
 
 		var me = this;
@@ -36,7 +37,7 @@ Ext.define('App.view.patient.Messages', {
 		/**
 		 * Message Store
 		 */
-		me.storeMsgs = Ext.create('App.store.patient.Messages');
+		me.storeMsgs = Ext.create('Modules.phrmanager.store.Messages');
 
 		/**
 		 * Message GridPanel
@@ -312,7 +313,7 @@ Ext.define('App.view.patient.Messages', {
 	 */
 	onNewMessage: function(){
 		var form = this.msgForm,
-			record = Ext.create('App.model.patient.Messages', {
+			record = Ext.create('Module.model.Messages', {
 				message_status: _('new'),
 				note_type: _('unassigned')
 			});

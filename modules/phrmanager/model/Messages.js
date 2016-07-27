@@ -16,7 +16,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.model.patient.Messages', {
+Ext.define('Modules.phrmanager.model.Messages', {
 	extend: 'Ext.data.Model',
 	fields: [
 		{

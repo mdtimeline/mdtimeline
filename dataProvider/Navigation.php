@@ -124,14 +124,6 @@ class Navigation
 				'id' => 'App.view.patient.VisitCheckout'
 			];
 		}
-        if($this->ACL->hasPermission('access_messages')){
-            $patient['children'][] = [
-                'text' => $this->i18n('messages'),
-                'leaf' => true,
-                'cls' => 'file',
-                'id' => 'App.view.patient.Messages'
-            ];
-        }
 		array_push($nav, $patient);
 
 		// Billing Manager Folder

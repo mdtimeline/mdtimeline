@@ -14,8 +14,8 @@
     ],
     "permissions": [
         {
-            "title": "Access to Portal Manager Module",
-            "key": "phr_manager_module_access",
+            "title": "Portal Manager Module Access",
+            "key": "phrmanager_module_access",
             "seq": 1
         }
     ],

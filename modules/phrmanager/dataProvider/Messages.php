@@ -39,7 +39,7 @@ class Messages extends MatchaHelper
         if (!isset($this->User))
             $this->User = MatchaModel::setSenchaModel('App.model.administration.User');
         if (!isset($this->Messages))
-            $this->Messages = MatchaModel::setSenchaModel('App.model.patient.Messages');
+            $this->Messages = MatchaModel::setSenchaModel('Modules.phrmanager.model.Messages');
 
         $uid = $_SESSION['user']['id'];
 
@@ -77,7 +77,7 @@ class Messages extends MatchaHelper
     public function sendNewMessage(stdClass $params)
     {
         if ($this->Messages == null)
-            $this->Messages = MatchaModel::setSenchaModel('App.model.messages.Messages');
+            $this->Messages = MatchaModel::setSenchaModel('Modules.phrmanager.model.Messages');
         $row = new stdClass();
         $t = Time::getLocalTime('l jS \of F Y h:i:s A');
         $row->body = 'On ' . $t . ' - <span style="font-weight:bold">' . $_SESSION['user']['name'] . '</span> - Wrote:<br><br>' . $params->body;
@@ -95,7 +95,7 @@ class Messages extends MatchaHelper
     public function replyMessage(stdClass $params)
     {
         if ($this->Messages == null)
-            $this->Messages = MatchaModel::setSenchaModel('App.model.messages.Messages');
+            $this->Messages = MatchaModel::setSenchaModel('Modules.phrmanager.model.Messages');
         $row = new stdClass();
         $t = Time::getLocalTime('l jS \of F Y h:i:s A');
         $row->body = 'On ' . $t . ' - <span style="font-weight:bold">' . $_SESSION['user']['name'] . '</span> - Wrote:<br><br>' . $params->body . '<br><br>';
@@ -113,7 +113,7 @@ class Messages extends MatchaHelper
     public function deleteMessage(stdClass $params)
     {
         if ($this->Messages == null)
-            $this->Messages = MatchaModel::setSenchaModel('App.model.messages.Messages');
+            $this->Messages = MatchaModel::setSenchaModel('Modules.phrmanager.model.Messages');
         $row = new stdClass();
         $row->id = $params->id;
         $Message = $this->Messages->load(array('id' => $params->id), array(
@@ -131,7 +131,7 @@ class Messages extends MatchaHelper
     public function updateMessage(stdClass $params)
     {
         if ($this->Messages == null)
-            $this->Messages = MatchaModel::setSenchaModel('App.model.messages.Messages');
+            $this->Messages = MatchaModel::setSenchaModel('Modules.phrmanager.model.Messages');
         $this->Messages->save($params);
     }
 

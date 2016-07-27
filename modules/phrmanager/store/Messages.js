@@ -16,8 +16,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.store.patient.Messages', {
-    model: 'App.model.patient.Messages',
+Ext.define('Modules.phrmanager.store.Messages', {
+    model: 'Modules.phrmanager.model.Messages',
     extend: 'Ext.data.Store',
     autoLoad : false
 });

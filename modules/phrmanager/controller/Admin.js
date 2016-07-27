@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('Modules.drugtodrugtoallergy.controller.Admin', {
+Ext.define('Modules.phrmanager.controller.Admin', {
 	extend: 'Ext.app.Controller',
 	refs: [
 

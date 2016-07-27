@@ -25,9 +25,18 @@ Ext.define('Modules.phrmanager.Main', {
 	init: function(){
 		var me = this;
 
+        if( !a('phrmanager_module_access') ) return;
+
 		// controllers
-		me.getController('Modules.phrmanager.controller.Admin');
-		me.getController('Modules.phrmanager.controller.Interaction');
+		//me.getController('Modules.phrmanager.controller.Admin');
+
+        // Add the messages panel tool
+        me.addNavigationNodes('patient', {
+            text: _('messages'),
+            cls: 'file',
+            leaf: true,
+            id: 'Modules.phrmanager.view.Messages'
+        });
 
 		me.control({
 

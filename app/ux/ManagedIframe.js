@@ -151,6 +151,7 @@
 		iframeMessageListener: function(event){
 
 			if(event.origin !== window.location.origin) return;
+			if(!event.data.match) return;
 			if(!event.data.match(/^documentedit/)) return;
 
 			var data = event.data.replace(/^documentedit/, '');

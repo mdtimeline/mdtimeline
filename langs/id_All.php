@@ -17,6 +17,7 @@ $LANG = array(
     'dashboard'         					=> 'Dasbor',
     'calendar'          					=> 'Kalender',
     'messages'          					=> 'Pesan',
+    'patient_messages'                      => 'Patient Messages',
     'patient_search'    					=> 'Pencarian Pasien',
     'new_patient'       					=> 'Pasien Baru',
     'established_patient'                   => 'Pasien Lama',

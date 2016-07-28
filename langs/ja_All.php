@@ -17,6 +17,7 @@ $LANG = array(
     'dashboard'         					=> 'ダッシュ ボード',
     'calendar'          					=> 'カレンダー',
     'messages'          					=> 'メッセージ',
+    'patient_messages'                      => 'Patient Messages',
     'patient_search'    					=> '患者の検索',
     'new_patient'       					=> '新しい患者',
     'established_patient'                   => 'Established Patient',

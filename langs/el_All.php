@@ -17,6 +17,7 @@ $LANG = array(
     'dashboard'         					=> 'Ταμπλό',
     'calendar'          					=> 'Ημερολόγιο',
     'messages'          					=> 'Μηνύματα',
+    'patient_messages'                      => 'Patient Messages',
     'patient_search'    					=> 'Αναζήτηση ασθενών',
     'new_patient'       					=> 'Νέος Ασθενής',
     'established_patient'                   => 'Υφιστάμενος ασθενής',

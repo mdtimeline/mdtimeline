@@ -86,14 +86,6 @@ class Documents {
 	}
 
 	public function get_PatientTokensData($pid, $allNeededInfo, $tokens) {
-        // Code reference: Relationship codes as specified by HL7. v2: Added 'Household' concept
-        // https://phinvads.cdc.gov/vads/ViewValueSet.action?id=6FD34BBC-617F-DD11-B38D-00188B398520#
-        $patientContact = new PatientContacts();
-        $contactSelf = $patientContact->getContactByType($pid, 'SEL');
-        $contactGuardian = $patientContact->getContactByType($pid, 'GRD');
-        $contactMother = $patientContact->getContactByType($pid, 'MTH');
-        $contactEmergency = $patientContact->getContactByType($pid, 'EMC');
-        $contactEmployer = $patientContact->getContactByType($pid, 'EMR');
 
         $patientData = $this->getAllPatientData($pid);
 		$age = $this->patient->getPatientAgeByDOB($patientData['DOB']);
@@ -109,58 +101,50 @@ class Documents {
 			'[PATIENT_SOCIAL_SECURITY]' => $patientData['SS'],
 			'[PATIENT_EXTERNAL_ID]' => $patientData['pubpid'],
 			'[PATIENT_DRIVERS_LICENSE]' => $patientData['drivers_license'],
-			'[PATIENT_ADDRESS]' => isset($contactSelf['street_mailing_address']) ? $contactSelf['street_mailing_address'] : '',
-			'[PATIENT_CITY]' => isset($contactSelf['city']) ? $contactSelf['city'] : '',
-			'[PATIENT_STATE]' => isset($contactSelf['state']) ? $contactSelf['state'] : '',
-			'[PATIENT_COUNTRY]' => isset($contactSelf['country']) ? $contactSelf['country'] : '',
-			'[PATIENT_ZIPCODE]' => isset($contactSelf['zip']) ? $contactSelf['zip'] : '',
 
-            //
-			'[PATIENT_HOME_PHONE]' => isset($contactSelf['phone_local_number']) ?
-                $contactSelf['phone_use_code'].'-'.
-                $contactSelf['phone_area_code'].'-'.
-                $contactSelf['phone_local_number'] : '',
+			'[PATIENT_POSTAL_ADDRESS_LINE1]' => isset($patientData['postal_address']) ? $patientData['postal_address'] : '',
+			'[PATIENT_POSTAL_ADDRESS_LINE2]' => isset($patientData['postal_address_cont']) ? $patientData['postal_address_cont'] : '',
+			'[PATIENT_POSTAL_CITY]' => isset($patientData['postal_city']) ? $patientData['postal_city'] : '',
+			'[PATIENT_POSTAL_STATE]' => isset($patientData['postal_state']) ? $patientData['postal_state'] : '',
+			'[PATIENT_POSTAL_ZIP]' => isset($patientData['postal_zip']) ? $patientData['postal_zip'] : '',
+			'[PATIENT_POSTAL_COUNTRY]' => isset($patientData['postal_country']) ? $patientData['postal_country'] : '',
 
-            // TODO: Add a field for mobile phone in the patient contacts
-			'[PATIENT_MOBILE_PHONE]' => isset($contactSelf['phone_local_number']) ?
-                $contactSelf['phone_use_code'].'-'.
-                $contactSelf['phone_area_code'].'-'.
-                $contactSelf['phone_local_number'] : '',
+			'[PATIENT_PHYSICAL_ADDRESS_LINE1]' => isset($patientData['physical_address']) ? $patientData['physical_address'] : '',
+			'[PATIENT_PHYSICAL_ADDRESS_LINE2]' => isset($patientData['physical_address_cont']) ? $patientData['physical_address_cont'] : '',
+			'[PATIENT_PHYSICAL_CITY]' => isset($patientData['physical_city']) ? $patientData['physical_city'] : '',
+			'[PATIENT_PHYSICAL_STATE]' => isset($patientData['physical_state']) ? $patientData['physical_state'] : '',
+			'[PATIENT_PHYSICAL_ZIP]' => isset($patientData['physical_zip']) ? $patientData['physical_zip'] : '',
+			'[PATIENT_PHYSICAL_COUNTRY]' => isset($patientData['physical_country']) ? $patientData['physical_country'] : '',
 
-            // TODO: Add a field for work phone in the patient contacts
-			'[PATIENT_WORK_PHONE]' => isset($contactSelf['phone_local_number']) ?
-                $contactSelf['phone_use_code'].'-'.
-                $contactSelf['phone_area_code'].'-'.
-                $contactSelf['phone_local_number'] : '',
+			'[PATIENT_HOME_PHONE]' => isset($patientData['phone_home']) ? $patientData['phone_home'] : '',
+			'[PATIENT_MOBILE_PHONE]' => isset($patientData['phone_mobile']) ? $patientData['phone_mobile'] : '',
+			'[PATIENT_WORK_PHONE]' => isset($patientData['phone_work']) ? $patientData['phone_work'] : '',
 
-            // TODO: Add a field for email on the patient contact table, and model
-			'[PATIENT_EMAIL]' => '',
-			'[PATIENT_MOTHERS_NAME]' => isset($contactMother['first_name']) ?
+			'[PATIENT_EMAIL]' => isset($patientData['email']) ? $patientData['email'] : '',
+
+			'[PATIENT_MOTHERS_NAME]' => isset($patientData['mother_fname']) ?
                 Person::fullname(
-                    $contactMother['first_name'],
-                    $contactMother['middle_name'],
-                    $contactMother['last_name']
+	                $patientData['mother_fname'],
+	                $patientData['mother_mname'],
+	                $patientData['mother_lname']
                 ) : '',
 
-			'[PATIENT_GUARDIANS_NAME]' => isset($contactGuardian['first_name']) ?
+			'[PATIENT_GUARDIANS_NAME]' => isset($patientData['guardians_fname']) ?
                 Person::fullname(
-                    $contactGuardian['first_name'],
-                    $contactGuardian['middle_name'],
-                    $contactGuardian['last_name']
+	                $patientData['guardians_fname'],
+	                $patientData['guardians_mname'],
+	                $patientData['guardians_lname']
                 ) : '',
 
-			'[PATIENT_EMERGENCY_CONTACT]' => isset($contactEmergency['first_name']) ?
+			'[PATIENT_EMERGENCY_CONTACT]' => isset($patientData['emergency_contact_fname']) ?
                 Person::fullname(
-                    $contactEmergency['first_name'],
-                    $contactEmergency['middle_name'],
-                    $contactEmergency['last_name']
+	                $patientData['emergency_contact_fname'],
+	                $patientData['emergency_contact_mname'],
+	                $patientData['emergency_contact_lname']
                 ) : '',
 
             // TODO: Create a method to parse a phone number in the person dataProvider
-			'[PATIENT_EMERGENCY_PHONE]' => isset($contactEmergency['phone_local_number']) ?
-                $contactEmergency['phone_use_code'].'-'.
-                $contactEmergency['phone_area_code'].'-'.
-                $contactEmergency['phone_local_number'] : '',
+			'[PATIENT_EMERGENCY_PHONE]' => isset($patientData['emergency_contact_phone']) ? $patientData['emergency_contact_phone'] : '',
 
 			'[PATIENT_PROVIDER]' => is_numeric($patientData['provider']) ?
                 $user->getUserFullNameById($patientData['provider']) : '',
@@ -169,12 +153,7 @@ class Documents {
 			'[PATIENT_AGE]' => $age['DMY']['years'],
 			'[PATIENT_OCCUPATION]' => $patientData['occupation'],
 
-			'[PATIENT_EMPLOYEER]' => isset($contactEmployer['first_name']) ?
-                Person::fullname(
-                    $contactEmployer['first_name'],
-                    $contactEmployer['middle_name'],
-                    $contactEmployer['last_name']
-                ) : '',
+			'[PATIENT_EMPLOYEER]' => isset($patientData['employer_name']) ? $patientData['employer_name'] : '',
 
 			'[PATIENT_RACE]' => $patientData['race'],
 			'[PATIENT_ETHNICITY]' => $patientData['ethnicity'],
@@ -182,8 +161,8 @@ class Documents {
 			'[PATIENT_PICTURE]' => '<img src="' . $patientData['image'] . '" style="width:100px;height:100px">',
 			'[PATIENT_QRCODE]' => '<img src="' . $patientData['qrcode'] . '" style="width:100px;height:100px">',
 
-			'[PATIENT_TABACCO]' => 'tabaco',
-			'[PATIENT_ALCOHOL]' => 'alcohol',
+//			'[PATIENT_TABACCO]' => 'tabaco',
+//			'[PATIENT_ALCOHOL]' => 'alcohol',
 			//            '[PATIENT_BALANCE]' => '$' . $this->fees->getPatientBalanceByPid($pid),
 			//            '[PATIENT_PRIMARY_PLAN]' => $patientData['primary_plan_name'],
 			//            '[PATIENT_PRIMARY_EFFECTIVE_DATE]' => $patientData['primary_effective_date'],

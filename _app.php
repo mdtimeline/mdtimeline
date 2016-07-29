@@ -708,7 +708,6 @@ header("Access-Control-Allow-Origin: *");
 	                /**
 	                 * Load the root related panels
 	                 */
-	                'messages.Messages',
 	                /**
 	                 * Load the areas related panels
 	                 */

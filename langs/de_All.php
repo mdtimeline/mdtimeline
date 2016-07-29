@@ -17,6 +17,7 @@ $LANG = array(
     'dashboard'         					=> 'Dashboard',
     'calendar'          					=> 'Kalender',
     'messages'          					=> 'Nachrichten',
+    'patient_messages'                      => 'Patient Messages',
     'patient_search'    					=> 'Patienten suchen',
     'new_patient'       					=> 'Neuer Patient',
     'established_patient'                   => 'etabliert Patienten',

@@ -119,11 +119,11 @@ Ext.define('App.controller.LogOut', {
 		}
 	},
 
-	appLogout: function(auto){
+	appLogout: function(force){
 		var me = this,
 			nav = me.getController('Navigation');
 
-		if(auto === true){
+		if(force === true){
 			me.ActivityMonitor(false);
 			if(app.patient.pid) Patient.unsetPatient(app.patient.pid);
 			authProcedures.unAuth(function(){
@@ -134,7 +134,7 @@ Ext.define('App.controller.LogOut', {
 		}else{
 			Ext.Msg.show({
 				title: _('please_confirm') + '...',
-				msg: _('are_you_sure_to_quit') + ' GaiaEHR?',
+				msg: _('are_you_sure_to_quit') + ' MD Timeline?',
 				icon: Ext.MessageBox.QUESTION,
 				buttons: Ext.Msg.YESNO,
 				fn: function(btn){

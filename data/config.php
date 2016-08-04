@@ -26,6 +26,19 @@ $API = [
             ]
         ]
     ],
+    'AuditLog' => [
+        'methods' => [
+            'addLog' => [
+                'len' => 1
+            ],
+            'getLogByEventName' => [
+                'len' => 1
+            ],
+            'getLogByEventNames' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'EducationResources' => [
         'methods' => [
             'getEducationResources' => [

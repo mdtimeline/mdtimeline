@@ -873,7 +873,7 @@ header("Access-Control-Allow-Origin: *");
                 launch: function() {
                     App.Current = this;
                     CronJob.run(function(){
-                        say('Loading GaiaEHR');
+                        say('Loading mdTImeLine EHR');
                         window.app = Ext.create('App.view.Viewport');
                     });
                 }

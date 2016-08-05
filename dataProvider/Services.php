@@ -303,7 +303,7 @@ class Services
          */
         $queryStr = trim(end($Str));
         /**
-         * break the $queryStr into an array usin white spaces
+         * break the $queryStr into an array using white spaces
          * $queries = array(
          *      [0] => 'head',
          *      [1] => 'skin'
@@ -338,8 +338,11 @@ class Services
                  * if the id of the IDC9 code is in $idHaystack increase its ['weight'] by 1
                  */
                 if (array_key_exists($row['id'], $idHaystack)) {
-                    $records[$i] = [];
-                    $records[$i]['weight']++;
+                    if (!isset($records[$i]['weight'])) {
+                        $records[$i]['weight'] = 0;
+                    } else {
+                        $records[$i]['weight']++;
+                    }
                     /**
                      * else add the code ID to $idHaystack
                      * then add ['weight'] with a value of 1
@@ -348,7 +351,6 @@ class Services
                 } else {
                     $idHaystack[$row['id']] = true;
                     $row['weight'] = 1;
-                    $records[$row['id']] = [];
                     $records[$row['id']] = $row;
                 }
             }

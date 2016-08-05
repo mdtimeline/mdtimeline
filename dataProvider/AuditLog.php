@@ -52,8 +52,12 @@ class AuditLog {
     }
 
 	public function getLogByEventName($params) {
-		$this->a->addFilter('fid', $params->fid);
-		$this->a->addFilter('event_name', $params->event_name);
+		$this->a->clearFilters();
+		$this->a->addFilter('foreign_id', $params->foreign_id);
+		$this->a->addFilter('foreign_table', $params->foreign_table);
+		if(isset($params->event)){
+			$this->a->addFilter('event', $params->event);
+		}
 		return $this->a->load()->leftJoin(
 			[
 				'fname' => 'user_fname',
@@ -67,10 +71,15 @@ class AuditLog {
 	}
 
 	public function getLogByEventNames($params) {
-		$this->a->setOrFilterProperties(['event_name']);
-		$this->a->addFilter('fid', $params->fid);
-		foreach($params->event_names as $event_name){
-			$this->a->addFilter('event_name', $event_name);
+		$this->a->clearFilters();
+		$this->a->addFilter('foreign_id', $params->foreign_id);
+		$this->a->addFilter('foreign_table', $params->foreign_table);
+		if(isset($params->events)){
+
+			$this->a->setOrFilterProperties(['event']);
+			foreach($params->events as $event){
+				$this->a->addFilter('event', $event);
+			}
 		}
 		return $this->a->load()->all();
 	}

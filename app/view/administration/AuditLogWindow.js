@@ -16,38 +16,68 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 Ext.define('App.view.administration.AuditLogWindow', {
 	extend: 'Ext.window.Window',
 	layout: 'fit',
 	title: _('audit_log'),
 	itemId: 'AuditLogWindow',
-	width: 800,
-	height: 450,
-	bodyPadding: 10,
+	width: 900,
+	height: 500,
+	bodyPadding: 5,
 	modal: true,
-	items: [
-		{
-			xtype: 'grid',
-			store: Ext.create('App.store.administration.AuditLogs'),
-			itemId: 'AuditLogWindowGrid',
-			columns: [
-				{
-					text: _('date'),
-					dataIndex: 'event_date',
-					width: 150
-				},
-				{
-					text: _('event'),
-					dataIndex: 'event_description',
-					flex: 1
-				},
-				{
-					text: _('user'),
-					dataIndex: 'user',
-					flex: 1
+
+	requires: [
+		'Ext.toolbar.Paging'
+	],
+
+	initComponent: function(){
+
+		var me = this;
+
+		me.gridStore =  Ext.create('App.store.administration.AuditLogs');
+
+		me.items = [
+			{
+				xtype: 'grid',
+				store: me.gridStore,
+				itemId: 'AuditLogWindowGrid',
+				columns: [
+					{
+						xtype: 'datecolumn',
+						text: _('date'),
+						dataIndex: 'event_date',
+						width: 150,
+						format: 'Y-m-d H:i:s'
+					},
+					{
+						text: _('event'),
+						dataIndex: 'event',
+						width: 150,
+						renderer: function(v){
+							return v.toUpperCase();
+						}
+					},
+					{
+						text: _('description'),
+						dataIndex: 'event_description',
+						flex: 1
+					},
+					{
+						text: _('user'),
+						dataIndex: 'user_name',
+						flex: 1
+					}
+				],
+				bbar: {
+					xtype: 'pagingtoolbar',
+					pageSize: 25,
+					store: me.gridStore,
+					displayInfo: true,
+					plugins: Ext.create('Ext.ux.SlidingPager')
 				}
-			]
-		}
-	]
-}); 
+			}
+		];
+
+		me.callParent(arguments);
+	}
+});

@@ -46601,23 +46601,47 @@ Ext.define('App.view.patient.CCD', {
 		},
 		'-',
 		{
-			text: _('download'),
-			margin: '0 0 5 0',
-			itemId: 'exportCcdBtn',
-			icon: 'resources/images/icons/download.png'
+			xtype: 'container',
+			layout: 'vbox',
+			items: [
+				{
+					xtype: 'button',
+					text: _('upload'),
+					margin: '0 0 5 0',
+					itemId: 'importCcdBtn',
+					icon: 'resources/images/icons/upload.png',
+					width: 100
+				},
+				{
+					xtype: 'button',
+					text: _('download'),
+					itemId: 'exportCcdBtn',
+					icon: 'resources/images/icons/download.png',
+					width: 100
+				}
+			]
 		},
 		'-',
 		{
-			text: _('archive'),
-			margin: '0 0 5 0',
-			itemId: 'archiveCcdBtn',
-			icon: 'resources/images/icons/archive_16.png'
-		},
-		'-',
-		{
-			text: 'Print',
-			iconCls: 'icon-print',
-			itemId: 'printCcdBtn'
+			xtype: 'container',
+			layout: 'vbox',
+			items: [
+				{
+					xtype: 'button',
+					text: _('archive'),
+					margin: '0 0 5 0',
+					itemId: 'archiveCcdBtn',
+					icon: 'resources/images/icons/archive_16.png',
+					width: 100
+				},
+				{
+					xtype: 'button',
+					text: 'Print',
+					iconCls: 'icon-print',
+					itemId: 'printCcdBtn',
+					width: 100
+				}
+			]
 		}
 	]
 
@@ -49964,8 +49988,8 @@ Ext.define('App.view.administration.Users', {
 												},
 												{
 													xtype: 'textfield',
-													fieldLabel: _('upin'),
-													name: 'pin'
+													fieldLabel: _('lic'),
+													name: 'lic'
 												},
 												{
 													xtype: 'textfield',

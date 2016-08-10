@@ -4038,48 +4038,55 @@ class CCDDocument
                     ]
                 ];
 
-				$entry['act']['entryRelationship']['observation']['entryRelationship'] = [
-					'@attributes' => [
-						'typeCode' => 'REFR'
-					],
-					'observation' => [
-						'@attributes' => [
-							'classCode' => 'OBS',
-							'moodCode' => 'EVN'
-						],
-						'templateId' => [
-							'@attributes' => [
-								'root' => '2.16.840.1.113883.10.20.22.4.6'
-							]
-						],
-						'code' => [
-							'@attributes' => [
-								'code' => '33999-4',
-								'displayName' => 'Status',
-								'codeSystemName' => 'LOINC',
-								'codeSystem' => '2.16.840.1.113883.6.1'
-							]
-						],
-						'statusCode' => [
-							'@attributes' => [
-								'code' => 'completed'
-							]
-						],
 
-						 // 55561003     SNOMEDCT    Active
-						 // 73425007     SNOMEDCT    Inactive
-						 // 413322009    SNOMEDCT    Resolved
-						'value' => [
+				if(isset($item['status'])){
+					$code = $this->CombosData->getCodeValueByListIdAndOptionValue(112, $item['status']);
+
+					$entry['act']['entryRelationship']['observation']['entryRelationship'] = [
+						'@attributes' => [
+							'typeCode' => 'REFR'
+						],
+						'observation' => [
 							'@attributes' => [
-								'xsi:type' => 'CD',
-								'code' => $this->CombosData->getCodeValueByListIdAndOptionValue(112, $item['status']),
-								'displayName' => $item['status'],
-								'codeSystemName' => 'SNOMED CT',
-								'codeSystem' => '2.16.840.1.113883.6.96'
+								'classCode' => 'OBS',
+								'moodCode' => 'EVN'
+							],
+							'templateId' => [
+								'@attributes' => [
+									'root' => '2.16.840.1.113883.10.20.22.4.6'
+								]
+							],
+							'code' => [
+								'@attributes' => [
+									'code' => '33999-4',
+									'displayName' => 'Status',
+									'codeSystemName' => 'LOINC',
+									'codeSystem' => '2.16.840.1.113883.6.1'
+								]
+							],
+							'statusCode' => [
+								'@attributes' => [
+									'code' => 'completed'
+								]
+							],
+
+							// 55561003     SNOMEDCT    Active
+							// 73425007     SNOMEDCT    Inactive
+							// 413322009    SNOMEDCT    Resolved
+							'value' => [
+								'@attributes' => [
+									'xsi:type' => 'CD',
+									'code' => $code,
+									'displayName' => $item['status'],
+									'codeSystemName' => $item['status_code'],
+									'codeSystem' => $this->codes($item['status_code_type'])
+								]
 							]
 						]
-					]
-				];
+					];
+
+				}
+
 				$problems['entry'][] = $entry;
 				unset($entry);
 			}

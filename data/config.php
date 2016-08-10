@@ -21,6 +21,9 @@ $API = [
 
     'CCDDocumentParse' => [
         'methods' => [
+            'parseDocument' => [
+                'len' => 1
+            ],
             'getTestCCD' => [
                 'len' => 1
             ]

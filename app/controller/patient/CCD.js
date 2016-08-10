@@ -53,6 +53,9 @@ Ext.define('App.controller.patient.CCD', {
 			'#exportCcdBtn': {
 				click: me.onExportCcdBtnClick
 			},
+			'#importCcdBtn': {
+				click: me.onImportCcdBtnClick
+			},
 			'#printCcdBtn': {
 				click: me.onPrintCcdBtnClick
 			},
@@ -60,6 +63,9 @@ Ext.define('App.controller.patient.CCD', {
 				select: me.onPatientCcdPanelEncounterCmbSelect
 			}
 		});
+
+
+		me.importCtrl = this.getController('patient.CCDImport');
 	},
 
 	eid: null,
@@ -139,6 +145,29 @@ Ext.define('App.controller.patient.CCD', {
 		var values = cmp.up('toolbar').query('#PatientCcdPanelExcludeCheckBoxGroup')[0].getValue(),
 			excludes = values.exclude || [];
 		return excludes.join ? excludes.join(',') : excludes;
+	},
+
+	onImportCcdBtnClick: function(btn){
+
+		var me = this,
+			win = Ext.create('App.ux.form.fields.UploadString');
+
+		win.allowExtensions = ['xml','ccd','cda','ccda'];
+		win.on('uploadready', function(comp, stringXml){
+			me.getDocumentData(stringXml);
+		});
+
+		win.show();
+	},
+
+	getDocumentData: function(stringXml){
+		var me = this;
+
+		CCDDocumentParse.parseDocument(stringXml, function(ccdData){
+			me.importCtrl.validatePosibleDuplicates = false;
+			me.importCtrl.CcdImport(ccdData, app.patient.pid);
+			me.importCtrl.validatePosibleDuplicates = true;
+		});
 	}
 
 });

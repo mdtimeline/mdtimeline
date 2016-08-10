@@ -10509,7 +10509,7 @@ Ext.define('App.ux.window.Window', {
 
 	currPatientError: function() {
 		Ext.Msg.show({
-			title  : 'Oops! ' + _('no_patient_selected'),
+			title  : _('oops') + ' ' + _('no_patient_selected'),
 			msg    : _('select_patient_patient_live_search'),
 			scope  : this,
 			buttons: Ext.Msg.OK,
@@ -53006,6 +53006,7 @@ Ext.define('App.view.patient.Summary', {
 		me.loadStores();
 		me.el.unmask();
 	},
+
 	/**
 	 * This function is called from Viewport.js when
 	 * this panel is selected in the navigation panel.

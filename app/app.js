@@ -17709,6 +17709,11 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 			type: 'string'
 		},
 		{
+			name: 'status',
+			type: 'string',
+			len: 20
+		},
+		{
 			name: 'status_code',
 			type: 'string',
 			len: 20
@@ -39235,19 +39240,26 @@ Ext.define('App.controller.patient.ActiveProblems', {
 		var grid = this.getActiveProblemsGrid(),
             store = grid.getStore(),
             reconciled = this.getPatientProblemsReconciledBtn().pressed,
-            active = this.getPatientProblemsActiveBtn().pressed;
+            onlyActive = this.getPatientProblemsActiveBtn().pressed,
+			filters = [
+				{
+					property: 'pid',
+					value: app.patient.pid
+				}
+			];
+
+		if(onlyActive){
+			Ext.Array.push(filters, {
+				property: 'status_code',
+				value: '55561003'
+			});
+		}
 
 		store.clearFilter(true);
         store.load({
-            filters: [
-                {
-                    property: 'pid',
-                    value: app.patient.pid
-                }
-            ],
+            filters: filters,
             params: {
-                reconciled: reconciled,
-                active: active
+                reconciled: reconciled
             }
         });
 	},
@@ -39267,10 +39279,10 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			record = form.getRecord();
 
 		record.set({
+			status: records[0].data.option_name,
 			status_code: records[0].data.code,
 			status_code_type: records[0].data.code_type
 		});
-
 	}
 
 });
@@ -55779,13 +55791,10 @@ Ext.define('App.view.patient.ActiveProblems', {
 			dataIndex: 'end_date'
 		},
         {
-            header: _('active?'),
+            header: _('status'),
             groupable: false,
             width: 60,
-            dataIndex: 'active',
-            renderer: function(v){
-                return app.boolRenderer(v);
-            }
+            dataIndex: 'status'
         }
 	],
 	plugins: Ext.create('App.ux.grid.RowFormEditing', {
@@ -55862,6 +55871,13 @@ Ext.define('App.view.patient.ActiveProblems', {
 							width: 200
 						},
 						items: [
+							{
+								fieldLabel: _('status'),
+								xtype: 'gaiaehr.combo',
+								name: 'status',
+								itemId: 'ActiveProblemStatusCombo',
+								list: 112
+							},
 							{
 								fieldLabel: _('begin_date'),
 								xtype: 'datefield',

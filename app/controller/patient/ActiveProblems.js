@@ -98,19 +98,26 @@ Ext.define('App.controller.patient.ActiveProblems', {
 		var grid = this.getActiveProblemsGrid(),
             store = grid.getStore(),
             reconciled = this.getPatientProblemsReconciledBtn().pressed,
-            active = this.getPatientProblemsActiveBtn().pressed;
+            onlyActive = this.getPatientProblemsActiveBtn().pressed,
+			filters = [
+				{
+					property: 'pid',
+					value: app.patient.pid
+				}
+			];
+
+		if(onlyActive){
+			Ext.Array.push(filters, {
+				property: 'status_code',
+				value: '55561003'
+			});
+		}
 
 		store.clearFilter(true);
         store.load({
-            filters: [
-                {
-                    property: 'pid',
-                    value: app.patient.pid
-                }
-            ],
+            filters: filters,
             params: {
-                reconciled: reconciled,
-                active: active
+                reconciled: reconciled
             }
         });
 	},
@@ -130,10 +137,10 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			record = form.getRecord();
 
 		record.set({
+			status: records[0].data.option_name,
 			status_code: records[0].data.code,
 			status_code_type: records[0].data.code_type
 		});
-
 	}
 
 });

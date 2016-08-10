@@ -4040,7 +4040,6 @@ class CCDDocument
 
 
 				if(isset($item['status'])){
-					$code = $this->CombosData->getCodeValueByListIdAndOptionValue(112, $item['status']);
 
 					$entry['act']['entryRelationship']['observation']['entryRelationship'] = [
 						'@attributes' => [
@@ -4076,9 +4075,9 @@ class CCDDocument
 							'value' => [
 								'@attributes' => [
 									'xsi:type' => 'CD',
-									'code' => $code,
-									'displayName' => $item['status'],
-									'codeSystemName' => $item['status_code'],
+									'code' => $item['status'],
+									'displayName' => $item['status_code'],
+									'codeSystemName' => $item['status_code_type'],
 									'codeSystem' => $this->codes($item['status_code_type'])
 								]
 							]

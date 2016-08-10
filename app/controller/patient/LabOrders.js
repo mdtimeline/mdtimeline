@@ -104,36 +104,46 @@ Ext.define('App.controller.patient.LabOrders', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	onPrintLabOrderBtnClick: function(orders){
+	onPrintLabOrderBtnClick: function(input){
 		var me = this,
 			grid = me.getLabOrdersGrid(),
-			items = (Ext.isArray(orders) ? orders : grid.getSelectionModel().getSelection()),
-			params = {},
-			data,
-			i;
+			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
+			documents = {};
 
-		params.pid = app.patient.pid;
-		params.eid = app.patient.eid;
-		params.orderItems = [ ];
-		params.docType = 'Lab';
+		orders.forEach(function(order){
+			var date_ordered = Ext.Date.format(order.get('date_ordered'),'Y-m-d'),
+				doc_key = '_' + order.get('eid') +
+					order.get('pid') +
+					order.get('uid') +
+					date_ordered;
 
-		params.templateId = 4;
-		params.orderItems.push(['Description', 'Notes']);
-		for(i = 0; i < items.length; i++){
-			data = items[i].data;
+			if(!documents[doc_key]){
+				documents[doc_key] = {};
+				documents[doc_key].pid = app.patient.pid;
+				documents[doc_key].eid = app.patient.eid;
+				documents[doc_key].date_ordered = date_ordered;
+				documents[doc_key].provider_uid = order.get('uid');
+				documents[doc_key].orderItems = [];
+				documents[doc_key].docType = 'Lab';
+				documents[doc_key].templateId = 4;
+				documents[doc_key].orderItems.push(['Description', 'Notes']);
 
-			params.orderItems.push([
-					data.description + ' [' + data.code_type + ':' + data.code + ']',
-				data.note
-			]);
-		}
-
-		DocumentHandler.createTempDocument(params, function(provider, response){
-			if(window.dual){
-				dual.onDocumentView(response.result.id, 'Lab');
-			}else{
-				app.onDocumentView(response.result.id, 'Lab');
 			}
+
+			documents[doc_key].orderItems.push([
+				order.get('description') + ' [' + order.get('code_type') + ':' + order.get('code') + ']',
+				order.get('note')
+			]);
+		});
+
+		Ext.Object.each(documents, function(key, params){
+			DocumentHandler.createTempDocument(params, function(provider, response){
+				if(window.dual){
+					dual.onDocumentView(response.result.id, 'Lab');
+				}else{
+					app.onDocumentView(response.result.id, 'Lab');
+				}
+			});
 		});
 	},
 

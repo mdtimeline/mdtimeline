@@ -10509,7 +10509,7 @@ Ext.define('App.ux.window.Window', {
 
 	currPatientError: function() {
 		Ext.Msg.show({
-			title  : 'Oops! ' + _('no_patient_selected'),
+			title  : _('oops') + ' ' + _('no_patient_selected'),
 			msg    : _('select_patient_patient_live_search'),
 			scope  : this,
 			buttons: Ext.Msg.OK,
@@ -33511,52 +33511,52 @@ Ext.define('App.store.administration.DocumentToken', {
             token: '[PATIENT_AGE]'
         },
         {
-            title: _('patient_city'),
-            token: '[PATIENT_CITY]'
+            title: _('PATIENT_PHYSICAL_ADDRESS_LINE_ONE'),
+            token: '[PATIENT_PHYSICAL_ADDRESS_LINE_ONE]'
         },
         {
-            title: _('patient_state'),
-            token: '[PATIENT_STATE]'
+            title: _('PATIENT_PHYSICAL_ADDRESS_LINE_TWO'),
+            token: '[PATIENT_PHYSICAL_ADDRESS_LINE_TWO]'
         },
         {
-            title: _('patient_home_address_line_1'),
-            token: '[PATIENT_HOME_ADDRESS_LINE_ONE]'
+            title: _('PATIENT_PHYSICAL_CITY'),
+            token: '[PATIENT_PHYSICAL_CITY]'
         },
         {
-            title: _('patient_home_address_line_1'),
-            token: '[PATIENT_HOME_ADDRESS_LINE_TWO]'
+            title: _('PATIENT_PHYSICAL_STATE'),
+            token: '[PATIENT_PHYSICAL_STATE]'
         },
         {
-            title: _('patient_home_address_zip_code'),
-            token: '[PATIENT_HOME_ADDRESS_ZIP_CODE]'
+            title: _('PATIENT_PHYSICAL_ZIP'),
+            token: '[PATIENT_PHYSICAL_ZIP]'
         },
         {
-            title: _('patient_home_address_city'),
-            token: '[PATIENT_HOME_ADDRESS_CITY]'
+            title: _('PATIENT_PHYSICAL_COUNTRY'),
+            token: '[PATIENT_PHYSICAL_COUNTRY]'
         },
         {
-            title: _('patient_home_address_state'),
-            token: '[PATIENT_HOME_ADDRESS_STATE]'
-        },
-        {
-            title: _('patient_postal_address_line_1'),
+            title: _('PATIENT_POSTAL_ADDRESS_LINE_ONE'),
             token: '[PATIENT_POSTAL_ADDRESS_LINE_ONE]'
         },
         {
-            title: _('patient_postal_address_line_2'),
+            title: _('PATIENT_POSTAL_ADDRESS_LINE_TWO'),
             token: '[PATIENT_POSTAL_ADDRESS_LINE_TWO]'
         },
         {
-            title: _('patient_postal_address_zip_code'),
-            token: '[PATIENT_POSTAL_ADDRESS_ZIP_CODE]'
+            title: _('PATIENT_POSTAL_CITY'),
+            token: '[PATIENT_POSTAL_CITY]'
         },
         {
-            title: _('patient_postal_address_city'),
-            token: '[PATIENT_POSTAL_ADDRESS_CITY]'
+            title: _('PATIENT_POSTAL_STATE'),
+            token: '[PATIENT_POSTAL_STATE]'
         },
         {
-            title: _('patient_postal_address_state'),
-            token: '[PATIENT_POSTAL_ADDRESS_STATE]'
+            title: _('PATIENT_POSTAL_ZIP'),
+            token: '[PATIENT_POSTAL_ZIP]'
+        },
+        {
+            title: _('PATIENT_POSTAL_COUNTRY'),
+            token: '[PATIENT_POSTAL_COUNTRY]'
         },
         {
             title: _('patient_tabacco'),
@@ -33719,6 +33719,94 @@ Ext.define('App.store.administration.DocumentToken', {
             token: '[PATIENT_INACTIVE_SURGERY_LIST]'
         },
         {
+            title: _('provider_id'),
+            token: '[PROVIDER_ID]'
+        },
+        {
+            title: _('provider_title'),
+            token: '[PROVIDER_TITLE]'
+        },
+        {
+            title: _('provider_full_name'),
+            token: '[PROVIDER_FULL_NAME]'
+        },
+        {
+            title: _('provider_first_name'),
+            token: '[PROVIDER_FIRST_NAME]'
+        },
+        {
+            title: _('provider_middle_name'),
+            token: '[PROVIDER_MIDDLE_NAME]'
+        },
+        {
+            title: _('provider_last_name'),
+            token: '[PROVIDER_LAST_NAME]'
+        },
+        {
+            title: _('provider_npi'),
+            token: '[PROVIDER_NPI]'
+        },
+        {
+            title: _('provider_lic'),
+            token: '[PROVIDER_LIC]'
+        },
+        {
+            title: _('provider_dea'),
+            token: '[PROVIDER_DEA]'
+        },
+        {
+            title: _('provider_fed_tax'),
+            token: '[PROVIDER_FED_TAX]'
+        },
+        {
+            title: _('provider_ess'),
+            token: '[PROVIDER_ESS]'
+        },
+        {
+            title: _('provider_taxonomy'),
+            token: '[PROVIDER_TAXONOMY]'
+        },
+        {
+            title: _('provider_email'),
+            token: '[PROVIDER_EMAIL]'
+        },
+        {
+            title: _('provider_direct_address'),
+            token: '[PROVIDER_DIRECT_ADDRESS]'
+        },
+        {
+            title: _('provider_address_one'),
+            token: '[PROVIDER_ADDRESS_LINE_ONE]'
+        },
+        {
+            title: _('provider_address_two'),
+            token: '[PROVIDER_ADDRESS_LINE_TWO]'
+        },
+        {
+            title: _('provider_city'),
+            token: '[PROVIDER_ADDRESS_CITY]'
+        },
+        {
+            title: _('provider_state'),
+            token: '[PROVIDER_ADDRESS_STATE]'
+        },
+        {
+            title: _('provider_zip'),
+            token: '[PROVIDER_ADDRESS_ZIP]'
+        },
+        {
+            title: _('provider_country'),
+            token: '[PROVIDER_ADDRESS_COUNTRY]'
+        },
+        {
+            title: _('provider_phone'),
+            token: '[PROVIDER_PHONE]'
+        },
+        {
+            title: _('provider_mobile'),
+            token: '[PROVIDER_MOBILE]'
+        },
+        {
             title: _('encounter_date'),
             token: '[ENCOUNTER_DATE]'
         },
@@ -33805,6 +33893,10 @@ Ext.define('App.store.administration.DocumentToken', {
         {
             title: _('orders_other'),
             token: '[ORDERS_OTHER]'
+        },
+        {
+            title: _('order_date'),
+            token: '[ORDER_DATE]'
         },
         {
             title: _('current_date'),
@@ -42273,35 +42365,46 @@ Ext.define('App.controller.patient.RadOrders', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	onPrintRadOrderBtnClick: function(orders){
+	onPrintRadOrderBtnClick: function(input){
 		var me = this,
 			grid = me.getRadOrdersGrid(),
-			items = (Ext.isArray(orders) ? orders : grid.getSelectionModel().getSelection()),
-			params = {},
-			data,
-			i;
+			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
+			documents = {};
 
-		params.pid = app.patient.pid;
-		params.eid = app.patient.eid;
-		params.orderItems = [];
-		params.docType = 'Rad';
+		orders.forEach(function(order){
 
-		params.templateId = 6;
-		params.orderItems.push(['Description', 'Notes']);
-		for(i = 0; i < items.length; i++){
-			data = items[i].data;
-			params.orderItems.push([
-				data.description + ' [' + data.code_type + ':' + data.code + ']',
-				data.note
-			]);
-		}
+			var date_ordered = Ext.Date.format(order.get('date_ordered'),'Y-m-d'),
+				doc_key = '_' + order.get('eid') +
+					order.get('pid') +
+					order.get('uid') +
+					date_ordered;
 
-		DocumentHandler.createTempDocument(params, function(provider, response){
-			if(window.dual){
-				dual.onDocumentView(response.result.id, 'Rad');
-			}else{
-				app.onDocumentView(response.result.id, 'Rad');
+			if(!documents[doc_key]){
+				documents[doc_key] = {};
+				documents[doc_key].pid = app.patient.pid;
+				documents[doc_key].eid = app.patient.eid;
+				documents[doc_key].date_ordered = date_ordered;
+				documents[doc_key].provider_uid = order.get('uid');
+				documents[doc_key].orderItems = [];
+				documents[doc_key].docType = 'Rad';
+				documents[doc_key].templateId = 6;
+				documents[doc_key].orderItems.push(['Description', 'Notes']);
 			}
+
+			documents[doc_key].orderItems.push([
+				order.get('description') + ' [' + order.get('code_type') + ':' + order.get('code') + ']',
+				order.get('note')
+			]);
+		});
+
+		Ext.Object.each(documents, function(key, params){
+			DocumentHandler.createTempDocument(params, function(provider, response){
+				if(window.dual){
+					dual.onDocumentView(response.result.id, 'Rad');
+				}else{
+					app.onDocumentView(response.result.id, 'Rad');
+				}
+			});
 		});
 	},
 
@@ -42920,47 +43023,53 @@ Ext.define('App.controller.patient.RxOrders', {
 		return records;
 	},
 
-	onPrintRxOrderBtnClick: function(orders){
+	onPrintRxOrderBtnClick: function(input){
 		var me = this,
 			grid = me.getRxOrdersGrid(),
-			items = (Ext.isArray(orders) ? orders : grid.getSelectionModel().getSelection()),
+			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
 			isSingleColumnTable = true,
 			references = '',
-			params = {},
+			documents = {},
 			columns,
-			data,
-            i,
             refs,
             text;
 
-		params.pid = app.patient.pid;
-		params.eid = app.patient.eid;
-		params.orderItems = [];
-		params.docType = 'Rx';
-		params.templateId = 5;
+		orders.forEach(function(order){
 
-		if(isSingleColumnTable){
-			columns = [''];
-		}else{
-			columns = [
-                'Description',
-                'Instructions',
-                'Dispense',
-                'Refill',
-                'Days Supply',
-                'Dx',
-                'Notes',
-                'References'
-            ];
-		}
+			var date_ordered = Ext.Date.format(order.get('date_ordered'),'Y-m-d'),
+				doc_key = '_' + order.get('eid') +
+					order.get('pid') +
+					order.get('uid') +
+					date_ordered;
 
-		params.orderItems.push(columns);
+			if(!documents[doc_key]){
+				documents[doc_key] = {};
+				documents[doc_key].pid = app.patient.pid;
+				documents[doc_key].eid = app.patient.eid;
+				documents[doc_key].date_ordered = date_ordered;
+				documents[doc_key].provider_uid = order.get('uid');
+				documents[doc_key].orderItems = [];
+				documents[doc_key].docType = 'Rx';
+				documents[doc_key].templateId = 5;
+				if(isSingleColumnTable){
+					columns = [''];
+				}else{
+					columns = [
+						'Description',
+						'Instructions',
+						'Dispense',
+						'Refill',
+						'Days Supply',
+						'Dx',
+						'Notes',
+						'References'
+					];
+				}
+				documents[doc_key].orderItems.push(columns);
+			}
 
-		for(i = 0; i < items.length; i++){
-			data = items[i].data;
-
-			if(data.ref_order !== ''){
-				refs = data.ref_order.split('~');
+			if(order.get('ref_order') !== ''){
+				refs = order.get('ref_order').split('~');
 				if(refs.length >= 3){
 					references = 'Rx Reference#: ' + refs[2];
 				}
@@ -42968,58 +43077,61 @@ Ext.define('App.controller.patient.RxOrders', {
 
 			if(isSingleColumnTable){
 
-				text = '<u>' + _('order_number') + '</u>: ' + g('rx_order_number_prefix') + data.id + '<br>';
-				text += '<u>' + _('description') + '</u>: ' + '<b>' + data.STR.toUpperCase() + '</b><br>';
-				text += '<u>' + _('dispense_as_written') + '</u>: ' + (data.daw ? _('yes') : _('no')) + '<br>';
-				text += '<u>' + _('quantity') + '</u>: ' + data.dispense + '<br>';
+				text = '<u>' + _('order_number') + '</u>: ' + g('rx_order_number_prefix') + order.get('id') + '<br>';
+				text += '<u>' + _('description') + '</u>: ' + '<b>' + order.get('STR').toUpperCase() + '</b><br>';
+				text += '<u>' + _('dispense_as_written') + '</u>: ' + (order.get('daw') ? _('yes') : _('no')) + '<br>';
+				text += '<u>' + _('quantity') + '</u>: ' + order.get('dispense') + '<br>';
 
-				if(data.days_supply){
-					text += '<u>' + _('days_supply') + '</u>: ' + data.days_supply + '<br>';
+				if(order.get('days_supply')){
+					text += '<u>' + _('days_supply') + '</u>: ' + order.get('days_supply') + '<br>';
 				}
 
-				text += '<u>' + _('refill') + '</u>: ' + data.refill + '<br>';
-				text += '<u>' + _('instructions') + '</u>: ' + data.directions + '<br>';
+				text += '<u>' + _('refill') + '</u>: ' + order.get('refill') + '<br>';
+				text += '<u>' + _('instructions') + '</u>: ' + order.get('directions') + '<br>';
 
-				var dxs = (data.dxs.join ? data.dxs.join(', ') : data.dxs);
+				var dxs = (order.get('dxs').join ? order.get('dxs').join(', ') : order.get('dxs'));
 				if(dxs && dxs !== ''){
-					text += '<u>' + _('dx') + '</u>: ' + (data.dxs.join ? data.dxs.join(', ') : data.dxs) + '<br>';
+					text += '<u>' + _('dx') + '</u>: ' + (order.get('dxs').join ? order.get('dxs').join(', ') : order.get('dxs')) + '<br>';
 				}
 
-				if(data.notes !== ''){
-					text += '<u>' + _('notes_to_pharmacist') + '</u>: ' + data.notes + '<br>';
+				if(order.get('notes') !== ''){
+					text += '<u>' + _('notes_to_pharmacist') + '</u>: ' + order.get('notes') + '<br>';
 				}
 
 				if(references !== ''){
 					text += '<u>References</u>: ' + references + '<br>';
 				}
 
-				if(data.system_notes !== ''){
-					text += '<b>' + data.system_notes + '</b><br>';
+				if(order.get('system_notes') !== ''){
+					text += '<b>' + order.get('system_notes') + '</b><br>';
 				}
 
-				params.orderItems.push([text]);
+				documents[doc_key].orderItems.push([text]);
 
 			}else{
 
-				params.orderItems.push([
-					data.STR + ' ' + data.dose + ' ' + data.route + ' ' + data.form,
-					data.directions,
-					data.dispense,
-					data.refill,
-					data.days_supply,
-					(data.dxs.join ? data.dxs.join(', ') : data.dxs),
-					data.notes,
+				documents[doc_key].orderItems.push([
+					order.get('STR') + ' ' + order.get('dose') + ' ' + order.get('route') + ' ' + order.get('form'),
+					order.get('directions'),
+					order.get('dispense'),
+					order.get('refill'),
+					order.get('days_supply'),
+					(order.get('dxs').join ? order.get('dxs').join(', ') : order.get('dxs')),
+					order.get('notes'),
 					references
 				]);
 			}
-		}
 
-		DocumentHandler.createTempDocument(params, function(provider, response){
-			if(window.dual){
-				dual.onDocumentView(response.result.id, 'Rx');
-			}else{
-				app.onDocumentView(response.result.id, 'Rx');
-			}
+		});
+
+		Ext.Object.each(documents, function(key, params){
+			DocumentHandler.createTempDocument(params, function(provider, response){
+				if(window.dual){
+					dual.onDocumentView(response.result.id, 'Rx');
+				}else{
+					app.onDocumentView(response.result.id, 'Rx');
+				}
+			});
 		});
 	},
 
@@ -53006,6 +53118,7 @@ Ext.define('App.view.patient.Summary', {
 		me.loadStores();
 		me.el.unmask();
 	},
+
 	/**
 	 * This function is called from Viewport.js when
 	 * this panel is selected in the navigation panel.
@@ -54334,36 +54447,46 @@ Ext.define('App.controller.patient.LabOrders', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	onPrintLabOrderBtnClick: function(orders){
+	onPrintLabOrderBtnClick: function(input){
 		var me = this,
 			grid = me.getLabOrdersGrid(),
-			items = (Ext.isArray(orders) ? orders : grid.getSelectionModel().getSelection()),
-			params = {},
-			data,
-			i;
+			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
+			documents = {};
 
-		params.pid = app.patient.pid;
-		params.eid = app.patient.eid;
-		params.orderItems = [ ];
-		params.docType = 'Lab';
+		orders.forEach(function(order){
+			var date_ordered = Ext.Date.format(order.get('date_ordered'),'Y-m-d'),
+				doc_key = '_' + order.get('eid') +
+					order.get('pid') +
+					order.get('uid') +
+					date_ordered;
 
-		params.templateId = 4;
-		params.orderItems.push(['Description', 'Notes']);
-		for(i = 0; i < items.length; i++){
-			data = items[i].data;
+			if(!documents[doc_key]){
+				documents[doc_key] = {};
+				documents[doc_key].pid = app.patient.pid;
+				documents[doc_key].eid = app.patient.eid;
+				documents[doc_key].date_ordered = date_ordered;
+				documents[doc_key].provider_uid = order.get('uid');
+				documents[doc_key].orderItems = [];
+				documents[doc_key].docType = 'Lab';
+				documents[doc_key].templateId = 4;
+				documents[doc_key].orderItems.push(['Description', 'Notes']);
 
-			params.orderItems.push([
-					data.description + ' [' + data.code_type + ':' + data.code + ']',
-				data.note
-			]);
-		}
-
-		DocumentHandler.createTempDocument(params, function(provider, response){
-			if(window.dual){
-				dual.onDocumentView(response.result.id, 'Lab');
-			}else{
-				app.onDocumentView(response.result.id, 'Lab');
 			}
+
+			documents[doc_key].orderItems.push([
+				order.get('description') + ' [' + order.get('code_type') + ':' + order.get('code') + ']',
+				order.get('note')
+			]);
+		});
+
+		Ext.Object.each(documents, function(key, params){
+			DocumentHandler.createTempDocument(params, function(provider, response){
+				if(window.dual){
+					dual.onDocumentView(response.result.id, 'Lab');
+				}else{
+					app.onDocumentView(response.result.id, 'Lab');
+				}
+			});
 		});
 	},
 

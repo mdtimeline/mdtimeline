@@ -2501,16 +2501,15 @@ class CCDDocument
 							'@value' => $item['STR'] . ' ' . $item['dose'] . ' ' . $item['form']
 						],
 						[
-							'@value' => $item['directions']
+							'@value' => isset($item['directions']) ? $item['directions'] : ' '
 						],
 						[
-							'@value' => date('F j, Y', strtotime($item['begin_date']))
+							'@value' => $item['begin_date'] ? date('F j, Y', strtotime($item['begin_date'])) : ' '
 						],
 						[
 							'@value' => isset($item['begin_date']) && $item['begin_date'] == '0000-00-00 00:00:00' ? 'No longer active' : 'Active'
 						]
 					]
-
 				];
 
 				$entry['substanceAdministration']['@attributes'] = [
@@ -2757,13 +2756,13 @@ class CCDDocument
 				$medications['text']['table']['tbody']['tr'][] = [
 					'td' => [
 						[
-							'@value' => $item['RXCUI']
+							'@value' => isset($item['RXCUI']) ? $item['RXCUI'] : ''
 						],
 						[
-							'@value' => $item['STR']
+							'@value' => isset($item['STR']) ? $item['STR'] : ''
 						],
 						[
-							'@value' => $item['directions']
+							'@value' => isset($item['directions']) ? $item['directions'] : ''
 						],
 						[
 							'@value' => date('F j, Y', strtotime($item['administered_date']))
@@ -3576,7 +3575,7 @@ class CCDDocument
 				$planOfCare['text']['table']['tbody']['tr'][] = [
 					'td' => [
 						[
-							'@value' => $item['description']
+							'@value' => isset($item['description']) ? $item['description'] : ''
 						],
 						[
 							'@value' => $this->parseDate($item['date_ordered'])
@@ -3893,13 +3892,13 @@ class CCDDocument
 				$problems['text']['table']['tbody']['tr'][] = [
 					'td' => [
 						[
-							'@value' => $item['code_text']
+							'@value' => isset($item['code_text']) ? $item['code_text'] : ''
 						],
 						[
 							'@value' => $dateText
 						],
 						[
-							'@value' => $item['status']
+							'@value' => isset($item['status']) ? $item['status'] : ''
 						]
 					]
 
@@ -4170,13 +4169,13 @@ class CCDDocument
 				$allergies['text']['table']['tbody']['tr'][] = [
 					'td' => [
 						[
-							'@value' => $item['allergy']
+							'@value' => isset($item['allergy']) ? $item['allergy'] : ''
 						],
 						[
-							'@value' => $item['reaction']
+							'@value' => isset($item['reaction']) ? $item['reaction'] : ''
 						],
 						[
-							'@value' => $item['severity']
+							'@value' => isset($item['severity']) ? $item['severity'] : ''
 						],
 						[
 							'@value' => 'Status Data'
@@ -4749,10 +4748,10 @@ class CCDDocument
 			$socialHistory['text']['table']['tbody']['tr'][] = [
 				'td' => [
 					[
-						'@value' => $socialHistoryEntry['category_code_text']
+						'@value' => isset($socialHistoryEntry['category_code_text']) ? $socialHistoryEntry['category_code_text'] : ''
 					],
 					[
-						'@value' => $socialHistoryEntry['observation']
+						'@value' => isset($socialHistoryEntry['observation']) ? $socialHistoryEntry['observation'] : ''
 					],
 					[
 						'@value' => $dateText
@@ -5083,7 +5082,7 @@ class CCDDocument
 							[
 								'td' => [
 									[
-										'@value' => $obs['code_text']
+										'@value' => isset($obs['code_text']) ? $obs['code_text'] : ''
 									],
 									[
 										'@attributes' => [
@@ -5310,16 +5309,16 @@ class CCDDocument
 				$functionalStatus['text']['table']['tbody']['tr'][] = [
 					'td' => [
 						[
-							'@value' => $item['category']
+							'@value' => isset($item['category']) ? $item['category'] : ''
 						],
 						[
-							'@value' => $item['code_text']
+							'@value' => isset($item['code_text']) ? $item['code_text'] : ''
 						],
 						[
 							'@value' => $this->parseDate($item['created_date'])
 						],
 						[
-							'@value' => $item['status']
+							'@value' => isset($item['status']) ? $item['status'] : ''
 						]
 					]
 

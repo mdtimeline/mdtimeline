@@ -811,7 +811,7 @@ INTRUCTIONS;
 
 		// Patient Race
 		if(isset($patientData['race']) && $patientData['race'] != ''){
-			$recordTarget['patientRole']['patient']['sdtc:raceCode'] = [
+			$recordTarget['patientRole']['patient']['raceCode'] = [
 				'@attributes' => [
 					'code' => $patientData['race'],
 					'codeSystemName' => 'Detailed Race',
@@ -3063,7 +3063,7 @@ INTRUCTIONS;
                     'code' => 'S'
                 ]
             ],
-            'sdtc:signatureText' => [
+            'signatureText' => [
                 '@attributes' => [
                     'mediaType' => 'text/xml',
                     'representation' => 'B64'

@@ -2558,7 +2558,7 @@ INTRUCTIONS;
 							'@value' => $item['begin_date'] ? date('F j, Y', strtotime($item['begin_date'])) : ' '
 						],
 						[
-							'@value' => isset($item['begin_date']) && $item['begin_date'] == '0000-00-00 00:00:00' ? 'No longer active' : 'Active'
+							'@value' => isset($item['status']) ? $item['status'] : ''
 						]
 					]
 				];
@@ -2600,7 +2600,7 @@ INTRUCTIONS;
 					]
 				];
 
-				if($item['end_date'] != '0000-00-00'){
+				if(isset($item['end_date']) && $item['end_date'] != '0000-00-00'){
 					$entry['substanceAdministration']['effectiveTime']['high'] = [
 						'@attributes' => [
 							'value' => date('Ymd', strtotime($item['end_date']))
@@ -3937,7 +3937,7 @@ INTRUCTIONS;
 			foreach($problemsData as $item){
 
 				$dateText = $this->parseDate($item['begin_date']) . ' - ';
-				if($item['end_date'] != '0000-00-00')
+				if(isset($item['end_date']) && $item['end_date'] != '0000-00-00')
 					$dateText .= $this->parseDate($item['end_date']);
 
 				$problems['text']['table']['tbody']['tr'][] = [
@@ -3998,7 +3998,7 @@ INTRUCTIONS;
 						'value' => $this->parseDate($item['begin_date'])
 					]
 				];
-				if($item['end_date'] != '0000-00-00'){
+				if(isset($item['end_date']) && $item['end_date'] != '0000-00-00'){
 					$entry['act']['effectiveTime']['high'] = [
 						'@attributes' => [
 							'value' => $this->parseDate($item['end_date'])
@@ -4066,7 +4066,7 @@ INTRUCTIONS;
 						'value' => $this->parseDate($item['begin_date'])
 					]
 				];
-				if($item['end_date'] != '0000-00-00'){
+				if(isset($item['end_date']) && $item['end_date'] != '0000-00-00'){
 					$entry['act']['entryRelationship']['observation']['effectiveTime']['high'] = [
 						'@attributes' => [
 							'value' => $this->parseDate($item['end_date'])
@@ -5417,13 +5417,13 @@ INTRUCTIONS;
 					]
 				];
 
-				if($item['begin_date'] != '0000-00-00'){
+				if(isset($item['begin_date']) && $item['begin_date'] != '0000-00-00'){
 					$entry['observation']['effectiveTime'] = [
 						'@attributes' => [
 							'value' => $this->parseDate($item['created_date'])
 						]
 					];
-				} elseif($item['end_date'] != '0000-00-00') {
+				} elseif(isset($item['end_date']) && $item['end_date'] != '0000-00-00') {
 					$entry['observation']['effectiveTime'] = [
 						'@attributes' => [
 							'xsi:type' => 'IVL_TS'

@@ -98,6 +98,12 @@ class CCDDocumentParse {
             }
 		}
 	}
+	function parseDocument($xml = null) {
+		if(isset($xml)){
+			$this->setDocument($xml);
+		}
+		return $this->getDocument();
+	}
 
 	function getDocument() {
 		$document = new stdClass();

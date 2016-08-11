@@ -142,14 +142,22 @@ Ext.define('App.controller.patient.CCDImport', {
 				click: me.onCcdImportPreviewWindowCancelBtnClick
 			}
 		});
+
+		me.validatePosibleDuplicates = true;
+
 	},
 
-	CcdImport: function(ccdData){
+	CcdImport: function(ccdData, mergePid){
 		if(!this.getCcdImportWindow()){
 			Ext.create('App.view.patient.windows.CCDImport');
 		}
 		this.getCcdImportWindow().ccdData = ccdData;
 		this.getCcdImportWindow().show();
+
+		if(mergePid){
+			this.doLoadMergePatientData(mergePid);
+		}
+
 	},
 
 	onCcdImportWindowShow: function(win){
@@ -158,8 +166,8 @@ Ext.define('App.controller.patient.CCDImport', {
 
     /*
     Event when the CDA Import and Viewer shows up.
-    Also will check for duplicates in the database and if a posible duplicate is found
-    show the posible duplicate window
+    Also will check for duplicates in the database and if a possible duplicate is found
+    show the possible duplicate window
      */
 	doLoadCcdData: function(data){
 		var me = this,
@@ -168,17 +176,21 @@ Ext.define('App.controller.patient.CCDImport', {
             phone;
         ccdPatientForm.loadRecord(patient);
 
-        App.app.getController('patient.Patient').lookForPossibleDuplicates(
-            {
-                fname: patient.data.fname,
-                lname: patient.data.lname,
-                sex: patient.data.sex,
-                DOB: patient.data.DOB
-            },
-            'ccdImportDuplicateAction',
-            function(patient) {
-            }
-        );
+
+		if(me.validatePosibleDuplicates){
+			App.app.getController('patient.Patient').lookForPossibleDuplicates(
+				{
+					fname: patient.data.fname,
+					lname: patient.data.lname,
+					sex: patient.data.sex,
+					DOB: patient.data.DOB
+				},
+				'ccdImportDuplicateAction',
+				function(patient){
+
+				}
+			);
+		}
 
 		// list 59 ethnicity
 		// list 14 race
@@ -501,6 +513,7 @@ Ext.define('App.controller.patient.CCDImport', {
 		var me = this,
 			now = new Date(),
 			pid = patient.data.pid,
+			i,
 
 		// Get all the stores of the dataGrids
 			problems = me.getCcdImportPreviewActiveProblemsGrid().getStore().data.items,
@@ -508,45 +521,45 @@ Ext.define('App.controller.patient.CCDImport', {
 			allergies = me.getCcdImportPreviewAllergiesGrid().getStore().data.items;
 
 		// Allergies
-		for(Index = 0; Index < allergies.length; Index++){
+		for(i = 0; i < allergies.length; i++){
 
-			if(allergies[Index].data.id && allergies[Index].data.id > 0)  continue;
+			if(allergies[i].data.id && allergies[i].data.id > 0)  continue;
 
-			allergies[Index].set({
+			allergies[i].set({
                 pid: pid,
                 created_uid: app.patient.id,
                 create_date: now
             });
-            allergies[Index].setDirty();
-			allergies[Index].save();
+            allergies[i].setDirty();
+			allergies[i].save();
 		}
 
 		// Medications
-		for(Index = 0; Index < medications.length; Index++){
+		for(i = 0; i < medications.length; i++){
 
-			if(medications[Index].data.id && medications[Index].data.id > 0)  continue;
+			if(medications[i].data.id && medications[i].data.id > 0)  continue;
 
-			medications[Index].set({
+			medications[i].set({
 				pid: pid,
 				created_uid: app.patient.id,
 				create_date: now
 			});
-            medications[Index].setDirty();
-			medications[Index].save();
+            medications[i].setDirty();
+			medications[i].save();
 		}
 
 		// Problems
-		for(Index = 0; Index < problems.length; Index++){
+		for(i = 0; i < problems.length; i++){
 
-			if(problems[Index].data.id && problems[Index].data.id > 0)  continue;
+			if(problems[i].data.id && problems[i].data.id > 0)  continue;
 
-			problems[Index].set({
+			problems[i].set({
 				pid: pid,
 				created_uid: app.patient.id,
 				create_date: now
 			});
-            problems[Index].setDirty();
-			problems[Index].save({
+            problems[i].setDirty();
+			problems[i].save({
 				callback: function(){
 
 					me.getCcdImportWindow().close();
@@ -574,8 +587,8 @@ Ext.define('App.controller.patient.CCDImport', {
 		var me = this,
 			grids = me.getCcdImportWindow().query('grid');
 
-		for(var Index = 0; Index < grids.length; Index++){
-			var sm = grids[Index].getSelectionModel();
+		for(var i = 0; i < grids.length; i++){
+			var sm = grids[i].getSelectionModel();
 			if(selected){
 				sm.selectAll();
 			}else{

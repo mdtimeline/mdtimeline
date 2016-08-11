@@ -292,8 +292,8 @@ Ext.define('App.view.administration.Users', {
 												},
 												{
 													xtype: 'textfield',
-													fieldLabel: _('upin'),
-													name: 'pin'
+													fieldLabel: _('lic'),
+													name: 'lic'
 												},
 												{
 													xtype: 'textfield',

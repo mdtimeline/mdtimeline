@@ -35,16 +35,28 @@ class Documents {
 	/**
 	 * @var Patient
 	 */
-	private $patient;
+	private $Patient;
 
-	private $encounter;
+	/**
+	 * @var Encounter
+	 */
+	private $Encounter;
 
+	/**
+	 * @var User
+	 */
+	private $User;
+
+	/**
+	 * @var DocumentPDF
+	 */
 	public $pdf;
 
 	function __construct() {
 		$this->db = new MatchaHelper();
-		$this->patient = new Patient();
-		$this->encounter = new Encounter();
+		$this->Patient = new Patient();
+		$this->Encounter = new Encounter();
+		$this->User = new User();
 		$this->pdf = new DocumentPDF('P', 'mm', 'A4', true, 'UTF-8', false);
 		return;
 	}
@@ -88,12 +100,12 @@ class Documents {
 	public function get_PatientTokensData($pid, $allNeededInfo, $tokens) {
 
         $patientData = $this->getAllPatientData($pid);
-		$age = $this->patient->getPatientAgeByDOB($patientData['DOB']);
-		$user = new User();
+		$age = $this->Patient->getPatientAgeByDOB($patientData['DOB']);
 		$patienInformation = [
 			'[PATIENT_NAME]' => $patientData['fname'],
 			'[PATIENT_ID]' => $patientData['pid'],
-			'[PATIENT_FULL_NAME]' => $this->patient->getPatientFullNameByPid($patientData['pid']),
+			'[PATIENT_RECORD_NUMBER]' => $patientData['pubpid'],
+			'[PATIENT_FULL_NAME]' => $this->Patient->getPatientFullNameByPid($patientData['pid']),
 			'[PATIENT_LAST_NAME]' => $patientData['lname'],
 			'[PATIENT_SEX]' => $patientData['sex'],
 			'[PATIENT_BIRTHDATE]' => $patientData['DOB'],
@@ -147,7 +159,7 @@ class Documents {
 			'[PATIENT_EMERGENCY_PHONE]' => isset($patientData['emergency_contact_phone']) ? $patientData['emergency_contact_phone'] : '',
 
 			'[PATIENT_PROVIDER]' => is_numeric($patientData['provider']) ?
-                $user->getUserFullNameById($patientData['provider']) : '',
+                $this->User->getUserFullNameById($patientData['provider']) : '',
 
 			'[PATIENT_PHARMACY]' => $patientData['pharmacy'],
 			'[PATIENT_AGE]' => $age['DMY']['years'],
@@ -217,7 +229,6 @@ class Documents {
 			//            '[PATIENT_TERTIARY_SUBSCRIBER_EMPLOYER_ZIPCODE]' => $patientData['tertiary_subscriber_zip_code']
 		];
 
-		unset($user);
 		foreach($tokens as $i => $tok){
 			if(isset($patienInformation[$tok]) && ($allNeededInfo[$i] == '' || $allNeededInfo[$i] == null)){
 				$allNeededInfo[$i] = $patienInformation[$tok];
@@ -230,13 +241,13 @@ class Documents {
 
 		$params = new stdClass();
 		$params->eid = $eid;
-		$encounter = $this->encounter->getEncounter($params);
+		$encounter = $this->Encounter->getEncounter($params);
 
 		if(!isset($encounter['encounter'])){
 			return $allNeededInfo;
 		}
 
-		$encounterCodes = $this->encounter->getEncounterCodes($params);
+		$encounterCodes = $this->Encounter->getEncounterCodes($params);
 
 		$vitals = end($encounter['encounter']['vitals']);
 
@@ -510,10 +521,10 @@ class Documents {
 		]);
 		$this->pdf->SetDefaultMonospacedFont('courier');
 		$this->pdf->SetMargins(15, 27, 15);
-		$this->pdf->SetHeaderMargin(5);
-		$this->pdf->SetFooterMargin(10);
+		$this->pdf->setHeaderMargin(5);
+		$this->pdf->setFooterMargin(10);
 		$this->pdf->SetAutoPageBreak(true, 25);
-		$this->pdf->setFontSubsetting(true);
+		//$this->pdf->setFontSubsetting(true);
 
 		if(isset($params->DoctorsNote)){
 			$body = $params->DoctorsNote;
@@ -537,7 +548,7 @@ class Documents {
 
 		$allNeededInfo = $this->getClinicTokensData($allNeededInfo, $tokens);
 
-		if(isset($params->orderItems)){
+		if(isset($params->orderItems) || isset($params->date_ordered)){
 			$allNeededInfo = $this->parseTokensForOrders($params, $tokens, $allNeededInfo);
 		}
 
@@ -547,6 +558,10 @@ class Documents {
 
 		if(isset($params->docNoteid)){
 			$allNeededInfo = $this->addDoctorsNoteData($params, $tokens, $allNeededInfo);
+		}
+
+		if(isset($params->provider_uid)){
+			$allNeededInfo = $this->addProviderData($params, $tokens, $allNeededInfo);
 		}
 
 		// add line token
@@ -572,6 +587,49 @@ class Documents {
 			return true;
 		}
 
+	}
+
+	private function addProviderData($params, $tokens, $allNeededInfo) {
+
+		$provider = $this->User->getUserByUid($params->provider_uid);
+
+		if($provider === false){
+			return $allNeededInfo;
+		}
+
+		$info = [
+			'[PROVIDER_ID]' => $provider['id'],
+			'[PROVIDER_TITLE]' => isset($provider['title']) ? $provider['title'] : '',
+			'[PROVIDER_FULL_NAME]' => Person::fullname($provider['fname'], $provider['mname'], $provider['lname']),
+			'[PROVIDER_FIRST_NAME]' => isset($provider['fname']) ? $provider['fname'] : '',
+			'[PROVIDER_MIDDLE_NAME]' => isset($provider['mname']) ? $provider['mname'] : '',
+			'[PROVIDER_LAST_NAME]' => isset($provider['lname']) ? $provider['lname'] : '',
+			'[PROVIDER_NPI]' => isset($provider['npi']) ? $provider['npi'] : '',
+			'[PROVIDER_LIC]' => isset($provider['lic']) ? $provider['lic'] : '',
+			'[PROVIDER_DEA]' => isset($provider['feddrugid']) ? $provider['feddrugid'] : '',
+			'[PROVIDER_FED_TAX]' => isset($provider['fedtaxid']) ? $provider['fedtaxid'] : '',
+			'[PROVIDER_ESS]' => isset($provider['ess']) ? $provider['ess'] : '',
+			'[PROVIDER_TAXONOMY]' => isset($provider['taxonomy']) ? $provider['taxonomy'] : '',
+			'[PROVIDER_EMAIL]' => isset($provider['email']) ? $provider['email'] : '',
+			'[PROVIDER_DIRECT_ADDRESS]' => isset($provider['direct_address']) ? $provider['direct_address'] : '',
+			'[PROVIDER_ADDRESS_LINE_ONE]' => isset($provider['street']) ? $provider['street'] : '',
+			'[PROVIDER_ADDRESS_LINE_TWO]' => isset($provider['street_cont']) ? $provider['street_cont'] : '',
+			'[PROVIDER_ADDRESS_CITY]' => isset($provider['city']) ? $provider['city'] : '',
+			'[PROVIDER_ADDRESS_STATE]' => isset($provider['state']) ? $provider['state'] : '',
+			'[PROVIDER_ADDRESS_ZIP]' => isset($provider['postal_code']) ? $provider['postal_code'] : '',
+			'[PROVIDER_ADDRESS_COUNTRY]' => isset($provider['country_code']) ? $provider['country_code'] : '',
+			'[PROVIDER_PHONE]' => isset($provider['phone']) ? $provider['phone'] : '',
+			'[PROVIDER_MOBILE]' => isset($provider['mobile']) ? $provider['mobile'] : '',
+		];
+
+		unset($provider);
+		foreach($tokens as $i => $tok){
+			if(isset($info[$tok]) && ($allNeededInfo[$i] == '' || $allNeededInfo[$i] == null)){
+				$allNeededInfo[$i] = $info[$tok];
+			}
+		}
+
+		return $allNeededInfo;
 	}
 
 	private function addReferralData($params, $tokens, $allNeededInfo) {
@@ -625,14 +683,22 @@ class Documents {
 	}
 
 	private function parseTokensForOrders($params, $tokens, $allNeededInfo) {
-		$html = $this->arrayToTable($params->orderItems);
-		foreach($tokens as $index => $tok){
-			if($allNeededInfo[$index] == '' || $allNeededInfo[$index] == null){
-				if($tok == '[ORDER_ITEMS]'){
-					$allNeededInfo[$index] = $html;
-				}
+
+		if(isset($params->date_ordered)){
+			$index = array_search('[ORDER_DATE]', $tokens);
+			if($index !== false){
+				$allNeededInfo[$index] = $params->date_ordered;
 			}
 		}
+
+		if(isset($params->orderItems)){
+			$index = array_search('[ORDER_ITEMS]', $tokens);
+			if($index !== false){
+				$html = $this->arrayToTable($params->orderItems);
+				$allNeededInfo[$index] = $html;
+			}
+		}
+
 		return $allNeededInfo;
 	}
 

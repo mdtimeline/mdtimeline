@@ -29,7 +29,7 @@ $complexTypes = [];
  * Always include the registry.
  */
 
-$serviceName = 'GaiaEHR Access Point';
+$serviceName = 'mdTimeLine EHR Access Point';
 
 $Server = '10.23.150.10/GaiaEHR';
 

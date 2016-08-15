@@ -816,7 +816,7 @@ INTRUCTIONS;
 		// Patient Race
 		if(isset($patientData['race']) && $patientData['race'] != ''){
 
-			$race = $this->CombosData->getDisplayValueByListIdAndOptionValue(14, $patientData['race']);
+			$race = $this->CombosData->getValuesByListIdAndOptionValue(14, $patientData['race']);
 
 			if($race !==  false){
 				$recordTarget['patientRole']['patient']['raceCode'] = [

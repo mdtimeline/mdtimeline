@@ -274,6 +274,10 @@ class CCDDocument
             case 'TAXONOMY':
                 return '2.16.840.1.114222.4.11.106';
                 break;
+            case 'CDCREC':
+            case 'PH_RaceAndEthnicity_CDC':
+                return '2.16.840.1.113883.6.238';
+                break;
             default:
                 return '';
         }
@@ -720,11 +724,11 @@ INTRUCTIONS;
         if(isset($PatientContactRecord['street_mailing_address'])) {
             $recordTarget['patientRole']['addr'] = $this->addressBuilder(
                 'HP',
-                $PatientContactRecord['street_mailing_address'],
-                $PatientContactRecord['city'],
-                $PatientContactRecord['state'],
-                $PatientContactRecord['zip'],
-                $PatientContactRecord['country'],
+                $PatientContactRecord['postal_address'] . ' ' . $PatientContactRecord['postal_address_cont'],
+                $PatientContactRecord['postal_city'],
+                $PatientContactRecord['postal_state'],
+                $PatientContactRecord['postal_zip'],
+                $PatientContactRecord['postal_country'],
                 date('Ymd')
             );
         }
@@ -811,20 +815,29 @@ INTRUCTIONS;
 
 		// Patient Race
 		if(isset($patientData['race']) && $patientData['race'] != ''){
-			$recordTarget['patientRole']['patient']['raceCode'] = [
-				'@attributes' => [
-					'code' => $patientData['race'],
-					'codeSystemName' => 'Detailed Race',
-					'displayName' => $this->CombosData->getDisplayValueByListIdAndOptionValue(14, $patientData['race']),
-					'codeSystem' => '2.16.840.1.114222.4.11.876'
-				]
-			];
+
+			$race = $this->CombosData->getDisplayValueByListIdAndOptionValue(14, $patientData['race']);
+
+			if($race !==  false){
+				$recordTarget['patientRole']['patient']['raceCode'] = [
+					'@attributes' => [
+						'code' => $race['code'],
+						'codeSystemName' => $race['code_type'],
+						'displayName' => $race['option_name'],
+						'codeSystem' => $this->codes($race['code_type'])
+					]
+				];
+			}else{
+				$recordTarget['patientRole']['patient']['raceCode'] = [
+					'@attributes' => [
+						'nullFlavor' => 'NA'
+					]
+				];
+			}
 		} else {
 			$recordTarget['patientRole']['patient']['raceCode'] = [
 				'@attributes' => [
-					'nullFlavor' => 'NA',
-					'codeSystemName' => 'Race & Ethnicity - CDC',
-					'codeSystem' => '2.16.840.1.114222.4.11.876'
+					'nullFlavor' => 'NA'
 				]
 			];
 		}
@@ -845,9 +858,9 @@ INTRUCTIONS;
 		} else {
 			$recordTarget['patientRole']['patient']['ethnicGroupCode'] = [
 				'@attributes' => [
-					'nullFlavor' => 'NA',
-					'codeSystemName' => 'Race & Ethnicity - CDC',
-					'codeSystem' => '2.16.840.1.113883.6.238'
+					'nullFlavor' => 'NA'
+//					'codeSystemName' => 'Race & Ethnicity - CDC',
+//					'codeSystem' => '2.16.840.1.113883.6.238'
 				]
 			];
 		}
@@ -870,31 +883,18 @@ INTRUCTIONS;
             ['languageCode']
             ['@attributes']
             ['code'] = $patientData['language'];
-            // How well the patient spoke it
-            $recordTarget['patientRole']
-            ['patient']
-            ['languageCommunication']
-            ['proficiencyLevelCode'] = [
-                '@attributes' => [
-                   'code' => 'G',
-                   'displayName' => 'Good',
-                   'codeSystem' => '2.16.840.1.113883.5.61'
-                ]
-            ];
-            // This is the patient preferred language to sppoke
-            $recordTarget['patientRole']
-            ['patient']
-            ['languageCommunication']
-            ['preferenceInd'] = [
-                '@attributes' => [
-                    'value' => 'true'
-                ]
-            ];
+
+//            // This is the patient preferred language to sppoke
+//            $recordTarget['patientRole']
+//            ['patient']
+//            ['languageCommunication']
+//            ['preferenceInd'] = [
+//                '@attributes' => [
+//                    'value' => 'true'
+//                ]
+//            ];
             // Language Ability Mode
-            $recordTarget['patientRole']
-            ['patient']
-            ['languageCommunication']
-            ['modeCode'] = [
+            $recordTarget['patientRole']['patient']['languageCommunication']['modeCode'] = [
                 '@attributes' => [
                     'code' => 'ESP',
                     'displayName' => 'Expressed spoken',
@@ -902,6 +902,19 @@ INTRUCTIONS;
                     'codeSystemName' => 'LanguageAbilityMode'
                 ]
             ];
+
+			// How well the patient spoke it
+			$recordTarget['patientRole']
+			['patient']
+			['languageCommunication']
+			['proficiencyLevelCode'] = [
+				'@attributes' => [
+					'code' => 'G',
+					'displayName' => 'Good',
+					'codeSystem' => '2.16.840.1.113883.5.61'
+				]
+			];
+
 		} else {
 			$recordTarget['patientRole']
             ['patient']
@@ -1080,6 +1093,9 @@ INTRUCTIONS;
 	 */
 	private function getInformationRecipient()
     {
+
+    	// TODO fix this...
+
 		$recipient = [
 			'intendedRecipient' => [
 				'informationRecipient' => [
@@ -1399,6 +1415,8 @@ INTRUCTIONS;
         );
 		$informant['assignedEntity']['telecom'] = $this->telecomBuilder($this->facility['phone'], 'WP');
 
+	    // TODO fix this...
+
 		$informant['assignedEntity']['assignedPerson'] = [
 			'name' => [
 				'given' => $this->primaryProvider['fname'],
@@ -1435,6 +1453,9 @@ INTRUCTIONS;
             $this->facility['country_code']
         );
 		$dataEnterer['assignedEntity']['telecom'] = $this->telecomBuilder($this->facility['phone'], 'WP');
+
+
+	    // TODO fix this...
 
 		$dataEnterer['assignedEntity']['assignedPerson'] = [
 			'name' => [
@@ -1479,32 +1500,17 @@ INTRUCTIONS;
 				]
 			]
 		];
-		$performer['assignedEntity']['addr'] = [
-			'@attributes' => [
-				'use' => 'HP'
-			],
-			'streetAddressLine' => [
-				'@value' => (isset($user->street) ? $user->street : '')
-			],
-			'city' => [
-				'@value' => (isset($user->city) ? $user->city : '')
-			],
-			'state' => [
-				'@value' => (isset($user->state) ? $user->state : '')
-			],
-			'postalCode' => [
-				'@value' => (isset($user->postal_code) ? $user->postal_code : '')
-			],
-			'country' => [
-				'@value' => (isset($user->country_code) ? $user->country_code : '')
-			]
-		];
 
-		$performer['assignedEntity']['telecom'] = [
-			'@attributes' => [
-				'value' => 'tel:' . (isset($user->phone) ? $user->phone : '')
-			]
-		];
+	    $performer['assignedEntity']['addr'] = $this->addressBuilder(
+	    	'HP',
+		    $user->street,
+		    $user->city,
+		    $user->state,
+		    $user->postal_code,
+		    $user->country_code
+	    );
+
+		$performer['assignedEntity']['telecom'] = $this->telecomBuilder($user->phone);
 
 		$performer['assignedEntity']['representedOrganization'] = [
 			'id' => [

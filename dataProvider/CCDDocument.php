@@ -1094,14 +1094,12 @@ INTRUCTIONS;
 	private function getInformationRecipient()
     {
 
-    	// TODO fix this...
-
 		$recipient = [
 			'intendedRecipient' => [
 				'informationRecipient' => [
 					'name' => [
-						'given' => $this->primaryProvider['fname'],
-						'family' => $this->primaryProvider['lname']
+						'given' => $this->user['fname'],
+						'family' => $this->user['lname']
 					],
 				],
 				'receivedOrganization' => [
@@ -1415,12 +1413,10 @@ INTRUCTIONS;
         );
 		$informant['assignedEntity']['telecom'] = $this->telecomBuilder($this->facility['phone'], 'WP');
 
-	    // TODO fix this...
-
 		$informant['assignedEntity']['assignedPerson'] = [
 			'name' => [
-				'given' => $this->primaryProvider['fname'],
-				'family' => $this->primaryProvider['lname']
+				'given' => $this->user['fname'],
+				'family' => $this->user['lname']
 			]
 		];
 
@@ -1454,13 +1450,10 @@ INTRUCTIONS;
         );
 		$dataEnterer['assignedEntity']['telecom'] = $this->telecomBuilder($this->facility['phone'], 'WP');
 
-
-	    // TODO fix this...
-
 		$dataEnterer['assignedEntity']['assignedPerson'] = [
 			'name' => [
-				'given' => $this->primaryProvider['fname'],
-				'family' => $this->primaryProvider['lname']
+				'given' => $this->user['fname'],
+				'family' => $this->user['lname']
 			]
 		];
 

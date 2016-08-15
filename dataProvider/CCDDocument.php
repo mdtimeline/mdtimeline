@@ -4673,27 +4673,71 @@ INTRUCTIONS;
          * which is different from how Consolidated CDA generally communicates unknown information.
          */
         $smokingStatus = $SocialHistory->getSocialHistoryByPidAndCode($this->pid, 'smoking_status');
+		$socialHistories = $SocialHistory->getSocialHistoryByPidAndCode($this->pid);
+
+		if(count($smokingStatus) > 0 || count($socialHistories) > 0){
+			$socialHistory = [
+				'templateId' => [
+					'@attributes' => [
+						'root' => '2.16.840.1.113883.10.20.22.2.17'
+					]
+				],
+				'code' => [
+					'@attributes' => [
+						'code' => '29762-2',
+						'codeSystemName' => 'LOINC',
+						'codeSystem' => '2.16.840.1.113883.6.1',
+						'displayName' => "Social History"
+					]
+				],
+				'title' => 'Social History',
+				'text' => [
+				    'table' => [
+					    '@attributes' => [
+						    'border' => '1',
+						    'width' => '100%'
+					    ],
+					    'thead' => [
+						    'tr' => [
+							    [
+								    'th' => [
+									    [
+										    '@value' => 'Social History Element'
+									    ],
+									    [
+										    '@value' => 'Description'
+									    ],
+									    [
+										    '@value' => 'Effective Dates'
+									    ]
+								    ]
+							    ]
+						    ]
+					    ],
+					    'tbody' => [
+						    'tr' => []
+					    ]
+				    ]
+			    ]
+			];
+		}
 
 		if(count($smokingStatus) > 0){
 			$smokingStatus = end($smokingStatus);
 
-            $socialHistory = [
-                'templateId' => [
-                    '@attributes' => [
-                        'root' => '2.16.840.1.113883.10.20.22.2.17'
-                    ]
-                ],
-                'code' => [
-                    '@attributes' => [
-                        'code' => '29762-2',
-                        'codeSystemName' => 'LOINC',
-                        'codeSystem' => '2.16.840.1.113883.6.1',
-                        'displayName' => "Social History"
-                    ]
-                ],
-                'title' => 'Social History',
-                'text' => $smokingStatus['note']
-            ];
+			$socialHistory['text']['table']['tbody']['tr'][] = [
+				'td' => [
+					[
+						'@value' => 'Smoking Status'
+					],
+					[
+						'@value' => $smokingStatus['status']
+					],
+					[
+						'@value' => isset($smokingStatus['create_date']) ? date('F j, Y', strtotime($smokingStatus['create_date'])) : ''
+					]
+				]
+			];
 
 			$socialHistory['entry'][] = [
 				'@attributes' => [
@@ -4765,39 +4809,6 @@ INTRUCTIONS;
 		 * social, and environmental history and health risk factors, as well as administrative data such
 		 * as marital status, race, ethnicity, and religious affiliation.
 		 */
-		$socialHistories = $SocialHistory->getSocialHistoryByPidAndCode($this->pid);
-
-		if(count($socialHistories) > 0){
-
-			$socialHistory['text'] = [
-				'table' => [
-					'@attributes' => [
-						'border' => '1',
-						'width' => '100%'
-					],
-					'thead' => [
-						'tr' => [
-							[
-								'th' => [
-									[
-										'@value' => 'Social History Element'
-									],
-									[
-										'@value' => 'Description'
-									],
-									[
-										'@value' => 'Effective Dates'
-									]
-								]
-							]
-						]
-					],
-					'tbody' => [
-						'tr' => []
-					]
-				]
-			];
-		}
 
 		foreach($socialHistories As $socialHistoryEntry){
 

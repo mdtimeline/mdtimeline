@@ -628,11 +628,26 @@ class CCDDocumentParse {
 					$dates = $this->datesHandler($obs['effectiveTime']);
 					$observation->date_analysis = $dates['low'];
 
-					if(isset($obs['interpretationCode'])){
+					if(
+						isset($obs['interpretationCode']) &&
+						isset($obs['interpretationCode']['@attributes']) &&
+						isset($obs['interpretationCode']['@attributes']['code'])
+					){
 						$observation->abnormal_flag = $obs['interpretationCode']['@attributes']['code'];
+					} else {
+						$observation->abnormal_flag = '';
 					}
 
-					$observation->observation_result_status = $obs['statusCode']['@attributes']['code'];
+					if(
+						isset($obs['statusCode']) &&
+						isset($obs['statusCode']['@attributes']) &&
+						isset($obs['statusCode']['@attributes']['code'])
+					){
+						$observation->observation_result_status = $obs['statusCode']['@attributes']['code'];
+					} else {
+						$observation->observation_result_status = '';
+					}
+
 					$dates = $this->datesHandler($obs['effectiveTime']);
 					$observation->date_observation = $result_date = $dates['low'];
 

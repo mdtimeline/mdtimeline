@@ -4734,10 +4734,8 @@ INTRUCTIONS;
 						]
 					],
 					'effectiveTime' => [
-						'low' => [
-							'@attributes' => [
-								'value' => $this->parseDate($smokingStatus['create_date'])
-							]
+						'@attributes' => [
+							'value' => $this->parseDate($smokingStatus['create_date'])
 						]
 					],
 

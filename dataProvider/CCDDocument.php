@@ -711,7 +711,6 @@ INTRUCTIONS;
 		$patientData = $this->patientData;
 		$Insurance = new Insurance();
 		$insuranceData = $Insurance->getPatientPrimaryInsuranceByPid($this->pid);
-        $PatientContactRecord = $this->PatientContacts->getSelfContact($this->pid);
 
 		$recordTarget['patientRole']['id'] = [
 			'@attributes' => [
@@ -721,27 +720,22 @@ INTRUCTIONS;
 		];
 
         // If the Self Contact information address is set, include it in the CCD
-        if(isset($PatientContactRecord['street_mailing_address'])) {
+//        if(isset($PatientContactRecord['patientRole'])) {
             $recordTarget['patientRole']['addr'] = $this->addressBuilder(
                 'HP',
-                $PatientContactRecord['postal_address'] . ' ' . $PatientContactRecord['postal_address_cont'],
-                $PatientContactRecord['postal_city'],
-                $PatientContactRecord['postal_state'],
-                $PatientContactRecord['postal_zip'],
-                $PatientContactRecord['postal_country'],
+	            $patientData['postal_address'] . ' ' . $patientData['postal_address_cont'],
+	            $patientData['postal_city'],
+	            $patientData['postal_state'],
+	            $patientData['postal_zip'],
+	            $patientData['postal_country'],
                 date('Ymd')
             );
-        }
+//        }
 
         // If the Self Contact information phone is present, include it in the CCD
-        if(isset($PatientContactRecord['phone_use_code']) &&
-            isset($PatientContactRecord['phone_area_code']) &&
-            isset($PatientContactRecord['phone_local_number'])
-        ){
+        if(isset($patientData['phone_home'])){
             $recordTarget['patientRole']['telecom'] = $this->telecomBuilder(
-                $PatientContactRecord['phone_use_code'].
-                $PatientContactRecord['phone_area_code'].
-                $PatientContactRecord['phone_local_number'],
+	            $patientData['phone_home'],
                 'HP'
             );
         }
@@ -5769,6 +5763,9 @@ INTRUCTIONS;
 
 	private function telecomBuilder($number, $use = null) {
 		$phone = [];
+
+		$number = str_replace(['(',')','-',' '], '', trim($number));
+
 		if($number != ''){
 			$phone['@attributes'] = [
 				'xsi:type' => 'TEL',

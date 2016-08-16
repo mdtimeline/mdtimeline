@@ -23,6 +23,10 @@ Ext.define('App.controller.administration.DataPortability', {
 		{
 			ref:'DataPortabilityPanel',
 			selector:'#DataPortabilityPanel'
+		},
+		{
+			ref:'DataPortabilityPanelIFrame',
+			selector:'#DataPortabilityPanelIFrame'
 		}
 	],
 
@@ -39,12 +43,10 @@ Ext.define('App.controller.administration.DataPortability', {
 
 	onDataPortabilityExportBtnClick: function(btn){
 
-		var iframe = Ext.create('App.ux.ManagedIframe',{
-			src: g('url') + '/dataProvider/DataPortability.php?token=' + app.user.token +'&site=' + g('site')
-		});
+		var iframe = this.getDataPortabilityPanelIFrame(),
+			src = g('url') + '/dataProvider/DataPortability.php?token=' + app.user.token +'&site=' + g('site');
 
-		this.getDataPortabilityPanel().add(iframe);
-		this.getDataPortabilityPanel().update(_('download_shortly'));
+		iframe.setSrc(src);
 	}
 
 });

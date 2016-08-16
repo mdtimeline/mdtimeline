@@ -24,7 +24,13 @@ Ext.define('App.view.administration.DataPortability', {
 		{
 			xtype: 'panel',
 			itemId: 'DataPortabilityPanel',
-			items: [],
+			layout: 'fit',
+			items: [
+				{
+					xtype: 'miframe',
+					itemId: 'DataPortabilityPanelIFrame',
+				}
+			],
 			tbar: [
 				{
 					text: _('export'),

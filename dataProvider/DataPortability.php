@@ -20,11 +20,8 @@
 
 if(!isset($_SESSION)){
     session_cache_limiter('private');
-    //session_cache_expire(1);
     session_name('mdTimeLine');
     session_start();
-//    if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
-//    setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 }
 if(!defined('_GaiaEXEC')){
 	define('_GaiaEXEC', 1);
@@ -34,52 +31,93 @@ if(!isset($_REQUEST['token']) || str_replace(' ', '+', $_REQUEST['token']) != $_
 
 include_once(ROOT . '/sites/' . $_REQUEST['site'] . '/conf.php');
 include_once(ROOT . '/classes/MatchaHelper.php');
-
 include_once (ROOT. '/dataProvider/Patient.php');
 include_once (ROOT. '/dataProvider/CCDDocument.php');
+
+ini_set('memory_limit', '-1');
+ini_set('max_execution_time', 172800); // 2 days
+ini_set('zlib.output_compression',0);
+ini_set('implicit_flush',1);
+ob_end_clean();
+set_time_limit(0);
 
 class DataPortability {
 
 	private $Patient;
-	private $CCDDocument;
 
 	function __construct(){
 		$this->Patient = new Patient();
-		$this->CCDDocument = new CCDDocument();
+
+	}
+
+	function __destruct() {
+
 	}
 
 	function export($params = null){
 
-		$patients = $this->Patient->getPatients($params);
+		$this->sendPregress('Export Started...<br>');
+
+		$this->sendPregress('Getting Patients...<br>');
+
+		$patients = $this->Patient->getPatients($params, false);
 		unset($this->Patient);
 
+		$this->sendPregress('Patients Count: '. count($patients) . '<br>');
+
 		$zip = new ZipArchive();
-		$file = 'GaiaEHR-Patients-Export-'. time() .'.zip';
+		$file = site_temp_path . '/mdtimeline-patients-export-'. time() .'.zip';
+
+		$this->sendPregress('Zip file created: '. $file . '<br>');
+
 		if($zip->open($file, ZipArchive::CREATE) !== true){
 			throw new Exception("cannot open <$file>");
 		}
 		$zip->addFromString('cda2.xsl', file_get_contents(ROOT . '/lib/CCRCDA/schema/cda2.xsl'));
 
 
+		$this->sendPregress('Exporting...<br>');
+
 		foreach($patients as $i => $patient){
 			$patient = (object) $patient;
-			$this->CCDDocument->setPid($patient->pid);
-			$this->CCDDocument->createCCD();
-			$this->CCDDocument->setTemplate('toc');
-			$this->CCDDocument->createCCD();
-			$ccd = $this->CCDDocument->get();
-
-			$zip->addFromString($patient->pid . '-Patient-CDA' . '.xml', $ccd);
-
+			$CCDDocument = new CCDDocument();
+			$CCDDocument->setPid($patient->pid);
+			$CCDDocument->createCCD();
+			$CCDDocument->setTemplate('toc');
+			$CCDDocument->createCCD();
+			$ccd = $CCDDocument->get();
+			unset($CCDDocument);
+			$zip->addFromString($patient->pid . '-patient-cda' . '.xml', $ccd);
 			unset($patients[$i], $ccd);
+
+			if(($i % 100) === 0 && $i !== 0){
+				$this->sendPregress(' ' . $i . '<br>');
+			}else{
+				$this->sendPregress('.');
+			}
 		}
+
 		$zip->close();
-		header('Content-Type: application/zip');
-		header('Content-Length: ' . filesize($file));
-		header('Content-Disposition: attachment; filename="' . $file . '"');
-		readfile($file);
+
+		header('Location: ' . $file);
+
+//		header('Content-Type: application/zip');
+//		header('Content-Length: ' . filesize($file));
+//		header('Content-Disposition: attachment; filename="' . $file . '"');
+//		readfile($file);
+	}
+
+	private function sendPregress($progress){
+		print $progress;
+		ob_flush();
+		flush();
 	}
 }
+
+ob_start();
+
+header('Content-type: text/html; charset=utf-8');
+header('Content-Encoding: none;');//disable apache compressed
 
 $D = new DataPortability();
 $D->export();

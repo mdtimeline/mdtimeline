@@ -551,8 +551,8 @@ class SoapHandler
         // Patient WebPortal.
         if (isset($patient->PatientAccount)) {
             $patient = $Patient->getPatientByUsername($patient->PatientAccount);
-            if(!isset($patient)) $patient = $Patient->getPatientByGuardian($patient->PatientAccount);
-            if(!isset($patient)) $patient = $Patient->getPatientByEmergencyConact($patient->PatientAccount);
+            if(empty($patient)) $patient = $Patient->getPatientByGuardian($patient->PatientAccount);
+            if(empty($patient)) $patient = $Patient->getPatientByEmergencyContact($patient->PatientAccount);
         } else {
             $patient = $Patient->getPatientByPid($patient->Pid);
         }

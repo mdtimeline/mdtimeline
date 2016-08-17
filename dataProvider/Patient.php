@@ -234,6 +234,7 @@ class Patient
         $params->filter[0]->property = 'portal_username';
         $params->filter[0]->value = $username;
         $this->patient = $this->p->load($params)->one();
+        error_log(print_r('getPatientByUsername: Hit',true));
 
         if ($this->patient !== false) {
             $this->patient['pic'] = $this->patient['image'];
@@ -259,6 +260,7 @@ class Patient
         $params->filter[0]->property = 'guardian_portal_username';
         $params->filter[0]->value = $guardian_portal_username;
         $this->patient = $this->p->load($params)->one();
+        error_log(print_r('getPatientByGuardian: Hit',true));
 
         if ($this->patient !== false) {
             $this->patient['pic'] = $this->patient['image'];
@@ -276,7 +278,7 @@ class Patient
      *
      * @return Patient Record
      */
-    public function getPatientByEmergencyConact($emergency_portal_username)
+    public function getPatientByEmergencyContact($emergency_portal_username)
     {
         $this->setPatientModel();
         $params = new stdClass();
@@ -284,6 +286,7 @@ class Patient
         $params->filter[0]->property = 'emergency_contact_portal_username';
         $params->filter[0]->value = $emergency_portal_username;
         $this->patient = $this->p->load($params)->one();
+        error_log(print_r('getPatientByEmergencyContact: Hit',true));
 
         if ($this->patient !== false) {
             $this->patient['pic'] = $this->patient['image'];

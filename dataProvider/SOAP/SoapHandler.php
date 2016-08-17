@@ -550,15 +550,15 @@ class SoapHandler
         // If the Patient Account is set, this means that the method is called from the
         // Patient WebPortal.
         if (isset($patient->PatientAccount)) {
-            $patient = $Patient->getPatientByUsername($patient->PatientAccount);
-            if(empty($patient)) $patient = $Patient->getPatientByGuardian($patient->PatientAccount);
-            if(empty($patient)) $patient = $Patient->getPatientByEmergencyContact($patient->PatientAccount);
+            $patientValidate = $Patient->getPatientByUsername($patient->PatientAccount);
+            if(empty($patientValidate)) $patientValidate = $Patient->getPatientByGuardian($patient->PatientAccount);
+            if(empty($patientValidate)) $patientValidate = $Patient->getPatientByEmergencyContact($patient->PatientAccount);
         } else {
-            $patient = $Patient->getPatientByPid($patient->Pid);
+            $patientValidate = $Patient->getPatientByPid($patient->Pid);
         }
 
         unset($Patient);
-        return $this->patient !== false ? $this->convertPatient($patient, false) : $patient;
+        return $this->patient !== false ? $this->convertPatient($patientValidate, false) : $patientValidate;
     }
 
     /**

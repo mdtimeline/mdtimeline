@@ -607,10 +607,4 @@ class SoapHandler
         }
         return $mapped;
     }
-
-    public function getPatientMessages(){
-
-    }
-
-
 }

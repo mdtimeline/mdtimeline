@@ -23,11 +23,14 @@ class Merge {
 	 */
 	private $conn;
 
-	private $tables;
+	/**
+	 * @var array
+	 */
+	private $tables = [];
 
 	function __construct(){
 		$this->conn = Matcha::getConn();
-		$this->setTables();
+		$this->setTablesWithPids();
 
 	}
 
@@ -77,57 +80,22 @@ class Merge {
 		}
 	}
 
+	private function  setTablesWithPids(){
 
-	private function  setTables(){
-		$this->tables = array(
-			'encounters',
-			'encounter_1500_options',
-			'encounter_dictation',
-			'encounter_dx',
-//			'encounter_history',
-			'encounter_procedures',
-			'encounter_review_of_systems',
-			'encounter_review_of_systems_check',
-			'encounter_services',
-			'encounter_soap',
-			'encounter_vitals',
+		$this->tables = [];
+		$sth = $this->conn->prepare('SHOW TABLES');
+		$sth->execute();
+		$tables = $sth->fetchAll(PDO::FETCH_ASSOC);
 
-			'patient_account',
-			'patient_active_problems',
-			'patient_allergies',
-			'patient_chart_checkout',
-			'patient_dental',
-			'patient_dental_plans',
-//			'patient_dental_plan_items',
-			'patient_dental_prob_charts',
-//			'patient_dental_prob_chart_items',
-			'patient_disclosures',
-			'patient_doctors_notes',
-			'patient_documents',
-//			'patient_documents_temp',
-			'patient_images',
-			'patient_immunizations',
-			'patient_insurances',
-			'patient_labs',
-//			'patient_labs_results',
-			'patient_medications',
-			'patient_notes',
-			'patient_orders',
-//			'patient_order_results',
-//			'patient_order_results_observations',
-			'patient_pools',
-			'patient_prescriptions',
-			'patient_referrals',
-			'patient_reminders',
-			'patient_social_history',
-			'patient_surgery',
-			'patient_zone',
-			
-			'payments',
-			'emergencies',
-			'audit_log',
-			'audit_transaction_log',
-		);
+		foreach($tables as $table){
+			$sth = $this->conn->prepare("SHOW COLUMNS FROM ? where Field = 'pid'");
+			$sth->execute([$table]);
+			$column = $sth->fetch(PDO::FETCH_ASSOC);
+
+			if($column !== false){
+				$this->tables[] = $table;
+			}
+		}
 	}
 
 } 

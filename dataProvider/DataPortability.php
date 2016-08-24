@@ -97,8 +97,6 @@ class DataPortability {
 			$zip->addFromString($ccdFileName, $ccd);
 			unset($patients[$i], $ccd);
 
-			if($i == 2) break;
-
 			if(($i % 100) === 0 && $i !== 0){
 				$this->sendProgress(' ' . $i . '<br>');
 			}else{

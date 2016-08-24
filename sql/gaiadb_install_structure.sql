@@ -37,7 +37,7 @@
   KEY `IK_perm_key` (`perm_key`),
   KEY `IK_seq` (`seq`),
   KEY `IK_active` (`active`)
-) ENGINE=InnoDB AUTO_INCREMENT=169 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `acl_role_perms`;CREATE TABLE `acl_role_perms` (
+) ENGINE=InnoDB AUTO_INCREMENT=170 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `acl_role_perms`;CREATE TABLE `acl_role_perms` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `value` tinyint(1) DEFAULT NULL,
   `role_id` int(11) DEFAULT NULL,
@@ -46,7 +46,7 @@
   PRIMARY KEY (`id`),
   KEY `IK_role_id` (`role_id`),
   KEY `IK_perm_id` (`perm_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1129 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `acl_roles`;CREATE TABLE `acl_roles` (
+) ENGINE=InnoDB AUTO_INCREMENT=1131 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `acl_roles`;CREATE TABLE `acl_roles` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `role_name` varchar(255) DEFAULT NULL COMMENT 'Role Name',
   `seq` int(11) DEFAULT NULL,
@@ -308,7 +308,7 @@
   `gl_category` varchar(255) DEFAULT NULL COMMENT 'Category',
   PRIMARY KEY (`id`),
   KEY `gl_name` (`gl_name`,`gl_index`)
-) ENGINE=InnoDB AUTO_INCREMENT=133 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `hl7_clients`;CREATE TABLE `hl7_clients` (
+) ENGINE=InnoDB AUTO_INCREMENT=134 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `hl7_clients`;CREATE TABLE `hl7_clients` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `facility` varchar(80) DEFAULT NULL COMMENT 'Facility Name',
   `physical_address` varchar(1000) DEFAULT NULL COMMENT 'Facility Name',
@@ -463,7 +463,7 @@
   `description` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=239 DEFAULT CHARSET=latin1;DROP TABLE IF EXISTS `pharmacies`;CREATE TABLE `pharmacies` (
+) ENGINE=InnoDB AUTO_INCREMENT=241 DEFAULT CHARSET=latin1;DROP TABLE IF EXISTS `pharmacies`;CREATE TABLE `pharmacies` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
   `transmit_method` varchar(255) DEFAULT NULL,
@@ -621,7 +621,7 @@
   KEY `IK_table_name` (`table_name`),
   KEY `IK_event` (`event`),
   KEY `IK_date` (`date`)
-) ENGINE=InnoDB AUTO_INCREMENT=26084 DEFAULT CHARSET=utf8 COMMENT='Data INSERT UPDATE DELETE Logs';DROP TABLE IF EXISTS `users`;CREATE TABLE `users` (
+) ENGINE=InnoDB AUTO_INCREMENT=64828 DEFAULT CHARSET=utf8 COMMENT='Data INSERT UPDATE DELETE Logs';DROP TABLE IF EXISTS `users`;CREATE TABLE `users` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `code` varchar(40) DEFAULT NULL,
   `role_id` int(11) DEFAULT NULL COMMENT 'acl_user_roles relation',
@@ -688,7 +688,7 @@
   `logout` int(11) DEFAULT NULL,
   `last_request` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5296 DEFAULT CHARSET=latin1;DROP TABLE IF EXISTS `patient_pools`;CREATE TABLE `patient_pools` (
+) ENGINE=InnoDB AUTO_INCREMENT=5344 DEFAULT CHARSET=latin1;DROP TABLE IF EXISTS `patient_pools`;CREATE TABLE `patient_pools` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `pid` bigint(20) DEFAULT NULL,
   `uid` bigint(20) DEFAULT NULL COMMENT 'user id that is treating the patient',
@@ -741,25 +741,7 @@
   `url` varchar(180) DEFAULT NULL,
   `ad` varchar(80) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;DROP TABLE IF EXISTS `messages`;CREATE TABLE `messages` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `date` varchar(255) DEFAULT NULL COMMENT 'Date of message',
-  `body` text COMMENT 'Message',
-  `pid` int(11) DEFAULT NULL COMMENT 'Patient ID',
-  `patient_name` varchar(255) DEFAULT NULL COMMENT 'Patient Name',
-  `from_user` varchar(255) DEFAULT NULL COMMENT 'Message is from user',
-  `to_user` varchar(255) DEFAULT NULL COMMENT 'Message to user',
-  `subject` varchar(255) DEFAULT NULL COMMENT 'Subject of the message',
-  `facility_id` varchar(255) DEFAULT NULL COMMENT 'Facility',
-  `authorized` varchar(255) DEFAULT NULL COMMENT 'Authorized?',
-  `to_id` int(11) DEFAULT NULL COMMENT 'To',
-  `from_id` int(11) DEFAULT NULL COMMENT 'From',
-  `message_status` varchar(255) DEFAULT NULL COMMENT 'Message Status',
-  `note_type` varchar(255) DEFAULT NULL COMMENT 'Message Type',
-  `to_deleted` tinyint(1) DEFAULT NULL COMMENT 'Deleted to the user',
-  `from_deleted` tinyint(1) DEFAULT NULL COMMENT 'Deleted from the source',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Messages';DROP TABLE IF EXISTS `address_book`;CREATE TABLE `address_book` (
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;DROP TABLE IF EXISTS `address_book`;CREATE TABLE `address_book` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `title` varchar(10) DEFAULT NULL,
   `fname` varchar(80) DEFAULT NULL,
@@ -1363,7 +1345,7 @@
   `pool_area_id` int(11) DEFAULT NULL,
   `read_only` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2766 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `patient_contacts`;CREATE TABLE `patient_contacts` (
+) ENGINE=InnoDB AUTO_INCREMENT=2948 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `patient_contacts`;CREATE TABLE `patient_contacts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `pid` int(11) NOT NULL,
   `uid` int(11) NOT NULL,

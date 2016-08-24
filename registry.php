@@ -46,6 +46,7 @@ if(!defined('ROOT'))
 if(!defined('URL')){
 	$URL = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : HTTP . '://' . HOST . URI;
 	$URL = rtrim(preg_replace('/dataProvider.*/', '', $URL), '/');
+	$URL = rtrim(preg_replace('/\?(.*)/', '', $URL), '/');
 	define('URL', $URL);
 }
 

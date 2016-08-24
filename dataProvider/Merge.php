@@ -43,10 +43,14 @@ class Merge {
 	public function merge($primaryPid, $transferPid){
 		try{
 			$this->conn->beginTransaction();
+			$this->conn->exec('SET FOREIGN_KEY_CHECKS = 0');
+
 			foreach($this->tables as $t){
-				$this->conn->exec("UPDATE `$t` SET `pid` = '$primaryPid' WHERE `pid` = '$transferPid'");
+				$this->conn->exec("UPDATE `{$t}` SET `pid` = '{$primaryPid}' WHERE `pid` = '{$transferPid}'");
 			}
-			$this->conn->exec("DELETE FROM `patient` WHERE `pid` = '$transferPid'");
+
+			$this->conn->exec("DELETE FROM `patient` WHERE `pid` = '{$transferPid}'");
+			$this->conn->exec('SET FOREIGN_KEY_CHECKS = 0');
 			$this->conn->commit();
 			return true;
 		}catch (Exception $e){
@@ -85,15 +89,16 @@ class Merge {
 		$this->tables = [];
 		$sth = $this->conn->prepare('SHOW TABLES');
 		$sth->execute();
-		$tables = $sth->fetchAll(PDO::FETCH_ASSOC);
+		$tables = $sth->fetchAll(PDO::FETCH_NUM);
 
 		foreach($tables as $table){
-			$sth = $this->conn->prepare("SHOW COLUMNS FROM ? where Field = 'pid'");
-			$sth->execute([$table]);
+			if($table[0] == 'patient') continue;
+			$sth = $this->conn->prepare("SHOW COLUMNS FROM `{$table[0]}` where Field = 'pid'");
+			$sth->execute();
 			$column = $sth->fetch(PDO::FETCH_ASSOC);
 
 			if($column !== false){
-				$this->tables[] = $table;
+				$this->tables[] = $table[0];
 			}
 		}
 	}

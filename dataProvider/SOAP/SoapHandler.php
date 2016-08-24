@@ -134,38 +134,46 @@ class SoapHandler
 
         // Check the AUTH of a Patient Login
         // Check for the password / allowance / Date of Birth of the Patient
-        if ($patient->WebPortalPassword !== $params->Password ||
-            $patient->WebPortalAccess !== true ||
-            substr($patient->DateOfBirth, 0, 10) !== $params->DateOfBirth
-        ) {
-            return $response;
+        if($patient->WebPortalAccess){
+            if ($patient->WebPortalPassword == $params->Password ||
+                substr($patient->DateOfBirth, 0, 10) == $params->DateOfBirth
+            ) {
+                return [
+                    'Success' => true,
+                    'Patient' => $patient,
+                    'Error' => ''
+                ];
+            }
         }
 
         // Check the AUTH of a Guardian Login
         // Check for the password / allowance / Date of Birth of the Patient
-        if ($patient->GuardianPortalPassword !== $params->Password ||
-            $patient->GuardianPortalAllow !== true ||
-            substr($patient->DateOfBirth, 0, 10) !== $params->DateOfBirth
-        ) {
-            return $response;
+        if(isset($patient->GuardianPortalAllow)){
+            if ($patient->GuardianPortalPassword == $params->Password ||
+                substr($patient->DateOfBirth, 0, 10) == $params->DateOfBirth
+            ) {
+                return [
+                    'Success' => true,
+                    'Patient' => $patient,
+                    'Error' => ''
+                ];
+            }
         }
 
         // Check the AUTH of a Emergency Contact Login
         // Check for the password / allowance / Date of Birth of the Patient
-        if ($patient->EmergencyPortalPassword !== $params->Password ||
-            $patient->EmergencyPortalAllow !== true ||
-            substr($patient->DateOfBirth, 0, 10) !== $params->DateOfBirth
-        ) {
-            return $response;
+        if(isset($patient->EmergencyPortalAllow)){
+            if ($patient->EmergencyPortalPassword == $params->Password ||
+                substr($patient->DateOfBirth, 0, 10) == $params->DateOfBirth
+            ) {
+                return [
+                    'Success' => true,
+                    'Patient' => $patient,
+                    'Error' => ''
+                ];
+            }
         }
 
-        return $response;
-
-        $response = [
-            'Success' => true,
-            'Patient' => $patient,
-            'Error' => ''
-        ];
         return $response;
     }
 
@@ -542,14 +550,15 @@ class SoapHandler
         // If the Patient Account is set, this means that the method is called from the
         // Patient WebPortal.
         if (isset($patient->PatientAccount)) {
-            $patient = $Patient->getPatientByUsername($patient->PatientAccount);
-            if(count($patient) < 0) $patient = $Patient->getPatientByGuardian($patient->PatientAccount);
-            if(count($patient) < 0) $patient = $Patient->getPatientByEmergencyConact($patient->PatientAccount);
+            $patientValidate = $Patient->getPatientByUsername($patient->PatientAccount);
+            if(empty($patientValidate)) $patientValidate = $Patient->getPatientByGuardian($patient->PatientAccount);
+            if(empty($patientValidate)) $patientValidate = $Patient->getPatientByEmergencyContact($patient->PatientAccount);
         } else {
-            $patient = $Patient->getPatientByPid($patient->Pid);
+            $patientValidate = $Patient->getPatientByPid($patient->Pid);
         }
+
         unset($Patient);
-        return $this->patient = $patient !== false ? $this->convertPatient($patient, false) : $patient;
+        return $this->patient !== false ? $this->convertPatient($patientValidate, false) : $patientValidate;
     }
 
     /**
@@ -598,10 +607,4 @@ class SoapHandler
         }
         return $mapped;
     }
-
-    public function getPatientMessages(){
-
-    }
-
-
 }

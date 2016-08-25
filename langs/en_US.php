@@ -17,6 +17,7 @@ $LANG = array(
     'dashboard'         					=> 'Dashboard',
     'calendar'          					=> 'Calendar',
     'messages'          					=> 'Messages',
+    'patient_messages'                      => 'Patient Messages',
     'patient_search'    					=> 'Patient Search',
     'new_patient'       					=> 'New Patient',
     'established_patient'                   => 'Established Patient',
@@ -1673,5 +1674,6 @@ $LANG = array(
 	'stored_hash'                           => 'Stored Hash',
 	'current_hash'                          => 'Current Hash',
     'removal'                               => 'Removal',
-    'sure_for_removal'                      => 'Are you sure to remove this record?'
+    'sure_for_removal'                      => 'Are you sure to remove this record?',
+    'conversation_group'                    => 'Conversation Group'
 );

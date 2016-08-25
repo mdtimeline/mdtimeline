@@ -218,6 +218,11 @@ class ExternalDataUpdate
                     } elseif ($params->codeType == 'RXNORM') {
                         $success = $this->rxnorm_import($dir);
                     } elseif ($params->codeType == 'SNOMED') {
+                    	$buff = explode('.', $params->basename);
+                    	if(file_exists($dir . '/' . $buff[0])){
+		                    $dir = $dir . '/' . $buff[0];
+	                    }
+
                         $success = $this->snomed_import($dir);
                     } elseif ($params->codeType == 'SNOMEDCoreProblem') {
                         $success = $this->snomed_problems($dir);

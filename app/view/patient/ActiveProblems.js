@@ -74,13 +74,10 @@ Ext.define('App.view.patient.ActiveProblems', {
 			dataIndex: 'end_date'
 		},
         {
-            header: _('active?'),
+            header: _('status'),
             groupable: false,
             width: 60,
-            dataIndex: 'active',
-            renderer: function(v){
-                return app.boolRenderer(v);
-            }
+            dataIndex: 'status'
         }
 	],
 	plugins: Ext.create('App.ux.grid.RowFormEditing', {
@@ -157,6 +154,13 @@ Ext.define('App.view.patient.ActiveProblems', {
 							width: 200
 						},
 						items: [
+							{
+								fieldLabel: _('status'),
+								xtype: 'gaiaehr.combo',
+								name: 'status',
+								itemId: 'ActiveProblemStatusCombo',
+								list: 112
+							},
 							{
 								fieldLabel: _('begin_date'),
 								xtype: 'datefield',

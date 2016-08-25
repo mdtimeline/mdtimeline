@@ -112,17 +112,20 @@ class Patient
 
     /**
      * @param stdClass $params
+     * @param bool $fullname
      *
      * @return mixed
      */
-    public function getPatients($params)
+    public function getPatients($params, $fullname = true)
     {
         $this->setPatientModel();
         $Records = $this->p->load($params)->all();
         // Compile custom fields
-        foreach ($Records as $Index => $Record) {
-            $Records[$Index]['name'] = Person::fullname($Record['fname'], $Record['mname'], $Record['lname']);
-        }
+	    if($fullname){
+		    foreach ($Records as $Index => $Record) {
+			    $Records[$Index]['name'] = Person::fullname($Record['fname'], $Record['mname'], $Record['lname']);
+		    }
+	    }
         return $Records;
     }
 
@@ -231,7 +234,6 @@ class Patient
         $params->filter[0]->property = 'portal_username';
         $params->filter[0]->value = $username;
         $this->patient = $this->p->load($params)->one();
-
         if ($this->patient !== false) {
             $this->patient['pic'] = $this->patient['image'];
             $this->patient['age'] = $this->getPatientAge();
@@ -256,7 +258,6 @@ class Patient
         $params->filter[0]->property = 'guardian_portal_username';
         $params->filter[0]->value = $guardian_portal_username;
         $this->patient = $this->p->load($params)->one();
-
         if ($this->patient !== false) {
             $this->patient['pic'] = $this->patient['image'];
             $this->patient['age'] = $this->getPatientAge();
@@ -273,7 +274,7 @@ class Patient
      *
      * @return Patient Record
      */
-    public function getPatientByEmergencyConact($emergency_portal_username)
+    public function getPatientByEmergencyContact($emergency_portal_username)
     {
         $this->setPatientModel();
         $params = new stdClass();
@@ -281,7 +282,6 @@ class Patient
         $params->filter[0]->property = 'emergency_contact_portal_username';
         $params->filter[0]->value = $emergency_portal_username;
         $this->patient = $this->p->load($params)->one();
-
         if ($this->patient !== false) {
             $this->patient['pic'] = $this->patient['image'];
             $this->patient['age'] = $this->getPatientAge();

@@ -90,7 +90,3 @@ class Globals {
 	}
 
 }
-
-//print '<pre>';
-//$g = new Globals();
-//print_r($g->getGlobalsArray());

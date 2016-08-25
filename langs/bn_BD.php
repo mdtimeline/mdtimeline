@@ -17,6 +17,7 @@ $LANG = array(
     'dashboard'         					=> 'খেরোখাতা',
     'calendar'          					=> 'দিনপঞ্জী',
     'messages'          					=> 'বার্তা',
+    'patient_messages'                      => 'Patient Messages',
     'patient_search'    					=> 'রোগী অনুসন্ধান',
     'new_patient'       					=> 'নতুন রোগী',
     'established_patient'                   => 'পুরাতন রোগী',

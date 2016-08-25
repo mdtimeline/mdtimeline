@@ -3529,6 +3529,10 @@ Ext.define('App.ux.LiveUserSearch', {
 					type: 'string'
 				},
 				{
+					name: 'code',
+					type: 'string'
+				},
+				{
 					name: 'role',
 					type: 'string'
 				},
@@ -10505,7 +10509,7 @@ Ext.define('App.ux.window.Window', {
 
 	currPatientError: function() {
 		Ext.Msg.show({
-			title  : 'Oops! ' + _('no_patient_selected'),
+			title  : _('oops') + ' ' + _('no_patient_selected'),
 			msg    : _('select_patient_patient_live_search'),
 			scope  : this,
 			buttons: Ext.Msg.OK,
@@ -17705,6 +17709,11 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 			type: 'string'
 		},
 		{
+			name: 'status',
+			type: 'string',
+			len: 20
+		},
+		{
 			name: 'status_code',
 			type: 'string',
 			len: 20
@@ -22040,470 +22049,6 @@ Ext.define('App.view.areas.FloorPlan', {
 		}
 	]
 });
-Ext.define('App.view.messages.Messages', {
-	extend: 'App.ux.RenderPanel',
-	id: 'panelMessages',
-	pageTitle: _('messages') + ' (' + _('inbox') + ')',
-	pageLayout: 'border',
-	defaults: {
-		split: true
-	},
-	uses: [
-		'App.ux.LivePatientSearch',
-		'App.ux.combo.MsgStatus',
-		'App.ux.combo.MsgNoteType',
-		'App.ux.combo.Users'],
-	initComponent: function(){
-
-		var me = this;
-
-		/**
-		 * Message Store
-		 */
-		me.storeMsgs = Ext.create('App.store.messages.Messages');
-
-		/**
-		 * Message GridPanel
-		 */
-		me.msgGrid = Ext.create('Ext.grid.Panel', {
-			store: me.storeMsgs,
-			region: 'center',
-			border: true,
-			viewConfig: {
-				forceFit: true,
-				stripeRows: true
-			},
-			listeners: {
-				scope: this,
-				itemclick: this.onItemClick
-			},
-			columns: [
-				{
-					header: _('status'),
-					sortable: true,
-					dataIndex: 'message_status',
-					width: 70
-				},
-				{
-					header: _('from'),
-					sortable: true,
-					dataIndex: 'from_user',
-					width: 200
-				},
-				{
-					header: _('to'),
-					sortable: true,
-					dataIndex: 'to_user',
-					width: 200
-				},
-				{
-					header: _('patient'),
-					sortable: true,
-					dataIndex: 'patient_name',
-					width: 200
-				},
-				{
-					header: _('subject'),
-					sortable: true,
-					dataIndex: 'subject',
-					flex: 1
-				},
-				{
-					header: _('type'),
-					sortable: true,
-					dataIndex: 'note_type',
-					width: 100
-				}
-			],
-			tbar: Ext.create('Ext.PagingToolbar',
-				{
-					store: me.storeMsgs,
-					displayInfo: true,
-					emptyMsg: _('no_office_notes_to_display'),
-					plugins: Ext.create('Ext.ux.SlidingPager',
-						{
-						}),
-					items: ['-',
-						{
-							text: _('delete'),
-							cls: 'winDelete',
-							iconCls: 'delete',
-							itemId: 'deleteMsg',
-							disabled: true,
-							scope: me,
-							handler: me.onDelete
-						}, '-',
-						{
-							text: _('inbox'),
-							action: 'inbox',
-							enableToggle: true,
-							toggleGroup: 'message',
-							pressed: true,
-							scope: me,
-							handler: me.messagesType
-						}, '-',
-						{
-							text: _('sent'),
-							action: 'sent',
-							enableToggle: true,
-							toggleGroup: 'message',
-							scope: me,
-							handler: me.messagesType
-						}, '-',
-						{
-							text: _('trash'),
-							action: 'trash',
-							enableToggle: true,
-							toggleGroup: 'message',
-							scope: me,
-							handler: me.messagesType
-						}, '-']
-				}),
-			bbar: [
-				{
-					text: _('new_message'),
-					iconCls: 'newMessage',
-					itemId: 'newMsg',
-					handler: function(){
-						me.onNewMessage();
-					}
-				},
-				'-',
-				{
-					text: _('reply'),
-					iconCls: 'edit',
-					itemId: 'replyMsg',
-					disabled: true,
-					handler: function(){
-						me.action('reply');
-					}
-				},
-				'-'
-			]
-		});
-		/**
-		 * Form to send and replay messages
-		 */
-		me.msgForm = Ext.create('Ext.form.Panel', {
-			region: 'south',
-			height: 340,
-			cls: 'msgForm',
-			layout: {
-				type: 'vbox',
-				align: 'stretch'
-			},
-			fieldDefaults: {
-				labelWidth: 60,
-				margin: 5,
-				anchor: '100%'
-			},
-			items: [
-				{
-					xtype: 'container',
-					height: 95,
-					cls: 'message-form-header',
-					padding: '5 0',
-					layout: 'anchor',
-					items: [
-						{
-							xtype: 'container',
-							layout: 'column',
-							items: [
-								{
-									xtype: 'container',
-									layout: 'anchor',
-									columnWidth: '.50',
-									items: [
-										{
-											xtype: 'patienlivetsearch',
-											fieldLabel: _('patient'),
-											emptyText: _('no_patient_selected'),
-											itemId: 'patientCombo',
-											name: 'pid',
-											hideLabel: false
-										},
-										{
-											xtype: 'textfield',
-											fieldLabel: _('patient'),
-											itemId: 'patientField',
-											name: 'patient_name',
-											readOnly: true,
-											hidden: true
-										},
-										{
-											xtype: 'userscombo',
-											name: 'to_id',
-											fieldLabel: _('to'),
-											validateOnChange: false,
-											allowBlank: false
-										}
-									]
-								},
-								{
-									xtype: 'container',
-									layout: 'anchor',
-									columnWidth: '.50',
-									items: [
-										{
-											xtype: 'msgnotetypecombo',
-											name: 'note_type',
-											fieldLabel: _('type'),
-											listeners: {
-												scope: me,
-												select: me.onChange
-											}
-										},
-										{
-											xtype: 'msgstatuscombo',
-											name: 'message_status',
-											fieldLabel: _('status'),
-											listeners: {
-												scope: me,
-												select: me.onChange
-											}
-										}
-									]
-								}
-							]
-						},
-						{
-							xtype: 'textfield',
-							fieldLabel: _('subject'),
-							name: 'subject',
-							margin: '0 5 5 5'
-						}
-					]
-				},
-				{
-					xtype: 'htmleditor',
-					name: 'body',
-					itemId: 'bodyMsg',
-					flex: 1,
-					readOnly: true,
-					allowBlank: false
-				},
-				//				{
-				//					xtype           : 'htmleditor',
-				//					name            : 'curr_msg',
-				//					itemId          : 'currMsg',
-				//					height          : 204,
-				//					allowBlank      : false,
-				//					validateOnChange: false,
-				//					hidden          : true
-				//				},
-				{
-					xtype: 'textfield',
-					hidden: true,
-					name: 'id'
-				},
-				{
-					xtype: 'textfield',
-					hidden: true,
-					name: 'pid'
-				},
-				{
-					xtype: 'textfield',
-					hidden: true,
-					name: 'reply_id'
-				}
-			],
-			bbar: [
-				{
-					text: _('send'),
-					iconCls: 'save',
-					itemId: 'sendMsg',
-					scope: me,
-					handler: me.onSend
-				},
-				'-',
-				{
-					text: _('delete'),
-					cls: 'winDelete',
-					iconCls: 'delete',
-					itemId: 'deleteMsg',
-					margin: '0 3 0 0',
-					disabled: true,
-					scope: me,
-					handler: me.onDelete
-				}
-			],
-			listeners: {
-				scope: me,
-				afterrender: me.onFormRender
-
-			}
-		});
-		me.pageBody = [me.msgGrid, me.msgForm];
-		me.callParent(arguments);
-
-	}, // End initComponent
-
-	messagesType: function(btn){
-		this.updateTitle('Messages (' + Ext.String.capitalize(btn.action) + ')');
-		this.storeMsgs.proxy.extraParams =
-		{
-			get: btn.action
-		};
-		this.storeMsgs.load();
-
-	},
-
-	onFormRender: function(){
-		this.msgForm.getComponent('bodyMsg').setReadOnly(true);
-		this.onNewMessage();
-	},
-
-	/**
-	 * onNewMessage will reset the form and load a new model
-	 * with message_status value set to New, and
-	 * note_type value set to Unassigned
-	 */
-	onNewMessage: function(){
-		var form = this.msgForm,
-			record = Ext.create('App.model.messages.Messages', {
-				message_status: _('new'),
-				note_type: _('unassigned')
-			});
-		say(record);
-		form.getForm().reset();
-		form.getForm().loadRecord(record);
-		this.action('new');
-	},
-
-	/**
-	 * @param btn
-	 */
-	onSend: function(btn){
-		var form = btn.up('form').getForm(), store = this.storeMsgs;
-
-		if(form.isValid()){
-			var record = form.getRecord(), values = form.getValues(), storeIndex = store.indexOf(record);
-
-			if(storeIndex == -1){
-				store.add(values);
-			}
-			else{
-				record.set(values);
-			}
-			store.sync();
-			store.load();
-			this.onNewMessage();
-			this.msg('Sweet!', _('message_sent'));
-		}
-		else{
-			this.msg('Oops!', _('please_complete_all_required_fields') + '.');
-		}
-	},
-
-	/**
-	 * onDelete will show an alert msg to confirm,
-	 * delete the message and prepare the form for a new message
-	 */
-	onDelete: function(){
-		var form = this.msgForm.getForm(), store = this.storeMsgs;
-		Ext.Msg.show(
-			{
-				title: _('please_confirm') + '...',
-				icon: Ext.MessageBox.QUESTION,
-				msg: _('are_you_sure_to_delete_this_message'),
-				buttons: Ext.Msg.YESNO,
-				scope: this,
-				fn: function(btn){
-					if(btn == 'yes'){
-						var currentRec = form.getRecord();
-						store.remove(currentRec);
-						store.destroy();
-						this.onNewMessage();
-						this.msg('Sweet!', _('sent_to_trash'));
-					}
-				}
-			});
-	},
-	onChange: function(combo, record){
-		var me = this, form = combo.up('form').getForm();
-
-		if(form.getRecord().data.id){
-			var id = form.getRecord().data.id,
-				col = combo.name,
-				val = record[0].data.option_id, params = {
-					id: id,
-					col: col,
-					val: val
-				};
-
-			/**
-			 * Ext.direct function
-			 */
-			Messages.updateMessage(params, function(){
-				me.storeMsgs.load();
-			});
-
-		}
-
-	},
-	/**
-	 * On item click check if msgPreView is already inside the container.
-	 * if not, remove the item inside the container, add msgPreView and update it with record data.
-	 * if yes, just update the msgPreView with the new record data
-	 *
-	 * @param view
-	 * @param record
-	 * @namespace record.data.from_id
-	 */
-	onItemClick: function(view, record){
-		record.data.to_id = record.data.from_id;
-		this.msgForm.getForm().loadRecord(record);
-		this.action('old');
-	},
-
-	/**
-	 * This function is use to disable/enabled and hide/show buttons and fields
-	 * according to the action
-	 *
-	 * @param action
-	 */
-	action: function(action){
-		var sm = this.msgGrid.getSelectionModel(), form = this.msgForm, patientCombo = form.query('combo[itemId="patientCombo"]')[0], patientField = form.query('textfield[itemId="patientField"]')[0], bodyMsg = form.getComponent('bodyMsg'), currMsg = form.getComponent('currMsg'), deletebtn1 = this.query('button[itemId="deleteMsg"]')[0], deletebtn2 = this.query('button[itemId="deleteMsg"]')[1], replybtn = this.query('button[itemId="replyMsg"]')[0], sendbtn = this.query('button[itemId="sendMsg"]')[0];
-		if(action == 'new'){
-			bodyMsg.setReadOnly(false);
-			patientCombo.show();
-			patientField.hide();
-			deletebtn1.disable();
-			deletebtn2.disable();
-			replybtn.disable();
-			sendbtn.enable();
-			sm.deselectAll();
-		}
-		else if(action == 'old'){
-			bodyMsg.setReadOnly(true);
-			patientCombo.hide();
-			patientField.show();
-			deletebtn1.enable();
-			deletebtn2.enable();
-			replybtn.enable();
-			sendbtn.disable();
-		}
-		else if(action == 'reply'){
-			var msg = bodyMsg.getValue();
-			bodyMsg.setValue('<br><br><br><qoute style="margin-left: 10px; padding-left: 10px; border-left: solid 3px #cccccc; display: block;">' + msg + '</quote>');
-			bodyMsg.setReadOnly(false);
-			sendbtn.enable();
-			patientCombo.hide();
-			patientField.show();
-		}
-	},
-	/**
-	 * This function is called from Viewport.js when
-	 * this panel is selected in the navigation panel.
-	 * place inside this function all the functions you want
-	 * to call every this panel becomes active
-	 */
-	onActive: function(callback){
-		this.storeMsgs.load();
-		callback(true);
-	}
-});
-
 Ext.define('App.view.patient.charts.BPPulseTemp',
 {
 	extend : 'Ext.container.Container',
@@ -33971,52 +33516,52 @@ Ext.define('App.store.administration.DocumentToken', {
             token: '[PATIENT_AGE]'
         },
         {
-            title: _('patient_city'),
-            token: '[PATIENT_CITY]'
+            title: _('PATIENT_PHYSICAL_ADDRESS_LINE_ONE'),
+            token: '[PATIENT_PHYSICAL_ADDRESS_LINE_ONE]'
         },
         {
-            title: _('patient_state'),
-            token: '[PATIENT_STATE]'
+            title: _('PATIENT_PHYSICAL_ADDRESS_LINE_TWO'),
+            token: '[PATIENT_PHYSICAL_ADDRESS_LINE_TWO]'
         },
         {
-            title: _('patient_home_address_line_1'),
-            token: '[PATIENT_HOME_ADDRESS_LINE_ONE]'
+            title: _('PATIENT_PHYSICAL_CITY'),
+            token: '[PATIENT_PHYSICAL_CITY]'
         },
         {
-            title: _('patient_home_address_line_1'),
-            token: '[PATIENT_HOME_ADDRESS_LINE_TWO]'
+            title: _('PATIENT_PHYSICAL_STATE'),
+            token: '[PATIENT_PHYSICAL_STATE]'
         },
         {
-            title: _('patient_home_address_zip_code'),
-            token: '[PATIENT_HOME_ADDRESS_ZIP_CODE]'
+            title: _('PATIENT_PHYSICAL_ZIP'),
+            token: '[PATIENT_PHYSICAL_ZIP]'
         },
         {
-            title: _('patient_home_address_city'),
-            token: '[PATIENT_HOME_ADDRESS_CITY]'
+            title: _('PATIENT_PHYSICAL_COUNTRY'),
+            token: '[PATIENT_PHYSICAL_COUNTRY]'
         },
         {
-            title: _('patient_home_address_state'),
-            token: '[PATIENT_HOME_ADDRESS_STATE]'
-        },
-        {
-            title: _('patient_postal_address_line_1'),
+            title: _('PATIENT_POSTAL_ADDRESS_LINE_ONE'),
             token: '[PATIENT_POSTAL_ADDRESS_LINE_ONE]'
         },
         {
-            title: _('patient_postal_address_line_2'),
+            title: _('PATIENT_POSTAL_ADDRESS_LINE_TWO'),
             token: '[PATIENT_POSTAL_ADDRESS_LINE_TWO]'
         },
         {
-            title: _('patient_postal_address_zip_code'),
-            token: '[PATIENT_POSTAL_ADDRESS_ZIP_CODE]'
+            title: _('PATIENT_POSTAL_CITY'),
+            token: '[PATIENT_POSTAL_CITY]'
         },
         {
-            title: _('patient_postal_address_city'),
-            token: '[PATIENT_POSTAL_ADDRESS_CITY]'
+            title: _('PATIENT_POSTAL_STATE'),
+            token: '[PATIENT_POSTAL_STATE]'
         },
         {
-            title: _('patient_postal_address_state'),
-            token: '[PATIENT_POSTAL_ADDRESS_STATE]'
+            title: _('PATIENT_POSTAL_ZIP'),
+            token: '[PATIENT_POSTAL_ZIP]'
+        },
+        {
+            title: _('PATIENT_POSTAL_COUNTRY'),
+            token: '[PATIENT_POSTAL_COUNTRY]'
         },
         {
             title: _('patient_tabacco'),
@@ -34179,6 +33724,94 @@ Ext.define('App.store.administration.DocumentToken', {
             token: '[PATIENT_INACTIVE_SURGERY_LIST]'
         },
         {
+            title: _('provider_id'),
+            token: '[PROVIDER_ID]'
+        },
+        {
+            title: _('provider_title'),
+            token: '[PROVIDER_TITLE]'
+        },
+        {
+            title: _('provider_full_name'),
+            token: '[PROVIDER_FULL_NAME]'
+        },
+        {
+            title: _('provider_first_name'),
+            token: '[PROVIDER_FIRST_NAME]'
+        },
+        {
+            title: _('provider_middle_name'),
+            token: '[PROVIDER_MIDDLE_NAME]'
+        },
+        {
+            title: _('provider_last_name'),
+            token: '[PROVIDER_LAST_NAME]'
+        },
+        {
+            title: _('provider_npi'),
+            token: '[PROVIDER_NPI]'
+        },
+        {
+            title: _('provider_lic'),
+            token: '[PROVIDER_LIC]'
+        },
+        {
+            title: _('provider_dea'),
+            token: '[PROVIDER_DEA]'
+        },
+        {
+            title: _('provider_fed_tax'),
+            token: '[PROVIDER_FED_TAX]'
+        },
+        {
+            title: _('provider_ess'),
+            token: '[PROVIDER_ESS]'
+        },
+        {
+            title: _('provider_taxonomy'),
+            token: '[PROVIDER_TAXONOMY]'
+        },
+        {
+            title: _('provider_email'),
+            token: '[PROVIDER_EMAIL]'
+        },
+        {
+            title: _('provider_direct_address'),
+            token: '[PROVIDER_DIRECT_ADDRESS]'
+        },
+        {
+            title: _('provider_address_one'),
+            token: '[PROVIDER_ADDRESS_LINE_ONE]'
+        },
+        {
+            title: _('provider_address_two'),
+            token: '[PROVIDER_ADDRESS_LINE_TWO]'
+        },
+        {
+            title: _('provider_city'),
+            token: '[PROVIDER_ADDRESS_CITY]'
+        },
+        {
+            title: _('provider_state'),
+            token: '[PROVIDER_ADDRESS_STATE]'
+        },
+        {
+            title: _('provider_zip'),
+            token: '[PROVIDER_ADDRESS_ZIP]'
+        },
+        {
+            title: _('provider_country'),
+            token: '[PROVIDER_ADDRESS_COUNTRY]'
+        },
+        {
+            title: _('provider_phone'),
+            token: '[PROVIDER_PHONE]'
+        },
+        {
+            title: _('provider_mobile'),
+            token: '[PROVIDER_MOBILE]'
+        },
+        {
             title: _('encounter_date'),
             token: '[ENCOUNTER_DATE]'
         },
@@ -34265,6 +33898,10 @@ Ext.define('App.store.administration.DocumentToken', {
         {
             title: _('orders_other'),
             token: '[ORDERS_OTHER]'
+        },
+        {
+            title: _('order_date'),
+            token: '[ORDER_DATE]'
         },
         {
             title: _('current_date'),
@@ -36182,6 +35819,10 @@ Ext.define('App.controller.administration.DataPortability', {
 		{
 			ref:'DataPortabilityPanel',
 			selector:'#DataPortabilityPanel'
+		},
+		{
+			ref:'DataPortabilityPanelIFrame',
+			selector:'#DataPortabilityPanelIFrame'
 		}
 	],
 
@@ -36198,12 +35839,10 @@ Ext.define('App.controller.administration.DataPortability', {
 
 	onDataPortabilityExportBtnClick: function(btn){
 
-		var iframe = Ext.create('App.ux.ManagedIframe',{
-			src: g('url') + '/dataProvider/DataPortability.php?token=' + app.user.token +'&site=' + g('site')
-		});
+		var iframe = this.getDataPortabilityPanelIFrame(),
+			src = g('url') + '/dataProvider/DataPortability.php?token=' + app.user.token +'&site=' + g('site');
 
-		this.getDataPortabilityPanel().add(iframe);
-		this.getDataPortabilityPanel().update(_('download_shortly'));
+		iframe.setSrc(src);
 	}
 
 });
@@ -38869,11 +38508,11 @@ Ext.define('App.controller.LogOut', {
 		}
 	},
 
-	appLogout: function(auto){
+	appLogout: function(force){
 		var me = this,
 			nav = me.getController('Navigation');
 
-		if(auto === true){
+		if(force === true){
 			me.ActivityMonitor(false);
 			if(app.patient.pid) Patient.unsetPatient(app.patient.pid);
 			authProcedures.unAuth(function(){
@@ -38884,7 +38523,7 @@ Ext.define('App.controller.LogOut', {
 		}else{
 			Ext.Msg.show({
 				title: _('please_confirm') + '...',
-				msg: _('are_you_sure_to_quit') + ' GaiaEHR?',
+				msg: _('are_you_sure_to_quit') + ' MD Timeline?',
 				icon: Ext.MessageBox.QUESTION,
 				buttons: Ext.Msg.YESNO,
 				fn: function(btn){
@@ -39603,19 +39242,26 @@ Ext.define('App.controller.patient.ActiveProblems', {
 		var grid = this.getActiveProblemsGrid(),
             store = grid.getStore(),
             reconciled = this.getPatientProblemsReconciledBtn().pressed,
-            active = this.getPatientProblemsActiveBtn().pressed;
+            onlyActive = this.getPatientProblemsActiveBtn().pressed,
+			filters = [
+				{
+					property: 'pid',
+					value: app.patient.pid
+				}
+			];
+
+		if(onlyActive){
+			Ext.Array.push(filters, {
+				property: 'status_code',
+				value: '55561003'
+			});
+		}
 
 		store.clearFilter(true);
         store.load({
-            filters: [
-                {
-                    property: 'pid',
-                    value: app.patient.pid
-                }
-            ],
+            filters: filters,
             params: {
-                reconciled: reconciled,
-                active: active
+                reconciled: reconciled
             }
         });
 	},
@@ -39635,10 +39281,10 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			record = form.getRecord();
 
 		record.set({
+			status: records[0].data.option_name,
 			status_code: records[0].data.code,
 			status_code_type: records[0].data.code_type
 		});
-
 	}
 
 });
@@ -40382,6 +40028,9 @@ Ext.define('App.controller.patient.CCD', {
 			'#exportCcdBtn': {
 				click: me.onExportCcdBtnClick
 			},
+			'#importCcdBtn': {
+				click: me.onImportCcdBtnClick
+			},
 			'#printCcdBtn': {
 				click: me.onPrintCcdBtnClick
 			},
@@ -40389,6 +40038,9 @@ Ext.define('App.controller.patient.CCD', {
 				select: me.onPatientCcdPanelEncounterCmbSelect
 			}
 		});
+
+
+		me.importCtrl = this.getController('patient.CCDImport');
 	},
 
 	eid: null,
@@ -40468,6 +40120,29 @@ Ext.define('App.controller.patient.CCD', {
 		var values = cmp.up('toolbar').query('#PatientCcdPanelExcludeCheckBoxGroup')[0].getValue(),
 			excludes = values.exclude || [];
 		return excludes.join ? excludes.join(',') : excludes;
+	},
+
+	onImportCcdBtnClick: function(btn){
+
+		var me = this,
+			win = Ext.create('App.ux.form.fields.UploadString');
+
+		win.allowExtensions = ['xml','ccd','cda','ccda'];
+		win.on('uploadready', function(comp, stringXml){
+			me.getDocumentData(stringXml);
+		});
+
+		win.show();
+	},
+
+	getDocumentData: function(stringXml){
+		var me = this;
+
+		CCDDocumentParse.parseDocument(stringXml, function(ccdData){
+			me.importCtrl.validatePosibleDuplicates = false;
+			me.importCtrl.CcdImport(ccdData, app.patient.pid);
+			me.importCtrl.validatePosibleDuplicates = true;
+		});
 	}
 
 });
@@ -40598,14 +40273,22 @@ Ext.define('App.controller.patient.CCDImport', {
 				click: me.onCcdImportPreviewWindowCancelBtnClick
 			}
 		});
+
+		me.validatePosibleDuplicates = true;
+
 	},
 
-	CcdImport: function(ccdData){
+	CcdImport: function(ccdData, mergePid){
 		if(!this.getCcdImportWindow()){
 			Ext.create('App.view.patient.windows.CCDImport');
 		}
 		this.getCcdImportWindow().ccdData = ccdData;
 		this.getCcdImportWindow().show();
+
+		if(mergePid){
+			this.doLoadMergePatientData(mergePid);
+		}
+
 	},
 
 	onCcdImportWindowShow: function(win){
@@ -40614,8 +40297,8 @@ Ext.define('App.controller.patient.CCDImport', {
 
     /*
     Event when the CDA Import and Viewer shows up.
-    Also will check for duplicates in the database and if a posible duplicate is found
-    show the posible duplicate window
+    Also will check for duplicates in the database and if a possible duplicate is found
+    show the possible duplicate window
      */
 	doLoadCcdData: function(data){
 		var me = this,
@@ -40624,17 +40307,21 @@ Ext.define('App.controller.patient.CCDImport', {
             phone;
         ccdPatientForm.loadRecord(patient);
 
-        App.app.getController('patient.Patient').lookForPossibleDuplicates(
-            {
-                fname: patient.data.fname,
-                lname: patient.data.lname,
-                sex: patient.data.sex,
-                DOB: patient.data.DOB
-            },
-            'ccdImportDuplicateAction',
-            function(patient) {
-            }
-        );
+
+		if(me.validatePosibleDuplicates){
+			App.app.getController('patient.Patient').lookForPossibleDuplicates(
+				{
+					fname: patient.data.fname,
+					lname: patient.data.lname,
+					sex: patient.data.sex,
+					DOB: patient.data.DOB
+				},
+				'ccdImportDuplicateAction',
+				function(patient){
+
+				}
+			);
+		}
 
 		// list 59 ethnicity
 		// list 14 race
@@ -40957,6 +40644,7 @@ Ext.define('App.controller.patient.CCDImport', {
 		var me = this,
 			now = new Date(),
 			pid = patient.data.pid,
+			i,
 
 		// Get all the stores of the dataGrids
 			problems = me.getCcdImportPreviewActiveProblemsGrid().getStore().data.items,
@@ -40964,45 +40652,45 @@ Ext.define('App.controller.patient.CCDImport', {
 			allergies = me.getCcdImportPreviewAllergiesGrid().getStore().data.items;
 
 		// Allergies
-		for(Index = 0; Index < allergies.length; Index++){
+		for(i = 0; i < allergies.length; i++){
 
-			if(allergies[Index].data.id && allergies[Index].data.id > 0)  continue;
+			if(allergies[i].data.id && allergies[i].data.id > 0)  continue;
 
-			allergies[Index].set({
+			allergies[i].set({
                 pid: pid,
                 created_uid: app.patient.id,
                 create_date: now
             });
-            allergies[Index].setDirty();
-			allergies[Index].save();
+            allergies[i].setDirty();
+			allergies[i].save();
 		}
 
 		// Medications
-		for(Index = 0; Index < medications.length; Index++){
+		for(i = 0; i < medications.length; i++){
 
-			if(medications[Index].data.id && medications[Index].data.id > 0)  continue;
+			if(medications[i].data.id && medications[i].data.id > 0)  continue;
 
-			medications[Index].set({
+			medications[i].set({
 				pid: pid,
 				created_uid: app.patient.id,
 				create_date: now
 			});
-            medications[Index].setDirty();
-			medications[Index].save();
+            medications[i].setDirty();
+			medications[i].save();
 		}
 
 		// Problems
-		for(Index = 0; Index < problems.length; Index++){
+		for(i = 0; i < problems.length; i++){
 
-			if(problems[Index].data.id && problems[Index].data.id > 0)  continue;
+			if(problems[i].data.id && problems[i].data.id > 0)  continue;
 
-			problems[Index].set({
+			problems[i].set({
 				pid: pid,
 				created_uid: app.patient.id,
 				create_date: now
 			});
-            problems[Index].setDirty();
-			problems[Index].save({
+            problems[i].setDirty();
+			problems[i].save({
 				callback: function(){
 
 					me.getCcdImportWindow().close();
@@ -41030,8 +40718,8 @@ Ext.define('App.controller.patient.CCDImport', {
 		var me = this,
 			grids = me.getCcdImportWindow().query('grid');
 
-		for(var Index = 0; Index < grids.length; Index++){
-			var sm = grids[Index].getSelectionModel();
+		for(var i = 0; i < grids.length; i++){
+			var sm = grids[i].getSelectionModel();
 			if(selected){
 				sm.selectAll();
 			}else{
@@ -42733,35 +42421,46 @@ Ext.define('App.controller.patient.RadOrders', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	onPrintRadOrderBtnClick: function(orders){
+	onPrintRadOrderBtnClick: function(input){
 		var me = this,
 			grid = me.getRadOrdersGrid(),
-			items = (Ext.isArray(orders) ? orders : grid.getSelectionModel().getSelection()),
-			params = {},
-			data,
-			i;
+			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
+			documents = {};
 
-		params.pid = app.patient.pid;
-		params.eid = app.patient.eid;
-		params.orderItems = [];
-		params.docType = 'Rad';
+		orders.forEach(function(order){
 
-		params.templateId = 6;
-		params.orderItems.push(['Description', 'Notes']);
-		for(i = 0; i < items.length; i++){
-			data = items[i].data;
-			params.orderItems.push([
-				data.description + ' [' + data.code_type + ':' + data.code + ']',
-				data.note
-			]);
-		}
+			var date_ordered = Ext.Date.format(order.get('date_ordered'),'Y-m-d'),
+				doc_key = '_' + order.get('eid') +
+					order.get('pid') +
+					order.get('uid') +
+					date_ordered;
 
-		DocumentHandler.createTempDocument(params, function(provider, response){
-			if(window.dual){
-				dual.onDocumentView(response.result.id, 'Rad');
-			}else{
-				app.onDocumentView(response.result.id, 'Rad');
+			if(!documents[doc_key]){
+				documents[doc_key] = {};
+				documents[doc_key].pid = app.patient.pid;
+				documents[doc_key].eid = app.patient.eid;
+				documents[doc_key].date_ordered = date_ordered;
+				documents[doc_key].provider_uid = order.get('uid');
+				documents[doc_key].orderItems = [];
+				documents[doc_key].docType = 'Rad';
+				documents[doc_key].templateId = 6;
+				documents[doc_key].orderItems.push(['Description', 'Notes']);
 			}
+
+			documents[doc_key].orderItems.push([
+				order.get('description') + ' [' + order.get('code_type') + ':' + order.get('code') + ']',
+				order.get('note')
+			]);
+		});
+
+		Ext.Object.each(documents, function(key, params){
+			DocumentHandler.createTempDocument(params, function(provider, response){
+				if(window.dual){
+					dual.onDocumentView(response.result.id, 'Rad');
+				}else{
+					app.onDocumentView(response.result.id, 'Rad');
+				}
+			});
 		});
 	},
 
@@ -43380,47 +43079,53 @@ Ext.define('App.controller.patient.RxOrders', {
 		return records;
 	},
 
-	onPrintRxOrderBtnClick: function(orders){
+	onPrintRxOrderBtnClick: function(input){
 		var me = this,
 			grid = me.getRxOrdersGrid(),
-			items = (Ext.isArray(orders) ? orders : grid.getSelectionModel().getSelection()),
+			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
 			isSingleColumnTable = true,
 			references = '',
-			params = {},
+			documents = {},
 			columns,
-			data,
-            i,
             refs,
             text;
 
-		params.pid = app.patient.pid;
-		params.eid = app.patient.eid;
-		params.orderItems = [];
-		params.docType = 'Rx';
-		params.templateId = 5;
+		orders.forEach(function(order){
 
-		if(isSingleColumnTable){
-			columns = [''];
-		}else{
-			columns = [
-                'Description',
-                'Instructions',
-                'Dispense',
-                'Refill',
-                'Days Supply',
-                'Dx',
-                'Notes',
-                'References'
-            ];
-		}
+			var date_ordered = Ext.Date.format(order.get('date_ordered'),'Y-m-d'),
+				doc_key = '_' + order.get('eid') +
+					order.get('pid') +
+					order.get('uid') +
+					date_ordered;
 
-		params.orderItems.push(columns);
+			if(!documents[doc_key]){
+				documents[doc_key] = {};
+				documents[doc_key].pid = app.patient.pid;
+				documents[doc_key].eid = app.patient.eid;
+				documents[doc_key].date_ordered = date_ordered;
+				documents[doc_key].provider_uid = order.get('uid');
+				documents[doc_key].orderItems = [];
+				documents[doc_key].docType = 'Rx';
+				documents[doc_key].templateId = 5;
+				if(isSingleColumnTable){
+					columns = [''];
+				}else{
+					columns = [
+						'Description',
+						'Instructions',
+						'Dispense',
+						'Refill',
+						'Days Supply',
+						'Dx',
+						'Notes',
+						'References'
+					];
+				}
+				documents[doc_key].orderItems.push(columns);
+			}
 
-		for(i = 0; i < items.length; i++){
-			data = items[i].data;
-
-			if(data.ref_order !== ''){
-				refs = data.ref_order.split('~');
+			if(order.get('ref_order') !== ''){
+				refs = order.get('ref_order').split('~');
 				if(refs.length >= 3){
 					references = 'Rx Reference#: ' + refs[2];
 				}
@@ -43428,58 +43133,61 @@ Ext.define('App.controller.patient.RxOrders', {
 
 			if(isSingleColumnTable){
 
-				text = '<u>' + _('order_number') + '</u>: ' + g('rx_order_number_prefix') + data.id + '<br>';
-				text += '<u>' + _('description') + '</u>: ' + '<b>' + data.STR.toUpperCase() + '</b><br>';
-				text += '<u>' + _('dispense_as_written') + '</u>: ' + (data.daw ? _('yes') : _('no')) + '<br>';
-				text += '<u>' + _('quantity') + '</u>: ' + data.dispense + '<br>';
+				text = '<u>' + _('order_number') + '</u>: ' + g('rx_order_number_prefix') + order.get('id') + '<br>';
+				text += '<u>' + _('description') + '</u>: ' + '<b>' + order.get('STR').toUpperCase() + '</b><br>';
+				text += '<u>' + _('dispense_as_written') + '</u>: ' + (order.get('daw') ? _('yes') : _('no')) + '<br>';
+				text += '<u>' + _('quantity') + '</u>: ' + order.get('dispense') + '<br>';
 
-				if(data.days_supply){
-					text += '<u>' + _('days_supply') + '</u>: ' + data.days_supply + '<br>';
+				if(order.get('days_supply')){
+					text += '<u>' + _('days_supply') + '</u>: ' + order.get('days_supply') + '<br>';
 				}
 
-				text += '<u>' + _('refill') + '</u>: ' + data.refill + '<br>';
-				text += '<u>' + _('instructions') + '</u>: ' + data.directions + '<br>';
+				text += '<u>' + _('refill') + '</u>: ' + order.get('refill') + '<br>';
+				text += '<u>' + _('instructions') + '</u>: ' + order.get('directions') + '<br>';
 
-				var dxs = (data.dxs.join ? data.dxs.join(', ') : data.dxs);
+				var dxs = (order.get('dxs').join ? order.get('dxs').join(', ') : order.get('dxs'));
 				if(dxs && dxs !== ''){
-					text += '<u>' + _('dx') + '</u>: ' + (data.dxs.join ? data.dxs.join(', ') : data.dxs) + '<br>';
+					text += '<u>' + _('dx') + '</u>: ' + (order.get('dxs').join ? order.get('dxs').join(', ') : order.get('dxs')) + '<br>';
 				}
 
-				if(data.notes !== ''){
-					text += '<u>' + _('notes_to_pharmacist') + '</u>: ' + data.notes + '<br>';
+				if(order.get('notes') !== ''){
+					text += '<u>' + _('notes_to_pharmacist') + '</u>: ' + order.get('notes') + '<br>';
 				}
 
 				if(references !== ''){
 					text += '<u>References</u>: ' + references + '<br>';
 				}
 
-				if(data.system_notes !== ''){
-					text += '<b>' + data.system_notes + '</b><br>';
+				if(order.get('system_notes') !== ''){
+					text += '<b>' + order.get('system_notes') + '</b><br>';
 				}
 
-				params.orderItems.push([text]);
+				documents[doc_key].orderItems.push([text]);
 
 			}else{
 
-				params.orderItems.push([
-					data.STR + ' ' + data.dose + ' ' + data.route + ' ' + data.form,
-					data.directions,
-					data.dispense,
-					data.refill,
-					data.days_supply,
-					(data.dxs.join ? data.dxs.join(', ') : data.dxs),
-					data.notes,
+				documents[doc_key].orderItems.push([
+					order.get('STR') + ' ' + order.get('dose') + ' ' + order.get('route') + ' ' + order.get('form'),
+					order.get('directions'),
+					order.get('dispense'),
+					order.get('refill'),
+					order.get('days_supply'),
+					(order.get('dxs').join ? order.get('dxs').join(', ') : order.get('dxs')),
+					order.get('notes'),
 					references
 				]);
 			}
-		}
 
-		DocumentHandler.createTempDocument(params, function(provider, response){
-			if(window.dual){
-				dual.onDocumentView(response.result.id, 'Rx');
-			}else{
-				app.onDocumentView(response.result.id, 'Rx');
-			}
+		});
+
+		Ext.Object.each(documents, function(key, params){
+			DocumentHandler.createTempDocument(params, function(provider, response){
+				if(window.dual){
+					dual.onDocumentView(response.result.id, 'Rx');
+				}else{
+					app.onDocumentView(response.result.id, 'Rx');
+				}
+			});
 		});
 	},
 
@@ -46949,23 +46657,47 @@ Ext.define('App.view.patient.CCD', {
 		},
 		'-',
 		{
-			text: _('download'),
-			margin: '0 0 5 0',
-			itemId: 'exportCcdBtn',
-			icon: 'resources/images/icons/download.png'
+			xtype: 'container',
+			layout: 'vbox',
+			items: [
+				{
+					xtype: 'button',
+					text: _('upload'),
+					margin: '0 0 5 0',
+					itemId: 'importCcdBtn',
+					icon: 'resources/images/icons/upload.png',
+					width: 100
+				},
+				{
+					xtype: 'button',
+					text: _('download'),
+					itemId: 'exportCcdBtn',
+					icon: 'resources/images/icons/download.png',
+					width: 100
+				}
+			]
 		},
 		'-',
 		{
-			text: _('archive'),
-			margin: '0 0 5 0',
-			itemId: 'archiveCcdBtn',
-			icon: 'resources/images/icons/archive_16.png'
-		},
-		'-',
-		{
-			text: 'Print',
-			iconCls: 'icon-print',
-			itemId: 'printCcdBtn'
+			xtype: 'container',
+			layout: 'vbox',
+			items: [
+				{
+					xtype: 'button',
+					text: _('archive'),
+					margin: '0 0 5 0',
+					itemId: 'archiveCcdBtn',
+					icon: 'resources/images/icons/archive_16.png',
+					width: 100
+				},
+				{
+					xtype: 'button',
+					text: 'Print',
+					iconCls: 'icon-print',
+					itemId: 'printCcdBtn',
+					width: 100
+				}
+			]
 		}
 	]
 
@@ -50312,8 +50044,8 @@ Ext.define('App.view.administration.Users', {
 												},
 												{
 													xtype: 'textfield',
-													fieldLabel: _('upin'),
-													name: 'pin'
+													fieldLabel: _('lic'),
+													name: 'lic'
 												},
 												{
 													xtype: 'textfield',
@@ -53466,6 +53198,7 @@ Ext.define('App.view.patient.Summary', {
 		me.loadStores();
 		me.el.unmask();
 	},
+
 	/**
 	 * This function is called from Viewport.js when
 	 * this panel is selected in the navigation panel.
@@ -54794,36 +54527,46 @@ Ext.define('App.controller.patient.LabOrders', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	onPrintLabOrderBtnClick: function(orders){
+	onPrintLabOrderBtnClick: function(input){
 		var me = this,
 			grid = me.getLabOrdersGrid(),
-			items = (Ext.isArray(orders) ? orders : grid.getSelectionModel().getSelection()),
-			params = {},
-			data,
-			i;
+			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
+			documents = {};
 
-		params.pid = app.patient.pid;
-		params.eid = app.patient.eid;
-		params.orderItems = [ ];
-		params.docType = 'Lab';
+		orders.forEach(function(order){
+			var date_ordered = Ext.Date.format(order.get('date_ordered'),'Y-m-d'),
+				doc_key = '_' + order.get('eid') +
+					order.get('pid') +
+					order.get('uid') +
+					date_ordered;
 
-		params.templateId = 4;
-		params.orderItems.push(['Description', 'Notes']);
-		for(i = 0; i < items.length; i++){
-			data = items[i].data;
+			if(!documents[doc_key]){
+				documents[doc_key] = {};
+				documents[doc_key].pid = app.patient.pid;
+				documents[doc_key].eid = app.patient.eid;
+				documents[doc_key].date_ordered = date_ordered;
+				documents[doc_key].provider_uid = order.get('uid');
+				documents[doc_key].orderItems = [];
+				documents[doc_key].docType = 'Lab';
+				documents[doc_key].templateId = 4;
+				documents[doc_key].orderItems.push(['Description', 'Notes']);
 
-			params.orderItems.push([
-					data.description + ' [' + data.code_type + ':' + data.code + ']',
-				data.note
-			]);
-		}
-
-		DocumentHandler.createTempDocument(params, function(provider, response){
-			if(window.dual){
-				dual.onDocumentView(response.result.id, 'Lab');
-			}else{
-				app.onDocumentView(response.result.id, 'Lab');
 			}
+
+			documents[doc_key].orderItems.push([
+				order.get('description') + ' [' + order.get('code_type') + ':' + order.get('code') + ']',
+				order.get('note')
+			]);
+		});
+
+		Ext.Object.each(documents, function(key, params){
+			DocumentHandler.createTempDocument(params, function(provider, response){
+				if(window.dual){
+					dual.onDocumentView(response.result.id, 'Lab');
+				}else{
+					app.onDocumentView(response.result.id, 'Lab');
+				}
+			});
 		});
 	},
 
@@ -56050,13 +55793,10 @@ Ext.define('App.view.patient.ActiveProblems', {
 			dataIndex: 'end_date'
 		},
         {
-            header: _('active?'),
+            header: _('status'),
             groupable: false,
             width: 60,
-            dataIndex: 'active',
-            renderer: function(v){
-                return app.boolRenderer(v);
-            }
+            dataIndex: 'status'
         }
 	],
 	plugins: Ext.create('App.ux.grid.RowFormEditing', {
@@ -56133,6 +55873,13 @@ Ext.define('App.view.patient.ActiveProblems', {
 							width: 200
 						},
 						items: [
+							{
+								fieldLabel: _('status'),
+								xtype: 'gaiaehr.combo',
+								name: 'status',
+								itemId: 'ActiveProblemStatusCombo',
+								list: 112
+							},
 							{
 								fieldLabel: _('begin_date'),
 								xtype: 'datefield',

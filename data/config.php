@@ -21,7 +21,23 @@ $API = [
 
     'CCDDocumentParse' => [
         'methods' => [
+            'parseDocument' => [
+                'len' => 1
+            ],
             'getTestCCD' => [
+                'len' => 1
+            ]
+        ]
+    ],
+    'AuditLog' => [
+        'methods' => [
+            'addLog' => [
+                'len' => 1
+            ],
+            'getLogByEventName' => [
+                'len' => 1
+            ],
+            'getLogByEventNames' => [
                 'len' => 1
             ]
         ]

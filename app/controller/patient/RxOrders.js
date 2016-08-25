@@ -274,47 +274,53 @@ Ext.define('App.controller.patient.RxOrders', {
 		return records;
 	},
 
-	onPrintRxOrderBtnClick: function(orders){
+	onPrintRxOrderBtnClick: function(input){
 		var me = this,
 			grid = me.getRxOrdersGrid(),
-			items = (Ext.isArray(orders) ? orders : grid.getSelectionModel().getSelection()),
+			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
 			isSingleColumnTable = true,
 			references = '',
-			params = {},
+			documents = {},
 			columns,
-			data,
-            i,
             refs,
             text;
 
-		params.pid = app.patient.pid;
-		params.eid = app.patient.eid;
-		params.orderItems = [];
-		params.docType = 'Rx';
-		params.templateId = 5;
+		orders.forEach(function(order){
 
-		if(isSingleColumnTable){
-			columns = [''];
-		}else{
-			columns = [
-                'Description',
-                'Instructions',
-                'Dispense',
-                'Refill',
-                'Days Supply',
-                'Dx',
-                'Notes',
-                'References'
-            ];
-		}
+			var date_ordered = Ext.Date.format(order.get('date_ordered'),'Y-m-d'),
+				doc_key = '_' + order.get('eid') +
+					order.get('pid') +
+					order.get('uid') +
+					date_ordered;
 
-		params.orderItems.push(columns);
+			if(!documents[doc_key]){
+				documents[doc_key] = {};
+				documents[doc_key].pid = app.patient.pid;
+				documents[doc_key].eid = app.patient.eid;
+				documents[doc_key].date_ordered = date_ordered;
+				documents[doc_key].provider_uid = order.get('uid');
+				documents[doc_key].orderItems = [];
+				documents[doc_key].docType = 'Rx';
+				documents[doc_key].templateId = 5;
+				if(isSingleColumnTable){
+					columns = [''];
+				}else{
+					columns = [
+						'Description',
+						'Instructions',
+						'Dispense',
+						'Refill',
+						'Days Supply',
+						'Dx',
+						'Notes',
+						'References'
+					];
+				}
+				documents[doc_key].orderItems.push(columns);
+			}
 
-		for(i = 0; i < items.length; i++){
-			data = items[i].data;
-
-			if(data.ref_order !== ''){
-				refs = data.ref_order.split('~');
+			if(order.get('ref_order') !== ''){
+				refs = order.get('ref_order').split('~');
 				if(refs.length >= 3){
 					references = 'Rx Reference#: ' + refs[2];
 				}
@@ -322,58 +328,61 @@ Ext.define('App.controller.patient.RxOrders', {
 
 			if(isSingleColumnTable){
 
-				text = '<u>' + _('order_number') + '</u>: ' + g('rx_order_number_prefix') + data.id + '<br>';
-				text += '<u>' + _('description') + '</u>: ' + '<b>' + data.STR.toUpperCase() + '</b><br>';
-				text += '<u>' + _('dispense_as_written') + '</u>: ' + (data.daw ? _('yes') : _('no')) + '<br>';
-				text += '<u>' + _('quantity') + '</u>: ' + data.dispense + '<br>';
+				text = '<u>' + _('order_number') + '</u>: ' + g('rx_order_number_prefix') + order.get('id') + '<br>';
+				text += '<u>' + _('description') + '</u>: ' + '<b>' + order.get('STR').toUpperCase() + '</b><br>';
+				text += '<u>' + _('dispense_as_written') + '</u>: ' + (order.get('daw') ? _('yes') : _('no')) + '<br>';
+				text += '<u>' + _('quantity') + '</u>: ' + order.get('dispense') + '<br>';
 
-				if(data.days_supply){
-					text += '<u>' + _('days_supply') + '</u>: ' + data.days_supply + '<br>';
+				if(order.get('days_supply')){
+					text += '<u>' + _('days_supply') + '</u>: ' + order.get('days_supply') + '<br>';
 				}
 
-				text += '<u>' + _('refill') + '</u>: ' + data.refill + '<br>';
-				text += '<u>' + _('instructions') + '</u>: ' + data.directions + '<br>';
+				text += '<u>' + _('refill') + '</u>: ' + order.get('refill') + '<br>';
+				text += '<u>' + _('instructions') + '</u>: ' + order.get('directions') + '<br>';
 
-				var dxs = (data.dxs.join ? data.dxs.join(', ') : data.dxs);
+				var dxs = (order.get('dxs').join ? order.get('dxs').join(', ') : order.get('dxs'));
 				if(dxs && dxs !== ''){
-					text += '<u>' + _('dx') + '</u>: ' + (data.dxs.join ? data.dxs.join(', ') : data.dxs) + '<br>';
+					text += '<u>' + _('dx') + '</u>: ' + (order.get('dxs').join ? order.get('dxs').join(', ') : order.get('dxs')) + '<br>';
 				}
 
-				if(data.notes !== ''){
-					text += '<u>' + _('notes_to_pharmacist') + '</u>: ' + data.notes + '<br>';
+				if(order.get('notes') !== ''){
+					text += '<u>' + _('notes_to_pharmacist') + '</u>: ' + order.get('notes') + '<br>';
 				}
 
 				if(references !== ''){
 					text += '<u>References</u>: ' + references + '<br>';
 				}
 
-				if(data.system_notes !== ''){
-					text += '<b>' + data.system_notes + '</b><br>';
+				if(order.get('system_notes') !== ''){
+					text += '<b>' + order.get('system_notes') + '</b><br>';
 				}
 
-				params.orderItems.push([text]);
+				documents[doc_key].orderItems.push([text]);
 
 			}else{
 
-				params.orderItems.push([
-					data.STR + ' ' + data.dose + ' ' + data.route + ' ' + data.form,
-					data.directions,
-					data.dispense,
-					data.refill,
-					data.days_supply,
-					(data.dxs.join ? data.dxs.join(', ') : data.dxs),
-					data.notes,
+				documents[doc_key].orderItems.push([
+					order.get('STR') + ' ' + order.get('dose') + ' ' + order.get('route') + ' ' + order.get('form'),
+					order.get('directions'),
+					order.get('dispense'),
+					order.get('refill'),
+					order.get('days_supply'),
+					(order.get('dxs').join ? order.get('dxs').join(', ') : order.get('dxs')),
+					order.get('notes'),
 					references
 				]);
 			}
-		}
 
-		DocumentHandler.createTempDocument(params, function(provider, response){
-			if(window.dual){
-				dual.onDocumentView(response.result.id, 'Rx');
-			}else{
-				app.onDocumentView(response.result.id, 'Rx');
-			}
+		});
+
+		Ext.Object.each(documents, function(key, params){
+			DocumentHandler.createTempDocument(params, function(provider, response){
+				if(window.dual){
+					dual.onDocumentView(response.result.id, 'Rx');
+				}else{
+					app.onDocumentView(response.result.id, 'Rx');
+				}
+			});
 		});
 	},
 

@@ -51,7 +51,7 @@ if (!defined('_GaiaEXEC')) die('No direct access allowed.');
         <div id="mainapp-loading" class="mitos-mask-msg x-mask-msg x-layer x-mask-msg-default x-border-box">
 	        <div id="mainapp-x-mask-msg" class="x-mask-msg-inner">
 		        <div class="x-mask-msg-text">
-			        Loading GaiaEHR...
+			        Loading mdTimeLine EHR...
 		        </div>
 	        </div>
         </div>

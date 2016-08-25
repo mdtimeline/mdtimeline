@@ -821,7 +821,7 @@ Ext.override(Ext.container.Container, {
 
 	currPatientError: function(msg){
         Ext.Msg.show({
-            title: 'Oops! ' + _('no_patient_selected'),
+            title: _('oops ') + _('no_patient_selected'),
             msg: Ext.isString(msg) ? msg : _('select_patient_patient_live_search'),
             scope: this,
             buttons: Ext.Msg.OK,

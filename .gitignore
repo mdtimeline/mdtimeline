@@ -15,4 +15,5 @@ contrib/icd10/*
 /modules/phimail
 /modules/drugtodrugtoallergy
 /modules/erx
+/modules/phrmessenger
 /modules/reportcenter/reports/AutomatedMeasureCalculation

@@ -708,7 +708,6 @@ header("Access-Control-Allow-Origin: *");
 	                /**
 	                 * Load the root related panels
 	                 */
-	                'messages.Messages',
 	                /**
 	                 * Load the areas related panels
 	                 */
@@ -874,7 +873,7 @@ header("Access-Control-Allow-Origin: *");
                 launch: function() {
                     App.Current = this;
                     CronJob.run(function(){
-                        say('Loading GaiaEHR');
+                        say('Loading mdTImeLine EHR');
                         window.app = Ext.create('App.view.Viewport');
                     });
                 }

@@ -1675,5 +1675,6 @@ $LANG = array(
 	'stored_hash'                           => 'Stored Hash',
 	'current_hash'                          => 'Current Hash',
     'removal'                               => 'Removal',
-    'sure_for_removal'                      => 'Are you sure to remove this record?'
+    'sure_for_removal'                      => 'Are you sure to remove this record?',
+    'conversation_group'                    => 'Conversation Group'
 );

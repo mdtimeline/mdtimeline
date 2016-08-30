@@ -578,13 +578,13 @@ class Patient
         try {
             $path = site_path . '/patients/' . $pid;
             if (!file_exists($path)) {
-                if (mkdir($path, 0774, true)) {
-                    chmod($path, 0774);
+                if (mkdir($path, 0775, true)) {
+                    chmod($path, 0775);
                 } else {
                     throw new Exception('Could not create the directory for the patient.');
                 }
             } else {
-                if (!is_writable($path)) chmod($path, 0774);
+                if (!is_writable($path)) chmod($path, 0775);
             }
             return true;
         } catch (Exception $Error) {

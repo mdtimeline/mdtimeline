@@ -23,7 +23,8 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
         'App.ux.combo.ActiveProviders',
         'App.ux.combo.Allergies',
         'Modules.reportcenter.reports.PatientList.ux.LiveRXNORMSearchReport',
-        'Modules.reportcenter.reports.PatientList.ux.ComboOptionListReport'
+        'Modules.reportcenter.reports.PatientList.ux.ComboOptionListReport',
+        'Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter'
     ],
     xtype: 'reportFilter',
     region: 'west',
@@ -55,28 +56,6 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                             columnWidth: 1,
                             fieldLabel: _('begin_date'),
                             labelWidth: 100,
-                            allowBlank: false,
-                            format: g('date_display_format'),
-                            submitFormat: 'Y-m-d'
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            items: [
-                {
-                    xtype: 'panel',
-                    layout: 'column',
-                    border: false,
-                    frame: false,
-                    items: [
-                        {
-                            columnWidth: 1,
-                            xtype: 'datefield',
-                            name: 'end_date',
-                            labelWidth: 100,
-                            fieldLabel: _('end_date'),
                             allowBlank: false,
                             format: g('date_display_format'),
                             submitFormat: 'Y-m-d'
@@ -407,6 +386,23 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                             itemId: 'language_name',
                             name: 'language_name',
                             value: ''
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            items: [
+                {
+                    xtype: 'panel',
+                    layout: 'column',
+                    border: false,
+                    frame: false,
+                    items: [
+                        {
+                            xtype: 'labresultvalues',
+                            id: 'labResult',
+                            columnWidth: 1
                         }
                     ]
                 }

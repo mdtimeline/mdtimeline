@@ -13,7 +13,8 @@
 		"es_PR"
 	],
 	"actionsAPI":{
-      "ReportGenerator": {
+
+        "ReportGenerator": {
         "methods":{
           "buildDataGrid": {
             "len": 1
@@ -25,10 +26,17 @@
             "len":  1
           }
         }
-      },
+        },
+
         "ReportList":{
             "methods":{
                 "getAvailableReports": { "len": 1 }
+            }
+        },
+
+        "LabResultsValuesFilter":{
+            "methods":{
+                "getDistinctResults": { "len": 1 }
             }
         }
 	},

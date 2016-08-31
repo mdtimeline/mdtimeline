@@ -101,9 +101,3 @@ class FloorPlans {
 	}
 
 }
-
-//$e = new FloorPlans();
-//echo '<pre>';
-//print_r($e->getPatientsZonesByFloorPlanId(1));
-//print '<br><br>Session ----->>> <br><br>';
-//print_r($_SESSION);

@@ -11,6 +11,9 @@ SET @AgeFrom = :ageFrom;
 SET @AgeTo = :ageTo;
 SET @MaritalCode = :marital;
 SET @LanguageCode = :language;
+SET @LabOrderCode = :lab_result_code;
+SET @LabOrderOperator = :lab_comparison;
+SET @LabOrderValue = :lab_value;
 
 SELECT patient.*,
   CONCAT(patient.fname, ' ', patient.mname, ' ', patient.lname) as patient_name,

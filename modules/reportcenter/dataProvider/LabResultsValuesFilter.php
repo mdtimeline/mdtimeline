@@ -22,11 +22,19 @@ namespace modules\reportcenter\dataProvider;
 class LabResultsValuesFilter
 {
 
+    function __construct()
+    {
+        $this->db = new \MatchaHelper();
+        return;
+    }
+
     public function getDistinctResults()
     {
         try
         {
-            return;
+            $sql = "SELECT distinct code, code_text FROM patient_order_results";
+            $this->db->setSQL($sql);
+            return $this->db->fetchRecords(\PDO::FETCH_ASSOC);
         }
         catch(\Exception $Error)
         {

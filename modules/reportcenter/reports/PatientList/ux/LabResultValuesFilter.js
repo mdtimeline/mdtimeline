@@ -1,6 +1,6 @@
 /**
  * mdTimeLine (Electronic Health Records)
- * PhotoIdWindow.js
+ * LabResultValuesFilter.js
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

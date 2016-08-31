@@ -25,6 +25,9 @@ Ext.define('Modules.reportcenter.reports.PatientList.LabResultValuesFilter',
     {
         var me = this;
 
+        /**
+         * Model & Store for the Laboratory Results combo
+         */
         me.model = Ext.define('LabResultValueFilterModel', {
             extend: 'Ext.data.Model',
             fields: [
@@ -45,11 +48,23 @@ Ext.define('Modules.reportcenter.reports.PatientList.LabResultValuesFilter',
             },
             idProperty: 'code'
         });
-
         me.store = Ext.create('Ext.data.Store', {
             model: me.model,
             autoLoad: true
         });
+
+        /**
+         * Data & Store for the comparison combo (operators)
+         */
+        me.operators = Ext.create('Ext.data.Store', {
+            fields: ['name', 'value'],
+            data : [
+                {"name":"More than", "value":">="},
+                {"name":"Less than", "value":"<="},
+                {"name":"Equal to", "value":"="}
+            ]
+        });
+
 
         Ext.apply(me,
         {
@@ -71,6 +86,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.LabResultValuesFilter',
                 },
                 {
                     xtype: 'combo',
+                    store: me.operators,
                     hideLabel: true,
                     enableKeyEvents: true,
                     value: null,

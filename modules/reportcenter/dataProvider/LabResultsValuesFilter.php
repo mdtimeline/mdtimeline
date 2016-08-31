@@ -34,7 +34,9 @@ class LabResultsValuesFilter
         {
             $sql = "SELECT distinct code, code_text FROM patient_order_results";
             $this->db->setSQL($sql);
-            return $this->db->fetchRecords(\PDO::FETCH_ASSOC);
+            $tmp = $this->db->fetchRecords(\PDO::FETCH_ASSOC);
+            error_log(print_r($tmp,true));
+            return $tmp;
         }
         catch(\Exception $Error)
         {

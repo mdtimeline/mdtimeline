@@ -59,9 +59,18 @@ Ext.define('Modules.reportcenter.reports.PatientList.LabResultValuesFilter',
         me.operators = Ext.create('Ext.data.Store', {
             fields: ['name', 'value'],
             data : [
-                {"name":"More than", "value":">="},
-                {"name":"Less than", "value":"<="},
-                {"name":"Equal to", "value":"="}
+                {
+                    "name":"More than",
+                    "value":">="
+                },
+                {
+                    "name":"Less than",
+                    "value":"<="
+                },
+                {
+                    "name":"Equal to",
+                    "value":"="
+                }
             ]
         });
 

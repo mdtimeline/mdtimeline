@@ -97,7 +97,19 @@ Ext.define('Modules.reportcenter.reports.PatientList.LabResultValuesFilter',
                     emptyText: _('select_lab_result'),
                     displayField: 'code_text',
                     valueField: 'code',
-                    name: 'lab_result_code'
+                    name: 'lab_result_code',
+                    listeners: {
+                        select: function (combo, records, eOpts) {
+                            var field = Ext.ComponentQuery.query('labresultvalues #lab_result_text')[0];
+                            field.setValue(records[0].data.code_text);
+                        }
+                    }
+                },
+                {
+                    xtype: 'hiddenfield',
+                    itemId: 'lab_result_text',
+                    name: 'lab_result_text',
+                    value: null
                 },
                 {
                     xtype: 'combo',
@@ -109,7 +121,19 @@ Ext.define('Modules.reportcenter.reports.PatientList.LabResultValuesFilter',
                     emptyText: _('select_comparison'),
                     displayField: 'name',
                     valueField: 'value',
-                    name: 'lab_comparison'
+                    name: 'lab_comparison',
+                    listeners: {
+                        select: function (combo, records, eOpts) {
+                            var field = Ext.ComponentQuery.query('labresultvalues #lab_operator_text')[0];
+                            field.setValue(records[0].data.name);
+                        }
+                    }
+                },
+                {
+                    xtype: 'hiddenfield',
+                    itemId: 'lab_operator_text',
+                    name: 'lab_operator_text',
+                    value: null
                 },
                 {
                     xtype: 'textfield',

@@ -44,13 +44,17 @@ Ext.define('Modules.reportcenter.reports.PatientList.LabResultValuesFilter',
                 type: 'direct',
                 api: {
                     read: 'LabResultsValuesFilter.getDistinctResults'
+                },
+                reader: {
+                    root: 'rows',
+                    totalProperty: 'totals'
                 }
             },
             idProperty: 'code'
         });
         me.store = Ext.create('Ext.data.Store', {
             model: me.model,
-            autoLoad: true
+            autoLoad: false
         });
 
         /**
@@ -91,6 +95,8 @@ Ext.define('Modules.reportcenter.reports.PatientList.LabResultValuesFilter',
                     value: null,
                     width: '100%',
                     emptyText: _('select_lab_result'),
+                    displayField: 'code_text',
+                    valueField: 'code',
                     name: 'lab_result_code'
                 },
                 {
@@ -101,6 +107,8 @@ Ext.define('Modules.reportcenter.reports.PatientList.LabResultValuesFilter',
                     value: null,
                     width: '100%',
                     emptyText: _('select_comparison'),
+                    displayField: 'name',
+                    valueField: 'value',
                     name: 'lab_comparison'
                 },
                 {

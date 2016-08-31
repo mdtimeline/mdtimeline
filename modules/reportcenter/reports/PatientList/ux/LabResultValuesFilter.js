@@ -67,7 +67,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.LabResultValuesFilter',
                     value: null,
                     width: '100%',
                     emptyText: _('select_lab_result'),
-                    name: 'lab_result'
+                    name: 'lab_result_code'
                 },
                 {
                     xtype: 'combo',
@@ -84,7 +84,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.LabResultValuesFilter',
                     value: null,
                     width: '100%',
                     name: 'lab_value',
-                    emptyText: _('lab_enter_value'),
+                    emptyText: _('lab_enter_value')
                 }
             ]
         });

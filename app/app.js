@@ -35838,9 +35838,8 @@ Ext.define('App.controller.administration.DataPortability', {
 	},
 
 	onDataPortabilityExportBtnClick: function(btn){
-
 		var iframe = this.getDataPortabilityPanelIFrame(),
-			src = g('url') + '/dataProvider/DataPortability.php?token=' + app.user.token +'&site=' + g('site');
+			src = location.origin + location.pathname + 'dataProvider/DataPortability.php?token=' + app.user.token +'&site=' + g('site');
 
 		iframe.setSrc(src);
 	}

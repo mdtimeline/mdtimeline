@@ -34,6 +34,9 @@ $API = [
             'addLog' => [
                 'len' => 1
             ],
+            'getLog' => [
+                'len' => 1
+            ],
             'getLogByEventName' => [
                 'len' => 1
             ],

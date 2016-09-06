@@ -47,5 +47,9 @@ $LANG = array(
     'sort'                                  => 'Sortear',
     'select_provider'                       => 'Seleccionar proveedor',
     'ageFrom'                               => 'A partir de la edad',
-    'ageTo'                                 => 'Hasta la edad'
+    'ageTo'                                 => 'Hasta la edad',
+    'select_lab_result'                     => 'Seleccione resultados',
+    'select_comparison'                     => 'Seleccione comparación',
+    'lab_enter_value'                       => 'Introducir el valor',
+    'lab_results'                           => 'Resultados de laboratorio'
 );

@@ -34,7 +34,9 @@ Ext.define('App.view.administration.AuditLogWindow', {
 
 		var me = this;
 
-		me.gridStore =  Ext.create('App.store.administration.AuditLogs');
+		me.gridStore =  Ext.create('App.store.administration.AuditLogs',{
+			remoteFilter: true
+		});
 
 		me.items = [
 			{

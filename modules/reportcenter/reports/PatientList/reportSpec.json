@@ -9,7 +9,7 @@
   "category":"ONC Meaningful Use",
   "reportWindowWidth": 1196,
   "filterPanelWidth": 220,
-  "filterDisplayHeight": 170,
+  "filterDisplayHeight":200,
   "gridFields":{
     "ProviderName": {
       "name": "Provider Name",
@@ -58,18 +58,23 @@
       "type": "string",
       "width": 100
     },
-    "allergy":{
+    "allergies":{
       "name": "Allergies",
       "align": "left",
       "type": "string"
     },
-    "problem_name":{
-      "name": "Problem Name",
+    "problems":{
+      "name": "Problems",
       "align": "left",
       "type": "string"
     },
-    "medication_name":{
+    "medications":{
       "name": "Medications",
+      "align": "left",
+      "type": "string"
+    },
+    "laboratories":{
+      "name": "Laboratories",
       "align": "left",
       "type": "string"
     }

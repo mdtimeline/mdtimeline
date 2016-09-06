@@ -133,8 +133,8 @@ class ReportGenerator
 
                 // Load the report specifications json file
                 $reportConfiguration = json_decode(file_get_contents(
-                                                       "../modules/reportcenter/reports/$reportInformation->reportDir/reportSpec.json"
-                                                   ));
+                   "../modules/reportcenter/reports/$reportInformation->reportDir/reportSpec.json"
+                ));
 
                 $this->start();
 

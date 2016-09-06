@@ -11,76 +11,49 @@ SET @AgeFrom = :ageFrom;
 SET @AgeTo = :ageTo;
 SET @MaritalCode = :marital;
 SET @LanguageCode = :language;
+SET @LabOrderCode = :lab_result_code;
+SET @LabOrderOperator = :lab_comparison;
+SET @LabOrderValue = :lab_value;
 
 SELECT patient.*,
-  CONCAT(patient.fname, ' ', patient.mname, ' ', patient.lname) as patient_name,
-  DATE_FORMAT(patient.DOB, '%d %b %y') as DateOfBirth,
-  TIMESTAMPDIFF(YEAR, patient.DOB, CURDATE()) AS Age,
-  Race.option_name as Race,
-  Ethnicity.option_name as Ethnicity,
-  CONCAT(Provider.fname,' ',Provider.mname,' ',Provider.lname) as ProviderName,
-  patient_allergies.allergy,
-  patient_active_problems.problem_name,
-  patient_medications.medication_name
+	encounters.service_date,
+	CONCAT(patient.fname, ' ', patient.mname, ' ', patient.lname) as patient_name,
+	DATE_FORMAT(patient.DOB, '%d %b %y') as DateOfBirth,
+	TIMESTAMPDIFF(YEAR, patient.DOB, CURDATE()) AS Age,
+	Race.option_name as Race,
+	Ethnicity.option_name as Ethnicity,
+	CONCAT(Provider.fname,' ',Provider.mname,' ',Provider.lname) as ProviderName,
+	GROUP_CONCAT(patient_allergies.allergy SEPARATOR ', <br>') as allergies,
+	GROUP_CONCAT(patient_active_problems.code_text SEPARATOR ', <br>') as problems,
+	GROUP_CONCAT(patient_medications.STR SEPARATOR ', <br>') as medications,
+	GROUP_CONCAT(CONCAT(patient_order_results.code_text,': ', patient_order_results_observations.value, patient_order_results_observations.units) SEPARATOR ', <br>') as laboratories
 FROM patient
 
-LEFT JOIN (
-SELECT distinct(pid) AS pid, code as problem_code, code_text as problem_name
-	FROM patient_active_problems
-    WHERE CASE
-		WHEN @ProblemCode IS NOT NULL
-		THEN patient_active_problems.code = @ProblemCode
-		ELSE 1=1
-	END
-    LIMIT 1
-) patient_active_problems ON patient.pid = patient_active_problems.pid
+INNER JOIN encounters ON patient.pid = encounters.pid AND
+CASE
+	WHEN @StartDate IS NOT NULL AND @EndDate IS NULL
+    THEN encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND NOW()
+	WHEN @StartDate IS NOT NULL AND @EndDate IS NOT NULL
+	THEN encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND CONCAT(@EndDate, ' ', '23:00:00')
+END
 
-LEFT JOIN (
-SELECT distinct(pid) as pid, provider_uid, service_date
-	FROM encounters
-	WHERE CASE
-		WHEN (@StartDate IS NOT NULL AND @EndDate IS NULL)
-		THEN (encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND NOW())
-		ELSE 1=1
-	END
-	AND CASE
-		WHEN (@StartDate IS NOT NULL AND @EndDate IS NOT NULL)
-		THEN (encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND CONCAT(@EndDate, ' ', '23:00:00'))
-		ELSE 1=1
-	END
-	AND CASE
-		WHEN (@StartDate IS NULL AND @EndDate IS NOT NULL)
-		THEN (encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND CONCAT(@EndDate, ' ','23:00:00'))
-		ELSE 1=1
-	END
-	AND CASE
-		WHEN @Provider IS NOT NULL
-		THEN encounters.provider_uid = @Provider
-		ELSE 1=1
-	END
-) encounters ON patient.pid = encounters.pid
+LEFT JOIN patient_active_problems ON patient.pid = patient_active_problems.pid AND
+CASE
+    WHEN @ProblemCode IS NOT NULL
+	THEN patient_active_problems.code = @ProblemCode
+END
 
-LEFT JOIN (
-SELECT distinct(pid) AS pid, RXCUI as medication_code, STR as medication_name
-	FROM patient_medications
-    WHERE CASE
-		WHEN @MedicationCode IS NOT NULL
-		THEN patient_medications.rxcui = @MedicationCode
-    ELSE 1=1
-	END
-    LIMIT 1
-) patient_medications ON patient.pid = patient_medications.pid
+LEFT JOIN patient_medications ON patient.pid = patient_medications.pid AND
+CASE
+	WHEN @MedicationCode IS NOT NULL
+	THEN patient_medications.rxcui = @MedicationCode
+END
 
-LEFT JOIN (
-SELECT distinct(pid) AS pid, allergy_code, allergy
-	FROM patient_allergies
-    WHERE CASE
-		WHEN @MedicationAllergyCode IS NOT NULL
-		THEN patient_allergies.allergy_code = @MedicationAllergyCode
-    ELSE 1=1
-	END
-    LIMIT 1
-) patient_allergies ON patient_allergies.pid = patient.pid
+LEFT JOIN patient_allergies ON patient_allergies.pid = patient.pid AND
+CASE
+    WHEN @MedicationAllergyCode IS NOT NULL
+	THEN patient_allergies.allergy_code = @MedicationAllergyCode
+END
 
 LEFT JOIN combo_lists_options as Race ON Race.option_value = patient.race
 AND Race.list_id = 14
@@ -88,73 +61,58 @@ AND Race.list_id = 14
 LEFT JOIN combo_lists_options as Ethnicity ON Ethnicity.option_value = patient.ethnicity
 AND Ethnicity.list_id = 59
 
-LEFT JOIN users as Provider ON Provider.id = encounters.provider_uid
-
-WHERE CASE
-	WHEN @MedicationCode IS NOT NULL
-	THEN patient_medications.medication_code = @MedicationCode
-	ELSE 1=1
-END
-
-AND CASE
+LEFT JOIN users as Provider ON Provider.id = encounters.provider_uid AND
+CASE
 	WHEN @Provider IS NOT NULL
-	THEN encounters.provider_uid = @Provider
-	ELSE 1=1
+    THEN encounters.provider_uid = @Provider
 END
 
-AND CASE
-	WHEN (@StartDate IS NOT NULL AND @EndDate IS NULL)
-	THEN (encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND NOW())
-	ELSE 1=1
+LEFT JOIN patient_order_results ON patient.pid = patient_order_results.pid AND
+CASE
+	WHEN @LabOrderCode IS NOT NULL
+    THEN patient_order_results.code = @LabOrderCode
 END
 
-AND CASE
-	WHEN (@StartDate IS NOT NULL AND @EndDate IS NOT NULL)
-	THEN (encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND CONCAT(@EndDate, ' ', '23:00:00'))
-	ELSE 1=1
+LEFT JOIN patient_order_results_observations ON patient_order_results.id = patient_order_results_observations.result_id AND
+CASE
+	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '='
+	THEN patient_order_results_observations.value = @LabOrderValue
+
+	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '>='
+	THEN patient_order_results_observations.value >= @LabOrderValue
+
+	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '<='
+	THEN patient_order_results_observations.value <= @LabOrderValue
 END
 
-AND CASE
-	WHEN (@StartDate IS NULL AND @EndDate IS NOT NULL)
-	THEN (encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND CONCAT(@EndDate, ' ', '23:00:00'))
-	ELSE 1=1
-END
-
-AND CASE
-	WHEN @ProblemCode IS NOT NULL
-	THEN patient_active_problems.problem_code = @ProblemCode
-	ELSE 1=1
-END
-
-AND CASE
-	WHEN @MedicationAllergyCode IS NOT NULL
-	THEN patient_allergies.allergy_code = @MedicationAllergyCode
-	ELSE 1=1
-END
-
-AND CASE
-	WHEN @EthnicityCode IS NOT NULL
+WHERE
+CASE
+    WHEN @EthnicityCode IS NOT NULL
 	THEN patient.ethnicity = @EthnicityCode
-	ELSE 1=1
-END
 
-AND CASE
-	WHEN @SexCode IS NOT NULL
+    WHEN @SexCode IS NOT NULL
 	THEN patient.sex = @SexCode
-	ELSE 1=1
-END
 
-AND CASE
-	WHEN @MaritalCode IS NOT NULL
+    WHEN @MaritalCode IS NOT NULL
 	THEN patient.marital_status = @MaritalCode
-	ELSE 1=1
+
+    WHEN @LanguageCode IS NOT NULL
+	THEN patient.language = @LanguageCode
+
+
+	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '=' AND @LabOrderCode IS NOT NULL
+	THEN patient_order_results_observations.value = @LabOrderValue AND patient_order_results.code = @LabOrderCode
+
+	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '>=' AND @LabOrderCode IS NOT NULL
+	THEN patient_order_results_observations.value >= @LabOrderValue AND patient_order_results.code = @LabOrderCode
+
+	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '<=' AND @LabOrderCode IS NOT NULL
+	THEN patient_order_results_observations.value <= @LabOrderValue AND patient_order_results.code = @LabOrderCode
+
+ELSE 1=1
 END
 
-AND CASE
-	WHEN @LanguageCode IS NOT NULL
-	THEN patient.language = @LanguageCode
-	ELSE 1=1
-END
+GROUP BY patient.pid
 
 HAVING CASE
     WHEN @AgeFrom IS NOT NULL AND @AgeTo IS NOT NULL

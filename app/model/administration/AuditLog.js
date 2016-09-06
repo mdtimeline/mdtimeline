@@ -95,7 +95,10 @@ Ext.define('App.model.administration.AuditLog', {
 	proxy: {
 		type: 'direct',
 		api: {
-			read: 'AuditLog.getLogByEventName'
+			read: 'AuditLog.getLog'
+		},
+		reader: {
+			root: 'data'
 		}
 	}
 });

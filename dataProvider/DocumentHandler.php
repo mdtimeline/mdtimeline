@@ -522,7 +522,7 @@ class DocumentHandler {
 		$this->d->addFilter('document_instance', null, '=');
 
 		//error_log('LOAD RECORDS');
-		$records = $this->d->load()->limit(0, $quantity);
+		$records = $this->d->load()->limit(0, $quantity)->all();
 		//error_log('LOAD RECORDS COMPLETED');
 
 		foreach($records as $record){

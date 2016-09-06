@@ -692,7 +692,7 @@ class MatchaCUP {
 	 * @param null $start
 	 * @param int $limit
 	 *
-	 * @return mixed
+	 * @return MatchaCUP
 	 */
 	public function limit($start = null, $limit = 25) {
 		try {
@@ -702,7 +702,7 @@ class MatchaCUP {
 			} else {
 				$this->sql = $this->sql . " LIMIT $start, $limit";
 			}
-			return $this->all();
+			return $this;
 		} catch(PDOException $e) {
 			return MatchaErrorHandler::__errorProcess($e);
 		}

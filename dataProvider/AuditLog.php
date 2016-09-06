@@ -51,6 +51,19 @@ class AuditLog {
 		return $this->a->save($obj);
     }
 
+	public function getLog($params) {
+		return $this->a->load($params)->leftJoin(
+			[
+				'fname' => 'user_fname',
+				'mname' => 'user_mname',
+				'lname' => 'user_lname'
+			],
+			'users',
+			'uid',
+			'id'
+		)->all();
+	}
+
 	public function getLogByEventName($params) {
 		$this->a->clearFilters();
 		$this->a->addFilter('foreign_id', $params->foreign_id);

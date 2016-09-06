@@ -73,6 +73,28 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                     frame: false,
                     items: [
                         {
+                            xtype: 'datefield',
+                            name: 'end_date',
+                            columnWidth: 1,
+                            fieldLabel: _('end_date'),
+                            labelWidth: 100,
+                            allowBlank: false,
+                            format: g('date_display_format'),
+                            submitFormat: 'Y-m-d'
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            items: [
+                {
+                    xtype: 'panel',
+                    layout: 'column',
+                    border: false,
+                    frame: false,
+                    items: [
+                        {
                             xtype: 'activeproviderscombo',
                             fieldLabel: _('provider'),
                             name: 'provider',
@@ -330,7 +352,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                     frame: false,
                     items: [
                         {
-                            xtype: 'listcombo',
+                            xtype: 'listcomboreport',
                             list: 12,
                             id: 'marital',
                             hideLabel: true,

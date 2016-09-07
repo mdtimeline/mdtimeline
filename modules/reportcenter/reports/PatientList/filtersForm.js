@@ -131,7 +131,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                     frame: false,
                     items: [
                         {
-                            xtype: 'allergieslivesearch',
+                            xtype: 'rxnormlivetsearchreport',
                             hideLabel: true,
                             name: 'allergy_code',
                             columnWidth: 1,

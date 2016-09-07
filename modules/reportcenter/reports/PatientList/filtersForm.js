@@ -135,8 +135,8 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                             hideLabel: true,
                             name: 'allergy_code',
                             columnWidth: 1,
-                            displayField: 'allergy',
-                            valueField: 'allergy_code',
+                            displayField: 'STR',
+                            valueField: 'RXCUI',
                             listeners: {
                                 select: function (combo, records, eOpts) {
                                     var field = Ext.ComponentQuery.query('reportFilter #allergy_name')[0];

@@ -140,7 +140,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                             listeners: {
                                 select: function (combo, records, eOpts) {
                                     var field = Ext.ComponentQuery.query('reportFilter #allergy_name')[0];
-                                    field.setValue(records[0].data.allergy);
+                                    field.setValue(records[0].data.STR);
                                 }
                             }
                         },

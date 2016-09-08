@@ -203,7 +203,13 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                             enableKeyEvents: true,
                             value: null,
                             displayField: 'STR',
-                            valueField: 'RXCUI'
+                            valueField: 'RXCUI',
+                            listeners: {
+                                select: function(combo, records, eOpts){
+                                    var field = Ext.ComponentQuery.query('reportFilter #medication_name')[0];
+                                    field.setValue(records[0].data.STR);
+                                }
+                            }
                         },
                         {
                             xtype: 'hiddenfield',

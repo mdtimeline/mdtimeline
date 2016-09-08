@@ -132,7 +132,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                         {
                             xtype: 'rxnormlivetsearchreport',
                             hideLabel: true,
-                            emptyText: _('allergy_search'),
+                            emptyText: _('allergy_search')+'...',
                             name: 'allergy_code',
                             columnWidth: 1,
                             displayField: 'STR',
@@ -199,6 +199,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                             hideLabel: true,
                             columnWidth: 1,
                             name: 'medication_code',
+                            emptyText: _('medication_search')+'...',
                             enableKeyEvents: true,
                             value: null,
                             displayField: 'STR',

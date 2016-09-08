@@ -25,8 +25,9 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LiveRXNORMSearchReport',
 	hideLabel: true,
 	displayField: 'STR',
 	valueField: 'RXCUI',
-	initComponent: function(){
-		var me = this;
+	initComponent: function(config){
+		var me = this
+            emptyTextValue = config.emptyText ? config.emptyText : _('medication_search') + '...';
 
 		Ext.define('liveRXNORMSearchModel', {
 			extend: 'Ext.data.Model',
@@ -112,7 +113,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LiveRXNORMSearchReport',
 
 		Ext.apply(this, {
 			store: me.store,
-			emptyText: _('medication_search') + '...',
+			emptyText: emptyTextValue,
 			typeAhead: false,
 			hideTrigger: true,
 			minChars: 3,

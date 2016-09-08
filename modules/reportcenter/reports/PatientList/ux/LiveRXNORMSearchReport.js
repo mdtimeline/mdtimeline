@@ -93,14 +93,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LiveRXNORMSearchReport',
 					totalProperty: 'totals',
 					root: 'rows'
 				}
-			},
-			hasMany: [
-				{
-					model: 'App.model.administration.MedicationInstruction',
-					name: 'instructions',
-					primaryKey: 'RXCUI',
-					foreignKey: 'rxcui'
-				}
+			}
 			]
 		});
 

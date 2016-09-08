@@ -22,6 +22,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
         'Ext.form.field.Date',
         'App.ux.combo.ActiveProviders',
         'App.ux.combo.Allergies',
+        'App.ux.LiveRXNORMAllergySearch',
         'Modules.reportcenter.reports.PatientList.ux.LiveRXNORMSearchReport',
         'Modules.reportcenter.reports.PatientList.ux.ComboOptionListReport',
         'Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter'
@@ -130,13 +131,13 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                     frame: false,
                     items: [
                         {
-                            xtype: 'rxnormlivetsearchreport',
+                            xtype: 'rxnormallergylivetsearch',
                             hideLabel: true,
                             emptyText: _('allergy_search')+'...',
                             name: 'allergy_code',
                             columnWidth: 1,
                             displayField: 'STR',
-                            valueField: 'RXCUI',
+                            valueField: 'STR',
                             listeners: {
                                 select: function (combo, records, eOpts) {
                                     var field = Ext.ComponentQuery.query('reportFilter #allergy_name')[0];

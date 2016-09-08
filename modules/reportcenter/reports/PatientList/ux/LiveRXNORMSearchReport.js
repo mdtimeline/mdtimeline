@@ -94,7 +94,6 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LiveRXNORMSearchReport',
 					root: 'rows'
 				}
 			}
-			]
 		});
 
 		me.store = Ext.create('Ext.data.Store', {

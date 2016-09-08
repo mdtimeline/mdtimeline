@@ -122,13 +122,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LiveRXNORMSearchReport',
 					return '<div class="search-item">{STR} ( <b>RxNorm:</b> {RXCUI} <b>NDC:</b> {NDC} )</div>';
 				}
 			},
-			pageSize: 25,
-            listeners: {
-                select: function(combo, records, eOpts){
-                    var field = Ext.ComponentQuery.query('reportFilter #medication_name')[0];
-                    field.setValue(records[0].data.STR);
-                }
-            }
+			pageSize: 25
 		});
 
 		me.callParent();

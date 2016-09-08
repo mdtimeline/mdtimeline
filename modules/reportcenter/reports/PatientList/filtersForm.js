@@ -96,7 +96,6 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                     items: [
                         {
                             xtype: 'activeproviderscombo',
-                            fieldLabel: _('provider'),
                             name: 'provider',
                             displayField: 'option_name',
                             valueField: 'id',
@@ -133,6 +132,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                         {
                             xtype: 'rxnormlivetsearchreport',
                             hideLabel: true,
+                            emptyText: _('allergy_search'),
                             name: 'allergy_code',
                             columnWidth: 1,
                             displayField: 'STR',

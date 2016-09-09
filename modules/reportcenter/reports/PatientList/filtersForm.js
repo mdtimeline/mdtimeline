@@ -21,10 +21,10 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
     requires: [
         'Ext.form.field.Date',
         'App.ux.combo.ActiveProviders',
-        'App.ux.LiveRXNORMAllergySearch',
         'Modules.reportcenter.reports.PatientList.ux.LiveRXNORMSearchReport',
         'Modules.reportcenter.reports.PatientList.ux.ComboOptionListReport',
-        'Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter'
+        'Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter',
+        'Modules.reportcenter.reports.PatientList.ux.LiveRXNORMAllergySearchReport'
     ],
     xtype: 'reportFilter',
     region: 'west',
@@ -130,10 +130,10 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                     frame: false,
                     items: [
                         {
-                            xtype: 'rxnormallergylivetsearch',
+                            xtype: 'rxnormallergylivetsearchreport',
                             hideLabel: true,
-                            emptyText: _('allergy_search')+'...',
                             name: 'allergy_code',
+                            emptyText: 'Makarena...',
                             columnWidth: 1,
                             displayField: 'STR',
                             valueField: 'RXCUI',

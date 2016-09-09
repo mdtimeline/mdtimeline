@@ -20,8 +20,6 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LiveRXNORMAllergySearchR
 	extend: 'Ext.form.ComboBox',
 	alias: 'widget.rxnormallergylivetsearchreport',
 	hideLabel: true,
-	displayField: 'STR',
-	valueField: 'STR',
 	initComponent: function(){
 		var me = this;
 

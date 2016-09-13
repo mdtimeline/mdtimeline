@@ -28,6 +28,12 @@
       "type": "string",
       "width": 30
     },
+    "Communication":{
+      "name": "Communication",
+      "align": "center",
+      "type": "string",
+      "width": 40
+    },
     "DateOfBirth": {
       "name": "Date of Birth",
       "align": "center",

@@ -7,6 +7,7 @@ SET @MedicationAllergyCode = :allergy_code;
 SET @RaceCode = :race;
 SET @EthnicityCode = :ethnicity;
 SET @SexCode = :sex;
+SET @CommunicationCode = :phone_publicity;
 SET @AgeFrom = :ageFrom;
 SET @AgeTo = :ageTo;
 SET @MaritalCode = :marital;
@@ -20,7 +21,8 @@ SELECT patient.*,
 	CONCAT(patient.fname, ' ', patient.mname, ' ', patient.lname) as patient_name,
 	DATE_FORMAT(patient.DOB, '%d %b %y') as DateOfBirth,
 	TIMESTAMPDIFF(YEAR, patient.DOB, CURDATE()) AS Age,
-	Race.option_name as Race,
+    Race.option_name as Race,
+	Communication.option_name as Communication,
 	Ethnicity.option_name as Ethnicity,
 	CONCAT(Provider.fname,' ',Provider.mname,' ',Provider.lname) as ProviderName,
     GROUP_CONCAT(encounters.service_date SEPARATOR ', <br>') as service_dates,
@@ -67,6 +69,12 @@ AND Race.list_id = 14
 #
 LEFT JOIN combo_lists_options as Ethnicity ON Ethnicity.option_value = patient.ethnicity
 AND Ethnicity.list_id = 59
+
+#
+# Phone Publicity (Communication)
+#
+LEFT JOIN combo_lists_options as Communication ON Communication.option_value = patient.phone_publicity
+AND Communication.list_id = 132
 
 #
 # Patient's provider Join
@@ -119,6 +127,12 @@ END AND
 CASE
     WHEN @LanguageCode IS NOT NULL
 	THEN patient.language = @LanguageCode
+    ELSE 1=1
+END AND
+
+CASE
+    WHEN @CommunicationCode IS NOT NULL
+	THEN patient.phone_publicity = @CommunicationCode
     ELSE 1=1
 END AND
 

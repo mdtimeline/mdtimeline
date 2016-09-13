@@ -50,5 +50,6 @@ $LANG = array(
     'select_lab_result'                     => 'Select lab results',
     'select_comparison'                     => 'Select comparison',
     'lab_enter_value'                       => 'Enter lab value',
-    'lab_results'                           => 'Laboratory Results'
+    'lab_results'                           => 'Laboratory Results',
+    'communication'                         => 'Communication'
 );

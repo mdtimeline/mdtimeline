@@ -111,6 +111,12 @@ CASE
 END AND
 
 CASE
+    WHEN @RaceCode IS NOT NULL
+	THEN patient.race = @RaceCode
+    ELSE 1=1
+END AND
+
+CASE
     WHEN @LanguageCode IS NOT NULL
 	THEN patient.language = @LanguageCode
     ELSE 1=1

@@ -352,6 +352,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                         }
                     ]
                 }
+            ]
         },
         {
             items: [

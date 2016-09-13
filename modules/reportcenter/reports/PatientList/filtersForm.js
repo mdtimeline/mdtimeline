@@ -321,34 +321,37 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
             ]
         },
         {
-            xtype: 'panel',
-            layout: 'column',
-            border: false,
-            frame: false,
             items: [
                 {
-                    xtype: 'gaiaehr.combo',
-                    hideLabel: true,
-                    list: 132,
-                    columnWidth: 1,
-                    name: 'phone_publicity',
-                    emptyText: _('communication'),
-                    enableKeyEvents: true,
-                    value: null,
-                    listeners: {
-                        select: function (combo, records, eOpts) {
-                            var field = Ext.ComponentQuery.query('reportFilter #phone_publicity_name')[0];
-                            field.setValue(records[0].data.option_name);
+                    xtype: 'panel',
+                    layout: 'column',
+                    border: false,
+                    frame: false,
+                    items: [
+                        {
+                            xtype: 'gaiaehr.combo',
+                            hideLabel: true,
+                            list: 132,
+                            columnWidth: 1,
+                            name: 'phone_publicity',
+                            emptyText: _('communication'),
+                            enableKeyEvents: true,
+                            value: null,
+                            listeners: {
+                                select: function (combo, records, eOpts) {
+                                    var field = Ext.ComponentQuery.query('reportFilter #phone_publicity_name')[0];
+                                    field.setValue(records[0].data.option_name);
+                                }
+                            }
+                        },
+                        {
+                            xtype: 'hiddenfield',
+                            itemId: 'phone_publicity_name',
+                            name: 'phone_publicity_name',
+                            value: ''
                         }
-                    }
-                },
-                {
-                    xtype: 'hiddenfield',
-                    itemId: 'phone_publicity_name',
-                    name: 'phone_publicity_name',
-                    value: ''
+                    ]
                 }
-            ]
         },
         {
             items: [

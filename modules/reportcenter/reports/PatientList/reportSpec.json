@@ -35,6 +35,13 @@
       "type": "date",
       "width": 120
     },
+    "service_date": {
+      "name": "Service Dates",
+      "align": "center",
+      "format": "Y-m-d",
+      "type": "date",
+      "width": 120
+    },
     "marital_status":{
       "name": "Marital Status",
       "align": "center",

@@ -21,10 +21,10 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
     requires: [
         'Ext.form.field.Date',
         'App.ux.combo.ActiveProviders',
-        'App.ux.combo.Allergies',
         'Modules.reportcenter.reports.PatientList.ux.LiveRXNORMSearchReport',
         'Modules.reportcenter.reports.PatientList.ux.ComboOptionListReport',
-        'Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter'
+        'Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter',
+        'Modules.reportcenter.reports.PatientList.ux.LiveRXNORMAllergySearchReport'
     ],
     xtype: 'reportFilter',
     region: 'west',
@@ -130,10 +130,10 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                     frame: false,
                     items: [
                         {
-                            xtype: 'rxnormlivetsearchreport',
+                            xtype: 'rxnormallergylivetsearchreport',
                             hideLabel: true,
-                            emptyText: _('allergy_search')+'...',
                             name: 'allergy_code',
+                            emptyText: 'Makarena...',
                             columnWidth: 1,
                             displayField: 'STR',
                             valueField: 'RXCUI',
@@ -314,6 +314,40 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                             xtype: 'hiddenfield',
                             itemId: 'sex_name',
                             name: 'sex_name',
+                            value: ''
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            items: [
+                {
+                    xtype: 'panel',
+                    layout: 'column',
+                    border: false,
+                    frame: false,
+                    items: [
+                        {
+                            xtype: 'gaiaehr.combo',
+                            hideLabel: true,
+                            list: 132,
+                            columnWidth: 1,
+                            name: 'phone_publicity',
+                            emptyText: _('communication'),
+                            enableKeyEvents: true,
+                            value: null,
+                            listeners: {
+                                select: function (combo, records, eOpts) {
+                                    var field = Ext.ComponentQuery.query('reportFilter #phone_publicity_name')[0];
+                                    field.setValue(records[0].data.option_name);
+                                }
+                            }
+                        },
+                        {
+                            xtype: 'hiddenfield',
+                            itemId: 'phone_publicity_name',
+                            name: 'phone_publicity_name',
                             value: ''
                         }
                     ]

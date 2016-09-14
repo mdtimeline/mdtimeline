@@ -16,29 +16,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.ux.LiveRXNORMAllergySearch', {
+Ext.define('Modules.reportcenter.reports.PatientList.ux.LiveRXNORMAllergySearchReport', {
 	extend: 'Ext.form.ComboBox',
-	alias: 'widget.rxnormallergylivetsearch',
+	alias: 'widget.rxnormallergylivetsearchreport',
 	hideLabel: true,
-	displayField: 'STR',
-	valueField: 'STR',
 	initComponent: function(){
 		var me = this;
 
 		Ext.define('liveRXNORMAllergySearchModel', {
 			extend: 'Ext.data.Model',
 			fields: [
-				{name: 'RXCUI', type: 'auto'},
-				{name: 'CODE', type: 'auto'},
-				{name: 'STR', type: 'auto'},
-				{name: 'DST', type: 'auto'},
-				{name: 'DRT', type: 'auto'},
-				{name: 'DDF', type: 'auto'},
-				{name: 'DDFA', type: 'auto'},
-				{name: 'RXN_QUANTITY', type: 'auto'},
-				{name: 'SAB', type: 'auto'},
-				{name: 'RXAUI', type: 'auto'},
-				{name: 'CodeType', defaultValue: 'RXNORM'}
+				{
+				    name: 'RXCUI',
+                    type: 'string'
+				},
+				{
+				    name: 'CODE',
+                    type: 'string'
+				},
+				{
+				    name: 'STR',
+                    type: 'string'
+				},
 			],
 			proxy: {
 				type: 'direct',

@@ -28,8 +28,21 @@
       "type": "string",
       "width": 30
     },
+    "Communication":{
+      "name": "Communication",
+      "align": "center",
+      "type": "string",
+      "width": 40
+    },
     "DateOfBirth": {
       "name": "Date of Birth",
+      "align": "center",
+      "format": "Y-m-d",
+      "type": "date",
+      "width": 120
+    },
+    "service_date": {
+      "name": "Service Dates",
       "align": "center",
       "format": "Y-m-d",
       "type": "date",

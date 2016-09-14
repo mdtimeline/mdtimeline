@@ -46,7 +46,6 @@ Ext.define('App.controller.patient.Allergies', {
 			ref: 'AllergyTypesCombo',
 			selector: '#allergyTypesCombo'
 		},
-
 		{
 			ref: 'AllergySearchCombo',
 			selector: '#allergySearchCombo'

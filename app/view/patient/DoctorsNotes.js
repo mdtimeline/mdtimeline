@@ -89,7 +89,6 @@ Ext.define('App.view.patient.DoctorsNotes', {
 			dataIndex: 'string_restrictions',
 			flex: 1
 		}
-
 	],
 	plugins: [
 		{

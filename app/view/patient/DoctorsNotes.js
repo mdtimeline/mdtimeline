@@ -30,6 +30,7 @@ Ext.define('App.view.patient.DoctorsNotes', {
 	columnLines: true,
 	store: Ext.create('App.store.patient.DoctorsNotes', {
 		storeId: 'DoctorsNotesStore',
+        groupField: 'group_date',
 		remoteFilter: true,
 		pageSize: 200,
 		sorters: [
@@ -42,6 +43,11 @@ Ext.define('App.view.patient.DoctorsNotes', {
 	selModel: Ext.create('Ext.selection.CheckboxModel', {
 		showHeaderCheckbox: false
 	}),
+    features: [
+        {
+            ftype: 'grouping'
+        }
+    ],
 	columns: [
 		{
 			xtype: 'actioncolumn',

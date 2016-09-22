@@ -35825,7 +35825,7 @@ Ext.define('App.controller.administration.AuditLog', {
 	 */
 	addLog: function(pid, uid, foreign_id, foreign_table, event, event_description){
 
-		WorkListAuditLog.addLog({
+		AuditLog.addLog({
 			pid: pid,
 			uid: uid,
 			foreign_id: foreign_id,

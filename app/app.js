@@ -38280,7 +38280,7 @@ Ext.define('App.controller.DualScreen', {
 		var me = this;
 		if(me.appMask == null){
 			me.appMask = new Ext.LoadMask(me.getDualViewport(), {
-				msg : '<img height="86" width="254" src="resources/images/gaiaehr-med-dark.png"><p>' + msg + '</p>',
+				msg : '<img height="190" width="190" src="resources/images/logo_190_190.jpg"><p>' + msg + '</p>',
 				maskCls: 'dualAppMask',
 				cls: 'dualAppMaskMsg',
 				autoShow: true
@@ -40273,7 +40273,7 @@ Ext.define('App.controller.patient.CCD', {
 			date: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
 			type: 'clinical_summary',
 			recipient: 'patient',
-			description: 'Clinical Summary Provided',
+			description: 'Clinical Summary Provided (Exported)',
 			active: 1
 		});
 	},
@@ -40283,7 +40283,7 @@ Ext.define('App.controller.patient.CCD', {
 		cont.focus();
 		cont.print();
 
-		var eid = this.getEid(cmb);
+		var eid = this.getEid(btn);
 
 		this.logCtrl.addLog(
 			app.patient.pid,
@@ -40301,7 +40301,7 @@ Ext.define('App.controller.patient.CCD', {
 			date: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
 			type: 'clinical_summary',
 			recipient: 'patient',
-			description: 'Clinical Summary Provided',
+			description: 'Clinical Summary Provided (PRINTED)',
 			active: 1
 		});
 	},

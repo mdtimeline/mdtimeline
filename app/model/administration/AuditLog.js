@@ -86,10 +86,10 @@ Ext.define('App.model.administration.AuditLog', {
 		{
 			name: 'user_name',
 			type: 'string',
+			store: false,
 			convert: function(val, rec){
 				return rec.get('user_lname') + ', ' + rec.get('user_fname') + ' ' + rec.get('user_mname')
-			},
-			store: false
+			}
 		}
 	],
 	proxy: {

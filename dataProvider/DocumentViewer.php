@@ -101,6 +101,15 @@ if(
 	}
 
 	function base64ToBinary($document, $encrypted, $is_image) {
+
+		// handle binary documents
+		if(function_exists('is_binary') && is_binary($document)){
+			return $document;
+		}elseif(preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0){
+			return $document;
+		}
+
+		// handle base64 documents
 		if($encrypted == true){
 			$document = MatchaUtils::decrypt($document);
 		}

@@ -133,6 +133,14 @@ Ext.define('App.model.patient.Medications', {
 			len: 210
 		},
 		{
+			name: 'requires_prescription',
+			type: 'bool'
+		},
+		{
+			name: 'is_controlled',
+			type: 'bool'
+		},
+		{
 			name: 'is_compound',
 			type: 'bool'
 		},

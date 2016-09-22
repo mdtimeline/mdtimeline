@@ -293,10 +293,22 @@ class Rxnorm
 								    AND `SAB` = 'RXNORM'");
         $sth->execute([':c' => $rxcui]);
         $result = $sth->fetch(PDO::FETCH_ASSOC);
-
         if ($result !== false) {
             $response[$result['ATN']] = $result['ATV'];
         }
+
+        // controlled substance
+	    $sth = $this->db->prepare("SELECT `ATV`, `ATN`
+ 								   FROM rxnsat
+								  WHERE `RXCUI` = :c
+								    AND `ATN` = 'DCSA'
+								    AND `SAB` = 'MTHFDA'");
+	    $sth->execute([':c' => $rxcui]);
+
+	    $result = $sth->fetch(PDO::FETCH_ASSOC);
+	    if ($result !== false) {
+		    $response[$result['ATN']] = $result['ATV'];
+	    }
 
         $sth = $this->db->prepare("SELECT `rxnconso`.*
 								     FROM `rxnrel`
@@ -306,8 +318,14 @@ class Rxnorm
 
         $sth->execute([':c' => $rxcui]);
         $result = $sth->fetch(PDO::FETCH_ASSOC);
+
         return $result;
     }
+
+	public function getMedicationAttributesByRxcuiApi($rxcui){
+		$response = file_get_contents("https://rxnav.nlm.nih.gov/REST/rxcui/{$rxcui}/allProperties.json?prop=all");
+		return json_decode($response, true);
+	}
 
     public function IndexActiveIngredients()
     {

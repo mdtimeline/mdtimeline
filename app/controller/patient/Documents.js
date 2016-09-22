@@ -270,14 +270,16 @@ Ext.define('App.controller.patient.Documents', {
 	},
 
 	onDocumentGroupBtnToggle: function(btn, pressed){
-		var grid = btn.up('grid');
+		var grid = btn.up('grid'),
+			selector = '[dataIndex=' + btn.action + ']',
+			header = grid.headerCt.down(selector);
 
 		if(pressed){
 			grid.getStore().group(btn.action);
-			grid.query('#' + btn.action)[0].hide();
+			header.hide();
 			btn.disable();
 		}else{
-			grid.query('#' + btn.action)[0].show();
+			header.show();
 			btn.enable();
 		}
 	},

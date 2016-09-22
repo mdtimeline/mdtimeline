@@ -22,9 +22,10 @@ Ext.define('App.ux.PatientEncounterCombo', {
 	hideLabel: true,
 	displayField: 'display_string',
 	valueField: 'eid',
-	emptyText: _('search') + '...',
+	emptyText: _('select') + '...',
 	width: 400,
 	editable: false,
+	queryMode: 'local',
 	initComponent: function(){
 		var me = this;
 

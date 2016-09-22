@@ -403,6 +403,7 @@ module.exports = function(grunt){
 					'app/store/areas/PatientAreas.js',
 					'app/store/areas/PoolAreas.js',
 					'app/store/areas/PoolDropAreas.js',
+					'app/controller/administration/AuditLog.js',
 					'app/controller/administration/CPT.js',
 					'app/controller/administration/DataPortability.js',
 					'app/controller/administration/FacilityStructure.js',

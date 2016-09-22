@@ -3774,9 +3774,10 @@ Ext.define('App.ux.PatientEncounterCombo', {
 	hideLabel: true,
 	displayField: 'display_string',
 	valueField: 'eid',
-	emptyText: _('search') + '...',
+	emptyText: _('select') + '...',
 	width: 400,
 	editable: false,
+	queryMode: 'local',
 	initComponent: function(){
 		var me = this;
 
@@ -16743,7 +16744,13 @@ Ext.define('App.model.patient.DoctorsNote', {
 			type: 'string',
 			store: false,
 			convert: function(v, record){
-				return (record.data.restrictions.join) ? record.data.restrictions.join(', ') : record.data.restrictions;
+				if(!record.data.restrictions){
+					return '';
+				}else if(record.data.restrictions.join){
+					return ecord.data.restrictions.join(', ');
+				}else{
+					return record.data.restrictions;
+				}
 			}
 		},
 		{
@@ -17485,6 +17492,14 @@ Ext.define('App.model.patient.Medications', {
 			name: 'system_notes',
 			type: 'string',
 			len: 210
+		},
+		{
+			name: 'requires_prescription',
+			type: 'bool'
+		},
+		{
+			name: 'is_controlled',
+			type: 'bool'
 		},
 		{
 			name: 'is_compound',
@@ -20575,8 +20590,8 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 	closeAction: 'hide',
 	closable: false,
 	modal: true,
-	width: 660,
-
+	width: 700,
+	layout: 'fit',
 	initComponent: function(){
 		var me = this;
 
@@ -35767,6 +35782,109 @@ Ext.define('App.store.areas.PoolDropAreas', {
 	pageSize: 10,
 	model   : 'App.model.areas.PoolDropAreas'
 });
+Ext.define('App.controller.administration.AuditLog', {
+	extend: 'Ext.app.Controller',
+	requires: [],
+
+	refs: [
+		{
+			selector: '#AuditLogWindow',
+			ref: 'AuditLogWindow'
+		},
+		{
+			selector: '#AuditLogWindowGrid',
+			ref: 'AuditLogWindowGrid'
+		}
+	],
+
+	/**
+	 *
+	 */
+	init: function(){
+		var me = this;
+
+		me.control({
+			'#AuditLogWindowGrid': {
+				close: me.onAuditLogWindowGridClose
+			}
+		});
+	},
+
+	onAuditLogWindowGridClose: function(){
+		this.getAuditLogWindowGrid().getStore().removeAll();
+	},
+
+	/**
+	 *
+	 * @param pid               {int}       Example: 1111
+	 * @param uid               {int}       Example: 2222
+	 * @param foreign_id        {int}       Example: 3333
+	 * @param foreign_table     {string}    Example: worklist_reports
+	 * @param event             {string}    Example: create
+	 * @param event_description {string}    Example: Report Created
+	 */
+	addLog: function(pid, uid, foreign_id, foreign_table, event, event_description){
+
+		WorkListAuditLog.addLog({
+			pid: pid,
+			uid: uid,
+			foreign_id: foreign_id,
+			foreign_table: foreign_table,
+			event: event,
+			event_description: event_description
+		});
+	},
+
+	showLogByRecord: function(record){
+		var me = this,
+			win = me.showLogWindow(),
+			store = me.getAuditLogWindowGrid().getStore();
+
+		store.clearFilter(true);
+
+		store.getProxy().extraParams = { };
+
+		store.filter([
+			{
+				property: 'foreign_id',
+				value: record.get('id')
+			},
+			{
+				property: 'foreign_table',
+				value: record.table.name
+			}
+		]);
+	},
+
+	showLogByPidEvent: function(pid, event){
+		var me = this,
+			win = me.showLogWindow(),
+			store = me.getAuditLogWindowGrid().getStore();
+
+		store.clearFilter(true);
+
+		store.getProxy().extraParams = { };
+
+		store.filter([
+			{
+				property: 'pid',
+				value: pid
+			},
+			{
+				property: 'event',
+				value: event
+			}
+		]);
+	},
+
+	showLogWindow: function(){
+		if(!this.getAuditLogWindow()){
+			Ext.create('App.view.administration.AuditLogWindow');
+		}
+		return this.getAuditLogWindow().show();
+	}
+
+});
 Ext.define('App.controller.administration.CPT', {
 	extend: 'Ext.app.Controller',
 
@@ -40036,70 +40154,180 @@ Ext.define('App.controller.patient.CCD', {
 			}
 		});
 
-
 		me.importCtrl = this.getController('patient.CCDImport');
+		me.disclosuresCtrl = this.getController('patient.Disclosures');
+		me.logCtrl = this.getController('administration.AuditLog');
 	},
 
 	eid: null,
 
+	loadPatientEncounters: function(){
+
+		var me = this,
+			cmb = me.getPatientCcdPanelEncounterCmb(),
+			store = cmb.store;
+
+		if(app.patient.pid == null){
+			store.removeAll();
+			cmb.reset();
+		}else{
+			store.load({
+				filters: [
+					{
+						property: 'pid',
+						value: app.patient.pid
+					}
+				]
+			});
+		}
+	},
+
 	onPanelActivate: function(panel){
-		panel.down('toolbar').down('#PatientCcdPanelEncounterCmb').setVisible(this.eid === null);
+
+		if(this.eid === null){
+			panel.down('toolbar').down('#PatientCcdPanelEncounterCmb').setVisible(true);
+			this.loadPatientEncounters();
+		}else{
+			panel.down('toolbar').down('#PatientCcdPanelEncounterCmb').setVisible(false);
+		}
+
 		this.onViewCcdBtnClick(panel.down('toolbar').down('button'));
 	},
 
 	onViewCcdBtnClick: function(btn){
+
+		var eid = this.getEid(btn);
+
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?' +
             'action=view' +
             '&site=' + window.site +
 			'&pid=' + app.patient.pid +
-			'&eid=' + this.getEid(btn) +
+			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(btn) +
 			'&token=' + app.user.token
 		);
         btn.up('panel').query('miframe')[0].el.unmask();
+
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'VIEW',
+			eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
+		);
 	},
 
 	onArchiveCcdBtnClick: function(btn){
+
+		var eid = this.getEid(btn);
+
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?' +
             'action=archive&' +
             'site=' + window.site +
 			'&pid=' + app.patient.pid +
-			'&eid=' + this.getEid(btn) +
+			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(btn) +
 			'&token=' + app.user.token
 		);
         btn.up('panel').query('miframe')[0].el.unmask();
+
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'ARCHIVE',
+			eid == null ? 'Patient C-CDA ARCHIVED' : 'Encounter C-CDA ARCHIVED'
+		);
 	},
 
 	onExportCcdBtnClick: function(btn){
+
+		var eid = this.getEid(btn);
+
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?action=export&site=' + window.site +
 			'&pid=' + app.patient.pid +
-			'&eid=' + this.getEid(btn) +
+			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(btn) +
 			'&token=' + app.user.token
 		);
         btn.up('panel').query('miframe')[0].el.unmask();
-	},
 
-	onPatientCcdPanelEncounterCmbSelect: function(cmb, records){
-		cmb.selectedRecord = records[0];
-		cmb.up('panel').query('miframe')[0].setSrc(
-			'dataProvider/CCDDocument.php?action=view&site=' + window.site +
-			'&pid=' + app.patient.pid +
-			'&eid=' + this.getEid(cmb) +
-			'&exclude=' + this.getExclusions(cmb) +
-			'&token=' + app.user.token
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'EXPORT',
+			eid == null ? 'Patient C-CDA Exported' : 'Encounter C-CDA Exported'
 		);
-        btn.up('panel').query('miframe')[0].el.unmask();
+
+		this.disclosuresCtrl.addRawDisclosure({
+			pid: app.patient.pid,
+			eid: eid,
+			uid: app.user.id,
+			date: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
+			type: 'clinical_summary',
+			recipient: 'patient',
+			description: 'Clinical Summary Provided',
+			active: 1
+		});
 	},
 
 	onPrintCcdBtnClick: function(btn){
 		var cont = btn.up('panel').query('miframe')[0].frameElement.dom.contentWindow;
 		cont.focus();
 		cont.print();
+
+		var eid = this.getEid(cmb);
+
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'PRINT',
+			eid == null ? 'Patient C-CDA PRINTED' : 'Encounter C-CDA PRINTED'
+		);
+
+		this.disclosuresCtrl.addRawDisclosure({
+			pid: app.patient.pid,
+			eid: eid,
+			uid: app.user.id,
+			date: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
+			type: 'clinical_summary',
+			recipient: 'patient',
+			description: 'Clinical Summary Provided',
+			active: 1
+		});
+	},
+
+	onPatientCcdPanelEncounterCmbSelect: function(cmb, records){
+
+		var eid = this.getEid(cmb);
+
+		cmb.selectedRecord = records[0];
+		cmb.up('panel').query('miframe')[0].setSrc(
+			'dataProvider/CCDDocument.php?action=view&site=' + window.site +
+			'&pid=' + app.patient.pid +
+			'&eid=' + eid +
+			'&exclude=' + this.getExclusions(cmb) +
+			'&token=' + app.user.token
+		);
+		cmb.up('panel').query('miframe')[0].el.unmask();
+
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'VIEW',
+			eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
+		);
 	},
 
 	getEid: function(cmp){
@@ -46426,6 +46654,8 @@ Ext.define('App.view.patient.Documents', {
 				flex: 1,
 				columnLines: true,
 				selType: 'checkboxmodel',
+				stateful: true,
+				stateId: 'patientDocumentGridState',
 				features: [
 					{
 						ftype: 'grouping',
@@ -46540,7 +46770,7 @@ Ext.define('App.view.patient.Documents', {
 						xtype: 'button',
 						text: _('category'),
 						enableToggle: true,
-						action: 'docTypeCode',
+						action: 'docType',
 						pressed: true,
 						disabled: true,
 						toggleGroup: 'documentgridgroup'
@@ -52843,7 +53073,7 @@ Ext.define('App.view.patient.Summary', {
 				columns: [
 					{
 						xtype: 'datecolumn',
-						format: 'Y-m-d h:i:s',
+						format: 'Y-m-d H:i:s',
 						text: _('date'),
                         with: 220,
 						dataIndex: 'date'
@@ -52853,6 +53083,19 @@ Ext.define('App.view.patient.Summary', {
 						dataIndex: 'type',
 						editor: {
 							xtype: 'textfield'
+						},
+						renderer: function(v){
+							return _(v);
+						}
+					},
+					{
+						header: _('recipient'),
+						dataIndex: 'recipient',
+						editor: {
+							xtype: 'textfield'
+						},
+						renderer: function(v){
+							return _(v);
 						}
 					},
 					{
@@ -54183,14 +54426,16 @@ Ext.define('App.controller.patient.Documents', {
 	},
 
 	onDocumentGroupBtnToggle: function(btn, pressed){
-		var grid = btn.up('grid');
+		var grid = btn.up('grid'),
+			selector = '[dataIndex=' + btn.action + ']',
+			header = grid.headerCt.down(selector);
 
 		if(pressed){
 			grid.getStore().group(btn.action);
-			grid.query('#' + btn.action)[0].hide();
+			header.hide();
 			btn.disable();
 		}else{
-			grid.query('#' + btn.action)[0].show();
+			header.show();
 			btn.enable();
 		}
 	},
@@ -58107,6 +58352,7 @@ Ext.define('App.view.patient.Encounter', {
 		'App.view.patient.encounter.HealthCareFinancingAdministrationOptions',
 		'App.view.patient.encounter.CurrentProceduralTerminology',
 		'App.view.patient.encounter.ProgressNotesHistory',
+		'App.view.patient.encounter.DictationPanel',
 		'App.view.patient.ProgressNote',
 		'App.view.patient.DecisionSupportWarningPanel',
 		'App.ux.combo.EncounterPriority',
@@ -58292,6 +58538,15 @@ Ext.define('App.view.patient.Encounter', {
 		if(me.enableSOAP && a('access_soap')){
 			me.soapPanel = me.encounterTabPanel.add(
 				Ext.create('App.view.patient.encounter.SOAP', {
+					bodyStyle: 'padding:0',
+					enc: me
+				})
+			);
+		}
+
+		if(me.enableSOAP && a('access_dictation')){
+			me.dicatationPanel = me.encounterTabPanel.add(
+				Ext.create('App.view.patient.encounter.DictationPanel', {
 					bodyStyle: 'padding:0',
 					enc: me
 				})

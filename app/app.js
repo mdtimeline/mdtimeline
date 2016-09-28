@@ -16971,6 +16971,10 @@ Ext.define('App.model.patient.Encounter', {
 		{
 			name: 'referring_physician',
 			type: 'int'
+		},
+		{
+			name: 'patient_education_given',
+			type: 'bool'
 		}
 	],
 	idProperty: 'eid',
@@ -24112,16 +24116,34 @@ Ext.define('App.view.patient.ItemsToReview', {
 			]
 		},
 		{
-			xtype: 'fieldset',
-			title: _('social_history'),
+			xtype:'container',
+			layout: 'hbox',
 			items: [
 				{
-					fieldLabel: _('smoking_status'),
-					xtype: 'mitos.smokingstatuscombo',
-					itemId: 'reviewsmokingstatuscombo',
-					allowBlank: false,
-					labelWidth: 100,
-					width: 325
+					xtype: 'fieldset',
+					title: _('social_history'),
+					margin: '0 10 0 0',
+					items: [
+						{
+							fieldLabel: _('smoking_status'),
+							xtype: 'mitos.smokingstatuscombo',
+							itemId: 'reviewsmokingstatuscombo',
+							allowBlank: false,
+							labelWidth: 100,
+							width: 325
+						}
+					]
+				},
+				{
+					xtype: 'fieldset',
+					title: _('patient_education'),
+					items: [
+						{
+							xtype: 'checkbox',
+							boxLabel: _('education_given'),
+							itemId: 'ItemsToReviewEducationGivenField'
+						}
+					]
 				}
 			]
 		}
@@ -42019,6 +42041,10 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		{
 			ref: 'ReviewSmokingStatusCombo',
 			selector: '#ItemsToReviewPanel #reviewsmokingstatuscombo'
+		},
+		{
+			ref: 'ItemsToReviewEducationGivenField',
+			selector: '#ItemsToReviewEducationGivenField'
 		}
 
 	],
@@ -42031,6 +42057,9 @@ Ext.define('App.controller.patient.ItemsToReview', {
 			},
 			'#encounterRecordAdd':{
 				click: me.onReviewAll
+			},
+			'#ItemsToReviewEducationGivenField':{
+				change: me.onItemsToReviewEducationGivenFieldChange
 			}
 		});
 
@@ -42065,6 +42094,13 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		};
 		me.smokeStatusStore.load(params);
 
+
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord(),
+			checkbox = me.getItemsToReviewEducationGivenField();
+
+		checkbox.suspendEvents(false);
+		checkbox.setValue(encounter.get('patient_education_given'));
+		checkbox.resumeEvents();
 	},
 
 	onReviewAll: function(){
@@ -42092,9 +42128,30 @@ Ext.define('App.controller.patient.ItemsToReview', {
 				}
 			});
 		}
+	},
+
+	onItemsToReviewEducationGivenFieldChange: function(field, value){
+
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+		encounter.set({
+			patient_education_given: value
+		});
+
+		say(value);
+		say(encounter.getChanges());
+		say(!Ext.Object.isEmpty(encounter.getChanges()));
+
+		if(!Ext.Object.isEmpty(encounter.getChanges())){
+			encounter.save({
+				success: function(){
+					app.msg('Sweet!', _('record_saved'));
+				},
+				failure: function(){
+					app.msg('Oops!', _('record_error'));
+				}
+			});
+		}
 	}
-
-
 
 });
 Ext.define('App.controller.patient.Medical', {
@@ -48645,7 +48702,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 			title: _('documents'),
 			region: 'east',
 			itemId: 'EncounterSignDocumentGrid',
-			width: 200
+			width: 250
 		},
 		{
 			xtype: 'form',

@@ -167,7 +167,8 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 		{
 			xtype: 'encountersupervisorscombo',
 			itemId: 'EncounterCoSignSupervisorCombo',
-			allowBlank: false
+			allowBlank: false,
+			width: 250
 		},
 		{
 			text: _('co_sign') + ' (' + _('supervisor') + ')',

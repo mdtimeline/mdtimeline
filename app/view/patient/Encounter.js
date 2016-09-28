@@ -714,7 +714,8 @@ Ext.define('App.view.patient.Encounter', {
 	doSignEncounter: function(isSupervisor, callback){
 		var me = this,
 			form,
-			values;
+			values,
+			win ;
 
 		me.passwordVerificationWin(function(btn, password){
 			if(btn == 'ok'){
@@ -726,8 +727,12 @@ Ext.define('App.view.patient.Encounter', {
 				values.isSupervisor = isSupervisor;
 
 				if(a('require_enc_supervisor') || isSupervisor){
+					
+					var cmb = app.checkoutWindow.query('#EncounterCoSignSupervisorCombo')[0];
+					
+					
 					values.requires_supervisor = true;
-					values.supervisor_uid = app.checkoutWindow.coSignCombo.getValue();
+					values.supervisor_uid = cmb.getValue();
 				}else if(!isSupervisor && !a('require_enc_supervisor')){
 					values.requires_supervisor = false;
 				}
@@ -736,7 +741,7 @@ Ext.define('App.view.patient.Encounter', {
                     var params;
 					if(response.result.success){
 						if(me.stopTimer()){
-                            S;
+
 							/** default data for notes and reminder **/
 							params = {
 								pid: me.pid,

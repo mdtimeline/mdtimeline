@@ -50,6 +50,8 @@ Ext.define('App.view.patient.Documents', {
 				flex: 1,
 				columnLines: true,
 				selType: 'checkboxmodel',
+				stateful: true,
+				stateId: 'patientDocumentGridState',
 				features: [
 					{
 						ftype: 'grouping',
@@ -164,7 +166,7 @@ Ext.define('App.view.patient.Documents', {
 						xtype: 'button',
 						text: _('category'),
 						enableToggle: true,
-						action: 'docTypeCode',
+						action: 'docType',
 						pressed: true,
 						disabled: true,
 						toggleGroup: 'documentgridgroup'

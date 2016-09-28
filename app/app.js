@@ -3297,13 +3297,13 @@ Ext.define('App.ux.LiveRXNORMAllergySearch', {
 
 		Ext.apply(this, {
 			store: me.store,
-			emptyText: _('medication_search') + '...',
+			emptyText: _('allergy_search')+'...',
 			typeAhead: false,
 			hideTrigger: true,
 			minChars: 3,
             maxLength: 255,
 			listConfig: {
-				loadingText: _('searching') + '...',
+				loadingText: _('searching')+'...',
 				getInnerTpl: function(){
 					return '<div class="search-item"><h3>{STR}<span style="font-weight: normal"> ({RXCUI}) </span></h3></div>';
 				}
@@ -3774,9 +3774,10 @@ Ext.define('App.ux.PatientEncounterCombo', {
 	hideLabel: true,
 	displayField: 'display_string',
 	valueField: 'eid',
-	emptyText: _('search') + '...',
+	emptyText: _('select') + '...',
 	width: 400,
 	editable: false,
+	queryMode: 'local',
 	initComponent: function(){
 		var me = this;
 
@@ -16743,7 +16744,13 @@ Ext.define('App.model.patient.DoctorsNote', {
 			type: 'string',
 			store: false,
 			convert: function(v, record){
-				return (record.data.restrictions.join) ? record.data.restrictions.join(', ') : record.data.restrictions;
+				if(!record.data.restrictions){
+					return '';
+				}else if(record.data.restrictions.join){
+					return ecord.data.restrictions.join(', ');
+				}else{
+					return record.data.restrictions;
+				}
 			}
 		},
 		{
@@ -16964,6 +16971,10 @@ Ext.define('App.model.patient.Encounter', {
 		{
 			name: 'referring_physician',
 			type: 'int'
+		},
+		{
+			name: 'patient_education_given',
+			type: 'bool'
 		}
 	],
 	idProperty: 'eid',
@@ -17485,6 +17496,14 @@ Ext.define('App.model.patient.Medications', {
 			name: 'system_notes',
 			type: 'string',
 			len: 210
+		},
+		{
+			name: 'requires_prescription',
+			type: 'bool'
+		},
+		{
+			name: 'is_controlled',
+			type: 'bool'
 		},
 		{
 			name: 'is_compound',
@@ -20575,8 +20594,8 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 	closeAction: 'hide',
 	closable: false,
 	modal: true,
-	width: 660,
-
+	width: 700,
+	layout: 'fit',
 	initComponent: function(){
 		var me = this;
 
@@ -23752,7 +23771,7 @@ Ext.define('App.view.patient.DoctorsNotes', {
 	columnLines: true,
 	store: Ext.create('App.store.patient.DoctorsNotes', {
 		storeId: 'DoctorsNotesStore',
-		groupField: 'order_date',
+        groupField: 'group_date',
 		remoteFilter: true,
 		pageSize: 200,
 		sorters: [
@@ -23765,11 +23784,11 @@ Ext.define('App.view.patient.DoctorsNotes', {
 	selModel: Ext.create('Ext.selection.CheckboxModel', {
 		showHeaderCheckbox: false
 	}),
-	features: [
-		{
-			ftype: 'grouping'
-		}
-	],
+    features: [
+        {
+            ftype: 'grouping'
+        }
+    ],
 	columns: [
 		{
 			xtype: 'actioncolumn',
@@ -23817,7 +23836,6 @@ Ext.define('App.view.patient.DoctorsNotes', {
 			dataIndex: 'string_restrictions',
 			flex: 1
 		}
-
 	],
 	plugins: [
 		{
@@ -24098,16 +24116,34 @@ Ext.define('App.view.patient.ItemsToReview', {
 			]
 		},
 		{
-			xtype: 'fieldset',
-			title: _('social_history'),
+			xtype:'container',
+			layout: 'hbox',
 			items: [
 				{
-					fieldLabel: _('smoking_status'),
-					xtype: 'mitos.smokingstatuscombo',
-					itemId: 'reviewsmokingstatuscombo',
-					allowBlank: false,
-					labelWidth: 100,
-					width: 325
+					xtype: 'fieldset',
+					title: _('social_history'),
+					margin: '0 10 0 0',
+					items: [
+						{
+							fieldLabel: _('smoking_status'),
+							xtype: 'mitos.smokingstatuscombo',
+							itemId: 'reviewsmokingstatuscombo',
+							allowBlank: false,
+							labelWidth: 100,
+							width: 325
+						}
+					]
+				},
+				{
+					xtype: 'fieldset',
+					title: _('patient_education'),
+					items: [
+						{
+							xtype: 'checkbox',
+							boxLabel: _('education_given'),
+							itemId: 'ItemsToReviewEducationGivenField'
+						}
+					]
 				}
 			]
 		}
@@ -35768,6 +35804,109 @@ Ext.define('App.store.areas.PoolDropAreas', {
 	pageSize: 10,
 	model   : 'App.model.areas.PoolDropAreas'
 });
+Ext.define('App.controller.administration.AuditLog', {
+	extend: 'Ext.app.Controller',
+	requires: [],
+
+	refs: [
+		{
+			selector: '#AuditLogWindow',
+			ref: 'AuditLogWindow'
+		},
+		{
+			selector: '#AuditLogWindowGrid',
+			ref: 'AuditLogWindowGrid'
+		}
+	],
+
+	/**
+	 *
+	 */
+	init: function(){
+		var me = this;
+
+		me.control({
+			'#AuditLogWindowGrid': {
+				close: me.onAuditLogWindowGridClose
+			}
+		});
+	},
+
+	onAuditLogWindowGridClose: function(){
+		this.getAuditLogWindowGrid().getStore().removeAll();
+	},
+
+	/**
+	 *
+	 * @param pid               {int}       Example: 1111
+	 * @param uid               {int}       Example: 2222
+	 * @param foreign_id        {int}       Example: 3333
+	 * @param foreign_table     {string}    Example: worklist_reports
+	 * @param event             {string}    Example: create
+	 * @param event_description {string}    Example: Report Created
+	 */
+	addLog: function(pid, uid, foreign_id, foreign_table, event, event_description){
+
+		AuditLog.addLog({
+			pid: pid,
+			uid: uid,
+			foreign_id: foreign_id,
+			foreign_table: foreign_table,
+			event: event,
+			event_description: event_description
+		});
+	},
+
+	showLogByRecord: function(record){
+		var me = this,
+			win = me.showLogWindow(),
+			store = me.getAuditLogWindowGrid().getStore();
+
+		store.clearFilter(true);
+
+		store.getProxy().extraParams = { };
+
+		store.filter([
+			{
+				property: 'foreign_id',
+				value: record.get('id')
+			},
+			{
+				property: 'foreign_table',
+				value: record.table.name
+			}
+		]);
+	},
+
+	showLogByPidEvent: function(pid, event){
+		var me = this,
+			win = me.showLogWindow(),
+			store = me.getAuditLogWindowGrid().getStore();
+
+		store.clearFilter(true);
+
+		store.getProxy().extraParams = { };
+
+		store.filter([
+			{
+				property: 'pid',
+				value: pid
+			},
+			{
+				property: 'event',
+				value: event
+			}
+		]);
+	},
+
+	showLogWindow: function(){
+		if(!this.getAuditLogWindow()){
+			Ext.create('App.view.administration.AuditLogWindow');
+		}
+		return this.getAuditLogWindow().show();
+	}
+
+});
 Ext.define('App.controller.administration.CPT', {
 	extend: 'Ext.app.Controller',
 
@@ -38163,7 +38302,7 @@ Ext.define('App.controller.DualScreen', {
 		var me = this;
 		if(me.appMask == null){
 			me.appMask = new Ext.LoadMask(me.getDualViewport(), {
-				msg : '<img height="86" width="254" src="resources/images/gaiaehr-med-dark.png"><p>' + msg + '</p>',
+				msg : '<img height="190" width="190" src="resources/images/logo_190_190.jpg"><p>' + msg + '</p>',
 				maskCls: 'dualAppMask',
 				cls: 'dualAppMaskMsg',
 				autoShow: true
@@ -39386,7 +39525,6 @@ Ext.define('App.controller.patient.Allergies', {
 			ref: 'AllergyTypesCombo',
 			selector: '#allergyTypesCombo'
 		},
-
 		{
 			ref: 'AllergySearchCombo',
 			selector: '#allergySearchCombo'
@@ -40038,70 +40176,180 @@ Ext.define('App.controller.patient.CCD', {
 			}
 		});
 
-
 		me.importCtrl = this.getController('patient.CCDImport');
+		me.disclosuresCtrl = this.getController('patient.Disclosures');
+		me.logCtrl = this.getController('administration.AuditLog');
 	},
 
 	eid: null,
 
+	loadPatientEncounters: function(){
+
+		var me = this,
+			cmb = me.getPatientCcdPanelEncounterCmb(),
+			store = cmb.store;
+
+		if(app.patient.pid == null){
+			store.removeAll();
+			cmb.reset();
+		}else{
+			store.load({
+				filters: [
+					{
+						property: 'pid',
+						value: app.patient.pid
+					}
+				]
+			});
+		}
+	},
+
 	onPanelActivate: function(panel){
-		panel.down('toolbar').down('#PatientCcdPanelEncounterCmb').setVisible(this.eid === null);
+
+		if(this.eid === null){
+			panel.down('toolbar').down('#PatientCcdPanelEncounterCmb').setVisible(true);
+			this.loadPatientEncounters();
+		}else{
+			panel.down('toolbar').down('#PatientCcdPanelEncounterCmb').setVisible(false);
+		}
+
 		this.onViewCcdBtnClick(panel.down('toolbar').down('button'));
 	},
 
 	onViewCcdBtnClick: function(btn){
+
+		var eid = this.getEid(btn);
+
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?' +
             'action=view' +
             '&site=' + window.site +
 			'&pid=' + app.patient.pid +
-			'&eid=' + this.getEid(btn) +
+			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(btn) +
 			'&token=' + app.user.token
 		);
         btn.up('panel').query('miframe')[0].el.unmask();
+
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'VIEW',
+			eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
+		);
 	},
 
 	onArchiveCcdBtnClick: function(btn){
+
+		var eid = this.getEid(btn);
+
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?' +
             'action=archive&' +
             'site=' + window.site +
 			'&pid=' + app.patient.pid +
-			'&eid=' + this.getEid(btn) +
+			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(btn) +
 			'&token=' + app.user.token
 		);
         btn.up('panel').query('miframe')[0].el.unmask();
+
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'ARCHIVE',
+			eid == null ? 'Patient C-CDA ARCHIVED' : 'Encounter C-CDA ARCHIVED'
+		);
 	},
 
 	onExportCcdBtnClick: function(btn){
+
+		var eid = this.getEid(btn);
+
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?action=export&site=' + window.site +
 			'&pid=' + app.patient.pid +
-			'&eid=' + this.getEid(btn) +
+			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(btn) +
 			'&token=' + app.user.token
 		);
         btn.up('panel').query('miframe')[0].el.unmask();
-	},
 
-	onPatientCcdPanelEncounterCmbSelect: function(cmb, records){
-		cmb.selectedRecord = records[0];
-		cmb.up('panel').query('miframe')[0].setSrc(
-			'dataProvider/CCDDocument.php?action=view&site=' + window.site +
-			'&pid=' + app.patient.pid +
-			'&eid=' + this.getEid(cmb) +
-			'&exclude=' + this.getExclusions(cmb) +
-			'&token=' + app.user.token
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'EXPORT',
+			eid == null ? 'Patient C-CDA Exported' : 'Encounter C-CDA Exported'
 		);
-        btn.up('panel').query('miframe')[0].el.unmask();
+
+		this.disclosuresCtrl.addRawDisclosure({
+			pid: app.patient.pid,
+			eid: eid,
+			uid: app.user.id,
+			date: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
+			type: 'clinical_summary',
+			recipient: 'patient',
+			description: 'Clinical Summary Provided (Exported)',
+			active: 1
+		});
 	},
 
 	onPrintCcdBtnClick: function(btn){
 		var cont = btn.up('panel').query('miframe')[0].frameElement.dom.contentWindow;
 		cont.focus();
 		cont.print();
+
+		var eid = this.getEid(btn);
+
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'PRINT',
+			eid == null ? 'Patient C-CDA PRINTED' : 'Encounter C-CDA PRINTED'
+		);
+
+		this.disclosuresCtrl.addRawDisclosure({
+			pid: app.patient.pid,
+			eid: eid,
+			uid: app.user.id,
+			date: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
+			type: 'clinical_summary',
+			recipient: 'patient',
+			description: 'Clinical Summary Provided (PRINTED)',
+			active: 1
+		});
+	},
+
+	onPatientCcdPanelEncounterCmbSelect: function(cmb, records){
+
+		var eid = this.getEid(cmb);
+
+		cmb.selectedRecord = records[0];
+		cmb.up('panel').query('miframe')[0].setSrc(
+			'dataProvider/CCDDocument.php?action=view&site=' + window.site +
+			'&pid=' + app.patient.pid +
+			'&eid=' + eid +
+			'&exclude=' + this.getExclusions(cmb) +
+			'&token=' + app.user.token
+		);
+		cmb.up('panel').query('miframe')[0].el.unmask();
+
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'VIEW',
+			eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
+		);
 	},
 
 	getEid: function(cmp){
@@ -41793,6 +42041,10 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		{
 			ref: 'ReviewSmokingStatusCombo',
 			selector: '#ItemsToReviewPanel #reviewsmokingstatuscombo'
+		},
+		{
+			ref: 'ItemsToReviewEducationGivenField',
+			selector: '#ItemsToReviewEducationGivenField'
 		}
 
 	],
@@ -41805,6 +42057,9 @@ Ext.define('App.controller.patient.ItemsToReview', {
 			},
 			'#encounterRecordAdd':{
 				click: me.onReviewAll
+			},
+			'#ItemsToReviewEducationGivenField':{
+				change: me.onItemsToReviewEducationGivenFieldChange
 			}
 		});
 
@@ -41839,6 +42094,13 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		};
 		me.smokeStatusStore.load(params);
 
+
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord(),
+			checkbox = me.getItemsToReviewEducationGivenField();
+
+		checkbox.suspendEvents(false);
+		checkbox.setValue(encounter.get('patient_education_given'));
+		checkbox.resumeEvents();
 	},
 
 	onReviewAll: function(){
@@ -41866,9 +42128,30 @@ Ext.define('App.controller.patient.ItemsToReview', {
 				}
 			});
 		}
+	},
+
+	onItemsToReviewEducationGivenFieldChange: function(field, value){
+
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+		encounter.set({
+			patient_education_given: value
+		});
+
+		say(value);
+		say(encounter.getChanges());
+		say(!Ext.Object.isEmpty(encounter.getChanges()));
+
+		if(!Ext.Object.isEmpty(encounter.getChanges())){
+			encounter.save({
+				success: function(){
+					app.msg('Sweet!', _('record_saved'));
+				},
+				failure: function(){
+					app.msg('Oops!', _('record_error'));
+				}
+			});
+		}
 	}
-
-
 
 });
 Ext.define('App.controller.patient.Medical', {
@@ -46428,6 +46711,8 @@ Ext.define('App.view.patient.Documents', {
 				flex: 1,
 				columnLines: true,
 				selType: 'checkboxmodel',
+				stateful: true,
+				stateId: 'patientDocumentGridState',
 				features: [
 					{
 						ftype: 'grouping',
@@ -46542,7 +46827,7 @@ Ext.define('App.view.patient.Documents', {
 						xtype: 'button',
 						text: _('category'),
 						enableToggle: true,
-						action: 'docTypeCode',
+						action: 'docType',
 						pressed: true,
 						disabled: true,
 						toggleGroup: 'documentgridgroup'
@@ -48417,7 +48702,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 			title: _('documents'),
 			region: 'east',
 			itemId: 'EncounterSignDocumentGrid',
-			width: 200
+			width: 250
 		},
 		{
 			xtype: 'form',
@@ -52845,7 +53130,7 @@ Ext.define('App.view.patient.Summary', {
 				columns: [
 					{
 						xtype: 'datecolumn',
-						format: 'Y-m-d h:i:s',
+						format: 'Y-m-d H:i:s',
 						text: _('date'),
                         with: 220,
 						dataIndex: 'date'
@@ -52855,6 +53140,19 @@ Ext.define('App.view.patient.Summary', {
 						dataIndex: 'type',
 						editor: {
 							xtype: 'textfield'
+						},
+						renderer: function(v){
+							return _(v);
+						}
+					},
+					{
+						header: _('recipient'),
+						dataIndex: 'recipient',
+						editor: {
+							xtype: 'textfield'
+						},
+						renderer: function(v){
+							return _(v);
 						}
 					},
 					{
@@ -54185,14 +54483,16 @@ Ext.define('App.controller.patient.Documents', {
 	},
 
 	onDocumentGroupBtnToggle: function(btn, pressed){
-		var grid = btn.up('grid');
+		var grid = btn.up('grid'),
+			selector = '[dataIndex=' + btn.action + ']',
+			header = grid.headerCt.down(selector);
 
 		if(pressed){
 			grid.getStore().group(btn.action);
-			grid.query('#' + btn.action)[0].hide();
+			header.hide();
 			btn.disable();
 		}else{
-			grid.query('#' + btn.action)[0].show();
+			header.show();
 			btn.enable();
 		}
 	},
@@ -54810,6 +55110,7 @@ Ext.define('App.controller.patient.Results', {
 		records = store.add({
 			pid: app.patient.pid,
 			uid: app.user.id,
+            eid: app.patient.eid,
 			order_type: 'lab',
 			status: 'Pending'
 		});
@@ -54992,11 +55293,8 @@ Ext.define('App.controller.patient.Results', {
 		});
 
 	},
-	
+
 	setViewStudyBtn: function(result_record){
-
-		say(result_record);
-
 		this.getResultsRadiologyFormViewStudyBtn().setDisabled(result_record.get('study_link') == '');
 	},
 
@@ -55010,7 +55308,7 @@ Ext.define('App.controller.patient.Results', {
 			app.msg(_('oops'), _('unable_to_open_new_tab'), true);
 		}
 	},
-	
+
 
 	/**
 	 * SAVE RESULTS FOMR
@@ -58109,6 +58407,7 @@ Ext.define('App.view.patient.Encounter', {
 		'App.view.patient.encounter.HealthCareFinancingAdministrationOptions',
 		'App.view.patient.encounter.CurrentProceduralTerminology',
 		'App.view.patient.encounter.ProgressNotesHistory',
+		'App.view.patient.encounter.DictationPanel',
 		'App.view.patient.ProgressNote',
 		'App.view.patient.DecisionSupportWarningPanel',
 		'App.ux.combo.EncounterPriority',
@@ -58294,6 +58593,15 @@ Ext.define('App.view.patient.Encounter', {
 		if(me.enableSOAP && a('access_soap')){
 			me.soapPanel = me.encounterTabPanel.add(
 				Ext.create('App.view.patient.encounter.SOAP', {
+					bodyStyle: 'padding:0',
+					enc: me
+				})
+			);
+		}
+
+		if(me.enableSOAP && a('access_dictation')){
+			me.dicatationPanel = me.encounterTabPanel.add(
+				Ext.create('App.view.patient.encounter.DictationPanel', {
 					bodyStyle: 'padding:0',
 					enc: me
 				})

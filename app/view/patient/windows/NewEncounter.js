@@ -23,8 +23,8 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 	closeAction: 'hide',
 	closable: false,
 	modal: true,
-	width: 660,
-
+	width: 700,
+	layout: 'fit',
 	initComponent: function(){
 		var me = this;
 

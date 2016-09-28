@@ -29,6 +29,7 @@ Ext.define('App.view.patient.Encounter', {
 		'App.view.patient.encounter.HealthCareFinancingAdministrationOptions',
 		'App.view.patient.encounter.CurrentProceduralTerminology',
 		'App.view.patient.encounter.ProgressNotesHistory',
+		'App.view.patient.encounter.DictationPanel',
 		'App.view.patient.ProgressNote',
 		'App.view.patient.DecisionSupportWarningPanel',
 		'App.ux.combo.EncounterPriority',
@@ -214,6 +215,15 @@ Ext.define('App.view.patient.Encounter', {
 		if(me.enableSOAP && a('access_soap')){
 			me.soapPanel = me.encounterTabPanel.add(
 				Ext.create('App.view.patient.encounter.SOAP', {
+					bodyStyle: 'padding:0',
+					enc: me
+				})
+			);
+		}
+
+		if(me.enableSOAP && a('access_dictation')){
+			me.dicatationPanel = me.encounterTabPanel.add(
+				Ext.create('App.view.patient.encounter.DictationPanel', {
 					bodyStyle: 'padding:0',
 					enc: me
 				})

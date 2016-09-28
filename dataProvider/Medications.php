@@ -88,6 +88,7 @@ class Medications
 
     public function addPatientMedication($params)
     {
+        $params->create_date = date('Y-m-d H:i:s');
         return $this->m->save($params);
     }
 

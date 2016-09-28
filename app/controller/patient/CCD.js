@@ -64,70 +64,180 @@ Ext.define('App.controller.patient.CCD', {
 			}
 		});
 
-
 		me.importCtrl = this.getController('patient.CCDImport');
+		me.disclosuresCtrl = this.getController('patient.Disclosures');
+		me.logCtrl = this.getController('administration.AuditLog');
 	},
 
 	eid: null,
 
+	loadPatientEncounters: function(){
+
+		var me = this,
+			cmb = me.getPatientCcdPanelEncounterCmb(),
+			store = cmb.store;
+
+		if(app.patient.pid == null){
+			store.removeAll();
+			cmb.reset();
+		}else{
+			store.load({
+				filters: [
+					{
+						property: 'pid',
+						value: app.patient.pid
+					}
+				]
+			});
+		}
+	},
+
 	onPanelActivate: function(panel){
-		panel.down('toolbar').down('#PatientCcdPanelEncounterCmb').setVisible(this.eid === null);
+
+		if(this.eid === null){
+			panel.down('toolbar').down('#PatientCcdPanelEncounterCmb').setVisible(true);
+			this.loadPatientEncounters();
+		}else{
+			panel.down('toolbar').down('#PatientCcdPanelEncounterCmb').setVisible(false);
+		}
+
 		this.onViewCcdBtnClick(panel.down('toolbar').down('button'));
 	},
 
 	onViewCcdBtnClick: function(btn){
+
+		var eid = this.getEid(btn);
+
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?' +
             'action=view' +
             '&site=' + window.site +
 			'&pid=' + app.patient.pid +
-			'&eid=' + this.getEid(btn) +
+			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(btn) +
 			'&token=' + app.user.token
 		);
         btn.up('panel').query('miframe')[0].el.unmask();
+
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'VIEW',
+			eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
+		);
 	},
 
 	onArchiveCcdBtnClick: function(btn){
+
+		var eid = this.getEid(btn);
+
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?' +
             'action=archive&' +
             'site=' + window.site +
 			'&pid=' + app.patient.pid +
-			'&eid=' + this.getEid(btn) +
+			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(btn) +
 			'&token=' + app.user.token
 		);
         btn.up('panel').query('miframe')[0].el.unmask();
+
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'ARCHIVE',
+			eid == null ? 'Patient C-CDA ARCHIVED' : 'Encounter C-CDA ARCHIVED'
+		);
 	},
 
 	onExportCcdBtnClick: function(btn){
+
+		var eid = this.getEid(btn);
+
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?action=export&site=' + window.site +
 			'&pid=' + app.patient.pid +
-			'&eid=' + this.getEid(btn) +
+			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(btn) +
 			'&token=' + app.user.token
 		);
         btn.up('panel').query('miframe')[0].el.unmask();
-	},
 
-	onPatientCcdPanelEncounterCmbSelect: function(cmb, records){
-		cmb.selectedRecord = records[0];
-		cmb.up('panel').query('miframe')[0].setSrc(
-			'dataProvider/CCDDocument.php?action=view&site=' + window.site +
-			'&pid=' + app.patient.pid +
-			'&eid=' + this.getEid(cmb) +
-			'&exclude=' + this.getExclusions(cmb) +
-			'&token=' + app.user.token
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'EXPORT',
+			eid == null ? 'Patient C-CDA Exported' : 'Encounter C-CDA Exported'
 		);
-        btn.up('panel').query('miframe')[0].el.unmask();
+
+		this.disclosuresCtrl.addRawDisclosure({
+			pid: app.patient.pid,
+			eid: eid,
+			uid: app.user.id,
+			date: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
+			type: 'clinical_summary',
+			recipient: 'patient',
+			description: 'Clinical Summary Provided (Exported)',
+			active: 1
+		});
 	},
 
 	onPrintCcdBtnClick: function(btn){
 		var cont = btn.up('panel').query('miframe')[0].frameElement.dom.contentWindow;
 		cont.focus();
 		cont.print();
+
+		var eid = this.getEid(btn);
+
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'PRINT',
+			eid == null ? 'Patient C-CDA PRINTED' : 'Encounter C-CDA PRINTED'
+		);
+
+		this.disclosuresCtrl.addRawDisclosure({
+			pid: app.patient.pid,
+			eid: eid,
+			uid: app.user.id,
+			date: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
+			type: 'clinical_summary',
+			recipient: 'patient',
+			description: 'Clinical Summary Provided (PRINTED)',
+			active: 1
+		});
+	},
+
+	onPatientCcdPanelEncounterCmbSelect: function(cmb, records){
+
+		var eid = this.getEid(cmb);
+
+		cmb.selectedRecord = records[0];
+		cmb.up('panel').query('miframe')[0].setSrc(
+			'dataProvider/CCDDocument.php?action=view&site=' + window.site +
+			'&pid=' + app.patient.pid +
+			'&eid=' + eid +
+			'&exclude=' + this.getExclusions(cmb) +
+			'&token=' + app.user.token
+		);
+		cmb.up('panel').query('miframe')[0].el.unmask();
+
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'VIEW',
+			eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
+		);
 	},
 
 	getEid: function(cmp){

@@ -322,7 +322,7 @@ Ext.define('App.view.patient.Summary', {
 				columns: [
 					{
 						xtype: 'datecolumn',
-						format: 'Y-m-d h:i:s',
+						format: 'Y-m-d H:i:s',
 						text: _('date'),
                         with: 220,
 						dataIndex: 'date'
@@ -332,6 +332,19 @@ Ext.define('App.view.patient.Summary', {
 						dataIndex: 'type',
 						editor: {
 							xtype: 'textfield'
+						},
+						renderer: function(v){
+							return _(v);
+						}
+					},
+					{
+						header: _('recipient'),
+						dataIndex: 'recipient',
+						editor: {
+							xtype: 'textfield'
+						},
+						renderer: function(v){
+							return _(v);
 						}
 					},
 					{

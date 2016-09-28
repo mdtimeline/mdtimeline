@@ -796,6 +796,7 @@ header("Access-Control-Allow-Origin: *");
                 ],
 
                 controllers:[
+	                'administration.AuditLog',
 	                'administration.CPT',
 	                'administration.DataPortability',
 	                'administration.DecisionSupport',

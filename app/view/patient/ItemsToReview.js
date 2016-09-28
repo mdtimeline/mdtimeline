@@ -170,16 +170,34 @@ Ext.define('App.view.patient.ItemsToReview', {
 			]
 		},
 		{
-			xtype: 'fieldset',
-			title: _('social_history'),
+			xtype:'container',
+			layout: 'hbox',
 			items: [
 				{
-					fieldLabel: _('smoking_status'),
-					xtype: 'mitos.smokingstatuscombo',
-					itemId: 'reviewsmokingstatuscombo',
-					allowBlank: false,
-					labelWidth: 100,
-					width: 325
+					xtype: 'fieldset',
+					title: _('social_history'),
+					margin: '0 10 0 0',
+					items: [
+						{
+							fieldLabel: _('smoking_status'),
+							xtype: 'mitos.smokingstatuscombo',
+							itemId: 'reviewsmokingstatuscombo',
+							allowBlank: false,
+							labelWidth: 100,
+							width: 325
+						}
+					]
+				},
+				{
+					xtype: 'fieldset',
+					title: _('patient_education'),
+					items: [
+						{
+							xtype: 'checkbox',
+							boxLabel: _('education_given'),
+							itemId: 'ItemsToReviewEducationGivenField'
+						}
+					]
 				}
 			]
 		}

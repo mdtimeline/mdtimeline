@@ -162,6 +162,10 @@ Ext.define('App.model.patient.Encounter', {
 		{
 			name: 'referring_physician',
 			type: 'int'
+		},
+		{
+			name: 'patient_education_given',
+			type: 'bool'
 		}
 	],
 	idProperty: 'eid',

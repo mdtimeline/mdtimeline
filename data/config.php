@@ -1078,6 +1078,9 @@ $API = [
 			'getMedicationAttributesByRxcui' => [
 				'len' => 1
             ],
+			'getMedicationAttributesByRxcuiApi' => [
+				'len' => 1
+			],
 			'getMedicationInstructions' => [
 				'len' => 1
             ],

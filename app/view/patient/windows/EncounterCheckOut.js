@@ -48,7 +48,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 			title: _('documents'),
 			region: 'east',
 			itemId: 'EncounterSignDocumentGrid',
-			width: 200
+			width: 250
 		},
 		{
 			xtype: 'form',

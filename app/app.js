@@ -55053,6 +55053,7 @@ Ext.define('App.controller.patient.Results', {
 		records = store.add({
 			pid: app.patient.pid,
 			uid: app.user.id,
+            eid: app.patient.eid,
 			order_type: 'lab',
 			status: 'Pending'
 		});
@@ -55235,11 +55236,8 @@ Ext.define('App.controller.patient.Results', {
 		});
 
 	},
-	
+
 	setViewStudyBtn: function(result_record){
-
-		say(result_record);
-
 		this.getResultsRadiologyFormViewStudyBtn().setDisabled(result_record.get('study_link') == '');
 	},
 
@@ -55253,7 +55251,7 @@ Ext.define('App.controller.patient.Results', {
 			app.msg(_('oops'), _('unable_to_open_new_tab'), true);
 		}
 	},
-	
+
 
 	/**
 	 * SAVE RESULTS FOMR

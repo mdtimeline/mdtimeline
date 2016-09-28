@@ -1681,5 +1681,7 @@ $LANG = array(
     'mother'                                => 'Mother.',
     'guardian'                              => 'Guardian.',
     'clinical_summary'                      => 'Clinical Summary.',
-    'raw_disclosure_message'                => 'Would you like to add a patient disclosure?'
+    'raw_disclosure_message'                => 'Would you like to add a patient disclosure?',
+    'patient_education'                     => 'Patient Education',
+    'education_given'                       => 'Education Given'
 );

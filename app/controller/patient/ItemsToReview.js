@@ -45,6 +45,10 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		{
 			ref: 'ReviewSmokingStatusCombo',
 			selector: '#ItemsToReviewPanel #reviewsmokingstatuscombo'
+		},
+		{
+			ref: 'ItemsToReviewEducationGivenField',
+			selector: '#ItemsToReviewEducationGivenField'
 		}
 
 	],
@@ -57,6 +61,9 @@ Ext.define('App.controller.patient.ItemsToReview', {
 			},
 			'#encounterRecordAdd':{
 				click: me.onReviewAll
+			},
+			'#ItemsToReviewEducationGivenField':{
+				change: me.onItemsToReviewEducationGivenFieldChange
 			}
 		});
 
@@ -91,6 +98,13 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		};
 		me.smokeStatusStore.load(params);
 
+
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord(),
+			checkbox = me.getItemsToReviewEducationGivenField();
+
+		checkbox.suspendEvents(false);
+		checkbox.setValue(encounter.get('patient_education_given'));
+		checkbox.resumeEvents();
 	},
 
 	onReviewAll: function(){
@@ -118,8 +132,29 @@ Ext.define('App.controller.patient.ItemsToReview', {
 				}
 			});
 		}
+	},
+
+	onItemsToReviewEducationGivenFieldChange: function(field, value){
+
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+		encounter.set({
+			patient_education_given: value
+		});
+
+		say(value);
+		say(encounter.getChanges());
+		say(!Ext.Object.isEmpty(encounter.getChanges()));
+
+		if(!Ext.Object.isEmpty(encounter.getChanges())){
+			encounter.save({
+				success: function(){
+					app.msg('Sweet!', _('record_saved'));
+				},
+				failure: function(){
+					app.msg('Oops!', _('record_error'));
+				}
+			});
+		}
 	}
-
-
 
 });

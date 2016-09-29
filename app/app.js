@@ -59102,14 +59102,14 @@ Ext.define('App.view.patient.Encounter', {
 				form = app.checkoutWindow.down('form').getForm();
 				values = form.getValues();
 				values.eid = me.eid;
+				values.close_date = new Date();
 				values.signature = password;
 				values.isSupervisor = isSupervisor;
 
 				if(a('require_enc_supervisor') || isSupervisor){
 					
 					var cmb = app.checkoutWindow.query('#EncounterCoSignSupervisorCombo')[0];
-					
-					
+
 					values.requires_supervisor = true;
 					values.supervisor_uid = cmb.getValue();
 				}else if(!isSupervisor && !a('require_enc_supervisor')){

@@ -1676,5 +1676,12 @@ $LANG = array(
     'removal'                               => 'Removal',
     'sure_for_removal'                      => 'Are you sure to remove this record?',
     'conversation_group'                    => 'Conversation Group',
-    'prev'                                  => 'Prev.'
+    'prev'                                  => 'Prev.',
+    'father'                                => 'Father.',
+    'mother'                                => 'Mother.',
+    'guardian'                              => 'Guardian.',
+    'clinical_summary'                      => 'Clinical Summary.',
+    'raw_disclosure_message'                => 'Would you like to add a patient disclosure?',
+    'patient_education'                     => 'Patient Education',
+    'education_given'                       => 'Education Given'
 );

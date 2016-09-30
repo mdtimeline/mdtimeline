@@ -41316,8 +41316,7 @@ Ext.define('App.controller.patient.FamilyHistory', {
 		var me = this;
 		me.control({
 			'patientfamilyhistorypanel': {
-				activate: me.onFamilyHistoryGridActivate,
-                show: me.onFamilyHistoryGridActivate
+				activate: me.onFamilyHistoryGridActivate
 			},
 			'#FamilyHistoryGridAddBtn': {
 				click: me.onFamilyHistoryGridAddBtnClick
@@ -41368,7 +41367,6 @@ Ext.define('App.controller.patient.FamilyHistory', {
 
 	onFamilyHistoryGridActivate: function(grid){
 		var store = grid.getStore();
-
 		store.clearFilter(true);
 		store.load({
 			filters: [
@@ -42190,6 +42188,12 @@ Ext.define('App.controller.patient.Medical', {
 			'#MedicalWindow #activeproblems': {
 				'show': me.onPanelShow
 			},
+            '#MedicalWindow #familyhistory': {
+                'show': me.onPanelShow
+            },
+            '#MedicalWindow #advancedirectives': {
+                'show': me.onPanelShow
+            },
 			'#MedicalWindow #medications': {
 				'show': me.onPanelShow
 			},
@@ -42252,6 +42256,7 @@ Ext.define('App.controller.patient.Medical', {
 
 
 });
+
 Ext.define('App.controller.patient.Medications', {
 	extend: 'Ext.app.Controller',
 	requires: [],
@@ -60100,7 +60105,7 @@ Ext.define('App.view.Viewport', {
                             me.setPatient(emergency.pid, emergency.eid, null, function(){
                                 me.openEncounter(emergency.eid);
                             });
-                            me.msg('Sweet!', emergency.name + ' ' + _('created'))
+                            me.msg(_('sweet'), emergency.name + ' ' + _('created'))
                         }
                     });
                 }

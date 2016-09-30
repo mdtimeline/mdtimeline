@@ -79,8 +79,16 @@ Ext.define('App.controller.patient.FamilyHistory', {
             fn: function(btn) {
                 if (btn === 'yes') {
                     store = grid.getStore();
-                    FamilyHistory.deleteFamilyHistory(params, function(response){});
-                    store.load();
+                    FamilyHistory.deleteFamilyHistory(params, function(response){
+	                    store.load({
+		                    filters: [
+			                    {
+				                    property: 'pid',
+				                    value: app.patient.pid
+			                    }
+		                    ]
+	                    });
+                    });
                 }
             }
         });

@@ -41316,7 +41316,8 @@ Ext.define('App.controller.patient.FamilyHistory', {
 		var me = this;
 		me.control({
 			'patientfamilyhistorypanel': {
-				activate: me.onFamilyHistoryGridActivate
+				activate: me.onFamilyHistoryGridActivate,
+                show: me.onFamilyHistoryGridActivate
 			},
 			'#FamilyHistoryGridAddBtn': {
 				click: me.onFamilyHistoryGridAddBtnClick
@@ -59107,7 +59108,7 @@ Ext.define('App.view.patient.Encounter', {
 				values.isSupervisor = isSupervisor;
 
 				if(a('require_enc_supervisor') || isSupervisor){
-					
+
 					var cmb = app.checkoutWindow.query('#EncounterCoSignSupervisorCombo')[0];
 
 					values.requires_supervisor = true;
@@ -59140,12 +59141,12 @@ Ext.define('App.view.patient.Encounter', {
 							/** unset the patient eid **/
 							app.patient.eid = null;
 							app.openPatientVisits();
-							me.msg('Sweet!', _('encounter_closed'));
+							me.msg(_('sweet'), _('encounter_closed'));
 							app.checkoutWindow.close();
 						}
 					}else{
 						Ext.Msg.show({
-							title: 'Oops!',
+							title: _('oops'),
 							msg: _(response.result.error),
 							buttons: Ext.Msg.OK,
 							icon: Ext.Msg.ERROR

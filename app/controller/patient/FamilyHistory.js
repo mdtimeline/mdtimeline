@@ -44,7 +44,8 @@ Ext.define('App.controller.patient.FamilyHistory', {
 		var me = this;
 		me.control({
 			'patientfamilyhistorypanel': {
-				activate: me.onFamilyHistoryGridActivate
+				activate: me.onFamilyHistoryGridActivate,
+                show: me.onFamilyHistoryGridActivate
 			},
 			'#FamilyHistoryGridAddBtn': {
 				click: me.onFamilyHistoryGridAddBtnClick

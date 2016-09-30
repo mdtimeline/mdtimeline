@@ -14968,87 +14968,87 @@ Ext.define('App.model.patient.Vitals', {
 	}
 });
 
-Ext.define('App.model.patient.FamilyHistory', {
-	extend: 'Ext.data.Model',
-	table: {
-		name: 'patient_family_history'
-	},
-	fields: [
-		{
-			name: 'id',
-			type: 'int'
-		},
-		{
-			name: 'pid',
-			type: 'int',
-			index: true
-		},
-		{
-			name: 'eid',
-			type: 'int',
-			index: true
-		},
-		{
-			name: 'condition',
-			type: 'string',
-			len: 60
-		},
-		{
-			name: 'condition_code',
-			type: 'string',
-			len: 60
-		},
-		{
-			name: 'condition_code_type',
-			type: 'string',
-			len: 60
-		},
-		{
-			name: 'relation',
-			type: 'string',
-			len: 60
-		},
-		{
-			name: 'relation_code',
-			type: 'string',
-			len: 60
-		},
-		{
-			name: 'relation_code_type',
-			type: 'string',
-			len: 60
-		},
-		{
-			name: 'create_uid',
-			type: 'int'
-		},
-		{
-			name: 'update_uid',
-			type: 'int'
-		},
-		{
-			name: 'create_date',
-			type: 'date',
-			dateFormat: 'Y-m-d H:i:s'
-		},
-		{
-			name: 'update_date',
-			type: 'date',
-			dateFormat: 'Y-m-d H:i:s'
-		}
-	],
-	proxy: {
-		type: 'direct',
-		api: {
-			read: 'FamilyHistory.getFamilyHistory',
-			create: 'FamilyHistory.addFamilyHistory',
-			update: 'FamilyHistory.updateFamilyHistory'
-		}
-	},
-	belongsTo: {
-		model: 'App.model.patient.Encounter',
-		foreignKey: 'eid'
-	}
+Ext.define('App.model.patient.FamilyHistory',{
+    extend: 'Ext.data.Model',
+    table: {
+        name: 'patient_family_history'
+    },
+    fields: [
+        {
+            name: 'id',
+            type: 'int'
+        },
+        {
+            name: 'pid',
+            type: 'int',
+            index: true
+        },
+        {
+            name: 'eid',
+            type: 'int',
+            index: true
+        },
+        {
+            name: 'condition',
+            type: 'string',
+            len: 60
+        },
+        {
+            name: 'condition_code',
+            type: 'string',
+            len: 60
+        },
+        {
+            name: 'condition_code_type',
+            type: 'string',
+            len: 60
+        },
+        {
+            name: 'relation',
+            type: 'string',
+            len: 60
+        },
+        {
+            name: 'relation_code',
+            type: 'string',
+            len: 60
+        },
+        {
+            name: 'relation_code_type',
+            type: 'string',
+            len: 60
+        },
+        {
+            name: 'create_uid',
+            type: 'int'
+        },
+        {
+            name: 'update_uid',
+            type: 'int'
+        },
+        {
+            name: 'create_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
+        },
+        {
+            name: 'update_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
+        }
+    ],
+    proxy: {
+        type: 'direct',
+        api: {
+            read: 'FamilyHistory.getFamilyHistory',
+            create: 'FamilyHistory.addFamilyHistory',
+            update: 'FamilyHistory.updateFamilyHistory'
+        }
+    },
+    belongsTo: {
+        model: 'App.model.patient.Encounter',
+        foreignKey: 'eid'
+    }
 });
 
 Ext.define('App.model.patient.ReviewOfSystems', {
@@ -41316,7 +41316,8 @@ Ext.define('App.controller.patient.FamilyHistory', {
 		var me = this;
 		me.control({
 			'patientfamilyhistorypanel': {
-				activate: me.onFamilyHistoryGridActivate
+				activate: me.onFamilyHistoryGridActivate,
+                show: me.onFamilyHistoryGridActivate
 			},
 			'#FamilyHistoryGridAddBtn': {
 				click: me.onFamilyHistoryGridAddBtnClick
@@ -41350,8 +41351,16 @@ Ext.define('App.controller.patient.FamilyHistory', {
             fn: function(btn) {
                 if (btn === 'yes') {
                     store = grid.getStore();
-                    FamilyHistory.deleteFamilyHistory(params, function(response){});
-                    store.load();
+                    FamilyHistory.deleteFamilyHistory(params, function(response){
+	                    store.load({
+		                    filters: [
+			                    {
+				                    property: 'pid',
+				                    value: app.patient.pid
+			                    }
+		                    ]
+	                    });
+                    });
                 }
             }
         });
@@ -41359,6 +41368,7 @@ Ext.define('App.controller.patient.FamilyHistory', {
 
 	onFamilyHistoryGridActivate: function(grid){
 		var store = grid.getStore();
+
 		store.clearFilter(true);
 		store.load({
 			filters: [
@@ -42180,12 +42190,6 @@ Ext.define('App.controller.patient.Medical', {
 			'#MedicalWindow #activeproblems': {
 				'show': me.onPanelShow
 			},
-            '#MedicalWindow #familyhistory': {
-                'show': me.onPanelShow
-            },
-            '#MedicalWindow #advancedirectives': {
-                'show': me.onPanelShow
-            },
 			'#MedicalWindow #medications': {
 				'show': me.onPanelShow
 			},
@@ -42248,7 +42252,6 @@ Ext.define('App.controller.patient.Medical', {
 
 
 });
-
 Ext.define('App.controller.patient.Medications', {
 	extend: 'Ext.app.Controller',
 	requires: [],
@@ -60097,7 +60100,7 @@ Ext.define('App.view.Viewport', {
                             me.setPatient(emergency.pid, emergency.eid, null, function(){
                                 me.openEncounter(emergency.eid);
                             });
-                            me.msg(_('sweet'), emergency.name + ' ' + _('created'))
+                            me.msg('Sweet!', emergency.name + ' ' + _('created'))
                         }
                     });
                 }

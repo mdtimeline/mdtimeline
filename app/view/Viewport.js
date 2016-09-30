@@ -717,7 +717,7 @@ Ext.define('App.view.Viewport', {
                             me.setPatient(emergency.pid, emergency.eid, null, function(){
                                 me.openEncounter(emergency.eid);
                             });
-                            me.msg('Sweet!', emergency.name + ' ' + _('created'))
+                            me.msg(_('sweet'), emergency.name + ' ' + _('created'))
                         }
                     });
                 }

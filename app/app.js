@@ -15035,10 +15035,6 @@ Ext.define('App.model.patient.FamilyHistory',{
             name: 'update_date',
             type: 'date',
             dateFormat: 'Y-m-d H:i:s'
-        },
-        {
-            name: 'unknown',
-            type: 'string'
         }
     ],
     proxy: {
@@ -15054,6 +15050,7 @@ Ext.define('App.model.patient.FamilyHistory',{
         foreignKey: 'eid'
     }
 });
+
 Ext.define('App.model.patient.ReviewOfSystems', {
 	extend: 'Ext.data.Model',
 	table: {

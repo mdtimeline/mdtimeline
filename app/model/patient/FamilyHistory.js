@@ -1,4 +1,9 @@
-/** * Generated dynamically by Matcha::Connect * Create date: 2016-09-30 10:53:38 */Ext.define('App.model.patient.FamilyHistory',{
+/**
+ * Generated dynamically by Matcha::Connect
+ * Create date: 2016-09-30 10:53:38
+ */
+
+Ext.define('App.model.patient.FamilyHistory',{
     extend: 'Ext.data.Model',
     table: {
         name: 'patient_family_history'
@@ -65,10 +70,6 @@
             name: 'update_date',
             type: 'date',
             dateFormat: 'Y-m-d H:i:s'
-        },
-        {
-            name: 'unknown',
-            type: 'string'
         }
     ],
     proxy: {
@@ -83,4 +84,4 @@
         model: 'App.model.patient.Encounter',
         foreignKey: 'eid'
     }
-});
+});

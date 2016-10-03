@@ -5894,15 +5894,19 @@ if(isset($_REQUEST['pid']) && isset($_REQUEST['action'])){
 
         switch($_REQUEST['action']){
             case 'view':
+                // View the CDA
                 $ccd->view();
                 break;
             case 'export':
+                // Export the CDA
                 $ccd->export();
                 break;
             case 'archive':
+                // Archive the CDA
                 $ccd->archive();
                 break;
         }
+        unset($logObject);
     } catch(Exception $Error) {
         error_log($Error->getMessage());
     }

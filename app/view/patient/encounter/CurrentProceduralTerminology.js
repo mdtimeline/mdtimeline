@@ -331,7 +331,7 @@ Ext.define('App.view.patient.encounter.CurrentProceduralTerminology', {
 
 
     onCompleteRemove:function () {
-        app.msg('Sweet!', _('cpt_removed_from_this_encounter'));
+        app.msg(_('sweet'), _('cpt_removed_from_this_encounter'));
     },
 
     onLiveCptSelect:function (btn, record) {
@@ -354,7 +354,7 @@ Ext.define('App.view.patient.encounter.CurrentProceduralTerminology', {
     },
 
     onCptDropped:function(node, data, dropRecord, dropPosition, dropFunction){
-        app.msg('Sweet!', _('cpt_added_to_this_encounter'));
+        app.msg(_('sweet'), _('cpt_added_to_this_encounter'));
         this.cptFormEdit.cancelEdit();
         var store = dropRecord.store,
             dropIndex = store.indexOf(dropRecord),

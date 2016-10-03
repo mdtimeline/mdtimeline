@@ -593,7 +593,7 @@ Ext.define('App.view.fees.Billing',
 		var me = this, form = me.icdForm.getForm( ), values = form.getValues( );
 
 		me.updateEncounterIcds( values );
-		me.msg( 'Sweet!', _( 'encounter_billing_data_updated' ) );
+		me.msg( _('sweet'), _( 'encounter_billing_data_updated' ) );
 	},
 
 	/**
@@ -647,20 +647,20 @@ Ext.define('App.view.fees.Billing',
 
 	/**
 	 * Function: Search for billing based on the search fields
-	 * This function will pass all the fields to the server side 
-	 * so PHP dataProvider can calculate and do the search against 
+	 * This function will pass all the fields to the server side
+	 * so PHP dataProvider can calculate and do the search against
 	 * the SQL Server
 	 */
 	ReloadGrid : function(btn)
 	{
 		// Declare some variables
 		var topBarItems = this.encountersGrid.getDockedItems('toolbar[dock="top"]')[0],
-		datefrom = topBarItems.getComponent( 'fieldContainerDateRange' ).getComponent( 'datefrom' ).getValue( ), 
+		datefrom = topBarItems.getComponent( 'fieldContainerDateRange' ).getComponent( 'datefrom' ).getValue( ),
 		dateto = topBarItems.getComponent( 'fieldContainerDateRange' ).getComponent( 'dateto' ).getValue( );
 
 		// Check if the dateFrom and dateTo are in use, if they are clear the pastDue variable
 		if(datefrom || dateto) this.pastDue = 0;
-		
+
 		// Load the ExtJs dataStore with the new parameters
 		this.patientListStore.load(
 		{

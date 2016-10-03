@@ -671,7 +671,7 @@ Ext.define('App.view.Viewport', {
         if(panel.id == 'panelSummary'){
             panel.demographics.completePhotoId();
         }
-        this.msg('Sweet!', _('patient_image_saved'));
+        this.msg(_('sweet'), _('patient_image_saved'));
     },
 
 	onPatientLog: function(){

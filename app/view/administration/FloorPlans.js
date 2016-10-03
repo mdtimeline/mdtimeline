@@ -323,7 +323,7 @@ Ext.define('App.view.administration.FloorPlans', {
                         callback:function(){
                             sm.deselectAll();
                             me.floorPlanZones.removeAll();
-                            me.msg('Sweet!',_('record_removed'))
+                            me.msg(_('sweet'),_('record_removed'))
                         }
                     });
 

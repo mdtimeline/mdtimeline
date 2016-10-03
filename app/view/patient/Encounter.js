@@ -564,7 +564,7 @@ Ext.define('App.view.patient.Encounter', {
 					store.sync({
 						callback: function(){
 							app.fireEvent('encountersync', me, store, form);
-							me.msg('Sweet!', _('encounter_updated'));
+							me.msg(_('sweet'), _('encounter_updated'));
 						}
 					});
 

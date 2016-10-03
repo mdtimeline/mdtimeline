@@ -107,7 +107,7 @@ Ext.define('App.view.administration.Applications', {
                     me.store.remove(record);
                     me.store.sync({
                         callback:function(){
-                            me.msg('Sweet!', _('record_removed'))
+                            me.msg(_('sweet'), _('record_removed'))
                         }
                     });
                 }

@@ -20874,9 +20874,9 @@ Ext.define('App.view.patient.windows.ArrivalLog', {
             record = store.getAt(rowIndex);
 	    Encounter.checkForAnOpenedEncounterByPid({pid:record.data.pid,date:Ext.Date.format(new Date(), 'Y-m-d H:i:s')}, function(provider, response){
 		    if(response.result) {
-			    me.msg('Oops!', _('patient_have_a_opened_encounter'));
+			    me.msg(_('oops'), _('patient_have_a_opened_encounter'));
 		    } else {
-			    me.msg('Sweet!', _('patient_have_been_removed'));
+			    me.msg(_('sweet'), _('patient_have_been_removed'));
 			    store.remove(record);
 		    }
 	    });
@@ -23260,7 +23260,7 @@ Ext.define('App.view.patient.encounter.CurrentProceduralTerminology', {
 
 
     onCompleteRemove:function () {
-        app.msg('Sweet!', _('cpt_removed_from_this_encounter'));
+        app.msg(_('sweet'), _('cpt_removed_from_this_encounter'));
     },
 
     onLiveCptSelect:function (btn, record) {
@@ -23283,7 +23283,7 @@ Ext.define('App.view.patient.encounter.CurrentProceduralTerminology', {
     },
 
     onCptDropped:function(node, data, dropRecord, dropPosition, dropFunction){
-        app.msg('Sweet!', _('cpt_added_to_this_encounter'));
+        app.msg(_('sweet'), _('cpt_added_to_this_encounter'));
         this.cptFormEdit.cancelEdit();
         var store = dropRecord.store,
             dropIndex = store.indexOf(dropRecord),
@@ -23320,6 +23320,7 @@ Ext.define('App.view.patient.encounter.CurrentProceduralTerminology', {
 
 
 });
+
 Ext.define('App.view.patient.encounter.ICDs', {
 	extend: 'Ext.form.FieldSet',
 	alias: 'widget.icdsfieldset',
@@ -24205,7 +24206,7 @@ Ext.define('App.view.patient.CheckoutAlertsView',
 	itemSelector : 'div.alert-div',
 	loadMask : true,
 	singleSelect : true,
-	emptyText : '<span style="color: #616161; font-size: 12px;">Sweet! ' + _('no_alerts_found') + '.</span>',
+	emptyText : '<span style="color: #616161; font-size: 12px;">' + _('sweet') + ' ' + _('no_alerts_found') + '.</span>',
 	initComponent : function()
 	{
 		var me = this;
@@ -26389,9 +26390,9 @@ Ext.define('App.view.patient.VisitCheckout', {
 		if(form.isValid()){
 			Patient.addPatientNoteAndReminder(values, function(provider, response){
 				if(response.result.success){
-					app.msg('Sweet!', _('note_and_reminder'));
+					app.msg(_('sweet'), _('note_and_reminder'));
 				}else{
-					app.msg('Oops!', _('note_entry_error'));
+					app.msg(_('oops'), _('note_entry_error'));
 				}
 			});
 		}
@@ -27162,7 +27163,7 @@ Ext.define('App.view.fees.Billing',
 		var me = this, form = me.icdForm.getForm( ), values = form.getValues( );
 
 		me.updateEncounterIcds( values );
-		me.msg( 'Sweet!', _( 'encounter_billing_data_updated' ) );
+		me.msg( _('sweet'), _( 'encounter_billing_data_updated' ) );
 	},
 
 	/**
@@ -27216,20 +27217,20 @@ Ext.define('App.view.fees.Billing',
 
 	/**
 	 * Function: Search for billing based on the search fields
-	 * This function will pass all the fields to the server side 
-	 * so PHP dataProvider can calculate and do the search against 
+	 * This function will pass all the fields to the server side
+	 * so PHP dataProvider can calculate and do the search against
 	 * the SQL Server
 	 */
 	ReloadGrid : function(btn)
 	{
 		// Declare some variables
 		var topBarItems = this.encountersGrid.getDockedItems('toolbar[dock="top"]')[0],
-		datefrom = topBarItems.getComponent( 'fieldContainerDateRange' ).getComponent( 'datefrom' ).getValue( ), 
+		datefrom = topBarItems.getComponent( 'fieldContainerDateRange' ).getComponent( 'datefrom' ).getValue( ),
 		dateto = topBarItems.getComponent( 'fieldContainerDateRange' ).getComponent( 'dateto' ).getValue( );
 
 		// Check if the dateFrom and dateTo are in use, if they are clear the pastDue variable
 		if(datefrom || dateto) this.pastDue = 0;
-		
+
 		// Load the ExtJs dataStore with the new parameters
 		this.patientListStore.load(
 		{
@@ -30082,7 +30083,7 @@ Ext.define('App.view.administration.Applications', {
                     me.store.remove(record);
                     me.store.sync({
                         callback:function(){
-                            me.msg('Sweet!', _('record_removed'))
+                            me.msg(_('sweet'), _('record_removed'))
                         }
                     });
                 }
@@ -31456,7 +31457,7 @@ Ext.define('App.view.administration.FloorPlans', {
                         callback:function(){
                             sm.deselectAll();
                             me.floorPlanZones.removeAll();
-                            me.msg('Sweet!',_('record_removed'))
+                            me.msg(_('sweet'),_('record_removed'))
                         }
                     });
 
@@ -34924,7 +34925,7 @@ Ext.define('App.view.administration.Layout', {
 	               }
 
 	               me.fieldsGrid.getSelectionModel().select(record);
-                   me.msg('Sweet!', _('record_saved'));
+                   me.msg(_('sweet'), _('record_saved'));
                },
                failure:function(batch){
 
@@ -34963,7 +34964,7 @@ Ext.define('App.view.administration.Layout', {
 					me.fieldsGridStore.sync({
 						success:function(){
 							me.previewFormRender();
-							me.msg('Sweet!', _('record_removed'));
+							me.msg(_('sweet'), _('record_removed'));
 						},
 						failure:function(batch){
 							me.msg('Oops!', batch.proxy.reader.rawData.message, true);
@@ -35472,7 +35473,8 @@ Ext.define('App.view.administration.Layout', {
 
         callback(true);
     }
-}); 
+});
+
 Ext.define('App.store.administration.XtypesComboModel', {
 	model: 'App.model.administration.XtypesComboModel',
 	extend: 'Ext.data.Store',
@@ -35845,11 +35847,11 @@ Ext.define('App.controller.administration.AuditLog', {
 	 * @param event             {string}    Example: create
 	 * @param event_description {string}    Example: Report Created
 	 */
-	addLog: function(pid, uid, foreign_id, foreign_table, event, event_description){
-
+	addLog: function(pid, uid, eid, foreign_id, foreign_table, event, event_description){
 		AuditLog.addLog({
 			pid: pid,
 			uid: uid,
+            eid: eid,
 			foreign_id: foreign_id,
 			foreign_table: foreign_table,
 			event: event,
@@ -35907,6 +35909,7 @@ Ext.define('App.controller.administration.AuditLog', {
 	}
 
 });
+
 Ext.define('App.controller.administration.CPT', {
 	extend: 'Ext.app.Controller',
 
@@ -40269,6 +40272,8 @@ Ext.define('App.controller.patient.CCD', {
 	onExportCcdBtnClick: function(btn){
 
 		var eid = this.getEid(btn);
+
+        console.log('Encounter ID: ' + eid);
 
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?action=export&site=' + window.site +
@@ -48988,7 +48993,7 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 			pid = (data.records[0].data) ? data.records[0].data.pid : data.records[0].pid,
 			params;
 
-		app.msg('Sweet!', name + ' ' + _('sent_to') + ' ' + this.panel.title);
+		app.msg(_('sweet'), name + ' ' + _('sent_to') + ' ' + this.panel.title);
 
 		params = {
 			pid: pid,
@@ -49114,6 +49119,7 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 		if(typeof callback == 'function') callback(true);
 	}
 });
+
 Ext.define('App.view.administration.DataManager', {
     extend: 'App.ux.RenderPanel',
     pageTitle: 'Data Manager',
@@ -58957,7 +58963,7 @@ Ext.define('App.view.patient.Encounter', {
 					store.sync({
 						callback: function(){
 							app.fireEvent('encountersync', me, store, form);
-							me.msg('Sweet!', _('encounter_updated'));
+							me.msg(_('sweet'), _('encounter_updated'));
 						}
 					});
 
@@ -60059,7 +60065,7 @@ Ext.define('App.view.Viewport', {
         if(panel.id == 'panelSummary'){
             panel.demographics.completePhotoId();
         }
-        this.msg('Sweet!', _('patient_image_saved'));
+        this.msg(_('sweet'), _('patient_image_saved'));
     },
 
 	onPatientLog: function(){

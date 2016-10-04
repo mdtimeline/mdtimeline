@@ -57,11 +57,11 @@ Ext.define('App.controller.administration.AuditLog', {
 	 * @param event             {string}    Example: create
 	 * @param event_description {string}    Example: Report Created
 	 */
-	addLog: function(pid, uid, foreign_id, foreign_table, event, event_description){
-
+	addLog: function(pid, uid, eid, foreign_id, foreign_table, event, event_description){
 		AuditLog.addLog({
 			pid: pid,
 			uid: uid,
+            eid: eid,
 			foreign_id: foreign_id,
 			foreign_table: foreign_table,
 			event: event,

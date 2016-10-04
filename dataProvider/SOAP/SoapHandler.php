@@ -18,6 +18,8 @@ class SoapHandler
 
     private $vDate = '/\d{4}-\d{2}-\d{2}/';
 
+    private $AuditLog;
+
     /**
      * This is the Mapping variable
      * @var array
@@ -98,6 +100,9 @@ class SoapHandler
         include_once(str_replace('\\', '/', dirname(__FILE__)) . '/../../registry.php');
         include_once(ROOT . "/sites/{$this->site}/conf.php");
         include_once(ROOT . '/classes/MatchaHelper.php');
+        include_once(ROOT . '/dataProvider/AuditLog.php');
+
+        if (!isset($this->AuditLog))  $this->AuditLog = new AuditLog();
         if (isset($params->Provider)) $this->getProvider($params->Provider);
         if (isset($params->Patient)) $this->getPatient($params->Patient);
     }
@@ -117,7 +122,17 @@ class SoapHandler
     public function PatientPortalAuthorize($params)
     {
         $this->constructor($params);
+        $logObject = new stdClass();
+
         if (!$this->isAuth()) {
+
+            // Save AuditLog
+            $logObject->event = 'PORTAL LOGIN (Error)';
+            $logObject->foreign_table = 'patient';
+            $logObject->event_description = 'Patient portal login attempt: Secure key';
+            $this->AuditLog->addLog($logObject);
+            unset($logObject);
+
             return [
                 'Success' => false,
                 'Error' => 'Error: HTTP 403 Access Forbidden'
@@ -130,7 +145,15 @@ class SoapHandler
             'Error' => 'Not Authorized'
         ];
 
-        if (!isset($patient)) return $response;
+        if (!isset($patient)) {
+            // Save AuditLog
+            $logObject->event = 'PORTAL LOGIN (Patient not provided)';
+            $logObject->foreign_table = 'patient';
+            $logObject->event_description = 'Patient portal login attempt: Patient parameter';
+            $this->AuditLog->addLog($logObject);
+            unset($logObject);
+            return $response;
+        }
 
         // Check the AUTH of a Patient Login
         // Check for the password / allowance / Date of Birth of the Patient
@@ -138,6 +161,13 @@ class SoapHandler
             if ($patient->WebPortalPassword == $params->Password ||
                 substr($patient->DateOfBirth, 0, 10) == $params->DateOfBirth
             ) {
+                // Save AuditLog
+                $logObject->event = 'PORTAL LOGIN (Success)';
+                $logObject->pid = $patient->pid;
+                $logObject->foreign_table = 'patient';
+                $logObject->event_description = 'Patient portal login attempt: Success patient';
+                $this->AuditLog->addLog($logObject);
+                unset($logObject);
                 return [
                     'Success' => true,
                     'Patient' => $patient,
@@ -152,6 +182,12 @@ class SoapHandler
             if ($patient->GuardianPortalPassword == $params->Password ||
                 substr($patient->DateOfBirth, 0, 10) == $params->DateOfBirth
             ) {
+                // Save AuditLog
+                $logObject->event = 'PORTAL LOGIN (Success)';
+                $logObject->pid = $patient->pid;
+                $logObject->foreign_table = 'patient';
+                $logObject->event_description = 'Patient portal login attempt: Success guardian';
+                $this->AuditLog->addLog($logObject);
                 return [
                     'Success' => true,
                     'Patient' => $patient,
@@ -166,6 +202,12 @@ class SoapHandler
             if ($patient->EmergencyPortalPassword == $params->Password ||
                 substr($patient->DateOfBirth, 0, 10) == $params->DateOfBirth
             ) {
+                // Save AuditLog
+                $logObject->event = 'PORTAL LOGIN (Success)';
+                $logObject->pid = $patient->pid;
+                $logObject->foreign_table = 'patient';
+                $logObject->event_description = 'Patient portal login attempt: Success emergency';
+                $this->AuditLog->addLog($logObject);
                 return [
                     'Success' => true,
                     'Patient' => $patient,

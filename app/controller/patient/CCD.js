@@ -158,8 +158,6 @@ Ext.define('App.controller.patient.CCD', {
 
 		var eid = this.getEid(btn);
 
-        console.log('Encounter ID: ' + eid);
-
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?action=export&site=' + window.site +
 			'&pid=' + app.patient.pid +

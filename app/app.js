@@ -40293,6 +40293,8 @@ Ext.define('App.controller.patient.CCD', {
 			eid == null ? 'Patient C-CDA Exported' : 'Encounter C-CDA Exported'
 		);
 
+        console.log(Ext.Date.parse(new Date(), 'Y-m-d H:i:s'));
+
 		this.disclosuresCtrl.addRawDisclosure({
 			pid: app.patient.pid,
 			eid: eid,

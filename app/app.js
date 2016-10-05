@@ -20646,7 +20646,7 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 				me.loadRecord(
 					Ext.create('App.model.patient.Encounter', {
 						pid: app.patient.pid,
-						service_date: new Date(),
+						service_date: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
 						priority: 'Minimal',
 						open_uid: app.user.id,
 						facility: app.user.facility,
@@ -40273,8 +40273,6 @@ Ext.define('App.controller.patient.CCD', {
 
 		var eid = this.getEid(btn);
 
-        console.log('Encounter ID: ' + eid);
-
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?action=export&site=' + window.site +
 			'&pid=' + app.patient.pid +
@@ -40292,8 +40290,6 @@ Ext.define('App.controller.patient.CCD', {
 			'EXPORT',
 			eid == null ? 'Patient C-CDA Exported' : 'Encounter C-CDA Exported'
 		);
-
-        console.log(Ext.Date.parse(new Date(), 'Y-m-d H:i:s'));
 
 		this.disclosuresCtrl.addRawDisclosure({
 			pid: app.patient.pid,

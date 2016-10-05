@@ -75,7 +75,7 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 				me.loadRecord(
 					Ext.create('App.model.patient.Encounter', {
 						pid: app.patient.pid,
-						service_date: new Date(),
+						service_date: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
 						priority: 'Minimal',
 						open_uid: app.user.id,
 						facility: app.user.facility,

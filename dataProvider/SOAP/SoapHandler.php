@@ -163,7 +163,7 @@ class SoapHandler
             ) {
                 // Save AuditLog
                 $logObject->event = 'PORTAL LOGIN (Success)';
-                $logObject->pid = $patient->pid;
+                $logObject->pid = $patient->Pid;
                 $logObject->foreign_table = 'patient';
                 $logObject->event_description = 'Patient portal login attempt: Success patient';
                 $this->AuditLog->addLog($logObject);
@@ -184,7 +184,7 @@ class SoapHandler
             ) {
                 // Save AuditLog
                 $logObject->event = 'PORTAL LOGIN (Success)';
-                $logObject->pid = $patient->pid;
+                $logObject->pid = $patient->Pid;
                 $logObject->foreign_table = 'patient';
                 $logObject->event_description = 'Patient portal login attempt: Success guardian';
                 $this->AuditLog->addLog($logObject);
@@ -204,7 +204,7 @@ class SoapHandler
             ) {
                 // Save AuditLog
                 $logObject->event = 'PORTAL LOGIN (Success)';
-                $logObject->pid = $patient->pid;
+                $logObject->pid = $patient->Pid;
                 $logObject->foreign_table = 'patient';
                 $logObject->event_description = 'Patient portal login attempt: Success emergency';
                 $this->AuditLog->addLog($logObject);

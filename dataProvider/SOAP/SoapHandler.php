@@ -83,8 +83,8 @@ class SoapHandler
         'EmergencyPortalUsername'   => 'emergency_contact_portal_username',
         'EmergencyPortalPassword'   => 'emergency_contact_portal_password',
         'GuardianPortalAllow'       => 'allow_guardian_web_portal',
-        'GuardianPortalUsername'    => 'guardian_portal_password',
-        'GuardianPortalPassword'    => 'guardian_portal_username'
+        'GuardianPortalUsername'    => 'guardian_portal_username',
+        'GuardianPortalPassword'    => 'guardian_portal_password'
     ];
 
     function constructor($params)
@@ -155,10 +155,14 @@ class SoapHandler
             return $response;
         }
 
+        error_log(print_r($patient,true));
+        error_log(print_r($params,true));
+
         // Check the AUTH of a Patient Login
         // Check for the password / allowance / Date of Birth of the Patient
         if($patient->WebPortalAccess){
-            if ($patient->WebPortalPassword == $params->Password ||
+            if ($patient->WebPortalPassword == $params->Password &&
+                $patient->WebPortalUsername == $params->PatientAccount &&
                 substr($patient->DateOfBirth, 0, 10) == $params->DateOfBirth
             ) {
                 // Save AuditLog
@@ -179,7 +183,8 @@ class SoapHandler
         // Check the AUTH of a Guardian Login
         // Check for the password / allowance / Date of Birth of the Patient
         if(isset($patient->GuardianPortalAllow)){
-            if ($patient->GuardianPortalPassword == $params->Password ||
+            if ($patient->GuardianPortalPassword == $params->Password &&
+                $patient->GuardianPortalUsername == $params->PatientAccount &&
                 substr($patient->DateOfBirth, 0, 10) == $params->DateOfBirth
             ) {
                 // Save AuditLog
@@ -199,7 +204,8 @@ class SoapHandler
         // Check the AUTH of a Emergency Contact Login
         // Check for the password / allowance / Date of Birth of the Patient
         if(isset($patient->EmergencyPortalAllow)){
-            if ($patient->EmergencyPortalPassword == $params->Password ||
+            if ($patient->EmergencyPortalPassword == $params->Password &&
+                $patient->EmergencyPortalUsername == $params->PatientAccount &&
                 substr($patient->DateOfBirth, 0, 10) == $params->DateOfBirth
             ) {
                 // Save AuditLog

@@ -110,9 +110,11 @@ Ext.define('App.view.login.Login', {
 						scope: me,
 						specialkey: me.onEnter,
 						afterrender:function(cmp){
-							cmp.inputEl.set({
-								autocomplete:'new-password'
-							});
+							if(!eval(g('save_password'))){
+								cmp.inputEl.set({
+									autocomplete:'new-password'
+								});
+							}
 						}
 					}
 				},

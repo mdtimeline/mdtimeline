@@ -155,9 +155,6 @@ class SoapHandler
             return $response;
         }
 
-        error_log(print_r($patient,true));
-        error_log(print_r($params,true));
-
         // Check the AUTH of a Patient Login
         // Check for the password / allowance / Date of Birth of the Patient
         if($patient->WebPortalAccess){

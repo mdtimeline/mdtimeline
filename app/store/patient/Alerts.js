@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.store.patient.Reminders', {
+Ext.define('App.store.patient.Alerts', {
 	extend: 'Ext.data.Store',
-	model: 'App.model.patient.Reminder'
+	model: 'App.model.patient.Alert'
 });

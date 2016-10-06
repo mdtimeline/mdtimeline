@@ -436,6 +436,25 @@ $API = [
             ]
         ]
     ],
+    'Alerts' => [
+        'methods' => [
+            'getAlerts' => [
+                'len' => 1
+            ],
+            'getAlert' => [
+                'len' => 1
+            ],
+            'addAlert' => [
+                'len' => 1
+            ],
+            'updateAlert' => [
+                'len' => 1
+            ],
+            'destroyAlert' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'Notes' => [
         'methods' => [
             'getNotes' => [

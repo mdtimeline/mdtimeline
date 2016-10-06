@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.view.patient.RemindersAlert', {
+Ext.define('App.view.patient.AlertWindow', {
 	extend: 'Ext.window.Window',
 	requires: [
 		'Ext.grid.plugin.RowEditing'
 	],
-	title: _('reminders'),
+	title: _('reminders_alerts'),
 	width: 700,
 	closeAction: 'hide',
 	initComponent: function(){
@@ -31,10 +31,10 @@ Ext.define('App.view.patient.RemindersAlert', {
 		me.items = [
 			{
 				xtype: 'grid',
-				itemId: 'RemindersAlertGrid',
+				itemId: 'AlertsAlertGrid',
 				margin: 5,
 				frame : true,
-				store: Ext.create('App.store.patient.Reminders'),
+				store: Ext.create('App.store.patient.Alerts'),
 				plugins: {
 					ptype: 'cellediting',
 					autoCancel: false,
@@ -68,8 +68,6 @@ Ext.define('App.view.patient.RemindersAlert', {
 			}
 		];
 
-
-
 		me.callParent();
 
 	},
@@ -77,12 +75,12 @@ Ext.define('App.view.patient.RemindersAlert', {
 		'->',
 		{
 			text: _('ok'),
-			itemId: 'RemindersAlertOkBtn'
+			itemId: 'AlertsAlertOkBtn'
 		},
 		'-',
 		{
 			text: _('cancel'),
-			itemId: 'RemindersAlertCancelBtn'
+			itemId: 'AlertsAlertCancelBtn'
 		}
 	]
 });

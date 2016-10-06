@@ -1,3 +1,4 @@
+<?php
 /**
  * GaiaEHR (Electronic Health Records)
  * Copyright (C) 2013 Certun, LLC.
@@ -16,7 +17,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.store.patient.Reminders', {
-	extend: 'Ext.data.Store',
-	model: 'App.model.patient.Reminder'
-});
+class Alerts {
+
+	/**
+	 * @var MatchaCUP
+	 */
+	private $a;
+
+	function __construct(){
+		$this->a = MatchaModel::setSenchaModel('App.model.patient.Alert');
+	}
+
+	public function getAlerts($params){
+		return $this->a->load($params)->all();
+	}
+
+	public function getAlert($params){
+		return $this->a->load($params)->one();
+	}
+
+	public function addAlert($params){
+		return $this->a->save($params);
+	}
+
+	public function updateAlert($params){
+		return $this->a->save($params);
+	}
+
+	public function destroyAlert($params){
+		return $this->a->destroy($params);
+	}
+
+
+
+} 

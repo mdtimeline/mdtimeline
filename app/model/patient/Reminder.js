@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.model.patient.Reminders', {
+Ext.define('App.model.patient.Reminder', {
 	extend: 'Ext.data.Model',
 	table: {
 		name: 'patient_reminders'
@@ -27,47 +27,39 @@ Ext.define('App.model.patient.Reminders', {
 			type: 'int'
 		},
 		{
-			name: 'eid',
-			type: 'int',
-			index: true
-		},
-		{
 			name: 'pid',
 			type: 'int',
 			index: true
 		},
 		{
-			name: 'uid',
+			name: 'eid',
 			type: 'int',
 			index: true
 		},
-
 		{
-			name: 'date',
+			name: 'reminder_date',
 			type: 'date',
-			dateFormat: 'Y-m-d H:i:s',
-			index: true
+			dataType: 'DATE',
+			dateFormat: 'Y-m-d'
 		},
 		{
-			name: 'body',
+			name: 'reminder_type',
 			type: 'string',
-			len: 600
+			len: 45
 		},
 		{
-			name: 'type',
+			name: 'reminder_note',
 			type: 'string',
-			len: 80,
-			index: true
+			dataType: 'MEDIUMTEXT'
 		},
 		{
-			name: 'user_name',
-			type: 'string',
-			store: false
+			name: 'create_uid',
+			type: 'int'
 		},
 		{
-			name: 'active',
-			type: 'bool',
-			defaultValue: true
+			name: 'create_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
 		}
 	],
 	proxy: {

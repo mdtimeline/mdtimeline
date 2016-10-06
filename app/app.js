@@ -19400,10 +19400,70 @@ Ext.define('App.model.patient.Referral', {
 	}
 });
 
-Ext.define('App.model.patient.Reminders', {
+Ext.define('App.model.patient.Reminder', {
 	extend: 'Ext.data.Model',
 	table: {
 		name: 'patient_reminders'
+	},
+	fields: [
+		{
+			name: 'id',
+			type: 'int'
+		},
+		{
+			name: 'pid',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'eid',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'reminder_date',
+			type: 'date',
+			dataType: 'DATE',
+			dateFormat: 'Y-m-d'
+		},
+		{
+			name: 'reminder_type',
+			type: 'string',
+			len: 45
+		},
+		{
+			name: 'reminder_note',
+			type: 'string',
+			dataType: 'MEDIUMTEXT'
+		},
+		{
+			name: 'create_uid',
+			type: 'int'
+		},
+		{
+			name: 'create_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		}
+	],
+	proxy: {
+		type: 'direct',
+		api: {
+			read: 'Reminders.getReminders',
+			create: 'Reminders.addReminder',
+			update: 'Reminders.updateReminder'
+		},
+		reader: {
+			root: 'data'
+		}
+	}
+});
+
+
+Ext.define('App.model.patient.Alert', {
+	extend: 'Ext.data.Model',
+	table: {
+		name: 'patient_alerts'
 	},
 	fields: [
 		{
@@ -19457,9 +19517,9 @@ Ext.define('App.model.patient.Reminders', {
 	proxy: {
 		type: 'direct',
 		api: {
-			read: 'Reminders.getReminders',
-			create: 'Reminders.addReminder',
-			update: 'Reminders.updateReminder'
+			read: 'Alerts.getAlerts',
+			create: 'Alerts.addAlert',
+			update: 'Alerts.updateAlert'
 		},
 		reader: {
 			root: 'data'
@@ -24973,79 +25033,13 @@ Ext.define('App.view.patient.ProgressNote', {
 
 });
 
-Ext.define('App.view.patient.RemindersAlert', {
-	extend: 'Ext.window.Window',
-	requires: [
-		'Ext.grid.plugin.RowEditing'
-	],
-	title: _('reminders'),
-	width: 700,
-	closeAction: 'hide',
-	initComponent: function(){
-
-		var me = this;
-
-		me.items = [
-			{
-				xtype: 'grid',
-				itemId: 'RemindersAlertGrid',
-				margin: 5,
-				frame : true,
-				store: Ext.create('App.store.patient.Reminders'),
-				plugins: {
-					ptype: 'cellediting',
-					autoCancel: false,
-					errorSummary: false,
-					clicksToEdit: 2
-				},
-				columns: [
-					{
-						xtype: 'datecolumn',
-						text: _('date'),
-						format: g('date_display_format'),
-						dataIndex: 'date'
-					},
-					{
-						text: _('note'),
-						dataIndex: 'body',
-						flex: 1
-					},
-					{
-						text: _('active'),
-						width: 50,
-						dataIndex: 'active',
-						renderer: function(v, m, r){
-							return app.boolRenderer(v, m, r);
-						},
-						editor: {
-							xtype: 'checkbox'
-						}
-					}
-				]
-			}
-		];
-
-
-
-		me.callParent();
-
-	},
-	buttons: [
-		'->',
-		{
-			text: _('ok'),
-			itemId: 'RemindersAlertOkBtn'
-		},
-		'-',
-		{
-			text: _('cancel'),
-			itemId: 'RemindersAlertCancelBtn'
-		}
-	]
-});
 Ext.define('App.store.patient.Reminders', {
 	extend: 'Ext.data.Store',
-	model: 'App.model.patient.Reminders'
+	model: 'App.model.patient.Reminder'
+});
+Ext.define('App.store.patient.Alerts', {
+	extend: 'Ext.data.Store',
+	model: 'App.model.patient.Alert'
 });
 Ext.define('App.view.patient.Reminders', {
 	extend: 'Ext.grid.Panel',
@@ -25065,40 +25059,34 @@ Ext.define('App.view.patient.Reminders', {
 		{
 			xtype: 'datecolumn',
 			text: _('date'),
-			format: 'Y-m-d',
-			dataIndex: 'date'
+			dataIndex: 'reminder_date',
+			editor: {
+				xtype: 'datefield'
+			}
 		},
 		{
-			header: _('type'),
-			dataIndex: 'type',
-			width: 200,
+			text: _('type'),
+			dataIndex: 'reminder_type',
 			editor: {
-				xtype: 'gaiaehr.combo',
-				list: 130
+				xtype: 'combobox',
+				queryMode: 'local',
+				displayField: 'option',
+				valueField: 'value',
+				store: Ext.create('Ext.data.Store', {
+					fields: ['option', 'value'],
+					data : [
+						{ option: 'Appointment', value: 'appointment' },
+						{ option: 'Clinical', value: 'clinical' }
+					]
+				})
 			}
 		},
 		{
 			text: _('note'),
-			dataIndex: 'body',
 			flex: 1,
+			dataIndex: 'reminder_note',
 			editor: {
 				xtype: 'textfield'
-			}
-		},
-		{
-			text: _('user'),
-			width: 225,
-			dataIndex: 'user_name'
-		},
-		{
-			text: _('active'),
-			width: 50,
-			dataIndex: 'active',
-			renderer: function(v, m, r){
-				return app.boolRenderer(v, m, r);
-			},
-			editor: {
-				xtype: 'checkbox'
 			}
 		}
 	],
@@ -25107,7 +25095,7 @@ Ext.define('App.view.patient.Reminders', {
 		{
 			text: _('add_reminder'),
 			iconCls: 'icoAdd',
-			itemId: 'RemindersAddBtn'
+			itemId: 'PatientRemindersAddBtn'
 		}
 	]
 });
@@ -39498,6 +39486,145 @@ Ext.define('App.controller.patient.AdvanceDirectives', {
 	}
 
 });
+Ext.define('App.controller.patient.Alerts', {
+	extend: 'Ext.app.Controller',
+	requires: [],
+	refs: [
+		{
+			ref: 'AlertsAddBtn',
+			selector: '#AlertsAddBtn'
+		},
+		{
+			ref: 'PatientSummaryAlertsPanel',
+			selector: '#PatientSummaryAlertsPanel'
+		}
+	],
+
+	init: function(){
+		var me = this;
+		me.control({
+			'viewport': {
+				encounterload: me.onEncounterOpen,
+				patientset: me.onPatientSet
+			},
+			'#PatientSummaryAlertsPanel': {
+				activate: me.onPatientSummaryAlertsPanelActivate
+			},
+			'#AlertsAddBtn': {
+				click: me.onAlertsAddBtnClick
+			},
+			'#AlertsAlertOkBtn': {
+				click: me.onAlertsAlertOkBtnClick
+			},
+			'#AlertsAlertCancelBtn': {
+				click: me.onAlertsAlertCancelBtnClick
+			}
+		});
+	},
+
+	onPatientSummaryAlertsPanelActivate: function(){
+		this.getPatientSummaryAlertsPanel().getStore().load({
+			filters: [
+				{
+					property: 'pid',
+					value: app.patient.pid
+				}
+			]
+		});
+	},
+
+	onAlertsAddBtnClick: function(btn){
+		var grid = btn.up('grid'),
+			store = grid.store;
+
+		grid.plugins[0].cancelEdit();
+		store.insert(0, {
+			date: new Date(),
+			pid: app.patient.pid,
+			uid: app.user.id,
+			eid: app.patient.eid
+		});
+		grid.plugins[0].startEdit(0, 0);
+	},
+
+	onAlertsAlertOkBtnClick: function(btn){
+		var win = btn.up('window'),
+			store = win.down('grid').getStore();
+
+		store.sync();
+		win.close();
+	},
+
+	onAlertsAlertCancelBtnClick: function(btn){
+		var win = btn.up('window'),
+			store = win.down('grid').getStore();
+
+		store.rejectChanges();
+		win.close();
+	},
+
+	onPatientSet: function(patient){
+		this.getPatientAlerts('Administrative', patient.pid);
+	},
+
+	onEncounterOpen: function(encounterRecord){
+		this.getPatientAlerts('Clinical', encounterRecord.data.pid);
+	},
+
+	getPatientAlerts: function(type, pid){
+		var me = this,
+			action = 'RemindersAlertWindow' + type,
+			query = Ext.ComponentQuery.query('window[action=' + action + ']'),
+			store,
+			win;
+
+		if(query.length === 0){
+			win = Ext.create('App.view.patient.AlertWindow',{
+				title: _('alerts') + ' (' + _(type.toLowerCase()) + ')',
+				action: action
+			});
+		}else{
+			win = query[0];
+		}
+
+		store = win.down('grid').getStore();
+		win.close();
+		store.load({
+			filters: [
+				{
+					property: 'pid',
+					value: pid
+				},
+				{
+					property: 'type',
+					value: type
+				},
+				{
+					property: 'active',
+					value: true
+				}
+			],
+			callback: function(records){
+				if(records.length > 0){
+					me.playSound();
+					win.show();
+				}
+			}
+		});
+	},
+
+	playSound: function(){
+		if(!this.alertAudio){
+			this.alertAudio = Ext.core.DomHelper.append(Ext.getBody(), {
+				html: '<audio autoplay id="reminderAlert" ><source src="resources/audio/sweetalertsound4.wav" type="audio/wav"></audio>'
+			}, true);
+		}else{
+			this.alertAudio.dom.firstChild.currentTime=0;
+			this.alertAudio.dom.firstChild.play();
+		}
+	}
+
+});
 Ext.define('App.controller.patient.Allergies', {
 	extend: 'Ext.app.Controller',
 	requires: [
@@ -42822,125 +42949,63 @@ Ext.define('App.controller.patient.RadOrders', {
 
 Ext.define('App.controller.patient.Reminders', {
 	extend: 'Ext.app.Controller',
-	requires: [],
+	requires: [
+
+	],
 	refs: [
 		{
-			ref: 'RemindersAddBtn',
+			ref: 'PatientRemindersAddBtn',
 			selector: '#RemindersAddBtn'
+		},
+		{
+			ref: 'PatientSummaryRemindersPanel',
+			selector: '#PatientSummaryRemindersPanel'
 		}
 	],
 
 	init: function(){
 		var me = this;
+
 		me.control({
-			'viewport': {
-				encounterload: me.onEncounterOpen,
-				patientset: me.onPatientSet
+			'#PatientSummaryRemindersPanel':{
+				activate: me.onPatientSummaryRemindersPanelActivate
 			},
-			'#RemindersAddBtn': {
-				click: me.onRemindersAddBtnClick
-			},
-			'#RemindersAlertOkBtn': {
-				click: me.onRemindersAlertOkBtnClick
-			},
-			'#RemindersAlertCancelBtn': {
-				click: me.onRemindersAlertCancelBtnClick
+			'#PatientRemindersAddBtn':{
+				click: me.onPatientRemindersAddBtnClick
 			}
 		});
 	},
 
-	onRemindersAddBtnClick: function(btn){
+	onPatientSummaryRemindersPanelActivate: function(){
+		this.getPatientSummaryRemindersPanel().getStore().load({
+			filters: [
+				{
+					property: 'pid',
+					value: app.patient.pid
+				}
+			]
+		});
+	},
+
+	onPatientRemindersAddBtnClick: function(btn){
 		var grid = btn.up('grid'),
 			store = grid.store;
 
 		grid.plugins[0].cancelEdit();
 		store.insert(0, {
-			date: new Date(),
 			pid: app.patient.pid,
-			uid: app.user.id,
-			eid: app.patient.eid
+			eid: app.patient.eid,
+			reminder_type: 'appointment',
+			reminder_date: new Date(),
+			reminder_note: '',
+			create_date: new Date(),
+			create_uid: app.user.id
 		});
 		grid.plugins[0].startEdit(0, 0);
-	},
-
-	onRemindersAlertOkBtnClick: function(btn){
-		var win = btn.up('window'),
-			store = win.down('grid').getStore();
-
-		store.sync();
-		win.close();
-	},
-
-	onRemindersAlertCancelBtnClick: function(btn){
-		var win = btn.up('window'),
-			store = win.down('grid').getStore();
-
-		store.rejectChanges();
-		win.close();
-	},
-
-	onPatientSet: function(patient){
-		this.getPatientReminders('Administrative', patient.pid);
-	},
-
-	onEncounterOpen: function(encounterRecord){
-		this.getPatientReminders('Clinical', encounterRecord.data.pid);
-	},
-
-	getPatientReminders: function(type, pid){
-		var me = this,
-			action = 'RemindersAlertWindow' + type,
-			query = Ext.ComponentQuery.query('window[action=' + action + ']'),
-			store,
-			win;
-
-		if(query.length === 0){
-			win = Ext.create('App.view.patient.RemindersAlert',{
-				title: _('reminders') + ' (' + _(type.toLowerCase()) + ')',
-				action: action
-			});
-		}else{
-			win = query[0];
-		}
-
-		store = win.down('grid').getStore();
-		win.close();
-		store.load({
-			filters: [
-				{
-					property: 'pid',
-					value: pid
-				},
-				{
-					property: 'type',
-					value: type
-				},
-				{
-					property: 'active',
-					value: true
-				}
-			],
-			callback: function(records){
-				if(records.length > 0){
-					me.playSound();
-					win.show();
-				}
-			}
-		});
-	},
-
-	playSound: function(){
-		if(!this.alertAudio){
-			this.alertAudio = Ext.core.DomHelper.append(Ext.getBody(), {
-				html: '<audio autoplay id="reminderAlert" ><source src="resources/audio/sweetalertsound4.wav" type="audio/wav"></audio>'
-			}, true);
-		}else{
-			this.alertAudio.dom.firstChild.currentTime=0;
-			this.alertAudio.dom.firstChild.play();
-		}
 	}
 
 });
+
 Ext.define('App.controller.patient.Referrals', {
 	extend: 'Ext.app.Controller',
 	requires: [
@@ -44351,9 +44416,9 @@ Ext.define('App.controller.patient.Summary', {
 			'#PatientSummeryNotesPanel': {
 				activate: me.reloadGrid
 			},
-			'#PatientSummaryRemindersPanel': {
-				activate: me.reloadGrid
-			},
+			// '#PatientSummaryRemindersPanel': {
+			// 	activate: me.reloadGrid
+			// },
 			'#PatientSummaryVitalsPanel': {
 				activate: me.reloadGrid
 			},
@@ -52854,7 +52919,8 @@ Ext.define('App.view.patient.Summary', {
 		'App.view.patient.CCD',
 		'App.ux.ManagedIframe',
 		'App.view.patient.Patient',
-		'App.view.patient.Reminders'
+		'App.view.patient.Reminders',
+		'App.view.patient.Alerts'
 	],
 	itemId: 'PatientSummaryPanel',
 	showRating: true,
@@ -53184,6 +53250,7 @@ Ext.define('App.view.patient.Summary', {
 					}
 				],
 				tbar: [
+					'->',
 					{
 						text: _('disclosure'),
 						iconCls: 'icoAdd',
@@ -53238,6 +53305,7 @@ Ext.define('App.view.patient.Summary', {
 					}
 				],
 				tbar: [
+					'->',
 					{
 						text: _('add_note'),
 						iconCls: 'icoAdd',
@@ -53252,6 +53320,14 @@ Ext.define('App.view.patient.Summary', {
 			me.tabPanel.add({
 				itemId: 'PatientSummaryRemindersPanel',
 				xtype: 'patientreminderspanel',
+				bodyPadding: 0
+			});
+		}
+
+		if(a('access_patient_alerts')){
+			me.tabPanel.add({
+				itemId: 'PatientSummaryAlertsPanel',
+				xtype: 'patientalertspanel',
 				bodyPadding: 0
 			});
 		}

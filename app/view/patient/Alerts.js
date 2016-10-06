@@ -16,14 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.view.patient.Reminders', {
+Ext.define('App.view.patient.Alerts', {
 	extend: 'Ext.grid.Panel',
 	requires: [
 		'Ext.grid.plugin.RowEditing'
 	],
-	xtype: 'patientreminderspanel',
-	title: _('reminders'),
-	store: Ext.create('App.store.patient.Reminders'),
+	xtype: 'patientalertspanel',
+	title: _('alerts'),
+	store: Ext.create('App.store.patient.Alerts'),
 	plugins: {
 		ptype:'rowediting',
 		autoCancel: false,
@@ -34,43 +34,49 @@ Ext.define('App.view.patient.Reminders', {
 		{
 			xtype: 'datecolumn',
 			text: _('date'),
-			dataIndex: 'reminder_date',
-			editor: {
-				xtype: 'datefield'
-			}
+			format: 'Y-m-d',
+			dataIndex: 'date'
 		},
 		{
-			text: _('type'),
-			dataIndex: 'reminder_type',
+			header: _('type'),
+			dataIndex: 'type',
+			width: 200,
 			editor: {
-				xtype: 'combobox',
-				queryMode: 'local',
-				displayField: 'option',
-				valueField: 'value',
-				store: Ext.create('Ext.data.Store', {
-					fields: ['option', 'value'],
-					data : [
-						{ option: 'Appointment', value: 'appointment' },
-						{ option: 'Clinical', value: 'clinical' }
-					]
-				})
+				xtype: 'gaiaehr.combo',
+				list: 130
 			}
 		},
 		{
 			text: _('note'),
+			dataIndex: 'body',
 			flex: 1,
-			dataIndex: 'reminder_note',
 			editor: {
 				xtype: 'textfield'
+			}
+		},
+		{
+			text: _('user'),
+			width: 225,
+			dataIndex: 'user_name'
+		},
+		{
+			text: _('active'),
+			width: 50,
+			dataIndex: 'active',
+			renderer: function(v, m, r){
+				return app.boolRenderer(v, m, r);
+			},
+			editor: {
+				xtype: 'checkbox'
 			}
 		}
 	],
 	tbar: [
 		'->',
 		{
-			text: _('add_reminder'),
+			text: _('add_alert'),
 			iconCls: 'icoAdd',
-			itemId: 'PatientRemindersAddBtn'
+			itemId: 'AlertsAddBtn'
 		}
 	]
 });

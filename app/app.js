@@ -42589,7 +42589,7 @@ Ext.define('App.controller.patient.Medications', {
 	onMedicationLiveSearchSelect: function(cmb, records){
 		var form = cmb.up('form').getForm(),
 			record = records[0],
-			order_record = orm.getRecord();
+			order_record = form.getRecord();
 
 		order_record.set({
 			RXCUI: record.data.RXCUI,
@@ -42620,6 +42620,9 @@ Ext.define('App.controller.patient.Medications', {
 			}
 			if(data.CODES && data.CODES.UMLSCUI){
 				order_record.set({ potency_code: data.CODES && data.CODES.UMLSCUI });
+
+				var field = form.findField('potency_code');
+				if(field) field.setValue(data.CODES.UMLSCUI);
 			}
 		});
 
@@ -43359,6 +43362,9 @@ Ext.define('App.controller.patient.RxOrders', {
 			}
 			if(data.CODES && data.CODES.UMLSCUI){
 				order_record.set({ potency_code: data.CODES && data.CODES.UMLSCUI });
+
+				var field = form.findField('potency_code');
+				if(field) field.setValue(data.CODES.UMLSCUI);
 			}
 		});
 

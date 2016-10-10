@@ -162,6 +162,9 @@ Ext.define('App.controller.patient.RxOrders', {
 			}
 			if(data.CODES && data.CODES.UMLSCUI){
 				order_record.set({ potency_code: data.CODES && data.CODES.UMLSCUI });
+
+				var field = form.findField('potency_code');
+				if(field) field.setValue(data.CODES.UMLSCUI);
 			}
 		});
 

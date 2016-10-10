@@ -247,12 +247,6 @@ Ext.define('App.controller.patient.Medications', {
 			if(data.ATTRIBUTES && data.ATTRIBUTES.SCHEDULE && data.ATTRIBUTES.SCHEDULE != '0'){
 				order_record.set({ is_controlled: true });
 			}
-			if(data.CODES && data.CODES.UMLSCUI){
-				order_record.set({ potency_code: data.CODES && data.CODES.UMLSCUI });
-
-				var field = form.findField('potency_code');
-				if(field) field.setValue(data.CODES.UMLSCUI);
-			}
 		});
 
 	},

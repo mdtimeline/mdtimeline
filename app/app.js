@@ -16977,7 +16977,11 @@ Ext.define('App.model.patient.Encounter', {
 			type: 'bool'
 		},
         {
-            name: 'medication_reconciliation',
+            name: 'medication_reconciliations',
+            type: 'bool'
+        },
+        {
+            name: 'summary_care_provided',
             type: 'bool'
         }
 	],
@@ -44689,7 +44693,15 @@ Ext.define('App.controller.patient.encounter.EncounterSign', {
 		{
 			ref: 'EncounterSignAlertGrid',
 			selector: '#EncounterSignAlertGrid'
-		}
+		},
+        {
+            ref: 'EncounterMedicationReconciliations',
+            selector: '#EncounterMedicationReconciliations'
+        },
+        {
+            ref: 'EncounterSummaryCareProvided',
+            selector: '#EncounterSummaryCareProvided'
+        }
 	],
 
 	init: function(){
@@ -44761,6 +44773,9 @@ Ext.define('App.controller.patient.encounter.EncounterSign', {
 
 		me.pid = win.enc.pid;
 		me.eid = win.enc.eid;
+
+        me.getEncounterMedicationReconciliations().setValue(false);
+        me.getEncounterSummaryCareProvided().setValue(false);
 
 		if(a('access_encounter_checkout')){
 
@@ -48910,19 +48925,26 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 							]
 						},
                         {
-                            title: _('medication'),
+                            title: _('reconciliations'),
                             flex: 1,
-                            defaults: {
-                                anchor: '100%'
-                            },
+                            layout: 'hbox',
                             items: [
                                 {
+                                    padding: '0 10 0 0',
                                     xtype: 'checkboxfield',
-                                    checked: true,
-                                    itemId: 'EncounterMedicationReconciliation',
-                                    boxLabel: _('medication_reconciliation'),
+                                    checked: false,
+                                    itemId: 'EncounterMedicationReconciliations',
+                                    boxLabel: _('medications'),
                                     inputValue: '1',
-                                    name: 'medication_reconciliation'
+                                    name: 'medication_reconciliations'
+                                },
+                                {
+                                    xtype: 'checkboxfield',
+                                    checked: false,
+                                    itemId: 'EncounterSummaryCareProvided',
+                                    boxLabel: _('summary_of_care_provided'),
+                                    inputValue: '1',
+                                    name: 'summary_care_provided'
                                 }
                             ]
                         }

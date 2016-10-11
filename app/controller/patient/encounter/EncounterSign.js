@@ -31,7 +31,15 @@ Ext.define('App.controller.patient.encounter.EncounterSign', {
 		{
 			ref: 'EncounterSignAlertGrid',
 			selector: '#EncounterSignAlertGrid'
-		}
+		},
+        {
+            ref: 'EncounterMedicationReconciliations',
+            selector: '#EncounterMedicationReconciliations'
+        },
+        {
+            ref: 'EncounterSummaryCareProvided',
+            selector: '#EncounterSummaryCareProvided'
+        }
 	],
 
 	init: function(){
@@ -103,6 +111,9 @@ Ext.define('App.controller.patient.encounter.EncounterSign', {
 
 		me.pid = win.enc.pid;
 		me.eid = win.enc.eid;
+
+        me.getEncounterMedicationReconciliations().setValue(false);
+        me.getEncounterSummaryCareProvided().setValue(false);
 
 		if(a('access_encounter_checkout')){
 

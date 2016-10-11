@@ -168,7 +168,11 @@ Ext.define('App.model.patient.Encounter', {
 			type: 'bool'
 		},
         {
-            name: 'medication_reconciliation',
+            name: 'medication_reconciliations',
+            type: 'bool'
+        },
+        {
+            name: 'summary_care_provided',
             type: 'bool'
         }
 	],

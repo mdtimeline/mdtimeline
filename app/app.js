@@ -16975,7 +16975,11 @@ Ext.define('App.model.patient.Encounter', {
 		{
 			name: 'patient_education_given',
 			type: 'bool'
-		}
+		},
+        {
+            name: 'medication_reconciliation',
+            type: 'bool'
+        }
 	],
 	idProperty: 'eid',
 	proxy: {
@@ -44818,6 +44822,7 @@ Ext.define('App.controller.patient.encounter.EncounterSign', {
 	}
 
 });
+
 Ext.define('App.controller.patient.encounter.SuperBill', {
 	extend: 'Ext.app.Controller',
 	requires: [
@@ -48813,7 +48818,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 	modal: true,
 	layout: 'border',
 	width: 1200,
-	height: 660,
+	height: 690,
 	bodyPadding: 5,
 
 	pid: null,
@@ -48838,7 +48843,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 			title: _('additional_info'),
 			region: 'south',
 			split: true,
-			height: 245,
+			height: 315,
 			layout: 'column',
 			defaults: {
 				xtype: 'fieldset',
@@ -48885,7 +48890,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 							]
 						},
 						{
-							title: 'Follow Up',
+							title: _('follow_up'),
 							flex: 1,
 							defaults: {
 								anchor: '100%'
@@ -48903,7 +48908,23 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 									margin: 0
 								}
 							]
-						}
+						},
+                        {
+                            title: _('medication'),
+                            flex: 1,
+                            defaults: {
+                                anchor: '100%'
+                            },
+                            items: [
+                                {
+                                    xtype: 'checkboxfield',
+                                    itemId: 'EncounterMedicationReconciliation',
+                                    boxLabel: _('medication_reconciliation'),
+                                    inputValue: '1',
+                                    name: 'medication_reconciliation'
+                                }
+                            ]
+                        }
 					]
 				},
 				{
@@ -48967,6 +48988,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 		}
 	]
 });
+
 Ext.define('App.view.dashboard.panel.PortalColumn', {
 	extend     : 'Ext.container.Container',
 	alias      : 'widget.portalcolumn',
@@ -59234,8 +59256,7 @@ Ext.define('App.view.patient.Encounter', {
 	doSignEncounter: function(isSupervisor, callback){
 		var me = this,
 			form,
-			values,
-			win ;
+			values;
 
 		me.passwordVerificationWin(function(btn, password){
 			if(btn == 'ok'){
@@ -59248,9 +59269,7 @@ Ext.define('App.view.patient.Encounter', {
 				values.isSupervisor = isSupervisor;
 
 				if(a('require_enc_supervisor') || isSupervisor){
-
 					var cmb = app.checkoutWindow.query('#EncounterCoSignSupervisorCombo')[0];
-
 					values.requires_supervisor = true;
 					values.supervisor_uid = cmb.getValue();
 				}else if(!isSupervisor && !a('require_enc_supervisor')){

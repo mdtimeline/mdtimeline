@@ -55,7 +55,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 			title: _('additional_info'),
 			region: 'south',
 			split: true,
-			height: 315,
+			height: 250,
 			layout: 'column',
 			defaults: {
 				xtype: 'fieldset',
@@ -120,31 +120,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 									margin: 0
 								}
 							]
-						},
-                        {
-                            title: _('reconciliations'),
-                            flex: 1,
-                            layout: 'hbox',
-                            items: [
-                                {
-                                    padding: '0 10 0 0',
-                                    xtype: 'checkboxfield',
-                                    checked: false,
-                                    itemId: 'EncounterMedicationReconciliations',
-                                    boxLabel: _('medications'),
-                                    inputValue: '1',
-                                    name: 'medication_reconciliations'
-                                },
-                                {
-                                    xtype: 'checkboxfield',
-                                    checked: false,
-                                    itemId: 'EncounterSummaryCareProvided',
-                                    boxLabel: _('summary_of_care_provided'),
-                                    inputValue: '1',
-                                    name: 'summary_care_provided'
-                                }
-                            ]
-                        }
+						}
 					]
 				},
 				{

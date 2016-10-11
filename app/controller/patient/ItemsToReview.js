@@ -47,9 +47,13 @@ Ext.define('App.controller.patient.ItemsToReview', {
 			selector: '#ItemsToReviewPanel #reviewsmokingstatuscombo'
 		},
 		{
-			ref: 'ItemsToReviewEducationGivenField',
-			selector: '#ItemsToReviewEducationGivenField'
-		}
+			ref: 'EncounterMedicationReconciliations',
+			selector: '#ItemsToReviewPanel #EncounterMedicationReconciliations'
+		},
+        {
+            ref: 'EncounterSummaryCareProvided',
+            selector: '#ItemsToReviewPanel #EncounterSummaryCareProvided'
+        }
 
 	],
 
@@ -98,9 +102,10 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		};
 		me.smokeStatusStore.load(params);
 
-
 		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord(),
 			checkbox = me.getItemsToReviewEducationGivenField();
+
+        console.log(encounter);
 
 		checkbox.suspendEvents(false);
 		checkbox.setValue(encounter.get('patient_education_given'));
@@ -140,10 +145,6 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		encounter.set({
 			patient_education_given: value
 		});
-
-		say(value);
-		say(encounter.getChanges());
-		say(!Ext.Object.isEmpty(encounter.getChanges()));
 
 		if(!Ext.Object.isEmpty(encounter.getChanges())){
 			encounter.save({

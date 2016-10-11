@@ -24225,6 +24225,7 @@ Ext.define('App.view.patient.ItemsToReview', {
 		}
 	]
 });
+
 Ext.define('App.view.patient.EncounterDocumentsGrid', {
 	extend: 'Ext.grid.Panel',
 	requires: [
@@ -40692,7 +40693,6 @@ Ext.define('App.controller.patient.CCDImport', {
             phone;
         ccdPatientForm.loadRecord(patient);
 
-
 		if(me.validatePosibleDuplicates){
 			App.app.getController('patient.Patient').lookForPossibleDuplicates(
 				{
@@ -41128,6 +41128,7 @@ Ext.define('App.controller.patient.CCDImport', {
 		});
 	}
 });
+
 Ext.define('App.controller.patient.CognitiveAndFunctionalStatus', {
 	extend: 'Ext.app.Controller',
 	requires: [
@@ -42188,9 +42189,13 @@ Ext.define('App.controller.patient.ItemsToReview', {
 			selector: '#ItemsToReviewPanel #reviewsmokingstatuscombo'
 		},
 		{
-			ref: 'ItemsToReviewEducationGivenField',
-			selector: '#ItemsToReviewEducationGivenField'
-		}
+			ref: 'EncounterMedicationReconciliations',
+			selector: '#EncounterMedicationReconciliations'
+		},
+        {
+            ref: 'EncounterSummaryCareProvided',
+            selector: '#EncounterSummaryCareProvided'
+        }
 
 	],
 
@@ -42243,6 +42248,8 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord(),
 			checkbox = me.getItemsToReviewEducationGivenField();
 
+        console.log(encounter);
+
 		checkbox.suspendEvents(false);
 		checkbox.setValue(encounter.get('patient_education_given'));
 		checkbox.resumeEvents();
@@ -42282,10 +42289,6 @@ Ext.define('App.controller.patient.ItemsToReview', {
 			patient_education_given: value
 		});
 
-		say(value);
-		say(encounter.getChanges());
-		say(!Ext.Object.isEmpty(encounter.getChanges()));
-
 		if(!Ext.Object.isEmpty(encounter.getChanges())){
 			encounter.save({
 				success: function(){
@@ -42299,6 +42302,7 @@ Ext.define('App.controller.patient.ItemsToReview', {
 	}
 
 });
+
 Ext.define('App.controller.patient.Medical', {
 	extend: 'Ext.app.Controller',
 	requires: [
@@ -44693,15 +44697,7 @@ Ext.define('App.controller.patient.encounter.EncounterSign', {
 		{
 			ref: 'EncounterSignAlertGrid',
 			selector: '#EncounterSignAlertGrid'
-		},
-        {
-            ref: 'EncounterMedicationReconciliations',
-            selector: '#EncounterMedicationReconciliations'
-        },
-        {
-            ref: 'EncounterSummaryCareProvided',
-            selector: '#EncounterSummaryCareProvided'
-        }
+		}
 	],
 
 	init: function(){
@@ -44773,9 +44769,6 @@ Ext.define('App.controller.patient.encounter.EncounterSign', {
 
 		me.pid = win.enc.pid;
 		me.eid = win.enc.eid;
-
-        me.getEncounterMedicationReconciliations().setValue(false);
-        me.getEncounterSummaryCareProvided().setValue(false);
 
 		if(a('access_encounter_checkout')){
 
@@ -48858,7 +48851,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 			title: _('additional_info'),
 			region: 'south',
 			split: true,
-			height: 315,
+			height: 250,
 			layout: 'column',
 			defaults: {
 				xtype: 'fieldset',
@@ -48923,31 +48916,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 									margin: 0
 								}
 							]
-						},
-                        {
-                            title: _('reconciliations'),
-                            flex: 1,
-                            layout: 'hbox',
-                            items: [
-                                {
-                                    padding: '0 10 0 0',
-                                    xtype: 'checkboxfield',
-                                    checked: false,
-                                    itemId: 'EncounterMedicationReconciliations',
-                                    boxLabel: _('medications'),
-                                    inputValue: '1',
-                                    name: 'medication_reconciliations'
-                                },
-                                {
-                                    xtype: 'checkboxfield',
-                                    checked: false,
-                                    itemId: 'EncounterSummaryCareProvided',
-                                    boxLabel: _('summary_of_care_provided'),
-                                    inputValue: '1',
-                                    name: 'summary_care_provided'
-                                }
-                            ]
-                        }
+						}
 					]
 				},
 				{

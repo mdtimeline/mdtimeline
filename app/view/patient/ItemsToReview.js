@@ -198,7 +198,27 @@ Ext.define('App.view.patient.ItemsToReview', {
 							itemId: 'ItemsToReviewEducationGivenField'
 						}
 					]
-				}
+				},
+                {
+                    xtype: 'fieldset',
+                    title: _('reconciliations'),
+                    items: [
+                        {
+                            xtype: 'checkboxfield',
+                            checked: false,
+                            itemId: 'EncounterMedicationReconciliations',
+                            boxLabel: _('medications'),
+                            name: 'medication_reconciliations'
+                        },
+                        {
+                            xtype: 'checkboxfield',
+                            checked: false,
+                            itemId: 'EncounterSummaryCareProvided',
+                            boxLabel: _('summary_of_care_provided'),
+                            name: 'summary_care_provided'
+                        }
+                    ]
+                }
 			]
 		}
 	],

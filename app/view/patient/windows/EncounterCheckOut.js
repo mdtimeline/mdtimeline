@@ -130,6 +130,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
                             items: [
                                 {
                                     xtype: 'checkboxfield',
+                                    checked: true,
                                     itemId: 'EncounterMedicationReconciliation',
                                     boxLabel: _('medication_reconciliation'),
                                     inputValue: '1',

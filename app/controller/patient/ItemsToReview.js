@@ -46,6 +46,10 @@ Ext.define('App.controller.patient.ItemsToReview', {
 			ref: 'ReviewSmokingStatusCombo',
 			selector: '#ItemsToReviewPanel #reviewsmokingstatuscombo'
 		},
+        {
+            ref: 'ItemsToReviewEducationGivenField',
+            selector: '#ItemsToReviewPanel #ItemsToReviewEducationGivenField'
+        },
 		{
 			ref: 'EncounterMedicationReconciliations',
 			selector: '#ItemsToReviewPanel #EncounterMedicationReconciliations'
@@ -54,7 +58,6 @@ Ext.define('App.controller.patient.ItemsToReview', {
             ref: 'EncounterSummaryCareProvided',
             selector: '#ItemsToReviewPanel #EncounterSummaryCareProvided'
         }
-
 	],
 
 	init: function(){
@@ -110,6 +113,9 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		checkbox.suspendEvents(false);
 		checkbox.setValue(encounter.get('patient_education_given'));
 		checkbox.resumeEvents();
+
+        me.getEncounterMedicationReconciliations().setValue(encounter.get('medication_reconciliations'));
+        me.getEncounterSummaryCareProvided().setValue(encounter.get('summary_care_provided'));
 	},
 
 	onReviewAll: function(){
@@ -125,7 +131,9 @@ Ext.define('App.controller.patient.ItemsToReview', {
 				review_immunizations: true,
 				review_medications: true,
 				review_smoke: true,
-				review_surgery: true
+				review_surgery: true,
+                medication_reconciliations: this.getEncounterMedicationReconciliations().getValue(),
+                summary_care_provided: this.getEncounterSummaryCareProvided().getValue()
 			});
 
 			encounter.save({

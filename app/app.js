@@ -24206,6 +24206,7 @@ Ext.define('App.view.patient.ItemsToReview', {
 				{
 					xtype: 'fieldset',
 					title: _('patient_education'),
+                    margin: '0 10 0 0',
 					items: [
 						{
 							xtype: 'checkbox',
@@ -24217,6 +24218,7 @@ Ext.define('App.view.patient.ItemsToReview', {
                 {
                     xtype: 'fieldset',
                     title: _('reconciliations'),
+                    layout: 'hbox',
                     items: [
                         {
                             xtype: 'checkboxfield',
@@ -24228,6 +24230,7 @@ Ext.define('App.view.patient.ItemsToReview', {
                         {
                             xtype: 'checkboxfield',
                             checked: false,
+                            padding: '0 0 5 10',
                             itemId: 'EncounterSummaryCareProvided',
                             boxLabel: _('summary_of_care_provided'),
                             name: 'summary_care_provided'
@@ -42208,6 +42211,10 @@ Ext.define('App.controller.patient.ItemsToReview', {
 			ref: 'ReviewSmokingStatusCombo',
 			selector: '#ItemsToReviewPanel #reviewsmokingstatuscombo'
 		},
+        {
+            ref: 'ItemsToReviewEducationGivenField',
+            selector: '#ItemsToReviewPanel #ItemsToReviewEducationGivenField'
+        },
 		{
 			ref: 'EncounterMedicationReconciliations',
 			selector: '#ItemsToReviewPanel #EncounterMedicationReconciliations'
@@ -42216,7 +42223,6 @@ Ext.define('App.controller.patient.ItemsToReview', {
             ref: 'EncounterSummaryCareProvided',
             selector: '#ItemsToReviewPanel #EncounterSummaryCareProvided'
         }
-
 	],
 
 	init: function(){
@@ -42272,6 +42278,9 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		checkbox.suspendEvents(false);
 		checkbox.setValue(encounter.get('patient_education_given'));
 		checkbox.resumeEvents();
+
+        me.getEncounterMedicationReconciliations().setValue(encounter.get('medication_reconciliations'));
+        me.getEncounterSummaryCareProvided().setValue(encounter.get('summary_care_provided'));
 	},
 
 	onReviewAll: function(){

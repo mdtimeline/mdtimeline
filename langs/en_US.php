@@ -1686,5 +1686,7 @@ $LANG = array(
     'education_given'                       => 'Education Given',
     'alerts'                                => 'Alerts',
     'add_alerts'                            => 'Add Alerts',
-    'patient_alerts'                        => 'Patient Alerts'
+    'patient_alerts'                        => 'Patient Alerts',
+    'medication_reconciliation'             => 'Medication Reconciliation',
+    'follow_up'                             => 'Follow Up'
 );

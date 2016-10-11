@@ -322,6 +322,8 @@ class Encounter {
 	public function signEncounter(stdClass $params) {
 		$this->setEid($params->eid);
 
+        error_log(print_r($params,true));
+
 		/** verify permissions (sign encounter and supervisor) */
 		if(!ACL::hasPermission('sign_enc') || ($params->isSupervisor && !ACL::hasPermission('sign_enc_supervisor'))){
 			return [
@@ -567,7 +569,7 @@ class Encounter {
 
 		$Immunizations = new Immunizations();
 		$immunizations = $Immunizations->getImmunizationsByEncounterID($eid);
-        
+
 		if(!empty($immunizations)){
 			$lis = '';
 			foreach($immunizations as $foo){

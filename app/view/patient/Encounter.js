@@ -714,8 +714,7 @@ Ext.define('App.view.patient.Encounter', {
 	doSignEncounter: function(isSupervisor, callback){
 		var me = this,
 			form,
-			values,
-			win ;
+			values;
 
 		me.passwordVerificationWin(function(btn, password){
 			if(btn == 'ok'){
@@ -728,9 +727,7 @@ Ext.define('App.view.patient.Encounter', {
 				values.isSupervisor = isSupervisor;
 
 				if(a('require_enc_supervisor') || isSupervisor){
-
 					var cmb = app.checkoutWindow.query('#EncounterCoSignSupervisorCombo')[0];
-
 					values.requires_supervisor = true;
 					values.supervisor_uid = cmb.getValue();
 				}else if(!isSupervisor && !a('require_enc_supervisor')){

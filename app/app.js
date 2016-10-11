@@ -24213,7 +24213,27 @@ Ext.define('App.view.patient.ItemsToReview', {
 							itemId: 'ItemsToReviewEducationGivenField'
 						}
 					]
-				}
+				},
+                {
+                    xtype: 'fieldset',
+                    title: _('reconciliations'),
+                    items: [
+                        {
+                            xtype: 'checkboxfield',
+                            checked: false,
+                            itemId: 'EncounterMedicationReconciliations',
+                            boxLabel: _('medications'),
+                            name: 'medication_reconciliations'
+                        },
+                        {
+                            xtype: 'checkboxfield',
+                            checked: false,
+                            itemId: 'EncounterSummaryCareProvided',
+                            boxLabel: _('summary_of_care_provided'),
+                            name: 'summary_care_provided'
+                        }
+                    ]
+                }
 			]
 		}
 	],
@@ -42190,11 +42210,11 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		},
 		{
 			ref: 'EncounterMedicationReconciliations',
-			selector: '#EncounterMedicationReconciliations'
+			selector: '#ItemsToReviewPanel #EncounterMedicationReconciliations'
 		},
         {
             ref: 'EncounterSummaryCareProvided',
-            selector: '#EncounterSummaryCareProvided'
+            selector: '#ItemsToReviewPanel #EncounterSummaryCareProvided'
         }
 
 	],
@@ -42243,7 +42263,6 @@ Ext.define('App.controller.patient.ItemsToReview', {
 			}
 		};
 		me.smokeStatusStore.load(params);
-
 
 		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord(),
 			checkbox = me.getItemsToReviewEducationGivenField();

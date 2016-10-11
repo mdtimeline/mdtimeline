@@ -653,7 +653,6 @@ class CCDDocumentParse {
 
 					$result->observations[] = $observation;
 
-
 				}elseif(isset($obs['procedure'])){
 					//TODO Finish me!.
 				}

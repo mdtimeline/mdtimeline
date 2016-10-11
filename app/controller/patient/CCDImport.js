@@ -176,7 +176,6 @@ Ext.define('App.controller.patient.CCDImport', {
             phone;
         ccdPatientForm.loadRecord(patient);
 
-
 		if(me.validatePosibleDuplicates){
 			App.app.getController('patient.Patient').lookForPossibleDuplicates(
 				{

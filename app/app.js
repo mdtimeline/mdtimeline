@@ -42296,7 +42296,9 @@ Ext.define('App.controller.patient.ItemsToReview', {
 				review_immunizations: true,
 				review_medications: true,
 				review_smoke: true,
-				review_surgery: true
+				review_surgery: true,
+                medication_reconciliations: this.getEncounterMedicationReconciliations().getValue(),
+                summary_care_provided: this.getEncounterSummaryCareProvided().getValue()
 			});
 
 			encounter.save({

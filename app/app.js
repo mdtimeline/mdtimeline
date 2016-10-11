@@ -16975,11 +16975,7 @@ Ext.define('App.model.patient.Encounter', {
 		{
 			name: 'patient_education_given',
 			type: 'bool'
-		},
-        {
-            name: 'medication_reconciliation',
-            type: 'bool'
-        }
+		}
 	],
 	idProperty: 'eid',
 	proxy: {
@@ -42591,14 +42587,39 @@ Ext.define('App.controller.patient.Medications', {
 	},
 
 	onMedicationLiveSearchSelect: function(cmb, records){
-		var form = cmb.up('form').getForm();
+		var form = cmb.up('form').getForm(),
+			record = records[0],
+			order_record = form.getRecord();
 
-		form.getRecord().set({
-			RXCUI: records[0].data.RXCUI,
-			CODE: records[0].data.CODE,
-            GS_CODE: records[0].data.GS_CODE,
-			NDC: records[0].data.NDC
+		order_record.set({
+			RXCUI: record.data.RXCUI,
+			CODE: record.data.CODE,
+            GS_CODE: record.data.GS_CODE,
+			NDC: record.data.NDC
 		});
+
+		var data = {};
+
+		Rxnorm.getMedicationAttributesByRxcuiApi(record.data.RXCUI, function(response){
+
+			if(response.propConceptGroup){
+				response.propConceptGroup.propConcept.forEach(function(propConcept){
+
+					if(propConcept.propCategory != 'ATTRIBUTES' && propConcept.propCategory != 'CODES') return;
+
+					if(!data[propConcept.propCategory]){
+						data[propConcept.propCategory] = {};
+					}
+					var propName = propConcept.propName.replace(' ', '_');
+					data[propConcept.propCategory][propName] = propConcept.propValue;
+				});
+			}
+
+			if(data.ATTRIBUTES && data.ATTRIBUTES.SCHEDULE && data.ATTRIBUTES.SCHEDULE != '0'){
+				order_record.set({ is_controlled: true });
+			}
+		});
+
 	},
 
 	onPatientMedicationReconciledBtnClick: function(){
@@ -43305,14 +43326,36 @@ Ext.define('App.controller.patient.RxOrders', {
 	onRxNormOrderLiveSearchBeforeSelect: function(combo, record){
 		var form = combo.up('form').getForm(),
 			insCmb = this.getRxOrderMedicationInstructionsCombo(),
+			order_record = form.getRecord(),
             store;
-        
-		form.getRecord().set({
+		order_record.set({
 			RXCUI: record.data.RXCUI,
 			CODE: record.data.CODE,
             GS_CODE: record.data.GS_CODE,
 			NDC: record.data.NDC
 		});
+		var data = {};
+
+		Rxnorm.getMedicationAttributesByRxcuiApi(record.data.RXCUI, function(response){
+
+			if(response.propConceptGroup){
+				response.propConceptGroup.propConcept.forEach(function(propConcept){
+
+					if(propConcept.propCategory != 'ATTRIBUTES' && propConcept.propCategory != 'CODES') return;
+
+					if(!data[propConcept.propCategory]){
+						data[propConcept.propCategory] = {};
+					}
+					var propName = propConcept.propName.replace(' ', '_');
+					data[propConcept.propCategory][propName] = propConcept.propValue;
+				});
+			}
+
+			if(data.ATTRIBUTES && data.ATTRIBUTES.SCHEDULE && data.ATTRIBUTES.SCHEDULE != '0'){
+				order_record.set({ is_controlled: true });
+			}
+		});
+
 
 		store = record.instructions();
 		insCmb.bindStore(store, true);
@@ -44775,7 +44818,6 @@ Ext.define('App.controller.patient.encounter.EncounterSign', {
 	}
 
 });
-
 Ext.define('App.controller.patient.encounter.SuperBill', {
 	extend: 'Ext.app.Controller',
 	requires: [
@@ -48771,7 +48813,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 	modal: true,
 	layout: 'border',
 	width: 1200,
-	height: 690,
+	height: 660,
 	bodyPadding: 5,
 
 	pid: null,
@@ -48796,7 +48838,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 			title: _('additional_info'),
 			region: 'south',
 			split: true,
-			height: 315,
+			height: 245,
 			layout: 'column',
 			defaults: {
 				xtype: 'fieldset',
@@ -48843,7 +48885,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 							]
 						},
 						{
-							title: _('follow_up'),
+							title: 'Follow Up',
 							flex: 1,
 							defaults: {
 								anchor: '100%'
@@ -48861,23 +48903,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 									margin: 0
 								}
 							]
-						},
-                        {
-                            title: _('medication'),
-                            flex: 1,
-                            defaults: {
-                                anchor: '100%'
-                            },
-                            items: [
-                                {
-                                    xtype: 'checkboxfield',
-                                    itemId: 'EncounterMedicationReconciliation',
-                                    boxLabel: _('medication_reconciliation'),
-                                    inputValue: '1',
-                                    name: 'medication_reconciliation'
-                                }
-                            ]
-                        }
+						}
 					]
 				},
 				{
@@ -48941,7 +48967,6 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 		}
 	]
 });
-
 Ext.define('App.view.dashboard.panel.PortalColumn', {
 	extend     : 'Ext.container.Container',
 	alias      : 'widget.portalcolumn',
@@ -59209,7 +59234,8 @@ Ext.define('App.view.patient.Encounter', {
 	doSignEncounter: function(isSupervisor, callback){
 		var me = this,
 			form,
-			values;
+			values,
+			win ;
 
 		me.passwordVerificationWin(function(btn, password){
 			if(btn == 'ok'){
@@ -59222,7 +59248,9 @@ Ext.define('App.view.patient.Encounter', {
 				values.isSupervisor = isSupervisor;
 
 				if(a('require_enc_supervisor') || isSupervisor){
+
 					var cmb = app.checkoutWindow.query('#EncounterCoSignSupervisorCombo')[0];
+
 					values.requires_supervisor = true;
 					values.supervisor_uid = cmb.getValue();
 				}else if(!isSupervisor && !a('require_enc_supervisor')){

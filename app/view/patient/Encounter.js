@@ -310,6 +310,7 @@ Ext.define('App.view.patient.Encounter', {
 			collapsible: true,
 			animCollapse: true,
 			collapsed: true,
+			deferredRender: false,
 			bodyPadding: 0,
 			margin: 0,
 			padding: 0,
@@ -802,9 +803,9 @@ Ext.define('App.view.patient.Encounter', {
 
 	getProgressNote: function(){
 		var me = this;
-		//Encounter.getProgressNoteByEid(me.eid, function(provider, response){
-			//me.progressNote.tpl.overwrite(me.progressNote.body, response.result);
-		//});
+		Encounter.getProgressNoteByEid(me.eid, function(provider, response){
+			me.progressNote.tpl.overwrite(me.progressNote.body, response.result);
+		});
 	},
 
 	onTapPanelChange: function(panel){

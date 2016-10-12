@@ -426,7 +426,7 @@ class Encounter {
 			$encounter['subjective'] = $soap['subjective'];
 			$encounter['objective'] = $soap['objective'] . $this->getObjectiveExtraDataByEid($encounter['eid']);
 			$encounter['assessment'] = $soap['assessment'] . '<ul  class="ProgressNote-ul">' . $icds . '</ul>';
-			$encounter['plan'] = $soap['plan'];
+			$encounter['plan'] = $soap['plan'] . $this->getPlanExtraDataByEid($encounter['eid']);
 			unset($soap);
 		}
 		unset($filters);
@@ -469,7 +469,6 @@ class Encounter {
 	public function getProgressNoteByEid($eid) {
 
 		$record = $this->getEncounter($eid, true, false);
-		unset($filters);
 		$encounter = (array)$record['encounter'];
 		$user = new User();
 		$encounter['service_date'] = date('F j, Y, g:i a', strtotime($encounter['service_date']));
@@ -477,13 +476,15 @@ class Encounter {
 		$encounter['open_by'] = $user->getUserNameById($encounter['open_uid']);
 		$encounter['signed_by'] = $user->getUserNameById($encounter['provider_uid']);
 		unset($user);
+
 		/**
 		 * Add vitals to progress note
 		 */
-		if($_SESSION['globals']['enable_encounter_vitals']){
-			if(count($encounter['vitals']) == 0)
-				unset($encounter['vitals']);
-		}
+		unset($encounter['vitals']);
+//		if($_SESSION['globals']['enable_encounter_vitals']){
+//			if(count($encounter['vitals']) == 0)
+//				unset($encounter['vitals']);
+//		}
 
 		/**
 		 * Add Review of Systems to progress note
@@ -531,8 +532,9 @@ class Encounter {
 
 			$soap = $this->getSoapByEid($eid);
 			$soap['assessment'] = isset($soap['assessment']) ? $soap['assessment'] : '';
-			$soap['objective'] = (isset($soap['objective']) ? $soap['objective'] : '') . $this->getObjectiveExtraDataByEid($eid);
+			$soap['objective'] = (isset($soap['objective']) ? $soap['objective'] : '') . $this->getObjectiveExtraDataByEid($eid, $encounter);
 			$soap['assessment'] = $soap['assessment'] . (isset($dxOl) ? $dxOl : '');
+			$soap['plan'] = (isset($soap['plan']) ? $soap['plan'] : '') . $this->getPlanExtraDataByEid($eid);
 			$encounter['soap'] = $soap;
 		}
 
@@ -549,44 +551,199 @@ class Encounter {
 		return $encounter;
 	}
 
-	private function getObjectiveExtraDataByEid($eid) {
+	private function getObjectiveExtraDataByEid($eid, $encounter = null) {
 
-		$ExtraData = '';
-
-		$Medications = new Medications();
-		$medications = $Medications->getPatientMedicationsByEid($eid);
-		if(!empty($medications)){
-			$lis = '';
-			foreach($medications as $foo){
-				$lis .= '<li>' . $foo['STR'] . '</li>';
-			}
-			$ExtraData .= '<p>Medications:</p>';
-			$ExtraData .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
+		if(!isset($encounter)){
+			$record = $this->getEncounter($eid, true, false);
+			$encounter = (array)$record['encounter'];
 		}
-		unset($Medications);
 
-		$Immunizations = new Immunizations();
-		$immunizations = $Immunizations->getImmunizationsByEncounterID($eid);
+		$str_buff = '';
+		$Vitals = new Vitals();
+		$vitals = $Vitals->getVitalsByEid($eid);
 
-		if(!empty($immunizations)){
-			$lis = '';
-			foreach($immunizations as $foo){
-				$administered_by = Person::fullname($foo['administered_fname'], $foo['administered_mname'], $foo['administered_lname']);
+		$str_buff .= '<div class="indent">';
+		if(!empty($vitals)){
+			$str_buff .= '<p><b>Vitals:</b></p>';
+			$vitals_buff = '';
+			foreach($vitals as $foo){
 
-				$lis .= '<li>Vaccine name: ' . $foo['vaccine_name'] . '<br>';
-				$lis .= 'Vaccine ID: (' . $foo['code_type'] . ')' . $foo['code'] . '<br>';
-				$lis .= 'Manufacturer: ' . $foo['manufacturer'] . '<br>';
-				$lis .= 'Lot Number: ' . $foo['lot_number'] . '<br>';
-				$lis .= 'Dose: ' . $foo['administer_amount'] . ' ' . $foo['administer_units'] . '<br>';
-				$lis .= 'Administered By: ' . $administered_by . '</li>';
+				$vitals_buff .= '<p class="indent">';
+
+				if(isset($foo['date'])){
+					$date = strtotime($foo['date']);
+					$vitals_buff .= '<u>Date:</u> ' . date($_SESSION['globals']['date_time_display_format'], $date) . '<br>';
+				}
+
+				/**
+				 * Blood Pressure
+				 */
+				if(isset($foo['bp_systolic']) || isset($foo['bp_diastolic'])){
+					$buff = [];
+					$buff[0] = isset($foo['bp_systolic']) ? $foo['bp_systolic'] : '';
+					$buff[1] = isset($foo['bp_diastolic']) ? $foo['bp_diastolic'] : '';
+					$vitals_buff .= '<u>BP:</u> ' . implode('/', $buff) . '<br>';
+					unset($buff);
+				}
+
+				$is_metric = $_SESSION['globals']['units_of_measurement'] == 'metric';
+
+				/**
+				 * Temperature
+				 */
+				if($is_metric){
+					if(isset($foo['temp_c']) && $foo['temp_c'] != ''){
+						$vitals_buff .= '<u>Temp:</u> ' . $foo['temp_c'] . ' &deg;C<br>';
+					}
+				}else{
+					if(isset($foo['temp_f']) && $foo['temp_f'] != ''){
+						$vitals_buff .= '<u>Temp:</u> ' . $foo['temp_f'] . ' &deg;F<br>';
+					}
+				}
+
+				if(isset($foo['temp_location']) && $foo['temp_location'] != ''){
+					$vitals_buff .= '<u>Temp Loc:</u> ' . $foo['temp_location'] . '<br>';
+				}
+
+				/**
+				 * Height
+				 */
+				if($is_metric){
+					if(isset($foo['height_cm']) && $foo['height_cm'] != ''){
+						$vitals_buff .= '<u>Height:</u> ' . $foo['height_cm'] . 'cm<br>';
+					}
+				}else{
+					if(isset($foo['height_in']) && $foo['height_in'] != ''){
+						$vitals_buff .= '<u>Height:</u> ' . $foo['height_in'] . '"<br>';
+					}
+				}
+
+				/**
+				 * Weight
+				 */
+				if($is_metric){
+					if(isset($foo['weight_kg']) && $foo['weight_kg'] != ''){
+						$vitals_buff .= '<u>Weight:</u> ' . $foo['weight_lbs'] . 'Kg<br>';
+					}
+				}else{
+					if(isset($foo['weight_lbs']) && $foo['weight_lbs'] != ''){
+						$vitals_buff .= '<u>Weight:</u> ' . $foo['weight_lbs'] . 'Lbs<br>';
+					}
+				}
+
+				/**
+				 * BMI
+				 */
+				if(isset($foo['bmi']) && $foo['bmi'] != ''){
+					$vitals_buff .= '<u>BMI: ' . $foo['bmi'] . '<br>';
+				}
+				if(isset($foo['bmi_status']) && $foo['bmi_status'] != ''){
+					$vitals_buff .= '<u>BMI Status:</u> ' . $foo['bmi_status'] . '<br>';
+				}
+
+				/**
+				 * Pulse
+				 */
+				if(isset($foo['pulse']) && $foo['pulse'] != ''){
+					$vitals_buff .= '<u>Pulse:</u> ' . $foo['pulse'] . '<br>';
+				}
+
+				/**
+				 * Administer Name
+				 */
+				if(isset($foo['administer_by']) && $foo['administer_by'] != ''){
+					$vitals_buff .= '<u>Administer By:</u> ' .$foo['administer_by'];
+				}
+
+				$vitals_buff .= '</p>';
+
+
 			}
-			$ExtraData .= '<p>Immunizations:</p>';
-			$ExtraData .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
-		}
-		unset($Immunizations);
 
+			$str_buff .= $vitals_buff;
+
+		}else{
+			$str_buff .= '<p>Vitals: No Vitals Recorded</p>';
+		}
+		$str_buff .= '</div>';
+
+
+		if(isset($encounter['reviewofsystems']) && count($encounter['reviewofsystems']) > 0){
+
+			$conn = Matcha::getConn();
+			$sql = 'SELECT o.options FROM forms_fields as f INNER JOIN forms_field_options as o ON o.field_id = f.id WHERE f.form_id = 8;';
+			$sth = $conn->prepare($sql);
+			$sth->execute();
+			$options = $sth->fetchAll(PDO::FETCH_ASSOC);
+			$fields = [];
+
+			foreach($options as $option){
+				$buff = json_decode($option['options'], true);
+				if(!isset($buff['name'])) continue;
+				$fields[$buff['name']] = $buff['fieldLabel'];
+			}
+
+			$str_buff .= '<div class="indent">';
+			$str_buff .= '<p><b>Review of Systems:</b></p>';
+			$str_buff .= '<div class="indent">';
+			foreach($encounter['reviewofsystems'][0] as $key => $value){
+				if(!array_key_exists($key, $fields)) continue;
+				if(!isset($value)) continue;
+				$str_buff .= $fields[$key] . ': ' . ($value == 1 ? 'Yes' : $value) .'<br>';
+			}
+
+			$str_buff .= '</div>';
+			$str_buff .= '</div>';
+		}
+
+		/**
+		 * Active Medications
+		 */
+		if($encounter['review_medications']){
+			$ActiveMedications = new Medications();
+			$active_medications = $ActiveMedications->getPatientActiveMedicationsByPid($eid);
+			$str_buff .= '<div class="indent">';
+			if(!empty($active_medications)){
+				$lis = '';
+				foreach($active_medications as $foo){
+					$lis .= '<li>' . $foo['STR'] . '</li>';
+				}
+				$str_buff .= '<p><b>Active Medications:</b></p>';
+				$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
+			} else {
+				$str_buff .= '<p><b>Active Medications:</b> No Active Medications</p>';
+			}
+			$str_buff .= '</div>';
+			unset($ActiveMedications, $active_medications);
+		}
+
+		/**
+		 * Active Problems found in this Encounter
+		 */
+		$ActiveProblems = new ActiveProblems();
+		$active_problems = $ActiveProblems->getPatientActiveProblemByEid($eid);
+		$str_buff .= '<div class="indent">';
+		if(!empty($active_problems)){
+			$lis = '';
+			foreach($active_problems as $foo){
+				$lis .= '<li>[' . $foo['code'] . '] - ' . $foo['code_text'] . ' </li>';
+			}
+			$str_buff .= '<p><b>Active Problems:</b></p>';
+			$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
+		}else{
+			if($encounter['review_active_problems']){
+				$str_buff .= '<p><b>Active Problems:</b> No Active Problems</p>';
+			}
+		}
+		$str_buff .= '</div>';
+		unset($ActiveProblems, $active_problems);
+
+		/**
+		 * Allergies
+		 */
 		$Allergies = new Allergies();
 		$allergies = $Allergies->getPatientAllergiesByEid($eid);
+		$str_buff .= '<div class="indent">';
 		if(!empty($allergies)){
 			$lis = '';
 			foreach($allergies as $foo){
@@ -596,28 +753,84 @@ class Encounter {
 				$lis .= 'Location: ' . $foo['location'] . '<br>';
 				$lis .= 'Active?: ' . ($foo['end_date'] != null ? 'Yes' : 'No') . '</li>';
 			}
-			$ExtraData .= '<p>Allergies:</p>';
-			$ExtraData .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
+			$str_buff .= '<p><b>Allergies:</b></p>';
+			$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
+		}else{
+			if($encounter['review_allergies']){
+				$str_buff .= '<p><b>Allergies:</b> No Known Allergies</p>';
+			}
 		}
-		unset($Allergies);
+		$str_buff .= '</div>';
+		unset($Allergies, $allergies);
 
 		/**
-		 * Active Problems found in this Encounter
+		 * Immunizations ????
 		 */
-		$ActiveProblems = new ActiveProblems();
-		$activeProblems = $ActiveProblems->getPatientActiveProblemByEid($eid);
-		if(!empty($activeProblems)){
-			$lis = '';
-			foreach($activeProblems as $foo){
-				$lis .= '<li>[' . $foo['code'] . '] - ' . $foo['code_text'] . ' </li>';
+		if($encounter['review_immunizations']){
+			$Immunizations = new Immunizations();
+			$immunizations = $Immunizations->getImmunizationsByEncounterID($eid);
+			$str_buff .= '<div class="indent">';
+			if(!empty($immunizations)){
+				$lis = '';
+				foreach($immunizations as $foo){
+					$administered_by = Person::fullname($foo['administered_fname'], $foo['administered_mname'], $foo['administered_lname']);
+
+					$lis .= '<li>Vaccine name: ' . $foo['vaccine_name'] . '<br>';
+					$lis .= 'Vaccine ID: (' . $foo['code_type'] . ')' . $foo['code'] . '<br>';
+					$lis .= 'Manufacturer: ' . $foo['manufacturer'] . '<br>';
+					$lis .= 'Lot Number: ' . $foo['lot_number'] . '<br>';
+					$lis .= 'Dose: ' . $foo['administer_amount'] . ' ' . $foo['administer_units'] . '<br>';
+					$lis .= 'Administered By: ' . $administered_by . '</li>';
+				}
+				$str_buff .= '<p><b>Immunizations:</b></p>';
+				$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
+			} else {
+				$str_buff .= '<p><b>Immunizations:</b> No Immunizations</p>';
 			}
-			$ExtraData .= '<p>Active Problems:</p>';
-			$ExtraData .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
+			$str_buff .= '</div>';
+			unset($Immunizations, $immunizations);
 		}
 
-		unset($ActiveProblems);
 
-		return $ExtraData;
+
+		return $str_buff;
+	}
+
+	private function getPlanExtraDataByEid($eid){
+
+//		$record = $this->getEncounter($eid, true, false);
+//		$encounter = (array)$record['encounter'];
+
+		$str_buff = '';
+
+		/**
+		 * Active Medications
+		 */
+
+			$Medications = new Medications();
+			$medications = $Medications->getPatientMedicationsOrdersByEid($eid);
+
+			if(!empty($medications)){
+				$str_buff .= '<div class="indent">';
+				$str_buff .= '<p><b>Medications Orders:</b></p>';
+
+				foreach($medications as $foo){
+					$str_buff .= '<p class="indent">';
+					$str_buff .= '<u>Medication: </u>' . $foo['STR'] . '<br>';
+					$str_buff .= '<u>Dispense: </u>' . $foo['dispense'] . '<br>';
+					$str_buff .= '<u>Refill: </u>' . $foo['refill'] . '<br>';
+					$str_buff .= '<u>Instruction: </u>' . $foo['directions'] . '<br>';
+					$str_buff .= '<u>Notes To Pharmacist: </u>' . $foo['notes'] . '<br>';
+					$str_buff .= '</p>';
+				}
+				$str_buff .= '</div>';
+			}
+
+			unset($ActiveMedications, $active_medications);
+
+
+
+		return $str_buff;
 	}
 
 	public function checkoutAlerts(stdClass $params) {

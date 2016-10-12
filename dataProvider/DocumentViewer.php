@@ -107,16 +107,16 @@ if(
 			return $document;
 		}elseif(preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0){
 			return $document;
+		}else{
+			return base64_decode($document);
 		}
-
-		// handle base64 documents
-		if($encrypted == true){
-			$document = MatchaUtils::decrypt($document);
-		}
-		if(!$is_image){
-			$document = base64_decode($document);
-		}
-		return $document;
+//		// handle base64 documents
+//		if($encrypted == true){
+//			$document = MatchaUtils::decrypt($document);
+//		}
+//		if(!$is_image){
+//			$document = base64_decode($document);
+//		}
 	}
 
 	$isTemp = isset($_REQUEST['temp']);
@@ -182,6 +182,14 @@ if(
 		$enableEdit = isset($_SESSION['user']['auth']) && $_SESSION['user']['auth'] == true;
 
 		if($enableEdit){
+
+			// handle binary documents
+			if(function_exists('is_binary') && is_binary($document)){
+				$document = base64_encode($document);
+			}elseif(preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0){
+				$document = base64_encode($document);
+			}
+
 			$html = <<<HTML
 			<!doctype html>
 			<html>

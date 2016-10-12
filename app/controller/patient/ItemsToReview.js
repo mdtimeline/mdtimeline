@@ -152,26 +152,26 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		}
 	},
 
-	onItemsToReviewEducationGivenFieldChange: function(newValue, oldValue, eOpts){
+	onItemsToReviewEducationGivenFieldChange: function(field, newValue, oldValue, eOpts){
 		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
 		encounter.set({
-			patient_education_given: newValue.checked
+			patient_education_given: newValue
 		});
         this.saveEncounterChanges(encounter);
 	},
 
-    onEncounterMedicationReconciliationsChange: function(newValue, oldValue, eOpts){
+    onEncounterMedicationReconciliationsChange: function(field, newValue, oldValue, eOpts){
         var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
         encounter.set({
-            medication_reconciliations: newValue.checked
+            medication_reconciliations: newValue
         });
         this.saveEncounterChanges(encounter);
     },
 
-    onEncounterSummaryCareProvidedChange: function(newValue, oldValue, eOpts){
+    onEncounterSummaryCareProvidedChange: function(field, newValue, oldValue, eOpts){
         var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
         encounter.set({
-            summary_care_provided: newValue.checked
+            summary_care_provided: newValue
         });
         this.saveEncounterChanges(encounter);
     },

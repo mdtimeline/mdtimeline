@@ -42234,17 +42234,16 @@ Ext.define('App.controller.patient.ItemsToReview', {
 			'#encounterRecordAdd':{
 				click: me.onReviewAll
 			},
-			'#ItemsToReviewEducationGivenField':{
+			'#ItemsToReviewPanel #ItemsToReviewEducationGivenField':{
 				change: me.onItemsToReviewEducationGivenFieldChange
 			},
-            '#EncounterMedicationReconciliations':{
+            '#ItemsToReviewPanel #EncounterMedicationReconciliations':{
                 change: me.onEncounterMedicationReconciliationsChange
             },
-            '#EncounterSummaryCareProvided':{
+            '#ItemsToReviewPanel #EncounterSummaryCareProvided':{
                 change: me.onEncounterSummaryCareProvidedChange
             }
 		});
-
 	},
 
 	storesLoad: function(){
@@ -42276,12 +42275,19 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		};
 		me.smokeStatusStore.load(params);
 
-		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord(),
-			checkbox = me.getItemsToReviewEducationGivenField();
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
 
-		checkbox.suspendEvents(false);
-		checkbox.setValue(encounter.get('patient_education_given'));
-		checkbox.resumeEvents();
+        me.getEncounterMedicationReconciliations().suspendEvents(false);
+        me.getEncounterSummaryCareProvided().suspendEvents(false);
+        me.getItemsToReviewEducationGivenField().suspendEvents(false);
+
+        me.getEncounterMedicationReconciliations().setValue(encounter.get('medication_reconciliations'));
+        me.getEncounterSummaryCareProvided().setValue(encounter.get('summary_care_provided'));
+        me.getItemsToReviewEducationGivenField().setValue(encounter.get('patient_education_given'));
+
+        me.getEncounterMedicationReconciliations().resumeEvents();
+        me.getEncounterSummaryCareProvided().resumeEvents();
+        me.getItemsToReviewEducationGivenField().resumeEvents();
 	},
 
 	onReviewAll: function(){
@@ -42311,37 +42317,32 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		}
 	},
 
-	onItemsToReviewEducationGivenFieldChange: function(field, value){
-
+	onItemsToReviewEducationGivenFieldChange: function(newValue, oldValue, eOpts){
 		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
 		encounter.set({
-			patient_education_given: value
+			patient_education_given: newValue.checked
 		});
-
-        this.saveEncounterChanges(encounter.getChanges());
+        this.saveEncounterChanges(encounter);
 	},
 
-    onEncounterMedicationReconciliationsChange: function(field, value){
+    onEncounterMedicationReconciliationsChange: function(newValue, oldValue, eOpts){
         var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
-
         encounter.set({
-            medication_reconciliations: value
+            medication_reconciliations: newValue.checked
         });
-
-        this.saveEncounterChanges(encounter.getChanges());
+        this.saveEncounterChanges(encounter);
     },
 
-    onEncounterSummaryCareProvidedChange: function(field, value){
+    onEncounterSummaryCareProvidedChange: function(newValue, oldValue, eOpts){
         var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
-
         encounter.set({
-            summary_care_provided: value
+            summary_care_provided: newValue.checked
         });
-
-        this.saveEncounterChanges(encounter.getChanges());
+        this.saveEncounterChanges(encounter);
     },
 
     saveEncounterChanges: function(encounterObject){
+        encounterObject.setDirty();
         if(!Ext.Object.isEmpty(encounterObject.getChanges())){
             encounterObject.save({
                 success: function(){
@@ -55747,7 +55748,7 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 	 * @returns {*}
 	 */
 	getEncounterRecord: function(){
-		return this.getEncounterPanel() ? this.getEncounterPanel().encounter : null;
+		return !Ext.isEmpty(this.getEncounterPanel()) ? this.getEncounterPanel().encounter : null;
 	},
 
 	onEncounterProviderCmbBeforeRender: function(cmb){

@@ -668,7 +668,11 @@ class Encounter {
 		$str_buff .= '</div>';
 
 
-		if(isset($encounter['reviewofsystems']) && count($encounter['reviewofsystems']) > 0){
+		if(
+			isset($encounter['reviewofsystems']) &&
+			count($encounter['reviewofsystems']) > 0 &&
+			is_array($encounter['reviewofsystems'][0])
+		){
 
 			$conn = Matcha::getConn();
 			$sql = 'SELECT o.options FROM forms_fields as f INNER JOIN forms_field_options as o ON o.field_id = f.id WHERE f.form_id = 8;';

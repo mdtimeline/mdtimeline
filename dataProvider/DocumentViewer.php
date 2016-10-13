@@ -181,14 +181,14 @@ if(
 
 		$enableEdit = isset($_SESSION['user']['auth']) && $_SESSION['user']['auth'] == true;
 
-		if($enableEdit){
+		// handle binary documents
+		if(function_exists('is_binary') && is_binary($document)){
+			$document = base64_encode($document);
+		}elseif(preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0){
+			$document = base64_encode($document);
+		}
 
-			// handle binary documents
-			if(function_exists('is_binary') && is_binary($document)){
-				$document = base64_encode($document);
-			}elseif(preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0){
-				$document = base64_encode($document);
-			}
+		if($enableEdit){
 
 			$html = <<<HTML
 			<!doctype html>

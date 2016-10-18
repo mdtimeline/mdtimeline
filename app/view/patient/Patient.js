@@ -153,7 +153,7 @@ Ext.define('App.view.patient.Patient', {
 													name: 'title',
 													list: 22,
 													loadStore: true,
-													forceSelection: true
+													editable: false
 												},
 												{
 													xtype: 'textfield',
@@ -208,7 +208,7 @@ Ext.define('App.view.patient.Patient', {
 													allowBlank: false,
 													list: 95,
 													loadStore: true,
-													forceSelection: true
+													editable: false
 												},
 												{
 													xtype: 'mitos.datetime',
@@ -231,7 +231,7 @@ Ext.define('App.view.patient.Patient', {
 													name: 'marital_status',
 													list: 12,
 													loadStore: true,
-													forceSelection: true
+													editable: false
 												},
 												{
 													xtype: 'textfield',
@@ -266,7 +266,7 @@ Ext.define('App.view.patient.Patient', {
 													name: 'drivers_license_state',
 													list: 20,
 													loadStore: true,
-													forceSelection: true
+													editable: false
 												},
 												{
 													xtype: 'datefield',
@@ -281,25 +281,42 @@ Ext.define('App.view.patient.Patient', {
 											xtype: 'gaiaehr.combo',
 											fieldLabel: 'Ethnicity',
 											labelWidth: 149,
-											hideLabel: false,
 											width: 400,
 											margin: '0 5 5 0',
 											name: 'ethnicity',
 											list: 59,
 											loadStore: true,
-											forceSelection: true
+											editable: false
 										},
 										{
-											xtype: 'gaiaehr.combo',
+											xtype: 'fieldcontainer',
 											fieldLabel: 'Race',
 											labelWidth: 149,
 											hideLabel: false,
-											width: 400,
-											margin: '0 5 5 0',
-											name: 'race',
-											list: 14,
-											loadStore: true,
-											forceSelection: true
+											layout: 'hbox',
+											width: 660,
+											items: [
+												{
+													xtype: 'gaiaehr.combo',
+													width: 245,
+													margin: '0 5 0 0',
+													name: 'race',
+													emptyText: 'Race',
+													list: 14,
+													loadStore: true,
+													editable: false
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													flex: 1,
+													margin: '0 5 0 0',
+													name: 'secondary_race',
+													emptyText: 'Secondary Race',
+													list: 14,
+													loadStore: true,
+													editable: false
+												}
+											]
 										},
 										{
 											xtype: 'gaiaehr.combo',
@@ -311,7 +328,7 @@ Ext.define('App.view.patient.Patient', {
 											name: 'language',
 											list: 10,
 											loadStore: true,
-											forceSelection: true
+											editable: false
 										}
 									]
 								},
@@ -356,7 +373,7 @@ Ext.define('App.view.patient.Patient', {
 													name: 'citizenship',
 													list: 104,
 													loadStore: true,
-													forceSelection: true
+													editable: false
 												},
 												{
 													xtype: 'fieldcontainer',
@@ -395,7 +412,7 @@ Ext.define('App.view.patient.Patient', {
 													name: 'deceased',
 													list: 103,
 													loadStore: true,
-													forceSelection: true
+													editable: false
 												},
 												{
 													xtype: 'mitos.datetime',
@@ -436,7 +453,7 @@ Ext.define('App.view.patient.Patient', {
 													name: 'is_veteran',
 													list: 103,
 													loadStore: true,
-													forceSelection: true
+													editable: false
 												},
 												{
 													xtype: 'fieldcontainer',
@@ -551,7 +568,7 @@ Ext.define('App.view.patient.Patient', {
 															name: 'hipaa_notice',
 															list: 1,
 															loadStore: true,
-															forceSelection: true
+															editable: false
 														}
 													]
 												},
@@ -778,7 +795,7 @@ Ext.define('App.view.patient.Patient', {
 													emptyText: 'State',
 													list: 20,
 													loadStore: true,
-													forceSelection: true
+													editable: false
 												},
 												{
 													xtype: 'gaiaehr.combo',
@@ -788,7 +805,7 @@ Ext.define('App.view.patient.Patient', {
 													margin: '0 5 5 0',
 													list: 3,
 													loadStore: true,
-													forceSelection: true
+													editable: false
 												},
 												{
 													xtype: 'textfield',
@@ -825,7 +842,7 @@ Ext.define('App.view.patient.Patient', {
 													name: 'phone_publicity',
 													list: 132,
 													loadStore: true,
-													forceSelection: true,
+													editable: false,
 													width: 300
 												},
 												{
@@ -1022,7 +1039,7 @@ Ext.define('App.view.patient.Patient', {
 															name: 'emergency_contact_relation',
 															list: 134,
 															loadStore: true,
-															forceSelection: true
+															editable: false
 														},
 														{
 															xtype: 'fieldcontainer',
@@ -1070,7 +1087,7 @@ Ext.define('App.view.patient.Patient', {
 																	name: 'emergency_contact_phone_type',
 																	list: 136,
 																	loadStore: true,
-																	forceSelection: true
+																	editable: false
 																}
 															]
 														},
@@ -1142,7 +1159,7 @@ Ext.define('App.view.patient.Patient', {
 															name: 'guardians_relation',
 															list: 134,
 															loadStore: true,
-															forceSelection: true
+															editable: false
 														},
 														{
 															xtype: 'fieldcontainer',
@@ -1184,7 +1201,7 @@ Ext.define('App.view.patient.Patient', {
 																	name: 'guardians_phone_type',
 																	list: 136,
 																	loadStore: true,
-																	forceSelection: true
+																	editable: false
 																}
 															]
 														},

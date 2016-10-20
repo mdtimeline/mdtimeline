@@ -59411,7 +59411,7 @@ Ext.define('App.view.Viewport', {
 		    TOTAL_FALGS: 0
 	    };
 	    me.record_flags_buff = g('record_number_renderer_flags');
-	    if(me.record_flags_buff !== false || me.record_flags_buff !== '' && record_flags_buff.split){
+	    if(me.record_flags_buff !== false || me.record_flags_buff !== '' && me.record_flags_buff.split){
 		    me.record_flags_buff = me.record_flags_buff.split('|');
 		    this.record_flags_buff.forEach(function(flag){
 			    if(flag.indexOf(':') != -1){

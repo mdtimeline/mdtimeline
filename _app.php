@@ -822,6 +822,7 @@ header("Access-Control-Allow-Origin: *");
 	                'miscellaneous.Amendments',
 
 	                'AlwaysOnTop',
+	                'Clock',
 	                'Cron',
 	                'DocumentViewer',
 	                'DualScreen',

@@ -29,6 +29,19 @@ $API = [
             ]
         ]
     ],
+    'AppDate' => [
+        'methods' => [
+            'getDate' => [
+                'len' => 0
+            ],
+            'getTime' => [
+                'len' => 0
+            ],
+            'getDateTime' => [
+                'len' => 0
+            ]
+        ]
+    ],
     'AuditLog' => [
         'methods' => [
             'addLog' => [

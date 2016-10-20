@@ -21181,6 +21181,12 @@ Ext.define('App.model.patient.Patient',{
             len: 40
         },
         {
+            name: 'secondary_race',
+            type: 'string',
+            comment: 'secondary race',
+            len: 40
+        },
+        {
             name: 'ethnicity',
             type: 'string',
             comment: 'ethnicity',
@@ -37815,6 +37821,50 @@ Ext.define('App.controller.AlwaysOnTop', {
 	}
 
 });
+Ext.define('App.controller.Clock', {
+    extend: 'Ext.app.Controller',
+
+	refs:[
+		{
+			ref: 'ApplicationClockContainer',
+			selector: '#ApplicationClockContainer'
+		}
+	],
+
+	init: function() {
+		var me = this;
+
+		me.control({
+			'#ApplicationClockContainer' :{
+				render: me.initClock
+			}
+		});
+
+		/**
+		 * TaskScheduler
+		 */
+		me.cronTask = {
+			scope: me,
+			run: function(){
+				me.clock.update(Ext.Date.format(me.date, g('time_display_format')));
+				me.date = Ext.Date.add(me.date, Ext.Date.SECOND, 1);
+			},
+			interval: 1000
+		};
+	},
+
+	initClock: function(clock){
+		this.clock = clock;
+		this.date = new Date();
+		Ext.TaskManager.start(this.cronTask);
+	},
+
+	updateClock:function(date){
+		this.date.setHours(date.hours, date.minutes, date.seconds);
+	}
+
+});
+
 Ext.define('App.controller.Cron', {
     extend: 'Ext.app.Controller',
 
@@ -37824,12 +37874,15 @@ Ext.define('App.controller.Cron', {
 	fns:[
 		'app.getPatientsInPoolArea()',
 		'me.checkSession()',
+		'me.getTime()',
 		//'CronJob.run()'
 	],
 
 	init: function() {
 		var me = this,
             i;
+
+		me.clock = me.getController('Clock');
 
 		/**
 		 * TaskScheduler
@@ -37881,6 +37934,13 @@ Ext.define('App.controller.Cron', {
 			if(!response.result.authorized){
 				window.location.reload();
 			}
+		});
+	},
+
+	getTime: function(){
+		var me = this;
+		AppDate.getDate(function(date){
+			me.clock.updateClock(date);
 		});
 	}
 
@@ -51230,7 +51290,7 @@ Ext.define('App.view.patient.Patient', {
 													name: 'title',
 													list: 22,
 													loadStore: true,
-													forceSelection: true
+													editable: false
 												},
 												{
 													xtype: 'textfield',
@@ -51285,7 +51345,7 @@ Ext.define('App.view.patient.Patient', {
 													allowBlank: false,
 													list: 95,
 													loadStore: true,
-													forceSelection: true
+													editable: false
 												},
 												{
 													xtype: 'mitos.datetime',
@@ -51308,7 +51368,7 @@ Ext.define('App.view.patient.Patient', {
 													name: 'marital_status',
 													list: 12,
 													loadStore: true,
-													forceSelection: true
+													editable: false
 												},
 												{
 													xtype: 'textfield',
@@ -51343,7 +51403,7 @@ Ext.define('App.view.patient.Patient', {
 													name: 'drivers_license_state',
 													list: 20,
 													loadStore: true,
-													forceSelection: true
+													editable: false
 												},
 												{
 													xtype: 'datefield',
@@ -51358,25 +51418,42 @@ Ext.define('App.view.patient.Patient', {
 											xtype: 'gaiaehr.combo',
 											fieldLabel: 'Ethnicity',
 											labelWidth: 149,
-											hideLabel: false,
 											width: 400,
 											margin: '0 5 5 0',
 											name: 'ethnicity',
 											list: 59,
 											loadStore: true,
-											forceSelection: true
+											editable: false
 										},
 										{
-											xtype: 'gaiaehr.combo',
+											xtype: 'fieldcontainer',
 											fieldLabel: 'Race',
 											labelWidth: 149,
 											hideLabel: false,
-											width: 400,
-											margin: '0 5 5 0',
-											name: 'race',
-											list: 14,
-											loadStore: true,
-											forceSelection: true
+											layout: 'hbox',
+											width: 660,
+											items: [
+												{
+													xtype: 'gaiaehr.combo',
+													width: 245,
+													margin: '0 5 0 0',
+													name: 'race',
+													emptyText: 'Race',
+													list: 14,
+													loadStore: true,
+													editable: false
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													flex: 1,
+													margin: '0 5 0 0',
+													name: 'secondary_race',
+													emptyText: 'Secondary Race',
+													list: 14,
+													loadStore: true,
+													editable: false
+												}
+											]
 										},
 										{
 											xtype: 'gaiaehr.combo',
@@ -51388,7 +51465,7 @@ Ext.define('App.view.patient.Patient', {
 											name: 'language',
 											list: 10,
 											loadStore: true,
-											forceSelection: true
+											editable: false
 										}
 									]
 								},
@@ -51433,7 +51510,7 @@ Ext.define('App.view.patient.Patient', {
 													name: 'citizenship',
 													list: 104,
 													loadStore: true,
-													forceSelection: true
+													editable: false
 												},
 												{
 													xtype: 'fieldcontainer',
@@ -51472,7 +51549,7 @@ Ext.define('App.view.patient.Patient', {
 													name: 'deceased',
 													list: 103,
 													loadStore: true,
-													forceSelection: true
+													editable: false
 												},
 												{
 													xtype: 'mitos.datetime',
@@ -51513,7 +51590,7 @@ Ext.define('App.view.patient.Patient', {
 													name: 'is_veteran',
 													list: 103,
 													loadStore: true,
-													forceSelection: true
+													editable: false
 												},
 												{
 													xtype: 'fieldcontainer',
@@ -51628,7 +51705,7 @@ Ext.define('App.view.patient.Patient', {
 															name: 'hipaa_notice',
 															list: 1,
 															loadStore: true,
-															forceSelection: true
+															editable: false
 														}
 													]
 												},
@@ -51855,7 +51932,7 @@ Ext.define('App.view.patient.Patient', {
 													emptyText: 'State',
 													list: 20,
 													loadStore: true,
-													forceSelection: true
+													editable: false
 												},
 												{
 													xtype: 'gaiaehr.combo',
@@ -51865,7 +51942,7 @@ Ext.define('App.view.patient.Patient', {
 													margin: '0 5 5 0',
 													list: 3,
 													loadStore: true,
-													forceSelection: true
+													editable: false
 												},
 												{
 													xtype: 'textfield',
@@ -51902,7 +51979,7 @@ Ext.define('App.view.patient.Patient', {
 													name: 'phone_publicity',
 													list: 132,
 													loadStore: true,
-													forceSelection: true,
+													editable: false,
 													width: 300
 												},
 												{
@@ -52099,7 +52176,7 @@ Ext.define('App.view.patient.Patient', {
 															name: 'emergency_contact_relation',
 															list: 134,
 															loadStore: true,
-															forceSelection: true
+															editable: false
 														},
 														{
 															xtype: 'fieldcontainer',
@@ -52147,7 +52224,7 @@ Ext.define('App.view.patient.Patient', {
 																	name: 'emergency_contact_phone_type',
 																	list: 136,
 																	loadStore: true,
-																	forceSelection: true
+																	editable: false
 																}
 															]
 														},
@@ -52219,7 +52296,7 @@ Ext.define('App.view.patient.Patient', {
 															name: 'guardians_relation',
 															list: 134,
 															loadStore: true,
-															forceSelection: true
+															editable: false
 														},
 														{
 															xtype: 'fieldcontainer',
@@ -52261,7 +52338,7 @@ Ext.define('App.view.patient.Patient', {
 																	name: 'guardians_phone_type',
 																	list: 136,
 																	loadStore: true,
-																	forceSelection: true
+																	editable: false
 																}
 															]
 														},
@@ -59329,6 +59406,27 @@ Ext.define('App.view.Viewport', {
         me.prevNode = null;
         me.fullMode = window.innerWidth >= me.minWidthToFullMode;
 
+
+	    me.record_flags = {
+		    TOTAL_FALGS: 0
+	    };
+	    me.record_flags_buff = g('record_number_renderer_flags');
+	    if(me.record_flags_buff !== false || me.record_flags_buff !== ''){
+		    me.record_flags_buff = me.record_flags_buff.split('|');
+		    this.record_flags_buff.forEach(function(flag){
+			    if(flag.indexOf(':') != -1){
+				    var flag_values = flag.split(':');
+				    me.record_flags[flag_values[0]] = flag_values[1];
+			    }else{
+				    me.record_flags[flag] = true;
+			    }
+			    me.record_flags.TOTAL_FALGS++;
+		    });
+	    }
+	    delete me.record_flags_buff;
+
+	    say(me.record_flags);
+
 	    me.patient = {
 	        pid: null,
 	        pubpid: null,
@@ -59856,6 +59954,11 @@ Ext.define('App.view.Viewport', {
 	                     //    action: 'supportBtn',
 	                     //    src: 'http://gaiaehr.org/forums/'
                         // }
+	                    {
+		                    xtype: 'container',
+		                    itemId: 'ApplicationClockContainer',
+		                    margin: '0 10 0 0'
+	                    }
                     ]
                 }
             ]
@@ -60261,7 +60364,7 @@ Ext.define('App.view.Viewport', {
     patientButtonSet: function(data){
         var me = this,
             patient = data || {},
-	        displayPid = (eval(g('display_pubpid')) ? patient.pubpid : patient.pid);
+	        displayPid = (eval(g('display_pubpid')) ? me.recordNumberRenderer(patient.pubpid) : patient.pid);
 
 	    if(displayPid == null || displayPid == ''){
 		    displayPid = patient.pid;
@@ -60645,7 +60748,29 @@ Ext.define('App.view.Viewport', {
 			foo += lname + ' ';
 		}
 		return foo;
+	},
+
+	recordNumberRenderer: function(record_number){
+
+		if(!record_number) return record_number;
+		if(this.record_flags.TOTAL_FALGS === 0) return record_number;
+
+		if(this.record_flags.NUM_LENGTH){
+			var rec_buff = record_number.split('-');
+			if(rec_buff.length == 3){
+				rec_buff[1] = rec_buff[1].substring(rec_buff[1].length - this.record_flags.NUM_LENGTH);
+			}
+			record_number = rec_buff.join('-');
+		}
+
+		if(this.record_flags.STRIP_DASHES){
+			record_number = record_number.replace(/-/g,'');
+		}
+
+		return record_number;
+
 	}
+
 
 });
 

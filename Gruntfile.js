@@ -423,6 +423,7 @@ module.exports = function(grunt){
 					'app/controller/dashboard/panel/DailyVisits.js',
 					'app/controller/miscellaneous/Amendments.js',
 					'app/controller/AlwaysOnTop.js',
+					'app/controller/Clock.js',
 					'app/controller/Cron.js',
 					'app/controller/DualScreen.js',
 					'app/controller/Header.js',

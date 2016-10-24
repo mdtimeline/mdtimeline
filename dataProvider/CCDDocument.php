@@ -489,14 +489,6 @@ class CCDDocument
 				return $fileData;
 			}
 
-			$Log = [
-			    'event' => 'EXPORT/CCD',
-                'data' => [
-                    'pid' => $_GET['pid']
-                ]
-            ];
-            $this->TransactionLog->saveTransactionLog($Log);
-
             // Stream the file to the client
 			header('Content-Type: application/zip');
 			header('Content-Length: ' . filesize($file));

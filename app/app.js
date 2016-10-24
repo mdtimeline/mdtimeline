@@ -13672,7 +13672,7 @@ Ext.define('App.model.administration.TransactionLog', {
         {
             name: 'event',
             type: 'string',
-            len: 10,
+            len: 100,
             comment: 'Event UPDATE INSERT DELETE'
         },
         {
@@ -40157,6 +40157,13 @@ Ext.define('App.controller.patient.CCD', {
 			'VIEW',
 			eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
 		);
+
+        TransactionLog.saveExportLog({
+            pid: app.patient.pid,
+            uid: app.user.id,
+            eid: eid,
+            event: null ? 'Patient_CCDA_VIEWED' : 'Encounter_CCDA_VIEWED'
+        });
 	},
 
 	onArchiveCcdBtnClick: function(btn){
@@ -40182,6 +40189,14 @@ Ext.define('App.controller.patient.CCD', {
 			'ARCHIVE',
 			eid == null ? 'Patient C-CDA ARCHIVED' : 'Encounter C-CDA ARCHIVED'
 		);
+
+        TransactionLog.saveExportLog({
+            pid: app.patient.pid,
+            uid: app.user.id,
+            eid: eid,
+            event: null ? 'Patient_CCDA_ARCHIVED' : 'Encounter_CCDA_ARCHIVED'
+        });
+
 	},
 
 	onExportCcdBtnClick: function(btn){
@@ -40205,6 +40220,13 @@ Ext.define('App.controller.patient.CCD', {
 			'EXPORT',
 			eid == null ? 'Patient C-CDA Exported' : 'Encounter C-CDA Exported'
 		);
+
+        TransactionLog.saveExportLog({
+            pid: app.patient.pid,
+            uid: app.user.id,
+            eid: eid,
+            event: null ? 'Patient_CCDA_Exported' : 'Encounter_CCDA_Exported'
+        });
 
 		this.disclosuresCtrl.addRawDisclosure({
 			pid: app.patient.pid,
@@ -40233,6 +40255,13 @@ Ext.define('App.controller.patient.CCD', {
 			'PRINT',
 			eid == null ? 'Patient C-CDA PRINTED' : 'Encounter C-CDA PRINTED'
 		);
+
+        TransactionLog.saveExportLog({
+            pid: app.patient.pid,
+            uid: app.user.id,
+            eid: eid,
+            event: null ? 'Patient_CCDA_PRINTED' : 'Encounter_CCDA_PRINTED'
+        });
 
 		this.disclosuresCtrl.addRawDisclosure({
 			pid: app.patient.pid,
@@ -40268,6 +40297,13 @@ Ext.define('App.controller.patient.CCD', {
 			'VIEW',
 			eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
 		);
+
+        TransactionLog.saveExportLog({
+            pid: app.patient.pid,
+            uid: app.user.id,
+            eid: eid,
+            event: null ? 'Patient_CCDA_VIEWED' : 'Encounter_CCDA_VIEWED'
+        });
 	},
 
 	getEid: function(cmp){

@@ -33,8 +33,11 @@ class TransactionLog {
     public function saveExportLog($data)
     {
         $saveParams = [
-            'event' => 'EXPORT',
-            'data' => htmlentities($data)
+            'event' => $data->event,
+            'data' => [
+                'pid' => $data->pid,
+                'eid' => $data->eid
+            ]
         ];
         MatchaHelper::storeAudit($saveParams);
         return [

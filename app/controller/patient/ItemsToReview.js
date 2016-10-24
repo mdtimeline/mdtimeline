@@ -46,11 +46,18 @@ Ext.define('App.controller.patient.ItemsToReview', {
 			ref: 'ReviewSmokingStatusCombo',
 			selector: '#ItemsToReviewPanel #reviewsmokingstatuscombo'
 		},
+        {
+            ref: 'ItemsToReviewEducationGivenField',
+            selector: '#ItemsToReviewPanel #ItemsToReviewEducationGivenField'
+        },
 		{
-			ref: 'ItemsToReviewEducationGivenField',
-			selector: '#ItemsToReviewEducationGivenField'
-		}
-
+			ref: 'EncounterMedicationReconciliations',
+			selector: '#ItemsToReviewPanel #EncounterMedicationReconciliations'
+		},
+        {
+            ref: 'EncounterSummaryCareProvided',
+            selector: '#ItemsToReviewPanel #EncounterSummaryCareProvided'
+        }
 	],
 
 	init: function(){
@@ -62,11 +69,16 @@ Ext.define('App.controller.patient.ItemsToReview', {
 			'#encounterRecordAdd':{
 				click: me.onReviewAll
 			},
-			'#ItemsToReviewEducationGivenField':{
+			'#ItemsToReviewPanel #ItemsToReviewEducationGivenField':{
 				change: me.onItemsToReviewEducationGivenFieldChange
-			}
+			},
+            '#ItemsToReviewPanel #EncounterMedicationReconciliations':{
+                change: me.onEncounterMedicationReconciliationsChange
+            },
+            '#ItemsToReviewPanel #EncounterSummaryCareProvided':{
+                change: me.onEncounterSummaryCareProvidedChange
+            }
 		});
-
 	},
 
 	storesLoad: function(){
@@ -98,13 +110,19 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		};
 		me.smokeStatusStore.load(params);
 
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
 
-		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord(),
-			checkbox = me.getItemsToReviewEducationGivenField();
+        me.getEncounterMedicationReconciliations().suspendEvents(false);
+        me.getEncounterSummaryCareProvided().suspendEvents(false);
+        me.getItemsToReviewEducationGivenField().suspendEvents(false);
 
-		checkbox.suspendEvents(false);
-		checkbox.setValue(encounter.get('patient_education_given'));
-		checkbox.resumeEvents();
+        me.getEncounterMedicationReconciliations().setValue(encounter.get('medication_reconciliations'));
+        me.getEncounterSummaryCareProvided().setValue(encounter.get('summary_care_provided'));
+        me.getItemsToReviewEducationGivenField().setValue(encounter.get('patient_education_given'));
+
+        me.getEncounterMedicationReconciliations().resumeEvents();
+        me.getEncounterSummaryCareProvided().resumeEvents();
+        me.getItemsToReviewEducationGivenField().resumeEvents();
 	},
 
 	onReviewAll: function(){
@@ -120,41 +138,56 @@ Ext.define('App.controller.patient.ItemsToReview', {
 				review_immunizations: true,
 				review_medications: true,
 				review_smoke: true,
-				review_surgery: true
+				review_surgery: true,
 			});
 
 			encounter.save({
 				success: function(){
-					app.msg('Sweet!', _('items_to_review_save_and_review'));
+					app.msg(_('sweet'), _('items_to_review_save_and_review'));
 				},
 				failure: function(){
-					app.msg('Oops!', _('items_to_review_entry_error'));
+					app.msg(_('oops'), _('items_to_review_entry_error'));
 				}
 			});
 		}
 	},
 
-	onItemsToReviewEducationGivenFieldChange: function(field, value){
-
+	onItemsToReviewEducationGivenFieldChange: function(field, newValue, oldValue, eOpts){
 		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
 		encounter.set({
-			patient_education_given: value
+			patient_education_given: newValue
 		});
+        this.saveEncounterChanges(encounter);
+	},
 
-		say(value);
-		say(encounter.getChanges());
-		say(!Ext.Object.isEmpty(encounter.getChanges()));
+    onEncounterMedicationReconciliationsChange: function(field, newValue, oldValue, eOpts){
+        var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+        encounter.set({
+            medication_reconciliations: newValue
+        });
+        this.saveEncounterChanges(encounter);
+    },
 
-		if(!Ext.Object.isEmpty(encounter.getChanges())){
-			encounter.save({
-				success: function(){
-					app.msg('Sweet!', _('record_saved'));
-				},
-				failure: function(){
-					app.msg('Oops!', _('record_error'));
-				}
-			});
-		}
-	}
+    onEncounterSummaryCareProvidedChange: function(field, newValue, oldValue, eOpts){
+        var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+        encounter.set({
+            summary_care_provided: newValue
+        });
+        this.saveEncounterChanges(encounter);
+    },
+
+    saveEncounterChanges: function(encounterObject){
+        encounterObject.setDirty();
+        if(!Ext.Object.isEmpty(encounterObject.getChanges())){
+            encounterObject.save({
+                success: function(){
+                    app.msg(_('sweet'), _('record_saved'));
+                },
+                failure: function(){
+                    app.msg(_('oops'), _('record_error'));
+                }
+            });
+        }
+    }
 
 });

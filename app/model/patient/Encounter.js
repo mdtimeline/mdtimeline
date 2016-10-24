@@ -166,7 +166,15 @@ Ext.define('App.model.patient.Encounter', {
 		{
 			name: 'patient_education_given',
 			type: 'bool'
-		}
+		},
+        {
+            name: 'medication_reconciliations',
+            type: 'bool'
+        },
+        {
+            name: 'summary_care_provided',
+            type: 'bool'
+        }
 	],
 	idProperty: 'eid',
 	proxy: {

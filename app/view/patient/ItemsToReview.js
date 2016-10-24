@@ -191,6 +191,7 @@ Ext.define('App.view.patient.ItemsToReview', {
 				{
 					xtype: 'fieldset',
 					title: _('patient_education'),
+                    margin: '0 10 0 0',
 					items: [
 						{
 							xtype: 'checkbox',
@@ -198,7 +199,29 @@ Ext.define('App.view.patient.ItemsToReview', {
 							itemId: 'ItemsToReviewEducationGivenField'
 						}
 					]
-				}
+				},
+                {
+                    xtype: 'fieldset',
+                    title: _('reconciliations'),
+                    layout: 'hbox',
+                    items: [
+                        {
+                            xtype: 'checkboxfield',
+                            checked: false,
+                            itemId: 'EncounterMedicationReconciliations',
+                            boxLabel: _('medications'),
+                            name: 'medication_reconciliations'
+                        },
+                        {
+                            xtype: 'checkboxfield',
+                            checked: false,
+                            padding: '0 0 5 10',
+                            itemId: 'EncounterSummaryCareProvided',
+                            boxLabel: _('summary_of_care_provided'),
+                            name: 'summary_care_provided'
+                        }
+                    ]
+                }
 			]
 		}
 	],

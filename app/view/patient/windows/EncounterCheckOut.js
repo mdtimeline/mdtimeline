@@ -30,7 +30,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 	modal: true,
 	layout: 'border',
 	width: 1200,
-	height: 660,
+	height: 690,
 	bodyPadding: 5,
 
 	pid: null,
@@ -55,7 +55,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 			title: _('additional_info'),
 			region: 'south',
 			split: true,
-			height: 245,
+			height: 250,
 			layout: 'column',
 			defaults: {
 				xtype: 'fieldset',
@@ -102,7 +102,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 							]
 						},
 						{
-							title: 'Follow Up',
+							title: _('follow_up'),
 							flex: 1,
 							defaults: {
 								anchor: '100%'
@@ -167,7 +167,8 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 		{
 			xtype: 'encountersupervisorscombo',
 			itemId: 'EncounterCoSignSupervisorCombo',
-			allowBlank: false
+			allowBlank: false,
+			width: 250
 		},
 		{
 			text: _('co_sign') + ' (' + _('supervisor') + ')',

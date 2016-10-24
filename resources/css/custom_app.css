@@ -8,6 +8,10 @@
     src: url('../fonts/OpenSans-CondLight.ttf');
 }
 
+.indent {
+    margin-left: 20px !important;
+}
+
 .entered-in-error {
     text-decoration: line-through !important;
 }
@@ -1006,6 +1010,7 @@ li .Deceased {
 
 .progressNote .secession span {
     text-decoration: underline;
+    font-weight: bold;
 
 }
 

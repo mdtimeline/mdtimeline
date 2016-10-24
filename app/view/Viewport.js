@@ -52,6 +52,27 @@ Ext.define('App.view.Viewport', {
         me.prevNode = null;
         me.fullMode = window.innerWidth >= me.minWidthToFullMode;
 
+
+	    me.record_flags = {
+		    TOTAL_FALGS: 0
+	    };
+	    me.record_flags_buff = g('record_number_renderer_flags');
+	    if(me.record_flags_buff !== false || me.record_flags_buff !== '' && me.record_flags_buff.split){
+		    me.record_flags_buff = me.record_flags_buff.split('|');
+		    this.record_flags_buff.forEach(function(flag){
+			    if(flag.indexOf(':') != -1){
+				    var flag_values = flag.split(':');
+				    me.record_flags[flag_values[0]] = flag_values[1];
+			    }else{
+				    me.record_flags[flag] = true;
+			    }
+			    me.record_flags.TOTAL_FALGS++;
+		    });
+	    }
+	    delete me.record_flags_buff;
+
+	    say(me.record_flags);
+
 	    me.patient = {
 	        pid: null,
 	        pubpid: null,
@@ -579,6 +600,11 @@ Ext.define('App.view.Viewport', {
 	                     //    action: 'supportBtn',
 	                     //    src: 'http://gaiaehr.org/forums/'
                         // }
+	                    {
+		                    xtype: 'container',
+		                    itemId: 'ApplicationClockContainer',
+		                    margin: '0 10 0 0'
+	                    }
                     ]
                 }
             ]
@@ -671,7 +697,7 @@ Ext.define('App.view.Viewport', {
         if(panel.id == 'panelSummary'){
             panel.demographics.completePhotoId();
         }
-        this.msg('Sweet!', _('patient_image_saved'));
+        this.msg(_('sweet'), _('patient_image_saved'));
     },
 
 	onPatientLog: function(){
@@ -717,7 +743,7 @@ Ext.define('App.view.Viewport', {
                             me.setPatient(emergency.pid, emergency.eid, null, function(){
                                 me.openEncounter(emergency.eid);
                             });
-                            me.msg('Sweet!', emergency.name + ' ' + _('created'))
+                            me.msg(_('sweet'), emergency.name + ' ' + _('created'))
                         }
                     });
                 }
@@ -984,7 +1010,7 @@ Ext.define('App.view.Viewport', {
     patientButtonSet: function(data){
         var me = this,
             patient = data || {},
-	        displayPid = (eval(g('display_pubpid')) ? patient.pubpid : patient.pid);
+	        displayPid = (eval(g('display_pubpid')) ? me.recordNumberRenderer(patient.pubpid) : patient.pid);
 
 	    if(displayPid == null || displayPid == ''){
 		    displayPid = patient.pid;
@@ -1368,6 +1394,28 @@ Ext.define('App.view.Viewport', {
 			foo += lname + ' ';
 		}
 		return foo;
+	},
+
+	recordNumberRenderer: function(record_number){
+
+		if(!record_number) return record_number;
+		if(this.record_flags.TOTAL_FALGS === 0) return record_number;
+
+		if(this.record_flags.NUM_LENGTH){
+			var rec_buff = record_number.split('-');
+			if(rec_buff.length == 3){
+				rec_buff[1] = rec_buff[1].substring(rec_buff[1].length - this.record_flags.NUM_LENGTH);
+			}
+			record_number = rec_buff.join('-');
+		}
+
+		if(this.record_flags.STRIP_DASHES){
+			record_number = record_number.replace(/-/g,'');
+		}
+
+		return record_number;
+
 	}
+
 
 });

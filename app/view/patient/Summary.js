@@ -27,7 +27,8 @@ Ext.define('App.view.patient.Summary', {
 		'App.view.patient.CCD',
 		'App.ux.ManagedIframe',
 		'App.view.patient.Patient',
-		'App.view.patient.Reminders'
+		'App.view.patient.Reminders',
+		'App.view.patient.Alerts'
 	],
 	itemId: 'PatientSummaryPanel',
 	showRating: true,
@@ -357,6 +358,7 @@ Ext.define('App.view.patient.Summary', {
 					}
 				],
 				tbar: [
+					'->',
 					{
 						text: _('disclosure'),
 						iconCls: 'icoAdd',
@@ -411,6 +413,7 @@ Ext.define('App.view.patient.Summary', {
 					}
 				],
 				tbar: [
+					'->',
 					{
 						text: _('add_note'),
 						iconCls: 'icoAdd',
@@ -425,6 +428,14 @@ Ext.define('App.view.patient.Summary', {
 			me.tabPanel.add({
 				itemId: 'PatientSummaryRemindersPanel',
 				xtype: 'patientreminderspanel',
+				bodyPadding: 0
+			});
+		}
+
+		if(a('access_patient_alerts')){
+			me.tabPanel.add({
+				itemId: 'PatientSummaryAlertsPanel',
+				xtype: 'patientalertspanel',
 				bodyPadding: 0
 			});
 		}

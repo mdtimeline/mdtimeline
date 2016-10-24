@@ -124,6 +124,8 @@ function doRpc($cdata) {
 			($action == 'PortalAuthorize' && $method == 'login') ||
 			($action == 'PortalAuthorize' && $method == 'check') ||
 			($action == 'PortalAuthorize' && $method == 'passwordReset') ||
+			($action == 'PortalAuthorize' && $method == 'passwordReset') ||
+			($action == 'PortalRegister' && $method == 'validateInvitation') ||
 			($action == 'CombosData' && $method == 'getActiveFacilities') ||
 			($action == 'i18nRouter' && $method == 'getAvailableLanguages') ||
             ($action == 'CombosData' && $method == 'getTimeZoneList') || // Used by SiteSetup

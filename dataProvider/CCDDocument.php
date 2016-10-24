@@ -59,6 +59,7 @@ include_once(ROOT . '/dataProvider/ReferringProviders.php');
 include_once(ROOT . '/dataProvider/DiagnosisCodes.php');
 include_once(ROOT . '/dataProvider/Facilities.php');
 include_once(ROOT . '/dataProvider/CombosData.php');
+include_once(ROOT . '/dataProvider/TransactionLog.php');
 
 class CCDDocument
 {
@@ -94,6 +95,10 @@ class CCDDocument
 	 * @var Patient
 	 */
 	private $Patient;
+    /**
+     * @var TransactionLog
+     */
+    private $TransactionLog;
     /**
      * @var
      */
@@ -217,6 +222,7 @@ class CCDDocument
 		$this->CombosData = new CombosData();
 		$this->User = new User();
 		$this->Patient = new Patient();
+        $this->TransactionLog = new TransactionLog();
         $this->PatientContacts = new PatientContacts();
 		$this->facility = $this->Facilities->getCurrentFacility(true);
 	}
@@ -5894,15 +5900,19 @@ if(isset($_REQUEST['pid']) && isset($_REQUEST['action'])){
 
         switch($_REQUEST['action']){
             case 'view':
+                // View the CDA
                 $ccd->view();
                 break;
             case 'export':
+                // Export the CDA
                 $ccd->export();
                 break;
             case 'archive':
+                // Archive the CDA
                 $ccd->archive();
                 break;
         }
+        unset($logObject);
     } catch(Exception $Error) {
         error_log($Error->getMessage());
     }

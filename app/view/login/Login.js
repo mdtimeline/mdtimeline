@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 Ext.define('App.view.login.Login', {
 	extend: 'Ext.Viewport',
 	requires: [
@@ -110,9 +109,11 @@ Ext.define('App.view.login.Login', {
 						scope: me,
 						specialkey: me.onEnter,
 						afterrender:function(cmp){
-							cmp.inputEl.set({
-								autocomplete:'new-password'
-							});
+							if(!eval(g('save_password'))){
+								cmp.inputEl.set({
+									autocomplete:'new-password'
+								});
+							}
 						}
 					}
 				},

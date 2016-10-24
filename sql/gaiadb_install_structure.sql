@@ -37,7 +37,7 @@
   KEY `IK_perm_key` (`perm_key`),
   KEY `IK_seq` (`seq`),
   KEY `IK_active` (`active`)
-) ENGINE=InnoDB AUTO_INCREMENT=170 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `acl_role_perms`;CREATE TABLE `acl_role_perms` (
+) ENGINE=InnoDB AUTO_INCREMENT=171 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `acl_role_perms`;CREATE TABLE `acl_role_perms` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `value` tinyint(1) DEFAULT NULL,
   `role_id` int(11) DEFAULT NULL,
@@ -275,13 +275,13 @@
   PRIMARY KEY (`id`),
   KEY `form_id` (`form_id`),
   KEY `parentId` (`parentId`)
-) ENGINE=InnoDB AUTO_INCREMENT=1311 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;DROP TABLE IF EXISTS `forms_field_options`;CREATE TABLE `forms_field_options` (
+) ENGINE=InnoDB AUTO_INCREMENT=1312 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;DROP TABLE IF EXISTS `forms_field_options`;CREATE TABLE `forms_field_options` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `field_id` varchar(255) DEFAULT NULL COMMENT 'Field ID',
   `options` text COMMENT 'Field Options JSON Format',
   PRIMARY KEY (`id`),
   KEY `field_id` (`field_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1687 DEFAULT CHARSET=latin1;DROP TABLE IF EXISTS `forms_layout`;CREATE TABLE `forms_layout` (
+) ENGINE=InnoDB AUTO_INCREMENT=1688 DEFAULT CHARSET=latin1;DROP TABLE IF EXISTS `forms_layout`;CREATE TABLE `forms_layout` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(80) DEFAULT NULL,
   `form_data` varchar(80) DEFAULT NULL,
@@ -439,12 +439,12 @@
   KEY `IK_code` (`code`),
   KEY `IK_list_id` (`list_id`),
   KEY `IK_option_value` (`option_value`)
-) ENGINE=InnoDB AUTO_INCREMENT=3071 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `combo_lists`;CREATE TABLE `combo_lists` (
+) ENGINE=InnoDB AUTO_INCREMENT=3077 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `combo_lists`;CREATE TABLE `combo_lists` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) DEFAULT NULL COMMENT 'Title of the combo',
   `active` tinyint(1) DEFAULT NULL COMMENT 'Active?',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=141 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `rxinstructions`;CREATE TABLE `rxinstructions` (
+) ENGINE=InnoDB AUTO_INCREMENT=142 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `rxinstructions`;CREATE TABLE `rxinstructions` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `rxcui` varchar(255) DEFAULT NULL,
   `occurrence` int(11) DEFAULT NULL,
@@ -621,7 +621,7 @@
   KEY `IK_table_name` (`table_name`),
   KEY `IK_event` (`event`),
   KEY `IK_date` (`date`)
-) ENGINE=InnoDB AUTO_INCREMENT=64828 DEFAULT CHARSET=utf8 COMMENT='Data INSERT UPDATE DELETE Logs';DROP TABLE IF EXISTS `users`;CREATE TABLE `users` (
+) ENGINE=InnoDB AUTO_INCREMENT=338 DEFAULT CHARSET=utf8 COMMENT='Data INSERT UPDATE DELETE Logs';DROP TABLE IF EXISTS `users`;CREATE TABLE `users` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `code` varchar(40) DEFAULT NULL,
   `role_id` int(11) DEFAULT NULL COMMENT 'acl_user_roles relation',
@@ -688,7 +688,7 @@
   `logout` int(11) DEFAULT NULL,
   `last_request` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5344 DEFAULT CHARSET=latin1;DROP TABLE IF EXISTS `patient_pools`;CREATE TABLE `patient_pools` (
+) ENGINE=InnoDB AUTO_INCREMENT=5351 DEFAULT CHARSET=latin1;DROP TABLE IF EXISTS `patient_pools`;CREATE TABLE `patient_pools` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `pid` bigint(20) DEFAULT NULL,
   `uid` bigint(20) DEFAULT NULL COMMENT 'user id that is treating the patient',
@@ -707,7 +707,7 @@
   KEY `IK_appointment_id` (`appointment_id`),
   KEY `IK_parent_id` (`parent_id`),
   KEY `IK_provider_id` (`provider_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=163 DEFAULT CHARSET=latin1;DROP TABLE IF EXISTS `pool_areas`;CREATE TABLE `pool_areas` (
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;DROP TABLE IF EXISTS `pool_areas`;CREATE TABLE `pool_areas` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `title` varchar(80) DEFAULT NULL,
   `floor_plan_id` bigint(20) DEFAULT NULL,
@@ -855,7 +855,7 @@
   PRIMARY KEY (`id`),
   KEY `pid` (`pid`),
   KEY `eid` (`eid`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `patient_appointment_requests`;CREATE TABLE `patient_appointment_requests` (
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `patient_appointment_requests`;CREATE TABLE `patient_appointment_requests` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `pid` int(11) DEFAULT NULL,
   `eid` int(11) DEFAULT NULL,
@@ -992,6 +992,7 @@
   `rid` varchar(80) DEFAULT NULL COMMENT 'reference ID',
   `patient_class` varchar(255) DEFAULT NULL,
   `referring_physician` int(11) DEFAULT NULL,
+  `patient_education_given` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`eid`),
   KEY `pid` (`pid`),
   KEY `open_uid` (`open_uid`),
@@ -1005,7 +1006,7 @@
   KEY `IK_requires_supervisor` (`requires_supervisor`),
   KEY `IK_specialty_id` (`specialty_id`),
   KEY `IK_technician_uid` (`technician_uid`)
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `encounter_dx`;CREATE TABLE `encounter_dx` (
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `encounter_dx`;CREATE TABLE `encounter_dx` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `pid` int(11) DEFAULT NULL,
   `eid` int(11) DEFAULT NULL,
@@ -1074,7 +1075,7 @@
   PRIMARY KEY (`id`),
   KEY `pid` (`pid`),
   KEY `eid` (`eid`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `encounter_1500_options`;CREATE TABLE `encounter_1500_options` (
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `encounter_1500_options`;CREATE TABLE `encounter_1500_options` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `pid` bigint(20) DEFAULT NULL,
   `eid` bigint(20) DEFAULT NULL,
@@ -1167,6 +1168,8 @@
   `begin_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
   `created_date` datetime DEFAULT NULL,
+  `requires_prescription` tinyint(1) DEFAULT NULL,
+  `is_controlled` tinyint(1) DEFAULT NULL,
   `is_compound` tinyint(1) DEFAULT NULL,
   `is_supply` tinyint(1) DEFAULT NULL,
   `system_notes` varchar(210) DEFAULT NULL,
@@ -1315,7 +1318,7 @@
   KEY `IK_DOB` (`DOB`),
   KEY `IK_guardian_web_portal` (`allow_guardian_web_portal`,`guardian_portal_username`),
   KEY `IK_emergency_contact_web_portal` (`allow_emergency_contact_web_portal`,`emergency_contact_portal_username`)
-) ENGINE=InnoDB AUTO_INCREMENT=9573 DEFAULT CHARSET=utf8 COMMENT='Patients/Demographics';DROP TABLE IF EXISTS `patient_active_problems`;CREATE TABLE `patient_active_problems` (
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Patients/Demographics';DROP TABLE IF EXISTS `patient_active_problems`;CREATE TABLE `patient_active_problems` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `pid` int(11) DEFAULT NULL,
   `eid` int(11) DEFAULT NULL,
@@ -1336,7 +1339,7 @@
   PRIMARY KEY (`id`),
   KEY `pid` (`pid`),
   KEY `eid` (`eid`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `patient_chart_checkout`;CREATE TABLE `patient_chart_checkout` (
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `patient_chart_checkout`;CREATE TABLE `patient_chart_checkout` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `pid` int(11) DEFAULT NULL,
   `uid` int(11) DEFAULT NULL,
@@ -1345,7 +1348,7 @@
   `pool_area_id` int(11) DEFAULT NULL,
   `read_only` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2948 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `patient_contacts`;CREATE TABLE `patient_contacts` (
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `patient_contacts`;CREATE TABLE `patient_contacts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `pid` int(11) NOT NULL,
   `uid` int(11) NOT NULL,
@@ -1558,7 +1561,7 @@
   KEY `priority` (`priority`),
   KEY `status` (`status`),
   KEY `IK_order_type` (`order_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;DROP TABLE IF EXISTS `patient_referrals`;CREATE TABLE `patient_referrals` (
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;DROP TABLE IF EXISTS `patient_referrals`;CREATE TABLE `patient_referrals` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `eid` int(11) DEFAULT NULL COMMENT 'encounter id',
   `pid` int(11) DEFAULT NULL COMMENT 'patient ID',
@@ -1759,7 +1762,7 @@
   PRIMARY KEY (`id`),
   KEY `pid` (`pid`),
   KEY `eid` (`eid`)
-) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `patient_smoke_status`;CREATE TABLE `patient_smoke_status` (
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;DROP TABLE IF EXISTS `patient_smoke_status`;CREATE TABLE `patient_smoke_status` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `eid` int(11) DEFAULT NULL COMMENT 'encounter id',
   `pid` int(11) DEFAULT NULL COMMENT 'patient ID',

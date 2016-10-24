@@ -310,6 +310,7 @@ Ext.define('App.view.patient.Encounter', {
 			collapsible: true,
 			animCollapse: true,
 			collapsed: true,
+			deferredRender: false,
 			bodyPadding: 0,
 			margin: 0,
 			padding: 0,
@@ -564,7 +565,7 @@ Ext.define('App.view.patient.Encounter', {
 					store.sync({
 						callback: function(){
 							app.fireEvent('encountersync', me, store, form);
-							me.msg('Sweet!', _('encounter_updated'));
+							me.msg(_('sweet'), _('encounter_updated'));
 						}
 					});
 
@@ -722,12 +723,14 @@ Ext.define('App.view.patient.Encounter', {
 				form = app.checkoutWindow.down('form').getForm();
 				values = form.getValues();
 				values.eid = me.eid;
+				values.close_date = new Date();
 				values.signature = password;
 				values.isSupervisor = isSupervisor;
 
 				if(a('require_enc_supervisor') || isSupervisor){
+					var cmb = app.checkoutWindow.query('#EncounterCoSignSupervisorCombo')[0];
 					values.requires_supervisor = true;
-					values.supervisor_uid = app.checkoutWindow.coSignCombo.getValue();
+					values.supervisor_uid = cmb.getValue();
 				}else if(!isSupervisor && !a('require_enc_supervisor')){
 					values.requires_supervisor = false;
 				}
@@ -736,7 +739,7 @@ Ext.define('App.view.patient.Encounter', {
                     var params;
 					if(response.result.success){
 						if(me.stopTimer()){
-                            S;
+
 							/** default data for notes and reminder **/
 							params = {
 								pid: me.pid,
@@ -756,12 +759,12 @@ Ext.define('App.view.patient.Encounter', {
 							/** unset the patient eid **/
 							app.patient.eid = null;
 							app.openPatientVisits();
-							me.msg('Sweet!', _('encounter_closed'));
+							me.msg(_('sweet'), _('encounter_closed'));
 							app.checkoutWindow.close();
 						}
 					}else{
 						Ext.Msg.show({
-							title: 'Oops!',
+							title: _('oops'),
 							msg: _(response.result.error),
 							buttons: Ext.Msg.OK,
 							icon: Ext.Msg.ERROR
@@ -800,9 +803,9 @@ Ext.define('App.view.patient.Encounter', {
 
 	getProgressNote: function(){
 		var me = this;
-		//Encounter.getProgressNoteByEid(me.eid, function(provider, response){
-			//me.progressNote.tpl.overwrite(me.progressNote.body, response.result);
-		//});
+		Encounter.getProgressNoteByEid(me.eid, function(provider, response){
+			me.progressNote.tpl.overwrite(me.progressNote.body, response.result);
+		});
 	},
 
 	onTapPanelChange: function(panel){

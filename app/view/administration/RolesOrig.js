@@ -169,7 +169,7 @@ Ext.define('App.view.administration.Roles', {
 			Roles.saveRolesData(changedValues, function(provider, response){
 				if(response.result){
 					me.form.el.unmask();
-					me.msg('Sweet!', _('roles_updated'));
+					me.msg(_('sweet'), _('roles_updated'));
 					record.commit();
 				}
 			});
@@ -184,7 +184,7 @@ Ext.define('App.view.administration.Roles', {
 			Roles.saveRolesData(changedValues, function(provider, response){
 				if(response.result){
 					me.form.el.unmask();
-					me.msg('Sweet!', _('roles_updated'));
+					me.msg(_('sweet'), _('roles_updated'));
 					record.commit();
 				}
 			});

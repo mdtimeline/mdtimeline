@@ -56,7 +56,7 @@ Ext.define('App.model.administration.TransactionLog', {
         {
             name: 'event',
             type: 'string',
-            len: 10,
+            len: 100,
             comment: 'Event UPDATE INSERT DELETE'
         },
         {

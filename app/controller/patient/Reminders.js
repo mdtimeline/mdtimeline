@@ -18,122 +18,59 @@
 
 Ext.define('App.controller.patient.Reminders', {
 	extend: 'Ext.app.Controller',
-	requires: [],
+	requires: [
+
+	],
 	refs: [
 		{
-			ref: 'RemindersAddBtn',
+			ref: 'PatientRemindersAddBtn',
 			selector: '#RemindersAddBtn'
+		},
+		{
+			ref: 'PatientSummaryRemindersPanel',
+			selector: '#PatientSummaryRemindersPanel'
 		}
 	],
 
 	init: function(){
 		var me = this;
+
 		me.control({
-			'viewport': {
-				encounterload: me.onEncounterOpen,
-				patientset: me.onPatientSet
+			'#PatientSummaryRemindersPanel':{
+				activate: me.onPatientSummaryRemindersPanelActivate
 			},
-			'#RemindersAddBtn': {
-				click: me.onRemindersAddBtnClick
-			},
-			'#RemindersAlertOkBtn': {
-				click: me.onRemindersAlertOkBtnClick
-			},
-			'#RemindersAlertCancelBtn': {
-				click: me.onRemindersAlertCancelBtnClick
+			'#PatientRemindersAddBtn':{
+				click: me.onPatientRemindersAddBtnClick
 			}
 		});
 	},
 
-	onRemindersAddBtnClick: function(btn){
+	onPatientSummaryRemindersPanelActivate: function(){
+		this.getPatientSummaryRemindersPanel().getStore().load({
+			filters: [
+				{
+					property: 'pid',
+					value: app.patient.pid
+				}
+			]
+		});
+	},
+
+	onPatientRemindersAddBtnClick: function(btn){
 		var grid = btn.up('grid'),
 			store = grid.store;
 
 		grid.plugins[0].cancelEdit();
 		store.insert(0, {
-			date: new Date(),
 			pid: app.patient.pid,
-			uid: app.user.id,
-			eid: app.patient.eid
+			eid: app.patient.eid,
+			reminder_type: 'appointment',
+			reminder_date: new Date(),
+			reminder_note: '',
+			create_date: new Date(),
+			create_uid: app.user.id
 		});
 		grid.plugins[0].startEdit(0, 0);
-	},
-
-	onRemindersAlertOkBtnClick: function(btn){
-		var win = btn.up('window'),
-			store = win.down('grid').getStore();
-
-		store.sync();
-		win.close();
-	},
-
-	onRemindersAlertCancelBtnClick: function(btn){
-		var win = btn.up('window'),
-			store = win.down('grid').getStore();
-
-		store.rejectChanges();
-		win.close();
-	},
-
-	onPatientSet: function(patient){
-		this.getPatientReminders('Administrative', patient.pid);
-	},
-
-	onEncounterOpen: function(encounterRecord){
-		this.getPatientReminders('Clinical', encounterRecord.data.pid);
-	},
-
-	getPatientReminders: function(type, pid){
-		var me = this,
-			action = 'RemindersAlertWindow' + type,
-			query = Ext.ComponentQuery.query('window[action=' + action + ']'),
-			store,
-			win;
-
-		if(query.length === 0){
-			win = Ext.create('App.view.patient.RemindersAlert',{
-				title: _('reminders') + ' (' + _(type.toLowerCase()) + ')',
-				action: action
-			});
-		}else{
-			win = query[0];
-		}
-
-		store = win.down('grid').getStore();
-		win.close();
-		store.load({
-			filters: [
-				{
-					property: 'pid',
-					value: pid
-				},
-				{
-					property: 'type',
-					value: type
-				},
-				{
-					property: 'active',
-					value: true
-				}
-			],
-			callback: function(records){
-				if(records.length > 0){
-					me.playSound();
-					win.show();
-				}
-			}
-		});
-	},
-
-	playSound: function(){
-		if(!this.alertAudio){
-			this.alertAudio = Ext.core.DomHelper.append(Ext.getBody(), {
-				html: '<audio autoplay id="reminderAlert" ><source src="resources/audio/sweetalertsound4.wav" type="audio/wav"></audio>'
-			}, true);
-		}else{
-			this.alertAudio.dom.firstChild.currentTime=0;
-			this.alertAudio.dom.firstChild.play();
-		}
 	}
 
 });

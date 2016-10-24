@@ -106,7 +106,6 @@ Ext.define('App.controller.patient.Disclosures', {
 
 		this.getDisclosuresRecipientField().reset();
 		this.getDisclosuresDescriptionField().setValue(data.description);
-
 	},
 
 	showRecipientWindow: function(){

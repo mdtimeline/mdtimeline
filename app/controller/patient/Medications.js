@@ -216,14 +216,39 @@ Ext.define('App.controller.patient.Medications', {
 	},
 
 	onMedicationLiveSearchSelect: function(cmb, records){
-		var form = cmb.up('form').getForm();
+		var form = cmb.up('form').getForm(),
+			record = records[0],
+			order_record = form.getRecord();
 
-		form.getRecord().set({
-			RXCUI: records[0].data.RXCUI,
-			CODE: records[0].data.CODE,
-            GS_CODE: records[0].data.GS_CODE,
-			NDC: records[0].data.NDC
+		order_record.set({
+			RXCUI: record.data.RXCUI,
+			CODE: record.data.CODE,
+            GS_CODE: record.data.GS_CODE,
+			NDC: record.data.NDC
 		});
+
+		var data = {};
+
+		Rxnorm.getMedicationAttributesByRxcuiApi(record.data.RXCUI, function(response){
+
+			if(response.propConceptGroup){
+				response.propConceptGroup.propConcept.forEach(function(propConcept){
+
+					if(propConcept.propCategory != 'ATTRIBUTES' && propConcept.propCategory != 'CODES') return;
+
+					if(!data[propConcept.propCategory]){
+						data[propConcept.propCategory] = {};
+					}
+					var propName = propConcept.propName.replace(' ', '_');
+					data[propConcept.propCategory][propName] = propConcept.propValue;
+				});
+			}
+
+			if(data.ATTRIBUTES && data.ATTRIBUTES.SCHEDULE && data.ATTRIBUTES.SCHEDULE != '0'){
+				order_record.set({ is_controlled: true });
+			}
+		});
+
 	},
 
 	onPatientMedicationReconciledBtnClick: function(){

@@ -55,7 +55,7 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 	 * @returns {*}
 	 */
 	getEncounterRecord: function(){
-		return this.getEncounterPanel() ? this.getEncounterPanel().encounter : null;
+		return !Ext.isEmpty(this.getEncounterPanel()) ? this.getEncounterPanel().encounter : null;
 	},
 
 	onEncounterProviderCmbBeforeRender: function(cmb){

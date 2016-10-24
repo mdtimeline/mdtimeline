@@ -40162,7 +40162,7 @@ Ext.define('App.controller.patient.CCD', {
             pid: app.patient.pid,
             uid: app.user.id,
             eid: eid,
-            event: null ? 'Patient_CCDA_VIEWED' : 'Encounter_CCDA_VIEWED'
+            event: eid ? 'Patient_CCDA_VIEWED' : 'Encounter_CCDA_VIEWED'
         });
 	},
 
@@ -40194,7 +40194,7 @@ Ext.define('App.controller.patient.CCD', {
             pid: app.patient.pid,
             uid: app.user.id,
             eid: eid,
-            event: null ? 'Patient_CCDA_ARCHIVED' : 'Encounter_CCDA_ARCHIVED'
+            event: eid ? 'Patient_CCDA_ARCHIVED' : 'Encounter_CCDA_ARCHIVED'
         });
 
 	},
@@ -40225,7 +40225,7 @@ Ext.define('App.controller.patient.CCD', {
             pid: app.patient.pid,
             uid: app.user.id,
             eid: eid,
-            event: null ? 'Patient_CCDA_Exported' : 'Encounter_CCDA_Exported'
+            event: eid ? 'Patient_CCDA_Exported' : 'Encounter_CCDA_Exported'
         });
 
 		this.disclosuresCtrl.addRawDisclosure({
@@ -40260,7 +40260,7 @@ Ext.define('App.controller.patient.CCD', {
             pid: app.patient.pid,
             uid: app.user.id,
             eid: eid,
-            event: null ? 'Patient_CCDA_PRINTED' : 'Encounter_CCDA_PRINTED'
+            event: eid ? 'Patient_CCDA_PRINTED' : 'Encounter_CCDA_PRINTED'
         });
 
 		this.disclosuresCtrl.addRawDisclosure({
@@ -40302,7 +40302,7 @@ Ext.define('App.controller.patient.CCD', {
             pid: app.patient.pid,
             uid: app.user.id,
             eid: eid,
-            event: null ? 'Patient_CCDA_VIEWED' : 'Encounter_CCDA_VIEWED'
+            event: eid ? 'Patient_CCDA_VIEWED' : 'Encounter_CCDA_VIEWED'
         });
 	},
 

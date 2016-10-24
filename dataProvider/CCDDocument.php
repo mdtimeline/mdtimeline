@@ -59,6 +59,7 @@ include_once(ROOT . '/dataProvider/ReferringProviders.php');
 include_once(ROOT . '/dataProvider/DiagnosisCodes.php');
 include_once(ROOT . '/dataProvider/Facilities.php');
 include_once(ROOT . '/dataProvider/CombosData.php');
+include_once(ROOT . '/dataProvider/TransactionLog.php');
 
 class CCDDocument
 {
@@ -94,6 +95,10 @@ class CCDDocument
 	 * @var Patient
 	 */
 	private $Patient;
+    /**
+     * @var TransactionLog
+     */
+    private $TransactionLog;
     /**
      * @var
      */
@@ -217,6 +222,7 @@ class CCDDocument
 		$this->CombosData = new CombosData();
 		$this->User = new User();
 		$this->Patient = new Patient();
+        $this->TransactionLog = new TransactionLog();
         $this->PatientContacts = new PatientContacts();
 		$this->facility = $this->Facilities->getCurrentFacility(true);
 	}
@@ -482,6 +488,14 @@ class CCDDocument
 				unlink($file);
 				return $fileData;
 			}
+
+			$Log = [
+			    'event' => 'EXPORT/CCD',
+                'data' => [
+                    'pid' => $_GET['pid']
+                ]
+            ];
+            $this->TransactionLog->saveTransactionLog($Log);
 
             // Stream the file to the client
 			header('Content-Type: application/zip');

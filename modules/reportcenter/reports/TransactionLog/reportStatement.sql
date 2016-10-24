@@ -23,4 +23,4 @@ WHERE CASE
  1=1
 END
 :ux-sort
-:ux-pagination
+:ux-pagination;

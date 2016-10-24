@@ -312,6 +312,7 @@ class ReportGenerator
                                     " LIMIT $summarizedParameters->start, $summarizedParameters->limit",
                                     $Query
                                 ));
+
                                 $SQL->execute();
                                 $ResultRecords[] = $SQL->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -321,6 +322,7 @@ class ReportGenerator
                                     '',
                                     $Query
                                 ));
+
                                 $SQL->execute();
                                 $records[] = $SQL->fetchAll();
                                 $Total = count($records[count($records) - 1]);

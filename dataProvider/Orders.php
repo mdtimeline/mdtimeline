@@ -119,8 +119,6 @@ class Orders {
 	 */
 	public function addOrderResults($params){
 		$this->setResults();
-
-
 		if(isset($params->upload) && $params->upload != ''){
 			include_once (ROOT. '/dataProvider/DocumentHandler.php');
 			$DocumentHandler = new DocumentHandler();
@@ -195,7 +193,6 @@ class Orders {
 		}else{
 			$records = $this->b->load($params)->all();
 		}
-
 		return $records;
 	}
 

@@ -64,12 +64,10 @@ class HL7Server
      * @var array|bool
      */
     protected $recipient;
-
     /**
      * @var array
      */
     protected $server;
-
     /**
      * @var string
      */
@@ -222,7 +220,7 @@ class HL7Server
          */
         $ack = new HL7();
         $msh = $ack->addSegment('MSH');
-        $msh->setValue('3.1', 'GaiaEHR'); // Sending Application
+        $msh->setValue('3.1', 'mdTimeLineEHR'); // Sending Application
         $msh->setValue('4.1', $this->Facility->getCurrentFacility(true)); // Sending Facility
         $msh->setValue('9.1', 'ACK');
         $msh->setValue('11.1', 'P'); // P = Production
@@ -255,7 +253,6 @@ class HL7Server
             $patient = isset($patient_result['PATIENT']) ? $patient_result['PATIENT'] : null;
 
             // Patient validation...
-
 
             foreach ($patient_result['ORDER_OBSERVATION'] AS $order) {
                 $orc = $order['ORC'];

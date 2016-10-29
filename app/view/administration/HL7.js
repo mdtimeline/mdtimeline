@@ -314,8 +314,24 @@ Ext.define('App.view.administration.HL7', {
 					}
 				},
 				{
+					text: _('facility_id'),
+					dataIndex: 'facility_iso_id',
+					flex: 1,
+					editor: {
+						xtype: 'textfield'
+					}
+				},
+				{
 					text: _('application_name'),
 					dataIndex: 'application_name',
+					flex: 1,
+					editor: {
+						xtype: 'textfield'
+					}
+				},
+				{
+					text: _('application_id'),
+					dataIndex: 'application_iso_id',
 					flex: 1,
 					editor: {
 						xtype: 'textfield'

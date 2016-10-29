@@ -34,6 +34,12 @@ Ext.define('App.model.administration.HL7Client', {
 			comment: 'Facility Name'
 		},
 		{
+			name: 'facility_iso_id',
+			type: 'string',
+			len: 80,
+			comment: 'ISO ID'
+		},
+		{
 			name: 'physical_address',
 			type: 'string',
 			len: 1000,
@@ -44,6 +50,12 @@ Ext.define('App.model.administration.HL7Client', {
 			type: 'string',
 			len: 80,
 			comment: 'Application Name'
+		},
+		{
+			name: 'application_iso_id',
+			type: 'string',
+			len: 80,
+			comment: 'ISO ID'
 		},
 		{
 			name: 'route',

@@ -314,9 +314,11 @@ Ext.define('App.controller.patient.Results', {
 			callback: function(records){
 
 				if(records.length > 0){
-					form.loadRecord(records.pop());
-					me.getResultsOrderSignBtn().setDisabled(records.pop().data.signed_uid > 0);
-					observationStore = records.pop().observations();
+					var last_result = records.length - 1;
+
+					form.loadRecord(records[last_result]);
+					me.getResultsOrderSignBtn().setDisabled(records[last_result].data.signed_uid > 0);
+					observationStore = records[last_result].observations();
 					observationGrid.reconfigure(observationStore);
 					observationStore.load();
 				}else{
@@ -357,10 +359,12 @@ Ext.define('App.controller.patient.Results', {
 		results_store.load({
 			callback: function(records){
 				if(records.length > 0){
-					form.loadRecord(records.pop());
-					me.getResultsOrderSignBtn().setDisabled(records.pop().data.signed_uid > 0);
-					me.loadRadiologyDocument(records.pop());
-					me.setViewStudyBtn(records.pop());
+					var last_result = records.length - 1;
+
+					form.loadRecord(records[last_result]);
+					me.getResultsOrderSignBtn().setDisabled(records[last_result].data.signed_uid > 0);
+					me.loadRadiologyDocument(records[last_result]);
+					me.setViewStudyBtn(records[last_result]);
 				}else{
 					var newResult = results_store.add({
 						pid: order_record.data.pid,

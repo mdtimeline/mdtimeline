@@ -267,7 +267,7 @@ class HL7 {
 	}
 
 	function time($time, $format = 'Y-m-d H:i:s'){
-
+        error_log(strlen($time));
 		switch(strlen($time)){
 			case 4:
 				$time = preg_replace('/^([0-9]{4})$/', '$1-01-01 00:00:00', $time);
@@ -287,6 +287,11 @@ class HL7 {
 			case 14:
 				$time = preg_replace('/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})$/', '$1-$2-$3 $4:$5:$6', $time);
 				break;
+            case 19:
+                // We don't need the timezone
+                $time = substr($time, 0, (strlen($time)-5));
+                $time = preg_replace('/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})$/', '$1-$2-$3 $4:$5:$6', $time);
+                break;
 		}
 		if($time == '' || $format == 'Y-m-d H:i:s'){
 			return $time;

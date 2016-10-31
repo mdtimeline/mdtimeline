@@ -358,7 +358,7 @@ class HL7Server
                     $foo->performing_org_name = $obx[23][1];
                     $foo->performing_org_address = $obx[24][1][1] . ' ' . $obx[24][3] . ', ' . $obx[24][4] . ' ' . $obx[24][5];
                     $foo->date_analysis = $hl7->time($obx[19][1]);
-                    $foo->notes = $note['3'];
+                    $foo->notes = $note[3];
 
                     $this->pObservation->save($foo);
                     unset($foo);

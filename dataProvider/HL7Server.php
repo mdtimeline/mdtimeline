@@ -297,8 +297,9 @@ class HL7Server
                 $foo->lab_order_id = $obr[3][1];
                 $foo->lab_name = $this->recipient['facility'];
                 $foo->lab_address = $this->recipient['physical_address'];
-                $foo->observation_time = $hl7->time($obr[7][1]);
+                $foo->observation_date = $hl7->time($obr[7][1]);
                 $foo->result_status = $obr[25];
+                $foo->result_date = $hl7->time($obr[22][1]);
 
                 if (is_array($obr[31])) {
                     $fo = array();
@@ -312,10 +313,10 @@ class HL7Server
                 // specimen segment
                 if (isset($order['SPECIMEN']) && $order['SPECIMEN'] !== false) {
                     $spm = $order['SPECIMEN']['SPM'];
-                    $foo->specimen_code = $spm[4][6] == 'HL70487' ? $spm[4][4] : $spm[4][1];
+                    $foo->specimen_code = $spm[4][3] == 'HL70487' ? $spm[4][3] : $spm[4][3];
                     $foo->specimen_text = $spm[4][6] == 'HL70487' ? $spm[4][5] : $spm[4][2];
-                    $foo->specimen_code_type = $spm[4][6] == 'HL70487' ? $spm[4][6] : $spm[4][3];
-                    $foo->specimen_notes = $spm[4][6] == 'HL70487' ? $spm[4][6] : $spm[4][3];
+                    $foo->specimen_code_type = $spm[4][1] == 'HL70487' ? $spm[4][1] : $spm[4][1];
+                    $foo->specimen_notes = $spm[21][2] == 'HL70487' ? $spm[21][2] : $spm[21][2];
                 }
 
                 $foo->documentId = 'hl7|' . $msgRecord['id'];
@@ -352,6 +353,7 @@ class HL7Server
                     $foo->abnormal_flag = $obx[8][0];
                     $foo->nature_of_abnormal = $obx[10][0];
                     $foo->observation_result_status = $obx[11];
+                    $foo->date_rage_values = $hl7->time($obx[12][1]);
                     $foo->date_rage_values = $hl7->time($obx[12][1]);
                     $foo->date_observation = $hl7->time($obx[14][1]);
                     $foo->observer = trim($obx[16][0][2][1] . ' ' . $obx[16][0][3]);

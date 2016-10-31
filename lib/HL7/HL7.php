@@ -267,7 +267,6 @@ class HL7 {
 	}
 
 	function time($time, $format = 'Y-m-d H:i:s'){
-        error_log(strlen($time));
 		switch(strlen($time)){
 			case 4:
 				$time = preg_replace('/^([0-9]{4})$/', '$1-01-01 00:00:00', $time);

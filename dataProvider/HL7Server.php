@@ -263,7 +263,6 @@ class HL7Server
                 /**
                  * Check for order number in GaiaEHR
                  */
-
                 $orderId = $orc[2][1];
                 $patientId = $patient['PID'][3][0][1];
                 $patient_record = $this->getPatientByPid($patientId);
@@ -283,8 +282,8 @@ class HL7Server
                     $this->ackMessage = "Unable to find order number '$orderId' for patient '$patientId'";
                     break 2;
                 }
-                $foo = new stdClass();
 
+                $foo = new stdClass();
                 $foo->pid = $patientId;
                 $foo->ordered_uid = $orderRecord['uid'];
                 $foo->create_date = date('Y-m-d H:i:s');
@@ -310,13 +309,20 @@ class HL7Server
                 } else {
                     $foo->reason_code = $obr[31][3] . ':' . $obr[31][1];
                 }
+
+                $order_notes = '';
+	            foreach($order['NTE'] as $nte){
+		            $order_notes .=  $nte[3][0] . ' ';
+	            }
+	            $foo->notes = $order_notes;
+
                 // specimen segment
                 if (isset($order['SPECIMEN']) && $order['SPECIMEN'] !== false) {
                     $spm = $order['SPECIMEN']['SPM'];
                     $foo->specimen_code = $spm[4][3] == 'HL70487' ? $spm[4][3] : $spm[4][3];
                     $foo->specimen_text = $spm[4][6] == 'HL70487' ? $spm[4][5] : $spm[4][2];
                     $foo->specimen_code_type = $spm[4][1] == 'HL70487' ? $spm[4][1] : $spm[4][1];
-                    $foo->specimen_notes = $spm[21][2] == 'HL70487' ? $spm[21][2] : $spm[21][2];
+                    $foo->specimen_notes = $spm[21][3] == 'HL70487' ? $spm[21][2] : '';
                 }
 
                 $foo->documentId = 'hl7|' . $msgRecord['id'];
@@ -330,7 +336,6 @@ class HL7Server
                      * observations and notes
                      */
                     $obx = $observation['OBX'];
-                    $note = $observation['NTE'];
                     $foo = new stdClass();
                     $foo->result_id = $rResult['id'];
                     $foo->code = $obx[3][1];
@@ -354,13 +359,17 @@ class HL7Server
                     $foo->nature_of_abnormal = $obx[10][0];
                     $foo->observation_result_status = $obx[11];
                     $foo->date_rage_values = $hl7->time($obx[12][1]);
-                    $foo->date_rage_values = $hl7->time($obx[12][1]);
                     $foo->date_observation = $hl7->time($obx[14][1]);
                     $foo->observer = trim($obx[16][0][2][1] . ' ' . $obx[16][0][3]);
                     $foo->performing_org_name = $obx[23][1];
                     $foo->performing_org_address = $obx[24][1][1] . ' ' . $obx[24][3] . ', ' . $obx[24][4] . ' ' . $obx[24][5];
                     $foo->date_analysis = $hl7->time($obx[19][1]);
-                    $foo->notes = $note[3];
+
+	                $observation_notes = '';
+	                foreach($observation['NTE'] as $nte){
+		                $observation_notes .=  $nte[3][0] . ' ';
+	                }
+	                $foo->notes = $observation_notes;
 
                     $this->pObservation->save($foo);
                     unset($foo);

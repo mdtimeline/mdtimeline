@@ -307,16 +307,22 @@ Ext.define('App.controller.patient.Results', {
 			observationGrid = me.getResultsLaboratoryObservationsGrid(),
 			observationStore,
 			newResult,
-			i;
+			i,
+            LastResult;
 
 		observationGrid.editingPlugin.cancelEdit();
 		results_store.load({
 			callback: function(records){
 
+                LastResult = records.pop();
+
+                console.log(records);
+                console.log(LastResult);
+
 				if(records.length > 0){
-					form.loadRecord(records.pop());
-					me.getResultsOrderSignBtn().setDisabled(records.pop().data.signed_uid > 0);
-					observationStore = records.pop().observations();
+					form.loadRecord(records[0]);
+					me.getResultsOrderSignBtn().setDisabled(records[0].data.signed_uid > 0);
+					observationStore = records[0].observations();
 					observationGrid.reconfigure(observationStore);
 					observationStore.load();
 				}else{
@@ -352,15 +358,17 @@ Ext.define('App.controller.patient.Results', {
 
 		var me = this,
 			form = me.getResultsRadiologyForm().getForm(),
-			results_store = order_record.results();
+			results_store = order_record.results(),
+            LastResult;
 
 		results_store.load({
 			callback: function(records){
 				if(records.length > 0){
-					form.loadRecord(records.pop());
-					me.getResultsOrderSignBtn().setDisabled(records.pop().data.signed_uid > 0);
-					me.loadRadiologyDocument(records.pop());
-					me.setViewStudyBtn(records.pop());
+                    LastResult = records.pop();
+					form.loadRecord(LastResult);
+					me.getResultsOrderSignBtn().setDisabled(LastResult.data.signed_uid > 0);
+					me.loadRadiologyDocument(LastResult);
+					me.setViewStudyBtn(LastResult);
 				}else{
 					var newResult = results_store.add({
 						pid: order_record.data.pid,

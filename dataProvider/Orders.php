@@ -188,11 +188,13 @@ class Orders {
 	 */
 	public function getOrderResultObservations($params){
 		$this->setObservations();
+        error_log(print_r($params,true));
 		if(isset($params->loinc)){
 			$records = $this->getObservationsByLoinc($params->loinc);
 		}else{
 			$records = $this->b->load($params)->all();
 		}
+        error_log(print_r($records,true));
 		return $records;
 	}
 

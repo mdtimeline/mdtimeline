@@ -52,9 +52,27 @@ class HL7 {
 	/**
 	 * @return mixed
 	 */
+	function getSendingApplicationId(){
+		$seg = $this->getSegment('MSH');
+		if(isset($seg->data)) return $seg->data[3][2] != '' ? $seg->data[3][2] : '-1';
+		return null;
+	}
+
+	/**
+	 * @return mixed
+	 */
 	function getSendingFacility(){
 		$seg = $this->getSegment('MSH');
 		if(isset($seg->data)) return $seg->data[4][1] != '' ? $seg->data[4][1] : $seg->data[4][2];
+		return null;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	function getSendingFacilityId(){
+		$seg = $this->getSegment('MSH');
+		if(isset($seg->data)) return $seg->data[4][2] != '' ? $seg->data[4][2] : '-1';
 		return null;
 	}
 

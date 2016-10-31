@@ -159,7 +159,9 @@ class HL7Server
         $msg = $hl7->readMessage($this->msg);
 
         $application = $hl7->getSendingApplication();
+        $application_id = $hl7->getSendingApplicationId();
         $facility = $hl7->getSendingFacility();
+        $facility_id = $hl7->getSendingFacilityId();
         $version = $hl7->getMsgVersionId();
 
         /**
@@ -172,7 +174,8 @@ class HL7Server
         /**
          * Check for IP address access
          */
-        $this->recipient = $this->r->load(array('application_name' => $application))->one();
+        $sql = 'SELECT * FROM `hl7_clients` WHERE (`application_iso_id` = :application_iso_id OR `application_name` = :application_name) AND `active` = 1';
+        $this->recipient = $this->r->sql($sql)->one([':application_iso_id' => $application_id, ':application_name' => $facility_id]);
         if ($this->recipient === false) {
             $this->ackStatus = 'AR';
             $this->ackMessage = "This application '$application' Not Authorized";

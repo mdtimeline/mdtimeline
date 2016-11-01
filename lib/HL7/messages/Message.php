@@ -63,7 +63,7 @@ class Message {
 	 * @return $this
 	 */
 	public function readMessage($event){
-		$this->groupWorker($this->Events($event));
+		$this->data = $this->groupWorker($this->Events($event));
 		unset($this->hl7, $this->evt, $this->segmentIndex);
 		return $this;
 	}
@@ -83,21 +83,20 @@ class Message {
 			// is group
 			if($this->isRepeatable($val)){
 				$items[$key] = array();
+
 				while($a = $this->groupWorker($val)){
-
-					if($this->isRequired($val)){
-						$items[$key][] = $a;
+					if(is_string($a) || !current($a)){
 						break;
-					};
-
-					if(is_string($a) || !current($a)) break;
+					}
 					$curr = current($a);
-					if(is_string($curr) || !current($curr)) break;
-					$curr = current($a);
-					if(is_string($curr) || !current($curr)) break;
-					if(empty($a)) continue;
+					if(is_string($curr) || !current($curr)){
+						break;
+					}
+					if(empty($a)){
+						break;
+					}
 					$items[$key][] = $a;
-
+					continue;
 				}
 			}else{
 				$a = $this->groupWorker($val);
@@ -110,7 +109,7 @@ class Message {
 			}
 		};
 
-		return $this->data = $items;
+		return $items;
 	}
 
 	/**

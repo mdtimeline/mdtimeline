@@ -256,14 +256,13 @@ class HL7Server
             $patient = isset($patient_result['PATIENT']) ? $patient_result['PATIENT'] : null;
 
             // Patient validation...
-
             foreach ($patient_result['ORDER_OBSERVATION'] AS $order) {
                 $orc = $order['ORC'];
                 $obr = $order['OBR'];
-                /**
-                 * Check for order number in GaiaEHR
-                 */
 
+                /**
+                 * Check for order number in mdTimeLine
+                 */
                 $orderId = $orc[2][1];
                 $patientId = $patient['PID'][3][0][1];
                 $patient_record = $this->getPatientByPid($patientId);
@@ -274,7 +273,10 @@ class HL7Server
                     break 2;
                 }
 
-                $orderRecord = $this->pOrder->load(array('id' => $orderId, 'pid' => $patient_record['pid']))->one();
+                $orderRecord = $this->pOrder->load([
+                    'id' => $orderId,
+                    'pid' => $patient_record['pid']
+                ])->one();
                 /**
                  * id not found set the error and break twice to get out of all the loops
                  */

@@ -95,7 +95,7 @@ class Message {
 					if(is_string($curr) || !current($curr)) break;
 					$curr = current($a);
 					if(is_string($curr) || !current($curr)) break;
-					if(empty($a)) break;
+					if(empty($a)) continue;
 					$items[$key][] = $a;
 
 				}

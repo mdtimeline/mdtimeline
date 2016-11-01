@@ -534,14 +534,6 @@ Ext.define('App.view.administration.DataManager', {
         };
         me.store.loadPage(1);
     },
-    //        onObservationSelect:function(combo, record){
-    //            say(record[0].data);
-    //            this.labObservationsStore.add({
-    //                    lab_id:this.getSelectId(),
-    //                    observation_element_id:record[0].data.id
-    //                });
-    //            combo.reset();
-    //        },
 
     onActivePressed: function (btn, pressed) {
         var me = this,

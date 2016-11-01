@@ -257,15 +257,30 @@ class HL7Server
 
             // Patient validation...
 
+	        $orderRecord = null;
+	        $orderId = null;
+	        $patientId = null;
+	        $patient_record = null;
+
             foreach ($patient_result['ORDER_OBSERVATION'] AS $order) {
                 $orc = $order['ORC'];
                 $obr = $order['OBR'];
                 /**
                  * Check for order number in GaiaEHR
                  */
-                $orderId = $orc[2][1];
-                $patientId = $patient['PID'][3][0][1];
-                $patient_record = $this->getPatientByPid($patientId);
+
+                if(!isset($orderId)){
+	                $orderId = $orc[2][1];
+                }
+
+                if(!isset($patientId)){
+	                $patientId = $patient['PID'][3][0][1];
+                }
+
+                if(!isset($patient_record)){
+	                $patient_record = $this->getPatientByPid($patientId);
+                }
+
 
                 if ($patient_record == false) {
                     $this->ackStatus = 'AR';
@@ -273,7 +288,11 @@ class HL7Server
                     break 2;
                 }
 
-                $orderRecord = $this->pOrder->load(array('id' => $orderId, 'pid' => $patient_record['pid']))->one();
+
+                if(!isset($orderRecord)){
+	                $orderRecord = $this->pOrder->load(array('id' => $orderId, 'pid' => $patient_record['pid']))->one();
+                }
+
                 /**
                  * id not found set the error and break twice to get out of all the loops
                  */
@@ -311,8 +330,10 @@ class HL7Server
                 }
 
                 $order_notes = '';
-	            foreach($order['NTE'] as $nte){
-		            $order_notes .=  $nte[3][0] . ' ';
+	            if(is_array($order['NTE'])){
+		            foreach($order['NTE'] as $nte){
+			            $order_notes .=  $nte[3][0] . ' ';
+		            }
 	            }
 	            $foo->notes = $order_notes;
 
@@ -366,8 +387,10 @@ class HL7Server
                     $foo->date_analysis = $hl7->time($obx[19][1]);
 
 	                $observation_notes = '';
-	                foreach($observation['NTE'] as $nte){
-		                $observation_notes .=  $nte[3][0] . ' ';
+	                if(is_array($observation['NTE'])){
+		                foreach($observation['NTE'] as $nte){
+			                $observation_notes .= $nte[3][0] . ' ';
+		                }
 	                }
 	                $foo->notes = $observation_notes;
 

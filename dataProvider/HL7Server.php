@@ -251,160 +251,225 @@ class HL7Server
      */
     protected function ProcessORU($hl7, $msg, $msgRecord)
     {
-
         foreach ($msg->data['PATIENT_RESULT'] AS $patient_result) {
             $patient = isset($patient_result['PATIENT']) ? $patient_result['PATIENT'] : null;
 
             // Patient validation...
-
 	        $orderRecord = null;
 	        $orderId = null;
 	        $patientId = null;
 	        $patient_record = null;
+            $ObservationResultsRelations = null;
 
+            // Iterate through all the Observation Requests
             foreach ($patient_result['ORDER_OBSERVATION'] AS $order) {
                 $orc = $order['ORC'];
                 $obr = $order['OBR'];
-                /**
-                 * Check for order number in GaiaEHR
-                 */
 
-                if(!isset($orderId)){
-	                $orderId = $orc[2][1];
-                }
+                // If the OBR does not have a Parent Result value, is just a regular
+                // Observation Request.
+                if($obr[26][0] == "") {
+                    // Check for order number in mdTimeLine EHR
+                    if (!isset($orderId)) $orderId = $orc[2][1];
 
-                if(!isset($patientId)){
-	                $patientId = $patient['PID'][3][0][1];
-                }
+                    if (!isset($patientId)) $patientId = $patient['PID'][3][0][1];
 
-                if(!isset($patient_record)){
-	                $patient_record = $this->getPatientByPid($patientId);
-                }
+                    if (!isset($patient_record)) $patient_record = $this->getPatientByPid($patientId);
 
-
-                if ($patient_record == false) {
-                    $this->ackStatus = 'AR';
-                    $this->ackMessage = "Unable to find patient record '$patientId'";
-                    break 2;
-                }
-
-
-                if(!isset($orderRecord)){
-	                $orderRecord = $this->pOrder->load(array('id' => $orderId, 'pid' => $patient_record['pid']))->one();
-                }
-
-                /**
-                 * id not found set the error and break twice to get out of all the loops
-                 */
-                if ($orderRecord === false) {
-                    $this->ackStatus = 'AR';
-                    $this->ackMessage = "Unable to find order number '$orderId' for patient '$patientId'";
-                    break 2;
-                }
-
-                $foo = new stdClass();
-                $foo->pid = $patientId;
-                $foo->ordered_uid = $orderRecord['uid'];
-                $foo->create_date = date('Y-m-d H:i:s');
-
-                $foo->code = $obr[4][1] != '' ? $obr[4][1] : $orderRecord['code'];
-                $foo->code_text = $obr[4][2] != '' ? $obr[4][2] : $orderRecord['code_text'];
-                $foo->code_type = $obr[4][3] != '' ? $obr[4][3] : $orderRecord['code_type'];
-
-                $foo->order_id = $obr[2][1];
-                $foo->lab_order_id = $obr[3][1];
-                $foo->lab_name = $this->recipient['facility'];
-                $foo->lab_address = $this->recipient['physical_address'];
-                $foo->observation_date = $hl7->time($obr[7][1]);
-                $foo->result_status = $obr[25];
-                $foo->result_date = $hl7->time($obr[22][1]);
-
-                if (is_array($obr[31])) {
-                    $fo = array();
-                    foreach ($obr[31] AS $dx) {
-                        $fo[] = $dx[3] . ':' . $dx[1];
+                    if ($patient_record == false) {
+                        $this->ackStatus = 'AR';
+                        $this->ackMessage = "Unable to find patient record '$patientId'";
+                        break 2;
                     }
-                    $foo->reason_code = implode(',', $fo);
-                } else {
-                    $foo->reason_code = $obr[31][3] . ':' . $obr[31][1];
-                }
 
-                $order_notes = '';
-	            if(is_array($order['NTE'])){
-		            foreach($order['NTE'] as $nte){
-			            $order_notes .=  $nte[3][0] . ' ';
-		            }
-	            }
-	            $foo->notes = $order_notes;
+                    if (!isset($orderRecord)) {
+                        $orderRecord = $this->pOrder->load(
+                            array(
+                                'id' => $orderId,
+                                'pid' => $patient_record['pid']
+                            )
+                        )->one();
+                    }
 
-                // specimen segment
-                if (isset($order['SPECIMEN']) && $order['SPECIMEN'] !== false) {
-                    $spm = $order['SPECIMEN']['SPM'];
-                    $foo->specimen_code = $spm[4][3] == 'HL70487' ? $spm[4][3] : $spm[4][3];
-                    $foo->specimen_text = $spm[4][6] == 'HL70487' ? $spm[4][5] : $spm[4][2];
-                    $foo->specimen_code_type = $spm[4][1] == 'HL70487' ? $spm[4][1] : $spm[4][1];
-                    $foo->specimen_notes = $spm[21][3] == 'HL70487' ? $spm[21][2] : '';
-                }
+                    // id not found set the error and break twice to get out of all the loops
+                    if ($orderRecord === false) {
+                        $this->ackStatus = 'AR';
+                        $this->ackMessage = "Unable to find order number '$orderId' for patient '$patientId'";
+                        break 2;
+                    }
 
-                $foo->documentId = 'hl7|' . $msgRecord['id'];
-                $rResult = (array)$this->pResult->save($foo);
-                unset($foo);
-                /**
-                 * Handle all the observations
-                 */
-                foreach ($order['OBSERVATION'] AS $observation) {
-                    /**
-                     * observations and notes
-                     */
-                    $obx = $observation['OBX'];
                     $foo = new stdClass();
-                    $foo->result_id = $rResult['id'];
-                    $foo->code = $obx[3][1];
-                    $foo->code_text = $obx[3][2];
-                    $foo->code_type = $obx[3][3];
-                    /**
-                     * handle the dynamics of the value field
-                     * based on the OBX-2 value
-                     */
+                    $foo->pid = $patientId;
+                    $foo->ordered_uid = $orderRecord['uid'];
+                    $foo->create_date = date('Y-m-d H:i:s');
 
-                    if ($obx[2] == 'CWE') {
-                        $foo->value = $obx[5][2];
+                    $foo->code = $obr[4][1] != '' ? $obr[4][1] : $orderRecord['code'];
+                    $foo->code_text = $obr[4][2] != '' ? $obr[4][2] : $orderRecord['code_text'];
+                    $foo->code_type = $obr[4][3] != '' ? $obr[4][3] : $orderRecord['code_type'];
+
+                    $foo->order_id = $orderId;
+                    $foo->lab_order_id = $obr[3][1];
+                    $foo->lab_name = $this->recipient['facility'];
+                    $foo->lab_address = $this->recipient['physical_address'];
+                    $foo->observation_date = $hl7->time($obr[7][1]);
+                    $foo->result_status = $obr[25];
+                    $foo->result_date = $hl7->time($obr[22][1]);
+
+                    if (is_array($obr[31])) {
+                        $fo = array();
+                        foreach ($obr[31] AS $dx) {
+                            $fo[] = $dx[3] . ':' . $dx[1];
+                        }
+                        $foo->reason_code = implode(',', $fo);
                     } else {
-                        $foo->value = $obx[5];
+                        $foo->reason_code = $obr[31][3] . ':' . $obr[31][1];
                     }
 
-                    $foo->units = $obx[6][1];
-                    $foo->reference_rage = $obx[7];
-                    $foo->probability = $obx[9];
-                    $foo->abnormal_flag = $obx[8][0];
-                    $foo->nature_of_abnormal = $obx[10][0];
-                    $foo->observation_result_status = $obx[11];
-                    $foo->date_rage_values = $hl7->time($obx[12][1]);
-                    $foo->date_observation = $hl7->time($obx[14][1]);
-                    $foo->observer = trim($obx[16][0][2][1] . ' ' . $obx[16][0][3]);
-                    $foo->performing_org_name = $obx[23][1];
-                    $foo->performing_org_address = $obx[24][1][1] . ' ' . $obx[24][3] . ', ' . $obx[24][4] . ' ' . $obx[24][5];
-                    $foo->date_analysis = $hl7->time($obx[19][1]);
+                    $order_notes = '';
+                    if (is_array($order['NTE'])) {
+                        foreach ($order['NTE'] as $nte) {
+                            $order_notes .= $nte[3][0] . ' ';
+                        }
+                    }
+                    $foo->notes = $order_notes;
 
-	                $observation_notes = '';
-	                if(is_array($observation['NTE'])){
-		                foreach($observation['NTE'] as $nte){
-			                $observation_notes .= $nte[3][0] . ' ';
-		                }
-	                }
-	                $foo->notes = $observation_notes;
+                    // Specimen Segment
+                    if (isset($order['SPECIMEN']) && $order['SPECIMEN'] !== false) {
+                        $spm = $order['SPECIMEN']['SPM'];
+                        $foo->specimen_code = $spm[4][3] == 'HL70487' ? $spm[4][3] : $spm[4][3];
+                        $foo->specimen_text = $spm[4][6] == 'HL70487' ? $spm[4][5] : $spm[4][2];
+                        $foo->specimen_code_type = $spm[4][1] == 'HL70487' ? $spm[4][1] : $spm[4][1];
+                        $foo->specimen_notes = $spm[21][3] == 'HL70487' ? $spm[21][2] : '';
+                    }
 
-                    $this->pObservation->save($foo);
+                    $foo->documentId = 'hl7|' . $msgRecord['id'];
+                    $rResult = (array)$this->pResult->save($foo);
+                    unset($foo);
+
+                    // Handle all the observations
+                    foreach ($order['OBSERVATION'] AS $observation) {
+
+                        //  Observations results and notes
+                        $obx = $observation['OBX'];
+                        $foo = new stdClass();
+
+                        // For the rest of the herd
+                        $foo->result_id = $rResult['id'];
+                        $foo->code = $obx[3][1];
+                        $foo->code_text = $obx[3][2];
+                        $foo->code_type = $obx[3][3];
+
+                        // Handle the dynamics of the value field
+                        // based on the OBX-2 value
+                        if ($obx[2] == 'CWE') {
+                            $foo->value = $obx[5][2];
+                        } else {
+                            $foo->value = $obx[5];
+                        }
+
+                        $foo->units = $obx[6][1];
+                        $foo->reference_rage = $obx[7];
+                        $foo->probability = $obx[9];
+                        $foo->abnormal_flag = $obx[8][0];
+                        $foo->nature_of_abnormal = $obx[10][0];
+                        $foo->observation_result_status = $obx[11];
+                        $foo->date_rage_values = $hl7->time($obx[12][1]);
+                        $foo->date_observation = $hl7->time($obx[14][1]);
+                        $foo->observer = trim($obx[16][0][2][1] . ' ' . $obx[16][0][3]);
+                        $foo->performing_org_name = $obx[23][1];
+                        $foo->performing_org_address = $obx[24][1][1] . ' ' . $obx[24][3] . ', ' . $obx[24][4] . ' ' . $obx[24][5];
+                        $foo->date_analysis = $hl7->time($obx[19][1]);
+
+                        $observation_notes = '';
+                        if (is_array($observation['NTE'])) {
+                            foreach ($observation['NTE'] as $nte) {
+                                $observation_notes .= $nte[3][0] . ' ';
+                            }
+                        }
+                        $foo->notes = $observation_notes;
+
+                        // Save the observation result into the database
+                        $ObservationModel = $this->pObservation->save($foo);
+
+                        // Store the ID for future relationships
+                        $ObservationResultsRelations[$obx[1]] = [
+                            'ID' => $obx[1],
+                            'Observation' => $obx[3][1],
+                            'Parent_Id' => $ObservationModel->id
+                        ];
+
+                        unset($foo);
+
+                    }
+
+                    // Change the order status to received
+                    $foo = new stdClass();
+                    $foo->id = $orderId;
+                    $foo->status = 'Received';
+                    $this->pOrder->save($foo);
+                    unset($foo);
+
+                } elseif($obr[26][0] != "") {
+                    // If the OBR have a Parent Result value, it means that we
+                    // have to accommodate this Observation Request as a child of the previous
+                    // Observation Request
+                    // Check for order number in mdTimeLine EHR
+
+                    // Handle all the observations
+                    foreach ($order['OBSERVATION'] AS $observation) {
+
+                        //  Observations results and notes
+                        $obx = $observation['OBX'];
+                        $foo = new stdClass();
+
+                        // For the rest of the herd
+                        $foo->parent_id = $ObservationResultsRelations[$obr[26][2]]['Parent_Id'];
+                        $foo->code = $obx[3][1];
+                        $foo->code_text = $obx[3][2];
+                        $foo->code_type = $obx[3][3];
+
+                        // Handle the dynamics of the value field
+                        // based on the OBX-2 value
+                        if ($obx[2] == 'CWE') {
+                            $foo->value = $obx[5][2];
+                        } else {
+                            $foo->value = $obx[5];
+                        }
+
+                        $foo->units = $obx[6][1];
+                        $foo->reference_rage = $obx[7];
+                        $foo->probability = $obx[9];
+                        $foo->abnormal_flag = $obx[8][0];
+                        $foo->nature_of_abnormal = $obx[10][0];
+                        $foo->observation_result_status = $obx[11];
+                        $foo->date_rage_values = $hl7->time($obx[12][1]);
+                        $foo->date_observation = $hl7->time($obx[14][1]);
+                        $foo->observer = trim($obx[16][0][2][1] . ' ' . $obx[16][0][3]);
+                        $foo->performing_org_name = $obx[23][1];
+                        $foo->performing_org_address = $obx[24][1][1] . ' ' . $obx[24][3] . ', ' . $obx[24][4] . ' ' . $obx[24][5];
+                        $foo->date_analysis = $hl7->time($obx[19][1]);
+
+                        $observation_notes = '';
+                        if (is_array($observation['NTE'])) {
+                            foreach ($observation['NTE'] as $nte) {
+                                $observation_notes .= $nte[3][0] . ' ';
+                            }
+                        }
+                        $foo->notes = $observation_notes;
+
+                        // Save the observation result into the database
+                        $this->pObservation->save($foo);
+                        unset($foo);
+                    }
+
+                    // Change the order status to received
+                    $foo = new stdClass();
+                    $foo->id = $orderId;
+                    $foo->status = 'Received';
+                    $this->pOrder->save($foo);
                     unset($foo);
                 }
-                /**
-                 * Change the order status to received
-                 */
-                $foo = new stdClass();
-                $foo->id = $orderId;
-                $foo->status = 'Received';
-                $this->pOrder->save($foo);
-                unset($foo);
+
             }
         }
 

@@ -427,15 +427,7 @@ class HL7Server
                         $foo->code = $obx[3][1];
                         $foo->code_text = $obx[3][2];
                         $foo->code_type = $obx[3][3];
-
-                        // Handle the dynamics of the value field
-                        // based on the OBX-2 value
-                        if ($obx[2] == 'CWE') {
-                            $foo->value = $obx[5][2];
-                        } else {
-                            $foo->value = $obx[5];
-                        }
-
+                        $foo->value = $obx[5][2];
                         $foo->units = $obx[6][1];
                         $foo->reference_rage = $obx[7];
                         $foo->probability = $obx[9];

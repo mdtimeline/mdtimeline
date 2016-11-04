@@ -142,15 +142,7 @@ Ext.define('App.model.patient.PatientsOrderObservation', {
 			update: 'Orders.updateOrderResultObservations',
 			destroy: 'Orders.deleteOrderResultObservations'
 		},
-		remoteGroup: false
-	},
-	associations: [
-		{
-			type: 'belongsTo',
-			model: 'App.model.patient.PatientsOrderResult',
-			name: 'result',
-			primaryKey: 'id',
-			foreignKey: 'result_id'
-		}
-	]
+		remoteGroup: false,
+        primaryKey: 'id'
+	}
 });

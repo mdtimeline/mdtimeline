@@ -188,10 +188,27 @@ class Orders {
 		$this->setObservations();
 		if(isset($params->loinc)){
 			$records = $this->getObservationsByLoinc($params->loinc);
-		}else{
+            foreach($records as $index => $record) $records[$index]['leaf'] = true;
+		} else {
 			$records = $this->b->load($params)->all();
+            foreach($records as $index => $record){
+                $filter = new stdClass();
+                $filter->filter[0] = new stdClass();
+                $filter->filter[0]->property = 'parent_id';
+                $filter->filter[0]->value = $record['id'];
+                $subRecords = $this->b->load($filter)->all();
+                if(count($subRecords)>0){
+                    foreach($subRecords as $subIndex => $subRecord) $subRecords[$subIndex]['leaf'] = true;
+                    $records[$index]['expanded'] = true;
+                    $records[$index]['children'] = $subRecords;
+                } else {
+                    $records[$index]['leaf'] = true;
+                }
+            }
 		}
-		return $records;
+        $request['children'] = $records;
+        $request['expanded'] = true;
+		return $request;
 	}
 
 	/**

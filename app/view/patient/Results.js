@@ -301,10 +301,11 @@ Ext.define('App.view.patient.Results', {
 								}
 							]
 						},
-						{
+                        {
 							xtype: 'treepanel',
 							itemId: 'ResultsLaboratoryObservationsGrid',
 							action: 'observations',
+                            animate: false,
                             rootVisible: false,
 							flex: 1,
 							region: 'center',

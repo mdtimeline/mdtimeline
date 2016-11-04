@@ -184,6 +184,7 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 			type: 'hasMany',
 			model: 'App.model.patient.PatientsOrderObservation',
 			name: 'observations',
+            primaryKey: 'id',
 			foreignKey: 'result_id',
 			storeConfig: {
 				type: 'tree'

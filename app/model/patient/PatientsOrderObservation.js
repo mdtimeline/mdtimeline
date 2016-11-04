@@ -17,7 +17,7 @@
  */
 
 Ext.define('App.model.patient.PatientsOrderObservation', {
-	extend: 'Ext.data.TreeModel',
+	extend: 'Ext.data.Model',
 	table: {
 		name: 'patient_order_results_observations',
 		comment: 'Order Result Observations OBX'

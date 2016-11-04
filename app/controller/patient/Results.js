@@ -312,7 +312,6 @@ Ext.define('App.controller.patient.Results', {
 		observationGrid.editingPlugin.cancelEdit();
 		results_store.load({
 			callback: function(records){
-
 				if(records.length > 0){
 					var last_result = records.length - 1;
 
@@ -321,6 +320,7 @@ Ext.define('App.controller.patient.Results', {
 					observationStore = records[last_result].observations();
 					observationGrid.reconfigure(observationStore);
 					observationStore.load();
+                    console.log(observationStore);
 				}else{
 					newResult = results_store.add({
 						pid: order_record.data.pid,

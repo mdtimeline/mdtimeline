@@ -1,8 +1,8 @@
 <?php
 
 /**
- * GaiaEHR (Electronic Health Records)
- * Copyright (C) 2013 Certun, LLC.
+ * mdTimeLine (Electronic Health Records)
+ * Copyright (C) 2016 Certun, LLC.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -336,10 +336,10 @@ class HL7Server
                     // Specimen Segment
                     if (isset($order['SPECIMEN']) && $order['SPECIMEN'] !== false) {
                         $spm = $order['SPECIMEN']['SPM'];
-                        $foo->specimen_code = $spm[4][3] == 'HL70487' ? $spm[4][3] : $spm[4][3];
-                        $foo->specimen_text = $spm[4][6] == 'HL70487' ? $spm[4][5] : $spm[4][2];
-                        $foo->specimen_code_type = $spm[4][1] == 'HL70487' ? $spm[4][1] : $spm[4][1];
-                        $foo->specimen_notes = $spm[21][3] == 'HL70487' ? $spm[21][2] : '';
+                        $foo->specimen_code = $spm[4][3] == 'HL70490' ? $spm[4][3] : $spm[4][3];
+                        $foo->specimen_text = $spm[4][6] == 'HL70490' ? $spm[4][5] : $spm[4][2];
+                        $foo->specimen_code_type = $spm[4][1] == 'HL70490' ? $spm[4][1] : $spm[4][1];
+                        $foo->specimen_notes = $spm[21][3] == 'HL70490' ? $spm[21][2] : '';
                     }
 
                     $foo->documentId = 'hl7|' . $msgRecord['id'];

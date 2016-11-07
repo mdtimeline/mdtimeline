@@ -31,3 +31,11 @@ and extensive documentation can be found at the mdTimeline web site at:
 License
 -------
 This project is open sourced under [GNU GPL Version 3](https://github.com/mdtimeline/mdtimeline/blob/master/LICENSE).
+
+
+Developed Using
+-------
+[jetbrains](https://www.jetbrains.com/idea/)
+
+![Alt text](http://resources.jetbrains.com/assets/media/open-graph/jetbrains_250x250.png)
+

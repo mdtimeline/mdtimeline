@@ -320,7 +320,6 @@ Ext.define('App.controller.patient.Results', {
 					observationStore = records[last_result].observations();
 					observationGrid.reconfigure(observationStore);
 					observationStore.load();
-                    console.log(observationStore);
 				}else{
 					newResult = results_store.add({
 						pid: order_record.data.pid,

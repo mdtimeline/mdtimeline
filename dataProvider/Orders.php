@@ -198,29 +198,6 @@ class Orders {
             foreach($records as $index => $record) $records[$index]['leaf'] = true;
 		} else {
 			$records = $this->b->load($params)->all();
-
-//            foreach($records as $index => $record){
-//                $filter = new stdClass();
-//                $filter->filter[0] = new stdClass();
-//                $filter->filter[0]->property = 'parent_id';
-//                $filter->filter[0]->value = $record['id'];
-//                $subRecords = $this->b->load($filter)->all();
-//
-//	            if(count($subRecords)>0){
-//                    foreach($subRecords as $subIndex => $subRecord) {
-//	                    $subRecords[$subIndex]['parentId'] = $subRecords[$subIndex]['parent_id'];
-//	                    $subRecords[$subIndex]['leaf'] = true;
-//                    }
-//		            $records[$index]['parentId'] = 0;
-//		            $records[$index]['parent_id'] = 0;
-//                    $records[$index]['expanded'] = true;
-//                    $records[$index]['children'] = $subRecords;
-//                } else {
-//                    $records[$index]['parentId'] = 0;
-//                    $records[$index]['parent_id'] = 0;
-//                    $records[$index]['leaf'] = true;
-//                }
-//            }
 		}
         $request['text'] = '.';
         $request['children'] = $records;

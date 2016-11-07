@@ -1,7 +1,7 @@
 ![Alt text](https://github.com/mdtimeline/mdtimeline/raw/master/resources/images/logo_190_190.jpg)
 =====================
 
-FORMER GAIAEHR!
+<u>FORMERLY KNOWN AS GAIAEHR!</u>
 
 [mdTimeline](http://www.mdtimeline.com/) is an Open source Web-Based Software for:
 * Medic Practice management

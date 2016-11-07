@@ -207,7 +207,6 @@ class Orders {
             }
 		}
         $request['children'] = $records;
-        $request['expanded'] = true;
 		return $request;
 	}
 

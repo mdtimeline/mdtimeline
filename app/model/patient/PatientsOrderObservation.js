@@ -17,7 +17,7 @@
  */
 
 Ext.define('App.model.patient.PatientsOrderObservation', {
-	extend: 'Ext.data.Model',
+	extend: 'Ext.data.TreeModel',
 	table: {
 		name: 'patient_order_results_observations',
 		comment: 'Order Result Observations OBX'
@@ -142,7 +142,6 @@ Ext.define('App.model.patient.PatientsOrderObservation', {
 			update: 'Orders.updateOrderResultObservations',
 			destroy: 'Orders.deleteOrderResultObservations'
 		},
-		remoteGroup: false,
-        primaryKey: 'id'
+		remoteGroup: false
 	}
 });

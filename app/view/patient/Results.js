@@ -320,6 +320,13 @@ Ext.define('App.view.patient.Results', {
 							],
 							columns: [
 								{
+                                    xtype: 'treecolumn',
+									text: _('name'),
+									menuDisabled: true,
+									dataIndex: 'code_text',
+									width: 350
+								},
+								{
 									xtype: 'actioncolumn',
 									width: 25,
 									items: [
@@ -335,13 +342,6 @@ Ext.define('App.view.patient.Results', {
 											}
 										}
 									]
-								},
-								{
-                                    xtype: 'treecolumn',
-									text: _('name'),
-									menuDisabled: true,
-									dataIndex: 'code_text',
-									width: 350
 								},
 								{
 									text: _('value'),

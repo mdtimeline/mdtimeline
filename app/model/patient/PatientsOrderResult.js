@@ -187,7 +187,9 @@ Ext.define('App.model.patient.PatientsOrderResult', {
             primaryKey: 'id',
 			foreignKey: 'result_id',
 			storeConfig: {
-				type: 'tree'
+				type: 'tree',
+				autoLoad: false,
+				clearOnLoad: true
 			}
 		},
 		{

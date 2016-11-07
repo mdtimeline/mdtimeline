@@ -186,29 +186,45 @@ class Orders {
 	 */
 	public function getOrderResultObservations($params){
 		$this->setObservations();
-		if(isset($params->loinc)){
+
+		if(isset($params->id)){
+			$records = $this->b->load(['parent_id' => $params->id])->all();
+			foreach($records as $index => $record){
+				$records[$index]['iconCls'] = 'x-tree-no-icon';
+				$records[$index]['leaf'] = true;
+			}
+		}elseif(isset($params->loinc)){
 			$records = $this->getObservationsByLoinc($params->loinc);
             foreach($records as $index => $record) $records[$index]['leaf'] = true;
 		} else {
 			$records = $this->b->load($params)->all();
-            foreach($records as $index => $record){
-                $filter = new stdClass();
-                $filter->filter[0] = new stdClass();
-                $filter->filter[0]->property = 'parent_id';
-                $filter->filter[0]->value = $record['id'];
-                $subRecords = $this->b->load($filter)->all();
-                if(count($subRecords)>0){
-                    foreach($subRecords as $subIndex => $subRecord) $subRecords[$subIndex]['leaf'] = true;
-                    $records[$index]['expanded'] = true;
-                    $records[$index]['children'] = $subRecords;
-                } else {
-                    $records[$index]['leaf'] = true;
-                }
-            }
+
+//            foreach($records as $index => $record){
+//                $filter = new stdClass();
+//                $filter->filter[0] = new stdClass();
+//                $filter->filter[0]->property = 'parent_id';
+//                $filter->filter[0]->value = $record['id'];
+//                $subRecords = $this->b->load($filter)->all();
+//
+//	            if(count($subRecords)>0){
+//                    foreach($subRecords as $subIndex => $subRecord) {
+//	                    $subRecords[$subIndex]['parentId'] = $subRecords[$subIndex]['parent_id'];
+//	                    $subRecords[$subIndex]['leaf'] = true;
+//                    }
+//		            $records[$index]['parentId'] = 0;
+//		            $records[$index]['parent_id'] = 0;
+//                    $records[$index]['expanded'] = true;
+//                    $records[$index]['children'] = $subRecords;
+//                } else {
+//                    $records[$index]['parentId'] = 0;
+//                    $records[$index]['parent_id'] = 0;
+//                    $records[$index]['leaf'] = true;
+//                }
+//            }
 		}
+        $request['text'] = '.';
         $request['children'] = $records;
-        $request['expanded'] = true;
-		return $request;
+		return $records;
 	}
 
 	/**

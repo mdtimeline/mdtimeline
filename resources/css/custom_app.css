@@ -12,6 +12,11 @@
     margin-left: 20px !important;
 }
 
+.x-tree-no-icon {
+    background-image: none !important;
+    display: none !important;
+}
+
 .entered-in-error {
     text-decoration: line-through !important;
 }

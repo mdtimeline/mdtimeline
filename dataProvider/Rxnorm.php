@@ -90,7 +90,17 @@ class Rxnorm
             SELECT * 
             FROM rxnconso 
             WHERE CODE=:code 
-            AND (TTY='SCD' OR TTY='SBD' OR TTY='SCDG' OR TTY='SBDC')");
+            AND (
+                TTY='BN' OR 
+                TTY='SCDG' OR 
+                TTY='SBDC' OR
+                TTY='IN' OR
+                TTY='PIN' OR
+                TTY='MIN' OR
+                TTY='SBD' OR
+                TTY='SBDC' OR
+                TTY='SBDF'
+            )");
         $Statement->execute([':code' => $RxNormCode]);
         $RxNormRecord = $Statement->fetchAll(PDO::FETCH_ASSOC);
         if (count($RxNormRecord) > 0) {
@@ -99,48 +109,88 @@ class Rxnorm
             return [];
         }
         switch ($RxNormRecord['TTY']) {
-            // If the record has the Branded Record execute SQL to extract
-            // the ingredient of that branded drug
-            case 'SBD':
-            case 'SBDC':
-                // Fetch the relationship for ingredient
-                $Statement = $this->db->prepare("SELECT * FROM rxnrel WHERE RXCUI2=:rxcui AND (RELA='ingredient_of' OR RELA='ingredients_of')");
-                $Statement->execute([':rxcui' => $RxNormRecord['RXCUI']]);
-                $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
-                if (count($Record) <= 0) break;
-                $Record = $Record[0];
-                // Fetch the relationship for trademark
-                $Statement = $this->db->prepare("SELECT * FROM rxnrel WHERE RXCUI1=:rxcui AND RELA='has_tradename'");
-                $Statement->execute([':rxcui' => $Record['RXCUI1']]);
-                $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
-                if (count($Record) <= 0) break;
-                $Record = $Record[0];
-                // Extract the ingredient
-                $Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE RXCUI=:rxcui AND SAB='RXNORM'");
-                $Statement->execute([':rxcui' => $Record['RXCUI2']]);
-                $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
-                if (count($Record) <= 0) break;
-                $Record = $Record[0];
+            case 'BN':
+                $Statement = $this->db->prepare("
+                    SELECT * FROM rxnconso 
+                    INNER JOIN (
+                        SELECT RXCUI1 FROM rxnrel 
+                        WHERE RXCUI2 = :rxcui AND RELA='tradename_of'
+                    ) AS rxnrel ON rxnrel.RXCUI1 = rxnconso.RXCUI
+                    WHERE rxnconso.SAB = 'RXNORM' AND TTY='IN'");
                 break;
-            // If the record has the Clinical record execute SQL to
-            // narrow the ingredient only
-            case 'SCD':
+            case 'IN':
+                $Statement = $this->db->prepare("
+                    SELECT * FROM rxnconso 
+                    WHERE RXCUI=:rxcui TTY='IN' AND SAB='RXNORM'");
+                break;
+            case 'PIN':
+                $Statement = $this->db->prepare("
+                    SELECT * FROM rxnconso 
+                    INNER JOIN (
+                        SELECT RXCUI1 FROM rxnrel 
+                        WHERE RXCUI2=:rxcui AND RELA='form_of'
+                    ) AS rxnrel ON rxnrel.RXCUI1 = rxnconso.RXCUI
+                    WHERE rxnconso.SAB='RXNORM' AND TTY='IN'");
+                break;
+            case 'MIN':
+                $Statement = $this->db->prepare("
+                    SELECT * FROM rxnconso 
+                    INNER JOIN (
+                        SELECT RXCUI1 FROM rxnrel 
+                        WHERE RXCUI2=:rxcui AND RELA='has_part'
+                    ) AS rxnrel ON rxnrel.RXCUI1 = rxnconso.RXCUI
+                    WHERE rxnconso.SAB='RXNORM' AND TTY='IN'");
+                break;
+            case 'SBD':
+                $Statement = $this->db->prepare("
+                    SELECT * FROM rxnconso 
+                    WHERE rxnconso.RXCUI IN (
+                        # Step 2
+                        SELECT RXCUI1 as RXCUI FROM rxnrel 
+                        WHERE RXCUI2 IN (
+                            # Step 1
+                            SELECT RXCUI1 as RXCUI2 FROM rxnrel 
+                            WHERE RXCUI2 = :rxcui AND RELA='consists_of'
+                        ) AND RELA = 'has_ingredient'
+                    ) AND SAB = 'RXNORM' AND TTY='IN'");
+                break;
+            case 'SBDC':
+                $Statement = $this->db->prepare("
+                    SELECT * FROM rxnconso 
+                    WHERE rxnconso.RXCUI IN (
+                        # Step 2
+                        SELECT RXCUI1 as RXCUI FROM rxnrel 
+                        WHERE RXCUI2 IN (
+                            # Step 1
+                            SELECT RXCUI1 as RXCUI2 FROM rxnrel 
+                            WHERE RXCUI2 = :rxcui AND RELA='tradename_of'
+                        ) AND RELA = 'has_ingredient'
+                    ) AND SAB = 'RXNORM' AND TTY='IN'");
+                break;
             case 'SCDG':
-                // Fetch the relationship for ingredient of...
-                $Statement = $this->db->prepare("SELECT * FROM rxnrel WHERE RXCUI1=:rxcui AND (RELA='ingredient_of' OR RELA='ingredients_of') LIMIT 1");
-                $Statement->execute([':rxcui' => $RxNormRecord['RXCUI']]);
-                $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
-                if (count($Record) <= 0) break;
-                $Record = $Record[0];
-                // Extract the ingredient
-                $Statement = $this->db->prepare("SELECT * FROM rxnconso WHERE RXCUI=:rxcui AND SAB='RXNORM' AND (TTY='IN' OR TTY='MIN')");
-                $Statement->execute([':rxcui' => $Record['RXCUI2']]);
-                $Record = $Statement->fetchAll(PDO::FETCH_ASSOC);
-                if (count($Record) <= 0) break;
-                $Record = $Record[0];
+                $Statement = $this->db->prepare("
+                    SELECT * FROM rxnconso 
+                    INNER JOIN (
+                        SELECT RXCUI1 FROM rxnrel 
+                        WHERE RXCUI2=:rxcui AND RELA='has_ingredient'
+                    ) AS rxnrel ON rxnrel.RXCUI1 = rxnconso.RXCUI
+                    WHERE rxnconso.SAB='RXNORM' AND TTY='IN'");
+                break;
+            case 'SBDC':
+            case 'SBDF':
+                $Statement = $this->db->prepare("
+                    SELECT * FROM rxnconso 
+                    WHERE rxnconso.RXCUI IN (
+                        # Step 2
+                        SELECT RXCUI1 as RXCUI FROM rxnrel WHERE RXCUI2 IN (
+                            # Step 1
+                            SELECT RXCUI1 as RXCUI2 FROM rxnrel WHERE RXCUI2 = :rxcui AND RELA='tradename_of'
+                        ) AND RELA = 'has_ingredient'
+                    ) AND SAB = 'RXNORM' AND TTY='IN'");
                 break;
         }
-        return $Record;
+        $Statement->execute([':rxcui' => $RxNormRecord['RXCUI']]);
+        return $Statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getDoseformAbbreviateByCODE($CODE)

@@ -17,7 +17,7 @@
  */
 
 Ext.define('App.model.patient.PatientsOrderObservation', {
-	extend: 'Ext.data.Model',
+	extend: 'Ext.data.TreeModel',
 	table: {
 		name: 'patient_order_results_observations',
 		comment: 'Order Result Observations OBX'
@@ -31,8 +31,14 @@ Ext.define('App.model.patient.PatientsOrderObservation', {
 			name: 'result_id',
 			type: 'int',
 			index: true,
-			comment: 'Order ID'
+			comment: 'Result ID'
 		},
+        {
+            name: 'parent_id',
+            type: 'int',
+            index: true,
+            comment: 'Parent ID'
+        },
 		{
 			name: 'code',
 			type: 'string',
@@ -137,14 +143,5 @@ Ext.define('App.model.patient.PatientsOrderObservation', {
 			destroy: 'Orders.deleteOrderResultObservations'
 		},
 		remoteGroup: false
-	},
-	associations: [
-		{
-			type: 'belongsTo',
-			model: 'App.model.patient.PatientsOrderResult',
-			name: 'result',
-			primaryKey: 'id',
-			foreignKey: 'result_id'
-		}
-	]
+	}
 });

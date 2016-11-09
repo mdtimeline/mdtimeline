@@ -119,8 +119,6 @@ class Orders {
 	 */
 	public function addOrderResults($params){
 		$this->setResults();
-
-
 		if(isset($params->upload) && $params->upload != ''){
 			include_once (ROOT. '/dataProvider/DocumentHandler.php');
 			$DocumentHandler = new DocumentHandler();
@@ -170,8 +168,6 @@ class Orders {
 			$params->documentId = 'doc|' . $record['data']->id;
 			unset($params->upload);
 		}
-
-
 		return $this->r->save($params);
 	}
 
@@ -190,12 +186,21 @@ class Orders {
 	 */
 	public function getOrderResultObservations($params){
 		$this->setObservations();
-		if(isset($params->loinc)){
+
+		if(isset($params->id)){
+			$records = $this->b->load(['parent_id' => $params->id])->all();
+			foreach($records as $index => $record){
+				$records[$index]['iconCls'] = 'x-tree-no-icon';
+				$records[$index]['leaf'] = true;
+			}
+		}elseif(isset($params->loinc)){
 			$records = $this->getObservationsByLoinc($params->loinc);
-		}else{
+            foreach($records as $index => $record) $records[$index]['leaf'] = true;
+		} else {
 			$records = $this->b->load($params)->all();
 		}
-
+        $request['text'] = '.';
+        $request['children'] = $records;
 		return $records;
 	}
 

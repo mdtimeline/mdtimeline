@@ -405,7 +405,6 @@ class HL7Messages {
 					}
 				}
 
-
 				// RXA - 4.14.7 RXA - Pharmacy/Treatment Administration Segment
 				$RXA = $this->hl7->addSegment('RXA');
 				$RXA->setValue('3.1', $this->date($immu['administered_date'])); //Date/Time Start of Administration
@@ -725,7 +724,7 @@ class HL7Messages {
 		$this->from = $this->f->load($this->from)->one();
 		//
 		$msh = $this->hl7->addSegment('MSH');
-		$msh->setValue('3.1', 'GaiaEHR'); // Sending Application
+		$msh->setValue('3.1', 'mdTimeLineEHR'); // Sending Application
 		$msh->setValue('4.1', addslashes(substr($this->from['name'], 0, 20))); // Sending Facility
 		if($includeNPI){
 			$msh->setValue('4.2', $this->from['npi']);

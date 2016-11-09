@@ -49,6 +49,7 @@ class HL7ServerAbstract implements MessageComponentInterface {
 				$server->socket->shutdown();
 				die();
 			}
+
 			$ack = call_user_func(array(
 				$conn->handler,
 				$this->method

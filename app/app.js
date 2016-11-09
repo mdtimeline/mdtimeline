@@ -18463,7 +18463,7 @@ Ext.define('App.model.patient.PatientSocialHistory', {
 	}
 });
 Ext.define('App.model.patient.PatientsOrderObservation', {
-	extend: 'Ext.data.Model',
+	extend: 'Ext.data.TreeModel',
 	table: {
 		name: 'patient_order_results_observations',
 		comment: 'Order Result Observations OBX'
@@ -18477,8 +18477,14 @@ Ext.define('App.model.patient.PatientsOrderObservation', {
 			name: 'result_id',
 			type: 'int',
 			index: true,
-			comment: 'Order ID'
+			comment: 'Result ID'
 		},
+        {
+            name: 'parent_id',
+            type: 'int',
+            index: true,
+            comment: 'Parent ID'
+        },
 		{
 			name: 'code',
 			type: 'string',
@@ -18583,17 +18589,9 @@ Ext.define('App.model.patient.PatientsOrderObservation', {
 			destroy: 'Orders.deleteOrderResultObservations'
 		},
 		remoteGroup: false
-	},
-	associations: [
-		{
-			type: 'belongsTo',
-			model: 'App.model.patient.PatientsOrderResult',
-			name: 'result',
-			primaryKey: 'id',
-			foreignKey: 'result_id'
-		}
-	]
+	}
 });
+
 Ext.define('App.model.patient.PatientsOrderResult', {
 	extend: 'Ext.data.Model',
 	requires: [
@@ -18762,7 +18760,13 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 			type: 'hasMany',
 			model: 'App.model.patient.PatientsOrderObservation',
 			name: 'observations',
-			foreignKey: 'result_id'
+            primaryKey: 'id',
+			foreignKey: 'result_id',
+			storeConfig: {
+				type: 'tree',
+				autoLoad: false,
+				clearOnLoad: true
+			}
 		},
 		{
 			type: 'belongsTo',
@@ -25127,10 +25131,12 @@ Ext.define('App.view.patient.Results', {
 								}
 							]
 						},
-						{
-							xtype: 'grid',
+                        {
+							xtype: 'treepanel',
 							itemId: 'ResultsLaboratoryObservationsGrid',
 							action: 'observations',
+                            animate: false,
+                            rootVisible: false,
 							flex: 1,
 							region: 'center',
 							split: true,
@@ -25143,6 +25149,13 @@ Ext.define('App.view.patient.Results', {
 								}
 							],
 							columns: [
+								{
+                                    xtype: 'treecolumn',
+									text: _('name'),
+									menuDisabled: true,
+									dataIndex: 'code_text',
+									width: 350
+								},
 								{
 									xtype: 'actioncolumn',
 									width: 25,
@@ -25159,12 +25172,6 @@ Ext.define('App.view.patient.Results', {
 											}
 										}
 									]
-								},
-								{
-									text: _('name'),
-									menuDisabled: true,
-									dataIndex: 'code_text',
-									width: 350
 								},
 								{
 									text: _('value'),
@@ -35382,7 +35389,7 @@ Ext.define('App.store.patient.PatientsLabOrderItems', {
 
 
 Ext.define('App.store.patient.PatientsOrderObservations', {
-	extend: 'Ext.data.Store',
+	extend: 'Ext.data.TreeStore',
 	model: 'App.model.patient.PatientsOrderObservation',
 	remoteSort: false,
 	autoLoad: false
@@ -49608,14 +49615,6 @@ Ext.define('App.view.administration.DataManager', {
         };
         me.store.loadPage(1);
     },
-    //        onObservationSelect:function(combo, record){
-    //            say(record[0].data);
-    //            this.labObservationsStore.add({
-    //                    lab_id:this.getSelectId(),
-    //                    observation_element_id:record[0].data.id
-    //                });
-    //            combo.reset();
-    //        },
 
     onActivePressed: function (btn, pressed) {
         var me = this,
@@ -55248,9 +55247,11 @@ Ext.define('App.controller.patient.Results', {
 		results_store.load({
 			callback: function(records){
 				if(records.length > 0){
-					form.loadRecord(records[0]);
-					me.getResultsOrderSignBtn().setDisabled(records[0].data.signed_uid > 0);
-					observationStore = records[0].observations();
+					var last_result = records.length - 1;
+
+					form.loadRecord(records[last_result]);
+					me.getResultsOrderSignBtn().setDisabled(records[last_result].data.signed_uid > 0);
+					observationStore = records[last_result].observations();
 					observationGrid.reconfigure(observationStore);
 					observationStore.load();
 				}else{
@@ -55267,6 +55268,7 @@ Ext.define('App.controller.patient.Results', {
 					observationStore = newResult[0].observations();
 					observationGrid.reconfigure(observationStore);
 					observationStore.load({
+
 						params: {
 							loinc: order_record.data.code
 						},
@@ -55287,14 +55289,15 @@ Ext.define('App.controller.patient.Results', {
 			form = me.getResultsRadiologyForm().getForm(),
 			results_store = order_record.results();
 
-
 		results_store.load({
 			callback: function(records){
 				if(records.length > 0){
-					form.loadRecord(records[0]);
-					me.getResultsOrderSignBtn().setDisabled(records[0].data.signed_uid > 0);
-					me.loadRadiologyDocument(records[0]);
-					me.setViewStudyBtn(records[0]);
+					var last_result = records.length - 1;
+
+					form.loadRecord(records[last_result]);
+					me.getResultsOrderSignBtn().setDisabled(records[last_result].data.signed_uid > 0);
+					me.loadRadiologyDocument(records[last_result]);
+					me.setViewStudyBtn(records[last_result]);
 				}else{
 					var newResult = results_store.add({
 						pid: order_record.data.pid,
@@ -55310,7 +55313,6 @@ Ext.define('App.controller.patient.Results', {
 				}
 			}
 		});
-
 	},
 
 	setViewStudyBtn: function(result_record){

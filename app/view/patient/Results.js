@@ -301,10 +301,12 @@ Ext.define('App.view.patient.Results', {
 								}
 							]
 						},
-						{
-							xtype: 'grid',
+                        {
+							xtype: 'treepanel',
 							itemId: 'ResultsLaboratoryObservationsGrid',
 							action: 'observations',
+                            animate: false,
+                            rootVisible: false,
 							flex: 1,
 							region: 'center',
 							split: true,
@@ -317,6 +319,13 @@ Ext.define('App.view.patient.Results', {
 								}
 							],
 							columns: [
+								{
+                                    xtype: 'treecolumn',
+									text: _('name'),
+									menuDisabled: true,
+									dataIndex: 'code_text',
+									width: 350
+								},
 								{
 									xtype: 'actioncolumn',
 									width: 25,
@@ -333,12 +342,6 @@ Ext.define('App.view.patient.Results', {
 											}
 										}
 									]
-								},
-								{
-									text: _('name'),
-									menuDisabled: true,
-									dataIndex: 'code_text',
-									width: 350
 								},
 								{
 									text: _('value'),

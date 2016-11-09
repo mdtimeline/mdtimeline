@@ -1,7 +1,9 @@
-![Alt text](http://gaiaehr.org/wp-content/uploads/2012/10/gaiaehr_white_100px1.png)
+![Alt text](https://github.com/mdtimeline/mdtimeline/raw/master/resources/images/logo_190_190.jpg)
 =====================
 
-[GaiaEHR](http://www.gaiaehr.org/) is an Open source Web-Based Software for:
+<u>FORMERLY KNOWN AS GAIAEHR!</u>
+
+[mdTimeline](http://www.mdtimeline.com/) is an Open source Web-Based Software for:
 * Medic Practice management
 * Electronic Medical Records
 * Prescription writing and medical billing application
@@ -23,9 +25,17 @@ Mobile Application:
 * Opera Mobile
 
 Setup documentation can be found in the INSTALL file,
-and extensive documentation can be found at the GaiaEHR web site at:
-[Read more](http://www.GaiaEHR.org/).
+and extensive documentation can be found at the mdTimeline web site at:
+[Read more](http://www.mdtimeline.com/).
 
 License
 -------
-This project is open sourced under [GNU GPL Version 3](https://github.com/gaiaehr/gaiaehr/blob/master/LICENSE).
+This project is open sourced under [GNU GPL Version 3](https://github.com/mdtimeline/mdtimeline/blob/master/LICENSE).
+
+
+Developed Using
+-------
+[jetbrains](https://www.jetbrains.com/idea/)
+
+![Alt text](http://resources.jetbrains.com/assets/media/open-graph/jetbrains_250x250.png)
+

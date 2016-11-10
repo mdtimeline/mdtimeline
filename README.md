@@ -35,7 +35,7 @@ This project is open sourced under [GNU GPL Version 3](https://github.com/mdtime
 
 Developed Using
 -------
-[jetbrains](https://www.jetbrains.com/idea/)
+[JetBrains](https://www.jetbrains.com/idea/)
 
 ![Alt text](http://resources.jetbrains.com/assets/media/open-graph/jetbrains_250x250.png)
 

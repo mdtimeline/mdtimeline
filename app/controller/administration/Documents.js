@@ -47,6 +47,14 @@ Ext.define('App.controller.administration.Documents', {
 		{
 			ref: 'AdministrationDocumentsNewTemplateBtn',
 			selector: '#AdministrationDocumentsNewTemplateBtn'
+		},
+		{
+			ref: 'AdministrationDocumentsPdfTemplatesGrid',
+			selector: '#AdministrationDocumentsPdfTemplatesGrid'
+		},
+		{
+			ref: 'AdministrationDocumentsPdfTemplatesAddBtn',
+			selector: '#AdministrationDocumentsPdfTemplatesAddBtn'
 		}
 	],
 
@@ -65,8 +73,15 @@ Ext.define('App.controller.administration.Documents', {
 			},
 			'#AdministrationDocumentsNewDefaulTemplateBtn': {
 				click: me.onAdministrationDocumentsNewDefaulTemplateBtnClick
+			},
+			'#AdministrationDocumentsPdfTemplatesAddBtn': {
+				click: me.onAdministrationDocumentsPdfTemplatesAddBtnClick
 			}
 		});
+	},
+
+	onAdministrationDocumentsPdfTemplatesAddBtnClick: function(){
+
 	},
 
 	onAdministrationDocumentsActive: function(){
@@ -75,7 +90,7 @@ Ext.define('App.controller.administration.Documents', {
 
 	onAdministrationDocumentsNewTemplateBtnClick: function(){
 		var me = this,
-			grid = me.getAdministrationDocumentsNewTemplateBtn(),
+			grid = me.getAdministrationDocumentsTemplatesGrid(),
 			store = grid.getStore();
 
 		grid.editingPlugin.cancelEdit();

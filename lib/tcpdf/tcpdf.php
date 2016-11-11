@@ -1,7 +1,7 @@
 <?php
 //============================================================+
 // File name   : tcpdf.php
-// Version     : 6.2.12
+// Version     : 6.2.13
 // Begin       : 2002-08-03
 // Last Update : 2015-06-18
 // Author      : Nicola Asuni - Tecnick.com LTD - www.tecnick.com - info@tecnick.com
@@ -18783,7 +18783,19 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 				} else {
 					$hrHeight = $this->GetLineWidth();
 				}
-				$this->addHTMLVertSpace($hbz, max($hb, ($hrHeight / 2)), $cell, $firsttag);
+
+				if ((isset($tag['margin']['T']))) {
+					$hrTMargin = $tag['margin']['T'];
+				} else {
+					$hrTMargin = 5;
+				}
+				if ((isset($tag['margin']['B']))) {
+					$hrBMargin = $tag['margin']['B'];
+				} else {
+					$hrBMargin = 5;
+				}
+
+				$this->addHTMLVertSpace($hrTMargin, max($hb, ($hrHeight / 2)), $cell, $firsttag);
 				$x = $this->GetX();
 				$y = $this->GetY();
 				$wtmp = $this->w - $this->lMargin - $this->rMargin;
@@ -18799,7 +18811,7 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 				$this->SetLineWidth($hrHeight);
 				$this->Line($x, $y, $x + $hrWidth, $y);
 				$this->SetLineWidth($prevlinewidth);
-				$this->addHTMLVertSpace(max($hbc, ($hrHeight / 2)), 0, $cell, !isset($dom[($key + 1)]));
+				$this->addHTMLVertSpace($hrBMargin, 0, $cell, !isset($dom[($key + 1)]));
 				break;
 			}
 			case 'a': {

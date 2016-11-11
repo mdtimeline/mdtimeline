@@ -24,7 +24,7 @@ include_once(ROOT . '/dataProvider/User.php');
 include_once(ROOT . '/dataProvider/Encounter.php');
 include_once(ROOT . '/dataProvider/Referrals.php');
 include_once(ROOT . '/dataProvider/Facilities.php');
-include_once(ROOT . '/dataProvider/DocumentPDF.php');
+include_once(ROOT . '/dataProvider/DocumentFPDI.php');
 include_once(ROOT . '/dataProvider/i18nRouter.php');
 
 class Documents {
@@ -48,16 +48,22 @@ class Documents {
 	private $User;
 
 	/**
-	 * @var DocumentPDF
+	 * @var DocumentFPDI
 	 */
 	public $pdf;
+
+	/**
+	 * @var \MatchaCUP
+	 */
+	private $t;
 
 	function __construct() {
 		$this->db = new MatchaHelper();
 		$this->Patient = new Patient();
 		$this->Encounter = new Encounter();
 		$this->User = new User();
-		$this->pdf = new DocumentPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+
+		$this->t = \MatchaModel::setSenchaModel('App.model.administration.DocumentsPdfTemplate');
 		return;
 	}
 
@@ -502,91 +508,133 @@ class Documents {
 		return $allNeededInfo;
 	}
 
-	public function PDFDocumentBuilder($params, $path = '') {
+	/**
+	 * @param $params
+	 * @param string $path
+	 * @param null|array $custom_header_data
+	 * @return bool
+	 */
+	public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null) {
 		$pid = $params->pid;
-		$templateId = $params->templateId;
 		$regex = '(\[\w*?\])';
-		$this->pdf->SetCreator('TCPDF');
-		$this->pdf->SetAuthor($_SESSION['user']['name']);
 
-		$this->pdf->setHeaderFont([
-			'helvetica',
-			'',
-			14
-		]);
-		$this->pdf->setFooterFont([
-			'helvetica',
-			'',
-			8
-		]);
-		$this->pdf->SetDefaultMonospacedFont('courier');
-		$this->pdf->SetMargins(15, 27, 15);
-		$this->pdf->setHeaderMargin(5);
-		$this->pdf->setFooterMargin(10);
-		$this->pdf->SetAutoPageBreak(true, 25);
-		//$this->pdf->setFontSubsetting(true);
+		$pdf = new DocumentFPDI();
+
+		if(isset($custom_header_data)){
+			$pdf->addCustomHeaderData($custom_header_data);
+		}
+
+		$pdf->SetDefaultMonospacedFont('courier');
+		$pdf->setHeaderMargin(0);
+		$pdf->setFooterMargin(0);
+		$pdf->SetAutoPageBreak(true, 20);
+
+		if(isset($params->facility_id)){
+			$template = $this->getPdfTemplateByFacilityId($params->facility_id);
+		}else{
+			$template = $this->getPdfTemplateByFacilityId();
+		}
+
+		// template
+		$pdf->setSourceFile($template['template']);
+
+		$margins = [
+			'left' => isset($template['body_margin_left']) ? intval($template['body_margin_left']) : 25,
+			'top' => isset($template['body_margin_top']) ? intval($template['body_margin_top']) : 25,
+			'right' => isset($template['body_margin_right']) ? intval($template['body_margin_right']) : 25
+		];
+
+		$font = [
+			'family' => isset($template['body_font_family']) ? $template['body_font_family'] : 'times',
+			'size' => isset($template['body_font_size']) ? intval($template['body_font_size']) : 12,
+		    'style' => isset($template['body_font_style']) ? $template['body_font_style'] : '',
+		];
+
+		/**
+		 * courier : Courier
+		 * courierB : Courier Bold
+		 * courierBI : Courier Bold Italic
+		 * courierI : Courier Italic
+		 * helvetica : Helvetica
+		 * helveticaB : Helvetica Bold
+		 * helveticaBI : Helvetica Bold Italic
+		 * helveticaI : Helvetica Italic
+		 * symbol : Symbol
+		 * times : Times New Roman
+		 * timesB : Times New Roman Bold
+		 * timesBI : Times New Roman Bold Italic
+		 * timesI : Times New Roman Italic
+		 * zapfdingbats : Zapf Dingbats
+		 */
+		$pdf->SetFont($font['family'],$font['style'],$font['size'], true);
+
+
+		$pdf->SetMargins($margins['left'], $margins['top'], $margins['right'], true);
+
+		$pdf->SetCreator('MDTIMELINE');
+		$pdf->SetAuthor(isset($_SESSION['user']['name']) ? $_SESSION['user']['name'] : 'mdTimeline Automated Generator');
 
 		if(isset($params->DoctorsNote)){
 			$body = $params->DoctorsNote;
 			preg_match_all($regex, $body, $tokensfound);
 			$tokens = $tokensfound;
-		} else {
-			$tokens = $this->getArrayWithTokensNeededByDocumentID($templateId);
+		} elseif(isset($params->templateId)) {
+			$tokens = $this->getArrayWithTokensNeededByDocumentID($params->templateId);
 			//getting the template
-			$body = $this->getTemplateBodyById($templateId);
+			$body = $this->getTemplateBodyById($params->templateId);
+		}else{
+			$body['body'] = isset($params->body) ? $params->body : '';
 		}
 
-		$allNeededInfo = $this->setArraySizeOfTokenArray($tokens);
+		if(isset($tokens)){
 
-		$allNeededInfo = $this->get_PatientTokensData($pid, $allNeededInfo, $tokens);
+			$allNeededInfo = $this->setArraySizeOfTokenArray($tokens);
+			$allNeededInfo = $this->get_PatientTokensData($pid, $allNeededInfo, $tokens);
+			if(isset($params->eid) && $params->eid != 0 && $params->eid != ''){
+				$allNeededInfo = $this->get_EncounterTokensData($params->eid, $allNeededInfo, $tokens);
+			}
+			$allNeededInfo = $this->getCurrentTokensData($allNeededInfo, $tokens);
+			$allNeededInfo = $this->getClinicTokensData($allNeededInfo, $tokens);
+			if(isset($params->orderItems) || isset($params->date_ordered)){
+				$allNeededInfo = $this->parseTokensForOrders($params, $tokens, $allNeededInfo);
+			}
+			if(isset($params->referralId)){
+				$allNeededInfo = $this->addReferralData($params, $tokens, $allNeededInfo);
+			}
+			if(isset($params->docNoteid)){
+				$allNeededInfo = $this->addDoctorsNoteData($params, $tokens, $allNeededInfo);
+			}
+			if(isset($params->provider_uid)){
+				$allNeededInfo = $this->addProviderData($params, $tokens, $allNeededInfo);
+			}
 
-		if(isset($params->eid) && $params->eid != 0 && $params->eid != ''){
-			$allNeededInfo = $this->get_EncounterTokensData($params->eid, $allNeededInfo, $tokens);
-		}
-
-		$allNeededInfo = $this->getCurrentTokensData($allNeededInfo, $tokens);
-
-		$allNeededInfo = $this->getClinicTokensData($allNeededInfo, $tokens);
-
-		if(isset($params->orderItems) || isset($params->date_ordered)){
-			$allNeededInfo = $this->parseTokensForOrders($params, $tokens, $allNeededInfo);
-		}
-
-		if(isset($params->referralId)){
-			$allNeededInfo = $this->addReferralData($params, $tokens, $allNeededInfo);
-		}
-
-		if(isset($params->docNoteid)){
-			$allNeededInfo = $this->addDoctorsNoteData($params, $tokens, $allNeededInfo);
-		}
-
-		if(isset($params->provider_uid)){
-			$allNeededInfo = $this->addProviderData($params, $tokens, $allNeededInfo);
 		}
 
 		// add line token
 		$tokens[] = '{line}';
-		$allNeededInfo[] = '<hr>';
-
+		$allNeededInfo[] = '<hr style="margin: 10px;">';
 		$html = str_replace($tokens, $allNeededInfo, (isset($params->DoctorsNote)) ? $body : $body['body']);
-
 		$pages = explode('{newpage}', $html);
 
 		foreach($pages AS $page){
-			$this->pdf->AddPage();
-			$this->pdf->SetY(35); // margin after header line
-			$this->pdf->SetFontSize(10);
-			$this->pdf->writeHTML($page);
+			$pdf->AddPage();
+			$pdf->SetMargins($margins['left'], $pdf->getHeaderY() + 10, $margins['right']);
+			$pdf->SetY($pdf->getHeaderY() + 5); // margin after header line
+
+			if($this->isHtml($page)){
+				$pdf->writeHTML($page);
+			}else{
+				$pdf->writeHTML(nl2br($page));
+			}
 		}
 
 		if($path == ''){
-			return $this->pdf->Output('temp.pdf', 'S');
+			return $pdf->Output('temp.pdf', 'S');
 		} else {
-			$this->pdf->Output($path, 'F');
-			$this->pdf->Close();
+			$pdf->Output($path, 'F');
+			$pdf->Close();
 			return true;
 		}
-
 	}
 
 	private function addProviderData($params, $tokens, $allNeededInfo) {
@@ -753,5 +801,30 @@ class Documents {
 		// close table tag
 		$table .= '</table>';
 		return $table;
+	}
+
+	private function isHtml($string)
+	{
+		return preg_match("/<[^<]+>/",$string,$m) != 0;
+	}
+
+	private function getPdfTemplateByFacilityId($facility_id = null){
+		if(isset($facility_id)){
+			$record = $this->t->load(['facility_id' =>$facility_id, 'active' => 1])->one();
+			if($record !== false){
+				$record['template'] = ROOT . $record['template'];
+				return $record;
+			}
+		}
+		return [
+			'template' => ROOT . '/resources/templates/default.pdf',
+			'body_margin_left' => 25,
+			'body_margin_top' => 25,
+			'body_margin_right' => 25,
+			'body_font_family' => 'times',
+			'body_font_style' => '',
+			'body_font_size' => 12,
+			'header_data' => null
+        ];
 	}
 }

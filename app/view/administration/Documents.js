@@ -37,11 +37,10 @@ Ext.define('App.view.administration.Documents', {
 
 		me.DocumentsDefaultsGrid = Ext.create('Ext.grid.Panel', {
 			title: _('documents_defaults'),
-			region: 'north',
-			width: 250,
-			border: true,
+			frame: true,
 			store: me.defaultsDocumentsStore,
 			hideHeaders: true,
+			flex: 1,
 			itemId: 'AdministrationDocumentsDefaultsGrid',
 			columns: [
 				{
@@ -79,12 +78,10 @@ Ext.define('App.view.administration.Documents', {
 
 		me.DocumentsGrid = Ext.create('Ext.grid.Panel', {
 			title: _('document_templates'),
-			region: 'center',
-			width: 250,
-			border: true,
-			split: true,
+			frame: true,
 			store: me.templatesDocumentsStore,
 			hideHeaders: true,
+			flex: 1,
 			itemId: 'AdministrationDocumentsTemplatesGrid',
 			columns: [
 				{
@@ -121,12 +118,41 @@ Ext.define('App.view.administration.Documents', {
 		});
 
 		me.LeftCol = Ext.create('Ext.container.Container', {
+			layout: {
+				type: 'vbox',
+				align: 'stretch'
+			},
 			region: 'west',
-			layout: 'border',
 			width: 250,
 			border: false,
 			split: true,
-			items: [me.DocumentsDefaultsGrid, me.DocumentsGrid]
+			items: [
+				me.DocumentsDefaultsGrid,
+				me.DocumentsGrid,
+				{
+					xtype:'grid',
+					title: _('pdf_templates'),
+					itemId: 'AdministrationDocumentsPdfTemplatesGrid',
+					store: Ext.create('App.store.administration.DocumentsPdfTemplates'),
+					flex: 1,
+					frame: true,
+					hideHeaders: true,
+					columns:[
+						{
+							flex: 1,
+							dataIndex: 'facility'
+						}
+					],
+					tbar: [
+						'->',
+						{
+							xtype:'button',
+							text: _('new'),
+							itemId: 'AdministrationDocumentsPdfTemplatesAddBtn'
+						}
+					]
+				}
+			]
 		});
 
 		me.TeamplateEditor = Ext.create('Ext.form.Panel', {

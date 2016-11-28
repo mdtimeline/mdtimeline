@@ -249,21 +249,24 @@ class ReportGenerator
                 // Get the report SQL statement content
                 $fileContent = file_get_contents($filePointer);
 
-                // Copy all the request variables into the Prepared Values,
-                // also check if it came from the grid form and normal form.
-                // This because we need to do a POST-PREPARE the SQL statement
                 $parameters = $reportParameters;
                 foreach ($parameters as $field) {
-                    $PrepareField[':' . $field['name']]['operator'] = (isset($field['operator']) ? $field['operator'] : '=');
-                    $PrepareField[':' . $field['name']]['value'] = $field['value'];
-                }
 
-                // Copy all the request filter variables to the XML,
-                // also check if it came from the grid form and normal form.
-                // This because we need to do a POST-PREPARE the SQL statement
-                foreach ($parameters as $field) {
-                    $ReturnFilter[$field['name']]['operator'] = (isset($field['operator']) ? $field['operator'] : '=');
-                    $ReturnFilter[$field['name']]['value'] = $field['value'];
+                	$operator = isset($field['operator']) ? $field['operator'] : '=';
+                	$value = isset($field['value']) ? $field['value'] : '';
+
+	                // Copy all the request variables into the Prepared Values,
+	                // also check if it came from the grid form and normal form.
+	                // This because we need to do a POST-PREPARE the SQL statement
+                    $PrepareField[':' . $field['name']]['operator'] = $operator;
+                    $PrepareField[':' . $field['name']]['value'] = $value;
+
+	                // Copy all the request filter variables to the XML,
+	                // also check if it came from the grid form and normal form.
+	                // This because we need to do a POST-PREPARE the SQL statement
+	                $ReturnFilter[$field['name']]['operator'] = $operator;
+	                $ReturnFilter[$field['name']]['value'] = $value;
+
                 }
 
                 // Prepare all the variable fields in the SQL Statement
@@ -394,7 +397,10 @@ class ReportGenerator
 
             // Replace the filter key pairs. <!--filter_name-->
             foreach ($filters as $filter)
-                $htmlTemplate = str_ireplace('<!--' . $filter['name'] . '-->', $filter['value'], $htmlTemplate);
+                $htmlTemplate = str_ireplace('<!--' .
+	                $filter['name'] . '-->',
+	                (isset($filter['value']) ? $filter['value'] : ''),
+	                $htmlTemplate);
             return $htmlTemplate;
         } catch (\Exception $Error) {
             error_log($Error->getMessage());

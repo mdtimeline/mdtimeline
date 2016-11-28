@@ -875,6 +875,13 @@ header("Access-Control-Allow-Origin: *");
                     'patient.encounter.SOAP',
                     'patient.encounter.SuperBill'
                 ],
+	            init : function() {
+
+		            Ext.state.Manager.setProvider(new Ext.state.CookieProvider({
+			            secure: location.protocol === 'https:',
+			            expires : new Date(Ext.Date.now() + (1000*60*60*24*90)) // 90 days
+		            }));
+	            },
                 launch: function() {
                     App.Current = this;
                     CronJob.run(function(){

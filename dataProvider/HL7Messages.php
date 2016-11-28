@@ -1069,7 +1069,6 @@ class HL7Messages {
 		$PD1->setValue('16', 'A');
 		$PD1->setValue('17', $this->date($patient->create_date, false));
 
-
 	}
 
 	private function setNK1s() {
@@ -1454,7 +1453,7 @@ class HL7Messages {
 
 	private function mapCode($code, $code_type, $type){
 
-		if(isset($this->map_codes_types->{$type}) && $this->map_codes_types->{$type} != $code_type){
+		if(isset($this->map_codes_types) && isset($this->map_codes_types->{$type}) && $this->map_codes_types->{$type} != $code_type){
 			$new_code_type = $this->map_codes_types->{$type};
 
 			if($code_type == 'HL70189' && $new_code_type == 'CDCREC'){

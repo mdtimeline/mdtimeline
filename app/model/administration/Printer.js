@@ -42,9 +42,40 @@ Ext.define('App.model.administration.Printer', {
 			len: 120
 		},
 		{
-			name: 'printer_cmd',
-			type: 'int',
-			len: 500
+			name: 'printer_name',
+			type: 'string',
+			len: 80
+		},
+		{
+			name: 'printer_protocol',
+			type: 'string',
+			len: 10,
+			comment: 'lpr or ipp'
+		},
+		{
+			name: 'printer_options',
+			type: 'string',
+			len: 250
+		},
+		{
+			name: 'printer_host',
+			type: 'string',
+			len: 180
+		},
+		{
+			name: 'printer_uri',
+			type: 'string',
+			len: 180
+		},
+		{
+			name: 'printer_user',
+			type: 'string',
+			len: 40
+		},
+		{
+			name: 'printer_pass',
+			type: 'string',
+			len: 20
 		},
 		{
 			name: 'active',

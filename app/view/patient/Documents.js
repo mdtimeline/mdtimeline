@@ -75,6 +75,7 @@ Ext.define('App.view.patient.Documents', {
 						width: 23,
 						icon: 'resources/images/icons/icoLessImportant.png',
 						tooltip: _('validate_file_integrity_hash'),
+						stateId: 'patientDocumentGridStateActionCol',
 						handler: function(grid, rowIndex){
 							docCtrl.onDocumentHashCheckBtnClick(grid, rowIndex);
 						},
@@ -102,6 +103,10 @@ Ext.define('App.view.patient.Documents', {
 						header: _('category'),
 						dataIndex: 'docType',
 						itemId: 'docType',
+						editor: {
+							xtype: 'textfield'
+						},
+						stateId: 'patientDocumentGridStateDocTypeCol',
 						renderer: function(v, meta, record){
 							if(record.get('entered_in_error')){
 								meta.tdCls += ' entered-in-error ';
@@ -116,6 +121,7 @@ Ext.define('App.view.patient.Documents', {
 						dataIndex: 'groupDate',
 						format: g('date_display_format'),
 						itemId: 'groupDate',
+						stateId: 'patientDocumentGridStateGroupDateCol',
 						renderer: function(v, meta, record){
 							var val = v != null ? Ext.Date.format(v, g('date_display_format')) : '-';
 
@@ -134,6 +140,7 @@ Ext.define('App.view.patient.Documents', {
 							xtype: 'textfield',
 							action: 'title'
 						},
+						stateId: 'patientDocumentGridStateTitleCol',
 						renderer: function(v, meta, record){
 							if(record.get('entered_in_error')){
 								meta.tdCls += ' entered-in-error ';
@@ -146,6 +153,7 @@ Ext.define('App.view.patient.Documents', {
 						header: _('encrypted'),
 						dataIndex: 'encrypted',
 						width: 70,
+						stateId: 'patientDocumentGridStateEncryptedCol',
 						renderer: function(v, meta, record){
 							if(record.get('entered_in_error')){
 								meta.tdCls += ' entered-in-error ';

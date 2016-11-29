@@ -279,7 +279,7 @@ Ext.define('App.view.patient.Patient', {
 										},
 										{
 											xtype: 'gaiaehr.combo',
-											fieldLabel: 'Ethnicity',
+											fieldLabel: _('ethnicity'),
 											labelWidth: 149,
 											width: 400,
 											margin: '0 5 5 0',

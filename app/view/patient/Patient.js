@@ -97,7 +97,7 @@ Ext.define('App.view.patient.Patient', {
 							items: [
 								{
 									xtype: 'panel',
-									title: 'Who',
+									title: _('demographics'),
 									hideLabel: false,
 									collapsible: true,
 									enableKeyEvents: true,
@@ -140,14 +140,14 @@ Ext.define('App.view.patient.Patient', {
 										},
 										{
 											xtype: 'fieldcontainer',
-											fieldLabel: 'Full Name',
+											fieldLabel: _('fullname'),
 											labelWidth: 149,
 											layout: 'hbox',
 											width: 660,
 											items: [
 												{
 													xtype: 'gaiaehr.combo',
-													emptyText: 'Title',
+													emptyText: _('title'),
 													width: 70,
 													margin: '0 5 0 0',
 													name: 'title',
@@ -157,7 +157,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'textfield',
-													emptyText: 'First Name',
+													emptyText: _('first_name'),
 													width: 100,
 													margin: '0 5 0 0',
 													allowBlank: false,
@@ -166,7 +166,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'textfield',
-													emptyText: 'Middle Name',
+													emptyText: _('middle_name'),
 													enableKeyEvents: true,
 													width: 100,
 													margin: '0 5 0 0',
@@ -175,7 +175,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'textfield',
-													emptyText: 'Last Name',
+													emptyText: _('last_name'),
 													width: 215,
 													margin: '0 5 0 0',
 													allowBlank: false,
@@ -198,10 +198,10 @@ Ext.define('App.view.patient.Patient', {
 											items: [
 												{
 													xtype: 'gaiaehr.combo',
-													fieldLabel: 'Sex',
+													fieldLabel: _('sex'),
 													hideLabel: true,
 													enableKeyEvents: true,
-													emptyText: 'Sex',
+													emptyText: _('sex'),
 													name: 'sex',
 													width: 70,
 													margin: '0 5 0 0',
@@ -212,7 +212,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'mitos.datetime',
-													emptyText: 'DOB',
+													emptyText: _('dob'),
 													labelWidth: 30,
 													enableKeyEvents: true,
 													width: 205,
@@ -225,7 +225,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'gaiaehr.combo',
-													emptyText: 'Marital Status',
+													emptyText: _('marital_status'),
 													width: 110,
 													margin: '0 5 0 0',
 													name: 'marital_status',
@@ -235,7 +235,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'textfield',
-													emptyText: 'Social Security',
+													emptyText: _('social_security'),
 													name: 'SS',
 													width: 100,
 													margin: '0 5 0 0'

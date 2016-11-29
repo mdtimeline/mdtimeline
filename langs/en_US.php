@@ -1692,4 +1692,6 @@ $LANG = array(
     'summary_of_care_provided'              => 'Summary of Care Provided',
     'facility_id'                           => 'Facility ID',
     'application_id'                        => 'Application ID',
+    'fullname'                              => 'Full name',
+    'marital_status'                        => 'Marital Status'
 );

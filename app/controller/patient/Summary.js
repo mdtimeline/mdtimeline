@@ -47,7 +47,6 @@ Ext.define('App.controller.patient.Summary', {
 			selector: '#printReferralBtn'
 		}
 	],
-
 	init: function(){
 		var me = this;
 		me.control({

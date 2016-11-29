@@ -1693,5 +1693,6 @@ $LANG = array(
     'facility_id'                           => 'Facility ID',
     'application_id'                        => 'Application ID',
     'fullname'                              => 'Full name',
-    'marital_status'                        => 'Marital Status'
+    'marital_status'                        => 'Marital Status',
+    'driver_license'                        => 'Driver License'
 );

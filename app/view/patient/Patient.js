@@ -252,7 +252,7 @@ Ext.define('App.view.patient.Patient', {
 											items: [
 												{
 													xtype: 'textfield',
-													emptyText: 'Driver License',
+													emptyText: _('driver_license'),
 													labelWidth: 149,
 													enableKeyEvents: true,
 													width: 175,

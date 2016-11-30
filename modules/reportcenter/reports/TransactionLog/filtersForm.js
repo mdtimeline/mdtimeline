@@ -28,80 +28,82 @@ Ext.define('Modules.reportcenter.reports.TransactionLog.filtersForm', {
     collapsible: true,
     border: true,
     split: true,
-    defaults: {
-        xtype: 'fieldset',
-        layout: 'anchor',
-        defaults: {anchor: '100%'},
-        border: false,
-        frame: false,
-        margin: 2
-    },
+	bodyPadding: 5,
     items: [
-        {
+	    {
+            xtype: 'fieldcontainer',
+            layout: 'column',
+		    fieldLabel: 'From Date',
+		    labelAlign: 'top',
             items: [
                 {
-                    xtype: 'panel',
-                    layout: 'column',
-                    border: false,
-                    frame: false,
-                    items: [
-                        {
-                            xtype: 'datefield',
-                            name: 'begin_date',
-                            columnWidth:.5,
-                            hideLabel: true,
-                            emptyText:  _('begin_date'),
-                            allowBlank: true,
-                            format: g('date_display_format'),
-                            submitFormat: 'Y-m-d'
-                        },
-                        {
-                            xtype: 'timefield',
-                            name: 'begin_time',
-                            hideLabel: true,
-                            emptyText:  _('begin_time'),
-                            increment: 30,
-                            columnWidth:.5,
-                            format: 'H:i:s',
-                            submitFormat: 'H:i:s',
-                            value: '00:00:00'
-                        }
-                    ]
+                    xtype: 'datefield',
+                    name: 'begin_date',
+                    columnWidth:.5,
+                    hideLabel: true,
+                    emptyText:  _('begin_date'),
+                    allowBlank: true,
+                    format: g('date_display_format'),
+                    submitFormat: 'Y-m-d',
+	                value: new Date()
+                },
+                {
+                    xtype: 'timefield',
+                    name: 'begin_time',
+                    hideLabel: true,
+                    emptyText:  _('begin_time'),
+                    increment: 30,
+                    columnWidth:.5,
+                    format: 'H:i:s',
+                    submitFormat: 'H:i:s',
+                    value: '00:00:00'
                 }
             ]
         },
         {
+            xtype: 'fieldcontainer',
+            layout: 'column',
+	        fieldLabel: 'To Date',
+	        labelAlign: 'top',
             items: [
                 {
-                    xtype: 'panel',
-                    layout: 'column',
-                    border: false,
-                    frame: false,
-                    items: [
-                        {
-                            xtype: 'datefield',
-                            name: 'end_date',
-                            columnWidth:.5,
-                            hideLabel: true,
-                            emptyText:  _('end_date'),
-                            allowBlank: true,
-                            format: g('date_display_format'),
-                            submitFormat: 'Y-m-d'
-                        },
-                        {
-                            xtype: 'timefield',
-                            name: 'end_time',
-                            hideLabel: true,
-                            emptyText:  _('end_time'),
-                            increment: 30,
-                            columnWidth:.5,
-                            format: 'H:i:s',
-                            submitFormat: 'H:i:s',
-                            value: '23:00:00'
-                        }
-                    ]
+                    xtype: 'datefield',
+                    name: 'end_date',
+                    columnWidth:.5,
+                    hideLabel: true,
+                    emptyText:  _('end_date'),
+                    allowBlank: true,
+                    format: g('date_display_format'),
+                    submitFormat: 'Y-m-d',
+	                value: new Date()
+                },
+                {
+                    xtype: 'timefield',
+                    name: 'end_time',
+                    hideLabel: true,
+                    emptyText:  _('end_time'),
+                    increment: 30,
+                    columnWidth:.5,
+                    format: 'H:i:s',
+                    submitFormat: 'H:i:s',
+                    value: '23:00:00'
                 }
             ]
-        }
+        },
+	    {
+		    xtype: 'combobox',
+		    fieldLabel: 'Table',
+		    labelAlign: 'top'
+	    },
+	    {
+		    xtype: 'combobox',
+		    fieldLabel: 'Event Type',
+		    labelAlign: 'top'
+	    },
+	    {
+		    xtype: 'textfield',
+		    fieldLabel: 'Primary ID',
+		    labelAlign: 'top'
+	    }
     ]
 });

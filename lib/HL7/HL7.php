@@ -25,9 +25,14 @@ class HL7 {
 	public  $segments = array();
 
 	/**
-	 * @var string
+	 * @var Message
 	 */
 	public  $message;
+
+	/**
+	 * @var
+	 */
+	private $txt_cr = "\\X0D\\";
 
 
 	function __destruct()
@@ -189,7 +194,7 @@ class HL7 {
 
 	/**
 	 * @param $segment
-	 * @return array
+	 * @return Segments|Segments[]
 	 */
 	function getSegments($segment = null){
 		if($segment == null) return $this->segments;
@@ -206,6 +211,7 @@ class HL7 {
 	function getMessage(){
 		$msg = '';
 		foreach($this->segments As $segment){
+			/** @var Segments $segment */
 			$msg .= $segment->build();
 		}
 		return $msg;
@@ -213,7 +219,7 @@ class HL7 {
 
 	/**
 	 * @param $msg
-	 * @return Message
+	 * @return bool|Message
 	 */
 	function readMessage($msg){
 		$msg = trim($msg);
@@ -240,7 +246,6 @@ class HL7 {
 
 		$mType = $this->getMsgEventType();
 		if($mType === null) return false;
-
 		$this->message->readMessage($this->getMsgEventType());
 		return $this->message;
 	}
@@ -474,5 +479,13 @@ class HL7 {
 
 		};
 		return $text;
+	}
+
+	public function setTxtCR($txt_cr){
+		$this->txt_cr = $txt_cr;
+	}
+
+	public function getTxtCR(){
+		return $this->txt_cr;
 	}
 }

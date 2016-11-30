@@ -97,7 +97,7 @@ Ext.define('App.view.patient.Patient', {
 							items: [
 								{
 									xtype: 'panel',
-									title: _('demographics'),
+									title: _('patient_info'),
 									hideLabel: false,
 									collapsible: true,
 									enableKeyEvents: true,
@@ -525,7 +525,7 @@ Ext.define('App.view.patient.Patient', {
 								},
 								{
 									xtype: 'panel',
-									title: _('choices'),
+									title: _('communication'),
 									hideLabel: false,
 									collapsible: true,
 									enableKeyEvents: true,
@@ -820,7 +820,7 @@ Ext.define('App.view.patient.Patient', {
 								},
 								{
 									xtype: 'panel',
-									title: _('contact'),
+									title: _('contacts'),
 									layout: 'column',
 									collapsible: true,
 									enableKeyEvents: true,

@@ -1729,5 +1729,7 @@ $LANG = array(
     'ext'                                   => 'Ext',
     'postal_address'                        => 'Postal Address',
     'phone_type'                            => 'Phone Type',
-    'guardians_contact'                   => 'Guardian\'s Contact'
+    'guardians_contact'                     => 'Guardian\'s Contact',
+    'patient_info'                          => 'Patient Info.',
+    'communication'                         => 'Communication'
 );

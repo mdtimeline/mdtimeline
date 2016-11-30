@@ -1728,5 +1728,6 @@ $LANG = array(
     'work'                                  => 'Work',
     'ext'                                   => 'Ext',
     'postal_address'                        => 'Postal Address',
-    'phone_type'                            => 'Phone Type'
+    'phone_type'                            => 'Phone Type',
+    'guardians_contact'                   => 'Guardian\'s Contact'
 );

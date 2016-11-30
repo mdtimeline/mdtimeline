@@ -1147,14 +1147,14 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'fieldset',
-													title: 'Guardian\'s Contact',
+													title: _('guardians_contact'),
 													collapsible: false,
 													checkboxToggle: false,
 													collapsed: false,
 													items: [
 														{
 															xtype: 'gaiaehr.combo',
-															fieldLabel: 'Relation',
+															fieldLabel: _('relationship'),
 															labelWidth: 50,
 															name: 'guardians_relation',
 															list: 134,
@@ -1163,7 +1163,7 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'fieldcontainer',
-															fieldLabel: 'Name',
+															fieldLabel: _('name'),
 															labelWidth: 50,
 															hideLabel: false,
 															layout: 'hbox',
@@ -1186,7 +1186,7 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'fieldcontainer',
-															fieldLabel: 'Phone',
+															fieldLabel: _('phone'),
 															labelWidth: 50,
 															layout: 'hbox',
 															items: [
@@ -1212,13 +1212,13 @@ Ext.define('App.view.patient.Patient', {
 															items: [
 																{
 																	xtype: 'textfield',
-																	emptyText: 'Street',
+																	emptyText: _('street'),
 																	width: 370,
 																	name: 'guardians_address'
 																},
 																{
 																	xtype: 'textfield',
-																	emptyText: '(optional)',
+																	emptyText: '(' + _('optional') + ')',
 																	width: 370,
 																	name: 'guardians_address_cont'
 																},
@@ -1229,19 +1229,19 @@ Ext.define('App.view.patient.Patient', {
 																	items: [
 																		{
 																			xtype: 'textfield',
-																			emptyText: 'City',
+																			emptyText: _('city'),
 																			margin: '0 5 5 0',
 																			name: 'guardians_city'
 																		},
 																		{
 																			xtype: 'textfield',
-																			emptyText: 'State',
+																			emptyText: _('state'),
 																			margin: '0 5 0 0',
 																			name: 'guardians_state'
 																		},
 																		{
 																			xtype: 'textfield',
-																			emptyText: 'Zip',
+																			emptyText: _('zip'),
 																			width: 92,
 																			margin: '0 5 0 0',
 																			name: 'guardians_zip'
@@ -1250,7 +1250,7 @@ Ext.define('App.view.patient.Patient', {
 																},
 																{
 																	xtype: 'textfield',
-																	emptyText: 'Country',
+																	emptyText: _('country'),
 																	labelWidth: 50,
 																	width: 100,
 																	name: 'guardians_country'

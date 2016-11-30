@@ -10336,41 +10336,41 @@ Ext.define('App.ux.combo.Units', {
 	}
 });
 Ext.define('App.ux.combo.Users', {
-	extend       : 'Ext.form.ComboBox',
-	alias        : 'widget.userscombo',
-	initComponent: function() {
+	extend: 'Ext.form.ComboBox',
+	alias: 'widget.userscombo',
+	acl: null,
+	includeAllOption: false,
+	editable: false,
+	queryMode: 'local',
+	valueField: 'id',
+	displayField: 'name',
+	emptyText: _('select'),
+
+	initComponent: function(){
 		var me = this;
 
-		Ext.define('UsersComboModel', {
-			extend: 'Ext.data.Model',
+		me.store = Ext.create('Ext.data.Store', {
+			autoLoad: true,
 			fields: [
-				{name: 'id', type: 'int' },
-				{name: 'name', type: 'string' }
+				{name: 'id', type: 'int'},
+				{name: 'name', type: 'string'}
 			],
-			proxy : {
+			proxy: {
 				type: 'direct',
-				api : {
-					read: CombosData.getUsers
+				api: {
+					read: 'CombosData.getUsers'
+				},
+				extraParams: {
+					acl: me.acl,
+					includeAllOption: me.includeAllOption
 				}
 			}
 		});
 
-		me.store = Ext.create('Ext.data.Store', {
-			model   : 'UsersComboModel',
-			autoLoad: true
-		});
-
-		Ext.apply(this, {
-			editable    : false,
-			queryMode   : 'local',
-			valueField  : 'id',
-			displayField: 'name',
-			emptyText   : _('select'),
-			store       : me.store
-		}, null);
 		me.callParent();
-	} // end initComponent
-});
+	}
+})
+;
 Ext.define('App.ux.combo.YesNoNa', {
 	extend       : 'Ext.form.ComboBox',
 	alias        : 'widget.mitos.yesnonacombo',
@@ -44324,7 +44324,6 @@ Ext.define('App.controller.patient.Summary', {
 			selector: '#printReferralBtn'
 		}
 	],
-
 	init: function(){
 		var me = this;
 		me.control({
@@ -46746,6 +46745,7 @@ Ext.define('App.view.patient.Documents', {
 						width: 23,
 						icon: 'resources/images/icons/icoLessImportant.png',
 						tooltip: _('validate_file_integrity_hash'),
+						stateId: 'patientDocumentGridStateActionCol',
 						handler: function(grid, rowIndex){
 							docCtrl.onDocumentHashCheckBtnClick(grid, rowIndex);
 						},
@@ -46773,6 +46773,10 @@ Ext.define('App.view.patient.Documents', {
 						header: _('category'),
 						dataIndex: 'docType',
 						itemId: 'docType',
+						editor: {
+							xtype: 'textfield'
+						},
+						stateId: 'patientDocumentGridStateDocTypeCol',
 						renderer: function(v, meta, record){
 							if(record.get('entered_in_error')){
 								meta.tdCls += ' entered-in-error ';
@@ -46787,6 +46791,7 @@ Ext.define('App.view.patient.Documents', {
 						dataIndex: 'groupDate',
 						format: g('date_display_format'),
 						itemId: 'groupDate',
+						stateId: 'patientDocumentGridStateGroupDateCol',
 						renderer: function(v, meta, record){
 							var val = v != null ? Ext.Date.format(v, g('date_display_format')) : '-';
 
@@ -46805,6 +46810,7 @@ Ext.define('App.view.patient.Documents', {
 							xtype: 'textfield',
 							action: 'title'
 						},
+						stateId: 'patientDocumentGridStateTitleCol',
 						renderer: function(v, meta, record){
 							if(record.get('entered_in_error')){
 								meta.tdCls += ' entered-in-error ';
@@ -46817,6 +46823,7 @@ Ext.define('App.view.patient.Documents', {
 						header: _('encrypted'),
 						dataIndex: 'encrypted',
 						width: 70,
+						stateId: 'patientDocumentGridStateEncryptedCol',
 						renderer: function(v, meta, record){
 							if(record.get('entered_in_error')){
 								meta.tdCls += ' entered-in-error ';
@@ -51310,7 +51317,7 @@ Ext.define('App.view.patient.Patient', {
 							items: [
 								{
 									xtype: 'panel',
-									title: 'Who',
+									title: _('patient_info'),
 									hideLabel: false,
 									collapsible: true,
 									enableKeyEvents: true,
@@ -51353,14 +51360,14 @@ Ext.define('App.view.patient.Patient', {
 										},
 										{
 											xtype: 'fieldcontainer',
-											fieldLabel: 'Full Name',
+											fieldLabel: _('fullname'),
 											labelWidth: 149,
 											layout: 'hbox',
 											width: 660,
 											items: [
 												{
 													xtype: 'gaiaehr.combo',
-													emptyText: 'Title',
+													emptyText: _('title'),
 													width: 70,
 													margin: '0 5 0 0',
 													name: 'title',
@@ -51370,7 +51377,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'textfield',
-													emptyText: 'First Name',
+													emptyText: _('first_name'),
 													width: 100,
 													margin: '0 5 0 0',
 													allowBlank: false,
@@ -51379,7 +51386,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'textfield',
-													emptyText: 'Middle Name',
+													emptyText: _('middle_name'),
 													enableKeyEvents: true,
 													width: 100,
 													margin: '0 5 0 0',
@@ -51388,7 +51395,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'textfield',
-													emptyText: 'Last Name',
+													emptyText: _('last_name'),
 													width: 215,
 													margin: '0 5 0 0',
 													allowBlank: false,
@@ -51411,10 +51418,10 @@ Ext.define('App.view.patient.Patient', {
 											items: [
 												{
 													xtype: 'gaiaehr.combo',
-													fieldLabel: 'Sex',
+													fieldLabel: _('sex'),
 													hideLabel: true,
 													enableKeyEvents: true,
-													emptyText: 'Sex',
+													emptyText: _('sex'),
 													name: 'sex',
 													width: 70,
 													margin: '0 5 0 0',
@@ -51425,7 +51432,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'mitos.datetime',
-													emptyText: 'DOB',
+													emptyText: _('dob'),
 													labelWidth: 30,
 													enableKeyEvents: true,
 													width: 205,
@@ -51438,7 +51445,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'gaiaehr.combo',
-													emptyText: 'Marital Status',
+													emptyText: _('marital_status'),
 													width: 110,
 													margin: '0 5 0 0',
 													name: 'marital_status',
@@ -51448,7 +51455,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'textfield',
-													emptyText: 'Social Security',
+													emptyText: _('social_security'),
 													name: 'SS',
 													width: 100,
 													margin: '0 5 0 0'
@@ -51465,7 +51472,7 @@ Ext.define('App.view.patient.Patient', {
 											items: [
 												{
 													xtype: 'textfield',
-													emptyText: 'Driver License',
+													emptyText: _('driver_license'),
 													labelWidth: 149,
 													enableKeyEvents: true,
 													width: 175,
@@ -51492,7 +51499,7 @@ Ext.define('App.view.patient.Patient', {
 										},
 										{
 											xtype: 'gaiaehr.combo',
-											fieldLabel: 'Ethnicity',
+											fieldLabel: _('ethnicity'),
 											labelWidth: 149,
 											width: 400,
 											margin: '0 5 5 0',
@@ -51503,7 +51510,7 @@ Ext.define('App.view.patient.Patient', {
 										},
 										{
 											xtype: 'fieldcontainer',
-											fieldLabel: 'Race',
+											fieldLabel: _('race'),
 											labelWidth: 149,
 											hideLabel: false,
 											layout: 'hbox',
@@ -51514,7 +51521,7 @@ Ext.define('App.view.patient.Patient', {
 													width: 245,
 													margin: '0 5 0 0',
 													name: 'race',
-													emptyText: 'Race',
+													emptyText: _('race'),
 													list: 14,
 													loadStore: true,
 													editable: false
@@ -51523,7 +51530,7 @@ Ext.define('App.view.patient.Patient', {
 													xtype: 'gaiaehr.combo',
 													flex: 1,
 													margin: '0 5 0 0',
-													name: 'secondary_race',
+													name: _('secondary_race'),
 													emptyText: 'Secondary Race',
 													list: 14,
 													loadStore: true,
@@ -51533,7 +51540,7 @@ Ext.define('App.view.patient.Patient', {
 										},
 										{
 											xtype: 'gaiaehr.combo',
-											fieldLabel: 'Language',
+											fieldLabel: _('language'),
 											labelWidth: 149,
 											hideLabel: false,
 											width: 400,
@@ -51547,7 +51554,7 @@ Ext.define('App.view.patient.Patient', {
 								},
 								{
 									xtype: 'panel',
-									title: 'Additional Info.',
+									title: _('aditional_info')+'.',
 									layout: 'column',
 									collapsible: true,
 									enableKeyEvents: true,
@@ -51563,7 +51570,7 @@ Ext.define('App.view.patient.Patient', {
 											items: [
 												{
 													xtype: 'textfield',
-													fieldLabel: 'Alias Name',
+													fieldLabel: _('alias_name'),
 													labelWidth: 149,
 													hideLabel: false,
 													width: 350,
@@ -51571,7 +51578,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'textfield',
-													fieldLabel: 'Birth Place',
+													fieldLabel: _('birth_place'),
 													labelWidth: 149,
 													hideLabel: false,
 													width: 350,
@@ -51579,7 +51586,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'gaiaehr.combo',
-													fieldLabel: 'Citizenship',
+													fieldLabel: _('citizenship'),
 													labelWidth: 149,
 													hideLabel: false,
 													width: 350,
@@ -51590,7 +51597,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'fieldcontainer',
-													fieldLabel: 'Multiple Birth',
+													fieldLabel: _('multiple_birth'),
 													labelWidth: 149,
 													hideLabel: false,
 													layout: 'hbox',
@@ -51604,7 +51611,7 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'numberfield',
-															fieldLabel: 'Order',
+															fieldLabel: _('order'),
 															labelWidth: 50,
 															hideLabel: false,
 															width: 165,
@@ -51617,7 +51624,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'gaiaehr.combo',
-													fieldLabel: 'Deceased',
+													fieldLabel: _('deceased'),
 													labelWidth: 149,
 													hideLabel: false,
 													width: 350,
@@ -51629,7 +51636,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'mitos.datetime',
-													fieldLabel: 'Death Date',
+													fieldLabel: _('death_date'),
 													labelWidth: 149,
 													hideLabel: false,
 													width: 350,
@@ -51643,14 +51650,14 @@ Ext.define('App.view.patient.Patient', {
 											items: [
 												{
 													xtype: 'activeproviderscombo',
-													fieldLabel: 'Primary Provider',
+													fieldLabel: _('primary_provider'),
 													width: 300,
 													name: 'primary_provider',
 													forceSelection: true
 												},
 												{
 													xtype: 'activefacilitiescombo',
-													fieldLabel: 'Primary Facility',
+													fieldLabel: _('primary_facility'),
 													width: 300,
 													name: 'primary_facility',
 													displayField: 'option_name',
@@ -51660,7 +51667,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'gaiaehr.combo',
-													fieldLabel: 'Veteran',
+													fieldLabel: _('veteran'),
 													width: 300,
 													boxLabel: 'Yes',
 													name: 'is_veteran',
@@ -51670,13 +51677,13 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'fieldcontainer',
-													fieldLabel: 'Mother\'s Name',
+													fieldLabel: _('mothers_name'),
 													layout: 'hbox',
 													width: 660,
 													items: [
 														{
 															xtype: 'textfield',
-															emptyText: 'First Name',
+															emptyText: _('first_name'),
 															width: 100,
 															margin: '0 5 0 0',
 															maxLength: 35,
@@ -51684,7 +51691,7 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'textfield',
-															emptyText: 'Middle Name',
+															emptyText: _('middle_name'),
 															width: 100,
 															margin: '0 5 0 0',
 															maxLength: 35,
@@ -51692,7 +51699,7 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'textfield',
-															emptyText: 'Last Name',
+															emptyText: _('last_name'),
 															width: 215,
 															margin: '0 5 0 0',
 															maxLength: 35,
@@ -51702,13 +51709,13 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'fieldcontainer',
-													fieldLabel: 'Father\'s Name',
+													fieldLabel: _('fathers_name'),
 													layout: 'hbox',
 													width: 660,
 													items: [
 														{
 															xtype: 'textfield',
-															emptyText: 'First Name',
+															emptyText: _('first_name'),
 															width: 100,
 															margin: '0 5 0 0',
 															maxLength: 35,
@@ -51716,7 +51723,7 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'textfield',
-															emptyText: 'Middle Name',
+															emptyText: _('middle_name'),
 															width: 100,
 															margin: '0 5 0 0',
 															maxLength: 35,
@@ -51724,7 +51731,7 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'textfield',
-															emptyText: 'Last Name',
+															emptyText: _('last_name'),
 															width: 215,
 															margin: '0 5 0 0',
 															maxLength: 35,
@@ -51738,7 +51745,7 @@ Ext.define('App.view.patient.Patient', {
 								},
 								{
 									xtype: 'panel',
-									title: 'Choices',
+									title: _('communication'),
 									hideLabel: false,
 									collapsible: true,
 									enableKeyEvents: true,
@@ -51758,7 +51765,7 @@ Ext.define('App.view.patient.Patient', {
 													items:[
 														{
 															xtype: 'activeproviderscombo',
-															fieldLabel: 'Provider',
+															fieldLabel: _('provider'),
 															labelWidth: 100,
 															margin: '0 5 5 0',
 															name: 'provider',
@@ -51766,7 +51773,7 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'mitos.pharmaciescombo',
-															fieldLabel: 'Pharmacy',
+															fieldLabel: _('pharmacy'),
 															labelWidth: 100,
 															margin: '0 5 5 0',
 															name: 'pharmacy',
@@ -51775,7 +51782,7 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'gaiaehr.combo',
-															fieldLabel: 'HIPAA Notice',
+															fieldLabel: _('hipaa_notice'),
 															labelWidth: 100,
 															margin: '0 5 5 0',
 															name: 'hipaa_notice',
@@ -51792,7 +51799,7 @@ Ext.define('App.view.patient.Patient', {
 														{
 															xtype: 'gaiaehr.combo',
 															name: 'organ_donor_code',
-															fieldLabel: 'Organ Donor',
+															fieldLabel: _('organ_donor'),
 															list: 137,
 															width: 500,
 															loadStore: true,
@@ -51807,27 +51814,27 @@ Ext.define('App.view.patient.Patient', {
 																	xtype: 'checkbox',
 																	width: 150,
 																	margin: '0 5 0 0',
-																	boxLabel: 'Allow Voice Msg',
+																	boxLabel: _('allow_voice_msg'),
 																	name: 'allow_voice_msg'
 																},
 																{
 																	xtype: 'checkbox',
 																	width: 150,
 																	margin: '0 5 0 0',
-																	boxLabel: 'Allow Mail Msg',
+																	boxLabel: _('allow_mail_msg'),
 																	name: 'allow_mail_msg'
 																},
 																{
 																	xtype: 'checkbox',
 																	width: 240,
 																	margin: '0 5 0 0',
-																	boxLabel: 'Allow Immunization Registry Use',
+																	boxLabel: _('allow_immunization_registry_use'),
 																	name: 'allow_immunization_registry'
 																},
 																{
 																	xtype: 'checkbox',
 																	margin: '0 5 0 0',
-																	boxLabel: 'Allow Health Information Exchange',
+																	boxLabel: _('allow_health_information_exchange'),
 																	name: 'allow_health_info_exchange'
 																}
 															]
@@ -51841,21 +51848,21 @@ Ext.define('App.view.patient.Patient', {
 																	xtype: 'checkbox',
 																	width: 150,
 																	margin: '0 5 0 0',
-																	boxLabel: ' Allow SMS',
+																	boxLabel: _('allow_sms'),
 																	name: 'allow_sms'
 																},
 																{
 																	xtype: 'checkbox',
 																	width: 150,
 																	margin: '0 5 0 0',
-																	boxLabel: 'Allow Email',
+																	boxLabel: _('allow_email'),
 																	name: 'allow_email'
 																},
 																{
 																	xtype: 'checkbox',
 																	width: 240,
 																	margin: '0 5 0 0',
-																	boxLabel: 'Allow Immunization Info Sharing',
+																	boxLabel: _('allow_immunization_info_sharing'),
 																	name: 'allow_immunization_info_sharing'
 																}
 															]
@@ -51871,7 +51878,7 @@ Ext.define('App.view.patient.Patient', {
 											items: [
 												{
 													xtype: 'fieldset',
-													title: 'Allow Patient Web Portal',
+													title: _('allow_patient_web_portal'),
 													checkboxName: 'allow_patient_web_portal',
 													checkboxToggle: true,
 													width: 320,
@@ -51879,13 +51886,13 @@ Ext.define('App.view.patient.Patient', {
 													items: [
 														{
 															xtype: 'textfield',
-															fieldLabel: 'Web Portal Username',
+															fieldLabel: _('web_portal_username'),
 															labelWidth: 149,
 															name: 'portal_username'
 														},
 														{
 															xtype: 'textfield',
-															fieldLabel: 'Web Portal Password',
+															fieldLabel: _('web_portal_password'),
 															labelWidth: 149,
 															name: 'portal_password',
 															inputType: 'password'
@@ -51894,7 +51901,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'fieldset',
-													title: 'Allow Patient Guardian Access Web Portal',
+													title: _('allow_pat_guardian_access_portal'),
 													checkboxName: 'allow_guardian_web_portal',
 													checkboxToggle: true,
 													collapsible: false,
@@ -51903,13 +51910,13 @@ Ext.define('App.view.patient.Patient', {
 													items: [
 														{
 															xtype: 'textfield',
-															fieldLabel: 'Web Portal Username',
+															fieldLabel: _('web_portal_username'),
 															labelWidth: 149,
 															name: 'guardian_portal_username'
 														},
 														{
 															xtype: 'textfield',
-															fieldLabel: 'Web Portal Password',
+															fieldLabel: _('web_portal_password'),
 															labelWidth: 149,
 															name: 'guardian_portal_password',
 															inputType: 'password'
@@ -51918,7 +51925,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'fieldset',
-													title: 'Allow Patient Emergency Contact Access Web Portal',
+													title: _('allow_pat_emerg_access_web_portal'),
 													checkboxName: 'allow_emergency_contact_web_portal',
 													checkboxToggle: true,
 													width: 320,
@@ -51926,13 +51933,13 @@ Ext.define('App.view.patient.Patient', {
 													items: [
 														{
 															xtype: 'textfield',
-															fieldLabel: 'Web Portal Username',
+															fieldLabel: _('web_portal_username'),
 															labelWidth: 149,
 															name: 'emergency_contact_portal_username'
 														},
 														{
 															xtype: 'textfield',
-															fieldLabel: 'Web Portal Password',
+															fieldLabel: _('web_portal_password'),
 															labelWidth: 149,
 															name: 'emergency_contact_portal_password',
 															inputType: 'password'
@@ -51945,7 +51952,7 @@ Ext.define('App.view.patient.Patient', {
 								},
 								{
 									xtype: 'panel',
-									title: 'Employer',
+									title: _('employer'),
 									hideLabel: false,
 									collapsible: true,
 									enableKeyEvents: true,
@@ -51957,37 +51964,37 @@ Ext.define('App.view.patient.Patient', {
 									items: [
 										{
 											xtype: 'textfield',
-											fieldLabel: 'Occupation',
+											fieldLabel: _('occupation'),
 											labelWidth: 149,
 											hideLabel: false,
-											emptyText: 'Occupation',
+											emptyText: _('occupation'),
 											name: 'occupation',
 											width: 350,
 											margin: '0 5 5 0'
 										},
 										{
 											xtype: 'textfield',
-											fieldLabel: 'Employer Name',
+											fieldLabel: _('employer_name'),
 											labelWidth: 149,
 											hideLabel: false,
-											emptyText: 'Employer Name',
+											emptyText: _('employer_name'),
 											name: 'employer_name',
 											width: 350,
 											margin: '0 5 5 0'
 										},
 										{
 											xtype: 'textfield',
-											fieldLabel: 'Employer Address',
+											fieldLabel: _('employer_address'),
 											labelWidth: 149,
 											hideLabel: false,
-											emptyText: 'Street',
+											emptyText: _('street'),
 											name: 'employer_address',
 											width: 609,
 											margin: '0 5 5 0'
 										},
 										{
 											xtype: 'fieldcontainer',
-											fieldLabel: 'Employer Address Cont.',
+											fieldLabel: _('employer_address_cont'),
 											labelWidth: 149,
 											hideLabel: false,
 											layout: 'hbox',
@@ -51995,7 +52002,7 @@ Ext.define('App.view.patient.Patient', {
 											items: [
 												{
 													xtype: 'textfield',
-													emptyText: 'City',
+													emptyText: _('city'),
 													name: 'employer_city',
 													width: 130,
 													margin: '0 5 5 0'
@@ -52005,14 +52012,14 @@ Ext.define('App.view.patient.Patient', {
 													margin: '0 5 5 0',
 													width: 130,
 													name: 'employer_state',
-													emptyText: 'State',
+													emptyText: _('state'),
 													list: 20,
 													loadStore: true,
 													editable: false
 												},
 												{
 													xtype: 'gaiaehr.combo',
-													emptyText: 'Country',
+													emptyText: _('country'),
 													name: 'employer_country',
 													width: 100,
 													margin: '0 5 5 0',
@@ -52022,7 +52029,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'textfield',
-													emptyText: 'Zip Code',
+													emptyText: _('zipcode'),
 													name: 'employer_postal_code',
 													width: 80,
 													margin: '0 5 5 0'
@@ -52033,7 +52040,7 @@ Ext.define('App.view.patient.Patient', {
 								},
 								{
 									xtype: 'panel',
-									title: 'Contact',
+									title: _('contacts'),
 									layout: 'column',
 									collapsible: true,
 									enableKeyEvents: true,
@@ -52050,7 +52057,7 @@ Ext.define('App.view.patient.Patient', {
 											items: [
 												{
 													xtype: 'gaiaehr.combo',
-													fieldLabel: 'Publicity',
+													fieldLabel: _('publicity'),
 													labelWidth: 60,
 													name: 'phone_publicity',
 													list: 132,
@@ -52060,11 +52067,11 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'fieldset',
-													title: 'Phones',
+													title: _('phones'),
 													items: [
 														{
 															xtype: 'textfield',
-															fieldLabel: 'Home',
+															fieldLabel: _('home'),
 															labelWidth: 50,
 															emptyText: '000-000-0000',
 															name: 'phone_home',
@@ -52072,7 +52079,7 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'textfield',
-															fieldLabel: 'Mobile',
+															fieldLabel: _('mobile'),
 															labelWidth: 50,
 															emptyText: '000-000-0000',
 															name: 'phone_mobile',
@@ -52080,7 +52087,7 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'textfield',
-															fieldLabel: 'Work',
+															fieldLabel: _('work'),
 															labelWidth: 50,
 															margin: '0 5 0 0',
 															emptyText: '000-000-0000',
@@ -52089,14 +52096,14 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'textfield',
-															fieldLabel: 'Ext.',
+															fieldLabel: _('ext') + '.',
 															labelWidth: 50,
 															name: 'phone_work_ext',
 															width: 250
 														},
 														{
 															xtype: 'textfield',
-															fieldLabel: 'Fax',
+															fieldLabel: _('fax'),
 															emptyText: '000-000-0000',
 															labelWidth: 50,
 															name: 'phone_fax',
@@ -52104,7 +52111,7 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'textfield',
-															fieldLabel: 'Email',
+															fieldLabel: _('email'),
 															emptyText: 'example@email.com',
 															labelWidth: 50,
 															name: 'email',
@@ -52121,21 +52128,21 @@ Ext.define('App.view.patient.Patient', {
 											items: [
 												{
 													xtype: 'fieldset',
-													title: 'Postal Address',
+													title: _('postal_address'),
 													collapsible: false,
 													checkboxToggle: false,
 													collapsed: false,
 													items: [
 														{
 															xtype: 'textfield',
-															emptyText: 'Street',
+															emptyText: _('street'),
 															labelWidth: 50,
 															width: 370,
 															name: 'postal_address'
 														},
 														{
 															xtype: 'textfield',
-															emptyText: '(optional)',
+															emptyText: '(' + _('optional') + ')',
 															labelWidth: 50,
 															width: 370,
 															name: 'postal_address_cont'
@@ -52147,21 +52154,21 @@ Ext.define('App.view.patient.Patient', {
 															items: [
 																{
 																	xtype: 'textfield',
-																	emptyText: 'City',
+																	emptyText: _('city'),
 																	labelWidth: 50,
 																	margin: '0 5 5 0',
 																	name: 'postal_city'
 																},
 																{
 																	xtype: 'textfield',
-																	emptyText: 'State',
+																	emptyText: _('state'),
 																	labelWidth: 50,
 																	margin: '0 5 0 0',
 																	name: 'postal_state'
 																},
 																{
 																	xtype: 'textfield',
-																	emptyText: 'Zip',
+																	emptyText: _('zip'),
 																	labelWidth: 50,
 																	width: 92,
 																	name: 'postal_zip'
@@ -52170,7 +52177,7 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'textfield',
-															emptyText: 'Country',
+															emptyText: _('country'),
 															labelWidth: 50,
 															width: 100,
 															name: 'postal_country'
@@ -52179,18 +52186,18 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'fieldset',
-													title: 'Physical Address',
+													title: _('physical_address'),
 													items: [
 														{
 															xtype: 'textfield',
-															emptyText: 'Street',
+															emptyText: _('street'),
 															labelWidth: 50,
 															width: 370,
 															name: 'physical_address'
 														},
 														{
 															xtype: 'textfield',
-															emptyText: '(optional)',
+															emptyText: '(' + _('optional') + ')',
 															labelWidth: 50,
 															width: 370,
 															name: 'physical_address_cont'
@@ -52202,21 +52209,21 @@ Ext.define('App.view.patient.Patient', {
 															items: [
 																{
 																	xtype: 'textfield',
-																	emptyText: 'City',
+																	emptyText: _('city'),
 																	labelWidth: 50,
 																	margin: '0 5 5 0',
 																	name: 'physical_city'
 																},
 																{
 																	xtype: 'textfield',
-																	emptyText: 'State',
+																	emptyText: _('state'),
 																	labelWidth: 50,
 																	margin: '0 5 0 0',
 																	name: 'physical_state'
 																},
 																{
 																	xtype: 'textfield',
-																	emptyText: 'Zip',
+																	emptyText: _('zip'),
 																	labelWidth: 50,
 																	width: 92,
 																	margin: '0 5 0 0',
@@ -52226,7 +52233,7 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'textfield',
-															emptyText: 'Country',
+															emptyText: _('country'),
 															labelWidth: 50,
 															width: 100,
 															name: 'physical_country'
@@ -52240,14 +52247,14 @@ Ext.define('App.view.patient.Patient', {
 											items: [
 												{
 													xtype: 'fieldset',
-													title: 'Emergency Contact',
+													title: _('emer_contact'),
 													collapsible: false,
 													checkboxToggle: false,
 													collapsed: false,
 													items: [
 														{
 															xtype: 'gaiaehr.combo',
-															fieldLabel: 'Relation',
+															fieldLabel: _('relationship'),
 															labelWidth: 50,
 															name: 'emergency_contact_relation',
 															list: 134,
@@ -52256,7 +52263,7 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'fieldcontainer',
-															fieldLabel: 'Name',
+															fieldLabel: _('name'),
 															labelWidth: 50,
 															layout: 'hbox',
 															items: [
@@ -52283,7 +52290,7 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'fieldcontainer',
-															fieldLabel: 'Phone',
+															fieldLabel: _('phone'),
 															labelWidth: 50,
 															hideLabel: false,
 															layout: 'hbox',
@@ -52296,7 +52303,7 @@ Ext.define('App.view.patient.Patient', {
 																},
 																{
 																	xtype: 'gaiaehr.combo',
-																	emptyText: 'Phone Type',
+																	emptyText: _('phone_type'),
 																	name: 'emergency_contact_phone_type',
 																	list: 136,
 																	loadStore: true,
@@ -52311,13 +52318,13 @@ Ext.define('App.view.patient.Patient', {
 															items: [
 																{
 																	xtype: 'textfield',
-																	emptyText: 'Street',
+																	emptyText: _('street'),
 																	width: 370,
 																	name: 'emergency_contact_address'
 																},
 																{
 																	xtype: 'textfield',
-																	emptyText: '(optional)',
+																	emptyText: '(' + _('optional') + ')',
 																	width: 370,
 																	name: 'emergency_contact_address_cont'
 																},
@@ -52328,19 +52335,19 @@ Ext.define('App.view.patient.Patient', {
 																	items: [
 																		{
 																			xtype: 'textfield',
-																			emptyText: 'City',
+																			emptyText: _('city'),
 																			margin: '0 5 5 0',
 																			name: 'emergency_contact_city'
 																		},
 																		{
 																			xtype: 'textfield',
-																			emptyText: 'State',
+																			emptyText: _('state'),
 																			margin: '0 5 0 0',
 																			name: 'emergency_contact_state'
 																		},
 																		{
 																			xtype: 'textfield',
-																			emptyText: 'Zip',
+																			emptyText: _('zip'),
 																			width: 92,
 																			margin: '0 5 0 0',
 																			name: 'emergency_contact_zip'
@@ -52349,7 +52356,7 @@ Ext.define('App.view.patient.Patient', {
 																},
 																{
 																	xtype: 'textfield',
-																	emptyText: 'Country',
+																	emptyText: _('country'),
 																	labelWidth: 50,
 																	width: 100,
 																	name: 'emergency_contact_country'
@@ -52360,14 +52367,14 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'fieldset',
-													title: 'Guardian\'s Contact',
+													title: _('guardians_contact'),
 													collapsible: false,
 													checkboxToggle: false,
 													collapsed: false,
 													items: [
 														{
 															xtype: 'gaiaehr.combo',
-															fieldLabel: 'Relation',
+															fieldLabel: _('relationship'),
 															labelWidth: 50,
 															name: 'guardians_relation',
 															list: 134,
@@ -52376,7 +52383,7 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'fieldcontainer',
-															fieldLabel: 'Name',
+															fieldLabel: _('name'),
 															labelWidth: 50,
 															hideLabel: false,
 															layout: 'hbox',
@@ -52399,7 +52406,7 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'fieldcontainer',
-															fieldLabel: 'Phone',
+															fieldLabel: _('phone'),
 															labelWidth: 50,
 															layout: 'hbox',
 															items: [
@@ -52425,13 +52432,13 @@ Ext.define('App.view.patient.Patient', {
 															items: [
 																{
 																	xtype: 'textfield',
-																	emptyText: 'Street',
+																	emptyText: _('street'),
 																	width: 370,
 																	name: 'guardians_address'
 																},
 																{
 																	xtype: 'textfield',
-																	emptyText: '(optional)',
+																	emptyText: '(' + _('optional') + ')',
 																	width: 370,
 																	name: 'guardians_address_cont'
 																},
@@ -52442,19 +52449,19 @@ Ext.define('App.view.patient.Patient', {
 																	items: [
 																		{
 																			xtype: 'textfield',
-																			emptyText: 'City',
+																			emptyText: _('city'),
 																			margin: '0 5 5 0',
 																			name: 'guardians_city'
 																		},
 																		{
 																			xtype: 'textfield',
-																			emptyText: 'State',
+																			emptyText: _('state'),
 																			margin: '0 5 0 0',
 																			name: 'guardians_state'
 																		},
 																		{
 																			xtype: 'textfield',
-																			emptyText: 'Zip',
+																			emptyText: _('zip'),
 																			width: 92,
 																			margin: '0 5 0 0',
 																			name: 'guardians_zip'
@@ -52463,7 +52470,7 @@ Ext.define('App.view.patient.Patient', {
 																},
 																{
 																	xtype: 'textfield',
-																	emptyText: 'Country',
+																	emptyText: _('country'),
 																	labelWidth: 50,
 																	width: 100,
 																	name: 'guardians_country'
@@ -52929,7 +52936,6 @@ Ext.define('App.view.patient.Summary', {
 		me.sidePanelItems = [];
 
 		if(a('access_patient_visits')){
-
 			me.stores.push(me.patientEncountersStore = Ext.create('App.store.patient.Encounters', {
 				autoLoad: false
 			}));
@@ -53106,7 +53112,6 @@ Ext.define('App.view.patient.Summary', {
 		}
 
 		if(a('access_patient_calendar_events')){
-
 			//me.stores.push(me.patientCalendarEventsStore = Ext.create('App.store.patient.PatientCalendarEvents', {
 			//	autoLoad: false
 			//}));
@@ -53152,7 +53157,6 @@ Ext.define('App.view.patient.Summary', {
 		}
 
 		if(a('access_demographics')){
-            // Dynamically Generated by Form Builder Engine
             me.demographics = me.tabPanel.add({
 				xtype: 'patientdeomgraphics',
 				newPatient: false,

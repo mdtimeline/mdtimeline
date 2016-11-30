@@ -1694,5 +1694,10 @@ $LANG = array(
     'application_id'                        => 'Application ID',
     'fullname'                              => 'Full name',
     'marital_status'                        => 'Marital Status',
-    'driver_license'                        => 'Driver License'
+    'driver_license'                        => 'Driver License',
+    'secondary_race'                        => 'Secondary Race',
+    'alias_name'                            => 'Alias Name',
+    'birth_place'                           => 'Birth Place',
+    'citizenship'                           => 'Citizenship',
+    'multiple_birth'                        => 'Multiple Birth'
 );

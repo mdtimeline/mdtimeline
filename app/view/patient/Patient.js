@@ -290,7 +290,7 @@ Ext.define('App.view.patient.Patient', {
 										},
 										{
 											xtype: 'fieldcontainer',
-											fieldLabel: 'Race',
+											fieldLabel: _('race'),
 											labelWidth: 149,
 											hideLabel: false,
 											layout: 'hbox',
@@ -301,7 +301,7 @@ Ext.define('App.view.patient.Patient', {
 													width: 245,
 													margin: '0 5 0 0',
 													name: 'race',
-													emptyText: 'Race',
+													emptyText: _('race'),
 													list: 14,
 													loadStore: true,
 													editable: false
@@ -310,7 +310,7 @@ Ext.define('App.view.patient.Patient', {
 													xtype: 'gaiaehr.combo',
 													flex: 1,
 													margin: '0 5 0 0',
-													name: 'secondary_race',
+													name: _('secondary_race'),
 													emptyText: 'Secondary Race',
 													list: 14,
 													loadStore: true,
@@ -320,7 +320,7 @@ Ext.define('App.view.patient.Patient', {
 										},
 										{
 											xtype: 'gaiaehr.combo',
-											fieldLabel: 'Language',
+											fieldLabel: _('language'),
 											labelWidth: 149,
 											hideLabel: false,
 											width: 400,
@@ -334,7 +334,7 @@ Ext.define('App.view.patient.Patient', {
 								},
 								{
 									xtype: 'panel',
-									title: 'Additional Info.',
+									title: _('aditional_info')+'.',
 									layout: 'column',
 									collapsible: true,
 									enableKeyEvents: true,
@@ -350,7 +350,7 @@ Ext.define('App.view.patient.Patient', {
 											items: [
 												{
 													xtype: 'textfield',
-													fieldLabel: 'Alias Name',
+													fieldLabel: _('alias_name'),
 													labelWidth: 149,
 													hideLabel: false,
 													width: 350,
@@ -358,7 +358,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'textfield',
-													fieldLabel: 'Birth Place',
+													fieldLabel: _('birth_place'),
 													labelWidth: 149,
 													hideLabel: false,
 													width: 350,
@@ -366,7 +366,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'gaiaehr.combo',
-													fieldLabel: 'Citizenship',
+													fieldLabel: _('citizenship'),
 													labelWidth: 149,
 													hideLabel: false,
 													width: 350,
@@ -377,7 +377,7 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'fieldcontainer',
-													fieldLabel: 'Multiple Birth',
+													fieldLabel: _('multiple_birth'),
 													labelWidth: 149,
 													hideLabel: false,
 													layout: 'hbox',
@@ -391,7 +391,7 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'numberfield',
-															fieldLabel: 'Order',
+															fieldLabel: _('order'),
 															labelWidth: 50,
 															hideLabel: false,
 															width: 165,

@@ -1731,5 +1731,11 @@ $LANG = array(
     'phone_type'                            => 'Phone Type',
     'guardians_contact'                     => 'Guardian\'s Contact',
     'patient_info'                          => 'Patient Info.',
-    'communication'                         => 'Communication'
+    'communication'                         => 'Communication',
+    'drivers_info_line'                     => 'Driver Lic. Sate Exp. Date',
+    'sex_dob_marital_ss_line'               => 'Sex DOB Status S.S.',
+    'external_account'                      => 'External Acc#',
+    'external_record'                       => 'External Rec#',
+    'external_information'                  => 'Extermal IDs Rec# Acc#',
+    'recipient'                             => 'Recipient'
 );

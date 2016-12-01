@@ -19,8 +19,8 @@
 Ext.define('App.view.patient.Patient', {
 	extend: 'Ext.panel.Panel',
 	requires: [
-		'App.ux.AddTabButton',
-		'App.view.patient.InsuranceForm'
+		'App.ux.AddTabButton'
+		//'App.view.patient.InsuranceForm'
 	],
 	layout: {
 		type: 'vbox',
@@ -47,31 +47,6 @@ Ext.define('App.view.patient.Patient', {
 
 		me.compactDemographics = eval(g('compact_demographics'));
 
-		me.insTabPanel = Ext.widget('tabpanel', {
-			itemId: 'PatientInsurancesPanel',
-			flex: 1,
-			defaults: {
-				autoScroll: true,
-				padding: 10
-			},
-			plugins: [
-				{
-					ptype: 'AddTabButton',
-					iconCls: 'icoAdd',
-					toolTip: _('new_insurance'),
-					btnText: _('add_insurance'),
-					forceText: true,
-					panelConfig: {
-						xtype: 'patientinsuranceform'
-					}
-				}
-			],
-			listeners: {
-				scope: me,
-				beforeadd: me.insurancePanelAdd
-			}
-		});
-
 		configs = {
 			items: [
 				me.demoForm = Ext.widget('form', {
@@ -90,7 +65,6 @@ Ext.define('App.view.patient.Patient', {
 							xtype: (me.compactDemographics ? 'tabpanel' : 'panel'),
 							itemId: 'Demographics',
 							border: false,
-							height: 300,
 							defaults: {
 								autoScroll: true
 							},
@@ -99,7 +73,7 @@ Ext.define('App.view.patient.Patient', {
 									xtype: 'panel',
 									title: _('patient_info'),
 									hideLabel: false,
-									collapsible: true,
+                                    layout: 'column',
 									enableKeyEvents: true,
 									checkboxToggle: false,
 									collapsed: false,
@@ -110,7 +84,7 @@ Ext.define('App.view.patient.Patient', {
 									items: [
 										{
 											xtype: 'fieldcontainer',
-											fieldLabel: 'Extermal IDs Rec# Acc#',
+											fieldLabel: _('external_information'),
 											labelWidth: 149,
 											hideLabel: false,
 											layout: 'hbox',
@@ -118,8 +92,8 @@ Ext.define('App.view.patient.Patient', {
 											items: [
 												{
 													xtype: 'textfield',
-													fieldLabel: 'External Rec#',
-													emptyText: 'External Rec#',
+													fieldLabel: _('external_record'),
+													emptyText: _('external_record'),
 													labelWidth: 149,
 													hideLabel: true,
 													enableKeyEvents: true,
@@ -129,8 +103,8 @@ Ext.define('App.view.patient.Patient', {
 												},
 												{
 													xtype: 'textfield',
-													fieldLabel: 'External Acc#',
-													emptyText: 'External Acc#',
+													fieldLabel: _('external_account'),
+													emptyText: _('external_account'),
 													hideLabel: true,
 													enableKeyEvents: true,
 													width: 175,
@@ -187,7 +161,7 @@ Ext.define('App.view.patient.Patient', {
 										},
 										{
 											xtype: 'fieldcontainer',
-											fieldLabel: 'Sex DOB Status S.S.',
+											fieldLabel: _('sex_dob_marital_ss_line'),
 											labelWidth: 149,
 											hideLabel: false,
 											layout: 'hbox',
@@ -244,7 +218,7 @@ Ext.define('App.view.patient.Patient', {
 										},
 										{
 											xtype: 'fieldcontainer',
-											fieldLabel: 'Driver Lic. Sate Exp. Date',
+											fieldLabel: _('drivers_info_line'),
 											labelWidth: 149,
 											hideLabel: false,
 											layout: 'hbox',
@@ -336,7 +310,6 @@ Ext.define('App.view.patient.Patient', {
 									xtype: 'panel',
 									title: _('aditional_info')+'.',
 									layout: 'column',
-									collapsible: true,
 									enableKeyEvents: true,
 									checkboxToggle: false,
 									collapsed: false,
@@ -527,7 +500,6 @@ Ext.define('App.view.patient.Patient', {
 									xtype: 'panel',
 									title: _('communication'),
 									hideLabel: false,
-									collapsible: true,
 									enableKeyEvents: true,
 									checkboxToggle: false,
 									collapsed: false,
@@ -734,7 +706,6 @@ Ext.define('App.view.patient.Patient', {
                                     xtype: 'panel',
                                     title: _('contacts'),
                                     layout: 'column',
-                                    collapsible: true,
                                     enableKeyEvents: true,
                                     checkboxToggle: false,
                                     collapsed: false,
@@ -1270,10 +1241,6 @@ Ext.define('App.view.patient.Patient', {
 			]
 		};
 
-		if(me.compactDemographics){
-			configs.items.push(me.insTabPanel);
-		}
-
 		configs.bbar = [
 			{
 				xtype: 'button',
@@ -1315,39 +1282,6 @@ Ext.define('App.view.patient.Patient', {
 
 		me.callParent(arguments);
 
-		if(!me.compactDemographics){
-
-			Ext.Function.defer(function(){
-				me.insTabPanel.title = _('insurance');
-				me.insTabPanel.addDocked({
-					xtype: 'toolbar',
-					dock: 'bottom',
-					items: [
-						'->',
-						'-',
-						{
-							xtype: 'button',
-							action: 'readOnly',
-							text: _('save'),
-							minWidth: 75,
-							scope: me,
-							handler: me.formSave
-						},
-						'-',
-						{
-							xtype: 'button',
-							text: _('cancel'),
-							action: 'readOnly',
-							minWidth: 75,
-							scope: me,
-							handler: me.formCancel
-						}
-					]
-				});
-
-				me.up('tabpanel').insert(1, me.insTabPanel);
-			}, 300);
-		}
 	},
 
 	beforePanelRender: function(){
@@ -1369,7 +1303,6 @@ Ext.define('App.view.patient.Patient', {
 
 		if(me.newPatient){
 			crtl = App.app.getController('patient.Patient');
-
 			fname.on('blur', crtl.checkForPossibleDuplicates, crtl);
 			lname.on('blur', crtl.checkForPossibleDuplicates, crtl);
 			sex.on('blur', crtl.checkForPossibleDuplicates, crtl);
@@ -1447,43 +1380,6 @@ Ext.define('App.view.patient.Patient', {
 		grid.plugins[0].startEdit(0, 0);
 	},
 
-	insurancePanelAdd: function(tapPanel, panel){
-		var me = this,
-			record = panel.insurance || Ext.create('App.model.patient.Insurance', {pid: me.pid});
-
-		panel.title = _('insurance') + ' (' + (record.data.insurance_type ? record.data.insurance_type : _('new')) + ')';
-
-		me.insuranceFormLoadRecord(panel, record);
-		if(record.data.image !== '') panel.down('image').setSrc(record.data.image);
-	},
-
-	insuranceFormLoadRecord: function(form, record){
-		form.getForm().loadRecord(record);
-		app.fireEvent('insurancerecordload', form, record);
-	},
-
-	getValidInsurances: function(){
-		var me = this,
-			forms = me.insTabPanel.items.items,
-			records = [],
-			form,
-			rec;
-
-		for(var i = 0; i < forms.length; i++){
-			form = forms[i].getForm();
-			if(!form.isValid()){
-				me.insTabPanel.setActiveTab(forms[i]);
-				return false;
-			}
-			rec = form.getRecord();
-			app.fireEvent('beforepatientinsuranceset', form, rec);
-			rec.set(form.getValues());
-			app.fireEvent('afterpatientinsuranceset', form, rec);
-			records.push(rec);
-		}
-		return records;
-	},
-
 	getPatientImages: function(record){
 		var me = this;
 		if(me.patientImages){
@@ -1542,23 +1438,45 @@ Ext.define('App.view.patient.Patient', {
 	 * @param fields
 	 */
 	readOnlyFields: function(fields){
-		//        for(var i = 0; i < fields.items.length; i++){
-		//            var f = fields.items[i], v = f.getValue(), n = f.name;
-		//            if(n == 'SS' || n == 'DOB' || n == 'sex'){
-		//                if(v == null || v == ''){
-		//                    f.setReadOnly(false);
-		//                }else{
-		//                    f.setReadOnly(true);
-		//                }
-		//            }
-		//        }
+        // for(var i = 0; i < fields.items.length; i++){
+        //    var f = fields.items[i], v = f.getValue(), n = f.name;
+        //    if(n == 'SS' || n == 'DOB' || n == 'sex'){
+        //        if(v == null || v == ''){
+        //            f.setReadOnly(false);
+        //        }else{
+        //            f.setReadOnly(true);
+        //        }
+        //    }
+        // }
 	},
+
+    getValidInsurances: function(){
+        var me = this,
+            forms = Ext.ComponentQuery.query('#PatientInsurancesPanel')[0].items.items,
+            records = [],
+            form,
+            rec;
+
+        for(var i = 0; i < forms.length; i++){
+            form = forms[i].getForm();
+            if(!form.isValid()){
+                me.insTabPanel.setActiveTab(forms[i]);
+                return false;
+            }
+            rec = form.getRecord();
+            app.fireEvent('beforepatientinsuranceset', form, rec);
+            rec.set(form.getValues());
+            app.fireEvent('afterpatientinsuranceset', form, rec);
+            records.push(rec);
+        }
+        return records;
+    },
 
 	formSave: function(){
 		var me = this,
 			form = me.demoForm.getForm(),
 			record = form.getRecord(),
-			values = form.getValues(),
+			values = form.getValues();
 			insRecs = me.getValidInsurances();
 
 		if(form.isValid() && insRecs !== false){
@@ -1603,7 +1521,9 @@ Ext.define('App.view.patient.Patient', {
 	},
 
 	formCancel: function(btn){
-		var form = btn.up('form').getForm(), record = form.getRecord();
+		var me = this,
+            form = me.demoForm.getForm(),
+            record = form.getRecord();
 		form.loadRecord(record);
 	},
 
@@ -1643,17 +1563,17 @@ Ext.define('App.view.patient.Patient', {
 				me.verifyPatientRequiredInfo();
 
 				// set the insurance panel
-				me.insTabPanel.removeAll(true);
-				for(var i = 0; i < records.length; i++){
-					me.insTabPanel.add(
-						Ext.widget('patientinsuranceform', {
-							closable: false,
-							insurance: records[i]
-						})
-					);
-				}
+				// me.insTabPanel.removeAll(true);
+				// for(var i = 0; i < records.length; i++){
+				// 	me.insTabPanel.add(
+				// 		Ext.widget('patientinsuranceform', {
+				// 			closable: false,
+				// 			insurance: records[i]
+				// 		})
+				// 	);
+				// }
 
-				if(me.insTabPanel.items.length !== 0) me.insTabPanel.setActiveTab(0);
+				// if(me.insTabPanel.items.length !== 0) me.insTabPanel.setActiveTab(0);
 			}
 		});
 	}

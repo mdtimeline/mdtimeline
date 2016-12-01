@@ -28,7 +28,8 @@ Ext.define('App.view.patient.Summary', {
 		'App.ux.ManagedIframe',
 		'App.view.patient.Patient',
 		'App.view.patient.Reminders',
-		'App.view.patient.Alerts'
+		'App.view.patient.Alerts',
+        'App.view.patient.InsuranceForm'
 	],
 	itemId: 'PatientSummaryPanel',
 	showRating: true,
@@ -249,26 +250,6 @@ Ext.define('App.view.patient.Summary', {
 		}
 
 		if(a('access_patient_calendar_events')){
-			//me.stores.push(me.patientCalendarEventsStore = Ext.create('App.store.patient.PatientCalendarEvents', {
-			//	autoLoad: false
-			//}));
-			//
-			//Ext.Array.push(me.sidePanelItems, {
-			//	xtype: 'grid',
-			//	title: _('appointments'),
-			//	itemId: 'AppointmentsPanel',
-			//	hideHeaders: true,
-			//	disableSelection: true,
-			//	store: me.patientCalendarEventsStore,
-			//	columns: [
-			//		{
-			//			xtype: 'datecolumn',
-			//			format: 'F j, Y, g:i a',
-			//			dataIndex: 'start',
-			//			flex: 1
-			//		}
-			//	]
-			//});
 		}
 
 		if(me.sidePanelItems.length > 0){
@@ -289,7 +270,6 @@ Ext.define('App.view.patient.Summary', {
 				},
 				items: me.sidePanelItems
 			});
-
 			Ext.Array.push(me.pageBody, me.sidePanel);
 		}
 
@@ -301,6 +281,33 @@ Ext.define('App.view.patient.Summary', {
 				title: _('demographics')
             });
 		}
+
+		// Patient Insurance Main Panel
+        me.PatientInsurance = me.tabPanel.add({
+            itemId: 'PatientInsurancesMainPanel',
+            title: _('insurance'),
+            bbar: [
+                '->',
+                '-',
+                {
+                    xtype: 'button',
+                    action: 'readOnly',
+                    text: _('save'),
+                    minWidth: 75,
+                    scope: me,
+                    handler: me.formSave
+                },
+                '-',
+                {
+                    xtype: 'button',
+                    text: _('cancel'),
+                    action: 'readOnly',
+                    minWidth: 75,
+                    scope: me,
+                    handler: me.formCancel
+                }
+            ]
+        });
 
 		if(a('access_patient_disclosures')){
 			me.tabPanel.add({
@@ -445,118 +452,6 @@ Ext.define('App.view.patient.Summary', {
 		}
 
 		if(a('access_patient_preventive_care_alerts')){
-			//me.tabPanel.add({
-			//	title: _('dismissed_preventive_care_alerts'),
-			//	xtype: 'grid',
-			//	itemId: 'PatientSummaryPreventiveCareAlertsPanel',
-			//	store: Ext.create('App.store.patient.DismissedAlerts', {
-			//		//listeners
-			//	}),
-			//	columns: [
-			//		{
-			//			header: _('description'),
-			//			dataIndex: 'description'
-			//		},
-			//		{
-			//			xtype: 'datecolumn',
-			//			header: _('date'),
-			//			dataIndex: 'date',
-			//			format: 'Y-m-d'
-			//
-			//		},
-			//		{
-			//			header: _('reason'),
-			//			dataIndex: 'reason',
-			//			flex: true
-			//
-			//		},
-			//		{
-			//			header: _('observation'),
-			//			dataIndex: 'observation',
-			//			flex: true
-			//		},
-			//		{
-			//			header: _('dismissed'),
-			//			dataIndex: 'dismiss',
-			//			width: 60,
-			//			renderer: me.boolRenderer
-			//		}
-			//	],
-			//	plugins: Ext.create('App.ux.grid.RowFormEditing', {
-			//		autoCancel: false,
-			//		errorSummary: false,
-			//		clicksToEdit: 1,
-			//		items: [
-			//			{
-			//				title: 'general',
-			//				xtype: 'container',
-			//				padding: 10,
-			//				layout: 'vbox',
-			//				items: [
-			//					{
-			//						/**
-			//						 * Line one
-			//						 */
-			//						xtype: 'fieldcontainer',
-			//						layout: 'hbox',
-			//						defaults: {
-			//							margin: '0 10 5 0'
-			//						},
-			//						items: [
-			//							{
-			//								xtype: 'textfield',
-			//								name: 'reason',
-			//								fieldLabel: _('reason'),
-			//								width: 585,
-			//								labelWidth: 70,
-			//								action: 'reason'
-			//							}
-			//						]
-			//
-			//					},
-			//					{
-			//						/**
-			//						 * Line two
-			//						 */
-			//						xtype: 'fieldcontainer',
-			//						layout: 'hbox',
-			//						defaults: {
-			//							margin: '0 10 5 0'
-			//						},
-			//						items: [
-			//							{
-			//								xtype: 'textfield',
-			//								fieldLabel: _('observation'),
-			//								name: 'observation',
-			//								width: 250,
-			//								labelWidth: 70,
-			//								action: 'observation'
-			//							},
-			//							{
-			//								fieldLabel: _('date'),
-			//								xtype: 'datefield',
-			//								action: 'date',
-			//								width: 200,
-			//								labelWidth: 40,
-			//								format: g('date_display_format'),
-			//								name: 'date'
-			//
-			//							},
-			//							{
-			//								xtype: 'checkboxfield',
-			//								name: 'dismiss',
-			//								fieldLabel: _('dismiss_alert')
-			//
-			//							}
-			//						]
-			//
-			//					}
-			//				]
-			//			}
-			//		]
-			//
-			//	})
-			//});
 		}
 
 		if(a('access_patient_ccd')){
@@ -565,7 +460,38 @@ Ext.define('App.view.patient.Summary', {
 			});
 		}
 
+        // Insurance Sub Tab's
+        me.insTabPanel = Ext.widget('tabpanel', {
+        	itemId: 'PatientInsurancesPanel',
+        	plugins: [
+        		{
+        			ptype: 'AddTabButton',
+        			iconCls: 'icoAdd',
+        			toolTip: _('new_insurance'),
+        			btnText: _('add_insurance'),
+        			forceText: true,
+        			panelConfig: {
+        				xtype: 'patientinsuranceform'
+        			}
+        		}
+        	],
+        	listeners: {
+        		scope: me,
+        		beforeadd: me.insurancePanelAdd
+        	}
+        });
+
 		me.callParent();
+
+        if(!me.compactDemographics){
+            me.insTabPanel.addDocked({
+                xtype: 'toolbar',
+                dock: 'bottom',
+                title: _('insurance')
+            });
+            me.PatientInsurance.insert(1, me.insTabPanel);
+        }
+
 	},
 
 	onAddNew: function(btn){
@@ -695,6 +621,21 @@ Ext.define('App.view.patient.Summary', {
 		me.loadStores();
 		me.el.unmask();
 	},
+
+    insurancePanelAdd: function(tapPanel, panel){
+    	var me = this,
+    		record = panel.insurance || Ext.create('App.model.patient.Insurance', {pid: me.pid});
+
+    	panel.title = _('insurance') + ' (' + (record.data.insurance_type ? record.data.insurance_type : _('new')) + ')';
+
+    	me.insuranceFormLoadRecord(panel, record);
+    	if(record.data.image !== '') panel.down('image').setSrc(record.data.image);
+    },
+
+    insuranceFormLoadRecord: function(form, record){
+    	form.getForm().loadRecord(record);
+    	app.fireEvent('insurancerecordload', form, record);
+    },
 
 	/**
 	 * This function is called from Viewport.js when

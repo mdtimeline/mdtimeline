@@ -51309,6 +51309,9 @@ Ext.define('App.view.patient.Patient', {
 											hideLabel: false,
 											layout: 'hbox',
 											width: 660,
+                                            defaults: {
+                                                margin: '2 5 0 0'
+                                            },
 											items: [
 												{
 													xtype: 'textfield',
@@ -51318,7 +51321,6 @@ Ext.define('App.view.patient.Patient', {
 													hideLabel: true,
 													enableKeyEvents: true,
 													width: 175,
-													margin: '0 5 0 0',
 													name: 'pubpid'
 												},
 												{
@@ -51338,12 +51340,14 @@ Ext.define('App.view.patient.Patient', {
 											labelWidth: 149,
 											layout: 'hbox',
 											width: 660,
+                                            defaults: {
+                                                margin: '2 5 0 0'
+                                            },
 											items: [
 												{
 													xtype: 'gaiaehr.combo',
 													emptyText: _('title'),
 													width: 70,
-													margin: '0 5 0 0',
 													name: 'title',
 													list: 22,
 													loadStore: true,
@@ -51353,7 +51357,6 @@ Ext.define('App.view.patient.Patient', {
 													xtype: 'textfield',
 													emptyText: _('first_name'),
 													width: 100,
-													margin: '0 5 0 0',
 													allowBlank: false,
 													maxLength: 35,
 													name: 'fname'
@@ -51363,7 +51366,6 @@ Ext.define('App.view.patient.Patient', {
 													emptyText: _('middle_name'),
 													enableKeyEvents: true,
 													width: 100,
-													margin: '0 5 0 0',
 													maxLength: 35,
 													name: 'mname'
 												},
@@ -51371,7 +51373,6 @@ Ext.define('App.view.patient.Patient', {
 													xtype: 'textfield',
 													emptyText: _('last_name'),
 													width: 215,
-													margin: '0 5 0 0',
 													allowBlank: false,
 													maxLength: 35,
 													name: 'lname'
@@ -51389,6 +51390,9 @@ Ext.define('App.view.patient.Patient', {
 											collapsible: false,
 											checkboxToggle: false,
 											collapsed: false,
+                                            defaults: {
+                                                margin: '2 5 0 0'
+                                            },
 											items: [
 												{
 													xtype: 'gaiaehr.combo',
@@ -51398,7 +51402,6 @@ Ext.define('App.view.patient.Patient', {
 													emptyText: _('sex'),
 													name: 'sex',
 													width: 70,
-													margin: '0 5 0 0',
 													allowBlank: false,
 													list: 95,
 													loadStore: true,
@@ -51410,7 +51413,6 @@ Ext.define('App.view.patient.Patient', {
 													labelWidth: 30,
 													enableKeyEvents: true,
 													width: 205,
-													margin: '0 5 0 0',
 													allowBlank: false,
 													name: 'DOB',
 													collapsible: false,
@@ -51421,7 +51423,6 @@ Ext.define('App.view.patient.Patient', {
 													xtype: 'gaiaehr.combo',
 													emptyText: _('marital_status'),
 													width: 110,
-													margin: '0 5 0 0',
 													name: 'marital_status',
 													list: 12,
 													loadStore: true,
@@ -51431,8 +51432,7 @@ Ext.define('App.view.patient.Patient', {
 													xtype: 'textfield',
 													emptyText: _('social_security'),
 													name: 'SS',
-													width: 100,
-													margin: '0 5 0 0'
+													width: 100
 												}
 											]
 										},
@@ -51443,6 +51443,9 @@ Ext.define('App.view.patient.Patient', {
 											hideLabel: false,
 											layout: 'hbox',
 											width: 660,
+                                            defaults: {
+                                                margin: '2 5 0 0'
+                                            },
 											items: [
 												{
 													xtype: 'textfield',
@@ -51450,13 +51453,11 @@ Ext.define('App.view.patient.Patient', {
 													labelWidth: 149,
 													enableKeyEvents: true,
 													width: 175,
-													margin: '0 5 0 0',
 													name: 'drivers_license'
 												},
 												{
 													xtype: 'gaiaehr.combo',
 													width: 175,
-													margin: '0 5 0 0',
 													name: 'drivers_license_state',
 													list: 20,
 													loadStore: true,
@@ -51465,35 +51466,24 @@ Ext.define('App.view.patient.Patient', {
 												{
 													xtype: 'datefield',
 													width: 140,
-													margin: '0 5 0 0',
 													name: 'drivers_license_exp',
 													format: 'Y-m-d'
 												}
 											]
 										},
 										{
-											xtype: 'gaiaehr.combo',
-											fieldLabel: _('ethnicity'),
-											labelWidth: 149,
-											width: 400,
-											margin: '0 5 5 0',
-											name: 'ethnicity',
-											list: 59,
-											loadStore: true,
-											editable: false
-										},
-										{
 											xtype: 'fieldcontainer',
 											fieldLabel: _('race'),
-											labelWidth: 149,
+                                            labelWidth: 149,
 											hideLabel: false,
 											layout: 'hbox',
 											width: 660,
+                                            defaults: {
+                                                margin: '2 5 0 0'
+                                            },
 											items: [
 												{
 													xtype: 'gaiaehr.combo',
-													width: 245,
-													margin: '0 5 0 0',
 													name: 'race',
 													emptyText: _('race'),
 													list: 14,
@@ -51503,7 +51493,6 @@ Ext.define('App.view.patient.Patient', {
 												{
 													xtype: 'gaiaehr.combo',
 													flex: 1,
-													margin: '0 5 0 0',
 													name: _('secondary_race'),
 													emptyText: 'Secondary Race',
 													list: 14,
@@ -51512,18 +51501,158 @@ Ext.define('App.view.patient.Patient', {
 												}
 											]
 										},
-										{
-											xtype: 'gaiaehr.combo',
-											fieldLabel: _('language'),
-											labelWidth: 149,
-											hideLabel: false,
-											width: 400,
-											margin: '0 5 5 0',
-											name: 'language',
-											list: 10,
-											loadStore: true,
-											editable: false
-										}
+
+                                        {
+                                            xtype: 'fieldcontainer',
+                                            hideLabel: true,
+                                            layout: 'hbox',
+                                            defaults: {
+                                                labelWidth: 149,
+                                                margin: '2 5 0 0'
+                                            },
+                                            items: [
+                                                {
+                                                    xtype: 'gaiaehr.combo',
+                                                    fieldLabel: _('ethnicity'),
+                                                    name: 'ethnicity',
+                                                    list: 59,
+                                                    loadStore: true,
+                                                    editable: false
+                                                },
+                                                {
+                                                    xtype: 'gaiaehr.combo',
+                                                    fieldLabel: _('language'),
+                                                    name: 'language',
+                                                    list: 10,
+                                                    labelWidth: 60,
+                                                    loadStore: true,
+                                                    editable: false
+                                                }
+                                            ]
+                                        },
+
+                                        {
+                                            xtype: 'fieldcontainer',
+                                            hideLabel: true,
+                                            layout: 'hbox',
+                                            defaults: {
+                                                labelWidth: 149,
+                                                margin: '2 5 0 0'
+                                            },
+                                            items: [
+                                                {
+                                                    xtype: 'fieldset',
+                                                    title: _('postal_address'),
+                                                    margin: 2,
+                                                    defaults: {
+                                                        labelWidth: 50,
+                                                    },
+                                                    items: [
+                                                        {
+                                                            xtype: 'textfield',
+                                                            emptyText: _('street'),
+                                                            width: 370,
+                                                            name: 'postal_address'
+                                                        },
+                                                        {
+                                                            xtype: 'textfield',
+                                                            emptyText: '(' + _('optional') + ')',
+                                                            width: 370,
+                                                            name: 'postal_address_cont'
+                                                        },
+                                                        {
+                                                            xtype: 'container',
+                                                            layout: 'hbox',
+                                                            width: 370,
+                                                            defaults: {
+                                                                labelWidth: 50,
+                                                            },
+                                                            items: [
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    emptyText: _('city'),
+                                                                    margin: '0 5 5 0',
+                                                                    name: 'postal_city'
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    emptyText: _('state'),
+                                                                    margin: '0 5 0 0',
+                                                                    name: 'postal_state'
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    emptyText: _('zip'),
+                                                                    width: 90,
+                                                                    name: 'postal_zip'
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            xtype: 'textfield',
+                                                            emptyText: _('country'),
+                                                            width: 100,
+                                                            name: 'postal_country'
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    xtype: 'fieldset',
+                                                    title: _('physical_address'),
+                                                    margin: 2,
+                                                    defaults: {
+                                                        labelWidth: 50,
+                                                    },
+                                                    items: [
+                                                        {
+                                                            xtype: 'textfield',
+                                                            emptyText: _('street'),
+                                                            width: 370,
+                                                            name: 'physical_address'
+                                                        },
+                                                        {
+                                                            xtype: 'textfield',
+                                                            emptyText: '(' + _('optional') + ')',
+                                                            width: 370,
+                                                            name: 'physical_address_cont'
+                                                        },
+                                                        {
+                                                            xtype: 'container',
+                                                            layout: 'hbox',
+                                                            width: 370,
+                                                            defaults: {
+                                                                labelWidth: 50,
+                                                                margin: '0 5 5 0'
+                                                            },
+                                                            items: [
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    emptyText: _('city'),
+                                                                    name: 'physical_city'
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    emptyText: _('state'),
+                                                                    name: 'physical_state'
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    emptyText: _('zip'),
+                                                                    width: 90,
+                                                                    name: 'physical_zip'
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            xtype: 'textfield',
+                                                            emptyText: _('country'),
+                                                            width: 100,
+                                                            name: 'physical_country'
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
 									]
 								},
 								{
@@ -51568,6 +51697,81 @@ Ext.define('App.view.patient.Patient', {
 													loadStore: true,
 													editable: false
 												},
+                                                {
+                                                    xtype: 'textfield',
+                                                    fieldLabel: _('occupation'),
+                                                    labelWidth: 149,
+                                                    hideLabel: false,
+                                                    emptyText: _('occupation'),
+                                                    name: 'occupation',
+                                                    width: 350,
+                                                    margin: '0 5 5 0'
+                                                },
+                                                {
+                                                    xtype: 'textfield',
+                                                    fieldLabel: _('employer_name'),
+                                                    labelWidth: 149,
+                                                    hideLabel: false,
+                                                    emptyText: _('employer_name'),
+                                                    name: 'employer_name',
+                                                    width: 350,
+                                                    margin: '0 5 5 0'
+                                                },
+                                                {
+                                                    xtype: 'textfield',
+                                                    fieldLabel: _('employer_address'),
+                                                    labelWidth: 149,
+                                                    hideLabel: false,
+                                                    emptyText: _('street'),
+                                                    name: 'employer_address',
+                                                    width: 609,
+                                                    margin: '0 5 5 0'
+                                                },
+                                                {
+                                                    xtype: 'fieldcontainer',
+                                                    fieldLabel: _('employer_address_cont'),
+                                                    labelWidth: 149,
+                                                    hideLabel: false,
+                                                    layout: 'hbox',
+                                                    width: 609,
+                                                    items: [
+                                                        {
+                                                            xtype: 'textfield',
+                                                            emptyText: _('city'),
+                                                            name: 'employer_city',
+                                                            width: 130,
+                                                            margin: '0 5 5 0'
+                                                        },
+                                                        {
+                                                            xtype: 'gaiaehr.combo',
+                                                            margin: '0 5 5 0',
+                                                            width: 130,
+                                                            name: 'employer_state',
+                                                            emptyText: _('state'),
+                                                            list: 20,
+                                                            loadStore: true,
+                                                            editable: false
+                                                        },
+                                                        {
+                                                            xtype: 'gaiaehr.combo',
+                                                            emptyText: _('country'),
+                                                            name: 'employer_country',
+                                                            width: 100,
+                                                            margin: '0 5 5 0',
+                                                            list: 3,
+                                                            loadStore: true,
+                                                            editable: false
+                                                        },
+                                                        {
+                                                            xtype: 'textfield',
+                                                            emptyText: _('zipcode'),
+                                                            name: 'employer_postal_code',
+                                                            width: 80,
+                                                            margin: '0 5 5 0'
+                                                        }
+                                                    ]
+                                                },
+
 												{
 													xtype: 'fieldcontainer',
 													fieldLabel: _('multiple_birth'),
@@ -52007,126 +52211,6 @@ Ext.define('App.view.patient.Patient', {
                                         {
                                             xtype: 'container',
                                             layout: 'vbox',
-                                            margin: '0 10 0 0',
-                                            items: [
-                                                {
-                                                    xtype: 'fieldset',
-                                                    title: _('postal_address'),
-                                                    collapsible: false,
-                                                    checkboxToggle: false,
-                                                    collapsed: false,
-                                                    items: [
-                                                        {
-                                                            xtype: 'textfield',
-                                                            emptyText: _('street'),
-                                                            labelWidth: 50,
-                                                            width: 370,
-                                                            name: 'postal_address'
-                                                        },
-                                                        {
-                                                            xtype: 'textfield',
-                                                            emptyText: '(' + _('optional') + ')',
-                                                            labelWidth: 50,
-                                                            width: 370,
-                                                            name: 'postal_address_cont'
-                                                        },
-                                                        {
-                                                            xtype: 'container',
-                                                            layout: 'hbox',
-                                                            width: 370,
-                                                            items: [
-                                                                {
-                                                                    xtype: 'textfield',
-                                                                    emptyText: _('city'),
-                                                                    labelWidth: 50,
-                                                                    margin: '0 5 5 0',
-                                                                    name: 'postal_city'
-                                                                },
-                                                                {
-                                                                    xtype: 'textfield',
-                                                                    emptyText: _('state'),
-                                                                    labelWidth: 50,
-                                                                    margin: '0 5 0 0',
-                                                                    name: 'postal_state'
-                                                                },
-                                                                {
-                                                                    xtype: 'textfield',
-                                                                    emptyText: _('zip'),
-                                                                    labelWidth: 50,
-                                                                    width: 92,
-                                                                    name: 'postal_zip'
-                                                                }
-                                                            ]
-                                                        },
-                                                        {
-                                                            xtype: 'textfield',
-                                                            emptyText: _('country'),
-                                                            labelWidth: 50,
-                                                            width: 100,
-                                                            name: 'postal_country'
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    xtype: 'fieldset',
-                                                    title: _('physical_address'),
-                                                    items: [
-                                                        {
-                                                            xtype: 'textfield',
-                                                            emptyText: _('street'),
-                                                            labelWidth: 50,
-                                                            width: 370,
-                                                            name: 'physical_address'
-                                                        },
-                                                        {
-                                                            xtype: 'textfield',
-                                                            emptyText: '(' + _('optional') + ')',
-                                                            labelWidth: 50,
-                                                            width: 370,
-                                                            name: 'physical_address_cont'
-                                                        },
-                                                        {
-                                                            xtype: 'container',
-                                                            layout: 'hbox',
-                                                            width: 370,
-                                                            items: [
-                                                                {
-                                                                    xtype: 'textfield',
-                                                                    emptyText: _('city'),
-                                                                    labelWidth: 50,
-                                                                    margin: '0 5 5 0',
-                                                                    name: 'physical_city'
-                                                                },
-                                                                {
-                                                                    xtype: 'textfield',
-                                                                    emptyText: _('state'),
-                                                                    labelWidth: 50,
-                                                                    margin: '0 5 0 0',
-                                                                    name: 'physical_state'
-                                                                },
-                                                                {
-                                                                    xtype: 'textfield',
-                                                                    emptyText: _('zip'),
-                                                                    labelWidth: 50,
-                                                                    width: 92,
-                                                                    margin: '0 5 0 0',
-                                                                    name: 'physical_zip'
-                                                                }
-                                                            ]
-                                                        },
-                                                        {
-                                                            xtype: 'textfield',
-                                                            emptyText: _('country'),
-                                                            labelWidth: 50,
-                                                            width: 100,
-                                                            name: 'physical_country'
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        }, {
-                                            xtype: 'container',
-                                            layout: 'vbox',
                                             items: [
                                                 {
                                                     xtype: 'fieldset',
@@ -52365,95 +52449,7 @@ Ext.define('App.view.patient.Patient', {
                                             ]
                                         }
                                     ]
-                                },
-								{
-									xtype: 'panel',
-									title: _('employer'),
-									hideLabel: false,
-									collapsible: true,
-									enableKeyEvents: true,
-									checkboxToggle: false,
-									collapsed: false,
-									border: false,
-									bodyBorder: false,
-									bodyPadding: 10,
-									items: [
-										{
-											xtype: 'textfield',
-											fieldLabel: _('occupation'),
-											labelWidth: 149,
-											hideLabel: false,
-											emptyText: _('occupation'),
-											name: 'occupation',
-											width: 350,
-											margin: '0 5 5 0'
-										},
-										{
-											xtype: 'textfield',
-											fieldLabel: _('employer_name'),
-											labelWidth: 149,
-											hideLabel: false,
-											emptyText: _('employer_name'),
-											name: 'employer_name',
-											width: 350,
-											margin: '0 5 5 0'
-										},
-										{
-											xtype: 'textfield',
-											fieldLabel: _('employer_address'),
-											labelWidth: 149,
-											hideLabel: false,
-											emptyText: _('street'),
-											name: 'employer_address',
-											width: 609,
-											margin: '0 5 5 0'
-										},
-										{
-											xtype: 'fieldcontainer',
-											fieldLabel: _('employer_address_cont'),
-											labelWidth: 149,
-											hideLabel: false,
-											layout: 'hbox',
-											width: 609,
-											items: [
-												{
-													xtype: 'textfield',
-													emptyText: _('city'),
-													name: 'employer_city',
-													width: 130,
-													margin: '0 5 5 0'
-												},
-												{
-													xtype: 'gaiaehr.combo',
-													margin: '0 5 5 0',
-													width: 130,
-													name: 'employer_state',
-													emptyText: _('state'),
-													list: 20,
-													loadStore: true,
-													editable: false
-												},
-												{
-													xtype: 'gaiaehr.combo',
-													emptyText: _('country'),
-													name: 'employer_country',
-													width: 100,
-													margin: '0 5 5 0',
-													list: 3,
-													loadStore: true,
-													editable: false
-												},
-												{
-													xtype: 'textfield',
-													emptyText: _('zipcode'),
-													name: 'employer_postal_code',
-													width: 80,
-													margin: '0 5 5 0'
-												}
-											]
-										}
-									]
-								}
+                                }
 							]
 						}
 					]

@@ -666,7 +666,7 @@
 }
 
 .grid-row-form-editor .x-panel-body {
-    background-color: #E0E0E0;
+    /*background-color: #E0E0E0;*/
     border-top: none !important;
 }
 
@@ -675,7 +675,7 @@
 }
 
 .grid-row-form-editor .x-grid-body {
-    background-color: #ffffff !important;
+    /*background-color: #ffffff !important;*/
 }
 
 li .Minimal,

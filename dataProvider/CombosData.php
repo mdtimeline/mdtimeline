@@ -193,20 +193,37 @@ class CombosData {
 		return $records;
 	}
 
-	public function getUsers(){
+	public function getUsers($params){
 		include_once('Person.php');
 		if($this->U == null){
 			$this->U = MatchaModel::setSenchaModel('App.model.administration.User');
 		}
-		$rows = [];
-		$records = $this->U->load(['active' => 1], ['id','title','fname','mname','lname'])->all();
 
-		foreach($records['data'] as $row){
-			$row['name'] = $row['title'] . ' ' . Person::fullname($row['fname'], $row['mname'], $row['lname']);
-			unset($row['title'], $row['fname'], $row['mname'], $row['lname']);
-			array_push($rows, $row);
+		// filter user by acl permission access
+		if(isset($params->acl) && $params->acl != ''){
+			$sql = "SELECT  `u`.id, concat(`u`.title, ' ', `u`.lname, ', ', `u`.fname, ' ', `u`.mname) as `name`
+ 					FROM users AS u
+ 					WHERE `u`.`id` IN (
+					    SELECT  `up`.`id` FROM `users` AS up
+					    LEFT JOIN `acl_role_perms` AS arp ON `arp`.`role_id` = `up`.`role_id`
+					    LEFT JOIN `acl_permissions` AS ap ON `ap`.`id` = `arp`.`perm_id`
+ 						WHERE `arp`.`value` = 1 AND ( `ap`.`perm_key` = :acl )
+					   	GROUP BY `up`.`id`
+					) AND `u`.active = :active";
+			$records = $this->U->sql($sql)->all([':active' => 1, ':acl' => $params->acl]);
+		}else{
+			$sql = "SELECT id, concat(title, ' ', lname, ', ', fname, ' ', mname) as `name`
+			  FROM users
+			 WHERE active = :active
+			 ORDER BY lname";
+			$records = $this->U->sql($sql)->all([':active' => 1]);
 		}
-		return $rows;
+
+		if(isset($params->includeAllOption) && $params->includeAllOption){
+			array_unshift($records, [ 'id' => 0, 'name' =>  'All']);
+		}
+
+		return $records;
 	}
 
 	public function getLists(){

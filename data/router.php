@@ -186,11 +186,11 @@ function doRpc($cdata) {
 			}
 		}else{
 
-			error_log('***** Not Authorized ***********************************');
-			if(isset($action)) error_log('$action = ' . print_r($action, true));
-			error_log('------------------------------------------------------');
-			if(isset($method)) error_log('$method = ' . print_r($method, true));
-			error_log('********************************************************');
+//			error_log('***** Not Authorized ***********************************');
+//			if(isset($action)) error_log('$action = ' . print_r($action, true));
+//			error_log('------------------------------------------------------');
+//			if(isset($method)) error_log('$method = ' . print_r($method, true));
+//			error_log('********************************************************');
 
 			throw new Exception('Not Authorized');
 		}

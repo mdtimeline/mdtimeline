@@ -1808,7 +1808,7 @@ $API = [
 				'len' => 0
             ],
 			'getUsers' => [
-				'len' => 0
+				'len' => 1
             ],
 			'getLists' => [
 				'len' => 0

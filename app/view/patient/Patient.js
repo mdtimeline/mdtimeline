@@ -1002,7 +1002,7 @@ Ext.define('App.view.patient.Patient', {
                                                         {
                                                             xtype: 'gaiaehr.combo',
                                                             fieldLabel: _('relationship'),
-                                                            labelWidth: 50,
+                                                            labelWidth: 70,
                                                             name: 'emergency_contact_relation',
                                                             list: 134,
                                                             loadStore: true,
@@ -1122,7 +1122,7 @@ Ext.define('App.view.patient.Patient', {
                                                         {
                                                             xtype: 'gaiaehr.combo',
                                                             fieldLabel: _('relationship'),
-                                                            labelWidth: 50,
+                                                            labelWidth: 70,
                                                             name: 'guardians_relation',
                                                             list: 134,
                                                             loadStore: true,

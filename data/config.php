@@ -2028,6 +2028,9 @@ $API = [
             ],
 			'convertDocuments' => [
 				'len' => 1
+            ],
+			'convertToPath' => [
+				'len' => 1
             ]
         ]
     ],

@@ -449,11 +449,13 @@ Ext.define('App.view.patient.Patient', {
 										{
 											xtype: 'container',
 											width: 370,
+                                            defaults:{
+                                                labelWidth: 149
+                                            },
 											items: [
 												{
 													xtype: 'textfield',
 													fieldLabel: _('alias_name'),
-													labelWidth: 149,
 													hideLabel: false,
 													width: 350,
 													name: 'alias'
@@ -461,7 +463,6 @@ Ext.define('App.view.patient.Patient', {
 												{
 													xtype: 'textfield',
 													fieldLabel: _('birth_place'),
-													labelWidth: 149,
 													hideLabel: false,
 													width: 350,
 													name: 'birth_place'
@@ -469,7 +470,6 @@ Ext.define('App.view.patient.Patient', {
 												{
 													xtype: 'gaiaehr.combo',
 													fieldLabel: _('citizenship'),
-													labelWidth: 149,
 													hideLabel: false,
 													width: 350,
 													name: 'citizenship',
@@ -480,7 +480,6 @@ Ext.define('App.view.patient.Patient', {
                                                 {
                                                     xtype: 'textfield',
                                                     fieldLabel: _('occupation'),
-                                                    labelWidth: 149,
                                                     hideLabel: false,
                                                     emptyText: _('occupation'),
                                                     name: 'occupation',
@@ -490,7 +489,6 @@ Ext.define('App.view.patient.Patient', {
                                                 {
                                                     xtype: 'textfield',
                                                     fieldLabel: _('employer_name'),
-                                                    labelWidth: 149,
                                                     hideLabel: false,
                                                     emptyText: _('employer_name'),
                                                     name: 'employer_name',
@@ -500,7 +498,6 @@ Ext.define('App.view.patient.Patient', {
                                                 {
                                                     xtype: 'textfield',
                                                     fieldLabel: _('employer_address'),
-                                                    labelWidth: 149,
                                                     hideLabel: false,
                                                     emptyText: _('street'),
                                                     name: 'employer_address',
@@ -508,23 +505,66 @@ Ext.define('App.view.patient.Patient', {
                                                     margin: '0 5 5 0'
                                                 },
                                                 {
+                                                    xtype: 'activefacilitiescombo',
+                                                    fieldLabel: _('primary_facility'),
+                                                    width: 350,
+                                                    name: 'primary_facility',
+                                                    displayField: 'option_name',
+                                                    valueField: 'option_value',
+                                                    queryMode: 'local',
+                                                    forceSelection: true
+                                                },
+                                                {
+                                                    xtype: 'activeproviderscombo',
+                                                    fieldLabel: _('primary_provider'),
+                                                    width: 350,
+                                                    name: 'primary_provider',
+                                                    forceSelection: true
+                                                },
+                                                {
+                                                    xtype: 'mitos.pharmaciescombo',
+                                                    fieldLabel: _('pharmacy'),
+                                                    margin: '0 5 5 0',
+                                                    name: 'pharmacy',
+                                                    forceSelection: true,
+                                                    emptyText: 'Select'
+                                                },
+                                                {
+                                                    xtype: 'gaiaehr.combo',
+                                                    fieldLabel: _('hipaa_notice'),
+                                                    margin: '0 5 5 0',
+                                                    name: 'hipaa_notice',
+                                                    list: 1,
+                                                    loadStore: true,
+                                                    editable: false
+                                                },
+                                                {
+                                                    xtype: 'gaiaehr.combo',
+                                                    fieldLabel: _('veteran'),
+                                                    width: 300,
+                                                    boxLabel: 'Yes',
+                                                    name: 'is_veteran',
+                                                    loadStore: true,
+                                                    editable: false
+                                                },
+                                                {
                                                     xtype: 'fieldcontainer',
                                                     fieldLabel: _('employer_address_cont'),
-                                                    labelWidth: 149,
                                                     hideLabel: false,
                                                     layout: 'hbox',
                                                     width: 609,
+                                                    defaults:{
+                                                        margin: '2 5 0 0'
+                                                    },
                                                     items: [
                                                         {
                                                             xtype: 'textfield',
                                                             emptyText: _('city'),
                                                             name: 'employer_city',
                                                             width: 130,
-                                                            margin: '0 5 5 0'
                                                         },
                                                         {
                                                             xtype: 'gaiaehr.combo',
-                                                            margin: '0 5 5 0',
                                                             width: 130,
                                                             name: 'employer_state',
                                                             emptyText: _('state'),
@@ -537,7 +577,6 @@ Ext.define('App.view.patient.Patient', {
                                                             emptyText: _('country'),
                                                             name: 'employer_country',
                                                             width: 100,
-                                                            margin: '0 5 5 0',
                                                             list: 3,
                                                             loadStore: true,
                                                             editable: false
@@ -546,23 +585,20 @@ Ext.define('App.view.patient.Patient', {
                                                             xtype: 'textfield',
                                                             emptyText: _('zipcode'),
                                                             name: 'employer_postal_code',
-                                                            width: 80,
-                                                            margin: '0 5 5 0'
+                                                            width: 80
                                                         }
                                                     ]
                                                 },
-
 												{
 													xtype: 'fieldcontainer',
 													fieldLabel: _('multiple_birth'),
-													labelWidth: 149,
 													hideLabel: false,
 													layout: 'hbox',
 													width: 350,
 													items: [
 														{
 															xtype: 'checkbox',
-															margin: '0 10 5 0',
+															margin: '0 5 5 0',
 															boxLabel: ' ',
 															name: 'birth_multiple'
 														},
@@ -579,10 +615,18 @@ Ext.define('App.view.patient.Patient', {
 														}
 													]
 												},
+                                                {
+                                                    xtype: 'gaiaehr.combo',
+                                                    name: 'organ_donor_code',
+                                                    fieldLabel: _('organ_donor'),
+                                                    list: 137,
+                                                    width: 500,
+                                                    loadStore: true,
+                                                    editable: false
+                                                },
 												{
 													xtype: 'gaiaehr.combo',
 													fieldLabel: _('deceased'),
-													labelWidth: 149,
 													hideLabel: false,
 													width: 350,
 													boxLabel: 'Yes',
@@ -594,7 +638,6 @@ Ext.define('App.view.patient.Patient', {
 												{
 													xtype: 'mitos.datetime',
 													fieldLabel: _('death_date'),
-													labelWidth: 149,
 													hideLabel: false,
 													width: 350,
 													margin: '0 5 5 0',
@@ -605,33 +648,7 @@ Ext.define('App.view.patient.Patient', {
 										{
 											xtype: 'container',
 											items: [
-												{
-													xtype: 'activeproviderscombo',
-													fieldLabel: _('primary_provider'),
-													width: 300,
-													name: 'primary_provider',
-													forceSelection: true
-												},
-												{
-													xtype: 'activefacilitiescombo',
-													fieldLabel: _('primary_facility'),
-													width: 300,
-													name: 'primary_facility',
-													displayField: 'option_name',
-													valueField: 'option_value',
-													queryMode: 'local',
-													forceSelection: true
-												},
-												{
-													xtype: 'gaiaehr.combo',
-													fieldLabel: _('veteran'),
-													width: 300,
-													boxLabel: 'Yes',
-													name: 'is_veteran',
-													list: 103,
-													loadStore: true,
-													editable: false
-												},
+
 												{
 													xtype: 'fieldcontainer',
 													fieldLabel: _('mothers_name'),
@@ -719,48 +736,6 @@ Ext.define('App.view.patient.Patient', {
 													xtype: 'container',
 													layout: 'vbox',
 													items:[
-														{
-															xtype: 'activeproviderscombo',
-															fieldLabel: _('provider'),
-															labelWidth: 100,
-															margin: '0 5 5 0',
-															name: 'provider',
-															forceSelection: true
-														},
-														{
-															xtype: 'mitos.pharmaciescombo',
-															fieldLabel: _('pharmacy'),
-															labelWidth: 100,
-															margin: '0 5 5 0',
-															name: 'pharmacy',
-															forceSelection: true,
-															emptyText: 'Select'
-														},
-														{
-															xtype: 'gaiaehr.combo',
-															fieldLabel: _('hipaa_notice'),
-															labelWidth: 100,
-															margin: '0 5 5 0',
-															name: 'hipaa_notice',
-															list: 1,
-															loadStore: true,
-															editable: false
-														}
-													]
-												},
-												{
-													xtype: 'container',
-													layout: 'vbox',
-													items:[
-														{
-															xtype: 'gaiaehr.combo',
-															name: 'organ_donor_code',
-															fieldLabel: _('organ_donor'),
-															list: 137,
-															width: 500,
-															loadStore: true,
-															editable: false
-														},
 														{
 															xtype: 'container',
 															layout: 'hbox',

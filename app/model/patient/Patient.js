@@ -134,12 +134,6 @@ Ext.define('App.model.patient.Patient',{
             store: false
         },
         {
-            name: 'provider',
-            type: 'string',
-            comment: 'default provider',
-            len: 40
-        },
-        {
             name: 'pharmacy',
             type: 'string',
             comment: 'default pharmacy',

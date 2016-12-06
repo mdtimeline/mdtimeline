@@ -16,5 +16,7 @@ contrib/icd10/*
 /modules/drugtodrugtoallergy
 /modules/erx
 /modules/phrmessenger
+/modules/dental
+/modules/billing
 /modules/reportcenter/reports/AutomatedMeasureCalculation
 /.gitignore

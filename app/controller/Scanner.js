@@ -9,16 +9,20 @@ Ext.define('App.controller.Scanner', {
 			selector: '#ScannerWindow'
 		},
 		{
-			ref: 'ScannerImage',
-			selector: '#ScannerImage'
+			ref: 'ScannerImageThumbsDataView',
+			selector: '#ScannerImageThumbsDataView'
 		},
 		{
-			ref: 'ScannerCombo',
-			selector: '#ScannerCombo'
+			ref: 'ScannerImageViewerPanelImage',
+			selector: '#ScannerImageViewerPanel image'
 		},
 		{
-			ref: 'ScannerScanBtn',
-			selector: '#ScannerScanBtn'
+			ref: 'ScannerSourceCombo',
+			selector: '#ScannerSourceCombo'
+		},
+		{
+			ref: 'ScannerImageScanBtn',
+			selector: '#ScannerImageScanBtn'
 		},
 		{
 			ref: 'ScannerOkBtn',
@@ -26,26 +30,23 @@ Ext.define('App.controller.Scanner', {
 		}
 	],
 
-	/**
-	 *
-	 */
-	ws: null,
-
-	connected: false,
 
 	init: function(){
 		var me = this;
 
 		me.control({
-			'viewport': {
-				afterrender: me.doWebSocketConnect
-			},
 			'#ScannerWindow': {
 				show: me.onScannerWindowShow,
 				close: me.onScannerWindowClose
 			},
-			'#ScannerScanBtn': {
-				click: me.onScannerScanBtnClick
+			'#ScannerImageScanBtn': {
+				click: me.onScannerImageScanBtnClick
+			},
+			'#ScannerImageThumbsDataView': {
+				itemclick: me.onScannerImageThumbsDataViewItemClick
+			},
+			'#ScannerImageArchiveBtn': {
+				toggle: me.onScannerImageArchiveBtnClick
 			},
 			'#ScannerImageEditBtn': {
 				toggle: me.onScannerImageEditBtnClick
@@ -54,78 +55,112 @@ Ext.define('App.controller.Scanner', {
 				click: me.onScannerOkBtnClick
 			}
 		});
+
+		me.helperCtrl = me.getController('App.controller.BrowserHelper');
+
+		// me.showScanWindow();
+		// me.doScannerComboLoad();
+
 	},
 
-	onScannerScanBtnClick: function(){
+	doScan: function () {
+		var me = this,
+			scannerId = me.getScannerSourceCombo().getValue(),
+			url = Ext.String.format('http://localhost:8686/scanner/scan/{0}', scannerId);
+
+		me.helperCtrl.sendMessage({
+			url: url,
+			timeout: (1000 * 60)
+		}, function (response) {
+
+			say('response');
+			say(response);
+
+			if(response == null || response.code != 200)  return;
+			var response_object = JSON.parse(response.response);
+
+			say('response_object');
+			say(response_object);
+
+			me.loadDocuments(response_object.data);
+
+		});
+
+	},
+
+	loadDocuments: function (data) {
+
+		say('loadDocuments');
+		say(data);
+
+		var me = this,
+			documents = [];
+
+
+		data.forEach(function (document) {
+			Ext.Array.push(documents, {
+				id: '',
+				src: 'data:image/jpeg;base64,' + document
+			});
+		});
+
+		var view = me.getScannerImageThumbsDataView(),
+			store = view.getStore();
+
+
+		store.loadData(documents);
+		view.refresh();
+	},
+
+	onScannerImageThumbsDataViewItemClick: function (view, record) {
+
+		say(record);
+
+		this.getScannerImageViewerPanelImage().setSrc(record.get('src'));
+
+	},
+
+	showScanWindow: function(){
+		if(!this.getScannerWindow()){
+			Ext.create('App.view.scanner.Window');
+		}
+		return this.getScannerWindow().show();
+	},
+
+	doScannerComboLoad: function () {
+		var me = this;
+
+		me.helperCtrl.sendMessage({ url: 'http://localhost:8686/scanner/list' }, function (response) {
+
+			if(response == null || response.code != 200)  return;
+			var response_object = JSON.parse(response.response);
+
+			if(response_object.success){
+				me.getScannerSourceCombo().store.loadRawData(response_object.data);
+				me.getScannerSourceCombo().select(me.getScannerSourceCombo().store.getAt(0));
+			}
+
+		});
+	},
+
+	onScannerImageScanBtnClick: function(){
 		this.doScan();
 	},
 
-	doLoadScannersCombo: function(data){
-		var combo = this.getScannerCombo(),
-			store = combo.getStore(),
-            checked;
+	onScannerImageArchiveBtnClick: function () {
 
-		store.loadData(data);
-		checked = store.findRecord('Checked', 'true');
-		if(checked){
-			combo.select(checked);
-		}
-	},
-
-	doLoadScannedDocument: function(data){
-		var me = this,
-			image = me.getScannerImage();
-
-		image.setSrc('data:image/png;base64,' + data);
-		me.getScannerWindow().body.el.unmask();
-		me.getScannerWindow().doComponentLayout();
-		me.getScannerWindow().down('toolbar').enable();
-	},
-
-	getSources: function(){
-		var me = this;
-		me.ws.send('getSources');
 	},
 
 	onScannerWindowShow: function(){
-		//this.doWebSocketConnect();
+		// this.doScannerComboLoad();
 	},
 
 	onScannerWindowClose: function(){
 		//this.ws.close();
 	},
 
-	doWebSocketConnect: function(){
-		var me = this;
+	onScannerOkBtnClick: function () {
 
-		if(me.connected) return;
-		me.ws = new WebSocket('wss://localhost:8443/TwainService');
-
-		me.ws.onopen = function(evt){
-			me.conencted = true;
-			me.getScanWindow();
-			me.getSources();
-			app.fireEvent('scanconnected', this);
-		};
-
-		me.ws.onerror = function(){
-			say(_('no_scanner_service_found'));
-		};
-
-		me.ws.onmessage = function(evt){
-			var response = eval('(' + evt.data + ')');
-
-			if(response.action == 'getSources'){
-				me.doLoadScannersCombo(response.data);
-			}else if(response.action == 'getDocument'){
-				me.doLoadScannedDocument(response.data);
-			}
-		};
-
-		me.ws.onclose = function(e){
-			me.conencted = false;
-			app.fireEvent('scandisconnected', this);
-		};
 	},
 
 	onScannerImageEditBtnClick: function(btn, pressed){
@@ -149,32 +184,6 @@ Ext.define('App.controller.Scanner', {
 		return this.getScannerImage().imgEl.dom.src;
 	},
 
-	doScan: function(){
-		var me = this,
-			combo = this.getScannerCombo();
 
-		me.getScannerWindow().down('toolbar').disable();
-		me.getScannerWindow().body.el.mask(_('scanning_document'));
-		me.ws.send('getDocument:' + combo.getValue());
-	},
 
-	onScannerOkBtnClick: function(){
-		app.fireEvent('scancompleted', this, this.getDocument());
-		this.getScannerWindow().close();
-	},
-
-	getScanWindow: function(){
-		if(!this.getScannerWindow()){
-			Ext.create('App.view.scanner.Window');
-		}
-		return this.getScannerWindow();
-	},
-
-	initScan: function(){
-		this.getScanWindow();
-		this.getScannerWindow().show();
-		//if(this.getScannerCombo().getValue() !== ''){
-		//	this.doScan();
-		//}
-	}
 });

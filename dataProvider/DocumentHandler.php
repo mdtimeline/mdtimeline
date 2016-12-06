@@ -45,6 +45,23 @@ class DocumentHandler {
 
 	private $doctorsnotes;
 
+	private $mime_types_ext = [
+
+		'application/pdf' => 'pdf',
+		'application/msword' => 'doc',
+		'image/gif' => 'gif',
+		'image/png' => 'png',
+		'image/jpg' => 'jpg',
+		'image/bmp' => 'bmp',
+		'image/mpeg' => 'mp3',
+		'audio/x-wav' => 'wav',
+		'video/mpeg' => 'mpg',
+		'video/gif' => 'avi',
+		'video/3gpp' => '3gp',
+		'text/gif' => 'xml',
+		'image/xml' => 'wav'
+	];
+
 	function __construct(){
 		$this->db = new MatchaHelper();
 		return;
@@ -190,6 +207,78 @@ class DocumentHandler {
 			error_log($e->getMessage());
 		}
 	}
+
+	private function handleDocumentFile(&$document){
+
+		try{
+			$document = (object) $document;
+			$conn = Matcha::getConn();
+
+			$document_path = Globals::getGlobal('documents_directory');
+			if(!isset($document_path) || $document_path == false || $document_path == ''){
+				$document_path = site_path . '/documents';
+			}else{
+				$document_path = rtrim($document_path, '/');
+			}
+
+			/**
+			 * change date to path  2016-01-23 => 2016/01/23
+			 */
+			$document_path .= '/' . str_ireplace(['-',' '], '/', substr($document->date,0,10));
+
+			if(!file_exists($document_path)){
+				mkdir($document_path, 0777, true);
+				chmod($document_path, 755);
+			}
+
+			$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $document->document_instance);
+			$data = $dd->load($document->document_id)->one();
+			if($data !== false){
+				$document->document = $data['document'];
+			}
+			unset($data);
+
+			$document->document = $this->base64ToBinary($document->document);
+
+			$file_info = new finfo(FILEINFO_MIME_TYPE);
+			$mime_type = $file_info->buffer($document->document);
+
+			if(!isset($this->mime_types_ext[$mime_type])){
+				throw new Exception('File extension not supported. document_id: ' . $document->id . ' mime_type: '. $mime_type);
+			}
+
+			$document_code = isset($document->docTypeCode) ? $document->docTypeCode : '';
+
+			$ext = $this->mime_types_ext[$mime_type];
+			$file_name = $document_code .'_' .$document->id . '_' . $document->pid . '.' . $ext;
+
+			$path = $document_path . '/'. $file_name;
+
+			if(file_exists($path)){
+				throw new Exception('File name exist. document_id: ' . $document->id . ' path: '. $path);
+			}
+
+			if(file_put_contents($path, $document->document) === false){
+				throw new Exception('Unable to write file. document_id: ' . $document->id . ' path: '. $path);
+			}
+
+			$sth = $conn->prepare("UPDATE patient_documents SET url = :url, `name` = :name WHERE id = :id;");
+			$sth->execute([
+				':id' => $document->id,
+				':name' => $file_name,
+				':url' => $document_path
+			]);
+
+			//error_log('DOCUMENT COMPLETE');
+			unset($document->document);
+			unset($data, $record, $document_model);
+
+		}catch(Exception $e){
+			error_log('Error Converting Document');
+			error_log($e->getMessage());
+		}
+	}
+
 
 	/**
 	 * @param $params
@@ -532,6 +621,32 @@ class DocumentHandler {
 		return [ 'success' => true, 'total' => count($records) ];
 	}
 
+	public function convertToPath($quantity = 100){
+
+		ini_set('memory_limit', '-1');
+
+		$this->setPatientDocumentModel();
+		$this->d->addFilter('url', null, '=');
+
+		$records = $this->d->load()->limit(0, $quantity)->all();
+
+		foreach($records as $record){
+			$this->handleDocumentFile($record);
+		}
+
+		return [ 'success' => true, 'total' => count($records) ];
+	}
+
+	public function base64ToBinary($document, $encrypted = false) {
+		// handle binary documents
+		if(function_exists('is_binary') && is_binary($document)){
+			return $document;
+		}elseif(preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0){
+			return $document;
+		}else{
+			return base64_decode($document);
+		}
+	}
 }
 
 //$d = new DocumentHandler();

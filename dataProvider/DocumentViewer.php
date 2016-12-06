@@ -16,26 +16,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-if(!isset($_SESSION)){
+if (!isset($_SESSION)) {
 	session_cache_limiter('private');
 	session_name('mdTimeLine');
 	session_start();
 }
 
-if(!isset($_REQUEST['token']) || str_replace(' ', '+', $_REQUEST['token']) != $_SESSION['user']['token']){
+if (!isset($_REQUEST['token']) || str_replace(' ', '+', $_REQUEST['token']) != $_SESSION['user']['token']) {
 	die('Not Authorized!');
 }
 
-if(!defined('_GaiaEXEC')){
+if (!defined('_GaiaEXEC')) {
 	define('_GaiaEXEC', 1);
 }
 
-if(!defined('ROOT')){
+if (!defined('ROOT')) {
 	define('ROOT', str_replace('\\', '/', dirname(dirname(__FILE__))));
 }
 
-if(isset($_REQUEST['site'])){
-	if(!defined('SITE')){
+if (isset($_REQUEST['site'])) {
+	if (!defined('SITE')) {
 		define('SITE', $_REQUEST['site']);
 	}
 }
@@ -48,12 +48,12 @@ require_once(str_replace('\\', '/', dirname(__FILE__)) . '/../registry.php');
 ini_set('memory_limit', '1024M');
 ini_set('max_execution_time', 5);
 
-if(
+if (
 	isset($_SESSION['user']) && (
 		(isset($_SESSION['user']['auth']) && $_SESSION['user']['auth'] == true) ||
 		(isset($_SESSION['user']['portal_authorized']) && $_SESSION['user']['portal_authorized'] == true)
 	)
-){
+) {
 	/**
 	 * init Matcha
 	 */
@@ -61,10 +61,11 @@ if(
 	require_once(ROOT . '/dataProvider/TransactionLog.php');
 	new MatchaHelper();
 
-	if(!isset($_REQUEST['id']))
+	if (!isset($_REQUEST['id']))
 		die('');
 
-	function get_mime_type($file) {
+	function get_mime_type($file)
+	{
 		$mime_types = [
 			"pdf" => "application/pdf",
 			"exe" => "application/octet-stream",
@@ -100,14 +101,15 @@ if(
 		return isset($mime_types[$extension]) ? $mime_types[$extension] : '';
 	}
 
-	function base64ToBinary($document, $encrypted, $is_image) {
+	function base64ToBinary($document, $encrypted, $is_image)
+	{
 
 		// handle binary documents
-		if(function_exists('is_binary') && is_binary($document)){
+		if (function_exists('is_binary') && is_binary($document)) {
 			return $document;
-		}elseif(preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0){
+		} elseif (preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0) {
 			return $document;
-		}else{
+		} else {
 			return base64_decode($document);
 		}
 //		// handle base64 documents
@@ -123,11 +125,11 @@ if(
 
 	$TransactionLog = new TransactionLog();
 
-	if($isTemp){
+	if ($isTemp) {
 		$d = MatchaModel::setSenchaModel('App.model.patient.PatientDocumentsTemp');
 
 		$doc = $d->load($_REQUEST['id'])->one();
-		if($doc === false){
+		if ($doc === false) {
 			error_log('No Document Found, Please contact Support Desk. Thank You!');
 			die('No Document Found, Please contact Support Desk. Thank You!');
 		}
@@ -144,19 +146,39 @@ if(
 	} else {
 		$d = MatchaModel::setSenchaModel('App.model.patient.PatientDocuments');
 		$doc = $d->load($_REQUEST['id'])->one();
-		if($doc === false){
+		if ($doc === false) {
 			error_log('No Document Found for id ' . $_REQUEST['id']);
 			die();
 		}
 		$doc = (object)$doc;
 		$doc->is_temp = 'false';
-		$mineType = get_mime_type($doc->name);
-		$is_image = preg_match('/^image/', $mineType);
 
-		if(isset($doc->document_instance)){
+		$file_path = $doc->url . '/' . $doc->name;
+		$is_file = isset($doc->url) && $doc->url != '' && file_exists($file_path);
+
+		if ($is_file) {
+			$mineType = mime_content_type($file_path);
+			$is_image = preg_match('/^image/', $mineType);
+		} else {
+			$mineType = get_mime_type($doc->name);
+			$is_image = preg_match('/^image/', $mineType);
+		}
+
+		if ($is_file) {
+			$document = file_get_contents($file_path);
+			$TransactionLog->saveTransactionLog([
+				'event' => 'VIEW',
+				'data' => 'Generated and viewed image'
+			]);
+
+		} elseif (isset($doc->document_instance)) {
+
+			$mineType = get_mime_type($doc->name);
+			$is_image = preg_match('/^image/', $mineType);
+
 			$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $doc->document_instance);
 			$data = $dd->load($doc->document_id)->one();
-			if($data == false){
+			if ($data == false) {
 				error_log('No Document Found For id ' . $doc->document_id);
 				die();
 			}
@@ -167,6 +189,10 @@ if(
 				'data' => 'Generated and viewed image'
 			]);
 		} else {
+
+			$mineType = get_mime_type($doc->name);
+			$is_image = preg_match('/^image/', $mineType);
+
 			$document = base64ToBinary($doc->document, $doc->encrypted, $is_image);
 			$TransactionLog->saveTransactionLog([
 				'event' => 'VIEW',
@@ -177,18 +203,18 @@ if(
 
 	unset($TransactionLog);
 
-	if($is_image){
+	if ($is_image) {
 
 		$enableEdit = isset($_SESSION['user']['auth']) && $_SESSION['user']['auth'] == true;
 
 		// handle binary documents
-		if(function_exists('is_binary') && is_binary($document)){
+		if (function_exists('is_binary') && is_binary($document)) {
 			$document = base64_encode($document);
-		}elseif(preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0){
+		} elseif (preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0) {
 			$document = base64_encode($document);
 		}
 
-		if($enableEdit){
+		if ($enableEdit) {
 
 			$html = <<<HTML
 			<!doctype html>

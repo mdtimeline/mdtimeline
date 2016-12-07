@@ -51746,6 +51746,48 @@ Ext.define('App.view.patient.Patient', {
                                                     margin: '0 5 5 0'
                                                 },
                                                 {
+                                                    xtype: 'fieldcontainer',
+                                                    fieldLabel: _('employer_address_cont'),
+                                                    hideLabel: false,
+                                                    layout: 'hbox',
+                                                    width: 609,
+                                                    defaults:{
+                                                        margin: '2 5 0 0'
+                                                    },
+                                                    items: [
+                                                        {
+                                                            xtype: 'textfield',
+                                                            emptyText: _('city'),
+                                                            name: 'employer_city',
+                                                            width: 130,
+                                                        },
+                                                        {
+                                                            xtype: 'gaiaehr.combo',
+                                                            width: 130,
+                                                            name: 'employer_state',
+                                                            emptyText: _('state'),
+                                                            list: 20,
+                                                            loadStore: true,
+                                                            editable: false
+                                                        },
+                                                        {
+                                                            xtype: 'gaiaehr.combo',
+                                                            emptyText: _('country'),
+                                                            name: 'employer_country',
+                                                            width: 100,
+                                                            list: 3,
+                                                            loadStore: true,
+                                                            editable: false
+                                                        },
+                                                        {
+                                                            xtype: 'textfield',
+                                                            emptyText: _('zipcode'),
+                                                            name: 'employer_postal_code',
+                                                            width: 80
+                                                        }
+                                                    ]
+                                                },
+                                                {
                                                     xtype: 'activefacilitiescombo',
                                                     fieldLabel: _('primary_facility'),
                                                     width: 350,
@@ -51787,48 +51829,6 @@ Ext.define('App.view.patient.Patient', {
                                                     name: 'is_veteran',
                                                     loadStore: true,
                                                     editable: false
-                                                },
-                                                {
-                                                    xtype: 'fieldcontainer',
-                                                    fieldLabel: _('employer_address_cont'),
-                                                    hideLabel: false,
-                                                    layout: 'hbox',
-                                                    width: 609,
-                                                    defaults:{
-                                                        margin: '2 5 0 0'
-                                                    },
-                                                    items: [
-                                                        {
-                                                            xtype: 'textfield',
-                                                            emptyText: _('city'),
-                                                            name: 'employer_city',
-                                                            width: 130,
-                                                        },
-                                                        {
-                                                            xtype: 'gaiaehr.combo',
-                                                            width: 130,
-                                                            name: 'employer_state',
-                                                            emptyText: _('state'),
-                                                            list: 20,
-                                                            loadStore: true,
-                                                            editable: false
-                                                        },
-                                                        {
-                                                            xtype: 'gaiaehr.combo',
-                                                            emptyText: _('country'),
-                                                            name: 'employer_country',
-                                                            width: 100,
-                                                            list: 3,
-                                                            loadStore: true,
-                                                            editable: false
-                                                        },
-                                                        {
-                                                            xtype: 'textfield',
-                                                            emptyText: _('zipcode'),
-                                                            name: 'employer_postal_code',
-                                                            width: 80
-                                                        }
-                                                    ]
                                                 },
 												{
 													xtype: 'fieldcontainer',

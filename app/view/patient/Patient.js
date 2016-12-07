@@ -217,41 +217,6 @@ Ext.define('App.view.patient.Patient', {
 										},
 										{
 											xtype: 'fieldcontainer',
-											fieldLabel: _('drivers_info_line'),
-											labelWidth: 149,
-											hideLabel: false,
-											layout: 'hbox',
-                                            width: '80%',
-                                            defaults: {
-                                                margin: '2 5 0 0'
-                                            },
-											items: [
-												{
-													xtype: 'textfield',
-													emptyText: _('driver_license'),
-													labelWidth: 149,
-													enableKeyEvents: true,
-													width: 175,
-													name: 'drivers_license'
-												},
-												{
-													xtype: 'gaiaehr.combo',
-													width: 175,
-													name: 'drivers_license_state',
-													list: 20,
-													loadStore: true,
-													editable: false
-												},
-												{
-													xtype: 'datefield',
-													width: 140,
-													name: 'drivers_license_exp',
-													format: 'Y-m-d'
-												}
-											]
-										},
-										{
-											xtype: 'fieldcontainer',
 											fieldLabel: _('race'),
                                             labelWidth: 149,
 											hideLabel: false,
@@ -655,7 +620,42 @@ Ext.define('App.view.patient.Patient', {
 															name: 'father_lname'
 														}
 													]
-												}
+												},
+                                                {
+                                                    xtype: 'fieldcontainer',
+                                                    fieldLabel: _('drivers_info_line'),
+                                                    labelWidth: 149,
+                                                    hideLabel: false,
+                                                    layout: 'hbox',
+                                                    width: '80%',
+                                                    defaults: {
+                                                        margin: '2 5 0 0'
+                                                    },
+                                                    items: [
+                                                        {
+                                                            xtype: 'textfield',
+                                                            emptyText: _('driver_license'),
+                                                            labelWidth: 149,
+                                                            enableKeyEvents: true,
+                                                            width: 175,
+                                                            name: 'drivers_license'
+                                                        },
+                                                        {
+                                                            xtype: 'gaiaehr.combo',
+                                                            width: 175,
+                                                            name: 'drivers_license_state',
+                                                            list: 20,
+                                                            loadStore: true,
+                                                            editable: false
+                                                        },
+                                                        {
+                                                            xtype: 'datefield',
+                                                            width: 140,
+                                                            name: 'drivers_license_exp',
+                                                            format: 'Y-m-d'
+                                                        }
+                                                    ]
+                                                },
 											]
 										}
 									]

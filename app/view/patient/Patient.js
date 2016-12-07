@@ -448,28 +448,26 @@ Ext.define('App.view.patient.Patient', {
 											xtype: 'container',
 											width: 370,
                                             defaults:{
-                                                labelWidth: 149
+                                                labelWidth: 149,
+                                                width: 350
                                             },
 											items: [
 												{
 													xtype: 'textfield',
 													fieldLabel: _('alias_name'),
 													hideLabel: false,
-													width: 350,
 													name: 'alias'
 												},
 												{
 													xtype: 'textfield',
 													fieldLabel: _('birth_place'),
 													hideLabel: false,
-													width: 350,
 													name: 'birth_place'
 												},
 												{
 													xtype: 'gaiaehr.combo',
 													fieldLabel: _('citizenship'),
 													hideLabel: false,
-													width: 350,
 													name: 'citizenship',
 													list: 104,
 													loadStore: true,
@@ -481,7 +479,6 @@ Ext.define('App.view.patient.Patient', {
                                                     hideLabel: false,
                                                     emptyText: _('occupation'),
                                                     name: 'occupation',
-                                                    width: 350,
                                                     margin: '0 5 5 0'
                                                 },
                                                 {
@@ -490,59 +487,7 @@ Ext.define('App.view.patient.Patient', {
                                                     hideLabel: false,
                                                     emptyText: _('employer_name'),
                                                     name: 'employer_name',
-                                                    width: 350,
                                                     margin: '0 5 5 0'
-                                                },
-                                                {
-                                                    xtype: 'textfield',
-                                                    fieldLabel: _('employer_address'),
-                                                    hideLabel: false,
-                                                    emptyText: _('street'),
-                                                    name: 'employer_address',
-                                                    width: 609,
-                                                    margin: '0 5 5 0'
-                                                },
-                                                {
-                                                    xtype: 'fieldcontainer',
-                                                    fieldLabel: _('employer_address_cont'),
-                                                    hideLabel: false,
-                                                    layout: 'hbox',
-                                                    width: 609,
-                                                    defaults:{
-                                                        margin: '2 5 0 0'
-                                                    },
-                                                    items: [
-                                                        {
-                                                            xtype: 'textfield',
-                                                            emptyText: _('city'),
-                                                            name: 'employer_city',
-                                                            width: 130,
-                                                        },
-                                                        {
-                                                            xtype: 'gaiaehr.combo',
-                                                            width: 130,
-                                                            name: 'employer_state',
-                                                            emptyText: _('state'),
-                                                            list: 20,
-                                                            loadStore: true,
-                                                            editable: false
-                                                        },
-                                                        {
-                                                            xtype: 'gaiaehr.combo',
-                                                            emptyText: _('country'),
-                                                            name: 'employer_country',
-                                                            width: 100,
-                                                            list: 3,
-                                                            loadStore: true,
-                                                            editable: false
-                                                        },
-                                                        {
-                                                            xtype: 'textfield',
-                                                            emptyText: _('zipcode'),
-                                                            name: 'employer_postal_code',
-                                                            width: 80
-                                                        }
-                                                    ]
                                                 },
                                                 {
                                                     xtype: 'activefacilitiescombo',
@@ -1530,19 +1475,19 @@ Ext.define('App.view.patient.Patient', {
 				me.setReadOnly(app.patient.readOnly);
 				me.setButtonsDisabled(me.query('button[action="readOnly"]'));
 				me.verifyPatientRequiredInfo();
+				me.insTabPanel = Ext.ComponentQuery.query('#PatientInsurancesPanel')[0];
 
 				// set the insurance panel
-				// me.insTabPanel.removeAll(true);
-				// for(var i = 0; i < records.length; i++){
-				// 	me.insTabPanel.add(
-				// 		Ext.widget('patientinsuranceform', {
-				// 			closable: false,
-				// 			insurance: records[i]
-				// 		})
-				// 	);
-				// }
-
-				// if(me.insTabPanel.items.length !== 0) me.insTabPanel.setActiveTab(0);
+				me.insTabPanel.removeAll(true);
+				for(var i = 0; i < records.length; i++){
+					me.insTabPanel.add(
+						Ext.widget('patientinsuranceform', {
+							closable: false,
+							insurance: records[i]
+						})
+					);
+				}
+				if(me.insTabPanel.items.length !== 0) me.insTabPanel.setActiveTab(0);
 			}
 		});
 	}

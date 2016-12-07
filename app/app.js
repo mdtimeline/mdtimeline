@@ -51329,19 +51329,19 @@ Ext.define('App.view.patient.Patient', {
 											labelWidth: 149,
 											hideLabel: false,
 											layout: 'hbox',
-											width: 660,
+                                            width: '80%',
                                             defaults: {
-                                                margin: '2 5 0 0'
+                                                margin: '2 5 2 0',
+                                                labelWidth: 149,
+                                                width: 175
                                             },
 											items: [
 												{
 													xtype: 'textfield',
 													fieldLabel: _('external_record'),
 													emptyText: _('external_record'),
-													labelWidth: 149,
 													hideLabel: true,
 													enableKeyEvents: true,
-													width: 175,
 													name: 'pubpid'
 												},
 												{
@@ -51350,7 +51350,6 @@ Ext.define('App.view.patient.Patient', {
 													emptyText: _('external_account'),
 													hideLabel: true,
 													enableKeyEvents: true,
-													width: 175,
 													name: 'pubaccount'
 												}
 											]
@@ -51360,7 +51359,7 @@ Ext.define('App.view.patient.Patient', {
 											fieldLabel: _('fullname'),
 											labelWidth: 149,
 											layout: 'hbox',
-											width: 660,
+                                            width: '80%',
                                             defaults: {
                                                 margin: '2 5 0 0'
                                             },
@@ -51407,7 +51406,7 @@ Ext.define('App.view.patient.Patient', {
 											labelWidth: 149,
 											hideLabel: false,
 											layout: 'hbox',
-											width: 660,
+                                            width: '80%',
 											collapsible: false,
 											checkboxToggle: false,
 											collapsed: false,
@@ -51463,7 +51462,7 @@ Ext.define('App.view.patient.Patient', {
 											labelWidth: 149,
 											hideLabel: false,
 											layout: 'hbox',
-											width: 660,
+                                            width: '80%',
                                             defaults: {
                                                 margin: '2 5 0 0'
                                             },
@@ -51498,7 +51497,7 @@ Ext.define('App.view.patient.Patient', {
                                             labelWidth: 149,
 											hideLabel: false,
 											layout: 'hbox',
-											width: 660,
+                                            width: '80%',
                                             defaults: {
                                                 margin: '2 5 0 0'
                                             },
@@ -51522,11 +51521,11 @@ Ext.define('App.view.patient.Patient', {
 												}
 											]
 										},
-
                                         {
                                             xtype: 'fieldcontainer',
                                             hideLabel: true,
                                             layout: 'hbox',
+                                            width: '80%',
                                             defaults: {
                                                 labelWidth: 149,
                                                 margin: '2 5 0 0'
@@ -51551,7 +51550,6 @@ Ext.define('App.view.patient.Patient', {
                                                 }
                                             ]
                                         },
-
                                         {
                                             xtype: 'fieldcontainer',
                                             hideLabel: true,
@@ -52525,7 +52523,7 @@ Ext.define('App.view.patient.Patient', {
 				me.patientImages = Ext.create('Ext.panel.Panel', {
 					action: 'patientImage',
 					layout: 'hbox',
-					style: 'float:right',
+					style: 'float:right;',
 					bodyPadding: 5,
 					height: 160,
 					width: 255,

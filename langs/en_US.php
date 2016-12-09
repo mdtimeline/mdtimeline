@@ -1737,5 +1737,6 @@ $LANG = array(
     'external_account'                      => 'External Acc#',
     'external_record'                       => 'External Rec#',
     'external_information'                  => 'Extermal IDs Rec# Acc#',
-    'recipient'                             => 'Recipient'
+    'recipient'                             => 'Recipient',
+    'none'                                  => 'None'
 );

@@ -34,7 +34,7 @@ Ext.define('App.view.login.Login', {
 		me.siteError = window.site === false || window.site === '';
 		me.logged = false;
 
-		me.theme = Ext.state.Manager.get('mdtimeline_theme', g('application_theme'));
+		me.theme = Ext.state.Manager.get('mdtimeline_theme', 'light');
 
 		/**
 		 * The Copyright Notice Window

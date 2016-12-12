@@ -34,6 +34,8 @@ Ext.define('App.view.login.Login', {
 		me.siteError = window.site === false || window.site === '';
 		me.logged = false;
 
+		me.theme = Ext.state.Manager.get('mdtimeline_theme', g('application_theme'));
+
 		/**
 		 * The Copyright Notice Window
 		 */
@@ -183,7 +185,7 @@ Ext.define('App.view.login.Login', {
 			}]);
 		}
 
-		var theme = Ext.util.Cookies.get('mdtimeline_theme');
+		var theme = Ext.state.Manager.get('mdtimeline_theme', g('mdtimeline_theme')),
 
 		windowItems = [
 			{
@@ -213,6 +215,7 @@ Ext.define('App.view.login.Login', {
 			draggable: false,
 			closable: false,
 			width: 450,
+			height: 270,
 			bodyCls: 'loginWindowBody',
 			autoShow: true,
 			layout: {
@@ -224,12 +227,16 @@ Ext.define('App.view.login.Login', {
 				afterrender: me.afterAppRender
 			},
 			buttons: [
-				//{
-				//	xtype: 'checkbox',
-				//	name: 'checkin'
-				//},
-				//'Check-In Mode',
-				//'->',
+				{
+					xtype: 'button',
+					itemId: 'themeSwitcherBtn',
+					text: me.theme == 'light' ? _('go_dark') : _('go_light'),
+					//action: me.theme,
+					cls: 'login-theme-switch-btn',
+					handler: me.onThemeSwitch,
+					scope: me
+				},
+				'->',
 				{
 					text: _('reset'),
 					name: 'btn_reset',
@@ -251,7 +258,33 @@ Ext.define('App.view.login.Login', {
 		};
 
 		me.callParent(arguments);
+
+		if(!me.siteError){
+
+			Ext.Function.defer(function () {
+				//var body = Ext.getBody();
+				me.siteLogo = Ext.create('Ext.Img', {
+					src: 'sites/' + window.site + '/logo-' + me.theme +'.png',
+					renderTo: me.el,
+					floating: true,
+					defaultAlign: 'b-t',
+					width: 320,
+					height: 120,
+					shadow: false,
+					border: false
+				});
+				me.siteLogo.alignTo(me.el, 't-t', [0,25]);
+			}, 200);
+
+		}
 	},
+
+	onThemeSwitch: function (btn) {
+		var theme = this.theme == 'dark' ? 'light' : 'dark';
+		Ext.state.Manager.set('mdtimeline_theme', theme);
+		window.location.reload();
+	},
+
 	/**
 	 * when keyboard ENTER key press
 	 * @param field
@@ -339,9 +372,23 @@ Ext.define('App.view.login.Login', {
 	 * After form is render load store
 	 */
 	afterAppRender: function(win){
+
 		var me = this,
 			form = win.down('form'),
-			langCmb = form.getComponent('lang');
+			langCmb = form.getComponent('lang'),
+			themeSwitcherBtn = win.query('#themeSwitcherBtn')[0];
+
+		themeSwitcherBtn.action = Ext.state.Manager.get('mdtimeline_theme', g('application_theme'));
+
+
+		say(themeSwitcherBtn.action);
+
+		if(themeSwitcherBtn.action == 'dark'){
+			themeSwitcherBtn.setText(_('go_light'));
+		}else{
+			themeSwitcherBtn.setText(_('go_dark'));
+		}
+
 
 		if(!me.siteError){
 			if(me.showSite){
@@ -375,12 +422,15 @@ Ext.define('App.view.login.Login', {
 			});
 
 			Ext.Function.defer(function(){
+				//me.onAppResize();
 				form.getComponent('authUser').inputEl.focus();
 			}, 200);
 
 		}
 
 		win.doLayout();
+
+
 	},
 	/**
 	 *  animated msg alert
@@ -418,10 +468,16 @@ Ext.define('App.view.login.Login', {
 	},
 
 	onAppResize: function(){
-		this.winLogon.alignTo(this, 'c-c');
-		if(this.notice1)
-			this.notice1.alignTo(Ext.getBody(), 't-t', [0, 10]);
-		if(this.notice2)
-			this.notice2.alignTo(Ext.getBody(), 't-t', [0, 85]);
+		var body = Ext.getBody();
+		this.winLogon.alignTo(body, 'c-c');
+		if(this.notice1) {
+			this.notice1.alignTo(body, 't-t', [0, 10]);
+		}
+		if(this.notice2) {
+			this.notice2.alignTo(body, 't-t', [0, 85]);
+		}
+		if(this.siteLogo) {
+			this.siteLogo.alignTo(body, 't-t', [0, 25]);
+		}
 	}
 });

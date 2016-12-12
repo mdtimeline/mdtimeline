@@ -38,6 +38,15 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
     <script src="data/api.php?site=<?php print SITE ?>" charset="utf-8"></script>
     <script type="text/javascript">
 
+	    if(Ext.supports.LocalStorage){
+		    Ext.state.Manager.setProvider(new Ext.state.LocalStorageProvider());
+	    }else{
+		    Ext.state.Manager.setProvider(new Ext.state.CookieProvider({
+			    secure: location.protocol === 'https:',
+			    expires : new Date(Ext.Date.now() + (1000*60*60*24*90)) // 90 days
+		    }));
+	    }
+
         window.i18n = window._ = function(key){
             return window.lang[key] || '*'+key+'*';
         };
@@ -64,10 +73,10 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 
         (function(){
             var head = document.getElementsByTagName('head')[0],
-                cookie = Ext.util.Cookies.get('mdtimeline_theme'),
+                theme = Ext.state.Manager.get('mdtimeline_theme', g('application_theme')),
                 link;
 
-            if((cookie && cookie == 'dark')){
+            if(theme == 'dark'){
                 link  = document.createElement('link');
                 link.rel  = 'stylesheet';
                 link.type = 'text/css';
@@ -112,6 +121,7 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
         for(var x = 0; x < App.data.length; x++){
             Ext.direct.Manager.addProvider(App.data[x]);
         }
+
         Ext.onReady(function(){
             app = Ext.create('App.view.login.Login');
         });

@@ -1722,6 +1722,9 @@ $API = [
             ],
 			'getPossibleDuplicatesByDemographic' => [
 				'len' => 1
+            ],
+			'getPatientByPublicId' => [
+				'len' => 1
             ]
         ]
     ],

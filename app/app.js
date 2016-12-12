@@ -2706,7 +2706,7 @@ Ext.define('App.ux.ActivityMonitor', {
 		return true;
 	},
 
-	captureActivity: function(eventObj, el, eventOptions){
+	captureActivity: function(){
 		if(this.controller.logoutWarinigWindow)
 			this.controller.cancelAutoLogout();
 		this.lastActive = new Date();
@@ -38374,6 +38374,14 @@ Ext.define('App.controller.LogOut', {
 			}
 		});
 
+		window.addEventListener("message", me.receiveMessage, false);
+
+	},
+
+	receiveMessage: function (event) {
+    	if(event.data == 'captureActivity'){
+		    App.ux.ActivityMonitor.captureActivity();
+	    }
 	},
 
 	onNavigationBeforeRender:function(treepanel){
@@ -39059,9 +39067,8 @@ Ext.define('App.controller.Theme', {
 		btn.action = g('mdtimeline_theme');
 		btn.setText(btn.action == 'dark' ? _('light_theme') : _('dark_theme'));
 
-
-		say('onAppThemeSwitcherBeforeRender');
-		say(btn.action);
+		// say('onAppThemeSwitcherBeforeRender');
+		// say(btn.action);
 	},
 
 	onAppThemeSwitcherClick: function(btn){
@@ -39087,13 +39094,13 @@ Ext.define('App.controller.Theme', {
 
 	goLight: function(btn){
 		btn.action = 'light';
-		Ext.util.Cookies.set('mdtimeline_theme', 'light', Ext.Date.add(new Date(), Ext.Date.YEAR, 1));
+		Ext.state.Manager.set('mdtimeline_theme', 'light');
 		window.location.reload();
 	},
 
 	goDark: function(btn){
 		btn.action = 'dark';
-		Ext.util.Cookies.set('mdtimeline_theme', 'dark', Ext.Date.add(new Date(), Ext.Date.YEAR, 1));
+		Ext.state.Manager.set('mdtimeline_theme', 'dark');
 		window.location.reload();
 	}
 
@@ -59506,7 +59513,7 @@ Ext.define('App.view.Viewport', {
 	// end app settings
     initComponent: function(){
 
-	    Ext.state.Manager.setProvider(Ext.create('Ext.state.CookieProvider'));
+	    // Ext.state.Manager.setProvider(Ext.create('Ext.state.CookieProvider'));
 	    Ext.tip.QuickTipManager.init();
         var me = this;
 

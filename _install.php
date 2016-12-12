@@ -67,7 +67,7 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 <body id="login">
 <div id="bg_logo"></div>
 <div id="copyright">
-	<div>Copyright (C) 2011 GaiaEHR (Electronic Health Records) |:| Open Source Software operating under GPLv3 |:| v<?php print VERSION ?></div>
+	<div>Copyright (C) 2016 MD Timeline (Electronic Health Records) |:| Open Source Software operating under GPLv3 |:| v<?php print VERSION ?></div>
 </div>
 </body>
 </html>

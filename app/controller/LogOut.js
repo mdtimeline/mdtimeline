@@ -46,6 +46,14 @@ Ext.define('App.controller.LogOut', {
 			}
 		});
 
+		window.addEventListener("message", me.receiveMessage, false);
+
+	},
+
+	receiveMessage: function (event) {
+    	if(event.data == 'captureActivity'){
+		    App.ux.ActivityMonitor.captureActivity();
+	    }
 	},
 
 	onNavigationBeforeRender:function(treepanel){

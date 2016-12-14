@@ -8,6 +8,14 @@
     src: url('../fonts/OpenSans-CondLight.ttf');
 }
 
+.login-theme-switch-btn {
+    background-image: none;
+    background-color: #444444;
+}
+.login-theme-switch-btn .x-btn-inner {
+    color: white;
+}
+
 .indent {
     margin-left: 20px !important;
 }

@@ -61,6 +61,15 @@ if (!defined('_GaiaEXEC')) die('No direct access allowed.');
 
         <script type="text/javascript">
 
+	        if(Ext.supports.LocalStorage){
+		        Ext.state.Manager.setProvider(new Ext.state.LocalStorageProvider());
+	        }else{
+		        Ext.state.Manager.setProvider(new Ext.state.CookieProvider({
+			        secure: location.protocol === 'https:',
+			        expires : new Date(Ext.Date.now() + (1000*60*60*24*90)) // 90 days
+		        }));
+	        }
+
 	        window.i18n = window._ = function(key){
 		        return window.lang[key] || '*'+key+'*';
 	        };
@@ -99,10 +108,10 @@ if (!defined('_GaiaEXEC')) die('No direct access allowed.');
 		            '"><\/script>'
 	            );
 
-	            var cookie = Ext.util.Cookies.get('mdtimeline_theme');
+	            var theme = Ext.state.Manager.get('mdtimeline_theme', g('application_theme'));
 	            var s;
 
-	            if((cookie && cookie == 'dark')){
+	            if(theme == 'dark'){
 		            globals.mdtimeline_theme = 'dark';
 		            link  = document.createElement('link');
 		            link.rel  = 'stylesheet';
@@ -205,6 +214,7 @@ if (!defined('_GaiaEXEC')) die('No direct access allowed.');
 		<script type="text/javascript" src="app/ux/VTypes.js"></script>
 
 		<script type="text/javascript">
+
 			/**
 			 * Sencha ExtJS OnReady Event
 			 * When all the JS code is loaded execute the entire code once.

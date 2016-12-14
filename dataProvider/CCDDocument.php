@@ -813,6 +813,25 @@ INTRUCTIONS;
 			];
 		}
 
+//		if(isset($patientData['religion']) && $patientData['religion'] != ''){
+//			$recordTarget['patientRole']['patient']['religiousAffiliationCode'] = [
+//				'@attributes' => [
+//					'code' => $patientData['religion'],
+//					'codeSystemName' => 'HL7 v3 Code System ReligiousAffiliation',
+//					'displayName' => $this->CombosData->getDisplayValueByListIdAndOptionValue(00000, $patientData['religion']),
+//					'codeSystem' => '2.16.840.1.113883.5.1076'
+//				]
+//			];
+//		} else {
+//			$recordTarget['patientRole']['patient']['religiousAffiliationCode'] = [
+//				'@attributes' => [
+//					'nullFlavor' => 'NA',
+//					'codeSystemName' => 'HL7 v3 Code System ReligiousAffiliation',
+//					'codeSystem' => '2.16.840.1.113883.5.1076'
+//				]
+//			];
+//		}
+
 		// Patient Race
 		if(isset($patientData['race']) && $patientData['race'] != ''){
 

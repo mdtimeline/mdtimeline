@@ -31,7 +31,7 @@ class authProcedures {
 
 	/**
 	 * @param stdClass $params
-	 * @return int
+	 * @return array
 	 */
 	public function login(stdClass $params){
 		error_reporting(-1);
@@ -130,6 +130,8 @@ class authProcedures {
 
 			unset($db);
 
+			session_regenerate_id();
+
 			return array(
 				'success' => true,
 				'token' => $_SESSION['user']['token'],
@@ -156,6 +158,7 @@ class authProcedures {
 		try
 		{
 			$this->session->logoutSession();
+			session_regenerate_id();
 			session_unset();
 			session_destroy();
 			return;
@@ -169,7 +172,7 @@ class authProcedures {
 
 	/**
 	 * @static
-	 * @return int
+	 * @return array
 	 */
 	public function ckAuth(){
 

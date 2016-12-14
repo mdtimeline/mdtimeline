@@ -29,7 +29,7 @@ Ext.define('App.view.Viewport', {
 	// end app settings
     initComponent: function(){
 
-	    Ext.state.Manager.setProvider(Ext.create('Ext.state.CookieProvider'));
+	    // Ext.state.Manager.setProvider(Ext.create('Ext.state.CookieProvider'));
 	    Ext.tip.QuickTipManager.init();
         var me = this;
 

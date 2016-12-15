@@ -1694,4 +1694,5 @@ $LANG = array(
     'application_id'                        => 'Application ID',
     'go_dark'                               => 'Go Dark',
     'go_light'                              => 'Go Light',
+    'search_for_a_CDT'                      => 'CDT Search'
 );

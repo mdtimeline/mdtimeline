@@ -1477,13 +1477,9 @@ $API = [
             'removeEncounterService' => [
 				'len' => 1
             ],
-
-
-
 			'getServices' => [
 				'len' => 1
             ],
-
 			'addService' => [
 				'len' => 1
             ],
@@ -2247,6 +2243,13 @@ $API = [
     'GeoIpLocation' => [
         'methods' => [
             'getAllLocations' => [
+                'len' => 1
+            ]
+        ]
+    ],
+    'Medical' => [
+        'methods' => [
+            'getCDTLiveSearch' => [
                 'len' => 1
             ]
         ]

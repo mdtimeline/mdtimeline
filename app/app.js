@@ -43274,6 +43274,10 @@ Ext.define('App.controller.patient.RxOrders', {
 			pid: app.patient.pid,
 			eid: app.patient.eid,
 			uid: app.user.id,
+			refill: 0,
+			daw: null,
+			date_ordered: new Date(),
+			begin_date: new Date(),
 			created_date: new Date()
 		});
 

@@ -54,7 +54,6 @@ Ext.define('App.view.signature.SignatureWindow', {
     signatureCancel:function(){
         var svg = document.getElementById('svgSignature').contentWindow;
         svg.clearSignature();
-        //this.close();
     }
 
 

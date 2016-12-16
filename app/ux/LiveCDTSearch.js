@@ -19,7 +19,6 @@
 Ext.define('App.ux.LiveCDTSearch', {
 	extend: 'Ext.form.ComboBox',
 	alias: 'widget.cdtlivetsearch',
-	hideLabel: true,
 
 	initComponent: function(){
 		var me = this;

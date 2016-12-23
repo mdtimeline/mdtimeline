@@ -43,6 +43,8 @@ Ext.define('App.view.patient.InsuranceForm', {
 						{
 							xtype: 'fieldset',
 							title: _('insurance'),
+                            style: 'background-color: azure',
+                            radius: '10px',
 							width: 660,
 							margin: 0,
 							items: [
@@ -153,7 +155,6 @@ Ext.define('App.view.patient.InsuranceForm', {
 							xtype: 'fieldset',
 							title: _('subscriber'),
 							width: 660,
-							style: 'background-color: beige',
 							items: [
 								{
 									xtype: 'gaiaehr.combo',

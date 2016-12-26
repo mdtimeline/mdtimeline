@@ -75,21 +75,6 @@ Ext.define('App.model.patient.EncounterService', {
 			len: 5
 		},
 		{
-			name: 'tooth',
-			type: 'string',
-			len: 10
-		},
-		{
-			name: 'surface',
-			type: 'string',
-			len: 5
-		},
-		{
-			name: 'cavity_quadrant',
-			type: 'string',
-			len: 2
-		},
-		{
 			name: 'modifiers',
 			type: 'array'
 		},

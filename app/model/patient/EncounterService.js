@@ -36,6 +36,16 @@ Ext.define('App.model.patient.EncounterService', {
 			type: 'int',
 			index: true
 		},
+        {
+            name: 'module_table',
+            type: 'string',
+            lenght: 100
+        },
+        {
+            name: 'module_reference_id',
+            type: 'int',
+            lenght: 11
+        },
 		{
 			name: 'reference_type',
 			type: 'string',

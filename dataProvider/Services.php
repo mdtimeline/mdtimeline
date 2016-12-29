@@ -97,13 +97,11 @@ class Services
             $services = $service;
 
         }
-
         return $services;
     }
 
     public function updateEncounterService($params)
     {
-
         include_once(ROOT . '/dataProvider/HL7Messages.php');
         $HL7Messages = new HL7Messages();
 

@@ -107,7 +107,7 @@ class Encounter {
 		 * Added by: Gino Rivera Falu
 		 * Web Jul 31 2013
 		 */
-		$_SESSION['encounter']['id'] = $eid; // Added by Gino Rivera
+		$_SESSION['encounter']['id'] = $eid;
 	}
 
 	/**

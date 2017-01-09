@@ -129,7 +129,13 @@ Ext.define('App.model.patient.EncounterService', {
 			name: 'date_update',
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s'
-		}
+		},
+        {
+            name: 'billing_transfer_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s',
+            comment: 'When a billing gets transferred to a billing software or to a medical biller person.'
+        }
 	],
 	proxy: {
 		type: 'direct',

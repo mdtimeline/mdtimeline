@@ -808,7 +808,9 @@ header("Access-Control-Allow-Origin: *");
                 ],
 
                 controllers:[
-	                'administration.AuditLog',
+	                'Main',
+
+                    'administration.AuditLog',
 	                'administration.CPT',
 	                'administration.DataPortability',
 	                'administration.DecisionSupport',

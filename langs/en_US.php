@@ -1694,4 +1694,12 @@ $LANG = array(
     'application_id'                        => 'Application ID',
     'go_dark'                               => 'Go Dark',
     'go_light'                              => 'Go Light',
+    'invalid_patient'                       => 'Invalid Patient',
+    'browser_helper_not_connected'          => 'Browser Helper Not Connected',
+    'add_to_network_rules'                  => 'Add To Network Rules',
+    'wrong_password_error'                  => 'Wrong Password Error<br>Unable to validate current password',
+    'password_history_error'                => 'Password History Error<br>Password previously used',
+    'password_changed'                      => 'Password Changed',
+    'password_expired'                      => 'Password Expired',
+    'confirmation'                          => 'Confirmation',
 );

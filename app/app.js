@@ -13896,6 +13896,11 @@ Ext.define('App.model.administration.User', {
 			encrypt: true
 		},
 		{
+			name: 'password_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
 			name: 'title',
 			type: 'string',
 			comment: 'title (Mr. Mrs.)',
@@ -36703,6 +36708,22 @@ Ext.define('App.controller.administration.Users', {
 		{
 			ref: 'AdminUserGridPanel',
 			selector: '#AdminUserGridPanel'
+		},
+		{
+			ref: 'PasswordExpiredWindow',
+			selector: '#PasswordExpiredWindow'
+		},
+		{
+			ref: 'PasswordExpiredWindowForm',
+			selector: '#PasswordExpiredWindowForm'
+		},
+		{
+			ref: 'PasswordExpiredWindowPasswordField',
+			selector: '#PasswordExpiredWindowPasswordField'
+		},
+		{
+			ref: 'PasswordExpiredWindowConfirmPasswordField',
+			selector: '#PasswordExpiredWindowConfirmPasswordField'
 		}
 	],
 
@@ -36710,6 +36731,9 @@ Ext.define('App.controller.administration.Users', {
 		var me = this;
 
 		me.control({
+			'viewport': {
+				afterrender: me.onApplicationAfterRender
+			},
 			'#AdminUserGridPanel': {
 				beforeedit: me.onAdminUserGridPanelBeforeEdit
 			},
@@ -36718,10 +36742,81 @@ Ext.define('App.controller.administration.Users', {
 			},
 			'#UserGridEditFormProviderCredentializationInactiveBtn': {
 				click: me.onUserGridEditFormProviderCredentializationInactiveBtnClick
+			},
+
+			'#PasswordExpiredWindowUpdateBtn': {
+				click: me.onPasswordExpiredWindowUpdateBtnClick
 			}
 		});
 
 	},
+
+
+	/***********************************************
+	 ** passwrod expiration
+	 ***********************************************/
+
+	onApplicationAfterRender: function (comp) {
+		if(comp.user.password_expired){
+			this.doPasswordExpiredUpdate();
+		}
+	},
+
+	doPasswordExpiredUpdate: function () {
+		this.showPasswordExpiredWindow();
+	},
+
+	showPasswordExpiredWindow: function () {
+		if(!this.getPasswordExpiredWindow()){
+			Ext.create('App.view.administration.PasswordExpiredWindow');
+		}
+		return this.getPasswordExpiredWindow().show();
+	},
+
+	passwordConfirmationValidation: function (value) {
+		if(this.getPasswordExpiredWindowPasswordField().getValue() === value){
+			return true
+		}
+
+		return _('password_confirmation_error');
+	},
+
+	onPasswordExpiredWindowUpdateBtnClick: function () {
+		say('onPasswordExpiredWindowUpdateBtnClick');
+
+		var win = this.getPasswordExpiredWindow(),
+			form = this.getPasswordExpiredWindowForm().getForm(),
+			values = form.getValues();
+
+		if (!form.isValid()) return;
+
+		if(values['old_password'] == ''){
+			return;
+		}
+
+		if(values['new_password'] != values['confirmation_password']){
+			return;
+		}
+
+		values.id = app.user.id;
+
+		User.updatePassword(values, function (response) {
+
+			if(response.success){
+				app.msg(_('sweet'), _('password_changed'));
+				form.reset();
+				win.close();
+				return;
+			}
+
+			app.msg(_('oops'), _(response.message), true);
+		});
+	},
+
+
+
+
+
 
 	onAdminUserGridPanelBeforeEdit: function(plugin, context){
 		var grid = plugin.editor.down('grid'),
@@ -37883,6 +37978,10 @@ Ext.define('App.controller.Clock', {
 
 	updateClock:function(date){
 		this.date.setHours(date.hours, date.minutes, date.seconds);
+	},
+
+	getTime: function () {
+		return Ext.clone(this.date);
 	}
 
 });
@@ -46867,7 +46966,11 @@ Ext.define('App.view.patient.Documents', {
 					'->',
 					'-',
 					{
-						text: _('add_document'),
+						text: _('scan'),
+						itemId: 'documentScanBtn'
+					},
+					{
+						text: _('upload'),
 						itemId: 'documentUploadBtn'
 					}
 				],
@@ -47730,9 +47833,9 @@ Ext.define('App.view.patient.windows.ArchiveDocument', {
 				},
 				{
 					xtype: 'gaiaehr.combo',
-					fieldLabel: _('type'),
+					fieldLabel: _('category'),
 					list: 102,
-					name: 'docType',
+					name: 'docTypeCode',
 					allowBlank: false
 				},
 				{
@@ -47759,98 +47862,6 @@ Ext.define('App.view.patient.windows.ArchiveDocument', {
 			text: _('archive'),
 			itemId: 'archiveBtn'
 		}
-	]
-});
-Ext.define('App.view.scanner.Window', {
-	extend: 'Ext.window.Window',
-	xtype: 'scannerwindow',
-	itemId: 'ScannerWindow',
-	width: 800,
-	height: 300,
-	closeAction: 'hide',
-	title: _('scanner'),
-	layout: 'border',
-	items: [
-		{
-			xtype: 'panel',
-			region: 'west',
-			width: 200,
-			split: true,
-			itemId: 'ScannerImageDataViewPanel',
-			items: [
-				{
-					xtype: 'dataview',
-					itemId: 'ScannerImageThumbsDataView',
-					store: Ext.create('Ext.data.Store', {
-						fields: ['id', 'src']
-					}),
-					tpl: new Ext.XTemplate(
-						'<tpl for=".">' +
-						'<div style="margin-bottom:10px;" class="thumb-wrap">' +
-						'<img width="100%" src="{src}" />' +
-						'</div>' +
-						'</tpl>'
-					),
-					trackOver: true,
-					overItemCls: 'x-item-over',
-					itemSelector: 'div.thumb-wrap',
-					emptyText: 'No images to display',
-				}
-			],
-			tbar: [
-				{
-					xtype: 'combobox',
-					itemId: 'ScannerSourceCombo',
-					editable: false,
-					queryMode: 'local',
-					displayField: 'name',
-					valueField: 'id',
-					flex: 1,
-					margin: 1,
-					store: Ext.create('Ext.data.Store', {
-						fields: [
-							{
-								name: 'id',
-								type: 'string'
-							},
-							{
-								name: 'name',
-								type: 'string'
-							}
-						]
-					})
-				}
-			]
-		},
-		{
-			xtype: 'panel',
-			region: 'center',
-			itemId: 'ScannerImageViewerPanel',
-			items: [
-				{
-					xtype: 'image',
-					flex: 1,
-					style: 'background-color:white',
-					itemId: 'ScannerImageViewer'
-				}
-			],
-			tbar: [
-				{
-					text: _('scan'),
-					itemId: 'ScannerImageScanBtn'
-				},
-				{
-					text: _('edit'),
-					itemId: 'ScannerImageEditBtn'
-				},
-				'->',
-				{
-					text: _('archive'),
-					itemId: 'ScannerImageArchiveBtn'
-				}
-			]
-		}
-
 	]
 });
 Ext.define('App.view.notifications.Grid', {
@@ -53885,30 +53896,44 @@ Ext.define('App.controller.DocumentViewer', {
 	onArchiveBtnClick: function(btn){
 		var win = btn.up('window'),
 			form = win.down('form').getForm(),
-			values = form.getValues();
+			values = form.getValues(),
+			docTypeField = form.findField('docTypeCode');
 
 		if(form.isValid()){
 			values.pid = app.patient.pid;
 			values.eid = app.patient.eid;
 			values.uid = app.user.id;
-			DocumentHandler.transferTempDocument(values, function(provider, response){
 
-				if(response.result.success){
-					if(window.dual){
-						dual.msg(_('sweet'), 'document_transferred');
+			var docTypeRecord = docTypeField.findRecordByValue(values.docTypeCode);
+			values.docType = docTypeRecord.get('option_name');
+
+			// scanner archive logic
+			if(Ext.getClassName(win.documentWindow) == 'App.view.scanner.Window'){
+
+				var controller = app.getController('Scanner');
+				controller.doArchive(values, function (success) {
+					if(success) win.close();
+				});
+
+			}else{
+				DocumentHandler.transferTempDocument(values, function(provider, response){
+					if(response.result.success){
+						if(window.dual){
+							window.dual.msg(_('sweet'), 'document_transferred');
+						}else{
+							window.app.msg(_('sweet'), 'document_transferred');
+						}
+						win.documentWindow.close();
+						win.close();
 					}else{
-						app.msg(_('sweet'), 'document_transferred');
+						if(window.dual){
+							window.dual.msg(_('oops'), 'document_transfer_failed', true);
+						}else{
+							window.app.msg(_('oops'), 'document_transfer_failed', true);
+						}
 					}
-					win.documentWindow.close();
-					win.close();
-				}else{
-					if(dual){
-						dual.msg(_('oops'), 'document_transfer_failed', true);
-					}else{
-						app.msg(_('oops'), 'document_transfer_failed', true);
-					}
-				}
-			});
+				});
+			}
 		}
 	},
 
@@ -53963,196 +53988,6 @@ Ext.define('App.controller.DocumentViewer', {
 
 
 });
-Ext.define('App.controller.Scanner', {
-	extend: 'Ext.app.Controller',
-	requires: [
-		'App.view.scanner.Window'
-	],
-	refs: [
-		{
-			ref: 'ScannerWindow',
-			selector: '#ScannerWindow'
-		},
-		{
-			ref: 'ScannerImageThumbsDataView',
-			selector: '#ScannerImageThumbsDataView'
-		},
-		{
-			ref: 'ScannerImageViewerPanelImage',
-			selector: '#ScannerImageViewerPanel image'
-		},
-		{
-			ref: 'ScannerSourceCombo',
-			selector: '#ScannerSourceCombo'
-		},
-		{
-			ref: 'ScannerImageScanBtn',
-			selector: '#ScannerImageScanBtn'
-		},
-		{
-			ref: 'ScannerOkBtn',
-			selector: '#ScannerOkBtn'
-		}
-	],
-
-
-	init: function(){
-		var me = this;
-
-		me.control({
-			'#ScannerWindow': {
-				show: me.onScannerWindowShow,
-				close: me.onScannerWindowClose
-			},
-			'#ScannerImageScanBtn': {
-				click: me.onScannerImageScanBtnClick
-			},
-			'#ScannerImageThumbsDataView': {
-				itemclick: me.onScannerImageThumbsDataViewItemClick
-			},
-			'#ScannerImageArchiveBtn': {
-				toggle: me.onScannerImageArchiveBtnClick
-			},
-			'#ScannerImageEditBtn': {
-				toggle: me.onScannerImageEditBtnClick
-			},
-			'#ScannerOkBtn': {
-				click: me.onScannerOkBtnClick
-			}
-		});
-
-		me.helperCtrl = me.getController('App.controller.BrowserHelper');
-
-		// me.showScanWindow();
-		// me.doScannerComboLoad();
-
-	},
-
-	doScan: function () {
-		var me = this,
-			scannerId = me.getScannerSourceCombo().getValue(),
-			url = Ext.String.format('http://localhost:8686/scanner/scan/{0}', scannerId);
-
-		me.helperCtrl.sendMessage({
-			url: url,
-			timeout: (1000 * 60)
-		}, function (response) {
-
-			say('response');
-			say(response);
-
-			if(response == null || response.code != 200)  return;
-			var response_object = JSON.parse(response.response);
-
-			say('response_object');
-			say(response_object);
-
-			me.loadDocuments(response_object.data);
-
-		});
-
-	},
-
-	loadDocuments: function (data) {
-
-		say('loadDocuments');
-		say(data);
-
-		var me = this,
-			documents = [];
-
-
-		data.forEach(function (document) {
-			Ext.Array.push(documents, {
-				id: '',
-				src: 'data:image/jpeg;base64,' + document
-			});
-		});
-
-		var view = me.getScannerImageThumbsDataView(),
-			store = view.getStore();
-
-
-		store.loadData(documents);
-		view.refresh();
-	},
-
-	onScannerImageThumbsDataViewItemClick: function (view, record) {
-
-		say(record);
-
-		this.getScannerImageViewerPanelImage().setSrc(record.get('src'));
-
-	},
-
-	showScanWindow: function(){
-		if(!this.getScannerWindow()){
-			Ext.create('App.view.scanner.Window');
-		}
-		return this.getScannerWindow().show();
-	},
-
-	doScannerComboLoad: function () {
-		var me = this;
-
-		me.helperCtrl.sendMessage({ url: 'http://localhost:8686/scanner/list' }, function (response) {
-
-			if(response == null || response.code != 200)  return;
-			var response_object = JSON.parse(response.response);
-
-			if(response_object.success){
-				me.getScannerSourceCombo().store.loadRawData(response_object.data);
-				me.getScannerSourceCombo().select(me.getScannerSourceCombo().store.getAt(0));
-			}
-
-		});
-	},
-
-	onScannerImageScanBtnClick: function(){
-		this.doScan();
-	},
-
-	onScannerImageArchiveBtnClick: function () {
-
-	},
-
-	onScannerWindowShow: function(){
-		// this.doScannerComboLoad();
-	},
-
-	onScannerWindowClose: function(){
-		//this.ws.close();
-	},
-
-	onScannerOkBtnClick: function () {
-
-	},
-
-	onScannerImageEditBtnClick: function(btn, pressed){
-		if(pressed){
-			this.dkrm = new Darkroom('#ScannerImage', {
-				save: false,
-				replaceDom: false
-			});
-			btn.setText(_('editing'));
-		}else{
-			this.dkrm.selfDestroy();
-			delete this.dkrm;
-			btn.setText(_('edit'));
-		}
-
-		this.getScannerScanBtn().setDisabled(pressed);
-		this.getScannerOkBtn().setDisabled(pressed);
-	},
-
-	getDocument: function(){
-		return this.getScannerImage().imgEl.dom.src;
-	},
-
-
-
-});
-
 Ext.define('App.controller.Notification', {
 	extend: 'Ext.app.Controller',
 	requires: [
@@ -54386,6 +54221,14 @@ Ext.define('App.controller.patient.Documents', {
 			selector: 'patientdocumentspanel #documentUploadBtn'
 		},
 		{
+			ref: 'DocumentUploadBtn',
+			selector: 'patientdocumentspanel #documentUploadBtn'
+		},
+		{
+			ref: 'DocumentScanBtn',
+			selector: 'patientdocumentspanel #documentScanBtn'
+		},
+		{
 			ref: 'PatientDocumentErrorNoteWindow',
 			selector: 'patientdocumenterrornotewindow'
 		}
@@ -54398,8 +54241,8 @@ Ext.define('App.controller.patient.Documents', {
 
 		me.control({
 			'viewport': {
-				scanconnected: me.onScanConnected,
-				scandisconnected: me.onScanDisconnected,
+				browserhelperopen: me.onBrowserHelperOpen,
+				browserhelperclose: me.onBrowserHelperClose,
 				documentedit: me.onDocumentEdit
 			},
 			'patientdocumentspanel': {
@@ -54418,17 +54261,15 @@ Ext.define('App.controller.patient.Documents', {
 			'patientdocumentspanel #documentUploadBtn': {
 				click: me.onDocumentUploadBtnClick
 			},
+			'patientdocumentspanel #documentScanBtn': {
+				click: me.onDocumentScanBtnClick
+			},
 			'#patientDocumentUploadWindow': {
 				show: me.onPatientDocumentUploadWindowShow
 			},
 			'#patientDocumentUploadWindow #uploadBtn': {
 				click: me.onDocumentUploadSaveBtnClick
 			},
-			'#patientDocumentUploadWindow #scanBtn': {
-				click: me.onDocumentUploadScanBtnClick
-			},
-
-
 			'#DocumentErrorNoteSaveBtn': {
 				click: me.onDocumentErrorNoteSaveBtnClick
 			}
@@ -54517,15 +54358,15 @@ Ext.define('App.controller.patient.Documents', {
 		}
 	},
 
-	onScanConnected: function(){
-		if(this.getPatientDocumentUploadScanBtn()){
-			this.getPatientDocumentUploadScanBtn().show();
+	onBrowserHelperOpen: function(){
+		if(this.getDocumentScanBtn()){
+			this.getDocumentScanBtn().show();
 		}
 	},
 
-	onScanDisconnected: function(){
-		if(this.getPatientDocumentUploadScanBtn()){
-			this.getPatientDocumentUploadScanBtn().hide();
+	onBrowserHelperClose: function(){
+		if(this.getDocumentScanBtn()){
+			this.getDocumentScanBtn().hide();
 		}
 	},
 
@@ -54589,7 +54430,6 @@ Ext.define('App.controller.patient.Documents', {
 			app.msg(_('oops'), _('unable_to_find_document'), true);
 		}
 		store.un('load', me.doSelectDocument, me);
-
 	},
 
 	onDocumentGroupBtnToggle: function(btn, pressed){
@@ -54605,6 +54445,10 @@ Ext.define('App.controller.patient.Documents', {
 			header.show();
 			btn.enable();
 		}
+	},
+
+	onDocumentScanBtnClick: function () {
+		this.getController('Scanner').showScanWindow();
 	},
 
 	onDocumentUploadBtnClick: function(){
@@ -60049,10 +59893,7 @@ Ext.define('App.view.Viewport', {
 		                    emptyText:'Facilities',
 		                    width: parseFloat(g('gbl_nav_area_width')) - 4,
 		                    hidden: !eval(a('access_to_other_facilities')),
-		                    listeners:{
-			                    scope: me,
-			                    select: me.onFacilitySelect
-		                    }
+		                    itemId: 'ApplicationFacilityCombo'
 	                    },
 	                    '-',
                         {
@@ -60094,9 +59935,6 @@ Ext.define('App.view.Viewport', {
             ]
         });
 
-	    me.FacilityCmb = me.Footer.query('activefacilitiescombo')[0];
-		me.FacilityCmb.getStore().on('load', me.onFacilityComboLoad, me);
-
         me.MedicalWindow = Ext.create('App.view.patient.windows.Medical');
         me.ChartsWindow = Ext.create('App.view.patient.windows.Charts');
         me.PaymentEntryWindow = Ext.create('App.view.fees.PaymentEntryWindow');
@@ -60133,28 +59971,6 @@ Ext.define('App.view.Viewport', {
 
 	getController:function(controller){
 		return App.Current.getController(controller);
-	},
-
-	onFacilitySelect:function(cmb, records){
-		var me = this;
-		Facilities.setFacility(records[0].data.option_value, function(provider, response){
-			if(records[0].data.option_value == response.result){
-				// set user global facility value
-				app.user.facility = records[0].data.option_value;
-
-				me.msg(_('sweet'), _('facility') + ' ' + records[0].data.option_name);
-				me.setWindowTitle(records[0].data.option_name);
-				me.nav['App_view_areas_PatientPoolDropZone'].reRenderPoolAreas();
-				me.nav['App_view_areas_FloorPlan'].renderZones();
-				me.getPatientsInPoolArea();
-			}
-		});
-	},
-
-	onFacilityComboLoad:function(store, records){
-		var rec = store.findRecord('option_value', this.user.facility);
-		this.FacilityCmb.setValue(rec);
-		this.setWindowTitle(rec.data.option_name)
 	},
 
 	setWindowTitle:function(facility){

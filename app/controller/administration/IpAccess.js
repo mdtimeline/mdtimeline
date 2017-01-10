@@ -31,6 +31,10 @@ Ext.define('App.controller.administration.IpAccess', {
         {
             ref: 'IpAccessLogGrid',
             selector: 'ipaccesspanel #IpAccessLogGrid'
+        },
+        {
+            ref: 'IpAccessPanelContextMenu',
+            selector: '#IpAccessPanelContextMenu'
         }
     ],
 
@@ -43,8 +47,16 @@ Ext.define('App.controller.administration.IpAccess', {
             },
             'ipaccesspanel #addIpRule':{
                 click: me.onAddIpRuleClick
+            },
+            'ipaccesspanel #IpAccessLogGrid':{
+	            beforeitemcontextmenu: me.onIpAccessLogGridBeforeContextMenu
+            },
+            '#IpAccessPanelAddToWhiteListMenu':{
+	            click: me.onIpAccessPanelAddToWhiteListMenuClick
             }
         });
+
+        me.clockCtrl = me.getController('Clock');
 
     },
 
@@ -53,13 +65,11 @@ Ext.define('App.controller.administration.IpAccess', {
             rulesGrid = me.getIpAccessRulesGrid();
 
         rulesGrid.editingPlugin.cancelEdit();
-        rulesGrid.getStore().insert(0,
-            {
-                create_date: new Date(),
-                update_date: new Date(),
-                active: 1
-            }
-        );
+        rulesGrid.getStore().add({
+            create_date: this.clockCtrl.getTime(),
+            update_date: this.clockCtrl.getTime(),
+            active: 1
+        });
         rulesGrid.editingPlugin.startEdit(0, 0);
     },
 
@@ -70,6 +80,49 @@ Ext.define('App.controller.administration.IpAccess', {
 
         rulesGrid.getStore().load();
         logGrid.getStore().load();
-    }
+    },
+
+	onIpAccessPanelAddToWhiteListMenuClick: function() {
+
+    	var net_log_record = this.getIpAccessLogGrid().getSelectionModel().getLastSelected(),
+    	    ip_rules_store = this.getIpAccessRulesGrid().getStore(),
+    	    ip_rules_editingPlugin = this.getIpAccessRulesGrid().editingPlugin;
+
+		ip_rules_editingPlugin.cancelEdit();
+
+		var records = ip_rules_store.add({
+			ip: net_log_record.get('ip'),
+			rule: 'WHT',
+			create_date: this.clockCtrl.getTime(),
+			create_uid: app.user.id,
+			active: 1
+		});
+
+		ip_rules_editingPlugin.startEdit(records[0], 0);
+	},
+
+	onIpAccessLogGridBeforeContextMenu: function (grid, record, item, index, e) {
+    	e.preventDefault();
+    	this.showNetWorkLogContextMenu(e);
+	},
+
+	showNetWorkLogContextMenu: function(e) {
+
+		if(!this.getIpAccessPanelContextMenu()){
+			Ext.widget('menu', {
+				margin: '0 0 10 0',
+				itemId: 'IpAccessPanelContextMenu',
+				items: [
+					{
+						text: _('add_to_network_rules'),
+						itemId: 'IpAccessPanelAddToWhiteListMenu',
+						icon: 'resources/images/icons/add.png'
+					}
+				]
+			});
+		}
+
+		return this.getIpAccessPanelContextMenu().showAt(e.getXY());
+	}
 
 });

@@ -512,9 +512,10 @@ class Documents {
 	 * @param $params
 	 * @param string $path
 	 * @param null|array $custom_header_data
+	 * @param array $key_images
 	 * @return bool
 	 */
-	public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null) {
+	public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $key_images = [], $singleColumn = false) {
 		$pid = $params->pid;
 		$regex = '(\[\w*?\])';
 
@@ -607,7 +608,6 @@ class Documents {
 			if(isset($params->provider_uid)){
 				$allNeededInfo = $this->addProviderData($params, $tokens, $allNeededInfo);
 			}
-
 		}
 
 		// add line token
@@ -625,6 +625,45 @@ class Documents {
 				$pdf->writeHTML($page);
 			}else{
 				$pdf->writeHTML(nl2br($page));
+			}
+		}
+
+		$y = $pdf->GetY();
+
+		$rowHeight = 0;
+
+		//image //title
+		foreach ($key_images as $index => $key_image){
+
+			if(!isset($key_image['image']) || !isset($key_image['title'])){
+				continue;
+			}
+
+			if($index === 0){
+				$y = $y + 10;
+			}
+
+			$newRow = $singleColumn || !($index % 2);
+
+			if($newRow){
+				$x = $margins['right'];
+				if($rowHeight > 0){
+					$y = $y + $rowHeight + 10;
+					$rowHeight = 0;
+				}
+			}else{
+				$x = $pdf->getCenter();
+				$y -= 5;
+			}
+
+			$img = 'data://text/plain;base64,' . $key_image['image'];
+			$y += 5;
+			$pdf->Image($img, $x, $y, 0, 0, 'jpg', '', 'N');
+
+			$imageBuffer = $pdf->getImageBuffer($img);
+
+			if($rowHeight < $imageBuffer['h']){
+				$rowHeight = $imageBuffer['h'] / 2;
 			}
 		}
 

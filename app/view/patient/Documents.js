@@ -189,7 +189,11 @@ Ext.define('App.view.patient.Documents', {
 					'->',
 					'-',
 					{
-						text: _('add_document'),
+						text: _('scan'),
+						itemId: 'documentScanBtn'
+					},
+					{
+						text: _('upload'),
 						itemId: 'documentUploadBtn'
 					}
 				],

@@ -20,29 +20,48 @@ Ext.define('App.view.scanner.Window', {
 	extend: 'Ext.window.Window',
 	xtype: 'scannerwindow',
 	itemId: 'ScannerWindow',
-	width: 800,
-	height: 300,
+	width: 700,
+	height: 500,
 	closeAction: 'hide',
 	title: _('scanner'),
 	layout: 'border',
+	modal: true,
 	items: [
 		{
 			xtype: 'panel',
 			region: 'west',
-			width: 200,
+			width: 120,
 			split: true,
 			itemId: 'ScannerImageDataViewPanel',
+			autoScroll: true,
 			items: [
 				{
 					xtype: 'dataview',
 					itemId: 'ScannerImageThumbsDataView',
 					store: Ext.create('Ext.data.Store', {
-						fields: ['id', 'src']
+						fields: [
+							{
+								name: 'id',
+								type: 'string'
+							},
+							{
+								name: 'src',
+								type: 'string'
+							},
+							{
+								name: 'archived',
+								type: 'bool'
+							},
+							{
+								name: 'style',
+								type: 'string'
+							}
+						]
 					}),
 					tpl: new Ext.XTemplate(
 						'<tpl for=".">' +
 						'<div style="margin-bottom:10px;" class="thumb-wrap">' +
-						'<img width="100%" src="{src}" />' +
+						'<img width="100%" src="{src}" style="padding:10px;{style}" />' +
 						'</div>' +
 						'</tpl>'
 					),
@@ -81,10 +100,13 @@ Ext.define('App.view.scanner.Window', {
 			xtype: 'panel',
 			region: 'center',
 			itemId: 'ScannerImageViewerPanel',
+			layout: 'anchor',
+			autoScroll: true,
+			frame: true,
 			items: [
 				{
 					xtype: 'image',
-					flex: 1,
+					anchor: '100%',
 					style: 'background-color:white',
 					itemId: 'ScannerImageViewer'
 				}
@@ -96,6 +118,8 @@ Ext.define('App.view.scanner.Window', {
 				},
 				{
 					text: _('edit'),
+					enableToggle: true,
+					toggleGroup: 'ScannerImageEditGroup',
 					itemId: 'ScannerImageEditBtn'
 				},
 				'->',
@@ -105,6 +129,11 @@ Ext.define('App.view.scanner.Window', {
 				}
 			]
 		}
-
+	],
+	buttons: [
+		{
+			text: _('close'),
+			itemId: 'ScannerImageCloseBtn'
+		}
 	]
 });

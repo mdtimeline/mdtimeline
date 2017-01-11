@@ -7,33 +7,10 @@
 $LANG = array(
 
 	// This items are used internally by the GaiaEHR Application.
-	'home'                                  => 'Home',
-    'lang_code'								=> 'en_US',
+	'lang_code'								=> 'en_US',
 	'lang_text'								=> 'English (USA)',
 	'i18nExtFile'							=> 'ext-lang-en.js',
 	// End of the items
-    'employer'                              => 'Employer',
-    'fathers'                               => 'Fathers',
-    'mothers'                               => 'Mothers',
-    'occupation'                            => 'Occupation',
-    'work'                                  => 'Work',
-    'ext'                                   => 'Ext',
-    'guardians_contact'                     => 'Guardians Contact',
-    'phone_type'                            => 'Phone Type',
-    'mothers_name'                          => 'Mothers Name',
-    'fathers_name'                          => 'Fathers Name',
-    'mrn'                                   => 'MRN',
-    'record_number'                         => 'Record Number',
-    'interface_mrn'                         => 'Interface',
-    'postal_address'                        => 'Postal Address',
-    'patient_info'                          => 'Information',
-    'communication'                         => 'Communication',
-    'religion'                              => 'Religion',
-    'secondary_race'                        => 'Secondary Race',
-    'marital_status'                        => 'Marital Status',
-    'allow'                                 => 'Allow',
-    'sms'                                   => 'SMS',
-    'email'                                 => 'Email',
     'sweet'         					    => 'Sweet!',
     'oops'         					        => 'Oops!',
 	'wait'									=> 'Wait!',
@@ -1717,5 +1694,4 @@ $LANG = array(
     'application_id'                        => 'Application ID',
     'go_dark'                               => 'Go Dark',
     'go_light'                              => 'Go Light',
-    'search_for_a_CDT'                      => 'CDT Search'
 );

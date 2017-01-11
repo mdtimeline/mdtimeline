@@ -52,6 +52,7 @@ class DocumentHandler {
 		'image/gif' => 'gif',
 		'image/png' => 'png',
 		'image/jpg' => 'jpg',
+		'image/jpeg' => 'jpg',
 		'image/bmp' => 'bmp',
 		'image/mpeg' => 'mp3',
 		'audio/x-wav' => 'wav',
@@ -182,6 +183,18 @@ class DocumentHandler {
 				throw new Exception("Unable to create App.model.administration.DocumentData model instance '{$instance}'");
 			};
 
+
+			$document->document = $this->base64ToBinary($document->document);
+			$file_info = new finfo(FILEINFO_MIME_TYPE);
+			$mime_type = $file_info->buffer($document->document);
+			if(!isset($this->mime_types_ext[$mime_type])){
+				throw new Exception('File extension not supported. document_id: ' . $document->id . ' mime_type: '. $mime_type);
+			}
+			$document_code = isset($document->docTypeCode) ? $document->docTypeCode : '';
+			$ext = $this->mime_types_ext[$mime_type];
+			$file_name = $document_code .'_' .$document->id . '_' . $document->pid . '.' . $ext;
+			$document->name = $file_name;
+
 			//error_log('DOCUMENT');
 			$data = new stdClass();
 			$data->pid = $document->pid;
@@ -192,9 +205,10 @@ class DocumentHandler {
 			$document->document ='';
 			$document->document_instance = $instance;
 			$document->document_id = $record->id;
-			$sth = $conn->prepare("UPDATE patient_documents SET document = '', document_instance = :doc_ins, document_id = :doc_id WHERE id = :id;");
+			$sth = $conn->prepare("UPDATE patient_documents SET document = '', `name` = :file_name, document_instance = :doc_ins, document_id = :doc_id WHERE id = :id;");
 			$sth->execute([
 				':id' => $document->id,
+				':file_name' => $document->name,
 				':doc_ins' => $document->document_instance,
 				':doc_id' => $document->document_id
 			]);
@@ -278,7 +292,6 @@ class DocumentHandler {
 			error_log($e->getMessage());
 		}
 	}
-
 
 	/**
 	 * @param $params

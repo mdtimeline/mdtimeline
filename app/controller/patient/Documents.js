@@ -63,6 +63,14 @@ Ext.define('App.controller.patient.Documents', {
 			selector: 'patientdocumentspanel #documentUploadBtn'
 		},
 		{
+			ref: 'DocumentUploadBtn',
+			selector: 'patientdocumentspanel #documentUploadBtn'
+		},
+		{
+			ref: 'DocumentScanBtn',
+			selector: 'patientdocumentspanel #documentScanBtn'
+		},
+		{
 			ref: 'PatientDocumentErrorNoteWindow',
 			selector: 'patientdocumenterrornotewindow'
 		}
@@ -75,8 +83,8 @@ Ext.define('App.controller.patient.Documents', {
 
 		me.control({
 			'viewport': {
-				scanconnected: me.onScanConnected,
-				scandisconnected: me.onScanDisconnected,
+				browserhelperopen: me.onBrowserHelperOpen,
+				browserhelperclose: me.onBrowserHelperClose,
 				documentedit: me.onDocumentEdit
 			},
 			'patientdocumentspanel': {
@@ -95,17 +103,15 @@ Ext.define('App.controller.patient.Documents', {
 			'patientdocumentspanel #documentUploadBtn': {
 				click: me.onDocumentUploadBtnClick
 			},
+			'patientdocumentspanel #documentScanBtn': {
+				click: me.onDocumentScanBtnClick
+			},
 			'#patientDocumentUploadWindow': {
 				show: me.onPatientDocumentUploadWindowShow
 			},
 			'#patientDocumentUploadWindow #uploadBtn': {
 				click: me.onDocumentUploadSaveBtnClick
 			},
-			'#patientDocumentUploadWindow #scanBtn': {
-				click: me.onDocumentUploadScanBtnClick
-			},
-
-
 			'#DocumentErrorNoteSaveBtn': {
 				click: me.onDocumentErrorNoteSaveBtnClick
 			}
@@ -194,15 +200,15 @@ Ext.define('App.controller.patient.Documents', {
 		}
 	},
 
-	onScanConnected: function(){
-		if(this.getPatientDocumentUploadScanBtn()){
-			this.getPatientDocumentUploadScanBtn().show();
+	onBrowserHelperOpen: function(){
+		if(this.getDocumentScanBtn()){
+			this.getDocumentScanBtn().show();
 		}
 	},
 
-	onScanDisconnected: function(){
-		if(this.getPatientDocumentUploadScanBtn()){
-			this.getPatientDocumentUploadScanBtn().hide();
+	onBrowserHelperClose: function(){
+		if(this.getDocumentScanBtn()){
+			this.getDocumentScanBtn().hide();
 		}
 	},
 
@@ -266,7 +272,6 @@ Ext.define('App.controller.patient.Documents', {
 			app.msg(_('oops'), _('unable_to_find_document'), true);
 		}
 		store.un('load', me.doSelectDocument, me);
-
 	},
 
 	onDocumentGroupBtnToggle: function(btn, pressed){
@@ -282,6 +287,10 @@ Ext.define('App.controller.patient.Documents', {
 			header.show();
 			btn.enable();
 		}
+	},
+
+	onDocumentScanBtnClick: function () {
+		this.getController('Scanner').showScanWindow();
 	},
 
 	onDocumentUploadBtnClick: function(){

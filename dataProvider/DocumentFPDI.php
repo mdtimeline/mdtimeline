@@ -47,6 +47,10 @@ class DocumentFPDI extends FPDI  {
 	 * @var array
 	 */
 	private $header_cols;
+	/**
+	 * @var int
+	 */
+	private $center_point;
 
 	/**
 	 * @param array $data
@@ -76,6 +80,10 @@ class DocumentFPDI extends FPDI  {
 		return $this->header_y;
 	}
 
+	public function getCenter(){
+		return $this->center_point;
+	}
+
 	/**
 	 * @return array
 	 */
@@ -85,6 +93,7 @@ class DocumentFPDI extends FPDI  {
 		$pageWidth = $this->getPageWidth();
 		$columnsWidth =  (($pageWidth - ($margins['left'] + $margins['right'])) / 2);
 		$center = $margins['left'] + $columnsWidth;
+		$this->center_point = $center;
 
 		if(!isset($this->header_cols)){
 			$this->header_cols = [

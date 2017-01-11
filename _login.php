@@ -21,19 +21,25 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta content="utf-8" http-equiv="encoding">
-    <title>MD Timeline Logon Screen</title>
+
     <script type="text/javascript" src="lib/<?php print EXTJS ?>/ext-all.js" charset="utf-8"></script>
-    <link rel="shortcut icon" href="favicon.ico">
+
+    <script src='https://www.google.com/recaptcha/api.js?hl=en'></script>
     <script type="text/javascript">
         var app,
             acl = {},
             lang = {},
             globals = {},
-            site = '<?php print SITE ?>',
+	        ext = '<?php print EXTJS ?>',
+	        version = '<?php print VERSION ?>',
+	        site = '<?php print SITE ?>',
             localization = '<?php print site_default_localization ?>';
     </script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta content="utf-8" http-equiv="encoding">
+    <title>MD Timeline Logon Screen</title>
+    <link rel="shortcut icon" href="favicon.ico">
+
     <script src="JSrouter.php?site=<?php print SITE ?>" charset="utf-8"></script>
     <script src="data/api.php?site=<?php print SITE ?>" charset="utf-8"></script>
     <script type="text/javascript">

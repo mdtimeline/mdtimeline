@@ -43,11 +43,11 @@ class authProcedures {
 		// If this condition is met, the user did not
 		// use the logon form. Possible hack.
 		if(strlen($params->authUser) >= 26){
-			return array(
+			return [
                 'success' => false,
                 'type' => 'error',
                 'message' => 'Possible hack, please use the Logon Screen.'
-            );
+            ];
 		}
 
 		// Check that the username do not pass
@@ -57,28 +57,65 @@ class authProcedures {
 		// If this condition is met, the user did not
 		// use the logon form. Possible hack.
 		if(strlen($params->authPass) >= 15){
-			return array(
+			return [
                 'success' => false,
                 'type' => 'error',
                 'message' => 'Possible hack, please use the Logon Screen.'
-            );
+            ];
 		}
 		// Simple check username
 		if(!$params->authUser){
-			return array(
+			return [
                 'success' => false,
                 'type' => 'error',
                 'message' => 'The username field can not be in blank. Try again.'
-            );
+            ];
 		}
 		// Simple check password
 		if(!$params->authPass){
-			return array(
+			return [
                 'success' => false,
                 'type' => 'error',
                 'message' => 'The password field can not be in blank. Try again.'
-            );
+            ];
 		}
+
+
+		if(isset($params->{'g-recaptcha-response'})){
+
+			$recaptcha_response = $params->{'g-recaptcha-response'};
+			$recaptcha_secret_ke = Globals::getGlobal('recaptcha_secret_key');
+			$ch = curl_init('https://www.google.com/recaptcha/api/siteverify');
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS,
+				http_build_query([
+			        'secret' => $recaptcha_secret_ke,
+			        'response' => $recaptcha_response
+				])
+			);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			$server_validation = curl_exec ($ch);
+
+			$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+			curl_close ($ch);
+
+			if($httpcode === 200){
+
+				$server_validation = json_decode($server_validation, true);
+
+				if($server_validation['success'] == false){
+					return [
+						'success' => false,
+						'type' => 'error',
+						'message' => 'Unable to validate reCaptcha'
+					];
+				}
+			}
+
+
+		}
+
 		// remove empty spaces single and double quotes from username and password
 		$params->authUser = trim(str_replace(array('\'', '"'), '', $params->authUser));
 		$params->authPass = trim(str_replace(array('\'', '"'), '', $params->authPass));
@@ -87,12 +124,12 @@ class authProcedures {
 		// Only bring authorized and active users.
 		$u = MatchaModel::setSenchaModel('App.model.administration.User');
 		$user = $u->load(
-			array(
+			[
 				'username' => $params->authUser,
 				'authorized' => 1,
 				'active' => 1
-			),
-			array(
+			],
+			[
 				'id',
 				'username',
 				'title',
@@ -102,16 +139,17 @@ class authProcedures {
 				'email',
 				'facility_id',
 				'npi',
-				'password'
-			)
+				'password',
+				'password_date'
+			]
 		)->one();
 
 		if($user === false || $params->authPass != $user['password']){
-			return array(
+			return [
                 'success' => false,
                 'type' => 'error',
                 'message' => 'The username or password you provided is invalid.'
-            );
+            ];
 		} else{
 			// Change some User related variables and go
 			$_SESSION['user']['name'] = trim($user['title'] . ' ' . $user['lname'] . ', ' . $user['fname'] . ' ' . $user['mname']);
@@ -132,19 +170,36 @@ class authProcedures {
 
 			session_regenerate_id();
 
-			return array(
+			$password_exp_flag = Globals::getGlobal('password_expiration');
+			if($password_exp_flag && $password_exp_flag != ''){
+
+				if(is_numeric($password_exp_flag)){
+					$password_exp_flag .= 'D';
+				}
+
+				$threshold = new DateTime();
+				$threshold->sub(new DateInterval("P{$password_exp_flag}"));
+				$password_exp = new DateTime($user['password_date']);
+
+				$_SESSION['user']['password_expired'] = $password_exp < $threshold;
+			}else{
+				$_SESSION['user']['password_expired'] = false;
+			}
+
+			return [
 				'success' => true,
 				'token' => $_SESSION['user']['token'],
-				'user' => array(
+				'user' => [
 					'id' => $_SESSION['user']['id'],
 					'name' => $_SESSION['user']['name'],
 					'npi' => $_SESSION['user']['npi'],
 					'site' => $_SESSION['user']['site'],
 					'email' => $_SESSION['user']['email'],
 					'facility' => $_SESSION['user']['facility'],
-				    'localization' => $_SESSION['user']['localization']
-				)
-			);
+				    'localization' => $_SESSION['user']['localization'],
+				    'password_expired' => $_SESSION['user']['password_expired']
+				]
+			];
 		}
 	}
 

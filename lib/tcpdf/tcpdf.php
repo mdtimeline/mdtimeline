@@ -20776,7 +20776,7 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 	 * @protected
 	 * @since 4.5.000 (2008-12-31)
 	 */
-	protected function getImageBuffer($image) {
+	public function getImageBuffer($image) {
 		if (isset($this->images[$image])) {
 			return $this->images[$image];
 		}

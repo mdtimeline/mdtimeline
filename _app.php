@@ -247,16 +247,25 @@ header("Access-Control-Allow-Origin: *");
 					'error'
 				);
 			});
+
 		</script>
 
 		<script type="text/javascript" src="app/ux/Overrides.js"></script>
 		<script type="text/javascript" src="app/ux/VTypes.js"></script>
 
 		<!-- this is the compiled/minified version -->
-
 		<?php if(HOST != 'localhost') { ?>
 			<script type="text/javascript" src="app/app.min.js?_v<?php print VERSION ?>"></script>
+
+            <?php if (isset($_SESSION['modules'])) { ?>
+                <?php foreach ($_SESSION['modules'] as $module){ ?>
+                    <script type="text/javascript" src="modules/<?php print $module ?>/module.min.js?_v<?php print VERSION ?>"></script>
+                <?php } ?>
+            <?php } ?>
+
 		<?php } ?>
+
+        <!-- compiled/minified version  completed -->
 
 		<script type="text/javascript">
             /**
@@ -290,6 +299,13 @@ header("Access-Control-Allow-Origin: *");
                 }, 1000);
             }
 
+
+            var modules_mains = [];
+
+            window.modules.forEach(function (module) {
+	            modules_mains.push('Modules.' + module + '.Main');
+            });
+
             /**
 			 * Sencha ExtJS OnReady Event
 			 * When all the JS code is loaded execute the entire code once.
@@ -297,7 +313,7 @@ header("Access-Control-Allow-Origin: *");
             Ext.application({
                 name: 'App',
 
-	            requires:[
+	            requires: Ext.Array.merge([
 		            'Ext.ux.LiveSearchGridPanel',
 		            'Ext.ux.SlidingPager',
 		            'Ext.ux.PreviewPlugin',
@@ -440,7 +456,7 @@ header("Access-Control-Allow-Origin: *");
 		             * Dynamically load the modules
 		             */
 		            'Modules.Module'
-	            ],
+	            ], modules_mains),
 				models:[
 					'miscellaneous.AddressBook',
 
@@ -808,7 +824,9 @@ header("Access-Control-Allow-Origin: *");
                 ],
 
                 controllers:[
-	                'administration.AuditLog',
+	                'Main',
+
+                    'administration.AuditLog',
 	                'administration.CPT',
 	                'administration.DataPortability',
 	                'administration.DecisionSupport',

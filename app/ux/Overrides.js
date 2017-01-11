@@ -16,6 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+Ext.override(Ext.window.Window, {
+	constrainHeader: true
+});
 
 Ext.override(Ext.form.Basic, {
 

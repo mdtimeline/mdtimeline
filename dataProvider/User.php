@@ -109,7 +109,7 @@ class User
         $user = $this->u->load($params->id)->one();
 
         if ($user === false) {
-            return ['success' => false, 'message' => 'user not found'];
+            return ['success' => false, 'message' => 'User not found'];
         }
         $user = isset($user['data']) ? $user['data'] : $user;
         if ($user['password'] != $params->old_password) {
@@ -128,6 +128,9 @@ class User
         $rec->password = $params->new_password;
         $rec->pwd_history1 = $user['password'];
         $rec->pwd_history2 = $user['pwd_history1'];
+        $rec->password_date = date('Y-m-d H:i:s');
+
+	    $_SESSION['user']['password_expired'] = false;
         $this->u->save($rec);
         return ['success' => true];
     }

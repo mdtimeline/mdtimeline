@@ -8857,7 +8857,11 @@ Ext.define('App.ux.combo.FloorPlanZones', {
 	displayField: 'title',
 	valueField: 'id',
 	emptyText: _('select'),
-	store: Ext.create('App.store.administration.FloorPlanZones')
+	initComponent: function () {
+		this.store = Ext.create('App.store.administration.FloorPlanZones');
+		this.callParent();
+	}
+
 });
 Ext.define('App.ux.combo.FollowUp', {
     extend       : 'Ext.form.ComboBox',
@@ -35301,6 +35305,10 @@ Ext.define('App.store.patient.Disclosures', {
 	remoteSort: false,
 	autoLoad  : false
 });
+Ext.define('App.store.patient.FamilyHistories', {
+	extend: 'Ext.data.Store',
+	model: 'App.model.patient.FamilyHistory'
+});
 Ext.define('App.store.patient.EncounterServices', {
 	extend: 'Ext.data.Store',
 	model: 'App.model.patient.EncounterService'
@@ -35461,6 +35469,22 @@ Ext.define('App.store.patient.Referrals', {
 
 
 
+Ext.define('App.store.patient.RxOrders', {
+    extend: 'Ext.data.Store',
+    model     : 'App.model.patient.Medications',
+    groupField: 'date_ordered',
+    startCollapsed: true,
+    proxy: {
+        type: 'direct',
+        api: {
+            read: 'Medications.getPatientMedicationsOrders',
+            create: 'Medications.addPatientMedication',
+            update: 'Medications.updatePatientMedication',
+            destroy: 'Medications.destroyPatientMedication'
+        },
+        remoteGroup: false
+    }
+});
 Ext.define('App.store.patient.Surgery', {
 	extend: 'Ext.data.Store',
 	model     : 'App.model.patient.Surgery',
@@ -41425,6 +41449,166 @@ Ext.define('App.controller.patient.DecisionSupport', {
 			}
 
 		});
+	}
+
+});
+
+Ext.define('App.controller.patient.Disclosures', {
+	extend: 'Ext.app.Controller',
+	requires: [],
+	refs: [
+		{
+			ref: 'DisclosuresRecipientWindow',
+			selector: '#DisclosuresRecipientWindow'
+		},
+		{
+			ref: 'DisclosuresRecipientForm',
+			selector: '#DisclosuresRecipientForm'
+		},
+		{
+			ref: 'DisclosuresRecipientField',
+			selector: '#DisclosuresRecipientField'
+		},
+		{
+			ref: 'DisclosuresDescriptionField',
+			selector: '#DisclosuresDescriptionField'
+		},
+		{
+			ref: 'DisclosuresRecipientCancelBtn',
+			selector: '#DisclosuresRecipientCancelBtn'
+		},
+		{
+			ref: 'DisclosuresRecipientSaveBtn',
+			selector: '#DisclosuresRecipientSaveBtn'
+		}
+	],
+
+	init: function(){
+		var me = this;
+
+		me.control({
+			'#DisclosuresRecipientCancelBtn': {
+				click: me.onDisclosuresRecipientCancelBtnClick
+			},
+			'#DisclosuresRecipientSaveBtn': {
+				click: me.onDisclosuresRecipientSaveBtnClick
+			}
+		});
+	},
+
+	onDisclosuresRecipientCancelBtnClick: function(){
+		this.getDisclosuresRecipientWindow().close();
+	},
+
+	onDisclosuresRecipientSaveBtnClick: function(){
+
+		var win = this.getDisclosuresRecipientWindow(),
+			form = this.getDisclosuresRecipientForm().getForm(),
+			values = form.getValues(),
+			disclosure_data = win.disclosure_data;
+
+		if(!form.isValid()) return;
+
+		disclosure_data.recipient = values.recipient;
+		disclosure_data.description = values.description;
+
+		Disclosure.addDisclosure(disclosure_data, win.disclosure_callback);
+
+		win.close();
+
+	},
+
+	addRawDisclosure: function(data, callback){
+		var me = this;
+
+		if(!data.pid) return;
+
+		Ext.Msg.show({
+			title: _('wait'),
+			msg: _('raw_disclosure_message'),
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function(btn){
+				if(btn == 'yes'){
+					me.promptRecipient(data, callback);
+				}
+			}
+		});
+	},
+
+	promptRecipient: function(data, callback){
+		var win = this.showRecipientWindow();
+		win.disclosure_data = data;
+		win.disclosure_callback = callback;
+
+		this.getDisclosuresRecipientField().reset();
+		this.getDisclosuresDescriptionField().setValue(data.description);
+	},
+
+	showRecipientWindow: function(){
+
+		if(!this.getDisclosuresRecipientWindow()){
+			Ext.create('Ext.window.Window', {
+				title: _('disclosures'),
+				layout: 'fit',
+				itemId: 'DisclosuresRecipientWindow',
+				items: [
+					{
+						xtype: 'form',
+						itemId: 'DisclosuresRecipientForm',
+						width: 300,
+						bodyPadding: 10,
+						items: [
+							{
+								xtype: 'combobox',
+								labelAlign: 'top',
+								fieldLabel: 'Choose Recipient',
+								queryMode: 'local',
+								displayField: 'text',
+								valueField: 'value',
+								itemId: 'DisclosuresRecipientField',
+								allowBlank: false,
+								anchor: '100%',
+								editable: false,
+								name: 'recipient',
+								store: Ext.create('Ext.data.Store', {
+									fields: ['text', 'value'],
+									data: [
+										{ text: _('emer_contact'), value: 'emer_contact' },
+										{ text: _('father'), value: 'father' },
+										{ text: _('guardian'), value: 'guardian' },
+										{ text: _('mother'), value: 'mother' },
+										{ text: _('patient'), value: 'patient' }
+									]
+								})
+							},
+							{
+								xtype: 'textareafield',
+								labelAlign: 'top',
+								fieldLabel: 'Description',
+								name: 'description',
+								itemId: 'DisclosuresDescriptionField',
+								allowBlank: false,
+								anchor: '100%'
+							}
+						]
+					}
+				],
+				buttons: [
+					{
+						text: _('cancel'),
+						itemId: 'DisclosuresRecipientCancelBtn'
+					},
+					{
+						text: _('save'),
+						itemId: 'DisclosuresRecipientSaveBtn'
+					}
+				]
+			});
+		}
+
+		return this.getDisclosuresRecipientWindow().show();
+
 	}
 
 });
@@ -60753,7 +60937,7 @@ Ext.define('App.view.Viewport', {
             var modules = response.result;
             for(var i = 0; i < modules.length; i++){
 	            try{
-		            App.app.getController('Modules.' + modules[i].dir + '.Main');
+		            app.getController('Modules.' + modules[i].dir + '.Main');
 	            }catch(error){
 					app.msg(_('oops'), (_('unable_to_load_module') + ' ' + modules[i].title + '<br>Error: ' +  error), true);
 	            }

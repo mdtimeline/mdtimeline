@@ -115,9 +115,11 @@ if(!isset($_SESSION['site']['error']) && (isset($_SESSION['user']) && $_SESSION[
 	if(isset($_SESSION['dark_styles'])){
 		print 'window.dark_styles = ' . json_encode($_SESSION['dark_styles']) . ';';
 	}
-
 	if(isset($_SESSION['scripts'])){
 		print 'window.scripts = ' . json_encode($_SESSION['scripts']) . ';';
+	}
+	if(isset($_SESSION['modules'])){
+		print 'window.modules = ' . json_encode($_SESSION['modules']) . ';';
 	}
 
 }

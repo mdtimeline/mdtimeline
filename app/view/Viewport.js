@@ -1239,7 +1239,7 @@ Ext.define('App.view.Viewport', {
             var modules = response.result;
             for(var i = 0; i < modules.length; i++){
 	            try{
-		            App.app.getController('Modules.' + modules[i].dir + '.Main');
+		            app.getController('Modules.' + modules[i].dir + '.Main');
 	            }catch(error){
 					app.msg(_('oops'), (_('unable_to_load_module') + ' ' + modules[i].title + '<br>Error: ' +  error), true);
 	            }

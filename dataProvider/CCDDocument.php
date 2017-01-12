@@ -41,7 +41,6 @@ include_once(ROOT . '/dataProvider/PatientContacts.php');
 include_once(ROOT . '/dataProvider/Insurance.php');
 include_once(ROOT . '/dataProvider/User.php');
 include_once(ROOT . '/dataProvider/Rxnorm.php');
-include_once(ROOT . '/dataProvider/Encounter.php');
 include_once(ROOT . '/dataProvider/PoolArea.php');
 include_once(ROOT . '/dataProvider/Vitals.php');
 include_once(ROOT . '/dataProvider/Immunizations.php');
@@ -348,7 +347,7 @@ class CCDDocument
 			if(isset($this->eid)){
 				$this->encounter = $this->Encounter->getEncounter((int)$this->eid, false, false);
 				$this->encounter = isset($this->encounter['encounter']) ? $this->encounter['encounter'] : $this->encounter;
-				$this->encounterProvider = $this->User->getUserByUid($this->encounter['provider_uid']);
+				$this->encounterProvider = $this->User->getUserByUid($this->encounter['primary_provider']);
 				$this->encounterFacility = $this->Facilities->getFacility($this->encounter['facility']);
 			}
 

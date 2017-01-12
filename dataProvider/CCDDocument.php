@@ -41,6 +41,7 @@ include_once(ROOT . '/dataProvider/PatientContacts.php');
 include_once(ROOT . '/dataProvider/Insurance.php');
 include_once(ROOT . '/dataProvider/User.php');
 include_once(ROOT . '/dataProvider/Rxnorm.php');
+include_once(ROOT . '/dataProvider/Encounter.php');
 include_once(ROOT . '/dataProvider/PoolArea.php');
 include_once(ROOT . '/dataProvider/Vitals.php');
 include_once(ROOT . '/dataProvider/Immunizations.php');

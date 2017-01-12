@@ -83,6 +83,7 @@ class ReferringProviders {
 		$filter = new stdClass();
         $filter->filter[0] = new stdClass();
         $filter->filter[0]->property = 'referring_provider_id';
+
 		if(isset($record['data']) && $record['data'] !== false){
             $filter->filter[0]->value = $record['data']['id'];
 			$record['data']['facilities'] = $this->f->load($filter)->all();

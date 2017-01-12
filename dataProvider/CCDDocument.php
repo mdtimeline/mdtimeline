@@ -348,7 +348,7 @@ class CCDDocument
 			if(isset($this->eid)){
 				$this->encounter = $this->Encounter->getEncounter((int)$this->eid, false, false);
 				$this->encounter = isset($this->encounter['encounter']) ? $this->encounter['encounter'] : $this->encounter;
-				$this->encounterProvider = $this->User->getUserByUid($this->encounter['primary_provider']);
+				$this->encounterProvider = $this->User->getUserByUid($this->encounter['provider_uid']);
 				$this->encounterFacility = $this->Facilities->getFacility($this->encounter['facility']);
 			}
 

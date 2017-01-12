@@ -21,22 +21,37 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta content="utf-8" http-equiv="encoding">
-    <title>MD Timeline Logon Screen</title>
+
     <script type="text/javascript" src="lib/<?php print EXTJS ?>/ext-all.js" charset="utf-8"></script>
-    <link rel="shortcut icon" href="favicon.ico">
+
+    <script src='https://www.google.com/recaptcha/api.js?hl=en'></script>
     <script type="text/javascript">
         var app,
             acl = {},
             lang = {},
             globals = {},
-            site = '<?php print SITE ?>',
+	        ext = '<?php print EXTJS ?>',
+	        version = '<?php print VERSION ?>',
+	        site = '<?php print SITE ?>',
             localization = '<?php print site_default_localization ?>';
     </script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta content="utf-8" http-equiv="encoding">
+    <title>MD Timeline Logon Screen</title>
+    <link rel="shortcut icon" href="favicon.ico">
+
     <script src="JSrouter.php?site=<?php print SITE ?>" charset="utf-8"></script>
     <script src="data/api.php?site=<?php print SITE ?>" charset="utf-8"></script>
     <script type="text/javascript">
+
+	    if(Ext.supports.LocalStorage){
+		    Ext.state.Manager.setProvider(new Ext.state.LocalStorageProvider());
+	    }else{
+		    Ext.state.Manager.setProvider(new Ext.state.CookieProvider({
+			    secure: location.protocol === 'https:',
+			    expires : new Date(Ext.Date.now() + (1000*60*60*24*90)) // 90 days
+		    }));
+	    }
 
         window.i18n = window._ = function(key){
             return window.lang[key] || '*'+key+'*';
@@ -64,10 +79,10 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 
         (function(){
             var head = document.getElementsByTagName('head')[0],
-                cookie = Ext.util.Cookies.get('mdtimeline_theme'),
+                theme = Ext.state.Manager.get('mdtimeline_theme', g('application_theme')),
                 link;
 
-            if((cookie && cookie == 'dark')){
+            if(theme == 'dark'){
                 link  = document.createElement('link');
                 link.rel  = 'stylesheet';
                 link.type = 'text/css';
@@ -112,6 +127,7 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
         for(var x = 0; x < App.data.length; x++){
             Ext.direct.Manager.addProvider(App.data[x]);
         }
+
         Ext.onReady(function(){
             app = Ext.create('App.view.login.Login');
         });

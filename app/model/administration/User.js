@@ -88,6 +88,11 @@ Ext.define('App.model.administration.User', {
 			encrypt: true
 		},
 		{
+			name: 'password_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
 			name: 'title',
 			type: 'string',
 			comment: 'title (Mr. Mrs.)',

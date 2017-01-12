@@ -44,9 +44,9 @@ Ext.define('App.view.patient.windows.ArchiveDocument', {
 				},
 				{
 					xtype: 'gaiaehr.combo',
-					fieldLabel: _('type'),
+					fieldLabel: _('category'),
 					list: 102,
-					name: 'docType',
+					name: 'docTypeCode',
 					allowBlank: false
 				},
 				{

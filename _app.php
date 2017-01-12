@@ -66,6 +66,15 @@ header("Access-Control-Allow-Origin: *");
 
         <script type="text/javascript">
 
+	        if(Ext.supports.LocalStorage){
+		        Ext.state.Manager.setProvider(new Ext.state.LocalStorageProvider());
+	        }else{
+		        Ext.state.Manager.setProvider(new Ext.state.CookieProvider({
+			        secure: location.protocol === 'https:',
+			        expires : new Date(Ext.Date.now() + (1000*60*60*24*90)) // 90 days
+		        }));
+	        }
+
             window.i18n = window._ = function(key){
                 return window.lang[key] || '*'+key+'*';
             };
@@ -115,10 +124,10 @@ header("Access-Control-Allow-Origin: *");
 					'"><\/script>'
 				);
 
-	            var cookie = Ext.util.Cookies.get('mdtimeline_theme');
+	            var theme = Ext.state.Manager.get('mdtimeline_theme', g('application_theme'));
 	            var s;
 
-	            if((cookie && cookie == 'dark')){
+	            if(theme == 'dark'){
 		            globals.mdtimeline_theme = 'dark';
 		            link  = document.createElement('link');
 		            link.rel  = 'stylesheet';
@@ -238,16 +247,25 @@ header("Access-Control-Allow-Origin: *");
 					'error'
 				);
 			});
+
 		</script>
 
 		<script type="text/javascript" src="app/ux/Overrides.js"></script>
 		<script type="text/javascript" src="app/ux/VTypes.js"></script>
 
 		<!-- this is the compiled/minified version -->
-
 		<?php if(HOST != 'localhost') { ?>
 			<script type="text/javascript" src="app/app.min.js?_v<?php print VERSION ?>"></script>
+
+            <?php if (isset($_SESSION['modules'])) { ?>
+                <?php foreach ($_SESSION['modules'] as $module){ ?>
+                    <script type="text/javascript" src="modules/<?php print $module ?>/module.min.js?_v<?php print VERSION ?>"></script>
+                <?php } ?>
+            <?php } ?>
+
 		<?php } ?>
+
+        <!-- compiled/minified version  completed -->
 
 		<script type="text/javascript">
             /**
@@ -280,6 +298,14 @@ header("Access-Control-Allow-Origin: *");
                     app.QRCodePrintWin.print();
                 }, 1000);
             }
+
+
+            var modules_mains = [];
+
+            window.modules.forEach(function (module) {
+	            modules_mains.push('Modules.' + module + '.Main');
+            });
+
             /**
 			 * Sencha ExtJS OnReady Event
 			 * When all the JS code is loaded execute the entire code once.
@@ -287,7 +313,7 @@ header("Access-Control-Allow-Origin: *");
             Ext.application({
                 name: 'App',
 
-	            requires:[
+	            requires: Ext.Array.merge([
 		            'Ext.ux.LiveSearchGridPanel',
 		            'Ext.ux.SlidingPager',
 		            'Ext.ux.PreviewPlugin',
@@ -430,7 +456,7 @@ header("Access-Control-Allow-Origin: *");
 		             * Dynamically load the modules
 		             */
 		            'Modules.Module'
-	            ],
+	            ], modules_mains),
 				models:[
 					'miscellaneous.AddressBook',
 
@@ -798,7 +824,9 @@ header("Access-Control-Allow-Origin: *");
                 ],
 
                 controllers:[
-	                'administration.AuditLog',
+	                'Main',
+
+                    'administration.AuditLog',
 	                'administration.CPT',
 	                'administration.DataPortability',
 	                'administration.DecisionSupport',
@@ -877,10 +905,6 @@ header("Access-Control-Allow-Origin: *");
                 ],
 	            init : function() {
 
-		            Ext.state.Manager.setProvider(new Ext.state.CookieProvider({
-			            secure: location.protocol === 'https:',
-			            expires : new Date(Ext.Date.now() + (1000*60*60*24*90)) // 90 days
-		            }));
 	            },
                 launch: function() {
                     App.Current = this;

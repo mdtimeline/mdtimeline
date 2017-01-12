@@ -1221,6 +1221,29 @@ $API = [
             ]
         ]
     ],
+
+	'LoincCodes' => [
+		'methods' => [
+			'getLoincRadiologyCodes' => [
+				'len' => 1
+            ],
+			'getLoincRadiologyCode' => [
+				'len' => 1
+            ],
+			'addLoincRadiologyCode' => [
+				'len' => 1
+            ],
+			'updateLoincRadiologyCode' => [
+				'len' => 1
+            ],
+			'deleteLoincRadiologyCode' => [
+				'len' => 1
+            ],
+			'searchLoincRadiologyCodes' => [
+				'len' => 1
+            ]
+        ]
+    ],
 	/**
 	 * Practice Functions
 	 */
@@ -1721,6 +1744,9 @@ $API = [
 				'len' => 1
             ],
 			'getPossibleDuplicatesByDemographic' => [
+				'len' => 1
+            ],
+			'getPatientByPublicId' => [
 				'len' => 1
             ]
         ]

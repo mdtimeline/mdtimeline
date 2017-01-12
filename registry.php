@@ -52,7 +52,7 @@ if(!defined('URL')){
 
 // application version
 if(!defined('VERSION'))
-	define('VERSION', '1.0.102');
+	define('VERSION', '1.0.300');
 // extjs sdk directory
 if(!defined('EXTJS'))
 	define('EXTJS', 'extjs-4.2.1');
@@ -155,6 +155,7 @@ if(file_exists(ROOT . '/sites/' . SITE . '/conf.php')){
 		$modules = $Modules->getEnabledModules();
 		unset($Modules);
 
+		$_SESSION['modules'] = [];
 		$_SESSION['styles'] = [];
 		$_SESSION['light_styles'] = [];
 		$_SESSION['dark_styles'] = [];
@@ -197,6 +198,12 @@ if(file_exists(ROOT . '/sites/' . SITE . '/conf.php')){
 					$_SESSION['scripts'][] = $js;
 				}
 			}
+
+			$js = 'modules/' . $module['name'] . '/module.min.js';
+			if(file_exists( ROOT . '/' .$js) && array_search($module['name'], $_SESSION['modules']) === false){
+				$_SESSION['modules'][] = $module['name'];
+			}
+
 
 			/**
 			 * Hooks

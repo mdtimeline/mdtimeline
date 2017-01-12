@@ -29,7 +29,7 @@ Ext.define('App.view.Viewport', {
 	// end app settings
     initComponent: function(){
 
-	    Ext.state.Manager.setProvider(Ext.create('Ext.state.CookieProvider'));
+	    // Ext.state.Manager.setProvider(Ext.create('Ext.state.CookieProvider'));
 	    Ext.tip.QuickTipManager.init();
         var me = this;
 
@@ -565,10 +565,7 @@ Ext.define('App.view.Viewport', {
 		                    emptyText:'Facilities',
 		                    width: parseFloat(g('gbl_nav_area_width')) - 4,
 		                    hidden: !eval(a('access_to_other_facilities')),
-		                    listeners:{
-			                    scope: me,
-			                    select: me.onFacilitySelect
-		                    }
+		                    itemId: 'ApplicationFacilityCombo'
 	                    },
 	                    '-',
                         {
@@ -610,9 +607,6 @@ Ext.define('App.view.Viewport', {
             ]
         });
 
-	    me.FacilityCmb = me.Footer.query('activefacilitiescombo')[0];
-		me.FacilityCmb.getStore().on('load', me.onFacilityComboLoad, me);
-
         me.MedicalWindow = Ext.create('App.view.patient.windows.Medical');
         me.ChartsWindow = Ext.create('App.view.patient.windows.Charts');
         me.PaymentEntryWindow = Ext.create('App.view.fees.PaymentEntryWindow');
@@ -649,28 +643,6 @@ Ext.define('App.view.Viewport', {
 
 	getController:function(controller){
 		return App.Current.getController(controller);
-	},
-
-	onFacilitySelect:function(cmb, records){
-		var me = this;
-		Facilities.setFacility(records[0].data.option_value, function(provider, response){
-			if(records[0].data.option_value == response.result){
-				// set user global facility value
-				app.user.facility = records[0].data.option_value;
-
-				me.msg(_('sweet'), _('facility') + ' ' + records[0].data.option_name);
-				me.setWindowTitle(records[0].data.option_name);
-				me.nav['App_view_areas_PatientPoolDropZone'].reRenderPoolAreas();
-				me.nav['App_view_areas_FloorPlan'].renderZones();
-				me.getPatientsInPoolArea();
-			}
-		});
-	},
-
-	onFacilityComboLoad:function(store, records){
-		var rec = store.findRecord('option_value', this.user.facility);
-		this.FacilityCmb.setValue(rec);
-		this.setWindowTitle(rec.data.option_name)
 	},
 
 	setWindowTitle:function(facility){
@@ -1267,7 +1239,7 @@ Ext.define('App.view.Viewport', {
             var modules = response.result;
             for(var i = 0; i < modules.length; i++){
 	            try{
-		            App.app.getController('Modules.' + modules[i].dir + '.Main');
+		            app.getController('Modules.' + modules[i].dir + '.Main');
 	            }catch(error){
 					app.msg(_('oops'), (_('unable_to_load_module') + ' ' + modules[i].title + '<br>Error: ' +  error), true);
 	            }

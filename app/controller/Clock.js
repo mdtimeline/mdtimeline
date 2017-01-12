@@ -38,6 +38,10 @@ Ext.define('App.controller.Clock', {
 
 	updateClock:function(date){
 		this.date.setHours(date.hours, date.minutes, date.seconds);
+	},
+
+	getTime: function () {
+		return Ext.clone(this.date);
 	}
 
 });

@@ -5,6 +5,35 @@ input, textarea, p, blockquote, th, td {
   margin: 0;
   padding: 0; }
 
+.highlight_fieldset
+{
+    background-color: #333333;
+
+    /*Se esta utilizando en .x-fieldset */
+    /*border-radius: 3px;*/
+}
+
+/* line 3, ../../themes/stylesheets/carbon/custom/overrides/_form.scss */
+.x-fieldset {
+    -webkit-box-shadow: #3f3f3f 0 1px inset, #3a3a3a 0 1px;
+    -moz-box-shadow: #3f3f3f 0 1px inset, #3a3a3a 0 1px;
+    box-shadow: #3f3f3f 0 1px inset, #3a3a3a 0 1px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    -ms-border-radius: 2px;
+    -o-border-radius: 2px;
+    border-radius: 3px; }
+
+/* line 7, ../../themes/stylesheets/carbon/custom/overrides/_form.scss */
+.x-fieldset.x-fieldset-collapsed {
+    -webkit-box-shadow: #3f3f3f 0 1px inset;
+    -moz-box-shadow: #3f3f3f 0 1px inset;
+    box-shadow: #3f3f3f 0 1px inset; }
+
+/* line 12, ../../themes/stylesheets/carbon/custom/overrides/_form.scss */
+.x-fieldset-header {
+    background-color: #2b2b2b; }
+
 /* line 82, ../../themes/stylesheets/carbon/default/core/_reset.scss */
 table {
   border-collapse: collapse;
@@ -5176,26 +5205,6 @@ textarea.x-form-invalid-field {
   border: 0;
   padding: 3px 2px;
   overflow: auto; }
-
-/* line 3, ../../themes/stylesheets/carbon/custom/overrides/_form.scss */
-.x-fieldset {
-  -webkit-box-shadow: #3f3f3f 0 1px inset, #3a3a3a 0 1px;
-  -moz-box-shadow: #3f3f3f 0 1px inset, #3a3a3a 0 1px;
-  box-shadow: #3f3f3f 0 1px inset, #3a3a3a 0 1px;
-  -webkit-border-radius: 2px;
-  -moz-border-radius: 2px;
-  -ms-border-radius: 2px;
-  -o-border-radius: 2px;
-  border-radius: 2px; }
-  /* line 7, ../../themes/stylesheets/carbon/custom/overrides/_form.scss */
-  .x-fieldset.x-fieldset-collapsed {
-    -webkit-box-shadow: #3f3f3f 0 1px inset;
-    -moz-box-shadow: #3f3f3f 0 1px inset;
-    box-shadow: #3f3f3f 0 1px inset; }
-
-/* line 12, ../../themes/stylesheets/carbon/custom/overrides/_form.scss */
-.x-fieldset-header {
-  background-color: #2b2b2b; }
 
 /* line 16, ../../themes/stylesheets/carbon/custom/overrides/_form.scss */
 .x-form-text {

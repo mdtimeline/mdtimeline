@@ -1648,7 +1648,9 @@ INTRUCTIONS;
 			$ReferringProviders = new ReferringProviders();
 
 			$referral = $Referrals->getPatientReferralByEid($this->encounter['eid']);
-			$referringProvider = $ReferringProviders->getReferringProviderById($referral['refer_to']);
+
+			if(!empty($referral['refer_to']) || isset($referral['refer_to']))
+			    $referringProvider = $ReferringProviders->getReferringProviderById($referral['refer_to']);
 
 			unset($Referrals, $ReferringProviders);
 

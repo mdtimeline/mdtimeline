@@ -108,7 +108,7 @@ Ext.define('App.ux.LivePatientSearch', {
 				getInnerTpl: function(){
 					var pid = (eval(g('display_pubpid')) ? 'pubpid' : 'pid');
 					return '<div class="search-item"><h3><span>{fullname}</span> {[Ext.Date.format(values.DOB, g("date_display_format"))]}</h3>' +
-						'Record #{' + pid + '}'
+						'Record #{' + pid + '}</div>';
 				}
 			},
 			pageSize: 10

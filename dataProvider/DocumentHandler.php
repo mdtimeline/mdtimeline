@@ -108,11 +108,26 @@ class DocumentHandler {
 		$record = $this->d->load($params)->one();
 
 		if($record !== false && $includeDocument){
-			$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $record['document_instance']);
-			$data = $dd->load($record['document_id'])->one();
-			if($data !== false){
-				$record['document'] = $data['document'];
+
+			$file_path = $record['url'] . '/' . $record['name'];
+			$is_file = isset($record['url']) && $record['url'] != '' && file_exists($file_path);
+
+//			if ($is_file) {
+//				$mineType = mime_content_type($file_path);
+//			} else {
+//				$mineType = get_mime_type($record['name']);
+//			}
+
+			if ($is_file) {
+				$record['document'] = file_get_contents($file_path);
+			} else{
+				$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $record['document_instance']);
+				$data = $dd->load($record['document_id'])->one();
+				if($data !== false){
+					$record['document'] = $data['document'];
+				}
 			}
+
 		}
 
 		return $record;

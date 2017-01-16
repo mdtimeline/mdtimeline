@@ -112,12 +112,6 @@ class DocumentHandler {
 			$file_path = $record['url'] . '/' . $record['name'];
 			$is_file = isset($record['url']) && $record['url'] != '' && file_exists($file_path);
 
-//			if ($is_file) {
-//				$mineType = mime_content_type($file_path);
-//			} else {
-//				$mineType = get_mime_type($record['name']);
-//			}
-
 			if ($is_file) {
 				$record['document'] = file_get_contents($file_path);
 			} else{
@@ -128,6 +122,9 @@ class DocumentHandler {
 				}
 			}
 
+			if(isset($record['document']) && $this->isBinary($record['document'])){
+				$record['document'] = base64_encode($record['document']);
+			}
 		}
 
 		return $record;
@@ -665,11 +662,16 @@ class DocumentHandler {
 		return [ 'success' => true, 'total' => count($records) ];
 	}
 
+	public function isBinary($document){
+		if(function_exists('is_binary')) {
+			return is_binary($document);
+		}
+		return preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0;
+	}
+
 	public function base64ToBinary($document, $encrypted = false) {
 		// handle binary documents
-		if(function_exists('is_binary') && is_binary($document)){
-			return $document;
-		}elseif(preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0){
+		if($this->isBinary($document)){
 			return $document;
 		}else{
 			return base64_decode($document);

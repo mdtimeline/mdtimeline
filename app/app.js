@@ -3408,7 +3408,7 @@ Ext.define('App.ux.LivePatientSearch', {
 				getInnerTpl: function(){
 					var pid = (eval(g('display_pubpid')) ? 'pubpid' : 'pid');
 					return '<div class="search-item"><h3><span>{fullname}</span> {[Ext.Date.format(values.DOB, g("date_display_format"))]}</h3>' +
-						'Record #{' + pid + '}'
+						'Record #{' + pid + '}</div>';
 				}
 			},
 			pageSize: 10
@@ -24289,7 +24289,8 @@ Ext.define('App.view.patient.EncounterDocumentsGrid', {
 		proxy: {
 			type: 'memory'
 		},
-		groupField: 'document_type'
+		groupField: 'document_type',
+		storeId: 'EncounterDocumentsGridStore'
 	}),
 	columns: [
 		{
@@ -43480,14 +43481,16 @@ Ext.define('App.controller.patient.Referrals', {
 		record.set({refer_to: records[0].data.id});
 	},
 
-	onPrintReferralBtnClick:function(){
+	onPrintReferralBtnClick:function(referral){
 		var me = this,
 			grid = me.getReferralPanelGrid(),
 			sm = grid.getSelectionModel(),
-			selection = sm.getSelection(),
+			selection = (referral.isModel ? [referral] : sm.getSelection()),
             params,
             i;
-		grid.view.el.mask(_('generating_documents'));
+
+		if(grid.view.el) grid.view.el.mask(_('generating_documents'));
+
 		for(i=0; i < selection.length; i++){
 			params = {
                 pid: app.patient.pid,
@@ -43502,11 +43505,9 @@ Ext.define('App.controller.patient.Referrals', {
 				}else{
 					app.onDocumentView(response.result.id, 'Referral');
 				}
-				grid.view.el.unmask();
+				if(grid.view.el) grid.view.el.unmask();
 			});
 		}
-
-
 	},
 
 	onGridSelectionChange:function(grid, models){
@@ -44918,8 +44919,24 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 
 			filters = [];
 
-			if(group.toUpperCase() == 'NOTE'){
+			if(group.toUpperCase() == 'NOTE') {
 				store = Ext.data.StoreManager.lookup('DoctorsNotesStore');
+
+				for (i = 0; i < data.items.length; i++) {
+					Ext.Array.push(filters, {
+						property: 'id',
+						value: data.items[i]
+					});
+
+					store.load({
+						filters: filters,
+						callback: function (records) {
+							me.getController(data.controller)[data.method](records[0]);
+						}
+					});
+				}
+			}else if(group.toUpperCase() == 'REFERRAL'){
+				store = Ext.data.StoreManager.lookup('ReferralsStore');
 
 				for(i = 0; i < data.items.length; i++){
 					Ext.Array.push(filters, {
@@ -44965,8 +44982,7 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 	},
 
 	loadDocumentsByEid: function(grid, eid){
-		var me = this,
-			store = grid.getStore();
+		var store = grid.getStore();
 
 		store.removeAll();
 
@@ -44992,6 +45008,9 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 				}else if(document.document_type == 'note'){
 					document.controller = 'patient.DoctorsNotes';
 					document.method = 'onPrintDoctorsNoteBtn';
+				}else if(document.document_type == 'referral'){
+					document.controller = 'patient.Referrals';
+					document.method = 'onPrintReferralBtnClick';
 				}
 
 				document.document_type = Ext.String.capitalize(document.document_type);
@@ -45001,6 +45020,8 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 
 			if(data.length > 0){
 				store.loadRawData(data);
+				app.fireEvent('encounterdocumentsload', store);
+
 			}
 		});
 
@@ -56154,10 +56175,10 @@ Ext.define('App.view.patient.Referrals', {
 	requires: [
 		'App.ux.LiveCPTSearch',
 		'App.ux.LiveICDXSearch',
+		'App.ux.LiveReferringPhysicianSearch',
 		'App.ux.combo.ActiveProviders',
 		'Ext.selection.CheckboxModel',
-		'App.ux.grid.RowFormEditing',
-		'App.ux.combo.ReferringProviders'
+		'App.ux.grid.RowFormEditing'
 	],
 	xtype: 'patientreferralspanel',
 	title: _('referrals'),
@@ -56166,7 +56187,8 @@ Ext.define('App.view.patient.Referrals', {
 	columnLines: true,
 	allowDeselect: true,
 	store: Ext.create('App.store.patient.Referrals', {
-		remoteFilter: true
+		remoteFilter: true,
+		storeId: 'ReferralsStore'
 	}),
 	plugins: [
 		{
@@ -56240,7 +56262,7 @@ Ext.define('App.view.patient.Referrals', {
 									xtype: 'activeproviderscombo',
 									fieldLabel: _('refer_by'),
 									name: 'refer_by_text',
-									width: 300,
+									width: 350,
 									displayField: 'option_name',
 									valueField: 'option_name',
 									itemId: 'ReferralProviderCombo'
@@ -56255,20 +56277,19 @@ Ext.define('App.view.patient.Referrals', {
 											name: 'refer_to_text',
 											labelAlign: 'right',
 											margin: '0 5 5 0',
-											width: 300,
-//											disabled: true,
-//											hidden: true,
+											width: 350,
 											displayField: 'fullname',
 											valueField: 'fullname',
 											itemId: 'ReferralLocalProviderCombo'
 										},
 										{
-											xtype: 'referringproviderscombo',
+											xtype: 'referringphysicianlivetsearch',
 											fieldLabel: _('refer_to'),
 											name: 'refer_to_text',
 											labelAlign: 'right',
 											margin: '0 5 5 0',
-											width: 300,
+											hideLabel: false,
+											width: 350,
 											disabled: true,
 											hidden: true,
 											displayField: 'fullname',
@@ -56289,7 +56310,7 @@ Ext.define('App.view.patient.Referrals', {
 									fieldLabel: _('risk_level'),
 									name: 'risk_level',
 									list: 17,
-									width: 300
+									width: 350
 								},
 //								{
 //									xtype: 'checkboxfield',

@@ -684,7 +684,7 @@ INTRUCTIONS;
 		];
 
 		$this->patientData = $this->Patient->getPatientDemographicDataByPid($this->pid);
-		$this->user = $this->User->getCurrentUserData();
+		$this->user = $this->User->getUserByUid($this->patientData['primary_provider']);
 		$this->primaryProvider = $this->User->getUserByUid($this->patientData['primary_provider']);
 
 		$this->xmlData['recordTarget'] = $this->getRecordTarget();
@@ -697,9 +697,8 @@ INTRUCTIONS;
 		$this->xmlData['authenticator'] = $this->getAuthenticator();
 		$this->xmlData['documentationOf'] = $this->getDocumentationOf();
 
-		if(isset($this->encounter)){
-			$this->xmlData['componentOf'] = $this->getComponentOf();
-		}
+		if(isset($this->encounter))
+		    $this->xmlData['componentOf'] = $this->getComponentOf();
 
 		$this->xmlData['component']['structuredBody']['component'] = [];
 
@@ -1649,7 +1648,9 @@ INTRUCTIONS;
 			$ReferringProviders = new ReferringProviders();
 
 			$referral = $Referrals->getPatientReferralByEid($this->encounter['eid']);
-			$referringProvider = $ReferringProviders->getReferringProviderById($referral['refer_to']);
+
+			if(!empty($referral['refer_to']) || isset($referral['refer_to']))
+			    $referringProvider = $ReferringProviders->getReferringProviderById($referral['refer_to']);
 
 			unset($Referrals, $ReferringProviders);
 

@@ -115,10 +115,3 @@ class Emergency {
 	}
 
 }
-
-//$params = new stdClass();
-//$params->pid = 2;
-//$params->date = '2012-06-25 10:48:00';
-//$e = new Emergency();
-//echo '<pre>';
-//print_r($e->createNewEmergency());

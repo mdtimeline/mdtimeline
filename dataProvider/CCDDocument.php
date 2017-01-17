@@ -4142,8 +4142,8 @@ INTRUCTIONS;
 							'value' => [
 								'@attributes' => [
 									'xsi:type' => 'CD',
-									'code' => $item['status'],
-									'displayName' => $item['status_code'],
+									'code' => $item['status_code'],
+									'displayName' => $item['status'],
 									'codeSystemName' => 'SNOMEDCT',
 									'codeSystem' => '2.16.840.1.113883.3.88.12.80.68'
 								]

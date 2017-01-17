@@ -101,13 +101,9 @@ if (
 		return isset($mime_types[$extension]) ? $mime_types[$extension] : '';
 	}
 
-	function base64ToBinary($document, $encrypted, $is_image)
-	{
-
+	function base64ToBinary($document, $encrypted, $is_image){
 		// handle binary documents
-		if (function_exists('is_binary') && is_binary($document)) {
-			return $document;
-		} elseif (preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0) {
+		if (isBinary($document)) {
 			return $document;
 		} else {
 			return base64_decode($document);
@@ -120,6 +116,16 @@ if (
 //			$document = base64_decode($document);
 //		}
 	}
+
+	function isBinary($document){
+		if (function_exists('is_binary') && is_binary($document)) {
+			return true;
+		} elseif (preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0) {
+			return true;
+		}
+		return false;
+	}
+
 
 	$isTemp = isset($_REQUEST['temp']);
 
@@ -207,10 +213,7 @@ if (
 
 		$enableEdit = isset($_SESSION['user']['auth']) && $_SESSION['user']['auth'] == true;
 
-		// handle binary documents
-		if (function_exists('is_binary') && is_binary($document)) {
-			$document = base64_encode($document);
-		} elseif (preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0) {
+		if(isBinary($document)){
 			$document = base64_encode($document);
 		}
 

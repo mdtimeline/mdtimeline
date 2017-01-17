@@ -4107,54 +4107,52 @@ INTRUCTIONS;
                 ];
 
 
-				if(isset($item['status'])){
-
-					$entry['act']['entryRelationship']['observation']['entryRelationship'] = [
-						'@attributes' => [
-							'typeCode' => 'REFR'
-						],
-						'observation' => [
-							'@attributes' => [
-								'classCode' => 'OBS',
-								'moodCode' => 'EVN'
-							],
-							'templateId' => [
-								'@attributes' => [
-									'root' => '2.16.840.1.113883.10.20.22.4.6'
-								]
-							],
-							'code' => [
-								'@attributes' => [
-									'code' => '33999-4',
-									'displayName' => 'Status',
-									'codeSystemName' => 'LOINC',
-									'codeSystem' => '2.16.840.1.113883.6.1'
-								]
-							],
-							'statusCode' => [
-								'@attributes' => [
-									'code' => 'completed'
-								]
-							],
-							// 55561003     SNOMEDCT    Active
-							// 73425007     SNOMEDCT    Inactive
-							// 413322009    SNOMEDCT    Resolved
-							'value' => [
-								'@attributes' => [
-									'xsi:type' => 'CD',
-									'code' => $item['status_code'],
-									'displayName' => $item['status'],
-									'codeSystemName' => 'SNOMEDCT',
-									'codeSystem' => '2.16.840.1.113883.3.88.12.80.68'
-								]
-							]
-						]
-					];
-				}
+//				if(isset($item['status'])){
+//					$entry['act']['entryRelationship']['observation']['entryRelationship'] = [
+//						'@attributes' => [
+//							'typeCode' => 'REFR'
+//						],
+//						'observation' => [
+//							'@attributes' => [
+//								'classCode' => 'OBS',
+//								'moodCode' => 'EVN'
+//							],
+//							'templateId' => [
+//								'@attributes' => [
+//									'root' => '2.16.840.1.113883.10.20.22.4.6'
+//								]
+//							],
+//							'code' => [
+//								'@attributes' => [
+//									'code' => '33999-4',
+//									'displayName' => 'Status',
+//									'codeSystemName' => 'LOINC',
+//									'codeSystem' => '2.16.840.1.113883.6.1'
+//								]
+//							],
+//							'statusCode' => [
+//								'@attributes' => [
+//									'code' => 'completed'
+//								]
+//							],
+//							// 55561003     SNOMEDCT    Active
+//							// 73425007     SNOMEDCT    Inactive
+//							// 413322009    SNOMEDCT    Resolved
+//							'value' => [
+//								'@attributes' => [
+//									'xsi:type' => 'CD',
+//									'code' => $item['status_code'],
+//									'displayName' => $item['status'],
+//									'codeSystemName' => 'SNOMEDCT',
+//									'codeSystem' => '2.16.840.1.113883.3.88.12.80.68'
+//								]
+//							]
+//						]
+//					];
+//				}
 				$problems['entry'][] = $entry;
 				unset($entry);
 			}
-
 		}
 
 		if($this->requiredProblems || !empty($problems['entry'])){

@@ -2442,8 +2442,7 @@ INTRUCTIONS;
 					];
 				}
 
-				// immunization education\
-
+				// immunization education
 				if(isset($item['education_date']) && $item['education_date'] != '0000-00-00'){
 
 					$entry['substanceAdministration']['entryRelationship'] = [
@@ -4137,7 +4136,6 @@ INTRUCTIONS;
 									'code' => 'completed'
 								]
 							],
-
 							// 55561003     SNOMEDCT    Active
 							// 73425007     SNOMEDCT    Inactive
 							// 413322009    SNOMEDCT    Resolved
@@ -4146,15 +4144,13 @@ INTRUCTIONS;
 									'xsi:type' => 'CD',
 									'code' => $item['status'],
 									'displayName' => $item['status_code'],
-									'codeSystemName' => $item['status_code_type'],
-									'codeSystem' => $this->codes($item['status_code_type'])
+									'codeSystemName' => 'SNOMEDCT',
+									'codeSystem' => '2.16.840.1.113883.3.88.12.80.68'
 								]
 							]
 						]
 					];
-
 				}
-
 				$problems['entry'][] = $entry;
 				unset($entry);
 			}

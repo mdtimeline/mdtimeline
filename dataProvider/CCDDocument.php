@@ -4106,7 +4106,6 @@ INTRUCTIONS;
                     ]
                 ];
 
-
 //				if(isset($item['status'])){
 //					$entry['act']['entryRelationship']['observation']['entryRelationship'] = [
 //						'@attributes' => [

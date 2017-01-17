@@ -29,8 +29,7 @@ if(!isset($_SESSION)){
 }
 
 $site = isset($_SESSION['user']['site']) ? $_SESSION['user']['site'] : 'default';
-if(!defined('_GaiaEXEC'))
-    define('_GaiaEXEC', 1);
+if(!defined('_GaiaEXEC')) define('_GaiaEXEC', 1);
 require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
 
 include_once(ROOT . '/classes/UUID.php');
@@ -4362,7 +4361,7 @@ INTRUCTIONS;
 				} else {
 					$entry['act']['entryRelationship']['observation']['effectiveTime']['low'] = [
 						'@attributes' => [
-							'nullFLavor' => 'UNK'
+							'nullFlavor' => 'UNK'
 						]
 					];
 				}
@@ -4491,7 +4490,7 @@ INTRUCTIONS;
 
 				$entryRelationship['observation']['value'] = [
 					'@attributes' => [
-						'xsi:type' => 'CE',
+						'xsi:type' => 'CD',
 						'code' => $item['status_code'],
 						'displayName' => $item['status'],
 						'codeSystemName' => $item['status_code_type'],

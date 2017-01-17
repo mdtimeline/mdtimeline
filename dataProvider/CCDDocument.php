@@ -4490,7 +4490,7 @@ INTRUCTIONS;
 
 				$entryRelationship['observation']['value'] = [
 					'@attributes' => [
-						'xsi:type' => 'CD',
+						'xsi:type' => 'CE',
 						'code' => $item['status_code'],
 						'displayName' => $item['status'],
 						'codeSystemName' => $item['status_code_type'],

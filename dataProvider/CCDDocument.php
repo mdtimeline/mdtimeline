@@ -5747,7 +5747,10 @@ INTRUCTIONS;
 															'value' => [
 																'@attributes' => [
 																	'xsi:type' => 'CD',
-																	'code' => '413322009'
+                                                                    'code' => '413322009',
+                                                                    'codeSystem' => '2.16.840.1.113883.3.88.12.80.68',
+                                                                    'codeSystemName' => 'SNOMEDCT',
+                                                                    'displayName' => 'Resolved'
 																]
 															]
 														]

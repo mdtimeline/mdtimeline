@@ -17,5 +17,5 @@ contrib/icd10/*
 /modules/erx
 /modules/phrmessenger
 /modules/reportcenter/reports/AutomatedMeasureCalculation
-/modules/billing/
-/modules/dental/
+/modules/billing/*
+/modules/dental/*

@@ -29,8 +29,7 @@ if(!isset($_SESSION)){
 }
 
 $site = isset($_SESSION['user']['site']) ? $_SESSION['user']['site'] : 'default';
-if(!defined('_GaiaEXEC'))
-    define('_GaiaEXEC', 1);
+if(!defined('_GaiaEXEC')) define('_GaiaEXEC', 1);
 require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
 
 include_once(ROOT . '/classes/UUID.php');
@@ -2443,8 +2442,7 @@ INTRUCTIONS;
 					];
 				}
 
-				// immunization education\
-
+				// immunization education
 				if(isset($item['education_date']) && $item['education_date'] != '0000-00-00'){
 
 					$entry['substanceAdministration']['entryRelationship'] = [
@@ -4108,58 +4106,52 @@ INTRUCTIONS;
                     ]
                 ];
 
-
-				if(isset($item['status'])){
-
-					$entry['act']['entryRelationship']['observation']['entryRelationship'] = [
-						'@attributes' => [
-							'typeCode' => 'REFR'
-						],
-						'observation' => [
-							'@attributes' => [
-								'classCode' => 'OBS',
-								'moodCode' => 'EVN'
-							],
-							'templateId' => [
-								'@attributes' => [
-									'root' => '2.16.840.1.113883.10.20.22.4.6'
-								]
-							],
-							'code' => [
-								'@attributes' => [
-									'code' => '33999-4',
-									'displayName' => 'Status',
-									'codeSystemName' => 'LOINC',
-									'codeSystem' => '2.16.840.1.113883.6.1'
-								]
-							],
-							'statusCode' => [
-								'@attributes' => [
-									'code' => 'completed'
-								]
-							],
-
-							// 55561003     SNOMEDCT    Active
-							// 73425007     SNOMEDCT    Inactive
-							// 413322009    SNOMEDCT    Resolved
-							'value' => [
-								'@attributes' => [
-									'xsi:type' => 'CD',
-									'code' => $item['status'],
-									'displayName' => $item['status_code'],
-									'codeSystemName' => $item['status_code_type'],
-									'codeSystem' => $this->codes($item['status_code_type'])
-								]
-							]
-						]
-					];
-
-				}
-
+//				if(isset($item['status'])){
+//					$entry['act']['entryRelationship']['observation']['entryRelationship'] = [
+//						'@attributes' => [
+//							'typeCode' => 'REFR'
+//						],
+//						'observation' => [
+//							'@attributes' => [
+//								'classCode' => 'OBS',
+//								'moodCode' => 'EVN'
+//							],
+//							'templateId' => [
+//								'@attributes' => [
+//									'root' => '2.16.840.1.113883.10.20.22.4.6'
+//								]
+//							],
+//							'code' => [
+//								'@attributes' => [
+//									'code' => '33999-4',
+//									'displayName' => 'Status',
+//									'codeSystemName' => 'LOINC',
+//									'codeSystem' => '2.16.840.1.113883.6.1'
+//								]
+//							],
+//							'statusCode' => [
+//								'@attributes' => [
+//									'code' => 'completed'
+//								]
+//							],
+//							// 55561003     SNOMEDCT    Active
+//							// 73425007     SNOMEDCT    Inactive
+//							// 413322009    SNOMEDCT    Resolved
+//							'value' => [
+//								'@attributes' => [
+//									'xsi:type' => 'CD',
+//									'code' => $item['status_code'],
+//									'displayName' => $item['status'],
+//									'codeSystemName' => 'SNOMEDCT',
+//									'codeSystem' => '2.16.840.1.113883.3.88.12.80.68'
+//								]
+//							]
+//						]
+//					];
+//				}
 				$problems['entry'][] = $entry;
 				unset($entry);
 			}
-
 		}
 
 		if($this->requiredProblems || !empty($problems['entry'])){
@@ -4362,7 +4354,7 @@ INTRUCTIONS;
 				} else {
 					$entry['act']['entryRelationship']['observation']['effectiveTime']['low'] = [
 						'@attributes' => [
-							'nullFLavor' => 'UNK'
+							'nullFlavor' => 'UNK'
 						]
 					];
 				}
@@ -5748,7 +5740,10 @@ INTRUCTIONS;
 															'value' => [
 																'@attributes' => [
 																	'xsi:type' => 'CD',
-																	'code' => '413322009'
+                                                                    'code' => '413322009',
+                                                                    'codeSystem' => '2.16.840.1.113883.3.88.12.80.68',
+                                                                    'codeSystemName' => 'SNOMEDCT',
+                                                                    'displayName' => 'Resolved'
 																]
 															]
 														]

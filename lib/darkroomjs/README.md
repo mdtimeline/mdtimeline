@@ -1,5 +1,8 @@
 # DarkroomJS
 
+![Bower](https://img.shields.io/bower/v/darkroom.svg)
+![License MIT](http://img.shields.io/badge/license-MIT-blue.svg)
+
 DarkroomJS is a JavaScript library which provides basic image editing tools in
 your browser, such as **rotation** or **cropping**. It is based on the awesome
 [FabricJS](http://fabricjs.com/) library to handle images in HTML5 canvas.
@@ -8,23 +11,11 @@ your browser, such as **rotation** or **cropping**. It is based on the awesome
 
 Try the online demo at [http://mattketmo.github.io/darkroomjs](http://mattketmo.github.io/darkroomjs/)
 
-The library is currently *work in progress*.
-I know there is some bug especially when resizing the crop zone.
-Feel free to fork the project or report issues on GitHub.
-All ideas are also welcome.
-
 ## Building
 
-- Install [Node](http://nodejs.org/)
-- Install [Grunt](http://gruntjs.com/)
-- The webfont is auto generated from SVG icons.
-  This uses the [grunt-webfont](https://github.com/sapegin/grunt-webfont) task which
-  requires `fontforge` and `ttfautohint`. See [the readme](https://github.com/sapegin/grunt-webfont#installation)
-  for more details.
-- Run `npm install`
-- Run `grunt build`
-
-Every assets will be generated into the `build/` directory.
+- Install [Node](http://nodejs.org/) & `npm`.
+- Run `npm install` to build dependencies.
+- Run `npm start` to build the assets and start the demo webserver.
 
 ## Usage
 
@@ -56,6 +47,15 @@ new Darkroom('#target', {
     },
     save: false // disable plugin
   },
+
+  // Post initialization method
+  initialize: function() {
+    // Active crop selection
+    this.plugins['crop'].requireFocus();
+
+    // Add custom listener
+    this.addEventListener('core:transformation', function() { /* ... */ });
+  }
 });
 ```
 
@@ -74,6 +74,26 @@ All the features are then implemented in separate plugins.
 
 Each plugin is responsible for creating its own functionality.
 Buttons can easily be added to the toolbar and binded with those features.
+
+## Contributing
+
+Run `npm develop` to build and watch the files while developing.
+
+## FAQ
+
+How can I access the edited image?
+
+In order to get the edited image data, you must ask the canvas for it. By doing so inside the callback of your choice (in this case save), you can assign the edited image data to wherever you please. 
+
+```javascript
+save: {
+      callback: function() {
+          this.darkroom.selfDestroy(); // Cleanup
+          var newImage = dkrm.canvas.toDataURL();
+          fileStorageLocation = newImage;
+      }
+  }
+```
 
 ## License
 

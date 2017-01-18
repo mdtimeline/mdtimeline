@@ -41,7 +41,7 @@ header("Access-Control-Allow-Origin: *");
 		<link rel="stylesheet" type="text/css" href="resources/css/dashboard.css">
 
         <link rel="stylesheet" type="text/css" href="resources/report/reportStyle.css">
-		<link rel="stylesheet" type="text/css" href="lib/darkroomjs/build/css/darkroom.min.css">
+		<link rel="stylesheet" type="text/css" href="lib/darkroomjs/build/darkroom.css">
 		<link rel="shortcut icon" href="favicon.ico">
 	</head>
 	<body>
@@ -61,8 +61,8 @@ header("Access-Control-Allow-Origin: *");
 		<script src="JSrouter.php?site=<?php print SITE ?>" charset="utf-8"></script>
 		<script src="data/api.php?site=<?php print SITE ?>" charset="utf-8"></script>
 		<script type="text/javascript" src="lib/ZeroClipboard/ZeroClipboard.js" charset="utf-8"></script>
-		<script type="text/javascript" src="lib/darkroomjs/vendor/fabric.js" charset="utf-8"></script>
-		<script type="text/javascript" src="lib/darkroomjs/build/js/darkroom.min.js" charset="utf-8"></script>
+		<script type="text/javascript" src="lib/darkroomjs/demo/vendor/fabric.js" charset="utf-8"></script>
+		<script type="text/javascript" src="lib/darkroomjs/build/darkroom.js" charset="utf-8"></script>
 
         <script type="text/javascript">
 

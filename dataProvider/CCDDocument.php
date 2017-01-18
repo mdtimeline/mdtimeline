@@ -4850,7 +4850,6 @@ INTRUCTIONS;
                         ]
                     ];
                 }
-
                 $entry['observation']['value'] = [
                     '@attributes' => [
                         'xsi:type' => 'ST'

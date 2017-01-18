@@ -224,14 +224,14 @@ if (
 			<html>
 				<head>
 				    <meta charset="UTF-8">
-				    <link rel="stylesheet" href="../lib/darkroomjs/build/css/darkroom.min.css">
+				    <link rel="stylesheet" href="../lib/darkroomjs/build/darkroom.css">
 				</head>
 				<body style="overflow: hidden">
 			        <div class="image-container target">
 				        <img style="width:100%;" alt="" id="target" crossOrigin="anonymous" src="data:{$mineType};base64,{$document}">
 			        </div>
-					<script src="../lib/darkroomjs/vendor/fabric.js" ></script>
-					<script src="../lib/darkroomjs/build/js/darkroom.min.js" ></script>
+					<script src="../lib/darkroomjs/demo/vendor/fabric.js" ></script>
+					<script src="../lib/darkroomjs/build/darkroom.js" ></script>
 					<script>
 					    var dkrm = new Darkroom('#target', {
 					        plugins: {

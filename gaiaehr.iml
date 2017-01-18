@@ -7,7 +7,10 @@
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
-    <content url="file://$MODULE_DIR$" />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/modules/billing" />
+      <excludeFolder url="file://$MODULE_DIR$/modules/dental" />
+    </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="ExtJS GPL-4.2" level="application" />
     <orderEntry type="module-library">

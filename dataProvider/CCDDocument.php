@@ -683,7 +683,7 @@ INTRUCTIONS;
 		];
 
 		$this->patientData = $this->Patient->getPatientDemographicDataByPid($this->pid);
-		$this->user = $this->User->getUserByUid($this->patientData['primary_provider']);
+		$this->user = $this->User->getUserByUid($_SESSION['user']['id']);
 		$this->primaryProvider = $this->User->getUserByUid($this->patientData['primary_provider']);
 
 		$this->xmlData['recordTarget'] = $this->getRecordTarget();
@@ -810,25 +810,6 @@ INTRUCTIONS;
 				]
 			];
 		}
-
-//		if(isset($patientData['religion']) && $patientData['religion'] != ''){
-//			$recordTarget['patientRole']['patient']['religiousAffiliationCode'] = [
-//				'@attributes' => [
-//					'code' => $patientData['religion'],
-//					'codeSystemName' => 'HL7 v3 Code System ReligiousAffiliation',
-//					'displayName' => $this->CombosData->getDisplayValueByListIdAndOptionValue(00000, $patientData['religion']),
-//					'codeSystem' => '2.16.840.1.113883.5.1076'
-//				]
-//			];
-//		} else {
-//			$recordTarget['patientRole']['patient']['religiousAffiliationCode'] = [
-//				'@attributes' => [
-//					'nullFlavor' => 'NA',
-//					'codeSystemName' => 'HL7 v3 Code System ReligiousAffiliation',
-//					'codeSystem' => '2.16.840.1.113883.5.1076'
-//				]
-//			];
-//		}
 
 		// Patient Race
 		if(isset($patientData['race']) && $patientData['race'] != ''){
@@ -1015,16 +996,16 @@ INTRUCTIONS;
             'WP'
         );
 
-		$author['assignedAuthor']['assignedPerson'] = [
-			'@attributes' => [
-				'classCode' => 'PSN',
-				'determinerCode' => 'INSTANCE'
-			],
-			'name' => [
-				'given' => $this->user['fname'],
-				'family' => $this->user['lname']
-			]
-		];
+        $author['assignedAuthor']['assignedPerson'] = [
+            '@attributes' => [
+                'classCode' => 'PSN',
+                'determinerCode' => 'INSTANCE'
+            ],
+            'name' => [
+                'given' => $this->user['fname'],
+                'family' => $this->user['lname']
+            ]
+        ];
 
 		$author['assignedAuthor']['representedOrganization'] = [
 			'id' => [
@@ -1171,12 +1152,12 @@ INTRUCTIONS;
         );
 
 		$authenticator['assignedEntity']['telecom'] = $this->telecomBuilder($this->facility['phone'], 'WP');
-		$authenticator['assignedEntity']['assignedPerson'] = [
-			'name' => [
-				'given' => $this->user['fname'],
-				'family' => $this->user['lname']
-			]
-		];
+        $authenticator['assignedEntity']['assignedPerson'] = [
+            'name' => [
+                'given' => $this->user['fname'],
+                'family' => $this->user['lname']
+            ]
+        ];
 
 		return $authenticator;
 	}
@@ -1259,13 +1240,13 @@ INTRUCTIONS;
             'WP'
         );
 
-		$documentationOf['serviceEvent']['performer']['assignedEntity']['assignedPerson'] = [
-			'name' => [
-				'prefix' => $this->user['title'],
-				'given' => $this->user['fname'],
-				'family' => $this->user['lname']
-			]
-		];
+        $documentationOf['serviceEvent']['performer']['assignedEntity']['assignedPerson'] = [
+            'name' => [
+                'prefix' => $this->user['title'],
+                'given' => $this->user['fname'],
+                'family' => $this->user['lname']
+            ]
+        ];
 
 		$documentationOf['serviceEvent']['performer']['assignedEntity']['representedOrganization'] = [
 			'id' => [
@@ -4246,7 +4227,7 @@ INTRUCTIONS;
 							'@value' => isset($item['severity']) ? $item['severity'] : ''
 						],
 						[
-							'@value' => 'Status Data'
+							'@value' => isset($item['status']) ? $item['status'] : ''
 						]
 					]
 				];
@@ -4928,101 +4909,9 @@ INTRUCTIONS;
 			];
 
 			$socialHistory['entry'][] = $entry;
-
 			unset($entry);
-
 		}
 		unset($socialHistories);
-
-		//		/***************************************************************************************************************
-		//		 * Pregnancy Observation - This clinical statement represents current and/or
-		//		 * prior pregnancy dates enabling investigators to determine if the subject
-		//		 * of the case report* was pregnant during the course of a condition.
-		//		 */
-		//		$socialHistory['text']['table']['tbody']['tr'][] = array(
-		//			'td' => array(
-		//				array(
-		//					'@value' => 'Social History Element Data'
-		//				),
-		//				array(
-		//					'@value' => 'ReactiDescriptionon Data'
-		//				),
-		//				array(
-		//					'@value' => 'Effective Data'
-		//				)
-		//			)
-		//		);
-		//		$socialHistory['entry'][] = array(
-		//			'@attributes' => array(
-		//				'typeCode' => 'DRIV'
-		//			),
-		//			'observation' => array(
-		//				'@attributes' => array(
-		//					'classCode' => 'OBS',
-		//					'moodCode' => 'EVN'
-		//				),
-		//				'templateId' => array(
-		//					'@attributes' => array(
-		//						'root' => '2.16.840.1.113883.10.20.15.3.8'
-		//					)
-		//				),
-		//				'code' => array(
-		//					'@attributes' => array(
-		//						'code' => 'ASSERTION',
-		//						'codeSystem' => '2.16.840.1.113883.5.4'
-		//					)
-		//				),
-		//				'statusCode' => array(
-		//					'@attributes' => array(
-		//						'code' => 'completed',
-		//					)
-		//				),
-		//				'value' => array(
-		//					'@attributes' => array(
-		//						'xsi:type' => 'CD',
-		//						'code' => '77386006',
-		//						'codeSystem' => '2.16.840.1.113883.6.96'
-		//					)
-		//				),
-		//				'entryRelationship' => array(
-		//					'@attributes' => array(
-		//						'typeCode' => 'REFR'
-		//					),
-		//					'observation' => array(
-		//						'@attributes' => array(
-		//							'classCode' => 'OBS',
-		//							'moodCode' => 'EVN'
-		//						),
-		//						'templateId' => array(
-		//							'@attributes' => array(
-		//								'root' => '2.16.840.1.113883.10.20.15.3.1'
-		//							)
-		//						),
-		//						'code' => array(
-		//							'@attributes' => array(
-		//								'code' => '11778-8',
-		//		                        'codeSystemName' => 'LOINC',
-		//								'codeSystem' => '2.16.840.1.113883.6.1'
-		//							)
-		//						),
-		//						'statusCode' => array(
-		//							'@attributes' => array(
-		//								'code' => 'completed'
-		//							)
-		//						),
-		//						/**
-		//						 * Estimated Date Of Delivery
-		//						 */
-		//						'value' => array(
-		//							'@attributes' => array(
-		//								'xsi:type' => 'TS',
-		//								'value' => '20150123' // TODO
-		//							)
-		//						)
-		//					)
-		//				)
-		//			)
-		//		);
 
 		if(isset($socialHistory)){
 			$this->addSection(['section' => $socialHistory]);

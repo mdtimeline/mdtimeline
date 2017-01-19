@@ -415,9 +415,7 @@ class CCDDocumentParse {
 
 		$section = $this->document['ClinicalDocument']['component']['structuredBody']['component'][$this->index['medications']]['section'];
 
-		if(!isset($section['entry'])){
-			return $medications;
-		}
+		if(!isset($section['entry'])) return $medications;
 
 		if($this->isAssoc($section['entry']))
 			$section['entry'] = [$section['entry']];
@@ -497,22 +495,6 @@ class CCDDocumentParse {
 			$problem->end_date = $dates['high'];
 			unset($dates);
 
-			foreach($entry['act']['entryRelationship']['observation']['entryRelationship'] as $obs){
-				// status template
-
-				if(!isset($obs['observation']))
-					continue;
-				if(!isset($obs['observation']['templateId']))
-					continue;
-
-				if($obs['observation']['templateId']['@attributes']['root'] == '2.16.840.1.113883.10.20.22.4.6'){
-					$code = $this->codeHandler($obs['observation']['value']['@attributes']);
-					$problem->status = $code['code_text'];
-					$problem->status_code = $code['code'];
-					$problem->status_code_type = $code['code_type'];
-				}
-
-			}
 			$problems[] = $problem;
 		}
 

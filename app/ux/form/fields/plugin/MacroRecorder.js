@@ -32,10 +32,9 @@ Ext.define('App.ux.form.fields.plugin.MacroRecorder', {
 			char = String.fromCharCode(e.getKey()),
 			value = [];
 
-		if(key == 91){
+		if(key == 91 || key == 224) {
 			this.metaKey = true;
 		}
-
 		if(key == 8){
 			field.setValue('');
 			return;

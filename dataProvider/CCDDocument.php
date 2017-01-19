@@ -4086,50 +4086,6 @@ INTRUCTIONS;
                         'codeSystem' => $this->codes($item['code_type'])
                     ]
                 ];
-
-//				if(isset($item['status'])){
-//					$entry['act']['entryRelationship']['observation']['entryRelationship'] = [
-//						'@attributes' => [
-//							'typeCode' => 'REFR'
-//						],
-//						'observation' => [
-//							'@attributes' => [
-//								'classCode' => 'OBS',
-//								'moodCode' => 'EVN'
-//							],
-//							'templateId' => [
-//								'@attributes' => [
-//									'root' => '2.16.840.1.113883.10.20.22.4.6'
-//								]
-//							],
-//							'code' => [
-//								'@attributes' => [
-//									'code' => '33999-4',
-//									'displayName' => 'Status',
-//									'codeSystemName' => 'LOINC',
-//									'codeSystem' => '2.16.840.1.113883.6.1'
-//								]
-//							],
-//							'statusCode' => [
-//								'@attributes' => [
-//									'code' => 'completed'
-//								]
-//							],
-//							// 55561003     SNOMEDCT    Active
-//							// 73425007     SNOMEDCT    Inactive
-//							// 413322009    SNOMEDCT    Resolved
-//							'value' => [
-//								'@attributes' => [
-//									'xsi:type' => 'CD',
-//									'code' => $item['status_code'],
-//									'displayName' => $item['status'],
-//									'codeSystemName' => 'SNOMEDCT',
-//									'codeSystem' => '2.16.840.1.113883.3.88.12.80.68'
-//								]
-//							]
-//						]
-//					];
-//				}
 				$problems['entry'][] = $entry;
 				unset($entry);
 			}
@@ -4719,198 +4675,197 @@ INTRUCTIONS;
 				    ]
 			    ]
 			];
-		}
 
-		if(count($smokingStatus) > 0){
-			$smokingStatus = end($smokingStatus);
+            $smokingStatus = end($smokingStatus);
+            $socialHistory['text']['table']['tbody']['tr'][] = [
+                'td' => [
+                    [
+                        '@value' => 'Smoking Status'
+                    ],
+                    [
+                        '@value' => $smokingStatus['status']
+                    ],
+                    [
+                        '@value' => isset($smokingStatus['create_date']) ? date('F j, Y', strtotime($smokingStatus['create_date'])) : ''
+                    ]
+                ]
+            ];
 
-			$socialHistory['text']['table']['tbody']['tr'][] = [
-				'td' => [
-					[
-						'@value' => 'Smoking Status'
-					],
-					[
-						'@value' => $smokingStatus['status']
-					],
-					[
-						'@value' => isset($smokingStatus['create_date']) ? date('F j, Y', strtotime($smokingStatus['create_date'])) : ''
-					]
-				]
-			];
+            $socialHistory['entry'][] = [
+                '@attributes' => [
+                    'typeCode' => 'DRIV'
+                ],
+                'observation' => [
+                    '@attributes' => [
+                        'classCode' => 'OBS',
+                        'moodCode' => 'EVN'
+                    ],
+                    'templateId' => [
+                        [
+                            '@attributes' => [
+                                'root' => '2.16.840.1.113883.10.20.22.4.78'
+                            ]
+                        ],
+                        [
+                            '@attributes' => [
+                                'root' => '2.16.840.1.113883.10.20.22.4.85'
+                            ]
+                        ],
+                        [
+                            '@attributes' => [
+                                'root' => '2.16.840.1.113883.10.20.22.4.38.2'
+                            ]
+                        ]
+                    ],
+                    'code' => [
+                        '@attributes' => [
+                            'code' => 'ASSERTION',
+                            'codeSystemName' => 'ActCode',
+                            'codeSystem' => '2.16.840.1.113883.5.4'
+                        ]
+                    ],
+                    'statusCode' => [
+                        '@attributes' => [
+                            'code' => 'completed'
+                        ]
+                    ],
+                    'effectiveTime' => [
+                        '@attributes' => [
+                            'value' => $this->parseDate($smokingStatus['create_date'])
+                        ]
+                    ],
 
-			$socialHistory['entry'][] = [
-				'@attributes' => [
-					'typeCode' => 'DRIV'
-				],
-				'observation' => [
-					'@attributes' => [
-						'classCode' => 'OBS',
-						'moodCode' => 'EVN'
-					],
-					'templateId' => [
-						[
-							'@attributes' => [
-								'root' => '2.16.840.1.113883.10.20.22.4.78'
-							]
-						],
-						[
-							'@attributes' => [
-								'root' => '2.16.840.1.113883.10.20.22.4.85'
-							]
-						],
-						[
-							'@attributes' => [
-								'root' => '2.16.840.1.113883.10.20.22.4.38.2'
-							]
-						]
-					],
-					'code' => [
-						'@attributes' => [
-							'code' => 'ASSERTION',
-							'codeSystemName' => 'ActCode',
-							'codeSystem' => '2.16.840.1.113883.5.4'
-						]
-					],
-					'statusCode' => [
-						'@attributes' => [
-							'code' => 'completed'
-						]
-					],
-					'effectiveTime' => [
-						'@attributes' => [
-							'value' => $this->parseDate($smokingStatus['create_date'])
-						]
-					],
+                    // Code             System      Print Name
+                    // 449868002        SNOMEDCT    Current every day smoker
+                    // 428041000124106  SNOMEDCT    Current some day smoker
+                    // 8517006          SNOMEDCT    Former smoker
+                    // 266919005        SNOMEDCT    Never smoker (Never Smoked)
+                    // 77176002         SNOMEDCT    Smoker, current status unknown
+                    // 266927001        SNOMEDCT    Unknown if ever smoked
+                    'value' => [
+                        '@attributes' => [
+                            'xsi:type' => 'CD',
+                            'code' => $smokingStatus['status_code'],
+                            'displayName' => $smokingStatus['status'],
+                            'codeSystemName' => $smokingStatus['status_code_type'],
+                            'codeSystem' => $this->codes($smokingStatus['status_code_type'])
+                        ]
+                    ]
+                ]
+            ];
 
-					 // Code             System      Print Name
-					 // 449868002        SNOMEDCT    Current every day smoker
-					 // 428041000124106  SNOMEDCT    Current some day smoker
-					 // 8517006          SNOMEDCT    Former smoker
-					 // 266919005        SNOMEDCT    Never smoker (Never Smoked)
-					 // 77176002         SNOMEDCT    Smoker, current status unknown
-					 // 266927001        SNOMEDCT    Unknown if ever smoked
-					'value' => [
-						'@attributes' => [
-							'xsi:type' => 'CD',
-							'code' => $smokingStatus['status_code'],
-							'displayName' => $smokingStatus['status'],
-							'codeSystemName' => $smokingStatus['status_code_type'],
-							'codeSystem' => $this->codes($smokingStatus['status_code_type'])
-						]
-					]
-				]
-			];
-		}
+            /**
+             * This Social History Observation defines the patient's occupational, personal (e.g., lifestyle),
+             * social, and environmental history and health risk factors, as well as administrative data such
+             * as marital status, race, ethnicity, and religious affiliation.
+             */
+            foreach($socialHistories As $socialHistoryEntry){
+
+                $dateText = $this->parseDate($socialHistoryEntry['start_date']) . ' - ';
+                if($socialHistoryEntry['end_date'] != '0000-00-00 00:00:00')
+                    $dateText .= $this->parseDate($socialHistoryEntry['end_date']);
+
+                $socialHistory['text']['table']['tbody']['tr'][] = [
+                    'td' => [
+                        [
+                            '@value' => isset($socialHistoryEntry['category_code_text']) ? $socialHistoryEntry['category_code_text'] : ''
+                        ],
+                        [
+                            '@value' => isset($socialHistoryEntry['observation']) ? $socialHistoryEntry['observation'] : ''
+                        ],
+                        [
+                            '@value' => $dateText
+                        ]
+                    ]
+                ];
+
+                $entry = [
+                    '@attributes' => [
+                        'typeCode' => 'DRIV'
+                    ],
+                    'observation' => [
+                        '@attributes' => [
+                            'classCode' => 'OBS',
+                            'moodCode' => 'EVN'
+                        ],
+                        'templateId' => [
+                            '@attributes' => [
+                                'root' => '2.16.840.1.113883.10.20.22.4.38'
+                            ]
+                        ],
+                        'id' => [
+                            '@attributes' => [
+                                'root' => UUID::v4()
+                            ]
+                        ],
+
+                        // Code            System    Print Name
+                        // 229819007    SNOMEDCT    Tobacco use and exposure
+                        // 256235009    SNOMEDCT    Exercise
+                        // 160573003    SNOMEDCT    Alcohol intake
+                        // 364393001    SNOMEDCT    Nutritional observable
+                        // 364703007    SNOMEDCT    Employment detail
+                        // 425400000    SNOMEDCT    Toxic exposure status
+                        // 363908000    SNOMEDCT    Details of drug misuse behavior
+                        // 228272008    SNOMEDCT    Health-related behavior
+                        // 105421008    SNOMEDCT    Educational Achievement
+                        'code' => [
+                            '@attributes' => [
+                                'code' => $socialHistoryEntry['category_code'],
+                                'codeSystem' => $this->codes($socialHistoryEntry['category_code_type']),
+                                'codeSystemName' => $socialHistoryEntry['category_code_text'],
+                                'displayName' => $socialHistoryEntry['category_code_text']
+                            ]
+                        ],
+                        'statusCode' => [
+                            '@attributes' => [
+                                'code' => 'completed'
+                            ]
+                        ]
+                    ]
+                ];
+
+                $entry['observation']['effectiveTime'] = [
+                    '@attributes' => [
+                        'xsi:type' => 'IVL_TS'
+                    ]
+                ];
+
+                $entry['observation']['effectiveTime']['low'] = [
+                    '@attributes' => [
+                        'value' => $this->parseDate($socialHistoryEntry['start_date'])
+                    ]
+                ];
+
+                if($socialHistoryEntry['end_date'] != '0000-00-00 00:00:00'){
+                    $entry['observation']['effectiveTime']['high'] = [
+                        '@attributes' => [
+                            'value' => $this->parseDate($socialHistoryEntry['end_date'])
+                        ]
+                    ];
+                } else {
+                    $entry['observation']['effectiveTime']['high'] = [
+                        '@attributes' => [
+                            'nullFlavor' => 'NI'
+                        ]
+                    ];
+                }
+                $entry['observation']['value'] = [
+                    '@attributes' => [
+                        'xsi:type' => 'ST'
+                    ],
+                    '@value' => $socialHistoryEntry['observation']
+                ];
+
+                $socialHistory['entry'][] = $entry;
+                unset($entry);
+            }
+		} else {
+            $socialHistory['@attributes'] = [
+                'nullFlavor' => 'NI'
+            ];
+        }
 		unset($smokingStatus);
-
-		/**
-		 * This Social History Observation defines the patient's occupational, personal (e.g., lifestyle),
-		 * social, and environmental history and health risk factors, as well as administrative data such
-		 * as marital status, race, ethnicity, and religious affiliation.
-		 */
-
-		foreach($socialHistories As $socialHistoryEntry){
-
-			$dateText = $this->parseDate($socialHistoryEntry['start_date']) . ' - ';
-			if($socialHistoryEntry['end_date'] != '0000-00-00 00:00:00')
-				$dateText .= $this->parseDate($socialHistoryEntry['end_date']);
-
-			$socialHistory['text']['table']['tbody']['tr'][] = [
-				'td' => [
-					[
-						'@value' => isset($socialHistoryEntry['category_code_text']) ? $socialHistoryEntry['category_code_text'] : ''
-					],
-					[
-						'@value' => isset($socialHistoryEntry['observation']) ? $socialHistoryEntry['observation'] : ''
-					],
-					[
-						'@value' => $dateText
-					]
-				]
-			];
-
-			$entry = [
-				'@attributes' => [
-					'typeCode' => 'DRIV'
-				],
-				'observation' => [
-					'@attributes' => [
-						'classCode' => 'OBS',
-						'moodCode' => 'EVN'
-					],
-					'templateId' => [
-						'@attributes' => [
-							'root' => '2.16.840.1.113883.10.20.22.4.38'
-						]
-					],
-					'id' => [
-						'@attributes' => [
-							'root' => UUID::v4()
-						]
-					],
-
-					 // Code            System    Print Name
-					 // 229819007    SNOMEDCT    Tobacco use and exposure
-					 // 256235009    SNOMEDCT    Exercise
-					 // 160573003    SNOMEDCT    Alcohol intake
-					 // 364393001    SNOMEDCT    Nutritional observable
-					 // 364703007    SNOMEDCT    Employment detail
-					 // 425400000    SNOMEDCT    Toxic exposure status
-					 // 363908000    SNOMEDCT    Details of drug misuse behavior
-					 // 228272008    SNOMEDCT    Health-related behavior
-					 // 105421008    SNOMEDCT    Educational Achievement
-					'code' => [
-						'@attributes' => [
-							'code' => $socialHistoryEntry['category_code'],
-							'codeSystem' => $this->codes($socialHistoryEntry['category_code_type']),
-							'codeSystemName' => $socialHistoryEntry['category_code_text'],
-							'displayName' => $socialHistoryEntry['category_code_text']
-						]
-					],
-					'statusCode' => [
-						'@attributes' => [
-							'code' => 'completed'
-						]
-					]
-				]
-			];
-
-			$entry['observation']['effectiveTime'] = [
-				'@attributes' => [
-					'xsi:type' => 'IVL_TS'
-				]
-			];
-
-			$entry['observation']['effectiveTime']['low'] = [
-				'@attributes' => [
-					'value' => $this->parseDate($socialHistoryEntry['start_date'])
-				]
-			];
-
-			if($socialHistoryEntry['end_date'] != '0000-00-00 00:00:00'){
-				$entry['observation']['effectiveTime']['high'] = [
-					'@attributes' => [
-						'value' => $this->parseDate($socialHistoryEntry['end_date'])
-					]
-				];
-			} else {
-				$entry['observation']['effectiveTime']['high'] = [
-					'@attributes' => [
-						'nullFlavor' => 'NI'
-					]
-				];
-			}
-
-			$entry['observation']['value'] = [
-				'@attributes' => [
-					'xsi:type' => 'ST'
-				],
-				'@value' => $socialHistoryEntry['observation']
-			];
-
-			$socialHistory['entry'][] = $entry;
-			unset($entry);
-		}
 		unset($socialHistories);
 
 		if(isset($socialHistory)){

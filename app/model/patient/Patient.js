@@ -134,12 +134,6 @@ Ext.define('App.model.patient.Patient',{
             store: false
         },
         {
-            name: 'provider',
-            type: 'string',
-            comment: 'default provider',
-            len: 40
-        },
-        {
             name: 'pharmacy',
             type: 'string',
             comment: 'default pharmacy',
@@ -230,42 +224,6 @@ Ext.define('App.model.patient.Patient',{
             type: 'string',
             comment: 'patient occupation',
             len: 40
-        },
-        {
-            name: 'employer_name',
-            type: 'string',
-            comment: 'employer name',
-            len: 40
-        },
-        {
-            name: 'employer_address',
-            type: 'string',
-            comment: 'employer address',
-            len: 40
-        },
-        {
-            name: 'employer_city',
-            type: 'string',
-            comment: 'employer city',
-            len: 40
-        },
-        {
-            name: 'employer_state',
-            type: 'string',
-            comment: 'employer state',
-            len: 40
-        },
-        {
-            name: 'employer_country',
-            type: 'string',
-            comment: 'employer country',
-            len: 40
-        },
-        {
-            name: 'employer_postal_code',
-            type: 'string',
-            comment: 'employer postal code',
-            len: 10
         },
         {
             name: 'rating',

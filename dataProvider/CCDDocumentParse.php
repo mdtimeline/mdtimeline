@@ -445,18 +445,6 @@ class CCDDocumentParse {
 				unset($code);
 			}
 
-			//			if(isset($entry['substanceAdministration']['doseQuantity']['@attributes']['value'])){
-			//				$medication->dose = $entry['substanceAdministration']['doseQuantity']['@attributes']['value'];
-			//			}
-			//
-			//			if(isset($entry['substanceAdministration']['rateQuantity']['@attributes']['value'])){
-			//				$medication->dispense = '';
-			//			}
-			//			$medication->form = '';
-			//			$medication->route = '';
-			//			$medication->dispense = '';
-			//			$medication->refill = '';
-			//			$medication->directions = '';
 			$medications[] = $medication;
 		}
 
@@ -1018,11 +1006,5 @@ class CCDDocumentParse {
 		return ['ccd' => $this->getDocument()];
 	}
 }
-
-//print '<pre>';
-//$xml = file_get_contents('ccd3.xml');
-//$x = new CCDDocumentParse($xml);
-////$x->getAdvanceDirectives();
-//print_r($x->getDocument());
 
 

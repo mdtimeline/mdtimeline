@@ -236,175 +236,76 @@ function setDocument($xml) {
         return $author;
     }
 
-function getEncounter() {
-    $encounter = new stdClass();
+    /**
+     * getEncounter
+     * Get the encounters from the CCR Document
+     * @return stdClass
+     */
+    function getEncounter() {
+        $encounter = new stdClass();
 
-    if(!isset($this->document['ClinicalDocument']['componentOf'])){
         return $encounter;
     }
 
-    $dom = $this->document['ClinicalDocument']['componentOf'];
-    if(isset($dom['encompassingEncounter'])){
-        $encounter->rid = $dom['encompassingEncounter']['id']['@attributes']['extension'];
-        $times = $this->datesHandler($dom['encompassingEncounter']['effectiveTime']);
-        $encounter->service_date = $times['low'];
-        unset($times);
-    }
+    /**
+     * getAllergies
+     * Get the allergies from the CCR Document
+     * @return array
+     */
+    function getAllergies() {
+        $allergies = [];
 
-    if(isset($this->index['chiefcomplaint'])){
-        $cc = $this->document['ClinicalDocument']['component']['structuredBody']['component'][$this->index['chiefcomplaint']]['section'];
-        $encounter->brief_description = $cc['text']['paragraph']['@value'];
-    }
-
-    if(isset($this->index['assessments'])){
-        $assessments = $this->document['ClinicalDocument']['component']['structuredBody']['component'][$this->index['assessments']]['section'];
-        if($this->isAssoc($assessments['entry']))
-            $section['entry'] = [$assessments['entry']];
-
-        $encounter->assessments = [];
-
-        foreach($assessments['entry'] as $i => $entry){
-            if(isset($entry['act'])){
-                $assessment = new stdClass();
-                $assessment->text = $assessments['text']['paragraph'][$i]['@value'];
-                $code = $this->codeHandler($entry['act']['code']);
-                $assessment->code = $code['code'];
-                $assessment->code_text = $code['code_text'];
-                $assessment->code_type = $code['code_type'];
-                $encounter->assessments[] = $assessment;
-            }
-        }
-    }
-
-    return $encounter;
-}
-
-/**
- * @return array
- */
-function getAllergies() {
-    $allergies = [];
-
-    if(!isset($this->index['allergies'])){
         return $allergies;
+
     }
 
-    $section = $this->document['ClinicalDocument']
-               ['component']
-               ['structuredBody']
-               ['component']
-               [$this->index['allergies']]
-                ['section'];
+    /**
+     * @return array
+     */
+    function getMedications() {
+        $medications = [];
 
-    if(!isset($section['entry'])){
-        return $allergies;
-    }
-
-    if($this->isAssoc($section['entry']))
-        $section['entry'] = [$section['entry']];
-    foreach($section['entry'] as $entry){
-
-        $allergy = new stdClass();
-
-        // allergy type
-        $code = $this->codeHandler($entry['act']['entryRelationship']['observation']['value']['@attributes']);
-        $allergy->allergy_type = $code['code_text'];
-        $allergy->allergy_type_code = $code['code'];
-        $allergy->allergy_type_code_type = $code['code_type'];
-        unset($code);
-
-        // allergy
-        $code = $this->codeHandler($entry['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['@attributes']);
-        $allergy->allergy = $code['code_text'];
-        $allergy->allergy_code = $code['code'];
-        $allergy->allergy_code_type = $code['code_type'];
-        unset($code);
-
-        //dates
-        if(isset($entry['act']['effectiveTime'])){
-            $dates = $this->datesHandler($entry['act']['effectiveTime'], true);
-            $allergy->begin_date = $dates['low'];
-            $allergy->end_date = $dates['high'];
+        if(!isset($this->index['medications'])){
+            return $medications;
         }
 
-        // reaction, severity, status
-        foreach($entry['act']['entryRelationship']['observation']['entryRelationship'] as $obs){
-            $key = null;
-            switch($obs['observation']['templateId']['@attributes']['root']) {
-                case '2.16.840.1.113883.10.20.22.4.28':
-                    $key = 'status';
-                    break;
-                case '2.16.840.1.113883.10.20.22.4.9':
-                    $key = 'reaction';
-                    break;
-                case '2.16.840.1.113883.10.20.22.4.8':
-                    $key = 'severity';
-                    break;
+        $section = $this->document['ClinicalDocument']['component']['structuredBody']['component'][$this->index['medications']]['section'];
+
+        if(!isset($section['entry'])) return $medications;
+
+        if($this->isAssoc($section['entry']))
+            $section['entry'] = [$section['entry']];
+        foreach($section['entry'] as $entry){
+
+            $medication = new stdClass();
+
+            if(!$this->isAssoc($entry['substanceAdministration']['effectiveTime'])){
+                foreach($entry['substanceAdministration']['effectiveTime'] as $date){
+                    if(!isset($date['low']))
+                        continue;
+                    $dates = $this->datesHandler($date, true);
+                }
+            } else {
+                $dates = $this->datesHandler($entry['substanceAdministration']['effectiveTime'], true);
             }
 
-            if(isset($key)){
-                $code = $this->codeHandler($obs['observation']['value']['@attributes']);
-                $allergy->{$key} = $code['code_text'];
-                $allergy->{$key . '_code'} = $code['code'];
-                $allergy->{$key . '_code_type'} = $code['code_type'];
+            if(isset($dates)){
+                $medication->begin_date = $dates['low'];
+                $medication->end_date = $dates['high'];
+            }
+
+            if($entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']){
+                $code = $this->codeHandler($entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['@attributes']);
+                $medication->RXCUI = $code['code'];
+                $medication->STR = $code['code_text'];
                 unset($code);
-            };
+            }
+
+            $medications[] = $medication;
         }
 
-        $allergies[] = $allergy;
-    }
-
-    return $allergies;
-
-}
-
-/**
- * @return array
- */
-function getMedications() {
-    $medications = [];
-
-    if(!isset($this->index['medications'])){
         return $medications;
     }
-
-    $section = $this->document['ClinicalDocument']['component']['structuredBody']['component'][$this->index['medications']]['section'];
-
-    if(!isset($section['entry'])) return $medications;
-
-    if($this->isAssoc($section['entry']))
-        $section['entry'] = [$section['entry']];
-    foreach($section['entry'] as $entry){
-
-        $medication = new stdClass();
-
-        if(!$this->isAssoc($entry['substanceAdministration']['effectiveTime'])){
-            foreach($entry['substanceAdministration']['effectiveTime'] as $date){
-                if(!isset($date['low']))
-                    continue;
-                $dates = $this->datesHandler($date, true);
-            }
-        } else {
-            $dates = $this->datesHandler($entry['substanceAdministration']['effectiveTime'], true);
-        }
-
-        if(isset($dates)){
-            $medication->begin_date = $dates['low'];
-            $medication->end_date = $dates['high'];
-        }
-
-        if($entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']){
-            $code = $this->codeHandler($entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['@attributes']);
-            $medication->RXCUI = $code['code'];
-            $medication->STR = $code['code_text'];
-            unset($code);
-        }
-
-        $medications[] = $medication;
-    }
-
-    return $medications;
-}
 
 /**
  * @return array

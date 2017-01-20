@@ -42,7 +42,7 @@ Ext.define('App.view.patient.windows.UploadDocument', {
 					xtype: 'gaiaehr.combo',
 					fieldLabel: _('type'),
 					list: 102,
-					name: 'docType',
+					name: 'docTypeCode',
 					allowBlank: false
 				},
 				{

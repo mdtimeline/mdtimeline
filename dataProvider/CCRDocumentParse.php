@@ -289,34 +289,17 @@ function setDocument($xml) {
 function getProblems() {
     $problems = [];
 
-    if(!isset($this->index['problems'])){
+    if(!isset($this->index['problems']) || !isset($this->document['ccr:Body']['ccr:Problems'])){
         return $problems;
     }
 
-    $section = $this->document['ClinicalDocument']['component']['structuredBody']['component'][$this->index['problems']]['section'];
-
-    if(!isset($section['entry'])){
-        return $problems;
-    }
-
-    if($this->isAssoc($section['entry']))
-        $section['entry'] = [$section['entry']];
-    foreach($section['entry'] as $entry){
+    foreach($this->document['ccr:Body']['ccr:Medications']['ccr:Medication'] as $Problem){
         $problem = new stdClass();
-
-        $code = $this->codeHandler($entry['act']['entryRelationship']['observation']['value']);
-        $problem->code = $code['code'];
-        $problem->code_text = $code['code_text'];
-        $problem->code_type = $code['code_type'];
-        unset($code);
-
-        if(isset($entry['act']['effectiveTime'])){
-            $dates = $this->datesHandler($entry['act']['effectiveTime'], true);
-            $problem->begin_date = $dates['low'];
-            $problem->end_date = $dates['high'];
-            unset($dates);
-        }
-
+        $problem->begin_date = $Problem['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text'];
+        $problem->end_date = '';
+        $problem->code_text = $Problem['ccr:Description']['ccr:Text'];
+        $problem->code = $Problem['ccr:Description']['ccr:Code'][0]['ccr:Value'];
+        $problem->code_type = $Problem['ccr:Description']['ccr:Code'][0]['ccr:CodingSystem'];
         $problems[] = $problem;
     }
 

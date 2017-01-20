@@ -308,47 +308,20 @@ function setDocument($xml) {
         return $problems;
     }
 
-/**
- * @return array
- */
-function getProcedures() {
-    $procedures = [];
+    /**
+     * getProcedures
+     * Get patient procedures from the CCR Document
+     * @return array
+     */
+    function getProcedures() {
+        $procedures = [];
 
-    if(!isset($this->index['procedures'])){
-        return $procedures;
-    }
-
-    $section = $this->document['ClinicalDocument']['component']['structuredBody']['component'][$this->index['procedures']]['section'];
-
-    if(!isset($section['entry'])){
-        return $procedures;
-    }
-
-    if($this->isAssoc($section['entry']))
-        $section['entry'] = [$section['entry']];
-
-    foreach($section['entry'] as $entry){
-        $procedure = new stdClass();
-
-        if(isset($entry['procedure']['code'])){
-            // procedure
-            $code = $this->codeHandler($entry['procedure']['code']);
-            if($code['code'] == '')
-                continue;
-
-            $procedure->code = $code['code'];
-            $procedure->code_text = $code['code_text'];
-            $procedure->code_type = $code['code_type'];
-
-            //dates
-            $dates = $this->datesHandler($entry['procedure']['effectiveTime']);
-            $procedure->procedure_date = $dates['low'];
-            $procedures[] = $procedure;
+        if(!isset($this->index['procedures'])){
+            return $procedures;
         }
 
+        return $procedures;
     }
-    return $procedures;
-}
 
 /**
  * @return array

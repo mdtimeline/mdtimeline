@@ -260,47 +260,23 @@ function setDocument($xml) {
     }
 
     /**
+     * getMedications
+     * Get the medications from the CCR Document
      * @return array
      */
     function getMedications() {
         $medications = [];
 
-        if(!isset($this->index['medications'])){
+        if(!isset($this->index['medications']) || !isset($this->document['ccr:Body']['ccr:Medications'])){
             return $medications;
         }
 
-        $section = $this->document['ClinicalDocument']['component']['structuredBody']['component'][$this->index['medications']]['section'];
-
-        if(!isset($section['entry'])) return $medications;
-
-        if($this->isAssoc($section['entry']))
-            $section['entry'] = [$section['entry']];
-        foreach($section['entry'] as $entry){
-
+        foreach($this->document['ccr:Body']['ccr:Medications']['ccr:Medication'] as $Medication){
             $medication = new stdClass();
-
-            if(!$this->isAssoc($entry['substanceAdministration']['effectiveTime'])){
-                foreach($entry['substanceAdministration']['effectiveTime'] as $date){
-                    if(!isset($date['low']))
-                        continue;
-                    $dates = $this->datesHandler($date, true);
-                }
-            } else {
-                $dates = $this->datesHandler($entry['substanceAdministration']['effectiveTime'], true);
-            }
-
-            if(isset($dates)){
-                $medication->begin_date = $dates['low'];
-                $medication->end_date = $dates['high'];
-            }
-
-            if($entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']){
-                $code = $this->codeHandler($entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['@attributes']);
-                $medication->RXCUI = $code['code'];
-                $medication->STR = $code['code_text'];
-                unset($code);
-            }
-
+            $medication->begin_date = $Medication['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text'];
+            $medication->end_date = '';
+            $medication->STR = $Medication['ccr:Product']['ccr:ProductName']['ccr:Text'];
+            $medication->RXCUI = $Medication['ccr:Product']['ccr:ProductName']['ccr:Code']['ccr:Value'];
             $medications[] = $medication;
         }
 

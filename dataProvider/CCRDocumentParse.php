@@ -232,7 +232,6 @@ function setDocument($xml) {
                 }
             }
         }
-
         return $author;
     }
 
@@ -243,9 +242,8 @@ function setDocument($xml) {
      */
     function getAllergies() {
         $allergies = [];
-
+        if(!isset($this->index['allergies'])) return $allergies;
         return $allergies;
-
     }
 
     /**
@@ -313,111 +311,38 @@ function setDocument($xml) {
     }
 
     /**
+     * getResults
+     * Get the results from the CCR Document
+     * NOTE: We need more documentation on the CCR Schema.
      * @return array
      */
     function getResults() {
         $results = [];
 
-        if(!isset($this->index['results'])){
+        if(!isset($this->index['results']) || !isset($this->document['ccr:Body']['ccr:Results'])){
             return $results;
         }
 
-        $section = $this->document['ClinicalDocument']['component']['structuredBody']['component'][$this->index['results']]['section'];
-
-        if(!isset($section['entry'])){
-            return $results;
-        }
-
-        if($this->isAssoc($section['entry']))
-            $section['entry'] = [$section['entry']];
-
-        foreach($section['entry'] as $entry){
+        foreach($this->document['ccr:Body']['ccr:Results']['ccr:Result'] as $Result){
             $result = new stdClass();
+            $result->code = $Result['ccr:Description']['ccr:Code']['ccr:Value'];
+            $result->code_type = $Result['ccr:Description']['ccr:Code']['ccr:CodingSystem'];
+            $result->code_text = $Result['ccr:Description']['ccr:Text'];
 
-            $code = $this->codeHandler($entry['organizer']['code']);
-            $result->code = $code['code'];
-            $result->code_text = $code['code_text'];
-            $result->code_type = $code['code_type'];
-            unset($code);
-
-            $result_date = '0000-00-00';
-
+            // Observations in the result
             $result->observations = [];
+            $observation = new stdClass();
+            $observation->code = $Result['ccr:Test']['ccr:Description']['ccr:Code']['ccr:Value'];
+            $observation->code_type = $Result['ccr:Test']['ccr:Description']['ccr:Code']['ccr:CodingSystem'];
+            $observation->code_text = $Result['ccr:Test']['ccr:Description']['ccr:Text'];
+            $observation->value = isset($Result['ccr:Test']['ccr:TestResult']['ccr:Value']) ? $Result['ccr:Test']['ccr:TestResult']['ccr:Value'] : '';
+            $observation->units = isset($Result['ccr:Test']['ccr:TestResult']['ccr:Units']['ccr:Unit']) ? $Result['ccr:Test']['ccr:TestResult']['ccr:Units']['ccr:Unit'] : '';
+            $observation->date_analysis = $Result['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text'];
+            $observation->observation_result_status = $Result['ccr:Test']['ccr:Status']['ccr:Text'];
 
-            if($this->isAssoc($entry['organizer']['component']))
-                $entry['organizer']['component'] = [$entry['organizer']['component']];
-
-            foreach($entry['organizer']['component'] as $obs){
-
-                if(isset($obs['observation'])){
-                    $obs = $obs['observation'];
-
-                    $observation = new stdClass();
-                    $code = $this->codeHandler($obs['code']);
-                    $observation->code = $code['code'];
-                    $observation->code_text = $code['code_text'];
-                    $observation->code_type = $code['code_type'];
-                    unset($code);
-
-                    $observation->value = isset($obs['value']['@attributes']['value']) ? $obs['value']['@attributes']['value'] : '';
-                    $observation->units = isset($obs['value']['@attributes']['unit']) ? $obs['value']['@attributes']['unit'] : '';
-
-                    if(isset($obs['referenceRange'])){
-                        $observation->reference_rage = "";
-                        if(isset($obs['referenceRange']['observationRange']['text'])){
-                            $observation->reference_rage = $obs['referenceRange']['observationRange']['text'];
-                        } else {
-                            if(isset($obs['referenceRange']['observationRange']['value']['low'])){
-                                $observation->reference_rage = $obs['referenceRange']['observationRange']['value']['low']['@attributes']['value'];
-                            }
-                            if(isset($obs['referenceRange']['observationRange']['value']['high'])){
-                                $observation->reference_rage .= ' - ' . $obs['referenceRange']
-                                                                        ['observationRange']
-                                                                        ['value']
-                                                                        ['high']
-                                                                        ['@attributes']
-                                                                        ['value'];
-                            }
-                            $observation->reference_rage .= ' ' . $observation->units;
-                        }
-                    }
-
-                    $dates = $this->datesHandler($obs['effectiveTime']);
-                    $observation->date_analysis = $dates['low'];
-
-                    if(
-                        isset($obs['interpretationCode']) &&
-                        isset($obs['interpretationCode']['@attributes']) &&
-                        isset($obs['interpretationCode']['@attributes']['code'])
-                    ){
-                        $observation->abnormal_flag = $obs['interpretationCode']['@attributes']['code'];
-                    } else {
-                        $observation->abnormal_flag = '';
-                    }
-
-                    if(
-                        isset($obs['statusCode']) &&
-                        isset($obs['statusCode']['@attributes']) &&
-                        isset($obs['statusCode']['@attributes']['code'])
-                    ){
-                        $observation->observation_result_status = $obs['statusCode']['@attributes']['code'];
-                    } else {
-                        $observation->observation_result_status = '';
-                    }
-
-                    $dates = $this->datesHandler($obs['effectiveTime']);
-                    $observation->date_observation = $result_date = $dates['low'];
-
-                    $result->observations[] = $observation;
-
-                }elseif(isset($obs['procedure'])){
-                    //TODO Finish me!.
-                }
-            }
-            $result->result_date = $result_date;
+            $result->observations[] = $observation;
             $results[] = $result;
         }
-
         return $results;
     }
 

@@ -149,8 +149,9 @@ class Modules {
 	 * @return bool|mixed
 	 */
 	private function getModuleConfig($moduleName) {
-		if(is_dir($this->modulesDir . $moduleName)){
-			$text = file_get_contents($this->modulesDir . $moduleName . '/conf.json');
+		$conf_file = $this->modulesDir . $moduleName . '/conf.json';
+		if(file_exists($conf_file)){
+			$text = file_get_contents($conf_file);
 			return json_decode($text, true);
 		}
 		return false;

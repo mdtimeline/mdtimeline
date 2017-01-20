@@ -283,28 +283,30 @@ function setDocument($xml) {
         return $medications;
     }
 
-/**
- * @return array
- */
-function getProblems() {
-    $problems = [];
+    /**
+     * getProblems
+     * Get patient problems from the CCR Document
+     * @return array
+     */
+    function getProblems() {
+        $problems = [];
 
-    if(!isset($this->index['problems']) || !isset($this->document['ccr:Body']['ccr:Problems'])){
+        if(!isset($this->index['problems']) || !isset($this->document['ccr:Body']['ccr:Problems'])){
+            return $problems;
+        }
+
+        foreach($this->document['ccr:Body']['ccr:Medications']['ccr:Medication'] as $Problem){
+            $problem = new stdClass();
+            $problem->begin_date = $Problem['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text'];
+            $problem->end_date = '';
+            $problem->code_text = $Problem['ccr:Description']['ccr:Text'];
+            $problem->code = $Problem['ccr:Description']['ccr:Code'][0]['ccr:Value'];
+            $problem->code_type = $Problem['ccr:Description']['ccr:Code'][0]['ccr:CodingSystem'];
+            $problems[] = $problem;
+        }
+
         return $problems;
     }
-
-    foreach($this->document['ccr:Body']['ccr:Medications']['ccr:Medication'] as $Problem){
-        $problem = new stdClass();
-        $problem->begin_date = $Problem['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text'];
-        $problem->end_date = '';
-        $problem->code_text = $Problem['ccr:Description']['ccr:Text'];
-        $problem->code = $Problem['ccr:Description']['ccr:Code'][0]['ccr:Value'];
-        $problem->code_type = $Problem['ccr:Description']['ccr:Code'][0]['ccr:CodingSystem'];
-        $problems[] = $problem;
-    }
-
-    return $problems;
-}
 
 /**
  * @return array

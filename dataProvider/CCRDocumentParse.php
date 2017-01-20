@@ -1,7 +1,7 @@
 <?php
 /**
-* GaiaEHR (Electronic Health Records)
-* Copyright (C) 2013 Certun, LLC.
+* mdTimeLine EHR (Electronic Health Records)
+* mdTimeLine (C) 2017
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ include_once(ROOT . '/dataProvider/SnomedCodes.php');
 include_once(ROOT . '/dataProvider/Person.php');
 include_once(ROOT . '/dataProvider/PatientContacts.php');
 
-class CCDDocumentParse {
+class CCRDocumentParse {
 
 private $document;
 
@@ -36,15 +36,17 @@ public $styledXml;
 private $SnomedCodes;
 
 function __construct($xml = null) {
-    if(isset($xml))
-        $this->setDocument($xml);
+    if(isset($xml)) $this->setDocument($xml);
 }
 
 function setDocument($xml) {
     $this->document = $this->XmlToArray($xml);
-    unset($this->document['ClinicalDocument']['@attributes']);
 
-    Array2XML::init('1.0', 'UTF-8', true, ['xml-stylesheet' => 'type="text/xsl" href="' . URL . '/lib/CCRCDA/schema/cda2.xsl"']);
+    Array2XML::init('1.0',
+                    'UTF-8',
+                    true,
+                    ['xml-stylesheet' => 'type="text/xsl" href="' . URL . '/lib/CCRCDA/schema/cda2.xsl"']
+    );
 
     $data = [
         '@attributes' => [
@@ -53,8 +55,8 @@ function setDocument($xml) {
             'xsi:schemaLocation' => 'urn:hl7-org:v3 CDA.xsd'
         ]
     ];
-    foreach($this->document['ClinicalDocument'] as $i => $com){
-        $data[$i] = $com;
+    foreach($this->document['ccr:ContinuityOfCareRecord']['ccr:Body'] as $index => $components){
+        $data[$index] = $components;
     }
 
     // Building the document
@@ -62,7 +64,7 @@ function setDocument($xml) {
     unset($data);
 
     $this->index = [];
-    foreach($this->document['ClinicalDocument']['component']['structuredBody']['component'] as $index => $component){
+    foreach($this->document['ccr:ContinuityOfCareRecord']['ccr:Body'] as $index => $component){
         $code = isset($component['section']['code']['@attributes']['code']) ? $component['section']['code']['@attributes']['code'] : '';
 
         //Advance Directives ???
@@ -98,358 +100,188 @@ function setDocument($xml) {
         }
     }
 }
-function parseDocument($xml = null) {
-    if(isset($xml)){
-        $this->setDocument($xml);
-    }
-    return $this->getDocument();
-}
 
-function getDocument() {
-    $document = new stdClass();
-    $document->title = $this->getTitle();
-    $document->patient = $this->getPatient();
-    $document->encounter = $this->getEncounter();
-    $document->author = $this->getAuthor();
-    $document->allergies = $this->getAllergies();
-    $document->medications = $this->getMedications();
-    $document->problems = $this->getProblems();
-    $document->procedures = $this->getProcedures();
-    $document->results = $this->getResults();
-    $document->encounters = $this->getEncounters();
-    $document->advancedirectives = $this->getAdvanceDirectives();
-    return $document;
-}
-
-function getTitle() {
-    return isset($this->document['ClinicalDocument']['title']) ? $this->document['ClinicalDocument']['title'] : '';
-}
-
-/**
- * @return mixed
- * @throws Exception
- */
-function getPatient() {
-    $dom = $this->document['ClinicalDocument']['recordTarget']['patientRole'];
-    $patient = new stdClass();
-
-    // IDs
-    if($this->isAssoc($dom['id'])){
-        $patient->pubpid = $dom['id']['@attributes']['extension'];
-    } else {
-        $foo = [];
-        foreach($dom['id'] as $id){
-            $foo[] = $id['@attributes']['extension'];
-        }
-        $patient->pubpid = implode('~', $foo);
-        unset($foo);
+    function parseDocument($xml = null) {
+        if(isset($xml)) $this->setDocument($xml);
+        return $this->getDocument();
     }
 
-    // address
-    // TODO: Here we need to create a new Patient Contact record. (Self)
-    $a = isset($dom['addr']) ? $dom['addr'] : [];
-    //$PatientContact = new PatientContacts();
-    $patient->address = isset($a['streetAddressLine']) ? $a['streetAddressLine'] : '';
-    $patient->city = isset($a['city']) ? $a['city'] : '';
-    $patient->state = isset($a['state']) ? $a['state'] : '';
-    $patient->zipcode = isset($a['postalCode']) ? $a['postalCode'] : '';
-    $patient->country = isset($a['country']) ? $a['country'] : '';
-    unset($a);
+    function getDocument() {
+        $document = new stdClass();
+        $document->title = $this->getTitle();
+        $document->patient = $this->getPatient();
+        $document->encounter = $this->getEncounter();
+        $document->author = $this->getAuthor();
+        $document->allergies = $this->getAllergies();
+        $document->medications = $this->getMedications();
+        $document->problems = $this->getProblems();
+        $document->procedures = $this->getProcedures();
+        $document->results = $this->getResults();
+        $document->encounters = $this->getEncounters();
+        $document->advancedirectives = $this->getAdvanceDirectives();
+        return $document;
+    }
 
-    // phones
-    if(isset($dom['telecom'])){
-        $telecoms = $this->telecomHandler($dom['telecom']);
-        foreach($telecoms as $type => $telecom){
-            if($type == 'WP'){
-                $patient->work_phone = $telecom;
-            } else {
-                $patient->home_phone = $telecom;
+    /**
+     * getTitle
+     * Get the Title from the CCR Document
+     * @return string
+     */
+    function getTitle() {
+        return isset($this->document['ccr:ContinuityOfCareRecord']['ccr:Purpose']['ccr:Description']['ccr:Description']) ?
+            $this->document['ccr:ContinuityOfCareRecord']['ccr:Purpose']['ccr:Description']['ccr:Description'] :
+            '';
+    }
+
+    /**
+     * getPatient
+     * Get the patient information from the CCR Document
+     * @return mixed
+     * @throws Exception
+     */
+    function getPatient() {
+
+        if(empty($this->document['ccr:ContinuityOfCareRecord']['ccr:Patient']['ccr:ActorID']))
+            throw new Exception('Error: ClinicalDocument->recordTarget->patientRole->Patient is required');
+
+        $patient = new stdClass();
+
+        // Patient ID
+        // We also need this actor id, to extract the actor information
+        $patient->pubpid = $this->document['ccr:ContinuityOfCareRecord']['ccr:Patient']['ccr:ActorID'];
+
+        foreach($this->document['ccr:ContinuityOfCareRecord']['ccr:Actors']['ccr:Actors'] as $Actor)
+        {
+            if($Actor['ccr:ActorObjectID'] == $patient->pubpid){
+                // Patient address
+                $patient->address = isset($Actor['ccr:Address']['ccr:Line1']) ? $Actor['ccr:Address']['ccr:Line1'] : '';
+                $patient->city = isset($Actor['ccr:Address']['ccr:City']) ? $Actor['ccr:Address']['ccr:City'] : '';
+                $patient->state = isset($Actor['ccr:Address']['ccr:State']) ? $Actor['ccr:Address']['ccr:State'] : '';
+                $patient->zipcode = isset($Actor['ccr:Address']['ccr:PostalCode']) ? $Actor['ccr:Address']['ccr:PostalCode'] : '';
+                $patient->country = '';
+
+                // Patient phones
+                $patient->home_phone = isset($Actor['ccr:Telephone']['ccr:Value']) ? $Actor['ccr:Telephone']['ccr:Value'] : '';
+
+                //Patient Name - Validate
+                if(!isset($Actor['ccr:Person']['ccr:Name']['ccr:BirthName']['ccr:Given']))
+                    throw new Exception('Error: Patient given name is required');
+                if(!isset($Actor['ccr:Person']['ccr:Name']['ccr:BirthName']['ccr:Family']))
+                    throw new Exception('Error: Patient family name is required');
+                //Patient Name
+                $patient->fname =  isset($Actor['ccr:Person']['ccr:Name']['ccr:BirthName']['ccr:Family']) ? $Actor['ccr:Person']['ccr:Name']['ccr:BirthName']['ccr:Family'] : '';
+                $patient->mname =  isset($Actor['ccr:Person']['ccr:Name']['ccr:BirthName']['ccr:Given'][0]) ? $Actor['ccr:Person']['ccr:Name']['ccr:BirthName']['ccr:Given'][0] : '';
+                $patient->lname =  isset($Actor['ccr:Person']['ccr:Name']['ccr:BirthName']['ccr:Given'][1]) ? $Actor['ccr:Person']['ccr:Name']['ccr:BirthName']['ccr:Given'][1] : '';
+                $patient->name = Person::fullname($patient->fname, $patient->mname, $patient->lname);
+
+                // Gender - Validate
+                if(!isset($Actor['ccr:Person']['ccr:Gender']['ccr:Code']['ccr:Value']))
+                    throw new Exception('Error: Patient gender is required');
+                // Gender
+                $patient->sex = $Actor['ccr:Person']['ccr:Gender']['ccr:Code']['ccr:Value'];
+
+                // DOB
+                $patient->DOB = $this->dateParser($Actor['ccr:Person']['ccr:DateOfBirth']['ccr:ExactDateTime']);
+                // FIX: For date with only the day...  add the time at the end
+                if(strlen($patient->DOB) <= 10) $patient->DOB .= ' 00:00:00';
+
+                // Marital StatusCode
+                $patient->marital_status = '';
+
+                // Race
+                $patient->race = '';
+
+                // Ethinicity
+                $patient->ethnicity = '';
+
+                // Labguage Communication
+                $patient->language = '';
             }
         }
+        unset($Actor);
+        return $patient;
     }
 
-    if(!isset($dom['patient'])){
-        throw new Exception('Error: ClinicalDocument->recordTarget->patientRole->Patient is required');
-    }
-    //names
-    if(!isset($dom['patient']['name']['given'])){
-        throw new Exception('Error: Patient given name is required');
-    }
-    if(!isset($dom['patient']['name']['family'])){
-        throw new Exception('Error: Patient family name is required');
-    }
-    $names = $this->nameHandler($dom['patient']['name']);
-    $patient->fname = $names['fname'];
-    $patient->mname = $names['mname'];
-    $patient->lname = $names['lname'];
-    $patient->name = Person::fullname($names['fname'], $names['mname'], $names['lname']);
-    //gender
-    if(!isset($dom['patient']['administrativeGenderCode'])){
-        throw new Exception('Error: Patient gender is required');
-    }
-    $patient->sex = $dom['patient']['administrativeGenderCode']['@attributes']['code'];
-    //DOB
-    $patient->DOB = $this->dateParser($dom['patient']['birthTime']['@attributes']['value']);
-    // fix for date with only the day...  add the time at the end
-    if(strlen($patient->DOB) <= 10)
-        $patient->DOB .= ' 00:00:00';
+    /**
+     * @return stdClass
+     */
+    function getAuthor() {
+        $author = new stdClass();
 
-    //marital StatusCode
-    $patient->marital_status = isset($dom['patient']['maritalStatusCode']['@attributes']['code']) ? $dom['patient']['maritalStatusCode']['@attributes']['code'] : '';
-    //race
-    $patient->race = isset($dom['patient']['raceCode']['@attributes']['code']) ? $dom['patient']['raceCode']['@attributes']['code'] : '';
-    //ethnicGroupCode
-    $patient->ethnicity = isset($dom['patient']['ethnicGroupCode']['@attributes']['code']) ? $dom['patient']['ethnicGroupCode']['@attributes']['code'] : '';
-    //birthplace
-    if(isset($dom['patient']['birthplace']['place']['addr'])){
-        $addr = $dom['patient']['birthplace']['place']['addr'];
-        $foo = '';
+        if(isset($this->document['ccr:ContinuityOfCareRecord']['ccr:From']['ccr:ActorLink']['ccr:ActorID'])){
 
-        if(isset($addr['city'])){
-            $foo .= is_string($addr['city']) ? $addr['city'] : '';
-        }
-        if(isset($addr['state'])){
-            $foo .= is_string($addr['state']) ? ' ' . $addr['state'] : '';
-        }
-        if(isset($addr['country'])){
-            $foo .= is_string($addr['country']) ? ' ' . $addr['country'] : '';
-        }
+            $author->id = $this->document['ccr:ContinuityOfCareRecord']['ccr:From']['ccr:ActorLink']['ccr:ActorID'];
 
-        $patient->birth_place = trim($foo);
-    } else {
-        $patient->birth_place = '';
-    }
+            foreach($this->document['ccr:ContinuityOfCareRecord']['ccr:Actors']['ccr:Actors'] as $Actor){
+                if($Actor['ccr:ActorObjectID'] == $author->id) {
 
-    //languageCommunication
-    $patient->language = isset($dom['patient']['languageCommunication']['languageCode']['@attributes']['code']) ? $dom['patient']['languageCommunication']['languageCode']['@attributes']['code'] : '';
+                    // Authos name
+                    $author->fname = $Actor['ccr:Person']['ccr:Name']['ccr:BirthName']['ccr:Given'];
+                    $author->mname = $Actor['ccr:Person']['ccr:Name']['ccr:BirthName']['ccr:Family'];
+                    $author->lname = '';
 
-    //religious  not implemented
-    //$patient->religion = '';
+                    // Author address
+                    $author->address = isset($Actor['ccr:Address']['ccr:Line1']) ? $Actor['ccr:Address']['ccr:Line1'] : '';
+                    $author->city = isset($Actor['ccr:Address']['ccr:City']) ? $Actor['ccr:Address']['ccr:City'] : '';
+                    $author->state = isset($Actor['ccr:Address']['ccr:State']) ? $Actor['ccr:Address']['ccr:State'] : '';
+                    $author->zipcode = isset($Actor['ccr:Address']['ccr:PostalCode']) ? $Actor['ccr:Address']['ccr:PostalCode'] : '';
+                    $author->country = '';
 
-    //guardian
-    // TODO: Here we need to create a new Patient Contact record. (Guardian)
-    if(isset($dom['patient']['guardian'])){
-        // do a bit more...
-        // lets just save the name for now
-        if($dom['patient']['guardian']['guardianPerson']){
-            $name = isset($dom['patient']['guardian']['guardianPerson']['name']['given']) ? $dom['patient']['guardian']['guardianPerson']['name']['given'] : '';
-            $name .= isset($dom['patient']['guardian']['guardianPerson']['name']['family']) ? ' ' . $dom['patient']['guardian']['guardianPerson']['name']['family'] : '';
-            $patient->guardians_name = trim($name);
-        }
-    }
-    unset($dom);
-    return $patient;
-
-}
-
-/**
- * @return stdClass
- */
-function getAuthor() {
-    $dom = $this->document['ClinicalDocument']['author'];
-    $author = new stdClass();
-
-    if(isset($dom['assignedAuthor'])){
-        $author->id = $dom['assignedAuthor']['id']['@attributes']['extension'];
-
-        if(isset($dom['assignedAuthor']['assignedPerson']['name'])){
-            $names = $this->nameHandler($dom['assignedAuthor']['assignedPerson']['name']);
-            $author->fname = $names['fname'];
-            $author->mname = $names['mname'];
-            $author->lname = $names['lname'];
-        }
-
-        if(isset($dom['assignedAuthor']['addr'])){
-            $author->address = isset($dom['assignedAuthor']['addr']['streetAddressLine']) ? $dom['assignedAuthor']['addr']['streetAddressLine'] : '';
-            $author->city = isset($dom['assignedAuthor']['addr']['city']) ? $dom['assignedAuthor']['addr']['city'] : '';
-            $author->state = isset($dom['assignedAuthor']['addr']['state']) ? $dom['assignedAuthor']['addr']['state'] : '';
-            $author->zipcode = isset($dom['assignedAuthor']['addr']['postalCode']) ? $dom['assignedAuthor']['addr']['postalCode'] : '';
-            $author->country = isset($dom['assignedAuthor']['addr']['country']) ? $dom['assignedAuthor']['addr']['country'] : '';
-        }
-        if(isset($dom['assignedAuthor']['telecom']) && $dom['assignedAuthor']['telecom'] !== ''){
-            $telecoms = $this->telecomHandler($dom['assignedAuthor']['telecom']);
-            foreach($telecoms as $type => $telecom){
-                if($type == 'WP'){
-                    $author->work_phone = $telecom;
-                } else {
-                    $author->home_phone = $telecom;
+                    // Author phone
+                    $author->work_phone = isset($Actor['ccr:Telephone']['ccr:Value']) ? $this->telecomHandler($Actor['ccr:Telephone']['ccr:Value']) : '';
                 }
             }
         }
+
+        return $author;
     }
 
-    return $author;
-}
+    /**
+     * getEncounter
+     * Get the encounters from the CCR Document
+     * @return stdClass
+     */
+    function getEncounter() {
+        $encounter = new stdClass();
 
-function getEncounter() {
-    $encounter = new stdClass();
-
-    if(!isset($this->document['ClinicalDocument']['componentOf'])){
         return $encounter;
     }
 
-    $dom = $this->document['ClinicalDocument']['componentOf'];
-    if(isset($dom['encompassingEncounter'])){
-        $encounter->rid = $dom['encompassingEncounter']['id']['@attributes']['extension'];
-        $times = $this->datesHandler($dom['encompassingEncounter']['effectiveTime']);
-        $encounter->service_date = $times['low'];
-        unset($times);
-    }
+    /**
+     * getAllergies
+     * Get the allergies from the CCR Document
+     * @return array
+     */
+    function getAllergies() {
+        $allergies = [];
 
-    if(isset($this->index['chiefcomplaint'])){
-        $cc = $this->document['ClinicalDocument']['component']['structuredBody']['component'][$this->index['chiefcomplaint']]['section'];
-        $encounter->brief_description = $cc['text']['paragraph']['@value'];
-    }
-
-    if(isset($this->index['assessments'])){
-        $assessments = $this->document['ClinicalDocument']['component']['structuredBody']['component'][$this->index['assessments']]['section'];
-        if($this->isAssoc($assessments['entry']))
-            $section['entry'] = [$assessments['entry']];
-
-        $encounter->assessments = [];
-
-        foreach($assessments['entry'] as $i => $entry){
-            if(isset($entry['act'])){
-                $assessment = new stdClass();
-                $assessment->text = $assessments['text']['paragraph'][$i]['@value'];
-                $code = $this->codeHandler($entry['act']['code']);
-                $assessment->code = $code['code'];
-                $assessment->code_text = $code['code_text'];
-                $assessment->code_type = $code['code_type'];
-                $encounter->assessments[] = $assessment;
-            }
-        }
-    }
-
-    return $encounter;
-}
-
-/**
- * @return array
- */
-function getAllergies() {
-    $allergies = [];
-
-    if(!isset($this->index['allergies'])){
         return $allergies;
+
     }
 
-    $section = $this->document['ClinicalDocument']
-               ['component']
-               ['structuredBody']
-               ['component']
-               [$this->index['allergies']]
-                ['section'];
+    /**
+     * getMedications
+     * Get the medications from the CCR Document
+     * @return array
+     */
+    function getMedications() {
+        $medications = [];
 
-    if(!isset($section['entry'])){
-        return $allergies;
-    }
-
-    if($this->isAssoc($section['entry']))
-        $section['entry'] = [$section['entry']];
-    foreach($section['entry'] as $entry){
-
-        $allergy = new stdClass();
-
-        // allergy type
-        $code = $this->codeHandler($entry['act']['entryRelationship']['observation']['value']['@attributes']);
-        $allergy->allergy_type = $code['code_text'];
-        $allergy->allergy_type_code = $code['code'];
-        $allergy->allergy_type_code_type = $code['code_type'];
-        unset($code);
-
-        // allergy
-        $code = $this->codeHandler($entry['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['@attributes']);
-        $allergy->allergy = $code['code_text'];
-        $allergy->allergy_code = $code['code'];
-        $allergy->allergy_code_type = $code['code_type'];
-        unset($code);
-
-        //dates
-        if(isset($entry['act']['effectiveTime'])){
-            $dates = $this->datesHandler($entry['act']['effectiveTime'], true);
-            $allergy->begin_date = $dates['low'];
-            $allergy->end_date = $dates['high'];
+        if(!isset($this->index['medications']) || !isset($this->document['ccr:Body']['ccr:Medications'])){
+            return $medications;
         }
 
-        // reaction, severity, status
-        foreach($entry['act']['entryRelationship']['observation']['entryRelationship'] as $obs){
-            $key = null;
-            switch($obs['observation']['templateId']['@attributes']['root']) {
-                case '2.16.840.1.113883.10.20.22.4.28':
-                    $key = 'status';
-                    break;
-                case '2.16.840.1.113883.10.20.22.4.9':
-                    $key = 'reaction';
-                    break;
-                case '2.16.840.1.113883.10.20.22.4.8':
-                    $key = 'severity';
-                    break;
-            }
-
-            if(isset($key)){
-                $code = $this->codeHandler($obs['observation']['value']['@attributes']);
-                $allergy->{$key} = $code['code_text'];
-                $allergy->{$key . '_code'} = $code['code'];
-                $allergy->{$key . '_code_type'} = $code['code_type'];
-                unset($code);
-            };
+        foreach($this->document['ccr:Body']['ccr:Medications']['ccr:Medication'] as $Medication){
+            $medication = new stdClass();
+            $medication->begin_date = $Medication['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text'];
+            $medication->end_date = '';
+            $medication->STR = $Medication['ccr:Product']['ccr:ProductName']['ccr:Text'];
+            $medication->RXCUI = $Medication['ccr:Product']['ccr:ProductName']['ccr:Code']['ccr:Value'];
+            $medications[] = $medication;
         }
 
-        $allergies[] = $allergy;
-    }
-
-    return $allergies;
-
-}
-
-/**
- * @return array
- */
-function getMedications() {
-    $medications = [];
-
-    if(!isset($this->index['medications'])){
         return $medications;
     }
-
-    $section = $this->document['ClinicalDocument']['component']['structuredBody']['component'][$this->index['medications']]['section'];
-
-    if(!isset($section['entry'])) return $medications;
-
-    if($this->isAssoc($section['entry']))
-        $section['entry'] = [$section['entry']];
-    foreach($section['entry'] as $entry){
-
-        $medication = new stdClass();
-
-        if(!$this->isAssoc($entry['substanceAdministration']['effectiveTime'])){
-            foreach($entry['substanceAdministration']['effectiveTime'] as $date){
-                if(!isset($date['low']))
-                    continue;
-                $dates = $this->datesHandler($date, true);
-            }
-        } else {
-            $dates = $this->datesHandler($entry['substanceAdministration']['effectiveTime'], true);
-        }
-
-        if(isset($dates)){
-            $medication->begin_date = $dates['low'];
-            $medication->end_date = $dates['high'];
-        }
-
-        if($entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']){
-            $code = $this->codeHandler($entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['@attributes']);
-            $medication->RXCUI = $code['code'];
-            $medication->STR = $code['code_text'];
-            unset($code);
-        }
-
-        $medications[] = $medication;
-    }
-
-    return $medications;
-}
 
 /**
  * @return array

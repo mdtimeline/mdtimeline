@@ -237,17 +237,6 @@ function setDocument($xml) {
     }
 
     /**
-     * getEncounter
-     * Get the encounters from the CCR Document
-     * @return stdClass
-     */
-    function getEncounter() {
-        $encounter = new stdClass();
-
-        return $encounter;
-    }
-
-    /**
      * getAllergies
      * Get the allergies from the CCR Document
      * @return array
@@ -432,255 +421,263 @@ function setDocument($xml) {
         return $results;
     }
 
-/**
- * @return array
- */
-function getEncounters() {
-    $encounters = [];
+    /**
+     * getEncounters
+     * Get Encounters from CCR Document
+     * @return array
+     */
+    function getEncounters() {
+        $encounters = [];
 
-    if(!isset($this->index['encounters'])){
+        if(!isset($this->index['encounters'])){
+            return $encounters;
+        }
+
         return $encounters;
     }
 
-    return $encounters;
-}
+    /**
+     * getAdvanceDirectives
+     * Get Advance Directive from CCR Document
+     * @return array
+     */
+    function getAdvanceDirectives() {
+        $directives = [];
 
-/**
- * @return array
- */
-function getAdvanceDirectives() {
-    $directives = [];
+        if(!isset($this->index['advancedirectives'])){
+            return $directives;
+        }
 
-    if(!isset($this->index['advancedirectives'])){
         return $directives;
     }
 
-    return $directives;
-}
-
-/**
- * @param $array
- * @return string
- */
-function ArrayToJson($array) {
-    return json_encode($array);
-}
-
-/**
- * @param $xml
- * @return string
- */
-function XmlToJson($xml) {
-    return $this->ArrayToJson($this->XmlToArray($xml));
-}
-
-/**
- * @param $xml
- * @return DOMDocument
- */
-function XmlToArray($xml) {
-    return XML2Array::createArray($xml);
-}
-
-/**
- * @param $telecoms
- * @return array
- */
-function telecomHandler($telecoms) {
-    $telecoms = !$this->isAssoc($telecoms) ? $telecoms : [$telecoms];
-    $results = [];
-    foreach($telecoms as $telecom){
-        $use = isset($telecom['@attributes']['use']) && $telecom['@attributes']['use'] != '' ? $telecom['@attributes']['use'] : 'HP';
-        $results[$use] = isset($telecom['@attributes']['value']) ? $this->parsePhone($telecom['@attributes']['value']) : '';
+    /**
+     * ArrayToJson
+     * @param $array
+     * @return string
+     */
+    function ArrayToJson($array) {
+        return json_encode($array);
     }
-    return $results;
-}
 
-/**
- * @param $name
- * @return array
- */
-function nameHandler($name) {
-    $results = [];
+    /**
+     * XmlToJson
+     * @param $xml
+     * @return string
+     */
+    function XmlToJson($xml) {
+        return $this->ArrayToJson($this->XmlToArray($xml));
+    }
 
-    $results['prefix'] = isset($name['prefix']) && is_string($name['prefix']) ? $name['prefix'] : '';
+    /**
+     * XmlToArray
+     * @param $xml
+     * @return DOMDocument
+     */
+    function XmlToArray($xml) {
+        return XML2Array::createArray($xml);
+    }
 
-    if(is_array($name['given'])){
-        $results['fname'] = isset($name['given'][0]) ? $name['given'][0] : '';
-        if(!isset($name['given'][1])){
-            $results['mname'] = '';
-        } elseif(is_string($name['given'][1])) {
-            $results['mname'] = isset($name['given'][1]) ? $name['given'][1] : '';
-        } elseif(is_array($name['given'][1])) {
-            $results['mname'] = isset($name['given'][1]['@value']) ? $name['given'][1]['@value'] : '';
+    /**
+     * telecomHandler
+     * @param $telecoms
+     * @return array
+     */
+    function telecomHandler($telecoms) {
+        $telecoms = !$this->isAssoc($telecoms) ? $telecoms : [$telecoms];
+        $results = [];
+        foreach($telecoms as $telecom){
+            $use = isset($telecom['@attributes']['use']) && $telecom['@attributes']['use'] != '' ? $telecom['@attributes']['use'] : 'HP';
+            $results[$use] = isset($telecom['@attributes']['value']) ? $this->parsePhone($telecom['@attributes']['value']) : '';
         }
-    } else {
-        $results['fname'] = isset($name['given']) ? $name['given'] : '';
-        $results['mname'] = '';
+        return $results;
     }
 
-    $results['lname'] = isset($name['family']) ? $name['family'] : '';
-    return $results;
-}
+    /**
+     * nameHandler
+     * @param $name
+     * @return array
+     */
+    function nameHandler($name) {
+        $results = [];
 
-/**
- * @param $dates
- * @param $justDate
- * @return array
- */
-function datesHandler($dates, $justDate = false) {
-    $result = [
-        'low' => '0000-00-00',
-        'high' => '0000-00-00'
-    ];
+        $results['prefix'] = isset($name['prefix']) && is_string($name['prefix']) ? $name['prefix'] : '';
 
-    if(is_string($dates)){
-        $result['low'] = $this->dateParser($dates);
-    } else {
-        if(isset($dates['@value'])){
-            $result['low'] = $this->dateHandler($dates);
+        if(is_array($name['given'])){
+            $results['fname'] = isset($name['given'][0]) ? $name['given'][0] : '';
+            if(!isset($name['given'][1])){
+                $results['mname'] = '';
+            } elseif(is_string($name['given'][1])) {
+                $results['mname'] = isset($name['given'][1]) ? $name['given'][1] : '';
+            } elseif(is_array($name['given'][1])) {
+                $results['mname'] = isset($name['given'][1]['@value']) ? $name['given'][1]['@value'] : '';
+            }
         } else {
-            if(isset($dates['low'])){
-                $result['low'] = $this->dateHandler($dates['low']);
-            }
-            if(isset($dates['high'])){
-                $result['high'] = $this->dateHandler($dates['high']);
-            }
-        }
-    }
-
-    if($justDate){
-        $result['low'] = substr($result['low'], 0, 10);
-        $result['high'] = substr($result['high'], 0, 10);
-    }
-
-    return $result;
-}
-
-/**
- * @param $date
- * @return mixed|string
- */
-function dateHandler($date) {
-    $result = '0000-00-00';
-    if(is_string($date)){
-        $result = $this->dateParser($date);
-    } elseif(isset($date['@attributes']['value'])) {
-        $result = $this->dateParser($date['@attributes']['value']);
-    }
-    return $result;
-}
-
-/**
- * @param $code
- * @return array
- */
-function codeHandler($code) {
-    if(isset($code['@attributes'])){
-        return $this->codeHandler($code['@attributes']);
-    }
-    $result = [];
-    $result['code'] = isset($code['code']) ? $code['code'] : '';
-    $result['code_type'] = isset($code['codeSystem']) ? $this->getCodeSystemName($code['codeSystem']) : '';
-    $result['code_text'] = isset($code['displayName']) ? $code['displayName'] : '';
-
-    if($result['code_text'] == ''){
-
-        if($result['code_type'] == 'SNOMEDCT'){
-
-            if(!isset($this->SnomedCodes)){
-                $this->SnomedCodes = new SnomedCodes();
-            }
-            $text = $this->SnomedCodes->getSnomedTextByConceptId($result['code']);
-            $result['code_text'] = $text;
-
-        } elseif($result['code_type'] == 'LOINC') {
-
-            //TODO
-
+            $results['fname'] = isset($name['given']) ? $name['given'] : '';
+            $results['mname'] = '';
         }
 
+        $results['lname'] = isset($name['family']) ? $name['family'] : '';
+        return $results;
     }
 
-    return $result;
-}
+    /**
+     * datesHandler
+     * @param $dates
+     * @param $justDate
+     * @return array
+     */
+    function datesHandler($dates, $justDate = false) {
+        $result = [
+            'low' => '0000-00-00',
+            'high' => '0000-00-00'
+        ];
 
-/**
- * @param $date
- * @return mixed|string
- */
-function dateParser($date) {
-    $result = '0000-00-00';
-    switch(strlen($date)) {
-        case 4:
-            $result = $date . '-00-00';
-            break;
-        case 6:
-            $result = preg_replace('/^(\d{4})(\d{2})/', '$1-$2-00', $date);
-            break;
-        case 8:
-            $result = preg_replace('/^(\d{4})(\d{2})(\d{2})$/', '$1-$2-$3', $date);
-            break;
-        case 10:
-            $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})$/', '$1-$2-$3 $4:00:00', $date);
-            break;
-        case 12:
-            $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/', '$1-$2-$3 $4:$5:00', $date);
-            break;
-        case 14:
-            $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/', '$1-$2-$3 $4:$5:$6', $date);
-            break;
+        if(is_string($dates)){
+            $result['low'] = $this->dateParser($dates);
+        } else {
+            if(isset($dates['@value'])){
+                $result['low'] = $this->dateHandler($dates);
+            } else {
+                if(isset($dates['low'])){
+                    $result['low'] = $this->dateHandler($dates['low']);
+                }
+                if(isset($dates['high'])){
+                    $result['high'] = $this->dateHandler($dates['high']);
+                }
+            }
+        }
+
+        if($justDate){
+            $result['low'] = substr($result['low'], 0, 10);
+            $result['high'] = substr($result['high'], 0, 10);
+        }
+
+        return $result;
     }
 
-    return $result;
-}
+    /**
+     * dateHandler
+     * @param $date
+     * @return mixed|string
+     */
+    function dateHandler($date) {
+        $result = '0000-00-00';
+        if(is_string($date)){
+            $result = $this->dateParser($date);
+        } elseif(isset($date['@attributes']['value'])) {
+            $result = $this->dateParser($date['@attributes']['value']);
+        }
+        return $result;
+    }
 
-/**
- * @param $phone
- * @return mixed
- */
-function parsePhone($phone) {
-    return preg_replace('/tel:/', '', $phone);
-}
+    /**
+     * codeHandler
+     * @param $code
+     * @return array
+     */
+    function codeHandler($code) {
+        if(isset($code['@attributes'])){
+            return $this->codeHandler($code['@attributes']);
+        }
+        $result = [];
+        $result['code'] = isset($code['code']) ? $code['code'] : '';
+        $result['code_type'] = isset($code['codeSystem']) ? $this->getCodeSystemName($code['codeSystem']) : '';
+        $result['code_text'] = isset($code['displayName']) ? $code['displayName'] : '';
 
-/**
- * @param $arr
- * @return bool
- */
-function isAssoc($arr) {
-    return array_keys($arr) !== range(0, count($arr) - 1);
-}
+        if($result['code_text'] == ''){
 
-/**
- * @param $code
- * @return string
- */
-function getCodeSystemName($code) {
-    $code = str_replace('.', '', $code);
-    $codes = [
-        '2168401113883612' => 'CPT4',
-        '2168401113883642' => 'ICD9',
-        '21684011138836103' => 'ICD9CM',
-        '216840111388363' => 'ICD10',
-        '216840111388361' => 'LOINC',
-        '216840111388366' => 'NDC',
-        '2168401113883688' => 'RXNORM',
-        '2168401113883696' => 'SNOMEDCT',
-        '216840111388346' => 'NPI',
-        '216840111388349' => 'UNII',
-        '216840111388332611' => 'NCI'
-    ];
+            if($result['code_type'] == 'SNOMEDCT'){
 
-    return isset($codes[$code]) ? $codes[$code] : 'UNK';
+                if(!isset($this->SnomedCodes)){
+                    $this->SnomedCodes = new SnomedCodes();
+                }
+                $text = $this->SnomedCodes->getSnomedTextByConceptId($result['code']);
+                $result['code_text'] = $text;
 
-}
+            } elseif($result['code_type'] == 'LOINC') {
 
-function getTestCCD($file) {
+                //TODO
 
-    $ccd = file_get_contents(ROOT . '/dataProvider/CCDs/' . $file);
-    $this->setDocument($ccd);
-    return ['ccd' => $this->getDocument()];
-}
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * dateParser
+     * @param $date
+     * @return mixed|string
+     */
+    function dateParser($date) {
+        $result = '0000-00-00';
+        switch(strlen($date)) {
+            case 4:
+                $result = $date . '-00-00';
+                break;
+            case 6:
+                $result = preg_replace('/^(\d{4})(\d{2})/', '$1-$2-00', $date);
+                break;
+            case 8:
+                $result = preg_replace('/^(\d{4})(\d{2})(\d{2})$/', '$1-$2-$3', $date);
+                break;
+            case 10:
+                $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})$/', '$1-$2-$3 $4:00:00', $date);
+                break;
+            case 12:
+                $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/', '$1-$2-$3 $4:$5:00', $date);
+                break;
+            case 14:
+                $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/', '$1-$2-$3 $4:$5:$6', $date);
+                break;
+        }
+
+        return $result;
+    }
+
+    /**
+     * parsePhone
+     * @param $phone
+     * @return mixed
+     */
+    function parsePhone($phone) {
+        return preg_replace('/tel:/', '', $phone);
+    }
+
+    /**
+     * isAssoc
+     * @param $arr
+     * @return bool
+     */
+    function isAssoc($arr) {
+        return array_keys($arr) !== range(0, count($arr) - 1);
+    }
+
+    /**
+     * getCodeSystemName
+     * @param $code
+     * @return string
+     */
+    function getCodeSystemName($code) {
+        $code = str_replace('.', '', $code);
+        $codes = [
+            '2168401113883612' => 'CPT4',
+            '2168401113883642' => 'ICD9',
+            '21684011138836103' => 'ICD9CM',
+            '216840111388363' => 'ICD10',
+            '216840111388361' => 'LOINC',
+            '216840111388366' => 'NDC',
+            '2168401113883688' => 'RXNORM',
+            '2168401113883696' => 'SNOMEDCT',
+            '216840111388346' => 'NPI',
+            '216840111388349' => 'UNII',
+            '216840111388332611' => 'NCI'
+        ];
+
+        return isset($codes[$code]) ? $codes[$code] : 'UNK';
+
+    }
+
 }
 
 

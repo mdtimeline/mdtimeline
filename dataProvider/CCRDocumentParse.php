@@ -232,7 +232,6 @@ function setDocument($xml) {
                 }
             }
         }
-
         return $author;
     }
 
@@ -243,9 +242,8 @@ function setDocument($xml) {
      */
     function getAllergies() {
         $allergies = [];
-
+        if(!isset($this->index['allergies'])) return $allergies;
         return $allergies;
-
     }
 
     /**

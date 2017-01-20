@@ -237,17 +237,6 @@ function setDocument($xml) {
     }
 
     /**
-     * getEncounter
-     * Get the encounters from the CCR Document
-     * @return stdClass
-     */
-    function getEncounter() {
-        $encounter = new stdClass();
-
-        return $encounter;
-    }
-
-    /**
      * getAllergies
      * Get the allergies from the CCR Document
      * @return array
@@ -283,568 +272,412 @@ function setDocument($xml) {
         return $medications;
     }
 
-/**
- * @return array
- */
-function getProblems() {
-    $problems = [];
+    /**
+     * getProblems
+     * Get patient problems from the CCR Document
+     * @return array
+     */
+    function getProblems() {
+        $problems = [];
 
-    if(!isset($this->index['problems'])){
+        if(!isset($this->index['problems']) || !isset($this->document['ccr:Body']['ccr:Problems'])){
+            return $problems;
+        }
+
+        foreach($this->document['ccr:Body']['ccr:Medications']['ccr:Medication'] as $Problem){
+            $problem = new stdClass();
+            $problem->begin_date = $Problem['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text'];
+            $problem->end_date = '';
+            $problem->code_text = $Problem['ccr:Description']['ccr:Text'];
+            $problem->code = $Problem['ccr:Description']['ccr:Code'][0]['ccr:Value'];
+            $problem->code_type = $Problem['ccr:Description']['ccr:Code'][0]['ccr:CodingSystem'];
+            $problems[] = $problem;
+        }
+
         return $problems;
     }
 
-    $section = $this->document['ClinicalDocument']['component']['structuredBody']['component'][$this->index['problems']]['section'];
+    /**
+     * getProcedures
+     * Get patient procedures from the CCR Document
+     * @return array
+     */
+    function getProcedures() {
+        $procedures = [];
 
-    if(!isset($section['entry'])){
-        return $problems;
-    }
-
-    if($this->isAssoc($section['entry']))
-        $section['entry'] = [$section['entry']];
-    foreach($section['entry'] as $entry){
-        $problem = new stdClass();
-
-        $code = $this->codeHandler($entry['act']['entryRelationship']['observation']['value']);
-        $problem->code = $code['code'];
-        $problem->code_text = $code['code_text'];
-        $problem->code_type = $code['code_type'];
-        unset($code);
-
-        if(isset($entry['act']['effectiveTime'])){
-            $dates = $this->datesHandler($entry['act']['effectiveTime'], true);
-            $problem->begin_date = $dates['low'];
-            $problem->end_date = $dates['high'];
-            unset($dates);
+        if(!isset($this->index['procedures'])){
+            return $procedures;
         }
 
-        $problems[] = $problem;
-    }
-
-    return $problems;
-}
-
-/**
- * @return array
- */
-function getProcedures() {
-    $procedures = [];
-
-    if(!isset($this->index['procedures'])){
         return $procedures;
     }
 
-    $section = $this->document['ClinicalDocument']['component']['structuredBody']['component'][$this->index['procedures']]['section'];
+    /**
+     * @return array
+     */
+    function getResults() {
+        $results = [];
 
-    if(!isset($section['entry'])){
-        return $procedures;
-    }
-
-    if($this->isAssoc($section['entry']))
-        $section['entry'] = [$section['entry']];
-
-    foreach($section['entry'] as $entry){
-        $procedure = new stdClass();
-
-        if(isset($entry['procedure']['code'])){
-            // procedure
-            $code = $this->codeHandler($entry['procedure']['code']);
-            if($code['code'] == '')
-                continue;
-
-            $procedure->code = $code['code'];
-            $procedure->code_text = $code['code_text'];
-            $procedure->code_type = $code['code_type'];
-
-            //dates
-            $dates = $this->datesHandler($entry['procedure']['effectiveTime']);
-            $procedure->procedure_date = $dates['low'];
-            $procedures[] = $procedure;
+        if(!isset($this->index['results'])){
+            return $results;
         }
 
-    }
-    return $procedures;
-}
+        $section = $this->document['ClinicalDocument']['component']['structuredBody']['component'][$this->index['results']]['section'];
 
-/**
- * @return array
- */
-function getResults() {
-    $results = [];
+        if(!isset($section['entry'])){
+            return $results;
+        }
 
-    if(!isset($this->index['results'])){
-        return $results;
-    }
+        if($this->isAssoc($section['entry']))
+            $section['entry'] = [$section['entry']];
 
-    $section = $this->document['ClinicalDocument']['component']['structuredBody']['component'][$this->index['results']]['section'];
+        foreach($section['entry'] as $entry){
+            $result = new stdClass();
 
-    if(!isset($section['entry'])){
-        return $results;
-    }
+            $code = $this->codeHandler($entry['organizer']['code']);
+            $result->code = $code['code'];
+            $result->code_text = $code['code_text'];
+            $result->code_type = $code['code_type'];
+            unset($code);
 
-    if($this->isAssoc($section['entry']))
-        $section['entry'] = [$section['entry']];
+            $result_date = '0000-00-00';
 
-    foreach($section['entry'] as $entry){
-        $result = new stdClass();
+            $result->observations = [];
 
-        $code = $this->codeHandler($entry['organizer']['code']);
-        $result->code = $code['code'];
-        $result->code_text = $code['code_text'];
-        $result->code_type = $code['code_type'];
-        unset($code);
+            if($this->isAssoc($entry['organizer']['component']))
+                $entry['organizer']['component'] = [$entry['organizer']['component']];
 
-        $result_date = '0000-00-00';
+            foreach($entry['organizer']['component'] as $obs){
 
-        $result->observations = [];
+                if(isset($obs['observation'])){
+                    $obs = $obs['observation'];
 
-        if($this->isAssoc($entry['organizer']['component']))
-            $entry['organizer']['component'] = [$entry['organizer']['component']];
+                    $observation = new stdClass();
+                    $code = $this->codeHandler($obs['code']);
+                    $observation->code = $code['code'];
+                    $observation->code_text = $code['code_text'];
+                    $observation->code_type = $code['code_type'];
+                    unset($code);
 
-        foreach($entry['organizer']['component'] as $obs){
+                    $observation->value = isset($obs['value']['@attributes']['value']) ? $obs['value']['@attributes']['value'] : '';
+                    $observation->units = isset($obs['value']['@attributes']['unit']) ? $obs['value']['@attributes']['unit'] : '';
 
-            if(isset($obs['observation'])){
-                $obs = $obs['observation'];
+                    if(isset($obs['referenceRange'])){
+                        $observation->reference_rage = "";
+                        if(isset($obs['referenceRange']['observationRange']['text'])){
+                            $observation->reference_rage = $obs['referenceRange']['observationRange']['text'];
+                        } else {
+                            if(isset($obs['referenceRange']['observationRange']['value']['low'])){
+                                $observation->reference_rage = $obs['referenceRange']['observationRange']['value']['low']['@attributes']['value'];
+                            }
+                            if(isset($obs['referenceRange']['observationRange']['value']['high'])){
+                                $observation->reference_rage .= ' - ' . $obs['referenceRange']
+                                                                        ['observationRange']
+                                                                        ['value']
+                                                                        ['high']
+                                                                        ['@attributes']
+                                                                        ['value'];
+                            }
+                            $observation->reference_rage .= ' ' . $observation->units;
+                        }
+                    }
 
-                $observation = new stdClass();
-                $code = $this->codeHandler($obs['code']);
-                $observation->code = $code['code'];
-                $observation->code_text = $code['code_text'];
-                $observation->code_type = $code['code_type'];
-                unset($code);
+                    $dates = $this->datesHandler($obs['effectiveTime']);
+                    $observation->date_analysis = $dates['low'];
 
-                $observation->value = isset($obs['value']['@attributes']['value']) ? $obs['value']['@attributes']['value'] : '';
-                $observation->units = isset($obs['value']['@attributes']['unit']) ? $obs['value']['@attributes']['unit'] : '';
-
-                if(isset($obs['referenceRange'])){
-                    $observation->reference_rage = "";
-                    if(isset($obs['referenceRange']['observationRange']['text'])){
-                        $observation->reference_rage = $obs['referenceRange']['observationRange']['text'];
+                    if(
+                        isset($obs['interpretationCode']) &&
+                        isset($obs['interpretationCode']['@attributes']) &&
+                        isset($obs['interpretationCode']['@attributes']['code'])
+                    ){
+                        $observation->abnormal_flag = $obs['interpretationCode']['@attributes']['code'];
                     } else {
-                        if(isset($obs['referenceRange']['observationRange']['value']['low'])){
-                            $observation->reference_rage = $obs['referenceRange']['observationRange']['value']['low']['@attributes']['value'];
-                        }
-                        if(isset($obs['referenceRange']['observationRange']['value']['high'])){
-                            $observation->reference_rage .= ' - ' . $obs['referenceRange']
-                                                                    ['observationRange']
-                                                                    ['value']
-                                                                    ['high']
-                                                                    ['@attributes']
-                                                                    ['value'];
-                        }
-                        $observation->reference_rage .= ' ' . $observation->units;
+                        $observation->abnormal_flag = '';
                     }
+
+                    if(
+                        isset($obs['statusCode']) &&
+                        isset($obs['statusCode']['@attributes']) &&
+                        isset($obs['statusCode']['@attributes']['code'])
+                    ){
+                        $observation->observation_result_status = $obs['statusCode']['@attributes']['code'];
+                    } else {
+                        $observation->observation_result_status = '';
+                    }
+
+                    $dates = $this->datesHandler($obs['effectiveTime']);
+                    $observation->date_observation = $result_date = $dates['low'];
+
+                    $result->observations[] = $observation;
+
+                }elseif(isset($obs['procedure'])){
+                    //TODO Finish me!.
                 }
-
-                $dates = $this->datesHandler($obs['effectiveTime']);
-                $observation->date_analysis = $dates['low'];
-
-                if(
-                    isset($obs['interpretationCode']) &&
-                    isset($obs['interpretationCode']['@attributes']) &&
-                    isset($obs['interpretationCode']['@attributes']['code'])
-                ){
-                    $observation->abnormal_flag = $obs['interpretationCode']['@attributes']['code'];
-                } else {
-                    $observation->abnormal_flag = '';
-                }
-
-                if(
-                    isset($obs['statusCode']) &&
-                    isset($obs['statusCode']['@attributes']) &&
-                    isset($obs['statusCode']['@attributes']['code'])
-                ){
-                    $observation->observation_result_status = $obs['statusCode']['@attributes']['code'];
-                } else {
-                    $observation->observation_result_status = '';
-                }
-
-                $dates = $this->datesHandler($obs['effectiveTime']);
-                $observation->date_observation = $result_date = $dates['low'];
-
-                $result->observations[] = $observation;
-
-            }elseif(isset($obs['procedure'])){
-                //TODO Finish me!.
             }
+            $result->result_date = $result_date;
+            $results[] = $result;
         }
-        $result->result_date = $result_date;
-        $results[] = $result;
+
+        return $results;
     }
 
-    return $results;
-}
+    /**
+     * getEncounters
+     * Get Encounters from CCR Document
+     * @return array
+     */
+    function getEncounters() {
+        $encounters = [];
 
-/**
- * @return array
- */
-function getEncounters() {
-    $encounters = [];
+        if(!isset($this->index['encounters'])){
+            return $encounters;
+        }
 
-    if(!isset($this->index['encounters'])){
         return $encounters;
     }
 
-    $section = $this->document['ClinicalDocument']['component']['structuredBody']['component'][$this->index['encounters']]['section'];
+    /**
+     * getAdvanceDirectives
+     * Get Advance Directive from CCR Document
+     * @return array
+     */
+    function getAdvanceDirectives() {
+        $directives = [];
 
-    if(!isset($section['entry'])){
-        return $encounters;
-    }
-
-    if($this->isAssoc($section['entry']))
-        $section['entry'] = [$section['entry']];
-
-    foreach($section['entry'] as $entry){
-
-        if(!isset($entry['encounter']['entryRelationship']))
-            continue;
-
-        $encounter = new stdClass();
-
-        $dates = $this->datesHandler($entry['encounter']['effectiveTime']);
-        $encounter->service_date = $dates['low'];
-        unset($dates);
-
-        $code = $this->codeHandler($entry['encounter']['code']);
-        $encounter->service_code = $code['code'];
-        $encounter->service_code_text = $code['code_text'];
-        $encounter->service_code_type = $code['code_type'];
-        unset($code);
-
-        $encounter->observations = [];
-
-        if($this->isAssoc($entry['encounter']['entryRelationship'])){
-            $entry['encounter']['entryRelationship'] = [$entry['encounter']['entryRelationship']];
-        };
-        // for each observations
-        foreach($entry['encounter']['entryRelationship'] as $obs){
-
-            if(isset($obs['observation'])){
-                $obs = $obs['observation'];
-            } elseif(isset($obs['act'])) {
-                $obs = $obs['act']['entryRelationship']['observation'];
-            }
-
-            $observation = new stdClass();
-
-            $code = $this->codeHandler($obs['code']);
-            $observation->code = $code['code'];
-            $observation->code_text = $code['code_text'];
-            $observation->code_type = $code['code_type'];
-            unset($code);
-
-            $code = $this->codeHandler($obs['value']);
-            $observation->value_code = $code['code'];
-            $observation->value_code_text = $code['code_text'];
-            $observation->value_code_type = $code['code_type'];
-            unset($code);
-
-            $encounter->observations[] = $observation;
-
+        if(!isset($this->index['advancedirectives'])){
+            return $directives;
         }
 
-        $encounters[] = $encounter;
-    }
-
-    return $encounters;
-}
-
-/**
- * @return array
- */
-function getAdvanceDirectives() {
-    $directives = [];
-
-    if(!isset($this->index['advancedirectives'])){
         return $directives;
     }
 
-    $section = $this->document['ClinicalDocument']['component']['structuredBody']['component'][$this->index['advancedirectives']]['section'];
-
-    if(!isset($section['entry'])){
-        return $directives;
+    /**
+     * ArrayToJson
+     * @param $array
+     * @return string
+     */
+    function ArrayToJson($array) {
+        return json_encode($array);
     }
 
-    if($this->isAssoc($section['entry']))
-        $section['entry'] = [$section['entry']];
+    /**
+     * XmlToJson
+     * @param $xml
+     * @return string
+     */
+    function XmlToJson($xml) {
+        return $this->ArrayToJson($this->XmlToArray($xml));
+    }
 
-    foreach($section['entry'] as $entry){
-        $directive = new stdClass();
+    /**
+     * XmlToArray
+     * @param $xml
+     * @return DOMDocument
+     */
+    function XmlToArray($xml) {
+        return XML2Array::createArray($xml);
+    }
 
-        $code = $this->codeHandler($entry['observation']['code']);
-        $directive->code = $code['code'];
-        $directive->code_text = $code['code_text'];
-        $directive->code_type = $code['code_type'];
-        unset($code);
-
-        $code = $this->codeHandler($entry['observation']['value']);
-        $directive->value_code = $code['code'];
-        $directive->value_code_text = $code['code_text'];
-        $directive->value_code_type = $code['code_type'];
-        unset($code);
-
-        $dates = $this->datesHandler($entry['observation']['effectiveTime'], true);
-        $directive->begin_date = $dates['low'];
-        $directive->end_date = $dates['high'];
-
-        if(isset($entry['observation']['participant'])){
-            if($this->isAssoc($entry['observation']['participant'])){
-                $entry['observation']['participant'] = [$entry['observation']['participant']];
-            }
-
-            $directive->contact = '';
-
-            foreach($entry['observation']['participant'] as $participant){
-                $participant = $participant['participantRole'];
-
-                if(isset($participant['playingEntity']) && (isset($participant['addr']) || isset($participant['telecom']))){
-
-                    if(isset($participant['addr'])){
-                        $address = isset($participant['addr']['streetAddressLine']) ? $participant['addr']['streetAddressLine'] : '';
-                        $address .= isset($participant['addr']['city']) ? ' ' . $participant['addr']['city'] : '';
-                        $address .= isset($participant['addr']['state']) ? ', ' . $participant['addr']['state'] : '';
-                        $address .= isset($participant['addr']['postalCode']) ? ' ' . $participant['addr']['postalCode'] : '';
-                        $address .= isset($participant['addr']['country']) ? ' ' . $participant['addr']['country'] : '';
-                    }
-
-                    $tel = isset($participant['telecom']) ? $participant['telecom']['@attributes']['value'] : '';
-
-                    $name = $this->nameHandler($participant['playingEntity']['name']);
-                    $directive->contact = $name['prefix'] . ' ' . $name['lname'] . ' ' . $name['fname'] . $name['mname'] . ' ~ ' . $tel . $address;
-
-                }
-
-            }
+    /**
+     * telecomHandler
+     * @param $telecoms
+     * @return array
+     */
+    function telecomHandler($telecoms) {
+        $telecoms = !$this->isAssoc($telecoms) ? $telecoms : [$telecoms];
+        $results = [];
+        foreach($telecoms as $telecom){
+            $use = isset($telecom['@attributes']['use']) && $telecom['@attributes']['use'] != '' ? $telecom['@attributes']['use'] : 'HP';
+            $results[$use] = isset($telecom['@attributes']['value']) ? $this->parsePhone($telecom['@attributes']['value']) : '';
         }
-
-        $directives[] = $directive;
+        return $results;
     }
 
-    return $directives;
-}
+    /**
+     * nameHandler
+     * @param $name
+     * @return array
+     */
+    function nameHandler($name) {
+        $results = [];
 
-/**
- * @param $array
- * @return string
- */
-function ArrayToJson($array) {
-    return json_encode($array);
-}
+        $results['prefix'] = isset($name['prefix']) && is_string($name['prefix']) ? $name['prefix'] : '';
 
-/**
- * @param $xml
- * @return string
- */
-function XmlToJson($xml) {
-    return $this->ArrayToJson($this->XmlToArray($xml));
-}
-
-/**
- * @param $xml
- * @return DOMDocument
- */
-function XmlToArray($xml) {
-    return XML2Array::createArray($xml);
-}
-
-/**
- * @param $telecoms
- * @return array
- */
-function telecomHandler($telecoms) {
-    $telecoms = !$this->isAssoc($telecoms) ? $telecoms : [$telecoms];
-    $results = [];
-    foreach($telecoms as $telecom){
-        $use = isset($telecom['@attributes']['use']) && $telecom['@attributes']['use'] != '' ? $telecom['@attributes']['use'] : 'HP';
-        $results[$use] = isset($telecom['@attributes']['value']) ? $this->parsePhone($telecom['@attributes']['value']) : '';
-    }
-    return $results;
-}
-
-/**
- * @param $name
- * @return array
- */
-function nameHandler($name) {
-    $results = [];
-
-    $results['prefix'] = isset($name['prefix']) && is_string($name['prefix']) ? $name['prefix'] : '';
-
-    if(is_array($name['given'])){
-        $results['fname'] = isset($name['given'][0]) ? $name['given'][0] : '';
-        if(!isset($name['given'][1])){
-            $results['mname'] = '';
-        } elseif(is_string($name['given'][1])) {
-            $results['mname'] = isset($name['given'][1]) ? $name['given'][1] : '';
-        } elseif(is_array($name['given'][1])) {
-            $results['mname'] = isset($name['given'][1]['@value']) ? $name['given'][1]['@value'] : '';
-        }
-    } else {
-        $results['fname'] = isset($name['given']) ? $name['given'] : '';
-        $results['mname'] = '';
-    }
-
-    $results['lname'] = isset($name['family']) ? $name['family'] : '';
-    return $results;
-}
-
-/**
- * @param $dates
- * @param $justDate
- * @return array
- */
-function datesHandler($dates, $justDate = false) {
-    $result = [
-        'low' => '0000-00-00',
-        'high' => '0000-00-00'
-    ];
-
-    if(is_string($dates)){
-        $result['low'] = $this->dateParser($dates);
-    } else {
-        if(isset($dates['@value'])){
-            $result['low'] = $this->dateHandler($dates);
+        if(is_array($name['given'])){
+            $results['fname'] = isset($name['given'][0]) ? $name['given'][0] : '';
+            if(!isset($name['given'][1])){
+                $results['mname'] = '';
+            } elseif(is_string($name['given'][1])) {
+                $results['mname'] = isset($name['given'][1]) ? $name['given'][1] : '';
+            } elseif(is_array($name['given'][1])) {
+                $results['mname'] = isset($name['given'][1]['@value']) ? $name['given'][1]['@value'] : '';
+            }
         } else {
-            if(isset($dates['low'])){
-                $result['low'] = $this->dateHandler($dates['low']);
-            }
-            if(isset($dates['high'])){
-                $result['high'] = $this->dateHandler($dates['high']);
-            }
-        }
-    }
-
-    if($justDate){
-        $result['low'] = substr($result['low'], 0, 10);
-        $result['high'] = substr($result['high'], 0, 10);
-    }
-
-    return $result;
-}
-
-/**
- * @param $date
- * @return mixed|string
- */
-function dateHandler($date) {
-    $result = '0000-00-00';
-    if(is_string($date)){
-        $result = $this->dateParser($date);
-    } elseif(isset($date['@attributes']['value'])) {
-        $result = $this->dateParser($date['@attributes']['value']);
-    }
-    return $result;
-}
-
-/**
- * @param $code
- * @return array
- */
-function codeHandler($code) {
-    if(isset($code['@attributes'])){
-        return $this->codeHandler($code['@attributes']);
-    }
-    $result = [];
-    $result['code'] = isset($code['code']) ? $code['code'] : '';
-    $result['code_type'] = isset($code['codeSystem']) ? $this->getCodeSystemName($code['codeSystem']) : '';
-    $result['code_text'] = isset($code['displayName']) ? $code['displayName'] : '';
-
-    if($result['code_text'] == ''){
-
-        if($result['code_type'] == 'SNOMEDCT'){
-
-            if(!isset($this->SnomedCodes)){
-                $this->SnomedCodes = new SnomedCodes();
-            }
-            $text = $this->SnomedCodes->getSnomedTextByConceptId($result['code']);
-            $result['code_text'] = $text;
-
-        } elseif($result['code_type'] == 'LOINC') {
-
-            //TODO
-
+            $results['fname'] = isset($name['given']) ? $name['given'] : '';
+            $results['mname'] = '';
         }
 
+        $results['lname'] = isset($name['family']) ? $name['family'] : '';
+        return $results;
     }
 
-    return $result;
-}
+    /**
+     * datesHandler
+     * @param $dates
+     * @param $justDate
+     * @return array
+     */
+    function datesHandler($dates, $justDate = false) {
+        $result = [
+            'low' => '0000-00-00',
+            'high' => '0000-00-00'
+        ];
 
-/**
- * @param $date
- * @return mixed|string
- */
-function dateParser($date) {
-    $result = '0000-00-00';
-    switch(strlen($date)) {
-        case 4:
-            $result = $date . '-00-00';
-            break;
-        case 6:
-            $result = preg_replace('/^(\d{4})(\d{2})/', '$1-$2-00', $date);
-            break;
-        case 8:
-            $result = preg_replace('/^(\d{4})(\d{2})(\d{2})$/', '$1-$2-$3', $date);
-            break;
-        case 10:
-            $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})$/', '$1-$2-$3 $4:00:00', $date);
-            break;
-        case 12:
-            $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/', '$1-$2-$3 $4:$5:00', $date);
-            break;
-        case 14:
-            $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/', '$1-$2-$3 $4:$5:$6', $date);
-            break;
+        if(is_string($dates)){
+            $result['low'] = $this->dateParser($dates);
+        } else {
+            if(isset($dates['@value'])){
+                $result['low'] = $this->dateHandler($dates);
+            } else {
+                if(isset($dates['low'])){
+                    $result['low'] = $this->dateHandler($dates['low']);
+                }
+                if(isset($dates['high'])){
+                    $result['high'] = $this->dateHandler($dates['high']);
+                }
+            }
+        }
+
+        if($justDate){
+            $result['low'] = substr($result['low'], 0, 10);
+            $result['high'] = substr($result['high'], 0, 10);
+        }
+
+        return $result;
     }
 
-    return $result;
-}
+    /**
+     * dateHandler
+     * @param $date
+     * @return mixed|string
+     */
+    function dateHandler($date) {
+        $result = '0000-00-00';
+        if(is_string($date)){
+            $result = $this->dateParser($date);
+        } elseif(isset($date['@attributes']['value'])) {
+            $result = $this->dateParser($date['@attributes']['value']);
+        }
+        return $result;
+    }
 
-/**
- * @param $phone
- * @return mixed
- */
-function parsePhone($phone) {
-    return preg_replace('/tel:/', '', $phone);
-}
+    /**
+     * codeHandler
+     * @param $code
+     * @return array
+     */
+    function codeHandler($code) {
+        if(isset($code['@attributes'])){
+            return $this->codeHandler($code['@attributes']);
+        }
+        $result = [];
+        $result['code'] = isset($code['code']) ? $code['code'] : '';
+        $result['code_type'] = isset($code['codeSystem']) ? $this->getCodeSystemName($code['codeSystem']) : '';
+        $result['code_text'] = isset($code['displayName']) ? $code['displayName'] : '';
 
-/**
- * @param $arr
- * @return bool
- */
-function isAssoc($arr) {
-    return array_keys($arr) !== range(0, count($arr) - 1);
-}
+        if($result['code_text'] == ''){
 
-/**
- * @param $code
- * @return string
- */
-function getCodeSystemName($code) {
-    $code = str_replace('.', '', $code);
-    $codes = [
-        '2168401113883612' => 'CPT4',
-        '2168401113883642' => 'ICD9',
-        '21684011138836103' => 'ICD9CM',
-        '216840111388363' => 'ICD10',
-        '216840111388361' => 'LOINC',
-        '216840111388366' => 'NDC',
-        '2168401113883688' => 'RXNORM',
-        '2168401113883696' => 'SNOMEDCT',
-        '216840111388346' => 'NPI',
-        '216840111388349' => 'UNII',
-        '216840111388332611' => 'NCI'
-    ];
+            if($result['code_type'] == 'SNOMEDCT'){
 
-    return isset($codes[$code]) ? $codes[$code] : 'UNK';
+                if(!isset($this->SnomedCodes)){
+                    $this->SnomedCodes = new SnomedCodes();
+                }
+                $text = $this->SnomedCodes->getSnomedTextByConceptId($result['code']);
+                $result['code_text'] = $text;
 
-}
+            } elseif($result['code_type'] == 'LOINC') {
 
-function getTestCCD($file) {
+                //TODO
 
-    $ccd = file_get_contents(ROOT . '/dataProvider/CCDs/' . $file);
-    $this->setDocument($ccd);
-    return ['ccd' => $this->getDocument()];
-}
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * dateParser
+     * @param $date
+     * @return mixed|string
+     */
+    function dateParser($date) {
+        $result = '0000-00-00';
+        switch(strlen($date)) {
+            case 4:
+                $result = $date . '-00-00';
+                break;
+            case 6:
+                $result = preg_replace('/^(\d{4})(\d{2})/', '$1-$2-00', $date);
+                break;
+            case 8:
+                $result = preg_replace('/^(\d{4})(\d{2})(\d{2})$/', '$1-$2-$3', $date);
+                break;
+            case 10:
+                $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})$/', '$1-$2-$3 $4:00:00', $date);
+                break;
+            case 12:
+                $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/', '$1-$2-$3 $4:$5:00', $date);
+                break;
+            case 14:
+                $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/', '$1-$2-$3 $4:$5:$6', $date);
+                break;
+        }
+
+        return $result;
+    }
+
+    /**
+     * parsePhone
+     * @param $phone
+     * @return mixed
+     */
+    function parsePhone($phone) {
+        return preg_replace('/tel:/', '', $phone);
+    }
+
+    /**
+     * isAssoc
+     * @param $arr
+     * @return bool
+     */
+    function isAssoc($arr) {
+        return array_keys($arr) !== range(0, count($arr) - 1);
+    }
+
+    /**
+     * getCodeSystemName
+     * @param $code
+     * @return string
+     */
+    function getCodeSystemName($code) {
+        $code = str_replace('.', '', $code);
+        $codes = [
+            '2168401113883612' => 'CPT4',
+            '2168401113883642' => 'ICD9',
+            '21684011138836103' => 'ICD9CM',
+            '216840111388363' => 'ICD10',
+            '216840111388361' => 'LOINC',
+            '216840111388366' => 'NDC',
+            '2168401113883688' => 'RXNORM',
+            '2168401113883696' => 'SNOMEDCT',
+            '216840111388346' => 'NPI',
+            '216840111388349' => 'UNII',
+            '216840111388332611' => 'NCI'
+        ];
+
+        return isset($codes[$code]) ? $codes[$code] : 'UNK';
+
+    }
+
 }
 
 

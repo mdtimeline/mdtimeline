@@ -54925,6 +54925,8 @@ Ext.define('App.controller.patient.Documents', {
 			store = me.getPatientDocumentGrid().getStore(),
 			index = store.indexOf(record);
 
+		record.set({facility_id: app.user.facility});
+
 		if(index == -1){
 			store.add(record);
 		}

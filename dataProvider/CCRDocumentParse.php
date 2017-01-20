@@ -140,16 +140,15 @@ function setDocument($xml) {
      * @throws Exception
      */
     function getPatient() {
-        $dom = $this->document['ccr:ContinuityOfCareRecord']['ccr:Patient']['ccr:ActorID'];
 
-        if(empty($dom))
+        if(empty($this->document['ccr:ContinuityOfCareRecord']['ccr:Patient']['ccr:ActorID']))
             throw new Exception('Error: ClinicalDocument->recordTarget->patientRole->Patient is required');
 
         $patient = new stdClass();
 
         // Patient ID
         // We also need this actor id, to extract the actor information
-        $patient->pubpid = $dom;
+        $patient->pubpid = $this->document['ccr:ContinuityOfCareRecord']['ccr:Patient']['ccr:ActorID'];
 
         foreach($this->document['ccr:ContinuityOfCareRecord']['ccr:Actors']['ccr:Actors'] as $Actor)
         {
@@ -203,44 +202,39 @@ function setDocument($xml) {
         return $patient;
     }
 
-/**
- * @return stdClass
- */
-function getAuthor() {
-    $dom = $this->document['ClinicalDocument']['author'];
-    $author = new stdClass();
+    /**
+     * @return stdClass
+     */
+    function getAuthor() {
+        $author = new stdClass();
 
-    if(isset($dom['assignedAuthor'])){
-        $author->id = $dom['assignedAuthor']['id']['@attributes']['extension'];
+        if(isset($this->document['ccr:ContinuityOfCareRecord']['ccr:From']['ccr:ActorLink']['ccr:ActorID'])){
 
-        if(isset($dom['assignedAuthor']['assignedPerson']['name'])){
-            $names = $this->nameHandler($dom['assignedAuthor']['assignedPerson']['name']);
-            $author->fname = $names['fname'];
-            $author->mname = $names['mname'];
-            $author->lname = $names['lname'];
-        }
+            $author->id = $this->document['ccr:ContinuityOfCareRecord']['ccr:From']['ccr:ActorLink']['ccr:ActorID'];
 
-        if(isset($dom['assignedAuthor']['addr'])){
-            $author->address = isset($dom['assignedAuthor']['addr']['streetAddressLine']) ? $dom['assignedAuthor']['addr']['streetAddressLine'] : '';
-            $author->city = isset($dom['assignedAuthor']['addr']['city']) ? $dom['assignedAuthor']['addr']['city'] : '';
-            $author->state = isset($dom['assignedAuthor']['addr']['state']) ? $dom['assignedAuthor']['addr']['state'] : '';
-            $author->zipcode = isset($dom['assignedAuthor']['addr']['postalCode']) ? $dom['assignedAuthor']['addr']['postalCode'] : '';
-            $author->country = isset($dom['assignedAuthor']['addr']['country']) ? $dom['assignedAuthor']['addr']['country'] : '';
-        }
-        if(isset($dom['assignedAuthor']['telecom']) && $dom['assignedAuthor']['telecom'] !== ''){
-            $telecoms = $this->telecomHandler($dom['assignedAuthor']['telecom']);
-            foreach($telecoms as $type => $telecom){
-                if($type == 'WP'){
-                    $author->work_phone = $telecom;
-                } else {
-                    $author->home_phone = $telecom;
+            foreach($this->document['ccr:ContinuityOfCareRecord']['ccr:Actors']['ccr:Actors'] as $Actor){
+                if($Actor['ccr:ActorObjectID'] == $author->id) {
+
+                    // Authos name
+                    $author->fname = $Actor['ccr:Person']['ccr:Name']['ccr:BirthName']['ccr:Given'];
+                    $author->mname = $Actor['ccr:Person']['ccr:Name']['ccr:BirthName']['ccr:Family'];
+                    $author->lname = '';
+
+                    // Author address
+                    $author->address = isset($Actor['ccr:Address']['ccr:Line1']) ? $Actor['ccr:Address']['ccr:Line1'] : '';
+                    $author->city = isset($Actor['ccr:Address']['ccr:City']) ? $Actor['ccr:Address']['ccr:City'] : '';
+                    $author->state = isset($Actor['ccr:Address']['ccr:State']) ? $Actor['ccr:Address']['ccr:State'] : '';
+                    $author->zipcode = isset($Actor['ccr:Address']['ccr:PostalCode']) ? $Actor['ccr:Address']['ccr:PostalCode'] : '';
+                    $author->country = '';
+
+                    // Author phone
+                    $author->work_phone = isset($Actor['ccr:Telephone']['ccr:Value']) ? $this->telecomHandler($Actor['ccr:Telephone']['ccr:Value']) : '';
                 }
             }
         }
-    }
 
-    return $author;
-}
+        return $author;
+    }
 
 function getEncounter() {
     $encounter = new stdClass();

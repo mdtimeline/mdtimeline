@@ -177,7 +177,7 @@ if (
 				'data' => 'Generated and viewed image'
 			]);
 
-		} elseif (isset($doc->document_instance)) {
+		} elseif (isset($doc->document_instance) && $doc->document_instance != '') {
 
 			$mineType = get_mime_type($doc->name);
 			$is_image = preg_match('/^image/', $mineType);

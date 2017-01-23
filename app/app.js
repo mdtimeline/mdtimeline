@@ -41077,7 +41077,7 @@ Ext.define('App.controller.patient.CCDImport', {
 
 	onCcdImportPreviewWindowImportBtnClick: function(){
 		var me = this,
-			patient = me.getCcdImportPreviewPatientForm().getRecord();
+			patient = me.getCcdImportPreviewPatientForm().getForm().getRecord();
 
 		if(patient.data.pid){
 			me.promptVerifyPatientImport(patient);
@@ -41211,9 +41211,8 @@ Ext.define('App.controller.patient.CCDImport', {
 	onPossiblePatientDuplicatesContinueBtnClick:function(btn){
 		if(btn.up('window').action != 'ccdImportDuplicateAction') return;
         if(this.getCcdImportPreviewPatientForm()){
-
+            this.promptVerifyPatientImport(this.getCcdImportPreviewPatientForm().getForm().getRecord());
         }
-		this.promptVerifyPatientImport(this.getCcdImportPreviewPatientForm().getRecord());
 	},
 
 	onCcdImportWindowSelectAllFieldChange: function(field, selected){

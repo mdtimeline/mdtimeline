@@ -150,7 +150,7 @@ function setDocument($xml) {
         // We also need this actor id, to extract the actor information
         $patient->pubpid = $this->document['ccr:ContinuityOfCareRecord']['ccr:Patient']['ccr:ActorID'];
 
-        foreach($this->document['ccr:ContinuityOfCareRecord']['ccr:Actors']['ccr:Actors'] as $Actor)
+        foreach($this->document['ccr:ContinuityOfCareRecord']['ccr:Actors']['ccr:Actor'] as $Actor)
         {
             if($Actor['ccr:ActorObjectID'] == $patient->pubpid){
                 // Patient address
@@ -212,7 +212,7 @@ function setDocument($xml) {
 
             $author->id = $this->document['ccr:ContinuityOfCareRecord']['ccr:From']['ccr:ActorLink']['ccr:ActorID'];
 
-            foreach($this->document['ccr:ContinuityOfCareRecord']['ccr:Actors']['ccr:Actors'] as $Actor){
+            foreach($this->document['ccr:ContinuityOfCareRecord']['ccr:Actors']['ccr:Actor'] as $Actor){
                 if($Actor['ccr:ActorObjectID'] == $author->id) {
 
                     // Authos name
@@ -228,7 +228,7 @@ function setDocument($xml) {
                     $author->country = '';
 
                     // Author phone
-                    $author->work_phone = isset($Actor['ccr:Telephone']['ccr:Value']) ? $this->telecomHandler($Actor['ccr:Telephone']['ccr:Value']) : '';
+                    $author->work_phone = isset($Actor['ccr:Telephone']['ccr:Value']) ? $Actor['ccr:Telephone']['ccr:Value'] : '';
                 }
             }
         }
@@ -242,7 +242,48 @@ function setDocument($xml) {
      */
     function getAllergies() {
         $allergies = [];
-        if(!isset($this->index['allergies'])) return $allergies;
+        if(!isset($this->index['allergies']) && !isset($this->document['ccr:ContinuityOfCareRecord']['ccr:Body']['ccr:Alerts']))
+            return $allergies;
+
+        foreach($this->document['ccr:ContinuityOfCareRecord']['ccr:Body']['ccr:Alerts']['ccr:Alert'] as $Allergy){
+            $allergy = new stdClass();
+
+            // Allergy type
+            $allergy->allergy_type = $Allergy['ccr:Type']['ccr:Text'];
+            $allergy->allergy_type_code = $Allergy['ccr:Type']['ccr:Code']['ccr:Value'];
+            $allergy->allergy_type_code_type = $Allergy['ccr:Type']['ccr:Code']['ccr:CodingSystem'];
+
+            // Allergy
+            $allergy->allergy = $Allergy['ccr:Description']['ccr:Text'];
+            $allergy->allergy_code = $Allergy['ccr:Description']['ccr:Code']['ccr:Value'];
+            $allergy->allergy_code_type = $Allergy['ccr:Description']['ccr:Code']['ccr:CodingSystem'];
+
+            // Dates
+            $allergy->begin_date = $Allergy['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text'];
+            $allergy->end_date = '';
+
+            // Status
+            if(isset($Allergy['ccr:Status']['ccr:Text'])){
+                $allergy->status = $Allergy['ccr:Status']['ccr:Text'];
+                $allergy->status_code = '';
+                $allergy->status_code_type = '';
+            }
+
+            // Severity
+            $allergy->severity = '';
+            $allergy->severity_code = '';
+            $allergy->severity_code_type = '';
+
+            // Reaction
+            if(isset($Allergy['ccr:Reaction']['ccr:Description']['ccr:Text'])) {
+                $allergy->reaction = $Allergy['ccr:Reaction']['ccr:Description']['ccr:Text'];
+                $allergy->reaction_code = '';
+                $allergy->reaction_code_type = '';
+            }
+
+            $allergies[] = $allergy;
+        }
+
         return $allergies;
     }
 
@@ -254,11 +295,10 @@ function setDocument($xml) {
     function getMedications() {
         $medications = [];
 
-        if(!isset($this->index['medications']) || !isset($this->document['ccr:Body']['ccr:Medications'])){
+        if(!isset($this->index['medications']) && !isset($this->document['ccr:ContinuityOfCareRecord']['ccr:Body']['ccr:Medications']))
             return $medications;
-        }
 
-        foreach($this->document['ccr:Body']['ccr:Medications']['ccr:Medication'] as $Medication){
+        foreach($this->document['ccr:ContinuityOfCareRecord']['ccr:Body']['ccr:Medications']['ccr:Medication'] as $Medication){
             $medication = new stdClass();
             $medication->begin_date = $Medication['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text'];
             $medication->end_date = '';
@@ -278,11 +318,10 @@ function setDocument($xml) {
     function getProblems() {
         $problems = [];
 
-        if(!isset($this->index['problems']) || !isset($this->document['ccr:Body']['ccr:Problems'])){
+        if(!isset($this->index['problems']) && !isset($this->document['ccr:ContinuityOfCareRecord']['ccr:Body']['ccr:Problems']))
             return $problems;
-        }
 
-        foreach($this->document['ccr:Body']['ccr:Medications']['ccr:Medication'] as $Problem){
+        foreach($this->document['ccr:ContinuityOfCareRecord']['ccr:Body']['ccr:Problems']['ccr:Problem'] as $Problem){
             $problem = new stdClass();
             $problem->begin_date = $Problem['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text'];
             $problem->end_date = '';
@@ -303,9 +342,7 @@ function setDocument($xml) {
     function getProcedures() {
         $procedures = [];
 
-        if(!isset($this->index['procedures'])){
-            return $procedures;
-        }
+        if(!isset($this->index['procedures'])) return $procedures;
 
         return $procedures;
     }
@@ -319,11 +356,10 @@ function setDocument($xml) {
     function getResults() {
         $results = [];
 
-        if(!isset($this->index['results']) || !isset($this->document['ccr:Body']['ccr:Results'])){
+        if(!isset($this->index['results']) || !isset($this->document['ccr:ContinuityOfCareRecord']['ccr:Body']['ccr:Results']))
             return $results;
-        }
 
-        foreach($this->document['ccr:Body']['ccr:Results']['ccr:Result'] as $Result){
+        foreach($this->document['ccr:ContinuityOfCareRecord']['ccr:Body']['ccr:Results']['ccr:Result'] as $Result){
             $result = new stdClass();
             $result->code = $Result['ccr:Description']['ccr:Code']['ccr:Value'];
             $result->code_type = $Result['ccr:Description']['ccr:Code']['ccr:CodingSystem'];
@@ -347,6 +383,17 @@ function setDocument($xml) {
     }
 
     /**
+     * getEncounter
+     * Get Encounters from CCR Document
+     * @return array
+     */
+    function getEncounter() {
+        $encounter = [];
+        if(!isset($this->index['encounters'])) return $encounter;
+        return $encounter;
+    }
+
+    /**
      * getEncounters
      * Get Encounters from CCR Document
      * @return array
@@ -354,9 +401,7 @@ function setDocument($xml) {
     function getEncounters() {
         $encounters = [];
 
-        if(!isset($this->index['encounters'])){
-            return $encounters;
-        }
+        if(!isset($this->index['encounters'])) return $encounters;
 
         return $encounters;
     }
@@ -369,9 +414,7 @@ function setDocument($xml) {
     function getAdvanceDirectives() {
         $directives = [];
 
-        if(!isset($this->index['advancedirectives'])){
-            return $directives;
-        }
+        if(!isset($this->index['advancedirectives'])) return $directives;
 
         return $directives;
     }

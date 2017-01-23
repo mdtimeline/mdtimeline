@@ -114,7 +114,7 @@ class DocumentHandler {
 
 			if ($is_file) {
 				$record['document'] = file_get_contents($file_path);
-			} else{
+			} elseif(isset($record['document_instance']) && $record['document_instance'] != ''){
 				$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $record['document_instance']);
 				$data = $dd->load($record['document_id'])->one();
 				if($data !== false){

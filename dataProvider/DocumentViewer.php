@@ -233,19 +233,22 @@ if (
 					<script src="../lib/darkroomjs/demo/vendor/fabric.js" ></script>
 					<script src="../lib/darkroomjs/build/darkroom.js" ></script>
 					<script>
-					    var dkrm = new Darkroom('#target', {
-					        plugins: {
-						        save: '$doc->is_temp' == 'true' ? false : {
-						            callback: function(){
-				                        var msg = 'documentedit{"save":{"id":{$doc->id},"document":"'+dkrm.snapshotImage()+'" }}';
-				                        window.parent.postMessage(msg, '*');
+						setTimeout(function() {
+							var dkrm = new Darkroom('#target', {
+						     	plugins: {
+							        save: '$doc->is_temp' == 'true' ? false : {
+							            callback: function(){
+					                        var msg = 'documentedit{"save":{"id":{$doc->id},"document":"'+dkrm.snapshotImage()+'" }}';
+					                        window.parent.postMessage(msg, '*');
+							            }
+							        },
+							        crop: {
+							            quickCropKey: 67
 						            }
-						        },
-						        crop: {
-						            quickCropKey: 67
 					            }
-				            }
-					    });
+						    });
+						}, 3000);
+					 
 				  </script>
 				</body>
 			</html>

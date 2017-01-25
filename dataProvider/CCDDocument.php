@@ -683,7 +683,19 @@ INTRUCTIONS;
 		];
 
 		$this->patientData = $this->Patient->getPatientDemographicDataByPid($this->pid);
-		$this->user = $this->User->getUserByUid($_SESSION['user']['id']);
+
+		// If the user is set in the session, this CDA request came from the EHR, if not
+        // the request came from the Patient Portal (PHR)
+		if(isset($_SESSION['user'])){
+            $this->user = $this->User->getUserByUid($_SESSION['user']['id']);
+        } else {
+		    $this->user['title'] = '';
+            $this->user['fname'] = 'mdTimeLine';
+            $this->user['lname'] = 'PHR';
+            $this->user['npi'] = '';
+            $this->user['id'] = 0;
+        }
+
 		$this->primaryProvider = $this->User->getUserByUid($this->patientData['primary_provider']);
 
 		$this->xmlData['recordTarget'] = $this->getRecordTarget();

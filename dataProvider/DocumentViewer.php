@@ -225,15 +225,35 @@ if (
 				<head>
 				    <meta charset="UTF-8">
 				    <link rel="stylesheet" href="../lib/darkroomjs/build/darkroom.css">
+				    <style>
+						.btn {
+						  font-family: Arial;
+						  color: #ffffff;
+						  font-size: 16px;
+						  background: #616161;
+						  padding: 5px 10px 5px 10px;
+						  border: solid #3d3d3d 0px;
+						  text-decoration: none;
+						}
+						
+						.btn:hover {
+						  background: #3cb0fd;
+						  text-decoration: none;
+						}
+				    
+					</style>
 				</head>
-				<body style="overflow: hidden">
-			        <div class="image-container target">
+				<body style="overflow: hidden; position: relative;">
+					<input style="position: absolute; right:0;top:0" class="btn" type="button" value="Edit" onclick="enableDarkroom(this);" />
+			        <div class="image-container target" style=" left: 0; top:0;width:100%;">
 				        <img style="width:100%;" alt="" id="target" crossOrigin="anonymous" src="data:{$mineType};base64,{$document}">
 			        </div>
 					<script src="../lib/darkroomjs/demo/vendor/fabric.js" ></script>
 					<script src="../lib/darkroomjs/build/darkroom.js" ></script>
 					<script>
-						setTimeout(function() {
+					
+						function enableDarkroom(btn){
+							btn.style.display = 'none';
 							var dkrm = new Darkroom('#target', {
 						     	plugins: {
 							        save: '$doc->is_temp' == 'true' ? false : {
@@ -241,14 +261,10 @@ if (
 					                        var msg = 'documentedit{"save":{"id":{$doc->id},"document":"'+dkrm.snapshotImage()+'" }}';
 					                        window.parent.postMessage(msg, '*');
 							            }
-							        },
-							        crop: {
-							            quickCropKey: 67
-						            }
+							        }
 					            }
 						    });
-						}, 3000);
-					 
+						}
 				  </script>
 				</body>
 			</html>

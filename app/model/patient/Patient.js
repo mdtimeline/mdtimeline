@@ -134,6 +134,12 @@ Ext.define('App.model.patient.Patient',{
             store: false
         },
         {
+            name: 'provider',
+            type: 'string',
+            comment: 'default provider',
+            len: 40
+        },
+        {
             name: 'pharmacy',
             type: 'string',
             comment: 'default pharmacy',
@@ -230,6 +236,36 @@ Ext.define('App.model.patient.Patient',{
             type: 'string',
             comment: 'employer name',
             len: 40
+        },
+        {
+            name: 'employer_address',
+            type: 'string',
+            comment: 'employer address',
+            len: 40
+        },
+        {
+            name: 'employer_city',
+            type: 'string',
+            comment: 'employer city',
+            len: 40
+        },
+        {
+            name: 'employer_state',
+            type: 'string',
+            comment: 'employer state',
+            len: 40
+        },
+        {
+            name: 'employer_country',
+            type: 'string',
+            comment: 'employer country',
+            len: 40
+        },
+        {
+            name: 'employer_postal_code',
+            type: 'string',
+            comment: 'employer postal code',
+            len: 10
         },
         {
             name: 'rating',
@@ -601,78 +637,7 @@ Ext.define('App.model.patient.Patient',{
             name: 'emergency_contact_portal_username',
             type: 'string',
             len: 40
-        },
-        {
-            name: 'religion',
-            type: 'string',
-            len: 20
-        },
-        {
-            name: 'authorized_01_relation',
-            type: 'string',
-            len: 20
-        },
-        {
-            name: 'authorized_01_fname',
-            type: 'string',
-            len: 80
-        },
-        {
-            name: 'authorized_01_mname',
-            type: 'string',
-            len: 80
-        },
-        {
-            name: 'authorized_01_lname',
-            type: 'string',
-            len: 80
-        },
-        {
-            name: 'authorized_02_relation',
-            type: 'string',
-            len: 20
-        },
-        {
-            name: 'authorized_02_fname',
-            type: 'string',
-            len: 80
-        },
-        {
-            name: 'authorized_02_mname',
-            type: 'string',
-            len: 80
-        },
-        {
-            name: 'authorized_02_lname',
-            type: 'string',
-            len: 80
-        },
-        {
-            name: 'authorized_01_phone',
-            type: 'string',
-            len: 20
-        },
-        {
-            name: 'authorized_01_phone_type',
-            type: 'string',
-            len: 10
-        },
-        {
-            name: 'authorized_02_phone',
-            type: 'string',
-            len: 20
-        },
-        {
-            name: 'authorized_02_phone_type',
-            type: 'string',
-            len: 10
-        },
-        {
-            name: 'phone_mobile_supplier',
-            type: 'string',
-            len: 25
         }
-
     ],
     idProperty: 'pid',
     proxy: {

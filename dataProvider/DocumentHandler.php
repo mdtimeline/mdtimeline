@@ -108,10 +108,22 @@ class DocumentHandler {
 		$record = $this->d->load($params)->one();
 
 		if($record !== false && $includeDocument){
-			$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $record['document_instance']);
-			$data = $dd->load($record['document_id'])->one();
-			if($data !== false){
-				$record['document'] = $data['document'];
+
+			$file_path = $record['url'] . '/' . $record['name'];
+			$is_file = isset($record['url']) && $record['url'] != '' && file_exists($file_path);
+
+			if ($is_file) {
+				$record['document'] = file_get_contents($file_path);
+			} elseif(isset($record['document_instance']) && $record['document_instance'] != ''){
+				$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $record['document_instance']);
+				$data = $dd->load($record['document_id'])->one();
+				if($data !== false){
+					$record['document'] = $data['document'];
+				}
+			}
+
+			if(isset($record['document']) && $this->isBinary($record['document'])){
+				$record['document'] = base64_encode($record['document']);
 			}
 		}
 
@@ -650,11 +662,16 @@ class DocumentHandler {
 		return [ 'success' => true, 'total' => count($records) ];
 	}
 
+	public function isBinary($document){
+		if(function_exists('is_binary')) {
+			return is_binary($document);
+		}
+		return preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0;
+	}
+
 	public function base64ToBinary($document, $encrypted = false) {
 		// handle binary documents
-		if(function_exists('is_binary') && is_binary($document)){
-			return $document;
-		}elseif(preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0){
+		if($this->isBinary($document)){
 			return $document;
 		}else{
 			return base64_decode($document);

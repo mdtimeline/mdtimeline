@@ -1040,11 +1040,14 @@ class Encounter {
 		$sql .= 'SELECT `id` AS record_id, `order_type` AS document_type, `description` FROM `patient_orders` WHERE `eid` = ?';
 		$sql .= ' UNION ';
 		$sql .= 'SELECT `id` AS record_id, \'note\' AS document_type, \'Doctors Note\' AS description FROM `patient_doctors_notes` WHERE `eid` = ?';
+		$sql .= ' UNION ';
+		$sql .= 'SELECT `id` AS record_id, \'referral\' AS document_type, \'Referral\' AS description FROM `patient_referrals` WHERE `eid` = ?';
 		$sth = $this->conn->prepare($sql);
 		$sth->execute([
 			$eid,
 			$eid,
-			$eid
+			$eid,
+			$eid,
 		]);
 		return $sth->fetchAll(PDO::FETCH_ASSOC);
 	}

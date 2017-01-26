@@ -37,7 +37,8 @@ Ext.define('App.view.patient.EncounterDocumentsGrid', {
 		proxy: {
 			type: 'memory'
 		},
-		groupField: 'document_type'
+		groupField: 'document_type',
+		storeId: 'EncounterDocumentsGridStore'
 	}),
 	columns: [
 		{

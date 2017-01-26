@@ -50,6 +50,11 @@ Ext.define('App.model.patient.PatientDocuments', {
 			index: true
 		},
 		{
+			name: 'facility_id',
+			type: 'int',
+			index: true
+		},
+		{
 			name: 'docType',
 			type: 'string',
 			index: true

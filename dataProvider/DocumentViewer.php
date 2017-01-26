@@ -101,13 +101,9 @@ if (
 		return isset($mime_types[$extension]) ? $mime_types[$extension] : '';
 	}
 
-	function base64ToBinary($document, $encrypted, $is_image)
-	{
-
+	function base64ToBinary($document, $encrypted, $is_image){
 		// handle binary documents
-		if (function_exists('is_binary') && is_binary($document)) {
-			return $document;
-		} elseif (preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0) {
+		if (isBinary($document)) {
 			return $document;
 		} else {
 			return base64_decode($document);
@@ -120,6 +116,16 @@ if (
 //			$document = base64_decode($document);
 //		}
 	}
+
+	function isBinary($document){
+		if (function_exists('is_binary') && is_binary($document)) {
+			return true;
+		} elseif (preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0) {
+			return true;
+		}
+		return false;
+	}
+
 
 	$isTemp = isset($_REQUEST['temp']);
 
@@ -171,7 +177,7 @@ if (
 				'data' => 'Generated and viewed image'
 			]);
 
-		} elseif (isset($doc->document_instance)) {
+		} elseif (isset($doc->document_instance) && $doc->document_instance != '') {
 
 			$mineType = get_mime_type($doc->name);
 			$is_image = preg_match('/^image/', $mineType);
@@ -207,10 +213,7 @@ if (
 
 		$enableEdit = isset($_SESSION['user']['auth']) && $_SESSION['user']['auth'] == true;
 
-		// handle binary documents
-		if (function_exists('is_binary') && is_binary($document)) {
-			$document = base64_encode($document);
-		} elseif (preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0) {
+		if(isBinary($document)){
 			$document = base64_encode($document);
 		}
 
@@ -221,29 +224,47 @@ if (
 			<html>
 				<head>
 				    <meta charset="UTF-8">
-				    <link rel="stylesheet" href="../lib/darkroomjs/build/css/darkroom.min.css">
+				    <link rel="stylesheet" href="../lib/darkroomjs/build/darkroom.css">
+				    <style>
+						.btn {
+						  font-family: Arial;
+						  color: #ffffff;
+						  font-size: 16px;
+						  background: #616161;
+						  padding: 5px 10px 5px 10px;
+						  border: solid #3d3d3d 0px;
+						  text-decoration: none;
+						}
+						
+						.btn:hover {
+						  background: #3cb0fd;
+						  text-decoration: none;
+						}
+				    
+					</style>
 				</head>
-				<body style="overflow: hidden">
-			        <div class="image-container target">
-				        <img src="data:{$mineType};base64,{$document}" style="width:100%;" alt="" id="target" crossOrigin="anonymous">
+				<body style="overflow: hidden; position: relative;">
+					<input style="position: absolute; right:0;top:0" class="btn" type="button" value="Edit" onclick="enableDarkroom(this);" />
+			        <div class="image-container target" style=" left: 0; top:0;width:100%;">
+				        <img style="width:100%;" alt="" id="target" crossOrigin="anonymous" src="data:{$mineType};base64,{$document}">
 			        </div>
-					<script src="../lib/darkroomjs/vendor/fabric.js" data-illuminations="true"></script>
-					<script src="../lib/darkroomjs/build/js/darkroom.min.js" data-illuminations="true"></script>
-					<script data-illuminations="true">
-
-				    var dkrm = new Darkroom('#target', {
-				        plugins: {
-					        save: '$doc->is_temp' == 'true' ? false : {
-					            callback: function(){
-			                        var msg = 'documentedit{"save":{"id":{$doc->id},"document":"'+dkrm.snapshotImage()+'" }}';
-			                        window.parent.postMessage(msg, '*');
+					<script src="../lib/darkroomjs/demo/vendor/fabric.js" ></script>
+					<script src="../lib/darkroomjs/build/darkroom.js" ></script>
+					<script>
+					
+						function enableDarkroom(btn){
+							btn.style.display = 'none';
+							var dkrm = new Darkroom('#target', {
+						     	plugins: {
+							        save: '$doc->is_temp' == 'true' ? false : {
+							            callback: function(){
+					                        var msg = 'documentedit{"save":{"id":{$doc->id},"document":"'+dkrm.snapshotImage()+'" }}';
+					                        window.parent.postMessage(msg, '*');
+							            }
+							        }
 					            }
-					        },
-					        crop: {
-					            quickCropKey: 67
-				            }
-			            }
-				    });
+						    });
+						}
 				  </script>
 				</body>
 			</html>

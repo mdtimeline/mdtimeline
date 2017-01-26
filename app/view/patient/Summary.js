@@ -23,9 +23,9 @@ Ext.define('App.view.patient.Summary', {
 	requires: [
 		'Ext.XTemplate',
 		'Ext.ux.IFrame',
+        'App.ux.ManagedIframe',
 		'App.view.patient.Documents',
 		'App.view.patient.CCD',
-		'App.ux.ManagedIframe',
 		'App.view.patient.Patient',
 		'App.view.patient.Reminders',
 		'App.view.patient.Alerts',
@@ -254,7 +254,7 @@ Ext.define('App.view.patient.Summary', {
 
 		if(me.sidePanelItems.length > 0){
 			me.sidePanel = Ext.widget('panel', {
-				width: 250,
+				width: 200,
 				bodyPadding: 0,
 				frame: false,
 				border: false,
@@ -626,7 +626,8 @@ Ext.define('App.view.patient.Summary', {
     	var me = this,
     		record = panel.insurance || Ext.create('App.model.patient.Insurance', {pid: me.pid});
 
-    	panel.title = _('insurance') + ' (' + (record.data.insurance_type ? record.data.insurance_type : _('new')) + ')';
+    	//panel.title = _('insurance') + ' (' + (record.data.insurance_type ? record.data.insurance_type : _('new')) + ')';
+        panel.title = record.data.insurance_name + ' (' + (record.data.insurance_type ? record.data.insurance_type : _('new')) + ')';
 
     	me.insuranceFormLoadRecord(panel, record);
     	if(record.data.image !== '') panel.down('image').setSrc(record.data.image);

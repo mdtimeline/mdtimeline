@@ -42,26 +42,26 @@ Ext.define('App.view.patient.InsuranceForm', {
 					items: [
 						{
 							xtype: 'fieldset',
-							title: _('insurance'),
-                            style: 'background-color: azure',
-                            radius: '10px',
-							width: 660,
-							margin: 0,
+							title: _('insurance_card'),
+                            cls: 'highlight_fieldset_Green',
+                            margin: '10 0 5 5',
 							items: [
 								{
 									xtype: 'fieldcontainer',
-									fieldLabel: 'Insurance',
-									hideLabel: true,
-									enableKeyEvents: true,
 									layout: 'hbox',
-									margin: '5 0 0 0',
+                                    enableKeyEvents: true,
+                                    width: 700,
+                                    defaults: {
+                                        margin: '10 0 0 2',
+                                        labelAlign: 'right'
+                                    },
 									items: [
 										{
 											xtype: 'insurancescombo',
-											fieldLabel: _('provider'),
-											width: 440,
-											margin: '0 5 0 0',
-											name: 'insurance_id',
+                                            name: 'insurance_id',
+                                            fieldLabel: _('insurance'),
+                                            labelWidth: 120,
+											width: 432,
 											queryMode: 'local',
 											editable: false,
 											allowBlank: false
@@ -69,7 +69,9 @@ Ext.define('App.view.patient.InsuranceForm', {
 										{
 											xtype: 'gaiaehr.combo',
 											emptyText: _('type'),
-											width: 140,
+                                            fieldLabel: _('type'),
+                                            labelWidth: 100,
+											width: 225,
 											name: 'insurance_type',
 											list: 96,
 											queryMode: 'local',
@@ -78,255 +80,327 @@ Ext.define('App.view.patient.InsuranceForm', {
 											loadStore: true
 										}
 									]
-								},
+								}, //Insurance Name
+                                {
+                                    xtype: 'fieldcontainer',
+                                    layout: 'hbox',
+                                    hideLabel: false,
+                                    width: 700,
+                                    defaults: {
+                                        margin: '3 0 0 2',
+                                        labelAlign: 'right'
+                                    },
+                                    items: [
+                                        {
+                                            xtype: 'textfield',
+                                            name: 'policy_number',
+                                            emptyText: _('policy_number'),
+                                            fieldLabel: _('id'),
+                                            labelWidth: 120,
+                                            width: 250
+                                        },
+                                        {
+                                            xtype: 'textfield',
+                                            name: 'group_number',
+                                            emptyText: _('group_number'),
+                                            fieldLabel: _('group'),
+                                            labelWidth: 50,
+                                            width: 180
+                                        },
+                                        {
+                                            xtype: 'gaiaehr.combo',
+                                            name: 'subscriber_relationship',
+                                            itemId: 'PatientInsuranceFormSubscribeRelationshipCmb',
+                                            fieldLabel: _('relationship'),
+                                            emptyText: _('relationship'),
+                                            queryMode: 'local',
+                                            list: 134,
+                                            loadStore: true,
+                                            editable: false,
+                                            labelWidth: 100,
+                                            width: 225
+                                        } //Relationship Insured vwith Patient
+                                    ]
+                                }, //ID, Group, Dates Exp y Eff.
 								{
 									xtype: 'fieldcontainer',
-									fieldLabel: 'Insurance Dates',
-									hideLabel: false,
-									layout: 'hbox',
-									width: 590,
-									margin: '5 0 0 0',
+                                    layout: 'hbox',
+                                    hideLabel: false,
+                                    enableKeyEvents: true,
+                                    width: 700,
+                                    defaults: {
+                                        margin: '3 0 0 2',
+                                        labelAlign: 'right'
+                                    },
 									items: [
 										{
-											xtype: 'datefield',
-											emptyText: _('effective_date'),
-											width: 140,
-											margin: '0 5 0 0',
-											name: 'effective_date'
+											xtype: 'textfield',
+                                            name: 'card_first_name',
+                                            emptyText: _('first_name'),
+                                            fieldLabel: _('card_name'),
+                                            labelWidth: 120,
+											width: 225,
+											allowBlank: false
 										},
 										{
-											xtype: 'datefield',
-											emptyText: _('expiration_date'),
-											width: 140,
-											name: 'expiration_date'
-										}
-									]
-								},
-								{
-									xtype: 'fieldcontainer',
-									fieldLabel: 'Insurance POL/GRP',
-									hideLabel: false,
-									layout: 'hbox',
-									width: 590,
-									margin: '5 0 0 0',
-									items: [
-										{
 											xtype: 'textfield',
-											emptyText: _('policy_number'),
-											width: 140,
-											margin: '0 5 0 0',
-											name: 'policy_number'
+                                            name: 'card_middle_name',
+                                            emptyText: _('middle_name'),
+											width: 20,
+                                            allowBlank: true
 										},
 										{
 											xtype: 'textfield',
-											emptyText: _('group_number'),
-											width: 140,
-											margin: '0 5 0 0',
-											name: 'group_number'
-										}
+                                            name: 'card_last_name',
+                                            emptyText: _('last_name'),
+											width: 183,
+											allowBlank: false
+										},
+                                        {
+                                            xtype: 'datefield',
+                                            name: 'effective_date',
+                                            emptyText: _('effective_date'),
+                                            fieldLabel: _('effective_date'),
+                                            labelWidth: 100,
+                                            width: 225
+                                        }
 									]
-								},
+								}, //Card Name
 								{
-									xtype: 'fieldcontainer',
-									fieldLabel: 'Insurance Covers',
-									hideLabel: false,
-									layout: 'hbox',
-									width: 590,
-									margin: '5 0 10 0',
+                                    xtype: 'fieldcontainer',
+                                    layout: 'hbox',
+                                    hideLabel: false,
+                                    width: 700,
+                                    defaults: {
+                                        margin: '3 0 0 2',
+                                        labelAlign: 'right'
+                                    },
 									items: [
 										{
 											xtype: 'textfield',
+                                            name: 'cover_medical',
 											emptyText: _('medical'),
-											width: 140,
-											margin: '0 5 0 0',
-											name: 'cover_medical'
+                                            fieldLabel: _('covers'),
+                                            labelWidth: 120,
+                                            width: 275
 										},
 										{
 											xtype: 'textfield',
 											emptyText: _('dental'),
-											width: 140,
+											width: 155,
 											name: 'cover_dental'
-										}
+										},
+                                        {
+                                            xtype: 'datefield',
+                                            name: 'expiration_date',
+                                            emptyText: _('expiration_date'),
+                                            fieldLabel: _('expiration_date'),
+                                            labelWidth: 100,
+                                            width: 225
+                                        }
 									]
-								}
+								}  //Cubiertas Medical y Dental
 							]
-						},
+						}, //Patient Information
 						{
 							xtype: 'fieldset',
 							title: _('subscriber'),
-							width: 660,
+                            cls: 'highlight_fieldset',
+                            margin: '10 0 5 5',
 							items: [
 								{
-									xtype: 'gaiaehr.combo',
-									fieldLabel: _('relationship'),
-									width: 320,
-									margin: '0 5 0 0',
-									name: 'subscriber_relationship',
-									list: 25,
-									editable: false,
-									allowBlank: false,
-									queryMode: 'local',
-									itemId: 'PatientInsuranceFormSubscribeRelationshipCmb'
-								},
-								{
-									xtype: 'fieldcontainer',
-									fieldLabel: _('name'),
-									layout: 'hbox',
-									margin: '5 0 0 0',
-									items: [
-										{
-											xtype: 'gaiaehr.combo',
-											emptyText: _('title'),
-											width: 60,
-											margin: '0 5 0 0',
-											name: 'subscriber_title',
-											list: 22,
-											queryMode: 'local',
-											loadStore: true,
-											editable: false
-										},
-										{
-											xtype: 'textfield',
-											emptyText: _('first_name'),
-											width: 100,
-											margin: '0 5 0 0',
-											name: 'subscriber_given_name'
-										},
-										{
-											xtype: 'textfield',
-											emptyText: _('middle_name'),
-											width: 100,
-											margin: '0 5 0 0',
-											name: 'subscriber_middle_name'
-										},
-										{
-											xtype: 'textfield',
-											emptyText: _('last_name'),
-											width: 215,
-											margin: '0 5 0 0',
-											name: 'subscriber_surname'
-										}
-									]
-								},
-								{
-									xtype: 'fieldcontainer',
-									fieldLabel: _('dob_sex_ss'),
-									layout: 'hbox',
-									margin: '5 0 0 0',
-									items: [
-										{
-											xtype: 'datefield',
-											emptyText: _('dob'),
-											width: 165,
-											margin: '0 5 0 0',
-											name: 'subscriber_dob'
-										},
-										{
-											xtype: 'gaiaehr.combo',
-											emptyText: _('sex'),
-											width: 100,
-											margin: '0 5 0 0',
-											name: 'subscriber_sex',
-											list: 95,
-											queryMode: 'local',
-											loadStore: true,
-											editable: false
-										},
-										{
-											xtype: 'textfield',
-											emptyText: _('ss'),
-											width: 215,
-											name: 'subscriber_ss'
-										}
-									]
-								},
-								{
-									xtype: 'fieldcontainer',
-									fieldLabel: _('phone'),
-									layout: 'hbox',
-									margin: '5 0 0 0',
-									items: [
-										{
-											xtype: 'textfield',
-											emptyText: '000-000-0000',
-											width: 165,
-											margin: '0 5 0 0',
-											name: 'subscriber_phone'
-										}
-									]
-								},
-								{
-									xtype: 'fieldcontainer',
-									fieldLabel: _('address'),
-									layout: 'hbox',
-									margin: '5 0 0 0',
-									items: [
-										{
-											xtype: 'textfield',
-											emptyText: _('street'),
-											width: 490,
-											name: 'subscriber_street'
-										}
-									]
-								},
-								{
-									xtype: 'fieldcontainer',
-									layout: 'hbox',
-									margin: '5 0 5 145',
-									items: [
-										{
-											xtype: 'textfield',
-											emptyText: _('city'),
-											width: 165,
-											margin: '0 5 0 0',
-											name: 'subscriber_city'
-										},
-										{
-											xtype: 'gaiaehr.combo',
-											emptyText: _('state'),
-											width: 110,
-											margin: '0 5 0 0',
-											name: 'subscriber_state',
-											list: 20,
-											queryMode: 'local',
-											loadStore: true,
-											editable: false
-
-										},
-										{
-											xtype: 'gaiaehr.combo',
-											emptyText: _('country'),
-											width: 110,
-											margin: '0 5 0 0',
-											name: 'subscriber_country',
-											list: 3,
-											queryMode: 'local',
-											loadStore: true,
-											editable: false
-
-										}, {
-											xtype: 'textfield',
-											emptyText: _('postal_code'),
-											width: 90,
-											name: 'subscriber_postal_code'
-										}
-									]
-								},
-								{
-									xtype: 'fieldcontainer',
-									fieldLabel: _('employer'),
-									layout: 'hbox',
-									margin: '5 0 10 0',
-									items: [
-										{
-											xtype: 'textfield',
-											width: 490,
-											name: 'subscriber_employer'
-										}
-									]
-								}
+                                    xtype: 'fieldcontainer',
+                                    layout: 'hbox',
+                                    width: 700,
+                                    defaults: {
+                                        margin: '5 5 0 2',
+                                        labelAlign: 'right'
+                                    },
+                                    items: [
+                                        {
+                                            xtype: 'gaiaehr.combo',
+                                            name: 'subscriber_title',
+                                            fieldLabel: _('name'),
+                                            emptyText: _('title'),
+                                            queryMode: 'local',
+                                            list: 22,
+                                            labelWidth: 90,
+                                            width: 150,
+                                            loadStore: true,
+                                            editable: false
+                                        },
+                                        {
+                                            xtype: 'textfield',
+                                            name: 'subscriber_given_name',
+                                            emptyText: _('first_name'),
+                                            width: 100
+                                        },
+                                        {
+                                            xtype: 'textfield',
+                                            name: 'subscriber_middle_name',
+                                            emptyText: _('middle_name'),
+                                            width: 20
+                                        },
+                                        {
+                                            xtype: 'textfield',
+                                            name: 'subscriber_surname',
+                                            emptyText: _('last_name'),
+                                            width: 180
+                                        }
+                                    ]
+								} //Full Name
 							]
-						}
+						},  //Principal Insured Info
+                        {
+                            xtype: 'fieldset',
+                            //title: _('subscriber'),
+                            cls: 'highlight_fieldset',
+                            margin: '5 0 5 5',
+                            items: [
+                                {
+                                    xtype: 'fieldcontainer',
+                                    layout: 'hbox',
+                                    width: 700,
+                                    defaults: {
+                                        margin: '5 5 0 0',
+                                        labelAlign: 'right'
+                                    },
+                                    items: [
+                                        {
+                                            xtype: 'datefield',
+                                            name: 'subscriber_dob',
+                                            emptyText: _('dob'),
+                                            fieldLabel: _('dob'),
+                                            labelWidth: 90,
+                                            width: 190
+                                        },
+                                        {
+                                            xtype: 'gaiaehr.combo',
+                                            name: 'subscriber_sex',
+                                            emptyText: _('sex'),
+                                            fieldLabel: _('sex'),
+                                            labelWidth: 30,
+                                            list: 95,
+                                            queryMode: 'local',
+                                            width: 110,
+                                            loadStore: true,
+                                            editable: false
+                                        },
+                                        {
+                                            xtype: 'textfield',
+                                            name: 'subscriber_ss',
+                                            fieldLabel: _('social_security'),
+                                            emptyText: _('social_security'),
+                                            labelWidth: 90,
+                                            width: 190
+                                        },
+                                        {
+                                            xtype: 'textfield',
+                                            name: 'subscriber_phone',
+                                            emptyText: '000-000-0000',
+                                            fieldLabel: _('phone'),
+                                            labelWidth: 40,
+                                            width: 140
+                                        }
+                                    ]
+                                } //DOB Sex SocialSecurity Phone
+                            ]
+                        },
+                        {
+                            xtype: 'fieldset',
+                            //title: _('subscriber'),
+                            cls: 'highlight_fieldset',
+                            margin: '5 0 5 5',
+                            items: [
+                                {
+                                    xtype: 'fieldcontainer',
+                                    layout: 'hbox',
+                                    width: 700,
+                                    defaults: {
+                                        margin: '5 5 0 0',
+                                        labelAlign: 'right'
+                                    },
+                                    items: [
+                                        {
+                                            xtype: 'textfield',
+                                            emptyText: _('street'),
+                                            fieldLabel: _('street'),
+                                            labelWidth: 90,
+                                            width: 390,
+                                            name: 'subscriber_street'
+                                        }
+                                    ]
+                                }, //Street
+                                {
+                                    xtype: 'fieldcontainer',
+                                    layout: 'hbox',
+                                    width: 700,
+                                    defaults: {
+                                        margin: '2 5 0 0',
+                                        labelAlign: 'right'
+                                    },
+                                    items: [
+                                        {
+                                            xtype: 'textfield',
+                                            name: 'subscriber_city',
+                                            emptyText: _('city'),
+                                            fieldLabel: _('city'),
+                                            labelWidth: 90,
+                                            width: 190
+                                        },
+                                        {
+                                            xtype: 'gaiaehr.combo',
+                                            name: 'subscriber_state',
+                                            emptyText: _('state'),
+                                            queryMode: 'local',
+                                            list: 20,
+                                            width: 100,
+                                            loadStore: true,
+                                            editable: false
+
+                                        },
+                                        {
+                                            xtype: 'textfield',
+                                            name: 'subscriber_postal_code',
+                                            emptyText: _('postal_code'),
+                                            width: 90
+                                        },
+                                        {
+                                            xtype: 'gaiaehr.combo',
+                                            name: 'subscriber_country',
+                                            emptyText: _('country'),
+                                            queryMode: 'local',
+                                            list: 3,
+                                            width: 100,
+                                            loadStore: true,
+                                            editable: false
+                                        }
+                                    ]
+                                }, //City State Zip Country
+                                {
+                                    xtype: 'fieldcontainer',
+                                    layout: 'hbox',
+                                    width: 700,
+                                    defaults: {
+                                        margin: '2 5 0 0',
+                                        labelAlign: 'right'
+                                    },
+                                    items: [
+                                        {
+                                            xtype: 'textfield',
+                                            name: 'subscriber_employer',
+                                            emptyText: _('employer'),
+                                            fieldLabel: _('employer'),
+                                            labelWidth: 90,
+                                            width: 390
+                                        }
+                                    ]
+                                }  //Employer Suscriber
+                            ]
+                        }
+
+
+
 					]
 				},
 				{

@@ -180,6 +180,29 @@ Ext.define('App.model.patient.Insurance',{
             name: 'policy_number',
             type: 'string',
 	        len: 40
+        },
+        {
+            name: 'card_last_name',
+            type: 'string',
+            comment: 'card_last_name',
+            len: 60
+        },
+        {
+            name: 'card_first_name',
+            type: 'string',
+            comment: 'card_first_name',
+            len: 35
+        },
+        {
+            name: 'card_middle_name',
+            type: 'string',
+            comment: 'card_middle_name',
+            len: 25
+        },
+        {
+            name: 'insurance_name',
+            type: 'string',
+            store: false
         }
     ],
     proxy: {

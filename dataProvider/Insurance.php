@@ -90,7 +90,11 @@ class Insurance {
 	 * @return mixed
 	 */
 	public function getInsurances($params) {
-		return $this->pi->load($params)->all();
+		//return $this->pi->load($params)->all();
+        return $this->pi->load($params)
+        ->leftJoin(['name' => 'insurance_name'], 'insurance_companies', 'pid', 'id')
+            ->all();
+
 	}
 
 	/**

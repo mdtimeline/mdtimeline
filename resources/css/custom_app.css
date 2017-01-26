@@ -8,6 +8,20 @@
     src: url('../fonts/OpenSans-CondLight.ttf');
 }
 
+/* AliceBlue */
+
+.highlight_fieldset
+{
+    background-color: #F0F8FF;
+    border-radius: 3px;
+}
+
+.highlight_fieldset_Green
+{
+    background-color: #F0FFF0;
+    border-radius: 3px;
+}
+
 .login-theme-switch-btn {
     background-image: none;
     background-color: #444444;

@@ -40,10 +40,6 @@ Ext.define('App.view.patient.Results', {
 	],
 	items: [
 		{
-			/**
-			 * Order Grid
-			 * ----------
-			 */
 			xtype: 'grid',
 			itemId: 'ResultsOrdersGrid',
 			action: 'orders',

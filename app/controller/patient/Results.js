@@ -420,6 +420,7 @@ Ext.define('App.controller.patient.Results', {
 
 		if(!form.isValid()) return;
 
+		say(result_record.observations());
 
 		var observationStore = result_record.observations(),
 			observations = observationStore.data.items;

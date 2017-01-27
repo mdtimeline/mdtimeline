@@ -191,15 +191,15 @@ class Encounter {
 	 * @return array
 	 */
 	public function getEncounters($params, $relations = true) {
+
 		$records = $this->e->load($params)->all();
 		$encounters = (array)$records['encounter'];
 		$relations = isset($params->relations) ? $params->relations : $relations;
 
 		foreach($encounters as $i => $encounter){
 			$encounters[$i]['status'] = ($encounter['close_date'] == null) ? 'open' : 'close';
-			if($relations){
-				$encounters[$i] = $this->getEncounterRelations($encounters[$i]);
-			}
+			if($relations)
+			    $encounters[$i] = $this->getEncounterRelations($encounters[$i]);
 		}
 		return $encounters;
 	}

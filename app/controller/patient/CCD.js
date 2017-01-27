@@ -60,7 +60,8 @@ Ext.define('App.controller.patient.CCD', {
 				click: me.onPrintCcdBtnClick
 			},
 			'#PatientCcdPanelEncounterCmb': {
-				select: me.onPatientCcdPanelEncounterCmbSelect
+				select: me.onPatientCcdPanelEncounterCmbSelect,
+                show: me.onPatientCcdPanelEncounterCmbShow
 			}
 		});
 
@@ -244,6 +245,26 @@ Ext.define('App.controller.patient.CCD', {
 			active: 1
 		});
 	},
+
+    onPatientCcdPanelEncounterCmbShow: function(cmb){
+	    console.log(cmb);
+        cmb.getStore().add(
+            {
+                brief_description: 'No encounters...',
+                status: 'close',
+                close_date: '',
+                eid: 0,
+                pid: 0
+            },
+            {
+                brief_description: 'All encounters...',
+                status: 'close',
+                close_date: '',
+                eid: 1,
+                pid: 0
+            }
+        );
+    },
 
 	onPatientCcdPanelEncounterCmbSelect: function(cmb, records){
 

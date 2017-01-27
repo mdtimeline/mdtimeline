@@ -423,13 +423,13 @@ Ext.define('App.controller.patient.Results', {
 		say(result_record.observations());
 
 		var observationStore = result_record.observations(),
-			observations = observationStore.data.items;
+			observations = observationStore.tree.flatten();
 
 		result_record.set(values);
 		result_record.save({
 			success: function(rec){
 
-				for(var i = 0; i < observations.length; i++){
+				for(var i = 1; i < observations.length; i++){
 					observations[i].set({result_id: rec.data.id});
 				}
 				observationStore.sync({

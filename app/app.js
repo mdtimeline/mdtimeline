@@ -3839,6 +3839,7 @@ Ext.define('App.ux.PatientEncounterCombo', {
 	}
 
 });
+
 Ext.define('App.ux.RenderPanel', {
 	extend: 'Ext.container.Container',
 	alias: 'widget.renderpanel',
@@ -24843,10 +24844,6 @@ Ext.define('App.view.patient.Results', {
 	],
 	items: [
 		{
-			/**
-			 * Order Grid
-			 * ----------
-			 */
 			xtype: 'grid',
 			itemId: 'ResultsOrdersGrid',
 			action: 'orders',
@@ -40392,7 +40389,8 @@ Ext.define('App.controller.patient.CCD', {
 				click: me.onPrintCcdBtnClick
 			},
 			'#PatientCcdPanelEncounterCmb': {
-				select: me.onPatientCcdPanelEncounterCmbSelect
+				select: me.onPatientCcdPanelEncounterCmbSelect,
+                show: me.onPatientCcdPanelEncounterCmbShow
 			}
 		});
 
@@ -40576,6 +40574,26 @@ Ext.define('App.controller.patient.CCD', {
 			active: 1
 		});
 	},
+
+    onPatientCcdPanelEncounterCmbShow: function(cmb){
+	    console.log(cmb);
+        cmb.getStore().add(
+            {
+                brief_description: 'No encounters...',
+                status: 'close',
+                close_date: '',
+                eid: 0,
+                pid: 0
+            },
+            {
+                brief_description: 'All encounters...',
+                status: 'close',
+                close_date: '',
+                eid: 1,
+                pid: 0
+            }
+        );
+    },
 
 	onPatientCcdPanelEncounterCmbSelect: function(cmb, records){
 
@@ -55645,15 +55663,16 @@ Ext.define('App.controller.patient.Results', {
 
 		if(!form.isValid()) return;
 
+		say(result_record.observations());
 
 		var observationStore = result_record.observations(),
-			observations = observationStore.data.items;
+			observations = observationStore.tree.flatten();
 
 		result_record.set(values);
 		result_record.save({
 			success: function(rec){
 
-				for(var i = 0; i < observations.length; i++){
+				for(var i = 1; i < observations.length; i++){
 					observations[i].set({result_id: rec.data.id});
 				}
 				observationStore.sync({

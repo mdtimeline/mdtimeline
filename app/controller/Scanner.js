@@ -85,9 +85,30 @@ Ext.define('App.controller.Scanner', {
 			data: scannerId
 		}, function (response) {
 
-			if(!response.success)  return;
 
-			me.loadDocuments(response.documents);
+			if(response.documents && response.documents.length > 0){
+				me.loadDocuments(response.documents);
+			} else {
+
+				if(response.error && response.error != ''){
+					app.msg(_('oops'), response.error, true);
+				}
+
+				if(response.error && response.error != ''){
+					say(response.error)
+				}
+
+				if(response.stacktrace && response.stacktrace != ''){
+					say(response.stacktrace)
+				}
+
+				return;
+			}
+
+			if(response.error && response.error != ''){
+				say(response.error)
+			}
+
 		});
 	},
 

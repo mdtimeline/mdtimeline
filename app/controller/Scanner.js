@@ -125,6 +125,9 @@ Ext.define('App.controller.Scanner', {
 		if(!this.getScannerWindow()){
 			Ext.create('App.view.scanner.Window');
 		}
+
+		this.getScannerWindow().skip_validation = false;
+
 		return this.getScannerWindow().show();
 	},
 
@@ -168,14 +171,14 @@ Ext.define('App.controller.Scanner', {
 	},
 
 	onScannerWindowClose: function(win){
+		win.skip_validation = false;
 		this.documents_defautls = {};
-		this.getScannerSourceCombo().store.removeAll();
+		this.getScannerImageThumbsDataView().store.removeAll();
 		this.getScannerImageViewerPanelImage().setSrc('');
 	},
 
 	onScannerWindowBeforeClose: function(win){
 		if(win.skip_validation === true || this.allArchived()){
-			win.skip_validation = false;
 			return true;
 		}else{
 			Ext.Msg.show({
@@ -219,19 +222,20 @@ Ext.define('App.controller.Scanner', {
 		model.save({
 		 	success: function () {
 				me.getLastSelectedDocument().set({
-					archive: true,
+					archived: true,
 					style: 'background-color:lightgreen;'
 				});
 			    me.getScannerImageThumbsDataView().refresh();
+
+			    // send callback to close window
 			    callback(true);
 			}
 		});
 	},
 	
 	allArchived: function () {
-		var store = this.getScannerSourceCombo().store;
-
-		return store.find('archived', false) != -1;
+		var store = this.getScannerImageThumbsDataView().store;
+		return store.find('archived', false) == -1;
 	},
 
 	onScannerImageEditBtnToggle: function(btn, pressed){

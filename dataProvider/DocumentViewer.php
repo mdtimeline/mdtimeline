@@ -22,6 +22,14 @@ if (!isset($_SESSION)) {
 	session_start();
 }
 
+if (!isset($_REQUEST['id'])){
+	die('');
+}
+
+if (strlen($_REQUEST['id']) > 0 && ($_REQUEST['id'][0] == '-' || $_REQUEST['id'] == '0') ){
+	die('');
+}
+
 if (!isset($_REQUEST['token']) || str_replace(' ', '+', $_REQUEST['token']) != $_SESSION['user']['token']) {
 	die('Not Authorized!');
 }
@@ -61,8 +69,7 @@ if (
 	require_once(ROOT . '/dataProvider/TransactionLog.php');
 	new MatchaHelper();
 
-	if (!isset($_REQUEST['id']))
-		die('');
+
 
 	function get_mime_type($file)
 	{
@@ -108,13 +115,6 @@ if (
 		} else {
 			return base64_decode($document);
 		}
-//		// handle base64 documents
-//		if($encrypted == true){
-//			$document = MatchaUtils::decrypt($document);
-//		}
-//		if(!$is_image){
-//			$document = base64_decode($document);
-//		}
 	}
 
 	function isBinary($document){
@@ -139,12 +139,12 @@ if (
 			error_log('No Document Found, Please contact Support Desk. Thank You!');
 			die('No Document Found, Please contact Support Desk. Thank You!');
 		}
-		$doc = (object)$doc;
-		$doc->name = isset($doc->document_name) && $doc->document_name != '' ? $doc->document_name : 'temp.pdf';
-		$doc->is_temp = 'true';
-		$mineType = get_mime_type($doc->name);
+		//$doc = (object)$doc;
+		$doc['name'] = isset($doc['document_name']) && $doc['document_name'] != '' ? $doc['document_name'] : 'temp.pdf';
+		$doc['is_temp'] = 'true';
+		$mineType = get_mime_type($doc['name']);
 		$is_image = preg_match('/^image/', $mineType);
-		$document = base64ToBinary($doc->document, false, $is_image);
+		$document = base64ToBinary($doc['document'], false, $is_image);
 		$TransactionLog->saveTransactionLog([
 			'event' => 'EXPORT',
 			'data' => 'Generated a PDF'
@@ -156,17 +156,17 @@ if (
 			error_log('No Document Found for id ' . $_REQUEST['id']);
 			die();
 		}
-		$doc = (object)$doc;
-		$doc->is_temp = 'false';
+		//$doc = (object)$doc;
+		$doc['is_temp'] = 'false';
 
-		$file_path = $doc->url . '/' . $doc->name;
-		$is_file = isset($doc->url) && $doc->url != '' && file_exists($file_path);
+		$file_path = $doc['url'] . '/' . $doc['name'];
+		$is_file = isset($doc['url']) && $doc['url'] != '' && file_exists($file_path);
 
 		if ($is_file) {
 			$mineType = mime_content_type($file_path);
 			$is_image = preg_match('/^image/', $mineType);
 		} else {
-			$mineType = get_mime_type($doc->name);
+			$mineType = get_mime_type($doc['name']);
 			$is_image = preg_match('/^image/', $mineType);
 		}
 
@@ -177,29 +177,29 @@ if (
 				'data' => 'Generated and viewed image'
 			]);
 
-		} elseif (isset($doc->document_instance) && $doc->document_instance != '') {
+		} elseif (isset($doc['document_instance']) && $doc['document_instance'] != '') {
 
-			$mineType = get_mime_type($doc->name);
+			$mineType = get_mime_type($doc['name']);
 			$is_image = preg_match('/^image/', $mineType);
 
-			$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $doc->document_instance);
-			$data = $dd->load($doc->document_id)->one();
+			$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $doc['document_instance']);
+			$data = $dd->load($doc['document_id'])->one();
 			if ($data == false) {
-				error_log('No Document Found For id ' . $doc->document_id);
+				error_log('No Document Found For id ' . $doc['document_id']);
 				die();
 			}
 			$data = (object)$data;
-			$document = base64ToBinary($data->document, $doc->encrypted, $is_image);
+			$document = base64ToBinary($data->document, $doc['encrypted'], $is_image);
 			$TransactionLog->saveTransactionLog([
 				'event' => 'VIEW',
 				'data' => 'Generated and viewed image'
 			]);
 		} else {
 
-			$mineType = get_mime_type($doc->name);
+			$mineType = get_mime_type($doc['name']);
 			$is_image = preg_match('/^image/', $mineType);
 
-			$document = base64ToBinary($doc->document, $doc->encrypted, $is_image);
+			$document = base64ToBinary($doc['document'], $doc['encrypted'], $is_image);
 			$TransactionLog->saveTransactionLog([
 				'event' => 'VIEW',
 				'data' => 'Generated and viewed image'
@@ -245,7 +245,7 @@ if (
 				</head>
 				<body style="overflow: hidden; position: relative;">
 					<input style="position: absolute; right:0;top:0" class="btn" type="button" value="Edit" onclick="enableDarkroom(this);" />
-			        <div class="image-container target" style=" left: 0; top:0;width:100%;">
+			        <div class="image-container target" style="left: 0; top:0;width:100%;">
 				        <img style="width:100%;" alt="" id="target" crossOrigin="anonymous" src="data:{$mineType};base64,{$document}">
 			        </div>
 					<script src="../lib/darkroomjs/demo/vendor/fabric.js" ></script>
@@ -256,9 +256,9 @@ if (
 							btn.style.display = 'none';
 							var dkrm = new Darkroom('#target', {
 						     	plugins: {
-							        save: '$doc->is_temp' == 'true' ? false : {
+							        save: '{$doc['is_temp']}' == 'true' ? false : {
 							            callback: function(){
-					                        var msg = 'documentedit{"save":{"id":{$doc->id},"document":"'+dkrm.snapshotImage()+'" }}';
+					                        var msg = 'documentedit{"save":{"id":{$doc['id']},"document":"'+dkrm.snapshotImage()+'" }}';
 					                        window.parent.postMessage(msg, '*');
 							            }
 							        }
@@ -286,7 +286,7 @@ HTML;
 
 	} else {
 		header('Content-Type: ' . $mineType, true);
-		header('Content-Disposition: inline; filename="' . $doc->name . '"');
+		header('Content-Disposition: inline; filename="' . $doc['name'] . '"');
 		header('Content-Transfer-Encoding: BINARY');
 		header('Content-Length: ' . strlen($document));
 		header('Accept-Ranges: bytes');

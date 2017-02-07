@@ -68,11 +68,11 @@ Ext.define('App.view.patient.windows.UploadDocument', {
 						}
 					]
 				},
-				{
-					xtype: 'checkbox',
-					name: 'encrypted',
-					fieldLabel: _('encrypted')
-				},
+				// {
+				// 	xtype: 'checkbox',
+				// 	name: 'encrypted',
+				// 	fieldLabel: _('encrypted')
+				// },
 				{
 					xtype: 'textareafield',
 					name: 'note',

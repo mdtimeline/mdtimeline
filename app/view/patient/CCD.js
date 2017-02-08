@@ -44,19 +44,19 @@ Ext.define('App.view.patient.CCD', {
             },
             items:[
                 {
-                    xtype: 'checkboxfield',
-                    boxLabel: _('compile_all_encounters'),
-                    name: 'compile_all_encounters',
-                    inputValue: false,
-                    id: 'CompileAllEncountersCheckBox'
-                },
-                {
                     xtype: 'patientEncounterCombo',
                     itemId: 'PatientCcdPanelEncounterCmb',
                     width: 300,
                     fieldLabel: _('filter_encounter'),
                     hideLabel: false,
                     labelAlign: 'top'
+                },
+                {
+                    xtype: 'checkboxfield',
+                    boxLabel: _('compile_all_encounters'),
+                    name: 'compile_all_encounters',
+                    inputValue: false,
+                    id: 'CompileAllEncountersCheckBox'
                 }
             ]
 

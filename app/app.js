@@ -12379,10 +12379,6 @@ Ext.define('App.model.administration.LayoutTree', {
 			mapping: 'x_index'
 		},
 		{
-			name: 'parentId',
-			type: 'string'
-		},
-		{
 			name: 'text',
 			type: 'string'
 		},
@@ -47297,19 +47293,19 @@ Ext.define('App.view.patient.Documents', {
 							return v;
 						}
 					},
-					{
-						header: _('encrypted'),
-						dataIndex: 'encrypted',
-						width: 70,
-						stateId: 'patientDocumentGridStateEncryptedCol',
-						renderer: function(v, meta, record){
-							if(record.get('entered_in_error')){
-								meta.tdCls += ' entered-in-error ';
-								meta.tdAttr = 'data-qtip="' + _('error_note') + ': ' + record.get('error_note') + '"';
-							}
-							return app.boolRenderer(v);
-						}
-					}
+					// {
+					// 	header: _('encrypted'),
+					// 	dataIndex: 'encrypted',
+					// 	width: 70,
+					// 	stateId: 'patientDocumentGridStateEncryptedCol',
+					// 	renderer: function(v, meta, record){
+					// 		if(record.get('entered_in_error')){
+					// 			meta.tdCls += ' entered-in-error ';
+					// 			meta.tdAttr = 'data-qtip="' + _('error_note') + ': ' + record.get('error_note') + '"';
+					// 		}
+					// 		return app.boolRenderer(v);
+					// 	}
+					// }
 				],
 				plugins: Ext.create('Ext.grid.plugin.RowEditing', {
 					autoCancel: true,
@@ -48182,6 +48178,7 @@ Ext.define('App.view.patient.windows.ArchiveDocument', {
 	draggable: false,
 	modal: true,
 	autoShow: true,
+	closeAction: 'hide',
 	title: _('archive_document'),
 	items: [
 		{
@@ -48209,11 +48206,11 @@ Ext.define('App.view.patient.windows.ArchiveDocument', {
 					name: 'docTypeCode',
 					allowBlank: false
 				},
-				{
-					xtype: 'checkbox',
-					name: 'encrypted',
-					fieldLabel: _('encrypted')
-				},
+				// {
+				// 	xtype: 'checkbox',
+				// 	name: 'encrypted',
+				// 	fieldLabel: _('encrypted')
+				// },
 				{
 					xtype: 'textareafield',
 					name: 'note',
@@ -48302,11 +48299,11 @@ Ext.define('App.view.patient.windows.UploadDocument', {
 						}
 					]
 				},
-				{
-					xtype: 'checkbox',
-					name: 'encrypted',
-					fieldLabel: _('encrypted')
-				},
+				// {
+				// 	xtype: 'checkbox',
+				// 	name: 'encrypted',
+				// 	fieldLabel: _('encrypted')
+				// },
 				{
 					xtype: 'textareafield',
 					name: 'note',
@@ -54621,7 +54618,8 @@ Ext.define('App.controller.patient.Documents', {
 				beforerender: me.onPatientDocumentBeforeRender
 			},
 			'patientdocumentspanel #patientDocumentGrid': {
-				selectionchange: me.onPatientDocumentGridSelectionChange
+				selectionchange: me.onPatientDocumentGridSelectionChange,
+				afterrender: me.onPatientDocumentGridAfterRender
 			},
 			'patientdocumentspanel [toggleGroup=documentgridgroup]': {
 				toggle: me.onDocumentGroupBtnToggle
@@ -54647,7 +54645,6 @@ Ext.define('App.controller.patient.Documents', {
 		});
 
 		me.nav = this.getController('Navigation');
-		//this.initDocumentDnD();
 	},
 
 	setDocumentInError: function(document_record){
@@ -54757,6 +54754,12 @@ Ext.define('App.controller.patient.Documents', {
 		}
 	},
 
+	onPatientDocumentGridAfterRender: function (container) {
+		if(eval(a('allow_document_drag_drop_upload'))) {
+			this.initDocumentDnD(container);
+		}
+	},
+
 	onPatientDocumentPanelActive: function(panel){
 		var me = this,
 			grid = panel.down('grid'),
@@ -54838,6 +54841,7 @@ Ext.define('App.controller.patient.Documents', {
 			pid: app.patient.pid,
 			eid: app.patient.eid,
 			uid: app.user.id,
+			facility_id: app.user.facility,
 			date: new Date()
 		})
 	},
@@ -54879,7 +54883,7 @@ Ext.define('App.controller.patient.Documents', {
 	},
 
 	getUploadWindow: function(action){
-		return Ext.widget('patientuploaddocumentwindow', {
+		return Ext.create('App.view.patient.windows.UploadDocument', {
 			action: action,
 			itemId: 'patientDocumentUploadWindow'
 		})
@@ -54966,81 +54970,82 @@ Ext.define('App.controller.patient.Documents', {
 		})
 	},
 
-	initDocumentDnD: function(){
+	initDocumentDnD: function(grid){
 		var me = this;
 
 		me.dnding = false;
 
-		document.ondragenter = function(e){
-			e.preventDefault();
-			if(!me.dnding) me.setDropMask();
-			return false;
-		};
-
-		document.ondragover = function(e){
-			e.preventDefault();
-			return false;
-		};
-
-		document.ondrop = function(e){
-			e.preventDefault();
-			me.unSetDropMask();
-			if(me.dropMask && (e.target == me.dropMask.maskEl.dom || e.target == me.dropMask.msgEl.dom)){
-				me.dropHandler(e.dataTransfer.files);
+		grid.on({
+			drop: {
+				element: 'el',
+				fn: me.documentDrop,
+				scope: me
+			},
+			dragstart: {
+				element: 'el',
+				fn: me.documentAddDropZone
+			},
+			dragenter: {
+				element: 'el',
+				fn: me.documentAddDropZone
+			},
+			dragover: {
+				element: 'el',
+				fn: me.documentAddDropZone
+			},
+			dragleave: {
+				element: 'el',
+				fn: me.documentRemoveDropZone
+			},
+			dragexit: {
+				element: 'el',
+				fn: me.documentRemoveDropZone
 			}
-			return false;
-		};
-
-		document.ondragleave = function(e){
-			if(e.target.localName == 'body') me.unSetDropMask();
-			e.preventDefault();
-			return false;
-		};
+		});
 	},
 
-	setDropMask: function(){
-		var me = this,
-			dropPanel = me.getPatientDocumentViewerFrame();
+	documentDrop: function (e) {
+		var me = this;
+		e.stopEvent();
 
-		me.dnding = true;
+		var files = Ext.Array.from(e.browserEvent.dataTransfer.files);
+		me.fileHandler(files[0]);
 
-		if(dropPanel && dropPanel.rendered){
-			if(!me.dropMask){
-				me.dropMask = new Ext.LoadMask(me.getPatientDocumentViewerFrame(), {
-					msg: _('drop_here'),
-					cls: 'uploadmask',
-					maskCls: 'x-mask uploadmask',
-					shadow: false
-				});
-				me.dropMask.show();
+		Ext.get(e.target).removeCls('drag-over');
 
-				me.dropMask.maskEl.dom.addEventListener('dragenter', function(e){
-					e.preventDefault();
-					e.target.classList.add('validdrop');
-					return false;
-				});
+	},
 
-				me.dropMask.maskEl.dom.addEventListener('dragleave', function(e){
-					e.preventDefault();
-					e.target.classList.remove('validdrop');
-					return false;
-				});
-			}else{
-				me.dropMask.show();
-			}
+	documentAddDropZone: function (e) {
+		if (!e.browserEvent.dataTransfer || Ext.Array.from(e.browserEvent.dataTransfer.types).indexOf('Files') === -1) {
+			return;
+		}
+		e.stopEvent();
 
+		this.addCls('drag-over');
+	},
+
+	documentRemoveDropZone: function (e) {
+
+		var el = e.getTarget(),
+			thisEl = this.el;
+
+		e.stopEvent();
+
+		if (el === thisEl.dom) {
+			this.removeCls('drag-over');
+			return;
+		}
+
+		while (el !== thisEl.dom && el && el.parentNode) {
+			el = el.parentNode;
+		}
+
+		if (el !== thisEl.dom) {
+			this.removeCls('drag-over');
 		}
 	},
 
-	unSetDropMask: function(){
-		this.dnding = false;
-		if(this.dropMask){
-			this.dropMask.hide();
-		}
-	},
-
-	dropHandler: function(files){
-		//		say(files);
+	fileHandler: function(file){
 		var me = this,
 			win = me.setDocumentUploadWindow('drop'),
 			form = win.down('form').getForm(),
@@ -55054,11 +55059,11 @@ Ext.define('App.controller.patient.Documents', {
 		reader.onload = function(e){
 			record.set({
 				document: e.target.result,
-				name: files[0].name
+				name: file.name
 			});
 		};
 
-		reader.readAsDataURL(files[0]);
+		reader.readAsDataURL(file);
 	},
 
 	setViewerSite: function(site){

@@ -4429,7 +4429,7 @@ browsers will do whacky things with it.
   -webkit-box-shadow: rgba(255, 255, 255, 0.05) 0 1px inset;
   -moz-box-shadow: rgba(255, 255, 255, 0.05) 0 1px inset;
   box-shadow: rgba(255, 255, 255, 0.05) 0 1px inset;
-  padding: 6px 0 0 0; }
+  padding: 10px 4px 4px 4px; }
 
 /* line 86, ../../themes/stylesheets/carbon/custom/overrides/_grid.scss */
 .x-grid-wrap-row:first-child .x-grid-group-hd {

@@ -36,20 +36,35 @@ Ext.define('App.view.patient.CCD', {
 		}
 	],
 	tbar: [
-		{
-			xtype: 'patientEncounterCombo',
-			itemId: 'PatientCcdPanelEncounterCmb',
-			margin: '0 5 5 5',
-			width: 300,
-			fieldLabel: _('filter_encounter'),
-			hideLabel: false,
-			labelAlign: 'top'
-		},
+        {
+            xtype: 'fieldcontainer',
+            layout: 'vbox',
+            defaults: {
+                margin: '0 5 5 5'
+            },
+            items:[
+                {
+                    xtype: 'checkboxfield',
+                    boxLabel: _('compile_all_encounters'),
+                    name: 'compile_all_encounters',
+                    inputValue: false,
+                    id: 'CompileAllEncountersCheckBox'
+                },
+                {
+                    xtype: 'patientEncounterCombo',
+                    itemId: 'PatientCcdPanelEncounterCmb',
+                    width: 300,
+                    fieldLabel: _('filter_encounter'),
+                    hideLabel: false,
+                    labelAlign: 'top'
+                }
+            ]
+
+        },
 		'-',
 		{
 			xtype: 'checkboxgroup',
 			fieldLabel: _('exclude'),
-			// Arrange checkboxes into two columns, distributed vertically
 			columns: 5,
 			vertical: true,
 			labelWidth: 60,

@@ -149,19 +149,19 @@ Ext.define('App.view.patient.Documents', {
 							return v;
 						}
 					},
-					{
-						header: _('encrypted'),
-						dataIndex: 'encrypted',
-						width: 70,
-						stateId: 'patientDocumentGridStateEncryptedCol',
-						renderer: function(v, meta, record){
-							if(record.get('entered_in_error')){
-								meta.tdCls += ' entered-in-error ';
-								meta.tdAttr = 'data-qtip="' + _('error_note') + ': ' + record.get('error_note') + '"';
-							}
-							return app.boolRenderer(v);
-						}
-					}
+					// {
+					// 	header: _('encrypted'),
+					// 	dataIndex: 'encrypted',
+					// 	width: 70,
+					// 	stateId: 'patientDocumentGridStateEncryptedCol',
+					// 	renderer: function(v, meta, record){
+					// 		if(record.get('entered_in_error')){
+					// 			meta.tdCls += ' entered-in-error ';
+					// 			meta.tdAttr = 'data-qtip="' + _('error_note') + ': ' + record.get('error_note') + '"';
+					// 		}
+					// 		return app.boolRenderer(v);
+					// 	}
+					// }
 				],
 				plugins: Ext.create('Ext.grid.plugin.RowEditing', {
 					autoCancel: true,

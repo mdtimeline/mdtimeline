@@ -40360,7 +40360,11 @@ Ext.define('App.controller.patient.CCD', {
 		{
 			ref: 'PatientCcdPanelExcludeCheckBoxGroup',
 			selector: '#PatientCcdPanelExcludeCheckBoxGroup'
-		}
+		},
+        {
+            ref: 'CompileAllEncountersCheckBox',
+            selector: '#CompileAllEncountersCheckBox'
+        }
 	],
 
 	init: function(){
@@ -40387,7 +40391,10 @@ Ext.define('App.controller.patient.CCD', {
 			'#PatientCcdPanelEncounterCmb': {
 				select: me.onPatientCcdPanelEncounterCmbSelect,
                 show: me.onPatientCcdPanelEncounterCmbShow
-			}
+			},
+            '#CompileAllEncountersCheckBox': {
+			    change: me.onCompileAllEncountersCheckBoxChange
+            }
 		});
 
 		me.importCtrl = this.getController('patient.CCDImport');
@@ -40660,7 +40667,16 @@ Ext.define('App.controller.patient.CCD', {
 			me.importCtrl.CcdImport(ccdData, app.patient.pid);
 			me.importCtrl.validatePosibleDuplicates = true;
 		});
-	}
+	},
+
+    onCompileAllEncountersCheckBoxChange: function(newValue, oldValue, eOpts){
+	    if(newValue.value === true){
+            this.getPatientCcdPanelEncounterCmb().disable();
+        } else {
+            this.getPatientCcdPanelEncounterCmb().enable();
+        }
+
+    }
 
 });
 
@@ -47394,20 +47410,35 @@ Ext.define('App.view.patient.CCD', {
 		}
 	],
 	tbar: [
-		{
-			xtype: 'patientEncounterCombo',
-			itemId: 'PatientCcdPanelEncounterCmb',
-			margin: '0 5 5 5',
-			width: 300,
-			fieldLabel: _('filter_encounter'),
-			hideLabel: false,
-			labelAlign: 'top'
-		},
+        {
+            xtype: 'fieldcontainer',
+            layout: 'vbox',
+            defaults: {
+                margin: '0 5 5 5'
+            },
+            items:[
+                {
+                    xtype: 'patientEncounterCombo',
+                    itemId: 'PatientCcdPanelEncounterCmb',
+                    width: 300,
+                    fieldLabel: _('filter_encounter'),
+                    hideLabel: false,
+                    labelAlign: 'top'
+                },
+                {
+                    xtype: 'checkboxfield',
+                    boxLabel: _('compile_all_encounters'),
+                    name: 'compile_all_encounters',
+                    inputValue: false,
+                    id: 'CompileAllEncountersCheckBox'
+                }
+            ]
+
+        },
 		'-',
 		{
 			xtype: 'checkboxgroup',
 			fieldLabel: _('exclude'),
-			// Arrange checkboxes into two columns, distributed vertically
 			columns: 5,
 			vertical: true,
 			labelWidth: 60,
@@ -47481,6 +47512,7 @@ Ext.define('App.view.patient.CCD', {
 	]
 
 });
+
 Ext.define('App.view.administration.CPT', {
 	extend: 'Ext.grid.Panel',
 	requires:[

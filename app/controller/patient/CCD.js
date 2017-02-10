@@ -35,7 +35,11 @@ Ext.define('App.controller.patient.CCD', {
 		{
 			ref: 'PatientCcdPanelExcludeCheckBoxGroup',
 			selector: '#PatientCcdPanelExcludeCheckBoxGroup'
-		}
+		},
+        {
+            ref: 'CompileAllEncountersCheckBox',
+            selector: '#CompileAllEncountersCheckBox'
+        }
 	],
 
 	init: function(){
@@ -62,7 +66,10 @@ Ext.define('App.controller.patient.CCD', {
 			'#PatientCcdPanelEncounterCmb': {
 				select: me.onPatientCcdPanelEncounterCmbSelect,
                 show: me.onPatientCcdPanelEncounterCmbShow
-			}
+			},
+            '#CompileAllEncountersCheckBox': {
+			    change: me.onCompileAllEncountersCheckBoxChange
+            }
 		});
 
 		me.importCtrl = this.getController('patient.CCDImport');
@@ -335,6 +342,15 @@ Ext.define('App.controller.patient.CCD', {
 			me.importCtrl.CcdImport(ccdData, app.patient.pid);
 			me.importCtrl.validatePosibleDuplicates = true;
 		});
-	}
+	},
+
+    onCompileAllEncountersCheckBoxChange: function(newValue, oldValue, eOpts){
+	    if(newValue.value === true){
+            this.getPatientCcdPanelEncounterCmb().disable();
+        } else {
+            this.getPatientCcdPanelEncounterCmb().enable();
+        }
+
+    }
 
 });

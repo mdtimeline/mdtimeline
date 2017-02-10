@@ -290,6 +290,20 @@ class MatchaModel extends Matcha {
 				throw new Exception("Fields property is not defined on Sencha Model. 'fields:'");
 			}
 
+			if(is_array($model['table'])){
+				$table = $model['table']['name'];
+			}else{
+				$table = $model['table'];
+			}
+
+			$model['parsed_data'] = [];
+			$model['parsed_data']['primaryKey'] = MatchaModel::__getTablePrimaryKeyColumnName($table);
+			$model['parsed_data']['fields'] = MatchaModel::__getFields($model);
+			$model['parsed_data']['encryptedFields'] = MatchaModel::__getEncryptedFields($model);
+			$model['parsed_data']['phantomFields'] = MatchaModel::__getPhantomFields($model);
+			$model['parsed_data']['arrayFields'] = MatchaModel::__getArrayFields($model);
+			$model['parsed_data']['fieldsProperties'] = (array)MatchaModel::__getFieldsProperties($model);
+
 			if(!MatchaMemory::__storeSenchaModel($fileModel, $model, $instance)){
 				throw new Exception("Error storing sencha model into memory.");
 			}

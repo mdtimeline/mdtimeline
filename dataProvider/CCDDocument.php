@@ -3771,7 +3771,7 @@ INTRUCTIONS;
                 }
             }
 
-            // Observations enrty
+            // Observations entry...
             foreach($planOfCareData['OBS'] as $item){
                 $planOfCare['text']['table']['tbody']['tr'][] = [
                     'td' => [

@@ -2592,7 +2592,7 @@ INTRUCTIONS;
                             '@value' => $item['begin_date'] ? date('F j, Y', strtotime($item['begin_date'])) : ' '
                         ],
                         [
-                            '@value' => isset($item['status']) ? $item['status'] : ''
+                            '@value' => isset($item['end_date']) ? 'No active' : 'Active'
                         ]
                     ]
                 ];
@@ -5877,12 +5877,12 @@ INTRUCTIONS;
     }
 
     private function parseDateToText($date) {
-        return date('F Y', strtotime($date));
+        return date('F j, Y', strtotime($date));
     }
 
     private function parseDate($date) {
-        $foo = explode(' ', $date);
-        return str_replace('-', '', $foo[0]);
+        $dateExplode = explode(' ', $date);
+        return str_replace('-', '', $dateExplode[0]);
     }
 }
 

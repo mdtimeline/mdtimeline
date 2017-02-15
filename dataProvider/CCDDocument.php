@@ -3783,7 +3783,6 @@ INTRUCTIONS;
                         ]
                     ]
                 ];
-
                 $planOfCare['entry'][] = [
                     '@attributes' => [
                         'typeCode' => 'DRIV'
@@ -3945,7 +3944,7 @@ INTRUCTIONS;
                 $planOfCare['text']['table']['tbody']['tr'][] = [
                     'td' => [
                         [
-                            '@value' => $item['goal']
+                            '@value' => $item['goal'].', Instructions:'.$item['instructions']
                         ],
                         [
                             '@value' => $this->parseDate($item['plan_date'])

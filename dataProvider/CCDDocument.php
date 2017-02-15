@@ -2592,7 +2592,7 @@ INTRUCTIONS;
                             '@value' => $item['begin_date'] ? date('F j, Y', strtotime($item['begin_date'])) : ' '
                         ],
                         [
-                            '@value' => isset($item['end_date']) ? 'No active' : 'Active'
+                            '@value' => isset($item['end_date']) ? 'Non active' : 'Active'
                         ]
                     ]
                 ];

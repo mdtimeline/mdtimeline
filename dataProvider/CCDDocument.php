@@ -1774,7 +1774,7 @@ INTRUCTIONS;
                             '@value' => $item['code_text']
                         ],
                         [
-                            '@value' => $this->parseDateToText($item['create_date'])
+                            '@value' => $this->parseDateToTextWithTime($item['create_date'])
                         ]
                     ]
 
@@ -5878,6 +5878,10 @@ INTRUCTIONS;
 
     private function parseDateToText($date) {
         return date('F j, Y', strtotime($date));
+    }
+
+    private function parseDateToTextWithTime($date) {
+        return date('F j, Y h:M', strtotime($date));
     }
 
     private function parseDate($date) {

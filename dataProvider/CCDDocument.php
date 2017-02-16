@@ -1774,7 +1774,7 @@ INTRUCTIONS;
                             '@value' => $item['code_text']
                         ],
                         [
-                            '@value' => $this->parseDateToTextWithTime($item['create_date'])
+                            '@value' => $this->parseDateToText($item['create_date'])
                         ]
                     ]
 
@@ -1959,7 +1959,7 @@ INTRUCTIONS;
                 $date = $this->parseDate($item['date']);
                 // Date
                 $vitals['text']['table']['thead']['tr'][0]['th'][] = [
-                    '@value' => date('F j, Y', strtotime($item['date']))
+                    '@value' => date('F j, Y h:i', strtotime($item['date']))
                 ];
                 // Height
                 $vitals['text']['table']['tbody']['tr'][0]['td'][] = [

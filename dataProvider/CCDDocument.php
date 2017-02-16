@@ -383,9 +383,9 @@ class CCDDocument
              */
             foreach($sections AS $Section){
                 call_user_func([
-                                   $this,
-                                   "set{$Section}Section"
-                               ]);
+                   $this,
+                   "set{$Section}Section"
+               ]);
             }
 
             /**
@@ -1241,14 +1241,25 @@ INTRUCTIONS;
             ]
         ];
 
-        $documentationOf['serviceEvent']['performer']['assignedEntity']['addr'] = $this->addressBuilder(
-            'WP',
-            $this->facility['address'] . ' ' . $this->facility['address_cont'],
-            $this->facility['city'],
-            $this->facility['state'],
-            $this->facility['postal_code'],
-            $this->facility['country_code']
-        );
+        if(isset($this->encounterFacility['name'])){
+            $documentationOf['serviceEvent']['performer']['assignedEntity']['addr'] = $this->addressBuilder(
+                'WP',
+                $this->encounterFacility['address'] . ' ' . $this->encounterFacility['address_cont'],
+                $this->encounterFacility['city'],
+                $this->encounterFacility['state'],
+                $this->encounterFacility['postal_code'],
+                $this->encounterFacility['country_code']
+            );
+        } else {
+            $documentationOf['serviceEvent']['performer']['assignedEntity']['addr'] = $this->addressBuilder(
+                'WP',
+                $this->facility['address'] . ' ' . $this->facility['address_cont'],
+                $this->facility['city'],
+                $this->facility['state'],
+                $this->facility['postal_code'],
+                $this->facility['country_code']
+            );
+        }
 
         $documentationOf['serviceEvent']['performer']['assignedEntity']['telecom'] = $this->telecomBuilder(
             $this->facility['phone'],
@@ -1257,22 +1268,35 @@ INTRUCTIONS;
 
         $documentationOf['serviceEvent']['performer']['assignedEntity']['assignedPerson'] = [
             'name' => [
-                'prefix' => $this->user['title'],
-                'given' => $this->user['fname'],
-                'family' => $this->user['lname']
+                'prefix' => $this->encounterProvider['title'],
+                'given' => $this->encounterProvider['fname'],
+                'family' => $this->encounterProvider['lname']
             ]
         ];
 
-        $documentationOf['serviceEvent']['performer']['assignedEntity']['representedOrganization'] = [
-            'id' => [
-                '@attributes' => [
-                    'root' => '2.16.840.1.113883.4.6'
+        if(isset($this->encounterFacility['name'])){
+            $documentationOf['serviceEvent']['performer']['assignedEntity']['representedOrganization'] = [
+                'id' => [
+                    '@attributes' => [
+                        'root' => '2.16.840.1.113883.4.6'
+                    ]
+                ],
+                'name' => [
+                    'prefix' => $this->encounterFacility['name']
                 ]
-            ],
-            'name' => [
-                'prefix' => $this->facility['name']
-            ]
-        ];
+            ];
+        } else {
+            $documentationOf['serviceEvent']['performer']['assignedEntity']['representedOrganization'] = [
+                'id' => [
+                    '@attributes' => [
+                        'root' => '2.16.840.1.113883.4.6'
+                    ]
+                ],
+                'name' => [
+                    'prefix' => $this->facility['name']
+                ]
+            ];
+        }
 
         $documentationOf['serviceEvent']['performer']['assignedEntity']['representedOrganization']['telecom'] =
             $this->telecomBuilder($this->facility['phone'], 'WP');
@@ -1935,7 +1959,7 @@ INTRUCTIONS;
                 $date = $this->parseDate($item['date']);
                 // Date
                 $vitals['text']['table']['thead']['tr'][0]['th'][] = [
-                    '@value' => date('F j, Y', strtotime($item['date']))
+                    '@value' => date('F j, Y h:i A', strtotime($item['date']))
                 ];
                 // Height
                 $vitals['text']['table']['tbody']['tr'][0]['td'][] = [
@@ -2301,7 +2325,7 @@ INTRUCTIONS;
                             '@value' => ucwords($item['vaccine_name'])
                         ],
                         [
-                            '@value' => date('F Y', strtotime($item['administered_date']))
+                            '@value' => date('F j Y', strtotime($item['administered_date']))
                         ],
                         [
                             '@value' => 'Completed'
@@ -2568,7 +2592,7 @@ INTRUCTIONS;
                             '@value' => $item['begin_date'] ? date('F j, Y', strtotime($item['begin_date'])) : ' '
                         ],
                         [
-                            '@value' => isset($item['status']) ? $item['status'] : ''
+                            '@value' => isset($item['end_date']) ? 'Non active' : 'Active'
                         ]
                     ]
                 ];
@@ -3566,7 +3590,13 @@ INTRUCTIONS;
         $planOfCareData['OBS'] = $Orders->getOrderWithoutResultsByPid($this->pid);
 
         $planOfCareData['ACT'] = [];
+
+        // Get the Encounters
         $planOfCareData['ENC'] = [];
+
+        // Get referrals
+        $Referrals = new Referrals();
+        $planOfCareData['REF'] = $Referrals->getPatientReferrals(['pid' => $this->pid]);
 
         $CarePlanGoals = new CarePlanGoals();
         $planOfCareData['PROC'] = $CarePlanGoals->getPatientCarePlanGoalsByPid($this->pid);
@@ -3631,7 +3661,117 @@ INTRUCTIONS;
             $planOfCare['text']['table']['tbody']['tr'] = [];
             $planOfCare['entry'] = [];
 
-            // Observations
+            // Referrals entry...
+            if(isset($planOfCareData['REF'])){
+                $ReferringProvider = new ReferringProviders();
+                foreach($planOfCareData['REF'] as $referral){
+                    // Find the complete information of the refer provider
+                    $referralProviderInformation = $ReferringProvider->getReferringProvider(
+                        [
+                            'id' =>$referral['refer_to']
+                        ]
+                    );
+                    // Human readable data
+                    $planOfCare['text']['table']['tbody']['tr'][] = [
+                        'td' => [
+                            [
+                                '@value' => 'Referral: '.$referral['referal_reason'].', '.$referral['refer_to_text'].chr(13).
+                                'Tel: '.$referralProviderInformation['phone_number'].chr(13)
+                            ],
+                            [
+                                '@value' => $referral['referral_date']
+                            ]
+                        ]
+                    ];
+                    // Tabulated data XML wise
+                    $planOfCare['entry'][] = [
+                        'act' => [
+                            '@attributes' => [
+                                'moodCode' => 'RQO',
+                                'classCode' => 'ACT'
+                            ],
+                            'templateId' => [
+                                '@attributes' => [
+                                    'root' => '2.16.840.1.113883.10.20.22.4.39'
+                                ]
+                            ],
+                            'id' => [
+                                '@attributes' => [
+                                    'root' => UUID::v4()
+                                ]
+                            ],
+                            'code' => [
+                                '@attributes' => [
+                                    'displayName' => $referral['referal_reason'],
+                                    'codeSystem' => '2.16.840.1.113883.6.96',
+                                    'code' => 'NA'
+                                ]
+                            ],
+                            'statusCode' => [
+                                '@attributes' => [
+                                    'code' => '1'
+                                ]
+                            ],
+                            'effectiveTime' => [
+                                'low' => [
+                                    '@attributes' => [
+                                        'value' => $referral['referral_date']
+                                    ]
+                                ],
+                                'high' => [
+                                    '@attributes' => [
+                                        'value' => $referral['referral_date']
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ];
+                    $planOfCare['entry'][] = [
+                        'act' => [
+                            '@attributes' => [
+                                'moodCode' => 'RQO',
+                                'classCode' => 'PROC'
+                            ],
+                            'templateId' => [
+                                '@attributes' => [
+                                    'root' => '2.16.840.1.113883.10.20.22.4.41'
+                                ]
+                            ],
+                            'id' => [
+                                '@attributes' => [
+                                    'root' => UUID::v4()
+                                ]
+                            ],
+                            'code' => [
+                                '@attributes' => [
+                                    'displayName' => $referral['referal_reason'],
+                                    'codeSystem' => '2.16.840.1.113883.6.96',
+                                    'code' => 'NA'
+                                ]
+                            ],
+                            'statusCode' => [
+                                '@attributes' => [
+                                    'code' => '1'
+                                ]
+                            ],
+                            'effectiveTime' => [
+                                'low' => [
+                                    '@attributes' => [
+                                        'value' => $referral['referral_date']
+                                    ]
+                                ],
+                                'high' => [
+                                    '@attributes' => [
+                                        'value' => $referral['referral_date']
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ];
+                }
+            }
+
+            // Observations entry...
             foreach($planOfCareData['OBS'] as $item){
                 $planOfCare['text']['table']['tbody']['tr'][] = [
                     'td' => [
@@ -3643,7 +3783,6 @@ INTRUCTIONS;
                         ]
                     ]
                 ];
-
                 $planOfCare['entry'][] = [
                     '@attributes' => [
                         'typeCode' => 'DRIV'
@@ -3752,11 +3891,6 @@ INTRUCTIONS;
                     'td' => [
                         [
                             '@value' => 'Test'
-                            //TODO
-                        ],
-                        [
-                            '@value' => 'Ting'
-                            //TODO
                         ]
                     ]
                 ];
@@ -3810,7 +3944,7 @@ INTRUCTIONS;
                 $planOfCare['text']['table']['tbody']['tr'][] = [
                     'td' => [
                         [
-                            '@value' => $item['goal']
+                            '@value' => 'Goal: '.$item['goal'].', Instructions:'.$item['instructions']
                         ],
                         [
                             '@value' => $this->parseDate($item['plan_date'])
@@ -5743,12 +5877,16 @@ INTRUCTIONS;
     }
 
     private function parseDateToText($date) {
-        return date('F Y', strtotime($date));
+        return date('F j, Y', strtotime($date));
+    }
+
+    private function parseDateToTextWithTime($date) {
+        return date('F j, Y h:M', strtotime($date));
     }
 
     private function parseDate($date) {
-        $foo = explode(' ', $date);
-        return str_replace('-', '', $foo[0]);
+        $dateExplode = explode(' ', $date);
+        return str_replace('-', '', $dateExplode[0]);
     }
 }
 

@@ -37,7 +37,7 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
 				}
 			]
 		});
-		
+
 		Ext.apply(me, {
 			columns: [
 				{
@@ -275,41 +275,7 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
 									bottom: 0,
 									left: 0
 								}
-							},
-							items: [
-								{
-									xtype: 'textfield',
-									fieldLabel: _('username'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									minLength: 5,
-									maxLength: 15,
-									name: 'username'
-								},
-								{
-									xtype: 'textfield',
-									fieldLabel: _('password'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									minLength: 8,
-									maxLength: 15,
-									name: 'password',
-									inputType: 'password',
-									vtype: 'strength',
-									strength: 24,
-									plugins: {
-										ptype: 'passwordstrength'
-									}
-								},
-								{
-									xtype: 'checkbox',
-									fieldLabel: _('authorized'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									name: 'authorized'
-								}
-
-							]
+							}
 						},
 						{
 							height: 50,

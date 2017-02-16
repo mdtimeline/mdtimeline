@@ -3944,7 +3944,7 @@ INTRUCTIONS;
                 $planOfCare['text']['table']['tbody']['tr'][] = [
                     'td' => [
                         [
-                            '@value' => $item['goal'].', Instructions:'.$item['instructions']
+                            '@value' => 'Goal: '.$item['goal'].', Instructions:'.$item['instructions']
                         ],
                         [
                             '@value' => $this->parseDate($item['plan_date'])

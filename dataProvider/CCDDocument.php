@@ -1241,6 +1241,8 @@ INTRUCTIONS;
             ]
         ];
 
+        // TODO: Need loop through all the encounter and extract the providers of that
+        // encounter to post them here.
         if(isset($this->encounterFacility['name'])){
             $documentationOf['serviceEvent']['performer']['assignedEntity']['addr'] = $this->addressBuilder(
                 'WP',
@@ -2770,7 +2772,8 @@ INTRUCTIONS;
     private function setMedicationsAdministeredSection() {
 
         $Medications = new Medications();
-        $medicationsData = $Medications->getPatientAdministeredMedicationsByPidAndEid($this->encounter['pid'], $this->encounter['eid']);
+        $medicationsData = $Medications->getPatientAdministeredMedicationsByPidAndEid($this->pid, $this->eid);
+
         unset($Medications);
 
         if(empty($medicationsData) || $this->isExcluded('administered')){
@@ -4832,7 +4835,7 @@ INTRUCTIONS;
                         '@value' => $smokingStatus['status']
                     ],
                     [
-                        '@value' => isset($smokingStatus['create_date']) ? date('F j, Y', strtotime($smokingStatus['create_date'])) : ''
+                        '@value' => isset($smokingStatus['start_date']) ? date('F j, Y', strtotime($smokingStatus['start_date'])) : ''
                     ]
                 ]
             ];
@@ -4877,7 +4880,7 @@ INTRUCTIONS;
                     ],
                     'effectiveTime' => [
                         '@attributes' => [
-                            'value' => $this->parseDate($smokingStatus['create_date'])
+                            'value' => $this->parseDate($smokingStatus['start_date'])
                         ]
                     ],
 

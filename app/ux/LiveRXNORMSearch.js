@@ -135,11 +135,8 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 			pageSize: 25,
             listeners: {
                 select: function(combo, records, eOpts){
-                    var medicine = records[0].data,
-                        cpos = medicine.STR.indexOf("["),
-                        spos = medicine.STR.indexOf("]");
-                    if (cpos > -1 && spos > cpos)
-                        this.setValue( medicine.STR.substr(0, cpos)+medicine.STR.substr(spos+1) );
+                    var medicine = records[0].data.replace(/[\[\]]/g, '');
+                    this.setValue(medicine);
                 }
             }
 		});

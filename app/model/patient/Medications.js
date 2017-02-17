@@ -74,6 +74,11 @@ Ext.define('App.model.patient.Medications', {
 			len: 40
 		},
 		{
+			name: 'TTY',
+			type: 'string',
+			len: 10
+		},
+		{
 			name: 'dxs',
 			type: 'array'
 		},

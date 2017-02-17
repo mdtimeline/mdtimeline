@@ -11026,11 +11026,8 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 			pageSize: 25,
             listeners: {
                 select: function(combo, records, eOpts){
-                    var medicine = records[0].data,
-                        cpos = medicine.STR.indexOf("["),
-                        spos = medicine.STR.indexOf("]");
-                    if (cpos > -1 && spos > cpos)
-                        this.setValue( medicine.STR.substr(0, cpos)+medicine.STR.substr(spos+1) );
+                    var medicine = records[0].data.replace(/[\[\]]/g, '');
+                    this.setValue(medicine);
                 }
             }
 		});
@@ -13237,23 +13234,6 @@ Ext.define('App.model.administration.ReferringProvider', {
 			len: 40
 		},
 		{
-			name: 'username',
-			type: 'string',
-			len: 40,
-			index: true
-		},
-		{
-			name: 'password',
-			type: 'string',
-			len: 300,
-			encrypt: true
-		},
-		{
-			name: 'authorized',
-			type: 'bool',
-			index: true
-		},
-		{
 			name: 'title',
 			type: 'string',
 			len: 10
@@ -13358,12 +13338,14 @@ Ext.define('App.model.administration.ReferringProvider', {
 		},
 		{
 			name: 'create_uid',
-			type: 'int'
+			type: 'int',
+            len: 11
 
 		},
 		{
 			name: 'update_uid',
-			type: 'int'
+			type: 'int',
+            len: 11
 		},
 		{
 			name: 'create_date',
@@ -13397,6 +13379,7 @@ Ext.define('App.model.administration.ReferringProvider', {
 		}
 	]
 });
+
 Ext.define('App.model.administration.Services', {
 	extend: 'Ext.data.Model',
 	table: {
@@ -17451,6 +17434,11 @@ Ext.define('App.model.patient.Medications', {
 			name: 'NDC',
 			type: 'string',
 			len: 40
+		},
+		{
+			name: 'TTY',
+			type: 'string',
+			len: 10
 		},
 		{
 			name: 'dxs',
@@ -29368,7 +29356,7 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
 				}
 			]
 		});
-		
+
 		Ext.apply(me, {
 			columns: [
 				{
@@ -29606,41 +29594,7 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
 									bottom: 0,
 									left: 0
 								}
-							},
-							items: [
-								{
-									xtype: 'textfield',
-									fieldLabel: _('username'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									minLength: 5,
-									maxLength: 15,
-									name: 'username'
-								},
-								{
-									xtype: 'textfield',
-									fieldLabel: _('password'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									minLength: 8,
-									maxLength: 15,
-									name: 'password',
-									inputType: 'password',
-									vtype: 'strength',
-									strength: 24,
-									plugins: {
-										ptype: 'passwordstrength'
-									}
-								},
-								{
-									xtype: 'checkbox',
-									fieldLabel: _('authorized'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									name: 'authorized'
-								}
-
-							]
+							}
 						},
 						{
 							height: 50,
@@ -31919,8 +31873,7 @@ Ext.define('App.view.administration.practice.Practice', {
 		'App.view.administration.practice.Laboratories',
 		'App.view.administration.practice.Pharmacies',
 		'App.view.administration.practice.ProviderNumbers',
-		'App.view.administration.practice.ReferringProviders',
-//		'App.view.administration.practice.Specialties'
+		'App.view.administration.practice.ReferringProviders'
 	],
 	pageBody: [
 		{
@@ -42852,7 +42805,8 @@ Ext.define('App.controller.patient.Medications', {
 			RXCUI: records[0].data.RXCUI,
 			CODE: records[0].data.CODE,
             GS_CODE: records[0].data.GS_CODE,
-			NDC: records[0].data.NDC
+			NDC: records[0].data.NDC,
+			TTY: records[0].data.TTY
 		});
 	},
 
@@ -42944,7 +42898,8 @@ Ext.define('App.controller.patient.Medications', {
 			RXCUI: record.data.RXCUI,
 			CODE: record.data.CODE,
             GS_CODE: record.data.GS_CODE,
-			NDC: record.data.NDC
+			NDC: record.data.NDC,
+			TTY: record.data.TTY
 		});
 
 		var data = {};
@@ -43681,7 +43636,8 @@ Ext.define('App.controller.patient.RxOrders', {
 			RXCUI: record.data.RXCUI,
 			CODE: record.data.CODE,
             GS_CODE: record.data.GS_CODE,
-			NDC: record.data.NDC
+			NDC: record.data.NDC,
+			TTY: record.data.TTY
 		});
 		var data = {};
 

@@ -52,8 +52,9 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 					name: 'STR',
 					type: 'string',
 					convert: function(v){
-						var regex = /\(.*\) | \(.*\)|\(.*\)/g;
-						return v.replace(regex, '');
+						v = v.replace(/\(.*\) | \(.*\)|\(.*\)/g, '');
+						v = v.replace(/[\[\]]/g, '');
+						return v;
 					}
 				},
 				{
@@ -132,13 +133,7 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 					return '<div class="search-item {[values.TTY == "SCD" ? "lightGreenBg" : "" ]}">{STR}<br><b>RxNorm:</b> {RXCUI} <b>NDC:</b> {NDC}</div>';
 				}
 			},
-			pageSize: 25,
-            listeners: {
-                select: function(combo, records, eOpts){
-                    var medicine = records[0].data.replace(/[\[\]]/g, '');
-                    this.setValue(medicine);
-                }
-            }
+			pageSize: 25
 		});
 
 		me.callParent();

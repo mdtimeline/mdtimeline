@@ -168,10 +168,16 @@ class Medications
         $this->m->addFilter('pid', $pid);
         $this->m->addFilter('RXCUI', $code);
         $records = $this->m->load()->leftJoin(['title', 'fname', 'mname', 'lname'], 'users', 'administered_uid', 'id')->all();
+
         foreach ($records as $i => $record) {
-            if ($record['end_date'] != '0000-00-00' && strtotime($record['end_date']) < strtotime(date('Y-m-d'))) {
-                unset($records[$i]);
-            }
+        	if(
+		        isset($record['end_date']) &&
+        		$record['end_date'] != '0000-00-00' &&
+		        strtotime($record['end_date']) < strtotime(date('Y-m-d'))
+	        ){
+				// not active...
+		        unset($records[$i]);
+	        }
         }
 
         return $records;

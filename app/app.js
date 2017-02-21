@@ -10943,8 +10943,9 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 					name: 'STR',
 					type: 'string',
 					convert: function(v){
-						var regex = /\(.*\) | \(.*\)|\(.*\)/g;
-						return v.replace(regex, '');
+						v = v.replace(/\(.*\) | \(.*\)|\(.*\)/g, '');
+						v = v.replace(/[\[\]]/g, '');
+						return v;
 					}
 				},
 				{
@@ -11023,13 +11024,7 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 					return '<div class="search-item {[values.TTY == "SCD" ? "lightGreenBg" : "" ]}">{STR}<br><b>RxNorm:</b> {RXCUI} <b>NDC:</b> {NDC}</div>';
 				}
 			},
-			pageSize: 25,
-            listeners: {
-                select: function(combo, records, eOpts){
-                    var medicine = records[0].data.replace(/[\[\]]/g, '');
-                    this.setValue(medicine);
-                }
-            }
+			pageSize: 25
 		});
 
 		me.callParent();
@@ -40393,6 +40388,8 @@ Ext.define('App.controller.patient.CCD', {
 		var eid = this.getEid(btn),
             allEncounters = btn.up('toolbar').query('#CompileAllEncountersCheckBox')[0].getValue();
 
+            console.log(allEncounters);
+
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?' +
             'action=view' +
@@ -40539,7 +40536,7 @@ Ext.define('App.controller.patient.CCD', {
 	onPatientCcdPanelEncounterCmbSelect: function(cmb, records){
 
 		var eid = this.getEid(cmb),
-            allEncounters = cmb.up('toolbar').query('#CompileAllEncountersCheckBox')[0].getValue();
+            allEncounters = btn.up('toolbar').query('#CompileAllEncountersCheckBox')[0].getValue();
 
 		cmb.selectedRecord = records[0];
 		cmb.up('panel').query('miframe')[0].setSrc(

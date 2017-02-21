@@ -380,9 +380,12 @@ class HL7Server {
 
 						// Handle the dynamics of the value field
 						// based on the OBX-2 value
-						if($obx[2] == 'CWE'){
+
+						if($obx[2] == 'SN'){
 							$foo->value = $obx[5][2];
-						} else {
+						}elseif($obx[2] == 'CWE'){
+							$foo->value = $obx[5][2];
+						}else{
 							$foo->value = $obx[5];
 						}
 

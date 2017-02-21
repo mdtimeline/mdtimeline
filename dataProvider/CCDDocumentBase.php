@@ -189,6 +189,7 @@ class CDDDocumentBase
                 break;
             case 'ICD10':
             case 'ICD-10':
+            case 'ICD10-CM':
                 return '2.16.840.1.113883.6.3';
                 break;
             case 'LN':

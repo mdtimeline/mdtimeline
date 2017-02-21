@@ -3684,6 +3684,8 @@ class CCDDocument extends CDDDocumentBase
             return;
         };
 
+        $problems['entry'] = [];
+
         // List patient problems.
         if(!empty($problemsData)){
             $problems['text'] = [
@@ -3714,8 +3716,6 @@ class CCDDocument extends CDDDocumentBase
                     ]
                 ]
             ];
-
-            $problems['entry'] = [];
 
             foreach($problemsData as $item){
 
@@ -3861,7 +3861,6 @@ class CCDDocument extends CDDDocumentBase
                         ]
                     ];
                 }
-
                 $entry['act']['entryRelationship']['observation']['value'] = [
                     '@attributes' => [
                         'xsi:type' => 'CD',
@@ -3878,7 +3877,6 @@ class CCDDocument extends CDDDocumentBase
         // List encounter diagnostic.
         if(!empty($diagnosticsData)){
 
-            $problems['entry'] = [];
             foreach($diagnosticsData as $item){
 
                 $dateText = $this->parseDate($this->encounter['service_date']) . ' - ';

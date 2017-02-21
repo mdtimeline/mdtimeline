@@ -40393,8 +40393,6 @@ Ext.define('App.controller.patient.CCD', {
 		var eid = this.getEid(btn),
             allEncounters = btn.up('toolbar').query('#CompileAllEncountersCheckBox')[0].getValue();
 
-            console.log(allEncounters);
-
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?' +
             'action=view' +
@@ -40541,7 +40539,7 @@ Ext.define('App.controller.patient.CCD', {
 	onPatientCcdPanelEncounterCmbSelect: function(cmb, records){
 
 		var eid = this.getEid(cmb),
-            allEncounters = btn.up('toolbar').query('#CompileAllEncountersCheckBox')[0].getValue();
+            allEncounters = cmb.up('toolbar').query('#CompileAllEncountersCheckBox')[0].getValue();
 
 		cmb.selectedRecord = records[0];
 		cmb.up('panel').query('miframe')[0].setSrc(

@@ -426,7 +426,6 @@ Ext.define('App.controller.patient.Results', {
 		result_record.set(values);
 		result_record.save({
 			success: function(rec){
-			    console.log(rec);
 				for(var i = 1; i < observations.length; i++){
 					observations[i].set({result_id: rec.data.id});
 				}

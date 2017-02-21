@@ -55638,15 +55638,13 @@ Ext.define('App.controller.patient.Results', {
 
 		if(!form.isValid()) return;
 
-		say(result_record.observations());
-
 		var observationStore = result_record.observations(),
 			observations = observationStore.tree.flatten();
 
 		result_record.set(values);
 		result_record.save({
 			success: function(rec){
-
+			    console.log(rec);
 				for(var i = 1; i < observations.length; i++){
 					observations[i].set({result_id: rec.data.id});
 				}

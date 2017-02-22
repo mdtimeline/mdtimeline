@@ -290,6 +290,83 @@ class CDDDocumentBase
         return $this->templateIds[$this->template];
     }
 
+    public function parseDateToText($date) {
+        return date('F j, Y', strtotime($date));
+    }
+
+    public function parseDateToTextWithTime($date) {
+        return date('F j, Y h:M', strtotime($date));
+    }
+
+    public function parseDate($date) {
+        $dateExplode = explode(' ', $date);
+        return str_replace('-', '', $dateExplode[0]);
+    }
+
+    public function addressBuilder(
+        $use,
+        $streetAddressLine,
+        $city,
+        $state,
+        $zipcode,
+        $country,
+        $useablePeriod = null) {
+
+        $addr = [];
+
+        if($use !== false){
+            $addr['@attributes']['use'] = $use;
+        }
+
+        if($streetAddressLine === false){
+            // skip...
+        } elseif($streetAddressLine != '') {
+            $addr['streetAddressLine']['@value'] = $streetAddressLine;
+        } else {
+            $addr['streetAddressLine']['@attributes']['nullFlavor'] = 'NI';
+        }
+
+        if($city === false){
+            // skip...
+        } elseif($city != '') {
+            $addr['city']['@value'] = $city;
+        } else {
+            $addr['city']['@attributes']['nullFlavor'] = 'UNK';
+        }
+
+        if($state === false){
+            // skip...
+        } elseif($state != '') {
+            $addr['state']['@value'] = $state;
+        } else {
+            $addr['state']['@attributes']['nullFlavor'] = 'UNK';
+        }
+
+        if($zipcode === false){
+            // skip...
+        } elseif($zipcode != '') {
+            $addr['postalCode']['@value'] = $zipcode;
+        } else {
+            $addr['postalCode']['@attributes']['nullFlavor'] = 'UNK';
+        }
+
+        if($country === false){
+            // skip...
+        } elseif($country != '') {
+            $addr['country']['@value'] = $country;
+        } else {
+            $addr['country']['@attributes']['nullFlavor'] = 'UNK';
+        }
+
+        if(isset($useablePeriod)){
+            $addr['useablePeriod']['@attributes']['xsi:type'] = 'IVL_TS';
+            $addr['useablePeriod']['low']['@attributes']['nullFlavor'] = 'NA';
+            $addr['useablePeriod']['high']['@attributes']['value'] = $useablePeriod;
+        }
+
+        return $addr;
+    }
+
     /**
      * Method zipIt()
      */
@@ -342,3 +419,4 @@ INTRUCTIONS;
     }
 
 }
+

@@ -1702,5 +1702,5 @@ $LANG = array(
     'password_changed'                      => 'Password Changed',
     'password_expired'                      => 'Password Expired',
     'confirmation'                          => 'Confirmation',
-    'compile_all_encounters'                => 'Compile All Encounters'
+    'include_all_providers'                 => 'Includes all providers'
 );

@@ -580,15 +580,6 @@ class CCDDocument extends CDDDocumentBase
             ['@attributes']
             ['code'] = $patientData['language'];
 
-//            // This is the patient preferred language to sppoke
-//            $recordTarget['patientRole']
-//            ['patient']
-//            ['languageCommunication']
-//            ['preferenceInd'] = [
-//                '@attributes' => [
-//                    'value' => 'true'
-//                ]
-//            ];
             // Language Ability Mode
             $recordTarget['patientRole']['patient']['languageCommunication']['modeCode'] = [
                 '@attributes' => [
@@ -894,107 +885,197 @@ class CCDDocument extends CDDDocumentBase
             ]
         ];
 
-        $documentationOf['serviceEvent']['performer'] = [
-            '@attributes' => [
-                'typeCode' => 'PRF'
-            ],
-            'templateId' => [
+        if(!$this->allProviders){
+
+            $documentationOf['serviceEvent']['performer'] = [
                 '@attributes' => [
-                    'root' => '1.3.6.1.4.1.19376.1.5.3.1.2.3'
-                ]
-            ],
-            'time' => [
-                'low' => [
+                    'typeCode' => 'PRF'
+                ],
+                'templateId' => [
                     '@attributes' => [
-                        'value' => $this->parseDate($this->encounter['service_date'])
+                        'root' => '1.3.6.1.4.1.19376.1.5.3.1.2.3'
                     ]
                 ],
-                'high' => [
-                    '@attributes' => [
-                        'value' => $this->parseDate($this->encounter['service_date'])
-                    ]
-                ]
-            ],
-            'assignedEntity' => [
-                'id' => [
-                    '@attributes' => [
-                        'root' => UUID::v4()
-                    ]
-                ],
-            ]
-        ];
-
-        // TODO: Need loop through all the encounter and extract the providers of that
-        // encounter to post them here.
-        if(isset($this->encounterFacility['name'])){
-            $documentationOf['serviceEvent']['performer']['assignedEntity']['addr'] = $this->addressBuilder(
-                'WP',
-                $this->encounterFacility['address'] . ' ' . $this->encounterFacility['address_cont'],
-                $this->encounterFacility['city'],
-                $this->encounterFacility['state'],
-                $this->encounterFacility['postal_code'],
-                $this->encounterFacility['country_code']
-            );
-        } else {
-            $documentationOf['serviceEvent']['performer']['assignedEntity']['addr'] = $this->addressBuilder(
-                'WP',
-                $this->facility['address'] . ' ' . $this->facility['address_cont'],
-                $this->facility['city'],
-                $this->facility['state'],
-                $this->facility['postal_code'],
-                $this->facility['country_code']
-            );
-        }
-
-        $documentationOf['serviceEvent']['performer']['assignedEntity']['telecom'] = $this->telecomBuilder(
-            $this->facility['phone'],
-            'WP'
-        );
-
-        $documentationOf['serviceEvent']['performer']['assignedEntity']['assignedPerson'] = [
-            'name' => [
-                'prefix' => $this->encounterProvider['title'],
-                'given' => $this->encounterProvider['fname'],
-                'family' => $this->encounterProvider['lname']
-            ]
-        ];
-
-        if(isset($this->encounterFacility['name'])){
-            $documentationOf['serviceEvent']['performer']['assignedEntity']['representedOrganization'] = [
-                'id' => [
-                    '@attributes' => [
-                        'root' => '2.16.840.1.113883.4.6'
+                'time' => [
+                    'low' => [
+                        '@attributes' => [
+                            'value' => $this->parseDate($this->encounter['service_date'])
+                        ]
+                    ],
+                    'high' => [
+                        '@attributes' => [
+                            'value' => $this->parseDate($this->encounter['service_date'])
+                        ]
                     ]
                 ],
-                'name' => [
-                    'prefix' => $this->encounterFacility['name']
+                'assignedEntity' => [
+                    'id' => [
+                        '@attributes' => [
+                            'root' => UUID::v4()
+                        ]
+                    ],
                 ]
             ];
-        } else {
-            $documentationOf['serviceEvent']['performer']['assignedEntity']['representedOrganization'] = [
-                'id' => [
-                    '@attributes' => [
-                        'root' => '2.16.840.1.113883.4.6'
-                    ]
-                ],
+
+            if(isset($this->encounterFacility['name'])){
+                $documentationOf['serviceEvent']['performer']['assignedEntity']['addr'] = $this->addressBuilder(
+                    'WP',
+                    $this->encounterFacility['address'] . ' ' . $this->encounterFacility['address_cont'],
+                    $this->encounterFacility['city'],
+                    $this->encounterFacility['state'],
+                    $this->encounterFacility['postal_code'],
+                    $this->encounterFacility['country_code']
+                );
+            } else {
+                $documentationOf['serviceEvent']['performer']['assignedEntity']['addr'] = $this->addressBuilder(
+                    'WP',
+                    $this->facility['address'] . ' ' . $this->facility['address_cont'],
+                    $this->facility['city'],
+                    $this->facility['state'],
+                    $this->facility['postal_code'],
+                    $this->facility['country_code']
+                );
+            }
+
+            $documentationOf['serviceEvent']['performer']['assignedEntity']['telecom'] = $this->telecomBuilder(
+                $this->facility['phone'],
+                'WP'
+            );
+
+            $documentationOf['serviceEvent']['performer']['assignedEntity']['assignedPerson'] = [
                 'name' => [
-                    'prefix' => $this->facility['name']
+                    'prefix' => $this->encounterProvider['title'],
+                    'given' => $this->encounterProvider['fname'],
+                    'family' => $this->encounterProvider['lname']
                 ]
             ];
+
+            if(isset($this->encounterFacility['name'])){
+                $documentationOf['serviceEvent']['performer']['assignedEntity']['representedOrganization'] = [
+                    'id' => [
+                        '@attributes' => [
+                            'root' => '2.16.840.1.113883.4.6'
+                        ]
+                    ],
+                    'name' => [
+                        'prefix' => $this->encounterFacility['name']
+                    ]
+                ];
+            } else {
+                $documentationOf['serviceEvent']['performer']['assignedEntity']['representedOrganization'] = [
+                    'id' => [
+                        '@attributes' => [
+                            'root' => '2.16.840.1.113883.4.6'
+                        ]
+                    ],
+                    'name' => [
+                        'prefix' => $this->facility['name']
+                    ]
+                ];
+            }
+
+            $documentationOf['serviceEvent']['performer']['assignedEntity']['representedOrganization']['telecom'] =
+                $this->telecomBuilder($this->facility['phone'], 'WP');
+
+            $documentationOf['serviceEvent']['performer']['assignedEntity']['representedOrganization']['addr'] =
+                $this->addressBuilder(
+                    'WP',
+                    $this->facility['address'] . ' ' . $this->facility['address_cont'],
+                    $this->facility['city'],
+                    $this->facility['state'],
+                    $this->facility['postal_code'],
+                    $this->facility['country_code']
+                );
+
+        } else {
+
+            $filters = new stdClass();
+            $filters->filter[0] = new stdClass();
+            $filters->filter[0]->property = 'pid';
+            $filters->filter[0]->value = $this->pid;
+            $encounters = $this->Encounter->getEncounters($filters, false, false);
+            //error_log(print_r($encounters,true));
+            foreach ($encounters as $encounter) {
+                $facility = $this->Facilities->getFacility($encounter['facility']);
+                $provider = $this->User->getUserByUid($encounter['provider_uid']);
+
+                $documentationOf['serviceEvent']['performer'][$encounter['eid']] = [
+                    '@attributes' => [
+                        'typeCode' => 'PRF'
+                    ],
+                    'templateId' => [
+                        '@attributes' => [
+                            'root' => '1.3.6.1.4.1.19376.1.5.3.1.2.3'
+                        ]
+                    ],
+                    'time' => [
+                        'low' => [
+                            '@attributes' => [
+                                'value' => $this->parseDate($encounter['service_date'])
+                            ]
+                        ],
+                        'high' => [
+                            '@attributes' => [
+                                'value' => $this->parseDate($encounter['service_date'])
+                            ]
+                        ]
+                    ],
+                    'assignedEntity' => [
+                        'id' => [
+                            '@attributes' => [
+                                'root' => UUID::v4()
+                            ]
+                        ],
+                    ]
+                ];
+
+                $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['addr'] = $this->addressBuilder(
+                    'WP',
+                    $facility['address'] . ' ' . $facility['address_cont'],
+                    $facility['city'],
+                    $facility['state'],
+                    $facility['postal_code'],
+                    $facility['country_code']
+                );
+
+                $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['telecom'] = $this->telecomBuilder(
+                    $facility['phone'],
+                    'WP'
+                );
+
+                $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['assignedPerson'] = [
+                    'name' => [
+                        'prefix' => $provider['title'],
+                        'given' => $provider['fname'],
+                        'family' => $provider['lname']
+                    ]
+                ];
+
+                $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['representedOrganization'] = [
+                    'id' => [
+                        '@attributes' => [
+                            'root' => '2.16.840.1.113883.4.6'
+                        ]
+                    ],
+                    'name' => [
+                        'prefix' => $facility['name']
+                    ]
+                ];
+
+                $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['representedOrganization']['telecom'] =
+                    $this->telecomBuilder($facility['phone'], 'WP');
+
+                $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['representedOrganization']['addr'] =
+                    $this->addressBuilder(
+                        'WP',
+                        $facility['address'] . ' ' . $facility['address_cont'],
+                        $facility['city'],
+                        $facility['state'],
+                        $facility['postal_code'],
+                        $facility['country_code']
+                    );
+            }
         }
-
-        $documentationOf['serviceEvent']['performer']['assignedEntity']['representedOrganization']['telecom'] =
-            $this->telecomBuilder($this->facility['phone'], 'WP');
-
-        $documentationOf['serviceEvent']['performer']['assignedEntity']['representedOrganization']['addr'] =
-            $this->addressBuilder(
-                'WP',
-                $this->facility['address'] . ' ' . $this->facility['address_cont'],
-                $this->facility['city'],
-                $this->facility['state'],
-                $this->facility['postal_code'],
-                $this->facility['country_code']
-            );
 
         return $documentationOf;
     }
@@ -1192,17 +1273,14 @@ class CCDDocument extends CDDDocumentBase
         $user = $User->getUser($uid);
         unset($User);
 
-        if($user === false)
-            return false;
+        if($user === false) return false;
         $user = (object)$user;
 
-        if($user->facility_id == 0)
-            return false;
+        if($user->facility_id == 0) return false;
 
         $Facilities = new Facilities();
         $facility = $Facilities->getFacility(['id' => $user->facility_id]);
-        if($user === false)
-            return false;
+        if($user === false) return false;
         $facility = (object)$facility;
 
         $performer = [
@@ -5618,6 +5696,7 @@ if(isset($_REQUEST['pid']) && isset($_REQUEST['action'])){
         if(isset($_REQUEST['eid'])) $ccd->setEid($_REQUEST['eid']);
         if(isset($_REQUEST['pid'])) $ccd->setPid($_REQUEST['pid']);
         if(isset($_REQUEST['exclude'])) $ccd->setExcludes($_REQUEST['exclude']);
+        if(isset($_REQUEST['allprov'])) $ccd->setAllProviders($_REQUEST['allprov']);
         $ccd->setTemplate('toc');
         $ccd->createCCD();
 

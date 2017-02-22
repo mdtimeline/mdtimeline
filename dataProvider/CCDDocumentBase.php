@@ -169,6 +169,11 @@ class CDDDocumentBase
     public $exclude = [];
 
     /**
+     * @var
+     */
+    public $allProviders;
+
+    /**
      * Return the pertinent OID of a certain code system name
      * @param $codeSystem
      * @return string
@@ -245,6 +250,14 @@ class CDDDocumentBase
     public function setEid($eid)
     {
         $this->eid = $eid == 'null' ? null : $eid;
+    }
+
+    /**
+     * @param $eid
+     */
+    public function setAllProviders($flag)
+    {
+        $this->allProviders = $flag == 'null' ? null : $flag;
     }
 
     /**

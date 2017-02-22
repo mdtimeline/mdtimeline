@@ -53,10 +53,10 @@ Ext.define('App.view.patient.CCD', {
                 },
                 {
                     xtype: 'checkboxfield',
-                    boxLabel: _('compile_all_encounters'),
-                    name: 'compile_all_encounters',
+                    boxLabel: _('include_all_providers'),
+                    name: 'include_all_providers',
                     inputValue: false,
-                    id: 'CompileAllEncountersCheckBox'
+                    id: 'IncludesAllProvidersCheckBox'
                 }
             ]
 

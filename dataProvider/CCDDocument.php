@@ -885,7 +885,7 @@ class CCDDocument extends CDDDocumentBase
             ]
         ];
 
-        if(!$this->allProviders){
+        if($this->allProviders == 'false'){
 
             $documentationOf['serviceEvent']['performer'] = [
                 '@attributes' => [
@@ -994,7 +994,7 @@ class CCDDocument extends CDDDocumentBase
             $filters->filter[0]->property = 'pid';
             $filters->filter[0]->value = $this->pid;
             $encounters = $this->Encounter->getEncounters($filters, false, false);
-            //error_log(print_r($encounters,true));
+
             foreach ($encounters as $encounter) {
                 $facility = $this->Facilities->getFacility($encounter['facility']);
                 $provider = $this->User->getUserByUid($encounter['provider_uid']);

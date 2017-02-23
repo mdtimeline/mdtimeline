@@ -857,35 +857,36 @@ class CCDDocument extends CDDDocumentBase
      */
     private function getDocumentationOf()
     {
-        $documentationOf = [
-            'serviceEvent' => [
-                '@attributes' => [
-                    'classCode' => 'PCPR'
-                ],
-                'code' => [
+
+        if($this->allProviders == 'false'){
+
+            $documentationOf = [
+                'serviceEvent' => [
                     '@attributes' => [
-                        'nullFlavor' => 'UNK'
-                    ]
-                ],
-                'effectiveTime' => [
-                    '@attributes' => [
-                        'xsi:type' => 'IVL_TS'
+                        'classCode' => 'PCPR'
                     ],
-                    'low' => [
+                    'code' => [
                         '@attributes' => [
-                            'value' => $this->parseDate($this->encounter['service_date'])
+                            'nullFlavor' => 'UNK'
                         ]
                     ],
-                    'high' => [
+                    'effectiveTime' => [
                         '@attributes' => [
-                            'value' => $this->parseDate($this->encounter['service_date'])
+                            'xsi:type' => 'IVL_TS'
+                        ],
+                        'low' => [
+                            '@attributes' => [
+                                'value' => $this->parseDate($this->encounter['service_date'])
+                            ]
+                        ],
+                        'high' => [
+                            '@attributes' => [
+                                'value' => $this->parseDate($this->encounter['service_date'])
+                            ]
                         ]
                     ]
                 ]
-            ]
-        ];
-
-        if($this->allProviders == 'false'){
+            ];
 
             $documentationOf['serviceEvent']['performer'] = [
                 '@attributes' => [
@@ -994,6 +995,34 @@ class CCDDocument extends CDDDocumentBase
             $filters->filter[0]->property = 'pid';
             $filters->filter[0]->value = $this->pid;
             $encounters = $this->Encounter->getEncounters($filters, false, false);
+
+            $documentationOf = [
+                'serviceEvent' => [
+                    '@attributes' => [
+                        'classCode' => 'PCPR'
+                    ],
+                    'code' => [
+                        '@attributes' => [
+                            'nullFlavor' => 'UNK'
+                        ]
+                    ],
+                    'effectiveTime' => [
+                        '@attributes' => [
+                            'xsi:type' => 'IVL_TS'
+                        ],
+                        'low' => [
+                            '@attributes' => [
+                                'value' => $this->parseDate($encounters[0]['service_date'])
+                            ]
+                        ],
+                        'high' => [
+                            '@attributes' => [
+                                'value' => $this->parseDate($encounters[sizeof($encounters) - 1]['service_date'])
+                            ]
+                        ]
+                    ]
+                ]
+            ];
 
             foreach ($encounters as $encounter) {
                 $facility = $this->Facilities->getFacility($encounter['facility']);
@@ -2277,7 +2306,7 @@ class CCDDocument extends CDDDocumentBase
     private function setMedicationsSection() {
 
         $Medications = new Medications();
-        $medicationsData = $Medications->getPatientActiveMedicationsByPid($this->pid, true);
+        $medicationsData = $Medications->getPatientActiveMedicationsByPid($this->pid, false);
         unset($Medications);
 
         if(empty($medicationsData) || $this->isExcluded('medications')){

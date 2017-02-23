@@ -223,15 +223,13 @@ class Encounter {
 			$record = $this->e->load($params)->one();
 		}
 
-		if($record === false)
-			return [];
+		if($record === false) return [];
 		$encounter = (array)$record['encounter'];
 		$this->setEid($encounter['eid']);
 		unset($record);
 
 		$relations = isset($params->relations) ? $params->relations : $relations;
-		if($relations == false)
-			return ['encounter' => $encounter];
+		if($relations == false) return ['encounter' => $encounter];
 		$encounter = $this->getEncounterRelations($encounter, $allVitals);
 
 		unset($filters);
@@ -996,7 +994,7 @@ class Encounter {
 		return $this->hcfa->save($params);
 	}
 
-	public function getEncounterDxs($params) {
+	public function getEncounterDxs($params = null) {
 		$records = $this->edx->load($params)->all();
 		foreach($records as $i => $record){
 			if($record !== false){

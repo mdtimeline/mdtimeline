@@ -3750,11 +3750,26 @@ class CCDDocument extends CDDDocumentBase
         $problemsData = $ActiveProblems->getPatientAllProblemsByPid($this->pid);
 
         $EncounterDiagnostics = new Encounter();
-        $params = new stdClass();
-        $params->filter[0] = new stdClass();
-        $params->filter[0]->property = 'eid';
-        $params->filter[0]->value = $this->eid;
-        $diagnosticsData = $EncounterDiagnostics->getEncounterDxs($params);
+        $diagnosticsData = [];
+        if($this->allProviders == 'false' && $this->eid != null){
+            $params = new stdClass();
+            $params->filter[0] = new stdClass();
+            $params->filter[0]->property = 'eid';
+            $params->filter[0]->value = $this->eid;
+            $diagnosticsData = $EncounterDiagnostics->getEncounterDxs($params);
+            $tempEncounter = $EncounterDiagnostics->getEncounter($this->eid, false, false);
+            $diagnosticsData[0]['encounter'] = $tempEncounter['encounter'];
+        } elseif($this->allProviders == 'true' ) {
+            $params = new stdClass();
+            $params->filter[0] = new stdClass();
+            $params->filter[0]->property = 'pid';
+            $params->filter[0]->value = $this->pid;
+            $diagnosticsData = $EncounterDiagnostics->getEncounterDxs($params);
+            foreach($diagnosticsData as $index => $diagnostic){
+                $tempEncounter = $EncounterDiagnostics->getEncounter($diagnostic['eid'], false, false);
+                $diagnosticsData[$index]['encounter'] = $tempEncounter['encounter'];
+            }
+        }
 
         unset($ActiveProblems, $EncounterDiagnostics);
 
@@ -3986,9 +4001,9 @@ class CCDDocument extends CDDDocumentBase
 
             foreach($diagnosticsData as $item){
 
-                $dateText = $this->parseDate($this->encounter['service_date']) . ' - ';
-                if(isset($this->encounter['close_date']) && $this->encounter['close_date'] != '0000-00-00')
-                    $dateText .= $this->parseDate($this->encounter['close_date']);
+                $dateText = $this->parseDate($item['encounter']['service_date']) . ' - ';
+                if(isset($item['encounter']['close_date']) && $item['encounter']['close_date'] != '0000-00-00')
+                    $dateText .= $this->parseDate($item['encounter']['close_date']);
 
                 $problems['text']['table']['tbody']['tr'][] = [
                     'td' => [
@@ -4045,13 +4060,13 @@ class CCDDocument extends CDDDocumentBase
                 ];
                 $entry['act']['effectiveTime']['low'] = [
                     '@attributes' => [
-                        'value' => $this->parseDate($this->encounter['service_date'])
+                        'value' => $this->parseDate($item['encounter']['service_date'])
                     ]
                 ];
-                if(isset($this->encounter['close_date']) && $this->encounter['close_date'] != '0000-00-00'){
+                if(isset($item['encounter']['close_date']) && $item['encounter']['close_date'] != '0000-00-00'){
                     $entry['act']['effectiveTime']['high'] = [
                         '@attributes' => [
-                            'value' => $this->parseDate($this->encounter['close_date'])
+                            'value' => $this->parseDate($item['encounter']['close_date'])
                         ]
                     ];
                 } else {
@@ -4104,13 +4119,13 @@ class CCDDocument extends CDDDocumentBase
                 ];
                 $entry['act']['entryRelationship']['observation']['effectiveTime']['low'] = [
                     '@attributes' => [
-                        'value' => $this->parseDate($this->encounter['service_date'])
+                        'value' => $this->parseDate($item['encounter']['service_date'])
                     ]
                 ];
-                if(isset($item['end_date']) && $item['end_date'] != '0000-00-00'){
+                if(isset($item['encounter']['end_date']) && $item['encounter']['end_date'] != '0000-00-00'){
                     $entry['act']['entryRelationship']['observation']['effectiveTime']['high'] = [
                         '@attributes' => [
-                            'value' => $this->parseDate($this->encounter['close_date'])
+                            'value' => $this->parseDate($item['encounter']['close_date'])
                         ]
                     ];
                 } else {

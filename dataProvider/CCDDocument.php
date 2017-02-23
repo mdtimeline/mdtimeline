@@ -2415,14 +2415,14 @@ class CCDDocument extends CDDDocumentBase
 
                 $entry['substanceAdministration']['effectiveTime']['low'] = [
                     '@attributes' => [
-                        'value' => date('Ymd', strtotime($item['begin_date']))
+                        'value' => $this->parseDate(strtotime($item['begin_date']))
                     ]
                 ];
 
                 if(isset($item['end_date']) && $item['end_date'] != '0000-00-00'){
                     $entry['substanceAdministration']['effectiveTime']['high'] = [
                         '@attributes' => [
-                            'value' => date('Ymd', strtotime($item['end_date']))
+                            'value' => $this->parseDate(strtotime($item['end_date']))
                         ]
                     ];
                 } else {
@@ -3504,12 +3504,12 @@ class CCDDocument extends CDDDocumentBase
                             'effectiveTime' => [
                                 'low' => [
                                     '@attributes' => [
-                                        'value' => $referral['referral_date']
+                                        'value' => $this->parseDate($referral['referral_date'])
                                     ]
                                 ],
                                 'high' => [
                                     '@attributes' => [
-                                        'value' => $referral['referral_date']
+                                        'value' => $this->parseDate($referral['referral_date'])
                                     ]
                                 ]
                             ]
@@ -3546,12 +3546,12 @@ class CCDDocument extends CDDDocumentBase
                             'effectiveTime' => [
                                 'low' => [
                                     '@attributes' => [
-                                        'value' => $referral['referral_date']
+                                        'value' => $this->parseDate($referral['referral_date'])
                                     ]
                                 ],
                                 'high' => [
                                     '@attributes' => [
-                                        'value' => $referral['referral_date']
+                                        'value' => $this->parseDate($referral['referral_date'])
                                     ]
                                 ]
                             ]

@@ -3624,7 +3624,7 @@ class CCDDocument extends CDDDocumentBase
             }
 
             /**
-             * 3.69 Planned Procedures (V2)
+             * Appointments
              */
             foreach($planOfCareData['APPOINTMENTS'] as $item){
                 $planOfCare['text']['table']['tbody']['tr'][] = [

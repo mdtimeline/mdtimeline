@@ -380,6 +380,23 @@ class CDDDocumentBase
         return $addr;
     }
 
+    public function removeDuplicateKeys($key,$data){
+
+        $_data = array();
+
+        foreach ($data as $v) {
+            if (isset($_data[$v[$key]])) {
+                // found duplicate
+                continue;
+            }
+            // remember unique item
+            $_data[$v[$key]] = $v;
+        }
+        // if you need a zero-based array, otheriwse work with $_data
+        $data = array_values($_data);
+        return $data;
+    }
+
     /**
      * Method zipIt()
      */

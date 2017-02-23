@@ -1024,6 +1024,9 @@ class CCDDocument extends CDDDocumentBase
                 ]
             ];
 
+            // Eliminate duplicates
+            $encounters = $this->removeDuplicateKeys('provider_uid',$encounters);
+
             foreach ($encounters as $encounter) {
                 $facility = $this->Facilities->getFacility($encounter['facility']);
                 $provider = $this->User->getUserByUid($encounter['provider_uid']);
@@ -3757,8 +3760,10 @@ class CCDDocument extends CDDDocumentBase
             $params->filter[0]->property = 'eid';
             $params->filter[0]->value = $this->eid;
             $diagnosticsData = $EncounterDiagnostics->getEncounterDxs($params);
-            $tempEncounter = $EncounterDiagnostics->getEncounter($this->eid, false, false);
-            $diagnosticsData[0]['encounter'] = $tempEncounter['encounter'];
+            if(!empty($diagnosticsData)){
+                $tempEncounter = $EncounterDiagnostics->getEncounter($this->eid, false, false);
+                $diagnosticsData['encounter'] = $tempEncounter['encounter'];
+            }
         } elseif($this->allProviders == 'true' ) {
             $params = new stdClass();
             $params->filter[0] = new stdClass();
@@ -3939,10 +3944,10 @@ class CCDDocument extends CDDDocumentBase
                         // 404684003    SNOMEDCT    Finding
                         // 409586006    SNOMEDCT    Complaint
                         // 282291009    SNOMEDCT    Diagnosis
-                        // 64572001    SNOMEDCT    Condition
+                        // 64572001     SNOMEDCT    Condition
                         // 248536006    SNOMEDCT    Functional limitation
                         // 418799008    SNOMEDCT    Symptom
-                        // 55607006    SNOMEDCT    Problem
+                        // 55607006     SNOMEDCT    Problem
                         // 373930000    SNOMEDCT    Cognitive function finding
                         'code' => [
                             '@attributes' => [

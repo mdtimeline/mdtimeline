@@ -2401,11 +2401,19 @@ class CCDDocument extends CDDDocumentBase
 
                 $entry['substanceAdministration']['text'] = $item['STR'];
 
-                $entry['substanceAdministration']['statusCode'] = [
-                    '@attributes' => [
-                        'code' => 'completed'
-                    ]
-                ];
+                if(isset($item['end_date']) && $item['end_date'] != '0000-00-00') {
+                    $entry['substanceAdministration']['statusCode'] = [
+                        '@attributes' => [
+                            'code' => 'active'
+                        ]
+                    ];
+                } else {
+                    $entry['substanceAdministration']['statusCode'] = [
+                        '@attributes' => [
+                            'code' => 'inactive'
+                        ]
+                    ];
+                }
 
                 $entry['substanceAdministration']['effectiveTime'] = [
                     '@attributes' => [
@@ -3519,7 +3527,7 @@ class CCDDocument extends CDDDocumentBase
                         'act' => [
                             '@attributes' => [
                                 'moodCode' => 'RQO',
-                                'classCode' => 'PROC'
+                                'classCode' => 'ACT'
                             ],
                             'templateId' => [
                                 '@attributes' => [
@@ -3633,7 +3641,7 @@ class CCDDocument extends CDDDocumentBase
                     'procedure' => [
                         '@attributes' => [
                             'moodCode' => 'RQO',
-                            'classCode' => 'PROC'
+                            'classCode' => 'ACT'
                         ],
                         'templateId' => [
                             '@attributes' => [

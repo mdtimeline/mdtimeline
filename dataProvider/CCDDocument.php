@@ -1141,20 +1141,11 @@ class CCDDocument extends CDDDocumentBase
             ]
         ];
         $componentOf['encompassingEncounter']['effectiveTime'] = [
-            'low' => [
-                '@attributes' => [
-                    'value' => $this->encounter['service_date']
-                ]
+            '@attributes' => [
+                'value' => $this->parseDate($this->encounter['service_date'])
             ]
         ];
 
-        $componentOf['encompassingEncounter']['effectiveTime'] = [
-            'high' => [
-                '@attributes' => [
-                    'value' => $this->encounter['service_date']
-                ]
-            ]
-        ];
         $responsibleParty = [
             'assignedEntity' => [
                 'id' => [

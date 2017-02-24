@@ -5418,14 +5418,23 @@ class CCDDocument extends CDDDocumentBase
     }
 
     /**
-     * Method setEncountersSection() TODO
+     * Method setEncountersSection()
+     * This section lists and describes any healthcare encounters pertinent to the patient’s current health
+     * status or historical health history. An encounter is an interaction, regardless of the setting, between a
+     * patient and a practitioner who is vested with primary responsibility for diagnosing, evaluating, or
+     * treating the patient’s condition. It may include visits, appointments, or non-face-to-face interactions.
+     *
+     * It is also a contact between a patient and a practitioner who has primary responsibility
+     * (exercising independent judgment) for assessing and treating the patient at a given contact.
+     * This section may contain all encounters for the time period being summarized, but should
+     * include notable encounters.
      */
     private function setEncountersSection() {
         $encounters = [
             'section' => [
                 'templateId' => [
                     '@attributes' => [
-                        'root' => $this->requiredEncounters ? '2.16.840.1.113883.10.20.22.2.22.1' : '2.16.840.1.113883.10.20.22.2.22'
+                        'root' => $this->requiredEncounters ? '2.16.840.1.113883.10.20.22.2.22.2' : '2.16.840.1.113883.10.20.22.2.22'
                     ]
                 ],
                 'code' => [
@@ -5440,7 +5449,16 @@ class CCDDocument extends CDDDocumentBase
             ]
         ];
 
-        $encountersData = [];
+
+        if($this->eid){
+            $encountersData = $this->Encounter->getEncounters(
+                ['eid'=>$this->eid]
+            );
+        }elseif($this->eid =-1){
+            $encountersData = $this->Encounter->getEncounters(
+                ['pid'=>$this->pid]
+            );
+        }
 
 	    /**
 	     * array of codes used during encounter
@@ -5452,7 +5470,6 @@ class CCDDocument extends CDDDocumentBase
 		$codes = [];
         $DecisionAids = new DecisionAids();
 	    $decisionAids = $DecisionAids->getDecisionAidsByTriggerCodes($codes);
-
 
         if(!empty($encountersData)){
             $encounters['text'] = [
@@ -5466,13 +5483,22 @@ class CCDDocument extends CDDDocumentBase
                             [
                                 'th' => [
                                     [
-                                        '@value' => 'Functional Condition'
+                                        '@value' => 'SNOMED'
                                     ],
                                     [
-                                        '@value' => 'Effective Dates'
+                                        '@value' => 'Diagnosis / Instructions'
                                     ],
                                     [
-                                        '@value' => 'Condition Status'
+                                        '@value' => 'Performer'
+                                    ],
+                                    [
+                                        '@value' => 'Location'
+                                    ],
+                                    [
+                                        '@value' => 'Date'
+                                    ],
+                                    [
+                                        '@value' => 'Status'
                                     ]
                                 ]
                             ]
@@ -5485,18 +5511,23 @@ class CCDDocument extends CDDDocumentBase
             ];
             $encounters['entry'] = [];
 
-            foreach($encountersData as $item){
+            foreach($encountersData as $encounter){
+
+                $providerInfo = $this->User->getUserByUid($encounter['provider_uid']);
 
                 $encounters['text']['table']['tbody']['tr'][] = [
                     'td' => [
                         [
-                            '@value' => 'Functional Condition Data'
+                            '@value' => ''
                         ],
                         [
-                            '@value' => 'Effective Dates Data'
+                            '@value' => 'Decision Aids: '.$decisionAids['']
                         ],
                         [
-                            '@value' => 'Condition Status Data'
+                            '@value' => ''
+                        ],
+                        [
+                            '@value' => ''
                         ]
                     ]
 
@@ -5520,19 +5551,10 @@ class CCDDocument extends CDDDocumentBase
                         ],
                         'code' => [
                             '@attributes' => [
-                                // CPT4 Visit code 99200 <-> 99299
                                 'code' => '99200',
                                 'codeSystem' => $this->codes('CPT4')
                             ]
                         ],
-
-                        // Code         System      Print Name
-                        // aborted      ActStatus   aborted
-                        // active       ActStatus   active
-                        // cancelled    ActStatus   cancelled
-                        // completed    ActStatus   completed
-                        // held         ActStatus   held
-                        // suspended    ActStatus   suspended
                         'statusCode' => [
                             '@attributes' => [
                                 'code' => 'completed'
@@ -5542,172 +5564,59 @@ class CCDDocument extends CDDDocumentBase
                             '@attributes' => [
                                 'xsi:type' => 'IVL_TS'
                             ],
-                            // low date is required
                             'low' => [
                                 '@attributes' => [
-                                    'value' => '19320924'
+                                    'value' => $this->parseDate($encounter['service_date'])
                                 ]
                             ],
                             'high' => [
                                 '@attributes' => [
-                                    'value' => '19320924'
+                                    'value' => $this->parseDate($encounter['close_date'])
                                 ]
                             ]
                         ],
-                        // Encounter Diagnosis
-                        'entryRelationship' => [
-                            [
+                        'performer' => [
+                            'assignedEntity' => [
                                 '@attributes' => [
-                                    'typeCode' => 'SUBJ',
+                                    'classCode' => 'ASSIGNED'
                                 ],
-                                'observation' => [
+                                'id' => [
                                     '@attributes' => [
-                                        'classCode' => 'ACT',
-                                        'moodCode' => 'EVN'
+                                        'root' => UUID::v4()
+                                    ]
+                                ],
+                                'code' => [
+                                    '@attributes' => [
+                                        'code' => '59058001',
+                                        'codeSystem' => '2.16.840.1.113883.6.96',
+                                        'codeSystemName' => 'SNOMED-CT',
+                                        'displayName' => $providerInfo['fname'].' '.$providerInfo['mname'].' '.$providerInfo['lname']
+                                    ]
+                                ],
+                                'statusCode' => [
+                                    '@attributes' => [
+                                        'code' => 'completed'
+                                    ]
+                                ],
+                                'effectiveTime' => [
+                                    '@attributes' => [
+                                        'xsi:type' => 'IVL_TS'
                                     ],
-                                    'templateId' => [
+                                    'low' => [
                                         '@attributes' => [
-                                            'root' => '2.16.840.1.113883.10.20.22.4.80'
+                                            'value' => $this->parseDate($encounter['service_date'])
                                         ]
                                     ],
-                                    'code' => [
+                                    'high' => [
                                         '@attributes' => [
-                                            'code' => '29308-4',
-                                            'codeSystem' => '2.16.840.1.113883.6.1'
+                                            'value' => $this->parseDate($encounter['close_date'])
                                         ]
-                                    ],
-                                    // Problem Observation
-                                    'entryRelationship' => [
-                                        [
-                                            '@attributes' => [
-                                                'typeCode' => 'SUBJ',
-                                            ],
-                                            'observation' => [
-                                                '@attributes' => [
-                                                    'classCode' => 'OBS',
-                                                    'moodCode' => 'EVN'
-                                                ],
-                                                'templateId' => [
-                                                    '@attributes' => [
-                                                        'root' => '2.16.840.1.113883.10.20.22.4.4'
-                                                    ]
-                                                ],
-                                                'id' => [
-                                                    '@attributes' => [
-                                                        'root' => UUID::v4()
-                                                    ]
-                                                ],
-
-                                                // Code             System      Print Name
-                                                // 404684003        SNOMEDCT    Finding
-                                                // 409586006        SNOMEDCT    Complaint
-                                                // 282291009        SNOMEDCT    Diagnosis
-                                                // 64572001         SNOMEDCT    Condition
-                                                // 248536006        SNOMEDCT    Functional limitation
-                                                // 418799008        SNOMEDCT    Symptom
-                                                // 55607006         SNOMEDCT    Problem
-                                                // 373930000        SNOMEDCT    Cognitive function finding
-                                                'code' => [
-                                                    '@attributes' => [
-                                                        'code' => '282291009',
-                                                        'codeSystem' => '2.16.840.1.113883.6.96'
-                                                    ],
-                                                    'originalText' => 'Original text'
-                                                ],
-                                                'statusCode' => [
-                                                    '@attributes' => [
-                                                        'code' => 'completed'
-                                                    ]
-                                                ],
-                                                // SNOMEDCT problem list
-                                                'value' => [
-                                                    '@attributes' => [
-                                                        'xsi:type' => 'CD',
-                                                        'value' => '20150123'
-                                                    ]
-                                                ],
-                                                // Problem Status
-                                                'entryRelationship' => [
-                                                    [
-                                                        '@attributes' => [
-                                                            'typeCode' => 'REFR',
-                                                        ],
-                                                        'observation' => [
-                                                            '@attributes' => [
-                                                                'classCode' => 'OBS',
-                                                                'moodCode' => 'EVN'
-                                                            ],
-                                                            'templateId' => [
-                                                                '@attributes' => [
-                                                                    'root' => '2.16.840.1.113883.10.20.22.4.6'
-                                                                ]
-                                                            ],
-                                                            'code' => [
-                                                                '@attributes' => [
-                                                                    'code' => '33999-4',
-                                                                    'codeSystem' => '2.16.840.1.113883.6.1'
-                                                                ]
-                                                            ],
-                                                            'statusCode' => [
-                                                                '@attributes' => [
-                                                                    'code' => 'completed'
-                                                                ]
-                                                            ],
-                                                            // Code         System      Print Name
-                                                            // 55561003     SNOMEDCT    Active
-                                                            // 73425007     SNOMEDCT    Inactive
-                                                            // 413322009    SNOMEDCT    Resolved
-                                                            'value' => [
-                                                                '@attributes' => [
-                                                                    'xsi:type' => 'CD',
-                                                                    'code' => '413322009',
-                                                                    'codeSystem' => '2.16.840.1.113883.3.88.12.80.68',
-                                                                    'codeSystemName' => 'SNOMEDCT',
-                                                                    'displayName' => 'Resolved'
-                                                                ]
-                                                            ]
-                                                        ]
-                                                    ],
-                                                    // Health Status Observation
-                                                    [
-                                                        '@attributes' => [
-                                                            'typeCode' => 'REFR',
-                                                        ],
-                                                        'observation' => [
-                                                            '@attributes' => [
-                                                                'classCode' => 'OBS',
-                                                                'moodCode' => 'EVN'
-                                                            ],
-                                                            'templateId' => [
-                                                                '@attributes' => [
-                                                                    'root' => '2.16.840.1.113883.10.20.22.4.5'
-                                                                ]
-                                                            ],
-                                                            'code' => [
-                                                                '@attributes' => [
-                                                                    'code' => '11323-3',
-                                                                    'codeSystem' => '2.16.840.1.113883.6.1'
-                                                                ]
-                                                            ],
-                                                            // Code         System      Print Name
-                                                            // 81323004     SNOMEDCT    Alive and well
-                                                            // 313386006    SNOMEDCT    In remission
-                                                            // 162467007    SNOMEDCT    Symptom free
-                                                            // 161901003    SNOMEDCT    Chronically ill
-                                                            // 271593001    SNOMEDCT    Severely ill
-                                                            // 21134002     SNOMEDCT    Disabled
-                                                            // 161045001    SNOMEDCT    Severely disabled
-                                                            'value' => [
-                                                                '@attributes' => [
-                                                                    'xsi:type' => 'CD',
-                                                                    'code' => '81323004'
-                                                                ]
-                                                            ]
-                                                        ]
-                                                    ]
-                                                ]
-                                            ]
-                                        ]
+                                    ]
+                                ],
+                                'value' => [
+                                    '@attributes' => [
+                                        'xsi:type' => 'CD',
+                                        'code' => ''
                                     ]
                                 ]
                             ]

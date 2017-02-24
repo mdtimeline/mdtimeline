@@ -289,10 +289,10 @@ class CDDDocumentBase
     public function getFileName()
     {
         return strtolower(str_replace(
-                              ' ',
-                              '',
-                              $this->pid . "-" . $this->patientData['fname'] . $this->patientData['lname']
-                          ));
+          ' ',
+          '',
+          $this->pid . "-" . $this->patientData['fname'] . $this->patientData['lname']
+        ));
     }
 
     /**

@@ -49,7 +49,8 @@ Ext.define('App.view.patient.CCD', {
                     width: 300,
                     fieldLabel: _('filter_encounter'),
                     hideLabel: false,
-                    labelAlign: 'top'
+                    labelAlign: 'top',
+	                includeAllSelection: true
                 },
                 {
                     xtype: 'checkboxfield',

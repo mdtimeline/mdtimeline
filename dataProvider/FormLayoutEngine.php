@@ -333,6 +333,14 @@ class FormLayoutEngine {
 			    'type' => 'auto'
 			],
 			[
+				'name' =>'code',
+				'type' => 'string'
+			],
+			[
+				'name' =>'code_type',
+				'type' => 'string'
+			],
+			[
 				'name' =>'option_data'
 			]
 		];
@@ -342,7 +350,9 @@ class FormLayoutEngine {
 		foreach($options as $i => $option){
 			$data[] = [
 				'option_name' => $option['option_name'],
-				'option_value' => $option['option_value']
+				'option_value' => $option['option_value'],
+				'code' => isset($option['code']) ? $option['code'] : '',
+				'code_type' => isset($option['code_type']) ? $option['code_type']: ''
 			];
 		}
 		$store = 'Ext.create(\'Ext.data.Store\',{fields:' . json_encode($fields). ',data:' . json_encode($data) . '})';

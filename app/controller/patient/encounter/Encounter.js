@@ -33,6 +33,9 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			'viewport':{
 				patientunset: me.onPatientUnset
 			},
+			'#EncounterDetailForm combobox[name=visit_category]':{
+				select: me.onEncounterDetailFormVisitCategoryComboSelect
+			},
 			'#EncounterDetailWindow': {
 				show: me.onEncounterDetailWindowShow
 			},
@@ -48,6 +51,15 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 	 */
 	onPatientUnset:function(){
 		if(this.getEncounterPanel()) this.getEncounterPanel().encounter = null;
+	},
+
+	onEncounterDetailFormVisitCategoryComboSelect: function (combo, records) {
+		var encounter_record = combo.up('form').getForm().getRecord();
+
+		encounter_record.set({
+			visit_category_code: records[0].get('code'),
+			visit_category_code_type: records[0].get('code_type')
+		});
 	},
 
 	/**

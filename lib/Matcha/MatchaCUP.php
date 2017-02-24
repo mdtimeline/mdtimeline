@@ -107,11 +107,14 @@ class MatchaCUP {
 
 	private $whereIndex = 0;
 
+	private $fieldsProperties = [];
+
 	/**
 	 * This fields will use the OR operator is 2 or more filters
 	 * are applied to the same column
 	 * @var array
 	 */
+
 	private $orFilterProperties = [];
 
 	/**
@@ -988,15 +991,27 @@ class MatchaCUP {
 		}
 
 		$this->date = new DateTime();
-		$this->primaryKey = MatchaModel::__getTablePrimaryKeyColumnName($this->table);
-		$this->fields = MatchaModel::__getFields($this->model);
-		$this->encryptedFields = MatchaModel::__getEncryptedFields($this->model);
-		$this->phantomFields = MatchaModel::__getPhantomFields($this->model);
-		$this->arrayFields = MatchaModel::__getArrayFields($this->model);
+
+		if(isset($model['parsed_data'])){
+			$this->primaryKey = $model['parsed_data']['primaryKey'];
+			$this->fields = $model['parsed_data']['fields'];
+			$this->encryptedFields = $model['parsed_data']['encryptedFields'];
+			$this->phantomFields = $model['parsed_data']['phantomFields'];
+			$this->arrayFields = $model['parsed_data']['arrayFields'];
+			$this->fieldsProperties = $model['parsed_data']['fieldsProperties'];
+		}else{
+			$this->primaryKey = MatchaModel::__getTablePrimaryKeyColumnName($this->table);
+			$this->fields = MatchaModel::__getFields($this->model);
+			$this->encryptedFields = MatchaModel::__getEncryptedFields($this->model);
+			$this->phantomFields = MatchaModel::__getPhantomFields($this->model);
+			$this->arrayFields = MatchaModel::__getArrayFields($this->model);
+			$this->fieldsProperties = (array)MatchaModel::__getFieldsProperties($this->model);
+		}
 
 		$this->hasMany = isset($model['hasMany']) ? $model['hasMany'] : [];
 		$this->hasOne = isset($model['hasOne']) ? $model['hasOne'] : [];
 
+		return $this;
 	}
 
 	/**
@@ -1107,7 +1122,7 @@ class MatchaCUP {
 		}
 
 		foreach($columns as $col){
-			$properties = (array)MatchaModel::__getFieldProperties($col, $this->model);
+			$properties = isset($this->fieldsProperties[$col]) ? $this->fieldsProperties[$col] : [];
             // Check if the type property is set
             // but if the dataType is also defined
             // make use the dataType property (more database oriented)

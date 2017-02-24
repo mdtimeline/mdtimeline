@@ -19,6 +19,28 @@
 
 $API = [
 
+    'DecisionAids' => [
+        'methods' => [
+            'getDecisionAids' => [
+                'len' => 1
+            ],
+            'getDecisionAid' => [
+                'len' => 1
+            ],
+            'addDecisionAid' => [
+                'len' => 1
+            ],
+            'updateDecisionAid' => [
+                'len' => 1
+            ],
+            'destroyDecisionAid' => [
+                'len' => 1
+            ],
+            'getDecisionAidsByTriggerCodes' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'CCDDocumentParse' => [
         'methods' => [
             'parseDocument' => [
@@ -1149,6 +1171,9 @@ $API = [
             ],
 			'destroyPatientMedication' => [
 				'len' => 1
+            ],
+			'getPatientActiveMedicationsByPidAndCode' => [
+				'len' => 2
             ]
         ]
     ],

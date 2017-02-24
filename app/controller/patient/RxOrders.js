@@ -138,7 +138,8 @@ Ext.define('App.controller.patient.RxOrders', {
 			RXCUI: record.data.RXCUI,
 			CODE: record.data.CODE,
             GS_CODE: record.data.GS_CODE,
-			NDC: record.data.NDC
+			NDC: record.data.NDC,
+			TTY: record.data.TTY
 		});
 		var data = {};
 

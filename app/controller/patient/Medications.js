@@ -132,7 +132,8 @@ Ext.define('App.controller.patient.Medications', {
 			RXCUI: records[0].data.RXCUI,
 			CODE: records[0].data.CODE,
             GS_CODE: records[0].data.GS_CODE,
-			NDC: records[0].data.NDC
+			NDC: records[0].data.NDC,
+			TTY: records[0].data.TTY
 		});
 	},
 
@@ -224,7 +225,8 @@ Ext.define('App.controller.patient.Medications', {
 			RXCUI: record.data.RXCUI,
 			CODE: record.data.CODE,
             GS_CODE: record.data.GS_CODE,
-			NDC: record.data.NDC
+			NDC: record.data.NDC,
+			TTY: record.data.TTY
 		});
 
 		var data = {};

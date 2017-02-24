@@ -3778,6 +3778,7 @@ Ext.define('App.ux.PatientEncounterCombo', {
 	width: 400,
 	editable: false,
 	queryMode: 'local',
+	includeAllSelection: false,
 	initComponent: function(){
 		var me = this;
 
@@ -3829,9 +3830,21 @@ Ext.define('App.ux.PatientEncounterCombo', {
 			sorters: [
 				{
 					property: 'service_date',
-					direction: 'DESC'
+					direction: 'ASC'
 				}
-			]
+			],
+			listeners: {
+				load: function () {
+					if(!me.includeAllSelection) return;
+					me.store.insert(0,{
+						eid: null,
+						brief_description: 'All Encounters',
+						service_date: '0000-00-00'
+					});
+					me.setValue(null);
+                    me.setRawValue(null);
+				}
+			}
 		});
 
 		me.callParent();
@@ -10943,8 +10956,9 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 					name: 'STR',
 					type: 'string',
 					convert: function(v){
-						var regex = /\(.*\) | \(.*\)|\(.*\)/g;
-						return v.replace(regex, '');
+						v = v.replace(/\(.*\) | \(.*\)|\(.*\)/g, '');
+						v = v.replace(/[\[\]]/g, '');
+						return v;
 					}
 				},
 				{
@@ -11023,16 +11037,7 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 					return '<div class="search-item {[values.TTY == "SCD" ? "lightGreenBg" : "" ]}">{STR}<br><b>RxNorm:</b> {RXCUI} <b>NDC:</b> {NDC}</div>';
 				}
 			},
-			pageSize: 25,
-            listeners: {
-                select: function(combo, records, eOpts){
-                    var medicine = records[0].data,
-                        cpos = medicine.STR.indexOf("["),
-                        spos = medicine.STR.indexOf("]");
-                    if (cpos > -1 && spos > cpos)
-                        this.setValue( medicine.STR.substr(0, cpos)+medicine.STR.substr(spos+1) );
-                }
-            }
+			pageSize: 25
 		});
 
 		me.callParent();
@@ -13237,23 +13242,6 @@ Ext.define('App.model.administration.ReferringProvider', {
 			len: 40
 		},
 		{
-			name: 'username',
-			type: 'string',
-			len: 40,
-			index: true
-		},
-		{
-			name: 'password',
-			type: 'string',
-			len: 300,
-			encrypt: true
-		},
-		{
-			name: 'authorized',
-			type: 'bool',
-			index: true
-		},
-		{
 			name: 'title',
 			type: 'string',
 			len: 10
@@ -13358,12 +13346,14 @@ Ext.define('App.model.administration.ReferringProvider', {
 		},
 		{
 			name: 'create_uid',
-			type: 'int'
+			type: 'int',
+            len: 11
 
 		},
 		{
 			name: 'update_uid',
-			type: 'int'
+			type: 'int',
+            len: 11
 		},
 		{
 			name: 'create_date',
@@ -13397,6 +13387,7 @@ Ext.define('App.model.administration.ReferringProvider', {
 		}
 	]
 });
+
 Ext.define('App.model.administration.Services', {
 	extend: 'Ext.data.Model',
 	table: {
@@ -16906,6 +16897,16 @@ Ext.define('App.model.patient.Encounter', {
 			len: 80
 		},
 		{
+			name: 'visit_category_code',
+			type: 'string',
+			len: 20
+		},
+		{
+			name: 'visit_category_code_type',
+			type: 'string',
+			len: 10
+		},
+		{
 			name: 'facility',
 			type: 'int',
 			len: 1,
@@ -17451,6 +17452,11 @@ Ext.define('App.model.patient.Medications', {
 			name: 'NDC',
 			type: 'string',
 			len: 40
+		},
+		{
+			name: 'TTY',
+			type: 'string',
+			len: 10
 		},
 		{
 			name: 'dxs',
@@ -25042,8 +25048,23 @@ Ext.define('App.view.patient.Results', {
 											allowBlank: false
 										},
 										{
+											xtype: 'combobox',
 											fieldLabel: _('status'),
-											name: 'result_status'
+											name: 'result_status',
+											queryMode: 'local',
+											displayField: 'option',
+											valueField: 'value',
+											store: Ext.create('Ext.data.Store', {
+												fields: ['option', 'value'],
+												data: [
+													{ option: 'Aborted', value: 'aborted'},
+													{ option: 'Active', value: 'active'},
+													{ option: 'Cancelled', value: 'cancelled'},
+													{ option: 'Completed', value: 'completed'},
+													{ option: 'Held', value: 'held'},
+													{ option: 'Suspended', value: 'suspended'}
+												]
+											})
 										},
 										{
 											xtype: 'datefield',
@@ -29368,7 +29389,7 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
 				}
 			]
 		});
-		
+
 		Ext.apply(me, {
 			columns: [
 				{
@@ -29606,41 +29627,7 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
 									bottom: 0,
 									left: 0
 								}
-							},
-							items: [
-								{
-									xtype: 'textfield',
-									fieldLabel: _('username'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									minLength: 5,
-									maxLength: 15,
-									name: 'username'
-								},
-								{
-									xtype: 'textfield',
-									fieldLabel: _('password'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									minLength: 8,
-									maxLength: 15,
-									name: 'password',
-									inputType: 'password',
-									vtype: 'strength',
-									strength: 24,
-									plugins: {
-										ptype: 'passwordstrength'
-									}
-								},
-								{
-									xtype: 'checkbox',
-									fieldLabel: _('authorized'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									name: 'authorized'
-								}
-
-							]
+							}
 						},
 						{
 							height: 50,
@@ -31919,8 +31906,7 @@ Ext.define('App.view.administration.practice.Practice', {
 		'App.view.administration.practice.Laboratories',
 		'App.view.administration.practice.Pharmacies',
 		'App.view.administration.practice.ProviderNumbers',
-		'App.view.administration.practice.ReferringProviders',
-//		'App.view.administration.practice.Specialties'
+		'App.view.administration.practice.ReferringProviders'
 	],
 	pageBody: [
 		{
@@ -40360,7 +40346,11 @@ Ext.define('App.controller.patient.CCD', {
 		{
 			ref: 'PatientCcdPanelExcludeCheckBoxGroup',
 			selector: '#PatientCcdPanelExcludeCheckBoxGroup'
-		}
+		},
+        {
+            ref: 'IncludesAllProvidersCheckBox',
+            selector: '#IncludesAllProvidersCheckBox'
+        }
 	],
 
 	init: function(){
@@ -40385,8 +40375,7 @@ Ext.define('App.controller.patient.CCD', {
 				click: me.onPrintCcdBtnClick
 			},
 			'#PatientCcdPanelEncounterCmb': {
-				select: me.onPatientCcdPanelEncounterCmbSelect,
-                show: me.onPatientCcdPanelEncounterCmbShow
+				select: me.onPatientCcdPanelEncounterCmbSelect
 			}
 		});
 
@@ -40398,7 +40387,6 @@ Ext.define('App.controller.patient.CCD', {
 	eid: null,
 
 	loadPatientEncounters: function(){
-
 		var me = this,
 			cmb = me.getPatientCcdPanelEncounterCmb(),
 			store = cmb.store;
@@ -40432,7 +40420,8 @@ Ext.define('App.controller.patient.CCD', {
 
 	onViewCcdBtnClick: function(btn){
 
-		var eid = this.getEid(btn);
+		var eid = this.getEid(btn),
+            allProviders = btn.up('toolbar').query('#IncludesAllProvidersCheckBox')[0].getValue();
 
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?' +
@@ -40441,7 +40430,8 @@ Ext.define('App.controller.patient.CCD', {
 			'&pid=' + app.patient.pid +
 			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(btn) +
-			'&token=' + app.user.token
+			'&token=' + app.user.token +
+            '&allprov=' + allProviders
 		);
         btn.up('panel').query('miframe')[0].el.unmask();
 
@@ -40451,7 +40441,7 @@ Ext.define('App.controller.patient.CCD', {
 			eid,
 			'encounters',
 			'VIEW',
-			eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
+            eid == null || allProviders == false ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
 		);
 
         TransactionLog.saveExportLog({
@@ -40464,7 +40454,8 @@ Ext.define('App.controller.patient.CCD', {
 
 	onArchiveCcdBtnClick: function(btn){
 
-		var eid = this.getEid(btn);
+		var eid = this.getEid(btn),
+            allProviders = btn.up('toolbar').query('#IncludesAllProvidersCheckBox')[0].getValue();
 
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?' +
@@ -40473,7 +40464,8 @@ Ext.define('App.controller.patient.CCD', {
 			'&pid=' + app.patient.pid +
 			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(btn) +
-			'&token=' + app.user.token
+			'&token=' + app.user.token +
+            '&allprov=' + allProviders
 		);
         btn.up('panel').query('miframe')[0].el.unmask();
 
@@ -40483,7 +40475,7 @@ Ext.define('App.controller.patient.CCD', {
 			eid,
 			'encounters',
 			'ARCHIVE',
-			eid == null ? 'Patient C-CDA ARCHIVED' : 'Encounter C-CDA ARCHIVED'
+            eid == null || allProviders == false ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
 		);
 
         TransactionLog.saveExportLog({
@@ -40497,14 +40489,16 @@ Ext.define('App.controller.patient.CCD', {
 
 	onExportCcdBtnClick: function(btn){
 
-		var eid = this.getEid(btn);
+		var eid = this.getEid(btn),
+            allProviders = btn.up('toolbar').query('#IncludesAllProvidersCheckBox')[0].getValue();
 
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?action=export&site=' + window.site +
 			'&pid=' + app.patient.pid +
 			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(btn) +
-			'&token=' + app.user.token
+			'&token=' + app.user.token +
+            '&allprov=' + allProviders
 		);
         btn.up('panel').query('miframe')[0].el.unmask();
 
@@ -40514,7 +40508,7 @@ Ext.define('App.controller.patient.CCD', {
 			eid,
 			'encounters',
 			'EXPORT',
-			eid == null ? 'Patient C-CDA Exported' : 'Encounter C-CDA Exported'
+            eid == null || allProviders == false ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
 		);
 
         TransactionLog.saveExportLog({
@@ -40541,7 +40535,8 @@ Ext.define('App.controller.patient.CCD', {
 		cont.focus();
 		cont.print();
 
-		var eid = this.getEid(btn);
+		var eid = this.getEid(btn),
+            allProviders = btn.up('toolbar').query('#IncludesAllProvidersCheckBox')[0].getValue();
 
 		this.logCtrl.addLog(
 			app.patient.pid,
@@ -40549,7 +40544,7 @@ Ext.define('App.controller.patient.CCD', {
 			eid,
 			'encounters',
 			'PRINT',
-			eid == null ? 'Patient C-CDA PRINTED' : 'Encounter C-CDA PRINTED'
+            eid == null || allProviders == false ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
 		);
 
         TransactionLog.saveExportLog({
@@ -40571,29 +40566,10 @@ Ext.define('App.controller.patient.CCD', {
 		});
 	},
 
-    onPatientCcdPanelEncounterCmbShow: function(cmb){
-	    console.log(cmb);
-        cmb.getStore().add(
-            {
-                brief_description: 'No encounters...',
-                status: 'close',
-                close_date: '',
-                eid: 0,
-                pid: 0
-            },
-            {
-                brief_description: 'All encounters...',
-                status: 'close',
-                close_date: '',
-                eid: 1,
-                pid: 0
-            }
-        );
-    },
-
 	onPatientCcdPanelEncounterCmbSelect: function(cmb, records){
 
-		var eid = this.getEid(cmb);
+		var eid = this.getEid(cmb),
+            allProviders = cmb.up('toolbar').query('#IncludesAllProvidersCheckBox')[0].getValue();
 
 		cmb.selectedRecord = records[0];
 		cmb.up('panel').query('miframe')[0].setSrc(
@@ -40601,7 +40577,8 @@ Ext.define('App.controller.patient.CCD', {
 			'&pid=' + app.patient.pid +
 			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(cmb) +
-			'&token=' + app.user.token
+			'&token=' + app.user.token +
+            '&allprov=' + allProviders
 		);
 		cmb.up('panel').query('miframe')[0].el.unmask();
 
@@ -40611,7 +40588,7 @@ Ext.define('App.controller.patient.CCD', {
 			eid,
 			'encounters',
 			'VIEW',
-			eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
+			eid == null || allProviders == false ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
 		);
 
         TransactionLog.saveExportLog({
@@ -42836,7 +42813,8 @@ Ext.define('App.controller.patient.Medications', {
 			RXCUI: records[0].data.RXCUI,
 			CODE: records[0].data.CODE,
             GS_CODE: records[0].data.GS_CODE,
-			NDC: records[0].data.NDC
+			NDC: records[0].data.NDC,
+			TTY: records[0].data.TTY
 		});
 	},
 
@@ -42928,7 +42906,8 @@ Ext.define('App.controller.patient.Medications', {
 			RXCUI: record.data.RXCUI,
 			CODE: record.data.CODE,
             GS_CODE: record.data.GS_CODE,
-			NDC: record.data.NDC
+			NDC: record.data.NDC,
+			TTY: record.data.TTY
 		});
 
 		var data = {};
@@ -43665,7 +43644,8 @@ Ext.define('App.controller.patient.RxOrders', {
 			RXCUI: record.data.RXCUI,
 			CODE: record.data.CODE,
             GS_CODE: record.data.GS_CODE,
-			NDC: record.data.NDC
+			NDC: record.data.NDC,
+			TTY: record.data.TTY
 		});
 		var data = {};
 
@@ -47394,20 +47374,36 @@ Ext.define('App.view.patient.CCD', {
 		}
 	],
 	tbar: [
-		{
-			xtype: 'patientEncounterCombo',
-			itemId: 'PatientCcdPanelEncounterCmb',
-			margin: '0 5 5 5',
-			width: 300,
-			fieldLabel: _('filter_encounter'),
-			hideLabel: false,
-			labelAlign: 'top'
-		},
+        {
+            xtype: 'fieldcontainer',
+            layout: 'vbox',
+            defaults: {
+                margin: '0 5 5 5'
+            },
+            items:[
+                {
+                    xtype: 'patientEncounterCombo',
+                    itemId: 'PatientCcdPanelEncounterCmb',
+                    width: 300,
+                    fieldLabel: _('filter_encounter'),
+                    hideLabel: false,
+                    labelAlign: 'top',
+	                includeAllSelection: true
+                },
+                {
+                    xtype: 'checkboxfield',
+                    boxLabel: _('include_all_providers'),
+                    name: 'include_all_providers',
+                    inputValue: false,
+                    id: 'IncludesAllProvidersCheckBox'
+                }
+            ]
+
+        },
 		'-',
 		{
 			xtype: 'checkboxgroup',
 			fieldLabel: _('exclude'),
-			// Arrange checkboxes into two columns, distributed vertically
 			columns: 5,
 			vertical: true,
 			labelWidth: 60,
@@ -47481,6 +47477,7 @@ Ext.define('App.view.patient.CCD', {
 	]
 
 });
+
 Ext.define('App.view.administration.CPT', {
 	extend: 'Ext.grid.Panel',
 	requires:[
@@ -55348,14 +55345,12 @@ Ext.define('App.controller.patient.Results', {
 				activate: me.onResultPanelActive
 			},
 			'#ResultsOrdersGrid': {
-				selectionchange: me.onOrderSelectionChange,
-				edit: me.onOrderSelectionEdit
+				render: me.onResultsOrdersGridRender,
+				selectionchange: me.onOrderSelectionChange
 			},
 			'#ResultsLaboratoryFormUploadField': {
 				change: me.onOrderDocumentChange
 			},
-
-
 			'#ResultsOrderResetBtn': {
 				click: me.onResultsOrderResetBtnClick
 			},
@@ -55426,6 +55421,26 @@ Ext.define('App.controller.patient.Results', {
 				});
 			}
 		});
+	},
+
+	onResultsOrdersGridRender: function (grid) {
+		grid.store.on('write', this.onResultsOrdersGridStoreWrite, this);
+	},
+
+	onResultsOrdersGridStoreWrite: function (store, operation) {
+
+		var me = this,
+			sm = me.getResultsOrdersGrid().getSelectionModel(),
+			lastSelected = sm.getLastSelected();
+
+		if(operation.action == 'create'){
+
+			if(lastSelected.data.order_type === 'lab') {
+				this.getLabOrderResult(lastSelected);
+			}else if(lastSelected.data.order_type === 'lab'){
+				this.getRadOrderResult(lastSelected);
+			}
+		}
 	},
 
 	onOrderSelectionEdit: function(editor, context){
@@ -55558,6 +55573,9 @@ Ext.define('App.controller.patient.Results', {
 			i;
 
 		observationGrid.editingPlugin.cancelEdit();
+
+		if(order_record.get('id') === 0) return;
+
 		results_store.load({
 			callback: function(records){
 				if(records.length > 0){
@@ -55574,9 +55592,15 @@ Ext.define('App.controller.patient.Results', {
 						code: order_record.data.code,
 						code_text: order_record.data.description,
 						code_type: order_record.data.code_type,
+						order_id: order_record.data.id,
 						ordered_uid: order_record.data.uid,
 						create_date: new Date()
 					});
+
+					newResult[0].set({
+						order_id: order_record.data.id
+					});
+
 					form.loadRecord(newResult[0]);
 					me.getResultsOrderSignBtn().setDisabled(true);
 					observationStore = newResult[0].observations();
@@ -55618,9 +55642,15 @@ Ext.define('App.controller.patient.Results', {
 						code: order_record.data.code,
 						code_text: order_record.data.description,
 						code_type: order_record.data.code_type,
+						order_id: order_record.data.id,
 						ordered_uid: order_record.data.uid,
 						create_date: new Date()
 					});
+
+					newResult[0].set({
+						order_id: order_record.data.id
+					});
+
 					form.loadRecord(newResult[0]);
 					me.loadRadiologyDocument(newResult[0]);
 					me.setViewStudyBtn(newResult[0]);
@@ -55668,15 +55698,12 @@ Ext.define('App.controller.patient.Results', {
 
 		if(!form.isValid()) return;
 
-		say(result_record.observations());
-
 		var observationStore = result_record.observations(),
 			observations = observationStore.tree.flatten();
 
 		result_record.set(values);
 		result_record.save({
 			success: function(rec){
-
 				for(var i = 1; i < observations.length; i++){
 					observations[i].set({result_id: rec.data.id});
 				}
@@ -55852,6 +55879,9 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			'viewport':{
 				patientunset: me.onPatientUnset
 			},
+			'#EncounterDetailForm combobox[name=visit_category]':{
+				select: me.onEncounterDetailFormVisitCategoryComboSelect
+			},
 			'#EncounterDetailWindow': {
 				show: me.onEncounterDetailWindowShow
 			},
@@ -55867,6 +55897,15 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 	 */
 	onPatientUnset:function(){
 		if(this.getEncounterPanel()) this.getEncounterPanel().encounter = null;
+	},
+
+	onEncounterDetailFormVisitCategoryComboSelect: function (combo, records) {
+		var encounter_record = combo.up('form').getForm().getRecord();
+
+		encounter_record.set({
+			visit_category_code: records[0].get('code'),
+			visit_category_code_type: records[0].get('code_type')
+		});
 	},
 
 	/**

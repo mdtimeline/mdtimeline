@@ -1,6 +1,6 @@
 /**
- * GaiaEHR (Electronic Health Records)
- * Copyright (C) 2013 Certun, LLC.
+ * mdTimeLine EHR (Electronic Health Records)
+ * Copyright (C) 2017 mdTimeLine, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,20 +36,36 @@ Ext.define('App.view.patient.CCD', {
 		}
 	],
 	tbar: [
-		{
-			xtype: 'patientEncounterCombo',
-			itemId: 'PatientCcdPanelEncounterCmb',
-			margin: '0 5 5 5',
-			width: 300,
-			fieldLabel: _('filter_encounter'),
-			hideLabel: false,
-			labelAlign: 'top'
-		},
+        {
+            xtype: 'fieldcontainer',
+            layout: 'vbox',
+            defaults: {
+                margin: '0 5 5 5'
+            },
+            items:[
+                {
+                    xtype: 'patientEncounterCombo',
+                    itemId: 'PatientCcdPanelEncounterCmb',
+                    width: 300,
+                    fieldLabel: _('filter_encounter'),
+                    hideLabel: false,
+                    labelAlign: 'top',
+	                includeAllSelection: true
+                },
+                {
+                    xtype: 'checkboxfield',
+                    boxLabel: _('include_all_providers'),
+                    name: 'include_all_providers',
+                    inputValue: false,
+                    id: 'IncludesAllProvidersCheckBox'
+                }
+            ]
+
+        },
 		'-',
 		{
 			xtype: 'checkboxgroup',
 			fieldLabel: _('exclude'),
-			// Arrange checkboxes into two columns, distributed vertically
 			columns: 5,
 			vertical: true,
 			labelWidth: 60,

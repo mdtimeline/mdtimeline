@@ -3778,6 +3778,7 @@ Ext.define('App.ux.PatientEncounterCombo', {
 	width: 400,
 	editable: false,
 	queryMode: 'local',
+	includeAllSelection: false,
 	initComponent: function(){
 		var me = this;
 
@@ -3829,9 +3830,21 @@ Ext.define('App.ux.PatientEncounterCombo', {
 			sorters: [
 				{
 					property: 'service_date',
-					direction: 'DESC'
+					direction: 'ASC'
 				}
-			]
+			],
+			listeners: {
+				load: function () {
+					if(!me.includeAllSelection) return;
+
+					me.store.insert(0,{
+						eid: -1,
+						brief_description: 'All Encounters',
+						service_date: '0000-00-00'
+					});
+					me.setValue(-1);
+				}
+			}
 		});
 
 		me.callParent();
@@ -16882,6 +16895,16 @@ Ext.define('App.model.patient.Encounter', {
 			name: 'visit_category',
 			type: 'string',
 			len: 80
+		},
+		{
+			name: 'visit_category_code',
+			type: 'string',
+			len: 20
+		},
+		{
+			name: 'visit_category_code_type',
+			type: 'string',
+			len: 10
 		},
 		{
 			name: 'facility',
@@ -47349,7 +47372,8 @@ Ext.define('App.view.patient.CCD', {
                     width: 300,
                     fieldLabel: _('filter_encounter'),
                     hideLabel: false,
-                    labelAlign: 'top'
+                    labelAlign: 'top',
+	                includeAllSelection: true
                 },
                 {
                     xtype: 'checkboxfield',
@@ -55532,6 +55556,7 @@ Ext.define('App.controller.patient.Results', {
 						code: order_record.data.code,
 						code_text: order_record.data.description,
 						code_type: order_record.data.code_type,
+						order_id: order_record.data.id,
 						ordered_uid: order_record.data.uid,
 						create_date: new Date()
 					});
@@ -55807,6 +55832,9 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			'viewport':{
 				patientunset: me.onPatientUnset
 			},
+			'#EncounterDetailForm combobox[name=visit_category]':{
+				select: me.onEncounterDetailFormVisitCategoryComboSelect
+			},
 			'#EncounterDetailWindow': {
 				show: me.onEncounterDetailWindowShow
 			},
@@ -55822,6 +55850,15 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 	 */
 	onPatientUnset:function(){
 		if(this.getEncounterPanel()) this.getEncounterPanel().encounter = null;
+	},
+
+	onEncounterDetailFormVisitCategoryComboSelect: function (combo, records) {
+		var encounter_record = combo.up('form').getForm().getRecord();
+
+		encounter_record.set({
+			visit_category_code: records[0].get('code'),
+			visit_category_code_type: records[0].get('code_type')
+		});
 	},
 
 	/**

@@ -5723,25 +5723,6 @@ class CCDDocument extends CDDDocumentBase
         unset($encountersData, $encounters);
     }
 
-    private function telecomBuilder($number, $use = null) {
-        $phone = [];
-
-        $number = str_replace(['(',')','-',' '], '', trim($number));
-
-        if($number != ''){
-            $phone['@attributes'] = [
-                'xsi:type' => 'TEL',
-                'value' => 'tel:' . $number
-            ];
-            if(isset($use)){
-                $phone['@attributes']['use'] = $use;
-            }
-        } else {
-            $phone['@attributes']['nullFlavor'] = 'UNK';
-        }
-        return $phone;
-    }
-
 }
 
 /**

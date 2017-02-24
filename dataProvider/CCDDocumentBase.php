@@ -316,6 +316,25 @@ class CDDDocumentBase
         return str_replace('-', '', $dateExplode[0]);
     }
 
+    public function telecomBuilder($number, $use = null) {
+        $phone = [];
+
+        $number = str_replace(['(',')','-',' '], '', trim($number));
+
+        if($number != ''){
+            $phone['@attributes'] = [
+                'xsi:type' => 'TEL',
+                'value' => 'tel:' . $number
+            ];
+            if(isset($use)){
+                $phone['@attributes']['use'] = $use;
+            }
+        } else {
+            $phone['@attributes']['nullFlavor'] = 'UNK';
+        }
+        return $phone;
+    }
+
     public function addressBuilder(
         $use,
         $streetAddressLine,

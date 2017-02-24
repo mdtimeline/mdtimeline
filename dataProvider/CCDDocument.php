@@ -62,6 +62,7 @@ include_once(ROOT . '/dataProvider/Facilities.php');
 include_once(ROOT . '/dataProvider/CombosData.php');
 include_once(ROOT . '/dataProvider/TransactionLog.php');
 include_once(ROOT . '/dataProvider/AppointmentRequest.php');
+include_once(ROOT . '/dataProvider/DecisionAids.php');
 
 class CCDDocument extends CDDDocumentBase
 {
@@ -5440,6 +5441,18 @@ class CCDDocument extends CDDDocumentBase
         ];
 
         $encountersData = [];
+
+	    /**
+	     * array of codes used during encounter
+	     * no need to use code type
+	     * example:
+	     * active problems... diagnosis... active medications... etc... etc...
+	     * ['F20', '22999', '26345']
+	     */
+		$codes = [];
+        $DecisionAids = new DecisionAids();
+	    $decisionAids = $DecisionAids->getDecisionAidsByTriggerCodes($codes);
+
 
         if(!empty($encountersData)){
             $encounters['text'] = [

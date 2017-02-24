@@ -3634,6 +3634,7 @@ class CCDDocument extends CDDDocumentBase
                             '@value' => 'Appointments: '.$item['notes']
                         ],
                         [
+
                             '@value' => $this->parseDate($item['requested_date'])
                         ]
                     ]
@@ -5720,25 +5721,6 @@ class CCDDocument extends CDDDocumentBase
             $this->addSection(['section' => $encounters]);
         }
         unset($encountersData, $encounters);
-    }
-
-    private function telecomBuilder($number, $use = null) {
-        $phone = [];
-
-        $number = str_replace(['(',')','-',' '], '', trim($number));
-
-        if($number != ''){
-            $phone['@attributes'] = [
-                'xsi:type' => 'TEL',
-                'value' => 'tel:' . $number
-            ];
-            if(isset($use)){
-                $phone['@attributes']['use'] = $use;
-            }
-        } else {
-            $phone['@attributes']['nullFlavor'] = 'UNK';
-        }
-        return $phone;
     }
 
 }

@@ -5515,22 +5515,52 @@ class CCDDocument extends CDDDocumentBase
 
                 $providerInfo = $this->User->getUserByUid($encounter['provider_uid']);
 
+                // Diagnosis
                 $encounters['text']['table']['tbody']['tr'][] = [
                     'td' => [
                         [
                             '@value' => ''
                         ],
                         [
-                            '@value' => 'Decision Aids: '.$decisionAids['']
+                            '@value' => 'Decision Aids: '.$decisionAids['instruction_code_description']
                         ],
                         [
-                            '@value' => ''
+                            '@value' => $providerInfo['fname'].' '.$providerInfo['mname'].' '.$providerInfo['lname']
                         ],
                         [
-                            '@value' => ''
+                            '@value' => 'Office visit'
+                        ],
+                        [
+                            '@value' => $encounter['service_date']
+                        ],
+                        [
+                            '@value' => (empty($encounter['close_date']) || $encounter['close_date'] == '0000-00-00') ? 'Active' : 'Inactive'
                         ]
                     ]
+                ];
 
+                // Instructions
+                $encounters['text']['table']['tbody']['tr'][] = [
+                    'td' => [
+                        [
+                            '@value' => ''
+                        ],
+                        [
+                            '@value' => 'Visit: '.$encounter['brief_description']
+                        ],
+                        [
+                            '@value' => $providerInfo['fname'].' '.$providerInfo['mname'].' '.$providerInfo['lname']
+                        ],
+                        [
+                            '@value' => 'Office visit'
+                        ],
+                        [
+                            '@value' => $encounter['service_date']
+                        ],
+                        [
+                            '@value' => (empty($encounter['close_date']) || $encounter['close_date'] == '0000-00-00') ? 'Active' : 'Inactive'
+                        ]
+                    ]
                 ];
 
                 $encounters['entry'][] = $order = [
@@ -5562,17 +5592,7 @@ class CCDDocument extends CDDDocumentBase
                         ],
                         'effectiveTime' => [
                             '@attributes' => [
-                                'xsi:type' => 'IVL_TS'
-                            ],
-                            'low' => [
-                                '@attributes' => [
-                                    'value' => $this->parseDate($encounter['service_date'])
-                                ]
-                            ],
-                            'high' => [
-                                '@attributes' => [
-                                    'value' => $this->parseDate($encounter['close_date'])
-                                ]
+                                'value' => $this->parseDate($encounter['service_date'])
                             ]
                         ],
                         'performer' => [
@@ -5592,31 +5612,96 @@ class CCDDocument extends CDDDocumentBase
                                         'codeSystemName' => 'SNOMED-CT',
                                         'displayName' => $providerInfo['fname'].' '.$providerInfo['mname'].' '.$providerInfo['lname']
                                     ]
+                                ]
+                            ]
+                        ],
+                        'entryRelationship' => [
+                            '@attributes' => [
+                                'typeCode' => 'SUBJ'
+                            ],
+                            'act' => [
+                                '@attributes' => [
+                                    'classCode' => 'ACT',
+                                    'moodCode'=> 'EVN'
                                 ],
-                                'statusCode' => [
+                                'templateId' => [
                                     '@attributes' => [
-                                        'code' => 'completed'
-                                    ]
-                                ],
-                                'effectiveTime' => [
-                                    '@attributes' => [
-                                        'xsi:type' => 'IVL_TS'
+                                        'root' => '2.16.840.1.113883.10.20.22.4.80'
                                     ],
-                                    'low' => [
+                                    'id' =>[
+                                        '@attributes' => UUID::v4()
+                                    ],
+                                    'code' => [
                                         '@attributes' => [
-                                            'value' => $this->parseDate($encounter['service_date'])
+                                            'code' => '29308-4',
+                                            'codeSystem' => '2.16.840.1.113883.6.1',
+                                            'codeSystemName' => 'LOINC',
+                                            'displayName' => 'Encounter Diagnosis'
                                         ]
                                     ],
-                                    'high' => [
+                                    'statusCode' => [
                                         '@attributes' => [
-                                            'value' => $this->parseDate($encounter['close_date'])
+                                            'code' => 'completed'
                                         ]
-                                    ]
-                                ],
-                                'value' => [
-                                    '@attributes' => [
-                                        'xsi:type' => 'CD',
-                                        'code' => ''
+                                    ],
+                                    'effectiveTime' => [
+                                        'low' => [
+                                            '@attributes' => [
+                                                'value' => $this->parseDate($encounter['service_date'])
+                                            ]
+                                        ],
+                                        'high' => [
+                                            '@attributes' => [
+                                                'value' => $this->parseDate($encounter['close_date'])
+                                            ]
+                                        ]
+                                    ],
+                                    'entryRelationship' => [
+                                        '@attributes' => [
+                                            'typeCode' => 'SUBJ'
+                                        ],
+                                        'observation' => [
+                                            '@attributes' => [
+                                                'classCode' => 'OBS',
+                                                'moodCode' => 'EVN',
+                                                'negationInd' => 'true'
+                                            ],
+                                            'templateId' => [
+                                                '@attributes' => [
+                                                    'root' => '2.16.840.1.113883.10.20.22.4.4'
+                                                ]
+                                            ],
+                                            'id' => [
+                                                '@attributes' => [
+                                                    'root' => UUID::v4()
+                                                ]
+                                            ],
+                                            'code' => [
+                                                '@attributes' => [
+                                                    'code' => '409586006',
+                                                    'codeSystem' => '2.16.840.1.113883.6.96',
+                                                    'codeSystemName' => 'SNOMED-CT',
+                                                    'displayName' => 'Complaint'
+                                                ]
+                                            ],
+                                            'statusCode' => [
+                                                '@attributes' => [
+                                                    'code' => 'completed'
+                                                ]
+                                            ],
+                                            'effectiveTime' => [
+                                                'low' => [
+                                                    '@attributes' => [
+                                                        'value' => $this->parseDate($encounter['service_date'])
+                                                    ]
+                                                ],
+                                                'high' => [
+                                                    '@attributes' => [
+                                                        'value' => $this->parseDate($encounter['close_date'])
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
                                     ]
                                 ]
                             ]

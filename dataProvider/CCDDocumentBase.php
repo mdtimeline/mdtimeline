@@ -249,7 +249,7 @@ class CDDDocumentBase
      */
     public function setEid($eid)
     {
-        $this->eid = $eid == 'null' ? null : $eid;
+        $this->eid = ($eid === 'null') ? null : $eid;
     }
 
     /**

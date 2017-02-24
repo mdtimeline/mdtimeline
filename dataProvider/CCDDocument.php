@@ -132,7 +132,8 @@ class CCDDocument extends CDDDocumentBase
                 'Allergies',
                 'SocialHistory',
                 'Results',
-                'FunctionalStatus'
+                'FunctionalStatus',
+                'Encounters'
             ];
 
             /**
@@ -5430,6 +5431,21 @@ class CCDDocument extends CDDDocumentBase
      * include notable encounters.
      */
     private function setEncountersSection() {
+
+        error_log(print_r($this->eid,true));
+
+        if($this->eid){
+            $encountersData = $this->Encounter->getEncounters(
+                ['eid'=>$this->eid]
+            );
+        }elseif($this->eid =-1){
+            $encountersData = $this->Encounter->getEncounters(
+                ['pid'=>$this->pid]
+            );
+        }else{
+            return;
+        }
+
         $encounters = [
             'section' => [
                 'templateId' => [
@@ -5448,17 +5464,6 @@ class CCDDocument extends CDDDocumentBase
                 'text' => ''
             ]
         ];
-
-
-        if($this->eid){
-            $encountersData = $this->Encounter->getEncounters(
-                ['eid'=>$this->eid]
-            );
-        }elseif($this->eid =-1){
-            $encountersData = $this->Encounter->getEncounters(
-                ['pid'=>$this->pid]
-            );
-        }
 
 	    /**
 	     * array of codes used during encounter
@@ -5563,7 +5568,7 @@ class CCDDocument extends CDDDocumentBase
                     ]
                 ];
 
-                $encounters['entry'][] = $order = [
+                $order = [
                     'encounter' => [
                         '@attributes' => [
                             'classCode' => 'ENC',
@@ -5700,6 +5705,71 @@ class CCDDocument extends CDDDocumentBase
                                                         'value' => $this->parseDate($encounter['close_date'])
                                                     ]
                                                 ]
+                                            ],
+                                            'value' => [
+                                                '@attributes' => [
+                                                    'xsi:type' => 'CD',
+                                                    'code' => '182313005',
+                                                    'codeSystem' => '2.16.840.1.113883.6.96',
+                                                    'codeSystemName' => 'SNOMED CT',
+                                                    'displayName' => 'None'
+                                                ]
+                                            ],
+                                            'entryRelationship' => [
+                                                '@attributes' => [
+                                                    'typeCode' => 'REFR'
+                                                ],
+                                                'observation' => [
+                                                    '@attributes' => [
+                                                        'classCode' => 'OBS',
+                                                        'moodCode' => 'EVN',
+                                                        'negationInd' => 'true'
+                                                    ],
+                                                    'templateId' => [
+                                                        '@attributes' => [
+                                                            'root' => '2.16.840.1.113883.10.20.22.4.4'
+                                                        ]
+                                                    ],
+                                                    'id' => [
+                                                        '@attributes' => [
+                                                            'root' => UUID::v4()
+                                                        ]
+                                                    ],
+                                                    'code' => [
+                                                        '@attributes' => [
+                                                            'code' => '33999-4',
+                                                            'codeSystem' => '2.16.840.1.113883.6.1',
+                                                            'codeSystemName' => 'LOINC',
+                                                            'displayName' => 'Status'
+                                                        ]
+                                                    ],
+                                                    'statusCode' => [
+                                                        '@attributes' => [
+                                                            'code' => 'completed'
+                                                        ]
+                                                    ],
+                                                    'effectiveTime' => [
+                                                        'low' => [
+                                                            '@attributes' => [
+                                                                'value' => $this->parseDate($encounter['service_date'])
+                                                            ]
+                                                        ],
+                                                        'high' => [
+                                                            '@attributes' => [
+                                                                'value' => $this->parseDate($encounter['close_date'])
+                                                            ]
+                                                        ]
+                                                    ],
+                                                    'value' => [
+                                                        '@attributes' => [
+                                                            'xsi:type' => 'CD',
+                                                            'code' => '55561003',
+                                                            'codeSystem' => '2.16.840.1.113883.6.96',
+                                                            'codeSystemName' => 'SNOMED CT',
+                                                            'displayName' => 'Active'
+                                                        ]
+                                                    ]
+                                                ]
                                             ]
                                         ]
                                     ]
@@ -5708,6 +5778,8 @@ class CCDDocument extends CDDDocumentBase
                         ]
                     ]
                 ];
+                $encounters['entry'][] = $order;
+                $encounters['entry'][] = $order;
             }
         }
 

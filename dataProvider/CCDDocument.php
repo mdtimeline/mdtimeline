@@ -3633,6 +3633,7 @@ class CCDDocument extends CDDDocumentBase
                             '@value' => 'Appointments: '.$item['notes']
                         ],
                         [
+
                             '@value' => $this->parseDate($item['requested_date'])
                         ]
                     ]

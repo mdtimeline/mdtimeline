@@ -326,6 +326,7 @@ Ext.define('App.controller.patient.Results', {
 						code: order_record.data.code,
 						code_text: order_record.data.description,
 						code_type: order_record.data.code_type,
+						order_id: order_record.data.id,
 						ordered_uid: order_record.data.uid,
 						create_date: new Date()
 					});

@@ -5446,22 +5446,19 @@ class CCDDocument extends CDDDocumentBase
         $encountersData = $this->Encounter->getEncounters($filters, false, false);
 
         $encounters = [
-            'section' => [
-                'templateId' => [
-                    '@attributes' => [
-                        'root' => $this->requiredEncounters ? '2.16.840.1.113883.10.20.22.2.22.2' : '2.16.840.1.113883.10.20.22.2.22'
-                    ]
-                ],
-                'code' => [
-                    '@attributes' => [
-                        'code' => '46240-8',
-                        'codeSystemName' => 'LOINC',
-                        'codeSystem' => '2.16.840.1.113883.6.1'
-                    ]
-                ],
-                'title' => 'Encounters',
-                'text' => ''
-            ]
+            'templateId' => [
+                '@attributes' => [
+                    'root' => $this->requiredEncounters ? '2.16.840.1.113883.10.20.22.2.22.2' : '2.16.840.1.113883.10.20.22.2.22'
+                ]
+            ],
+            'code' => [
+                '@attributes' => [
+                    'code' => '46240-8',
+                    'codeSystemName' => 'LOINC',
+                    'codeSystem' => '2.16.840.1.113883.6.1'
+                ]
+            ],
+            'title' => 'Encounters'
         ];
 
 	    /**
@@ -5513,7 +5510,6 @@ class CCDDocument extends CDDDocumentBase
                     ]
                 ]
             ];
-            $encounters['entry'] = [];
 
             foreach($encountersData as $encounter){
 
@@ -5567,7 +5563,10 @@ class CCDDocument extends CDDDocumentBase
                     ]
                 ];
 
-                $order = [
+                $entry = [
+                    '@attributes' => [
+                        'typeCode' => 'DRIV'
+                    ],
                     'encounter' => [
                         '@attributes' => [
                             'classCode' => 'ENC',
@@ -5578,6 +5577,11 @@ class CCDDocument extends CDDDocumentBase
                                 'root' => '2.16.840.1.113883.10.20.22.4.49'
                             ]
                         ],
+                        'templateId' => [
+                            '@attributes' => [
+                                'root' => '2.16.840.1.113883.10.20.24.3.23'
+                            ]
+                        ],
                         'id' => [
                             '@attributes' => [
                                 'root' => UUID::v4()
@@ -5585,8 +5589,9 @@ class CCDDocument extends CDDDocumentBase
                         ],
                         'code' => [
                             '@attributes' => [
-                                'code' => '99200',
-                                'codeSystem' => $this->codes('CPT4')
+                                'code' => '99213',
+                                'codeSystem' => $this->codes('CPT4'),
+                                'displayName' => 'CPT-4'
                             ]
                         ],
                         'statusCode' => [
@@ -5631,142 +5636,142 @@ class CCDDocument extends CDDDocumentBase
                                 'templateId' => [
                                     '@attributes' => [
                                         'root' => '2.16.840.1.113883.10.20.22.4.80'
-                                    ],
-                                    'id' =>[
-                                        '@attributes' => UUID::v4()
-                                    ],
-                                    'code' => [
+                                    ]
+                                ],
+                                'id' =>[
+                                    '@attributes' => UUID::v4()
+                                ],
+                                'code' => [
+                                    '@attributes' => [
+                                        'code' => '29308-4',
+                                        'codeSystem' => '2.16.840.1.113883.6.1',
+                                        'codeSystemName' => 'LOINC',
+                                        'displayName' => 'Encounter Diagnosis'
+                                    ]
+                                ],
+                                'statusCode' => [
+                                    '@attributes' => [
+                                        'code' => 'completed'
+                                    ]
+                                ],
+                                'effectiveTime' => [
+                                    'low' => [
                                         '@attributes' => [
-                                            'code' => '29308-4',
-                                            'codeSystem' => '2.16.840.1.113883.6.1',
-                                            'codeSystemName' => 'LOINC',
-                                            'displayName' => 'Encounter Diagnosis'
+                                            'value' => $this->parseDate($encounter['service_date'])
                                         ]
                                     ],
-                                    'statusCode' => [
+                                    'high' => [
                                         '@attributes' => [
-                                            'code' => 'completed'
+                                            'value' => $this->parseDate($encounter['close_date'])
                                         ]
+                                    ]
+                                ],
+                                'entryRelationship' => [
+                                    '@attributes' => [
+                                        'typeCode' => 'SUBJ'
                                     ],
-                                    'effectiveTime' => [
-                                        'low' => [
+                                    'observation' => [
+                                        '@attributes' => [
+                                            'classCode' => 'OBS',
+                                            'moodCode' => 'EVN',
+                                            'negationInd' => 'true'
+                                        ],
+                                        'templateId' => [
                                             '@attributes' => [
-                                                'value' => $this->parseDate($encounter['service_date'])
+                                                'root' => '2.16.840.1.113883.10.20.22.4.4'
                                             ]
                                         ],
-                                        'high' => [
+                                        'id' => [
                                             '@attributes' => [
-                                                'value' => $this->parseDate($encounter['close_date'])
+                                                'root' => UUID::v4()
                                             ]
-                                        ]
-                                    ],
-                                    'entryRelationship' => [
-                                        '@attributes' => [
-                                            'typeCode' => 'SUBJ'
                                         ],
-                                        'observation' => [
+                                        'code' => [
                                             '@attributes' => [
-                                                'classCode' => 'OBS',
-                                                'moodCode' => 'EVN',
-                                                'negationInd' => 'true'
-                                            ],
-                                            'templateId' => [
+                                                'code' => '409586006',
+                                                'codeSystem' => '2.16.840.1.113883.6.96',
+                                                'codeSystemName' => 'SNOMED-CT',
+                                                'displayName' => 'Complaint'
+                                            ]
+                                        ],
+                                        'statusCode' => [
+                                            '@attributes' => [
+                                                'code' => 'completed'
+                                            ]
+                                        ],
+                                        'effectiveTime' => [
+                                            'low' => [
                                                 '@attributes' => [
-                                                    'root' => '2.16.840.1.113883.10.20.22.4.4'
+                                                    'value' => $this->parseDate($encounter['service_date'])
                                                 ]
                                             ],
-                                            'id' => [
+                                            'high' => [
                                                 '@attributes' => [
-                                                    'root' => UUID::v4()
+                                                    'value' => $this->parseDate($encounter['close_date'])
                                                 ]
+                                            ]
+                                        ],
+                                        'value' => [
+                                            '@attributes' => [
+                                                'xsi:type' => 'CD',
+                                                'code' => '182313005',
+                                                'codeSystem' => '2.16.840.1.113883.6.96',
+                                                'codeSystemName' => 'SNOMED CT',
+                                                'displayName' => 'None'
+                                            ]
+                                        ],
+                                        'entryRelationship' => [
+                                            '@attributes' => [
+                                                'typeCode' => 'REFR'
                                             ],
-                                            'code' => [
+                                            'observation' => [
                                                 '@attributes' => [
-                                                    'code' => '409586006',
-                                                    'codeSystem' => '2.16.840.1.113883.6.96',
-                                                    'codeSystemName' => 'SNOMED-CT',
-                                                    'displayName' => 'Complaint'
-                                                ]
-                                            ],
-                                            'statusCode' => [
-                                                '@attributes' => [
-                                                    'code' => 'completed'
-                                                ]
-                                            ],
-                                            'effectiveTime' => [
-                                                'low' => [
+                                                    'classCode' => 'OBS',
+                                                    'moodCode' => 'EVN',
+                                                    'negationInd' => 'true'
+                                                ],
+                                                'templateId' => [
                                                     '@attributes' => [
-                                                        'value' => $this->parseDate($encounter['service_date'])
+                                                        'root' => '2.16.840.1.113883.10.20.22.4.4'
                                                     ]
                                                 ],
-                                                'high' => [
+                                                'id' => [
                                                     '@attributes' => [
-                                                        'value' => $this->parseDate($encounter['close_date'])
+                                                        'root' => UUID::v4()
                                                     ]
-                                                ]
-                                            ],
-                                            'value' => [
-                                                '@attributes' => [
-                                                    'xsi:type' => 'CD',
-                                                    'code' => '182313005',
-                                                    'codeSystem' => '2.16.840.1.113883.6.96',
-                                                    'codeSystemName' => 'SNOMED CT',
-                                                    'displayName' => 'None'
-                                                ]
-                                            ],
-                                            'entryRelationship' => [
-                                                '@attributes' => [
-                                                    'typeCode' => 'REFR'
                                                 ],
-                                                'observation' => [
+                                                'code' => [
                                                     '@attributes' => [
-                                                        'classCode' => 'OBS',
-                                                        'moodCode' => 'EVN',
-                                                        'negationInd' => 'true'
-                                                    ],
-                                                    'templateId' => [
+                                                        'code' => '33999-4',
+                                                        'codeSystem' => '2.16.840.1.113883.6.1',
+                                                        'codeSystemName' => 'LOINC',
+                                                        'displayName' => 'Status'
+                                                    ]
+                                                ],
+                                                'statusCode' => [
+                                                    '@attributes' => [
+                                                        'code' => 'completed'
+                                                    ]
+                                                ],
+                                                'effectiveTime' => [
+                                                    'low' => [
                                                         '@attributes' => [
-                                                            'root' => '2.16.840.1.113883.10.20.22.4.4'
+                                                            'value' => $this->parseDate($encounter['service_date'])
                                                         ]
                                                     ],
-                                                    'id' => [
+                                                    'high' => [
                                                         '@attributes' => [
-                                                            'root' => UUID::v4()
+                                                            'value' => $this->parseDate($encounter['close_date'])
                                                         ]
-                                                    ],
-                                                    'code' => [
-                                                        '@attributes' => [
-                                                            'code' => '33999-4',
-                                                            'codeSystem' => '2.16.840.1.113883.6.1',
-                                                            'codeSystemName' => 'LOINC',
-                                                            'displayName' => 'Status'
-                                                        ]
-                                                    ],
-                                                    'statusCode' => [
-                                                        '@attributes' => [
-                                                            'code' => 'completed'
-                                                        ]
-                                                    ],
-                                                    'effectiveTime' => [
-                                                        'low' => [
-                                                            '@attributes' => [
-                                                                'value' => $this->parseDate($encounter['service_date'])
-                                                            ]
-                                                        ],
-                                                        'high' => [
-                                                            '@attributes' => [
-                                                                'value' => $this->parseDate($encounter['close_date'])
-                                                            ]
-                                                        ]
-                                                    ],
-                                                    'value' => [
-                                                        '@attributes' => [
-                                                            'xsi:type' => 'CD',
-                                                            'code' => '55561003',
-                                                            'codeSystem' => '2.16.840.1.113883.6.96',
-                                                            'codeSystemName' => 'SNOMED CT',
-                                                            'displayName' => 'Active'
-                                                        ]
+                                                    ]
+                                                ],
+                                                'value' => [
+                                                    '@attributes' => [
+                                                        'xsi:type' => 'CD',
+                                                        'code' => '55561003',
+                                                        'codeSystem' => '2.16.840.1.113883.6.96',
+                                                        'codeSystemName' => 'SNOMED CT',
+                                                        'displayName' => 'Active'
                                                     ]
                                                 ]
                                             ]
@@ -5777,8 +5782,7 @@ class CCDDocument extends CDDDocumentBase
                         ]
                     ]
                 ];
-                $encounters['entry'][] = $order;
-                $encounters['entry'][] = $order;
+                $encounters['entry'][] = $entry;
             }
         }
 

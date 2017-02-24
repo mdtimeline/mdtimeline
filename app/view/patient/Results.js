@@ -242,8 +242,23 @@ Ext.define('App.view.patient.Results', {
 											allowBlank: false
 										},
 										{
+											xtype: 'combobox',
 											fieldLabel: _('status'),
-											name: 'result_status'
+											name: 'result_status',
+											queryMode: 'local',
+											displayField: 'option',
+											valueField: 'value',
+											store: Ext.create('Ext.data.Store', {
+												fields: ['option', 'value'],
+												data: [
+													{ option: 'Aborted', value: 'aborted'},
+													{ option: 'Active', value: 'active'},
+													{ option: 'Cancelled', value: 'cancelled'},
+													{ option: 'Completed', value: 'completed'},
+													{ option: 'Held', value: 'held'},
+													{ option: 'Suspended', value: 'suspended'}
+												]
+											})
 										},
 										{
 											xtype: 'datefield',

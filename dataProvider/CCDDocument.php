@@ -5432,19 +5432,18 @@ class CCDDocument extends CDDDocumentBase
      */
     private function setEncountersSection() {
 
-        error_log(print_r($this->eid,true));
-
-        if($this->eid){
-            $encountersData = $this->Encounter->getEncounters(
-                ['eid'=>$this->eid]
-            );
-        }elseif($this->eid =-1){
-            $encountersData = $this->Encounter->getEncounters(
-                ['pid'=>$this->pid]
-            );
+        $filters = new stdClass();
+        $filters->filter[0] = new stdClass();
+        if(isset($this->eid)){
+            $filters->filter[0]->property = 'eid';
+            $filters->filter[0]->value = $this->eid;
+        }elseif($this->eid == 'null'){
+            $filters->filter[0]->property = 'pid';
+            $filters->filter[0]->value = $this->pid;
         }else{
             return;
         }
+        $encountersData = $this->Encounter->getEncounters($filters, false, false);
 
         $encounters = [
             'section' => [
@@ -5527,7 +5526,7 @@ class CCDDocument extends CDDDocumentBase
                             '@value' => ''
                         ],
                         [
-                            '@value' => 'Decision Aids: '.$decisionAids['instruction_code_description']
+                            '@value' => 'Decision Aids: '.isset($decisionAids[0]['instruction_code_description']) ? $decisionAids[0]['instruction_code_description'] : ''
                         ],
                         [
                             '@value' => $providerInfo['fname'].' '.$providerInfo['mname'].' '.$providerInfo['lname']

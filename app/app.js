@@ -3837,12 +3837,12 @@ Ext.define('App.ux.PatientEncounterCombo', {
 				load: function () {
 					if(!me.includeAllSelection) return;
 					me.store.insert(0,{
-						eid: -1,
+						eid: null,
 						brief_description: 'All Encounters',
 						service_date: '0000-00-00'
 					});
-					me.setValue(-1);
-                    me.setRawValue(-1);
+					me.setValue(null);
+                    me.setRawValue(null);
 				}
 			}
 		});

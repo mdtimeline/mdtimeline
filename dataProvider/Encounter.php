@@ -191,7 +191,6 @@ class Encounter {
 	 * @return array
 	 */
 	public function getEncounters($params, $relations = true) {
-
 		$records = $this->e->load($params)->all();
 		$encounters = (array)$records['encounter'];
 		$relations = isset($params->relations) ? $params->relations : $relations;

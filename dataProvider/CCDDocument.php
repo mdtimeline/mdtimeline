@@ -104,7 +104,7 @@ class CCDDocument extends CDDDocumentBase
             /**
              * Note: In here we need to detect, if the user requested compile all the encounters
              */
-            if(isset($this->eid)){
+            if(isset($this->eid) && $this->eid != 'null'){
                 $this->encounter = $this->Encounter->getEncounter((int)$this->eid, false, false);
                 $this->encounter = isset($this->encounter['encounter']) ? $this->encounter['encounter'] : $this->encounter;
                 $this->encounterProvider = $this->User->getUserByUid($this->encounter['provider_uid']);
@@ -860,7 +860,7 @@ class CCDDocument extends CDDDocumentBase
     private function getDocumentationOf()
     {
 
-        if($this->allProviders == 'false'){
+        if($this->eid != 'null'){
 
             $documentationOf = [
                 'serviceEvent' => [
@@ -3756,9 +3756,9 @@ class CCDDocument extends CDDDocumentBase
 
         $EncounterDiagnostics = new Encounter();
         $diagnosticsData = [];
-        if($this->allProviders == 'false' && $this->eid != null){
-            $params = new stdClass();
-            $params->filter[0] = new stdClass();
+        $params = new stdClass();
+        $params->filter[0] = new stdClass();
+        if(is_numeric($this->eid)){
             $params->filter[0]->property = 'eid';
             $params->filter[0]->value = $this->eid;
             $diagnosticsData = $EncounterDiagnostics->getEncounterDxs($params);
@@ -3766,9 +3766,7 @@ class CCDDocument extends CDDDocumentBase
                 $tempEncounter = $EncounterDiagnostics->getEncounter($this->eid, false, false);
                 $diagnosticsData['encounter'] = $tempEncounter['encounter'];
             }
-        } elseif($this->allProviders == 'true' ) {
-            $params = new stdClass();
-            $params->filter[0] = new stdClass();
+        } elseif($this->eid == 'null') {
             $params->filter[0]->property = 'pid';
             $params->filter[0]->value = $this->pid;
             $diagnosticsData = $EncounterDiagnostics->getEncounterDxs($params);
@@ -5563,6 +5561,18 @@ class CCDDocument extends CDDDocumentBase
                     ]
                 ];
 
+                $entry['encounter']['templateId'][] =[
+                    '@attributes' => [
+                        'root' => '2.16.840.1.113883.10.20.22.4.49'
+                    ]
+                ];
+
+                $entry['encounter']['templateId'][] =[
+                    '@attributes' => [
+                        'root' => '2.16.840.1.113883.10.20.24.3.23'
+                    ]
+                ];
+
                 $entry = [
                     '@attributes' => [
                         'typeCode' => 'DRIV'
@@ -5571,16 +5581,6 @@ class CCDDocument extends CDDDocumentBase
                         '@attributes' => [
                             'classCode' => 'ENC',
                             'moodCode' => 'EVN'
-                        ],
-                        'templateId' => [
-                            '@attributes' => [
-                                'root' => '2.16.840.1.113883.10.20.22.4.49'
-                            ]
-                        ],
-                        'templateId' => [
-                            '@attributes' => [
-                                'root' => '2.16.840.1.113883.10.20.24.3.23'
-                            ]
                         ],
                         'id' => [
                             '@attributes' => [
@@ -5639,7 +5639,9 @@ class CCDDocument extends CDDDocumentBase
                                     ]
                                 ],
                                 'id' =>[
-                                    '@attributes' => UUID::v4()
+                                    '@attributes' => [
+                                        'root' => UUID::v4()
+                                    ]
                                 ],
                                 'code' => [
                                     '@attributes' => [
@@ -5808,7 +5810,6 @@ if(isset($_REQUEST['pid']) && isset($_REQUEST['action'])){
         if(isset($_REQUEST['eid'])) $ccd->setEid($_REQUEST['eid']);
         if(isset($_REQUEST['pid'])) $ccd->setPid($_REQUEST['pid']);
         if(isset($_REQUEST['exclude'])) $ccd->setExcludes($_REQUEST['exclude']);
-        if(isset($_REQUEST['allprov'])) $ccd->setAllProviders($_REQUEST['allprov']);
         $ccd->setTemplate('toc');
         $ccd->createCCD();
 

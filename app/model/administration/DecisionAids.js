@@ -52,5 +52,14 @@ Ext.define('App.model.administration.DecisionAids', {
 			type: 'bool',
 			index: true
 		}
-	]
+	],
+	proxy: {
+		type: 'direct',
+		api: {
+			read: 'DecisionAids.getDecisionAids',
+			create: 'DecisionAids.addDecisionAid',
+			update: 'DecisionAids.updateDecisionAid',
+			destroy: 'DecisionAids.destroyDecisionAid'
+		}
+	}
 });

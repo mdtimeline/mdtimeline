@@ -1702,5 +1702,10 @@ $LANG = array(
     'password_changed'                      => 'Password Changed',
     'password_expired'                      => 'Password Expired',
     'confirmation'                          => 'Confirmation',
-    'include_all_providers'                 => 'Includes all providers'
+    'include_all_providers'                 => 'Includes all providers',
+    'patient_decision_aids'                 => 'Patient Decision Aids',
+    'decision_aid'                          => 'Decision Aid',
+    'trigger_code'                          => 'Trigger Code',
+    'description_code'                      => 'Description Code',
+    'description_code_type'                 => 'Description Code Type',
 );

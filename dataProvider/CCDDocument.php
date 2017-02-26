@@ -5811,8 +5811,6 @@ if(isset($_REQUEST['pid']) && isset($_REQUEST['action'])){
         if(isset($_REQUEST['pid'])) $ccd->setPid($_REQUEST['pid']);
         if(isset($_REQUEST['exclude'])) $ccd->setExcludes($_REQUEST['exclude']);
 
-        error_log(print_r($_REQUEST['eid'],true));
-
         $ccd->setTemplate('toc');
         $ccd->createCCD();
 

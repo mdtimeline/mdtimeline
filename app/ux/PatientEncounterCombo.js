@@ -89,7 +89,6 @@ Ext.define('App.ux.PatientEncounterCombo', {
 						brief_description: 'All Encounters',
 						service_date: '0000-00-00'
 					});
-
 				}
 			}
 		});

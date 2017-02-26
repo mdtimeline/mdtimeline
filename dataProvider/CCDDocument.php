@@ -84,25 +84,6 @@ class CCDDocument extends CDDDocumentBase
     }
 
     /**
-     * Method setRequirements()
-     */
-    private function setRequirements()
-    {
-        if($this->template == 'toc'){
-            $this->requiredAllergies = true;
-            $this->requiredVitals = true;
-            $this->requiredImmunization = true;
-            $this->requiredMedications = true;
-            $this->requiredProblems = true;
-            $this->requiredProcedures = true;
-            $this->requiredPlanOfCare = true;
-            $this->requiredCareOfPlan = true;
-            $this->requiredResults = true;
-            $this->requiredEncounters = false;
-        }
-    }
-
-    /**
      * Method setHeader()
      */
     private function setHeader()

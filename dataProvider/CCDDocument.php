@@ -104,8 +104,8 @@ class CCDDocument extends CDDDocumentBase
             /**
              * Note: In here we need to detect, if the user requested compile all the encounters
              */
-            if(isset($this->eid) && $this->eid != 'null'){
-                $this->encounter = $this->Encounter->getEncounter((int)$this->eid, false, false);
+            if(isset($this->eid) && $this->eid != null){
+                $this->encounter = $this->Encounter->getEncounter($this->eid, false, false);
                 $this->encounter = isset($this->encounter['encounter']) ? $this->encounter['encounter'] : $this->encounter;
                 $this->encounterProvider = $this->User->getUserByUid($this->encounter['provider_uid']);
                 $this->encounterFacility = $this->Facilities->getFacility($this->encounter['facility']);
@@ -860,7 +860,7 @@ class CCDDocument extends CDDDocumentBase
     private function getDocumentationOf()
     {
 
-        if($this->eid != 'null'){
+        if($this->eid != null){
 
             $documentationOf = [
                 'serviceEvent' => [
@@ -3766,7 +3766,7 @@ class CCDDocument extends CDDDocumentBase
                 $tempEncounter = $EncounterDiagnostics->getEncounter($this->eid, false, false);
                 $diagnosticsData['encounter'] = $tempEncounter['encounter'];
             }
-        } elseif($this->eid == 'null') {
+        } elseif($this->eid == null) {
             $params->filter[0]->property = 'pid';
             $params->filter[0]->value = $this->pid;
             $diagnosticsData = $EncounterDiagnostics->getEncounterDxs($params);
@@ -5435,7 +5435,7 @@ class CCDDocument extends CDDDocumentBase
         if(isset($this->eid)){
             $filters->filter[0]->property = 'eid';
             $filters->filter[0]->value = $this->eid;
-        }elseif($this->eid == 'null'){
+        }elseif($this->eid == null){
             $filters->filter[0]->property = 'pid';
             $filters->filter[0]->value = $this->pid;
         }else{
@@ -5810,6 +5810,9 @@ if(isset($_REQUEST['pid']) && isset($_REQUEST['action'])){
         if(isset($_REQUEST['eid'])) $ccd->setEid($_REQUEST['eid']);
         if(isset($_REQUEST['pid'])) $ccd->setPid($_REQUEST['pid']);
         if(isset($_REQUEST['exclude'])) $ccd->setExcludes($_REQUEST['exclude']);
+
+        error_log(print_r($_REQUEST['eid'],true));
+
         $ccd->setTemplate('toc');
         $ccd->createCCD();
 

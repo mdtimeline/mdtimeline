@@ -3841,8 +3841,6 @@ Ext.define('App.ux.PatientEncounterCombo', {
 						brief_description: 'All Encounters',
 						service_date: '0000-00-00'
 					});
-					me.setValue(null);
-                    me.setRawValue(null);
 				}
 			}
 		});
@@ -31906,7 +31904,8 @@ Ext.define('App.view.administration.practice.Practice', {
 		'App.view.administration.practice.Laboratories',
 		'App.view.administration.practice.Pharmacies',
 		'App.view.administration.practice.ProviderNumbers',
-		'App.view.administration.practice.ReferringProviders'
+		'App.view.administration.practice.ReferringProviders',
+		'App.view.administration.practice.DecisionAids'
 	],
 	pageBody: [
 		{
@@ -31936,6 +31935,9 @@ Ext.define('App.view.administration.practice.Practice', {
 				},
 				{
 					xtype: 'facilityconfigpanel'
+				},
+				{
+					xtype: 'decisionaidspanel'
 				}
 			]
 		}

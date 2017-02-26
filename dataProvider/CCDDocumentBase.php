@@ -386,6 +386,133 @@ class CDDDocumentBase
         return $addr;
     }
 
+    /**
+     * Method buildCCD()
+     */
+    public function createCCD()
+    {
+        try {
+
+            if(!isset($this->pid)) throw new Exception('PID variable not set');
+
+            $this->xmlData = [
+                '@attributes' => [
+                    'xmlns' => 'urn:hl7-org:v3',
+                    'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
+                    'xsi:schemaLocation' => 'urn:hl7-org:v3 CDA.xsd'
+                ]
+            ];
+
+            /**
+             * Note: In here we need to detect, if the user requested compile all the encounters
+             */
+            if(isset($this->eid) && $this->eid != null){
+                $this->encounter = $this->Encounter->getEncounter($this->eid, false, false);
+                $this->encounter = isset($this->encounter['encounter']) ? $this->encounter['encounter'] : $this->encounter;
+                $this->encounterProvider = $this->User->getUserByUid($this->encounter['provider_uid']);
+                $this->encounterFacility = $this->Facilities->getFacility($this->encounter['facility']);
+            }
+
+            $this->setRequirements();
+            $this->setHeader();
+
+            /**
+             * Array of sections to include in CCD
+             */
+            $sections = [
+                'ReasonOfVisit',
+                'Instructions',
+                'ReasonForReferral',
+                'Procedures',
+                'Vitals',
+                'Immunizations',
+                'Medications',
+                'MedicationsAdministered',
+                'PlanOfCare',
+                'CareOfPlan',
+                'Problems',
+                'Allergies',
+                'SocialHistory',
+                'Results',
+                'FunctionalStatus',
+                'Encounters'
+            ];
+
+            /**
+             * Run Section method for each section
+             */
+            foreach($sections AS $Section){
+                call_user_func([
+                                   $this,
+                                   "set{$Section}Section"
+                               ]);
+            }
+
+            /**
+             * Build the CCR XML Object
+             */
+            if(stripos(URL, '?')){
+                $DeleteQuery = substr(URL, stripos(URL, '?'));
+                $URL = str_replace($DeleteQuery, "", URL);
+            } else {
+                $URL = URL;
+            }
+            Array2XML::init(
+                '1.0',
+                'UTF-8',
+                true,
+                ['xml-stylesheet' => 'type="text/xsl" href="'.$URL.'/lib/CCRCDA/schema/cda2.xsl"']
+            );
+            $this->xml = Array2XML::createXML('ClinicalDocument', $this->xmlData);
+        } catch(Exception $Error) {
+            error_log($Error->getMessage());
+        }
+    }
+
+    /**
+     * Method view()
+     */
+    public function archive()
+    {
+        try {
+            header('Content-type: application/xml');
+            $xml = $this->xml->saveXML();
+            $name = $this->getFileName() . '.xml';
+            $date = date('Y-m-d H:i:s');
+            $document = new stdClass();
+            $document->pid = $this->pid;
+            $document->eid = $this->eid;
+            $document->uid = $_SESSION['user']['id'];
+            $document->docType = 'C-CDA';
+            $document->name = $name;
+            $document->date = $date;
+            $document->note = '';
+            $document->title = 'C-CDA';
+            $document->encrypted = 0;
+            $document->document = base64_encode($xml);
+            include_once(ROOT . '/dataProvider/DocumentHandler.php');
+            $DocumentHandler = new DocumentHandler();
+            $DocumentHandler->addPatientDocument($document);
+            unset($DocumentHandler, $document, $name, $date);
+            print $xml;
+        } catch(Exception $Error) {
+            error_log($Error->getMessage());
+        }
+    }
+
+    /**
+     * Method view()
+     */
+    public function view()
+    {
+        try {
+            header('Content-type: application/xml');
+            print $this->xml->saveXML();
+        } catch(Exception $Error) {
+            error_log($Error->getMessage());
+        }
+    }
+
     public function removeDuplicateKeys($key,$data){
 
         $_data = array();
@@ -401,6 +528,70 @@ class CDDDocumentBase
         // if you need a zero-based array, otheriwse work with $_data
         $data = array_values($_data);
         return $data;
+    }
+
+    /**
+     * Method get()
+     */
+    public function get()
+    {
+        try {
+            return $this->xml->saveXML();
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    /**
+     * Method export()
+     * @param bool $return
+     * @return array
+     */
+    public function export($return = false)
+    {
+        try {
+            // Create a ZIP archive for delivery
+            $dir = site_temp_path . '/';
+            $filename = $this->getFileName();
+            $file = $this->zipIt($dir, $filename);
+            $filename .= '.zip';
+
+            if($return){
+                $handle = fopen($file, "r");
+                $data = fread($handle, filesize($file));
+                fclose($handle);
+
+                $fileData = [];
+                $fileData['filename'] = $filename;
+                $fileData['data'] = $data;
+                unlink($file);
+                return $fileData;
+            }
+
+            // Stream the file to the client
+            header('Content-Type: application/zip');
+            header('Content-Length: ' . filesize($file));
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            readfile($file);
+            unlink($file);
+        } catch(Exception $Error) {
+            error_log($Error->getMessage());
+        }
+    }
+
+    /**
+     * Method save()
+     * @param $toDir
+     * @param $fileName
+     */
+    public function save($toDir, $fileName)
+    {
+        try {
+            $filename = $fileName ? $fileName : $this->getFileName();
+            $this->zipIt($toDir, $filename);
+        } catch(Exception $e) {
+            print $e->getMessage();
+        }
     }
 
     /**

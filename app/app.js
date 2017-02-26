@@ -40346,11 +40346,7 @@ Ext.define('App.controller.patient.CCD', {
 		{
 			ref: 'PatientCcdPanelExcludeCheckBoxGroup',
 			selector: '#PatientCcdPanelExcludeCheckBoxGroup'
-		},
-        {
-            ref: 'IncludesAllProvidersCheckBox',
-            selector: '#IncludesAllProvidersCheckBox'
-        }
+		}
 	],
 
 	init: function(){
@@ -40373,9 +40369,6 @@ Ext.define('App.controller.patient.CCD', {
 			},
 			'#printCcdBtn': {
 				click: me.onPrintCcdBtnClick
-			},
-			'#PatientCcdPanelEncounterCmb': {
-				select: me.onPatientCcdPanelEncounterCmbSelect
 			}
 		});
 
@@ -40420,8 +40413,7 @@ Ext.define('App.controller.patient.CCD', {
 
 	onViewCcdBtnClick: function(btn){
 
-		var eid = this.getEid(btn),
-            allProviders = btn.up('toolbar').query('#IncludesAllProvidersCheckBox')[0].getValue();
+		var eid = this.getEid(btn);
 
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?' +
@@ -40430,8 +40422,7 @@ Ext.define('App.controller.patient.CCD', {
 			'&pid=' + app.patient.pid +
 			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(btn) +
-			'&token=' + app.user.token +
-            '&allprov=' + allProviders
+			'&token=' + app.user.token
 		);
         btn.up('panel').query('miframe')[0].el.unmask();
 
@@ -40441,7 +40432,7 @@ Ext.define('App.controller.patient.CCD', {
 			eid,
 			'encounters',
 			'VIEW',
-            eid == null || allProviders == false ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
+            eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
 		);
 
         TransactionLog.saveExportLog({
@@ -40454,8 +40445,7 @@ Ext.define('App.controller.patient.CCD', {
 
 	onArchiveCcdBtnClick: function(btn){
 
-		var eid = this.getEid(btn),
-            allProviders = btn.up('toolbar').query('#IncludesAllProvidersCheckBox')[0].getValue();
+		var eid = this.getEid(btn);
 
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?' +
@@ -40464,8 +40454,7 @@ Ext.define('App.controller.patient.CCD', {
 			'&pid=' + app.patient.pid +
 			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(btn) +
-			'&token=' + app.user.token +
-            '&allprov=' + allProviders
+			'&token=' + app.user.token
 		);
         btn.up('panel').query('miframe')[0].el.unmask();
 
@@ -40475,7 +40464,7 @@ Ext.define('App.controller.patient.CCD', {
 			eid,
 			'encounters',
 			'ARCHIVE',
-            eid == null || allProviders == false ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
+            eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
 		);
 
         TransactionLog.saveExportLog({
@@ -40489,16 +40478,14 @@ Ext.define('App.controller.patient.CCD', {
 
 	onExportCcdBtnClick: function(btn){
 
-		var eid = this.getEid(btn),
-            allProviders = btn.up('toolbar').query('#IncludesAllProvidersCheckBox')[0].getValue();
+		var eid = this.getEid(btn);
 
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?action=export&site=' + window.site +
 			'&pid=' + app.patient.pid +
 			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(btn) +
-			'&token=' + app.user.token +
-            '&allprov=' + allProviders
+			'&token=' + app.user.token
 		);
         btn.up('panel').query('miframe')[0].el.unmask();
 
@@ -40508,7 +40495,7 @@ Ext.define('App.controller.patient.CCD', {
 			eid,
 			'encounters',
 			'EXPORT',
-            eid == null || allProviders == false ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
+            eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
 		);
 
         TransactionLog.saveExportLog({
@@ -40535,8 +40522,7 @@ Ext.define('App.controller.patient.CCD', {
 		cont.focus();
 		cont.print();
 
-		var eid = this.getEid(btn),
-            allProviders = btn.up('toolbar').query('#IncludesAllProvidersCheckBox')[0].getValue();
+		var eid = this.getEid(btn);
 
 		this.logCtrl.addLog(
 			app.patient.pid,
@@ -40544,7 +40530,7 @@ Ext.define('App.controller.patient.CCD', {
 			eid,
 			'encounters',
 			'PRINT',
-            eid == null || allProviders == false ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
+            eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
 		);
 
         TransactionLog.saveExportLog({
@@ -40568,8 +40554,7 @@ Ext.define('App.controller.patient.CCD', {
 
 	onPatientCcdPanelEncounterCmbSelect: function(cmb, records){
 
-		var eid = this.getEid(cmb),
-            allProviders = cmb.up('toolbar').query('#IncludesAllProvidersCheckBox')[0].getValue();
+		var eid = this.getEid(cmb);
 
 		cmb.selectedRecord = records[0];
 		cmb.up('panel').query('miframe')[0].setSrc(
@@ -40577,8 +40562,7 @@ Ext.define('App.controller.patient.CCD', {
 			'&pid=' + app.patient.pid +
 			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(cmb) +
-			'&token=' + app.user.token +
-            '&allprov=' + allProviders
+			'&token=' + app.user.token
 		);
 		cmb.up('panel').query('miframe')[0].el.unmask();
 
@@ -40588,7 +40572,7 @@ Ext.define('App.controller.patient.CCD', {
 			eid,
 			'encounters',
 			'VIEW',
-			eid == null || allProviders == false ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
+			eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
 		);
 
         TransactionLog.saveExportLog({
@@ -47389,13 +47373,6 @@ Ext.define('App.view.patient.CCD', {
                     hideLabel: false,
                     labelAlign: 'top',
 	                includeAllSelection: true
-                },
-                {
-                    xtype: 'checkboxfield',
-                    boxLabel: _('include_all_providers'),
-                    name: 'include_all_providers',
-                    inputValue: false,
-                    id: 'IncludesAllProvidersCheckBox'
                 }
             ]
 

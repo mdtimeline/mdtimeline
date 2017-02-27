@@ -35731,6 +35731,7 @@ Ext.define('App.controller.administration.AuditLog', {
 	 *
 	 * @param pid               {int}       Example: 1111
 	 * @param uid               {int}       Example: 2222
+	 * @param eid               {int}       Example: 2222
 	 * @param foreign_id        {int}       Example: 3333
 	 * @param foreign_table     {string}    Example: worklist_reports
 	 * @param event             {string}    Example: create
@@ -36173,7 +36174,13 @@ Ext.define('App.controller.administration.DecisionSupport', {
 			},
 
 			'#decisionSupportAdminGrid': {
-				beforeedit: me.onDecisionSupportAdminGridBeforeEdit
+				beforeedit: me.onDecisionSupportAdminGridBeforeEdit,
+				edit: me.onDecisionSupportAdminGridEdit,
+				beforeitemcontextmenu: me.onDecisionSupportAdminGridBeforeContextMenu,
+			},
+
+			'#DecisionSupportAdminGridShowLogMenu': {
+				click: me.onDecisionSupportAdminGridShowLogMenuClick
 			},
 
 			'#DecisionSupportProcedureCombo': {
@@ -36201,6 +36208,9 @@ Ext.define('App.controller.administration.DecisionSupport', {
 				beforerender: me.onDecisionSupportSocialHistoryComboBeforeRender
 			}
 		});
+
+		me.logCtrl = me.getController('App.controller.administration.AuditLog');
+
 	},
 
 	onDecisionSupportAdminPanelActive: function(){
@@ -36251,6 +36261,65 @@ Ext.define('App.controller.administration.DecisionSupport', {
 				}
 			});
 		}
+	},
+
+
+	onDecisionSupportAdminGridEdit: function (plugin, context) {
+
+		var description = context.record.get('description') + ' - Updated',
+			active = context.record.get('active'),
+			changes = context.record.getChanges();
+
+		if(!Ext.Object.isEmpty(changes) && changes.active !== undefined){
+
+			if(changes.active){
+				description += ' - Activated';
+			}else{
+				description += ' - Deactivated';
+			}
+		}
+
+		this.logCtrl.addLog(
+			0,
+			app.user.id,
+			0,
+			context.record.get('id'),
+			context.record.table.name,
+			'UPDATE',
+			description
+		);
+	},
+
+	onDecisionSupportAdminGridBeforeContextMenu: function (grid, record, item, index, e) {
+		e.preventDefault();
+		this.showDecisionSupportAdminGridContextMenu(e);
+	},
+
+	showDecisionSupportAdminGridContextMenu: function (e) {
+
+		var me = this;
+		if(!me.gridContextMenu){
+			me.gridContextMenu = Ext.widget('menu', {
+				margin: '0 0 10 0',
+				items: [
+					{
+						text: _('show_log'),
+						itemId: 'DecisionSupportAdminGridShowLogMenu',
+						icon: 'resources/images/icons/icoView.png'
+					}
+				]
+			});
+		}
+
+		me.gridContextMenu.showAt(e.getXY());
+
+		return me.gridContextMenu;
+	},
+
+	onDecisionSupportAdminGridShowLogMenuClick: function () {
+		var record = this.getDecisionSupportAdminGrid().getSelectionModel().getLastSelected();
+
+		this.logCtrl.showLogByRecord(record);
 	},
 
 	onDecisionSupportProcedureComboSelect: function(cmb, records){
@@ -51938,7 +52007,8 @@ Ext.define('App.view.patient.Patient', {
 											name: 'language',
 											list: 10,
 											loadStore: true,
-											editable: false
+											editable: false,
+											displayTpl: Ext.create('Ext.XTemplate', '<tpl for=".">', '{option_name} ({option_value})', '</tpl>')
 										}
 									]
 								},

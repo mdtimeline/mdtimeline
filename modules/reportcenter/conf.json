@@ -22,7 +22,7 @@
             }
         },
 
-        "CombosData":{
+        "ReportcenterCombosData":{
             "methods":{
                 "getTableList": { "len": 1 }
             }

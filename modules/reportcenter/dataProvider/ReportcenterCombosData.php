@@ -17,7 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class CombosData
+namespace modules\reportcenter\dataProvider;
+
+class ReportcenterCombosData
 {
 
     private $TransactionLog;
@@ -28,7 +30,7 @@ class CombosData
      */
     public function getTableList()
     {
-        $this->TransactionLog = MatchaModel::setSenchaModel('App.model.administration.TransactionLog');
+        $this->TransactionLog = \MatchaModel::setSenchaModel('App.model.administration.TransactionLog');
         $sql = "SELECT distinct(table_name) as table_name FROM audit_transaction_log;";
         return $this->TransactionLog->sql($sql)->all();
     }

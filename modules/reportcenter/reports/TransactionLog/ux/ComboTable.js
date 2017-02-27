@@ -54,9 +54,6 @@ Ext.define('Modules.reportcenter.reports.TransactionLog.ux.ComboTable', {
                 type: 'direct',
                 api: {
                     read: 'CombosData.getTableList'
-                },
-                extraParams: {
-                    list_id: me.list
                 }
             },
             idProperty: 'table_name'

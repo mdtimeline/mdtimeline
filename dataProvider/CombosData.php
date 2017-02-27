@@ -729,14 +729,4 @@ class CombosData {
 		return $supervisors;
 	}
 
-    /**
-     * getTableList
-     * Used by TransactionLog report, this will return a list of distinct tables in the transaction log.
-     */
-	public function getTableList(){
-        $this->TransactionLog = MatchaModel::setSenchaModel('App.model.administration.TransactionLog');
-        $sql = "SELECT distinct(table_name) as table_name FROM audit_transaction_log;";
-        return $this->TransactionLog->sql($sql)->all();
-    }
-
 }

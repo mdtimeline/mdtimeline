@@ -96,7 +96,7 @@ Ext.define('Modules.reportcenter.reports.TransactionLog.filtersForm', {
             labelAlign: 'top',
             items: [
                 {
-                    xtype: 'combobox',
+                    xtype: 'tablelist',
                     fieldLabel: _('table'),
                     labelAlign: 'top',
                     columnWidth:1

@@ -52,6 +52,7 @@ Ext.define('App.controller.administration.AuditLog', {
 	 *
 	 * @param pid               {int}       Example: 1111
 	 * @param uid               {int}       Example: 2222
+	 * @param eid               {int}       Example: 2222
 	 * @param foreign_id        {int}       Example: 3333
 	 * @param foreign_table     {string}    Example: worklist_reports
 	 * @param event             {string}    Example: create

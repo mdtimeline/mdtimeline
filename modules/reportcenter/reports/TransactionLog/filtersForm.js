@@ -33,7 +33,7 @@ Ext.define('Modules.reportcenter.reports.TransactionLog.filtersForm', {
 	    {
             xtype: 'fieldcontainer',
             layout: 'column',
-		    fieldLabel: 'From Date',
+		    fieldLabel: _('from_date'),
 		    labelAlign: 'top',
             items: [
                 {
@@ -63,7 +63,7 @@ Ext.define('Modules.reportcenter.reports.TransactionLog.filtersForm', {
         {
             xtype: 'fieldcontainer',
             layout: 'column',
-	        fieldLabel: 'To Date',
+	        fieldLabel: _('to_date'),
 	        labelAlign: 'top',
             items: [
                 {
@@ -90,20 +90,24 @@ Ext.define('Modules.reportcenter.reports.TransactionLog.filtersForm', {
                 }
             ]
         },
-	    {
-		    xtype: 'combobox',
-		    fieldLabel: 'Table',
-		    labelAlign: 'top'
-	    },
-	    {
-		    xtype: 'combobox',
-		    fieldLabel: 'Event Type',
-		    labelAlign: 'top'
-	    },
-	    {
-		    xtype: 'textfield',
-		    fieldLabel: 'Primary ID',
-		    labelAlign: 'top'
-	    }
+        {
+            xtype: 'fieldcontainer',
+            layout: 'column',
+            labelAlign: 'top',
+            items: [
+                {
+                    xtype: 'combobox',
+                    fieldLabel: _('table'),
+                    labelAlign: 'top',
+                    columnWidth:1
+                },
+                {
+                    xtype: 'combobox',
+                    fieldLabel: _('event_type'),
+                    labelAlign: 'top',
+                    columnWidth:1
+                }
+            ]
+        }
     ]
 });

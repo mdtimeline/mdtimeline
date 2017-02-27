@@ -28,7 +28,7 @@
             }
         },
 
-        "ComboData":{
+        "CombosData":{
             "methods":{
                 "getTableList": {
                     "len": 1

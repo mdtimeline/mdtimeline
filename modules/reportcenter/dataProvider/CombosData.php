@@ -19,6 +19,9 @@
 
 class CombosData
 {
+
+    private $TransactionLog;
+
     /**
      * getTableList
      * Used by TransactionLog report, this will return a list of distinct tables in the transaction log.

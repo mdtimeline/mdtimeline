@@ -1707,4 +1707,5 @@ $LANG = array(
     'trigger_code'                          => 'Trigger Code',
     'description_code'                      => 'Description Code',
     'description_code_type'                 => 'Description Code Type',
+	'show_log'                              => 'Show Log'
 );

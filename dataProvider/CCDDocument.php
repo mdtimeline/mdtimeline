@@ -86,7 +86,7 @@ class CCDDocument extends CDDDocumentBase
     /**
      * Method setHeader()
      */
-    private function setHeader()
+    public function setHeader()
     {
         $this->xmlData['realmCode'] = [
             '@attributes' => [
@@ -202,7 +202,7 @@ class CCDDocument extends CDDDocumentBase
      *
      * @return array
      */
-    private function getRecordTarget() {
+    public function getRecordTarget() {
         $patientData = $this->patientData;
         $Insurance = new Insurance();
         $insuranceData = $Insurance->getPatientPrimaryInsuranceByPid($this->pid);
@@ -434,7 +434,7 @@ class CCDDocument extends CDDDocumentBase
      *
      * @return array
      */
-    private function getAuthor()
+    public function getAuthor()
     {
         $author = [
             'time' => [
@@ -528,7 +528,7 @@ class CCDDocument extends CDDDocumentBase
      *
      * @return array
      */
-    private function getCustodian()
+    public function getCustodian()
     {
         $custodian = [
             'assignedCustodian' => [
@@ -569,7 +569,7 @@ class CCDDocument extends CDDDocumentBase
      *
      * @return array
      */
-    private function getInformationRecipient()
+    public function getInformationRecipient()
     {
 
         $recipient = [
@@ -599,7 +599,7 @@ class CCDDocument extends CDDDocumentBase
      *
      * @return array
      */
-    private function getAuthenticator()
+    public function getAuthenticator()
     {
         $authenticator = [
             'time' => [
@@ -646,7 +646,7 @@ class CCDDocument extends CDDDocumentBase
      * Method getDocumentationOf()
      * @return array
      */
-    private function getDocumentationOf()
+    public function getDocumentationOf()
     {
 
         if($this->eid != null){
@@ -917,7 +917,7 @@ class CCDDocument extends CDDDocumentBase
      *
      * @return mixed
      */
-    private function getComponentOf()
+    public function getComponentOf()
     {
         $componentOf['encompassingEncounter'] = [
             'id' => [
@@ -1011,7 +1011,7 @@ class CCDDocument extends CDDDocumentBase
      * Method getInformant()
      * @return array
      */
-    private function getInformant()
+    public function getInformant()
     {
         $informant = [];
 
@@ -1049,7 +1049,7 @@ class CCDDocument extends CDDDocumentBase
      *
      * @return array
      */
-    private function getDataEnterer()
+    public function getDataEnterer()
     {
         $dataEnterer['assignedEntity']['id']['@attributes'] = [
             'root' => '2.16.840.1.113883.4.6',
@@ -1081,7 +1081,7 @@ class CCDDocument extends CDDDocumentBase
      * @param $uid
      * @return array|bool
      */
-    private function getPerformerByUid($uid)
+    public function getPerformerByUid($uid)
     {
         $User = new User();
         $user = $User->getUser($uid);
@@ -1153,12 +1153,12 @@ class CCDDocument extends CDDDocumentBase
      * Method addSection()
      * @param $section
      */
-    private function addSection($section)
+    public function addSection($section)
     {
         $this->xmlData['component']['structuredBody']['component'][] = $section;
     }
 
-    private function setReasonOfVisitSection()
+    public function setReasonOfVisitSection()
     {
         if(isset($this->encounter)){
             $reason = [
@@ -1182,60 +1182,75 @@ class CCDDocument extends CDDDocumentBase
         }
     }
 
-    private function setInstructionsSection()
+    public function setInstructionsSection()
     {
-        if(isset($this->encounter)){
-            $soap = $this->Encounter->getSoapByEid($this->encounter['eid']);
-
-            $instructions = [
-                'templateId' => [
-                    '@attributes' => [
-                        'root' => '2.16.840.1.113883.10.20.22.2.45'
-                    ]
+        $Encounter = new Encounter();
+        $params = new stdClass();
+        $params->filter[0] = new stdClass();
+        $tempSoap = '';
+        if($this->eid == null)
+        {
+            $params->filter[0]->property = 'pid';
+            $params->filter[0]->value = $this->pid;
+            $allEncounters = $Encounter->getEncounters($params, false, false);
+            foreach($allEncounters as $encounter) {
+                $soap = $this->Encounter->getSoapByEid($encounter['eid']);
+                $tempSoap .= $soap['instructions'] . ' ';
+            }
+        } elseif(is_numeric($this->eid)) {
+            $params->filter[0]->property = 'eid';
+            $params->filter[0]->value = $this->eid;
+            $encounter = $Encounter->getEncounter($params, false, false);
+            $soap = $this->Encounter->getSoapByEid($encounter['eid']);
+            $tempSoap = $soap['instructions'];
+        }
+        $instructions = [
+            'templateId' => [
+                '@attributes' => [
+                    'root' => '2.16.840.1.113883.10.20.22.2.45'
+                ]
+            ],
+            'code' => [
+                '@attributes' => [
+                    'code' => '69730-0',
+                    'codeSystem' => '2.16.840.1.113883.6.1',
+                    'codeSystemName' => 'LOINC',
+                    'displayName' => 'Instructions'
+                ]
+            ],
+            'title' => 'Instructions',
+            'text' => $tempSoap,
+            'entry' => [
+                '@attributes' => [
+                    'nullFlavor' => 'NA'
                 ],
-                'code' => [
+                'act' => [
                     '@attributes' => [
-                        'code' => '69730-0',
-                        'codeSystem' => '2.16.840.1.113883.6.1',
-                        'codeSystemName' => 'LOINC',
-                        'displayName' => 'Instructions'
-                    ]
-                ],
-                'title' => 'Instructions',
-                'text' => $soap['instructions'],
-                'entry' => [
-                    '@attributes' => [
-                        'nullFlavor' => 'NA'
+                        'classCode' => 'ACT',
+                        'moodCode' => 'INT'
                     ],
-                    'act' => [
+                    'templateId' => [
                         '@attributes' => [
-                            'classCode' => 'ACT',
-                            'moodCode' => 'INT'
-                        ],
-                        'templateId' => [
-                            '@attributes' => [
-                                'root' => '2.16.840.1.113883.10.20.22.4.20'
-                            ]
-                        ],
-                        'code' => [
-                            '@attributes' => [
-                                'nullFlavor' => 'NA'
-                            ]
-                        ],
-                        'statusCode' => [
-                            '@attributes' => [
-                                'nullFlavor' => 'NA'
-                            ]
+                            'root' => '2.16.840.1.113883.10.20.22.4.20'
+                        ]
+                    ],
+                    'code' => [
+                        '@attributes' => [
+                            'nullFlavor' => 'NA'
+                        ]
+                    ],
+                    'statusCode' => [
+                        '@attributes' => [
+                            'nullFlavor' => 'NA'
                         ]
                     ]
                 ]
-            ];
-
-            $this->addSection(['section' => $instructions]);
-        }
+            ]
+        ];
+        $this->addSection(['section' => $instructions]);
     }
 
-    private function setReasonForReferralSection()
+    public function setReasonForReferralSection()
     {
         if(isset($this->encounter) && !empty($referral['refer_to'])) {
 
@@ -1281,7 +1296,7 @@ class CCDDocument extends CDDDocumentBase
     /**
      * Method setProceduresSection()
      */
-    private function setProceduresSection() {
+    public function setProceduresSection() {
 
         $Procedures = new Procedures();
         $proceduresData = $Procedures->getPatientProceduresByPid($this->pid);
@@ -1347,7 +1362,7 @@ class CCDDocument extends CDDDocumentBase
                 $procedures['text']['table']['tbody']['tr'][] = [
                     'td' => [
                         [
-                            '@value' => $item['code_text']
+                            '@value' => $this->clean($item['code_text'])
                         ],
                         [
                             '@value' => $this->parseDateToText($item['create_date'])
@@ -1380,7 +1395,7 @@ class CCDDocument extends CDDDocumentBase
                             '@attributes' => [
                                 'code' => $item['code'],
                                 'codeSystem' => $this->codes($item['code_type']),
-                                'displayName' => $item['code_text']
+                                'displayName' => $this->clean($item['code_text'])
                             ]
                         ],
                         'statusCode' => [
@@ -1427,7 +1442,7 @@ class CCDDocument extends CDDDocumentBase
      * Vital signs are represented in the same way as other results, but are aggregated into their own section
      * to follow clinical conventions.
      */
-    private function setVitalsSection() {
+    public function setVitalsSection() {
         $Vitals = new Vitals();
         $vitalsData = $Vitals->getVitalsByPid($this->pid);
 
@@ -1826,7 +1841,7 @@ class CCDDocument extends CDDDocumentBase
     /**
      * Method setImmunizationsSection()
      */
-    private function setImmunizationsSection() {
+    public function setImmunizationsSection() {
 
         $Immunizations = new Immunizations();
         $immunizationsData = $Immunizations->getPatientImmunizationsByPid($this->pid);
@@ -2088,7 +2103,7 @@ class CCDDocument extends CDDDocumentBase
      * The section can describe a patient's prescription and dispense history and information about
      * intended drug monitoring.
      */
-    private function setMedicationsSection() {
+    public function setMedicationsSection() {
 
         $Medications = new Medications();
         $medicationsData = $Medications->getPatientActiveMedicationsByPid($this->pid, false);
@@ -2351,7 +2366,7 @@ class CCDDocument extends CDDDocumentBase
      * The section may also contain the procedure's encounter or other activity, excluding anesthetic medications.
      * This section is not intended for ongoing medications and medication history.
      */
-    private function setMedicationsAdministeredSection() {
+    public function setMedicationsAdministeredSection() {
 
         $Medications = new Medications();
         $medicationsData = $Medications->getPatientAdministeredMedicationsByPidAndEid($this->pid, $this->eid);
@@ -2588,6 +2603,11 @@ class CCDDocument extends CDDDocumentBase
                     '@attributes' => [
                         'typeCode' => 'PRCN'
                     ],
+                    'templateId' => [
+                        '@attributes' => [
+                            'root' => '2.16.840.1.113883.10.20.22.4.25.1.2'
+                        ]
+                    ],
                     'criterion' => [
                         'code' => [
                             '@attributes' => [
@@ -2645,7 +2665,7 @@ class CCDDocument extends CDDDocumentBase
      * •  Provides a header participant to indicate occurrences of Care Plan review
      *
      */
-    private function setCareOfPlanSection(){
+    public function setCareOfPlanSection(){
 
         if(!$this->requiredCareOfPlan) return;
 
@@ -3159,7 +3179,7 @@ class CCDDocument extends CDDDocumentBase
     /**
      * Method setPlanOfCareSection() TODO
      */
-    private function setPlanOfCareSection() {
+    public function setPlanOfCareSection() {
 
         // Table moodCode Values
         // -----------------------------------------------------------------------
@@ -3263,8 +3283,8 @@ class CCDDocument extends CDDDocumentBase
                     $planOfCare['text']['table']['tbody']['tr'][] = [
                         'td' => [
                             [
-                                '@value' => 'Referral: '.$referral['referal_reason'].', '.$referral['refer_to_text'].chr(13).
-                                'Tel: '.$referralProviderInformation['phone_number'].chr(13)
+                                '@value' => 'Referral: '.$this->clean($referral['referal_reason']).', '.$this->clean($referral['refer_to_text']).
+                                'Tel: '.$referralProviderInformation['phone_number']
                             ],
                             [
                                 '@value' => $referral['referral_date']
@@ -3290,7 +3310,7 @@ class CCDDocument extends CDDDocumentBase
                             ],
                             'code' => [
                                 '@attributes' => [
-                                    'displayName' => $referral['referal_reason'],
+                                    'displayName' =>  $this->clean($referral['referal_reason']),
                                     'codeSystem' => '2.16.840.1.113883.6.96',
                                     'code' => 'NA'
                                 ]
@@ -3332,7 +3352,7 @@ class CCDDocument extends CDDDocumentBase
                             ],
                             'code' => [
                                 '@attributes' => [
-                                    'displayName' => $referral['referal_reason'],
+                                    'displayName' => $this->clean($referral['referal_reason']),
                                     'codeSystem' => '2.16.840.1.113883.6.96',
                                     'code' => 'NA'
                                 ]
@@ -3364,7 +3384,7 @@ class CCDDocument extends CDDDocumentBase
                 $planOfCare['text']['table']['tbody']['tr'][] = [
                     'td' => [
                         [
-                            '@value' => isset($item['description']) ? 'Observation: '.$item['description'] : ''
+                            '@value' => isset($item['description']) ? 'Observation: '.$this->clean($item['description']) : ''
                         ],
                         [
                             '@value' => $this->parseDate($item['date_ordered'])
@@ -3395,7 +3415,7 @@ class CCDDocument extends CDDDocumentBase
                                 'code' => $item['code'],
                                 'codeSystemName' => $item['code_type'],
                                 'codeSystem' => $this->codes($item['code_type']),
-                                'displayName' => $item['description']
+                                'displayName' => $this->clean($item['description'])
                             ]
                         ],
                         'statusCode' => [
@@ -3415,16 +3435,15 @@ class CCDDocument extends CDDDocumentBase
             }
 
             /**
-             * Appointments
+             * Appointments1
              */
             foreach($planOfCareData['APPOINTMENTS'] as $item){
                 $planOfCare['text']['table']['tbody']['tr'][] = [
                     'td' => [
                         [
-                            '@value' => 'Appointments: '.$item['notes']
+                            '@value' => 'Appointments: '.$this->clean($item['notes'])
                         ],
                         [
-
                             '@value' => $this->parseDate($item['requested_date'])
                         ]
                     ]
@@ -3450,7 +3469,7 @@ class CCDDocument extends CDDDocumentBase
                                 'code' => $item['procedure1_code'],
                                 'codeSystemName' => $item['procedure1_code_type'],
                                 'codeSystem' => $this->codes($item['procedure1_code_type']),
-                                'displayName' => $item['notes'],
+                                'displayName' => $this->clean($item['notes']),
                             ]
                         ],
                         'statusCode' => [
@@ -3476,7 +3495,7 @@ class CCDDocument extends CDDDocumentBase
                 $planOfCare['text']['table']['tbody']['tr'][] = [
                     'td' => [
                         [
-                            '@value' => 'Goal: '.$item['goal'].', Instructions:'.$item['instructions']
+                            '@value' => 'Goal: '.$this->clean($item['goal']).', Instructions:'.$this->clean($item['instructions'])
                         ],
                         [
                             '@value' => $this->parseDate($item['plan_date'])
@@ -3505,7 +3524,7 @@ class CCDDocument extends CDDDocumentBase
                                 'code' => $item['goal_code'],
                                 'codeSystemName' => $item['goal_code_type'],
                                 'codeSystem' => $this->codes($item['goal_code_type']),
-                                'displayName' => htmlentities($item['goal']),
+                                'displayName' => $this->clean($item['goal']),
                             ]
                         ],
                         'statusCode' => [
@@ -3538,7 +3557,7 @@ class CCDDocument extends CDDDocumentBase
      * At a minimum, all pertinent current and historical problems should be listed.  Overall health status may
      * be represented in this section.
      */
-    private function setProblemsSection() {
+    public function setProblemsSection() {
 
         $ActiveProblems = new ActiveProblems();
         $problemsData = $ActiveProblems->getPatientAllProblemsByPid($this->pid);
@@ -3952,7 +3971,7 @@ class CCDDocument extends CDDDocumentBase
     /**
      * Method setAllergiesSection()
      */
-    private function setAllergiesSection() {
+    public function setAllergiesSection() {
         $Allergies = new Allergies();
 
         $allergiesData = $Allergies->getPatientAllergiesByPid($this->pid);
@@ -4332,7 +4351,7 @@ class CCDDocument extends CDDDocumentBase
                 } else {
                     $entryRelationship['observation']['effectiveTime']['low'] = [
                         '@attributes' => [
-                            'nullFLavor' => 'UNK'
+                            'nullFlavor' => 'UNK'
                         ]
                     ];
                 }
@@ -4456,7 +4475,7 @@ class CCDDocument extends CDDDocumentBase
     /**
      * Method setSocialHistorySection()
      */
-    private function setSocialHistorySection() {
+    public function setSocialHistorySection() {
 
         $SocialHistory = new SocialHistory();
 
@@ -4751,7 +4770,7 @@ class CCDDocument extends CDDDocumentBase
      * component observations made during  a procedure, such as where a gastroenterologist reports the size
      * of a polyp observed during a colonoscopy.
      */
-    private function setResultsSection() {
+    public function setResultsSection() {
 
         $Orders = new Orders();
         $resultsData = $Orders->getOrderWithResultsByPid($this->pid);
@@ -4803,7 +4822,7 @@ class CCDDocument extends CDDDocumentBase
                         [
                             'th' => [
                                 [
-                                    '@value' => 'Results: '.$item['description']
+                                    '@value' => 'Results: '.$this->clean($item['description'])
                                 ],
                                 [
                                     '@value' => $this->parseDateToText($item['result']['result_date'])
@@ -5030,7 +5049,7 @@ class CCDDocument extends CDDDocumentBase
      *
      * TODO: Need some finishing...
      */
-    private function setFunctionalStatusSection() {
+    public function setFunctionalStatusSection() {
 
         $CognitiveAndFunctionalStatus = new CognitiveAndFunctionalStatus();
         $functionalStatusData = $CognitiveAndFunctionalStatus->getPatientCognitiveAndFunctionalStatusesByPid($this->pid);
@@ -5217,7 +5236,7 @@ class CCDDocument extends CDDDocumentBase
      * This section may contain all encounters for the time period being summarized, but should
      * include notable encounters.
      */
-    private function setEncountersSection() {
+    public function setEncountersSection() {
 
         $filters = new stdClass();
         $filters->filter[0] = new stdClass();
@@ -5258,6 +5277,8 @@ class CCDDocument extends CDDDocumentBase
 		$codes = [];
         $DecisionAids = new DecisionAids();
 	    $decisionAids = $DecisionAids->getDecisionAidsByTriggerCodes($codes);
+
+	    if(empty($decisionAids)) return;
 
         if(!empty($encountersData)){
             $encounters['text'] = [
@@ -5309,7 +5330,7 @@ class CCDDocument extends CDDDocumentBase
                             '@value' => ''
                         ],
                         [
-                            '@value' => 'Decision Aids: '.isset($decisionAids[0]['instruction_code_description']) ? $decisionAids[0]['instruction_code_description'] : ''
+                            '@value' => 'Decision Aids: '.isset($decisionAids[0]['instruction_code_description']) ? $this->clean($decisionAids[0]['instruction_code_description']) : ''
                         ],
                         [
                             '@value' => $providerInfo['fname'].' '.$providerInfo['mname'].' '.$providerInfo['lname']
@@ -5347,18 +5368,6 @@ class CCDDocument extends CDDDocumentBase
                         [
                             '@value' => (empty($encounter['close_date']) || $encounter['close_date'] == '0000-00-00') ? 'Active' : 'Inactive'
                         ]
-                    ]
-                ];
-
-                $entry['encounter']['templateId'][] =[
-                    '@attributes' => [
-                        'root' => '2.16.840.1.113883.10.20.22.4.49'
-                    ]
-                ];
-
-                $entry['encounter']['templateId'][] =[
-                    '@attributes' => [
-                        'root' => '2.16.840.1.113883.10.20.24.3.23'
                     ]
                 ];
 
@@ -5445,18 +5454,6 @@ class CCDDocument extends CDDDocumentBase
                                         'code' => 'completed'
                                     ]
                                 ],
-                                'effectiveTime' => [
-                                    'low' => [
-                                        '@attributes' => [
-                                            'value' => $this->parseDate($encounter['service_date'])
-                                        ]
-                                    ],
-                                    'high' => [
-                                        '@attributes' => [
-                                            'value' => $this->parseDate($encounter['close_date'])
-                                        ]
-                                    ]
-                                ],
                                 'entryRelationship' => [
                                     '@attributes' => [
                                         'typeCode' => 'SUBJ'
@@ -5488,18 +5485,6 @@ class CCDDocument extends CDDDocumentBase
                                         'statusCode' => [
                                             '@attributes' => [
                                                 'code' => 'completed'
-                                            ]
-                                        ],
-                                        'effectiveTime' => [
-                                            'low' => [
-                                                '@attributes' => [
-                                                    'value' => $this->parseDate($encounter['service_date'])
-                                                ]
-                                            ],
-                                            'high' => [
-                                                '@attributes' => [
-                                                    'value' => $this->parseDate($encounter['close_date'])
-                                                ]
                                             ]
                                         ],
                                         'value' => [
@@ -5544,18 +5529,6 @@ class CCDDocument extends CDDDocumentBase
                                                         'code' => 'completed'
                                                     ]
                                                 ],
-                                                'effectiveTime' => [
-                                                    'low' => [
-                                                        '@attributes' => [
-                                                            'value' => $this->parseDate($encounter['service_date'])
-                                                        ]
-                                                    ],
-                                                    'high' => [
-                                                        '@attributes' => [
-                                                            'value' => $this->parseDate($encounter['close_date'])
-                                                        ]
-                                                    ]
-                                                ],
                                                 'value' => [
                                                     '@attributes' => [
                                                         'xsi:type' => 'CD',
@@ -5573,6 +5546,42 @@ class CCDDocument extends CDDDocumentBase
                         ]
                     ]
                 ];
+
+                $entry['encounter']['templateId'][] =[
+                    '@attributes' => [
+                        'root' => '2.16.840.1.113883.10.20.22.4.49'
+                    ]
+                ];
+
+                $entry['encounter']['templateId'][] =[
+                    '@attributes' => [
+                        'root' => '2.16.840.1.113883.10.20.24.3.23'
+                    ]
+                ];
+
+                $entry['encounter']['entryRelationship']['act']['entryRelationship']['observation']['effectiveTime']['low'] = [
+                    '@attributes' => [
+                        'value' => $this->parseDate($encounter['service_date'])
+                    ]
+                ];
+                $entry['encounter']['entryRelationship']['act']['entryRelationship']['observation']['entryRelationship']['observation']['effectiveTime']['low'] = [
+                    '@attributes' => [
+                        'value' => $this->parseDate($encounter['service_date'])
+                    ]
+                ];
+                if(!empty($encounter['close_date'])){
+                    $entry['encounter']['entryRelationship']['act']['entryRelationship']['observation']['effectiveTime']['high'] = [
+                        '@attributes' => [
+                            'value' => $this->parseDate($encounter['close_date'])
+                        ]
+                    ];
+                    $entry['encounter']['entryRelationship']['act']['entryRelationship']['observation']['entryRelationship']['observation']['effectiveTime']['high'] = [
+                        '@attributes' => [
+                            'value' => $this->parseDate($encounter['close_date'])
+                        ]
+                    ];
+                }
+
                 $encounters['entry'][] = $entry;
             }
         }

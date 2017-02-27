@@ -53,7 +53,7 @@ Ext.define('Modules.reportcenter.reports.TransactionLog.ux.ComboTable', {
             proxy: {
                 type: 'direct',
                 api: {
-                    read: 'CombosData.getTableList'
+                    read: 'ReportcenterCombosData.getTableList'
                 }
             },
             idProperty: 'table_name'

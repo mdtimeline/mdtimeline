@@ -443,9 +443,9 @@ class CDDDocumentBase
              */
             foreach($sections AS $Section){
                 call_user_func([
-                                   $this,
-                                   "set{$Section}Section"
-                               ]);
+                       $this,
+                       "set{$Section}Section"
+                   ]);
             }
 
             /**
@@ -467,6 +467,23 @@ class CDDDocumentBase
         } catch(Exception $Error) {
             error_log($Error->getMessage());
         }
+    }
+
+    /**
+     * clean from html characters and html tags
+     * @param $string
+     * @return string
+     */
+    public function clean($string){
+        // Pass 1
+        $cleanIt = html_entity_decode($string);
+        // Pass 2
+        $cleanIt = strip_tags($cleanIt);
+        // Pass 3
+        $cleanIt = preg_replace("/&#?[a-z0-9]{2,8};/i", "", $cleanIt);
+        // Pass 4
+        $cleanIt = preg_replace("/\p{Cc}+/u", "", $cleanIt);
+        return $cleanIt;
     }
 
     /**
@@ -508,7 +525,7 @@ class CDDDocumentBase
             $document->note = '';
             $document->title = 'C-CDA';
             $document->encrypted = 0;
-            $document->document = base64_encode($xml);
+            $document->document = base64_encode(html_entity_decode(strip_tags($xml)));
             include_once(ROOT . '/dataProvider/DocumentHandler.php');
             $DocumentHandler = new DocumentHandler();
             $DocumentHandler->addPatientDocument($document);
@@ -544,7 +561,7 @@ class CDDDocumentBase
             // remember unique item
             $_data[$v[$key]] = $v;
         }
-        // if you need a zero-based array, otheriwse work with $_data
+        // if you need a zero-based array, otherwise work with $_data
         $data = array_values($_data);
         return $data;
     }
@@ -577,7 +594,7 @@ class CDDDocumentBase
 
             if($return){
                 $handle = fopen($file, "r");
-                $data = fread($handle, filesize($file));
+                $data = html_entity_decode(strip_tags(fread($handle, filesize($file))));
                 fclose($handle);
 
                 $fileData = [];

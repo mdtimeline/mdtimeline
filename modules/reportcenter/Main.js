@@ -20,7 +20,8 @@ Ext.define('Modules.reportcenter.Main', {
 	extend: 'Modules.Module',
 
 	requires:[
-		'Modules.reportcenter.view.ReportCenter'
+		'Modules.reportcenter.view.ReportCenter',
+        'Modules.reportcenter.reports.TransactionLog.ux.ComboTable'
 	],
 
 	init: function(){
@@ -44,4 +45,4 @@ Ext.define('Modules.reportcenter.Main', {
 
 		me.callParent();
 	}
-}); 
+});

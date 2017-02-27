@@ -20,7 +20,6 @@
 header('Content-type: text/html; charset=utf-8');
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
-//header("Expires: 0"); // Proxies.
 
 if(!isset($_SESSION)){
     session_cache_limiter('private');
@@ -82,216 +81,6 @@ class CCDDocument extends CDDDocumentBase
         $this->TransactionLog = new TransactionLog();
         $this->PatientContacts = new PatientContacts();
         $this->facility = $this->Facilities->getCurrentFacility(true);
-    }
-
-    /**
-     * Method buildCCD()
-     */
-    public function createCCD()
-    {
-        try {
-
-            if(!isset($this->pid)) throw new Exception('PID variable not set');
-
-            $this->xmlData = [
-                '@attributes' => [
-                    'xmlns' => 'urn:hl7-org:v3',
-                    'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
-                    'xsi:schemaLocation' => 'urn:hl7-org:v3 CDA.xsd'
-                ]
-            ];
-
-            /**
-             * Note: In here we need to detect, if the user requested compile all the encounters
-             */
-            if(isset($this->eid)){
-                $this->encounter = $this->Encounter->getEncounter((int)$this->eid, false, false);
-                $this->encounter = isset($this->encounter['encounter']) ? $this->encounter['encounter'] : $this->encounter;
-                $this->encounterProvider = $this->User->getUserByUid($this->encounter['provider_uid']);
-                $this->encounterFacility = $this->Facilities->getFacility($this->encounter['facility']);
-            }
-
-            $this->setRequirements();
-            $this->setHeader();
-
-            /**
-             * Array of sections to include in CCD
-             */
-            $sections = [
-                'ReasonOfVisit',
-                'Instructions',
-                'ReasonForReferral',
-                'Procedures',
-                'Vitals',
-                'Immunizations',
-                'Medications',
-                'MedicationsAdministered',
-                'PlanOfCare',
-                'CareOfPlan',
-                'Problems',
-                'Allergies',
-                'SocialHistory',
-                'Results',
-                'FunctionalStatus',
-                'Encounters'
-            ];
-
-            /**
-             * Run Section method for each section
-             */
-            foreach($sections AS $Section){
-                call_user_func([
-                   $this,
-                   "set{$Section}Section"
-               ]);
-            }
-
-            /**
-             * Build the CCR XML Object
-             */
-            if(stripos(URL, '?')){
-                $DeleteQuery = substr(URL, stripos(URL, '?'));
-                $URL = str_replace($DeleteQuery, "", URL);
-            } else {
-                $URL = URL;
-            }
-            Array2XML::init(
-                '1.0',
-                'UTF-8',
-                true,
-                ['xml-stylesheet' => 'type="text/xsl" href="'.$URL.'/lib/CCRCDA/schema/cda2.xsl"']
-            );
-            $this->xml = Array2XML::createXML('ClinicalDocument', $this->xmlData);
-        } catch(Exception $Error) {
-            error_log($Error->getMessage());
-        }
-    }
-
-    /**
-     * Method view()
-     */
-    public function view()
-    {
-        try {
-            header('Content-type: application/xml');
-            print $this->xml->saveXML();
-        } catch(Exception $Error) {
-            error_log($Error->getMessage());
-        }
-    }
-
-    /**
-     * Method view()
-     */
-    public function archive()
-    {
-        try {
-            header('Content-type: application/xml');
-            $xml = $this->xml->saveXML();
-            $name = $this->getFileName() . '.xml';
-            $date = date('Y-m-d H:i:s');
-            $document = new stdClass();
-            $document->pid = $this->pid;
-            $document->eid = $this->eid;
-            $document->uid = $_SESSION['user']['id'];
-            $document->docType = 'C-CDA';
-            $document->name = $name;
-            $document->date = $date;
-            $document->note = '';
-            $document->title = 'C-CDA';
-            $document->encrypted = 0;
-            $document->document = base64_encode($xml);
-            include_once(ROOT . '/dataProvider/DocumentHandler.php');
-            $DocumentHandler = new DocumentHandler();
-            $DocumentHandler->addPatientDocument($document);
-            unset($DocumentHandler, $document, $name, $date);
-            print $xml;
-        } catch(Exception $Error) {
-            error_log($Error->getMessage());
-        }
-    }
-
-    /**
-     * Method get()
-     */
-    public function get()
-    {
-        try {
-            return $this->xml->saveXML();
-        } catch(Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    /**
-     * Method export()
-     * @param bool $return
-     * @return array
-     */
-    public function export($return = false)
-    {
-        try {
-            // Create a ZIP archive for delivery
-            $dir = site_temp_path . '/';
-            $filename = $this->getFileName();
-            $file = $this->zipIt($dir, $filename);
-            $filename .= '.zip';
-
-            if($return){
-                $handle = fopen($file, "r");
-                $data = fread($handle, filesize($file));
-                fclose($handle);
-
-                $fileData = [];
-                $fileData['filename'] = $filename;
-                $fileData['data'] = $data;
-                unlink($file);
-                return $fileData;
-            }
-
-            // Stream the file to the client
-            header('Content-Type: application/zip');
-            header('Content-Length: ' . filesize($file));
-            header('Content-Disposition: attachment; filename="' . $filename . '"');
-            readfile($file);
-            unlink($file);
-        } catch(Exception $Error) {
-            error_log($Error->getMessage());
-        }
-    }
-
-    /**
-     * Method save()
-     * @param $toDir
-     * @param $fileName
-     */
-    public function save($toDir, $fileName)
-    {
-        try {
-            $filename = $fileName ? $fileName : $this->getFileName();
-            $this->zipIt($toDir, $filename);
-        } catch(Exception $e) {
-            print $e->getMessage();
-        }
-    }
-
-    /**
-     * Method setRequirements()
-     */
-    private function setRequirements()
-    {
-        if($this->template == 'toc'){
-            $this->requiredAllergies = true;
-            $this->requiredVitals = true;
-            $this->requiredImmunization = true;
-            $this->requiredMedications = true;
-            $this->requiredProblems = true;
-            $this->requiredProcedures = true;
-            $this->requiredPlanOfCare = true;
-            $this->requiredCareOfPlan = true;
-            $this->requiredResults = true;
-            $this->requiredEncounters = false;
-        }
     }
 
     /**
@@ -860,7 +649,7 @@ class CCDDocument extends CDDDocumentBase
     private function getDocumentationOf()
     {
 
-        if($this->allProviders == 'false'){
+        if($this->eid != null){
 
             $documentationOf = [
                 'serviceEvent' => [
@@ -3756,9 +3545,9 @@ class CCDDocument extends CDDDocumentBase
 
         $EncounterDiagnostics = new Encounter();
         $diagnosticsData = [];
-        if($this->allProviders == 'false' && $this->eid != null){
-            $params = new stdClass();
-            $params->filter[0] = new stdClass();
+        $params = new stdClass();
+        $params->filter[0] = new stdClass();
+        if(is_numeric($this->eid)){
             $params->filter[0]->property = 'eid';
             $params->filter[0]->value = $this->eid;
             $diagnosticsData = $EncounterDiagnostics->getEncounterDxs($params);
@@ -3766,9 +3555,7 @@ class CCDDocument extends CDDDocumentBase
                 $tempEncounter = $EncounterDiagnostics->getEncounter($this->eid, false, false);
                 $diagnosticsData['encounter'] = $tempEncounter['encounter'];
             }
-        } elseif($this->allProviders == 'true' ) {
-            $params = new stdClass();
-            $params->filter[0] = new stdClass();
+        } elseif($this->eid == null) {
             $params->filter[0]->property = 'pid';
             $params->filter[0]->value = $this->pid;
             $diagnosticsData = $EncounterDiagnostics->getEncounterDxs($params);
@@ -5437,7 +5224,7 @@ class CCDDocument extends CDDDocumentBase
         if(isset($this->eid)){
             $filters->filter[0]->property = 'eid';
             $filters->filter[0]->value = $this->eid;
-        }elseif($this->eid == 'null'){
+        }elseif($this->eid == null){
             $filters->filter[0]->property = 'pid';
             $filters->filter[0]->value = $this->pid;
         }else{
@@ -5563,6 +5350,18 @@ class CCDDocument extends CDDDocumentBase
                     ]
                 ];
 
+                $entry['encounter']['templateId'][] =[
+                    '@attributes' => [
+                        'root' => '2.16.840.1.113883.10.20.22.4.49'
+                    ]
+                ];
+
+                $entry['encounter']['templateId'][] =[
+                    '@attributes' => [
+                        'root' => '2.16.840.1.113883.10.20.24.3.23'
+                    ]
+                ];
+
                 $entry = [
                     '@attributes' => [
                         'typeCode' => 'DRIV'
@@ -5571,16 +5370,6 @@ class CCDDocument extends CDDDocumentBase
                         '@attributes' => [
                             'classCode' => 'ENC',
                             'moodCode' => 'EVN'
-                        ],
-                        'templateId' => [
-                            '@attributes' => [
-                                'root' => '2.16.840.1.113883.10.20.22.4.49'
-                            ]
-                        ],
-                        'templateId' => [
-                            '@attributes' => [
-                                'root' => '2.16.840.1.113883.10.20.24.3.23'
-                            ]
                         ],
                         'id' => [
                             '@attributes' => [
@@ -5639,7 +5428,9 @@ class CCDDocument extends CDDDocumentBase
                                     ]
                                 ],
                                 'id' =>[
-                                    '@attributes' => UUID::v4()
+                                    '@attributes' => [
+                                        'root' => UUID::v4()
+                                    ]
                                 ],
                                 'code' => [
                                     '@attributes' => [
@@ -5808,7 +5599,7 @@ if(isset($_REQUEST['pid']) && isset($_REQUEST['action'])){
         if(isset($_REQUEST['eid'])) $ccd->setEid($_REQUEST['eid']);
         if(isset($_REQUEST['pid'])) $ccd->setPid($_REQUEST['pid']);
         if(isset($_REQUEST['exclude'])) $ccd->setExcludes($_REQUEST['exclude']);
-        if(isset($_REQUEST['allprov'])) $ccd->setAllProviders($_REQUEST['allprov']);
+
         $ccd->setTemplate('toc');
         $ccd->createCCD();
 

@@ -4,7 +4,7 @@
 	"version":"1.0.0",
 	"extjs_version":"4.1.1",
 	"author":"Gino Rivera Falú",
-	"description":"GaiaEHR Available Report.",
+	"description":"mdTimeLine EHR Available Report.",
 	"dir":"reportcenter",
 	"active":true,
 	"debug":false,
@@ -15,17 +15,25 @@
 	"actionsAPI":{
 
         "ReportGenerator": {
-        "methods":{
-          "buildDataGrid": {
-            "len": 1
-          },
-          "dispatchReportData": {
-            "len":  1
-          },
-          "dispatchReportFilterPanel": {
-            "len":  1
-          }
-        }
+            "methods":{
+                "buildDataGrid": {
+                    "len": 1
+                },
+                "dispatchReportData": {
+                    "len":  1
+                },
+                "dispatchReportFilterPanel": {
+                    "len":  1
+                }
+            }
+        },
+
+        "ComboData":{
+            "methods":{
+                "getTableList": {
+                    "len": 1
+                }
+            }
         },
 
         "ReportList":{

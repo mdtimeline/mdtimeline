@@ -328,7 +328,8 @@ Ext.define('App.view.patient.Patient', {
 											name: 'language',
 											list: 10,
 											loadStore: true,
-											editable: false
+											editable: false,
+											displayTpl: Ext.create('Ext.XTemplate', '<tpl for=".">', '{option_name} ({option_value})', '</tpl>')
 										}
 									]
 								},

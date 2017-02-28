@@ -251,7 +251,6 @@ class ReportGenerator
 
                 $parameters = $reportParameters;
                 foreach ($parameters as $field) {
-
                 	$operator = isset($field['operator']) ? $field['operator'] : '=';
                 	$value = isset($field['value']) ? $field['value'] : '';
 
@@ -266,7 +265,6 @@ class ReportGenerator
 	                // This because we need to do a POST-PREPARE the SQL statement
 	                $ReturnFilter[$field['name']]['operator'] = $operator;
 	                $ReturnFilter[$field['name']]['value'] = $value;
-
                 }
 
                 // Prepare all the variable fields in the SQL Statement
@@ -276,10 +274,13 @@ class ReportGenerator
                 // Run all the SQL Statement separated by `;` in the file
                 $records = null;
                 foreach ($Queries as $Query) {
-                    if (strlen(trim($Query)) > 0) {
+                    $Query = trim($Query);
+                    if (strlen($Query) > 0) {
                         // Is just a SET @ variable, if yes query but not try to
-                        // fetch any records. SET does not return any dataSet
+                        // fetch any records. SET does not return any dataSet;
                         if (self::__checkIfVariable($Query)) {
+                            error_log(print_r('Variable',true));
+                            error_log(print_r($Query,true));
                             $this->conn->query($Query);
                         } else {
                             // Check if the page configuration exists, if yes try to look
@@ -319,6 +320,9 @@ class ReportGenerator
                                 $SQL->execute();
                                 $ResultRecords[] = $SQL->fetchAll(\PDO::FETCH_ASSOC);
 
+                                error_log(print_r('Actual Query:',true));
+                                error_log(print_r($Query,true));
+
                                 // Get the totals
                                 $SQL = $this->conn->prepare(str_ireplace(
                                     ':ux-pagination',
@@ -330,6 +334,8 @@ class ReportGenerator
                                 $records[] = $SQL->fetchAll();
                                 $Total = count($records[count($records) - 1]);
                             } else {
+                                error_log(print_r('Actual Query:',true));
+                                error_log(print_r($Query,true));
                                 $SQL = $this->conn->prepare($Query);
                                 $SQL->execute();
                                 $ResultRecords[] = $SQL->fetchAll(\PDO::FETCH_ASSOC);
@@ -338,13 +344,14 @@ class ReportGenerator
                         }
                     }
                 }
+
                 // When format value is used in the parameters object dispatch the
                 // data in XML format, or in JSON format
                 //
                 // XML::filters - The filters used in the filter panel
                 // XML::record - The actual records extracted from the data base
                 //
-                // JSON::success - True when seccess, yeah!!
+                // JSON::success - True when success, yeah!!
                 // JSON::filters - The filters used in the filter panel
                 // JSON::total - The total records in the data
                 // JSON::data - The actual records extracted from the data base
@@ -397,10 +404,21 @@ class ReportGenerator
 
             // Replace the filter key pairs. <!--filter_name-->
             foreach ($filters as $filter)
-                $htmlTemplate = str_ireplace('<!--' .
-	                $filter['name'] . '-->',
-	                (isset($filter['value']) ? $filter['value'] : ''),
-	                $htmlTemplate);
+                if(!is_array($filter['value'])) {
+                    $htmlTemplate = str_ireplace('<!--' .
+                         $filter['name'] . '-->',
+                        (isset($filter['value']) ? $filter['value'] : ''),
+                         $htmlTemplate);
+                } else {
+                    $problems = '';
+                    foreach($filter['value'] as $value){
+                        $problems .= $value . ', ';
+                    }
+                    $htmlTemplate = str_ireplace('<!--'.
+                         $filter['name'].'-->',
+                         $problems,
+                         $htmlTemplate);
+                }
             return $htmlTemplate;
         } catch (\Exception $Error) {
             error_log($Error->getMessage());
@@ -530,7 +548,7 @@ class ReportGenerator
      */
     private function __checkIfVariable($Statement)
     {
-        preg_match('/(?:set)+[^@]*@*/i', $Statement, $matches);
+        preg_match('/(?:set)+[\t ]+@[^;]+;?/i', $Statement, $matches);
         if (count($matches) >= 1) return true;
         return false;
     }
@@ -552,6 +570,13 @@ class ReportGenerator
                 $prepareVariable = $variable['value'];
             } elseif ($variable['value'] == null) {
                 $prepareVariable = "null";
+            }elseif(is_array($variable['value'])){
+                $prepareVariable = '"';
+                foreach($variable['value'] as $value){
+                    $prepareVariable .= $value.',';
+                }
+                $prepareVariable = substr($prepareVariable, 0,-1);
+                $prepareVariable .= '"';
             } else {
                 $prepareVariable = "'{$variable['value']}'";
             }

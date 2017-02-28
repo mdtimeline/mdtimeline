@@ -1,6 +1,6 @@
 /**
- * GaiaEHR (Electronic Health Records)
- * Copyright (C) 2015 TRA NextGen, Inc.
+ * mdTimeLine EHR (Electronic Health Records)
+ * Copyright (C) 2017 TRA NextGen, Inc.
  */
 
 Ext.define('Modules.reportcenter.view.ReportCenter', {

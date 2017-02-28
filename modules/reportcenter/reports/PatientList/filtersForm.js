@@ -21,6 +21,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
     requires: [
         'Ext.form.field.Date',
         'App.ux.combo.ActiveProviders',
+        'App.ux.LiveSnomedProblemMultipleSearch',
         'Modules.reportcenter.reports.PatientList.ux.LiveRXNORMSearchReport',
         'Modules.reportcenter.reports.PatientList.ux.ComboOptionListReport',
         'Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter',
@@ -163,7 +164,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                     frame: false,
                     items: [
                         {
-                            xtype: 'snomedliveproblemsearch',
+                            xtype: 'livesnomedproblemmultiple',
                             hideLabel: true,
                             name: 'problem_code',
                             columnWidth: 1,
@@ -171,8 +172,12 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                             value: null,
                             listeners: {
                                 select: function (combo, records, eOpts) {
-                                    var field = Ext.ComponentQuery.query('reportFilter #problem_name')[0];
-                                    field.setValue(records[0].data.FullySpecifiedName);
+                                    var problem_list = '',
+                                        field = Ext.ComponentQuery.query('reportFilter #problem_name')[0];
+                                    for (var i = 0; i < records.length; i++) {
+                                        problem_list = records[i].data.FullySpecifiedName + ', ' + problem_list;
+                                    }
+                                    field.setValue(problem_list);
                                 }
                             }
                         },

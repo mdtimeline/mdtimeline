@@ -138,7 +138,7 @@ END AND
 
 CASE
 	WHEN @ProblemCode IS NOT NULL
-	THEN patient_active_problems.code = @ProblemCode
+	THEN FIND_IN_SET(patient_active_problems.code, @ProblemCode)
     ELSE 1=1
 END AND
 

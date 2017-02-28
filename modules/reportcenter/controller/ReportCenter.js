@@ -271,7 +271,6 @@ Ext.define('Modules.reportcenter.controller.ReportCenter', {
                     property: 'extra',
                     value   : summarizedParameters
                 });
-                dataGridStore.load();
             }
             else
             {

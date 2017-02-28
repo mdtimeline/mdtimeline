@@ -1195,7 +1195,7 @@ class CCDDocument extends CDDDocumentBase
             $allEncounters = $Encounter->getEncounters($params, false, false);
             foreach($allEncounters as $encounter) {
                 $soap = $this->Encounter->getSoapByEid($encounter['eid']);
-                $tempSoap .= $soap['instructions'] . ' ';
+                if(isset($soap['instructions'])) $tempSoap .= $soap['instructions'] . ' ';
             }
         } elseif(is_numeric($this->eid)) {
             $params->filter[0]->property = 'eid';
@@ -4562,6 +4562,20 @@ class CCDDocument extends CDDDocumentBase
                 ]
             ];
 
+            if(empty($smokingStatus['start_date'])){
+                $startDate = [
+                    '@attributes' => [
+                        'nullFlavor' => 'UNK'
+                    ]
+                ];
+            } else {
+                $startDate = [
+                    '@attributes' => [
+                        'value' => $this->parseDate($smokingStatus['start_date'])
+                    ]
+                ];
+            }
+
             $socialHistory['entry'][] = [
                 '@attributes' => [
                     'typeCode' => 'DRIV'
@@ -4600,11 +4614,7 @@ class CCDDocument extends CDDDocumentBase
                             'code' => 'completed'
                         ]
                     ],
-                    'effectiveTime' => [
-                        '@attributes' => [
-                            'value' => $this->parseDate($smokingStatus['start_date'])
-                        ]
-                    ],
+                    'effectiveTime' => $startDate,
 
                     // Code             System      Print Name
                     // 449868002        SNOMEDCT    Current every day smoker

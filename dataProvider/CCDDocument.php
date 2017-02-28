@@ -2599,29 +2599,29 @@ class CCDDocument extends CDDDocumentBase
                     ]
                 ];
 
-                $entry['substanceAdministration']['precondition'] = [
-                    '@attributes' => [
-                        'typeCode' => 'PRCN'
-                    ],
-                    'templateId' => [
-                        '@attributes' => [
-                            'root' => '2.16.840.1.113883.10.20.22.4.25.1.2'
-                        ]
-                    ],
-                    'criterion' => [
-                        'code' => [
-                            '@attributes' => [
-                                'nullFlavor' => 'UNK'
-                            ]
-                        ],
-                        'value' => [
-                            '@attributes' => [
-                                'xsi:type' => 'CD',
-                                'nullFlavor' => 'UNK'
-                            ]
-                        ]
-                    ]
-                ];
+//                $entry['substanceAdministration']['precondition'] = [
+//                    '@attributes' => [
+//                        'typeCode' => 'PRCN'
+//                    ],
+//                    'templateId' => [
+//                        '@attributes' => [
+//                            'root' => '2.16.840.1.113883.10.20.22.4.25.1.2'
+//                        ]
+//                    ],
+//                    'criterion' => [
+//                        'code' => [
+//                            '@attributes' => [
+//                                'nullFlavor' => 'UNK'
+//                            ]
+//                        ],
+//                        'value' => [
+//                            '@attributes' => [
+//                                'xsi:type' => 'CD',
+//                                'nullFlavor' => 'UNK'
+//                            ]
+//                        ]
+//                    ]
+//                ];
 
                 $medications['entry'][] = $entry;
                 unset($entry);
@@ -5371,6 +5371,21 @@ class CCDDocument extends CDDDocumentBase
                     ]
                 ];
 
+
+                $serviceDate['low'] = [
+                    '@attributes' => [
+                        'value' => $this->parseDate($encounter['service_date'])
+                    ]
+                ];
+                if(!empty($encounter['close_date'])){
+                    $serviceDate['high'] = [
+                        '@attributes' => [
+                            'value' => $this->parseDate($encounter['close_date'])
+                        ]
+                    ];
+                }
+
+
                 $entry = [
                     '@attributes' => [
                         'typeCode' => 'DRIV'
@@ -5379,6 +5394,18 @@ class CCDDocument extends CDDDocumentBase
                         '@attributes' => [
                             'classCode' => 'ENC',
                             'moodCode' => 'EVN'
+                        ],
+                        'templateId' => [
+                            [
+                                '@attributes' => [
+                                    'root' => '2.16.840.1.113883.10.20.22.4.49'
+                                ]
+                            ],
+                            [
+                                '@attributes' => [
+                                    'root' => '2.16.840.1.113883.10.20.24.3.23'
+                                ]
+                            ]
                         ],
                         'id' => [
                             '@attributes' => [
@@ -5487,6 +5514,7 @@ class CCDDocument extends CDDDocumentBase
                                                 'code' => 'completed'
                                             ]
                                         ],
+                                        'effectiveTime' => $serviceDate,
                                         'value' => [
                                             '@attributes' => [
                                                 'xsi:type' => 'CD',
@@ -5529,6 +5557,7 @@ class CCDDocument extends CDDDocumentBase
                                                         'code' => 'completed'
                                                     ]
                                                 ],
+                                                'effectiveTime' => $serviceDate,
                                                 'value' => [
                                                     '@attributes' => [
                                                         'xsi:type' => 'CD',
@@ -5546,41 +5575,6 @@ class CCDDocument extends CDDDocumentBase
                         ]
                     ]
                 ];
-
-                $entry['encounter']['templateId'][] =[
-                    '@attributes' => [
-                        'root' => '2.16.840.1.113883.10.20.22.4.49'
-                    ]
-                ];
-
-                $entry['encounter']['templateId'][] =[
-                    '@attributes' => [
-                        'root' => '2.16.840.1.113883.10.20.24.3.23'
-                    ]
-                ];
-
-                $entry['encounter']['entryRelationship']['act']['entryRelationship']['observation']['effectiveTime']['low'] = [
-                    '@attributes' => [
-                        'value' => $this->parseDate($encounter['service_date'])
-                    ]
-                ];
-                $entry['encounter']['entryRelationship']['act']['entryRelationship']['observation']['entryRelationship']['observation']['effectiveTime']['low'] = [
-                    '@attributes' => [
-                        'value' => $this->parseDate($encounter['service_date'])
-                    ]
-                ];
-                if(!empty($encounter['close_date'])){
-                    $entry['encounter']['entryRelationship']['act']['entryRelationship']['observation']['effectiveTime']['high'] = [
-                        '@attributes' => [
-                            'value' => $this->parseDate($encounter['close_date'])
-                        ]
-                    ];
-                    $entry['encounter']['entryRelationship']['act']['entryRelationship']['observation']['entryRelationship']['observation']['effectiveTime']['high'] = [
-                        '@attributes' => [
-                            'value' => $this->parseDate($encounter['close_date'])
-                        ]
-                    ];
-                }
 
                 $encounters['entry'][] = $entry;
             }

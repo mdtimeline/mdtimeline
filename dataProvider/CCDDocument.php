@@ -5593,7 +5593,6 @@ class CCDDocument extends CDDDocumentBase
  */
 if(isset($_REQUEST['pid']) && isset($_REQUEST['action'])){
     try {
-
         // Check token for security
         include_once(ROOT . '/sites/' . $_REQUEST['site'] . '/conf.php');
         include_once(ROOT . '/classes/MatchaHelper.php');

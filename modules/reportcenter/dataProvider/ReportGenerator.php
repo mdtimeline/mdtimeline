@@ -279,8 +279,6 @@ class ReportGenerator
                         // Is just a SET @ variable, if yes query but not try to
                         // fetch any records. SET does not return any dataSet;
                         if (self::__checkIfVariable($Query)) {
-                            error_log(print_r('Variable',true));
-                            error_log(print_r($Query,true));
                             $this->conn->query($Query);
                         } else {
                             // Check if the page configuration exists, if yes try to look
@@ -320,9 +318,6 @@ class ReportGenerator
                                 $SQL->execute();
                                 $ResultRecords[] = $SQL->fetchAll(\PDO::FETCH_ASSOC);
 
-                                error_log(print_r('Actual Query:',true));
-                                error_log(print_r($Query,true));
-
                                 // Get the totals
                                 $SQL = $this->conn->prepare(str_ireplace(
                                     ':ux-pagination',
@@ -334,8 +329,6 @@ class ReportGenerator
                                 $records[] = $SQL->fetchAll();
                                 $Total = count($records[count($records) - 1]);
                             } else {
-                                error_log(print_r('Actual Query:',true));
-                                error_log(print_r($Query,true));
                                 $SQL = $this->conn->prepare($Query);
                                 $SQL->execute();
                                 $ResultRecords[] = $SQL->fetchAll(\PDO::FETCH_ASSOC);

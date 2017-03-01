@@ -3619,6 +3619,7 @@ class CCDDocument extends CDDDocumentBase
             return;
         };
 
+
         $problems['entry'] = [];
 
         // List patient problems.
@@ -3811,6 +3812,37 @@ class CCDDocument extends CDDDocumentBase
 
         // List encounter diagnostic.
         if(!empty($diagnosticsData)){
+
+            if($problems['text']===''){
+                $problems['text'] = [
+                    'table' => [
+                        '@attributes' => [
+                            'border' => '1',
+                            'width' => '100%'
+                        ],
+                        'thead' => [
+                            'tr' => [
+                                [
+                                    'th' => [
+                                        [
+                                            '@value' => 'Condition'
+                                        ],
+                                        [
+                                            '@value' => 'Effective Dates'
+                                        ],
+                                        [
+                                            '@value' => 'Condition Status'
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ],
+                        'tbody' => [
+                            'tr' => []
+                        ]
+                    ]
+                ];
+            }
 
             foreach($diagnosticsData as $item){
 

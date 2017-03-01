@@ -25,17 +25,63 @@ SELECT patient.*,
 	Communication.option_name as Communication,
 	Ethnicity.option_name as Ethnicity,
 	CONCAT(Provider.fname,' ',Provider.mname,' ',Provider.lname) as ProviderName,
-    GROUP_CONCAT(encounters.service_date SEPARATOR ', <br>') as service_dates,
-	GROUP_CONCAT(patient_allergies.allergy SEPARATOR ', <br>') as allergies,
-	GROUP_CONCAT(patient_active_problems.code_text SEPARATOR ', <br>') as problems,
-	GROUP_CONCAT(patient_medications.STR SEPARATOR ', <br>') as medications,
-	GROUP_CONCAT(CONCAT(
-						patient_order_results.code_text,
-                        ': ',
-                        patient_order_results_observations.value,
-                        patient_order_results_observations.units
-						) SEPARATOR ', <br>'
-				) as laboratories
+	GROUP_CONCAT(encounters.service_date SEPARATOR ', <br>') as service_dates,
+
+	# Compile Medication Allergies
+	(SELECT GROUP_CONCAT(distinct(allergy) SEPARATOR ', <br>') as allergy
+	FROM patient_allergies
+	INNER JOIN patient ON patient.pid = patient_allergies.pid
+	  WHERE
+	CASE
+	WHEN @MedicationAllergyCode IS NOT NULL
+	THEN patient_allergies.allergy_code = @MedicationAllergyCode
+	ELSE 1=1
+	END) AS allergies,
+
+	# Compile Active Problems
+	(SELECT GROUP_CONCAT(distinct(code_text) SEPARATOR ', <br>') as code_text
+	FROM patient_active_problems
+	INNER JOIN patient ON patient.pid = patient_active_problems.pid
+	  WHERE
+	CASE
+	WHEN @ProblemCode IS NOT NULL
+	THEN FIND_IN_SET(patient_active_problems.code, @ProblemCode)
+	ELSE 1=1
+	END) AS problems,
+
+	# Compile Medications
+	(SELECT GROUP_CONCAT(distinct(STR) SEPARATOR ', <br>') as STR
+	FROM patient_medications
+	INNER JOIN patient ON patient.pid = patient_medications.pid
+	  WHERE
+	CASE
+	WHEN @MedicationCode IS NOT NULL
+	THEN patient_medications.rxcui = @MedicationCode
+	ELSE 1=1
+	END) AS medications,
+
+	# Compile Laboratories Orders/Results/Values
+	(SELECT GROUP_CONCAT(CONCAT(patient_order_results.code_text,': ',patient_order_results_observations.value,patient_order_results_observations.units) SEPARATOR ', <br>') as order_result
+	FROM patient_orders
+	INNER JOIN patient ON patient.pid = patient_orders.pid
+    LEFT JOIN patient_order_results ON patient_orders.id = patient_order_results.order_id
+    LEFT JOIN patient_order_results_observations ON patient_order_results.id = patient_order_results_observations.result_id
+	WHERE
+	CASE
+		WHEN @LabOrderCode IS NOT NULL
+		THEN patient_order_results.code = @LabOrderCode
+
+		WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '=' AND @LabOrderCode IS NOT NULL
+		THEN patient_order_results_observations.value = @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
+
+		WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '>=' AND @LabOrderCode IS NOT NULL
+		THEN patient_order_results_observations.value >= @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
+
+		WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '<=' AND @LabOrderCode IS NOT NULL
+		THEN patient_order_results_observations.value <= @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
+		ELSE 1=1
+    END) AS laboratories
+
 FROM patient
 
 #
@@ -77,7 +123,7 @@ LEFT JOIN combo_lists_options as Communication ON Communication.option_value = p
 AND Communication.list_id = 132
 
 #
-# Patient's provider Join
+# Patient provider Join
 #
 LEFT JOIN users as Provider ON Provider.id = encounters.provider_uid
 
@@ -92,7 +138,7 @@ LEFT JOIN patient_orders ON encounters.eid = patient_orders.eid
 LEFT JOIN patient_order_results ON patient_orders.id = patient_order_results.order_id
 
 #
-# Laboratory Observtions Join
+# Laboratory Observations Join
 #
 LEFT JOIN patient_order_results_observations ON patient_order_results.id = patient_order_results_observations.result_id
 
@@ -149,12 +195,6 @@ CASE
 END AND
 
 CASE
-	WHEN @LabOrderCode IS NOT NULL
-    THEN patient_order_results.code = @LabOrderCode
-    ELSE 1=1
-END AND
-
-CASE
 	WHEN @MedicationCode IS NOT NULL
 	THEN patient_medications.rxcui = @MedicationCode
     ELSE 1=1
@@ -167,18 +207,18 @@ CASE
 END AND
 
 CASE
-	WHEN @LabOrderCode IS NOT NULL
-    THEN patient_order_results.code = @LabOrderCode
-    ELSE 1=1
-END AND
-
-CASE
     WHEN @StartDate IS NOT NULL AND @EndDate IS NULL
     THEN encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND NOW()
 
 	WHEN @StartDate IS NOT NULL AND @EndDate IS NOT NULL
 	THEN encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND CONCAT(@EndDate, ' ', '23:00:00')
 
+    ELSE 1=1
+END AND
+
+CASE
+	WHEN @LabOrderCode IS NOT NULL
+    THEN patient_order_results.code = @LabOrderCode
     ELSE 1=1
 END AND
 

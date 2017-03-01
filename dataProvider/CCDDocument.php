@@ -455,7 +455,7 @@ class CCDDocument extends CDDDocumentBase
         // https://phinvads.cdc.gov/vads/ViewValueSet.action?id=9FD34BBC-617F-DD11-B38D-00188B398520#
         // TODO: Add a taxonomy field on the users form.
         $author['assignedAuthor']['code'] = [
-            '@attributes' =>[
+            '@attributes' => [
                 'code' => '163WA2000X',
                 'displayName' => 'Administrator',
                 'codeSystem' => '2.16.840.1.114222.4.11.1066',
@@ -3438,6 +3438,7 @@ class CCDDocument extends CDDDocumentBase
              * Appointments1
              */
             foreach($planOfCareData['APPOINTMENTS'] as $item){
+
                 $planOfCare['text']['table']['tbody']['tr'][] = [
                     'td' => [
                         [
@@ -3466,9 +3467,9 @@ class CCDDocument extends CDDDocumentBase
                         ],
                         'code' => [
                             '@attributes' => [
-                                'code' => $item['procedure1_code'],
-                                'codeSystemName' => $item['procedure1_code_type'],
-                                'codeSystem' => $this->codes($item['procedure1_code_type']),
+                                'code' => '281189005',
+                                'codeSystemName' => '2.16.840.1.113883.6.96',
+                                'codeSystem' => 'SNOMED-CT',
                                 'displayName' => $this->clean($item['notes']),
                             ]
                         ],

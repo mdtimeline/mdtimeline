@@ -13918,6 +13918,11 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
+			name: 'signature',
+			type: 'string',
+			len: 100
+		},
+		{
 			name: 'fullname',
 			type: 'string',
 			comment: 'title full name',
@@ -25005,7 +25010,7 @@ Ext.define('App.view.patient.Results', {
 							xtype: 'button',
 							text: _('view_document'),
 							icon: 'resources/images/icons/icoView.png',
-							action: 'ResultsLaboratoryPanelDocumentViewBtn'
+							itemId: 'ResultsLaboratoryPanelDocumentViewBtn'
 						}
 					],
 					items: [
@@ -47280,8 +47285,8 @@ Ext.define('App.view.patient.Documents', {
 					//},
 					{
 						header: _('category'),
-						dataIndex: 'docType',
-						itemId: 'docType',
+						dataIndex: 'docTypeCode',
+						itemId: 'docTypeCode',
 						editor: {
 							xtype: 'textfield'
 						},
@@ -47291,7 +47296,7 @@ Ext.define('App.view.patient.Documents', {
 								meta.tdCls += ' entered-in-error ';
 								meta.tdAttr = 'data-qtip="' + _('error_note') + ': ' + record.get('error_note') + '"';
 							}
-							return v;
+							return record.get('docType');
 						}
 					},
 					{
@@ -47353,7 +47358,7 @@ Ext.define('App.view.patient.Documents', {
 						xtype: 'button',
 						text: _('category'),
 						enableToggle: true,
-						action: 'docType',
+						action: 'docTypeCode',
 						pressed: true,
 						disabled: true,
 						toggleGroup: 'documentgridgroup'
@@ -55849,7 +55854,6 @@ Ext.define('App.controller.patient.Results', {
 		form.reset();
 		this.getResultsRadiologyDocumentIframe().setSrc('about:blank');
 	},
-
 
 	getActiveForm: function(){
 		return this.getResultsCardPanel().getLayout().getActiveItem().down('form');

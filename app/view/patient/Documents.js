@@ -101,8 +101,8 @@ Ext.define('App.view.patient.Documents', {
 					//},
 					{
 						header: _('category'),
-						dataIndex: 'docType',
-						itemId: 'docType',
+						dataIndex: 'docTypeCode',
+						itemId: 'docTypeCode',
 						editor: {
 							xtype: 'textfield'
 						},
@@ -112,7 +112,7 @@ Ext.define('App.view.patient.Documents', {
 								meta.tdCls += ' entered-in-error ';
 								meta.tdAttr = 'data-qtip="' + _('error_note') + ': ' + record.get('error_note') + '"';
 							}
-							return v;
+							return record.get('docType');
 						}
 					},
 					{
@@ -174,7 +174,7 @@ Ext.define('App.view.patient.Documents', {
 						xtype: 'button',
 						text: _('category'),
 						enableToggle: true,
-						action: 'docType',
+						action: 'docTypeCode',
 						pressed: true,
 						disabled: true,
 						toggleGroup: 'documentgridgroup'

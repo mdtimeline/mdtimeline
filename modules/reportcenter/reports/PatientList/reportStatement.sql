@@ -21,7 +21,7 @@ SELECT patient.*,
 	CONCAT(patient.fname, ' ', patient.mname, ' ', patient.lname) as patient_name,
 	DATE_FORMAT(patient.DOB, '%d %b %y') as DateOfBirth,
 	TIMESTAMPDIFF(YEAR, patient.DOB, CURDATE()) AS Age,
-    Race.option_name as Race,
+  Race.option_name as Race,
 	Communication.option_name as Communication,
 	Ethnicity.option_name as Ethnicity,
 	CONCAT(Provider.fname,' ',Provider.mname,' ',Provider.lname) as ProviderName,
@@ -34,8 +34,8 @@ SELECT patient.*,
 	  WHERE
 	CASE
 	WHEN @MedicationAllergyCode IS NOT NULL
-	THEN patient_allergies.allergy_code = @MedicationAllergyCode
-	ELSE 1=1
+	  THEN patient_allergies.allergy_code = @MedicationAllergyCode
+	  ELSE 1=1
 	END) AS allergies,
 
 	# Compile Active Problems
@@ -45,8 +45,8 @@ SELECT patient.*,
 	  WHERE
 	CASE
 	WHEN @ProblemCode IS NOT NULL
-	THEN FIND_IN_SET(patient_active_problems.code, @ProblemCode)
-	ELSE 1=1
+	  THEN FIND_IN_SET(patient_active_problems.code, @ProblemCode)
+	  ELSE 1=1
 	END) AS problems,
 
 	# Compile Medications
@@ -55,9 +55,9 @@ SELECT patient.*,
 	INNER JOIN patient ON patient.pid = patient_medications.pid
 	  WHERE
 	CASE
-	WHEN @MedicationCode IS NOT NULL
-	THEN patient_medications.rxcui = @MedicationCode
-	ELSE 1=1
+	  WHEN @MedicationCode IS NOT NULL
+	  THEN patient_medications.rxcui = @MedicationCode
+	  ELSE 1=1
 	END) AS medications,
 
 	# Compile Laboratories Orders/Results/Values
@@ -80,7 +80,7 @@ SELECT patient.*,
 		WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '<=' AND @LabOrderCode IS NOT NULL
 		THEN patient_order_results_observations.value <= @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
 		ELSE 1=1
-    END) AS laboratories
+  END) AS laboratories
 
 FROM patient
 
@@ -232,7 +232,7 @@ CASE
 	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '<=' AND @LabOrderCode IS NOT NULL
 	THEN patient_order_results_observations.value <= @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
 
-    ELSE 1=1
+  ELSE 1=1
 END
 
 GROUP BY patient.pid

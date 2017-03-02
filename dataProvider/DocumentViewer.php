@@ -100,7 +100,8 @@ if (
 			"php" => "text/html",
 			"htm" => "text/html",
 			"html" => "text/html",
-			"xml" => "text/xml"
+			"xml" => "text/xml",
+			"txt" => "text/plain"
 		];
 
 		$foo = explode('.', $file);
@@ -110,11 +111,11 @@ if (
 
 	function base64ToBinary($document, $encrypted, $is_image){
 		// handle binary documents
-		if (isBinary($document)) {
-			return $document;
-		} else {
-			return base64_decode($document);
+		if(preg_match('%^[a-zA-Z0-9/+]*={0,2}$%', $document)){
+			base64_decode($document);
 		}
+
+		return $document;
 	}
 
 	function isBinary($document){
@@ -284,6 +285,10 @@ HTML;
 
 		print $html;
 
+	} elseif($mineType == 'text/plain'){
+		print '<pre>';
+		print $document;
+		print '</pre>';
 	} else {
 		header('Content-Type: ' . $mineType, true);
 		header('Content-Disposition: inline; filename="' . $doc['name'] . '"');

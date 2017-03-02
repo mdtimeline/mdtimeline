@@ -11,8 +11,8 @@
   "filterPanelWidth": 220,
   "filterDisplayHeight":220,
   "gridFields":{
-    "ProviderName": {
-      "name": "Provider Name",
+    "providers": {
+      "name": "Providers",
       "align": "left",
       "type": "string"
     },

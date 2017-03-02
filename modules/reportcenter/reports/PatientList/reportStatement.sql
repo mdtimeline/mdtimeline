@@ -16,232 +16,166 @@ SET @LabOrderCode = :lab_result_code;
 SET @LabOrderOperator = :lab_comparison;
 SET @LabOrderValue = :lab_value;
 
-SELECT patient.*,
-	encounters.service_date,
-	CONCAT(patient.fname, ' ', patient.mname, ' ', patient.lname) as patient_name,
-	DATE_FORMAT(patient.DOB, '%d %b %y') as DateOfBirth,
-	TIMESTAMPDIFF(YEAR, patient.DOB, CURDATE()) AS Age,
-  Race.option_name as Race,
-	Communication.option_name as Communication,
-	Ethnicity.option_name as Ethnicity,
-	CONCAT(Provider.fname,' ',Provider.mname,' ',Provider.lname) as ProviderName,
-	GROUP_CONCAT(encounters.service_date SEPARATOR ', <br>') as service_dates,
+SELECT patient.pid,
+		CONCAT(patient.fname, ' ', patient.mname, ' ', patient.lname) as patient_name,
+		DATE_FORMAT(patient.DOB, '%d %b %y') as DateOfBirth,
+        TIMESTAMPDIFF(YEAR, patient.DOB, CURDATE()) AS Age,
+        Race.option_name as Race,
+        Ethnicity.option_name as Ethnicity,
+        Communication.option_name as Communication,
 
-	# Compile Medication Allergies
-	(SELECT GROUP_CONCAT(distinct(allergy) SEPARATOR ', <br>') as allergy
-	FROM patient_allergies
-	INNER JOIN patient ON patient.pid = patient_allergies.pid
-	  WHERE
-	CASE
-	WHEN @MedicationAllergyCode IS NOT NULL
-	  THEN patient_allergies.allergy_code = @MedicationAllergyCode
-	  ELSE 1=1
-	END) AS allergies,
+        # Encounter Service Dates
+        (SELECT
+			GROUP_CONCAT(encounters.service_date SEPARATOR ', <br>') as service_dates
+		FROM encounters
+		WHERE patient.pid = encounters.pid) AS service_dates,
 
-	# Compile Active Problems
-	(SELECT GROUP_CONCAT(distinct(code_text) SEPARATOR ', <br>') as code_text
-	FROM patient_active_problems
-	INNER JOIN patient ON patient.pid = patient_active_problems.pid
-	  WHERE
-	CASE
-	WHEN @ProblemCode IS NOT NULL
-	  THEN FIND_IN_SET(patient_active_problems.code, @ProblemCode)
-	  ELSE 1=1
-	END) AS problems,
+		# Patient providers
+		(SELECT
+			GROUP_CONCAT(CONCAT(fname, ' ', mname, ' ', lname) SEPARATOR '<br>') as providers
+		FROM users
+		WHERE
+			users.id IN (SELECT encounters.provider_uid FROM encounters WHERE patient.pid = encounters.pid)
+		) AS providers,
 
-	# Compile Medications
-	(SELECT GROUP_CONCAT(distinct(STR) SEPARATOR ', <br>') as STR
-	FROM patient_medications
-	INNER JOIN patient ON patient.pid = patient_medications.pid
-	  WHERE
-	CASE
-	  WHEN @MedicationCode IS NOT NULL
-	  THEN patient_medications.rxcui = @MedicationCode
-	  ELSE 1=1
-	END) AS medications,
+        # Patient Medications
+		(SELECT
+			GROUP_CONCAT(distinct(STR) SEPARATOR ', <br>') as STR
+		FROM patient_medications
+		WHERE patient.pid = patient_medications.pid AND
+        CASE
+		WHEN @MedicationCode IS NOT NULL
+			THEN patient_medications.RXCUI = @MedicationCode
+			ELSE 1=1
+		END) AS medications,
 
-	# Compile Laboratories Orders/Results/Values
-	(SELECT GROUP_CONCAT(CONCAT(patient_order_results.code_text,': ',patient_order_results_observations.value,patient_order_results_observations.units) SEPARATOR ', <br>') as order_result
-	FROM patient_orders
-	INNER JOIN patient ON patient.pid = patient_orders.pid
-    LEFT JOIN patient_order_results ON patient_orders.id = patient_order_results.order_id
-    LEFT JOIN patient_order_results_observations ON patient_order_results.id = patient_order_results_observations.result_id
-	WHERE
-	CASE
-		WHEN @LabOrderCode IS NOT NULL
-		THEN patient_order_results.code = @LabOrderCode
+		# Patient Active Problems
+		(SELECT
+			GROUP_CONCAT(distinct(code_text) SEPARATOR '<br>') as code_text
+		FROM patient_active_problems
+		WHERE patient_active_problems.pid = patient.pid AND
+        CASE
+		WHEN @ProblemCode IS NOT NULL
+			THEN FIND_IN_SET(patient_active_problems.code, @ProblemCode)
+			ELSE 1=1
+		END) AS problems,
 
-		WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '=' AND @LabOrderCode IS NOT NULL
-		THEN patient_order_results_observations.value = @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
-
-		WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '>=' AND @LabOrderCode IS NOT NULL
-		THEN patient_order_results_observations.value >= @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
-
-		WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '<=' AND @LabOrderCode IS NOT NULL
-		THEN patient_order_results_observations.value <= @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
-		ELSE 1=1
-  END) AS laboratories
+		# Patient Medication Allergies
+		(SELECT
+			GROUP_CONCAT(distinct(allergy) SEPARATOR '<br>') as allergy
+		FROM patient_allergies
+		WHERE patient_active_problems.pid = patient.pid AND
+		CASE
+			WHEN @MedicationAllergyCode IS NOT NULL
+			THEN FIND_IN_SET(patient_allergies.allergy_code, @MedicationAllergyCode)
+			ELSE 1=1
+		END) AS allergies
 
 FROM patient
 
-#
 # Encounters Join
-#
-INNER JOIN encounters ON patient.pid = encounters.pid
+LEFT JOIN encounters ON patient.pid = encounters.pid
 
-#
-# Active Problems Join
-#
-LEFT JOIN patient_active_problems ON encounters.eid = patient_active_problems.eid
-
-#
-# Active Medications Join
-#
+# Patient Medications Join
 LEFT JOIN patient_medications ON encounters.eid = patient_medications.eid
 
-#
-# Active Allergies Join
-#
+# Active Problems Join
+LEFT JOIN patient_active_problems ON encounters.eid = patient_active_problems.eid
+
+# Medication Allergies Join
 LEFT JOIN patient_allergies ON encounters.eid = patient_allergies.eid
 
-#
-# Race Join
-#
-LEFT JOIN combo_lists_options as Race ON Race.option_value = patient.race
-AND Race.list_id = 14
-
-#
-# Ethnicity Join
-#
-LEFT JOIN combo_lists_options as Ethnicity ON Ethnicity.option_value = patient.ethnicity
-AND Ethnicity.list_id = 59
-
-#
-# Phone Publicity (Communication)
-#
-LEFT JOIN combo_lists_options as Communication ON Communication.option_value = patient.phone_publicity
-AND Communication.list_id = 132
-
-#
-# Patient provider Join
-#
+# Providers Join
 LEFT JOIN users as Provider ON Provider.id = encounters.provider_uid
 
-#
-# Laboratory Orders Join
-#
-LEFT JOIN patient_orders ON encounters.eid = patient_orders.eid
+# Race Join
+LEFT JOIN combo_lists_options as Race ON Race.option_value = patient.race AND Race.list_id = 14
 
-#
-# Laboratory Reults Join
-#
-LEFT JOIN patient_order_results ON patient_orders.id = patient_order_results.order_id
+# Ethnicity Join
+LEFT JOIN combo_lists_options as Ethnicity ON Ethnicity.option_value = patient.ethnicity AND Ethnicity.list_id = 59
 
-#
-# Laboratory Observations Join
-#
-LEFT JOIN patient_order_results_observations ON patient_order_results.id = patient_order_results_observations.result_id
+# Phone Publicity (Communication)
+LEFT JOIN combo_lists_options as Communication ON Communication.option_value = patient.phone_publicity AND Communication.list_id = 132
 
-#
-# Where Filter
-#
 WHERE
-CASE
-    WHEN @EthnicityCode IS NOT NULL
-	THEN patient.ethnicity = @EthnicityCode
-    ELSE 1=1
-END AND
 
+# Where StartDate and EndDate
 CASE
-    WHEN @SexCode IS NOT NULL
-	THEN patient.sex = @SexCode
+	WHEN @StartDate IS NOT NULL AND @EndDate IS NOT NULL
+	THEN encounters.service_date BETWEEN @StartDate AND @EndDate
     ELSE 1=1
-END AND
+END
 
+AND
+
+# Where MedicationCode
 CASE
-    WHEN @MaritalCode IS NOT NULL
-	THEN patient.marital_status = @MaritalCode
-    ELSE 1=1
-END AND
+	WHEN @MedicationCode IS NOT NULL
+	THEN FIND_IN_SET(patient_medications.RXCUI, @MedicationCode)
+	ELSE 1=1
+END
 
-CASE
-    WHEN @RaceCode IS NOT NULL
-	THEN patient.race = @RaceCode
-    ELSE 1=1
-END AND
+AND
 
-CASE
-    WHEN @LanguageCode IS NOT NULL
-	THEN patient.language = @LanguageCode
-    ELSE 1=1
-END AND
-
-CASE
-    WHEN @CommunicationCode IS NOT NULL
-	THEN patient.phone_publicity = @CommunicationCode
-    ELSE 1=1
-END AND
-
+# Where Active Problems
 CASE
 	WHEN @ProblemCode IS NOT NULL
 	THEN FIND_IN_SET(patient_active_problems.code, @ProblemCode)
     ELSE 1=1
-END AND
+END
 
+AND
+
+# Where Race
 CASE
-	WHEN @Provider IS NOT NULL
-    THEN encounters.provider_uid = @Provider
+    WHEN @RaceCode IS NOT NULL
+	THEN patient.race = @RaceCode
     ELSE 1=1
-END AND
+END
 
+AND
+
+# Where Ethnicity
 CASE
-	WHEN @MedicationCode IS NOT NULL
-	THEN patient_medications.rxcui = @MedicationCode
+    WHEN @EthnicityCode IS NOT NULL
+	THEN patient.ethnicity = @EthnicityCode
     ELSE 1=1
-END AND
+END
 
+AND
+
+# Where Communication
+CASE
+    WHEN @CommunicationCode IS NOT NULL
+	THEN patient.phone_publicity = @CommunicationCode
+    ELSE 1=1
+END
+
+AND
+
+# Where Medication Allergies
 CASE
 	WHEN @MedicationAllergyCode IS NOT NULL
-	THEN patient_allergies.allergy_code = @MedicationAllergyCode
+	THEN FIND_IN_SET(patient_allergies.allergy_code, @MedicationAllergyCode)
     ELSE 1=1
-END AND
-
-CASE
-    WHEN @StartDate IS NOT NULL AND @EndDate IS NULL
-    THEN encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND NOW()
-
-	WHEN @StartDate IS NOT NULL AND @EndDate IS NOT NULL
-	THEN encounters.service_date BETWEEN CONCAT(@StartDate, ' ', '00:00:00') AND CONCAT(@EndDate, ' ', '23:00:00')
-
-    ELSE 1=1
-END AND
-
-CASE
-	WHEN @LabOrderCode IS NOT NULL
-    THEN patient_order_results.code = @LabOrderCode
-    ELSE 1=1
-END AND
-
-CASE
-	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '=' AND @LabOrderCode IS NOT NULL
-	THEN patient_order_results_observations.value = @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
-
-	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '>=' AND @LabOrderCode IS NOT NULL
-	THEN patient_order_results_observations.value >= @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
-
-	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '<=' AND @LabOrderCode IS NOT NULL
-	THEN patient_order_results_observations.value <= @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
-
-  ELSE 1=1
 END
 
-GROUP BY patient.pid
+AND
 
-#
-# Having Filter
-#
-HAVING CASE
+# Where Provider
+CASE
+	WHEN @Provider IS NOT NULL
+	THEN FIND_IN_SET(encounters.provider_uid, @Provider)
+	ELSE 1=1
+END
+
+AND
+
+# Where AgeFrom and AgeTo
+CASE
     WHEN @AgeFrom IS NOT NULL AND @AgeTo IS NOT NULL
-    THEN Age BETWEEN @AgeFrom AND @AgeTo
+    THEN TIMESTAMPDIFF(YEAR, patient.DOB, CURDATE()) BETWEEN @AgeFrom AND @AgeTo
     ELSE 1=1
 END
+
+GROUP BY patient.pid;

@@ -57,7 +57,6 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                             columnWidth: 1,
                             fieldLabel: _('begin_date'),
                             labelWidth: 100,
-                            allowBlank: false,
                             format: g('date_display_format'),
                             submitFormat: 'Y-m-d'
                         }
@@ -79,7 +78,6 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                             columnWidth: 1,
                             fieldLabel: _('end_date'),
                             labelWidth: 100,
-                            allowBlank: false,
                             format: g('date_display_format'),
                             submitFormat: 'Y-m-d'
                         }

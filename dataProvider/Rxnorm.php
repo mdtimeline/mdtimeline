@@ -121,7 +121,7 @@ class Rxnorm
             case 'IN':
                 $Statement = $this->db->prepare("
                     SELECT * FROM rxnconso 
-                    WHERE RXCUI=:rxcui TTY='IN' AND SAB='RXNORM'");
+                    WHERE RXCUI=:rxcui AND TTY='IN' AND SAB='RXNORM'");
                 break;
             case 'PIN':
                 $Statement = $this->db->prepare("

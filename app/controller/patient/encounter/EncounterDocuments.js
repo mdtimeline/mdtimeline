@@ -41,8 +41,24 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 
 			filters = [];
 
-			if(group.toUpperCase() == 'NOTE'){
+			if(group.toUpperCase() == 'NOTE') {
 				store = Ext.data.StoreManager.lookup('DoctorsNotesStore');
+
+				for (i = 0; i < data.items.length; i++) {
+					Ext.Array.push(filters, {
+						property: 'id',
+						value: data.items[i]
+					});
+
+					store.load({
+						filters: filters,
+						callback: function (records) {
+							me.getController(data.controller)[data.method](records[0]);
+						}
+					});
+				}
+			}else if(group.toUpperCase() == 'REFERRAL'){
+				store = Ext.data.StoreManager.lookup('ReferralsStore');
 
 				for(i = 0; i < data.items.length; i++){
 					Ext.Array.push(filters, {
@@ -88,8 +104,7 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 	},
 
 	loadDocumentsByEid: function(grid, eid){
-		var me = this,
-			store = grid.getStore();
+		var store = grid.getStore();
 
 		store.removeAll();
 
@@ -115,6 +130,9 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 				}else if(document.document_type == 'note'){
 					document.controller = 'patient.DoctorsNotes';
 					document.method = 'onPrintDoctorsNoteBtn';
+				}else if(document.document_type == 'referral'){
+					document.controller = 'patient.Referrals';
+					document.method = 'onPrintReferralBtnClick';
 				}
 
 				document.document_type = Ext.String.capitalize(document.document_type);
@@ -124,6 +142,8 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 
 			if(data.length > 0){
 				store.loadRawData(data);
+				app.fireEvent('encounterdocumentsload', store);
+
 			}
 		});
 

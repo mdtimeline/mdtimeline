@@ -3407,7 +3407,7 @@ Ext.define('App.ux.LivePatientSearch', {
 				getInnerTpl: function(){
 					var pid = (eval(g('display_pubpid')) ? 'pubpid' : 'pid');
 					return '<div class="search-item"><h3><span>{fullname}</span> {[Ext.Date.format(values.DOB, g("date_display_format"))]}</h3>' +
-						'Record #{' + pid + '}'
+						'Record #{' + pid + '}</div>';
 				}
 			},
 			pageSize: 10
@@ -17977,6 +17977,11 @@ Ext.define('App.model.patient.PatientDocuments', {
 			index: true
 		},
 		{
+			name: 'facility_id',
+			type: 'int',
+			index: true
+		},
+		{
 			name: 'docType',
 			type: 'string',
 			index: true
@@ -21171,6 +21176,12 @@ Ext.define('App.model.patient.Patient',{
             store: false
         },
         {
+            name: 'provider',
+            type: 'string',
+            comment: 'default provider',
+            len: 40
+        },
+        {
             name: 'pharmacy',
             type: 'string',
             comment: 'default pharmacy',
@@ -21267,6 +21278,36 @@ Ext.define('App.model.patient.Patient',{
             type: 'string',
             comment: 'employer name',
             len: 40
+        },
+        {
+            name: 'employer_address',
+            type: 'string',
+            comment: 'employer address',
+            len: 40
+        },
+        {
+            name: 'employer_city',
+            type: 'string',
+            comment: 'employer city',
+            len: 40
+        },
+        {
+            name: 'employer_state',
+            type: 'string',
+            comment: 'employer state',
+            len: 40
+        },
+        {
+            name: 'employer_country',
+            type: 'string',
+            comment: 'employer country',
+            len: 40
+        },
+        {
+            name: 'employer_postal_code',
+            type: 'string',
+            comment: 'employer postal code',
+            len: 10
         },
         {
             name: 'rating',
@@ -24254,7 +24295,8 @@ Ext.define('App.view.patient.EncounterDocumentsGrid', {
 		proxy: {
 			type: 'memory'
 		},
-		groupField: 'document_type'
+		groupField: 'document_type',
+		storeId: 'EncounterDocumentsGridStore'
 	}),
 	columns: [
 		{
@@ -41077,7 +41119,7 @@ Ext.define('App.controller.patient.CCDImport', {
 
 	onCcdImportPreviewWindowImportBtnClick: function(){
 		var me = this,
-			patient = me.getCcdImportPreviewPatientForm().getRecord();
+			patient = me.getCcdImportPreviewPatientForm().getForm().getRecord();
 
 		if(patient.data.pid){
 			me.promptVerifyPatientImport(patient);
@@ -41211,9 +41253,8 @@ Ext.define('App.controller.patient.CCDImport', {
 	onPossiblePatientDuplicatesContinueBtnClick:function(btn){
 		if(btn.up('window').action != 'ccdImportDuplicateAction') return;
         if(this.getCcdImportPreviewPatientForm()){
-
+            this.promptVerifyPatientImport(this.getCcdImportPreviewPatientForm().getForm().getRecord());
         }
-		this.promptVerifyPatientImport(this.getCcdImportPreviewPatientForm().getRecord());
 	},
 
 	onCcdImportWindowSelectAllFieldChange: function(field, selected){
@@ -43444,14 +43485,16 @@ Ext.define('App.controller.patient.Referrals', {
 		record.set({refer_to: records[0].data.id});
 	},
 
-	onPrintReferralBtnClick:function(){
+	onPrintReferralBtnClick:function(referral){
 		var me = this,
 			grid = me.getReferralPanelGrid(),
 			sm = grid.getSelectionModel(),
-			selection = sm.getSelection(),
+			selection = (referral.isModel ? [referral] : sm.getSelection()),
             params,
             i;
-		grid.view.el.mask(_('generating_documents'));
+
+		if(grid.view.el) grid.view.el.mask(_('generating_documents'));
+
 		for(i=0; i < selection.length; i++){
 			params = {
                 pid: app.patient.pid,
@@ -43466,11 +43509,9 @@ Ext.define('App.controller.patient.Referrals', {
 				}else{
 					app.onDocumentView(response.result.id, 'Referral');
 				}
-				grid.view.el.unmask();
+				if(grid.view.el) grid.view.el.unmask();
 			});
 		}
-
-
 	},
 
 	onGridSelectionChange:function(grid, models){
@@ -44881,8 +44922,24 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 
 			filters = [];
 
-			if(group.toUpperCase() == 'NOTE'){
+			if(group.toUpperCase() == 'NOTE') {
 				store = Ext.data.StoreManager.lookup('DoctorsNotesStore');
+
+				for (i = 0; i < data.items.length; i++) {
+					Ext.Array.push(filters, {
+						property: 'id',
+						value: data.items[i]
+					});
+
+					store.load({
+						filters: filters,
+						callback: function (records) {
+							me.getController(data.controller)[data.method](records[0]);
+						}
+					});
+				}
+			}else if(group.toUpperCase() == 'REFERRAL'){
+				store = Ext.data.StoreManager.lookup('ReferralsStore');
 
 				for(i = 0; i < data.items.length; i++){
 					Ext.Array.push(filters, {
@@ -44928,8 +44985,7 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 	},
 
 	loadDocumentsByEid: function(grid, eid){
-		var me = this,
-			store = grid.getStore();
+		var store = grid.getStore();
 
 		store.removeAll();
 
@@ -44955,6 +45011,9 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 				}else if(document.document_type == 'note'){
 					document.controller = 'patient.DoctorsNotes';
 					document.method = 'onPrintDoctorsNoteBtn';
+				}else if(document.document_type == 'referral'){
+					document.controller = 'patient.Referrals';
+					document.method = 'onPrintReferralBtnClick';
 				}
 
 				document.document_type = Ext.String.capitalize(document.document_type);
@@ -44964,6 +45023,8 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 
 			if(data.length > 0){
 				store.loadRawData(data);
+				app.fireEvent('encounterdocumentsload', store);
+
 			}
 		});
 
@@ -48238,7 +48299,7 @@ Ext.define('App.view.patient.windows.UploadDocument', {
 					xtype: 'gaiaehr.combo',
 					fieldLabel: _('type'),
 					list: 102,
-					name: 'docType',
+					name: 'docTypeCode',
 					allowBlank: false
 				},
 				{
@@ -51690,69 +51751,66 @@ Ext.define('App.view.patient.Patient', {
                                             items: [
                                                 {
                                                     xtype: 'fieldset',
-                                                    title: _('record_number'),
-                                                    margin: '5 2 2 0',
-                                                    style: {
-                                                        'background-color': 'AliceBlue',
-                                                        'border-radius': '5px'
-                                                    },
+                                                    collapsible: false,
+                                                    checkboxToggle: false,
+                                                    collapsed: false,
+                                                    cls: 'highlight_fieldset',
+                                                    margin: '10 0 5 0',
                                                     items:[
                                                         {
                                                             xtype: 'fieldcontainer',
                                                             layout: 'hbox',
+                                                            width: 700,
                                                             defaults: {
-                                                                labelWidth: 75,
-                                                                hideLabel: false
+                                                                margin: '10 0 5 8',
+                                                                labelWidth: 50,
+                                                                labelAlign: 'right'
                                                             },
                                                             items: [
                                                                 {
                                                                     xtype: 'textfield',
                                                                     name: 'pubpid',
-                                                                    flex: 1,
                                                                     emptyText: _('medical'), //external_record
-                                                                    width: 192,
                                                                     fieldLabel: _('medical'), //external_record
-                                                                    margin: '10 15 2 0',
+                                                                    width: 225,
                                                                     enableKeyEvents: true
                                                                 },
                                                                 {
                                                                     xtype: 'textfield',
                                                                     name: 'pubaccount',
-                                                                    flex: 1,
                                                                     emptyText: _('account'), //external_account
-                                                                    width: 192,
                                                                     fieldLabel: _('account'), //external_account
-                                                                    margin: '10 15 2 0',
+                                                                    width: 225,
                                                                     enableKeyEvents: true
                                                                 },
                                                                 {
                                                                     xtype: 'textfield',
                                                                     name: 'interface_mrn',
-                                                                    flex: 1,
                                                                     emptyText: _('interface_mrn'), //external_account
-                                                                    width: 251,
-                                                                    labelWidth: 100,
                                                                     fieldLabel: _('interface_mrn'), //external_account
-                                                                    margin: '10 15 2 0',
+                                                                    width: 225,
                                                                     enableKeyEvents: true
                                                                 }
                                                             ]
                                                         }
                                                     ]
-                                                },
+                                                },  //MRN ACCNT INTERFACE
                                                 {
                                                     xtype: 'fieldset',
-                                                    margin: '3 2 2 0',
-                                                    style: {
-                                                        'background-color': 'AliceBlue',
-                                                        'border-radius': '5px'
-                                                    },
+                                                    collapsible: false,
+                                                    checkboxToggle: false,
+                                                    collapsed: false,
+                                                    cls: 'highlight_fieldset',
+                                                    margin: '10 0 5 0',
                                                     items:[
                                                         {
                                                             xtype: 'fieldcontainer',
                                                             layout: 'hbox',
+                                                            width: 700,
                                                             defaults: {
+                                                                margin: '10 0 5 5',
                                                                 labelWidth: 50,
+                                                                labelAlign: 'right',
                                                                 hideLabel: true
                                                             },
                                                             items: [
@@ -51760,38 +51818,26 @@ Ext.define('App.view.patient.Patient', {
                                                                     xtype: 'gaiaehr.combo',
                                                                     name: 'title',
                                                                     emptyText: _('title'),
-                                                                    width: 60,
-                                                                    fieldLabel: _('title'),
-                                                                    labelWidth: 60,
+                                                                    width: 75,
                                                                     list: 22,
                                                                     loadStore: true,
-                                                                    editable: false,
-                                                                    margin: '10 2 2 0'
-                                                                    // collapsible: false,
-                                                                    //checkboxToggle: false
-                                                                    // collapsed: false
+                                                                    editable: false
                                                                 },
                                                                 {
                                                                     xtype: 'textfield',
                                                                     name: 'fname',
                                                                     emptyText: _('first_name'),
                                                                     width: 100,
-                                                                    fieldLabel: _('first_name'),
-                                                                    labelWidth: 100,
                                                                     allowBlank: false,
-                                                                    maxLength: 35,
-                                                                    margin: '10 2 2 0'
+                                                                    maxLength: 35
                                                                 },
                                                                 {
                                                                     xtype: 'textfield',
                                                                     name: 'mname',
                                                                     emptyText: _('middle_name'),
                                                                     width: 20,
-                                                                    //fieldLabel: _('middle_name'),
-                                                                    //labelWidth: 50,
                                                                     enableKeyEvents: true,
-                                                                    maxLength: 35,
-                                                                    margin: '10 2 2 0'
+                                                                    maxLength: 35
                                                                 },
                                                                 // {
                                                                 //     xtype: 'splitter'
@@ -51800,222 +51846,109 @@ Ext.define('App.view.patient.Patient', {
                                                                     xtype: 'textfield',
                                                                     name: 'lname',
                                                                     emptyText: _('last_name'),
-                                                                    width: 180,
-                                                                    fieldLabel: _('last_name'),
-                                                                    labelWidth: 200,
+                                                                    width: 200,
                                                                     allowBlank: false,
-                                                                    maxLength: 35,
-                                                                    margin: '10 2 2 0'
+                                                                    maxLength: 35
                                                                 },
                                                                 {
                                                                     xtype: 'gaiaehr.combo',
                                                                     name: 'sex',
                                                                     emptyText: _('sex'),
-                                                                    width: 70,
-                                                                    fieldLabel: _('sex'),
+                                                                    width: 125,
                                                                     enableKeyEvents: true,
                                                                     allowBlank: false,
                                                                     list: 95,
                                                                     loadStore: true,
-                                                                    editable: false,
-                                                                    margin: '10 2 2 5'
+                                                                    editable: false
                                                                 },
                                                                 {
                                                                     xtype: 'gaiaehr.combo',
                                                                     name: 'marital_status',
                                                                     emptyText: _('marital_status'),
-                                                                    width: 80,
-                                                                    fieldLabel: _('marital_status'),
+                                                                    width: 100,
                                                                     list: 12,
                                                                     loadStore: true,
-                                                                    editable: false,
-                                                                    margin: '10 2 2 5'
-                                                                },
+                                                                    editable: false
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }, //Name, Sex, Marital Status
+                                                {
+                                                    xtype: 'fieldset',
+                                                    collapsible: false,
+                                                    checkboxToggle: false,
+                                                    collapsed: false,
+                                                    cls: 'highlight_fieldset',
+                                                    margin: '10 0 5 0',
+                                                    items:[
+                                                        {
+                                                            xtype: 'fieldcontainer',
+                                                            layout: 'hbox',
+                                                            width: 700,
+                                                            defaults: {
+                                                                margin: '10 0 5 10',
+                                                                labelWidth: 50,
+                                                                labelAlign: 'right',
+                                                                hideLabel: true
+                                                            },
+                                                            items: [
                                                                 {
-                                                                    xtype: 'datefield',
+                                                                    xtype: 'mitos.datetime',
                                                                     name: 'DOB',
                                                                     emptyText: _('dob'),
                                                                     format: 'm/d/Y',
-                                                                    width: 150,
+                                                                    width: 215,
+                                                                    labelWidth: 30,
                                                                     fieldLabel: _('dob'),
                                                                     labelAlign: 'right',
                                                                     hideLabel: false,
                                                                     enableKeyEvents: true,
-                                                                    allowBlank: false,
-                                                                    margin: '10 0 0 0'
+                                                                    allowBlank: false
+                                                                },
+                                                                {
+                                                                    xtype: 'checkbox',
+                                                                    name: 'birth_multiple',
+                                                                    //boxLabel: _('multiple_birth'),
+                                                                    fieldLabel:_('multiple_birth'),
+                                                                    labelWidth: 75,
+                                                                    hideLabel: false,
+                                                                    labelAlign: 'right'
+                                                                },
+                                                                {
+                                                                    xtype: 'numberfield',
+                                                                    name: 'birth_order',
+                                                                    width: 80,
+                                                                    fieldLabel: _('order'),
+                                                                    labelWidth: 35,
+                                                                    hideLabel: false,
+                                                                    value: 1,
+                                                                    maxValue: 15,
+                                                                    minValue: 1
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'birth_place',
+                                                                    fieldLabel: _('birth_place'),
+                                                                    width: 270,
+                                                                    labelWidth: 70,
+                                                                    hideLabel: false
                                                                 }
                                                             ]
                                                         }
                                                     ]
-                                                },
-                                                {
-                                                    xtype: 'fieldset',
-                                                    margin: '3 2 2 0',
-                                                    style: {
-                                                        'background-color': 'AliceBlue',
-                                                        'border-radius': '5px',
-                                                        'text-align' : 'center'
-                                                    },
-                                                    items: [
-                                                        {
-                                                            xtype: 'fieldcontainer',
-                                                            layout: 'hbox',
-                                                            defaults: {
-                                                                hideLabel: false,
-                                                                textfieldAlign: 'center',
-                                                                labelWidth: 50,
-                                                                labelAlign: 'top'
-                                                            },
-                                                            items: [
-                                                                {
-                                                                    xtype: 'fieldcontainer',
-                                                                    fieldLabel: _('allow'),
-                                                                    layout: 'hbox',
-                                                                    margin: '2 2 2 0',
-                                                                    items: [
-                                                                        {
-                                                                            xtype: 'checkbox',
-                                                                            name: _('sms'),
-                                                                            width: 50,
-                                                                            margin: '2 2 2 0',
-                                                                            boxLabel: _('sms')
-                                                                        },
-                                                                        {
-                                                                            xtype: 'checkbox',
-                                                                            name: _('email'),
-                                                                            width: 50,
-                                                                            margin: '2 0 2 0',
-                                                                            boxLabel: _('email')
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    xtype: 'gaiaehr.combo',
-                                                                    name: 'phone_publicity',
-                                                                    width: 200,
-                                                                    fieldLabel: _('publicity'),
-                                                                    list: 132,
-                                                                    margin: '2 2 2 0',
-                                                                    loadStore: true,
-                                                                    editable: false
-                                                                },
-                                                                {
-                                                                    xtype: 'textfield',
-                                                                    name: 'email',
-                                                                    emptyText: 'example@email.com',
-                                                                    width: 190,
-                                                                    fieldLabel: _('email'),
-                                                                    margin: '2 2 2 0'
-                                                                },
-                                                                {
-                                                                    xtype: 'textfield',
-                                                                    name: 'phone_mobile',
-                                                                    emptyText: '000-000-0000',
-                                                                    width: 90,
-                                                                    fieldLabel: _('mobile'),
-                                                                    margin: '2 2 2 0'
-
-                                                                },
-                                                                {
-                                                                    xtype: 'textfield',
-                                                                    name: 'phone_home',
-                                                                    emptyText: '000-000-0000',
-                                                                    width: 90,
-                                                                    fieldLabel: _('home'),
-                                                                    margin: '2 2 2 0'
-
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    xtype: 'fieldset',
-                                                    margin: '3 2 2 0',
-                                                    style: {
-                                                        'background-color': 'AliceBlue',
-                                                        'border-radius': '5px'
-                                                    },
-                                                    items: [
-                                                        {
-                                                            xtype: 'fieldcontainer',
-                                                            layout: 'hbox',
-                                                            defaults: {
-                                                                hideLabel: false,
-                                                                width: 150,
-                                                                labelAlign: 'top'
-                                                            },
-                                                            items: [
-                                                                {
-                                                                    xtype: 'gaiaehr.combo',
-                                                                    name: 'race',
-                                                                    emptyText: _('race'),
-                                                                    fieldLabel: _('race'),
-                                                                    list: 14,
-                                                                    loadStore: true,
-                                                                    editable: false,
-                                                                    margin: '2 2 2 0'
-                                                                },
-                                                                {
-                                                                    xtype: 'gaiaehr.combo',
-                                                                    name: _('secondary_race'),
-                                                                    emptyText: 'Secondary Race',
-                                                                    fieldLabel: _('secondary_race'),
-                                                                    list: 14,
-                                                                    loadStore: true,
-                                                                    editable: false,
-                                                                    margin: '2 2 2 0'
-                                                                },
-                                                                {
-                                                                    xtype: 'gaiaehr.combo',
-                                                                    name: 'ethnicity',
-                                                                    emptyText: _('ethnicity'),
-                                                                    fieldLabel: _('ethnicity'),
-                                                                    width: 190,
-                                                                    list: 59,
-                                                                    loadStore: true,
-                                                                    editable: false,
-                                                                    margin: '2 2 2 0'
-                                                                },
-                                                                {
-                                                                    xtype: 'gaiaehr.combo',
-                                                                    name: 'language',
-                                                                    emptyText: _('language'),
-                                                                    fieldLabel: _('language'),
-                                                                    width: 90,
-                                                                    list: 10,
-                                                                    loadStore: true,
-                                                                    editable: false,
-                                                                    margin: '2 2 2 0'
-                                                                },
-                                                                {
-                                                                    xtype: 'gaiaehr.combo',
-                                                                    name: 'religion',
-                                                                    emptyText: _('religion'),
-                                                                    fieldLabel: _('religion'),
-                                                                    width: 90,
-                                                                    list: 10,
-                                                                    loadStore: true,
-                                                                    editable: false,
-                                                                    margin: '2 2 2 0'
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                },
+                                                }, //DOB, Multiple, Order, Place
                                                 {
                                                     xtype: 'fieldcontainer',
                                                     layout: 'hbox',
+                                                    margin: '0 0 5 0',
                                                     items: [
                                                         {
                                                             xtype: 'fieldset',
                                                             title: _('postal_address'),
-                                                            width: 350,
-                                                            margin: '3 2 2 0',
-                                                            style: {
-                                                                'background-color': 'AliceBlue',
-                                                                'border-radius': '5px'
-                                                            },
+                                                            width: 355,
+                                                            margin: '5 0 0 0',
+                                                            cls: 'highlight_fieldset',
                                                             defaults: {
                                                                 labelWidth: 50
                                                             },
@@ -52075,12 +52008,9 @@ Ext.define('App.view.patient.Patient', {
                                                         {
                                                             xtype: 'fieldset',
                                                             title: _('physical_address'),
-                                                            width: 350,
-                                                            margin: '3 2 2 0',
-                                                            style: {
-                                                                'background-color': 'AliceBlue',
-                                                                'border-radius': '5px'
-                                                            },
+                                                            width: 355,
+                                                            margin: '5 0 0 10',
+                                                            cls: 'highlight_fieldset',
                                                             defaults: {
                                                                 labelWidth: 50
                                                             },
@@ -52138,11 +52068,179 @@ Ext.define('App.view.patient.Patient', {
                                                             ]
                                                         }
                                                     ]
-                                                }
+                                                }, //Postal and Physical Address
+                                                {
+                                                    xtype: 'fieldset',
+                                                    collapsible: false,
+                                                    checkboxToggle: false,
+                                                    collapsed: false,
+                                                    cls: 'highlight_fieldset',
+                                                    margin: '10 0 5 0',
+                                                    items: [
+                                                        {
+                                                            xtype: 'fieldcontainer',
+                                                            layout: 'hbox',
+                                                            width: 700,
+                                                            defaults: {
+                                                                margin: '10 0 5 5',
+                                                                labelWidth: 50,
+                                                                labelAlign: 'right',
+                                                                hideLabel: false
+                                                            },
+                                                            items: [
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'phone_home',
+                                                                    emptyText: '000-000-0000',
+                                                                    fieldLabel: _('home'),
+                                                                    width: 130,
+                                                                    labelWidth: 35
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'phone_mobile',
+                                                                    emptyText: '000-000-0000',
+                                                                    fieldLabel:_('mobile'),
+                                                                    width: 150
+                                                                },
+                                                                {
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    name: 'phone_mobile_supplier',
+                                                                    emptyText: _('supplier'),
+                                                                    fieldLabel: _('supplier'),
+                                                                    width: 130,
+                                                                    list: 142,
+                                                                    loadStore: true,
+                                                                    editable: false
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'email',
+                                                                    emptyText: 'example@email.com',
+                                                                    fieldLabel:_('email'),
+                                                                    width: 270
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }, //Phones, Emails ....
+                                                {
+                                                    xtype: 'fieldset',
+                                                    collapsible: false,
+                                                    checkboxToggle: false,
+                                                    collapsed: false,
+                                                    cls: 'highlight_fieldset',
+                                                    margin: '10 0 5 0',
+                                                    items: [
+                                                        {
+                                                            xtype: 'fieldcontainer',
+                                                            layout: 'hbox',
+                                                            width: 700,
+                                                            defaults: {
+                                                                margin: '5 0 5 5',
+                                                                labelWidth: 150,
+                                                                labelAlign: 'top',
+                                                                hideLabel: false
+                                                            },
+                                                            items: [
+                                                                {
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    name: 'race',
+                                                                    emptyText: _('race'),
+                                                                    fieldLabel: _('race'),
+                                                                    list: 14,
+                                                                    loadStore: true,
+                                                                    editable: false
+                                                                },
+                                                                {
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    name: _('secondary_race'),
+                                                                    emptyText: 'Secondary Race',
+                                                                    fieldLabel: _('secondary_race'),
+                                                                    list: 14,
+                                                                    loadStore: true,
+                                                                    editable: false
+                                                                },
+                                                                {
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    name: 'ethnicity',
+                                                                    emptyText: _('ethnicity'),
+                                                                    fieldLabel: _('ethnicity'),
+                                                                    width: 190,
+                                                                    list: 59,
+                                                                    loadStore: true,
+                                                                    editable: false
+                                                                },
+                                                                {
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    name: 'language',
+                                                                    emptyText: _('language'),
+                                                                    fieldLabel: _('language'),
+                                                                    width: 90,
+                                                                    list: 10,
+                                                                    loadStore: true,
+                                                                    editable: false
+                                                                },
+                                                                {
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    name: 'religion',
+                                                                    emptyText: _('religion'),
+                                                                    fieldLabel: _('religion'),
+                                                                    width: 90,
+                                                                    list: 141,
+                                                                    loadStore: true,
+                                                                    editable: false
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }, //Race, Ethnicity, Language, Religion...
+                                                {
+                                                    xtype: 'fieldset',
+                                                    collapsible: false,
+                                                    checkboxToggle: false,
+                                                    collapsed: false,
+                                                    cls: 'highlight_fieldset',
+                                                    margin: '10 0 5 0',
+                                                    items: [
+                                                        {
+                                                            xtype: 'fieldcontainer',
+                                                            layout: 'hbox',
+                                                            width: 700,
+                                                            defaults: {
+                                                                margin: '10 0 5 20',
+                                                                labelWidth: 50,
+                                                                labelAlign: 'right'
+                                                            },
+                                                            items: [
+                                                                {
+                                                                    xtype: 'activefacilitiescombo',
+                                                                    name: 'primary_facility',
+                                                                    emptyText: _('primary_facility'),
+                                                                    width: 330,
+                                                                    fieldLabel: _('facility'),
+                                                                    //displayField: 'option_name',
+                                                                    //valueField: 'option_value',
+                                                                    margin: '10 0 5 0',
+                                                                    queryMode: 'local',
+                                                                    forceSelection: true
+                                                                },
+                                                                {
+                                                                    xtype: 'activeproviderscombo',
+                                                                    name: 'primary_provider',
+                                                                    fieldLabel: _('provider'),
+                                                                    emptyText: _('primary_provider'),
+                                                                    width: 330,
+                                                                    forceSelection: true
+                                                                }
+                                                            ]
+                                                        } //Facility, Provider
+                                                    ]
+                                                } //Facility y Provider
                                             ]
                                         }
                                     ]
-								},
+								}, //Demographics
                                 {
                                     xtype: 'panel',
                                     title: _('contacts'),
@@ -52161,423 +52259,779 @@ Ext.define('App.view.patient.Patient', {
                                             items: [
                                                 {
                                                     xtype: 'fieldset',
-                                                    title: _('name'),
-                                                    margin: '5 2 2 0',
-                                                    defaults: {
-                                                        labelWidth: 50,
-                                                        labelAlign: 'left'
-                                                    },
-                                                    style: {
-                                                        'background-color': 'AliceBlue',
-                                                        'border-radius': '5px'
-                                                    },
+                                                    //title: _('parents'),
+                                                    collapsible: false,
+                                                    checkboxToggle: false,
+                                                    collapsed: false,
+                                                    cls: 'highlight_fieldset',
+                                                    margin: '10 0 5 0',
                                                     items:[
                                                         {
                                                             xtype: 'fieldcontainer',
-                                                            fieldLabel: _('fathers'),
                                                             layout: 'hbox',
-                                                            width: 660,
+                                                            width: 700,
+                                                            defaults: {
+                                                                labelWidth: 50,
+                                                                margin: '18 0 5 5',
+                                                                labelAlign: 'top'
+                                                            },
                                                             items: [
                                                                 {
                                                                     xtype: 'textfield',
+                                                                    name: 'father_fname',
+                                                                    fieldLabel: _('father'),
                                                                     emptyText: _('first_name'),
                                                                     width: 100,
-                                                                    margin: '0 5 0 0',
-                                                                    maxLength: 35,
-                                                                    name: 'father_fname'
+                                                                    margin: '0 0 5 5',
+                                                                    maxLength: 35
                                                                 },
                                                                 {
                                                                     xtype: 'textfield',
+                                                                    name: 'father_mname',
                                                                     emptyText: _('middle_name'),
-                                                                    width: 100,
-                                                                    margin: '0 5 0 0',
-                                                                    maxLength: 35,
-                                                                    name: 'father_mname'
+                                                                    width: 20,
+                                                                    maxLength: 35
                                                                 },
                                                                 {
                                                                     xtype: 'textfield',
+                                                                    name: 'father_lname',
                                                                     emptyText: _('last_name'),
-                                                                    width: 215,
-                                                                    margin: '0 5 0 0',
-                                                                    maxLength: 35,
-                                                                    name: 'father_lname'
-                                                                }
-                                                            ]
-                                                        },
-                                                        {
-                                                            xtype: 'fieldcontainer',
-                                                            fieldLabel: _('mothers'),
-                                                            layout: 'hbox',
-                                                            width: 660,
-                                                            items: [
+                                                                    width: 175,
+                                                                    maxLength: 35
+                                                                },
                                                                 {
                                                                     xtype: 'textfield',
+                                                                    name: 'mother_fname',
+                                                                    fieldLabel: _('mother'),
                                                                     emptyText: _('first_name'),
                                                                     width: 100,
-                                                                    margin: '0 5 0 0',
-                                                                    maxLength: 35,
-                                                                    name: 'mother_fname'
+                                                                    margin: '0 0 5 25',
+                                                                    maxLength: 35
                                                                 },
                                                                 {
                                                                     xtype: 'textfield',
+                                                                    name: 'mother_mname',
                                                                     emptyText: _('middle_name'),
-                                                                    width: 100,
-                                                                    margin: '0 5 0 0',
-                                                                    maxLength: 35,
-                                                                    name: 'mother_mname'
+                                                                    width: 20,
+                                                                    maxLength: 35
                                                                 },
                                                                 {
                                                                     xtype: 'textfield',
+                                                                    name: 'mother_lname',
                                                                     emptyText: _('last_name'),
-                                                                    width: 215,
-                                                                    margin: '0 5 0 0',
-                                                                    maxLength: 35,
-                                                                    name: 'mother_lname'
+                                                                    width: 175,
+                                                                    maxLength: 35
                                                                 }
                                                             ]
                                                         }
-                                                        ]
-                                                },
+                                                    ]
+                                                }, //Father and Mother
                                                 {
                                                     xtype: 'fieldset',
                                                     title: _('employer'),
-                                                    margin: '5 2 2 0',
-                                                    style: {
-                                                        'background-color': 'AliceBlue',
-                                                        'border-radius': '5px'
-                                                    },
+                                                    collapsible: false,
+                                                    checkboxToggle: false,
+                                                    collapsed: false,
+                                                    cls: 'highlight_fieldset',
+                                                    margin: '5 0 5 0',
                                                     items: [
                                                         {
                                                             xtype: 'fieldcontainer',
                                                             layout: 'hbox',
-                                                            width: 660,
+                                                            width: 700,
                                                             defaults: {
+                                                                margin: '5 0 5 5',
                                                                 labelWidth: 50,
-                                                                labelAlign: 'top',
-                                                                hideLabel: false
+                                                                labelAlign: 'right'
                                                             },
                                                             items: [
                                                                 {
                                                                     xtype: 'textfield',
                                                                     name: 'employer_name',
                                                                     emptyText: _('employer_name'),
-                                                                    width: 200,
-                                                                    fieldLabel: _('name'),
-                                                                    margin: '0 10 2 0'
+                                                                    width: 150
                                                                 },
                                                                 {
                                                                     xtype: 'textfield',
                                                                     name: 'occupation',
                                                                     emptyText: _('occupation'),
-                                                                    width: 150,
-                                                                    fieldLabel: _('occupation'),
-                                                                    margin: '0 10 2 0'
+                                                                    width: 125
                                                                 },
                                                                 {
                                                                     xtype: 'textfield',
                                                                     name: 'phone_work',
                                                                     emptyText: '000-000-0000',
-                                                                    width: 100,
-                                                                    fieldLabel: _('work'),
-                                                                    margin: '0 5 2 0'
+                                                                    width: 100
                                                                 },
                                                                 {
                                                                     xtype: 'textfield',
                                                                     name: 'phone_work_ext',
-                                                                    width: 50,
+                                                                    width: 105,
+                                                                    labelWidth: 30,
                                                                     fieldLabel: _('ext') + '.',
-                                                                    margin: '0 10 2 0'
                                                                 },
                                                                 {
                                                                     xtype: 'textfield',
                                                                     name: 'phone_fax',
                                                                     emptyText: '000-000-0000',
-                                                                    width: 100,
-                                                                    fieldLabel: _('fax'),
-                                                                    margin: '0 5 2 0'
+                                                                    width: 160,
+                                                                    labelWidth: 30,
+                                                                    fieldLabel: _('fax')
                                                                 }
                                                             ]
                                                         }
                                                     ]
-                                                },
+                                                }, //Employer
                                                 {
-                                                    xtype: 'container',
-                                                    layout: 'vbox',
-                                                    items: [
+                                                    xtype: 'fieldset',
+                                                    title: _('persons_authorized'),
+                                                    collapsible: false,
+                                                    checkboxToggle: false,
+                                                    collapsed: false,
+                                                    cls: 'highlight_fieldset',
+                                                    margin: '5 0 5 0',
+                                                    items:[
                                                         {
-                                                            xtype: 'fieldset',
-                                                            title: _('emer_contact'),
-                                                            // collapsible: false,
-                                                            // checkboxToggle: false,
-                                                            // collapsed: false,
-                                                            margin: '5 2 2 0',
-                                                            style: {
-                                                                'background-color': 'AliceBlue',
-                                                                'border-radius': '5px'
+                                                            xtype: 'fieldcontainer',
+                                                            layout: 'hbox',
+                                                            width: 700,
+                                                            defaults: {
+                                                                labelWidth: 50,
+                                                                margin: '5 0 5 5',
+                                                                labelAlign: 'left'
                                                             },
                                                             items: [
                                                                 {
-                                                                    xtype: 'fieldcontainer',
-                                                                    layout: 'hbox',
-                                                                    width: 660,
-                                                                    defaults: {
-                                                                        labelAlign: 'top',
-                                                                        labelWidth: 50
-                                                                    },
-                                                                    items: [
-                                                                        {
-                                                                            xtype: 'gaiaehr.combo',
-                                                                            name: 'emergency_contact_relation',
-                                                                            emptyText: _('relationship'),
-                                                                            width: 125,
-                                                                            list: 70,
-                                                                            loadStore: true,
-                                                                            editable: false,
-                                                                            margin: '5 5 0 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'emergency_contact_fname',
-                                                                            emptyText: _('first_name'),
-                                                                            width: 100,
-                                                                            //fieldLabel: _('name'),
-                                                                            enableKeyEvents: true,
-                                                                            margin: '5 5 0 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'emergency_contact_mname',
-                                                                            emptyText: _('middle_name'),
-                                                                            width: 20,
-                                                                            enableKeyEvents: true,
-                                                                            margin: '5 5 0 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'emergency_contact_lname',
-                                                                            emptyText: _('last_name'),
-                                                                            width: 180,
-                                                                            enableKeyEvents: true,
-                                                                            margin: '5 5 0 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'emergency_contact_phone',
-                                                                            emptyText: '000-000-0000',
-                                                                            width: 90,
-                                                                            margin: '5 5 0 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'gaiaehr.combo',
-                                                                            name: 'emergency_contact_phone_type',
-                                                                            emptyText: _('phone_type'),
-                                                                            width: 113,
-                                                                            list: 136,
-                                                                            loadStore: true,
-                                                                            editable: false,
-                                                                            margin: '5 5 0 0'
-                                                                        }
-                                                                    ]
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    name: 'authorized_01_relation',
+                                                                    emptyText: _('relationship'),
+                                                                    width: 125,
+                                                                    list: 134,
+                                                                    loadStore: true,
+                                                                    editable: false
                                                                 },
                                                                 {
-                                                                    xtype: 'fieldcontainer',
-                                                                    layout: 'hbox',
-                                                                    width: 660,
-                                                                    items: [
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'emergency_contact_address',
-                                                                            emptyText: _('street'),
-                                                                            width: 170,
-                                                                            margin: '2 5 0 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'emergency_contact_address_cont',
-                                                                            emptyText: '(' + _('optional') + ')',
-                                                                            width: 170,
-                                                                            margin: '2 5 0 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'emergency_contact_city',
-                                                                            emptyText: _('city'),
-                                                                            width: 90,
-                                                                            margin: '2 5 5 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'emergency_contact_state',
-                                                                            emptyText: _('state'),
-                                                                            width: 30,
-                                                                            margin: '2 5 0 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'emergency_contact_zip',
-                                                                            emptyText: _('zip'),
-                                                                            width: 80,
-                                                                            margin: '2 5 0 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'emergency_contact_country',
-                                                                            emptyText: _('country'),
-                                                                            labelWidth: 50,
-                                                                            width: 90,
-                                                                            margin: '2 5 0 0'
-                                                                        }
-                                                                    ]
+                                                                    xtype: 'textfield',
+                                                                    name: 'authorized_01_fname',
+                                                                    emptyText: _('first_name'),
+                                                                    width: 100,
+                                                                    //fieldLabel: _('name'),
+                                                                    enableKeyEvents: true
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'authorized_01_mname',
+                                                                    emptyText: _('middle_name'),
+                                                                    width: 20,
+                                                                    enableKeyEvents: true
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'authorized_01_lname',
+                                                                    emptyText: _('last_name'),
+                                                                    width: 180,
+                                                                    enableKeyEvents: true
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'authorized_01_phone',
+                                                                    emptyText: '000-000-0000',
+                                                                    width: 90
+                                                                },
+                                                                {
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    name: 'authorized_01_phone_type',
+                                                                    emptyText: _('phone_type'),
+                                                                    width: 113,
+                                                                    list: 136,
+                                                                    loadStore: true,
+                                                                    editable: false
                                                                 }
                                                             ]
                                                         },
                                                         {
-                                                            xtype: 'fieldset',
-                                                            title: _('guardians_contact'),
-                                                            collapsible: false,
-                                                            checkboxToggle: false,
-                                                            collapsed: false,
-                                                            margin: '5 2 2 0',
-                                                            style: {
-                                                                'background-color': 'AliceBlue',
-                                                                'border-radius': '5px'
+                                                            xtype: 'fieldcontainer',
+                                                            layout: 'hbox',
+                                                            width: 700,
+                                                            defaults: {
+                                                                labelWidth: 50,
+                                                                margin: '5 0 5 5',
+                                                                labelAlign: 'left'
                                                             },
                                                             items: [
                                                                 {
-                                                                    xtype: 'fieldcontainer',
-                                                                    layout: 'hbox',
-                                                                    width: 660,
-                                                                    defaults: {
-                                                                        hideLabel: true,
-                                                                        labelAlign: 'top',
-                                                                        labelWidth: 50
-                                                                    },
-                                                                    items: [
-                                                                        {
-                                                                            xtype: 'gaiaehr.combo',
-                                                                            name: 'guardians_relation',
-                                                                            fieldLabel: _('relationship'),
-                                                                            emptyText: _('relationship'),
-                                                                            width: 125,
-                                                                            labelWidth: 80,
-                                                                            list: 70,
-                                                                            loadStore: true,
-                                                                            editable: false,
-                                                                            margin: '5 5 0 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'guardians_fname',
-                                                                            emptyText: _('first_name'),
-                                                                            width: 100,
-                                                                            //fieldLabel: _('name'),
-                                                                            enableKeyEvents: true,
-                                                                            margin: '5 5 0 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'guardians_mname',
-                                                                            emptyText: _('middle_name'),
-                                                                            width: 20,
-                                                                            enableKeyEvents: true,
-                                                                            margin: '5 5 0 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'guardians_lname',
-                                                                            emptyText: _('last_name'),
-                                                                            width: 180,
-                                                                            enableKeyEvents: true,
-                                                                            margin: '5 5 0 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'guardians_phone',
-                                                                            emptyText: '000-000-0000',
-                                                                            width: 90,
-                                                                            margin: '5 5 0 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'gaiaehr.combo',
-                                                                            name: 'guardians_phone_type',
-                                                                            emptyText: _('phone_type'),
-                                                                            width: 113,
-                                                                            list: 136,
-                                                                            loadStore: true,
-                                                                            editable: false,
-                                                                            margin: '5 5 0 0'
-                                                                        }
-                                                                    ]
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    name: 'authorized_02_relation',
+                                                                    emptyText: _('relationship'),
+                                                                    width: 125,
+                                                                    list: 134,
+                                                                    loadStore: true,
+                                                                    editable: false
                                                                 },
                                                                 {
-                                                                    xtype: 'fieldcontainer',
-                                                                    layout: 'hbox',
-                                                                    width: 660,
-                                                                    items: [
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'guardians_address',
-                                                                            emptyText: _('street'),
-                                                                            width: 170,
-                                                                            margin: '2 5 0 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'guardians_address_cont',
-                                                                            emptyText: '(' + _('optional') + ')',
-                                                                            width: 170,
-                                                                            margin: '2 5 0 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'guardians_city',
-                                                                            emptyText: _('city'),
-                                                                            width: 90,
-                                                                            margin: '2 5 5 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'guardians_state',
-                                                                            emptyText: _('state'),
-                                                                            width: 30,
-                                                                            margin: '2 5 0 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'guardians_zip',
-                                                                            emptyText: _('zip'),
-                                                                            width: 80,
-                                                                            margin: '2 5 0 0'
-                                                                        },
-                                                                        {
-                                                                            xtype: 'textfield',
-                                                                            name: 'guardians_country',
-                                                                            emptyText: _('country'),
-                                                                            labelWidth: 50,
-                                                                            width: 90,
-                                                                            margin: '2 5 0 0'
-                                                                        }
-                                                                    ]
+                                                                    xtype: 'textfield',
+                                                                    name: 'authorized_02_fname',
+                                                                    emptyText: _('first_name'),
+                                                                    width: 100,
+                                                                    enableKeyEvents: true
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'authorized_02_mname',
+                                                                    emptyText: _('middle_name'),
+                                                                    width: 20,
+                                                                    enableKeyEvents: true
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'authorized_02_lname',
+                                                                    emptyText: _('last_name'),
+                                                                    width: 180,
+                                                                    enableKeyEvents: true
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'authorized_02_phone',
+                                                                    emptyText: '000-000-0000',
+                                                                    width: 90
+                                                                },
+                                                                {
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    name: 'authorized_02_phone_type',
+                                                                    emptyText: _('phone_type'),
+                                                                    width: 113,
+                                                                    list: 136,
+                                                                    loadStore: true,
+                                                                    editable: false
                                                                 }
-
                                                             ]
+                                                        }
+                                                    ]
+                                                }, //Persons Authorized to Pickup Results
+                                                {
+                                                    xtype: 'fieldset',
+                                                    title: _('emer_contact'),
+                                                    collapsible: false,
+                                                    checkboxToggle: false,
+                                                    collapsed: false,
+                                                    cls: 'highlight_fieldset',
+                                                    margin: '5 0 5 0',
+                                                    items: [
+                                                        {
+                                                            xtype: 'fieldcontainer',
+                                                            layout: 'hbox',
+                                                            width: 700,
+                                                            defaults: {
+                                                                margin: '5 0 5 5',
+                                                                labelWidth: 50,
+                                                                labelAlign: 'left'
+                                                            },
+                                                            items: [
+                                                                {
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    name: 'emergency_contact_relation',
+                                                                    emptyText: _('relationship'),
+                                                                    width: 125,
+                                                                    list: 134,
+                                                                    loadStore: true,
+                                                                    editable: false
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'emergency_contact_fname',
+                                                                    emptyText: _('first_name'),
+                                                                    width: 100,
+                                                                    //fieldLabel: _('name'),
+                                                                    enableKeyEvents: true
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'emergency_contact_mname',
+                                                                    emptyText: _('middle_name'),
+                                                                    width: 20,
+                                                                    enableKeyEvents: true
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'emergency_contact_lname',
+                                                                    emptyText: _('last_name'),
+                                                                    width: 180,
+                                                                    enableKeyEvents: true
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'emergency_contact_phone',
+                                                                    emptyText: '000-000-0000',
+                                                                    width: 90
+                                                                },
+                                                                {
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    name: 'emergency_contact_phone_type',
+                                                                    emptyText: _('phone_type'),
+                                                                    width: 113,
+                                                                    list: 136,
+                                                                    loadStore: true,
+                                                                    editable: false
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            xtype: 'fieldcontainer',
+                                                            layout: 'hbox',
+                                                            width: 700,
+                                                            defaults: {
+                                                                margin: '5 0 5 5',
+                                                                labelWidth: 50,
+                                                                labelAlign: 'left'
+                                                            },
+                                                            items: [
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'emergency_contact_address',
+                                                                    emptyText: _('street'),
+                                                                    width: 170
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'emergency_contact_address_cont',
+                                                                    emptyText: '(' + _('optional') + ')',
+                                                                    width: 170
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'emergency_contact_city',
+                                                                    emptyText: _('city'),
+                                                                    width: 90
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'emergency_contact_state',
+                                                                    emptyText: _('state'),
+                                                                    width: 30
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'emergency_contact_zip',
+                                                                    emptyText: _('zip'),
+                                                                    width: 80
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'emergency_contact_country',
+                                                                    emptyText: _('country'),
+                                                                    width: 90
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }, //Emergency
+                                                {
+                                                    xtype: 'fieldset',
+                                                    title: _('guardians_contact'),
+                                                    collapsible: false,
+                                                    checkboxToggle: false,
+                                                    collapsed: false,
+                                                    cls: 'highlight_fieldset',
+                                                    margin: '5 0 5 0',
+                                                    items: [
+                                                        {
+                                                            xtype: 'fieldcontainer',
+                                                            layout: 'hbox',
+                                                            width: 700,
+                                                            defaults: {
+                                                                margin: '5 0 5 5',
+                                                                labelWidth: 50,
+                                                                labelAlign: 'left'
+                                                            },
+                                                            items: [
+                                                                {
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    name: 'guardians_relation',
+                                                                    emptyText: _('relationship'),
+                                                                    width: 125,
+                                                                    list: 134,
+                                                                    loadStore: true,
+                                                                    editable: false
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'guardians_fname',
+                                                                    emptyText: _('first_name'),
+                                                                    width: 100,
+                                                                    enableKeyEvents: true
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'guardians_mname',
+                                                                    emptyText: _('middle_name'),
+                                                                    width: 20,
+                                                                    enableKeyEvents: true
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'guardians_lname',
+                                                                    emptyText: _('last_name'),
+                                                                    width: 180,
+                                                                    enableKeyEvents: true
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'guardians_phone',
+                                                                    emptyText: '000-000-0000',
+                                                                    width: 90
+                                                                },
+                                                                {
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    name: 'guardians_phone_type',
+                                                                    emptyText: _('phone_type'),
+                                                                    width: 113,
+                                                                    list: 136,
+                                                                    loadStore: true,
+                                                                    editable: false
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            xtype: 'fieldcontainer',
+                                                            layout: 'hbox',
+                                                            width: 700,
+                                                            defaults: {
+                                                                margin: '5 0 5 5',
+                                                                labelWidth: 50,
+                                                                labelAlign: 'left'
+                                                            },
+                                                            items: [
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'guardians_address',
+                                                                    emptyText: _('street'),
+                                                                    width: 170
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'guardians_address_cont',
+                                                                    emptyText: '(' + _('optional') + ')',
+                                                                    width: 170
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'guardians_city',
+                                                                    emptyText: _('city'),
+                                                                    width: 90
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'guardians_state',
+                                                                    emptyText: _('state'),
+                                                                    width: 30
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'guardians_zip',
+                                                                    emptyText: _('zip'),
+                                                                    width: 80
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'guardians_country',
+                                                                    emptyText: _('country'),
+                                                                    width: 90
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }  //Guardian
+                                            ]
+                                        }
+                                    ]
+                                }, //Contacts
+                                {
+                                    xtype: 'panel',
+                                    title: _('communication'),
+                                    layout: 'column',
+                                    enableKeyEvents: true,
+                                    checkboxToggle: false,
+                                    collapsed: false,
+                                    action: 'DemographicWhoFieldSet',
+                                    border: false,
+                                    bodyBorder: false,
+                                    bodyPadding: 10,
+                                    items: [
+                                        {
+                                            xtype: 'fieldset',
+                                            collapsible: false,
+                                            checkboxToggle: false,
+                                            collapsed: false,
+                                            cls: 'highlight_fieldset',
+                                            margin: '10 0 5 0',
+                                            items: [
+                                                {
+                                                    xtype: 'fieldcontainer',
+                                                    layout: 'hbox',
+                                                    width: 700,
+                                                    defaults: {
+                                                        margin: '10 0 5 20',
+                                                        labelWidth: 55,
+                                                        labelAlign: 'right'
+                                                    },
+                                                    items: [
+                                                        {
+                                                            xtype: 'gaiaehr.combo',
+                                                            name: 'phone_publicity',
+                                                            fieldLabel: _('publicity'),
+                                                            emptyText: _('publicity'),
+                                                            width: 450,
+                                                            list: 132,
+                                                            loadStore: true,
+                                                            editable: false,
+                                                            margin: '10 0 5 0'
                                                         }
                                                     ]
                                                 }
                                             ]
-                                        }
+                                        }, //Publicity
+                                        {
+                                            xtype: 'fieldset',
+                                            collapsible: false,
+                                            checkboxToggle: false,
+                                            collapsed: false,
+                                            cls: 'highlight_fieldset',
+                                            margin: '10 0 5 0',
+                                            items: [
+                                                {
+                                                    xtype: 'fieldcontainer',
+                                                    layout: 'hbox',
+                                                    width: 700,
+                                                    defaults: {
+                                                        margin: '10 0 5 20',
+                                                        labelWidth: 55,
+                                                        labelAlign: 'right'
+                                                    },
+                                                    items: [
+                                                        {
+                                                            xtype: 'mitos.pharmaciescombo',
+                                                            name: 'pharmacy',
+                                                            fieldLabel: _('pharmacy'),
+                                                            emptyText: _('pharmacy'),
+                                                            width: 450,
+                                                            margin: '10 0 5 0',
+                                                            forceSelection: true
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }, //Pharmacy
+                                        {
+                                            xtype: 'fieldset',
+                                            title: _('allow'),
+                                            collapsible: false,
+                                            checkboxToggle: false,
+                                            collapsed: false,
+                                            fieldLabel:'allow',
+                                            cls: 'highlight_fieldset',
+                                            margin: '5 0 8 0',
+                                            items: [
+                                                {
+                                                    xtype: 'fieldcontainer',
+                                                    layout: 'hbox',
+                                                    width: 700,
+                                                    defaults: {
+                                                        margin: '5 0 0 50',
+                                                        labelAlign: 'right',
+                                                        hideLabel: false
+                                                    },
+                                                    items: [
+                                                        {
+                                                            xtype: 'checkbox',
+                                                            name: _('sms'),
+                                                            flex: 1,
+                                                            boxLabel: _('text_mobile_msg'),
+                                                            margin: '5 0 0 15',
+                                                            labelWidth: 100
+                                                        },
+                                                        {
+                                                            xtype: 'checkbox',
+                                                            name: 'allow_voice_msg',
+                                                            boxLabel: _('voice_msg'),
+                                                            flex: 1,
+                                                            labelWidth: 95
+                                                        },
+                                                        {
+                                                            xtype: 'checkbox',
+                                                            name: _('email'),
+                                                            boxLabel: _('email'),
+                                                            flex: 1,
+                                                            labelWidth: 70
+                                                        },
+                                                        {
+                                                            xtype: 'checkbox',
+                                                            name: 'allow_mail_msg',
+                                                            boxLabel: _('mail_msg'),
+                                                            flex: 1,
+                                                            labelWidth: 85
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }, //Allow Phones, Allow Emails
+                                        {
+                                            xtype: 'fieldset',
+                                            title: _('allow'),
+                                            collapsible: false,
+                                            checkboxToggle: false,
+                                            collapsed: false,
+                                            fieldLabel:'allow',
+                                            cls: 'highlight_fieldset',
+                                            margin: '5 0 8 0',
+                                            items: [
+                                                {
+                                                    xtype: 'fieldcontainer',
+                                                    layout: 'hbox',
+                                                    width: 700,
+                                                    defaults: {
+                                                        margin: '2 0 0 10',
+                                                        labelAlign: 'right',
+                                                        hideLabel: false
+                                                    },
+                                                    items: [
+                                                        {
+                                                            xtype: 'fieldset',
+                                                            checkboxName: 'allow_patient_web_portal',
+                                                            title: _('patient_access_web_portal'),
+                                                            checkboxToggle: true,
+                                                            width: 225,
+                                                            margin: '5 0 5 0',
+                                                            items: [
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'portal_username',
+                                                                    fieldLabel: _('username'),
+                                                                    width: 200,
+                                                                    labelWidth: 60
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'portal_password',
+                                                                    fieldLabel: _('password'),
+                                                                    inputType: 'password',
+                                                                    width: 200,
+                                                                    labelWidth: 60
+                                                                }
+                                                            ]
+                                                        }, //Access Patient Web Portal
+                                                        {
+                                                            xtype: 'fieldset',
+                                                            title: _('emergency_access_web_portal'),
+                                                            checkboxName: 'allow_emergency_contact_web_portal',
+                                                            checkboxToggle: true,
+                                                            width: 225,
+                                                            margin: '5 0 5 10',
+                                                            items: [
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'emergency_contact_portal_username',
+                                                                    fieldLabel: _('username'),
+                                                                    width: 200,
+                                                                    labelWidth: 60
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'emergency_contact_portal_password',
+                                                                    fieldLabel: _('password'),
+                                                                    inputType: 'password',
+                                                                    width: 200,
+                                                                    labelWidth: 60
+                                                                }
+                                                            ]
+                                                        }, //Access Emergency Web Portal
+                                                        {
+                                                            xtype: 'fieldset',
+                                                            title: _('guardian_access_web_portal'),
+                                                            checkboxName: 'allow_guardian_web_portal',
+                                                            checkboxToggle: true,
+                                                            collapsible: false,
+                                                            width: 225,
+                                                            margin: '5 0 5 10',
+                                                            items: [
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'guardian_portal_username',
+                                                                    fieldLabel: _('username'),
+                                                                    width: 200,
+                                                                    labelWidth: 60
+                                                                },
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    name: 'guardian_portal_password',
+                                                                    fieldLabel: _('password'),
+                                                                    inputType: 'password',
+                                                                    width: 200,
+                                                                    labelWidth: 60
+                                                                }
+                                                            ]
+                                                        }  //Guardian Web Portal
+
+                                                    ]
+                                                }
+                                            ]
+                                        }, //Allow Web Access - Portal
+                                        {
+                                            xtype: 'fieldset',
+                                            title: _('allow'),
+                                            collapsible: false,
+                                            checkboxToggle: false,
+                                            collapsed: false,
+                                            cls: 'highlight_fieldset',
+                                            margin: '0 0 5 0',
+                                            items: [
+                                                {
+                                                    xtype: 'fieldcontainer',
+                                                    layout: 'hbox',
+                                                    width: 700,
+                                                    defaults: {
+                                                        margin: '5 0 5 10',
+                                                        labelWidth: 50,
+                                                        labelAlign: 'right'
+                                                    },
+                                                    items: [
+                                                        {
+                                                            xtype: 'checkbox',
+                                                            name: 'allow_immunization_info_sharing',
+                                                            boxLabel: _('immunization_info_sharing'),
+                                                            width: 225,
+                                                            margin: '0 5 0 15'
+                                                        },
+                                                        {
+                                                            xtype: 'checkbox',
+                                                            name: 'allow_immunization_registry',
+                                                            boxLabel: _('immunization_registry_use'),
+                                                            width: 225,
+                                                            margin: '0 5 0 5'
+                                                        },
+                                                        {
+                                                            xtype: 'checkbox',
+                                                            name: 'allow_health_info_exchange',
+                                                            boxLabel: _('health_information_exchange'),
+                                                            width: 225,
+                                                            margin: '0 5 0 5'
+                                                        }
+                                                    ]
+                                                } //
+                                            ]
+                                        } //Allow Immunization Sharing, Registry, HIE
                                     ]
-                                },
+                                }, //Communication
 								{
 									xtype: 'panel',
 									title: _('aditional_info')+'.',
-									layout: 'column',
-									enableKeyEvents: true,
-									checkboxToggle: false,
-									collapsed: false,
-									border: false,
-									bodyBorder: false,
-									bodyPadding: 10,
+                                    layout: 'column',
+                                    enableKeyEvents: true,
+                                    checkboxToggle: false,
+                                    collapsed: false,
+                                    action: 'DemographicWhoFieldSet',
+                                    border: false,
+                                    bodyBorder: false,
+                                    bodyPadding: 10,
                                     items: [
                                         {
                                             xtype: 'container',
@@ -52585,392 +53039,210 @@ Ext.define('App.view.patient.Patient', {
                                             items: [
                                                 {
                                                     xtype: 'fieldset',
-                                                    title: _('emer_contact'),
                                                     collapsible: false,
                                                     checkboxToggle: false,
                                                     collapsed: false,
-                                                    margin: '5 2 2 0',
-                                                    style: {
-                                                        'background-color': 'AliceBlue',
-                                                        'border-radius': '5px'
-                                                    },
+                                                    cls: 'highlight_fieldset',
+                                                    margin: '10 0 5 0',
                                                     items: [
                                                         {
                                                             xtype: 'fieldcontainer',
                                                             layout: 'hbox',
-                                                            width: 660,
+                                                            width: 700,
                                                             defaults: {
-                                                                labelAlign: 'top',
-                                                                labelWidth: 50
-                                                            },
-                                                            items: [
-                                                                {
-                                                                    xtype: 'activefacilitiescombo',
-                                                                    fieldLabel: _('primary_facility'),
-                                                                    width: 350,
-                                                                    name: 'primary_facility',
-                                                                    displayField: 'option_name',
-                                                                    valueField: 'option_value',
-                                                                    queryMode: 'local',
-                                                                    forceSelection: true
-                                                                },
-                                                                {
-                                                                    xtype: 'activeproviderscombo',
-                                                                    fieldLabel: _('primary_provider'),
-                                                                    width: 350,
-                                                                    name: 'primary_provider',
-                                                                    forceSelection: true
-                                                                },
-                                                                {
-                                                                    xtype: 'mitos.pharmaciescombo',
-                                                                    fieldLabel: _('pharmacy'),
-                                                                    margin: '0 5 5 0',
-                                                                    name: 'pharmacy',
-                                                                    forceSelection: true,
-                                                                    emptyText: 'Select'
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    xtype: 'fieldset',
-                                                    collapsible: false,
-                                                    checkboxToggle: false,
-                                                    collapsed: false,
-                                                    margin: '5 2 2 0',
-                                                    style: {
-                                                        'background-color': 'AliceBlue',
-                                                        'border-radius': '5px'
-                                                    },
-                                                    items: [
-                                                        {
-                                                            xtype: 'fieldcontainer',
-                                                            layout: 'hbox',
-                                                            width: 660,
-                                                            defaults: {
+                                                                margin: '10 0 5 15',
                                                                 labelWidth: 50,
-                                                                hideLabel: false,
                                                                 labelAlign: 'right'
                                                             },
                                                             items: [
                                                                 {
-                                                                    xtype: 'mitos.datetime',
-                                                                    name: 'DOB',
-                                                                    emptyText: _('dob'),
-                                                                    width: 250,
-                                                                    fieldLabel: _('dob'),
-                                                                    labelWidth: 20,
-                                                                    enableKeyEvents: true,
-                                                                    allowBlank: false,
-                                                                    margin: '2 2 2 0'
+                                                                    xtype: 'textfield',
+                                                                    name: 'alias',
+                                                                    fieldLabel: _('alias_name'),
+                                                                    margin: '10 0 5 0',
+                                                                    flex: 1,
+                                                                    labelWidth: 100,
+                                                                    width: 300,
+                                                                    hideLabel: false
                                                                 },
                                                                 {
-                                                                    xtype: 'checkbox',
-                                                                    name: 'birth_multiple',
-                                                                    //fieldLabel: _('multiple_birth'),
-                                                                    boxLabel: _('multiple_birth'),
-                                                                    margin: '2 2 2 10'
-                                                                },
-                                                                {
-                                                                    xtype: 'numberfield',
-                                                                    name: 'birth_order',
-                                                                    width: 50,
-                                                                    fieldLabel: _('order'),
-                                                                    labelWidth: 35,
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    name: 'citizenship',
+                                                                    fieldLabel: _('citizenship'),
                                                                     hideLabel: false,
-                                                                    value: 1,
-                                                                    maxValue: 15,
-                                                                    minValue: 1,
-                                                                    margin: '2 2 2 0'
+                                                                    flex: 1,
+                                                                    labelWidth: 60,
+                                                                    list: 104,
+                                                                    width: 200,
+                                                                    loadStore: true,
+                                                                    editable: false
+                                                                },
+                                                                {
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    fieldLabel: _('veteran'),
+                                                                    boxLabel: 'Yes',
+                                                                    name: 'is_veteran',
+                                                                    flex: 1,
+                                                                    width: 150,
+                                                                    loadStore: true,
+                                                                    editable: false
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }, //Alias Name, Citizen, Veteran
+                                                {
+                                                    xtype: 'fieldset',
+                                                    collapsible: false,
+                                                    checkboxToggle: false,
+                                                    collapsed: false,
+                                                    cls: 'highlight_fieldset',
+                                                    margin: '10 0 5 0',
+                                                    items: [
+                                                        {
+                                                            xtype: 'fieldcontainer',
+                                                            layout: 'hbox',
+                                                            hideLabel: false,
+                                                            width: 700,
+                                                            defaults: {
+                                                                margin: '10 0 5 5',
+                                                                labelWidth: 50,
+                                                                labelAlign: 'right'
+                                                            },
+                                                            items: [
+                                                                {
+                                                                    xtype: 'textfield',
+                                                                    fieldLabel: _('social_security'),
+                                                                    emptyText: _('social_security'),
+                                                                    name: 'SS',
+                                                                    labelWidth: 100,
+                                                                    margin: '10 0 5 0',
+                                                                    width: 200
                                                                 },
                                                                 {
                                                                     xtype: 'textfield',
-                                                                    name: 'birth_place',
-                                                                    width: 80,
-                                                                    fieldLabel: _('birth_place'),
-                                                                    hideLabel: false,
-                                                                    margin: '2 2 2 10'
+                                                                    emptyText: _('license_no'),
+                                                                    fieldLabel: _('drivers_info'),
+                                                                    labelWidth: 85,
+                                                                    enableKeyEvents: true,
+                                                                    width: 170,
+                                                                    name: 'drivers_license'
+                                                                },
+                                                                {
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    name: 'drivers_license_state',
+                                                                    emptyText: _('license'),
+                                                                    fieldLabel: _('state'),
+                                                                    labelWidth: 40,
+                                                                    width: 140,
+                                                                    list: 20,
+                                                                    loadStore: true,
+                                                                    editable: false
+                                                                },
+                                                                {
+                                                                    xtype: 'datefield',
+                                                                    name: 'drivers_license_exp',
+                                                                    fieldLabel: _('expiration'),
+                                                                    emptyText: _('license'),
+                                                                    labelWidth: 70,
+                                                                    width: 170,
+                                                                    format: 'Y-m-d'
                                                                 }
                                                             ]
                                                         }
                                                     ]
-                                                },
-
-
-                                                {
-                                                    xtype: 'textfield',
-                                                    name: 'alias',
-                                                    fieldLabel: _('alias_name'),
-                                                    hideLabel: false
-                                                },
-                                                {
-                                                    xtype: 'textfield',
-                                                    fieldLabel: _('social_security'),
-                                                    emptyText: _('social_security'),
-                                                    name: 'SS',
-                                                    labelWidth: 90,
-                                                    width: 190
-                                                },
-                                                {
-                                                    xtype: 'gaiaehr.combo',
-                                                    fieldLabel: _('citizenship'),
-                                                    hideLabel: false,
-                                                    name: 'citizenship',
-                                                    list: 104,
-                                                    loadStore: true,
-                                                    editable: false
-                                                },
-                                                {
-                                                    xtype: 'gaiaehr.combo',
-                                                    fieldLabel: _('hipaa_notice'),
-                                                    margin: '0 5 5 0',
-                                                    name: 'hipaa_notice',
-                                                    list: 1,
-                                                    loadStore: true,
-                                                    editable: false
-                                                },
-                                                {
-                                                    xtype: 'gaiaehr.combo',
-                                                    fieldLabel: _('veteran'),
-                                                    width: 300,
-                                                    boxLabel: 'Yes',
-                                                    name: 'is_veteran',
-                                                    loadStore: true,
-                                                    editable: false
-                                                },
-                                                {
-                                                    xtype: 'fieldcontainer',
-                                                    fieldLabel: _('multiple_birth'),
-                                                    hideLabel: false,
-                                                    layout: 'hbox',
-                                                    width: 350,
-                                                    items: [
-                                                    ]
-                                                },
-                                                {
-                                                    xtype: 'gaiaehr.combo',
-                                                    name: 'organ_donor_code',
-                                                    fieldLabel: _('organ_donor'),
-                                                    list: 137,
-                                                    width: 500,
-                                                    loadStore: true,
-                                                    editable: false
-                                                },
-                                                {
-                                                    xtype: 'gaiaehr.combo',
-                                                    fieldLabel: _('deceased'),
-                                                    hideLabel: false,
-                                                    width: 350,
-                                                    boxLabel: 'Yes',
-                                                    name: 'deceased',
-                                                    list: 103,
-                                                    loadStore: true,
-                                                    editable: false
-                                                },
-                                                {
-                                                    xtype: 'mitos.datetime',
-                                                    fieldLabel: _('death_date'),
-                                                    hideLabel: false,
-                                                    width: 350,
-                                                    margin: '0 5 5 0',
-                                                    name: 'death_date'
-                                                }
-
-                                            ]
-										},
-										{
-											xtype: 'container',
-											items: [
-                                                {
-                                                    xtype: 'fieldcontainer',
-                                                    fieldLabel: _('drivers_info_line'),
-                                                    labelWidth: 149,
-                                                    hideLabel: false,
-                                                    layout: 'hbox',
-                                                    width: '80%',
-                                                    defaults: {
-                                                        margin: '2 5 0 0'
-                                                    },
-                                                    items: [
-                                                        {
-                                                            xtype: 'textfield',
-                                                            emptyText: _('driver_license'),
-                                                            labelWidth: 149,
-                                                            enableKeyEvents: true,
-                                                            width: 175,
-                                                            name: 'drivers_license'
-                                                        },
-                                                        {
-                                                            xtype: 'gaiaehr.combo',
-                                                            width: 175,
-                                                            name: 'drivers_license_state',
-                                                            list: 20,
-                                                            loadStore: true,
-                                                            editable: false
-                                                        },
-                                                        {
-                                                            xtype: 'datefield',
-                                                            width: 140,
-                                                            name: 'drivers_license_exp',
-                                                            format: 'Y-m-d'
-                                                        }
-                                                    ]
-                                                }
-											]
-										}
-									]
-								},
-                                {
-                                    xtype: 'panel',
-                                    title: _('communication'),
-                                    hideLabel: false,
-                                    enableKeyEvents: true,
-                                    checkboxToggle: false,
-                                    collapsed: false,
-                                    border: false,
-                                    bodyBorder: false,
-                                    bodyPadding: 10,
-                                    items: [
-                                        {
-                                            xtype: 'container',
-                                            layout: 'hbox',
-                                            items:[
-                                                {
-                                                    xtype: 'container',
-                                                    layout: 'vbox',
-                                                    items:[
-                                                        {
-                                                            xtype: 'container',
-                                                            layout: 'hbox',
-                                                            margin: '0 0 0 10',
-                                                            items: [
-                                                                {
-                                                                    xtype: 'checkbox',
-                                                                    width: 150,
-                                                                    margin: '0 5 0 0',
-                                                                    boxLabel: _('allow_voice_msg'),
-                                                                    name: 'allow_voice_msg'
-                                                                },
-                                                                {
-                                                                    xtype: 'checkbox',
-                                                                    width: 150,
-                                                                    margin: '0 5 0 0',
-                                                                    boxLabel: _('allow_mail_msg'),
-                                                                    name: 'allow_mail_msg'
-                                                                },
-                                                                {
-                                                                    xtype: 'checkbox',
-                                                                    width: 240,
-                                                                    margin: '0 5 0 0',
-                                                                    boxLabel: _('allow_immunization_registry_use'),
-                                                                    name: 'allow_immunization_registry'
-                                                                },
-                                                                {
-                                                                    xtype: 'checkbox',
-                                                                    margin: '0 5 0 0',
-                                                                    boxLabel: _('allow_health_information_exchange'),
-                                                                    name: 'allow_health_info_exchange'
-                                                                }
-                                                            ]
-                                                        },
-                                                        {
-                                                            xtype: 'container',
-                                                            layout: 'hbox',
-                                                            margin: '5 0 0 10',
-                                                            items: [
-                                                                {
-                                                                    xtype: 'checkbox',
-                                                                    width: 240,
-                                                                    margin: '0 5 0 0',
-                                                                    boxLabel: _('allow_immunization_info_sharing'),
-                                                                    name: 'allow_immunization_info_sharing'
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            xtype: 'container',
-                                            layout: 'hbox',
-                                            margin: '0 0 10 10',
-                                            items: [
+                                                }, //SocSec, Drivers Info
                                                 {
                                                     xtype: 'fieldset',
-                                                    title: _('allow_patient_web_portal'),
-                                                    checkboxName: 'allow_patient_web_portal',
-                                                    checkboxToggle: true,
-                                                    width: 320,
-                                                    margin: '0 5 0 0',
-                                                    items: [
-                                                        {
-                                                            xtype: 'textfield',
-                                                            fieldLabel: _('web_portal_username'),
-                                                            labelWidth: 149,
-                                                            name: 'portal_username'
-                                                        },
-                                                        {
-                                                            xtype: 'textfield',
-                                                            fieldLabel: _('web_portal_password'),
-                                                            labelWidth: 149,
-                                                            name: 'portal_password',
-                                                            inputType: 'password'
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    xtype: 'fieldset',
-                                                    title: _('allow_pat_guardian_access_portal'),
-                                                    checkboxName: 'allow_guardian_web_portal',
-                                                    checkboxToggle: true,
                                                     collapsible: false,
-                                                    width: 320,
-                                                    margin: '0 5 0 0',
+                                                    checkboxToggle: false,
+                                                    collapsed: false,
+                                                    cls: 'highlight_fieldset',
+                                                    margin: '10 0 5 0',
                                                     items: [
                                                         {
-                                                            xtype: 'textfield',
-                                                            fieldLabel: _('web_portal_username'),
-                                                            labelWidth: 149,
-                                                            name: 'guardian_portal_username'
-                                                        },
-                                                        {
-                                                            xtype: 'textfield',
-                                                            fieldLabel: _('web_portal_password'),
-                                                            labelWidth: 149,
-                                                            name: 'guardian_portal_password',
-                                                            inputType: 'password'
+                                                            xtype: 'fieldcontainer',
+                                                            layout: 'hbox',
+                                                            hideLabel: false,
+                                                            width: 700,
+                                                            defaults: {
+                                                                margin: '10 0 5 10',
+                                                                labelAlign: 'right'
+                                                            },
+                                                            items: [
+                                                                {
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    name: 'deceased',
+                                                                    fieldLabel: _('deceased'),
+                                                                    list: 103,
+                                                                    labelWidth: 100,
+                                                                    width: 200,
+                                                                    margin: '10 0 5 0',
+                                                                    boxLabel: 'Yes',
+                                                                    hideLabel: false,
+                                                                    loadStore: true,
+                                                                    editable: false
+                                                                },
+                                                                {
+                                                                    xtype: 'mitos.datetime',
+                                                                    name: 'death_date',
+                                                                    fieldLabel: _('death_date'),
+                                                                    hideLabel: false,
+                                                                    labelWidth: 85,
+                                                                    width: 285
+                                                                }
+                                                            ]
                                                         }
                                                     ]
-                                                },
+                                                }, //Deceased and Date
                                                 {
                                                     xtype: 'fieldset',
-                                                    title: _('allow_pat_emerg_access_web_portal'),
-                                                    checkboxName: 'allow_emergency_contact_web_portal',
-                                                    checkboxToggle: true,
-                                                    width: 320,
-                                                    margin: '0 5 0 0',
+                                                    collapsible: false,
+                                                    checkboxToggle: false,
+                                                    collapsed: false,
+                                                    cls: 'highlight_fieldset',
+                                                    margin: '10 0 5 0',
                                                     items: [
                                                         {
-                                                            xtype: 'textfield',
-                                                            fieldLabel: _('web_portal_username'),
-                                                            labelWidth: 149,
-                                                            name: 'emergency_contact_portal_username'
-                                                        },
-                                                        {
-                                                            xtype: 'textfield',
-                                                            fieldLabel: _('web_portal_password'),
-                                                            labelWidth: 149,
-                                                            name: 'emergency_contact_portal_password',
-                                                            inputType: 'password'
+                                                            xtype: 'fieldcontainer',
+                                                            layout: 'hbox',
+                                                            hideLabel: false,
+                                                            width: 700,
+                                                            defaults: {
+                                                                margin: '10 0 5 10',
+                                                                labelAlign: 'right'
+                                                            },
+                                                            items: [
+                                                                {
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    fieldLabel: _('hipaa_notice'),
+                                                                    name: 'hipaa_notice',
+                                                                    labelWidth: 100,
+                                                                    width: 200,
+                                                                    list: 1,
+                                                                    margin: '10 0 5 0',
+                                                                    loadStore: true,
+                                                                    editable: false
+                                                                },
+                                                                {
+                                                                    xtype: 'gaiaehr.combo',
+                                                                    name: 'organ_donor_code',
+                                                                    fieldLabel: _('organ_donor'),
+                                                                    list: 137,
+                                                                    labelWidth: 85,
+                                                                    width: 400,
+                                                                    loadStore: true,
+                                                                    editable: false
+                                                                }
+                                                            ]
                                                         }
                                                     ]
-                                                }
+                                                } //Hipaa Notice, Organ Donor
                                             ]
-                                        }
-                                    ]
-                                }
+										}
+
+									]
+								}  //Additional Info
 							]
 						}
 					]
@@ -54902,6 +55174,8 @@ Ext.define('App.controller.patient.Documents', {
 			store = me.getPatientDocumentGrid().getStore(),
 			index = store.indexOf(record);
 
+		record.set({facility_id: app.user.facility});
+
 		if(index == -1){
 			store.add(record);
 		}
@@ -56115,10 +56389,10 @@ Ext.define('App.view.patient.Referrals', {
 	requires: [
 		'App.ux.LiveCPTSearch',
 		'App.ux.LiveICDXSearch',
+		'App.ux.LiveReferringPhysicianSearch',
 		'App.ux.combo.ActiveProviders',
 		'Ext.selection.CheckboxModel',
-		'App.ux.grid.RowFormEditing',
-		'App.ux.combo.ReferringProviders'
+		'App.ux.grid.RowFormEditing'
 	],
 	xtype: 'patientreferralspanel',
 	title: _('referrals'),
@@ -56127,7 +56401,8 @@ Ext.define('App.view.patient.Referrals', {
 	columnLines: true,
 	allowDeselect: true,
 	store: Ext.create('App.store.patient.Referrals', {
-		remoteFilter: true
+		remoteFilter: true,
+		storeId: 'ReferralsStore'
 	}),
 	plugins: [
 		{
@@ -56201,7 +56476,7 @@ Ext.define('App.view.patient.Referrals', {
 									xtype: 'activeproviderscombo',
 									fieldLabel: _('refer_by'),
 									name: 'refer_by_text',
-									width: 300,
+									width: 350,
 									displayField: 'option_name',
 									valueField: 'option_name',
 									itemId: 'ReferralProviderCombo'
@@ -56216,20 +56491,19 @@ Ext.define('App.view.patient.Referrals', {
 											name: 'refer_to_text',
 											labelAlign: 'right',
 											margin: '0 5 5 0',
-											width: 300,
-//											disabled: true,
-//											hidden: true,
+											width: 350,
 											displayField: 'fullname',
 											valueField: 'fullname',
 											itemId: 'ReferralLocalProviderCombo'
 										},
 										{
-											xtype: 'referringproviderscombo',
+											xtype: 'referringphysicianlivetsearch',
 											fieldLabel: _('refer_to'),
 											name: 'refer_to_text',
 											labelAlign: 'right',
 											margin: '0 5 5 0',
-											width: 300,
+											hideLabel: false,
+											width: 350,
 											disabled: true,
 											hidden: true,
 											displayField: 'fullname',
@@ -56250,7 +56524,7 @@ Ext.define('App.view.patient.Referrals', {
 									fieldLabel: _('risk_level'),
 									name: 'risk_level',
 									list: 17,
-									width: 300
+									width: 350
 								},
 //								{
 //									xtype: 'checkboxfield',

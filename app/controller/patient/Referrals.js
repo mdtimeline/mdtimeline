@@ -109,14 +109,16 @@ Ext.define('App.controller.patient.Referrals', {
 		record.set({refer_to: records[0].data.id});
 	},
 
-	onPrintReferralBtnClick:function(){
+	onPrintReferralBtnClick:function(referral){
 		var me = this,
 			grid = me.getReferralPanelGrid(),
 			sm = grid.getSelectionModel(),
-			selection = sm.getSelection(),
+			selection = (referral.isModel ? [referral] : sm.getSelection()),
             params,
             i;
-		grid.view.el.mask(_('generating_documents'));
+
+		if(grid.view.el) grid.view.el.mask(_('generating_documents'));
+
 		for(i=0; i < selection.length; i++){
 			params = {
                 pid: app.patient.pid,
@@ -131,11 +133,9 @@ Ext.define('App.controller.patient.Referrals', {
 				}else{
 					app.onDocumentView(response.result.id, 'Referral');
 				}
-				grid.view.el.unmask();
+				if(grid.view.el) grid.view.el.unmask();
 			});
 		}
-
-
 	},
 
 	onGridSelectionChange:function(grid, models){

@@ -22,3 +22,4 @@ Ext.define('App.store.patient.Patient', {
 	remoteSort: true,
 	autoLoad  : false
 });
+

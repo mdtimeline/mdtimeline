@@ -22,7 +22,16 @@ class Insurance {
 	/**
 	 * @var MatchaCUP
 	 */
+	private $ic;
+	/**
+	 * @var MatchaCUP
+	 */
+	private $in;
+	/**
+	 * @var MatchaCUP
+	 */
 	private $pi;
+
 
 	function __construct(){
         if(!isset($this->ic))
@@ -67,7 +76,7 @@ class Insurance {
 		return $numbers;
 	}
 
-	public function getInsuranceNumber($params) {
+    public function getInsuranceNumber($params) {
 		return $this->in->load($params)->one();
 	}
 
@@ -138,6 +147,13 @@ class Insurance {
 	public function getPatientPrimaryInsuranceByPid($pid) {
 		$this->pi->addFilter('pid', $pid);
 		$this->pi->addFilter('insurance_type', 'p');
+		return $this->pi->load()->one();
+	}
+
+	public function getPatientInsuranceByPidAndPolicyNumberAndPrimary($pid, $policy_number) {
+		$this->pi->addFilter('pid', $pid);
+        $this->pi->addFilter('insurance_type', 'p');
+        $this->pi->addFilter('policy_number', $policy_number);
 		return $this->pi->load()->one();
 	}
 

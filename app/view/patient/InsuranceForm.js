@@ -92,12 +92,20 @@ Ext.define('App.view.patient.InsuranceForm', {
                                     },
                                     items: [
                                         {
+                                            xtype: 'button',
+                                            text: 'Eligibility',
+                                            itemId: 'InsuranceEligibilityBtn',
+                                            //labelWidth: 70,
+                                            width: 90
+                                        },
+                                        {
                                             xtype: 'textfield',
                                             name: 'policy_number',
+                                            itemId: 'PatientInsuranceID',
                                             emptyText: _('policy_number'),
                                             fieldLabel: _('id'),
-                                            labelWidth: 120,
-                                            width: 250
+                                            labelWidth: 28,
+                                            width: 150
                                         },
                                         {
                                             xtype: 'textfield',
@@ -214,6 +222,7 @@ Ext.define('App.view.patient.InsuranceForm', {
                                     width: 700,
                                     defaults: {
                                         margin: '5 5 0 2',
+                                        labelWidth: 40,
                                         labelAlign: 'right'
                                     },
                                     items: [
@@ -224,8 +233,7 @@ Ext.define('App.view.patient.InsuranceForm', {
                                             emptyText: _('title'),
                                             queryMode: 'local',
                                             list: 22,
-                                            labelWidth: 90,
-                                            width: 150,
+                                            width: 100,
                                             loadStore: true,
                                             editable: false
                                         },
@@ -246,6 +254,25 @@ Ext.define('App.view.patient.InsuranceForm', {
                                             name: 'subscriber_surname',
                                             emptyText: _('last_name'),
                                             width: 180
+                                        },
+                                        {
+                                            xtype: 'datefield',
+                                            name: 'subscriber_dob',
+                                            emptyText: _('dob'),
+                                            fieldLabel: _('dob'),
+                                            width: 150
+                                        },
+                                        {
+                                            xtype: 'gaiaehr.combo',
+                                            name: 'subscriber_sex',
+                                            emptyText: _('sex'),
+                                            fieldLabel: _('sex'),
+                                            labelWidth: 30,
+                                            list: 95,
+                                            queryMode: 'local',
+                                            width: 110,
+                                            loadStore: true,
+                                            editable: false
                                         }
                                     ]
 								} //Full Name
@@ -267,24 +294,12 @@ Ext.define('App.view.patient.InsuranceForm', {
                                     },
                                     items: [
                                         {
-                                            xtype: 'datefield',
-                                            name: 'subscriber_dob',
-                                            emptyText: _('dob'),
-                                            fieldLabel: _('dob'),
-                                            labelWidth: 90,
-                                            width: 190
-                                        },
-                                        {
-                                            xtype: 'gaiaehr.combo',
-                                            name: 'subscriber_sex',
-                                            emptyText: _('sex'),
-                                            fieldLabel: _('sex'),
-                                            labelWidth: 30,
-                                            list: 95,
-                                            queryMode: 'local',
-                                            width: 110,
-                                            loadStore: true,
-                                            editable: false
+                                            xtype: 'textfield',
+                                            name: 'subscriber_phone',
+                                            emptyText: '000-000-0000',
+                                            fieldLabel: _('phone'),
+                                            labelWidth: 40,
+                                            width: 140
                                         },
                                         {
                                             xtype: 'textfield',
@@ -296,11 +311,11 @@ Ext.define('App.view.patient.InsuranceForm', {
                                         },
                                         {
                                             xtype: 'textfield',
-                                            name: 'subscriber_phone',
-                                            emptyText: '000-000-0000',
-                                            fieldLabel: _('phone'),
-                                            labelWidth: 40,
-                                            width: 140
+                                            name: 'subscriber_employer',
+                                            emptyText: _('employer'),
+                                            fieldLabel: _('employer'),
+                                            labelWidth: 60,
+                                            width: 330
                                         }
                                     ]
                                 } //DOB Sex SocialSecurity Phone
@@ -325,8 +340,8 @@ Ext.define('App.view.patient.InsuranceForm', {
                                             xtype: 'textfield',
                                             emptyText: _('street'),
                                             fieldLabel: _('street'),
-                                            labelWidth: 90,
-                                            width: 390,
+                                            labelWidth: 40,
+                                            width: 340,
                                             name: 'subscriber_street'
                                         }
                                     ]
@@ -337,6 +352,7 @@ Ext.define('App.view.patient.InsuranceForm', {
                                     width: 700,
                                     defaults: {
                                         margin: '2 5 0 0',
+                                        labelWidth: 40,
                                         labelAlign: 'right'
                                     },
                                     items: [
@@ -345,8 +361,7 @@ Ext.define('App.view.patient.InsuranceForm', {
                                             name: 'subscriber_city',
                                             emptyText: _('city'),
                                             fieldLabel: _('city'),
-                                            labelWidth: 90,
-                                            width: 190
+                                            width: 140
                                         },
                                         {
                                             xtype: 'gaiaehr.combo',
@@ -383,17 +398,10 @@ Ext.define('App.view.patient.InsuranceForm', {
                                     width: 700,
                                     defaults: {
                                         margin: '2 5 0 0',
+                                        labelWidth: 40,
                                         labelAlign: 'right'
                                     },
                                     items: [
-                                        {
-                                            xtype: 'textfield',
-                                            name: 'subscriber_employer',
-                                            emptyText: _('employer'),
-                                            fieldLabel: _('employer'),
-                                            labelWidth: 90,
-                                            width: 390
-                                        }
                                     ]
                                 }  //Employer Suscriber
                             ]

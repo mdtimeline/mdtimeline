@@ -18,7 +18,13 @@
  */
 
 $API = [
-
+    'modules.billing.dataProvider.InmediataWS270' => [
+        'methods' => [
+            'create270' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'CCDDocumentParse' => [
         'methods' => [
             'parseDocument' => [

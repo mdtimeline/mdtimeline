@@ -47,6 +47,7 @@ Ext.define('App.controller.patient.Patient', {
 			'#PossiblePatientDuplicatesContinueBtn': {
 				click: me.onPossiblePatientDuplicatesContinueBtnClick
 			}
+
 		});
 	},
 

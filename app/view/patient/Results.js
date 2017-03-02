@@ -201,7 +201,7 @@ Ext.define('App.view.patient.Results', {
 							xtype: 'button',
 							text: _('view_document'),
 							icon: 'resources/images/icons/icoView.png',
-							action: 'ResultsLaboratoryPanelDocumentViewBtn'
+							itemId: 'ResultsLaboratoryPanelDocumentViewBtn'
 						}
 					],
 					items: [

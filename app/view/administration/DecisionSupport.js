@@ -450,6 +450,27 @@ Ext.define('App.view.administration.DecisionSupport', {
 										dataIndex: 'concept_text'
 									},
 									{
+										text: _('value'),
+										columns: [
+											{
+												header: _('operator'),
+												dataIndex: 'value_operator',
+												width: 180,
+												editor: {
+													xtype: 'gaiaehr.combo',
+													list: 111
+												}
+											},
+											{
+												header: _('value'),
+												dataIndex: 'value',
+												editor: {
+													xtype: 'textfield'
+												}
+											}
+										]
+									},
+									{
 										text: _('frequency'),
 										columns: [
 											{
@@ -471,27 +492,6 @@ Ext.define('App.view.administration.DecisionSupport', {
 											{
 												header: _('interval'),
 												dataIndex: 'frequency_interval',
-												editor: {
-													xtype: 'textfield'
-												}
-											}
-										]
-									},
-									{
-										text: _('value'),
-										columns: [
-											{
-												header: _('operator'),
-												dataIndex: 'value_operator',
-												width: 180,
-												editor: {
-													xtype: 'gaiaehr.combo',
-													list: 111
-												}
-											},
-											{
-												header: _('value'),
-												dataIndex: 'value',
 												editor: {
 													xtype: 'textfield'
 												}
@@ -549,6 +549,27 @@ Ext.define('App.view.administration.DecisionSupport', {
 										dataIndex: 'concept_text'
 									},
 									{
+										text: _('value'),
+										columns: [
+											{
+												header: _('operator'),
+												dataIndex: 'value_operator',
+												width: 180,
+												editor: {
+													xtype: 'gaiaehr.combo',
+													list: 111
+												}
+											},
+											{
+												header: _('value'),
+												dataIndex: 'value',
+												editor: {
+													xtype: 'textfield'
+												}
+											}
+										]
+									},
+									{
 										text: _('frequency'),
 										columns: [
 											{
@@ -568,29 +589,8 @@ Ext.define('App.view.administration.DecisionSupport', {
 												}
 											},
 											{
-												header: _('interval'),
+												header: _('within'),
 												dataIndex: 'frequency_interval',
-												editor: {
-													xtype: 'textfield'
-												}
-											}
-										]
-									},
-									{
-										text: _('value'),
-										columns: [
-											{
-												header: _('operator'),
-												dataIndex: 'value_operator',
-												width: 180,
-												editor: {
-													xtype: 'gaiaehr.combo',
-													list: 111
-												}
-											},
-											{
-												header: _('value'),
-												dataIndex: 'value',
 												editor: {
 													xtype: 'textfield'
 												}
@@ -643,6 +643,27 @@ Ext.define('App.view.administration.DecisionSupport', {
 										dataIndex: 'concept_text'
 									},
 									{
+										text: _('value'),
+										columns: [
+											{
+												header: _('operator'),
+												dataIndex: 'value_operator',
+												width: 180,
+												editor: {
+													xtype: 'gaiaehr.combo',
+													list: 111
+												}
+											},
+											{
+												header: _('value'),
+												dataIndex: 'value',
+												editor: {
+													xtype: 'textfield'
+												}
+											}
+										]
+									},
+									{
 										text: _('frequency'),
 										columns: [
 											{
@@ -664,27 +685,6 @@ Ext.define('App.view.administration.DecisionSupport', {
 											{
 												header: _('interval'),
 												dataIndex: 'frequency_interval',
-												editor: {
-													xtype: 'textfield'
-												}
-											}
-										]
-									},
-									{
-										text: _('value'),
-										columns: [
-											{
-												header: _('operator'),
-												dataIndex: 'value_operator',
-												width: 180,
-												editor: {
-													xtype: 'gaiaehr.combo',
-													list: 111
-												}
-											},
-											{
-												header: _('value'),
-												dataIndex: 'value',
 												editor: {
 													xtype: 'textfield'
 												}
@@ -737,6 +737,27 @@ Ext.define('App.view.administration.DecisionSupport', {
 										dataIndex: 'concept_text'
 									},
 									{
+										text: _('value'),
+										columns: [
+											{
+												header: _('operator'),
+												dataIndex: 'value_operator',
+												width: 180,
+												editor: {
+													xtype: 'gaiaehr.combo',
+													list: 111
+												}
+											},
+											{
+												header: _('value'),
+												dataIndex: 'value',
+												editor: {
+													xtype: 'textfield'
+												}
+											}
+										]
+									},
+									{
 										text: _('frequency'),
 										columns: [
 											{
@@ -758,27 +779,6 @@ Ext.define('App.view.administration.DecisionSupport', {
 											{
 												header: _('interval'),
 												dataIndex: 'frequency_interval',
-												editor: {
-													xtype: 'textfield'
-												}
-											}
-										]
-									},
-									{
-										text: _('value'),
-										columns: [
-											{
-												header: _('operator'),
-												dataIndex: 'value_operator',
-												width: 180,
-												editor: {
-													xtype: 'gaiaehr.combo',
-													list: 111
-												}
-											},
-											{
-												header: _('value'),
-												dataIndex: 'value',
 												editor: {
 													xtype: 'textfield'
 												}
@@ -831,6 +831,27 @@ Ext.define('App.view.administration.DecisionSupport', {
 										dataIndex: 'concept_text'
 									},
 									{
+										text: _('value'),
+										columns: [
+											{
+												header: _('operator'),
+												dataIndex: 'value_operator',
+												width: 180,
+												editor: {
+													xtype: 'gaiaehr.combo',
+													list: 111
+												}
+											},
+											{
+												header: _('value'),
+												dataIndex: 'value',
+												editor: {
+													xtype: 'textfield'
+												}
+											}
+										]
+									},
+									{
 										text: _('frequency'),
 										columns: [
 											{
@@ -852,27 +873,6 @@ Ext.define('App.view.administration.DecisionSupport', {
 											{
 												header: _('interval'),
 												dataIndex: 'frequency_interval',
-												editor: {
-													xtype: 'textfield'
-												}
-											}
-										]
-									},
-									{
-										text: _('value'),
-										columns: [
-											{
-												header: _('operator'),
-												dataIndex: 'value_operator',
-												width: 180,
-												editor: {
-													xtype: 'gaiaehr.combo',
-													list: 111
-												}
-											},
-											{
-												header: _('value'),
-												dataIndex: 'value',
 												editor: {
 													xtype: 'textfield'
 												}

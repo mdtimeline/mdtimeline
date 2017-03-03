@@ -31,6 +31,12 @@
             "type": "string",
             "width": 30
         },
+        "language_name": {
+            "name": "Language",
+            "align": "left",
+            "type": "string",
+            "width": 50
+        },
         "Communication": {
             "name": "Communication",
             "align": "center",

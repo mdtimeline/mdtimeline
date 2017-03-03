@@ -25,6 +25,7 @@ SELECT patient.pid,
         Communication.option_name as Communication,
         Sex.option_name as sex_name,
         MaritalStatus.option_name as marital_status,
+        LanguageSpoken.option_name as language_name,
 
         # Encounter Service Dates
         (SELECT
@@ -136,6 +137,9 @@ LEFT JOIN combo_lists_options as Sex ON Sex.option_value = patient.sex AND Sex.l
 # Marital Status
 LEFT JOIN combo_lists_options as MaritalStatus ON MaritalStatus.option_value = patient.marital_status AND MaritalStatus.list_id = 12
 
+# Patient Language
+LEFT JOIN combo_lists_options as LanguageSpoken ON LanguageSpoken.option_value = patient.language AND LanguageSpoken.list_id = 10
+
 WHERE
 
 # Where StartDate and EndDate
@@ -187,6 +191,15 @@ AND
 CASE
     WHEN @CommunicationCode IS NOT NULL
 	THEN patient.phone_publicity = @CommunicationCode
+    ELSE 1=1
+END
+
+AND
+
+# Where Language
+CASE
+    WHEN @LanguageCode IS NOT NULL
+	THEN patient.language = @LanguageCode
     ELSE 1=1
 END
 

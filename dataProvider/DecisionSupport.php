@@ -535,7 +535,7 @@ class DecisionSupport
                 }
             }
 
-            return $alerts_found == count($rule['concepts']['LAB']);
+            return $alerts_found !== 0;
         }
         return true;
     }

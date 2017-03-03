@@ -218,14 +218,14 @@ OBSERVATIONS;
 
 		$report_notes = '';
 
-		foreach ($order_observation['NTE'] as $index => $note){
-		    if($index > 0){
-                $report_notes .= PHP_EOL . '|              ';
+		if(isset($order_observation['NTE']) && is_array($order_observation['NTE'])) {
+            foreach ($order_observation['NTE'] as $index => $note) {
+                if ($index > 0) {
+                    $report_notes .= PHP_EOL . '|              ';
+                }
+                $report_notes .= $index + 1 . '. ' . $note[3][0];
             }
-            $report_notes .= $index +1 . '. ' . $note[3][0];
         }
-
-
 
 		foreach ($order_observation['OBSERVATION'] as $observation){
 			if(!isset($observation['OBX'])) continue;

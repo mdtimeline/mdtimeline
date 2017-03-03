@@ -13918,11 +13918,6 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
-			name: 'signature',
-			type: 'string',
-			len: 100
-		},
-		{
 			name: 'fullname',
 			type: 'string',
 			comment: 'title full name',
@@ -55854,6 +55849,7 @@ Ext.define('App.controller.patient.Results', {
 		form.reset();
 		this.getResultsRadiologyDocumentIframe().setSrc('about:blank');
 	},
+
 
 	getActiveForm: function(){
 		return this.getResultsCardPanel().getLayout().getActiveItem().down('form');

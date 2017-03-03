@@ -83,10 +83,13 @@ SELECT patient.pid,
 		LEFT JOIN patient_order_results AS POR ON PO.id = POR.order_id
 		LEFT JOIN patient_order_results_observations AS PORO ON POR.id = PORO.result_id
 		WHERE patient_orders.pid = patient.pid AND
-		CASE
+        CASE
 			WHEN @LabOrderCode IS NOT NULL
-			THEN POR.code = @LabOrderCode
-
+			THEN PO.code = @LabOrderCode
+            ELSE 1=1
+        END
+        AND
+		CASE
 			WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '=' AND @LabOrderCode IS NOT NULL
 			THEN PORO.value = @LabOrderValue AND PORO.code = @LabOrderCode
 
@@ -117,6 +120,12 @@ LEFT JOIN users as Providers ON Providers.id = encounters.provider_uid
 
 # Laboratory Orders Join
 LEFT JOIN patient_orders ON patient.pid = patient_orders.pid AND order_type = 'lab'
+
+# Laboratory Orders Results Join
+LEFT JOIN patient_order_results ON patient_orders.id = patient_order_results.order_id
+
+# Laboratory Orders Results Observations Join
+LEFT JOIN patient_order_results_observations ON patient_order_results.id = patient_order_results_observations.result_id
 
 # Race Join
 LEFT JOIN combo_lists_options as Race ON Race.option_value = patient.race AND Race.list_id = 14
@@ -242,6 +251,28 @@ CASE
     WHEN @AgeFrom IS NOT NULL AND @AgeTo IS NOT NULL
     THEN TIMESTAMPDIFF(YEAR, patient.DOB, CURDATE()) BETWEEN @AgeFrom AND @AgeTo
     ELSE 1=1
+END
+
+AND
+
+CASE
+	WHEN @LabOrderCode IS NOT NULL
+	THEN patient_orders.code = @LabOrderCode
+    ELSE 1=1
+END
+
+AND
+
+CASE
+	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '=' AND @LabOrderCode IS NOT NULL
+	THEN patient_order_results_observations.value = @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
+
+	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '>=' AND @LabOrderCode IS NOT NULL
+	THEN patient_order_results_observations.value >= @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
+
+	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '<=' AND @LabOrderCode IS NOT NULL
+	THEN patient_order_results_observations.value <= @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
+	ELSE 1=1
 END
 
 GROUP BY patient.pid

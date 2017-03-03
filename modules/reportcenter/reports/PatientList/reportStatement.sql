@@ -23,6 +23,7 @@ SELECT patient.pid,
         Race.option_name as Race,
         Ethnicity.option_name as Ethnicity,
         Communication.option_name as Communication,
+        Sex.option_name as Sex,
 
         # Encounter Service Dates
         (SELECT
@@ -128,6 +129,9 @@ LEFT JOIN combo_lists_options as Ethnicity ON Ethnicity.option_value = patient.e
 # Phone Publicity (Communication)
 LEFT JOIN combo_lists_options as Communication ON Communication.option_value = patient.phone_publicity AND Communication.list_id = 132
 
+# Patient Gender
+LEFT JOIN combo_lists_options as Sex ON Communication.option_value = patient.sex AND Sex.list_id = 95
+
 WHERE
 
 # Where StartDate and EndDate
@@ -184,6 +188,15 @@ END
 
 AND
 
+# Where Patient Gender
+CASE
+    WHEN @SexCode IS NOT NULL
+	THEN patient.sex = @SexCode
+    ELSE 1=1
+END
+
+AND
+
 # Where Medication Allergies
 CASE
 	WHEN @MedicationAllergyCode IS NOT NULL
@@ -211,12 +224,13 @@ END
 
 AND
 
+
+# Where Laboratory Order/Result/Values
 CASE
 	WHEN @LabOrderCode IS NOT NULL
     THEN patient_order_results.code = @LabOrderCode
     ELSE 1=1
 END AND
-
 CASE
 	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '=' AND @LabOrderCode IS NOT NULL
 	THEN patient_order_results_observations.value = @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode

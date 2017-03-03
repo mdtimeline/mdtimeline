@@ -41,19 +41,19 @@
             "name": "Date of Birth",
             "align": "center",
             "type": "string",
-            "width": 120
+            "width": 90
         },
         "service_dates": {
             "name": "Service Dates",
-            "align": "left",
+            "align": "center",
             "type": "string",
-            "width": 120
+            "width": 90
         },
         "marital_status": {
             "name": "Marital Status",
             "align": "center",
             "type": "string",
-            "width": 30
+            "width": 40
         },
         "occupation": {
             "name": "Occupation",

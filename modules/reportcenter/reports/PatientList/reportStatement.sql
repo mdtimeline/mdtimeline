@@ -244,4 +244,6 @@ CASE
     ELSE 1=1
 END
 
-GROUP BY patient.pid;
+GROUP BY patient.pid
+:ux-sort
+:ux-pagination;

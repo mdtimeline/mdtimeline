@@ -271,6 +271,7 @@ OBSERVATIONS;
 				$organization_state = $observation['OBX'][24][4];
 				$organization_zip = $observation['OBX'][24][5];
 				$organization_country = $observation['OBX'][24][6];
+				$organization_parish = $observation['OBX'][24][9];
 
 				$performing_organization_director_id = $observation['OBX'][25][1];
 				$performing_organization_director_name = '';
@@ -294,11 +295,12 @@ OBSERVATIONS;
 				$org_text = <<<ORG
 |       CONTACT: $performing_organization_director_name
 |       NAME: {$organization_name}
-|       ADDRESS: {$organization_address}
+|       STREET: {$organization_address}
 |       CITY: {$organization_city}
 |       SATE: {$organization_state}
 |       ZIP CODE: {$organization_zip}
 |       COUNTRY: {$organization_country}
+|       PARISH CODE: {$organization_parish}
 |
 ORG;
 				$PERFORMING_ORGANIZATIONS[$organization_key] = $org_text;

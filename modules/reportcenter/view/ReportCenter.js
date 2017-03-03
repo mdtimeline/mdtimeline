@@ -91,14 +91,15 @@ Ext.define('Modules.reportcenter.view.ReportCenter', {
                         xtype: 'button',
                         text: _('render'),
                         itemId: 'render'
-                    },
-                    '->',
-                    {
-                        xtype: 'button',
-                        text: _('export'),
-                        itemId: 'export',
-                        disabled: true
                     }
+
+                    // '->',
+                    // {
+                    //     xtype: 'button',
+                    //     text: _('export'),
+                    //     itemId: 'export',
+                    //     disabled: true
+                    // }
                 ]
             }]
         }

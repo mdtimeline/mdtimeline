@@ -25,11 +25,17 @@
             "flex": 1,
             "type": "string"
         },
-        "sex": {
+        "sex_name": {
             "name": "Sex",
             "align": "center",
             "type": "string",
             "width": 30
+        },
+        "language_name": {
+            "name": "Language",
+            "align": "left",
+            "type": "string",
+            "width": 50
         },
         "Communication": {
             "name": "Communication",
@@ -40,22 +46,20 @@
         "DateOfBirth": {
             "name": "Date of Birth",
             "align": "center",
-            "format": "Y-m-d",
-            "type": "date",
-            "width": 120
+            "type": "string",
+            "width": 90
         },
         "service_dates": {
             "name": "Service Dates",
             "align": "center",
-            "format": "Y-m-d",
-            "type": "date",
-            "width": 120
+            "type": "string",
+            "width": 90
         },
         "marital_status": {
             "name": "Marital Status",
             "align": "center",
             "type": "string",
-            "width": 30
+            "width": 40
         },
         "occupation": {
             "name": "Occupation",

@@ -18,17 +18,18 @@ SET @LabOrderValue = :lab_value;
 
 SELECT patient.pid,
 		CONCAT(patient.fname, ' ', patient.mname, ' ', patient.lname) as patient_name,
-		DATE_FORMAT(patient.DOB, '%d %b %y') as DateOfBirth,
+		DATE_FORMAT(patient.DOB, '%e %b %Y') as DateOfBirth,
         TIMESTAMPDIFF(YEAR, patient.DOB, CURDATE()) AS Age,
         Race.option_name as Race,
         Ethnicity.option_name as Ethnicity,
         Communication.option_name as Communication,
-        Sex.option_name as sex,
+        Sex.option_name as sex_name,
         MaritalStatus.option_name as marital_status,
+        LanguageSpoken.option_name as language_name,
 
         # Encounter Service Dates
         (SELECT
-			GROUP_CONCAT(encounters.service_date SEPARATOR ', <br>') as service_dates
+			GROUP_CONCAT(DATE_FORMAT(encounters.service_date, '%e %b %Y') SEPARATOR ', <br>') as service_dates
 		FROM encounters
 		WHERE patient.pid = encounters.pid) AS service_dates,
 
@@ -131,10 +132,13 @@ LEFT JOIN combo_lists_options as Ethnicity ON Ethnicity.option_value = patient.e
 LEFT JOIN combo_lists_options as Communication ON Communication.option_value = patient.phone_publicity AND Communication.list_id = 132
 
 # Patient Gender
-LEFT JOIN combo_lists_options as Sex ON Communication.option_value = patient.sex AND Sex.list_id = 95
+LEFT JOIN combo_lists_options as Sex ON Sex.option_value = patient.sex AND Sex.list_id = 95
 
 # Marital Status
-LEFT JOIN combo_lists_options as MaritalStatus ON MaritalStatus.option_value = patient.sex AND MaritalStatus.list_id = 12
+LEFT JOIN combo_lists_options as MaritalStatus ON MaritalStatus.option_value = patient.marital_status AND MaritalStatus.list_id = 12
+
+# Patient Language
+LEFT JOIN combo_lists_options as LanguageSpoken ON LanguageSpoken.option_value = patient.language AND LanguageSpoken.list_id = 10
 
 WHERE
 
@@ -187,6 +191,15 @@ AND
 CASE
     WHEN @CommunicationCode IS NOT NULL
 	THEN patient.phone_publicity = @CommunicationCode
+    ELSE 1=1
+END
+
+AND
+
+# Where Language
+CASE
+    WHEN @LanguageCode IS NOT NULL
+	THEN patient.language = @LanguageCode
     ELSE 1=1
 END
 

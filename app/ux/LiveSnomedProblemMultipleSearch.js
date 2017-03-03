@@ -7,7 +7,7 @@ Ext.define('App.ux.LiveSnomedProblemMultipleSearch', {
     editable: true,
     typeAhead: false,
     autoSelect: false,
-    triggerOnClick: false,
+    //triggerOnClick: false,
     createNewOnEnter: true,
     createNewOnBlur: true,
     emptyText: _('problem_search') + '...',

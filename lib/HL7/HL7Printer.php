@@ -398,9 +398,9 @@ ORG;
              */
 			if(empty($rows)){
 			    $parent = self::findParentObservation($order_observations, $order_observation);
-			    if($parent != false){
+			    if($parent !== false){
 
-                    $parent_row['code'] = $parent[2];
+                    $parent_row['code'] = $parent['OBX'][2];
 
                     $parent_row['code'] = $parent['OBX'][3][1];
                     $parent_row['description'] = $parent['OBX'][3][2];

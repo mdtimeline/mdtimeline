@@ -271,7 +271,7 @@ OBSERVATIONS;
 				$organization_state = $observation['OBX'][24][4];
 				$organization_zip = $observation['OBX'][24][5];
 				$organization_country = $observation['OBX'][24][6];
-				$organization_parish = $observation['OBX'][24][7];
+				$organization_parish = $observation['OBX'][24][9];
 
 				$performing_organization_director_id = $observation['OBX'][25][1];
 				$performing_organization_director_name = '';

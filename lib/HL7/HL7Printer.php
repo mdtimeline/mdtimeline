@@ -197,7 +197,7 @@ OBSERVATIONS;
 			$test_name = $order_observation['OBR'][4][1];
 		}
 		$test_report_number = $order_observation['OBR'][3][1];
-		$test_report_date = $order_observation['OBR'][7][1];
+		$test_report_date = $order_observation['OBR'][22][1];
 		if($test_report_date != ''){
 			$test_report_date = date(self::$dates_format, strtotime($test_report_date));
 		}

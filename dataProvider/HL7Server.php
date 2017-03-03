@@ -536,6 +536,7 @@ class HL7Server {
 		$params->docTypeCode = $msgType;
 		$params->document = base64_encode($printed_msg);
 		$params->encrypted = false;
+		$params->name = 'hl7_message.txt';
 		$params->title = $title;
 
 		$record = $this->DocumentHandler->addPatientDocument($params);

@@ -92,10 +92,10 @@ SELECT patient.pid,
 			THEN patient_order_results_observations.value = @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
 
 			WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '>=' AND @LabOrderCode IS NOT NULL
-			THEN patient_order_results_observations.value >= @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
+			THEN patient_order_results_observations.value > @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
 
 			WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '<=' AND @LabOrderCode IS NOT NULL
-			THEN patient_order_results_observations.value <= @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
+			THEN patient_order_results_observations.value < @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
 			ELSE 1=1
 		END) AS laboratories
 
@@ -266,10 +266,10 @@ CASE
 	THEN patient_order_results_observations.value = @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
 
 	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '>=' AND @LabOrderCode IS NOT NULL
-	THEN patient_order_results_observations.value >= @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
+	THEN patient_order_results_observations.value > @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
 
 	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '<=' AND @LabOrderCode IS NOT NULL
-	THEN patient_order_results_observations.value <= @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
+	THEN patient_order_results_observations.value < @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
 	ELSE 1=1
 END
 

@@ -205,6 +205,15 @@ END
 
 AND
 
+# Where Marital Status
+CASE
+    WHEN @MaritalCode IS NOT NULL
+	THEN patient.marital_status = @MaritalCode
+    ELSE 1=1
+END
+
+AND
+
 # Where Patient Gender
 CASE
     WHEN @SexCode IS NOT NULL
@@ -257,7 +266,7 @@ CASE
 	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '<=' AND @LabOrderCode IS NOT NULL
 	THEN patient_order_results_observations.value <= @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
 
-    ELSE 1=1
+  ELSE 1=1
 END
 
 GROUP BY patient.pid

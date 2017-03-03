@@ -86,6 +86,12 @@ class HL7Server {
 	protected $pObservation;
 
 	/**
+	 * @var DocumentHandler
+	 */
+	private $DocumentHandler;
+
+
+	/**
 	 * @var string
 	 */
 	protected $updateKey = 'pid';
@@ -318,7 +324,7 @@ class HL7Server {
 					}
 
 					$foo = new stdClass();
-					$foo->pid = $patientId;
+					$foo->pid = $patient_record['pid'];
 					$foo->ordered_uid = $orderRecord['uid'];
 					$foo->create_date = date('Y-m-d H:i:s');
 
@@ -361,7 +367,10 @@ class HL7Server {
 						$foo->specimen_notes = $spm[21][3] == 'HL70490' ? $spm[21][2] : '';
 					}
 
-					$foo->documentId = 'hl7|' . $msgRecord['id'];
+					//$foo->documentId = 'hl7|' . $msgRecord['id'];
+
+					$foo->documentId = 'doc|' . $this->savePrintMessage($hl7, $patient_record['pid'], 'E-LABORATORY RESULTS');
+
 					$rResult = (array)$this->pResult->save($foo);
 					unset($foo);
 
@@ -444,8 +453,19 @@ class HL7Server {
 						$obx = $observation['OBX'];
 						$foo = new stdClass();
 
+
+						// find parent_id
+						if(
+							isset($obr[26][2]) &&
+							isset($ObservationResultsRelations[$obr[26][2]]) &&
+							isset($ObservationResultsRelations[$obr[26][2]]['Parent_Id'])
+						){
+							$foo->parent_id = $ObservationResultsRelations[$obr[26][2]]['Parent_Id'];
+						} else{
+							$foo->parent_id = 0;
+						}
+
 						// For the rest of the herd
-						$foo->parent_id = $ObservationResultsRelations[$obr[26][2]]['Parent_Id'];
 						$foo->code = $obx[3][1];
 						$foo->code_text = $obx[3][2];
 						$foo->code_type = $obx[3][3];
@@ -489,6 +509,40 @@ class HL7Server {
 
 		unset($patient, $rResult);
 	}
+
+	/**
+	 * @param $hl7 HL7
+	 * @param $pid int
+	 * @param $title string
+	 * @return int
+	 */
+	private function savePrintMessage($hl7, $pid, $title){
+
+		if(!isset($this->DocumentHandler)){
+			include_once (ROOT . '/dataProvider/DocumentHandler.php');
+			$this->DocumentHandler = new DocumentHandler();
+		}
+
+		$msgType = $hl7->getMsgType();
+		$printed_msg = $hl7->printMessage($title);
+
+		$params = new stdClass();
+		$params->pid = $pid;
+		$params->eid = 0;
+		$params->uid = 0;
+		$params->facility_id = 0;
+		$params->date = date('Y-m-d H:i:s');
+		$params->docType = $msgType;
+		$params->docTypeCode = $msgType;
+		$params->document = base64_encode($printed_msg);
+		$params->encrypted = false;
+		$params->title = $title;
+
+		$record = $this->DocumentHandler->addPatientDocument($params);
+
+		return $record['data']->id;
+	}
+
 
 	protected function getPatientByPid($pid) {
 		$sql = 'SELECT * FROM patient WHERE `pid`= :pid OR `pubpid`= :pubpid';

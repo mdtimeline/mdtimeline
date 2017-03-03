@@ -60,7 +60,8 @@ class DocumentHandler {
 		'video/gif' => 'avi',
 		'video/3gpp' => '3gp',
 		'text/gif' => 'xml',
-		'image/xml' => 'wav'
+		'image/xml' => 'wav',
+		'text/plain' => 'txt'
 	];
 
 	function __construct(){

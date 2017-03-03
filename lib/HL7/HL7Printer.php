@@ -16,6 +16,7 @@ class HL7Printer {
 
 		if($title != ''){
 			$text = <<<TITLE
+|
 | {$title}
 |
 
@@ -27,17 +28,22 @@ TITLE;
 
 
 		foreach ($message->data as $key => $data){
-
 			if($key == 'MSH'){
 				$text .= self::printMSH($data);
 			}elseif($key == 'PATIENT_RESULT'){
 				$text .= self::printPatientResults($data);
 			}
-
-
 		}
 
+		$text = rtrim($text);
 
+		$text .= <<<FOOTER
+
+|----------------------------------------------------------------------------------------------------------------------------------------------------
+| {$title} END!
+|----------------------------------------------------------------------------------------------------------------------------------------------------
+|----------------------------------------------------------------------------------------------------------------------------------------------------
+FOOTER;
 
 		return $text;
 	}
@@ -48,12 +54,10 @@ TITLE;
 	 */
 	private static function printMSH($data){
 
-
 		$msg_date = $data[7][1];
 		if($msg_date != ''){
-			$msg_date = date(self::$dates_format, $msg_date);
+			$msg_date = date(self::$dates_format, strtotime($msg_date));
 		}
-
 
 		$DATE = str_pad('DATE: ' . ($msg_date), 60);
 		$MSG_TYPE = 'MSG TYPE: '. ($data[0]);
@@ -65,7 +69,7 @@ TITLE;
 
 		$text = <<<MSH
 |----------------------------------------------------------------------------------------------------------------------------------------------------
-| MSG HEADER
+| HL7 MSG HEADER
 |----------------------------------------------------------------------------------------------------------------------------------------------------
 | $MSG_TYPE
 | $DATE| $CONTROL_ID
@@ -128,7 +132,7 @@ RESULT;
 		$patient_internal_id = $patient['PID'][3][0][1];
 		$patient_alt_id = $patient['PID'][4][0][1];
 		$patient_sex = str_pad('SEX: ' . $patient['PID'][8], 60);
-		$patient_dob = str_pad('DOB: ' . $patient['PID'][7][1], 60);
+		$patient_dob = str_pad('DOB: ' . date('F j, Y',$patient['PID'][7][1]), 60);
 		$patient_race = 'RACE: ' . $patient['PID'][10][0][2];
 		$patient_lang = 'LANGUAGE: ' . $patient['PID'][15][1];
 
@@ -184,9 +188,6 @@ OBSERVATIONS;
 	private static function printOrderObservation($order_observation, $observation_number)
 	{
 
-		$OBSERVATIONS = '';
-		$PERFORMING_ORGANIZATION = '';
-
 		/**
 		 * REPORT TEST DATA
 		 */
@@ -201,61 +202,154 @@ OBSERVATIONS;
 			$test_report_date = date(self::$dates_format, strtotime($test_report_date));
 		}
 
+		$line_len = 30;
+		$rows = [];
+		$columns_lens = [
+			'code' => 6,
+			'description' => 10,
+			'result' => 10,
+			'uom' => 7,
+			'range' => 10,
+			'abnormal_flag' => 5,
+			'status' => 8,
+			'obs_date' => 10,
+			'note' => 0
+		];
 
-
+		$PERFORMING_ORGANIZATIONS = [];
 
 		foreach ($order_observation['OBSERVATION'] as $observation){
-
 			if(!isset($observation['OBX'])) continue;
+			$row['code'] = $observation['OBX'][3][1];
+			$row['description'] = $observation['OBX'][3][2];
 
-
-
-
-
-			if($OBSERVATIONS == ''){
-				$OBSERVATIONS .= <<<HEAD
-				
-|       |============================================================================================================================================
-|       | CODE    | DESCRIPTION                   | RESULT         | UOM            | RANGE          | ABN  | STATUS  | DATE/TIME           | COMMENT
-|       |============================================================================================================================================
-HEAD;
-
-
+			if($observation['OBX'][2] == 'SN'){
+				$row['result'] = $observation['OBX'][5][2];
+			}elseif($observation['OBX'][2] == 'CWE'){
+				$row['result'] = $observation['OBX'][5][2];
+			}else{
+				$row['result'] = $observation['OBX'][5];
 			}
 
-			$code = str_pad($observation['OBX'][3][1], 8);
-			$description = str_pad($observation['OBX'][3][2], 30);
-			$result = str_pad($observation['OBX'][5][4], 15);
-			$uom = str_pad($observation['OBX'][6][1], 15);
-			$range = str_pad($observation['OBX'][7], 15);
-			$abnormal_flag = str_pad($observation['OBX'][8][0], 5);
-			$status = str_pad($observation['OBX'][11], 8);
 
-			$obs_date = $observation['OBX'][14][1];
-			if($obs_date != ''){
-				$obs_date = date(self::$dates_format_compact, strtotime($obs_date));
+			$row['uom'] = $observation['OBX'][6][1];
+			$row['range'] = $observation['OBX'][7];
+			$row['abnormal_flag'] = $observation['OBX'][8][0];
+			$row['status'] = $observation['OBX'][11];
+			$row['obs_date'] = $observation['OBX'][14][1];
+
+			if($row['obs_date'] != ''){
+				$row['obs_date'] = date(self::$dates_format_compact, strtotime($row['obs_date']));
 			}
-			$obs_date = str_pad($obs_date, 20);
 
 			if($observation['NTE'] && is_array($observation['NTE'])){
-
-
-
-
+				if(is_array($observation['NTE'])){
+					$row['note'] = '';
+					foreach($observation['NTE'] as $nte){
+						$row['note'] .= $nte[3][0] . ' ';
+					}
+				}
 			}else{
-				$comment = str_pad('NONE', 60);
+				$row['note'] = 'NONE';
 			}
 
+			foreach ($row as $column => $value){
+				$len = strlen($value);
+				if($columns_lens[$column] < $len){
+					$columns_lens[$column] = $len + 1;
+				}
+			}
+
+			$organization_key = $observation['OBX'][23][1] != '' ? str_replace(' ', '_' ,$observation['OBX'][23][1])  : 'UNKNOWN';
+
+			if(!array_key_exists($organization_key, $PERFORMING_ORGANIZATIONS)){
 
 
+				$organization_name = $observation['OBX'][23][1];
+				$organization_address = $observation['OBX'][24][1][1];
+				$organization_city = $observation['OBX'][24][3];
+				$organization_state = $observation['OBX'][24][4];
+				$organization_zip = $observation['OBX'][24][5];
+				$organization_country = $observation['OBX'][24][6];
 
+				$performing_organization_director_id = $observation['OBX'][25][1];
+				$performing_organization_director_name = '';
 
-			$OBSERVATIONS .= <<<HEAD
+				if($observation['OBX'][25][6] != ''){
+					$performing_organization_director_name .= $observation['OBX'][25][6] . ' ';
+				}
 
-|       | {$code}| {$description}| {$result}| {$uom}| {$range}| {$abnormal_flag}| {$status}| {$obs_date}| {$comment}
-|       |--------------------------------------------------------------------------------------------------------------------------------------------
+				if($observation['OBX'][25][2][1] != ''){
+					$performing_organization_director_name .= $observation['OBX'][25][2][1] . ' ';
+				}
+
+				if($observation['OBX'][25][3] != ''){
+					$performing_organization_director_name .= $observation['OBX'][25][3] . ' ';
+				}
+
+				if($observation['OBX'][25][4] != ''){
+					$performing_organization_director_name .= $observation['OBX'][25][4] . ' ';
+				}
+
+				$org_text = <<<ORG
+|       CONTACT: $performing_organization_director_name
+|       NAME: {$organization_name}
+|       ADDRESS: {$organization_address}
+|       CITY: {$organization_city}
+|       SATE: {$organization_state}
+|       ZIP CODE: {$organization_zip}
+|       COUNTRY: {$organization_country}
+|
+ORG;
+				$PERFORMING_ORGANIZATIONS[$organization_key] = $org_text;
+			}
+
+			$rows[] = $row;
+
+		}
+
+		$code = str_pad('CODE', $columns_lens['code']);
+		$description = str_pad('DESCRIPTION', $columns_lens['description']);
+		$result = str_pad('RESULT', $columns_lens['result']);
+		$uom = str_pad('UOM', $columns_lens['uom']);
+		$range = str_pad('RANGE', $columns_lens['range']);
+		$abn = str_pad('ABN', $columns_lens['abnormal_flag']);
+		$status = str_pad('STATUS', $columns_lens['status']);
+		$datetime = str_pad('DATE/TIME', $columns_lens['obs_date']);
+		$comment = str_pad('COMMENT', $columns_lens['note']);
+
+		foreach ($columns_lens as $columns_len){
+			$line_len += $columns_len;
+		}
+
+		$header_line = str_pad('',$line_len, '=');
+		$row_line = str_pad('',$line_len, '-');
+
+		$OBSERVATIONS = <<<HEAD
+
+|	|{$header_line}
+|       | {$code}| {$description}| {$result}| {$uom}| {$range}| {$abn}| {$status}| {$datetime}| {$comment}
+|       |{$header_line}
+
 HEAD;
 
+		foreach ($rows as $row){
+
+			$code = str_pad($row['code'], $columns_lens['code']);
+			$description = str_pad($row['description'], $columns_lens['description']);
+			$result = str_pad($row['result'], $columns_lens['result']);
+			$uom = str_pad($row['uom'], $columns_lens['uom']);
+			$range = str_pad($row['range'], $columns_lens['range']);
+			$abn = str_pad($row['abnormal_flag'], $columns_lens['abnormal_flag']);
+			$status = str_pad($row['status'], $columns_lens['status']);
+			$datetime = str_pad($row['obs_date'], $columns_lens['obs_date']);
+			$comment = str_pad($row['note'], $columns_lens['note']);
+
+			$OBSERVATIONS .= <<<HEAD
+|       | {$code}| {$description}| {$result}| {$uom}| {$range}| {$abn}| {$status}| {$datetime}| {$comment}
+|       |{$row_line}
+
+HEAD;
 
 		}
 
@@ -298,6 +392,8 @@ SPM;
 			$SPECIMEN = 'NONE';
 		}
 
+		$PERFORMING_ORGANIZATIONS = implode(PHP_EOL, $PERFORMING_ORGANIZATIONS);
+
 		$text = <<<OBSERVATIONS
 |       ---------------------------------------------------------------------------------------------------------------------------------------------
 |       {$observation_number}. ORDER/TEST
@@ -308,16 +404,17 @@ SPM;
 |
 |       OBSERVATIONS:
 |       ---------------------------------------------------------------------------------------------------------------------------------------------
-|       $OBSERVATIONS
+|       $OBSERVATIONS|
 | 
 |       SPECIMEN
 |       ---------------------------------------------------------------------------------------------------------------------------------------------
 |       $SPECIMEN
 |
-|       PERFORMING_ORGANIZATIONS:
+|       PERFORMING ORGANIZATIONS:
 |       ---------------------------------------------------------------------------------------------------------------------------------------------
 | 
-|       $PERFORMING_ORGANIZATION
+$PERFORMING_ORGANIZATIONS
+|
 
 OBSERVATIONS;
 		return $text;

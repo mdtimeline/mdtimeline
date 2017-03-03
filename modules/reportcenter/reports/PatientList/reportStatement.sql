@@ -24,6 +24,7 @@ SELECT patient.pid,
         Ethnicity.option_name as Ethnicity,
         Communication.option_name as Communication,
         Sex.option_name as Sex,
+        MaritalStatus.option_name as marital_status,
 
         # Encounter Service Dates
         (SELECT
@@ -132,6 +133,9 @@ LEFT JOIN combo_lists_options as Communication ON Communication.option_value = p
 # Patient Gender
 LEFT JOIN combo_lists_options as Sex ON Communication.option_value = patient.sex AND Sex.list_id = 95
 
+# Marital Status
+LEFT JOIN combo_lists_options as MaritalStatus ON MaritalStatus.option_value = patient.sex AND MaritalStatus.list_id = 12
+
 WHERE
 
 # Where StartDate and EndDate
@@ -223,7 +227,6 @@ CASE
 END
 
 AND
-
 
 # Where Laboratory Order/Result/Values
 CASE

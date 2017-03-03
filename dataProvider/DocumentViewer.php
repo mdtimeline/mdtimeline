@@ -287,6 +287,11 @@ HTML;
 
 	} elseif($mineType == 'text/plain'){
 		print '<pre>';
+		
+		if(substr($document, -1) == '='){
+            $document = base64_decode($document);
+		}
+		
 		print $document;
 		print '</pre>';
 	} else {

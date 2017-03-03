@@ -25139,7 +25139,14 @@ Ext.define('App.view.patient.Results', {
 									text: _('name'),
 									menuDisabled: true,
 									dataIndex: 'code_text',
-									width: 350
+									width: 350,
+									renderer: function (v, meta,record) {
+                                        var code = record.get('code');
+                                        if (code != '') {
+                                            v = v + ' (' + code + ')';
+                                        }
+                                        return v;
+                                    }
 								},
 								{
 									xtype: 'actioncolumn',

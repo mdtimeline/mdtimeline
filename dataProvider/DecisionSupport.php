@@ -510,10 +510,13 @@ class DecisionSupport
                     $concept['concept_code']
                 );
 
-                if (empty($observations) && $concept['frequency_operator'] != '<') continue;
-
                 // how may found
                 $frequency = 0;
+
+                if (empty($observations) && $this->compare($frequency, $concept['frequency_operator'], $concept['frequency'])) {
+                    $alerts_found++;
+                    continue;
+                };
 
                 foreach ($observations as $observation) {
 
@@ -587,7 +590,7 @@ class DecisionSupport
                 foreach ($vitals as $vital) {
                     $mapping = $codes[$concept['concept_code']]['mapping'];
                     $isWithInterval = $concept['frequency_interval'] == '' ||
-                        $this->isWithInterval($vital['date'], $concept['frequency_interval'], $concept['frequency_operator'], 'Y-m-d');
+                        $this->isWithInterval($vital['date'], $concept['frequency_interval'], $concept['frequency_operator'], 'Y-m-d H:i:s');
 
 
                     if($isWithInterval && ($concept['value'] == '' || $this->compare($vital[$mapping], $concept['value_operator'], $concept['value']))){
@@ -603,7 +606,7 @@ class DecisionSupport
                 }
             }
 
-            return $alerts_found == 0;
+            return $alerts_found !== 0;
         }
         return true;
     }

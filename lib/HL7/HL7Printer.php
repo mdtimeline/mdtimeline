@@ -8,8 +8,25 @@
  */
 class HL7Printer {
 
+    /**
+     * @var string
+     */
 	static $dates_format = 'F j, Y, g:i:s a';
+
+    /**
+     * @var string
+     */
 	static $dates_format_compact = 'Y-m-d H:i:s';
+
+    /**
+     * @var array
+     */
+    static $message;
+
+    /**
+     * @var array
+     */
+    static $children_reports = [];
 
 	static function printMessage($message, $title){
 		$title = strtoupper($title);
@@ -26,6 +43,8 @@ TITLE;
 			$text = '';
 		}
 
+
+        self::$message = $message;
 
 		foreach ($message->data as $key => $data){
 			if($key == 'MSH'){
@@ -173,7 +192,7 @@ PATIENT;
 		foreach ($order_observations as $index => $order_observation){
 
 			if($order_observation){
-				$OBSERVATIONS .= self::printOrderObservation($order_observation, $index + 1);
+				$OBSERVATIONS .= self::printOrderObservation($order_observation, $index + 1, $order_observations);
 			}
 
 		}
@@ -189,9 +208,28 @@ OBSERVATIONS;
 		return $text;
 	}
 
-	private static function printOrderObservation($order_observation, $observation_number)
-	{
+	private static function findParentObservation($order_observations, $order_observation){
 
+	    $obx_index = [];
+        $parent_id = $order_observation['OBR'][26][1][1];
+        $parent_sub_id = $order_observation['OBR'][26][2];
+
+        if($parent_id == '' || $parent_sub_id == '') return false;
+
+	    foreach ($order_observations as $observations){
+	        foreach ($observations['OBSERVATION'] as $buff){
+                if ($buff['OBX'][3][1] == $parent_id && $buff['OBX'][4] == $parent_sub_id){
+                    return $buff;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+	private static function printOrderObservation($order_observation, $observation_number, $order_observations)
+	{
 		/**
 		 * REPORT TEST DATA
 		 */
@@ -207,7 +245,7 @@ OBSERVATIONS;
 		}
 
 
-		$placer_order_no = str_pad('PLACER ORDER NO.: ' . $order_observation['ORC'][2][1], 56);
+		$placer_order_no = str_pad('PLACER ORDER NO.: ' . $order_observation['OBR'][2][1], 56);
 		$filler_order_no = str_pad('FILLER ORDER NO.: ' . $order_observation['ORC'][3][1], 56);
 		$placer_group_no = str_pad('PLACER GROUP NO.: ' . $order_observation['ORC'][4][1], 56);
 
@@ -239,9 +277,6 @@ OBSERVATIONS;
 
         $ordering_provider_id = 'PROVIDER ID: ' . $ordering_provider_id;
 		$ordering_provider_name = 'PROVIDER NAME: ' . $ordering_provider_name;
-
-
-
 
 		$line_len = 30;
 		$rows = [];
@@ -316,7 +351,6 @@ OBSERVATIONS;
 
 			if(!array_key_exists($organization_key, $PERFORMING_ORGANIZATIONS)){
 
-
 				$organization_name = $observation['OBX'][23][1];
 				$organization_address = $observation['OBX'][24][1][1];
 				$organization_city = $observation['OBX'][24][3];
@@ -357,6 +391,63 @@ OBSERVATIONS;
 ORG;
 				$PERFORMING_ORGANIZATIONS[$organization_key] = $org_text;
 			}
+
+
+            /**
+             * IF EMPTY FIND PARENT OBSERVATION
+             */
+			if(empty($rows)){
+			    $parent = self::findParentObservation($order_observations, $order_observation);
+			    if($parent != false){
+
+                    $parent_row['code'] = $parent[2];
+
+                    $parent_row['code'] = $parent['OBX'][3][1];
+                    $parent_row['description'] = $parent['OBX'][3][2];
+
+                    if($observation['OBX'][2] == 'SN'){
+                        $parent_row['result'] = $parent['OBX'][5][2];
+                    }elseif($observation['OBX'][2] == 'CWE'){
+                        $parent_row['result'] = $parent['OBX'][5][2];
+                    }else{
+                        $parent_row['result'] = $parent['OBX'][5];
+                    }
+
+
+                    $parent_row['uom'] = $parent['OBX'][6][1];
+                    $parent_row['range'] = $parent['OBX'][7];
+                    $parent_row['abnormal_flag'] = $parent['OBX'][8][0];
+                    $parent_row['status'] = $parent['OBX'][11];
+                    $parent_row['obs_date'] = $parent['OBX'][14][1];
+
+                    if($parent_row['obs_date'] != ''){
+                        $parent_row['obs_date'] = date(self::$dates_format_compact, strtotime($parent_row['obs_date']));
+                    }
+
+                    if($parent['NTE'] && is_array($parent['NTE'])){
+                        if(is_array($parent['NTE'])){
+                            $parent_row['note'] = '';
+                            foreach($parent['NTE'] as $nte){
+                                $parent_row['note'] .= $nte[3][0] . ' ';
+                            }
+                        }
+                    }else{
+                        $parent_row['note'] = '- ';
+                    }
+
+                    foreach ($parent_row as $column => $value){
+                        $len = strlen($value);
+                        if($columns_lens[$column] < $len){
+                            $columns_lens[$column] = $len + 1;
+                        }
+                    }
+
+                    $rows[] = $parent_row;
+
+                }
+
+            }
+
 
 			$rows[] = $row;
 

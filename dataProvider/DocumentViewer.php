@@ -210,7 +210,16 @@ if (
 
 	unset($TransactionLog);
 
-	if ($is_image) {
+
+    if($mineType == 'text/plain') {
+        print '<pre>';
+        if (substr($document, -1) == '=') {
+            $document = base64_decode($document);
+        }
+        print $document;
+        print '</pre>';
+
+    } elseif ($is_image) {
 
 		$enableEdit = isset($_SESSION['user']['auth']) && $_SESSION['user']['auth'] == true;
 
@@ -284,16 +293,6 @@ HTML;
 		}
 
 		print $html;
-
-	} elseif($mineType == 'text/plain'){
-		print '<pre>';
-		
-		if(substr($document, -1) == '='){
-            $document = base64_decode($document);
-		}
-		
-		print $document;
-		print '</pre>';
 	} else {
 		header('Content-Type: ' . $mineType, true);
 		header('Content-Disposition: inline; filename="' . $doc['name'] . '"');

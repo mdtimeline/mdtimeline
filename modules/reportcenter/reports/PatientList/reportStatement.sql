@@ -18,7 +18,7 @@ SET @LabOrderValue = :lab_value;
 
 SELECT patient.pid,
 		CONCAT(patient.fname, ' ', patient.mname, ' ', patient.lname) as patient_name,
-		DATE_FORMAT(patient.DOB, '%d %b %y') as DateOfBirth,
+		DATE_FORMAT(patient.DOB, '%e %b %Y') as DateOfBirth,
         TIMESTAMPDIFF(YEAR, patient.DOB, CURDATE()) AS Age,
         Race.option_name as Race,
         Ethnicity.option_name as Ethnicity,
@@ -28,7 +28,7 @@ SELECT patient.pid,
 
         # Encounter Service Dates
         (SELECT
-			GROUP_CONCAT(encounters.service_date SEPARATOR ', <br>') as service_dates
+			GROUP_CONCAT(DATE_FORMAT(encounters.service_date, '%e %b %Y') SEPARATOR ', <br>') as service_dates
 		FROM encounters
 		WHERE patient.pid = encounters.pid) AS service_dates,
 
@@ -227,7 +227,6 @@ CASE
 END
 
 AND
-
 
 # Where Laboratory Order/Result/Values
 CASE

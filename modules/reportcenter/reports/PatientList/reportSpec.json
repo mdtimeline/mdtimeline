@@ -40,8 +40,7 @@
         "DateOfBirth": {
             "name": "Date of Birth",
             "align": "center",
-            "format": "Y-m-d",
-            "type": "date",
+            "type": "string",
             "width": 120
         },
         "service_dates": {

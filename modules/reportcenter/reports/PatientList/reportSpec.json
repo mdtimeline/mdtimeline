@@ -44,7 +44,7 @@
             "type": "date",
             "width": 120
         },
-        "service_date": {
+        "service_dates": {
             "name": "Service Dates",
             "align": "center",
             "format": "Y-m-d",

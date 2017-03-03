@@ -22,7 +22,6 @@ var dataGridStore = new Ext.create('Ext.data.Store', {
 Ext.create('Ext.grid.Panel', {
     itemId: 'reportDataGrid',
     store: dataGridStore,
-    multiColumnSort:true,
     region: 'center',
     rowLines: false,
     columnLines: true,

@@ -59,11 +59,11 @@ FOOTER;
 			$msg_date = date(self::$dates_format, strtotime($msg_date));
 		}
 
-		$DATE = str_pad('DATE: ' . ($msg_date), 60);
-		$MSG_TYPE = 'MSG TYPE: '. ($data[0]);
+		$DATE = str_pad('DATE: ' . ($msg_date), 62);
+		$MSG_TYPE = 'MSG TYPE: '. ($data[9][3]);
 		$CONTROL_ID = 'CONTROL ID: ' . ($data[10]);
-		$SENDING_APP = str_pad('SENDING APPLICATION: ' . ($data[3][1]), 60);
-		$SENDING_FACILITY = str_pad('SENDING: FACILITY' . ($data[4][1]), 60);
+		$SENDING_APP = str_pad('SENDING APPLICATION: ' . ($data[3][1]), 62);
+		$SENDING_FACILITY = str_pad('SENDING: FACILITY' . ($data[4][1]), 62);
 		$RECEIVING_APP = 'RECEIVING APPLICATION: ' . ($data[5][1]);
 		$RECEIVING_FACILITY = 'RECEIVING FACILITY: ' . ($data[6][1]);
 
@@ -137,10 +137,16 @@ RESULT;
 		$patient_lang = 'LANGUAGE: ' . $patient['PID'][15][1];
 
 		$patient_name =  $patient['PID'][5][0][2] . ' ';
-		if($patient['PID'][5][0][7] != ''){
-			$patient_name .= $patient['PID'][5][0][7] . ' ';
+		if($patient['PID'][5][0][3] != ''){
+			$patient_name .= $patient['PID'][5][0][3] . ' ';
 		}
-		$patient_name .= $patient['PID'][5][0][1][1];
+
+		$patient_name .= $patient['PID'][5][0][1][1] . ' ';
+
+        if($patient['PID'][5][0][4] != ''){
+            $patient_name .= $patient['PID'][5][0][4] . ' ';
+        }
+
 		$patient_name = str_pad('NAME: ' . $patient_name, 60);
 		$patient_dis = "INT/EXT/ALT IDs: {$patient_internal_id}/{$patient_external_id}/{$patient_alt_id}";
 
@@ -199,6 +205,43 @@ OBSERVATIONS;
 		if($test_report_date != ''){
 			$test_report_date = date(self::$dates_format, strtotime($test_report_date));
 		}
+
+
+		$placer_order_no = str_pad('PLACER ORDER NO.: ' . $order_observation['ORC'][2][1], 56);
+		$filler_order_no = str_pad('FILLER ORDER NO.: ' . $order_observation['ORC'][3][1], 56);
+		$placer_group_no = str_pad('PLACER GROUP NO.: ' . $order_observation['ORC'][4][1], 56);
+
+		$ordering_provider_id = $order_observation['ORC'][12][0][9][1] . ' - ' . $order_observation['ORC'][12][0][9][3];
+        $ordering_provider_name = '';
+
+        // prefix
+        if($order_observation['ORC'][12][0][6] != ''){
+            $ordering_provider_name .= $order_observation['ORC'][12][0][6] . ' ';
+        }
+
+        // last
+        $ordering_provider_name .=  $order_observation['ORC'][12][0][2][1] . ', ';
+
+        // first
+        if($order_observation['ORC'][12][0][3] != ''){
+            $ordering_provider_name .= $order_observation['ORC'][12][0][3] . ' ';
+        }
+
+        // middle
+        if($order_observation['ORC'][12][0][4] != '') {
+            $ordering_provider_name .= $order_observation['ORC'][12][0][4] . ' ';
+        }
+
+        // suffix
+        if($order_observation['ORC'][12][0][5] != ''){
+            $ordering_provider_name .= $order_observation['ORC'][12][0][5] . ' ';
+        }
+
+        $ordering_provider_id = 'PROVIDER ID: ' . $ordering_provider_id;
+		$ordering_provider_name = 'PROVIDER NAME: ' . $ordering_provider_name;
+
+
+
 
 		$line_len = 30;
 		$rows = [];
@@ -309,7 +352,7 @@ OBSERVATIONS;
 |       SATE: {$organization_state}
 |       ZIP CODE: {$organization_zip}
 |       COUNTRY: {$organization_country}
-|       PARISH CODE: {$organization_parish}
+|       COUNTY/PARISH CODE: {$organization_parish}
 |
 ORG;
 				$PERFORMING_ORGANIZATIONS[$organization_key] = $org_text;
@@ -407,12 +450,15 @@ SPM;
 
 		$text = <<<OBSERVATIONS
 |       ---------------------------------------------------------------------------------------------------------------------------------------------
-|       {$observation_number}. ORDER/TEST
+|       {$observation_number}. ORDER                                                | TEST
 |       ---------------------------------------------------------------------------------------------------------------------------------------------
-|       NAME: $test_name
-|       REPORT DATE: $test_report_date
-|       REPORT NUMBER: $test_report_number
-|       NOTES: {$report_notes}
+|       {$placer_order_no}| TEST NAME: $test_name
+|       {$filler_order_no}| TEST REPORT DATE: $test_report_date
+|       {$placer_group_no}| TEST REPORT NUMBER: $test_report_number
+|                                                               | TEST NOTES: {$report_notes}   
+|       {$ordering_provider_id}
+|       {$ordering_provider_name}
+|       
 |
 |       OBSERVATIONS:
 |       ---------------------------------------------------------------------------------------------------------------------------------------------

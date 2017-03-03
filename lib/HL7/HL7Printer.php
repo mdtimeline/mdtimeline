@@ -170,8 +170,6 @@ PATIENT;
 				$OBSERVATIONS .= self::printOrderObservation($order_observation, $index + 1);
 			}
 
-
-
 		}
 
 		$text = <<<OBSERVATIONS
@@ -218,6 +216,17 @@ OBSERVATIONS;
 
 		$PERFORMING_ORGANIZATIONS = [];
 
+		$report_notes = '';
+
+		foreach ($order_observation['NTE'] as $index => $note){
+		    if($index > 0){
+                $report_notes .= PHP_EOL . '|              ';
+            }
+            $report_notes .= $index +1 . '. ' . $note[3][0];
+        }
+
+
+
 		foreach ($order_observation['OBSERVATION'] as $observation){
 			if(!isset($observation['OBX'])) continue;
 			$row['code'] = $observation['OBX'][3][1];
@@ -250,7 +259,7 @@ OBSERVATIONS;
 					}
 				}
 			}else{
-				$row['note'] = 'NONE';
+				$row['note'] = '- ';
 			}
 
 			foreach ($row as $column => $value){
@@ -403,6 +412,7 @@ SPM;
 |       NAME: $test_name
 |       REPORT DATE: $test_report_date
 |       REPORT NUMBER: $test_report_number
+|       NOTES: {$report_notes}
 |
 |       OBSERVATIONS:
 |       ---------------------------------------------------------------------------------------------------------------------------------------------

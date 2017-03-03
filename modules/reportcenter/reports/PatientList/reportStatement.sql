@@ -70,7 +70,7 @@ SELECT patient.pid,
 		(SELECT
 			GROUP_CONCAT(distinct(allergy) SEPARATOR '<br>') as allergy
 		FROM patient_allergies
-		WHERE patient_active_problems.pid = patient.pid AND
+		WHERE patient_allergies.pid = patient.pid AND
 		CASE
 			WHEN @MedicationAllergyCode IS NOT NULL
 			THEN FIND_IN_SET(patient_allergies.allergy_code, @MedicationAllergyCode)

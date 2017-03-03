@@ -1,95 +1,98 @@
 {
-  "title":"Patient List",
-  "name":"patientListReport",
-  "reportDir":"PatientList",
-  "version":"0.1",
-  "author": "TRA NextGen, Inc (c) 2016",
-  "description":"Enable a user to electronically and dynamically select, sort, access, and create patient lists by: date and time; and based on each one and at least one combinations.",
-  "dir":"reportcenter/reports/PatientList",
-  "category":"ONC Meaningful Use",
-  "reportWindowWidth": 1396,
-  "filterPanelWidth": 220,
-  "filterDisplayHeight":220,
-  "gridFields":{
-    "providers": {
-      "name": "Providers",
-      "align": "left",
-      "type": "string"
+    "title": "Patient List",
+    "name": "patientListReport",
+    "reportDir": "PatientList",
+    "version": "0.1",
+    "author": "TRA NextGen, Inc (c) 2016",
+    "description": "Enable a user to electronically and dynamically select, sort, access, and create patient lists by: date and time; and based on each one and at least one combinations.",
+    "dir": "reportcenter/reports/PatientList",
+    "category": "ONC Meaningful Use",
+    "reportWindowWidth": 1396,
+    "filterPanelWidth": 220,
+    "filterDisplayHeight": 220,
+    "page": {
+        "limit": 300
     },
-    "patient_name":{
-      "name": "Patient Name",
-      "align": "left",
-      "flex": 1,
-      "type": "string"
-    },
-    "sex":{
-      "name": "Sex",
-      "align": "center",
-      "type": "string",
-      "width": 30
-    },
-    "Communication":{
-      "name": "Communication",
-      "align": "center",
-      "type": "string",
-      "width": 40
-    },
-    "DateOfBirth": {
-      "name": "Date of Birth",
-      "align": "center",
-      "format": "Y-m-d",
-      "type": "date",
-      "width": 120
-    },
-    "service_date": {
-      "name": "Service Dates",
-      "align": "center",
-      "format": "Y-m-d",
-      "type": "date",
-      "width": 120
-    },
-    "marital_status":{
-      "name": "Marital Status",
-      "align": "center",
-      "type": "string",
-      "width": 30
-    },
-    "occupation":{
-      "name": "Occupation",
-      "align": "center",
-      "type": "string",
-      "width": 100
-    },
-    "Race":{
-      "name": "Race",
-      "align": "center",
-      "type": "string"
-    },
-    "Ethnicity":{
-      "name": "Ethnicity",
-      "align": "center",
-      "type": "string",
-      "width": 100
-    },
-    "allergies":{
-      "name": "Allergies",
-      "align": "left",
-      "type": "string"
-    },
-    "problems":{
-      "name": "Problems",
-      "align": "left",
-      "type": "string"
-    },
-    "medications":{
-      "name": "Medications",
-      "align": "left",
-      "type": "string"
-    },
-    "laboratories":{
-      "name": "Laboratories",
-      "align": "left",
-      "type": "string"
+    "gridFields": {
+        "providers": {
+            "name": "Providers",
+            "align": "left",
+            "type": "string"
+        },
+        "patient_name": {
+            "name": "Patient Name",
+            "align": "left",
+            "flex": 1,
+            "type": "string"
+        },
+        "sex": {
+            "name": "Sex",
+            "align": "center",
+            "type": "string",
+            "width": 30
+        },
+        "Communication": {
+            "name": "Communication",
+            "align": "center",
+            "type": "string",
+            "width": 40
+        },
+        "DateOfBirth": {
+            "name": "Date of Birth",
+            "align": "center",
+            "format": "Y-m-d",
+            "type": "date",
+            "width": 120
+        },
+        "service_date": {
+            "name": "Service Dates",
+            "align": "center",
+            "format": "Y-m-d",
+            "type": "date",
+            "width": 120
+        },
+        "marital_status": {
+            "name": "Marital Status",
+            "align": "center",
+            "type": "string",
+            "width": 30
+        },
+        "occupation": {
+            "name": "Occupation",
+            "align": "center",
+            "type": "string",
+            "width": 100
+        },
+        "Race": {
+            "name": "Race",
+            "align": "center",
+            "type": "string"
+        },
+        "Ethnicity": {
+            "name": "Ethnicity",
+            "align": "center",
+            "type": "string",
+            "width": 100
+        },
+        "allergies": {
+            "name": "Allergies",
+            "align": "left",
+            "type": "string"
+        },
+        "problems": {
+            "name": "Problems",
+            "align": "left",
+            "type": "string"
+        },
+        "medications": {
+            "name": "Medications",
+            "align": "left",
+            "type": "string"
+        },
+        "laboratories": {
+            "name": "Laboratories",
+            "align": "left",
+            "type": "string"
+        }
     }
-  }
 }

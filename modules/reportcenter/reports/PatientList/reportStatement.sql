@@ -23,7 +23,7 @@ SELECT patient.pid,
         Race.option_name as Race,
         Ethnicity.option_name as Ethnicity,
         Communication.option_name as Communication,
-        Sex.option_name as Sex,
+        Sex.option_name as sex,
         MaritalStatus.option_name as marital_status,
 
         # Encounter Service Dates

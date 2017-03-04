@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+include_once (ROOT . '/classes/XML2Array.php');
 
 class EducationResources {
 
@@ -23,9 +24,102 @@ class EducationResources {
 	 * @var MatchaCUP
 	 */
 	private $e;
+	/**
+	 * @var MatchaCUP
+	 */
+	private $pe;
+
+	/**
+	 * @var string
+	 */
+	private $search_url = 'https://wsearch.nlm.nih.gov/ws/query';
 
 	function __construct() {
 		$this->e = MatchaModel::setSenchaModel('App.model.administration.EducationResource');
+		$this->pe = MatchaModel::setSenchaModel('App.model.patient.EducationResource', true);
+	}
+
+	public function search($params){
+
+		$params = (array) $params;
+
+		$search_url = $this->search_url . '?' . http_build_query($params);
+
+		$curl = curl_init();
+		curl_setopt_array($curl, array(
+			CURLOPT_CONNECTTIMEOUT => 2,
+			CURLOPT_TIMEOUT => 2,
+			CURLOPT_RETURNTRANSFER => 1,
+			CURLOPT_URL => $search_url
+		));
+		$data = curl_exec($curl);
+		$curl_errno = curl_errno($curl);
+		$curl_error = curl_error($curl);
+		curl_close($curl);
+
+
+		if ($curl_errno > 0) {
+			return [
+				'success' =>false,
+				'error' => $curl_error
+			];
+		} else {
+
+			$array = XML2Array::createArray($data);
+
+			$results = [
+				'success' => true,
+				'total' => 0,
+				'data' => []
+			];
+
+			if(!isset($array['nlmSearchResult']['count']) || !isset($array['nlmSearchResult']['list'])){
+				return $results;
+			}
+
+			$documents = isset($array['nlmSearchResult']['list']['document'][0]) ?
+				$array['nlmSearchResult']['list']['document'] : [ $array['nlmSearchResult']['list']['document'] ];
+
+			foreach ($documents as $document) {
+				$buff = [
+					'rank' => $document['@attributes']['rank'],
+					'url' => $document['@attributes']['url']
+				];
+				foreach ($document['content'] as $content){
+					$atr = $content['@attributes']['name'];
+					if(!isset($buff[$atr])){
+						$buff[$atr] = html_entity_decode($content['@value']);
+					}
+				}
+				$results['data'][] = $buff;
+
+			}
+
+			$results['total'] = $array['nlmSearchResult']['count'];
+
+			return $results;
+		}
+
+	}
+
+	public function getPatientEducationResources($params) {
+		return $this->pe->load($params)->all();
+	}
+
+	public function getPatientEducationResource($params) {
+		return $this->pe->load($params)->one();
+	}
+
+	public function addPatientEducationResource($params) {
+		return $this->pe->save($params);
+	}
+
+	public function updatePatientEducationResource($params) {
+		return $this->pe->save($params);
+	}
+
+	public function destroyPatientEducationResource($params) {
+		return $this->pe->destroy($params);
 	}
 
 	public function getEducationResources($params) {

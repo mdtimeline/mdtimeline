@@ -1708,5 +1708,9 @@ $LANG = array(
     'description_code'                      => 'Description Code',
     'description_code_type'                 => 'Description Code Type',
 	'show_log'                              => 'Show Log',
-	'within'                                => 'Within'
+	'within'                                => 'Within',
+	'english'                               => 'English',
+	'spanish'                               => 'Spanish',
+	'education_resource'                    => 'Education Resource',
+	'education_resources'                   => 'Education Resources',
 );

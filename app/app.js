@@ -13918,6 +13918,11 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
+			name: 'signature',
+			type: 'string',
+			len: 100
+		},
+		{
 			name: 'fullname',
 			type: 'string',
 			comment: 'title full name',
@@ -16037,6 +16042,66 @@ Ext.define('App.model.patient.encounter.Procedures', {
 		}
 	}
 });
+Ext.define('App.model.patient.EducationResource', {
+	extend: 'Ext.data.Model',
+	requires: [
+
+	],
+	table: {
+		name: 'patient_education_resources'
+	},
+	fields: [
+		{
+			name: 'id',
+			type: 'int'
+		},
+		{
+			name: 'eid',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'pid',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'uid',
+			type: 'int'
+		},
+		{
+			name: 'title',
+			type: 'string',
+			len: 300
+		},
+		{
+			name: 'url',
+			type: 'string',
+			dataType: 'text'
+		},
+		{
+			name: 'snippet',
+			type: 'string',
+			dataType: 'text'
+		},
+		{
+			name: 'organization_name',
+			type: 'string',
+			dataType: 'text'
+		}
+	],
+	proxy: {
+		type: 'direct',
+		api: {
+			read: 'EducationResources.getPatientEducationResources',
+			create: 'EducationResources.addPatientEducationResource',
+			update: 'EducationResources.updatePatientEducationResource',
+			destroy: 'EducationResources.destroyPatientEducationResource'
+		},
+		remoteGroup: false
+	}
+});
+
 Ext.define('App.model.patient.AppointmentRequest', {
 	extend: 'Ext.data.Model',
 	table: {
@@ -17042,6 +17107,12 @@ Ext.define('App.model.patient.Encounter', {
 		{
 			model: 'App.model.patient.AppointmentRequest',
 			name: 'appointmentrequests',
+			primaryKey: 'eid',
+			foreignKey: 'eid'
+		},
+		{
+			model: 'App.model.patient.EducationResource',
+			name: 'educationresources',
 			primaryKey: 'eid',
 			foreignKey: 'eid'
 		}
@@ -22917,9 +22988,79 @@ Ext.define('App.view.patient.charts.HeightForStature',
 
 	}
 }); 
+Ext.define('App.store.patient.EducationResources', {
+	extend: 'Ext.data.Store',
+	model: 'App.model.patient.EducationResource'
+});
 Ext.define('App.store.patient.AppointmentRequests', {
 	extend: 'Ext.data.Store',
 	model: 'App.model.patient.AppointmentRequest'
+});
+Ext.define('App.view.patient.encounter.EducationResourcesGrid', {
+	extend: 'Ext.grid.Panel',
+	requires: [
+		'App.ux.grid.DeleteColumn',
+		'App.ux.LiveEducationResourceSearch'
+	],
+	xtype: 'educationresourcesgrid',
+	itemId: 'EducationResourcesGrid',
+	frame: true,
+	initComponent: function(){
+		var me = this;
+
+		me.columns = [
+			{
+				xtype: 'griddeletecolumn',
+				width: 25,
+				acl: 'remove_encounter_education_resources'
+			},
+			{
+				text: _('title'),
+				dataIndex: 'title',
+				width: 250
+			},
+			{
+				text: _('snippet'),
+				dataIndex: 'snippet',
+				flex: 1
+			}
+		];
+
+		me.callParent();
+	},
+	tbar: [
+		_('education_resources'),
+		{
+			xtype: 'educationresourcelivetsearch',
+			itemId: 'EducationResourcesGridSearchField',
+			width: 400,
+			margin: '0 10 0 0'
+		},
+		{
+			xtype: 'combobox',
+			width: 150,
+			labelWidth: 50,
+			fieldLabel: _('language'),
+			queryMode: 'local',
+			displayField: 'option',
+			valueField: 'value',
+			editable: false,
+			value: 'patient',
+			stateful: true,
+			stateId: 'EducationResourcesGridLanguageField',
+			itemId: 'EducationResourcesGridLanguageField',
+			store: Ext.create('Ext.data.Store', {
+				fields: ['option', 'value'],
+				data : [
+					{option: _('patient'), value: 'patient'},
+					{option: _('english'), value: 'en'},
+					{option: _('spanish'), value: 'es'}
+				]
+			})
+		}
+	]
+
+
 });
 Ext.define('App.view.patient.encounter.AppointmentRequestGrid', {
 	extend: 'Ext.grid.Panel',
@@ -38518,11 +38659,13 @@ Ext.define('App.controller.InfoButton', {
 
 	],
 
+	language: 'patient',
+
 	init: function(){
 		var me = this;
 
 		me.medline  = 'http://apps2.nlm.nih.gov/medlineplus/services/mpconnect.cfm?';
-		me.language = _('lang_code').match(/^es/) ? 'es' : 'en';
+
 		me.codeSytem = {
 			'ICD10CM': '2.16.840.1.113883.6.90',
 			'ICD10-CM': '2.16.840.1.113883.6.90',
@@ -38551,7 +38694,12 @@ Ext.define('App.controller.InfoButton', {
 		var url = me.medline;
 		url += 'mainSearchCriteria.v.c=' + code;
 		url += '&mainSearchCriteria.v.cs=' + me.codeSytem[codeType];
-		url += '&informationRecipient.languageCode.c=' + me.language;
+
+		if(me.language == 'patient' && app.patient.record && app.patient.record.get('language') == 'spa'){
+			url += '&informationRecipient.languageCode.c=es';
+		}else {
+			url += '&informationRecipient.languageCode.c=en';
+		}
 
 		window.open(url, "_blank", "toolbar=no, scrollbars=yes, resizable=yes, top=10, left=10, width=1000, height=600");
 //		WebSearchCodes.Search({ code: code, codeType: codeType, codeText: codeText }, function(data){
@@ -40053,6 +40201,79 @@ Ext.define('App.controller.patient.Allergies', {
 				app.msg(_('oops'), _('items_to_review_entry_error'));
 			}
 		});
+	}
+
+});
+
+Ext.define('App.controller.patient.EducationResources', {
+	extend: 'Ext.app.Controller',
+	requires: [
+
+	],
+	refs: [
+		{
+			ref: 'EducationResourcesGrid',
+			selector: '#EducationResourcesGrid'
+		},
+		{
+			ref: 'EducationResourcesGridAddBtn',
+			selector: '#EducationResourcesGridAddBtn'
+		},
+		{
+			ref: 'EducationResourcesGridLanguageField',
+			selector: '#EducationResourcesGridLanguageField'
+		},
+		{
+			ref: 'EducationResourcesGridSearchField',
+			selector: '#EducationResourcesGridSearchField'
+		}
+	],
+
+	init: function(){
+		var me = this;
+		me.control({
+			'viewport':{
+				beforeencounterload: me.onAppEncounterLoad,
+				encountersync: me.onAppEncounterSync
+			},
+			'#EducationResourcesGridLanguageField':{
+				change: me.onEducationResourcesGridLanguageFieldChange
+			},
+			'#EducationResourcesGridSearchField':{
+				select: me.onEducationResourcesGridSearchFieldSelect
+			}
+		});
+	},
+
+	onAppEncounterLoad: function(encounter){
+		this.getEducationResourcesGrid().reconfigure(encounter.educationresources());
+		encounter.educationresources().load();
+	},
+
+	onAppEncounterSync: function(encounter){
+		encounter.encounter.educationresources().sync();
+	},
+
+	onEducationResourcesGridLanguageFieldChange: function (cmb, value) {
+		this.getEducationResourcesGridSearchField().language = value;
+	},
+
+	onEducationResourcesGridSearchFieldSelect: function (field, selection) {
+		var store = this.getEducationResourcesGrid().getStore();
+
+		say(store);
+		say(selection);
+
+		store.add({
+			pid: app.patient.pid,
+			eid: app.patient.eid,
+			uid: app.user.id,
+			title: selection[0].get('title'),
+			url: selection[0].get('url'),
+			snippet: selection[0].get('snippet'),
+			organization_name: selection[0].get('organizationName')
+		});
+
 	}
 
 });
@@ -57749,7 +57970,8 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		'App.view.patient.encounter.CarePlanGoalsNewWindow',
 		'App.ux.LiveSnomedProcedureSearch',
 		'App.view.patient.encounter.AdministeredMedications',
-		'App.view.patient.encounter.AppointmentRequestGrid'
+		'App.view.patient.encounter.AppointmentRequestGrid',
+		'App.view.patient.encounter.EducationResourcesGrid',
 	],
 	action: 'patient.encounter.soap',
 	itemId: 'soapPanel',
@@ -58027,6 +58249,10 @@ Ext.define('App.view.patient.encounter.SOAP', {
 						},
 						{
 							xtype: 'careplangoalsgrid',
+							margin: '0 0 10 0'
+						},
+						{
+							xtype: 'educationresourcesgrid',
 							margin: '0 0 10 0'
 						}
 					]

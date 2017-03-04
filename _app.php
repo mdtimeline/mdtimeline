@@ -536,6 +536,7 @@ header("Access-Control-Allow-Origin: *");
 					'patient.encounter.snippetTree',
 					'patient.encounter.Procedures',
 
+					'patient.EducationResource',
 					'patient.AppointmentRequest',
 					'patient.AdvanceDirective',
 					'patient.Allergies',
@@ -752,6 +753,7 @@ header("Access-Control-Allow-Origin: *");
 	                 */
 	                'patient.Patient',
 
+	                'patient.encounter.EducationResourcesGrid',
 	                'patient.encounter.AppointmentRequestGrid',
 	                'patient.encounter.CurrentProceduralTerminology',
 	                'patient.encounter.HealthCareFinancingAdministrationOptions',
@@ -869,6 +871,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.AdvanceDirectives',
 	                'patient.Alerts',
 	                'patient.Allergies',
+	                'patient.EducationResources',
 	                'patient.AppointmentRequests',
 	                'patient.CarePlanGoals',
 	                'patient.CCD',

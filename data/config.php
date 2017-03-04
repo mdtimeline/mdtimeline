@@ -82,6 +82,24 @@ $API = [
     ],
     'EducationResources' => [
         'methods' => [
+            'search' => [
+                'len' => 1
+            ],
+            'getPatientEducationResources' => [
+                'len' => 1
+            ],
+            'getPatientEducationResource' => [
+                'len' => 1
+            ],
+            'addPatientEducationResource' => [
+                'len' => 1
+            ],
+            'updatePatientEducationResource' => [
+                'len' => 1
+            ],
+            'destroyPatientEducationResource' => [
+                'len' => 1
+            ],
             'getEducationResources' => [
                 'len' => 1
             ],

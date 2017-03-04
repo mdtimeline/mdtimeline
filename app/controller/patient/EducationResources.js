@@ -47,6 +47,9 @@ Ext.define('App.controller.patient.EducationResources', {
 				beforeencounterload: me.onAppEncounterLoad,
 				encountersync: me.onAppEncounterSync
 			},
+			'#EducationResourcesGrid':{
+				itemdblclick: me.onEducationResourcesGridItemDblClick
+			},
 			'#EducationResourcesGridLanguageField':{
 				change: me.onEducationResourcesGridLanguageFieldChange
 			},
@@ -54,6 +57,10 @@ Ext.define('App.controller.patient.EducationResources', {
 				select: me.onEducationResourcesGridSearchFieldSelect
 			}
 		});
+	},
+
+	onEducationResourcesGridItemDblClick: function (grid, document_record) {
+		window.open(document_record.get('url'), '_blank');
 	},
 
 	onAppEncounterLoad: function(encounter){

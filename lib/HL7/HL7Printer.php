@@ -23,48 +23,37 @@ class HL7Printer {
      */
     static $message;
 
+	/**
+	 * @var array
+	 */
+    static $buffer = [];
+
     /**
      * @var array
      */
     static $children_reports = [];
 
-	static function printMessage($message, $title){
-		$title = strtoupper($title);
-
-		if($title != ''){
-			$text = <<<TITLE
-|
-| {$title}
-|
-
-TITLE;
-
-		}else{
-			$text = '';
-		}
-
+	static function printMessage($message, $title = ''){
 
         self::$message = $message;
 
+		if($title != ''){
+			$title = strtoupper($title);
+			self::$buffer['TITLE'] = $title;
+		}
+
 		foreach ($message->data as $key => $data){
 			if($key == 'MSH'){
-				$text .= self::printMSH($data);
+				self::printMSH($data);
 			}elseif($key == 'PATIENT_RESULT'){
-				$text .= self::printPatientResults($data);
+				self::printPatientResults($data);
 			}
 		}
 
-		$text = rtrim($text);
+		self::$buffer['FOOTER'] = "{$title} END!";
 
-		$text .= <<<FOOTER
+		return self::doPrint();
 
-|----------------------------------------------------------------------------------------------------------------------------------------------------
-| {$title} END!
-|----------------------------------------------------------------------------------------------------------------------------------------------------
-|----------------------------------------------------------------------------------------------------------------------------------------------------
-FOOTER;
-
-		return $text;
 	}
 
 	/**
@@ -86,19 +75,20 @@ FOOTER;
 		$RECEIVING_APP = 'RECEIVING APPLICATION: ' . ($data[5][1]);
 		$RECEIVING_FACILITY = 'RECEIVING FACILITY: ' . ($data[6][1]);
 
-		$text = <<<MSH
-|----------------------------------------------------------------------------------------------------------------------------------------------------
-| HL7 MSG HEADER
-|----------------------------------------------------------------------------------------------------------------------------------------------------
-| $MSG_TYPE
-| $DATE| $CONTROL_ID
-| $SENDING_APP| $RECEIVING_APP
-| $SENDING_FACILITY| $RECEIVING_FACILITY
-|
+		$LINE_ONE = ' ' . $MSG_TYPE;
+		$LINE_TWO = " $DATE| $CONTROL_ID";
+		$LINE_THREE = " $SENDING_APP| $RECEIVING_APP";
+		$LINE_FOUR = " $SENDING_FACILITY| $RECEIVING_FACILITY";
 
-MSH;
-
-		return $text;
+		self::$buffer['SECTIONS'][] = [
+			'TITLE' => ' HL7 MSG HEADER',
+			'ROWS' => [
+				$LINE_ONE,
+				$LINE_TWO,
+				$LINE_THREE,
+				$LINE_FOUR
+			]
+		];
 	}
 
 	private static function printPID($data){
@@ -107,45 +97,30 @@ MSH;
 
 	private static function printPatientResults($patient_results){
 
-		$PATIENT_RESULTS = '';
+		$SECTION['TITLE'] = ' RESULTS';
 
 		foreach ($patient_results as $index => $patient_result){
-			$PATIENT_RESULTS .= self::printPatientResult($patient_result, $index + 1);
+			$SECTION['SECTIONS'][] = self::printPatientResult($patient_result, $index + 1);
 		}
 
-		$text = <<<RESULTS
-|----------------------------------------------------------------------------------------------------------------------------------------------------
-| PATIENT RESULTS
-|----------------------------------------------------------------------------------------------------------------------------------------------------
-|
-$PATIENT_RESULTS
-RESULTS;
+		self::$buffer['SECTIONS'][] = $SECTION;
 
-		return $text;
+		return;
 	}
 
 	private static function printPatientResult($patient_result, $result_number){
 
-		$PATIENT_RESULT = '';
+		$SECTION['TITLE'] = 'RESULT';
+		$SECTION['SUB_SECTIONS'][] = self::printPatient($patient_result['PATIENT']);
+		$SECTION['SUB_SECTIONS'][] = self::printOrderObservations($patient_result['ORDER_OBSERVATION']);
 
-		$PATIENT_RESULT .= self::printPatient($patient_result['PATIENT']);
-		$PATIENT_RESULT .= self::printOrderObservations($patient_result['ORDER_OBSERVATION']);
-
-		$text = <<<RESULT
-| {$result_number}. RESULT
-| ---------------------------------------------------------------------------------------------------------------------------------------------------
-|
-$PATIENT_RESULT
-RESULT;
-
-
-		return $text;
+		return $SECTION;
 	}
-
 
 	private static function printPatient($patient)
 	{
-		$PATIENT = '';
+
+		$SECTION['TITLE'] = 'PATIENT';
 
 		$patient_external_id = $patient['PID'][2][1];
 		$patient_internal_id = $patient['PID'][3][0][1];
@@ -162,195 +137,196 @@ RESULT;
 
 		$patient_name .= $patient['PID'][5][0][1][1] . ' ';
 
-        if($patient['PID'][5][0][4] != ''){
-            $patient_name .= $patient['PID'][5][0][4] . ' ';
-        }
+		if($patient['PID'][5][0][4] != ''){
+			$patient_name .= $patient['PID'][5][0][4] . ' ';
+		}
 
 		$patient_name = str_pad('NAME: ' . $patient_name, 60);
 		$patient_dis = "INT/EXT/ALT IDs: {$patient_internal_id}/{$patient_external_id}/{$patient_alt_id}";
 
-		$text = <<<PATIENT
-|   -------------------------------------------------------------------------------------------------------------------------------------------------
-|   PATIENT
-|   -------------------------------------------------------------------------------------------------------------------------------------------------
-|   {$patient_name}| {$patient_dis}
-|   {$patient_sex}| {$patient_race}
-|   {$patient_dob}| {$patient_lang}
-|   -------------------------------------------------------------------------------------------------------------------------------------------------
-|
 
-PATIENT;
-		return $text;
+		$SECTION['ROWS'][] =  "{$patient_name}| {$patient_dis}";
+		$SECTION['ROWS'][] =  "{$patient_sex}| {$patient_race}";
+		$SECTION['ROWS'][] =  "{$patient_dob}| {$patient_lang}";
+
+		return $SECTION;
 	}
-
 
 	private static function printOrderObservations($order_observations)
 	{
 
-		$OBSERVATIONS = '';
+		$SECTION['TITLE'] = 'REPORTS';
+
+		$REPORTS = [];
+		$obx_report_map = [];
+		$report_number_to_key = [];
 
 		foreach ($order_observations as $index => $order_observation){
 
-			if($order_observation){
-				$OBSERVATIONS .= self::printOrderObservation($order_observation, $index + 1, $order_observations);
-			}
+			$order_no = $order_observation['OBR'][2][1];
+			$report_no = $order_observation['OBR'][3][1];
+			$report_loinc = $order_observation['OBR'][4][1];
+			$parent_order_no =  $order_observation['OBR'][28][0][2][1];
+			$parent_report_no =  $order_observation['OBR'][29][2][1];
+			$report_key = $report_no .'-'.$report_loinc;
 
+			$parent_id = $order_observation['OBR'][26][1][1];
+			$parent_sub_id = $order_observation['OBR'][26][2];
+			$parent_obx_key = $parent_id .'-'. $parent_sub_id;
+
+			if($parent_id != '' && $parent_sub_id != '' && isset($obx_report_map[$parent_obx_key])){
+				self::childrenObservationsHandler($REPORTS[$obx_report_map[$parent_obx_key]], $order_observation, $index);
+			}else{
+				$REPORTS[$report_key] = self::observationsHandler($order_observation, $index, $obx_report_map, $report_key);
+			}
 		}
 
-		$text = <<<OBSERVATIONS
-|   -------------------------------------------------------------------------------------------------------------------------------------------------
-|   ORDERS
-|   -------------------------------------------------------------------------------------------------------------------------------------------------
-|
-$OBSERVATIONS
+		$SECTION['SECTIONS'] = $REPORTS;
 
-OBSERVATIONS;
-		return $text;
+		return $SECTION;
+
 	}
 
-	private static function findParentObservation($order_observations, $order_observation){
-
-	    $obx_index = [];
-        $parent_id = $order_observation['OBR'][26][1][1];
-        $parent_sub_id = $order_observation['OBR'][26][2];
-
-        if($parent_id == '' || $parent_sub_id == '') return false;
-
-	    foreach ($order_observations as $observations){
-	        foreach ($observations['OBSERVATION'] as $buff){
-                if ($buff['OBX'][3][1] == $parent_id && $buff['OBX'][4] == $parent_sub_id){
-                    return $buff;
-                }
-            }
-        }
-
-        return false;
-    }
-
-
-	private static function printOrderObservation($order_observation, $observation_number, $order_observations)
+	private static function observationsHandler($order_observation, $index, &$obx_report_map, $report_key)
 	{
-		/**
-		 * REPORT TEST DATA
-		 */
-		if($order_observation['OBR'][4][2] != ''){
+
+		$REPORT = [];
+		$REPORT['TITLE'] = 'REPORT';
+
+		$performing_organizations = [];
+
+		if ($order_observation['OBR'][4][2] != '') {
 			$test_name = $order_observation['OBR'][4][2];
-		}else{
+		} else {
 			$test_name = $order_observation['OBR'][4][1];
 		}
 		$test_report_number = $order_observation['OBR'][3][1];
 		$test_report_date = $order_observation['OBR'][22][1];
-		if($test_report_date != ''){
+		if ($test_report_date != '') {
 			$test_report_date = date(self::$dates_format, strtotime($test_report_date));
 		}
 
+		$placer_order_no = 'PLACER ORDER NO.: ' . $order_observation['OBR'][2][1];
+		$filler_order_no = 'FILLER ORDER NO.: ' . $order_observation['ORC'][3][1];
+		$placer_group_no = 'PLACER GROUP NO.: ' . $order_observation['ORC'][4][1];
 
-		$placer_order_no = str_pad('PLACER ORDER NO.: ' . $order_observation['OBR'][2][1], 56);
-		$filler_order_no = str_pad('FILLER ORDER NO.: ' . $order_observation['ORC'][3][1], 56);
-		$placer_group_no = str_pad('PLACER GROUP NO.: ' . $order_observation['ORC'][4][1], 56);
+		$REPORT['ROWS'][] = "$placer_order_no";
+		$REPORT['ROWS'][] = "$filler_order_no";
+		$REPORT['ROWS'][] = "$placer_group_no";
+		$REPORT['ROWS'][] = '';
 
 		$ordering_provider_id = $order_observation['ORC'][12][0][9][1] . ' - ' . $order_observation['ORC'][12][0][9][3];
-        $ordering_provider_name = '';
-
-        // prefix
-        if($order_observation['ORC'][12][0][6] != ''){
-            $ordering_provider_name .= $order_observation['ORC'][12][0][6] . ' ';
-        }
-
-        // last
-        $ordering_provider_name .=  $order_observation['ORC'][12][0][2][1] . ', ';
-
-        // first
-        if($order_observation['ORC'][12][0][3] != ''){
-            $ordering_provider_name .= $order_observation['ORC'][12][0][3] . ' ';
-        }
-
-        // middle
-        if($order_observation['ORC'][12][0][4] != '') {
-            $ordering_provider_name .= $order_observation['ORC'][12][0][4] . ' ';
-        }
-
-        // suffix
-        if($order_observation['ORC'][12][0][5] != ''){
-            $ordering_provider_name .= $order_observation['ORC'][12][0][5] . ' ';
-        }
-
-        $ordering_provider_id = 'PROVIDER ID: ' . $ordering_provider_id;
+		$ordering_provider_name = '';
+		// prefix
+		if ($order_observation['ORC'][12][0][6] != '') {
+			$ordering_provider_name .= $order_observation['ORC'][12][0][6] . ' ';
+		}
+		// last
+		$ordering_provider_name .= $order_observation['ORC'][12][0][2][1] . ', ';
+		// first
+		if ($order_observation['ORC'][12][0][3] != '') {
+			$ordering_provider_name .= $order_observation['ORC'][12][0][3] . ' ';
+		}
+		// middle
+		if ($order_observation['ORC'][12][0][4] != '') {
+			$ordering_provider_name .= $order_observation['ORC'][12][0][4] . ' ';
+		}
+		// suffix
+		if ($order_observation['ORC'][12][0][5] != '') {
+			$ordering_provider_name .= $order_observation['ORC'][12][0][5] . ' ';
+		}
+		$ordering_provider_id = 'PROVIDER ID: ' . $ordering_provider_id;
 		$ordering_provider_name = 'PROVIDER NAME: ' . $ordering_provider_name;
 
-		$line_len = 30;
-		$rows = [];
-		$columns_lens = [
-			'code' => 6,
-			'description' => 10,
-			'result' => 10,
-			'uom' => 7,
-			'range' => 10,
-			'abnormal_flag' => 5,
-			'status' => 8,
-			'obs_date' => 10,
-			'note' => 0
-		];
+		$REPORT['ROWS'][] = $ordering_provider_id;
+		$REPORT['ROWS'][] = $ordering_provider_name;
+		$REPORT['ROWS'][] = '';
 
-		$PERFORMING_ORGANIZATIONS = [];
+		$test_name = "TEST NAME: $test_name";
+		$test_report_date = "TEST REPORT DATE: $test_report_date";
+		$test_report_number = "TEST REPORT NUMBER: $test_report_number";
 
-		$report_notes = '';
+		$REPORT['ROWS'][] = "$test_name";
+		$REPORT['ROWS'][] = "$test_report_date";
+		$REPORT['ROWS'][] = "$test_report_number";
+		$REPORT['ROWS'][] = '';
 
-		if(isset($order_observation['NTE']) && is_array($order_observation['NTE'])) {
-            foreach ($order_observation['NTE'] as $index => $note) {
-                if ($index > 0) {
-                    $report_notes .= PHP_EOL . '|              ';
-                }
-                $report_notes .= $index + 1 . '. ' . $note[3][0];
-            }
-        }
 
-		foreach ($order_observation['OBSERVATION'] as $observation){
-			if(!isset($observation['OBX'])) continue;
-			$row['code'] = $observation['OBX'][3][1];
-			$row['description'] = $observation['OBX'][3][2];
+		$NOTES['TITLE'] = 'NOTES:';
+		if (isset($order_observation['NTE']) && is_array($order_observation['NTE'])) {
+			foreach ($order_observation['NTE'] as $i => $note) {
+				$NOTES['ROWS'][] = $index + 1 . '. ' . $note[3][0];
+			}
+		}
 
-			if($observation['OBX'][2] == 'SN'){
-				$row['result'] = $observation['OBX'][5][2];
-			}elseif($observation['OBX'][2] == 'CWE'){
-				$row['result'] = $observation['OBX'][5][2];
-			}else{
-				$row['result'] = $observation['OBX'][5];
+		if (!empty($NOTES['ROWS'])) {
+			$REPORT['SUB_SECTIONS'][] = $NOTES;
+		}
+
+		$TABLE = [];
+//			$TABLE['TITLE'] = 'OBSERVATIONS';
+		$TABLE['TH']['CODE'] = 'CODE';
+		$TABLE['TH']['DESCRIPTION'] = 'DESCRIPTION';
+		$TABLE['TH']['RESULT'] = 'RESULT';
+		$TABLE['TH']['UOM'] = 'UOM';
+		$TABLE['TH']['RANGE'] = 'RANGE';
+		$TABLE['TH']['ABN'] = 'ABN';
+		$TABLE['TH']['STATUS'] = 'STATUS';
+		$TABLE['TH']['DATE'] = 'DATE';
+		$TABLE['TH']['COMMENT'] = 'COMMENT';
+
+		foreach ($order_observation['OBSERVATION'] as $observation) {
+
+			if (!isset($observation['OBX'])) continue;
+
+			$TR['CODE'] = $observation['OBX'][3][1];
+			$TR['DESCRIPTION'] = $observation['OBX'][3][2];
+
+			if ($observation['OBX'][2] == 'SN') {
+				$TR['RESULT'] = $observation['OBX'][5][2];
+			} elseif ($observation['OBX'][2] == 'CWE') {
+				$TR['RESULT'] = $observation['OBX'][5][2];
+			} else {
+				$TR['RESULT'] = $observation['OBX'][5];
 			}
 
+			$TR['UOM'] = $observation['OBX'][6][1];
+			$TR['RANGE'] = $observation['OBX'][7];
+			$TR['ABN'] = $observation['OBX'][8][0];
+			$TR['STATUS'] = $observation['OBX'][11];
+			$TR['DATE'] = $observation['OBX'][14][1];
 
-			$row['uom'] = $observation['OBX'][6][1];
-			$row['range'] = $observation['OBX'][7];
-			$row['abnormal_flag'] = $observation['OBX'][8][0];
-			$row['status'] = $observation['OBX'][11];
-			$row['obs_date'] = $observation['OBX'][14][1];
-
-			if($row['obs_date'] != ''){
-				$row['obs_date'] = date(self::$dates_format_compact, strtotime($row['obs_date']));
+			if ($TR['DATE'] != '') {
+				$TR['DATE'] = date(self::$dates_format_compact, strtotime($TR['DATE']));
 			}
 
-			if($observation['NTE'] && is_array($observation['NTE'])){
-				if(is_array($observation['NTE'])){
-					$row['note'] = '';
-					foreach($observation['NTE'] as $nte){
-						$row['note'] .= $nte[3][0] . ' ';
+			if ($observation['NTE'] && is_array($observation['NTE'])) {
+				if (is_array($observation['NTE'])) {
+					$TR['COMMENT'] = '';
+					foreach ($observation['NTE'] as $nte) {
+						$TR['COMMENT'] .= $nte[3][0] . ' ';
 					}
 				}
+			} else {
+				$TR['COMMENT'] = '-';
+			}
+
+			$id = $observation['OBX'][3][1];
+			$sub_id = $observation['OBX'][4];
+
+			if($id === '' || $sub_id === ''){
+				$TABLE['TR'][] = $TR;
 			}else{
-				$row['note'] = '- ';
+				$TABLE['TR'][$id.'-'.$sub_id] = $TR;
+				$obx_report_map[$id.'-'.$sub_id] = $report_key;
 			}
 
-			foreach ($row as $column => $value){
-				$len = strlen($value);
-				if($columns_lens[$column] < $len){
-					$columns_lens[$column] = $len + 1;
-				}
-			}
+			/**
+			 * ORGANIZATION
+			 */
+			$organization_key = $observation['OBX'][23][1] != '' ? str_replace(' ', '_', $observation['OBX'][23][1]) : 'UNKNOWN';
 
-			$organization_key = $observation['OBX'][23][1] != '' ? str_replace(' ', '_' ,$observation['OBX'][23][1])  : 'UNKNOWN';
-
-			if(!array_key_exists($organization_key, $PERFORMING_ORGANIZATIONS)){
-
+			if (!array_key_exists($organization_key, $performing_organizations)) {
 				$organization_name = $observation['OBX'][23][1];
 				$organization_address = $observation['OBX'][24][1][1];
 				$organization_city = $observation['OBX'][24][3];
@@ -362,210 +338,369 @@ OBSERVATIONS;
 				$performing_organization_director_id = $observation['OBX'][25][1];
 				$performing_organization_director_name = '';
 
-				if($observation['OBX'][25][6] != ''){
+				if ($observation['OBX'][25][6] != '') {
 					$performing_organization_director_name .= $observation['OBX'][25][6] . ' ';
 				}
 
-				if($observation['OBX'][25][2][1] != ''){
+				if ($observation['OBX'][25][2][1] != '') {
 					$performing_organization_director_name .= $observation['OBX'][25][2][1] . ' ';
 				}
 
-				if($observation['OBX'][25][3] != ''){
+				if ($observation['OBX'][25][3] != '') {
 					$performing_organization_director_name .= $observation['OBX'][25][3] . ' ';
 				}
 
-				if($observation['OBX'][25][4] != ''){
+				if ($observation['OBX'][25][4] != '') {
 					$performing_organization_director_name .= $observation['OBX'][25][4] . ' ';
 				}
 
-				$org_text = <<<ORG
-|       CONTACT: $performing_organization_director_name
-|       NAME: {$organization_name}
-|       STREET: {$organization_address}
-|       CITY: {$organization_city}
-|       SATE: {$organization_state}
-|       ZIP CODE: {$organization_zip}
-|       COUNTRY: {$organization_country}
-|       COUNTY/PARISH CODE: {$organization_parish}
-|
-ORG;
-				$PERFORMING_ORGANIZATIONS[$organization_key] = $org_text;
+
+				$org['ROWS'][] = "CONTACT: $performing_organization_director_name";
+				$org['ROWS'][] = "NAME: {$organization_name}";
+				$org['ROWS'][] = "STREET: {$organization_address}";
+				$org['ROWS'][] = "CITY: {$organization_city}";
+				$org['ROWS'][] = "SATE: {$organization_state}";
+				$org['ROWS'][] = "ZIP CODE: {$organization_zip}";
+				$org['ROWS'][] = "COUNTRY: {$organization_country}";
+				$org['ROWS'][] = "COUNTY/PARISH CODE: {$organization_parish}";
+				$org['ROWS'][] = '';
+				$performing_organizations[$organization_key] = $org;
+
 			}
-
-
-            /**
-             * IF EMPTY FIND PARENT OBSERVATION
-             */
-			if(empty($rows)){
-			    $parent = self::findParentObservation($order_observations, $order_observation);
-			    if($parent !== false){
-
-                    $parent_row['code'] = $parent['OBX'][2];
-
-                    $parent_row['code'] = $parent['OBX'][3][1];
-                    $parent_row['description'] = $parent['OBX'][3][2];
-
-                    if($observation['OBX'][2] == 'SN'){
-                        $parent_row['result'] = $parent['OBX'][5][2];
-                    }elseif($observation['OBX'][2] == 'CWE'){
-                        $parent_row['result'] = $parent['OBX'][5][2];
-                    }else{
-                        $parent_row['result'] = $parent['OBX'][5];
-                    }
-
-
-                    $parent_row['uom'] = $parent['OBX'][6][1];
-                    $parent_row['range'] = $parent['OBX'][7];
-                    $parent_row['abnormal_flag'] = $parent['OBX'][8][0];
-                    $parent_row['status'] = $parent['OBX'][11];
-                    $parent_row['obs_date'] = $parent['OBX'][14][1];
-
-                    if($parent_row['obs_date'] != ''){
-                        $parent_row['obs_date'] = date(self::$dates_format_compact, strtotime($parent_row['obs_date']));
-                    }
-
-                    if($parent['NTE'] && is_array($parent['NTE'])){
-                        if(is_array($parent['NTE'])){
-                            $parent_row['note'] = '';
-                            foreach($parent['NTE'] as $nte){
-                                $parent_row['note'] .= $nte[3][0] . ' ';
-                            }
-                        }
-                    }else{
-                        $parent_row['note'] = '- ';
-                    }
-
-                    foreach ($parent_row as $column => $value){
-                        $len = strlen($value);
-                        if($columns_lens[$column] < $len){
-                            $columns_lens[$column] = $len + 1;
-                        }
-                    }
-
-                    $rows[] = $parent_row;
-
-                }
-
-            }
-
-
-			$rows[] = $row;
-
 		}
 
-		$code = str_pad('CODE', $columns_lens['code']);
-		$description = str_pad('DESCRIPTION', $columns_lens['description']);
-		$result = str_pad('RESULT', $columns_lens['result']);
-		$uom = str_pad('UOM', $columns_lens['uom']);
-		$range = str_pad('RANGE', $columns_lens['range']);
-		$abn = str_pad('ABN', $columns_lens['abnormal_flag']);
-		$status = str_pad('STATUS', $columns_lens['status']);
-		$datetime = str_pad('DATE/TIME', $columns_lens['obs_date']);
-		$comment = str_pad('COMMENT', $columns_lens['note']);
+		$OBSERVATIONS['TITLE'] = 'OBSERVATIONS:';
+		$OBSERVATIONS['TABLES'][] = $TABLE;
 
-		foreach ($columns_lens as $columns_len){
-			$line_len += $columns_len;
+		$REPORT['SUB_SECTIONS'][] = $OBSERVATIONS;
+
+		/**
+		 * PERFORMING ORGANIZATIONS
+		 */
+		if(!empty($performing_organizations)){
+
+			$PERFORMING_ORGANIZATION['TITLE'] = 'PERFORMING ORGANIZATIONS:';
+			foreach ($performing_organizations as $performing_organization){
+				foreach ($performing_organization['ROWS'] as $org_row){
+					$PERFORMING_ORGANIZATION['ROWS'][] = $org_row;
+				}
+			}
+			$REPORT['SUB_SECTIONS'][] = $PERFORMING_ORGANIZATION;
 		}
 
-		$header_line = str_pad('',$line_len, '=');
-		$row_line = str_pad('',$line_len, '-');
-
-		$OBSERVATIONS = <<<HEAD
-
-|	|{$header_line}
-|       | {$code}| {$description}| {$result}| {$uom}| {$range}| {$abn}| {$status}| {$datetime}| {$comment}
-|       |{$header_line}
-
-HEAD;
-
-		foreach ($rows as $row){
-
-			$code = str_pad($row['code'], $columns_lens['code']);
-			$description = str_pad($row['description'], $columns_lens['description']);
-			$result = str_pad($row['result'], $columns_lens['result']);
-			$uom = str_pad($row['uom'], $columns_lens['uom']);
-			$range = str_pad($row['range'], $columns_lens['range']);
-			$abn = str_pad($row['abnormal_flag'], $columns_lens['abnormal_flag']);
-			$status = str_pad($row['status'], $columns_lens['status']);
-			$datetime = str_pad($row['obs_date'], $columns_lens['obs_date']);
-			$comment = str_pad($row['note'], $columns_lens['note']);
-
-			$OBSERVATIONS .= <<<HEAD
-|       | {$code}| {$description}| {$result}| {$uom}| {$range}| {$abn}| {$status}| {$datetime}| {$comment}
-|       |{$row_line}
-
-HEAD;
-
-		}
-
-
-		if(isset($order_observation['SPECIMEN']) && isset($order_observation['SPECIMEN']['SPM'])){
+		/**
+		 * SPECIMEN
+		 */
+		if (isset($order_observation['SPECIMEN']) && isset($order_observation['SPECIMEN']['SPM'])) {
 
 			$type = $order_observation['SPECIMEN']['SPM'][4][1] . ' - ' . $order_observation['SPECIMEN']['SPM'][4][2];
 
 			$collection_start = $order_observation['SPECIMEN']['SPM'][17][1][1];
 			$collection_stop = $order_observation['SPECIMEN']['SPM'][17][2][1];
 
-			if($collection_start != ''){
+			if ($collection_start != '') {
 				$collection_start = date(self::$dates_format, strtotime($collection_start));
-			}else{
+			} else {
 				$collection_start = 'UNKNOWN';
 			}
 
-			if($collection_stop != ''){
+			if ($collection_stop != '') {
 				$collection_stop = date(self::$dates_format, strtotime($collection_stop));
-			}else{
+			} else {
 				$collection_stop = 'UNKNOWN';
 			}
 
 			$reject_reason = $order_observation['SPECIMEN']['SPM'][21][1] . ' - ' . $order_observation['SPECIMEN']['SPM'][21][2];
-			$appropriateness = $order_observation['SPECIMEN']['SPM'][23][1] . ' - '. $order_observation['SPECIMEN']['SPM'][23][2];
+			$appropriateness = $order_observation['SPECIMEN']['SPM'][23][1] . ' - ' . $order_observation['SPECIMEN']['SPM'][23][2];
 			$condition = $order_observation['SPECIMEN']['SPM'][24][1] . ' - ' . $order_observation['SPECIMEN']['SPM'][24][2];
 			$notes = $order_observation['SPECIMEN']['SPM'][21][3];
 
-			$SPECIMEN = <<<SPM
-TYPE: {$type}
-|       COLLECTION START DATE: {$collection_start}
-|       COLLECTION STOP DATE: {$collection_stop}
-|       REJECT REASON: {$reject_reason}
-|       APPROPRIATENESS: {$appropriateness}
-|       CONDITION: {$condition}
-|       NOTES: {$notes}
-SPM;
-
-		}else{
-			$SPECIMEN = 'NONE';
+			$SPECIMEN['TITLE'] = 'SPECIMEN:';
+			$SPECIMEN['ROWS'][] = "TYPE: {$type}";
+			$SPECIMEN['ROWS'][] = "COLLECTION START DATE: {$collection_start}";
+			$SPECIMEN['ROWS'][] = "COLLECTION STOP DATE: {$collection_stop}";
+			$SPECIMEN['ROWS'][] = "REJECT REASON: {$reject_reason}";
+			$SPECIMEN['ROWS'][] = "APPROPRIATENESS: {$appropriateness}";
+			$SPECIMEN['ROWS'][] = "CONDITION: {$condition}";
+			$SPECIMEN['ROWS'][] = "NOTES: {$notes}";
+			$SPECIMEN['ROWS'][] = '';
+			$REPORT['SUB_SECTIONS'][] = $SPECIMEN;
 		}
 
-		$PERFORMING_ORGANIZATIONS = implode(PHP_EOL, $PERFORMING_ORGANIZATIONS);
-
-		$text = <<<OBSERVATIONS
-|       ---------------------------------------------------------------------------------------------------------------------------------------------
-|       {$observation_number}. ORDER                                                | TEST
-|       ---------------------------------------------------------------------------------------------------------------------------------------------
-|       {$placer_order_no}| TEST NAME: $test_name
-|       {$filler_order_no}| TEST REPORT DATE: $test_report_date
-|       {$placer_group_no}| TEST REPORT NUMBER: $test_report_number
-|                                                               | TEST NOTES: {$report_notes}   
-|       {$ordering_provider_id}
-|       {$ordering_provider_name}
-|       
-|
-|       OBSERVATIONS:
-|       ---------------------------------------------------------------------------------------------------------------------------------------------
-|       $OBSERVATIONS|
-| 
-|       SPECIMEN
-|       ---------------------------------------------------------------------------------------------------------------------------------------------
-|       $SPECIMEN
-|
-|       PERFORMING ORGANIZATIONS:
-|       ---------------------------------------------------------------------------------------------------------------------------------------------
-| 
-$PERFORMING_ORGANIZATIONS
-|
-
-OBSERVATIONS;
-		return $text;
+		return $REPORT;
 	}
+
+	private static function childrenObservationsHandler(&$PARENT_REPORT, $order_observation, $index){
+
+		$parent_section = false;
+		$parent_table = false;
+		$parent_row_found = false;
+
+
+		$TABLE = [];
+//			$TABLE['TITLE'] = 'OBSERVATIONS';
+		$TABLE['TH']['CODE'] = 'CODE';
+		$TABLE['TH']['DESCRIPTION'] = 'DESCRIPTION';
+		$TABLE['TH']['RESULT'] = 'RESULT';
+		$TABLE['TH']['UOM'] = 'UOM';
+		$TABLE['TH']['RANGE'] = 'RANGE';
+		$TABLE['TH']['ABN'] = 'ABN';
+		$TABLE['TH']['STATUS'] = 'STATUS';
+		$TABLE['TH']['DATE'] = 'DATE';
+		$TABLE['TH']['COMMENT'] = 'COMMENT';
+
+		foreach ($order_observation['OBSERVATION'] as $observation){
+
+			if(!isset($observation['OBX'])) continue;
+
+			if($parent_row_found === false){
+				$parent_id = $order_observation['OBR'][26][1][1];
+				$parent_sub_id = $order_observation['OBR'][26][2];
+
+				$parent_key = $parent_id . '-' . $parent_sub_id;
+
+				foreach ($PARENT_REPORT['SUB_SECTIONS'] as &$SUB_SECTION){
+					if(!isset($SUB_SECTION['TABLES'])) continue;
+
+					foreach ($SUB_SECTION['TABLES'] as &$SUB_TABLE){
+						if(!isset($SUB_TABLE['TR'])) continue;
+
+						foreach ($SUB_TABLE['TR'] as $key => $row ){
+							if($parent_key != $key) continue;
+							$TABLE['TR'][$key] = $row;
+							$parent_section = &$SUB_SECTION;
+							$parent_table = &$SUB_TABLE;
+							$parent_row_found = true;
+
+							// delete parent row
+							unset($SUB_TABLE['TR'][$key]);
+
+						}
+					}
+				}
+			}
+
+			$TR['CODE'] = $observation['OBX'][3][1];
+			$TR['DESCRIPTION'] = $observation['OBX'][3][2];
+
+			if($observation['OBX'][2] == 'SN'){
+				$TR['RESULT'] = $observation['OBX'][5][2];
+			}elseif($observation['OBX'][2] == 'CWE'){
+				$TR['RESULT'] = $observation['OBX'][5][2];
+			}else{
+				$TR['RESULT'] = $observation['OBX'][5];
+			}
+
+			$TR['UOM'] = $observation['OBX'][6][1];
+			$TR['RANGE'] = $observation['OBX'][7];
+			$TR['ABN'] = $observation['OBX'][8][0];
+			$TR['STATUS'] = $observation['OBX'][11];
+			$TR['DATE'] = $observation['OBX'][14][1];
+
+			if($TR['DATE'] != ''){
+				$TR['DATE'] = date(self::$dates_format_compact, strtotime($TR['DATE']));
+			}
+
+			if($observation['NTE'] && is_array($observation['NTE'])){
+				if(is_array($observation['NTE'])){
+					$TR['COMMENT'] = '';
+					foreach($observation['NTE'] as $nte){
+						$TR['COMMENT'] .= $nte[3][0] . ' ';
+					}
+				}
+			}else{
+				$TR['COMMENT'] = '-';
+			}
+
+			$id = $observation['OBX'][3][1];
+			$sub_id = $observation['OBX'][4];
+
+			$TABLE['TR'][$id . '-' . $sub_id] = $TR;
+		}
+
+		if(is_array($parent_section) && empty($parent_table['TR'])){
+
+			$parent_table_index = array_search($parent_table, $parent_section['TABLES']);
+
+			if($parent_table_index !== false){
+				unset($parent_section['TABLES'][$parent_table_index]);
+			}
+		}
+
+
+		$parent_section['TABLES'][] = $TABLE;
+
+	}
+
+
+	static function doPrint(){
+
+		$text = '';
+
+		$buffer = self::$buffer;
+
+		if(isset($buffer['TITLE'])){
+			$text .= <<<TITLE
+|------------------------------------------------------------------------------------------------------------------------------------------------------
+| {$buffer['TITLE']}
+|------------------------------------------------------------------------------------------------------------------------------------------------------
+|
+
+TITLE;
+		}
+
+		if(isset($buffer['SECTIONS'])){
+			$text .= self::sectionsHandler($buffer['SECTIONS']);
+		}
+
+		if(isset($buffer['FOOTER'])){
+			$text .= <<<FOOTER
+|
+|------------------------------------------------------------------------------------------------------------------------------------------------------
+| {$buffer['FOOTER']}
+|------------------------------------------------------------------------------------------------------------------------------------------------------
+
+FOOTER;
+		}
+
+		return $text;
+
+	}
+
+	static function sectionsHandler($SECTIONS, $indent = 0, $is_sub){
+
+		$buffer = '';
+		$pad = str_pad('', $indent * 3);
+		$line = str_pad("{$pad}",150, '-');
+
+		foreach ($SECTIONS as $SECTION) {
+
+			if($is_sub){
+				$buffer .= <<<SECTION
+|{$pad}{$SECTION['TITLE']}
+|{$line}
+
+SECTION;
+			} else{
+				$buffer .= <<<SECTION
+|{$line}
+|{$pad}{$SECTION['TITLE']}
+|{$line}
+
+SECTION;
+			}
+
+
+			foreach ($SECTION['ROWS'] as $ROW) {
+				$buffer .= <<<ROWS
+|{$pad}{$ROW}
+
+ROWS;
+			}
+
+			if (isset($SECTION['TABLES'])) {
+				$buffer .= self::tablesHandler($SECTION['TABLES'], $indent);
+			}
+
+			if (isset($SECTION['SUB_SECTIONS'])) {
+				$buffer .= self::sectionsHandler($SECTION['SUB_SECTIONS'], $indent, true);
+			}
+
+			if (isset($SECTION['SECTIONS'])) {
+				$buffer .= self::sectionsHandler($SECTION['SECTIONS'], $indent + 1, false);
+			}
+		}
+
+		return $buffer;
+
+	}
+
+	static function tablesHandler($TABLES, $indent){
+
+
+		$buffer = '';
+		$pad = str_pad('', $indent * 3);
+
+		foreach ($TABLES as $TABLE){
+			$buffer .= self::tableHandler($TABLE, $pad);
+		}
+
+		return $buffer;
+	}
+
+	static function tableHandler($TABLE, $pad){
+
+		$buffer = '';
+		$line_len = 0;
+		$columns_lens = [];
+		$rows = [];
+
+		if(isset($TABLE['TH'])){
+			foreach ($TABLE['TH'] as $COL => $VAL){
+				$columns_lens[$COL] = strlen($VAL);
+			}
+		}
+
+		if(isset($TABLE['TR'])) {
+			foreach ($TABLE['TR'] as $ROW => $COLS) {
+				foreach ($COLS as $COL => $VAL){
+					$len = strlen($VAL);
+					if(!isset($columns_lens[$COL]) || $columns_lens[$COL] < $len){
+						$columns_lens[$COL] = $len;
+					}
+				}
+			}
+		}
+
+		$line_len = 0;
+		foreach ($columns_lens as $columns_len){
+			$line_len = $line_len + ($columns_len +  5);
+		}
+
+		$th_line = str_pad("|$pad|", $line_len, '=') . PHP_EOL;
+		$tr_line = str_pad("|$pad|", $line_len, '-') . PHP_EOL;
+
+		$buffer .= '|' . PHP_EOL;
+
+		if(isset($TABLE['TH'])){
+
+			$buffer .= $th_line;
+
+			$TH = '';
+
+			foreach ($TABLE['TH'] as $COL => $VAL){
+				$col_len = $columns_lens[$COL] + 4;
+				$TH .= str_pad("| $VAL ", $col_len);
+			}
+
+			$buffer .= <<<TH
+|{$pad}{$TH}
+
+TH;
+			$buffer .= $th_line;
+		}
+
+		if(isset($TABLE['TR'])) {
+			foreach ($TABLE['TR'] as $ROW => $COLS) {
+
+				$TR = '';
+				foreach ($COLS as $COL => $VAL){
+					$col_len = $columns_lens[$COL] + 4;
+					$TR .= str_pad("| $VAL ", $col_len);
+				}
+
+				$buffer .= <<<TR
+|{$pad}{$TR}
+
+TR;
+				$buffer .= $tr_line;
+			}
+		}
+
+		$buffer .= '|' . PHP_EOL;
+
+
+		return $buffer;
+	}
+
 }

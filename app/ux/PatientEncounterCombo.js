@@ -84,9 +84,14 @@ Ext.define('App.ux.PatientEncounterCombo', {
 			listeners: {
 				load: function () {
 					if(!me.includeAllSelection) return;
-					me.store.insert(0,{
+                    me.store.insert(0,{
+                        eid: -1,
+                        brief_description: _('no_encounters'),
+                        service_date: '0000-00-00'
+                    });
+					me.store.insert(1,{
 						eid: null,
-						brief_description: 'All Encounters',
+						brief_description: _('all_encounters'),
 						service_date: '0000-00-00'
 					});
 				}

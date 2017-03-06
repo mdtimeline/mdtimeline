@@ -3435,7 +3435,7 @@ class CCDDocument extends CDDDocumentBase
             }
 
             /**
-             * Appointments1
+             * Appointments
              */
             foreach($planOfCareData['APPOINTMENTS'] as $item){
 
@@ -4179,7 +4179,7 @@ class CCDDocument extends CDDDocumentBase
                 ];
 
                 // If it is unknown when the allergy began, this effectiveTime
-                // SHALL contain low/@nullFLavor="UNK" (CONF:9103)
+                // SHALL contain low/@nullFlavor="UNK" (CONF:9103)
                 $entry['act']['entryRelationship']['observation']['effectiveTime'] = [
                     '@attributes' => [
                         'xsi:type' => 'IVL_TS',

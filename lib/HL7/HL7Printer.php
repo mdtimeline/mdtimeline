@@ -36,6 +36,7 @@ class HL7Printer {
 	static function printMessage($message, $title = ''){
 
         self::$message = $message;
+        self::$buffer = [];
 
 		if($title != ''){
 			$title = strtoupper($title);

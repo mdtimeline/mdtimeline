@@ -79,8 +79,11 @@ Ext.define('App.view.patient.CCD', {
                 {boxLabel: _('clinical_instructions'), name: 'exclude', inputValue: 'clinical_instructions'},
                 {
                     xtype:'fieldset',
+                    columnWidth: 1,
                     title: _('plan_of_care'),
                     defaultType: 'checkbox',
+                    defaults: {anchor: '100%'},
+                    layout: 'anchor',
                     items:[
                         {boxLabel: _('future_appointments'), name: 'exclude', inputValue: 'future_appointments'},
                         {boxLabel: _('referrals_other_providers'), name: 'exclude', inputValue: 'referrals_other_providers'}

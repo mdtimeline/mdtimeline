@@ -69,7 +69,6 @@ Ext.define('App.view.patient.CCD', {
 				{boxLabel: _('vitals'), name: 'exclude', inputValue: 'vitals'},
 				{boxLabel: _('immunizations'), name: 'exclude', inputValue: 'immunizations'},
 				{boxLabel: _('medications'), name: 'exclude', inputValue: 'medications'},
-                {boxLabel: _('administered_medications'), name: 'exclude', inputValue: 'administered_medications'},
 				{boxLabel: _('meds_administered'), name: 'exclude', inputValue: 'administered'},
 				{boxLabel: _('plan_of_care'), name: 'exclude', inputValue: 'planofcare'},
 				{boxLabel: _('problems'), name: 'exclude', inputValue: 'problems'},

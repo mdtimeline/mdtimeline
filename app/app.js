@@ -3836,9 +3836,14 @@ Ext.define('App.ux.PatientEncounterCombo', {
 			listeners: {
 				load: function () {
 					if(!me.includeAllSelection) return;
-					me.store.insert(0,{
+                    me.store.insert(0,{
+                        eid: -1,
+                        brief_description: _('no_encounters'),
+                        service_date: '0000-00-00'
+                    });
+					me.store.insert(1,{
 						eid: null,
-						brief_description: 'All Encounters',
+						brief_description: _('all_encounters'),
 						service_date: '0000-00-00'
 					});
 				}
@@ -13916,11 +13921,6 @@ Ext.define('App.model.administration.User', {
 			comment: 'last name',
 			len: 120,
 			index: true
-		},
-		{
-			name: 'signature',
-			type: 'string',
-			len: 100
 		},
 		{
 			name: 'fullname',
@@ -47702,7 +47702,9 @@ Ext.define('App.view.patient.CCD', {
 				{boxLabel: _('problems'), name: 'exclude', inputValue: 'problems'},
 				{boxLabel: _('allergies'), name: 'exclude', inputValue: 'allergies'},
 				{boxLabel: _('social'), name: 'exclude', inputValue: 'social'},
-				{boxLabel: _('results'), name: 'exclude', inputValue: 'results'}
+				{boxLabel: _('results'), name: 'exclude', inputValue: 'results'},
+                {boxLabel: _('provider_information'), name: 'exclude', inputValue: 'provider_information'},
+                {boxLabel: _('clinical_instructions'), name: 'exclude', inputValue: 'clinical_instructions'}
 			]
 		},
 		'-',

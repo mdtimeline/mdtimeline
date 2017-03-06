@@ -1714,7 +1714,6 @@ $LANG = array(
 	'education_resource'                    => 'Education Resource',
 	'education_resources'                   => 'Education Resources',
     'provider_information'                  => 'Provider Information',
-    'administered_medications'              => 'Administered Medications',
     'clinical_instructions'                 => 'Clinical Instructions',
     'all_encounters'                        => 'All Encounters',
     'no_encounters'                         => 'No Encounters'

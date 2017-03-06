@@ -16,9 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.store.patient.Notes', {
+Ext.define('App.store.patient.EducationResources', {
 	extend: 'Ext.data.Store',
-	model     : 'App.model.patient.Notes',
-	remoteSort: false,
-	autoLoad  : false
+	model: 'App.model.patient.EducationResource'
 });

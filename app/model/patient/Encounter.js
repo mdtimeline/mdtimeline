@@ -240,6 +240,12 @@ Ext.define('App.model.patient.Encounter', {
 			name: 'appointmentrequests',
 			primaryKey: 'eid',
 			foreignKey: 'eid'
+		},
+		{
+			model: 'App.model.patient.EducationResource',
+			name: 'educationresources',
+			primaryKey: 'eid',
+			foreignKey: 'eid'
 		}
 	],
 	isClose: function(){

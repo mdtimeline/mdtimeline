@@ -26,7 +26,8 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		'App.view.patient.encounter.CarePlanGoalsNewWindow',
 		'App.ux.LiveSnomedProcedureSearch',
 		'App.view.patient.encounter.AdministeredMedications',
-		'App.view.patient.encounter.AppointmentRequestGrid'
+		'App.view.patient.encounter.AppointmentRequestGrid',
+		'App.view.patient.encounter.EducationResourcesGrid',
 	],
 	action: 'patient.encounter.soap',
 	itemId: 'soapPanel',
@@ -304,6 +305,10 @@ Ext.define('App.view.patient.encounter.SOAP', {
 						},
 						{
 							xtype: 'careplangoalsgrid',
+							margin: '0 0 10 0'
+						},
+						{
+							xtype: 'educationresourcesgrid',
 							margin: '0 0 10 0'
 						}
 					]

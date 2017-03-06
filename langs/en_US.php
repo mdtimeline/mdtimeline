@@ -1708,10 +1708,5 @@ $LANG = array(
     'description_code'                      => 'Description Code',
     'description_code_type'                 => 'Description Code Type',
 	'show_log'                              => 'Show Log',
-	'within'                                => 'Within',
-    'provider_information'                  => 'Provider Information',
-    'administered_medications'              => 'Administered Medications',
-    'clinical_instructions'                 => 'Clinical Instructions',
-    'all_encounters'                        => 'All Encounters',
-    'no_encounters'                         => 'No Encounters'
+	'within'                                => 'Within'
 );

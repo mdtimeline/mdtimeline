@@ -567,7 +567,7 @@ FOOTER;
 
 	}
 
-	static function sectionsHandler($SECTIONS, $indent = 0, $is_sub){
+	static function sectionsHandler($SECTIONS, $indent = 0, $is_sub = false){
 
 		$buffer = '';
 		$pad = str_pad('', $indent * 3);

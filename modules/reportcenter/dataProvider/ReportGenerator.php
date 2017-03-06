@@ -190,6 +190,22 @@ class ReportGenerator
                     );
                 }
 
+                // Look for any grouping parameter in the JSON Spec File, if something is found
+                // go ahead and put the grouping configuration into the grid
+                self::__groupingConfig($reportConfiguration->gridFields);
+
+                $resultSenchaDefinition = str_ireplace(
+                    "/*groupingConfigStore*/",
+                    self::__groupingConfig($reportConfiguration->gridFields)['store'],
+                    $resultSenchaDefinition
+                );
+
+                $resultSenchaDefinition = str_ireplace(
+                    "/*groupingConfigGrid*/",
+                    self::__groupingConfig($reportConfiguration->gridFields)['grid'],
+                    $resultSenchaDefinition
+                );
+
                 // Clean the string from unnecessary characters from the code, and also do some
                 // sort of minify
                 $resultSenchaDefinition = self::__clearString($resultSenchaDefinition);
@@ -483,6 +499,28 @@ class ReportGenerator
         $senchaDefinition = substr($senchaDefinition, 0, -1);
 
         return $senchaDefinition;
+    }
+
+    /**
+     * Return an array containing the configuration for the dataStore and the grid to
+     * do grouping on the fields.
+     *
+     * @param $field
+     * @return mixed
+     */
+    private function __groupingConfig($gridFields)
+    {
+        $configuration['store'] = '';
+        $configuration['grid'] = '';
+        foreach ($gridFields as $Index => $gridField) {
+            if(isset($gridField->grouping)){
+                if(!empty($field)){
+                    $configuration['store'] = "groupField: '$gridField->name',";
+                    $configuration['grid'] = "features: [{ftype:'grouping'}],";
+                }
+            }
+        }
+        return $configuration;
     }
 
     /**

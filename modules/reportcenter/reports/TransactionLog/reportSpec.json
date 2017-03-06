@@ -22,12 +22,14 @@
         "PatientName": {
             "name": "Patient",
             "align": "left",
-            "type": "string"
+            "type": "string",
+            "grouping": true
         },
         "date": {
             "name": "Date",
             "align": "center",
-            "type": "Y-m-d"
+            "type": "Y-m-d",
+            "width": 120
         },
         "UserName": {
             "name": "User",

@@ -98,6 +98,7 @@ Ext.define('Modules.reportcenter.reports.TransactionLog.filtersForm', {
                 {
                     xtype: 'tablelist',
                     fieldLabel: _('table'),
+                    name: 'table_name',
                     labelAlign: 'top',
                     columnWidth:1
                 },
@@ -105,6 +106,7 @@ Ext.define('Modules.reportcenter.reports.TransactionLog.filtersForm', {
                     xtype: 'combobox',
                     fieldLabel: _('event_type'),
                     labelAlign: 'top',
+                    name: 'event_type',
                     columnWidth:1
                 }
             ]

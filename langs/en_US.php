@@ -1716,5 +1716,7 @@ $LANG = array(
     'provider_information'                  => 'Provider Information',
     'clinical_instructions'                 => 'Clinical Instructions',
     'all_encounters'                        => 'All Encounters',
-    'no_encounters'                         => 'No Encounters'
+    'no_encounters'                         => 'No Encounters',
+    'future_appointments'                   => 'Future Appointments',
+    'referrals_other_providers'             => 'Referrals to other providers'
 );

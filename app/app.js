@@ -47704,7 +47704,16 @@ Ext.define('App.view.patient.CCD', {
 				{boxLabel: _('social'), name: 'exclude', inputValue: 'social'},
 				{boxLabel: _('results'), name: 'exclude', inputValue: 'results'},
                 {boxLabel: _('provider_information'), name: 'exclude', inputValue: 'provider_information'},
-                {boxLabel: _('clinical_instructions'), name: 'exclude', inputValue: 'clinical_instructions'}
+                {boxLabel: _('clinical_instructions'), name: 'exclude', inputValue: 'clinical_instructions'},
+                {
+                    xtype:'fieldset',
+                    title: _('plan_of_care'),
+                    defaultType: 'checkbox',
+                    items:[
+                        {boxLabel: _('future_appointments'), name: 'exclude', inputValue: 'future_appointments'},
+                        {boxLabel: _('referrals_other_providers'), name: 'exclude', inputValue: 'referrals_other_providers'}
+                    ]
+                }
 			]
 		},
 		'-',

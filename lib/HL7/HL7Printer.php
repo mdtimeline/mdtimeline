@@ -575,28 +575,34 @@ FOOTER;
 
 		foreach ($SECTIONS as $SECTION) {
 
-			if($is_sub){
-				$buffer .= <<<SECTION
+
+			if(isset($SECTION['TITLE'])){
+				if($is_sub){
+					$buffer .= <<<SECTION
 |{$pad}{$SECTION['TITLE']}
 |{$line}
 
 SECTION;
-			} else{
-				$buffer .= <<<SECTION
+				} else{
+					$buffer .= <<<SECTION
 |{$line}
 |{$pad}{$SECTION['TITLE']}
 |{$line}
 
 SECTION;
+				}
 			}
 
 
-			foreach ($SECTION['ROWS'] as $ROW) {
-				$buffer .= <<<ROWS
+			if(isset($SECTION['ROWS'])){
+				foreach ($SECTION['ROWS'] as $ROW) {
+					$buffer .= <<<ROWS
 |{$pad}{$ROW}
 
 ROWS;
+				}
 			}
+
 
 			if (isset($SECTION['TABLES'])) {
 				$buffer .= self::tablesHandler($SECTION['TABLES'], $indent);

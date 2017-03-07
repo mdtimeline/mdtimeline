@@ -13923,6 +13923,11 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
+			name: 'signature',
+			type: 'string',
+			len: 100
+		},
+		{
 			name: 'fullname',
 			type: 'string',
 			comment: 'title full name',
@@ -18761,15 +18766,13 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 		{
 			name: 'result_date',
 			type: 'date',
-			dataType: 'date',
-			dateFormat: 'Y-m-d',
+			dateFormat: 'Y-m-d H:i:s',
 			index: true
 		},
 		{
 			name: 'observation_date',
 			type: 'date',
-			dataType: 'date',
-			dateFormat: 'Y-m-d',
+			dateFormat: 'Y-m-d H:i:s',
 			index: true
 		},
 		{
@@ -24973,7 +24976,8 @@ Ext.define('App.view.patient.Results', {
 		'App.store.patient.PatientsOrders',
 		'App.ux.LiveLabsSearch',
 		'App.ux.LiveRadsSearch',
-		'App.ux.window.voidComment'
+		'App.ux.window.voidComment',
+		'App.ux.form.fields.DateTime'
 	],
 	title: _('results'),
 	xtype: 'patientresultspanel',
@@ -25178,10 +25182,9 @@ Ext.define('App.view.patient.Results', {
 									layout: 'anchor',
 									items: [
 										{
-											xtype: 'datefield',
+											xtype: 'mitos.datetime',
 											fieldLabel: _('report_date'),
 											name: 'result_date',
-											format: 'Y-m-d',
 											allowBlank: false
 										},
 										{
@@ -25209,10 +25212,9 @@ Ext.define('App.view.patient.Results', {
 											})
 										},
 										{
-											xtype: 'datefield',
+											xtype: 'mitos.datetime',
 											fieldLabel: _('observation_date'),
 											name: 'observation_date',
-											format: 'Y-m-d',
 											allowBlank: false
 										},
 										{

@@ -521,7 +521,7 @@ class DecisionSupport
                 foreach ($observations as $observation) {
 
 	                $isWithInterval = $concept['frequency_interval'] == '' ||
-		                $this->isWithInterval($observation['result_date'], $concept['frequency_interval'], $concept['frequency_operator'], 'Y-m-d');
+		                $this->isWithInterval($observation['result_date'], $concept['frequency_interval'], $concept['frequency_operator'], 'Y-m-d H:i:s');
 
 	                if($isWithInterval && ($concept['value'] == '' || $this->compare($observation['value'], $concept['value_operator'], $concept['value']))){
 		                $frequency++;

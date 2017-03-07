@@ -47666,7 +47666,9 @@ Ext.define('App.view.patient.CCD', {
 	tbar: [
         {
             xtype: 'fieldcontainer',
+            border: 1,
             layout: 'vbox',
+            height: 100,
             defaults: {
                 margin: '0 5 5 5'
             },
@@ -47689,7 +47691,7 @@ Ext.define('App.view.patient.CCD', {
 			fieldLabel: _('exclude'),
 			columns: 5,
 			vertical: true,
-			labelWidth: 60,
+			labelWidth: 80,
 			itemId: 'PatientCcdPanelExcludeCheckBoxGroup',
 			flex: 1,
 			items: [
@@ -47707,14 +47709,12 @@ Ext.define('App.view.patient.CCD', {
                 {boxLabel: _('clinical_instructions'), name: 'exclude', inputValue: 'clinical_instructions'},
                 {
                     xtype:'fieldset',
-                    columnWidth: 1,
                     title: _('plan_of_care'),
                     defaultType: 'checkbox',
                     defaults: {anchor: '100%'},
-                    layout: 'anchor',
                     items:[
-                        {boxLabel: _('future_appointments'), name: 'exclude', inputValue: 'future_appointments'},
-                        {boxLabel: _('referrals_other_providers'), name: 'exclude', inputValue: 'referrals_other_providers'}
+                        {boxLabel: _('future_appointments'), shrinkWrap: false, name: 'exclude', inputValue: 'future_appointments'},
+                        {boxLabel: _('referrals_other_providers'), shrinkWrap: false, name: 'exclude', inputValue: 'referrals_other_providers'}
                     ]
                 }
 			]
@@ -47725,12 +47725,14 @@ Ext.define('App.view.patient.CCD', {
 			text: _('refresh'),
 			margin: '0 0 5 0',
 			itemId: 'viewCcdBtn',
+            height: 100,
 			icon: 'resources/images/icons/refresh.png'
 		},
 		'-',
 		{
 			xtype: 'container',
 			layout: 'vbox',
+            height: 100,
 			items: [
 				{
 					xtype: 'button',
@@ -47753,6 +47755,7 @@ Ext.define('App.view.patient.CCD', {
 		{
 			xtype: 'container',
 			layout: 'vbox',
+            height: 100,
 			items: [
 				{
 					xtype: 'button',

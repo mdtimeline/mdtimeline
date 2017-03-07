@@ -13923,6 +13923,11 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
+			name: 'signature',
+			type: 'string',
+			len: 100
+		},
+		{
 			name: 'fullname',
 			type: 'string',
 			comment: 'title full name',
@@ -41159,7 +41164,7 @@ Ext.define('App.controller.patient.CCDImport', {
         me.doLoadMergePatientData(record.data.pid);
         cmb.select(record);
         win.close();
-        me.promptVerifyPatientImport();
+        //me.promptVerifyPatientImport(record);
     },
 
 	reconfigureGrid: function(getter, data){
@@ -41264,6 +41269,15 @@ Ext.define('App.controller.patient.CCDImport', {
 			app.msg(_('oops'), _('nothing_to_merge'), true);
 			return;
 		}
+
+		say(importActiveProblems);
+		say(importMedications);
+		say(importAllergies);
+
+		say(mergeActiveProblems);
+		say(mergeMedications);
+		say(mergeAllergies);
+
 
 		if(!me.getCcdImportPreviewWindow()){
 			Ext.create('App.view.patient.windows.CCDImportPreview');
@@ -63183,13 +63197,13 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 		type: 'vbox',
 		align: 'stretch'
 	},
-	width: 750,
-	maxHeight: 800,
+	width: 900,
+	height: 800,
 	autoScroll: true,
 	bodyPadding: 5,
 	defaults: {
 		xtype: 'grid',
-		height: 123,
+		flex: 1,
 		frame: true,
 		hideHeaders: true,
 		columnLines: true,
@@ -63228,7 +63242,6 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 				frame: true,
 				title: _('patient'),
 				itemId: 'CcdImportPreviewPatientForm',
-				flex: 1,
 				height: 145,
 				autoScroll: true,
 				layout: 'column',
@@ -63288,39 +63301,12 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 								name: 'fulladdress',
 								value: 'fulladdress'
 							},
-							{
-								fieldLabel: _('phones'),
-								name: 'phones',
-								value: '000-000-000 (H)'
-							}
+							// {
+							// 	fieldLabel: _('phones'),
+							// 	name: 'phones',
+							// 	value: '000-000-000 (H)'
+							// }
 						]
-					}
-				]
-			},
-			{
-				title: _('active_problems'),
-				store: Ext.create('App.store.patient.PatientActiveProblems'),
-				itemId: 'CcdImportPreviewActiveProblemsGrid',
-				columns: [
-					{
-						dataIndex: 'code_text',
-						flex: 1,
-						renderer: me.importedRenderer
-					},
-					{
-						dataIndex: 'begin_date',
-						width: 100,
-						renderer: me.importedRenderer
-					},
-					{
-						dataIndex: 'end_date',
-						width: 100,
-						renderer: me.importedRenderer
-					},
-					{
-						dataIndex: 'status',
-						width: 60,
-						renderer: me.importedRenderer
 					}
 				]
 			},
@@ -63332,15 +63318,60 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 					{
 						dataIndex: 'STR',
 						flex: 1,
-						renderer: me.importedRenderer
+						renderer: function (v, meta, record) {
+							v = Ext.String.format(
+								'MEDICATION: {0} - {1}<br>INSTRUCTIONS: {2}<br>NDC: {3}',
+								record.get('RXCUI'),
+								record.get('STR'),
+								record.get('directions'),
+								record.get('NDC')
+							);
+							return  me.importedRenderer(v, meta, record);
+						}
 					},
 					{
-						dataIndex: 'begin_date',
+						dataIndex: 'created_date',
 						width: 100,
 						renderer: me.importedRenderer
 					},
 					{
 						dataIndex: 'end_date',
+						width: 100,
+						renderer: function (v, meta, record) {
+							if(!v){
+								v = _('active')
+							}else {
+								v = _('inactive');
+							}
+							return me.importedRenderer(v, meta, record);
+						}
+					}
+				]
+			},
+			{
+				title: _('active_problems'),
+				store: Ext.create('App.store.patient.PatientActiveProblems'),
+				itemId: 'CcdImportPreviewActiveProblemsGrid',
+				columns: [
+					{
+						dataIndex: 'code_text',
+						flex: 1,
+						renderer: function (v, meta, record) {
+							v = Ext.String.format(
+								'PROBLEM: {0} - {1}',
+								record.get('code'),
+								record.get('code_text')
+							);
+							return me.importedRenderer(v, meta, record)
+						}
+					},
+					{
+						dataIndex: 'update_date',
+						width: 100,
+						renderer: me.importedRenderer
+					},
+					{
+						dataIndex: 'status',
 						width: 100,
 						renderer: me.importedRenderer
 					}
@@ -63355,21 +63386,25 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 					{
 						dataIndex: 'allergy',
 						flex: 1,
-						renderer: me.importedRenderer
+						renderer: function (v, meta, record) {
+							v = Ext.String.format(
+								'ALLERGY: {0} - {1}<br>REACTION: {2} - {3}',
+								record.get('allergy_code'),
+								record.get('allergy'),
+								record.get('reaction_code'),
+								record.get('reaction')
+							);
+							return me.importedRenderer(v, meta, record);
+						}
 					},
 					{
-						dataIndex: 'reaction',
-						width: 150,
-						renderer: me.importedRenderer
-					},
-					{
-						dataIndex: 'severity',
+						dataIndex: 'update_date',
 						width: 100,
 						renderer: me.importedRenderer
 					},
 					{
 						dataIndex: 'status',
-						width: 60,
+						width: 100,
 						renderer: me.importedRenderer
 					}
 				]
@@ -63398,196 +63433,26 @@ Ext.define('App.view.patient.windows.CCDImport', {
 	title: _('ccd_viewer_and_import'),
 	bodyStyle: 'background-color:#fff',
 	modal: true,
-	layout: {
-		type: 'vbox',
-		align: 'stretch'
-	},
+	layout: 'fit',
 	width: 1500,
-	maxHeight: 800,
+	height: 800,
 	autoScroll: true,
 	ccdData: null,
 	items: [
 		{
 			xtype: 'container',
-			layout: 'column',
+			layout: {
+				type: 'hbox',
+				align: 'stretch'
+			},
 			padding: 5,
 			items: [
 				{
 					xtype: 'panel',
-					title: _('import_data'),
-					columnWidth: 0.5,
+					title: _('system_data_ro'),
+					flex: 1,
 					frame: true,
 					margin: '0 5 0 0',
-					layout: {
-						type: 'vbox',
-						align: 'stretch'
-					},
-					defaults: {
-						xtype: 'grid',
-						height: 123,
-						frame: true,
-						hideHeaders: true,
-						columnLines: true,
-						multiSelect: true,
-						margin: '0 0 5 0'
-					},
-					items: [
-						{
-							xtype: 'form',
-							frame: true,
-							title: _('patient'),
-							itemId: 'CcdImportPatientForm',
-							flex: 1,
-							height: 148,
-							autoScroll: true,
-							layout: 'column',
-							items: [
-								{
-									xtype: 'container',
-									defaults: {
-										xtype: 'displayfield',
-										labelWidth: 45,
-										labelAlign: 'right',
-										margin: 0
-									},
-									columnWidth: 0.5,
-									items: [
-										{
-											fieldLabel: _('rec_num'),
-											name: 'record_number'
-										},
-										{
-											fieldLabel: _('name'),
-											name: 'name'
-										},
-										{
-											fieldLabel: _('sex'),
-											name: 'sex'
-										},
-										{
-											fieldLabel: _('dob'),
-											name: 'DOBFormatted'
-										},
-										{
-											fieldLabel: _('race'),
-											name: 'race_text'
-										}
-									]
-								},
-								{
-									xtype: 'container',
-									defaults: {
-										xtype: 'displayfield',
-										labelWidth: 60,
-										labelAlign: 'right',
-										margin: 0
-									},
-									columnWidth: 0.5,
-									items: [
-										{
-											fieldLabel: _('ethnicity'),
-											name: 'ethnicity_text'
-										},
-										{
-											fieldLabel: _('language'),
-											name: 'language'
-										},
-										{
-											fieldLabel: _('address'),
-											name: 'fulladdress'
-										},
-										{
-											fieldLabel: _('phones'),
-											name: 'phones'
-										}
-									]
-								}
-							]
-						},
-						{
-							title: _('active_problems'),
-							store: Ext.create('App.store.patient.PatientActiveProblems'),
-							itemId: 'CcdImportActiveProblemsGrid',
-							selType: 'checkboxmodel',
-							columns: [
-								{
-									dataIndex: 'code_text',
-									flex: 1
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'begin_date',
-									width: 100,
-									format: g('date_display_format')
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'end_date',
-									width: 100,
-									format: g('date_display_format')
-								},
-								{
-									dataIndex: 'status',
-									width: 60
-								}
-							]
-						},
-						{
-							title: _('medications'),
-							store: Ext.create('App.store.patient.Medications'),
-							itemId: 'CcdImportMedicationsGrid',
-							selType: 'checkboxmodel',
-							columns: [
-								{
-									dataIndex: 'STR',
-									flex: 1
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'begin_date',
-									width: 100,
-									format: g('date_display_format')
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'end_date',
-									width: 100,
-									format: g('date_display_format')
-								}
-							]
-						},
-						{
-							title: _('allergies'),
-							store: Ext.create('App.store.patient.Allergies'),
-							itemId: 'CcdImportAllergiesGrid',
-							selType: 'checkboxmodel',
-							margin: 0,
-							columns: [
-								{
-									dataIndex: 'allergy',
-									flex: 1
-								},
-								{
-									dataIndex: 'reaction',
-									width: 150
-								},
-								{
-									dataIndex: 'severity',
-									width: 100
-								},
-								{
-									dataIndex: 'status',
-									width: 60
-								}
-							]
-						}
-					]
-				},
-				{
-					xtype: 'panel',
-					title: _('system_data_ro'),
-					columnWidth: 0.5,
-					frame: true,
 					layout: {
 						type: 'vbox',
 						align: 'stretch'
@@ -63617,7 +63482,6 @@ Ext.define('App.view.patient.windows.CCDImport', {
 							frame: true,
 							title: _('patient'),
 							itemId: 'CcdPatientPatientForm',
-							flex: 1,
 							height: 146,
 							autoScroll: true,
 							layout: 'column',
@@ -63676,39 +63540,11 @@ Ext.define('App.view.patient.windows.CCDImport', {
 											fieldLabel: _('address'),
 											name: 'fulladdress'
 										},
-										{
-											fieldLabel: _('phones'),
-											name: 'phones'
-										}
+										// {
+										// 	fieldLabel: _('phones'),
+										// 	name: 'phones'
+										// }
 									]
-								}
-							]
-						},
-						{
-							title: _('active_problems'),
-							store: Ext.create('App.store.patient.PatientActiveProblems'),
-							itemId: 'CcdPatientActiveProblemsGrid',
-							//selType: 'checkboxmodel',
-							columns: [
-								{
-									dataIndex: 'code_text',
-									flex: 1
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'begin_date',
-									width: 100,
-									format: g('date_display_format')
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'end_date',
-									width: 100,
-									format: g('date_display_format')
-								},
-								{
-									dataIndex: 'status',
-									width: 60
 								}
 							]
 						},
@@ -63716,23 +63552,67 @@ Ext.define('App.view.patient.windows.CCDImport', {
 							title: _('medications'),
 							store: Ext.create('App.store.patient.Medications'),
 							itemId: 'CcdPatientMedicationsGrid',
-							//selType: 'checkboxmodel',
+							// selType: 'checkboxmodel',
+							flex: 1,
 							columns: [
 								{
 									dataIndex: 'STR',
-									flex: 1
+									flex: 1,
+									renderer: function (v, meta, record) {
+										return Ext.String.format(
+											'MEDICATION: {0} - {1}<br>INSTRUCTIONS: {2}<br>NDC: {3}',
+											record.get('RXCUI'),
+											record.get('STR'),
+											record.get('directions'),
+											record.get('NDC')
+										);
+									}
 								},
 								{
 									xtype: 'datecolumn',
-									dataIndex: 'begin_date',
+									dataIndex: 'created_date',
 									width: 100,
 									format: g('date_display_format')
 								},
 								{
-									xtype: 'datecolumn',
 									dataIndex: 'end_date',
 									width: 100,
+									renderer: function (v, meta, record) {
+										if(!v){
+											return _('active')
+										}
+										return _('inactive');
+									}
+								}
+							]
+						},
+						{
+							title: _('active_problems'),
+							store: Ext.create('App.store.patient.PatientActiveProblems'),
+							itemId: 'CcdPatientActiveProblemsGrid',
+							// selType: 'checkboxmodel',
+							flex: 1,
+							columns: [
+								{
+									dataIndex: 'code_text',
+									flex: 1,
+									renderer: function (v, meta, record) {
+										return Ext.String.format(
+											'PROBLEM: {0} - {1}',
+											record.get('code'),
+											record.get('code_text')
+										);
+									}
+								},
+								{
+									xtype: 'datecolumn',
+									dataIndex: 'update_date',
+									width: 100,
 									format: g('date_display_format')
+								},
+								{
+									dataIndex: 'status',
+									width: 100
 								}
 							]
 						},
@@ -63740,24 +63620,225 @@ Ext.define('App.view.patient.windows.CCDImport', {
 							title: _('allergies'),
 							store: Ext.create('App.store.patient.Allergies'),
 							itemId: 'CcdPatientAllergiesGrid',
-							//selType: 'checkboxmodel',
+							// selType: 'checkboxmodel',
+							flex: 1,
 							margin: 0,
 							columns: [
 								{
 									dataIndex: 'allergy',
-									flex: 1
+									flex: 1,
+									renderer: function (v, meta, record) {
+										return Ext.String.format(
+											'ALLERGY: {0} - {1}<br>REACTION: {2} - {3}',
+											record.get('allergy_code'),
+											record.get('allergy'),
+											record.get('reaction_code'),
+											record.get('reaction')
+										);
+									}
 								},
 								{
-									dataIndex: 'reaction',
-									width: 150
-								},
-								{
-									dataIndex: 'severity',
-									width: 100
+									xtype: 'datecolumn',
+									dataIndex: 'update_date',
+									width: 100,
+									format: g('date_display_format')
 								},
 								{
 									dataIndex: 'status',
-									width: 60
+									width: 100
+								}
+							]
+						}
+					]
+				},
+				{
+					xtype: 'panel',
+					title: _('import_data'),
+					flex: 1,
+					frame: true,
+					layout: {
+						type: 'vbox',
+						align: 'stretch'
+					},
+					defaults: {
+						xtype: 'grid',
+						height: 123,
+						frame: true,
+						hideHeaders: true,
+						columnLines: true,
+						multiSelect: true,
+						margin: '0 0 5 0'
+					},
+					items: [
+						{
+							xtype: 'form',
+							frame: true,
+							title: _('patient'),
+							itemId: 'CcdImportPatientForm',
+							height: 146,
+							autoScroll: true,
+							layout: 'column',
+							items: [
+								{
+									xtype: 'container',
+									defaults: {
+										xtype: 'displayfield',
+										labelWidth: 45,
+										labelAlign: 'right',
+										margin: 0
+									},
+									columnWidth: 0.5,
+									items: [
+										{
+											fieldLabel: _('rec_num'),
+											name: 'record_number'
+										},
+										{
+											fieldLabel: _('name'),
+											name: 'name'
+										},
+										{
+											fieldLabel: _('sex'),
+											name: 'sex'
+										},
+										{
+											fieldLabel: _('dob'),
+											name: 'DOBFormatted'
+										},
+										{
+											fieldLabel: _('race'),
+											name: 'race_text'
+										}
+									]
+								},
+								{
+									xtype: 'container',
+									defaults: {
+										xtype: 'displayfield',
+										labelWidth: 60,
+										labelAlign: 'right',
+										margin: 0
+									},
+									columnWidth: 0.5,
+									items: [
+										{
+											fieldLabel: _('ethnicity'),
+											name: 'ethnicity_text'
+										},
+										{
+											fieldLabel: _('language'),
+											name: 'language'
+										},
+										{
+											fieldLabel: _('address'),
+											name: 'fulladdress'
+										},
+										// {
+										// 	fieldLabel: _('phones'),
+										// 	name: 'phones'
+										// }
+									]
+								}
+							]
+						},
+						{
+							title: _('medications'),
+							store: Ext.create('App.store.patient.Medications'),
+							itemId: 'CcdImportMedicationsGrid',
+							selType: 'checkboxmodel',
+							flex: 1,
+							columns: [
+								{
+									dataIndex: 'STR',
+									flex: 1,
+									renderer: function (v, meta, record) {
+										return Ext.String.format(
+											'MEDICATION: {0} - {1}<br>INSTRUCTIONS: {2}<br>NDC: {3}',
+											record.get('RXCUI'),
+											record.get('STR'),
+											record.get('directions'),
+											record.get('NDC')
+										);
+									}
+								},
+								{
+									xtype: 'datecolumn',
+									dataIndex: 'created_date',
+									width: 100,
+									format: g('date_display_format')
+								},
+								{
+									dataIndex: 'end_date',
+									width: 100,
+									renderer: function (v, meta, record) {
+										if(!v){
+											return _('active')
+										}
+										return _('inactive');
+									}
+								}
+							]
+						},
+						{
+							title: _('active_problems'),
+							store: Ext.create('App.store.patient.PatientActiveProblems'),
+							itemId: 'CcdImportActiveProblemsGrid',
+							selType: 'checkboxmodel',
+							flex: 1,
+							columns: [
+								{
+									dataIndex: 'code_text',
+									flex: 1,
+									renderer: function (v, meta, record) {
+										return Ext.String.format(
+											'PROBLEM: {0} - {1}',
+											record.get('code'),
+											record.get('code_text')
+										);
+									}
+								},
+								{
+									xtype: 'datecolumn',
+									dataIndex: 'update_date',
+									width: 100,
+									format: g('date_display_format')
+								},
+								{
+									dataIndex: 'status',
+									width: 100
+								}
+							]
+						},
+						{
+							title: _('allergies'),
+							store: Ext.create('App.store.patient.Allergies'),
+							itemId: 'CcdImportAllergiesGrid',
+							selType: 'checkboxmodel',
+							flex: 1,
+							margin: 0,
+							columns: [
+								{
+									dataIndex: 'allergy',
+									flex: 1,
+									renderer: function (v, meta, record) {
+										return Ext.String.format(
+											'ALLERGY: {0} - {1}<br>REACTION: {2} - {3}',
+											record.get('allergy_code'),
+											record.get('allergy'),
+											record.get('reaction_code'),
+											record.get('reaction')
+										);
+									}
+								},
+								{
+									xtype: 'datecolumn',
+									dataIndex: 'update_date',
+									width: 100,
+									format: g('date_display_format')
+								},
+								{
+									dataIndex: 'status',
+									width: 100
 								}
 							]
 						}

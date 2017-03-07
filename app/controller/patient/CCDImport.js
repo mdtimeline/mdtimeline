@@ -244,7 +244,7 @@ Ext.define('App.controller.patient.CCDImport', {
         me.doLoadMergePatientData(record.data.pid);
         cmb.select(record);
         win.close();
-        me.promptVerifyPatientImport();
+        //me.promptVerifyPatientImport(record);
     },
 
 	reconfigureGrid: function(getter, data){
@@ -349,6 +349,15 @@ Ext.define('App.controller.patient.CCDImport', {
 			app.msg(_('oops'), _('nothing_to_merge'), true);
 			return;
 		}
+
+		say(importActiveProblems);
+		say(importMedications);
+		say(importAllergies);
+
+		say(mergeActiveProblems);
+		say(mergeMedications);
+		say(mergeAllergies);
+
 
 		if(!me.getCcdImportPreviewWindow()){
 			Ext.create('App.view.patient.windows.CCDImportPreview');

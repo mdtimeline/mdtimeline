@@ -13923,11 +13923,6 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
-			name: 'signature',
-			type: 'string',
-			len: 100
-		},
-		{
 			name: 'fullname',
 			type: 'string',
 			comment: 'title full name',
@@ -47739,14 +47734,12 @@ Ext.define('App.view.patient.CCD', {
 			text: _('refresh'),
 			margin: '0 0 5 0',
 			itemId: 'viewCcdBtn',
-            height: 100,
 			icon: 'resources/images/icons/refresh.png'
 		},
 		'-',
 		{
 			xtype: 'container',
 			layout: 'vbox',
-            height: 100,
 			items: [
 				{
 					xtype: 'button',
@@ -47769,7 +47762,6 @@ Ext.define('App.view.patient.CCD', {
 		{
 			xtype: 'container',
 			layout: 'vbox',
-            height: 100,
 			items: [
 				{
 					xtype: 'button',

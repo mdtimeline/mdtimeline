@@ -649,6 +649,46 @@ class CCDDocument extends CDDDocumentBase
     public function getDocumentationOf()
     {
 
+        if($this->eid === null){
+            $filters = new stdClass();
+            $filters->filter[0] = new stdClass();
+            $filters->filter[0]->property = 'pid';
+            $filters->filter[0]->value = $this->pid;
+            $encounters = $this->Encounter->getEncounters($filters, false, false);
+        }
+
+        // Just do the empty thing for service event.
+        if(empty($encounters)){
+            $documentationOf = [
+                'serviceEvent' => [
+                    '@attributes' => [
+                        'classCode' => 'PCPR'
+                    ],
+                    'code' => [
+                        '@attributes' => [
+                            'nullFlavor' => 'UNK'
+                        ]
+                    ],
+                    'effectiveTime' => [
+                        '@attributes' => [
+                            'xsi:type' => 'IVL_TS'
+                        ],
+                        'low' => [
+                            '@attributes' => [
+                                'nullFlavor' => 'NI'
+                            ]
+                        ],
+                        'high' => [
+                            '@attributes' => [
+                                'nullFlavor' => 'NI'
+                            ]
+                        ]
+                    ]
+                ]
+            ];
+            return $documentationOf;
+        }
+
         if($this->eid != null){
 
             $documentationOf = [
@@ -780,12 +820,6 @@ class CCDDocument extends CDDDocumentBase
                 );
 
         } else {
-
-            $filters = new stdClass();
-            $filters->filter[0] = new stdClass();
-            $filters->filter[0]->property = 'pid';
-            $filters->filter[0]->value = $this->pid;
-            $encounters = $this->Encounter->getEncounters($filters, false, false);
 
             $documentationOf = [
                 'serviceEvent' => [
@@ -1147,15 +1181,6 @@ class CCDDocument extends CDDDocumentBase
 
 
         return $performer;
-    }
-
-    /**
-     * Method addSection()
-     * @param $section
-     */
-    public function addSection($section)
-    {
-        $this->xmlData['component']['structuredBody']['component'][] = $section;
     }
 
     public function setReasonOfVisitSection()

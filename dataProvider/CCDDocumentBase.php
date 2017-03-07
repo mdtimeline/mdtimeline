@@ -232,6 +232,15 @@ class CDDDocumentBase
     }
 
     /**
+     * Method addSection()
+     * @param $section
+     */
+    public function addSection($section)
+    {
+        $this->xmlData['component']['structuredBody']['component'][] = $section;
+    }
+
+    /**
      * @param $pid
      */
     public function setPid($pid)

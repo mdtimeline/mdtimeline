@@ -4488,7 +4488,7 @@ class CCDDocument extends CDDDocumentBase
                 } else {
                     $entryRelationship['observation']['effectiveTime']['low'] = [
                         '@attributes' => [
-                            'nullFLavor' => 'UNK'
+                            'nullFlavor' => 'UNK'
                         ]
                     ];
                 }
@@ -4538,8 +4538,61 @@ class CCDDocument extends CDDDocumentBase
         $SocialHistory = new SocialHistory();
 
         if($this->isExcluded('social')) {
-            $socialHistory['@attributes'] = [
-                'nullFlavor' => 'NI'
+            $socialHistory = [
+                'templateId' => [
+                    '@attributes' => [
+                        'root' => '2.16.840.1.113883.10.20.22.2.17'
+                    ]
+                ],
+                'code' => [
+                    '@attributes' => [
+                        'code' => '29762-2',
+                        'codeSystemName' => 'LOINC',
+                        'codeSystem' => '2.16.840.1.113883.6.1',
+                        'displayName' => "Social History"
+                    ]
+                ],
+                'title' => 'Social History',
+                'text' => 'No Information About Social History',
+                'entry' => [
+                    'observation' => [
+                        '@attributes' => [
+                            'classCode' => 'OBS',
+                            'moodCode' => 'EVN',
+                            'nullFlavor' => 'NI'
+                        ],
+                        'templateId' => [
+                            '@attributes' => [
+                                'root' => '2.16.840.1.113883.10.20.22.4.78'
+                            ]
+                        ],
+                        'code' => [
+                            '@attributes' => [
+                                'code' => 'ASSERTION',
+                                'codeSystem' => '2.16.840.1.113883.5.4'
+                            ]
+                        ],
+                        'statusCode' => [
+                            '@attributes' => [
+                                'code' => 'completed'
+                            ]
+                        ],
+                        'effectiveTime' => [
+                            '@attributes' => [
+                                'value' => $this->dateNow
+                            ]
+                        ],
+                        'value' => [
+                            '@attributes' => [
+                                'code' => '266927001',
+                                'codeSystem' => '2.16.840.1.113883.6.96',
+                                'codeSystemName' => 'SNOMED CT',
+                                'displayName' => 'Unknown if ever smoked',
+                                'xsi:type' => 'CD'
+                            ]
+                        ]
+                    ]
+                ]
             ];
             $this->addSection(['section' => $socialHistory]);
             return;

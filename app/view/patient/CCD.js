@@ -40,7 +40,6 @@ Ext.define('App.view.patient.CCD', {
             xtype: 'fieldcontainer',
             border: 1,
             layout: 'vbox',
-            height: 100,
             defaults: {
                 margin: '0 5 5 5'
             },
@@ -61,7 +60,7 @@ Ext.define('App.view.patient.CCD', {
 		{
 			xtype: 'checkboxgroup',
 			fieldLabel: _('exclude'),
-			columns: 5,
+			columns: 4,
 			vertical: true,
 			labelWidth: 80,
 			itemId: 'PatientCcdPanelExcludeCheckBoxGroup',
@@ -72,23 +71,15 @@ Ext.define('App.view.patient.CCD', {
 				{boxLabel: _('immunizations'), name: 'exclude', inputValue: 'immunizations'},
 				{boxLabel: _('medications'), name: 'exclude', inputValue: 'medications'},
 				{boxLabel: _('meds_administered'), name: 'exclude', inputValue: 'administered'},
-				{boxLabel: _('plan_of_care'), name: 'exclude', inputValue: 'planofcare'},
 				{boxLabel: _('problems'), name: 'exclude', inputValue: 'problems'},
 				{boxLabel: _('allergies'), name: 'exclude', inputValue: 'allergies'},
 				{boxLabel: _('social'), name: 'exclude', inputValue: 'social'},
 				{boxLabel: _('results'), name: 'exclude', inputValue: 'results'},
                 {boxLabel: _('provider_information'), name: 'exclude', inputValue: 'provider_information'},
                 {boxLabel: _('clinical_instructions'), name: 'exclude', inputValue: 'clinical_instructions'},
-                {
-                    xtype:'fieldset',
-                    title: _('plan_of_care'),
-                    defaultType: 'checkbox',
-                    defaults: {anchor: '100%'},
-                    items:[
-                        {boxLabel: _('future_appointments'), shrinkWrap: false, name: 'exclude', inputValue: 'future_appointments'},
-                        {boxLabel: _('referrals_other_providers'), shrinkWrap: false, name: 'exclude', inputValue: 'referrals_other_providers'}
-                    ]
-                }
+                {boxLabel: _('plan_of_care'), name: 'exclude', inputValue: 'planofcare'},
+                {boxLabel: _('future_appointments'), name: 'exclude', inputValue: 'future_appointments'},
+                {boxLabel: _('referrals_other_providers'), name: 'exclude', inputValue: 'referrals_other_providers'}
 			]
 		},
 		'-',

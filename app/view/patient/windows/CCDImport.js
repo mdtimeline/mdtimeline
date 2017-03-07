@@ -132,10 +132,10 @@ Ext.define('App.view.patient.windows.CCDImport', {
 											fieldLabel: _('address'),
 											name: 'fulladdress'
 										},
-										// {
-										// 	fieldLabel: _('phones'),
-										// 	name: 'phones'
-										// }
+										{
+											fieldLabel: _('home_phone'),
+											name: 'phones'
+										}
 									]
 								}
 							]
@@ -325,10 +325,10 @@ Ext.define('App.view.patient.windows.CCDImport', {
 											fieldLabel: _('address'),
 											name: 'fulladdress'
 										},
-										// {
-										// 	fieldLabel: _('phones'),
-										// 	name: 'phones'
-										// }
+										{
+											fieldLabel: _('home_phone'),
+											name: 'phones'
+										}
 									]
 								}
 							]

@@ -27,7 +27,7 @@ Ext.define('App.view.patient.windows.CCDImport', {
 	modal: true,
 	layout: 'fit',
 	width: 1500,
-	height: 800,
+	height: 700,
 	autoScroll: true,
 	ccdData: null,
 	items: [

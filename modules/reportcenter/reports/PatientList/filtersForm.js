@@ -22,10 +22,10 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
         'Ext.form.field.Date',
         'App.ux.combo.ActiveProviders',
         'App.ux.LiveSnomedProblemMultipleSearch',
-        'Modules.reportcenter.reports.PatientList.ux.LiveRXNORMSearchReport',
+        'App.ux.LiveRXNORMAllergyMultipleSearch',
+        'App.ux.LiveRXNORMMultipleSearch',
         'Modules.reportcenter.reports.PatientList.ux.ComboOptionListReport',
-        'Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter',
-        'Modules.reportcenter.reports.PatientList.ux.LiveRXNORMAllergySearchReport'
+        'Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter'
     ],
     xtype: 'reportFilter',
     region: 'west',
@@ -142,18 +142,21 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                     frame: false,
                     items: [
                         {
-                            xtype: 'rxnormallergylivetsearchreport',
+                            xtype: 'liverxnormallergymultiple',
                             hideLabel: true,
                             name: 'allergy_code',
                             itemId: 'allergy_code',
-                            emptyText: 'Makarena...',
                             columnWidth: 1,
                             displayField: 'STR',
                             valueField: 'RXCUI',
                             listeners: {
                                 select: function (combo, records, eOpts) {
-                                    var field = Ext.ComponentQuery.query('reportFilter #allergy_name')[0];
-                                    field.setValue(records[0].data.STR);
+                                    var allergy_list = '',
+                                        field = Ext.ComponentQuery.query('reportFilter #allergy_name')[0];
+                                    for (var i = 0; i < records.length; i++) {
+                                        allergy_list = records[i].data.STR + ', ' + allergy_list;
+                                    }
+                                    field.setValue(allergy_list);
                                 }
                             }
                         },
@@ -237,20 +240,21 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                     frame: false,
                     items: [
                         {
-                            xtype: 'rxnormlivetsearchreport',
+                            xtype: 'liverxnormmultiple',
                             hideLabel: true,
                             columnWidth: 1,
                             name: 'medication_code',
                             itemId: 'medication_code',
-                            emptyText: _('medication_search')+'...',
                             enableKeyEvents: true,
                             value: null,
-                            displayField: 'STR',
-                            valueField: 'RXCUI',
                             listeners: {
                                 select: function(combo, records, eOpts){
-                                    var field = Ext.ComponentQuery.query('reportFilter #medication_name')[0];
-                                    field.setValue(records[0].data.STR);
+                                    var medication_list = '',
+                                        field = Ext.ComponentQuery.query('reportFilter #medication_name')[0];
+                                    for (var i = 0; i < records.length; i++) {
+                                        allergy_list = records[i].data.STR + ', ' + medication_list;
+                                    }
+                                    field.setValue(medication_list);
                                 }
                             }
                         },

@@ -346,8 +346,6 @@ class CCDDocument extends CDDDocumentBase
             $recordTarget['patientRole']['patient']['ethnicGroupCode'] = [
                 '@attributes' => [
                     'nullFlavor' => 'NA'
-                    //					'codeSystemName' => 'Race & Ethnicity - CDC',
-                    //					'codeSystem' => '2.16.840.1.113883.6.238'
                 ]
             ];
         }
@@ -658,7 +656,7 @@ class CCDDocument extends CDDDocumentBase
         }
 
         // Just do the empty thing for service event.
-        if(empty($encounters)){
+        if(empty($encounters) || $this->isExcluded('provider_information')){
             $documentationOf = [
                 'serviceEvent' => [
                     '@attributes' => [
@@ -681,6 +679,40 @@ class CCDDocument extends CDDDocumentBase
                         'high' => [
                             '@attributes' => [
                                 'nullFlavor' => 'NI'
+                            ]
+                        ]
+                    ],
+                    'performer' => [
+                        '@attributes' => [
+                            'typeCode' => 'PRF'
+                        ],
+                        'assignedEntity' => [
+                            'id' => [
+                                '@attributes' => [
+                                    'root' => '2.16.840.1.113883.4.6'
+                                ]
+                            ],
+                            'assignedPerson' => [
+                                '@attributes' => [
+                                    'classCode' => 'PSN',
+                                    'determinerCode' => 'INSTANCE'
+                                ],
+                                'name' => [
+                                    '@attributes' => [
+                                        'nullFlavor' => 'UNK'
+                                    ]
+                                ],
+                                'addr' => [
+                                    '@attributes' => [
+                                        'nullFlavor' => 'UNK'
+                                    ]
+                                ],
+                                'telecom' => [
+                                    '@attributes' => [
+                                        'use' => 'WP',
+                                        'nullFlavor' => 'UNK'
+                                    ]
+                                ]
                             ]
                         ]
                     ]

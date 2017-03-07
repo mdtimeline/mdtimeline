@@ -130,11 +130,11 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 								name: 'fulladdress',
 								value: 'fulladdress'
 							},
-							// {
-							// 	fieldLabel: _('phones'),
-							// 	name: 'phones',
-							// 	value: '000-000-000 (H)'
-							// }
+							{
+								fieldLabel: _('home_phone'),
+								name: 'phones',
+								value: '000-000-000 (H)'
+							}
 						]
 					}
 				]

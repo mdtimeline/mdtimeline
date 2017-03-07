@@ -69,12 +69,23 @@ class Rxnorm
         $sth = $this->db->prepare("SELECT ATV
 		                     FROM rxnsat
 		                    WHERE `CODE` = :c
-		                      AND ATN    = 'DDF'
+		                      AND ATN    = 'NDC'
 		                      AND SAB    = 'RXNORM'");
         $sth->execute([':c' => $CODE]);
         $rec = $sth->fetchAll(PDO::FETCH_ASSOC);
         return $rec['ATV'];
     }
+
+	public function getNDCByRxCUI($RXCUI)
+	{
+		$sth = $this->db->prepare("SELECT ATV
+		                     FROM rxnsat
+		                    WHERE `RXCUI` = :c
+		                      AND ATN    = 'NDC'");
+		$sth->execute([':c' => $RXCUI]);
+		$rec = $sth->fetch(PDO::FETCH_ASSOC);
+		return $rec['ATV'];
+	}
 
     /**
      * getIngredient

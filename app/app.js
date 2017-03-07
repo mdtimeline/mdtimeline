@@ -21188,7 +21188,10 @@ Ext.define('App.model.patient.Patient',{
         {
             name: 'DOBFormatted',
             type: 'string',
-            persist: false
+            persist: false,
+            convert: function (v, record) {
+                return Ext.Date.format(record.get('DOB'), g('date_display_format'));
+            }
         },
         {
             name: 'marital_status',

@@ -261,6 +261,7 @@ class HL7Printer {
 		}
 
 		if (!empty($NOTES['ROWS'])) {
+			$NOTES['ROWS'][] = '';
 			$REPORT['SUB_SECTIONS'][] = $NOTES;
 		}
 

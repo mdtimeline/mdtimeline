@@ -656,7 +656,7 @@ class CCDDocument extends CDDDocumentBase
         }
 
         // Just do the empty thing for service event.
-        if(empty($encounters) || $this->isExcluded('provider_information')){
+        if(empty($encounters)){
             $documentationOf = [
                 'serviceEvent' => [
                     '@attributes' => [
@@ -679,40 +679,6 @@ class CCDDocument extends CDDDocumentBase
                         'high' => [
                             '@attributes' => [
                                 'nullFlavor' => 'NI'
-                            ]
-                        ]
-                    ],
-                    'performer' => [
-                        '@attributes' => [
-                            'typeCode' => 'PRF'
-                        ],
-                        'assignedEntity' => [
-                            'id' => [
-                                '@attributes' => [
-                                    'root' => '2.16.840.1.113883.4.6'
-                                ]
-                            ],
-                            'assignedPerson' => [
-                                '@attributes' => [
-                                    'classCode' => 'PSN',
-                                    'determinerCode' => 'INSTANCE'
-                                ],
-                                'name' => [
-                                    '@attributes' => [
-                                        'nullFlavor' => 'UNK'
-                                    ]
-                                ],
-                                'addr' => [
-                                    '@attributes' => [
-                                        'nullFlavor' => 'UNK'
-                                    ]
-                                ],
-                                'telecom' => [
-                                    '@attributes' => [
-                                        'use' => 'WP',
-                                        'nullFlavor' => 'UNK'
-                                    ]
-                                ]
                             ]
                         ]
                     ]
@@ -963,6 +929,40 @@ class CCDDocument extends CDDDocumentBase
                         $facility['postal_code'],
                         $facility['country_code']
                     );
+
+                // Exclude the Provider Information from the documentationOf section
+                if($this->isExcluded('provider_information')){
+                    $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['assignedPerson']['name'] = [
+                        '@attributes' => [
+                            'nullFlavor' => 'UNK'
+                        ]
+                    ];
+                    $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['addr'] = [
+                        '@attributes' => [
+                            'nullFlavor' => 'UNK'
+                        ]
+                    ];
+                    $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['telecom'] = [
+                        '@attributes' => [
+                            'nullFlavor' => 'UNK'
+                        ]
+                    ];
+                    $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['representedOrganization']['name'] = [
+                        '@attributes' => [
+                            'nullFlavor' => 'UNK'
+                        ]
+                    ];
+                    $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['representedOrganization']['addr'] = [
+                        '@attributes' => [
+                            'nullFlavor' => 'UNK'
+                        ]
+                    ];
+                    $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['representedOrganization']['telecom'] = [
+                        '@attributes' => [
+                            'nullFlavor' => 'UNK'
+                        ]
+                    ];
+                }
             }
         }
 
@@ -1068,6 +1068,25 @@ class CCDDocument extends CDDDocumentBase
         ];
         $componentOf['encompassingEncounter']['location'] = $location;
         unset($location);
+
+        // Exclude the Provider Information from the documentationOf section
+        if($this->isExcluded('provider_information')){
+            $componentOf['encompassingEncounter']['responsibleParty']['assignedEntity']['assignedPerson']['name'] = [
+                '@attributes' => [
+                    'nullFlavor' => 'UNK'
+                ]
+            ];
+            $componentOf['encompassingEncounter']['location']['healthCareFacility']['location']['name'] = [
+                '@attributes' => [
+                    'nullFlavor' => 'UNK'
+                ]
+            ];
+            $componentOf['encompassingEncounter']['location']['healthCareFacility']['location']['addr'] = [
+                '@attributes' => [
+                    'nullFlavor' => 'UNK'
+                ]
+            ];
+        }
 
         return $componentOf;
 
@@ -1241,6 +1260,7 @@ class CCDDocument extends CDDDocumentBase
 
     public function setInstructionsSection()
     {
+
         $Encounter = new Encounter();
         $params = new stdClass();
         $params->filter[0] = new stdClass();
@@ -1304,6 +1324,11 @@ class CCDDocument extends CDDDocumentBase
                 ]
             ]
         ];
+
+        if($this->isExcluded('clinical_instructions')){
+            $instructions['text'] = 'No instruction for this patient.';
+        }
+
         $this->addSection(['section' => $instructions]);
     }
 

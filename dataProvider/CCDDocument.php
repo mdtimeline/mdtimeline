@@ -1324,7 +1324,7 @@ class CCDDocument extends CDDDocumentBase
         $procedures['title'] = 'Procedures';
         $procedures['text'] = '';
 
-        if($this->isExcluded('vitals')) {
+        if($this->isExcluded('procedures')) {
             $this->addSection(['section' => $procedures]);
             return;
         };

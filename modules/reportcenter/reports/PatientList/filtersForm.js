@@ -24,6 +24,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
         'App.ux.LiveSnomedProblemMultipleSearch',
         'App.ux.LiveRXNORMAllergyMultipleSearch',
         'App.ux.LiveRXNORMMultipleSearch',
+        'App.ux.LiveProviderMultipleSearch',
         'Modules.reportcenter.reports.PatientList.ux.ComboOptionListReport',
         'Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter'
     ],
@@ -94,16 +95,11 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                     frame: false,
                     items: [
                         {
-                            xtype: 'activeproviderscombo',
+                            xtype: 'liveprovidermultiple',
                             name: 'provider',
-                            displayField: 'option_name',
                             itemId: 'option_name',
-                            valueField: 'id',
-                            editable: true,
                             columnWidth: 1,
                             hideLabel: true,
-                            emptyText: _('select_provider'),
-                            allowOnlyWhitespace: true,
                             listeners: {
                                 select: function (combo, records, eOpts) {
                                     var field = Ext.ComponentQuery.query('reportFilter #provider_name')[0];

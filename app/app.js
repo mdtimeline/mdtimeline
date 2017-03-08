@@ -8281,7 +8281,7 @@ Ext.define('App.ux.combo.Ethnicity', {
 			queryMode   : 'local',
 			displayField: 'option_name',
 			valueField  : 'option_value',
-			emptyText   : _('race'),
+			emptyText   : _('ethinicity'),
 			store       : me.store
 		}, null);
 		me.callParent(arguments);
@@ -13923,6 +13923,11 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
+			name: 'signature',
+			type: 'string',
+			len: 100
+		},
+		{
 			name: 'fullname',
 			type: 'string',
 			comment: 'title full name',
@@ -16448,6 +16453,16 @@ Ext.define('App.model.patient.Allergies', {
 			dateFormat: 'Y-m-d'
 		},
 		{
+			name: 'reconciled',
+			type: 'bool',
+			index: true
+		},
+		{
+			name: 'reconciled_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
 			name: 'active',
 			type: 'bool',
 			store: false,
@@ -17667,6 +17682,16 @@ Ext.define('App.model.patient.Medications', {
 			dateFormat: 'Y-m-d'
 		},
 		{
+			name: 'reconciled',
+			type: 'bool',
+			index: true
+		},
+		{
+			name: 'reconciled_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
 			name: 'active',
 			type: 'bool',
 			store: false,
@@ -17835,6 +17860,16 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 			name: 'note',
 			type: 'string',
 			len: 300
+		},
+		{
+			name: 'reconciled',
+			type: 'bool',
+			index: true
+		},
+		{
+			name: 'reconciled_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
 		},
 		{
 			name: 'active',
@@ -41060,6 +41095,12 @@ Ext.define('App.controller.patient.CCDImport', {
 
 		me.validatePosibleDuplicates = true;
 
+		me.on('importcomplete', me.doPatientSectionsImportComplete, me);
+
+	},
+
+	isSystemReconciliation: function () {
+		return this.getCcdImportWindow().enableSystemReconciliation;
 	},
 
 	CcdImport: function(ccdData, mergePid){
@@ -41070,7 +41111,7 @@ Ext.define('App.controller.patient.CCDImport', {
 		this.getCcdImportWindow().show();
 
 		if(mergePid){
-			this.doLoadMergePatientData(mergePid);
+			this.doLoadsystemPatientData(mergePid);
 		}
 
 	},
@@ -41153,7 +41194,7 @@ Ext.define('App.controller.patient.CCDImport', {
         if(win.action != 'ccdImportDuplicateAction') return;
 
         store.removeAll();
-        me.doLoadMergePatientData(record.data.pid);
+        me.doLoadsystemPatientData(record.data.pid);
         cmb.select(record);
         win.close();
         //me.promptVerifyPatientImport(record);
@@ -41179,11 +41220,11 @@ Ext.define('App.controller.patient.CCDImport', {
 			app.msg(_('warning'), _('records_date_of_birth_are_not_equal'), true);
 		}
 
-		me.doLoadMergePatientData(records[0].data.pid);
+		me.doLoadsystemPatientData(records[0].data.pid);
 
 	},
 
-	doLoadMergePatientData: function(pid){
+	doLoadsystemPatientData: function(pid){
 		var me = this,
 			pForm = me.getCcdPatientPatientForm().getForm(),
             phone;
@@ -41239,12 +41280,22 @@ Ext.define('App.controller.patient.CCDImport', {
 			importMedications = me.getCcdImportMedicationsGrid().getSelectionModel().getSelection(),
 			importAllergies = me.getCcdImportAllergiesGrid().getSelectionModel().getSelection(),
 
-			mergePatient = me.getCcdPatientPatientForm().getForm().getRecord(),
-			mergeActiveProblems = me.getCcdPatientActiveProblemsGrid().getStore().data.items,
-			mergeMedications = me.getCcdPatientMedicationsGrid().getStore().data.items,
-			mergeAllergies = me.getCcdPatientAllergiesGrid().getStore().data.items,
+			systemPatient = me.getCcdPatientPatientForm().getForm().getRecord(),
+			systemActiveProblems = me.getCcdPatientActiveProblemsGrid().getStore().data.items,
+			systemMedications = me.getCcdPatientMedicationsGrid().getStore().data.items,
+			systemAllergies = me.getCcdPatientAllergiesGrid().getStore().data.items,
 
-			isMerge = mergePatient !== undefined,
+			systemSelectionActiveProblems = me.getCcdPatientActiveProblemsGrid().getSelectionModel().getSelection(),
+			systemSelectionMedications = me.getCcdPatientMedicationsGrid().getSelectionModel().getSelection(),
+			systemSelectionAllergies = me.getCcdPatientAllergiesGrid().getSelectionModel().getSelection(),
+
+			systemReconciliationActiveProblems = [],
+			systemReconciliationMedications = [],
+			systemReconciliationAllergies = [],
+
+			isMerge = systemPatient !== undefined,
+
+			isSystemReconciliation = me.isSystemReconciliation(),
 
 			i, store, records,
 
@@ -41261,14 +41312,15 @@ Ext.define('App.controller.patient.CCDImport', {
 			return;
 		}
 
+		say('import');
 		say(importActiveProblems);
 		say(importMedications);
 		say(importAllergies);
 
-		say(mergeActiveProblems);
-		say(mergeMedications);
-		say(mergeAllergies);
-
+		say('system');
+		say(systemActiveProblems);
+		say(systemMedications);
+		say(systemAllergies);
 
 		if(!me.getCcdImportPreviewWindow()){
 			Ext.create('App.view.patient.windows.CCDImportPreview');
@@ -41278,16 +41330,16 @@ Ext.define('App.controller.patient.CCDImport', {
 		pForm = me.getCcdImportPreviewPatientForm().getForm();
 
 		if(isMerge){
-			me.getCcdImportPreviewPatientForm().getForm().loadRecord(mergePatient);
+			me.getCcdImportPreviewPatientForm().getForm().loadRecord(systemPatient);
 
-			if(mergePatient.data.race && mergePatient.data.race !== ''){
-				CombosData.getDisplayValueByListIdAndOptionValue(14, mergePatient.data.race, function(response){
+			if(systemPatient.data.race && systemPatient.data.race !== ''){
+				CombosData.getDisplayValueByListIdAndOptionValue(14, systemPatient.data.race, function(response){
 					pForm.findField('race_text').setValue(response);
 				});
 			}
 
-			if(mergePatient.data.ethnicity && mergePatient.data.ethnicity !== ''){
-				CombosData.getDisplayValueByListIdAndOptionValue(59, mergePatient.data.ethnicity, function(response){
+			if(systemPatient.data.ethnicity && systemPatient.data.ethnicity !== ''){
+				CombosData.getDisplayValueByListIdAndOptionValue(59, systemPatient.data.ethnicity, function(response){
 					pForm.findField('ethnicity_text').setValue(response);
 				});
 			}
@@ -41314,7 +41366,7 @@ Ext.define('App.controller.patient.CCDImport', {
 
 		if(reconcile){
 			// reconcile active problems
-			records = Ext.clone(mergeActiveProblems);
+			records = Ext.clone(isSystemReconciliation ? systemSelectionActiveProblems : systemActiveProblems);
 			store = me.getCcdPatientActiveProblemsGrid().getStore();
 			for(i=0; i < importActiveProblems.length; i++){
 				if(store.find('code' , importActiveProblems[i].data.code) !== -1) continue;
@@ -41322,8 +41374,16 @@ Ext.define('App.controller.patient.CCDImport', {
 			}
 			me.getCcdImportPreviewActiveProblemsGrid().getStore().loadRecords(records);
 
+			if(isSystemReconciliation){
+				systemReconciliationActiveProblems = Ext.clone(systemActiveProblems);
+				// remove is selected
+				for (i = 0; i < systemSelectionActiveProblems.length; i++) {
+					systemReconciliationActiveProblems = Ext.Array.remove(systemReconciliationActiveProblems, systemSelectionActiveProblems[i]);
+				}
+			}
+
 			// reconcile medications
-			records = Ext.clone(mergeMedications);
+			records = Ext.clone(isSystemReconciliation ? systemSelectionMedications : systemMedications);
 			store = me.getCcdPatientMedicationsGrid().getStore();
 			for(i=0; i < importMedications.length; i++){
 				if(store.find('RXCUI' , importMedications[i].data.RXCUI) !== -1) continue;
@@ -41331,8 +41391,16 @@ Ext.define('App.controller.patient.CCDImport', {
 			}
 			me.getCcdImportPreviewMedicationsGrid().getStore().loadRecords(records);
 
+			if(isSystemReconciliation) {
+				systemReconciliationMedications = Ext.clone(systemMedications);
+				// remove is selected
+				for (i = 0; i < systemSelectionMedications.length; i++) {
+					systemReconciliationMedications = Ext.Array.remove(systemReconciliationMedications, systemSelectionMedications[i]);
+				}
+			}
+
 			// reconcile allergies
-			records = Ext.clone(mergeAllergies);
+			records = Ext.clone(isSystemReconciliation ? systemSelectionAllergies : systemAllergies);
 			store = me.getCcdPatientAllergiesGrid().getStore();
 			for(i=0; i < importAllergies.length; i++){
 				if(store.find('allergy_code' , importAllergies[i].data.allergy_code) !== -1) continue;
@@ -41340,15 +41408,38 @@ Ext.define('App.controller.patient.CCDImport', {
 			}
 			me.getCcdImportPreviewAllergiesGrid().getStore().loadRecords(records);
 
+			if(isSystemReconciliation){
+				systemReconciliationAllergies = Ext.clone(systemAllergies);
+				// remove is selected
+				for (i = 0; i < systemSelectionAllergies.length; i++) {
+					systemReconciliationAllergies = Ext.Array.remove(systemReconciliationAllergies, systemSelectionAllergies[i]);
+				}
+			}
+
+			say('reconcile');
+			say(systemReconciliationActiveProblems);
+			say(systemReconciliationMedications);
+			say(systemReconciliationAllergies);
+
+			var system_reconcile_records = false;
+			if(isSystemReconciliation){
+				system_reconcile_records = [];
+				system_reconcile_records = Ext.Array.merge(system_reconcile_records, systemReconciliationActiveProblems);
+				system_reconcile_records = Ext.Array.merge(system_reconcile_records, systemReconciliationMedications);
+				system_reconcile_records = Ext.Array.merge(system_reconcile_records, systemReconciliationAllergies);
+			}
+
+			me.getCcdImportPreviewWindow().system_reconcile_records = system_reconcile_records;
+
 		}else{
 			me.getCcdImportPreviewActiveProblemsGrid().getStore().loadRecords(
-				Ext.Array.merge(importActiveProblems, mergeActiveProblems)
+				Ext.Array.merge(importActiveProblems, systemActiveProblems)
 			);
 			me.getCcdImportPreviewMedicationsGrid().getStore().loadRecords(
-				Ext.Array.merge(importMedications, mergeMedications)
+				Ext.Array.merge(importMedications, systemMedications)
 			);
 			me.getCcdImportPreviewAllergiesGrid().getStore().loadRecords(
-				Ext.Array.merge(importAllergies, mergeAllergies)
+				Ext.Array.merge(importAllergies, systemAllergies)
 			);
 		}
 	},
@@ -41422,14 +41513,54 @@ Ext.define('App.controller.patient.CCDImport', {
 
 	doPatientSectionsImport: function(patient){
 		var me = this,
+			system_reconcile_records = me.getCcdImportPreviewWindow().system_reconcile_records;
+
+		if(system_reconcile_records !== false){
+			Ext.Msg.show({
+				title: _('wait'),
+				msg: 'This action will reconcile information in system patient record.<br><br>Whould like to continue?',
+				buttons: Ext.Msg.YESNO,
+				icon: Ext.Msg.QUESTION,
+				fn: function (btn) {
+					if(btn == 'yes'){
+						me.doPatientSectionsImportCont(patient, system_reconcile_records);
+					}
+				}
+			});
+		}else{
+			me.doPatientSectionsImportCont(patient, system_reconcile_records);
+		}
+	},
+
+	doPatientSectionsImportCont: function(patient, system_reconcile_records){
+		var me = this,
 			now = new Date(),
 			pid = patient.data.pid,
 			i,
 
-		// Get all the stores of the dataGrids
+			// Get all the stores of the dataGrids
 			problems = me.getCcdImportPreviewActiveProblemsGrid().getStore().data.items,
 			medications = me.getCcdImportPreviewMedicationsGrid().getStore().data.items,
 			allergies = me.getCcdImportPreviewAllergiesGrid().getStore().data.items;
+
+		say('doPatientSectionsImport');
+		say(problems);
+		say(medications);
+		say(allergies);
+		say('system_reconcile_records');
+		say(system_reconcile_records);
+
+		me.importing = true;
+
+		if(system_reconcile_records !== false){
+			system_reconcile_records.forEach(function (system_reconcile_record) {
+				system_reconcile_record.set({
+					reconciled: true,
+					reconciled_date: now
+				});
+				system_reconcile_record.save();
+			});
+		}
 
 		// Allergies
 		for(i = 0; i < allergies.length; i++){
@@ -41437,12 +41568,16 @@ Ext.define('App.controller.patient.CCDImport', {
 			if(allergies[i].data.id && allergies[i].data.id > 0)  continue;
 
 			allergies[i].set({
-                pid: pid,
-                created_uid: app.patient.id,
-                create_date: now
-            });
-            allergies[i].setDirty();
-			allergies[i].save();
+				pid: pid,
+				created_uid: app.patient.id,
+				create_date: now
+			});
+			allergies[i].setDirty();
+			allergies[i].save({
+				callback: function(){
+					me.fireEvent('importcomplete', pid);
+				}
+			});
 		}
 
 		// Medications
@@ -41455,8 +41590,12 @@ Ext.define('App.controller.patient.CCDImport', {
 				created_uid: app.patient.id,
 				create_date: now
 			});
-            medications[i].setDirty();
-			medications[i].save();
+			medications[i].setDirty();
+			medications[i].save({
+				callback: function(){
+					me.fireEvent('importcomplete', pid);
+				}
+			});
 		}
 
 		// Problems
@@ -41469,21 +41608,30 @@ Ext.define('App.controller.patient.CCDImport', {
 				created_uid: app.patient.id,
 				create_date: now
 			});
-            problems[i].setDirty();
+			problems[i].setDirty();
 			problems[i].save({
 				callback: function(){
-
-					me.getCcdImportWindow().close();
-					me.getCcdImportPreviewWindow().close();
-
-					app.setPatient(pid, null, null, function(){
-						app.openPatientSummary();
-					});
-
-					app.msg(_('sweet'), _('patient_data_imported'));
+					me.fireEvent('importcomplete', pid);
 				}
 			});
 		}
+	},
+
+	doPatientSectionsImportComplete: function (pid) {
+		var me = this;
+
+		if(!me.importing) return;
+
+		me.importing = false;
+
+		me.getCcdImportWindow().close();
+		me.getCcdImportPreviewWindow().close();
+
+		app.setPatient(pid, null, null, function(){
+			app.openPatientSummary();
+		});
+
+		app.msg(_('sweet'), _('patient_data_imported'));
 	},
 
 	onPossiblePatientDuplicatesContinueBtnClick:function(btn){
@@ -63428,415 +63576,422 @@ Ext.define('App.view.patient.windows.CCDImport', {
 	height: 700,
 	autoScroll: true,
 	ccdData: null,
-	items: [
-		{
-			xtype: 'container',
-			layout: {
-				type: 'hbox',
-				align: 'stretch'
-			},
-			padding: 5,
-			items: [
-				{
-					xtype: 'panel',
-					title: _('system_data_ro'),
-					flex: 1,
-					frame: true,
-					margin: '0 5 0 0',
-					layout: {
-						type: 'vbox',
-						align: 'stretch'
-					},
-					tools:[
-						{
-							xtype: 'patienlivetsearch',
-							emptyText: _('import_and_merge_with') + '...',
-							itemId: 'CcdImportWindowPatientSearchField',
-							width: 300,
-							height: 18
-						}
-					],
-					defaults: {
-						xtype: 'grid',
-						height: 123,
-						frame: true,
-						hideHeaders: true,
-						columnLines: true,
-						multiSelect: true,
-						disableSelection: true,
-						margin: '0 0 5 0'
-					},
-					items: [
-						{
-							xtype: 'form',
-							frame: true,
-							title: _('patient'),
-							itemId: 'CcdPatientPatientForm',
-							height: 146,
-							autoScroll: true,
-							layout: 'column',
-							items: [
-								{
-									xtype: 'container',
-									defaults: {
-										xtype: 'displayfield',
-										labelWidth: 45,
-										labelAlign: 'right',
-										margin: 0
-									},
-									columnWidth: 0.5,
-									items: [
-										{
-											fieldLabel: _('rec_num'),
-											name: 'record_number'
-										},
-										{
-											fieldLabel: _('name'),
-											name: 'name'
-										},
-										{
-											fieldLabel: _('sex'),
-											name: 'sex'
-										},
-										{
-											fieldLabel: _('dob'),
-											name: 'DOBFormatted'
-										},
-										{
-											fieldLabel: _('race'),
-											name: 'race_text'
-										}
-									]
-								},
-								{
-									xtype: 'container',
-									defaults: {
-										xtype: 'displayfield',
-										labelWidth: 60,
-										labelAlign: 'right',
-										margin: 0
-									},
-									columnWidth: 0.5,
-									items: [
-										{
-											fieldLabel: _('ethnicity'),
-											name: 'ethnicity_text'
-										},
-										{
-											fieldLabel: _('language'),
-											name: 'language'
-										},
-										{
-											fieldLabel: _('address'),
-											name: 'fulladdress'
-										},
-										{
-											fieldLabel: _('home_phone'),
-											name: 'phones'
-										}
-									]
-								}
-							]
-						},
-						{
-							title: _('medications'),
-							store: Ext.create('App.store.patient.Medications'),
-							itemId: 'CcdPatientMedicationsGrid',
-							// selType: 'checkboxmodel',
-							flex: 1,
-							columns: [
-								{
-									dataIndex: 'STR',
-									flex: 1,
-									renderer: function (v, meta, record) {
-										return Ext.String.format(
-											'MEDICATION: {0} - {1}<br>INSTRUCTIONS: {2}<br>NDC: {3}',
-											record.get('RXCUI'),
-											record.get('STR'),
-											record.get('directions'),
-											record.get('NDC')
-										);
-									}
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'created_date',
-									width: 100,
-									format: g('date_display_format')
-								},
-								{
-									dataIndex: 'end_date',
-									width: 100,
-									renderer: function (v, meta, record) {
-										if(!v){
-											return _('active')
-										}
-										return _('inactive');
-									}
-								}
-							]
-						},
-						{
-							title: _('active_problems'),
-							store: Ext.create('App.store.patient.PatientActiveProblems'),
-							itemId: 'CcdPatientActiveProblemsGrid',
-							// selType: 'checkboxmodel',
-							flex: 1,
-							columns: [
-								{
-									dataIndex: 'code_text',
-									flex: 1,
-									renderer: function (v, meta, record) {
-										return Ext.String.format(
-											'PROBLEM: {0} - {1}',
-											record.get('code'),
-											record.get('code_text')
-										);
-									}
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'update_date',
-									width: 100,
-									format: g('date_display_format')
-								},
-								{
-									dataIndex: 'status',
-									width: 100
-								}
-							]
-						},
-						{
-							title: _('allergies'),
-							store: Ext.create('App.store.patient.Allergies'),
-							itemId: 'CcdPatientAllergiesGrid',
-							// selType: 'checkboxmodel',
-							flex: 1,
-							margin: 0,
-							columns: [
-								{
-									dataIndex: 'allergy',
-									flex: 1,
-									renderer: function (v, meta, record) {
-										return Ext.String.format(
-											'ALLERGY: {0} - {1}<br>REACTION: {2} - {3}',
-											record.get('allergy_code'),
-											record.get('allergy'),
-											record.get('reaction_code'),
-											record.get('reaction')
-										);
-									}
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'update_date',
-									width: 100,
-									format: g('date_display_format')
-								},
-								{
-									dataIndex: 'status',
-									width: 100
-								}
-							]
-						}
-					]
+	enableSystemReconciliation: true,
+	initComponent: function () {
+
+		var me = this;
+
+		me.items = [
+			{
+				xtype: 'container',
+				layout: {
+					type: 'hbox',
+					align: 'stretch'
 				},
-				{
-					xtype: 'panel',
-					title: _('import_data'),
-					flex: 1,
-					frame: true,
-					layout: {
-						type: 'vbox',
-						align: 'stretch'
-					},
-					defaults: {
-						xtype: 'grid',
-						height: 123,
+				padding: 5,
+				items: [
+					{
+						xtype: 'panel',
+						title: _('system_data_ro'),
+						flex: 1,
+						margin: '0 5 0 0',
 						frame: true,
-						hideHeaders: true,
-						columnLines: true,
-						multiSelect: true,
-						margin: '0 0 5 0'
-					},
-					items: [
-						{
-							xtype: 'form',
+						layout: {
+							type: 'vbox',
+							align: 'stretch'
+						},
+						tools:[
+							{
+								xtype: 'patienlivetsearch',
+								emptyText: _('import_and_merge_with') + '...',
+								itemId: 'CcdImportWindowPatientSearchField',
+								width: 300,
+								height: 18
+							}
+						],
+						defaults: {
+							xtype: 'grid',
+							height: 123,
 							frame: true,
-							title: _('patient'),
-							itemId: 'CcdImportPatientForm',
-							height: 146,
-							autoScroll: true,
-							layout: 'column',
-							items: [
-								{
-									xtype: 'container',
-									defaults: {
-										xtype: 'displayfield',
-										labelWidth: 45,
-										labelAlign: 'right',
-										margin: 0
+							hideHeaders: true,
+							columnLines: true,
+							multiSelect: true,
+							disableSelection: !me.enableSystemReconciliation,
+							selType: me.enableSystemReconciliation ? 'checkboxmodel' : 'rowmodel',
+							margin: '0 0 5 0'
+						},
+						items: [
+							{
+								xtype: 'form',
+								frame: true,
+								title: _('patient'),
+								itemId: 'CcdPatientPatientForm',
+								height: 146,
+								autoScroll: true,
+								layout: 'column',
+								items: [
+									{
+										xtype: 'container',
+										defaults: {
+											xtype: 'displayfield',
+											labelWidth: 45,
+											labelAlign: 'right',
+											margin: 0
+										},
+										columnWidth: 0.5,
+										items: [
+											{
+												fieldLabel: _('rec_num'),
+												name: 'record_number'
+											},
+											{
+												fieldLabel: _('name'),
+												name: 'name'
+											},
+											{
+												fieldLabel: _('sex'),
+												name: 'sex'
+											},
+											{
+												fieldLabel: _('dob'),
+												name: 'DOBFormatted'
+											},
+											{
+												fieldLabel: _('race'),
+												name: 'race_text'
+											}
+										]
 									},
-									columnWidth: 0.5,
-									items: [
-										{
-											fieldLabel: _('rec_num'),
-											name: 'record_number'
+									{
+										xtype: 'container',
+										defaults: {
+											xtype: 'displayfield',
+											labelWidth: 60,
+											labelAlign: 'right',
+											margin: 0
 										},
-										{
-											fieldLabel: _('name'),
-											name: 'name'
-										},
-										{
-											fieldLabel: _('sex'),
-											name: 'sex'
-										},
-										{
-											fieldLabel: _('dob'),
-											name: 'DOBFormatted'
-										},
-										{
-											fieldLabel: _('race'),
-											name: 'race_text'
+										columnWidth: 0.5,
+										items: [
+											{
+												fieldLabel: _('ethnicity'),
+												name: 'ethnicity_text'
+											},
+											{
+												fieldLabel: _('language'),
+												name: 'language'
+											},
+											{
+												fieldLabel: _('address'),
+												name: 'fulladdress'
+											},
+											{
+												fieldLabel: _('home_phone'),
+												name: 'phones'
+											}
+										]
+									}
+								]
+							},
+							{
+								title: _('medications'),
+								store: Ext.create('App.store.patient.Medications'),
+								itemId: 'CcdPatientMedicationsGrid',
+								flex: 1,
+								columns: [
+									{
+										dataIndex: 'STR',
+										flex: 1,
+										renderer: function (v, meta, record) {
+											return Ext.String.format(
+												'MEDICATION: {0} - {1}<br>INSTRUCTIONS: {2}<br>NDC: {3}',
+												record.get('RXCUI'),
+												record.get('STR'),
+												record.get('directions'),
+												record.get('NDC')
+											);
 										}
-									]
-								},
-								{
-									xtype: 'container',
-									defaults: {
-										xtype: 'displayfield',
-										labelWidth: 60,
-										labelAlign: 'right',
-										margin: 0
 									},
-									columnWidth: 0.5,
-									items: [
-										{
-											fieldLabel: _('ethnicity'),
-											name: 'ethnicity_text'
-										},
-										{
-											fieldLabel: _('language'),
-											name: 'language'
-										},
-										{
-											fieldLabel: _('address'),
-											name: 'fulladdress'
-										},
-										{
-											fieldLabel: _('home_phone'),
-											name: 'phones'
+									{
+										xtype: 'datecolumn',
+										dataIndex: 'created_date',
+										width: 100,
+										format: g('date_display_format')
+									},
+									{
+										dataIndex: 'end_date',
+										width: 100,
+										renderer: function (v, meta, record) {
+											if(!v){
+												return _('active')
+											}
+											return _('inactive');
 										}
-									]
-								}
-							]
-						},
-						{
-							title: _('medications'),
-							store: Ext.create('App.store.patient.Medications'),
-							itemId: 'CcdImportMedicationsGrid',
-							selType: 'checkboxmodel',
-							flex: 1,
-							columns: [
-								{
-									dataIndex: 'STR',
-									flex: 1,
-									renderer: function (v, meta, record) {
-										return Ext.String.format(
-											'MEDICATION: {0} - {1}<br>INSTRUCTIONS: {2}<br>NDC: {3}',
-											record.get('RXCUI'),
-											record.get('STR'),
-											record.get('directions'),
-											record.get('NDC')
-										);
 									}
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'created_date',
-									width: 100,
-									format: g('date_display_format')
-								},
-								{
-									dataIndex: 'end_date',
-									width: 100,
-									renderer: function (v, meta, record) {
-										if(!v){
-											return _('active')
+								]
+							},
+							{
+								title: _('active_problems'),
+								store: Ext.create('App.store.patient.PatientActiveProblems'),
+								itemId: 'CcdPatientActiveProblemsGrid',
+								flex: 1,
+								columns: [
+									{
+										dataIndex: 'code_text',
+										flex: 1,
+										renderer: function (v, meta, record) {
+											return Ext.String.format(
+												'PROBLEM: {0} - {1}',
+												record.get('code'),
+												record.get('code_text')
+											);
 										}
-										return _('inactive');
+									},
+									{
+										xtype: 'datecolumn',
+										dataIndex: 'update_date',
+										width: 100,
+										format: g('date_display_format')
+									},
+									{
+										dataIndex: 'status',
+										width: 100
 									}
-								}
-							]
+								]
+							},
+							{
+								title: _('allergies'),
+								store: Ext.create('App.store.patient.Allergies'),
+								itemId: 'CcdPatientAllergiesGrid',
+								flex: 1,
+								margin: 0,
+								columns: [
+									{
+										dataIndex: 'allergy',
+										flex: 1,
+										renderer: function (v, meta, record) {
+											return Ext.String.format(
+												'ALLERGY: {0} - {1}<br>REACTION: {2} - {3}',
+												record.get('allergy_code'),
+												record.get('allergy'),
+												record.get('reaction_code'),
+												record.get('reaction')
+											);
+										}
+									},
+									{
+										xtype: 'datecolumn',
+										dataIndex: 'update_date',
+										width: 100,
+										format: g('date_display_format')
+									},
+									{
+										dataIndex: 'status',
+										width: 100
+									}
+								]
+							}
+						]
+					},
+					{
+						xtype: 'panel',
+						title: _('import_data'),
+						flex: 1,
+						frame: true,
+						layout: {
+							type: 'vbox',
+							align: 'stretch'
 						},
-						{
-							title: _('active_problems'),
-							store: Ext.create('App.store.patient.PatientActiveProblems'),
-							itemId: 'CcdImportActiveProblemsGrid',
-							selType: 'checkboxmodel',
-							flex: 1,
-							columns: [
-								{
-									dataIndex: 'code_text',
-									flex: 1,
-									renderer: function (v, meta, record) {
-										return Ext.String.format(
-											'PROBLEM: {0} - {1}',
-											record.get('code'),
-											record.get('code_text')
-										);
-									}
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'update_date',
-									width: 100,
-									format: g('date_display_format')
-								},
-								{
-									dataIndex: 'status',
-									width: 100
-								}
-							]
+						defaults: {
+							xtype: 'grid',
+							height: 123,
+							frame: true,
+							hideHeaders: true,
+							columnLines: true,
+							multiSelect: true,
+							margin: '0 0 5 0'
 						},
-						{
-							title: _('allergies'),
-							store: Ext.create('App.store.patient.Allergies'),
-							itemId: 'CcdImportAllergiesGrid',
-							selType: 'checkboxmodel',
-							flex: 1,
-							margin: 0,
-							columns: [
-								{
-									dataIndex: 'allergy',
-									flex: 1,
-									renderer: function (v, meta, record) {
-										return Ext.String.format(
-											'ALLERGY: {0} - {1}<br>REACTION: {2} - {3}',
-											record.get('allergy_code'),
-											record.get('allergy'),
-											record.get('reaction_code'),
-											record.get('reaction')
-										);
+						items: [
+							{
+								xtype: 'form',
+								frame: true,
+								title: _('patient'),
+								itemId: 'CcdImportPatientForm',
+								height: 146,
+								autoScroll: true,
+								layout: 'column',
+								items: [
+									{
+										xtype: 'container',
+										defaults: {
+											xtype: 'displayfield',
+											labelWidth: 45,
+											labelAlign: 'right',
+											margin: 0
+										},
+										columnWidth: 0.5,
+										items: [
+											{
+												fieldLabel: _('rec_num'),
+												name: 'record_number'
+											},
+											{
+												fieldLabel: _('name'),
+												name: 'name'
+											},
+											{
+												fieldLabel: _('sex'),
+												name: 'sex'
+											},
+											{
+												fieldLabel: _('dob'),
+												name: 'DOBFormatted'
+											},
+											{
+												fieldLabel: _('race'),
+												name: 'race_text'
+											}
+										]
+									},
+									{
+										xtype: 'container',
+										defaults: {
+											xtype: 'displayfield',
+											labelWidth: 60,
+											labelAlign: 'right',
+											margin: 0
+										},
+										columnWidth: 0.5,
+										items: [
+											{
+												fieldLabel: _('ethnicity'),
+												name: 'ethnicity_text'
+											},
+											{
+												fieldLabel: _('language'),
+												name: 'language'
+											},
+											{
+												fieldLabel: _('address'),
+												name: 'fulladdress'
+											},
+											{
+												fieldLabel: _('home_phone'),
+												name: 'phones'
+											}
+										]
 									}
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'update_date',
-									width: 100,
-									format: g('date_display_format')
-								},
-								{
-									dataIndex: 'status',
-									width: 100
-								}
-							]
-						}
-					]
-				}
-			]
-		}
-	],
+								]
+							},
+							{
+								title: _('medications'),
+								store: Ext.create('App.store.patient.Medications'),
+								itemId: 'CcdImportMedicationsGrid',
+								selType: 'checkboxmodel',
+								flex: 1,
+								columns: [
+									{
+										dataIndex: 'STR',
+										flex: 1,
+										renderer: function (v, meta, record) {
+											return Ext.String.format(
+												'MEDICATION: {0} - {1}<br>INSTRUCTIONS: {2}<br>NDC: {3}',
+												record.get('RXCUI'),
+												record.get('STR'),
+												record.get('directions'),
+												record.get('NDC')
+											);
+										}
+									},
+									{
+										xtype: 'datecolumn',
+										dataIndex: 'created_date',
+										width: 100,
+										format: g('date_display_format')
+									},
+									{
+										dataIndex: 'end_date',
+										width: 100,
+										renderer: function (v, meta, record) {
+											if(!v){
+												return _('active')
+											}
+											return _('inactive');
+										}
+									}
+								]
+							},
+							{
+								title: _('active_problems'),
+								store: Ext.create('App.store.patient.PatientActiveProblems'),
+								itemId: 'CcdImportActiveProblemsGrid',
+								selType: 'checkboxmodel',
+								flex: 1,
+								columns: [
+									{
+										dataIndex: 'code_text',
+										flex: 1,
+										renderer: function (v, meta, record) {
+											return Ext.String.format(
+												'PROBLEM: {0} - {1}',
+												record.get('code'),
+												record.get('code_text')
+											);
+										}
+									},
+									{
+										xtype: 'datecolumn',
+										dataIndex: 'update_date',
+										width: 100,
+										format: g('date_display_format')
+									},
+									{
+										dataIndex: 'status',
+										width: 100
+									}
+								]
+							},
+							{
+								title: _('allergies'),
+								store: Ext.create('App.store.patient.Allergies'),
+								itemId: 'CcdImportAllergiesGrid',
+								selType: 'checkboxmodel',
+								flex: 1,
+								margin: 0,
+								columns: [
+									{
+										dataIndex: 'allergy',
+										flex: 1,
+										renderer: function (v, meta, record) {
+											return Ext.String.format(
+												'ALLERGY: {0} - {1}<br>REACTION: {2} - {3}',
+												record.get('allergy_code'),
+												record.get('allergy'),
+												record.get('reaction_code'),
+												record.get('reaction')
+											);
+										}
+									},
+									{
+										xtype: 'datecolumn',
+										dataIndex: 'update_date',
+										width: 100,
+										format: g('date_display_format')
+									},
+									{
+										dataIndex: 'status',
+										width: 100
+									}
+								]
+							}
+						]
+					}
+
+				]
+			}
+		];
+
+		me.callParent(arguments);
+	},
 	dockedItems: [
 		{
 			xtype: 'toolbar',

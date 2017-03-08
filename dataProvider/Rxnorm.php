@@ -87,6 +87,17 @@ class Rxnorm
 		return $rec['ATV'];
 	}
 
+	public function getGsCodeByRxCUI($RXCUI)
+	{
+		$sth = $this->db->prepare("SELECT `rxnconso`.`CODE` as GS_CODE
+ 									 FROM `rxnconso`
+ 								    WHERE `rxnconso`.`RXCUI` = :c 
+ 								      AND `rxnconso`.`SAB` = 'GS' LIMIT 1");
+		$sth->execute([':c' => $RXCUI]);
+		$rec = $sth->fetch(PDO::FETCH_ASSOC);
+		return $rec['GS_CODE'];
+	}
+
     /**
      * getIngredient
      * Method to do search in the RxNorm medication by it's ingredients, this depends if the search

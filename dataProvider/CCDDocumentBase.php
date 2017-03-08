@@ -463,8 +463,7 @@ class CDDDocumentBase
             /**
              * Note: In here we need to detect, if the user requested compile all the encounters
              */
-            error_log(print_r($this->eid,true));
-            if(isset($this->eid) && $this->eid != null && $this->eid != -1){
+            if(is_numeric($this->eid)){
                 $this->encounter = $this->Encounter->getEncounter($this->eid, false, false);
                 $this->encounter = isset($this->encounter['encounter']) ? $this->encounter['encounter'] : $this->encounter;
                 $this->encounterProvider = $this->User->getUserByUid($this->encounter['provider_uid']);

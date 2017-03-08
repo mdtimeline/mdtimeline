@@ -131,6 +131,16 @@ Ext.define('App.model.patient.Allergies', {
 			dateFormat: 'Y-m-d'
 		},
 		{
+			name: 'reconciled',
+			type: 'bool',
+			index: true
+		},
+		{
+			name: 'reconciled_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
 			name: 'active',
 			type: 'bool',
 			store: false,

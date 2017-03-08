@@ -41,11 +41,21 @@ class Medications
     {
         // Manage the active and inactive problems
         if(isset($params->active) && $params->active == true) {
-            $params->filter[1] = new stdClass();
-            $params->filter[1]->property = 'end_date';
-            $params->filter[1]->value = null;
-            unset($params->active);
+	        $filter = new stdClass();
+	        $filter->property = 'end_date';
+	        $filter->value = null;
+            $params->filter[] = $filter;
+            unset($filter, $params->active);
         }
+
+	    if(isset($params->reconciled) && $params->reconciled == true) {
+		    $filter = new stdClass();
+		    $filter->property = 'reconciled';
+		    $filter->operator = '!=';
+		    $filter->value = 1;
+		    $params->filter[] = $filter;
+		    unset($filter, $params->reconciled);
+	    }
 
         if (isset($params->reconciled) && $params->reconciled == true) {
             $groups = new stdClass();

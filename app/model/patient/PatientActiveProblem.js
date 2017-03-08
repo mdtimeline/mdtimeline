@@ -93,6 +93,16 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 			len: 300
 		},
 		{
+			name: 'reconciled',
+			type: 'bool',
+			index: true
+		},
+		{
+			name: 'reconciled_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
 			name: 'active',
 			type: 'bool',
 			store: false,

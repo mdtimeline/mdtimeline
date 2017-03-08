@@ -34,12 +34,22 @@ class ActiveProblems
     public function getPatientActiveProblems($params)
     {
         // Manage the active and inactive problems
-        if(isset($params->active) && $params->active == true) {
-            $params->filter[1] = new stdClass();
-            $params->filter[1]->property = 'end_date';
-            $params->filter[1]->value = null;
-            unset($params->active);
-        }
+	    if(isset($params->active) && $params->active == true) {
+		    $filter = new stdClass();
+		    $filter->property = 'status_code';
+		    $filter->value = '55561003';
+		    $params->filter[] = $filter;
+		    unset($filter, $params->active);
+	    }
+
+	    if(isset($params->reconciled) && $params->reconciled == true) {
+		    $filter = new stdClass();
+		    $filter->property = 'reconciled';
+		    $filter->operator = '!=';
+		    $filter->value = 1;
+		    $params->filter[] = $filter;
+		    unset($filter, $params->reconciled);
+	    }
 
         if (isset($params->reconciled) && $params->reconciled == true) {
             $groups = new stdClass();

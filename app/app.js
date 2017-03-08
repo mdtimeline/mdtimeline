@@ -39978,6 +39978,10 @@ Ext.define('App.controller.patient.Allergies', {
 			selector: 'patientallergiespanel #activeAllergyBtn'
 		},
 		{
+			ref: 'PatientAllergyReconciledBtn',
+			selector: '#PatientAllergyReconciledBtn'
+		},
+		{
 			ref: 'AllergyCombo',
 			selector: '#allergyCombo'
 		},
@@ -40019,6 +40023,9 @@ Ext.define('App.controller.patient.Allergies', {
 			},
 			'patientallergiespanel #activeAllergyBtn': {
 				toggle: me.onActiveAllergyBtnToggle
+			},
+			'patientallergiespanel #PatientAllergyReconciledBtn': {
+				toggle: me.onPatientAllergyReconciledBtnToggle
 			},
 			'patientallergiespanel #reviewAllergiesBtn': {
 				toggle: me.onReviewAllergiesBtnClick
@@ -40165,14 +40172,33 @@ Ext.define('App.controller.patient.Allergies', {
     },
 
 	onAllergiesGridActivate: function(){
-		var store = this.getAllergiesGrid().getStore();
+		var store = this.getAllergiesGrid().getStore(),
+			reconciled = this.getPatientAllergyReconciledBtn().pressed,
+			active = this.getActiveAllergyBtn().pressed,
+			filters = [
+				{
+					property: 'pid',
+					value: app.patient.pid
+				}
+			];
+
+		if(reconciled){
+			filters = Ext.Array.push(filters, {
+				property: 'reconciled',
+				operator: '!=',
+				value: '1'
+			});
+		}
+
+		if(active){
+			filters = Ext.Array.push(filters, {
+				property: 'status',
+				value: 'Active'
+			});
+		}
+
 		store.clearFilter(true);
-		store.filter([
-			{
-				property: 'pid',
-				value: app.patient.pid
-			}
-		]);
+		store.filter(filters);
 	},
 
 	onAddAllergyBtnClick: function(){
@@ -40193,32 +40219,11 @@ Ext.define('App.controller.patient.Allergies', {
 	},
 
 	onActiveAllergyBtnToggle: function(btn, pressed){
-		var me = this,
-			store = me.getAllergiesGrid().getStore();
+		this.onAllergiesGridActivate();
+	},
 
-		if(pressed){
-			store.load({
-				filters: [
-					{
-						property: 'pid',
-						value: app.patient.pid
-					},
-					{
-						property: 'status',
-						value: 'Active'
-					}
-				]
-			})
-		}else{
-			store.load({
-				filters: [
-					{
-						property: 'pid',
-						value: app.patient.pid
-					}
-				]
-			})
-		}
+	onPatientAllergyReconciledBtnToggle: function(btn, pressed){
+		this.onAllergiesGridActivate();
 	},
 
 	beforeAllergyEdit: function(editor, e){
@@ -58999,6 +59004,12 @@ Ext.define('App.view.patient.Allergies', {
 		}
 	],
 	bbar: [
+		{
+			text: _('reconciled'),
+			itemId: 'PatientAllergyReconciledBtn',
+			enableToggle: true,
+			pressed: true
+		},
 		{
 			text: _('only_active'),
 			enableToggle: true,

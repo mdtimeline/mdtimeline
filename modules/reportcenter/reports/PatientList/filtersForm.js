@@ -1,6 +1,6 @@
 /**
- * GaiaEHR (Electronic Health Records)
- * Copyright (C) 2015 TRA NextGen, Inc.
+ * mdTimeLine EHR (Electronic Health Records)
+ * Copyright (C) 2017 mdTimeLine, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,10 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
         'App.ux.LiveRXNORMMultipleSearch',
         'App.ux.LiveProviderMultipleSearch',
         'App.ux.LiveSexMultipleSearch',
-        'Modules.reportcenter.reports.PatientList.ux.ComboOptionListReport',
+        'App.ux.LiveEthnicityMultipleSearch',
+        'App.ux.LiveRaceMultipleSearch',
+        'App.ux.LiveMaritalMultipleSearch',
+        'App.ux.LiveLanguageMultipleSearch',
         'Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter'
     ],
     xtype: 'reportFilter',
@@ -290,18 +293,21 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                     frame: false,
                     items: [
                         {
-                            xtype: 'gaiaehr.ethnicitycombo',
+                            xtype: 'racemultiple',
                             hideLabel: true,
                             columnWidth: 1,
                             itemId: 'race',
                             name: 'race',
-                            displayField: 'option_name',
                             enableKeyEvents: true,
                             value: null,
                             listeners: {
-                                select: function (combo, records, eOpts) {
-                                    var field = Ext.ComponentQuery.query('reportFilter #race_name')[0];
-                                    field.setValue(records[0].data.option_name);
+                                select: function(combo, records, eOpts){
+                                    var race_list = '',
+                                        field = Ext.ComponentQuery.query('reportFilter #race_name')[0];
+                                    for (var i = 0; i < records.length; i++) {
+                                        race_list = records[i].data.STR + ', ' + race_list;
+                                    }
+                                    field.setValue(race_list);
                                 }
                             }
                         },
@@ -336,18 +342,21 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                     frame: false,
                     items: [
                         {
-                            xtype: 'gaiaehr.racecombo',
+                            xtype: 'ethnicitymultiple',
                             hideLabel: true,
                             columnWidth: 1,
                             name: 'ethnicity',
                             itemId: 'ethnicity',
-                            displayField: 'option_name',
                             enableKeyEvents: true,
                             value: null,
                             listeners: {
-                                select: function (combo, records, eOpts) {
-                                    var field = Ext.ComponentQuery.query('reportFilter #ethnicity_name')[0];
-                                    field.setValue(records[0].data.option_name);
+                                select: function(combo, records, eOpts){
+                                    var ethnicity_list = '',
+                                        field = Ext.ComponentQuery.query('reportFilter #ethnicity')[0];
+                                    for (var i = 0; i < records.length; i++) {
+                                        ethnicity_list = records[i].data.STR + ', ' + ethnicity_list;
+                                    }
+                                    field.setValue(ethnicity_list);
                                 }
                             }
                         },
@@ -431,19 +440,21 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                     frame: false,
                     items: [
                         {
-                            xtype: 'gaiaehr.combo',
+                            xtype: 'communicationmultiple',
                             hideLabel: true,
-                            list: 132,
                             columnWidth: 1,
                             name: 'phone_publicity',
                             itemId: 'phone_publicity',
-                            emptyText: _('communication'),
                             enableKeyEvents: true,
                             value: null,
                             listeners: {
-                                select: function (combo, records, eOpts) {
-                                    var field = Ext.ComponentQuery.query('reportFilter #phone_publicity_name')[0];
-                                    field.setValue(records[0].data.option_name);
+                                select: function(combo, records, eOpts){
+                                    var communication_list = '',
+                                        field = Ext.ComponentQuery.query('reportFilter #phone_publicity_name')[0];
+                                    for (var i = 0; i < records.length; i++) {
+                                        communication_list = records[i].data.STR + ', ' + communication_list;
+                                    }
+                                    field.setValue(communication_list);
                                 }
                             }
                         },
@@ -508,20 +519,22 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                     frame: false,
                     items: [
                         {
-                            xtype: 'listcomboreport',
-                            list: 12,
+                            xtype: 'maritalmultiple',
                             id: 'marital',
                             hideLabel: true,
-                            emptyText: _('patient_marital_status'),
                             columnWidth: 1,
                             name: 'marital',
                             itemId: 'marital',
                             enableKeyEvents: true,
                             value: null,
                             listeners: {
-                                select: function (combo, records, eOpts) {
-                                    var field = Ext.ComponentQuery.query('reportFilter #marital_name')[0];
-                                    field.setValue(records[0].data.option_name);
+                                select: function(combo, records, eOpts){
+                                    var marital_list = '',
+                                        field = Ext.ComponentQuery.query('reportFilter #marital_name')[0];
+                                    for (var i = 0; i < records.length; i++) {
+                                        marital_list = records[i].data.STR + ', ' + marital_list;
+                                    }
+                                    field.setValue(marital_list);
                                 }
                             }
                         },
@@ -557,20 +570,22 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                     frame: false,
                     items: [
                         {
-                            xtype: 'listcomboreport',
-                            list: 10,
+                            xtype: 'languagemultiple',
                             id: 'language',
                             hideLabel: true,
-                            emptyText: _('language'),
                             columnWidth: 1,
                             name: 'language',
                             itemId: 'language',
                             enableKeyEvents: true,
                             value: null,
                             listeners: {
-                                select: function (combo, records, eOpts) {
-                                    var field = Ext.ComponentQuery.query('reportFilter #language_name')[0];
-                                    field.setValue(records[0].data.option_name);
+                                select: function(combo, records, eOpts){
+                                    var lang_list = '',
+                                        field = Ext.ComponentQuery.query('reportFilter #language_name')[0];
+                                    for (var i = 0; i < records.length; i++) {
+                                        lang_list = records[i].data.STR + ', ' + lang_list;
+                                    }
+                                    field.setValue(lang_list);
                                 }
                             }
                         },

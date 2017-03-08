@@ -1720,5 +1720,8 @@ $LANG = array(
     'future_appointments'                   => 'Future Appointments',
     'referrals_other_providers'             => 'Referrals to other providers',
     'reference_type'                        => 'Reference Type',
-    'sex_search'                            => 'Gender Search'
+    'sex_search'                            => 'Gender Search',
+    'race_search'                           => 'Race Search',
+    'ethnicity_search'                      => 'Ethnicity Search',
+    'language_search'                       => 'language_search'
 );

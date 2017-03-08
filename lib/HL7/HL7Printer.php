@@ -302,7 +302,7 @@ class HL7Printer {
 				$TR['DATE'] = date(self::$dates_format_compact, strtotime($TR['DATE']));
 			}
 
-			if ($observation['NTE'] && is_array($observation['NTE'])) {
+			if (isset($observation['NTE']) && is_array($observation['NTE'])) {
 				if (is_array($observation['NTE'])) {
 					$TR['COMMENT'] = '';
 					foreach ($observation['NTE'] as $nte) {
@@ -415,7 +415,15 @@ class HL7Printer {
 			$reject_reason = $order_observation['SPECIMEN']['SPM'][21][1] . ' - ' . $order_observation['SPECIMEN']['SPM'][21][2];
 			$appropriateness = $order_observation['SPECIMEN']['SPM'][23][1] . ' - ' . $order_observation['SPECIMEN']['SPM'][23][2];
 			$condition = $order_observation['SPECIMEN']['SPM'][24][1] . ' - ' . $order_observation['SPECIMEN']['SPM'][24][2];
-			$notes = $order_observation['SPECIMEN']['SPM'][21][3];
+
+			$notes = '';
+			if (isset($order_observation['SPECIMEN']['NTE']) && is_array($order_observation['SPECIMEN']['NTE'])) {
+				if (is_array($order_observation['SPECIMEN']['NTE'])) {
+					foreach ($order_observation['SPECIMEN']['NTE'] as $nte) {
+						$notes .= $nte[3][0] . ' ';
+					}
+				}
+			}
 
 			$SPECIMEN['TITLE'] = 'SPECIMEN:';
 			$SPECIMEN['ROWS'][] = "TYPE: {$type}";

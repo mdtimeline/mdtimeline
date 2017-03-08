@@ -51,7 +51,7 @@ SELECT patient.pid,
 		WHERE patient.pid = patient_medications.pid AND
         CASE
 		WHEN @MedicationCode IS NOT NULL
-			THEN patient_medications.RXCUI = @MedicationCode
+			THEN FIND_IN_SET(patient_medications.RXCUI, @MedicationCode)
 			ELSE 1=1
 		END) AS medications,
 
@@ -175,7 +175,7 @@ AND
 # Where Race
 CASE
     WHEN @RaceCode IS NOT NULL
-	THEN patient.race = @RaceCode
+	THEN FIND_IN_SET(patient.race, @RaceCode)
     ELSE 1=1
 END
 
@@ -184,7 +184,7 @@ AND
 # Where Ethnicity
 CASE
     WHEN @EthnicityCode IS NOT NULL
-	THEN patient.ethnicity = @EthnicityCode
+	THEN FIND_IN_SET(patient.ethnicity, @EthnicityCode)
     ELSE 1=1
 END
 
@@ -193,7 +193,7 @@ AND
 # Where Communication
 CASE
     WHEN @CommunicationCode IS NOT NULL
-	THEN patient.phone_publicity = @CommunicationCode
+	THEN FIND_IN_SET(patient.phone_publicity, @CommunicationCode)
     ELSE 1=1
 END
 
@@ -202,7 +202,7 @@ AND
 # Where Language
 CASE
     WHEN @LanguageCode IS NOT NULL
-	THEN patient.language = @LanguageCode
+	THEN FIND_IN_SET(patient.language, @LanguageCode)
     ELSE 1=1
 END
 
@@ -211,7 +211,7 @@ AND
 # Where Marital Status
 CASE
     WHEN @MaritalCode IS NOT NULL
-	THEN patient.marital_status = @MaritalCode
+	THEN FIND_IN_SET(patient.marital_status, @MaritalCode)
     ELSE 1=1
 END
 
@@ -220,7 +220,7 @@ AND
 # Where Patient Gender
 CASE
     WHEN @SexCode IS NOT NULL
-	THEN patient.sex = @SexCode
+	THEN FIND_IN_SET(patient.sex, @SexCode)
     ELSE 1=1
 END
 

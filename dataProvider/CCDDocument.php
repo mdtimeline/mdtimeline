@@ -3351,117 +3351,119 @@ class CCDDocument extends CDDDocumentBase
             $planOfCare['text']['table']['tbody']['tr'] = [];
             $planOfCare['entry'] = [];
 
-            // Referrals entry...
-            if(isset($planOfCareData['REF'])){
-                $ReferringProvider = new ReferringProviders();
-                foreach($planOfCareData['REF'] as $referral){
-                    // Find the complete information of the refer provider
-                    $referralProviderInformation = $ReferringProvider->getReferringProvider(
-                        [
-                            'id' =>$referral['refer_to']
-                        ]
-                    );
-                    // Human readable data
-                    $planOfCare['text']['table']['tbody']['tr'][] = [
-                        'td' => [
+            // Referrals
+            if(!$this->isExcluded('referrals_other_providers')) {
+                if (isset($planOfCareData['REF'])) {
+                    $ReferringProvider = new ReferringProviders();
+                    foreach ($planOfCareData['REF'] as $referral) {
+                        // Find the complete information of the refer provider
+                        $referralProviderInformation = $ReferringProvider->getReferringProvider(
                             [
-                                '@value' => 'Referral: '.$this->clean($referral['referal_reason']).', '.$this->clean($referral['refer_to_text']).
-                                'Tel: '.$referralProviderInformation['phone_number']
-                            ],
-                            [
-                                '@value' => $referral['referral_date']
+                                'id' => $referral['refer_to']
                             ]
-                        ]
-                    ];
-                    // Tabulated data XML wise
-                    $planOfCare['entry'][] = [
-                        'act' => [
-                            '@attributes' => [
-                                'moodCode' => 'RQO',
-                                'classCode' => 'ACT'
-                            ],
-                            'templateId' => [
-                                '@attributes' => [
-                                    'root' => '2.16.840.1.113883.10.20.22.4.39'
+                        );
+                        // Human readable data
+                        $planOfCare['text']['table']['tbody']['tr'][] = [
+                            'td' => [
+                                [
+                                    '@value' => 'Referral: ' . $this->clean($referral['referal_reason']) . ', ' . $this->clean($referral['refer_to_text']) .
+                                        'Tel: ' . $referralProviderInformation['phone_number']
+                                ],
+                                [
+                                    '@value' => $referral['referral_date']
                                 ]
-                            ],
-                            'id' => [
+                            ]
+                        ];
+                        // Tabulated data XML wise
+                        $planOfCare['entry'][] = [
+                            'act' => [
                                 '@attributes' => [
-                                    'root' => UUID::v4()
-                                ]
-                            ],
-                            'code' => [
-                                '@attributes' => [
-                                    'displayName' =>  $this->clean($referral['referal_reason']),
-                                    'codeSystem' => '2.16.840.1.113883.6.96',
-                                    'code' => 'NA'
-                                ]
-                            ],
-                            'statusCode' => [
-                                '@attributes' => [
-                                    'code' => '1'
-                                ]
-                            ],
-                            'effectiveTime' => [
-                                'low' => [
+                                    'moodCode' => 'RQO',
+                                    'classCode' => 'ACT'
+                                ],
+                                'templateId' => [
                                     '@attributes' => [
-                                        'value' => $this->parseDate($referral['referral_date'])
+                                        'root' => '2.16.840.1.113883.10.20.22.4.39'
                                     ]
                                 ],
-                                'high' => [
+                                'id' => [
                                     '@attributes' => [
-                                        'value' => $this->parseDate($referral['referral_date'])
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ];
-                    $planOfCare['entry'][] = [
-                        'act' => [
-                            '@attributes' => [
-                                'moodCode' => 'RQO',
-                                'classCode' => 'ACT'
-                            ],
-                            'templateId' => [
-                                '@attributes' => [
-                                    'root' => '2.16.840.1.113883.10.20.22.4.41'
-                                ]
-                            ],
-                            'id' => [
-                                '@attributes' => [
-                                    'root' => UUID::v4()
-                                ]
-                            ],
-                            'code' => [
-                                '@attributes' => [
-                                    'displayName' => $this->clean($referral['referal_reason']),
-                                    'codeSystem' => '2.16.840.1.113883.6.96',
-                                    'code' => 'NA'
-                                ]
-                            ],
-                            'statusCode' => [
-                                '@attributes' => [
-                                    'code' => '1'
-                                ]
-                            ],
-                            'effectiveTime' => [
-                                'low' => [
-                                    '@attributes' => [
-                                        'value' => $this->parseDate($referral['referral_date'])
+                                        'root' => UUID::v4()
                                     ]
                                 ],
-                                'high' => [
+                                'code' => [
                                     '@attributes' => [
-                                        'value' => $this->parseDate($referral['referral_date'])
+                                        'displayName' => $this->clean($referral['referal_reason']),
+                                        'codeSystem' => '2.16.840.1.113883.6.96',
+                                        'code' => 'NA'
+                                    ]
+                                ],
+                                'statusCode' => [
+                                    '@attributes' => [
+                                        'code' => '1'
+                                    ]
+                                ],
+                                'effectiveTime' => [
+                                    'low' => [
+                                        '@attributes' => [
+                                            'value' => $this->parseDate($referral['referral_date'])
+                                        ]
+                                    ],
+                                    'high' => [
+                                        '@attributes' => [
+                                            'value' => $this->parseDate($referral['referral_date'])
+                                        ]
                                     ]
                                 ]
                             ]
-                        ]
-                    ];
+                        ];
+                        $planOfCare['entry'][] = [
+                            'act' => [
+                                '@attributes' => [
+                                    'moodCode' => 'RQO',
+                                    'classCode' => 'ACT'
+                                ],
+                                'templateId' => [
+                                    '@attributes' => [
+                                        'root' => '2.16.840.1.113883.10.20.22.4.41'
+                                    ]
+                                ],
+                                'id' => [
+                                    '@attributes' => [
+                                        'root' => UUID::v4()
+                                    ]
+                                ],
+                                'code' => [
+                                    '@attributes' => [
+                                        'displayName' => $this->clean($referral['referal_reason']),
+                                        'codeSystem' => '2.16.840.1.113883.6.96',
+                                        'code' => 'NA'
+                                    ]
+                                ],
+                                'statusCode' => [
+                                    '@attributes' => [
+                                        'code' => '1'
+                                    ]
+                                ],
+                                'effectiveTime' => [
+                                    'low' => [
+                                        '@attributes' => [
+                                            'value' => $this->parseDate($referral['referral_date'])
+                                        ]
+                                    ],
+                                    'high' => [
+                                        '@attributes' => [
+                                            'value' => $this->parseDate($referral['referral_date'])
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ];
+                    }
                 }
             }
 
-            // Observations entry...
+            // Observations
             foreach($planOfCareData['OBS'] as $item){
                 $planOfCare['text']['table']['tbody']['tr'][] = [
                     'td' => [
@@ -3516,59 +3518,59 @@ class CCDDocument extends CDDDocumentBase
                 ];
             }
 
-            /**
-             * Appointments
-             */
-            foreach($planOfCareData['APPOINTMENTS'] as $item){
+            // Appointments
+            if(!$this->isExcluded('future_appointments')) {
+                foreach ($planOfCareData['APPOINTMENTS'] as $item) {
 
-                $planOfCare['text']['table']['tbody']['tr'][] = [
-                    'td' => [
-                        [
-                            '@value' => 'Appointments: '.$this->clean($item['notes'])
-                        ],
-                        [
-                            '@value' => $this->parseDate($item['requested_date'])
+                    $planOfCare['text']['table']['tbody']['tr'][] = [
+                        'td' => [
+                            [
+                                '@value' => 'Appointments: ' . $this->clean($item['notes'])
+                            ],
+                            [
+                                '@value' => $this->parseDate($item['requested_date'])
+                            ]
                         ]
-                    ]
-                ];
-                $planOfCare['entry'][] = [
-                    'procedure' => [
-                        '@attributes' => [
-                            'moodCode' => 'RQO',
-                            'classCode' => 'ACT'
-                        ],
-                        'templateId' => [
+                    ];
+                    $planOfCare['entry'][] = [
+                        'procedure' => [
                             '@attributes' => [
-                                'root' => '2.16.840.1.113883.10.20.22.4.41.2'
-                            ]
-                        ],
-                        'id' => [
-                            '@attributes' => [
-                                'root' => UUID::v4()
-                            ]
-                        ],
-                        'code' => [
-                            '@attributes' => [
-                                'code' => '281189005',
-                                'codeSystemName' => '2.16.840.1.113883.6.96',
-                                'codeSystem' => 'SNOMED-CT',
-                                'displayName' => $this->clean($item['notes']),
-                            ]
-                        ],
-                        'statusCode' => [
-                            '@attributes' => [
-                                'code' => 'Active'
-                            ]
-                        ],
-                        'effectiveTime' => [
-                            'center' => [
+                                'moodCode' => 'RQO',
+                                'classCode' => 'ACT'
+                            ],
+                            'templateId' => [
                                 '@attributes' => [
-                                    'value' => $this->parseDate($item['requested_date'])
+                                    'root' => '2.16.840.1.113883.10.20.22.4.41.2'
+                                ]
+                            ],
+                            'id' => [
+                                '@attributes' => [
+                                    'root' => UUID::v4()
+                                ]
+                            ],
+                            'code' => [
+                                '@attributes' => [
+                                    'code' => '281189005',
+                                    'codeSystemName' => '2.16.840.1.113883.6.96',
+                                    'codeSystem' => 'SNOMED-CT',
+                                    'displayName' => $this->clean($item['notes']),
+                                ]
+                            ],
+                            'statusCode' => [
+                                '@attributes' => [
+                                    'code' => 'Active'
+                                ]
+                            ],
+                            'effectiveTime' => [
+                                'center' => [
+                                    '@attributes' => [
+                                        'value' => $this->parseDate($item['requested_date'])
+                                    ]
                                 ]
                             ]
                         ]
-                    ]
-                ];
+                    ];
+                }
             }
 
             /**
@@ -5418,13 +5420,13 @@ class CCDDocument extends CDDDocumentBase
 
         $filters = new stdClass();
         $filters->filter[0] = new stdClass();
-        if(isset($this->eid)){
+        if($this->eid >= 0){
             $filters->filter[0]->property = 'eid';
             $filters->filter[0]->value = $this->eid;
         }elseif($this->eid == null){
             $filters->filter[0]->property = 'pid';
             $filters->filter[0]->value = $this->pid;
-        }else{
+        }elseif($this->eid <= -1){
             return;
         }
         $encountersData = $this->Encounter->getEncounters($filters, false, false);

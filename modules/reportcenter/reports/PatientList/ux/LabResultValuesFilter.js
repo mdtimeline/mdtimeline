@@ -143,6 +143,21 @@ Ext.define('Modules.reportcenter.reports.PatientList.LabResultValuesFilter',
                     width: '100%',
                     name: 'lab_value',
                     emptyText: _('lab_enter_value')
+                },
+                {
+                    xtype: 'button',
+                    text: 'X',
+                    columnWidth: 1,
+                    listeners:{
+                        click: function(btn){
+                            var select_lab_result = Ext.ComponentQuery.query('labresultvalues #select_lab_result')[0],
+                                lab_result_text = Ext.ComponentQuery.query('labresultvalues #lab_result_text')[0],
+                                lab_operator_text = field = Ext.ComponentQuery.query('labresultvalues #lab_operator_text')[0];
+                            select_lab_result.reset();
+                            lab_result_text.setValue('');
+                            lab_operator_text.setValue('');
+                        }
+                    }
                 }
             ]
         });

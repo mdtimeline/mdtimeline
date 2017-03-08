@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class CDDDocumentBase
 {
 
@@ -164,9 +163,47 @@ class CDDDocumentBase
     public $requiredEncounters;
 
     /**
+     * @var
+     */
+    public $Globals;
+    public $height_measure;
+    public $weight_measure;
+
+    /**
      * @var array
      */
     public $exclude = [];
+
+
+    /**
+     * CCDDocument constructor.
+     */
+    function __construct()
+    {
+        $this->dateNow = date('Ymd');
+        $this->timeNow = date('YmdHisO');
+        $this->Encounter = new Encounter();
+        $this->Facilities = new Facilities();
+        $this->CombosData = new CombosData();
+        $this->User = new User();
+        $this->Patient = new Patient();
+        $this->TransactionLog = new TransactionLog();
+        $this->PatientContacts = new PatientContacts();
+        $this->Globals = new Globals();
+        $this->facility = $this->Facilities->getCurrentFacility(true);
+
+        switch($this->Globals->getGlobal('units_of_measurement'))
+        {
+            case 'metric':
+                $this->height_measure = 'cm';
+                $this->weight_measure = 'kg';
+                break;
+            case 'standard':
+                $this->height_measure = 'in';
+                $this->weight_measure = 'lbs';
+                break;
+        }
+    }
 
     /**
      * Return the pertinent OID of a certain code system name
@@ -250,10 +287,21 @@ class CDDDocumentBase
 
     /**
      * @param $eid
+     * @param $encounter_indicator
      */
     public function setEid($eid)
     {
-        $this->eid = ($eid === 'null') ? null : $eid;
+        switch ($eid){
+            case 'no_enc':
+                $this->eid = $eid;
+                break;
+            case 'all_enc':
+                $this->eid = $eid;
+                break;
+            default:
+                $this->eid = ($eid === 'null') ? null : (int)$eid;
+                break;
+        }
     }
 
     /**
@@ -415,7 +463,8 @@ class CDDDocumentBase
             /**
              * Note: In here we need to detect, if the user requested compile all the encounters
              */
-            if(isset($this->eid) && $this->eid != null){
+            error_log(print_r($this->eid,true));
+            if(isset($this->eid) && $this->eid != null && $this->eid != -1){
                 $this->encounter = $this->Encounter->getEncounter($this->eid, false, false);
                 $this->encounter = isset($this->encounter['encounter']) ? $this->encounter['encounter'] : $this->encounter;
                 $this->encounterProvider = $this->User->getUserByUid($this->encounter['provider_uid']);

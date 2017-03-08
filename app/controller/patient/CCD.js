@@ -58,7 +58,10 @@ Ext.define('App.controller.patient.CCD', {
 			},
 			'#printCcdBtn': {
 				click: me.onPrintCcdBtnClick
-			}
+			},
+            '#PatientCcdPanelEncounterCmb':{
+			    select: me.onPatientCcdPanelEncounterCmbSelect
+            }
 		});
 
 		me.importCtrl = this.getController('patient.CCDImport');
@@ -246,6 +249,7 @@ Ext.define('App.controller.patient.CCD', {
 		var eid = this.getEid(cmb);
 
 		cmb.selectedRecord = records[0];
+
 		cmb.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?action=view&site=' + window.site +
 			'&pid=' + app.patient.pid +

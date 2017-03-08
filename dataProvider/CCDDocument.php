@@ -62,26 +62,10 @@ include_once(ROOT . '/dataProvider/CombosData.php');
 include_once(ROOT . '/dataProvider/TransactionLog.php');
 include_once(ROOT . '/dataProvider/AppointmentRequest.php');
 include_once(ROOT . '/dataProvider/DecisionAids.php');
+include_once(ROOT . '/dataProvider/Globals.php');
 
 class CCDDocument extends CDDDocumentBase
 {
-
-    /**
-     * CCDDocument constructor.
-     */
-    function __construct()
-    {
-        $this->dateNow = date('Ymd');
-        $this->timeNow = date('YmdHisO');
-        $this->Encounter = new Encounter();
-        $this->Facilities = new Facilities();
-        $this->CombosData = new CombosData();
-        $this->User = new User();
-        $this->Patient = new Patient();
-        $this->TransactionLog = new TransactionLog();
-        $this->PatientContacts = new PatientContacts();
-        $this->facility = $this->Facilities->getCurrentFacility(true);
-    }
 
     /**
      * Method setHeader()
@@ -360,43 +344,40 @@ class CCDDocument extends CDDDocumentBase
 
         // Patient preferred language communication
         if(isset($patientData['language']) && $patientData['language'] != ''){
-            // Language Spoken
-            $recordTarget['patientRole']
-            ['patient']
-            ['languageCommunication']
-            ['languageCode']
-            ['@attributes']
-            ['code'] = $patientData['language'];
-
-            // Language Ability Mode
-            $recordTarget['patientRole']['patient']['languageCommunication']['modeCode'] = [
-                '@attributes' => [
-                    'code' => 'ESP',
-                    'displayName' => 'Expressed spoken',
-                    'codeSystem' => '2.16.840.1.113883.5.60',
-                    'codeSystemName' => 'LanguageAbilityMode'
-                ]
-            ];
-
-            // How well the patient spoke it
-            $recordTarget['patientRole']
-            ['patient']
-            ['languageCommunication']
-            ['proficiencyLevelCode'] = [
-                '@attributes' => [
-                    'code' => 'G',
-                    'displayName' => 'Good',
-                    'codeSystem' => '2.16.840.1.113883.5.61'
+            $recordTarget['patientRole']['patient']['languageCommunication'] = [
+                'languageCode' => [
+                    '@attributes' => [
+                        'code' => $patientData['language']
+                    ],
+                    'modeCode' => [
+                        '@attributes' => [
+                            'code' => 'ESP',
+                            'displayName' => 'Expressed spoken',
+                            'codeSystem' => '2.16.840.1.113883.5.60',
+                            'codeSystemName' => 'LanguageAbilityMode'
+                        ]
+                    ],
+                    'proficiencyLevelCode' => [
+                        '@attributes' => [
+                            'code' => 'G',
+                            'displayName' => 'Good',
+                            'codeSystem' => '2.16.840.1.113883.5.61'
+                        ]
+                    ],
+                    'preferenceInd' => [
+                        '@attributes' => [
+                            'value' => true
+                        ]
+                    ]
                 ]
             ];
 
         } else {
-            $recordTarget['patientRole']
-            ['patient']
-            ['languageCommunication']
-            ['languageCode']
-            ['@attributes']
-            ['nullFlavor'] = 'NI';
+            $recordTarget['patientRole']['patient']['languageCommunication'] = [
+                '@attributes' => [
+                    'nullFlavor' => 'UNK'
+                ]
+            ];
         }
 
         $org = [];
@@ -1235,7 +1216,8 @@ class CCDDocument extends CDDDocumentBase
 
     public function setReasonOfVisitSection()
     {
-        if(isset($this->encounter)){
+        error_log(print_r($this->encounter,true));
+        if(isset($this->encounter) ){
             $reason = [
                 'templateId' => [
                     '@attributes' => [
@@ -1635,11 +1617,11 @@ class CCDDocument extends CDDDocumentBase
                 ];
                 // Height
                 $vitals['text']['table']['tbody']['tr'][0]['td'][] = [
-                    '@value' => $item['height_cm'] . ' cm'
+                    '@value' => $item['height_cm'] . ' '.$this->height_measure
                 ];
                 // Weight
                 $vitals['text']['table']['tbody']['tr'][1]['td'][] = [
-                    '@value' => $item['weight_kg'] . ' kg'
+                    '@value' => $item['weight_kg'] . ' '.$this->weight_measure
                 ];
                 // Blood Pressure
                 $vitals['text']['table']['tbody']['tr'][2]['td'][] = [
@@ -1726,7 +1708,7 @@ class CCDDocument extends CDDDocumentBase
                                         '@attributes' => [
                                             'xsi:type' => 'PQ',
                                             'value' => $item['height_cm'],
-                                            'unit' => 'cm'
+                                            'unit' => $this->height_measure
                                         ]
                                     ]
                                 ]
@@ -1769,7 +1751,7 @@ class CCDDocument extends CDDDocumentBase
                                         '@attributes' => [
                                             'xsi:type' => 'PQ',
                                             'value' => $item['weight_kg'],
-                                            'unit' => 'kg'
+                                            'unit' => $this->weight_measure
                                         ]
                                     ]
                                 ]

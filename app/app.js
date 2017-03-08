@@ -13923,6 +13923,11 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
+			name: 'signature',
+			type: 'string',
+			len: 100
+		},
+		{
 			name: 'fullname',
 			type: 'string',
 			comment: 'title full name',
@@ -16448,6 +16453,11 @@ Ext.define('App.model.patient.Allergies', {
 			dateFormat: 'Y-m-d'
 		},
 		{
+			name: 'reconciled',
+			type: 'bool',
+			index: true
+		},
+		{
 			name: 'active',
 			type: 'bool',
 			store: false,
@@ -17667,6 +17677,11 @@ Ext.define('App.model.patient.Medications', {
 			dateFormat: 'Y-m-d'
 		},
 		{
+			name: 'reconciled',
+			type: 'bool',
+			index: true
+		},
+		{
 			name: 'active',
 			type: 'bool',
 			store: false,
@@ -17835,6 +17850,11 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 			name: 'note',
 			type: 'string',
 			len: 300
+		},
+		{
+			name: 'reconciled',
+			type: 'bool',
+			index: true
 		},
 		{
 			name: 'active',
@@ -41665,13 +41685,32 @@ Ext.define('App.controller.patient.DecisionSupport', {
 		warning.removeAll();
 
 		DecisionSupport.getAlerts({ pid:app.patient.pid, alertType:'P' }, function(results){
+
 			for(i=0; i < results.length; i++){
+
+				var cls = 'decision-support-btn',
+					reference_type = results[i].reference_type,
+					icon = results[i].reference != '' ? 'resources/images/icons/icohelp.png' : null,
+					tooltip = null;
+
+				if(icon){
+					if(reference_type == 'D'){
+						icon = 'resources/images/icons/icohelpYellow.png';
+						tooltip = 'Diagnostic and Therapeutic Reference';
+					}else if(reference_type == 'E'){
+						icon = 'resources/images/icons/icohelpPurple.png';
+						tooltip = 'Evidence-Based CDS Intervention';
+					}
+				}
+
 				btn = {
 					xtype: 'button',
 					margin: '2 5',
-					icon: (results[i].reference != '' ? 'resources/images/icons/blueInfo.png' : null),
+					icon: icon,
 					text: results[i].description,
 					result: results[i],
+					cls: cls,
+					tooltip: tooltip,
 					handler: function(btn){
 						if(btn.result.reference != ''){
 							window.open(btn.result.reference, "_blank", "toolbar=no, scrollbars=yes, resizable=yes, top=10, left=10, width=1000, height=600");
@@ -47665,7 +47704,6 @@ Ext.define('App.view.patient.CCD', {
             xtype: 'fieldcontainer',
             border: 1,
             layout: 'vbox',
-            height: 100,
             defaults: {
                 margin: '0 5 5 5'
             },
@@ -47686,7 +47724,7 @@ Ext.define('App.view.patient.CCD', {
 		{
 			xtype: 'checkboxgroup',
 			fieldLabel: _('exclude'),
-			columns: 5,
+			columns: 4,
 			vertical: true,
 			labelWidth: 80,
 			itemId: 'PatientCcdPanelExcludeCheckBoxGroup',
@@ -47697,23 +47735,15 @@ Ext.define('App.view.patient.CCD', {
 				{boxLabel: _('immunizations'), name: 'exclude', inputValue: 'immunizations'},
 				{boxLabel: _('medications'), name: 'exclude', inputValue: 'medications'},
 				{boxLabel: _('meds_administered'), name: 'exclude', inputValue: 'administered'},
-				{boxLabel: _('plan_of_care'), name: 'exclude', inputValue: 'planofcare'},
 				{boxLabel: _('problems'), name: 'exclude', inputValue: 'problems'},
 				{boxLabel: _('allergies'), name: 'exclude', inputValue: 'allergies'},
 				{boxLabel: _('social'), name: 'exclude', inputValue: 'social'},
 				{boxLabel: _('results'), name: 'exclude', inputValue: 'results'},
                 {boxLabel: _('provider_information'), name: 'exclude', inputValue: 'provider_information'},
                 {boxLabel: _('clinical_instructions'), name: 'exclude', inputValue: 'clinical_instructions'},
-                {
-                    xtype:'fieldset',
-                    title: _('plan_of_care'),
-                    defaultType: 'checkbox',
-                    defaults: {anchor: '100%'},
-                    items:[
-                        {boxLabel: _('future_appointments'), shrinkWrap: false, name: 'exclude', inputValue: 'future_appointments'},
-                        {boxLabel: _('referrals_other_providers'), shrinkWrap: false, name: 'exclude', inputValue: 'referrals_other_providers'}
-                    ]
-                }
+                {boxLabel: _('plan_of_care'), name: 'exclude', inputValue: 'planofcare'},
+                {boxLabel: _('future_appointments'), name: 'exclude', inputValue: 'future_appointments'},
+                {boxLabel: _('referrals_other_providers'), name: 'exclude', inputValue: 'referrals_other_providers'}
 			]
 		},
 		'-',

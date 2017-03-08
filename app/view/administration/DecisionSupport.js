@@ -197,10 +197,10 @@ Ext.define('App.view.administration.DecisionSupport', {
 												minValue: 0
 											},
 											{
-												xtype: 'textfield',
-												fieldLabel: _('reference'),
-												name: 'reference',
-												width: 458
+												xtype: 'gaiaehr.sexcombo',
+												fieldLabel: _('sex'),
+												name: 'sex',
+												margin: '0 10 5 0'
 											}
 										]
 
@@ -224,10 +224,10 @@ Ext.define('App.view.administration.DecisionSupport', {
 												minValue: 0
 											},
 											{
-												xtype: 'gaiaehr.sexcombo',
-												fieldLabel: _('sex'),
-												name: 'sex',
-												margin: '0 10 5 0'
+												xtype: 'textfield',
+												fieldLabel: _('reference'),
+												name: 'reference',
+												width: 458
 											}
 										]
 									},
@@ -273,7 +273,30 @@ Ext.define('App.view.administration.DecisionSupport', {
                                                         }
                                                     ]
                                                 })
-                                            }
+                                            },
+	                                        {
+		                                        xtype: 'combo',
+		                                        fieldLabel: _('reference_type'),
+		                                        name: 'reference_type',
+		                                        queryMode: 'local',
+		                                        displayField: 'option',
+		                                        valueField: 'value',
+		                                        editable: false,
+		                                        width: 458,
+		                                        store: Ext.create('Ext.data.Store', {
+			                                        fields: [ 'option', 'value' ],
+			                                        data : [
+				                                        {
+					                                        option: 'Diagnostic and Therapeutic Reference',
+					                                        value: 'D'
+				                                        },
+				                                        {
+					                                        option: 'Evidence-Based CDS Intervention',
+					                                        value: 'E'
+				                                        }
+			                                        ]
+		                                        })
+	                                        },
                                         ]
                                     }
 								]

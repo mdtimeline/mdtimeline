@@ -1718,5 +1718,6 @@ $LANG = array(
     'all_encounters'                        => 'All Encounters',
     'no_encounters'                         => 'No Encounters',
     'future_appointments'                   => 'Future Appointments',
-    'referrals_other_providers'             => 'Referrals to other providers'
+    'referrals_other_providers'             => 'Referrals to other providers',
+    'reference_type'                        => 'Reference Type',
 );

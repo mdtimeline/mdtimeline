@@ -187,8 +187,7 @@ class CCDDocument extends CDDDocumentBase
         $this->xmlData['authenticator'] = $this->getAuthenticator();
         $this->xmlData['documentationOf'] = $this->getDocumentationOf();
 
-        if(isset($this->encounter))
-            $this->xmlData['componentOf'] = $this->getComponentOf();
+        if(isset($this->encounter)) $this->xmlData['componentOf'] = $this->getComponentOf();
 
         $this->xmlData['component']['structuredBody']['component'] = [];
 

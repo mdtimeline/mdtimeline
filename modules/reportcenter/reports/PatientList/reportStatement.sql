@@ -51,7 +51,7 @@ SELECT patient.pid,
 		WHERE patient.pid = patient_medications.pid AND
         CASE
 		WHEN @MedicationCode IS NOT NULL
-			THEN patient_medications.RXCUI = @MedicationCode
+			THEN FIND_IN_SET(patient_medications.RXCUI, @MedicationCode)
 			ELSE 1=1
 		END) AS medications,
 

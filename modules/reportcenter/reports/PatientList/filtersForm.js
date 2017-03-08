@@ -102,8 +102,12 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                             hideLabel: true,
                             listeners: {
                                 select: function (combo, records, eOpts) {
-                                    var field = Ext.ComponentQuery.query('reportFilter #provider_name')[0];
-                                    field.setValue(records[0].data.option_name);
+                                    var provider_list = '',
+                                        field = Ext.ComponentQuery.query('reportFilter #provider_name')[0];
+                                    for (var i = 0; i < records.length; i++) {
+                                        provider_list = records[i].data.STR + ', ' + provider_list;
+                                    }
+                                    field.setValue(provider_list);
                                 }
                             }
                         },

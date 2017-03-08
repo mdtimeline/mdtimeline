@@ -25,6 +25,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
         'App.ux.LiveRXNORMAllergyMultipleSearch',
         'App.ux.LiveRXNORMMultipleSearch',
         'App.ux.LiveProviderMultipleSearch',
+        'App.ux.LiveSexMultipleSearch',
         'Modules.reportcenter.reports.PatientList.ux.ComboOptionListReport',
         'Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter'
     ],
@@ -381,18 +382,21 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
                     frame: false,
                     items: [
                         {
-                            xtype: 'gaiaehr.sexcombo',
+                            xtype: 'sexmultiple',
                             hideLabel: true,
                             columnWidth: 1,
                             name: 'sex',
                             itemId: 'sex',
-                            displayField: 'sex',
                             enableKeyEvents: true,
                             value: null,
                             listeners: {
-                                select: function (combo, records, eOpts) {
-                                    var field = Ext.ComponentQuery.query('reportFilter #sex_name')[0];
-                                    field.setValue(records[0].data.option_name);
+                                select: function(combo, records, eOpts){
+                                    var sex_list = '',
+                                        field = Ext.ComponentQuery.query('reportFilter #sex_name')[0];
+                                    for (var i = 0; i < records.length; i++) {
+                                        sex_list = records[i].data.STR + ', ' + sex_list;
+                                    }
+                                    field.setValue(sex_list);
                                 }
                             }
                         },

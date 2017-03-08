@@ -13923,11 +13923,6 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
-			name: 'signature',
-			type: 'string',
-			len: 100
-		},
-		{
 			name: 'fullname',
 			type: 'string',
 			comment: 'title full name',
@@ -16453,11 +16448,6 @@ Ext.define('App.model.patient.Allergies', {
 			dateFormat: 'Y-m-d'
 		},
 		{
-			name: 'reconciled',
-			type: 'bool',
-			index: true
-		},
-		{
 			name: 'active',
 			type: 'bool',
 			store: false,
@@ -17677,11 +17667,6 @@ Ext.define('App.model.patient.Medications', {
 			dateFormat: 'Y-m-d'
 		},
 		{
-			name: 'reconciled',
-			type: 'bool',
-			index: true
-		},
-		{
 			name: 'active',
 			type: 'bool',
 			store: false,
@@ -17850,11 +17835,6 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 			name: 'note',
 			type: 'string',
 			len: 300
-		},
-		{
-			name: 'reconciled',
-			type: 'bool',
-			index: true
 		},
 		{
 			name: 'active',

@@ -141,7 +141,7 @@ class CCDDocument extends CDDDocumentBase
         ];
         $this->xmlData['languageCode'] = [
             '@attributes' => [
-                'code' => 'en-US'
+                'code' => 'US'
             ]
         ];
 
@@ -348,28 +348,28 @@ class CCDDocument extends CDDDocumentBase
                 'languageCode' => [
                     '@attributes' => [
                         'code' => $patientData['language']
-                    ],
-                    'modeCode' => [
-                        '@attributes' => [
-                            'code' => 'ESP',
-                            'displayName' => 'Expressed spoken',
-                            'codeSystem' => '2.16.840.1.113883.5.60',
-                            'codeSystemName' => 'LanguageAbilityMode'
-                        ]
-                    ],
-                    'proficiencyLevelCode' => [
-                        '@attributes' => [
-                            'code' => 'G',
-                            'displayName' => 'Good',
-                            'codeSystem' => '2.16.840.1.113883.5.61'
-                        ]
-                    ],
-                    'preferenceInd' => [
-                        '@attributes' => [
-                            'value' => true
-                        ]
                     ]
-                ]
+                ],
+	            'modeCode' => [
+		            '@attributes' => [
+			            'code' => 'ESP',
+			            'displayName' => 'Expressed spoken',
+			            'codeSystem' => '2.16.840.1.113883.5.60',
+			            'codeSystemName' => 'LanguageAbilityMode'
+		            ]
+	            ],
+	            'proficiencyLevelCode' => [
+		            '@attributes' => [
+			            'code' => 'G',
+			            'displayName' => 'Good',
+			            'codeSystem' => '2.16.840.1.113883.5.61'
+		            ]
+	            ],
+	            'preferenceInd' => [
+		            '@attributes' => [
+			            'value' => true
+		            ]
+	            ]
             ];
 
         } else {
@@ -3632,7 +3632,10 @@ class CCDDocument extends CDDDocumentBase
                 $tempEncounter = $EncounterDiagnostics->getEncounter($diagnostic['eid'], false, false);
                 $diagnosticsData[$index]['encounter'] = $tempEncounter['encounter'];
             }
-        } elseif($this->isExcluded('problems') || empty($problemsData)) {
+        }
+
+
+        if($this->isExcluded('problems') || (empty($problemsData) && empty($diagnosticsData))) {
             $problems['@attributes'] = [
                 'nullFlavor' => 'NI'
             ];
@@ -3665,35 +3668,38 @@ class CCDDocument extends CDDDocumentBase
         $problems['entry'] = [];
 
         // List patient problems.
-        if(!empty($problemsData)){
-            $problems['text'] = [
-                'table' => [
-                    '@attributes' => [
-                        'border' => '1',
-                        'width' => '100%'
-                    ],
-                    'thead' => [
-                        'tr' => [
-                            [
-                                'th' => [
-                                    [
-                                        '@value' => 'Condition'
-                                    ],
-                                    [
-                                        '@value' => 'Effective Dates'
-                                    ],
-                                    [
-                                        '@value' => 'Condition Status'
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ],
-                    'tbody' => [
-                        'tr' => []
-                    ]
-                ]
-            ];
+        if(!empty($problemsData) || !empty($diagnosticsData)) {
+	        $problems['text'] = [
+		        'table' => [
+			        '@attributes' => [
+				        'border' => '1',
+				        'width' => '100%'
+			        ],
+			        'thead' => [
+				        'tr' => [
+					        [
+						        'th' => [
+							        [
+								        '@value' => 'Condition'
+							        ],
+							        [
+								        '@value' => 'Effective Dates'
+							        ],
+							        [
+								        '@value' => 'Condition Status'
+							        ]
+						        ]
+					        ]
+				        ]
+			        ],
+			        'tbody' => [
+				        'tr' => []
+			        ]
+		        ]
+	        ];
+        }
+
+	    if(!empty($problemsData)) {
 
             foreach($problemsData as $item){
 
@@ -3854,37 +3860,6 @@ class CCDDocument extends CDDDocumentBase
 
         // List encounter diagnostic.
         if(!empty($diagnosticsData)){
-
-            if($problems['text']===''){
-                $problems['text'] = [
-                    'table' => [
-                        '@attributes' => [
-                            'border' => '1',
-                            'width' => '100%'
-                        ],
-                        'thead' => [
-                            'tr' => [
-                                [
-                                    'th' => [
-                                        [
-                                            '@value' => 'Condition'
-                                        ],
-                                        [
-                                            '@value' => 'Effective Dates'
-                                        ],
-                                        [
-                                            '@value' => 'Condition Status'
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ],
-                        'tbody' => [
-                            'tr' => []
-                        ]
-                    ]
-                ];
-            }
 
             foreach($diagnosticsData as $item){
 
@@ -5353,6 +5328,8 @@ class CCDDocument extends CDDDocumentBase
 
                 $functionalStatus['entry'][] = $entry;
             }
+        } else{
+
         }
 
         if($this->requiredResults || !empty($functionalStatus['entry'])){

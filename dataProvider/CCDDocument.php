@@ -3659,7 +3659,7 @@ class CCDDocument extends CDDDocumentBase
 
         unset($ActiveProblems, $EncounterDiagnostics);
 
-        $problems['entry'] = [];
+
 
         // List patient problems.
         if(!empty($problemsData) || !empty($diagnosticsData)) {

@@ -14,154 +14,185 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-Ext.define('Modules.reportcenter.reports.PatientList.LabResultValuesFilter',
-{
-    extend : 'Ext.container.Container',
-    alias : 'widget.labresultvalues',
-    layout: {
-        type: 'vbox'
-    },
-    initComponent : function(config)
-    {
-        var me = this;
+Ext.define('Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter', {
+	extend: 'Ext.form.FieldContainer',
+	alias: 'widget.labresultvalues',
+	fieldLabel: _('lab_results'),
+	labelAlign: 'top',
+	layout: 'anchor',
+	mixins: {
+		field: 'Ext.form.field.Field'
+	},
+	initComponent: function () {
+		var me = this;
 
-        /**
-         * Model & Store for the Laboratory Results combo
-         */
-        me.model = Ext.define('LabResultValueFilterModel', {
-            extend: 'Ext.data.Model',
-            fields: [
-                {
-                    name: 'code',
-                    type: 'string'
-                },
-                {
-                    name: 'code_text',
-                    type: 'string'
-                }
-            ],
-            proxy: {
-                type: 'direct',
-                api: {
-                    read: 'LabResultsValuesFilter.getDistinctResults'
-                },
-                reader: {
-                    root: 'rows',
-                    totalProperty: 'totals'
-                }
-            },
-            idProperty: 'code'
-        });
-        me.store = Ext.create('Ext.data.Store', {
-            model: me.model,
-            autoLoad: false
-        });
+		/**
+		 * Model & Store for the Laboratory Results combo
+		 */
+		Ext.define('ReportLabResultValueFilterModel', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'code',
+					type: 'string'
+				},
+				{
+					name: 'code_text',
+					type: 'string'
+				}
+			],
+			proxy: {
+				type: 'direct',
+				api: {
+					read: 'LabResultsValuesFilter.getDistinctResults'
+				},
+				reader: {
+					root: 'rows',
+					totalProperty: 'totals'
+				}
+			},
+			idProperty: 'code'
+		});
 
-        /**
-         * Data & Store for the comparison combo (operators)
-         */
-        me.operators = Ext.create('Ext.data.Store', {
-            fields: ['name', 'value'],
-            data : [
-                {
-                    "name":"More than",
-                    "value":">="
-                },
-                {
-                    "name":"Less than",
-                    "value":"<="
-                },
-                {
-                    "name":"Equal to",
-                    "value":"="
-                }
-            ]
-        });
+		me.items = [
+			{
+				xtype: 'combo',
+				store: Ext.create('Ext.data.Store', {
+					model: 'ReportLabResultValueFilterModel',
+					autoLoad: false
+				}),
+				anchor: '100%',
+				emptyText: _('select_lab_result'),
+				itemId: 'LabResultValuesFilterLabField',
+				displayField: 'code_text',
+				valueField: 'code',
+				submitValue: false
+			},
+			{
+				xtype: 'combo',
+				store: Ext.create('Ext.data.Store', {
+					fields: ['name', 'value'],
+					data: [
+						{
+							"name": "More than",
+							"value": ">="
+						},
+						{
+							"name": "Less than",
+							"value": "<="
+						},
+						{
+							"name": "Equal to",
+							"value": "="
+						}
+					]
+				}),
+				anchor: '100%',
+				emptyText: _('select_comparison'),
+				itemId: 'LabResultValuesFilterOperatorField',
+				displayField: 'name',
+				valueField: 'value',
+				submitValue: false
+			},
+			{
+				xtype: 'textfield',
+				anchor: '100%',
+				itemId: 'LabResultValuesFilterValueField',
+				emptyText: _('lab_enter_value'),
+				submitValue: false
+			},
+			{
+				xtype: 'container',
+				layout: 'hbox',
+				anchor: '100%',
+				height: 30,
+				items: [
+					{
+						xtype: 'button',
+						text: 'Reset Labs',
+						flex: 1,
+						listeners: {
+							click: me.reset,
+							scope: me
+						}
+					},
+					{
+						xtype: 'button',
+						text: 'Add Lab',
+						flex: 1,
+						listeners: {
+							click: me.addFieldValue,
+							scope: me
+						}
+					}
+				]
+			},
+			{
+				xtype: 'fieldcontainer',
+				itemId: 'LabResultValuesFilterFieldsContainer',
+				anchor: '100%'
+			}
+		];
 
+		me.callParent();
 
-        Ext.apply(me,
-        {
-            items: [
-                {
-                    xtype: 'label',
-                    text: _('lab_results')+':',
-                    margin: '0 0 0 0'
-                },
-                {
-                    xtype: 'combo',
-                    store: me.store,
-                    hideLabel: true,
-                    enableKeyEvents: true,
-                    value: null,
-                    width: '100%',
-                    emptyText: _('select_lab_result'),
-                    itemId: 'select_lab_result',
-                    displayField: 'code_text',
-                    valueField: 'code',
-                    name: 'lab_result_code',
-                    listeners: {
-                        select: function (combo, records, eOpts) {
-                            var field = Ext.ComponentQuery.query('labresultvalues #lab_result_text')[0];
-                            field.setValue(records[0].data.code_text);
-                        }
-                    }
-                },
-                {
-                    xtype: 'hiddenfield',
-                    itemId: 'lab_result_text',
-                    name: 'lab_result_text',
-                    value: null
-                },
-                {
-                    xtype: 'combo',
-                    store: me.operators,
-                    hideLabel: true,
-                    enableKeyEvents: true,
-                    value: null,
-                    width: '100%',
-                    emptyText: _('select_comparison'),
-                    displayField: 'name',
-                    valueField: 'value',
-                    name: 'lab_comparison',
-                    listeners: {
-                        select: function (combo, records, eOpts) {
-                            var field = Ext.ComponentQuery.query('labresultvalues #lab_operator_text')[0];
-                            field.setValue(records[0].data.name);
-                        }
-                    }
-                },
-                {
-                    xtype: 'hiddenfield',
-                    itemId: 'lab_operator_text',
-                    name: 'lab_operator_text',
-                    value: null
-                },
-                {
-                    xtype: 'textfield',
-                    hideLabel: true,
-                    value: null,
-                    width: '100%',
-                    name: 'lab_value',
-                    emptyText: _('lab_enter_value')
-                },
-                {
-                    xtype: 'button',
-                    text: 'X',
-                    columnWidth: 1,
-                    listeners:{
-                        click: function(btn){
-                            var select_lab_result = Ext.ComponentQuery.query('labresultvalues #select_lab_result')[0],
-                                lab_result_text = Ext.ComponentQuery.query('labresultvalues #lab_result_text')[0],
-                                lab_operator_text = field = Ext.ComponentQuery.query('labresultvalues #lab_operator_text')[0];
-                            select_lab_result.reset();
-                            lab_result_text.setValue('');
-                            lab_operator_text.setValue('');
-                        }
-                    }
-                }
-            ]
-        });
+		me.initField();
+	},
 
-        me.callParent(arguments);
-    }
+	addFieldValue: function () {
+		var me = this,
+			lab = me.getComponent('LabResultValuesFilterLabField').getValue(),
+			operator = me.getComponent('LabResultValuesFilterOperatorField').getValue(),
+			value = me.getComponent('LabResultValuesFilterValueField').getValue(),
+			fieldContainer = me.getComponent('LabResultValuesFilterFieldsContainer');
+
+		if(lab == '' || operator == '' || value == ''){
+			app.msg(_('oops'),'Laboratory Result, Operator, and Value are required', true);
+			return;
+		}
+
+		fieldContainer.add({
+			xtype: 'checkboxfield',
+			boxLabel: Ext.String.format('{0} {1} {2}', lab, operator, value),
+			name: 'topping',
+			submitValue: false,
+			checked: true,
+			inputValue: {
+				lab: lab,
+				operator: operator,
+				value: value
+			},
+			listeners: {
+				change: function (field, value) {
+					if (!value) {
+						Ext.Function.defer(function () {
+							field.destroy();
+						}, 200);
+					}
+				}
+			}
+		});
+	},
+
+	reset: function () {
+		this.getComponent('LabResultValuesFilterLabField').reset();
+		this.getComponent('LabResultValuesFilterOperatorField').reset();
+		this.getComponent('LabResultValuesFilterValueField').reset();
+	},
+
+	getValue: function() {
+		var me = this,
+			fieldContainer = me.getComponent('LabResultValuesFilterFieldsContainer'),
+			value = [];
+
+		fieldContainer.items.each(function (field) {
+			value = Ext.Array.push(value, field.inputValue);
+		});
+
+		return JSON.stringify(value);
+	},
+
+	getSubmitValue: function() {
+		return this.getValue();
+	}
 });

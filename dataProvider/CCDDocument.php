@@ -627,12 +627,20 @@ class CCDDocument extends CDDDocumentBase
     public function getDocumentationOf()
     {
 
+	    $encounters = [];
+
         if($this->eid === 'all_enc'){
             $filters = new stdClass();
             $filters->filter[0] = new stdClass();
             $filters->filter[0]->property = 'pid';
             $filters->filter[0]->value = $this->pid;
             $encounters = $this->Encounter->getEncounters($filters, false, false);
+        }elseif (is_numeric($this->eid)){
+	        $filters = new stdClass();
+	        $filters->filter[0] = new stdClass();
+	        $filters->filter[0]->property = 'eid';
+	        $filters->filter[0]->value = $this->eid;
+	        $encounters = $this->Encounter->getEncounters($filters, false, false);
         }
 
         // Just do the empty thing for service event.
@@ -667,7 +675,7 @@ class CCDDocument extends CDDDocumentBase
             return $documentationOf;
         }
 
-        if(is_numeric($this->eid)){
+        if(count($encounters) == 1){
 
             $documentationOf = [
                 'serviceEvent' => [
@@ -685,12 +693,12 @@ class CCDDocument extends CDDDocumentBase
                         ],
                         'low' => [
                             '@attributes' => [
-                                'value' => $this->parseDate($this->encounter['service_date'])
+                                'value' => $this->parseDate($encounters[0]['service_date'])
                             ]
                         ],
                         'high' => [
                             '@attributes' => [
-                                'value' => $this->parseDate($this->encounter['service_date'])
+                                'value' => $this->parseDate($encounters[0]['service_date'])
                             ]
                         ]
                     ]
@@ -709,12 +717,12 @@ class CCDDocument extends CDDDocumentBase
                 'time' => [
                     'low' => [
                         '@attributes' => [
-                            'value' => $this->parseDate($this->encounter['service_date'])
+                            'value' => $this->parseDate($encounters[0]['service_date'])
                         ]
                     ],
                     'high' => [
                         '@attributes' => [
-                            'value' => $this->parseDate($this->encounter['service_date'])
+                            'value' => $this->parseDate($encounters[0]['service_date'])
                         ]
                     ]
                 ],

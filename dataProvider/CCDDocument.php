@@ -3663,6 +3663,25 @@ class CCDDocument extends CDDDocumentBase
 
         // List patient problems.
         if(!empty($problemsData) || !empty($diagnosticsData)) {
+	        $problems['templateId'][] = [
+		        '@attributes' => [
+			        'root' => $this->requiredProblems ? '2.16.840.1.113883.10.20.22.2.5.1' : '2.16.840.1.113883.10.20.22.2.5'
+		        ]
+	        ];
+	        $problems['templateId'][] = [
+		        '@attributes' => [
+			        'root' => '2.16.840.1.113883.3.88.11.83.103'
+		        ]
+	        ];
+
+	        $problems['code'] = [
+		        '@attributes' => [
+			        'code' => '11450-4',
+			        'codeSystemName' => 'LOINC',
+			        'codeSystem' => '2.16.840.1.113883.6.1'
+		        ]
+	        ];
+	        $problems['title'] = 'Problems';
 	        $problems['text'] = [
 		        'table' => [
 			        '@attributes' => [

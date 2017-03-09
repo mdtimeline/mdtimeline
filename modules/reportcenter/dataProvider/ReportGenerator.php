@@ -412,21 +412,21 @@ class ReportGenerator
             $htmlTemplate = file_get_contents($filePointer);
 
             // Replace the filter key pairs. <!--filter_name-->
-            foreach ($filters as $filter)
-                if(isset($filter['value']) && !is_array($filter['value'])) {
-                    $htmlTemplate = str_ireplace('<!--' .
-                         $filter['name'] . '-->',
-                        (isset($filter['value']) ? $filter['value'] : ''),
+            foreach ($filters as $Index => $filter)
+                if(isset($filter) && !is_array($filter)) {
+                    $htmlTemplate = str_ireplace(
+                        '<!--'.$Index.'-->',
+                        (isset($filter) ? $filter : ''),
                          $htmlTemplate);
-                } elseif(isset($filter['value']) && is_array($filter['value'])) {
-                    $problems = '';
-                    foreach($filter['value'] as $value){
-                        $problems .= $value . ', ';
+                } elseif(isset($filter) && is_array($filter)) {
+                    $items = '';
+                    foreach($filter as $Index => $value){
+                        $items .= $value . ' ';
                     }
-                    $htmlTemplate = str_ireplace('<!--'.
-                         $filter['name'].'-->',
-                         $problems,
-                         $htmlTemplate);
+                    $htmlTemplate = str_ireplace(
+                        '<!--'.$Index.'-->',
+                        $items,
+                        $htmlTemplate);
                 }
             return $htmlTemplate;
         } catch (\Exception $Error) {

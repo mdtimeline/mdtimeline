@@ -73,14 +73,6 @@ Ext.define('App.ux.LiveEthnicityMultipleSearch', {
             pageSize: 25
         });
 
-        Ext.apply(this, {
-            store: me.store,
-            listConfig: {
-                loadingText: _('searching') + '...'
-            },
-            pageSize: 25
-        });
-
         me.callParent();
     }
 });

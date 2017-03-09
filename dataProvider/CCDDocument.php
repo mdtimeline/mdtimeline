@@ -1058,6 +1058,12 @@ class CCDDocument extends CDDDocumentBase
                 ]
             ]
         ];
+
+        if($this->exclude){
+
+        }
+
+
         $componentOf['encompassingEncounter']['location'] = $location;
         unset($location);
 

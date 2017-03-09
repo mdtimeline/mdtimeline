@@ -311,7 +311,6 @@ class CDDDocumentBase
 
 	    /**
 	     * TODO:
-	     * referrals_other_providers
 	     * visit_date_location
 	     * reason_for_visit
 	     * diagnostic_test_pending

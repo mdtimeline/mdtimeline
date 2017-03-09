@@ -627,7 +627,7 @@ class CCDDocument extends CDDDocumentBase
     public function getDocumentationOf()
     {
 
-        if($this->eid === null){
+        if($this->eid === 'all_enc'){
             $filters = new stdClass();
             $filters->filter[0] = new stdClass();
             $filters->filter[0]->property = 'pid';
@@ -667,7 +667,7 @@ class CCDDocument extends CDDDocumentBase
             return $documentationOf;
         }
 
-        if($this->eid != null){
+        if(is_numeric($this->eid)){
 
             $documentationOf = [
                 'serviceEvent' => [
@@ -965,6 +965,15 @@ class CCDDocument extends CDDDocumentBase
      */
     public function getComponentOf()
     {
+
+        if ($this->eid == 'no_enc') {
+            return;
+        } elseif ($this->eid == 'all_enc') {
+
+        } elseif (is_numeric($this->eid)) {
+
+        }
+
         $componentOf['encompassingEncounter'] = [
             'id' => [
                 '@attributes' => [
@@ -977,6 +986,7 @@ class CCDDocument extends CDDDocumentBase
                 'nullFlavor' => 'UNK'
             ]
         ];
+
         $componentOf['encompassingEncounter']['effectiveTime'] = [
             '@attributes' => [
                 'value' => $this->parseDate($this->encounter['service_date'])
@@ -1216,8 +1226,7 @@ class CCDDocument extends CDDDocumentBase
 
     public function setReasonOfVisitSection()
     {
-        error_log(print_r($this->encounter,true));
-        if(isset($this->encounter) ){
+        if($this->eid != 'no_enc'){
             $reason = [
                 'templateId' => [
                     '@attributes' => [
@@ -1246,7 +1255,7 @@ class CCDDocument extends CDDDocumentBase
         $params = new stdClass();
         $params->filter[0] = new stdClass();
         $tempSoap = '';
-        if($this->eid == null)
+        if($this->eid === 'all_enc')
         {
             $params->filter[0]->property = 'pid';
             $params->filter[0]->value = $this->pid;
@@ -1259,8 +1268,10 @@ class CCDDocument extends CDDDocumentBase
             $params->filter[0]->property = 'eid';
             $params->filter[0]->value = $this->eid;
             $encounter = $Encounter->getEncounter($params, false, false);
-            $soap = $this->Encounter->getSoapByEid($encounter['eid']);
+            $soap = $this->Encounter->getSoapByEid($encounter['encounter']['eid']);
             $tempSoap = $soap['instructions'];
+        }elseif($this->eid === 'no_enc'){
+            $tempSoap = 'No instruction to show';
         }
         $instructions = [
             'templateId' => [
@@ -2431,16 +2442,6 @@ class CCDDocument extends CDDDocumentBase
      */
     public function setMedicationsAdministeredSection() {
 
-        $Medications = new Medications();
-        $medicationsData = $Medications->getPatientAdministeredMedicationsByPidAndEid($this->pid, $this->eid);
-
-        unset($Medications);
-
-        if(empty($medicationsData) || $this->isExcluded('administered')){
-            $medications['@attributes'] = [
-                'nullFlavor' => 'NI'
-            ];
-        }
         $medications['templateId'] = [
             '@attributes' => [
                 'root' => '2.16.840.1.113883.10.20.22.2.38'
@@ -2457,13 +2458,20 @@ class CCDDocument extends CDDDocumentBase
         $medications['title'] = 'Medications Administered';
         $medications['text'] = '';
 
-        if($this->isExcluded('administered')) {
+        if(is_numeric($this->eid) || $this->eid == 'all_enc'){
+            $Medications = new Medications();
+            $medicationsData = $Medications->getPatientAdministeredMedicationsByPidAndEid($this->pid, $this->eid);
+        } elseif($this->eid == 'no_enc' || $this->isExcluded('administered')) {
+            $medications['@attributes'] = [
+                'nullFlavor' => 'UNK'
+            ];
             $this->addSection(['section' => $medications]);
             return;
-        };
+        }
+
+        unset($Medications);
 
         if(!empty($medicationsData)){
-
             $medications['text'] = [
                 'table' => [
                     '@attributes' => [
@@ -2661,30 +2669,6 @@ class CCDDocument extends CDDDocumentBase
                         ]
                     ]
                 ];
-
-//                $entry['substanceAdministration']['precondition'] = [
-//                    '@attributes' => [
-//                        'typeCode' => 'PRCN'
-//                    ],
-//                    'templateId' => [
-//                        '@attributes' => [
-//                            'root' => '2.16.840.1.113883.10.20.22.4.25.1.2'
-//                        ]
-//                    ],
-//                    'criterion' => [
-//                        'code' => [
-//                            '@attributes' => [
-//                                'nullFlavor' => 'UNK'
-//                            ]
-//                        ],
-//                        'value' => [
-//                            '@attributes' => [
-//                                'xsi:type' => 'CD',
-//                                'nullFlavor' => 'UNK'
-//                            ]
-//                        ]
-//                    ]
-//                ];
 
                 $medications['entry'][] = $entry;
                 unset($entry);
@@ -3640,7 +3624,7 @@ class CCDDocument extends CDDDocumentBase
                 $tempEncounter = $EncounterDiagnostics->getEncounter($this->eid, false, false);
                 $diagnosticsData['encounter'] = $tempEncounter['encounter'];
             }
-        } elseif($this->eid == null) {
+        } elseif($this->eid == 'all_enc') {
             $params->filter[0]->property = 'pid';
             $params->filter[0]->value = $this->pid;
             $diagnosticsData = $EncounterDiagnostics->getEncounterDxs($params);
@@ -3648,43 +3632,35 @@ class CCDDocument extends CDDDocumentBase
                 $tempEncounter = $EncounterDiagnostics->getEncounter($diagnostic['eid'], false, false);
                 $diagnosticsData[$index]['encounter'] = $tempEncounter['encounter'];
             }
-        }
-
-        unset($ActiveProblems, $EncounterDiagnostics);
-
-        if($this->isExcluded('problems') || empty($problemsData)){
+        } elseif($this->isExcluded('problems') || empty($problemsData)) {
             $problems['@attributes'] = [
                 'nullFlavor' => 'NI'
             ];
-        }
+            $problems['templateId'][] = [
+                '@attributes' => [
+                    'root' => $this->requiredProblems ? '2.16.840.1.113883.10.20.22.2.5.1' : '2.16.840.1.113883.10.20.22.2.5'
+                ]
+            ];
+            $problems['templateId'][] = [
+                '@attributes' => [
+                    'root' => '2.16.840.1.113883.3.88.11.83.103'
+                ]
+            ];
 
-        $problems['templateId'][] = [
-            '@attributes' => [
-                'root' => $this->requiredProblems ? '2.16.840.1.113883.10.20.22.2.5.1' : '2.16.840.1.113883.10.20.22.2.5'
-            ]
-        ];
-
-        $problems['templateId'][] = [
-            '@attributes' => [
-                'root' => '2.16.840.1.113883.3.88.11.83.103'
-            ]
-        ];
-
-        $problems['code'] = [
-            '@attributes' => [
-                'code' => '11450-4',
-                'codeSystemName' => 'LOINC',
-                'codeSystem' => '2.16.840.1.113883.6.1'
-            ]
-        ];
-        $problems['title'] = 'Problems';
-        $problems['text'] = '';
-
-        if($this->isExcluded('problems')) {
+            $problems['code'] = [
+                '@attributes' => [
+                    'code' => '11450-4',
+                    'codeSystemName' => 'LOINC',
+                    'codeSystem' => '2.16.840.1.113883.6.1'
+                ]
+            ];
+            $problems['title'] = 'Problems';
+            $problems['text'] = '';
             $this->addSection(['section' => $problems]);
             return;
-        };
+        }
 
+        unset($ActiveProblems, $EncounterDiagnostics);
 
         $problems['entry'] = [];
 
@@ -5401,13 +5377,13 @@ class CCDDocument extends CDDDocumentBase
 
         $filters = new stdClass();
         $filters->filter[0] = new stdClass();
-        if($this->eid >= 0){
+        if(is_numeric($this->eid)){
             $filters->filter[0]->property = 'eid';
             $filters->filter[0]->value = $this->eid;
-        }elseif($this->eid == null){
+        }elseif($this->eid == 'all_enc'){
             $filters->filter[0]->property = 'pid';
             $filters->filter[0]->value = $this->pid;
-        }elseif($this->eid <= -1){
+        }elseif($this->eid == 'no_enc'){
             return;
         }
         $encountersData = $this->Encounter->getEncounters($filters, false, false);

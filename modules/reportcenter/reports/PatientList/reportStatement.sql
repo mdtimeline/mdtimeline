@@ -17,7 +17,7 @@ SET @LabOrderOperator = :lab_comparison;
 SET @LabOrderValue = :lab_value;
 
 SELECT patient.pid,
-		CONCAT(patient.fname, ' ', patient.mname, ' ', patient.lname) as patient_name,
+		CONCAT_WS('', patient.fname, ' ', patient.mname, ' ', patient.lname) as patient_name,
 		DATE_FORMAT(patient.DOB, '%e %b %Y') as DateOfBirth,
         TIMESTAMPDIFF(YEAR, patient.DOB, CURDATE()) AS Age,
         Race.option_name as Race,
@@ -35,7 +35,7 @@ SELECT patient.pid,
 
 		# Patient providers
 		(SELECT
-			GROUP_CONCAT(CONCAT(fname, ' ', mname, ' ', lname) SEPARATOR ', <br>') as providers
+			GROUP_CONCAT(CONCAT_WS('', fname, ' ', mname, ' ', lname) SEPARATOR ', <br>') as providers
 		FROM users
 		WHERE users.id = encounters.provider_uid AND
         CASE
@@ -78,9 +78,12 @@ SELECT patient.pid,
 		END) AS allergies,
 
         # Laboratories Orders/Results/Values
-		(SELECT GROUP_CONCAT(distinct CONCAT(patient_order_results.code_text,': ',patient_order_results_observations.value,patient_order_results_observations.units) SEPARATOR ', <br>') as laboratories
+		(SELECT
+			GROUP_CONCAT(CONCAT_WS('', PO.description, ": ",PORO.value," ",PORO.units) SEPARATOR ', <br>') as laboratories
 		FROM patient_orders AS PO
-		WHERE PO.pid = patient.pid AND
+		LEFT JOIN patient_order_results AS POR ON POR.order_id  = PO.id
+		LEFT JOIN patient_order_results_observations AS PORO ON PORO.result_id = POR.id
+		WHERE PO.pid = patient.pid AND order_type = 'lab'  AND
         CASE
 			WHEN @LabOrderCode IS NOT NULL AND @LabOrderValue IS NULL AND @LabOrderOperator IS NULL
 			THEN PO.code = @LabOrderCode
@@ -89,13 +92,13 @@ SELECT patient.pid,
         AND
 		CASE
 			WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '=' AND @LabOrderCode IS NOT NULL
-			THEN patient_order_results_observations.value = @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
+			THEN PORO.value = @LabOrderValue AND PORO.code = @LabOrderCode
 
 			WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '>=' AND @LabOrderCode IS NOT NULL
-			THEN patient_order_results_observations.value > @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
+			THEN PORO.value > @LabOrderValue AND PORO.code = @LabOrderCode
 
 			WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '<=' AND @LabOrderCode IS NOT NULL
-			THEN patient_order_results_observations.value < @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
+			THEN PORO.value < @LabOrderValue AND PORO.code = @LabOrderCode
 			ELSE 1=1
 		END) AS laboratories
 
@@ -120,10 +123,10 @@ LEFT JOIN users as Providers ON Providers.id = encounters.provider_uid
 LEFT JOIN patient_orders ON patient.pid = patient_orders.pid AND order_type = 'lab'
 
 # Laboratory Orders Results Join
-LEFT JOIN patient_order_results ON patient_orders.id = patient_order_results.order_id
+LEFT JOIN patient_order_results ON patient_order_results.order_id  = patient_orders.id
 
 # Laboratory Orders Results Observations Join
-LEFT JOIN patient_order_results_observations ON patient_order_results.order_id = patient_order_results_observations.result_id
+LEFT JOIN patient_order_results_observations ON patient_order_results_observations.result_id = patient_order_results.id
 
 # Race Join
 LEFT JOIN combo_lists_options as Race ON Race.option_value = patient.race AND Race.list_id = 14

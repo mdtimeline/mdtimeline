@@ -24,6 +24,10 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter', 
 	initComponent: function () {
 		var me = this;
 
+        me.addEvents('addItem');
+        me.addEvents('removeItem');
+        me.addEvents('reset');
+
 		/**
 		 * Model & Store for the Laboratory Results combo
 		 */
@@ -144,7 +148,8 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter', 
 			lab_name = me.getComponent('LabResultValuesFilterLabField').findRecordByValue(lab_code).get('code_text'),
 			operator = me.getComponent('LabResultValuesFilterOperatorField').getValue(),
 			value = me.getComponent('LabResultValuesFilterValueField').getValue(),
-			fieldContainer = me.getComponent('LabResultValuesFilterFieldsContainer');
+			fieldContainer = me.getComponent('LabResultValuesFilterFieldsContainer'),
+            item;
 
 		if(lab_code == '' || operator == '' || value == ''){
 			app.msg(_('oops'),'Laboratory Result, Operator, and Value are required', true);
@@ -168,10 +173,18 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter', 
                         Ext.Function.defer(function () {
                             field.destroy();
                         }, 200);
+                        me.fireEvent('removeItem', me, field, value);
                     }
                 }
             }
         });
+        item = {
+            lab_code: lab_code,
+            lab_name: lab_name,
+            operator: operator,
+            value: value
+        };
+        me.fireEvent('addItem', me, item);
 
 	},
 
@@ -179,6 +192,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter', 
 		this.getComponent('LabResultValuesFilterLabField').reset();
 		this.getComponent('LabResultValuesFilterOperatorField').reset();
 		this.getComponent('LabResultValuesFilterValueField').reset();
+        this.fireEvent('reset', me);
 	}
 
 });

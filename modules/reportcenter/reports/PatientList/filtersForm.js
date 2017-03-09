@@ -375,8 +375,22 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
 			itemId: 'labResult',
 			submitValue: true,
 			name: 'lab_results',
-            hideFieldLabel: false
+            hideFieldLabel: false,
+            listeners: {
+                addItem: function (combo, record, eOpts) {
+                    var result_list = '',
+                        field = Ext.ComponentQuery.query('reportFilter #laboratory_results')[0];
+                        result_list = record.lab_name+': '+record.operator+record.value+', '+result_list;
+                    field.setValue(result_list.substr(0,result_list.length-2));
+                }
+            }
 		},
+        {
+            xtype: 'hiddenfield',
+            itemId: 'laboratory_results',
+            name: 'laboratory_results',
+            value: ''
+        },
         {
             xtype: 'hiddenfield',
             itemId: 'lab_result_code',

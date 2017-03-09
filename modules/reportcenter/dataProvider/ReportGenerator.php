@@ -296,6 +296,7 @@ class ReportGenerator
                         // fetch any records. SET does not return any dataSet;
                         if (self::__checkIfVariable($Query)) {
                             $this->conn->query($Query);
+                            error_log(print_r($Query,true));
                         } else {
                             // Check if the page configuration exists, if yes try to look
                             // for an :ux-pagination in the SQL statement and replace it

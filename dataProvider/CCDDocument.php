@@ -2450,7 +2450,7 @@ class CCDDocument extends CDDDocumentBase
 
 	    if($this->eid == 'no_enc' || $this->isExcluded('administered')){
 		    $medications['@attributes'] = [
-			    'nullFlavor' => 'NA'
+			    'nullFlavor' => 'NI'
 		    ];
 	    }elseif(empty($medicationsData)){
 		    $medications['@attributes'] = [

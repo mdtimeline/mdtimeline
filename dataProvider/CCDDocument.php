@@ -2436,6 +2436,20 @@ class CCDDocument extends CDDDocumentBase
      */
     public function setMedicationsAdministeredSection() {
 
+
+	    $Medications = new Medications();
+	    $medicationsData = $Medications->getPatientAdministeredMedicationsByPidAndEid($this->pid, $this->eid);
+
+	    if($this->eid == 'no_enc' || $this->isExcluded('administered')){
+		    $medications['@attributes'] = [
+			    'nullFlavor' => 'NA'
+		    ];
+	    }elseif(empty($medicationsData)){
+		    $medications['@attributes'] = [
+			    'nullFlavor' => 'NI'
+		    ];
+	    }
+
         $medications['templateId'] = [
             '@attributes' => [
                 'root' => '2.16.840.1.113883.10.20.22.2.38'
@@ -2452,18 +2466,12 @@ class CCDDocument extends CDDDocumentBase
         $medications['title'] = 'Medications Administered';
         $medications['text'] = '';
 
-        if(is_numeric($this->eid) || $this->eid == 'all_enc'){
-            $Medications = new Medications();
-            $medicationsData = $Medications->getPatientAdministeredMedicationsByPidAndEid($this->pid, $this->eid);
-        } elseif($this->eid == 'no_enc' || $this->isExcluded('administered')) {
-            $medications['@attributes'] = [
-                'nullFlavor' => 'UNK'
-            ];
-            $this->addSection(['section' => $medications]);
-            return;
-        }
-
         unset($Medications);
+
+        if($this->eid == 'no_enc' || $this->isExcluded('administered') || empty($medicationsData)){
+	        $this->addSection(['section' => $medications]);
+	        return;
+        }
 
         if(!empty($medicationsData)){
             $medications['text'] = [

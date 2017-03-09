@@ -308,6 +308,19 @@ class CDDDocumentBase
      * @param $exclude
      */
     public function setExcludes($exclude) {
+
+	    /**
+	     * TODO:
+	     * referrals_other_providers
+	     * visit_date_location
+	     * reason_for_visit
+	     * diagnostic_test_pending
+	     * referrals_other_providers
+	     * future_schedule_test
+	     * patient_decision_aids
+	     *
+	     */
+
         $this->exclude = $exclude == '' ? [] : explode(',',$exclude);
     }
 

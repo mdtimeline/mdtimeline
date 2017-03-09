@@ -17,6 +17,7 @@ Ext.define('App.ux.LiveSnomedProblemMultipleSearch', {
     displayField: 'FullySpecifiedName',
     valueField: 'ConceptId',
     pageSize: 25,
+    enableReset: false,
     listConfig: {
         tpl: [
             '<tpl for=".">',
@@ -27,6 +28,13 @@ Ext.define('App.ux.LiveSnomedProblemMultipleSearch', {
     initComponent: function(){
         var me = this,
             model = 'SnomedProblemsMultipleSearchModel' + me.id;
+
+	    if(me.enableReset){
+		    me.trigger2Cls = 'x-form-clear-trigger';
+		    me.onTrigger2Click = function() {
+			    me.reset();
+		    }
+	    }
 
         Ext.define(model, {
             extend: 'Ext.data.Model',

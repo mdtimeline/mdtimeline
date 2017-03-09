@@ -17,9 +17,17 @@ Ext.define('App.ux.LiveProviderMultipleSearch', {
     displayField: 'option_name',
     valueField: 'id',
     pageSize: 25,
+    enableReset: true,
     initComponent: function(){
         var me = this,
             model = 'ActiveProvidersMultipleModel' + me.id;
+
+        if(me.enableReset){
+	        me.trigger2Cls = 'x-form-clear-trigger';
+	        me.onTrigger2Click = function() {
+		        me.reset();
+	        }
+        }
 
         Ext.define(model, {
             extend: 'Ext.data.Model',

@@ -20,9 +20,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter', 
 	fieldLabel: _('lab_results'),
 	labelAlign: 'top',
 	layout: 'anchor',
-	mixins: {
-		field: 'Ext.form.field.Field'
-	},
+
 	initComponent: function () {
 		var me = this;
 
@@ -136,29 +134,29 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter', 
 
 		me.callParent();
 
-		me.initField();
 	},
 
 	addFieldValue: function () {
 		var me = this,
-			lab = me.getComponent('LabResultValuesFilterLabField').getValue(),
+			lab_code = me.getComponent('LabResultValuesFilterLabField').getValue(),
+			lab_name = me.getComponent('LabResultValuesFilterLabField').findRecordByValue(lab_code).get('code_text'),
 			operator = me.getComponent('LabResultValuesFilterOperatorField').getValue(),
 			value = me.getComponent('LabResultValuesFilterValueField').getValue(),
 			fieldContainer = me.getComponent('LabResultValuesFilterFieldsContainer');
 
-		if(lab == '' || operator == '' || value == ''){
+		if(lab_code == '' || operator == '' || value == ''){
 			app.msg(_('oops'),'Laboratory Result, Operator, and Value are required', true);
 			return;
 		}
 
 		fieldContainer.add({
 			xtype: 'checkboxfield',
-			boxLabel: Ext.String.format('{0} {1} {2}', lab, operator, value),
-			name: 'topping',
-			submitValue: false,
+			boxLabel: Ext.String.format('{0} {1} {2}', lab_name, operator, value),
+			name: me.name,
 			checked: true,
 			inputValue: {
-				lab: lab,
+				lab_code: lab_code,
+				lab_name: lab_name,
 				operator: operator,
 				value: value
 			},
@@ -180,19 +178,4 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter', 
 		this.getComponent('LabResultValuesFilterValueField').reset();
 	},
 
-	getValue: function() {
-		var me = this,
-			fieldContainer = me.getComponent('LabResultValuesFilterFieldsContainer'),
-			value = [];
-
-		fieldContainer.items.each(function (field) {
-			value = Ext.Array.push(value, field.inputValue);
-		});
-
-		return JSON.stringify(value);
-	},
-
-	getSubmitValue: function() {
-		return this.getValue();
-	}
 });

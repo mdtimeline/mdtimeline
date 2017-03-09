@@ -372,6 +372,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
 		{
 			xtype: 'labresultvalues',
 			itemId: 'labResult',
+			submitValue: false,
 			name: 'lab_results',
             hideFieldLabel: false
 

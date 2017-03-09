@@ -30,9 +30,17 @@ Ext.define('App.ux.LiveRXNORMAllergyMultipleSearch', {
     displayField: 'STR',
     valueField: 'STR',
     pageSize: 25,
+	enableReset: false,
     initComponent: function(){
         var me = this,
             model = 'RXNORMAllergyMultipleSearchModel' + me.id;
+
+	    if(me.enableReset){
+		    me.trigger2Cls = 'x-form-clear-trigger';
+		    me.onTrigger2Click = function() {
+			    me.reset();
+		    }
+	    }
 
         Ext.define(model, {
             extend: 'Ext.data.Model',

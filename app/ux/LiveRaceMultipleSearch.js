@@ -29,9 +29,18 @@ Ext.define('App.ux.LiveRaceMultipleSearch', {
     displayField: 'option_name',
     valueField: 'option_value',
     pageSize: 25,
+    enableReset: false,
     initComponent: function(){
         var me = this,
             model = 'RaceMultipleModel' + me.id;
+
+	    if(me.enableReset){
+		    me.trigger2Cls = 'x-form-clear-trigger';
+		    me.onTrigger2Click = function() {
+			    me.reset();
+		    }
+	    }
+
 
         Ext.define(model, {
             extend: 'Ext.data.Model',

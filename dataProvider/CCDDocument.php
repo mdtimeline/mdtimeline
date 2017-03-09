@@ -141,7 +141,7 @@ class CCDDocument extends CDDDocumentBase
         ];
         $this->xmlData['languageCode'] = [
             '@attributes' => [
-                'code' => 'en-US'
+                'code' => 'US'
             ]
         ];
 
@@ -348,28 +348,28 @@ class CCDDocument extends CDDDocumentBase
                 'languageCode' => [
                     '@attributes' => [
                         'code' => $patientData['language']
-                    ],
-                    'modeCode' => [
-                        '@attributes' => [
-                            'code' => 'ESP',
-                            'displayName' => 'Expressed spoken',
-                            'codeSystem' => '2.16.840.1.113883.5.60',
-                            'codeSystemName' => 'LanguageAbilityMode'
-                        ]
-                    ],
-                    'proficiencyLevelCode' => [
-                        '@attributes' => [
-                            'code' => 'G',
-                            'displayName' => 'Good',
-                            'codeSystem' => '2.16.840.1.113883.5.61'
-                        ]
-                    ],
-                    'preferenceInd' => [
-                        '@attributes' => [
-                            'value' => true
-                        ]
                     ]
-                ]
+                ],
+	            'modeCode' => [
+		            '@attributes' => [
+			            'code' => 'ESP',
+			            'displayName' => 'Expressed spoken',
+			            'codeSystem' => '2.16.840.1.113883.5.60',
+			            'codeSystemName' => 'LanguageAbilityMode'
+		            ]
+	            ],
+	            'proficiencyLevelCode' => [
+		            '@attributes' => [
+			            'code' => 'G',
+			            'displayName' => 'Good',
+			            'codeSystem' => '2.16.840.1.113883.5.61'
+		            ]
+	            ],
+	            'preferenceInd' => [
+		            '@attributes' => [
+			            'value' => true
+		            ]
+	            ]
             ];
 
         } else {
@@ -627,12 +627,20 @@ class CCDDocument extends CDDDocumentBase
     public function getDocumentationOf()
     {
 
+	    $encounters = [];
+
         if($this->eid === 'all_enc'){
             $filters = new stdClass();
             $filters->filter[0] = new stdClass();
             $filters->filter[0]->property = 'pid';
             $filters->filter[0]->value = $this->pid;
             $encounters = $this->Encounter->getEncounters($filters, false, false);
+        }elseif (is_numeric($this->eid)){
+	        $filters = new stdClass();
+	        $filters->filter[0] = new stdClass();
+	        $filters->filter[0]->property = 'eid';
+	        $filters->filter[0]->value = $this->eid;
+	        $encounters = $this->Encounter->getEncounters($filters, false, false);
         }
 
         // Just do the empty thing for service event.
@@ -667,7 +675,7 @@ class CCDDocument extends CDDDocumentBase
             return $documentationOf;
         }
 
-        if(is_numeric($this->eid)){
+        if(count($encounters) == 1){
 
             $documentationOf = [
                 'serviceEvent' => [
@@ -685,12 +693,12 @@ class CCDDocument extends CDDDocumentBase
                         ],
                         'low' => [
                             '@attributes' => [
-                                'value' => $this->parseDate($this->encounter['service_date'])
+                                'value' => $this->parseDate($encounters[0]['service_date'])
                             ]
                         ],
                         'high' => [
                             '@attributes' => [
-                                'value' => $this->parseDate($this->encounter['service_date'])
+                                'value' => $this->parseDate($encounters[0]['service_date'])
                             ]
                         ]
                     ]
@@ -709,12 +717,12 @@ class CCDDocument extends CDDDocumentBase
                 'time' => [
                     'low' => [
                         '@attributes' => [
-                            'value' => $this->parseDate($this->encounter['service_date'])
+                            'value' => $this->parseDate($encounters[0]['service_date'])
                         ]
                     ],
                     'high' => [
                         '@attributes' => [
-                            'value' => $this->parseDate($this->encounter['service_date'])
+                            'value' => $this->parseDate($encounters[0]['service_date'])
                         ]
                     ]
                 ],
@@ -2436,6 +2444,20 @@ class CCDDocument extends CDDDocumentBase
      */
     public function setMedicationsAdministeredSection() {
 
+
+	    $Medications = new Medications();
+	    $medicationsData = $Medications->getPatientAdministeredMedicationsByPidAndEid($this->pid, $this->eid);
+
+	    if($this->eid == 'no_enc' || $this->isExcluded('administered')){
+		    $medications['@attributes'] = [
+			    'nullFlavor' => 'NI'
+		    ];
+	    }elseif(empty($medicationsData)){
+		    $medications['@attributes'] = [
+			    'nullFlavor' => 'NI'
+		    ];
+	    }
+
         $medications['templateId'] = [
             '@attributes' => [
                 'root' => '2.16.840.1.113883.10.20.22.2.38'
@@ -2452,18 +2474,12 @@ class CCDDocument extends CDDDocumentBase
         $medications['title'] = 'Medications Administered';
         $medications['text'] = '';
 
-        if(is_numeric($this->eid) || $this->eid == 'all_enc'){
-            $Medications = new Medications();
-            $medicationsData = $Medications->getPatientAdministeredMedicationsByPidAndEid($this->pid, $this->eid);
-        } elseif($this->eid == 'no_enc' || $this->isExcluded('administered')) {
-            $medications['@attributes'] = [
-                'nullFlavor' => 'UNK'
-            ];
-            $this->addSection(['section' => $medications]);
-            return;
-        }
-
         unset($Medications);
+
+        if($this->eid == 'no_enc' || $this->isExcluded('administered') || empty($medicationsData)){
+	        $this->addSection(['section' => $medications]);
+	        return;
+        }
 
         if(!empty($medicationsData)){
             $medications['text'] = [
@@ -3626,7 +3642,10 @@ class CCDDocument extends CDDDocumentBase
                 $tempEncounter = $EncounterDiagnostics->getEncounter($diagnostic['eid'], false, false);
                 $diagnosticsData[$index]['encounter'] = $tempEncounter['encounter'];
             }
-        } elseif($this->isExcluded('problems') || empty($problemsData)) {
+        }
+
+
+        if($this->isExcluded('problems') || (empty($problemsData) && empty($diagnosticsData))) {
             $problems['@attributes'] = [
                 'nullFlavor' => 'NI'
             ];
@@ -3656,38 +3675,60 @@ class CCDDocument extends CDDDocumentBase
 
         unset($ActiveProblems, $EncounterDiagnostics);
 
-        $problems['entry'] = [];
+
 
         // List patient problems.
-        if(!empty($problemsData)){
-            $problems['text'] = [
-                'table' => [
-                    '@attributes' => [
-                        'border' => '1',
-                        'width' => '100%'
-                    ],
-                    'thead' => [
-                        'tr' => [
-                            [
-                                'th' => [
-                                    [
-                                        '@value' => 'Condition'
-                                    ],
-                                    [
-                                        '@value' => 'Effective Dates'
-                                    ],
-                                    [
-                                        '@value' => 'Condition Status'
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ],
-                    'tbody' => [
-                        'tr' => []
-                    ]
-                ]
-            ];
+        if(!empty($problemsData) || !empty($diagnosticsData)) {
+	        $problems['templateId'][] = [
+		        '@attributes' => [
+			        'root' => $this->requiredProblems ? '2.16.840.1.113883.10.20.22.2.5.1' : '2.16.840.1.113883.10.20.22.2.5'
+		        ]
+	        ];
+	        $problems['templateId'][] = [
+		        '@attributes' => [
+			        'root' => '2.16.840.1.113883.3.88.11.83.103'
+		        ]
+	        ];
+
+	        $problems['code'] = [
+		        '@attributes' => [
+			        'code' => '11450-4',
+			        'codeSystemName' => 'LOINC',
+			        'codeSystem' => '2.16.840.1.113883.6.1'
+		        ]
+	        ];
+	        $problems['title'] = 'Problems';
+	        $problems['text'] = [
+		        'table' => [
+			        '@attributes' => [
+				        'border' => '1',
+				        'width' => '100%'
+			        ],
+			        'thead' => [
+				        'tr' => [
+					        [
+						        'th' => [
+							        [
+								        '@value' => 'Condition'
+							        ],
+							        [
+								        '@value' => 'Effective Dates'
+							        ],
+							        [
+								        '@value' => 'Condition Status'
+							        ]
+						        ]
+					        ]
+				        ]
+			        ],
+			        'tbody' => [
+				        'tr' => []
+			        ]
+		        ]
+	        ];
+        }
+
+	    if(!empty($problemsData)) {
 
             foreach($problemsData as $item){
 
@@ -3848,37 +3889,6 @@ class CCDDocument extends CDDDocumentBase
 
         // List encounter diagnostic.
         if(!empty($diagnosticsData)){
-
-            if($problems['text']===''){
-                $problems['text'] = [
-                    'table' => [
-                        '@attributes' => [
-                            'border' => '1',
-                            'width' => '100%'
-                        ],
-                        'thead' => [
-                            'tr' => [
-                                [
-                                    'th' => [
-                                        [
-                                            '@value' => 'Condition'
-                                        ],
-                                        [
-                                            '@value' => 'Effective Dates'
-                                        ],
-                                        [
-                                            '@value' => 'Condition Status'
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ],
-                        'tbody' => [
-                            'tr' => []
-                        ]
-                    ]
-                ];
-            }
 
             foreach($diagnosticsData as $item){
 
@@ -5347,6 +5357,8 @@ class CCDDocument extends CDDDocumentBase
 
                 $functionalStatus['entry'][] = $entry;
             }
+        } else{
+
         }
 
         if($this->requiredResults || !empty($functionalStatus['entry'])){

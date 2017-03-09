@@ -467,14 +467,20 @@ class CCDDocumentParse
 			if ($entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']) {
 				$code = $this->codeHandler($entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['@attributes']);
 				$medication->RXCUI = $code['code'];
+				$medication->CODE = $code['code'];
 				$medication->STR = $code['code_text'];
 				unset($code);
 			}
 
-			// ndc
 			if(isset($medication->RXCUI) && $medication->RXCUI != ''){
+
+				// ndc
 				$ndc = $this->Rxnorm->getNDCByRxCUI($medication->RXCUI);
 				if($ndc !== false) $medication->NDC = $ndc;
+
+				// gs_code
+				$gs_code = $this->Rxnorm->getGsCodeByRxCUI($medication->RXCUI);
+				if($gs_code !== false) $medication->GS_CODE = $gs_code;
 			}
 
 
@@ -562,8 +568,8 @@ class CCDDocumentParse
 
 					$status = $rel['observation']['value']['@attributes'];
 					$problem->status = $status['displayName'];
-					$problem->status_code = $this->getCodeSystemName($status['codeSystem']);
-					$problem->status_code_type = $status['code'];
+					$problem->status_code = $status['code'];
+					$problem->status_status_code_typecode = $this->getCodeSystemName($status['codeSystem']);
 				}
 				unset($rel);
 			}

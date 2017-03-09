@@ -966,13 +966,7 @@ class CCDDocument extends CDDDocumentBase
     public function getComponentOf()
     {
 
-        if ($this->eid == 'no_enc') {
-            return;
-        } elseif ($this->eid == 'all_enc') {
-
-        } elseif (is_numeric($this->eid)) {
-
-        }
+        if ($this->eid == 'no_enc') return;
 
         $componentOf['encompassingEncounter'] = [
             'id' => [

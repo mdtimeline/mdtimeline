@@ -30,6 +30,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
 		'App.ux.LiveRaceMultipleSearch',
 		'App.ux.LiveMaritalMultipleSearch',
 		'App.ux.LiveLanguageMultipleSearch',
+        'App.ux.LivePhoneCommunicationMultipleSearch',
 		'Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter'
 	],
 	xtype: 'reportFilter',
@@ -77,9 +78,9 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
 					var provider_list = '',
 						field = Ext.ComponentQuery.query('reportFilter #provider_name')[0];
 					for (var i = 0; i < records.length; i++) {
-						provider_list = records[i].data.STR + ', ' + provider_list;
+						provider_list = records[i].data.option_name + ', ' + provider_list;
 					}
-					field.setValue(provider_list);
+					field.setValue(provider_list.substr(0,provider_list.length-2));
 				}
 			}
 		},
@@ -107,7 +108,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
 					for (var i = 0; i < records.length; i++) {
 						allergy_list = records[i].data.STR + ', ' + allergy_list;
 					}
-					field.setValue(allergy_list);
+					field.setValue(allergy_list.substr(0,allergy_list.length-2));
 				}
 			}
 		},
@@ -135,7 +136,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
 					for (var i = 0; i < records.length; i++) {
 						problem_list = records[i].data.FullySpecifiedName + ', ' + problem_list;
 					}
-					field.setValue(problem_list);
+					field.setValue(problem_list.substr(0,problem_list.length-2));
 				}
 			}
 		},
@@ -163,7 +164,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
 					for (var i = 0; i < records.length; i++) {
 						allergy_list = records[i].data.STR + ', ' + medication_list;
 					}
-					field.setValue(medication_list);
+					field.setValue(medication_list.substr(0,medication_list.length-2));
 				}
 			}
 		},
@@ -185,13 +186,13 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
 						Ext.ComponentQuery.query('reportFilter #race_name')[0].setValue('');
 					}
 				},
-				select: function (combo, records, eOpts) {
+				select: function (cmb, records, eOpts) {
 					var race_list = '',
 						field = Ext.ComponentQuery.query('reportFilter #race_name')[0];
 					for (var i = 0; i < records.length; i++) {
-						race_list = records[i].data.STR + ', ' + race_list;
-					}
-					field.setValue(race_list);
+                        race_list = records[i].data.option_name + ', ' + race_list;
+                    }
+					field.setValue(race_list.substr(0,race_list.length-2));
 				}
 			}
 		},
@@ -217,9 +218,9 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
 					var ethnicity_list = '',
 						field = Ext.ComponentQuery.query('reportFilter #ethnicity')[0];
 					for (var i = 0; i < records.length; i++) {
-						ethnicity_list = records[i].data.STR + ', ' + ethnicity_list;
+						ethnicity_list = records[i].data.option_name + ', ' + ethnicity_list;
 					}
-					field.setValue(ethnicity_list);
+					field.setValue(ethnicity_list.substr(0,ethnicity_list.length-2));
 				}
 			}
 		},
@@ -245,9 +246,9 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
 					var sex_list = '',
 						field = Ext.ComponentQuery.query('reportFilter #sex_name')[0];
 					for (var i = 0; i < records.length; i++) {
-						sex_list = records[i].data.STR + ', ' + sex_list;
+						sex_list = records[i].data.option_name + ', ' + sex_list;
 					}
-					field.setValue(sex_list);
+					field.setValue(sex_list.substr(0,sex_list.length-2));
 				}
 			}
 		},
@@ -274,9 +275,9 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
 					var communication_list = '',
 						field = Ext.ComponentQuery.query('reportFilter #phone_publicity_name')[0];
 					for (var i = 0; i < records.length; i++) {
-						communication_list = records[i].data.STR + ', ' + communication_list;
+						communication_list = records[i].data.option_name + ', ' + communication_list;
 					}
-					field.setValue(communication_list);
+					field.setValue(communication_list.substr(0,communication_list.length-2));
 				}
 			}
 		},
@@ -327,9 +328,9 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
 					var marital_list = '',
 						field = Ext.ComponentQuery.query('reportFilter #marital_name')[0];
 					for (var i = 0; i < records.length; i++) {
-						marital_list = records[i].data.STR + ', ' + marital_list;
+						marital_list = records[i].data.option_name + ', ' + marital_list;
 					}
-					field.setValue(marital_list);
+					field.setValue(marital_list.substr(0,marital_list.length-2));
 				}
 			}
 		},
@@ -357,9 +358,9 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
 					var lang_list = '',
 						field = Ext.ComponentQuery.query('reportFilter #language_name')[0];
 					for (var i = 0; i < records.length; i++) {
-						lang_list = records[i].data.STR + ', ' + lang_list;
+						lang_list = records[i].data.option_name + ', ' + lang_list;
 					}
-					field.setValue(lang_list);
+					field.setValue(lang_list.substr(0,lang_list.length-2));
 				}
 			}
 		},
@@ -372,10 +373,27 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
 		{
 			xtype: 'labresultvalues',
 			itemId: 'labResult',
-			submitValue: false,
+			submitValue: true,
 			name: 'lab_results',
             hideFieldLabel: false
-
-		}
+		},
+        {
+            xtype: 'hiddenfield',
+            itemId: 'lab_result_code',
+            name: 'lab_result_code',
+            value: null
+        },
+        {
+            xtype: 'hiddenfield',
+            itemId: 'lab_comparison',
+            name: 'lab_comparison',
+            value: null
+        },
+        {
+            xtype: 'hiddenfield',
+            itemId: 'lab_value',
+            name: 'lab_value',
+            value: null
+        }
 	]
 });

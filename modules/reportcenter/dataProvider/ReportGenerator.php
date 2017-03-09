@@ -266,21 +266,21 @@ class ReportGenerator
                 $fileContent = file_get_contents($filePointer);
 
                 $parameters = $reportParameters;
-                foreach ($parameters as $field) {
-                	$operator = isset($field['operator']) ? $field['operator'] : '=';
-                	$value = isset($field['value']) ? $field['value'] : '';
+                foreach ($parameters as $Index => $field) {
+                	$operator = '=';
+                	$value = isset($field) ? $field : '';
 
 	                // Copy all the request variables into the Prepared Values,
 	                // also check if it came from the grid form and normal form.
 	                // This because we need to do a POST-PREPARE the SQL statement
-                    $PrepareField[':' . $field['name']]['operator'] = $operator;
-                    $PrepareField[':' . $field['name']]['value'] = $value;
+                    $PrepareField[':' . $Index]['operator'] = $operator;
+                    $PrepareField[':' . $Index]['value'] = $value;
 
 	                // Copy all the request filter variables to the XML,
 	                // also check if it came from the grid form and normal form.
 	                // This because we need to do a POST-PREPARE the SQL statement
-	                $ReturnFilter[$field['name']]['operator'] = $operator;
-	                $ReturnFilter[$field['name']]['value'] = $value;
+	                $ReturnFilter[$Index]['operator'] = $operator;
+	                $ReturnFilter[$Index]['value'] = $value;
                 }
 
                 // Prepare all the variable fields in the SQL Statement
@@ -413,12 +413,12 @@ class ReportGenerator
 
             // Replace the filter key pairs. <!--filter_name-->
             foreach ($filters as $filter)
-                if(!is_array($filter['value'])) {
+                if(isset($filter['value']) && !is_array($filter['value'])) {
                     $htmlTemplate = str_ireplace('<!--' .
                          $filter['name'] . '-->',
                         (isset($filter['value']) ? $filter['value'] : ''),
                          $htmlTemplate);
-                } else {
+                } elseif(isset($filter['value']) && is_array($filter['value'])) {
                     $problems = '';
                     foreach($filter['value'] as $value){
                         $problems .= $value . ', ';

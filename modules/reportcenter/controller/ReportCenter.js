@@ -180,7 +180,7 @@ Ext.define('Modules.reportcenter.controller.ReportCenter', {
     onRender: function()
     {
         this.generateDocument('html');
-        this.getExportButton().enable();
+        //this.getExportButton().enable();
     },
 
     /**
@@ -214,28 +214,30 @@ Ext.define('Modules.reportcenter.controller.ReportCenter', {
         // start all over again.
         me.onReportWindowBeforeHide();
 
+        parameters = form.getValues();
+
         // Evaluates every field in the form, extract the submitFormat and other
         // things.
-        for(Index = 0; Index < fields.items.length; Index++) {
-            parameters[Index] = {};
-            switch(fields.items[Index].xtype){
-                case 'datefield':
-                case 'timefield':
-                    parameters[Index].name = fields.items[Index].name;
-                    if(fields.items[Index].submitFormat) {
-                        parameters[Index].value = Ext.util.Format.date(
-                            fields.items[Index].value, fields.items[Index].submitFormat
-                        );
-                    } else {
-                        parameters[Index].value = fields.items[Index].value;
-                    }
-                    break;
-                default:
-                    parameters[Index].name = fields.items[Index].name;
-                    parameters[Index].value = fields.items[Index].value;
-                    break;
-            }
-        }
+        // for(Index = 0; Index < fields.items.length; Index++) {
+        //     parameters[Index] = {};
+        //     switch(fields.items[Index].xtype){
+        //         case 'datefield':
+        //         case 'timefield':
+        //             parameters[Index].name = fields.items[Index].name;
+        //             if(fields.items[Index].submitFormat) {
+        //                 parameters[Index].value = Ext.util.Format.date(
+        //                     fields.items[Index].value, fields.items[Index].submitFormat
+        //                 );
+        //             } else {
+        //                 parameters[Index].value = fields.items[Index].value;
+        //             }
+        //             break;
+        //         default:
+        //             parameters[Index].name = fields.items[Index].name;
+        //             parameters[Index].value = fields.items[Index].value;
+        //             break;
+        //     }
+        // }
 
         // Sumarize all the variables into a single variable and then make
         // the rpc call will get data from the server, executing the SQL

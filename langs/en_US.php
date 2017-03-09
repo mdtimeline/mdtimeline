@@ -1723,5 +1723,5 @@ $LANG = array(
     'sex_search'                            => 'Gender Search',
     'race_search'                           => 'Race Search',
     'ethnicity_search'                      => 'Ethnicity Search',
-    'language_search'                       => 'language_search'
+    'language_search'                       => 'Language Search'
 );

@@ -19,16 +19,13 @@
 Ext.define('App.ux.LiveEthnicityMultipleSearch', {
     extend: 'App.ux.form.fields.BoxSelect',
     xtype: 'ethnicitymultiple',
-    validateOnChange: false,
-    validateOnBlur: false,
     allowBlank: true,
     editable: true,
     typeAhead: false,
     autoSelect: false,
-    createNewOnEnter: true,
-    createNewOnBlur: true,
     emptyText: _('ethnicity_search') + '...',
     queryMode: 'remote',
+    minChars: 3,
     forceSelection: false,
     displayField: 'option_name',
     valueField: 'option_value',
@@ -58,6 +55,14 @@ Ext.define('App.ux.LiveEthnicityMultipleSearch', {
             model: 'EthnicityMultipleModel' + me.id,
             pageSize: 25,
             autoLoad: false
+        });
+
+        Ext.apply(this, {
+            store: me.store,
+            listConfig: {
+                loadingText: _('searching') + '...'
+            },
+            pageSize: 25
         });
 
         Ext.apply(this, {

@@ -30,6 +30,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
 		'App.ux.LiveRaceMultipleSearch',
 		'App.ux.LiveMaritalMultipleSearch',
 		'App.ux.LiveLanguageMultipleSearch',
+        'App.ux.LivePhoneCommunicationMultipleSearch',
 		'Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter'
 	],
 	xtype: 'reportFilter',
@@ -372,7 +373,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
 		{
 			xtype: 'labresultvalues',
 			itemId: 'labResult',
-			submitValue: false,
+			submitValue: true,
 			name: 'lab_results',
             hideFieldLabel: false
 

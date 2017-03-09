@@ -64,6 +64,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter', 
 				itemId: 'LabResultValuesFilterLabField',
 				displayField: 'code_text',
 				valueField: 'code',
+                editable: false,
 				submitValue: false
 			},
 			{
@@ -86,6 +87,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter', 
 					]
 				}),
 				anchor: '100%',
+                editable: false,
 				emptyText: _('select_comparison'),
 				itemId: 'LabResultValuesFilterOperatorField',
 				displayField: 'name',
@@ -149,33 +151,34 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter', 
 			return;
 		}
 
-		fieldContainer.add({
-			xtype: 'checkboxfield',
-			boxLabel: Ext.String.format('{0} {1} {2}', lab_name, operator, value),
-			name: me.name,
-			checked: true,
-			inputValue: {
-				lab_code: lab_code,
-				lab_name: lab_name,
-				operator: operator,
-				value: value
-			},
-			listeners: {
-				change: function (field, value) {
-					if (!value) {
-						Ext.Function.defer(function () {
-							field.destroy();
-						}, 200);
-					}
-				}
-			}
-		});
+        fieldContainer.add({
+            xtype: 'checkboxfield',
+            boxLabel: Ext.String.format('{0} {1} {2}', lab_name, operator, value),
+            name: me.name,
+            checked: true,
+            inputValue: {
+                lab_code: lab_code,
+                lab_name: lab_name,
+                operator: operator,
+                value: value
+            },
+            listeners: {
+                change: function (field, value) {
+                    if (!value) {
+                        Ext.Function.defer(function () {
+                            field.destroy();
+                        }, 200);
+                    }
+                }
+            }
+        });
+
 	},
 
 	reset: function () {
 		this.getComponent('LabResultValuesFilterLabField').reset();
 		this.getComponent('LabResultValuesFilterOperatorField').reset();
 		this.getComponent('LabResultValuesFilterValueField').reset();
-	},
+	}
 
 });

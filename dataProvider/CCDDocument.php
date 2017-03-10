@@ -2519,18 +2519,18 @@ class CCDDocument extends CDDDocumentBase
                     ]
                 ];
 
-                if($active){
-                    $entry['substanceAdministration']['effectiveTime']['high'] = [
-                        '@attributes' => [
-                            'value' => $this->parseDate($item['end_date'])
-                        ]
-                    ];
+                if(!isset($item['end_date']) || $item['end_date'] == '0000-00-00' || $item['end_date'] == '0000-00-00 00:00:00'){
+	                $entry['substanceAdministration']['effectiveTime']['high'] = [
+		                '@attributes' => [
+			                'nullFlavor' => 'NI'
+		                ]
+	                ];
                 } else {
-                    $entry['substanceAdministration']['effectiveTime']['high'] = [
-                        '@attributes' => [
-                            'nullFlavor' => 'NI'
-                        ]
-                    ];
+	                $entry['substanceAdministration']['effectiveTime']['high'] = [
+		                '@attributes' => [
+			                'value' => $this->parseDate($item['end_date'])
+		                ]
+	                ];
                 }
 
                 $entry['substanceAdministration']['consumable'] = [

@@ -2465,7 +2465,7 @@ class CCDDocument extends CDDDocumentBase
                             '@value' => $item['begin_date'] ? date('F j, Y', strtotime($item['begin_date'])) : ' '
                         ],
                         [
-                            '@value' => $active ? 'Active' : 'In Active'
+                            '@value' => $active ? 'Active' : 'Inactive'
                         ]
                     ]
                 ];

@@ -150,6 +150,13 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter', 
 			return;
 		}
 
+        item = {
+            lab_code: lab_code,
+            lab_name: lab_name,
+            operator: operator,
+            value: value
+        };
+
         fieldContainer.add({
             xtype: 'checkboxfield',
             boxLabel: Ext.String.format('{0} {1} {2}', lab_name, operator, value),
@@ -167,17 +174,11 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter', 
                         Ext.Function.defer(function () {
                             field.destroy();
                         }, 200);
-                        me.fireEvent('removeItem', me, field, value);
+                        me.fireEvent('removeItem', me, field, item);
                     }
                 }
             }
         });
-        item = {
-            lab_code: lab_code,
-            lab_name: lab_name,
-            operator: operator,
-            value: value
-        };
         me.fireEvent('addItem', me, item);
 
 	},
@@ -186,7 +187,7 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter', 
 		this.getComponent('LabResultValuesFilterLabField').reset();
 		this.getComponent('LabResultValuesFilterOperatorField').reset();
 		this.getComponent('LabResultValuesFilterValueField').reset();
-        this.fireEvent('reset', me);
+        this.fireEvent('reset', this);
 	}
 
 });

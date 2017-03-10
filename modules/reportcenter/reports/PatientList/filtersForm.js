@@ -378,28 +378,75 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
             hideFieldLabel: false,
             listeners: {
                 addItem: function (combo, record, eOpts) {
-                    var temp,
+                    var temp,array,
                         field = Ext.ComponentQuery.query('reportFilter #laboratory_results')[0],
                         lab_code = Ext.ComponentQuery.query('reportFilter #lab_result_code')[0],
                         lab_value = Ext.ComponentQuery.query('reportFilter #lab_value')[0],
                         lab_comparison = Ext.ComponentQuery.query('reportFilter #lab_comparison')[0];
 
-                    field.setValue(field.getValue()+record.lab_name+': '+record.operator+record.value+', ');
+                    temp='';
+                    array = field.getValue().split(',');
+                    for(i=0; i < array.length; i++) if(array[i] != "") temp += array[i]+', ';
+                    temp += record.lab_name+': '+record.operator+record.value;
+                    field.setValue(temp);
 
-                    lab_code.setValue( lab_code.getValue()+record.lab_code+',');
-                    lab_comparison.setValue(lab_comparison.getValue()+record.lab_comparison+',');
-                    lab_value.setValue(lab_value.getValue()+record.lab_value+',');
+                    // Lab Code compile
+                    temp='';
+                    array = lab_code.getValue().split(',');
+                    for(i=0; i < array.length; i++) if(array[i] != "") temp += array[i]+',';
+                    temp += record.lab_code;
+                    lab_code.setValue(temp);
+
+                    // Lab Comparison compile
+                    temp='';
+                    array = lab_comparison.getValue().split(',');
+                    for(i=0; i < array.length; i++) if(array[i] != "") temp += array[i]+record.operator+',';
+                    lab_comparison.setValue(temp.substr(0,temp.length-1));
+
+                    // Lab Value compile
+                    temp='';
+                    array = lab_value.getValue().split(',');
+                    for(i=0; i < array.length; i++) if(array[i] != "") temp += array[i]+record.value+',';
+                    lab_value.setValue(temp.substr(0,temp.length-1));
                 },
                 removeItem: function(combo, record, value){
-                    var field = Ext.ComponentQuery.query('reportFilter #laboratory_results')[0],
+                    var temp,array,
+                        field = Ext.ComponentQuery.query('reportFilter #laboratory_results')[0],
                         lab_code = Ext.ComponentQuery.query('reportFilter #lab_result_code')[0],
                         lab_value = Ext.ComponentQuery.query('reportFilter #lab_value')[0],
                         lab_comparison = Ext.ComponentQuery.query('reportFilter #lab_comparison')[0];
 
+                    // Eliminate the Lab code from the source
+                    if(value.lab_code == lab_code.getValue()) {
+                        lab_code.setValue('');
+                    } else {
+                        temp='';
+                        array = lab_code.getValue().split(',');
+                        for(i=0; i<array.length;i++) if(array[i] != value.lab_code) temp += array[i]+',';
+                        lab_code.setValue(temp.substr(0,temp.length-1));
+                    }
+
+                    // Eliminate the Lab comparison from the source
+                    if(value.operator == lab_comparison.getValue()) {
+                        lab_comparison.setValue('');
+                    } else {
+                        temp='';
+                        array = lab_comparison.getValue().split(',');
+                        for(i=0; i<array.length;i++) if(array[i] != value.operator) temp += array[i]+',';
+                        lab_comparison.setValue(temp.substr(0,temp.length-1));
+                    }
+
+                    // Eliminate the Lab value from the source
+                    if(value.value == lab_value.getValue()) {
+                        lab_value.setValue('');
+                    } else {
+                        temp='';
+                        array = lab_value.getValue().split(',');
+                        for(i=0; i<array.length;i++) if(array[i] != value.value) temp += array[i]+',';
+                        lab_value.setValue(temp.substr(0,temp.length-1));
+                    }
+
                     field.setValue('');
-                    lab_code.setValue('');
-                    lab_comparison.setValue('');
-                    lab_value.setValue('');
                 }
             }
 		},

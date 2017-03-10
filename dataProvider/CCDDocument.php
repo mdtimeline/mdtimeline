@@ -1350,6 +1350,34 @@ class CCDDocument extends CDDDocumentBase
 			        'text' => ''
 		        ];
 	        }else{
+
+        		if(!$this->isExcluded('visit_date_location')){
+
+			        $location = ' -- Location: ';
+			        if(isset($this->encounterFacility['address']) && $this->encounterFacility['address'] != ''){
+				        $location .= $this->encounterFacility['address'] . ' ';
+			        }
+			        if(isset($this->encounterFacility['address_cont']) && $this->encounterFacility['address_cont'] != ''){
+				        $location .= $this->encounterFacility['address_cont'] . ' ';
+			        }
+			        if(isset($this->encounterFacility['city']) && $this->encounterFacility['city'] != ''){
+				        $location .= $this->encounterFacility['city'] . ' ';
+			        }
+			        if(isset($this->encounterFacility['state']) && $this->encounterFacility['state'] != ''){
+				        $location .= $this->encounterFacility['state'] . ' ';
+			        }
+			        if(isset($this->encounterFacility['postal_code']) && $this->encounterFacility['postal_code'] != ''){
+				        $location .= $this->encounterFacility['postal_code'] . ' ';
+			        }
+			        if(isset($this->encounterFacility['country_code']) && $this->encounterFacility['country_code'] != ''){
+				        $location .= $this->encounterFacility['country_code'] . ' ';
+			        }
+
+		        }else{
+        			$location = '';
+		        }
+
+
 		        $reason = [
 			        'templateId' => [
 				        '@attributes' => [
@@ -1365,8 +1393,11 @@ class CCDDocument extends CDDDocumentBase
 				        ]
 			        ],
 			        'title' => 'Reason for Visit',
-			        'text' => $this->encounter['brief_description']
+			        'text' => $this->encounter['brief_description'] . $location
 		        ];
+
+
+
 	        }
 
 
@@ -1395,7 +1426,19 @@ class CCDDocument extends CDDDocumentBase
             $params->filter[0]->value = $this->eid;
             $encounter = $Encounter->getEncounter($params, false, false);
             $soap = $this->Encounter->getSoapByEid($encounter['encounter']['eid']);
-            $tempSoap = $soap['instructions'];
+            $tempSoap = 'Instructions: '. $soap['instructions'];
+
+            if(!$this->isExcluded('patient_decision_aids')){
+	            $codes = [];
+	            $DecisionAids = new DecisionAids();
+	            $decisionAids = $DecisionAids->getDecisionAidsByTriggerCodes($codes);
+	            if(count($decisionAids) > 0){
+		            $tempSoap .= ' -- Educational Resources: ' . $decisionAids[0]['instruction_code_description'];
+	            }
+            }
+
+			unset($decisionAids, $DecisionAids);
+
         }elseif($this->eid === 'no_enc'){
             $tempSoap = 'No instruction to show';
         }
@@ -1452,14 +1495,54 @@ class CCDDocument extends CDDDocumentBase
 
     public function setReasonForReferralSection()
     {
-        if(isset($this->encounter) && !empty($referral['refer_to'])) {
+
+        if(isset($this->encounter)) {
 
             $Referrals = new Referrals();
             $ReferringProviders = new ReferringProviders();
 
             $referral = $Referrals->getPatientReferralByEid($this->encounter['eid']);
+
+            if($referral == false){
+				return;
+            }
+
             $referringProvider = $ReferringProviders->getReferringProviderById($referral['refer_to']);
+
             unset($Referrals, $ReferringProviders);
+
+            $text = '';
+
+            if($referral['referal_reason'] != ''){
+	            $text .= $referral['referal_reason'] . ', ';
+            }
+
+	        $text .= $referringProvider['title'] . ' ' . $referringProvider['fname'] . ' ' . $referringProvider['lname'];
+
+            if(is_array($referringProvider['facilities']) && isset($referringProvider['facilities'][0])){
+
+            	if($referringProvider['facilities'][0]['phone_number'] != ''){
+		            $text .= $referringProvider['facilities'][0]['phone_number'] . ', ';
+	            }
+	            if($referringProvider['facilities'][0]['name'] != '') {
+		            $text .= $referringProvider['facilities'][0]['name'] . ', ';
+	            }
+	            if($referringProvider['facilities'][0]['address'] != '') {
+		            $text .= $referringProvider['facilities'][0]['address'] . ' ';
+	            }
+	            if($referringProvider['facilities'][0]['address_cont'] != '') {
+		            $text .= $referringProvider['facilities'][0]['address_cont'] . ', ';
+	            }
+	            if($referringProvider['facilities'][0]['city'] != '') {
+		            $text .= $referringProvider['facilities'][0]['city'] . ' ';
+	            }
+	            if($referringProvider['facilities'][0]['state'] != '') {
+		            $text .= $referringProvider['facilities'][0]['state'] . ' ';
+	            }
+	            if($referringProvider['facilities'][0]['postal_code'] != '') {
+		            $text .= $referringProvider['facilities'][0]['postal_code'];
+	            }
+            }
 
             $reasonForReferral = [
                 'templateId' => [
@@ -1476,17 +1559,7 @@ class CCDDocument extends CDDDocumentBase
                     ]
                 ],
                 'title' => 'Reason for Referral',
-                'text' => $referral['referal_reason'] . ', ' .
-                    $referringProvider['title'] . ' ' .
-                    $referringProvider['fname'] . ' ' .
-                    $referringProvider['lname'] . ', ' .
-                    $referringProvider['facilities'][0]['phone_number'] . ', ' .
-                    $referringProvider['facilities'][0]['name'] . ', ' .
-                    $referringProvider['facilities'][0]['address'] . ' ' .
-                    $referringProvider['facilities'][0]['address_cont'] . ', ' .
-                    $referringProvider['facilities'][0]['city'] . ' ' .
-                    $referringProvider['facilities'][0]['state'] . ' ' .
-                    $referringProvider['facilities'][0]['postal_code']
+                'text' => $text
             ];
 
             $this->addSection(['section' => $reasonForReferral]);
@@ -2347,6 +2420,9 @@ class CCDDocument extends CDDDocumentBase
                             [
                                 'th' => [
                                     [
+                                        '@value' => 'RxNorm'
+                                    ],
+                                    [
                                         '@value' => 'Medication'
                                     ],
                                     [
@@ -2371,8 +2447,14 @@ class CCDDocument extends CDDDocumentBase
             $medications['entry'] = [];
 
             foreach($medicationsData as $item){
+
+            	$active = isset($item['end_date']) && $item['end_date'] != '0000-00-00';
+
                 $medications['text']['table']['tbody']['tr'][] = [
                     'td' => [
+                        [
+                            '@value' => $item['RXCUI']
+                        ],
                         [
                             '@value' => $item['STR'] . ' ' . $item['dose'] . ' ' . $item['form']
                         ],
@@ -2383,7 +2465,7 @@ class CCDDocument extends CDDDocumentBase
                             '@value' => $item['begin_date'] ? date('F j, Y', strtotime($item['begin_date'])) : ' '
                         ],
                         [
-                            '@value' => isset($item['end_date']) ? 'Non active' : 'Active'
+                            '@value' => $active ? 'Active' : 'In Active'
                         ]
                     ]
                 ];
@@ -2407,7 +2489,7 @@ class CCDDocument extends CDDDocumentBase
 
                 $entry['substanceAdministration']['text'] = $item['STR'];
 
-                if(isset($item['end_date']) && $item['end_date'] != '0000-00-00') {
+                if($active) {
                     $entry['substanceAdministration']['statusCode'] = [
                         '@attributes' => [
                             'code' => 'active'
@@ -2429,14 +2511,14 @@ class CCDDocument extends CDDDocumentBase
 
                 $entry['substanceAdministration']['effectiveTime']['low'] = [
                     '@attributes' => [
-                        'value' => $this->parseDate(strtotime($item['begin_date']))
+                        'value' => $this->parseDate($item['begin_date'])
                     ]
                 ];
 
-                if(isset($item['end_date']) && $item['end_date'] != '0000-00-00'){
+                if($active){
                     $entry['substanceAdministration']['effectiveTime']['high'] = [
                         '@attributes' => [
-                            'value' => $this->parseDate(strtotime($item['end_date']))
+                            'value' => $this->parseDate($item['end_date'])
                         ]
                     ];
                 } else {

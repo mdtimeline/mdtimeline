@@ -1517,7 +1517,7 @@ class CCDDocument extends CDDDocumentBase
 	            $text .= $referral['referal_reason'] . ', ';
             }
 
-	        $text .= $referringProvider['title'] . ' ' . $referringProvider['fname'] . ' ' . $referringProvider['lname'];
+	        $text .= $referringProvider['title'] . ' ' . $referringProvider['fname'] . ' ' . $referringProvider['lname'] . ' ';
 
             if(is_array($referringProvider['facilities']) && isset($referringProvider['facilities'][0])){
 
@@ -3558,7 +3558,7 @@ class CCDDocument extends CDDDocumentBase
 
                         $text .= ' -- ';
 
-	                    $text .= $referringProvider['title'] . ' ' . $referringProvider['fname'] . ' ' . $referringProvider['lname'];
+	                    $text .= $referringProvider['title'] . ' ' . $referringProvider['fname'] . ' ' . $referringProvider['lname'] . ' ';
 
 	                    if(is_array($referringProvider['facilities']) && isset($referringProvider['facilities'][0])){
 

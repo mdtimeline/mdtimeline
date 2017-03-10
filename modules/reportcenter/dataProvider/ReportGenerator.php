@@ -267,20 +267,11 @@ class ReportGenerator
 
                 $parameters = $reportParameters;
                 foreach ($parameters as $Index => $field) {
-                	$operator = '=';
-                	$value = isset($field) ? $field : '';
-
-	                // Copy all the request variables into the Prepared Values,
-	                // also check if it came from the grid form and normal form.
-	                // This because we need to do a POST-PREPARE the SQL statement
+                    $operator = '=';
                     $PrepareField[':' . $Index]['operator'] = $operator;
-                    $PrepareField[':' . $Index]['value'] = $value;
-
-	                // Copy all the request filter variables to the XML,
-	                // also check if it came from the grid form and normal form.
-	                // This because we need to do a POST-PREPARE the SQL statement
-	                $ReturnFilter[$Index]['operator'] = $operator;
-	                $ReturnFilter[$Index]['value'] = $value;
+                    $PrepareField[':' . $Index]['value'] = $field;
+                    $ReturnFilter[$Index]['operator'] = $operator;
+                    $ReturnFilter[$Index]['value'] = $field;
                 }
 
                 // Prepare all the variable fields in the SQL Statement
@@ -421,7 +412,7 @@ class ReportGenerator
                 } elseif(isset($filter) && is_array($filter)) {
                     $items = '';
                     foreach($filter as $Index => $value){
-                        $items .= $value . ' ';
+                        if(!is_array($value)) $items .= $value . ' ';
                     }
                     $htmlTemplate = str_ireplace(
                         '<!--'.$Index.'-->',
@@ -604,7 +595,7 @@ class ReportGenerator
             }elseif(is_array($variable['value'])){
                 $prepareVariable = '"';
                 foreach($variable['value'] as $value){
-                    $prepareVariable .= $value.',';
+                    if(!is_array($value)) $prepareVariable .= $value.',';
                 }
                 $prepareVariable = substr($prepareVariable, 0,-1);
                 $prepareVariable .= '"';
@@ -615,5 +606,13 @@ class ReportGenerator
             $sqlStatement = str_ireplace($prepareKey . '_operator', $variable['operator'], $sqlStatement);
         }
         return $sqlStatement;
+    }
+
+    private function __isJson($string)
+    {
+        if($string === null) return false;
+        if(empty($string)) return false;
+        json_decode($string);
+        return (json_last_error() == JSON_ERROR_NONE);
     }
 }

@@ -258,21 +258,16 @@ AND
 
 CASE
 	WHEN @LabOrderCode IS NOT NULL AND @LabOrderValue IS NULL AND @LabOrderOperator IS NULL
-	THEN patient_orders.code = @LabOrderCode
-    ELSE 1=1
-END
+	THEN FIND_IN_SET(patient_orders.code, @LabOrderCode)
 
-AND
-
-CASE
-	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '=' AND @LabOrderCode IS NOT NULL
-	THEN patient_order_results_observations.value = @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
+	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator IS NO NULL AND @LabOrderCode IS NOT NULL
+	THEN patient_order_results_observations.value = @LabOrderValue AND FIND_IN_SET(patient_order_results_observations.code, @LabOrderCode)
 
 	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '>=' AND @LabOrderCode IS NOT NULL
-	THEN patient_order_results_observations.value > @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
+	THEN patient_order_results_observations.value > @LabOrderValue AND FIND_IN_SET(patient_order_results_observations.code, @LabOrderCode)
 
 	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '<=' AND @LabOrderCode IS NOT NULL
-	THEN patient_order_results_observations.value < @LabOrderValue AND patient_order_results_observations.code = @LabOrderCode
+	THEN patient_order_results_observations.value < @LabOrderValue AND FIND_IN_SET(patient_order_results_observations.code, @LabOrderCode)
 	ELSE 1=1
 END
 

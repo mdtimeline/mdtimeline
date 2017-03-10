@@ -215,6 +215,7 @@ Ext.define('Modules.reportcenter.controller.ReportCenter', {
         me.onReportWindowBeforeHide();
 
         parameters = form.getValues();
+        console.log(parameters);
 
         // Sumarize all the variables into a single variable and then make
         // the rpc call will get data from the server, executing the SQL

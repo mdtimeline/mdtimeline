@@ -34,14 +34,8 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter', 
 		Ext.define('ReportLabResultValueFilterModel', {
 			extend: 'Ext.data.Model',
 			fields: [
-				{
-					name: 'code',
-					type: 'string'
-				},
-				{
-					name: 'code_text',
-					type: 'string'
-				}
+				{name: 'code', type: 'string'},
+				{name: 'code_text', type: 'string'}
 			],
 			proxy: {
 				type: 'direct',
@@ -78,11 +72,11 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter', 
 					data: [
 						{
 							"name": "More than",
-							"value": ">="
+							"value": ">"
 						},
 						{
 							"name": "Less than",
-							"value": "<="
+							"value": "<"
 						},
 						{
 							"name": "Equal to",

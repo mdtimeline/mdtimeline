@@ -378,10 +378,28 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
             hideFieldLabel: false,
             listeners: {
                 addItem: function (combo, record, eOpts) {
-                    var result_list = '',
-                        field = Ext.ComponentQuery.query('reportFilter #laboratory_results')[0];
-                        result_list = record.lab_name+': '+record.operator+record.value+', '+result_list;
-                    field.setValue(result_list.substr(0,result_list.length-2));
+                    var temp,
+                        field = Ext.ComponentQuery.query('reportFilter #laboratory_results')[0],
+                        lab_code = Ext.ComponentQuery.query('reportFilter #lab_result_code')[0],
+                        lab_value = Ext.ComponentQuery.query('reportFilter #lab_value')[0],
+                        lab_comparison = Ext.ComponentQuery.query('reportFilter #lab_comparison')[0];
+
+                    field.setValue(field.getValue()+record.lab_name+': '+record.operator+record.value+', ');
+
+                    lab_code.setValue( lab_code.getValue()+record.lab_code+',');
+                    lab_comparison.setValue(lab_comparison.getValue()+record.lab_comparison+',');
+                    lab_value.setValue(lab_value.getValue()+record.lab_value+',');
+                },
+                removeItem: function(combo, record, value){
+                    var field = Ext.ComponentQuery.query('reportFilter #laboratory_results')[0],
+                        lab_code = Ext.ComponentQuery.query('reportFilter #lab_result_code')[0],
+                        lab_value = Ext.ComponentQuery.query('reportFilter #lab_value')[0],
+                        lab_comparison = Ext.ComponentQuery.query('reportFilter #lab_comparison')[0];
+
+                    field.setValue('');
+                    lab_code.setValue('');
+                    lab_comparison.setValue('');
+                    lab_value.setValue('');
                 }
             }
 		},

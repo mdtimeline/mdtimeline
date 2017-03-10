@@ -1829,22 +1829,28 @@ class CCDDocument extends CDDDocumentBase
                 $vitals['text']['table']['thead']['tr'][0]['th'][] = [
                     '@value' => date('F j, Y h:i A', strtotime($item['date']))
                 ];
-                // Height
-                $vitals['text']['table']['tbody']['tr'][0]['td'][] = [
-                    '@value' => $item['height_cm'] . ' '.$this->height_measure
-                ];
+
+	            // Height
+	            $height = $this->height_measure == 'in' ? $item['height_in'] : $item['height_in'];
+	            $vitals['text']['table']['tbody']['tr'][0]['td'][] = [
+		            '@value' => $height . ' '.$this->height_measure
+	            ];
                 // Weight
+	            $weight = $this->weight_measure == 'lbs' ? $item['weight_lbs'] : $item['weight_kg'];
                 $vitals['text']['table']['tbody']['tr'][1]['td'][] = [
-                    '@value' => $item['weight_kg'] . ' '.$this->weight_measure
+                    '@value' => $weight . ' ' . $this->weight_measure
                 ];
+
                 // Blood Pressure
                 $vitals['text']['table']['tbody']['tr'][2]['td'][] = [
                     '@value' => $item['bp_systolic'] . '/' . $item['bp_diastolic'] . ' mmHg'
                 ];
+
                 // BMI (Body Mass Index)
                 $vitals['text']['table']['tbody']['tr'][3]['td'][] = [
                     '@value' => $item['bmi'] . ' kg/m2'
                 ];
+
                 // Code Entry
                 $entry = [
                     '@attributes' => [
@@ -1921,7 +1927,7 @@ class CCDDocument extends CDDDocumentBase
                                     'value' => [
                                         '@attributes' => [
                                             'xsi:type' => 'PQ',
-                                            'value' => $item['height_cm'],
+                                            'value' => $height,
                                             'unit' => $this->height_measure
                                         ]
                                     ]
@@ -1964,7 +1970,7 @@ class CCDDocument extends CDDDocumentBase
                                     'value' => [
                                         '@attributes' => [
                                             'xsi:type' => 'PQ',
-                                            'value' => $item['weight_kg'],
+                                            'value' => $weight,
                                             'unit' => $this->weight_measure
                                         ]
                                     ]
@@ -3862,29 +3868,29 @@ class CCDDocument extends CDDDocumentBase
         $problemsData = $ActiveProblems->getPatientAllProblemsByPid($this->pid);
 
         $EncounterDiagnostics = new Encounter();
-        $diagnosticsData = [];
+//        $diagnosticsData = [];
         $params = new stdClass();
         $params->filter[0] = new stdClass();
-        if(is_numeric($this->eid)){
-            $params->filter[0]->property = 'eid';
-            $params->filter[0]->value = $this->eid;
-            $diagnosticsData = $EncounterDiagnostics->getEncounterDxs($params);
-            if(!empty($diagnosticsData)){
-                $tempEncounter = $EncounterDiagnostics->getEncounter($this->eid, false, false);
-                $diagnosticsData['encounter'] = $tempEncounter['encounter'];
-            }
-        } elseif($this->eid == 'all_enc') {
-            $params->filter[0]->property = 'pid';
-            $params->filter[0]->value = $this->pid;
-            $diagnosticsData = $EncounterDiagnostics->getEncounterDxs($params);
-            foreach($diagnosticsData as $index => $diagnostic){
-                $tempEncounter = $EncounterDiagnostics->getEncounter($diagnostic['eid'], false, false);
-                $diagnosticsData[$index]['encounter'] = $tempEncounter['encounter'];
-            }
-        }
+//        if(is_numeric($this->eid)){
+////            $params->filter[0]->property = 'eid';
+////            $params->filter[0]->value = $this->eid;
+////            $diagnosticsData = $EncounterDiagnostics->getEncounterDxs($params);
+////            if(!empty($diagnosticsData)){
+////                $tempEncounter = $EncounterDiagnostics->getEncounter($this->eid, false, false);
+////                $diagnosticsData['encounter'] = $tempEncounter['encounter'];
+////            }
+//        } elseif($this->eid == 'all_enc') {
+////            $params->filter[0]->property = 'pid';
+////            $params->filter[0]->value = $this->pid;
+////            $diagnosticsData = $EncounterDiagnostics->getEncounterDxs($params);
+////            foreach($diagnosticsData as $index => $diagnostic){
+////                $tempEncounter = $EncounterDiagnostics->getEncounter($diagnostic['eid'], false, false);
+////                $diagnosticsData[$index]['encounter'] = $tempEncounter['encounter'];
+////            }
+//        }
 
 
-        if($this->isExcluded('problems') || (empty($problemsData) && empty($diagnosticsData))) {
+        if($this->isExcluded('problems') || empty($problemsData)) {
             $problems['@attributes'] = [
                 'nullFlavor' => 'NI'
             ];
@@ -3917,7 +3923,7 @@ class CCDDocument extends CDDDocumentBase
 
 
         // List patient problems.
-        if(!empty($problemsData) || !empty($diagnosticsData)) {
+        if(!empty($problemsData)) {
 	        $problems['templateId'][] = [
 		        '@attributes' => [
 			        'root' => $this->requiredProblems ? '2.16.840.1.113883.10.20.22.2.5.1' : '2.16.840.1.113883.10.20.22.2.5'
@@ -4126,158 +4132,158 @@ class CCDDocument extends CDDDocumentBase
             }
         }
 
-        // List encounter diagnostic.
-        if(!empty($diagnosticsData)){
-
-            foreach($diagnosticsData as $item){
-
-                $dateText = $this->parseDate($item['encounter']['service_date']) . ' - ';
-                if(isset($item['encounter']['close_date']) && $item['encounter']['close_date'] != '0000-00-00')
-                    $dateText .= $this->parseDate($item['encounter']['close_date']);
-
-                $problems['text']['table']['tbody']['tr'][] = [
-                    'td' => [
-                        [
-                            '@value' => isset($item['code_text']) ? 'Diagnostic: '.$item['code_text'] : ''
-                        ],
-                        [
-                            '@value' => $dateText
-                        ],
-                        [
-                            '@value' => 'Completed'
-                        ]
-                    ]
-
-                ];
-
-                $entry = [
-                    'act' => [
-                        '@attributes' => [
-                            'classCode' => 'ACT',
-                            'moodCode' => 'EVN'
-                        ],
-                        'templateId' => [
-                            '@attributes' => [
-                                'root' => '2.16.840.1.113883.10.20.22.4.3'
-                            ]
-                        ],
-                        'id' => [
-                            '@attributes' => [
-                                'root' => UUID::v4()
-                            ]
-                        ],
-                        'code' => [
-                            '@attributes' => [
-                                'code' => 'CONC',
-                                'codeSystemName' => 'ActClass',
-                                'codeSystem' => '2.16.840.1.113883.5.6',
-                                'displayName' => 'Concern'
-                            ]
-                        ],
-                        'statusCode' => [
-                            '@attributes' => [
-                                // active ||  suspended ||  aborted ||  completed
-                                'code' => 'active'
-                            ]
-                        ]
-                    ]
-                ];
-
-                $entry['act']['effectiveTime'] = [
-                    '@attributes' => [
-                        'xsi:type' => 'IVL_TS'
-                    ]
-                ];
-                $entry['act']['effectiveTime']['low'] = [
-                    '@attributes' => [
-                        'value' => $this->parseDate($item['encounter']['service_date'])
-                    ]
-                ];
-                if(isset($item['encounter']['close_date']) && $item['encounter']['close_date'] != '0000-00-00'){
-                    $entry['act']['effectiveTime']['high'] = [
-                        '@attributes' => [
-                            'value' => $this->parseDate($item['encounter']['close_date'])
-                        ]
-                    ];
-                } else {
-                    $entry['act']['effectiveTime']['high'] = [
-                        '@attributes' => [
-                            'nullFlavor' => 'NI'
-                        ]
-                    ];
-                }
-
-                $entry['act']['entryRelationship'] = [
-                    '@attributes' => [
-                        'typeCode' => 'SUBJ'
-                    ],
-                    'observation' => [
-                        '@attributes' => [
-                            'classCode' => 'OBS',
-                            'moodCode' => 'EVN'
-                        ],
-                        'templateId' => [
-                            '@attributes' => [
-                                'root' => '2.16.840.1.113883.10.20.22.4.4'
-                            ]
-                        ],
-                        'id' => [
-                            '@attributes' => [
-                                'root' => UUID::v4()
-                            ]
-                        ],
-                        'code' => [
-                            '@attributes' => [
-                                'code' => '282291009',
-                                'displayName' => 'Diagnosis',
-                                'codeSystemName' => 'SNOMED CT',
-                                'codeSystem' => '2.16.840.1.113883.6.96'
-                            ]
-                        ],
-                        'statusCode' => [
-                            '@attributes' => [
-                                'code' => 'completed'
-                            ]
-                        ]
-                    ]
-                ];
-
-                $entry['act']['entryRelationship']['observation']['effectiveTime'] = [
-                    '@attributes' => [
-                        'xsi:type' => 'IVL_TS'
-                    ]
-                ];
-                $entry['act']['entryRelationship']['observation']['effectiveTime']['low'] = [
-                    '@attributes' => [
-                        'value' => $this->parseDate($item['encounter']['service_date'])
-                    ]
-                ];
-                if(isset($item['encounter']['end_date']) && $item['encounter']['end_date'] != '0000-00-00'){
-                    $entry['act']['entryRelationship']['observation']['effectiveTime']['high'] = [
-                        '@attributes' => [
-                            'value' => $this->parseDate($item['encounter']['close_date'])
-                        ]
-                    ];
-                } else {
-                    $entry['act']['entryRelationship']['observation']['effectiveTime']['high'] = [
-                        '@attributes' => [
-                            'nullFlavor' => 'NI'
-                        ]
-                    ];
-                }
-
-                $entry['act']['entryRelationship']['observation']['value'] = [
-                    '@attributes' => [
-                        'xsi:type' => 'CD',
-                        'code' => $item['code'],
-                        'codeSystemName' => $item['code_type'],
-                        'codeSystem' => $this->codes($item['code_type'])
-                    ]
-                ];
-                $problems['entry'][] = $entry;
-                unset($entry);
-            }
-        }
+//        // List encounter diagnostic.
+//        if(!empty($diagnosticsData)){
+//
+//            foreach($diagnosticsData as $item){
+//
+//                $dateText = $this->parseDate($item['encounter']['service_date']) . ' - ';
+//                if(isset($item['encounter']['close_date']) && $item['encounter']['close_date'] != '0000-00-00')
+//                    $dateText .= $this->parseDate($item['encounter']['close_date']);
+//
+//                $problems['text']['table']['tbody']['tr'][] = [
+//                    'td' => [
+//                        [
+//                            '@value' => isset($item['code_text']) ? 'Diagnostic: '.$item['code_text'] : ''
+//                        ],
+//                        [
+//                            '@value' => $dateText
+//                        ],
+//                        [
+//                            '@value' => 'Completed'
+//                        ]
+//                    ]
+//
+//                ];
+//
+//                $entry = [
+//                    'act' => [
+//                        '@attributes' => [
+//                            'classCode' => 'ACT',
+//                            'moodCode' => 'EVN'
+//                        ],
+//                        'templateId' => [
+//                            '@attributes' => [
+//                                'root' => '2.16.840.1.113883.10.20.22.4.3'
+//                            ]
+//                        ],
+//                        'id' => [
+//                            '@attributes' => [
+//                                'root' => UUID::v4()
+//                            ]
+//                        ],
+//                        'code' => [
+//                            '@attributes' => [
+//                                'code' => 'CONC',
+//                                'codeSystemName' => 'ActClass',
+//                                'codeSystem' => '2.16.840.1.113883.5.6',
+//                                'displayName' => 'Concern'
+//                            ]
+//                        ],
+//                        'statusCode' => [
+//                            '@attributes' => [
+//                                // active ||  suspended ||  aborted ||  completed
+//                                'code' => 'active'
+//                            ]
+//                        ]
+//                    ]
+//                ];
+//
+//                $entry['act']['effectiveTime'] = [
+//                    '@attributes' => [
+//                        'xsi:type' => 'IVL_TS'
+//                    ]
+//                ];
+//                $entry['act']['effectiveTime']['low'] = [
+//                    '@attributes' => [
+//                        'value' => $this->parseDate($item['encounter']['service_date'])
+//                    ]
+//                ];
+//                if(isset($item['encounter']['close_date']) && $item['encounter']['close_date'] != '0000-00-00'){
+//                    $entry['act']['effectiveTime']['high'] = [
+//                        '@attributes' => [
+//                            'value' => $this->parseDate($item['encounter']['close_date'])
+//                        ]
+//                    ];
+//                } else {
+//                    $entry['act']['effectiveTime']['high'] = [
+//                        '@attributes' => [
+//                            'nullFlavor' => 'NI'
+//                        ]
+//                    ];
+//                }
+//
+//                $entry['act']['entryRelationship'] = [
+//                    '@attributes' => [
+//                        'typeCode' => 'SUBJ'
+//                    ],
+//                    'observation' => [
+//                        '@attributes' => [
+//                            'classCode' => 'OBS',
+//                            'moodCode' => 'EVN'
+//                        ],
+//                        'templateId' => [
+//                            '@attributes' => [
+//                                'root' => '2.16.840.1.113883.10.20.22.4.4'
+//                            ]
+//                        ],
+//                        'id' => [
+//                            '@attributes' => [
+//                                'root' => UUID::v4()
+//                            ]
+//                        ],
+//                        'code' => [
+//                            '@attributes' => [
+//                                'code' => '282291009',
+//                                'displayName' => 'Diagnosis',
+//                                'codeSystemName' => 'SNOMED CT',
+//                                'codeSystem' => '2.16.840.1.113883.6.96'
+//                            ]
+//                        ],
+//                        'statusCode' => [
+//                            '@attributes' => [
+//                                'code' => 'completed'
+//                            ]
+//                        ]
+//                    ]
+//                ];
+//
+//                $entry['act']['entryRelationship']['observation']['effectiveTime'] = [
+//                    '@attributes' => [
+//                        'xsi:type' => 'IVL_TS'
+//                    ]
+//                ];
+//                $entry['act']['entryRelationship']['observation']['effectiveTime']['low'] = [
+//                    '@attributes' => [
+//                        'value' => $this->parseDate($item['encounter']['service_date'])
+//                    ]
+//                ];
+//                if(isset($item['encounter']['end_date']) && $item['encounter']['end_date'] != '0000-00-00'){
+//                    $entry['act']['entryRelationship']['observation']['effectiveTime']['high'] = [
+//                        '@attributes' => [
+//                            'value' => $this->parseDate($item['encounter']['close_date'])
+//                        ]
+//                    ];
+//                } else {
+//                    $entry['act']['entryRelationship']['observation']['effectiveTime']['high'] = [
+//                        '@attributes' => [
+//                            'nullFlavor' => 'NI'
+//                        ]
+//                    ];
+//                }
+//
+//                $entry['act']['entryRelationship']['observation']['value'] = [
+//                    '@attributes' => [
+//                        'xsi:type' => 'CD',
+//                        'code' => $item['code'],
+//                        'codeSystemName' => $item['code_type'],
+//                        'codeSystem' => $this->codes($item['code_type'])
+//                    ]
+//                ];
+//                $problems['entry'][] = $entry;
+//                unset($entry);
+//            }
+//        }
 
         if($this->requiredProblems || !empty($problems['entry'])){
             $this->addSection(['section' => $problems]);
@@ -5701,6 +5707,9 @@ class CCDDocument extends CDDDocumentBase
                 ]
             ];
 
+	        $Encounter = new Encounter();
+
+
             foreach($encountersData as $encounter){
 
                 $providerInfo = $this->User->getUserByUid($encounter['provider_uid']);
@@ -5718,7 +5727,19 @@ class CCDDocument extends CDDDocumentBase
 		            $office_visit_date['to'] = $encounter['service_date'];
 	            }
 
+	            $encounter_dxs = $Encounter->getEncounterDxs(['eid' =>  $encounter['eid']]);
+
+	            $encounter_dx_text = [];
+				foreach ($encounter_dxs as $encounter_dx){
+					$encounter_dx_text[] = $encounter_dx['code'] . ' (' .$encounter_dx['code_type']. ') - ' .  $encounter_dx['code_text'];
+				}
+
+	            $encounter_dx_text = implode(', ', $encounter_dx_text);
+
+
 	            if(!$excludePatientDecisionAids) {
+
+	            	$instruction = 'Decision Aids: ' . (isset($decisionAids[0]['instruction_code_description']) ? $this->clean($decisionAids[0]['instruction_code_description']) : '');
 
 		            // Diagnosis
 		            $encounters['text']['table']['tbody']['tr'][] = [
@@ -5727,7 +5748,7 @@ class CCDDocument extends CDDDocumentBase
 					            '@value' => ''
 				            ],
 				            [
-					            '@value' => 'Decision Aids: ' . isset($decisionAids[0]['instruction_code_description']) ? $this->clean($decisionAids[0]['instruction_code_description']) : ''
+					            '@value' => $instruction
 				            ],
 				            [
 					            '@value' => $providerInfo['fname'] . ' ' . $providerInfo['mname'] . ' ' . $providerInfo['lname']
@@ -5753,7 +5774,7 @@ class CCDDocument extends CDDDocumentBase
                             '@value' => ''
                         ],
                         [
-                            '@value' => 'Visit: '.$encounter['brief_description']
+                            '@value' => 'Visit: '.$encounter['brief_description'] . ' -- Diagnosis: ' . $encounter_dx_text
                         ],
                         [
                             '@value' => $providerInfo['fname'].' '.$providerInfo['mname'].' '.$providerInfo['lname']

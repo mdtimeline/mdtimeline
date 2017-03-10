@@ -1522,13 +1522,13 @@ class CCDDocument extends CDDDocumentBase
             if(is_array($referringProvider['facilities']) && isset($referringProvider['facilities'][0])){
 
             	if($referringProvider['facilities'][0]['phone_number'] != ''){
-		            $text .= $referringProvider['facilities'][0]['phone_number'] . ', ';
+		            $text .= 'Tel: ' . $referringProvider['facilities'][0]['phone_number'] . ' ';
 	            }
 	            if($referringProvider['facilities'][0]['name'] != '') {
-		            $text .= $referringProvider['facilities'][0]['name'] . ', ';
+		            $text .= 'Name: ' . $referringProvider['facilities'][0]['name'] . ' ';
 	            }
 	            if($referringProvider['facilities'][0]['address'] != '') {
-		            $text .= $referringProvider['facilities'][0]['address'] . ' ';
+		            $text .= 'Address: ' . $referringProvider['facilities'][0]['address'] . ' ';
 	            }
 	            if($referringProvider['facilities'][0]['address_cont'] != '') {
 		            $text .= $referringProvider['facilities'][0]['address_cont'] . ', ';
@@ -1542,6 +1542,10 @@ class CCDDocument extends CDDDocumentBase
 	            if($referringProvider['facilities'][0]['postal_code'] != '') {
 		            $text .= $referringProvider['facilities'][0]['postal_code'];
 	            }
+            }
+
+            if(isset($referral['referral_date'])){
+	            $text .= ' -- Schedule: ' . date('F j, Y h:i A', strtotime($referral['referral_date']));
             }
 
             $reasonForReferral = [
@@ -3538,20 +3542,49 @@ class CCDDocument extends CDDDocumentBase
                     $ReferringProvider = new ReferringProviders();
                     foreach ($planOfCareData['REF'] as $referral) {
                         // Find the complete information of the refer provider
-                        $referralProviderInformation = $ReferringProvider->getReferringProvider(
+	                    $referringProvider = $ReferringProvider->getReferringProvider(
                             [
                                 'id' => $referral['refer_to']
                             ]
                         );
+
+                        $text = 'Referral: ' . $this->clean($referral['referal_reason']) ;
+
+                        $text .= ' -- ';
+
+	                    if(is_array($referringProvider['facilities']) && isset($referringProvider['facilities'][0])){
+
+		                    if($referringProvider['facilities'][0]['phone_number'] != ''){
+			                    $text .= 'Tel: ' . $referringProvider['facilities'][0]['phone_number'] . ' ';
+		                    }
+		                    if($referringProvider['facilities'][0]['name'] != '') {
+			                    $text .= 'Name: ' . $referringProvider['facilities'][0]['name'] . ' ';
+		                    }
+		                    if($referringProvider['facilities'][0]['address'] != '') {
+			                    $text .= 'Address: ' . $referringProvider['facilities'][0]['address'] . ' ';
+		                    }
+		                    if($referringProvider['facilities'][0]['address_cont'] != '') {
+			                    $text .= $referringProvider['facilities'][0]['address_cont'] . ', ';
+		                    }
+		                    if($referringProvider['facilities'][0]['city'] != '') {
+			                    $text .= $referringProvider['facilities'][0]['city'] . ' ';
+		                    }
+		                    if($referringProvider['facilities'][0]['state'] != '') {
+			                    $text .= $referringProvider['facilities'][0]['state'] . ' ';
+		                    }
+		                    if($referringProvider['facilities'][0]['postal_code'] != '') {
+			                    $text .= $referringProvider['facilities'][0]['postal_code'];
+		                    }
+	                    }
+
                         // Human readable data
                         $planOfCare['text']['table']['tbody']['tr'][] = [
                             'td' => [
                                 [
-                                    '@value' => 'Referral: ' . $this->clean($referral['referal_reason']) . ', ' . $this->clean($referral['refer_to_text']) .
-                                        'Tel: ' . $referralProviderInformation['phone_number']
+                                    '@value' => $text
                                 ],
                                 [
-                                    '@value' => $referral['referral_date']
+                                    '@value' => date('F j, Y', strtotime($referral['referral_date']))
                                 ]
                             ]
                         ];
@@ -3649,10 +3682,10 @@ class CCDDocument extends CDDDocumentBase
                 $planOfCare['text']['table']['tbody']['tr'][] = [
                     'td' => [
                         [
-                            '@value' => isset($item['description']) ? 'Observation: '.$this->clean($item['description']) : ''
+                            '@value' => isset($item['description']) ? 'Observation: ' . $this->clean($item['description']) : ''
                         ],
                         [
-                            '@value' => $this->parseDate($item['date_ordered'])
+                            '@value' => date('F j, Y', strtotime($item['date_ordered']))
                         ]
                     ]
                 ];
@@ -3709,7 +3742,7 @@ class CCDDocument extends CDDDocumentBase
                                 '@value' => 'Appointments: ' . $this->clean($item['notes'])
                             ],
                             [
-                                '@value' => $this->parseDate($item['requested_date'])
+                                '@value' => date('F j, Y', strtotime($item['requested_date']))
                             ]
                         ]
                     ];
@@ -3764,7 +3797,7 @@ class CCDDocument extends CDDDocumentBase
                             '@value' => 'Goal: '.$this->clean($item['goal']).', Instructions:'.$this->clean($item['instructions'])
                         ],
                         [
-                            '@value' => $this->parseDate($item['plan_date'])
+                            '@value' => date('F j, Y', strtotime($item['plan_date']))
                         ]
                     ]
                 ];

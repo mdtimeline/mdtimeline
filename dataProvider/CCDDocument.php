@@ -3558,6 +3558,8 @@ class CCDDocument extends CDDDocumentBase
 
                         $text .= ' -- ';
 
+	                    $text .= $referringProvider['title'] . ' ' . $referringProvider['fname'] . ' ' . $referringProvider['lname'];
+
 	                    if(is_array($referringProvider['facilities']) && isset($referringProvider['facilities'][0])){
 
 		                    if($referringProvider['facilities'][0]['phone_number'] != ''){

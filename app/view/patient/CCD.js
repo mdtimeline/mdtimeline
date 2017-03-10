@@ -81,7 +81,8 @@ Ext.define('App.view.patient.CCD', {
                 {boxLabel: _('future_appointments'), name: 'exclude', inputValue: 'future_appointments'},
 				{boxLabel: _('visit_date_location'), name: 'exclude', inputValue: 'visit_date_location'},
                 {boxLabel: _('reason_for_visit'), name: 'exclude', inputValue: 'reason_for_visit'},
-                {boxLabel: _('patient_decision_aids'), name: 'exclude', inputValue: 'patient_decision_aids'}
+                {boxLabel: _('patient_decision_aids'), name: 'exclude', inputValue: 'patient_decision_aids'},
+                {boxLabel: _('patient_information'), name: 'exclude', inputValue: 'patient_information'}
 			]
 		},
 		'-',

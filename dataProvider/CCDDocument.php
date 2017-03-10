@@ -190,12 +190,75 @@ class CCDDocument extends CDDDocumentBase
         $Insurance = new Insurance();
         $insuranceData = $Insurance->getPatientPrimaryInsuranceByPid($this->pid);
 
+        $excludePatient = $this->isExcluded('patient_information');
+
         $recordTarget['patientRole']['id'] = [
             '@attributes' => [
                 'root' => '2.16.840.1.113883.19.5',
                 'extension' => $patientData['pid']
             ]
         ];
+
+        if($excludePatient){
+	        $recordTarget['patientRole']['addr'] = [
+		        '@attributes' => [
+			        'nullFlavor' => 'NA'
+		        ]
+	        ];
+	        $recordTarget['patientRole']['telecom'] = [
+		        '@attributes' => [
+			        'nullFlavor' => 'NA'
+		        ]
+	        ];
+	        $recordTarget['patientRole']['patient']['name'] = [
+		        '@attributes' => [
+			        'nullFlavor' => 'NA'
+		        ]
+	        ];
+	        $recordTarget['patientRole']['patient']['administrativeGenderCode'] = [
+		        '@attributes' => [
+			        'nullFlavor' => 'NA'
+		        ]
+	        ];
+	        $recordTarget['patientRole']['patient']['birthTime'] = [
+		        '@attributes' => [
+			        'nullFlavor' => 'NA'
+		        ]
+	        ];
+	        $recordTarget['patientRole']['patient']['maritalStatusCode'] = [
+		        '@attributes' => [
+			        'nullFlavor' => 'NA'
+		        ]
+	        ];
+	        $recordTarget['patientRole']['patient']['raceCode'] = [
+		        '@attributes' => [
+			        'nullFlavor' => 'NA'
+		        ]
+	        ];
+	        $recordTarget['patientRole']['patient']['ethnicGroupCode'] = [
+		        '@attributes' => [
+			        'nullFlavor' => 'NA'
+		        ]
+	        ];
+	        $recordTarget['patientRole']['patient']['birthplace']['place']['addr'] = $this->addressBuilder(
+		        false,
+		        false,
+		        false,
+		        false,
+		        false,
+		        ''
+	        );
+	        $recordTarget['patientRole']['patient']['languageCommunication'] = [
+	        	'languageCode' => [
+			        '@attributes' => [
+				        'nullFlavor' => 'UNK'
+			        ]
+		        ]
+	        ];
+
+	        return $recordTarget;
+
+        }
 
         // If the Self Contact information address is set, include it in the CCD
         $recordTarget['patientRole']['addr'] = $this->addressBuilder(
@@ -989,11 +1052,19 @@ class CCDDocument extends CDDDocumentBase
             ]
         ];
 
-        $componentOf['encompassingEncounter']['effectiveTime'] = [
-            '@attributes' => [
-                'value' => $this->parseDate($this->encounter['service_date'])
-            ]
-        ];
+	    if($this->isExcluded('visit_date_location')) {
+		    $componentOf['encompassingEncounter']['effectiveTime'] = [
+			    '@attributes' => [
+				    'nullFlavor' => 'UNK'
+			    ]
+		    ];
+	    }else{
+		    $componentOf['encompassingEncounter']['effectiveTime'] = [
+			    '@attributes' => [
+				    'value' => $this->parseDate($this->encounter['service_date'])
+			    ]
+		    ];
+	    }
 
         $responsibleParty = [
             'assignedEntity' => [
@@ -1036,34 +1107,55 @@ class CCDDocument extends CDDDocumentBase
         $componentOf['encompassingEncounter']['encounterParticipant'] = $encounterParticipant;
         unset($responsibleParty);
 
-        $location = [
-            'healthCareFacility' => [
-                'id' => [
-                    '@attributes' => [
-                        'root' => '2.16.840.1.113883.4.6'
-                    ]
-                ],
-                'location' => [
-                    'name' => [
-                        'prefix' => $this->encounterFacility['name']
-                    ],
-                    'addr' => $this->addressBuilder(
-                        'WP',
-                        $this->encounterFacility['address'] . ' ' . $this->encounterFacility['address_cont'],
-                        $this->encounterFacility['city'],
-                        $this->encounterFacility['state'],
-                        $this->encounterFacility['postal_code'],
-                        $this->encounterFacility['country_code']
-                    ),
-                ]
-            ]
-        ];
-
-        if($this->exclude){
-
-        }
-
-
+	    if(!$this->isExcluded('visit_date_location')){
+		    $location = [
+			    'healthCareFacility' => [
+				    'id' => [
+					    '@attributes' => [
+						    'root' => '2.16.840.1.113883.4.6'
+					    ]
+				    ],
+				    'location' => [
+					    'name' => [
+						    'prefix' => $this->encounterFacility['name']
+					    ],
+					    'addr' => $this->addressBuilder(
+						    'WP',
+						    $this->encounterFacility['address'] . ' ' . $this->encounterFacility['address_cont'],
+						    $this->encounterFacility['city'],
+						    $this->encounterFacility['state'],
+						    $this->encounterFacility['postal_code'],
+						    $this->encounterFacility['country_code']
+					    ),
+				    ]
+			    ]
+		    ];
+	    }else{
+		    $location = [
+			    'healthCareFacility' => [
+				    'id' => [
+					    '@attributes' => [
+						    'root' => '2.16.840.1.113883.4.6'
+					    ]
+				    ],
+				    'location' => [
+					    'name' => [
+						    '@attributes' => [
+							    'nullFlavor' => 'UNK'
+						    ]
+					    ],
+					    'addr' => $this->addressBuilder(
+						    false,
+						    false,
+						    false,
+						    false,
+						    false,
+						    ''
+					    ),
+				    ]
+			    ]
+		    ];
+	    }
         $componentOf['encompassingEncounter']['location'] = $location;
         unset($location);
 
@@ -1235,23 +1327,49 @@ class CCDDocument extends CDDDocumentBase
     public function setReasonOfVisitSection()
     {
         if($this->eid != 'no_enc'){
-            $reason = [
-                'templateId' => [
-                    '@attributes' => [
-                        'root' => '2.16.840.1.113883.10.20.22.2.12'
-                    ]
-                ],
-                'code' => [
-                    '@attributes' => [
-                        'code' => '29299-5',
-                        'codeSystem' => '2.16.840.1.113883.6.1',
-                        'codeSystemName' => 'LOINC',
-                        'displayName' => 'Reason for Visit'
-                    ]
-                ],
-                'title' => 'Reason for Visit',
-                'text' => $this->encounter['brief_description']
-            ];
+
+        	if($this->isExcluded('reason_for_visit')){
+		        $reason = [
+			        '@attributes' => [
+				        'nullFlavor' => 'NA'
+			        ],
+			        'templateId' => [
+				        '@attributes' => [
+					        'root' => '2.16.840.1.113883.10.20.22.2.12'
+				        ]
+			        ],
+			        'code' => [
+				        '@attributes' => [
+					        'code' => '29299-5',
+					        'codeSystem' => '2.16.840.1.113883.6.1',
+					        'codeSystemName' => 'LOINC',
+					        'displayName' => 'Reason for Visit'
+				        ]
+			        ],
+			        'title' => 'Reason for Visit',
+			        'text' => ''
+		        ];
+	        }else{
+		        $reason = [
+			        'templateId' => [
+				        '@attributes' => [
+					        'root' => '2.16.840.1.113883.10.20.22.2.12'
+				        ]
+			        ],
+			        'code' => [
+				        '@attributes' => [
+					        'code' => '29299-5',
+					        'codeSystem' => '2.16.840.1.113883.6.1',
+					        'codeSystemName' => 'LOINC',
+					        'displayName' => 'Reason for Visit'
+				        ]
+			        ],
+			        'title' => 'Reason for Visit',
+			        'text' => $this->encounter['brief_description']
+		        ];
+	        }
+
+
             $this->addSection(['section' => $reason]);
         }
     }
@@ -5472,29 +5590,46 @@ class CCDDocument extends CDDDocumentBase
 
                 $providerInfo = $this->User->getUserByUid($encounter['provider_uid']);
 
-                // Diagnosis
-                $encounters['text']['table']['tbody']['tr'][] = [
-                    'td' => [
-                        [
-                            '@value' => ''
-                        ],
-                        [
-                            '@value' => 'Decision Aids: '.isset($decisionAids[0]['instruction_code_description']) ? $this->clean($decisionAids[0]['instruction_code_description']) : ''
-                        ],
-                        [
-                            '@value' => $providerInfo['fname'].' '.$providerInfo['mname'].' '.$providerInfo['lname']
-                        ],
-                        [
-                            '@value' => 'Office visit'
-                        ],
-                        [
-                            '@value' => $encounter['service_date']
-                        ],
-                        [
-                            '@value' => (empty($encounter['close_date']) || $encounter['close_date'] == '0000-00-00') ? 'Active' : 'Inactive'
-                        ]
-                    ]
-                ];
+	            $excludePatientDecisionAids = $this->isExcluded('patient_decision_aids');
+	            $excludeVisitDateLocation = $this->isExcluded('visit_date_location');
+
+	            if($excludeVisitDateLocation){
+		            $office_visit_location = '';
+		            $office_visit_date['from'] = '';
+		            $office_visit_date['to'] = '';
+	            }else{
+		            $office_visit_location = 'Office visit';
+		            $office_visit_date['from'] = $encounter['service_date'];
+		            $office_visit_date['to'] = $encounter['service_date'];
+	            }
+
+	            if(!$excludePatientDecisionAids) {
+
+		            // Diagnosis
+		            $encounters['text']['table']['tbody']['tr'][] = [
+			            'td' => [
+				            [
+					            '@value' => ''
+				            ],
+				            [
+					            '@value' => 'Decision Aids: ' . isset($decisionAids[0]['instruction_code_description']) ? $this->clean($decisionAids[0]['instruction_code_description']) : ''
+				            ],
+				            [
+					            '@value' => $providerInfo['fname'] . ' ' . $providerInfo['mname'] . ' ' . $providerInfo['lname']
+				            ],
+				            [
+					            '@value' => $office_visit_location
+				            ],
+				            [
+					            '@value' => $office_visit_date['from']
+				            ],
+				            [
+					            '@value' => (empty($encounter['close_date']) || $encounter['close_date'] == '0000-00-00') ? 'Active' : 'Inactive'
+				            ]
+			            ]
+		            ];
+
+	            }
 
                 // Instructions
                 $encounters['text']['table']['tbody']['tr'][] = [
@@ -5509,10 +5644,10 @@ class CCDDocument extends CDDDocumentBase
                             '@value' => $providerInfo['fname'].' '.$providerInfo['mname'].' '.$providerInfo['lname']
                         ],
                         [
-                            '@value' => 'Office visit'
+                            '@value' => $office_visit_location
                         ],
                         [
-                            '@value' => $encounter['service_date']
+                            '@value' => $office_visit_date['from']
                         ],
                         [
                             '@value' => (empty($encounter['close_date']) || $encounter['close_date'] == '0000-00-00') ? 'Active' : 'Inactive'
@@ -5520,20 +5655,27 @@ class CCDDocument extends CDDDocumentBase
                     ]
                 ];
 
+	            if($office_visit_date['from'] == ''){
+		            $serviceDate['low'] = [
+			            '@attributes' => [
+				            'nullFlavor' => 'NI'
+			            ]
+		            ];
+	            }else{
+		            $serviceDate['low'] = [
+			            '@attributes' => [
+				            'value' => $this->parseDate($encounter['service_date'])
+			            ]
+		            ];
+	            }
 
-                $serviceDate['low'] = [
-                    '@attributes' => [
-                        'value' => $this->parseDate($encounter['service_date'])
-                    ]
-                ];
-                if(!empty($encounter['close_date'])){
+                if($office_visit_date['to'] != '' && !empty($encounter['close_date'])){
                     $serviceDate['high'] = [
                         '@attributes' => [
-                            'value' => $this->parseDate($encounter['close_date'])
+                            'value' => $this->parseDate($office_visit_date['to'])
                         ]
                     ];
                 }
-
 
                 $entry = [
                     '@attributes' => [
@@ -5572,16 +5714,79 @@ class CCDDocument extends CDDDocumentBase
                             '@attributes' => [
                                 'code' => 'completed'
                             ]
+                        ]
+                    ]
+                ];
+
+	            $entry['encounter']['effectiveTime'] = $serviceDate;
+
+	            $entry['encounter']['performer'] = [
+		            'assignedEntity' => [
+			            '@attributes' => [
+				            'classCode' => 'ASSIGNED'
+			            ],
+			            'id' => [
+				            '@attributes' => [
+					            'root' => UUID::v4()
+				            ]
+			            ],
+			            'code' => [
+				            '@attributes' => [
+					            'code' => '59058001',
+					            'codeSystem' => '2.16.840.1.113883.6.96',
+					            'codeSystemName' => 'SNOMED-CT',
+					            'displayName' => $providerInfo['fname'].' '.$providerInfo['mname'].' '.$providerInfo['lname']
+				            ]
+			            ]
+		            ]
+	            ];
+
+	            $entry['encounter']['entryRelationship'] = [
+                    '@attributes' => [
+                        'typeCode' => 'SUBJ'
+                    ],
+                    'act' => [
+                        '@attributes' => [
+                            'classCode' => 'ACT',
+                            'moodCode'=> 'EVN'
                         ],
-                        'effectiveTime' => [
+                        'templateId' => [
                             '@attributes' => [
-                                'value' => $this->parseDate($encounter['service_date'])
+                                'root' => '2.16.840.1.113883.10.20.22.4.80'
                             ]
                         ],
-                        'performer' => [
-                            'assignedEntity' => [
+                        'id' =>[
+                            '@attributes' => [
+                                'root' => UUID::v4()
+                            ]
+                        ],
+                        'code' => [
+                            '@attributes' => [
+                                'code' => '29308-4',
+                                'codeSystem' => '2.16.840.1.113883.6.1',
+                                'codeSystemName' => 'LOINC',
+                                'displayName' => 'Encounter Diagnosis'
+                            ]
+                        ],
+                        'statusCode' => [
+                            '@attributes' => [
+                                'code' => 'completed'
+                            ]
+                        ],
+                        'entryRelationship' => [
+                            '@attributes' => [
+                                'typeCode' => 'SUBJ'
+                            ],
+                            'observation' => [
                                 '@attributes' => [
-                                    'classCode' => 'ASSIGNED'
+                                    'classCode' => 'OBS',
+                                    'moodCode' => 'EVN',
+                                    'negationInd' => 'true'
+                                ],
+                                'templateId' => [
+                                    '@attributes' => [
+                                        'root' => '2.16.840.1.113883.10.20.22.4.4'
+                                    ]
                                 ],
                                 'id' => [
                                     '@attributes' => [
@@ -5590,39 +5795,10 @@ class CCDDocument extends CDDDocumentBase
                                 ],
                                 'code' => [
                                     '@attributes' => [
-                                        'code' => '59058001',
+                                        'code' => '409586006',
                                         'codeSystem' => '2.16.840.1.113883.6.96',
                                         'codeSystemName' => 'SNOMED-CT',
-                                        'displayName' => $providerInfo['fname'].' '.$providerInfo['mname'].' '.$providerInfo['lname']
-                                    ]
-                                ]
-                            ]
-                        ],
-                        'entryRelationship' => [
-                            '@attributes' => [
-                                'typeCode' => 'SUBJ'
-                            ],
-                            'act' => [
-                                '@attributes' => [
-                                    'classCode' => 'ACT',
-                                    'moodCode'=> 'EVN'
-                                ],
-                                'templateId' => [
-                                    '@attributes' => [
-                                        'root' => '2.16.840.1.113883.10.20.22.4.80'
-                                    ]
-                                ],
-                                'id' =>[
-                                    '@attributes' => [
-                                        'root' => UUID::v4()
-                                    ]
-                                ],
-                                'code' => [
-                                    '@attributes' => [
-                                        'code' => '29308-4',
-                                        'codeSystem' => '2.16.840.1.113883.6.1',
-                                        'codeSystemName' => 'LOINC',
-                                        'displayName' => 'Encounter Diagnosis'
+                                        'displayName' => 'Complaint'
                                     ]
                                 ],
                                 'statusCode' => [
@@ -5630,9 +5806,19 @@ class CCDDocument extends CDDDocumentBase
                                         'code' => 'completed'
                                     ]
                                 ],
+                                'effectiveTime' => $serviceDate,
+                                'value' => [
+                                    '@attributes' => [
+                                        'xsi:type' => 'CD',
+                                        'code' => '182313005',
+                                        'codeSystem' => '2.16.840.1.113883.6.96',
+                                        'codeSystemName' => 'SNOMED CT',
+                                        'displayName' => 'None'
+                                    ]
+                                ],
                                 'entryRelationship' => [
                                     '@attributes' => [
-                                        'typeCode' => 'SUBJ'
+                                        'typeCode' => 'REFR'
                                     ],
                                     'observation' => [
                                         '@attributes' => [
@@ -5652,10 +5838,10 @@ class CCDDocument extends CDDDocumentBase
                                         ],
                                         'code' => [
                                             '@attributes' => [
-                                                'code' => '409586006',
-                                                'codeSystem' => '2.16.840.1.113883.6.96',
-                                                'codeSystemName' => 'SNOMED-CT',
-                                                'displayName' => 'Complaint'
+                                                'code' => '33999-4',
+                                                'codeSystem' => '2.16.840.1.113883.6.1',
+                                                'codeSystemName' => 'LOINC',
+                                                'displayName' => 'Status'
                                             ]
                                         ],
                                         'statusCode' => [
@@ -5667,55 +5853,10 @@ class CCDDocument extends CDDDocumentBase
                                         'value' => [
                                             '@attributes' => [
                                                 'xsi:type' => 'CD',
-                                                'code' => '182313005',
+                                                'code' => '55561003',
                                                 'codeSystem' => '2.16.840.1.113883.6.96',
                                                 'codeSystemName' => 'SNOMED CT',
-                                                'displayName' => 'None'
-                                            ]
-                                        ],
-                                        'entryRelationship' => [
-                                            '@attributes' => [
-                                                'typeCode' => 'REFR'
-                                            ],
-                                            'observation' => [
-                                                '@attributes' => [
-                                                    'classCode' => 'OBS',
-                                                    'moodCode' => 'EVN',
-                                                    'negationInd' => 'true'
-                                                ],
-                                                'templateId' => [
-                                                    '@attributes' => [
-                                                        'root' => '2.16.840.1.113883.10.20.22.4.4'
-                                                    ]
-                                                ],
-                                                'id' => [
-                                                    '@attributes' => [
-                                                        'root' => UUID::v4()
-                                                    ]
-                                                ],
-                                                'code' => [
-                                                    '@attributes' => [
-                                                        'code' => '33999-4',
-                                                        'codeSystem' => '2.16.840.1.113883.6.1',
-                                                        'codeSystemName' => 'LOINC',
-                                                        'displayName' => 'Status'
-                                                    ]
-                                                ],
-                                                'statusCode' => [
-                                                    '@attributes' => [
-                                                        'code' => 'completed'
-                                                    ]
-                                                ],
-                                                'effectiveTime' => $serviceDate,
-                                                'value' => [
-                                                    '@attributes' => [
-                                                        'xsi:type' => 'CD',
-                                                        'code' => '55561003',
-                                                        'codeSystem' => '2.16.840.1.113883.6.96',
-                                                        'codeSystemName' => 'SNOMED CT',
-                                                        'displayName' => 'Active'
-                                                    ]
-                                                ]
+                                                'displayName' => 'Active'
                                             ]
                                         ]
                                     ]

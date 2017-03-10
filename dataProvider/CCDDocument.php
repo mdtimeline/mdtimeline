@@ -2448,7 +2448,7 @@ class CCDDocument extends CDDDocumentBase
 
             foreach($medicationsData as $item){
 
-            	$active = isset($item['end_date']) && $item['end_date'] != '0000-00-00';
+            	$active = $this->isActiveByDate($item['end_date']);
 
                 $medications['text']['table']['tbody']['tr'][] = [
                     'td' => [

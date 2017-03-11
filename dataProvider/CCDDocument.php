@@ -5711,7 +5711,6 @@ class CCDDocument extends CDDDocumentBase
 
 	        $Encounter = new Encounter();
 
-
             foreach($encountersData as $encounter){
 
                 $providerInfo = $this->User->getUserByUid($encounter['provider_uid']);
@@ -5743,7 +5742,7 @@ class CCDDocument extends CDDDocumentBase
 
 	            	$instruction = 'Decision Aids: ' . (isset($decisionAids[0]['instruction_code_description']) ? $this->clean($decisionAids[0]['instruction_code_description']) : '');
 
-		            // Diagnosis
+		            // Decision Aids
 		            $encounters['text']['table']['tbody']['tr'][] = [
 			            'td' => [
 				            [
@@ -5769,7 +5768,7 @@ class CCDDocument extends CDDDocumentBase
 
 	            }
 
-                // Instructions
+                // Visit
                 $encounters['text']['table']['tbody']['tr'][] = [
                     'td' => [
                         [
@@ -5879,130 +5878,175 @@ class CCDDocument extends CDDDocumentBase
 		            ]
 	            ];
 
-	            $entry['encounter']['entryRelationship'] = [
-                    '@attributes' => [
-                        'typeCode' => 'SUBJ'
-                    ],
-                    'act' => [
-                        '@attributes' => [
-                            'classCode' => 'ACT',
-                            'moodCode'=> 'EVN'
-                        ],
-                        'templateId' => [
-                            '@attributes' => [
-                                'root' => '2.16.840.1.113883.10.20.22.4.80'
-                            ]
-                        ],
-                        'id' =>[
-                            '@attributes' => [
-                                'root' => UUID::v4()
-                            ]
-                        ],
-                        'code' => [
-                            '@attributes' => [
-                                'code' => '29308-4',
-                                'codeSystem' => '2.16.840.1.113883.6.1',
-                                'codeSystemName' => 'LOINC',
-                                'displayName' => 'Encounter Diagnosis'
-                            ]
-                        ],
-                        'statusCode' => [
-                            '@attributes' => [
-                                'code' => 'completed'
-                            ]
-                        ],
-                        'entryRelationship' => [
-                            '@attributes' => [
-                                'typeCode' => 'SUBJ'
-                            ],
-                            'observation' => [
-                                '@attributes' => [
-                                    'classCode' => 'OBS',
-                                    'moodCode' => 'EVN',
-                                    'negationInd' => 'true'
-                                ],
-                                'templateId' => [
-                                    '@attributes' => [
-                                        'root' => '2.16.840.1.113883.10.20.22.4.4'
-                                    ]
-                                ],
-                                'id' => [
-                                    '@attributes' => [
-                                        'root' => UUID::v4()
-                                    ]
-                                ],
-                                'code' => [
-                                    '@attributes' => [
-                                        'code' => '409586006',
-                                        'codeSystem' => '2.16.840.1.113883.6.96',
-                                        'codeSystemName' => 'SNOMED-CT',
-                                        'displayName' => 'Complaint'
-                                    ]
-                                ],
-                                'statusCode' => [
-                                    '@attributes' => [
-                                        'code' => 'completed'
-                                    ]
-                                ],
-                                'effectiveTime' => $serviceDate,
-                                'value' => [
-                                    '@attributes' => [
-                                        'xsi:type' => 'CD',
-                                        'code' => '182313005',
-                                        'codeSystem' => '2.16.840.1.113883.6.96',
-                                        'codeSystemName' => 'SNOMED CT',
-                                        'displayName' => 'None'
-                                    ]
-                                ],
-                                'entryRelationship' => [
-                                    '@attributes' => [
-                                        'typeCode' => 'REFR'
-                                    ],
-                                    'observation' => [
-                                        '@attributes' => [
-                                            'classCode' => 'OBS',
-                                            'moodCode' => 'EVN',
-                                            'negationInd' => 'true'
-                                        ],
-                                        'templateId' => [
-                                            '@attributes' => [
-                                                'root' => '2.16.840.1.113883.10.20.22.4.4'
-                                            ]
-                                        ],
-                                        'id' => [
-                                            '@attributes' => [
-                                                'root' => UUID::v4()
-                                            ]
-                                        ],
-                                        'code' => [
-                                            '@attributes' => [
-                                                'code' => '33999-4',
-                                                'codeSystem' => '2.16.840.1.113883.6.1',
-                                                'codeSystemName' => 'LOINC',
-                                                'displayName' => 'Status'
-                                            ]
-                                        ],
-                                        'statusCode' => [
-                                            '@attributes' => [
-                                                'code' => 'completed'
-                                            ]
-                                        ],
-                                        'effectiveTime' => $serviceDate,
-                                        'value' => [
-                                            '@attributes' => [
-                                                'xsi:type' => 'CD',
-                                                'code' => '55561003',
-                                                'codeSystem' => '2.16.840.1.113883.6.96',
-                                                'codeSystemName' => 'SNOMED CT',
-                                                'displayName' => 'Active'
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ];
+	            /**
+	             * Encounter Diagnosis
+	             */
+	            if(!empty($encounter_dxs)){
+
+		            $entryRelationshipDiagnosis = [];
+		            foreach ($encounter_dxs as $encounter_dx){
+
+			            $dx_date = $serviceDate;
+
+		            	if(isset($encounter_dx['status']) && $encounter_dx['status'] != ''){
+
+		            		if(isset($encounter_dxs['resolved_date']) && $encounter_dxs['resolved_date'] != '0000-00-00 00:00:00'){
+					            $dx_date['high'] = [
+						            '@attributes' => [
+							            'value' => $this->parseDate($encounter_dxs['resolved_date'])
+						            ]
+					            ];
+				            }else{
+					            $dx_date['high'] = [
+						            '@attributes' => [
+							            'nullFlavor' => 'NI'
+						            ]
+					            ];
+				            }
+		            		$status = [
+					            '@attributes' => [
+						            'xsi:type' => 'CD',
+						            'code' => $encounter_dx['status_code'],
+						            'codeSystem' => $this->codes($encounter_dx['status_code_type']),
+						            'codeSystemName' => $encounter_dx['status_code_type'],
+						            'displayName' => $encounter_dx['status']
+					            ]
+				            ];
+			            }else{
+				            $dx_date['high'] = [
+					            '@attributes' => [
+						            'nullFlavor' => 'NI'
+					            ]
+				            ];
+				            $status = false;
+			            }
+
+			            $entryRelationshipDiagnosisBuff = [
+				            '@attributes' => [
+					            'typeCode' => 'SUBJ'
+				            ],
+				            'observation' => [
+					            '@attributes' => [
+						            'classCode' => 'OBS',
+						            'moodCode' => 'EVN',
+						            'negationInd' => 'true'
+					            ],
+					            'templateId' => [
+						            '@attributes' => [
+							            'root' => '2.16.840.1.113883.10.20.22.4.4'
+						            ]
+					            ],
+					            'id' => [
+						            '@attributes' => [
+							            'root' => UUID::v4()
+						            ]
+					            ],
+					            'code' => [
+						            '@attributes' => [
+							            'code' => '282291009',
+							            'codeSystem' => '2.16.840.1.113883.6.96',
+							            'codeSystemName' => 'SNOMED-CT',
+							            'displayName' => 'Diagnosis'
+						            ]
+					            ],
+					            'statusCode' => [
+						            '@attributes' => [
+							            'code' => 'completed'
+						            ]
+					            ],
+					            'effectiveTime' => $dx_date,
+					            'value' => [
+						            '@attributes' => [
+							            'xsi:type' => 'CD',
+							            'code' => $encounter_dx['code'],
+							            'codeSystem' => $this->codes($encounter_dx['code_type']),
+							            'codeSystemName' => $encounter_dx['code_type'],
+							            'displayName' => $encounter_dx['code_text']
+						            ]
+					            ]
+				            ]
+			            ];
+
+
+		            	if($status !== false){
+				            $entryRelationshipDiagnosisBuff['observation']['entryRelationship'] = [
+					            '@attributes' => [
+						            'typeCode' => 'REFR'
+					            ],
+					            'observation' => [
+						            '@attributes' => [
+							            'classCode' => 'OBS',
+							            'moodCode' => 'EVN',
+							            'negationInd' => 'true'
+						            ],
+						            'templateId' => [
+							            '@attributes' => [
+								            'root' => '2.16.840.1.113883.10.20.22.4.6'
+							            ]
+						            ],
+						            'id' => [
+							            '@attributes' => [
+								            'root' => UUID::v4()
+							            ]
+						            ],
+						            'code' => [
+							            '@attributes' => [
+								            'code' => '33999-4',
+								            'codeSystem' => '2.16.840.1.113883.6.1',
+								            'codeSystemName' => 'LOINC',
+								            'displayName' => 'Status'
+							            ]
+						            ],
+						            'statusCode' => [
+							            '@attributes' => [
+								            'code' => 'completed'
+							            ]
+						            ],
+						            'effectiveTime' => $dx_date,
+						            'value' => $status
+					            ]
+				            ];
+			            }
+
+			            $entryRelationshipDiagnosis[] = $entryRelationshipDiagnosisBuff;
+		            }
+
+		            $entry['encounter']['entryRelationship'] = [
+			            '@attributes' => [
+				            'typeCode' => 'SUBJ'
+			            ],
+			            'act' => [
+				            '@attributes' => [
+					            'classCode' => 'ACT',
+					            'moodCode'=> 'EVN'
+				            ],
+				            'templateId' => [
+					            '@attributes' => [
+						            'root' => '2.16.840.1.113883.10.20.22.4.80'
+					            ]
+				            ],
+				            'id' =>[
+					            '@attributes' => [
+						            'root' => UUID::v4()
+					            ]
+				            ],
+				            'code' => [
+					            '@attributes' => [
+						            'code' => '29308-4',
+						            'codeSystem' => '2.16.840.1.113883.6.1',
+						            'codeSystemName' => 'LOINC',
+						            'displayName' => 'Encounter Diagnosis'
+					            ]
+				            ],
+				            'statusCode' => [
+					            '@attributes' => [
+						            'code' => 'completed'
+					            ]
+				            ],
+				            'entryRelationship' => $entryRelationshipDiagnosis
+			            ]
+		            ];
+	            }
 
                 $encounters['entry'][] = $entry;
             }
@@ -6013,7 +6057,6 @@ class CCDDocument extends CDDDocumentBase
         }
         unset($encountersData, $encounters);
     }
-
 }
 
 /**

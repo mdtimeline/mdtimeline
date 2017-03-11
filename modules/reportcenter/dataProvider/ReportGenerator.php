@@ -266,6 +266,7 @@ class ReportGenerator
                 $fileContent = file_get_contents($filePointer);
 
                 $parameters = $reportParameters;
+
                 foreach ($parameters as $Index => $field) {
                     $operator = '=';
                     $PrepareField[':' . $Index]['operator'] = $operator;
@@ -588,31 +589,36 @@ class ReportGenerator
     {
         foreach ($variables as $key => $variable) {
             $prepareKey = trim($key);
+
+            // Is numeric
             if (is_numeric($variable['value'])) {
                 $prepareVariable = $variable['value'];
+
+            // If Null
             } elseif ($variable['value'] == null) {
                 $prepareVariable = "null";
-            }elseif(is_array($variable['value'])){
+
+            // If Array
+            } elseif (is_array($variable['value'])) {
                 $prepareVariable = '"';
                 foreach($variable['value'] as $value){
                     if(!is_array($value)) $prepareVariable .= $value.',';
                 }
                 $prepareVariable = substr($prepareVariable, 0,-1);
                 $prepareVariable .= '"';
+
+            // If WHERE instruction
+            } elseif (strpos($key, 'WHERE_') !== false) {
+                $prepareVariable = "{$variable['value']}";
+
+            // If String
             } else {
                 $prepareVariable = "'{$variable['value']}'";
             }
+
             $sqlStatement = str_ireplace($prepareKey, $prepareVariable, $sqlStatement);
             $sqlStatement = str_ireplace($prepareKey . '_operator', $variable['operator'], $sqlStatement);
         }
         return $sqlStatement;
-    }
-
-    private function __isJson($string)
-    {
-        if($string === null) return false;
-        if(empty($string)) return false;
-        json_decode($string);
-        return (json_last_error() == JSON_ERROR_NONE);
     }
 }

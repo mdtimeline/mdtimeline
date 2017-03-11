@@ -12,9 +12,6 @@ SET @AgeFrom = :ageFrom;
 SET @AgeTo = :ageTo;
 SET @MaritalCode = :marital;
 SET @LanguageCode = :language;
-SET @LabOrderCode = :lab_result_code;
-SET @LabOrderOperator = :lab_comparison;
-SET @LabOrderValue = :lab_value;
 
 SELECT patient.pid,
 		CONCAT_WS('', patient.fname, ' ', patient.mname, ' ', patient.lname) as patient_name,
@@ -83,24 +80,9 @@ SELECT patient.pid,
 		FROM patient_orders AS PO
 		LEFT JOIN patient_order_results AS POR ON POR.order_id  = PO.id
 		LEFT JOIN patient_order_results_observations AS PORO ON PORO.result_id = POR.id
-		WHERE PO.pid = patient.pid AND order_type = 'lab'  AND
-        CASE
-			WHEN @LabOrderCode IS NOT NULL AND @LabOrderValue IS NULL AND @LabOrderOperator IS NULL
-			THEN PO.code = @LabOrderCode
-            ELSE 1=1
-        END
-        AND
-		CASE
-			WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '=' AND @LabOrderCode IS NOT NULL
-			THEN PORO.value = @LabOrderValue AND PORO.code = @LabOrderCode
-
-			WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '>=' AND @LabOrderCode IS NOT NULL
-			THEN PORO.value > @LabOrderValue AND PORO.code = @LabOrderCode
-
-			WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '<=' AND @LabOrderCode IS NOT NULL
-			THEN PORO.value < @LabOrderValue AND PORO.code = @LabOrderCode
-			ELSE 1=1
-		END) AS laboratories
+		WHERE PO.pid = patient.pid AND order_type = 'lab'
+		:WHERE_sub_lab_order
+		) AS laboratories
 
 FROM patient
 
@@ -254,22 +236,7 @@ CASE
     ELSE 1=1
 END
 
-AND
-
-CASE
-	WHEN @LabOrderCode IS NOT NULL AND @LabOrderValue IS NULL AND @LabOrderOperator IS NULL
-	THEN FIND_IN_SET(patient_orders.code, @LabOrderCode)
-
-	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator IS NO NULL AND @LabOrderCode IS NOT NULL
-	THEN patient_order_results_observations.value = @LabOrderValue AND FIND_IN_SET(patient_order_results_observations.code, @LabOrderCode)
-
-	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '>=' AND @LabOrderCode IS NOT NULL
-	THEN patient_order_results_observations.value > @LabOrderValue AND FIND_IN_SET(patient_order_results_observations.code, @LabOrderCode)
-
-	WHEN @LabOrderValue IS NOT NULL AND @LabOrderOperator = '<=' AND @LabOrderCode IS NOT NULL
-	THEN patient_order_results_observations.value < @LabOrderValue AND FIND_IN_SET(patient_order_results_observations.code, @LabOrderCode)
-	ELSE 1=1
-END
+:WHERE_lab_order
 
 GROUP BY patient.pid
 :ux-sort

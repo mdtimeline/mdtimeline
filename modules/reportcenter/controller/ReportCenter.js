@@ -215,7 +215,6 @@ Ext.define('Modules.reportcenter.controller.ReportCenter', {
         me.onReportWindowBeforeHide();
 
         parameters = form.getValues();
-        console.log(parameters);
 
         // Sumarize all the variables into a single variable and then make
         // the rpc call will get data from the server, executing the SQL
@@ -261,24 +260,6 @@ Ext.define('Modules.reportcenter.controller.ReportCenter', {
 
         me.getReportWindow().getEl().unmask();
 
-        // Send the request to display the report
-        //Ext.Ajax.request({
-        //    url: 'modules/reportcenter/dataProvider/ReportGenerator.php?site=',
-        //    params: {
-        //        reportDir: this.getReportFilterPanel().getItemId(),
-        //        format: format,
-        //        site: app.user.site,
-        //        params: JSON.stringify(parameters)
-        //    },
-        //    success: function(response){
-        //        var XSLDocument = response.responseText;
-        //        me.getReportRenderPanel().update(XSLDocument, true);
-        //    },
-        //    failure: function(response, opts) {
-        //        Ext.Msg.alert(_('error'), 'server-side failure with status code ' + response.status);
-        //    }
-        //    me.getReportWindow().getEl().unmask();
-        //});
     }
 
 });

@@ -162,25 +162,22 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter', 
             boxLabel: Ext.String.format('{0} {1} {2}', lab_name, operator, value),
             name: me.name,
             checked: true,
-            inputValue: {
-                lab_code: lab_code,
-                lab_name: lab_name,
-                operator: operator,
-                value: value
-            },
+            inputValue: item,
             listeners: {
                 change: function (field, value) {
                     if (!value) {
                         Ext.Function.defer(function () {
                             field.destroy();
                         }, 200);
+                        //me.records.splice( me.records.indexOf('lab_code'), 1 );
                         me.fireEvent('removeItem', me, field, item);
+                        return;
                     }
                 }
             }
         });
-        me.fireEvent('addItem', me, item);
 
+        me.fireEvent('addItem', me, item);
 	},
 
 	reset: function () {

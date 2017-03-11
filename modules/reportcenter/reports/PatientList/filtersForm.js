@@ -378,75 +378,96 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
             hideFieldLabel: false,
             listeners: {
                 addItem: function (combo, record, eOpts) {
-                    var temp,array,
-                        field = Ext.ComponentQuery.query('reportFilter #laboratory_results')[0],
-                        lab_code = Ext.ComponentQuery.query('reportFilter #lab_result_code')[0],
-                        lab_value = Ext.ComponentQuery.query('reportFilter #lab_value')[0],
-                        lab_comparison = Ext.ComponentQuery.query('reportFilter #lab_comparison')[0];
+                    var temp,parameters,
+                        laboratoryResults = Ext.ComponentQuery.query('reportFilter #laboratory_results')[0],
+                        filterLabOrder = Ext.ComponentQuery.query('reportFilter #WHERE_lab_order')[0],
+                        filterSubLabOrder = Ext.ComponentQuery.query('reportFilter #WHERE_sub_lab_order')[0],
+                        form = Ext.ComponentQuery.query('#PatientListFilters')[0];
 
-                    temp='';
-                    array = field.getValue().split(',');
-                    for(i=0; i < array.length; i++) if(array[i] != "") temp += array[i]+', ';
-                    temp += record.lab_name+': '+record.operator+record.value;
-                    field.setValue(temp);
+                    // Clean up the filter and context
+                    filterLabOrder.setValue('');
+                    filterSubLabOrder.setValue('');
+                    laboratoryResults.setValue('');
 
-                    // Lab Code compile
-                    temp='';
-                    array = lab_code.getValue().split(',');
-                    for(i=0; i < array.length; i++) if(array[i] != "") temp += array[i]+',';
-                    temp += record.lab_code;
-                    lab_code.setValue(temp);
+                    parameters = form.getValues();
 
-                    // Lab Comparison compile
-                    temp='';
-                    array = lab_comparison.getValue().split(',');
-                    for(i=0; i < array.length; i++) if(array[i] != "") temp += array[i]+record.operator+',';
-                    lab_comparison.setValue(temp.substr(0,temp.length-1));
+                    if(parameters.lab_results.length === undefined){
+                        record = parameters.lab_results;
 
-                    // Lab Value compile
-                    temp='';
-                    array = lab_value.getValue().split(',');
-                    for(i=0; i < array.length; i++) if(array[i] != "") temp += array[i]+record.value+',';
-                    lab_value.setValue(temp.substr(0,temp.length-1));
+                        temp='';
+                        temp += record.lab_name+': '+record.operator+record.value;
+                        laboratoryResults.setValue(record.lab_name+': '+record.operator+record.value);
+
+                        temp='AND ';
+                        temp += "(patient_order_results_observations.code ='"+record.lab_code+"' AND patient_order_results_observations.value "+record.operator+" "+record.value+')';
+                        filterLabOrder.setValue(temp);
+
+                        temp='AND ';
+                        temp += "(PORO.code ='"+record.lab_code+"' AND PORO.value "+record.operator+" "+record.value+')';
+                        filterSubLabOrder.setValue(temp);
+                    } else {
+                        for(i=0; i < parameters.lab_results.length; i++){
+                            record = parameters.lab_results[i];
+
+                            temp='';
+                            temp += record.lab_name+': '+record.operator+record.value;
+                            laboratoryResults.setValue(laboratoryResults.getValue()+', '+temp);
+
+                            temp=' AND ';
+                            temp += "(patient_order_results_observations.code ='"+record.lab_code+"' AND patient_order_results_observations.value "+record.operator+" "+record.value+')';
+                            filterLabOrder.setValue(filterLabOrder.getValue()+temp);
+
+                            temp=' AND ';
+                            temp += "(PORO.code ='"+record.lab_code+"' AND PORO.value "+record.operator+" "+record.value+')';
+                            filterSubLabOrder.setValue(filterSubLabOrder.getValue()+temp);
+                        }
+                    }
                 },
                 removeItem: function(combo, record, value){
-                    var temp,array,
-                        field = Ext.ComponentQuery.query('reportFilter #laboratory_results')[0],
-                        lab_code = Ext.ComponentQuery.query('reportFilter #lab_result_code')[0],
-                        lab_value = Ext.ComponentQuery.query('reportFilter #lab_value')[0],
-                        lab_comparison = Ext.ComponentQuery.query('reportFilter #lab_comparison')[0];
+                    var temp,parameters,
+                        laboratoryResults = Ext.ComponentQuery.query('reportFilter #laboratory_results')[0],
+                        filterLabOrder = Ext.ComponentQuery.query('reportFilter #WHERE_lab_order')[0],
+                        filterSubLabOrder = Ext.ComponentQuery.query('reportFilter #WHERE_sub_lab_order')[0],
+                        form = Ext.ComponentQuery.query('#PatientListFilters')[0];
 
-                    // Eliminate the Lab code from the source
-                    if(value.lab_code == lab_code.getValue()) {
-                        lab_code.setValue('');
-                    } else {
+                    // Clean up the filter and context
+                    filterLabOrder.setValue('');
+                    filterSubLabOrder.setValue('');
+                    laboratoryResults.setValue('');
+
+                    parameters = form.getValues();
+
+                    if(parameters.lab_results.length === undefined){
+                        record = parameters.lab_results;
+
                         temp='';
-                        array = lab_code.getValue().split(',');
-                        for(i=0; i<array.length;i++) if(array[i] != value.lab_code) temp += array[i]+',';
-                        lab_code.setValue(temp.substr(0,temp.length-1));
-                    }
+                        temp += record.lab_name+': '+record.operator+record.value;
+                        laboratoryResults.setValue(record.lab_name+': '+record.operator+record.value);
 
-                    // Eliminate the Lab comparison from the source
-                    if(value.operator == lab_comparison.getValue()) {
-                        lab_comparison.setValue('');
+                        temp='AND ';
+                        temp += "(patient_order_results_observations.code ='"+record.lab_code+"' AND patient_order_results_observations.value "+record.operator+" "+record.value+')';
+                        filterLabOrder.setValue(temp);
+
+                        temp='AND ';
+                        temp += "(PORO.code ='"+record.lab_code+"' AND PORO.value "+record.operator+" "+record.value+')';
+                        filterSubLabOrder.setValue(temp);
                     } else {
-                        temp='';
-                        array = lab_comparison.getValue().split(',');
-                        for(i=0; i<array.length;i++) if(array[i] != value.operator) temp += array[i]+',';
-                        lab_comparison.setValue(temp.substr(0,temp.length-1));
-                    }
+                        for(i=0; i < parameters.lab_results.length; i++){
+                            record = parameters.lab_results[i];
 
-                    // Eliminate the Lab value from the source
-                    if(value.value == lab_value.getValue()) {
-                        lab_value.setValue('');
-                    } else {
-                        temp='';
-                        array = lab_value.getValue().split(',');
-                        for(i=0; i<array.length;i++) if(array[i] != value.value) temp += array[i]+',';
-                        lab_value.setValue(temp.substr(0,temp.length-1));
-                    }
+                            temp='';
+                            temp += record.lab_name+': '+record.operator+record.value;
+                            laboratoryResults.setValue(laboratoryResults.getValue()+', '+temp);
 
-                    field.setValue('');
+                            temp=' AND ';
+                            temp += "(patient_order_results_observations.code ='"+record.lab_code+"' AND patient_order_results_observations.value "+record.operator+" "+record.value+')';
+                            filterLabOrder.setValue(filterLabOrder.getValue()+temp);
+
+                            temp=' AND ';
+                            temp += "(PORO.code ='"+record.lab_code+"' AND PORO.value "+record.operator+" "+record.value+')';
+                            filterSubLabOrder.setValue(filterSubLabOrder.getValue()+temp);
+                        }
+                    }
                 }
             }
 		},
@@ -458,20 +479,14 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
         },
         {
             xtype: 'hiddenfield',
-            itemId: 'lab_result_code',
-            name: 'lab_result_code',
+            itemId: 'WHERE_lab_order',
+            name: 'WHERE_lab_order',
             value: null
         },
         {
             xtype: 'hiddenfield',
-            itemId: 'lab_comparison',
-            name: 'lab_comparison',
-            value: null
-        },
-        {
-            xtype: 'hiddenfield',
-            itemId: 'lab_value',
-            name: 'lab_value',
+            itemId: 'WHERE_sub_lab_order',
+            name: 'WHERE_sub_lab_order',
             value: null
         }
 	]

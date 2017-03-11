@@ -13923,6 +13923,11 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
+			name: 'signature',
+			type: 'string',
+			len: 100
+		},
+		{
 			name: 'fullname',
 			type: 'string',
 			comment: 'title full name',
@@ -47875,7 +47880,10 @@ Ext.define('App.view.patient.CCD', {
                 {boxLabel: _('clinical_instructions'), name: 'exclude', inputValue: 'clinical_instructions'},
                 {boxLabel: _('plan_of_care'), name: 'exclude', inputValue: 'planofcare'},
                 {boxLabel: _('future_appointments'), name: 'exclude', inputValue: 'future_appointments'},
-                {boxLabel: _('referrals_other_providers'), name: 'exclude', inputValue: 'referrals_other_providers'}
+				{boxLabel: _('visit_date_location'), name: 'exclude', inputValue: 'visit_date_location'},
+                {boxLabel: _('reason_for_visit'), name: 'exclude', inputValue: 'reason_for_visit'},
+                {boxLabel: _('patient_decision_aids'), name: 'exclude', inputValue: 'patient_decision_aids'},
+                {boxLabel: _('patient_information'), name: 'exclude', inputValue: 'patient_information'}
 			]
 		},
 		'-',

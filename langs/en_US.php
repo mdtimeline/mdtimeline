@@ -1723,5 +1723,8 @@ $LANG = array(
     'sex_search'                            => 'Gender Search',
     'race_search'                           => 'Race Search',
     'ethnicity_search'                      => 'Ethnicity Search',
-    'language_search'                       => 'Language Search'
+    'language_search'                       => 'Language Search',
+    'visit_date_location'                   => 'Visit Date Location',
+    'reason_for_visit'                      => 'Reason for Visit',
+    'patient_information'                   => 'Patient Information',
 );

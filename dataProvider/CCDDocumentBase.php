@@ -372,6 +372,19 @@ class CDDDocumentBase
         return str_replace('-', '', $dateExplode[0]);
     }
 
+    public function isActiveByDate($date){
+    	if(!isset($date)){
+    		return true;
+	    }
+	    if($date == '0000-00-00' || $date == '0000-00-00 00:00:00'){
+		    return true;
+	    }
+
+		$date = strtotime($date);
+		$now = time();
+		return $date > $now;
+    }
+
     public function telecomBuilder($number, $use = null) {
         $phone = [];
 

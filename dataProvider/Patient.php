@@ -1199,6 +1199,7 @@ class Patient
  					   GROUP_CONCAT(concepts.providers SEPARATOR '') AS providers,
  					   GROUP_CONCAT(concepts.allergies SEPARATOR '') AS allergies,
  					   GROUP_CONCAT(concepts.problems SEPARATOR '') AS problems,
+ 					   GROUP_CONCAT(concepts.medications SEPARATOR '') AS medications,
  					   GROUP_CONCAT(concepts.lab_results SEPARATOR '') AS lab_results
 				FROM ({$concepts}) as concepts 
 				JOIN patient ON concepts.pid = patient.pid GROUP BY patient.pid";
@@ -1261,6 +1262,7 @@ class Patient
  					   GROUP_CONCAT(concepts.providers SEPARATOR '') AS providers,
  					   GROUP_CONCAT(concepts.allergies SEPARATOR '') AS allergies,
  					   GROUP_CONCAT(concepts.problems SEPARATOR '') AS problems,
+ 					   GROUP_CONCAT(concepts.medications SEPARATOR '') AS medications,
  					   GROUP_CONCAT(concepts.lab_results SEPARATOR '') AS lab_results
 				FROM ({$concepts}) as concepts
 				JOIN patient ON concepts.pid = patient.pid GROUP BY patient.pid {$sorts} LIMIT {$params->start}, {$params->limit}";

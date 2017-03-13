@@ -92,6 +92,14 @@ class Navigation
 				'id' => 'App.view.patient.NewPatient'
 			];
 		}
+		//if($this->ACL->hasPermission('add_patient')){
+			$patient['children'][] = [
+				'text' => 'Patient List',
+				'leaf' => true,
+				'cls' => 'file',
+				'id' => 'App.view.patient.Search'
+			];
+		//}
 		if($this->ACL->hasPermission('access_patient_summary')){
 			$patient['children'][] = [
 				'text' => $this->i18n('patient_summary'),

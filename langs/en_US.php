@@ -1727,4 +1727,6 @@ $LANG = array(
     'visit_date_location'                   => 'Visit Date Location',
     'reason_for_visit'                      => 'Reason for Visit',
     'patient_information'                   => 'Patient Information',
+    'marital_status'                        => 'Marital Status',
+    'providers'                             => 'Providers',
 );

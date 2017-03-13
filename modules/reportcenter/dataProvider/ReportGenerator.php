@@ -279,6 +279,8 @@ class ReportGenerator
                 $PreparedSQL = self::__postPrepare($fileContent, $PrepareField);
                 $Queries = explode(';', $PreparedSQL);
 
+                //error_log(print_r($Queries,true));
+
                 // Run all the SQL Statement separated by `;` in the file
                 $records = null;
                 foreach ($Queries as $Query) {
@@ -595,7 +597,7 @@ class ReportGenerator
                 $prepareVariable = $variable['value'];
 
             // If Null
-            } elseif ($variable['value'] == null) {
+            } elseif ($variable['value'] == null && strpos($key, 'WHERE_') == false) {
                 $prepareVariable = "null";
 
             // If Array
@@ -609,7 +611,11 @@ class ReportGenerator
 
             // If WHERE instruction
             } elseif (strpos($key, 'WHERE_') !== false) {
-                $prepareVariable = "{$variable['value']}";
+                if(!empty($variable['value'])) {
+                    $prepareVariable = "{$variable['value']}";
+                } else {
+                    $prepareVariable = "";
+                }
 
             // If String
             } else {

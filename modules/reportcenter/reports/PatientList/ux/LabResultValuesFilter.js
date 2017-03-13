@@ -168,9 +168,8 @@ Ext.define('Modules.reportcenter.reports.PatientList.ux.LabResultValuesFilter', 
                     if (!value) {
                         Ext.Function.defer(function () {
                             field.destroy();
+                            me.fireEvent('removeItem', me, field, item);
                         }, 200);
-                        //me.records.splice( me.records.indexOf('lab_code'), 1 );
-                        me.fireEvent('removeItem', me, field, item);
                         return;
                     }
                 }

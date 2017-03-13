@@ -1791,6 +1791,9 @@ $API = [
             ],
 			'getPatientByPublicId' => [
 				'len' => 1
+            ],
+			'search' => [
+				'len' => 1
             ]
         ]
     ],

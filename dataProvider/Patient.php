@@ -1077,7 +1077,7 @@ class Patient
 
 			$filter_medications = true;
 
-			$date = "(med.created_date >= '{$params->date_from}' AND med.created_date <= '{$params->date_to}')";
+			$date = "(med.begin_date >= '{$params->date_from}' AND med.begin_date <= '{$params->date_to}')";
 
 			if(isset($pid_list)){
 				$patient_in = "AND med.pid in ({$pid_list})";
@@ -1095,7 +1095,7 @@ class Patient
 			}
 
 			$concepts[] = "SELECT med.pid,
-								  med.created_date as service_date,
+								  med.begin_date as service_date,
 								  '' as providers,
  								  '' as allergies,
  								  '' as problems,

@@ -492,6 +492,16 @@ class HL7Server {
 						$foo->performing_org_address = $obx[24][1][1] . ' ' . $obx[24][3] . ', ' . $obx[24][4] . ' ' . $obx[24][5];
 						$foo->date_analysis = $hl7->time($obx[19][1]);
 
+						if(
+							isset($obx[5]) &&
+							is_array($obx[5]) &&
+							isset($obx[5][1]) &&
+							($obx[5][1] == '=' || $obx[5][1] == '>' || $obx[5][1] == '<')
+						){
+							$foo->value = $obx[5][1] . ' ' . $foo->value;
+						}
+
+
 						$observation_notes = '';
 						if(is_array($observation['NTE'])){
 							foreach($observation['NTE'] as $nte){

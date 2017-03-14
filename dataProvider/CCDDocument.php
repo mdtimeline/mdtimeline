@@ -284,122 +284,176 @@ class CCDDocument extends CDDDocumentBase
             );
         }
 
-        // Patient Name
-        $recordTarget['patientRole']['patient']['name'] = [
-            '@attributes' => [
-                'use' => 'L'
-            ],
-        ];
+        if($this->isExcluded('patient_name')){
+	        $recordTarget['patientRole']['patient']['name'] = [
+		        '@attributes' => [
+			        'nullFlavor' => 'NA'
+		        ]
+	        ];
+        }else{
+	        // Patient Name
+	        $recordTarget['patientRole']['patient']['name'] = [
+		        '@attributes' => [
+			        'use' => 'L'
+		        ],
+	        ];
 
-        $recordTarget['patientRole']['patient']['name']['given'][] = $patientData['fname'];
+	        $recordTarget['patientRole']['patient']['name']['given'][] = $patientData['fname'];
 
-        if($patientData['mname'] != ''){
-            $recordTarget['patientRole']['patient']['name']['given'][] = $patientData['mname'];
+	        if($patientData['mname'] != ''){
+		        $recordTarget['patientRole']['patient']['name']['given'][] = $patientData['mname'];
+	        }
+
+	        $recordTarget['patientRole']['patient']['name']['family'] = $patientData['lname'];
+
+	        if($patientData['title'] != ''){
+		        $recordTarget['patientRole']['patient']['name']['suffix'] = [
+			        '@attributes' => [
+				        'qualifier' => 'TITLE'
+			        ],
+			        '@value' => isset($patientData['title']) ? $patientData['title'] : ''
+		        ];
+	        }
         }
 
-        $recordTarget['patientRole']['patient']['name']['family'] = $patientData['lname'];
 
-        if($patientData['title'] != ''){
-            $recordTarget['patientRole']['patient']['name']['suffix'] = [
-                '@attributes' => [
-                    'qualifier' => 'TITLE'
-                ],
-                '@value' => isset($patientData['title']) ? $patientData['title'] : ''
-            ];
+        if($this->isExcluded('patient_sex')){
+	        $recordTarget['patientRole']['patient']['administrativeGenderCode'] = [
+		        '@attributes' => [
+			        'nullFlavor' => 'NA'
+		        ]
+	        ];
+        }else{
+	        // values are M, F, or UM more info...
+	        // http://phinvads.cdc.gov/vads/ViewValueSet.action?id=8DE75E17-176B-DE11-9B52-0015173D1785
+	        $recordTarget['patientRole']['patient']['administrativeGenderCode'] = [
+		        '@attributes' => [
+			        'code' => $patientData['sex'],
+			        'codeSystemName' => 'AdministrativeGender',
+			        'codeSystem' => '2.16.840.1.113883.5.1'
+		        ]
+	        ];
+
+	        // Patient Sex
+	        if($patientData['sex'] == 'F'){
+		        $recordTarget['patientRole']['patient']['administrativeGenderCode']['@attributes']['displayName'] = 'Female';
+	        } elseif($patientData['sex'] == 'M') {
+		        $recordTarget['patientRole']['patient']['administrativeGenderCode']['@attributes']['displayName'] = 'Male';
+	        }
         }
 
-        // values are M, F, or UM more info...
-        // http://phinvads.cdc.gov/vads/ViewValueSet.action?id=8DE75E17-176B-DE11-9B52-0015173D1785
-        $recordTarget['patientRole']['patient']['administrativeGenderCode'] = [
-            '@attributes' => [
-                'code' => $patientData['sex'],
-                'codeSystemName' => 'AdministrativeGender',
-                'codeSystem' => '2.16.840.1.113883.5.1'
-            ]
-        ];
 
-        // Patient Sex
-        if($patientData['sex'] == 'F'){
-            $recordTarget['patientRole']['patient']['administrativeGenderCode']['@attributes']['displayName'] = 'Female';
-        } elseif($patientData['sex'] == 'M') {
-            $recordTarget['patientRole']['patient']['administrativeGenderCode']['@attributes']['displayName'] = 'Male';
+
+        if($this->isExcluded('patient_dob')){
+	        $recordTarget['patientRole']['patient']['birthTime'] = [
+		        '@attributes' => [
+			        'nullFlavor' => 'NA'
+		        ]
+	        ];
+        }else{
+	        // Patient Date of Birth
+	        $recordTarget['patientRole']['patient']['birthTime'] = [
+		        '@attributes' => [
+			        'value' => preg_replace('/(\d{4})-(\d{2})-(\d{2}) \d{2}:\d{2}:\d{2}/', '$1$2$3', $patientData['DOB'])
+		        ]
+	        ];
         }
 
-        // Patient Date of Birth
-        $recordTarget['patientRole']['patient']['birthTime'] = [
-            '@attributes' => [
-                'value' => preg_replace('/(\d{4})-(\d{2})-(\d{2}) \d{2}:\d{2}:\d{2}/', '$1$2$3', $patientData['DOB'])
-            ]
-        ];
 
-        if(isset($patientData['marital_status']) && $patientData['marital_status'] != ''){
-            $recordTarget['patientRole']['patient']['maritalStatusCode'] = [
-                '@attributes' => [
-                    'code' => $patientData['marital_status'],
-                    'codeSystemName' => 'MaritalStatusCode',
-                    'displayName' => $this->CombosData->getDisplayValueByListIdAndOptionValue(12, $patientData['marital_status']),
-                    'codeSystem' => '2.16.840.1.113883.5.2'
-                ]
-            ];
-        } else {
-            $recordTarget['patientRole']['patient']['maritalStatusCode'] = [
-                '@attributes' => [
-                    'nullFlavor' => 'NA',
-                    'codeSystemName' => 'MaritalStatusCode',
-                    'codeSystem' => '2.16.840.1.113883.5.2'
-                ]
-            ];
+        if($this->isExcluded('patient_marital_status')){
+	        $recordTarget['patientRole']['patient']['maritalStatusCode'] = [
+		        '@attributes' => [
+			        'nullFlavor' => 'NA'
+		        ]
+	        ];
+        }else{
+	        if(isset($patientData['marital_status']) && $patientData['marital_status'] != ''){
+		        $recordTarget['patientRole']['patient']['maritalStatusCode'] = [
+			        '@attributes' => [
+				        'code' => $patientData['marital_status'],
+				        'codeSystemName' => 'MaritalStatusCode',
+				        'displayName' => $this->CombosData->getDisplayValueByListIdAndOptionValue(12, $patientData['marital_status']),
+				        'codeSystem' => '2.16.840.1.113883.5.2'
+			        ]
+		        ];
+	        } else {
+		        $recordTarget['patientRole']['patient']['maritalStatusCode'] = [
+			        '@attributes' => [
+				        'nullFlavor' => 'NA',
+				        'codeSystemName' => 'MaritalStatusCode',
+				        'codeSystem' => '2.16.840.1.113883.5.2'
+			        ]
+		        ];
+	        }
         }
 
-        // Patient Race
-        if(isset($patientData['race']) && $patientData['race'] != ''){
 
-            $race = $this->CombosData->getValuesByListIdAndOptionValue(14, $patientData['race']);
+        if($this->isExcluded('patient_race')){
+	        $recordTarget['patientRole']['patient']['raceCode'] = [
+		        '@attributes' => [
+			        'nullFlavor' => 'NA'
+		        ]
+	        ];
+        }else{
+	        // Patient Race
+	        if(isset($patientData['race']) && $patientData['race'] != ''){
 
-            if($race !==  false){
-                $recordTarget['patientRole']['patient']['raceCode'] = [
-                    '@attributes' => [
-                        'code' => $race['code'],
-                        'codeSystemName' => $race['code_type'],
-                        'displayName' => $race['option_name'],
-                        'codeSystem' => $this->codes($race['code_type'])
-                    ]
-                ];
-            }else{
-                $recordTarget['patientRole']['patient']['raceCode'] = [
-                    '@attributes' => [
-                        'nullFlavor' => 'NA'
-                    ]
-                ];
-            }
-        } else {
-            $recordTarget['patientRole']['patient']['raceCode'] = [
-                '@attributes' => [
-                    'nullFlavor' => 'NA'
-                ]
-            ];
+		        $race = $this->CombosData->getValuesByListIdAndOptionValue(14, $patientData['race']);
+
+		        if($race !==  false){
+			        $recordTarget['patientRole']['patient']['raceCode'] = [
+				        '@attributes' => [
+					        'code' => $race['code'],
+					        'codeSystemName' => $race['code_type'],
+					        'displayName' => $race['option_name'],
+					        'codeSystem' => $this->codes($race['code_type'])
+				        ]
+			        ];
+		        }else{
+			        $recordTarget['patientRole']['patient']['raceCode'] = [
+				        '@attributes' => [
+					        'nullFlavor' => 'NA'
+				        ]
+			        ];
+		        }
+	        } else {
+		        $recordTarget['patientRole']['patient']['raceCode'] = [
+			        '@attributes' => [
+				        'nullFlavor' => 'NA'
+			        ]
+		        ];
+	        }
         }
 
-        // Patient Ethnicity
-        if(isset($patientData['ethnicity']) && $patientData['ethnicity'] != ''){
-            $recordTarget['patientRole']['patient']['ethnicGroupCode'] = [
-                '@attributes' => [
-                    'code' => $patientData['ethnicity'] == 'H' ? '2135-2' : '2186-5',
-                    'codeSystemName' => 'Race & Ethnicity - CDC',
-                    'displayName' => $this->CombosData->getDisplayValueByListIdAndOptionValue(
-                        59,
-                        $patientData['ethnicity']
-                    ),
-                    'codeSystem' => '2.16.840.1.113883.6.238'
-                ]
-            ];
-        } else {
-            $recordTarget['patientRole']['patient']['ethnicGroupCode'] = [
-                '@attributes' => [
-                    'nullFlavor' => 'NA'
-                ]
-            ];
+        if($this->isExcluded('patient_ethnicity')){
+	        $recordTarget['patientRole']['patient']['ethnicGroupCode'] = [
+		        '@attributes' => [
+			        'nullFlavor' => 'NA'
+		        ]
+	        ];
+        }else{
+	        // Patient Ethnicity
+	        if(isset($patientData['ethnicity']) && $patientData['ethnicity'] != ''){
+		        $recordTarget['patientRole']['patient']['ethnicGroupCode'] = [
+			        '@attributes' => [
+				        'code' => $patientData['ethnicity'] == 'H' ? '2135-2' : '2186-5',
+				        'codeSystemName' => 'Race & Ethnicity - CDC',
+				        'displayName' => $this->CombosData->getDisplayValueByListIdAndOptionValue(
+					        59,
+					        $patientData['ethnicity']
+				        ),
+				        'codeSystem' => '2.16.840.1.113883.6.238'
+			        ]
+		        ];
+	        } else {
+		        $recordTarget['patientRole']['patient']['ethnicGroupCode'] = [
+			        '@attributes' => [
+				        'nullFlavor' => 'NA'
+			        ]
+		        ];
+	        }
         }
+
 
         $recordTarget['patientRole']['patient']['birthplace']['place']['addr'] = $this->addressBuilder(
             false,
@@ -410,43 +464,55 @@ class CCDDocument extends CDDDocumentBase
             ''
         );
 
-        // Patient preferred language communication
-        if(isset($patientData['language']) && $patientData['language'] != ''){
-            $recordTarget['patientRole']['patient']['languageCommunication'] = [
-                'languageCode' => [
-                    '@attributes' => [
-                        'code' => $patientData['language']
-                    ]
-                ],
-	            'modeCode' => [
-		            '@attributes' => [
-			            'code' => 'ESP',
-			            'displayName' => 'Expressed spoken',
-			            'codeSystem' => '2.16.840.1.113883.5.60',
-			            'codeSystemName' => 'LanguageAbilityMode'
-		            ]
-	            ],
-	            'proficiencyLevelCode' => [
-		            '@attributes' => [
-			            'code' => 'G',
-			            'displayName' => 'Good',
-			            'codeSystem' => '2.16.840.1.113883.5.61'
-		            ]
-	            ],
-	            'preferenceInd' => [
-		            '@attributes' => [
-			            'value' => true
-		            ]
-	            ]
-            ];
+        if($this->isExcluded('patient_preferred_language')){
+	        $recordTarget['patientRole']['patient']['languageCommunication'] = [
+		        'languageCode' => [
+			        '@attributes' => [
+				        'nullFlavor' => 'UNK'
+			        ]
+		        ]
+	        ];
+        }else{
+	        // Patient preferred language communication
+	        if(isset($patientData['language']) && $patientData['language'] != ''){
+		        $recordTarget['patientRole']['patient']['languageCommunication'] = [
+			        'languageCode' => [
+				        '@attributes' => [
+					        'code' => $patientData['language']
+				        ]
+			        ],
+			        'modeCode' => [
+				        '@attributes' => [
+					        'code' => 'ESP',
+					        'displayName' => 'Expressed spoken',
+					        'codeSystem' => '2.16.840.1.113883.5.60',
+					        'codeSystemName' => 'LanguageAbilityMode'
+				        ]
+			        ],
+			        'proficiencyLevelCode' => [
+				        '@attributes' => [
+					        'code' => 'G',
+					        'displayName' => 'Good',
+					        'codeSystem' => '2.16.840.1.113883.5.61'
+				        ]
+			        ],
+			        'preferenceInd' => [
+				        '@attributes' => [
+					        'value' => true
+				        ]
+			        ]
+		        ];
 
-        } else {
-            $recordTarget['patientRole']['patient']['languageCommunication'] = [
-                '@attributes' => [
-                    'nullFlavor' => 'UNK'
-                ]
-            ];
+	        } else {
+		        $recordTarget['patientRole']['patient']['languageCommunication'] = [
+			        '@attributes' => [
+				        'nullFlavor' => 'UNK'
+			        ]
+		        ];
+	        }
         }
+
+
 
         $org = [];
 
@@ -3487,6 +3553,21 @@ class CCDDocument extends CDDDocumentBase
         $Appointments = new AppointmentRequest();
         $planOfCareData['APPOINTMENTS'] = $Appointments->getAppointmentRequests(['pid' => $this->pid]);
 
+        /// TODO marroneo!
+        if($this->isExcluded('diagnostic_test_pending')){
+	        $planOfCareData['OBS'] = [];
+        }
+	    /// TODO marroneo!
+	    if($this->isExcluded('future_appointments')){
+		    $planOfCareData['APPOINTMENTS'] = [];
+	    }
+
+	    /// TODO marroneo!
+	    if($this->isExcluded('future_schedule_test')){
+		    $planOfCareData['OBS'] = [];
+	    }
+
+
         $hasData = !empty($planOfCareData['OBS']) ||
             !empty($planOfCareData['ACT']) ||
             !empty($planOfCareData['ENC']) ||
@@ -4883,6 +4964,11 @@ class CCDDocument extends CDDDocumentBase
          */
         $smokingStatus = $SocialHistory->getSocialHistoryByPidAndCode($this->pid, 'smoking_status');
         $socialHistories = $SocialHistory->getSocialHistoryByPidAndCode($this->pid);
+
+        // TODO marroneo!
+        if($this->isExcluded('patient_smoking_status')){
+	        $smokingStatus = [];
+        }
 
         if(count($smokingStatus) > 0 || count($socialHistories) > 0){
             $socialHistory = [

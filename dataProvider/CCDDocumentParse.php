@@ -485,18 +485,20 @@ class CCDDocumentParse
 
 
 			// instructions...
-			$administrationRels = $entry['substanceAdministration']['entryRelationship'];
-			$administrationRels = isset($administrationRels[0]) ? $administrationRels : [$administrationRels];
-			foreach ($administrationRels as $administrationRel) {
-				if (
-					isset($medication->directions) ||
-					!isset($administrationRel['supply']['entryRelationship']['act']['code']['@attributes']['code']) ||
-					!isset($administrationRel['supply']['entryRelationship']['act']['text']) ||
-					$administrationRel['supply']['entryRelationship']['act']['code']['@attributes']['code'] != '409073007'
-				) continue;
+            if(isset($entry['substanceAdministration']['entryRelationship'])) {
+                $administrationRels = $entry['substanceAdministration']['entryRelationship'];
+                $administrationRels = isset($administrationRels[0]) ? $administrationRels : [$administrationRels];
+                foreach ($administrationRels as $administrationRel) {
+                    if (
+                        isset($medication->directions) ||
+                        !isset($administrationRel['supply']['entryRelationship']['act']['code']['@attributes']['code']) ||
+                        !isset($administrationRel['supply']['entryRelationship']['act']['text']) ||
+                        $administrationRel['supply']['entryRelationship']['act']['code']['@attributes']['code'] != '409073007'
+                    ) continue;
 
-				$medication->directions = $administrationRel['supply']['entryRelationship']['act']['text'];
-			}
+                    $medication->directions = $administrationRel['supply']['entryRelationship']['act']['text'];
+                }
+            }
 
 			if($medication->end_date && $medication->end_date != '0000-00-00'){
 				$medication->created_date = $medication->end_date . ' 00:00:00';

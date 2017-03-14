@@ -483,7 +483,6 @@ class CCDDocumentParse
 				if($gs_code !== false) $medication->GS_CODE = $gs_code;
 			}
 
-
 			// instructions...
             if(isset($entry['substanceAdministration']['entryRelationship'])) {
                 $administrationRels = $entry['substanceAdministration']['entryRelationship'];
@@ -1114,12 +1113,10 @@ class CCDDocumentParse
 		];
 
 		return isset($codes[$code]) ? $codes[$code] : 'UNK';
-
 	}
 
 	function getTestCCD($file)
 	{
-
 		$ccd = file_get_contents(ROOT . '/dataProvider/CCDs/' . $file);
 		$this->setDocument($ccd);
 		return ['ccd' => $this->getDocument()];

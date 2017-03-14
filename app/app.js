@@ -13923,11 +13923,6 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
-			name: 'signature',
-			type: 'string',
-			len: 100
-		},
-		{
 			name: 'fullname',
 			type: 'string',
 			comment: 'title full name',
@@ -47879,11 +47874,24 @@ Ext.define('App.view.patient.CCD', {
                 {boxLabel: _('provider_information'), name: 'exclude', inputValue: 'provider_information'},
                 {boxLabel: _('clinical_instructions'), name: 'exclude', inputValue: 'clinical_instructions'},
                 {boxLabel: _('plan_of_care'), name: 'exclude', inputValue: 'planofcare'},
-                {boxLabel: _('future_appointments'), name: 'exclude', inputValue: 'future_appointments'},
+                // {boxLabel: _('future_appointments'), name: 'exclude', inputValue: 'future_appointments'},
 				{boxLabel: _('visit_date_location'), name: 'exclude', inputValue: 'visit_date_location'},
                 {boxLabel: _('reason_for_visit'), name: 'exclude', inputValue: 'reason_for_visit'},
                 {boxLabel: _('patient_decision_aids'), name: 'exclude', inputValue: 'patient_decision_aids'},
-                {boxLabel: _('patient_information'), name: 'exclude', inputValue: 'patient_information'}
+
+				{boxLabel: _('future_appointments'), name: 'exclude', inputValue: 'future_appointments'},
+				{boxLabel: _('future_schedule_test'), name: 'exclude', inputValue: 'future_schedule_test'},
+				{boxLabel: _('diagnostic_test_pending'), name: 'exclude', inputValue: 'diagnostic_test_pending'},
+				{boxLabel: _('patient_information'), name: 'exclude', inputValue: 'patient_information'},
+
+                {boxLabel: _('patient_name'), name: 'exclude', inputValue: 'patient_name'},
+                {boxLabel: _('patient_sex'), name: 'exclude', inputValue: 'patient_sex'},
+                {boxLabel: _('patient_dob'), name: 'exclude', inputValue: 'patient_dob'},
+                {boxLabel: _('patient_race'), name: 'exclude', inputValue: 'patient_race'},
+                {boxLabel: _('patient_ethnicity'), name: 'exclude', inputValue: 'patient_ethnicity'},
+                {boxLabel: _('patient_preferred_language'), name: 'exclude', inputValue: 'patient_preferred_language'},
+                {boxLabel: _('patient_marital_status'), name: 'exclude', inputValue: 'patient_marital_status'},
+				{boxLabel: _('patient_smoking_status'), name: 'exclude', inputValue: 'patient_smoking_status'},
 			]
 		},
 		'-',

@@ -2261,7 +2261,6 @@ class CCDDocument extends CDDDocumentBase
 
             foreach($immunizationsData as $item){
 
-                $date = preg_replace('/(\d{4})-(\d{2})-(\d{2}) \d{2}:\d{2}:\d{2}/', '$1$2', $item['administered_date']);
                 $administered_by = $this->User->getUserByUid($item['administered_uid']);
 
                 $immunizations['text']['table']['tbody']['tr'][] = [
@@ -2310,7 +2309,7 @@ class CCDDocument extends CDDDocumentBase
                     ],
                     'effectiveTime' => [
                         '@attributes' => [
-                            'value' => $date
+                            'value' => $this->parseDate($item['administered_date'])
                         ]
                     ]
                 ];

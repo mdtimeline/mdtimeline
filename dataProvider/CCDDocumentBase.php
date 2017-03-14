@@ -166,6 +166,7 @@ class CDDDocumentBase
      * @var
      */
     public $Globals;
+
     public $height_measure;
     public $weight_measure;
 

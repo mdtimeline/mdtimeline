@@ -67,7 +67,12 @@ include_once(ROOT . '/dataProvider/Globals.php');
 class CCDDocument extends CDDDocumentBase
 {
 
-    /**
+	public function __construct()
+	{
+		parent::__construct();
+	}
+
+	/**
      * Method setHeader()
      */
     public function setHeader()
@@ -1831,7 +1836,7 @@ class CCDDocument extends CDDDocumentBase
                 ];
 
 	            // Height
-	            $height = $this->height_measure == 'in' ? $item['height_in'] : $item['height_in'];
+	            $height = $this->height_measure == 'in' ? $item['height_in'] : $item['height_cm'];
 	            $vitals['text']['table']['tbody']['tr'][0]['td'][] = [
 		            '@value' => $height . ' '.$this->height_measure
 	            ];

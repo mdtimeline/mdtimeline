@@ -259,7 +259,6 @@ Ext.define('Modules.reportcenter.reports.PatientList.filtersForm', {
 			value: ''
 		},
 		{
-
 			xtype: 'communicationmultiple',
 			name: 'phone_publicity',
 			itemId: 'phone_publicity',

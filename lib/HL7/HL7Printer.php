@@ -292,6 +292,15 @@ class HL7Printer {
 				$TR['RESULT'] = $observation['OBX'][5];
 			}
 
+			if(
+				isset($observation['OBX'][5]) &&
+				is_array($observation['OBX'][5]) &&
+				isset($observation['OBX'][5][1]) &&
+				($observation['OBX'][5][1] == '=' || $observation['OBX'][5][1] == '>' || $observation['OBX'][5][1] == '<')
+			){
+				$TR['RESULT'] = $observation['OBX'][5][1] . ' ' . $TR['RESULT'];
+			}
+
 			$TR['UOM'] = $observation['OBX'][6][1];
 			$TR['RANGE'] = $observation['OBX'][7];
 			$TR['ABN'] = $observation['OBX'][8][0];
@@ -499,6 +508,15 @@ class HL7Printer {
 				$TR['RESULT'] = $observation['OBX'][5][2];
 			}else{
 				$TR['RESULT'] = $observation['OBX'][5];
+			}
+
+			if(
+				isset($observation['OBX'][5]) &&
+				is_array($observation['OBX'][5]) &&
+				isset($observation['OBX'][5][1]) &&
+				($observation['OBX'][5][1] == '=' || $observation['OBX'][5][1] == '>' || $observation['OBX'][5][1] == '<')
+			){
+				$TR['RESULT'] = $observation['OBX'][5][1] . ' ' . $TR['RESULT'];
 			}
 
 			$TR['UOM'] = $observation['OBX'][6][1];

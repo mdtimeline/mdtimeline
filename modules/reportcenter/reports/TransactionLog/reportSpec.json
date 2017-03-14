@@ -9,7 +9,7 @@
     "category": "IT Department",
     "reportWindowWidth": 1096,
     "filterPanelWidth": 250,
-    "filterDisplayHeight": 90,
+    "filterDisplayHeight": 120,
     "page": {
         "limit": 300
     },

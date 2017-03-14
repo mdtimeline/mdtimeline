@@ -19,7 +19,9 @@
 Ext.define('Modules.reportcenter.reports.TransactionLog.filtersForm', {
     extend: 'Ext.form.Panel',
     requires: [
-        'Ext.form.field.Date'
+        'Ext.form.field.Date',
+        'Modules.reportcenter.reports.TransactionLog.ux.ComboTable',
+        'Modules.reportcenter.reports.TransactionLog.ux.ComboEvents'
     ],
     xtype: 'reportFilter',
     region: 'west',
@@ -100,14 +102,14 @@ Ext.define('Modules.reportcenter.reports.TransactionLog.filtersForm', {
                     fieldLabel: _('table'),
                     name: 'table_name',
                     labelAlign: 'top',
-                    columnWidth:1
+                    columnWidth: 1
                 },
                 {
-                    xtype: 'combobox',
+                    xtype: 'eventlist',
                     fieldLabel: _('event_type'),
                     labelAlign: 'top',
                     name: 'event_type',
-                    columnWidth:1
+                    columnWidth: 1
                 }
             ]
         }

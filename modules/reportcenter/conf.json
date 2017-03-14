@@ -25,6 +25,9 @@
         "ReportcenterCombosData":{
             "methods":{
                 "getTableList": { "len": 1 }
+            },
+            "methods":{
+                "getEventList": { "len": 1 }
             }
         },
 

@@ -43,7 +43,7 @@ AND
 # Event type filter
 CASE
   WHEN @EventType IS NOT NULL
-  THEN event_type = @EventType
+  THEN event = @EventType
   ELSE 1=1
 END
 

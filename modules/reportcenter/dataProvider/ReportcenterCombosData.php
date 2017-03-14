@@ -34,4 +34,15 @@ class ReportcenterCombosData
         $sql = "SELECT distinct(table_name) as table_name FROM audit_transaction_log;";
         return $this->TransactionLog->sql($sql)->all();
     }
+
+    /**
+     * getEventList
+     * Used by TransactionLog report, this will return a list of distinct tables in the transaction log.
+     */
+    public function getEventList()
+    {
+        $this->TransactionLog = \MatchaModel::setSenchaModel('App.model.administration.TransactionLog');
+        $sql = "SELECT distinct(event) as event FROM audit_transaction_log;";
+        return $this->TransactionLog->sql($sql)->all();
+    }
 }

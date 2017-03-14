@@ -1734,4 +1734,6 @@ $LANG = array(
     'patient_ethnicity'                     => 'Patient Ethnicity',
     'patient_race'                          => 'Patient Race',
     'patient_dob'                           => 'Patient DOB',
+    'future_schedule_test'                  => 'Future Schedule Test',
+    'diagnostic_test_pending'               => 'Diagnostic Test Pending'
 );

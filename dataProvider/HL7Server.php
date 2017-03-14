@@ -398,6 +398,15 @@ class HL7Server {
 							$foo->value = $obx[5];
 						}
 
+						if(
+							isset($obx[5]) &&
+							is_array($obx[5]) &&
+							isset($obx[5][1]) &&
+							($obx[5][1] == '=' || $obx[5][1] == '>' || $obx[5][1] == '<')
+						){
+							$foo->value = $obx[5][1] . ' ' . $foo->value;
+						}
+
 						$foo->units = $obx[6][1];
 						$foo->reference_rage = $obx[7];
 						$foo->probability = $obx[9];

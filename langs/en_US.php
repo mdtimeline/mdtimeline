@@ -1729,4 +1729,11 @@ $LANG = array(
     'patient_information'                   => 'Patient Information',
     'marital_status'                        => 'Marital Status',
     'providers'                             => 'Providers',
+    'patient_smoking_status'                => 'Patient Smoking Status',
+    'patient_preferred_language'            => 'Patient Preferred Language',
+    'patient_ethnicity'                     => 'Patient Ethnicity',
+    'patient_race'                          => 'Patient Race',
+    'patient_dob'                           => 'Patient DOB',
+    'future_schedule_test'                  => 'Future Schedule Test',
+    'diagnostic_test_pending'               => 'Diagnostic Test Pending'
 );

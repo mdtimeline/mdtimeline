@@ -1,7 +1,7 @@
 <?php
 /**
- * GaiaEHR (Electronic Health Records)
- * Copyright (C) 2015 TRA NextGen, Inc.
+ * mdTimeLine EHR (Electronic Health Records)
+ * Copyright (C) 2017 mdTImeLine, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

@@ -13923,6 +13923,11 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
+			name: 'signature',
+			type: 'string',
+			len: 100
+		},
+		{
 			name: 'fullname',
 			type: 'string',
 			comment: 'title full name',
@@ -23050,9 +23055,14 @@ Ext.define('App.view.patient.encounter.EducationResourcesGrid', {
 				dataIndex: 'title',
 				width: 250
 			},
+			// {
+			// 	text: _('snippet'),
+			// 	dataIndex: 'snippet',
+			// 	flex: 1
+			// },
 			{
-				text: _('snippet'),
-				dataIndex: 'snippet',
+				text: _('organization'),
+				dataIndex: 'organization_name',
 				flex: 1
 			}
 		];
@@ -23065,8 +23075,16 @@ Ext.define('App.view.patient.encounter.EducationResourcesGrid', {
 			xtype: 'educationresourcelivetsearch',
 			itemId: 'EducationResourcesGridSearchField',
 			width: 400,
-			margin: '0 10 0 0'
+			margin: '0 5 0 0'
 		},
+		'-',
+		{
+			xtype: 'button',
+			text: _('find_encounter_related_education'),
+			itemId: 'EducationResourcesGridFindEncounterRelatedBtn',
+			margin: '0 5 0 5'
+		},
+		'-',
 		{
 			xtype: 'combobox',
 			width: 150,
@@ -23078,6 +23096,7 @@ Ext.define('App.view.patient.encounter.EducationResourcesGrid', {
 			editable: false,
 			value: 'patient',
 			stateful: true,
+			margin: '0 0 0 5',
 			stateId: 'EducationResourcesGridLanguageField',
 			itemId: 'EducationResourcesGridLanguageField',
 			store: Ext.create('Ext.data.Store', {
@@ -23088,7 +23107,8 @@ Ext.define('App.view.patient.encounter.EducationResourcesGrid', {
 					{option: _('spanish'), value: 'es'}
 				]
 			})
-		}
+		},
+
 	]
 
 
@@ -40261,6 +40281,18 @@ Ext.define('App.controller.patient.EducationResources', {
 		{
 			ref: 'EducationResourcesGridSearchField',
 			selector: '#EducationResourcesGridSearchField'
+		},
+		{
+			ref: 'EducationResourcesGridFindEncounterRelatedBtn',
+			selector: '#EducationResourcesGridFindEncounterRelatedBtn'
+		},
+		{
+			ref: 'EducationResourcesPreviewWindow',
+			selector: '#EducationResourcesPreviewWindow'
+		},
+		{
+			ref: 'EducationResourcesPreviewWindowGrid',
+			selector: '#EducationResourcesPreviewWindowGrid'
 		}
 	],
 
@@ -40279,8 +40311,86 @@ Ext.define('App.controller.patient.EducationResources', {
 			},
 			'#EducationResourcesGridSearchField':{
 				select: me.onEducationResourcesGridSearchFieldSelect
+			},
+			'#EducationResourcesGridFindEncounterRelatedBtn':{
+				click: me.onEducationResourcesGridFindEncounterRelatedBtnClick
+			},
+			'#EducationResourcesPreviewWindowCancelBtn':{
+				click: me.onEducationResourcesPreviewWindowCancelBtnClick
+			},
+			'#EducationResourcesPreviewWindowSelectBtn':{
+				click: me.onEducationResourcesPreviewWindowSelectBtnClick
+			},
+			'#EducationResourcesPreviewWindow':{
+				close: me.onEducationResourcesPreviewWindowClose
+			},
+			'#EducationResourcesPreviewWindowGrid':{
+				itemdblclick: me.onEducationResourcesPreviewWindowGridItemDblClick
 			}
 		});
+	},
+
+	onEducationResourcesGridFindEncounterRelatedBtnClick: function () {
+
+		var me = this,
+			language_field_value = me.getEducationResourcesGridLanguageField().getValue(),
+			params = {
+				eid: app.patient.eid,
+				language: 'en'
+			};
+
+		if(language_field_value == 'patient'){
+			if (app.patient.record && app.patient.record.get('language') == 'spa') {
+				params.language = 'es';
+			}
+		}else {
+			if(language_field_value == 'spa' || language_field_value == 'es' || language_field_value == 'esp'){
+				params.language = 'es';
+			}
+		}
+
+		me.getEducationResourcesGrid().el.mask(_('searching'));
+
+		EducationResources.findEncounterEducationResources(params, function (response) {
+
+			me.getEducationResourcesGrid().el.unmask();
+
+			if(response.length > 0){
+				me.showEducationResourcesFinderPreview();
+				me.getEducationResourcesPreviewWindowGrid().getStore().loadRawData(response);
+			}else {
+				app.msg(_('info'), _('no_education_resources_found'));
+			}
+		});
+	},
+
+	onEducationResourcesPreviewWindowClose: function () {
+		this.getEducationResourcesPreviewWindowGrid().getStore().removeAll();
+	},
+
+	onEducationResourcesPreviewWindowCancelBtnClick: function () {
+		this.getEducationResourcesPreviewWindow().close();
+	},
+
+	onEducationResourcesPreviewWindowSelectBtnClick: function () {
+
+		var me = this,
+			selection = this.getEducationResourcesPreviewWindowGrid().getSelectionModel().getSelection(),
+			store = this.getEducationResourcesGrid().getStore();
+
+		selection.forEach(function (record) {
+			var data = Ext.clone(record.data);
+			data.pid = app.patient.pid;
+			data.eid = app.patient.eid;
+			data.uid = app.user.id;
+			store.add(data);
+		});
+
+		me.getEducationResourcesPreviewWindow().close();
+	},
+
+	onEducationResourcesPreviewWindowGridItemDblClick: function (grid, document_record) {
+		window.open(document_record.get('url'), '_blank');
 	},
 
 	onEducationResourcesGridItemDblClick: function (grid, document_record) {
@@ -40303,9 +40413,6 @@ Ext.define('App.controller.patient.EducationResources', {
 	onEducationResourcesGridSearchFieldSelect: function (field, selection) {
 		var store = this.getEducationResourcesGrid().getStore();
 
-		say(store);
-		say(selection);
-
 		store.add({
 			pid: app.patient.pid,
 			eid: app.patient.eid,
@@ -40316,6 +40423,53 @@ Ext.define('App.controller.patient.EducationResources', {
 			organization_name: selection[0].get('organizationName')
 		});
 
+	},
+
+	showEducationResourcesFinderPreview: function () {
+
+		if(!this.getEducationResourcesPreviewWindow()){
+			Ext.create('Ext.window.Window',{
+				title: _('select_education_resources'),
+				modal: true,
+				layout: 'fit',
+				itemId: 'EducationResourcesPreviewWindow',
+				bodyPadding: 5,
+				closeAction: 'hide',
+				items: [
+					{
+						xtype:'grid',
+						width: 700,
+						height: 200,
+						selType: 'checkboxmodel',
+						itemId: 'EducationResourcesPreviewWindowGrid',
+						store: Ext.create('App.store.patient.EducationResources'),
+						columns:[
+							{
+								text: _('title'),
+								dataIndex: 'title',
+								flex: 1
+							},
+							{
+								text: _('organization'),
+								dataIndex: 'organization_name',
+								flex: 1
+							}
+						]
+					}
+				],
+				buttons: [
+					{
+						text: _('cancel'),
+						itemId: 'EducationResourcesPreviewWindowCancelBtn'
+					},
+					{
+						text: _('select'),
+						itemId: 'EducationResourcesPreviewWindowSelectBtn'
+					}
+				]
+			});
+		}
+		return this.getEducationResourcesPreviewWindow().show();
 	}
 
 });

@@ -378,4 +378,14 @@ class Orders {
 		return $orders;
 	}
 
+	/**
+	 * @param $eid
+	 * @return mixed
+	 */
+	public function getPatientLabOrdersByEid($eid){
+		$this->setOrders();
+		$this->o->addFilter('eid', $eid);
+		return $this->o->load()->all();
+	}
+
 }

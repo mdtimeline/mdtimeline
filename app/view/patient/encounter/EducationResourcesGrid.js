@@ -39,9 +39,14 @@ Ext.define('App.view.patient.encounter.EducationResourcesGrid', {
 				dataIndex: 'title',
 				width: 250
 			},
+			// {
+			// 	text: _('snippet'),
+			// 	dataIndex: 'snippet',
+			// 	flex: 1
+			// },
 			{
-				text: _('snippet'),
-				dataIndex: 'snippet',
+				text: _('organization'),
+				dataIndex: 'organization_name',
 				flex: 1
 			}
 		];
@@ -54,8 +59,16 @@ Ext.define('App.view.patient.encounter.EducationResourcesGrid', {
 			xtype: 'educationresourcelivetsearch',
 			itemId: 'EducationResourcesGridSearchField',
 			width: 400,
-			margin: '0 10 0 0'
+			margin: '0 5 0 0'
 		},
+		'-',
+		{
+			xtype: 'button',
+			text: _('find_encounter_related_education'),
+			itemId: 'EducationResourcesGridFindEncounterRelatedBtn',
+			margin: '0 5 0 5'
+		},
+		'-',
 		{
 			xtype: 'combobox',
 			width: 150,
@@ -67,6 +80,7 @@ Ext.define('App.view.patient.encounter.EducationResourcesGrid', {
 			editable: false,
 			value: 'patient',
 			stateful: true,
+			margin: '0 0 0 5',
 			stateId: 'EducationResourcesGridLanguageField',
 			itemId: 'EducationResourcesGridLanguageField',
 			store: Ext.create('Ext.data.Store', {
@@ -77,7 +91,8 @@ Ext.define('App.view.patient.encounter.EducationResourcesGrid', {
 					{option: _('spanish'), value: 'es'}
 				]
 			})
-		}
+		},
+
 	]
 
 

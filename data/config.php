@@ -85,6 +85,9 @@ $API = [
             'search' => [
                 'len' => 1
             ],
+            'findEncounterEducationResources' => [
+                'len' => 1
+            ],
             'getPatientEducationResources' => [
                 'len' => 1
             ],

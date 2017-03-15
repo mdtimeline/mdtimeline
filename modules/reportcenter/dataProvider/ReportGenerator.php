@@ -279,8 +279,6 @@ class ReportGenerator
                 $PreparedSQL = self::__postPrepare($fileContent, $PrepareField);
                 $Queries = explode(';', $PreparedSQL);
 
-                error_log(print_r($Queries,true));
-
                 // Run all the SQL Statement separated by `;` in the file
                 $records = null;
                 foreach ($Queries as $Query) {
@@ -324,7 +322,6 @@ class ReportGenerator
                                     " LIMIT $summarizedParameters->start, $summarizedParameters->limit",
                                     $Query
                                 ));
-
                                 $SQL->execute();
                                 $ResultRecords[] = $SQL->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -334,10 +331,10 @@ class ReportGenerator
                                     '',
                                     $Query
                                 ));
-
                                 $SQL->execute();
                                 $records[] = $SQL->fetchAll();
                                 $Total = count($records[count($records) - 1]);
+
                             } else {
                                 $SQL = $this->conn->prepare($Query);
                                 $SQL->execute();
@@ -508,10 +505,8 @@ class ReportGenerator
         $configuration['grid'] = '';
         foreach ($gridFields as $Index => $gridField) {
             if(isset($gridField->grouping)){
-                if(!empty($field)){
-                    $configuration['store'] = "groupField: '$gridField->name',";
-                    $configuration['grid'] = "features: [{ftype:'grouping'}],";
-                }
+                $configuration['store'] = "groupField: '$Index',";
+                $configuration['grid'] = "features: [{ftype:'grouping'}],";
             }
         }
         return $configuration;

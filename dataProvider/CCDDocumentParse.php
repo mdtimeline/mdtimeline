@@ -570,10 +570,28 @@ class CCDDocumentParse
 					$status = $rel['observation']['value']['@attributes'];
 					$problem->status = $status['displayName'];
 					$problem->status_code = $status['code'];
-					$problem->status_status_code_typecode = $this->getCodeSystemName($status['codeSystem']);
+					$problem->status_code_type = $this->getCodeSystemName($status['codeSystem']);
 				}
 				unset($rel);
 			}
+
+			if(!isset($problem->status) &&
+				(
+					!isset($problem->end_date) ||
+					$problem->end_date == '0000-00-00' ||
+					$problem->end_date == '0000-00-00 00:00:00'
+				)
+			){
+				$problem->status = 'Active';
+				$problem->status_code = '55561003';
+				$problem->status_code_type = 'SNOMEDCT';
+			}else{
+				$problem->status = 'Inactive';
+				$problem->status_code = '73425007';
+				$problem->status_code_type = 'SNOMEDCT';
+			}
+
+			$problem->occurrence = 'Unknown or N/A';
 
 			$problems[] = $problem;
 		}

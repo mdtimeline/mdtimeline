@@ -127,10 +127,12 @@ class CCDDocument extends CDDDocumentBase
             ]
         ];
 
-        if(isset($this->encounter)){
-            $this->xmlData['title'] = $this->facility['name'] . ' - Clinical Office Visit Summary';
-        }else{
-            $this->xmlData['title'] = $this->facility['name'] . ' - Continuity of Care Document';
+        if($this->eid =='all_enc'){
+            $this->xmlData['title'] = 'Continuity of Care Document';
+        } elseif(is_numeric($this->eid)) {
+            $this->xmlData['title'] = 'Clinical Office Visit Summary';
+        } elseif($this->eid == 'no_enc') {
+            $this->xmlData['title'] = 'General Header Constraints';
         }
 
         $this->xmlData['effectiveTime'] = [
@@ -316,7 +318,6 @@ class CCDDocument extends CDDDocumentBase
 	        }
         }
 
-
         if($this->isExcluded('patient_sex')){
 	        $recordTarget['patientRole']['patient']['administrativeGenderCode'] = [
 		        '@attributes' => [
@@ -342,8 +343,6 @@ class CCDDocument extends CDDDocumentBase
 	        }
         }
 
-
-
         if($this->isExcluded('patient_dob')){
 	        $recordTarget['patientRole']['patient']['birthTime'] = [
 		        '@attributes' => [
@@ -358,7 +357,6 @@ class CCDDocument extends CDDDocumentBase
 		        ]
 	        ];
         }
-
 
         if($this->isExcluded('patient_marital_status')){
 	        $recordTarget['patientRole']['patient']['maritalStatusCode'] = [
@@ -454,7 +452,6 @@ class CCDDocument extends CDDDocumentBase
 	        }
         }
 
-
         $recordTarget['patientRole']['patient']['birthplace']['place']['addr'] = $this->addressBuilder(
             false,
             false,
@@ -512,26 +509,43 @@ class CCDDocument extends CDDDocumentBase
 	        }
         }
 
+        if($this->eid === 'all_enc'){
+            $filters = new stdClass();
+            $filters->filter[0] = new stdClass();
+            $filters->filter[0]->property = 'pid';
+            $filters->filter[0]->value = $this->pid;
+            $encounters = $this->Encounter->getEncounters($filters, false, false);
+        }elseif (is_numeric($this->eid)){
+            $filters = new stdClass();
+            $filters->filter[0] = new stdClass();
+            $filters->filter[0]->property = 'eid';
+            $filters->filter[0]->value = $this->eid;
+            $encounters = $this->Encounter->getEncounters($filters, false, false);
+        } elseif($this->eid === 'no_enc') {
+            unset($Patient, $patientData, $Insurance, $insuranceData);
+            return $recordTarget;
+        }
 
+        foreach($encounters as $encounter){
+            $facility = $this->Facilities->getFacility($encounter['facility']);
 
-        $org = [];
+            $org['id']['@attributes'] = [
+                'root' => '2.16.840.1.113883.4.6',
+                'assigningAuthorityName' => 'CCD-Author'
+            ];
+            $org['name']['prefix'] = $facility['name'];
+            $org['telecom'] = $this->telecomBuilder($facility['phone'], 'WP');
+            $org['addr'] = $this->addressBuilder(
+                'WP',
+                $facility['address'] . ' ' . $facility['address_cont'],
+                $facility['city'],
+                $facility['state'],
+                $facility['postal_code'],
+                $facility['country_code']
+            );
 
-        $org['id']['@attributes'] = [
-            'root' => '2.16.840.1.113883.4.6',
-            'assigningAuthorityName' => 'CCD-Author'
-        ];
-        $org['name']['prefix'] = $this->facility['name'];
-        $org['telecom'] = $this->telecomBuilder($this->facility['phone'], 'WP');
-        $org['addr'] = $this->addressBuilder(
-            'WP',
-            $this->facility['address'] . ' ' . $this->facility['address_cont'],
-            $this->facility['city'],
-            $this->facility['state'],
-            $this->facility['postal_code'],
-            $this->facility['country_code']
-        );
-
-        $recordTarget['patientRole']['providerOrganization'] = $org;
+            $recordTarget['patientRole']['providerOrganization'][] = $org;
+        }
 
         unset($Patient, $patientData, $Insurance, $insuranceData);
 
@@ -548,82 +562,104 @@ class CCDDocument extends CDDDocumentBase
      */
     public function getAuthor()
     {
-        $author = [
-            'time' => [
-                '@attributes' => [
-                    'value' => $this->timeNow
+        if($this->eid === 'all_enc'){
+            $filters = new stdClass();
+            $filters->filter[0] = new stdClass();
+            $filters->filter[0]->property = 'pid';
+            $filters->filter[0]->value = $this->pid;
+            $encounters = $this->Encounter->getEncounters($filters, false, false);
+        }elseif (is_numeric($this->eid)){
+            $filters = new stdClass();
+            $filters->filter[0] = new stdClass();
+            $filters->filter[0]->property = 'eid';
+            $filters->filter[0]->value = $this->eid;
+            $encounters = $this->Encounter->getEncounters($filters, false, false);
+        } elseif($this->eid === 'no_enc') {
+            return [];
+        }
+
+        foreach($encounters as $encounter){
+            $facility = $this->Facilities->getFacility($encounter['facility']);
+            $provider = $this->User->getUserByUid($encounter['provider_uid']);
+
+            $author = [
+                'time' => [
+                    '@attributes' => [
+                        'value' => $this->timeNow
+                    ]
                 ]
-            ]
-        ];
-        $author['assignedAuthor'] = [
-            'id' => [
-                '@attributes' => [
-                    'root' => '2.16.840.1.113883.4.6',
-                    'extension' => $this->user['npi'] == '' ? $this->user['id'] : $this->user['npi']
+            ];
+            $author['assignedAuthor'] = [
+                'id' => [
+                    '@attributes' => [
+                        'root' => '2.16.840.1.113883.4.6',
+                        'extension' => $provider['npi'] == '' ? $provider['id'] : $provider['npi']
+                    ]
                 ]
-            ]
-        ];
-        // Code
-        // https://phinvads.cdc.gov/vads/ViewValueSet.action?id=9FD34BBC-617F-DD11-B38D-00188B398520#
-        // TODO: Add a taxonomy field on the users form.
-        $author['assignedAuthor']['code'] = [
-            '@attributes' => [
-                'code' => '163WA2000X',
-                'displayName' => 'Administrator',
-                'codeSystem' => '2.16.840.1.114222.4.11.1066',
-                'codeSystemName' => 'Healthcare Provider Taxonomy (NUCC - HIPAA)'
-            ]
-        ];
-        $author['assignedAuthor']['addr'] = $this->addressBuilder(
-            'WP',
-            $this->facility['address'] . ' ' . $this->facility['address_cont'],
-            $this->facility['city'],
-            $this->facility['state'],
-            $this->facility['postal_code'],
-            $this->facility['country_code']
-        );
-
-        $author['assignedAuthor']['telecom'] = $this->telecomBuilder(
-            $this->facility['phone'],
-            'WP'
-        );
-
-        $author['assignedAuthor']['assignedPerson'] = [
-            '@attributes' => [
-                'classCode' => 'PSN',
-                'determinerCode' => 'INSTANCE'
-            ],
-            'name' => [
-                'given' => $this->user['fname'],
-                'family' => $this->user['lname']
-            ]
-        ];
-
-        $author['assignedAuthor']['representedOrganization'] = [
-            'id' => [
+            ];
+            // Code
+            // https://phinvads.cdc.gov/vads/ViewValueSet.action?id=9FD34BBC-617F-DD11-B38D-00188B398520#
+            // TODO: Add a taxonomy field on the users form.
+            $author['assignedAuthor']['code'] = [
                 '@attributes' => [
-                    'root' => '2.16.840.1.113883.4.6'
+                    'code' => '163WA2000X',
+                    'displayName' => 'Administrator',
+                    'codeSystem' => '2.16.840.1.114222.4.11.1066',
+                    'codeSystemName' => 'Healthcare Provider Taxonomy (NUCC - HIPAA)'
+                ]
+            ];
+            $author['assignedAuthor']['addr'] = $this->addressBuilder(
+                'WP',
+                $facility['address'] . ' ' . $facility['address_cont'],
+                $facility['city'],
+                $facility['state'],
+                $facility['postal_code'],
+                $facility['country_code']
+            );
+
+            $author['assignedAuthor']['telecom'] = $this->telecomBuilder(
+                $facility['phone'],
+                'WP'
+            );
+
+            $author['assignedAuthor']['assignedPerson'] = [
+                '@attributes' => [
+                    'classCode' => 'PSN',
+                    'determinerCode' => 'INSTANCE'
                 ],
-            ],
-            'name' => [
-                'prefix' => $this->facility['name']
-            ]
-        ];
+                'name' => [
+                    'given' => $provider['fname'],
+                    'family' => $provider['lname']
+                ]
+            ];
 
-        $author['assignedAuthor']
-        ['representedOrganization']
-        ['telecom'] = $this->telecomBuilder($this->facility['phone'], 'WP');
+            $author['assignedAuthor']['representedOrganization'] = [
+                'id' => [
+                    '@attributes' => [
+                        'root' => '2.16.840.1.113883.4.6'
+                    ],
+                ],
+                'name' => [
+                    'prefix' => $facility['name']
+                ]
+            ];
 
-        $author['assignedAuthor']['representedOrganization']['addr'] = $this->addressBuilder(
-            'WP',
-            $this->facility['address'] . ' ' . $this->facility['address_cont'],
-            $this->facility['city'],
-            $this->facility['state'],
-            $this->facility['postal_code'],
-            $this->facility['country_code']
-        );
+            $author['assignedAuthor']
+            ['representedOrganization']
+            ['telecom'] = $this->telecomBuilder($facility['phone'], 'WP');
 
-        return $author;
+            $author['assignedAuthor']['representedOrganization']['addr'] = $this->addressBuilder(
+                'WP',
+                $facility['address'] . ' ' . $facility['address_cont'],
+                $facility['city'],
+                $facility['state'],
+                $facility['postal_code'],
+                $facility['country_code']
+            );
+            $authors[] = $author;
+        }
+
+        return $authors;
     }
 
     /**
@@ -642,34 +678,56 @@ class CCDDocument extends CDDDocumentBase
      */
     public function getCustodian()
     {
-        $custodian = [
-            'assignedCustodian' => [
-                'representedCustodianOrganization' => [
-                    'id' => [
-                        '@attributes' => [
-                            'root' => '2.16.840.1.113883.4.6'
+        if($this->eid === 'all_enc'){
+            $filters = new stdClass();
+            $filters->filter[0] = new stdClass();
+            $filters->filter[0]->property = 'pid';
+            $filters->filter[0]->value = $this->pid;
+            $encounters = $this->Encounter->getEncounters($filters, false, false);
+        }elseif (is_numeric($this->eid)){
+            $filters = new stdClass();
+            $filters->filter[0] = new stdClass();
+            $filters->filter[0]->property = 'eid';
+            $filters->filter[0]->value = $this->eid;
+            $encounters = $this->Encounter->getEncounters($filters, false, false);
+        } elseif($this->eid === 'no_enc') {
+            return [];
+        }
+
+        foreach($encounters as $encounter){
+            $facility = $this->Facilities->getFacility($encounter['facility']);
+
+            $custodian = [
+                'assignedCustodian' => [
+                    'representedCustodianOrganization' => [
+                        'id' => [
+                            '@attributes' => [
+                                'root' => '2.16.840.1.113883.4.6'
+                            ]
+                        ],
+                        'name' => [
+                            'prefix' => $facility['name']
                         ]
-                    ],
-                    'name' => [
-                        'prefix' => $this->facility['name']
                     ]
                 ]
-            ]
-        ];
+            ];
 
-        $custodian['assignedCustodian']['representedCustodianOrganization']['telecom'] = $this->telecomBuilder(
-            $this->facility['phone'], 'WP'
-        );
+            $custodian['assignedCustodian']['representedCustodianOrganization']['telecom'] = $this->telecomBuilder(
+                $facility['phone'], 'WP'
+            );
 
-        $custodian['assignedCustodian']['representedCustodianOrganization']['addr'] = $this->addressBuilder(
-            'WP', $this->facility['address'] . ' ' . $this->facility['address_cont'],
-            $this->facility['city'],
-            $this->facility['state'],
-            $this->facility['postal_code'],
-            $this->facility['country_code']
-        );
+            $custodian['assignedCustodian']['representedCustodianOrganization']['addr'] = $this->addressBuilder(
+                'WP', $facility['address'] . ' ' . $facility['address_cont'],
+                $facility['city'],
+                $facility['state'],
+                $facility['postal_code'],
+                $facility['country_code']
+            );
 
-        return $custodian;
+            $custodians[] = $custodian;
+        }
+
+        return $custodians;
     }
 
     /**
@@ -684,23 +742,46 @@ class CCDDocument extends CDDDocumentBase
     public function getInformationRecipient()
     {
 
-        $recipient = [
-            'intendedRecipient' => [
-                'informationRecipient' => [
-                    'name' => [
-                        'given' => $this->user['fname'],
-                        'family' => $this->user['lname']
+        if($this->eid === 'all_enc'){
+            $filters = new stdClass();
+            $filters->filter[0] = new stdClass();
+            $filters->filter[0]->property = 'pid';
+            $filters->filter[0]->value = $this->pid;
+            $encounters = $this->Encounter->getEncounters($filters, false, false);
+        }elseif (is_numeric($this->eid)){
+            $filters = new stdClass();
+            $filters->filter[0] = new stdClass();
+            $filters->filter[0]->property = 'eid';
+            $filters->filter[0]->value = $this->eid;
+            $encounters = $this->Encounter->getEncounters($filters, false, false);
+        } elseif($this->eid === 'no_enc') {
+            return [];
+        }
+
+        foreach($encounters as $encounter){
+            $facility = $this->Facilities->getFacility($encounter['facility']);
+            $provider = $this->User->getUserByUid($encounter['provider_uid']);
+
+            $recipient = [
+                'intendedRecipient' => [
+                    'informationRecipient' => [
+                        'name' => [
+                            'given' => $provider['fname'],
+                            'family' => $provider['lname']
+                        ],
                     ],
-                ],
-                'receivedOrganization' => [
-                    'name' => [
-                        'prefix' => $this->facility['name']
+                    'receivedOrganization' => [
+                        'name' => [
+                            'prefix' => $facility['name']
+                        ]
                     ]
                 ]
-            ]
-        ];
+            ];
 
-        return $recipient;
+            $recipients[] = $recipient;
+        }
+
+        return $recipients;
     }
 
     /**
@@ -713,45 +794,69 @@ class CCDDocument extends CDDDocumentBase
      */
     public function getAuthenticator()
     {
-        $authenticator = [
-            'time' => [
-                '@attributes' => [
-                    'value' => $this->timeNow
-                ]
-            ],
-            'signatureCode' => [
-                '@attributes' => [
-                    'code' => 'S'
-                ],
-            ],
-            'assignedEntity' => [
-                'id' => [
+
+        if($this->eid === 'all_enc'){
+            $filters = new stdClass();
+            $filters->filter[0] = new stdClass();
+            $filters->filter[0]->property = 'pid';
+            $filters->filter[0]->value = $this->pid;
+            $encounters = $this->Encounter->getEncounters($filters, false, false);
+        }elseif (is_numeric($this->eid)){
+            $filters = new stdClass();
+            $filters->filter[0] = new stdClass();
+            $filters->filter[0]->property = 'eid';
+            $filters->filter[0]->value = $this->eid;
+            $encounters = $this->Encounter->getEncounters($filters, false, false);
+        } elseif($this->eid === 'no_enc') {
+            return [];
+        }
+
+        foreach($encounters as $encounter){
+            $facility = $this->Facilities->getFacility($encounter['facility']);
+            $provider = $this->User->getUserByUid($encounter['provider_uid']);
+
+            $authenticator = [
+                'time' => [
                     '@attributes' => [
-                        'root' => '2.16.840.1.113883.3.225',
-                        'assigningAuthorityName' => $this->facility['name']
+                        'value' => $this->timeNow
+                    ]
+                ],
+                'signatureCode' => [
+                    '@attributes' => [
+                        'code' => 'S'
+                    ],
+                ],
+                'assignedEntity' => [
+                    'id' => [
+                        '@attributes' => [
+                            'root' => '2.16.840.1.113883.3.225',
+                            'assigningAuthorityName' => $facility['name']
+                        ]
                     ]
                 ]
-            ]
-        ];
+            ];
 
-        $authenticator['assignedEntity']['addr'] = $this->addressBuilder(
-            'WP',
-            $this->facility['address'] . ' ' . $this->facility['address_cont'],
-            $this->facility['city'],
-            $this->facility['state'],
-            $this->facility['postal_code'],
-            $this->facility['country_code']
-        );
+            $authenticator['assignedEntity']['addr'] = $this->addressBuilder(
+                'WP',
+                $facility['address'] . ' ' . $facility['address_cont'],
+                $facility['city'],
+                $facility['state'],
+                $facility['postal_code'],
+                $facility['country_code']
+            );
 
-        $authenticator['assignedEntity']['telecom'] = $this->telecomBuilder($this->facility['phone'], 'WP');
-        $authenticator['assignedEntity']['assignedPerson'] = [
-            'name' => [
-                'given' => $this->user['fname'],
-                'family' => $this->user['lname']
-            ]
-        ];
+            $authenticator['assignedEntity']['telecom'] = $this->telecomBuilder($facility['phone'], 'WP');
+            $authenticator['assignedEntity']['assignedPerson'] = [
+                'name' => [
+                    'given' => $provider['fname'],
+                    'family' => $provider['lname']
+                ]
+            ];
 
-        return $authenticator;
+            $authenticators[] = $authenticator;
+        }
+
+        return $authenticators;
     }
 
     /**
@@ -1127,30 +1232,50 @@ class CCDDocument extends CDDDocumentBase
      */
     public function getInformant()
     {
-        $informant = [];
+        if($this->eid === 'all_enc'){
+            $filters = new stdClass();
+            $filters->filter[0] = new stdClass();
+            $filters->filter[0]->property = 'pid';
+            $filters->filter[0]->value = $this->pid;
+            $encounters = $this->Encounter->getEncounters($filters, false, false);
+        }elseif (is_numeric($this->eid)){
+            $filters = new stdClass();
+            $filters->filter[0] = new stdClass();
+            $filters->filter[0]->property = 'eid';
+            $filters->filter[0]->value = $this->eid;
+            $encounters = $this->Encounter->getEncounters($filters, false, false);
+        } elseif($this->eid === 'no_enc') {
+            return [];
+        }
 
-        $informant['assignedEntity']['id']['@attributes'] = [
-            'root' => '2.16.840.1.113883.4.6'
-        ];
+        foreach($encounters as $encounter){
+            $facility = $this->Facilities->getFacility($encounter['facility']);
+            $provider = $this->User->getUserByUid($encounter['provider_uid']);
+            $informant = [];
+            $informant['assignedEntity']['id']['@attributes'] = [
+                'root' => '2.16.840.1.113883.4.6'
+            ];
 
-        $informant['assignedEntity']['addr'] = $this->addressBuilder(
-            'WP',
-            $this->facility['address'] . ' ' . $this->facility['address_cont'],
-            $this->facility['city'],
-            $this->facility['state'],
-            $this->facility['postal_code'],
-            $this->facility['country_code']
-        );
-        $informant['assignedEntity']['telecom'] = $this->telecomBuilder($this->facility['phone'], 'WP');
+            $informant['assignedEntity']['addr'] = $this->addressBuilder(
+                'WP',
+                $facility['address'] . ' ' . $facility['address_cont'],
+                $facility['city'],
+                $facility['state'],
+                $facility['postal_code'],
+                $facility['country_code']
+            );
+            $informant['assignedEntity']['telecom'] = $this->telecomBuilder($facility['phone'], 'WP');
 
-        $informant['assignedEntity']['assignedPerson'] = [
-            'name' => [
-                'given' => $this->user['fname'],
-                'family' => $this->user['lname']
-            ]
-        ];
+            $informant['assignedEntity']['assignedPerson'] = [
+                'name' => [
+                    'given' => $provider['fname'],
+                    'family' => $provider['lname']
+                ]
+            ];
+            $informants[] = $informant;
+        }
 
-        return $informant;
+        return $informants;
     }
 
     /**
@@ -1165,29 +1290,52 @@ class CCDDocument extends CDDDocumentBase
      */
     public function getDataEnterer()
     {
-        $dataEnterer['assignedEntity']['id']['@attributes'] = [
-            'root' => '2.16.840.1.113883.4.6',
-            'extension' => $this->facility['id']
-        ];
+        if($this->eid === 'all_enc'){
+            $filters = new stdClass();
+            $filters->filter[0] = new stdClass();
+            $filters->filter[0]->property = 'pid';
+            $filters->filter[0]->value = $this->pid;
+            $encounters = $this->Encounter->getEncounters($filters, false, false);
+        }elseif (is_numeric($this->eid)){
+            $filters = new stdClass();
+            $filters->filter[0] = new stdClass();
+            $filters->filter[0]->property = 'eid';
+            $filters->filter[0]->value = $this->eid;
+            $encounters = $this->Encounter->getEncounters($filters, false, false);
+        } elseif($this->eid === 'no_enc') {
+            return [];
+        }
 
-        $dataEnterer['assignedEntity']['addr'] = $this->addressBuilder(
-            'WP',
-            $this->facility['address'] . ' ' . $this->facility['address_cont'],
-            $this->facility['city'],
-            $this->facility['state'],
-            $this->facility['postal_code'],
-            $this->facility['country_code']
-        );
-        $dataEnterer['assignedEntity']['telecom'] = $this->telecomBuilder($this->facility['phone'], 'WP');
+        foreach($encounters as $encounter){
+            $facility = $this->Facilities->getFacility($encounter['facility']);
+            $provider = $this->User->getUserByUid($encounter['provider_uid']);
 
-        $dataEnterer['assignedEntity']['assignedPerson'] = [
-            'name' => [
-                'given' => $this->user['fname'],
-                'family' => $this->user['lname']
-            ]
-        ];
+            $dataEnterer['assignedEntity']['id']['@attributes'] = [
+                'root' => '2.16.840.1.113883.4.6',
+                'extension' => $facility['id']
+            ];
 
-        return $dataEnterer;
+            $dataEnterer['assignedEntity']['addr'] = $this->addressBuilder(
+                'WP',
+                $facility['address'] . ' ' . $facility['address_cont'],
+                $facility['city'],
+                $facility['state'],
+                $facility['postal_code'],
+                $facility['country_code']
+            );
+            $dataEnterer['assignedEntity']['telecom'] = $this->telecomBuilder($facility['phone'], 'WP');
+
+            $dataEnterer['assignedEntity']['assignedPerson'] = [
+                'name' => [
+                    'given' => $provider['fname'],
+                    'family' => $provider['lname']
+                ]
+            ];
+
+            $dataEnterers[] = $dataEnterer;
+        }
+
+        return $dataEnterers;
     }
 
     /**
@@ -1195,72 +1343,80 @@ class CCDDocument extends CDDDocumentBase
      * @param $uid
      * @return array|bool
      */
-    public function getPerformerByUid($uid)
+    public function getPerformers()
     {
-        $User = new User();
-        $user = $User->getUser($uid);
-        unset($User);
+        if($this->eid === 'all_enc'){
+            $filters = new stdClass();
+            $filters->filter[0] = new stdClass();
+            $filters->filter[0]->property = 'pid';
+            $filters->filter[0]->value = $this->pid;
+            $encounters = $this->Encounter->getEncounters($filters, false, false);
+        }elseif (is_numeric($this->eid)){
+            $filters = new stdClass();
+            $filters->filter[0] = new stdClass();
+            $filters->filter[0]->property = 'eid';
+            $filters->filter[0]->value = $this->eid;
+            $encounters = $this->Encounter->getEncounters($filters, false, false);
+        } elseif($this->eid === 'no_enc') {
+            return [];
+        }
 
-        if($user === false) return false;
-        $user = (object)$user;
+        foreach($encounters as $encounter){
+            $facility = $this->Facilities->getFacility($encounter['facility']);
+            $provider = $this->User->getUserByUid($encounter['provider_uid']);
 
-        if($user->facility_id == 0) return false;
-
-        $Facilities = new Facilities();
-        $facility = $Facilities->getFacility(['id' => $user->facility_id]);
-        if($user === false) return false;
-        $facility = (object)$facility;
-
-        $performer = [
-            'assignedEntity' => [
-                'id' => [
-                    '@attributes' => [
-                        'root' => UUID::v4()
+            $performer = [
+                'assignedEntity' => [
+                    'id' => [
+                        '@attributes' => [
+                            'root' => UUID::v4()
+                        ]
                     ]
                 ]
-            ]
-        ];
+            ];
 
-        $performer['assignedEntity']['addr'] = $this->addressBuilder(
-            'HP',
-            $user->street,
-            $user->city,
-            $user->state,
-            $user->postal_code,
-            $user->country_code
-        );
+            $performer['assignedEntity']['addr'] = $this->addressBuilder(
+                'HP',
+                $provider['street'],
+                $provider['city'],
+                $provider['state'],
+                $provider['postal_code'],
+                $provider['country_code']
+            );
 
-        $performer['assignedEntity']['telecom'] = $this->telecomBuilder($user->phone);
+            $performer['assignedEntity']['telecom'] = $this->telecomBuilder($provider['phone']);
 
-        $performer['assignedEntity']['representedOrganization'] = [
-            'id' => [
-                '@attributes' => [
-                    'root' => '2.16.840.1.113883.4.6'
+            $performer['assignedEntity']['representedOrganization'] = [
+                'id' => [
+                    '@attributes' => [
+                        'root' => '2.16.840.1.113883.4.6'
+                    ]
                 ]
-            ]
-        ];
+            ];
 
-        $performer['assignedEntity']['assignedPerson']['name'] = [
-            'name' => [
-                'prefix' => $this->primaryProvider['title'],
-                'given' => $this->primaryProvider['fname'],
-                'family' => $this->primaryProvider['lname']
-            ]
-        ];
+            $performer['assignedEntity']['assignedPerson']['name'] = [
+                'name' => [
+                    'prefix' => $provider['title'],
+                    'given' => $provider['fname'],
+                    'family' => $provider['lname']
+                ]
+            ];
 
-        $performer['assignedEntity']['representedOrganization']['name'] = $facility->name;
-        $performer['assignedEntity']['representedOrganization']['telecom'] = $this->telecomBuilder($this->facility['phone'], 'WP');
-        $performer['assignedEntity']['representedOrganization']['addr'] = $this->addressBuilder(
-            'WP',
-            $this->facility['address'].' '.$this->facility['address_cont'],
-            $this->facility['city'],
-            $this->facility['state'],
-            $this->facility['postal_code'],
-            $this->facility['country_code']
-        );
+            $performer['assignedEntity']['representedOrganization']['name'] = $facility['name'];
+            $performer['assignedEntity']['representedOrganization']['telecom'] = $this->telecomBuilder($facility['phone'], 'WP');
+            $performer['assignedEntity']['representedOrganization']['addr'] = $this->addressBuilder(
+                'WP',
+                $facility['address'].' '.$facility['address_cont'],
+                $facility['city'],
+                $facility['state'],
+                $facility['postal_code'],
+                $facility['country_code']
+            );
 
+            $performers[] = $performer;
+        }
 
-        return $performer;
+        return $performers;
     }
 
     public function setReasonOfVisitSection()
@@ -1628,7 +1784,7 @@ class CCDDocument extends CDDDocumentBase
                 ];
 
                 if($item['uid'] > 0){
-                    $entry['procedure']['performer'] = $this->getPerformerByUid($item['uid']);
+                    $entry['procedure']['performer'] = $this->getPerformers($item['uid']);
                 };
 
                 $entry['procedure']['methodCode'] = [

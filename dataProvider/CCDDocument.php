@@ -839,7 +839,7 @@ class CCDDocument extends CDDDocumentBase
 
         // Eliminate duplicates
         $encounters = $this->removeDuplicateKeys('provider_uid',$encounters);
-        error_log(print_r($encounters,true));
+
         foreach ($encounters as $encounter) {
             $facility = $this->Facilities->getFacility($encounter['facility']);
             $provider = $this->User->getUserByUid($encounter['provider_uid']);

@@ -102,6 +102,53 @@ class MatchaHelper extends Matcha
      */
     public static function storeAudit($saveParams = [])
     {
+        $categories = [
+            'encounter_family_history' => 'Encounter SOAP',
+            'encounter_procedures' => 'Encounter SOAP',
+            'encounter_review_of_systems' => 'Encounter SOAP',
+            'encounter_soap' => 'Encounter SOAP',
+
+            'patient'=>'Demographics',
+            'patient_contacts'=>'Demographics',
+
+            'patient_labs'=>'Patient Orders',
+            'patient_lab_results'=>'Patient Orders',
+            'patient_medications'=>'Patient Orders',
+            'patient_order_results'=>'Patient Orders',
+            'patient_order_results_observation'=>'Patient Orders',
+            'patient_orders'=>'Patient Orders',
+            'patient_prescriptions'=>'Patient Orders',
+
+            'patient_active_problems'=>'Patient Active Problems',
+
+            'patient_advanced_directives'=>'Patient Advanced Directives',
+
+            'patient_allergies'=>'Patient Allergies',
+
+            'patient_appointment_requests'=>'Patient Appointments',
+
+            'patient_care_plan_goals'=>'Patient Plan Of Care',
+
+            'patient_cognitive_functional_status'=>'Patient Cogn/Func Status',
+
+            'patient_disclosures'=>'Patient Disclosures',
+
+            'patient_doctor_notes'=>'Patient Documents',
+            'patient_documents'=>'Patient Documents',
+
+            'patient_family_history'=>'Patient History',
+            'patient_surgery'=>'Patient History',
+
+            'patient_education_resources'=>'Patient Education Resources',
+
+            'patient_immunizations'=>'Patient Immunizations',
+
+            'patient_referrals'=>'Patient Referrals',
+
+            'patient_smoke_status'=>'Social History',
+            'patient_social_history'=>'Social History'
+        ];
+
         // Set the array index, even it exist or not.
         $saveParams['sql'] = isset($saveParams['sql']) ? $saveParams['sql'] : '';
 
@@ -154,6 +201,7 @@ class MatchaHelper extends Matcha
             'eid' => $eid,
             'uid' => $uid,
             'fid' => $fid,
+            'category' => (isset($categories[$table]) ? $categories[$table] : ''),
             'event' => $saveParams['event'],
             'table_name' => $table,
             'sql_string' => $sql,

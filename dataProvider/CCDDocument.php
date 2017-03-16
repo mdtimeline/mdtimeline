@@ -524,6 +524,8 @@ class CCDDocument extends CDDDocumentBase
         } elseif($this->eid === 'no_enc') {
             unset($Patient, $patientData, $Insurance, $insuranceData);
             return $recordTarget;
+        } else {
+            return $recordTarget;
         }
 
         foreach($encounters as $encounter){
@@ -575,6 +577,8 @@ class CCDDocument extends CDDDocumentBase
             $filters->filter[0]->value = $this->eid;
             $encounters = $this->Encounter->getEncounters($filters, false, false);
         } elseif($this->eid === 'no_enc') {
+            return [];
+        } else {
             return [];
         }
 
@@ -692,6 +696,8 @@ class CCDDocument extends CDDDocumentBase
             $encounters = $this->Encounter->getEncounters($filters, false, false);
         } elseif($this->eid === 'no_enc') {
             return [];
+        } else {
+            return [];
         }
 
         foreach($encounters as $encounter){
@@ -756,6 +762,8 @@ class CCDDocument extends CDDDocumentBase
             $encounters = $this->Encounter->getEncounters($filters, false, false);
         } elseif($this->eid === 'no_enc') {
             return [];
+        } else {
+            return [];
         }
 
         foreach($encounters as $encounter){
@@ -808,6 +816,8 @@ class CCDDocument extends CDDDocumentBase
             $filters->filter[0]->value = $this->eid;
             $encounters = $this->Encounter->getEncounters($filters, false, false);
         } elseif($this->eid === 'no_enc') {
+            return [];
+        } else {
             return [];
         }
 
@@ -1246,6 +1256,8 @@ class CCDDocument extends CDDDocumentBase
             $encounters = $this->Encounter->getEncounters($filters, false, false);
         } elseif($this->eid === 'no_enc') {
             return [];
+        } else {
+            return [];
         }
 
         foreach($encounters as $encounter){
@@ -1303,6 +1315,8 @@ class CCDDocument extends CDDDocumentBase
             $filters->filter[0]->value = $this->eid;
             $encounters = $this->Encounter->getEncounters($filters, false, false);
         } elseif($this->eid === 'no_enc') {
+            return [];
+        } else {
             return [];
         }
 

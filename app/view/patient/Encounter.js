@@ -443,6 +443,14 @@ Ext.define('App.view.patient.Encounter', {
 				'-',
 				{
 					xtype:'button',
+					action: 'ccda',
+					itemId: 'EncounterCDAImportBtn',
+					tooltip: _('ccda_import'),
+					icon: 'resources/images/icons/icoOutbox.png'
+				},
+				'-',
+				{
+					xtype:'button',
 					action: 'encounter',
 					text: _('encounter_details')
 				},
@@ -483,6 +491,8 @@ Ext.define('App.view.patient.Encounter', {
 	onToolbarBtnHandler: function(btn){
 		if(btn.action == 'encounter'){
 			app.updateEncounter(this.encounter);
+		}else if(btn.action == 'ccda'){
+			// this will be handled at controller/CCDImport.js
 		}else{
 			app.onMedicalWin(btn.action);
 		}

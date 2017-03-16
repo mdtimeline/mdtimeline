@@ -27,7 +27,7 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 		align: 'stretch'
 	},
 	width: 900,
-	height: 800,
+	height: 700,
 	autoScroll: true,
 	bodyPadding: 5,
 	defaults: {

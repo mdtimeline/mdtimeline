@@ -41785,9 +41785,18 @@ Ext.define('App.controller.patient.CCDImport', {
 		me.getCcdImportWindow().close();
 		me.getCcdImportPreviewWindow().close();
 
-		app.setPatient(pid, null, null, function(){
-			app.openPatientSummary();
-		});
+		var panel_cls = app.getActivePanel().$className;
+
+		if(panel_cls == 'App.view.patient.Encounter'){
+			app.setPatient(app.patient.pid, app.patient.eid, null, function(){
+				app.getActivePanel().openEncounter(app.patient.eid);
+			});
+
+		}else if(panel_cls == 'App.view.patient.Summary') {
+			app.setPatient(pid, null, null, function(){
+				app.openPatientSummary();
+			});
+		}
 
 		app.msg(_('sweet'), _('patient_data_imported'));
 	},
@@ -56515,8 +56524,13 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			'#EncounterProviderCmb': {
 				beforerender: me.onEncounterProviderCmbBeforeRender,
 				select: me.onEncounterProviderCmbSelect
+			},
+			'#EncounterCDAImportBtn': {
+				click: me.onEncounterCDAImportBtnClick
 			}
 		});
+
+		me.importCtrl = this.getController('patient.CCDImport');
 	},
 
 	/**
@@ -56627,6 +56641,29 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		}
 
 		return show;
+	},
+
+	onEncounterCDAImportBtnClick: function(btn){
+
+		var me = this,
+			win = Ext.create('App.ux.form.fields.UploadString');
+
+		win.allowExtensions = ['xml','ccd','cda','ccda'];
+		win.on('uploadready', function(comp, stringXml){
+			me.getDocumentData(stringXml);
+		});
+
+		win.show();
+	},
+
+	getDocumentData: function(stringXml){
+		var me = this;
+
+		CCDDocumentParse.parseDocument(stringXml, function(ccdData){
+			me.importCtrl.validatePosibleDuplicates = false;
+			me.importCtrl.CcdImport(ccdData, app.patient.pid);
+			me.importCtrl.validatePosibleDuplicates = true;
+		});
 	}
 
 });
@@ -59834,6 +59871,14 @@ Ext.define('App.view.patient.Encounter', {
 				'-',
 				{
 					xtype:'button',
+					action: 'ccda',
+					itemId: 'EncounterCDAImportBtn',
+					tooltip: _('ccda_import'),
+					icon: 'resources/images/icons/icoOutbox.png'
+				},
+				'-',
+				{
+					xtype:'button',
 					action: 'encounter',
 					text: _('encounter_details')
 				},
@@ -59874,6 +59919,8 @@ Ext.define('App.view.patient.Encounter', {
 	onToolbarBtnHandler: function(btn){
 		if(btn.action == 'encounter'){
 			app.updateEncounter(this.encounter);
+		}else if(btn.action == 'ccda'){
+			// this will be handled at controller/CCDImport.js
 		}else{
 			app.onMedicalWin(btn.action);
 		}
@@ -63516,7 +63563,7 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 		align: 'stretch'
 	},
 	width: 900,
-	height: 800,
+	height: 700,
 	autoScroll: true,
 	bodyPadding: 5,
 	defaults: {

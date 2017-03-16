@@ -677,9 +677,18 @@ Ext.define('App.controller.patient.CCDImport', {
 		me.getCcdImportWindow().close();
 		me.getCcdImportPreviewWindow().close();
 
-		app.setPatient(pid, null, null, function(){
-			app.openPatientSummary();
-		});
+		var panel_cls = app.getActivePanel().$className;
+
+		if(panel_cls == 'App.view.patient.Encounter'){
+			app.setPatient(app.patient.pid, app.patient.eid, null, function(){
+				app.getActivePanel().openEncounter(app.patient.eid);
+			});
+
+		}else if(panel_cls == 'App.view.patient.Summary') {
+			app.setPatient(pid, null, null, function(){
+				app.openPatientSummary();
+			});
+		}
 
 		app.msg(_('sweet'), _('patient_data_imported'));
 	},

@@ -486,9 +486,6 @@ class CDDDocumentBase
                 ]
             ];
 
-            /**
-             * Note: In here we need to detect, if the user requested compile all the encounters
-             */
             if(is_numeric($this->eid)){
                 $this->encounter = $this->Encounter->getEncounter($this->eid, false, false);
                 $this->encounter = isset($this->encounter['encounter']) ? $this->encounter['encounter'] : $this->encounter;

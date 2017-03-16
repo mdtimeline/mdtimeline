@@ -1735,5 +1735,7 @@ $LANG = array(
     'patient_race'                          => 'Patient Race',
     'patient_dob'                           => 'Patient DOB',
     'future_schedule_test'                  => 'Future Schedule Test',
-    'diagnostic_test_pending'               => 'Diagnostic Test Pending'
+    'diagnostic_test_pending'               => 'Diagnostic Test Pending',
+    'select_education_resources'            => 'Select Education Resources',
+    'find_encounter_related_education'      => 'Find Encounter Related Education',
 );

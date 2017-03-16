@@ -809,37 +809,42 @@ class CCDDocument extends CDDDocumentBase
             return $documentationOf;
         }
 
-        if(count($encounters) == 1){
-
-            $documentationOf = [
-                'serviceEvent' => [
+        $documentationOf = [
+            'serviceEvent' => [
+                '@attributes' => [
+                    'classCode' => 'PCPR'
+                ],
+                'code' => [
                     '@attributes' => [
-                        'classCode' => 'PCPR'
+                        'nullFlavor' => 'UNK'
+                    ]
+                ],
+                'effectiveTime' => [
+                    '@attributes' => [
+                        'xsi:type' => 'IVL_TS'
                     ],
-                    'code' => [
+                    'low' => [
                         '@attributes' => [
-                            'nullFlavor' => 'UNK'
+                            'value' => $this->parseDate($encounters[0]['service_date'])
                         ]
                     ],
-                    'effectiveTime' => [
+                    'high' => [
                         '@attributes' => [
-                            'xsi:type' => 'IVL_TS'
-                        ],
-                        'low' => [
-                            '@attributes' => [
-                                'value' => $this->parseDate($encounters[0]['service_date'])
-                            ]
-                        ],
-                        'high' => [
-                            '@attributes' => [
-                                'value' => $this->parseDate($encounters[0]['service_date'])
-                            ]
+                            'value' => $this->parseDate($encounters[sizeof($encounters) - 1]['service_date'])
                         ]
                     ]
                 ]
-            ];
+            ]
+        ];
 
-            $documentationOf['serviceEvent']['performer'] = [
+        // Eliminate duplicates
+        $encounters = $this->removeDuplicateKeys('provider_uid',$encounters);
+        error_log(print_r($encounters,true));
+        foreach ($encounters as $encounter) {
+            $facility = $this->Facilities->getFacility($encounter['facility']);
+            $provider = $this->User->getUserByUid($encounter['provider_uid']);
+
+            $documentationOf['serviceEvent']['performer'][$encounter['eid']] = [
                 '@attributes' => [
                     'typeCode' => 'PRF'
                 ],
@@ -851,12 +856,12 @@ class CCDDocument extends CDDDocumentBase
                 'time' => [
                     'low' => [
                         '@attributes' => [
-                            'value' => $this->parseDate($encounters[0]['service_date'])
+                            'value' => $this->parseDate($encounter['service_date'])
                         ]
                     ],
                     'high' => [
                         '@attributes' => [
-                            'value' => $this->parseDate($encounters[0]['service_date'])
+                            'value' => $this->parseDate($encounter['service_date'])
                         ]
                     ]
                 ],
@@ -869,144 +874,44 @@ class CCDDocument extends CDDDocumentBase
                 ]
             ];
 
-            if(isset($this->encounterFacility['name'])){
-                $documentationOf['serviceEvent']['performer']['assignedEntity']['addr'] = $this->addressBuilder(
-                    'WP',
-                    $this->encounterFacility['address'] . ' ' . $this->encounterFacility['address_cont'],
-                    $this->encounterFacility['city'],
-                    $this->encounterFacility['state'],
-                    $this->encounterFacility['postal_code'],
-                    $this->encounterFacility['country_code']
-                );
-            } else {
-                $documentationOf['serviceEvent']['performer']['assignedEntity']['addr'] = $this->addressBuilder(
-                    'WP',
-                    $this->facility['address'] . ' ' . $this->facility['address_cont'],
-                    $this->facility['city'],
-                    $this->facility['state'],
-                    $this->facility['postal_code'],
-                    $this->facility['country_code']
-                );
-            }
+            $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['addr'] = $this->addressBuilder(
+                'WP',
+                $facility['address'] . ' ' . $facility['address_cont'],
+                $facility['city'],
+                $facility['state'],
+                $facility['postal_code'],
+                $facility['country_code']
+            );
 
-            $documentationOf['serviceEvent']['performer']['assignedEntity']['telecom'] = $this->telecomBuilder(
-                $this->facility['phone'],
+            $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['telecom'] = $this->telecomBuilder(
+                $facility['phone'],
                 'WP'
             );
 
-            $documentationOf['serviceEvent']['performer']['assignedEntity']['assignedPerson'] = [
+            $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['assignedPerson'] = [
                 'name' => [
-                    'prefix' => $this->encounterProvider['title'],
-                    'given' => $this->encounterProvider['fname'],
-                    'family' => $this->encounterProvider['lname']
+                    'prefix' => $provider['title'],
+                    'given' => $provider['fname'],
+                    'family' => $provider['lname']
                 ]
             ];
 
-            if(isset($this->encounterFacility['name'])){
-                $documentationOf['serviceEvent']['performer']['assignedEntity']['representedOrganization'] = [
-                    'id' => [
-                        '@attributes' => [
-                            'root' => '2.16.840.1.113883.4.6'
-                        ]
-                    ],
-                    'name' => [
-                        'prefix' => $this->encounterFacility['name']
+            $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['representedOrganization'] = [
+                'id' => [
+                    '@attributes' => [
+                        'root' => '2.16.840.1.113883.4.6'
                     ]
-                ];
-            } else {
-                $documentationOf['serviceEvent']['performer']['assignedEntity']['representedOrganization'] = [
-                    'id' => [
-                        '@attributes' => [
-                            'root' => '2.16.840.1.113883.4.6'
-                        ]
-                    ],
-                    'name' => [
-                        'prefix' => $this->facility['name']
-                    ]
-                ];
-            }
+                ],
+                'name' => [
+                    'prefix' => $facility['name']
+                ]
+            ];
 
-            $documentationOf['serviceEvent']['performer']['assignedEntity']['representedOrganization']['telecom'] =
-                $this->telecomBuilder($this->facility['phone'], 'WP');
+            $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['representedOrganization']['telecom'] =
+                $this->telecomBuilder($facility['phone'], 'WP');
 
-            $documentationOf['serviceEvent']['performer']['assignedEntity']['representedOrganization']['addr'] =
+            $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['representedOrganization']['addr'] =
                 $this->addressBuilder(
-                    'WP',
-                    $this->facility['address'] . ' ' . $this->facility['address_cont'],
-                    $this->facility['city'],
-                    $this->facility['state'],
-                    $this->facility['postal_code'],
-                    $this->facility['country_code']
-                );
-
-        } else {
-
-            $documentationOf = [
-                'serviceEvent' => [
-                    '@attributes' => [
-                        'classCode' => 'PCPR'
-                    ],
-                    'code' => [
-                        '@attributes' => [
-                            'nullFlavor' => 'UNK'
-                        ]
-                    ],
-                    'effectiveTime' => [
-                        '@attributes' => [
-                            'xsi:type' => 'IVL_TS'
-                        ],
-                        'low' => [
-                            '@attributes' => [
-                                'value' => $this->parseDate($encounters[0]['service_date'])
-                            ]
-                        ],
-                        'high' => [
-                            '@attributes' => [
-                                'value' => $this->parseDate($encounters[sizeof($encounters) - 1]['service_date'])
-                            ]
-                        ]
-                    ]
-                ]
-            ];
-
-            // Eliminate duplicates
-            $encounters = $this->removeDuplicateKeys('provider_uid',$encounters);
-
-            foreach ($encounters as $encounter) {
-                $facility = $this->Facilities->getFacility($encounter['facility']);
-                $provider = $this->User->getUserByUid($encounter['provider_uid']);
-
-                $documentationOf['serviceEvent']['performer'][$encounter['eid']] = [
-                    '@attributes' => [
-                        'typeCode' => 'PRF'
-                    ],
-                    'templateId' => [
-                        '@attributes' => [
-                            'root' => '1.3.6.1.4.1.19376.1.5.3.1.2.3'
-                        ]
-                    ],
-                    'time' => [
-                        'low' => [
-                            '@attributes' => [
-                                'value' => $this->parseDate($encounter['service_date'])
-                            ]
-                        ],
-                        'high' => [
-                            '@attributes' => [
-                                'value' => $this->parseDate($encounter['service_date'])
-                            ]
-                        ]
-                    ],
-                    'assignedEntity' => [
-                        'id' => [
-                            '@attributes' => [
-                                'root' => UUID::v4()
-                            ]
-                        ],
-                    ]
-                ];
-
-                $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['addr'] = $this->addressBuilder(
                     'WP',
                     $facility['address'] . ' ' . $facility['address_cont'],
                     $facility['city'],
@@ -1015,78 +920,41 @@ class CCDDocument extends CDDDocumentBase
                     $facility['country_code']
                 );
 
-                $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['telecom'] = $this->telecomBuilder(
-                    $facility['phone'],
-                    'WP'
-                );
-
-                $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['assignedPerson'] = [
-                    'name' => [
-                        'prefix' => $provider['title'],
-                        'given' => $provider['fname'],
-                        'family' => $provider['lname']
+            // Exclude the Provider Information from the documentationOf section
+            if($this->isExcluded('provider_information')){
+                $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['assignedPerson']['name'] = [
+                    '@attributes' => [
+                        'nullFlavor' => 'UNK'
                     ]
                 ];
-
-                $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['representedOrganization'] = [
-                    'id' => [
-                        '@attributes' => [
-                            'root' => '2.16.840.1.113883.4.6'
-                        ]
-                    ],
-                    'name' => [
-                        'prefix' => $facility['name']
+                $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['addr'] = [
+                    '@attributes' => [
+                        'nullFlavor' => 'UNK'
                     ]
                 ];
-
-                $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['representedOrganization']['telecom'] =
-                    $this->telecomBuilder($facility['phone'], 'WP');
-
-                $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['representedOrganization']['addr'] =
-                    $this->addressBuilder(
-                        'WP',
-                        $facility['address'] . ' ' . $facility['address_cont'],
-                        $facility['city'],
-                        $facility['state'],
-                        $facility['postal_code'],
-                        $facility['country_code']
-                    );
-
-                // Exclude the Provider Information from the documentationOf section
-                if($this->isExcluded('provider_information')){
-                    $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['assignedPerson']['name'] = [
-                        '@attributes' => [
-                            'nullFlavor' => 'UNK'
-                        ]
-                    ];
-                    $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['addr'] = [
-                        '@attributes' => [
-                            'nullFlavor' => 'UNK'
-                        ]
-                    ];
-                    $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['telecom'] = [
-                        '@attributes' => [
-                            'nullFlavor' => 'UNK'
-                        ]
-                    ];
-                    $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['representedOrganization']['name'] = [
-                        '@attributes' => [
-                            'nullFlavor' => 'UNK'
-                        ]
-                    ];
-                    $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['representedOrganization']['addr'] = [
-                        '@attributes' => [
-                            'nullFlavor' => 'UNK'
-                        ]
-                    ];
-                    $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['representedOrganization']['telecom'] = [
-                        '@attributes' => [
-                            'nullFlavor' => 'UNK'
-                        ]
-                    ];
-                }
+                $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['telecom'] = [
+                    '@attributes' => [
+                        'nullFlavor' => 'UNK'
+                    ]
+                ];
+                $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['representedOrganization']['name'] = [
+                    '@attributes' => [
+                        'nullFlavor' => 'UNK'
+                    ]
+                ];
+                $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['representedOrganization']['addr'] = [
+                    '@attributes' => [
+                        'nullFlavor' => 'UNK'
+                    ]
+                ];
+                $documentationOf['serviceEvent']['performer'][$encounter['eid']]['assignedEntity']['representedOrganization']['telecom'] = [
+                    '@attributes' => [
+                        'nullFlavor' => 'UNK'
+                    ]
+                ];
             }
         }
+
 
         return $documentationOf;
     }

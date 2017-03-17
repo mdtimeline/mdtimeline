@@ -13923,11 +13923,6 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
-			name: 'signature',
-			type: 'string',
-			len: 100
-		},
-		{
 			name: 'fullname',
 			type: 'string',
 			comment: 'title full name',
@@ -35893,111 +35888,6 @@ Ext.define('App.controller.BrowserHelper', {
 		}
 	}
 });
-Ext.define('App.controller.administration.AuditLog', {
-	extend: 'Ext.app.Controller',
-	requires: [],
-
-	refs: [
-		{
-			selector: '#AuditLogWindow',
-			ref: 'AuditLogWindow'
-		},
-		{
-			selector: '#AuditLogWindowGrid',
-			ref: 'AuditLogWindowGrid'
-		}
-	],
-
-	/**
-	 *
-	 */
-	init: function(){
-		var me = this;
-
-		me.control({
-			'#AuditLogWindowGrid': {
-				close: me.onAuditLogWindowGridClose
-			}
-		});
-	},
-
-	onAuditLogWindowGridClose: function(){
-		this.getAuditLogWindowGrid().getStore().removeAll();
-	},
-
-	/**
-	 *
-	 * @param pid               {int}       Example: 1111
-	 * @param uid               {int}       Example: 2222
-	 * @param eid               {int}       Example: 2222
-	 * @param foreign_id        {int}       Example: 3333
-	 * @param foreign_table     {string}    Example: worklist_reports
-	 * @param event             {string}    Example: create
-	 * @param event_description {string}    Example: Report Created
-	 */
-	addLog: function(pid, uid, eid, foreign_id, foreign_table, event, event_description){
-		AuditLog.addLog({
-			pid: pid,
-			uid: uid,
-            eid: eid,
-			foreign_id: foreign_id,
-			foreign_table: foreign_table,
-			event: event,
-			event_description: event_description
-		});
-	},
-
-	showLogByRecord: function(record){
-		var me = this,
-			win = me.showLogWindow(),
-			store = me.getAuditLogWindowGrid().getStore();
-
-		store.clearFilter(true);
-
-		store.getProxy().extraParams = { };
-
-		store.filter([
-			{
-				property: 'foreign_id',
-				value: record.get('id')
-			},
-			{
-				property: 'foreign_table',
-				value: record.table.name
-			}
-		]);
-	},
-
-	showLogByPidEvent: function(pid, event){
-		var me = this,
-			win = me.showLogWindow(),
-			store = me.getAuditLogWindowGrid().getStore();
-
-		store.clearFilter(true);
-
-		store.getProxy().extraParams = { };
-
-		store.filter([
-			{
-				property: 'pid',
-				value: pid
-			},
-			{
-				property: 'event',
-				value: event
-			}
-		]);
-	},
-
-	showLogWindow: function(){
-		if(!this.getAuditLogWindow()){
-			Ext.create('App.view.administration.AuditLogWindow');
-		}
-		return this.getAuditLogWindow().show();
-	}
-
-});
-
 Ext.define('App.controller.administration.CPT', {
 	extend: 'Ext.app.Controller',
 

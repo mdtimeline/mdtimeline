@@ -41,6 +41,11 @@
             "align": "left",
             "type": "string"
         },
+        "category": {
+            "name": "Category",
+            "align": "center",
+            "type": "string"
+        },
         "event": {
             "name": "Event",
             "align": "left",

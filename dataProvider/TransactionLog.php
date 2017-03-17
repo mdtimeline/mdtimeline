@@ -30,6 +30,10 @@ class TransactionLog {
             $this->t = MatchaModel::setSenchaModel('App.model.administration.TransactionLog');
 	}
 
+	public function getTransactionLog($params){
+        return $this->t->load($params)->all();
+    }
+
     public function saveExportLog($data)
     {
         $saveParams = [

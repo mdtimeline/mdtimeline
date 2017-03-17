@@ -1,6 +1,6 @@
 /**
- * GaiaEHR (Electronic Health Records)
- * Copyright (C) 2013 Certun, LLC.
+ * mdTimeLine EHR (Electronic Health Records)
+ * Copyright (C) 2017 mdTimeLine, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +52,12 @@ Ext.define('App.model.administration.TransactionLog', {
             name: 'fid',
             type: 'int',
             comment: 'Facility ID'
+        },
+        {
+            name: 'category',
+            type: 'string',
+            len: 50,
+            comment: ''
         },
         {
             name: 'event',
@@ -163,7 +169,7 @@ Ext.define('App.model.administration.TransactionLog', {
     proxy: {
         type: 'direct',
         api: {
-            read: 'TransactionLog.getLogs'
+            read: 'TransactionLog.getTransactionLog'
         },
         reader: {
             root: 'data'

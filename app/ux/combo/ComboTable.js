@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('Modules.reportcenter.reports.TransactionLog.ux.ComboTable', {
+Ext.define('App.ux.combo.ComboTable', {
     extend: 'Ext.form.ComboBox',
     alias: 'widget.tablelist',
     displayField: 'table_name',
@@ -53,7 +53,7 @@ Ext.define('Modules.reportcenter.reports.TransactionLog.ux.ComboTable', {
             proxy: {
                 type: 'direct',
                 api: {
-                    read: 'ReportcenterCombosData.getTableList'
+                    read: 'CombosData.getTableList'
                 }
             },
             idProperty: 'table_name'

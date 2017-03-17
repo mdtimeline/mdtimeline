@@ -1873,6 +1873,12 @@ $API = [
 	 */
 	'CombosData' => [
 		'methods' => [
+            'getTableList' => [
+                'len' => 0
+            ],
+            'getEventList' => [
+                'len' => 0
+            ],
 			'getOptionsByListId' => [
 				'len' => 1
             ],
@@ -2292,6 +2298,9 @@ $API = [
     'TransactionLog' => [
         'methods' => [
             'saveExportLog' => [
+                'len' => 1
+            ],
+            'getTransactionLog' => [
                 'len' => 1
             ]
         ]

@@ -448,6 +448,8 @@ header("Access-Control-Allow-Origin: *");
 		            'App.ux.combo.Units',
 		            'App.ux.combo.Users',
 		            'App.ux.combo.YesNoNa',
+                    'App.ux.combo.ComboTable',
+                    'App.ux.combo.ComboEvents',
 		            'App.ux.combo.YesNo',
 		            'App.ux.window.Window',
 		            'App.ux.NodeDisabled',
@@ -635,7 +637,7 @@ header("Access-Control-Allow-Origin: *");
 	                'administration.PreventiveCareMedications',
 	                'administration.ProviderCredentializations',
 	                'administration.Services',
-	                'administration.TransactionLogs',
+	                'administration.TransactionLog',
                     'administration.EncounterEventHistory',
 	                'administration.User',
 	                'administration.XtypesComboModel',
@@ -812,6 +814,7 @@ header("Access-Control-Allow-Origin: *");
 	                'administration.Roles',
 	                'administration.ExternalDataLoads',
 	                'administration.Users',
+                    'administration.TransactionLog',
 
 	                /**
 	                 * Load the miscellaneous related panels
@@ -842,6 +845,7 @@ header("Access-Control-Allow-Origin: *");
 	                'administration.TemplatePanels',
 	                'administration.Users',
                     'administration.IpAccess',
+                    'administration.TransactionLog',
 
 	                'areas.FloorPlan',
 

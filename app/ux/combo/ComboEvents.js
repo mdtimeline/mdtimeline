@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('Modules.reportcenter.reports.TransactionLog.ux.ComboEvents', {
+Ext.define('App.ux.combo.ComboEvents', {
     extend: 'Ext.form.ComboBox',
     alias: 'widget.eventlist',
     displayField: 'event',
@@ -53,7 +53,7 @@ Ext.define('Modules.reportcenter.reports.TransactionLog.ux.ComboEvents', {
             proxy: {
                 type: 'direct',
                 api: {
-                    read: 'ReportcenterCombosData.getEventList'
+                    read: 'CombosData.getEventList'
                 }
             },
             idProperty: 'event'

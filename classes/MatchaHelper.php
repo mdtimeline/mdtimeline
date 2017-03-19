@@ -52,6 +52,9 @@ class MatchaHelper extends Matcha
     private static $exclude_tables = [
     	'SELECT' => [
 			'acl_permissions',
+			'acl_roles',
+			'acl_role_perms',
+			'acl_groups',
 			'support_rules',
 			'globals',
 			'patient_chart_checkout',

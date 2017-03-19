@@ -299,8 +299,10 @@ class Patient
 	 */
 	public function unsetPatient($pid)
 	{
-		if ($pid != null)
+		$_SESSION['patient']['pid'] = null;
+		if ($pid != null) {
 			$this->patientChartInByPid($pid);
+		}
 		return;
 	}
 
@@ -384,6 +386,8 @@ class Patient
 
 		$area = $poolArea->getCurrentPatientPoolAreaByPid($this->patient['pid']);
 		$chart = $this->patientChartOutByPid($this->patient['pid'], $area['area_id']);
+
+		$_SESSION['patient']['pid'] = $this->patient['pid'];
 
 		return [
 			'patient' => [
@@ -498,7 +502,7 @@ class Patient
 	public function getPatientFullNameByPid($pid)
 	{
 		$this->setPatientModel();
-		$p = $this->p->sql("SELECT fname,mname,lname FROM patient WHERE pid = '$pid'")->one();
+		$p = $this->p->sql("SELECT pid,fname,mname,lname FROM patient WHERE pid = '$pid'")->one();
 		return Person::fullname($p['fname'], $p['mname'], $p['lname']);
 	}
 
@@ -771,7 +775,7 @@ class Patient
 		$record = [];
 
 		$this->setPatientModel();
-		$patient = $this->p->load($params->pid, ['language', 'race', 'ethnicity', 'fname', 'lname', 'sex', 'DOB',])->one();
+		$patient = $this->p->load($params->pid, ['pid','language', 'race', 'ethnicity', 'fname', 'lname', 'sex', 'DOB',])->one();
 		foreach ($patient as $key => $val) {
 			$val = ($val == null || $val == '') ? false : true;
 			$record[] = [

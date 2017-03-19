@@ -37,7 +37,6 @@ Ext.define('App.ux.combo.ComboEvents', {
      */
     valueDataType: 'string',
 
-
     initComponent: function () {
         var me = this,
             model = me.id + 'ComboEventListModel';
@@ -63,6 +62,13 @@ Ext.define('App.ux.combo.ComboEvents', {
             model: model,
             autoLoad: me.loadStore
         });
+
+	    if(me.enableReset){
+		    me.trigger2Cls = 'x-form-clear-trigger';
+		    me.onTrigger2Click = function() {
+			    me.reset();
+		    }
+	    }
 
         me.callParent(arguments);
 

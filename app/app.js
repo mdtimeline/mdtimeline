@@ -3333,6 +3333,7 @@ Ext.define('App.ux.LivePatientSearch', {
     submitValue: true,
 	minChars: 1,
 	queryDelay: 500,
+	resetEnabled: false,
 	initComponent: function(){
 		var me = this;
 
@@ -3414,7 +3415,54 @@ Ext.define('App.ux.LivePatientSearch', {
 			pageSize: 10
 		});
 
+		if(this.resetEnabled){
+			me.hideTrigger = false;
+			me.triggerTip = _('click_to_clear_selection');
+			me.spObj = '';
+			me.spForm ='';
+			me.spExtraParam = '';
+			me.qtip = _('clearable_combo_box');
+			me.trigger1Class = 'x-form-select-trigger';
+			me.trigger2Class = 'x-form-clear-trigger';
+		}
+
+
 		me.callParent();
+	},
+
+	onRender: function(ct, position){
+		var id = this.getId();
+		var trigger2;
+		this.callParent(arguments);
+
+		if(!this.resetEnabled){
+			return;
+		}
+
+		this.triggerConfig = {
+			tag: 'div',
+			cls: 'x-form-twin-triggers',
+			style: 'display:block;',
+			cn: [
+				{
+					tag: "img",
+					style: Ext.isIE ? 'margin-left:0;height:21px' : '',
+					src: Ext.BLANK_IMAGE_URL,
+					id: "trigger2" + id,
+					name: "trigger2" + id,
+					cls: "x-form-trigger " + this.trigger2Class
+				}
+			]
+		};
+		this.triggerEl.replaceWith(this.triggerConfig);
+		this.triggerEl.on('mouseup', function(e){
+			if(e.target.name == "trigger2" + id){
+				this.reset();
+				this.fireEvent('reset', this);
+			}
+		}, this);
+		trigger2 = Ext.get("trigger2" + id);
+		trigger2.addClsOnOver('x-form-trigger-over');
 	}
 });
 
@@ -13665,6 +13713,17 @@ Ext.define('App.model.administration.TransactionLog', {
             comment: 'Facility ID'
         },
         {
+            name: 'pk',
+            type: 'string',
+            comment: 'Primary Key'
+        },
+        {
+            name: 'category',
+            type: 'string',
+            len: 50,
+            comment: ''
+        },
+        {
             name: 'event',
             type: 'string',
             len: 100,
@@ -13774,7 +13833,7 @@ Ext.define('App.model.administration.TransactionLog', {
     proxy: {
         type: 'direct',
         api: {
-            read: 'TransactionLog.getLogs'
+            read: 'TransactionLog.getTransactionLog'
         },
         reader: {
             root: 'data'
@@ -13921,6 +13980,11 @@ Ext.define('App.model.administration.User', {
 			comment: 'last name',
 			len: 120,
 			index: true
+		},
+		{
+			name: 'signature',
+			type: 'string',
+			len: 100
 		},
 		{
 			name: 'fullname',
@@ -14795,7 +14859,7 @@ Ext.define('App.model.patient.Vitals', {
 		},
 		{
 			name: 'weight_lbs',
-			type: 'string',
+			type: 'float',
 			useNull: true,
 			len: 10
 		},
@@ -34167,11 +34231,6 @@ Ext.define('App.store.administration.Services', {
 	remoteSort: true,
 	autoLoad: false
 }); 
-Ext.define('App.store.administration.TransactionLogs', {
-	model: 'App.model.administration.TransactionLog',
-	extend: 'Ext.data.Store'
-
-});
 Ext.define('App.store.administration.User', {
     model: 'App.model.administration.User',
     extend: 'Ext.data.Store',
@@ -35888,6 +35947,111 @@ Ext.define('App.controller.BrowserHelper', {
 		}
 	}
 });
+Ext.define('App.controller.administration.AuditLog', {
+    extend: 'Ext.app.Controller',
+    requires: [],
+
+    refs: [
+        {
+            selector: '#AuditLogWindow',
+            ref: 'AuditLogWindow'
+        },
+        {
+            selector: '#AuditLogWindowGrid',
+            ref: 'AuditLogWindowGrid'
+        }
+    ],
+
+    /**
+     *
+     */
+    init: function(){
+        var me = this;
+
+        me.control({
+            '#AuditLogWindowGrid': {
+                close: me.onAuditLogWindowGridClose
+            }
+        });
+    },
+
+    onAuditLogWindowGridClose: function(){
+        this.getAuditLogWindowGrid().getStore().removeAll();
+    },
+
+    /**
+     *
+     * @param pid               {int}       Example: 1111
+     * @param uid               {int}       Example: 2222
+     * @param eid               {int}       Example: 2222
+     * @param foreign_id        {int}       Example: 3333
+     * @param foreign_table     {string}    Example: worklist_reports
+     * @param event             {string}    Example: create
+     * @param event_description {string}    Example: Report Created
+     */
+    addLog: function(pid, uid, eid, foreign_id, foreign_table, event, event_description){
+        AuditLog.addLog({
+            pid: pid,
+            uid: uid,
+            eid: eid,
+            foreign_id: foreign_id,
+            foreign_table: foreign_table,
+            event: event,
+            event_description: event_description
+        });
+    },
+
+    showLogByRecord: function(record){
+        var me = this,
+            win = me.showLogWindow(),
+            store = me.getAuditLogWindowGrid().getStore();
+
+        store.clearFilter(true);
+
+        store.getProxy().extraParams = { };
+
+        store.filter([
+            {
+                property: 'foreign_id',
+                value: record.get('id')
+            },
+            {
+                property: 'foreign_table',
+                value: record.table.name
+            }
+        ]);
+    },
+
+    showLogByPidEvent: function(pid, event){
+        var me = this,
+            win = me.showLogWindow(),
+            store = me.getAuditLogWindowGrid().getStore();
+
+        store.clearFilter(true);
+
+        store.getProxy().extraParams = { };
+
+        store.filter([
+            {
+                property: 'pid',
+                value: pid
+            },
+            {
+                property: 'event',
+                value: event
+            }
+        ]);
+    },
+
+    showLogWindow: function(){
+        if(!this.getAuditLogWindow()){
+            Ext.create('App.view.administration.AuditLogWindow');
+        }
+        return this.getAuditLogWindow().show();
+    }
+
+});
+
 Ext.define('App.controller.administration.CPT', {
 	extend: 'Ext.app.Controller',
 
@@ -58367,9 +58531,10 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		me.form = Ext.create('Ext.form.Panel', {
 			autoScroll: true,
 			action: 'encounter',
-			bodyStyle: 'background-color:white',
+			//bodyStyle: 'background-color:white',
 			region: 'center',
 			itemId: 'soapForm',
+			frame: true,
 			fieldDefaults: {
 				msgTarget: 'side'
 			},

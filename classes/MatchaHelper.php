@@ -49,6 +49,85 @@ class MatchaHelper extends Matcha
      */
     private $err;
 
+    private static $exclude_tables = [
+    	'SELECT' => [
+			'acl_permissions',
+			'support_rules',
+			'globals',
+			'patient_chart_checkout',
+			'patient_education_resources',
+			'audit_transaction_log',
+			'forms_fields',
+			'forms_field_options',
+			'combo_lists_options',
+			'pool_areas',
+			'departments',
+			'floor_plans',
+			'facility',
+			'facility_structures',
+			'documents_templates',
+			'specialties',
+			'insurance_companies',
+			'patient_pools',
+			'phimail_addresses',
+			'users',
+			'worklist_letters',
+			'soap_snippets',
+			'worklist_snippets',
+			'encounter_event_history',
+	    ]
+    ];
+
+    private static $categories = [
+	    'encounters' => 'Encounter',
+	    'encounter_family_history' => 'Encounter Family History',
+	    'encounter_procedures' => 'Encounter Procedures',
+	    'encounter_review_of_systems' => 'Encounter Review of Systems',
+	    'encounter_soap' => 'Encounter SOAP',
+	    'encounter_dx' => 'Encounter Diagnosis',
+	    'encounter_vitals' => 'Encounter Vitals',
+
+	    'patient'=>'Patient Demographics',
+	    'patient_account'=>'Patient Account',
+	    'patient_advanced_directives'=>'Patient Advanced Directives',
+	    'patient_active_problems'=>'Patient Active Problems',
+	    'patient_advance_directives' => 'Patient Advance Directives',
+	    'patient_alerts'=>'Patient Alerts',
+	    'patient_allergies'=>'Patient Allergies',
+	    'patient_amendments'=>'Patient Amendments',
+	    'patient_appointment_requests'=>'Patient Appointment Request',
+	    'patient_care_plan_goals'=>'Patient Plan Of Care',
+	    'patient_chart_checkout'=>'Patient Chart Checkout',
+	    'patient_cognitive_functional_status'=>'Patient Cogn/Func Status',
+	    'patient_contacts'=>'Patient Contacts',
+	    'patient_doctors_notes'=>'Patient Doctors Notes',
+	    'patient_disclosures'=>'Patient Disclosures',
+	    'patient_doctor_notes'=>'Patient Doctors Notes',
+	    'patient_documents'=>'Patient Documents',
+	    'patient_education_resources'=>'Patient Education Resources',
+	    'patient_erx_messages'=>'Patient eRx Messages',
+	    'patient_family_history'=>'Patient History',
+	    'patient_images'=>'Patient Images',
+	    'patient_immunizations'=>'Patient Immunizations',
+	    'patient_insurances'=>'Patient Insurance',
+	    'patient_medications'=>'Patient Medication',
+	    'patient_notes'=>'Patient Notes',
+	    'patient_orders'=>'Patient Orders',
+	    'patient_order_results'=>'Patient Order Results',
+	    'patient_order_results_observation'=>'Patient Results',
+	    'patient_referrals'=>'Patient Referrals',
+	    'patient_reminders'=>'Patient Reminders',
+	    'patient_smoke_status'=>'Patient Smoking Status',
+	    'patient_social_history'=>'Patient Social History',
+	    'patient_surgery'=>'Patient Surgery History',
+
+	    'users_session' => 'User',
+
+        'patient_labs'=>'Patient Orders',
+	    'patient_lab_results'=>'Patient Orders',
+
+    ];
+
     /**
      * @brief       MatchaHelper constructor.
      * @details     This method starts the connection with mysql server using
@@ -102,52 +181,14 @@ class MatchaHelper extends Matcha
      */
     public static function storeAudit($saveParams = [])
     {
-        $categories = [
-            'encounter_family_history' => 'Encounter SOAP',
-            'encounter_procedures' => 'Encounter SOAP',
-            'encounter_review_of_systems' => 'Encounter SOAP',
-            'encounter_soap' => 'Encounter SOAP',
 
-            'patient'=>'Demographics',
-            'patient_contacts'=>'Demographics',
+	    $table = isset($saveParams['table']) ? $saveParams['table'] : '';
+	    $event = isset($saveParams['event']) ? $saveParams['event'] : '';
 
-            'patient_labs'=>'Patient Orders',
-            'patient_lab_results'=>'Patient Orders',
-            'patient_medications'=>'Patient Orders',
-            'patient_order_results'=>'Patient Orders',
-            'patient_order_results_observation'=>'Patient Orders',
-            'patient_orders'=>'Patient Orders',
-            'patient_prescriptions'=>'Patient Orders',
-
-            'patient_active_problems'=>'Patient Active Problems',
-
-            'patient_advanced_directives'=>'Patient Advanced Directives',
-
-            'patient_allergies'=>'Patient Allergies',
-
-            'patient_appointment_requests'=>'Patient Appointments',
-
-            'patient_care_plan_goals'=>'Patient Plan Of Care',
-
-            'patient_cognitive_functional_status'=>'Patient Cogn/Func Status',
-
-            'patient_disclosures'=>'Patient Disclosures',
-
-            'patient_doctor_notes'=>'Patient Documents',
-            'patient_documents'=>'Patient Documents',
-
-            'patient_family_history'=>'Patient History',
-            'patient_surgery'=>'Patient History',
-
-            'patient_education_resources'=>'Patient Education Resources',
-
-            'patient_immunizations'=>'Patient Immunizations',
-
-            'patient_referrals'=>'Patient Referrals',
-
-            'patient_smoke_status'=>'Social History',
-            'patient_social_history'=>'Social History'
-        ];
+	    // if table is excluded get out
+	    if(isset(self::$exclude_tables[$event])){
+		    if(array_search($table, self::$exclude_tables[$event]) !== false) return;
+	    }
 
         // Set the array index, even it exist or not.
         $saveParams['sql'] = isset($saveParams['sql']) ? $saveParams['sql'] : '';
@@ -167,25 +208,28 @@ class MatchaHelper extends Matcha
             }
         }
 
-        // get eid...
-        if (isset($saveParams['data']['eid'])) {
-            $eid = $saveParams['data']['eid'];
-        } else {
-            $match = [];
-            preg_match('/`eid`.*:W(\d*)/', $saveParams['sql'], $match);
-
-            if (!empty($match)) {
-                preg_match('/:W(\d*)/', $match[0], $match);
-                $eid = $saveParams['data'][$match[0]];
-            } else {
-                $eid = '0';
-            }
+        if($pid == 0 && isset($_SESSION['patient']) && isset($_SESSION['patient']['pid'])) {
+	        $pid = $_SESSION['patient']['pid'];
         }
+
+//        // get eid...
+//        if (isset($saveParams['data']['eid'])) {
+//            $eid = $saveParams['data']['eid'];
+//        } else {
+//            $match = [];
+//            preg_match('/`eid`.*:W(\d*)/', $saveParams['sql'], $match);
+//
+//            if (!empty($match)) {
+//                preg_match('/:W(\d*)/', $match[0], $match);
+//                $eid = $saveParams['data'][$match[0]];
+//            } else {
+//                $eid = '0';
+//            }
+//        }
 
         $uid = isset($_SESSION['user']['id']) ? $_SESSION['user']['id'] : '0';
         $fid = isset($_SESSION['user']['facility']) ? $_SESSION['user']['facility'] : '0';
         $date = Time::getLocalTime('Y-m-d H:i:s');
-        $table = isset($saveParams['table']) ? $saveParams['table'] : '';
         $sql = $saveParams['sql'];
         $data = isset($saveParams['data']) ? serialize($saveParams['data']) : '';
 
@@ -198,16 +242,16 @@ class MatchaHelper extends Matcha
         MatchaAudit::$eventLogData = [
             'date' => $date,
             'pid' => $pid,
-            'eid' => $eid,
             'uid' => $uid,
             'fid' => $fid,
-            'category' => (isset($categories[$table]) ? $categories[$table] : ''),
+            'category' => (isset(self::$categories[$table]) ? self::$categories[$table] : ''),
+            'pk' => $saveParams['pk'],
             'event' => $saveParams['event'],
             'table_name' => $table,
             'sql_string' => $sql,
             'data' => $data,
             'ip' => $IP,
-            'checksum' => sha1($date . $pid . $eid . $uid . $fid . $saveParams['event'] . $table . $sql . $data . $IP)
+            'checksum' => sha1($date . $pid . $uid . $fid . $saveParams['event'] . $table . $sql . $data . $IP)
         ];
         MatchaAudit::auditSaveLog();
 

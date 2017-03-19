@@ -54,6 +54,11 @@ Ext.define('App.model.administration.TransactionLog', {
             comment: 'Facility ID'
         },
         {
+            name: 'pk',
+            type: 'string',
+            comment: 'Primary Key'
+        },
+        {
             name: 'category',
             type: 'string',
             len: 50,

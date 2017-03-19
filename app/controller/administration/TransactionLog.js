@@ -21,17 +21,41 @@ Ext.define('App.controller.administration.TransactionLog', {
 
     refs: [
         {
-            ref:'IpAccessPanel',
-            selector:'ipaccesspanel'
-        }
+            ref:'TransactionLogPanel',
+            selector:'#TransactionLogPanel'
+        },
+        {
+            ref:'TransactionLogFilterFormPanel',
+            selector:'#TransactionLogFilterFormPanel'
+        },
+        {
+            ref:'TransactionLogDataGrid',
+            selector:'#TransactionLogDataGrid'
+        },
+        {
+            ref:'TransactionLogFilterPanel',
+            selector:'#TransactionLogFilterPanel'
+        },
+
+	    {
+		    ref:'TransactionLogWindow',
+		    selector:'#TransactionLogWindow'
+	    },
+	    {
+		    ref:'TransactionLogDetailLogGrid',
+		    selector:'#TransactionLogDetailLogGrid'
+	    }
     ],
 
     init: function() {
         var me = this;
 
         me.control({
-            'ipaccesspanel':{
-                activate: me.onIpAccessPanelActive
+            '#TransactionLogFilterSearchBtn':{
+                click: me.onTransactionLogFilterSearchBtnClick
+            },
+            '#TransactionLogDataGrid':{
+                itemdblclick: me.onTransactionLogDataGridItemDblClick
             }
         });
 
@@ -39,17 +63,151 @@ Ext.define('App.controller.administration.TransactionLog', {
 
     },
 
-    onAddIpRuleClick: function(btn){
-        var me = this,
-            rulesGrid = me.getIpAccessRulesGrid();
+	onTransactionLogFilterSearchBtnClick: function() {
 
-        rulesGrid.editingPlugin.cancelEdit();
-        rulesGrid.getStore().add({
-            create_date: this.clockCtrl.getTime(),
-            update_date: this.clockCtrl.getTime(),
-            active: 1
-        });
-        rulesGrid.editingPlugin.startEdit(0, 0);
-    }
+		var form = this.getTransactionLogFilterFormPanel().getForm(),
+			store = this.getTransactionLogDataGrid().getStore(),
+			values = form.getValues();
 
+		if (!form.isValid()) return;
+
+		store.getProxy().extraParams = { filters: values };
+		store.load();
+	},
+
+	onTransactionLogDataGridItemDblClick: function (grid, record) {
+    	this.doTransactionLogDetailByTableAndPk(record.get('table_name'), record.get('pk'))
+	},
+
+	doTransactionLogDetailByTableAndPk: function (table, pk) {
+		var me = this;
+
+		TransactionLog.getTransactionLogDetailByTableAndPk(table, pk, function (response) {
+
+			if(response.total == 0) {
+				app.msg(_('info'), _('no_record_fund'));
+				return;
+			}
+
+			me.showTransactionLogWindow();
+			me.setTransactionLogDetailGrid(response);
+
+		});
+	},
+
+	setTransactionLogDetailGrid: function (response) {
+
+
+		say('setTransactionLogDetailGrid');
+		say(response);
+
+		var me = this,
+			model_name = 'App.model.' + Ext.String.capitalize(response.table) + '_TransactionLogDetailModel',
+			fields = [
+				'_id',
+				'_event_time',
+				'_event_type',
+				'_event_uid',
+				'_event_user_title',
+				'_event_user_fname',
+				'_event_user_mname',
+				'_event_user_lname',
+				{
+					name: '_event_user',
+					convert: function (v,rec) {
+						return rec.get('_event_user_lname') + ', ' +
+							rec.get('_event_user_fname') + ' ' +
+							rec.get('_event_user_mname');
+					}
+				}
+			],
+			columns = [
+				{
+					text: _('event_info'),
+					locked: true,
+					columns: [
+						{
+							text: 'event_time',
+							dataIndex: '_event_time',
+							width: 120
+						},
+						{
+							text: 'event_type',
+							dataIndex: '_event_type',
+							width: 100
+						},
+						{
+							text: 'event_user',
+							dataIndex: '_event_user',
+							width: 150
+						}
+					]
+				},
+				{
+					text: _('record'),
+					columns: [	]
+				}
+			];
+
+		fields = Ext.Array.merge(fields, response.columns);
+
+		response.columns.forEach(function (col) {
+			columns[1].columns = Ext.Array.push(columns[1].columns, {
+				text: col,
+				dataIndex: col,
+				width: 200
+			});
+		});
+
+		if(!eval(model_name)){
+			Ext.define(model_name, {
+				extend: 'Ext.data.Model',
+				fields: fields,
+				idProperty: '_id'
+			});
+		}
+
+		var store = Ext.create('Ext.data.Store', {
+			model: model_name,
+			data: { data: response.data },
+			autoLoad: true,
+			proxy: {
+				type: 'memory',
+				reader: {
+					type: 'json',
+					root: 'data'
+				}
+			}
+		});
+
+		me.getTransactionLogDetailLogGrid().reconfigure(store, columns);
+	},
+
+	showTransactionLogWindow: function () {
+		if(!this.getTransactionLogWindow()){
+			Ext.create('Ext.window.Window', {
+				layout: 'fit',
+				title: _('transactions'),
+				itemId: 'TransactionLogWindow',
+				maximizable: true,
+				closeAction: 'hide',
+				items: [
+					{
+						xtype:'grid',
+						height: 400,
+						width: 1000,
+						enableLocking: true,
+						itemId: 'TransactionLogDetailLogGrid',
+						columns: [
+							{
+								text: '',
+								flex: 1
+							}
+						]
+					}
+				]
+			});
+		}
+		return this.getTransactionLogWindow().show();
+	}
 });

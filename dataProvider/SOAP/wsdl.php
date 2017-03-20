@@ -889,6 +889,12 @@ $functions[] = [
 			'minOccurs' => '1',
 			'document' => 'True if request was successfully processed'
 		],
+        [
+            'name' => 'Who',
+            'type' => 'string',
+            'minOccurs' => '1',
+            'document' => 'Tell what type user is.'
+        ],
 		[
 			'name' => 'Patient',
 			'type' => 'Patient',

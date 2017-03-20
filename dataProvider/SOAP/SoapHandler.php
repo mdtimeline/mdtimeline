@@ -170,9 +170,10 @@ class SoapHandler
                 $this->AuditLog->addLog($logObject);
                 unset($logObject);
                 return [
-                    'Success' => true,
-                    'Patient' => $patient,
-                    'Error' => ''
+                    'Success'   => true,
+                    'Patient'   => $patient,
+                    'Who'       => 'Patient',
+                    'Error'     => ''
                 ];
             }
         }
@@ -193,6 +194,7 @@ class SoapHandler
                 return [
                     'Success' => true,
                     'Patient' => $patient,
+                    'Who'       => 'Guardian',
                     'Error' => ''
                 ];
             }
@@ -212,9 +214,10 @@ class SoapHandler
                 $logObject->event_description = 'Patient portal login attempt: Success emergency';
                 $this->AuditLog->addLog($logObject);
                 return [
-                    'Success' => true,
-                    'Patient' => $patient,
-                    'Error' => ''
+                    'Success'   => true,
+                    'Patient'   => $patient,
+                    'Who'       => 'Emergency',
+                    'Error'     => ''
                 ];
             }
         }

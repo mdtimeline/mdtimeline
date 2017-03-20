@@ -18,31 +18,33 @@
 
 Ext.define('App.view.administration.TransactionLog', {
     extend: 'App.ux.RenderPanel',
-    xtype: 'transactionLogPanel',
-    border: false,
-    pageLayout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
+    xtype: 'TransactionLogPanel',
+    pageLayout: 'border',
     pageTitle: _('transaction_log'),
+	itemId: 'TransactionLogPanel',
+	requires: [
+		'App.ux.LivePatientSearch',
+		'App.ux.LiveUserSearch'
+	],
     initComponent: function() {
         var me = this;
 
         me.transactionLogStore = Ext.create('App.store.administration.TransactionLog', {
-            remoteFilter: true,
-            autoLoad: true,
-            autoSync: false
+            remoteFilter: true
         });
 
         me.pageBody = [
             {
-                xtype: 'panel',
-                frame: false,
-                border: false,
-                itemId: 'filterPanel',
+                xtype: 'form',
+                itemId: 'TransactionLogFilterFormPanel',
                 region: 'west',
-                width: 400,
+                width: 250,
                 autoScroll: true,
+	            collapsible: true,
+	            split: true,
+                border: true,
+                bodyPadding: 10,
+                title: _('filters'),
                 items:[
                     {
                         xtype: 'fieldcontainer',
@@ -104,36 +106,58 @@ Ext.define('App.view.administration.TransactionLog', {
                             }
                         ]
                     },
-                    {
-                        xtype: 'fieldcontainer',
-                        layout: 'column',
-                        labelAlign: 'top',
-                        items: [
-                            {
-                                xtype: 'tablelist',
-                                fieldLabel: _('table'),
-                                name: 'table_name',
-                                labelAlign: 'top',
-                                columnWidth: 1
-                            },
-                            {
-                                xtype: 'eventlist',
-                                fieldLabel: _('event_type'),
-                                labelAlign: 'top',
-                                name: 'event_type',
-                                columnWidth: 1
-                            }
-                        ]
-                    }
+	                {
+		                xtype: 'tablelist',
+		                fieldLabel: _('table'),
+		                name: 'table_name',
+		                labelAlign: 'top',
+		                columnWidth: 1,
+		                anchor: '100%',
+		                enableReset: true
+	                },
+	                {
+		                xtype: 'eventlist',
+		                fieldLabel: _('event_type'),
+		                labelAlign: 'top',
+		                name: 'event_type',
+		                columnWidth: 1,
+		                anchor: '100%',
+		                enableReset: true
+	                },
+	                {
+		                xtype: 'userlivetsearch',
+		                fieldLabel: _('user'),
+		                labelAlign: 'top',
+		                hideLabel: false,
+		                name: 'uid',
+		                anchor: '100%'
+	                },
+	                {
+		                xtype: 'patienlivetsearch',
+		                fieldLabel: _('patient'),
+		                labelAlign: 'top',
+		                hideLabel: false,
+		                name: 'pid',
+		                anchor: '100%',
+		                resetEnabled: true
+	                }
+                ],
+                bbar: [
+                	{
+	                    xtype: 'button',
+	                    text: _('search'),
+		                flex: 1,
+	                    itemId: 'TransactionLogFilterSearchBtn'
+	                }
                 ]
             },
             {
                 xtype: 'grid',
-                itemId: 'reportDataGrid',
+                itemId: 'TransactionLogDataGrid',
                 store: me.transactionLogStore,
                 region: 'center',
-                rowLines: false,
-                columnLines: true,
+	            border: true,
+	            title: _('results'),
                 dockedItems: [
                     {
                         xtype: 'pagingtoolbar',
@@ -142,58 +166,45 @@ Ext.define('App.view.administration.TransactionLog', {
                         displayInfo: true
                     }
                 ],
-                features: [{ftype: 'grouping'}],
                 columns: [
-                    {
-                        text: 'Record #',
-                        dataIndex: 'RecordNumber',
-                        align: 'center'
-                    },
+	                {
+		                text: 'Date',
+		                dataIndex: 'date',
+		                width: 250
+	                },
                     {
                         text: 'Patient',
-                        dataIndex: 'PatientName',
-                        align: 'left'
-                    },
-                    {
-                        text: 'Date',
-                        dataIndex: 'date',
-                        align: 'center',
-                        width: 120
+                        dataIndex: 'patient_name',
+	                    flex: 1
                     },
                     {
                         text: 'User',
-                        dataIndex: 'UserName',
-                        align: 'left'
-                    },
-                    {
-                        text: 'Facility',
-                        dataIndex: 'legal_name',
-                        align: 'left'
+                        dataIndex: 'user_name',
+	                    flex: 1
                     },
                     {
                         text: 'Category',
                         dataIndex: 'category',
-                        align: 'center'
+	                    flex: 1
                     },
                     {
                         text: 'Event',
-                        dataIndex: 'event',
-                        align: 'left'
+	                    dataIndex: 'event',
+	                    flex: 1
+                    },
+                    {
+                        text: 'Pk',
+                        dataIndex: 'pk'
                     },
                     {
                         text: 'Table',
                         dataIndex: 'table_name',
-                        align: 'left'
+	                    flex: 1
                     },
                     {
                         text: 'IP',
                         dataIndex: 'ip',
-                        align: 'center'
-                    },
-                    {
-                        text: 'Valid',
-                        dataIndex: 'valid',
-                        align: 'center'
+	                    flex: 1
                     }
                 ]
             }

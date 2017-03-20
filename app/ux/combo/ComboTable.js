@@ -64,6 +64,13 @@ Ext.define('App.ux.combo.ComboTable', {
             autoLoad: me.loadStore
         });
 
+	    if(me.enableReset){
+		    me.trigger2Cls = 'x-form-clear-trigger';
+		    me.onTrigger2Click = function() {
+			    me.reset();
+		    }
+	    }
+
         me.callParent(arguments);
 
     }

@@ -146,9 +146,10 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		me.form = Ext.create('Ext.form.Panel', {
 			autoScroll: true,
 			action: 'encounter',
-			bodyStyle: 'background-color:white',
+			//bodyStyle: 'background-color:white',
 			region: 'center',
 			itemId: 'soapForm',
+			frame: true,
 			fieldDefaults: {
 				msgTarget: 'side'
 			},

@@ -37,7 +37,7 @@ Ext.define('App.model.patient.Vitals', {
 		},
 		{
 			name: 'weight_lbs',
-			type: 'string',
+			type: 'float',
 			useNull: true,
 			len: 10
 		},

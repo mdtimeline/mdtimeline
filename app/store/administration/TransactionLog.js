@@ -18,6 +18,5 @@
 
 Ext.define('App.store.administration.TransactionLog', {
 	model: 'App.model.administration.TransactionLog',
-	extend: 'Ext.data.Store',
-    groupField: 'patient_name'
+	extend: 'Ext.data.Store'
 });

@@ -13799,10 +13799,9 @@ Ext.define('App.model.administration.TransactionLog', {
             store: false,
             convert: function (v, record) {
                 var str = '';
-                if (record.data.user_title) str += record.data.user_title + ' ';
+	            if (record.data.user_lname) str += record.data.user_lname + ', ';
                 if (record.data.user_fname) str += record.data.user_fname + ' ';
-                if (record.data.user_mname) str += record.data.user_mname + ' ';
-                if (record.data.user_lname) str += record.data.user_lname;
+                if (record.data.user_mname) str += record.data.user_mname;
                 return str;
             }
         },
@@ -13812,10 +13811,9 @@ Ext.define('App.model.administration.TransactionLog', {
             store: false,
             convert: function (v, record) {
                 var str = '';
-                if (record.data.patient_title) str += record.data.patient_title + ' ';
+	            if (record.data.patient_lname) str += record.data.patient_lname + ', ';
                 if (record.data.patient_fname) str += record.data.patient_fname + ' ';
-                if (record.data.patient_mname) str += record.data.patient_mname + ' ';
-                if (record.data.patient_lname) str += record.data.patient_lname;
+                if (record.data.patient_mname) str += record.data.patient_mname;
                 return str;
             }
         },

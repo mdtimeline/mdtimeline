@@ -1290,7 +1290,13 @@ class MatchaCUP {
 	 *
 	 */
 	private function builtRoot() {
-		if($this->isSenchaRequest && isset($this->model->proxy) && isset($this->model->proxy->reader) && isset($this->model->proxy->reader->root)){
+		if($this->isSenchaRequest && isset($this->model->proxy) && isset($this->model->proxy->reader) &&
+			(isset($this->model->proxy->reader->root) || isset($this->model->proxy->reader->rootProperty))
+		){
+
+			$root = isset($this->model->proxy->reader->root) ?
+				$this->model->proxy->reader->root : $this->model->proxy->reader->rootProperty;
+
 			if($this->nolimitsql != ''){
 				$sth = Matcha::$__conn->prepare($this->nolimitsql);
 				$sth->execute($this->where);
@@ -1307,7 +1313,7 @@ class MatchaCUP {
 				}
 			}
 
-			$record[$this->model->proxy->reader->root] = $this->record;
+			$record[$root] = $this->record;
 			$this->record = $record;
 		}
 	}

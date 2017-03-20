@@ -248,7 +248,7 @@ class MatchaHelper extends Matcha
             'uid' => $uid,
             'fid' => $fid,
             'category' => (isset(self::$categories[$table]) ? self::$categories[$table] : ''),
-            'pk' => $saveParams['pk'],
+            'pk' => (isset($saveParams['pk']) ? $saveParams['pk'] : ''),
             'event' => $saveParams['event'],
             'table_name' => $table,
             'sql_string' => $sql,

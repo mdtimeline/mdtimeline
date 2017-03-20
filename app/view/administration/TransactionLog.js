@@ -30,7 +30,8 @@ Ext.define('App.view.administration.TransactionLog', {
         var me = this;
 
         me.transactionLogStore = Ext.create('App.store.administration.TransactionLog', {
-            remoteFilter: true
+            remoteFilter: true,
+            remoteSort: true
         });
 
         me.pageBody = [
@@ -174,13 +175,19 @@ Ext.define('App.view.administration.TransactionLog', {
 	                },
                     {
                         text: 'Patient',
-                        dataIndex: 'patient_name',
-	                    flex: 1
+                        dataIndex: 'patient_lname',
+	                    flex: 1,
+	                    renderer: function (v, meta,rec) {
+		                    return rec.get('patient_name');
+	                    }
                     },
                     {
                         text: 'User',
-                        dataIndex: 'user_name',
-	                    flex: 1
+                        dataIndex: 'user_lname',
+	                    flex: 1,
+	                    renderer: function (v, meta,rec) {
+		                    return rec.get('user_name');
+	                    }
                     },
                     {
                         text: 'Category',

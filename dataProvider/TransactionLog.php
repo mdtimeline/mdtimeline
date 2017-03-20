@@ -78,6 +78,33 @@ class TransactionLog
  			 LEFT JOIN users as u ON u.id = atl.uid
  			 LEFT JOIN patient as p ON p.pid = atl.pid";
 
+		if(isset($params->sort)){
+			$sorters = [];
+
+			foreach ($params->sort as $sort){
+
+				if(!isset($sort->property)) continue;
+				if(!isset($sort->direction)) $sort->direction = 'ASC';
+
+				if($sort->property == 'patient_lname'){
+					$sort->property = 'p.lname';
+
+				}elseif($sort->property == 'user_lname'){
+					$sort->property = 'u.lname';
+				}else {
+					$sort->property = 'atl.' . $sort->property;
+				}
+
+				$sorters[] = "{$sort->property} {$sort->direction}";
+			}
+
+			if(!empty($sorters)){
+				$sorters = ' ORDER BY ' . implode(', ', $sorters);
+				$sql .= $sorters;
+			}
+
+		}
+
 		return $this->t->sql($sql)->all($values);
 	}
 

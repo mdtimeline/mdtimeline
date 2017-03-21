@@ -59,14 +59,13 @@ class SoapHandler
         'Deceased' => 'deceased',
         'DeceaseDate' => 'death_date',
         'MothersFirstName' => 'mothers_name',
-        'GuardiansFirstName' => 'guardians_name',
-        //'GuardiansMiddleName' => 'pid',
-        //'GuardiansLastName' => 'pid',
-        //'GuardiansPhone' => 'pid',
-        'EmergencyContactFirstName' => 'emer_contact',
-        //'EmergencyContactMiddleName' => 'pid',
-        //'EmergencyContactLastName' => 'pid',
-        'EmergencyContactPhone' => 'emer_phone',
+        'GuardiansFirstName' => 'guardians_fname',
+        'GuardiansMiddleName' => 'guardians_mname',
+        'GuardiansLastName' => 'guardians_lname',
+        'EmergencyContactFirstName' => 'emergency_contact_fname',
+        'EmergencyContactMiddleName' => 'emergency_contact_mname',
+        'EmergencyContactLastName' => 'emergency_contact_lname',
+        'EmergencyContactPhone' => 'emergency_contact_phone',
         'Occupation' => 'occupation',
         'Employer' => 'employer_name',
         'WebPortalUsername' => 'portal_username',
@@ -166,7 +165,7 @@ class SoapHandler
                     'Success'   => true,
                     'Patient'   => $patient,
                     'Who'       => 'Patient',
-                    'WhoName'   => $patient['fname'].' '.$patient['mname'].' '.$patient['lname'],
+                    'WhoName'   => $patient->FirstName.' '.$patient->MiddleName.' '.$patient->LastName,
                     'Error'     => ''
                 ];
             }
@@ -189,7 +188,7 @@ class SoapHandler
                     'Success' => true,
                     'Patient' => $patient,
                     'Who'       => 'Guardian',
-                    'WhoName'       => $patient['guardian_contact_fname'].' '.$patient['guardian_contact_mname'].' '.$patient['guardian_contact_lname'],
+                    'WhoName'   => $patient->GuardiansFirstName.' '.$patient->GuardiansMiddleName.' '.$patient->GuardiansLastName,
                     'Error' => ''
                 ];
             }
@@ -212,7 +211,7 @@ class SoapHandler
                     'Success'   => true,
                     'Patient'   => $patient,
                     'Who'       => 'Emergency',
-                    'WhoName'       => $patient['emergency_contact_fname'].' '.$patient['emergency_contact_mname'].' '.$patient['emergency_contact_lname'],
+                    'WhoName'   => $patient->EmergencyContactFirstName.' '.$patient->EmergencyContactMiddleName.' '.$patient->EmergencyContactLastName,
                     'Error'     => ''
                 ];
             }

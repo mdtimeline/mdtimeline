@@ -173,7 +173,7 @@ class SoapHandler
 
         // Check the AUTH of a Guardian Login
         // Check for the password / allowance / Date of Birth of the Patient
-        if(isset($patient->GuardianPortalAllow)){
+        if($patient->GuardianPortalAllow){
             if ($patient->GuardianPortalPassword == $params->Password &&
                 $patient->GuardianPortalUsername == $params->PatientAccount &&
                 substr($patient->DateOfBirth, 0, 10) == $params->DateOfBirth
@@ -196,7 +196,7 @@ class SoapHandler
 
         // Check the AUTH of a Emergency Contact Login
         // Check for the password / allowance / Date of Birth of the Patient
-        if(isset($patient->EmergencyPortalAllow)){
+        if($patient->EmergencyPortalAllow){
             if ($patient->EmergencyPortalPassword == $params->Password &&
                 $patient->EmergencyPortalUsername == $params->PatientAccount &&
                 substr($patient->DateOfBirth, 0, 10) == $params->DateOfBirth

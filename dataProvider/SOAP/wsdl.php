@@ -895,6 +895,12 @@ $functions[] = [
             'minOccurs' => '1',
             'document' => 'Tell what type user is.'
         ],
+        [
+            'name' => 'WhoName',
+            'type' => 'string',
+            'minOccurs' => '1',
+            'document' => 'Tell what is the name of the logged person.'
+        ],
 		[
 			'name' => 'Patient',
 			'type' => 'Patient',

@@ -48,11 +48,6 @@ class SoapHandler
         'PhysicalState' => 'state',
         'PhysicalCountry' => 'country',
         'PhysicalZipCode' => 'zipcode',
-        //'PostalAddressLineOne' => 'pid',
-        //'PostalAddressLineTwo' => 'pid',
-        //'PostalCity' => 'pid',
-        //'PostalState' => 'pid',
-        //'PostalZipCode' => 'pid',
         'HomePhoneNumber' => 'home_phone',
         'MobilePhoneNumber' => 'mobile_phone',
         'WorkPhoneNumber' => 'work_phone',
@@ -64,8 +59,6 @@ class SoapHandler
         'Deceased' => 'deceased',
         'DeceaseDate' => 'death_date',
         'MothersFirstName' => 'mothers_name',
-        //'MothersMiddleName' => 'pid',
-        //'MothersLastName' => 'pid',
         'GuardiansFirstName' => 'guardians_name',
         //'GuardiansMiddleName' => 'pid',
         //'GuardiansLastName' => 'pid',
@@ -173,6 +166,7 @@ class SoapHandler
                     'Success'   => true,
                     'Patient'   => $patient,
                     'Who'       => 'Patient',
+                    'WhoName'   => $patient['fname'].' '.$patient['mname'].' '.$patient['lname'],
                     'Error'     => ''
                 ];
             }
@@ -195,6 +189,7 @@ class SoapHandler
                     'Success' => true,
                     'Patient' => $patient,
                     'Who'       => 'Guardian',
+                    'WhoName'       => $patient['guardian_contact_fname'].' '.$patient['guardian_contact_mname'].' '.$patient['guardian_contact_lname'],
                     'Error' => ''
                 ];
             }
@@ -217,6 +212,7 @@ class SoapHandler
                     'Success'   => true,
                     'Patient'   => $patient,
                     'Who'       => 'Emergency',
+                    'WhoName'       => $patient['emergency_contact_fname'].' '.$patient['emergency_contact_mname'].' '.$patient['emergency_contact_lname'],
                     'Error'     => ''
                 ];
             }

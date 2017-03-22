@@ -70,7 +70,7 @@ class CCDDocument extends CDDDocumentBase
 	/**
 	 * @var bool
 	 */
-	private $includeVitalsAdministerUser = false;
+	private $includeVitalsAdministerUser = true;
 
 	public function __construct()
 	{
@@ -2230,6 +2230,40 @@ class CCDDocument extends CDDDocumentBase
 		            $vitals['text']['table']['tbody']['tr'][4]['td'][] = [
 			            '@value' => $taken_name
 		            ];
+
+		            $performer = [
+						'assignedEntity' => [
+							'id' => [
+								'@attributes' => [
+									'root' => 'NA'
+								]
+							]
+						],
+		            ];
+
+		            if(isset($taken_by['taxonomy'])){
+			            $performer['assignedEntity']['code'] = [
+				            '@attributes' => [
+					            'code' => $taken_by['taxonomy'],
+					            'codeSystem' => '2.16.840.1.114222.4.11.1066',
+					            'codeSystemName' => 'NUCC Health Care Provider Taxonomy',
+					            'displayName' => $taken_by['title'] . ' ' .
+						            $taken_by['fname'] . ' ' .
+						            $taken_by['mname'] . ' ' .
+						            $taken_by['lname']
+				            ]
+			            ];
+		            }
+		            $performer['assignedEntity']['assignedPerson'] = [
+			            '@attributes' => [
+				            'classCode' => 'PSN',
+				            'determinerCode' => 'INSTANCE'
+			            ],
+			            'name' => [
+				            'given' => $taken_by['fname'],
+				            'family' => $taken_by['lname']
+			            ]
+		            ];
 	            }
 
                 // Code Entry
@@ -2269,222 +2303,227 @@ class CCDDocument extends CDDDocumentBase
                             '@attributes' => [
                                 'value' => $date
                             ]
-                        ],
-                        'component' => [
-                            [
-                                'observation' => [
-                                    '@attributes' => [
-                                        'classCode' => 'OBS',
-                                        'moodCode' => 'EVN'
-                                    ],
-                                    'templateId' => [
-                                        '@attributes' => [
-                                            'root' => '2.16.840.1.113883.10.20.22.4.27'
-                                        ]
-                                    ],
-                                    'id' => [
-                                        '@attributes' => [
-                                            'root' => UUID::v4()
-                                        ]
-                                    ],
-                                    'code' => [
-                                        '@attributes' => [
-                                            'code' => '8302-2',
-                                            'codeSystemName' => 'LOINC',
-                                            'codeSystem' => '2.16.840.1.113883.6.1',
-                                            'displayName' => 'Height'
-                                        ]
-                                    ],
-                                    'statusCode' => [
-                                        '@attributes' => [
-                                            'code' => 'completed'
-                                        ]
-                                    ],
-                                    'effectiveTime' => [
-                                        '@attributes' => [
-                                            'value' => $date
-                                        ]
-                                    ],
-                                    'value' => [
-                                        '@attributes' => [
-                                            'xsi:type' => 'PQ',
-                                            'value' => $height,
-                                            'unit' => $this->height_measure
-                                        ]
-                                    ]
-                                ]
-                            ],
-                            [
-                                'observation' => [
-                                    '@attributes' => [
-                                        'classCode' => 'OBS',
-                                        'moodCode' => 'EVN'
-                                    ],
-                                    'templateId' => [
-                                        '@attributes' => [
-                                            'root' => '2.16.840.1.113883.10.20.22.4.2'
-                                        ]
-                                    ],
-                                    'id' => [
-                                        '@attributes' => [
-                                            'root' => UUID::v4()
-                                        ]
-                                    ],
-                                    'code' => [
-                                        '@attributes' => [
-                                            'code' => '3141-9',
-                                            'codeSystemName' => 'LOINC',
-                                            'codeSystem' => '2.16.840.1.113883.6.1',
-                                            'displayName' => 'Weight Measured'
-                                        ]
-                                    ],
-                                    'statusCode' => [
-                                        '@attributes' => [
-                                            'code' => 'completed'
-                                        ]
-                                    ],
-                                    'effectiveTime' => [
-                                        '@attributes' => [
-                                            'value' => $date
-                                        ]
-                                    ],
-                                    'value' => [
-                                        '@attributes' => [
-                                            'xsi:type' => 'PQ',
-                                            'value' => $weight,
-                                            'unit' => $this->weight_measure
-                                        ]
-                                    ]
-                                ]
-                            ],
-                            [
-                                'observation' => [
-                                    '@attributes' => [
-                                        'classCode' => 'OBS',
-                                        'moodCode' => 'EVN'
-                                    ],
-                                    'templateId' => [
-                                        '@attributes' => [
-                                            'root' => '2.16.840.1.113883.10.20.22.4.2'
-                                        ]
-                                    ],
-                                    'id' => [
-                                        '@attributes' => [
-                                            'root' => UUID::v4()
-                                        ]
-                                    ],
-                                    'code' => [
-                                        '@attributes' => [
-                                            'code' => '8480-6',
-                                            'codeSystemName' => 'LOINC',
-                                            'codeSystem' => '2.16.840.1.113883.6.1',
-                                            'displayName' => 'BP Systolic'
-                                        ]
-                                    ],
-                                    'statusCode' => [
-                                        '@attributes' => [
-                                            'code' => 'completed'
-                                        ]
-                                    ],
-                                    'effectiveTime' => [
-                                        '@attributes' => [
-                                            'value' => $date
-                                        ]
-                                    ],
-                                    'value' => [
-                                        '@attributes' => [
-                                            'xsi:type' => 'PQ',
-                                            'value' => $item['bp_systolic'],
-                                            'unit' => 'mm[Hg]'
-                                        ]
-                                    ]
-                                ]
+                        ]
+                    ]
+                ];
 
+	            if(isset($performer)){
+		            $entry['organizer']['performer'] = $performer;
+	            }
+
+	            $entry['organizer']['component'] = [
+                    [
+                        'observation' => [
+                            '@attributes' => [
+                                'classCode' => 'OBS',
+                                'moodCode' => 'EVN'
                             ],
-                            [
-                                'observation' => [
-                                    '@attributes' => [
-                                        'classCode' => 'OBS',
-                                        'moodCode' => 'EVN'
-                                    ],
-                                    'templateId' => [
-                                        '@attributes' => [
-                                            'root' => '2.16.840.1.113883.10.20.22.4.2'
-                                        ]
-                                    ],
-                                    'id' => [
-                                        '@attributes' => [
-                                            'root' => UUID::v4()
-                                        ]
-                                    ],
-                                    'code' => [
-                                        '@attributes' => [
-                                            'code' => '8462-4',
-                                            'codeSystemName' => 'LOINC',
-                                            'codeSystem' => '2.16.840.1.113883.6.1',
-                                            'displayName' => 'BP Diastolic'
-                                        ]
-                                    ],
-                                    'statusCode' => [
-                                        '@attributes' => [
-                                            'code' => 'completed'
-                                        ]
-                                    ],
-                                    'effectiveTime' => [
-                                        '@attributes' => [
-                                            'value' => $date
-                                        ]
-                                    ],
-                                    'value' => [
-                                        '@attributes' => [
-                                            'xsi:type' => 'PQ',
-                                            'value' => $item['bp_diastolic'],
-                                            'unit' => 'mm[Hg]'
-                                        ]
-                                    ]
+                            'templateId' => [
+                                '@attributes' => [
+                                    'root' => '2.16.840.1.113883.10.20.22.4.27'
                                 ]
                             ],
-                            [
-                                'observation' => [
-                                    '@attributes' => [
-                                        'classCode' => 'OBS',
-                                        'moodCode' => 'EVN'
-                                    ],
-                                    'templateId' => [
-                                        '@attributes' => [
-                                            'root' => '2.16.840.1.113883.10.20.22.4.2'
-                                        ]
-                                    ],
-                                    'id' => [
-                                        '@attributes' => [
-                                            'root' => UUID::v4()
-                                        ]
-                                    ],
-                                    'code' => [
-                                        '@attributes' => [
-                                            'code' => '39156-5',
-                                            'codeSystemName' => 'LOINC',
-                                            'codeSystem' => '2.16.840.1.113883.6.1',
-                                            'displayName' => 'Body mass index (BMI) [Ratio]'
-                                        ]
-                                    ],
-                                    'statusCode' => [
-                                        '@attributes' => [
-                                            'code' => 'completed'
-                                        ]
-                                    ],
-                                    'effectiveTime' => [
-                                        '@attributes' => [
-                                            'value' => $date
-                                        ]
-                                    ],
-                                    'value' => [
-                                        '@attributes' => [
-                                            'xsi:type' => 'PQ',
-                                            'value' => $item['bmi'],
-                                            'unit' => 'kg/m2'
-                                        ]
-                                    ]
+                            'id' => [
+                                '@attributes' => [
+                                    'root' => UUID::v4()
+                                ]
+                            ],
+                            'code' => [
+                                '@attributes' => [
+                                    'code' => '8302-2',
+                                    'codeSystemName' => 'LOINC',
+                                    'codeSystem' => '2.16.840.1.113883.6.1',
+                                    'displayName' => 'Height'
+                                ]
+                            ],
+                            'statusCode' => [
+                                '@attributes' => [
+                                    'code' => 'completed'
+                                ]
+                            ],
+                            'effectiveTime' => [
+                                '@attributes' => [
+                                    'value' => $date
+                                ]
+                            ],
+                            'value' => [
+                                '@attributes' => [
+                                    'xsi:type' => 'PQ',
+                                    'value' => $height,
+                                    'unit' => $this->height_measure
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
+                        'observation' => [
+                            '@attributes' => [
+                                'classCode' => 'OBS',
+                                'moodCode' => 'EVN'
+                            ],
+                            'templateId' => [
+                                '@attributes' => [
+                                    'root' => '2.16.840.1.113883.10.20.22.4.2'
+                                ]
+                            ],
+                            'id' => [
+                                '@attributes' => [
+                                    'root' => UUID::v4()
+                                ]
+                            ],
+                            'code' => [
+                                '@attributes' => [
+                                    'code' => '3141-9',
+                                    'codeSystemName' => 'LOINC',
+                                    'codeSystem' => '2.16.840.1.113883.6.1',
+                                    'displayName' => 'Weight Measured'
+                                ]
+                            ],
+                            'statusCode' => [
+                                '@attributes' => [
+                                    'code' => 'completed'
+                                ]
+                            ],
+                            'effectiveTime' => [
+                                '@attributes' => [
+                                    'value' => $date
+                                ]
+                            ],
+                            'value' => [
+                                '@attributes' => [
+                                    'xsi:type' => 'PQ',
+                                    'value' => $weight,
+                                    'unit' => $this->weight_measure
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
+                        'observation' => [
+                            '@attributes' => [
+                                'classCode' => 'OBS',
+                                'moodCode' => 'EVN'
+                            ],
+                            'templateId' => [
+                                '@attributes' => [
+                                    'root' => '2.16.840.1.113883.10.20.22.4.2'
+                                ]
+                            ],
+                            'id' => [
+                                '@attributes' => [
+                                    'root' => UUID::v4()
+                                ]
+                            ],
+                            'code' => [
+                                '@attributes' => [
+                                    'code' => '8480-6',
+                                    'codeSystemName' => 'LOINC',
+                                    'codeSystem' => '2.16.840.1.113883.6.1',
+                                    'displayName' => 'BP Systolic'
+                                ]
+                            ],
+                            'statusCode' => [
+                                '@attributes' => [
+                                    'code' => 'completed'
+                                ]
+                            ],
+                            'effectiveTime' => [
+                                '@attributes' => [
+                                    'value' => $date
+                                ]
+                            ],
+                            'value' => [
+                                '@attributes' => [
+                                    'xsi:type' => 'PQ',
+                                    'value' => $item['bp_systolic'],
+                                    'unit' => 'mm[Hg]'
+                                ]
+                            ]
+                        ]
+
+                    ],
+                    [
+                        'observation' => [
+                            '@attributes' => [
+                                'classCode' => 'OBS',
+                                'moodCode' => 'EVN'
+                            ],
+                            'templateId' => [
+                                '@attributes' => [
+                                    'root' => '2.16.840.1.113883.10.20.22.4.2'
+                                ]
+                            ],
+                            'id' => [
+                                '@attributes' => [
+                                    'root' => UUID::v4()
+                                ]
+                            ],
+                            'code' => [
+                                '@attributes' => [
+                                    'code' => '8462-4',
+                                    'codeSystemName' => 'LOINC',
+                                    'codeSystem' => '2.16.840.1.113883.6.1',
+                                    'displayName' => 'BP Diastolic'
+                                ]
+                            ],
+                            'statusCode' => [
+                                '@attributes' => [
+                                    'code' => 'completed'
+                                ]
+                            ],
+                            'effectiveTime' => [
+                                '@attributes' => [
+                                    'value' => $date
+                                ]
+                            ],
+                            'value' => [
+                                '@attributes' => [
+                                    'xsi:type' => 'PQ',
+                                    'value' => $item['bp_diastolic'],
+                                    'unit' => 'mm[Hg]'
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
+                        'observation' => [
+                            '@attributes' => [
+                                'classCode' => 'OBS',
+                                'moodCode' => 'EVN'
+                            ],
+                            'templateId' => [
+                                '@attributes' => [
+                                    'root' => '2.16.840.1.113883.10.20.22.4.2'
+                                ]
+                            ],
+                            'id' => [
+                                '@attributes' => [
+                                    'root' => UUID::v4()
+                                ]
+                            ],
+                            'code' => [
+                                '@attributes' => [
+                                    'code' => '39156-5',
+                                    'codeSystemName' => 'LOINC',
+                                    'codeSystem' => '2.16.840.1.113883.6.1',
+                                    'displayName' => 'Body mass index (BMI) [Ratio]'
+                                ]
+                            ],
+                            'statusCode' => [
+                                '@attributes' => [
+                                    'code' => 'completed'
+                                ]
+                            ],
+                            'effectiveTime' => [
+                                '@attributes' => [
+                                    'value' => $date
+                                ]
+                            ],
+                            'value' => [
+                                '@attributes' => [
+                                    'xsi:type' => 'PQ',
+                                    'value' => $item['bmi'],
+                                    'unit' => 'kg/m2'
                                 ]
                             ]
                         ]

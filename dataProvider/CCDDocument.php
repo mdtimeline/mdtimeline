@@ -5559,9 +5559,27 @@ class CCDDocument extends CDDDocumentBase
                 unset($entry);
             }
         } else {
-            $socialHistory['@attributes'] = [
-                'nullFlavor' => 'NI'
-            ];
+
+	        $socialHistory = [
+	        	'@attributes' => [
+			        'nullFlavor' => 'NI'
+		        ],
+		        'templateId' => [
+			        '@attributes' => [
+				        'root' => '2.16.840.1.113883.10.20.22.2.17'
+			        ]
+		        ],
+		        'code' => [
+			        '@attributes' => [
+				        'code' => '29762-2',
+				        'codeSystemName' => 'LOINC',
+				        'codeSystem' => '2.16.840.1.113883.6.1',
+				        'displayName' => "Social History"
+			        ]
+		        ],
+		        'title' => 'Social History',
+		        'text' => ''
+	        ];
         }
         unset($smokingStatus);
         unset($socialHistories);

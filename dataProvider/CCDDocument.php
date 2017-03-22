@@ -67,6 +67,11 @@ include_once(ROOT . '/dataProvider/Globals.php');
 class CCDDocument extends CDDDocumentBase
 {
 
+	/**
+	 * @var bool
+	 */
+	private $includeVitalsAdministerUser = false;
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -2159,14 +2164,30 @@ class CCDDocument extends CDDDocumentBase
                 ]
             ];
 
+	        if($this->includeVitalsAdministerUser){
+		        $vitals['text']['table']['tbody']['tr'][] = [
+		        	'th' => [
+			            [
+				            '@attributes' => [
+					            'align' => 'left'
+				            ],
+				            '@value' => 'Taken By'
+		                ]
+			        ]
+	            ];
+	        }
+
             $vitals['entry'] = [];
 
             foreach($vitalsData as $item){
                 // strip date (yyyy-mm-dd hh:mm:ss => yyyymmdd)
                 $date = $this->parseDate($item['date']);
+
+                $th = date('F j, Y h:i A', strtotime($item['date']));
+
                 // Date
                 $vitals['text']['table']['thead']['tr'][0]['th'][] = [
-                    '@value' => date('F j, Y h:i A', strtotime($item['date']))
+                    '@value' => $th
                 ];
 
 	            // Height
@@ -2189,6 +2210,27 @@ class CCDDocument extends CDDDocumentBase
                 $vitals['text']['table']['tbody']['tr'][3]['td'][] = [
                     '@value' => $item['bmi'] . ' kg/m2'
                 ];
+
+	            if($this->includeVitalsAdministerUser){
+
+	            	$taken_by = $this->User->getUserByUid($item['uid']);
+
+	            	$taken_name = '';
+
+	            	if(isset($taken_by['lname'])){
+			            $taken_name .= $taken_by['lname'];
+		            }
+	            	if(isset($taken_by['fname'])){
+			            $taken_name .= ', ' . $taken_by['fname'];
+		            }
+	            	if(isset($taken_by['mname'])){
+			            $taken_name .= ' ' . $taken_by['mname'];
+		            }
+
+		            $vitals['text']['table']['tbody']['tr'][4]['td'][] = [
+			            '@value' => $taken_name
+		            ];
+	            }
 
                 // Code Entry
                 $entry = [
@@ -6026,7 +6068,7 @@ class CCDDocument extends CDDDocumentBase
         $DecisionAids = new DecisionAids();
 	    $decisionAids = $DecisionAids->getDecisionAidsByTriggerCodes($codes);
 
-	    if(empty($decisionAids)) return;
+	    //if(empty($decisionAids)) return;
 
         if(!empty($encountersData)){
             $encounters['text'] = [
@@ -6096,7 +6138,7 @@ class CCDDocument extends CDDDocumentBase
 	            $encounter_dx_text = implode(', ', $encounter_dx_text);
 
 
-	            if(!$excludePatientDecisionAids) {
+	            if(!$excludePatientDecisionAids && !empty($decisionAids)) {
 
 	            	$instruction = 'Decision Aids: ' . (isset($decisionAids[0]['instruction_code_description']) ? $this->clean($decisionAids[0]['instruction_code_description']) : '');
 

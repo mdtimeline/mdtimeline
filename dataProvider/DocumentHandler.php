@@ -158,8 +158,8 @@ class DocumentHandler {
 			if($params->encrypted){
 				$params->document = MatchaUtils::encrypt($params->document);
 			};
-			$binary_file = $this->isBinary($params->documen) ?
-				$params->documen : base64_decode($params->documen);
+			$binary_file = $this->isBinary($params->document) ?
+				$params->document : base64_decode($params->document);
 
 			$params->hash = hash('sha256', $binary_file);
 		}

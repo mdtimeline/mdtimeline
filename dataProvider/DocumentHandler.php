@@ -147,7 +147,9 @@ class DocumentHandler {
 				if($params[$i]->encrypted){
 					$params[$i]->document = MatchaUtils::encrypt($params[$i]->document);
 				};
-				$params[$i]->hash = hash('sha256', $params[$i]->document);
+				$binary_file = $this->isBinary($params[$i]->document) ?
+					$params[$i]->document : base64_decode($params[$i]->document);
+				$params[$i]->hash = hash('sha256', $binary_file);
 			}
 		}else{
 			/** remove the mime type */
@@ -156,7 +158,10 @@ class DocumentHandler {
 			if($params->encrypted){
 				$params->document = MatchaUtils::encrypt($params->document);
 			};
-			$params->hash = hash('sha256', $params->document);
+			$binary_file = $this->isBinary($params->documen) ?
+				$params->documen : base64_decode($params->documen);
+
+			$params->hash = hash('sha256', $binary_file);
 		}
 
 		$results = $this->d->save($params);
@@ -625,7 +630,11 @@ class DocumentHandler {
 	 */
 	public function checkDocHash($doc){
 		$doc = $this->getPatientDocument($doc->id, true);
-		$hash = hash('sha256', $doc['document']);
+
+		$binary_file = $this->isBinary($doc['document']) ?
+			$doc['document'] : base64_decode($doc['document']);
+		$hash = hash('sha256', $binary_file);
+
 		return ['success' => $doc['hash'] == $hash, 'msg' => 'Stored Hash: ' . $doc['hash'] . '<br>File Hash: ' . $hash];
 	}
 

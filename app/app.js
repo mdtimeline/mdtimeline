@@ -38437,7 +38437,7 @@ Ext.define('App.controller.Clock', {
 		me.cronTask = {
 			scope: me,
 			run: function(){
-				me.clock.update(Ext.Date.format(me.date, g('time_display_format')));
+				me.clock.update(Ext.Date.format(me.date, 'g:i:s a'));
 				me.date = Ext.Date.add(me.date, Ext.Date.SECOND, 1);
 			},
 			interval: 1000

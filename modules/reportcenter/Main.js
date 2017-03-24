@@ -20,8 +20,7 @@ Ext.define('Modules.reportcenter.Main', {
 	extend: 'Modules.Module',
 
 	requires:[
-		'Modules.reportcenter.view.ReportCenter',
-        'Modules.reportcenter.reports.TransactionLog.ux.ComboTable'
+		'Modules.reportcenter.view.ReportCenter'
 	],
 
 	init: function(){

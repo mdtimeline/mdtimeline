@@ -13980,11 +13980,6 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
-			name: 'signature',
-			type: 'string',
-			len: 100
-		},
-		{
 			name: 'fullname',
 			type: 'string',
 			comment: 'title full name',

@@ -58,8 +58,8 @@ header("Access-Control-Allow-Origin: *");
 		<script type="text/javascript" src="lib/<?php print EXTJS ?>/ext-all.js" charset="utf-8"></script>
 
 		<!-- JSrouter and Ext.deirect API files -->
-		<script src="JSrouter.php?site=<?php print SITE ?>" charset="utf-8"></script>
-		<script src="data/api.php?site=<?php print SITE ?>" charset="utf-8"></script>
+		<script src="JSrouter.php?site=<?php print SITE ?>&dc_=<?php print time() ?>" charset="utf-8"></script>
+		<script src="data/api.php?site=<?php print SITE ?>&dc_=<?php print time() ?>" charset="utf-8"></script>
 		<script type="text/javascript" src="lib/ZeroClipboard/ZeroClipboard.js" charset="utf-8"></script>
 		<script type="text/javascript" src="lib/darkroomjs/demo/vendor/fabric.js" charset="utf-8"></script>
 		<script type="text/javascript" src="lib/darkroomjs/build/darkroom.js" charset="utf-8"></script>

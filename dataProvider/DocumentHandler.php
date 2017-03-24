@@ -404,11 +404,14 @@ class DocumentHandler {
 	}
 
 	private function trimBase64($base64){
+
+		if(!preg_match('/data:/', $base64)){
+			return $base64;
+		}
 		$pos = strpos($base64, ',');
 		if($pos === false) return $base64;
 		return substr($base64, $pos + 1);
 	}
-
 
 
 	/**

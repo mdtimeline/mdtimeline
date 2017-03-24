@@ -600,12 +600,13 @@ class CDDDocumentBase
             $document->eid = $this->eid;
             $document->uid = $_SESSION['user']['id'];
             $document->docType = 'C-CDA';
+            $document->docTypeCode = 'CD';
             $document->name = $name;
             $document->date = $date;
             $document->note = '';
-            $document->title = 'C-CDA';
+            $document->title = 'C-CDA Archived';
             $document->encrypted = 0;
-            $document->document = base64_encode(html_entity_decode(strip_tags($xml)));
+            $document->document = $xml;
             include_once(ROOT . '/dataProvider/DocumentHandler.php');
             $DocumentHandler = new DocumentHandler();
             $DocumentHandler->addPatientDocument($document);

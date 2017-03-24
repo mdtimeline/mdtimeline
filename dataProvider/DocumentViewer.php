@@ -112,9 +112,8 @@ if (
 	function base64ToBinary($document, $encrypted, $is_image){
 		// handle binary documents
 		if(preg_match('%^[a-zA-Z0-9/+]*={0,2}$%', $document)){
-			base64_decode($document);
+			return base64_decode($document);
 		}
-
 		return $document;
 	}
 
@@ -126,7 +125,6 @@ if (
 		}
 		return false;
 	}
-
 
 	$isTemp = isset($_REQUEST['temp']);
 

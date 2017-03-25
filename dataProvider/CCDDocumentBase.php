@@ -592,9 +592,23 @@ class CDDDocumentBase
     {
         try {
             header('Content-type: application/xml');
-            $xml = $this->xml->saveXML();
-            $name = $this->getFileName() . '.xml';
+            $xml_str = $this->xml->saveXML();
+	        $xml_str = preg_replace('/\<\?xml-stylesheet(.*)/', '', $xml_str);
+
+	        $xsl = new DOMDocument();
+	        $xsl->load(ROOT . '/lib/CCRCDA/schema/cda2.xsl');
+
+	        $xml = new DOMDocument();
+	        $xml->loadXML($xml_str);
+
+	        $proc = new XSLTProcessor();
+	        $proc->importStylesheet($xsl);
+	        $xml = $proc->transformToDoc($xml);
+	        $xml = $xml->saveXML();
+
+            $name = $this->getFileName() . '.html';
             $date = date('Y-m-d H:i:s');
+
             $document = new stdClass();
             $document->pid = $this->pid;
             $document->eid = $this->eid;
@@ -611,7 +625,7 @@ class CDDDocumentBase
             $DocumentHandler = new DocumentHandler();
             $DocumentHandler->addPatientDocument($document);
             unset($DocumentHandler, $document, $name, $date);
-            print $xml;
+            print $this->xml->saveXML();
         } catch(Exception $Error) {
             error_log($Error->getMessage());
         }

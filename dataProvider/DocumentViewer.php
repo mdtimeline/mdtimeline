@@ -297,7 +297,11 @@ HTML;
 			$href =  URL.'/lib/CCRCDA/schema/cda2.xsl';
 		    $document = preg_replace('/(href=").*\.xsl(")/', "$1{$href}$2" ,$document, 1);
 	    }
-		header('Content-Type: ' . $mineType, true);
+
+	    $encoding = mb_detect_encoding($document, 'ISO-8859-1,UTF-8');
+	    $encoding = $encoding === false ? '' : '; charset=' . $encoding;
+
+		header('Content-Type: ' . $mineType . $encoding, true);
 		header('Content-Disposition: inline; filename="' . $doc['name'] . '"');
 		header('Content-Transfer-Encoding: BINARY');
 		header('Content-Length: ' . strlen($document));

@@ -65,7 +65,8 @@ class DocumentHandler {
 		'video/3gpp' => '3gp',
 		'text/gif' => 'xml',
 		'image/xml' => 'wav',
-		'text/plain' => 'txt'
+		'text/plain' => 'txt',
+		'text/html' => 'html'
 	];
 
 	function __construct(){
@@ -148,7 +149,7 @@ class DocumentHandler {
 				$params[$i]->document = $this->trimBase64($params[$i]->document);
 
 				/** encrypted if necessary */
-				if($params[$i]->encrypted){
+				if(isset($params[$i]->encrypted) && $params[$i]->encrypted){
 					$params[$i]->document = MatchaUtils::encrypt($params[$i]->document);
 				};
 				$binary_file = $this->isBinary($params[$i]->document) ?
@@ -159,7 +160,7 @@ class DocumentHandler {
 			/** remove the mime type */
 			$params->document = $this->trimBase64($params->document);
 			/** encrypted if necessary */
-			if($params->encrypted){
+			if(isset($params->encrypted) && $params->encrypted){
 				$params->document = MatchaUtils::encrypt($params->document);
 			};
 			$binary_file = $this->isBinary($params->document) ?
@@ -221,8 +222,14 @@ class DocumentHandler {
 				throw new Exception('File extension not supported. document_id: ' . $document->id . ' mime_type: '. $mime_type);
 			}
 			$document_code = isset($document->docTypeCode) ? $document->docTypeCode : '';
+
+			if($mime_type == 'application/xml' && preg_match('/\<!DOCTYPE html/', $document->document)){
+				$mime_type = 'text/html';
+			}
+
 			$ext = $this->mime_types_ext[$mime_type];
 			$file_name = $document_code .'_' .$document->id . '_' . $document->pid . '.' . $ext;
+
 			$document->name = $file_name;
 
 			//error_log('DOCUMENT');
@@ -293,9 +300,12 @@ class DocumentHandler {
 
 			$document_code = isset($document->docTypeCode) ? $document->docTypeCode : '';
 
+			if($mime_type == 'application/xml' && preg_match('/\<!DOCTYPE html/', $document->document)){
+				$mime_type = 'text/html';
+			}
+
 			$ext = $this->mime_types_ext[$mime_type];
 			$file_name = $document_code .'_' .$document->id . '_' . $document->pid . '.' . $ext;
-
 			$path = $document_path . '/'. $file_name;
 
 			if(file_exists($path)){

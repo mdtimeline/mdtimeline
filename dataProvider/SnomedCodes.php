@@ -107,12 +107,3 @@ class SnomedCodes {
 	}
 
 }
-
-//$f = new DiagnosisCodes();
-//print '<pre>';
-//$params = new stdClass();
-////$params->codeType = 'ICD9';
-//$params->query = '205';
-//$params->start = 0;
-//$params->limit = 25;
-//print_r($f->ICDCodeSearch($params));

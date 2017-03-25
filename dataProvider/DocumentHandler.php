@@ -648,9 +648,20 @@ class DocumentHandler {
 
 		$binary_file = $this->isBinary($doc['document']) ?
 			$doc['document'] : base64_decode($doc['document']);
-		$hash = hash('sha256', $binary_file);
 
-		return ['success' => $doc['hash'] == $hash, 'msg' => 'Stored Hash: ' . $doc['hash'] . '<br>File Hash: ' . $hash];
+		$sha1  = hash('sha1', $binary_file);
+		$sha256  = hash('sha256', $binary_file);
+		$sha512  = hash('sha512', $binary_file);
+		$md5  = hash('md5', $binary_file);
+
+		$msg = "<div style='white-space: nowrap'>
+					<b>sha1:</b> {$sha1}<br>
+					<b>sha256:</b> {$sha256}<br>
+					<b>sha512:</b> {$sha512}<br>
+					<b>md5:</b> {$md5}<br>
+				</div>";
+
+		return [ 'success' => true, 'msg' => $msg ];
 	}
 
 	public function convertDocuments($quantity = 100){

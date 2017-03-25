@@ -14341,7 +14341,7 @@ Ext.define('App.model.miscellaneous.Amendment', {
 			type: 'string',
 			store: false,
 			convert: function(v, record){
-				if(record.data.amendment_status === 'A'){
+				if(record.data.amendment_status === 'A' || record.data.amendment_status === 'D'){
 					return record.data.response_title + ' ' + record.data.response_fname + ' ' + record.data.response_mname + ' ' + record.data.response_lname;
 				}else{
 					return '';
@@ -32580,6 +32580,10 @@ Ext.define('App.view.miscellaneous.Amendments', {
 
 							if(v === 'P'){
 								str = _('patient');
+							}else if(v === 'G'){
+								str = _('guardian');
+							}else if(v === 'E'){
+								str = _('emergency_contact');
 							}else if(v === 'D'){
 								str = _('doctor');
 							}else if(v === 'O'){
@@ -32596,27 +32600,28 @@ Ext.define('App.view.miscellaneous.Amendments', {
 						columns: [
 							{
 								text: _('received'),
-								width: 130,
+								width: 140,
 								dataIndex: 'create_date',
 								renderer: me.dateNewRenderer
 							},
 							{
-								text: _('responded'),
-								width: 130,
-								dataIndex: 'response_date',
+								text: _('appended'),
+								width: 140,
+								dataIndex: 'create_date',
 								renderer: me.dateNewRenderer
+								// renderer: function(v, meta, record){
+								// 	if(record.get('amendment_status') === 'A'){
+								// 		return me.dateNewRenderer(v, meta, record);
+								// 	}else{
+								// 		return me.dateNewRenderer(null, meta, record);
+								// 	}
+								// }
 							},
 							{
-								text: _('appended'),
-								width: 130,
+								text: _('responded'),
+								width: 140,
 								dataIndex: 'response_date',
-								renderer: function(v, meta, record){
-									if(record.data.amendment_status == 'A'){
-										return me.dateNewRenderer(v, meta, record);
-									}else{
-										return me.dateNewRenderer(null, meta, record);
-									}
-								}
+								renderer: me.dateNewRenderer
 							}
 						]
 					},
@@ -55581,25 +55586,17 @@ Ext.define('App.controller.patient.Documents', {
 	},
 
 	onDocumentHashCheckBtnClick: function(grid, rowIndex){
-		var rec = grid.getStore().getAt(rowIndex),
-			success,
-			message;
+		var rec = grid.getStore().getAt(rowIndex);
+
 		DocumentHandler.checkDocHash(rec.data, function(provider, response){
-			success = response.result.success;
 
-			if(success){
-				message = '<span style="color: green"><b>' + _('hash_validation_passed') + '</b>'
-			}else{
-				message = '<span style="color: red"><b>' + _('hash_validation_failed') + '</b>'
-			}
-
-			message += '<br><br>' + Ext.String.htmlDecode(response.result.msg) + '</span>';
+			var message = Ext.String.htmlDecode(response.result.msg);
 
 			Ext.Msg.show({
-				title: success ? _('sweet') : _('oops'),
+				title: _('document_hash'),
 				msg: message,
 				buttons: Ext.Msg.OK,
-				icon: success ? Ext.Msg.INFO : Ext.Msg.WARNING
+				icon: Ext.Msg.INFO
 			});
 		});
 	},

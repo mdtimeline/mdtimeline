@@ -54,6 +54,10 @@ Ext.define('App.view.miscellaneous.Amendments', {
 
 							if(v === 'P'){
 								str = _('patient');
+							}else if(v === 'G'){
+								str = _('guardian');
+							}else if(v === 'E'){
+								str = _('emergency_contact');
 							}else if(v === 'D'){
 								str = _('doctor');
 							}else if(v === 'O'){
@@ -70,27 +74,28 @@ Ext.define('App.view.miscellaneous.Amendments', {
 						columns: [
 							{
 								text: _('received'),
-								width: 130,
+								width: 140,
 								dataIndex: 'create_date',
 								renderer: me.dateNewRenderer
 							},
 							{
-								text: _('responded'),
-								width: 130,
-								dataIndex: 'response_date',
+								text: _('appended'),
+								width: 140,
+								dataIndex: 'create_date',
 								renderer: me.dateNewRenderer
+								// renderer: function(v, meta, record){
+								// 	if(record.get('amendment_status') === 'A'){
+								// 		return me.dateNewRenderer(v, meta, record);
+								// 	}else{
+								// 		return me.dateNewRenderer(null, meta, record);
+								// 	}
+								// }
 							},
 							{
-								text: _('appended'),
-								width: 130,
+								text: _('responded'),
+								width: 140,
 								dataIndex: 'response_date',
-								renderer: function(v, meta, record){
-									if(record.data.amendment_status == 'A'){
-										return me.dateNewRenderer(v, meta, record);
-									}else{
-										return me.dateNewRenderer(null, meta, record);
-									}
-								}
+								renderer: me.dateNewRenderer
 							}
 						]
 					},

@@ -38067,6 +38067,9 @@ Ext.define('App.controller.miscellaneous.Amendments', {
 			'#AmendmentsGrid' :{
 				itemdblclick: me.onAmendmentsPanelItemDblClick
 			},
+			'#PatientAmendmentsPanel' :{
+				itemdblclick: me.onAmendmentsPanelItemDblClick
+			},
 			'#AmendmentDetailsDenyBtn' :{
 				click: me.onAmendmentDetailsDenyBtnClick
 			},
@@ -38185,7 +38188,7 @@ Ext.define('App.controller.miscellaneous.Amendments', {
 		form.loadRecord(record);
 
 
-		if(record.data.amendment_status == 'W'){
+		if(record.data.amendment_status === 'W'){
 
 			me.getAmendmentDetailsUserLiveSearch().setVisible(a('amendments_assign'));
 			me.getAmendmentDetailsAssignBtn().setVisible(a('amendments_assign'));
@@ -45496,6 +45499,9 @@ Ext.define('App.controller.patient.Summary', {
 				activate: me.reloadGrid
 			},
 			'#PatientEncounterHistoryPanel': {
+				activate: me.reloadGrid
+			},
+			'#PatientAmendmentsPanel': {
 				activate: me.reloadGrid
 			},
 			'#PatientSummaryDocumentsPanel': {
@@ -54030,7 +54036,8 @@ Ext.define('App.view.patient.Summary', {
 		'App.ux.ManagedIframe',
 		'App.view.patient.Patient',
 		'App.view.patient.Reminders',
-		'App.view.patient.Alerts'
+		'App.view.patient.Alerts',
+		'App.view.patient.Amendments'
 	],
 	itemId: 'PatientSummaryPanel',
 	showRating: true,
@@ -54442,11 +54449,19 @@ Ext.define('App.view.patient.Summary', {
 			});
 		}
 
+		//if(a('access_patient_amendments')){
+			me.tabPanel.add({
+				xtype: 'patientamendmentspanel',
+				itemId: 'PatientAmendmentsPanel',
+				border: true
+			});
+		//}
+
 		if(a('access_patient_documents')){
 			me.tabPanel.add({
 				xtype: 'patientdocumentspanel',
 				border: false
-			})
+			});
 		}
 
 		if(a('access_patient_preventive_care_alerts')){

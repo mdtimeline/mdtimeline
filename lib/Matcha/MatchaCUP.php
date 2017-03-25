@@ -1196,7 +1196,9 @@ class MatchaCUP {
 					$data[$col] = $this->dataEncrypt($data[$col]);
 				} else {
 					if($type == 'string' && is_string($data[$col])){
-						$data[$col] = html_entity_decode($data[$col]);
+						if(!preg_match('/^\<\?xml/',$data[$col])){
+							$data[$col] = html_entity_decode($data[$col]);
+						}
 					} elseif($type == 'date') {
 						if($data[$col] === ''){
 							$data[$col] = '0000-00-00';

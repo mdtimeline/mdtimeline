@@ -43,12 +43,16 @@ class DocumentHandler {
 	 */
 	private $t;
 
+
+	private $storeAsFile = false;
+
 	private $doctorsnotes;
 
 	private $mime_types_ext = [
 
 		'application/pdf' => 'pdf',
 		'application/msword' => 'doc',
+		'application/xml' => 'xml',
 		'image/gif' => 'gif',
 		'image/png' => 'png',
 		'image/jpg' => 'jpg',
@@ -168,10 +172,18 @@ class DocumentHandler {
 
 		if(is_array($results)){
 			foreach($results as &$result){
-				$this->handleDocumentData($result);
+				if($this->storeAsFile){
+					$this->handleDocumentFile($result);
+				}else{
+					$this->handleDocumentData($result);
+				}
 			}
 		}else{
-			$this->handleDocumentData($results);
+			if($this->storeAsFile){
+				$this->handleDocumentFile($results);
+			}else{
+				$this->handleDocumentData($results);
+			}
 		}
 		return $results;
 	}
@@ -191,6 +203,7 @@ class DocumentHandler {
 			$sth = $conn->prepare("SHOW TABLES LIKE 'documents_data_{$instance}'");
 			$sth->execute();
 			$table = $sth->fetch(PDO::FETCH_ASSOC);
+
 			if($table === false){
 				$document_model = MatchaModel::setSenchaModel('App.model.administration.DocumentData', true, $instance);
 			}else{
@@ -200,7 +213,6 @@ class DocumentHandler {
 			if($document_model === false) {
 				throw new Exception("Unable to create App.model.administration.DocumentData model instance '{$instance}'");
 			};
-
 
 			$document->document = $this->base64ToBinary($document->document);
 			$file_info = new finfo(FILEINFO_MIME_TYPE);

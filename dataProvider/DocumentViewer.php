@@ -77,6 +77,7 @@ if (
 			"pdf" => "application/pdf",
 			"exe" => "application/octet-stream",
 			"zip" => "application/zip",
+			"xml" => "application/xml",
 			"docx" => "application/msword",
 			"doc" => "application/msword",
 			"xls" => "application/vnd.ms-excel",
@@ -100,7 +101,7 @@ if (
 			"php" => "text/html",
 			"htm" => "text/html",
 			"html" => "text/html",
-			"xml" => "text/xml",
+
 			"txt" => "text/plain"
 		];
 
@@ -292,6 +293,10 @@ HTML;
 
 		print $html;
 	} else {
+    	if($mineType === 'application/xml' && preg_match('/xml-stylesheet/', $document)){
+			$href =  URL.'/lib/CCRCDA/schema/cda2.xsl';
+		    $document = preg_replace('/(href=").*\.xsl(")/', "$1{$href}$2" ,$document, 1);
+	    }
 		header('Content-Type: ' . $mineType, true);
 		header('Content-Disposition: inline; filename="' . $doc['name'] . '"');
 		header('Content-Transfer-Encoding: BINARY');

@@ -1739,4 +1739,5 @@ $LANG = array(
     'select_education_resources'            => 'Select Education Resources',
     'find_encounter_related_education'      => 'Find Encounter Related Education',
     'document_hash'                         => 'Document Hash',
+    'home'                                  => 'Home',
 );

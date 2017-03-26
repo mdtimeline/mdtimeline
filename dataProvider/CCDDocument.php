@@ -1158,8 +1158,36 @@ class CCDDocument extends CDDDocumentBase
         foreach ($encounters as $encounter) {
 
         	$facility = $this->Facilities->getFacility($encounter['facility']);
-
             $provider = $this->User->getUserByUid($encounter['provider_uid']);
+
+            if(isset($provider['phone']) && $provider['phone'] != ''){
+	            $providerPhone = $provider['phone'];
+	            $providerPhoneUse = 'HP';
+            }else{
+	            $providerPhone = $facility['phone'];
+	            $providerPhoneUse = 'WP';
+            }
+
+            if(
+            	isset($provider['street']) && $provider['street'] != '' &&
+            	isset($provider['city']) && $provider['city'] != '' &&
+            	isset($provider['state']) && $provider['state'] != '' &&
+            	isset($provider['postal_code']) && $provider['postal_code'] != ''
+            ){
+	            $providerAddressUse = 'HP';
+	            $providerAddress = $provider['street'] . ' ' . $provider['street_cont'];
+	            $providerAddressCity = $provider['city'];
+	            $providerAddressState = $provider['state'];
+	            $providerAddressPostalCode = $provider['postal_code'];
+	            $providerAddressCountry = $provider['country_code'];
+            }else{
+	            $providerAddressUse = 'WP';
+	            $providerAddress = $facility['address'] . ' ' . $facility['address_cont'];
+	            $providerAddressCity = $facility['city'];
+	            $providerAddressState = $facility['state'];
+	            $providerAddressPostalCode = $facility['postal_code'];
+	            $providerAddressCountry = $facility['country_code'];
+            }
 
 	        $performer = [
                 '@attributes' => [
@@ -1192,17 +1220,17 @@ class CCDDocument extends CDDDocumentBase
             ];
 
             $performer['assignedEntity']['addr'] = $this->addressBuilder(
-                'WP',
-                $facility['address'] . ' ' . $facility['address_cont'],
-                $facility['city'],
-                $facility['state'],
-                $facility['postal_code'],
-                $facility['country_code']
+	            $providerAddressUse,
+	            $providerAddress,
+	            $providerAddressCity,
+	            $providerAddressState,
+	            $providerAddressPostalCode,
+	            $providerAddressCountry
             );
 
 	        $performer['assignedEntity']['telecom'] = $this->telecomBuilder(
-                $facility['phone'],
-                'WP'
+		        $providerPhone,
+		        $providerPhoneUse
             );
 
 	        $performer['assignedEntity']['assignedPerson'] = [
@@ -1272,9 +1300,40 @@ class CCDDocument extends CDDDocumentBase
             }
 
 	        $performers[] = $performer;
-
 	        $technician = $this->User->getUserByUid($encounter['technician_uid']);
+
 	        if($technician !== false){
+
+
+		        if(isset($technician['phone']) && $technician['phone'] != ''){
+			        $providerPhone = $technician['phone'];
+			        $providerPhoneUse = 'HP';
+		        }else{
+			        $providerPhone = $facility['phone'];
+			        $providerPhoneUse = 'WP';
+		        }
+
+		        if(
+			        isset($technician['street']) && $technician['street'] != '' &&
+			        isset($technician['city']) && $technician['city'] != '' &&
+			        isset($technician['state']) && $technician['state'] != '' &&
+			        isset($technician['postal_code']) && $technician['postal_code'] != ''
+		        ){
+			        $providerAddressUse = 'HP';
+			        $providerAddress = $technician['street'] . ' ' . $technician['street_cont'];
+			        $providerAddressCity = $technician['city'];
+			        $providerAddressState = $technician['state'];
+			        $providerAddressPostalCode = $technician['postal_code'];
+			        $providerAddressCountry = $technician['country_code'];
+		        }else{
+			        $providerAddressUse = 'WP';
+			        $providerAddress = $facility['address'] . ' ' . $facility['address_cont'];
+			        $providerAddressCity = $facility['city'];
+			        $providerAddressState = $facility['state'];
+			        $providerAddressPostalCode = $facility['postal_code'];
+			        $providerAddressCountry = $facility['country_code'];
+		        }
+
 
 		        $performer = [
 			        '@attributes' => [
@@ -1307,22 +1366,21 @@ class CCDDocument extends CDDDocumentBase
 		        ];
 
 		        $performer['assignedEntity']['addr'] = $this->addressBuilder(
-			        'WP',
-			        $facility['address'] . ' ' . $facility['address_cont'],
-			        $facility['city'],
-			        $facility['state'],
-			        $facility['postal_code'],
-			        $facility['country_code']
+			        $providerAddressUse,
+			        $providerAddress,
+			        $providerAddressCity,
+			        $providerAddressState,
+			        $providerAddressPostalCode,
+			        $providerAddressCountry
 		        );
 
 		        $performer['assignedEntity']['telecom'] = $this->telecomBuilder(
-			        $facility['phone'],
-			        'WP'
+			        $providerPhone,
+			        $providerPhoneUse
 		        );
 
 		        $performer['assignedEntity']['assignedPerson'] = [
 			        'name' => [
-				        'prefix' => $technician['title'],
 				        'given' => $technician['fname'],
 				        'family' => $technician['lname']
 			        ]
@@ -1673,11 +1731,10 @@ class CCDDocument extends CDDDocumentBase
 
     }
 
-    /**
-     * Method getPerformerByUid()
-     * @param $uid
-     * @return array|bool
-     */
+	/**
+	 * Method getPerformerByUid()
+	 * @return array|bool
+	 */
     public function getPerformers()
     {
         if($this->eid === 'all_enc'){
@@ -1823,7 +1880,7 @@ class CCDDocument extends CDDDocumentBase
 				        ]
 			        ],
 			        'title' => 'Reason for Visit',
-			        'text' => ''
+			        'text' => 'NONE'
 		        ];
 	        }else{
 
@@ -1918,6 +1975,11 @@ class CCDDocument extends CDDDocumentBase
         }elseif($this->eid === 'no_enc'){
             $tempSoap = 'No instruction to show';
         }
+
+        if($tempSoap == ''){
+	        $tempSoap = 'No instruction to show';
+        }
+
         $instructions = [
             'templateId' => [
                 '@attributes' => [
@@ -2075,7 +2137,7 @@ class CCDDocument extends CDDDocumentBase
             ]
         ];
         $procedures['title'] = 'Procedures';
-        $procedures['text'] = '';
+        $procedures['text'] = 'NONE';
 
         if($this->isExcluded('procedures')) {
             $this->addSection(['section' => $procedures]);
@@ -2217,7 +2279,7 @@ class CCDDocument extends CDDDocumentBase
             ]
         ];
         $vitals['title'] = 'Vital Signs';
-        $vitals['text'] = '';
+        $vitals['text'] = 'NONE';
 
 
         if($this->isExcluded('vitals')) {
@@ -2701,7 +2763,7 @@ class CCDDocument extends CDDDocumentBase
             ]
         ];
         $immunizations['title'] = 'Immunizations';
-        $immunizations['text'] = '';
+        $immunizations['text'] = 'NONE';
 
         if($this->isExcluded('immunizations')) {
             $this->addSection(['section' => $immunizations]);
@@ -2961,7 +3023,7 @@ class CCDDocument extends CDDDocumentBase
             ]
         ];
         $medications['title'] = 'Medications';
-        $medications['text'] = '';
+        $medications['text'] = 'NONE';
 
         if($this->isExcluded('medications')) {
             $this->addSection(['section' => $medications]);
@@ -3239,7 +3301,7 @@ class CCDDocument extends CDDDocumentBase
             ]
         ];
         $medications['title'] = 'Medications Administered';
-        $medications['text'] = '';
+        $medications['text'] = 'NONE';
 
         unset($Medications);
 
@@ -3796,7 +3858,7 @@ class CCDDocument extends CDDDocumentBase
                     'codeSystemName' => 'LOINC'
                 ],
                 'title' => 'Health Concerns Section',
-                'text' => '',
+                'text' => 'NONE',
                 // 3.40	- Health Status Observation (V2)
                 // This template represents  information about the overall health status of the patient.
                 // To represent the impact of a specific problem or concern related to the patient's expected
@@ -3877,7 +3939,7 @@ class CCDDocument extends CDDDocumentBase
                         'codeSystemName' => 'LOINC'
                     ],
                     'title' => 'Goals Section',
-                    'text' => '', // TODO: Narrative Goal Section
+                    'text' => 'NONE', // TODO: Narrative Goal Section
                     'entry' => [
                         // 3.37	Goal Observation
                         // This template represents a patient care goal.  A Goal Observation template may have related
@@ -4072,7 +4134,7 @@ class CCDDocument extends CDDDocumentBase
             ]
         ];
         $planOfCare['title'] = 'Plan of Care';
-        $planOfCare['text'] = '';
+        $planOfCare['text'] = 'NONE';
 
 
         if($this->isExcluded('planofcare')) {
@@ -4481,7 +4543,7 @@ class CCDDocument extends CDDDocumentBase
                 ]
             ];
             $problems['title'] = 'Problems';
-            $problems['text'] = '';
+            $problems['text'] = 'NONE';
             $this->addSection(['section' => $problems]);
             return;
         }
@@ -4886,7 +4948,7 @@ class CCDDocument extends CDDDocumentBase
             ]
         ];
         $allergies['title'] = 'Allergies, Adverse Reactions, Alerts';
-        $allergies['text'] = '';
+        $allergies['text'] = 'NONE';
 
         if($this->isExcluded('allergies')) {
             $this->addSection(['section' => $allergies]);
@@ -5710,7 +5772,7 @@ class CCDDocument extends CDDDocumentBase
 			        ]
 		        ],
 		        'title' => 'Social History',
-		        'text' => ''
+		        'text' => 'NONE'
 	        ];
         }
         unset($smokingStatus);
@@ -5772,7 +5834,7 @@ class CCDDocument extends CDDDocumentBase
             ]
         ];
         $results['title'] = 'Results';
-        $results['text'] = '';
+        $results['text'] = 'NONE';
 
         if($this->isExcluded('results')) {
             $this->addSection(['section' => $results]);
@@ -6049,7 +6111,7 @@ class CCDDocument extends CDDDocumentBase
             ]
         ];
         $functionalStatus['title'] = 'Functional status assessment';
-        $functionalStatus['text'] = '';
+        $functionalStatus['text'] = 'NONE';
 
         if(!empty($functionalStatusData)){
             $functionalStatus['text'] = [

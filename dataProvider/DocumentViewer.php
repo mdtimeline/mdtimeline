@@ -294,7 +294,12 @@ HTML;
 		print $html;
 	} else {
     	if($mineType === 'application/xml' && preg_match('/xml-stylesheet/', $document)){
-			$href =  URL.'/lib/CCRCDA/schema/cda2.xsl';
+    		$isCcr = preg_match('/<ccr:/',$document);
+    		if($isCcr){
+			    $href =  URL.'/lib/CCRCDA/schema/ccr.xsl';
+		    }else{
+			    $href =  URL.'/lib/CCRCDA/schema/cda2.xsl';
+		    }
 		    $document = preg_replace('/(href=").*\.xsl(")/', "$1{$href}$2" ,$document, 1);
 	    }
 

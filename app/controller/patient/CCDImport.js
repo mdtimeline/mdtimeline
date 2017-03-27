@@ -668,7 +668,9 @@ Ext.define('App.controller.patient.CCDImport', {
 	},
 
 	addCdaToPatientDocument: function (pid) {
-		var me = this;
+		var me = this,
+			documentType = (me.getCcdImportWindow().ccd ? 'C-CDA' : 'CCR'),
+			document = me.getCcdImportWindow().ccd || me.getCcdImportWindow().ccr;
 
 		record = Ext.create('App.model.patient.PatientDocuments', {
 			code: '',
@@ -679,20 +681,20 @@ Ext.define('App.controller.patient.CCDImport', {
 			docType: 'C-CDA',
 			docTypeCode: 'CD',
 			date: new Date(),
-			name: 'temp_ccd.xml',
+			name: documentType == 'CCR' ? 'imported_ccd.xml' : 'imported_ccr.xml',
 			note: '',
-			title: 'C-CDA Imported',
+			title: documentType + ' Imported',
 			encrypted: false,
 			error_note: '',
 			site: app.user.site,
-			document: me.getCcdImportWindow().ccd
+			document: document
 		});
 
 		record.save({
 			callback: function () {
-				say(_('sweet'), 'C-CDA Imported');
+				say(_('sweet'), documentType + ' Imported');
 			}
-		})
+		});
 	},
 
 	doPatientSectionsImportComplete: function (pid) {
@@ -746,15 +748,11 @@ Ext.define('App.controller.patient.CCDImport', {
 
 	onCcdImportWindowViewRawCcdBtnClick: function(){
 
-		say(this.getCcdImportWindow());
-		say(this.getCcdImportWindow().ccd);
-
-
 		var me = this,
 			record = Ext.create('App.model.patient.PatientDocumentsTemp', {
 				create_date: new Date(),
 				document_name: 'temp_ccd.xml',
-				document: me.getCcdImportWindow().ccd
+				document: me.getCcdImportWindow().ccd || me.getCcdImportWindow().ccr
 			});
 
 		record.save({

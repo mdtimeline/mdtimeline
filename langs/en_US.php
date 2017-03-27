@@ -12,6 +12,13 @@ $LANG = array(
 	'lang_text'								=> 'English (USA)',
 	'i18nExtFile'							=> 'ext-lang-en.js',
 	// End of the items
+
+    'Charges'                               => 'Charges',
+    'rebill'                                => 'ReBill',
+    'billing_worklist'                      => 'Billing Worklist',
+    'pending_billing'                       => 'Pending Billing',
+    'not_billed'                            => 'Not Billed',
+    'load_information'                      => 'Load Information',
     'insurance_card'                        => 'Insurance Card',
     'covers'                                => 'Covers',
     'id_group'                              => 'ID/Group',
@@ -24,7 +31,6 @@ $LANG = array(
     'drivers'                               => 'Drivers',
     'license'                               => 'License',
     'license_no'                            => 'License No',
-    'drivers_info'                          => 'Drivers Info',
     'drivers_info'                          => 'Drivers Info',
     'veteran'                               => 'Veteran',
     'citizenship'                           => 'Citizenship',

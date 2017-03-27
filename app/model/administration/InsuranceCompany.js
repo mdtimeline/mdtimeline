@@ -35,84 +35,85 @@ Ext.define('App.model.administration.InsuranceCompany', {
 			comment: 'use to reference the insurance to another software'
 		},
 		{
-			name: 'name',
+			name: 'ins_name',
 			type: 'string',
 			len: 120
 		},
 		{
-			name: 'attn',
+			name: 'ins_contact',
 			type: 'string',
 			len: 120
 		},
 		{
-			name: 'address1',
+			name: 'ins_address1',
 			type: 'string',
 			len: 100
 		},
 		{
-			name: 'address2',
+			name: 'ins_address2',
 			type: 'string',
 			len: 100
 		},
 		{
-			name: 'city',
+			name: 'ins_city',
 			type: 'string',
 			len: 80
 		},
 		{
-			name: 'state',
+			name: 'ins_state',
 			type: 'string',
 			len: 80
 		},
 		{
-			name: 'zip_code',
+			name: 'ins_zip_code',
 			type: 'string',
 			len: 15
 		},
 		{
-			name: 'country',
+			name: 'ins_country',
 			type: 'string',
 			len: 80
 		},
 		{
-			name: 'phone1',
+			name: 'ins_phone1',
 			type: 'string',
 			len: 20
 		},
 		{
-			name: 'phone2',
+			name: 'ins_phone2',
 			type: 'string',
 			len: 20
 		},
 		{
-			name: 'fax',
+			name: 'ins_fax',
 			type: 'string',
 			len: 20
 		},
 		{
-			name: 'dx_type',
+			name: 'ins_active',
+			type: 'bool'
+		},
+		{
+			name: 'ins_dx_type',
 			type: 'string',
 			len: 5
 		},
 		{
 			name: 'address_full',
 			type: 'string',
-			store: false,
 			convert: function(v, record){
 				return record.data.address1 + ' ' +  record.data.address2 + ' ' +  record.data.city + ' ' +  record.data.state + ', ' +  record.data.zip_code;
-			}
+			},
+			store: false
+
 		},
 		{
 			name: 'combo_text',
 			type: 'string',
-			store: false,
 			convert: function(v, record){
 				return record.data.id + ': ' + (record.data.name ? record.data.name : ' * ' ) + ' ' + (!record.data.active ? ('(' +  _('inactive') + ')') : '') ;
-			}
-		},
-		{
-			name: 'active',
-			type: 'bool'
+			},
+			store: false
 		}
 	],
 	proxy: {

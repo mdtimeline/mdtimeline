@@ -41463,11 +41463,7 @@ Ext.define('App.controller.patient.CCDImport', {
 					});
 				}
 
-
-				say(patient);
-
 				pForm.findField('phones').setValue(patient.get('home_phone'));
-
 
 				me.getCcdPatientMedicationsGrid().reconfigure(patient.medications());
 				patient.medications().load({
@@ -41755,6 +41751,7 @@ Ext.define('App.controller.patient.CCDImport', {
 			now = new Date(),
 			pid = patient.data.pid,
 			i,
+            event,
 
 			// Get all the stores of the dataGrids
 			problems = me.getCcdImportPreviewActiveProblemsGrid().getStore().data.items,
@@ -41798,6 +41795,21 @@ Ext.define('App.controller.patient.CCDImport', {
 			});
 		}
 
+        if(allergies.lengh >= 1){
+		    if(system_reconcile_records !== false){
+                event = 'RECONCILE';
+            } else {
+                event = 'IMPORT';
+            }
+            AuditLog.addLog({
+                pid: pid,
+                uid: app.user.id,
+                foreign_table: 'patient_allergies',
+                event: event,
+                event_description: 'CDA: Allergies'
+            });
+        }
+
 		// Medications
 		for(i = 0; i < medications.length; i++){
 
@@ -41816,6 +41828,21 @@ Ext.define('App.controller.patient.CCDImport', {
 			});
 		}
 
+        if(medications.lengh >= 1){
+            if(system_reconcile_records !== false){
+                event = 'RECONCILE';
+            } else {
+                event = 'IMPORT';
+            }
+            AuditLog.addLog({
+                pid: pid,
+                uid: app.user.id,
+                foreign_table: 'patient_medications',
+                event: event,
+                event_description: 'CDA: Medications'
+            });
+        }
+
 		// Problems
 		for(i = 0; i < problems.length; i++){
 
@@ -41833,10 +41860,28 @@ Ext.define('App.controller.patient.CCDImport', {
 				}
 			});
 		}
+
+        if(medications.lengh >= 1){
+            if(system_reconcile_records !== false){
+                event = 'RECONCILE';
+            } else {
+                event = 'IMPORT';
+            }
+            AuditLog.addLog({
+                pid: pid,
+                uid: app.user.id,
+                foreign_table: 'patient_active_problems',
+                event: event,
+                event_description: 'CDA: Problems'
+            });
+        }
+
 	},
 
 	addCdaToPatientDocument: function (pid) {
-		var me = this;
+		var me = this,
+			documentType = (me.getCcdImportWindow().ccd ? 'C-CDA' : 'CCR'),
+			document = me.getCcdImportWindow().ccd || me.getCcdImportWindow().ccr;
 
 		record = Ext.create('App.model.patient.PatientDocuments', {
 			code: '',
@@ -41847,20 +41892,20 @@ Ext.define('App.controller.patient.CCDImport', {
 			docType: 'C-CDA',
 			docTypeCode: 'CD',
 			date: new Date(),
-			name: 'temp_ccd.xml',
+			name: documentType == 'CCR' ? 'imported_ccd.xml' : 'imported_ccr.xml',
 			note: '',
-			title: 'C-CDA Imported',
+			title: documentType + ' Imported',
 			encrypted: false,
 			error_note: '',
 			site: app.user.site,
-			document: me.getCcdImportWindow().ccd
+			document: document
 		});
 
 		record.save({
 			callback: function () {
-				say(_('sweet'), 'C-CDA Imported');
+				say(_('sweet'), documentType + ' Imported');
 			}
-		})
+		});
 	},
 
 	doPatientSectionsImportComplete: function (pid) {
@@ -41914,15 +41959,11 @@ Ext.define('App.controller.patient.CCDImport', {
 
 	onCcdImportWindowViewRawCcdBtnClick: function(){
 
-		say(this.getCcdImportWindow());
-		say(this.getCcdImportWindow().ccd);
-
-
 		var me = this,
 			record = Ext.create('App.model.patient.PatientDocumentsTemp', {
 				create_date: new Date(),
 				document_name: 'temp_ccd.xml',
-				document: me.getCcdImportWindow().ccd
+				document: me.getCcdImportWindow().ccd || me.getCcdImportWindow().ccr
 			});
 
 		record.save({

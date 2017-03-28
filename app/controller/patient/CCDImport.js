@@ -295,11 +295,7 @@ Ext.define('App.controller.patient.CCDImport', {
 					});
 				}
 
-
-				say(patient);
-
 				pForm.findField('phones').setValue(patient.get('home_phone'));
-
 
 				me.getCcdPatientMedicationsGrid().reconfigure(patient.medications());
 				patient.medications().load({
@@ -587,6 +583,7 @@ Ext.define('App.controller.patient.CCDImport', {
 			now = new Date(),
 			pid = patient.data.pid,
 			i,
+            event,
 
 			// Get all the stores of the dataGrids
 			problems = me.getCcdImportPreviewActiveProblemsGrid().getStore().data.items,
@@ -630,6 +627,21 @@ Ext.define('App.controller.patient.CCDImport', {
 			});
 		}
 
+        if(allergies.lengh >= 1){
+		    if(system_reconcile_records !== false){
+                event = 'RECONCILE';
+            } else {
+                event = 'IMPORT';
+            }
+            AuditLog.addLog({
+                pid: pid,
+                uid: app.user.id,
+                foreign_table: 'patient_allergies',
+                event: event,
+                event_description: 'CDA: Allergies'
+            });
+        }
+
 		// Medications
 		for(i = 0; i < medications.length; i++){
 
@@ -648,6 +660,21 @@ Ext.define('App.controller.patient.CCDImport', {
 			});
 		}
 
+        if(medications.lengh >= 1){
+            if(system_reconcile_records !== false){
+                event = 'RECONCILE';
+            } else {
+                event = 'IMPORT';
+            }
+            AuditLog.addLog({
+                pid: pid,
+                uid: app.user.id,
+                foreign_table: 'patient_medications',
+                event: event,
+                event_description: 'CDA: Medications'
+            });
+        }
+
 		// Problems
 		for(i = 0; i < problems.length; i++){
 
@@ -665,6 +692,22 @@ Ext.define('App.controller.patient.CCDImport', {
 				}
 			});
 		}
+
+        if(medications.lengh >= 1){
+            if(system_reconcile_records !== false){
+                event = 'RECONCILE';
+            } else {
+                event = 'IMPORT';
+            }
+            AuditLog.addLog({
+                pid: pid,
+                uid: app.user.id,
+                foreign_table: 'patient_active_problems',
+                event: event,
+                event_description: 'CDA: Problems'
+            });
+        }
+
 	},
 
 	addCdaToPatientDocument: function (pid) {

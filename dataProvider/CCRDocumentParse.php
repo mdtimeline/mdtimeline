@@ -259,7 +259,7 @@ function setDocument($xml) {
             $allergy->allergy_code_type = $Allergy['ccr:Description']['ccr:Code']['ccr:CodingSystem'];
 
             // Dates
-            $allergy->begin_date = $Allergy['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text'];
+            $allergy->begin_date = $this->dateParser($Allergy['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text']);
             $allergy->end_date = '';
 
             // Status
@@ -300,7 +300,7 @@ function setDocument($xml) {
 
         foreach($this->document['ccr:ContinuityOfCareRecord']['ccr:Body']['ccr:Medications']['ccr:Medication'] as $Medication){
             $medication = new stdClass();
-            $medication->begin_date = $Medication['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text'];
+            $medication->begin_date = $this->dateParser($Medication['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text']);
             $medication->end_date = '';
             $medication->STR = $Medication['ccr:Product']['ccr:ProductName']['ccr:Text'];
             $medication->RXCUI = $Medication['ccr:Product']['ccr:ProductName']['ccr:Code']['ccr:Value'];
@@ -323,7 +323,7 @@ function setDocument($xml) {
 
         foreach($this->document['ccr:ContinuityOfCareRecord']['ccr:Body']['ccr:Problems']['ccr:Problem'] as $Problem){
             $problem = new stdClass();
-            $problem->begin_date = $Problem['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text'];
+            $problem->begin_date = $this->dateParser($Problem['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text']);
             $problem->end_date = '';
             $problem->code_text = $Problem['ccr:Description']['ccr:Text'];
             $problem->code = $Problem['ccr:Description']['ccr:Code'][0]['ccr:Value'];
@@ -579,28 +579,41 @@ function setDocument($xml) {
      */
     function dateParser($date) {
         $result = '0000-00-00';
-        switch(strlen($date)) {
-            case 4:
-                $result = $date . '-00-00';
-                break;
-            case 6:
-                $result = preg_replace('/^(\d{4})(\d{2})/', '$1-$2-00', $date);
-                break;
-            case 8:
-                $result = preg_replace('/^(\d{4})(\d{2})(\d{2})$/', '$1-$2-$3', $date);
-                break;
-            case 10:
-                $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})$/', '$1-$2-$3 $4:00:00', $date);
-                break;
-            case 12:
-                $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/', '$1-$2-$3 $4:$5:00', $date);
-                break;
-            case 14:
-                $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/', '$1-$2-$3 $4:$5:$6', $date);
-                break;
+        $len = strlen($date);
+
+        try{
+	        switch($len) {
+		        case 4:
+			        $result = $date . '-00-00';
+			        break;
+		        case 6:
+			        $result = preg_replace('/^(\d{4})(\d{2})/', '$1-$2-00', $date);
+			        break;
+		        case 8:
+			        $result = preg_replace('/^(\d{4})(\d{2})(\d{2})$/', '$1-$2-$3', $date);
+			        break;
+		        case 10:
+			        $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})$/', '$1-$2-$3 $4:00:00', $date);
+			        break;
+		        case 12:
+			        $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/', '$1-$2-$3 $4:$5:00', $date);
+			        break;
+		        case 14:
+			        $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/', '$1-$2-$3 $4:$5:$6', $date);
+			        break;
+		        default:
+			        $result = date('Y-m-d H:i:s', strtotime($date));
+	        }
+	        return $result;
+
+        } catch (Exception $e){
+        	error_log('CCRDocumentParse->dateParser() ' . $e->getMessage());
+			return $result;
         }
 
-        return $result;
+
+
+
     }
 
     /**

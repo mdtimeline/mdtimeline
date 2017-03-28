@@ -263,6 +263,8 @@ function setDocument($xml) {
 
             // Dates
             $allergy->begin_date = $this->dateParser($Allergy['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text']);
+	        $allergy->begin_date = substr($allergy->begin_date, 0, 10);
+
             $allergy->end_date = '';
 
             // Status
@@ -304,6 +306,8 @@ function setDocument($xml) {
         foreach($this->document['ccr:ContinuityOfCareRecord']['ccr:Body']['ccr:Medications']['ccr:Medication'] as $Medication){
             $medication = new stdClass();
             $medication->begin_date = $this->dateParser($Medication['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text']);
+	        $medication->begin_date = substr($medication->begin_date, 0, 10);
+
             $medication->end_date = '';
             $medication->STR = $Medication['ccr:Product']['ccr:ProductName']['ccr:Text'];
             $medication->RXCUI = $Medication['ccr:Product']['ccr:ProductName']['ccr:Code']['ccr:Value'];
@@ -327,6 +331,8 @@ function setDocument($xml) {
         foreach($this->document['ccr:ContinuityOfCareRecord']['ccr:Body']['ccr:Problems']['ccr:Problem'] as $Problem){
             $problem = new stdClass();
             $problem->begin_date = $this->dateParser($Problem['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text']);
+	        $problem->begin_date = substr($problem->begin_date, 0, 10);
+
             $problem->end_date = '';
             $problem->code_text = $Problem['ccr:Description']['ccr:Text'];
             $problem->code = $Problem['ccr:Description']['ccr:Code'][0]['ccr:Value'];

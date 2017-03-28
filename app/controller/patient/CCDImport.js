@@ -638,7 +638,7 @@ Ext.define('App.controller.patient.CCDImport', {
                 uid: app.user.id,
                 foreign_table: 'patient_allergies',
                 event: event,
-                event_description: 'CDA: Allergies'
+                event_description: 'Patient CDA: Allergies'
             });
         }
 
@@ -671,7 +671,7 @@ Ext.define('App.controller.patient.CCDImport', {
                 uid: app.user.id,
                 foreign_table: 'patient_medications',
                 event: event,
-                event_description: 'CDA: Medications'
+                event_description: 'Patient CDA: Medications'
             });
         }
 
@@ -704,7 +704,7 @@ Ext.define('App.controller.patient.CCDImport', {
                 uid: app.user.id,
                 foreign_table: 'patient_active_problems',
                 event: event,
-                event_description: 'CDA: Problems'
+                event_description: 'Patient CDA: Problems'
             });
         }
 

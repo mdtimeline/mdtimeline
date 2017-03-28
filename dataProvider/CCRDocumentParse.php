@@ -311,6 +311,10 @@ function setDocument($xml) {
             $medication->end_date = '';
             $medication->STR = $Medication['ccr:Product']['ccr:ProductName']['ccr:Text'];
             $medication->RXCUI = $Medication['ccr:Product']['ccr:ProductName']['ccr:Code']['ccr:Value'];
+
+            $medication->directions = isset($Medication['ccr:Directions']['ccr:Direction']['ccr:Frequency']['ccr:Value']) ?
+	            $Medication['ccr:Directions']['ccr:Direction']['ccr:Frequency']['ccr:Value'] : '';
+
             $medications[] = $medication;
         }
 

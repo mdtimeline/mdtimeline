@@ -264,14 +264,28 @@ function setDocument($xml) {
             // Dates
             $allergy->begin_date = $this->dateParser($Allergy['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text']);
 	        $allergy->begin_date = substr($allergy->begin_date, 0, 10);
-
             $allergy->end_date = '';
+
+	        $allergy->create_date = date('Y-m-d H:i:s');
+	        $allergy->update_date = date('Y-m-d H:i:s');
 
             // Status
             if(isset($Allergy['ccr:Status']['ccr:Text'])){
                 $allergy->status = $Allergy['ccr:Status']['ccr:Text'];
-                $allergy->status_code = '';
-                $allergy->status_code_type = '';
+
+	            if($allergy->status === 'Active'){
+		            $allergy->status_code = '55561003';
+		            $allergy->status_code_type = 'SNOMEDCT';
+
+	            }elseif ($allergy->status === 'Resolved'){
+		            $allergy->status_code = '413322009';
+		            $allergy->status_code_type = 'SNOMEDCT';
+
+	            }elseif ($allergy->status === 'Inactive'){
+		            $allergy->status_code = '73425007';
+		            $allergy->status_code_type = 'SNOMEDCT';
+	            }
+
             }
 
             // Severity
@@ -307,8 +321,11 @@ function setDocument($xml) {
             $medication = new stdClass();
             $medication->begin_date = $this->dateParser($Medication['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text']);
 	        $medication->begin_date = substr($medication->begin_date, 0, 10);
-
+	        
             $medication->end_date = '';
+
+	        $medication->created_date = date('Y-m-d H:i:s');
+
             $medication->STR = $Medication['ccr:Product']['ccr:ProductName']['ccr:Text'];
             $medication->RXCUI = $Medication['ccr:Product']['ccr:ProductName']['ccr:Code']['ccr:Value'];
 
@@ -337,10 +354,33 @@ function setDocument($xml) {
             $problem->begin_date = $this->dateParser($Problem['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text']);
 	        $problem->begin_date = substr($problem->begin_date, 0, 10);
 
-            $problem->end_date = '';
+	        $problem->end_date = '';
+
+	        $problem->create_date = date('Y-m-d H:i:s');
+	        $problem->update_date = date('Y-m-d H:i:s');
+
             $problem->code_text = $Problem['ccr:Description']['ccr:Text'];
             $problem->code = $Problem['ccr:Description']['ccr:Code'][0]['ccr:Value'];
             $problem->code_type = $Problem['ccr:Description']['ccr:Code'][0]['ccr:CodingSystem'];
+
+            $problem->status = isset($Problem['ccr:Status']['ccr:Text']) ?
+	            $Problem['ccr:Status']['ccr:Text'] : '';
+
+            if($problem->status === 'Active'){
+	            $problem->status_code = '55561003';
+	            $problem->status_code_type = 'SNOMEDCT';
+
+            }elseif ($problem->status === 'Resolved'){
+	            $problem->status_code = '413322009';
+	            $problem->status_code_type = 'SNOMEDCT';
+
+            }elseif ($problem->status === 'Inactive'){
+	            $problem->status_code = '73425007';
+	            $problem->status_code_type = 'SNOMEDCT';
+            }
+
+
+
             $problems[] = $problem;
         }
 
@@ -377,7 +417,7 @@ function setDocument($xml) {
             $result->code = $Result['ccr:Description']['ccr:Code']['ccr:Value'];
             $result->code_type = $Result['ccr:Description']['ccr:Code']['ccr:CodingSystem'];
             $result->code_text = $Result['ccr:Description']['ccr:Text'];
-
+	        $result->create_date = date('Y-m-d H:i:s');
             // Observations in the result
             $result->observations = [];
             $observation = new stdClass();
@@ -388,7 +428,8 @@ function setDocument($xml) {
             $observation->units = isset($Result['ccr:Test']['ccr:TestResult']['ccr:Units']['ccr:Unit']) ? $Result['ccr:Test']['ccr:TestResult']['ccr:Units']['ccr:Unit'] : '';
             $observation->date_analysis = $Result['ccr:DateTime']['ccr:ApproximateDateTime']['ccr:Text'];
             $observation->observation_result_status = $Result['ccr:Test']['ccr:Status']['ccr:Text'];
-
+            $observation->create_date = date('Y-m-d H:i:s');
+            
             $result->observations[] = $observation;
             $results[] = $result;
         }
@@ -595,28 +636,7 @@ function setDocument($xml) {
         $len = strlen($date);
 
         try{
-	        switch($len) {
-		        case 4:
-			        $result = $date . '-00-00';
-			        break;
-		        case 6:
-			        $result = preg_replace('/^(\d{4})(\d{2})/', '$1-$2-00', $date);
-			        break;
-		        case 8:
-			        $result = preg_replace('/^(\d{4})(\d{2})(\d{2})$/', '$1-$2-$3', $date);
-			        break;
-		        case 10:
-			        $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})$/', '$1-$2-$3 $4:00:00', $date);
-			        break;
-		        case 12:
-			        $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/', '$1-$2-$3 $4:$5:00', $date);
-			        break;
-		        case 14:
-			        $result = preg_replace('/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/', '$1-$2-$3 $4:$5:$6', $date);
-			        break;
-		        default:
-			        $result = date('Y-m-d H:i:s', strtotime($date));
-	        }
+	        $result = date('Y-m-d H:i:s', strtotime($date));
 	        return $result;
 
         } catch (Exception $e){

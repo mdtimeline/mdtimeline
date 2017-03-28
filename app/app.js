@@ -21416,7 +21416,15 @@ Ext.define('App.model.patient.Patient',{
             type: 'bool'
         },
         {
+            name: 'allow_guardian_web_portal_cda',
+            type: 'bool'
+        },
+        {
             name: 'allow_emergency_contact_web_portal',
+            type: 'bool'
+        },
+        {
+            name: 'allow_emergency_contact_web_portal_cda',
             type: 'bool'
         },
         {
@@ -41463,7 +41471,11 @@ Ext.define('App.controller.patient.CCDImport', {
 					});
 				}
 
+
+				say(patient);
+
 				pForm.findField('phones').setValue(patient.get('home_phone'));
+
 
 				me.getCcdPatientMedicationsGrid().reconfigure(patient.medications());
 				patient.medications().load({
@@ -41751,7 +41763,6 @@ Ext.define('App.controller.patient.CCDImport', {
 			now = new Date(),
 			pid = patient.data.pid,
 			i,
-            event,
 
 			// Get all the stores of the dataGrids
 			problems = me.getCcdImportPreviewActiveProblemsGrid().getStore().data.items,
@@ -41795,21 +41806,6 @@ Ext.define('App.controller.patient.CCDImport', {
 			});
 		}
 
-        if(allergies.lengh >= 1){
-		    if(system_reconcile_records !== false){
-                event = 'RECONCILE';
-            } else {
-                event = 'IMPORT';
-            }
-            AuditLog.addLog({
-                pid: pid,
-                uid: app.user.id,
-                foreign_table: 'patient_allergies',
-                event: event,
-                event_description: 'CDA: Allergies'
-            });
-        }
-
 		// Medications
 		for(i = 0; i < medications.length; i++){
 
@@ -41828,21 +41824,6 @@ Ext.define('App.controller.patient.CCDImport', {
 			});
 		}
 
-        if(medications.lengh >= 1){
-            if(system_reconcile_records !== false){
-                event = 'RECONCILE';
-            } else {
-                event = 'IMPORT';
-            }
-            AuditLog.addLog({
-                pid: pid,
-                uid: app.user.id,
-                foreign_table: 'patient_medications',
-                event: event,
-                event_description: 'CDA: Medications'
-            });
-        }
-
 		// Problems
 		for(i = 0; i < problems.length; i++){
 
@@ -41860,22 +41841,6 @@ Ext.define('App.controller.patient.CCDImport', {
 				}
 			});
 		}
-
-        if(medications.lengh >= 1){
-            if(system_reconcile_records !== false){
-                event = 'RECONCILE';
-            } else {
-                event = 'IMPORT';
-            }
-            AuditLog.addLog({
-                pid: pid,
-                uid: app.user.id,
-                foreign_table: 'patient_active_problems',
-                event: event,
-                event_description: 'CDA: Problems'
-            });
-        }
-
 	},
 
 	addCdaToPatientDocument: function (pid) {
@@ -41892,7 +41857,7 @@ Ext.define('App.controller.patient.CCDImport', {
 			docType: 'C-CDA',
 			docTypeCode: 'CD',
 			date: new Date(),
-			name: documentType == 'CCR' ? 'imported_ccd.xml' : 'imported_ccr.xml',
+			name: documentType == 'CCR' ? 'imported_ccr.xml' : 'imported_ccd.xml',
 			note: '',
 			title: documentType + ' Imported',
 			encrypted: false,
@@ -41915,12 +41880,12 @@ Ext.define('App.controller.patient.CCDImport', {
 
 		me.importing = false;
 
-		me.getCcdImportWindow().close();
-		me.getCcdImportPreviewWindow().close();
-
 		var panel_cls = app.getActivePanel().$className;
 
 		me.addCdaToPatientDocument(pid);
+
+		me.getCcdImportWindow().close();
+		me.getCcdImportPreviewWindow().close();
 
 		if(panel_cls == 'App.view.patient.Encounter'){
 			app.setPatient(app.patient.pid, app.patient.eid, null, function(){

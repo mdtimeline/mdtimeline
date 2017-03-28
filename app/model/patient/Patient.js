@@ -213,7 +213,15 @@ Ext.define('App.model.patient.Patient',{
             type: 'bool'
         },
         {
+            name: 'allow_guardian_web_portal_cda',
+            type: 'bool'
+        },
+        {
             name: 'allow_emergency_contact_web_portal',
+            type: 'bool'
+        },
+        {
+            name: 'allow_emergency_contact_web_portal_cda',
             type: 'bool'
         },
         {

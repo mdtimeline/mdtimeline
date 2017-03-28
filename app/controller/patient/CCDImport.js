@@ -724,7 +724,7 @@ Ext.define('App.controller.patient.CCDImport', {
 			docType: 'C-CDA',
 			docTypeCode: 'CD',
 			date: new Date(),
-			name: documentType == 'CCR' ? 'imported_ccd.xml' : 'imported_ccr.xml',
+			name: documentType == 'CCR' ? 'imported_ccr.xml' : 'imported_ccd.xml',
 			note: '',
 			title: documentType + ' Imported',
 			encrypted: false,
@@ -747,12 +747,12 @@ Ext.define('App.controller.patient.CCDImport', {
 
 		me.importing = false;
 
-		me.getCcdImportWindow().close();
-		me.getCcdImportPreviewWindow().close();
-
 		var panel_cls = app.getActivePanel().$className;
 
 		me.addCdaToPatientDocument(pid);
+
+		me.getCcdImportWindow().close();
+		me.getCcdImportPreviewWindow().close();
 
 		if(panel_cls == 'App.view.patient.Encounter'){
 			app.setPatient(app.patient.pid, app.patient.eid, null, function(){

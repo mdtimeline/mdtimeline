@@ -596,7 +596,13 @@ class CDDDocumentBase
 	        $xml_str = preg_replace('/\<\?xml-stylesheet(.*)/', '', $xml_str);
 
 	        $xsl = new DOMDocument();
-	        $xsl->load(ROOT . '/lib/CCRCDA/schema/cda2.xsl');
+	        $isCcr = preg_match('/<ccr:/',$xsl);
+
+	        if($isCcr){
+		        $xsl->load(ROOT . '/lib/CCRCDA/schema/ccr.xsl');
+	        }else{
+		        $xsl->load(ROOT . '/lib/CCRCDA/schema/cda2.xsl');
+	        }
 
 	        $xml = new DOMDocument();
 	        $xml->loadXML($xml_str);

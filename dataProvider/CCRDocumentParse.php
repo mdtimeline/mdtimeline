@@ -148,11 +148,14 @@ function setDocument($xml) {
 
         // Patient ID
         // We also need this actor id, to extract the actor information
-        $patient->pubpid = $this->document['ccr:ContinuityOfCareRecord']['ccr:Patient']['ccr:ActorID'];
+        $patient_id = $this->document['ccr:ContinuityOfCareRecord']['ccr:Patient']['ccr:ActorID'];
 
         foreach($this->document['ccr:ContinuityOfCareRecord']['ccr:Actors']['ccr:Actor'] as $Actor)
         {
-            if($Actor['ccr:ActorObjectID'] == $patient->pubpid){
+            if($Actor['ccr:ActorObjectID'] == $patient_id){
+
+            	$patient->pubpid = isset($Actor['ccr:IDs']['ccr:ID']) ? $Actor['ccr:IDs']['ccr:ID'] : '';
+
                 // Patient address
                 $patient->address = isset($Actor['ccr:Address']['ccr:Line1']) ? $Actor['ccr:Address']['ccr:Line1'] : '';
                 $patient->city = isset($Actor['ccr:Address']['ccr:City']) ? $Actor['ccr:Address']['ccr:City'] : '';

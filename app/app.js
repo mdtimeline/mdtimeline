@@ -41836,7 +41836,7 @@ Ext.define('App.controller.patient.CCDImport', {
 			});
 		}
 
-        if(medications.lengh >= 1){
+        if(medications.length >= 1){
             if(system_reconcile_records !== false){
                 event = 'RECONCILE';
             } else {
@@ -41869,7 +41869,7 @@ Ext.define('App.controller.patient.CCDImport', {
 			});
 		}
 
-        if(medications.lengh >= 1){
+        if(problems.length >= 1){
             if(system_reconcile_records !== false){
                 event = 'RECONCILE';
             } else {

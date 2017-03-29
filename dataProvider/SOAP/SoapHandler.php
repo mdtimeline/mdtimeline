@@ -111,6 +111,31 @@ class SoapHandler
         return $access;
     }
 
+    function GetDirectAddressRecipients($params){
+
+	    $this->constructor($params);
+	    if (!$this->isAuth()) {
+		    return [
+			    'Success' => false,
+			    'Error' => 'Error: HTTP 403 Access Forbidden'
+		    ];
+	    }
+
+	    $conn = Matcha::getConn();
+	    $sth = $conn->prepare("SELECT direct_address FROM users WHERE direct_address IS NOT NULL AND direct_address != ''");
+		$sth->execute();
+	    $data = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+    	return [
+    		'Success' => true,
+			'Data' => json_encode($data)
+	    ];
+    }
+
+	/**
+	 * @param $params
+	 * @return array
+	 */
     public function PatientPortalAuthorize($params)
     {
         $this->constructor($params);
@@ -287,7 +312,10 @@ class SoapHandler
         }
     }
 
-
+	/**
+	 * @param $params
+	 * @return array
+	 */
     public function cancelPatientAmendment($params)
     {
         $this->constructor($params);
@@ -376,6 +404,10 @@ class SoapHandler
         ];
     }
 
+	/**
+	 * @param $params
+	 * @return array
+	 */
     public function AddPatient($params)
     {
         try {

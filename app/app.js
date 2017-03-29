@@ -41884,6 +41884,13 @@ Ext.define('App.controller.patient.CCDImport', {
             });
         }
 
+        AuditLog.addLog({
+            pid: pid,
+            uid: app.user.id,
+            foreign_table: 'IMPORT',
+            event: 'Patient C-CDA IMPORT'
+        });
+
 	},
 
 	addCdaToPatientDocument: function (pid) {

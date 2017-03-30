@@ -53199,6 +53199,12 @@ Ext.define('App.view.patient.Patient', {
 															labelWidth: 149,
 															name: 'guardian_portal_password',
 															inputType: 'password'
+														},
+														{
+															xtype: 'checkbox',
+															fieldLabel: 'View Patient Record',
+															labelWidth: 149,
+															name: 'allow_guardian_web_portal_cda'
 														}
 													]
 												},
@@ -53222,6 +53228,12 @@ Ext.define('App.view.patient.Patient', {
 															labelWidth: 149,
 															name: 'emergency_contact_portal_password',
 															inputType: 'password'
+														},
+														{
+															xtype: 'checkbox',
+															fieldLabel: 'View Patient Record',
+															labelWidth: 149,
+															name: 'allow_emergency_contact_web_portal_cda'
 														}
 													]
 												}

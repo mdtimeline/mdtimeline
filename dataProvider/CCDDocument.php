@@ -138,6 +138,8 @@ class CCDDocument extends CDDDocumentBase
             $this->xmlData['title'] = 'Clinical Office Visit Summary';
         } elseif($this->eid == 'no_enc') {
             $this->xmlData['title'] = 'General Header Constraints';
+        } else {
+            $this->xmlData['title'] = 'General Header Constraints';
         }
 
         $this->xmlData['effectiveTime'] = [
@@ -1600,6 +1602,12 @@ class CCDDocument extends CDDDocumentBase
             $filters->filter[0]->value = $this->eid;
             $encounters = $this->Encounter->getEncounters($filters, false, false);
         } else {
+
+	        $informant = [];
+	        $informant['assignedEntity']['id']['@attributes'] = [
+		        'root' => '2.16.840.1.113883.4.6'
+	        ];
+
             $informant['assignedEntity']['addr'] = $this->addressBuilder(
                 'WP',
                 $this->facility['address'] . ' ' . $this->facility['address_cont'],
@@ -2435,7 +2443,7 @@ class CCDDocument extends CDDDocumentBase
 						],
 		            ];
 
-		            if(isset($taken_by['taxonomy'])){
+		            if(isset($taken_by['taxonomy']) && $taken_by['taxonomy'] != ''){
 			            $performer['assignedEntity']['code'] = [
 				            '@attributes' => [
 					            'code' => $taken_by['taxonomy'],
@@ -2926,7 +2934,7 @@ class CCDDocument extends CDDDocumentBase
                         ]
                     ]
                 ];
-                if($administered_by !== false){
+                if($administered_by !== false && isset($administered_by['taxonomy']) && $administered_by['taxonomy'] != ''){
                     $entry['substanceAdministration']['performer']['assignedEntity']['code'] = [
                         '@attributes' => [
                             'code' => $administered_by['taxonomy'],
@@ -6063,6 +6071,10 @@ class CCDDocument extends CDDDocumentBase
 
                     $entry['organizer']['component'][] = $component;
 
+                }
+
+                if(!isset($entry['organizer']['component']) || empty($entry['organizer']['component'])){
+                	continue;
                 }
 
                 $results['entry'][] = $entry;

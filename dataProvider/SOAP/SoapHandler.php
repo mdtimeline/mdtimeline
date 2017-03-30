@@ -71,12 +71,14 @@ class SoapHandler
         'WebPortalUsername' => 'portal_username',
         'WebPortalPassword' => 'portal_password',
         'WebPortalAccess' => 'allow_patient_web_portal',
-        'EmergencyPortalAllow'      => 'allow_emergency_contact_web_portal',
-        'EmergencyPortalUsername'   => 'emergency_contact_portal_username',
-        'EmergencyPortalPassword'   => 'emergency_contact_portal_password',
-        'GuardianPortalAllow'       => 'allow_guardian_web_portal',
-        'GuardianPortalUsername'    => 'guardian_portal_username',
-        'GuardianPortalPassword'    => 'guardian_portal_password'
+        'EmergencyPortalAllow' => 'allow_emergency_contact_web_portal',
+        'EmergencyPortalAllowCda' => 'allow_emergency_contact_web_portal_cda',
+        'EmergencyPortalUsername' => 'emergency_contact_portal_username',
+        'EmergencyPortalPassword' => 'emergency_contact_portal_password',
+        'GuardianPortalAllow' => 'allow_guardian_web_portal',
+        'GuardianPortalAllowCda' => 'allow_guardian_web_portal_cda',
+        'GuardianPortalUsername' => 'guardian_portal_username',
+        'GuardianPortalPassword' => 'guardian_portal_password'
     ];
 
     function constructor($params)

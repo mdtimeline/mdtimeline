@@ -370,6 +370,12 @@ $complexTypes['Patient'] = [
         'document' => 'Emergency Portal Web Access'
     ],
     [
+        'name' => 'EmergencyPortalAllowCda',
+        'type' => 'bool',
+        'minOccurs' => '0',
+        'document' => 'Emergency Portal Web Access to Patient Record'
+    ],
+    [
         'name' => 'EmergencyPortalUsername',
         'type' => 'string',
         'minOccurs' => '0',
@@ -386,6 +392,12 @@ $complexTypes['Patient'] = [
         'type' => 'bool',
         'minOccurs' => '0',
         'document' => 'Guardian Portal Web Access'
+    ],
+    [
+        'name' => 'GuardianPortalAllowCda',
+        'type' => 'bool',
+        'minOccurs' => '0',
+        'document' => 'Guardian Portal Web Access to Patient Record'
     ],
     [
         'name' => 'GuardianPortalUsername',

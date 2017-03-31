@@ -2419,14 +2419,16 @@ class CCDDocument extends CDDDocumentBase
 
 	            	$taken_name = '';
 
-	            	if(isset($taken_by['lname'])){
-			            $taken_name .= $taken_by['lname'];
-		            }
 	            	if(isset($taken_by['fname'])){
-			            $taken_name .= ', ' . $taken_by['fname'];
+			            $taken_name .= $taken_by['fname'];
 		            }
-	            	if(isset($taken_by['mname'])){
+
+		            if(isset($taken_by['mname'])){
 			            $taken_name .= ' ' . $taken_by['mname'];
+		            }
+
+	            	if(isset($taken_by['lname'])){
+			            $taken_name .= ' ' . $taken_by['lname'];
 		            }
 
 		            $vitals['text']['table']['tbody']['tr'][4]['td'][] = [

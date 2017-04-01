@@ -40,8 +40,8 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
     <title>MD Timeline Logon Screen</title>
     <link rel="shortcut icon" href="favicon.ico">
 
-    <script src="JSrouter.php?site=<?php print SITE ?>" charset="utf-8"></script>
-    <script src="data/api.php?site=<?php print SITE ?>" charset="utf-8"></script>
+    <script src="JSrouter.php?site=<?php print SITE ?>&_dc=<?php print date() ?>" charset="utf-8"></script>
+    <script src="data/api.php?site=<?php print SITE ?>&_dc=<?php print date() ?>" charset="utf-8"></script>
     <script type="text/javascript">
 
 	    if(Ext.supports.LocalStorage){

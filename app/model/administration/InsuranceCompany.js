@@ -35,66 +35,66 @@ Ext.define('App.model.administration.InsuranceCompany', {
 			comment: 'use to reference the insurance to another software'
 		},
 		{
-			name: 'ins_name',
+			name: 'name',
 			type: 'string',
 			len: 120
 		},
 		{
-			name: 'ins_contact',
+			name: 'contact',
 			type: 'string',
 			len: 120
 		},
 		{
-			name: 'ins_address1',
+			name: 'address1',
 			type: 'string',
 			len: 100
 		},
 		{
-			name: 'ins_address2',
+			name: 'address2',
 			type: 'string',
 			len: 100
 		},
 		{
-			name: 'ins_city',
+			name: 'city',
 			type: 'string',
 			len: 80
 		},
 		{
-			name: 'ins_state',
+			name: 'state',
 			type: 'string',
 			len: 80
 		},
 		{
-			name: 'ins_zip_code',
+			name: 'zip_code',
 			type: 'string',
 			len: 15
 		},
 		{
-			name: 'ins_country',
+			name: 'country',
 			type: 'string',
 			len: 80
 		},
 		{
-			name: 'ins_phone1',
+			name: 'phone1',
 			type: 'string',
 			len: 20
 		},
 		{
-			name: 'ins_phone2',
+			name: 'phone2',
 			type: 'string',
 			len: 20
 		},
 		{
-			name: 'ins_fax',
+			name: 'fax',
 			type: 'string',
 			len: 20
 		},
 		{
-			name: 'ins_active',
+			name: 'active',
 			type: 'bool'
 		},
 		{
-			name: 'ins_dx_type',
+			name: 'dx_type',
 			type: 'string',
 			len: 5
 		},

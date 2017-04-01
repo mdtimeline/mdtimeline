@@ -13,7 +13,8 @@ $LANG = array(
 	'i18nExtFile'							=> 'ext-lang-en.js',
 	// End of the items
 
-    'Charges'                               => 'Charges',
+    'providers'                             => 'Providers',
+    'charges'                               => 'Charges',
     'rebill'                                => 'ReBill',
     'billing_worklist'                      => 'Billing Worklist',
     'pending_billing'                       => 'Pending Billing',

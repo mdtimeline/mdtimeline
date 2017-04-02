@@ -134,6 +134,36 @@ class SoapHandler
 	    ];
     }
 
+    function GetMessageAddressRecipients($params){
+
+	    $this->constructor($params);
+	    if (!$this->isAuth()) {
+		    return [
+			    'Success' => false,
+			    'Error' => 'Error: HTTP 403 Access Forbidden'
+		    ];
+	    }
+
+	    include (ROOT . '/dataProvider/User.php');
+	    $User = new User();
+
+	    $users = $User->getUsersByAcl('receive_patient_messages');
+
+	    $addresses = [];
+
+	    foreach ($users['data'] as $user){
+		    $addresses[] = [
+		    	'uid' => $user['id'],
+		    	'user_name' => $user['title'] . ' ' . $user['lname'] . ', ' . $user['fname']
+		    ];
+	    }
+
+    	return [
+    		'Success' => true,
+			'Data' => json_encode($addresses)
+	    ];
+    }
+
 	/**
 	 * @param $params
 	 * @return array

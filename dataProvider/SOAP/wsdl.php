@@ -1081,6 +1081,46 @@ $functions[] = [
 	'soapAddress' => "http://$Server/dataProvider/SOAP/Server.php"
 ];
 
+$functions[] = [
+	'funcName' => 'GetMessageAddressRecipients',
+	'doc' => 'This will return an array of message address recipients registered in the EHR',
+	'inputParams' => [
+		[
+			'name' => 'SecureKey',
+			'type' => 'string',
+			'minOccurs' => '1',
+			'document' => 'GUID Secure Key provided'
+		],
+		[
+			'name' => 'ServerSite',
+			'type' => 'string',
+			'minOccurs' => '1',
+			'document' => 'GaiaEHR site'
+		]
+	],
+	'outputParams' => [
+		[
+			'name' => 'Success',
+			'type' => 'boolean',
+			'minOccurs' => '1',
+			'document' => 'True if request was successfully processed'
+		],
+		[
+			'name' => 'Data',
+			'type' => 'string',
+			'minOccurs' => '0',
+			'document' => 'JSON Patient object'
+		],
+		[
+			'name' => 'Error',
+			'type' => 'string',
+			'minOccurs' => '0',
+			'document' => 'If success == false an error message will be send back'
+		]
+	],
+	'soapAddress' => "http://$Server/dataProvider/SOAP/Server.php"
+];
+
 if(stristr($_SERVER['QUERY_STRING'], 'wsdl'))
 {
 	// WSDL request - output raw XML

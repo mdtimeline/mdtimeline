@@ -47,10 +47,16 @@ class DocumentFPDI extends FPDI  {
 	 * @var array
 	 */
 	private $header_cols;
+
 	/**
 	 * @var int
 	 */
 	private $center_point;
+
+	/**
+	 * @var string
+	 */
+	public $water_mark = '';
 
 	/**
 	 * @param array $data
@@ -123,6 +129,10 @@ class DocumentFPDI extends FPDI  {
 		$pageHeight = $this->getPageHeight();
 		$header_cols = $this->getHeaderCols();
 
+		if($this->water_mark != ''){
+			$this->addWaterMark();
+		}
+
 		$this->header_y = 0;
 
 		if (is_null($this->_tplIdx)) {
@@ -160,6 +170,41 @@ class DocumentFPDI extends FPDI  {
 			$this->Line($margins['left'], $this->header_y, $pageWidth - $margins['right'], $this->header_y);
 		}
 
+	}
+
+	private function addWaterMark() {
+		//Put the watermark
+		$this->SetFont('times', 'B', 50);
+		$this->SetTextColor(255, 192, 203);
+
+		$margins = $this->getMargins();
+		$pageWidth = $this->getPageWidth();
+
+		$water_x = $this->header_cols['center']['x'] /2;
+		$water_y = $this->getPageHeight() / 4;
+
+		$this->writeWaterMark($water_x, $water_y);
+		$this->writeWaterMark($water_x, $water_y + $water_y);
+		$this->writeWaterMark($water_x, $water_y + $water_y + $water_y);
+	}
+
+
+	private function writeWaterMark($water_x, $water_y) {
+		$buff = explode('^', $this->water_mark);
+		foreach ($buff as $text){
+			$this->Text(
+				$water_x,
+				$water_y,
+				$text,
+				false,
+				false,
+				true,
+				0,
+				0,
+				'C'
+			);
+			$water_y = $water_y + 15;
+		}
 	}
 
 	// Page footer

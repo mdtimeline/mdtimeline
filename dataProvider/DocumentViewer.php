@@ -293,14 +293,21 @@ HTML;
 
 		print $html;
 	} else {
-    	if($mineType === 'application/xml' && preg_match('/xml-stylesheet/', $document)){
-    		$isCcr = preg_match('/<ccr:/',$document);
-    		if($isCcr){
+    	if($mineType === 'application/xml'){
+
+		    $isCcr = preg_match('/<ccr:/',$document);
+		    if($isCcr){
 			    $href =  URL.'/lib/CCRCDA/schema/ccr.xsl';
 		    }else{
 			    $href =  URL.'/lib/CCRCDA/schema/cda2.xsl';
 		    }
-		    $document = preg_replace('/(href=").*\.xsl(")/', "$1{$href}$2" ,$document, 1);
+
+    		if(preg_match('/xml-stylesheet/', $document)){
+			    $document = preg_replace('/(href=").*\.xsl(")/', "$1{$href}$2" ,$document, 1);
+		    }else{
+    			$stylesheet = "<?xml-stylesheet type=\"text/xsl\" href=\"{$href}\"?>";
+			    $document = preg_replace('/(<\?xml version.*\?>)/', "$1$stylesheet" ,$document, 1);
+		    }
 	    }
 
 	    $encoding = mb_detect_encoding($document, 'ISO-8859-1,UTF-8');

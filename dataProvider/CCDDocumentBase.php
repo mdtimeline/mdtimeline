@@ -695,7 +695,7 @@ class CDDDocumentBase
 
             if($return){
                 $handle = fopen($file, "r");
-                $data = html_entity_decode(strip_tags(fread($handle, filesize($file))));
+                $data = fread($handle, filesize($file));
                 fclose($handle);
 
                 $fileData = [];

@@ -27,8 +27,7 @@ class TransactionLog
 
 	function __construct()
 	{
-		if ($this->t == NULL)
-			$this->t = MatchaModel::setSenchaModel('App.model.administration.TransactionLog');
+		$this->t = MatchaModel::setSenchaModel('App.model.administration.TransactionLog', true);
 	}
 
 	public function search($params)

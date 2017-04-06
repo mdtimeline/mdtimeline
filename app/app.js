@@ -17123,6 +17123,11 @@ Ext.define('App.model.patient.Encounter', {
             type: 'bool'
         },
         {
+            name: 'medication_reconciliations_date',
+	        type: 'date',
+	        dateFormat: 'Y-m-d'
+        },
+        {
             name: 'summary_care_provided',
             type: 'bool'
         }
@@ -24281,7 +24286,7 @@ Ext.define('App.view.patient.ItemsToReview', {
 	frame: true,
 	bodyPadding: 5,
 	bodyBorder: true,
-	bodyStyle: 'background-color:white',
+	//bodyStyle: 'background-color:white',
 	showRating: true,
 	autoScroll: true,
 	itemId: 'ItemsToReviewPanel',
@@ -24457,26 +24462,42 @@ Ext.define('App.view.patient.ItemsToReview', {
 				},
                 {
                     xtype: 'fieldset',
-                    title: _('reconciliations'),
+                    title: _('medical_reconciliation'),
                     layout: 'hbox',
+	                margin: '0 10 0 0',
                     items: [
                         {
                             xtype: 'checkboxfield',
                             checked: false,
                             itemId: 'EncounterMedicationReconciliations',
-                            boxLabel: _('medications'),
-                            name: 'medication_reconciliations'
+                            name: 'medication_reconciliations',
+	                        margin: '0 5 0 0'
                         },
                         {
-                            xtype: 'checkboxfield',
-                            checked: false,
-                            padding: '0 0 5 10',
-                            itemId: 'EncounterSummaryCareProvided',
-                            boxLabel: _('summary_of_care_provided'),
-                            name: 'summary_care_provided'
+                            xtype: 'datefield',
+                            fieldLabel: _('performed_date'),
+                            labelWidth: 100,
+                            width: 210,
+                            itemId: 'EncounterMedicationReconciliationsDateField',
+                            name: 'medication_reconciliations_date'
                         }
                     ]
-                }
+                },
+				{
+					xtype: 'fieldset',
+					title: _('patient_summary'),
+					layout: 'hbox',
+					items: [
+						{
+							xtype: 'checkboxfield',
+							checked: false,
+							padding: '0 0 5 10',
+							itemId: 'EncounterSummaryCareProvided',
+							boxLabel: _('summary_of_care_provided'),
+							name: 'summary_care_provided'
+						}
+					]
+				}
 			]
 		}
 	],
@@ -43235,6 +43256,10 @@ Ext.define('App.controller.patient.ItemsToReview', {
 			ref: 'EncounterMedicationReconciliations',
 			selector: '#ItemsToReviewPanel #EncounterMedicationReconciliations'
 		},
+		{
+			ref: 'EncounterMedicationReconciliationsDateField',
+			selector: '#ItemsToReviewPanel #EncounterMedicationReconciliationsDateField'
+		},
         {
             ref: 'EncounterSummaryCareProvided',
             selector: '#ItemsToReviewPanel #EncounterSummaryCareProvided'
@@ -43255,6 +43280,9 @@ Ext.define('App.controller.patient.ItemsToReview', {
 			},
             '#ItemsToReviewPanel #EncounterMedicationReconciliations':{
                 change: me.onEncounterMedicationReconciliationsChange
+            },
+            '#ItemsToReviewPanel #EncounterMedicationReconciliationsDateField':{
+                change: me.onEncounterMedicationReconciliationsDateFieldChange
             },
             '#ItemsToReviewPanel #EncounterSummaryCareProvided':{
                 change: me.onEncounterSummaryCareProvidedChange
@@ -43294,14 +43322,17 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
 
         me.getEncounterMedicationReconciliations().suspendEvents(false);
+        me.getEncounterMedicationReconciliationsDateField().suspendEvents(false);
         me.getEncounterSummaryCareProvided().suspendEvents(false);
         me.getItemsToReviewEducationGivenField().suspendEvents(false);
 
         me.getEncounterMedicationReconciliations().setValue(encounter.get('medication_reconciliations'));
+        me.getEncounterMedicationReconciliationsDateField().setValue(encounter.get('medication_reconciliations_date'));
         me.getEncounterSummaryCareProvided().setValue(encounter.get('summary_care_provided'));
         me.getItemsToReviewEducationGivenField().setValue(encounter.get('patient_education_given'));
 
         me.getEncounterMedicationReconciliations().resumeEvents();
+        me.getEncounterMedicationReconciliationsDateField().resumeEvents();
         me.getEncounterSummaryCareProvided().resumeEvents();
         me.getItemsToReviewEducationGivenField().resumeEvents();
 	},
@@ -43343,9 +43374,23 @@ Ext.define('App.controller.patient.ItemsToReview', {
 
     onEncounterMedicationReconciliationsChange: function(field, newValue, oldValue, eOpts){
         var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+
         encounter.set({
             medication_reconciliations: newValue
         });
+
+        this.saveEncounterChanges(encounter);
+    },
+
+	onEncounterMedicationReconciliationsDateFieldChange: function(field, newValue, oldValue, eOpts){
+        var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+
+        if(!field.isValid()) return;
+
+        encounter.set({
+            medication_reconciliations_date: newValue
+        });
+
         this.saveEncounterChanges(encounter);
     },
 

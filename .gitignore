@@ -1,7 +1,6 @@
 .idea
 sites/*/*
 temp/*
-GaiaEHR
 contrib/snomed/*
 contrib/rxnorm/*
 contrib/forms/*

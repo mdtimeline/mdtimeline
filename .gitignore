@@ -2,8 +2,6 @@
 sites/*/*
 temp/*
 GaiaEHR
-GaiaEHR.iml
-gaiaehr.iml
 contrib/snomed/*
 contrib/rxnorm/*
 contrib/forms/*
@@ -19,3 +17,4 @@ contrib/icd10/*
 /modules/reportcenter/reports/AutomatedMeasureCalculation
 /modules/billing/
 /modules/dental/
+/mdTimeLine EHR.iml

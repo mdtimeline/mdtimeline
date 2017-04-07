@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
+<!--
 
-   Copyright 2007 American Academy of Family Physicians 
-   
-   Licensed under the Apache License, Version 2.0 (the "License"); 
-   you may not use this file except in compliance with the License. 
-   You may obtain a copy of the License at 
-   
-   http://www.apache.org/licenses/LICENSE-2.0 
-   
+   Copyright 2007 American Academy of Family Physicians
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
    Unless required by applicable law or agreed to in writing, software distributed
-   under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
-   CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+   under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+   CONDITIONS OF ANY KIND, either express or implied. See the License for the
    specific language governing permissions and limitations under the License.
-   
-This XSLT creates a simple HTML representation of the ASTM Continuity of Care Record.  
-It gives one potential clinical representation of the CCR instance.  There is 
+
+This XSLT creates a simple HTML representation of the ASTM Continuity of Care Record.
+It gives one potential clinical representation of the CCR instance.  There is
 the potential for important information in a CCR to not be displayed in the resulting
-HTML.  
+HTML.
 
 Derived works MUST change the footer.xsl template to denote that the resulting HTML
 is a derived work from the AAFP's XSLT or remove the display of the "American Academy
@@ -25,9 +25,9 @@ of Family Physicians" name.
 
 
 Although not required, it is encouraged to submit modifications or improvements to
-this XSLT back to the community.  
+this XSLT back to the community.
 
-  Author:   	Steven E. Waldren, MD 
+  Author:   	Steven E. Waldren, MD
   		American Academy of Family Physicians
 		swaldren@aafp.org
 

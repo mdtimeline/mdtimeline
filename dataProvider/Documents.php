@@ -63,7 +63,7 @@ class Documents {
 		$this->Encounter = new Encounter();
 		$this->User = new User();
 
-		$this->t = \MatchaModel::setSenchaModel('App.model.administration.DocumentsPdfTemplate');
+		$this->t = \MatchaModel::setSenchaModel('App.model.administration.DocumentsPdfTemplate', true);
 		return;
 	}
 
@@ -513,13 +513,16 @@ class Documents {
 	 * @param string $path
 	 * @param null|array $custom_header_data
 	 * @param array $key_images
+	 * @param string $water_mark
 	 * @return bool
 	 */
-	public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $key_images = [], $singleColumn = false) {
+	public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $water_mark = '', $key_images = [], $singleColumn = false) {
 		$pid = $params->pid;
 		$regex = '(\[\w*?\])';
 
 		$pdf = new DocumentFPDI();
+
+		$pdf->water_mark = $water_mark;
 
 		if(isset($custom_header_data)){
 			$pdf->addCustomHeaderData($custom_header_data);

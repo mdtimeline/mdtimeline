@@ -111,13 +111,15 @@ Ext.define('App.controller.DocumentViewer', {
 
 		if(typeof type != 'undefined') src += '&temp=' + type;
 
+		src += '&_dc=' + Ext.Date.now();
+
 		win = Ext.create('App.view.patient.windows.DocumentViewer',{
 			documentType: type,
 			documentId: id,
 			items:[
 				{
 					xtype:'miframe',
-					autoMask:false,
+					autoMask: false,
 					src: src
 				}
 			]

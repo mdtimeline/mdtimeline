@@ -31,23 +31,6 @@ Ext.define('App.model.administration.ReferringProvider', {
 			len: 40
 		},
 		{
-			name: 'username',
-			type: 'string',
-			len: 40,
-			index: true
-		},
-		{
-			name: 'password',
-			type: 'string',
-			len: 300,
-			encrypt: true
-		},
-		{
-			name: 'authorized',
-			type: 'bool',
-			index: true
-		},
-		{
 			name: 'title',
 			type: 'string',
 			len: 10
@@ -152,12 +135,14 @@ Ext.define('App.model.administration.ReferringProvider', {
 		},
 		{
 			name: 'create_uid',
-			type: 'int'
+			type: 'int',
+            len: 11
 
 		},
 		{
 			name: 'update_uid',
-			type: 'int'
+			type: 'int',
+            len: 11
 		},
 		{
 			name: 'create_date',

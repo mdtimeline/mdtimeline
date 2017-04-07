@@ -100,14 +100,12 @@ Ext.define('App.controller.patient.Results', {
 				activate: me.onResultPanelActive
 			},
 			'#ResultsOrdersGrid': {
-				selectionchange: me.onOrderSelectionChange,
-				edit: me.onOrderSelectionEdit
+				render: me.onResultsOrdersGridRender,
+				selectionchange: me.onOrderSelectionChange
 			},
 			'#ResultsLaboratoryFormUploadField': {
 				change: me.onOrderDocumentChange
 			},
-
-
 			'#ResultsOrderResetBtn': {
 				click: me.onResultsOrderResetBtnClick
 			},
@@ -178,6 +176,26 @@ Ext.define('App.controller.patient.Results', {
 				});
 			}
 		});
+	},
+
+	onResultsOrdersGridRender: function (grid) {
+		grid.store.on('write', this.onResultsOrdersGridStoreWrite, this);
+	},
+
+	onResultsOrdersGridStoreWrite: function (store, operation) {
+
+		var me = this,
+			sm = me.getResultsOrdersGrid().getSelectionModel(),
+			lastSelected = sm.getLastSelected();
+
+		if(operation.action == 'create'){
+
+			if(lastSelected.data.order_type === 'lab') {
+				this.getLabOrderResult(lastSelected);
+			}else if(lastSelected.data.order_type === 'lab'){
+				this.getRadOrderResult(lastSelected);
+			}
+		}
 	},
 
 	onOrderSelectionEdit: function(editor, context){
@@ -310,6 +328,9 @@ Ext.define('App.controller.patient.Results', {
 			i;
 
 		observationGrid.editingPlugin.cancelEdit();
+
+		if(order_record.get('id') === 0) return;
+
 		results_store.load({
 			callback: function(records){
 				if(records.length > 0){
@@ -326,9 +347,15 @@ Ext.define('App.controller.patient.Results', {
 						code: order_record.data.code,
 						code_text: order_record.data.description,
 						code_type: order_record.data.code_type,
+						order_id: order_record.data.id,
 						ordered_uid: order_record.data.uid,
 						create_date: new Date()
 					});
+
+					newResult[0].set({
+						order_id: order_record.data.id
+					});
+
 					form.loadRecord(newResult[0]);
 					me.getResultsOrderSignBtn().setDisabled(true);
 					observationStore = newResult[0].observations();
@@ -370,9 +397,15 @@ Ext.define('App.controller.patient.Results', {
 						code: order_record.data.code,
 						code_text: order_record.data.description,
 						code_type: order_record.data.code_type,
+						order_id: order_record.data.id,
 						ordered_uid: order_record.data.uid,
 						create_date: new Date()
 					});
+
+					newResult[0].set({
+						order_id: order_record.data.id
+					});
+
 					form.loadRecord(newResult[0]);
 					me.loadRadiologyDocument(newResult[0]);
 					me.setViewStudyBtn(newResult[0]);
@@ -420,15 +453,13 @@ Ext.define('App.controller.patient.Results', {
 
 		if(!form.isValid()) return;
 
-
 		var observationStore = result_record.observations(),
-			observations = observationStore.data.items;
+			observations = observationStore.tree.flatten();
 
 		result_record.set(values);
 		result_record.save({
 			success: function(rec){
-
-				for(var i = 0; i < observations.length; i++){
+				for(var i = 1; i < observations.length; i++){
 					observations[i].set({result_id: rec.data.id});
 				}
 				observationStore.sync({

@@ -107,11 +107,14 @@ class MatchaCUP {
 
 	private $whereIndex = 0;
 
+	private $fieldsProperties = [];
+
 	/**
 	 * This fields will use the OR operator is 2 or more filters
 	 * are applied to the same column
 	 * @var array
 	 */
+
 	private $orFilterProperties = [];
 
 	/**
@@ -137,6 +140,11 @@ class MatchaCUP {
 	 * @var int
 	 */
 	private $joinTableIndex = 0;
+
+	/**
+	 * @var string
+	 */
+	private $primary_columns;
 
 	/**
 	 * function sql($sql = NULL):
@@ -269,6 +277,9 @@ class MatchaCUP {
 				if($where != null){
 					$wherex = ' WHERE ' . $wherex;
 				}
+
+				$this->primary_columns = $_columns;
+
 				// sql build
 				$this->sql = "SELECT $_columns FROM `" . $this->table . "` $wherex";
 			} else {
@@ -376,6 +387,9 @@ class MatchaCUP {
 					$columns .= ', ' . $extra_values;
 				}
 
+
+				$this->primary_columns = $columns;
+
 				$this->nolimitsql = "SELECT $columns FROM `" . $this->table . "` $_where $_group $_sort";
 				$this->sql = "SELECT $columns FROM `" . $this->table . "` $_where $_group $_sort $_limits";
 			}
@@ -435,8 +449,23 @@ class MatchaCUP {
 
 	private function joinTableHandler($columns, $join) {
 
-		$this->nolimitsql = preg_replace('/(FROM\s*`.*?`)/', (', ' . $columns .' $1 ' . $join), $this->nolimitsql);
-		$this->sql = preg_replace('/(FROM\s*`.*?`)/',  (', ' . $columns . ' $1 ' . $join), $this->sql);
+		$joined = preg_match('/ JOIN/', $this->sql);
+
+		if($joined){
+			$this->nolimitsql = preg_replace('/(FROM \()/', ',' . $columns . ' $1 ', $this->nolimitsql);
+			$this->nolimitsql .= ' ' . $join;
+
+			$this->sql = preg_replace('/(FROM \()/', ',' . $columns . ' $1 ', $this->sql);
+			$this->sql .= ' ' . $join;
+		}else{
+			$this->nolimitsql = '('. $this->nolimitsql . ') as ' . $this->table . ' ';
+			$this->nolimitsql = 'SELECT ' . $this->primary_columns . ',' . $columns . ' FROM ' . $this->nolimitsql;
+			$this->nolimitsql = $this->nolimitsql . ' ' . $join;
+
+			$this->sql = '('. $this->sql . ') as ' . $this->table . ' ';
+			$this->sql = 'SELECT ' . $this->primary_columns . ',' . $columns . ' FROM ' . $this->sql;
+			$this->sql = $this->sql . ' ' . $join;
+		}
 	}
 
 	private function joinColumnHandler($columns) {
@@ -563,16 +592,24 @@ class MatchaCUP {
 			$sth = Matcha::$__conn->prepare($this->sql);
 			$sth->execute($where);
 			$this->record = $sth->fetchAll();
+
+			foreach ($this->record as &$rec){
+
+				$pk = isset($rec[$this->primaryKey]) ?
+					$rec[$this->primaryKey] : 0;
+
+				self::callBackMethod([
+					'event' => 'SELECT',
+					'sql' => $this->sql,
+					'pk' => $pk,
+					'data' => $where,
+					'table' => $this->table
+				]);
+			}
+
 			$this->dataDecryptWalk();
 			$this->dataUnSerializeWalk();
 			$this->builtRoot();
-			self::callBackMethod([
-				//				'crc32' => crc32($this->sql),
-				'event' => 'SELECT',
-				'sql' => $this->sql,
-				'data' => $where,
-				'table' => $this->table
-			]);
 			return $this->record;
 		} catch(PDOException $e) {
 			return MatchaErrorHandler::__errorProcess($e);
@@ -590,16 +627,25 @@ class MatchaCUP {
 			$sth = Matcha::$__conn->prepare($this->sql);
 			$sth->execute($where);
 			$this->record = $sth->fetch();
+
+			if($this->record !== false){
+
+				$pk = $this->record !== false && isset($this->record[$this->primaryKey]) ?
+					$this->record[$this->primaryKey] : 0;
+
+				self::callBackMethod([
+					'event' => 'SELECT',
+					'sql' => $this->sql,
+					'data' => $where,
+					'pk' => $pk,
+					'table' => $this->table
+				]);
+			}
+
 			$this->dataDecryptWalk();
 			$this->dataUnSerializeWalk();
 			$this->builtRoot();
-			self::callBackMethod([
-				//				'crc32' => crc32($this->sql),
-				'event' => 'SELECT',
-				'sql' => $this->sql,
-				'data' => $where,
-				'table' => $this->table
-			]);
+
 			return $this->record;
 		} catch(PDOException $e) {
 			return MatchaErrorHandler::__errorProcess($e);
@@ -722,11 +768,13 @@ class MatchaCUP {
 			if(!empty($where)){
 				$this->isSenchaRequest = false;
 				$data = get_object_vars($record);
+				$pk = isset($data[$this->primaryKey]) ? $data[$this->primaryKey] : 0;
 				$this->sql = $this->buildUpdateSqlStatement($data, $where);
 				$this->rowsAffected = Matcha::$__conn->exec($this->sql);
 				self::callBackMethod([
 					'event' => 'UPDATE',
 					'sql' => $this->sql,
+					'pk' => $pk,
 					'data' => $data,
 					'table' => $this->table
 				]);
@@ -802,31 +850,38 @@ class MatchaCUP {
 		if($isInsert){
 			if($this->isUUID()){
 				if(is_array($record)){
-					$record[$this->primaryKey] = $data[$this->primaryKey];
+					$pk = $record[$this->primaryKey] = $data[$this->primaryKey];
 				} else {
-					$record->{$this->primaryKey} = $data[$this->primaryKey];
+					$pk = $record->{$this->primaryKey} = $data[$this->primaryKey];
 				}
 			} else {
 				if(is_array($record)){
-					$record[$this->primaryKey] = $this->lastInsertId = Matcha::$__conn->lastInsertId();
+					$pk = $record[$this->primaryKey] = $this->lastInsertId = Matcha::$__conn->lastInsertId();
 				} else {
-					$record->{$this->primaryKey} = $this->lastInsertId = Matcha::$__conn->lastInsertId();
+					$pk  = $record->{$this->primaryKey} = $this->lastInsertId = Matcha::$__conn->lastInsertId();
 				}
 			}
 
 			self::callBackMethod([
-				//				'crc32' => crc32($this->sql),
 				'event' => 'INSERT',
 				'sql' => $this->sql,
 				'data' => $data,
+				'pk' => $pk,
 				'table' => $this->table
 			]);
 		} else {
+
+			if(is_array($record)){
+				$pk = $data[$this->primaryKey];
+			} else {
+				$pk = $data[$this->primaryKey];
+			}
+
 			self::callBackMethod([
-				//				'crc32' => crc32($this->sql),
 				'event' => 'UPDATE',
 				'sql' => $this->sql,
 				'data' => $data,
+				'pk' => $pk,
 				'table' => $this->table
 			]);
 		}
@@ -905,7 +960,6 @@ class MatchaCUP {
 		$this->rowsAffected = Matcha::$__conn->exec($sql);
 		if($this->rowsAffected > 0){
 			self::callBackMethod([
-				//				'crc32' => crc32($sql),
 				'event' => 'DELETE',
 				'sql' => $sql,
 				'table' => $this->table
@@ -988,15 +1042,27 @@ class MatchaCUP {
 		}
 
 		$this->date = new DateTime();
-		$this->primaryKey = MatchaModel::__getTablePrimaryKeyColumnName($this->table);
-		$this->fields = MatchaModel::__getFields($this->model);
-		$this->encryptedFields = MatchaModel::__getEncryptedFields($this->model);
-		$this->phantomFields = MatchaModel::__getPhantomFields($this->model);
-		$this->arrayFields = MatchaModel::__getArrayFields($this->model);
+
+		if(isset($model['parsed_data'])){
+			$this->primaryKey = $model['parsed_data']['primaryKey'];
+			$this->fields = $model['parsed_data']['fields'];
+			$this->encryptedFields = $model['parsed_data']['encryptedFields'];
+			$this->phantomFields = $model['parsed_data']['phantomFields'];
+			$this->arrayFields = $model['parsed_data']['arrayFields'];
+			$this->fieldsProperties = $model['parsed_data']['fieldsProperties'];
+		}else{
+			$this->primaryKey = MatchaModel::__getTablePrimaryKeyColumnName($this->table);
+			$this->fields = MatchaModel::__getFields($this->model);
+			$this->encryptedFields = MatchaModel::__getEncryptedFields($this->model);
+			$this->phantomFields = MatchaModel::__getPhantomFields($this->model);
+			$this->arrayFields = MatchaModel::__getArrayFields($this->model);
+			$this->fieldsProperties = (array)MatchaModel::__getFieldsProperties($this->model);
+		}
 
 		$this->hasMany = isset($model['hasMany']) ? $model['hasMany'] : [];
 		$this->hasOne = isset($model['hasOne']) ? $model['hasOne'] : [];
 
+		return $this;
 	}
 
 	/**
@@ -1107,7 +1173,7 @@ class MatchaCUP {
 		}
 
 		foreach($columns as $col){
-			$properties = (array)MatchaModel::__getFieldProperties($col, $this->model);
+			$properties = isset($this->fieldsProperties[$col]) ? $this->fieldsProperties[$col] : [];
             // Check if the type property is set
             // but if the dataType is also defined
             // make use the dataType property (more database oriented)
@@ -1130,7 +1196,9 @@ class MatchaCUP {
 					$data[$col] = $this->dataEncrypt($data[$col]);
 				} else {
 					if($type == 'string' && is_string($data[$col])){
-						$data[$col] = html_entity_decode($data[$col]);
+						if(!preg_match('/^\<\?xml/',$data[$col])){
+							$data[$col] = html_entity_decode($data[$col]);
+						}
 					} elseif($type == 'date') {
 						if($data[$col] === ''){
 							$data[$col] = '0000-00-00';
@@ -1224,7 +1292,13 @@ class MatchaCUP {
 	 *
 	 */
 	private function builtRoot() {
-		if($this->isSenchaRequest && isset($this->model->proxy) && isset($this->model->proxy->reader) && isset($this->model->proxy->reader->root)){
+		if($this->isSenchaRequest && isset($this->model->proxy) && isset($this->model->proxy->reader) &&
+			(isset($this->model->proxy->reader->root) || isset($this->model->proxy->reader->rootProperty))
+		){
+
+			$root = isset($this->model->proxy->reader->root) ?
+				$this->model->proxy->reader->root : $this->model->proxy->reader->rootProperty;
+
 			if($this->nolimitsql != ''){
 				$sth = Matcha::$__conn->prepare($this->nolimitsql);
 				$sth->execute($this->where);
@@ -1241,7 +1315,7 @@ class MatchaCUP {
 				}
 			}
 
-			$record[$this->model->proxy->reader->root] = $this->record;
+			$record[$root] = $this->record;
 			$this->record = $record;
 		}
 	}

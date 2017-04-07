@@ -74,6 +74,11 @@ Ext.define('App.model.patient.Medications', {
 			len: 40
 		},
 		{
+			name: 'TTY',
+			type: 'string',
+			len: 10
+		},
+		{
 			name: 'dxs',
 			type: 'array'
 		},
@@ -211,6 +216,16 @@ Ext.define('App.model.patient.Medications', {
 			type: 'date',
 			dataType: 'date',
 			dateFormat: 'Y-m-d'
+		},
+		{
+			name: 'reconciled',
+			type: 'bool',
+			index: true
+		},
+		{
+			name: 'reconciled_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
 		},
 		{
 			name: 'active',

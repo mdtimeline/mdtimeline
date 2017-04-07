@@ -33,6 +33,7 @@ Ext.define('App.ux.LivePatientSearch', {
     submitValue: true,
 	minChars: 1,
 	queryDelay: 500,
+	resetEnabled: false,
 	initComponent: function(){
 		var me = this;
 
@@ -114,6 +115,53 @@ Ext.define('App.ux.LivePatientSearch', {
 			pageSize: 10
 		});
 
+		if(this.resetEnabled){
+			me.hideTrigger = false;
+			me.triggerTip = _('click_to_clear_selection');
+			me.spObj = '';
+			me.spForm ='';
+			me.spExtraParam = '';
+			me.qtip = _('clearable_combo_box');
+			me.trigger1Class = 'x-form-select-trigger';
+			me.trigger2Class = 'x-form-clear-trigger';
+		}
+
+
 		me.callParent();
+	},
+
+	onRender: function(ct, position){
+		var id = this.getId();
+		var trigger2;
+		this.callParent(arguments);
+
+		if(!this.resetEnabled){
+			return;
+		}
+
+		this.triggerConfig = {
+			tag: 'div',
+			cls: 'x-form-twin-triggers',
+			style: 'display:block;',
+			cn: [
+				{
+					tag: "img",
+					style: Ext.isIE ? 'margin-left:0;height:21px' : '',
+					src: Ext.BLANK_IMAGE_URL,
+					id: "trigger2" + id,
+					name: "trigger2" + id,
+					cls: "x-form-trigger " + this.trigger2Class
+				}
+			]
+		};
+		this.triggerEl.replaceWith(this.triggerConfig);
+		this.triggerEl.on('mouseup', function(e){
+			if(e.target.name == "trigger2" + id){
+				this.reset();
+				this.fireEvent('reset', this);
+			}
+		}, this);
+		trigger2 = Ext.get("trigger2" + id);
+		trigger2.addClsOnOver('x-form-trigger-over');
 	}
 });

@@ -58,8 +58,8 @@ header("Access-Control-Allow-Origin: *");
 		<script type="text/javascript" src="lib/<?php print EXTJS ?>/ext-all.js" charset="utf-8"></script>
 
 		<!-- JSrouter and Ext.deirect API files -->
-		<script src="JSrouter.php?site=<?php print SITE ?>" charset="utf-8"></script>
-		<script src="data/api.php?site=<?php print SITE ?>" charset="utf-8"></script>
+		<script src="JSrouter.php?site=<?php print SITE ?>&dc_=<?php print time() ?>" charset="utf-8"></script>
+		<script src="data/api.php?site=<?php print SITE ?>&dc_=<?php print time() ?>" charset="utf-8"></script>
 		<script type="text/javascript" src="lib/ZeroClipboard/ZeroClipboard.js" charset="utf-8"></script>
 		<script type="text/javascript" src="lib/darkroomjs/demo/vendor/fabric.js" charset="utf-8"></script>
 		<script type="text/javascript" src="lib/darkroomjs/build/darkroom.js" charset="utf-8"></script>
@@ -448,6 +448,8 @@ header("Access-Control-Allow-Origin: *");
 		            'App.ux.combo.Units',
 		            'App.ux.combo.Users',
 		            'App.ux.combo.YesNoNa',
+                    'App.ux.combo.ComboTable',
+                    'App.ux.combo.ComboEvents',
 		            'App.ux.combo.YesNo',
 		            'App.ux.window.Window',
 		            'App.ux.NodeDisabled',
@@ -536,6 +538,7 @@ header("Access-Control-Allow-Origin: *");
 					'patient.encounter.snippetTree',
 					'patient.encounter.Procedures',
 
+					'patient.EducationResource',
 					'patient.AppointmentRequest',
 					'patient.AdvanceDirective',
 					'patient.Allergies',
@@ -634,7 +637,7 @@ header("Access-Control-Allow-Origin: *");
 	                'administration.PreventiveCareMedications',
 	                'administration.ProviderCredentializations',
 	                'administration.Services',
-	                'administration.TransactionLogs',
+	                'administration.TransactionLog',
                     'administration.EncounterEventHistory',
 	                'administration.User',
 	                'administration.XtypesComboModel',
@@ -752,6 +755,7 @@ header("Access-Control-Allow-Origin: *");
 	                 */
 	                'patient.Patient',
 
+	                'patient.encounter.EducationResourcesGrid',
 	                'patient.encounter.AppointmentRequestGrid',
 	                'patient.encounter.CurrentProceduralTerminology',
 	                'patient.encounter.HealthCareFinancingAdministrationOptions',
@@ -810,6 +814,7 @@ header("Access-Control-Allow-Origin: *");
 	                'administration.Roles',
 	                'administration.ExternalDataLoads',
 	                'administration.Users',
+                    'administration.TransactionLog',
 
 	                /**
 	                 * Load the miscellaneous related panels
@@ -840,6 +845,7 @@ header("Access-Control-Allow-Origin: *");
 	                'administration.TemplatePanels',
 	                'administration.Users',
                     'administration.IpAccess',
+                    'administration.TransactionLog',
 
 	                'areas.FloorPlan',
 
@@ -869,6 +875,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.AdvanceDirectives',
 	                'patient.Alerts',
 	                'patient.Allergies',
+	                'patient.EducationResources',
 	                'patient.AppointmentRequests',
 	                'patient.CarePlanGoals',
 	                'patient.CCD',
@@ -886,6 +893,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.Medical',
 	                'patient.Medications',
 	                'patient.Patient',
+	                'patient.PatientSearch',
 	                'patient.ProgressNotesHistory',
 	                'patient.RadOrders',
 	                'patient.Referrals',

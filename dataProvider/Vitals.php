@@ -41,8 +41,8 @@ class Vitals {
 	public function getVitals(stdClass $params){
 		$records =  $this->v->load($params)->all();
 		foreach($records as $i => $record){
-			$records[$i]['height_in'] = isset($record['height_in']) ? intval($record['height_in']) : '';
-			$records[$i]['height_cm'] = isset($record['height_cm']) ? intval($record['height_cm']) : '';
+			$records[$i]['height_in'] = isset($record['height_in']) ? floatval($record['height_in']) : '';
+			$records[$i]['height_cm'] = isset($record['height_cm']) ? floatval($record['height_cm']) : '';
 			$records[$i]['administer_by'] = $record['uid'] != null ? $this->User->getUserNameById($record['uid']) : '';
 			$records[$i]['authorized_by'] = $record['auth_uid'] != null ? $this->User->getUserNameById($record['auth_uid']) : '';
 		}

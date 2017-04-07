@@ -5,11 +5,13 @@ Ext.define('App.controller.InfoButton', {
 
 	],
 
+	language: 'patient',
+
 	init: function(){
 		var me = this;
 
 		me.medline  = 'http://apps2.nlm.nih.gov/medlineplus/services/mpconnect.cfm?';
-		me.language = _('lang_code').match(/^es/) ? 'es' : 'en';
+
 		me.codeSytem = {
 			'ICD10CM': '2.16.840.1.113883.6.90',
 			'ICD10-CM': '2.16.840.1.113883.6.90',
@@ -38,7 +40,12 @@ Ext.define('App.controller.InfoButton', {
 		var url = me.medline;
 		url += 'mainSearchCriteria.v.c=' + code;
 		url += '&mainSearchCriteria.v.cs=' + me.codeSytem[codeType];
-		url += '&informationRecipient.languageCode.c=' + me.language;
+
+		if(me.language == 'patient' && app.patient.record && app.patient.record.get('language') == 'spa'){
+			url += '&informationRecipient.languageCode.c=es';
+		}else {
+			url += '&informationRecipient.languageCode.c=en';
+		}
 
 		window.open(url, "_blank", "toolbar=no, scrollbars=yes, resizable=yes, top=10, left=10, width=1000, height=600");
 //		WebSearchCodes.Search({ code: code, codeType: codeType, codeText: codeText }, function(data){

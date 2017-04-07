@@ -41,11 +41,21 @@ class Medications
     {
         // Manage the active and inactive problems
         if(isset($params->active) && $params->active == true) {
-            $params->filter[1] = new stdClass();
-            $params->filter[1]->property = 'end_date';
-            $params->filter[1]->value = null;
-            unset($params->active);
+	        $filter = new stdClass();
+	        $filter->property = 'end_date';
+	        $filter->value = null;
+            $params->filter[] = $filter;
+            unset($filter, $params->active);
         }
+
+	    if(isset($params->reconciled) && $params->reconciled == true) {
+		    $filter = new stdClass();
+		    $filter->property = 'reconciled';
+		    $filter->operator = '!=';
+		    $filter->value = 1;
+		    $params->filter[] = $filter;
+		    unset($filter, $params->reconciled);
+	    }
 
         if (isset($params->reconciled) && $params->reconciled == true) {
             $groups = new stdClass();
@@ -88,6 +98,7 @@ class Medications
 
     public function addPatientMedication($params)
     {
+        if(!isset($params)) return;
         $params->create_date = date('Y-m-d H:i:s');
         return $this->m->save($params);
     }
@@ -136,12 +147,12 @@ class Medications
     {
         $records = $this->getPatientMedicationsByPid($pid, $reconciled);
         foreach ($records as $i => $record) {
+            if($record['administered_date'] != null){ unset($records[$i]); }
             if (
                 $record['end_date'] == null ||
                 $record['end_date'] == '0000-00-00' ||
                 strtotime($record['end_date']) <= strtotime(date('Y-m-d'))
             ) continue;
-
             unset($records[$i]);
         }
         return $records;
@@ -158,9 +169,8 @@ class Medications
     public function getPatientAdministeredMedicationsByPidAndEid($pid, $eid)
     {
         $this->m->addFilter('pid', $pid);
-        $this->m->addFilter('eid', $eid);
-        $this->m->addFilter('administered_uid', null, '!=');
-        $this->m->addFilter('administered_uid', 0, '!=');
+        if($eid) $this->m->addFilter('eid', $eid);
+        $this->m->addFilter('administered_date', null, '!=');
         return $this->m->load()->leftJoin(['title', 'fname', 'mname', 'lname'], 'users', 'administered_uid', 'id')->all();
     }
 
@@ -169,10 +179,16 @@ class Medications
         $this->m->addFilter('pid', $pid);
         $this->m->addFilter('RXCUI', $code);
         $records = $this->m->load()->leftJoin(['title', 'fname', 'mname', 'lname'], 'users', 'administered_uid', 'id')->all();
+
         foreach ($records as $i => $record) {
-            if ($record['end_date'] != '0000-00-00' && strtotime($record['end_date']) < strtotime(date('Y-m-d'))) {
-                unset($records[$i]);
-            }
+        	if(
+		        isset($record['end_date']) &&
+        		$record['end_date'] != '0000-00-00' &&
+		        strtotime($record['end_date']) < strtotime(date('Y-m-d'))
+	        ){
+				// not active...
+		        unset($records[$i]);
+	        }
         }
 
         return $records;

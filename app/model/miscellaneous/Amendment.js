@@ -136,7 +136,7 @@ Ext.define('App.model.miscellaneous.Amendment', {
 			type: 'string',
 			store: false,
 			convert: function(v, record){
-				if(record.data.amendment_status === 'A'){
+				if(record.data.amendment_status === 'A' || record.data.amendment_status === 'D'){
 					return record.data.response_title + ' ' + record.data.response_fname + ' ' + record.data.response_mname + ' ' + record.data.response_lname;
 				}else{
 					return '';

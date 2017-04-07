@@ -22,6 +22,7 @@ Ext.define('App.view.patient.windows.ArchiveDocument', {
 	draggable: false,
 	modal: true,
 	autoShow: true,
+	closeAction: 'hide',
 	title: _('archive_document'),
 	items: [
 		{
@@ -49,11 +50,11 @@ Ext.define('App.view.patient.windows.ArchiveDocument', {
 					name: 'docTypeCode',
 					allowBlank: false
 				},
-				{
-					xtype: 'checkbox',
-					name: 'encrypted',
-					fieldLabel: _('encrypted')
-				},
+				// {
+				// 	xtype: 'checkbox',
+				// 	name: 'encrypted',
+				// 	fieldLabel: _('encrypted')
+				// },
 				{
 					xtype: 'textareafield',
 					name: 'note',

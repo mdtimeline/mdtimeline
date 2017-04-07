@@ -51,5 +51,8 @@ $LANG = array(
     'select_comparison'                     => 'Select comparison',
     'lab_enter_value'                       => 'Enter lab value',
     'lab_results'                           => 'Laboratory Results',
-    'communication'                         => 'Communication'
+    'communication'                         => 'Communication',
+    'to_date'                               => 'To Date',
+    'from_date'                             => 'From Date',
+    'event_type'                            => 'Event Type'
 );

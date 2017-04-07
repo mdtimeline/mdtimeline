@@ -1,6 +1,6 @@
 /**
- * GaiaEHR (Electronic Health Records)
- * Copyright (C) 2013 Certun, LLC.
+ * mdTimeLine EHR (Electronic Health Records)
+ * Copyright (C) 2017 mdTimeLine, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,9 +59,9 @@ Ext.define('App.controller.patient.CCD', {
 			'#printCcdBtn': {
 				click: me.onPrintCcdBtnClick
 			},
-			'#PatientCcdPanelEncounterCmb': {
-				select: me.onPatientCcdPanelEncounterCmbSelect
-			}
+            '#PatientCcdPanelEncounterCmb':{
+			    select: me.onPatientCcdPanelEncounterCmbSelect
+            }
 		});
 
 		me.importCtrl = this.getController('patient.CCDImport');
@@ -72,7 +72,6 @@ Ext.define('App.controller.patient.CCD', {
 	eid: null,
 
 	loadPatientEncounters: function(){
-
 		var me = this,
 			cmb = me.getPatientCcdPanelEncounterCmb(),
 			store = cmb.store;
@@ -125,7 +124,7 @@ Ext.define('App.controller.patient.CCD', {
 			eid,
 			'encounters',
 			'VIEW',
-			eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
+            eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
 		);
 
         TransactionLog.saveExportLog({
@@ -157,7 +156,7 @@ Ext.define('App.controller.patient.CCD', {
 			eid,
 			'encounters',
 			'ARCHIVE',
-			eid == null ? 'Patient C-CDA ARCHIVED' : 'Encounter C-CDA ARCHIVED'
+            eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
 		);
 
         TransactionLog.saveExportLog({
@@ -188,7 +187,7 @@ Ext.define('App.controller.patient.CCD', {
 			eid,
 			'encounters',
 			'EXPORT',
-			eid == null ? 'Patient C-CDA Exported' : 'Encounter C-CDA Exported'
+            eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
 		);
 
         TransactionLog.saveExportLog({
@@ -223,7 +222,7 @@ Ext.define('App.controller.patient.CCD', {
 			eid,
 			'encounters',
 			'PRINT',
-			eid == null ? 'Patient C-CDA PRINTED' : 'Encounter C-CDA PRINTED'
+            eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
 		);
 
         TransactionLog.saveExportLog({
@@ -250,6 +249,7 @@ Ext.define('App.controller.patient.CCD', {
 		var eid = this.getEid(cmb);
 
 		cmb.selectedRecord = records[0];
+
 		cmb.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?action=view&site=' + window.site +
 			'&pid=' + app.patient.pid +

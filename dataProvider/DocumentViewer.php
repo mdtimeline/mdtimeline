@@ -68,8 +68,7 @@ if (
 	require_once(ROOT . '/classes/MatchaHelper.php');
 	require_once(ROOT . '/dataProvider/TransactionLog.php');
 	new MatchaHelper();
-
-
+	$TransactionLog = new TransactionLog();
 
 	function get_mime_type($file)
 	{
@@ -128,8 +127,6 @@ if (
 	}
 
 	$isTemp = isset($_REQUEST['temp']);
-
-	$TransactionLog = new TransactionLog();
 
 	if ($isTemp) {
 		$d = MatchaModel::setSenchaModel('App.model.patient.PatientDocumentsTemp');

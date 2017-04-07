@@ -182,6 +182,11 @@ Ext.define('App.model.patient.Encounter', {
             type: 'bool'
         },
         {
+            name: 'medication_reconciliations_date',
+	        type: 'date',
+	        dateFormat: 'Y-m-d'
+        },
+        {
             name: 'summary_care_provided',
             type: 'bool'
         }

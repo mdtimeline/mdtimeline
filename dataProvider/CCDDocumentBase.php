@@ -591,12 +591,12 @@ class CDDDocumentBase
     public function archive()
     {
         try {
-            header('Content-type: application/xml');
+
             $xml_str = $this->xml->saveXML();
 	        $xml_str = preg_replace('/\<\?xml-stylesheet(.*)/', '', $xml_str);
 
 	        $xsl = new DOMDocument();
-	        $isCcr = preg_match('/<ccr:/',$xsl);
+	        $isCcr = preg_match('/<ccr:/',$xml_str);
 
 	        if($isCcr){
 		        $xsl->load(ROOT . '/lib/CCRCDA/schema/ccr.xsl');
@@ -631,7 +631,10 @@ class CDDDocumentBase
             $DocumentHandler = new DocumentHandler();
             $DocumentHandler->addPatientDocument($document);
             unset($DocumentHandler, $document, $name, $date);
-            print $this->xml->saveXML();
+
+	        header('Content-type: application/xml');
+            $buff =  $this->xml->saveXML();
+			print $buff;
         } catch(Exception $Error) {
             error_log($Error->getMessage());
         }

@@ -1740,4 +1740,6 @@ $LANG = array(
     'find_encounter_related_education'      => 'Find Encounter Related Education',
     'document_hash'                         => 'Document Hash',
     'home'                                  => 'Home',
+    'medical_reconciliation'                => 'Medical Reconciliation',
+    'performed_date'                        => 'Performed Date',
 );

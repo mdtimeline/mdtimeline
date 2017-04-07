@@ -26,7 +26,7 @@ Ext.define('App.view.patient.ItemsToReview', {
 	frame: true,
 	bodyPadding: 5,
 	bodyBorder: true,
-	bodyStyle: 'background-color:white',
+	//bodyStyle: 'background-color:white',
 	showRating: true,
 	autoScroll: true,
 	itemId: 'ItemsToReviewPanel',
@@ -202,26 +202,42 @@ Ext.define('App.view.patient.ItemsToReview', {
 				},
                 {
                     xtype: 'fieldset',
-                    title: _('reconciliations'),
+                    title: _('medical_reconciliation'),
                     layout: 'hbox',
+	                margin: '0 10 0 0',
                     items: [
                         {
                             xtype: 'checkboxfield',
                             checked: false,
                             itemId: 'EncounterMedicationReconciliations',
-                            boxLabel: _('medications'),
-                            name: 'medication_reconciliations'
+                            name: 'medication_reconciliations',
+	                        margin: '0 5 0 0'
                         },
                         {
-                            xtype: 'checkboxfield',
-                            checked: false,
-                            padding: '0 0 5 10',
-                            itemId: 'EncounterSummaryCareProvided',
-                            boxLabel: _('summary_of_care_provided'),
-                            name: 'summary_care_provided'
+                            xtype: 'datefield',
+                            fieldLabel: _('performed_date'),
+                            labelWidth: 100,
+                            width: 210,
+                            itemId: 'EncounterMedicationReconciliationsDateField',
+                            name: 'medication_reconciliations_date'
                         }
                     ]
-                }
+                },
+				{
+					xtype: 'fieldset',
+					title: _('patient_summary'),
+					layout: 'hbox',
+					items: [
+						{
+							xtype: 'checkboxfield',
+							checked: false,
+							padding: '0 0 5 10',
+							itemId: 'EncounterSummaryCareProvided',
+							boxLabel: _('summary_of_care_provided'),
+							name: 'summary_care_provided'
+						}
+					]
+				}
 			]
 		}
 	],

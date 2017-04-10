@@ -101,6 +101,18 @@ class CombosData {
 			$this->CL = MatchaModel::setSenchaModel('App.model.administration.Lists');
 		if($this->CLO == null)
 			$this->CLO = MatchaModel::setSenchaModel('App.model.administration.ListOptions');
+
+		// List Key is used
+		if(sset($params->list_key)){
+            $list = $this->CL->load(['list_key' => $params->list_key, 'active' => 1])->one();
+            $sorters = new stdClass();
+            $sorters->sort[0] = new stdClass();
+            $sorters->sort[0]->property = 'seq';
+            $sorters->sort[0]->direction = 'ASC';
+            return $this->CLO->load(['list_id' => $list->id, 'active' => 1])->sort($sorters)->all();
+        }
+
+        // List ID is used
 		if(isset($params->list_id)){
 			if(is_numeric($params->list_id)){
 

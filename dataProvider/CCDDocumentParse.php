@@ -309,7 +309,7 @@ class CCDDocumentParse
 
 		$dom = $this->document['ClinicalDocument']['componentOf'];
 		if (isset($dom['encompassingEncounter'])) {
-			$encounter->rid = $dom['encompassingEncounter']['id']['@attributes']['extension'];
+			$encounter->rid = (isset($dom['encompassingEncounter']['id']['@attributes']['extension']) ? $dom['encompassingEncounter']['id']['@attributes']['extension'] : null);
 			$times = $this->datesHandler($dom['encompassingEncounter']['effectiveTime']);
 			$encounter->service_date = $times['low'];
 			unset($times);

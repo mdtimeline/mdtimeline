@@ -3,6 +3,7 @@ sites/*/*
 temp/*
 GaiaEHR.iml
 gaiaehr.iml
+mdTimeLine EHR.iml
 contrib/snomed/*
 contrib/rxnorm/*
 contrib/forms/*

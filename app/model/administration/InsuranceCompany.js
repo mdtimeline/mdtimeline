@@ -40,7 +40,7 @@ Ext.define('App.model.administration.InsuranceCompany', {
 			len: 120
 		},
 		{
-			name: 'attn',
+			name: 'contact',
 			type: 'string',
 			len: 120
 		},
@@ -90,6 +90,10 @@ Ext.define('App.model.administration.InsuranceCompany', {
 			len: 20
 		},
 		{
+			name: 'active',
+			type: 'bool'
+		},
+		{
 			name: 'dx_type',
 			type: 'string',
 			len: 5
@@ -97,22 +101,19 @@ Ext.define('App.model.administration.InsuranceCompany', {
 		{
 			name: 'address_full',
 			type: 'string',
-			store: false,
 			convert: function(v, record){
 				return record.data.address1 + ' ' +  record.data.address2 + ' ' +  record.data.city + ' ' +  record.data.state + ', ' +  record.data.zip_code;
-			}
+			},
+			store: false
+
 		},
 		{
 			name: 'combo_text',
 			type: 'string',
-			store: false,
 			convert: function(v, record){
 				return record.data.id + ': ' + (record.data.name ? record.data.name : ' * ' ) + ' ' + (!record.data.active ? ('(' +  _('inactive') + ')') : '') ;
-			}
-		},
-		{
-			name: 'active',
-			type: 'bool'
+			},
+			store: false
 		}
 	],
 	proxy: {

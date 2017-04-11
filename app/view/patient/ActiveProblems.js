@@ -26,7 +26,7 @@ Ext.define('App.view.patient.ActiveProblems', {
 		'App.ux.combo.Outcome2'
 	],
 	xtype: 'patientactiveproblemspanel',
-	title: _('active_problems'),
+	title: _('act_prob'),
 	columnLines: true,
 	store: Ext.create('App.store.patient.PatientActiveProblems', {
 		remoteFilter: true,

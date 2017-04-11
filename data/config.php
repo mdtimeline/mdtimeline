@@ -18,7 +18,34 @@
  */
 
 $API = [
-
+    'ImplantableDevice' => [
+        'methods' => [
+            'getUidData' => [
+                'len' => 1
+            ],
+            'parseUid' => [
+                'len' => 1
+            ],
+            'lookup' => [
+                'len' => 1
+            ],
+            'devicesImplantableList' => [
+                'len' => 1
+            ],
+            'devicesSnomed' => [
+                'len' => 1
+            ],
+            'getPatientImplantableDevices' => [
+                'len' => 1
+            ],
+            'addPatientImplantableDevice' => [
+                'len' => 1
+            ],
+            'updatePatientImplantableDevice' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'DecisionAids' => [
         'methods' => [
             'getDecisionAids' => [

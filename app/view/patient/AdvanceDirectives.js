@@ -22,7 +22,7 @@ Ext.define('App.view.patient.AdvanceDirectives', {
 
 	],
 	xtype: 'patientadvancedirectivepanel',
-	title: _('advance_directives'),
+	title: _('adv_dir'),
 	columnLines: true,
 	store: Ext.create('App.store.patient.AdvanceDirectives', {
 		remoteFilter: true,

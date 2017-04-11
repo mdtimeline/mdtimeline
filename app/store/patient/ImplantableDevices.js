@@ -16,29 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.view.patient.SocialPanel', {
-	extend: 'Ext.panel.Panel',
-	requires: [
-		'App.view.patient.SmokingStatus',
-		'App.view.patient.SocialHistory'
-	],
-	xtype: 'patientsocialpanel',
-	title: _('soc_hx'),
-	border: false,
-	bodyBorder: false,
-	layout: {
-		type: 'vbox',
-		align: 'stretch'
-	},
-	items: [
-		{
-			xtype: 'patientsmokingstatusgrid',
-			margin: '0 0 5 0',
-			flex: 1
-		},
-		{
-			xtype: 'patientsocialhistorypanel',
-			flex: 2
-		}
-	]
+Ext.define('App.store.patient.ImplantableDevices', {
+	extend: 'Ext.data.Store',
+	model: 'App.model.patient.ImplantableDevice',
+	remoteSort: true
 });

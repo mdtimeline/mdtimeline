@@ -30,7 +30,7 @@ Ext.define('App.view.patient.Medications', {
 		'App.ux.form.fields.DateTime'
 	],
 	xtype: 'patientmedicationspanel',
-	title: _('medications'),
+	title: _('meds'),
 	layout: 'border',
 	border: false,
 	items: [

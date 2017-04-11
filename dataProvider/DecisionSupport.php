@@ -499,34 +499,43 @@ class DecisionSupport
      */
     private function ckLaboratoryResults($rule)
     {
+    	// returns true is no alert found
         if (isset($rule['concepts']['LAB']) && !empty($rule['concepts']['LAB'])) {
-            $count = 0;
+
+            $alerts_found = 0;
+
             foreach ($rule['concepts']['LAB'] as $concept) {
                 $observations = $this->Orders->getOrderResultObservationsByPidAndCode(
                     $this->Patient->getPatientPid(),
                     $concept['concept_code']
                 );
 
-                if (empty($observations) && $concept['frequency_operator'] != '<') continue;
-
+                // how may found
                 $frequency = 0;
+
+                if (empty($observations) && $this->compare($frequency, $concept['frequency_operator'], $concept['frequency'])) {
+                    $alerts_found++;
+                    continue;
+                };
+
                 foreach ($observations as $observation) {
-                    if ($concept['value'] == '' ||
-                        $this->compare($observation['value'], $concept['value_operator'], $concept['value'])) {
 
-                        if ($this->isWithInterval($observation['result_date'], $concept['frequency_interval'], $concept['frequency_operator'], 'Y-m-d')) {
-                            $frequency++;
-                            if ($concept['frequency'] == $frequency) break;
-                        }
+	                $isWithInterval = $concept['frequency_interval'] == '' ||
+		                $this->isWithInterval($observation['result_date'], $concept['frequency_interval'], $concept['frequency_operator'], 'Y-m-d H:i:s');
 
-                    }
+	                if($isWithInterval && ($concept['value'] == '' || $this->compare($observation['value'], $concept['value_operator'], $concept['value']))){
+		                $frequency++;
+	                }
                 }
 
-                if ($concept['frequency_operator'] == '' || $this->compare($frequency, $concept['frequency_operator'], $concept['frequency'])) {
-                    $count++;
+                if (
+                	$concept['frequency_operator'] == '' ||
+	                $this->compare($frequency, $concept['frequency_operator'], $concept['frequency'])) {
+	                $alerts_found++;
                 }
             }
-            return $count == count($rule['concepts']['LAB']);
+
+            return $alerts_found !== 0;
         }
         return true;
     }
@@ -571,26 +580,33 @@ class DecisionSupport
     private function ckVitals($rule)
     {
         if (isset($rule['concepts']['VITA']) && !empty($rule['concepts']['VITA'])) {
-            $count = 0;
+            $alerts_found = 0;
+
             foreach ($rule['concepts']['VITA'] as $concept) {
                 $vitals = $this->Vitals->getVitalsByPid($this->Patient->getPatientPid());
                 $codes = $this->Vitals->getCodes();
                 $frequency = 0;
+
                 foreach ($vitals as $vital) {
                     $mapping = $codes[$concept['concept_code']]['mapping'];
+                    $isWithInterval = $concept['frequency_interval'] == '' ||
+                        $this->isWithInterval($vital['date'], $concept['frequency_interval'], $concept['frequency_operator'], 'Y-m-d H:i:s');
 
-                    if ($concept['value_operator'] == '' || $this->compare($vital[$mapping], $concept['value_operator'], $concept['value'])) {
-                        if ($this->isWithInterval($vital['date'], $concept['frequency_interval'], $concept['frequency_operator'], 'Y-m-d H:i:s')) {
-                            $frequency++;
-                            //if($concept['frequency'] == $frequency) break;
-                        }
+
+                    if($isWithInterval && ($concept['value'] == '' || $this->compare($vital[$mapping], $concept['value_operator'], $concept['value']))){
+                        $frequency++;
                     }
+
                 }
-                if ($concept['frequency_operator'] == '' || $this->compare($frequency, $concept['frequency_operator'], $concept['frequency'])) {
-                    $count++;
+
+                if (
+                    $concept['frequency_operator'] == '' ||
+                    $this->compare($frequency, $concept['frequency_operator'], $concept['frequency'])) {
+                    $alerts_found++;
                 }
             }
-            return $count == count($rule['concepts']['VITA']);
+
+            return $alerts_found !== 0;
         }
         return true;
     }
@@ -609,15 +625,15 @@ class DecisionSupport
         $date = Carbon::createFromFormat($dateFormat, $date);
         switch (strtoupper($interval[1])) {
             case 'D':
-                $date->addDays($interval[0]);
+	            $date->addDays($interval[0]);
                 break;
             case 'M':
-                $date->addMonths($interval[0]);
+	            $date->addMonths($interval[0]);
                 break;
             default:
-                $date->addYears($interval[0]);
+	            $date->addYears($interval[0]);
         }
-        return $this->compare($now, $operator, $date);
+        return $now <= $date;
     }
 
     /**

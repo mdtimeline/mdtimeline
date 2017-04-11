@@ -102,6 +102,11 @@ Ext.define('App.model.administration.DecisionSupportRule', {
 			type: 'string'
 		},
 		{
+			name: 'reference_type',
+			type: 'string',
+			len: 40
+		},
+		{
 			name: 'active',
 			type: 'bool'
 		}

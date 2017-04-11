@@ -370,6 +370,12 @@ $complexTypes['Patient'] = [
         'document' => 'Emergency Portal Web Access'
     ],
     [
+        'name' => 'EmergencyPortalAllowCda',
+        'type' => 'bool',
+        'minOccurs' => '0',
+        'document' => 'Emergency Portal Web Access to Patient Record'
+    ],
+    [
         'name' => 'EmergencyPortalUsername',
         'type' => 'string',
         'minOccurs' => '0',
@@ -386,6 +392,12 @@ $complexTypes['Patient'] = [
         'type' => 'bool',
         'minOccurs' => '0',
         'document' => 'Guardian Portal Web Access'
+    ],
+    [
+        'name' => 'GuardianPortalAllowCda',
+        'type' => 'bool',
+        'minOccurs' => '0',
+        'document' => 'Guardian Portal Web Access to Patient Record'
     ],
     [
         'name' => 'GuardianPortalUsername',
@@ -889,6 +901,18 @@ $functions[] = [
 			'minOccurs' => '1',
 			'document' => 'True if request was successfully processed'
 		],
+        [
+            'name' => 'Who',
+            'type' => 'string',
+            'minOccurs' => '0',
+            'document' => 'Tell what type user is.'
+        ],
+        [
+            'name' => 'WhoName',
+            'type' => 'string',
+            'minOccurs' => '0',
+            'document' => 'Tell what is the name of the logged person.'
+        ],
 		[
 			'name' => 'Patient',
 			'type' => 'Patient',
@@ -1006,6 +1030,46 @@ $functions[] = [
 			'type' => 'boolean',
 			'minOccurs' => '1',
 			'document' => 'True if request was successfully processed'
+		],
+		[
+			'name' => 'Error',
+			'type' => 'string',
+			'minOccurs' => '0',
+			'document' => 'If success == false an error message will be send back'
+		]
+	],
+	'soapAddress' => "http://$Server/dataProvider/SOAP/Server.php"
+];
+
+$functions[] = [
+	'funcName' => 'GetDirectAddressRecipients',
+	'doc' => 'This will return an array of direct address recipients registered in the EHR',
+	'inputParams' => [
+		[
+			'name' => 'SecureKey',
+			'type' => 'string',
+			'minOccurs' => '1',
+			'document' => 'GUID Secure Key provided'
+		],
+		[
+			'name' => 'ServerSite',
+			'type' => 'string',
+			'minOccurs' => '1',
+			'document' => 'GaiaEHR site'
+		]
+	],
+	'outputParams' => [
+		[
+			'name' => 'Success',
+			'type' => 'boolean',
+			'minOccurs' => '1',
+			'document' => 'True if request was successfully processed'
+		],
+		[
+			'name' => 'Data',
+			'type' => 'string',
+			'minOccurs' => '0',
+			'document' => 'JSON Patient object'
 		],
 		[
 			'name' => 'Error',

@@ -5,6 +5,10 @@ input, textarea, p, blockquote, th, td {
   margin: 0;
   padding: 0; }
 
+.billing-worklist-checkbox-labels {
+    font-size: 6px;
+}
+
 .highlight_fieldset
 {
     background-color: #333333;
@@ -150,7 +154,9 @@ input, textarea, select {
 /* line 56, ../../themes/stylesheets/carbon/default/core/_core.scss */
 .x-item-disabled .x-form-item-label,
 .x-item-disabled .x-form-field,
+
 .x-item-disabled .x-form-cb-label,
+
 .x-item-disabled .x-form-trigger {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=30);
   opacity: 0.3; }
@@ -4458,7 +4464,7 @@ browsers will do whacky things with it.
   -webkit-box-shadow: rgba(255, 255, 255, 0.05) 0 1px inset;
   -moz-box-shadow: rgba(255, 255, 255, 0.05) 0 1px inset;
   box-shadow: rgba(255, 255, 255, 0.05) 0 1px inset;
-  padding: 6px 0 0 0; }
+  padding: 10px 4px 4px 4px; }
 
 /* line 86, ../../themes/stylesheets/carbon/custom/overrides/_grid.scss */
 .x-grid-wrap-row:first-child .x-grid-group-hd {
@@ -9956,3 +9962,4 @@ svg, vml {
 /* line 41, ../../themes/stylesheets/carbon/custom/overrides/_hyperlink.scss */
 .x-body .x-grid-row-selected a:active {
   color: #9faed2; }
+

@@ -25,7 +25,8 @@ Ext.define('App.view.patient.Results', {
 		'App.store.patient.PatientsOrders',
 		'App.ux.LiveLabsSearch',
 		'App.ux.LiveRadsSearch',
-		'App.ux.window.voidComment'
+		'App.ux.window.voidComment',
+		'App.ux.form.fields.DateTime'
 	],
 	title: _('results'),
 	xtype: 'patientresultspanel',
@@ -40,10 +41,6 @@ Ext.define('App.view.patient.Results', {
 	],
 	items: [
 		{
-			/**
-			 * Order Grid
-			 * ----------
-			 */
 			xtype: 'grid',
 			itemId: 'ResultsOrdersGrid',
 			action: 'orders',
@@ -205,7 +202,7 @@ Ext.define('App.view.patient.Results', {
 							xtype: 'button',
 							text: _('view_document'),
 							icon: 'resources/images/icons/icoView.png',
-							action: 'ResultsLaboratoryPanelDocumentViewBtn'
+							itemId: 'ResultsLaboratoryPanelDocumentViewBtn'
 						}
 					],
 					items: [
@@ -234,10 +231,9 @@ Ext.define('App.view.patient.Results', {
 									layout: 'anchor',
 									items: [
 										{
-											xtype: 'datefield',
+											xtype: 'mitos.datetime',
 											fieldLabel: _('report_date'),
 											name: 'result_date',
-											format: 'Y-m-d',
 											allowBlank: false
 										},
 										{
@@ -246,14 +242,28 @@ Ext.define('App.view.patient.Results', {
 											allowBlank: false
 										},
 										{
+											xtype: 'combobox',
 											fieldLabel: _('status'),
-											name: 'result_status'
+											name: 'result_status',
+											queryMode: 'local',
+											displayField: 'option',
+											valueField: 'value',
+											store: Ext.create('Ext.data.Store', {
+												fields: ['option', 'value'],
+												data: [
+													{ option: 'Aborted', value: 'aborted'},
+													{ option: 'Active', value: 'active'},
+													{ option: 'Cancelled', value: 'cancelled'},
+													{ option: 'Completed', value: 'completed'},
+													{ option: 'Held', value: 'held'},
+													{ option: 'Suspended', value: 'suspended'}
+												]
+											})
 										},
 										{
-											xtype: 'datefield',
+											xtype: 'mitos.datetime',
 											fieldLabel: _('observation_date'),
 											name: 'observation_date',
-											format: 'Y-m-d',
 											allowBlank: false
 										},
 										{
@@ -324,7 +334,14 @@ Ext.define('App.view.patient.Results', {
 									text: _('name'),
 									menuDisabled: true,
 									dataIndex: 'code_text',
-									width: 350
+									width: 350,
+									renderer: function (v, meta,record) {
+                                        var code = record.get('code');
+                                        if (code != '') {
+                                            v = v + ' (' + code + ')';
+                                        }
+                                        return v;
+                                    }
 								},
 								{
 									xtype: 'actioncolumn',

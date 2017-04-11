@@ -91,6 +91,16 @@ Ext.define('App.model.patient.Encounter', {
 			len: 80
 		},
 		{
+			name: 'visit_category_code',
+			type: 'string',
+			len: 20
+		},
+		{
+			name: 'visit_category_code_type',
+			type: 'string',
+			len: 10
+		},
+		{
 			name: 'facility',
 			type: 'int',
 			len: 1,
@@ -228,6 +238,12 @@ Ext.define('App.model.patient.Encounter', {
 		{
 			model: 'App.model.patient.AppointmentRequest',
 			name: 'appointmentrequests',
+			primaryKey: 'eid',
+			foreignKey: 'eid'
+		},
+		{
+			model: 'App.model.patient.EducationResource',
+			name: 'educationresources',
 			primaryKey: 'eid',
 			foreignKey: 'eid'
 		}

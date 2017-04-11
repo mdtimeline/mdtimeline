@@ -65,13 +65,32 @@ Ext.define('App.controller.patient.DecisionSupport', {
 		warning.removeAll();
 
 		DecisionSupport.getAlerts({ pid:app.patient.pid, alertType:'P' }, function(results){
+
 			for(i=0; i < results.length; i++){
+
+				var cls = 'decision-support-btn',
+					reference_type = results[i].reference_type,
+					icon = results[i].reference != '' ? 'resources/images/icons/icohelp.png' : null,
+					tooltip = null;
+
+				if(icon){
+					if(reference_type == 'D'){
+						icon = 'resources/images/icons/icohelpYellow.png';
+						tooltip = 'Diagnostic and Therapeutic Reference';
+					}else if(reference_type == 'E'){
+						icon = 'resources/images/icons/icohelpPurple.png';
+						tooltip = 'Evidence-Based CDS Intervention';
+					}
+				}
+
 				btn = {
 					xtype: 'button',
 					margin: '2 5',
-					icon: (results[i].reference != '' ? 'resources/images/icons/blueInfo.png' : null),
+					icon: icon,
 					text: results[i].description,
 					result: results[i],
+					cls: cls,
+					tooltip: tooltip,
 					handler: function(btn){
 						if(btn.result.reference != ''){
 							window.open(btn.result.reference, "_blank", "toolbar=no, scrollbars=yes, resizable=yes, top=10, left=10, width=1000, height=600");

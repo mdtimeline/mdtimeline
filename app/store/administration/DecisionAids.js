@@ -16,8 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.store.administration.TransactionLogs', {
-	model: 'App.model.administration.TransactionLog',
+Ext.define('App.store.administration.DecisionAids', {
+	model: 'App.model.administration.DecisionAids',
 	extend: 'Ext.data.Store'
-
 });

@@ -18,9 +18,25 @@
  */
 
 $API = [
-    'modules.billing.dataProvider.InmediataWS270' => [
+
+    'DecisionAids' => [
         'methods' => [
-            'create270' => [
+            'getDecisionAids' => [
+                'len' => 1
+            ],
+            'getDecisionAid' => [
+                'len' => 1
+            ],
+            'addDecisionAid' => [
+                'len' => 1
+            ],
+            'updateDecisionAid' => [
+                'len' => 1
+            ],
+            'destroyDecisionAid' => [
+                'len' => 1
+            ],
+            'getDecisionAidsByTriggerCodes' => [
                 'len' => 1
             ]
         ]
@@ -66,6 +82,27 @@ $API = [
     ],
     'EducationResources' => [
         'methods' => [
+            'search' => [
+                'len' => 1
+            ],
+            'findEncounterEducationResources' => [
+                'len' => 1
+            ],
+            'getPatientEducationResources' => [
+                'len' => 1
+            ],
+            'getPatientEducationResource' => [
+                'len' => 1
+            ],
+            'addPatientEducationResource' => [
+                'len' => 1
+            ],
+            'updatePatientEducationResource' => [
+                'len' => 1
+            ],
+            'destroyPatientEducationResource' => [
+                'len' => 1
+            ],
             'getEducationResources' => [
                 'len' => 1
             ],
@@ -1155,6 +1192,9 @@ $API = [
             ],
 			'destroyPatientMedication' => [
 				'len' => 1
+            ],
+			'getPatientActiveMedicationsByPidAndCode' => [
+				'len' => 2
             ]
         ]
     ],
@@ -1506,9 +1546,13 @@ $API = [
             'removeEncounterService' => [
 				'len' => 1
             ],
+
+
+
 			'getServices' => [
 				'len' => 1
             ],
+
 			'addService' => [
 				'len' => 1
             ],
@@ -1750,6 +1794,9 @@ $API = [
             ],
 			'getPatientByPublicId' => [
 				'len' => 1
+            ],
+			'search' => [
+				'len' => 1
             ]
         ]
     ],
@@ -1826,6 +1873,12 @@ $API = [
 	 */
 	'CombosData' => [
 		'methods' => [
+            'getTableList' => [
+                'len' => 0
+            ],
+            'getEventList' => [
+                'len' => 0
+            ],
 			'getOptionsByListId' => [
 				'len' => 1
             ],
@@ -2246,6 +2299,12 @@ $API = [
         'methods' => [
             'saveExportLog' => [
                 'len' => 1
+            ],
+            'getTransactionLog' => [
+                'len' => 1
+            ],
+            'getTransactionLogDetailByTableAndPk' => [
+                'len' => 2
             ]
         ]
     ],
@@ -2272,13 +2331,6 @@ $API = [
     'GeoIpLocation' => [
         'methods' => [
             'getAllLocations' => [
-                'len' => 1
-            ]
-        ]
-    ],
-    'Medical' => [
-        'methods' => [
-            'getCDTLiveSearch' => [
                 'len' => 1
             ]
         ]

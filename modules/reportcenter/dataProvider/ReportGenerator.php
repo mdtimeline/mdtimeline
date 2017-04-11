@@ -1,7 +1,7 @@
 <?php
 /**
- * GaiaEHR (Electronic Health Records)
- * Copyright (C) 2015 TRA NextGen, Inc.
+ * mdTimeLine EHR (Electronic Health Records)
+ * Copyright (C) 2017 mdTimeLine, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -190,6 +190,22 @@ class ReportGenerator
                     );
                 }
 
+                // Look for any grouping parameter in the JSON Spec File, if something is found
+                // go ahead and put the grouping configuration into the grid
+                self::__groupingConfig($reportConfiguration->gridFields);
+
+                $resultSenchaDefinition = str_ireplace(
+                    "/*groupingConfigStore*/",
+                    self::__groupingConfig($reportConfiguration->gridFields)['store'],
+                    $resultSenchaDefinition
+                );
+
+                $resultSenchaDefinition = str_ireplace(
+                    "/*groupingConfigGrid*/",
+                    self::__groupingConfig($reportConfiguration->gridFields)['grid'],
+                    $resultSenchaDefinition
+                );
+
                 // Clean the string from unnecessary characters from the code, and also do some
                 // sort of minify
                 $resultSenchaDefinition = self::__clearString($resultSenchaDefinition);
@@ -250,23 +266,13 @@ class ReportGenerator
                 $fileContent = file_get_contents($filePointer);
 
                 $parameters = $reportParameters;
-                foreach ($parameters as $field) {
 
-                	$operator = isset($field['operator']) ? $field['operator'] : '=';
-                	$value = isset($field['value']) ? $field['value'] : '';
-
-	                // Copy all the request variables into the Prepared Values,
-	                // also check if it came from the grid form and normal form.
-	                // This because we need to do a POST-PREPARE the SQL statement
-                    $PrepareField[':' . $field['name']]['operator'] = $operator;
-                    $PrepareField[':' . $field['name']]['value'] = $value;
-
-	                // Copy all the request filter variables to the XML,
-	                // also check if it came from the grid form and normal form.
-	                // This because we need to do a POST-PREPARE the SQL statement
-	                $ReturnFilter[$field['name']]['operator'] = $operator;
-	                $ReturnFilter[$field['name']]['value'] = $value;
-
+                foreach ($parameters as $Index => $field) {
+                    $operator = '=';
+                    $PrepareField[':' . $Index]['operator'] = $operator;
+                    $PrepareField[':' . $Index]['value'] = $field;
+                    $ReturnFilter[$Index]['operator'] = $operator;
+                    $ReturnFilter[$Index]['value'] = $field;
                 }
 
                 // Prepare all the variable fields in the SQL Statement
@@ -276,9 +282,10 @@ class ReportGenerator
                 // Run all the SQL Statement separated by `;` in the file
                 $records = null;
                 foreach ($Queries as $Query) {
-                    if (strlen(trim($Query)) > 0) {
+                    $Query = trim($Query);
+                    if (strlen($Query) > 0) {
                         // Is just a SET @ variable, if yes query but not try to
-                        // fetch any records. SET does not return any dataSet
+                        // fetch any records. SET does not return any dataSet;
                         if (self::__checkIfVariable($Query)) {
                             $this->conn->query($Query);
                         } else {
@@ -315,7 +322,6 @@ class ReportGenerator
                                     " LIMIT $summarizedParameters->start, $summarizedParameters->limit",
                                     $Query
                                 ));
-
                                 $SQL->execute();
                                 $ResultRecords[] = $SQL->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -325,10 +331,10 @@ class ReportGenerator
                                     '',
                                     $Query
                                 ));
-
                                 $SQL->execute();
                                 $records[] = $SQL->fetchAll();
                                 $Total = count($records[count($records) - 1]);
+
                             } else {
                                 $SQL = $this->conn->prepare($Query);
                                 $SQL->execute();
@@ -338,13 +344,14 @@ class ReportGenerator
                         }
                     }
                 }
+
                 // When format value is used in the parameters object dispatch the
                 // data in XML format, or in JSON format
                 //
                 // XML::filters - The filters used in the filter panel
                 // XML::record - The actual records extracted from the data base
                 //
-                // JSON::success - True when seccess, yeah!!
+                // JSON::success - True when success, yeah!!
                 // JSON::filters - The filters used in the filter panel
                 // JSON::total - The total records in the data
                 // JSON::data - The actual records extracted from the data base
@@ -396,11 +403,22 @@ class ReportGenerator
             $htmlTemplate = file_get_contents($filePointer);
 
             // Replace the filter key pairs. <!--filter_name-->
-            foreach ($filters as $filter)
-                $htmlTemplate = str_ireplace('<!--' .
-	                $filter['name'] . '-->',
-	                (isset($filter['value']) ? $filter['value'] : ''),
-	                $htmlTemplate);
+            foreach ($filters as $Index => $filter)
+                if(isset($filter) && !is_array($filter)) {
+                    $htmlTemplate = str_ireplace(
+                        '<!--'.$Index.'-->',
+                        (isset($filter) ? $filter : ''),
+                         $htmlTemplate);
+                } elseif(isset($filter) && is_array($filter)) {
+                    $items = '';
+                    foreach($filter as $Index => $value){
+                        if(!is_array($value)) $items .= $value . ' ';
+                    }
+                    $htmlTemplate = str_ireplace(
+                        '<!--'.$Index.'-->',
+                        $items,
+                        $htmlTemplate);
+                }
             return $htmlTemplate;
         } catch (\Exception $Error) {
             error_log($Error->getMessage());
@@ -475,6 +493,26 @@ class ReportGenerator
     }
 
     /**
+     * Return an array containing the configuration for the dataStore and the grid to
+     * do grouping on the fields.
+     *
+     * @param $field
+     * @return mixed
+     */
+    private function __groupingConfig($gridFields)
+    {
+        $configuration['store'] = '';
+        $configuration['grid'] = '';
+        foreach ($gridFields as $Index => $gridField) {
+            if(isset($gridField->grouping)){
+                $configuration['store'] = "groupField: '$Index',";
+                $configuration['grid'] = "features: [{ftype:'grouping'}],";
+            }
+        }
+        return $configuration;
+    }
+
+    /**
      * Build up the Sencha Column definition string
      * Ext.grid.column.Column[]/Object
      * An array of column definition objects which define all columns that appear in this grid.
@@ -530,7 +568,7 @@ class ReportGenerator
      */
     private function __checkIfVariable($Statement)
     {
-        preg_match('/(?:set)+[^@]*@*/i', $Statement, $matches);
+        preg_match('/(?:set)+[\t ]+@[^;]+;?/i', $Statement, $matches);
         if (count($matches) >= 1) return true;
         return false;
     }
@@ -548,13 +586,37 @@ class ReportGenerator
     {
         foreach ($variables as $key => $variable) {
             $prepareKey = trim($key);
+
+            // Is numeric
             if (is_numeric($variable['value'])) {
                 $prepareVariable = $variable['value'];
-            } elseif ($variable['value'] == null) {
+
+            // If Null
+            } elseif ($variable['value'] == null && strpos($key, 'WHERE_') == false) {
                 $prepareVariable = "null";
+
+            // If Array
+            } elseif (is_array($variable['value'])) {
+                $prepareVariable = '"';
+                foreach($variable['value'] as $value){
+                    if(!is_array($value)) $prepareVariable .= $value.',';
+                }
+                $prepareVariable = substr($prepareVariable, 0,-1);
+                $prepareVariable .= '"';
+
+            // If WHERE instruction
+            } elseif (strpos($key, 'WHERE_') !== false) {
+                if(!empty($variable['value'])) {
+                    $prepareVariable = "{$variable['value']}";
+                } else {
+                    $prepareVariable = "";
+                }
+
+            // If String
             } else {
                 $prepareVariable = "'{$variable['value']}'";
             }
+
             $sqlStatement = str_ireplace($prepareKey, $prepareVariable, $sqlStatement);
             $sqlStatement = str_ireplace($prepareKey . '_operator', $variable['operator'], $sqlStatement);
         }

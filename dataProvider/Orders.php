@@ -218,6 +218,26 @@ class Orders {
 	 * @return mixed
 	 */
 	public function updateOrderResultObservations($params){
+
+		//remove extra observation with id null
+		// this needs to be fixed in sencha
+		if(is_array($params)){
+			foreach ($params as $i => $param){
+				$count = count((array) $param);
+				if($count === 1) {
+					unset($params[$i]);
+				}
+				if($count === 2 && (!isset($param->id) && isset($param->result_id))) {
+					unset($params[$i]);
+				};
+			}
+			if(empty($params)) return $params;
+		}else{
+			$count = count((array) $params);
+			if($count === 1) return $params;
+			if($count === 2 && !isset($params->id) && isset($params->report_id)) return $params;
+		}
+
 		$this->setObservations();
 		return $this->b->save($params);
 	}
@@ -356,6 +376,16 @@ class Orders {
 		}
 		unset($order);
 		return $orders;
+	}
+
+	/**
+	 * @param $eid
+	 * @return mixed
+	 */
+	public function getPatientLabOrdersByEid($eid){
+		$this->setOrders();
+		$this->o->addFilter('eid', $eid);
+		return $this->o->load()->all();
 	}
 
 }

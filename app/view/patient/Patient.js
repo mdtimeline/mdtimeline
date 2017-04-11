@@ -18,11 +18,9 @@
 
 Ext.define('App.view.patient.Patient', {
 	extend: 'Ext.panel.Panel',
-    //extend: 'Ext.form.Panel',
-
-    requires: [
-		'App.ux.AddTabButton'
-		//'App.view.patient.InsuranceForm'
+	requires: [
+		'App.ux.AddTabButton',
+		'App.view.patient.InsuranceForm'
 	],
 	layout: {
 		type: 'vbox',
@@ -48,6 +46,31 @@ Ext.define('App.view.patient.Patient', {
 		});
 
 		me.compactDemographics = eval(g('compact_demographics'));
+
+		me.insTabPanel = Ext.widget('tabpanel', {
+			itemId: 'PatientInsurancesPanel',
+			flex: 1,
+			defaults: {
+				autoScroll: true,
+				padding: 10
+			},
+			plugins: [
+				{
+					ptype: 'AddTabButton',
+					iconCls: 'icoAdd',
+					toolTip: _('new_insurance'),
+					btnText: _('add_insurance'),
+					forceText: true,
+					panelConfig: {
+						xtype: 'patientinsuranceform'
+					}
+				}
+			],
+			listeners: {
+				scope: me,
+				beforeadd: me.insurancePanelAdd
+			}
+		});
 
 		configs = {
 			items: [
@@ -1590,6 +1613,10 @@ Ext.define('App.view.patient.Patient', {
 			]
 		};
 
+		if(me.compactDemographics){
+			configs.items.push(me.insTabPanel);
+		}
+
 		configs.bbar = [
 			{
 				xtype: 'button',
@@ -1631,6 +1658,39 @@ Ext.define('App.view.patient.Patient', {
 
 		me.callParent(arguments);
 
+		if(!me.compactDemographics){
+
+			Ext.Function.defer(function(){
+				me.insTabPanel.title = _('insurance');
+				me.insTabPanel.addDocked({
+					xtype: 'toolbar',
+					dock: 'bottom',
+					items: [
+						'->',
+						'-',
+						{
+							xtype: 'button',
+							action: 'readOnly',
+							text: _('save'),
+							minWidth: 75,
+							scope: me,
+							handler: me.formSave
+						},
+						'-',
+						{
+							xtype: 'button',
+							text: _('cancel'),
+							action: 'readOnly',
+							minWidth: 75,
+							scope: me,
+							handler: me.formCancel
+						}
+					]
+				});
+
+				me.up('tabpanel').insert(1, me.insTabPanel);
+			}, 300);
+		}
 	},
 
 	beforePanelRender: function(){
@@ -1729,6 +1789,43 @@ Ext.define('App.view.patient.Patient', {
 		grid.plugins[0].cancelEdit();
 		store.insert(0, record);
 		grid.plugins[0].startEdit(0, 0);
+	},
+
+	insurancePanelAdd: function(tapPanel, panel){
+		var me = this,
+			record = panel.insurance || Ext.create('App.model.patient.Insurance', {pid: me.pid});
+
+		panel.title = _('insurance') + ' (' + (record.data.insurance_type ? record.data.insurance_type : _('new')) + ')';
+
+		me.insuranceFormLoadRecord(panel, record);
+		if(record.data.image !== '') panel.down('image').setSrc(record.data.image);
+	},
+
+	insuranceFormLoadRecord: function(form, record){
+		form.getForm().loadRecord(record);
+		app.fireEvent('insurancerecordload', form, record);
+	},
+
+	getValidInsurances: function(){
+		var me = this,
+			forms = me.insTabPanel.items.items,
+			records = [],
+			form,
+			rec;
+
+		for(var i = 0; i < forms.length; i++){
+			form = forms[i].getForm();
+			if(!form.isValid()){
+				me.insTabPanel.setActiveTab(forms[i]);
+				return false;
+			}
+			rec = form.getRecord();
+			app.fireEvent('beforepatientinsuranceset', form, rec);
+			rec.set(form.getValues());
+			app.fireEvent('afterpatientinsuranceset', form, rec);
+			records.push(rec);
+		}
+		return records;
 	},
 
 	getPatientImages: function(record){

@@ -104,6 +104,9 @@ if(isset($data)){
 
 function doRpc($cdata) {
 	global $API, $module;
+
+	$time_start = microtime(true);
+
 	try {
 		if(!isset($cdata->action)){
 			throw new Exception('Call to undefined action');
@@ -200,6 +203,10 @@ function doRpc($cdata) {
 		$r['message'] = $e->getMessage();
 		$r['where'] = $e->getTraceAsString();
 	}
+
+	$time_end = microtime(true);
+
+	$r['execution_time'] = round($time_end - $time_start, 3);
 
 	return $r;
 }

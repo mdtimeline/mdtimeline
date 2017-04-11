@@ -43,12 +43,16 @@ class DocumentHandler {
 	 */
 	private $t;
 
+
+	private $storeAsFile = false;
+
 	private $doctorsnotes;
 
 	private $mime_types_ext = [
 
 		'application/pdf' => 'pdf',
 		'application/msword' => 'doc',
+		'application/xml' => 'xml',
 		'image/gif' => 'gif',
 		'image/png' => 'png',
 		'image/jpg' => 'jpg',
@@ -60,7 +64,9 @@ class DocumentHandler {
 		'video/gif' => 'avi',
 		'video/3gpp' => '3gp',
 		'text/gif' => 'xml',
-		'image/xml' => 'wav'
+		'image/xml' => 'wav',
+		'text/plain' => 'txt',
+		'text/html' => 'html'
 	];
 
 	function __construct(){
@@ -143,29 +149,42 @@ class DocumentHandler {
 				$params[$i]->document = $this->trimBase64($params[$i]->document);
 
 				/** encrypted if necessary */
-				if($params[$i]->encrypted){
+				if(isset($params[$i]->encrypted) && $params[$i]->encrypted){
 					$params[$i]->document = MatchaUtils::encrypt($params[$i]->document);
 				};
-				$params[$i]->hash = hash('sha256', $params[$i]->document);
+				$binary_file = $this->isBinary($params[$i]->document) ?
+					$params[$i]->document : base64_decode($params[$i]->document);
+				$params[$i]->hash = hash('sha256', $binary_file);
 			}
 		}else{
 			/** remove the mime type */
 			$params->document = $this->trimBase64($params->document);
 			/** encrypted if necessary */
-			if($params->encrypted){
+			if(isset($params->encrypted) && $params->encrypted){
 				$params->document = MatchaUtils::encrypt($params->document);
 			};
-			$params->hash = hash('sha256', $params->document);
+			$binary_file = $this->isBinary($params->document) ?
+				$params->document : base64_decode($params->document);
+
+			$params->hash = hash('sha256', $binary_file);
 		}
 
 		$results = $this->d->save($params);
 
 		if(is_array($results)){
 			foreach($results as &$result){
-				$this->handleDocumentData($result);
+				if($this->storeAsFile){
+					$this->handleDocumentFile($result);
+				}else{
+					$this->handleDocumentData($result);
+				}
 			}
 		}else{
-			$this->handleDocumentData($results);
+			if($this->storeAsFile){
+				$this->handleDocumentFile($results);
+			}else{
+				$this->handleDocumentData($results);
+			}
 		}
 		return $results;
 	}
@@ -185,6 +204,7 @@ class DocumentHandler {
 			$sth = $conn->prepare("SHOW TABLES LIKE 'documents_data_{$instance}'");
 			$sth->execute();
 			$table = $sth->fetch(PDO::FETCH_ASSOC);
+
 			if($table === false){
 				$document_model = MatchaModel::setSenchaModel('App.model.administration.DocumentData', true, $instance);
 			}else{
@@ -195,7 +215,6 @@ class DocumentHandler {
 				throw new Exception("Unable to create App.model.administration.DocumentData model instance '{$instance}'");
 			};
 
-
 			$document->document = $this->base64ToBinary($document->document);
 			$file_info = new finfo(FILEINFO_MIME_TYPE);
 			$mime_type = $file_info->buffer($document->document);
@@ -203,8 +222,14 @@ class DocumentHandler {
 				throw new Exception('File extension not supported. document_id: ' . $document->id . ' mime_type: '. $mime_type);
 			}
 			$document_code = isset($document->docTypeCode) ? $document->docTypeCode : '';
+
+			if($mime_type == 'application/xml' && preg_match('/\<!DOCTYPE html/', $document->document)){
+				$mime_type = 'text/html';
+			}
+
 			$ext = $this->mime_types_ext[$mime_type];
 			$file_name = $document_code .'_' .$document->id . '_' . $document->pid . '.' . $ext;
+
 			$document->name = $file_name;
 
 			//error_log('DOCUMENT');
@@ -275,9 +300,12 @@ class DocumentHandler {
 
 			$document_code = isset($document->docTypeCode) ? $document->docTypeCode : '';
 
+			if($mime_type == 'application/xml' && preg_match('/\<!DOCTYPE html/', $document->document)){
+				$mime_type = 'text/html';
+			}
+
 			$ext = $this->mime_types_ext[$mime_type];
 			$file_name = $document_code .'_' .$document->id . '_' . $document->pid . '.' . $ext;
-
 			$path = $document_path . '/'. $file_name;
 
 			if(file_exists($path)){
@@ -398,11 +426,14 @@ class DocumentHandler {
 	}
 
 	private function trimBase64($base64){
+
+		if(!preg_match('/data:/', $base64)){
+			return $base64;
+		}
 		$pos = strpos($base64, ',');
 		if($pos === false) return $base64;
 		return substr($base64, $pos + 1);
 	}
-
 
 
 	/**
@@ -624,8 +655,23 @@ class DocumentHandler {
 	 */
 	public function checkDocHash($doc){
 		$doc = $this->getPatientDocument($doc->id, true);
-		$hash = hash('sha256', $doc['document']);
-		return ['success' => $doc['hash'] == $hash, 'msg' => 'Stored Hash: ' . $doc['hash'] . '<br>File Hash: ' . $hash];
+
+		$binary_file = $this->isBinary($doc['document']) ?
+			$doc['document'] : base64_decode($doc['document']);
+
+		$sha1  = hash('sha1', $binary_file);
+		$sha256  = hash('sha256', $binary_file);
+		$sha512  = hash('sha512', $binary_file);
+		$md5  = hash('md5', $binary_file);
+
+		$msg = "<div style='white-space: nowrap'>
+					<b>sha1:</b> {$sha1}<br>
+					<b>sha256:</b> {$sha256}<br>
+					<b>sha512:</b> {$sha512}<br>
+					<b>md5:</b> {$md5}<br>
+				</div>";
+
+		return [ 'success' => true, 'msg' => $msg ];
 	}
 
 	public function convertDocuments($quantity = 100){

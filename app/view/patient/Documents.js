@@ -101,8 +101,8 @@ Ext.define('App.view.patient.Documents', {
 					//},
 					{
 						header: _('category'),
-						dataIndex: 'docType',
-						itemId: 'docType',
+						dataIndex: 'docTypeCode',
+						itemId: 'docTypeCode',
 						editor: {
 							xtype: 'textfield'
 						},
@@ -112,7 +112,7 @@ Ext.define('App.view.patient.Documents', {
 								meta.tdCls += ' entered-in-error ';
 								meta.tdAttr = 'data-qtip="' + _('error_note') + ': ' + record.get('error_note') + '"';
 							}
-							return v;
+							return record.get('docType');
 						}
 					},
 					{
@@ -149,19 +149,19 @@ Ext.define('App.view.patient.Documents', {
 							return v;
 						}
 					},
-					{
-						header: _('encrypted'),
-						dataIndex: 'encrypted',
-						width: 70,
-						stateId: 'patientDocumentGridStateEncryptedCol',
-						renderer: function(v, meta, record){
-							if(record.get('entered_in_error')){
-								meta.tdCls += ' entered-in-error ';
-								meta.tdAttr = 'data-qtip="' + _('error_note') + ': ' + record.get('error_note') + '"';
-							}
-							return app.boolRenderer(v);
-						}
-					}
+					// {
+					// 	header: _('encrypted'),
+					// 	dataIndex: 'encrypted',
+					// 	width: 70,
+					// 	stateId: 'patientDocumentGridStateEncryptedCol',
+					// 	renderer: function(v, meta, record){
+					// 		if(record.get('entered_in_error')){
+					// 			meta.tdCls += ' entered-in-error ';
+					// 			meta.tdAttr = 'data-qtip="' + _('error_note') + ': ' + record.get('error_note') + '"';
+					// 		}
+					// 		return app.boolRenderer(v);
+					// 	}
+					// }
 				],
 				plugins: Ext.create('Ext.grid.plugin.RowEditing', {
 					autoCancel: true,
@@ -174,7 +174,7 @@ Ext.define('App.view.patient.Documents', {
 						xtype: 'button',
 						text: _('category'),
 						enableToggle: true,
-						action: 'docType',
+						action: 'docTypeCode',
 						pressed: true,
 						disabled: true,
 						toggleGroup: 'documentgridgroup'

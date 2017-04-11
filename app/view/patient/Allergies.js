@@ -228,6 +228,12 @@ Ext.define('App.view.patient.Allergies', {
 	],
 	bbar: [
 		{
+			text: _('reconciled'),
+			itemId: 'PatientAllergyReconciledBtn',
+			enableToggle: true,
+			pressed: true
+		},
+		{
 			text: _('only_active'),
 			enableToggle: true,
 			itemId: 'activeAllergyBtn'

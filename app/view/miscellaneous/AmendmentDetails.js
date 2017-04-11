@@ -83,16 +83,16 @@ Ext.define('App.view.miscellaneous.AmendmentDetails', {
 							}
 						},
 						{
-							text: _('new_value'),
-							dataIndex:'new_value',
-							flex: 1,
-							tdCls: 'lightGreenBg'
-						},
-						{
 							text: _('old_value'),
 							dataIndex:'old_value',
 							flex: 1,
 							tdCls: 'lightRedBg'
+						},
+						{
+							text: _('new_value'),
+							dataIndex:'new_value',
+							flex: 1,
+							tdCls: 'lightGreenBg'
 						}
 					]
 				},

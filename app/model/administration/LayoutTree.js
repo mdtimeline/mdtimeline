@@ -37,10 +37,6 @@ Ext.define('App.model.administration.LayoutTree', {
 			mapping: 'x_index'
 		},
 		{
-			name: 'parentId',
-			type: 'string'
-		},
-		{
 			name: 'text',
 			type: 'string'
 		},

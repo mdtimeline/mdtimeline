@@ -28,7 +28,7 @@ Ext.define('App.view.patient.Immunizations', {
 		'App.ux.combo.EducationResources'
 	],
 	xtype: 'patientimmunizationspanel',
-	title: _('immunizations'),
+	title: _('vaccs'),
 	layout: 'border',
 	border: false,
 	items: [

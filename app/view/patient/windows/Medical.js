@@ -21,7 +21,7 @@ Ext.define('App.view.patient.windows.Medical', {
 	title: _('medical_window'),
 	itemId: 'MedicalWindow',
 	closeAction: 'hide',
-	bodyStyle: 'background-color:#fff',
+	//bodyStyle: 'background-color:#fff',
 	modal: true,
 	requires: [
 		'App.view.patient.Results',
@@ -37,7 +37,8 @@ Ext.define('App.view.patient.windows.Medical', {
 		'App.view.patient.RadOrders',
 		'App.view.patient.RxOrders',
 		'App.view.patient.DoctorsNotes',
-		'App.view.patient.FamilyHistory'
+		'App.view.patient.FamilyHistory',
+		'App.view.patient.ImplantableDevice'
 	],
 
 	initComponent: function(){
@@ -55,49 +56,88 @@ Ext.define('App.view.patient.windows.Medical', {
 				items:[
 					{
 						xtype:'patientimmunizationspanel',
-						itemId: 'immunization'
+						itemId: 'immunization',
+						tabConfig: {
+							tooltip: _('vaccines_immunizations')
+						}
 					},
 					{
 						xtype: 'patientallergiespanel',
-						itemId: 'allergies'
+						itemId: 'allergies',
+						tabConfig: {
+							tooltip: _('allergies')
+						}
 					},
 					{
 						xtype: 'patientactiveproblemspanel',
-						itemId: 'activeproblems'
+						itemId: 'activeproblems',
+						tabConfig: {
+							tooltip: _('active_problems')
+						}
 					},
 					{
 						xtype: 'patientfamilyhistorypanel',
-						itemId: 'familyhistory'
+						itemId: 'familyhistory',
+						tabConfig: {
+							tooltip: _('family_history')
+						}
 					},
 					{
 						xtype: 'patientadvancedirectivepanel',
-						itemId: 'advancedirectives'
+						itemId: 'advancedirectives',
+						tabConfig: {
+							tooltip: _('advance_directives')
+						}
 					},
 					{
 						xtype:'patientmedicationspanel',
-						itemId: 'medications'
+						itemId: 'medications',
+						tabConfig: {
+							tooltip: _('medications')
+						}
 					},
 					{
  						xtype:'patientresultspanel',
-						itemId: 'laboratories'
+						itemId: 'laboratories',
+						tabConfig: {
+							tooltip: _('results')
+						}
 					},
 					{
 						xtype: 'patientsocialpanel',
-						itemId: 'social'
+						itemId: 'social',
+						tabConfig: {
+							tooltip: _('social_history')
+						}
 					},
 					{
 						xtype: 'patientcognitiveandfunctionalstatuspanel',
-						itemId: 'functionalstatus'
+						itemId: 'functionalstatus',
+						tabConfig: {
+							tooltip: _('functional_status')
+						}
 					},
 					{
 						xtype: 'patientreferralspanel',
-						itemId: 'referrals'
+						itemId: 'referrals',
+						tabConfig: {
+							tooltip: _('referrals')
+						}
+					},
+					{
+						xtype:'implantabledevicepanel',
+						tabConfig: {
+							tooltip: _('implantable_devices')
+						}
 					},
 					/**
 					 * DOCTORS NOTE
 					 */
 					{
-						xtype: 'patientdoctorsnotepanel'
+						xtype: 'patientdoctorsnotepanel',
+						tabConfig: {
+							tooltip: _('doctors_notes')
+						}
 					},
 					/**
 					 * LAB ORDERS PANEL

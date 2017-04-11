@@ -30,7 +30,7 @@ Ext.define('App.view.patient.Allergies', {
 		'App.ux.combo.AllergiesSeverity'
 	],
 	xtype: 'patientallergiespanel',
-	title: _('allergies'),
+	title: _('al'),
 	columnLines: true,
 	store: Ext.create('App.store.patient.Allergies', {
 		remoteFilter: true,

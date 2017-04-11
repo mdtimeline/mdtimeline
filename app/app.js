@@ -24080,7 +24080,7 @@ Ext.define('App.view.patient.DoctorsNotes', {
 		'App.ux.combo.Templates'
 	],
 	xtype: 'patientdoctorsnotepanel',
-	title: _('doctors_notes'),
+	title: _('doc_nt'),
 	itemId: 'DoctorsNotes',
 	columnLines: true,
 	store: Ext.create('App.store.patient.DoctorsNotes', {
@@ -25110,7 +25110,7 @@ Ext.define('App.view.patient.Results', {
 		'App.ux.window.voidComment',
 		'App.ux.form.fields.DateTime'
 	],
-	title: _('results'),
+	title: _('res'),
 	xtype: 'patientresultspanel',
 	layout: 'border',
 	tbar: [
@@ -46515,7 +46515,7 @@ Ext.define('App.view.patient.Immunizations', {
 		'App.ux.combo.EducationResources'
 	],
 	xtype: 'patientimmunizationspanel',
-	title: _('immunizations'),
+	title: _('vaccs'),
 	layout: 'border',
 	border: false,
 	items: [
@@ -46969,7 +46969,7 @@ Ext.define('App.view.patient.Medications', {
 		'App.ux.form.fields.DateTime'
 	],
 	xtype: 'patientmedicationspanel',
-	title: _('medications'),
+	title: _('meds'),
 	layout: 'border',
 	border: false,
 	items: [
@@ -47160,7 +47160,7 @@ Ext.define('App.view.patient.AdvanceDirectives', {
 
 	],
 	xtype: 'patientadvancedirectivepanel',
-	title: _('advance_directives'),
+	title: _('adv_dir'),
 	columnLines: true,
 	store: Ext.create('App.store.patient.AdvanceDirectives', {
 		remoteFilter: true,
@@ -55552,7 +55552,8 @@ Ext.define('App.controller.patient.Documents', {
 			},
 			'patientdocumentspanel #patientDocumentGrid': {
 				selectionchange: me.onPatientDocumentGridSelectionChange,
-				afterrender: me.onPatientDocumentGridAfterRender
+				afterrender: me.onPatientDocumentGridAfterRender,
+				beforeitemcontextmenu: me.onPatientDocumentGridBeforeItemContextMenu
 			},
 			'patientdocumentspanel [toggleGroup=documentgridgroup]': {
 				toggle: me.onDocumentGroupBtnToggle
@@ -55578,6 +55579,27 @@ Ext.define('App.controller.patient.Documents', {
 		});
 
 		me.nav = this.getController('Navigation');
+	},
+
+	onPatientDocumentGridBeforeItemContextMenu: function (grid, record, item, index, e, eOpts) {
+		var me = this;
+
+		e.preventDefault();
+		Ext.Msg.show({
+			title:'C-CDA',
+			msg: 'Would you like to view the raw xml data?',
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function(btn){
+				if (btn === 'yes'){
+					var frame = grid.up('panel').up('panel').query('#patientDocumentViewerFrame')[0];
+
+					if(record){
+						frame.setSrc('dataProvider/DocumentViewer.php?site=' + me.site + '&token=' + app.user.token + '&id=' + record.data.id + '&rawXml');
+					}
+				}
+			}
+		});
 	},
 
 	setDocumentInError: function(document_record){
@@ -57164,7 +57186,7 @@ Ext.define('App.view.patient.Referrals', {
 		'App.ux.grid.RowFormEditing'
 	],
 	xtype: 'patientreferralspanel',
-	title: _('referrals'),
+	title: _('refs'),
 	action: 'referralsGrid',
 	itemId: 'patientReferralsGrid',
 	columnLines: true,
@@ -57373,7 +57395,7 @@ Ext.define('App.view.patient.ActiveProblems', {
 		'App.ux.combo.Outcome2'
 	],
 	xtype: 'patientactiveproblemspanel',
-	title: _('active_problems'),
+	title: _('act_prob'),
 	columnLines: true,
 	store: Ext.create('App.store.patient.PatientActiveProblems', {
 		remoteFilter: true,
@@ -57566,7 +57588,7 @@ Ext.define('App.view.patient.SocialPanel', {
 		'App.view.patient.SocialHistory'
 	],
 	xtype: 'patientsocialpanel',
-	title: _('social'),
+	title: _('soc_hx'),
 	border: false,
 	bodyBorder: false,
 	layout: {
@@ -57593,7 +57615,7 @@ Ext.define('App.view.patient.CognitiveAndFunctionalStatus', {
 		'App.store.patient.CognitiveAndFunctionalStatus'
 	],
 	xtype: 'patientcognitiveandfunctionalstatuspanel',
-	title: _('cog_and_func_status'),
+	title: _('func_stat'),
 	columnLines: true,
 	store: Ext.create('App.store.patient.CognitiveAndFunctionalStatus', {
 		remoteFilter: true
@@ -59306,7 +59328,7 @@ Ext.define('App.view.patient.Allergies', {
 		'App.ux.combo.AllergiesSeverity'
 	],
 	xtype: 'patientallergiespanel',
-	title: _('allergies'),
+	title: _('al'),
 	columnLines: true,
 	store: Ext.create('App.store.patient.Allergies', {
 		remoteFilter: true,
@@ -59523,12 +59545,94 @@ Ext.define('App.view.patient.Allergies', {
 	]
 });
 
+Ext.define('App.view.patient.FamilyHistory', {
+	extend: 'Ext.grid.Panel',
+	requires: [
+		'Ext.grid.plugin.RowEditing',
+		'Ext.grid.feature.Grouping'
+	],
+	xtype: 'patientfamilyhistorypanel',
+	title: _('fam_hx'),
+	columnLines: true,
+	store: Ext.create('App.store.patient.FamilyHistories', {
+		remoteFilter: true,
+		groupField: 'condition'
+	}),
+	features: [
+		{
+			ftype: 'grouping'
+		}
+	],
+	plugins: [
+		{
+			ptype: 'rowediting',
+			clicksToEdit: 2
+		}
+	],
+	columns: [
+		{
+			xtype: 'actioncolumn',
+			width: 20,
+			items: [
+				{
+					icon: 'resources/images/icons/cross.png',
+					tooltip: _('remove'),
+                    handler: function(grid, rowIndex, colIndex, item, e, record){
+                        App.app.getController('patient.FamilyHistory').onDeactivateRecord(grid, record);
+                    }
+				}
+			]
+		},
+		{
+			xtype: 'datecolumn',
+			header: _('date'),
+			width: 100,
+			dataIndex: 'create_date',
+			format: 'Y-m-d',
+			editor: {
+				xtype: 'datefield'
+			}
+		},
+		{
+			header: _('condition'),
+			flex: 1,
+			dataIndex: 'condition'
+		},
+		{
+			header: _('relation'),
+			flex: 1,
+			dataIndex: 'relation',
+            editor:{
+                xtype: 'gaiaehr.listcombosimple',
+                list: 109,
+                id: 'relation',
+                name: 'relation',
+                value: null
+            }
+		},
+		{
+			header: _('status'),
+			flex: 1,
+			dataIndex: 'status'
+		}
+	],
+	tbar: [
+		'->',
+		{
+			text: _('history'),
+			iconCls: 'icoAdd',
+			action: 'encounterRecordAdd',
+			itemId:'FamilyHistoryGridAddBtn'
+		}
+	]
+});
+
 Ext.define('App.view.patient.windows.Medical', {
 	extend: 'App.ux.window.Window',
 	title: _('medical_window'),
 	itemId: 'MedicalWindow',
 	closeAction: 'hide',
-	bodyStyle: 'background-color:#fff',
+	//bodyStyle: 'background-color:#fff',
 	modal: true,
 	requires: [
 		'App.view.patient.Results',
@@ -59544,7 +59648,8 @@ Ext.define('App.view.patient.windows.Medical', {
 		'App.view.patient.RadOrders',
 		'App.view.patient.RxOrders',
 		'App.view.patient.DoctorsNotes',
-		'App.view.patient.FamilyHistory'
+		'App.view.patient.FamilyHistory',
+		'App.view.patient.ImplantableDevice'
 	],
 
 	initComponent: function(){
@@ -59562,49 +59667,88 @@ Ext.define('App.view.patient.windows.Medical', {
 				items:[
 					{
 						xtype:'patientimmunizationspanel',
-						itemId: 'immunization'
+						itemId: 'immunization',
+						tabConfig: {
+							tooltip: _('vaccines_immunizations')
+						}
 					},
 					{
 						xtype: 'patientallergiespanel',
-						itemId: 'allergies'
+						itemId: 'allergies',
+						tabConfig: {
+							tooltip: _('allergies')
+						}
 					},
 					{
 						xtype: 'patientactiveproblemspanel',
-						itemId: 'activeproblems'
+						itemId: 'activeproblems',
+						tabConfig: {
+							tooltip: _('active_problems')
+						}
 					},
 					{
 						xtype: 'patientfamilyhistorypanel',
-						itemId: 'familyhistory'
+						itemId: 'familyhistory',
+						tabConfig: {
+							tooltip: _('family_history')
+						}
 					},
 					{
 						xtype: 'patientadvancedirectivepanel',
-						itemId: 'advancedirectives'
+						itemId: 'advancedirectives',
+						tabConfig: {
+							tooltip: _('advance_directives')
+						}
 					},
 					{
 						xtype:'patientmedicationspanel',
-						itemId: 'medications'
+						itemId: 'medications',
+						tabConfig: {
+							tooltip: _('medications')
+						}
 					},
 					{
  						xtype:'patientresultspanel',
-						itemId: 'laboratories'
+						itemId: 'laboratories',
+						tabConfig: {
+							tooltip: _('results')
+						}
 					},
 					{
 						xtype: 'patientsocialpanel',
-						itemId: 'social'
+						itemId: 'social',
+						tabConfig: {
+							tooltip: _('social_history')
+						}
 					},
 					{
 						xtype: 'patientcognitiveandfunctionalstatuspanel',
-						itemId: 'functionalstatus'
+						itemId: 'functionalstatus',
+						tabConfig: {
+							tooltip: _('functional_status')
+						}
 					},
 					{
 						xtype: 'patientreferralspanel',
-						itemId: 'referrals'
+						itemId: 'referrals',
+						tabConfig: {
+							tooltip: _('referrals')
+						}
+					},
+					{
+						xtype:'implantabledevicepanel',
+						tabConfig: {
+							tooltip: _('implantable_devices')
+						}
 					},
 					/**
 					 * DOCTORS NOTE
 					 */
 					{
-						xtype: 'patientdoctorsnotepanel'
+						xtype: 'patientdoctorsnotepanel',
+						tabConfig: {
+							tooltip: _('doctors_notes')
+						}
 					},
 					/**
 					 * LAB ORDERS PANEL
@@ -59869,7 +60013,7 @@ Ext.define('App.view.patient.Encounter', {
 					title: _('review_of_systems'),
 					frame: true,
 					bodyPadding: 5,
-					bodyStyle: 'background-color:white',
+					//bodyStyle: 'background-color:white',
 					fieldDefaults: {
 						msgTarget: 'side'
 					},
@@ -60088,58 +60232,75 @@ Ext.define('App.view.patient.Encounter', {
 			items: [
 				'-',
 				{
-					text: _('immunizations') + ' ',
-					action: 'immunization'
+					text: _('vaccs') + ' ',
+					action: 'immunization',
+					tooltip: _('vaccines_immunizations')
 				},
 				'-',
 				{
-					text: _('allergies') + ' ',
-					action: 'allergies'
+					text: _('al') + ' ',
+					action: 'allergies',
+					tooltip: _('allergies')
 				},
 				'-',
 				{
-					text: _('active_problems') + ' ',
-					action: 'activeproblems'
+					text: _('act_prob') + ' ',
+					action: 'activeproblems',
+					tooltip: _('active_problems')
 				},
 				'-',
 				{
-					text: _('family_history') + ' ',
-					action: 'familyhistory'
+					text: _('fam_hx') + ' ',
+					action: 'familyhistory',
+					tooltip: _('family_history')
 				},
 				'-',
 				{
-					text: _('advance_directives') + ' ',
-					action: 'advancedirectives'
+					text: _('adv_dir') + ' ',
+					action: 'advancedirectives',
+					tooltip: _('advance_directives')
 				},
 				'-',
 				{
-					text: _('medications') + ' ',
-					action: 'medications'
+					text: _('meds') + ' ',
+					action: 'medications',
+					tooltip: _('medications')
 				},
 				'-',
 				{
-					text: _('results') + ' ',
-					action: 'laboratories'
+					text: _('res') + ' ',
+					action: 'laboratories',
+					tooltip: _('results')
 				},
 				'-',
 				{
-					text: _('social') + ' ',
-					action: 'social'
+					text: _('soc_hx') + ' ',
+					action: 'social',
+					tooltip: _('social_history')
 				},
 				'-',
 				{
-					text: _('functional_status') + ' ',
-					action: 'functionalstatus'
+					text: _('func_stat') + ' ',
+					action: 'functionalstatus',
+					tooltip: _('functional_status')
 				},
 				'-',
 				{
-					text: _('referrals') + ' ',
-					action: 'referrals'
+					text: _('refs') + ' ',
+					action: 'referrals',
+					tooltip: _('referrals')
 				},
 				'-',
 				{
-					text: _('new_doctors_note'),
-					action: 'DoctorsNotes'
+					text: _('imp_devs') + ' ',
+					action: 'ImplantableDeviceGrid',
+					tooltip: _('implantable_devices')
+				},
+				'-',
+				{
+					text: _('doc_nt'),
+					action: 'DoctorsNotes',
+					tooltip: _('doctors_notes')
 				},
 				'-',
 				{
@@ -60210,9 +60371,9 @@ Ext.define('App.view.patient.Encounter', {
 	 * @param btn
 	 */
 	onToolbarBtnHandler: function(btn){
-		if(btn.action == 'encounter'){
+		if(btn.action === 'encounter'){
 			app.updateEncounter(this.encounter);
-		}else if(btn.action == 'ccda'){
+		}else if(btn.action === 'ccda'){
 			// this will be handled at controller/CCDImport.js
 		}else{
 			app.onMedicalWin(btn.action);
@@ -60257,7 +60418,7 @@ Ext.define('App.view.patient.Encounter', {
             record,
             storeIndex;
 
-		if(SaveBtn.action == "encounter"){
+		if(SaveBtn.action === "encounter"){
 			form = me.newEncounterWindow.down('form').getForm();
 		}else{
 			form = SaveBtn.up('form').getForm();
@@ -60266,7 +60427,7 @@ Ext.define('App.view.patient.Encounter', {
 		if(form.isValid()){
 			values = form.getValues();
 
-			if(SaveBtn.action == 'encounter'){
+			if(SaveBtn.action === 'encounter'){
 
 				if(a('add_encounters')){
 					record = form.getRecord();
@@ -60449,7 +60610,7 @@ Ext.define('App.view.patient.Encounter', {
 			values;
 
 		me.passwordVerificationWin(function(btn, password){
-			if(btn == 'ok'){
+			if(btn === 'ok'){
 
 				form = app.checkoutWindow.down('form').getForm();
 				values = form.getValues();

@@ -28,7 +28,7 @@ Ext.define('App.view.patient.Results', {
 		'App.ux.window.voidComment',
 		'App.ux.form.fields.DateTime'
 	],
-	title: _('results'),
+	title: _('res'),
 	xtype: 'patientresultspanel',
 	layout: 'border',
 	tbar: [

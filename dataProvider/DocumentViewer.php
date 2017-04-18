@@ -327,11 +327,18 @@ HTML;
 			    header('Accept-Ranges: bytes');
 			    print $document;
 
-
 		    }
+	    } else {
 
+		    $encoding = mb_detect_encoding($document, 'ISO-8859-1,UTF-8');
+		    $encoding = $encoding === false ? '' : '; charset=' . $encoding;
 
-
+		    header('Content-Type: ' . $mineType . $encoding, true);
+		    header('Content-Disposition: inline; filename="' . $doc['name'] . '"');
+		    header('Content-Transfer-Encoding: BINARY');
+		    header('Content-Length: ' . strlen($document));
+		    header('Accept-Ranges: bytes');
+		    print $document;
 	    }
 
 

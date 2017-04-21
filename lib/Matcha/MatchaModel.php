@@ -290,14 +290,12 @@ class MatchaModel extends Matcha {
 				throw new Exception("Fields property is not defined on Sencha Model. 'fields:'");
 			}
 
-			if(is_array($model['table'])){
-				$table = $model['table']['name'];
-			}else{
-				$table = $model['table'];
-			}
-
 			$model['parsed_data'] = [];
-			$model['parsed_data']['primaryKey'] = MatchaModel::__getTablePrimaryKeyColumnName($table);
+			if(isset($model['idProperty'])){
+				$model['parsed_data']['primaryKey'] =  $model['idProperty'] == 'comp_id' ? 'id' : $model['idProperty'];
+			}else{
+				$model['parsed_data']['primaryKey'] = 'id';
+			}
 			$model['parsed_data']['fields'] = MatchaModel::__getFields($model);
 			$model['parsed_data']['encryptedFields'] = MatchaModel::__getEncryptedFields($model);
 			$model['parsed_data']['phantomFields'] = MatchaModel::__getPhantomFields($model);

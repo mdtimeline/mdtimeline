@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class CDDDocumentBase
 {
 
@@ -164,9 +163,48 @@ class CDDDocumentBase
     public $requiredEncounters;
 
     /**
+     * @var
+     */
+    public $Globals;
+
+    public $height_measure;
+    public $weight_measure;
+
+    /**
      * @var array
      */
     public $exclude = [];
+
+
+    /**
+     * CCDDocument constructor.
+     */
+    function __construct()
+    {
+        $this->dateNow = date('Ymd');
+        $this->timeNow = date('YmdHisO');
+        $this->Encounter = new Encounter();
+        $this->Facilities = new Facilities();
+        $this->CombosData = new CombosData();
+        $this->User = new User();
+        $this->Patient = new Patient();
+        $this->TransactionLog = new TransactionLog();
+        $this->PatientContacts = new PatientContacts();
+        $this->Globals = new Globals();
+        $this->facility = $this->Facilities->getCurrentFacility(true);
+
+        switch($this->Globals->getGlobal('units_of_measurement'))
+        {
+            case 'metric':
+                $this->height_measure = 'cm';
+                $this->weight_measure = 'kg';
+                break;
+            case 'standard':
+                $this->height_measure = 'in';
+                $this->weight_measure = 'lbs';
+                break;
+        }
+    }
 
     /**
      * Return the pertinent OID of a certain code system name
@@ -232,6 +270,15 @@ class CDDDocumentBase
     }
 
     /**
+     * Method addSection()
+     * @param $section
+     */
+    public function addSection($section)
+    {
+        $this->xmlData['component']['structuredBody']['component'][] = $section;
+    }
+
+    /**
      * @param $pid
      */
     public function setPid($pid)
@@ -241,16 +288,39 @@ class CDDDocumentBase
 
     /**
      * @param $eid
+     * @param $encounter_indicator
      */
     public function setEid($eid)
     {
-        $this->eid = ($eid === 'null') ? null : $eid;
+        switch ($eid){
+            case 'no_enc':
+                $this->eid = $eid;
+                break;
+            case 'all_enc':
+                $this->eid = $eid;
+                break;
+            default:
+                $this->eid = ($eid === 'null') ? null : (int)$eid;
+                break;
+        }
     }
 
     /**
      * @param $exclude
      */
     public function setExcludes($exclude) {
+
+	    /**
+	     * TODO:
+	     * visit_date_location
+	     * reason_for_visit
+	     * diagnostic_test_pending
+	     * referrals_other_providers
+	     * future_schedule_test
+	     * patient_decision_aids
+	     *
+	     */
+
         $this->exclude = $exclude == '' ? [] : explode(',',$exclude);
     }
 
@@ -301,6 +371,19 @@ class CDDDocumentBase
     public function parseDate($date) {
         $dateExplode = explode(' ', $date);
         return str_replace('-', '', $dateExplode[0]);
+    }
+
+    public function isActiveByDate($date){
+    	if(!isset($date)){
+    		return true;
+	    }
+	    if($date == '0000-00-00' || $date == '0000-00-00 00:00:00'){
+		    return true;
+	    }
+
+		$date = strtotime($date);
+		$now = time();
+		return $date > $now;
     }
 
     public function telecomBuilder($number, $use = null) {
@@ -403,10 +486,7 @@ class CDDDocumentBase
                 ]
             ];
 
-            /**
-             * Note: In here we need to detect, if the user requested compile all the encounters
-             */
-            if(isset($this->eid) && $this->eid != null){
+            if(is_numeric($this->eid)){
                 $this->encounter = $this->Encounter->getEncounter($this->eid, false, false);
                 $this->encounter = isset($this->encounter['encounter']) ? $this->encounter['encounter'] : $this->encounter;
                 $this->encounterProvider = $this->User->getUserByUid($this->encounter['provider_uid']);
@@ -443,9 +523,9 @@ class CDDDocumentBase
              */
             foreach($sections AS $Section){
                 call_user_func([
-                                   $this,
-                                   "set{$Section}Section"
-                               ]);
+                       $this,
+                       "set{$Section}Section"
+                   ]);
             }
 
             /**
@@ -467,6 +547,23 @@ class CDDDocumentBase
         } catch(Exception $Error) {
             error_log($Error->getMessage());
         }
+    }
+
+    /**
+     * clean from html characters and html tags
+     * @param $string
+     * @return string
+     */
+    public function clean($string){
+        // Pass 1
+        $cleanIt = html_entity_decode($string);
+        // Pass 2
+        $cleanIt = strip_tags($cleanIt);
+        // Pass 3
+        $cleanIt = preg_replace("/&#?[a-z0-9]{2,8};/i", "", $cleanIt);
+        // Pass 4
+        $cleanIt = preg_replace("/\p{Cc}+/u", "", $cleanIt);
+        return $cleanIt;
     }
 
     /**
@@ -494,26 +591,50 @@ class CDDDocumentBase
     public function archive()
     {
         try {
-            header('Content-type: application/xml');
-            $xml = $this->xml->saveXML();
-            $name = $this->getFileName() . '.xml';
+
+            $xml_str = $this->xml->saveXML();
+	        $xml_str = preg_replace('/\<\?xml-stylesheet(.*)/', '', $xml_str);
+
+	        $xsl = new DOMDocument();
+	        $isCcr = preg_match('/<ccr:/',$xml_str);
+
+	        if($isCcr){
+		        $xsl->load(ROOT . '/lib/CCRCDA/schema/ccr.xsl');
+	        }else{
+		        $xsl->load(ROOT . '/lib/CCRCDA/schema/cda2.xsl');
+	        }
+
+	        $xml = new DOMDocument();
+	        $xml->loadXML($xml_str);
+
+	        $proc = new XSLTProcessor();
+	        $proc->importStylesheet($xsl);
+	        $xml = $proc->transformToDoc($xml);
+	        $xml = $xml->saveXML();
+
+            $name = $this->getFileName() . '.html';
             $date = date('Y-m-d H:i:s');
+
             $document = new stdClass();
             $document->pid = $this->pid;
             $document->eid = $this->eid;
             $document->uid = $_SESSION['user']['id'];
             $document->docType = 'C-CDA';
+            $document->docTypeCode = 'CD';
             $document->name = $name;
             $document->date = $date;
             $document->note = '';
-            $document->title = 'C-CDA';
+            $document->title = 'C-CDA Archived';
             $document->encrypted = 0;
-            $document->document = base64_encode($xml);
+            $document->document = $xml;
             include_once(ROOT . '/dataProvider/DocumentHandler.php');
             $DocumentHandler = new DocumentHandler();
             $DocumentHandler->addPatientDocument($document);
             unset($DocumentHandler, $document, $name, $date);
-            print $xml;
+
+	        header('Content-type: application/xml');
+            $buff =  $this->xml->saveXML();
+			print $buff;
         } catch(Exception $Error) {
             error_log($Error->getMessage());
         }
@@ -544,7 +665,7 @@ class CDDDocumentBase
             // remember unique item
             $_data[$v[$key]] = $v;
         }
-        // if you need a zero-based array, otheriwse work with $_data
+        // if you need a zero-based array, otherwise work with $_data
         $data = array_values($_data);
         return $data;
     }

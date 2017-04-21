@@ -42,8 +42,13 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			'#EncounterProviderCmb': {
 				beforerender: me.onEncounterProviderCmbBeforeRender,
 				select: me.onEncounterProviderCmbSelect
+			},
+			'#EncounterCDAImportBtn': {
+				click: me.onEncounterCDAImportBtnClick
 			}
 		});
+
+		me.importCtrl = this.getController('patient.CCDImport');
 	},
 
 	/**
@@ -154,6 +159,29 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		}
 
 		return show;
+	},
+
+	onEncounterCDAImportBtnClick: function(btn){
+
+		var me = this,
+			win = Ext.create('App.ux.form.fields.UploadString');
+
+		win.allowExtensions = ['xml','ccd','cda','ccda'];
+		win.on('uploadready', function(comp, stringXml){
+			me.getDocumentData(stringXml);
+		});
+
+		win.show();
+	},
+
+	getDocumentData: function(stringXml){
+		var me = this;
+
+		CCDDocumentParse.parseDocument(stringXml, function(ccdData){
+			me.importCtrl.validatePosibleDuplicates = false;
+			me.importCtrl.CcdImport(ccdData, app.patient.pid);
+			me.importCtrl.validatePosibleDuplicates = true;
+		});
 	}
 
 });

@@ -23,7 +23,7 @@ Ext.define('App.view.patient.FamilyHistory', {
 		'Ext.grid.feature.Grouping'
 	],
 	xtype: 'patientfamilyhistorypanel',
-	title: _('family_history'),
+	title: _('fam_hx'),
 	columnLines: true,
 	store: Ext.create('App.store.patient.FamilyHistories', {
 		remoteFilter: true,

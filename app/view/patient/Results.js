@@ -25,9 +25,10 @@ Ext.define('App.view.patient.Results', {
 		'App.store.patient.PatientsOrders',
 		'App.ux.LiveLabsSearch',
 		'App.ux.LiveRadsSearch',
-		'App.ux.window.voidComment'
+		'App.ux.window.voidComment',
+		'App.ux.form.fields.DateTime'
 	],
-	title: _('results'),
+	title: _('res'),
 	xtype: 'patientresultspanel',
 	layout: 'border',
 	tbar: [
@@ -201,7 +202,7 @@ Ext.define('App.view.patient.Results', {
 							xtype: 'button',
 							text: _('view_document'),
 							icon: 'resources/images/icons/icoView.png',
-							action: 'ResultsLaboratoryPanelDocumentViewBtn'
+							itemId: 'ResultsLaboratoryPanelDocumentViewBtn'
 						}
 					],
 					items: [
@@ -230,10 +231,9 @@ Ext.define('App.view.patient.Results', {
 									layout: 'anchor',
 									items: [
 										{
-											xtype: 'datefield',
+											xtype: 'mitos.datetime',
 											fieldLabel: _('report_date'),
 											name: 'result_date',
-											format: 'Y-m-d',
 											allowBlank: false
 										},
 										{
@@ -261,10 +261,9 @@ Ext.define('App.view.patient.Results', {
 											})
 										},
 										{
-											xtype: 'datefield',
+											xtype: 'mitos.datetime',
 											fieldLabel: _('observation_date'),
 											name: 'observation_date',
-											format: 'Y-m-d',
 											allowBlank: false
 										},
 										{
@@ -335,7 +334,14 @@ Ext.define('App.view.patient.Results', {
 									text: _('name'),
 									menuDisabled: true,
 									dataIndex: 'code_text',
-									width: 350
+									width: 350,
+									renderer: function (v, meta,record) {
+                                        var code = record.get('code');
+                                        if (code != '') {
+                                            v = v + ' (' + code + ')';
+                                        }
+                                        return v;
+                                    }
 								},
 								{
 									xtype: 'actioncolumn',

@@ -70,7 +70,10 @@ Ext.define('App.model.patient.Patient',{
         {
             name: 'DOBFormatted',
             type: 'string',
-            persist: false
+            persist: false,
+            convert: function (v, record) {
+                return Ext.Date.format(record.get('DOB'), g('date_display_format'));
+            }
         },
         {
             name: 'marital_status',
@@ -210,7 +213,15 @@ Ext.define('App.model.patient.Patient',{
             type: 'bool'
         },
         {
+            name: 'allow_guardian_web_portal_cda',
+            type: 'bool'
+        },
+        {
             name: 'allow_emergency_contact_web_portal',
+            type: 'bool'
+        },
+        {
+            name: 'allow_emergency_contact_web_portal_cda',
             type: 'bool'
         },
         {

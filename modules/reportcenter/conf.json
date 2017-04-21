@@ -16,23 +16,18 @@
 
         "ReportGenerator": {
             "methods":{
-                "buildDataGrid": {
-                    "len": 1
-                },
-                "dispatchReportData": {
-                    "len":  1
-                },
-                "dispatchReportFilterPanel": {
-                    "len":  1
-                }
+                "buildDataGrid": { "len": 1 },
+                "dispatchReportData": { "len":  1 },
+                "dispatchReportFilterPanel": { "len":  1 }
             }
         },
 
-        "ComboData":{
+        "ReportcenterCombosData":{
             "methods":{
-                "getTableList": {
-                    "len": 1
-                }
+                "getTableList": { "len": 1 }
+            },
+            "methods":{
+                "getEventList": { "len": 1 }
             }
         },
 

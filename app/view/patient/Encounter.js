@@ -148,7 +148,7 @@ Ext.define('App.view.patient.Encounter', {
 					title: _('review_of_systems'),
 					frame: true,
 					bodyPadding: 5,
-					bodyStyle: 'background-color:white',
+					//bodyStyle: 'background-color:white',
 					fieldDefaults: {
 						msgTarget: 'side'
 					},
@@ -367,58 +367,75 @@ Ext.define('App.view.patient.Encounter', {
 			items: [
 				'-',
 				{
-					text: _('immunizations') + ' ',
-					action: 'immunization'
+					text: _('vaccs') + ' ',
+					action: 'immunization',
+					tooltip: _('vaccines_immunizations')
 				},
 				'-',
 				{
-					text: _('allergies') + ' ',
-					action: 'allergies'
+					text: _('al') + ' ',
+					action: 'allergies',
+					tooltip: _('allergies')
 				},
 				'-',
 				{
-					text: _('active_problems') + ' ',
-					action: 'activeproblems'
+					text: _('act_prob') + ' ',
+					action: 'activeproblems',
+					tooltip: _('active_problems')
 				},
 				'-',
 				{
-					text: _('family_history') + ' ',
-					action: 'familyhistory'
+					text: _('fam_hx') + ' ',
+					action: 'familyhistory',
+					tooltip: _('family_history')
 				},
 				'-',
 				{
-					text: _('advance_directives') + ' ',
-					action: 'advancedirectives'
+					text: _('adv_dir') + ' ',
+					action: 'advancedirectives',
+					tooltip: _('advance_directives')
 				},
 				'-',
 				{
-					text: _('medications') + ' ',
-					action: 'medications'
+					text: _('meds') + ' ',
+					action: 'medications',
+					tooltip: _('medications')
 				},
 				'-',
 				{
-					text: _('results') + ' ',
-					action: 'laboratories'
+					text: _('res') + ' ',
+					action: 'laboratories',
+					tooltip: _('results')
 				},
 				'-',
 				{
-					text: _('social') + ' ',
-					action: 'social'
+					text: _('soc_hx') + ' ',
+					action: 'social',
+					tooltip: _('social_history')
 				},
 				'-',
 				{
-					text: _('functional_status') + ' ',
-					action: 'functionalstatus'
+					text: _('func_stat') + ' ',
+					action: 'functionalstatus',
+					tooltip: _('functional_status')
 				},
 				'-',
 				{
-					text: _('referrals') + ' ',
-					action: 'referrals'
+					text: _('refs') + ' ',
+					action: 'referrals',
+					tooltip: _('referrals')
 				},
 				'-',
 				{
-					text: _('new_doctors_note'),
-					action: 'DoctorsNotes'
+					text: _('imp_devs') + ' ',
+					action: 'ImplantableDeviceGrid',
+					tooltip: _('implantable_devices')
+				},
+				'-',
+				{
+					text: _('doc_nt'),
+					action: 'DoctorsNotes',
+					tooltip: _('doctors_notes')
 				},
 				'-',
 				{
@@ -440,6 +457,14 @@ Ext.define('App.view.patient.Encounter', {
 				},
 				'-',
 				'->',
+				'-',
+				{
+					xtype:'button',
+					action: 'ccda',
+					itemId: 'EncounterCDAImportBtn',
+					tooltip: _('ccda_import'),
+					icon: 'resources/images/icons/icoOutbox.png'
+				},
 				'-',
 				{
 					xtype:'button',
@@ -481,8 +506,10 @@ Ext.define('App.view.patient.Encounter', {
 	 * @param btn
 	 */
 	onToolbarBtnHandler: function(btn){
-		if(btn.action == 'encounter'){
+		if(btn.action === 'encounter'){
 			app.updateEncounter(this.encounter);
+		}else if(btn.action === 'ccda'){
+			// this will be handled at controller/CCDImport.js
 		}else{
 			app.onMedicalWin(btn.action);
 		}
@@ -526,7 +553,7 @@ Ext.define('App.view.patient.Encounter', {
             record,
             storeIndex;
 
-		if(SaveBtn.action == "encounter"){
+		if(SaveBtn.action === "encounter"){
 			form = me.newEncounterWindow.down('form').getForm();
 		}else{
 			form = SaveBtn.up('form').getForm();
@@ -535,7 +562,7 @@ Ext.define('App.view.patient.Encounter', {
 		if(form.isValid()){
 			values = form.getValues();
 
-			if(SaveBtn.action == 'encounter'){
+			if(SaveBtn.action === 'encounter'){
 
 				if(a('add_encounters')){
 					record = form.getRecord();
@@ -718,7 +745,7 @@ Ext.define('App.view.patient.Encounter', {
 			values;
 
 		me.passwordVerificationWin(function(btn, password){
-			if(btn == 'ok'){
+			if(btn === 'ok'){
 
 				form = app.checkoutWindow.down('form').getForm();
 				values = form.getValues();

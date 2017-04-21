@@ -25,7 +25,7 @@ Ext.define('App.view.patient.DoctorsNotes', {
 		'App.ux.combo.Templates'
 	],
 	xtype: 'patientdoctorsnotepanel',
-	title: _('doctors_notes'),
+	title: _('doc_nt'),
 	itemId: 'DoctorsNotes',
 	columnLines: true,
 	store: Ext.create('App.store.patient.DoctorsNotes', {

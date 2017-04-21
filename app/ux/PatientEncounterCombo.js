@@ -26,7 +26,7 @@ Ext.define('App.ux.PatientEncounterCombo', {
 	width: 400,
 	editable: false,
 	queryMode: 'local',
-	includeAllSelection: false,
+	includeAllSelection: true,
 	initComponent: function(){
 		var me = this;
 
@@ -35,7 +35,7 @@ Ext.define('App.ux.PatientEncounterCombo', {
 			fields: [
 				{
 					name: 'eid',
-					type: 'int'
+					type: 'string'
 				},
 				{
 					name: 'brief_description',
@@ -84,9 +84,14 @@ Ext.define('App.ux.PatientEncounterCombo', {
 			listeners: {
 				load: function () {
 					if(!me.includeAllSelection) return;
+                    me.store.insert(0,{
+                        eid: 'no_enc',
+                        brief_description: _('no_encounters'),
+                        service_date: '0000-00-00'
+                    });
 					me.store.insert(0,{
-						eid: null,
-						brief_description: 'All Encounters',
+                        eid: 'all_enc',
+						brief_description: _('all_encounters'),
 						service_date: '0000-00-00'
 					});
 				}

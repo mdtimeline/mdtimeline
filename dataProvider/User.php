@@ -303,7 +303,7 @@ class User
 					   	GROUP BY `up`.`id`
 					    HAVING COUNT(`up`.`id`) = {$count}
 					) AND (
-		                active = 1
+		                `u`.active = 1
 	                )";
 
         $records = $this->u->sql($sql)->all();

@@ -85,6 +85,7 @@ class DataPortability {
 			$patient = (object) $patient;
 			$CCDDocument = new CCDDocument();
 			$CCDDocument->setPid($patient->pid);
+			$CCDDocument->setEid('all_enc');
 			$CCDDocument->createCCD();
 			$CCDDocument->setTemplate('toc');
 			$CCDDocument->createCCD();

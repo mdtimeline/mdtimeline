@@ -182,6 +182,11 @@ Ext.define('App.model.patient.Encounter', {
             type: 'bool'
         },
         {
+            name: 'medication_reconciliations_date',
+	        type: 'date',
+	        dateFormat: 'Y-m-d'
+        },
+        {
             name: 'summary_care_provided',
             type: 'bool'
         }
@@ -238,6 +243,12 @@ Ext.define('App.model.patient.Encounter', {
 		{
 			model: 'App.model.patient.AppointmentRequest',
 			name: 'appointmentrequests',
+			primaryKey: 'eid',
+			foreignKey: 'eid'
+		},
+		{
+			model: 'App.model.patient.EducationResource',
+			name: 'educationresources',
 			primaryKey: 'eid',
 			foreignKey: 'eid'
 		}

@@ -12,12 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public  License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.store.administration.TransactionLogs', {
-	model: 'App.model.administration.TransactionLog',
-	extend: 'Ext.data.Store'
-
+Ext.define('App.store.patient.ImplantableDevices', {
+	extend: 'Ext.data.Store',
+	model: 'App.model.patient.ImplantableDevice',
+	remoteSort: true
 });

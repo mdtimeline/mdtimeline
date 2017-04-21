@@ -93,7 +93,8 @@ Ext.define('App.controller.patient.Documents', {
 			},
 			'patientdocumentspanel #patientDocumentGrid': {
 				selectionchange: me.onPatientDocumentGridSelectionChange,
-				afterrender: me.onPatientDocumentGridAfterRender
+				afterrender: me.onPatientDocumentGridAfterRender,
+				beforeitemcontextmenu: me.onPatientDocumentGridBeforeItemContextMenu
 			},
 			'patientdocumentspanel [toggleGroup=documentgridgroup]': {
 				toggle: me.onDocumentGroupBtnToggle
@@ -119,6 +120,27 @@ Ext.define('App.controller.patient.Documents', {
 		});
 
 		me.nav = this.getController('Navigation');
+	},
+
+	onPatientDocumentGridBeforeItemContextMenu: function (grid, record, item, index, e, eOpts) {
+		var me = this;
+
+		e.preventDefault();
+		Ext.Msg.show({
+			title:'C-CDA',
+			msg: 'Would you like to view the raw xml data?',
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function(btn){
+				if (btn === 'yes'){
+					var frame = grid.up('panel').up('panel').query('#patientDocumentViewerFrame')[0];
+
+					if(record){
+						frame.setSrc('dataProvider/DocumentViewer.php?site=' + me.site + '&token=' + app.user.token + '&id=' + record.data.id + '&rawXml');
+					}
+				}
+			}
+		});
 	},
 
 	setDocumentInError: function(document_record){
@@ -333,25 +355,17 @@ Ext.define('App.controller.patient.Documents', {
 	},
 
 	onDocumentHashCheckBtnClick: function(grid, rowIndex){
-		var rec = grid.getStore().getAt(rowIndex),
-			success,
-			message;
+		var rec = grid.getStore().getAt(rowIndex);
+
 		DocumentHandler.checkDocHash(rec.data, function(provider, response){
-			success = response.result.success;
 
-			if(success){
-				message = '<span style="color: green"><b>' + _('hash_validation_passed') + '</b>'
-			}else{
-				message = '<span style="color: red"><b>' + _('hash_validation_failed') + '</b>'
-			}
-
-			message += '<br><br>' + Ext.String.htmlDecode(response.result.msg) + '</span>';
+			var message = Ext.String.htmlDecode(response.result.msg);
 
 			Ext.Msg.show({
-				title: success ? _('sweet') : _('oops'),
+				title: _('document_hash'),
 				msg: message,
 				buttons: Ext.Msg.OK,
-				icon: success ? Ext.Msg.INFO : Ext.Msg.WARNING
+				icon: Ext.Msg.INFO
 			});
 		});
 	},

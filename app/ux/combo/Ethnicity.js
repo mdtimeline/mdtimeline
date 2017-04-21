@@ -31,7 +31,7 @@ Ext.define('App.ux.combo.Ethnicity', {
 			queryMode   : 'local',
 			displayField: 'option_name',
 			valueField  : 'option_value',
-			emptyText   : _('race'),
+			emptyText   : _('ethinicity'),
 			store       : me.store
 		}, null);
 		me.callParent(arguments);

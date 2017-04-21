@@ -61,6 +61,7 @@ class Email {
 	 * @param string $body
 	 * @param null|string $from_address
 	 * @param bool $audit_log
+	 * @return array
 	 * @throws Exception
 	 */
 	function Send($pid, $eid, $to_address, $subject, $body, $from_address = null, $audit_log = true){
@@ -79,6 +80,12 @@ class Email {
 		}else{
 			throw new Exception('Email: SMTP server not configured');
 		}
+
+		$PHPMailer->clearAddresses();
+		$PHPMailer->clearAllRecipients();
+		$PHPMailer->clearAttachments();
+		$PHPMailer->clearBCCs();
+		$PHPMailer->clearCCs();
 
 		if(is_string($to_address)){
 			$PHPMailer->addAddress($to_address);
@@ -101,6 +108,12 @@ class Email {
 
 		if(!$PHPMailer->send()) {
 			error_log('Email: ' . $PHPMailer->ErrorInfo);
+
+			return [
+				'success' => false,
+				'error' => $PHPMailer->ErrorInfo
+			];
+
 		}else{
 
 			if($audit_log){
@@ -111,6 +124,10 @@ class Email {
 				$log->event_description = 'Email Sent To: ' . $to_address;
 				$this->AuditLog->addLog($log);
 			}
+			return [
+				'success' => true,
+				'error' => ''
+			];
 		}
 	}
 }

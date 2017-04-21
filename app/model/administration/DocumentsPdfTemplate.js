@@ -52,6 +52,11 @@ Ext.define('App.model.administration.DocumentsPdfTemplate', {
 			len: 3
 		},
 		{
+			name: 'body_margin_bottom',
+			type: 'int',
+			len: 3
+		},
+		{
 			name: 'body_font_family',
 			type: 'string',
 			len: 60

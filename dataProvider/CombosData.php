@@ -71,6 +71,28 @@ class CombosData {
      */
 	private $TransactionLog;
 
+    /**
+     * getTableList
+     * Used by TransactionLog report, this will return a list of distinct tables in the transaction log.
+     */
+    public function getTableList()
+    {
+        $this->TransactionLog = MatchaModel::setSenchaModel('App.model.administration.TransactionLog');
+        $sql = "SELECT distinct(table_name) as table_name FROM audit_transaction_log;";
+        return $this->TransactionLog->sql($sql)->all();
+    }
+
+    /**
+     * getEventList
+     * Used by TransactionLog report, this will return a list of distinct tables in the transaction log.
+     */
+    public function getEventList()
+    {
+        $this->TransactionLog = MatchaModel::setSenchaModel('App.model.administration.TransactionLog');
+        $sql = "SELECT distinct(event) as event FROM audit_transaction_log;";
+        return $this->TransactionLog->sql($sql)->all();
+    }
+
 	/**
 	 * Main Sencha Model Getter and Setters
 	 */
@@ -79,16 +101,24 @@ class CombosData {
 			$this->CL = MatchaModel::setSenchaModel('App.model.administration.Lists');
 		if($this->CLO == null)
 			$this->CLO = MatchaModel::setSenchaModel('App.model.administration.ListOptions');
+
+		// List Key is used
+		if(isset($params->list_key)){
+			$sorters = new stdClass();
+			$sorters->sort[0] = new stdClass();
+			$sorters->sort[0]->property = 'seq';
+			$sorters->sort[0]->direction = 'ASC';
+			return $this->CLO->load(['list_key' => $params->list_key, 'active' => 1])->sort($sorters)->all();
+		}
+
+		// List ID is used
 		if(isset($params->list_id)){
 			if(is_numeric($params->list_id)){
-
 				$sorters = new stdClass();
 				$sorters->sort[0] = new stdClass();
 				$sorters->sort[0]->property = 'seq';
 				$sorters->sort[0]->direction = 'ASC';
-
 				return $this->CLO->load(['list_id' => $params->list_id, 'active' => 1])->sort($sorters)->all();
-
 			} else{
 				if($params->list_id == 'activePharmacies'){
 					return $this->getActivePharmacies();

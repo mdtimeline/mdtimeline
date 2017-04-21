@@ -18,7 +18,34 @@
  */
 
 $API = [
-
+    'ImplantableDevice' => [
+        'methods' => [
+            'getUidData' => [
+                'len' => 1
+            ],
+            'parseUid' => [
+                'len' => 1
+            ],
+            'lookup' => [
+                'len' => 1
+            ],
+            'devicesImplantableList' => [
+                'len' => 1
+            ],
+            'devicesSnomed' => [
+                'len' => 1
+            ],
+            'getPatientImplantableDevices' => [
+                'len' => 1
+            ],
+            'addPatientImplantableDevice' => [
+                'len' => 1
+            ],
+            'updatePatientImplantableDevice' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'DecisionAids' => [
         'methods' => [
             'getDecisionAids' => [
@@ -82,6 +109,27 @@ $API = [
     ],
     'EducationResources' => [
         'methods' => [
+            'search' => [
+                'len' => 1
+            ],
+            'findEncounterEducationResources' => [
+                'len' => 1
+            ],
+            'getPatientEducationResources' => [
+                'len' => 1
+            ],
+            'getPatientEducationResource' => [
+                'len' => 1
+            ],
+            'addPatientEducationResource' => [
+                'len' => 1
+            ],
+            'updatePatientEducationResource' => [
+                'len' => 1
+            ],
+            'destroyPatientEducationResource' => [
+                'len' => 1
+            ],
             'getEducationResources' => [
                 'len' => 1
             ],
@@ -1773,6 +1821,9 @@ $API = [
             ],
 			'getPatientByPublicId' => [
 				'len' => 1
+            ],
+			'search' => [
+				'len' => 1
             ]
         ]
     ],
@@ -1849,6 +1900,12 @@ $API = [
 	 */
 	'CombosData' => [
 		'methods' => [
+            'getTableList' => [
+                'len' => 0
+            ],
+            'getEventList' => [
+                'len' => 0
+            ],
 			'getOptionsByListId' => [
 				'len' => 1
             ],
@@ -2269,6 +2326,12 @@ $API = [
         'methods' => [
             'saveExportLog' => [
                 'len' => 1
+            ],
+            'getTransactionLog' => [
+                'len' => 1
+            ],
+            'getTransactionLogDetailByTableAndPk' => [
+                'len' => 2
             ]
         ]
     ],

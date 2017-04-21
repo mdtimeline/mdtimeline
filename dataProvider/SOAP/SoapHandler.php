@@ -48,11 +48,6 @@ class SoapHandler
         'PhysicalState' => 'state',
         'PhysicalCountry' => 'country',
         'PhysicalZipCode' => 'zipcode',
-        //'PostalAddressLineOne' => 'pid',
-        //'PostalAddressLineTwo' => 'pid',
-        //'PostalCity' => 'pid',
-        //'PostalState' => 'pid',
-        //'PostalZipCode' => 'pid',
         'HomePhoneNumber' => 'home_phone',
         'MobilePhoneNumber' => 'mobile_phone',
         'WorkPhoneNumber' => 'work_phone',
@@ -64,27 +59,26 @@ class SoapHandler
         'Deceased' => 'deceased',
         'DeceaseDate' => 'death_date',
         'MothersFirstName' => 'mothers_name',
-        //'MothersMiddleName' => 'pid',
-        //'MothersLastName' => 'pid',
-        'GuardiansFirstName' => 'guardians_name',
-        //'GuardiansMiddleName' => 'pid',
-        //'GuardiansLastName' => 'pid',
-        //'GuardiansPhone' => 'pid',
-        'EmergencyContactFirstName' => 'emer_contact',
-        //'EmergencyContactMiddleName' => 'pid',
-        //'EmergencyContactLastName' => 'pid',
-        'EmergencyContactPhone' => 'emer_phone',
+        'GuardiansFirstName' => 'guardians_fname',
+        'GuardiansMiddleName' => 'guardians_mname',
+        'GuardiansLastName' => 'guardians_lname',
+        'EmergencyContactFirstName' => 'emergency_contact_fname',
+        'EmergencyContactMiddleName' => 'emergency_contact_mname',
+        'EmergencyContactLastName' => 'emergency_contact_lname',
+        'EmergencyContactPhone' => 'emergency_contact_phone',
         'Occupation' => 'occupation',
         'Employer' => 'employer_name',
         'WebPortalUsername' => 'portal_username',
         'WebPortalPassword' => 'portal_password',
         'WebPortalAccess' => 'allow_patient_web_portal',
-        'EmergencyPortalAllow'      => 'allow_emergency_contact_web_portal',
-        'EmergencyPortalUsername'   => 'emergency_contact_portal_username',
-        'EmergencyPortalPassword'   => 'emergency_contact_portal_password',
-        'GuardianPortalAllow'       => 'allow_guardian_web_portal',
-        'GuardianPortalUsername'    => 'guardian_portal_username',
-        'GuardianPortalPassword'    => 'guardian_portal_password'
+        'EmergencyPortalAllow' => 'allow_emergency_contact_web_portal',
+        'EmergencyPortalAllowCda' => 'allow_emergency_contact_web_portal_cda',
+        'EmergencyPortalUsername' => 'emergency_contact_portal_username',
+        'EmergencyPortalPassword' => 'emergency_contact_portal_password',
+        'GuardianPortalAllow' => 'allow_guardian_web_portal',
+        'GuardianPortalAllowCda' => 'allow_guardian_web_portal_cda',
+        'GuardianPortalUsername' => 'guardian_portal_username',
+        'GuardianPortalPassword' => 'guardian_portal_password'
     ];
 
     function constructor($params)
@@ -119,6 +113,61 @@ class SoapHandler
         return $access;
     }
 
+    function GetDirectAddressRecipients($params){
+
+	    $this->constructor($params);
+	    if (!$this->isAuth()) {
+		    return [
+			    'Success' => false,
+			    'Error' => 'Error: HTTP 403 Access Forbidden'
+		    ];
+	    }
+
+	    $conn = Matcha::getConn();
+	    $sth = $conn->prepare("SELECT direct_address FROM users WHERE direct_address IS NOT NULL AND direct_address != ''");
+		$sth->execute();
+	    $data = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+    	return [
+    		'Success' => true,
+			'Data' => json_encode($data)
+	    ];
+    }
+
+    function GetMessageAddressRecipients($params){
+
+	    $this->constructor($params);
+	    if (!$this->isAuth()) {
+		    return [
+			    'Success' => false,
+			    'Error' => 'Error: HTTP 403 Access Forbidden'
+		    ];
+	    }
+
+	    include (ROOT . '/dataProvider/User.php');
+	    $User = new User();
+
+	    $users = $User->getUsersByAcl('receive_patient_messages');
+
+	    $addresses = [];
+
+	    foreach ($users['data'] as $user){
+		    $addresses[] = [
+		    	'uid' => $user['id'],
+		    	'user_name' => $user['title'] . ' ' . $user['lname'] . ', ' . $user['fname']
+		    ];
+	    }
+
+    	return [
+    		'Success' => true,
+			'Data' => json_encode($addresses)
+	    ];
+    }
+
+	/**
+	 * @param $params
+	 * @return array
+	 */
     public function PatientPortalAuthorize($params)
     {
         $this->constructor($params);
@@ -170,16 +219,18 @@ class SoapHandler
                 $this->AuditLog->addLog($logObject);
                 unset($logObject);
                 return [
-                    'Success' => true,
-                    'Patient' => $patient,
-                    'Error' => ''
+                    'Success'   => true,
+                    'Patient'   => $patient,
+                    'Who'       => 'Patient',
+                    'WhoName'   => $patient->FirstName.' '.$patient->MiddleName.' '.$patient->LastName,
+                    'Error'     => ''
                 ];
             }
         }
 
         // Check the AUTH of a Guardian Login
         // Check for the password / allowance / Date of Birth of the Patient
-        if(isset($patient->GuardianPortalAllow)){
+        if($patient->GuardianPortalAllow){
             if ($patient->GuardianPortalPassword == $params->Password &&
                 $patient->GuardianPortalUsername == $params->PatientAccount &&
                 substr($patient->DateOfBirth, 0, 10) == $params->DateOfBirth
@@ -193,6 +244,8 @@ class SoapHandler
                 return [
                     'Success' => true,
                     'Patient' => $patient,
+                    'Who'       => 'Guardian',
+                    'WhoName'   => $patient->GuardiansFirstName.' '.$patient->GuardiansMiddleName.' '.$patient->GuardiansLastName,
                     'Error' => ''
                 ];
             }
@@ -200,7 +253,7 @@ class SoapHandler
 
         // Check the AUTH of a Emergency Contact Login
         // Check for the password / allowance / Date of Birth of the Patient
-        if(isset($patient->EmergencyPortalAllow)){
+        if($patient->EmergencyPortalAllow){
             if ($patient->EmergencyPortalPassword == $params->Password &&
                 $patient->EmergencyPortalUsername == $params->PatientAccount &&
                 substr($patient->DateOfBirth, 0, 10) == $params->DateOfBirth
@@ -212,9 +265,11 @@ class SoapHandler
                 $logObject->event_description = 'Patient portal login attempt: Success emergency';
                 $this->AuditLog->addLog($logObject);
                 return [
-                    'Success' => true,
-                    'Patient' => $patient,
-                    'Error' => ''
+                    'Success'   => true,
+                    'Patient'   => $patient,
+                    'Who'       => 'Emergency',
+                    'WhoName'   => $patient->EmergencyContactFirstName.' '.$patient->EmergencyContactMiddleName.' '.$patient->EmergencyContactLastName,
+                    'Error'     => ''
                 ];
             }
         }
@@ -289,7 +344,10 @@ class SoapHandler
         }
     }
 
-
+	/**
+	 * @param $params
+	 * @return array
+	 */
     public function cancelPatientAmendment($params)
     {
         $this->constructor($params);
@@ -378,6 +436,10 @@ class SoapHandler
         ];
     }
 
+	/**
+	 * @param $params
+	 * @return array
+	 */
     public function AddPatient($params)
     {
         try {

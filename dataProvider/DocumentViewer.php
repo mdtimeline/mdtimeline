@@ -68,8 +68,7 @@ if (
 	require_once(ROOT . '/classes/MatchaHelper.php');
 	require_once(ROOT . '/dataProvider/TransactionLog.php');
 	new MatchaHelper();
-
-
+	$TransactionLog = new TransactionLog();
 
 	function get_mime_type($file)
 	{
@@ -77,6 +76,7 @@ if (
 			"pdf" => "application/pdf",
 			"exe" => "application/octet-stream",
 			"zip" => "application/zip",
+			"xml" => "application/xml",
 			"docx" => "application/msword",
 			"doc" => "application/msword",
 			"xls" => "application/vnd.ms-excel",
@@ -100,7 +100,8 @@ if (
 			"php" => "text/html",
 			"htm" => "text/html",
 			"html" => "text/html",
-			"xml" => "text/xml"
+
+			"txt" => "text/plain"
 		];
 
 		$foo = explode('.', $file);
@@ -110,11 +111,10 @@ if (
 
 	function base64ToBinary($document, $encrypted, $is_image){
 		// handle binary documents
-		if (isBinary($document)) {
-			return $document;
-		} else {
+		if(preg_match('%^[a-zA-Z0-9/+]*={0,2}$%', $document)){
 			return base64_decode($document);
 		}
+		return $document;
 	}
 
 	function isBinary($document){
@@ -126,10 +126,7 @@ if (
 		return false;
 	}
 
-
 	$isTemp = isset($_REQUEST['temp']);
-
-	$TransactionLog = new TransactionLog();
 
 	if ($isTemp) {
 		$d = MatchaModel::setSenchaModel('App.model.patient.PatientDocumentsTemp');
@@ -209,7 +206,16 @@ if (
 
 	unset($TransactionLog);
 
-	if ($is_image) {
+
+    if($mineType == 'text/plain') {
+        print '<pre>';
+        if (substr($document, -1) == '=') {
+            $document = base64_decode($document);
+        }
+        print $document;
+        print '</pre>';
+
+    } elseif ($is_image) {
 
 		$enableEdit = isset($_SESSION['user']['auth']) && $_SESSION['user']['auth'] == true;
 
@@ -283,14 +289,59 @@ HTML;
 		}
 
 		print $html;
-
 	} else {
-		header('Content-Type: ' . $mineType, true);
-		header('Content-Disposition: inline; filename="' . $doc['name'] . '"');
-		header('Content-Transfer-Encoding: BINARY');
-		header('Content-Length: ' . strlen($document));
-		header('Accept-Ranges: bytes');
-		print $document;
+    	if($mineType === 'application/xml'){
+
+    		if(isset($_REQUEST['rawXml'])){
+
+			    $document = preg_replace('/<\?xml-stylesheet (.*)\?>/', "" ,$document, 1);
+			    $encoding = mb_detect_encoding($document, 'ISO-8859-1,UTF-8');
+			    $encoding = $encoding === false ? '' : '; charset=' . $encoding;
+
+			    header_remove();
+			    header('Content-type: text/xml', true);
+			    print ($document);
+
+		    }else{
+			    $isCcr = preg_match('/<ccr:/',$document);
+			    if($isCcr){
+				    $href =  URL.'/lib/CCRCDA/schema/ccr.xsl';
+			    }else{
+				    $href =  URL.'/lib/CCRCDA/schema/cda2.xsl';
+			    }
+
+			    if(preg_match('/xml-stylesheet/', $document)){
+				    $document = preg_replace('/(href=").*\.xsl(")/', "$1{$href}$2" ,$document, 1);
+			    }else{
+				    $stylesheet = "<?xml-stylesheet type=\"text/xsl\" href=\"{$href}\"?>";
+				    $document = preg_replace('/(<\?xml version.*\?>)/', "$1$stylesheet" ,$document, 1);
+			    }
+
+			    $encoding = mb_detect_encoding($document, 'ISO-8859-1,UTF-8');
+			    $encoding = $encoding === false ? '' : '; charset=' . $encoding;
+
+			    header('Content-Type: ' . $mineType . $encoding, true);
+			    header('Content-Disposition: inline; filename="' . $doc['name'] . '"');
+			    header('Content-Transfer-Encoding: BINARY');
+			    header('Content-Length: ' . strlen($document));
+			    header('Accept-Ranges: bytes');
+			    print $document;
+
+		    }
+	    } else {
+
+		    $encoding = mb_detect_encoding($document, 'ISO-8859-1,UTF-8');
+		    $encoding = $encoding === false ? '' : '; charset=' . $encoding;
+
+		    header('Content-Type: ' . $mineType . $encoding, true);
+		    header('Content-Disposition: inline; filename="' . $doc['name'] . '"');
+		    header('Content-Transfer-Encoding: BINARY');
+		    header('Content-Length: ' . strlen($document));
+		    header('Accept-Ranges: bytes');
+		    print $document;
+	    }
+
+
 	}
 
 } else {

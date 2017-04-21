@@ -30,7 +30,7 @@ Ext.define('App.view.patient.Allergies', {
 		'App.ux.combo.AllergiesSeverity'
 	],
 	xtype: 'patientallergiespanel',
-	title: _('allergies'),
+	title: _('al'),
 	columnLines: true,
 	store: Ext.create('App.store.patient.Allergies', {
 		remoteFilter: true,
@@ -227,6 +227,12 @@ Ext.define('App.view.patient.Allergies', {
 		}
 	],
 	bbar: [
+		{
+			text: _('reconciled'),
+			itemId: 'PatientAllergyReconciledBtn',
+			enableToggle: true,
+			pressed: true
+		},
 		{
 			text: _('only_active'),
 			enableToggle: true,

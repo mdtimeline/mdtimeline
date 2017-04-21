@@ -1,8 +1,7 @@
 <?php
-
 /**
- * GaiaEHR (Electronic Health Records)
- * Copyright (C) 2013 Certun, LLC.
+ * mdTimeLine EHR (Electronic Health Records)
+ * Copyright (C) 2017 mdTimeLine, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 class Rxnorm
 {
     /**
@@ -69,12 +69,34 @@ class Rxnorm
         $sth = $this->db->prepare("SELECT ATV
 		                     FROM rxnsat
 		                    WHERE `CODE` = :c
-		                      AND ATN    = 'DDF'
+		                      AND ATN    = 'NDC'
 		                      AND SAB    = 'RXNORM'");
         $sth->execute([':c' => $CODE]);
         $rec = $sth->fetchAll(PDO::FETCH_ASSOC);
         return $rec['ATV'];
     }
+
+	public function getNDCByRxCUI($RXCUI)
+	{
+		$sth = $this->db->prepare("SELECT ATV
+		                     FROM rxnsat
+		                    WHERE `RXCUI` = :c
+		                      AND ATN    = 'NDC'");
+		$sth->execute([':c' => $RXCUI]);
+		$rec = $sth->fetch(PDO::FETCH_ASSOC);
+		return $rec['ATV'];
+	}
+
+	public function getGsCodeByRxCUI($RXCUI)
+	{
+		$sth = $this->db->prepare("SELECT `rxnconso`.`CODE` as GS_CODE
+ 									 FROM `rxnconso`
+ 								    WHERE `rxnconso`.`RXCUI` = :c 
+ 								      AND `rxnconso`.`SAB` = 'GS' LIMIT 1");
+		$sth->execute([':c' => $RXCUI]);
+		$rec = $sth->fetch(PDO::FETCH_ASSOC);
+		return $rec['GS_CODE'];
+	}
 
     /**
      * getIngredient
@@ -230,35 +252,52 @@ class Rxnorm
     public function getRXNORMLiveSearch(stdClass $params)
     {
         $include_ingredients = isset($params->include_ingredients) ? $params->include_ingredients : false;
-        $ingredients = $include_ingredients ? 'OR RX.TTY=\'IN\'' : '';
+        $ingredients = $include_ingredients ? 'OR c.TTY=\'IN\'' : '';
 
         $include_groups = isset($params->include_groups) ? $params->include_groups : false;
-        $groups = $include_groups ? 'OR RX.`TTY` = \'SBDC\' OR RX.`TTY`=\'SCDG\'' : '';
+        $groups = $include_groups ? 'OR c.`TTY` = \'SBDC\' OR c.`TTY`=\'SCDG\'' : '';
 
         $include_umls = isset($params->include_umls) ? $params->include_umls : false;
-        $umls = $include_umls ? 'OR `rxnsat`.`ATN` = \'UMLSAUI\' OR `rxnsat`.`ATN` = \'UMLSCUI\'' : '';
+        $umls = $include_umls ? '(SELECT rxnsat.`ATV` FROM rxnsat WHERE `rxnsat`.`RXCUI` = RX.RXCUI AND (`rxnsat`.`ATN` = \'UMLSAUI\' OR `rxnsat`.`ATN` = \'UMLSCUI\') AND `rxnsat`.`ATV` IS NOT NULL LIMIT 1) AS UMLSCUI' : '';
 
         if (is_numeric($params->query)) {
-            $where = 'RX.`RXCUI` = :q';
+            $where = 'c.`RXCUI` = :q';
             $query = [':q' => $params->query];
         } else {
-            $where = 'RX.`STR` LIKE :q';
+            $where = 'c.`STR` LIKE :q';
             $query = [':q' => '%' . $params->query . '%'];
         }
 
-        $sth = $this->db->prepare("SELECT RX.*, `rxnsat`.`ATV` AS NDC, 
-                    (select code from rxnconso where SAB='GS' AND rxcui = RX.rxcui LIMIT 1) as GS_CODE
-                     FROM `rxnconso` AS RX
-               INNER JOIN `rxnsat`
-                       ON RX.`RXCUI` = `rxnsat`.`RXCUI`
-                          AND RX.`SAB` = 'RXNORM'
-                          AND (`rxnsat`.`ATN` = 'NDC' $umls)
-                          AND (RX.`TTY` = 'SCD' OR RX.`TTY` = 'SBD' {$groups} {$ingredients})
-                    WHERE ($where)
-                    AND (select code from `rxnconso` where SAB='GS' AND rxcui = RX.rxcui LIMIT 1) IS NOT NULL
-                 GROUP BY RX.`STR`
-                 ORDER BY RX.`TTY` DESC
-                    LIMIT 100");
+        $sth = $this->db->prepare("
+			SELECT RX.*,
+		    (SELECT rxnsat.`ATV` FROM rxnsat WHERE `rxnsat`.`RXCUI` = RX.RXCUI AND `rxnsat`.`ATN` = 'NDC' AND `rxnsat`.`ATV` IS NOT NULL LIMIT 1) AS NDC,
+			{$umls}
+		  	(SELECT rxnconso.`code` FROM rxnconso WHERE `rxnconso`.`RXCUI` = RX.RXCUI AND (`rxnconso`.`SAB` = 'GS') LIMIT 1) AS GS_CODE
+		    FROM (
+		    	SELECT * 
+			    FROM rxnconso as c 
+			    WHERE ($where) 
+			    AND c.`SAB` = 'RXNORM' 
+			    AND (c.`TTY` = 'SCD' OR c.`TTY` = 'SBD' {$groups} {$ingredients}) 
+			    LIMIT 50
+		    ) AS RX
+		    WHERE RX.SUPPRESS = 'N' AND RX.CVF <> ''
+		    GROUP BY RX.`STR` 
+		    ORDER BY RX.`TTY` DESC, RX.`STR` DESC;");
+
+//        $sth = $this->db->prepare("SELECT RX.*, `rxnsat`.`ATV` AS NDC,
+//                    (select code from rxnconso where SAB='GS' AND rxcui = RX.rxcui LIMIT 1) as GS_CODE
+//                     FROM `rxnconso` AS RX
+//               INNER JOIN `rxnsat`
+//                       ON RX.`RXCUI` = `rxnsat`.`RXCUI`
+//                          AND RX.`SAB` = 'RXNORM'
+//                          AND (`rxnsat`.`ATN` = 'NDC' $umls)
+//                          AND (RX.`TTY` = 'SCD' OR RX.`TTY` = 'SBD' {$groups} {$ingredients})
+//                    WHERE ($where)
+//                    AND (select code from `rxnconso` where SAB='GS' AND rxcui = RX.rxcui LIMIT 1) IS NOT NULL
+//                 GROUP BY RX.`STR`
+//                 ORDER BY RX.`TTY` DESC
+//                    LIMIT 100");
 
         $sth->execute($query);
         $records = $sth->fetchAll(PDO::FETCH_ASSOC);

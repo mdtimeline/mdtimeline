@@ -29,7 +29,6 @@ class AuditLog {
 	}
 
 	public function addLog($params) {
-
 		if(isset($params->uid)){
 			$uid = $params->uid;
 		}elseif(isset($_SESSION['user']) && isset($_SESSION['user']['id'])){

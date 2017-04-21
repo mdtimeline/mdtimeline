@@ -77,6 +77,9 @@ Ext.define('App.controller.miscellaneous.Amendments', {
 			'#AmendmentsGrid' :{
 				itemdblclick: me.onAmendmentsPanelItemDblClick
 			},
+			'#PatientAmendmentsPanel' :{
+				itemdblclick: me.onAmendmentsPanelItemDblClick
+			},
 			'#AmendmentDetailsDenyBtn' :{
 				click: me.onAmendmentDetailsDenyBtnClick
 			},
@@ -195,7 +198,7 @@ Ext.define('App.controller.miscellaneous.Amendments', {
 		form.loadRecord(record);
 
 
-		if(record.data.amendment_status == 'W'){
+		if(record.data.amendment_status === 'W'){
 
 			me.getAmendmentDetailsUserLiveSearch().setVisible(a('amendments_assign'));
 			me.getAmendmentDetailsAssignBtn().setVisible(a('amendments_assign'));

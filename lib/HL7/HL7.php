@@ -271,6 +271,11 @@ class HL7 {
 		return true;
 	}
 
+	function printMessage($title = ''){
+		include_once ('HL7Printer.php');
+		return HL7Printer::printMessage($this->message, $title);
+	}
+
 	function time($time, $format = 'Y-m-d H:i:s'){
 		switch(strlen($time)){
 			case 4:

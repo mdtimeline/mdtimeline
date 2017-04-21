@@ -16,11 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('Modules.reportcenter.reports.TransactionLog.ux.ComboTable', {
+Ext.define('App.ux.combo.ComboEvents', {
     extend: 'Ext.form.ComboBox',
-    alias: 'widget.tablelist',
-    displayField: 'table_name',
-    valueField: 'table_name',
+    alias: 'widget.eventlist',
+    displayField: 'event',
+    valueField: 'event',
     forceSelection: false,
     editable: false,
 
@@ -37,32 +37,38 @@ Ext.define('Modules.reportcenter.reports.TransactionLog.ux.ComboTable', {
      */
     valueDataType: 'string',
 
-
     initComponent: function () {
         var me = this,
-            model = me.id + 'ComboTableListModel';
+            model = me.id + 'ComboEventListModel';
 
         Ext.define(model, {
             extend: 'Ext.data.Model',
             fields: [
                 {
-                    name: 'table_name',
+                    name: 'event',
                     type: 'string'
                 }
             ],
             proxy: {
                 type: 'direct',
                 api: {
-                    read: 'CombosData.getTableList'
+                    read: 'CombosData.getEventList'
                 }
             },
-            idProperty: 'table_name'
+            idProperty: 'event'
         });
 
         me.store = Ext.create('Ext.data.Store', {
             model: model,
             autoLoad: me.loadStore
         });
+
+	    if(me.enableReset){
+		    me.trigger2Cls = 'x-form-clear-trigger';
+		    me.onTrigger2Click = function() {
+			    me.reset();
+		    }
+	    }
 
         me.callParent(arguments);
 

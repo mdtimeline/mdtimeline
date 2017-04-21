@@ -27,7 +27,7 @@ Ext.define('App.view.patient.Referrals', {
 		'App.ux.grid.RowFormEditing'
 	],
 	xtype: 'patientreferralspanel',
-	title: _('referrals'),
+	title: _('refs'),
 	action: 'referralsGrid',
 	itemId: 'patientReferralsGrid',
 	columnLines: true,

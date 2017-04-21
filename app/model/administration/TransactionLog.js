@@ -1,6 +1,6 @@
 /**
- * GaiaEHR (Electronic Health Records)
- * Copyright (C) 2013 Certun, LLC.
+ * mdTimeLine EHR (Electronic Health Records)
+ * Copyright (C) 2017 mdTimeLine, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +52,17 @@ Ext.define('App.model.administration.TransactionLog', {
             name: 'fid',
             type: 'int',
             comment: 'Facility ID'
+        },
+        {
+            name: 'pk',
+            type: 'string',
+            comment: 'Primary Key'
+        },
+        {
+            name: 'category',
+            type: 'string',
+            len: 50,
+            comment: ''
         },
         {
             name: 'event',
@@ -129,10 +140,9 @@ Ext.define('App.model.administration.TransactionLog', {
             store: false,
             convert: function (v, record) {
                 var str = '';
-                if (record.data.user_title) str += record.data.user_title + ' ';
+	            if (record.data.user_lname) str += record.data.user_lname + ', ';
                 if (record.data.user_fname) str += record.data.user_fname + ' ';
-                if (record.data.user_mname) str += record.data.user_mname + ' ';
-                if (record.data.user_lname) str += record.data.user_lname;
+                if (record.data.user_mname) str += record.data.user_mname;
                 return str;
             }
         },
@@ -142,10 +152,9 @@ Ext.define('App.model.administration.TransactionLog', {
             store: false,
             convert: function (v, record) {
                 var str = '';
-                if (record.data.patient_title) str += record.data.patient_title + ' ';
+	            if (record.data.patient_lname) str += record.data.patient_lname + ', ';
                 if (record.data.patient_fname) str += record.data.patient_fname + ' ';
-                if (record.data.patient_mname) str += record.data.patient_mname + ' ';
-                if (record.data.patient_lname) str += record.data.patient_lname;
+                if (record.data.patient_mname) str += record.data.patient_mname;
                 return str;
             }
         },
@@ -163,7 +172,7 @@ Ext.define('App.model.administration.TransactionLog', {
     proxy: {
         type: 'direct',
         api: {
-            read: 'TransactionLog.getLogs'
+            read: 'TransactionLog.getTransactionLog'
         },
         reader: {
             root: 'data'

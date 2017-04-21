@@ -155,13 +155,13 @@ class MatchaHelper extends Matcha
         // This is compatible with the old methods
         if (defined('site_db_type')) {
             self::connect([
-                              'host' => site_db_host,
-                              'port' => site_db_port,
-                              'name' => site_db_database,
-                              'user' => site_db_username,
-                              'pass' => site_db_password,
-                              'app' => ROOT . '/app'
-                          ]);
+                  'host' => site_db_host,
+                  'port' => site_db_port,
+                  'name' => site_db_database,
+                  'user' => site_db_username,
+                  'pass' => site_db_password,
+                  'app' => ROOT . '/app'
+            ]);
         }
 
         self::$__secretKey = defined('site_aes_key') ? site_aes_key : '';

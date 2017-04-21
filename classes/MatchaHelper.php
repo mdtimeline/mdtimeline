@@ -129,6 +129,13 @@ class MatchaHelper extends Matcha
         'patient_labs'=>'Patient Orders',
 	    'patient_lab_results'=>'Patient Orders',
 
+        'acl_permissions' => 'User ACL Permissions',
+        'acl_role_perms' => 'User ACL Permissions',
+        'acl_group' => 'ACL Group',
+        'acl_roles' => 'ACL Roles',
+        'acl_user_perms' => 'User ACL Permissions',
+        'acl_user_roles' => 'User ACL Roles'
+
     ];
 
     /**

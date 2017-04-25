@@ -621,9 +621,9 @@ class Documents {
 		$pages = explode('{newpage}', $html);
 
 		foreach($pages AS $page){
-			$pdf->AddPage();
-			$pdf->SetMargins($margins['left'], $pdf->getHeaderY() + 10, $margins['right']);
-			$pdf->SetY($pdf->getHeaderY() + 5); // margin after header line
+			$pdf->AddPage('','',true);
+			//$pdf->SetMargins($margins['left'], $pdf->getHeaderY() + 10, $margins['right'], true);
+			//$pdf->SetY($pdf->getHeaderY() + 5); // margin after header line
 
 			if($this->isHtml($page)){
 				$pdf->writeHTML($page);

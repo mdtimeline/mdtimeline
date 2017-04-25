@@ -202,7 +202,7 @@ Ext.define('App.controller.patient.CCD', {
 			eid: eid,
 			uid: app.user.id,
 			date: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
-			type: 'clinical_summary',
+			type: 'Health care operations',
 			recipient: 'patient',
 			description: 'Clinical Summary Provided (Exported)',
 			active: 1
@@ -237,7 +237,7 @@ Ext.define('App.controller.patient.CCD', {
 			eid: eid,
 			uid: app.user.id,
 			date: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
-			type: 'clinical_summary',
+			type: 'Health care operations',
 			recipient: 'patient',
 			description: 'Clinical Summary Provided (PRINTED)',
 			active: 1

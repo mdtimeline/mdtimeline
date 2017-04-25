@@ -11,6 +11,12 @@ Ext.define('App.ux.combo.ComboOptionListSimple', {
      * List ID
      */
     list: null,
+
+    /**
+     * List Key
+     */
+    list_key: null,
+
     /**
      * Auto Load Store
      */
@@ -43,7 +49,8 @@ Ext.define('App.ux.combo.ComboOptionListSimple', {
                     read: 'CombosData.getOptionsByListId'
                 },
                 extraParams: {
-                    list_id: me.list
+                    list_id: me.list,
+                    list_key: me.list_key
                 }
             },
             idProperty: 'option_value'

@@ -222,21 +222,6 @@ class MatchaHelper extends Matcha
 	        $pid = $_SESSION['patient']['pid'];
         }
 
-//        // get eid...
-//        if (isset($saveParams['data']['eid'])) {
-//            $eid = $saveParams['data']['eid'];
-//        } else {
-//            $match = [];
-//            preg_match('/`eid`.*:W(\d*)/', $saveParams['sql'], $match);
-//
-//            if (!empty($match)) {
-//                preg_match('/:W(\d*)/', $match[0], $match);
-//                $eid = $saveParams['data'][$match[0]];
-//            } else {
-//                $eid = '0';
-//            }
-//        }
-
         $uid = isset($_SESSION['user']['id']) ? $_SESSION['user']['id'] : '0';
         $fid = isset($_SESSION['user']['facility']) ? $_SESSION['user']['facility'] : '0';
         $date = Time::getLocalTime('Y-m-d H:i:s');

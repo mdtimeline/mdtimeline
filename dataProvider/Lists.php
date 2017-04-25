@@ -91,8 +91,7 @@ class Lists
 		foreach($this->ComboList->load($params)->all() as $Combo)
         {
 			$Combo['in_use'] = 0;
-			foreach($this->FormFieldOptions->load()->all() as $Field)
-            {
+			foreach($this->FormFieldOptions->load()->all() as $Field) {
 				if(strstr($Field['options'], '"list_id":'.$Combo['id']) !== false) $Combo['in_use']++;
 			}
 			$Combo['in_use'] = ($Combo['in_use'] == 0) ? 0 : 1;

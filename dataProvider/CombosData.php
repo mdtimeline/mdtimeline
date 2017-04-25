@@ -103,14 +103,11 @@ class CombosData {
 			$this->CLO = MatchaModel::setSenchaModel('App.model.administration.ListOptions');
 		if(isset($params->list_id)){
 			if(is_numeric($params->list_id)){
-
 				$sorters = new stdClass();
 				$sorters->sort[0] = new stdClass();
 				$sorters->sort[0]->property = 'seq';
 				$sorters->sort[0]->direction = 'ASC';
-
 				return $this->CLO->load(['list_id' => $params->list_id, 'active' => 1])->sort($sorters)->all();
-
 			} else{
 				if($params->list_id == 'activePharmacies'){
 					return $this->getActivePharmacies();

@@ -1764,19 +1764,20 @@ $LANG = array(
     'implanted'                             => 'Implanted',
     'removed'                               => 'Removed',
 
-	'vaccines_immunizations' => 'Vaccines/Immunizations',
-	'vaccs' => 'VACCS',
-	'al' => 'AL',
-	'act_prob' => 'ACT PROB',
-	'fam_hx' => 'FAM HX',
-	'adv_dir' => 'ADV DIR',
-	'meds' => 'MEDS',
-	'res' => 'RES',
-	'soc_hx' => 'SOC HX',
-	'func_stat' => 'FUNC ST',
-	'refs' => 'REFS',
-	'doc_nt' => 'DOC NT',
-	'imp_devs' => 'IMP DEVS',
+	'vaccines_immunizations'                => 'Vaccines/Immunizations',
+	'vaccs'                                 => 'VACCS',
+	'al'                                    => 'AL',
+	'act_prob'                              => 'ACT PROB',
+	'fam_hx'                                => 'FAM HX',
+	'adv_dir'                               => 'ADV DIR',
+	'meds'                                  => 'MEDS',
+	'res'                                   => 'RES',
+	'soc_hx'                                => 'SOC HX',
+	'func_stat'                             => 'FUNC ST',
+	'refs'                                  => 'REFS',
+	'doc_nt'                                => 'DOC NT',
+    'imp_devs'                              => 'IMP DEVS',
+    'key'                                   => 'Key'
 
 
 );

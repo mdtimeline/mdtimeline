@@ -54,17 +54,20 @@ class Email {
 	}
 
 	/**
-	 * @param int $pid
-	 * @param int $eid
-	 * @param string $to_address
-	 * @param string $subject
-	 * @param string $body
+	 * @param int         $pid
+	 * @param int         $eid
+	 * @param string      $to_address
+	 * @param string      $subject
+	 * @param string      $body
 	 * @param null|string $from_address
-	 * @param bool $audit_log
+	 * @param bool        $audit_log
+	 * @param array       $attachments
+	 * @param array       $embedded_images
+	 *
 	 * @return array
 	 * @throws Exception
 	 */
-	function Send($pid, $eid, $to_address, $subject, $body, $from_address = null, $audit_log = true){
+	function Send($pid, $eid, $to_address, $subject, $body, $from_address = null, $audit_log = true, $attachments = [], $embedded_images = []){
 
 		$PHPMailer = new PHPMailer();
 
@@ -86,6 +89,8 @@ class Email {
 		$PHPMailer->clearAttachments();
 		$PHPMailer->clearBCCs();
 		$PHPMailer->clearCCs();
+		$PHPMailer->clearReplyTos();
+		$PHPMailer->clearCustomHeaders();
 
 		if(is_string($to_address)){
 			$PHPMailer->addAddress($to_address);
@@ -105,6 +110,14 @@ class Email {
 
 		$PHPMailer->Subject = $subject;
 		$PHPMailer->Body = $body;
+
+		foreach($attachments as $attachment){
+			$PHPMailer->addStringAttachment($attachment['data'], $attachment['filename']);
+		}
+
+		foreach($embedded_images as $embedded_image){
+			$PHPMailer->addStringEmbeddedImage($embedded_image['data'], $embedded_image['cid']);
+		}
 
 		if(!$PHPMailer->send()) {
 			error_log('Email: ' . $PHPMailer->ErrorInfo);

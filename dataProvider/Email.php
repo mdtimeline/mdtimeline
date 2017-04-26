@@ -35,7 +35,11 @@ class Email {
 
 	private $AuditLog;
 
+	private $t;
+
 	function __construct() {
+
+		$this->t = MatchaModel::setSenchaModel('App.model.administration.EmailTemplate');
 
 		$this->EMAIL_METHOD = Globals::getGlobal('EMAIL_METHOD');
 		$this->EMAIL_NOTIFICATION_HOUR = Globals::getGlobal('EMAIL_NOTIFICATION_HOUR');
@@ -59,15 +63,15 @@ class Email {
 	 * @param string      $to_address
 	 * @param string      $subject
 	 * @param string      $body
-	 * @param null|string $from_address
 	 * @param bool        $audit_log
+	 * @param int         $facility_id
 	 * @param array       $attachments
 	 * @param array       $embedded_images
 	 *
 	 * @return array
 	 * @throws Exception
 	 */
-	function Send($pid, $eid, $to_address, $subject, $body, $from_address = null, $audit_log = true, $attachments = [], $embedded_images = []){
+	function Send($pid, $eid, $to_address, $subject, $body, $audit_log = true, $facility_id = null, $attachments = [], $embedded_images = []){
 
 		$PHPMailer = new PHPMailer();
 
@@ -100,6 +104,23 @@ class Email {
 			}elseif(isset($to_address[0])){
 				$PHPMailer->addAddress($to_address[0]);
 			}
+		}
+
+		$tpl = $this->getMasterTemplate($facility_id);
+		if($tpl !== false){
+
+			$body = str_replace('[BODY]', $body, $tpl);
+
+			if(
+				isset($tpl['from_address']) &&
+				filter_var($tpl['from_address'], FILTER_VALIDATE_EMAIL) !== false
+			){
+				$from_address = $tpl['from_address'];
+			}
+		}
+
+		if(file_exists(site_path . '/logo-email.png')){
+			$PHPMailer->addEmbeddedImage(site_path . '/logo-email.png', 'logo');
 		}
 
 		if(isset($from_address)){
@@ -142,5 +163,16 @@ class Email {
 				'error' => ''
 			];
 		}
+	}
+
+	private function getMasterTemplate($facility_id){
+		$this->t->setOrFilterProperties(['facility_id']);
+		$this->t->addFilter('facility_id', '0');
+		if(isset($facility_id)){
+			$this->t->addFilter('facility_id', $facility_id);
+		}
+		$this->t->addFilter('template_type', 'master');
+		$this->t->addFilter('active', '1');
+		return $this->t->load()->sortBy('facility_id', 'DESC')->one();
 	}
 }

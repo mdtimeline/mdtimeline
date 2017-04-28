@@ -537,6 +537,12 @@ class ACL {
 		if(!self::hasPermission('emergency_access'))
 			return false;
 		$_SESSION['user']['emergencyAccess'] = true;
+
+
+		// LOG!!!
+
+
+
 		return $_SESSION['user']['emergencyAccess'];
 	}
 

@@ -44,6 +44,21 @@ class ImplantableDevice {
 		return $this->i->save($params);
 	}
 
+	public function getPatientImplantableDeviceByPidAndDates($pid, $start = null, $end = null){
+
+		$this->i->addFilter('pid', $pid);
+
+		if(isset($start)){
+			$this->i->addFilter('created_date', $start, '>=');
+		}
+		if(isset($end)) {
+			$this->i->addFilter('created_date', $end, '<=');
+		}
+
+		return $this->i->load()->all();
+	}
+
+
 	public function getUidData($params){
 		if(!isset($params->udi)){
 			return [

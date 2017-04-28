@@ -18,6 +18,25 @@
  */
 
 $API = [
+    'SocialPsychologicalBehavioral' => [
+        'methods' => [
+            'getSocialPsychologicalBehaviors' => [
+                'len' => 1
+            ],
+            'getSocialPsychologicalBehavior' => [
+                'len' => 1
+            ],
+            'addSocialPsychologicalBehavior' => [
+                'len' => 1
+            ],
+            'updateSocialPsychologicalBehavior' => [
+                'len' => 1
+            ],
+            'destroySocialPsychologicalBehavior' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'ImplantableDevice' => [
         'methods' => [
             'getUidData' => [
@@ -87,6 +106,28 @@ $API = [
                 'len' => 0
             ],
             'getDateTime' => [
+                'len' => 0
+            ]
+        ]
+    ],
+    'FileSystem' => [
+        'methods' => [
+            'getFileSystems' => [
+                'len' => 1
+            ],
+            'getFileSystem' => [
+                'len' => 1
+            ],
+            'addFileSystem' => [
+                'len' => 1
+            ],
+            'updateFileSystem' => [
+                'len' => 1
+            ],
+            'getOnlineFileSystem' => [
+                'len' => 0
+            ],
+            'fileSystemsSpaceAnalyzer' => [
                 'len' => 0
             ]
         ]

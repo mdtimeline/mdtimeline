@@ -7,6 +7,11 @@ Ext.define('App.ux.combo.ComboOptionList', {
     forceSelection: false,
     editable: false,
 
+	/**
+	 * List by Key
+	 */
+	listKey: null,
+
     /**
      * List ID
      */
@@ -59,7 +64,8 @@ Ext.define('App.ux.combo.ComboOptionList', {
                     read: 'CombosData.getOptionsByListId'
                 },
                 extraParams: {
-                    list_id: me.list
+                    list_id: me.list,
+	                list_key: me.listKey
                 }
             },
             idProperty: 'option_value'

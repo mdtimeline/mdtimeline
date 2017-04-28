@@ -153,11 +153,17 @@ if (
 			error_log('No Document Found for id ' . $_REQUEST['id']);
 			die();
 		}
-		//$doc = (object)$doc;
 		$doc['is_temp'] = 'false';
+		$filesystem_path = '';
 
-		$file_path = $doc['url'] . '/' . $doc['name'];
-		$is_file = isset($doc['url']) && $doc['url'] != '' && file_exists($file_path);
+		if(isset($doc['filesystem_id']) && $doc['filesystem_id'] > 0){
+			require_once(ROOT . '/dataProvider/FileSystem.php');
+			$FileSystem = new FileSystem();
+			$filesystem_path = $FileSystem->getFileSystemPath($doc['filesystem_id']);
+		}
+
+		$file_path = $filesystem_path . $doc['path'] . '/' . $doc['name'];
+		$is_file = isset($doc['path']) && $doc['path'] != '' && file_exists($file_path);
 
 		if ($is_file) {
 			$mineType = mime_content_type($file_path);
@@ -340,7 +346,6 @@ HTML;
 		    header('Accept-Ranges: bytes');
 		    print $document;
 	    }
-
 
 	}
 

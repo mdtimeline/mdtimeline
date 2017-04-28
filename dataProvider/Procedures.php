@@ -51,6 +51,19 @@ class Procedures {
 		return $this->p->load($params)->all();
 	}
 
+	public function getPatientProceduresByPidAndDates($pid, $start = null, $end = null) {
+
+		$this->p->addFilter('pid', $pid);
+		if(isset($start)){
+			$this->p->addFilter('create_date', $start, '>=');
+		}
+		if(isset($end)) {
+			$this->p->addFilter('create_date', $end, '<=');
+		}
+
+		return $this->p->load()->all();
+	}
+
 	public function getPatientProceduresByEid($eid) {
 		$params =  new stdClass();
 		$params->filter[0] = new stdClass();

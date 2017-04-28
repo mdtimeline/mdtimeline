@@ -19,6 +19,7 @@
 
 include_once(ROOT . '/classes/Crypt.php');
 include_once(ROOT . '/dataProvider/Documents.php');
+include_once(ROOT . '/dataProvider/FileSystem.php');
 include_once(ROOT . '/dataProvider/DoctorsNotes.php');
 
 class DocumentHandler {
@@ -43,8 +44,13 @@ class DocumentHandler {
 	 */
 	private $t;
 
+	/**
+	 * @var FileSystem
+	 */
+	private $FileSystem;
 
-	private $storeAsFile = false;
+
+	private $storeAsFile = true;
 
 	private $doctorsnotes;
 
@@ -71,6 +77,7 @@ class DocumentHandler {
 
 	function __construct(){
 		$this->db = new MatchaHelper();
+		$this->FileSystem = new FileSystem();
 		return;
 	}
 
@@ -115,8 +122,8 @@ class DocumentHandler {
 
 		if($record !== false && $includeDocument){
 
-			$file_path = $record['url'] . '/' . $record['name'];
-			$is_file = isset($record['url']) && $record['url'] != '' && file_exists($file_path);
+			$file_path = $record['path'] . '/' . $record['name'];
+			$is_file = isset($record['path']) && $record['path'] != '' && file_exists($file_path);
 
 			if ($is_file) {
 				$record['document'] = file_get_contents($file_path);
@@ -213,7 +220,7 @@ class DocumentHandler {
 
 			if($document_model === false) {
 				throw new Exception("Unable to create App.model.administration.DocumentData model instance '{$instance}'");
-			};
+			}
 
 			$document->document = $this->base64ToBinary($document->document);
 			$file_info = new finfo(FILEINFO_MIME_TYPE);
@@ -265,32 +272,39 @@ class DocumentHandler {
 			$document = (object) $document;
 			$conn = Matcha::getConn();
 
-			$document_path = Globals::getGlobal('documents_directory');
-			if(!isset($document_path) || $document_path == false || $document_path == ''){
-				$document_path = site_path . '/documents';
+			$filesystem = $this->FileSystem->getOnlineFileSystem();
+			if($filesystem !== false){
+				$filesystem_path = rtrim($filesystem['dir_path'], '/');
+				$filesystem_id = $filesystem['id'];
 			}else{
-				$document_path = rtrim($document_path, '/');
+				$filesystem_path = '';
+				$filesystem_id = 0;
 			}
+
+			$document_path = $filesystem_path === '' ? (site_path . '/documents') : '';
 
 			/**
 			 * change date to path  2016-01-23 => 2016/01/23
 			 */
 			$document_path .= '/' . str_ireplace(['-',' '], '/', substr($document->date,0,10));
 
-			if(!file_exists($document_path)){
-				mkdir($document_path, 0777, true);
-				chmod($document_path, 755);
+			if(!file_exists($filesystem_path . $document_path)){
+				mkdir($filesystem_path . $document_path, 0777, true);
+				chmod($filesystem_path . $document_path, 755);
 			}
 
-			$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $document->document_instance);
-			$data = $dd->load($document->document_id)->one();
-			if($data !== false){
-				$document->document = $data['document'];
+			if($document->document_instance > 0 && (!isset($document->document) || $document->document == '')){
+				$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $document->document_instance);
+				if($dd !== false){
+					$data = $dd->load($document->document_id)->one();
+					if($data !== false){
+						$document->document = $data['document'];
+					}
+					unset($data);
+				}
 			}
-			unset($data);
 
 			$document->document = $this->base64ToBinary($document->document);
-
 			$file_info = new finfo(FILEINFO_MIME_TYPE);
 			$mime_type = $file_info->buffer($document->document);
 
@@ -306,7 +320,7 @@ class DocumentHandler {
 
 			$ext = $this->mime_types_ext[$mime_type];
 			$file_name = $document_code .'_' .$document->id . '_' . $document->pid . '.' . $ext;
-			$path = $document_path . '/'. $file_name;
+			$path = $filesystem_path . $document_path . '/'. $file_name;
 
 			if(file_exists($path)){
 				throw new Exception('File name exist. document_id: ' . $document->id . ' path: '. $path);
@@ -316,11 +330,12 @@ class DocumentHandler {
 				throw new Exception('Unable to write file. document_id: ' . $document->id . ' path: '. $path);
 			}
 
-			$sth = $conn->prepare("UPDATE patient_documents SET url = :url, `name` = :name WHERE id = :id;");
+			$sth = $conn->prepare("UPDATE patient_documents SET filesystem_id = :filesystem_id, path = :path, `name` = :name WHERE id = :id;");
 			$sth->execute([
 				':id' => $document->id,
-				':name' => $file_name,
-				':url' => $document_path
+				':filesystem_id' => $filesystem_id,
+				':path' => $document_path,
+				':name' => $file_name
 			]);
 
 			//error_log('DOCUMENT COMPLETE');
@@ -434,105 +449,6 @@ class DocumentHandler {
 		if($pos === false) return $base64;
 		return substr($base64, $pos + 1);
 	}
-
-
-	/**
-	 * this will return the document info
-	 * @param $params
-	 * @return array
-	 */
-//	public function createDocument($params){
-//		$this->setPatientDocumentModel();
-//
-//		$params = (object)$params;
-//		$path = $this->getPatientDir($params) . $this->nameFile();
-//
-//		$this->documents = new Documents();
-//		$this->documents->PDFDocumentBuilder($params, $path);
-//
-//		if(file_exists($path)){
-//
-//			$data = new stdClass();
-//			$data->pid = $this->pid;
-//			$data->eid = (isset($params->eid) ? $params->eid : '0');
-//			$data->uid = (isset($params->uid) ? $params->uid : $_SESSION['user']['id']);
-//			$data->docType = $this->docType;
-//			$data->name = $this->fileName;
-//			$data->url = $this->getDocumentUrl();
-//			$data->date = date('Y-m-d H:i:s');
-//			$data->hash = hash_file('sha256', $path);
-//
-//			$data = $this->d->save($data);
-//
-//			if(isset($params->DoctorsNote)){
-//				$this->doctorsnotes = new DoctorsNotes();
-//				$this->doctorsnotes->addDoctorsNotes($params);
-//			}
-//
-//			//print_r($data);
-//
-//			return ['success' => true, 'doc' => ['id' => $data['data']->id, 'name' => $this->fileName, 'url' => $this->getDocumentUrl(), 'path' => $path]];
-//		} else{
-//			return ['success' => false, 'error' => 'Document could not be created'];
-//		}
-//	}
-
-	/**
-	 * this will return the PDF base64 string
-	 * @param $params
-	 * @return bool|string
-	 */
-//	public function createPDF($params){
-//		$this->setPatientDocumentModel();
-//		$this->documents = new Documents();
-//		return $this->documents->PDFDocumentBuilder((object)$params);
-//	}
-
-//	public function uploadDocument($params, $file){
-//		$this->setPatientDocumentModel();
-//
-//		$params = (object)$params;
-//		$src = $this->getPatientDir($params) . $this->reNameFile($file);
-//		if(move_uploaded_file($file['filePath']['tmp_name'], $src)){
-//
-//			if(isset($params->encrypted) && $params->encrypted){
-//				file_put_contents($src, Crypt::encrypt(file_get_contents($src)), LOCK_EX);
-//			}
-//
-//			$data = new stdClass();
-//			$data->pid = $this->pid;
-//			$data->eid = (isset($params->eid) ? $params->eid : 0);
-//			$data->uid = (isset($params->uid) ? $params->uid : $_SESSION['user']['id']);
-//			$data->docType = $this->docType;
-//			$data->name = $this->fileName;
-//			$data->url = $this->getDocumentUrl();
-//			$data->date = date('Y-m-d H:i:s');
-//			$data->hash = hash_file('sha256', $src);
-//			$data->encrypted = $params->encrypted;
-//			$data = $this->d->save($data);
-//
-//			return ['success' => true, 'doc' => ['id' => $data['id'], 'name' => $this->fileName, 'url' => $this->getDocumentUrl()]];
-//		} else{
-//			return ['success' => false, 'error' => 'File could not be uploaded'];
-//		}
-//	}
-
-	/**
-	 * @param $id
-	 * @return bool
-	 */
-//	public function deleteDocumentById($id){
-//		$path = $this->getDocumentPathById($id);
-//		if(unlink($path)){
-//			$this->db->setSQL("DELETE FROM patient_documents WHERE id = '$id'");
-//			$this->db->execLog();
-//			return true;
-//		} else{
-//			return false;
-//
-//		}
-//
-//	}
 
 	/**
 	 * @return string
@@ -697,7 +613,7 @@ class DocumentHandler {
 		ini_set('memory_limit', '-1');
 
 		$this->setPatientDocumentModel();
-		$this->d->addFilter('url', null, '=');
+		$this->d->addFilter('path', null, '=');
 
 		$records = $this->d->load()->limit(0, $quantity)->all();
 

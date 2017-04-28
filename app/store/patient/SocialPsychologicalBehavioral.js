@@ -12,18 +12,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public  License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.store.administration.Lists', {
-    model: 'App.model.administration.Lists',
-    extend: 'Ext.data.Store',
-	pageSize: 500,
-	sorters: [
-		{
-			property: 'title',
-			direction: 'ASC'
-		}
-	]
+Ext.define('App.store.patient.SocialPsychologicalBehavioral', {
+	extend: 'Ext.data.Store',
+	model: 'App.model.patient.SocialPsychologicalBehavioral'
 });
+
+

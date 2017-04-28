@@ -210,6 +210,11 @@ Ext.define('App.model.patient.PatientImmunization', {
 			type: 'int'
 		},
 		{
+			name: 'status',
+			type: 'string',
+			len: 40
+		},
+		{
 			name: 'is_error',
 			type: 'bool'
 		},

@@ -130,6 +130,32 @@ class Medications
             ->all();
     }
 
+	public function getPatientMedicationsByPidAndDates($pid, $reconciled = false, $start = null, $end = null)
+	{
+		$this->m->addFilter('pid', $pid);
+
+		if(isset($start)){
+			$this->m->addFilter('created_date', $start, '>=');
+		}
+		if(isset($end)) {
+			$this->m->addFilter('created_date', $end, '<=');
+		}
+
+
+		if ($reconciled) {
+			$groups = new stdClass();
+			$groups->group[0] = new stdClass();
+			$groups->group[0]->property = 'RXCUI';
+			return $this->m->load()
+				->leftJoin(['title', 'fname', 'mname', 'lname'], 'users', 'administered_uid', 'id')
+				->group($groups)
+				->all();
+		}
+		return $this->m->load()
+			->leftJoin(['title', 'fname', 'mname', 'lname'], 'users', 'administered_uid', 'id')
+			->all();
+	}
+
     public function getPatientMedicationsByEid($eid)
     {
         $this->m->addFilter('eid', $eid);

@@ -153,5 +153,16 @@ class ActiveProblems
         return array_values($records);
     }
 
+	public function getPatientAllProblemsByPidAndDates($pid, $start = null, $end = null)
+	{
+		$this->a->addFilter('pid', $pid);
+		if(isset($start)){
+			$this->a->addFilter('create_date', $start, '>=');
+		}
+		if(isset($end)) {
+			$this->a->addFilter('create_date', $end, '<=');
+		}
+		return $this->a->load()->all();
+	}
 }
 

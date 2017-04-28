@@ -76,7 +76,12 @@ Ext.define('App.model.patient.PatientDocuments', {
 			index: true
 		},
 		{
-			name: 'url',
+			name: 'filesystem_id',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'path',
 			type: 'string'
 		},
 		{

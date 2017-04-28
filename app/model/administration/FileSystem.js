@@ -12,18 +12,45 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public  License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.store.administration.Lists', {
-    model: 'App.model.administration.Lists',
-    extend: 'Ext.data.Store',
-	pageSize: 500,
-	sorters: [
+Ext.define('App.model.administration.FileSystem', {
+	extend: 'Ext.data.Model',
+	table: {
+		name: 'filesystems'
+	},
+	fields: [
 		{
-			property: 'title',
-			direction: 'ASC'
+			name: 'id',
+			type: 'int'
+		},
+		{
+			name: 'next_id',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'dir_path',
+			type: 'string',
+			len: 180
+		},
+		{
+			name: 'status',
+			type: 'string',
+			len: 15,
+			index: true
+		},
+		{
+			name: 'total_space',
+			type: 'float',
+			len: 11
+		},
+		{
+			name: 'free_space',
+			type: 'float',
+			len: 11
 		}
 	]
 });

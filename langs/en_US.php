@@ -1850,6 +1850,14 @@ $LANG = array(
 	'psychological_behavioral'              => 'Psychological Behavioral',
 	'social_psychological_behavioral'       => 'Social Psychological Behavioral',
 	'social_psychological_behavioral_eval'  => 'Social Psychological Behavioral Eval',
+	'file_systems'                          => 'File Systems',
+	'file_system'                           => 'File System',
+	'analyze'                               => 'Analyze',
+	'next_id'                               => 'Next ID',
+	'dir_path'                              => 'Dir Path',
+	'total_space'                           => 'Total Space',
+	'free_space'                            => 'Free Space',
+	'percent_used'                          => 'Percent Used',
 
 
 );

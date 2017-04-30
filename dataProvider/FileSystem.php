@@ -29,7 +29,11 @@ class FileSystem {
 	private $min_free_space = 50;
 
 	function __construct() {
-		$this->fs = MatchaModel::setSenchaModel('App.model.administration.FileSystem');
+		$this->fs = MatchaModel::setSenchaModel('App.model.administration.FileSystem', true);
+		$min_free_space = Globals::getGlobal('file_system_min_free_space');
+		if($min_free_space !== false){
+			$this->min_free_space = $min_free_space;
+		}
 	}
 
 	public function getFileSystems($params) {
@@ -61,29 +65,43 @@ class FileSystem {
 
 		if($this->isFull($filesystem)){
 
-			$this->fs->addFilter('id', $filesystem['next_id']);
-			$next_filesystem = $this->fs->load()->one();
-			$this->fs->clearFilters();
+		$next_filesystem = $this->switchNextFileSystem($filesystem);
 
 			if($next_filesystem === false){
-				error_log('FILE SYSTEM FULL - '. $next_filesystem['dir_path']);
-
 				$_SESSION['file_system'] = $filesystem;
-				return $filesystem;
+			}else{
+				$_SESSION['file_system'] = $next_filesystem;
 			}
-
-			$next_filesystem['status'] = 'ACTIVE';
-			$this->updateFileSystem((object) $next_filesystem);
-
-			$filesystem['status'] = 'FULL';
-			$this->updateFileSystem((object) $filesystem);
-
-			$_SESSION['file_system'] = $next_filesystem;
-			return $next_filesystem;
 		}
 
 		$_SESSION['file_system'] = $filesystem;
 		return $filesystem;
+	}
+
+	private function switchNextFileSystem(&$filesystem){
+		$this->fs->addFilter('id', $filesystem['next_id']);
+		$next_filesystem = $this->fs->load()->one();
+		$this->fs->clearFilters();
+
+		if($next_filesystem === false){
+			error_log('FILE SYSTEM FULL - '. $next_filesystem['dir_path']);
+			return false;
+		}
+
+		if($this->isFull($next_filesystem)){
+			$next_filesystem['error'] = 'Dir Path is full';
+			$this->updateFileSystem((object) $next_filesystem);
+			return $this->switchNextFileSystem($next_filesystem);
+		}
+
+		$next_filesystem['status'] = 'ACTIVE';
+		$this->updateFileSystem((object) $next_filesystem);
+
+		$filesystem['status'] = 'FULL';
+		$this->updateFileSystem((object) $filesystem);
+
+		$_SESSION['file_system'] = $next_filesystem;
+		return $next_filesystem;
 	}
 
 	public function getFileSystemPath($filesystem_id) {
@@ -102,12 +120,30 @@ class FileSystem {
 	public function fileSystemsSpaceAnalyzer(){
 		$filesystems = $this->getFileSystems(null);
 		foreach($filesystems as &$filesystem){
-			if(!isset($filesystem['dir_path']) || !file_exists($filesystem['dir_path'])) continue;
-			$bytes = disk_total_space($filesystem['dir_path']);
-			$filesystem['total_space'] = $bytes ? round($bytes/1024/1024/1024, 1) : 0;
 
-			$bytes = disk_free_space($filesystem['dir_path']);
-			$filesystem['free_space'] = $bytes ? round($bytes/1024/1024/1024, 1) : 0;
+			if(!isset($filesystem['dir_path'])){
+				$filesystem['error'] = 'Dir Path not set';
+				$filesystem['total_space'] = 0;
+				$filesystem['free_space'] = 0;
+			} elseif(!file_exists($filesystem['dir_path'])){
+				$filesystem['error'] = 'Dir Path does not exist';
+				$filesystem['total_space'] = 0;
+				$filesystem['free_space'] = 0;
+			} elseif(!is_writable($filesystem['dir_path'])){
+				$filesystem['error'] = 'Dir Path does not writable';
+				$filesystem['total_space'] = 0;
+				$filesystem['free_space'] = 0;
+			}else{
+				$bytes = disk_total_space($filesystem['dir_path']);
+				$filesystem['total_space'] = $bytes ? round($bytes/1024/1024/1024, 1) : 0;
+				$bytes = disk_free_space($filesystem['dir_path']);
+				$filesystem['free_space'] = $bytes ? round($bytes/1024/1024/1024, 1) : 0;
+				$filesystem['error'] = '';
+
+				if($this->isFull($filesystem) && $filesystem['status'] != 'FULL'){
+					$filesystem['error'] = 'Dir Path is full';
+				}
+			}
 
 			$this->updateFileSystem((object) $filesystem);
 		}

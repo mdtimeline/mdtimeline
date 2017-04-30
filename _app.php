@@ -838,6 +838,7 @@ header("Access-Control-Allow-Origin: *");
 	                'administration.DecisionSupport',
 	                'administration.Documents',
 	                'administration.FacilityStructure',
+	                'administration.FileSystems',
 	                'administration.HL7',
 	                'administration.Practice',
 	                'administration.ReferringProviders',

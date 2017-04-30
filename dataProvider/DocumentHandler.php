@@ -266,6 +266,9 @@ class DocumentHandler {
 		}
 	}
 
+	/**
+	 * @param $document
+	 */
 	private function handleDocumentFile(&$document){
 
 		try{

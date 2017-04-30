@@ -51,6 +51,23 @@ Ext.define('App.model.administration.FileSystem', {
 			name: 'free_space',
 			type: 'float',
 			len: 11
+		},
+		{
+			name: 'error',
+			type: 'string',
+			len: 200
 		}
-	]
+	],
+	proxy: {
+		type: 'direct',
+		api: {
+			read: 'FileSystem.getFileSystems',
+			create: 'FileSystem.addFileSystem',
+			update: 'FileSystem.updateFileSystem'
+		}
+	},
+	reader: {
+		totalProperty: 'total',
+		root: 'data'
+	}
 });

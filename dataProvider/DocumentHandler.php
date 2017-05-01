@@ -272,7 +272,7 @@ class DocumentHandler {
 	private function handleDocumentFile(&$document){
 
 		try{
-			$document = (object) $document;
+			$document = (object)$document;
 			$conn = Matcha::getConn();
 
 			$filesystem = $this->FileSystem->getOnlineFileSystem();
@@ -289,7 +289,7 @@ class DocumentHandler {
 			/**
 			 * change date to path  2016-01-23 => 2016/01/23
 			 */
-			$document_path .= '/' . str_ireplace(['-',' '], '/', substr($document->date,0,10));
+			$document_path .= '/' . str_ireplace(['-', ' '], '/', substr($document->date, 0, 10));
 
 			if(!file_exists($filesystem_path . $document_path)){
 				mkdir($filesystem_path . $document_path, 0777, true);
@@ -312,7 +312,7 @@ class DocumentHandler {
 			$mime_type = $file_info->buffer($document->document);
 
 			if(!isset($this->mime_types_ext[$mime_type])){
-				throw new Exception('File extension not supported. document_id: ' . $document->id . ' mime_type: '. $mime_type);
+				throw new Exception('File extension not supported. document_id: ' . $document->id . ' mime_type: ' . $mime_type);
 			}
 
 			$document_code = isset($document->docTypeCode) ? $document->docTypeCode : '';
@@ -322,15 +322,15 @@ class DocumentHandler {
 			}
 
 			$ext = $this->mime_types_ext[$mime_type];
-			$file_name = $document_code .'_' .$document->id . '_' . $document->pid . '.' . $ext;
-			$path = $filesystem_path . $document_path . '/'. $file_name;
+			$file_name = $document_code . '_' . $document->id . '_' . $document->pid . '.' . $ext;
+			$path = $filesystem_path . $document_path . '/' . $file_name;
 
-			if(file_exists($path)){
-				throw new Exception('File name exist. document_id: ' . $document->id . ' path: '. $path);
+			if(file_exists($path) && !unlink($path)){
+				throw new Exception('File name exist. document_id: ' . $document->id . ' path: ' . $path);
 			}
 
 			if(file_put_contents($path, $document->document) === false){
-				throw new Exception('Unable to write file. document_id: ' . $document->id . ' path: '. $path);
+				throw new Exception('Unable to write file. document_id: ' . $document->id . ' path: ' . $path);
 			}
 
 			$sth = $conn->prepare("UPDATE patient_documents SET filesystem_id = :filesystem_id, path = :path, `name` = :name WHERE id = :id;");
@@ -345,7 +345,7 @@ class DocumentHandler {
 			unset($document->document);
 			unset($data, $record, $document_model);
 
-		}catch(Exception $e){
+		} catch(Exception $e){
 			error_log('Error Converting Document');
 			error_log($e->getMessage());
 		}

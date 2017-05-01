@@ -29,6 +29,8 @@ class FileSystem {
 	private $min_free_space = 50;
 
 	function __construct() {
+		require_once(ROOT . '/dataProvider/Globals.php');
+
 		$this->fs = MatchaModel::setSenchaModel('App.model.administration.FileSystem', true);
 		$min_free_space = Globals::getGlobal('file_system_min_free_space');
 		if($min_free_space !== false){

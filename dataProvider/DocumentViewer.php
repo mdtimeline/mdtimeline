@@ -67,6 +67,7 @@ if (
 	 */
 	require_once(ROOT . '/classes/MatchaHelper.php');
 	require_once(ROOT . '/dataProvider/TransactionLog.php');
+	require_once(ROOT . '/dataProvider/Globals.php');
 	new MatchaHelper();
 	$TransactionLog = new TransactionLog();
 

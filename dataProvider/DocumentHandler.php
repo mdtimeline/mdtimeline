@@ -296,7 +296,7 @@ class DocumentHandler {
 				chmod($filesystem_path . $document_path, 755);
 			}
 
-			if($document->document_instance > 0 && (!isset($document->document) || $document->document == '')){
+			if(isset($document->document_instance) && $document->document_instance > 0 && (!isset($document->document) || $document->document == '')){
 				$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $document->document_instance);
 				if($dd !== false){
 					$data = $dd->load($document->document_id)->one();

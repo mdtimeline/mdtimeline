@@ -111,6 +111,49 @@ class Vitals {
 	}
 
 	/**
+	 * @param $pid
+	 * @param null $start
+	 * @param null $end
+	 * @return array
+	 */
+	public function getVitalsByPidAndDate($pid, $start = null, $end = null){
+
+		$params = new stdClass();
+		$params->sort[0] = new stdClass();
+		$params->sort[0]->property = 'date';
+		$params->sort[0]->direction = 'DESC';
+
+		$this->v->addFilter('pid', $pid);
+		if(isset($start)){
+			$this->v->addFilter('date', $start, '>=');
+		}
+		if(isset($end)) {
+			$this->v->addFilter('date', $end, '<=');
+		}
+
+		$records =  $this->v->load($params)
+			->leftJoin([
+				'title' => 'administer_title',
+				'fname' => 'administer_fname',
+				'mname' => 'administer_mname',
+				'lname' => 'administer_lname',
+			],'users','uid', 'id')
+			->leftJoin([
+				'title' => 'authorized_title',
+				'fname' => 'authorized_fname',
+				'mname' => 'authorized_mname',
+				'lname' => 'authorized_lname',
+			],'users','auth_uid', 'id')
+			->all();
+		foreach($records as $i => $record){
+
+			$records[$i]['administer_by'] = $record['uid'] != null ? $this->User->getUserNameById($record['uid']) : '';
+			$records[$i]['authorized_by'] = $record['auth_uid'] != null ? $this->User->getUserNameById($record['auth_uid']) : '';
+		}
+		return $records;
+	}
+
+	/**
 	 * @param $eid
 	 * @return array
 	 */

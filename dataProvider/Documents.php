@@ -622,8 +622,6 @@ class Documents {
 
 		foreach($pages AS $page){
 			$pdf->AddPage('','',true);
-			//$pdf->SetMargins($margins['left'], $pdf->getHeaderY() + 10, $margins['right'], true);
-			//$pdf->SetY($pdf->getHeaderY() + 5); // margin after header line
 
 			if($this->isHtml($page)){
 				$pdf->writeHTML($page);

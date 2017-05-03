@@ -378,6 +378,40 @@ class Orders {
 		return $orders;
 	}
 
+	public function getOrderWithResultsByPidAndDates($pid, $start = null, $end = null){
+		$this->setOrders();
+		$this->setResults();
+		$this->setObservations();
+
+		$this->o->addFilter('pid', $pid);
+		$orders = $this->o->load()->all();
+
+		foreach($orders as $i => &$order){
+			$this->r->addFilter('order_id', $order['id']);
+
+			if(isset($start)){
+				$this->r->addFilter('created_date', $start, '>=');
+			}
+			if(isset($end)) {
+				$this->r->addFilter('created_date', $end, '<=');
+			}
+			$result = $this->r->load()->one();
+
+			if($result === false){
+				// if no result delete order
+				unset($orders[$i]);
+				continue;
+			}
+
+			$order['result'] = &$result;
+			$this->b->addFilter('result_id', $result['id']);
+			$order['result']['observations'] = $this->b->load()->all();
+			unset($result);
+		}
+		unset($order);
+		return $orders;
+	}
+
 	/**
 	 * @param $eid
 	 * @return mixed

@@ -115,6 +115,29 @@ class Immunizations {
 		)->all();
 	}
 
+	public function getPatientImmunizationsByPidAndDates($pid, $start = null, $end = null){
+		$this->i->addFilter('pid', $pid);
+
+		if(isset($start)){
+			$this->i->addFilter('create_date', $start, '>=');
+		}
+		if(isset($end)) {
+			$this->i->addFilter('create_date', $end, '<=');
+		}
+
+		return $this->i->load()->leftJoin(
+			[
+				'title' => 'administered_title',
+				'fname' => 'administered_fname',
+				'mname' => 'administered_mname',
+				'lname' => 'administered_lname',
+			],
+			'users',
+			'administered_uid',
+			'id'
+		)->all();
+	}
+
 	/**
 	 * @param $eid
 	 * @return array

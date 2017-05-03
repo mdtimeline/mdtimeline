@@ -112,6 +112,44 @@ class SocialHistory {
 
 	/**
 	 * @param $pid
+	 * @param null $start
+	 * @param null $end
+	 * @return mixed
+	 */
+	public function getSmokeStatusByPidAndDates($pid, $start = null, $end = null){
+		$this->setModel();
+		$this->ss->addFilter('pid', $pid);
+
+		if(isset($start)){
+			$this->ss->addFilter('create_date', $start, '>=');
+		}
+		if(isset($end)) {
+			$this->ss->addFilter('create_date', $end, '<=');
+		}
+		return $this->ss->load()->all();
+	}
+
+	/**
+	 * @param $pid
+	 * @param null $start
+	 * @param null $end
+	 * @return mixed
+	 */
+	public function getSocialHistoriesByPidAndDates($pid, $start = null, $end = null){
+		$this->setModel();
+		$this->s->addFilter('pid', $pid);
+
+		if(isset($start)){
+			$this->s->addFilter('create_date', $start, '>=');
+		}
+		if(isset($end)) {
+			$this->s->addFilter('create_date', $end, '<=');
+		}
+		return $this->s->load()->all();
+	}
+
+	/**
+	 * @param $pid
 	 * @param $code
 	 * @return mixed
 	 */

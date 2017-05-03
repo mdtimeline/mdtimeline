@@ -433,6 +433,12 @@ Ext.define('App.view.patient.Encounter', {
 				},
 				'-',
 				{
+					text: _('spb') + ' ',
+					action: 'SocialPsychologicalBehavioralPanel',
+					tooltip: _('social_psychological_behavioral')
+				},
+				'-',
+				{
 					text: _('doc_nt'),
 					action: 'DoctorsNotes',
 					tooltip: _('doctors_notes')

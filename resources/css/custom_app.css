@@ -8,6 +8,10 @@
     src: url('../fonts/OpenSans-CondLight.ttf');
 }
 
+.highlight_fieldset {
+    background-color: #dfe8f6;
+}
+
 .login-window,
 .login-window .x-window-header-default-top,
 .login-window .x-window-body-default,

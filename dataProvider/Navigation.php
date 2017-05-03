@@ -310,6 +310,14 @@ class Navigation
                 'id' => 'App.view.administration.TransactionLog'
             ];
         }
+//        if($this->ACL->hasPermission('admin_access_transaction_log')){
+            $admin['children'][] = [
+                'text' => $this->i18n('file_systems'),
+                'leaf' => true,
+                'cls' => 'file',
+                'id' => 'App.view.administration.FileSystems'
+            ];
+//        }
 
 		if(isset($admin['children']) && count($admin['children']) > 0) array_push($nav, $admin);
 

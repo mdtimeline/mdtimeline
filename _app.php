@@ -777,6 +777,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.Alerts',
 	                'patient.Reminders',
 	                'patient.Results',
+	                'patient.SocialPsychologicalBehavioral',
 	                'patient.SocialHistory',
 	                'patient.Visits',
 	                'patient.windows.Medical',
@@ -837,6 +838,7 @@ header("Access-Control-Allow-Origin: *");
 	                'administration.DecisionSupport',
 	                'administration.Documents',
 	                'administration.FacilityStructure',
+	                'administration.FileSystems',
 	                'administration.HL7',
 	                'administration.Practice',
 	                'administration.ReferringProviders',
@@ -903,6 +905,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.Results',
 	                'patient.RxOrders',
 	                'patient.Social',
+	                'patient.SocialPsychologicalBehavioral',
 	                'patient.Vitals',
 
 	                'patient.Summary',

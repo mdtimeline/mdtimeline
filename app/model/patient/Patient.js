@@ -60,6 +60,20 @@ Ext.define('App.model.patient.Patient',{
             len: 10
         },
         {
+            name: 'orientation',
+            type: 'string',
+            comment: 'sex orientation',
+            index: true,
+            len: 15
+        },
+        {
+            name: 'identity',
+            type: 'string',
+            comment: 'sex identity',
+            index: true,
+            len: 15
+        },
+        {
             name: 'DOB',
             type: 'date',
             comment: 'day of birth',
@@ -282,6 +296,11 @@ Ext.define('App.model.patient.Patient',{
             name: 'death_date',
             type: 'date',
             dateFormat: 'Y-m-d H:i:s'
+        },
+        {
+            name: 'death_cause',
+            type: 'string',
+            len: 180
         },
         {
             name: 'alias',

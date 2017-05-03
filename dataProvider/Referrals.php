@@ -46,6 +46,11 @@ class Referrals {
 		return $this->r->destroy($params);
 	}
 
+	public function getPatientReferralsById($id){
+		$this->r->addFilter('id', $id);
+		return $this->r->load()->one();
+	}
+
 	public function getPatientReferralsByPid($pid){
 		$this->r->addFilter('pid', $pid);
 		return $this->r->load()->all();

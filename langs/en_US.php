@@ -1777,7 +1777,13 @@ $LANG = array(
 	'refs'                                  => 'REFS',
 	'doc_nt'                                => 'DOC NT',
     'imp_devs'                              => 'IMP DEVS',
-    'key'                                   => 'Key'
-
-
+    'key'                                   => 'Key',
+    'cronjobs'                              => 'CronJob',
+    'cronjobs_available'                    => 'Available CronJobs',
+    'cronjob_manager'                       => 'CronJob Manager',
+    'pid'                                   => 'Process ID',
+    'running'                               => 'Running',
+    'week_day'                              => 'Day of Week',
+    'month_day'                             => 'Day of Month',
+    'timeout'                               => 'Timeout'
 );

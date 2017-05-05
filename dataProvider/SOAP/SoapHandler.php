@@ -37,7 +37,6 @@ class SoapHandler
         'MaritalStatus' => 'marital_status',
         'Race' => 'race',
         'Ethnicity' => 'ethnicity',
-        //'Religion' => 'pid',
         'Language' => 'language',
         'DriverLicence' => 'drivers_license',
         'DriverLicenceState' => 'drivers_license_state',

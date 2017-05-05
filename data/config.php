@@ -2170,8 +2170,11 @@ $API = [
     ],
 	'CronJob' => [
 		'methods' => [
-			'run' => [
-				'len' => 0
+			'getCronJob' => [
+				'len' => 1
+            ],
+            'updateCronJob' => [
+                'len' => 1
             ]
         ]
     ],

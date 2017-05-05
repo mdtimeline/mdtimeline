@@ -25,10 +25,6 @@ The Error Exception class, all Matcha classes will throw their errors in this cl
 Recently we integrated some goodies:
  - Browser detection to fire up FirePHP or ChromePHP
 
-##MatchaThread Class:
-If you want Matcha be multi-thread this is the class to use, careful some compilation to the PHP language has to be
-done.
-
 ##MatchaModel Class:
 This class is the brain of the bi-directional microORM, this creates both models. The database table and columns
 and also creates Sencha Model (.js) files dynamically.

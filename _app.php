@@ -515,6 +515,7 @@ header("Access-Control-Allow-Origin: *");
 					'administration.XtypesComboModel',
                     'administration.IpAccessLog',
                     'administration.IpAccessRule',
+                    'administration.CronJob',
 
 					'miscellaneous.OfficeNotes',
 					'miscellaneous.Amendment',
@@ -643,6 +644,7 @@ header("Access-Control-Allow-Origin: *");
 	                'administration.XtypesComboModel',
                     'administration.IpAccessLog',
                     'administration.IpAccessRules',
+                    'administration.CronJob',
 
 	                'miscellaneous.OfficeNotes',
 	                'miscellaneous.Amendments',
@@ -815,6 +817,7 @@ header("Access-Control-Allow-Origin: *");
 	                'administration.ExternalDataLoads',
 	                'administration.Users',
                     'administration.TransactionLog',
+                    'administration.CronJob',
 
 	                /**
 	                 * Load the miscellaneous related panels
@@ -846,6 +849,7 @@ header("Access-Control-Allow-Origin: *");
 	                'administration.Users',
                     'administration.IpAccess',
                     'administration.TransactionLog',
+                    'administration.CronJob',
 
 	                'areas.FloorPlan',
 
@@ -918,10 +922,8 @@ header("Access-Control-Allow-Origin: *");
 	            },
                 launch: function() {
                     App.Current = this;
-                    CronJob.run(function(){
-                        say('Loading mdTImeLine EHR');
-                        window.app = Ext.create('App.view.Viewport');
-                    });
+                    say('Loading mdTImeLine EHR');
+                    window.app = Ext.create('App.view.Viewport');
                 }
             });
 		</script>

@@ -20,11 +20,6 @@ try{
 
 	$request = new stdClass();
 
-//	$request->SecurityInfo = new stdClass();
-//	$request->SecurityInfo->UserName = 'SecretUser';
-//	$request->SecurityInfo->Password = 'SecretPassword';
-
-
 	$request->patient = new stdClass();
 	$request->patient->Pid = 3;
 	$request->patient->PatientAccount = 'A-000000000000021-00';

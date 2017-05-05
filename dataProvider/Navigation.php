@@ -196,6 +196,14 @@ class Navigation
 				'id' => 'App.view.administration.DataManager'
 			];
 		}
+        if($this->ACL->hasPermission('access_cronjob_administration')){
+            $admin['children'][] = [
+                'text' => $this->i18n('cronjob_manager'),
+                'leaf' => true,
+                'cls' => 'file',
+                'id' => 'App.view.administration.CronJob'
+            ];
+        }
 		if($this->ACL->hasPermission('access_preventive_care')){
 			$admin['children'][] = [
 				'text' => $this->i18n('decision_support'),

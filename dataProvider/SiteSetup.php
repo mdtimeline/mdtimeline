@@ -318,6 +318,13 @@ class SiteSetup {
                 'error' => 'Something went wrong creating CERT directory'
             ];
         }
+        if(!$this->createDirectory("$siteDir/jobs/"))
+        {
+            return [
+                'success' => false,
+                'error' => 'Something went wrong creating Croon Job directory'
+            ];
+        }
         if(!$this->touch("$siteDir/log/error_log.txt"))
         {
             return [

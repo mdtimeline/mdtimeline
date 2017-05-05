@@ -1,6 +1,6 @@
 /**
- * GaiaEHR (Electronic Health Records)
- * Copyright (C) 2013 Certun, LLC.
+ * mdTimeLine EHR (Electronic Health Records)
+ * Copyright (C) 2017 mdTimeLine, LLC.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,10 @@
  */
 
 Ext.define('App.view.administration.DataPortability', {
-	extend: 'App.ux.RenderPanel',
+    extend: 'App.ux.RenderPanel',
+    requires: [
+        'App.ux.form.fields.BoxSelect'
+    ],
 	pageTitle: _('patients_export'),
 	pageBody: [
 
@@ -28,16 +31,40 @@ Ext.define('App.view.administration.DataPortability', {
 			items: [
 				{
 					xtype: 'miframe',
-					itemId: 'DataPortabilityPanelIFrame',
+					itemId: 'DataPortabilityPanelIFrame'
 				}
 			],
 			tbar: [
+                {
+                    xtype:'form',
+                    itemId: 'ExportFilterForm',
+                    items:[
+                        {
+                            xtype: 'label',
+                            text: _('service_date')
+                        },
+                        {
+                            xtype: 'datefield',
+                            name: 'service_from',
+                            text: _('from'),
+                            itemId: 'ServiceFromDate'
+                        },
+                        {
+                            xtype: 'datefield',
+                            name: 'service_to',
+                            text: _('to'),
+                            itemId: 'ServiceToDate'
+                        }
+                    ]
+                },
+                '-',
 				{
+                    xtype: 'button',
 					text: _('export'),
 					itemId: 'DataPortabilityExportBtn'
 				},
-				'-',
 				{
+                    xtype: 'button',
 					text: _('import'),
 					itemId: 'DataPortabilityImportBtn'
 				}

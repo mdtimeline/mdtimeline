@@ -137,6 +137,6 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 <div id="msg-div"></div>
 <div id="copyright" style=" margin:0; overflow: auto; width: 100%; bottom: 0; left:0; padding: 5px 10px; ">
 	<div style="float: left">Copyright (C) 2016 MD Timeline (Electronic Health Records) |:|  Open Source Software operating under <a href="javascript:void(0)" onClick="Ext.getCmp('winCopyright').show();">GPLv3</a> |:| v<?php print VERSION ?></div>
-    <div style="float: right;">by <a href="http://tranextgen.com/" target="_blank">The Right Answer, Inc.</a></div>
+    <div style="float: right;">by <a href="http://mdtimeline.com/" target="_blank">The Right Answer, Inc.</a></div>
 </body>
 </html>

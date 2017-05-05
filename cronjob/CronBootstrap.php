@@ -59,8 +59,7 @@ class CronBootstrap
         define("PID",getmypid());
         define('site_id', $argv[1]);
         define('URL', '');
-        define('ROOT', str_replace('\\', '/', str_ireplace("sites/".$argv[1]."/jobs/","",getcwd())));
-        error_log(ROOT);
+        define('ROOT', str_replace('\\', '/', str_ireplace("cronjob","",getcwd())));
         define('SCRIPT', basename(__FILE__, ".php"));
         define('SCRIPT_NAME', "Old Log Removal");
         include_once(ROOT."sites/".site_id."/conf.php");

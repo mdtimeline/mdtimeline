@@ -106,6 +106,15 @@ Ext.define('App.view.patient.Immunizations', {
 					}
 				},
 				{
+					text: _('status'),
+					dataIndex: 'status',
+					width: 100,
+					renderer: function(v, meta, record){
+						if(!record.data.is_error) return v;
+						return '<span class="is_error_data">' + v + '</span>'
+					}
+				},
+				{
 					text: _('administered_by'),
 					dataIndex: 'administered_by',
 					width: 150,
@@ -177,13 +186,19 @@ Ext.define('App.view.patient.Immunizations', {
 												]
 											},
 											{
-												xtype: 'checkbox',
-												name: 'is_presumed_immunity',
-												fieldLabel: 'Presumed Immunity',
-												width: 145,
-												itemId: 'ImmunizationsPresumedImmunityCheckbox',
-												labelAlign: 'right',
-												labelWidth: 125
+												xtype: 'combobox',
+												margin: '0 0 0 10',
+												emptyText: _('status'),
+												displayField: 'option',
+												valueField: 'value',
+												name: 'status',
+												store: Ext.create('Ext.data.Store',{
+													fields: ['option', 'value'],
+													data: [
+														{ option: _('completed'), value: 'complete' },
+														{ option: _('cancelled'), value: 'cancelled' }
+													]
+												})
 											}
 										]
 									},
@@ -303,6 +318,15 @@ Ext.define('App.view.patient.Immunizations', {
 												name: 'manufacturer'
 											}
 										]
+									},
+									{
+										xtype: 'checkbox',
+										name: 'is_presumed_immunity',
+										fieldLabel: 'Presumed Immunity',
+										width: 145,
+										itemId: 'ImmunizationsPresumedImmunityCheckbox',
+										labelAlign: 'right',
+										labelWidth: 125
 									},
 									{
 										xtype: 'checkboxfield',

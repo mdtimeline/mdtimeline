@@ -204,6 +204,44 @@ class Encounter {
 	}
 
 	/**
+	 * @param $pid
+	 * @param null $start
+	 * @param null $end
+	 * @return mixed
+	 */
+	public function getEncountersByPidAndDates($pid, $start = null, $end = null) {
+
+		$this->e->addFilter('pid', $pid);
+
+		if(isset($start)){
+			$this->e->addFilter('service_date', $start, '>=');
+		}
+		if(isset($end)) {
+			$this->e->addFilter('service_date', $end, '<=');
+		}
+
+		return $this->e->load()->all();;
+	}
+
+	/**
+	 * @param $eid
+	 * @param bool $relations
+	 *
+	 * @return array
+	 */
+	public function getEncounterByEid($eid, $relations = true) {
+
+		$this->e->addFilter('eid', $eid);
+		$encounter = $this->e->load()->one();
+
+		if($encounter !== false && $relations){
+			$encounter = $this->getEncounterRelations($encounter);
+		}
+
+		return $encounter;
+	}
+
+	/**
 	 * @param stdClass|int $params
 	 * @param bool $relations
 	 * @param bool $allVitals include all patient vitals

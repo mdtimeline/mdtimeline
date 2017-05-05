@@ -29,7 +29,7 @@ $complexTypes = [];
  * Always include the registry.
  */
 
-$serviceName = 'mdTimeLine EHR Access Point';
+$serviceName = 'mdTimeLine v.1.0 API';
 
 $Server = '10.23.150.10/GaiaEHR';
 
@@ -240,7 +240,7 @@ $complexTypes['Patient'] = [
 	],
 	[
 		'name' => 'IsBirthMultiple',
-		'type' => 'bool',
+		'type' => 'boolean',
 		'minOccurs' => '0',
 		'document' => ''
 	],
@@ -359,19 +359,19 @@ $complexTypes['Patient'] = [
 	],
 	[
 		'name' => 'WebPortalAccess',
-		'type' => 'bool',
+		'type' => 'boolean',
 		'minOccurs' => '0',
 		'document' => 'Patient Web Portal Allow Access'
 	],
     [
         'name' => 'EmergencyPortalAllow',
-        'type' => 'bool',
+        'type' => 'boolean',
         'minOccurs' => '0',
         'document' => 'Emergency Portal Web Access'
     ],
     [
         'name' => 'EmergencyPortalAllowCda',
-        'type' => 'bool',
+        'type' => 'boolean',
         'minOccurs' => '0',
         'document' => 'Emergency Portal Web Access to Patient Record'
     ],
@@ -389,13 +389,13 @@ $complexTypes['Patient'] = [
     ],
     [
         'name' => 'GuardianPortalAllow',
-        'type' => 'bool',
+        'type' => 'boolean',
         'minOccurs' => '0',
         'document' => 'Guardian Portal Web Access'
     ],
     [
         'name' => 'GuardianPortalAllowCda',
-        'type' => 'bool',
+        'type' => 'boolean',
         'minOccurs' => '0',
         'document' => 'Guardian Portal Web Access to Patient Record'
     ],
@@ -498,6 +498,82 @@ $complexTypes['Order'] = [
 ];
 
 $functions[] = [
+	'funcName' => 'GetPatientPid',
+	'doc' => 'This will return the a patient unique PID that can be user for subsequents calls. If more than one patient is found an error will be send back',
+	'inputParams' => [
+		[
+			'name' => 'SecureKey',
+			'type' => 'string',
+			'minOccurs' => '1',
+			'document' => 'GUID Secure Key provided'
+		],
+		[
+			'name' => 'ServerSite',
+			'type' => 'string',
+			'minOccurs' => '1',
+			'document' => 'GaiaEHR site'
+		],
+		[
+			'name' => 'PatientRecordNumber',
+			'type' => 'string',
+			'minOccurs' => '0',
+			'document' => 'If Patient Record Number is send then no other property will be use for validation but will still be required'
+		],
+		[
+			'name' => 'PatientFirstName',
+			'type' => 'string',
+			'minOccurs' => '1',
+			'document' => 'Patient First Mame'
+		],
+		[
+			'name' => 'PatientMiddleName',
+			'type' => 'string',
+			'minOccurs' => '1',
+			'document' => 'Patient Middle Mame or Middle Initial'
+		],
+		[
+			'name' => 'PatientLastName',
+			'type' => 'string',
+			'minOccurs' => '1',
+			'document' => 'Patient Last Name'
+		],
+		[
+			'name' => 'PatientDateOfBirth',
+			'type' => 'string',
+			'minOccurs' => '1',
+			'document' => 'Patient Date Of Birth on YYYY-MM-DD format'
+		],
+		[
+			'name' => 'PatientSex',
+			'type' => 'string',
+			'minOccurs' => '1',
+			'document' => 'Patient Sex F = Female M = Male U = Unknown'
+		]
+	],
+	'outputParams' => [
+		[
+			'name' => 'Success',
+			'type' => 'boolean',
+			'minOccurs' => '1',
+			'document' => 'True if request was successfully fulfilled'
+		],
+		[
+			'name' => 'PatientPid',
+			'type' => 'string',
+			'minOccurs' => '0',
+			'document' => 'Patient Unique PID'
+		],
+		[
+			'name' => 'Error',
+			'type' => 'string',
+			'minOccurs' => '0',
+			'document' => 'If success == false an error message will be send back'
+		]
+	],
+	'soapAddress' => "http://$Server/dataProvider/SOAP/Server.php"
+];
+
+$functions[] = [
 	'funcName' => 'GetCCDDocument',
 	'doc' => 'This will return the requested patient CCD document',
 	'inputParams' => [
@@ -520,16 +596,22 @@ $functions[] = [
 			'document' => 'GaiaEHR Internal ID'
 		],
 		[
-			'name' => 'Site',
-			'type' => 'string',
-			'minOccurs' => '0',
-			'document' => 'Default Value is "default"'
-		],
-		[
 			'name' => 'Facility',
 			'type' => 'int',
 			'minOccurs' => '0',
 			'document' => 'Default Value is "1"'
+		],
+		[
+			'name' => 'DateStart',
+			'type' => 'string',
+			'minOccurs' => '0',
+			'document' => 'Date start filter'
+		],
+		[
+			'name' => 'DateEnd',
+			'type' => 'string',
+			'minOccurs' => '0',
+			'document' => 'Date end filter'
 		]
 	],
 	'outputParams' => [
@@ -541,6 +623,70 @@ $functions[] = [
 		],
 		[
 			'name' => 'Document',
+			'type' => 'string',
+			'minOccurs' => '0',
+			'document' => 'CCD Document'
+		],
+		[
+			'name' => 'Error',
+			'type' => 'string',
+			'minOccurs' => '0',
+			'document' => 'If success == false an error message will be send back'
+		]
+	],
+	'soapAddress' => "http://$Server/dataProvider/SOAP/Server.php"
+];
+
+$functions[] = [
+	'funcName' => 'GetCCDSDocument',
+	'doc' => 'This will return the requested patient record in json format',
+	'inputParams' => [
+		[
+			'name' => 'SecureKey',
+			'type' => 'string',
+			'minOccurs' => '1',
+			'document' => 'GUID Secure Key provided'
+		],
+		[
+			'name' => 'ServerSite',
+			'type' => 'string',
+			'minOccurs' => '1',
+			'document' => 'GaiaEHR site'
+		],
+		[
+			'name' => 'Pid',
+			'type' => 'string',
+			'minOccurs' => '1',
+			'document' => 'GaiaEHR Internal ID'
+		],
+		[
+			'name' => 'DateStart',
+			'type' => 'string',
+			'minOccurs' => '0',
+			'document' => 'Date start filter'
+		],
+		[
+			'name' => 'DateEnd',
+			'type' => 'string',
+			'minOccurs' => '0',
+			'document' => 'Date end filter'
+		],
+		[
+			'name' => 'Excludes',
+			'type' => 'string',
+			'minOccurs' => '0',
+			'document' => 'Documentation'
+		]
+	],
+	'outputParams' => [
+		[
+			'name' => 'Success',
+			'type' => 'boolean',
+			'minOccurs' => '1',
+			'document' => 'True if request was successfully processed'
+		],
+		[
+			'name' => 'Record',
 			'type' => 'string',
 			'minOccurs' => '0',
 			'document' => 'CCD Document'

@@ -63,7 +63,7 @@ class Documents {
 		$this->Encounter = new Encounter();
 		$this->User = new User();
 
-		$this->t = \MatchaModel::setSenchaModel('App.model.administration.DocumentsPdfTemplate', true);
+		$this->t = \MatchaModel::setSenchaModel('App.model.administration.DocumentsPdfTemplate');
 		return;
 	}
 
@@ -545,7 +545,8 @@ class Documents {
 		$margins = [
 			'left' => isset($template['body_margin_left']) ? intval($template['body_margin_left']) : 25,
 			'top' => isset($template['body_margin_top']) ? intval($template['body_margin_top']) : 25,
-			'right' => isset($template['body_margin_right']) ? intval($template['body_margin_right']) : 25
+			'right' => isset($template['body_margin_right']) ? intval($template['body_margin_right']) : 25,
+			'bottom' => isset($template['body_margin_bottom']) ? intval($template['body_margin_bottom']) : 25
 		];
 
 		$font = [
@@ -572,7 +573,7 @@ class Documents {
 		 */
 		$pdf->SetFont($font['family'],$font['style'],$font['size'], true);
 
-
+		$pdf->SetAutoPageBreak(true, $margins['bottom']);
 		$pdf->SetMargins($margins['left'], $margins['top'], $margins['right'], true);
 
 		$pdf->SetCreator('MDTIMELINE');
@@ -620,9 +621,7 @@ class Documents {
 		$pages = explode('{newpage}', $html);
 
 		foreach($pages AS $page){
-			$pdf->AddPage();
-			$pdf->SetMargins($margins['left'], $pdf->getHeaderY() + 10, $margins['right']);
-			$pdf->SetY($pdf->getHeaderY() + 5); // margin after header line
+			$pdf->AddPage('','',true);
 
 			if($this->isHtml($page)){
 				$pdf->writeHTML($page);

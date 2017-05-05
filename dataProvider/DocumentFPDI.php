@@ -59,6 +59,11 @@ class DocumentFPDI extends FPDI  {
 	public $water_mark = '';
 
 	/**
+	 * @var array
+	 */
+	public $original_margins;
+
+	/**
 	 * @param array $data
 	 */
 	public function addCustomHeaderData(array $data){
@@ -95,16 +100,19 @@ class DocumentFPDI extends FPDI  {
 	 */
 	private function getHeaderCols(){
 
-		$margins = $this->getMargins();
+		if(!isset($this->original_margins)){
+			$this->original_margins = $this->getMargins();
+		}
+
 		$pageWidth = $this->getPageWidth();
-		$columnsWidth =  (($pageWidth - ($margins['left'] + $margins['right'])) / 2);
-		$center = $margins['left'] + $columnsWidth;
+		$columnsWidth =  (($pageWidth - ($this->original_margins['left'] + $this->original_margins['right'])) / 2);
+		$center = $this->original_margins['left'] + $columnsWidth;
 		$this->center_point = $center;
 
 		if(!isset($this->header_cols)){
 			$this->header_cols = [
 				'left' => [
-					'x' => $margins['left'],
+					'x' => $this->original_margins['left'],
 					'w' => $columnsWidth
 				],
 				'right' => [
@@ -112,7 +120,7 @@ class DocumentFPDI extends FPDI  {
 					'w' => $columnsWidth
 				],
 				'center' => [
-					'x' => $margins['left'] + ($columnsWidth / 2),
+					'x' => $this->original_margins['left'] + ($columnsWidth / 2),
 					'w' => $columnsWidth
 				]
 			];
@@ -124,7 +132,9 @@ class DocumentFPDI extends FPDI  {
 	//Page header
 	public function Header() {
 
-		$margins = $this->getMargins();
+		if(!isset($this->original_margins)){
+			$this->original_margins = $this->getMargins();
+		}
 		$pageWidth = $this->getPageWidth();
 		$pageHeight = $this->getPageHeight();
 		$header_cols = $this->getHeaderCols();
@@ -140,36 +150,44 @@ class DocumentFPDI extends FPDI  {
 		}
 		$this->useTemplate($this->_tplIdx, 0, 0, $pageWidth, $pageHeight);
 
-		foreach($this->header_data as $line){
+		if(!empty($this->header_data)){
 
-			if(isset($line['col']) && isset($header_cols[$line['col']])){
-				$line['x'] = $header_cols[$line['col']]['x'];
-				$line['w'] = $header_cols[$line['col']]['w'];
+			foreach($this->header_data as $line){
+
+				$line['y'] = $line['y'] + $this->original_margins['top'];
+
+				if(isset($line['col']) && isset($header_cols[$line['col']])){
+					$line['x'] = $header_cols[$line['col']]['x'];
+					$line['w'] = $header_cols[$line['col']]['w'];
+				}
+
+				$this->SetFont($line['font'], '', $line['font_size']);
+				$this->SetY($line['y']);
+				$this->SetX($line['x']);
+
+				if(isset($line['font_color'])){
+					$rbg = $this->hex2RGB($line['font_color']);
+					$this->SetTextColor($rbg['red'],$rbg['green'],$rbg['blue']);
+				}
+
+				if(isset($line['text']) && isset($line['w']) && isset($line['h'])){
+					$this->Cell($line['w'], $line['h'], $line['text'], $line['border'], 0, $line['text_align'], 0, '', 0, false, 'T', 'M');
+				}
+
+				if($this->header_y < $line['y']){
+					$this->header_y = $line['y'];
+				}
 			}
 
-			$this->SetFont($line['font'], '', $line['font_size']);
-			$this->SetY($line['y']);
-			$this->SetX($line['x']);
-
-			if(isset($line['font_color'])){
-				$rbg = $this->hex2RGB($line['font_color']);
-				$this->SetTextColor($rbg['red'],$rbg['green'],$rbg['blue']);
+			$this->header_y = $this->header_y + 8;
+			if($this->header_line){
+				$this->Line($this->original_margins['left'], $this->header_y, $pageWidth - $this->original_margins['right'], $this->header_y);
 			}
-
-			if(isset($line['text']) && isset($line['w']) && isset($line['h'])){
-				$this->Cell($line['w'], $line['h'], $line['text'], $line['border'], 0, $line['text_align'], 0, '', 0, false, 'T', 'M');
-			}
-
-			if($this->header_y < $line['y']){
-				$this->header_y = $line['y'];
-			}
+		}else{
+			$this->header_y = $this->original_margins['top'];
 		}
 
-		$this->header_y = $this->header_y + 8;
-		if($this->header_line){
-			$this->Line($margins['left'], $this->header_y, $pageWidth - $margins['right'], $this->header_y);
-		}
-
+		$this->SetMargins($this->original_margins['left'], $this->header_y + 10, $this->original_margins['right'], true);
 	}
 
 	private function addWaterMark() {
@@ -212,14 +230,12 @@ class DocumentFPDI extends FPDI  {
 
 		$margins = $this->getMargins();
 		$footerLineY = $this->getPageHeight() - 0.5 * 15 - 2;
-
 		$this->SetLineStyle(array('width' => 0.2, 'color' => array(0,0,0)));
-		//$this->Line($margins['left'], $this->getPageHeight() - 0.5 * 15 - 2, $this->getPageWidth() - 15, $this->getPageHeight() - 0.5 * 15 - 2);
 		$this->Line($margins['left'], $footerLineY, $this->getPageWidth() - $margins['right'], $footerLineY);
 		$this->SetFont('times', '', 9);
 		$this->SetY(-0.5 * 15);
 		$this->SetX($margins['left']);
-		$this->Cell(100, 0, 'Created by mdTimeline (Electronic Health Record)');
+		$this->Cell(100, 0, 'Created by mdTimeline (Electronic Health System)');
 		$this->SetX((($this->getPageWidth() - $margins['right']) - 12));
 		if($this->page_number){
 			$pageText = trim('Page ' . $this->getAliasNumPage() . '/' . $this->getAliasNbPages());

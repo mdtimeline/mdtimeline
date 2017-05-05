@@ -18976,7 +18976,7 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 				if ($key > 2) {
 					$this->addHTMLVertSpace($hbz, $hb, $cell, $firsttag);
 				}
-				if ($this->listordered[$this->listnum]) {
+				if (isset($this->listordered[$this->listnum])) {
 					// ordered item
 					if (isset($parent['attribute']['type']) AND !TCPDF_STATIC::empty_string($parent['attribute']['type'])) {
 						$this->lispacer = $parent['attribute']['type'];
@@ -20350,7 +20350,7 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 		} elseif ($listtype == '!') {
 			// set default list type for unordered list
 			$deftypes = array('disc', 'circle', 'square');
-			$listtype = $deftypes[($listdepth - 1) % 3];
+			$listtype = $deftypes[($listdepth) % 3];
 		} elseif ($listtype == '#') {
 			// set default list type for ordered list
 			$listtype = 'decimal';

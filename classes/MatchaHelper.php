@@ -19,8 +19,11 @@
 
 if (!isset($_SESSION)) {
     session_cache_limiter('private');
+    //session_cache_expire(1);
     session_name('mdTimeLine');
     session_start();
+//    if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
+//    setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 }
 ini_set('max_input_time', '1500');
 ini_set('max_execution_time', '1500');
@@ -126,13 +129,6 @@ class MatchaHelper extends Matcha
         'patient_labs'=>'Patient Orders',
 	    'patient_lab_results'=>'Patient Orders',
 
-        'acl_permissions' => 'User ACL Permissions',
-        'acl_role_perms' => 'User ACL Permissions',
-        'acl_group' => 'ACL Group',
-        'acl_roles' => 'ACL Roles',
-        'acl_user_perms' => 'User ACL Permissions',
-        'acl_user_roles' => 'User ACL Roles'
-
     ];
 
     /**
@@ -152,12 +148,12 @@ class MatchaHelper extends Matcha
         // This is compatible with the old methods
         if (defined('site_db_type')) {
             self::connect([
-                  'host' => site_db_host,
-                  'port' => site_db_port,
-                  'name' => site_db_database,
-                  'user' => site_db_username,
-                  'pass' => site_db_password,
-                  'app' => ROOT . '/app'
+	            'host' => site_db_host,
+	            'port' => site_db_port,
+	            'name' => site_db_database,
+	            'user' => site_db_username,
+	            'pass' => site_db_password,
+	            'app' => ROOT . '/app'
             ]);
         }
 
@@ -218,6 +214,21 @@ class MatchaHelper extends Matcha
         if($pid == 0 && isset($_SESSION['patient']) && isset($_SESSION['patient']['pid'])) {
 	        $pid = $_SESSION['patient']['pid'];
         }
+
+//        // get eid...
+//        if (isset($saveParams['data']['eid'])) {
+//            $eid = $saveParams['data']['eid'];
+//        } else {
+//            $match = [];
+//            preg_match('/`eid`.*:W(\d*)/', $saveParams['sql'], $match);
+//
+//            if (!empty($match)) {
+//                preg_match('/:W(\d*)/', $match[0], $match);
+//                $eid = $saveParams['data'][$match[0]];
+//            } else {
+//                $eid = '0';
+//            }
+//        }
 
         $uid = isset($_SESSION['user']['id']) ? $_SESSION['user']['id'] : '0';
         $fid = isset($_SESSION['user']['facility']) ? $_SESSION['user']['facility'] : '0';

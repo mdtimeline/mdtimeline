@@ -6,16 +6,14 @@ Ext.define('App.ux.combo.Combo', {
     emptyText: _('select'),
     forceSelection: false,
 
+	/**
+	 * List by Key
+	 */
+	listKey: null,
     /**
      * List ID
      */
     list: null,
-
-    /**
-     * List Key
-     */
-    list_key: null,
-
     /**
      * Auto Load Store
      */
@@ -77,7 +75,7 @@ Ext.define('App.ux.combo.Combo', {
                 },
                 extraParams: {
                     list_id: me.list,
-                    list_key: me.list_key
+	                list_key: me.listKey
                 }
             },
             idProperty: 'option_value'

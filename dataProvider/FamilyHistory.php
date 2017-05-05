@@ -72,4 +72,21 @@ class FamilyHistory {
 		$filters->filter[0]->value = $pid;
 		return $this->getFamilyHistory($filters);
 	}
+	/**
+	 * @param $pid
+	 * @return mixed
+	 */
+	public function getFamilyHistoryByPidAndDates($pid, $start = null, $end = null){
+
+		$this->fh->addFilter('pid', $pid);
+
+		if(isset($start)){
+			$this->fh->addFilter('create_data', $start, '>=');
+		}
+		if(isset($end)) {
+			$this->fh->addFilter('create_data', $end, '<=');
+		}
+
+		return $this->fh->load()->all();
+	}
 }

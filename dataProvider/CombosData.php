@@ -93,51 +93,51 @@ class CombosData {
         return $this->TransactionLog->sql($sql)->all();
     }
 
-    /**
-     * Main Sencha Model Getter and Setters
-     */
-    public function getOptionsByListId(stdClass $params){
-        if($this->CL == null)
-            $this->CL = MatchaModel::setSenchaModel('App.model.administration.Lists');
-        if($this->CLO == null)
-            $this->CLO = MatchaModel::setSenchaModel('App.model.administration.ListOptions');
+	/**
+	 * Main Sencha Model Getter and Setters
+	 */
+	public function getOptionsByListId(stdClass $params){
+		if($this->CL == null)
+			$this->CL = MatchaModel::setSenchaModel('App.model.administration.Lists');
+		if($this->CLO == null)
+			$this->CLO = MatchaModel::setSenchaModel('App.model.administration.ListOptions');
 
-        // List Key is used
-        if(isset($params->list_key)){
-            $sorters = new stdClass();
-            $sorters->sort[0] = new stdClass();
-            $sorters->sort[0]->property = 'seq';
-            $sorters->sort[0]->direction = 'ASC';
-            return $this->CLO->load(['list_key' => $params->list_key, 'active' => 1])->sort($sorters)->all();
-        }
+		// List Key is used
+		if(isset($params->list_key)){
+			$sorters = new stdClass();
+			$sorters->sort[0] = new stdClass();
+			$sorters->sort[0]->property = 'seq';
+			$sorters->sort[0]->direction = 'ASC';
+			return $this->CLO->load(['list_key' => $params->list_key, 'active' => 1])->sort($sorters)->all();
+		}
 
-        // List ID is used
-        if(isset($params->list_id)){
-            if(is_numeric($params->list_id)){
-                $sorters = new stdClass();
-                $sorters->sort[0] = new stdClass();
-                $sorters->sort[0]->property = 'seq';
-                $sorters->sort[0]->direction = 'ASC';
-                return $this->CLO->load(['list_id' => $params->list_id, 'active' => 1])->sort($sorters)->all();
-            } else{
-                if($params->list_id == 'activePharmacies'){
-                    return $this->getActivePharmacies();
-                } elseif($params->list_id == 'activeProviders'){
-                    return $this->getActiveProviders();
-                } elseif($params->list_id == 'activeFacilities'){
-                    return $this->getActiveFacilities();
-                } elseif($params->list_id == 'billingFacilities'){
-                    return $this->getBillingFacilities();
-                } elseif($params->list_id == 'activeInsurances'){
-                    return $this->getActiveInsurances();
-                } elseif($params->list_id == 'referringPhysicians'){
-                    return $this->getReferringPhysicians();
-                } else{
-                    return false;
-                }
-            }
-        }
-    }
+		// List ID is used
+		if(isset($params->list_id)){
+			if(is_numeric($params->list_id)){
+				$sorters = new stdClass();
+				$sorters->sort[0] = new stdClass();
+				$sorters->sort[0]->property = 'seq';
+				$sorters->sort[0]->direction = 'ASC';
+				return $this->CLO->load(['list_id' => $params->list_id, 'active' => 1])->sort($sorters)->all();
+			} else{
+				if($params->list_id == 'activePharmacies'){
+					return $this->getActivePharmacies();
+				} elseif($params->list_id == 'activeProviders'){
+					return $this->getActiveProviders();
+				} elseif($params->list_id == 'activeFacilities'){
+					return $this->getActiveFacilities();
+				} elseif($params->list_id == 'billingFacilities'){
+					return $this->getBillingFacilities();
+				} elseif($params->list_id == 'activeInsurances'){
+					return $this->getActiveInsurances();
+				} elseif($params->list_id == 'referringPhysicians'){
+					return $this->getReferringPhysicians();
+				} else{
+					return false;
+				}
+			}
+		}
+	}
 
 	public function getTimeZoneList(){
 		$locations = [];

@@ -38,7 +38,8 @@ Ext.define('App.view.patient.windows.Medical', {
 		'App.view.patient.RxOrders',
 		'App.view.patient.DoctorsNotes',
 		'App.view.patient.FamilyHistory',
-		'App.view.patient.ImplantableDevice'
+		'App.view.patient.ImplantableDevice',
+		'App.view.patient.SocialPsychologicalBehavioral'
 	],
 
 	initComponent: function(){
@@ -128,6 +129,12 @@ Ext.define('App.view.patient.windows.Medical', {
 						xtype:'implantabledevicepanel',
 						tabConfig: {
 							tooltip: _('implantable_devices')
+						}
+					},
+					{
+						xtype:'socialpsychologicalbehavioralpanel',
+						tabConfig: {
+							tooltip: _('social_psychological_behavioral')
 						}
 					},
 					/**

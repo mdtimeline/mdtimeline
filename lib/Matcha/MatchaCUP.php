@@ -708,6 +708,17 @@ class MatchaCUP {
 	}
 
 	/**
+	 * @param        $property
+	 * @param string $direction
+	 *
+	 * @return $this
+	 */
+	public function sortBy($property, $direction = '') {
+		$this->sql = $this->sql . " ORDER BY `$property` $direction";
+		return $this;
+	}
+
+	/**
 	 * @param $params
 	 *
 	 * @return $this

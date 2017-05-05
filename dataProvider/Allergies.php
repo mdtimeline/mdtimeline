@@ -87,6 +87,20 @@ class Allergies {
 		return $this->getPatientAllergies($params);
 	}
 
+	public function getPatientAllergiesByPidAndDates($pid, $start = null, $end = null)
+	{
+		$this->a->addFilter('pid', $pid);
+
+		if(isset($start)){
+			$this->a->addFilter('create_date', $start, '>=');
+		}
+		if(isset($end)) {
+			$this->a->addFilter('create_date', $end, '<=');
+		}
+
+		return $this->a->load()->all();
+	}
+
 	public function getPatientAllergiesByEid($eid)
     {
 		$params = new stdClass();

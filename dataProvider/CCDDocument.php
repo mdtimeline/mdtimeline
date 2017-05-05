@@ -202,8 +202,8 @@ class CCDDocument extends CDDDocumentBase
      */
     public function getRecordTarget() {
         $patientData = $this->patientData;
-        $Insurance = new Insurance();
-        $insuranceData = $Insurance->getPatientPrimaryInsuranceByPid($this->pid);
+        //$Insurance = new Insurance();
+        //$insuranceData = $Insurance->getPatientPrimaryInsuranceByPid($this->pid);
 
         $excludePatient = $this->isExcluded('patient_information');
 
@@ -545,7 +545,7 @@ class CCDDocument extends CDDDocumentBase
                 $this->facility['country_code']
             );
             $recordTarget['patientRole']['providerOrganization'][] = $org;
-            unset($Patient, $patientData, $Insurance, $insuranceData);
+            unset($Patient, $patientData);
             return $recordTarget;
         }
 
@@ -567,7 +567,7 @@ class CCDDocument extends CDDDocumentBase
                 $facility['country_code']
             );
             $recordTarget['patientRole']['providerOrganization'][] = $org;
-            unset($Patient, $patientData, $Insurance, $insuranceData);
+            unset($Patient, $patientData);
             return $recordTarget;
         }
 
@@ -1866,6 +1866,8 @@ class CCDDocument extends CDDDocumentBase
     }
 
     public function setReasonOfVisitSection()
+
+
     {
         if($this->eid != 'no_enc'){
 
@@ -4119,7 +4121,6 @@ class CCDDocument extends CDDDocumentBase
 		    $planOfCareData['OBS'] = [];
 	    }
 
-
         $hasData = !empty($planOfCareData['OBS']) ||
             !empty($planOfCareData['ACT']) ||
             !empty($planOfCareData['ENC']) ||
@@ -4180,7 +4181,7 @@ class CCDDocument extends CDDDocumentBase
             $planOfCare['text']['table']['tbody']['tr'] = [];
             $planOfCare['entry'] = [];
 
-            // Referrals
+            // Referrals...
             if(!$this->isExcluded('referrals_other_providers')) {
                 if (isset($planOfCareData['REF'])) {
                     $ReferringProvider = new ReferringProviders();
@@ -4323,7 +4324,7 @@ class CCDDocument extends CDDDocumentBase
                 }
             }
 
-            // Observations
+            // Observations...
             foreach($planOfCareData['OBS'] as $item){
                 $planOfCare['text']['table']['tbody']['tr'][] = [
                     'td' => [
@@ -4378,7 +4379,7 @@ class CCDDocument extends CDDDocumentBase
                 ];
             }
 
-            // Appointments
+            // Appointments...
             if(!$this->isExcluded('future_appointments')) {
                 foreach ($planOfCareData['APPOINTMENTS'] as $item) {
 
@@ -4433,9 +4434,7 @@ class CCDDocument extends CDDDocumentBase
                 }
             }
 
-            /**
-             * Procedures...
-             */
+            // Procedures...
             foreach($planOfCareData['PROC'] as $item){
                 $planOfCare['text']['table']['tbody']['tr'][] = [
                     'td' => [
@@ -4772,158 +4771,6 @@ class CCDDocument extends CDDDocumentBase
             }
         }
 
-//        // List encounter diagnostic.
-//        if(!empty($diagnosticsData)){
-//
-//            foreach($diagnosticsData as $item){
-//
-//                $dateText = $this->parseDate($item['encounter']['service_date']) . ' - ';
-//                if(isset($item['encounter']['close_date']) && $item['encounter']['close_date'] != '0000-00-00')
-//                    $dateText .= $this->parseDate($item['encounter']['close_date']);
-//
-//                $problems['text']['table']['tbody']['tr'][] = [
-//                    'td' => [
-//                        [
-//                            '@value' => isset($item['code_text']) ? 'Diagnostic: '.$item['code_text'] : ''
-//                        ],
-//                        [
-//                            '@value' => $dateText
-//                        ],
-//                        [
-//                            '@value' => 'Completed'
-//                        ]
-//                    ]
-//
-//                ];
-//
-//                $entry = [
-//                    'act' => [
-//                        '@attributes' => [
-//                            'classCode' => 'ACT',
-//                            'moodCode' => 'EVN'
-//                        ],
-//                        'templateId' => [
-//                            '@attributes' => [
-//                                'root' => '2.16.840.1.113883.10.20.22.4.3'
-//                            ]
-//                        ],
-//                        'id' => [
-//                            '@attributes' => [
-//                                'root' => UUID::v4()
-//                            ]
-//                        ],
-//                        'code' => [
-//                            '@attributes' => [
-//                                'code' => 'CONC',
-//                                'codeSystemName' => 'ActClass',
-//                                'codeSystem' => '2.16.840.1.113883.5.6',
-//                                'displayName' => 'Concern'
-//                            ]
-//                        ],
-//                        'statusCode' => [
-//                            '@attributes' => [
-//                                // active ||  suspended ||  aborted ||  completed
-//                                'code' => 'active'
-//                            ]
-//                        ]
-//                    ]
-//                ];
-//
-//                $entry['act']['effectiveTime'] = [
-//                    '@attributes' => [
-//                        'xsi:type' => 'IVL_TS'
-//                    ]
-//                ];
-//                $entry['act']['effectiveTime']['low'] = [
-//                    '@attributes' => [
-//                        'value' => $this->parseDate($item['encounter']['service_date'])
-//                    ]
-//                ];
-//                if(isset($item['encounter']['close_date']) && $item['encounter']['close_date'] != '0000-00-00'){
-//                    $entry['act']['effectiveTime']['high'] = [
-//                        '@attributes' => [
-//                            'value' => $this->parseDate($item['encounter']['close_date'])
-//                        ]
-//                    ];
-//                } else {
-//                    $entry['act']['effectiveTime']['high'] = [
-//                        '@attributes' => [
-//                            'nullFlavor' => 'NI'
-//                        ]
-//                    ];
-//                }
-//
-//                $entry['act']['entryRelationship'] = [
-//                    '@attributes' => [
-//                        'typeCode' => 'SUBJ'
-//                    ],
-//                    'observation' => [
-//                        '@attributes' => [
-//                            'classCode' => 'OBS',
-//                            'moodCode' => 'EVN'
-//                        ],
-//                        'templateId' => [
-//                            '@attributes' => [
-//                                'root' => '2.16.840.1.113883.10.20.22.4.4'
-//                            ]
-//                        ],
-//                        'id' => [
-//                            '@attributes' => [
-//                                'root' => UUID::v4()
-//                            ]
-//                        ],
-//                        'code' => [
-//                            '@attributes' => [
-//                                'code' => '282291009',
-//                                'displayName' => 'Diagnosis',
-//                                'codeSystemName' => 'SNOMED CT',
-//                                'codeSystem' => '2.16.840.1.113883.6.96'
-//                            ]
-//                        ],
-//                        'statusCode' => [
-//                            '@attributes' => [
-//                                'code' => 'completed'
-//                            ]
-//                        ]
-//                    ]
-//                ];
-//
-//                $entry['act']['entryRelationship']['observation']['effectiveTime'] = [
-//                    '@attributes' => [
-//                        'xsi:type' => 'IVL_TS'
-//                    ]
-//                ];
-//                $entry['act']['entryRelationship']['observation']['effectiveTime']['low'] = [
-//                    '@attributes' => [
-//                        'value' => $this->parseDate($item['encounter']['service_date'])
-//                    ]
-//                ];
-//                if(isset($item['encounter']['end_date']) && $item['encounter']['end_date'] != '0000-00-00'){
-//                    $entry['act']['entryRelationship']['observation']['effectiveTime']['high'] = [
-//                        '@attributes' => [
-//                            'value' => $this->parseDate($item['encounter']['close_date'])
-//                        ]
-//                    ];
-//                } else {
-//                    $entry['act']['entryRelationship']['observation']['effectiveTime']['high'] = [
-//                        '@attributes' => [
-//                            'nullFlavor' => 'NI'
-//                        ]
-//                    ];
-//                }
-//
-//                $entry['act']['entryRelationship']['observation']['value'] = [
-//                    '@attributes' => [
-//                        'xsi:type' => 'CD',
-//                        'code' => $item['code'],
-//                        'codeSystemName' => $item['code_type'],
-//                        'codeSystem' => $this->codes($item['code_type'])
-//                    ]
-//                ];
-//                $problems['entry'][] = $entry;
-//                unset($entry);
-//            }
-//        }
 
         if($this->requiredProblems || !empty($problems['entry'])){
             $this->addSection(['section' => $problems]);

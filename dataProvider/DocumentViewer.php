@@ -169,19 +169,14 @@ if (
 		if ($is_file) {
 			$mineType = mime_content_type($file_path);
 			$is_image = preg_match('/^image/', $mineType);
-		} else {
-			$mineType = get_mime_type($doc['name']);
-			$is_image = preg_match('/^image/', $mineType);
-		}
 
-		if ($is_file) {
 			$document = file_get_contents($file_path);
 			$TransactionLog->saveTransactionLog([
 				'event' => 'VIEW',
 				'data' => 'Generated and viewed image'
 			]);
 
-		} elseif (isset($doc['document_instance']) && $doc['document_instance'] != '') {
+		} elseif(isset($doc['document_instance']) && $doc['document_instance'] != '') {
 
 			$mineType = get_mime_type($doc['name']);
 			$is_image = preg_match('/^image/', $mineType);
@@ -198,6 +193,7 @@ if (
 				'event' => 'VIEW',
 				'data' => 'Generated and viewed image'
 			]);
+
 		} else {
 
 			$mineType = get_mime_type($doc['name']);

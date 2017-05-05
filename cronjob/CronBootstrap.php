@@ -31,7 +31,7 @@
  * web server is detected.
  */
 if(php_sapi_name() != 'cli'){
-    echo "This script should be ran from the CLI (Command Line Interface)</br>";
+    echo "This script should be executed from the CLI (Command Line Interface)</br>";
     echo "and not from a web server of any kind.</br>";
     exit(0);
 }

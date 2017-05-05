@@ -1858,6 +1858,13 @@ $LANG = array(
 	'total_space'                           => 'Total Space',
 	'free_space'                            => 'Free Space',
 	'percent_used'                          => 'Percent Used',
-
-
+    'key'                                   => 'Key',
+    'cronjobs'                              => 'CronJob',
+    'cronjobs_available'                    => 'Available CronJobs',
+    'cronjob_manager'                       => 'CronJob Manager',
+    'pid'                                   => 'Process ID',
+    'running'                               => 'Running',
+    'week_day'                              => 'Day of Week',
+    'month_day'                             => 'Day of Month',
+    'timeout'                               => 'Timeout'
 );

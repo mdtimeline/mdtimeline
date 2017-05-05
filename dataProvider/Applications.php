@@ -79,5 +79,3 @@ class Applications {
 
 	}
 }
-//$api = new Applications();
-//print $api->generatePrivateKey();

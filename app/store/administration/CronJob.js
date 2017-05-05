@@ -1,4 +1,3 @@
-<?php
 /**
  * mdTimeLine EHR (Electronic Health Records)
  * Copyright (C) 2017 mdTimeLine, LLC.
@@ -13,32 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU General Public  License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-include_once(ROOT . '/classes/Sessions.php');
-include_once(ROOT . '/dataProvider/Patient.php');
-
-class CronJob
-{
-
-    /**
-     * @var bool|MatchaCUP
-     */
-    private $CronJobModel;
-
-    function __construct() {
-        if($this->CronJobModel == NULL)
-            $this->CronJobModel = MatchaModel::setSenchaModel('App.model.administration.CronJob');
-    }
-
-    public function getCronJob($params){
-        return $this->CronJobModel->load($params)->all();
-    }
-
-    public function updateCronJob($params){
-        return $this->CronJobModel->save($params);
-    }
-
-}
+Ext.define('App.store.administration.CronJob', {
+    storeId: 'CronJobStore',
+    model: 'App.model.administration.CronJob',
+    extend: 'Ext.data.Store'
+});

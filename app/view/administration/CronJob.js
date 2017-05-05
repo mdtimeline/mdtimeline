@@ -124,7 +124,7 @@ Ext.define('App.view.administration.CronJob', {
                     },
                     {
                         text: _('running'),
-                        dataIndex: 'pid',
+                        dataIndex: 'running',
                         renderer: me.boolRenderer,
                         align: 'center'
                     },
@@ -136,6 +136,14 @@ Ext.define('App.view.administration.CronJob', {
                         editor: {
                             xtype: 'checkboxfield'
                         }
+                    }
+                ],
+                tbar: [
+                    '->',
+                    {
+                        xtype: 'button',
+                        text: _('refresh'),
+                        itemId: 'refresh'
                     }
                 ]
             }

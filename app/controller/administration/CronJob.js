@@ -36,6 +36,9 @@ Ext.define('App.controller.administration.CronJob', {
         me.control({
             'cronjobpanel':{
                 activate: me.onCronJobPanelActive
+            },
+            'cronjobpanel #refresh':{
+                click: me.onCronJobPanelActive
             }
         });
 

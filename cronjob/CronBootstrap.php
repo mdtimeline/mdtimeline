@@ -55,12 +55,12 @@ class CronBootstrap
      * NOTE: Remember that this is called fromm the CLI (Command Line Interface)
      * and not from Apache or IIS, it will not have $_SESSION, $_SERVER, ect.
      */
-    function __construct($argv){
+    function __construct($argv, $filename){
         define("PID",getmypid());
         define('site_id', $argv[1]);
         define('URL', '');
         define('ROOT', str_replace('\\', '/', str_ireplace("cronjob","",getcwd())));
-        define('SCRIPT', basename(__FILE__, ".php"));
+        define('SCRIPT', $filename);
         define('SCRIPT_NAME', "Old Log Removal");
         include_once(ROOT."sites/".site_id."/conf.php");
         include_once(ROOT.'classes/MatchaHelper.php');
@@ -95,47 +95,74 @@ class CronBootstrap
      * @return bool
      */
     public function checkRun(){
-        $CJP = $this->CronJobParams['data'];
+        try
+        {
+            // Check if the CronJabParams has something
+            if(!isset($this->CronJobParams['data'])) return false;
 
-        // This means that the process is already running
-        if($this->checkProcessId($this->CronJobParams['data']['pid'])) return false;
+            $CJP = $this->CronJobParams['data'];
 
-        // Check if it's there anything to run first.
-        if(isset($this->CronJobParams['data'])) return false;
+            // This means that the process is already running
+            if($this->checkProcessId($CJP['pid'])) {
+                return false;
+            } else {
+                $this->removeRunningStatus($CJP['pid']);
+            }
 
-        // Try to check the time of it's schedule but first check if the script
-        // is running, if it is running skip it.
-        if($CJP['active'] && !$CJP['running']) {
-            // Check month
-            if ($CJP['month'] == date('n') || $CJP['month'] == '*') {
-                // Check month day
-                if ($CJP['month_day'] == date('j') || $CJP['month_day'] == '*') {
-                    // Check week day
-                    if ($CJP['week_day'] == date('w') || $CJP['week_day'] == '*') {
+            // Try to check the time of it's schedule but first check if the script
+            // is running, if it is running skip it.
+            if($CJP['active'] && !$CJP['running']) {
+                // Check month
+                if ($CJP['month'] == date('n') || $CJP['month'] == '*') {
+                    // Check month day
+                    if ($CJP['month_day'] == date('j') || $CJP['month_day'] == '*') {
                         // Check week day
-                        if ($CJP['hour'] == date('G') || $CJP['hour'] ==  '*') {
-                            // Check minute
-                            if ($CJP['minute'] == date('i') || $CJP['hour'] == '*') {
-                                $params = new stdClass();
-                                $params->filter[0] = new stdClass();
-                                $params->filter[0]->property = 'filename';
-                                $params->filter[0]->value = SCRIPT;
-                                $CronJobRecords = $this->CronJobModel->load($params)->one();
+                        if ($CJP['week_day'] == date('w') || $CJP['week_day'] == '*') {
+                            // Check week day
+                            if ($CJP['hour'] == date('G') || $CJP['hour'] ==  '*') {
+                                // Check minute
+                                if ($CJP['minute'] == date('i') || $CJP['hour'] == '*') {
+                                    $params = new stdClass();
+                                    $params->filter[0] = new stdClass();
+                                    $params->filter[0]->property = 'filename';
+                                    $params->filter[0]->value = SCRIPT;
+                                    $CronJobRecords = $this->CronJobModel->load($params)->one();
 
-                                $data = new stdClass();
-                                $data->id = $CronJobRecords['id'];
-                                $data->pid = PID;
-                                $data->running = true;
-                                $data->last_run_date = date('Y-m-d H:i:s');
-                                $this->CronJobModel->save($data);
-                                return true;
+                                    $data = new stdClass();
+                                    $data->id = $CronJobRecords['data']['id'];
+                                    $data->pid = PID;
+                                    $data->running = true;
+                                    $data->last_run_date = date('Y-m-d H:i:s');
+                                    $this->CronJobModel->save($data);
+                                    return true;
+                                }
                             }
                         }
                     }
                 }
             }
+            return false;
+        } catch(ErrorException $Error){
+            error_log($Error->getMessage());
+            return false;
         }
-        return false;
+    }
+
+    private function removeRunningStatus($PID){
+        $params = new stdClass();
+        $params->filter[0] = new stdClass();
+        $params->filter[0]->property = 'filename';
+        $params->filter[0]->value = SCRIPT;
+        $params->filter[1] = new stdClass();
+        $params->filter[1]->property = 'pid';
+        $params->filter[1]->value = $PID;
+        $CronJobRecords = $this->CronJobModel->load($params)->one();
+
+        $data = new stdClass();
+        $data->id = $CronJobRecords['data']['id'];
+        $data->pid = '';
+        $data->running = false;
+        $this->CronJobModel->save($data);
     }
 
     /**

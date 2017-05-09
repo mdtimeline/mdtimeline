@@ -23,8 +23,8 @@
  * web server is detected.
  */
 if(php_sapi_name() != 'cli'){
-    echo "This script should be ran from the CLI (Command Line Interface)</br>";
-    echo "and not from a web server of any kind.</br>";
+    print "This script should be ran from the CLI (Command Line Interface)</br>";
+    print "and not from a web server of any kind.</br>";
     exit(0);
 }
 
@@ -38,9 +38,8 @@ $env_dir = str_replace('CronJobsCli.php', '', $_SERVER['PHP_SELF']);
  * removes unwanted files and dotted directories
  */
 $directories = array_diff(scandir($sites_dir), array('..', '.'));
-foreach($directories as $index => $directory){
+foreach($directories as $index => $directory)
     if(!is_dir($sites_dir.$directory)) unset($directories[$index]);
-}
 $directories = array_values($directories);
 
 /**
@@ -55,11 +54,12 @@ foreach($directories as $directory){
         // Fetch all the JOBS available on the site
         $jobsFiles = array_diff(scandir($sites_dir . $directory . "/jobs/"), array('..', '.'));
 
-        // Loop on all the jobs available
+        // Loop on all the jobs available and execute them
         foreach($jobsFiles as $jobsFile){
             $env = 'cd '.$env_dir.' && ';
             $cmd = $env." php -f ".$sites_dir.$directory ."/jobs/".$jobsFile." ".$directory." &";
             shell_exec($cmd);
+            print "Executing: $jobsFile...\n";
         }
     }
 }

@@ -237,25 +237,24 @@ class CronBootstrap
      */
     private function checkProcessId($PID){
         switch(PHP_OS){
-            // Windows OS
-            case 'WINNT':
+            case 'Linux': // Linux
+                $cmd = 'ps -Ao "%p|%t|%a"';
+                $result = shell_exec($cmd);
+                $tasks = self::csv_to_array($result, "\n", "|");
+                foreach($tasks as $task) if($task['PID'] == $PID) return true;
+                break;
+            case 'Darwin': // Darwin (MacOS)
+                $cmd = 'ps -Ao "%p|%t|%a"';
+                $result = shell_exec($cmd);
+                $header = null;
+                $tasks = self::csv_to_array($result, "\n", "|");
+                foreach($tasks as $task) if($task['PID'] == $PID) return true;
+                break;
+            case 'WINNT': // Windows
                 $cmd = "tasklist /FO CSV";
                 $result = shell_exec($cmd);
                 $header = null;
                 $tasks = self::csv_to_array($result, "\n");
-                foreach($tasks as $task) if($task['PID'] == $PID) return true;
-                break;
-            case 'Linux':
-                $cmd = 'ps -Ao "%p|%t|%a"';
-                $result = shell_exec($cmd);
-                $tasks = self::csv_to_array($result, "\n", "|");
-                foreach($tasks as $task) if($task['PID'] == $PID) return true;
-                break;
-            case 'Darwin':
-                $cmd = 'ps -Ao "%p|%t|%a"';
-                $result = shell_exec($cmd);
-                $header = null;
-                $tasks = self::csv_to_array($result, "\n", "|");
                 foreach($tasks as $task) if($task['PID'] == $PID) return true;
                 break;
         }
@@ -300,6 +299,7 @@ class CronBootstrap
      * Converts a csv string into an array
      * Original code from: https://gist.github.com/jaywilliams/385876
      * Modification by: http://php.net/manual/en/function.str-getcsv.php#117366
+     * Refinements by: Gino Rivera
      *
      * @param string $string
      * @param string $row_delimiter
@@ -320,11 +320,12 @@ class CronBootstrap
             foreach($row as $key => $item) $row[$key] = trim($item);
             if(!$header) {
                 $header = $row;
+                // Hold the exact count of the header columns
                 $header_count = count($row);
             } else {
-                if (count($row) > $header_count) {
+                // Delete the excess of the array, using the $header_count
+                if (count($row) > $header_count)
                     for ($l = count($row); $l >= $header_count; $l--) unset($row[$l]);
-                }
                 $data[] = array_combine($header, $row);
             }
         }

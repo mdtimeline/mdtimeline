@@ -19,14 +19,6 @@
  */
 
 /**
- * Enable the error and also set the ROOT directory for
- * the error log. But checks if the files exists and is
- * writable.
- *
- * NOTE: This should be part of Matcha::Connect
- */
-
-/**
  * Check for the script management runner. Quit if it is a
  * web server is detected.
  */
@@ -64,6 +56,13 @@ class CronBootstrap
         include_once(ROOT."sites/".site_id."/conf.php");
         include_once(ROOT.'classes/MatchaHelper.php');
 
+        /**
+         * Enable the error and also set the ROOT directory for
+         * the error log. But checks if the files exists and is
+         * writable.
+         *
+         * NOTE: This should be part of Matcha::Connect
+         */
         error_reporting(-1);
         ini_set('display_errors', 1);
         $logPath = ROOT . 'sites/' . site_id . '/log/';
@@ -247,19 +246,16 @@ class CronBootstrap
                 foreach($tasks as $task) if($task['PID'] == $PID) return true;
                 break;
             case 'Linux':
-                $cmd = 'ps -e -o \"\\" % p\\",\\" % r\\",\\" % U\\",\\" % z\\",\\" % C\\",\\" % c\\",\\" % a\\"\"';
+                $cmd = 'ps -Ao "%p|%t|%a"';
                 $result = shell_exec($cmd);
-                $header = null;
-                $tasks = self::csv_to_array($result, "\n", ",");
-                foreach($tasks as $key => $task) $tasks[$key] = trim($task);
+                $tasks = self::csv_to_array($result, "\n", "|");
                 foreach($tasks as $task) if($task['PID'] == $PID) return true;
                 break;
             case 'Darwin':
-                $cmd = 'ps -e -o \"\\" % p\\",\\" % r\\",\\" % U\\",\\" % z\\",\\" % C\\",\\" % c\\",\\" % a\\"\"';
+                $cmd = 'ps -Ao "%p|%t|%a"';
                 $result = shell_exec($cmd);
                 $header = null;
-                $tasks = self::csv_to_array($result, "\n", ",");
-                foreach($tasks as $key => $task) $tasks[$key] = trim($task);
+                $tasks = self::csv_to_array($result, "\n", "|");
                 foreach($tasks as $task) if($task['PID'] == $PID) return true;
                 break;
         }
@@ -317,13 +313,20 @@ class CronBootstrap
         $rows = array_filter(explode($row_delimiter, $string));
         $header = NULL;
         $data = array();
+        $header_count = 0;
         foreach($rows as $row)
         {
             $row = str_getcsv ($row, $delimiter, $enclosure , $escape);
-            if(!$header)
+            foreach($row as $key => $item) $row[$key] = trim($item);
+            if(!$header) {
                 $header = $row;
-            else
+                $header_count = count($row);
+            } else {
+                if (count($row) > $header_count) {
+                    for ($l = count($row); $l >= $header_count; $l--) unset($row[$l]);
+                }
                 $data[] = array_combine($header, $row);
+            }
         }
         return $data;
     }

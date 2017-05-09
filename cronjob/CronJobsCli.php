@@ -30,7 +30,8 @@ if(php_sapi_name() != 'cli'){
 
 date_default_timezone_set('UTC');
 
-$sites_dir = '../sites/';
+$sites_dir = str_replace('cronjob/CronJobsCli.php', '', $_SERVER['PHP_SELF'])."sites/";
+$env_dir = str_replace('CronJobsCli.php', '', $_SERVER['PHP_SELF']);
 
 /**
  * Load the complete list of sites directory into a variable (array) also
@@ -56,9 +57,11 @@ foreach($directories as $directory){
 
         // Loop on all the jobs available
         foreach($jobsFiles as $jobsFile){
-            $cmd = "php -f ".$sites_dir.$directory ."/jobs/".$jobsFile." ".$directory." &";
+            $env = 'cd '.$env_dir.' && ';
+            $cmd = $env." php -f ".$sites_dir.$directory ."/jobs/".$jobsFile." ".$directory." &";
             shell_exec($cmd);
         }
     }
 }
+print "All scripts where executed..\n";
 exit(0);

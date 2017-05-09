@@ -53,7 +53,6 @@ class CronBootstrap
      * Load up all the tools needed to work with the database (current site)
      * and set up all the environment.
      * NOTE: Remember that this is called fromm the CLI (Command Line Interface)
-     * and not from Apache or IIS, it will not have $_SESSION, $_SERVER, ect.
      */
     function __construct($argv, $filename){
         define("PID",getmypid());
@@ -106,22 +105,22 @@ class CronBootstrap
             if($this->checkProcessId($CJP['pid'])) {
                 return false;
             } else {
-                $this->removeRunningStatus($CJP['pid']);
+                if(!$this->removeRunningStatus($CJP['pid'])) return false;
             }
 
             // Try to check the time of it's schedule but first check if the script
             // is running, if it is running skip it.
             if($CJP['active'] && !$CJP['running']) {
                 // Check month
-                if ($CJP['month'] == date('n') || $CJP['month'] == '*') {
+                if ($this->evaluateValueRages($CJP['month'], 'month') || $CJP['month'] == '*') {
                     // Check month day
-                    if ($CJP['month_day'] == date('j') || $CJP['month_day'] == '*') {
+                    if ($this->evaluateValueRages($CJP['month_day'], 'month_day') || $CJP['month_day'] == '*') {
                         // Check week day
-                        if ($CJP['week_day'] == date('w') || $CJP['week_day'] == '*') {
-                            // Check week day
-                            if ($CJP['hour'] == date('G') || $CJP['hour'] ==  '*') {
+                        if ($this->evaluateValueRages($CJP['week_day'], 'week_day') || $CJP['week_day'] == '*') {
+                            // Check hour
+                            if ($this->evaluateValueRages($CJP['hour'], 'hour') || $CJP['hour'] ==  '*') {
                                 // Check minute
-                                if ($CJP['minute'] == date('i') || $CJP['hour'] == '*') {
+                                if ($this->evaluateValueRages($CJP['minute'], 'minute') || $CJP['hour'] == '*') {
                                     $params = new stdClass();
                                     $params->filter[0] = new stdClass();
                                     $params->filter[0]->property = 'filename';
@@ -148,21 +147,85 @@ class CronBootstrap
         }
     }
 
-    private function removeRunningStatus($PID){
-        $params = new stdClass();
-        $params->filter[0] = new stdClass();
-        $params->filter[0]->property = 'filename';
-        $params->filter[0]->value = SCRIPT;
-        $params->filter[1] = new stdClass();
-        $params->filter[1]->property = 'pid';
-        $params->filter[1]->value = $PID;
-        $CronJobRecords = $this->CronJobModel->load($params)->one();
+    /**
+     * evaluateValueRages
+     *
+     * Evaluates the values to see the type of range and then compares them with
+     * the current time.
+     *
+     * @param $value
+     * @param $timeType
+     * @return bool
+     */
+    private function evaluateValueRages($value, $timeType){
+        // Hyphen and Comma separated: Specific numbers and range numbers
+        if(strpos($value, '-') && strpos($value, ',')){
 
-        $data = new stdClass();
-        $data->id = $CronJobRecords['data']['id'];
-        $data->pid = '';
-        $data->running = false;
-        $this->CronJobModel->save($data);
+        }
+        //  Hyphen separated only: Range of numbers
+        elseif(strpos($value, '-') && !strpos($value, ','))
+        {
+            $numbers = explode('-', $value);
+            foreach($numbers as $index => $number)
+                if(empty($number)) unset($numbers[$index]);
+
+        }
+        // Comma separated only: Specific numbers
+        elseif(!strpos($value, '-') && strpos($value, ','))
+        {
+            $numbers = explode(',', $value);
+            foreach($numbers as $index => $number)
+                if(empty($number)) unset($numbers[$index]);
+        }
+        // No comma or hyphen detected, must be only one value
+        else
+        {
+            $numbers = [$value];
+        }
+        $numbers = array_values($numbers);
+        foreach($numbers as $number){
+            // Compares month: 1 through 12, casted to integer
+            if($timeType == 'month' && $number == (int)date('n') && $number <= 12) return true;
+            // Compares month day: 1 to 31, casted to integer
+            if($timeType == 'month_day' && $number == (int)date('j') && $number <= 31) return true;
+            // Compares week day: 0 (for Sunday) through 6 (for Saturday), casted to integer
+            if($timeType == 'month_day' && $number == (int)date('w') && $number <=6) return true;
+            // Compares hour: 0 through 23, casted to integer
+            if($timeType == 'month_day' && $number == (int)date('G') && $number <=23) return true;
+            // Compares minute: 00 through 59, casted to integer
+            if($timeType == 'minute' && $number == (int)date('i') && $number <= 59) return true;
+        }
+        return false;
+    }
+
+    /**
+     * removeRunningStatus
+     * Un-check the process ID from the task that we are working on.
+     * @param $PID
+     * @return bool
+     */
+    private function removeRunningStatus($PID){
+        try
+        {
+            $params = new stdClass();
+            $params->filter[0] = new stdClass();
+            $params->filter[0]->property = 'filename';
+            $params->filter[0]->value = SCRIPT;
+            $params->filter[1] = new stdClass();
+            $params->filter[1]->property = 'pid';
+            $params->filter[1]->value = $PID;
+            $CronJobRecords = $this->CronJobModel->load($params)->one();
+
+            $data = new stdClass();
+            $data->id = $CronJobRecords['data']['id'];
+            $data->pid = '';
+            $data->running = false;
+            $this->CronJobModel->save($data);
+            return true;
+        } catch(ErrorException $Error){
+            error_log($Error->getMessage());
+            return false;
+        }
     }
 
     /**

@@ -244,9 +244,7 @@ class CronBootstrap
                 $result = shell_exec($cmd);
                 $header = null;
                 $tasks = self::csv_to_array($result, "\n");
-                foreach($tasks as $task){
-                    if($task['PID'] == $PID) return true;
-                }
+                foreach($tasks as $task) if($task['PID'] == $PID) return true;
                 break;
             case 'Linux':
                 $cmd = 'ps -e -o \"\\" % p\\",\\" % r\\",\\" % U\\",\\" % z\\",\\" % C\\",\\" % c\\",\\" % a\\"\"';
@@ -254,9 +252,7 @@ class CronBootstrap
                 $header = null;
                 $tasks = self::csv_to_array($result, "\n", ",");
                 foreach($tasks as $key => $task) $tasks[$key] = trim($task);
-                foreach($tasks as $task){
-                    if($task['PID'] == $PID) return true;
-                }
+                foreach($tasks as $task) if($task['PID'] == $PID) return true;
                 break;
             case 'Darwin':
                 $cmd = 'ps -e -o \"\\" % p\\",\\" % r\\",\\" % U\\",\\" % z\\",\\" % C\\",\\" % c\\",\\" % a\\"\"';
@@ -264,9 +260,7 @@ class CronBootstrap
                 $header = null;
                 $tasks = self::csv_to_array($result, "\n", ",");
                 foreach($tasks as $key => $task) $tasks[$key] = trim($task);
-                foreach($tasks as $task){
-                    if($task['PID'] == $PID) return true;
-                }
+                foreach($tasks as $task) if($task['PID'] == $PID) return true;
                 break;
         }
         return false;

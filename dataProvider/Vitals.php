@@ -16,7 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- include_once(ROOT.'/dataProvider/User.php');
+
+include_once(ROOT.'/dataProvider/User.php');
+
 class Vitals {
 
 	/**

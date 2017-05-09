@@ -333,7 +333,8 @@ Ext.define('App.view.patient.Summary', {
 						header: _('type'),
 						dataIndex: 'type',
 						editor: {
-							xtype: 'textfield'
+                            xtype: 'gaiaehr.combo',
+                            list_key: 'disclosures_types'
 						},
 						renderer: function(v){
 							return _(v);

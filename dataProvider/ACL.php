@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+include_once('TransactionLog.php');
+
 class ACL {
 
 	/**
@@ -538,10 +540,13 @@ class ACL {
 			return false;
 		$_SESSION['user']['emergencyAccess'] = true;
 
-
-		// LOG!!!
-
-
+		// Log the transaction
+        $tl = new TransactionLog();
+        $log['table'] = 'acl_permission';
+        $log['event'] = 'Emergency Access';
+        $log['category'] = 'Emergency Access';
+        $tl->saveTransactionLog($log);
+        unset($tl);
 
 		return $_SESSION['user']['emergencyAccess'];
 	}

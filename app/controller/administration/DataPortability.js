@@ -27,7 +27,11 @@ Ext.define('App.controller.administration.DataPortability', {
 		{
 			ref:'DataPortabilityPanelIFrame',
 			selector:'#DataPortabilityPanelIFrame'
-		}
+		},
+        {
+            ref: 'ExportFilterForm',
+            selector: '#ExportFilterForm'
+        }
 	],
 
 	init: function() {
@@ -38,12 +42,13 @@ Ext.define('App.controller.administration.DataPortability', {
 				click: me.onDataPortabilityExportBtnClick
 			}
 		});
-
 	},
 
 	onDataPortabilityExportBtnClick: function(btn){
 		var iframe = this.getDataPortabilityPanelIFrame(),
-			src = location.origin + location.pathname + 'dataProvider/DataPortability.php?token=' + app.user.token +'&site=' + g('site');
+			src = location.origin + location.pathname + 'dataProvider/DataPortability.php?token=' + app.user.token +'&site=' + g('site'),
+            form = this.getExportFilterForm().getForm(),
+            record = form.getValues().getRecord();
 
 		iframe.setSrc(src);
 	}

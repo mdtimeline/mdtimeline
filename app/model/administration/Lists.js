@@ -29,6 +29,11 @@ Ext.define('App.model.administration.Lists', {
             comment: 'List Options ID'
         },
         {
+            name: 'list_key',
+            type: 'string',
+            comment: 'List key for this list'
+        },
+        {
             name: 'title',
             type: 'string',
             comment: 'Title of the combo'

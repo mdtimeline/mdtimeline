@@ -184,15 +184,15 @@ class CronBootstrap
         $numbers = array_values($numbers);
         foreach($numbers as $number){
             // Compares month: 1 through 12, casted to integer
-            if($timeType == 'month' && $number == (int)date('n') && $number <= 12) return true;
+            if($timeType == 'month' && $number == (int)date('n') && $number <= 12 && $number >= 0) return true;
             // Compares month day: 1 to 31, casted to integer
-            if($timeType == 'month_day' && $number == (int)date('j') && $number <= 31) return true;
+            if($timeType == 'month_day' && $number == (int)date('j') && $number <= 31 && $number >= 0) return true;
             // Compares week day: 0 (for Sunday) through 6 (for Saturday), casted to integer
-            if($timeType == 'month_day' && $number == (int)date('w') && $number <=6) return true;
+            if($timeType == 'month_day' && $number == (int)date('w') && $number <=6 && $number >= 0) return true;
             // Compares hour: 0 through 23, casted to integer
-            if($timeType == 'month_day' && $number == (int)date('G') && $number <=23) return true;
+            if($timeType == 'month_day' && $number == (int)date('G') && $number <=23 && $number >= 0) return true;
             // Compares minute: 00 through 59, casted to integer
-            if($timeType == 'minute' && $number == (int)date('i') && $number <= 59) return true;
+            if($timeType == 'minute' && $number == (int)date('i') && $number <= 59 && $number >= 0) return true;
         }
         return false;
     }

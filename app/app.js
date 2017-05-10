@@ -8160,6 +8160,7 @@ Ext.define('App.ux.combo.Combo', {
 
 
 });
+
 Ext.define('App.ux.combo.CVXManufacturers', {
 	extend       : 'Ext.form.ComboBox',
 	alias        : 'widget.cvxmanufacturerscombo',
@@ -12684,6 +12685,11 @@ Ext.define('App.model.administration.Lists', {
             comment: 'List Options ID'
         },
         {
+            name: 'list_key',
+            type: 'string',
+            comment: 'List key for this list'
+        },
+        {
             name: 'title',
             type: 'string',
             comment: 'Title of the combo'
@@ -12709,6 +12715,7 @@ Ext.define('App.model.administration.Lists', {
         }
     }
 });
+
 Ext.define('App.model.administration.Modules', {
 	extend: 'Ext.data.Model',
 	table: {
@@ -18181,6 +18188,15 @@ Ext.define('App.model.patient.PatientDocuments', {
 			index: true
 		},
 		{
+			name: 'filesystem_id',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'path',
+			type: 'string'
+		},
+		{
 			name: 'name',
 			type: 'string'
 		},
@@ -18189,15 +18205,6 @@ Ext.define('App.model.patient.PatientDocuments', {
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s',
 			index: true
-		},
-		{
-			name: 'filesystem_id',
-			type: 'int',
-			index: true
-		},
-		{
-			name: 'path',
-			type: 'string'
 		},
 		{
 			name: 'note',
@@ -30160,13 +30167,11 @@ Ext.define('App.view.administration.Applications', {
 Ext.define('App.view.administration.Globals', {
 	extend: 'App.ux.RenderPanel',
 	id: 'panelGlobals',
-	pageTitle: 'GaiaEHR ' + _('global_settings'),
+	pageTitle: 'mdTimeLine EHR ' + _('global_settings'),
 	uses: ['App.ux.form.fields.Checkbox'],
 	initComponent: function(){
 		var me = this;
-		// *************************************************************************************
-		// Global Data store
-		// *************************************************************************************
+
 		me.store = Ext.create('App.store.administration.Globals',{
 			groupField: 'gl_category',
 			remoteSort: false,
@@ -30197,16 +30202,13 @@ Ext.define('App.view.administration.Globals', {
 							cat1 = getCat(o1),
 							cat2 = getCat(o2);
 
-						if (cat1 === cat2) {
-							return 0;
-						}
+						if (cat1 === cat2) return 0;
 
 						return cat1 < cat2 ? -1 : 1;
 					}
 				}
 			]
 		});
-
 
 		//region Store Region
 		me.default_top_pane_store = Ext.create('Ext.data.Store', {
@@ -30450,8 +30452,6 @@ Ext.define('App.view.administration.Globals', {
 				[_('option_7'), 'Option 7']
 			]
 		});
-		//region end
-
 
 		me.grid = Ext.create('Ext.grid.Panel',{
 			store: me.store,
@@ -30486,9 +30486,7 @@ Ext.define('App.view.administration.Globals', {
 				}
 			]
 		});
-
 		me.pageBody = [ me.grid ];
-
 		me.callParent(arguments);
 	},
 
@@ -30542,15 +30540,9 @@ Ext.define('App.view.administration.Lists', {
         /**
          * RowEditor Classes
          */
-        me.optionsRowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
-//            autoCancel: false,
-//            errorSummary: false
-        });
+        me.optionsRowEditing = Ext.create('Ext.grid.plugin.RowEditing', {});
 
-	    me.listsRowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
-//            autoCancel: false,
-//            errorSummary: false
-        });
+	    me.listsRowEditing = Ext.create('Ext.grid.plugin.RowEditing', {});
 
         /**
          * Lists Grid
@@ -30559,13 +30551,19 @@ Ext.define('App.view.administration.Lists', {
             store: me.listsStore,
             itemId: 'listsGrid',
             plugins: [ me.listsRowEditing ],
-            width: 320,
+            width: 50,
             margin: '0 2 0 0',
             region: 'west',
             columns: [
                 {
-	                width: 30,
-                    dataIndex: 'id'
+                    text: _('key'),
+	                width: 110,
+                    dataIndex: 'list_key',
+                    editor: {
+                        xtype:'textfield',
+                        allowOnlyWhitespace: false,
+                        allowBlank: false
+                    }
                 },
                 {
                     text: _('select_lists'),
@@ -36222,7 +36220,11 @@ Ext.define('App.controller.administration.DataPortability', {
 		{
 			ref:'DataPortabilityPanelIFrame',
 			selector:'#DataPortabilityPanelIFrame'
-		}
+		},
+        {
+            ref: 'ExportFilterForm',
+            selector: '#ExportFilterForm'
+        }
 	],
 
 	init: function() {
@@ -36233,12 +36235,13 @@ Ext.define('App.controller.administration.DataPortability', {
 				click: me.onDataPortabilityExportBtnClick
 			}
 		});
-
 	},
 
 	onDataPortabilityExportBtnClick: function(btn){
 		var iframe = this.getDataPortabilityPanelIFrame(),
-			src = location.origin + location.pathname + 'dataProvider/DataPortability.php?token=' + app.user.token +'&site=' + g('site');
+			src = location.origin + location.pathname + 'dataProvider/DataPortability.php?token=' + app.user.token +'&site=' + g('site'),
+            form = this.getExportFilterForm().getForm(),
+            record = form.getValues().getRecord();
 
 		iframe.setSrc(src);
 	}
@@ -38589,8 +38592,7 @@ Ext.define('App.controller.Cron', {
 	fns:[
 		'app.getPatientsInPoolArea()',
 		'me.checkSession()',
-		'me.getTime()',
-		//'CronJob.run()'
+		'me.getTime()'
 	],
 
 	init: function() {
@@ -41180,7 +41182,7 @@ Ext.define('App.controller.patient.CCD', {
 			eid: eid,
 			uid: app.user.id,
 			date: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
-			type: 'clinical_summary',
+			type: 'Health care operations',
 			recipient: 'patient',
 			description: 'Clinical Summary Provided (Exported)',
 			active: 1
@@ -41215,7 +41217,7 @@ Ext.define('App.controller.patient.CCD', {
 			eid: eid,
 			uid: app.user.id,
 			date: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
-			type: 'clinical_summary',
+			type: 'Health care operations',
 			recipient: 'patient',
 			description: 'Clinical Summary Provided (PRINTED)',
 			active: 1
@@ -54841,7 +54843,8 @@ Ext.define('App.view.patient.Summary', {
 						header: _('type'),
 						dataIndex: 'type',
 						editor: {
-							xtype: 'textfield'
+                            xtype: 'gaiaehr.combo',
+                            list_key: 'disclosures_types'
 						},
 						renderer: function(v){
 							return _(v);

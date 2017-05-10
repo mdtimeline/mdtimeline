@@ -34,7 +34,16 @@ class CronJob
     }
 
     public function getCronJob($params){
-        return $this->CronJobModel->load($params)->all();
+        $records = $this->CronJobModel->load($params)->all();
+        error_log(print_r($records,true));
+        foreach($records['data'] as $index => $record){
+            if($record['running']){
+                $records['data'][$index]['elapsed'] = time() - strtotime($record['last_run_date']);
+            } else {
+                $records['data'][$index]['elapsed'] = '';
+            }
+        }
+        return $records;
     }
 
     public function updateCronJob($params){

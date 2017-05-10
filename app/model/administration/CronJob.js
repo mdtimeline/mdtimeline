@@ -78,6 +78,11 @@ Ext.define('App.model.administration.CronJob', {
             type: 'date'
         },
         {
+            name: 'elapsed',
+            type: 'string',
+            store: false
+        },
+        {
             name: 'timeout',
             type: 'int'
         },

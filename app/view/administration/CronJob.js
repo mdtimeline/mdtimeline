@@ -118,6 +118,11 @@ Ext.define('App.view.administration.CronJob', {
                         }
                     },
                     {
+                        text: _('elapsed'),
+                        dataIndex: 'elapsed',
+                        align: 'center'
+                    },
+                    {
                         text: _('pid'),
                         dataIndex: 'pid',
                         align: 'center'

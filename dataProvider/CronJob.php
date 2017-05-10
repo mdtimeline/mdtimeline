@@ -35,7 +35,9 @@ class CronJob
 
     public function getCronJob($params){
         $records = $this->CronJobModel->load($params)->all();
-        error_log(print_r($records,true));
+
+        // This is done to calculate the seconds that the script has elapsed, taking
+        // the last_run_date and if the running (bool) is true.
         foreach($records['data'] as $index => $record){
             if($record['running']){
                 $records['data'][$index]['elapsed'] = time() - strtotime($record['last_run_date']);

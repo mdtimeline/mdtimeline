@@ -157,23 +157,27 @@ class CronBootstrap
      * @return bool
      */
     private function evaluateValueRages($value, $timeType){
+
         // Try to explode the value into an array, if the value is not an array
         // assume that is an integer
         $numbers = explode(',', $value);
-        if(is_array($numbers)) {
-            foreach($numbers as $number) {
+        if (is_array($numbers)) {
+            foreach ($numbers as $number) {
                 if (strpos($number, '-') !== false) {
-                    $range = explode('-', $value);
-                    foreach ($range as $item) $tmp[] = $item;
+                    $range = explode('-', $number);
+                    for($i = $range[0]; $i <= $range[1]; $i++){
+                        $tmp[] = $i;
+                    }
                 } else {
                     $tmp[] = $number;
                 }
-                $numbers = $tmp;
-                unset($tmp);
             }
         } else {
-            $numbers[] = $value;
+            $tmp[] = $value;
         }
+
+        // Now loop against the evaluated values and determine if it's a go or no go.
+        $numbers = $tmp;
         foreach($numbers as $number){
             // Compares month: 1 through 12, casted to integer
             if($timeType == 'month' && $number == (int)date('n') && $number <= 12 && $number >= 0)

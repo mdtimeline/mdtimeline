@@ -30,7 +30,18 @@ if(php_sapi_name() != 'cli'){
 
 date_default_timezone_set('UTC');
 
-$sites_dir = str_replace('cronjob/CronJobsCli.php', '', $_SERVER['PHP_SELF'])."sites/";
+switch(PHP_OS) {
+    case 'Linux':
+        $sites_dir = str_replace('cronjob/CronJobsCli.php', '', $_SERVER['PHP_SELF'])."sites/";
+        break;
+    case 'Darwin':
+        $sites_dir = str_replace('cronjob/CronJobsCli.php', '', $_SERVER['PHP_SELF'])."sites/";
+        break;
+    case 'WINNT':
+        $sites_dir = str_replace('cronjob\CronJobsCli.php', '', $_SERVER['PHP_SELF'])."sites\\";
+        break;
+}
+
 $env_dir = str_replace('CronJobsCli.php', '', $_SERVER['PHP_SELF']);
 
 /**

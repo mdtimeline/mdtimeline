@@ -1866,5 +1866,6 @@ $LANG = array(
     'running'                               => 'Running',
     'week_day'                              => 'Day of Week',
     'month_day'                             => 'Day of Month',
-    'timeout'                               => 'Timeout'
+    'timeout'                               => 'Timeout',
+    'elapsed'                               => 'Elapsed time (Secs)'
 );

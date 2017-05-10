@@ -19,14 +19,6 @@
  */
 
 /**
- * Enable the error and also set the ROOT directory for
- * the error log. But checks if the files exists and is
- * writable.
- *
- * NOTE: This should be part of Matcha::Connect
- */
-
-/**
  * Check for the script management runner. Quit if it is a
  * web server is detected.
  */
@@ -53,7 +45,6 @@ class CronBootstrap
      * Load up all the tools needed to work with the database (current site)
      * and set up all the environment.
      * NOTE: Remember that this is called fromm the CLI (Command Line Interface)
-     * and not from Apache or IIS, it will not have $_SESSION, $_SERVER, ect.
      */
     function __construct($argv, $filename){
         define("PID",getmypid());
@@ -65,6 +56,13 @@ class CronBootstrap
         include_once(ROOT."sites/".site_id."/conf.php");
         include_once(ROOT.'classes/MatchaHelper.php');
 
+        /**
+         * Enable the error and also set the ROOT directory for
+         * the error log. But checks if the files exists and is
+         * writable.
+         *
+         * NOTE: This should be part of Matcha::Connect
+         */
         error_reporting(-1);
         ini_set('display_errors', 1);
         $logPath = ROOT . 'sites/' . site_id . '/log/';
@@ -106,22 +104,22 @@ class CronBootstrap
             if($this->checkProcessId($CJP['pid'])) {
                 return false;
             } else {
-                $this->removeRunningStatus($CJP['pid']);
+                if(!$this->removeRunningStatus($CJP['pid'])) return false;
             }
 
             // Try to check the time of it's schedule but first check if the script
             // is running, if it is running skip it.
             if($CJP['active'] && !$CJP['running']) {
                 // Check month
-                if ($CJP['month'] == date('n') || $CJP['month'] == '*') {
+                if ($this->evaluateValueRages($CJP['month'], 'month') || $CJP['month'] == '*') {
                     // Check month day
-                    if ($CJP['month_day'] == date('j') || $CJP['month_day'] == '*') {
+                    if ($this->evaluateValueRages($CJP['month_day'], 'month_day') || $CJP['month_day'] == '*') {
                         // Check week day
-                        if ($CJP['week_day'] == date('w') || $CJP['week_day'] == '*') {
-                            // Check week day
-                            if ($CJP['hour'] == date('G') || $CJP['hour'] ==  '*') {
+                        if ($this->evaluateValueRages($CJP['week_day'], 'week_day') || $CJP['week_day'] == '*') {
+                            // Check hour
+                            if ($this->evaluateValueRages($CJP['hour'], 'hour') || $CJP['hour'] ==  '*') {
                                 // Check minute
-                                if ($CJP['minute'] == date('i') || $CJP['hour'] == '*') {
+                                if ($this->evaluateValueRages($CJP['minute'], 'minute') || $CJP['hour'] == '*') {
                                     $params = new stdClass();
                                     $params->filter[0] = new stdClass();
                                     $params->filter[0]->property = 'filename';
@@ -148,21 +146,86 @@ class CronBootstrap
         }
     }
 
-    private function removeRunningStatus($PID){
-        $params = new stdClass();
-        $params->filter[0] = new stdClass();
-        $params->filter[0]->property = 'filename';
-        $params->filter[0]->value = SCRIPT;
-        $params->filter[1] = new stdClass();
-        $params->filter[1]->property = 'pid';
-        $params->filter[1]->value = $PID;
-        $CronJobRecords = $this->CronJobModel->load($params)->one();
+    /**
+     * evaluateValueRages
+     *
+     * Evaluates the values to see the type of range and then compares them with
+     * the current time.
+     *
+     * @param $value
+     * @param $timeType
+     * @return bool
+     */
+    private function evaluateValueRages($value, $timeType){
 
-        $data = new stdClass();
-        $data->id = $CronJobRecords['data']['id'];
-        $data->pid = '';
-        $data->running = false;
-        $this->CronJobModel->save($data);
+        // Try to explode the value into an array, if the value is not an array
+        // assume that is an integer
+        $numbers = explode(',', $value);
+        if (is_array($numbers)) {
+            foreach ($numbers as $number) {
+                if (strpos($number, '-') !== false) {
+                    $range = explode('-', $number);
+                    for($i = $range[0]; $i <= $range[1]; $i++){
+                        $tmp[] = $i;
+                    }
+                } else {
+                    $tmp[] = $number;
+                }
+            }
+        } else {
+            $tmp[] = $value;
+        }
+
+        // Now loop against the evaluated values and determine if it's a go or no go.
+        $numbers = $tmp;
+        foreach($numbers as $number){
+            // Compares month: 1 through 12, casted to integer
+            if($timeType == 'month' && $number == (int)date('n') && $number <= 12 && $number >= 0)
+                return true;
+            // Compares month day: 1 to 31, casted to integer
+            if($timeType == 'month_day' && $number == (int)date('j') && $number <= 31 && $number >= 0)
+                return true;
+            // Compares week day: 0 (for Sunday) through 6 (for Saturday), casted to integer
+            if($timeType == 'month_day' && $number == (int)date('w') && $number <=6 && $number >= 0)
+                return true;
+            // Compares hour: 0 through 23, casted to integer
+            if($timeType == 'month_day' && $number == (int)date('G') && $number <=23 && $number >= 0)
+                return true;
+            // Compares minute: 00 through 59, casted to integer
+            if($timeType == 'minute' && $number == (int)date('i') && $number <= 59 && $number >= 0)
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * removeRunningStatus
+     * Un-check the process ID from the task that we are working on.
+     * @param $PID
+     * @return bool
+     */
+    private function removeRunningStatus($PID){
+        try
+        {
+            $params = new stdClass();
+            $params->filter[0] = new stdClass();
+            $params->filter[0]->property = 'filename';
+            $params->filter[0]->value = SCRIPT;
+            $params->filter[1] = new stdClass();
+            $params->filter[1]->property = 'pid';
+            $params->filter[1]->value = $PID;
+            $CronJobRecords = $this->CronJobModel->load($params)->one();
+
+            $data = new stdClass();
+            $data->id = $CronJobRecords['data']['id'];
+            $data->pid = '';
+            $data->running = false;
+            $this->CronJobModel->save($data);
+            return true;
+        } catch(ErrorException $Error){
+            error_log($Error->getMessage());
+            return false;
+        }
     }
 
     /**
@@ -175,35 +238,25 @@ class CronBootstrap
      */
     private function checkProcessId($PID){
         switch(PHP_OS){
-            // Windows OS
-            case 'WINNT':
+            case 'Linux': // Linux
+                $cmd = 'ps -Ao "%p|%t|%a"';
+                $result = shell_exec($cmd);
+                $tasks = self::csv_to_array($result, "\n", "|");
+                foreach($tasks as $task) if($task['PID'] == $PID) return true;
+                break;
+            case 'Darwin': // Darwin (MacOS)
+                $cmd = 'ps -Ao "%p|%t|%a"';
+                $result = shell_exec($cmd);
+                $header = null;
+                $tasks = self::csv_to_array($result, "\n", "|");
+                foreach($tasks as $task) if($task['PID'] == $PID) return true;
+                break;
+            case 'WINNT': // Windows
                 $cmd = "tasklist /FO CSV";
                 $result = shell_exec($cmd);
                 $header = null;
                 $tasks = self::csv_to_array($result, "\n");
-                foreach($tasks as $task){
-                    if($task['PID'] == $PID) return true;
-                }
-                break;
-            case 'Linux':
-                $cmd = 'ps -e -o \"\\" % p\\",\\" % r\\",\\" % U\\",\\" % z\\",\\" % C\\",\\" % c\\",\\" % a\\"\"';
-                $result = shell_exec($cmd);
-                $header = null;
-                $tasks = self::csv_to_array($result, "\n", ",");
-                foreach($tasks as $key => $task) $tasks[$key] = trim($task);
-                foreach($tasks as $task){
-                    if($task['PID'] == $PID) return true;
-                }
-                break;
-            case 'Darwin':
-                $cmd = 'ps -e -o \"\\" % p\\",\\" % r\\",\\" % U\\",\\" % z\\",\\" % C\\",\\" % c\\",\\" % a\\"\"';
-                $result = shell_exec($cmd);
-                $header = null;
-                $tasks = self::csv_to_array($result, "\n", ",");
-                foreach($tasks as $key => $task) $tasks[$key] = trim($task);
-                foreach($tasks as $task){
-                    if($task['PID'] == $PID) return true;
-                }
+                foreach($tasks as $task) if($task['PID'] == $PID) return true;
                 break;
         }
         return false;
@@ -247,6 +300,7 @@ class CronBootstrap
      * Converts a csv string into an array
      * Original code from: https://gist.github.com/jaywilliams/385876
      * Modification by: http://php.net/manual/en/function.str-getcsv.php#117366
+     * Refinements by: Gino Rivera
      *
      * @param string $string
      * @param string $row_delimiter
@@ -260,13 +314,21 @@ class CronBootstrap
         $rows = array_filter(explode($row_delimiter, $string));
         $header = NULL;
         $data = array();
+        $header_count = 0;
         foreach($rows as $row)
         {
             $row = str_getcsv ($row, $delimiter, $enclosure , $escape);
-            if(!$header)
+            foreach($row as $key => $item) $row[$key] = trim($item);
+            if(!$header) {
                 $header = $row;
-            else
+                // Hold the exact count of the header columns
+                $header_count = count($row);
+            } else {
+                // Delete the excess of the array, using the $header_count
+                if (count($row) > $header_count)
+                    for ($l = count($row); $l >= $header_count; $l--) unset($row[$l]);
                 $data[] = array_combine($header, $row);
+            }
         }
         return $data;
     }

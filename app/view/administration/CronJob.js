@@ -59,11 +59,6 @@ Ext.define('App.view.administration.CronJob', {
                         flex: 1
                     },
                     {
-                        text: _('filename'),
-                        dataIndex: 'filename',
-                        width: 200
-                    },
-                    {
                         text: _('minute'),
                         dataIndex: 'minute',
                         align: 'center',

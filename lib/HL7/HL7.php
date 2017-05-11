@@ -277,6 +277,12 @@ class HL7 {
 	}
 
 	function time($time, $format = 'Y-m-d H:i:s'){
+
+		$parsed_time = date($format, strtotime($time));
+		if(isset($parsed_time) && $parsed_time !== false){
+			return $parsed_time;
+		}
+
 		switch(strlen($time)){
 			case 4:
 				$time = preg_replace('/^([0-9]{4})$/', '$1-01-01 00:00:00', $time);
@@ -302,6 +308,7 @@ class HL7 {
                 $time = preg_replace('/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})$/', '$1-$2-$3 $4:$5:$6', $time);
                 break;
 		}
+
 		if($time == '' || $format == 'Y-m-d H:i:s'){
 			return $time;
 		}else{

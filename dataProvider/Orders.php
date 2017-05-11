@@ -119,6 +119,26 @@ class Orders {
 	 */
 	public function addOrderResults($params){
 		$this->setResults();
+		if(isset($params->upload) && $params->upload != ''){
+			include_once (ROOT. '/dataProvider/DocumentHandler.php');
+			$DocumentHandler = new DocumentHandler();
+
+			$document = new stdClass();
+			$document->pid = isset($params->pid) ? $params->pid : 0;
+			$document->eid = isset($params->eid) ? $params->eid : 0;
+			$document->uid = $_SESSION['user']['id'];
+			$document->docType = 'Radiology Report';
+			$document->docTypeCode = 'RP';
+			$document->name = 'report.pdf';
+			$document->date = date('Y-m-d H:i:s');
+			$document->title = 'Radiology Report';
+			$document->document = $params->upload;
+			$document->encrypted = false;
+			$record = $DocumentHandler->addPatientDocument($document);
+			$params->documentId = 'doc|' . $record['data']->id;
+			unset($params->upload);
+		}
+
 		return $this->r->save($params);
 	}
 
@@ -128,6 +148,26 @@ class Orders {
 	 */
 	public function updateOrderResults($params){
 		$this->setResults();
+
+		if(isset($params->upload) && $params->upload != ''){
+			include_once (ROOT. '/dataProvider/DocumentHandler.php');
+			$DocumentHandler = new DocumentHandler();
+
+			$document = new stdClass();
+			$document->pid = isset($params->pid) ? $params->pid : 0;
+			$document->eid = isset($params->eid) ? $params->eid : 0;
+			$document->uid = $_SESSION['user']['id'];
+			$document->docType = 'Radiology Report';
+			$document->docTypeCode = 'RP';
+			$document->name = 'report.pdf';
+			$document->date = date('Y-m-d H:i:s');
+			$document->title = 'Radiology Report';
+			$document->document = $params->upload;
+			$document->encrypted = false;
+			$record = $DocumentHandler->addPatientDocument($document);
+			$params->documentId = 'doc|' . $record['data']->id;
+			unset($params->upload);
+		}
 		return $this->r->save($params);
 	}
 
@@ -146,12 +186,21 @@ class Orders {
 	 */
 	public function getOrderResultObservations($params){
 		$this->setObservations();
-		if(isset($params->loinc)){
+
+		if(isset($params->id)){
+			$records = $this->b->load(['parent_id' => $params->id])->all();
+			foreach($records as $index => $record){
+				$records[$index]['iconCls'] = 'x-tree-no-icon';
+				$records[$index]['leaf'] = true;
+			}
+		}elseif(isset($params->loinc)){
 			$records = $this->getObservationsByLoinc($params->loinc);
-		}else{
+            foreach($records as $index => $record) $records[$index]['leaf'] = true;
+		} else {
 			$records = $this->b->load($params)->all();
 		}
-
+        $request['text'] = '.';
+        $request['children'] = $records;
 		return $records;
 	}
 
@@ -169,6 +218,26 @@ class Orders {
 	 * @return mixed
 	 */
 	public function updateOrderResultObservations($params){
+
+		//remove extra observation with id null
+		// this needs to be fixed in sencha
+		if(is_array($params)){
+			foreach ($params as $i => $param){
+				$count = count((array) $param);
+				if($count === 1) {
+					unset($params[$i]);
+				}
+				if($count === 2 && (!isset($param->id) && isset($param->result_id))) {
+					unset($params[$i]);
+				};
+			}
+			if(empty($params)) return $params;
+		}else{
+			$count = count((array) $params);
+			if($count === 1) return $params;
+			if($count === 2 && !isset($params->id) && isset($params->report_id)) return $params;
+		}
+
 		$this->setObservations();
 		return $this->b->save($params);
 	}
@@ -307,6 +376,50 @@ class Orders {
 		}
 		unset($order);
 		return $orders;
+	}
+
+	public function getOrderWithResultsByPidAndDates($pid, $start = null, $end = null){
+		$this->setOrders();
+		$this->setResults();
+		$this->setObservations();
+
+		$this->o->addFilter('pid', $pid);
+		$orders = $this->o->load()->all();
+
+		foreach($orders as $i => &$order){
+			$this->r->addFilter('order_id', $order['id']);
+
+			if(isset($start)){
+				$this->r->addFilter('created_date', $start, '>=');
+			}
+			if(isset($end)) {
+				$this->r->addFilter('created_date', $end, '<=');
+			}
+			$result = $this->r->load()->one();
+
+			if($result === false){
+				// if no result delete order
+				unset($orders[$i]);
+				continue;
+			}
+
+			$order['result'] = &$result;
+			$this->b->addFilter('result_id', $result['id']);
+			$order['result']['observations'] = $this->b->load()->all();
+			unset($result);
+		}
+		unset($order);
+		return $orders;
+	}
+
+	/**
+	 * @param $eid
+	 * @return mixed
+	 */
+	public function getPatientLabOrdersByEid($eid){
+		$this->setOrders();
+		$this->o->addFilter('eid', $eid);
+		return $this->o->load()->all();
 	}
 
 }

@@ -23,7 +23,7 @@ include_once(MATCHA_ROOT . 'MatchaErrorHandler.php');
 include_once(MATCHA_ROOT . 'MatchaModel.php');
 include_once(MATCHA_ROOT . 'MatchaUtils.php');
 include_once(MATCHA_ROOT . 'MatchaMemory.php');
-include_once(MATCHA_ROOT . 'MatchaSession.php');
+//include_once(MATCHA_ROOT . 'MatchaSession.php');
 include_once(MATCHA_ROOT . 'MatchaRouter.php');
 include_once(MATCHA_ROOT . 'MatchaLog.php');
 
@@ -31,7 +31,8 @@ include_once(MATCHA_ROOT . 'MatchaLog.php');
 if(class_exists('Thread'))
 	include_once(MATCHA_ROOT . 'MatchaThreads.php');
 
-class Matcha {
+class Matcha
+{
 
 	/**
 	 * This would be a Sencha Model parsed by getSenchaModel method
@@ -80,7 +81,11 @@ class Matcha {
 			if(self::$__conn === null){
 
 				// check for properties first.
-				if(!isset($databaseParameters['host']) && !isset($databaseParameters['name']) && !isset($databaseParameters['user']) && !isset($databaseParameters['pass']) && !isset($databaseParameters['app']))
+				if(!isset($databaseParameters['host']) &&
+                    !isset($databaseParameters['name']) &&
+                    !isset($databaseParameters['user']) &&
+                    !isset($databaseParameters['pass']) &&
+                    !isset($databaseParameters['app']))
 					throw new Exception('These parameters are obligatory: host="database ip or hostname", name="database name", user="database username", pass="database password", app="path of your sencha application"');
 
 				// Connect using regular PDO Matcha::connect Abstraction layer.
@@ -93,18 +98,22 @@ class Matcha {
 				$dbUser = (string)$databaseParameters['user'];
 				$dbPass = (string)$databaseParameters['pass'];
 
-				self::$__conn = new PDO('mysql:host=' . $host . ';port=' . $port . ';', $dbUser, $dbPass, array(
-					//PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
-					PDO::MYSQL_ATTR_LOCAL_INFILE => 1,
-					PDO::ATTR_PERSISTENT => false,
-				));
+				self::$__conn = new PDO(
+                    'mysql:host=' . $host . ';port=' . $port . ';',
+                    $dbUser,
+                    $dbPass, array(
+					    //PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
+					    PDO::MYSQL_ATTR_LOCAL_INFILE => 1,
+					    PDO::ATTR_PERSISTENT => false,
+				    )
+                );
 
                 // Check if the current version of PDO::MySQL has this parameter available
                 // If not activate it.
                 if( defined( 'PDO::MYSQL_ATTR_MAX_BUFFER_SIZE' ) )
                 {
                     // Increase the size to 5MB
-                    self::$__conn->setAttribute(PDO::MYSQL_ATTR_MAX_BUFFER_SIZE, 1024 * 1024 * 8);
+                    self::$__conn->setAttribute(PDO::MYSQL_ATTR_MAX_BUFFER_SIZE, 1024 * 1024 * 10);
                 }
 				self::$__conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 				self::$__conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);

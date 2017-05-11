@@ -60,6 +60,10 @@ Ext.define('App.ux.LiveUserSearch', {
 					type: 'string'
 				},
 				{
+					name: 'code',
+					type: 'string'
+				},
+				{
 					name: 'role',
 					type: 'string'
 				},

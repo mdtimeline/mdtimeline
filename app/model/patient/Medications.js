@@ -57,11 +57,6 @@ Ext.define('App.model.patient.Medications', {
 			type: 'string',
 			len: 40
 		},
-        {
-            name: 'GS_CODE',
-            type: 'string',
-            len: 40
-        },
 		{
 			name: 'RXCUI',
 			type: 'string',
@@ -77,6 +72,11 @@ Ext.define('App.model.patient.Medications', {
 			name: 'NDC',
 			type: 'string',
 			len: 40
+		},
+		{
+			name: 'TTY',
+			type: 'string',
+			len: 10
 		},
 		{
 			name: 'dxs',
@@ -136,6 +136,14 @@ Ext.define('App.model.patient.Medications', {
 			name: 'system_notes',
 			type: 'string',
 			len: 210
+		},
+		{
+			name: 'requires_prescription',
+			type: 'bool'
+		},
+		{
+			name: 'is_controlled',
+			type: 'bool'
 		},
 		{
 			name: 'is_compound',
@@ -208,6 +216,16 @@ Ext.define('App.model.patient.Medications', {
 			type: 'date',
 			dataType: 'date',
 			dateFormat: 'Y-m-d'
+		},
+		{
+			name: 'reconciled',
+			type: 'bool',
+			index: true
+		},
+		{
+			name: 'reconciled_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
 		},
 		{
 			name: 'active',

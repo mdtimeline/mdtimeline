@@ -36,6 +36,13 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 			index: true
 		},
 		{
+			name: 'study_uid',
+			type: 'string',
+			index: true,
+			len: 160,
+			comment: 'ID for external integration. Usually used for radilogy studies'
+		},
+		{
 			name: 'ordered_uid',
 			type: 'int',
 			index: true
@@ -92,15 +99,13 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 		{
 			name: 'result_date',
 			type: 'date',
-			dataType: 'date',
-			dateFormat: 'Y-m-d',
+			dateFormat: 'Y-m-d H:i:s',
 			index: true
 		},
 		{
 			name: 'observation_date',
 			type: 'date',
-			dataType: 'date',
-			dateFormat: 'Y-m-d',
+			dateFormat: 'Y-m-d H:i:s',
 			index: true
 		},
 		{
@@ -129,10 +134,6 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 			len: 40
 		},
 		{
-			name: 'specimen_notes',
-			type: 'string'
-		},
-		{
 			name: 'documentId',
 			type: 'string',
 			comment: 'this is the document or hl7 message id - example -> doc|123 or hl7|123',
@@ -154,7 +155,17 @@ Ext.define('App.model.patient.PatientsOrderResult', {
             type: 'string',
             comment: 'VOID comments',
             len: 100
-        }
+        },
+		{
+			name: 'specimen_notes',
+			type: 'string',
+			len: 600
+		},
+		{
+			name: 'study_link',
+			type: 'string',
+			len: 600
+		}
 	],
 	proxy: {
 		type: 'direct',
@@ -171,7 +182,13 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 			type: 'hasMany',
 			model: 'App.model.patient.PatientsOrderObservation',
 			name: 'observations',
-			foreignKey: 'result_id'
+            primaryKey: 'id',
+			foreignKey: 'result_id',
+			storeConfig: {
+				type: 'tree',
+				autoLoad: false,
+				clearOnLoad: true
+			}
 		},
 		{
 			type: 'belongsTo',

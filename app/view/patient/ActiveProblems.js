@@ -26,7 +26,7 @@ Ext.define('App.view.patient.ActiveProblems', {
 		'App.ux.combo.Outcome2'
 	],
 	xtype: 'patientactiveproblemspanel',
-	title: _('active_problems'),
+	title: _('act_prob'),
 	columnLines: true,
 	store: Ext.create('App.store.patient.PatientActiveProblems', {
 		remoteFilter: true,
@@ -73,11 +73,12 @@ Ext.define('App.view.patient.ActiveProblems', {
 			format: 'Y-m-d',
 			dataIndex: 'end_date'
 		},
-		{
-			header: _('status'),
-			width: 80,
-			dataIndex: 'status'
-		}
+        {
+            header: _('status'),
+            groupable: false,
+            width: 60,
+            dataIndex: 'status'
+        }
 	],
 	plugins: Ext.create('App.ux.grid.RowFormEditing', {
 		autoCancel: false,
@@ -156,10 +157,9 @@ Ext.define('App.view.patient.ActiveProblems', {
 							{
 								fieldLabel: _('status'),
 								xtype: 'gaiaehr.combo',
-								list: 112,
-								itemId: 'ActiveProblemStatusCombo',
 								name: 'status',
-								allowBlank: false
+								itemId: 'ActiveProblemStatusCombo',
+								list: 112
 							},
 							{
 								fieldLabel: _('begin_date'),
@@ -188,9 +188,26 @@ Ext.define('App.view.patient.ActiveProblems', {
 			iconCls: 'icoAdd'
 		}
 	],
-	bbar: ['->', {
-		text: _('review'),
-		itemId: 'review_active_problems',
-		action: 'encounterRecordAdd'
-	}]
+	bbar: [
+        '-',
+        {
+            text: _('reconciled'),
+            itemId: 'PatientProblemsReconciledBtn',
+            enableToggle: true,
+            pressed: true
+        },
+        '-',
+        {
+            text: _('active'),
+            itemId: 'PatientProblemsActiveBtn',
+            enableToggle: true,
+            pressed: false
+        },
+        '->',
+        {
+		    text: _('review'),
+		    itemId: 'review_active_problems',
+		    action: 'encounterRecordAdd'
+	    }
+    ]
 });

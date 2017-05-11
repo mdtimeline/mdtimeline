@@ -60,13 +60,13 @@ Ext.define('App.ux.LiveRXNORMAllergySearch', {
 
 		Ext.apply(this, {
 			store: me.store,
-			emptyText: _('medication_search') + '...',
+			emptyText: _('allergy_search')+'...',
 			typeAhead: false,
 			hideTrigger: true,
 			minChars: 3,
             maxLength: 255,
 			listConfig: {
-				loadingText: _('searching') + '...',
+				loadingText: _('searching')+'...',
 				getInnerTpl: function(){
 					return '<div class="search-item"><h3>{STR}<span style="font-weight: normal"> ({RXCUI}) </span></h3></div>';
 				}

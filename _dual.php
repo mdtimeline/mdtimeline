@@ -49,11 +49,7 @@ if (!defined('_GaiaEXEC')) die('No direct access allowed.');
         <!-- Loading Mask -->
         <div id="mainapp-loading-mask" class="x-mask mitos-mask" style="width: 100%; height: 100%"></div>
         <div id="mainapp-loading" class="mitos-mask-msg x-mask-msg x-layer x-mask-msg-default x-border-box">
-	        <div id="mainapp-x-mask-msg" class="x-mask-msg-inner">
-		        <div class="x-mask-msg-text">
-			        Loading GaiaEHR...
-		        </div>
-	        </div>
+	        <div id="mainapp-x-mask-msg" class="x-mask-msg-inner"></div>
         </div>
 
         <!-- Ext library -->
@@ -64,6 +60,15 @@ if (!defined('_GaiaEXEC')) die('No direct access allowed.');
 		<script src="data/api.php?site=<?php print SITE ?>"></script>
 
         <script type="text/javascript">
+
+	        if(Ext.supports.LocalStorage){
+		        Ext.state.Manager.setProvider(new Ext.state.LocalStorageProvider());
+	        }else{
+		        Ext.state.Manager.setProvider(new Ext.state.CookieProvider({
+			        secure: location.protocol === 'https:',
+			        expires : new Date(Ext.Date.now() + (1000*60*60*24*90)) // 90 days
+		        }));
+	        }
 
 	        window.i18n = window._ = function(key){
 		        return window.lang[key] || '*'+key+'*';
@@ -87,7 +92,91 @@ if (!defined('_GaiaEXEC')) die('No direct access allowed.');
 			 * Is not intended to be used globally just this once.
 			 */
             (function(){
-                document.write('<script type="text/javascript" src="lib/<?php print EXTJS ?>/locale/' + i18n('i18nExtFile') + '?_v' + version + '"><\/script>')
+
+	            var head = document.getElementsByTagName('head')[0],
+		            link;
+
+	            /**
+	             * Ext Localization file
+	             * Using a anonymous function, in javascript.
+	             * Is not intended to be used globally just this once.
+	             */
+	            document.write('<script type="text/javascript" src="lib/<?php print EXTJS ?>/locale/' +
+		            i18n('i18nExtFile') +
+		            '?_v' +
+		            version +
+		            '"><\/script>'
+	            );
+
+	            var theme = Ext.state.Manager.get('mdtimeline_theme', g('application_theme'));
+	            var s;
+
+	            if(theme == 'dark'){
+		            globals.mdtimeline_theme = 'dark';
+		            link  = document.createElement('link');
+		            link.rel  = 'stylesheet';
+		            link.type = 'text/css';
+		            link.href = 'resources/css/carbon/carbon.css';
+		            link.media = 'all';
+		            head.appendChild(link);
+		            link  = document.createElement('link');
+		            link.rel  = 'stylesheet';
+		            link.type = 'text/css';
+		            link.href = 'resources/css/carbon/style_newui.css';
+		            link.media = 'all';
+		            head.appendChild(link);
+		            link  = document.createElement('link');
+		            link.rel  = 'stylesheet';
+		            link.type = 'text/css';
+		            link.href = 'resources/css/carbon/custom_app.css';
+		            link.media = 'all';
+		            head.appendChild(link);
+
+		            if(window.dark_styles){
+			            for(s = 0; s < window.light_styles.length; s++){
+				            link  = document.createElement('link');
+				            link.rel  = 'stylesheet';
+				            link.type = 'text/css';
+				            link.href = window.dark_styles[s];
+				            link.media = 'all';
+				            head.appendChild(link);
+			            }
+		            }
+
+	            }else{
+		            globals.mdtimeline_theme = 'light';
+		            link  = document.createElement('link');
+		            link.rel  = 'stylesheet';
+		            link.type = 'text/css';
+		            link.href = 'resources/css/ext-all-gray.css';
+		            link.media = 'all';
+		            head.appendChild(link);
+		            link  = document.createElement('link');
+		            link.rel  = 'stylesheet';
+		            link.type = 'text/css';
+		            link.href = 'resources/css/style_newui.css';
+		            link.media = 'all';
+		            head.appendChild(link);
+		            link  = document.createElement('link');
+		            link.rel  = 'stylesheet';
+		            link.type = 'text/css';
+		            link.href = 'resources/css/custom_app.css';
+		            link.media = 'all';
+		            head.appendChild(link);
+
+		            if(window.light_styles){
+			            for(s = 0; s < window.light_styles.length; s++){
+				            link  = document.createElement('link');
+				            link.rel  = 'stylesheet';
+				            link.type = 'text/css';
+				            link.href = window.light_styles[s];
+				            link.media = 'all';
+				            head.appendChild(link);
+			            }
+		            }
+	            }
+
+
             })();            // Set and enable Ext.loader for dynamic class loading
             Ext.Loader.setConfig({
                 enabled: true,
@@ -106,10 +195,16 @@ if (!defined('_GaiaEXEC')) die('No direct access allowed.');
 			}
 
 			Ext.direct.Manager.on('exception', function(e, o){
-				say(e);
+				
+				if(e.xhr && e.xhr.aborted) return;
+
 				app.alert(
-					'<p><span style="font-weight:bold">'+ (e.where != 'undefined' ? e.message : e.message.replace(/\n/g,''))  +'</span></p><hr>' +
-						'<p>'+ (typeof e.where != 'undefined' ? e.where.replace(/\n/g,'<br>') : e.data) +'</p>',
+					'<p><span style="font-weight:bold">'+
+					(e.where != 'undefined' ? e.message : e.message.replace(/\n/g,''))  +
+					'</span></p><hr>' +
+					'<p>'+
+					(typeof e.where != 'undefined' ? e.where.replace(/\n/g,'<br>') : e.data != null ?  e.data : '') +
+					'</p>',
 					'error'
 				);
 			});
@@ -119,6 +214,7 @@ if (!defined('_GaiaEXEC')) die('No direct access allowed.');
 		<script type="text/javascript" src="app/ux/VTypes.js"></script>
 
 		<script type="text/javascript">
+
 			/**
 			 * Sencha ExtJS OnReady Event
 			 * When all the JS code is loaded execute the entire code once.

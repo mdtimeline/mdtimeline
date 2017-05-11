@@ -23,7 +23,7 @@ Ext.define('App.view.patient.SocialPanel', {
 		'App.view.patient.SocialHistory'
 	],
 	xtype: 'patientsocialpanel',
-	title: _('social'),
+	title: _('soc_hx'),
 	border: false,
 	bodyBorder: false,
 	layout: {

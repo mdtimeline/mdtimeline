@@ -39,6 +39,11 @@ Ext.define('App.model.patient.PatientImmunization', {
 			index: true
 		},
 		{
+			name: 'facility_id',
+			type: 'int',
+			index: true
+		},
+		{
 			name: 'uid',
 			type: 'int'
 		},
@@ -136,16 +141,55 @@ Ext.define('App.model.patient.PatientImmunization', {
 			len: 180
 		},
 		{
-			name: 'education_date',
+			name: 'education_resource_1_id',
+			type: 'int'
+		},
+		{
+			name: 'education_resource_2_id',
+			type: 'int'
+		},
+		{
+			name: 'education_resource_3_id',
+			type: 'int'
+		},
+		{
+			name: 'education_presented_1_date',
 			type: 'date',
-			dataType: 'date',
-			dateFormat: 'Y-m-d'
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'education_presented_2_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'education_presented_3_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'vfc_code',
+			type: 'string',
+			len: 40
+		},
+		{
+			name: 'information_source_code',
+			type: 'string',
+			len: 10
+		},
+		{
+			name: 'refusal_reason_code',
+			type: 'string',
+			len: 10
 		},
         {
-            name: 'education_doc_published',
-            type: 'date',
-            dataType: 'date',
-            dateFormat: 'Y-m-d'
+            name: 'is_presumed_immunity',
+            type: 'bool'
+        },
+        {
+            name: 'presumed_immunity_code',
+	        type: 'string',
+	        len: 20
         },
 		{
 			name: 'note',
@@ -166,8 +210,18 @@ Ext.define('App.model.patient.PatientImmunization', {
 			type: 'int'
 		},
 		{
+			name: 'status',
+			type: 'string',
+			len: 40
+		},
+		{
 			name: 'is_error',
 			type: 'bool'
+		},
+		{
+			name: 'error_note',
+			type: 'string',
+			len: 300
 		}
 	],
 	proxy: {

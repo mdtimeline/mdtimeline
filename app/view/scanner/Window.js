@@ -20,64 +20,120 @@ Ext.define('App.view.scanner.Window', {
 	extend: 'Ext.window.Window',
 	xtype: 'scannerwindow',
 	itemId: 'ScannerWindow',
-	autoScroll: true,
-	width: 1000,
-	minHeight: 500,
-	maxHeight: 700,
-	closeAction: 'hide'
-	,	title: _('scanner'),
-	layout: {
-		type: 'hbox'
-	},
+	width: 700,
+	height: 500,
+	closeAction: 'hide',
+	title: _('scanner'),
+	layout: 'border',
+	modal: true,
 	items: [
 		{
-			xtype: 'image',
-			flex: 1,
-			id: 'ScannerImage',
-			style: 'background-color:white',
-			itemId: 'ScannerImage'
+			xtype: 'panel',
+			region: 'west',
+			width: 120,
+			split: true,
+			itemId: 'ScannerImageDataViewPanel',
+			autoScroll: true,
+			items: [
+				{
+					xtype: 'dataview',
+					itemId: 'ScannerImageThumbsDataView',
+					store: Ext.create('Ext.data.Store', {
+						fields: [
+							{
+								name: 'id',
+								type: 'string'
+							},
+							{
+								name: 'src',
+								type: 'string'
+							},
+							{
+								name: 'archived',
+								type: 'bool'
+							},
+							{
+								name: 'style',
+								type: 'string'
+							}
+						]
+					}),
+					tpl: new Ext.XTemplate(
+						'<tpl for=".">' +
+						'<div style="margin-bottom:10px;" class="thumb-wrap">' +
+						'<img width="100%" src="{src}" style="padding:10px;{style}" />' +
+						'</div>' +
+						'</tpl>'
+					),
+					trackOver: true,
+					overItemCls: 'x-item-over',
+					itemSelector: 'div.thumb-wrap',
+					emptyText: 'No images to display',
+				}
+			],
+			tbar: [
+				{
+					xtype: 'combobox',
+					itemId: 'ScannerSourceCombo',
+					editable: false,
+					queryMode: 'local',
+					displayField: 'name',
+					valueField: 'id',
+					flex: 1,
+					margin: 1,
+					store: Ext.create('Ext.data.Store', {
+						fields: [
+							{
+								name: 'id',
+								type: 'string'
+							},
+							{
+								name: 'name',
+								type: 'string'
+							}
+						]
+					})
+				}
+			]
+		},
+		{
+			xtype: 'panel',
+			region: 'center',
+			itemId: 'ScannerImageViewerPanel',
+			layout: 'anchor',
+			autoScroll: true,
+			frame: true,
+			items: [
+				{
+					xtype: 'image',
+					anchor: '100%',
+					style: 'background-color:white',
+					itemId: 'ScannerImageViewer'
+				}
+			],
+			tbar: [
+				{
+					text: _('scan'),
+					itemId: 'ScannerImageScanBtn'
+				},
+				{
+					text: _('edit'),
+					enableToggle: true,
+					toggleGroup: 'ScannerImageEditGroup',
+					itemId: 'ScannerImageEditBtn'
+				},
+				'->',
+				{
+					text: _('archive'),
+					itemId: 'ScannerImageArchiveBtn'
+				}
+			]
 		}
 	],
 	buttons: [
 		{
-			text: _('edit'),
-			enableToggle: true,
-			itemId: 'ScannerImageEditBtn'
-		},
-		'-',
-		{
-			xtype: 'combobox',
-			itemId: 'ScannerCombo',
-			editable: false,
-			queryMode: 'local',
-			displayField: 'Name',
-			valueField: 'Name',
-			flex: 1,
-			store: Ext.create('Ext.data.Store', {
-				fields: [
-					{
-						name: 'Name',
-						type: 'string'
-					},
-					{
-						name: 'Version',
-						type: 'string'
-					},
-					{
-						name: 'Checked',
-						type: 'string'
-					}
-				]
-			})
-		},
-		{
-			text: _('scan'),
-			itemId: 'ScannerScanBtn'
-		},
-		'-',
-		{
-			text: _('ok'),
-			itemId: 'ScannerOkBtn'
+			text: _('close'),
+			itemId: 'ScannerImageCloseBtn'
 		}
 	]
 });

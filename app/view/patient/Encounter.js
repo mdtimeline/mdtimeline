@@ -29,6 +29,7 @@ Ext.define('App.view.patient.Encounter', {
 		'App.view.patient.encounter.HealthCareFinancingAdministrationOptions',
 		'App.view.patient.encounter.CurrentProceduralTerminology',
 		'App.view.patient.encounter.ProgressNotesHistory',
+		'App.view.patient.encounter.DictationPanel',
 		'App.view.patient.ProgressNote',
 		'App.view.patient.DecisionSupportWarningPanel',
 		'App.ux.combo.EncounterPriority',
@@ -147,7 +148,7 @@ Ext.define('App.view.patient.Encounter', {
 					title: _('review_of_systems'),
 					frame: true,
 					bodyPadding: 5,
-					bodyStyle: 'background-color:white',
+					//bodyStyle: 'background-color:white',
 					fieldDefaults: {
 						msgTarget: 'side'
 					},
@@ -214,6 +215,15 @@ Ext.define('App.view.patient.Encounter', {
 		if(me.enableSOAP && a('access_soap')){
 			me.soapPanel = me.encounterTabPanel.add(
 				Ext.create('App.view.patient.encounter.SOAP', {
+					bodyStyle: 'padding:0',
+					enc: me
+				})
+			);
+		}
+
+		if(me.enableSOAP && a('access_dictation')){
+			me.dicatationPanel = me.encounterTabPanel.add(
+				Ext.create('App.view.patient.encounter.DictationPanel', {
 					bodyStyle: 'padding:0',
 					enc: me
 				})
@@ -300,6 +310,7 @@ Ext.define('App.view.patient.Encounter', {
 			collapsible: true,
 			animCollapse: true,
 			collapsed: true,
+			deferredRender: false,
 			bodyPadding: 0,
 			margin: 0,
 			padding: 0,
@@ -356,58 +367,81 @@ Ext.define('App.view.patient.Encounter', {
 			items: [
 				'-',
 				{
-					text: _('immunizations') + ' ',
-					action: 'immunization'
+					text: _('vaccs') + ' ',
+					action: 'immunization',
+					tooltip: _('vaccines_immunizations')
 				},
 				'-',
 				{
-					text: _('allergies') + ' ',
-					action: 'allergies'
+					text: _('al') + ' ',
+					action: 'allergies',
+					tooltip: _('allergies')
 				},
 				'-',
 				{
-					text: _('active_problems') + ' ',
-					action: 'activeproblems'
+					text: _('act_prob') + ' ',
+					action: 'activeproblems',
+					tooltip: _('active_problems')
 				},
 				'-',
 				{
-					text: _('family_history') + ' ',
-					action: 'familyhistory'
+					text: _('fam_hx') + ' ',
+					action: 'familyhistory',
+					tooltip: _('family_history')
 				},
 				'-',
 				{
-					text: _('advance_directives') + ' ',
-					action: 'advancedirectives'
+					text: _('adv_dir') + ' ',
+					action: 'advancedirectives',
+					tooltip: _('advance_directives')
 				},
 				'-',
 				{
-					text: _('medications') + ' ',
-					action: 'medications'
+					text: _('meds') + ' ',
+					action: 'medications',
+					tooltip: _('medications')
 				},
 				'-',
 				{
-					text: _('results') + ' ',
-					action: 'laboratories'
+					text: _('res') + ' ',
+					action: 'laboratories',
+					tooltip: _('results')
 				},
 				'-',
 				{
-					text: _('social') + ' ',
-					action: 'social'
+					text: _('soc_hx') + ' ',
+					action: 'social',
+					tooltip: _('social_history')
 				},
 				'-',
 				{
-					text: _('functional_status') + ' ',
-					action: 'functionalstatus'
+					text: _('func_stat') + ' ',
+					action: 'functionalstatus',
+					tooltip: _('functional_status')
 				},
 				'-',
 				{
-					text: _('referrals') + ' ',
-					action: 'referrals'
+					text: _('refs') + ' ',
+					action: 'referrals',
+					tooltip: _('referrals')
 				},
 				'-',
 				{
-					text: _('new_doctors_note'),
-					action: 'DoctorsNotes'
+					text: _('imp_devs') + ' ',
+					action: 'ImplantableDeviceGrid',
+					tooltip: _('implantable_devices')
+				},
+				'-',
+				{
+					text: _('spb') + ' ',
+					action: 'SocialPsychologicalBehavioralPanel',
+					tooltip: _('social_psychological_behavioral')
+				},
+				'-',
+				{
+					text: _('doc_nt'),
+					action: 'DoctorsNotes',
+					tooltip: _('doctors_notes')
 				},
 				'-',
 				{
@@ -429,6 +463,14 @@ Ext.define('App.view.patient.Encounter', {
 				},
 				'-',
 				'->',
+				'-',
+				{
+					xtype:'button',
+					action: 'ccda',
+					itemId: 'EncounterCDAImportBtn',
+					tooltip: _('ccda_import'),
+					icon: 'resources/images/icons/icoOutbox.png'
+				},
 				'-',
 				{
 					xtype:'button',
@@ -470,8 +512,10 @@ Ext.define('App.view.patient.Encounter', {
 	 * @param btn
 	 */
 	onToolbarBtnHandler: function(btn){
-		if(btn.action == 'encounter'){
+		if(btn.action === 'encounter'){
 			app.updateEncounter(this.encounter);
+		}else if(btn.action === 'ccda'){
+			// this will be handled at controller/CCDImport.js
 		}else{
 			app.onMedicalWin(btn.action);
 		}
@@ -515,7 +559,7 @@ Ext.define('App.view.patient.Encounter', {
             record,
             storeIndex;
 
-		if(SaveBtn.action == "encounter"){
+		if(SaveBtn.action === "encounter"){
 			form = me.newEncounterWindow.down('form').getForm();
 		}else{
 			form = SaveBtn.up('form').getForm();
@@ -524,7 +568,7 @@ Ext.define('App.view.patient.Encounter', {
 		if(form.isValid()){
 			values = form.getValues();
 
-			if(SaveBtn.action == 'encounter'){
+			if(SaveBtn.action === 'encounter'){
 
 				if(a('add_encounters')){
 					record = form.getRecord();
@@ -546,20 +590,15 @@ Ext.define('App.view.patient.Encounter', {
 			}else{
 
 				if(a('edit_encounters')){
-
 					record = form.getRecord();
 					store = record.store;
 					values = me.addDefaultData(values);
 					record.set(values);
-
 					app.fireEvent('encounterbeforesync', me, store, form);
-
 					store.sync({
 						callback: function(){
-
 							app.fireEvent('encountersync', me, store, form);
-
-							me.msg('Sweet!', _('encounter_updated'));
+							me.msg(_('sweet'), _('encounter_updated'));
 						}
 					});
 
@@ -712,17 +751,19 @@ Ext.define('App.view.patient.Encounter', {
 			values;
 
 		me.passwordVerificationWin(function(btn, password){
-			if(btn == 'ok'){
+			if(btn === 'ok'){
 
 				form = app.checkoutWindow.down('form').getForm();
 				values = form.getValues();
 				values.eid = me.eid;
+				values.close_date = new Date();
 				values.signature = password;
 				values.isSupervisor = isSupervisor;
 
 				if(a('require_enc_supervisor') || isSupervisor){
+					var cmb = app.checkoutWindow.query('#EncounterCoSignSupervisorCombo')[0];
 					values.requires_supervisor = true;
-					values.supervisor_uid = app.checkoutWindow.coSignCombo.getValue();
+					values.supervisor_uid = cmb.getValue();
 				}else if(!isSupervisor && !a('require_enc_supervisor')){
 					values.requires_supervisor = false;
 				}
@@ -731,7 +772,7 @@ Ext.define('App.view.patient.Encounter', {
                     var params;
 					if(response.result.success){
 						if(me.stopTimer()){
-                            S;
+
 							/** default data for notes and reminder **/
 							params = {
 								pid: me.pid,
@@ -751,12 +792,12 @@ Ext.define('App.view.patient.Encounter', {
 							/** unset the patient eid **/
 							app.patient.eid = null;
 							app.openPatientVisits();
-							me.msg('Sweet!', _('encounter_closed'));
+							me.msg(_('sweet'), _('encounter_closed'));
 							app.checkoutWindow.close();
 						}
 					}else{
 						Ext.Msg.show({
-							title: 'Oops!',
+							title: _('oops'),
 							msg: _(response.result.error),
 							buttons: Ext.Msg.OK,
 							icon: Ext.Msg.ERROR
@@ -795,9 +836,9 @@ Ext.define('App.view.patient.Encounter', {
 
 	getProgressNote: function(){
 		var me = this;
-		//Encounter.getProgressNoteByEid(me.eid, function(provider, response){
-			//me.progressNote.tpl.overwrite(me.progressNote.body, response.result);
-		//});
+		Encounter.getProgressNoteByEid(me.eid, function(provider, response){
+			me.progressNote.tpl.overwrite(me.progressNote.body, response.result);
+		});
 	},
 
 	onTapPanelChange: function(panel){

@@ -54,7 +54,7 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 			pid = (data.records[0].data) ? data.records[0].data.pid : data.records[0].pid,
 			params;
 
-		app.msg('Sweet!', name + ' ' + _('sent_to') + ' ' + this.panel.title);
+		app.msg(_('sweet'), name + ' ' + _('sent_to') + ' ' + this.panel.title);
 
 		params = {
 			pid: pid,

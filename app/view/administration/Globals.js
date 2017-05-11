@@ -19,13 +19,11 @@
 Ext.define('App.view.administration.Globals', {
 	extend: 'App.ux.RenderPanel',
 	id: 'panelGlobals',
-	pageTitle: 'GaiaEHR ' + _('global_settings'),
+	pageTitle: 'mdTimeLine EHR ' + _('global_settings'),
 	uses: ['App.ux.form.fields.Checkbox'],
 	initComponent: function(){
 		var me = this;
-		// *************************************************************************************
-		// Global Data store
-		// *************************************************************************************
+
 		me.store = Ext.create('App.store.administration.Globals',{
 			groupField: 'gl_category',
 			remoteSort: false,
@@ -56,16 +54,13 @@ Ext.define('App.view.administration.Globals', {
 							cat1 = getCat(o1),
 							cat2 = getCat(o2);
 
-						if (cat1 === cat2) {
-							return 0;
-						}
+						if (cat1 === cat2) return 0;
 
 						return cat1 < cat2 ? -1 : 1;
 					}
 				}
 			]
 		});
-
 
 		//region Store Region
 		me.default_top_pane_store = Ext.create('Ext.data.Store', {
@@ -309,8 +304,6 @@ Ext.define('App.view.administration.Globals', {
 				[_('option_7'), 'Option 7']
 			]
 		});
-		//region end
-
 
 		me.grid = Ext.create('Ext.grid.Panel',{
 			store: me.store,
@@ -345,9 +338,7 @@ Ext.define('App.view.administration.Globals', {
 				}
 			]
 		});
-
 		me.pageBody = [ me.grid ];
-
 		me.callParent(arguments);
 	},
 

@@ -92,6 +92,14 @@ class Navigation
 				'id' => 'App.view.patient.NewPatient'
 			];
 		}
+		//if($this->ACL->hasPermission('add_patient')){
+			$patient['children'][] = [
+				'text' => 'Patient List',
+				'leaf' => true,
+				'cls' => 'file',
+				'id' => 'App.view.patient.Search'
+			];
+		//}
 		if($this->ACL->hasPermission('access_patient_summary')){
 			$patient['children'][] = [
 				'text' => $this->i18n('patient_summary'),
@@ -156,7 +164,7 @@ class Navigation
 			'iconCls' => 'icoLogo',
 			'id' => 'administration'
 		];
-		if($this->ACL->hasPermission('access_gloabal_settings')){
+		if($this->ACL->hasPermission('access_global_settings')){
 			$admin['children'][] = [
 				'text' => $this->i18n('global_settings'),
 				'leaf' => true,
@@ -188,6 +196,14 @@ class Navigation
 				'id' => 'App.view.administration.DataManager'
 			];
 		}
+        if($this->ACL->hasPermission('access_cronjob_administration')){
+            $admin['children'][] = [
+                'text' => $this->i18n('cronjob_manager'),
+                'leaf' => true,
+                'cls' => 'file',
+                'id' => 'App.view.administration.CronJob'
+            ];
+        }
 		if($this->ACL->hasPermission('access_preventive_care')){
 			$admin['children'][] = [
 				'text' => $this->i18n('decision_support'),
@@ -294,6 +310,22 @@ class Navigation
                 'id' => 'App.view.administration.IpAccess'
             ];
         }
+        if($this->ACL->hasPermission('admin_access_transaction_log')){
+            $admin['children'][] = [
+                'text' => $this->i18n('transaction_log'),
+                'leaf' => true,
+                'cls' => 'file',
+                'id' => 'App.view.administration.TransactionLog'
+            ];
+        }
+//        if($this->ACL->hasPermission('admin_access_transaction_log')){
+            $admin['children'][] = [
+                'text' => $this->i18n('file_systems'),
+                'leaf' => true,
+                'cls' => 'file',
+                'id' => 'App.view.administration.FileSystems'
+            ];
+//        }
 
 		if(isset($admin['children']) && count($admin['children']) > 0) array_push($nav, $admin);
 

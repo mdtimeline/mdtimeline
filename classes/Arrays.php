@@ -17,9 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 if(!isset($_SESSION)){
-	session_name('GaiaEHR');
-	session_start();
-	session_cache_limiter('private');
+    session_cache_limiter('private');
+    //session_cache_expire(1);
+    session_name('mdTimeLine');
+    session_start();
+//    if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
+//    setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 }
 
 class Arrays {
@@ -106,7 +109,7 @@ class Arrays {
 			foreach($array as $name => $value){
 				$name = strtolower(trim($name));
 				if(!empty($name)){
-					$object->$name = self::arrayToObject($value);
+					$object->{$name} = self::arrayToObject($value);
 				}
 			}
 			return $object;

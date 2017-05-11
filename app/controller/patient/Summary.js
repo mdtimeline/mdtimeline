@@ -66,13 +66,16 @@ Ext.define('App.controller.patient.Summary', {
 			'#PatientSummeryNotesPanel': {
 				activate: me.reloadGrid
 			},
-			'#PatientSummaryRemindersPanel': {
-				activate: me.reloadGrid
-			},
+			// '#PatientSummaryRemindersPanel': {
+			// 	activate: me.reloadGrid
+			// },
 			'#PatientSummaryVitalsPanel': {
 				activate: me.reloadGrid
 			},
 			'#PatientEncounterHistoryPanel': {
+				activate: me.reloadGrid
+			},
+			'#PatientAmendmentsPanel': {
 				activate: me.reloadGrid
 			},
 			'#PatientSummaryDocumentsPanel': {

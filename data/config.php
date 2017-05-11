@@ -18,10 +18,172 @@
  */
 
 $API = [
-
+    'SocialPsychologicalBehavioral' => [
+        'methods' => [
+            'getSocialPsychologicalBehaviors' => [
+                'len' => 1
+            ],
+            'getSocialPsychologicalBehavior' => [
+                'len' => 1
+            ],
+            'addSocialPsychologicalBehavior' => [
+                'len' => 1
+            ],
+            'updateSocialPsychologicalBehavior' => [
+                'len' => 1
+            ],
+            'destroySocialPsychologicalBehavior' => [
+                'len' => 1
+            ]
+        ]
+    ],
+    'ImplantableDevice' => [
+        'methods' => [
+            'getUidData' => [
+                'len' => 1
+            ],
+            'parseUid' => [
+                'len' => 1
+            ],
+            'lookup' => [
+                'len' => 1
+            ],
+            'devicesImplantableList' => [
+                'len' => 1
+            ],
+            'devicesSnomed' => [
+                'len' => 1
+            ],
+            'getPatientImplantableDevices' => [
+                'len' => 1
+            ],
+            'addPatientImplantableDevice' => [
+                'len' => 1
+            ],
+            'updatePatientImplantableDevice' => [
+                'len' => 1
+            ]
+        ]
+    ],
+    'DecisionAids' => [
+        'methods' => [
+            'getDecisionAids' => [
+                'len' => 1
+            ],
+            'getDecisionAid' => [
+                'len' => 1
+            ],
+            'addDecisionAid' => [
+                'len' => 1
+            ],
+            'updateDecisionAid' => [
+                'len' => 1
+            ],
+            'destroyDecisionAid' => [
+                'len' => 1
+            ],
+            'getDecisionAidsByTriggerCodes' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'CCDDocumentParse' => [
         'methods' => [
+            'parseDocument' => [
+                'len' => 1
+            ],
             'getTestCCD' => [
+                'len' => 1
+            ]
+        ]
+    ],
+    'AppDate' => [
+        'methods' => [
+            'getDate' => [
+                'len' => 0
+            ],
+            'getTime' => [
+                'len' => 0
+            ],
+            'getDateTime' => [
+                'len' => 0
+            ]
+        ]
+    ],
+    'FileSystem' => [
+        'methods' => [
+            'getFileSystems' => [
+                'len' => 1
+            ],
+            'getFileSystem' => [
+                'len' => 1
+            ],
+            'addFileSystem' => [
+                'len' => 1
+            ],
+            'updateFileSystem' => [
+                'len' => 1
+            ],
+            'getOnlineFileSystem' => [
+                'len' => 0
+            ],
+            'fileSystemsSpaceAnalyzer' => [
+                'len' => 0
+            ]
+        ]
+    ],
+    'AuditLog' => [
+        'methods' => [
+            'addLog' => [
+                'len' => 1
+            ],
+            'getLog' => [
+                'len' => 1
+            ],
+            'getLogByEventName' => [
+                'len' => 1
+            ],
+            'getLogByEventNames' => [
+                'len' => 1
+            ]
+        ]
+    ],
+    'EducationResources' => [
+        'methods' => [
+            'search' => [
+                'len' => 1
+            ],
+            'findEncounterEducationResources' => [
+                'len' => 1
+            ],
+            'getPatientEducationResources' => [
+                'len' => 1
+            ],
+            'getPatientEducationResource' => [
+                'len' => 1
+            ],
+            'addPatientEducationResource' => [
+                'len' => 1
+            ],
+            'updatePatientEducationResource' => [
+                'len' => 1
+            ],
+            'destroyPatientEducationResource' => [
+                'len' => 1
+            ],
+            'getEducationResources' => [
+                'len' => 1
+            ],
+            'getEducationResource' => [
+                'len' => 1
+            ],
+            'addEducationResource' => [
+                'len' => 1
+            ],
+            'updateEducationResource' => [
+                'len' => 1
+            ],
+            'destroyEducationResource' => [
                 'len' => 1
             ]
         ]
@@ -394,6 +556,25 @@ $API = [
                 'len' => 1
             ],
             'destroyReminder' => [
+                'len' => 1
+            ]
+        ]
+    ],
+    'Alerts' => [
+        'methods' => [
+            'getAlerts' => [
+                'len' => 1
+            ],
+            'getAlert' => [
+                'len' => 1
+            ],
+            'addAlert' => [
+                'len' => 1
+            ],
+            'updateAlert' => [
+                'len' => 1
+            ],
+            'destroyAlert' => [
                 'len' => 1
             ]
         ]
@@ -889,6 +1070,9 @@ $API = [
 	 */
 	'FamilyHistory' => [
 		'methods' => [
+            'deleteFamilyHistory' => [
+                'len' => 1
+            ],
 			'getFamilyHistory' => [
 				'len' => 1
             ],
@@ -1037,6 +1221,9 @@ $API = [
 			'getMedicationAttributesByRxcui' => [
 				'len' => 1
             ],
+			'getMedicationAttributesByRxcuiApi' => [
+				'len' => 1
+			],
 			'getMedicationInstructions' => [
 				'len' => 1
             ],
@@ -1073,6 +1260,9 @@ $API = [
             ],
 			'destroyPatientMedication' => [
 				'len' => 1
+            ],
+			'getPatientActiveMedicationsByPidAndCode' => [
+				'len' => 2
             ]
         ]
     ],
@@ -1141,6 +1331,29 @@ $API = [
 				'len' => 1
             ],
 			'getRadLoincLiveSearch' => [
+				'len' => 1
+            ]
+        ]
+    ],
+
+	'LoincCodes' => [
+		'methods' => [
+			'getLoincRadiologyCodes' => [
+				'len' => 1
+            ],
+			'getLoincRadiologyCode' => [
+				'len' => 1
+            ],
+			'addLoincRadiologyCode' => [
+				'len' => 1
+            ],
+			'updateLoincRadiologyCode' => [
+				'len' => 1
+            ],
+			'deleteLoincRadiologyCode' => [
+				'len' => 1
+            ],
+			'searchLoincRadiologyCodes' => [
 				'len' => 1
             ]
         ]
@@ -1646,6 +1859,12 @@ $API = [
             ],
 			'getPossibleDuplicatesByDemographic' => [
 				'len' => 1
+            ],
+			'getPatientByPublicId' => [
+				'len' => 1
+            ],
+			'search' => [
+				'len' => 1
             ]
         ]
     ],
@@ -1722,6 +1941,12 @@ $API = [
 	 */
 	'CombosData' => [
 		'methods' => [
+            'getTableList' => [
+                'len' => 0
+            ],
+            'getEventList' => [
+                'len' => 0
+            ],
 			'getOptionsByListId' => [
 				'len' => 1
             ],
@@ -1732,7 +1957,7 @@ $API = [
 				'len' => 0
             ],
 			'getUsers' => [
-				'len' => 0
+				'len' => 1
             ],
 			'getLists' => [
 				'len' => 0
@@ -1952,6 +2177,9 @@ $API = [
             ],
 			'convertDocuments' => [
 				'len' => 1
+            ],
+			'convertToPath' => [
+				'len' => 1
             ]
         ]
     ],
@@ -1983,8 +2211,11 @@ $API = [
     ],
 	'CronJob' => [
 		'methods' => [
-			'run' => [
-				'len' => 0
+			'getCronJob' => [
+				'len' => 1
+            ],
+            'updateCronJob' => [
+                'len' => 1
             ]
         ]
     ],
@@ -2139,6 +2370,12 @@ $API = [
         'methods' => [
             'saveExportLog' => [
                 'len' => 1
+            ],
+            'getTransactionLog' => [
+                'len' => 1
+            ],
+            'getTransactionLogDetailByTableAndPk' => [
+                'len' => 2
             ]
         ]
     ],

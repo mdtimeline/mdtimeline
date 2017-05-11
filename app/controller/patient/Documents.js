@@ -63,6 +63,14 @@ Ext.define('App.controller.patient.Documents', {
 			selector: 'patientdocumentspanel #documentUploadBtn'
 		},
 		{
+			ref: 'DocumentUploadBtn',
+			selector: 'patientdocumentspanel #documentUploadBtn'
+		},
+		{
+			ref: 'DocumentScanBtn',
+			selector: 'patientdocumentspanel #documentScanBtn'
+		},
+		{
 			ref: 'PatientDocumentErrorNoteWindow',
 			selector: 'patientdocumenterrornotewindow'
 		}
@@ -75,8 +83,8 @@ Ext.define('App.controller.patient.Documents', {
 
 		me.control({
 			'viewport': {
-				scanconnected: me.onScanConnected,
-				scandisconnected: me.onScanDisconnected,
+				browserhelperopen: me.onBrowserHelperOpen,
+				browserhelperclose: me.onBrowserHelperClose,
 				documentedit: me.onDocumentEdit
 			},
 			'patientdocumentspanel': {
@@ -84,7 +92,9 @@ Ext.define('App.controller.patient.Documents', {
 				beforerender: me.onPatientDocumentBeforeRender
 			},
 			'patientdocumentspanel #patientDocumentGrid': {
-				selectionchange: me.onPatientDocumentGridSelectionChange
+				selectionchange: me.onPatientDocumentGridSelectionChange,
+				afterrender: me.onPatientDocumentGridAfterRender,
+				beforeitemcontextmenu: me.onPatientDocumentGridBeforeItemContextMenu
 			},
 			'patientdocumentspanel [toggleGroup=documentgridgroup]': {
 				toggle: me.onDocumentGroupBtnToggle
@@ -95,24 +105,42 @@ Ext.define('App.controller.patient.Documents', {
 			'patientdocumentspanel #documentUploadBtn': {
 				click: me.onDocumentUploadBtnClick
 			},
+			'patientdocumentspanel #documentScanBtn': {
+				click: me.onDocumentScanBtnClick
+			},
 			'#patientDocumentUploadWindow': {
 				show: me.onPatientDocumentUploadWindowShow
 			},
 			'#patientDocumentUploadWindow #uploadBtn': {
 				click: me.onDocumentUploadSaveBtnClick
 			},
-			'#patientDocumentUploadWindow #scanBtn': {
-				click: me.onDocumentUploadScanBtnClick
-			},
-
-
 			'#DocumentErrorNoteSaveBtn': {
 				click: me.onDocumentErrorNoteSaveBtnClick
 			}
 		});
 
 		me.nav = this.getController('Navigation');
-		//this.initDocumentDnD();
+	},
+
+	onPatientDocumentGridBeforeItemContextMenu: function (grid, record, item, index, e, eOpts) {
+		var me = this;
+
+		e.preventDefault();
+		Ext.Msg.show({
+			title:'C-CDA',
+			msg: 'Would you like to view the raw xml data?',
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function(btn){
+				if (btn === 'yes'){
+					var frame = grid.up('panel').up('panel').query('#patientDocumentViewerFrame')[0];
+
+					if(record){
+						frame.setSrc('dataProvider/DocumentViewer.php?site=' + me.site + '&token=' + app.user.token + '&id=' + record.data.id + '&rawXml');
+					}
+				}
+			}
+		});
 	},
 
 	setDocumentInError: function(document_record){
@@ -194,15 +222,15 @@ Ext.define('App.controller.patient.Documents', {
 		}
 	},
 
-	onScanConnected: function(){
-		if(this.getPatientDocumentUploadScanBtn()){
-			this.getPatientDocumentUploadScanBtn().show();
+	onBrowserHelperOpen: function(){
+		if(this.getDocumentScanBtn()){
+			this.getDocumentScanBtn().show();
 		}
 	},
 
-	onScanDisconnected: function(){
-		if(this.getPatientDocumentUploadScanBtn()){
-			this.getPatientDocumentUploadScanBtn().hide();
+	onBrowserHelperClose: function(){
+		if(this.getDocumentScanBtn()){
+			this.getDocumentScanBtn().hide();
 		}
 	},
 
@@ -219,6 +247,12 @@ Ext.define('App.controller.patient.Documents', {
 			frame.setSrc('dataProvider/DocumentViewer.php?site=' + this.site + '&token=' + app.user.token + '&id=' + records[0].data.id);
 		}else{
 			frame.setSrc('dataProvider/DocumentViewer.php?site=' + this.site + '&token=' + app.user.token);
+		}
+	},
+
+	onPatientDocumentGridAfterRender: function (container) {
+		if(eval(a('allow_document_drag_drop_upload'))) {
+			this.initDocumentDnD(container);
 		}
 	},
 
@@ -266,20 +300,25 @@ Ext.define('App.controller.patient.Documents', {
 			app.msg(_('oops'), _('unable_to_find_document'), true);
 		}
 		store.un('load', me.doSelectDocument, me);
-
 	},
 
 	onDocumentGroupBtnToggle: function(btn, pressed){
-		var grid = btn.up('grid');
+		var grid = btn.up('grid'),
+			selector = '[dataIndex=' + btn.action + ']',
+			header = grid.headerCt.down(selector);
 
 		if(pressed){
 			grid.getStore().group(btn.action);
-			grid.query('#' + btn.action)[0].hide();
+			header.hide();
 			btn.disable();
 		}else{
-			grid.query('#' + btn.action)[0].show();
+			header.show();
 			btn.enable();
 		}
+	},
+
+	onDocumentScanBtnClick: function () {
+		this.getController('Scanner').showScanWindow();
 	},
 
 	onDocumentUploadBtnClick: function(){
@@ -298,6 +337,7 @@ Ext.define('App.controller.patient.Documents', {
 			pid: app.patient.pid,
 			eid: app.patient.eid,
 			uid: app.user.id,
+			facility_id: app.user.facility,
 			date: new Date()
 		})
 	},
@@ -315,23 +355,23 @@ Ext.define('App.controller.patient.Documents', {
 	},
 
 	onDocumentHashCheckBtnClick: function(grid, rowIndex){
-		var rec = grid.getStore().getAt(rowIndex),
-			success,
-			message;
-		DocumentHandler.checkDocHash(rec.data, function(provider, response){
-			success = response.result.success;
-			message = '<b>' + _(success ? 'hash_validation_passed' : 'hash_validation_failed') + '</b><br>' + Ext.String.htmlDecode(response.result.msg);
+		var rec = grid.getStore().getAt(rowIndex);
 
-			if(window.dual){
-				dual.msg(_(success ? 'sweet' : 'oops'), message, !success)
-			}else{
-				app.msg(_(success ? 'sweet' : 'oops'), message, !success)
-			}
+		DocumentHandler.checkDocHash(rec.data, function(provider, response){
+
+			var message = Ext.String.htmlDecode(response.result.msg);
+
+			Ext.Msg.show({
+				title: _('document_hash'),
+				msg: message,
+				buttons: Ext.Msg.OK,
+				icon: Ext.Msg.INFO
+			});
 		});
 	},
 
 	getUploadWindow: function(action){
-		return Ext.widget('patientuploaddocumentwindow', {
+		return Ext.create('App.view.patient.windows.UploadDocument', {
 			action: action,
 			itemId: 'patientDocumentUploadWindow'
 		})
@@ -394,6 +434,8 @@ Ext.define('App.controller.patient.Documents', {
 			store = me.getPatientDocumentGrid().getStore(),
 			index = store.indexOf(record);
 
+		record.set({facility_id: app.user.facility});
+
 		if(index == -1){
 			store.add(record);
 		}
@@ -416,81 +458,82 @@ Ext.define('App.controller.patient.Documents', {
 		})
 	},
 
-	initDocumentDnD: function(){
+	initDocumentDnD: function(grid){
 		var me = this;
 
 		me.dnding = false;
 
-		document.ondragenter = function(e){
-			e.preventDefault();
-			if(!me.dnding) me.setDropMask();
-			return false;
-		};
-
-		document.ondragover = function(e){
-			e.preventDefault();
-			return false;
-		};
-
-		document.ondrop = function(e){
-			e.preventDefault();
-			me.unSetDropMask();
-			if(me.dropMask && (e.target == me.dropMask.maskEl.dom || e.target == me.dropMask.msgEl.dom)){
-				me.dropHandler(e.dataTransfer.files);
+		grid.on({
+			drop: {
+				element: 'el',
+				fn: me.documentDrop,
+				scope: me
+			},
+			dragstart: {
+				element: 'el',
+				fn: me.documentAddDropZone
+			},
+			dragenter: {
+				element: 'el',
+				fn: me.documentAddDropZone
+			},
+			dragover: {
+				element: 'el',
+				fn: me.documentAddDropZone
+			},
+			dragleave: {
+				element: 'el',
+				fn: me.documentRemoveDropZone
+			},
+			dragexit: {
+				element: 'el',
+				fn: me.documentRemoveDropZone
 			}
-			return false;
-		};
-
-		document.ondragleave = function(e){
-			if(e.target.localName == 'body') me.unSetDropMask();
-			e.preventDefault();
-			return false;
-		};
+		});
 	},
 
-	setDropMask: function(){
-		var me = this,
-			dropPanel = me.getPatientDocumentViewerFrame();
+	documentDrop: function (e) {
+		var me = this;
+		e.stopEvent();
 
-		me.dnding = true;
+		var files = Ext.Array.from(e.browserEvent.dataTransfer.files);
+		me.fileHandler(files[0]);
 
-		if(dropPanel && dropPanel.rendered){
-			if(!me.dropMask){
-				me.dropMask = new Ext.LoadMask(me.getPatientDocumentViewerFrame(), {
-					msg: _('drop_here'),
-					cls: 'uploadmask',
-					maskCls: 'x-mask uploadmask',
-					shadow: false
-				});
-				me.dropMask.show();
+		Ext.get(e.target).removeCls('drag-over');
 
-				me.dropMask.maskEl.dom.addEventListener('dragenter', function(e){
-					e.preventDefault();
-					e.target.classList.add('validdrop');
-					return false;
-				});
+	},
 
-				me.dropMask.maskEl.dom.addEventListener('dragleave', function(e){
-					e.preventDefault();
-					e.target.classList.remove('validdrop');
-					return false;
-				});
-			}else{
-				me.dropMask.show();
-			}
+	documentAddDropZone: function (e) {
+		if (!e.browserEvent.dataTransfer || Ext.Array.from(e.browserEvent.dataTransfer.types).indexOf('Files') === -1) {
+			return;
+		}
+		e.stopEvent();
 
+		this.addCls('drag-over');
+	},
+
+	documentRemoveDropZone: function (e) {
+
+		var el = e.getTarget(),
+			thisEl = this.el;
+
+		e.stopEvent();
+
+		if (el === thisEl.dom) {
+			this.removeCls('drag-over');
+			return;
+		}
+
+		while (el !== thisEl.dom && el && el.parentNode) {
+			el = el.parentNode;
+		}
+
+		if (el !== thisEl.dom) {
+			this.removeCls('drag-over');
 		}
 	},
 
-	unSetDropMask: function(){
-		this.dnding = false;
-		if(this.dropMask){
-			this.dropMask.hide();
-		}
-	},
-
-	dropHandler: function(files){
-		//		say(files);
+	fileHandler: function(file){
 		var me = this,
 			win = me.setDocumentUploadWindow('drop'),
 			form = win.down('form').getForm(),
@@ -504,11 +547,11 @@ Ext.define('App.controller.patient.Documents', {
 		reader.onload = function(e){
 			record.set({
 				document: e.target.result,
-				name: files[0].name
+				name: file.name
 			});
 		};
 
-		reader.readAsDataURL(files[0]);
+		reader.readAsDataURL(file);
 	},
 
 	setViewerSite: function(site){

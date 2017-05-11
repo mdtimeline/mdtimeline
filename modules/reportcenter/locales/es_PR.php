@@ -45,5 +45,15 @@ $LANG = array(
     'not_equal'                             => 'No es igual',
     'remove_filter'                         => 'Remover filtro',
     'sort'                                  => 'Sortear',
-    'select_provider'                       => 'Seleccionar proveedor'
+    'select_provider'                       => 'Seleccionar proveedor',
+    'ageFrom'                               => 'A partir de la edad',
+    'ageTo'                                 => 'Hasta la edad',
+    'select_lab_result'                     => 'Seleccione resultados',
+    'select_comparison'                     => 'Seleccione comparación',
+    'lab_enter_value'                       => 'Introducir el valor',
+    'lab_results'                           => 'Resultados de laboratorio',
+    'communication'                         => 'Comunicación',
+    'to_date'                               => 'Hasta',
+    'from_date'                             => 'Desde',
+    'event_type'                            => 'Tipo evento'
 );

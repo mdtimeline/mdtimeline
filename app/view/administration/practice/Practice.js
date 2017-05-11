@@ -27,7 +27,7 @@ Ext.define('App.view.administration.practice.Practice', {
 		'App.view.administration.practice.Pharmacies',
 		'App.view.administration.practice.ProviderNumbers',
 		'App.view.administration.practice.ReferringProviders',
-//		'App.view.administration.practice.Specialties'
+		'App.view.administration.practice.DecisionAids'
 	],
 	pageBody: [
 		{
@@ -57,6 +57,9 @@ Ext.define('App.view.administration.practice.Practice', {
 				},
 				{
 					xtype: 'facilityconfigpanel'
+				},
+				{
+					xtype: 'decisionaidspanel'
 				}
 			]
 		}

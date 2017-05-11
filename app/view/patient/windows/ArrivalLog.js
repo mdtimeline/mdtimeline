@@ -164,9 +164,9 @@ Ext.define('App.view.patient.windows.ArrivalLog', {
             record = store.getAt(rowIndex);
 	    Encounter.checkForAnOpenedEncounterByPid({pid:record.data.pid,date:Ext.Date.format(new Date(), 'Y-m-d H:i:s')}, function(provider, response){
 		    if(response.result) {
-			    me.msg('Oops!', _('patient_have_a_opened_encounter'));
+			    me.msg(_('oops'), _('patient_have_a_opened_encounter'));
 		    } else {
-			    me.msg('Sweet!', _('patient_have_been_removed'));
+			    me.msg(_('sweet'), _('patient_have_been_removed'));
 			    store.remove(record);
 		    }
 	    });

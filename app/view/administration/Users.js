@@ -260,6 +260,78 @@ Ext.define('App.view.administration.Users', {
 								},
 								{
 									xtype: 'panel',
+									title: _('contact_info'),
+									itemId: 'UserGridEditFormContactInfoPanel',
+									layout: 'column',
+									bodyPadding: 10,
+									items: [
+										{
+											xtype: 'fieldset',
+											title: _('address'),
+											margin: '0 10 0 0',
+											padding: 5,
+											defaults: {
+												margin: '0 0 5 0',
+												width: 300
+											},
+											items: [
+												{
+													xtype: 'textfield',
+													fieldLabel: _('address'),
+													name: 'street'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: _('address_cont'),
+													name: 'street_cont'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: _('city'),
+													name: 'city'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: _('state'),
+													name: 'state'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: _('postal_code'),
+													name: 'postal_code'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: _('country_code'),
+													name: 'country_code'
+												}
+											]
+										},
+										{
+											xtype: 'fieldset',
+											title: _('phone'),
+											padding: 5,
+											defaults: {
+												margin: '0 0 5 0',
+												width: 300
+											},
+											items: [
+												{
+													xtype: 'textfield',
+													fieldLabel: _('home'),
+													name: 'phone'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: _('mobile'),
+													name: 'mobile'
+												}
+											]
+										}
+									]
+								},
+								{
+									xtype: 'panel',
 									title: _('provider'),
 									itemId: 'UserGridEditFormProviderPanel',
 									layout: 'hbox',
@@ -292,8 +364,8 @@ Ext.define('App.view.administration.Users', {
 												},
 												{
 													xtype: 'textfield',
-													fieldLabel: _('upin'),
-													name: 'pin'
+													fieldLabel: _('lic'),
+													name: 'lic'
 												},
 												{
 													xtype: 'textfield',
@@ -315,6 +387,12 @@ Ext.define('App.view.administration.Users', {
 													fieldLabel: _('additional_info'),
 													name: 'notes',
 													labelAlign: 'right'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: _('signature'),
+													name: 'signature',
+													labelAlign: 'right'
 												}
 											]
 										},
@@ -323,7 +401,7 @@ Ext.define('App.view.administration.Users', {
 											title: _('provider_credentialization'),
 											itemId: 'UserGridEditFormProviderCredentializationGrid',
 											flex: 1,
-											maxHeight: 200,
+											maxHeight: 210,
 											frame: true,
 											store: Ext.create('App.store.administration.ProviderCredentializations', {
 												pageSize: 1000
@@ -450,5 +528,5 @@ Ext.define('App.view.administration.Users', {
 		this.userStore.load();
 		callback(true);
 	}
-    
+
 });

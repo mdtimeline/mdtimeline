@@ -80,9 +80,9 @@ class MatchaUtils extends Matcha
 		if ($parent === null) $parent = new stdClass;
 		foreach ($array as $key => $val){
 			if (is_array($val)){
-				$parent->$key = self::__arrayToObject($val, new stdClass);
+				$parent->{$key} = self::__arrayToObject($val, new stdClass);
 			}else{
-				$parent->$key = $val;
+				$parent->{$key} = $val;
 			}
 		}
 		return $parent;

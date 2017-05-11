@@ -18,5 +18,5 @@
 
 Ext.define('App.store.patient.Reminders', {
 	extend: 'Ext.data.Store',
-	model: 'App.model.patient.Reminders'
+	model: 'App.model.patient.Reminder'
 });

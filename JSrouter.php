@@ -19,11 +19,11 @@
 
 if(!isset($_SESSION)){
     session_cache_limiter('private');
-    session_cache_expire(1);
-    session_regenerate_id(false);
-    session_name('GaiaEHR');
+    //session_cache_expire(1);
+    session_name('mdTimeLine');
     session_start();
-    setcookie(session_name(),session_id(),time()+86400, '/', null, false, true);
+//    if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
+//    setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 }
 ob_start();
 if(!defined('_GaiaEXEC')) define('_GaiaEXEC', 1);
@@ -61,6 +61,10 @@ if(!defined('THEME')) {
 	define('THEME', $global['css_header']);
 }
 
+if(isset($global['recaptcha_secret_key'])){
+	unset($global['recaptcha_secret_key']);
+}
+
 print 'globals = '. json_encode( $global ).';';
 
 if(!isset($_SESSION['site']['error']) && (isset($_SESSION['user']) && $_SESSION['user']['auth'] == true)){
@@ -86,6 +90,7 @@ if(!isset($_SESSION['site']['error']) && (isset($_SESSION['user']) && $_SESSION[
 	$userData['token'] = $_SESSION['user']['token'];
 	$userData['facility'] = $_SESSION['user']['facility'];
 	$userData['localization'] = $_SESSION['user']['localization'];
+	$userData['password_expired'] = $_SESSION['user']['password_expired'];
 	unset($User);
 
 	$Facilities = new Facilities();
@@ -98,6 +103,7 @@ if(!isset($_SESSION['site']['error']) && (isset($_SESSION['user']) && $_SESSION[
 	print 'window.acl = ' . json_encode($perms) . ';';
 	print 'window.user = ' . json_encode($userData) . ';';
 	print 'window.structure = ' . json_encode($structure) . ';';
+	print 'if(!window.settings) window.settings = {};';
 	print 'window.settings.site_url = "' . $global['url'] . '";';
 
 	if(isset($_SESSION['styles'])){
@@ -109,9 +115,11 @@ if(!isset($_SESSION['site']['error']) && (isset($_SESSION['user']) && $_SESSION[
 	if(isset($_SESSION['dark_styles'])){
 		print 'window.dark_styles = ' . json_encode($_SESSION['dark_styles']) . ';';
 	}
-
 	if(isset($_SESSION['scripts'])){
 		print 'window.scripts = ' . json_encode($_SESSION['scripts']) . ';';
+	}
+	if(isset($_SESSION['modules'])){
+		print 'window.modules = ' . json_encode($_SESSION['modules']) . ';';
 	}
 
 }

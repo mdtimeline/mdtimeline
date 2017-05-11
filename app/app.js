@@ -2706,7 +2706,7 @@ Ext.define('App.ux.ActivityMonitor', {
 		return true;
 	},
 
-	captureActivity: function(eventObj, el, eventOptions){
+	captureActivity: function(){
 		if(this.controller.logoutWarinigWindow)
 			this.controller.cancelAutoLogout();
 		this.lastActive = new Date();
@@ -3297,13 +3297,13 @@ Ext.define('App.ux.LiveRXNORMAllergySearch', {
 
 		Ext.apply(this, {
 			store: me.store,
-			emptyText: _('medication_search') + '...',
+			emptyText: _('allergy_search')+'...',
 			typeAhead: false,
 			hideTrigger: true,
 			minChars: 3,
             maxLength: 255,
 			listConfig: {
-				loadingText: _('searching') + '...',
+				loadingText: _('searching')+'...',
 				getInnerTpl: function(){
 					return '<div class="search-item"><h3>{STR}<span style="font-weight: normal"> ({RXCUI}) </span></h3></div>';
 				}
@@ -3331,8 +3331,9 @@ Ext.define('App.ux.LivePatientSearch', {
 	hideTrigger: true,
     validateBlank: true,
     submitValue: true,
-	minChars: 0,
-	queryDelay: 200,
+	minChars: 1,
+	queryDelay: 500,
+	resetEnabled: false,
 	initComponent: function(){
 		var me = this;
 
@@ -3408,13 +3409,60 @@ Ext.define('App.ux.LivePatientSearch', {
 				getInnerTpl: function(){
 					var pid = (eval(g('display_pubpid')) ? 'pubpid' : 'pid');
 					return '<div class="search-item"><h3><span>{fullname}</span> {[Ext.Date.format(values.DOB, g("date_display_format"))]}</h3>' +
-						'Record #{' + pid + '}'
+						'Record #{' + pid + '}</div>';
 				}
 			},
 			pageSize: 10
 		});
 
+		if(this.resetEnabled){
+			me.hideTrigger = false;
+			me.triggerTip = _('click_to_clear_selection');
+			me.spObj = '';
+			me.spForm ='';
+			me.spExtraParam = '';
+			me.qtip = _('clearable_combo_box');
+			me.trigger1Class = 'x-form-select-trigger';
+			me.trigger2Class = 'x-form-clear-trigger';
+		}
+
+
 		me.callParent();
+	},
+
+	onRender: function(ct, position){
+		var id = this.getId();
+		var trigger2;
+		this.callParent(arguments);
+
+		if(!this.resetEnabled){
+			return;
+		}
+
+		this.triggerConfig = {
+			tag: 'div',
+			cls: 'x-form-twin-triggers',
+			style: 'display:block;',
+			cn: [
+				{
+					tag: "img",
+					style: Ext.isIE ? 'margin-left:0;height:21px' : '',
+					src: Ext.BLANK_IMAGE_URL,
+					id: "trigger2" + id,
+					name: "trigger2" + id,
+					cls: "x-form-trigger " + this.trigger2Class
+				}
+			]
+		};
+		this.triggerEl.replaceWith(this.triggerConfig);
+		this.triggerEl.on('mouseup', function(e){
+			if(e.target.name == "trigger2" + id){
+				this.reset();
+				this.fireEvent('reset', this);
+			}
+		}, this);
+		trigger2 = Ext.get("trigger2" + id);
+		trigger2.addClsOnOver('x-form-trigger-over');
 	}
 });
 
@@ -3526,6 +3574,10 @@ Ext.define('App.ux.LiveUserSearch', {
 				},
 				{
 					name: 'title',
+					type: 'string'
+				},
+				{
+					name: 'code',
 					type: 'string'
 				},
 				{
@@ -3770,9 +3822,11 @@ Ext.define('App.ux.PatientEncounterCombo', {
 	hideLabel: true,
 	displayField: 'display_string',
 	valueField: 'eid',
-	emptyText: _('search') + '...',
+	emptyText: _('select') + '...',
 	width: 400,
 	editable: false,
+	queryMode: 'local',
+	includeAllSelection: true,
 	initComponent: function(){
 		var me = this;
 
@@ -3781,7 +3835,7 @@ Ext.define('App.ux.PatientEncounterCombo', {
 			fields: [
 				{
 					name: 'eid',
-					type: 'int'
+					type: 'string'
 				},
 				{
 					name: 'brief_description',
@@ -3824,9 +3878,24 @@ Ext.define('App.ux.PatientEncounterCombo', {
 			sorters: [
 				{
 					property: 'service_date',
-					direction: 'DESC'
+					direction: 'ASC'
 				}
-			]
+			],
+			listeners: {
+				load: function () {
+					if(!me.includeAllSelection) return;
+                    me.store.insert(0,{
+                        eid: 'no_enc',
+                        brief_description: _('no_encounters'),
+                        service_date: '0000-00-00'
+                    });
+					me.store.insert(0,{
+                        eid: 'all_enc',
+						brief_description: _('all_encounters'),
+						service_date: '0000-00-00'
+					});
+				}
+			}
 		});
 
 		me.callParent();
@@ -3834,6 +3903,7 @@ Ext.define('App.ux.PatientEncounterCombo', {
 	}
 
 });
+
 Ext.define('App.ux.RenderPanel', {
 	extend: 'Ext.container.Container',
 	alias: 'widget.renderpanel',
@@ -5062,6 +5132,7 @@ Ext.define('App.ux.form.fields.Percent',{
 		iframeMessageListener: function(event){
 
 			if(event.origin !== window.location.origin) return;
+			if(!event.data.match) return;
 			if(!event.data.match(/^documentedit/)) return;
 
 			var data = event.data.replace(/^documentedit/, '');
@@ -7780,6 +7851,10 @@ Ext.define('App.ux.combo.Combo', {
     emptyText: _('select'),
     forceSelection: false,
 
+	/**
+	 * List by Key
+	 */
+	listKey: null,
     /**
      * List ID
      */
@@ -7844,7 +7919,8 @@ Ext.define('App.ux.combo.Combo', {
                     read: 'CombosData.getOptionsByListId'
                 },
                 extraParams: {
-                    list_id: me.list
+                    list_id: me.list,
+	                list_key: me.listKey
                 }
             },
             idProperty: 'option_value'
@@ -8084,6 +8160,7 @@ Ext.define('App.ux.combo.Combo', {
 
 
 });
+
 Ext.define('App.ux.combo.CVXManufacturers', {
 	extend       : 'Ext.form.ComboBox',
 	alias        : 'widget.cvxmanufacturerscombo',
@@ -8258,12 +8335,13 @@ Ext.define('App.ux.combo.Ethnicity', {
 			queryMode   : 'local',
 			displayField: 'option_name',
 			valueField  : 'option_value',
-			emptyText   : _('select'),
+			emptyText   : _('ethinicity'),
 			store       : me.store
 		}, null);
 		me.callParent(arguments);
 	}
 });
+
 Ext.define('App.ux.combo.Facilities', {
 	extend: 'Ext.form.ComboBox',
 	alias: 'widget.mitos.facilitiescombo',
@@ -8850,7 +8928,11 @@ Ext.define('App.ux.combo.FloorPlanZones', {
 	displayField: 'title',
 	valueField: 'id',
 	emptyText: _('select'),
-	store: Ext.create('App.store.administration.FloorPlanZones')
+	initComponent: function () {
+		this.store = Ext.create('App.store.administration.FloorPlanZones');
+		this.callParent();
+	}
+
 });
 Ext.define('App.ux.combo.FollowUp', {
     extend       : 'Ext.form.ComboBox',
@@ -9497,37 +9579,37 @@ Ext.define('App.ux.combo.PaymentCategory', {
 	}
 });
 Ext.define('App.ux.combo.Pharmacies', {
-	extend       : 'Ext.form.ComboBox',
-	alias        : 'widget.mitos.pharmaciescombo',
-	initComponent: function() {
+	extend: 'Ext.form.ComboBox',
+	alias: 'widget.mitos.pharmaciescombo',
+	initComponent: function(){
 		var me = this;
 
 		Ext.define('PharmaciesComboModel', {
 			extend: 'Ext.data.Model',
 			fields: [
-				{name: 'option_name' },
-				{name: 'option_value' }
+				{name: 'option_name'},
+				{name: 'option_value'}
 			],
-			proxy : {
-				type       : 'direct',
-				api        : {
-					read: CombosData.getActivePharmacies
+			proxy: {
+				type: 'direct',
+				api: {
+					read: 'CombosData.getActivePharmacies'
 				}
 			}
 		});
 
 		me.store = Ext.create('Ext.data.Store', {
-			model   : 'PharmaciesComboModel',
+			model: 'PharmaciesComboModel',
 			autoLoad: false
 		});
 
 		Ext.apply(this, {
-			editable    : false,
+			editable: false,
 			//queryMode   : 'local',
 			displayField: 'option_name',
-			valueField  : 'option_value',
-			emptyText   : _('select'),
-			store       : me.store
+			valueField: 'option_value',
+			emptyText: _('select'),
+			store: me.store
 		}, null);
 		me.callParent(arguments);
 	}
@@ -9886,12 +9968,13 @@ Ext.define('App.ux.combo.Race', {
 			queryMode   : 'local',
 			displayField: 'option_name',
 			valueField  : 'option_value',
-			emptyText   : _('select'),
+			emptyText   : _('ethnicity'),
 			store       : me.store
 		}, null);
 		me.callParent(arguments);
 	}
 });
+
 Ext.define('App.ux.combo.Roles', {
 	extend       : 'Ext.form.ComboBox',
 	alias        : 'widget.mitos.rolescombo',
@@ -9961,12 +10044,13 @@ Ext.define('App.ux.combo.Sex', {
 			queryMode   : 'local',
 			displayField: 'option_name',
 			valueField  : 'option_value',
-			emptyText   : _('select'),
+			emptyText   : _('sex'),
 			store       : me.store
 		}, null);
 		me.callParent(arguments);
 	}
 });
+
 Ext.define('App.ux.combo.Surgery', {
 	extend       : 'Ext.form.ComboBox',
 	alias        : 'widget.mitos.surgerycombo',
@@ -10327,41 +10411,41 @@ Ext.define('App.ux.combo.Units', {
 	}
 });
 Ext.define('App.ux.combo.Users', {
-	extend       : 'Ext.form.ComboBox',
-	alias        : 'widget.userscombo',
-	initComponent: function() {
+	extend: 'Ext.form.ComboBox',
+	alias: 'widget.userscombo',
+	acl: null,
+	includeAllOption: false,
+	editable: false,
+	queryMode: 'local',
+	valueField: 'id',
+	displayField: 'name',
+	emptyText: _('select'),
+
+	initComponent: function(){
 		var me = this;
 
-		Ext.define('UsersComboModel', {
-			extend: 'Ext.data.Model',
+		me.store = Ext.create('Ext.data.Store', {
+			autoLoad: true,
 			fields: [
-				{name: 'id', type: 'int' },
-				{name: 'name', type: 'string' }
+				{name: 'id', type: 'int'},
+				{name: 'name', type: 'string'}
 			],
-			proxy : {
+			proxy: {
 				type: 'direct',
-				api : {
-					read: CombosData.getUsers
+				api: {
+					read: 'CombosData.getUsers'
+				},
+				extraParams: {
+					acl: me.acl,
+					includeAllOption: me.includeAllOption
 				}
 			}
 		});
 
-		me.store = Ext.create('Ext.data.Store', {
-			model   : 'UsersComboModel',
-			autoLoad: true
-		});
-
-		Ext.apply(this, {
-			editable    : false,
-			queryMode   : 'local',
-			valueField  : 'id',
-			displayField: 'name',
-			emptyText   : _('select'),
-			store       : me.store
-		}, null);
 		me.callParent();
-	} // end initComponent
-});
+	}
+})
+;
 Ext.define('App.ux.combo.YesNoNa', {
 	extend       : 'Ext.form.ComboBox',
 	alias        : 'widget.mitos.yesnonacombo',
@@ -10501,7 +10585,7 @@ Ext.define('App.ux.window.Window', {
 
 	currPatientError: function() {
 		Ext.Msg.show({
-			title  : 'Oops! ' + _('no_patient_selected'),
+			title  : _('oops') + ' ' + _('no_patient_selected'),
 			msg    : _('select_patient_patient_live_search'),
 			scope  : this,
 			buttons: Ext.Msg.OK,
@@ -10929,9 +11013,14 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 					name: 'STR',
 					type: 'string',
 					convert: function(v){
-						var regex = /\(.*\) | \(.*\)|\(.*\)/g;
-						return v.replace(regex, '');
+						v = v.replace(/\(.*\) | \(.*\)|\(.*\)/g, '');
+						v = v.replace(/[\[\]]/g, '');
+						return v;
 					}
+				},
+				{
+					name: 'TTY',
+					type: 'auto'
 				},
 				{
 					name: 'DST',
@@ -11002,19 +11091,10 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 			listConfig: {
 				loadingText: _('searching') + '...',
 				getInnerTpl: function(){
-					return '<div class="search-item">{STR} ( <b>RxNorm:</b> {RXCUI} <b>NDC:</b> {NDC} )</div>';
+					return '<div class="search-item {[values.TTY == "SCD" ? "lightGreenBg" : "" ]}">{STR}<br><b>RxNorm:</b> {RXCUI} <b>NDC:</b> {NDC}</div>';
 				}
 			},
-			pageSize: 25,
-            listeners: {
-                select: function(combo, records, eOpts){
-                    var medicine = records[0].data,
-                        cpos = medicine.STR.indexOf("["),
-                        spos = medicine.STR.indexOf("]");
-                    if (cpos > -1 && spos > cpos)
-                        this.setValue( medicine.STR.substr(0, cpos)+medicine.STR.substr(spos+1) );
-                }
-            }
+			pageSize: 25
 		});
 
 		me.callParent();
@@ -11532,6 +11612,11 @@ Ext.define('App.model.administration.DocumentsTemplates', {
 			comment: 'Documentation Templates ID'
 		},
 		{
+			name: 'facility_id',
+			type: 'int',
+			index: true
+		},
+		{
 			name: 'title',
 			type: 'string',
 			len: 50
@@ -11569,15 +11654,16 @@ Ext.define('App.model.administration.DocumentsTemplates', {
 		{
 			name: 'updated_by_uid',
 			type: 'int'
+		},
+		{
+			name: 'facility_name',
+			type: 'string',
+			store: false
 		}
 	]
 });
 Ext.define('App.model.administration.DocumentToken', {
 	extend: 'Ext.data.Model',
-	table: {
-		name: 'documenttoken',
-		comment: 'Document Tokens'
-	},
 	fields: [
 		{
 			name: 'id',
@@ -12355,10 +12441,6 @@ Ext.define('App.model.administration.LayoutTree', {
 			mapping: 'x_index'
 		},
 		{
-			name: 'parentId',
-			type: 'string'
-		},
-		{
 			name: 'text',
 			type: 'string'
 		},
@@ -12603,6 +12685,11 @@ Ext.define('App.model.administration.Lists', {
             comment: 'List Options ID'
         },
         {
+            name: 'list_key',
+            type: 'string',
+            comment: 'List key for this list'
+        },
+        {
             name: 'title',
             type: 'string',
             comment: 'Title of the combo'
@@ -12628,6 +12715,7 @@ Ext.define('App.model.administration.Lists', {
         }
     }
 });
+
 Ext.define('App.model.administration.Modules', {
 	extend: 'Ext.data.Model',
 	table: {
@@ -13202,181 +13290,182 @@ Ext.define('App.model.administration.ReferringProviderFacility', {
 });
 
 Ext.define('App.model.administration.ReferringProvider', {
-	extend: 'Ext.data.Model',
-	table: {
-		name: 'referring_providers'
-	},
-	fields: [
-		{
-			name: 'id',
-			type: 'int'
-		},
-		{
-			name: 'code',
-			type: 'string',
-			len: 40
-		},
-		{
-			name: 'username',
-			type: 'string',
-			len: 40,
-			index: true
-		},
-		{
-			name: 'password',
-			type: 'string',
-			len: 300,
-			encrypt: true
-		},
-		{
-			name: 'authorized',
-			type: 'bool',
-			index: true
-		},
-		{
-			name: 'title',
-			type: 'string',
-			len: 10
-		},
-		{
-			name: 'fname',
-			type: 'string',
-			len: 80
-		},
-		{
-			name: 'mname',
-			type: 'string',
-			len: 80
-		},
-		{
-			name: 'lname',
-			type: 'string',
-			len: 120
-		},
-		{
-			name: 'upin',
-			type: 'string',
-			len: 25,
-			comment: 'Carrier Claim Referring Physician UPIN Number'
-		},
-		{
-			name: 'lic',
-			type: 'string',
-			len: 25
-		},
-		{
-			name: 'npi',
-			type: 'string',
-			len: 25
-		},
-		{
-			name: 'fda',
-			type: 'string',
-			len: 25
-		},
-		{
-			name: 'ess',
-			type: 'string',
-			len: 25
-		},
-		{
-			name: 'ssn',
-			type: 'string',
-			len: 25,
-			comment: 'federal tax id'
-		},
-		{
-			name: 'taxonomy',
-			type: 'string',
-			len: 40,
-			comment: 'taxonomy',
-			defaultValue: '207Q00000X'
-		},
-		{
-			name: 'accept_mc',
-			type: 'bool',
-			comment: 'Accepts Medicare'
-		},
-		{
-			name: 'notes',
-			type: 'string',
-			len: 600
-		},
-		{
-			name: 'email',
-			type: 'string',
-			len: 180
-		},
-		{
-			name: 'direct_address',
-			type: 'string',
-			len: 180
-		},
-		{
-			name: 'phone_number',
-			type: 'string',
-			len: 25
-		},
-		{
-			name: 'fax_number',
-			type: 'string',
-			len: 25
-		},
-		{
-			name: 'cel_number',
-			type: 'string',
-			len: 25
-		},
-		{
-			name: 'allow_mail_notifications',
-			type: 'bool'
-		},
-		{
-			name: 'active',
-			type: 'bool',
-			index: true
-		},
-		{
-			name: 'create_uid',
-			type: 'int'
+    extend: 'Ext.data.Model',
+    table: {
+        name: 'referring_providers'
+    },
+    fields: [
+        {
+            name: 'id',
+            type: 'int'
+        },
+        {
+            name: 'code',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'username',
+            type: 'string',
+            len: 40,
+            index: true
+        },
+        {
+            name: 'password',
+            type: 'string',
+            len: 300,
+            encrypt: true
+        },
+        {
+            name: 'authorized',
+            type: 'bool',
+            index: true
+        },
+        {
+            name: 'title',
+            type: 'string',
+            len: 10
+        },
+        {
+            name: 'fname',
+            type: 'string',
+            len: 80
+        },
+        {
+            name: 'mname',
+            type: 'string',
+            len: 80
+        },
+        {
+            name: 'lname',
+            type: 'string',
+            len: 120
+        },
+        {
+            name: 'upin',
+            type: 'string',
+            len: 25,
+            comment: 'Carrier Claim Referring Physician UPIN Number'
+        },
+        {
+            name: 'lic',
+            type: 'string',
+            len: 25
+        },
+        {
+            name: 'npi',
+            type: 'string',
+            len: 25
+        },
+        {
+            name: 'fda',
+            type: 'string',
+            len: 25
+        },
+        {
+            name: 'ess',
+            type: 'string',
+            len: 25
+        },
+        {
+            name: 'ssn',
+            type: 'string',
+            len: 25,
+            comment: 'federal tax id'
+        },
+        {
+            name: 'taxonomy',
+            type: 'string',
+            len: 40,
+            comment: 'taxonomy',
+            defaultValue: '207Q00000X'
+        },
+        {
+            name: 'accept_mc',
+            type: 'bool',
+            comment: 'Accepts Medicare'
+        },
+        {
+            name: 'notes',
+            type: 'string',
+            len: 600
+        },
+        {
+            name: 'email',
+            type: 'string',
+            len: 180
+        },
+        {
+            name: 'direct_address',
+            type: 'string',
+            len: 180
+        },
+        {
+            name: 'phone_number',
+            type: 'string',
+            len: 25
+        },
+        {
+            name: 'fax_number',
+            type: 'string',
+            len: 25
+        },
+        {
+            name: 'cel_number',
+            type: 'string',
+            len: 25
+        },
+        {
+            name: 'allow_mail_notifications',
+            type: 'bool'
+        },
+        {
+            name: 'active',
+            type: 'bool',
+            index: true
+        },
+        {
+            name: 'create_uid',
+            type: 'int'
 
-		},
-		{
-			name: 'update_uid',
-			type: 'int'
-		},
-		{
-			name: 'create_date',
-			type: 'date',
-			comment: 'create date',
-			dateFormat: 'Y-m-d H:i:s'
-		},
-		{
-			name: 'update_date',
-			type: 'date',
-			comment: 'last update date',
-			dateFormat: 'Y-m-d H:i:s'
-		}
-	],
-	proxy: {
-		type: 'direct',
-		api: {
-			read: 'ReferringProviders.getReferringProviders',
-			create: 'ReferringProviders.addReferringProvider',
-			update: 'ReferringProviders.updateReferringProvider'
-		},
-		reader: {
-			root: 'data'
-		}
-	},
-	hasMany: [
-		{
-			model: 'App.model.administration.ReferringProviderFacility',
-			name: 'facilities',
-			foreignKey: 'referring_provider_id'
-		}
-	]
+        },
+        {
+            name: 'update_uid',
+            type: 'int'
+        },
+        {
+            name: 'create_date',
+            type: 'date',
+            comment: 'create date',
+            dateFormat: 'Y-m-d H:i:s'
+        },
+        {
+            name: 'update_date',
+            type: 'date',
+            comment: 'last update date',
+            dateFormat: 'Y-m-d H:i:s'
+        }
+    ],
+    proxy: {
+        type: 'direct',
+        api: {
+            read: 'ReferringProviders.getReferringProviders',
+            create: 'ReferringProviders.addReferringProvider',
+            update: 'ReferringProviders.updateReferringProvider'
+        },
+        reader: {
+            root: 'data'
+        }
+    },
+    hasMany: [
+        {
+            model: 'App.model.administration.ReferringProviderFacility',
+            name: 'facilities',
+            foreignKey: 'referring_provider_id'
+        }
+    ]
 });
+
 Ext.define('App.model.administration.Services', {
 	extend: 'Ext.data.Model',
 	table: {
@@ -13651,9 +13740,20 @@ Ext.define('App.model.administration.TransactionLog', {
             comment: 'Facility ID'
         },
         {
+            name: 'pk',
+            type: 'string',
+            comment: 'Primary Key'
+        },
+        {
+            name: 'category',
+            type: 'string',
+            len: 50,
+            comment: ''
+        },
+        {
             name: 'event',
             type: 'string',
-            len: 10,
+            len: 100,
             comment: 'Event UPDATE INSERT DELETE'
         },
         {
@@ -13726,10 +13826,9 @@ Ext.define('App.model.administration.TransactionLog', {
             store: false,
             convert: function (v, record) {
                 var str = '';
-                if (record.data.user_title) str += record.data.user_title + ' ';
+	            if (record.data.user_lname) str += record.data.user_lname + ', ';
                 if (record.data.user_fname) str += record.data.user_fname + ' ';
-                if (record.data.user_mname) str += record.data.user_mname + ' ';
-                if (record.data.user_lname) str += record.data.user_lname;
+                if (record.data.user_mname) str += record.data.user_mname;
                 return str;
             }
         },
@@ -13739,10 +13838,9 @@ Ext.define('App.model.administration.TransactionLog', {
             store: false,
             convert: function (v, record) {
                 var str = '';
-                if (record.data.patient_title) str += record.data.patient_title + ' ';
+	            if (record.data.patient_lname) str += record.data.patient_lname + ', ';
                 if (record.data.patient_fname) str += record.data.patient_fname + ' ';
-                if (record.data.patient_mname) str += record.data.patient_mname + ' ';
-                if (record.data.patient_lname) str += record.data.patient_lname;
+                if (record.data.patient_mname) str += record.data.patient_mname;
                 return str;
             }
         },
@@ -13760,7 +13858,7 @@ Ext.define('App.model.administration.TransactionLog', {
     proxy: {
         type: 'direct',
         api: {
-            read: 'TransactionLog.getLogs'
+            read: 'TransactionLog.getTransactionLog'
         },
         reader: {
             root: 'data'
@@ -13877,6 +13975,11 @@ Ext.define('App.model.administration.User', {
 			encrypt: true
 		},
 		{
+			name: 'password_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
 			name: 'title',
 			type: 'string',
 			comment: 'title (Mr. Mrs.)',
@@ -13902,6 +14005,11 @@ Ext.define('App.model.administration.User', {
 			comment: 'last name',
 			len: 120,
 			index: true
+		},
+		{
+			name: 'signature',
+			type: 'string',
+			len: 100
 		},
 		{
 			name: 'fullname',
@@ -14046,10 +14154,10 @@ Ext.define('App.model.administration.User', {
 			len: 55
 		},
 		{
-			name: 'state',
-			type: 'string',
-			len: 55
-		},
+            name: 'state',
+            type: 'string',
+            len: 55
+        },
 		{
 			name: 'postal_code',
 			type: 'string',
@@ -14260,7 +14368,7 @@ Ext.define('App.model.miscellaneous.Amendment', {
 			type: 'string',
 			store: false,
 			convert: function(v, record){
-				if(record.data.amendment_status === 'A'){
+				if(record.data.amendment_status === 'A' || record.data.amendment_status === 'D'){
 					return record.data.response_title + ' ' + record.data.response_fname + ' ' + record.data.response_mname + ' ' + record.data.response_lname;
 				}else{
 					return '';
@@ -14776,7 +14884,7 @@ Ext.define('App.model.patient.Vitals', {
 		},
 		{
 			name: 'weight_lbs',
-			type: 'string',
+			type: 'float',
 			useNull: true,
 			len: 10
 		},
@@ -14949,87 +15057,87 @@ Ext.define('App.model.patient.Vitals', {
 	}
 });
 
-Ext.define('App.model.patient.FamilyHistory', {
-	extend: 'Ext.data.Model',
-	table: {
-		name: 'patient_family_history'
-	},
-	fields: [
-		{
-			name: 'id',
-			type: 'int'
-		},
-		{
-			name: 'pid',
-			type: 'int',
-			index: true
-		},
-		{
-			name: 'eid',
-			type: 'int',
-			index: true
-		},
-		{
-			name: 'condition',
-			type: 'string',
-			len: 60
-		},
-		{
-			name: 'condition_code',
-			type: 'string',
-			len: 60
-		},
-		{
-			name: 'condition_code_type',
-			type: 'string',
-			len: 60
-		},
-		{
-			name: 'relation',
-			type: 'string',
-			len: 60
-		},
-		{
-			name: 'relation_code',
-			type: 'string',
-			len: 60
-		},
-		{
-			name: 'relation_code_type',
-			type: 'string',
-			len: 60
-		},
-		{
-			name: 'create_uid',
-			type: 'int'
-		},
-		{
-			name: 'update_uid',
-			type: 'int'
-		},
-		{
-			name: 'create_date',
-			type: 'date',
-			dateFormat: 'Y-m-d H:i:s'
-		},
-		{
-			name: 'update_date',
-			type: 'date',
-			dateFormat: 'Y-m-d H:i:s'
-		}
-	],
-	proxy: {
-		type: 'direct',
-		api: {
-			read: 'FamilyHistory.getFamilyHistory',
-			create: 'FamilyHistory.addFamilyHistory',
-			update: 'FamilyHistory.updateFamilyHistory'
-		}
-	},
-	belongsTo: {
-		model: 'App.model.patient.Encounter',
-		foreignKey: 'eid'
-	}
+Ext.define('App.model.patient.FamilyHistory',{
+    extend: 'Ext.data.Model',
+    table: {
+        name: 'patient_family_history'
+    },
+    fields: [
+        {
+            name: 'id',
+            type: 'int'
+        },
+        {
+            name: 'pid',
+            type: 'int',
+            index: true
+        },
+        {
+            name: 'eid',
+            type: 'int',
+            index: true
+        },
+        {
+            name: 'condition',
+            type: 'string',
+            len: 60
+        },
+        {
+            name: 'condition_code',
+            type: 'string',
+            len: 60
+        },
+        {
+            name: 'condition_code_type',
+            type: 'string',
+            len: 60
+        },
+        {
+            name: 'relation',
+            type: 'string',
+            len: 60
+        },
+        {
+            name: 'relation_code',
+            type: 'string',
+            len: 60
+        },
+        {
+            name: 'relation_code_type',
+            type: 'string',
+            len: 60
+        },
+        {
+            name: 'create_uid',
+            type: 'int'
+        },
+        {
+            name: 'update_uid',
+            type: 'int'
+        },
+        {
+            name: 'create_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
+        },
+        {
+            name: 'update_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
+        }
+    ],
+    proxy: {
+        type: 'direct',
+        api: {
+            read: 'FamilyHistory.getFamilyHistory',
+            create: 'FamilyHistory.addFamilyHistory',
+            update: 'FamilyHistory.updateFamilyHistory'
+        }
+    },
+    belongsTo: {
+        model: 'App.model.patient.Encounter',
+        foreignKey: 'eid'
+    }
 });
 
 Ext.define('App.model.patient.ReviewOfSystems', {
@@ -16023,6 +16131,66 @@ Ext.define('App.model.patient.encounter.Procedures', {
 		}
 	}
 });
+Ext.define('App.model.patient.EducationResource', {
+	extend: 'Ext.data.Model',
+	requires: [
+
+	],
+	table: {
+		name: 'patient_education_resources'
+	},
+	fields: [
+		{
+			name: 'id',
+			type: 'int'
+		},
+		{
+			name: 'eid',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'pid',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'uid',
+			type: 'int'
+		},
+		{
+			name: 'title',
+			type: 'string',
+			len: 300
+		},
+		{
+			name: 'url',
+			type: 'string',
+			dataType: 'text'
+		},
+		{
+			name: 'snippet',
+			type: 'string',
+			dataType: 'text'
+		},
+		{
+			name: 'organization_name',
+			type: 'string',
+			dataType: 'text'
+		}
+	],
+	proxy: {
+		type: 'direct',
+		api: {
+			read: 'EducationResources.getPatientEducationResources',
+			create: 'EducationResources.addPatientEducationResource',
+			update: 'EducationResources.updatePatientEducationResource',
+			destroy: 'EducationResources.destroyPatientEducationResource'
+		},
+		remoteGroup: false
+	}
+});
+
 Ext.define('App.model.patient.AppointmentRequest', {
 	extend: 'Ext.data.Model',
 	table: {
@@ -16367,6 +16535,16 @@ Ext.define('App.model.patient.Allergies', {
 			type: 'date',
 			dataType: 'date',
 			dateFormat: 'Y-m-d'
+		},
+		{
+			name: 'reconciled',
+			type: 'bool',
+			index: true
+		},
+		{
+			name: 'reconciled_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
 		},
 		{
 			name: 'active',
@@ -16725,7 +16903,13 @@ Ext.define('App.model.patient.DoctorsNote', {
 			type: 'string',
 			store: false,
 			convert: function(v, record){
-				return (record.data.restrictions.join) ? record.data.restrictions.join(', ') : record.data.restrictions;
+				if(!record.data.restrictions){
+					return '';
+				}else if(record.data.restrictions.join){
+					return ecord.data.restrictions.join(', ');
+				}else{
+					return record.data.restrictions;
+				}
 			}
 		},
 		{
@@ -16875,6 +17059,16 @@ Ext.define('App.model.patient.Encounter', {
 			len: 80
 		},
 		{
+			name: 'visit_category_code',
+			type: 'string',
+			len: 20
+		},
+		{
+			name: 'visit_category_code_type',
+			type: 'string',
+			len: 10
+		},
+		{
 			name: 'facility',
 			type: 'int',
 			len: 1,
@@ -16946,7 +17140,24 @@ Ext.define('App.model.patient.Encounter', {
 		{
 			name: 'referring_physician',
 			type: 'int'
-		}
+		},
+		{
+			name: 'patient_education_given',
+			type: 'bool'
+		},
+        {
+            name: 'medication_reconciliations',
+            type: 'bool'
+        },
+        {
+            name: 'medication_reconciliations_date',
+	        type: 'date',
+	        dateFormat: 'Y-m-d'
+        },
+        {
+            name: 'summary_care_provided',
+            type: 'bool'
+        }
 	],
 	idProperty: 'eid',
 	proxy: {
@@ -17000,6 +17211,12 @@ Ext.define('App.model.patient.Encounter', {
 		{
 			model: 'App.model.patient.AppointmentRequest',
 			name: 'appointmentrequests',
+			primaryKey: 'eid',
+			foreignKey: 'eid'
+		},
+		{
+			model: 'App.model.patient.EducationResource',
+			name: 'educationresources',
 			primaryKey: 'eid',
 			foreignKey: 'eid'
 		}
@@ -17393,11 +17610,6 @@ Ext.define('App.model.patient.Medications', {
 			type: 'string',
 			len: 40
 		},
-        {
-            name: 'GS_CODE',
-            type: 'string',
-            len: 40
-        },
 		{
 			name: 'RXCUI',
 			type: 'string',
@@ -17413,6 +17625,11 @@ Ext.define('App.model.patient.Medications', {
 			name: 'NDC',
 			type: 'string',
 			len: 40
+		},
+		{
+			name: 'TTY',
+			type: 'string',
+			len: 10
 		},
 		{
 			name: 'dxs',
@@ -17472,6 +17689,14 @@ Ext.define('App.model.patient.Medications', {
 			name: 'system_notes',
 			type: 'string',
 			len: 210
+		},
+		{
+			name: 'requires_prescription',
+			type: 'bool'
+		},
+		{
+			name: 'is_controlled',
+			type: 'bool'
 		},
 		{
 			name: 'is_compound',
@@ -17544,6 +17769,16 @@ Ext.define('App.model.patient.Medications', {
 			type: 'date',
 			dataType: 'date',
 			dateFormat: 'Y-m-d'
+		},
+		{
+			name: 'reconciled',
+			type: 'bool',
+			index: true
+		},
+		{
+			name: 'reconciled_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
 		},
 		{
 			name: 'active',
@@ -17698,7 +17933,7 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 		{
 			name: 'status',
 			type: 'string',
-			len: 40
+			len: 20
 		},
 		{
 			name: 'status_code',
@@ -17714,6 +17949,16 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 			name: 'note',
 			type: 'string',
 			len: 300
+		},
+		{
+			name: 'reconciled',
+			type: 'bool',
+			index: true
+		},
+		{
+			name: 'reconciled_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
 		},
 		{
 			name: 'active',
@@ -17752,6 +17997,7 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 		}
 	}
 });
+
 Ext.define('App.model.patient.PatientArrivalLog', {
 	extend: 'Ext.data.Model',
 	fields: [
@@ -17926,6 +18172,11 @@ Ext.define('App.model.patient.PatientDocuments', {
 			index: true
 		},
 		{
+			name: 'facility_id',
+			type: 'int',
+			index: true
+		},
+		{
 			name: 'docType',
 			type: 'string',
 			index: true
@@ -17937,6 +18188,15 @@ Ext.define('App.model.patient.PatientDocuments', {
 			index: true
 		},
 		{
+			name: 'filesystem_id',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'path',
+			type: 'string'
+		},
+		{
 			name: 'name',
 			type: 'string'
 		},
@@ -17945,10 +18205,6 @@ Ext.define('App.model.patient.PatientDocuments', {
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s',
 			index: true
-		},
-		{
-			name: 'url',
-			type: 'string'
 		},
 		{
 			name: 'note',
@@ -18051,6 +18307,11 @@ Ext.define('App.model.patient.PatientImmunization', {
 			index: true
 		},
 		{
+			name: 'facility_id',
+			type: 'int',
+			index: true
+		},
+		{
 			name: 'uid',
 			type: 'int'
 		},
@@ -18148,16 +18409,55 @@ Ext.define('App.model.patient.PatientImmunization', {
 			len: 180
 		},
 		{
-			name: 'education_date',
+			name: 'education_resource_1_id',
+			type: 'int'
+		},
+		{
+			name: 'education_resource_2_id',
+			type: 'int'
+		},
+		{
+			name: 'education_resource_3_id',
+			type: 'int'
+		},
+		{
+			name: 'education_presented_1_date',
 			type: 'date',
-			dataType: 'date',
-			dateFormat: 'Y-m-d'
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'education_presented_2_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'education_presented_3_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'vfc_code',
+			type: 'string',
+			len: 40
+		},
+		{
+			name: 'information_source_code',
+			type: 'string',
+			len: 10
+		},
+		{
+			name: 'refusal_reason_code',
+			type: 'string',
+			len: 10
 		},
         {
-            name: 'education_doc_published',
-            type: 'date',
-            dataType: 'date',
-            dateFormat: 'Y-m-d'
+            name: 'is_presumed_immunity',
+            type: 'bool'
+        },
+        {
+            name: 'presumed_immunity_code',
+	        type: 'string',
+	        len: 20
         },
 		{
 			name: 'note',
@@ -18176,6 +18476,11 @@ Ext.define('App.model.patient.PatientImmunization', {
 		{
 			name: 'updated_uid',
 			type: 'int'
+		},
+		{
+			name: 'status',
+			type: 'string',
+			len: 40
 		},
 		{
 			name: 'is_error',
@@ -18378,7 +18683,7 @@ Ext.define('App.model.patient.PatientSocialHistory', {
 	}
 });
 Ext.define('App.model.patient.PatientsOrderObservation', {
-	extend: 'Ext.data.Model',
+	extend: 'Ext.data.TreeModel',
 	table: {
 		name: 'patient_order_results_observations',
 		comment: 'Order Result Observations OBX'
@@ -18392,8 +18697,14 @@ Ext.define('App.model.patient.PatientsOrderObservation', {
 			name: 'result_id',
 			type: 'int',
 			index: true,
-			comment: 'Order ID'
+			comment: 'Result ID'
 		},
+        {
+            name: 'parent_id',
+            type: 'int',
+            index: true,
+            comment: 'Parent ID'
+        },
 		{
 			name: 'code',
 			type: 'string',
@@ -18498,17 +18809,9 @@ Ext.define('App.model.patient.PatientsOrderObservation', {
 			destroy: 'Orders.deleteOrderResultObservations'
 		},
 		remoteGroup: false
-	},
-	associations: [
-		{
-			type: 'belongsTo',
-			model: 'App.model.patient.PatientsOrderResult',
-			name: 'result',
-			primaryKey: 'id',
-			foreignKey: 'result_id'
-		}
-	]
+	}
 });
+
 Ext.define('App.model.patient.PatientsOrderResult', {
 	extend: 'Ext.data.Model',
 	requires: [
@@ -18592,15 +18895,13 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 		{
 			name: 'result_date',
 			type: 'date',
-			dataType: 'date',
-			dateFormat: 'Y-m-d',
+			dateFormat: 'Y-m-d H:i:s',
 			index: true
 		},
 		{
 			name: 'observation_date',
 			type: 'date',
-			dataType: 'date',
-			dateFormat: 'Y-m-d',
+			dateFormat: 'Y-m-d H:i:s',
 			index: true
 		},
 		{
@@ -18629,10 +18930,6 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 			len: 40
 		},
 		{
-			name: 'specimen_notes',
-			type: 'string'
-		},
-		{
 			name: 'documentId',
 			type: 'string',
 			comment: 'this is the document or hl7 message id - example -> doc|123 or hl7|123',
@@ -18654,7 +18951,17 @@ Ext.define('App.model.patient.PatientsOrderResult', {
             type: 'string',
             comment: 'VOID comments',
             len: 100
-        }
+        },
+		{
+			name: 'specimen_notes',
+			type: 'string',
+			len: 600
+		},
+		{
+			name: 'study_link',
+			type: 'string',
+			len: 600
+		}
 	],
 	proxy: {
 		type: 'direct',
@@ -18671,7 +18978,13 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 			type: 'hasMany',
 			model: 'App.model.patient.PatientsOrderObservation',
 			name: 'observations',
-			foreignKey: 'result_id'
+            primaryKey: 'id',
+			foreignKey: 'result_id',
+			storeConfig: {
+				type: 'tree',
+				autoLoad: false,
+				clearOnLoad: true
+			}
 		},
 		{
 			type: 'belongsTo',
@@ -19317,10 +19630,70 @@ Ext.define('App.model.patient.Referral', {
 	}
 });
 
-Ext.define('App.model.patient.Reminders', {
+Ext.define('App.model.patient.Reminder', {
 	extend: 'Ext.data.Model',
 	table: {
 		name: 'patient_reminders'
+	},
+	fields: [
+		{
+			name: 'id',
+			type: 'int'
+		},
+		{
+			name: 'pid',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'eid',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'reminder_date',
+			type: 'date',
+			dataType: 'DATE',
+			dateFormat: 'Y-m-d'
+		},
+		{
+			name: 'reminder_type',
+			type: 'string',
+			len: 45
+		},
+		{
+			name: 'reminder_note',
+			type: 'string',
+			dataType: 'MEDIUMTEXT'
+		},
+		{
+			name: 'create_uid',
+			type: 'int'
+		},
+		{
+			name: 'create_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		}
+	],
+	proxy: {
+		type: 'direct',
+		api: {
+			read: 'Reminders.getReminders',
+			create: 'Reminders.addReminder',
+			update: 'Reminders.updateReminder'
+		},
+		reader: {
+			root: 'data'
+		}
+	}
+});
+
+
+Ext.define('App.model.patient.Alert', {
+	extend: 'Ext.data.Model',
+	table: {
+		name: 'patient_alerts'
 	},
 	fields: [
 		{
@@ -19374,9 +19747,9 @@ Ext.define('App.model.patient.Reminders', {
 	proxy: {
 		type: 'direct',
 		api: {
-			read: 'Reminders.getReminders',
-			create: 'Reminders.addReminder',
-			update: 'Reminders.updateReminder'
+			read: 'Alerts.getAlerts',
+			create: 'Alerts.addAlert',
+			update: 'Alerts.updateAlert'
 		},
 		reader: {
 			root: 'data'
@@ -20511,8 +20884,8 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 	closeAction: 'hide',
 	closable: false,
 	modal: true,
-	width: 660,
-
+	width: 700,
+	layout: 'fit',
 	initComponent: function(){
 		var me = this;
 
@@ -20563,7 +20936,7 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 				me.loadRecord(
 					Ext.create('App.model.patient.Encounter', {
 						pid: app.patient.pid,
-						service_date: new Date(),
+						service_date: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
 						priority: 'Minimal',
 						open_uid: app.user.id,
 						facility: app.user.facility,
@@ -20791,9 +21164,9 @@ Ext.define('App.view.patient.windows.ArrivalLog', {
             record = store.getAt(rowIndex);
 	    Encounter.checkForAnOpenedEncounterByPid({pid:record.data.pid,date:Ext.Date.format(new Date(), 'Y-m-d H:i:s')}, function(provider, response){
 		    if(response.result) {
-			    me.msg('Oops!', _('patient_have_a_opened_encounter'));
+			    me.msg(_('oops'), _('patient_have_a_opened_encounter'));
 		    } else {
-			    me.msg('Sweet!', _('patient_have_been_removed'));
+			    me.msg(_('sweet'), _('patient_have_been_removed'));
 			    store.remove(record);
 		    }
 	    });
@@ -20932,6 +21305,20 @@ Ext.define('App.model.patient.Patient',{
             len: 10
         },
         {
+            name: 'orientation',
+            type: 'string',
+            comment: 'sex orientation',
+            index: true,
+            len: 15
+        },
+        {
+            name: 'identity',
+            type: 'string',
+            comment: 'sex identity',
+            index: true,
+            len: 15
+        },
+        {
             name: 'DOB',
             type: 'date',
             comment: 'day of birth',
@@ -20942,7 +21329,10 @@ Ext.define('App.model.patient.Patient',{
         {
             name: 'DOBFormatted',
             type: 'string',
-            persist: false
+            persist: false,
+            convert: function (v, record) {
+                return Ext.Date.format(record.get('DOB'), g('date_display_format'));
+            }
         },
         {
             name: 'marital_status',
@@ -21006,12 +21396,6 @@ Ext.define('App.model.patient.Patient',{
             store: false
         },
         {
-            name: 'provider',
-            type: 'string',
-            comment: 'default provider',
-            len: 40
-        },
-        {
             name: 'pharmacy',
             type: 'string',
             comment: 'default pharmacy',
@@ -21027,6 +21411,12 @@ Ext.define('App.model.patient.Patient',{
             name: 'race',
             type: 'string',
             comment: 'race',
+            len: 40
+        },
+        {
+            name: 'secondary_race',
+            type: 'string',
+            comment: 'secondary race',
             len: 40
         },
         {
@@ -21078,46 +21468,32 @@ Ext.define('App.model.patient.Patient',{
             type: 'bool'
         },
         {
+            name: 'allow_guardian_web_portal',
+            type: 'bool'
+        },
+        {
+            name: 'allow_guardian_web_portal_cda',
+            type: 'bool'
+        },
+        {
+            name: 'allow_emergency_contact_web_portal',
+            type: 'bool'
+        },
+        {
+            name: 'allow_emergency_contact_web_portal_cda',
+            type: 'bool'
+        },
+        {
+            name: 'organ_donor_code',
+            type: 'string',
+	        len: 10,
+	        defaultValue: 'U'
+        },
+        {
             name: 'occupation',
             type: 'string',
             comment: 'patient occupation',
             len: 40
-        },
-        {
-            name: 'employer_name',
-            type: 'string',
-            comment: 'employer name',
-            len: 40
-        },
-        {
-            name: 'employer_address',
-            type: 'string',
-            comment: 'employer address',
-            len: 40
-        },
-        {
-            name: 'employer_city',
-            type: 'string',
-            comment: 'employer city',
-            len: 40
-        },
-        {
-            name: 'employer_state',
-            type: 'string',
-            comment: 'employer state',
-            len: 40
-        },
-        {
-            name: 'employer_country',
-            type: 'string',
-            comment: 'employer country',
-            len: 40
-        },
-        {
-            name: 'employer_postal_code',
-            type: 'string',
-            comment: 'employer postal code',
-            len: 10
         },
         {
             name: 'rating',
@@ -21165,6 +21541,11 @@ Ext.define('App.model.patient.Patient',{
             name: 'death_date',
             type: 'date',
             dateFormat: 'Y-m-d H:i:s'
+        },
+        {
+            name: 'death_cause',
+            type: 'string',
+            len: 180
         },
         {
             name: 'alias',
@@ -21284,6 +21665,11 @@ Ext.define('App.model.patient.Patient',{
 	        len: 35
         },
         {
+            name: 'postal_country',
+            type: 'string',
+	        len: 35
+        },
+        {
             name: 'physical_address',
             type: 'string',
 	        len: 40
@@ -21308,6 +21694,41 @@ Ext.define('App.model.patient.Patient',{
             type: 'string',
 	        len: 35
         },
+        {
+            name: 'physical_country',
+            type: 'string',
+	        len: 35
+        },
+	    {
+		    name: 'mother_fname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'mother_mname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'mother_lname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'father_fname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'father_mname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'father_lname',
+		    type: 'string',
+		    len: 80
+	    },
 	    {
 		    name: 'guardians_relation',
 		    type: 'string',
@@ -21339,6 +21760,47 @@ Ext.define('App.model.patient.Patient',{
 	        len: 10
         },
         {
+            name: 'guardians_address',
+            type: 'string',
+            len: 35
+        },
+        {
+            name: 'guardians_address_cont',
+            type: 'string',
+            len: 35
+        },
+        {
+            name: 'guardians_city',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'guardians_state',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'guardians_country',
+            type: 'string',
+            len: 80
+        },
+        {
+            name: 'guardians_zip',
+            type: 'string',
+            len: 15
+        },
+        {
+            name: 'guardian_portal_password',
+            type: 'string',
+            dataType: 'blob',
+            encrypt: true
+        },
+        {
+            name: 'guardian_portal_username',
+            type: 'string',
+            len: 40
+        },
+        {
             name: 'emergency_contact_relation',
             type: 'string',
 	        len: 20
@@ -21367,6 +21829,47 @@ Ext.define('App.model.patient.Patient',{
             name: 'emergency_contact_phone_type',
             type: 'string',
             len: 10
+        },
+	    {
+		    name: 'emergency_contact_address',
+		    type: 'string',
+		    len: 35
+	    },
+	    {
+		    name: 'emergency_contact_address_cont',
+		    type: 'string',
+		    len: 35
+	    },
+	    {
+		    name: 'emergency_contact_city',
+		    type: 'string',
+		    len: 40
+	    },
+	    {
+		    name: 'emergency_contact_state',
+		    type: 'string',
+		    len: 40
+	    },
+	    {
+		    name: 'emergency_contact_country',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'emergency_contact_zip',
+		    type: 'string',
+		    len: 15
+	    },
+        {
+            name: 'emergency_contact_portal_password',
+            type: 'string',
+            dataType: 'blob',
+            encrypt: true
+        },
+        {
+            name: 'emergency_contact_portal_username',
+            type: 'string',
+            len: 40
         }
     ],
     idProperty: 'pid',
@@ -21849,470 +22352,6 @@ Ext.define('App.view.areas.FloorPlan', {
 		}
 	]
 });
-Ext.define('App.view.messages.Messages', {
-	extend: 'App.ux.RenderPanel',
-	id: 'panelMessages',
-	pageTitle: _('messages') + ' (' + _('inbox') + ')',
-	pageLayout: 'border',
-	defaults: {
-		split: true
-	},
-	uses: [
-		'App.ux.LivePatientSearch',
-		'App.ux.combo.MsgStatus',
-		'App.ux.combo.MsgNoteType',
-		'App.ux.combo.Users'],
-	initComponent: function(){
-
-		var me = this;
-
-		/**
-		 * Message Store
-		 */
-		me.storeMsgs = Ext.create('App.store.messages.Messages');
-
-		/**
-		 * Message GridPanel
-		 */
-		me.msgGrid = Ext.create('Ext.grid.Panel', {
-			store: me.storeMsgs,
-			region: 'center',
-			border: true,
-			viewConfig: {
-				forceFit: true,
-				stripeRows: true
-			},
-			listeners: {
-				scope: this,
-				itemclick: this.onItemClick
-			},
-			columns: [
-				{
-					header: _('status'),
-					sortable: true,
-					dataIndex: 'message_status',
-					width: 70
-				},
-				{
-					header: _('from'),
-					sortable: true,
-					dataIndex: 'from_user',
-					width: 200
-				},
-				{
-					header: _('to'),
-					sortable: true,
-					dataIndex: 'to_user',
-					width: 200
-				},
-				{
-					header: _('patient'),
-					sortable: true,
-					dataIndex: 'patient_name',
-					width: 200
-				},
-				{
-					header: _('subject'),
-					sortable: true,
-					dataIndex: 'subject',
-					flex: 1
-				},
-				{
-					header: _('type'),
-					sortable: true,
-					dataIndex: 'note_type',
-					width: 100
-				}
-			],
-			tbar: Ext.create('Ext.PagingToolbar',
-				{
-					store: me.storeMsgs,
-					displayInfo: true,
-					emptyMsg: _('no_office_notes_to_display'),
-					plugins: Ext.create('Ext.ux.SlidingPager',
-						{
-						}),
-					items: ['-',
-						{
-							text: _('delete'),
-							cls: 'winDelete',
-							iconCls: 'delete',
-							itemId: 'deleteMsg',
-							disabled: true,
-							scope: me,
-							handler: me.onDelete
-						}, '-',
-						{
-							text: _('inbox'),
-							action: 'inbox',
-							enableToggle: true,
-							toggleGroup: 'message',
-							pressed: true,
-							scope: me,
-							handler: me.messagesType
-						}, '-',
-						{
-							text: _('sent'),
-							action: 'sent',
-							enableToggle: true,
-							toggleGroup: 'message',
-							scope: me,
-							handler: me.messagesType
-						}, '-',
-						{
-							text: _('trash'),
-							action: 'trash',
-							enableToggle: true,
-							toggleGroup: 'message',
-							scope: me,
-							handler: me.messagesType
-						}, '-']
-				}),
-			bbar: [
-				{
-					text: _('new_message'),
-					iconCls: 'newMessage',
-					itemId: 'newMsg',
-					handler: function(){
-						me.onNewMessage();
-					}
-				},
-				'-',
-				{
-					text: _('reply'),
-					iconCls: 'edit',
-					itemId: 'replyMsg',
-					disabled: true,
-					handler: function(){
-						me.action('reply');
-					}
-				},
-				'-'
-			]
-		});
-		/**
-		 * Form to send and replay messages
-		 */
-		me.msgForm = Ext.create('Ext.form.Panel', {
-			region: 'south',
-			height: 340,
-			cls: 'msgForm',
-			layout: {
-				type: 'vbox',
-				align: 'stretch'
-			},
-			fieldDefaults: {
-				labelWidth: 60,
-				margin: 5,
-				anchor: '100%'
-			},
-			items: [
-				{
-					xtype: 'container',
-					height: 95,
-					cls: 'message-form-header',
-					padding: '5 0',
-					layout: 'anchor',
-					items: [
-						{
-							xtype: 'container',
-							layout: 'column',
-							items: [
-								{
-									xtype: 'container',
-									layout: 'anchor',
-									columnWidth: '.50',
-									items: [
-										{
-											xtype: 'patienlivetsearch',
-											fieldLabel: _('patient'),
-											emptyText: _('no_patient_selected'),
-											itemId: 'patientCombo',
-											name: 'pid',
-											hideLabel: false
-										},
-										{
-											xtype: 'textfield',
-											fieldLabel: _('patient'),
-											itemId: 'patientField',
-											name: 'patient_name',
-											readOnly: true,
-											hidden: true
-										},
-										{
-											xtype: 'userscombo',
-											name: 'to_id',
-											fieldLabel: _('to'),
-											validateOnChange: false,
-											allowBlank: false
-										}
-									]
-								},
-								{
-									xtype: 'container',
-									layout: 'anchor',
-									columnWidth: '.50',
-									items: [
-										{
-											xtype: 'msgnotetypecombo',
-											name: 'note_type',
-											fieldLabel: _('type'),
-											listeners: {
-												scope: me,
-												select: me.onChange
-											}
-										},
-										{
-											xtype: 'msgstatuscombo',
-											name: 'message_status',
-											fieldLabel: _('status'),
-											listeners: {
-												scope: me,
-												select: me.onChange
-											}
-										}
-									]
-								}
-							]
-						},
-						{
-							xtype: 'textfield',
-							fieldLabel: _('subject'),
-							name: 'subject',
-							margin: '0 5 5 5'
-						}
-					]
-				},
-				{
-					xtype: 'htmleditor',
-					name: 'body',
-					itemId: 'bodyMsg',
-					flex: 1,
-					readOnly: true,
-					allowBlank: false
-				},
-				//				{
-				//					xtype           : 'htmleditor',
-				//					name            : 'curr_msg',
-				//					itemId          : 'currMsg',
-				//					height          : 204,
-				//					allowBlank      : false,
-				//					validateOnChange: false,
-				//					hidden          : true
-				//				},
-				{
-					xtype: 'textfield',
-					hidden: true,
-					name: 'id'
-				},
-				{
-					xtype: 'textfield',
-					hidden: true,
-					name: 'pid'
-				},
-				{
-					xtype: 'textfield',
-					hidden: true,
-					name: 'reply_id'
-				}
-			],
-			bbar: [
-				{
-					text: _('send'),
-					iconCls: 'save',
-					itemId: 'sendMsg',
-					scope: me,
-					handler: me.onSend
-				},
-				'-',
-				{
-					text: _('delete'),
-					cls: 'winDelete',
-					iconCls: 'delete',
-					itemId: 'deleteMsg',
-					margin: '0 3 0 0',
-					disabled: true,
-					scope: me,
-					handler: me.onDelete
-				}
-			],
-			listeners: {
-				scope: me,
-				afterrender: me.onFormRender
-
-			}
-		});
-		me.pageBody = [me.msgGrid, me.msgForm];
-		me.callParent(arguments);
-
-	}, // End initComponent
-
-	messagesType: function(btn){
-		this.updateTitle('Messages (' + Ext.String.capitalize(btn.action) + ')');
-		this.storeMsgs.proxy.extraParams =
-		{
-			get: btn.action
-		};
-		this.storeMsgs.load();
-
-	},
-
-	onFormRender: function(){
-		this.msgForm.getComponent('bodyMsg').setReadOnly(true);
-		this.onNewMessage();
-	},
-
-	/**
-	 * onNewMessage will reset the form and load a new model
-	 * with message_status value set to New, and
-	 * note_type value set to Unassigned
-	 */
-	onNewMessage: function(){
-		var form = this.msgForm,
-			record = Ext.create('App.model.messages.Messages', {
-				message_status: _('new'),
-				note_type: _('unassigned')
-			});
-		say(record);
-		form.getForm().reset();
-		form.getForm().loadRecord(record);
-		this.action('new');
-	},
-
-	/**
-	 * @param btn
-	 */
-	onSend: function(btn){
-		var form = btn.up('form').getForm(), store = this.storeMsgs;
-
-		if(form.isValid()){
-			var record = form.getRecord(), values = form.getValues(), storeIndex = store.indexOf(record);
-
-			if(storeIndex == -1){
-				store.add(values);
-			}
-			else{
-				record.set(values);
-			}
-			store.sync();
-			store.load();
-			this.onNewMessage();
-			this.msg('Sweet!', _('message_sent'));
-		}
-		else{
-			this.msg('Oops!', _('please_complete_all_required_fields') + '.');
-		}
-	},
-
-	/**
-	 * onDelete will show an alert msg to confirm,
-	 * delete the message and prepare the form for a new message
-	 */
-	onDelete: function(){
-		var form = this.msgForm.getForm(), store = this.storeMsgs;
-		Ext.Msg.show(
-			{
-				title: _('please_confirm') + '...',
-				icon: Ext.MessageBox.QUESTION,
-				msg: _('are_you_sure_to_delete_this_message'),
-				buttons: Ext.Msg.YESNO,
-				scope: this,
-				fn: function(btn){
-					if(btn == 'yes'){
-						var currentRec = form.getRecord();
-						store.remove(currentRec);
-						store.destroy();
-						this.onNewMessage();
-						this.msg('Sweet!', _('sent_to_trash'));
-					}
-				}
-			});
-	},
-	onChange: function(combo, record){
-		var me = this, form = combo.up('form').getForm();
-
-		if(form.getRecord().data.id){
-			var id = form.getRecord().data.id,
-				col = combo.name,
-				val = record[0].data.option_id, params = {
-					id: id,
-					col: col,
-					val: val
-				};
-
-			/**
-			 * Ext.direct function
-			 */
-			Messages.updateMessage(params, function(){
-				me.storeMsgs.load();
-			});
-
-		}
-
-	},
-	/**
-	 * On item click check if msgPreView is already inside the container.
-	 * if not, remove the item inside the container, add msgPreView and update it with record data.
-	 * if yes, just update the msgPreView with the new record data
-	 *
-	 * @param view
-	 * @param record
-	 * @namespace record.data.from_id
-	 */
-	onItemClick: function(view, record){
-		record.data.to_id = record.data.from_id;
-		this.msgForm.getForm().loadRecord(record);
-		this.action('old');
-	},
-
-	/**
-	 * This function is use to disable/enabled and hide/show buttons and fields
-	 * according to the action
-	 *
-	 * @param action
-	 */
-	action: function(action){
-		var sm = this.msgGrid.getSelectionModel(), form = this.msgForm, patientCombo = form.query('combo[itemId="patientCombo"]')[0], patientField = form.query('textfield[itemId="patientField"]')[0], bodyMsg = form.getComponent('bodyMsg'), currMsg = form.getComponent('currMsg'), deletebtn1 = this.query('button[itemId="deleteMsg"]')[0], deletebtn2 = this.query('button[itemId="deleteMsg"]')[1], replybtn = this.query('button[itemId="replyMsg"]')[0], sendbtn = this.query('button[itemId="sendMsg"]')[0];
-		if(action == 'new'){
-			bodyMsg.setReadOnly(false);
-			patientCombo.show();
-			patientField.hide();
-			deletebtn1.disable();
-			deletebtn2.disable();
-			replybtn.disable();
-			sendbtn.enable();
-			sm.deselectAll();
-		}
-		else if(action == 'old'){
-			bodyMsg.setReadOnly(true);
-			patientCombo.hide();
-			patientField.show();
-			deletebtn1.enable();
-			deletebtn2.enable();
-			replybtn.enable();
-			sendbtn.disable();
-		}
-		else if(action == 'reply'){
-			var msg = bodyMsg.getValue();
-			bodyMsg.setValue('<br><br><br><qoute style="margin-left: 10px; padding-left: 10px; border-left: solid 3px #cccccc; display: block;">' + msg + '</quote>');
-			bodyMsg.setReadOnly(false);
-			sendbtn.enable();
-			patientCombo.hide();
-			patientField.show();
-		}
-	},
-	/**
-	 * This function is called from Viewport.js when
-	 * this panel is selected in the navigation panel.
-	 * place inside this function all the functions you want
-	 * to call every this panel becomes active
-	 */
-	onActive: function(callback){
-		this.storeMsgs.load();
-		callback(true);
-	}
-});
-
 Ext.define('App.view.patient.charts.BPPulseTemp',
 {
 	extend : 'Ext.container.Container',
@@ -23111,9 +23150,94 @@ Ext.define('App.view.patient.charts.HeightForStature',
 
 	}
 }); 
+Ext.define('App.store.patient.EducationResources', {
+	extend: 'Ext.data.Store',
+	model: 'App.model.patient.EducationResource'
+});
 Ext.define('App.store.patient.AppointmentRequests', {
 	extend: 'Ext.data.Store',
 	model: 'App.model.patient.AppointmentRequest'
+});
+Ext.define('App.view.patient.encounter.EducationResourcesGrid', {
+	extend: 'Ext.grid.Panel',
+	requires: [
+		'App.ux.grid.DeleteColumn',
+		'App.ux.LiveEducationResourceSearch'
+	],
+	xtype: 'educationresourcesgrid',
+	itemId: 'EducationResourcesGrid',
+	frame: true,
+	initComponent: function(){
+		var me = this;
+
+		me.columns = [
+			{
+				xtype: 'griddeletecolumn',
+				width: 25,
+				acl: 'remove_encounter_education_resources'
+			},
+			{
+				text: _('title'),
+				dataIndex: 'title',
+				width: 250
+			},
+			// {
+			// 	text: _('snippet'),
+			// 	dataIndex: 'snippet',
+			// 	flex: 1
+			// },
+			{
+				text: _('organization'),
+				dataIndex: 'organization_name',
+				flex: 1
+			}
+		];
+
+		me.callParent();
+	},
+	tbar: [
+		_('education_resources'),
+		{
+			xtype: 'educationresourcelivetsearch',
+			itemId: 'EducationResourcesGridSearchField',
+			width: 400,
+			margin: '0 5 0 0'
+		},
+		'-',
+		{
+			xtype: 'button',
+			text: _('find_encounter_related_education'),
+			itemId: 'EducationResourcesGridFindEncounterRelatedBtn',
+			margin: '0 5 0 5'
+		},
+		'-',
+		{
+			xtype: 'combobox',
+			width: 150,
+			labelWidth: 50,
+			fieldLabel: _('language'),
+			queryMode: 'local',
+			displayField: 'option',
+			valueField: 'value',
+			editable: false,
+			value: 'patient',
+			stateful: true,
+			margin: '0 0 0 5',
+			stateId: 'EducationResourcesGridLanguageField',
+			itemId: 'EducationResourcesGridLanguageField',
+			store: Ext.create('Ext.data.Store', {
+				fields: ['option', 'value'],
+				data : [
+					{option: _('patient'), value: 'patient'},
+					{option: _('english'), value: 'en'},
+					{option: _('spanish'), value: 'es'}
+				]
+			})
+		},
+
+	]
+
+
 });
 Ext.define('App.view.patient.encounter.AppointmentRequestGrid', {
 	extend: 'Ext.grid.Panel',
@@ -23505,7 +23629,7 @@ Ext.define('App.view.patient.encounter.CurrentProceduralTerminology', {
 
 
     onCompleteRemove:function () {
-        app.msg('Sweet!', _('cpt_removed_from_this_encounter'));
+        app.msg(_('sweet'), _('cpt_removed_from_this_encounter'));
     },
 
     onLiveCptSelect:function (btn, record) {
@@ -23528,7 +23652,7 @@ Ext.define('App.view.patient.encounter.CurrentProceduralTerminology', {
     },
 
     onCptDropped:function(node, data, dropRecord, dropPosition, dropFunction){
-        app.msg('Sweet!', _('cpt_added_to_this_encounter'));
+        app.msg(_('sweet'), _('cpt_added_to_this_encounter'));
         this.cptFormEdit.cancelEdit();
         var store = dropRecord.store,
             dropIndex = store.indexOf(dropRecord),
@@ -23565,6 +23689,7 @@ Ext.define('App.view.patient.encounter.CurrentProceduralTerminology', {
 
 
 });
+
 Ext.define('App.view.patient.encounter.ICDs', {
 	extend: 'Ext.form.FieldSet',
 	alias: 'widget.icdsfieldset',
@@ -23588,7 +23713,10 @@ Ext.define('App.view.patient.encounter.ICDs', {
 					{
 						xtype:'combobox',
 						store: Ext.create('Ext.data.Store', {
-							fields: ['option', { name:'value', type: 'int' }],
+							fields: [
+								{ name:'option', type: 'auto' },
+								{ name:'value', type: 'int' }
+							],
 							data : [
 								{ option:'DX:1', value: 1 },
 								{ option:'DX:2', value: 2 },
@@ -23610,6 +23738,31 @@ Ext.define('App.view.patient.encounter.ICDs', {
 						margin: '0 3 0 0',
 						forceSelection: true,
 						editable: false
+					},
+					{
+						xtype:'combobox',
+						store: Ext.create('Ext.data.Store', {
+							fields: [
+								{ name:'code', type: 'string' },
+								{ name:'code_text', type: 'string' }
+							],
+							data : [
+								{ code:'A', code_text: 'Admitting' },
+								{ code:'F', code_text: 'Final' },
+								{ code:'W', code_text: 'Working' }
+							]
+						}),
+						width: 100,
+						itemId: this.id + '-dx-type-cmb',
+						queryMode: 'local',
+						displayField: 'code_text',
+						valueField: 'code',
+						margin: '0 3 0 0',
+						forceSelection: true,
+						allowBlank: false,
+						submitValue: false,
+						editable: false,
+						value: 'F'
 					},
 					{
 						xtype: 'liveicdxsearch',
@@ -23739,19 +23892,25 @@ Ext.define('App.view.patient.encounter.ICDs', {
 	onLiveIcdSelect: function(field, record){
 		var me = this,
 			soap = me.up('form').getForm().getRecord(),
-			group = me.getDxGroupCombo().getValue(),
+			group_cmb = me.getDxGroupCombo(),
+			group = group_cmb.getValue(),
+			type_cmb = me.getDxTypeCombo(),
+			type = type_cmb.getValue(),
 			order = me.getNextOrder(group),
 			dxRecords;
+
+		if(!group_cmb.isValid() && !type_cmb.isValid()) return;
 
 		dxRecords = this.store.add({
 			pid: soap.data.pid,
 			eid: soap.data.eid,
 			uid: app.user.id,
 			code: record[0].data.code,
-			dx_group: group,
-			dx_order: order,
+			code_text: record[0].data.code_text,
 			code_type: record[0].data.code_type,
-			code_text: record[0].data.code_text
+			dx_group: group,
+			dx_type: type,
+			dx_order: order
 		});
 
 		me.addIcd(dxRecords[0], group, order);
@@ -23784,13 +23943,14 @@ Ext.define('App.view.patient.encounter.ICDs', {
 	},
 
 	addIcd: function(record, group, order){
+		var me = this;
 
-		this.getDxCell(group, order).add({
+		me.getDxCell(group, order).add({
 			xtype: 'panel',
 			closable: true,
-			title: record.data.code,
+			title: (record.get('code') + ' (' + record.get('dx_type')+ ')'),
 			dxRecord: record,
-			width: 100,
+			width: 120,
 			margin: '0 5 0 0',
 			name: this.name,
 			editable: false,
@@ -23798,6 +23958,11 @@ Ext.define('App.view.patient.encounter.ICDs', {
 			draggable: {
 				moveOnDrag: false,
 				ddGroup: 'group-' + group + '-dx'
+			},
+			listeners: {
+				close: function(cmp){
+					me.store.remove(cmp.dxRecord);
+				}
 			}
 		});
 	},
@@ -23812,6 +23977,10 @@ Ext.define('App.view.patient.encounter.ICDs', {
 
 	getDxGroupCombo: function(){
 		return this.query('#' + this.id + '-group-cmb')[0];
+	},
+
+	getDxTypeCombo: function(){
+		return this.query('#' + this.id + '-dx-type-cmb')[0];
 	},
 
 	getNextOrder: function(group){
@@ -23967,12 +24136,12 @@ Ext.define('App.view.patient.DoctorsNotes', {
 		'App.ux.combo.Templates'
 	],
 	xtype: 'patientdoctorsnotepanel',
-	title: _('doctors_notes'),
+	title: _('doc_nt'),
 	itemId: 'DoctorsNotes',
 	columnLines: true,
 	store: Ext.create('App.store.patient.DoctorsNotes', {
 		storeId: 'DoctorsNotesStore',
-		groupField: 'order_date',
+        groupField: 'group_date',
 		remoteFilter: true,
 		pageSize: 200,
 		sorters: [
@@ -23985,11 +24154,11 @@ Ext.define('App.view.patient.DoctorsNotes', {
 	selModel: Ext.create('Ext.selection.CheckboxModel', {
 		showHeaderCheckbox: false
 	}),
-	features: [
-		{
-			ftype: 'grouping'
-		}
-	],
+    features: [
+        {
+            ftype: 'grouping'
+        }
+    ],
 	columns: [
 		{
 			xtype: 'actioncolumn',
@@ -24037,7 +24206,6 @@ Ext.define('App.view.patient.DoctorsNotes', {
 			dataIndex: 'string_restrictions',
 			flex: 1
 		}
-
 	],
 	plugins: [
 		{
@@ -24174,7 +24342,7 @@ Ext.define('App.view.patient.ItemsToReview', {
 	frame: true,
 	bodyPadding: 5,
 	bodyBorder: true,
-	bodyStyle: 'background-color:white',
+	//bodyStyle: 'background-color:white',
 	showRating: true,
 	autoScroll: true,
 	itemId: 'ItemsToReviewPanel',
@@ -24318,16 +24486,73 @@ Ext.define('App.view.patient.ItemsToReview', {
 			]
 		},
 		{
-			xtype: 'fieldset',
-			title: _('social_history'),
+			xtype:'container',
+			layout: 'hbox',
 			items: [
 				{
-					fieldLabel: _('smoking_status'),
-					xtype: 'mitos.smokingstatuscombo',
-					itemId: 'reviewsmokingstatuscombo',
-					allowBlank: false,
-					labelWidth: 100,
-					width: 325
+					xtype: 'fieldset',
+					title: _('social_history'),
+					margin: '0 10 0 0',
+					items: [
+						{
+							fieldLabel: _('smoking_status'),
+							xtype: 'mitos.smokingstatuscombo',
+							itemId: 'reviewsmokingstatuscombo',
+							allowBlank: false,
+							labelWidth: 100,
+							width: 325
+						}
+					]
+				},
+				{
+					xtype: 'fieldset',
+					title: _('patient_education'),
+                    margin: '0 10 0 0',
+					items: [
+						{
+							xtype: 'checkbox',
+							boxLabel: _('education_given'),
+							itemId: 'ItemsToReviewEducationGivenField'
+						}
+					]
+				},
+                {
+                    xtype: 'fieldset',
+                    title: _('medical_reconciliation'),
+                    layout: 'hbox',
+	                margin: '0 10 0 0',
+                    items: [
+                        {
+                            xtype: 'checkboxfield',
+                            checked: false,
+                            itemId: 'EncounterMedicationReconciliations',
+                            name: 'medication_reconciliations',
+	                        margin: '0 5 0 0'
+                        },
+                        {
+                            xtype: 'datefield',
+                            fieldLabel: _('performed_date'),
+                            labelWidth: 100,
+                            width: 210,
+                            itemId: 'EncounterMedicationReconciliationsDateField',
+                            name: 'medication_reconciliations_date'
+                        }
+                    ]
+                },
+				{
+					xtype: 'fieldset',
+					title: _('patient_summary'),
+					layout: 'hbox',
+					items: [
+						{
+							xtype: 'checkboxfield',
+							checked: false,
+							padding: '0 0 5 10',
+							itemId: 'EncounterSummaryCareProvided',
+							boxLabel: _('summary_of_care_provided'),
+							name: 'summary_care_provided'
+						}
+					]
 				}
 			]
 		}
@@ -24340,6 +24565,7 @@ Ext.define('App.view.patient.ItemsToReview', {
 		}
 	]
 });
+
 Ext.define('App.view.patient.EncounterDocumentsGrid', {
 	extend: 'Ext.grid.Panel',
 	requires: [
@@ -24361,7 +24587,8 @@ Ext.define('App.view.patient.EncounterDocumentsGrid', {
 		proxy: {
 			type: 'memory'
 		},
-		groupField: 'document_type'
+		groupField: 'document_type',
+		storeId: 'EncounterDocumentsGridStore'
 	}),
 	columns: [
 		{
@@ -24389,7 +24616,7 @@ Ext.define('App.view.patient.CheckoutAlertsView',
 	itemSelector : 'div.alert-div',
 	loadMask : true,
 	singleSelect : true,
-	emptyText : '<span style="color: #616161; font-size: 12px;">Sweet! ' + _('no_alerts_found') + '.</span>',
+	emptyText : '<span style="color: #616161; font-size: 12px;">' + _('sweet') + ' ' + _('no_alerts_found') + '.</span>',
 	initComponent : function()
 	{
 		var me = this;
@@ -24769,7 +24996,7 @@ Ext.define('App.view.patient.ProgressNote', {
 		var me = this;
 
         me.tpl = new Ext.XTemplate(
-            '<div class="progressNote">' +
+            '<div class="progressNote" style="margin: 5px">' +
             '   <div class="secession general-data">' +
             '       <div class="title"> ' + _('general') + ' </div>' +
             '       <table width="100%">' +
@@ -24796,32 +25023,6 @@ Ext.define('App.view.patient.ProgressNote', {
             '           </tr>' +
             '       </table>' +
             '   </div>' +
-            /**
-             * Review of System Secession
-             */
-            '   <tpl if="reviewofsystems">' +
-            '       <div class="secession">' +
-            '           <div class="title"> ' + _('review_of_systems') + ' </div>' +
-            '           <tpl for="reviewofsystems">' +
-            '               <tpl if="this.isNotNull(value)">' +
-            '                   <div class="pblock"> {name}: {value} </div>' +
-            '               </tpl>' +
-            '           </tpl>' +
-            '       </div>' +
-            '   </tpl>' +
-            /**
-             * Review of System Checks Secession
-             */
-            '   <tpl if="reviewofsystemschecks">' +
-            '       <div class="secession">' +
-            '           <div class="title"> ' + _('review_of_system_checks') + ' </div>' +
-            '           <tpl for="reviewofsystemschecks">' +
-            '               <tpl if="this.isNotNull(value)">' +
-            '                   <div class="pblock"> {name}: {value} </div>' +
-            '               </tpl>' +
-            '           </tpl>' +
-            '       </div>' +
-            '   </tpl>' +
 
             /**
              * SOAP Secession
@@ -24843,284 +25044,6 @@ Ext.define('App.view.patient.ProgressNote', {
             '           <div class="title"> ' + _('speech_dictation') + ' </div>' +
             '           <p><span>' + _('dictation') + ':</span> {dictation}</p>' +
             '           <p><span>' + _('additional_notes') + ':</span> {additional_notes}</p>' +
-            '       </div>' +
-            '   </tpl>' +
-            /**
-             * Vitals Secession
-             */
-            '   <tpl if="vitals">' +
-            '       <div class="secession vitals-data">' +
-            '           <div class="title"> ' + _('vitals') + ' </div>' +
-            '           <div style="overflow-x: auto">' +
-            '               <table>' +
-            '                   <tr>' +
-            '                       <td>' +
-            '                          <table class="x-grid-table x-grid-table-vitals vitals-column">' +
-            '                              <tbody>' +
-            '                                  <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td x-grid-table-vitals-date">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('date_&_time') + '</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       <tpl if="!this.isMetric()">' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('weight_lbs') + '</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       <tpl else>',
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('weight_kg') + '</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       </tpl>',
-	            '                       <tpl if="!this.isMetric()">' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('height_in') + '</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       <tpl else>',
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('height_cm') + '</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       </tpl>',
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('bp_systolic') + '</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('bp_diastolic') + '</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('pulse') + '</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('respiration') + '</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       <tpl if="!this.isMetric()">' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('temp_f') + '</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       <tpl else>',
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('temp_c') + '</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       </tpl>',
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('temp_location') + '</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('oxygen_saturation') + '%</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       <tpl if="!this.isMetric()">' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('head_circumference_in') + '</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       <tpl else>',
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('head_circumference_cm') + '</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       </tpl>',
-	            '                       <tpl if="!this.isMetric()">' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('waist_circumference_in') + '</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       <tpl else>',
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('waist_circumference_cm') + '</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       </tpl>',
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('bmi') + '</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('bmi_status') + '</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('other_notes') + '</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('administer') + '<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">' + _('signed_by') + '<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-            '                               </tbody>' +
-            '                           </table>' +
-            '                       </td>' +
-            '                       <tpl for="vitals">' +
-            '                           <td>' +
-            '                           <table class="x-grid-table x-grid-table-vitals vitals-column">' +
-            '                               <tbody>' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td x-grid-table-vitals-date">' +
-            '                                           <div class="x-grid-cell-inner ">{date}</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       <tpl if="!this.isMetric()">' +
-            '                                   <tr class="x-grid-row first">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[this.getVitalsValue(values.weight_lbs)]}</div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       <tpl else>',
-            '                                   <tr class="x-grid-row first">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[this.getVitalsValue(values.weight_kg)]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       </tpl>',
-		        '                       <tpl if="!this.isMetric()">' +
-            '                                   <tr class="x-grid-row x-grid-row-alt">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[this.getVitalsValue(values.height_in)]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       <tpl else>',
-            '                                   <tr class="x-grid-row x-grid-row-alt">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[this.getVitalsValue(values.height_cm)]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       </tpl>',
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[this.getVitalsValue(values.bp_systolic)]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-            '                                   <tr class="x-grid-row x-grid-row-alt">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[this.getVitalsValue(values.bp_diastolic)]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[this.getVitalsValue(values.pulse)]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-            '                                   <tr class="x-grid-row x-grid-row-alt">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[this.getVitalsValue(values.respiration)]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       <tpl if="!this.isMetric()">' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[this.getVitalsValue(values.temp_f)]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       <tpl else>',
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[this.getVitalsValue(values.temp_c)]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       </tpl>',
-            '                                   <tr class="x-grid-row x-grid-row-alt">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[this.getVitalsValue(values.temp_location.toUpperCase())]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[this.getVitalsValue(values.oxygen_saturation)]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       <tpl if="!this.isMetric()">' +
-            '                                   <tr class="x-grid-row x-grid-row-alt">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[this.getVitalsValue(values.head_circumference_in)]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       <tpl else>',
-            '                                   <tr class="x-grid-row x-grid-row-alt">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[this.getVitalsValue(values.head_circumference_cm)]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       </tpl>',
-		        '                       <tpl if="!this.isMetric()">' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[this.getVitalsValue(values.waist_circumference_in)]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       <tpl else>',
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[this.getVitalsValue(values.waist_circumference_cm)]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-	            '                       </tpl>',
-            '                                   <tr class="x-grid-row x-grid-row-alt">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[this.getVitalsValue(values.bmi)]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[this.getVitalsValue(values.bmi_status)]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-            '                                   <tr class="x-grid-row x-grid-row-alt">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[this.getVitalsValue(values.other_notes)]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-            '                                   <tr class="x-grid-row x-grid-data-row">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[(values.administer_by == null || values.administer_by == " ") ? "-" : values.administer_by]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-            '                                   <tr class="x-grid-row  x-grid-row-alt">' +
-            '                                       <td class="x-grid-cell x-grid-td">' +
-            '                                           <div class="x-grid-cell-inner ">{[(values.authorized_by == null || values.authorized_by == " ") ? "-" : values.authorized_by]}<div>' +
-            '                                       </td>' +
-            '                                   </tr>' +
-            '                               </tbody>' +
-            '                           </table>' +
-            '                           </td>' +
-            '                       </tpl>' +
-            '                   </tr>' +
-            '               </table>' +
-            '           </div>' +
             '       </div>' +
             '   </tpl>' +
             '</div>',
@@ -25156,79 +25079,13 @@ Ext.define('App.view.patient.ProgressNote', {
 
 });
 
-Ext.define('App.view.patient.RemindersAlert', {
-	extend: 'Ext.window.Window',
-	requires: [
-		'Ext.grid.plugin.RowEditing'
-	],
-	title: _('reminders'),
-	width: 700,
-	closeAction: 'hide',
-	initComponent: function(){
-
-		var me = this;
-
-		me.items = [
-			{
-				xtype: 'grid',
-				itemId: 'RemindersAlertGrid',
-				margin: 5,
-				frame : true,
-				store: Ext.create('App.store.patient.Reminders'),
-				plugins: {
-					ptype: 'cellediting',
-					autoCancel: false,
-					errorSummary: false,
-					clicksToEdit: 2
-				},
-				columns: [
-					{
-						xtype: 'datecolumn',
-						text: _('date'),
-						format: g('date_display_format'),
-						dataIndex: 'date'
-					},
-					{
-						text: _('note'),
-						dataIndex: 'body',
-						flex: 1
-					},
-					{
-						text: _('active'),
-						width: 50,
-						dataIndex: 'active',
-						renderer: function(v, m, r){
-							return app.boolRenderer(v, m, r);
-						},
-						editor: {
-							xtype: 'checkbox'
-						}
-					}
-				]
-			}
-		];
-
-
-
-		me.callParent();
-
-	},
-	buttons: [
-		'->',
-		{
-			text: _('ok'),
-			itemId: 'RemindersAlertOkBtn'
-		},
-		'-',
-		{
-			text: _('cancel'),
-			itemId: 'RemindersAlertCancelBtn'
-		}
-	]
-});
 Ext.define('App.store.patient.Reminders', {
 	extend: 'Ext.data.Store',
-	model: 'App.model.patient.Reminders'
+	model: 'App.model.patient.Reminder'
+});
+Ext.define('App.store.patient.Alerts', {
+	extend: 'Ext.data.Store',
+	model: 'App.model.patient.Alert'
 });
 Ext.define('App.view.patient.Reminders', {
 	extend: 'Ext.grid.Panel',
@@ -25248,40 +25105,34 @@ Ext.define('App.view.patient.Reminders', {
 		{
 			xtype: 'datecolumn',
 			text: _('date'),
-			format: 'Y-m-d',
-			dataIndex: 'date'
+			dataIndex: 'reminder_date',
+			editor: {
+				xtype: 'datefield'
+			}
 		},
 		{
-			header: _('type'),
-			dataIndex: 'type',
-			width: 200,
+			text: _('type'),
+			dataIndex: 'reminder_type',
 			editor: {
-				xtype: 'gaiaehr.combo',
-				list: 130
+				xtype: 'combobox',
+				queryMode: 'local',
+				displayField: 'option',
+				valueField: 'value',
+				store: Ext.create('Ext.data.Store', {
+					fields: ['option', 'value'],
+					data : [
+						{ option: 'Appointment', value: 'appointment' },
+						{ option: 'Clinical', value: 'clinical' }
+					]
+				})
 			}
 		},
 		{
 			text: _('note'),
-			dataIndex: 'body',
 			flex: 1,
+			dataIndex: 'reminder_note',
 			editor: {
 				xtype: 'textfield'
-			}
-		},
-		{
-			text: _('user'),
-			width: 225,
-			dataIndex: 'user_name'
-		},
-		{
-			text: _('active'),
-			width: 50,
-			dataIndex: 'active',
-			renderer: function(v, m, r){
-				return app.boolRenderer(v, m, r);
-			},
-			editor: {
-				xtype: 'checkbox'
 			}
 		}
 	],
@@ -25290,7 +25141,7 @@ Ext.define('App.view.patient.Reminders', {
 		{
 			text: _('add_reminder'),
 			iconCls: 'icoAdd',
-			itemId: 'RemindersAddBtn'
+			itemId: 'PatientRemindersAddBtn'
 		}
 	]
 });
@@ -25312,9 +25163,10 @@ Ext.define('App.view.patient.Results', {
 		'App.store.patient.PatientsOrders',
 		'App.ux.LiveLabsSearch',
 		'App.ux.LiveRadsSearch',
-		'App.ux.window.voidComment'
+		'App.ux.window.voidComment',
+		'App.ux.form.fields.DateTime'
 	],
-	title: _('results'),
+	title: _('res'),
 	xtype: 'patientresultspanel',
 	layout: 'border',
 	tbar: [
@@ -25327,10 +25179,6 @@ Ext.define('App.view.patient.Results', {
 	],
 	items: [
 		{
-			/**
-			 * Order Grid
-			 * ----------
-			 */
 			xtype: 'grid',
 			itemId: 'ResultsOrdersGrid',
 			action: 'orders',
@@ -25436,6 +25284,7 @@ Ext.define('App.view.patient.Results', {
 					flex: 1,
 					editor: {
 						xtype: 'labslivetsearch',
+						itemId: 'ResultsLabsLiveSearchField',
 						allowBlank: false
 					},
 					renderer: function(v, meta, record){
@@ -25473,24 +25322,7 @@ Ext.define('App.view.patient.Results', {
 			hidden: true,
 			layout: 'card',
 			activeItem: 0,
-			bbar: [
-				{
-					text: _('sign'),
-					iconCls: 'icoSing',
-					disabled: true,
-					itemId: 'ResultsOrderSignBtn'
-				},
-				'->',
-				{
-					text: _('reset'),
-					action: 'ResultsOrderResetBtn'
-				},
-				{
-					text: _('save'),
-					action: 'ResultsOrderSaveBtn'
-				}
 
-			],
 			items: [
 				{
 					/**
@@ -25508,7 +25340,7 @@ Ext.define('App.view.patient.Results', {
 							xtype: 'button',
 							text: _('view_document'),
 							icon: 'resources/images/icons/icoView.png',
-							action: 'ResultsLaboratoryPanelDocumentViewBtn'
+							itemId: 'ResultsLaboratoryPanelDocumentViewBtn'
 						}
 					],
 					items: [
@@ -25537,10 +25369,9 @@ Ext.define('App.view.patient.Results', {
 									layout: 'anchor',
 									items: [
 										{
-											xtype: 'datefield',
+											xtype: 'mitos.datetime',
 											fieldLabel: _('report_date'),
 											name: 'result_date',
-											format: 'Y-m-d',
 											allowBlank: false
 										},
 										{
@@ -25549,14 +25380,28 @@ Ext.define('App.view.patient.Results', {
 											allowBlank: false
 										},
 										{
+											xtype: 'combobox',
 											fieldLabel: _('status'),
-											name: 'result_status'
+											name: 'result_status',
+											queryMode: 'local',
+											displayField: 'option',
+											valueField: 'value',
+											store: Ext.create('Ext.data.Store', {
+												fields: ['option', 'value'],
+												data: [
+													{ option: 'Aborted', value: 'aborted'},
+													{ option: 'Active', value: 'active'},
+													{ option: 'Cancelled', value: 'cancelled'},
+													{ option: 'Completed', value: 'completed'},
+													{ option: 'Held', value: 'held'},
+													{ option: 'Suspended', value: 'suspended'}
+												]
+											})
 										},
 										{
-											xtype: 'datefield',
+											xtype: 'mitos.datetime',
 											fieldLabel: _('observation_date'),
 											name: 'observation_date',
-											format: 'Y-m-d',
 											allowBlank: false
 										},
 										{
@@ -25604,10 +25449,12 @@ Ext.define('App.view.patient.Results', {
 								}
 							]
 						},
-						{
-							xtype: 'grid',
+                        {
+							xtype: 'treepanel',
 							itemId: 'ResultsLaboratoryObservationsGrid',
 							action: 'observations',
+                            animate: false,
+                            rootVisible: false,
 							flex: 1,
 							region: 'center',
 							split: true,
@@ -25621,12 +25468,26 @@ Ext.define('App.view.patient.Results', {
 							],
 							columns: [
 								{
+                                    xtype: 'treecolumn',
+									text: _('name'),
+									menuDisabled: true,
+									dataIndex: 'code_text',
+									width: 350,
+									renderer: function (v, meta,record) {
+                                        var code = record.get('code');
+                                        if (code != '') {
+                                            v = v + ' (' + code + ')';
+                                        }
+                                        return v;
+                                    }
+								},
+								{
 									xtype: 'actioncolumn',
 									width: 25,
 									items: [
 										{
 											icon: 'resources/images/icons/blueInfo.png',  // Use a URL in the icon config
-											tooltip: 'Get Info',
+											tooltip: _('get_info'),
 											handler: function(grid, rowIndex, colIndex, item, e, record){
 												App.app.getController('InfoButton').doGetInfo(
 													record.data.code,
@@ -25636,12 +25497,6 @@ Ext.define('App.view.patient.Results', {
 											}
 										}
 									]
-								},
-								{
-									text: _('name'),
-									menuDisabled: true,
-									dataIndex: 'code_text',
-									width: 350
 								},
 								{
 									text: _('value'),
@@ -25798,10 +25653,11 @@ Ext.define('App.view.patient.Results', {
 											name: 'result_status'
 										},
 										{
-											xtype: 'filefield',
+											xtype: 'fileuploadfield',
 											fieldLabel: _('report'),
-											action: 'ResultsRadiologyFormUploadField',
-											submitValue: false
+											itemId: 'ResultsRadiologyFormUploadField',
+											submitValue: false,
+											allowBlank: false
 										}
 									]
 								},
@@ -25815,15 +25671,9 @@ Ext.define('App.view.patient.Results', {
 									layout: 'anchor',
 									items: [
 										{
-											fieldLabel: _('link'),
-											name: 'study_link',
-											itemId: 'ResultsRadiologyFormStudyLinkField',
-											readOnly: true
-										},
-										{
 											xtype: 'button',
 											text: _('view'),
-											margin: '0 0 5 105',
+											margin: '0 0 8 0',
 											itemId: 'ResultsRadiologyFormViewStudyBtn'
 										}
 									]
@@ -25861,6 +25711,23 @@ Ext.define('App.view.patient.Results', {
 							itemId: 'ResultsRadiologyDocumentIframe'
 						}
 					]
+				}
+			],
+			buttons: [
+				{
+					text: _('sign'),
+					iconCls: 'icoSing',
+					disabled: true,
+					itemId: 'ResultsOrderSignBtn'
+				},
+				'->',
+				{
+					text: _('reset'),
+					itemId: 'ResultsOrderResetBtn'
+				},
+				{
+					text: _('save'),
+					itemId: 'ResultsOrderSaveBtn'
 				}
 			]
 		}
@@ -26577,9 +26444,9 @@ Ext.define('App.view.patient.VisitCheckout', {
 		if(form.isValid()){
 			Patient.addPatientNoteAndReminder(values, function(provider, response){
 				if(response.result.success){
-					app.msg('Sweet!', _('note_and_reminder'));
+					app.msg(_('sweet'), _('note_and_reminder'));
 				}else{
-					app.msg('Oops!', _('note_entry_error'));
+					app.msg(_('oops'), _('note_entry_error'));
 				}
 			});
 		}
@@ -27350,7 +27217,7 @@ Ext.define('App.view.fees.Billing',
 		var me = this, form = me.icdForm.getForm( ), values = form.getValues( );
 
 		me.updateEncounterIcds( values );
-		me.msg( 'Sweet!', _( 'encounter_billing_data_updated' ) );
+		me.msg( _('sweet'), _( 'encounter_billing_data_updated' ) );
 	},
 
 	/**
@@ -27404,20 +27271,20 @@ Ext.define('App.view.fees.Billing',
 
 	/**
 	 * Function: Search for billing based on the search fields
-	 * This function will pass all the fields to the server side 
-	 * so PHP dataProvider can calculate and do the search against 
+	 * This function will pass all the fields to the server side
+	 * so PHP dataProvider can calculate and do the search against
 	 * the SQL Server
 	 */
 	ReloadGrid : function(btn)
 	{
 		// Declare some variables
 		var topBarItems = this.encountersGrid.getDockedItems('toolbar[dock="top"]')[0],
-		datefrom = topBarItems.getComponent( 'fieldContainerDateRange' ).getComponent( 'datefrom' ).getValue( ), 
+		datefrom = topBarItems.getComponent( 'fieldContainerDateRange' ).getComponent( 'datefrom' ).getValue( ),
 		dateto = topBarItems.getComponent( 'fieldContainerDateRange' ).getComponent( 'dateto' ).getValue( );
 
 		// Check if the dateFrom and dateTo are in use, if they are clear the pastDue variable
 		if(datefrom || dateto) this.pastDue = 0;
-		
+
 		// Load the ExtJs dataStore with the new parameters
 		this.patientListStore.load(
 		{
@@ -29840,342 +29707,342 @@ Ext.define('App.view.administration.practice.Specialties', {
 });
 
 Ext.define('App.view.administration.practice.ReferringProviders', {
-	extend: 'Ext.grid.Panel',
-	xtype: 'referringproviderspanel',
-	requires: [
-		'Ext.ux.SlidingPager'
-	],
-	title: _('referring_providers'),
+    extend: 'Ext.grid.Panel',
+    xtype: 'referringproviderspanel',
+    requires: [
+        'Ext.ux.SlidingPager'
+    ],
+    title: _('referring_providers'),
 
-	initComponent: function(){
-		var me = this;
+    initComponent: function(){
+        var me = this;
 
-		me.store = Ext.create('App.store.administration.ReferringProviders', {
-			autoSync: false,
-			remoteSort: true,
-			sorters: [
-				{
-					property: 'lname',
-					direction: 'ASC'
-				}
-			]
-		});
-		
-		Ext.apply(me, {
-			columns: [
-				{
-					width: 200,
-					text: _('name'),
-					sortable: true,
-					renderer:function(v, meta, record){
-						return record.data.title + ' ' + record.data.lname + ', ' + record.data.fname + ' ' + record.data.mname;
-					}
-				},
-				{
-					flex: 1,
-					text: _('email'),
-					sortable: true,
-					dataIndex: 'email'
-				},
-				{
-					flex: 1,
-					text: _('phone_number'),
-					sortable: true,
-					dataIndex: 'phone_number'
-				},
-				{
-					flex: 1,
-					text: _('cell_number'),
-					sortable: true,
-					dataIndex: 'cel_number'
-				},
-				{
-					flex: 1,
-					text: _('aditional_info'),
-					sortable: true,
-					dataIndex: 'notes'
-				},
-				{
-					text: _('active'),
-					sortable: true,
-					dataIndex: 'active',
-					renderer: me.boolRenderer
-				}
-			],
-			plugins: [
-				me.formEditing = Ext.create('App.ux.grid.RowFormEditing', {
-					clicksToEdit: 1,
-					items: [
-						{
-							xtype: 'fieldcontainer',
-							fieldLabel: _('first_middle_last'),
-							labelWidth: 130,
-							labelAlign: 'right',
-							layout: {
-								type: 'hbox',
-								defaultMargins: {
-									top: 0,
-									right: 5,
-									bottom: 0,
-									left: 0
-								}
-							},
-							msgTarget: 'under',
-							items: [
-								{
-									width: 50,
-									xtype: 'mitos.titlescombo',
-									name: 'title'
-								},
-								{
-									width: 150,
-									xtype: 'textfield',
-									name: 'fname',
-									allowBlank: false
-								},
-								{
-									width: 100,
-									xtype: 'textfield',
-									name: 'mname'
-								},
-								{
-									width: 150,
-									xtype: 'textfield',
-									name: 'lname',
-									allowBlank: false
-								}
-							]
-						},
-						{
-							xtype: 'fieldcontainer',
-							layout: {
-								type: 'hbox',
-								defaultMargins: {
-									top: 0,
-									right: 5,
-									bottom: 0,
-									left: 0
-								}
-							},
-							items: [
-								{
-									xtype: 'textfield',
-									name: 'email',
-									fieldLabel: _('email'),
-									labelWidth: 130,
-									labelAlign: 'right'
-								},
-								{
-									xtype: 'textfield',
-									fieldLabel: _('taxonomy'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									name: 'taxonomy'
-								}
-							]
-						},
-						{
-							xtype: 'fieldcontainer',
-							layout: {
-								type: 'hbox',
-								defaultMargins: {
-									top: 0,
-									right: 5,
-									bottom: 0,
-									left: 0
-								}
-							},
-							items: [
-								{
-									xtype: 'textfield',
-									fieldLabel: _('upin'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									name: 'upin'
-								},
-								{
-									xtype: 'textfield',
-									fieldLabel: _('npi'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									name: 'npi'
-								}
-							]
-						},
-						{
-							xtype: 'fieldcontainer',
-							layout: {
-								type: 'hbox',
-								defaultMargins: {
-									top: 0,
-									right: 5,
-									bottom: 0,
-									left: 0
-								}
-							},
-							items: [
-								{
-									xtype: 'textfield',
-									fieldLabel: _('lic'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									name: 'lic'
-								},
-								{
-									xtype: 'textfield',
-									fieldLabel: _('ssn'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									name: 'ssn'
-								}
-							]
-						},
-						{
-							xtype: 'fieldcontainer',
-							layout: {
-								type: 'hbox',
-								defaultMargins: {
-									top: 0,
-									right: 5,
-									bottom: 0,
-									left: 0
-								}
-							},
-							items: [
-								{
-									xtype: 'textfield',
-									fieldLabel: _('phone_number'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									name: 'phone_number'
-								},
-								{
-									xtype: 'textfield',
-									fieldLabel: _('fax_number'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									name: 'fax_number'
-								}
+        me.store = Ext.create('App.store.administration.ReferringProviders', {
+            autoSync: false,
+            remoteSort: true,
+            sorters: [
+                {
+                    property: 'lname',
+                    direction: 'ASC'
+                }
+            ]
+        });
 
-							]
-						},
-						{
-							xtype: 'fieldcontainer',
-							layout: {
-								type: 'hbox',
-								defaultMargins: {
-									top: 0,
-									right: 5,
-									bottom: 0,
-									left: 0
-								}
-							},
-							items: [
-								{
-									xtype: 'textfield',
-									fieldLabel: _('cell_number'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									name: 'cel_number'
-								},
-								{
-									xtype: 'checkbox',
-									fieldLabel: _('active'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									name: 'active'
-								}
+        Ext.apply(me, {
+            columns: [
+                {
+                    width: 200,
+                    text: _('name'),
+                    sortable: true,
+                    renderer:function(v, meta, record){
+                        return record.data.title + ' ' + record.data.lname + ', ' + record.data.fname + ' ' + record.data.mname;
+                    }
+                },
+                {
+                    flex: 1,
+                    text: _('email'),
+                    sortable: true,
+                    dataIndex: 'email'
+                },
+                {
+                    flex: 1,
+                    text: _('phone_number'),
+                    sortable: true,
+                    dataIndex: 'phone_number'
+                },
+                {
+                    flex: 1,
+                    text: _('cell_number'),
+                    sortable: true,
+                    dataIndex: 'cel_number'
+                },
+                {
+                    flex: 1,
+                    text: _('aditional_info'),
+                    sortable: true,
+                    dataIndex: 'notes'
+                },
+                {
+                    text: _('active'),
+                    sortable: true,
+                    dataIndex: 'active',
+                    renderer: me.boolRenderer
+                }
+            ],
+            plugins: [
+                me.formEditing = Ext.create('App.ux.grid.RowFormEditing', {
+                    clicksToEdit: 1,
+                    items: [
+                        {
+                            xtype: 'fieldcontainer',
+                            fieldLabel: _('first_middle_last'),
+                            labelWidth: 130,
+                            labelAlign: 'right',
+                            layout: {
+                                type: 'hbox',
+                                defaultMargins: {
+                                    top: 0,
+                                    right: 5,
+                                    bottom: 0,
+                                    left: 0
+                                }
+                            },
+                            msgTarget: 'under',
+                            items: [
+                                {
+                                    width: 50,
+                                    xtype: 'mitos.titlescombo',
+                                    name: 'title'
+                                },
+                                {
+                                    width: 150,
+                                    xtype: 'textfield',
+                                    name: 'fname',
+                                    allowBlank: false
+                                },
+                                {
+                                    width: 100,
+                                    xtype: 'textfield',
+                                    name: 'mname'
+                                },
+                                {
+                                    width: 150,
+                                    xtype: 'textfield',
+                                    name: 'lname',
+                                    allowBlank: false
+                                }
+                            ]
+                        },
+                        {
+                            xtype: 'fieldcontainer',
+                            layout: {
+                                type: 'hbox',
+                                defaultMargins: {
+                                    top: 0,
+                                    right: 5,
+                                    bottom: 0,
+                                    left: 0
+                                }
+                            },
+                            items: [
+                                {
+                                    xtype: 'textfield',
+                                    name: 'email',
+                                    fieldLabel: _('email'),
+                                    labelWidth: 130,
+                                    labelAlign: 'right'
+                                },
+                                {
+                                    xtype: 'textfield',
+                                    fieldLabel: _('taxonomy'),
+                                    labelWidth: 130,
+                                    labelAlign: 'right',
+                                    name: 'taxonomy'
+                                }
+                            ]
+                        },
+                        {
+                            xtype: 'fieldcontainer',
+                            layout: {
+                                type: 'hbox',
+                                defaultMargins: {
+                                    top: 0,
+                                    right: 5,
+                                    bottom: 0,
+                                    left: 0
+                                }
+                            },
+                            items: [
+                                {
+                                    xtype: 'textfield',
+                                    fieldLabel: _('upin'),
+                                    labelWidth: 130,
+                                    labelAlign: 'right',
+                                    name: 'upin'
+                                },
+                                {
+                                    xtype: 'textfield',
+                                    fieldLabel: _('npi'),
+                                    labelWidth: 130,
+                                    labelAlign: 'right',
+                                    name: 'npi'
+                                }
+                            ]
+                        },
+                        {
+                            xtype: 'fieldcontainer',
+                            layout: {
+                                type: 'hbox',
+                                defaultMargins: {
+                                    top: 0,
+                                    right: 5,
+                                    bottom: 0,
+                                    left: 0
+                                }
+                            },
+                            items: [
+                                {
+                                    xtype: 'textfield',
+                                    fieldLabel: _('lic'),
+                                    labelWidth: 130,
+                                    labelAlign: 'right',
+                                    name: 'lic'
+                                },
+                                {
+                                    xtype: 'textfield',
+                                    fieldLabel: _('ssn'),
+                                    labelWidth: 130,
+                                    labelAlign: 'right',
+                                    name: 'ssn'
+                                }
+                            ]
+                        },
+                        {
+                            xtype: 'fieldcontainer',
+                            layout: {
+                                type: 'hbox',
+                                defaultMargins: {
+                                    top: 0,
+                                    right: 5,
+                                    bottom: 0,
+                                    left: 0
+                                }
+                            },
+                            items: [
+                                {
+                                    xtype: 'textfield',
+                                    fieldLabel: _('phone_number'),
+                                    labelWidth: 130,
+                                    labelAlign: 'right',
+                                    name: 'phone_number'
+                                },
+                                {
+                                    xtype: 'textfield',
+                                    fieldLabel: _('fax_number'),
+                                    labelWidth: 130,
+                                    labelAlign: 'right',
+                                    name: 'fax_number'
+                                }
 
-							]
-						},
-						{
-							xtype: 'fieldcontainer',
-							layout: {
-								type: 'hbox',
-								defaultMargins: {
-									top: 0,
-									right: 5,
-									bottom: 0,
-									left: 0
-								}
-							},
-							items: [
-								{
-									xtype: 'textfield',
-									fieldLabel: _('username'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									minLength: 5,
-									maxLength: 15,
-									name: 'username'
-								},
-								{
-									xtype: 'textfield',
-									fieldLabel: _('password'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									minLength: 8,
-									maxLength: 15,
-									name: 'password',
-									inputType: 'password',
-									vtype: 'strength',
-									strength: 24,
-									plugins: {
-										ptype: 'passwordstrength'
-									}
-								},
-								{
-									xtype: 'checkbox',
-									fieldLabel: _('authorized'),
-									labelWidth: 130,
-									labelAlign: 'right',
-									name: 'authorized'
-								}
+                            ]
+                        },
+                        {
+                            xtype: 'fieldcontainer',
+                            layout: {
+                                type: 'hbox',
+                                defaultMargins: {
+                                    top: 0,
+                                    right: 5,
+                                    bottom: 0,
+                                    left: 0
+                                }
+                            },
+                            items: [
+                                {
+                                    xtype: 'textfield',
+                                    fieldLabel: _('cell_number'),
+                                    labelWidth: 130,
+                                    labelAlign: 'right',
+                                    name: 'cel_number'
+                                },
+                                {
+                                    xtype: 'checkbox',
+                                    fieldLabel: _('active'),
+                                    labelWidth: 130,
+                                    labelAlign: 'right',
+                                    name: 'active'
+                                }
 
-							]
-						},
-						{
-							height: 50,
-							xtype: 'textareafield',
-							name: 'notes',
-							width: 600,
-							fieldLabel: _('notes'),
-							labelWidth: 130,
-							labelAlign: 'right',
-							emptyText: _('additional_info')
-						}
-					]
-				})
-			],
+                            ]
+                        },
+                        {
+                            xtype: 'fieldcontainer',
+                            layout: {
+                                type: 'hbox',
+                                defaultMargins: {
+                                    top: 0,
+                                    right: 5,
+                                    bottom: 0,
+                                    left: 0
+                                }
+                            },
+                            items: [
+                                {
+                                    xtype: 'textfield',
+                                    fieldLabel: _('username'),
+                                    labelWidth: 130,
+                                    labelAlign: 'right',
+                                    minLength: 5,
+                                    maxLength: 15,
+                                    name: 'username'
+                                },
+                                {
+                                    xtype: 'textfield',
+                                    fieldLabel: _('password'),
+                                    labelWidth: 130,
+                                    labelAlign: 'right',
+                                    minLength: 8,
+                                    maxLength: 15,
+                                    name: 'password',
+                                    inputType: 'password',
+                                    vtype: 'strength',
+                                    strength: 24,
+                                    plugins: {
+                                        ptype: 'passwordstrength'
+                                    }
+                                },
+                                {
+                                    xtype: 'checkbox',
+                                    fieldLabel: _('authorized'),
+                                    labelWidth: 130,
+                                    labelAlign: 'right',
+                                    name: 'authorized'
+                                }
 
-			dockedItems: [
-				{
-					xtype: 'toolbar',
-					dock: 'top',
-					items: [
-						'->',
-						{
-							xtype: 'button',
-							text: _('referring_provider'),
-							iconCls: 'icoAdd',
-							itemId: 'referringProviderAddBtn',
-						}
-					]
-				},
-				{
-					xtype: 'pagingtoolbar',
-					dock: 'bottom',
-					pageSize: 25,
-					store: me.store,
-					displayInfo: true,
-					plugins: Ext.create('Ext.ux.SlidingPager')
-				}
-			]
-		});
+                            ]
+                        },
+                        {
+                            height: 50,
+                            xtype: 'textareafield',
+                            name: 'notes',
+                            width: 600,
+                            fieldLabel: _('notes'),
+                            labelWidth: 130,
+                            labelAlign: 'right',
+                            emptyText: _('additional_info')
+                        }
+                    ]
+                })
+            ],
 
-		me.callParent(arguments);
+            dockedItems: [
+                {
+                    xtype: 'toolbar',
+                    dock: 'top',
+                    items: [
+                        '->',
+                        {
+                            xtype: 'button',
+                            text: _('referring_provider'),
+                            iconCls: 'icoAdd',
+                            itemId: 'referringProviderAddBtn',
+                        }
+                    ]
+                },
+                {
+                    xtype: 'pagingtoolbar',
+                    dock: 'bottom',
+                    pageSize: 25,
+                    store: me.store,
+                    displayInfo: true,
+                    plugins: Ext.create('Ext.ux.SlidingPager')
+                }
+            ]
+        });
 
-	}
+        me.callParent(arguments);
+
+    }
 
 });
 
@@ -30270,7 +30137,7 @@ Ext.define('App.view.administration.Applications', {
                     me.store.remove(record);
                     me.store.sync({
                         callback:function(){
-                            me.msg('Sweet!', _('record_removed'))
+                            me.msg(_('sweet'), _('record_removed'))
                         }
                     });
                 }
@@ -30300,13 +30167,11 @@ Ext.define('App.view.administration.Applications', {
 Ext.define('App.view.administration.Globals', {
 	extend: 'App.ux.RenderPanel',
 	id: 'panelGlobals',
-	pageTitle: 'GaiaEHR ' + _('global_settings'),
+	pageTitle: 'mdTimeLine EHR ' + _('global_settings'),
 	uses: ['App.ux.form.fields.Checkbox'],
 	initComponent: function(){
 		var me = this;
-		// *************************************************************************************
-		// Global Data store
-		// *************************************************************************************
+
 		me.store = Ext.create('App.store.administration.Globals',{
 			groupField: 'gl_category',
 			remoteSort: false,
@@ -30337,16 +30202,13 @@ Ext.define('App.view.administration.Globals', {
 							cat1 = getCat(o1),
 							cat2 = getCat(o2);
 
-						if (cat1 === cat2) {
-							return 0;
-						}
+						if (cat1 === cat2) return 0;
 
 						return cat1 < cat2 ? -1 : 1;
 					}
 				}
 			]
 		});
-
 
 		//region Store Region
 		me.default_top_pane_store = Ext.create('Ext.data.Store', {
@@ -30590,8 +30452,6 @@ Ext.define('App.view.administration.Globals', {
 				[_('option_7'), 'Option 7']
 			]
 		});
-		//region end
-
 
 		me.grid = Ext.create('Ext.grid.Panel',{
 			store: me.store,
@@ -30626,9 +30486,7 @@ Ext.define('App.view.administration.Globals', {
 				}
 			]
 		});
-
 		me.pageBody = [ me.grid ];
-
 		me.callParent(arguments);
 	},
 
@@ -30682,15 +30540,9 @@ Ext.define('App.view.administration.Lists', {
         /**
          * RowEditor Classes
          */
-        me.optionsRowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
-//            autoCancel: false,
-//            errorSummary: false
-        });
+        me.optionsRowEditing = Ext.create('Ext.grid.plugin.RowEditing', {});
 
-	    me.listsRowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
-//            autoCancel: false,
-//            errorSummary: false
-        });
+	    me.listsRowEditing = Ext.create('Ext.grid.plugin.RowEditing', {});
 
         /**
          * Lists Grid
@@ -30699,13 +30551,19 @@ Ext.define('App.view.administration.Lists', {
             store: me.listsStore,
             itemId: 'listsGrid',
             plugins: [ me.listsRowEditing ],
-            width: 320,
+            width: 50,
             margin: '0 2 0 0',
             region: 'west',
             columns: [
                 {
-	                width: 30,
-                    dataIndex: 'id'
+                    text: _('key'),
+	                width: 110,
+                    dataIndex: 'list_key',
+                    editor: {
+                        xtype:'textfield',
+                        allowOnlyWhitespace: false,
+                        allowBlank: false
+                    }
                 },
                 {
                     text: _('select_lists'),
@@ -31644,7 +31502,7 @@ Ext.define('App.view.administration.FloorPlans', {
                         callback:function(){
                             sm.deselectAll();
                             me.floorPlanZones.removeAll();
-                            me.msg('Sweet!',_('record_removed'))
+                            me.msg(_('sweet'),_('record_removed'))
                         }
                     });
 
@@ -32412,7 +32270,7 @@ Ext.define('App.view.administration.practice.Practice', {
 		'App.view.administration.practice.Pharmacies',
 		'App.view.administration.practice.ProviderNumbers',
 		'App.view.administration.practice.ReferringProviders',
-//		'App.view.administration.practice.Specialties'
+		'App.view.administration.practice.DecisionAids'
 	],
 	pageBody: [
 		{
@@ -32442,6 +32300,9 @@ Ext.define('App.view.administration.practice.Practice', {
 				},
 				{
 					xtype: 'facilityconfigpanel'
+				},
+				{
+					xtype: 'decisionaidspanel'
 				}
 			]
 		}
@@ -32829,6 +32690,10 @@ Ext.define('App.view.miscellaneous.Amendments', {
 
 							if(v === 'P'){
 								str = _('patient');
+							}else if(v === 'G'){
+								str = _('guardian');
+							}else if(v === 'E'){
+								str = _('emergency_contact');
 							}else if(v === 'D'){
 								str = _('doctor');
 							}else if(v === 'O'){
@@ -32845,27 +32710,28 @@ Ext.define('App.view.miscellaneous.Amendments', {
 						columns: [
 							{
 								text: _('received'),
-								width: 130,
+								width: 140,
 								dataIndex: 'create_date',
 								renderer: me.dateNewRenderer
 							},
 							{
-								text: _('responded'),
-								width: 130,
-								dataIndex: 'response_date',
+								text: _('appended'),
+								width: 140,
+								dataIndex: 'create_date',
 								renderer: me.dateNewRenderer
+								// renderer: function(v, meta, record){
+								// 	if(record.get('amendment_status') === 'A'){
+								// 		return me.dateNewRenderer(v, meta, record);
+								// 	}else{
+								// 		return me.dateNewRenderer(null, meta, record);
+								// 	}
+								// }
 							},
 							{
-								text: _('appended'),
-								width: 130,
+								text: _('responded'),
+								width: 140,
 								dataIndex: 'response_date',
-								renderer: function(v, meta, record){
-									if(record.data.amendment_status == 'A'){
-										return me.dateNewRenderer(v, meta, record);
-									}else{
-										return me.dateNewRenderer(null, meta, record);
-									}
-								}
+								renderer: me.dateNewRenderer
 							}
 						]
 					},
@@ -33684,6 +33550,10 @@ Ext.define('App.store.administration.DocumentToken', {
             token: '[PATIENT_ID]'
         },
         {
+            title: _('patient_record_number'),
+            token: '[PATIENT_RECORD_NUMBER]'
+        },
+        {
             title: _('patient_name'),
             token: '[PATIENT_NAME]'
         },
@@ -33736,52 +33606,52 @@ Ext.define('App.store.administration.DocumentToken', {
             token: '[PATIENT_AGE]'
         },
         {
-            title: _('patient_city'),
-            token: '[PATIENT_CITY]'
+            title: _('PATIENT_PHYSICAL_ADDRESS_LINE_ONE'),
+            token: '[PATIENT_PHYSICAL_ADDRESS_LINE_ONE]'
         },
         {
-            title: _('patient_state'),
-            token: '[PATIENT_STATE]'
+            title: _('PATIENT_PHYSICAL_ADDRESS_LINE_TWO'),
+            token: '[PATIENT_PHYSICAL_ADDRESS_LINE_TWO]'
         },
         {
-            title: _('patient_home_address_line_1'),
-            token: '[PATIENT_HOME_ADDRESS_LINE_ONE]'
+            title: _('PATIENT_PHYSICAL_CITY'),
+            token: '[PATIENT_PHYSICAL_CITY]'
         },
         {
-            title: _('patient_home_address_line_1'),
-            token: '[PATIENT_HOME_ADDRESS_LINE_TWO]'
+            title: _('PATIENT_PHYSICAL_STATE'),
+            token: '[PATIENT_PHYSICAL_STATE]'
         },
         {
-            title: _('patient_home_address_zip_code'),
-            token: '[PATIENT_HOME_ADDRESS_ZIP_CODE]'
+            title: _('PATIENT_PHYSICAL_ZIP'),
+            token: '[PATIENT_PHYSICAL_ZIP]'
         },
         {
-            title: _('patient_home_address_city'),
-            token: '[PATIENT_HOME_ADDRESS_CITY]'
+            title: _('PATIENT_PHYSICAL_COUNTRY'),
+            token: '[PATIENT_PHYSICAL_COUNTRY]'
         },
         {
-            title: _('patient_home_address_state'),
-            token: '[PATIENT_HOME_ADDRESS_STATE]'
-        },
-        {
-            title: _('patient_postal_address_line_1'),
+            title: _('PATIENT_POSTAL_ADDRESS_LINE_ONE'),
             token: '[PATIENT_POSTAL_ADDRESS_LINE_ONE]'
         },
         {
-            title: _('patient_postal_address_line_2'),
+            title: _('PATIENT_POSTAL_ADDRESS_LINE_TWO'),
             token: '[PATIENT_POSTAL_ADDRESS_LINE_TWO]'
         },
         {
-            title: _('patient_postal_address_zip_code'),
-            token: '[PATIENT_POSTAL_ADDRESS_ZIP_CODE]'
+            title: _('PATIENT_POSTAL_CITY'),
+            token: '[PATIENT_POSTAL_CITY]'
         },
         {
-            title: _('patient_postal_address_city'),
-            token: '[PATIENT_POSTAL_ADDRESS_CITY]'
+            title: _('PATIENT_POSTAL_STATE'),
+            token: '[PATIENT_POSTAL_STATE]'
         },
         {
-            title: _('patient_postal_address_state'),
-            token: '[PATIENT_POSTAL_ADDRESS_STATE]'
+            title: _('PATIENT_POSTAL_ZIP'),
+            token: '[PATIENT_POSTAL_ZIP]'
+        },
+        {
+            title: _('PATIENT_POSTAL_COUNTRY'),
+            token: '[PATIENT_POSTAL_COUNTRY]'
         },
         {
             title: _('patient_tabacco'),
@@ -33944,6 +33814,94 @@ Ext.define('App.store.administration.DocumentToken', {
             token: '[PATIENT_INACTIVE_SURGERY_LIST]'
         },
         {
+            title: _('provider_id'),
+            token: '[PROVIDER_ID]'
+        },
+        {
+            title: _('provider_title'),
+            token: '[PROVIDER_TITLE]'
+        },
+        {
+            title: _('provider_full_name'),
+            token: '[PROVIDER_FULL_NAME]'
+        },
+        {
+            title: _('provider_first_name'),
+            token: '[PROVIDER_FIRST_NAME]'
+        },
+        {
+            title: _('provider_middle_name'),
+            token: '[PROVIDER_MIDDLE_NAME]'
+        },
+        {
+            title: _('provider_last_name'),
+            token: '[PROVIDER_LAST_NAME]'
+        },
+        {
+            title: _('provider_npi'),
+            token: '[PROVIDER_NPI]'
+        },
+        {
+            title: _('provider_lic'),
+            token: '[PROVIDER_LIC]'
+        },
+        {
+            title: _('provider_dea'),
+            token: '[PROVIDER_DEA]'
+        },
+        {
+            title: _('provider_fed_tax'),
+            token: '[PROVIDER_FED_TAX]'
+        },
+        {
+            title: _('provider_ess'),
+            token: '[PROVIDER_ESS]'
+        },
+        {
+            title: _('provider_taxonomy'),
+            token: '[PROVIDER_TAXONOMY]'
+        },
+        {
+            title: _('provider_email'),
+            token: '[PROVIDER_EMAIL]'
+        },
+        {
+            title: _('provider_direct_address'),
+            token: '[PROVIDER_DIRECT_ADDRESS]'
+        },
+        {
+            title: _('provider_address_one'),
+            token: '[PROVIDER_ADDRESS_LINE_ONE]'
+        },
+        {
+            title: _('provider_address_two'),
+            token: '[PROVIDER_ADDRESS_LINE_TWO]'
+        },
+        {
+            title: _('provider_city'),
+            token: '[PROVIDER_ADDRESS_CITY]'
+        },
+        {
+            title: _('provider_state'),
+            token: '[PROVIDER_ADDRESS_STATE]'
+        },
+        {
+            title: _('provider_zip'),
+            token: '[PROVIDER_ADDRESS_ZIP]'
+        },
+        {
+            title: _('provider_country'),
+            token: '[PROVIDER_ADDRESS_COUNTRY]'
+        },
+        {
+            title: _('provider_phone'),
+            token: '[PROVIDER_PHONE]'
+        },
+        {
+            title: _('provider_mobile'),
+            token: '[PROVIDER_MOBILE]'
+        },
+        {
             title: _('encounter_date'),
             token: '[ENCOUNTER_DATE]'
         },
@@ -34032,6 +33990,10 @@ Ext.define('App.store.administration.DocumentToken', {
             token: '[ORDERS_OTHER]'
         },
         {
+            title: _('order_date'),
+            token: '[ORDER_DATE]'
+        },
+        {
             title: _('current_date'),
             token: '[CURRENT_DATE]'
         },
@@ -34094,6 +34056,34 @@ Ext.define('App.store.administration.DocumentToken', {
 	    {
             title: _('referral_to'),
             token: '[REFERRAL_TO_TEXT]'
+        },
+	    {
+            title: _('rad_report_body'),
+            token: '[REPORT_ACCESSIONS]'
+        },
+	    {
+            title: _('report_body'),
+            token: '[REPORT_BODY]'
+        },
+	    {
+            title: _('report_interpreter'),
+            token: '[REPORT_INTERPRETER]'
+        },
+	    {
+            title: _('report_transcriptionist'),
+            token: '[REPORT_TRANSCRIPTIONIST]'
+        },
+	    {
+            title: _('report_signature'),
+            token: '[REPORT_SIGNATURE]'
+        },
+	    {
+            title: _('line'),
+            token: '[LINE]'
+        },
+	    {
+            title: _('time_now'),
+            token: '[TIME_NOW]'
         }
     ]
 });
@@ -34225,7 +34215,7 @@ Ext.define('App.store.administration.ListOptions', {
 Ext.define('App.store.administration.Lists', {
     model: 'App.model.administration.Lists',
     extend: 'Ext.data.Store',
-	pageSize:300,
+	pageSize: 500,
 	sorters: [
 		{
 			property: 'title',
@@ -34354,11 +34344,6 @@ Ext.define('App.store.administration.Services', {
 	remoteSort: true,
 	autoLoad: false
 }); 
-Ext.define('App.store.administration.TransactionLogs', {
-	model: 'App.model.administration.TransactionLog',
-	extend: 'Ext.data.Store'
-
-});
 Ext.define('App.store.administration.User', {
     model: 'App.model.administration.User',
     extend: 'Ext.data.Store',
@@ -34988,7 +34973,7 @@ Ext.define('App.view.administration.Layout', {
 	               }
 
 	               me.fieldsGrid.getSelectionModel().select(record);
-                   me.msg('Sweet!', _('record_saved'));
+                   me.msg(_('sweet'), _('record_saved'));
                },
                failure:function(batch){
 
@@ -35027,7 +35012,7 @@ Ext.define('App.view.administration.Layout', {
 					me.fieldsGridStore.sync({
 						success:function(){
 							me.previewFormRender();
-							me.msg('Sweet!', _('record_removed'));
+							me.msg(_('sweet'), _('record_removed'));
 						},
 						failure:function(batch){
 							me.msg('Oops!', batch.proxy.reader.rawData.message, true);
@@ -35536,7 +35521,8 @@ Ext.define('App.view.administration.Layout', {
 
         callback(true);
     }
-}); 
+});
+
 Ext.define('App.store.administration.XtypesComboModel', {
 	model: 'App.model.administration.XtypesComboModel',
 	extend: 'Ext.data.Store',
@@ -35628,6 +35614,10 @@ Ext.define('App.store.patient.Disclosures', {
 	model     : 'App.model.patient.Disclosures',
 	remoteSort: false,
 	autoLoad  : false
+});
+Ext.define('App.store.patient.FamilyHistories', {
+	extend: 'Ext.data.Store',
+	model: 'App.model.patient.FamilyHistory'
 });
 Ext.define('App.store.patient.EncounterServices', {
 	extend: 'Ext.data.Store',
@@ -35722,7 +35712,7 @@ Ext.define('App.store.patient.PatientsLabOrderItems', {
 
 
 Ext.define('App.store.patient.PatientsOrderObservations', {
-	extend: 'Ext.data.Store',
+	extend: 'Ext.data.TreeStore',
 	model: 'App.model.patient.PatientsOrderObservation',
 	remoteSort: false,
 	autoLoad: false
@@ -35789,6 +35779,22 @@ Ext.define('App.store.patient.Referrals', {
 
 
 
+Ext.define('App.store.patient.RxOrders', {
+    extend: 'Ext.data.Store',
+    model     : 'App.model.patient.Medications',
+    groupField: 'date_ordered',
+    startCollapsed: true,
+    proxy: {
+        type: 'direct',
+        api: {
+            read: 'Medications.getPatientMedicationsOrders',
+            create: 'Medications.addPatientMedication',
+            update: 'Medications.updatePatientMedication',
+            destroy: 'Medications.destroyPatientMedication'
+        },
+        remoteGroup: false
+    }
+});
 Ext.define('App.store.patient.Surgery', {
 	extend: 'Ext.data.Store',
 	model     : 'App.model.patient.Surgery',
@@ -35868,6 +35874,297 @@ Ext.define('App.store.areas.PoolDropAreas', {
 	pageSize: 10,
 	model   : 'App.model.areas.PoolDropAreas'
 });
+Ext.define('App.controller.Main', {
+	extend: 'Ext.app.Controller',
+
+	refs: [
+		{
+			ref: 'viewport',
+			selector: 'viewport'
+		},
+		{
+			ref: 'ApplicationFacilityCombo',
+			selector: '#ApplicationFacilityCombo'
+		}
+	],
+
+	init: function(){
+		var me = this;
+
+		me.control({
+			'#ApplicationFacilityCombo': {
+				select: me.onApplicationFacilityComboSelect,
+				beforerender: me.onApplicationFacilityComboBeforeRender
+			}
+		});
+
+	},
+
+	onApplicationFacilityComboSelect: function (cmb, records) {
+		var me = this;
+		Facilities.setFacility(records[0].data.option_value, function(provider, response){
+			if(records[0].data.option_value == response.result){
+				// set user global facility value
+				app.user.facility = records[0].data.option_value;
+
+				app.msg(_('sweet'), _('facility') + ' ' + records[0].data.option_name);
+				app.setWindowTitle(records[0].data.option_name);
+				app.nav['App_view_areas_PatientPoolDropZone'].reRenderPoolAreas();
+				app.nav['App_view_areas_FloorPlan'].renderZones();
+				app.getPatientsInPoolArea();
+			}
+		});
+	},
+
+	onApplicationFacilityComboBeforeRender: function (cmb) {
+		cmb.getStore().on('load', this.onFacilityComboLoad, this);
+	},
+
+	onFacilityComboLoad:function(store, records){
+		var rec = store.findRecord('option_value', app.user.facility);
+		this.getApplicationFacilityCombo().setValue(rec);
+		app.setWindowTitle(rec.data.option_name)
+	},
+
+	getCurrentFacility: function () {
+		return this.getApplicationFacilityCombo().findRecordByValue(app.user.facility);
+	}
+
+});
+
+Ext.define('App.controller.BrowserHelper', {
+	extend: 'Ext.app.Controller',
+	requires: [],
+	refs: [
+
+	],
+	socket: undefined,
+	host: 'local.tranextgen.com',
+	port: 9595,
+	connected: false,
+	waiting: false,
+	callback: undefined,
+
+	reconnect_interval: 1000 * 5, // 5 seconds
+	debug: false,
+	initiated: false,
+
+	init: function(){
+		var me = this;
+
+		me.connect();
+
+	},
+
+	connect: function () {
+
+		var me = this;
+
+		if(me.socket) return;
+
+		me.socket = new WebSocket('wss://' + me.host +':' + me.port + '/');
+
+		me.socket.onopen = function (event) {
+			me.onOpen(event.data);
+		};
+		me.socket.onclose = function (event) {
+			me.onClose(event.data);
+		};
+		me.socket.onmessage = function (event) {
+			me.onMessage(event.data);
+		};
+		me.socket.onerror = function (event) {
+			me.onError(event.data);
+		};
+
+	},
+
+	reconnect: function () {
+		var me = this;
+
+		if(!me.initiated) return;
+
+		this.log('reconnect');
+
+		me.connected = false;
+		delete me.socket;
+
+		Ext.Function.defer(function () {
+			me.connect();
+		},me.reconnect_interval);
+	},
+
+	send: function (message, callback) {
+		this.socket.send(message);
+		this.callback = callback;
+	},
+
+	onOpen: function (data) {
+		this.log('onOpen');
+		this.log(data);
+		this.initiated = true;
+		this.connected = true;
+		Ext.Function.defer(function () {
+			app.fireEvent('browserhelperopen', this);
+		},1000);
+	},
+
+	onClose: function (data) {
+		this.log('onClose');
+		this.log(data);
+		this.reconnect();
+		Ext.Function.defer(function () {
+			app.fireEvent('browserhelperclose', this);
+		},1000);
+	},
+
+	onMessage: function (data) {
+		this.log('onMessage');
+		this.log(data);
+
+		data = JSON.parse(data);
+
+		if(data.action && data.action == 'command'){
+			this.log('fireEvent: ' + data.msg);
+			app.fireEvent(data.msg, this);
+		}else{
+
+			// callback is defined
+			if(this.callback){
+				this.callback(data);
+				this.callback = undefined;
+			}
+		}
+
+	},
+
+	onError: function (data) {
+		this.log('onError');
+		this.log(data);
+		this.reconnect();
+	},
+
+
+	log: function (msg) {
+		if(this.debug){
+			say(msg);
+		}
+	},
+
+	sendMessage: function(message, callback){
+
+		if(this.connected){
+			this.send(JSON.stringify(message), callback);
+		}else {
+			app.msg(_('oops'), _('not_conneted'), true);
+		}
+	}
+});
+Ext.define('App.controller.administration.AuditLog', {
+    extend: 'Ext.app.Controller',
+    requires: [],
+
+    refs: [
+        {
+            selector: '#AuditLogWindow',
+            ref: 'AuditLogWindow'
+        },
+        {
+            selector: '#AuditLogWindowGrid',
+            ref: 'AuditLogWindowGrid'
+        }
+    ],
+
+    /**
+     *
+     */
+    init: function(){
+        var me = this;
+
+        me.control({
+            '#AuditLogWindowGrid': {
+                close: me.onAuditLogWindowGridClose
+            }
+        });
+    },
+
+    onAuditLogWindowGridClose: function(){
+        this.getAuditLogWindowGrid().getStore().removeAll();
+    },
+
+    /**
+     *
+     * @param pid               {int}       Example: 1111
+     * @param uid               {int}       Example: 2222
+     * @param eid               {int}       Example: 2222
+     * @param foreign_id        {int}       Example: 3333
+     * @param foreign_table     {string}    Example: worklist_reports
+     * @param event             {string}    Example: create
+     * @param event_description {string}    Example: Report Created
+     */
+    addLog: function(pid, uid, eid, foreign_id, foreign_table, event, event_description){
+        AuditLog.addLog({
+            pid: pid,
+            uid: uid,
+            eid: eid,
+            foreign_id: foreign_id,
+            foreign_table: foreign_table,
+            event: event,
+            event_description: event_description
+        });
+    },
+
+    showLogByRecord: function(record){
+        var me = this,
+            win = me.showLogWindow(),
+            store = me.getAuditLogWindowGrid().getStore();
+
+        store.clearFilter(true);
+
+        store.getProxy().extraParams = { };
+
+        store.filter([
+            {
+                property: 'foreign_id',
+                value: record.get('id')
+            },
+            {
+                property: 'foreign_table',
+                value: record.table.name
+            }
+        ]);
+    },
+
+    showLogByPidEvent: function(pid, event){
+        var me = this,
+            win = me.showLogWindow(),
+            store = me.getAuditLogWindowGrid().getStore();
+
+        store.clearFilter(true);
+
+        store.getProxy().extraParams = { };
+
+        store.filter([
+            {
+                property: 'pid',
+                value: pid
+            },
+            {
+                property: 'event',
+                value: event
+            }
+        ]);
+    },
+
+    showLogWindow: function(){
+        if(!this.getAuditLogWindow()){
+            Ext.create('App.view.administration.AuditLogWindow');
+        }
+        return this.getAuditLogWindow().show();
+    }
+
+});
+
 Ext.define('App.controller.administration.CPT', {
 	extend: 'Ext.app.Controller',
 
@@ -35919,7 +36216,15 @@ Ext.define('App.controller.administration.DataPortability', {
 		{
 			ref:'DataPortabilityPanel',
 			selector:'#DataPortabilityPanel'
-		}
+		},
+		{
+			ref:'DataPortabilityPanelIFrame',
+			selector:'#DataPortabilityPanelIFrame'
+		},
+        {
+            ref: 'ExportFilterForm',
+            selector: '#ExportFilterForm'
+        }
 	],
 
 	init: function() {
@@ -35930,17 +36235,15 @@ Ext.define('App.controller.administration.DataPortability', {
 				click: me.onDataPortabilityExportBtnClick
 			}
 		});
-
 	},
 
 	onDataPortabilityExportBtnClick: function(btn){
+		var iframe = this.getDataPortabilityPanelIFrame(),
+			src = location.origin + location.pathname + 'dataProvider/DataPortability.php?token=' + app.user.token +'&site=' + g('site'),
+            form = this.getExportFilterForm().getForm(),
+            record = form.getValues().getRecord();
 
-		var iframe = Ext.create('App.ux.ManagedIframe',{
-			src: g('url') + '/dataProvider/DataPortability.php?token=' + app.user.token +'&site=' + g('site')
-		});
-
-		this.getDataPortabilityPanel().add(iframe);
-		this.getDataPortabilityPanel().update(_('download_shortly'));
+		iframe.setSrc(src);
 	}
 
 });
@@ -35990,6 +36293,30 @@ Ext.define('App.controller.administration.HL7', {
 		{
 			ref: 'HL7ClientsGrid',
 			selector: '#hl7clientsgrid'
+		},
+		{
+			ref: 'HL7MessagesWindow',
+			selector: '#HL7MessagesWindow'
+		},
+		{
+			ref: 'HL7MessagesGrid',
+			selector: '#HL7MessagesGrid'
+		},
+		{
+			ref: 'HL7MessageViewerWindow',
+			selector: '#HL7MessageViewerWindow'
+		},
+		{
+			ref: 'HL7MessageViewerWindowWarnings',
+			selector: '#HL7MessageViewerWindowWarnings'
+		},
+		{
+			ref: 'HL7MessageViewerWindowMessageField',
+			selector: '#HL7MessageViewerWindowMessageField'
+		},
+		{
+			ref: 'HL7MessageViewerWindowAcknowledgeField',
+			selector: '#HL7MessageViewerWindowAcknowledgeField'
 		}
 	],
 
@@ -36015,6 +36342,12 @@ Ext.define('App.controller.administration.HL7', {
 			},
 			'#hl7clientsgrid #removeHL7ClientBtn': {
 				click: me.onRemoveHL7ClientBtnClick
+			},
+			'#HL7MessagesViewBtn': {
+				click: me.onHL7MessagesViewBtnClick
+			},
+			'#HL7MessagesGrid': {
+				itemdblclick: me.onHL7MessagesGridItemDblClick
 			}
 		});
 
@@ -36092,6 +36425,49 @@ Ext.define('App.controller.administration.HL7', {
 		var multiField = plugin.editor.query('multitextfield')[0],
 			values = multiField.getValue();
 		e.record.set({ allow_ips: values });
+	},
+
+	onHL7MessagesViewBtnClick: function(){
+		this.showHL7MessagesWindow();
+		this.getHL7MessagesGrid().getStore().load();
+	},
+
+	onHL7MessagesGridItemDblClick: function(grid, record){
+		this.viewHL7MessageDetailById(record.get('id'));
+	},
+
+	viewHL7MessageDetailById: function(message_id){
+		var me = this;
+
+		me.showHL7MessageDetailWindow();
+
+		HL7Messages.getMessageById(message_id, function(provider, response){
+
+			var warnings = (response.result.hash !== response.result.current_hash) ?
+				'<span style="color: red">' : '<span style="color: green">';
+			warnings += '<b>' + _('stored_hash') + ':</b> ' + response.result.hash + '<br>';
+			warnings += '<b>' + _('current_hash') + ':</b> ' + response.result.current_hash + '<br>';
+			warnings += '</span>';
+
+			me.getHL7MessageViewerWindowWarnings().update(warnings);
+			me.getHL7MessageViewerWindowMessageField().setValue(response.result.message);
+			me.getHL7MessageViewerWindowAcknowledgeField().setValue(response.result.response);
+
+		});
+	},
+
+	showHL7MessageDetailWindow: function(){
+		if(!this.getHL7MessageViewerWindow()){
+			Ext.create('App.view.administration.HL7MessageViewer');
+		}
+		return this.getHL7MessageViewerWindow().show();
+	},
+
+	showHL7MessagesWindow: function(){
+		if(!this.getHL7MessagesWindow()){
+			Ext.create('App.view.administration.HL7Messages');
+		}
+		return this.getHL7MessagesWindow().show();
 	}
 
 });
@@ -36168,7 +36544,13 @@ Ext.define('App.controller.administration.DecisionSupport', {
 			},
 
 			'#decisionSupportAdminGrid': {
-				beforeedit: me.onDecisionSupportAdminGridBeforeEdit
+				beforeedit: me.onDecisionSupportAdminGridBeforeEdit,
+				edit: me.onDecisionSupportAdminGridEdit,
+				beforeitemcontextmenu: me.onDecisionSupportAdminGridBeforeContextMenu,
+			},
+
+			'#DecisionSupportAdminGridShowLogMenu': {
+				click: me.onDecisionSupportAdminGridShowLogMenuClick
 			},
 
 			'#DecisionSupportProcedureCombo': {
@@ -36196,6 +36578,9 @@ Ext.define('App.controller.administration.DecisionSupport', {
 				beforerender: me.onDecisionSupportSocialHistoryComboBeforeRender
 			}
 		});
+
+		me.logCtrl = me.getController('App.controller.administration.AuditLog');
+
 	},
 
 	onDecisionSupportAdminPanelActive: function(){
@@ -36246,6 +36631,65 @@ Ext.define('App.controller.administration.DecisionSupport', {
 				}
 			});
 		}
+	},
+
+
+	onDecisionSupportAdminGridEdit: function (plugin, context) {
+
+		var description = context.record.get('description') + ' - Updated',
+			active = context.record.get('active'),
+			changes = context.record.getChanges();
+
+		if(!Ext.Object.isEmpty(changes) && changes.active !== undefined){
+
+			if(changes.active){
+				description += ' - Activated';
+			}else{
+				description += ' - Deactivated';
+			}
+		}
+
+		this.logCtrl.addLog(
+			0,
+			app.user.id,
+			0,
+			context.record.get('id'),
+			context.record.table.name,
+			'UPDATE',
+			description
+		);
+	},
+
+	onDecisionSupportAdminGridBeforeContextMenu: function (grid, record, item, index, e) {
+		e.preventDefault();
+		this.showDecisionSupportAdminGridContextMenu(e);
+	},
+
+	showDecisionSupportAdminGridContextMenu: function (e) {
+
+		var me = this;
+		if(!me.gridContextMenu){
+			me.gridContextMenu = Ext.widget('menu', {
+				margin: '0 0 10 0',
+				items: [
+					{
+						text: _('show_log'),
+						itemId: 'DecisionSupportAdminGridShowLogMenu',
+						icon: 'resources/images/icons/icoView.png'
+					}
+				]
+			});
+		}
+
+		me.gridContextMenu.showAt(e.getXY());
+
+		return me.gridContextMenu;
+	},
+
+	onDecisionSupportAdminGridShowLogMenuClick: function () {
+		var record = this.getDecisionSupportAdminGrid().getSelectionModel().getLastSelected();
+
+		this.logCtrl.showLogByRecord(record);
 	},
 
 	onDecisionSupportProcedureComboSelect: function(cmb, records){
@@ -36388,6 +36832,132 @@ Ext.define('App.controller.administration.DecisionSupport', {
 	doRemoveRuleConcept: function(record){
 		record.store.remove(record);
 	}
+
+});
+
+Ext.define('App.controller.administration.Documents', {
+	extend: 'Ext.app.Controller',
+
+	refs: [
+		{
+			ref: 'AdministrationDocuments',
+			selector: '#AdministrationDocuments'
+		},
+		{
+			ref: 'AdministrationDocumentsDefaultsGrid',
+			selector: '#AdministrationDocumentsDefaultsGrid'
+		},
+		{
+			ref: 'AdministrationDocumentsTemplatesGrid',
+			selector: '#AdministrationDocumentsTemplatesGrid'
+		},
+		{
+			ref: 'AdministrationDocumentsTemplatesEditorForm',
+			selector: '#AdministrationDocumentsTemplatesEditorForm'
+		},
+		{
+			ref: 'AdministrationDocumentsTokensGrid',
+			selector: '#AdministrationDocumentsTokensGrid'
+		},
+		{
+			ref: 'AdministrationDocumentsTokenTextField',
+			selector: '#AdministrationDocumentsTokenTextField'
+		},
+		{
+			ref: 'AdministrationDocumentsNewTemplateBtn',
+			selector: '#AdministrationDocumentsNewTemplateBtn'
+		},
+		{
+			ref: 'AdministrationDocumentsPdfTemplatesGrid',
+			selector: '#AdministrationDocumentsPdfTemplatesGrid'
+		},
+		{
+			ref: 'AdministrationDocumentsPdfTemplatesAddBtn',
+			selector: '#AdministrationDocumentsPdfTemplatesAddBtn'
+		}
+	],
+
+	init: function(){
+		var me = this;
+
+		me.control({
+			'#AdministrationDocuments': {
+				activate: me.onAdministrationDocumentsActive
+			},
+			'#AdministrationDocumentsTokensGrid': {
+				afterrender: me.onAdministrationDocumentsTokensGridAfterRender
+			},
+			'#AdministrationDocumentsNewTemplateBtn': {
+				click: me.onAdministrationDocumentsNewTemplateBtnClick
+			},
+			'#AdministrationDocumentsNewDefaulTemplateBtn': {
+				click: me.onAdministrationDocumentsNewDefaulTemplateBtnClick
+			},
+			'#AdministrationDocumentsPdfTemplatesAddBtn': {
+				click: me.onAdministrationDocumentsPdfTemplatesAddBtnClick
+			}
+		});
+	},
+
+	onAdministrationDocumentsPdfTemplatesAddBtnClick: function(){
+
+	},
+
+	onAdministrationDocumentsActive: function(){
+
+	},
+
+	onAdministrationDocumentsNewTemplateBtnClick: function(){
+		var me = this,
+			grid = me.getAdministrationDocumentsTemplatesGrid(),
+			store = grid.getStore();
+
+		grid.editingPlugin.cancelEdit();
+		store.insert(0,
+			{
+				title: _('new_document'),
+				template_type: 'documenttemplate',
+				date: new Date(),
+				type: 1
+			});
+		grid.editingPlugin.startEdit(0, 0);
+	},
+
+	onAdministrationDocumentsNewDefaulTemplateBtnClick: function(){
+		var me = this,
+			grid = me.getAdministrationDocumentsDefaultsGrid(),
+			store = grid.getStore();
+
+		grid.editingPlugin.cancelEdit();
+		store.insert(0,
+			{
+				title: _('new_defaults'),
+				template_type: 'defaulttemplate',
+				date: new Date(),
+				type: 1
+			});
+		grid.editingPlugin.startEdit(0, 0);
+	},
+	
+	onAdministrationDocumentsTokensGridAfterRender: function(grid){
+
+	},
+
+	doCopy: function(grid, record){
+
+		if(!document.queryCommandSupported('copy')){
+			app.msg(_('oops'), _('text_copy_not_supported_by_browser'), true);
+			return;
+		}
+
+		var me = this;
+		grid.editingPlugin.startEdit(record, 0);
+		me.getAdministrationDocumentsTokenTextField().inputEl.dom.select();
+		document.execCommand("copy");
+		app.msg(_('sweet'), _('text_copyed'));
+
+	}
+
 
 });
 
@@ -36732,6 +37302,22 @@ Ext.define('App.controller.administration.Users', {
 		{
 			ref: 'AdminUserGridPanel',
 			selector: '#AdminUserGridPanel'
+		},
+		{
+			ref: 'PasswordExpiredWindow',
+			selector: '#PasswordExpiredWindow'
+		},
+		{
+			ref: 'PasswordExpiredWindowForm',
+			selector: '#PasswordExpiredWindowForm'
+		},
+		{
+			ref: 'PasswordExpiredWindowPasswordField',
+			selector: '#PasswordExpiredWindowPasswordField'
+		},
+		{
+			ref: 'PasswordExpiredWindowConfirmPasswordField',
+			selector: '#PasswordExpiredWindowConfirmPasswordField'
 		}
 	],
 
@@ -36739,6 +37325,9 @@ Ext.define('App.controller.administration.Users', {
 		var me = this;
 
 		me.control({
+			'viewport': {
+				afterrender: me.onApplicationAfterRender
+			},
 			'#AdminUserGridPanel': {
 				beforeedit: me.onAdminUserGridPanelBeforeEdit
 			},
@@ -36747,10 +37336,81 @@ Ext.define('App.controller.administration.Users', {
 			},
 			'#UserGridEditFormProviderCredentializationInactiveBtn': {
 				click: me.onUserGridEditFormProviderCredentializationInactiveBtnClick
+			},
+
+			'#PasswordExpiredWindowUpdateBtn': {
+				click: me.onPasswordExpiredWindowUpdateBtnClick
 			}
 		});
 
 	},
+
+
+	/***********************************************
+	 ** passwrod expiration
+	 ***********************************************/
+
+	onApplicationAfterRender: function (comp) {
+		if(comp.user.password_expired){
+			this.doPasswordExpiredUpdate();
+		}
+	},
+
+	doPasswordExpiredUpdate: function () {
+		this.showPasswordExpiredWindow();
+	},
+
+	showPasswordExpiredWindow: function () {
+		if(!this.getPasswordExpiredWindow()){
+			Ext.create('App.view.administration.PasswordExpiredWindow');
+		}
+		return this.getPasswordExpiredWindow().show();
+	},
+
+	passwordConfirmationValidation: function (value) {
+		if(this.getPasswordExpiredWindowPasswordField().getValue() === value){
+			return true
+		}
+
+		return _('password_confirmation_error');
+	},
+
+	onPasswordExpiredWindowUpdateBtnClick: function () {
+		say('onPasswordExpiredWindowUpdateBtnClick');
+
+		var win = this.getPasswordExpiredWindow(),
+			form = this.getPasswordExpiredWindowForm().getForm(),
+			values = form.getValues();
+
+		if (!form.isValid()) return;
+
+		if(values['old_password'] == ''){
+			return;
+		}
+
+		if(values['new_password'] != values['confirmation_password']){
+			return;
+		}
+
+		values.id = app.user.id;
+
+		User.updatePassword(values, function (response) {
+
+			if(response.success){
+				app.msg(_('sweet'), _('password_changed'));
+				form.reset();
+				win.close();
+				return;
+			}
+
+			app.msg(_('oops'), _(response.message), true);
+		});
+	},
+
+
+
+
+
 
 	onAdminUserGridPanelBeforeEdit: function(plugin, context){
 		var grid = plugin.editor.down('grid'),
@@ -37522,6 +38182,9 @@ Ext.define('App.controller.miscellaneous.Amendments', {
 			'#AmendmentsGrid' :{
 				itemdblclick: me.onAmendmentsPanelItemDblClick
 			},
+			'#PatientAmendmentsPanel' :{
+				itemdblclick: me.onAmendmentsPanelItemDblClick
+			},
 			'#AmendmentDetailsDenyBtn' :{
 				click: me.onAmendmentDetailsDenyBtnClick
 			},
@@ -37640,7 +38303,7 @@ Ext.define('App.controller.miscellaneous.Amendments', {
 		form.loadRecord(record);
 
 
-		if(record.data.amendment_status == 'W'){
+		if(record.data.amendment_status === 'W'){
 
 			me.getAmendmentDetailsUserLiveSearch().setVisible(a('amendments_assign'));
 			me.getAmendmentDetailsAssignBtn().setVisible(a('amendments_assign'));
@@ -37790,8 +38453,6 @@ Ext.define('App.controller.miscellaneous.Amendments', {
 			assigned_user = searchField.getValue();
 
 		if(!searchField.isValid()) return;
-
-
 		me.getAmendmentDetailsWindow().mask(_('saving'));
 
 		record.set({
@@ -37815,9 +38476,7 @@ Ext.define('App.controller.miscellaneous.Amendments', {
 
 
 	doUpdatePatientData: function(data, pid, eid){
-
 		if(data.demographics){
-
 			var panel = app.getActivePanel();
 			if(panel.itemId == 'PatientSummaryPanel'){
 				var values = {};
@@ -37831,6 +38490,7 @@ Ext.define('App.controller.miscellaneous.Amendments', {
 	}
 
 });
+
 Ext.define('App.controller.AlwaysOnTop', {
 	extend: 'Ext.app.Controller',
 
@@ -37875,6 +38535,54 @@ Ext.define('App.controller.AlwaysOnTop', {
 	}
 
 });
+Ext.define('App.controller.Clock', {
+    extend: 'Ext.app.Controller',
+
+	refs:[
+		{
+			ref: 'ApplicationClockContainer',
+			selector: '#ApplicationClockContainer'
+		}
+	],
+
+	init: function() {
+		var me = this;
+
+		me.control({
+			'#ApplicationClockContainer' :{
+				render: me.initClock
+			}
+		});
+
+		/**
+		 * TaskScheduler
+		 */
+		me.cronTask = {
+			scope: me,
+			run: function(){
+				me.clock.update(Ext.Date.format(me.date, 'g:i:s a'));
+				me.date = Ext.Date.add(me.date, Ext.Date.SECOND, 1);
+			},
+			interval: 1000
+		};
+	},
+
+	initClock: function(clock){
+		this.clock = clock;
+		this.date = new Date();
+		Ext.TaskManager.start(this.cronTask);
+	},
+
+	updateClock:function(date){
+		this.date.setHours(date.hours, date.minutes, date.seconds);
+	},
+
+	getTime: function () {
+		return Ext.clone(this.date);
+	}
+
+});
+
 Ext.define('App.controller.Cron', {
     extend: 'Ext.app.Controller',
 
@@ -37884,12 +38592,14 @@ Ext.define('App.controller.Cron', {
 	fns:[
 		'app.getPatientsInPoolArea()',
 		'me.checkSession()',
-		//'CronJob.run()'
+		'me.getTime()'
 	],
 
 	init: function() {
 		var me = this,
             i;
+
+		me.clock = me.getController('Clock');
 
 		/**
 		 * TaskScheduler
@@ -37941,6 +38651,13 @@ Ext.define('App.controller.Cron', {
 			if(!response.result.authorized){
 				window.location.reload();
 			}
+		});
+	},
+
+	getTime: function(){
+		var me = this;
+		AppDate.getDate(function(date){
+			me.clock.updateClock(date);
 		});
 	}
 
@@ -38081,7 +38798,7 @@ Ext.define('App.controller.DualScreen', {
 		var me = this;
 		if(me.appMask == null){
 			me.appMask = new Ext.LoadMask(me.getDualViewport(), {
-				msg : '<img height="86" width="254" src="resources/images/gaiaehr-med-dark.png"><p>' + msg + '</p>',
+				msg : '<img height="190" width="190" src="resources/images/logo_190_190.jpg"><p>' + msg + '</p>',
 				maskCls: 'dualAppMask',
 				cls: 'dualAppMaskMsg',
 				autoShow: true
@@ -38166,11 +38883,13 @@ Ext.define('App.controller.InfoButton', {
 
 	],
 
+	language: 'patient',
+
 	init: function(){
 		var me = this;
 
 		me.medline  = 'http://apps2.nlm.nih.gov/medlineplus/services/mpconnect.cfm?';
-		me.language = _('lang_code').match(/^es/) ? 'es' : 'en';
+
 		me.codeSytem = {
 			'ICD10CM': '2.16.840.1.113883.6.90',
 			'ICD10-CM': '2.16.840.1.113883.6.90',
@@ -38199,7 +38918,12 @@ Ext.define('App.controller.InfoButton', {
 		var url = me.medline;
 		url += 'mainSearchCriteria.v.c=' + code;
 		url += '&mainSearchCriteria.v.cs=' + me.codeSytem[codeType];
-		url += '&informationRecipient.languageCode.c=' + me.language;
+
+		if(me.language == 'patient' && app.patient.record && app.patient.record.get('language') == 'spa'){
+			url += '&informationRecipient.languageCode.c=es';
+		}else {
+			url += '&informationRecipient.languageCode.c=en';
+		}
 
 		window.open(url, "_blank", "toolbar=no, scrollbars=yes, resizable=yes, top=10, left=10, width=1000, height=600");
 //		WebSearchCodes.Search({ code: code, codeType: codeType, codeText: codeText }, function(data){
@@ -38352,6 +39076,14 @@ Ext.define('App.controller.LogOut', {
 			}
 		});
 
+		window.addEventListener("message", me.receiveMessage, false);
+
+	},
+
+	receiveMessage: function (event) {
+    	if(event.data == 'captureActivity'){
+		    App.ux.ActivityMonitor.captureActivity();
+	    }
 	},
 
 	onNavigationBeforeRender:function(treepanel){
@@ -38425,11 +39157,11 @@ Ext.define('App.controller.LogOut', {
 		}
 	},
 
-	appLogout: function(auto){
+	appLogout: function(force){
 		var me = this,
 			nav = me.getController('Navigation');
 
-		if(auto === true){
+		if(force === true){
 			me.ActivityMonitor(false);
 			if(app.patient.pid) Patient.unsetPatient(app.patient.pid);
 			authProcedures.unAuth(function(){
@@ -38440,7 +39172,7 @@ Ext.define('App.controller.LogOut', {
 		}else{
 			Ext.Msg.show({
 				title: _('please_confirm') + '...',
-				msg: _('are_you_sure_to_quit') + ' GaiaEHR?',
+				msg: _('are_you_sure_to_quit') + ' MD Timeline?',
 				icon: Ext.MessageBox.QUESTION,
 				buttons: Ext.Msg.YESNO,
 				fn: function(btn){
@@ -39037,9 +39769,8 @@ Ext.define('App.controller.Theme', {
 		btn.action = g('mdtimeline_theme');
 		btn.setText(btn.action == 'dark' ? _('light_theme') : _('dark_theme'));
 
-
-		say('onAppThemeSwitcherBeforeRender');
-		say(btn.action);
+		// say('onAppThemeSwitcherBeforeRender');
+		// say(btn.action);
 	},
 
 	onAppThemeSwitcherClick: function(btn){
@@ -39065,13 +39796,13 @@ Ext.define('App.controller.Theme', {
 
 	goLight: function(btn){
 		btn.action = 'light';
-		Ext.util.Cookies.set('mdtimeline_theme', 'light', Ext.Date.add(new Date(), Ext.Date.YEAR, 1));
+		Ext.state.Manager.set('mdtimeline_theme', 'light');
 		window.location.reload();
 	},
 
 	goDark: function(btn){
 		btn.action = 'dark';
-		Ext.util.Cookies.set('mdtimeline_theme', 'dark', Ext.Date.add(new Date(), Ext.Date.YEAR, 1));
+		Ext.state.Manager.set('mdtimeline_theme', 'dark');
 		window.location.reload();
 	}
 
@@ -39094,7 +39825,15 @@ Ext.define('App.controller.patient.ActiveProblems', {
 		{
 			ref: 'AddActiveProblemBtn',
 			selector: 'patientactiveproblemspanel #addActiveProblemBtn'
-		}
+		},
+        {
+            ref: 'PatientProblemsReconciledBtn',
+            selector: '#PatientProblemsReconciledBtn'
+        },
+        {
+            ref: 'PatientProblemsActiveBtn',
+            selector: '#PatientProblemsActiveBtn'
+        }
 	],
 
 	init: function(){
@@ -39111,7 +39850,13 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			},
 			'patientactiveproblemspanel #addActiveProblemBtn':{
 				click: me.onAddActiveProblemBtnClick
-			}
+			},
+            '#PatientProblemsReconciledBtn': {
+                click: me.onPatientProblemsReconciledBtnClick
+            },
+            '#PatientProblemsActiveBtn': {
+                click: me.onPatientProblemsActiveBtnClick
+            }
 		});
 	},
 
@@ -39133,16 +39878,40 @@ Ext.define('App.controller.patient.ActiveProblems', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	onActiveProblemsGridActive:function(grid){
-		var store = grid.getStore();
+    onPatientProblemsReconciledBtnClick: function(){
+        this.onActiveProblemsGridActive();
+    },
+
+    onPatientProblemsActiveBtnClick: function(){
+        this.onActiveProblemsGridActive();
+    },
+
+	onActiveProblemsGridActive:function(){
+		var grid = this.getActiveProblemsGrid(),
+            store = grid.getStore(),
+            reconciled = this.getPatientProblemsReconciledBtn().pressed,
+            onlyActive = this.getPatientProblemsActiveBtn().pressed,
+			filters = [
+				{
+					property: 'pid',
+					value: app.patient.pid
+				}
+			];
+
+		if(onlyActive){
+			Ext.Array.push(filters, {
+				property: 'status_code',
+				value: '55561003'
+			});
+		}
 
 		store.clearFilter(true);
-		store.filter([
-			{
-				property: 'pid',
-				value: app.patient.pid
-			}
-		]);
+        store.load({
+            filters: filters,
+            params: {
+                reconciled: reconciled
+            }
+        });
 	},
 
 	onActiveProblemLiveSearchSelect:function(cmb, records){
@@ -39160,11 +39929,12 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			record = form.getRecord();
 
 		record.set({
+			status: records[0].data.option_name,
 			status_code: records[0].data.code,
 			status_code_type: records[0].data.code_type
 		});
-
 	}
+
 });
 
 Ext.define('App.controller.patient.AdvanceDirectives', {
@@ -39235,6 +40005,145 @@ Ext.define('App.controller.patient.AdvanceDirectives', {
 	}
 
 });
+Ext.define('App.controller.patient.Alerts', {
+	extend: 'Ext.app.Controller',
+	requires: [],
+	refs: [
+		{
+			ref: 'AlertsAddBtn',
+			selector: '#AlertsAddBtn'
+		},
+		{
+			ref: 'PatientSummaryAlertsPanel',
+			selector: '#PatientSummaryAlertsPanel'
+		}
+	],
+
+	init: function(){
+		var me = this;
+		me.control({
+			'viewport': {
+				encounterload: me.onEncounterOpen,
+				patientset: me.onPatientSet
+			},
+			'#PatientSummaryAlertsPanel': {
+				activate: me.onPatientSummaryAlertsPanelActivate
+			},
+			'#AlertsAddBtn': {
+				click: me.onAlertsAddBtnClick
+			},
+			'#AlertsAlertOkBtn': {
+				click: me.onAlertsAlertOkBtnClick
+			},
+			'#AlertsAlertCancelBtn': {
+				click: me.onAlertsAlertCancelBtnClick
+			}
+		});
+	},
+
+	onPatientSummaryAlertsPanelActivate: function(){
+		this.getPatientSummaryAlertsPanel().getStore().load({
+			filters: [
+				{
+					property: 'pid',
+					value: app.patient.pid
+				}
+			]
+		});
+	},
+
+	onAlertsAddBtnClick: function(btn){
+		var grid = btn.up('grid'),
+			store = grid.store;
+
+		grid.plugins[0].cancelEdit();
+		store.insert(0, {
+			date: new Date(),
+			pid: app.patient.pid,
+			uid: app.user.id,
+			eid: app.patient.eid
+		});
+		grid.plugins[0].startEdit(0, 0);
+	},
+
+	onAlertsAlertOkBtnClick: function(btn){
+		var win = btn.up('window'),
+			store = win.down('grid').getStore();
+
+		store.sync();
+		win.close();
+	},
+
+	onAlertsAlertCancelBtnClick: function(btn){
+		var win = btn.up('window'),
+			store = win.down('grid').getStore();
+
+		store.rejectChanges();
+		win.close();
+	},
+
+	onPatientSet: function(patient){
+		this.getPatientAlerts('Administrative', patient.pid);
+	},
+
+	onEncounterOpen: function(encounterRecord){
+		this.getPatientAlerts('Clinical', encounterRecord.data.pid);
+	},
+
+	getPatientAlerts: function(type, pid){
+		var me = this,
+			action = 'RemindersAlertWindow' + type,
+			query = Ext.ComponentQuery.query('window[action=' + action + ']'),
+			store,
+			win;
+
+		if(query.length === 0){
+			win = Ext.create('App.view.patient.AlertWindow',{
+				title: _('alerts') + ' (' + _(type.toLowerCase()) + ')',
+				action: action
+			});
+		}else{
+			win = query[0];
+		}
+
+		store = win.down('grid').getStore();
+		win.close();
+		store.load({
+			filters: [
+				{
+					property: 'pid',
+					value: pid
+				},
+				{
+					property: 'type',
+					value: type
+				},
+				{
+					property: 'active',
+					value: true
+				}
+			],
+			callback: function(records){
+				if(records.length > 0){
+					me.playSound();
+					win.show();
+				}
+			}
+		});
+	},
+
+	playSound: function(){
+		if(!this.alertAudio){
+			this.alertAudio = Ext.core.DomHelper.append(Ext.getBody(), {
+				html: '<audio autoplay id="reminderAlert" ><source src="resources/audio/sweetalertsound4.wav" type="audio/wav"></audio>'
+			}, true);
+		}else{
+			this.alertAudio.dom.firstChild.currentTime=0;
+			this.alertAudio.dom.firstChild.play();
+		}
+	}
+
+});
 Ext.define('App.controller.patient.Allergies', {
 	extend: 'Ext.app.Controller',
 	requires: [
@@ -39258,6 +40167,10 @@ Ext.define('App.controller.patient.Allergies', {
 			selector: 'patientallergiespanel #activeAllergyBtn'
 		},
 		{
+			ref: 'PatientAllergyReconciledBtn',
+			selector: '#PatientAllergyReconciledBtn'
+		},
+		{
 			ref: 'AllergyCombo',
 			selector: '#allergyCombo'
 		},
@@ -39265,7 +40178,6 @@ Ext.define('App.controller.patient.Allergies', {
 			ref: 'AllergyTypesCombo',
 			selector: '#allergyTypesCombo'
 		},
-
 		{
 			ref: 'AllergySearchCombo',
 			selector: '#allergySearchCombo'
@@ -39300,6 +40212,9 @@ Ext.define('App.controller.patient.Allergies', {
 			},
 			'patientallergiespanel #activeAllergyBtn': {
 				toggle: me.onActiveAllergyBtnToggle
+			},
+			'patientallergiespanel #PatientAllergyReconciledBtn': {
+				toggle: me.onPatientAllergyReconciledBtnToggle
 			},
 			'patientallergiespanel #reviewAllergiesBtn': {
 				toggle: me.onReviewAllergiesBtnClick
@@ -39446,14 +40361,33 @@ Ext.define('App.controller.patient.Allergies', {
     },
 
 	onAllergiesGridActivate: function(){
-		var store = this.getAllergiesGrid().getStore();
+		var store = this.getAllergiesGrid().getStore(),
+			reconciled = this.getPatientAllergyReconciledBtn().pressed,
+			active = this.getActiveAllergyBtn().pressed,
+			filters = [
+				{
+					property: 'pid',
+					value: app.patient.pid
+				}
+			];
+
+		if(reconciled){
+			filters = Ext.Array.push(filters, {
+				property: 'reconciled',
+				operator: '!=',
+				value: '1'
+			});
+		}
+
+		if(active){
+			filters = Ext.Array.push(filters, {
+				property: 'status',
+				value: 'Active'
+			});
+		}
+
 		store.clearFilter(true);
-		store.filter([
-			{
-				property: 'pid',
-				value: app.patient.pid
-			}
-		]);
+		store.filter(filters);
 	},
 
 	onAddAllergyBtnClick: function(){
@@ -39474,32 +40408,11 @@ Ext.define('App.controller.patient.Allergies', {
 	},
 
 	onActiveAllergyBtnToggle: function(btn, pressed){
-		var me = this,
-			store = me.getAllergiesGrid().getStore();
+		this.onAllergiesGridActivate();
+	},
 
-		if(pressed){
-			store.load({
-				filters: [
-					{
-						property: 'pid',
-						value: app.patient.pid
-					},
-					{
-						property: 'status',
-						value: 'Active'
-					}
-				]
-			})
-		}else{
-			store.load({
-				filters: [
-					{
-						property: 'pid',
-						value: app.patient.pid
-					}
-				]
-			})
-		}
+	onPatientAllergyReconciledBtnToggle: function(btn, pressed){
+		this.onAllergiesGridActivate();
 	},
 
 	beforeAllergyEdit: function(editor, e){
@@ -39517,6 +40430,220 @@ Ext.define('App.controller.patient.Allergies', {
 				app.msg(_('oops'), _('items_to_review_entry_error'));
 			}
 		});
+	}
+
+});
+
+Ext.define('App.controller.patient.EducationResources', {
+	extend: 'Ext.app.Controller',
+	requires: [
+
+	],
+	refs: [
+		{
+			ref: 'EducationResourcesGrid',
+			selector: '#EducationResourcesGrid'
+		},
+		{
+			ref: 'EducationResourcesGridAddBtn',
+			selector: '#EducationResourcesGridAddBtn'
+		},
+		{
+			ref: 'EducationResourcesGridLanguageField',
+			selector: '#EducationResourcesGridLanguageField'
+		},
+		{
+			ref: 'EducationResourcesGridSearchField',
+			selector: '#EducationResourcesGridSearchField'
+		},
+		{
+			ref: 'EducationResourcesGridFindEncounterRelatedBtn',
+			selector: '#EducationResourcesGridFindEncounterRelatedBtn'
+		},
+		{
+			ref: 'EducationResourcesPreviewWindow',
+			selector: '#EducationResourcesPreviewWindow'
+		},
+		{
+			ref: 'EducationResourcesPreviewWindowGrid',
+			selector: '#EducationResourcesPreviewWindowGrid'
+		}
+	],
+
+	init: function(){
+		var me = this;
+		me.control({
+			'viewport':{
+				beforeencounterload: me.onAppEncounterLoad,
+				encountersync: me.onAppEncounterSync
+			},
+			'#EducationResourcesGrid':{
+				itemdblclick: me.onEducationResourcesGridItemDblClick
+			},
+			'#EducationResourcesGridLanguageField':{
+				change: me.onEducationResourcesGridLanguageFieldChange
+			},
+			'#EducationResourcesGridSearchField':{
+				select: me.onEducationResourcesGridSearchFieldSelect
+			},
+			'#EducationResourcesGridFindEncounterRelatedBtn':{
+				click: me.onEducationResourcesGridFindEncounterRelatedBtnClick
+			},
+			'#EducationResourcesPreviewWindowCancelBtn':{
+				click: me.onEducationResourcesPreviewWindowCancelBtnClick
+			},
+			'#EducationResourcesPreviewWindowSelectBtn':{
+				click: me.onEducationResourcesPreviewWindowSelectBtnClick
+			},
+			'#EducationResourcesPreviewWindow':{
+				close: me.onEducationResourcesPreviewWindowClose
+			},
+			'#EducationResourcesPreviewWindowGrid':{
+				itemdblclick: me.onEducationResourcesPreviewWindowGridItemDblClick
+			}
+		});
+	},
+
+	onEducationResourcesGridFindEncounterRelatedBtnClick: function () {
+
+		var me = this,
+			language_field_value = me.getEducationResourcesGridLanguageField().getValue(),
+			params = {
+				eid: app.patient.eid,
+				language: 'en'
+			};
+
+		if(language_field_value == 'patient'){
+			if (app.patient.record && app.patient.record.get('language') == 'spa') {
+				params.language = 'es';
+			}
+		}else {
+			if(language_field_value == 'spa' || language_field_value == 'es' || language_field_value == 'esp'){
+				params.language = 'es';
+			}
+		}
+
+		me.getEducationResourcesGrid().el.mask(_('searching'));
+
+		EducationResources.findEncounterEducationResources(params, function (response) {
+
+			me.getEducationResourcesGrid().el.unmask();
+
+			if(response.length > 0){
+				me.showEducationResourcesFinderPreview();
+				me.getEducationResourcesPreviewWindowGrid().getStore().loadRawData(response);
+			}else {
+				app.msg(_('info'), _('no_education_resources_found'));
+			}
+		});
+	},
+
+	onEducationResourcesPreviewWindowClose: function () {
+		this.getEducationResourcesPreviewWindowGrid().getStore().removeAll();
+	},
+
+	onEducationResourcesPreviewWindowCancelBtnClick: function () {
+		this.getEducationResourcesPreviewWindow().close();
+	},
+
+	onEducationResourcesPreviewWindowSelectBtnClick: function () {
+
+		var me = this,
+			selection = this.getEducationResourcesPreviewWindowGrid().getSelectionModel().getSelection(),
+			store = this.getEducationResourcesGrid().getStore();
+
+		selection.forEach(function (record) {
+			var data = Ext.clone(record.data);
+			data.pid = app.patient.pid;
+			data.eid = app.patient.eid;
+			data.uid = app.user.id;
+			store.add(data);
+		});
+
+		me.getEducationResourcesPreviewWindow().close();
+	},
+
+	onEducationResourcesPreviewWindowGridItemDblClick: function (grid, document_record) {
+		window.open(document_record.get('url'), '_blank');
+	},
+
+	onEducationResourcesGridItemDblClick: function (grid, document_record) {
+		window.open(document_record.get('url'), '_blank');
+	},
+
+	onAppEncounterLoad: function(encounter){
+		this.getEducationResourcesGrid().reconfigure(encounter.educationresources());
+		encounter.educationresources().load();
+	},
+
+	onAppEncounterSync: function(encounter){
+		encounter.encounter.educationresources().sync();
+	},
+
+	onEducationResourcesGridLanguageFieldChange: function (cmb, value) {
+		this.getEducationResourcesGridSearchField().language = value;
+	},
+
+	onEducationResourcesGridSearchFieldSelect: function (field, selection) {
+		var store = this.getEducationResourcesGrid().getStore();
+
+		store.add({
+			pid: app.patient.pid,
+			eid: app.patient.eid,
+			uid: app.user.id,
+			title: selection[0].get('title'),
+			url: selection[0].get('url'),
+			snippet: selection[0].get('snippet'),
+			organization_name: selection[0].get('organizationName')
+		});
+
+	},
+
+	showEducationResourcesFinderPreview: function () {
+
+		if(!this.getEducationResourcesPreviewWindow()){
+			Ext.create('Ext.window.Window',{
+				title: _('select_education_resources'),
+				modal: true,
+				layout: 'fit',
+				itemId: 'EducationResourcesPreviewWindow',
+				bodyPadding: 5,
+				closeAction: 'hide',
+				items: [
+					{
+						xtype:'grid',
+						width: 700,
+						height: 200,
+						selType: 'checkboxmodel',
+						itemId: 'EducationResourcesPreviewWindowGrid',
+						store: Ext.create('App.store.patient.EducationResources'),
+						columns:[
+							{
+								text: _('title'),
+								dataIndex: 'title',
+								flex: 1
+							},
+							{
+								text: _('organization'),
+								dataIndex: 'organization_name',
+								flex: 1
+							}
+						]
+					}
+				],
+				buttons: [
+					{
+						text: _('cancel'),
+						itemId: 'EducationResourcesPreviewWindowCancelBtn'
+					},
+					{
+						text: _('select'),
+						itemId: 'EducationResourcesPreviewWindowSelectBtn'
+					}
+				]
+			});
+		}
+		return this.getEducationResourcesPreviewWindow().show();
 	}
 
 });
@@ -39906,67 +41033,227 @@ Ext.define('App.controller.patient.CCD', {
 			'#exportCcdBtn': {
 				click: me.onExportCcdBtnClick
 			},
+			'#importCcdBtn': {
+				click: me.onImportCcdBtnClick
+			},
 			'#printCcdBtn': {
 				click: me.onPrintCcdBtnClick
 			},
-			'#PatientCcdPanelEncounterCmb': {
-				select: me.onPatientCcdPanelEncounterCmbSelect
-			}
+            '#PatientCcdPanelEncounterCmb':{
+			    select: me.onPatientCcdPanelEncounterCmbSelect
+            }
 		});
+
+		me.importCtrl = this.getController('patient.CCDImport');
+		me.disclosuresCtrl = this.getController('patient.Disclosures');
+		me.logCtrl = this.getController('administration.AuditLog');
 	},
 
 	eid: null,
 
+	loadPatientEncounters: function(){
+		var me = this,
+			cmb = me.getPatientCcdPanelEncounterCmb(),
+			store = cmb.store;
+
+		if(app.patient.pid == null){
+			store.removeAll();
+			cmb.reset();
+		}else{
+			store.load({
+				filters: [
+					{
+						property: 'pid',
+						value: app.patient.pid
+					}
+				]
+			});
+		}
+	},
+
 	onPanelActivate: function(panel){
-		panel.down('toolbar').down('#PatientCcdPanelEncounterCmb').setVisible(this.eid === null);
+
+		if(this.eid === null){
+			panel.down('toolbar').down('#PatientCcdPanelEncounterCmb').setVisible(true);
+			this.loadPatientEncounters();
+		}else{
+			panel.down('toolbar').down('#PatientCcdPanelEncounterCmb').setVisible(false);
+		}
+
 		this.onViewCcdBtnClick(panel.down('toolbar').down('button'));
 	},
 
 	onViewCcdBtnClick: function(btn){
+
+		var eid = this.getEid(btn);
+
 		btn.up('panel').query('miframe')[0].setSrc(
-			'dataProvider/CCDDocument.php?action=view&site=' + window.site +
+			'dataProvider/CCDDocument.php?' +
+            'action=view' +
+            '&site=' + window.site +
 			'&pid=' + app.patient.pid +
-			'&eid=' + this.getEid(btn) +
+			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(btn) +
 			'&token=' + app.user.token
 		);
+        btn.up('panel').query('miframe')[0].el.unmask();
+
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'VIEW',
+            eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
+		);
+
+        TransactionLog.saveExportLog({
+            pid: app.patient.pid,
+            uid: app.user.id,
+            eid: eid,
+            event: eid ? 'Patient_CCDA_VIEWED' : 'Encounter_CCDA_VIEWED'
+        });
 	},
 
 	onArchiveCcdBtnClick: function(btn){
+
+		var eid = this.getEid(btn);
+
 		btn.up('panel').query('miframe')[0].setSrc(
-			'dataProvider/CCDDocument.php?action=archive&site=' + window.site +
+			'dataProvider/CCDDocument.php?' +
+            'action=archive&' +
+            'site=' + window.site +
 			'&pid=' + app.patient.pid +
-			'&eid=' + this.getEid(btn) +
+			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(btn) +
 			'&token=' + app.user.token
 		);
+        btn.up('panel').query('miframe')[0].el.unmask();
+
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'ARCHIVE',
+            eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
+		);
+
+        TransactionLog.saveExportLog({
+            pid: app.patient.pid,
+            uid: app.user.id,
+            eid: eid,
+            event: eid ? 'Patient_CCDA_ARCHIVED' : 'Encounter_CCDA_ARCHIVED'
+        });
+
 	},
 
 	onExportCcdBtnClick: function(btn){
+
+		var eid = this.getEid(btn);
+
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?action=export&site=' + window.site +
 			'&pid=' + app.patient.pid +
-			'&eid=' + this.getEid(btn) +
+			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(btn) +
 			'&token=' + app.user.token
 		);
-	},
+        btn.up('panel').query('miframe')[0].el.unmask();
 
-	onPatientCcdPanelEncounterCmbSelect: function(cmb, records){
-		cmb.selectedRecord = records[0];
-		cmb.up('panel').query('miframe')[0].setSrc(
-			'dataProvider/CCDDocument.php?action=view&site=' + window.site +
-			'&pid=' + app.patient.pid +
-			'&eid=' + this.getEid(cmb) +
-			'&exclude=' + this.getExclusions(cmb) +
-			'&token=' + app.user.token
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'EXPORT',
+            eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
 		);
+
+        TransactionLog.saveExportLog({
+            pid: app.patient.pid,
+            uid: app.user.id,
+            eid: eid,
+            event: eid ? 'Patient_CCDA_Exported' : 'Encounter_CCDA_Exported'
+        });
+
+		this.disclosuresCtrl.addRawDisclosure({
+			pid: app.patient.pid,
+			eid: eid,
+			uid: app.user.id,
+			date: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
+			type: 'Health care operations',
+			recipient: 'patient',
+			description: 'Clinical Summary Provided (Exported)',
+			active: 1
+		});
 	},
 
 	onPrintCcdBtnClick: function(btn){
 		var cont = btn.up('panel').query('miframe')[0].frameElement.dom.contentWindow;
 		cont.focus();
 		cont.print();
+
+		var eid = this.getEid(btn);
+
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'PRINT',
+            eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
+		);
+
+        TransactionLog.saveExportLog({
+            pid: app.patient.pid,
+            uid: app.user.id,
+            eid: eid,
+            event: eid ? 'Patient_CCDA_PRINTED' : 'Encounter_CCDA_PRINTED'
+        });
+
+		this.disclosuresCtrl.addRawDisclosure({
+			pid: app.patient.pid,
+			eid: eid,
+			uid: app.user.id,
+			date: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
+			type: 'Health care operations',
+			recipient: 'patient',
+			description: 'Clinical Summary Provided (PRINTED)',
+			active: 1
+		});
+	},
+
+	onPatientCcdPanelEncounterCmbSelect: function(cmb, records){
+
+		var eid = this.getEid(cmb);
+
+		cmb.selectedRecord = records[0];
+
+		cmb.up('panel').query('miframe')[0].setSrc(
+			'dataProvider/CCDDocument.php?action=view&site=' + window.site +
+			'&pid=' + app.patient.pid +
+			'&eid=' + eid +
+			'&exclude=' + this.getExclusions(cmb) +
+			'&token=' + app.user.token
+		);
+		cmb.up('panel').query('miframe')[0].el.unmask();
+
+		this.logCtrl.addLog(
+			app.patient.pid,
+			app.user.id,
+			eid,
+			'encounters',
+			'VIEW',
+			eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
+		);
+
+        TransactionLog.saveExportLog({
+            pid: app.patient.pid,
+            uid: app.user.id,
+            eid: eid,
+            event: eid ? 'Patient_CCDA_VIEWED' : 'Encounter_CCDA_VIEWED'
+        });
 	},
 
 	getEid: function(cmp){
@@ -39984,6 +41271,29 @@ Ext.define('App.controller.patient.CCD', {
 		var values = cmp.up('toolbar').query('#PatientCcdPanelExcludeCheckBoxGroup')[0].getValue(),
 			excludes = values.exclude || [];
 		return excludes.join ? excludes.join(',') : excludes;
+	},
+
+	onImportCcdBtnClick: function(btn){
+
+		var me = this,
+			win = Ext.create('App.ux.form.fields.UploadString');
+
+		win.allowExtensions = ['xml','ccd','cda','ccda'];
+		win.on('uploadready', function(comp, stringXml){
+			me.getDocumentData(stringXml);
+		});
+
+		win.show();
+	},
+
+	getDocumentData: function(stringXml){
+		var me = this;
+
+		CCDDocumentParse.parseDocument(stringXml, function(ccdData){
+			me.importCtrl.validatePosibleDuplicates = false;
+			me.importCtrl.CcdImport(ccdData, app.patient.pid);
+			me.importCtrl.validatePosibleDuplicates = true;
+		});
 	}
 
 });
@@ -40114,14 +41424,28 @@ Ext.define('App.controller.patient.CCDImport', {
 				click: me.onCcdImportPreviewWindowCancelBtnClick
 			}
 		});
+
+		me.validatePosibleDuplicates = true;
+
+		me.on('importcomplete', me.doPatientSectionsImportComplete, me);
+
 	},
 
-	CcdImport: function(ccdData){
+	isSystemReconciliation: function () {
+		return this.getCcdImportWindow().enableSystemReconciliation;
+	},
+
+	CcdImport: function(ccdData, mergePid){
 		if(!this.getCcdImportWindow()){
 			Ext.create('App.view.patient.windows.CCDImport');
 		}
 		this.getCcdImportWindow().ccdData = ccdData;
 		this.getCcdImportWindow().show();
+
+		if(mergePid){
+			this.doLoadsystemPatientData(mergePid);
+		}
+
 	},
 
 	onCcdImportWindowShow: function(win){
@@ -40130,8 +41454,8 @@ Ext.define('App.controller.patient.CCDImport', {
 
     /*
     Event when the CDA Import and Viewer shows up.
-    Also will check for duplicates in the database and if a posible duplicate is found
-    show the posible duplicate window
+    Also will check for duplicates in the database and if a possible duplicate is found
+    show the possible duplicate window
      */
 	doLoadCcdData: function(data){
 		var me = this,
@@ -40140,17 +41464,20 @@ Ext.define('App.controller.patient.CCDImport', {
             phone;
         ccdPatientForm.loadRecord(patient);
 
-        App.app.getController('patient.Patient').lookForPossibleDuplicates(
-            {
-                fname: patient.data.fname,
-                lname: patient.data.lname,
-                sex: patient.data.sex,
-                DOB: patient.data.DOB
-            },
-            'ccdImportDuplicateAction',
-            function(patient) {
-            }
-        );
+		if(me.validatePosibleDuplicates){
+			App.app.getController('patient.Patient').lookForPossibleDuplicates(
+				{
+					fname: patient.data.fname,
+					lname: patient.data.lname,
+					sex: patient.data.sex,
+					DOB: patient.data.DOB
+				},
+				'ccdImportDuplicateAction',
+				function(patient){
+
+				}
+			);
+		}
 
 		// list 59 ethnicity
 		// list 14 race
@@ -40168,10 +41495,7 @@ Ext.define('App.controller.patient.CCDImport', {
 		}
 
         if(data.patient.pid && data.patient.pid !== '') {
-            PatientContacts.getSelfContact(data.patient.pid, function (response) {
-                phone = response.phone_use_code + '-' + response.phone_area_code + '-' + response.phone_local_number
-                ccdPatientForm.findField('phones').setValue(phone);
-            });
+	        ccdPatientForm.findField('phones').setValue(patient.get('home_phone'));
         }
 
 		if(data){
@@ -40202,10 +41526,10 @@ Ext.define('App.controller.patient.CCDImport', {
         if(win.action != 'ccdImportDuplicateAction') return;
 
         store.removeAll();
-        me.doLoadMergePatientData(record.data.pid);
+        me.doLoadsystemPatientData(record.data.pid);
         cmb.select(record);
         win.close();
-        me.promptVerifyPatientImport();
+        //me.promptVerifyPatientImport(record);
     },
 
 	reconfigureGrid: function(getter, data){
@@ -40228,11 +41552,11 @@ Ext.define('App.controller.patient.CCDImport', {
 			app.msg(_('warning'), _('records_date_of_birth_are_not_equal'), true);
 		}
 
-		me.doLoadMergePatientData(records[0].data.pid);
+		me.doLoadsystemPatientData(records[0].data.pid);
 
 	},
 
-	doLoadMergePatientData: function(pid){
+	doLoadsystemPatientData: function(pid){
 		var me = this,
 			pForm = me.getCcdPatientPatientForm().getForm(),
             phone;
@@ -40253,12 +41577,7 @@ Ext.define('App.controller.patient.CCDImport', {
 					});
 				}
 
-                if(patient.data.pid) {
-                    PatientContacts.getSelfContact(patient.data.pid, function (response) {
-                        phone = response.phone_use_code + '-' + response.phone_area_code + '-' + response.phone_local_number
-                        pForm.findField('phones').setValue(phone);
-                    });
-                }
+				pForm.findField('phones').setValue(patient.get('home_phone'));
 
 				me.getCcdPatientMedicationsGrid().reconfigure(patient.medications());
 				patient.medications().load({
@@ -40289,12 +41608,22 @@ Ext.define('App.controller.patient.CCDImport', {
 			importMedications = me.getCcdImportMedicationsGrid().getSelectionModel().getSelection(),
 			importAllergies = me.getCcdImportAllergiesGrid().getSelectionModel().getSelection(),
 
-			mergePatient = me.getCcdPatientPatientForm().getForm().getRecord(),
-			mergeActiveProblems = me.getCcdPatientActiveProblemsGrid().getStore().data.items,
-			mergeMedications = me.getCcdPatientMedicationsGrid().getStore().data.items,
-			mergeAllergies = me.getCcdPatientAllergiesGrid().getStore().data.items,
+			systemPatient = me.getCcdPatientPatientForm().getForm().getRecord(),
+			systemActiveProblems = me.getCcdPatientActiveProblemsGrid().getStore().data.items,
+			systemMedications = me.getCcdPatientMedicationsGrid().getStore().data.items,
+			systemAllergies = me.getCcdPatientAllergiesGrid().getStore().data.items,
 
-			isMerge = mergePatient !== undefined,
+			systemSelectionActiveProblems = me.getCcdPatientActiveProblemsGrid().getSelectionModel().getSelection(),
+			systemSelectionMedications = me.getCcdPatientMedicationsGrid().getSelectionModel().getSelection(),
+			systemSelectionAllergies = me.getCcdPatientAllergiesGrid().getSelectionModel().getSelection(),
+
+			systemReconciliationActiveProblems = [],
+			systemReconciliationMedications = [],
+			systemReconciliationAllergies = [],
+
+			isMerge = systemPatient !== undefined,
+
+			isSystemReconciliation = me.isSystemReconciliation(),
 
 			i, store, records,
 
@@ -40311,6 +41640,16 @@ Ext.define('App.controller.patient.CCDImport', {
 			return;
 		}
 
+		say('import');
+		say(importActiveProblems);
+		say(importMedications);
+		say(importAllergies);
+
+		say('system');
+		say(systemActiveProblems);
+		say(systemMedications);
+		say(systemAllergies);
+
 		if(!me.getCcdImportPreviewWindow()){
 			Ext.create('App.view.patient.windows.CCDImportPreview');
 		}
@@ -40319,26 +41658,22 @@ Ext.define('App.controller.patient.CCDImport', {
 		pForm = me.getCcdImportPreviewPatientForm().getForm();
 
 		if(isMerge){
-			me.getCcdImportPreviewPatientForm().getForm().loadRecord(mergePatient);
+			me.getCcdImportPreviewPatientForm().getForm().loadRecord(systemPatient);
 
-			if(mergePatient.data.race && mergePatient.data.race !== ''){
-				CombosData.getDisplayValueByListIdAndOptionValue(14, mergePatient.data.race, function(response){
+			if(systemPatient.data.race && systemPatient.data.race !== ''){
+				CombosData.getDisplayValueByListIdAndOptionValue(14, systemPatient.data.race, function(response){
 					pForm.findField('race_text').setValue(response);
 				});
 			}
 
-			if(mergePatient.data.ethnicity && mergePatient.data.ethnicity !== ''){
-				CombosData.getDisplayValueByListIdAndOptionValue(59, mergePatient.data.ethnicity, function(response){
+			if(systemPatient.data.ethnicity && systemPatient.data.ethnicity !== ''){
+				CombosData.getDisplayValueByListIdAndOptionValue(59, systemPatient.data.ethnicity, function(response){
 					pForm.findField('ethnicity_text').setValue(response);
 				});
 			}
 
-            if(mergePatient.data.pid && mergePatient.data.pid !== '') {
-                PatientContacts.getSelfContact(mergePatient.data.pid, function (response) {
-                    phone = response.phone_use_code + '-' + response.phone_area_code + '-' + response.phone_local_number
-                    pForm.findField('phones').setValue(phone);
-                });
-            }
+			pForm.findField('phones').setValue(importPatient.get('home_phone'));
+
 		}else{
 			me.getCcdImportPreviewPatientForm().getForm().loadRecord(importPatient);
 
@@ -40353,17 +41688,13 @@ Ext.define('App.controller.patient.CCDImport', {
 					pForm.findField('ethnicity_text').setValue(response);
 				});
 			}
-            if(importPatient.data.pid && importPatient.data.pid !== '') {
-                PatientContacts.getSelfContact(importPatient.data.pid, function (response) {
-                    phone = response.phone_use_code + '-' + response.phone_area_code + '-' + response.phone_local_number
-                    pForm.findField('phones').setValue(phone);
-                });
-            }
+
+			pForm.findField('phones').setValue(importPatient.get('home_phone'));
 		}
 
 		if(reconcile){
 			// reconcile active problems
-			records = Ext.clone(mergeActiveProblems);
+			records = Ext.clone(isSystemReconciliation ? systemSelectionActiveProblems : systemActiveProblems);
 			store = me.getCcdPatientActiveProblemsGrid().getStore();
 			for(i=0; i < importActiveProblems.length; i++){
 				if(store.find('code' , importActiveProblems[i].data.code) !== -1) continue;
@@ -40371,8 +41702,16 @@ Ext.define('App.controller.patient.CCDImport', {
 			}
 			me.getCcdImportPreviewActiveProblemsGrid().getStore().loadRecords(records);
 
+			if(isSystemReconciliation){
+				systemReconciliationActiveProblems = Ext.clone(systemActiveProblems);
+				// remove is selected
+				for (i = 0; i < systemSelectionActiveProblems.length; i++) {
+					systemReconciliationActiveProblems = Ext.Array.remove(systemReconciliationActiveProblems, systemSelectionActiveProblems[i]);
+				}
+			}
+
 			// reconcile medications
-			records = Ext.clone(mergeMedications);
+			records = Ext.clone(isSystemReconciliation ? systemSelectionMedications : systemMedications);
 			store = me.getCcdPatientMedicationsGrid().getStore();
 			for(i=0; i < importMedications.length; i++){
 				if(store.find('RXCUI' , importMedications[i].data.RXCUI) !== -1) continue;
@@ -40380,8 +41719,16 @@ Ext.define('App.controller.patient.CCDImport', {
 			}
 			me.getCcdImportPreviewMedicationsGrid().getStore().loadRecords(records);
 
+			if(isSystemReconciliation) {
+				systemReconciliationMedications = Ext.clone(systemMedications);
+				// remove is selected
+				for (i = 0; i < systemSelectionMedications.length; i++) {
+					systemReconciliationMedications = Ext.Array.remove(systemReconciliationMedications, systemSelectionMedications[i]);
+				}
+			}
+
 			// reconcile allergies
-			records = Ext.clone(mergeAllergies);
+			records = Ext.clone(isSystemReconciliation ? systemSelectionAllergies : systemAllergies);
 			store = me.getCcdPatientAllergiesGrid().getStore();
 			for(i=0; i < importAllergies.length; i++){
 				if(store.find('allergy_code' , importAllergies[i].data.allergy_code) !== -1) continue;
@@ -40389,22 +41736,45 @@ Ext.define('App.controller.patient.CCDImport', {
 			}
 			me.getCcdImportPreviewAllergiesGrid().getStore().loadRecords(records);
 
+			if(isSystemReconciliation){
+				systemReconciliationAllergies = Ext.clone(systemAllergies);
+				// remove is selected
+				for (i = 0; i < systemSelectionAllergies.length; i++) {
+					systemReconciliationAllergies = Ext.Array.remove(systemReconciliationAllergies, systemSelectionAllergies[i]);
+				}
+			}
+
+			say('reconcile');
+			say(systemReconciliationActiveProblems);
+			say(systemReconciliationMedications);
+			say(systemReconciliationAllergies);
+
+			var system_reconcile_records = false;
+			if(isSystemReconciliation){
+				system_reconcile_records = [];
+				system_reconcile_records = Ext.Array.merge(system_reconcile_records, systemReconciliationActiveProblems);
+				system_reconcile_records = Ext.Array.merge(system_reconcile_records, systemReconciliationMedications);
+				system_reconcile_records = Ext.Array.merge(system_reconcile_records, systemReconciliationAllergies);
+			}
+
+			me.getCcdImportPreviewWindow().system_reconcile_records = system_reconcile_records;
+
 		}else{
 			me.getCcdImportPreviewActiveProblemsGrid().getStore().loadRecords(
-				Ext.Array.merge(importActiveProblems, mergeActiveProblems)
+				Ext.Array.merge(importActiveProblems, systemActiveProblems)
 			);
 			me.getCcdImportPreviewMedicationsGrid().getStore().loadRecords(
-				Ext.Array.merge(importMedications, mergeMedications)
+				Ext.Array.merge(importMedications, systemMedications)
 			);
 			me.getCcdImportPreviewAllergiesGrid().getStore().loadRecords(
-				Ext.Array.merge(importAllergies, mergeAllergies)
+				Ext.Array.merge(importAllergies, systemAllergies)
 			);
 		}
 	},
 
 	onCcdImportPreviewWindowImportBtnClick: function(){
 		var me = this,
-			patient = me.getCcdImportPreviewPatientForm().getRecord();
+			patient = me.getCcdImportPreviewPatientForm().getForm().getRecord();
 
 		if(patient.data.pid){
 			me.promptVerifyPatientImport(patient);
@@ -40471,83 +41841,235 @@ Ext.define('App.controller.patient.CCDImport', {
 
 	doPatientSectionsImport: function(patient){
 		var me = this,
+			system_reconcile_records = me.getCcdImportPreviewWindow().system_reconcile_records;
+
+		if(system_reconcile_records !== false){
+			Ext.Msg.show({
+				title: _('wait'),
+				msg: 'This action will reconcile information in system patient record.<br><br>Whould like to continue?',
+				buttons: Ext.Msg.YESNO,
+				icon: Ext.Msg.QUESTION,
+				fn: function (btn) {
+					if(btn == 'yes'){
+						me.doPatientSectionsImportCont(patient, system_reconcile_records);
+					}
+				}
+			});
+		}else{
+			me.doPatientSectionsImportCont(patient, system_reconcile_records);
+		}
+	},
+
+	doPatientSectionsImportCont: function(patient, system_reconcile_records){
+		var me = this,
 			now = new Date(),
 			pid = patient.data.pid,
+			i,
+            event,
 
-		// Get all the stores of the dataGrids
+			// Get all the stores of the dataGrids
 			problems = me.getCcdImportPreviewActiveProblemsGrid().getStore().data.items,
 			medications = me.getCcdImportPreviewMedicationsGrid().getStore().data.items,
 			allergies = me.getCcdImportPreviewAllergiesGrid().getStore().data.items;
 
+		say('doPatientSectionsImport');
+		say(problems);
+		say(medications);
+		say(allergies);
+		say('system_reconcile_records');
+		say(system_reconcile_records);
+
+		me.importing = true;
+
+		if(system_reconcile_records !== false){
+			system_reconcile_records.forEach(function (system_reconcile_record) {
+				system_reconcile_record.set({
+					reconciled: true,
+					reconciled_date: now
+				});
+				system_reconcile_record.save();
+			});
+		}
+
 		// Allergies
-		for(Index = 0; Index < allergies.length; Index++){
+		for(i = 0; i < allergies.length; i++){
 
-			if(allergies[Index].data.id && allergies[Index].data.id > 0)  continue;
+			if(allergies[i].data.id && allergies[i].data.id > 0)  continue;
 
-			allergies[Index].set({
-                pid: pid,
-                created_uid: app.patient.id,
-                create_date: now
-            });
-            allergies[Index].setDirty();
-			allergies[Index].save();
-		}
-
-		// Medications
-		for(Index = 0; Index < medications.length; Index++){
-
-			if(medications[Index].data.id && medications[Index].data.id > 0)  continue;
-
-			medications[Index].set({
+			allergies[i].set({
 				pid: pid,
-				created_uid: app.patient.id,
+				created_uid: app.user.id,
 				create_date: now
 			});
-            medications[Index].setDirty();
-			medications[Index].save();
-		}
-
-		// Problems
-		for(Index = 0; Index < problems.length; Index++){
-
-			if(problems[Index].data.id && problems[Index].data.id > 0)  continue;
-
-			problems[Index].set({
-				pid: pid,
-				created_uid: app.patient.id,
-				create_date: now
-			});
-            problems[Index].setDirty();
-			problems[Index].save({
+			allergies[i].setDirty();
+			allergies[i].save({
 				callback: function(){
-
-					me.getCcdImportWindow().close();
-					me.getCcdImportPreviewWindow().close();
-
-					app.setPatient(pid, null, null, function(){
-						app.openPatientSummary();
-					});
-
-					app.msg(_('sweet'), _('patient_data_imported'));
+					me.fireEvent('importcomplete', pid);
 				}
 			});
 		}
+
+        if(allergies.lengh >= 1){
+		    if(system_reconcile_records !== false){
+                event = 'RECONCILE';
+            } else {
+                event = 'IMPORT';
+            }
+            AuditLog.addLog({
+                pid: pid,
+                uid: app.user.id,
+                foreign_table: 'patient_allergies',
+                event: event,
+                event_description: 'Patient CDA: Allergies'
+            });
+        }
+
+		// Medications
+		for(i = 0; i < medications.length; i++){
+
+			if(medications[i].data.id && medications[i].data.id > 0)  continue;
+
+			medications[i].set({
+				pid: pid,
+				created_uid: app.user.id,
+				create_date: now
+			});
+			medications[i].setDirty();
+			medications[i].save({
+				callback: function(){
+					me.fireEvent('importcomplete', pid);
+				}
+			});
+		}
+
+        if(medications.length >= 1){
+            if(system_reconcile_records !== false){
+                event = 'RECONCILE';
+            } else {
+                event = 'IMPORT';
+            }
+            AuditLog.addLog({
+                pid: pid,
+                uid: app.user.id,
+                foreign_table: 'patient_medications',
+                event: event,
+                event_description: 'Patient CDA: Medications'
+            });
+        }
+
+		// Problems
+		for(i = 0; i < problems.length; i++){
+
+			if(problems[i].data.id && problems[i].data.id > 0)  continue;
+
+			problems[i].set({
+				pid: pid,
+				created_uid: app.user.id,
+				create_date: now
+			});
+			problems[i].setDirty();
+			problems[i].save({
+				callback: function(){
+					me.fireEvent('importcomplete', pid);
+				}
+			});
+		}
+
+        if(problems.length >= 1){
+            if(system_reconcile_records !== false){
+                event = 'RECONCILE';
+            } else {
+                event = 'IMPORT';
+            }
+            AuditLog.addLog({
+                pid: pid,
+                uid: app.user.id,
+                foreign_table: 'patient_active_problems',
+                event: event,
+                event_description: 'Patient CDA: Problems'
+            });
+        }
+
+        AuditLog.addLog({
+            pid: pid,
+            uid: app.user.id,
+            foreign_table: 'IMPORT',
+            event: 'Patient C-CDA IMPORT'
+        });
+
+	},
+
+	addCdaToPatientDocument: function (pid) {
+		var me = this,
+			documentType = (me.getCcdImportWindow().ccd ? 'C-CDA' : 'CCR'),
+			document = me.getCcdImportWindow().ccd || me.getCcdImportWindow().ccr;
+
+		record = Ext.create('App.model.patient.PatientDocuments', {
+			code: '',
+			pid: pid,
+			eid: 0,
+			uid: app.user.id,
+			facility_id: app.user.facility,
+			docType: 'C-CDA',
+			docTypeCode: 'CD',
+			date: new Date(),
+			name: documentType == 'CCR' ? 'imported_ccr.xml' : 'imported_ccd.xml',
+			note: '',
+			title: documentType + ' Imported',
+			encrypted: false,
+			error_note: '',
+			site: app.user.site,
+			document: document
+		});
+
+		record.save({
+			callback: function () {
+				say(_('sweet'), documentType + ' Imported');
+			}
+		});
+	},
+
+	doPatientSectionsImportComplete: function (pid) {
+		var me = this;
+
+		if(!me.importing) return;
+
+		me.importing = false;
+
+		var panel_cls = app.getActivePanel().$className;
+
+		me.addCdaToPatientDocument(pid);
+
+		me.getCcdImportWindow().close();
+		me.getCcdImportPreviewWindow().close();
+
+		if(panel_cls == 'App.view.patient.Encounter'){
+			app.setPatient(app.patient.pid, app.patient.eid, null, function(){
+				app.getActivePanel().openEncounter(app.patient.eid);
+			});
+
+		}else if(panel_cls == 'App.view.patient.Summary') {
+			app.setPatient(pid, null, null, function(){
+				app.openPatientSummary();
+			});
+		}
+
+		app.msg(_('sweet'), _('patient_data_imported'));
 	},
 
 	onPossiblePatientDuplicatesContinueBtnClick:function(btn){
 		if(btn.up('window').action != 'ccdImportDuplicateAction') return;
         if(this.getCcdImportPreviewPatientForm()){
-
+            this.promptVerifyPatientImport(this.getCcdImportPreviewPatientForm().getForm().getRecord());
         }
-		this.promptVerifyPatientImport(this.getCcdImportPreviewPatientForm().getRecord());
 	},
 
 	onCcdImportWindowSelectAllFieldChange: function(field, selected){
 		var me = this,
 			grids = me.getCcdImportWindow().query('grid');
 
-		for(var Index = 0; Index < grids.length; Index++){
-			var sm = grids[Index].getSelectionModel();
+		for(var i = 0; i < grids.length; i++){
+			var sm = grids[i].getSelectionModel();
 			if(selected){
 				sm.selectAll();
 			}else{
@@ -40557,11 +42079,12 @@ Ext.define('App.controller.patient.CCDImport', {
 	},
 
 	onCcdImportWindowViewRawCcdBtnClick: function(){
+
 		var me = this,
 			record = Ext.create('App.model.patient.PatientDocumentsTemp', {
 				create_date: new Date(),
 				document_name: 'temp_ccd.xml',
-				document: me.getCcdImportWindow().ccd
+				document: me.getCcdImportWindow().ccd || me.getCcdImportWindow().ccr
 			});
 
 		record.save({
@@ -40571,6 +42094,7 @@ Ext.define('App.controller.patient.CCDImport', {
 		});
 	}
 });
+
 Ext.define('App.controller.patient.CognitiveAndFunctionalStatus', {
 	extend: 'Ext.app.Controller',
 	requires: [
@@ -40713,13 +42237,32 @@ Ext.define('App.controller.patient.DecisionSupport', {
 		warning.removeAll();
 
 		DecisionSupport.getAlerts({ pid:app.patient.pid, alertType:'P' }, function(results){
+
 			for(i=0; i < results.length; i++){
+
+				var cls = 'decision-support-btn',
+					reference_type = results[i].reference_type,
+					icon = results[i].reference != '' ? 'resources/images/icons/icohelp.png' : null,
+					tooltip = null;
+
+				if(icon){
+					if(reference_type == 'D'){
+						icon = 'resources/images/icons/icohelpYellow.png';
+						tooltip = 'Diagnostic and Therapeutic Reference';
+					}else if(reference_type == 'E'){
+						icon = 'resources/images/icons/icohelpPurple.png';
+						tooltip = 'Evidence-Based CDS Intervention';
+					}
+				}
+
 				btn = {
 					xtype: 'button',
 					margin: '2 5',
-					icon: (results[i].reference != '' ? 'resources/images/icons/blueInfo.png' : null),
+					icon: icon,
 					text: results[i].description,
 					result: results[i],
+					cls: cls,
+					tooltip: tooltip,
 					handler: function(btn){
 						if(btn.result.reference != ''){
 							window.open(btn.result.reference, "_blank", "toolbar=no, scrollbars=yes, resizable=yes, top=10, left=10, width=1000, height=600");
@@ -40738,6 +42281,166 @@ Ext.define('App.controller.patient.DecisionSupport', {
 			}
 
 		});
+	}
+
+});
+
+Ext.define('App.controller.patient.Disclosures', {
+	extend: 'Ext.app.Controller',
+	requires: [],
+	refs: [
+		{
+			ref: 'DisclosuresRecipientWindow',
+			selector: '#DisclosuresRecipientWindow'
+		},
+		{
+			ref: 'DisclosuresRecipientForm',
+			selector: '#DisclosuresRecipientForm'
+		},
+		{
+			ref: 'DisclosuresRecipientField',
+			selector: '#DisclosuresRecipientField'
+		},
+		{
+			ref: 'DisclosuresDescriptionField',
+			selector: '#DisclosuresDescriptionField'
+		},
+		{
+			ref: 'DisclosuresRecipientCancelBtn',
+			selector: '#DisclosuresRecipientCancelBtn'
+		},
+		{
+			ref: 'DisclosuresRecipientSaveBtn',
+			selector: '#DisclosuresRecipientSaveBtn'
+		}
+	],
+
+	init: function(){
+		var me = this;
+
+		me.control({
+			'#DisclosuresRecipientCancelBtn': {
+				click: me.onDisclosuresRecipientCancelBtnClick
+			},
+			'#DisclosuresRecipientSaveBtn': {
+				click: me.onDisclosuresRecipientSaveBtnClick
+			}
+		});
+	},
+
+	onDisclosuresRecipientCancelBtnClick: function(){
+		this.getDisclosuresRecipientWindow().close();
+	},
+
+	onDisclosuresRecipientSaveBtnClick: function(){
+
+		var win = this.getDisclosuresRecipientWindow(),
+			form = this.getDisclosuresRecipientForm().getForm(),
+			values = form.getValues(),
+			disclosure_data = win.disclosure_data;
+
+		if(!form.isValid()) return;
+
+		disclosure_data.recipient = values.recipient;
+		disclosure_data.description = values.description;
+
+		Disclosure.addDisclosure(disclosure_data, win.disclosure_callback);
+
+		win.close();
+
+	},
+
+	addRawDisclosure: function(data, callback){
+		var me = this;
+
+		if(!data.pid) return;
+
+		Ext.Msg.show({
+			title: _('wait'),
+			msg: _('raw_disclosure_message'),
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function(btn){
+				if(btn == 'yes'){
+					me.promptRecipient(data, callback);
+				}
+			}
+		});
+	},
+
+	promptRecipient: function(data, callback){
+		var win = this.showRecipientWindow();
+		win.disclosure_data = data;
+		win.disclosure_callback = callback;
+
+		this.getDisclosuresRecipientField().reset();
+		this.getDisclosuresDescriptionField().setValue(data.description);
+	},
+
+	showRecipientWindow: function(){
+
+		if(!this.getDisclosuresRecipientWindow()){
+			Ext.create('Ext.window.Window', {
+				title: _('disclosures'),
+				layout: 'fit',
+				itemId: 'DisclosuresRecipientWindow',
+				items: [
+					{
+						xtype: 'form',
+						itemId: 'DisclosuresRecipientForm',
+						width: 300,
+						bodyPadding: 10,
+						items: [
+							{
+								xtype: 'combobox',
+								labelAlign: 'top',
+								fieldLabel: 'Choose Recipient',
+								queryMode: 'local',
+								displayField: 'text',
+								valueField: 'value',
+								itemId: 'DisclosuresRecipientField',
+								allowBlank: false,
+								anchor: '100%',
+								editable: false,
+								name: 'recipient',
+								store: Ext.create('Ext.data.Store', {
+									fields: ['text', 'value'],
+									data: [
+										{ text: _('emer_contact'), value: 'emer_contact' },
+										{ text: _('father'), value: 'father' },
+										{ text: _('guardian'), value: 'guardian' },
+										{ text: _('mother'), value: 'mother' },
+										{ text: _('patient'), value: 'patient' }
+									]
+								})
+							},
+							{
+								xtype: 'textareafield',
+								labelAlign: 'top',
+								fieldLabel: 'Description',
+								name: 'description',
+								itemId: 'DisclosuresDescriptionField',
+								allowBlank: false,
+								anchor: '100%'
+							}
+						]
+					}
+				],
+				buttons: [
+					{
+						text: _('cancel'),
+						itemId: 'DisclosuresRecipientCancelBtn'
+					},
+					{
+						text: _('save'),
+						itemId: 'DisclosuresRecipientSaveBtn'
+					}
+				]
+			});
+		}
+
+		return this.getDisclosuresRecipientWindow().show();
+
 	}
 
 });
@@ -40911,9 +42614,43 @@ Ext.define('App.controller.patient.FamilyHistory', {
 		});
 	},
 
+    /**
+     * This event is called from the view, and not from the controller itself.
+     * @param grid
+     * @param record
+     */
+    onDeactivateRecord: function(grid, record){
+        var store,
+            params = {
+                id: record.data.id,
+                pid: record.data.pid,
+                eid: record.data.eid
+            };
+        Ext.Msg.show({
+            title:_('removal'),
+            msg: _('sure_for_removal'),
+            buttons: Ext.Msg.YESNO,
+            icon: Ext.Msg.QUESTION,
+            fn: function(btn) {
+                if (btn === 'yes') {
+                    store = grid.getStore();
+                    FamilyHistory.deleteFamilyHistory(params, function(response){
+	                    store.load({
+		                    filters: [
+			                    {
+				                    property: 'pid',
+				                    value: app.patient.pid
+			                    }
+		                    ]
+	                    });
+                    });
+                }
+            }
+        });
+    },
+
 	onFamilyHistoryGridActivate: function(grid){
 		var store = grid.getStore();
-
 		store.clearFilter(true);
 		store.load({
 			filters: [
@@ -40935,6 +42672,7 @@ Ext.define('App.controller.patient.FamilyHistory', {
 			Ext.create('App.view.patient.windows.FamilyHistory');
 		}
 		this.getFamilyHistoryWindow().show();
+        this.getFamilyHistoryWindow().setAutoScroll(true);
 	},
 
 	onFamilyHistoryWindowSaveBtnClick:function(){
@@ -40944,15 +42682,17 @@ Ext.define('App.controller.patient.FamilyHistory', {
 			values = form.getValues(),
 			histories = [],
 			isValid =  true,
-            foo;
+            foo,
+            condition,
+            relation;
 
 		Ext.Object.each(values, function(key, value){
 
 			if(value == '0~0') return;
 
-			foo = value.split('~'),
-				condition = foo[0].split(':'),
-				relation = foo[1].split(':');
+			foo = value.split('~');
+            condition = foo[0].split(':');
+            relation = foo[1].split(':');
 
 			if(isValid && relation[0] == '0'){
 				isValid = false;
@@ -40985,7 +42725,6 @@ Ext.define('App.controller.patient.FamilyHistory', {
 		store.add(histories);
 		store.sync();
 		this.getFamilyHistoryWindow().close();
-
 	},
 
 	onFamilyHistoryWindowCancelBtnClick:function(){
@@ -41001,8 +42740,8 @@ Ext.define('App.controller.patient.HL7', {
 	],
 	refs: [
 		{
-			ref: '#Adt04MessageBtn',
-			selector: 'Adt04MessageBtn'
+			ref: 'SyndromicSurveillanceBtn',
+			selector: '#SyndromicSurveillanceBtn'
 		}
 	],
 
@@ -41012,7 +42751,7 @@ Ext.define('App.controller.patient.HL7', {
 			'#soapForm': {
 				render: me.onSoapFormRender
 			},
-			'#Adt04MessageBtn': {
+			'#SyndromicSurveillanceBtn': {
 				click: me.onAdt04MessageBtnClick
 			}
 		});
@@ -41022,8 +42761,9 @@ Ext.define('App.controller.patient.HL7', {
 		if(a('hl7_send_adt04')){
 			form.getDockedItems()[0].insert(0, {
 				xtype:'button',
-				text: _('adt04'),
-				itemId: 'Adt04MessageBtn'
+				text: _('syndromic_surveillance'),
+				tooltip: _('report_syndromic_surveillance'),
+				itemId: 'SyndromicSurveillanceBtn'
 			});
 		}
 	},
@@ -41034,7 +42774,11 @@ Ext.define('App.controller.patient.HL7', {
 			pid: app.patient.pid,
 			eid: app.patient.eid,
 			fid: app.user.facility,
-			event: 'A04'
+			event: 'A04',
+			anonymous: true,
+			map_codes_types: {
+				ethnicity: 'CDCREC'
+			}
 		}, function(response){
 		});
 	}
@@ -41045,14 +42789,16 @@ Ext.define('App.controller.patient.HL7', {
 
 Ext.define('App.controller.patient.Immunizations', {
 	extend: 'Ext.app.Controller',
-	requires: [
-
-	],
+	requires: [],
 	refs: [
-        {
-            ref: 'SubmitImmunizationWindow',
-            selector: '#SubmitImmunizationWindow'
-        },
+		{
+			ref: 'SubmitImmunizationWindow',
+			selector: '#SubmitImmunizationWindow'
+		},
+		{
+			ref: 'SubmitImmunizationGrid',
+			selector: '#SubmitImmunizationGrid'
+		},
 		{
 			ref: 'ImmunizationPanel',
 			selector: 'patientimmunizationspanel'
@@ -41080,48 +42826,111 @@ Ext.define('App.controller.patient.Immunizations', {
 		{
 			ref: 'SubmitVxuBtn',
 			selector: 'patientimmunizationspanel #submitVxuBtn'
+		},
+		{
+			ref: 'ImmunizationsPresumedImmunityCheckbox',
+			selector: '#ImmunizationsPresumedImmunityCheckbox'
+		},
+		{
+			ref: 'ImmunizationsImmunizationSearch',
+			selector: '#ImmunizationsImmunizationSearch'
+		},
+		{
+			ref: 'ImmunizationsDisorderCombo',
+			selector: '#ImmunizationsDisorderCombo'
+		},
+		{
+			ref: 'ImmunizationsPresumedImmunityCheckbox',
+			selector: '#ImmunizationsPresumedImmunityCheckbox'
 		}
 	],
 
 	init: function(){
 		var me = this;
 		me.control({
-			'patientimmunizationspanel':{
+			'patientimmunizationspanel': {
 				activate: me.onPatientImmunizationsPanelActive
 			},
-			'patientimmunizationspanel #patientImmunizationsGrid':{
+			'patientimmunizationspanel #patientImmunizationsGrid': {
 				selectionchange: me.onPatientImmunizationsGridSelectionChange,
 				beforeedit: me.onPatientImmunizationsGridBeforeEdit,
 				edit: me.onPatientImmunizationsGridEdit
 			},
-			'patientimmunizationspanel #cvxGrid':{
+			'patientimmunizationspanel #cvxGrid': {
 				expand: me.onCvxGridExpand
 			},
-			'patientimmunizationspanel #submitVxuBtn':{
+			'patientimmunizationspanel #submitVxuBtn': {
 				click: me.onSubmitVxuBtnClick
 			},
-			'patientimmunizationspanel #reviewImmunizationsBtn':{
+			'patientimmunizationspanel #reviewImmunizationsBtn': {
 				click: me.onReviewImmunizationsBtnClick
 			},
-			'patientimmunizationspanel #addImmunizationBtn':{
+			'patientimmunizationspanel #addImmunizationBtn': {
 				click: me.onAddImmunizationBtnClick
 			},
-			'form #immunizationsearch':{
+			'#ImmunizationsImmunizationSearch': {
 				select: me.onImmunizationSearchSelect
 			},
-			'#patientImmunizationsEditFormAdministeredByField':{
+			'#patientImmunizationsEditFormAdministeredByField': {
 				select: me.onPatientImmunizationsEditFormAdministeredByFieldSelect
 			},
-            '#SubmitImmunizationWindow #ActiveFacilitiesCombo':{
-                change: me.onActiveFacilitiesChange
-            },
-            '#SubmitImmunizationWindow #ApplicationCombo':{
-                change: me.onApplicationChange
-            }
+			'#SubmitImmunizationWindow #ActiveFacilitiesCombo': {
+				change: me.onActiveFacilitiesChange
+			},
+			'#SubmitImmunizationWindow #ApplicationCombo': {
+				change: me.onApplicationChange
+			},
+			'#ImmunizationsPresumedImmunityCheckbox': {
+				afterrender: me.onImmunizationsPresumedImmunityCheckboxAfterRender
+			}
 		});
 	},
 
-	onPatientImmunizationsEditFormAdministeredByFieldSelect:function(comb, records){
+	onImmunizationsPresumedImmunityCheckboxAfterRender: function(checkbox){
+		var me = this;
+
+		checkbox.el.on('click', function(){
+			Ext.Function.defer(function(){
+				me.onImmunizationsPresumedImmunityCheckboxClick(checkbox);
+			}, 100);
+
+		});
+	},
+
+	onImmunizationsPresumedImmunityCheckboxClick: function(checkbox){
+
+		var record = checkbox.up('form').getForm().getRecord(),
+			checked = checkbox.getValue();
+
+		this.setImmunizationFields(checked);
+
+		this.getImmunizationsImmunizationSearch().reset();
+		this.getImmunizationsDisorderCombo().reset();
+
+		if(checked){
+			record.set({
+				presumed_immunity_code: '',
+				code: '998',
+				code_type: 'CVX',
+				vaccine_name: 'no vaccine administered'
+			});
+		}else{
+			record.set({
+				code: '',
+				code_type: '',
+				vaccine_name: ''
+			});
+		}
+	},
+
+	setImmunizationFields: function(presumed_immunity){
+		this.getImmunizationsDisorderCombo().setVisible(presumed_immunity);
+		this.getImmunizationsDisorderCombo().setDisabled(!presumed_immunity);
+		this.getImmunizationsImmunizationSearch().setVisible(!presumed_immunity);
+		this.getImmunizationsImmunizationSearch().setDisabled(presumed_immunity);
+	},
+
+	onPatientImmunizationsEditFormAdministeredByFieldSelect: function(comb, records){
 		var record = comb.up('form').getForm().getRecord();
 
 		record.set({
@@ -41133,11 +42942,11 @@ Ext.define('App.controller.patient.Immunizations', {
 		});
 	},
 
-	onImmunizationSearchSelect:function(combo, record){
-		var form =  combo.up('form').getForm();
+	onImmunizationSearchSelect: function(combo, record){
+		var form = combo.up('form').getForm();
 
 		this.getCvxMvxCombo().getStore().load({
-			params:{
+			params: {
 				cvx_code: record[0].data.cvx_code
 			}
 		});
@@ -41147,16 +42956,18 @@ Ext.define('App.controller.patient.Immunizations', {
 		});
 	},
 
-	onCvxGridExpand:function(grid){
+	onCvxGridExpand: function(grid){
 		grid.getStore().load();
 	},
 
-	onPatientImmunizationsGridSelectionChange:function(sm, selected){
+	onPatientImmunizationsGridSelectionChange: function(sm, selected){
 		this.getSubmitVxuBtn().setDisabled(selected.length === 0);
 	},
 
-	onPatientImmunizationsGridBeforeEdit:function(plugin, context){
+	onPatientImmunizationsGridBeforeEdit: function(plugin, context){
 		var field = plugin.editor.getForm().findField('administered_by');
+
+		this.setImmunizationFields(context.record.get('is_presumed_immunity'));
 
 		field.forceSelection = false;
 		Ext.Function.defer(function(){
@@ -41165,33 +42976,26 @@ Ext.define('App.controller.patient.Immunizations', {
 		}, 200);
 	},
 
-	onPatientImmunizationsGridEdit:function(plugin, context){
+	onPatientImmunizationsGridEdit: function(plugin, context){
 		app.fireEvent('immunizationedit', this, context.record);
 	},
 
-	onPatientImmunizationsPanelActive:function(){
+	onPatientImmunizationsPanelActive: function(){
 		this.loadPatientImmunizations();
 	},
 
-	onSubmitVxuBtnClick:function(){
+	onSubmitVxuBtnClick: function(){
 		var me = this,
-			selected = me.getImmunizationsGrid().getSelectionModel().getSelection(),
-			immunizations = [];
-
+			selected = me.getImmunizationsGrid().getSelectionModel().getSelection();
 		me.vxuWindow = me.getVxuWindow();
-
-		for(var i=0; i < selected.length; i++){
-			immunizations.push(selected[i].data);
-		}
-
-		me.vxuWindow.getComponent('list').update(immunizations);
+		me.vxuWindow.down('grid').getStore().loadData(selected);
 	},
 
-	onReviewImmunizationsBtnClick:function(){
+	onReviewImmunizationsBtnClick: function(){
 
 	},
 
-	onAddImmunizationBtnClick:function(){
+	onAddImmunizationBtnClick: function(){
 		var grid = this.getImmunizationsGrid(),
 			store = grid.getStore();
 
@@ -41201,6 +43005,7 @@ Ext.define('App.controller.patient.Immunizations', {
 			uid: app.user.id,
 			pid: app.patient.pid,
 			eid: app.patient.eid,
+			facility_id: app.user.facility,
 			create_date: new Date(),
 			begin_date: new Date()
 
@@ -41208,7 +43013,7 @@ Ext.define('App.controller.patient.Immunizations', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	loadPatientImmunizations:function(){
+	loadPatientImmunizations: function(){
 		var store = this.getImmunizationsGrid().getStore();
 		store.clearFilter(true);
 		store.filter([
@@ -41221,74 +43026,93 @@ Ext.define('App.controller.patient.Immunizations', {
 
 	getVxuWindow: function(){
 		var me = this;
-		return Ext.widget('window',{
+
+		if(this.getSubmitImmunizationWindow()){
+			return this.getSubmitImmunizationWindow().show();
+		}
+
+		return Ext.widget('window', {
 			title: _('submit_hl7_vxu'),
 			closable: false,
-            itemId: 'SubmitImmunizationWindow',
+			itemId: 'SubmitImmunizationWindow',
 			modal: true,
-			bodyStyle:'background-color:white',
-			defaults:{
-				xtype:'container',
-				border:false,
-				margin:10
-			},
-			items:[
+			bodyStyle: 'background-color:white',
+			items: [
 				{
-					html: _('please_verify_the_information')+':',
-					margin: '10 10 0 10'
+					xtype: 'grid',
+					title: _('please_verify_the_information'),
+					store: Ext.create('App.store.patient.PatientImmunization'),
+					width: 700,
+					minHeight: 50,
+					maxHeight: 200,
+					itemId: 'SubmitImmunizationGrid',
+					viewConfig: {
+						plugins: {
+							ptype: 'gridviewdragdrop',
+							dragText: 'Drag and drop to reorganize'
+						}
+					},
+					columns: [
+						{
+							text: _('code'),
+							dataIndex: 'code'
+						},
+						{
+							text: _('vaccine_name'),
+							dataIndex: 'vaccine_name',
+							flex: 1
+						},
+						{
+							text: _('administer_amount'),
+							dataIndex: 'administer_amount'
+						},
+						{
+							text: _('administer_units'),
+							dataIndex: 'administer_units'
+						},
+						{
+							text: _('date_administered'),
+							dataIndex: 'date_administered'
+						}
+					]
 				},
 				{
-					width:700,
-					minHeight:50,
-					maxHeight:200,
-					itemId:'list',
-					margin:'0 10 20 10',
-					styleHtmlContent: true,
-					tpl: new Ext.XTemplate(
-						'<ul>',
-						'<tpl for=".">',     // interrogate the kids property within the data
-						'   <li>CVX:{code} - {vaccine_name} {administer_amount} {administer_units} {date_administered}</li>',
-							'</tpl>' +
-							'</ul>'
-					)
-				},
-                {
-                    xtype: 'uxiframe',
-                    itemId: 'downloadHL7',
-                    hidden: true
-                }
+					xtype: 'uxiframe',
+					itemId: 'downloadHL7',
+					hidden: true
+				}
 			],
-			buttons:[
-				me.vxuFrom = Ext.create('App.ux.combo.ActiveFacilities',{
+			buttons: [
+				me.vxuFrom = Ext.create('App.ux.combo.ActiveFacilities', {
 					fieldLabel: _('send_from'),
 					emptyText: _('select'),
-                    itemId: 'ActiveFacilitiesCombo',
+					itemId: 'ActiveFacilitiesCombo',
 					labelWidth: 60,
-					store: Ext.create('App.store.administration.HL7Clients',{
-						filters:[
+					store: Ext.create('App.store.administration.HL7Clients', {
+						filters: [
 							{
-								property:'active',
-								value:true
+								property: 'active',
+								value: true
 							}
 						]
 					})
 				}),
-				me.vxuTo = Ext.widget('combobox',{
-					xtype:'combobox',
+				me.vxuTo = Ext.widget('combobox', {
+					xtype: 'combobox',
 					fieldLabel: _('send_to'),
 					emptyText: _('select'),
 					allowBlank: false,
-                    itemId: 'ApplicationCombo',
+					itemId: 'ApplicationCombo',
 					forceSelection: true,
-                    editable: false,
+					editable: false,
 					labelWidth: 60,
 					displayField: 'application_name',
 					valueField: 'id',
-					store: Ext.create('App.store.administration.HL7Clients',{
-						filters:[
+					store: Ext.create('App.store.administration.HL7Clients', {
+						filters: [
 							{
-								property:'active',
-								value:true
+								property: 'active',
+								value: true
 							}
 						]
 					})
@@ -41296,22 +43120,22 @@ Ext.define('App.controller.patient.Immunizations', {
 				{
 					text: _('send'),
 					scope: me,
-                    itemId: 'send',
+					itemId: 'send',
 					handler: me.doSendVxu,
-                    action: 'send',
-                    disabled: true
+					action: 'send',
+					disabled: true
 				},
-                {
-                    text: _('download'),
-                    scope: me,
-                    itemId: 'download',
-                    handler: me.doDownloadVxu,
-                    action: 'download',
-                    disabled: true
-                },
 				{
-					text:_('cancel'),
-					handler:function(){
+					text: _('download'),
+					scope: me,
+					itemId: 'download',
+					handler: me.doDownloadVxu,
+					action: 'download',
+					disabled: true
+				},
+				{
+					text: _('cancel'),
+					handler: function(){
 						me.vxuWindow.close();
 					}
 				}
@@ -41319,85 +43143,85 @@ Ext.define('App.controller.patient.Immunizations', {
 		}).show();
 	},
 
-    /**
-     * Only activate the send, & download button when facilities and application has been
-     * selected
-     * @param me
-     * @param newValue
-     * @param oldValue
-     */
-    onActiveFacilitiesChange: function(me, newValue, oldValue){
-        if(Ext.ComponentQuery.query('#ApplicationCombo')[0].getValue()){
-            Ext.ComponentQuery.query('#SubmitImmunizationWindow #send')[0].setDisabled(false);
-            Ext.ComponentQuery.query('#SubmitImmunizationWindow #download')[0].setDisabled(false);
-        }
-    },
+	/**
+	 * Only activate the send, & download button when facilities and application has been
+	 * selected
+	 * @param me
+	 * @param newValue
+	 * @param oldValue
+	 */
+	onActiveFacilitiesChange: function(me, newValue, oldValue){
+		if(Ext.ComponentQuery.query('#ApplicationCombo')[0].getValue()){
+			Ext.ComponentQuery.query('#SubmitImmunizationWindow #send')[0].setDisabled(false);
+			Ext.ComponentQuery.query('#SubmitImmunizationWindow #download')[0].setDisabled(false);
+		}
+	},
 
-    /**
-     * Only activate the send, & download button when facilities and application has been
-     * selected
-     * @param me
-     * @param newValue
-     * @param oldValue
-     */
-    onApplicationChange: function(me, newValue, oldValue){
-        if(Ext.ComponentQuery.query('#ActiveFacilitiesCombo')[0].getValue()){
-            Ext.ComponentQuery.query('#SubmitImmunizationWindow #send')[0].setDisabled(false);
-            Ext.ComponentQuery.query('#SubmitImmunizationWindow #download')[0].setDisabled(false);
-        }
-    },
+	/**
+	 * Only activate the send, & download button when facilities and application has been
+	 * selected
+	 * @param me
+	 * @param newValue
+	 * @param oldValue
+	 */
+	onApplicationChange: function(me, newValue, oldValue){
+		if(Ext.ComponentQuery.query('#ActiveFacilitiesCombo')[0].getValue()){
+			Ext.ComponentQuery.query('#SubmitImmunizationWindow #send')[0].setDisabled(false);
+			Ext.ComponentQuery.query('#SubmitImmunizationWindow #download')[0].setDisabled(false);
+		}
+	},
 
-    doDownloadVxu:function(btn){
-        var me = this,
-            sm = me.getImmunizationsGrid().getSelectionModel(),
-            ImmunizationSelection = sm.getSelection(),
-            params = {},
-            immunizations = [],
-            form;
-
-        if(me.vxuTo.isValid()){
-
-            for(var i=0; i < ImmunizationSelection.length; i++){
-                immunizations.push(ImmunizationSelection[i].data.id);
-                params.pid = ImmunizationSelection[i].data.pid;
-            }
-
-            me.vxuWindow.el.mask(_('download'));
-            Ext.create('Ext.form.Panel', {
-                renderTo: Ext.ComponentQuery.query('#SubmitImmunizationWindow #downloadHL7')[0].el,
-                standardSubmit: true,
-                url: 'dataProvider/Download.php'
-            }).submit({
-                params: {
-                    'pid': params.pid,
-                    'from': me.vxuFrom.getValue(),
-                    'to': me.vxuTo.getValue(),
-                    'immunizations': Ext.encode(immunizations)
-                },
-                success: function(form, action) {
-                    // Audit log here
-                }
-            });
-
-            me.vxuWindow.el.unmask();
-            me.vxuWindow.close();
-            sm.deselectAll();
-
-        }
-    },
-
-	doSendVxu:function(btn){
+	doDownloadVxu: function(btn){
 		var me = this,
 			sm = me.getImmunizationsGrid().getSelectionModel(),
-            ImmunizationSelection = sm.getSelection(),
+			ImmunizationSelection = sm.getSelection(),
+			params = {},
+			immunizations = [],
+			form;
+
+		if(me.vxuTo.isValid()){
+
+			for(var i = 0; i < ImmunizationSelection.length; i++){
+				immunizations.push(ImmunizationSelection[i].data.id);
+				params.pid = ImmunizationSelection[i].data.pid;
+			}
+
+			me.vxuWindow.el.mask(_('download'));
+			Ext.create('Ext.form.Panel', {
+				renderTo: Ext.ComponentQuery.query('#SubmitImmunizationWindow #downloadHL7')[0].el,
+				standardSubmit: true,
+				url: 'dataProvider/Download.php'
+			}).submit({
+				params: {
+					'pid': params.pid,
+					'from': me.vxuFrom.getValue(),
+					'to': me.vxuTo.getValue(),
+					'immunizations': Ext.encode(immunizations)
+				},
+				success: function(form, action){
+					// Audit log here
+				}
+			});
+
+			me.vxuWindow.el.unmask();
+			me.vxuWindow.close();
+			sm.deselectAll();
+
+		}
+	},
+
+	doSendVxu: function(btn){
+		var me = this,
+			sm = me.getImmunizationsGrid().getSelectionModel(),
+			records = this.getSubmitImmunizationGrid().getStore().data.items,
 			params = {},
 			immunizations = [];
 
 		if(me.vxuTo.isValid()){
 
-			for(var i=0; i < ImmunizationSelection.length; i++){
-				immunizations.push(ImmunizationSelection[i].data.id);
-                params.pid = ImmunizationSelection[i].data.pid;
+			for(var i = 0; i < records.length; i++){
+				Ext.Array.push(immunizations, records[i].get('id'));
+				params.pid = records[i].get('pid');
 			}
 
 			params.from = me.vxuFrom.getValue();
@@ -41508,8 +43332,23 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		{
 			ref: 'ReviewSmokingStatusCombo',
 			selector: '#ItemsToReviewPanel #reviewsmokingstatuscombo'
-		}
-
+		},
+        {
+            ref: 'ItemsToReviewEducationGivenField',
+            selector: '#ItemsToReviewPanel #ItemsToReviewEducationGivenField'
+        },
+		{
+			ref: 'EncounterMedicationReconciliations',
+			selector: '#ItemsToReviewPanel #EncounterMedicationReconciliations'
+		},
+		{
+			ref: 'EncounterMedicationReconciliationsDateField',
+			selector: '#ItemsToReviewPanel #EncounterMedicationReconciliationsDateField'
+		},
+        {
+            ref: 'EncounterSummaryCareProvided',
+            selector: '#ItemsToReviewPanel #EncounterSummaryCareProvided'
+        }
 	],
 
 	init: function(){
@@ -41520,9 +43359,20 @@ Ext.define('App.controller.patient.ItemsToReview', {
 			},
 			'#encounterRecordAdd':{
 				click: me.onReviewAll
-			}
+			},
+			'#ItemsToReviewPanel #ItemsToReviewEducationGivenField':{
+				change: me.onItemsToReviewEducationGivenFieldChange
+			},
+            '#ItemsToReviewPanel #EncounterMedicationReconciliations':{
+                change: me.onEncounterMedicationReconciliationsChange
+            },
+            '#ItemsToReviewPanel #EncounterMedicationReconciliationsDateField':{
+                change: me.onEncounterMedicationReconciliationsDateFieldChange
+            },
+            '#ItemsToReviewPanel #EncounterSummaryCareProvided':{
+                change: me.onEncounterSummaryCareProvidedChange
+            }
 		});
-
 	},
 
 	storesLoad: function(){
@@ -41554,6 +43404,22 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		};
 		me.smokeStatusStore.load(params);
 
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+
+        me.getEncounterMedicationReconciliations().suspendEvents(false);
+        me.getEncounterMedicationReconciliationsDateField().suspendEvents(false);
+        me.getEncounterSummaryCareProvided().suspendEvents(false);
+        me.getItemsToReviewEducationGivenField().suspendEvents(false);
+
+        me.getEncounterMedicationReconciliations().setValue(encounter.get('medication_reconciliations'));
+        me.getEncounterMedicationReconciliationsDateField().setValue(encounter.get('medication_reconciliations_date'));
+        me.getEncounterSummaryCareProvided().setValue(encounter.get('summary_care_provided'));
+        me.getItemsToReviewEducationGivenField().setValue(encounter.get('patient_education_given'));
+
+        me.getEncounterMedicationReconciliations().resumeEvents();
+        me.getEncounterMedicationReconciliationsDateField().resumeEvents();
+        me.getEncounterSummaryCareProvided().resumeEvents();
+        me.getItemsToReviewEducationGivenField().resumeEvents();
 	},
 
 	onReviewAll: function(){
@@ -41569,23 +43435,74 @@ Ext.define('App.controller.patient.ItemsToReview', {
 				review_immunizations: true,
 				review_medications: true,
 				review_smoke: true,
-				review_surgery: true
+				review_surgery: true,
 			});
 
 			encounter.save({
 				success: function(){
-					app.msg('Sweet!', _('items_to_review_save_and_review'));
+					app.msg(_('sweet'), _('items_to_review_save_and_review'));
 				},
 				failure: function(){
-					app.msg('Oops!', _('items_to_review_entry_error'));
+					app.msg(_('oops'), _('items_to_review_entry_error'));
 				}
 			});
 		}
-	}
+	},
 
+	onItemsToReviewEducationGivenFieldChange: function(field, newValue, oldValue, eOpts){
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+		encounter.set({
+			patient_education_given: newValue
+		});
+        this.saveEncounterChanges(encounter);
+	},
 
+    onEncounterMedicationReconciliationsChange: function(field, newValue, oldValue, eOpts){
+        var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+
+        encounter.set({
+            medication_reconciliations: newValue
+        });
+
+        this.saveEncounterChanges(encounter);
+    },
+
+	onEncounterMedicationReconciliationsDateFieldChange: function(field, newValue, oldValue, eOpts){
+        var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+
+        if(!field.isValid()) return;
+
+        encounter.set({
+            medication_reconciliations_date: newValue
+        });
+
+        this.saveEncounterChanges(encounter);
+    },
+
+    onEncounterSummaryCareProvidedChange: function(field, newValue, oldValue, eOpts){
+        var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+        encounter.set({
+            summary_care_provided: newValue
+        });
+        this.saveEncounterChanges(encounter);
+    },
+
+    saveEncounterChanges: function(encounterObject){
+        encounterObject.setDirty();
+        if(!Ext.Object.isEmpty(encounterObject.getChanges())){
+            encounterObject.save({
+                success: function(){
+                    app.msg(_('sweet'), _('record_saved'));
+                },
+                failure: function(){
+                    app.msg(_('oops'), _('record_error'));
+                }
+            });
+        }
+    }
 
 });
+
 Ext.define('App.controller.patient.Medical', {
 	extend: 'Ext.app.Controller',
 	requires: [
@@ -41613,6 +43530,12 @@ Ext.define('App.controller.patient.Medical', {
 			'#MedicalWindow #activeproblems': {
 				'show': me.onPanelShow
 			},
+            '#MedicalWindow #familyhistory': {
+                'show': me.onPanelShow
+            },
+            '#MedicalWindow #advancedirectives': {
+                'show': me.onPanelShow
+            },
 			'#MedicalWindow #medications': {
 				'show': me.onPanelShow
 			},
@@ -41675,6 +43598,7 @@ Ext.define('App.controller.patient.Medical', {
 
 
 });
+
 Ext.define('App.controller.patient.Medications', {
 	extend: 'Ext.app.Controller',
 	requires: [],
@@ -41695,6 +43619,10 @@ Ext.define('App.controller.patient.Medications', {
 			ref: 'PatientMedicationReconciledBtn',
 			selector: '#PatientMedicationReconciledBtn'
 		},
+        {
+            ref: 'PatientMedicationActiveBtn',
+            selector: '#PatientMedicationActiveBtn'
+        },
 		{
 			ref: 'PatientMedicationUserLiveSearch',
 			selector: '#PatientMedicationUserLiveSearch'
@@ -41737,9 +43665,12 @@ Ext.define('App.controller.patient.Medications', {
 			'#patientMedicationLiveSearch': {
 				select: me.onMedicationLiveSearchSelect
 			},
-			'#PatientMedicationReconciledBtn': {
-				click: me.onPatientMedicationReconciledBtnClick
+			'#PatientMedicationActiveBtn': {
+				click: me.onPatientMedicationActiveBtnClick
 			},
+            '#PatientMedicationReconciledBtn': {
+                click: me.onPatientMedicationReconciledBtnClick
+            },
 			'#PatientMedicationUserLiveSearch': {
 				select: me.onPatientMedicationUserLiveSearchSelect,
                 reset: me.onPatientMedicationUserLiveSearchReset
@@ -41784,7 +43715,8 @@ Ext.define('App.controller.patient.Medications', {
 			RXCUI: records[0].data.RXCUI,
 			CODE: records[0].data.CODE,
             GS_CODE: records[0].data.GS_CODE,
-			NDC: records[0].data.NDC
+			NDC: records[0].data.NDC,
+			TTY: records[0].data.TTY
 		});
 	},
 
@@ -41868,23 +43800,54 @@ Ext.define('App.controller.patient.Medications', {
 	},
 
 	onMedicationLiveSearchSelect: function(cmb, records){
-		var form = cmb.up('form').getForm();
+		var form = cmb.up('form').getForm(),
+			record = records[0],
+			order_record = form.getRecord();
 
-		form.getRecord().set({
-			RXCUI: records[0].data.RXCUI,
-			CODE: records[0].data.CODE,
-            GS_CODE: records[0].data.GS_CODE,
-			NDC: records[0].data.NDC
+		order_record.set({
+			RXCUI: record.data.RXCUI,
+			CODE: record.data.CODE,
+            GS_CODE: record.data.GS_CODE,
+			NDC: record.data.NDC,
+			TTY: record.data.TTY
 		});
+
+		var data = {};
+
+		Rxnorm.getMedicationAttributesByRxcuiApi(record.data.RXCUI, function(response){
+
+			if(response.propConceptGroup){
+				response.propConceptGroup.propConcept.forEach(function(propConcept){
+
+					if(propConcept.propCategory != 'ATTRIBUTES' && propConcept.propCategory != 'CODES') return;
+
+					if(!data[propConcept.propCategory]){
+						data[propConcept.propCategory] = {};
+					}
+					var propName = propConcept.propName.replace(' ', '_');
+					data[propConcept.propCategory][propName] = propConcept.propValue;
+				});
+			}
+
+			if(data.ATTRIBUTES && data.ATTRIBUTES.SCHEDULE && data.ATTRIBUTES.SCHEDULE != '0'){
+				order_record.set({ is_controlled: true });
+			}
+		});
+
 	},
 
 	onPatientMedicationReconciledBtnClick: function(){
 		this.onMedicationsPanelActive();
 	},
 
+    onPatientMedicationActiveBtnClick: function(){
+        this.onMedicationsPanelActive();
+    },
+
     onMedicationsPanelActive: function(){
         var store = this.getPatientMedicationsGrid().getStore(),
-            reconciled = this.getPatientMedicationReconciledBtn().pressed;
+            reconciled = this.getPatientMedicationReconciledBtn().pressed,
+            active = this.getPatientMedicationActiveBtn().pressed;
 
         store.clearFilter(true);
         store.load({
@@ -41895,7 +43858,8 @@ Ext.define('App.controller.patient.Medications', {
                 }
             ],
             params: {
-                reconciled: reconciled
+                reconciled: reconciled,
+                active: active
             }
         });
     }
@@ -42122,35 +44086,46 @@ Ext.define('App.controller.patient.RadOrders', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	onPrintRadOrderBtnClick: function(orders){
+	onPrintRadOrderBtnClick: function(input){
 		var me = this,
 			grid = me.getRadOrdersGrid(),
-			items = (Ext.isArray(orders) ? orders : grid.getSelectionModel().getSelection()),
-			params = {},
-			data,
-			i;
+			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
+			documents = {};
 
-		params.pid = app.patient.pid;
-		params.eid = app.patient.eid;
-		params.orderItems = [];
-		params.docType = 'Rad';
+		orders.forEach(function(order){
 
-		params.templateId = 6;
-		params.orderItems.push(['Description', 'Notes']);
-		for(i = 0; i < items.length; i++){
-			data = items[i].data;
-			params.orderItems.push([
-				data.description + ' [' + data.code_type + ':' + data.code + ']',
-				data.note
-			]);
-		}
+			var date_ordered = Ext.Date.format(order.get('date_ordered'),'Y-m-d'),
+				doc_key = '_' + order.get('eid') +
+					order.get('pid') +
+					order.get('uid') +
+					date_ordered;
 
-		DocumentHandler.createTempDocument(params, function(provider, response){
-			if(window.dual){
-				dual.onDocumentView(response.result.id, 'Rad');
-			}else{
-				app.onDocumentView(response.result.id, 'Rad');
+			if(!documents[doc_key]){
+				documents[doc_key] = {};
+				documents[doc_key].pid = app.patient.pid;
+				documents[doc_key].eid = app.patient.eid;
+				documents[doc_key].date_ordered = date_ordered;
+				documents[doc_key].provider_uid = order.get('uid');
+				documents[doc_key].orderItems = [];
+				documents[doc_key].docType = 'Rad';
+				documents[doc_key].templateId = 6;
+				documents[doc_key].orderItems.push(['Description', 'Notes']);
 			}
+
+			documents[doc_key].orderItems.push([
+				order.get('description') + ' [' + order.get('code_type') + ':' + order.get('code') + ']',
+				order.get('note')
+			]);
+		});
+
+		Ext.Object.each(documents, function(key, params){
+			DocumentHandler.createTempDocument(params, function(provider, response){
+				if(window.dual){
+					dual.onDocumentView(response.result.id, 'Rad');
+				}else{
+					app.onDocumentView(response.result.id, 'Rad');
+				}
+			});
 		});
 	},
 
@@ -42213,125 +44188,63 @@ Ext.define('App.controller.patient.RadOrders', {
 
 Ext.define('App.controller.patient.Reminders', {
 	extend: 'Ext.app.Controller',
-	requires: [],
+	requires: [
+
+	],
 	refs: [
 		{
-			ref: 'RemindersAddBtn',
+			ref: 'PatientRemindersAddBtn',
 			selector: '#RemindersAddBtn'
+		},
+		{
+			ref: 'PatientSummaryRemindersPanel',
+			selector: '#PatientSummaryRemindersPanel'
 		}
 	],
 
 	init: function(){
 		var me = this;
+
 		me.control({
-			'viewport': {
-				encounterload: me.onEncounterOpen,
-				patientset: me.onPatientSet
+			'#PatientSummaryRemindersPanel':{
+				activate: me.onPatientSummaryRemindersPanelActivate
 			},
-			'#RemindersAddBtn': {
-				click: me.onRemindersAddBtnClick
-			},
-			'#RemindersAlertOkBtn': {
-				click: me.onRemindersAlertOkBtnClick
-			},
-			'#RemindersAlertCancelBtn': {
-				click: me.onRemindersAlertCancelBtnClick
+			'#PatientRemindersAddBtn':{
+				click: me.onPatientRemindersAddBtnClick
 			}
 		});
 	},
 
-	onRemindersAddBtnClick: function(btn){
+	onPatientSummaryRemindersPanelActivate: function(){
+		this.getPatientSummaryRemindersPanel().getStore().load({
+			filters: [
+				{
+					property: 'pid',
+					value: app.patient.pid
+				}
+			]
+		});
+	},
+
+	onPatientRemindersAddBtnClick: function(btn){
 		var grid = btn.up('grid'),
 			store = grid.store;
 
 		grid.plugins[0].cancelEdit();
 		store.insert(0, {
-			date: new Date(),
 			pid: app.patient.pid,
-			uid: app.user.id,
-			eid: app.patient.eid
+			eid: app.patient.eid,
+			reminder_type: 'appointment',
+			reminder_date: new Date(),
+			reminder_note: '',
+			create_date: new Date(),
+			create_uid: app.user.id
 		});
 		grid.plugins[0].startEdit(0, 0);
-	},
-
-	onRemindersAlertOkBtnClick: function(btn){
-		var win = btn.up('window'),
-			store = win.down('grid').getStore();
-
-		store.sync();
-		win.close();
-	},
-
-	onRemindersAlertCancelBtnClick: function(btn){
-		var win = btn.up('window'),
-			store = win.down('grid').getStore();
-
-		store.rejectChanges();
-		win.close();
-	},
-
-	onPatientSet: function(patient){
-		this.getPatientReminders('Administrative', patient.pid);
-	},
-
-	onEncounterOpen: function(encounterRecord){
-		this.getPatientReminders('Clinical', encounterRecord.data.pid);
-	},
-
-	getPatientReminders: function(type, pid){
-		var me = this,
-			action = 'RemindersAlertWindow' + type,
-			query = Ext.ComponentQuery.query('window[action=' + action + ']'),
-			store,
-			win;
-
-		if(query.length === 0){
-			win = Ext.create('App.view.patient.RemindersAlert',{
-				title: _('reminders') + ' (' + _(type.toLowerCase()) + ')',
-				action: action
-			});
-		}else{
-			win = query[0];
-		}
-
-		store = win.down('grid').getStore();
-		win.close();
-		store.load({
-			filters: [
-				{
-					property: 'pid',
-					value: pid
-				},
-				{
-					property: 'type',
-					value: type
-				},
-				{
-					property: 'active',
-					value: true
-				}
-			],
-			callback: function(records){
-				if(records.length > 0){
-					me.playSound();
-					win.show();
-				}
-			}
-		});
-	},
-
-	playSound: function(){
-		if(!this.alertAudio){
-			this.alertAudio = Ext.core.DomHelper.append(Ext.getBody(), {
-				html: '<audio autoplay id="reminderAlert" ><source src="resources/audio/sweetalertsound4.wav" type="audio/wav"></audio>'
-			}, true);
-		}else{
-			this.alertAudio.dom.firstChild.currentTime=0;
-			this.alertAudio.dom.firstChild.play();
-		}
 	}
 
 });
+
 Ext.define('App.controller.patient.Referrals', {
 	extend: 'Ext.app.Controller',
 	requires: [
@@ -42350,7 +44263,6 @@ Ext.define('App.controller.patient.Referrals', {
 			ref: 'PrintReferralBtn',
 			selector: '#printReferralBtn'
 		},
-
 		{
 			ref: 'ReferralProviderCombo',
 			selector: '#ReferralProviderCombo'
@@ -42426,14 +44338,16 @@ Ext.define('App.controller.patient.Referrals', {
 		record.set({refer_to: records[0].data.id});
 	},
 
-	onPrintReferralBtnClick:function(){
+	onPrintReferralBtnClick:function(referral){
 		var me = this,
 			grid = me.getReferralPanelGrid(),
 			sm = grid.getSelectionModel(),
-			selection = sm.getSelection(),
+			selection = (referral.isModel ? [referral] : sm.getSelection()),
             params,
             i;
-		grid.view.el.mask(_('generating_documents'));
+
+		if(grid.view.el) grid.view.el.mask(_('generating_documents'));
+
 		for(i=0; i < selection.length; i++){
 			params = {
                 pid: app.patient.pid,
@@ -42448,11 +44362,9 @@ Ext.define('App.controller.patient.Referrals', {
 				}else{
 					app.onDocumentView(response.result.id, 'Referral');
 				}
-				grid.view.el.unmask();
+				if(grid.view.el) grid.view.el.unmask();
 			});
 		}
-
-
 	},
 
 	onGridSelectionChange:function(grid, models){
@@ -42628,13 +44540,37 @@ Ext.define('App.controller.patient.RxOrders', {
 	onRxNormOrderLiveSearchBeforeSelect: function(combo, record){
 		var form = combo.up('form').getForm(),
 			insCmb = this.getRxOrderMedicationInstructionsCombo(),
+			order_record = form.getRecord(),
             store;
-
-		form.getRecord().set({
+		order_record.set({
 			RXCUI: record.data.RXCUI,
 			CODE: record.data.CODE,
-			NDC: record.data.NDC
+            GS_CODE: record.data.GS_CODE,
+			NDC: record.data.NDC,
+			TTY: record.data.TTY
 		});
+		var data = {};
+
+		Rxnorm.getMedicationAttributesByRxcuiApi(record.data.RXCUI, function(response){
+
+			if(response.propConceptGroup){
+				response.propConceptGroup.propConcept.forEach(function(propConcept){
+
+					if(propConcept.propCategory != 'ATTRIBUTES' && propConcept.propCategory != 'CODES') return;
+
+					if(!data[propConcept.propCategory]){
+						data[propConcept.propCategory] = {};
+					}
+					var propName = propConcept.propName.replace(' ', '_');
+					data[propConcept.propCategory][propName] = propConcept.propValue;
+				});
+			}
+
+			if(data.ATTRIBUTES && data.ATTRIBUTES.SCHEDULE && data.ATTRIBUTES.SCHEDULE != '0'){
+				order_record.set({ is_controlled: true });
+			}
+		});
+
 
 		store = record.instructions();
 		insCmb.bindStore(store, true);
@@ -42769,47 +44705,53 @@ Ext.define('App.controller.patient.RxOrders', {
 		return records;
 	},
 
-	onPrintRxOrderBtnClick: function(orders){
+	onPrintRxOrderBtnClick: function(input){
 		var me = this,
 			grid = me.getRxOrdersGrid(),
-			items = (Ext.isArray(orders) ? orders : grid.getSelectionModel().getSelection()),
+			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
 			isSingleColumnTable = true,
 			references = '',
-			params = {},
+			documents = {},
 			columns,
-			data,
-            i,
             refs,
             text;
 
-		params.pid = app.patient.pid;
-		params.eid = app.patient.eid;
-		params.orderItems = [];
-		params.docType = 'Rx';
-		params.templateId = 5;
+		orders.forEach(function(order){
 
-		if(isSingleColumnTable){
-			columns = [''];
-		}else{
-			columns = [
-                'Description',
-                'Instructions',
-                'Dispense',
-                'Refill',
-                'Days Supply',
-                'Dx',
-                'Notes',
-                'References'
-            ];
-		}
+			var date_ordered = Ext.Date.format(order.get('date_ordered'),'Y-m-d'),
+				doc_key = '_' + order.get('eid') +
+					order.get('pid') +
+					order.get('uid') +
+					date_ordered;
 
-		params.orderItems.push(columns);
+			if(!documents[doc_key]){
+				documents[doc_key] = {};
+				documents[doc_key].pid = app.patient.pid;
+				documents[doc_key].eid = app.patient.eid;
+				documents[doc_key].date_ordered = date_ordered;
+				documents[doc_key].provider_uid = order.get('uid');
+				documents[doc_key].orderItems = [];
+				documents[doc_key].docType = 'Rx';
+				documents[doc_key].templateId = 5;
+				if(isSingleColumnTable){
+					columns = [''];
+				}else{
+					columns = [
+						'Description',
+						'Instructions',
+						'Dispense',
+						'Refill',
+						'Days Supply',
+						'Dx',
+						'Notes',
+						'References'
+					];
+				}
+				documents[doc_key].orderItems.push(columns);
+			}
 
-		for(i = 0; i < items.length; i++){
-			data = items[i].data;
-
-			if(data.ref_order !== ''){
-				refs = data.ref_order.split('~');
+			if(order.get('ref_order') !== ''){
+				refs = order.get('ref_order').split('~');
 				if(refs.length >= 3){
 					references = 'Rx Reference#: ' + refs[2];
 				}
@@ -42817,58 +44759,61 @@ Ext.define('App.controller.patient.RxOrders', {
 
 			if(isSingleColumnTable){
 
-				text = '<u>' + _('order_number') + '</u>: ' + g('rx_order_number_prefix') + data.id + '<br>';
-				text += '<u>' + _('description') + '</u>: ' + '<b>' + data.STR.toUpperCase() + '</b><br>';
-				text += '<u>' + _('dispense_as_written') + '</u>: ' + (data.daw ? _('yes') : _('no')) + '<br>';
-				text += '<u>' + _('quantity') + '</u>: ' + data.dispense + '<br>';
+				text = '<u>' + _('order_number') + '</u>: ' + g('rx_order_number_prefix') + order.get('id') + '<br>';
+				text += '<u>' + _('description') + '</u>: ' + '<b>' + order.get('STR').toUpperCase() + '</b><br>';
+				text += '<u>' + _('dispense_as_written') + '</u>: ' + (order.get('daw') ? _('yes') : _('no')) + '<br>';
+				text += '<u>' + _('quantity') + '</u>: ' + order.get('dispense') + '<br>';
 
-				if(data.days_supply){
-					text += '<u>' + _('days_supply') + '</u>: ' + data.days_supply + '<br>';
+				if(order.get('days_supply')){
+					text += '<u>' + _('days_supply') + '</u>: ' + order.get('days_supply') + '<br>';
 				}
 
-				text += '<u>' + _('refill') + '</u>: ' + data.refill + '<br>';
-				text += '<u>' + _('instructions') + '</u>: ' + data.directions + '<br>';
+				text += '<u>' + _('refill') + '</u>: ' + order.get('refill') + '<br>';
+				text += '<u>' + _('instructions') + '</u>: ' + order.get('directions') + '<br>';
 
-				var dxs = (data.dxs.join ? data.dxs.join(', ') : data.dxs);
+				var dxs = (order.get('dxs').join ? order.get('dxs').join(', ') : order.get('dxs'));
 				if(dxs && dxs !== ''){
-					text += '<u>' + _('dx') + '</u>: ' + (data.dxs.join ? data.dxs.join(', ') : data.dxs) + '<br>';
+					text += '<u>' + _('dx') + '</u>: ' + (order.get('dxs').join ? order.get('dxs').join(', ') : order.get('dxs')) + '<br>';
 				}
 
-				if(data.notes !== ''){
-					text += '<u>' + _('notes_to_pharmacist') + '</u>: ' + data.notes + '<br>';
+				if(order.get('notes') !== ''){
+					text += '<u>' + _('notes_to_pharmacist') + '</u>: ' + order.get('notes') + '<br>';
 				}
 
 				if(references !== ''){
 					text += '<u>References</u>: ' + references + '<br>';
 				}
 
-				if(data.system_notes !== ''){
-					text += '<b>' + data.system_notes + '</b><br>';
+				if(order.get('system_notes') !== ''){
+					text += '<b>' + order.get('system_notes') + '</b><br>';
 				}
 
-				params.orderItems.push([text]);
+				documents[doc_key].orderItems.push([text]);
 
 			}else{
 
-				params.orderItems.push([
-					data.STR + ' ' + data.dose + ' ' + data.route + ' ' + data.form,
-					data.directions,
-					data.dispense,
-					data.refill,
-					data.days_supply,
-					(data.dxs.join ? data.dxs.join(', ') : data.dxs),
-					data.notes,
+				documents[doc_key].orderItems.push([
+					order.get('STR') + ' ' + order.get('dose') + ' ' + order.get('route') + ' ' + order.get('form'),
+					order.get('directions'),
+					order.get('dispense'),
+					order.get('refill'),
+					order.get('days_supply'),
+					(order.get('dxs').join ? order.get('dxs').join(', ') : order.get('dxs')),
+					order.get('notes'),
 					references
 				]);
 			}
-		}
 
-		DocumentHandler.createTempDocument(params, function(provider, response){
-			if(window.dual){
-				dual.onDocumentView(response.result.id, 'Rx');
-			}else{
-				app.onDocumentView(response.result.id, 'Rx');
-			}
+		});
+
+		Ext.Object.each(documents, function(key, params){
+			DocumentHandler.createTempDocument(params, function(provider, response){
+				if(window.dual){
+					dual.onDocumentView(response.result.id, 'Rx');
+				}else{
+					app.onDocumentView(response.result.id, 'Rx');
+				}
+			});
 		});
 	},
 
@@ -43733,13 +45678,16 @@ Ext.define('App.controller.patient.Summary', {
 			'#PatientSummeryNotesPanel': {
 				activate: me.reloadGrid
 			},
-			'#PatientSummaryRemindersPanel': {
-				activate: me.reloadGrid
-			},
+			// '#PatientSummaryRemindersPanel': {
+			// 	activate: me.reloadGrid
+			// },
 			'#PatientSummaryVitalsPanel': {
 				activate: me.reloadGrid
 			},
 			'#PatientEncounterHistoryPanel': {
+				activate: me.reloadGrid
+			},
+			'#PatientAmendmentsPanel': {
 				activate: me.reloadGrid
 			},
 			'#PatientSummaryDocumentsPanel': {
@@ -43832,8 +45780,24 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 
 			filters = [];
 
-			if(group.toUpperCase() == 'NOTE'){
+			if(group.toUpperCase() == 'NOTE') {
 				store = Ext.data.StoreManager.lookup('DoctorsNotesStore');
+
+				for (i = 0; i < data.items.length; i++) {
+					Ext.Array.push(filters, {
+						property: 'id',
+						value: data.items[i]
+					});
+
+					store.load({
+						filters: filters,
+						callback: function (records) {
+							me.getController(data.controller)[data.method](records[0]);
+						}
+					});
+				}
+			}else if(group.toUpperCase() == 'REFERRAL'){
+				store = Ext.data.StoreManager.lookup('ReferralsStore');
 
 				for(i = 0; i < data.items.length; i++){
 					Ext.Array.push(filters, {
@@ -43879,8 +45843,7 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 	},
 
 	loadDocumentsByEid: function(grid, eid){
-		var me = this,
-			store = grid.getStore();
+		var store = grid.getStore();
 
 		store.removeAll();
 
@@ -43906,6 +45869,9 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 				}else if(document.document_type == 'note'){
 					document.controller = 'patient.DoctorsNotes';
 					document.method = 'onPrintDoctorsNoteBtn';
+				}else if(document.document_type == 'referral'){
+					document.controller = 'patient.Referrals';
+					document.method = 'onPrintReferralBtnClick';
 				}
 
 				document.document_type = Ext.String.capitalize(document.document_type);
@@ -43915,6 +45881,8 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 
 			if(data.length > 0){
 				store.loadRawData(data);
+				app.fireEvent('encounterdocumentsload', store);
+
 			}
 		});
 
@@ -44088,6 +46056,7 @@ Ext.define('App.controller.patient.encounter.EncounterSign', {
 	}
 
 });
+
 Ext.define('App.controller.patient.encounter.SuperBill', {
 	extend: 'Ext.app.Controller',
 	requires: [
@@ -44584,6 +46553,12 @@ Ext.define('App.model.patient.EncounterDx', {
 			index: true
 		},
 		{
+			name: 'dx_type',
+			type: 'string',
+			index: true,
+			len: 5
+		},
+		{
 			name: 'code',
 			type: 'string',
 			len: 25
@@ -44596,15 +46571,7 @@ Ext.define('App.model.patient.EncounterDx', {
 		{
 			name: 'code_text',
 			type: 'string',
-			store: false,
-			convert: function(v, record){
-				return v == '' ? record.data.long_desc : v;
-			}
-		},
-		{
-			name: 'long_desc',
-			type: 'string',
-			store: false
+			len: 300
 		}
 	],
 	proxy: {
@@ -44629,10 +46596,11 @@ Ext.define('App.view.patient.Immunizations', {
 		'App.ux.grid.RowFormEditing',
 		'App.store.patient.CVXCodes',
 		'App.ux.form.fields.DateTime',
-		'App.ux.LiveUserSearch'
+		'App.ux.LiveUserSearch',
+		'App.ux.combo.EducationResources'
 	],
 	xtype: 'patientimmunizationspanel',
-	title: _('immunizations'),
+	title: _('vaccs'),
 	layout: 'border',
 	border: false,
 	items: [
@@ -44710,6 +46678,15 @@ Ext.define('App.view.patient.Immunizations', {
 					}
 				},
 				{
+					text: _('status'),
+					dataIndex: 'status',
+					width: 100,
+					renderer: function(v, meta, record){
+						if(!record.data.is_error) return v;
+						return '<span class="is_error_data">' + v + '</span>'
+					}
+				},
+				{
 					text: _('administered_by'),
 					dataIndex: 'administered_by',
 					width: 150,
@@ -44747,32 +46724,57 @@ Ext.define('App.view.patient.Immunizations', {
 										/**
 										 * Line one
 										 */
-										xtype: 'fieldcontainer',
+										xtype: 'container',
 										layout: 'hbox',
-										itemId: 'line1',
-										defaults: {
-											margin: '0 10 0 0',
-											xtype: 'textfield'
-										},
 										items: [
 											{
-												xtype: 'immunizationlivesearch',
-												itemId: 'immunizationsearch',
-												fieldLabel: _('name'),
-												name: 'vaccine_name',
-												valueField: 'name',
-												hideLabel: false,
-												allowBlank: false,
-												enableKeyEvents: true,
-												width: 625
+												xtype: 'container',
+												layout: 'vbox',
+												margin: '0 0 10 0',
+												items: [
+													{
+														xtype: 'immunizationlivesearch',
+														itemId: 'ImmunizationsImmunizationSearch',
+														fieldLabel: _('name'),
+														name: 'vaccine_name',
+														valueField: 'name',
+														hideLabel: false,
+														allowBlank: false,
+														enableKeyEvents: true,
+														width: 475
+													},
+													{
+														xtype: 'gaiaehr.combo',
+														fieldLabel: _('disorder'),
+														itemId: 'ImmunizationsDisorderCombo',
+														width: 475,
+														list: 140,
+														queryMode: 'local',
+														loadStore: true,
+														editable: false,
+														allowBlank: false,
+														name: 'presumed_immunity_code'
+													}
+												]
+											},
+											{
+												xtype: 'combobox',
+												margin: '0 0 0 10',
+												emptyText: _('status'),
+												displayField: 'option',
+												valueField: 'value',
+												name: 'status',
+												store: Ext.create('Ext.data.Store',{
+													fields: ['option', 'value'],
+													data: [
+														{ option: _('completed'), value: 'complete' },
+														{ option: _('cancelled'), value: 'cancelled' }
+													]
+												})
 											}
 										]
-
 									},
 									{
-										/**
-										 * Line two
-										 */
 										xtype: 'fieldcontainer',
 										layout: 'hbox',
 										defaults: {
@@ -44811,9 +46813,6 @@ Ext.define('App.view.patient.Immunizations', {
 
 									},
 									{
-										/**
-										 * Line three
-										 */
 										xtype: 'fieldcontainer',
 										layout: 'hbox',
 										defaults: {
@@ -44837,8 +46836,7 @@ Ext.define('App.view.patient.Immunizations', {
 												labelWidth: 115,
 												dateTimeFormat: 'Y-m-d H:i:s',
 												name: 'administered_date',
-                                                vtype: 'date',
-                                                allowBlank: false
+                                                vtype: 'date'
                                             }
 										]
 
@@ -44894,25 +46892,120 @@ Ext.define('App.view.patient.Immunizations', {
 										]
 									},
 									{
-										xtype: 'datefield',
-										width: 250,
-										margin: '0 0 0 5',
-										fieldLabel: _('education'),
-										name: 'education_date'
+										xtype: 'checkbox',
+										name: 'is_presumed_immunity',
+										fieldLabel: 'Presumed Immunity',
+										width: 145,
+										itemId: 'ImmunizationsPresumedImmunityCheckbox',
+										labelAlign: 'right',
+										labelWidth: 125
 									},
-                                    {
-                                        xtype: 'datefield',
-                                        width: 250,
-                                        margin: '0 0 0 5',
-                                        fieldLabel: _('doc_published'),
-                                        name: 'education_doc_published'
-                                    }
+									{
+										xtype: 'checkboxfield',
+										fieldLabel: _('entered_in_error'),
+										name: 'is_error'
+									}
 								]
 							},
 							{
-								xtype: 'checkboxfield',
-								boxLabel: _('entered_in_error'),
-								name: 'is_error'
+								xtype: 'container',
+								items: [
+									{
+										xtype: 'gaiaehr.combo',
+										list: 138,
+										width: 550,
+										name: 'information_source_code',
+										fieldLabel: _('info_source'),
+										margin: '0 0 5 0',
+										loadStore: true,
+										editable: false
+									},
+									{
+										xtype: 'gaiaehr.combo',
+										list: 139,
+										width: 550,
+										name: 'refusal_reason_code',
+										fieldLabel: _('refusal_reason'),
+										margin: '0 0 5 0',
+										loadStore: true,
+										editable: false
+									},
+									{
+										xtype: 'gaiaehr.combo',
+										fieldLabel: _('vfc'),
+										name: 'vfc_code',
+										list: 135,
+										width: 550,
+										margin: '0 0 5 0',
+										loadStore: true,
+										editable: false
+									},
+									{
+										xtype: 'container',
+									    layout: 'hbox',
+										items: [
+											{
+												xtype: 'container',
+												items: [
+													{
+														xtype: 'educationresourcescombo',
+														width: 250,
+														margin: '0 5 5 0',
+														fieldLabel: _('publication'),
+														name: 'education_resource_1_id',
+														codeType: 'CVX'
+													},
+													{
+														xtype: 'datefield',
+														width: 250,
+														margin: '0 5 5 0',
+														fieldLabel: _('given_date'),
+														name: 'education_presented_1_date',
+														submitFormat: 'Y-m-d H:i:s'
+													}
+												]
+											},
+											{
+												xtype: 'container',
+												items: [
+													{
+														xtype: 'educationresourcescombo',
+														width: 145,
+														margin: '0 5 5 0',
+														name: 'education_resource_2_id',
+														codeType: 'CVX'
+													},
+													{
+														xtype: 'datefield',
+														width: 145,
+														margin: '0 5 5 0',
+														name: 'education_presented_2_date',
+														submitFormat: 'Y-m-d H:i:s'
+													}
+												]
+											},
+											{
+												xtype: 'container',
+												items: [
+													{
+														xtype: 'educationresourcescombo',
+														width: 145,
+														margin: '0 0 5 0',
+														name: 'education_resource_3_id',
+														codeType: 'CVX'
+													},
+													{
+														xtype: 'datefield',
+														width: 145,
+														margin: '0 0 5 0',
+														name: 'education_presented_3_date',
+														submitFormat: 'Y-m-d H:i:s'
+													}
+												]
+											}
+										]
+									}
+								]
 							}
 						]
 					}
@@ -44970,6 +47063,7 @@ Ext.define('App.view.patient.Immunizations', {
 		}
 	]
 });
+
 Ext.define('App.view.patient.Medications', {
 	extend: 'Ext.panel.Panel',
 	requires: [
@@ -44984,7 +47078,7 @@ Ext.define('App.view.patient.Medications', {
 		'App.ux.form.fields.DateTime'
 	],
 	xtype: 'patientmedicationspanel',
-	title: _('medications'),
+	title: _('meds'),
 	layout: 'border',
 	border: false,
 	items: [
@@ -45099,7 +47193,11 @@ Ext.define('App.view.patient.Medications', {
 					width: 90,
 					dataIndex: 'begin_date',
 					sortable: false,
-					hideable: false
+					hideable: false,
+                    editor: {
+                        xtype: 'datefield',
+                        format: 'Y-m-d'
+                    }
 				},
 				{
 					xtype: 'datecolumn',
@@ -45139,6 +47237,12 @@ Ext.define('App.view.patient.Medications', {
 					pressed: true
 				},
 				'-',
+                {
+                    text: _('active'),
+                    itemId: 'PatientMedicationActiveBtn',
+                    enableToggle: true,
+                    pressed: false
+                },
 				'->',
 				{
 					text: _('review'),
@@ -45165,7 +47269,7 @@ Ext.define('App.view.patient.AdvanceDirectives', {
 
 	],
 	xtype: 'patientadvancedirectivepanel',
-	title: _('advance_directives'),
+	title: _('adv_dir'),
 	columnLines: true,
 	store: Ext.create('App.store.patient.AdvanceDirectives', {
 		remoteFilter: true,
@@ -45269,7 +47373,6 @@ Ext.define('App.view.patient.LabOrders', {
 	},
 	store: Ext.create('App.store.patient.PatientsOrders', {
 		storeId: 'LabOrderStore',
-		groupField: 'date_ordered',
 		remoteFilter: true,
 		pageSize: 200,
 		sorters: [
@@ -45292,11 +47395,6 @@ Ext.define('App.view.patient.LabOrders', {
 	selModel: Ext.create('Ext.selection.CheckboxModel', {
 		showHeaderCheckbox: false
 	}),
-	features: [
-		{
-			ftype: 'grouping'
-		}
-	],
 	plugins: [
 		{
 			ptype: 'rowediting',
@@ -46005,6 +48103,8 @@ Ext.define('App.view.patient.Documents', {
 				flex: 1,
 				columnLines: true,
 				selType: 'checkboxmodel',
+				stateful: true,
+				stateId: 'patientDocumentGridState',
 				features: [
 					{
 						ftype: 'grouping',
@@ -46028,6 +48128,7 @@ Ext.define('App.view.patient.Documents', {
 						width: 23,
 						icon: 'resources/images/icons/icoLessImportant.png',
 						tooltip: _('validate_file_integrity_hash'),
+						stateId: 'patientDocumentGridStateActionCol',
 						handler: function(grid, rowIndex){
 							docCtrl.onDocumentHashCheckBtnClick(grid, rowIndex);
 						},
@@ -46053,14 +48154,18 @@ Ext.define('App.view.patient.Documents', {
 					//},
 					{
 						header: _('category'),
-						dataIndex: 'docType',
-						itemId: 'docType',
+						dataIndex: 'docTypeCode',
+						itemId: 'docTypeCode',
+						editor: {
+							xtype: 'textfield'
+						},
+						stateId: 'patientDocumentGridStateDocTypeCol',
 						renderer: function(v, meta, record){
 							if(record.get('entered_in_error')){
 								meta.tdCls += ' entered-in-error ';
 								meta.tdAttr = 'data-qtip="' + _('error_note') + ': ' + record.get('error_note') + '"';
 							}
-							return v;
+							return record.get('docType');
 						}
 					},
 					{
@@ -46069,6 +48174,7 @@ Ext.define('App.view.patient.Documents', {
 						dataIndex: 'groupDate',
 						format: g('date_display_format'),
 						itemId: 'groupDate',
+						stateId: 'patientDocumentGridStateGroupDateCol',
 						renderer: function(v, meta, record){
 							var val = v != null ? Ext.Date.format(v, g('date_display_format')) : '-';
 
@@ -46087,6 +48193,7 @@ Ext.define('App.view.patient.Documents', {
 							xtype: 'textfield',
 							action: 'title'
 						},
+						stateId: 'patientDocumentGridStateTitleCol',
 						renderer: function(v, meta, record){
 							if(record.get('entered_in_error')){
 								meta.tdCls += ' entered-in-error ';
@@ -46095,18 +48202,19 @@ Ext.define('App.view.patient.Documents', {
 							return v;
 						}
 					},
-					{
-						header: _('encrypted'),
-						dataIndex: 'encrypted',
-						width: 70,
-						renderer: function(v, meta, record){
-							if(record.get('entered_in_error')){
-								meta.tdCls += ' entered-in-error ';
-								meta.tdAttr = 'data-qtip="' + _('error_note') + ': ' + record.get('error_note') + '"';
-							}
-							return app.boolRenderer(v);
-						}
-					}
+					// {
+					// 	header: _('encrypted'),
+					// 	dataIndex: 'encrypted',
+					// 	width: 70,
+					// 	stateId: 'patientDocumentGridStateEncryptedCol',
+					// 	renderer: function(v, meta, record){
+					// 		if(record.get('entered_in_error')){
+					// 			meta.tdCls += ' entered-in-error ';
+					// 			meta.tdAttr = 'data-qtip="' + _('error_note') + ': ' + record.get('error_note') + '"';
+					// 		}
+					// 		return app.boolRenderer(v);
+					// 	}
+					// }
 				],
 				plugins: Ext.create('Ext.grid.plugin.RowEditing', {
 					autoCancel: true,
@@ -46134,7 +48242,11 @@ Ext.define('App.view.patient.Documents', {
 					'->',
 					'-',
 					{
-						text: _('add_document'),
+						text: _('scan'),
+						itemId: 'documentScanBtn'
+					},
+					{
+						text: _('upload'),
 						itemId: 'documentUploadBtn'
 					}
 				],
@@ -46191,23 +48303,33 @@ Ext.define('App.view.patient.CCD', {
 		}
 	],
 	tbar: [
-		{
-			xtype: 'patientEncounterCombo',
-			itemId: 'PatientCcdPanelEncounterCmb',
-			margin: '0 5 5 5',
-			width: 300,
-			fieldLabel: _('filter_encounter'),
-			hideLabel: false,
-			labelAlign: 'top'
-		},
+        {
+            xtype: 'fieldcontainer',
+            border: 1,
+            layout: 'vbox',
+            defaults: {
+                margin: '0 5 5 5'
+            },
+            items:[
+                {
+                    xtype: 'patientEncounterCombo',
+                    itemId: 'PatientCcdPanelEncounterCmb',
+                    width: 300,
+                    fieldLabel: _('filter_encounter'),
+                    hideLabel: false,
+                    labelAlign: 'top',
+	                includeAllSelection: true
+                }
+            ]
+
+        },
 		'-',
 		{
 			xtype: 'checkboxgroup',
 			fieldLabel: _('exclude'),
-			// Arrange checkboxes into two columns, distributed vertically
-			columns: 5,
+			columns: 4,
 			vertical: true,
-			labelWidth: 60,
+			labelWidth: 80,
 			itemId: 'PatientCcdPanelExcludeCheckBoxGroup',
 			flex: 1,
 			items: [
@@ -46216,11 +48338,31 @@ Ext.define('App.view.patient.CCD', {
 				{boxLabel: _('immunizations'), name: 'exclude', inputValue: 'immunizations'},
 				{boxLabel: _('medications'), name: 'exclude', inputValue: 'medications'},
 				{boxLabel: _('meds_administered'), name: 'exclude', inputValue: 'administered'},
-				{boxLabel: _('plan_of_care'), name: 'exclude', inputValue: 'planofcare'},
 				{boxLabel: _('problems'), name: 'exclude', inputValue: 'problems'},
 				{boxLabel: _('allergies'), name: 'exclude', inputValue: 'allergies'},
 				{boxLabel: _('social'), name: 'exclude', inputValue: 'social'},
-				{boxLabel: _('results'), name: 'exclude', inputValue: 'results'}
+				{boxLabel: _('results'), name: 'exclude', inputValue: 'results'},
+                {boxLabel: _('provider_information'), name: 'exclude', inputValue: 'provider_information'},
+                {boxLabel: _('clinical_instructions'), name: 'exclude', inputValue: 'clinical_instructions'},
+                {boxLabel: _('plan_of_care'), name: 'exclude', inputValue: 'planofcare'},
+                // {boxLabel: _('future_appointments'), name: 'exclude', inputValue: 'future_appointments'},
+				{boxLabel: _('visit_date_location'), name: 'exclude', inputValue: 'visit_date_location'},
+                {boxLabel: _('reason_for_visit'), name: 'exclude', inputValue: 'reason_for_visit'},
+                {boxLabel: _('patient_decision_aids'), name: 'exclude', inputValue: 'patient_decision_aids'},
+
+				{boxLabel: _('future_appointments'), name: 'exclude', inputValue: 'future_appointments'},
+				{boxLabel: _('future_schedule_test'), name: 'exclude', inputValue: 'future_schedule_test'},
+				{boxLabel: _('diagnostic_test_pending'), name: 'exclude', inputValue: 'diagnostic_test_pending'},
+				{boxLabel: _('patient_information'), name: 'exclude', inputValue: 'patient_information'},
+
+                {boxLabel: _('patient_name'), name: 'exclude', inputValue: 'patient_name'},
+                {boxLabel: _('patient_sex'), name: 'exclude', inputValue: 'patient_sex'},
+                {boxLabel: _('patient_dob'), name: 'exclude', inputValue: 'patient_dob'},
+                {boxLabel: _('patient_race'), name: 'exclude', inputValue: 'patient_race'},
+                {boxLabel: _('patient_ethnicity'), name: 'exclude', inputValue: 'patient_ethnicity'},
+                {boxLabel: _('patient_preferred_language'), name: 'exclude', inputValue: 'patient_preferred_language'},
+                {boxLabel: _('patient_marital_status'), name: 'exclude', inputValue: 'patient_marital_status'},
+				{boxLabel: _('patient_smoking_status'), name: 'exclude', inputValue: 'patient_smoking_status'},
 			]
 		},
 		'-',
@@ -46233,27 +48375,52 @@ Ext.define('App.view.patient.CCD', {
 		},
 		'-',
 		{
-			text: _('download'),
-			margin: '0 0 5 0',
-			itemId: 'exportCcdBtn',
-			icon: 'resources/images/icons/download.png'
+			xtype: 'container',
+			layout: 'vbox',
+			items: [
+				{
+					xtype: 'button',
+					text: _('upload'),
+					margin: '0 0 5 0',
+					itemId: 'importCcdBtn',
+					icon: 'resources/images/icons/upload.png',
+					width: 100
+				},
+				{
+					xtype: 'button',
+					text: _('download'),
+					itemId: 'exportCcdBtn',
+					icon: 'resources/images/icons/download.png',
+					width: 100
+				}
+			]
 		},
 		'-',
 		{
-			text: _('archive'),
-			margin: '0 0 5 0',
-			itemId: 'archiveCcdBtn',
-			icon: 'resources/images/icons/archive_16.png'
-		},
-		'-',
-		{
-			text: 'Print',
-			iconCls: 'icon-print',
-			itemId: 'printCcdBtn'
+			xtype: 'container',
+			layout: 'vbox',
+			items: [
+				{
+					xtype: 'button',
+					text: _('archive'),
+					margin: '0 0 5 0',
+					itemId: 'archiveCcdBtn',
+					icon: 'resources/images/icons/archive_16.png',
+					width: 100
+				},
+				{
+					xtype: 'button',
+					text: 'Print',
+					iconCls: 'icon-print',
+					itemId: 'printCcdBtn',
+					width: 100
+				}
+			]
 		}
 	]
 
 });
+
 Ext.define('App.view.administration.CPT', {
 	extend: 'Ext.grid.Panel',
 	requires:[
@@ -46951,6 +49118,7 @@ Ext.define('App.view.patient.windows.ArchiveDocument', {
 	draggable: false,
 	modal: true,
 	autoShow: true,
+	closeAction: 'hide',
 	title: _('archive_document'),
 	items: [
 		{
@@ -46973,16 +49141,16 @@ Ext.define('App.view.patient.windows.ArchiveDocument', {
 				},
 				{
 					xtype: 'gaiaehr.combo',
-					fieldLabel: _('type'),
+					fieldLabel: _('category'),
 					list: 102,
-					name: 'docType',
+					name: 'docTypeCode',
 					allowBlank: false
 				},
-				{
-					xtype: 'checkbox',
-					name: 'encrypted',
-					fieldLabel: _('encrypted')
-				},
+				// {
+				// 	xtype: 'checkbox',
+				// 	name: 'encrypted',
+				// 	fieldLabel: _('encrypted')
+				// },
 				{
 					xtype: 'textareafield',
 					name: 'note',
@@ -47001,71 +49169,6 @@ Ext.define('App.view.patient.windows.ArchiveDocument', {
 		{
 			text: _('archive'),
 			itemId: 'archiveBtn'
-		}
-	]
-});
-Ext.define('App.view.scanner.Window', {
-	extend: 'Ext.window.Window',
-	xtype: 'scannerwindow',
-	itemId: 'ScannerWindow',
-	autoScroll: true,
-	width: 1000,
-	minHeight: 500,
-	maxHeight: 700,
-	closeAction: 'hide'
-	,	title: _('scanner'),
-	layout: {
-		type: 'hbox'
-	},
-	items: [
-		{
-			xtype: 'image',
-			flex: 1,
-			id: 'ScannerImage',
-			style: 'background-color:white',
-			itemId: 'ScannerImage'
-		}
-	],
-	buttons: [
-		{
-			text: _('edit'),
-			enableToggle: true,
-			itemId: 'ScannerImageEditBtn'
-		},
-		'-',
-		{
-			xtype: 'combobox',
-			itemId: 'ScannerCombo',
-			editable: false,
-			queryMode: 'local',
-			displayField: 'Name',
-			valueField: 'Name',
-			flex: 1,
-			store: Ext.create('Ext.data.Store', {
-				fields: [
-					{
-						name: 'Name',
-						type: 'string'
-					},
-					{
-						name: 'Version',
-						type: 'string'
-					},
-					{
-						name: 'Checked',
-						type: 'string'
-					}
-				]
-			})
-		},
-		{
-			text: _('scan'),
-			itemId: 'ScannerScanBtn'
-		},
-		'-',
-		{
-			text: _('ok'),
-			itemId: 'ScannerOkBtn'
 		}
 	]
 });
@@ -47110,7 +49213,7 @@ Ext.define('App.view.patient.windows.UploadDocument', {
 					xtype: 'gaiaehr.combo',
 					fieldLabel: _('type'),
 					list: 102,
-					name: 'docType',
+					name: 'docTypeCode',
 					allowBlank: false
 				},
 				{
@@ -47136,11 +49239,11 @@ Ext.define('App.view.patient.windows.UploadDocument', {
 						}
 					]
 				},
-				{
-					xtype: 'checkbox',
-					name: 'encrypted',
-					fieldLabel: _('encrypted')
-				},
+				// {
+				// 	xtype: 'checkbox',
+				// 	name: 'encrypted',
+				// 	fieldLabel: _('encrypted')
+				// },
 				{
 					xtype: 'textareafield',
 					name: 'note',
@@ -47170,10 +49273,12 @@ Ext.define('App.view.administration.HL7MessageViewer', {
 		align: 'stretch'
 	},
 	title: _('hl7_viewer'),
+	itemId: 'HL7MessageViewerWindow',
 	width: 800,
 	height: 450,
 	bodyPadding: 10,
 	maximizable: true,
+	modal: true,
 	bodyStyle: 'background-color:white',
 	defaults: {
 		xtype: 'textareafield',
@@ -47181,13 +49286,20 @@ Ext.define('App.view.administration.HL7MessageViewer', {
 	},
 	items: [
 		{
+			xtype: 'container',
+			itemId: 'HL7MessageViewerWindowWarnings',
+			height: 40
+		},
+		{
 			fieldLabel: _('message'),
-			action: 'message',
+			itemId: 'HL7MessageViewerWindowMessageField',
+			readOnly: true,
 			flex: 1
 		},
 		{
 			fieldLabel: _('acknowledge'),
-			action: 'acknowledge',
+			itemId: 'HL7MessageViewerWindowAcknowledgeField',
+			readOnly: true,
 			flex: 1
 		}
 	]
@@ -47943,7 +50055,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 	modal: true,
 	layout: 'border',
 	width: 1200,
-	height: 660,
+	height: 690,
 	bodyPadding: 5,
 
 	pid: null,
@@ -47961,14 +50073,14 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 			title: _('documents'),
 			region: 'east',
 			itemId: 'EncounterSignDocumentGrid',
-			width: 200
+			width: 250
 		},
 		{
 			xtype: 'form',
 			title: _('additional_info'),
 			region: 'south',
 			split: true,
-			height: 245,
+			height: 250,
 			layout: 'column',
 			defaults: {
 				xtype: 'fieldset',
@@ -48015,7 +50127,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 							]
 						},
 						{
-							title: 'Follow Up',
+							title: _('follow_up'),
 							flex: 1,
 							defaults: {
 								anchor: '100%'
@@ -48080,7 +50192,8 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 		{
 			xtype: 'encountersupervisorscombo',
 			itemId: 'EncounterCoSignSupervisorCombo',
-			allowBlank: false
+			allowBlank: false,
+			width: 250
 		},
 		{
 			text: _('co_sign') + ' (' + _('supervisor') + ')',
@@ -48096,6 +50209,7 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 		}
 	]
 });
+
 Ext.define('App.view.dashboard.panel.PortalColumn', {
 	extend     : 'Ext.container.Container',
 	alias      : 'widget.portalcolumn',
@@ -48232,7 +50346,7 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 			pid = (data.records[0].data) ? data.records[0].data.pid : data.records[0].pid,
 			params;
 
-		app.msg('Sweet!', name + ' ' + _('sent_to') + ' ' + this.panel.title);
+		app.msg(_('sweet'), name + ' ' + _('sent_to') + ' ' + this.panel.title);
 
 		params = {
 			pid: pid,
@@ -48358,584 +50472,573 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 		if(typeof callback == 'function') callback(true);
 	}
 });
+
 Ext.define('App.view.administration.DataManager', {
-	extend: 'App.ux.RenderPanel',
-	pageTitle: 'Data Manager',
-	requires: [
-		'App.view.administration.CPT',
-		'App.ux.combo.CodesTypes',
-		'App.ux.combo.Titles'
-	],
+    extend: 'App.ux.RenderPanel',
+    pageTitle: 'Data Manager',
+    requires: [
+        'App.view.administration.CPT',
+        'App.ux.combo.CodesTypes',
+        'App.ux.combo.Titles'
+    ],
 
-	initComponent: function(){
-		var me = this;
+    initComponent: function () {
+        var me = this;
 
-		me.active = 1;
-		me.dataQuery = '';
-		me.code_type = 'LOINC';
-
-
-		me.store = Ext.create('App.store.administration.Services');
-		me.activeProblemsStore = Ext.create('App.store.administration.ActiveProblems');
-		me.medicationsStore = Ext.create('App.store.administration.Medications');
-		me.ImmuRelationStore = Ext.create('App.store.administration.ImmunizationRelations');
-		me.labObservationsStore = Ext.create('App.store.administration.LabObservations');
+        me.active = 1;
+        me.dataQuery = '';
+        me.code_type = 'LOINC';
 
 
-		function code_type(val){
-			if(val == '1'){
-				return 'CPT4';
-			}
-			else if(val == '3'){
-				return 'HCPCS';
-			}
-			else if(val == '100'){
-				return 'CVX';
-			}
-			return val;
-		}
+        me.store = Ext.create('App.store.administration.Services');
+        me.activeProblemsStore = Ext.create('App.store.administration.ActiveProblems');
+        me.medicationsStore = Ext.create('App.store.administration.Medications');
+        me.ImmuRelationStore = Ext.create('App.store.administration.ImmunizationRelations');
+        me.labObservationsStore = Ext.create('App.store.administration.LabObservations');
 
-		/**
-		 * CPT Container
-		 */
-		me.cptContainer = Ext.create('Ext.container.Container', {
-			layout: 'column',
-			action: 'CPT4',
-			//hidden: true,
-			items: [
-				{
-					xtype: 'fieldcontainer',
-					msgTarget: 'under',
-					defaults: {
-						action: 'field'
-					},
-					items: [
-						{
-							fieldLabel: 'Type',
-							xtype: 'mitos.codestypescombo',
-							name: 'code_type'
-						},
-						{
-							fieldLabel: 'Code',
-							xtype: 'textfield',
-							name: 'code'
-						}
-					]
-				},
-				{
-					xtype: 'fieldcontainer',
-					margin: '0 0 0 10',
-					defaults: {
-						action: 'field'
-					},
-					items: [
-						{
-							fieldLabel: _('description'),
-							xtype: 'textfield',
-							name: 'code_text',
-							width: 500
-						}
-					]
-				},
-				{
-					xtype: 'fieldcontainer',
-					margin: '0 0 0 20',
-					defaults: {
-						action: 'field'
-					},
-					items: [
-						{
-							boxLabel: _('radiology'),
-							xtype: 'checkboxfield',
-							name: 'isRadiology'
-						},
-						{
-							boxLabel: _('active'),
-							labelWidth: 75,
-							xtype: 'checkboxfield',
-							name: 'active'
-						}
-					]
-				}
-			]
-		});
-		/**
-		 * HCPSC Container
-		 */
-		me.hpccsContainer = Ext.create('Ext.container.Container', {
-			layout: 'column',
-			action: 'HCPCS',
-			//hidden: true,
-			items: [
-				{
-					xtype: 'fieldcontainer',
-					msgTarget: 'under',
-					defaults: {
-						action: 'field'
-					},
-					items: [
-						{
-							fieldLabel: _('type'),
-							xtype: 'mitos.codestypescombo',
-							name: 'code_type'
-						},
-						{
-							fieldLabel: _('code'),
-							xtype: 'textfield',
-							name: 'code'
-						},
-						{
-							fieldLabel: _('modifier'),
-							xtype: 'textfield',
-							name: 'mod'
-						}
-					]
-				},
-				{
-					xtype: 'fieldcontainer',
-					margin: '0 0 0 10',
-					defaults: {
-						action: 'field'
-					},
-					items: [
-						{
-							fieldLabel: _('description'),
-							xtype: 'textfield',
-							name: 'code_text'
-						},
-						{
-							fieldLabel: _('category'),
-							xtype: 'mitos.titlescombo',
-							name: 'title'
-						}
-					]
-				},
-				{
-					xtype: 'fieldcontainer',
-					margin: '0 0 0 20',
-					defaults: {
-						action: 'field'
-					},
-					items: [
-						{
-							boxLabel: _('reportable'),
-							xtype: 'checkboxfield',
-							name: 'reportable'
-						},
-						{
-							boxLabel: _('active'),
-							labelWidth: 75,
-							xtype: 'checkboxfield',
-							name: 'active'
-						}
-					]
-				}
-			]
-		});
-		/**
-		 * CVX Container
-		 */
-		me.cvxCintainer = Ext.create('Ext.container.Container', {
-			action: _('immunizations'),
-			layout: 'fit',
-			items: [
-				{
+        function code_type(val) {
+            if (val == '1') {
+                return 'CPT4';
+            }
+            else if (val == '3') {
+                return 'HCPCS';
+            }
+            else if (val == '100') {
+                return 'CVX';
+            }
+            return val;
+        }
 
-				}
-			]
+        /**
+         * CPT Container
+         */
+        me.cptContainer = Ext.create('Ext.container.Container', {
+            layout: 'column',
+            action: 'CPT4',
+            //hidden: true,
+            items: [
+                {
+                    xtype: 'fieldcontainer',
+                    msgTarget: 'under',
+                    defaults: {
+                        action: 'field'
+                    },
+                    items: [
+                        {
+                            fieldLabel: 'Type',
+                            xtype: 'mitos.codestypescombo',
+                            name: 'code_type'
+                        },
+                        {
+                            fieldLabel: 'Code',
+                            xtype: 'textfield',
+                            name: 'code'
+                        }
+                    ]
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    margin: '0 0 0 10',
+                    defaults: {
+                        action: 'field'
+                    },
+                    items: [
+                        {
+                            fieldLabel: _('description'),
+                            xtype: 'textfield',
+                            name: 'code_text',
+                            width: 500
+                        }
+                    ]
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    margin: '0 0 0 20',
+                    defaults: {
+                        action: 'field'
+                    },
+                    items: [
+                        {
+                            boxLabel: _('radiology'),
+                            xtype: 'checkboxfield',
+                            name: 'isRadiology'
+                        },
+                        {
+                            boxLabel: _('active'),
+                            labelWidth: 75,
+                            xtype: 'checkboxfield',
+                            name: 'active'
+                        }
+                    ]
+                }
+            ]
+        });
+        /**
+         * HCPSC Container
+         */
+        me.hpccsContainer = Ext.create('Ext.container.Container', {
+            layout: 'column',
+            action: 'HCPCS',
+            //hidden: true,
+            items: [
+                {
+                    xtype: 'fieldcontainer',
+                    msgTarget: 'under',
+                    defaults: {
+                        action: 'field'
+                    },
+                    items: [
+                        {
+                            fieldLabel: _('type'),
+                            xtype: 'mitos.codestypescombo',
+                            name: 'code_type'
+                        },
+                        {
+                            fieldLabel: _('code'),
+                            xtype: 'textfield',
+                            name: 'code'
+                        },
+                        {
+                            fieldLabel: _('modifier'),
+                            xtype: 'textfield',
+                            name: 'mod'
+                        }
+                    ]
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    margin: '0 0 0 10',
+                    defaults: {
+                        action: 'field'
+                    },
+                    items: [
+                        {
+                            fieldLabel: _('description'),
+                            xtype: 'textfield',
+                            name: 'code_text'
+                        },
+                        {
+                            fieldLabel: _('category'),
+                            xtype: 'mitos.titlescombo',
+                            name: 'title'
+                        }
+                    ]
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    margin: '0 0 0 20',
+                    defaults: {
+                        action: 'field'
+                    },
+                    items: [
+                        {
+                            boxLabel: _('reportable'),
+                            xtype: 'checkboxfield',
+                            name: 'reportable'
+                        },
+                        {
+                            boxLabel: _('active'),
+                            labelWidth: 75,
+                            xtype: 'checkboxfield',
+                            name: 'active'
+                        }
+                    ]
+                }
+            ]
+        });
+        /**
+         * CVX Container
+         */
+        me.cvxCintainer = Ext.create('Ext.container.Container', {
+            action: _('immunizations'),
+            layout: 'fit',
+            items: [
+                {}
+            ]
 
-		});
-		/**
-		 * Labs Container
-		 */
-		me.labContainer = Ext.create('Ext.container.Container', {
-			action: _('laboratories'),
-			layout: {
-				type: 'vbox',
-				align: 'stretch'
-			},
-			items: [
-				{
-					/**
-					 * line One
-					 */
-					xtype: 'fieldcontainer',
-					layout: 'hbox',
-					defaults: {
-						margin: '0 10 5 0',
-						action: 'field'
-					},
-					items: [
-						{
-							xtype: 'textfield',
-							fieldLabel: _('short_name_alias'),
-							name: 'code_text_short',
-							labelWidth: 130,
-							width: 500
-						},
-						{
-							xtype: 'checkbox',
-							fieldLabel: _('active'),
-							name: 'active',
-							anchor: '100%',
-							labelWidth: 50
+        });
+        /**
+         * Labs Container
+         */
+        me.labContainer = Ext.create('Ext.container.Container', {
+            action: _('laboratories'),
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            items: [
+                {
+                    /**
+                     * line One
+                     */
+                    xtype: 'fieldcontainer',
+                    layout: 'hbox',
+                    defaults: {
+                        margin: '0 10 5 0',
+                        action: 'field'
+                    },
+                    items: [
+                        {
+                            xtype: 'textfield',
+                            fieldLabel: _('short_name_alias'),
+                            name: 'code_text_short',
+                            labelWidth: 130,
+                            width: 500
+                        },
+                        {
+                            xtype: 'checkbox',
+                            fieldLabel: _('active'),
+                            name: 'active',
+                            anchor: '100%',
+                            labelWidth: 50
 
-						}
-					]
-				},
-				{
-					xtype: 'grid',
-					frame: true,
-					title: _('children'),
-					store: me.labObservationsStore,
-					plugins: Ext.create('Ext.grid.plugin.CellEditing', {
-						clicksToEdit: 2
-					}),
-					columns: [
-						{
-							header: _('label_alias'),
-							dataIndex: 'code_text_short',
-							width: 150,
-							editor: {
-								xtype: 'textfield'
-							}
-						},
-						{
-							header: _('loinc_name'),
-							dataIndex: 'loinc_name',
-							flex: 1
-						},
-						{
-							header: _('loinc_number'),
-							dataIndex: 'loinc_number',
-							width: 100
-						},
-						{
-							header: _('default_unit'),
-							dataIndex: 'default_unit',
-							width: 100,
-							editor: {
-								xtype: 'mitos.unitscombo'
-							}
-						},
-						{
-							header: _('req_opt'),
-							dataIndex: 'required_in_panel',
-							width: 75
-						},
-						{
-							header: _('range_start'),
-							dataIndex: 'range_start',
-							width: 100,
-							editor: {
-								xtype: 'numberfield'
-							}
-						},
-						{
-							header: _('range_end'),
-							dataIndex: 'range_end',
-							width: 100,
-							editor: {
-								xtype: 'numberfield'
-							}
-						},
-						{
-							header: _('description'),
-							dataIndex: 'description',
-							flex: 1,
-							editor: {
-								xtype: 'textfield'
-							}
-						},
-						{
-							width: 60,
-							header: _('active'),
-							dataIndex: 'active',
-							renderer: me.boolRenderer,
-							editor: {
-								xtype: 'checkbox'
-							}
-						}
-					]
-					//                    tbar:[
-					//                        {
-					//                            xtype:'labobservationscombo',
-					//                            fieldLabel:'Add Observation',
-					//                            width:300,
-					//                            listeners: {
-					//                                scope : me,
-					//                                select: me.onObservationSelect
-					//                            }
-					//                        },
-					//                        {
-					//                            text:'Add Observation',
-					//                            iconCls:'icoAddRecord',
-					//                            scope:me,
-					//                            handler:me.addLabObservation
-					//                        }
-					//                    ]
-				}
-			]
-		});
+                        }
+                    ]
+                },
+                {
+                    xtype: 'grid',
+                    frame: true,
+                    title: _('children'),
+                    store: me.labObservationsStore,
+                    plugins: Ext.create('Ext.grid.plugin.CellEditing', {
+                        clicksToEdit: 2
+                    }),
+                    columns: [
+                        {
+                            header: _('label_alias'),
+                            dataIndex: 'code_text_short',
+                            width: 150,
+                            editor: {
+                                xtype: 'textfield'
+                            }
+                        },
+                        {
+                            header: _('loinc_name'),
+                            dataIndex: 'loinc_name',
+                            flex: 1
+                        },
+                        {
+                            header: _('loinc_number'),
+                            dataIndex: 'loinc_number',
+                            width: 100
+                        },
+                        {
+                            header: _('default_unit'),
+                            dataIndex: 'default_unit',
+                            width: 100,
+                            editor: {
+                                xtype: 'mitos.unitscombo'
+                            }
+                        },
+                        {
+                            header: _('req_opt'),
+                            dataIndex: 'required_in_panel',
+                            width: 75
+                        },
+                        {
+                            header: _('range_start'),
+                            dataIndex: 'range_start',
+                            width: 100,
+                            editor: {
+                                xtype: 'numberfield'
+                            }
+                        },
+                        {
+                            header: _('range_end'),
+                            dataIndex: 'range_end',
+                            width: 100,
+                            editor: {
+                                xtype: 'numberfield'
+                            }
+                        },
+                        {
+                            header: _('description'),
+                            dataIndex: 'description',
+                            flex: 1,
+                            editor: {
+                                xtype: 'textfield'
+                            }
+                        },
+                        {
+                            width: 60,
+                            header: _('active'),
+                            dataIndex: 'active',
+                            renderer: me.boolRenderer,
+                            editor: {
+                                xtype: 'checkbox'
+                            }
+                        }
+                    ]
+                    //                    tbar:[
+                    //                        {
+                    //                            xtype:'labobservationscombo',
+                    //                            fieldLabel:'Add Observation',
+                    //                            width:300,
+                    //                            listeners: {
+                    //                                scope : me,
+                    //                                select: me.onObservationSelect
+                    //                            }
+                    //                        },
+                    //                        {
+                    //                            text:'Add Observation',
+                    //                            iconCls:'icoAddRecord',
+                    //                            scope:me,
+                    //                            handler:me.addLabObservation
+                    //                        }
+                    //                    ]
+                }
+            ]
+        });
 
-		me.dataManagerGrid = Ext.create('Ext.grid.Panel', {
-			title: 'Codes',
-			region: 'center',
-			store: me.store,
-			viewConfig: {
-				loadMask: true
-			},
-			columns: [
-				{
-					width: 50,
+        me.dataManagerGrid = Ext.create('Ext.grid.Panel', {
+            title: 'Codes',
+            region: 'center',
+            store: me.store,
+            viewConfig: {
+                loadMask: true
+            },
+            columns: [
+                {
+                    width: 50,
 //					header: _('code_type'),
-					sortable: false,
-					dataIndex: 'code_type',
-					renderer: code_type
-				},
-				{
-					width: 60,
-					header: _('code'),
-					sortable: true,
-					dataIndex: 'code'
-				},
-				{
-					header: _('short_name'),
-					dataIndex: 'code_text_short',
-					width: 100,
-					flex: 1
-				},
-				{
-					header: _('long_name'),
-					sortable: true,
-					dataIndex: 'code_text',
-					flex: 2
-				},
-				{
-					width: 60,
-					header: _('active'),
-					sortable: true,
-					dataIndex: 'active',
-					renderer: me.boolRenderer
-				}
-			],
-			plugins: Ext.create('App.ux.grid.RowFormEditing', {
-				autoCancel: false,
-				errorSummary: false,
-				clicksToEdit: 1,
-				listeners: {
-					scope: me,
-					beforeedit: me.beforeServiceEdit
-				}
-			}),
-			tbar: this.bar = Ext.create('Ext.PagingToolbar', {
-				store: me.store,
-				displayInfo: true,
-				emptyMsg: _('no_office_notes_to_display'),
-				plugins: Ext.create('Ext.ux.SlidingPager'),
-				items: [
-					'-',
-					{
-						xtype: 'mitos.codestypescombo',
-						width: 150,
-						listeners: {
-							scope: me,
-							select: me.onCodeTypeSelect
-						}
-					}, '-',
-					{
-						text: _('add'),
-						iconCls: 'icoAddRecord',
-						scope: me,
-						handler: me.onAddData
-					}, '-',
-					{
-						xtype: 'textfield',
-						emptyText: _('search'),
-						width: 200,
-						enableKeyEvents: true,
-						listeners: {
-							scope: me,
-							keyup: me.onSearch,
-							buffer: 500
-						}
-					}, '-',
-					{
-						xtype: 'button',
-						text: _('show_inactive_codes_only'),
-						enableToggle: true,
-						listeners: {
-							scope: me,
-							toggle: me.onActivePressed
-						}
-					}
-				]
-			})
-		});
-		// END GRID
+                    sortable: false,
+                    dataIndex: 'code_type',
+                    renderer: code_type
+                },
+                {
+                    width: 60,
+                    header: _('code'),
+                    sortable: true,
+                    dataIndex: 'code'
+                },
+                {
+                    header: _('short_name'),
+                    dataIndex: 'code_text_short',
+                    width: 100,
+                    flex: 1
+                },
+                {
+                    header: _('long_name'),
+                    sortable: true,
+                    dataIndex: 'code_text',
+                    flex: 2
+                },
+                {
+                    width: 60,
+                    header: _('active'),
+                    sortable: true,
+                    dataIndex: 'active',
+                    renderer: me.boolRenderer
+                }
+            ],
+            plugins: Ext.create('App.ux.grid.RowFormEditing', {
+                autoCancel: false,
+                errorSummary: false,
+                clicksToEdit: 1,
+                listeners: {
+                    scope: me,
+                    beforeedit: me.beforeServiceEdit
+                }
+            }),
+            tbar: this.bar = Ext.create('Ext.PagingToolbar', {
+                store: me.store,
+                displayInfo: true,
+                emptyMsg: _('no_office_notes_to_display'),
+                plugins: Ext.create('Ext.ux.SlidingPager'),
+                items: [
+                    '-',
+                    {
+                        xtype: 'mitos.codestypescombo',
+                        width: 150,
+                        listeners: {
+                            scope: me,
+                            select: me.onCodeTypeSelect
+                        }
+                    }, '-',
+                    {
+                        text: _('add'),
+                        iconCls: 'icoAddRecord',
+                        scope: me,
+                        handler: me.onAddData
+                    }, '-',
+                    {
+                        xtype: 'textfield',
+                        emptyText: _('search'),
+                        width: 200,
+                        enableKeyEvents: true,
+                        listeners: {
+                            scope: me,
+                            keyup: me.onSearch,
+                            buffer: 500
+                        }
+                    }, '-',
+                    {
+                        xtype: 'button',
+                        text: _('show_inactive_codes_only'),
+                        enableToggle: true,
+                        listeners: {
+                            scope: me,
+                            toggle: me.onActivePressed
+                        }
+                    }
+                ]
+            })
+        });
+        // END GRID
 
-		me.tabPanel = Ext.widget('tabpanel',{
-			items:[
-				{
-					xtype: 'cptadmingrid'
-				},
-				me.dataManagerGrid
-			]
-		});
+        me.tabPanel = Ext.widget('tabpanel', {
+            items: [
+                {
+                    xtype: 'cptadmingrid'
+                },
+                me.dataManagerGrid
+            ]
+        });
 
-		me.pageBody = [ me.tabPanel ];
-
-
+        me.pageBody = [me.tabPanel];
 
 
-		me.callParent();
-	},
+        me.callParent();
+    },
 
 
-	onAddData: function(){
-		var me = this;
-		if(me.code_type == 'Laboratories'){
-			Ext.Msg.alert('Opps!', _('ops_laboratories'));
-		} else{
-			me.dataManagerGrid.plugins[0].cancelEdit();
-			me.store.add({
-				code_type: me.code_type
-			});
-			me.dataManagerGrid.plugins[0].startEdit(0, 0);
-		}
-	},
+    onAddData: function () {
+        var me = this;
+        if (me.code_type == 'Laboratories') {
+            Ext.Msg.alert('Opps!', _('ops_laboratories'));
+        } else {
+            me.dataManagerGrid.plugins[0].cancelEdit();
+            me.store.add({
+                code_type: me.code_type
+            });
+            me.dataManagerGrid.plugins[0].startEdit(0, 0);
+        }
+    },
 
 
-	beforeServiceEdit: function(context, e){
+    beforeServiceEdit: function (context, e) {
 
-		var me = this,
-			editor = context.editor,
-			code_type = e.record.data.code_type,
-			grids,
-			thisForm;
+        var me = this,
+            editor = context.editor,
+            code_type = e.record.data.code_type,
+            grids,
+            thisForm;
 
-		if(code_type == 'CPT4'){
-			thisForm = me.cptContainer;
-		}else if(code_type == 'HCPCS'){
-			thisForm = me.hpccsContainer;
-		}else if(code_type == 'CVX'){
-			thisForm = me.cvxCintainer;
-		}else if(code_type == 'LOINC'){
+        if (code_type == 'CPT4') {
+            thisForm = me.cptContainer;
+        } else if (code_type == 'HCPCS') {
+            thisForm = me.hpccsContainer;
+        } else if (code_type == 'CVX') {
+            thisForm = me.cvxCintainer;
+        } else if (code_type == 'LOINC') {
 
-			me.labContainer.down('grid').setTitle(
-				e.record.data.has_children ? _('observations'):_('observation')
-			);
+            me.labContainer.down('grid').setTitle(
+                e.record.data.has_children ? _('observations') : _('observation')
+            );
 
-			me.labContainer.down('grid').setVisible(e.record.data.class != 'RAD');
-			thisForm = me.labContainer;
-		}
+            me.labContainer.down('grid').setVisible(e.record.data.class != 'RAD');
+            thisForm = me.labContainer;
+        }
 
-		if(!editor.items.length){
-			editor.add(thisForm);
-			editor.setFields();
-		}else if(this.currForm != thisForm){
-			editor.remove(0, false);
-			editor.add(thisForm);
-			editor.setFields();
-		}
+        if (!editor.items.length) {
+            editor.add(thisForm);
+            editor.setFields();
+        } else if (this.currForm != thisForm) {
+            editor.remove(0, false);
+            editor.add(thisForm);
+            editor.setFields();
+        }
 
-		/**
-		 * find grids inside the form and load the its store with the row ID
-		 * @type {*}
-		 */
-		if(thisForm){
-			grids = thisForm.query('grid');
-			for(var i = 0; i < grids.length; i++){
-				grids[i].getStore().load({
-					params: {
-						selectedId: me.getSelectId()
-					}
-				});
-			}
-			this.currForm = thisForm;
-		}
-	},
+        /**
+         * find grids inside the form and load the its store with the row ID
+         * @type {*}
+         */
+        if (thisForm) {
+            grids = thisForm.query('grid');
+            for (var i = 0; i < grids.length; i++) {
+                grids[i].getStore().load({
+                    params: {
+                        selectedId: me.getSelectId()
+                    }
+                });
+            }
+            this.currForm = thisForm;
+        }
+    },
 
-	onSearch: function(field){
-		var me = this,
-			store = me.store;
+    onSearch: function (field) {
+        var me = this,
+            store = me.store;
 
-		me.dataQuery = field.getValue();
-		store.proxy.extraParams = {
-			active: me.active,
-			code_type: me.code_type,
-			query: me.dataQuery
-		};
-		me.store.loadPage(1);
-	},
+        me.dataQuery = field.getValue();
+        store.proxy.extraParams = {
+            active: me.active,
+            code_type: me.code_type,
+            query: me.dataQuery
+        };
+        me.store.loadPage(1);
+    },
 
-	onCodeTypeSelect: function(combo, record){
-		var me = this,
-			store = me.store;
+    onCodeTypeSelect: function (combo, record) {
+        var me = this,
+            store = me.store;
 
-		me.code_type = record[0].data.option_value;
-		store.proxy.extraParams = {
-			active: me.active,
-			code_type: me.code_type,
-			query: me.dataQuery
-		};
-		me.store.loadPage(1);
-	},
-	//        onObservationSelect:function(combo, record){
-	//            say(record[0].data);
-	//            this.labObservationsStore.add({
-	//                    lab_id:this.getSelectId(),
-	//                    observation_element_id:record[0].data.id
-	//                });
-	//            combo.reset();
-	//        },
+        me.code_type = record[0].data.option_value;
+        store.proxy.extraParams = {
+            active: me.active,
+            code_type: me.code_type,
+            query: me.dataQuery
+        };
+        me.store.loadPage(1);
+    },
 
-	onActivePressed: function(btn, pressed){
-		var me = this,
-			store = me.store;
+    onActivePressed: function (btn, pressed) {
+        var me = this,
+            store = me.store;
 
-		me.active = !pressed;
-		store.proxy.extraParams = {
-			active: me.active,
-			code_type: me.code_type,
-			query: me.dataQuery
-		};
-		me.store.load();
-	},
+        me.active = !pressed;
+        store.proxy.extraParams = {
+            active: me.active,
+            code_type: me.code_type,
+            query: me.dataQuery
+        };
+        me.store.load();
+    },
 
-	getSelectId: function(){
-		var row = this.dataManagerGrid.getSelectionModel().getLastSelected();
-		return row.data.id;
-	},
+    getSelectId: function () {
+        var row = this.dataManagerGrid.getSelectionModel().getLastSelected();
+        return row.data.id;
+    },
 
 
-	/**
-	 * This function is called from Viewport.js when
-	 * this panel is selected in the navigation panel.
-	 * place inside this function all the functions you want
-	 * to call every this panel becomes active
-	 */
-	onActive: function(callback){
-		this.bar.query('combobox')[0].setValue("CPT4");
-		this.store.proxy.extraParams = {
-			active: this.active,
-			code_type: this.code_type,
-			query: this.dataQuery
-		};
-		this.store.load();
-		callback(true);
-	}
+    /**
+     * This function is called from Viewport.js when
+     * this panel is selected in the navigation panel.
+     * place inside this function all the functions you want
+     * to call every this panel becomes active
+     */
+    onActive: function (callback) {
+        this.bar.query('combobox')[0].setValue("CPT4");
+        this.store.proxy.extraParams = {
+            active: this.active,
+            code_type: this.code_type,
+            query: this.dataQuery
+        };
+        this.store.load();
+        callback(true);
+    }
 });
 //ens servicesPage class
+
 Ext.define('App.view.administration.Documents', {
 	extend: 'App.ux.RenderPanel',
-	id: 'panelDocuments',
 	pageTitle: _('document_template_editor'),
 	pageLayout: 'border',
 	requires: [
 		'App.ux.grid.Button',
 		'Ext.grid.Panel'
 	],
+	itemId: 'AdministrationDocuments',
 	initComponent: function(){
 
 		var me = this;
@@ -48945,59 +51048,14 @@ Ext.define('App.view.administration.Documents', {
 		// *************************************************************************************
 		me.templatesDocumentsStore = Ext.create('App.store.administration.DocumentsTemplates');
 		me.defaultsDocumentsStore = Ext.create('App.store.administration.DefaultDocuments');
-		me.tokenStore = Ext.create('App.store.administration.DocumentToken');
-
-		//		me.HeaderFootergrid = Ext.create('Ext.grid.Panel', {
-		//			title      : _('header_footer_templates'),
-		//			region     : 'south',
-		//			height     : 250,
-		//			split      : true,
-		//			hideHeaders: true,
-		//			store      : me.headersAndFooterStore,
-		//			columns    : [
-		//				{
-		//					flex     : 1,
-		//					sortable : true,
-		//					dataIndex: 'title',
-		//                    editor:{
-		//                        xtype:'textfield',
-		//                        allowBlank:false
-		//                    }
-		//				},
-		//				{
-		//					icon: 'resources/images/icons/delete.png',
-		//					tooltip: _('remove'),
-		//					scope:me,
-		//					handler: me.onRemoveDocument
-		//				}
-		//			],
-		//			listeners  : {
-		//				scope    : me,
-		//				itemclick: me.onDocumentsGridItemClick
-		//			},
-		//			tbar       :[
-		//                '->',
-		//                {
-		//                    text : _('new'),
-		//                    scope: me,
-		//                    handler: me.newHeaderOrFooterTemplate
-		//                }
-		//            ],
-		//            plugins:[
-		//                me.rowEditor2 = Ext.create('Ext.grid.plugin.RowEditing', {
-		//                    clicksToEdit: 2
-		//                })
-		//
-		//            ]
-		//		});
 
 		me.DocumentsDefaultsGrid = Ext.create('Ext.grid.Panel', {
 			title: _('documents_defaults'),
-			region: 'north',
-			width: 250,
-			border: true,
+			frame: true,
 			store: me.defaultsDocumentsStore,
 			hideHeaders: true,
+			flex: 1,
+			itemId: 'AdministrationDocumentsDefaultsGrid',
 			columns: [
 				{
 					flex: 1,
@@ -49023,7 +51081,8 @@ Ext.define('App.view.administration.Documents', {
 				{
 					text: _('new'),
 					scope: me,
-					handler: me.newDefaultTemplates
+					handler: me.newDefaultTemplates,
+					itemId: 'AdministrationDocumentsNewDefaulTemplateBtn',
 				}],
 			plugins: [me.rowEditor3 = Ext.create('Ext.grid.plugin.RowEditing',
 				{
@@ -49033,12 +51092,11 @@ Ext.define('App.view.administration.Documents', {
 
 		me.DocumentsGrid = Ext.create('Ext.grid.Panel', {
 			title: _('document_templates'),
-			region: 'center',
-			width: 250,
-			border: true,
-			split: true,
+			frame: true,
 			store: me.templatesDocumentsStore,
 			hideHeaders: true,
+			flex: 1,
+			itemId: 'AdministrationDocumentsTemplatesGrid',
 			columns: [
 				{
 					flex: 1,
@@ -49064,7 +51122,8 @@ Ext.define('App.view.administration.Documents', {
 				{
 					text: _('new'),
 					scope: me,
-					handler: me.newDocumentTemplate
+					itemId: 'AdministrationDocumentsNewTemplateBtn',
+					//handler: me.newDocumentTemplate
 				}],
 			plugins: [me.rowEditor = Ext.create('Ext.grid.plugin.RowEditing',
 				{
@@ -49073,12 +51132,41 @@ Ext.define('App.view.administration.Documents', {
 		});
 
 		me.LeftCol = Ext.create('Ext.container.Container', {
+			layout: {
+				type: 'vbox',
+				align: 'stretch'
+			},
 			region: 'west',
-			layout: 'border',
 			width: 250,
 			border: false,
 			split: true,
-			items: [me.DocumentsDefaultsGrid, me.DocumentsGrid]
+			items: [
+				me.DocumentsDefaultsGrid,
+				me.DocumentsGrid,
+				{
+					xtype:'grid',
+					title: _('pdf_templates'),
+					itemId: 'AdministrationDocumentsPdfTemplatesGrid',
+					store: Ext.create('App.store.administration.DocumentsPdfTemplates'),
+					flex: 1,
+					frame: true,
+					hideHeaders: true,
+					columns:[
+						{
+							flex: 1,
+							dataIndex: 'facility'
+						}
+					],
+					tbar: [
+						'->',
+						{
+							xtype:'button',
+							text: _('new'),
+							itemId: 'AdministrationDocumentsPdfTemplatesAddBtn'
+						}
+					]
+				}
+			]
 		});
 
 		me.TeamplateEditor = Ext.create('Ext.form.Panel', {
@@ -49089,6 +51177,7 @@ Ext.define('App.view.administration.Documents', {
 			border: true,
 			split: true,
 			hideHeaders: true,
+			itemId: 'AdministrationDocumentsTemplatesEditorForm',
 			items: {
 				xtype: 'htmleditor',
 				enableFontSize: false,
@@ -49116,16 +51205,28 @@ Ext.define('App.view.administration.Documents', {
 			border: true,
 			split: true,
 			hideHeaders: true,
-			store: me.tokenStore,
+			store: Ext.create('App.store.administration.DocumentToken'),
 			disableSelection: true,
+			itemId: 'AdministrationDocumentsTokensGrid',
 			viewConfig: {
 				stripeRows: false
 			},
+			plugins: [
+				{
+					ptype: 'cellediting'
+
+				}
+			],
 			columns: [
 				{
 					flex: 1,
 					sortable: false,
-					dataIndex: 'token'
+					dataIndex: 'token',
+					editor: {
+						xtype: 'textfield',
+						editable: false,
+						itemId: 'AdministrationDocumentsTokenTextField'
+					}
 				},
 				{
 					xtype: 'actioncolumn',
@@ -49136,49 +51237,12 @@ Ext.define('App.view.administration.Documents', {
 							tooltip: _('copy'),
 							margin: '0 5 0 0',
 							handler: function(grid, rowIndex, colIndex, item, e, record){
+								app.getController('administration.Documents').doCopy(grid, record);
 
-
-//								btn.btnEl.set({
-//									'data-clipboard-text': btn.record.data.token
-//								});
-//								AppClipboard.clip(btn.btnEl.dom);
 							}
 						}
 					]
 				}
-//				{
-//					xtype:'gridbutton',
-//					width: 35,
-//					items:[
-//						{
-//							xtype:'button',
-//							icon:'resources/images/icons/copy.png',
-//							listeners:{
-//								render:function(btn){
-//									btn.btnEl.set({
-//										'data-clipboard-text': btn.record.data.token
-//									});
-//									AppClipboard.clip(btn.btnEl.dom);
-//								}
-//							}
-//						}
-//					]
-//
-//				}
-//				{
-//					dataIndex: 'token',
-//					width: 30,
-//					xtype: "templatecolumn",
-//					tpl: new Ext.XTemplate("" +
-//						"<object id='clipboard{token}' codebase='http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0' width='16' height='16' align='middle'>",
-//						"<param name='allowScriptAccess' value='always' />",
-//						"<param name='allowFullScreen' value='false' />",
-//						"<param name='movie' value='lib/ClipBoard/clipboard.swf' />",
-//						"<param name='quality' value='high' />", "<param name='bgcolor' value='#ffffff' />",
-//						"<param name='flashvars' value='callback=copyToClipBoard&callbackArg={token}' />",
-//						"<embed src='lib/ClipBoard/clipboard.swf' flashvars='callback=copyToClipBoard&callbackArg={token}' quality='high' bgcolor='#ffffff' width='16' height='16' name='clipboard{token}' align='middle' allowscriptaccess='always' allowfullscreen='false' type='application/x-shockwave-flash' pluginspage='http://www.adobe.com/go/getflashplayer' />",
-//						"</object>", null)
-//				}
 			]
 		});
 
@@ -49260,7 +51324,8 @@ Ext.define('App.view.administration.Documents', {
 	//    },
 
 	copyToClipBoard: function(grid, rowIndex, colIndex){
-		var rec = grid.getStore().getAt(rowIndex), text = rec.get('token');
+		var rec = grid.getStore().getAt(rowIndex),
+			text = rec.get('token');
 	},
 
 	onRemoveDocument: function(){
@@ -49623,6 +51688,78 @@ Ext.define('App.view.administration.Users', {
 								},
 								{
 									xtype: 'panel',
+									title: _('contact_info'),
+									itemId: 'UserGridEditFormContactInfoPanel',
+									layout: 'column',
+									bodyPadding: 10,
+									items: [
+										{
+											xtype: 'fieldset',
+											title: _('address'),
+											margin: '0 10 0 0',
+											padding: 5,
+											defaults: {
+												margin: '0 0 5 0',
+												width: 300
+											},
+											items: [
+												{
+													xtype: 'textfield',
+													fieldLabel: _('address'),
+													name: 'street'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: _('address_cont'),
+													name: 'street_cont'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: _('city'),
+													name: 'city'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: _('state'),
+													name: 'state'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: _('postal_code'),
+													name: 'postal_code'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: _('country_code'),
+													name: 'country_code'
+												}
+											]
+										},
+										{
+											xtype: 'fieldset',
+											title: _('phone'),
+											padding: 5,
+											defaults: {
+												margin: '0 0 5 0',
+												width: 300
+											},
+											items: [
+												{
+													xtype: 'textfield',
+													fieldLabel: _('home'),
+													name: 'phone'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: _('mobile'),
+													name: 'mobile'
+												}
+											]
+										}
+									]
+								},
+								{
+									xtype: 'panel',
 									title: _('provider'),
 									itemId: 'UserGridEditFormProviderPanel',
 									layout: 'hbox',
@@ -49655,8 +51792,8 @@ Ext.define('App.view.administration.Users', {
 												},
 												{
 													xtype: 'textfield',
-													fieldLabel: _('upin'),
-													name: 'pin'
+													fieldLabel: _('lic'),
+													name: 'lic'
 												},
 												{
 													xtype: 'textfield',
@@ -49678,6 +51815,12 @@ Ext.define('App.view.administration.Users', {
 													fieldLabel: _('additional_info'),
 													name: 'notes',
 													labelAlign: 'right'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: _('signature'),
+													name: 'signature',
+													labelAlign: 'right'
 												}
 											]
 										},
@@ -49686,7 +51829,7 @@ Ext.define('App.view.administration.Users', {
 											title: _('provider_credentialization'),
 											itemId: 'UserGridEditFormProviderCredentializationGrid',
 											flex: 1,
-											maxHeight: 200,
+											maxHeight: 210,
 											frame: true,
 											store: Ext.create('App.store.administration.ProviderCredentializations', {
 												pageSize: 1000
@@ -49813,7 +51956,7 @@ Ext.define('App.view.administration.Users', {
 		this.userStore.load();
 		callback(true);
 	}
-    
+
 });
 
 Ext.define('App.view.miscellaneous.AddressBook', {
@@ -50531,20 +52674,20 @@ Ext.define('App.view.patient.Patient', {
 		'App.ux.AddTabButton',
 		'App.view.patient.InsuranceForm'
 	],
-	layout: {
-		type: 'vbox',
-		align: 'stretch'
-	},
+
+	layout: 'fit',
 	xtype: 'patientdeomgraphics',
 	itemId: 'PatientDemographicsPanel',
+
 	newPatient: true,
 	pid: null,
+
 	defaultPatientImage: 'resources/images/patientPhotoPlaceholder.jpg',
 	defaultQRCodeImage: 'resources/images/QRCodeImage.png',
 
 	initComponent: function(){
 		var me = this,
-            configs;
+			configs;
 
 		me.store = Ext.create('App.store.patient.Patient');
 		me.patientAlertsStore = Ext.create('App.store.patient.MeaningfulUseAlert');
@@ -50553,52 +52696,1403 @@ Ext.define('App.view.patient.Patient', {
 		});
 
 		me.compactDemographics = eval(g('compact_demographics'));
-
-		me.insTabPanel = Ext.widget('tabpanel', {
-			itemId: 'PatientInsurancesPanel',
-			flex: 1,
-			defaults: {
-				autoScroll: true,
-				padding: 10
-			},
-			plugins: [
-				{
-					ptype: 'AddTabButton',
-					iconCls: 'icoAdd',
-					toolTip: _('new_insurance'),
-					btnText: _('add_insurance'),
-					forceText: true,
-					panelConfig: {
-						xtype: 'patientinsuranceform'
-					}
-				}
-			],
-			listeners: {
-				scope: me,
-				beforeadd: me.insurancePanelAdd
-			}
-		});
+		me.containersWidth = 720;
 
 		configs = {
 			items: [
 				me.demoForm = Ext.widget('form', {
 					action: 'demoFormPanel',
 					itemId: 'PatientDemographicForm',
-					type: 'anchor',
 					border: false,
-					autoScroll: true,
 					padding: (me.compactDemographics ? 0 : 10),
 					fieldDefaults: {
 						labelAlign: 'right',
 						msgTarget: 'side'
-					}
-				})
+					},
+					layout: 'fit',
+					items: [
+						{
+							xtype: 'tabpanel',
+							itemId: 'Demographics',
+							border: false,
+							defaults: {
+								autoScroll: true
+							},
+							items: [
+								{
+									xtype: 'panel',
+									title: _('patient_info'),
+									layout: {
+										type: 'column'
+									},
+									action: 'DemographicWhoFieldSet',
+									border: false,
+									bodyBorder: false,
+									bodyPadding: 10,
+									items: [
+										{
+											xtype: 'fieldcontainer',
+											layout: 'vbox',
+											items: [
+												{
+													xtype: 'fieldset',
+													cls: 'highlight_fieldset',
+													margin: '5 0 5 0',
+													padding: '15 10 10 10',
+													width: me.containersWidth,
+													layout: 'hbox',
+													defaults: {
+														margin: '0 5 0 0',
+														labelAlign: 'top'
+													},
+													items:[
+														{
+															xtype: 'textfield',
+															name: 'pubpid',
+															fieldLabel: _('medical'), //external_record
+															flex: 1,
+															enableKeyEvents: true
+														},
+														{
+															xtype: 'textfield',
+															name: 'pubaccount',
+															fieldLabel: _('account'), //external_account
+															flex: 1,
+															enableKeyEvents: true
+														},
+														{
+															xtype: 'textfield',
+															name: 'interface_mrn',
+															fieldLabel: _('interface_mrn'), //external_account
+															flex: 1,
+															enableKeyEvents: true
+														}
+													]
+												},      //MRN ACCNT INTERFACE
+												{
+													xtype: 'fieldset',
+													cls: 'highlight_fieldset',
+													margin: '5 0 5 0',
+													padding: '15 10 10 10',
+													width: me.containersWidth,
+													layout: {
+														type: 'vbox',
+														align: 'stretch'
+													},
+													items:[
+														{
+															xtype: 'fieldcontainer',
+															layout: 'hbox',
+															defaults: {
+																margin: '0 5 0 0',
+																labelWidth: 50,
+																labelAlign: 'top'
+															},
+															items: [
+																{
+																	xtype: 'gaiaehr.combo',
+																	name: 'title',
+																	fieldLabel: _('title'),
+																	width: 75,
+																	listKey: 'titles',
+																	loadStore: true,
+																	editable: false
+																},
+																{
+																	xtype: 'textfield',
+																	name: 'fname',
+																	fieldLabel: _('first_name'),
+																	flex: 1,
+																	allowBlank: false,
+																	maxLength: 35
+																},
+																{
+																	xtype: 'textfield',
+																	name: 'mname',
+																	fieldLabel: _('init'),
+																	width: 50,
+																	enableKeyEvents: true,
+																	maxLength: 35
+																},
+																{
+																	xtype: 'textfield',
+																	name: 'lname',
+																	fieldLabel: _('last_name'),
+																	flex: 2,
+																	allowBlank: false,
+																	maxLength: 35
+																},
+																{
+																	xtype: 'gaiaehr.combo',
+																	name: 'marital_status',
+																	fieldLabel: _('marital_status'),
+																	flex: 1,
+																	listKey: 'marital_stat',
+																	loadStore: true,
+																	editable: false
+																}
+															]
+														},
+														{
+															xtype: 'fieldcontainer',
+															layout: 'hbox',
+															labelWidth: 50,
+															defaults: {
+																margin: '0 5 0 0',
+																labelWidth: 50,
+																labelAlign: 'top'
+															},
+															items: [
+																{
+																	xtype: 'gaiaehr.combo',
+																	name: 'sex',
+																	fieldLabel: _('sex_at_birth'),
+																	flex: 1,
+																	enableKeyEvents: true,
+																	allowBlank: false,
+																	listKey: 'sex',
+																	loadStore: true,
+																	editable: false
+																},
+																{
+																	xtype: 'gaiaehr.combo',
+																	name: 'identity',
+																	fieldLabel: _('identity'),
+																	flex: 2,
+																	listKey: 'identity',
+																	loadStore: true,
+																	editable: false
+																},
+																{
+																	xtype: 'gaiaehr.combo',
+																	name: 'orientation',
+																	fieldLabel: _('orientation'),
+																	flex: 2,
+																	listKey: 'orientation',
+																	loadStore: true,
+																	editable: false
+																}
+															]
+														}
+													]
+												},      //Name, Sex, Marital Status
+												{
+													xtype: 'fieldset',
+													cls: 'highlight_fieldset',
+													margin: '5 0 5 0',
+													padding: '15 10 10 10',
+													width: me.containersWidth,
+													layout: 'hbox',
+													defaults: {
+														margin: '0 5 0 0',
+														labelAlign: 'top'
+													},
+													items:[
+														{
+															xtype: 'mitos.datetime',
+															name: 'DOB',
+															format: 'm/d/Y',
+															width: 230,
+															fieldLabel: _('dob'),
+															enableKeyEvents: true,
+															allowBlank: false
+														},
+														{
+															xtype:'fieldcontainer',
+															layout: 'hbox',
+															fieldLabel:_('multiple_birth'),
+															items: [
+																{
+																	xtype: 'checkbox',
+																	name: 'birth_multiple'
+																},
+																{
+																	xtype: 'box',
+																	margin: '5 5 5 5',
+																	html: 'Yes, birth order'
+																},
+																{
+																	xtype: 'numberfield',
+																	name: 'birth_order',
+																	width: 50,
+																	value: 1,
+																	maxValue: 15,
+																	minValue: 1
+																}
+															]
+														},
+														{
+															xtype: 'textfield',
+															name: 'birth_place',
+															fieldLabel: _('birth_place'),
+															flex: 1
+														}
+													]
+												},      //DOB, Multiple, Order, Place
+												{
+													xtype: 'fieldset',
+													cls: 'highlight_fieldset',
+													margin: '5 0 5 0',
+													padding: '15 10 10 10',
+													width: me.containersWidth,
+													height: 125,
+													layout: {
+														type: 'hbox',
+														align: 'stretch'
+													},
+													defaults: {
+														labelAlign: 'top',
+														flex: 1
+													},
+													items: [
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: _('postal_address'),
+															margin: '0 5 0 0',
+															layout: 'anchor',
+															items: [
+																{
+																	xtype: 'textfield',
+																	anchor: '100%',
+																	emptyText: _('street'),
+																	name: 'postal_address'
+																},
+																{
+																	xtype: 'textfield',
+																	anchor: '100%',
+																	emptyText: '(' + _('optional') + ')',
+																	name: 'postal_address_cont'
+																},
+																{
+																	xtype: 'fieldcontainer',
+																	anchor: '100%',
+																	layout: 'hbox',
+																	defaults: {
+																		margin: '0 5 0 0'
+																	},
+																	items: [
+																		{
+																			xtype: 'textfield',
+																			emptyText: _('city'),
+																			width: 119,
+																			name: 'postal_city'
+																		},
+																		{
+																			xtype: 'textfield',
+																			emptyText: _('state'),
+																			width: 30,
+																			name: 'postal_state'
+																		},
+																		{
+																			xtype: 'textfield',
+																			emptyText: _('zip'),
+																			width: 80,
+																			name: 'postal_zip'
+																		},
+																		{
+																			xtype: 'textfield',
+																			emptyText: _('country'),
+																			flex: 1,
+																			name: 'postal_country',
+																			margin: 0
+																		}
+																	]
+																}
+															]
+														},
+														{
+															xtype: 'fieldcontainer',
+															fieldLabel: _('physical_address'),
+															margin: '0 0 0 5',
+															layout: 'anchor',
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: _('street'),
+																	anchor: '100%',
+																	name: 'physical_address'
+																},
+																{
+																	xtype: 'textfield',
+																	emptyText: '(' + _('optional') + ')',
+																	anchor: '100%',
+																	name: 'physical_address_cont'
+																},
+																{
+																	xtype: 'container',
+																	layout: 'hbox',
+																	anchor: '100%',
+																	defaults: {
+																		margin: '0 5 0 0'
+																	},
+																	items: [
+																		{
+																			xtype: 'textfield',
+																			emptyText: _('city'),
+																			width: 119,
+																			name: 'physical_city'
+																		},
+																		{
+																			xtype: 'textfield',
+																			emptyText: _('state'),
+																			width: 30,
+																			name: 'physical_state'
+																		},
+																		{
+																			xtype: 'textfield',
+																			emptyText: _('zip'),
+																			width: 80,
+																			name: 'physical_zip'
+																		},
+																		{
+																			xtype: 'textfield',
+																			emptyText: _('country'),
+																			flex: 1,
+																			name: 'physical_country',
+																			margin: 0
+																		}
+																	]
+																}
+															]
+														}
+													]
+												},      //Postal and Physical Address
+												{
+													xtype: 'fieldset',
+													cls: 'highlight_fieldset',
+													margin: '5 0 5 0',
+													padding: '15 10 10 10',
+													width: me.containersWidth,
+													layout: 'hbox',
+													defaults: {
+														margin: '0 5 0 0',
+														labelAlign: 'top'
+													},
+													items: [
+														{
+															xtype: 'textfield',
+															name: 'phone_home',
+															emptyText: '000-000-0000',
+															fieldLabel: _('home'),
+															flex: 1
+														},
+														{
+															xtype: 'textfield',
+															name: 'phone_mobile',
+															emptyText: '000-000-0000',
+															fieldLabel:_('mobile'),
+															flex: 1
+														},
+														{
+															xtype: 'gaiaehr.combo',
+															name: 'phone_mobile_supplier',
+															emptyText: _('supplier'),
+															fieldLabel: _('supplier'),
+															flex: 1,
+															listKey: 'cellular_prov',
+															loadStore: true,
+															editable: false
+														},
+														{
+															xtype: 'textfield',
+															name: 'email',
+															emptyText: 'example@email.com',
+															fieldLabel:_('email'),
+															flex: 2
+														}
+
+													]
+												},      //Phones, Emails ....
+												{
+													xtype: 'fieldset',
+													cls: 'highlight_fieldset',
+													margin: '5 0 5 0',
+													padding: '15 10 10 10',
+													layout: 'hbox',
+													width: me.containersWidth,
+													defaults: {
+														margin: '0 5 0 0',
+														labelAlign: 'top'
+													},
+													items: [
+														{
+															xtype: 'gaiaehr.combo',
+															name: 'race',
+															fieldLabel: _('race'),
+															flex: 1,
+															listKey: 'race',
+															loadStore: true,
+															editable: false
+														},
+														{
+															xtype: 'gaiaehr.combo',
+															name: _('secondary_race'),
+															fieldLabel: _('secondary_race'),
+															flex: 1,
+															listKey: 'race',
+															loadStore: true,
+															editable: false
+														},
+														{
+															xtype: 'gaiaehr.combo',
+															name: 'ethnicity',
+															fieldLabel: _('ethnicity'),
+															flex: 1,
+															listKey: 'ethnicity',
+															loadStore: true,
+															editable: false
+														},
+														{
+															xtype: 'gaiaehr.combo',
+															name: 'language',
+															fieldLabel: _('language'),
+															listKey: 'lang',
+															loadStore: true,
+															editable: false
+														},
+														{
+															xtype: 'gaiaehr.combo',
+															name: 'religion',
+															fieldLabel: _('religion'),
+															flex: 1,
+															listKey: 'religion',
+															loadStore: true,
+															editable: false
+														}
+													]
+												},      //Race, Ethnicity, Language, Religion...
+												{
+													xtype: 'fieldset',
+													cls: 'highlight_fieldset',
+													margin: '5 0 5 0',
+													padding: '15 10 10 10',
+													width: me.containersWidth,
+													layout: 'hbox',
+													defaults: {
+														margin: '0 5 0 0',
+														labelAlign: 'top'
+													},
+													items: [
+														{
+															xtype: 'activefacilitiescombo',
+															name: 'primary_facility',
+															flex: 1,
+															fieldLabel: _('facility'),
+															queryMode: 'local',
+															forceSelection: true
+														},
+														{
+															xtype: 'activeproviderscombo',
+															name: 'primary_provider',
+															fieldLabel: _('provider'),
+															flex: 1,
+															forceSelection: true
+														}
+													]
+												}       //Facility y Provider
+											]
+										}
+									]
+								}, //Demographics
+								{
+									xtype: 'panel',
+									title: _('contacts'),
+									itemId: 'DemographicsContactFieldSet',
+									border: false,
+									bodyBorder: false,
+									bodyPadding: 10,
+									layout: 'vbox',
+									items: [
+										{
+											xtype: 'fieldset',
+											cls: 'highlight_fieldset',
+											margin: '5 0 5 0',
+											padding: '15 10 10 10',
+											width: me.containersWidth,
+											layout: 'hbox',
+											defaults: {
+												margin: '0 5 0 0',
+												labelAlign: 'top'
+											},
+											items:[
+												{
+													xtype: 'textfield',
+													name: 'father_fname',
+													fieldLabel: _('first_name') + ' (' + _('father') + ')',
+													width: 150,
+													maxLength: 35
+												},
+												{
+													xtype: 'textfield',
+													name: 'father_mname',
+													fieldLabel: _('init'),
+													width: 40,
+													maxLength: 35
+												},
+												{
+													xtype: 'textfield',
+													name: 'father_lname',
+													fieldLabel: _('last_name'),
+													flex: 1,
+													maxLength: 35
+												},
+												{
+													xtype: 'textfield',
+													name: 'mother_fname',
+													fieldLabel: _('first_name') + ' (' + _('mother') + ')',
+													width: 150,
+													margin: '0 5 0 10',
+													maxLength: 35
+												},
+												{
+													xtype: 'textfield',
+													name: 'mother_mname',
+													fieldLabel: _('init'),
+													width: 40,
+													maxLength: 35
+												},
+												{
+													xtype: 'textfield',
+													name: 'mother_lname',
+													fieldLabel: _('last_name'),
+													flex: 1,
+													maxLength: 35
+												}
+											]
+										}, //Father and Mother
+										{
+											xtype: 'fieldset',
+											title: _('employer'),
+											cls: 'highlight_fieldset',
+											margin: '5 0 5 0',
+											padding: '15 10 10 10',
+											width: me.containersWidth,
+											layout: 'hbox',
+											defaults: {
+												margin: '0 5 0 0',
+												labelAlign: 'top'
+											},
+											items: [
+												{
+													xtype: 'textfield',
+													name: 'employer_name',
+													fieldLabel: _('employer_name'),
+													width: 150
+												},
+												{
+													xtype: 'textfield',
+													name: 'occupation',
+													fieldLabel: _('occupation'),
+													width: 125
+												},
+												{
+													xtype: 'textfield',
+													name: 'phone_work',
+													fieldLabel: _('phone'),
+													emptyText: '000-000-0000',
+													width: 100
+												},
+												{
+													xtype: 'textfield',
+													name: 'phone_work_ext',
+													width: 105,
+													labelWidth: 30,
+													fieldLabel: _('ext') + '.',
+												},
+												{
+													xtype: 'textfield',
+													name: 'phone_fax',
+													fieldLabel: _('fax'),
+													emptyText: '000-000-0000',
+													width: 160,
+													labelWidth: 30,
+													fieldLabel: _('fax')
+												}
+											]
+										}, //Employer
+										{
+											xtype: 'fieldset',
+											title: _('persons_authorized'),
+											cls: 'highlight_fieldset',
+											margin: '5 0 5 0',
+											padding: '15 10 10 10',
+											width: me.containersWidth,
+											layout: 'vbox',
+											items:[
+												{
+													xtype: 'fieldcontainer',
+													layout: 'hbox',
+													defaults: {
+														labelWidth: 50,
+														margin: '5 0 5 5',
+														labelAlign: 'top'
+													},
+													items: [
+														{
+															xtype: 'gaiaehr.combo',
+															name: 'authorized_01_relation',
+															fieldLabel: _('relationship'),
+															width: 125,
+															listKey: 'rela_hl70063',
+															loadStore: true,
+															editable: false
+														},
+														{
+															xtype: 'textfield',
+															name: 'authorized_01_fname',
+															fieldLabel: _('first_name'),
+															width: 100,
+															//fieldLabel: _('name'),
+															enableKeyEvents: true
+														},
+														{
+															xtype: 'textfield',
+															name: 'authorized_01_mname',
+															fieldLabel: _('init'),
+															width: 40,
+															enableKeyEvents: true
+														},
+														{
+															xtype: 'textfield',
+															name: 'authorized_01_lname',
+															fieldLabel: _('last_name'),
+															width: 180,
+															enableKeyEvents: true
+														},
+														{
+															xtype: 'textfield',
+															name: 'authorized_01_phone',
+															fieldLabel: _('phone'),
+															emptyText: '000-000-0000',
+															width: 90
+														},
+														{
+															xtype: 'gaiaehr.combo',
+															name: 'authorized_01_phone_type',
+															fieldLabel: _('phone_type'),
+															width: 113,
+															listKey: 'phone_type',
+															loadStore: true,
+															editable: false
+														}
+													]
+												},
+												{
+													xtype: 'fieldcontainer',
+													layout: 'hbox',
+													defaults: {
+														labelWidth: 50,
+														margin: '5 0 5 5',
+														labelAlign: 'top'
+													},
+													items: [
+														{
+															xtype: 'gaiaehr.combo',
+															name: 'authorized_02_relation',
+															fieldLabel: _('relationship'),
+															width: 125,
+															listKey: 'rela_hl70063',
+															loadStore: true,
+															editable: false
+														},
+														{
+															xtype: 'textfield',
+															name: 'authorized_02_fname',
+															fieldLabel: _('first_name'),
+															width: 100,
+															enableKeyEvents: true
+														},
+														{
+															xtype: 'textfield',
+															name: 'authorized_02_mname',
+															fieldLabel: _('init'),
+															width: 40,
+															enableKeyEvents: true
+														},
+														{
+															xtype: 'textfield',
+															name: 'authorized_02_lname',
+															fieldLabel: _('last_name'),
+															width: 180,
+															enableKeyEvents: true
+														},
+														{
+															xtype: 'textfield',
+															name: 'authorized_02_phone',
+															fieldLabel: _('phone'),
+															emptyText: '000-000-0000',
+															width: 90
+														},
+														{
+															xtype: 'gaiaehr.combo',
+															name: 'authorized_02_phone_type',
+															fieldLabel: _('phone_type'),
+															width: 113,
+															listKey: 'phone_type',
+															loadStore: true,
+															editable: false
+														}
+													]
+												}, //Persons Authorized to Pickup Results
+											]
+										},
+										{
+											xtype: 'fieldset',
+											title: _('emer_contact'),
+											cls: 'highlight_fieldset',
+											margin: '5 0 5 0',
+											padding: '15 10 10 10',
+											width: me.containersWidth,
+											layout: {
+												type: 'vbox',
+												align: 'stretch'
+											},
+											defaults: {
+												margin: '0 5 0 0',
+												labelAlign: 'top'
+											},
+											items: [
+												{
+													xtype: 'fieldcontainer',
+													layout: 'hbox',
+													defaults: {
+														margin: '5 0 5 5',
+														labelWidth: 50,
+														labelAlign: 'left'
+													},
+													items: [
+														{
+															xtype: 'gaiaehr.combo',
+															name: 'emergency_contact_relation',
+															emptyText: _('relationship'),
+															width: 125,
+															listKey: 'rela_hl70063',
+															loadStore: true,
+															editable: false
+														},
+														{
+															xtype: 'textfield',
+															name: 'emergency_contact_fname',
+															emptyText: _('first_name'),
+															width: 100,
+															//fieldLabel: _('name'),
+															enableKeyEvents: true
+														},
+														{
+															xtype: 'textfield',
+															name: 'emergency_contact_mname',
+															emptyText: _('middle_name'),
+															width: 40,
+															enableKeyEvents: true
+														},
+														{
+															xtype: 'textfield',
+															name: 'emergency_contact_lname',
+															emptyText: _('last_name'),
+															width: 180,
+															enableKeyEvents: true
+														},
+														{
+															xtype: 'textfield',
+															name: 'emergency_contact_phone',
+															emptyText: '000-000-0000',
+															width: 90
+														},
+														{
+															xtype: 'gaiaehr.combo',
+															name: 'emergency_contact_phone_type',
+															emptyText: _('phone_type'),
+															width: 113,
+															listKey: 'phone_type',
+															loadStore: true,
+															editable: false
+														}
+													]
+												},
+												{
+													xtype: 'fieldcontainer',
+													layout: 'hbox',
+													defaults: {
+														margin: '5 0 5 5',
+														labelWidth: 50,
+														labelAlign: 'left'
+													},
+													items: [
+														{
+															xtype: 'textfield',
+															name: 'emergency_contact_address',
+															emptyText: _('street'),
+															width: 170
+														},
+														{
+															xtype: 'textfield',
+															name: 'emergency_contact_address_cont',
+															emptyText: '(' + _('optional') + ')',
+															width: 170
+														},
+														{
+															xtype: 'textfield',
+															name: 'emergency_contact_city',
+															emptyText: _('city'),
+															width: 90
+														},
+														{
+															xtype: 'textfield',
+															name: 'emergency_contact_state',
+															emptyText: _('state'),
+															width: 30
+														},
+														{
+															xtype: 'textfield',
+															name: 'emergency_contact_zip',
+															emptyText: _('zip'),
+															width: 80
+														},
+														{
+															xtype: 'textfield',
+															name: 'emergency_contact_country',
+															emptyText: _('country'),
+															width: 90
+														}
+													]
+												}
+											]
+										}, //Emergency
+										{
+											xtype: 'fieldset',
+											title: _('guardians_contact'),
+											cls: 'highlight_fieldset',
+											margin: '5 0 5 0',
+											padding: '15 10 10 10',
+											width: me.containersWidth,
+											layout: 'vbox',
+											defaults: {
+												margin: '0 5 0 0',
+												labelAlign: 'top'
+											},
+											items: [
+												{
+													xtype: 'fieldcontainer',
+													layout: 'hbox',
+													defaults: {
+														margin: '5 0 5 5',
+														labelWidth: 50,
+														labelAlign: 'left'
+													},
+													items: [
+														{
+															xtype: 'gaiaehr.combo',
+															name: 'guardians_relation',
+															emptyText: _('relationship'),
+															width: 125,
+															listKey: 'rela_hl70063',
+															loadStore: true,
+															editable: false
+														},
+														{
+															xtype: 'textfield',
+															name: 'guardians_fname',
+															emptyText: _('first_name'),
+															width: 100,
+															enableKeyEvents: true
+														},
+														{
+															xtype: 'textfield',
+															name: 'guardians_mname',
+															emptyText: _('middle_name'),
+															width: 40,
+															enableKeyEvents: true
+														},
+														{
+															xtype: 'textfield',
+															name: 'guardians_lname',
+															emptyText: _('last_name'),
+															width: 180,
+															enableKeyEvents: true
+														},
+														{
+															xtype: 'textfield',
+															name: 'guardians_phone',
+															emptyText: '000-000-0000',
+															width: 90
+														},
+														{
+															xtype: 'gaiaehr.combo',
+															name: 'guardians_phone_type',
+															emptyText: _('phone_type'),
+															width: 113,
+															listKey: 'phone_type',
+															loadStore: true,
+															editable: false
+														}
+													]
+												},
+												{
+													xtype: 'fieldcontainer',
+													layout: 'hbox',
+													defaults: {
+														margin: '5 0 5 5',
+														labelWidth: 50,
+														labelAlign: 'top'
+													},
+													items: [
+														{
+															xtype: 'textfield',
+															name: 'guardians_address',
+															emptyText: _('street'),
+															width: 170
+														},
+														{
+															xtype: 'textfield',
+															name: 'guardians_address_cont',
+															emptyText: '(' + _('optional') + ')',
+															width: 170
+														},
+														{
+															xtype: 'textfield',
+															name: 'guardians_city',
+															emptyText: _('city'),
+															width: 90
+														},
+														{
+															xtype: 'textfield',
+															name: 'guardians_state',
+															emptyText: _('state'),
+															width: 30
+														},
+														{
+															xtype: 'textfield',
+															name: 'guardians_zip',
+															emptyText: _('zip'),
+															width: 80
+														},
+														{
+															xtype: 'textfield',
+															name: 'guardians_country',
+															emptyText: _('country'),
+															width: 90
+														}
+													]
+												}
+											]
+										}  //Guardian
+									]
+								}, //Contacts
+								{
+									xtype: 'panel',
+									title: _('communication'),
+									action: 'DemographicWhoFieldSet',
+									border: false,
+									bodyBorder: false,
+									bodyPadding: 10,
+									layout: 'vbox',
+									items: [
+										{
+											xtype: 'fieldset',
+											cls: 'highlight_fieldset',
+											margin: '5 0 5 0',
+											padding: '15 10 10 10',
+											width: me.containersWidth,
+											layout: 'hbox',
+											defaults: {
+												margin: '0 5 0 0',
+												labelAlign: 'top'
+											},
+											items: [
+												{
+													xtype: 'gaiaehr.combo',
+													name: 'phone_publicity',
+													fieldLabel: _('publicity'),
+													emptyText: _('publicity'),
+													width: 450,
+													listKey: 'publicity_code',
+													loadStore: true,
+													editable: false,
+													margin: '10 0 5 0'
+												}
+											]
+										}, //Publicity
+										{
+											xtype: 'fieldset',
+											cls: 'highlight_fieldset',
+											margin: '5 0 5 0',
+											padding: '15 10 10 10',
+											width: me.containersWidth,
+											layout: 'hbox',
+											defaults: {
+												margin: '0 5 0 0',
+												labelAlign: 'top'
+											},
+											items: [
+												{
+													xtype: 'mitos.pharmaciescombo',
+													name: 'pharmacy',
+													fieldLabel: _('pharmacy'),
+													emptyText: _('pharmacy'),
+													width: 450,
+													margin: '10 0 5 0',
+													forceSelection: true
+												}
+											]
+										}, //Pharmacy
+										{
+											xtype: 'fieldset',
+											title: _('allow'),
+											fieldLabel:'allow',
+											cls: 'highlight_fieldset',
+											margin: '5 0 5 0',
+											padding: '15 10 10 10',
+											width: me.containersWidth,
+											layout: 'hbox',
+											defaults: {
+												margin: '0 5 0 0',
+												labelAlign: 'top'
+											},
+											items: [
+												{
+													xtype: 'checkbox',
+													name: 'allow_sms',
+													flex: 1,
+													boxLabel: _('text_mobile_msg'),
+													margin: '5 0 0 15',
+													labelWidth: 100
+												},
+												{
+													xtype: 'checkbox',
+													name: 'allow_voice_msg',
+													boxLabel: _('voice_msg'),
+													flex: 1,
+													labelWidth: 95
+												},
+												{
+													xtype: 'checkbox',
+													name: 'allow_email',
+													boxLabel: _('email'),
+													flex: 1,
+													labelWidth: 70
+												},
+												{
+													xtype: 'checkbox',
+													name: 'allow_mail_msg',
+													boxLabel: _('mail_msg'),
+													flex: 1,
+													labelWidth: 85
+												}
+											]
+										}, //Allow Phones, Allow Emails
+										{
+											xtype: 'fieldset',
+											title: _('allow'),
+											fieldLabel:'allow',
+											cls: 'highlight_fieldset',
+											margin: '5 0 5 0',
+											padding: '15 10 10 10',
+											width: me.containersWidth,
+											layout: 'hbox',
+											defaults: {
+												margin: '0 5 0 0',
+												labelAlign: 'top'
+											},
+											items: [
+												{
+													xtype: 'fieldset',
+													checkboxName: 'allow_patient_web_portal',
+													title: _('patient_access_web_portal'),
+													checkboxToggle: true,
+													width: 225,
+													margin: '5 0 5 0',
+													items: [
+														{
+															xtype: 'textfield',
+															name: 'portal_username',
+															fieldLabel: _('username'),
+															width: 200,
+															labelWidth: 60
+														},
+														{
+															xtype: 'textfield',
+															name: 'portal_password',
+															fieldLabel: _('password'),
+															inputType: 'password',
+															width: 200,
+															labelWidth: 60
+														}
+													]
+												}, //Access Patient Web Portal
+												{
+													xtype: 'fieldset',
+													title: _('emergency_access_web_portal'),
+													checkboxName: 'allow_emergency_contact_web_portal',
+													checkboxToggle: true,
+													width: 225,
+													margin: '5 0 5 10',
+													items: [
+														{
+															xtype: 'textfield',
+															name: 'emergency_contact_portal_username',
+															fieldLabel: _('username'),
+															width: 200,
+															labelWidth: 70
+														},
+														{
+															xtype: 'textfield',
+															name: 'emergency_contact_portal_password',
+															fieldLabel: _('password'),
+															inputType: 'password',
+															width: 200,
+															labelWidth: 70
+														},
+														{
+															xtype: 'checkbox',
+															fieldLabel: _('view_record'),
+															name: 'allow_emergency_contact_web_portal_cda',
+															labelWidth: 70
+														}
+													]
+												}, //Access Emergency Web Portal
+												{
+													xtype: 'fieldset',
+													title: _('guardian_access_web_portal'),
+													checkboxName: 'allow_guardian_web_portal',
+													checkboxToggle: true,
+													collapsible: false,
+													width: 225,
+													margin: '5 0 5 10',
+													items: [
+														{
+															xtype: 'textfield',
+															name: 'guardian_portal_username',
+															fieldLabel: _('username'),
+															width: 200,
+															labelWidth: 70
+														},
+														{
+															xtype: 'textfield',
+															name: 'guardian_portal_password',
+															fieldLabel: _('password'),
+															inputType: 'password',
+															width: 200,
+															labelWidth: 70
+														},
+														{
+															xtype: 'checkbox',
+															fieldLabel: _('view_record'),
+															name: 'allow_guardian_web_portal_cda',
+															labelWidth: 70
+														}
+													]
+												}  //Guardian Web Portal
+											]
+										}, //Allow Web Access - Portal
+										{
+											xtype: 'fieldset',
+											title: _('allow'),
+											cls: 'highlight_fieldset',
+											margin: '5 0 5 0',
+											padding: '15 10 10 10',
+											width: me.containersWidth,
+											layout: 'hbox',
+											defaults: {
+												margin: '0 5 0 0',
+												labelAlign: 'top'
+											},
+											items: [
+												{
+													xtype: 'checkbox',
+													name: 'allow_immunization_info_sharing',
+													boxLabel: _('immunization_info_sharing'),
+													width: 225,
+													margin: '0 5 0 15'
+												},
+												{
+													xtype: 'checkbox',
+													name: 'allow_immunization_registry',
+													boxLabel: _('immunization_registry_use'),
+													width: 225,
+													margin: '0 5 0 5'
+												},
+												{
+													xtype: 'checkbox',
+													name: 'allow_health_info_exchange',
+													boxLabel: _('health_information_exchange'),
+													width: 225,
+													margin: '0 5 0 5'
+												}
+											]
+										} //Allow Immunization Sharing, Registry, HIE
+									]
+								}, //Communication
+								{
+									xtype: 'panel',
+									title: _('aditional_info')+'.',
+									action: 'DemographicWhoFieldSet',
+									border: false,
+									bodyBorder: false,
+									bodyPadding: 10,
+									layout: 'vbox',
+									items: [
+										{
+											xtype: 'fieldset',
+											cls: 'highlight_fieldset',
+											margin: '5 0 5 0',
+											padding: '15 10 10 10',
+											width: me.containersWidth,
+											layout: 'hbox',
+											defaults: {
+												margin: '0 5 0 0',
+												labelAlign: 'top'
+											},
+											items: [
+												{
+													xtype: 'textfield',
+													name: 'alias',
+													fieldLabel: _('alias_name'),
+													flex: 1,
+													labelWidth: 100,
+													hideLabel: false
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													name: 'citizenship',
+													fieldLabel: _('citizenship'),
+													hideLabel: false,
+													flex: 1,
+													labelWidth: 60,
+													listKey: 'citiz',
+													loadStore: true,
+													editable: false
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													fieldLabel: _('veteran'),
+													boxLabel: 'Yes',
+													name: 'is_veteran',
+													flex: 1,
+													loadStore: true,
+													editable: false
+												}
+											]
+										}, //Alias Name, Citizen, Veteran
+										{
+											xtype: 'fieldset',
+											cls: 'highlight_fieldset',
+											margin: '5 0 5 0',
+											padding: '15 10 10 10',
+											width: me.containersWidth,
+											layout: 'hbox',
+											defaults: {
+												margin: '0 5 0 0',
+												labelAlign: 'top'
+											},
+											items: [
+												{
+													xtype: 'textfield',
+													fieldLabel: _('social_security'),
+													emptyText: _('social_security'),
+													name: 'SS',
+													flex: 1
+												},
+												{
+													xtype: 'textfield',
+													emptyText: _('license_no'),
+													fieldLabel: _('drivers_info'),
+													enableKeyEvents: true,
+													flex: 1,
+													name: 'drivers_license'
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													name: 'drivers_license_state',
+													emptyText: _('license'),
+													fieldLabel: _('state'),
+													flex: 1,
+													listKey: 'state',
+													loadStore: true,
+													editable: false
+												},
+												{
+													xtype: 'datefield',
+													name: 'drivers_license_exp',
+													fieldLabel: _('expiration'),
+													emptyText: _('license'),
+													flex: 1,
+													format: 'Y-m-d'
+												}
+											]
+										}, //SocSec, Drivers Info
+										{
+											xtype: 'fieldset',
+											cls: 'highlight_fieldset',
+											margin: '5 0 5 0',
+											padding: '15 10 10 10',
+											width: me.containersWidth,
+											layout: 'hbox',
+											defaults: {
+												margin: '0 5 0 0',
+												labelAlign: 'top'
+											},
+											items: [
+												{
+													xtype: 'checkbox',
+													name: 'deceased',
+													fieldLabel: _('deceased'),
+													boxLabel: _('yes')
+												},
+												{
+													xtype: 'mitos.datetime',
+													name: 'death_date',
+													fieldLabel: _('death_date'),
+													hideLabel: false,
+													width: 200
+												},
+												{
+													xtype: 'textfield',
+													name: 'death_cause',
+													fieldLabel: _('cause'),
+													flex: 1
+												}
+											]
+										}, //Deceased and Date
+										{
+											xtype: 'fieldset',
+											cls: 'highlight_fieldset',
+											margin: '5 0 5 0',
+											padding: '15 10 10 10',
+											width: me.containersWidth,
+											layout: 'hbox',
+											defaults: {
+												margin: '0 5 0 0',
+												labelAlign: 'top'
+											},
+											items: [
+												{
+													xtype: 'gaiaehr.combo',
+													fieldLabel: _('hipaa_notice'),
+													name: 'hipaa_notice',
+													flex: 1,
+													listKey: 'boolean',
+													loadStore: true,
+													editable: false
+												},
+												{
+													xtype: 'gaiaehr.combo',
+													name: 'organ_donor_code',
+													fieldLabel: _('organ_donor'),
+													listKey: 'proc_lateral',
+													flex: 1,
+													loadStore: true,
+													editable: false
+												}
+											]
+										} //Hipaa Notice, Organ Donor
+									]
+								}  //Additional Info
+							]
+						}
+					]
+				}),
 			]
 		};
-
-		if(me.compactDemographics){
-			configs.items.push(me.insTabPanel);
-		}
 
 		configs.bbar = [
 			{
@@ -50641,338 +54135,144 @@ Ext.define('App.view.patient.Patient', {
 
 		me.callParent(arguments);
 
-		if(!me.compactDemographics){
+		Ext.Function.defer(function(){
 
-			Ext.Function.defer(function(){
-				me.insTabPanel.title = _('insurance');
-				me.insTabPanel.addDocked({
-					xtype: 'toolbar',
-					dock: 'bottom',
-					items: [
-						'->',
-						'-',
-						{
-							xtype: 'button',
-							action: 'readOnly',
-							text: _('save'),
-							minWidth: 75,
-							scope: me,
-							handler: me.formSave
-						},
-						'-',
-						{
-							xtype: 'button',
-							text: _('cancel'),
-							action: 'readOnly',
-							minWidth: 75,
-							scope: me,
-							handler: me.formCancel
+			me.insTabPanel = Ext.widget('tabpanel', {
+				itemId: 'PatientInsurancesPanel',
+				flex: 1,
+				defaults: {
+					autoScroll: true,
+					padding: 10
+				},
+				plugins: [
+					{
+						ptype: 'AddTabButton',
+						iconCls: 'icoAdd',
+						toolTip: _('new_insurance'),
+						btnText: _('add_insurance'),
+						forceText: true,
+						panelConfig: {
+							xtype: 'patientinsuranceform'
 						}
-					]
-				});
+					}
+				],
+				listeners: {
+					scope: me,
+					beforeadd: me.insurancePanelAdd
+				}
+			});
 
-				me.up('tabpanel').insert(1, me.insTabPanel);
-			}, 300);
-		}
+			me.insTabPanel.title = _('insurance');
+			me.insTabPanel.addDocked({
+				xtype: 'toolbar',
+				dock: 'bottom',
+				items: [
+					'->',
+					'-',
+					{
+						xtype: 'button',
+						action: 'readOnly',
+						text: _('save'),
+						minWidth: 75,
+						scope: me,
+						handler: me.formSave
+					},
+					'-',
+					{
+						xtype: 'button',
+						text: _('cancel'),
+						action: 'readOnly',
+						minWidth: 75,
+						scope: me,
+						handler: me.formCancel
+					}
+				]
+			});
+
+			me.up('tabpanel').insert(1, me.insTabPanel);
+		}, 300);
 	},
 
 	beforePanelRender: function(){
 		var me = this,
 			whoPanel,
-			PatientContactsTab;
+			form = me.demoForm.getForm(),
+			fname = form.findField('fname'),
+			mname = form.findField('mname'),
+			lname = form.findField('lname'),
+			sex = form.findField('sex'),
+			dob = form.findField('DOB'),
+			crtl;
 
-        // Part of the Override custome function, this function calls the FormBuilder (a PHP method)
-        // to dynamically insert the fields configured on the administration panel. All the fields
-        // are in the GaiaEHR database.
-		me.getFormItems(me.demoForm, 1, function(formPanel){
+		if(fname) fname.vtype = 'nonspecialcharacters';
+		if(mname) mname.vtype = 'nonspecialcharacters';
+		if(lname) lname.vtype = 'nonspecialcharacters';
 
-			var form = me.demoForm.getForm(),
-				fname = form.findField('fname'),
-				mname = form.findField('mname'),
-				lname = form.findField('lname'),
-				sex = form.findField('sex'),
-				dob = form.findField('DOB'),
-                crtl;
+		if(dob) dob.setMaxValue(new Date());
 
-			if(fname) fname.vtype = 'nonspecialcharacters';
-			if(mname) mname.vtype = 'nonspecialcharacters';
-			if(lname) lname.vtype = 'nonspecialcharacters';
-
-			if(dob) dob.setMaxValue(new Date());
-
-			if(me.newPatient){
-				crtl = App.app.getController('patient.Patient');
-
-				fname.on('blur', crtl.checkForPossibleDuplicates, crtl);
-				lname.on('blur', crtl.checkForPossibleDuplicates, crtl);
-				sex.on('blur', crtl.checkForPossibleDuplicates, crtl);
-				dob.dateField.on('blur', crtl.checkForPossibleDuplicates, crtl);
-			}else{
-				whoPanel = formPanel.query('[action=DemographicWhoFieldSet]')[0];
-				whoPanel.insert(0,
-					me.patientImages = Ext.create('Ext.panel.Panel', {
-						action: 'patientImage',
-						layout: 'hbox',
-						style: 'float:right',
-						bodyPadding: 5,
-						height: 160,
-						width: 255,
-						items: [
-							{
-								xtype: 'image',
-								width: 119,
-								height: 119,
-								itemId: 'image',
-								margin: '0 5 0 0',
-								src: me.defaultPatientImage
-							},
-							{
-								xtype: 'textareafield',
-								name: 'image',
-								hidden: true
-							},
-							{
-								xtype: 'image',
-								itemId: 'qrcode',
-								width: 119,
-								height: 119,
-								margin: 0,
-								src: me.defaultQRCodeImage
+		if(me.newPatient){
+			crtl = App.app.getController('patient.Patient');
+			fname.on('blur', crtl.checkForPossibleDuplicates, crtl);
+			lname.on('blur', crtl.checkForPossibleDuplicates, crtl);
+			sex.on('blur', crtl.checkForPossibleDuplicates, crtl);
+			dob.dateField.on('blur', crtl.checkForPossibleDuplicates, crtl);
+		}else{
+			whoPanel = me.demoForm.query('[action=DemographicWhoFieldSet]')[0];
+			whoPanel.insert(0,
+				me.patientImages = Ext.create('Ext.panel.Panel', {
+					action: 'patientImage',
+					layout: 'vbox',
+					style: 'float:right;',
+					bodyPadding: 10,
+					height: 300,
+					width:180,
+					items: [
+						{
+							xtype: 'image',
+							itemId: 'image',
+							imageAlign: 'center',
+							width: 150,
+							height: 120,
+							margin: '0 5 10 5',
+							src: me.defaultPatientImage
+						},
+						{
+							xtype: 'textareafield',
+							name: 'image',
+							hidden: true
+						},
+						{
+							xtype: 'image',
+							itemId: 'qrcode',
+							imageAlign: 'center',
+							width: 150,
+							height: 120,
+							margin: '0 5 10 5',
+							src: me.defaultQRCodeImage
+						}
+					],
+					bbar: [
+						'-',
+						{
+							text: _('take_picture'),
+							action: 'onWebCam'
+							//handler: me.getPhotoIdWindow
+						},
+						'-',
+						'->',
+						'-',
+						{
+							text: _('print_qrcode'),
+							scope: me,
+							handler: function () {
+								window.printQRCode(app.patient.pid);
 							}
-						],
-						bbar: [
-							'-',
-							{
-								text: _('take_picture'),
-								action: 'onWebCam'
-								//handler: me.getPhotoIdWindow
-							},
-							'-',
-							'->',
-							'-',
-							{
-								text: _('print_qrcode'),
-								scope: me,
-								handler: function(){
-									window.printQRCode(app.patient.pid);
-								}
-							},
-							'-'
-						]
-					})
-				);
-
-				//Patient Contacts
-				PatientContactsTab = Ext.ComponentQuery.query('#Demographics')[0];
-				PatientContactsTab.add(
-					me.patientContacts = Ext.create('Ext.grid.Panel', {
-						itemId: 'PatientSummaryContactsPanel',
-						bodyPadding: 0,
-						title: _('contacts'),
-						store: me.patientContacsStore,
-						columns: [
-							{
-								text: _('name'),
-								dataIndex: 'fullname',
-								flex: 1
-							},
-							{
-								header: _('relationship'),
-								dataIndex: 'relationship_name'
-							},
-							{
-								header: _('active'),
-								dataIndex: 'active',
-								renderer: me.boolRenderer
-							}
-						],
-						plugins: Ext.create('App.ux.grid.RowFormEditing', {
-							autoCancel: false,
-							errorSummary: false,
-							clicksToEdit: 2,
-							items: [
-								{
-									xtype: 'container',
-									layout: 'hbox',
-									defaults: {
-										margin: '5 10 0 0'
-									},
-									items: [
-										{
-											xtype: 'container',
-											layout: 'vbox',
-											defaults: {
-												layout: '50%',
-												margin: '5 10 0 0'
-											},
-											items: [
-												{
-													xtype: 'fieldcontainer',
-													layout: 'hbox',
-													fieldLabel: _('name'),
-													defaults: {
-														layout: '100%',
-														xtype: 'textfield'
-													},
-													items: [
-														{
-															name: 'first_name',
-															emptyText: _('first_name'),
-															width: 150,
-															maxLength: 100,
-															allowBlank: false
-														},
-														{
-															name: 'middle_name',
-															emptyText: _('middle_name'),
-															width: 120,
-															maxLength: 100
-														},
-														{
-															name: 'last_name',
-															emptyText: _('last_name'),
-															width: 150,
-															maxLength: 100
-														}
-													]
-												},
-												{
-													xtype: 'gaiaehr.listcombo',
-													fieldLabel: _('relationship'),
-													name: 'relationship',
-													displayField: 'option_name',
-													valueField: 'option_value',
-													width: 350,
-													loadStore: true,
-													queryMode: 'local',
-													list: 134
-												},
-												{
-													xtype: 'fieldcontainer',
-													layout: 'hbox',
-													fieldLabel: _('phone'),
-													defaults: {
-														xtype: 'textfield',
-														vtype: 'numeric'
-													},
-													items: [
-														{
-															name: 'phone_use_code',
-															emptyText: _('code'),
-															width: 50,
-															maxLength: 4
-														},
-														{
-															name: 'phone_area_code',
-															emptyText: _('area_code'),
-															width: 50,
-															maxLength: 4
-														},
-														{
-															name: 'phone_local_number',
-															emptyText: _('local_number'),
-															width: 120,
-															maxLength: 7
-														}
-													]
-												},
-												{
-													fieldLabel: _('address'),
-													xtype: 'textfield',
-													name: 'street_mailing_address',
-													emptyText: _('street'),
-													width: 610,
-													maxLength: 200
-												},
-												{
-													xtype: 'fieldcontainer',
-													layout: 'hbox',
-													fieldLabel: _('address_cont'),
-													defaults: {
-														xtype: 'textfield'
-													},
-													items: [
-														{
-															name: 'city',
-															emptyText: _('city'),
-															width: 125,
-															maxLength: 70
-														},
-														{
-															xtype: 'gaiaehr.listcombo',
-															name: 'state',
-															emptyText: _('state'),
-															displayField: 'option_name',
-															valueField: 'option_value',
-															width: 125,
-															loadStore: true,
-															queryMode: 'local',
-															list: 20
-														},
-														{
-															xtype: 'gaiaehr.listcombo',
-															name: 'country',
-															emptyText: _('country'),
-															displayField: 'option_name',
-															valueField: 'option_value',
-															width: 125,
-															loadStore: true,
-															queryMode: 'local',
-															list: 3
-														},
-														{
-															emptyText: _('zip'),
-															name: 'zip',
-															width: 125,
-															maxLength: 20
-														}
-													]
-												}
-											]
-										},
-										{
-											xtype: 'fieldcontainer',
-											layout: 'vbox',
-											defaults: {
-												layout: '50%',
-												margin: '5 10 0 0'
-											},
-											items: [
-												{
-													xtype: 'gaiaehr.listcombo',
-													name: 'publicity',
-													fieldLabel: _('publicity'),
-													emptyText: _('select'),
-													displayField: 'option_name',
-													valueField: 'option_value',
-													width: 400,
-													loadStore: true,
-													queryMode: 'local',
-													list: 132
-												},
-												{
-													xtype: 'checkboxfield',
-													name: 'active',
-													fieldLabel: _('active')
-												}
-											]
-										}
-									]
-								}
-							]
-						}),
-						tbar: [
-							{
-								text: _('add_contact'),
-								iconCls: 'icoAdd',
-								action: 'patientContact',
-								handler: me.onAddNewContact
-							}
-						]
-					})
-				);
-			}
-		});
+						},
+						'-'
+					]
+				})
+			);
+		}
 	},
 
 	onAddNewContact: function(btn){
@@ -51086,24 +54386,46 @@ Ext.define('App.view.patient.Patient', {
 	 * @param fields
 	 */
 	readOnlyFields: function(fields){
-		//        for(var i = 0; i < fields.items.length; i++){
-		//            var f = fields.items[i], v = f.getValue(), n = f.name;
-		//            if(n == 'SS' || n == 'DOB' || n == 'sex'){
-		//                if(v == null || v == ''){
-		//                    f.setReadOnly(false);
-		//                }else{
-		//                    f.setReadOnly(true);
-		//                }
-		//            }
+		// for(var i = 0; i < fields.items.length; i++){
+		//    var f = fields.items[i], v = f.getValue(), n = f.name;
+		//    if(n == 'SS' || n == 'DOB' || n == 'sex'){
+		//        if(v == null || v == ''){
+		//            f.setReadOnly(false);
+		//        }else{
+		//            f.setReadOnly(true);
 		//        }
+		//    }
+		// }
+	},
+
+	getValidInsurances: function(){
+		var me = this,
+			forms = Ext.ComponentQuery.query('#PatientInsurancesPanel')[0].items.items,
+			records = [],
+			form,
+			rec;
+
+		for(var i = 0; i < forms.length; i++){
+			form = forms[i].getForm();
+			if(!form.isValid()){
+				me.insTabPanel.setActiveTab(forms[i]);
+				return false;
+			}
+			rec = form.getRecord();
+			app.fireEvent('beforepatientinsuranceset', form, rec);
+			rec.set(form.getValues());
+			app.fireEvent('afterpatientinsuranceset', form, rec);
+			records.push(rec);
+		}
+		return records;
 	},
 
 	formSave: function(){
 		var me = this,
 			form = me.demoForm.getForm(),
 			record = form.getRecord(),
-			values = form.getValues(),
-			insRecs = me.getValidInsurances();
+			values = form.getValues();
+		insRecs = me.getValidInsurances();
 
 		if(form.isValid() && insRecs !== false){
 			record.set(values);
@@ -51147,7 +54469,9 @@ Ext.define('App.view.patient.Patient', {
 	},
 
 	formCancel: function(btn){
-		var form = btn.up('form').getForm(), record = form.getRecord();
+		var me = this,
+			form = me.demoForm.getForm(),
+			record = form.getRecord();
 		form.loadRecord(record);
 	},
 
@@ -51185,6 +54509,7 @@ Ext.define('App.view.patient.Patient', {
 				me.setReadOnly(app.patient.readOnly);
 				me.setButtonsDisabled(me.query('button[action="readOnly"]'));
 				me.verifyPatientRequiredInfo();
+				me.insTabPanel = Ext.ComponentQuery.query('#PatientInsurancesPanel')[0];
 
 				// set the insurance panel
 				me.insTabPanel.removeAll(true);
@@ -51196,13 +54521,11 @@ Ext.define('App.view.patient.Patient', {
 						})
 					);
 				}
-
 				if(me.insTabPanel.items.length !== 0) me.insTabPanel.setActiveTab(0);
 			}
 		});
 	}
 });
-
 Ext.define('App.view.patient.Summary', {
 	extend: 'App.ux.RenderPanel',
 	pageTitle: _('patient_summary'),
@@ -51214,7 +54537,9 @@ Ext.define('App.view.patient.Summary', {
 		'App.view.patient.CCD',
 		'App.ux.ManagedIframe',
 		'App.view.patient.Patient',
-		'App.view.patient.Reminders'
+		'App.view.patient.Reminders',
+		'App.view.patient.Alerts',
+		'App.view.patient.Amendments'
 	],
 	itemId: 'PatientSummaryPanel',
 	showRating: true,
@@ -51509,7 +54834,7 @@ Ext.define('App.view.patient.Summary', {
 				columns: [
 					{
 						xtype: 'datecolumn',
-						format: 'Y-m-d h:i:s',
+						format: 'Y-m-d H:i:s',
 						text: _('date'),
                         with: 220,
 						dataIndex: 'date'
@@ -51518,7 +54843,21 @@ Ext.define('App.view.patient.Summary', {
 						header: _('type'),
 						dataIndex: 'type',
 						editor: {
+                            xtype: 'gaiaehr.combo',
+                            list_key: 'disclosures_types'
+						},
+						renderer: function(v){
+							return _(v);
+						}
+					},
+					{
+						header: _('recipient'),
+						dataIndex: 'recipient',
+						editor: {
 							xtype: 'textfield'
+						},
+						renderer: function(v){
+							return _(v);
 						}
 					},
 					{
@@ -51531,6 +54870,7 @@ Ext.define('App.view.patient.Summary', {
 					}
 				],
 				tbar: [
+					'->',
 					{
 						text: _('disclosure'),
 						iconCls: 'icoAdd',
@@ -51585,6 +54925,7 @@ Ext.define('App.view.patient.Summary', {
 					}
 				],
 				tbar: [
+					'->',
 					{
 						text: _('add_note'),
 						iconCls: 'icoAdd',
@@ -51603,11 +54944,27 @@ Ext.define('App.view.patient.Summary', {
 			});
 		}
 
+		if(a('access_patient_alerts')){
+			me.tabPanel.add({
+				itemId: 'PatientSummaryAlertsPanel',
+				xtype: 'patientalertspanel',
+				bodyPadding: 0
+			});
+		}
+
+		//if(a('access_patient_amendments')){
+			me.tabPanel.add({
+				xtype: 'patientamendmentspanel',
+				itemId: 'PatientAmendmentsPanel',
+				border: true
+			});
+		//}
+
 		if(a('access_patient_documents')){
 			me.tabPanel.add({
 				xtype: 'patientdocumentspanel',
 				border: false
-			})
+			});
 		}
 
 		if(a('access_patient_preventive_care_alerts')){
@@ -51800,7 +55157,8 @@ Ext.define('App.view.patient.Summary', {
 			me.stores[i].clearFilter(true);
 			me.stores[i].load({
 				params: {
-					pid: me.pid
+					pid: me.pid,
+                    active: true
 				},
 				filters: [
 					{
@@ -51860,6 +55218,7 @@ Ext.define('App.view.patient.Summary', {
 		me.loadStores();
 		me.el.unmask();
 	},
+
 	/**
 	 * This function is called from Viewport.js when
 	 * this panel is selected in the navigation panel.
@@ -52148,30 +55507,44 @@ Ext.define('App.controller.DocumentViewer', {
 	onArchiveBtnClick: function(btn){
 		var win = btn.up('window'),
 			form = win.down('form').getForm(),
-			values = form.getValues();
+			values = form.getValues(),
+			docTypeField = form.findField('docTypeCode');
 
 		if(form.isValid()){
 			values.pid = app.patient.pid;
 			values.eid = app.patient.eid;
 			values.uid = app.user.id;
-			DocumentHandler.transferTempDocument(values, function(provider, response){
 
-				if(response.result.success){
-					if(window.dual){
-						dual.msg(_('sweet'), 'document_transferred');
+			var docTypeRecord = docTypeField.findRecordByValue(values.docTypeCode);
+			values.docType = docTypeRecord.get('option_name');
+
+			// scanner archive logic
+			if(Ext.getClassName(win.documentWindow) == 'App.view.scanner.Window'){
+
+				var controller = app.getController('Scanner');
+				controller.doArchive(values, function (success) {
+					if(success) win.close();
+				});
+
+			}else{
+				DocumentHandler.transferTempDocument(values, function(provider, response){
+					if(response.result.success){
+						if(window.dual){
+							window.dual.msg(_('sweet'), 'document_transferred');
+						}else{
+							window.app.msg(_('sweet'), 'document_transferred');
+						}
+						win.documentWindow.close();
+						win.close();
 					}else{
-						app.msg(_('sweet'), 'document_transferred');
+						if(window.dual){
+							window.dual.msg(_('oops'), 'document_transfer_failed', true);
+						}else{
+							window.app.msg(_('oops'), 'document_transfer_failed', true);
+						}
 					}
-					win.documentWindow.close();
-					win.close();
-				}else{
-					if(dual){
-						dual.msg(_('oops'), 'document_transfer_failed', true);
-					}else{
-						app.msg(_('oops'), 'document_transfer_failed', true);
-					}
-				}
-			});
+				});
+			}
 		}
 	},
 
@@ -52200,13 +55573,15 @@ Ext.define('App.controller.DocumentViewer', {
 
 		if(typeof type != 'undefined') src += '&temp=' + type;
 
+		src += '&_dc=' + Ext.Date.now();
+
 		win = Ext.create('App.view.patient.windows.DocumentViewer',{
 			documentType: type,
 			documentId: id,
 			items:[
 				{
 					xtype:'miframe',
-					autoMask:false,
+					autoMask: false,
 					src: src
 				}
 			]
@@ -52226,187 +55601,6 @@ Ext.define('App.controller.DocumentViewer', {
 
 
 });
-Ext.define('App.controller.Scanner', {
-	extend: 'Ext.app.Controller',
-	requires: [
-		'App.view.scanner.Window'
-	],
-	refs: [
-		{
-			ref: 'ScannerWindow',
-			selector: '#ScannerWindow'
-		},
-		{
-			ref: 'ScannerImage',
-			selector: '#ScannerImage'
-		},
-		{
-			ref: 'ScannerCombo',
-			selector: '#ScannerCombo'
-		},
-		{
-			ref: 'ScannerScanBtn',
-			selector: '#ScannerScanBtn'
-		},
-		{
-			ref: 'ScannerOkBtn',
-			selector: '#ScannerOkBtn'
-		}
-	],
-
-	/**
-	 *
-	 */
-	ws: null,
-
-	connected: false,
-
-	init: function(){
-		var me = this;
-
-		me.control({
-			'viewport': {
-				afterrender: me.doWebSocketConnect
-			},
-			'#ScannerWindow': {
-				show: me.onScannerWindowShow,
-				close: me.onScannerWindowClose
-			},
-			'#ScannerScanBtn': {
-				click: me.onScannerScanBtnClick
-			},
-			'#ScannerImageEditBtn': {
-				toggle: me.onScannerImageEditBtnClick
-			},
-			'#ScannerOkBtn': {
-				click: me.onScannerOkBtnClick
-			}
-		});
-	},
-
-	onScannerScanBtnClick: function(){
-		this.doScan();
-	},
-
-	doLoadScannersCombo: function(data){
-		var combo = this.getScannerCombo(),
-			store = combo.getStore(),
-            checked;
-
-		store.loadData(data);
-		checked = store.findRecord('Checked', 'true');
-		if(checked){
-			combo.select(checked);
-		}
-	},
-
-	doLoadScannedDocument: function(data){
-		var me = this,
-			image = me.getScannerImage();
-
-		image.setSrc('data:image/png;base64,' + data);
-		me.getScannerWindow().body.el.unmask();
-		me.getScannerWindow().doComponentLayout();
-		me.getScannerWindow().down('toolbar').enable();
-	},
-
-	getSources: function(){
-		var me = this;
-		me.ws.send('getSources');
-	},
-
-	onScannerWindowShow: function(){
-		//this.doWebSocketConnect();
-	},
-
-	onScannerWindowClose: function(){
-		//this.ws.close();
-	},
-
-	doWebSocketConnect: function(){
-		var me = this;
-
-		if(me.connected) return;
-		me.ws = new WebSocket('wss://localhost:8443/TwainService');
-
-		me.ws.onopen = function(evt){
-			me.conencted = true;
-			me.getScanWindow();
-			me.getSources();
-			app.fireEvent('scanconnected', this);
-		};
-
-		me.ws.onerror = function(){
-			say(_('no_scanner_service_found'));
-		};
-
-		me.ws.onmessage = function(evt){
-			var response = eval('(' + evt.data + ')');
-
-			if(response.action == 'getSources'){
-				me.doLoadScannersCombo(response.data);
-			}else if(response.action == 'getDocument'){
-				me.doLoadScannedDocument(response.data);
-			}
-		};
-
-		me.ws.onclose = function(e){
-			me.conencted = false;
-			app.fireEvent('scandisconnected', this);
-		};
-	},
-
-	onScannerImageEditBtnClick: function(btn, pressed){
-		if(pressed){
-			this.dkrm = new Darkroom('#ScannerImage', {
-				save: false,
-				replaceDom: false
-			});
-			btn.setText(_('editing'));
-		}else{
-			this.dkrm.selfDestroy();
-			delete this.dkrm;
-			btn.setText(_('edit'));
-		}
-
-		this.getScannerScanBtn().setDisabled(pressed);
-		this.getScannerOkBtn().setDisabled(pressed);
-	},
-
-	getDocument: function(){
-		return this.getScannerImage().imgEl.dom.src;
-	},
-
-	doScan: function(){
-		var me = this,
-			combo = this.getScannerCombo();
-
-		me.getScannerWindow().down('toolbar').disable();
-		me.getScannerWindow().body.el.mask(_('scanning_document'));
-		me.ws.send('getDocument:' + combo.getValue());
-	},
-
-	onScannerOkBtnClick: function(){
-		app.fireEvent('scancompleted', this, this.getDocument());
-		this.getScannerWindow().close();
-	},
-
-	getScanWindow: function(){
-		if(!this.getScannerWindow()){
-			Ext.create('App.view.scanner.Window');
-		}
-		return this.getScannerWindow();
-	},
-
-	initScan: function(){
-		this.getScanWindow();
-		this.getScannerWindow().show();
-		//if(this.getScannerCombo().getValue() !== ''){
-		//	this.doScan();
-		//}
-	}
-});
-
 Ext.define('App.controller.Notification', {
 	extend: 'Ext.app.Controller',
 	requires: [
@@ -52640,6 +55834,14 @@ Ext.define('App.controller.patient.Documents', {
 			selector: 'patientdocumentspanel #documentUploadBtn'
 		},
 		{
+			ref: 'DocumentUploadBtn',
+			selector: 'patientdocumentspanel #documentUploadBtn'
+		},
+		{
+			ref: 'DocumentScanBtn',
+			selector: 'patientdocumentspanel #documentScanBtn'
+		},
+		{
 			ref: 'PatientDocumentErrorNoteWindow',
 			selector: 'patientdocumenterrornotewindow'
 		}
@@ -52652,8 +55854,8 @@ Ext.define('App.controller.patient.Documents', {
 
 		me.control({
 			'viewport': {
-				scanconnected: me.onScanConnected,
-				scandisconnected: me.onScanDisconnected,
+				browserhelperopen: me.onBrowserHelperOpen,
+				browserhelperclose: me.onBrowserHelperClose,
 				documentedit: me.onDocumentEdit
 			},
 			'patientdocumentspanel': {
@@ -52661,7 +55863,9 @@ Ext.define('App.controller.patient.Documents', {
 				beforerender: me.onPatientDocumentBeforeRender
 			},
 			'patientdocumentspanel #patientDocumentGrid': {
-				selectionchange: me.onPatientDocumentGridSelectionChange
+				selectionchange: me.onPatientDocumentGridSelectionChange,
+				afterrender: me.onPatientDocumentGridAfterRender,
+				beforeitemcontextmenu: me.onPatientDocumentGridBeforeItemContextMenu
 			},
 			'patientdocumentspanel [toggleGroup=documentgridgroup]': {
 				toggle: me.onDocumentGroupBtnToggle
@@ -52672,24 +55876,42 @@ Ext.define('App.controller.patient.Documents', {
 			'patientdocumentspanel #documentUploadBtn': {
 				click: me.onDocumentUploadBtnClick
 			},
+			'patientdocumentspanel #documentScanBtn': {
+				click: me.onDocumentScanBtnClick
+			},
 			'#patientDocumentUploadWindow': {
 				show: me.onPatientDocumentUploadWindowShow
 			},
 			'#patientDocumentUploadWindow #uploadBtn': {
 				click: me.onDocumentUploadSaveBtnClick
 			},
-			'#patientDocumentUploadWindow #scanBtn': {
-				click: me.onDocumentUploadScanBtnClick
-			},
-
-
 			'#DocumentErrorNoteSaveBtn': {
 				click: me.onDocumentErrorNoteSaveBtnClick
 			}
 		});
 
 		me.nav = this.getController('Navigation');
-		//this.initDocumentDnD();
+	},
+
+	onPatientDocumentGridBeforeItemContextMenu: function (grid, record, item, index, e, eOpts) {
+		var me = this;
+
+		e.preventDefault();
+		Ext.Msg.show({
+			title:'C-CDA',
+			msg: 'Would you like to view the raw xml data?',
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function(btn){
+				if (btn === 'yes'){
+					var frame = grid.up('panel').up('panel').query('#patientDocumentViewerFrame')[0];
+
+					if(record){
+						frame.setSrc('dataProvider/DocumentViewer.php?site=' + me.site + '&token=' + app.user.token + '&id=' + record.data.id + '&rawXml');
+					}
+				}
+			}
+		});
 	},
 
 	setDocumentInError: function(document_record){
@@ -52771,15 +55993,15 @@ Ext.define('App.controller.patient.Documents', {
 		}
 	},
 
-	onScanConnected: function(){
-		if(this.getPatientDocumentUploadScanBtn()){
-			this.getPatientDocumentUploadScanBtn().show();
+	onBrowserHelperOpen: function(){
+		if(this.getDocumentScanBtn()){
+			this.getDocumentScanBtn().show();
 		}
 	},
 
-	onScanDisconnected: function(){
-		if(this.getPatientDocumentUploadScanBtn()){
-			this.getPatientDocumentUploadScanBtn().hide();
+	onBrowserHelperClose: function(){
+		if(this.getDocumentScanBtn()){
+			this.getDocumentScanBtn().hide();
 		}
 	},
 
@@ -52796,6 +56018,12 @@ Ext.define('App.controller.patient.Documents', {
 			frame.setSrc('dataProvider/DocumentViewer.php?site=' + this.site + '&token=' + app.user.token + '&id=' + records[0].data.id);
 		}else{
 			frame.setSrc('dataProvider/DocumentViewer.php?site=' + this.site + '&token=' + app.user.token);
+		}
+	},
+
+	onPatientDocumentGridAfterRender: function (container) {
+		if(eval(a('allow_document_drag_drop_upload'))) {
+			this.initDocumentDnD(container);
 		}
 	},
 
@@ -52843,20 +56071,25 @@ Ext.define('App.controller.patient.Documents', {
 			app.msg(_('oops'), _('unable_to_find_document'), true);
 		}
 		store.un('load', me.doSelectDocument, me);
-
 	},
 
 	onDocumentGroupBtnToggle: function(btn, pressed){
-		var grid = btn.up('grid');
+		var grid = btn.up('grid'),
+			selector = '[dataIndex=' + btn.action + ']',
+			header = grid.headerCt.down(selector);
 
 		if(pressed){
 			grid.getStore().group(btn.action);
-			grid.query('#' + btn.action)[0].hide();
+			header.hide();
 			btn.disable();
 		}else{
-			grid.query('#' + btn.action)[0].show();
+			header.show();
 			btn.enable();
 		}
+	},
+
+	onDocumentScanBtnClick: function () {
+		this.getController('Scanner').showScanWindow();
 	},
 
 	onDocumentUploadBtnClick: function(){
@@ -52875,6 +56108,7 @@ Ext.define('App.controller.patient.Documents', {
 			pid: app.patient.pid,
 			eid: app.patient.eid,
 			uid: app.user.id,
+			facility_id: app.user.facility,
 			date: new Date()
 		})
 	},
@@ -52892,23 +56126,23 @@ Ext.define('App.controller.patient.Documents', {
 	},
 
 	onDocumentHashCheckBtnClick: function(grid, rowIndex){
-		var rec = grid.getStore().getAt(rowIndex),
-			success,
-			message;
-		DocumentHandler.checkDocHash(rec.data, function(provider, response){
-			success = response.result.success;
-			message = '<b>' + _(success ? 'hash_validation_passed' : 'hash_validation_failed') + '</b><br>' + Ext.String.htmlDecode(response.result.msg);
+		var rec = grid.getStore().getAt(rowIndex);
 
-			if(window.dual){
-				dual.msg(_(success ? 'sweet' : 'oops'), message, !success)
-			}else{
-				app.msg(_(success ? 'sweet' : 'oops'), message, !success)
-			}
+		DocumentHandler.checkDocHash(rec.data, function(provider, response){
+
+			var message = Ext.String.htmlDecode(response.result.msg);
+
+			Ext.Msg.show({
+				title: _('document_hash'),
+				msg: message,
+				buttons: Ext.Msg.OK,
+				icon: Ext.Msg.INFO
+			});
 		});
 	},
 
 	getUploadWindow: function(action){
-		return Ext.widget('patientuploaddocumentwindow', {
+		return Ext.create('App.view.patient.windows.UploadDocument', {
 			action: action,
 			itemId: 'patientDocumentUploadWindow'
 		})
@@ -52971,6 +56205,8 @@ Ext.define('App.controller.patient.Documents', {
 			store = me.getPatientDocumentGrid().getStore(),
 			index = store.indexOf(record);
 
+		record.set({facility_id: app.user.facility});
+
 		if(index == -1){
 			store.add(record);
 		}
@@ -52993,81 +56229,82 @@ Ext.define('App.controller.patient.Documents', {
 		})
 	},
 
-	initDocumentDnD: function(){
+	initDocumentDnD: function(grid){
 		var me = this;
 
 		me.dnding = false;
 
-		document.ondragenter = function(e){
-			e.preventDefault();
-			if(!me.dnding) me.setDropMask();
-			return false;
-		};
-
-		document.ondragover = function(e){
-			e.preventDefault();
-			return false;
-		};
-
-		document.ondrop = function(e){
-			e.preventDefault();
-			me.unSetDropMask();
-			if(me.dropMask && (e.target == me.dropMask.maskEl.dom || e.target == me.dropMask.msgEl.dom)){
-				me.dropHandler(e.dataTransfer.files);
+		grid.on({
+			drop: {
+				element: 'el',
+				fn: me.documentDrop,
+				scope: me
+			},
+			dragstart: {
+				element: 'el',
+				fn: me.documentAddDropZone
+			},
+			dragenter: {
+				element: 'el',
+				fn: me.documentAddDropZone
+			},
+			dragover: {
+				element: 'el',
+				fn: me.documentAddDropZone
+			},
+			dragleave: {
+				element: 'el',
+				fn: me.documentRemoveDropZone
+			},
+			dragexit: {
+				element: 'el',
+				fn: me.documentRemoveDropZone
 			}
-			return false;
-		};
-
-		document.ondragleave = function(e){
-			if(e.target.localName == 'body') me.unSetDropMask();
-			e.preventDefault();
-			return false;
-		};
+		});
 	},
 
-	setDropMask: function(){
-		var me = this,
-			dropPanel = me.getPatientDocumentViewerFrame();
+	documentDrop: function (e) {
+		var me = this;
+		e.stopEvent();
 
-		me.dnding = true;
+		var files = Ext.Array.from(e.browserEvent.dataTransfer.files);
+		me.fileHandler(files[0]);
 
-		if(dropPanel && dropPanel.rendered){
-			if(!me.dropMask){
-				me.dropMask = new Ext.LoadMask(me.getPatientDocumentViewerFrame(), {
-					msg: _('drop_here'),
-					cls: 'uploadmask',
-					maskCls: 'x-mask uploadmask',
-					shadow: false
-				});
-				me.dropMask.show();
+		Ext.get(e.target).removeCls('drag-over');
 
-				me.dropMask.maskEl.dom.addEventListener('dragenter', function(e){
-					e.preventDefault();
-					e.target.classList.add('validdrop');
-					return false;
-				});
+	},
 
-				me.dropMask.maskEl.dom.addEventListener('dragleave', function(e){
-					e.preventDefault();
-					e.target.classList.remove('validdrop');
-					return false;
-				});
-			}else{
-				me.dropMask.show();
-			}
+	documentAddDropZone: function (e) {
+		if (!e.browserEvent.dataTransfer || Ext.Array.from(e.browserEvent.dataTransfer.types).indexOf('Files') === -1) {
+			return;
+		}
+		e.stopEvent();
 
+		this.addCls('drag-over');
+	},
+
+	documentRemoveDropZone: function (e) {
+
+		var el = e.getTarget(),
+			thisEl = this.el;
+
+		e.stopEvent();
+
+		if (el === thisEl.dom) {
+			this.removeCls('drag-over');
+			return;
+		}
+
+		while (el !== thisEl.dom && el && el.parentNode) {
+			el = el.parentNode;
+		}
+
+		if (el !== thisEl.dom) {
+			this.removeCls('drag-over');
 		}
 	},
 
-	unSetDropMask: function(){
-		this.dnding = false;
-		if(this.dropMask){
-			this.dropMask.hide();
-		}
-	},
-
-	dropHandler: function(files){
-		//		say(files);
+	fileHandler: function(file){
 		var me = this,
 			win = me.setDocumentUploadWindow('drop'),
 			form = win.down('form').getForm(),
@@ -53081,11 +56318,11 @@ Ext.define('App.controller.patient.Documents', {
 		reader.onload = function(e){
 			record.set({
 				document: e.target.result,
-				name: files[0].name
+				name: file.name
 			});
 		};
 
-		reader.readAsDataURL(files[0]);
+		reader.readAsDataURL(file);
 	},
 
 	setViewerSite: function(site){
@@ -53180,36 +56417,46 @@ Ext.define('App.controller.patient.LabOrders', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	onPrintLabOrderBtnClick: function(orders){
+	onPrintLabOrderBtnClick: function(input){
 		var me = this,
 			grid = me.getLabOrdersGrid(),
-			items = (Ext.isArray(orders) ? orders : grid.getSelectionModel().getSelection()),
-			params = {},
-			data,
-			i;
+			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
+			documents = {};
 
-		params.pid = app.patient.pid;
-		params.eid = app.patient.eid;
-		params.orderItems = [ ];
-		params.docType = 'Lab';
+		orders.forEach(function(order){
+			var date_ordered = Ext.Date.format(order.get('date_ordered'),'Y-m-d'),
+				doc_key = '_' + order.get('eid') +
+					order.get('pid') +
+					order.get('uid') +
+					date_ordered;
 
-		params.templateId = 4;
-		params.orderItems.push(['Description', 'Notes']);
-		for(i = 0; i < items.length; i++){
-			data = items[i].data;
+			if(!documents[doc_key]){
+				documents[doc_key] = {};
+				documents[doc_key].pid = app.patient.pid;
+				documents[doc_key].eid = app.patient.eid;
+				documents[doc_key].date_ordered = date_ordered;
+				documents[doc_key].provider_uid = order.get('uid');
+				documents[doc_key].orderItems = [];
+				documents[doc_key].docType = 'Lab';
+				documents[doc_key].templateId = 4;
+				documents[doc_key].orderItems.push(['Description', 'Notes']);
 
-			params.orderItems.push([
-					data.description + ' [' + data.code_type + ':' + data.code + ']',
-				data.note
-			]);
-		}
-
-		DocumentHandler.createTempDocument(params, function(provider, response){
-			if(window.dual){
-				dual.onDocumentView(response.result.id, 'Lab');
-			}else{
-				app.onDocumentView(response.result.id, 'Lab');
 			}
+
+			documents[doc_key].orderItems.push([
+				order.get('description') + ' [' + order.get('code_type') + ':' + order.get('code') + ']',
+				order.get('note')
+			]);
+		});
+
+		Ext.Object.each(documents, function(key, params){
+			DocumentHandler.createTempDocument(params, function(provider, response){
+				if(window.dual){
+					dual.onDocumentView(response.result.id, 'Lab');
+				}else{
+					app.onDocumentView(response.result.id, 'Lab');
+				}
+			});
 		});
 	},
 
@@ -53311,7 +56558,7 @@ Ext.define('App.controller.patient.Results', {
 			selector: '#ResultsOrderSaveBtn'
 		},
 
-		// laboratory
+		// Laboratory
 		{
 			ref: 'ResultsLaboratoryPanel',
 			selector: '#ResultsLaboratoryPanel'
@@ -53321,18 +56568,31 @@ Ext.define('App.controller.patient.Results', {
 			selector: '#ResultsLaboratoryForm'
 		},
 		{
-			ref: 'ResultsLaboratoryObservationsGrid',
-			selector: '#ResultsLaboratoryObservationsGrid'
-		},
-		{
 			ref: 'ResultsLaboratoryFormUploadField',
 			selector: '#ResultsLaboratoryFormUploadField'
 		},
+		{
+			ref: 'ResultsLaboratoryObservationsGrid',
+			selector: '#ResultsLaboratoryObservationsGrid'
+		},
+
 
 		// Radiology
 		{
 			ref: 'ResultsRadiologyPanel',
 			selector: '#ResultsRadiologyPanel'
+		},
+		{
+			ref: 'ResultsRadiologyForm',
+			selector: '#ResultsRadiologyForm'
+		},
+		{
+			ref: 'ResultsRadiologyFormUploadField',
+			selector: '#ResultsRadiologyFormUploadField'
+		},
+		{
+			ref: 'ResultsRadiologyFormViewStudyBtn',
+			selector: '#ResultsRadiologyFormViewStudyBtn'
 		},
 		{
 			ref: 'ResultsRadiologyDocumentIframe',
@@ -53347,17 +56607,21 @@ Ext.define('App.controller.patient.Results', {
 				activate: me.onResultPanelActive
 			},
 			'#ResultsOrdersGrid': {
-				selectionchange: me.onOrderSelectionChange,
-				edit: me.onOrderSelectionEdit
+				render: me.onResultsOrdersGridRender,
+				selectionchange: me.onOrderSelectionChange
 			},
 			'#ResultsLaboratoryFormUploadField': {
 				change: me.onOrderDocumentChange
 			},
-			'#ResultsLaboratoryOrderResetBtn': {
-				click: me.onResetOrderResultClicked
+			'#ResultsOrderResetBtn': {
+				click: me.onResultsOrderResetBtnClick
 			},
-			'#ResultsLaboratoryOrderSaveBtn': {
-				click: me.onSaveOrderResultClicked
+			'#ResultsOrderSaveBtn': {
+				click: me.onResultsOrderSaveBtnClick
+			},
+
+			'#ResultsLabsLiveSearchField': {
+				select: me.onResultsLabsLiveSearchFieldSelect
 			},
 			'#ResultsLaboratoryPanelDocumentViewBtn': {
 				click: me.onOrderDocumentViewBtnClicked
@@ -53376,7 +56640,18 @@ Ext.define('App.controller.patient.Results', {
 			},
 			'#ResultsOrdersGridOrderVoidCheckbox': {
 				change: me.onResultsOrdersGridOrderVoidCheckboxChange
+			},
+			'#ResultsRadiologyFormViewStudyBtn': {
+				click: me.onResultsRadiologyFormViewStudyBtnClick
 			}
+		});
+	},
+
+	onResultsLabsLiveSearchFieldSelect: function(cmb, records){
+		cmb.up('form').getRecord().set({
+			code: records[0].get('loinc_number'),
+			code_text: records[0].get('loinc_name'),
+			code_type: 'LOINC'
 		});
 	},
 
@@ -53392,7 +56667,7 @@ Ext.define('App.controller.patient.Results', {
 			if(btn == 'ok'){
 				User.verifyUserPass(password, function(success){
 					if(success){
-						record = me.getResultsLaboratoryForm().getRecord();
+						record = me.getActiveForm().getForm().getRecord();
 						record.set({signed_uid: app.user.id});
 						record.save({
 							success: function(){
@@ -53402,8 +56677,7 @@ Ext.define('App.controller.patient.Results', {
 								app.msg(_('sweet'), _('record_error'), true);
 							}
 						});
-					}
-					else{
+					}else{
 						me.onOrderResultSignBtnClick();
 					}
 				});
@@ -53411,8 +56685,28 @@ Ext.define('App.controller.patient.Results', {
 		});
 	},
 
-	onOrderSelectionEdit: function(editor, e){
-		this.getOrderResult(e.record);
+	onResultsOrdersGridRender: function (grid) {
+		grid.store.on('write', this.onResultsOrdersGridStoreWrite, this);
+	},
+
+	onResultsOrdersGridStoreWrite: function (store, operation) {
+
+		var me = this,
+			sm = me.getResultsOrdersGrid().getSelectionModel(),
+			lastSelected = sm.getLastSelected();
+
+		if(operation.action == 'create'){
+
+			if(lastSelected.data.order_type === 'lab') {
+				this.getLabOrderResult(lastSelected);
+			}else if(lastSelected.data.order_type === 'lab'){
+				this.getRadOrderResult(lastSelected);
+			}
+		}
+	},
+
+	onOrderSelectionEdit: function(editor, context){
+		this.getLabOrderResult(context.record);
 	},
 
 	onNewOrderResultBtnClick: function(btn){
@@ -53425,6 +56719,7 @@ Ext.define('App.controller.patient.Results', {
 		records = store.add({
 			pid: app.patient.pid,
 			uid: app.user.id,
+            eid: app.patient.eid,
 			order_type: 'lab',
 			status: 'Pending'
 		});
@@ -53438,6 +56733,7 @@ Ext.define('App.controller.patient.Results', {
 		// By Default when adding a new record, it will be a Laboratory
 		grid.columns[4].setEditor({
 			xtype: 'labslivetsearch',
+			itemId: 'ResultsLabsLiveSearchField',
 			allowBlank: false,
 			flex: 1
 		});
@@ -53456,6 +56752,7 @@ Ext.define('App.controller.patient.Results', {
 			// Change the field to look for laboratories
 			grid.columns[4].setEditor({
 				xtype: 'labslivetsearch',
+				itemId: 'ResultsLabsLiveSearchField',
 				allowBlank: false,
 				flex: 1,
 				value: ''
@@ -53467,7 +56764,7 @@ Ext.define('App.controller.patient.Results', {
 		if(newValue === 'rad'){
 			// Change the Card panel, to show the Radiology results form
 			this.getResultsCardPanel().getLayout().setActiveItem('ResultsRadiologyPanel');
-			// Change the field to look for radiologies
+			// Change the field to look for radiologists
 			grid.columns[4].setEditor({
 				xtype: 'radslivetsearch',
 				allowBlank: false,
@@ -53509,56 +56806,71 @@ Ext.define('App.controller.patient.Results', {
 		if(!carDpanel.isVisible())
 			carDpanel.setVisible(true);
 
-		if(records[0]){
-			if(records[0].data.order_type === 'lab')
+		if(records.length > 0){
+			if(records[0].data.order_type === 'lab'){
 				carDpanel.getLayout().setActiveItem('ResultsLaboratoryPanel');
-
-			if(records[0].data.order_type === 'rad')
+				if(records.length > 0){
+					this.getLabOrderResult(records[0]);
+				}
+			}else if(records[0].data.order_type === 'rad'){
 				carDpanel.getLayout().setActiveItem('ResultsRadiologyPanel');
-
-			if(records.length > 0){
-				this.getOrderResult(records[0]);
-			}
-			else{
+				if(records.length > 0){
+					this.getRadOrderResult(records[0]);
+				}
+			}else{
 				this.resetOrderResultForm();
 			}
+		}else{
+			this.resetOrderResultForm();
 		}
 	},
 
-	getOrderResult: function(orderRecord){
+	getLabOrderResult: function(order_record){
 		var me = this,
 			form = me.getResultsLaboratoryForm(),
-			resultsStore = orderRecord.results(),
+			results_store = order_record.results(),
 			observationGrid = me.getResultsLaboratoryObservationsGrid(),
 			observationStore,
 			newResult,
 			i;
 
 		observationGrid.editingPlugin.cancelEdit();
-		resultsStore.load({
+
+		if(order_record.get('id') === 0) return;
+
+		results_store.load({
 			callback: function(records){
 				if(records.length > 0){
-					form.loadRecord(records[0]);
-					me.getResultsOrderSignBtn().setDisabled(records[0].data.signed_uid > 0);
-					observationStore = records[0].observations();
+					var last_result = records.length - 1;
+
+					form.loadRecord(records[last_result]);
+					me.getResultsOrderSignBtn().setDisabled(records[last_result].data.signed_uid > 0);
+					observationStore = records[last_result].observations();
 					observationGrid.reconfigure(observationStore);
 					observationStore.load();
 				}else{
-					newResult = resultsStore.add({
-						pid: orderRecord.data.pid,
-						code: orderRecord.data.code,
-						code_text: orderRecord.data.description,
-						code_type: orderRecord.data.code_type,
-						ordered_uid: orderRecord.data.uid,
+					newResult = results_store.add({
+						pid: order_record.data.pid,
+						code: order_record.data.code,
+						code_text: order_record.data.description,
+						code_type: order_record.data.code_type,
+						order_id: order_record.data.id,
+						ordered_uid: order_record.data.uid,
 						create_date: new Date()
 					});
+
+					newResult[0].set({
+						order_id: order_record.data.id
+					});
+
 					form.loadRecord(newResult[0]);
 					me.getResultsOrderSignBtn().setDisabled(true);
 					observationStore = newResult[0].observations();
 					observationGrid.reconfigure(observationStore);
 					observationStore.load({
+
 						params: {
-							loinc: orderRecord.data.code
+							loinc: order_record.data.code
 						},
 						callback: function(ObsRecords){
 							for(i = 0; i < ObsRecords.length; i++){
@@ -53571,82 +56883,92 @@ Ext.define('App.controller.patient.Results', {
 		});
 	},
 
-	onResetOrderResultClicked: function(){
-		this.resetOrderResultForm();
-	},
+	getRadOrderResult: function(order_record){
 
-	resetOrderResultForm: function(){
 		var me = this,
-			form = me.getResultsLaboratoryForm(),
-			observationGrid = me.getResultsLaboratoryObservationsGrid(),
-			store = Ext.create('App.store.patient.PatientsOrderObservations');
+			form = me.getResultsRadiologyForm().getForm(),
+			results_store = order_record.results();
 
-		form.reset();
-		observationGrid.editingPlugin.cancelEdit();
-		observationGrid.reconfigure(store);
-	},
+		results_store.load({
+			callback: function(records){
+				if(records.length > 0){
+					var last_result = records.length - 1;
 
-	onSaveOrderResultClicked: function(){
-		var me = this,
-			form = me.getResultsLaboratoryForm(),
-			values = form.getValues(),
-			files = me.getResultsLaboratoryFormUploadField().getEl().down('input[type=file]').dom.files,
-			reader = new FileReader();
-
-		// The form is not valid, go ahead and warn the user.
-		if(!form.isValid()){
-			app.msg(_('oops'), _('required_fields_missing'), true);
-			return;
-		}
-
-		if(files.length > 0){
-			reader.onload = (function(){
-				return function(e){
-					var sm = me.getResultsOrdersGrid().getSelectionModel(),
-						order = sm.getSelection(),
-						params = {
-							pid: order[0].data.pid,
-							eid: order[0].data.eid,
-							uid: app.user.id,
-							docType: 'lab',
-							title: 'Lab #' + values.lab_order_id + ' Result',
-							document: e.target.result
-						};
-					File.savePatientBase64Document(params, function(provider, response){
-						if(response.result.success){
-							values.documentId = 'doc|' + response.result.id;
-							me.saveOrderResult(form, values);
-						}else{
-							app.msg(_('oops'), response.result.error)
-						}
+					form.loadRecord(records[last_result]);
+					me.getResultsOrderSignBtn().setDisabled(records[last_result].data.signed_uid > 0);
+					me.loadRadiologyDocument(records[last_result]);
+					me.setViewStudyBtn(records[last_result]);
+				}else{
+					var newResult = results_store.add({
+						pid: order_record.data.pid,
+						code: order_record.data.code,
+						code_text: order_record.data.description,
+						code_type: order_record.data.code_type,
+						order_id: order_record.data.id,
+						ordered_uid: order_record.data.uid,
+						create_date: new Date()
 					});
-				};
-			})(files[0]);
-			reader.readAsDataURL(files[0]);
-		}
-		else{
-			me.saveOrderResult(form, values);
+
+					newResult[0].set({
+						order_id: order_record.data.id
+					});
+
+					form.loadRecord(newResult[0]);
+					me.loadRadiologyDocument(newResult[0]);
+					me.setViewStudyBtn(newResult[0]);
+				}
+			}
+		});
+	},
+
+	setViewStudyBtn: function(result_record){
+		this.getResultsRadiologyFormViewStudyBtn().setDisabled(result_record.get('study_link') == '');
+	},
+
+	onResultsRadiologyFormViewStudyBtnClick: function(){
+		var record = this.getActiveForm().getForm().getRecord();
+		var win = window.open(record.get('study_link'), 'dicom_viewer');
+
+		if(win){
+			win.focus();
+		} else{
+			app.msg(_('oops'), _('unable_to_open_new_tab'), true);
 		}
 	},
 
-	saveOrderResult: function(form, values){
+
+	/**
+	 * SAVE RESULTS FOMR
+	 */
+	onResultsOrderSaveBtnClick: function(){
+		var form = this.getActiveForm();
+
+		if(form.itemId == 'ResultsLaboratoryForm'){
+			this.saveLabOrderResultForm(form.getForm());
+		}else if(form.itemId == 'ResultsRadiologyForm'){
+			this.saveRadOrderResultForm(form.getForm());
+		}
+	},
+
+	saveLabOrderResultForm: function(form){
 		var me = this,
-			record = form.getRecord(),
+			result_record = form.getRecord(),
 			sm = me.getResultsOrdersGrid().getSelectionModel(),
 			order = sm.getSelection(),
+			values = form.getValues(),
 			observationData = [];
 
-		var observationStore = record.observations(),
-			observations = observationStore.data.items;
+		if(!form.isValid()) return;
 
-		record.set(values);
-		record.save({
+		var observationStore = result_record.observations(),
+			observations = observationStore.tree.flatten();
+
+		result_record.set(values);
+		result_record.save({
 			success: function(rec){
-
-				for(var i = 0; i < observations.length; i++){
+				for(var i = 1; i < observations.length; i++){
 					observations[i].set({result_id: rec.data.id});
 				}
-
 				observationStore.sync({
 					callback: function(batch, options){
 
@@ -53659,32 +56981,110 @@ Ext.define('App.controller.patient.Results', {
 		});
 	},
 
+	saveRadOrderResultForm: function(form){
+		if(!form.isValid()) return;
+
+		var me = this,
+			result_record = form.getRecord(),
+			values = form.getValues(),
+			reader = new FileReader();
+
+		reader.onload = function(e){
+			values.upload = e.target.result;
+			result_record.set(values);
+			result_record.save({
+				callback: function(){
+					me.loadRadiologyDocument(result_record);
+					app.msg(_('sweet'), _('record_save'));
+				}
+			});
+		};
+
+		reader.readAsDataURL(me.getResultsRadiologyFormUploadField().extractFileInput().files[0]);
+	},
+
+	loadRadiologyDocument: function(result_record){
+
+		var document_id = result_record.get('documentId'),
+			frame = this.getResultsRadiologyDocumentIframe();
+
+		if(document_id != ''){
+			var doc_id = document_id.split('|');
+			if(doc_id.length == 2){
+				frame.setSrc(
+					Ext.String.format(
+						'dataProvider/DocumentViewer.php?site={0}&token={1}&id={2}',
+						app.user.site,
+						app.user.token,
+						doc_id[1]
+					)
+				);
+			}
+		}else{
+			frame.setSrc('about:blank');
+		}
+	},
+
+	/**
+	 * RESET RESULTS FORM
+	 */
+	onResultsOrderResetBtnClick: function(){
+		this.resetOrderResultForm();
+	},
+
+	resetOrderResultForm: function(){
+		var form = this.getActiveForm();
+
+		if(form.itemId == 'ResultsLaboratoryForm'){
+			this.resetLabOrderResultForm(form.getForm());
+		}else if(form.itemId == 'ResultsRadiologyForm'){
+			this.resetRadOrderResultForm(form.getForm());
+		}
+
+		var card_panel = this.getResultsCardPanel();
+
+		if(card_panel.isVisible()){
+			card_panel.setVisible(false);
+		}
+	},
+
+	resetLabOrderResultForm: function(form){
+		var me = this,
+			observationGrid = me.getResultsLaboratoryObservationsGrid(),
+			store = Ext.create('App.store.patient.PatientsOrderObservations');
+
+		form.reset();
+		observationGrid.editingPlugin.cancelEdit();
+		observationGrid.reconfigure(store);
+	},
+
+	resetRadOrderResultForm: function(form){
+		form.reset();
+		this.getResultsRadiologyDocumentIframe().setSrc('about:blank');
+	},
+
+
+	getActiveForm: function(){
+		return this.getResultsCardPanel().getLayout().getActiveItem().down('form');
+	},
+
 	onOrderDocumentViewBtnClicked: function(){
 		var me = this,
 			form = me.getResultsLaboratoryForm(),
 			record = form.getRecord(),
 			recordData = record.data.documentId.split('|'),
-			type = null,
-			id = null,
-			win;
+			type, id;
 
 		if(recordData[0]) type = recordData[0];
 		if(recordData[1]) id = recordData[1];
 
 		if(type && id){
 			if(type == 'hl7'){
-				win = Ext.widget('hl7messageviewer').show();
-				win.body.mask(_('loading...'));
-				HL7Messages.getMessageById(id, function(provider, response){
-					me.getMessageField().setValue(response.result.message);
-					me.getAcknowledgeField().setValue(response.result.response);
-					win.body.unmask();
-				});
+				app.getController('administration.HL7').viewHL7MessageDetailById(id);
 			} else if(type == 'doc'){
 				app.onDocumentView(id);
 			}
-		}
-		else{
+		}else{
 			app.msg(_('oops'), _('no_document_found'), true)
 		}
 	},
@@ -53741,14 +57141,22 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			'viewport':{
 				patientunset: me.onPatientUnset
 			},
+			'#EncounterDetailForm combobox[name=visit_category]':{
+				select: me.onEncounterDetailFormVisitCategoryComboSelect
+			},
 			'#EncounterDetailWindow': {
 				show: me.onEncounterDetailWindowShow
 			},
 			'#EncounterProviderCmb': {
 				beforerender: me.onEncounterProviderCmbBeforeRender,
 				select: me.onEncounterProviderCmbSelect
+			},
+			'#EncounterCDAImportBtn': {
+				click: me.onEncounterCDAImportBtnClick
 			}
 		});
+
+		me.importCtrl = this.getController('patient.CCDImport');
 	},
 
 	/**
@@ -53758,12 +57166,21 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		if(this.getEncounterPanel()) this.getEncounterPanel().encounter = null;
 	},
 
+	onEncounterDetailFormVisitCategoryComboSelect: function (combo, records) {
+		var encounter_record = combo.up('form').getForm().getRecord();
+
+		encounter_record.set({
+			visit_category_code: records[0].get('code'),
+			visit_category_code_type: records[0].get('code_type')
+		});
+	},
+
 	/**
 	 * get the encounter record form the encounter panel or return null
 	 * @returns {*}
 	 */
 	getEncounterRecord: function(){
-		return this.getEncounterPanel() ? this.getEncounterPanel().encounter : null;
+		return !Ext.isEmpty(this.getEncounterPanel()) ? this.getEncounterPanel().encounter : null;
 	},
 
 	onEncounterProviderCmbBeforeRender: function(cmb){
@@ -53850,6 +57267,29 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		}
 
 		return show;
+	},
+
+	onEncounterCDAImportBtnClick: function(btn){
+
+		var me = this,
+			win = Ext.create('App.ux.form.fields.UploadString');
+
+		win.allowExtensions = ['xml','ccd','cda','ccda'];
+		win.on('uploadready', function(comp, stringXml){
+			me.getDocumentData(stringXml);
+		});
+
+		win.show();
+	},
+
+	getDocumentData: function(stringXml){
+		var me = this;
+
+		CCDDocumentParse.parseDocument(stringXml, function(ccdData){
+			me.importCtrl.validatePosibleDuplicates = false;
+			me.importCtrl.CcdImport(ccdData, app.patient.pid);
+			me.importCtrl.validatePosibleDuplicates = true;
+		});
 	}
 
 });
@@ -54052,19 +57492,20 @@ Ext.define('App.view.patient.Referrals', {
 	requires: [
 		'App.ux.LiveCPTSearch',
 		'App.ux.LiveICDXSearch',
+		'App.ux.LiveReferringPhysicianSearch',
 		'App.ux.combo.ActiveProviders',
 		'Ext.selection.CheckboxModel',
-		'App.ux.grid.RowFormEditing',
-		'App.ux.combo.ReferringProviders'
+		'App.ux.grid.RowFormEditing'
 	],
 	xtype: 'patientreferralspanel',
-	title: _('referrals'),
+	title: _('refs'),
 	action: 'referralsGrid',
 	itemId: 'patientReferralsGrid',
 	columnLines: true,
 	allowDeselect: true,
 	store: Ext.create('App.store.patient.Referrals', {
-		remoteFilter: true
+		remoteFilter: true,
+		storeId: 'ReferralsStore'
 	}),
 	plugins: [
 		{
@@ -54138,7 +57579,7 @@ Ext.define('App.view.patient.Referrals', {
 									xtype: 'activeproviderscombo',
 									fieldLabel: _('refer_by'),
 									name: 'refer_by_text',
-									width: 300,
+									width: 350,
 									displayField: 'option_name',
 									valueField: 'option_name',
 									itemId: 'ReferralProviderCombo'
@@ -54153,20 +57594,19 @@ Ext.define('App.view.patient.Referrals', {
 											name: 'refer_to_text',
 											labelAlign: 'right',
 											margin: '0 5 5 0',
-											width: 300,
-//											disabled: true,
-//											hidden: true,
+											width: 350,
 											displayField: 'fullname',
 											valueField: 'fullname',
 											itemId: 'ReferralLocalProviderCombo'
 										},
 										{
-											xtype: 'referringproviderscombo',
+											xtype: 'referringphysicianlivetsearch',
 											fieldLabel: _('refer_to'),
 											name: 'refer_to_text',
 											labelAlign: 'right',
 											margin: '0 5 5 0',
-											width: 300,
+											hideLabel: false,
+											width: 350,
 											disabled: true,
 											hidden: true,
 											displayField: 'fullname',
@@ -54187,7 +57627,7 @@ Ext.define('App.view.patient.Referrals', {
 									fieldLabel: _('risk_level'),
 									name: 'risk_level',
 									list: 17,
-									width: 300
+									width: 350
 								},
 //								{
 //									xtype: 'checkboxfield',
@@ -54267,7 +57707,7 @@ Ext.define('App.view.patient.ActiveProblems', {
 		'App.ux.combo.Outcome2'
 	],
 	xtype: 'patientactiveproblemspanel',
-	title: _('active_problems'),
+	title: _('act_prob'),
 	columnLines: true,
 	store: Ext.create('App.store.patient.PatientActiveProblems', {
 		remoteFilter: true,
@@ -54314,11 +57754,12 @@ Ext.define('App.view.patient.ActiveProblems', {
 			format: 'Y-m-d',
 			dataIndex: 'end_date'
 		},
-		{
-			header: _('status'),
-			width: 80,
-			dataIndex: 'status'
-		}
+        {
+            header: _('status'),
+            groupable: false,
+            width: 60,
+            dataIndex: 'status'
+        }
 	],
 	plugins: Ext.create('App.ux.grid.RowFormEditing', {
 		autoCancel: false,
@@ -54397,10 +57838,9 @@ Ext.define('App.view.patient.ActiveProblems', {
 							{
 								fieldLabel: _('status'),
 								xtype: 'gaiaehr.combo',
-								list: 112,
-								itemId: 'ActiveProblemStatusCombo',
 								name: 'status',
-								allowBlank: false
+								itemId: 'ActiveProblemStatusCombo',
+								list: 112
 							},
 							{
 								fieldLabel: _('begin_date'),
@@ -54429,11 +57869,28 @@ Ext.define('App.view.patient.ActiveProblems', {
 			iconCls: 'icoAdd'
 		}
 	],
-	bbar: ['->', {
-		text: _('review'),
-		itemId: 'review_active_problems',
-		action: 'encounterRecordAdd'
-	}]
+	bbar: [
+        '-',
+        {
+            text: _('reconciled'),
+            itemId: 'PatientProblemsReconciledBtn',
+            enableToggle: true,
+            pressed: true
+        },
+        '-',
+        {
+            text: _('active'),
+            itemId: 'PatientProblemsActiveBtn',
+            enableToggle: true,
+            pressed: false
+        },
+        '->',
+        {
+		    text: _('review'),
+		    itemId: 'review_active_problems',
+		    action: 'encounterRecordAdd'
+	    }
+    ]
 });
 
 Ext.define('App.view.patient.SocialPanel', {
@@ -54443,7 +57900,7 @@ Ext.define('App.view.patient.SocialPanel', {
 		'App.view.patient.SocialHistory'
 	],
 	xtype: 'patientsocialpanel',
-	title: _('social'),
+	title: _('soc_hx'),
 	border: false,
 	bodyBorder: false,
 	layout: {
@@ -54470,7 +57927,7 @@ Ext.define('App.view.patient.CognitiveAndFunctionalStatus', {
 		'App.store.patient.CognitiveAndFunctionalStatus'
 	],
 	xtype: 'patientcognitiveandfunctionalstatuspanel',
-	title: _('cog_and_func_status'),
+	title: _('func_stat'),
 	columnLines: true,
 	store: Ext.create('App.store.patient.CognitiveAndFunctionalStatus', {
 		remoteFilter: true
@@ -54569,7 +58026,6 @@ Ext.define('App.view.patient.RadOrders', {
 	extend: 'Ext.grid.Panel',
 	requires: [
 		'Ext.grid.plugin.RowEditing',
-		'Ext.grid.feature.Grouping',
 		'Ext.selection.CheckboxModel',
 		'App.ux.combo.Combo',
 		'App.ux.LiveRadsSearch'
@@ -54583,7 +58039,6 @@ Ext.define('App.view.patient.RadOrders', {
 	itemId: 'RadOrders',
 	store: Ext.create('App.store.patient.PatientsOrders', {
 		storeId: 'RadOrderStore',
-		groupField: 'date_ordered',
 		remoteFilter: true,
 		pageSize: 200,
 		sorters: [
@@ -54596,11 +58051,6 @@ Ext.define('App.view.patient.RadOrders', {
 	selModel: Ext.create('Ext.selection.CheckboxModel', {
 		showHeaderCheckbox: false
 	}),
-	features: [
-		{
-			ftype: 'grouping'
-		}
-	],
 	plugins: [
 		{
 			ptype: 'rowediting',
@@ -54615,8 +58065,6 @@ Ext.define('App.view.patient.RadOrders', {
 				{
 					icon: 'resources/images/icons/cross.png',
 					tooltip: _('remove')
-//					scope: me,
-//					handler: me.onRemoveClick
 				}
 			]
 		},
@@ -54715,6 +58163,7 @@ Ext.define('App.view.patient.RadOrders', {
 		}
 	]
 });
+
 Ext.define('App.view.patient.encounter.CarePlanGoalsNewWindow', {
 	extend: 'Ext.window.Window',
 	requires: [
@@ -55096,14 +58545,7 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 		me.textField = me.items.items[1];
 
 		me.chekboxField.on('change', me.setTextField, me);
-
-		// this dummy is necessary because Ext.Editor will not check whether an inputEl is present or not
-//		this.inputEl = {
-//			dom: {},
-//			swallowEvent: function(){
-//			}
-//		};
-//
+        
 		me.initField();
 	},
 
@@ -55160,6 +58602,7 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 		return this.chekboxField.isValid() && this.textField.isValid();
 	}
 });
+
 Ext.define('App.view.patient.RxOrders', {
 	extend: 'Ext.grid.Panel',
 	requires: [
@@ -55540,7 +58983,8 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		'App.view.patient.encounter.CarePlanGoalsNewWindow',
 		'App.ux.LiveSnomedProcedureSearch',
 		'App.view.patient.encounter.AdministeredMedications',
-		'App.view.patient.encounter.AppointmentRequestGrid'
+		'App.view.patient.encounter.AppointmentRequestGrid',
+		'App.view.patient.encounter.EducationResourcesGrid',
 	],
 	action: 'patient.encounter.soap',
 	itemId: 'soapPanel',
@@ -55659,9 +59103,10 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		me.form = Ext.create('Ext.form.Panel', {
 			autoScroll: true,
 			action: 'encounter',
-			bodyStyle: 'background-color:white',
+			//bodyStyle: 'background-color:white',
 			region: 'center',
 			itemId: 'soapForm',
+			frame: true,
 			fieldDefaults: {
 				msgTarget: 'side'
 			},
@@ -55818,6 +59263,10 @@ Ext.define('App.view.patient.encounter.SOAP', {
 						},
 						{
 							xtype: 'careplangoalsgrid',
+							margin: '0 0 10 0'
+						},
+						{
+							xtype: 'educationresourcesgrid',
 							margin: '0 0 10 0'
 						}
 					]
@@ -56191,7 +59640,7 @@ Ext.define('App.view.patient.Allergies', {
 		'App.ux.combo.AllergiesSeverity'
 	],
 	xtype: 'patientallergiespanel',
-	title: _('allergies'),
+	title: _('al'),
 	columnLines: true,
 	store: Ext.create('App.store.patient.Allergies', {
 		remoteFilter: true,
@@ -56389,6 +59838,12 @@ Ext.define('App.view.patient.Allergies', {
 	],
 	bbar: [
 		{
+			text: _('reconciled'),
+			itemId: 'PatientAllergyReconciledBtn',
+			enableToggle: true,
+			pressed: true
+		},
+		{
 			text: _('only_active'),
 			enableToggle: true,
 			itemId: 'activeAllergyBtn'
@@ -56402,12 +59857,94 @@ Ext.define('App.view.patient.Allergies', {
 	]
 });
 
+Ext.define('App.view.patient.FamilyHistory', {
+	extend: 'Ext.grid.Panel',
+	requires: [
+		'Ext.grid.plugin.RowEditing',
+		'Ext.grid.feature.Grouping'
+	],
+	xtype: 'patientfamilyhistorypanel',
+	title: _('fam_hx'),
+	columnLines: true,
+	store: Ext.create('App.store.patient.FamilyHistories', {
+		remoteFilter: true,
+		groupField: 'condition'
+	}),
+	features: [
+		{
+			ftype: 'grouping'
+		}
+	],
+	plugins: [
+		{
+			ptype: 'rowediting',
+			clicksToEdit: 2
+		}
+	],
+	columns: [
+		{
+			xtype: 'actioncolumn',
+			width: 20,
+			items: [
+				{
+					icon: 'resources/images/icons/cross.png',
+					tooltip: _('remove'),
+                    handler: function(grid, rowIndex, colIndex, item, e, record){
+                        App.app.getController('patient.FamilyHistory').onDeactivateRecord(grid, record);
+                    }
+				}
+			]
+		},
+		{
+			xtype: 'datecolumn',
+			header: _('date'),
+			width: 100,
+			dataIndex: 'create_date',
+			format: 'Y-m-d',
+			editor: {
+				xtype: 'datefield'
+			}
+		},
+		{
+			header: _('condition'),
+			flex: 1,
+			dataIndex: 'condition'
+		},
+		{
+			header: _('relation'),
+			flex: 1,
+			dataIndex: 'relation',
+            editor:{
+                xtype: 'gaiaehr.listcombosimple',
+                list: 109,
+                id: 'relation',
+                name: 'relation',
+                value: null
+            }
+		},
+		{
+			header: _('status'),
+			flex: 1,
+			dataIndex: 'status'
+		}
+	],
+	tbar: [
+		'->',
+		{
+			text: _('history'),
+			iconCls: 'icoAdd',
+			action: 'encounterRecordAdd',
+			itemId:'FamilyHistoryGridAddBtn'
+		}
+	]
+});
+
 Ext.define('App.view.patient.windows.Medical', {
 	extend: 'App.ux.window.Window',
 	title: _('medical_window'),
 	itemId: 'MedicalWindow',
 	closeAction: 'hide',
-	bodyStyle: 'background-color:#fff',
+	//bodyStyle: 'background-color:#fff',
 	modal: true,
 	requires: [
 		'App.view.patient.Results',
@@ -56423,7 +59960,9 @@ Ext.define('App.view.patient.windows.Medical', {
 		'App.view.patient.RadOrders',
 		'App.view.patient.RxOrders',
 		'App.view.patient.DoctorsNotes',
-		'App.view.patient.FamilyHistory'
+		'App.view.patient.FamilyHistory',
+		'App.view.patient.ImplantableDevice',
+		'App.view.patient.SocialPsychologicalBehavioral'
 	],
 
 	initComponent: function(){
@@ -56441,49 +59980,94 @@ Ext.define('App.view.patient.windows.Medical', {
 				items:[
 					{
 						xtype:'patientimmunizationspanel',
-						itemId: 'immunization'
+						itemId: 'immunization',
+						tabConfig: {
+							tooltip: _('vaccines_immunizations')
+						}
 					},
 					{
 						xtype: 'patientallergiespanel',
-						itemId: 'allergies'
+						itemId: 'allergies',
+						tabConfig: {
+							tooltip: _('allergies')
+						}
 					},
 					{
 						xtype: 'patientactiveproblemspanel',
-						itemId: 'activeproblems'
+						itemId: 'activeproblems',
+						tabConfig: {
+							tooltip: _('active_problems')
+						}
 					},
 					{
 						xtype: 'patientfamilyhistorypanel',
-						itemId: 'familyhistory'
+						itemId: 'familyhistory',
+						tabConfig: {
+							tooltip: _('family_history')
+						}
 					},
 					{
 						xtype: 'patientadvancedirectivepanel',
-						itemId: 'advancedirectives'
+						itemId: 'advancedirectives',
+						tabConfig: {
+							tooltip: _('advance_directives')
+						}
 					},
 					{
 						xtype:'patientmedicationspanel',
-						itemId: 'medications'
+						itemId: 'medications',
+						tabConfig: {
+							tooltip: _('medications')
+						}
 					},
 					{
  						xtype:'patientresultspanel',
-						itemId: 'laboratories'
+						itemId: 'laboratories',
+						tabConfig: {
+							tooltip: _('results')
+						}
 					},
 					{
 						xtype: 'patientsocialpanel',
-						itemId: 'social'
+						itemId: 'social',
+						tabConfig: {
+							tooltip: _('social_history')
+						}
 					},
 					{
 						xtype: 'patientcognitiveandfunctionalstatuspanel',
-						itemId: 'functionalstatus'
+						itemId: 'functionalstatus',
+						tabConfig: {
+							tooltip: _('functional_status')
+						}
 					},
 					{
 						xtype: 'patientreferralspanel',
-						itemId: 'referrals'
+						itemId: 'referrals',
+						tabConfig: {
+							tooltip: _('referrals')
+						}
+					},
+					{
+						xtype:'implantabledevicepanel',
+						tabConfig: {
+							tooltip: _('implantable_devices')
+						}
+					},
+					{
+						xtype:'socialpsychologicalbehavioralpanel',
+						tabConfig: {
+							tooltip: _('social_psychological_behavioral')
+						}
 					},
 					/**
 					 * DOCTORS NOTE
 					 */
 					{
-						xtype: 'patientdoctorsnotepanel'
+						xtype: 'patientdoctorsnotepanel',
+						tabConfig: {
+							tooltip: _('doctors_notes')
+						}
 					},
 					/**
 					 * LAB ORDERS PANEL
@@ -56583,13 +60167,11 @@ Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 			txtValue;
 
 		if(ckValue != '0'){
-
 			ckValue += ':' + this.chekboxField.boxLabel;
-
 			var store = this.textField.getStore(),
 				rec = store.getById(this.textField.getSubmitValue());
 			txtValue = rec ? rec.get('code_type') + ':' + rec.get('code') + ':' + rec.get('option_name') : '0';
-		}else{
+		} else {
 			txtValue = '0';
 		}
 
@@ -56607,7 +60189,7 @@ Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 			if(val[1] != '0' && val[1].split){
 				var relation = val[1].split(':');
 				this.textField.select(relation[1] || relation[0] || '');
-			}else{
+			} else {
 				this.textField.setValue('');
 			}
 
@@ -56617,6 +60199,7 @@ Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 		this.textField.setValue('');
 	}
 });
+
 Ext.define('App.view.patient.Encounter', {
 	extend: 'App.ux.RenderPanel',
 	pageTitle: _('encounter'),
@@ -56630,6 +60213,7 @@ Ext.define('App.view.patient.Encounter', {
 		'App.view.patient.encounter.HealthCareFinancingAdministrationOptions',
 		'App.view.patient.encounter.CurrentProceduralTerminology',
 		'App.view.patient.encounter.ProgressNotesHistory',
+		'App.view.patient.encounter.DictationPanel',
 		'App.view.patient.ProgressNote',
 		'App.view.patient.DecisionSupportWarningPanel',
 		'App.ux.combo.EncounterPriority',
@@ -56748,7 +60332,7 @@ Ext.define('App.view.patient.Encounter', {
 					title: _('review_of_systems'),
 					frame: true,
 					bodyPadding: 5,
-					bodyStyle: 'background-color:white',
+					//bodyStyle: 'background-color:white',
 					fieldDefaults: {
 						msgTarget: 'side'
 					},
@@ -56815,6 +60399,15 @@ Ext.define('App.view.patient.Encounter', {
 		if(me.enableSOAP && a('access_soap')){
 			me.soapPanel = me.encounterTabPanel.add(
 				Ext.create('App.view.patient.encounter.SOAP', {
+					bodyStyle: 'padding:0',
+					enc: me
+				})
+			);
+		}
+
+		if(me.enableSOAP && a('access_dictation')){
+			me.dicatationPanel = me.encounterTabPanel.add(
+				Ext.create('App.view.patient.encounter.DictationPanel', {
 					bodyStyle: 'padding:0',
 					enc: me
 				})
@@ -56901,6 +60494,7 @@ Ext.define('App.view.patient.Encounter', {
 			collapsible: true,
 			animCollapse: true,
 			collapsed: true,
+			deferredRender: false,
 			bodyPadding: 0,
 			margin: 0,
 			padding: 0,
@@ -56957,58 +60551,81 @@ Ext.define('App.view.patient.Encounter', {
 			items: [
 				'-',
 				{
-					text: _('immunizations') + ' ',
-					action: 'immunization'
+					text: _('vaccs') + ' ',
+					action: 'immunization',
+					tooltip: _('vaccines_immunizations')
 				},
 				'-',
 				{
-					text: _('allergies') + ' ',
-					action: 'allergies'
+					text: _('al') + ' ',
+					action: 'allergies',
+					tooltip: _('allergies')
 				},
 				'-',
 				{
-					text: _('active_problems') + ' ',
-					action: 'activeproblems'
+					text: _('act_prob') + ' ',
+					action: 'activeproblems',
+					tooltip: _('active_problems')
 				},
 				'-',
 				{
-					text: _('family_history') + ' ',
-					action: 'familyhistory'
+					text: _('fam_hx') + ' ',
+					action: 'familyhistory',
+					tooltip: _('family_history')
 				},
 				'-',
 				{
-					text: _('advance_directives') + ' ',
-					action: 'advancedirectives'
+					text: _('adv_dir') + ' ',
+					action: 'advancedirectives',
+					tooltip: _('advance_directives')
 				},
 				'-',
 				{
-					text: _('medications') + ' ',
-					action: 'medications'
+					text: _('meds') + ' ',
+					action: 'medications',
+					tooltip: _('medications')
 				},
 				'-',
 				{
-					text: _('results') + ' ',
-					action: 'laboratories'
+					text: _('res') + ' ',
+					action: 'laboratories',
+					tooltip: _('results')
 				},
 				'-',
 				{
-					text: _('social') + ' ',
-					action: 'social'
+					text: _('soc_hx') + ' ',
+					action: 'social',
+					tooltip: _('social_history')
 				},
 				'-',
 				{
-					text: _('functional_status') + ' ',
-					action: 'functionalstatus'
+					text: _('func_stat') + ' ',
+					action: 'functionalstatus',
+					tooltip: _('functional_status')
 				},
 				'-',
 				{
-					text: _('referrals') + ' ',
-					action: 'referrals'
+					text: _('refs') + ' ',
+					action: 'referrals',
+					tooltip: _('referrals')
 				},
 				'-',
 				{
-					text: _('new_doctors_note'),
-					action: 'DoctorsNotes'
+					text: _('imp_devs') + ' ',
+					action: 'ImplantableDeviceGrid',
+					tooltip: _('implantable_devices')
+				},
+				'-',
+				{
+					text: _('spb') + ' ',
+					action: 'SocialPsychologicalBehavioralPanel',
+					tooltip: _('social_psychological_behavioral')
+				},
+				'-',
+				{
+					text: _('doc_nt'),
+					action: 'DoctorsNotes',
+					tooltip: _('doctors_notes')
 				},
 				'-',
 				{
@@ -57030,6 +60647,14 @@ Ext.define('App.view.patient.Encounter', {
 				},
 				'-',
 				'->',
+				'-',
+				{
+					xtype:'button',
+					action: 'ccda',
+					itemId: 'EncounterCDAImportBtn',
+					tooltip: _('ccda_import'),
+					icon: 'resources/images/icons/icoOutbox.png'
+				},
 				'-',
 				{
 					xtype:'button',
@@ -57071,8 +60696,10 @@ Ext.define('App.view.patient.Encounter', {
 	 * @param btn
 	 */
 	onToolbarBtnHandler: function(btn){
-		if(btn.action == 'encounter'){
+		if(btn.action === 'encounter'){
 			app.updateEncounter(this.encounter);
+		}else if(btn.action === 'ccda'){
+			// this will be handled at controller/CCDImport.js
 		}else{
 			app.onMedicalWin(btn.action);
 		}
@@ -57116,7 +60743,7 @@ Ext.define('App.view.patient.Encounter', {
             record,
             storeIndex;
 
-		if(SaveBtn.action == "encounter"){
+		if(SaveBtn.action === "encounter"){
 			form = me.newEncounterWindow.down('form').getForm();
 		}else{
 			form = SaveBtn.up('form').getForm();
@@ -57125,7 +60752,7 @@ Ext.define('App.view.patient.Encounter', {
 		if(form.isValid()){
 			values = form.getValues();
 
-			if(SaveBtn.action == 'encounter'){
+			if(SaveBtn.action === 'encounter'){
 
 				if(a('add_encounters')){
 					record = form.getRecord();
@@ -57147,20 +60774,15 @@ Ext.define('App.view.patient.Encounter', {
 			}else{
 
 				if(a('edit_encounters')){
-
 					record = form.getRecord();
 					store = record.store;
 					values = me.addDefaultData(values);
 					record.set(values);
-
 					app.fireEvent('encounterbeforesync', me, store, form);
-
 					store.sync({
 						callback: function(){
-
 							app.fireEvent('encountersync', me, store, form);
-
-							me.msg('Sweet!', _('encounter_updated'));
+							me.msg(_('sweet'), _('encounter_updated'));
 						}
 					});
 
@@ -57313,17 +60935,19 @@ Ext.define('App.view.patient.Encounter', {
 			values;
 
 		me.passwordVerificationWin(function(btn, password){
-			if(btn == 'ok'){
+			if(btn === 'ok'){
 
 				form = app.checkoutWindow.down('form').getForm();
 				values = form.getValues();
 				values.eid = me.eid;
+				values.close_date = new Date();
 				values.signature = password;
 				values.isSupervisor = isSupervisor;
 
 				if(a('require_enc_supervisor') || isSupervisor){
+					var cmb = app.checkoutWindow.query('#EncounterCoSignSupervisorCombo')[0];
 					values.requires_supervisor = true;
-					values.supervisor_uid = app.checkoutWindow.coSignCombo.getValue();
+					values.supervisor_uid = cmb.getValue();
 				}else if(!isSupervisor && !a('require_enc_supervisor')){
 					values.requires_supervisor = false;
 				}
@@ -57332,7 +60956,7 @@ Ext.define('App.view.patient.Encounter', {
                     var params;
 					if(response.result.success){
 						if(me.stopTimer()){
-                            S;
+
 							/** default data for notes and reminder **/
 							params = {
 								pid: me.pid,
@@ -57352,12 +60976,12 @@ Ext.define('App.view.patient.Encounter', {
 							/** unset the patient eid **/
 							app.patient.eid = null;
 							app.openPatientVisits();
-							me.msg('Sweet!', _('encounter_closed'));
+							me.msg(_('sweet'), _('encounter_closed'));
 							app.checkoutWindow.close();
 						}
 					}else{
 						Ext.Msg.show({
-							title: 'Oops!',
+							title: _('oops'),
 							msg: _(response.result.error),
 							buttons: Ext.Msg.OK,
 							icon: Ext.Msg.ERROR
@@ -57396,9 +61020,9 @@ Ext.define('App.view.patient.Encounter', {
 
 	getProgressNote: function(){
 		var me = this;
-		//Encounter.getProgressNoteByEid(me.eid, function(provider, response){
-			//me.progressNote.tpl.overwrite(me.progressNote.body, response.result);
-		//});
+		Encounter.getProgressNoteByEid(me.eid, function(provider, response){
+			me.progressNote.tpl.overwrite(me.progressNote.body, response.result);
+		});
 	},
 
 	onTapPanelChange: function(panel){
@@ -57615,7 +61239,7 @@ Ext.define('App.view.Viewport', {
 	// end app settings
     initComponent: function(){
 
-	    Ext.state.Manager.setProvider(Ext.create('Ext.state.CookieProvider'));
+	    // Ext.state.Manager.setProvider(Ext.create('Ext.state.CookieProvider'));
 	    Ext.tip.QuickTipManager.init();
         var me = this;
 
@@ -57637,6 +61261,27 @@ Ext.define('App.view.Viewport', {
 	    me.lastCardNode = null;
         me.prevNode = null;
         me.fullMode = window.innerWidth >= me.minWidthToFullMode;
+
+
+	    me.record_flags = {
+		    TOTAL_FALGS: 0
+	    };
+	    me.record_flags_buff = g('record_number_renderer_flags');
+	    if(me.record_flags_buff !== false || me.record_flags_buff !== '' && me.record_flags_buff.split){
+		    me.record_flags_buff = me.record_flags_buff.split('|');
+		    this.record_flags_buff.forEach(function(flag){
+			    if(flag.indexOf(':') != -1){
+				    var flag_values = flag.split(':');
+				    me.record_flags[flag_values[0]] = flag_values[1];
+			    }else{
+				    me.record_flags[flag] = true;
+			    }
+			    me.record_flags.TOTAL_FALGS++;
+		    });
+	    }
+	    delete me.record_flags_buff;
+
+	    say(me.record_flags);
 
 	    me.patient = {
 	        pid: null,
@@ -58130,10 +61775,7 @@ Ext.define('App.view.Viewport', {
 		                    emptyText:'Facilities',
 		                    width: parseFloat(g('gbl_nav_area_width')) - 4,
 		                    hidden: !eval(a('access_to_other_facilities')),
-		                    listeners:{
-			                    scope: me,
-			                    select: me.onFacilitySelect
-		                    }
+		                    itemId: 'ApplicationFacilityCombo'
 	                    },
 	                    '-',
                         {
@@ -58165,13 +61807,15 @@ Ext.define('App.view.Viewport', {
 	                     //    action: 'supportBtn',
 	                     //    src: 'http://gaiaehr.org/forums/'
                         // }
+	                    {
+		                    xtype: 'container',
+		                    itemId: 'ApplicationClockContainer',
+		                    margin: '0 10 0 0'
+	                    }
                     ]
                 }
             ]
         });
-
-	    me.FacilityCmb = me.Footer.query('activefacilitiescombo')[0];
-		me.FacilityCmb.getStore().on('load', me.onFacilityComboLoad, me);
 
         me.MedicalWindow = Ext.create('App.view.patient.windows.Medical');
         me.ChartsWindow = Ext.create('App.view.patient.windows.Charts');
@@ -58211,28 +61855,6 @@ Ext.define('App.view.Viewport', {
 		return App.Current.getController(controller);
 	},
 
-	onFacilitySelect:function(cmb, records){
-		var me = this;
-		Facilities.setFacility(records[0].data.option_value, function(provider, response){
-			if(records[0].data.option_value == response.result){
-				// set user global facility value
-				app.user.facility = records[0].data.option_value;
-
-				me.msg(_('sweet'), _('facility') + ' ' + records[0].data.option_name);
-				me.setWindowTitle(records[0].data.option_name);
-				me.nav['App_view_areas_PatientPoolDropZone'].reRenderPoolAreas();
-				me.nav['App_view_areas_FloorPlan'].renderZones();
-				me.getPatientsInPoolArea();
-			}
-		});
-	},
-
-	onFacilityComboLoad:function(store, records){
-		var rec = store.findRecord('option_value', this.user.facility);
-		this.FacilityCmb.setValue(rec);
-		this.setWindowTitle(rec.data.option_name)
-	},
-
 	setWindowTitle:function(facility){
 		window.document.title = 'MD Timeline :: ' + facility;
 	},
@@ -58257,7 +61879,7 @@ Ext.define('App.view.Viewport', {
         if(panel.id == 'panelSummary'){
             panel.demographics.completePhotoId();
         }
-        this.msg('Sweet!', _('patient_image_saved'));
+        this.msg(_('sweet'), _('patient_image_saved'));
     },
 
 	onPatientLog: function(){
@@ -58303,7 +61925,7 @@ Ext.define('App.view.Viewport', {
                             me.setPatient(emergency.pid, emergency.eid, null, function(){
                                 me.openEncounter(emergency.eid);
                             });
-                            me.msg('Sweet!', emergency.name + ' ' + _('created'))
+                            me.msg(_('sweet'), emergency.name + ' ' + _('created'))
                         }
                     });
                 }
@@ -58328,7 +61950,7 @@ Ext.define('App.view.Viewport', {
 	doEmergencyAccess:function(){
 		ACL.emergencyAccess(app.user.id, function(success){
 			if(success){
-				window.location = './';
+				window.location.reload();
 				return;
 			}
 			Ext.Msg.alert(_('oops'), _('emergency_access_error'));
@@ -58570,7 +62192,7 @@ Ext.define('App.view.Viewport', {
     patientButtonSet: function(data){
         var me = this,
             patient = data || {},
-	        displayPid = (eval(g('display_pubpid')) ? patient.pubpid : patient.pid);
+	        displayPid = (eval(g('display_pubpid')) ? me.recordNumberRenderer(patient.pubpid) : patient.pid);
 
 	    if(displayPid == null || displayPid == ''){
 		    displayPid = patient.pid;
@@ -58827,7 +62449,7 @@ Ext.define('App.view.Viewport', {
             var modules = response.result;
             for(var i = 0; i < modules.length; i++){
 	            try{
-		            App.app.getController('Modules.' + modules[i].dir + '.Main');
+		            app.getController('Modules.' + modules[i].dir + '.Main');
 	            }catch(error){
 					app.msg(_('oops'), (_('unable_to_load_module') + ' ' + modules[i].title + '<br>Error: ' +  error), true);
 	            }
@@ -58954,7 +62576,29 @@ Ext.define('App.view.Viewport', {
 			foo += lname + ' ';
 		}
 		return foo;
+	},
+
+	recordNumberRenderer: function(record_number){
+
+		if(!record_number) return record_number;
+		if(this.record_flags.TOTAL_FALGS === 0) return record_number;
+
+		if(this.record_flags.NUM_LENGTH){
+			var rec_buff = record_number.split('-');
+			if(rec_buff.length == 3){
+				rec_buff[1] = rec_buff[1].substring(rec_buff[1].length - this.record_flags.NUM_LENGTH);
+			}
+			record_number = rec_buff.join('-');
+		}
+
+		if(this.record_flags.STRIP_DASHES){
+			record_number = record_number.replace(/-/g,'');
+		}
+
+		return record_number;
+
 	}
+
 
 });
 
@@ -60697,13 +64341,13 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 		type: 'vbox',
 		align: 'stretch'
 	},
-	width: 750,
-	maxHeight: 800,
+	width: 900,
+	height: 700,
 	autoScroll: true,
 	bodyPadding: 5,
 	defaults: {
 		xtype: 'grid',
-		height: 123,
+		flex: 1,
 		frame: true,
 		hideHeaders: true,
 		columnLines: true,
@@ -60742,7 +64386,6 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 				frame: true,
 				title: _('patient'),
 				itemId: 'CcdImportPreviewPatientForm',
-				flex: 1,
 				height: 145,
 				autoScroll: true,
 				layout: 'column',
@@ -60803,38 +64446,11 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 								value: 'fulladdress'
 							},
 							{
-								fieldLabel: _('phones'),
+								fieldLabel: _('home_phone'),
 								name: 'phones',
 								value: '000-000-000 (H)'
 							}
 						]
-					}
-				]
-			},
-			{
-				title: _('active_problems'),
-				store: Ext.create('App.store.patient.PatientActiveProblems'),
-				itemId: 'CcdImportPreviewActiveProblemsGrid',
-				columns: [
-					{
-						dataIndex: 'code_text',
-						flex: 1,
-						renderer: me.importedRenderer
-					},
-					{
-						dataIndex: 'begin_date',
-						width: 100,
-						renderer: me.importedRenderer
-					},
-					{
-						dataIndex: 'end_date',
-						width: 100,
-						renderer: me.importedRenderer
-					},
-					{
-						dataIndex: 'status',
-						width: 60,
-						renderer: me.importedRenderer
 					}
 				]
 			},
@@ -60846,15 +64462,60 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 					{
 						dataIndex: 'STR',
 						flex: 1,
-						renderer: me.importedRenderer
+						renderer: function (v, meta, record) {
+							v = Ext.String.format(
+								'MEDICATION: {0} - {1}<br>INSTRUCTIONS: {2}<br>NDC: {3}',
+								record.get('RXCUI'),
+								record.get('STR'),
+								record.get('directions'),
+								record.get('NDC')
+							);
+							return  me.importedRenderer(v, meta, record);
+						}
 					},
 					{
-						dataIndex: 'begin_date',
+						dataIndex: 'created_date',
 						width: 100,
 						renderer: me.importedRenderer
 					},
 					{
 						dataIndex: 'end_date',
+						width: 100,
+						renderer: function (v, meta, record) {
+							if(!v){
+								v = _('active')
+							}else {
+								v = _('inactive');
+							}
+							return me.importedRenderer(v, meta, record);
+						}
+					}
+				]
+			},
+			{
+				title: _('active_problems'),
+				store: Ext.create('App.store.patient.PatientActiveProblems'),
+				itemId: 'CcdImportPreviewActiveProblemsGrid',
+				columns: [
+					{
+						dataIndex: 'code_text',
+						flex: 1,
+						renderer: function (v, meta, record) {
+							v = Ext.String.format(
+								'PROBLEM: {0} - {1}',
+								record.get('code'),
+								record.get('code_text')
+							);
+							return me.importedRenderer(v, meta, record)
+						}
+					},
+					{
+						dataIndex: 'update_date',
+						width: 100,
+						renderer: me.importedRenderer
+					},
+					{
+						dataIndex: 'status',
 						width: 100,
 						renderer: me.importedRenderer
 					}
@@ -60869,21 +64530,25 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 					{
 						dataIndex: 'allergy',
 						flex: 1,
-						renderer: me.importedRenderer
+						renderer: function (v, meta, record) {
+							v = Ext.String.format(
+								'ALLERGY: {0} - {1}<br>REACTION: {2} - {3}',
+								record.get('allergy_code'),
+								record.get('allergy'),
+								record.get('reaction_code'),
+								record.get('reaction')
+							);
+							return me.importedRenderer(v, meta, record);
+						}
 					},
 					{
-						dataIndex: 'reaction',
-						width: 150,
-						renderer: me.importedRenderer
-					},
-					{
-						dataIndex: 'severity',
+						dataIndex: 'update_date',
 						width: 100,
 						renderer: me.importedRenderer
 					},
 					{
 						dataIndex: 'status',
-						width: 60,
+						width: 100,
 						renderer: me.importedRenderer
 					}
 				]
@@ -60912,374 +64577,427 @@ Ext.define('App.view.patient.windows.CCDImport', {
 	title: _('ccd_viewer_and_import'),
 	bodyStyle: 'background-color:#fff',
 	modal: true,
-	layout: {
-		type: 'vbox',
-		align: 'stretch'
-	},
+	layout: 'fit',
 	width: 1500,
-	maxHeight: 800,
+	height: 700,
 	autoScroll: true,
 	ccdData: null,
-	items: [
-		{
-			xtype: 'container',
-			layout: 'column',
-			padding: 5,
-			items: [
-				{
-					xtype: 'panel',
-					title: _('import_data'),
-					columnWidth: 0.5,
-					frame: true,
-					margin: '0 5 0 0',
-					layout: {
-						type: 'vbox',
-						align: 'stretch'
-					},
-					defaults: {
-						xtype: 'grid',
-						height: 123,
-						frame: true,
-						hideHeaders: true,
-						columnLines: true,
-						multiSelect: true,
-						margin: '0 0 5 0'
-					},
-					items: [
-						{
-							xtype: 'form',
-							frame: true,
-							title: _('patient'),
-							itemId: 'CcdImportPatientForm',
-							flex: 1,
-							height: 148,
-							autoScroll: true,
-							layout: 'column',
-							items: [
-								{
-									xtype: 'container',
-									defaults: {
-										xtype: 'displayfield',
-										labelWidth: 45,
-										labelAlign: 'right',
-										margin: 0
-									},
-									columnWidth: 0.5,
-									items: [
-										{
-											fieldLabel: _('rec_num'),
-											name: 'record_number'
-										},
-										{
-											fieldLabel: _('name'),
-											name: 'name'
-										},
-										{
-											fieldLabel: _('sex'),
-											name: 'sex'
-										},
-										{
-											fieldLabel: _('dob'),
-											name: 'DOBFormatted'
-										},
-										{
-											fieldLabel: _('race'),
-											name: 'race_text'
-										}
-									]
-								},
-								{
-									xtype: 'container',
-									defaults: {
-										xtype: 'displayfield',
-										labelWidth: 60,
-										labelAlign: 'right',
-										margin: 0
-									},
-									columnWidth: 0.5,
-									items: [
-										{
-											fieldLabel: _('ethnicity'),
-											name: 'ethnicity_text'
-										},
-										{
-											fieldLabel: _('language'),
-											name: 'language'
-										},
-										{
-											fieldLabel: _('address'),
-											name: 'fulladdress'
-										},
-										{
-											fieldLabel: _('phones'),
-											name: 'phones'
-										}
-									]
-								}
-							]
-						},
-						{
-							title: _('active_problems'),
-							store: Ext.create('App.store.patient.PatientActiveProblems'),
-							itemId: 'CcdImportActiveProblemsGrid',
-							selType: 'checkboxmodel',
-							columns: [
-								{
-									dataIndex: 'code_text',
-									flex: 1
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'begin_date',
-									width: 100,
-									format: g('date_display_format')
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'end_date',
-									width: 100,
-									format: g('date_display_format')
-								},
-								{
-									dataIndex: 'status',
-									width: 60
-								}
-							]
-						},
-						{
-							title: _('medications'),
-							store: Ext.create('App.store.patient.Medications'),
-							itemId: 'CcdImportMedicationsGrid',
-							selType: 'checkboxmodel',
-							columns: [
-								{
-									dataIndex: 'STR',
-									flex: 1
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'begin_date',
-									width: 100,
-									format: g('date_display_format')
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'end_date',
-									width: 100,
-									format: g('date_display_format')
-								}
-							]
-						},
-						{
-							title: _('allergies'),
-							store: Ext.create('App.store.patient.Allergies'),
-							itemId: 'CcdImportAllergiesGrid',
-							selType: 'checkboxmodel',
-							margin: 0,
-							columns: [
-								{
-									dataIndex: 'allergy',
-									flex: 1
-								},
-								{
-									dataIndex: 'reaction',
-									width: 150
-								},
-								{
-									dataIndex: 'severity',
-									width: 100
-								},
-								{
-									dataIndex: 'status',
-									width: 60
-								}
-							]
-						}
-					]
+	enableSystemReconciliation: true,
+	initComponent: function () {
+
+		var me = this;
+
+		me.items = [
+			{
+				xtype: 'container',
+				layout: {
+					type: 'hbox',
+					align: 'stretch'
 				},
-				{
-					xtype: 'panel',
-					title: _('system_data_ro'),
-					columnWidth: 0.5,
-					frame: true,
-					layout: {
-						type: 'vbox',
-						align: 'stretch'
-					},
-					tools:[
-						{
-							xtype: 'patienlivetsearch',
-							emptyText: _('import_and_merge_with') + '...',
-							itemId: 'CcdImportWindowPatientSearchField',
-							width: 300,
-							height: 18
-						}
-					],
-					defaults: {
-						xtype: 'grid',
-						height: 123,
+				padding: 5,
+				items: [
+					{
+						xtype: 'panel',
+						title: _('system_data_ro'),
+						flex: 1,
+						margin: '0 5 0 0',
 						frame: true,
-						hideHeaders: true,
-						columnLines: true,
-						multiSelect: true,
-						disableSelection: true,
-						margin: '0 0 5 0'
-					},
-					items: [
-						{
-							xtype: 'form',
+						layout: {
+							type: 'vbox',
+							align: 'stretch'
+						},
+						tools:[
+							{
+								xtype: 'patienlivetsearch',
+								emptyText: _('import_and_merge_with') + '...',
+								itemId: 'CcdImportWindowPatientSearchField',
+								width: 300,
+								height: 18
+							}
+						],
+						defaults: {
+							xtype: 'grid',
+							height: 123,
 							frame: true,
-							title: _('patient'),
-							itemId: 'CcdPatientPatientForm',
-							flex: 1,
-							height: 146,
-							autoScroll: true,
-							layout: 'column',
-							items: [
-								{
-									xtype: 'container',
-									defaults: {
-										xtype: 'displayfield',
-										labelWidth: 45,
-										labelAlign: 'right',
-										margin: 0
+							hideHeaders: true,
+							columnLines: true,
+							multiSelect: true,
+							disableSelection: !me.enableSystemReconciliation,
+							selType: me.enableSystemReconciliation ? 'checkboxmodel' : 'rowmodel',
+							margin: '0 0 5 0'
+						},
+						items: [
+							{
+								xtype: 'form',
+								frame: true,
+								title: _('patient'),
+								itemId: 'CcdPatientPatientForm',
+								height: 146,
+								autoScroll: true,
+								layout: 'column',
+								items: [
+									{
+										xtype: 'container',
+										defaults: {
+											xtype: 'displayfield',
+											labelWidth: 45,
+											labelAlign: 'right',
+											margin: 0
+										},
+										columnWidth: 0.5,
+										items: [
+											{
+												fieldLabel: _('rec_num'),
+												name: 'record_number'
+											},
+											{
+												fieldLabel: _('name'),
+												name: 'name'
+											},
+											{
+												fieldLabel: _('sex'),
+												name: 'sex'
+											},
+											{
+												fieldLabel: _('dob'),
+												name: 'DOBFormatted'
+											},
+											{
+												fieldLabel: _('race'),
+												name: 'race_text'
+											}
+										]
 									},
-									columnWidth: 0.5,
-									items: [
-										{
-											fieldLabel: _('rec_num'),
-											name: 'record_number'
+									{
+										xtype: 'container',
+										defaults: {
+											xtype: 'displayfield',
+											labelWidth: 60,
+											labelAlign: 'right',
+											margin: 0
 										},
-										{
-											fieldLabel: _('name'),
-											name: 'name'
-										},
-										{
-											fieldLabel: _('sex'),
-											name: 'sex'
-										},
-										{
-											fieldLabel: _('dob'),
-											name: 'DOBFormatted'
-										},
-										{
-											fieldLabel: _('race'),
-											name: 'race_text'
+										columnWidth: 0.5,
+										items: [
+											{
+												fieldLabel: _('ethnicity'),
+												name: 'ethnicity_text'
+											},
+											{
+												fieldLabel: _('language'),
+												name: 'language'
+											},
+											{
+												fieldLabel: _('address'),
+												name: 'fulladdress'
+											},
+											{
+												fieldLabel: _('home_phone'),
+												name: 'phones'
+											}
+										]
+									}
+								]
+							},
+							{
+								title: _('medications'),
+								store: Ext.create('App.store.patient.Medications'),
+								itemId: 'CcdPatientMedicationsGrid',
+								flex: 1,
+								columns: [
+									{
+										dataIndex: 'STR',
+										flex: 1,
+										renderer: function (v, meta, record) {
+											return Ext.String.format(
+												'MEDICATION: {0} - {1}<br>INSTRUCTIONS: {2}<br>NDC: {3}',
+												record.get('RXCUI'),
+												record.get('STR'),
+												record.get('directions'),
+												record.get('NDC')
+											);
 										}
-									]
-								},
-								{
-									xtype: 'container',
-									defaults: {
-										xtype: 'displayfield',
-										labelWidth: 60,
-										labelAlign: 'right',
-										margin: 0
 									},
-									columnWidth: 0.5,
-									items: [
-										{
-											fieldLabel: _('ethnicity'),
-											name: 'ethnicity_text'
-										},
-										{
-											fieldLabel: _('language'),
-											name: 'language'
-										},
-										{
-											fieldLabel: _('address'),
-											name: 'fulladdress'
-										},
-										{
-											fieldLabel: _('phones'),
-											name: 'phones'
+									{
+										xtype: 'datecolumn',
+										dataIndex: 'created_date',
+										width: 100,
+										format: g('date_display_format')
+									},
+									{
+										dataIndex: 'end_date',
+										width: 100,
+										renderer: function (v, meta, record) {
+											if(!v){
+												return _('active')
+											}
+											return _('inactive');
 										}
-									]
-								}
-							]
+									}
+								]
+							},
+							{
+								title: _('active_problems'),
+								store: Ext.create('App.store.patient.PatientActiveProblems'),
+								itemId: 'CcdPatientActiveProblemsGrid',
+								flex: 1,
+								columns: [
+									{
+										dataIndex: 'code_text',
+										flex: 1,
+										renderer: function (v, meta, record) {
+											return Ext.String.format(
+												'PROBLEM: {0} - {1}',
+												record.get('code'),
+												record.get('code_text')
+											);
+										}
+									},
+									{
+										xtype: 'datecolumn',
+										dataIndex: 'update_date',
+										width: 100,
+										format: g('date_display_format')
+									},
+									{
+										dataIndex: 'status',
+										width: 100
+									}
+								]
+							},
+							{
+								title: _('allergies'),
+								store: Ext.create('App.store.patient.Allergies'),
+								itemId: 'CcdPatientAllergiesGrid',
+								flex: 1,
+								margin: 0,
+								columns: [
+									{
+										dataIndex: 'allergy',
+										flex: 1,
+										renderer: function (v, meta, record) {
+											return Ext.String.format(
+												'ALLERGY: {0} - {1}<br>REACTION: {2} - {3}',
+												record.get('allergy_code'),
+												record.get('allergy'),
+												record.get('reaction_code'),
+												record.get('reaction')
+											);
+										}
+									},
+									{
+										xtype: 'datecolumn',
+										dataIndex: 'update_date',
+										width: 100,
+										format: g('date_display_format')
+									},
+									{
+										dataIndex: 'status',
+										width: 100
+									}
+								]
+							}
+						]
+					},
+					{
+						xtype: 'panel',
+						title: _('import_data'),
+						flex: 1,
+						frame: true,
+						layout: {
+							type: 'vbox',
+							align: 'stretch'
 						},
-						{
-							title: _('active_problems'),
-							store: Ext.create('App.store.patient.PatientActiveProblems'),
-							itemId: 'CcdPatientActiveProblemsGrid',
-							//selType: 'checkboxmodel',
-							columns: [
-								{
-									dataIndex: 'code_text',
-									flex: 1
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'begin_date',
-									width: 100,
-									format: g('date_display_format')
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'end_date',
-									width: 100,
-									format: g('date_display_format')
-								},
-								{
-									dataIndex: 'status',
-									width: 60
-								}
-							]
+						defaults: {
+							xtype: 'grid',
+							height: 123,
+							frame: true,
+							hideHeaders: true,
+							columnLines: true,
+							multiSelect: true,
+							margin: '0 0 5 0'
 						},
-						{
-							title: _('medications'),
-							store: Ext.create('App.store.patient.Medications'),
-							itemId: 'CcdPatientMedicationsGrid',
-							//selType: 'checkboxmodel',
-							columns: [
-								{
-									dataIndex: 'STR',
-									flex: 1
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'begin_date',
-									width: 100,
-									format: g('date_display_format')
-								},
-								{
-									xtype: 'datecolumn',
-									dataIndex: 'end_date',
-									width: 100,
-									format: g('date_display_format')
-								}
-							]
-						},
-						{
-							title: _('allergies'),
-							store: Ext.create('App.store.patient.Allergies'),
-							itemId: 'CcdPatientAllergiesGrid',
-							//selType: 'checkboxmodel',
-							margin: 0,
-							columns: [
-								{
-									dataIndex: 'allergy',
-									flex: 1
-								},
-								{
-									dataIndex: 'reaction',
-									width: 150
-								},
-								{
-									dataIndex: 'severity',
-									width: 100
-								},
-								{
-									dataIndex: 'status',
-									width: 60
-								}
-							]
-						}
-					]
-				}
-			]
-		}
-	],
+						items: [
+							{
+								xtype: 'form',
+								frame: true,
+								title: _('patient'),
+								itemId: 'CcdImportPatientForm',
+								height: 146,
+								autoScroll: true,
+								layout: 'column',
+								items: [
+									{
+										xtype: 'container',
+										defaults: {
+											xtype: 'displayfield',
+											labelWidth: 45,
+											labelAlign: 'right',
+											margin: 0
+										},
+										columnWidth: 0.5,
+										items: [
+											{
+												fieldLabel: _('rec_num'),
+												name: 'record_number'
+											},
+											{
+												fieldLabel: _('name'),
+												name: 'name'
+											},
+											{
+												fieldLabel: _('sex'),
+												name: 'sex'
+											},
+											{
+												fieldLabel: _('dob'),
+												name: 'DOBFormatted'
+											},
+											{
+												fieldLabel: _('race'),
+												name: 'race_text'
+											}
+										]
+									},
+									{
+										xtype: 'container',
+										defaults: {
+											xtype: 'displayfield',
+											labelWidth: 60,
+											labelAlign: 'right',
+											margin: 0
+										},
+										columnWidth: 0.5,
+										items: [
+											{
+												fieldLabel: _('ethnicity'),
+												name: 'ethnicity_text'
+											},
+											{
+												fieldLabel: _('language'),
+												name: 'language'
+											},
+											{
+												fieldLabel: _('address'),
+												name: 'fulladdress'
+											},
+											{
+												fieldLabel: _('home_phone'),
+												name: 'phones'
+											}
+										]
+									}
+								]
+							},
+							{
+								title: _('medications'),
+								store: Ext.create('App.store.patient.Medications'),
+								itemId: 'CcdImportMedicationsGrid',
+								selType: 'checkboxmodel',
+								flex: 1,
+								columns: [
+									{
+										dataIndex: 'STR',
+										flex: 1,
+										renderer: function (v, meta, record) {
+											return Ext.String.format(
+												'MEDICATION: {0} - {1}<br>INSTRUCTIONS: {2}<br>NDC: {3}',
+												record.get('RXCUI'),
+												record.get('STR'),
+												record.get('directions'),
+												record.get('NDC')
+											);
+										}
+									},
+									{
+										xtype: 'datecolumn',
+										dataIndex: 'created_date',
+										width: 100,
+										format: g('date_display_format')
+									},
+									{
+										dataIndex: 'end_date',
+										width: 100,
+										renderer: function (v, meta, record) {
+											if(!v){
+												return _('active')
+											}
+											return _('inactive');
+										}
+									}
+								]
+							},
+							{
+								title: _('active_problems'),
+								store: Ext.create('App.store.patient.PatientActiveProblems'),
+								itemId: 'CcdImportActiveProblemsGrid',
+								selType: 'checkboxmodel',
+								flex: 1,
+								columns: [
+									{
+										dataIndex: 'code_text',
+										flex: 1,
+										renderer: function (v, meta, record) {
+											return Ext.String.format(
+												'PROBLEM: {0} - {1}',
+												record.get('code'),
+												record.get('code_text')
+											);
+										}
+									},
+									{
+										xtype: 'datecolumn',
+										dataIndex: 'update_date',
+										width: 100,
+										format: g('date_display_format')
+									},
+									{
+										dataIndex: 'status',
+										width: 100
+									}
+								]
+							},
+							{
+								title: _('allergies'),
+								store: Ext.create('App.store.patient.Allergies'),
+								itemId: 'CcdImportAllergiesGrid',
+								selType: 'checkboxmodel',
+								flex: 1,
+								margin: 0,
+								columns: [
+									{
+										dataIndex: 'allergy',
+										flex: 1,
+										renderer: function (v, meta, record) {
+											return Ext.String.format(
+												'ALLERGY: {0} - {1}<br>REACTION: {2} - {3}',
+												record.get('allergy_code'),
+												record.get('allergy'),
+												record.get('reaction_code'),
+												record.get('reaction')
+											);
+										}
+									},
+									{
+										xtype: 'datecolumn',
+										dataIndex: 'update_date',
+										width: 100,
+										format: g('date_display_format')
+									},
+									{
+										dataIndex: 'status',
+										width: 100
+									}
+								]
+							}
+						]
+					}
+
+				]
+			}
+		];
+
+		me.callParent(arguments);
+	},
 	dockedItems: [
 		{
 			xtype: 'toolbar',

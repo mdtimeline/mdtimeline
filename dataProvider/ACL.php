@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+include_once('TransactionLog.php');
+
 class ACL {
 
 	/**
@@ -364,24 +366,6 @@ class ACL {
 	}
 
 	/**
-	 * @param $perm_id
-	 * @return mixed
-	 */
-	private static function getPermNameByPermId($perm_id) {
-		$row = self::$AP->load(['perm_id' => $perm_id])->one();
-		return $row['perm_name'];
-	}
-
-	/**
-	 * @param $role_id
-	 * @return mixed
-	 */
-	private static function getRoleNameByRoleId($role_id) {
-		$row = self::$AR->load(['role_id' => $role_id])->one();
-		return $row['role_name'];
-	}
-
-	/**
 	 * @internal param $role
 	 * @return array
 	 */
@@ -459,17 +443,6 @@ class ACL {
 		}
 
 		return $perms;
-	}
-
-	/**
-	 * @param $role_id
-	 * @return bool
-	 */
-	private static function userHasRole($role_id) {
-		foreach(self::$user_roles as $k => $v)
-			if(floatval($v) === floatval($role_id))
-				return true;
-		return false;
 	}
 
 	public static function getAllUserPermsAccess() {
@@ -566,6 +539,15 @@ class ACL {
 		if(!self::hasPermission('emergency_access'))
 			return false;
 		$_SESSION['user']['emergencyAccess'] = true;
+
+		// Log the transaction
+        $tl = new TransactionLog();
+        $log['table'] = 'acl_permission';
+        $log['event'] = 'Emergency Access';
+        $log['category'] = 'Emergency Access';
+        $tl->saveTransactionLog($log);
+        unset($tl);
+
 		return $_SESSION['user']['emergencyAccess'];
 	}
 

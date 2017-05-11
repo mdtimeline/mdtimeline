@@ -19,63 +19,13 @@
 
 // dynamic class and methods loading test
 
-//$dir = dirname(__FILE__) . '/../dataProvider';
-//$exclude = array(
-//	'HL7Messages.php',
-//	'HL7Server.php',
-//	'HL7ServerHandler.php',
-//	'DocumentPDF.php'
-//);
-//ob_start();
-//$output = array();
-//if ($handle = opendir($dir)) {
-//	while (false !== ($entry = readdir($handle))) {
-//		if ($entry != '.' && $entry != '..') {
-//			if(preg_match('/.*\.php/', $entry) && !in_array($entry, $exclude)){
-//				try{
-//					include_once ($dir . '/' . $entry);
-//					$cls = str_replace('.php', '', $entry);
-//					$class = new ReflectionClass($cls);
-//					$methods = $class->getMethods(ReflectionMethod::IS_PUBLIC);
-//					$buffer = array();
-//
-//					foreach ($methods as $method) {
-//						if(!preg_match('/^__/', $method->getName())){
-//
-//							$buffer[] =  array(
-//								'name' => $method->getName(),
-//								'len' => $method->getNumberOfParameters() > 0 ? 1 : 0
-//							);
-//						}
-//					}
-//					$output[$cls]['methods'] = $buffer;
-//				}catch (Exception $e){
-//
-//				}
-//			}
-//		}
-//	}
-//	closedir($handle);
-//}
-//ob_end_clean();
-//print '<pre>';
-//print_r($output);
-//exit;
-
 session_cache_limiter('private');
-session_cache_expire(1);
-session_regenerate_id(false);
-session_name('GaiaEHR');
+session_name('mdTimeLine');
 session_start();
-setcookie(session_name(),session_id(),time()+86400, '/', null, false, true);
 
 define('_GaiaEXEC', 1);
 
 if(!isset($_SESSION['install']) || (isset($_SESSION['install']) && $_SESSION['install'] != true)){
-	if(!defined('_GaiaEXEC'))
-		define('_GaiaEXEC', 1);
-	$site  = isset($_REQUEST['site']) ? $_REQUEST['site'] : 'default';
-    if(!defined('SITE')) define('SITE', (isset($_GET['site']) ? $_GET['site'] : 'default'));
 	require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
 	require_once(ROOT . '/sites/' . SITE . '/conf.php');
 	require_once(ROOT . '/classes/MatchaHelper.php');

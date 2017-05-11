@@ -30,7 +30,7 @@ Ext.define('App.view.patient.Medications', {
 		'App.ux.form.fields.DateTime'
 	],
 	xtype: 'patientmedicationspanel',
-	title: _('medications'),
+	title: _('meds'),
 	layout: 'border',
 	border: false,
 	items: [
@@ -145,7 +145,11 @@ Ext.define('App.view.patient.Medications', {
 					width: 90,
 					dataIndex: 'begin_date',
 					sortable: false,
-					hideable: false
+					hideable: false,
+                    editor: {
+                        xtype: 'datefield',
+                        format: 'Y-m-d'
+                    }
 				},
 				{
 					xtype: 'datecolumn',
@@ -185,6 +189,12 @@ Ext.define('App.view.patient.Medications', {
 					pressed: true
 				},
 				'-',
+                {
+                    text: _('active'),
+                    itemId: 'PatientMedicationActiveBtn',
+                    enableToggle: true,
+                    pressed: false
+                },
 				'->',
 				{
 					text: _('review'),

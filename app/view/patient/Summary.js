@@ -27,7 +27,9 @@ Ext.define('App.view.patient.Summary', {
 		'App.view.patient.CCD',
 		'App.ux.ManagedIframe',
 		'App.view.patient.Patient',
-		'App.view.patient.Reminders'
+		'App.view.patient.Reminders',
+		'App.view.patient.Alerts',
+		'App.view.patient.Amendments'
 	],
 	itemId: 'PatientSummaryPanel',
 	showRating: true,
@@ -322,7 +324,7 @@ Ext.define('App.view.patient.Summary', {
 				columns: [
 					{
 						xtype: 'datecolumn',
-						format: 'Y-m-d h:i:s',
+						format: 'Y-m-d H:i:s',
 						text: _('date'),
                         with: 220,
 						dataIndex: 'date'
@@ -331,7 +333,21 @@ Ext.define('App.view.patient.Summary', {
 						header: _('type'),
 						dataIndex: 'type',
 						editor: {
+                            xtype: 'gaiaehr.combo',
+                            list_key: 'disclosures_types'
+						},
+						renderer: function(v){
+							return _(v);
+						}
+					},
+					{
+						header: _('recipient'),
+						dataIndex: 'recipient',
+						editor: {
 							xtype: 'textfield'
+						},
+						renderer: function(v){
+							return _(v);
 						}
 					},
 					{
@@ -344,6 +360,7 @@ Ext.define('App.view.patient.Summary', {
 					}
 				],
 				tbar: [
+					'->',
 					{
 						text: _('disclosure'),
 						iconCls: 'icoAdd',
@@ -398,6 +415,7 @@ Ext.define('App.view.patient.Summary', {
 					}
 				],
 				tbar: [
+					'->',
 					{
 						text: _('add_note'),
 						iconCls: 'icoAdd',
@@ -416,11 +434,27 @@ Ext.define('App.view.patient.Summary', {
 			});
 		}
 
+		if(a('access_patient_alerts')){
+			me.tabPanel.add({
+				itemId: 'PatientSummaryAlertsPanel',
+				xtype: 'patientalertspanel',
+				bodyPadding: 0
+			});
+		}
+
+		//if(a('access_patient_amendments')){
+			me.tabPanel.add({
+				xtype: 'patientamendmentspanel',
+				itemId: 'PatientAmendmentsPanel',
+				border: true
+			});
+		//}
+
 		if(a('access_patient_documents')){
 			me.tabPanel.add({
 				xtype: 'patientdocumentspanel',
 				border: false
-			})
+			});
 		}
 
 		if(a('access_patient_preventive_care_alerts')){
@@ -613,7 +647,8 @@ Ext.define('App.view.patient.Summary', {
 			me.stores[i].clearFilter(true);
 			me.stores[i].load({
 				params: {
-					pid: me.pid
+					pid: me.pid,
+                    active: true
 				},
 				filters: [
 					{
@@ -673,6 +708,7 @@ Ext.define('App.view.patient.Summary', {
 		me.loadStores();
 		me.el.unmask();
 	},
+
 	/**
 	 * This function is called from Viewport.js when
 	 * this panel is selected in the navigation panel.

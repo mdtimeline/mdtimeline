@@ -8,6 +8,37 @@
     src: url('../fonts/OpenSans-CondLight.ttf');
 }
 
+.highlight_fieldset {
+    background-color: #dfe8f6;
+}
+
+.login-window,
+.login-window .x-window-header-default-top,
+.login-window .x-window-body-default,
+.login-window .x-panel-body-default
+{
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.login-theme-switch-btn {
+    background-image: none;
+    background-color: #444444;
+}
+.login-theme-switch-btn .x-btn-inner {
+    color: white;
+}
+
+.indent {
+    margin-left: 20px !important;
+}
+
+.x-tree-no-icon {
+    background-image: none !important;
+    display: none !important;
+}
+
 .entered-in-error {
     text-decoration: line-through !important;
 }
@@ -1006,6 +1037,7 @@ li .Deceased {
 
 .progressNote .secession span {
     text-decoration: underline;
+    font-weight: bold;
 
 }
 
@@ -1034,11 +1066,6 @@ li .Deceased {
 
 .cpt_summary table td {
     padding: 5px;
-}
-
-.loginWindowBody,
-.loginFormBody {
-    background-color: white;
 }
 
 body#login {

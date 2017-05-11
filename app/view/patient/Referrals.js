@@ -21,19 +21,20 @@ Ext.define('App.view.patient.Referrals', {
 	requires: [
 		'App.ux.LiveCPTSearch',
 		'App.ux.LiveICDXSearch',
+		'App.ux.LiveReferringPhysicianSearch',
 		'App.ux.combo.ActiveProviders',
 		'Ext.selection.CheckboxModel',
-		'App.ux.grid.RowFormEditing',
-		'App.ux.combo.ReferringProviders'
+		'App.ux.grid.RowFormEditing'
 	],
 	xtype: 'patientreferralspanel',
-	title: _('referrals'),
+	title: _('refs'),
 	action: 'referralsGrid',
 	itemId: 'patientReferralsGrid',
 	columnLines: true,
 	allowDeselect: true,
 	store: Ext.create('App.store.patient.Referrals', {
-		remoteFilter: true
+		remoteFilter: true,
+		storeId: 'ReferralsStore'
 	}),
 	plugins: [
 		{
@@ -107,7 +108,7 @@ Ext.define('App.view.patient.Referrals', {
 									xtype: 'activeproviderscombo',
 									fieldLabel: _('refer_by'),
 									name: 'refer_by_text',
-									width: 300,
+									width: 350,
 									displayField: 'option_name',
 									valueField: 'option_name',
 									itemId: 'ReferralProviderCombo'
@@ -122,20 +123,19 @@ Ext.define('App.view.patient.Referrals', {
 											name: 'refer_to_text',
 											labelAlign: 'right',
 											margin: '0 5 5 0',
-											width: 300,
-//											disabled: true,
-//											hidden: true,
+											width: 350,
 											displayField: 'fullname',
 											valueField: 'fullname',
 											itemId: 'ReferralLocalProviderCombo'
 										},
 										{
-											xtype: 'referringproviderscombo',
+											xtype: 'referringphysicianlivetsearch',
 											fieldLabel: _('refer_to'),
 											name: 'refer_to_text',
 											labelAlign: 'right',
 											margin: '0 5 5 0',
-											width: 300,
+											hideLabel: false,
+											width: 350,
 											disabled: true,
 											hidden: true,
 											displayField: 'fullname',
@@ -156,7 +156,7 @@ Ext.define('App.view.patient.Referrals', {
 									fieldLabel: _('risk_level'),
 									name: 'risk_level',
 									list: 17,
-									width: 300
+									width: 350
 								},
 //								{
 //									xtype: 'checkboxfield',

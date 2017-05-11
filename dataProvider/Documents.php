@@ -24,7 +24,7 @@ include_once(ROOT . '/dataProvider/User.php');
 include_once(ROOT . '/dataProvider/Encounter.php');
 include_once(ROOT . '/dataProvider/Referrals.php');
 include_once(ROOT . '/dataProvider/Facilities.php');
-include_once(ROOT . '/dataProvider/DocumentPDF.php');
+include_once(ROOT . '/dataProvider/DocumentFPDI.php');
 include_once(ROOT . '/dataProvider/i18nRouter.php');
 
 class Documents {
@@ -35,17 +35,35 @@ class Documents {
 	/**
 	 * @var Patient
 	 */
-	private $patient;
+	private $Patient;
 
-	private $encounter;
+	/**
+	 * @var Encounter
+	 */
+	private $Encounter;
 
+	/**
+	 * @var User
+	 */
+	private $User;
+
+	/**
+	 * @var DocumentFPDI
+	 */
 	public $pdf;
+
+	/**
+	 * @var \MatchaCUP
+	 */
+	private $t;
 
 	function __construct() {
 		$this->db = new MatchaHelper();
-		$this->patient = new Patient();
-		$this->encounter = new Encounter();
-		$this->pdf = new DocumentPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+		$this->Patient = new Patient();
+		$this->Encounter = new Encounter();
+		$this->User = new User();
+
+		$this->t = \MatchaModel::setSenchaModel('App.model.administration.DocumentsPdfTemplate');
 		return;
 	}
 
@@ -86,22 +104,14 @@ class Documents {
 	}
 
 	public function get_PatientTokensData($pid, $allNeededInfo, $tokens) {
-        // Code reference: Relationship codes as specified by HL7. v2: Added 'Household' concept
-        // https://phinvads.cdc.gov/vads/ViewValueSet.action?id=6FD34BBC-617F-DD11-B38D-00188B398520#
-        $patientContact = new PatientContacts();
-        $contactSelf = $patientContact->getContactByType($pid, 'SEL');
-        $contactGuardian = $patientContact->getContactByType($pid, 'GRD');
-        $contactMother = $patientContact->getContactByType($pid, 'MTH');
-        $contactEmergency = $patientContact->getContactByType($pid, 'EMC');
-        $contactEmployer = $patientContact->getContactByType($pid, 'EMR');
 
         $patientData = $this->getAllPatientData($pid);
-		$age = $this->patient->getPatientAgeByDOB($patientData['DOB']);
-		$user = new User();
+		$age = $this->Patient->getPatientAgeByDOB($patientData['DOB']);
 		$patienInformation = [
 			'[PATIENT_NAME]' => $patientData['fname'],
 			'[PATIENT_ID]' => $patientData['pid'],
-			'[PATIENT_FULL_NAME]' => $this->patient->getPatientFullNameByPid($patientData['pid']),
+			'[PATIENT_RECORD_NUMBER]' => $patientData['pubpid'],
+			'[PATIENT_FULL_NAME]' => $this->Patient->getPatientFullNameByPid($patientData['pid']),
 			'[PATIENT_LAST_NAME]' => $patientData['lname'],
 			'[PATIENT_SEX]' => $patientData['sex'],
 			'[PATIENT_BIRTHDATE]' => $patientData['DOB'],
@@ -109,72 +119,59 @@ class Documents {
 			'[PATIENT_SOCIAL_SECURITY]' => $patientData['SS'],
 			'[PATIENT_EXTERNAL_ID]' => $patientData['pubpid'],
 			'[PATIENT_DRIVERS_LICENSE]' => $patientData['drivers_license'],
-			'[PATIENT_ADDRESS]' => isset($contactSelf['street_mailing_address']) ? $contactSelf['street_mailing_address'] : '',
-			'[PATIENT_CITY]' => isset($contactSelf['city']) ? $contactSelf['city'] : '',
-			'[PATIENT_STATE]' => isset($contactSelf['state']) ? $contactSelf['state'] : '',
-			'[PATIENT_COUNTRY]' => isset($contactSelf['country']) ? $contactSelf['country'] : '',
-			'[PATIENT_ZIPCODE]' => isset($contactSelf['zip']) ? $contactSelf['zip'] : '',
 
-            //
-			'[PATIENT_HOME_PHONE]' => isset($contactSelf['phone_local_number']) ?
-                $contactSelf['phone_use_code'].'-'.
-                $contactSelf['phone_area_code'].'-'.
-                $contactSelf['phone_local_number'] : '',
+			'[PATIENT_POSTAL_ADDRESS_LINE_ONE]' => isset($patientData['postal_address']) ? $patientData['postal_address'] : '',
+			'[PATIENT_POSTAL_ADDRESS_LINE_TWO]' => isset($patientData['postal_address_cont']) ? $patientData['postal_address_cont'] : '',
+			'[PATIENT_POSTAL_CITY]' => isset($patientData['postal_city']) ? $patientData['postal_city'] : '',
+			'[PATIENT_POSTAL_STATE]' => isset($patientData['postal_state']) ? $patientData['postal_state'] : '',
+			'[PATIENT_POSTAL_ZIP]' => isset($patientData['postal_zip']) ? $patientData['postal_zip'] : '',
+			'[PATIENT_POSTAL_COUNTRY]' => isset($patientData['postal_country']) ? $patientData['postal_country'] : '',
 
-            // TODO: Add a field for mobile phone in the patient contacts
-			'[PATIENT_MOBILE_PHONE]' => isset($contactSelf['phone_local_number']) ?
-                $contactSelf['phone_use_code'].'-'.
-                $contactSelf['phone_area_code'].'-'.
-                $contactSelf['phone_local_number'] : '',
+			'[PATIENT_PHYSICAL_ADDRESS_LINE_ONE]' => isset($patientData['physical_address']) ? $patientData['physical_address'] : '',
+			'[PATIENT_PHYSICAL_ADDRESS_LINE_TWO]' => isset($patientData['physical_address_cont']) ? $patientData['physical_address_cont'] : '',
+			'[PATIENT_PHYSICAL_CITY]' => isset($patientData['physical_city']) ? $patientData['physical_city'] : '',
+			'[PATIENT_PHYSICAL_STATE]' => isset($patientData['physical_state']) ? $patientData['physical_state'] : '',
+			'[PATIENT_PHYSICAL_ZIP]' => isset($patientData['physical_zip']) ? $patientData['physical_zip'] : '',
+			'[PATIENT_PHYSICAL_COUNTRY]' => isset($patientData['physical_country']) ? $patientData['physical_country'] : '',
 
-            // TODO: Add a field for work phone in the patient contacts
-			'[PATIENT_WORK_PHONE]' => isset($contactSelf['phone_local_number']) ?
-                $contactSelf['phone_use_code'].'-'.
-                $contactSelf['phone_area_code'].'-'.
-                $contactSelf['phone_local_number'] : '',
+			'[PATIENT_HOME_PHONE]' => isset($patientData['phone_home']) ? $patientData['phone_home'] : '',
+			'[PATIENT_MOBILE_PHONE]' => isset($patientData['phone_mobile']) ? $patientData['phone_mobile'] : '',
+			'[PATIENT_WORK_PHONE]' => isset($patientData['phone_work']) ? $patientData['phone_work'] : '',
 
-            // TODO: Add a field for email on the patient contact table, and model
-			'[PATIENT_EMAIL]' => '',
-			'[PATIENT_MOTHERS_NAME]' => isset($contactMother['first_name']) ?
+			'[PATIENT_EMAIL]' => isset($patientData['email']) ? $patientData['email'] : '',
+
+			'[PATIENT_MOTHERS_NAME]' => isset($patientData['mother_fname']) ?
                 Person::fullname(
-                    $contactMother['first_name'],
-                    $contactMother['middle_name'],
-                    $contactMother['last_name']
+	                $patientData['mother_fname'],
+	                $patientData['mother_mname'],
+	                $patientData['mother_lname']
                 ) : '',
 
-			'[PATIENT_GUARDIANS_NAME]' => isset($contactGuardian['first_name']) ?
+			'[PATIENT_GUARDIANS_NAME]' => isset($patientData['guardians_fname']) ?
                 Person::fullname(
-                    $contactGuardian['first_name'],
-                    $contactGuardian['middle_name'],
-                    $contactGuardian['last_name']
+	                $patientData['guardians_fname'],
+	                $patientData['guardians_mname'],
+	                $patientData['guardians_lname']
                 ) : '',
 
-			'[PATIENT_EMERGENCY_CONTACT]' => isset($contactEmergency['first_name']) ?
+			'[PATIENT_EMERGENCY_CONTACT]' => isset($patientData['emergency_contact_fname']) ?
                 Person::fullname(
-                    $contactEmergency['first_name'],
-                    $contactEmergency['middle_name'],
-                    $contactEmergency['last_name']
+	                $patientData['emergency_contact_fname'],
+	                $patientData['emergency_contact_mname'],
+	                $patientData['emergency_contact_lname']
                 ) : '',
 
             // TODO: Create a method to parse a phone number in the person dataProvider
-			'[PATIENT_EMERGENCY_PHONE]' => isset($contactEmergency['phone_local_number']) ?
-                $contactEmergency['phone_use_code'].'-'.
-                $contactEmergency['phone_area_code'].'-'.
-                $contactEmergency['phone_local_number'] : '',
+			'[PATIENT_EMERGENCY_PHONE]' => isset($patientData['emergency_contact_phone']) ? $patientData['emergency_contact_phone'] : '',
 
 			'[PATIENT_PROVIDER]' => is_numeric($patientData['provider']) ?
-                $user->getUserFullNameById($patientData['provider']) : '',
+                $this->User->getUserFullNameById($patientData['provider']) : '',
 
 			'[PATIENT_PHARMACY]' => $patientData['pharmacy'],
 			'[PATIENT_AGE]' => $age['DMY']['years'],
 			'[PATIENT_OCCUPATION]' => $patientData['occupation'],
 
-			'[PATIENT_EMPLOYEER]' => isset($contactEmployer['first_name']) ?
-                Person::fullname(
-                    $contactEmployer['first_name'],
-                    $contactEmployer['middle_name'],
-                    $contactEmployer['last_name']
-                ) : '',
+			'[PATIENT_EMPLOYEER]' => isset($patientData['employer_name']) ? $patientData['employer_name'] : '',
 
 			'[PATIENT_RACE]' => $patientData['race'],
 			'[PATIENT_ETHNICITY]' => $patientData['ethnicity'],
@@ -182,8 +179,8 @@ class Documents {
 			'[PATIENT_PICTURE]' => '<img src="' . $patientData['image'] . '" style="width:100px;height:100px">',
 			'[PATIENT_QRCODE]' => '<img src="' . $patientData['qrcode'] . '" style="width:100px;height:100px">',
 
-			'[PATIENT_TABACCO]' => 'tabaco',
-			'[PATIENT_ALCOHOL]' => 'alcohol',
+//			'[PATIENT_TABACCO]' => 'tabaco',
+//			'[PATIENT_ALCOHOL]' => 'alcohol',
 			//            '[PATIENT_BALANCE]' => '$' . $this->fees->getPatientBalanceByPid($pid),
 			//            '[PATIENT_PRIMARY_PLAN]' => $patientData['primary_plan_name'],
 			//            '[PATIENT_PRIMARY_EFFECTIVE_DATE]' => $patientData['primary_effective_date'],
@@ -238,7 +235,6 @@ class Documents {
 			//            '[PATIENT_TERTIARY_SUBSCRIBER_EMPLOYER_ZIPCODE]' => $patientData['tertiary_subscriber_zip_code']
 		];
 
-		unset($user);
 		foreach($tokens as $i => $tok){
 			if(isset($patienInformation[$tok]) && ($allNeededInfo[$i] == '' || $allNeededInfo[$i] == null)){
 				$allNeededInfo[$i] = $patienInformation[$tok];
@@ -251,13 +247,13 @@ class Documents {
 
 		$params = new stdClass();
 		$params->eid = $eid;
-		$encounter = $this->encounter->getEncounter($params);
+		$encounter = $this->Encounter->getEncounter($params);
 
 		if(!isset($encounter['encounter'])){
 			return $allNeededInfo;
 		}
 
-		$encounterCodes = $this->encounter->getEncounterCodes($params);
+		$encounterCodes = $this->Encounter->getEncounterCodes($params);
 
 		$vitals = end($encounter['encounter']['vitals']);
 
@@ -512,87 +508,217 @@ class Documents {
 		return $allNeededInfo;
 	}
 
-	public function PDFDocumentBuilder($params, $path = '') {
+	/**
+	 * @param $params
+	 * @param string $path
+	 * @param null|array $custom_header_data
+	 * @param array $key_images
+	 * @param string $water_mark
+	 * @return bool
+	 */
+	public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $water_mark = '', $key_images = [], $singleColumn = false) {
 		$pid = $params->pid;
-		$templateId = $params->templateId;
 		$regex = '(\[\w*?\])';
-		$this->pdf->SetCreator('TCPDF');
-		$this->pdf->SetAuthor($_SESSION['user']['name']);
 
-		$this->pdf->setHeaderFont([
-			'helvetica',
-			'',
-			14
-		]);
-		$this->pdf->setFooterFont([
-			'helvetica',
-			'',
-			8
-		]);
-		$this->pdf->SetDefaultMonospacedFont('courier');
-		$this->pdf->SetMargins(15, 27, 15);
-		$this->pdf->SetHeaderMargin(5);
-		$this->pdf->SetFooterMargin(10);
-		$this->pdf->SetAutoPageBreak(true, 25);
-		$this->pdf->setFontSubsetting(true);
+		$pdf = new DocumentFPDI();
+
+		$pdf->water_mark = $water_mark;
+
+		if(isset($custom_header_data)){
+			$pdf->addCustomHeaderData($custom_header_data);
+		}
+
+		$pdf->SetDefaultMonospacedFont('courier');
+		$pdf->setHeaderMargin(0);
+		$pdf->setFooterMargin(0);
+		$pdf->SetAutoPageBreak(true, 20);
+
+		if(isset($params->facility_id)){
+			$template = $this->getPdfTemplateByFacilityId($params->facility_id);
+		}else{
+			$template = $this->getPdfTemplateByFacilityId();
+		}
+
+		// template
+		$pdf->setSourceFile($template['template']);
+
+		$margins = [
+			'left' => isset($template['body_margin_left']) ? intval($template['body_margin_left']) : 25,
+			'top' => isset($template['body_margin_top']) ? intval($template['body_margin_top']) : 25,
+			'right' => isset($template['body_margin_right']) ? intval($template['body_margin_right']) : 25,
+			'bottom' => isset($template['body_margin_bottom']) ? intval($template['body_margin_bottom']) : 25
+		];
+
+		$font = [
+			'family' => isset($template['body_font_family']) ? $template['body_font_family'] : 'times',
+			'size' => isset($template['body_font_size']) ? intval($template['body_font_size']) : 12,
+		    'style' => isset($template['body_font_style']) ? $template['body_font_style'] : '',
+		];
+
+		/**
+		 * courier : Courier
+		 * courierB : Courier Bold
+		 * courierBI : Courier Bold Italic
+		 * courierI : Courier Italic
+		 * helvetica : Helvetica
+		 * helveticaB : Helvetica Bold
+		 * helveticaBI : Helvetica Bold Italic
+		 * helveticaI : Helvetica Italic
+		 * symbol : Symbol
+		 * times : Times New Roman
+		 * timesB : Times New Roman Bold
+		 * timesBI : Times New Roman Bold Italic
+		 * timesI : Times New Roman Italic
+		 * zapfdingbats : Zapf Dingbats
+		 */
+		$pdf->SetFont($font['family'],$font['style'],$font['size'], true);
+
+		$pdf->SetAutoPageBreak(true, $margins['bottom']);
+		$pdf->SetMargins($margins['left'], $margins['top'], $margins['right'], true);
+
+		$pdf->SetCreator('MDTIMELINE');
+		$pdf->SetAuthor(isset($_SESSION['user']['name']) ? $_SESSION['user']['name'] : 'mdTimeline Automated Generator');
 
 		if(isset($params->DoctorsNote)){
 			$body = $params->DoctorsNote;
 			preg_match_all($regex, $body, $tokensfound);
 			$tokens = $tokensfound;
-		} else {
-			$tokens = $this->getArrayWithTokensNeededByDocumentID($templateId);
+		} elseif(isset($params->templateId)) {
+			$tokens = $this->getArrayWithTokensNeededByDocumentID($params->templateId);
 			//getting the template
-			$body = $this->getTemplateBodyById($templateId);
+			$body = $this->getTemplateBodyById($params->templateId);
+		}else{
+			$body['body'] = isset($params->body) ? $params->body : '';
 		}
 
-		$allNeededInfo = $this->setArraySizeOfTokenArray($tokens);
+		if(isset($tokens)){
 
-		$allNeededInfo = $this->get_PatientTokensData($pid, $allNeededInfo, $tokens);
-
-		if(isset($params->eid) && $params->eid != 0 && $params->eid != ''){
-			$allNeededInfo = $this->get_EncounterTokensData($params->eid, $allNeededInfo, $tokens);
-		}
-
-		$allNeededInfo = $this->getCurrentTokensData($allNeededInfo, $tokens);
-
-		$allNeededInfo = $this->getClinicTokensData($allNeededInfo, $tokens);
-
-		if(isset($params->orderItems)){
-			$allNeededInfo = $this->parseTokensForOrders($params, $tokens, $allNeededInfo);
-		}
-
-		if(isset($params->referralId)){
-			$allNeededInfo = $this->addReferralData($params, $tokens, $allNeededInfo);
-		}
-
-		if(isset($params->docNoteid)){
-			$allNeededInfo = $this->addDoctorsNoteData($params, $tokens, $allNeededInfo);
+			$allNeededInfo = $this->setArraySizeOfTokenArray($tokens);
+			$allNeededInfo = $this->get_PatientTokensData($pid, $allNeededInfo, $tokens);
+			if(isset($params->eid) && $params->eid != 0 && $params->eid != ''){
+				$allNeededInfo = $this->get_EncounterTokensData($params->eid, $allNeededInfo, $tokens);
+			}
+			$allNeededInfo = $this->getCurrentTokensData($allNeededInfo, $tokens);
+			$allNeededInfo = $this->getClinicTokensData($allNeededInfo, $tokens);
+			if(isset($params->orderItems) || isset($params->date_ordered)){
+				$allNeededInfo = $this->parseTokensForOrders($params, $tokens, $allNeededInfo);
+			}
+			if(isset($params->referralId)){
+				$allNeededInfo = $this->addReferralData($params, $tokens, $allNeededInfo);
+			}
+			if(isset($params->docNoteid)){
+				$allNeededInfo = $this->addDoctorsNoteData($params, $tokens, $allNeededInfo);
+			}
+			if(isset($params->provider_uid)){
+				$allNeededInfo = $this->addProviderData($params, $tokens, $allNeededInfo);
+			}
 		}
 
 		// add line token
 		$tokens[] = '{line}';
-		$allNeededInfo[] = '<hr>';
-
+		$allNeededInfo[] = '<hr style="margin: 10px;">';
 		$html = str_replace($tokens, $allNeededInfo, (isset($params->DoctorsNote)) ? $body : $body['body']);
-
 		$pages = explode('{newpage}', $html);
 
 		foreach($pages AS $page){
-			$this->pdf->AddPage();
-			$this->pdf->SetY(35); // margin after header line
-			$this->pdf->SetFontSize(10);
-			$this->pdf->writeHTML($page);
+			$pdf->AddPage('','',true);
+
+			if($this->isHtml($page)){
+				$pdf->writeHTML($page);
+			}else{
+				$pdf->writeHTML(nl2br($page));
+			}
+		}
+
+		$y = $pdf->GetY();
+
+		$rowHeight = 0;
+
+		//image //title
+		foreach ($key_images as $index => $key_image){
+
+			if(!isset($key_image['image']) || !isset($key_image['title'])){
+				continue;
+			}
+
+			if($index === 0){
+				$y = $y + 10;
+			}
+
+			$newRow = $singleColumn || !($index % 2);
+
+			if($newRow){
+				$x = $margins['right'];
+				if($rowHeight > 0){
+					$y = $y + $rowHeight + 10;
+					$rowHeight = 0;
+				}
+			}else{
+				$x = $pdf->getCenter();
+				$y -= 5;
+			}
+
+			$img = 'data://text/plain;base64,' . $key_image['image'];
+			$y += 5;
+			$pdf->Image($img, $x, $y, 0, 0, 'jpg', '', 'N');
+
+			$imageBuffer = $pdf->getImageBuffer($img);
+
+			if($rowHeight < $imageBuffer['h']){
+				$rowHeight = $imageBuffer['h'] / 2;
+			}
 		}
 
 		if($path == ''){
-			return $this->pdf->Output('temp.pdf', 'S');
+			return $pdf->Output('temp.pdf', 'S');
 		} else {
-			$this->pdf->Output($path, 'F');
-			$this->pdf->Close();
+			$pdf->Output($path, 'F');
+			$pdf->Close();
 			return true;
 		}
+	}
 
+	private function addProviderData($params, $tokens, $allNeededInfo) {
+
+		$provider = $this->User->getUserByUid($params->provider_uid);
+
+		if($provider === false){
+			return $allNeededInfo;
+		}
+
+		$info = [
+			'[PROVIDER_ID]' => $provider['id'],
+			'[PROVIDER_TITLE]' => isset($provider['title']) ? $provider['title'] : '',
+			'[PROVIDER_FULL_NAME]' => Person::fullname($provider['fname'], $provider['mname'], $provider['lname']),
+			'[PROVIDER_FIRST_NAME]' => isset($provider['fname']) ? $provider['fname'] : '',
+			'[PROVIDER_MIDDLE_NAME]' => isset($provider['mname']) ? $provider['mname'] : '',
+			'[PROVIDER_LAST_NAME]' => isset($provider['lname']) ? $provider['lname'] : '',
+			'[PROVIDER_NPI]' => isset($provider['npi']) ? $provider['npi'] : '',
+			'[PROVIDER_LIC]' => isset($provider['lic']) ? $provider['lic'] : '',
+			'[PROVIDER_DEA]' => isset($provider['feddrugid']) ? $provider['feddrugid'] : '',
+			'[PROVIDER_FED_TAX]' => isset($provider['fedtaxid']) ? $provider['fedtaxid'] : '',
+			'[PROVIDER_ESS]' => isset($provider['ess']) ? $provider['ess'] : '',
+			'[PROVIDER_TAXONOMY]' => isset($provider['taxonomy']) ? $provider['taxonomy'] : '',
+			'[PROVIDER_EMAIL]' => isset($provider['email']) ? $provider['email'] : '',
+			'[PROVIDER_DIRECT_ADDRESS]' => isset($provider['direct_address']) ? $provider['direct_address'] : '',
+			'[PROVIDER_ADDRESS_LINE_ONE]' => isset($provider['street']) ? $provider['street'] : '',
+			'[PROVIDER_ADDRESS_LINE_TWO]' => isset($provider['street_cont']) ? $provider['street_cont'] : '',
+			'[PROVIDER_ADDRESS_CITY]' => isset($provider['city']) ? $provider['city'] : '',
+			'[PROVIDER_ADDRESS_STATE]' => isset($provider['state']) ? $provider['state'] : '',
+			'[PROVIDER_ADDRESS_ZIP]' => isset($provider['postal_code']) ? $provider['postal_code'] : '',
+			'[PROVIDER_ADDRESS_COUNTRY]' => isset($provider['country_code']) ? $provider['country_code'] : '',
+			'[PROVIDER_PHONE]' => isset($provider['phone']) ? $provider['phone'] : '',
+			'[PROVIDER_MOBILE]' => isset($provider['mobile']) ? $provider['mobile'] : '',
+		];
+
+		unset($provider);
+		foreach($tokens as $i => $tok){
+			if(isset($info[$tok]) && ($allNeededInfo[$i] == '' || $allNeededInfo[$i] == null)){
+				$allNeededInfo[$i] = $info[$tok];
+			}
+		}
+
+		return $allNeededInfo;
 	}
 
 	private function addReferralData($params, $tokens, $allNeededInfo) {
@@ -646,14 +772,22 @@ class Documents {
 	}
 
 	private function parseTokensForOrders($params, $tokens, $allNeededInfo) {
-		$html = $this->arrayToTable($params->orderItems);
-		foreach($tokens as $index => $tok){
-			if($allNeededInfo[$index] == '' || $allNeededInfo[$index] == null){
-				if($tok == '[ORDER_ITEMS]'){
-					$allNeededInfo[$index] = $html;
-				}
+
+		if(isset($params->date_ordered)){
+			$index = array_search('[ORDER_DATE]', $tokens);
+			if($index !== false){
+				$allNeededInfo[$index] = $params->date_ordered;
 			}
 		}
+
+		if(isset($params->orderItems)){
+			$index = array_search('[ORDER_ITEMS]', $tokens);
+			if($index !== false){
+				$html = $this->arrayToTable($params->orderItems);
+				$allNeededInfo[$index] = $html;
+			}
+		}
+
 		return $allNeededInfo;
 	}
 
@@ -708,5 +842,30 @@ class Documents {
 		// close table tag
 		$table .= '</table>';
 		return $table;
+	}
+
+	private function isHtml($string)
+	{
+		return preg_match("/<[^<]+>/",$string,$m) != 0;
+	}
+
+	private function getPdfTemplateByFacilityId($facility_id = null){
+		if(isset($facility_id)){
+			$record = $this->t->load(['facility_id' =>$facility_id, 'active' => 1])->one();
+			if($record !== false){
+				$record['template'] = ROOT . $record['template'];
+				return $record;
+			}
+		}
+		return [
+			'template' => ROOT . '/resources/templates/default.pdf',
+			'body_margin_left' => 25,
+			'body_margin_top' => 25,
+			'body_margin_right' => 25,
+			'body_font_family' => 'times',
+			'body_font_style' => '',
+			'body_font_size' => 12,
+			'header_data' => null
+        ];
 	}
 }

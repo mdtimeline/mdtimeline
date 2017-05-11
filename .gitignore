@@ -1,13 +1,21 @@
 .idea
 sites/*/*
 temp/*
-GaiaEHR
 GaiaEHR.iml
 gaiaehr.iml
+mdTimeLine EHR.iml
 contrib/snomed/*
-temp
+contrib/rxnorm/*
+contrib/forms/*
+contrib/dsmiv/*
+contrib/icd9/*
+contrib/icd10/*
 /modules/advancetasks
 /modules/appointments
 /modules/phimail
 /modules/drugtodrugtoallergy
-AutomatedMeasureCalculation
+/modules/erx
+/modules/phrmessenger
+/modules/reportcenter/reports/AutomatedMeasureCalculation
+/modules/billing/
+/modules/dental/

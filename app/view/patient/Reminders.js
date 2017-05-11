@@ -34,40 +34,34 @@ Ext.define('App.view.patient.Reminders', {
 		{
 			xtype: 'datecolumn',
 			text: _('date'),
-			format: 'Y-m-d',
-			dataIndex: 'date'
+			dataIndex: 'reminder_date',
+			editor: {
+				xtype: 'datefield'
+			}
 		},
 		{
-			header: _('type'),
-			dataIndex: 'type',
-			width: 200,
+			text: _('type'),
+			dataIndex: 'reminder_type',
 			editor: {
-				xtype: 'gaiaehr.combo',
-				list: 130
+				xtype: 'combobox',
+				queryMode: 'local',
+				displayField: 'option',
+				valueField: 'value',
+				store: Ext.create('Ext.data.Store', {
+					fields: ['option', 'value'],
+					data : [
+						{ option: 'Appointment', value: 'appointment' },
+						{ option: 'Clinical', value: 'clinical' }
+					]
+				})
 			}
 		},
 		{
 			text: _('note'),
-			dataIndex: 'body',
 			flex: 1,
+			dataIndex: 'reminder_note',
 			editor: {
 				xtype: 'textfield'
-			}
-		},
-		{
-			text: _('user'),
-			width: 225,
-			dataIndex: 'user_name'
-		},
-		{
-			text: _('active'),
-			width: 50,
-			dataIndex: 'active',
-			renderer: function(v, m, r){
-				return app.boolRenderer(v, m, r);
-			},
-			editor: {
-				xtype: 'checkbox'
 			}
 		}
 	],
@@ -76,7 +70,7 @@ Ext.define('App.view.patient.Reminders', {
 		{
 			text: _('add_reminder'),
 			iconCls: 'icoAdd',
-			itemId: 'RemindersAddBtn'
+			itemId: 'PatientRemindersAddBtn'
 		}
 	]
 });

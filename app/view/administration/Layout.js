@@ -640,7 +640,7 @@ Ext.define('App.view.administration.Layout', {
 	               }
 
 	               me.fieldsGrid.getSelectionModel().select(record);
-                   me.msg('Sweet!', _('record_saved'));
+                   me.msg(_('sweet'), _('record_saved'));
                },
                failure:function(batch){
 
@@ -679,7 +679,7 @@ Ext.define('App.view.administration.Layout', {
 					me.fieldsGridStore.sync({
 						success:function(){
 							me.previewFormRender();
-							me.msg('Sweet!', _('record_removed'));
+							me.msg(_('sweet'), _('record_removed'));
 						},
 						failure:function(batch){
 							me.msg('Oops!', batch.proxy.reader.rawData.message, true);
@@ -1188,4 +1188,4 @@ Ext.define('App.view.administration.Layout', {
 
         callback(true);
     }
-}); 
+});

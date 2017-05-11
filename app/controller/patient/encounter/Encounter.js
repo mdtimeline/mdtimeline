@@ -33,14 +33,22 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			'viewport':{
 				patientunset: me.onPatientUnset
 			},
+			'#EncounterDetailForm combobox[name=visit_category]':{
+				select: me.onEncounterDetailFormVisitCategoryComboSelect
+			},
 			'#EncounterDetailWindow': {
 				show: me.onEncounterDetailWindowShow
 			},
 			'#EncounterProviderCmb': {
 				beforerender: me.onEncounterProviderCmbBeforeRender,
 				select: me.onEncounterProviderCmbSelect
+			},
+			'#EncounterCDAImportBtn': {
+				click: me.onEncounterCDAImportBtnClick
 			}
 		});
+
+		me.importCtrl = this.getController('patient.CCDImport');
 	},
 
 	/**
@@ -50,12 +58,21 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		if(this.getEncounterPanel()) this.getEncounterPanel().encounter = null;
 	},
 
+	onEncounterDetailFormVisitCategoryComboSelect: function (combo, records) {
+		var encounter_record = combo.up('form').getForm().getRecord();
+
+		encounter_record.set({
+			visit_category_code: records[0].get('code'),
+			visit_category_code_type: records[0].get('code_type')
+		});
+	},
+
 	/**
 	 * get the encounter record form the encounter panel or return null
 	 * @returns {*}
 	 */
 	getEncounterRecord: function(){
-		return this.getEncounterPanel() ? this.getEncounterPanel().encounter : null;
+		return !Ext.isEmpty(this.getEncounterPanel()) ? this.getEncounterPanel().encounter : null;
 	},
 
 	onEncounterProviderCmbBeforeRender: function(cmb){
@@ -142,6 +159,29 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		}
 
 		return show;
+	},
+
+	onEncounterCDAImportBtnClick: function(btn){
+
+		var me = this,
+			win = Ext.create('App.ux.form.fields.UploadString');
+
+		win.allowExtensions = ['xml','ccd','cda','ccda'];
+		win.on('uploadready', function(comp, stringXml){
+			me.getDocumentData(stringXml);
+		});
+
+		win.show();
+	},
+
+	getDocumentData: function(stringXml){
+		var me = this;
+
+		CCDDocumentParse.parseDocument(stringXml, function(ccdData){
+			me.importCtrl.validatePosibleDuplicates = false;
+			me.importCtrl.CcdImport(ccdData, app.patient.pid);
+			me.importCtrl.validatePosibleDuplicates = true;
+		});
 	}
 
 });

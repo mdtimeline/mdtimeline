@@ -41,7 +41,7 @@ header("Access-Control-Allow-Origin: *");
 		<link rel="stylesheet" type="text/css" href="resources/css/dashboard.css">
 
         <link rel="stylesheet" type="text/css" href="resources/report/reportStyle.css">
-		<link rel="stylesheet" type="text/css" href="lib/darkroomjs/build/css/darkroom.min.css">
+		<link rel="stylesheet" type="text/css" href="lib/darkroomjs/build/darkroom.css">
 		<link rel="shortcut icon" href="favicon.ico">
 	</head>
 	<body>
@@ -58,20 +58,34 @@ header("Access-Control-Allow-Origin: *");
 		<script type="text/javascript" src="lib/<?php print EXTJS ?>/ext-all.js" charset="utf-8"></script>
 
 		<!-- JSrouter and Ext.deirect API files -->
-		<script src="JSrouter.php?site=<?php print SITE ?>" charset="utf-8"></script>
-		<script src="data/api.php?site=<?php print SITE ?>" charset="utf-8"></script>
+		<script src="JSrouter.php?site=<?php print SITE ?>&dc_=<?php print time() ?>" charset="utf-8"></script>
+		<script src="data/api.php?site=<?php print SITE ?>&dc_=<?php print time() ?>" charset="utf-8"></script>
 		<script type="text/javascript" src="lib/ZeroClipboard/ZeroClipboard.js" charset="utf-8"></script>
-		<script type="text/javascript" src="lib/darkroomjs/vendor/fabric.js" charset="utf-8"></script>
-		<script type="text/javascript" src="lib/darkroomjs/build/js/darkroom.min.js" charset="utf-8"></script>
+		<script type="text/javascript" src="lib/darkroomjs/demo/vendor/fabric.js" charset="utf-8"></script>
+		<script type="text/javascript" src="lib/darkroomjs/build/darkroom.js" charset="utf-8"></script>
 
         <script type="text/javascript">
+
+	        if(Ext.supports.LocalStorage){
+		        Ext.state.Manager.setProvider(new Ext.state.LocalStorageProvider());
+	        }else{
+		        Ext.state.Manager.setProvider(new Ext.state.CookieProvider({
+			        secure: location.protocol === 'https:',
+			        expires : new Date(Ext.Date.now() + (1000*60*60*24*90)) // 90 days
+		        }));
+	        }
 
             window.i18n = window._ = function(key){
                 return window.lang[key] || '*'+key+'*';
             };
 
-            window.say = function(args){
-	            console.log(args);
+            window.say = function(msg){
+				var type = typeof msg;
+	            if (type == 'string' || type == 'number') {
+		            console.log('%c ' + msg, 'color: green;font-weight:bold;');
+	            }else{
+		            console.log(msg);
+	            }
             };
 
             window.g = function(global){
@@ -110,10 +124,10 @@ header("Access-Control-Allow-Origin: *");
 					'"><\/script>'
 				);
 
-	            var cookie = Ext.util.Cookies.get('mdtimeline_theme');
+	            var theme = Ext.state.Manager.get('mdtimeline_theme', g('application_theme'));
 	            var s;
 
-	            if((cookie && cookie == 'dark')){
+	            if(theme == 'dark'){
 		            globals.mdtimeline_theme = 'dark';
 		            link  = document.createElement('link');
 		            link.rel  = 'stylesheet';
@@ -233,16 +247,25 @@ header("Access-Control-Allow-Origin: *");
 					'error'
 				);
 			});
+
 		</script>
 
 		<script type="text/javascript" src="app/ux/Overrides.js"></script>
 		<script type="text/javascript" src="app/ux/VTypes.js"></script>
 
 		<!-- this is the compiled/minified version -->
-
 		<?php if(HOST != 'localhost') { ?>
 			<script type="text/javascript" src="app/app.min.js?_v<?php print VERSION ?>"></script>
+
+            <?php if (isset($_SESSION['modules'])) { ?>
+                <?php foreach ($_SESSION['modules'] as $module){ ?>
+                    <script type="text/javascript" src="modules/<?php print $module ?>/module.min.js?_v<?php print VERSION ?>"></script>
+                <?php } ?>
+            <?php } ?>
+
 		<?php } ?>
+
+        <!-- compiled/minified version  completed -->
 
 		<script type="text/javascript">
             /**
@@ -275,6 +298,14 @@ header("Access-Control-Allow-Origin: *");
                     app.QRCodePrintWin.print();
                 }, 1000);
             }
+
+
+            var modules_mains = [];
+
+            window.modules.forEach(function (module) {
+	            modules_mains.push('Modules.' + module + '.Main');
+            });
+
             /**
 			 * Sencha ExtJS OnReady Event
 			 * When all the JS code is loaded execute the entire code once.
@@ -282,7 +313,7 @@ header("Access-Control-Allow-Origin: *");
             Ext.application({
                 name: 'App',
 
-	            requires:[
+	            requires: Ext.Array.merge([
 		            'Ext.ux.LiveSearchGridPanel',
 		            'Ext.ux.SlidingPager',
 		            'Ext.ux.PreviewPlugin',
@@ -368,6 +399,7 @@ header("Access-Control-Allow-Origin: *");
 		            'App.ux.combo.CodesTypes',
 		            'App.ux.combo.Combo',
                     'App.ux.combo.ComboOptionList',
+                    'App.ux.combo.ComboOptionListSimple',
 		            'App.ux.combo.CVXManufacturers',
 		            'App.ux.combo.CVXManufacturersForCvx',
 		            'App.ux.combo.EncounterICDS',
@@ -416,6 +448,8 @@ header("Access-Control-Allow-Origin: *");
 		            'App.ux.combo.Units',
 		            'App.ux.combo.Users',
 		            'App.ux.combo.YesNoNa',
+                    'App.ux.combo.ComboTable',
+                    'App.ux.combo.ComboEvents',
 		            'App.ux.combo.YesNo',
 		            'App.ux.window.Window',
 		            'App.ux.NodeDisabled',
@@ -424,7 +458,7 @@ header("Access-Control-Allow-Origin: *");
 		             * Dynamically load the modules
 		             */
 		            'Modules.Module'
-	            ],
+	            ], modules_mains),
 				models:[
 					'miscellaneous.AddressBook',
 
@@ -481,6 +515,7 @@ header("Access-Control-Allow-Origin: *");
 					'administration.XtypesComboModel',
                     'administration.IpAccessLog',
                     'administration.IpAccessRule',
+                    'administration.CronJob',
 
 					'miscellaneous.OfficeNotes',
 					'miscellaneous.Amendment',
@@ -504,6 +539,7 @@ header("Access-Control-Allow-Origin: *");
 					'patient.encounter.snippetTree',
 					'patient.encounter.Procedures',
 
+					'patient.EducationResource',
 					'patient.AppointmentRequest',
 					'patient.AdvanceDirective',
 					'patient.Allergies',
@@ -541,7 +577,8 @@ header("Access-Control-Allow-Origin: *");
 					'patient.PreventiveCare',
 					'patient.QRCptCodes',
 					'patient.Referral',
-					'patient.Reminders',
+					'patient.Reminder',
+					'patient.Alert',
 					'patient.Surgery',
 					'patient.VectorGraph',
 					'patient.VisitPayment',
@@ -601,12 +638,13 @@ header("Access-Control-Allow-Origin: *");
 	                'administration.PreventiveCareMedications',
 	                'administration.ProviderCredentializations',
 	                'administration.Services',
-	                'administration.TransactionLogs',
+	                'administration.TransactionLog',
                     'administration.EncounterEventHistory',
 	                'administration.User',
 	                'administration.XtypesComboModel',
                     'administration.IpAccessLog',
                     'administration.IpAccessRules',
+                    'administration.CronJob',
 
 	                'miscellaneous.OfficeNotes',
 	                'miscellaneous.Amendments',
@@ -660,6 +698,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.QRCptCodes',
 	                'patient.Referrals',
 	                'patient.Reminders',
+	                'patient.Alerts',
 	                'patient.Surgery',
 	                'patient.VectorGraph',
 	                'patient.VisitPayment',
@@ -702,7 +741,6 @@ header("Access-Control-Allow-Origin: *");
 	                /**
 	                 * Load the root related panels
 	                 */
-	                'messages.Messages',
 	                /**
 	                 * Load the areas related panels
 	                 */
@@ -719,6 +757,7 @@ header("Access-Control-Allow-Origin: *");
 	                 */
 	                'patient.Patient',
 
+	                'patient.encounter.EducationResourcesGrid',
 	                'patient.encounter.AppointmentRequestGrid',
 	                'patient.encounter.CurrentProceduralTerminology',
 	                'patient.encounter.HealthCareFinancingAdministrationOptions',
@@ -737,9 +776,10 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.NewPatient',
 	                'patient.Summary',
 	                'patient.ProgressNote',
-	                'patient.RemindersAlert',
+	                'patient.Alerts',
 	                'patient.Reminders',
 	                'patient.Results',
+	                'patient.SocialPsychologicalBehavioral',
 	                'patient.SocialHistory',
 	                'patient.Visits',
 	                'patient.windows.Medical',
@@ -777,6 +817,8 @@ header("Access-Control-Allow-Origin: *");
 	                'administration.Roles',
 	                'administration.ExternalDataLoads',
 	                'administration.Users',
+                    'administration.TransactionLog',
+                    'administration.CronJob',
 
 	                /**
 	                 * Load the miscellaneous related panels
@@ -791,10 +833,15 @@ header("Access-Control-Allow-Origin: *");
                 ],
 
                 controllers:[
+	                'Main',
+
+                    'administration.AuditLog',
 	                'administration.CPT',
 	                'administration.DataPortability',
 	                'administration.DecisionSupport',
+	                'administration.Documents',
 	                'administration.FacilityStructure',
+	                'administration.FileSystems',
 	                'administration.HL7',
 	                'administration.Practice',
 	                'administration.ReferringProviders',
@@ -803,6 +850,8 @@ header("Access-Control-Allow-Origin: *");
 	                'administration.TemplatePanels',
 	                'administration.Users',
                     'administration.IpAccess',
+                    'administration.TransactionLog',
+                    'administration.CronJob',
 
 	                'areas.FloorPlan',
 
@@ -813,6 +862,7 @@ header("Access-Control-Allow-Origin: *");
 	                'miscellaneous.Amendments',
 
 	                'AlwaysOnTop',
+	                'Clock',
 	                'Cron',
 	                'DocumentViewer',
 	                'DualScreen',
@@ -829,7 +879,9 @@ header("Access-Control-Allow-Origin: *");
 
 	                'patient.ActiveProblems',
 	                'patient.AdvanceDirectives',
+	                'patient.Alerts',
 	                'patient.Allergies',
+	                'patient.EducationResources',
 	                'patient.AppointmentRequests',
 	                'patient.CarePlanGoals',
 	                'patient.CCD',
@@ -839,14 +891,17 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.DoctorsNotes',
 	                'patient.Documents',
 	                'patient.FamilyHistory',
+	                'patient.ImplantableDevice',
 	                'patient.HL7',
 	                'patient.Immunizations',
+	                'patient.ImplantableDevice',
 	                'patient.Insurance',
 	                'patient.ItemsToReview',
 	                'patient.LabOrders',
 	                'patient.Medical',
 	                'patient.Medications',
 	                'patient.Patient',
+	                'patient.PatientSearch',
 	                'patient.ProgressNotesHistory',
 	                'patient.RadOrders',
 	                'patient.Referrals',
@@ -854,6 +909,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.Results',
 	                'patient.RxOrders',
 	                'patient.Social',
+	                'patient.SocialPsychologicalBehavioral',
 	                'patient.Vitals',
 
 	                'patient.Summary',
@@ -864,12 +920,13 @@ header("Access-Control-Allow-Origin: *");
                     'patient.encounter.SOAP',
                     'patient.encounter.SuperBill'
                 ],
+	            init : function() {
+
+	            },
                 launch: function() {
                     App.Current = this;
-                    CronJob.run(function(){
-                        say('Loading GaiaEHR');
-                        window.app = Ext.create('App.view.Viewport');
-                    });
+                    say('Loading mdTImeLine EHR');
+                    window.app = Ext.create('App.view.Viewport');
                 }
             });
 		</script>

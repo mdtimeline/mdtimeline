@@ -31,7 +31,7 @@ Ext.define('App.ux.combo.Sex', {
 			queryMode   : 'local',
 			displayField: 'option_name',
 			valueField  : 'option_value',
-			emptyText   : _('select'),
+			emptyText   : _('sex'),
 			store       : me.store
 		}, null);
 		me.callParent(arguments);

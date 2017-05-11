@@ -52,9 +52,14 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 					name: 'STR',
 					type: 'string',
 					convert: function(v){
-						var regex = /\(.*\) | \(.*\)|\(.*\)/g;
-						return v.replace(regex, '');
+						v = v.replace(/\(.*\) | \(.*\)|\(.*\)/g, '');
+						v = v.replace(/[\[\]]/g, '');
+						return v;
 					}
+				},
+				{
+					name: 'TTY',
+					type: 'auto'
 				},
 				{
 					name: 'DST',
@@ -125,19 +130,10 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 			listConfig: {
 				loadingText: _('searching') + '...',
 				getInnerTpl: function(){
-					return '<div class="search-item">{STR} ( <b>RxNorm:</b> {RXCUI} <b>NDC:</b> {NDC} )</div>';
+					return '<div class="search-item {[values.TTY == "SCD" ? "lightGreenBg" : "" ]}">{STR}<br><b>RxNorm:</b> {RXCUI} <b>NDC:</b> {NDC}</div>';
 				}
 			},
-			pageSize: 25,
-            listeners: {
-                select: function(combo, records, eOpts){
-                    var medicine = records[0].data,
-                        cpos = medicine.STR.indexOf("["),
-                        spos = medicine.STR.indexOf("]");
-                    if (cpos > -1 && spos > cpos)
-                        this.setValue( medicine.STR.substr(0, cpos)+medicine.STR.substr(spos+1) );
-                }
-            }
+			pageSize: 25
 		});
 
 		me.callParent();

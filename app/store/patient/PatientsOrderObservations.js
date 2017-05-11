@@ -1,5 +1,5 @@
 /**
- * GaiaEHR (Electronic Health Records)
+ * mdTImeLine EHR (Electronic Health Records)
  * Copyright (C) 2013 Certun, LLC.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
  */
 
 Ext.define('App.store.patient.PatientsOrderObservations', {
-	extend: 'Ext.data.Store',
+	extend: 'Ext.data.TreeStore',
 	model: 'App.model.patient.PatientsOrderObservation',
 	remoteSort: false,
 	autoLoad: false

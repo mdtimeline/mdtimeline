@@ -46,12 +46,13 @@ if(!defined('ROOT'))
 if(!defined('URL')){
 	$URL = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : HTTP . '://' . HOST . URI;
 	$URL = rtrim(preg_replace('/dataProvider.*/', '', $URL), '/');
+	$URL = rtrim(preg_replace('/\?(.*)/', '', $URL), '/');
 	define('URL', $URL);
 }
 
 // application version
 if(!defined('VERSION'))
-	define('VERSION', '1.0.102');
+	define('VERSION', '1.0.300');
 // extjs sdk directory
 if(!defined('EXTJS'))
 	define('EXTJS', 'extjs-4.2.1');
@@ -93,11 +94,17 @@ $_SESSION['server']['last_tid'] = null;
 $_SESSION['client']['browser'] = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 $_SESSION['client']['os'] = (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Windows') === false ? 'Linux' : 'Windows');
 
+include_once (ROOT . '/dataProvider/Site.php');
+
+Site::DoUserSiteValidation();
+
 // default site
-if(!defined('SITE'))
-	define('SITE', (isset($_REQUEST['site']) ? $_REQUEST['site'] : 'default'));
-if(!isset($site))
-	$site = (isset($_REQUEST['site']) ? $_REQUEST['site'] : 'default');
+if(!defined('SITE')){
+	$site = Site::GetSite();
+	define('SITE', $site);
+}else{
+	$site = SITE;
+}
 
 /**
  * Enable the error and also set the ROOT directory for
@@ -115,7 +122,7 @@ if(file_exists($logPath) && is_writable($logPath)){
 	clearstatcache();
 	if(!file_exists($logPath . $logFile)){
 		touch($logPath . $logFile);
-		chmod($logPath . $logFile, 0775);
+		chmod($logPath . $logFile, 0764);
 	}
 	if(is_writable($logPath . $logFile))
 		ini_set('error_log', $logPath . $logFile);
@@ -148,6 +155,7 @@ if(file_exists(ROOT . '/sites/' . SITE . '/conf.php')){
 		$modules = $Modules->getEnabledModules();
 		unset($Modules);
 
+		$_SESSION['modules'] = [];
 		$_SESSION['styles'] = [];
 		$_SESSION['light_styles'] = [];
 		$_SESSION['dark_styles'] = [];
@@ -179,7 +187,7 @@ if(file_exists(ROOT . '/sites/' . SITE . '/conf.php')){
 					$_SESSION['dark_styles'][] = $css;
 				}
 			}
-			
+
 			/**
 			 * Scripts
 			 */
@@ -190,6 +198,12 @@ if(file_exists(ROOT . '/sites/' . SITE . '/conf.php')){
 					$_SESSION['scripts'][] = $js;
 				}
 			}
+
+			$js = 'modules/' . $module['name'] . '/module.min.js';
+			if(file_exists( ROOT . '/' .$js) && array_search($module['name'], $_SESSION['modules']) === false){
+				$_SESSION['modules'][] = $module['name'];
+			}
+
 
 			/**
 			 * Hooks

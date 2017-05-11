@@ -26,7 +26,7 @@ Ext.define('App.view.patient.ItemsToReview', {
 	frame: true,
 	bodyPadding: 5,
 	bodyBorder: true,
-	bodyStyle: 'background-color:white',
+	//bodyStyle: 'background-color:white',
 	showRating: true,
 	autoScroll: true,
 	itemId: 'ItemsToReviewPanel',
@@ -170,16 +170,73 @@ Ext.define('App.view.patient.ItemsToReview', {
 			]
 		},
 		{
-			xtype: 'fieldset',
-			title: _('social_history'),
+			xtype:'container',
+			layout: 'hbox',
 			items: [
 				{
-					fieldLabel: _('smoking_status'),
-					xtype: 'mitos.smokingstatuscombo',
-					itemId: 'reviewsmokingstatuscombo',
-					allowBlank: false,
-					labelWidth: 100,
-					width: 325
+					xtype: 'fieldset',
+					title: _('social_history'),
+					margin: '0 10 0 0',
+					items: [
+						{
+							fieldLabel: _('smoking_status'),
+							xtype: 'mitos.smokingstatuscombo',
+							itemId: 'reviewsmokingstatuscombo',
+							allowBlank: false,
+							labelWidth: 100,
+							width: 325
+						}
+					]
+				},
+				{
+					xtype: 'fieldset',
+					title: _('patient_education'),
+                    margin: '0 10 0 0',
+					items: [
+						{
+							xtype: 'checkbox',
+							boxLabel: _('education_given'),
+							itemId: 'ItemsToReviewEducationGivenField'
+						}
+					]
+				},
+                {
+                    xtype: 'fieldset',
+                    title: _('medical_reconciliation'),
+                    layout: 'hbox',
+	                margin: '0 10 0 0',
+                    items: [
+                        {
+                            xtype: 'checkboxfield',
+                            checked: false,
+                            itemId: 'EncounterMedicationReconciliations',
+                            name: 'medication_reconciliations',
+	                        margin: '0 5 0 0'
+                        },
+                        {
+                            xtype: 'datefield',
+                            fieldLabel: _('performed_date'),
+                            labelWidth: 100,
+                            width: 210,
+                            itemId: 'EncounterMedicationReconciliationsDateField',
+                            name: 'medication_reconciliations_date'
+                        }
+                    ]
+                },
+				{
+					xtype: 'fieldset',
+					title: _('patient_summary'),
+					layout: 'hbox',
+					items: [
+						{
+							xtype: 'checkboxfield',
+							checked: false,
+							padding: '0 0 5 10',
+							itemId: 'EncounterSummaryCareProvided',
+							boxLabel: _('summary_of_care_provided'),
+							name: 'summary_care_provided'
+						}
+					]
 				}
 			]
 		}

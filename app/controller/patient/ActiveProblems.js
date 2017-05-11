@@ -33,7 +33,15 @@ Ext.define('App.controller.patient.ActiveProblems', {
 		{
 			ref: 'AddActiveProblemBtn',
 			selector: 'patientactiveproblemspanel #addActiveProblemBtn'
-		}
+		},
+        {
+            ref: 'PatientProblemsReconciledBtn',
+            selector: '#PatientProblemsReconciledBtn'
+        },
+        {
+            ref: 'PatientProblemsActiveBtn',
+            selector: '#PatientProblemsActiveBtn'
+        }
 	],
 
 	init: function(){
@@ -50,7 +58,13 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			},
 			'patientactiveproblemspanel #addActiveProblemBtn':{
 				click: me.onAddActiveProblemBtnClick
-			}
+			},
+            '#PatientProblemsReconciledBtn': {
+                click: me.onPatientProblemsReconciledBtnClick
+            },
+            '#PatientProblemsActiveBtn': {
+                click: me.onPatientProblemsActiveBtnClick
+            }
 		});
 	},
 
@@ -72,16 +86,40 @@ Ext.define('App.controller.patient.ActiveProblems', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	onActiveProblemsGridActive:function(grid){
-		var store = grid.getStore();
+    onPatientProblemsReconciledBtnClick: function(){
+        this.onActiveProblemsGridActive();
+    },
+
+    onPatientProblemsActiveBtnClick: function(){
+        this.onActiveProblemsGridActive();
+    },
+
+	onActiveProblemsGridActive:function(){
+		var grid = this.getActiveProblemsGrid(),
+            store = grid.getStore(),
+            reconciled = this.getPatientProblemsReconciledBtn().pressed,
+            onlyActive = this.getPatientProblemsActiveBtn().pressed,
+			filters = [
+				{
+					property: 'pid',
+					value: app.patient.pid
+				}
+			];
+
+		if(onlyActive){
+			Ext.Array.push(filters, {
+				property: 'status_code',
+				value: '55561003'
+			});
+		}
 
 		store.clearFilter(true);
-		store.filter([
-			{
-				property: 'pid',
-				value: app.patient.pid
-			}
-		]);
+        store.load({
+            filters: filters,
+            params: {
+                reconciled: reconciled
+            }
+        });
 	},
 
 	onActiveProblemLiveSearchSelect:function(cmb, records){
@@ -99,9 +137,10 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			record = form.getRecord();
 
 		record.set({
+			status: records[0].data.option_name,
 			status_code: records[0].data.code,
 			status_code_type: records[0].data.code_type
 		});
-
 	}
+
 });

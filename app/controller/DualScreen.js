@@ -133,7 +133,7 @@ Ext.define('App.controller.DualScreen', {
 		var me = this;
 		if(me.appMask == null){
 			me.appMask = new Ext.LoadMask(me.getDualViewport(), {
-				msg : '<img height="86" width="254" src="resources/images/gaiaehr-med-dark.png"><p>' + msg + '</p>',
+				msg : '<img height="190" width="190" src="resources/images/logo_190_190.jpg"><p>' + msg + '</p>',
 				maskCls: 'dualAppMask',
 				cls: 'dualAppMaskMsg',
 				autoShow: true

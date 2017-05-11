@@ -60,6 +60,20 @@ Ext.define('App.model.patient.Patient',{
             len: 10
         },
         {
+            name: 'orientation',
+            type: 'string',
+            comment: 'sex orientation',
+            index: true,
+            len: 15
+        },
+        {
+            name: 'identity',
+            type: 'string',
+            comment: 'sex identity',
+            index: true,
+            len: 15
+        },
+        {
             name: 'DOB',
             type: 'date',
             comment: 'day of birth',
@@ -70,7 +84,10 @@ Ext.define('App.model.patient.Patient',{
         {
             name: 'DOBFormatted',
             type: 'string',
-            persist: false
+            persist: false,
+            convert: function (v, record) {
+                return Ext.Date.format(record.get('DOB'), g('date_display_format'));
+            }
         },
         {
             name: 'marital_status',
@@ -134,12 +151,6 @@ Ext.define('App.model.patient.Patient',{
             store: false
         },
         {
-            name: 'provider',
-            type: 'string',
-            comment: 'default provider',
-            len: 40
-        },
-        {
             name: 'pharmacy',
             type: 'string',
             comment: 'default pharmacy',
@@ -155,6 +166,12 @@ Ext.define('App.model.patient.Patient',{
             name: 'race',
             type: 'string',
             comment: 'race',
+            len: 40
+        },
+        {
+            name: 'secondary_race',
+            type: 'string',
+            comment: 'secondary race',
             len: 40
         },
         {
@@ -206,46 +223,32 @@ Ext.define('App.model.patient.Patient',{
             type: 'bool'
         },
         {
+            name: 'allow_guardian_web_portal',
+            type: 'bool'
+        },
+        {
+            name: 'allow_guardian_web_portal_cda',
+            type: 'bool'
+        },
+        {
+            name: 'allow_emergency_contact_web_portal',
+            type: 'bool'
+        },
+        {
+            name: 'allow_emergency_contact_web_portal_cda',
+            type: 'bool'
+        },
+        {
+            name: 'organ_donor_code',
+            type: 'string',
+	        len: 10,
+	        defaultValue: 'U'
+        },
+        {
             name: 'occupation',
             type: 'string',
             comment: 'patient occupation',
             len: 40
-        },
-        {
-            name: 'employer_name',
-            type: 'string',
-            comment: 'employer name',
-            len: 40
-        },
-        {
-            name: 'employer_address',
-            type: 'string',
-            comment: 'employer address',
-            len: 40
-        },
-        {
-            name: 'employer_city',
-            type: 'string',
-            comment: 'employer city',
-            len: 40
-        },
-        {
-            name: 'employer_state',
-            type: 'string',
-            comment: 'employer state',
-            len: 40
-        },
-        {
-            name: 'employer_country',
-            type: 'string',
-            comment: 'employer country',
-            len: 40
-        },
-        {
-            name: 'employer_postal_code',
-            type: 'string',
-            comment: 'employer postal code',
-            len: 10
         },
         {
             name: 'rating',
@@ -293,6 +296,11 @@ Ext.define('App.model.patient.Patient',{
             name: 'death_date',
             type: 'date',
             dateFormat: 'Y-m-d H:i:s'
+        },
+        {
+            name: 'death_cause',
+            type: 'string',
+            len: 180
         },
         {
             name: 'alias',
@@ -412,6 +420,11 @@ Ext.define('App.model.patient.Patient',{
 	        len: 35
         },
         {
+            name: 'postal_country',
+            type: 'string',
+	        len: 35
+        },
+        {
             name: 'physical_address',
             type: 'string',
 	        len: 40
@@ -436,6 +449,41 @@ Ext.define('App.model.patient.Patient',{
             type: 'string',
 	        len: 35
         },
+        {
+            name: 'physical_country',
+            type: 'string',
+	        len: 35
+        },
+	    {
+		    name: 'mother_fname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'mother_mname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'mother_lname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'father_fname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'father_mname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'father_lname',
+		    type: 'string',
+		    len: 80
+	    },
 	    {
 		    name: 'guardians_relation',
 		    type: 'string',
@@ -467,6 +515,47 @@ Ext.define('App.model.patient.Patient',{
 	        len: 10
         },
         {
+            name: 'guardians_address',
+            type: 'string',
+            len: 35
+        },
+        {
+            name: 'guardians_address_cont',
+            type: 'string',
+            len: 35
+        },
+        {
+            name: 'guardians_city',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'guardians_state',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'guardians_country',
+            type: 'string',
+            len: 80
+        },
+        {
+            name: 'guardians_zip',
+            type: 'string',
+            len: 15
+        },
+        {
+            name: 'guardian_portal_password',
+            type: 'string',
+            dataType: 'blob',
+            encrypt: true
+        },
+        {
+            name: 'guardian_portal_username',
+            type: 'string',
+            len: 40
+        },
+        {
             name: 'emergency_contact_relation',
             type: 'string',
 	        len: 20
@@ -495,6 +584,47 @@ Ext.define('App.model.patient.Patient',{
             name: 'emergency_contact_phone_type',
             type: 'string',
             len: 10
+        },
+	    {
+		    name: 'emergency_contact_address',
+		    type: 'string',
+		    len: 35
+	    },
+	    {
+		    name: 'emergency_contact_address_cont',
+		    type: 'string',
+		    len: 35
+	    },
+	    {
+		    name: 'emergency_contact_city',
+		    type: 'string',
+		    len: 40
+	    },
+	    {
+		    name: 'emergency_contact_state',
+		    type: 'string',
+		    len: 40
+	    },
+	    {
+		    name: 'emergency_contact_country',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'emergency_contact_zip',
+		    type: 'string',
+		    len: 15
+	    },
+        {
+            name: 'emergency_contact_portal_password',
+            type: 'string',
+            dataType: 'blob',
+            encrypt: true
+        },
+        {
+            name: 'emergency_contact_portal_username',
+            type: 'string',
+            len: 40
         }
     ],
     idProperty: 'pid',

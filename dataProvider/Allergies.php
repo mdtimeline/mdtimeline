@@ -40,12 +40,25 @@ class Allergies {
 	}
 
 	public function getPatientAllergies($params){
-		if(isset($params->reconciled) && $params->reconciled == true){
-			$groups = new stdClass();
-			$groups->group[0] = new stdClass();
-			$groups->group[0]->property = 'allergy_code';
-			return $this->a->load($params)->group($groups)->all();
+
+		// Manage the active and inactive problems
+		if(isset($params->active) && $params->active == true) {
+			$filter = new stdClass();
+			$filter->property = 'status_code';
+			$filter->value = '55561003';
+			$params->filter[] = $filter;
+			unset($filter, $params->active);
 		}
+
+		if(isset($params->reconciled) && $params->reconciled == true) {
+			$filter = new stdClass();
+			$filter->property = 'reconciled';
+			$filter->operator = '!=';
+			$filter->value = 1;
+			$params->filter[] = $filter;
+			unset($filter, $params->reconciled);
+		}
+
 		return $this->a->load($params)->all();
 	}
 
@@ -72,6 +85,20 @@ class Allergies {
 		$params->filter[0]->property = 'pid';
 		$params->filter[0]->value = $pid;
 		return $this->getPatientAllergies($params);
+	}
+
+	public function getPatientAllergiesByPidAndDates($pid, $start = null, $end = null)
+	{
+		$this->a->addFilter('pid', $pid);
+
+		if(isset($start)){
+			$this->a->addFilter('create_date', $start, '>=');
+		}
+		if(isset($end)) {
+			$this->a->addFilter('create_date', $end, '<=');
+		}
+
+		return $this->a->load()->all();
 	}
 
 	public function getPatientAllergiesByEid($eid)

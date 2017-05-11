@@ -57,6 +57,12 @@ Ext.define('App.view.administration.DecisionSupport', {
 					sortable: true,
 					dataIndex: 'description'
 				},
+                {
+                    width: 100,
+                    header: _('category'),
+                    sortable: true,
+                    dataIndex: 'category_name'
+                },
 				{
 					width: 100,
 					header: _('age_start'),
@@ -187,16 +193,14 @@ Ext.define('App.view.administration.DecisionSupport', {
 												xtype: 'numberfield',
 												fieldLabel: _('age_start'),
 												name: 'age_start',
-
 												value: 0,
 												minValue: 0
-
 											},
 											{
-												xtype: 'textfield',
-												fieldLabel: _('reference'),
-												name: 'reference',
-												width: 458
+												xtype: 'gaiaehr.sexcombo',
+												fieldLabel: _('sex'),
+												name: 'sex',
+												margin: '0 10 5 0'
 											}
 										]
 
@@ -220,13 +224,81 @@ Ext.define('App.view.administration.DecisionSupport', {
 												minValue: 0
 											},
 											{
-												xtype: 'gaiaehr.sexcombo',
-												fieldLabel: _('sex'),
-												name: 'sex',
-												margin: '0 10 5 0'
+												xtype: 'textfield',
+												fieldLabel: _('reference'),
+												name: 'reference',
+												width: 458
 											}
 										]
-									}
+									},
+                                    {
+                                        /**
+                                         * Line four
+                                         */
+                                        xtype: 'fieldcontainer',
+                                        layout: 'hbox',
+                                        defaults: {
+                                            margin: '0 10 0 0',
+                                            action: 'field'
+                                        },
+                                        items: [
+                                            {
+                                                xtype: 'combo',
+                                                fieldLabel: _('category'),
+                                                name: 'category',
+                                                queryMode: 'local',
+                                                displayField: 'category_name',
+                                                valueField: 'category',
+                                                store: Ext.create('Ext.data.Store', {
+                                                    fields: [
+                                                        'category_name',
+                                                        'category'
+                                                    ],
+                                                    data : [
+                                                        {
+                                                            "category":"C",
+                                                            "category_name":"Clinical"
+                                                        },
+                                                        {
+                                                            "category":"A",
+                                                            "category_name":"Administrative"
+                                                        },
+                                                        {
+                                                            "category":"P",
+                                                            "category_name":"Physician"
+                                                        },
+                                                        {
+                                                            "category":"N",
+                                                            "category_name":"Nurse"
+                                                        }
+                                                    ]
+                                                })
+                                            },
+	                                        {
+		                                        xtype: 'combo',
+		                                        fieldLabel: _('reference_type'),
+		                                        name: 'reference_type',
+		                                        queryMode: 'local',
+		                                        displayField: 'option',
+		                                        valueField: 'value',
+		                                        editable: false,
+		                                        width: 458,
+		                                        store: Ext.create('Ext.data.Store', {
+			                                        fields: [ 'option', 'value' ],
+			                                        data : [
+				                                        {
+					                                        option: 'Diagnostic and Therapeutic Reference',
+					                                        value: 'D'
+				                                        },
+				                                        {
+					                                        option: 'Evidence-Based CDS Intervention',
+					                                        value: 'E'
+				                                        }
+			                                        ]
+		                                        })
+	                                        },
+                                        ]
+                                    }
 								]
 							},
 							// TAB Procedures
@@ -401,6 +473,27 @@ Ext.define('App.view.administration.DecisionSupport', {
 										dataIndex: 'concept_text'
 									},
 									{
+										text: _('value'),
+										columns: [
+											{
+												header: _('operator'),
+												dataIndex: 'value_operator',
+												width: 180,
+												editor: {
+													xtype: 'gaiaehr.combo',
+													list: 111
+												}
+											},
+											{
+												header: _('value'),
+												dataIndex: 'value',
+												editor: {
+													xtype: 'textfield'
+												}
+											}
+										]
+									},
+									{
 										text: _('frequency'),
 										columns: [
 											{
@@ -422,27 +515,6 @@ Ext.define('App.view.administration.DecisionSupport', {
 											{
 												header: _('interval'),
 												dataIndex: 'frequency_interval',
-												editor: {
-													xtype: 'textfield'
-												}
-											}
-										]
-									},
-									{
-										text: _('value'),
-										columns: [
-											{
-												header: _('operator'),
-												dataIndex: 'value_operator',
-												width: 180,
-												editor: {
-													xtype: 'gaiaehr.combo',
-													list: 111
-												}
-											},
-											{
-												header: _('value'),
-												dataIndex: 'value',
 												editor: {
 													xtype: 'textfield'
 												}
@@ -500,6 +572,27 @@ Ext.define('App.view.administration.DecisionSupport', {
 										dataIndex: 'concept_text'
 									},
 									{
+										text: _('value'),
+										columns: [
+											{
+												header: _('operator'),
+												dataIndex: 'value_operator',
+												width: 180,
+												editor: {
+													xtype: 'gaiaehr.combo',
+													list: 111
+												}
+											},
+											{
+												header: _('value'),
+												dataIndex: 'value',
+												editor: {
+													xtype: 'textfield'
+												}
+											}
+										]
+									},
+									{
 										text: _('frequency'),
 										columns: [
 											{
@@ -519,29 +612,8 @@ Ext.define('App.view.administration.DecisionSupport', {
 												}
 											},
 											{
-												header: _('interval'),
+												header: _('within'),
 												dataIndex: 'frequency_interval',
-												editor: {
-													xtype: 'textfield'
-												}
-											}
-										]
-									},
-									{
-										text: _('value'),
-										columns: [
-											{
-												header: _('operator'),
-												dataIndex: 'value_operator',
-												width: 180,
-												editor: {
-													xtype: 'gaiaehr.combo',
-													list: 111
-												}
-											},
-											{
-												header: _('value'),
-												dataIndex: 'value',
 												editor: {
 													xtype: 'textfield'
 												}
@@ -594,6 +666,27 @@ Ext.define('App.view.administration.DecisionSupport', {
 										dataIndex: 'concept_text'
 									},
 									{
+										text: _('value'),
+										columns: [
+											{
+												header: _('operator'),
+												dataIndex: 'value_operator',
+												width: 180,
+												editor: {
+													xtype: 'gaiaehr.combo',
+													list: 111
+												}
+											},
+											{
+												header: _('value'),
+												dataIndex: 'value',
+												editor: {
+													xtype: 'textfield'
+												}
+											}
+										]
+									},
+									{
 										text: _('frequency'),
 										columns: [
 											{
@@ -615,27 +708,6 @@ Ext.define('App.view.administration.DecisionSupport', {
 											{
 												header: _('interval'),
 												dataIndex: 'frequency_interval',
-												editor: {
-													xtype: 'textfield'
-												}
-											}
-										]
-									},
-									{
-										text: _('value'),
-										columns: [
-											{
-												header: _('operator'),
-												dataIndex: 'value_operator',
-												width: 180,
-												editor: {
-													xtype: 'gaiaehr.combo',
-													list: 111
-												}
-											},
-											{
-												header: _('value'),
-												dataIndex: 'value',
 												editor: {
 													xtype: 'textfield'
 												}
@@ -688,6 +760,27 @@ Ext.define('App.view.administration.DecisionSupport', {
 										dataIndex: 'concept_text'
 									},
 									{
+										text: _('value'),
+										columns: [
+											{
+												header: _('operator'),
+												dataIndex: 'value_operator',
+												width: 180,
+												editor: {
+													xtype: 'gaiaehr.combo',
+													list: 111
+												}
+											},
+											{
+												header: _('value'),
+												dataIndex: 'value',
+												editor: {
+													xtype: 'textfield'
+												}
+											}
+										]
+									},
+									{
 										text: _('frequency'),
 										columns: [
 											{
@@ -709,27 +802,6 @@ Ext.define('App.view.administration.DecisionSupport', {
 											{
 												header: _('interval'),
 												dataIndex: 'frequency_interval',
-												editor: {
-													xtype: 'textfield'
-												}
-											}
-										]
-									},
-									{
-										text: _('value'),
-										columns: [
-											{
-												header: _('operator'),
-												dataIndex: 'value_operator',
-												width: 180,
-												editor: {
-													xtype: 'gaiaehr.combo',
-													list: 111
-												}
-											},
-											{
-												header: _('value'),
-												dataIndex: 'value',
 												editor: {
 													xtype: 'textfield'
 												}
@@ -782,6 +854,27 @@ Ext.define('App.view.administration.DecisionSupport', {
 										dataIndex: 'concept_text'
 									},
 									{
+										text: _('value'),
+										columns: [
+											{
+												header: _('operator'),
+												dataIndex: 'value_operator',
+												width: 180,
+												editor: {
+													xtype: 'gaiaehr.combo',
+													list: 111
+												}
+											},
+											{
+												header: _('value'),
+												dataIndex: 'value',
+												editor: {
+													xtype: 'textfield'
+												}
+											}
+										]
+									},
+									{
 										text: _('frequency'),
 										columns: [
 											{
@@ -803,27 +896,6 @@ Ext.define('App.view.administration.DecisionSupport', {
 											{
 												header: _('interval'),
 												dataIndex: 'frequency_interval',
-												editor: {
-													xtype: 'textfield'
-												}
-											}
-										]
-									},
-									{
-										text: _('value'),
-										columns: [
-											{
-												header: _('operator'),
-												dataIndex: 'value_operator',
-												width: 180,
-												editor: {
-													xtype: 'gaiaehr.combo',
-													list: 111
-												}
-											},
-											{
-												header: _('value'),
-												dataIndex: 'value',
 												editor: {
 													xtype: 'textfield'
 												}

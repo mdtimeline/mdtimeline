@@ -25,8 +25,7 @@ class Reminders {
 	private $r;
 
 	function __construct(){
-        if(!isset($this->r))
-            $this->r = MatchaModel::setSenchaModel('App.model.patient.Reminders');
+		$this->r = MatchaModel::setSenchaModel('App.model.patient.Reminder');
 	}
 
 	public function getReminders($params){
@@ -48,7 +47,5 @@ class Reminders {
 	public function destroyReminder($params){
 		return $this->r->destroy($params);
 	}
-
-
 
 } 

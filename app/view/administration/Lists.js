@@ -40,15 +40,9 @@ Ext.define('App.view.administration.Lists', {
         /**
          * RowEditor Classes
          */
-        me.optionsRowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
-//            autoCancel: false,
-//            errorSummary: false
-        });
+        me.optionsRowEditing = Ext.create('Ext.grid.plugin.RowEditing', {});
 
-	    me.listsRowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
-//            autoCancel: false,
-//            errorSummary: false
-        });
+	    me.listsRowEditing = Ext.create('Ext.grid.plugin.RowEditing', {});
 
         /**
          * Lists Grid
@@ -57,13 +51,19 @@ Ext.define('App.view.administration.Lists', {
             store: me.listsStore,
             itemId: 'listsGrid',
             plugins: [ me.listsRowEditing ],
-            width: 320,
+            width: 50,
             margin: '0 2 0 0',
             region: 'west',
             columns: [
                 {
-	                width: 30,
-                    dataIndex: 'id'
+                    text: _('key'),
+	                width: 110,
+                    dataIndex: 'list_key',
+                    editor: {
+                        xtype:'textfield',
+                        allowOnlyWhitespace: false,
+                        allowBlank: false
+                    }
                 },
                 {
                     text: _('select_lists'),

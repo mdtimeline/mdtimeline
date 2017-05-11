@@ -1,8 +1,8 @@
 <?php
 
 /**
- * GaiaEHR (Electronic Health Records)
- * Copyright (C) 2013 Certun, LLC.
+ * mdTimeLine EHR (Electronic Health Records)
+ * Copyright (C) 2017 mdTimeLine, LLC.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,62 @@ class Globals {
 	 */
 	private static $g = null;
 
+    /**
+     * Apply the pre-defined validators items into the saving event global item
+     *
+     * @param $params
+     * @return mixed
+     */
+    public static function applyValidations($params){
+        if(self::$g == null)
+            self::$g = MatchaModel::setSenchaModel('App.model.administration.Globals');
+        $global = self::$g->load(['id' => $params->id])->one();
+        if(isset($global['gl_name'])) {
+            switch ($global['gl_type']) {
+                case 'truefalse':
+                    if ($params->gl_value == 'true' || $params->gl_value == 1) {
+                        $params->gl_value = 'true';
+                    } else {
+                        $params->gl_value = 'false';
+                    }
+                    return $params;
+                    break;
+                case 'yesno':
+                    if ($params->gl_value == 'yes') {
+                        $params->gl_value = 'yes';
+                    } else {
+                        $params->gl_value = 'no';
+                    }
+                    return $params;
+                    break;
+                case 'host':
+                    $pattern = '/^(http:\/\/|https:\/\/|ftp:\/\/)/';
+                    $params->gl_value = preg_replace($pattern, '', $params->gl_value);
+                    return $params;
+                    break;
+                case 'text':
+                    return $params;
+                    break;
+                case 'dir':
+                    if(strpos($params->gl_value, '/') === false){
+                        $params->gl_value = '';
+                        return $params;
+                    } else {
+                        return $params;
+                    }
+                    break;
+                case 'numeric':
+                    if(!is_numeric($params->gl_value)) $params->gl_value = '';
+                    return $params;
+                    break;
+                default:
+                    return $params;
+                    break;
+            }
+        }
+        return $params;
+    }
+
 	/**
 	 * @return array
 	 */
@@ -40,7 +96,7 @@ class Globals {
 	public function updateGlobals($params) {
 		if(self::$g == null)
 			self::$g = MatchaModel::setSenchaModel('App.model.administration.Globals');
-		$params = self::$g->save($params);
+		$params = self::$g->save(self::applyValidations($params));
 		$this->setGlobals();
 		return $params;
 	}
@@ -50,12 +106,14 @@ class Globals {
 	 * @return mixed
 	 */
 	public static function setGlobals() {
-
-        if(!isset($_SESSION['globals'])) $_SESSION['globals'] = array();
+        if(!isset($_SESSION['globals']))
+            $_SESSION['globals'] = array();
 
 		if(self::$g == null)
 			self::$g = MatchaModel::setSenchaModel('App.model.administration.Globals');
 		foreach(self::$g->load()->all() as $setting){
+		    if($setting['gl_type'] == 'truefalse')
+		        $setting['gl_value'] = self::convert($setting['gl_value']);
 			$_SESSION['globals'][$setting['gl_name']] = $setting['gl_value'];
 		}
 		$_SESSION['globals']['timezone_offset'] = -14400;
@@ -89,8 +147,19 @@ class Globals {
 		}
 	}
 
-}
+    /**
+     * Simple internal function to convert a true or false string based to a true
+     * bool result.
+     * @param $value
+     * @return bool
+     */
+	private static function convert($value){
+	    if($value == 'false'){
+	        return false;
+        }elseif($value == 'true'){
+            return true;
+        }
+        return $value;
+    }
 
-//print '<pre>';
-//$g = new Globals();
-//print_r($g->getGlobalsArray());
+}

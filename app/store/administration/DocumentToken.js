@@ -1,19 +1,19 @@
 /**
- GaiaEHR (Electronic Health Records)
- Copyright (C) 2013 Certun, LLC.
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * GaiaEHR (Electronic Health Records)
+ * Copyright (C) 2013 Certun, LLC.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 Ext.define('App.store.administration.DocumentToken', {
@@ -23,6 +23,10 @@ Ext.define('App.store.administration.DocumentToken', {
         {
             title: _('patient_id'),
             token: '[PATIENT_ID]'
+        },
+        {
+            title: _('patient_record_number'),
+            token: '[PATIENT_RECORD_NUMBER]'
         },
         {
             title: _('patient_name'),
@@ -77,52 +81,52 @@ Ext.define('App.store.administration.DocumentToken', {
             token: '[PATIENT_AGE]'
         },
         {
-            title: _('patient_city'),
-            token: '[PATIENT_CITY]'
+            title: _('PATIENT_PHYSICAL_ADDRESS_LINE_ONE'),
+            token: '[PATIENT_PHYSICAL_ADDRESS_LINE_ONE]'
         },
         {
-            title: _('patient_state'),
-            token: '[PATIENT_STATE]'
+            title: _('PATIENT_PHYSICAL_ADDRESS_LINE_TWO'),
+            token: '[PATIENT_PHYSICAL_ADDRESS_LINE_TWO]'
         },
         {
-            title: _('patient_home_address_line_1'),
-            token: '[PATIENT_HOME_ADDRESS_LINE_ONE]'
+            title: _('PATIENT_PHYSICAL_CITY'),
+            token: '[PATIENT_PHYSICAL_CITY]'
         },
         {
-            title: _('patient_home_address_line_1'),
-            token: '[PATIENT_HOME_ADDRESS_LINE_TWO]'
+            title: _('PATIENT_PHYSICAL_STATE'),
+            token: '[PATIENT_PHYSICAL_STATE]'
         },
         {
-            title: _('patient_home_address_zip_code'),
-            token: '[PATIENT_HOME_ADDRESS_ZIP_CODE]'
+            title: _('PATIENT_PHYSICAL_ZIP'),
+            token: '[PATIENT_PHYSICAL_ZIP]'
         },
         {
-            title: _('patient_home_address_city'),
-            token: '[PATIENT_HOME_ADDRESS_CITY]'
+            title: _('PATIENT_PHYSICAL_COUNTRY'),
+            token: '[PATIENT_PHYSICAL_COUNTRY]'
         },
         {
-            title: _('patient_home_address_state'),
-            token: '[PATIENT_HOME_ADDRESS_STATE]'
-        },
-        {
-            title: _('patient_postal_address_line_1'),
+            title: _('PATIENT_POSTAL_ADDRESS_LINE_ONE'),
             token: '[PATIENT_POSTAL_ADDRESS_LINE_ONE]'
         },
         {
-            title: _('patient_postal_address_line_2'),
+            title: _('PATIENT_POSTAL_ADDRESS_LINE_TWO'),
             token: '[PATIENT_POSTAL_ADDRESS_LINE_TWO]'
         },
         {
-            title: _('patient_postal_address_zip_code'),
-            token: '[PATIENT_POSTAL_ADDRESS_ZIP_CODE]'
+            title: _('PATIENT_POSTAL_CITY'),
+            token: '[PATIENT_POSTAL_CITY]'
         },
         {
-            title: _('patient_postal_address_city'),
-            token: '[PATIENT_POSTAL_ADDRESS_CITY]'
+            title: _('PATIENT_POSTAL_STATE'),
+            token: '[PATIENT_POSTAL_STATE]'
         },
         {
-            title: _('patient_postal_address_state'),
-            token: '[PATIENT_POSTAL_ADDRESS_STATE]'
+            title: _('PATIENT_POSTAL_ZIP'),
+            token: '[PATIENT_POSTAL_ZIP]'
+        },
+        {
+            title: _('PATIENT_POSTAL_COUNTRY'),
+            token: '[PATIENT_POSTAL_COUNTRY]'
         },
         {
             title: _('patient_tabacco'),
@@ -285,6 +289,94 @@ Ext.define('App.store.administration.DocumentToken', {
             token: '[PATIENT_INACTIVE_SURGERY_LIST]'
         },
         {
+            title: _('provider_id'),
+            token: '[PROVIDER_ID]'
+        },
+        {
+            title: _('provider_title'),
+            token: '[PROVIDER_TITLE]'
+        },
+        {
+            title: _('provider_full_name'),
+            token: '[PROVIDER_FULL_NAME]'
+        },
+        {
+            title: _('provider_first_name'),
+            token: '[PROVIDER_FIRST_NAME]'
+        },
+        {
+            title: _('provider_middle_name'),
+            token: '[PROVIDER_MIDDLE_NAME]'
+        },
+        {
+            title: _('provider_last_name'),
+            token: '[PROVIDER_LAST_NAME]'
+        },
+        {
+            title: _('provider_npi'),
+            token: '[PROVIDER_NPI]'
+        },
+        {
+            title: _('provider_lic'),
+            token: '[PROVIDER_LIC]'
+        },
+        {
+            title: _('provider_dea'),
+            token: '[PROVIDER_DEA]'
+        },
+        {
+            title: _('provider_fed_tax'),
+            token: '[PROVIDER_FED_TAX]'
+        },
+        {
+            title: _('provider_ess'),
+            token: '[PROVIDER_ESS]'
+        },
+        {
+            title: _('provider_taxonomy'),
+            token: '[PROVIDER_TAXONOMY]'
+        },
+        {
+            title: _('provider_email'),
+            token: '[PROVIDER_EMAIL]'
+        },
+        {
+            title: _('provider_direct_address'),
+            token: '[PROVIDER_DIRECT_ADDRESS]'
+        },
+        {
+            title: _('provider_address_one'),
+            token: '[PROVIDER_ADDRESS_LINE_ONE]'
+        },
+        {
+            title: _('provider_address_two'),
+            token: '[PROVIDER_ADDRESS_LINE_TWO]'
+        },
+        {
+            title: _('provider_city'),
+            token: '[PROVIDER_ADDRESS_CITY]'
+        },
+        {
+            title: _('provider_state'),
+            token: '[PROVIDER_ADDRESS_STATE]'
+        },
+        {
+            title: _('provider_zip'),
+            token: '[PROVIDER_ADDRESS_ZIP]'
+        },
+        {
+            title: _('provider_country'),
+            token: '[PROVIDER_ADDRESS_COUNTRY]'
+        },
+        {
+            title: _('provider_phone'),
+            token: '[PROVIDER_PHONE]'
+        },
+        {
+            title: _('provider_mobile'),
+            token: '[PROVIDER_MOBILE]'
+        },
+        {
             title: _('encounter_date'),
             token: '[ENCOUNTER_DATE]'
         },
@@ -373,6 +465,10 @@ Ext.define('App.store.administration.DocumentToken', {
             token: '[ORDERS_OTHER]'
         },
         {
+            title: _('order_date'),
+            token: '[ORDER_DATE]'
+        },
+        {
             title: _('current_date'),
             token: '[CURRENT_DATE]'
         },
@@ -435,6 +531,34 @@ Ext.define('App.store.administration.DocumentToken', {
 	    {
             title: _('referral_to'),
             token: '[REFERRAL_TO_TEXT]'
+        },
+	    {
+            title: _('rad_report_body'),
+            token: '[REPORT_ACCESSIONS]'
+        },
+	    {
+            title: _('report_body'),
+            token: '[REPORT_BODY]'
+        },
+	    {
+            title: _('report_interpreter'),
+            token: '[REPORT_INTERPRETER]'
+        },
+	    {
+            title: _('report_transcriptionist'),
+            token: '[REPORT_TRANSCRIPTIONIST]'
+        },
+	    {
+            title: _('report_signature'),
+            token: '[REPORT_SIGNATURE]'
+        },
+	    {
+            title: _('line'),
+            token: '[LINE]'
+        },
+	    {
+            title: _('time_now'),
+            token: '[TIME_NOW]'
         }
     ]
 });

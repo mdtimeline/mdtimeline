@@ -1,6 +1,6 @@
 /**
- * GaiaEHR (Electronic Health Records)
- * Copyright (C) 2013 Certun, LLC.
+ * mdTimeLine EHR (Electronic Health Records)
+ * Copyright (C) 2017 mdTimeLine, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 Ext.define('App.ux.LiveReferringPhysicianSearch', {
 	extend: 'Ext.form.ComboBox',
 	alias: 'widget.referringphysicianlivetsearch',
@@ -133,7 +134,7 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
 			listConfig: {
 				loadingText: _('searching') + '...',
 				getInnerTpl: function(){
-					return '<h3>{fullname}</h3> ({npi})';
+					return '<div class="search-item"><h3><span>{fullname}</span></h3><b>NPI:</b> {npi} <b>LIC.:</b> {lic}</div>';
 				}
 			},
 			pageSize: 10

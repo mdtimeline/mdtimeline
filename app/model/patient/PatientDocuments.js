@@ -50,6 +50,11 @@ Ext.define('App.model.patient.PatientDocuments', {
 			index: true
 		},
 		{
+			name: 'facility_id',
+			type: 'int',
+			index: true
+		},
+		{
 			name: 'docType',
 			type: 'string',
 			index: true
@@ -61,6 +66,15 @@ Ext.define('App.model.patient.PatientDocuments', {
 			index: true
 		},
 		{
+			name: 'filesystem_id',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'path',
+			type: 'string'
+		},
+		{
 			name: 'name',
 			type: 'string'
 		},
@@ -69,10 +83,6 @@ Ext.define('App.model.patient.PatientDocuments', {
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s',
 			index: true
-		},
-		{
-			name: 'url',
-			type: 'string'
 		},
 		{
 			name: 'note',

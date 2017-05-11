@@ -19,7 +19,7 @@
 Ext.define('App.store.administration.Lists', {
     model: 'App.model.administration.Lists',
     extend: 'Ext.data.Store',
-	pageSize:300,
+	pageSize: 500,
 	sorters: [
 		{
 			property: 'title',

@@ -76,9 +76,7 @@ Ext.define('App.view.administration.IpAccess', {
                         width: 200,
                         editor: {
                             xtype: 'textfield',
-                            allowBlank: false,
-                            validateOnBlur: true,
-                            vtype: 'usernameField'
+                            allowBlank: false
                         }
                     },
                     {
@@ -150,8 +148,11 @@ Ext.define('App.view.administration.IpAccess', {
                         dataIndex: 'event'
                     },
                     {
+                        xtype: 'datecolumn',
                         text: _('date'),
-                        dataIndex: 'create_date'
+                        dataIndex: 'create_date',
+                        format: 'Y-m-d H:i:s',
+                        width: 150
                     }
                 ],
                 dockedItems: [{

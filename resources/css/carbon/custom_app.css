@@ -8,6 +8,34 @@
     src: url('../../fonts/OpenSans-CondLight.ttf');
 }
 
+.highlight_fieldset {
+    background-color: #343434;
+}
+
+.login-window,
+.login-window .x-window-header-default-top,
+.login-window .x-window-body-default,
+.login-window .x-panel-body-default
+{
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.login-theme-switch-btn {
+    background-image: none;
+    background-color: #FFF;
+}
+.login-theme-switch-btn .x-btn-inner {
+    color: black;
+}
+
+
+.x-tree-no-icon {
+    background-image: none !important;
+    display: none !important;
+}
+
 .entered-in-error {
     text-decoration: line-through !important;
 }
@@ -25,14 +53,21 @@
 .x-tab.order-tab {
     background: #c3d2db;
     background-image: none;
+    color: #363636;
+    font-weight: bold;
 }
 .x-tab.order-tab.x-over,
 .x-tab.order-tab.x-tab-active {
     background: #d2e1ea;
+    color: black;
 }
 
 .order-btn {
     background: #c3d2db;
+    color: #363636;
+}
+.order-btn .x-btn-inner {
+    color: #363636;
 }
 
 .list-status-Inactive {
@@ -661,7 +696,7 @@
 }
 
 .grid-row-form-editor .x-panel-body {
-    background-color: #E0E0E0;
+    /*background-color: #E0E0E0;*/
     border-top: none !important;
 }
 
@@ -670,7 +705,7 @@
 }
 
 .grid-row-form-editor .x-grid-body {
-    background-color: #ffffff !important;
+    /*background-color: #ffffff !important;*/
 }
 
 li .Minimal,
@@ -1034,11 +1069,6 @@ li .Deceased {
 
 .cpt_summary table td {
     padding: 5px;
-}
-
-.loginWindowBody,
-.loginFormBody {
-    background-color: transparent;
 }
 
 body#login {

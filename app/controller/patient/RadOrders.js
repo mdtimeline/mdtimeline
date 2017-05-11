@@ -89,35 +89,46 @@ Ext.define('App.controller.patient.RadOrders', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	onPrintRadOrderBtnClick: function(orders){
+	onPrintRadOrderBtnClick: function(input){
 		var me = this,
 			grid = me.getRadOrdersGrid(),
-			items = (Ext.isArray(orders) ? orders : grid.getSelectionModel().getSelection()),
-			params = {},
-			data,
-			i;
+			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
+			documents = {};
 
-		params.pid = app.patient.pid;
-		params.eid = app.patient.eid;
-		params.orderItems = [];
-		params.docType = 'Rad';
+		orders.forEach(function(order){
 
-		params.templateId = 6;
-		params.orderItems.push(['Description', 'Notes']);
-		for(i = 0; i < items.length; i++){
-			data = items[i].data;
-			params.orderItems.push([
-				data.description + ' [' + data.code_type + ':' + data.code + ']',
-				data.note
-			]);
-		}
+			var date_ordered = Ext.Date.format(order.get('date_ordered'),'Y-m-d'),
+				doc_key = '_' + order.get('eid') +
+					order.get('pid') +
+					order.get('uid') +
+					date_ordered;
 
-		DocumentHandler.createTempDocument(params, function(provider, response){
-			if(window.dual){
-				dual.onDocumentView(response.result.id, 'Rad');
-			}else{
-				app.onDocumentView(response.result.id, 'Rad');
+			if(!documents[doc_key]){
+				documents[doc_key] = {};
+				documents[doc_key].pid = app.patient.pid;
+				documents[doc_key].eid = app.patient.eid;
+				documents[doc_key].date_ordered = date_ordered;
+				documents[doc_key].provider_uid = order.get('uid');
+				documents[doc_key].orderItems = [];
+				documents[doc_key].docType = 'Rad';
+				documents[doc_key].templateId = 6;
+				documents[doc_key].orderItems.push(['Description', 'Notes']);
 			}
+
+			documents[doc_key].orderItems.push([
+				order.get('description') + ' [' + order.get('code_type') + ':' + order.get('code') + ']',
+				order.get('note')
+			]);
+		});
+
+		Ext.Object.each(documents, function(key, params){
+			DocumentHandler.createTempDocument(params, function(provider, response){
+				if(window.dual){
+					dual.onDocumentView(response.result.id, 'Rad');
+				}else{
+					app.onDocumentView(response.result.id, 'Rad');
+				}
+			});
 		});
 	},
 

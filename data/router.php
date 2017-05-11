@@ -24,29 +24,17 @@
 header('Content-type: text/html; charset=utf-8');
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
-header("Expires: 0"); // Proxies.
 
 session_cache_limiter('private');
-session_cache_expire(1);
-session_regenerate_id(false);
-session_name('GaiaEHR');
+session_name('mdTimeLine');
 session_start();
-setcookie(session_name(),session_id(),time()+86400, '/', null, false, true);
 
 define('_GaiaEXEC', 1);
 
-if(isset($_SESSION['user']['site'])){
-	$site = $_SESSION['user']['site'];
-}elseif($_REQUEST['site']){
-	$site = $_REQUEST['site'];
-}else{
-	$site = 'default';
-}
-
-if(!defined('_GaiaEXEC'))
-	define('_GaiaEXEC', 1);
 require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
 
+include_once (ROOT . '/dataProvider/Site.php');
+$site = Site::GetSite();
 
 /**
  * Load the configuration for the router.php (rpc) Remote Procedure Calls
@@ -72,7 +60,8 @@ if(file_exists($conf)){
     }
 }
 
-class BogusAction {
+class BogusAction
+{
 	public $action;
 	public $method;
 	public $data;
@@ -116,9 +105,12 @@ if(isset($data)){
 function doRpc($cdata)
 {
 	global $API, $module;
+
+	$time_start = microtime(true);
+
 	try {
 		if(!isset($cdata->action)){
-			throw new Exception('Call to undefined action: ' . $cdata->action);
+			throw new Exception('Call to undefined action');
 		}
 		$action = $cdata->action;
 		$a = $API[$action];
@@ -136,9 +128,8 @@ function doRpc($cdata)
 			($action == 'PortalAuthorize' && $method == 'login') ||
 			($action == 'PortalAuthorize' && $method == 'check') ||
 			($action == 'PortalAuthorize' && $method == 'passwordReset') ||
+			($action == 'PortalAuthorize' && $method == 'passwordReset') ||
 			($action == 'PortalRegister' && $method == 'validateInvitation') ||
-			($action == 'PortalRegister' && $method == 'validateUsername') ||
-			($action == 'PortalRegister' && $method == 'register') ||
 			($action == 'CombosData' && $method == 'getActiveFacilities') ||
 			($action == 'i18nRouter' && $method == 'getAvailableLanguages') ||
             ($action == 'CombosData' && $method == 'getTimeZoneList') || // Used by SiteSetup
@@ -199,6 +190,13 @@ function doRpc($cdata)
 				}
 			}
 		}else{
+
+//			error_log('***** Not Authorized ***********************************');
+//			if(isset($action)) error_log('$action = ' . print_r($action, true));
+//			error_log('------------------------------------------------------');
+//			if(isset($method)) error_log('$method = ' . print_r($method, true));
+//			error_log('********************************************************');
+
 			throw new Exception('Not Authorized');
 		}
 
@@ -207,6 +205,11 @@ function doRpc($cdata)
 		$r['message'] = $e->getMessage();
 		$r['where'] = $e->getTraceAsString();
 	}
+
+	$time_end = microtime(true);
+
+	$r['execution_time'] = round($time_end - $time_start, 3);
+
 	return $r;
 }
 
@@ -222,7 +225,7 @@ function utf8_encode_deep(&$input) {
 	} else if (is_object($input)) {
 		$vars = array_keys(get_object_vars($input));
 		foreach ($vars as $var) {
-			utf8_encode_deep($input->$var);
+			utf8_encode_deep($input->{$var});
 		}
 	}
 }

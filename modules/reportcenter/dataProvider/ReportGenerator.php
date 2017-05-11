@@ -1,7 +1,7 @@
 <?php
 /**
- * GaiaEHR (Electronic Health Records)
- * Copyright (C) 2015 TRA NextGen, Inc.
+ * mdTimeLine EHR (Electronic Health Records)
+ * Copyright (C) 2017 mdTimeLine, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,10 +57,9 @@ class ReportGenerator
      */
     function start()
     {
-        try
-        {
+        try {
             $this->site = $_SESSION['user']['site'];
-            if(!defined('_GaiaEXEC')) define('_GaiaEXEC', 1);
+            if (!defined('_GaiaEXEC')) define('_GaiaEXEC', 1);
             require_once('../registry.php');
 
             // Try to connect to the database automatically. By just including the
@@ -74,9 +73,7 @@ class ReportGenerator
             require_once('../classes/Array2XML.php');
 
             return true;
-        }
-        catch(\Exception $Error)
-        {
+        } catch (\Exception $Error) {
             error_log($Error->getMessage());
             return $Error->getMessage();
         }
@@ -84,8 +81,7 @@ class ReportGenerator
 
     function dispatchReportFilterPanel($summarizedParameters)
     {
-        try
-        {
+        try {
             // Decode the reportInformation JSON to itself.
             $reportParameters = json_decode($summarizedParameters->params, true);
             $reportInformation = json_decode($summarizedParameters->reportInformation);
@@ -108,9 +104,7 @@ class ReportGenerator
                 'data' => $htmlTemplate
             ];
 
-        }
-        catch(\Exception $Error)
-        {
+        } catch (\Exception $Error) {
             error_log($Error->getMessage());
             return $Error->getMessage();
         }
@@ -127,29 +121,26 @@ class ReportGenerator
      */
     function buildDataGrid($summarizedParameters = null)
     {
-        try
-        {
+        try {
             // Decode the reportInformation JSON to itself.
             $reportInformation = json_decode($summarizedParameters->reportInformation);
 
             // Try to load the data grid to build the Data Grid Panel
             $filePointer = "../modules/reportcenter/resources/dataGridPanel.js";
-            if(file_exists($filePointer) && is_readable($filePointer))
-            {
+            if (file_exists($filePointer) && is_readable($filePointer)) {
                 // Load the dataGridPanel.js template file
                 $dataGridPanel = file_get_contents($filePointer);
 
                 // Load the report specifications json file
                 $reportConfiguration = json_decode(file_get_contents(
-                    "../modules/reportcenter/reports/$reportInformation->reportDir/reportSpec.json"
+                   "../modules/reportcenter/reports/$reportInformation->reportDir/reportSpec.json"
                 ));
 
                 $this->start();
 
                 // Verify and check that the gridFields space are declared in the
                 // report specification file
-                if(!is_object($reportConfiguration->gridFields))
-                {
+                if (!is_object($reportConfiguration->gridFields)) {
                     throw new \Exception('No Sencha gridField are declared on the report specification file.');
                 }
 
@@ -171,8 +162,7 @@ class ReportGenerator
 
                 // If the page configuration is set, then start adding the configuration to the
                 // dataGrid and dataStore
-                if(isset($reportConfiguration->page))
-                {
+                if (isset($reportConfiguration->page)) {
                     // Write down the configuration into the dataStore
                     // [page]
                     $resultSenchaDefinition = str_ireplace(
@@ -192,15 +182,29 @@ class ReportGenerator
                         'remoteSort: true,',
                         $resultSenchaDefinition
                     );
-                }
-                else
-                {
+                } else {
                     $resultSenchaDefinition = str_ireplace(
                         "/*remoteSort*/",
                         'remoteSort: false,',
                         $resultSenchaDefinition
                     );
                 }
+
+                // Look for any grouping parameter in the JSON Spec File, if something is found
+                // go ahead and put the grouping configuration into the grid
+                self::__groupingConfig($reportConfiguration->gridFields);
+
+                $resultSenchaDefinition = str_ireplace(
+                    "/*groupingConfigStore*/",
+                    self::__groupingConfig($reportConfiguration->gridFields)['store'],
+                    $resultSenchaDefinition
+                );
+
+                $resultSenchaDefinition = str_ireplace(
+                    "/*groupingConfigGrid*/",
+                    self::__groupingConfig($reportConfiguration->gridFields)['grid'],
+                    $resultSenchaDefinition
+                );
 
                 // Clean the string from unnecessary characters from the code, and also do some
                 // sort of minify
@@ -213,14 +217,10 @@ class ReportGenerator
                     'success' => true,
                     'data' => $resultSenchaDefinition
                 ];
-            }
-            else
-            {
+            } else {
                 throw new \Exception('Error reading & loading the Data Grid Panel, make sure is readable.');
             }
-        }
-        catch(\Exception $Error)
-        {
+        } catch (\Exception $Error) {
             error_log($Error->getMessage());
             throw new \Exception($Error->getMessage());
         }
@@ -236,8 +236,7 @@ class ReportGenerator
      */
     function dispatchReportData($summarizedParameters)
     {
-        try
-        {
+        try {
             // Decode the reportInformation JSON to itself.
             $extra = $summarizedParameters->filter[0]->value;
             $reportParameters = json_decode($extra->params, true);
@@ -247,12 +246,11 @@ class ReportGenerator
             $filePointer = "../modules/reportcenter/reports/$reportInformation->reportDir/reportStatement.sql";
             $PrepareField = [];
 
-            if(file_exists($filePointer) && is_readable($filePointer))
-            {
+            if (file_exists($filePointer) && is_readable($filePointer)) {
                 // Load the report specifications json file
                 $reportInformation = json_decode(file_get_contents(
-                    "../modules/reportcenter/reports/$reportInformation->reportDir/reportSpec.json"
-                ));
+                     "../modules/reportcenter/reports/$reportInformation->reportDir/reportSpec.json"
+                 ));
 
                 // Load all the report information on memory, keep in memory almost all the methods
                 // in this class use that this variable to extract portions of the configuration
@@ -267,23 +265,14 @@ class ReportGenerator
                 // Get the report SQL statement content
                 $fileContent = file_get_contents($filePointer);
 
-                // Copy all the request variables into the Prepared Values,
-                // also check if it came from the grid form and normal form.
-                // This because we need to do a POST-PREPARE the SQL statement
                 $parameters = $reportParameters;
-                foreach($parameters as $field)
-                {
-                    $PrepareField[':'.$field['name']]['operator'] = (isset($field['operator']) ? $field['operator'] : '=');
-                    $PrepareField[':' . $field['name']]['value'] = $field['value'];
-                }
 
-                // Copy all the request filter variables to the XML,
-                // also check if it came from the grid form and normal form.
-                // This because we need to do a POST-PREPARE the SQL statement
-                foreach ($parameters as $field)
-                {
-                    $ReturnFilter[$field['name']]['operator'] = (isset($field['operator']) ? $field['operator'] : '=');
-                    $ReturnFilter[$field['name']]['value'] = $field['value'];
+                foreach ($parameters as $Index => $field) {
+                    $operator = '=';
+                    $PrepareField[':' . $Index]['operator'] = $operator;
+                    $PrepareField[':' . $Index]['value'] = $field;
+                    $ReturnFilter[$Index]['operator'] = $operator;
+                    $ReturnFilter[$Index]['value'] = $field;
                 }
 
                 // Prepare all the variable fields in the SQL Statement
@@ -292,31 +281,24 @@ class ReportGenerator
 
                 // Run all the SQL Statement separated by `;` in the file
                 $records = null;
-                foreach($Queries as $Query)
-                {
-                    if(strlen(trim($Query)) > 0)
-                    {
+                foreach ($Queries as $Query) {
+                    $Query = trim($Query);
+                    if (strlen($Query) > 0) {
                         // Is just a SET @ variable, if yes query but not try to
-                        // fetch any records. SET does not return any dataSet
-                        if(self::__checkIfVariable($Query))
-                        {
+                        // fetch any records. SET does not return any dataSet;
+                        if (self::__checkIfVariable($Query)) {
                             $this->conn->query($Query);
-                        }
-                        else
-                        {
+                        } else {
                             // Check if the page configuration exists, if yes try to look
                             // for an :ux-pagination in the SQL statement and replace it
                             // with SQL commands for the paging, keep in mind that we need
                             // to run 2 sql statements, one to get the total of records for sencha
                             // and the other one to get only the records need for display
-                            if(isset($reportInformation->page))
-                            {
+                            if (isset($reportInformation->page)) {
                                 // Compile the sorting sql statement
-                                if(isset($summarizedParameters->sort))
-                                {
+                                if (isset($summarizedParameters->sort)) {
                                     $sortStatement = "ORDER BY ";
-                                    foreach($summarizedParameters->sort as $sortField)
-                                    {
+                                    foreach ($summarizedParameters->sort as $sortField) {
                                         $sortStatement .= "$sortField->property $sortField->direction,";
                                     }
                                     $sortStatement = substr($sortStatement, 0, -1);
@@ -326,9 +308,7 @@ class ReportGenerator
                                         $sortStatement,
                                         $Query
                                     );
-                                }
-                                else
-                                {
+                                } else {
                                     $Query = str_ireplace(
                                         ':ux-sort',
                                         '',
@@ -354,9 +334,8 @@ class ReportGenerator
                                 $SQL->execute();
                                 $records[] = $SQL->fetchAll();
                                 $Total = count($records[count($records) - 1]);
-                            }
-                            else
-                            {
+
+                            } else {
                                 $SQL = $this->conn->prepare($Query);
                                 $SQL->execute();
                                 $ResultRecords[] = $SQL->fetchAll(\PDO::FETCH_ASSOC);
@@ -365,18 +344,18 @@ class ReportGenerator
                         }
                     }
                 }
+
                 // When format value is used in the parameters object dispatch the
                 // data in XML format, or in JSON format
                 //
                 // XML::filters - The filters used in the filter panel
                 // XML::record - The actual records extracted from the data base
                 //
-                // JSON::success - True when seccess, yeah!!
+                // JSON::success - True when success, yeah!!
                 // JSON::filters - The filters used in the filter panel
                 // JSON::total - The total records in the data
                 // JSON::data - The actual records extracted from the data base
-                if($extra->format == 'xml')
-                {
+                if ($extra->format == 'xml') {
                     $ExtraAttributes['xml-stylesheet'] = 'type="text/xsl" href="report.xsl"';
                     \Array2XML::init('1.0', 'UTF-8', true, $ExtraAttributes);
                     $xml = \Array2XML::createXML('records', array(
@@ -386,23 +365,17 @@ class ReportGenerator
                         'success' => true,
                         'data' => $xml->saveXML()
                     ];
-                }
-                elseif($extra->format == 'json')
-                {
+                } elseif ($extra->format == 'json') {
                     return [
                         'success' => true,
                         'total' => $Total,
                         'data' => $ResultRecords[count($ResultRecords) - 1]
                     ];
                 }
-            }
-            else
-            {
+            } else {
                 throw new \Exception('Error: Not SQL Statement file was found or readable.');
             }
-        }
-        catch(\Exception $Error)
-        {
+        } catch (\Exception $Error) {
             error_log($Error->getMessage());
             return [
                 'success' => false,
@@ -422,21 +395,32 @@ class ReportGenerator
      */
     private function __buildFilterHTML($filters, $reportInformation)
     {
-        try
-        {
+        try {
             // Load the filter html tamplate, but check for it existence of the template file
             $filePointer = "../modules/reportcenter/reports/$reportInformation->reportDir/filterHTML.html";
-            if(!file_exists($filePointer) && !is_readable($filePointer))
+            if (!file_exists($filePointer) && !is_readable($filePointer))
                 throw new \Exception('Filter HTML template not found or is readable.');
             $htmlTemplate = file_get_contents($filePointer);
 
             // Replace the filter key pairs. <!--filter_name-->
-            foreach($filters as $filter)
-                $htmlTemplate = str_ireplace('<!--'.$filter['name'].'-->', $filter['value'], $htmlTemplate);
+            foreach ($filters as $Index => $filter)
+                if(isset($filter) && !is_array($filter)) {
+                    $htmlTemplate = str_ireplace(
+                        '<!--'.$Index.'-->',
+                        (isset($filter) ? $filter : ''),
+                         $htmlTemplate);
+                } elseif(isset($filter) && is_array($filter)) {
+                    $items = '';
+                    foreach($filter as $Index => $value){
+                        if(!is_array($value)) $items .= $value . ' ';
+                    }
+                    $htmlTemplate = str_ireplace(
+                        '<!--'.$Index.'-->',
+                        $items,
+                        $htmlTemplate);
+                }
             return $htmlTemplate;
-        }
-        catch(\Exception $Error)
-        {
+        } catch (\Exception $Error) {
             error_log($Error->getMessage());
             throw new \Exception($Error->getMessage());
         }
@@ -452,8 +436,7 @@ class ReportGenerator
     private function __storePagin($pagingConfiguration)
     {
         $returnDataStoreConfiguration = '';
-        if(isset($pagingConfiguration))
-        {
+        if (isset($pagingConfiguration)) {
             $returnDataStoreConfiguration .= "pageSize: $pagingConfiguration->limit";
         }
         return $returnDataStoreConfiguration;
@@ -470,8 +453,7 @@ class ReportGenerator
     private function __gridPaging($pagingConfiguration)
     {
         $returnDataGridConfiguration = '';
-        if(isset($pagingConfiguration))
-        {
+        if (isset($pagingConfiguration)) {
             $returnDataGridConfiguration .= "dockedItems: [{";
             $returnDataGridConfiguration .= "xtype: 'pagingtoolbar',";
             $returnDataGridConfiguration .= "store: dataGridStore,";
@@ -494,11 +476,10 @@ class ReportGenerator
     private function __senchaStoreDefinition($storeFields = null)
     {
         // If gridFields is not set exit the method.
-        if(!is_object($storeFields)) return false;
+        if (!is_object($storeFields)) return false;
 
         $senchaDefinition = '';
-        foreach($storeFields as $Index => $storeField)
-        {
+        foreach ($storeFields as $Index => $storeField) {
             $senchaDefinition .= '{ ';
             $senchaDefinition .= "name: '$Index',";
             $senchaDefinition .= "type: '$storeField->type'";
@@ -509,6 +490,26 @@ class ReportGenerator
         $senchaDefinition = substr($senchaDefinition, 0, -1);
 
         return $senchaDefinition;
+    }
+
+    /**
+     * Return an array containing the configuration for the dataStore and the grid to
+     * do grouping on the fields.
+     *
+     * @param $field
+     * @return mixed
+     */
+    private function __groupingConfig($gridFields)
+    {
+        $configuration['store'] = '';
+        $configuration['grid'] = '';
+        foreach ($gridFields as $Index => $gridField) {
+            if(isset($gridField->grouping)){
+                $configuration['store'] = "groupField: '$Index',";
+                $configuration['grid'] = "features: [{ftype:'grouping'}],";
+            }
+        }
+        return $configuration;
     }
 
     /**
@@ -524,19 +525,18 @@ class ReportGenerator
     private function __senchaColumnDefinition($gridFields = null)
     {
         // If gridFields is not set exit the method.
-        if(!is_object($gridFields)) return false;
+        if (!is_object($gridFields)) return false;
 
         // Loop through the gridFields to write the entire column
         // definition.
         $senchaDefinition = '';
-        foreach($gridFields as $Index => $gridField)
-        {
+        foreach ($gridFields as $Index => $gridField) {
             $senchaDefinition .= '{ ';
             $senchaDefinition .= "text: '$gridField->name',";
             $senchaDefinition .= "dataIndex: '$Index',";
             $senchaDefinition .= "align: '$gridField->align'";
-            if(isset($gridField->width)) $senchaDefinition .= ", width: $gridField->width";
-            if(isset($gridField->flex)) $senchaDefinition .= ", flex: $gridField->flex";
+            if (isset($gridField->width)) $senchaDefinition .= ", width: $gridField->width";
+            if (isset($gridField->flex)) $senchaDefinition .= ", flex: $gridField->flex";
             $senchaDefinition .= ' },';
         }
 
@@ -568,8 +568,8 @@ class ReportGenerator
      */
     private function __checkIfVariable($Statement)
     {
-        preg_match('/(?:set)+[^@]*@*/i', $Statement, $matches);
-        if(count($matches) >= 1) return true;
+        preg_match('/(?:set)+[\t ]+@[^;]+;?/i', $Statement, $matches);
+        if (count($matches) >= 1) return true;
         return false;
     }
 
@@ -584,23 +584,41 @@ class ReportGenerator
      */
     private function __postPrepare($sqlStatement = '', $variables = [])
     {
-        foreach($variables as $key => $variable)
-        {
+        foreach ($variables as $key => $variable) {
             $prepareKey = trim($key);
-            if(is_numeric($variable['value']))
-            {
+
+            // Is numeric
+            if (is_numeric($variable['value'])) {
                 $prepareVariable = $variable['value'];
-            }
-            elseif($variable['value'] == null)
-            {
+
+            // If Null
+            } elseif ($variable['value'] == null && strpos($key, 'WHERE_') == false) {
                 $prepareVariable = "null";
-            }
-            else
-            {
+
+            // If Array
+            } elseif (is_array($variable['value'])) {
+                $prepareVariable = '"';
+                foreach($variable['value'] as $value){
+                    if(!is_array($value)) $prepareVariable .= $value.',';
+                }
+                $prepareVariable = substr($prepareVariable, 0,-1);
+                $prepareVariable .= '"';
+
+            // If WHERE instruction
+            } elseif (strpos($key, 'WHERE_') !== false) {
+                if(!empty($variable['value'])) {
+                    $prepareVariable = "{$variable['value']}";
+                } else {
+                    $prepareVariable = "";
+                }
+
+            // If String
+            } else {
                 $prepareVariable = "'{$variable['value']}'";
             }
+
             $sqlStatement = str_ireplace($prepareKey, $prepareVariable, $sqlStatement);
-            $sqlStatement = str_ireplace($prepareKey.'_operator', $variable['operator'], $sqlStatement);
+            $sqlStatement = str_ireplace($prepareKey . '_operator', $variable['operator'], $sqlStatement);
         }
         return $sqlStatement;
     }

@@ -456,9 +456,9 @@ Ext.define('App.view.patient.VisitCheckout', {
 		if(form.isValid()){
 			Patient.addPatientNoteAndReminder(values, function(provider, response){
 				if(response.result.success){
-					app.msg('Sweet!', _('note_and_reminder'));
+					app.msg(_('sweet'), _('note_and_reminder'));
 				}else{
-					app.msg('Oops!', _('note_entry_error'));
+					app.msg(_('oops'), _('note_entry_error'));
 				}
 			});
 		}

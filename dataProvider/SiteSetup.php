@@ -35,14 +35,14 @@ class SiteSetup {
     {
 		chdir(ROOT);
         error_reporting(-1);
-		$olSMASK = umask(0);
+		$oldSMASK = umask(0);
         ini_set('display_errors', 'On');
         if(file_exists(ROOT.'/log/install_error_log.txt'))
         {
             if(is_writable(ROOT.'/log/install_error_log.txt'))
                 ini_set('error_log', ROOT.'/log/install_error_log.txt');
         }
-		umask($olSMASK);
+		umask($oldSMASK);
 	}
 
 	/*
@@ -318,6 +318,13 @@ class SiteSetup {
                 'error' => 'Something went wrong creating CERT directory'
             ];
         }
+        if(!$this->createDirectory("$siteDir/jobs/"))
+        {
+            return [
+                'success' => false,
+                'error' => 'Something went wrong creating Croon Job directory'
+            ];
+        }
         if(!$this->touch("$siteDir/log/error_log.txt"))
         {
             return [
@@ -340,8 +347,8 @@ class SiteSetup {
         try
         {
 	        $oldMask = umask(0);
-            if(!file_exists($dirPath)) mkdir($dirPath, 0755, true);
-            if(!is_writable($dirPath)) chmod($dirPath, 0755);
+            if(!file_exists($dirPath)) mkdir($dirPath, 0774, true);
+            if(!is_writable($dirPath)) chmod($dirPath, 0774);
 	        umask($oldMask);
             return true;
         }

@@ -1,7 +1,7 @@
 <?php
 /**
- * GaiaEHR (Electronic Health Records)
- * Copyright (C) 2013 Certun, LLC.
+ * mdTimeLine EHR (Electronic Health Records)
+ * Copyright (C) 2017 mdTimeLine, LLC.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,28 +20,36 @@
 include_once(ROOT . '/classes/Sessions.php');
 include_once(ROOT . '/dataProvider/Patient.php');
 
-class CronJob {
+class CronJob
+{
 
-	function run() {
-		/**
-		 * only run cron if delay time has expired
-		 */
-		error_reporting(-1);
-		if((time() - $_SESSION['cron']['time']) > $_SESSION['cron']['delay'] || $_SESSION['inactive']['start']){
-			/**
-			 * set cron start to false reset cron time to current time
-			 */
-			$_SESSION['inactive']['start'] = false;
-			$_SESSION['cron']['time'] = time();
-			return array(
-				'success' => true,
-				'ran' => true
-			);
-		}
-		return array(
-			'success' => true,
-			'ran' => false
-		);
-	}
+    /**
+     * @var bool|MatchaCUP
+     */
+    private $CronJobModel;
+
+    function __construct() {
+        if($this->CronJobModel == NULL)
+            $this->CronJobModel = MatchaModel::setSenchaModel('App.model.administration.CronJob');
+    }
+
+    public function getCronJob($params){
+        $records = $this->CronJobModel->load($params)->all();
+
+        // This is done to calculate the seconds that the script has elapsed, taking
+        // the last_run_date and if the running (bool) is true.
+        foreach($records['data'] as $index => $record){
+            if($record['running']){
+                $records['data'][$index]['elapsed'] = time() - strtotime($record['last_run_date']);
+            } else {
+                $records['data'][$index]['elapsed'] = '';
+            }
+        }
+        return $records;
+    }
+
+    public function updateCronJob($params){
+        return $this->CronJobModel->save($params);
+    }
 
 }

@@ -50,7 +50,7 @@ class Route
             if (!method_exists($this, $method)) {
                 throw new \BadMethodCallException(sprintf("Unknown property '%s' on annotation '%s'.", $key, get_class($this)));
             }
-            $this->$method($value);
+            $this->{$method}($value);
         }
     }
 

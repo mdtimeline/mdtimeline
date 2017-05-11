@@ -2,6 +2,8 @@ var dataGridStore = new Ext.create('Ext.data.Store', {
     storeId: 'reportStore',
     autoLoad  : false,
     remoteFilter: true,
+    multiSortLimit: 10,
+    /*groupingConfigStore*/
     fields: [
         /*fieldStore*/
     ],
@@ -24,8 +26,10 @@ Ext.create('Ext.grid.Panel', {
     store: dataGridStore,
     region: 'center',
     rowLines: false,
+    multiColumnSort: true,
     columnLines: true,
     /*dataGridConfig*/
+    /*groupingConfigGrid*/
     columns: [
         /*fieldColumns*/
     ]

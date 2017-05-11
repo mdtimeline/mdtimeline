@@ -7,12 +7,14 @@ Ext.define('App.controller.Cron', {
 	fns:[
 		'app.getPatientsInPoolArea()',
 		'me.checkSession()',
-		//'CronJob.run()'
+		'me.getTime()'
 	],
 
 	init: function() {
 		var me = this,
             i;
+
+		me.clock = me.getController('Clock');
 
 		/**
 		 * TaskScheduler
@@ -64,6 +66,13 @@ Ext.define('App.controller.Cron', {
 			if(!response.result.authorized){
 				window.location.reload();
 			}
+		});
+	},
+
+	getTime: function(){
+		var me = this;
+		AppDate.getDate(function(date){
+			me.clock.updateClock(date);
 		});
 	}
 

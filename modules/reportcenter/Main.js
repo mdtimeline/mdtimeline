@@ -44,4 +44,4 @@ Ext.define('Modules.reportcenter.Main', {
 
 		me.callParent();
 	}
-}); 
+});

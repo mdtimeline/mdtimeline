@@ -10,11 +10,8 @@
 if (!isset($_SESSION))
 {
     session_cache_limiter('private');
-    session_cache_expire(1);
-    session_regenerate_id(false);
-    session_name('GaiaEHR');
+    session_name('mdTimeLine');
     session_start();
-    setcookie(session_name(),session_id(),time()+86400, '/', null, false, true);
 }
 print '<pre>';
 print_r($_SESSION);

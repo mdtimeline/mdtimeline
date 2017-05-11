@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 Ext.define('App.view.login.Login', {
 	extend: 'Ext.Viewport',
 	requires: [
@@ -25,8 +24,8 @@ Ext.define('App.view.login.Login', {
 	],
 
 	initComponent: function(){
-		var me = this,
-            windowItems;
+		var me = this;
+
 		me.currSite = null;
 		me.siteLang = window['lang']['lang_code'];
 
@@ -34,6 +33,10 @@ Ext.define('App.view.login.Login', {
 		me.showSite = false;
 		me.siteError = window.site === false || window.site === '';
 		me.logged = false;
+
+		me.enableReCaptcha = false;
+
+		me.theme = Ext.state.Manager.get('mdtimeline_theme', 'light');
 
 		/**
 		 * The Copyright Notice Window
@@ -53,182 +56,150 @@ Ext.define('App.view.login.Login', {
 		});
 
 		/**
-		 * Form Layout [Login]
-		 */
-		me.formLogin = {
-			xtype: 'form',
-			bodyCls: 'loginFormBody',
-			defaultType: 'textfield',
-			waitMsgTarget: true,
-			frame: false,
-			border: false,
-			flex: 1,
-			bodyPadding: 20,
-			baseParams: {
-				auth: 'true'
-			},
-			layout: {
-				type: 'vbox',
-				align: 'stretch'
-			},
-			fieldDefaults: {
-				msgTarget: 'side',
-				labelWidth: 100,
-				labelAlign: 'top'
-			},
-			items: [
-				{
-					xtype: 'textfield',
-					fieldLabel: _('username'),
-					blankText: 'Enter your username',
-					name: 'authUser',
-					itemId: 'authUser',
-					minLengthText: 'Username must be at least 3 characters long.',
-					minLength: 2,
-					maxLength: 12,
-					allowBlank: false,
-					validationEvent: false,
-					anchor: '100%',
-					listeners: {
-						scope: me,
-						specialkey: me.onEnter
-					}
-				},
-				{
-					xtype: 'textfield',
-					blankText: 'Enter your password',
-					inputType: 'password',
-					name: 'authPass',
-					fieldLabel: _('password'),
-					minLengthText: 'Password must be at least 4 characters long.',
-					validationEvent: false,
-					allowBlank: false,
-					minLength: 4,
-					maxLength: 12,
-					anchor: '100%',
-					listeners: {
-						scope: me,
-						specialkey: me.onEnter,
-						afterrender:function(cmp){
-							cmp.inputEl.set({
-								autocomplete:'new-password'
-							});
-						}
-					}
-				},
-				{
-					xtype: 'activefacilitiescombo',
-					name: 'facility',
-					itemId: 'facility',
-					fieldLabel: _('facility'),
-					allowBlank: false,
-					editable: false,
-					hidden: true,
-					storeAutoLoad: false,
-					anchor: '100%',
-					listeners: {
-						scope: me,
-						specialkey: me.onEnter,
-						beforerender: me.onFacilityCmbBeforeRender
-					}
-				},
-				{
-					xtype: 'languagescombo',
-					name: 'lang',
-					itemId: 'lang',
-					fieldLabel: _('language'),
-					allowBlank: false,
-					editable: false,
-					anchor: '100%',
-					listeners: {
-						scope: me,
-						specialkey: me.onEnter,
-						select: me.onLangSelect
-					}
-				}
-			]
-
-		};
-
-		if(me.showSite){
-			Ext.Array.insert(me.formLogin.items, 3, [{
-				xtype: 'combobox',
-				name: 'site',
-				itemId: 'site',
-				displayField: 'site',
-				valueField: 'site',
-				queryMode: 'local',
-				fieldLabel: 'Site',
-				store: me.storeSites = Ext.create('App.store.login.Sites'),
-				allowBlank: false,
-				editable: false,
-				msgTarget: 'side',
-				labelWidth: 300,
-				anchor: '100%',
-				listeners: {
-					scope: me,
-					specialkey: me.onEnter,
-					select: me.onSiteSelect
-				}
-			}]);
-
-		}else{
-			Ext.Array.insert(me.formLogin.items, 3, [{
-				xtype: 'textfield',
-				name: 'site',
-				itemId: 'site',
-				hidden: true,
-				value: window.site
-			}]);
-		}
-
-		var theme = Ext.util.Cookies.get('mdtimeline_theme');
-
-		windowItems = [
-			{
-				xtype: 'image',
-				width: 210,
-				height: 210,
-				padding: '20 0 10 10',
-				src: (theme == 'dark' ? 'resources/images/logo_190_190_dark.png' : 'resources/images/logo_190_190.jpg')
-			}
-		];
-
-		windowItems.push(me.siteError ? {
-			xtype: 'container',
-			padding: 15,
-			html: 'Sorry no site configuration file found. Please contact Support Desk'
-		} : me.formLogin);
-
-		/**
 		 * The Logon Window
 		 */
 		me.winLogon = Ext.create('widget.window', {
-			title: 'MD Timeline Logon',
 			closeAction: 'hide',
 			plain: true,
 			modal: false,
 			resizable: false,
 			draggable: false,
 			closable: false,
-			width: 450,
-			bodyCls: 'loginWindowBody',
 			autoShow: true,
-			layout: {
-				type: 'hbox'
-			},
-			items: windowItems,
+			frame: false,
+			border: false,
+			cls: 'login-window',
+			shadow: false,
+			items: [
+				{
+					xtype: 'form',
+					defaultType: 'textfield',
+					frame: false,
+					border: false,
+					baseParams: {
+						auth: 'true'
+					},
+					layout: {
+						type: 'hbox',
+						align: 'top'
+					},
+					fieldDefaults: {
+						msgTarget: 'side',
+						labelAlign: 'top'
+					},
+					items: [
+						{
+							xtype: 'image',
+							width: 190,
+							height: 190,
+							padding: 0,
+							margin: 0,
+							src: (me.theme == 'dark' ? 'resources/images/logo_190_190_dark.png' : 'resources/images/logo_190_190_light.png')
+						},
+						{
+							xtype: 'fieldcontainer',
+							margin: '0 10 0 35',
+							width: 305,
+							layout: 'anchor',
+							items:[
+								{
+									xtype: 'textfield',
+									fieldLabel: _('username'),
+									blankText: 'Enter your username',
+									name: 'authUser',
+									minLengthText: 'Username must be at least 3 characters long.',
+									minLength: 2,
+									maxLength: 12,
+									allowBlank: false,
+									validationEvent: false,
+									anchor: '97%',
+									msgTarget: 'side',
+									labelAlign: 'top',
+									listeners: {
+										scope: me,
+										specialkey: me.onEnter
+									}
+								},
+								{
+									xtype: 'textfield',
+									blankText: 'Enter your password',
+									inputType: 'password',
+									name: 'authPass',
+									fieldLabel: _('password'),
+									minLengthText: 'Password must be at least 4 characters long.',
+									validationEvent: false,
+									allowBlank: false,
+									minLength: 4,
+									maxLength: 12,
+									anchor: '97%',
+									msgTarget: 'side',
+									labelAlign: 'top',
+									listeners: {
+										scope: me,
+										specialkey: me.onEnter,
+										afterrender:function(cmp){
+											if(!eval(g('save_password'))){
+												cmp.inputEl.set({
+													autocomplete:'new-password'
+												});
+											}
+										}
+									}
+								},
+								{
+									xtype: 'activefacilitiescombo',
+									name: 'facility',
+									fieldLabel: _('facility'),
+									allowBlank: false,
+									editable: false,
+									hidden: true,
+									storeAutoLoad: false,
+									anchor: '97%',
+									msgTarget: 'side',
+									labelAlign: 'top',
+									listeners: {
+										scope: me,
+										specialkey: me.onEnter,
+										beforerender: me.onFacilityCmbBeforeRender
+									}
+								},
+								{
+									xtype: 'languagescombo',
+									name: 'lang',
+									fieldLabel: _('language'),
+									allowBlank: false,
+									editable: false,
+									anchor: '97%',
+									msgTarget: 'side',
+									labelAlign: 'top',
+									listeners: {
+										scope: me,
+										specialkey: me.onEnter,
+										select: me.onLangSelect
+									}
+								}
+							]
+						}
+
+					]
+
+				}
+			],
 			listeners: {
 				scope: me,
 				afterrender: me.afterAppRender
 			},
 			buttons: [
-				//{
-				//	xtype: 'checkbox',
-				//	name: 'checkin'
-				//},
-				//'Check-In Mode',
-				//'->',
+				{
+					xtype: 'button',
+					itemId: 'themeSwitcherBtn',
+					text: me.theme == 'light' ? _('go_dark') : _('go_light'),
+					cls: 'login-theme-switch-btn',
+					margin: '0 0 0 5',
+					handler: me.onThemeSwitch,
+					scope: me
+				},
+				'->',
 				{
 					text: _('reset'),
 					name: 'btn_reset',
@@ -240,6 +211,7 @@ Ext.define('App.view.login.Login', {
 					text: _('login'),
 					name: 'btn_login',
 					scope: me,
+					margin: '0 5 0 0',
 					handler: me.loginSubmit
 				}
 			]
@@ -250,7 +222,70 @@ Ext.define('App.view.login.Login', {
 		};
 
 		me.callParent(arguments);
+
+		var fieldcontainer = this.winLogon.down('form').down('fieldcontainer');
+
+		if(me.showSite){
+			fieldcontainer.add({
+				xtype: 'combobox',
+				name: 'site',
+				itemId: 'site',
+				displayField: 'site',
+				valueField: 'site',
+				queryMode: 'local',
+				fieldLabel: 'Site',
+				store: me.storeSites = Ext.create('App.store.login.Sites'),
+				allowBlank: false,
+				editable: false,
+				labelWidth: 100,
+				anchor: '97%',
+				msgTarget: 'side',
+				labelAlign: 'top',
+				listeners: {
+					scope: me,
+					specialkey: me.onEnter,
+					select: me.onSiteSelect
+				}
+			});
+
+		}else{
+
+			fieldcontainer.add({
+				xtype: 'hiddenfield',
+				name: 'site',
+				itemId: 'site',
+				value: window.site
+			});
+		}
+
+		if(!me.siteError){
+
+			Ext.Function.defer(function () {
+				me.siteLogo = Ext.create('Ext.Img', {
+					src: 'sites/' + window.site + '/logo-' + me.theme +'.png',
+					renderTo: me.el,
+					floating: true,
+					defaultAlign: 'b-t',
+					width: 320,
+					height: 120,
+					shadow: false,
+					border: false
+				});
+
+				me.siteLogo.alignTo(me.el, 't-t', [0,25]);
+
+			}, 300);
+		}else{
+			me.msg('Oops!', 'Sorry no site configuration file found.<br>Please contact Support Desk.', true);
+		}
 	},
+
+	onThemeSwitch: function (btn) {
+		var theme = this.theme == 'dark' ? 'light' : 'dark';
+		Ext.state.Manager.set('mdtimeline_theme', theme);
+		window.location.reload();
+	},
+
 	/**
 	 * when keyboard ENTER key press
 	 * @param field
@@ -278,10 +313,14 @@ Ext.define('App.view.login.Login', {
 			params = form.getValues();
 			//checkInMode = formPanel.query('checkbox')[0].getValue();
 
+		if(me.enableReCaptcha && params['g-recaptcha-response'] == ''){
+			me.msg('Oops!', 'reCaptcha Validation Required.', true);
+			return;
+		}
+
+
 		if(form.isValid()){
 			me.winLogon.el.mask('Sending credentials...');
-			//params.checkInMode = checkInMode;
-
 			authProcedures.login(params, function(provider, response){
 				if(response.result.success){
 					window.location.reload();
@@ -309,7 +348,8 @@ Ext.define('App.view.login.Login', {
 	},
 
 	onFacilityLoad: function(store, records){
-		var cmb = this.winLogon.down('form').getComponent('facility');
+		var cmb = this.winLogon.down('form').getForm().findField('facility');
+
 		store.insert(0, {
 			option_name: 'Default',
 			option_value: '0'
@@ -332,15 +372,29 @@ Ext.define('App.view.login.Login', {
 			authPass: '',
 			lang: me.siteLang
 		});
-		me.winLogon.down('form').getComponent('authUser').focus();
+
+		form.findField('authUser').focus();
 	},
 	/**
 	 * After form is render load store
 	 */
 	afterAppRender: function(win){
+
 		var me = this,
-			form = win.down('form'),
-			langCmb = form.getComponent('lang');
+			formPanel = win.down('form'),
+			form = formPanel.getForm(),
+			langCmb = form.findField('lang'),
+			themeSwitcherBtn = win.query('#themeSwitcherBtn')[0],
+			fieldContainer = formPanel.down('fieldcontainer');
+
+		themeSwitcherBtn.action = Ext.state.Manager.get('mdtimeline_theme', g('application_theme'));
+
+		if(themeSwitcherBtn.action == 'dark'){
+			themeSwitcherBtn.setText(_('go_light'));
+		}else{
+			themeSwitcherBtn.setText(_('go_dark'));
+		}
+
 
 		if(!me.siteError){
 			if(me.showSite){
@@ -355,12 +409,12 @@ Ext.define('App.view.login.Login', {
 							Ext.Function.defer(function(){
 								me.currSite = records[0].data.site;
 								if(me.showSite){
-									form.getComponent('site').setValue(me.currSite);
+									form.findField('site').setValue(me.currSite);
 								}
 							}, 500, this);
 						}
 						else{
-							me.msg('Opps! Something went wrong...', 'No site found.', true);
+							me.msg('Oops! Something went wrong...', 'No site found.', true);
 						}
 					}
 				});
@@ -374,12 +428,60 @@ Ext.define('App.view.login.Login', {
 			});
 
 			Ext.Function.defer(function(){
-				form.getComponent('authUser').inputEl.focus();
+				//me.onAppResize();
+				form.findField('authUser').inputEl.focus();
 			}, 200);
 
 		}
 
+		if(me.enableReCaptcha){
+
+			fieldContainer.insert(2, [
+				{
+					xtype: 'container',
+					id: 'g-recaptcha-container',
+					anchor: '97%',
+					height: 80,
+					margin: '10 0 0 0',
+					listeners: {
+						scope: me,
+						afterrender: function (comp) {
+
+							Ext.Function.defer(function(){
+
+								grecaptcha.render(comp.el.dom.lastChild.lastChild, {
+									'sitekey': g('recaptcha_public_key'),
+									'callback': function (response) {
+										say('callback');
+
+										form.findField('g-recaptcha-response').setValue(response);
+									},
+									'expired-callback': function (response) {
+										say('expired-callback');
+
+										form.findField('g-recaptcha-response').setValue('');
+									},
+									'lang' : 'en',
+									'theme': me.theme
+								});
+
+								me.winLogon.doLayout();
+
+							}, 500);
+
+						}
+					}
+				},
+				{
+					xtype: 'hiddenfield',
+					name: 'g-recaptcha-response',
+					value: ''
+				}
+			]);
+		}
+
 		win.doLayout();
+
 	},
 	/**
 	 *  animated msg alert
@@ -417,10 +519,11 @@ Ext.define('App.view.login.Login', {
 	},
 
 	onAppResize: function(){
-		this.winLogon.alignTo(this, 'c-c');
-		if(this.notice1)
-			this.notice1.alignTo(Ext.getBody(), 't-t', [0, 10]);
-		if(this.notice2)
-			this.notice2.alignTo(Ext.getBody(), 't-t', [0, 85]);
+		var body = Ext.getBody();
+		this.winLogon.alignTo(body, 'c-c');
+
+		if(this.siteLogo) {
+			this.siteLogo.alignTo(body, 't-t', [0, 25]);
+		}
 	}
 });

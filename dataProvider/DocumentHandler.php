@@ -19,6 +19,7 @@
 
 include_once(ROOT . '/classes/Crypt.php');
 include_once(ROOT . '/dataProvider/Documents.php');
+include_once(ROOT . '/dataProvider/FileSystem.php');
 include_once(ROOT . '/dataProvider/DoctorsNotes.php');
 
 class DocumentHandler {
@@ -43,10 +44,40 @@ class DocumentHandler {
 	 */
 	private $t;
 
+	/**
+	 * @var FileSystem
+	 */
+	private $FileSystem;
+
+
+	private $storeAsFile = true;
+
 	private $doctorsnotes;
+
+	private $mime_types_ext = [
+
+		'application/pdf' => 'pdf',
+		'application/msword' => 'doc',
+		'application/xml' => 'xml',
+		'image/gif' => 'gif',
+		'image/png' => 'png',
+		'image/jpg' => 'jpg',
+		'image/jpeg' => 'jpg',
+		'image/bmp' => 'bmp',
+		'image/mpeg' => 'mp3',
+		'audio/x-wav' => 'wav',
+		'video/mpeg' => 'mpg',
+		'video/gif' => 'avi',
+		'video/3gpp' => '3gp',
+		'text/gif' => 'xml',
+		'image/xml' => 'wav',
+		'text/plain' => 'txt',
+		'text/html' => 'html'
+	];
 
 	function __construct(){
 		$this->db = new MatchaHelper();
+		$this->FileSystem = new FileSystem();
 		return;
 	}
 
@@ -81,12 +112,34 @@ class DocumentHandler {
 
 	/**
 	 * @param $params
+	 * @param $includeDocument
 	 *
 	 * @return mixed
 	 */
-	public function getPatientDocument($params){
+	public function getPatientDocument($params, $includeDocument = false){
 		$this->setPatientDocumentModel();
 		$record = $this->d->load($params)->one();
+
+		if($record !== false && $includeDocument){
+
+			$file_path = $record['path'] . '/' . $record['name'];
+			$is_file = isset($record['path']) && $record['path'] != '' && file_exists($file_path);
+
+			if ($is_file) {
+				$record['document'] = file_get_contents($file_path);
+			} elseif(isset($record['document_instance']) && $record['document_instance'] != ''){
+				$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $record['document_instance']);
+				$data = $dd->load($record['document_id'])->one();
+				if($data !== false){
+					$record['document'] = $data['document'];
+				}
+			}
+
+			if(isset($record['document']) && $this->isBinary($record['document'])){
+				$record['document'] = base64_encode($record['document']);
+			}
+		}
+
 		return $record;
 	}
 
@@ -103,29 +156,42 @@ class DocumentHandler {
 				$params[$i]->document = $this->trimBase64($params[$i]->document);
 
 				/** encrypted if necessary */
-				if($params[$i]->encrypted){
+				if(isset($params[$i]->encrypted) && $params[$i]->encrypted){
 					$params[$i]->document = MatchaUtils::encrypt($params[$i]->document);
 				};
-				$params[$i]->hash = hash('sha256', $params[$i]->document);
+				$binary_file = $this->isBinary($params[$i]->document) ?
+					$params[$i]->document : base64_decode($params[$i]->document);
+				$params[$i]->hash = hash('sha256', $binary_file);
 			}
 		}else{
 			/** remove the mime type */
 			$params->document = $this->trimBase64($params->document);
 			/** encrypted if necessary */
-			if($params->encrypted){
+			if(isset($params->encrypted) && $params->encrypted){
 				$params->document = MatchaUtils::encrypt($params->document);
 			};
-			$params->hash = hash('sha256', $params->document);
+			$binary_file = $this->isBinary($params->document) ?
+				$params->document : base64_decode($params->document);
+
+			$params->hash = hash('sha256', $binary_file);
 		}
 
 		$results = $this->d->save($params);
 
 		if(is_array($results)){
 			foreach($results as &$result){
-				$this->handleDocumentData($result);
+				if($this->storeAsFile){
+					$this->handleDocumentFile($result);
+				}else{
+					$this->handleDocumentData($result);
+				}
 			}
 		}else{
-			$this->handleDocumentData($results);
+			if($this->storeAsFile){
+				$this->handleDocumentFile($results);
+			}else{
+				$this->handleDocumentData($results);
+			}
 		}
 		return $results;
 	}
@@ -145,6 +211,7 @@ class DocumentHandler {
 			$sth = $conn->prepare("SHOW TABLES LIKE 'documents_data_{$instance}'");
 			$sth->execute();
 			$table = $sth->fetch(PDO::FETCH_ASSOC);
+
 			if($table === false){
 				$document_model = MatchaModel::setSenchaModel('App.model.administration.DocumentData', true, $instance);
 			}else{
@@ -153,7 +220,24 @@ class DocumentHandler {
 
 			if($document_model === false) {
 				throw new Exception("Unable to create App.model.administration.DocumentData model instance '{$instance}'");
-			};
+			}
+
+			$document->document = $this->base64ToBinary($document->document);
+			$file_info = new finfo(FILEINFO_MIME_TYPE);
+			$mime_type = $file_info->buffer($document->document);
+			if(!isset($this->mime_types_ext[$mime_type])){
+				throw new Exception('File extension not supported. document_id: ' . $document->id . ' mime_type: '. $mime_type);
+			}
+			$document_code = isset($document->docTypeCode) ? $document->docTypeCode : '';
+
+			if($mime_type == 'application/xml' && preg_match('/\<!DOCTYPE html/', $document->document)){
+				$mime_type = 'text/html';
+			}
+
+			$ext = $this->mime_types_ext[$mime_type];
+			$file_name = $document_code .'_' .$document->id . '_' . $document->pid . '.' . $ext;
+
+			$document->name = $file_name;
 
 			//error_log('DOCUMENT');
 			$data = new stdClass();
@@ -165,9 +249,10 @@ class DocumentHandler {
 			$document->document ='';
 			$document->document_instance = $instance;
 			$document->document_id = $record->id;
-			$sth = $conn->prepare("UPDATE patient_documents SET document = '', document_instance = :doc_ins, document_id = :doc_id WHERE id = :id;");
+			$sth = $conn->prepare("UPDATE patient_documents SET document = '', `name` = :file_name, document_instance = :doc_ins, document_id = :doc_id WHERE id = :id;");
 			$sth->execute([
 				':id' => $document->id,
+				':file_name' => $document->name,
 				':doc_ins' => $document->document_instance,
 				':doc_id' => $document->document_id
 			]);
@@ -176,6 +261,91 @@ class DocumentHandler {
 
 			unset($data, $record, $document_model);
 		}catch(Exception $e){
+			error_log('Error Converting Document');
+			error_log($e->getMessage());
+		}
+	}
+
+	/**
+	 * @param $document
+	 */
+	private function handleDocumentFile(&$document){
+
+		try{
+			$document = (object)$document;
+			$conn = Matcha::getConn();
+
+			$filesystem = $this->FileSystem->getOnlineFileSystem();
+			if($filesystem !== false){
+				$filesystem_path = rtrim($filesystem['dir_path'], '/');
+				$filesystem_id = $filesystem['id'];
+			}else{
+				$filesystem_path = '';
+				$filesystem_id = 0;
+			}
+
+			$document_path = $filesystem_path === '' ? (site_path . '/documents') : '';
+
+			/**
+			 * change date to path  2016-01-23 => 2016/01/23
+			 */
+			$document_path .= '/' . str_ireplace(['-', ' '], '/', substr($document->date, 0, 10));
+
+			if(!file_exists($filesystem_path . $document_path)){
+				mkdir($filesystem_path . $document_path, 0777, true);
+				chmod($filesystem_path . $document_path, 755);
+			}
+
+			if(isset($document->document_instance) && $document->document_instance > 0 && (!isset($document->document) || $document->document == '')){
+				$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $document->document_instance);
+				if($dd !== false){
+					$data = $dd->load($document->document_id)->one();
+					if($data !== false){
+						$document->document = $data['document'];
+					}
+					unset($data);
+				}
+			}
+
+			$document->document = $this->base64ToBinary($document->document);
+			$file_info = new finfo(FILEINFO_MIME_TYPE);
+			$mime_type = $file_info->buffer($document->document);
+
+			if(!isset($this->mime_types_ext[$mime_type])){
+				throw new Exception('File extension not supported. document_id: ' . $document->id . ' mime_type: ' . $mime_type);
+			}
+
+			$document_code = isset($document->docTypeCode) ? $document->docTypeCode : '';
+
+			if($mime_type == 'application/xml' && preg_match('/\<!DOCTYPE html/', $document->document)){
+				$mime_type = 'text/html';
+			}
+
+			$ext = $this->mime_types_ext[$mime_type];
+			$file_name = $document_code . '_' . $document->id . '_' . $document->pid . '.' . $ext;
+			$path = $filesystem_path . $document_path . '/' . $file_name;
+
+			if(file_exists($path) && !unlink($path)){
+				throw new Exception('File name exist. document_id: ' . $document->id . ' path: ' . $path);
+			}
+
+			if(file_put_contents($path, $document->document) === false){
+				throw new Exception('Unable to write file. document_id: ' . $document->id . ' path: ' . $path);
+			}
+
+			$sth = $conn->prepare("UPDATE patient_documents SET filesystem_id = :filesystem_id, path = :path, `name` = :name WHERE id = :id;");
+			$sth->execute([
+				':id' => $document->id,
+				':filesystem_id' => $filesystem_id,
+				':path' => $document_path,
+				':name' => $file_name
+			]);
+
+			//error_log('DOCUMENT COMPLETE');
+			unset($document->document);
+			unset($data, $record, $document_model);
+
+		} catch(Exception $e){
 			error_log('Error Converting Document');
 			error_log($e->getMessage());
 		}
@@ -274,110 +444,14 @@ class DocumentHandler {
 	}
 
 	private function trimBase64($base64){
+
+		if(!preg_match('/data:/', $base64)){
+			return $base64;
+		}
 		$pos = strpos($base64, ',');
 		if($pos === false) return $base64;
 		return substr($base64, $pos + 1);
 	}
-
-
-
-	/**
-	 * this will return the document info
-	 * @param $params
-	 * @return array
-	 */
-//	public function createDocument($params){
-//		$this->setPatientDocumentModel();
-//
-//		$params = (object)$params;
-//		$path = $this->getPatientDir($params) . $this->nameFile();
-//
-//		$this->documents = new Documents();
-//		$this->documents->PDFDocumentBuilder($params, $path);
-//
-//		if(file_exists($path)){
-//
-//			$data = new stdClass();
-//			$data->pid = $this->pid;
-//			$data->eid = (isset($params->eid) ? $params->eid : '0');
-//			$data->uid = (isset($params->uid) ? $params->uid : $_SESSION['user']['id']);
-//			$data->docType = $this->docType;
-//			$data->name = $this->fileName;
-//			$data->url = $this->getDocumentUrl();
-//			$data->date = date('Y-m-d H:i:s');
-//			$data->hash = hash_file('sha256', $path);
-//
-//			$data = $this->d->save($data);
-//
-//			if(isset($params->DoctorsNote)){
-//				$this->doctorsnotes = new DoctorsNotes();
-//				$this->doctorsnotes->addDoctorsNotes($params);
-//			}
-//
-//			//print_r($data);
-//
-//			return ['success' => true, 'doc' => ['id' => $data['data']->id, 'name' => $this->fileName, 'url' => $this->getDocumentUrl(), 'path' => $path]];
-//		} else{
-//			return ['success' => false, 'error' => 'Document could not be created'];
-//		}
-//	}
-
-	/**
-	 * this will return the PDF base64 string
-	 * @param $params
-	 * @return bool|string
-	 */
-//	public function createPDF($params){
-//		$this->setPatientDocumentModel();
-//		$this->documents = new Documents();
-//		return $this->documents->PDFDocumentBuilder((object)$params);
-//	}
-
-//	public function uploadDocument($params, $file){
-//		$this->setPatientDocumentModel();
-//
-//		$params = (object)$params;
-//		$src = $this->getPatientDir($params) . $this->reNameFile($file);
-//		if(move_uploaded_file($file['filePath']['tmp_name'], $src)){
-//
-//			if(isset($params->encrypted) && $params->encrypted){
-//				file_put_contents($src, Crypt::encrypt(file_get_contents($src)), LOCK_EX);
-//			}
-//
-//			$data = new stdClass();
-//			$data->pid = $this->pid;
-//			$data->eid = (isset($params->eid) ? $params->eid : 0);
-//			$data->uid = (isset($params->uid) ? $params->uid : $_SESSION['user']['id']);
-//			$data->docType = $this->docType;
-//			$data->name = $this->fileName;
-//			$data->url = $this->getDocumentUrl();
-//			$data->date = date('Y-m-d H:i:s');
-//			$data->hash = hash_file('sha256', $src);
-//			$data->encrypted = $params->encrypted;
-//			$data = $this->d->save($data);
-//
-//			return ['success' => true, 'doc' => ['id' => $data['id'], 'name' => $this->fileName, 'url' => $this->getDocumentUrl()]];
-//		} else{
-//			return ['success' => false, 'error' => 'File could not be uploaded'];
-//		}
-//	}
-
-	/**
-	 * @param $id
-	 * @return bool
-	 */
-//	public function deleteDocumentById($id){
-//		$path = $this->getDocumentPathById($id);
-//		if(unlink($path)){
-//			$this->db->setSQL("DELETE FROM patient_documents WHERE id = '$id'");
-//			$this->db->execLog();
-//			return true;
-//		} else{
-//			return false;
-//
-//		}
-//
-//	}
 
 	/**
 	 * @return string
@@ -437,8 +511,8 @@ class DocumentHandler {
 			$this->docType = (isset($params->docType)) ? $params->docType : 'orphanDocuments';
 		}
 		$path = site_path . '/patients/' . $this->pid . '/' . strtolower(str_replace(' ', '_', $this->docType)) . '/';
-		if(is_dir($path) || mkdir($path, 0777, true)){
-			chmod($path, 0777);
+		if(is_dir($path) || mkdir($path, 0774, true)){
+			chmod($path, 0774);
 		}
 		return $this->workingDir = $path;
 	}
@@ -499,9 +573,24 @@ class DocumentHandler {
 	 * @return array
 	 */
 	public function checkDocHash($doc){
-		$doc = $this->getPatientDocument($doc->id);
-		$hash = hash('sha256', $doc['document']);
-		return ['success' => $doc['hash'] == $hash, 'msg' => 'Stored Hash:' . $doc['hash'] . '<br>File hash:' . $hash];
+		$doc = $this->getPatientDocument($doc->id, true);
+
+		$binary_file = $this->isBinary($doc['document']) ?
+			$doc['document'] : base64_decode($doc['document']);
+
+		$sha1  = hash('sha1', $binary_file);
+		$sha256  = hash('sha256', $binary_file);
+		$sha512  = hash('sha512', $binary_file);
+		$md5  = hash('md5', $binary_file);
+
+		$msg = "<div style='white-space: nowrap'>
+					<b>sha1:</b> {$sha1}<br>
+					<b>sha256:</b> {$sha256}<br>
+					<b>sha512:</b> {$sha512}<br>
+					<b>md5:</b> {$md5}<br>
+				</div>";
+
+		return [ 'success' => true, 'msg' => $msg ];
 	}
 
 	public function convertDocuments($quantity = 100){
@@ -512,7 +601,7 @@ class DocumentHandler {
 		$this->d->addFilter('document_instance', null, '=');
 
 		//error_log('LOAD RECORDS');
-		$records = $this->d->load()->limit(0, $quantity);
+		$records = $this->d->load()->limit(0, $quantity)->all();
 		//error_log('LOAD RECORDS COMPLETED');
 
 		foreach($records as $record){
@@ -522,6 +611,37 @@ class DocumentHandler {
 		return [ 'success' => true, 'total' => count($records) ];
 	}
 
+	public function convertToPath($quantity = 100){
+
+		ini_set('memory_limit', '-1');
+
+		$this->setPatientDocumentModel();
+		$this->d->addFilter('path', null, '=');
+
+		$records = $this->d->load()->limit(0, $quantity)->all();
+
+		foreach($records as $record){
+			$this->handleDocumentFile($record);
+		}
+
+		return [ 'success' => true, 'total' => count($records) ];
+	}
+
+	public function isBinary($document){
+		if(function_exists('is_binary')) {
+			return is_binary($document);
+		}
+		return preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0;
+	}
+
+	public function base64ToBinary($document, $encrypted = false) {
+		// handle binary documents
+		if($this->isBinary($document)){
+			return $document;
+		}else{
+			return base64_decode($document);
+		}
+	}
 }
 
 //$d = new DocumentHandler();

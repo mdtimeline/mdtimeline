@@ -50,7 +50,7 @@ if(file_exists($logPath) && is_writable($logPath)){
 	clearstatcache();
 	if(!file_exists($logPath . $logFile)){
 		touch($logPath . $logFile);
-		chmod($logPath . $logFile, 0775);
+		chmod($logPath . $logFile, 0774);
 	}
 	if(is_writable($logPath . $logFile))
 		ini_set('error_log', $logPath . $logFile);

@@ -25,9 +25,14 @@ class HL7 {
 	public  $segments = array();
 
 	/**
-	 * @var string
+	 * @var Message
 	 */
 	public  $message;
+
+	/**
+	 * @var
+	 */
+	private $txt_cr = "\\X0D\\";
 
 
 	function __destruct()
@@ -52,9 +57,27 @@ class HL7 {
 	/**
 	 * @return mixed
 	 */
+	function getSendingApplicationId(){
+		$seg = $this->getSegment('MSH');
+		if(isset($seg->data)) return $seg->data[3][2] != '' ? $seg->data[3][2] : '-1';
+		return null;
+	}
+
+	/**
+	 * @return mixed
+	 */
 	function getSendingFacility(){
 		$seg = $this->getSegment('MSH');
 		if(isset($seg->data)) return $seg->data[4][1] != '' ? $seg->data[4][1] : $seg->data[4][2];
+		return null;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	function getSendingFacilityId(){
+		$seg = $this->getSegment('MSH');
+		if(isset($seg->data)) return $seg->data[4][2] != '' ? $seg->data[4][2] : '-1';
 		return null;
 	}
 
@@ -171,7 +194,7 @@ class HL7 {
 
 	/**
 	 * @param $segment
-	 * @return array
+	 * @return Segments|Segments[]
 	 */
 	function getSegments($segment = null){
 		if($segment == null) return $this->segments;
@@ -188,6 +211,7 @@ class HL7 {
 	function getMessage(){
 		$msg = '';
 		foreach($this->segments As $segment){
+			/** @var Segments $segment */
 			$msg .= $segment->build();
 		}
 		return $msg;
@@ -195,7 +219,7 @@ class HL7 {
 
 	/**
 	 * @param $msg
-	 * @return Message
+	 * @return bool|Message
 	 */
 	function readMessage($msg){
 		$msg = trim($msg);
@@ -222,7 +246,6 @@ class HL7 {
 
 		$mType = $this->getMsgEventType();
 		if($mType === null) return false;
-
 		$this->message->readMessage($this->getMsgEventType());
 		return $this->message;
 	}
@@ -248,8 +271,12 @@ class HL7 {
 		return true;
 	}
 
-	function time($time, $format = 'Y-m-d H:i:s'){
+	function printMessage($title = ''){
+		include_once ('HL7Printer.php');
+		return HL7Printer::printMessage($this->message, $title);
+	}
 
+	function time($time, $format = 'Y-m-d H:i:s'){
 		switch(strlen($time)){
 			case 4:
 				$time = preg_replace('/^([0-9]{4})$/', '$1-01-01 00:00:00', $time);
@@ -269,6 +296,11 @@ class HL7 {
 			case 14:
 				$time = preg_replace('/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})$/', '$1-$2-$3 $4:$5:$6', $time);
 				break;
+            case 19:
+                // We don't need the timezone
+                $time = substr($time, 0, (strlen($time)-5));
+                $time = preg_replace('/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})$/', '$1-$2-$3 $4:$5:$6', $time);
+                break;
 		}
 		if($time == '' || $format == 'Y-m-d H:i:s'){
 			return $time;
@@ -452,5 +484,13 @@ class HL7 {
 
 		};
 		return $text;
+	}
+
+	public function setTxtCR($txt_cr){
+		$this->txt_cr = $txt_cr;
+	}
+
+	public function getTxtCR(){
+		return $this->txt_cr;
 	}
 }

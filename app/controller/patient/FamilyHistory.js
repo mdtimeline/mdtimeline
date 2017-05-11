@@ -58,9 +58,43 @@ Ext.define('App.controller.patient.FamilyHistory', {
 		});
 	},
 
+    /**
+     * This event is called from the view, and not from the controller itself.
+     * @param grid
+     * @param record
+     */
+    onDeactivateRecord: function(grid, record){
+        var store,
+            params = {
+                id: record.data.id,
+                pid: record.data.pid,
+                eid: record.data.eid
+            };
+        Ext.Msg.show({
+            title:_('removal'),
+            msg: _('sure_for_removal'),
+            buttons: Ext.Msg.YESNO,
+            icon: Ext.Msg.QUESTION,
+            fn: function(btn) {
+                if (btn === 'yes') {
+                    store = grid.getStore();
+                    FamilyHistory.deleteFamilyHistory(params, function(response){
+	                    store.load({
+		                    filters: [
+			                    {
+				                    property: 'pid',
+				                    value: app.patient.pid
+			                    }
+		                    ]
+	                    });
+                    });
+                }
+            }
+        });
+    },
+
 	onFamilyHistoryGridActivate: function(grid){
 		var store = grid.getStore();
-
 		store.clearFilter(true);
 		store.load({
 			filters: [
@@ -82,6 +116,7 @@ Ext.define('App.controller.patient.FamilyHistory', {
 			Ext.create('App.view.patient.windows.FamilyHistory');
 		}
 		this.getFamilyHistoryWindow().show();
+        this.getFamilyHistoryWindow().setAutoScroll(true);
 	},
 
 	onFamilyHistoryWindowSaveBtnClick:function(){
@@ -91,15 +126,17 @@ Ext.define('App.controller.patient.FamilyHistory', {
 			values = form.getValues(),
 			histories = [],
 			isValid =  true,
-            foo;
+            foo,
+            condition,
+            relation;
 
 		Ext.Object.each(values, function(key, value){
 
 			if(value == '0~0') return;
 
-			foo = value.split('~'),
-				condition = foo[0].split(':'),
-				relation = foo[1].split(':');
+			foo = value.split('~');
+            condition = foo[0].split(':');
+            relation = foo[1].split(':');
 
 			if(isValid && relation[0] == '0'){
 				isValid = false;
@@ -132,7 +169,6 @@ Ext.define('App.controller.patient.FamilyHistory', {
 		store.add(histories);
 		store.sync();
 		this.getFamilyHistoryWindow().close();
-
 	},
 
 	onFamilyHistoryWindowCancelBtnClick:function(){

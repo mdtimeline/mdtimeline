@@ -290,6 +290,18 @@ class MatchaModel extends Matcha {
 				throw new Exception("Fields property is not defined on Sencha Model. 'fields:'");
 			}
 
+			$model['parsed_data'] = [];
+			if(isset($model['idProperty'])){
+				$model['parsed_data']['primaryKey'] =  $model['idProperty'] == 'comp_id' ? 'id' : $model['idProperty'];
+			}else{
+				$model['parsed_data']['primaryKey'] = 'id';
+			}
+			$model['parsed_data']['fields'] = MatchaModel::__getFields($model);
+			$model['parsed_data']['encryptedFields'] = MatchaModel::__getEncryptedFields($model);
+			$model['parsed_data']['phantomFields'] = MatchaModel::__getPhantomFields($model);
+			$model['parsed_data']['arrayFields'] = MatchaModel::__getArrayFields($model);
+			$model['parsed_data']['fieldsProperties'] = (array)MatchaModel::__getFieldsProperties($model);
+
 			if(!MatchaMemory::__storeSenchaModel($fileModel, $model, $instance)){
 				throw new Exception("Error storing sencha model into memory.");
 			}
@@ -554,7 +566,7 @@ class MatchaModel extends Matcha {
 
 			// check if the directory does not exist, if not create it.
 			if(!@opendir(self::$__app . '/' . strtolower(str_replace('.', '/', $modelDir)))){
-				$result = @mkdir(self::$__app . '/' . strtolower(str_replace('.', '/', $modelDir)), 0775, true);
+				$result = @mkdir(self::$__app . '/' . strtolower(str_replace('.', '/', $modelDir)), 0774, true);
 				if(!$result)
 					throw new Exception('Could not create the directory.');
 			}
@@ -736,7 +748,7 @@ class MatchaModel extends Matcha {
 			if(!@fwrite($fileObject, $jsSenchaModel, strlen($jsSenchaModel)))
 				throw new Exception('Could not write the Sencha Model file.');
 			@fclose($fileObject);
-			if(!@chmod($file, 0755))
+			if(!@chmod($file, 0774))
 				throw new Exception('Could not chmod the Sencha Model file.');
 			return true;
 		} catch(Exception $e) {
@@ -838,18 +850,14 @@ class MatchaModel extends Matcha {
 
 	/**
 	 *
-	 * @param $fields array || object of fields names example array('id','username','passwors')
 	 * @param $model array || object of the model
 	 * @return array
 	 */
-	static public function __getFieldsProperties($fields, $model) {
+	static public function __getFieldsProperties($model) {
 		$arr = [];
-		$fields = (is_object($fields) ? MatchaUtils::__objectToArray($fields) : $fields);
 		$modelFields = (is_object($model) ? MatchaUtils::__objectToArray($model->fields) : $model['fields']);
-		foreach($fields as $field){
-			$index = MatchaUtils::__recursiveArraySearch($field, $modelFields);
-			if($index !== false)
-				$arr[] = $modelFields[$index];
+		foreach($modelFields as $modelField){
+			$arr[$modelField['name']] = $modelField;
 		}
 		return $arr;
 	}

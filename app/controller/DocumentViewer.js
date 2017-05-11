@@ -45,30 +45,44 @@ Ext.define('App.controller.DocumentViewer', {
 	onArchiveBtnClick: function(btn){
 		var win = btn.up('window'),
 			form = win.down('form').getForm(),
-			values = form.getValues();
+			values = form.getValues(),
+			docTypeField = form.findField('docTypeCode');
 
 		if(form.isValid()){
 			values.pid = app.patient.pid;
 			values.eid = app.patient.eid;
 			values.uid = app.user.id;
-			DocumentHandler.transferTempDocument(values, function(provider, response){
 
-				if(response.result.success){
-					if(window.dual){
-						dual.msg(_('sweet'), 'document_transferred');
+			var docTypeRecord = docTypeField.findRecordByValue(values.docTypeCode);
+			values.docType = docTypeRecord.get('option_name');
+
+			// scanner archive logic
+			if(Ext.getClassName(win.documentWindow) == 'App.view.scanner.Window'){
+
+				var controller = app.getController('Scanner');
+				controller.doArchive(values, function (success) {
+					if(success) win.close();
+				});
+
+			}else{
+				DocumentHandler.transferTempDocument(values, function(provider, response){
+					if(response.result.success){
+						if(window.dual){
+							window.dual.msg(_('sweet'), 'document_transferred');
+						}else{
+							window.app.msg(_('sweet'), 'document_transferred');
+						}
+						win.documentWindow.close();
+						win.close();
 					}else{
-						app.msg(_('sweet'), 'document_transferred');
+						if(window.dual){
+							window.dual.msg(_('oops'), 'document_transfer_failed', true);
+						}else{
+							window.app.msg(_('oops'), 'document_transfer_failed', true);
+						}
 					}
-					win.documentWindow.close();
-					win.close();
-				}else{
-					if(dual){
-						dual.msg(_('oops'), 'document_transfer_failed', true);
-					}else{
-						app.msg(_('oops'), 'document_transfer_failed', true);
-					}
-				}
-			});
+				});
+			}
 		}
 	},
 
@@ -97,13 +111,15 @@ Ext.define('App.controller.DocumentViewer', {
 
 		if(typeof type != 'undefined') src += '&temp=' + type;
 
+		src += '&_dc=' + Ext.Date.now();
+
 		win = Ext.create('App.view.patient.windows.DocumentViewer',{
 			documentType: type,
 			documentId: id,
 			items:[
 				{
 					xtype:'miframe',
-					autoMask:false,
+					autoMask: false,
 					src: src
 				}
 			]

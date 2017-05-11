@@ -1,6 +1,7 @@
 <?php
 
-class SoapHandler {
+class SoapHandler
+{
 
 	/**
 	 * @var stdClass
@@ -17,32 +18,94 @@ class SoapHandler {
 
 	private $vDate = '/\d{4}-\d{2}-\d{2}/';
 
-	private $vDateTime = '/\d{4}-\d{2}-\d{2}/ \d{2}:\d{2}:\d{2}/';
+	private $AuditLog;
+
+	/**
+	 * This is the Mapping variable
+	 * @var array
+	 */
+	private $demographicsMap = [
+		'Pid' => 'pid',
+		'RecordNumber' => 'pubpid',
+		'AccountNumber' => 'pubaccount',
+		'Title' => 'title',
+		'FirstName' => 'fname',
+		'MiddleName' => 'mname',
+		'LastName' => 'lname',
+		'DateOfBirth' => 'DOB',
+		'Sex' => 'sex',
+		'MaritalStatus' => 'marital_status',
+		'Race' => 'race',
+		'Ethnicity' => 'ethnicity',
+		//'Religion' => 'pid',
+		'Language' => 'language',
+		'DriverLicence' => 'drivers_license',
+		'DriverLicenceState' => 'drivers_license_state',
+		'DriverLicenceExpirationDate' => 'drivers_license_exp',
+		'PhysicalAddressLineOne' => 'address',
+		'PhysicalAddressLineTwo' => 'address_cont',
+		'PhysicalCity' => 'city',
+		'PhysicalState' => 'state',
+		'PhysicalCountry' => 'country',
+		'PhysicalZipCode' => 'zipcode',
+		'HomePhoneNumber' => 'home_phone',
+		'MobilePhoneNumber' => 'mobile_phone',
+		'WorkPhoneNumber' => 'work_phone',
+		'WorkPhoneExt' => 'work_phone_ext',
+		'Email' => 'email',
+		'ProfileImage' => 'image',
+		'IsBirthMultiple' => 'birth_multiple',
+		'BirthOrder' => 'birth_order',
+		'Deceased' => 'deceased',
+		'DeceaseDate' => 'death_date',
+		'MothersFirstName' => 'mothers_name',
+		'GuardiansFirstName' => 'guardians_fname',
+		'GuardiansMiddleName' => 'guardians_mname',
+		'GuardiansLastName' => 'guardians_lname',
+		'EmergencyContactFirstName' => 'emergency_contact_fname',
+		'EmergencyContactMiddleName' => 'emergency_contact_mname',
+		'EmergencyContactLastName' => 'emergency_contact_lname',
+		'EmergencyContactPhone' => 'emergency_contact_phone',
+		'Occupation' => 'occupation',
+		'Employer' => 'employer_name',
+		'WebPortalUsername' => 'portal_username',
+		'WebPortalPassword' => 'portal_password',
+		'WebPortalAccess' => 'allow_patient_web_portal',
+		'EmergencyPortalAllow' => 'allow_emergency_contact_web_portal',
+		'EmergencyPortalAllowCda' => 'allow_emergency_contact_web_portal_cda',
+		'EmergencyPortalUsername' => 'emergency_contact_portal_username',
+		'EmergencyPortalPassword' => 'emergency_contact_portal_password',
+		'GuardianPortalAllow' => 'allow_guardian_web_portal',
+		'GuardianPortalAllowCda' => 'allow_guardian_web_portal_cda',
+		'GuardianPortalUsername' => 'guardian_portal_username',
+		'GuardianPortalPassword' => 'guardian_portal_password'
+	];
 
 	function constructor($params)
-    {
+	{
 		$this->params = $params;
-
 		$this->site = isset($params->ServerSite) ? $params->ServerSite : 'default';
-
 		$this->facility = isset($params->Facility) ? $params->Facility : '1';
 
-		if(!defined('_GaiaEXEC')) define('_GaiaEXEC', 1);
+		if (!defined('_GaiaEXEC')) define('_GaiaEXEC', 1);
 
-        define('SITE', $params->ServerSite);
+		define('SITE', $params->ServerSite);
 
 		include_once(str_replace('\\', '/', dirname(__FILE__)) . '/../../registry.php');
 		include_once(ROOT . "/sites/{$this->site}/conf.php");
 		include_once(ROOT . '/classes/MatchaHelper.php');
-		if(isset($params->Provider)) $this->getProvider($params->Provider);
-		if(isset($params->Patient)) $this->getPatient($params->Patient);
+		include_once(ROOT . '/dataProvider/AuditLog.php');
+
+		if (!isset($this->AuditLog)) $this->AuditLog = new AuditLog();
+		if (isset($params->Provider)) $this->getProvider($params->Provider);
+		if (isset($params->Patient)) $this->getPatient($params->Patient);
 	}
 
 	/**
 	 * @return bool
 	 */
 	protected function isAuth()
-    {
+	{
 		require_once(ROOT . '/dataProvider/Applications.php');
 		$Applications = new Applications();
 		$access = $Applications->hasAccess($this->params->SecureKey);
@@ -50,12 +113,208 @@ class SoapHandler {
 		return $access;
 	}
 
+	/**
+	 * @param $params
+	 * @return array
+	 */
+	function GetDirectAddressRecipients($params)
+	{
 
-	public function PatientPortalAuthorize($params)
-    {
 		$this->constructor($params);
-		if(!$this->isAuth())
-        {
+		if (!$this->isAuth()) {
+			return [
+				'Success' => false,
+				'Error' => 'Error: HTTP 403 Access Forbidden'
+			];
+		}
+
+		$conn = Matcha::getConn();
+		$sth = $conn->prepare("SELECT direct_address FROM users WHERE direct_address IS NOT NULL AND direct_address != ''");
+		$sth->execute();
+		$data = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+		return [
+			'Success' => true,
+			'Data' => json_encode($data)
+		];
+	}
+
+	/**
+	 * @param $params
+	 * @return array
+	 */
+	function GetPatientPid($params)
+	{
+
+		$this->constructor($params);
+		if (!$this->isAuth()) {
+			return [
+				'Success' => false,
+				'Error' => 'Error: HTTP 403 Access Forbidden'
+			];
+		}
+
+		require_once(ROOT . '/dataProvider/Patient.php');
+		$Patient = new Patient();
+
+
+		$patient = false;
+		$errors = [];
+		$dob = '0000-00-00';
+
+		if (isset($params->PatientRecordNumber) && $params->PatientRecordNumber != '') {
+			$params->PatientRecordNumber = filter_var($params->PatientRecordNumber, FILTER_SANITIZE_ENCODED);
+			$patient = $Patient->getPatientByPublicId($params->PatientRecordNumber);
+		}
+
+		if ($patient === false) {
+
+			if (!isset($params->PatientFirstName)) {
+				$errors[] = 'PatientFirstName Missing';
+			} elseif ($params->PatientFirstName == '') {
+				$errors[] = 'PatientFirstName Empty';
+			}
+
+			if (!isset($params->PatientLastName)) {
+				$errors[] = 'PatientLastName Missing';
+			} elseif ($params->PatientLastName == '') {
+				$errors[] = 'PatientLastName Empty';
+			}
+
+			if (!isset($params->PatientDateOfBirth)) {
+				$errors[] = 'PatientDateOfBirth Missing';
+			} elseif ($params->PatientDateOfBirth == '') {
+				$errors[] = 'PatientDateOfBirth Empty';
+			} else {
+				$params->PatientDateOfBirth = filter_var($params->PatientDateOfBirth, FILTER_SANITIZE_ENCODED);
+				$dob = date('Y-m-d', strtotime($params->PatientDateOfBirth));
+				if ($dob === false) {
+					$errors[] = 'PatientDateOfBirth Parse Error';
+				}
+			}
+			if (!isset($params->PatientSex)) {
+				$errors[] = 'PatientSex missing';
+			} elseif ($params->PatientSex == '') {
+				$errors[] = 'PatientSex Empty';
+			} else {
+				if (
+					$params->PatientSex != 'F' &&
+					$params->PatientSex != 'M' &&
+					$params->PatientSex != 'U'
+				) {
+					$errors[] = 'PatientSex Invalid Value';
+				}
+			}
+
+			if (!empty($errors)) {
+				return [
+					'Success' => false,
+					'Error' => 'Error: ' . implode(' and ', $errors)
+				];
+			}
+
+			$params->PatientFirstName = filter_var($params->PatientFirstName, FILTER_SANITIZE_ENCODED);
+			$params->PatientMiddleName = filter_var($params->PatientMiddleName, FILTER_SANITIZE_ENCODED);
+			$params->PatientLastName = filter_var($params->PatientLastName, FILTER_SANITIZE_ENCODED);
+			$params->PatientSex = filter_var($params->PatientSex, FILTER_SANITIZE_ENCODED);
+
+			$sql = 'SELECT * 
+					  FROM patient
+					 WHERE fname = :fname
+					   AND mname = :mname
+					   AND lname = :lname
+					   AND sex = :sex
+					   AND DOB >= :dob_start
+					   AND DOB <= :dob_end';
+
+			$dob_start = $dob . ' 00:00:00';
+			$dob_end = $dob . ' 23:59:59';
+
+			$patients = $Patient->p->sql($sql)->all([
+				':fname' => $params->PatientFirstName,
+				':mname' => $params->PatientMiddleName,
+				':lname' => $params->PatientLastName,
+				':sex' => $params->PatientSex,
+				':dob_start' => $dob_start,
+				':dob_end' => $dob_end,
+			]);
+
+			if(count($patients) > 1){
+				return [
+					'Success' => false,
+					'Error' => 'Error: Multiple Patients Found'
+				];
+			}
+
+			$patient = $patients[0];
+		}
+
+		if (!isset($patient) || $patient === false) {
+			return [
+				'Success' => false,
+				'Error' => 'Error: Patient Not Found'
+			];
+		}
+
+		return [
+			'Success' => true,
+			'PatientPid' => $patient['pid']
+		];
+	}
+
+	/**
+	 * @param $params
+	 * @return array
+	 */
+	function GetMessageAddressRecipients($params)
+	{
+
+		$this->constructor($params);
+		if (!$this->isAuth()) {
+			return [
+				'Success' => false,
+				'Error' => 'Error: HTTP 403 Access Forbidden'
+			];
+		}
+
+		include(ROOT . '/dataProvider/User.php');
+		$User = new User();
+
+		$users = $User->getUsersByAcl('receive_patient_messages');
+
+		$addresses = [];
+
+		foreach ($users['data'] as $user) {
+			$addresses[] = [
+				'uid' => $user['id'],
+				'user_name' => $user['title'] . ' ' . $user['lname'] . ', ' . $user['fname']
+			];
+		}
+
+		return [
+			'Success' => true,
+			'Data' => json_encode($addresses)
+		];
+	}
+
+	/**
+	 * @param $params
+	 * @return array
+	 */
+	public function PatientPortalAuthorize($params)
+	{
+		$this->constructor($params);
+		$logObject = new stdClass();
+
+		if (!$this->isAuth()) {
+
+			// Save AuditLog
+			$logObject->event = 'PORTAL LOGIN (Error)';
+			$logObject->foreign_table = 'patient';
+			$logObject->event_description = 'Patient portal login attempt: Secure key';
+			$this->AuditLog->addLog($logObject);
+			unset($logObject);
+
 			return [
 				'Success' => false,
 				'Error' => 'Error: HTTP 403 Access Forbidden'
@@ -68,18 +327,86 @@ class SoapHandler {
 			'Error' => 'Not Authorized'
 		];
 
-		if(!isset($patient)) return $response;
-
-		if(	$patient->WebPortalPassword !== $params->Password ||
-			substr($patient->DateOfBirth, 0, 10) !== $params->DateOfBirth )
-        {
+		if (!isset($patient)) {
+			// Save AuditLog
+			$logObject->event = 'PORTAL LOGIN (Patient not provided)';
+			$logObject->foreign_table = 'patient';
+			$logObject->event_description = 'Patient portal login attempt: Patient parameter';
+			$this->AuditLog->addLog($logObject);
+			unset($logObject);
 			return $response;
 		}
-		$response = [
-			'Success' => true,
-			'Patient' => $patient,
-			'Error' => ''
-		];
+
+		// Check the AUTH of a Patient Login
+		// Check for the password / allowance / Date of Birth of the Patient
+		if ($patient->WebPortalAccess) {
+			if ($patient->WebPortalPassword == $params->Password &&
+				$patient->WebPortalUsername == $params->PatientAccount &&
+				substr($patient->DateOfBirth, 0, 10) == $params->DateOfBirth
+			) {
+				// Save AuditLog
+				$logObject->event = 'PORTAL LOGIN (Success)';
+				$logObject->pid = $patient->Pid;
+				$logObject->foreign_table = 'patient';
+				$logObject->event_description = 'Patient portal login attempt: Success patient';
+				$this->AuditLog->addLog($logObject);
+				unset($logObject);
+				return [
+					'Success' => true,
+					'Patient' => $patient,
+					'Who' => 'Patient',
+					'WhoName' => $patient->FirstName . ' ' . $patient->MiddleName . ' ' . $patient->LastName,
+					'Error' => ''
+				];
+			}
+		}
+
+		// Check the AUTH of a Guardian Login
+		// Check for the password / allowance / Date of Birth of the Patient
+		if ($patient->GuardianPortalAllow) {
+			if ($patient->GuardianPortalPassword == $params->Password &&
+				$patient->GuardianPortalUsername == $params->PatientAccount &&
+				substr($patient->DateOfBirth, 0, 10) == $params->DateOfBirth
+			) {
+				// Save AuditLog
+				$logObject->event = 'PORTAL LOGIN (Success)';
+				$logObject->pid = $patient->Pid;
+				$logObject->foreign_table = 'patient';
+				$logObject->event_description = 'Patient portal login attempt: Success guardian';
+				$this->AuditLog->addLog($logObject);
+				return [
+					'Success' => true,
+					'Patient' => $patient,
+					'Who' => 'Guardian',
+					'WhoName' => $patient->GuardiansFirstName . ' ' . $patient->GuardiansMiddleName . ' ' . $patient->GuardiansLastName,
+					'Error' => ''
+				];
+			}
+		}
+
+		// Check the AUTH of a Emergency Contact Login
+		// Check for the password / allowance / Date of Birth of the Patient
+		if ($patient->EmergencyPortalAllow) {
+			if ($patient->EmergencyPortalPassword == $params->Password &&
+				$patient->EmergencyPortalUsername == $params->PatientAccount &&
+				substr($patient->DateOfBirth, 0, 10) == $params->DateOfBirth
+			) {
+				// Save AuditLog
+				$logObject->event = 'PORTAL LOGIN (Success)';
+				$logObject->pid = $patient->Pid;
+				$logObject->foreign_table = 'patient';
+				$logObject->event_description = 'Patient portal login attempt: Success emergency';
+				$this->AuditLog->addLog($logObject);
+				return [
+					'Success' => true,
+					'Patient' => $patient,
+					'Who' => 'Emergency',
+					'WhoName' => $patient->EmergencyContactFirstName . ' ' . $patient->EmergencyContactMiddleName . ' ' . $patient->EmergencyContactLastName,
+					'Error' => ''
+				];
+			}
+		}
+
 		return $response;
 	}
 
@@ -89,28 +416,23 @@ class SoapHandler {
 	 * @return array
 	 */
 	public function newPatientAmendment($params)
-    {
-		try
-        {
+	{
+		try {
 			$this->constructor($params);
-			if(!$this->isAuth())
-            {
+			if (!$this->isAuth()) {
 				return [
 					'Success' => false,
 					'Error' => 'Error: HTTP 403 Access Forbidden'
 				];
 			}
 
-			include_once (ROOT . '/dataProvider/Amendments.php');
+			include_once(ROOT . '/dataProvider/Amendments.php');
 			$Amendments = new Amendments();
 			$data = json_decode($params->Data);
 
-			if(isset($data->demographics) && count($data->demographics) > 0)
-            {
-				foreach($data->demographics as &$demographic)
-                {
-					if(array_key_exists($demographic->field_name, $this->demographicsMap))
-                    {
+			if (isset($data->demographics) && count($data->demographics) > 0) {
+				foreach ($data->demographics as &$demographic) {
+					if (array_key_exists($demographic->field_name, $this->demographicsMap)) {
 						$demographic->field_name = $this->demographicsMap[$demographic->field_name];
 					}
 				}
@@ -133,26 +455,21 @@ class SoapHandler {
 			$record->create_date = date('Y-m-d H:i:s');
 
 			$record = $Amendments->addAmendment($record);
-			$record = (object) $record['data'];
+			$record = (object)$record['data'];
 
-			if(isset($record->id) && $record->id > 0)
-            {
+			if (isset($record->id) && $record->id > 0) {
 				return [
 					'Success' => true,
 					'AmendmentId' => $record->id,
 					'Error' => ''
 				];
-			}
-            else
-            {
+			} else {
 				return [
 					'Success' => false,
 					'Error' => 'Unable to complete request, Please contact provider.'
 				];
 			}
-		}
-        catch (Exception $e)
-        {
+		} catch (Exception $e) {
 			return [
 				'Success' => false,
 				'Error' => 'Unable to complete request, Please contact provider.'
@@ -160,19 +477,21 @@ class SoapHandler {
 		}
 	}
 
-
+	/**
+	 * @param $params
+	 * @return array
+	 */
 	public function cancelPatientAmendment($params)
-    {
+	{
 		$this->constructor($params);
-		if(!$this->isAuth())
-        {
+		if (!$this->isAuth()) {
 			return [
 				'Success' => false,
 				'Error' => 'Error: HTTP 403 Access Forbidden'
 			];
 		}
 
-		include_once (ROOT . '/dataProvider/Amendments.php');
+		include_once(ROOT . '/dataProvider/Amendments.php');
 		$Amendments = new Amendments();
 
 		$record = $Amendments->getAmendment([
@@ -180,26 +499,24 @@ class SoapHandler {
 			'pid' => $params->Pid
 		]);
 
-
-		if($record === false){
+		if ($record === false) {
 			return [
 				'Success' => false,
 				'Error' => 'Unable to find Amendment request'
 			];
-
 		}
 
-		$record = (object) $record;
+		$record = (object)$record;
 
-		if($record->amendment_status != 'W'){
+		if ($record->amendment_status != 'W') {
 
-			if($record->amendment_status === 'A'){
+			if ($record->amendment_status === 'A') {
 				$msg = 'Unable to cancel, Amendment previously approved';
-			}elseif($record->amendment_status === 'D'){
+			} elseif ($record->amendment_status === 'D') {
 				$msg = 'Unable to cancel, Amendment previously denied';
-			}elseif($record->amendment_status === 'C'){
+			} elseif ($record->amendment_status === 'C') {
 				$msg = 'Unable to cancel, Amendment previously canceled';
-			}else{
+			} else {
 				$msg = 'Unable to cancel, Amendment due to status (' . $record->amendment_status . ')';
 			}
 
@@ -213,7 +530,7 @@ class SoapHandler {
 		$record->update_uid = 0;
 		$record->amendment_status = 'C';
 		$record->cancel_date = date('Y-m-d H:i:s');
-		$record->cancel_by = 'P'. $record->pid;
+		$record->cancel_by = 'P' . $record->pid;
 		$record->update_date = date('Y-m-d H:i:s');
 
 		$Amendments->updateAmendment($record);
@@ -229,37 +546,78 @@ class SoapHandler {
 	 * @param $params
 	 * @return array
 	 */
-	public function GetCCDDocument($params) {
+	public function GetCCDDocument($params)
+	{
 		$this->constructor($params);
 
-		$_SESSION['user']['facility'] = $this->facility;
-
-		$ccd = new CCDDocument();
-		$ccd->setPid($params->pid);
-		$ccd->setTemplate('toc');
-		$ccd->createCCD();
-
-		if(!$this->isAuth()){
+		if (!$this->isAuth()) {
 			return [
 				'Success' => false,
 				'Error' => 'Error: HTTP 403 Access Forbidden'
 			];
 		}
+
+		$_SESSION['user']['facility'] = $this->facility;
+		include_once(ROOT . '/dataProvider/CCDDocument.php');
+		$ccd = new CCDDocument();
+		$ccd->setPid($params->Pid);
+		$ccd->setEid('all_enc');
+		$ccd->setTemplate('toc');
+		$ccd->createCCD();
+
 		return [
 			'Success' => true,
 			'Document' => $ccd->get()
 		];
 	}
 
-	public function AddPatient($params) {
+	/**
+	 * @param $params
+	 * @return array
+	 */
+	public function GetCCDSDocument($params){
 
+		$this->constructor($params);
+		if (!$this->isAuth()) {
+			return [
+				'Success' => false,
+				'Error' => 'Error: HTTP 403 Access Forbidden'
+			];
+		}
+
+		$params->DateStart = isset($params->DateStart) ? $params->DateStart : null;
+		$params->DateEnd = isset($params->DateEnd) ? $params->DateEnd : null;
+		$params->Excludes = isset($params->Excludes) ? explode('&', $params->Excludes) : [];
+
+		include_once(ROOT . '/dataProvider/PatientRecord.php');
+		$PatientRecord = new PatientRecord('xml');
+
+		$record = $PatientRecord->getRecord(
+				$params->Pid,
+				null,
+				null,
+				$params->DateStart,
+				$params->DateEnd,
+				$params->Excludes);
+
+		return [
+			'Success' => true,
+			'Record' => $record,
+			'Error' => ''
+		];
+	}
+
+	/**
+	 * @param $params
+	 * @return array
+	 */
+	public function AddPatient($params)
+	{
 		try {
 
 			$this->constructor($params);
 
-			if(!$this->isAuth()){
-				throw new \Exception('Error: HTTP 403 Access Forbidden');
-			}
+			if (!$this->isAuth()) throw new \Exception('Error: HTTP 403 Access Forbidden');
 
 			/**
 			 * Patient class
@@ -271,31 +629,31 @@ class SoapHandler {
 			 * validations
 			 */
 			$validations = [];
-			if(!isset($params->Patient->FirstName)){
+			if (!isset($params->Patient->FirstName)) {
 				$validations[] = 'First Name Missing';
 			}
-			if(!isset($params->Patient->LastName)){
+			if (!isset($params->Patient->LastName)) {
 				$validations[] = 'Last Name Missing';
 			}
-			if(!isset($params->Patient->DOB)){
+			if (!isset($params->Patient->DOB)) {
 				$validations[] = 'DOB Missing';
 			}
-			if(preg_match($this->vDate, $params->Patient->DOB) == 0){
+			if (preg_match($this->vDate, $params->Patient->DOB) == 0) {
 				$validations[] = 'DOB format YYYY-MM-DD not valid';
 			}
-			if(!isset($params->Patient->Sex)){
+			if (!isset($params->Patient->Sex)) {
 				$validations[] = 'Sex Missing';
 			}
-			if(isset($params->Patient->DriveLicenceExpirationDate) && preg_match($this->vDate, $params->Patient->DriveLicenceExpirationDate) == 0){
+			if (isset($params->Patient->DriveLicenceExpirationDate) && preg_match($this->vDate, $params->Patient->DriveLicenceExpirationDate) == 0) {
 				$validations[] = 'DriveLicenceExpirationDate format YYYY-MM-DD not valid';
 			}
-			if(isset($params->Patient->DeceaseDate) && preg_match($this->vDate, $params->Patient->DeceaseDate) == 0){
+			if (isset($params->Patient->DeceaseDate) && preg_match($this->vDate, $params->Patient->DeceaseDate) == 0) {
 				$validations[] = 'DeceaseDate format YYYY-MM-DD not valid';
 			}
-			if(isset($params->Patient->DeathDate) && preg_match($this->vDate, $params->Patient->DeathDate) == 0){
+			if (isset($params->Patient->DeathDate) && preg_match($this->vDate, $params->Patient->DeathDate) == 0) {
 				$validations[] = 'DeathDate format YYYY-MM-DD not valid';
 			}
-			if(isset($params->Patient->DeathDate) && preg_match($this->vDate, $params->Patient->DeathDate) == 0){
+			if (isset($params->Patient->DeathDate) && preg_match($this->vDate, $params->Patient->DeathDate) == 0) {
 				$validations[] = 'DeathDate format YYYY-MM-DD not valid';
 			}
 			if (isset($params->Patient->Email) && !filter_var($params->Patient->Email, FILTER_VALIDATE_EMAIL)) {
@@ -304,14 +662,13 @@ class SoapHandler {
 
 			// TODO validate Sex, MaritalStatus, Race, Ethnicity, Religion, and Language  HL7 values
 
-
-			if(isset($params->Patient->Pid) && $Patient->getPatientByPid($params->Patient->Pid) !== false){
+			if (isset($params->Patient->Pid) && $Patient->getPatientByPid($params->Patient->Pid) !== false) {
 				$validations[] = 'Duplicated Pid found in database';
 			}
-			if(isset($params->Patient->RecordNumber) && $Patient->getPatientByPublicId($params->Patient->RecordNumber) !== false){
+			if (isset($params->Patient->RecordNumber) && $Patient->getPatientByPublicId($params->Patient->RecordNumber) !== false) {
 				$validations[] = 'Duplicated RecordNumber found in database';
 			}
-			if(!empty($validations)){
+			if (!empty($validations)) {
 				throw new \Exception('Validation Error: ' . implode(', ', $validations));
 			}
 
@@ -381,37 +738,37 @@ class SoapHandler {
 				'RecordNumber' => $patient->pubpid
 			];
 
-		} catch(\Exception $e) {
+		} catch (\Exception $e) {
 			return [
 				'Success' => false,
 				'Error' => $e->getMessage()
 			];
 		}
-
 	}
 
 	/**
 	 * @param $params
 	 * @return array
 	 */
-	public function UploadPatientDocument($params) {
+	public function UploadPatientDocument($params)
+	{
 		$this->constructor($params);
 
-		if(!$this->isAuth()){
+		if (!$this->isAuth()) {
 			return [
 				'Success' => false,
 				'Error' => 'Error: HTTP 403 Access Forbidden'
 			];
 		}
 
-		if(!$this->isPatientValid()){
+		if (!$this->isPatientValid()) {
 			return [
 				'Success' => false,
 				'Error' => 'Error: No Valid Patient Found'
 			];
 		}
 
-		if(!$this->isProviderValid()){
+		if (!$this->isProviderValid()) {
 			return [
 				'Success' => false,
 				'Error' => 'Error: No Valid Provider Found'
@@ -447,7 +804,8 @@ class SoapHandler {
 	 *
 	 * @return mixed|object
 	 */
-	private function getProvider($provider) {
+	private function getProvider($provider)
+	{
 		require_once(ROOT . '/dataProvider/User.php');
 		$User = new User();
 		$provider = $User->getUserByNPI($provider->NPI);
@@ -456,144 +814,75 @@ class SoapHandler {
 	}
 
 	/**
-	 * @param $patient
+	 * Method to get the patient record, by using the Patient ID, or the
+	 * WebPortal, or Guardians Account this method is also used by mdTimeLine PHR Portal
+	 * @param $patient Object
 	 *
 	 * @return mixed|object
 	 */
-	private function getPatient($patient) {
+	private function getPatient($patient)
+	{
 		require_once(ROOT . '/dataProvider/Patient.php');
 		$Patient = new Patient();
-		if(isset($patient->PatientAccount))
-		{
-			$patient = $Patient->getPatientByUsername($patient->PatientAccount);
+
+		// If the Patient Account is set, this means that the method is called from the
+		// Patient WebPortal.
+		if (isset($patient->PatientAccount)) {
+			$patientValidate = $Patient->getPatientByUsername($patient->PatientAccount);
+			if (empty($patientValidate)) $patientValidate = $Patient->getPatientByGuardian($patient->PatientAccount);
+			if (empty($patientValidate)) $patientValidate = $Patient->getPatientByEmergencyContact($patient->PatientAccount);
+		} else {
+			$patientValidate = $Patient->getPatientByPid($patient->Pid);
 		}
-		else
-		{
-			$patient = $Patient->getPatientByPid($patient->Pid);
-		}
+
 		unset($Patient);
-		return $this->patient = $patient !== false ? $this->convertPatient($patient, false) : $patient;
+		return $this->patient !== false ? $this->convertPatient($patientValidate, false) : $patientValidate;
 	}
 
 	/**
 	 * @return bool
 	 */
-	private function isPatientValid() {
+	private function isPatientValid()
+	{
 		return $this->patient !== false;
 	}
 
 	/**
 	 * @return bool
 	 */
-	private function isProviderValid() {
+	private function isProviderValid()
+	{
 		return $this->provider !== false;
 	}
 
-	/**
-	 * @param $error
-	 */
-	private function consolelog($error) {
-		ob_start();
-		print_r($error);
-		$contents = ob_get_contents();
-		ob_end_clean();
-	}
-
-	private function convertPatient($data, $inbound) {
-
+	private function convertPatient($data, $inbound)
+	{
 		$mapped = new \stdClass();
-
-		if(is_array($data)){
-			$data = (object)$data;
-		}
-
-		if($inbound){
-			foreach($this->demographicsMap as $service => $gaia){
-				if(isset($data->{$service})){
+		if (is_array($data)) $data = (object)$data;
+		if ($inbound) {
+			foreach ($this->demographicsMap as $service => $gaia) {
+				if (isset($data->{$service})) {
 					$mapped->{$gaia} = $data->{$service};
-					if($gaia == 'DOB' || $gaia == 'drivers_license_exp' || $gaia == 'death_date'){
+					if ($gaia == 'DOB' || $gaia == 'drivers_license_exp' || $gaia == 'death_date') {
 						$mapped->{$gaia} = str_replace(' ', 'T', $mapped->{$gaia});
 					}
 				}
 
 			}
 		} else {
-			foreach($this->demographicsMap as $service => $gaia){
-				if(isset($data->{$gaia})){
+			foreach ($this->demographicsMap as $service => $gaia) {
+				if (isset($data->{$gaia})) {
 					$mapped->{$service} = $data->{$gaia};
 
-					if($service == 'DateOfBirth' || $service == 'DriverLicenceExpirationDate' || $service == 'DeceaseDate'){
+					if ($service == 'DateOfBirth' || $service == 'DriverLicenceExpirationDate' || $service == 'DeceaseDate') {
 						$mapped->{$service} = str_replace(' ', 'T', $mapped->{$service});
 
-					} elseif($service == 'Language' && $mapped->{$service} == '') {
+					} elseif ($service == 'Language' && $mapped->{$service} == '') {
 						unset($mapped->{$service});
 					}
 				}
 			}
 		}
-
 		return $mapped;
 	}
-
-	/**
-	 * This is the Mapping variable
-	 * @var array
-	 */
-	private $demographicsMap = [
-		'Pid' => 'pid',
-		'RecordNumber' => 'pubpid',
-		'AccountNumber' => 'pubaccount',
-		'Title' => 'title',
-		'FirstName' => 'fname',
-		'MiddleName' => 'mname',
-		'LastName' => 'lname',
-		'DateOfBirth' => 'DOB',
-		'Sex' => 'sex',
-		'MaritalStatus' => 'marital_status',
-		'Race' => 'race',
-		'Ethnicity' => 'ethnicity',
-		//'Religion' => 'pid',
-		'Language' => 'language',
-		'DriverLicence' => 'drivers_license',
-		'DriverLicenceState' => 'drivers_license_state',
-		'DriverLicenceExpirationDate' => 'drivers_license_exp',
-		'PhysicalAddressLineOne' => 'address',
-		'PhysicalAddressLineTwo' => 'address_cont',
-		'PhysicalCity' => 'city',
-		'PhysicalState' => 'state',
-		'PhysicalCountry' => 'country',
-		'PhysicalZipCode' => 'zipcode',
-		//'PostalAddressLineOne' => 'pid',
-		//'PostalAddressLineTwo' => 'pid',
-		//'PostalCity' => 'pid',
-		//'PostalState' => 'pid',
-		//'PostalZipCode' => 'pid',
-		'HomePhoneNumber' => 'home_phone',
-		'MobilePhoneNumber' => 'mobile_phone',
-		'WorkPhoneNumber' => 'work_phone',
-		'WorkPhoneExt' => 'work_phone_ext',
-		'Email' => 'email',
-		'ProfileImage' => 'image',
-		'IsBirthMultiple' => 'birth_multiple',
-		'BirthOrder' => 'birth_order',
-		'Deceased' => 'deceased',
-		'DeceaseDate' => 'death_date',
-		'MothersFirstName' => 'mothers_name',
-		//'MothersMiddleName' => 'pid',
-		//'MothersLastName' => 'pid',
-		'GuardiansFirstName' => 'guardians_name',
-		//'GuardiansMiddleName' => 'pid',
-		//'GuardiansLastName' => 'pid',
-		//'GuardiansPhone' => 'pid',
-		'EmergencyContactFirstName' => 'emer_contact',
-		//'EmergencyContactMiddleName' => 'pid',
-		//'EmergencyContactLastName' => 'pid',
-		'EmergencyContactPhone' => 'emer_phone',
-		'Occupation' => 'occupation',
-		'Employer' => 'employer_name',
-		'WebPortalUsername' => 'portal_username',
-		'WebPortalPassword' => 'portal_password',
-		'WebPortalAccess' => 'allow_patient_web_portal',
-	];
-
 }

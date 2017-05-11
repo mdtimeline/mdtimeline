@@ -74,6 +74,7 @@ class SnomedCodes {
 		$sth = $this->conn->prepare($sql);
 		$sth->execute([':c1' => '%'.$params->query.'%', ':c2' => $params->query.'%']);
 		$results = $sth->fetchAll(PDO::FETCH_ASSOC);
+
 		return [
 			'totals' => count($results),
 		    'data' => array_slice($results, $params->start, $params->limit)
@@ -106,12 +107,3 @@ class SnomedCodes {
 	}
 
 }
-
-//$f = new DiagnosisCodes();
-//print '<pre>';
-//$params = new stdClass();
-////$params->codeType = 'ICD9';
-//$params->query = '205';
-//$params->start = 0;
-//$params->limit = 25;
-//print_r($f->ICDCodeSearch($params));

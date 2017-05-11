@@ -16,39 +16,68 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-if(!isset($_SESSION)){
-	session_name('GaiaEHR');
-	session_start();
+if (!isset($_SESSION)) {
 	session_cache_limiter('private');
+	session_name('mdTimeLine');
+	session_start();
 }
 
-if(!isset($_REQUEST['token']) || str_replace(' ', '+', $_REQUEST['token']) != $_SESSION['user']['token'])
-	die('Not Authorized!');
+if (!isset($_REQUEST['id'])){
+	die('');
+}
 
-if(!defined('_GaiaEXEC'))
+if (strlen($_REQUEST['id']) > 0 && ($_REQUEST['id'][0] == '-' || $_REQUEST['id'] == '0') ){
+	die('');
+}
+
+if (!isset($_REQUEST['token']) || str_replace(' ', '+', $_REQUEST['token']) != $_SESSION['user']['token']) {
+	die('Not Authorized!');
+}
+
+if (!defined('_GaiaEXEC')) {
 	define('_GaiaEXEC', 1);
-require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
-require_once(ROOT . '/sites/' . $_REQUEST['site'] . '/conf.php');
+}
+
+if (!defined('ROOT')) {
+	define('ROOT', str_replace('\\', '/', dirname(dirname(__FILE__))));
+}
+
+if (isset($_REQUEST['site'])) {
+	if (!defined('SITE')) {
+		define('SITE', $_REQUEST['site']);
+	}
+}
+
+require_once(ROOT . '/dataProvider/Site.php');
+\Site::setAllowSiteSwitch(true);
+
+require_once(str_replace('\\', '/', dirname(__FILE__)) . '/../registry.php');
 
 ini_set('memory_limit', '1024M');
 ini_set('max_execution_time', 5);
 
-if(isset($_SESSION['user']) && (isset($_SESSION['user']['auth']) && $_SESSION['user']['auth'] == true) || (isset($_SESSION['user']['portal_authorized']) && $_SESSION['user']['portal_authorized'] == true)){
+if (
+	isset($_SESSION['user']) && (
+		(isset($_SESSION['user']['auth']) && $_SESSION['user']['auth'] == true) ||
+		(isset($_SESSION['user']['portal_authorized']) && $_SESSION['user']['portal_authorized'] == true)
+	)
+) {
 	/**
 	 * init Matcha
 	 */
 	require_once(ROOT . '/classes/MatchaHelper.php');
 	require_once(ROOT . '/dataProvider/TransactionLog.php');
+	require_once(ROOT . '/dataProvider/Globals.php');
 	new MatchaHelper();
+	$TransactionLog = new TransactionLog();
 
-	if(!isset($_REQUEST['id']))
-		die('');
-
-	function get_mime_type($file) {
+	function get_mime_type($file)
+	{
 		$mime_types = [
 			"pdf" => "application/pdf",
 			"exe" => "application/octet-stream",
 			"zip" => "application/zip",
+			"xml" => "application/xml",
 			"docx" => "application/msword",
 			"doc" => "application/msword",
 			"xls" => "application/vnd.ms-excel",
@@ -72,7 +101,8 @@ if(isset($_SESSION['user']) && (isset($_SESSION['user']['auth']) && $_SESSION['u
 			"php" => "text/html",
 			"htm" => "text/html",
 			"html" => "text/html",
-			"xml" => "text/xml"
+
+			"txt" => "text/plain"
 		];
 
 		$foo = explode('.', $file);
@@ -80,34 +110,39 @@ if(isset($_SESSION['user']) && (isset($_SESSION['user']['auth']) && $_SESSION['u
 		return isset($mime_types[$extension]) ? $mime_types[$extension] : '';
 	}
 
-	function base64ToBinary($document, $encrypted, $is_image) {
-		if($encrypted == true){
-			$document = MatchaUtils::decrypt($document);
-		}
-		if(!$is_image){
-			$document = base64_decode($document);
+	function base64ToBinary($document, $encrypted, $is_image){
+		// handle binary documents
+		if(preg_match('%^[a-zA-Z0-9/+]*={0,2}$%', $document)){
+			return base64_decode($document);
 		}
 		return $document;
 	}
 
+	function isBinary($document){
+		if (function_exists('is_binary') && is_binary($document)) {
+			return true;
+		} elseif (preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0) {
+			return true;
+		}
+		return false;
+	}
+
 	$isTemp = isset($_REQUEST['temp']);
 
-	$TransactionLog = new TransactionLog();
-
-	if($isTemp){
+	if ($isTemp) {
 		$d = MatchaModel::setSenchaModel('App.model.patient.PatientDocumentsTemp');
 
 		$doc = $d->load($_REQUEST['id'])->one();
-		if($doc === false){
+		if ($doc === false) {
 			error_log('No Document Found, Please contact Support Desk. Thank You!');
 			die('No Document Found, Please contact Support Desk. Thank You!');
 		}
-		$doc = (object)$doc;
-		$doc->name = isset($doc->document_name) && $doc->document_name != '' ? $doc->document_name : 'temp.pdf';
-		$doc->is_temp = 'true';
-		$mineType = get_mime_type($doc->name);
+		//$doc = (object)$doc;
+		$doc['name'] = isset($doc['document_name']) && $doc['document_name'] != '' ? $doc['document_name'] : 'temp.pdf';
+		$doc['is_temp'] = 'true';
+		$mineType = get_mime_type($doc['name']);
 		$is_image = preg_match('/^image/', $mineType);
-		$document = base64ToBinary($doc->document, false, $is_image);
+		$document = base64ToBinary($doc['document'], false, $is_image);
 		$TransactionLog->saveTransactionLog([
 			'event' => 'EXPORT',
 			'data' => 'Generated a PDF'
@@ -115,30 +150,56 @@ if(isset($_SESSION['user']) && (isset($_SESSION['user']['auth']) && $_SESSION['u
 	} else {
 		$d = MatchaModel::setSenchaModel('App.model.patient.PatientDocuments');
 		$doc = $d->load($_REQUEST['id'])->one();
-		if($doc === false){
-			error_log('No Document Found, Please contact Support Desk. Thank You!');
-			die('No Document Found, Please contact Support Desk. Thank You!');
+		if ($doc === false) {
+			error_log('No Document Found for id ' . $_REQUEST['id']);
+			die();
 		}
-		$doc = (object)$doc;
-		$doc->is_temp = 'false';
-		$mineType = get_mime_type($doc->name);
-		$is_image = preg_match('/^image/', $mineType);
+		$doc['is_temp'] = 'false';
+		$filesystem_path = '';
 
-		if(isset($doc->document_instance)){
-			$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $doc->document_instance);
-			$data = $dd->load($doc->document_id)->one();
-			if($data == false){
-				error_log('No Document Found, Please contact Support Desk. Thank You!');
-				die('No Document Data Found, Please contact Support Desk. Thank You!');
-			}
-			$data = (object)$data;
-			$document = base64ToBinary($data->document, $doc->encrypted, $is_image);
+		if(isset($doc['filesystem_id']) && $doc['filesystem_id'] > 0){
+			require_once(ROOT . '/dataProvider/FileSystem.php');
+			$FileSystem = new FileSystem();
+			$filesystem_path = $FileSystem->getFileSystemPath($doc['filesystem_id']);
+		}
+
+		$file_path = $filesystem_path . $doc['path'] . '/' . $doc['name'];
+		$is_file = isset($doc['path']) && $doc['path'] != '' && file_exists($file_path);
+
+		if ($is_file) {
+			$mineType = mime_content_type($file_path);
+			$is_image = preg_match('/^image/', $mineType);
+
+			$document = file_get_contents($file_path);
 			$TransactionLog->saveTransactionLog([
 				'event' => 'VIEW',
 				'data' => 'Generated and viewed image'
 			]);
+
+		} elseif(isset($doc['document_instance']) && $doc['document_instance'] != '') {
+
+			$mineType = get_mime_type($doc['name']);
+			$is_image = preg_match('/^image/', $mineType);
+
+			$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $doc['document_instance']);
+			$data = $dd->load($doc['document_id'])->one();
+			if ($data == false) {
+				error_log('No Document Found For id ' . $doc['document_id']);
+				die();
+			}
+			$data = (object)$data;
+			$document = base64ToBinary($data->document, $doc['encrypted'], $is_image);
+			$TransactionLog->saveTransactionLog([
+				'event' => 'VIEW',
+				'data' => 'Generated and viewed image'
+			]);
+
 		} else {
-			$document = base64ToBinary($doc->document, $doc->encrypted, $is_image);
+
+			$mineType = get_mime_type($doc['name']);
+			$is_image = preg_match('/^image/', $mineType);
+
+			$document = base64ToBinary($doc['document'], $doc['encrypted'], $is_image);
 			$TransactionLog->saveTransactionLog([
 				'event' => 'VIEW',
 				'data' => 'Generated and viewed image'
@@ -148,39 +209,71 @@ if(isset($_SESSION['user']) && (isset($_SESSION['user']['auth']) && $_SESSION['u
 
 	unset($TransactionLog);
 
-	if($is_image){
+
+    if($mineType == 'text/plain') {
+        print '<pre>';
+        if (substr($document, -1) == '=') {
+            $document = base64_decode($document);
+        }
+        print $document;
+        print '</pre>';
+
+    } elseif ($is_image) {
 
 		$enableEdit = isset($_SESSION['user']['auth']) && $_SESSION['user']['auth'] == true;
 
-		if($enableEdit){
+		if(isBinary($document)){
+			$document = base64_encode($document);
+		}
+
+		if ($enableEdit) {
+
 			$html = <<<HTML
 			<!doctype html>
 			<html>
 				<head>
 				    <meta charset="UTF-8">
-				    <link rel="stylesheet" href="../lib/darkroomjs/build/css/darkroom.min.css">
+				    <link rel="stylesheet" href="../lib/darkroomjs/build/darkroom.css">
+				    <style>
+						.btn {
+						  font-family: Arial;
+						  color: #ffffff;
+						  font-size: 16px;
+						  background: #616161;
+						  padding: 5px 10px 5px 10px;
+						  border: solid #3d3d3d 0px;
+						  text-decoration: none;
+						}
+						
+						.btn:hover {
+						  background: #3cb0fd;
+						  text-decoration: none;
+						}
+				    
+					</style>
 				</head>
-				<body style="overflow: hidden">
-			        <div class="image-container target">
-				        <img src="data:{$mineType};base64,{$document}" style="width:100%;" alt="" id="target" crossOrigin="anonymous">
+				<body style="overflow: hidden; position: relative;">
+					<input style="position: absolute; right:0;top:0" class="btn" type="button" value="Edit" onclick="enableDarkroom(this);" />
+			        <div class="image-container target" style="left: 0; top:0;width:100%;">
+				        <img style="width:100%;" alt="" id="target" crossOrigin="anonymous" src="data:{$mineType};base64,{$document}">
 			        </div>
-					<script src="../lib/darkroomjs/vendor/fabric.js" data-illuminations="true"></script>
-					<script src="../lib/darkroomjs/build/js/darkroom.min.js" data-illuminations="true"></script>
-					<script data-illuminations="true">
-
-				    var dkrm = new Darkroom('#target', {
-				        plugins: {
-					        save: '$doc->is_temp' == 'true' ? false : {
-					            callback: function(){
-			                        var msg = 'documentedit{"save":{"id":{$doc->id},"document":"'+dkrm.snapshotImage()+'" }}';
-			                        window.parent.postMessage(msg, '*');
+					<script src="../lib/darkroomjs/demo/vendor/fabric.js" ></script>
+					<script src="../lib/darkroomjs/build/darkroom.js" ></script>
+					<script>
+					
+						function enableDarkroom(btn){
+							btn.style.display = 'none';
+							var dkrm = new Darkroom('#target', {
+						     	plugins: {
+							        save: '{$doc['is_temp']}' == 'true' ? false : {
+							            callback: function(){
+					                        var msg = 'documentedit{"save":{"id":{$doc['id']},"document":"'+dkrm.snapshotImage()+'" }}';
+					                        window.parent.postMessage(msg, '*');
+							            }
+							        }
 					            }
-					        },
-					        crop: {
-					            quickCropKey: 67
-				            }
-			            }
-				    });
+						    });
+						}
 				  </script>
 				</body>
 			</html>
@@ -199,19 +292,60 @@ HTML;
 		}
 
 		print $html;
-
 	} else {
-		header('Content-Type: ' . $mineType, true);
-		header('Content-Disposition: inline; filename="' . $doc->name . '"');
-		header('Content-Transfer-Encoding: BINARY');
-		header('Content-Length: ' . strlen($document));
-		header('Accept-Ranges: bytes');
-		print $document;
+    	if($mineType === 'application/xml'){
+
+    		if(isset($_REQUEST['rawXml'])){
+
+			    $document = preg_replace('/<\?xml-stylesheet (.*)\?>/', "" ,$document, 1);
+			    $encoding = mb_detect_encoding($document, 'ISO-8859-1,UTF-8');
+			    $encoding = $encoding === false ? '' : '; charset=' . $encoding;
+
+			    header_remove();
+			    header('Content-type: text/xml', true);
+			    print ($document);
+
+		    }else{
+			    $isCcr = preg_match('/<ccr:/',$document);
+			    if($isCcr){
+				    $href =  URL.'/lib/CCRCDA/schema/ccr.xsl';
+			    }else{
+				    $href =  URL.'/lib/CCRCDA/schema/cda2.xsl';
+			    }
+
+			    if(preg_match('/xml-stylesheet/', $document)){
+				    $document = preg_replace('/(href=").*\.xsl(")/', "$1{$href}$2" ,$document, 1);
+			    }else{
+				    $stylesheet = "<?xml-stylesheet type=\"text/xsl\" href=\"{$href}\"?>";
+				    $document = preg_replace('/(<\?xml version.*\?>)/', "$1$stylesheet" ,$document, 1);
+			    }
+
+			    $encoding = mb_detect_encoding($document, 'ISO-8859-1,UTF-8');
+			    $encoding = $encoding === false ? '' : '; charset=' . $encoding;
+
+			    header('Content-Type: ' . $mineType . $encoding, true);
+			    header('Content-Disposition: inline; filename="' . $doc['name'] . '"');
+			    header('Content-Transfer-Encoding: BINARY');
+			    header('Content-Length: ' . strlen($document));
+			    header('Accept-Ranges: bytes');
+			    print $document;
+
+		    }
+	    } else {
+
+		    $encoding = mb_detect_encoding($document, 'ISO-8859-1,UTF-8');
+		    $encoding = $encoding === false ? '' : '; charset=' . $encoding;
+
+		    header('Content-Type: ' . $mineType . $encoding, true);
+		    header('Content-Disposition: inline; filename="' . $doc['name'] . '"');
+		    header('Content-Transfer-Encoding: BINARY');
+		    header('Content-Length: ' . strlen($document));
+		    header('Accept-Ranges: bytes');
+		    print $document;
+	    }
+
 	}
 
 } else {
 	print 'Not Authorized to be here, Please contact Support Desk. Thank You!';
 }
-
-
-

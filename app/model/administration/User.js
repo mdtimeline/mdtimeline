@@ -88,6 +88,11 @@ Ext.define('App.model.administration.User', {
 			encrypt: true
 		},
 		{
+			name: 'password_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
 			name: 'title',
 			type: 'string',
 			comment: 'title (Mr. Mrs.)',
@@ -113,6 +118,11 @@ Ext.define('App.model.administration.User', {
 			comment: 'last name',
 			len: 120,
 			index: true
+		},
+		{
+			name: 'signature',
+			type: 'string',
+			len: 100
 		},
 		{
 			name: 'fullname',
@@ -257,10 +267,10 @@ Ext.define('App.model.administration.User', {
 			len: 55
 		},
 		{
-			name: 'state',
-			type: 'string',
-			len: 55
-		},
+            name: 'state',
+            type: 'string',
+            len: 55
+        },
 		{
 			name: 'postal_code',
 			type: 'string',

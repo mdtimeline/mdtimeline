@@ -742,6 +742,12 @@ class Segments {
 		$types['SCV'][1] = $types['CWE'];    // (CWE)
 		$types['SCV'][2] = $types['ST'];     // (ST)
 
+		$types['SN'][0] = '';               // (SN)
+		$types['SN'][1] = $types['ST'];     // (ST)
+		$types['SN'][2] = $types['NM'];     // (NM)
+		$types['SN'][2] = $types['ST'];     // (ST)
+		$types['SN'][2] = $types['NM'];     // (NM)
+
 		return $types[$type];
 
 	}

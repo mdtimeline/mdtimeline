@@ -75,7 +75,7 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 		{
 			name: 'status',
 			type: 'string',
-			len: 40
+			len: 20
 		},
 		{
 			name: 'status_code',
@@ -91,6 +91,16 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 			name: 'note',
 			type: 'string',
 			len: 300
+		},
+		{
+			name: 'reconciled',
+			type: 'bool',
+			index: true
+		},
+		{
+			name: 'reconciled_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
 		},
 		{
 			name: 'active',

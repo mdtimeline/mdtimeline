@@ -31,9 +31,10 @@ class AddressBook {
 	/**
 	 * @param $params
 	 *
-	 * @return mixed
+	 * @return array|object Return all the record on the contact depending all the passed $params
 	 */
 	public function getContacts($params) {
+        /** @var string|null Should contain a description */
 		return $this->a->load($params)->all();
 	}
 

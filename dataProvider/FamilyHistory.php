@@ -29,9 +29,6 @@ class FamilyHistory {
             $this->fh = MatchaModel::setSenchaModel('App.model.patient.FamilyHistory');
 	}
 
-    //------------------------------------------------------------------------------------------------------------------
-    // Main Sencha Model Getter and Setters
-    //------------------------------------------------------------------------------------------------------------------
 	/**
 	 * @param stdClass $params
 	 * @return array
@@ -74,5 +71,22 @@ class FamilyHistory {
 		$filters->filter[0]->property = 'pid';
 		$filters->filter[0]->value = $pid;
 		return $this->getFamilyHistory($filters);
+	}
+	/**
+	 * @param $pid
+	 * @return mixed
+	 */
+	public function getFamilyHistoryByPidAndDates($pid, $start = null, $end = null){
+
+		$this->fh->addFilter('pid', $pid);
+
+		if(isset($start)){
+			$this->fh->addFilter('create_data', $start, '>=');
+		}
+		if(isset($end)) {
+			$this->fh->addFilter('create_data', $end, '<=');
+		}
+
+		return $this->fh->load()->all();
 	}
 }

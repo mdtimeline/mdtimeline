@@ -36,6 +36,10 @@ Ext.define('App.controller.patient.Medications', {
 			ref: 'PatientMedicationReconciledBtn',
 			selector: '#PatientMedicationReconciledBtn'
 		},
+        {
+            ref: 'PatientMedicationActiveBtn',
+            selector: '#PatientMedicationActiveBtn'
+        },
 		{
 			ref: 'PatientMedicationUserLiveSearch',
 			selector: '#PatientMedicationUserLiveSearch'
@@ -78,9 +82,12 @@ Ext.define('App.controller.patient.Medications', {
 			'#patientMedicationLiveSearch': {
 				select: me.onMedicationLiveSearchSelect
 			},
-			'#PatientMedicationReconciledBtn': {
-				click: me.onPatientMedicationReconciledBtnClick
+			'#PatientMedicationActiveBtn': {
+				click: me.onPatientMedicationActiveBtnClick
 			},
+            '#PatientMedicationReconciledBtn': {
+                click: me.onPatientMedicationReconciledBtnClick
+            },
 			'#PatientMedicationUserLiveSearch': {
 				select: me.onPatientMedicationUserLiveSearchSelect,
                 reset: me.onPatientMedicationUserLiveSearchReset
@@ -125,7 +132,8 @@ Ext.define('App.controller.patient.Medications', {
 			RXCUI: records[0].data.RXCUI,
 			CODE: records[0].data.CODE,
             GS_CODE: records[0].data.GS_CODE,
-			NDC: records[0].data.NDC
+			NDC: records[0].data.NDC,
+			TTY: records[0].data.TTY
 		});
 	},
 
@@ -209,23 +217,54 @@ Ext.define('App.controller.patient.Medications', {
 	},
 
 	onMedicationLiveSearchSelect: function(cmb, records){
-		var form = cmb.up('form').getForm();
+		var form = cmb.up('form').getForm(),
+			record = records[0],
+			order_record = form.getRecord();
 
-		form.getRecord().set({
-			RXCUI: records[0].data.RXCUI,
-			CODE: records[0].data.CODE,
-            GS_CODE: records[0].data.GS_CODE,
-			NDC: records[0].data.NDC
+		order_record.set({
+			RXCUI: record.data.RXCUI,
+			CODE: record.data.CODE,
+            GS_CODE: record.data.GS_CODE,
+			NDC: record.data.NDC,
+			TTY: record.data.TTY
 		});
+
+		var data = {};
+
+		Rxnorm.getMedicationAttributesByRxcuiApi(record.data.RXCUI, function(response){
+
+			if(response.propConceptGroup){
+				response.propConceptGroup.propConcept.forEach(function(propConcept){
+
+					if(propConcept.propCategory != 'ATTRIBUTES' && propConcept.propCategory != 'CODES') return;
+
+					if(!data[propConcept.propCategory]){
+						data[propConcept.propCategory] = {};
+					}
+					var propName = propConcept.propName.replace(' ', '_');
+					data[propConcept.propCategory][propName] = propConcept.propValue;
+				});
+			}
+
+			if(data.ATTRIBUTES && data.ATTRIBUTES.SCHEDULE && data.ATTRIBUTES.SCHEDULE != '0'){
+				order_record.set({ is_controlled: true });
+			}
+		});
+
 	},
 
 	onPatientMedicationReconciledBtnClick: function(){
 		this.onMedicationsPanelActive();
 	},
 
+    onPatientMedicationActiveBtnClick: function(){
+        this.onMedicationsPanelActive();
+    },
+
     onMedicationsPanelActive: function(){
         var store = this.getPatientMedicationsGrid().getStore(),
-            reconciled = this.getPatientMedicationReconciledBtn().pressed;
+            reconciled = this.getPatientMedicationReconciledBtn().pressed,
+            active = this.getPatientMedicationActiveBtn().pressed;
 
         store.clearFilter(true);
         store.load({
@@ -236,7 +275,8 @@ Ext.define('App.controller.patient.Medications', {
                 }
             ],
             params: {
-                reconciled: reconciled
+                reconciled: reconciled,
+                active: active
             }
         });
     }

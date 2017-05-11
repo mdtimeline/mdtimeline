@@ -147,6 +147,36 @@ class CronBootstrap
     }
 
     /**
+     * killProcess
+     * Kills a process that is currently running.
+     *
+     * @param $PID
+     * @return bool
+     */
+    private function killProcess($PID){
+        try{
+            switch(PHP_OS){
+                case 'Linux':
+                    $cmd = "kill $PID";
+                    shell_exec($cmd);
+                    break;
+                case 'Darwin':
+                    $cmd = "kill $PID";
+                    shell_exec($cmd);
+                    break;
+                case 'WINNT':
+                    $cmd = "TASKKILL /PID $PID /T";
+                    shell_exec($cmd);
+                    break;
+            }
+            return true;
+        } catch (Exception $Error) {
+            error_log($Error->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * evaluateValueRages
      *
      * Evaluates the values to see the type of range and then compares them with
@@ -247,14 +277,12 @@ class CronBootstrap
             case 'Darwin': // Darwin (MacOS)
                 $cmd = 'ps -Ao "%p|%t|%a"';
                 $result = shell_exec($cmd);
-                $header = null;
                 $tasks = self::csv_to_array($result, "\n", "|");
                 foreach($tasks as $task) if($task['PID'] == $PID) return true;
                 break;
             case 'WINNT': // Windows
                 $cmd = "tasklist /FO CSV";
                 $result = shell_exec($cmd);
-                $header = null;
                 $tasks = self::csv_to_array($result, "\n");
                 foreach($tasks as $task) if($task['PID'] == $PID) return true;
                 break;

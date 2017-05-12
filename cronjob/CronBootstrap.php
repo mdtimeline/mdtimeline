@@ -146,6 +146,19 @@ class CronBootstrap
         }
     }
 
+	/**
+	 *
+	 */
+    public function end(){
+		//TODO
+
+
+
+
+
+    	exit(0);
+    }
+
     /**
      * killProcess
      * Kills a process that is currently running.

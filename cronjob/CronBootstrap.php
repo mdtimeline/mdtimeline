@@ -147,6 +147,27 @@ class CronBootstrap
     }
 
     /**
+     * end
+     * The end of the running script, use this method to tell the Bootstrap that your strip has
+     * ended.
+     * `
+     * @return bool
+     */
+    public function end(){
+        try{
+            $data = new stdClass();
+            $data->id = $this->CronJobParams['data']['id'];
+            $data->pid = '';
+            $data->running = false;
+            $this->CronJobModel->save($data);
+            return true;
+        } catch(Exception $Error){
+            error_log($Error->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * killProcess
      * Kills a process that is currently running.
      *
@@ -275,7 +296,7 @@ class CronBootstrap
                 foreach($tasks as $task) if($task['PID'] == $PID) return true;
                 break;
             case 'Darwin': // Darwin (MacOS)
-                $cmd = 'ps -Ao "%p|%t|%a"';
+                $cmd = 'ps -Ao "pid"';
                 $result = shell_exec($cmd);
                 $tasks = self::csv_to_array($result, "\n", "|");
                 foreach($tasks as $task) if($task['PID'] == $PID) return true;

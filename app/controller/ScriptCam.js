@@ -64,13 +64,15 @@ Ext.define('App.controller.ScriptCam', {
 			navigator.webkitGetUserMedia ||
 			navigator.mozGetUserMedia ||
 			navigator.msGetUserMedia);
-		navigator.getMedia({
+
+		me.media = navigator.getMedia({
 			video: true,
 			audio: false
 		}, me.onConnect, me.onError);
 	},
 
-	onConnect: function(stream){
+	onConnect: function(stream, b, c){
+
 		var me = app.getController('ScriptCam');
 
 		me.win = Ext.create('Ext.window.Window', {
@@ -86,7 +88,7 @@ Ext.define('App.controller.ScriptCam', {
 			],
 			listeners: {
 				close: function(){
-					stream.stop();
+					stream.active = false;
 				}
 			}
 		});

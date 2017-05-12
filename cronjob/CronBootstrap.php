@@ -275,7 +275,7 @@ class CronBootstrap
                 foreach($tasks as $task) if($task['PID'] == $PID) return true;
                 break;
             case 'Darwin': // Darwin (MacOS)
-                $cmd = 'ps -Ao "%p|%t|%a"';
+                $cmd = 'ps -Ao "pid"';
                 $result = shell_exec($cmd);
                 $tasks = self::csv_to_array($result, "\n", "|");
                 foreach($tasks as $task) if($task['PID'] == $PID) return true;

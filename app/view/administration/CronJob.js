@@ -64,7 +64,8 @@ Ext.define('App.view.administration.CronJob', {
                         align: 'center',
                         editor: {
                             xtype: 'textfield',
-                            allowBlank: false
+                            allowBlank: false,
+	                        inputAttrTpl: 'style="text-align:center"'
                         }
                     },
                     {
@@ -73,7 +74,9 @@ Ext.define('App.view.administration.CronJob', {
                         align: 'center',
                         editor: {
                             xtype: 'textfield',
-                            allowBlank: false
+                            allowBlank: false,
+	                        inputAttrTpl: 'style="text-align:center"'
+
                         }
                     },
                     {
@@ -82,7 +85,8 @@ Ext.define('App.view.administration.CronJob', {
                         align: 'center',
                         editor: {
                             xtype: 'textfield',
-                            allowBlank: false
+                            allowBlank: false,
+	                        inputAttrTpl: 'style="text-align:center"'
                         }
                     },
                     {
@@ -91,7 +95,8 @@ Ext.define('App.view.administration.CronJob', {
                         align: 'center',
                         editor: {
                             xtype: 'textfield',
-                            allowBlank: false
+                            allowBlank: false,
+	                        inputAttrTpl: 'style="text-align:center"'
                         }
                     },
                     {
@@ -100,7 +105,8 @@ Ext.define('App.view.administration.CronJob', {
                         align: 'center',
                         editor: {
                             xtype: 'textfield',
-                            allowBlank: false
+                            allowBlank: false,
+	                        inputAttrTpl: 'style="text-align:center"'
                         }
                     },
                     {
@@ -109,7 +115,8 @@ Ext.define('App.view.administration.CronJob', {
                         align: 'center',
                         editor: {
                             xtype: 'numberfield',
-                            allowBlank: false
+                            allowBlank: false,
+	                        inputAttrTpl: 'style="text-align:center"'
                         }
                     },
                     {

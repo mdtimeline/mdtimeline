@@ -146,6 +146,10 @@ class CronBootstrap
         }
     }
 
+    public function getParams(){
+        return $this->CronJobParams['data']['params'];
+    }
+
     /**
      * end
      * The end of the running script, use this method to tell the Bootstrap that your strip has

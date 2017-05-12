@@ -120,6 +120,16 @@ Ext.define('App.view.administration.CronJob', {
                         }
                     },
                     {
+                        text: _('parameters'),
+                        dataIndex: 'params',
+                        align: 'center',
+                        editor: {
+                            xtype: 'textfield',
+                            allowBlank: false,
+                            inputAttrTpl: 'style="text-align:center"'
+                        }
+                    },
+                    {
                         text: _('elapsed'),
                         dataIndex: 'elapsed',
                         align: 'center'

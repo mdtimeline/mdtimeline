@@ -146,17 +146,25 @@ class CronBootstrap
         }
     }
 
-	/**
-	 *
-	 */
+    /**
+     * end
+     * The end of the running script, use this method to tell the Bootstrap that your strip has
+     * ended.
+     * `
+     * @return bool
+     */
     public function end(){
-		//TODO
-
-
-
-
-
-    	exit(0);
+        try{
+            $data = new stdClass();
+            $data->id = $this->CronJobParams['data']['id'];
+            $data->pid = '';
+            $data->running = false;
+            $this->CronJobModel->save($data);
+            return true;
+        } catch(Exception $Error){
+            error_log($Error->getMessage());
+            return false;
+        }
     }
 
     /**

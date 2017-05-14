@@ -80,8 +80,8 @@ if(isset($data)){
 	if(isset($_REQUEST['module'])){
 		$module = $_REQUEST['module'];
 	}
-} else {
-	if(isset($_POST['extAction'])){
+
+	if($data == null && isset($_POST['extAction'])){
 		// form post
 		$isForm = true;
 		$isUpload = $_POST['extUpload'] == 'true';
@@ -94,12 +94,15 @@ if(isset($data)){
 			$_POST,
 			$_FILES
 		);
-		if(isset($_REQUEST['module']))
+		if(isset($_REQUEST['module'])){
 			$module = $_REQUEST['module'];
-
-	} else {
+		}
+	}else if($data == null){
 		die('Invalid request.');
 	}
+
+} else {
+	die('Invalid request.');
 }
 
 function doRpc($cdata) {
@@ -241,11 +244,12 @@ if(is_array($data)){
 utf8_encode_deep($response);
 
 if($isForm && $isUpload){
-	print '<html><body><textarea>';
-	$json = htmlentities(json_encode($json), ENT_NOQUOTES | ENT_SUBSTITUTE , 'UTF-8');
-    $json = mb_convert_encoding($json, 'UTF-8');
+	//print '<html><body><textarea>';
+	$json = htmlentities(json_encode($response), ENT_NOQUOTES | ENT_SUBSTITUTE , 'UTF-8');
+	$json = json_encode($response);
+	$json = mb_convert_encoding($json, 'UTF-8');
 	print $json;
-	print '</textarea></body></html>';
+	//print '</textarea></body></html>';
 } else {
 	header('Content-Type: application/json; charset=utf-8');
 	$json = htmlentities(json_encode($response), ENT_NOQUOTES | ENT_SUBSTITUTE , 'UTF-8');

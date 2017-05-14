@@ -900,6 +900,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.LabOrders',
 	                'patient.Medical',
 	                'patient.Medications',
+	                'patient.MedicationsAdministered',
 	                'patient.Patient',
 	                'patient.PatientSearch',
 	                'patient.ProgressNotesHistory',

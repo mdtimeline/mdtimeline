@@ -1868,5 +1868,11 @@ $LANG = array(
     'month_day'                             => 'Day of Month',
     'timeout'                               => 'Timeout',
     'elapsed'                               => 'Elapsed time (Secs)',
-    'parameters'                            => 'Parameters'
+    'parameters'                            => 'Parameters',
+    'adverse_reaction'                      => 'Adverse Reaction',
+    'medications_administered'              => 'Medications Administered',
+    'medication_administered'               => 'Medication Administered',
+    'administer_in_house'                   => 'Administer In-House',
+    'substance_info'                        => 'Substance Info',
+    'rxnorm'                                => 'RxNorm',
 );

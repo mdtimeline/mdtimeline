@@ -532,7 +532,7 @@ class Patient
 		$conn = Matcha::getConn();
 		$whereValues = [];
 		$where = [];
-		$queries = explode(' ', $params->query);
+		$queries = explode(',', $params->query);
 		foreach ($queries as $index => $query) {
 			$query = trim($query);
 			$where[] = " (pubpid REGEXP :pubpid{$index} OR fname LIKE :fname{$index} OR lname LIKE :lname{$index} OR mname LIKE :mname{$index} OR DOB LIKE :DOB{$index} OR pid LIKE :pid{$index} OR SS LIKE :ss{$index}) ";

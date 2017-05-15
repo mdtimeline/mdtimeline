@@ -4219,23 +4219,24 @@ Ext.define('App.ux.form.fields.DateTime', {
 	mixins: {
 		field: 'Ext.form.field.Field'
 	},
-	alias : 'widget.mitos.datetime',
+	alias: 'widget.mitos.datetime',
 
 	combineErrors: true,
-	layout       : 'hbox',
-	readOnly     : false,
-	allowBlank   : true,
+	layout: 'hbox',
+	readOnly: false,
+	allowBlank: true,
 
 	/**
 	 * @cfg {String} dateFormat
 	 * The default is 'Y-m-d'
 	 */
-	dateFormat    : 'Y-m-d',
+	dateFormat: g('date_display_format'),
+	dateSubmitFormat: 'Y-m-d',
 	/**
 	 * @cfg {String} timeFormat
 	 * The default is 'H:i:s'
 	 */
-	timeFormat    : 'g:i a',
+	timeFormat: 'g:i a',
 	/**
 	 * @cfg {String} dateTimeFormat
 	 * The format used when submitting the combined value.
@@ -4246,12 +4247,12 @@ Ext.define('App.ux.form.fields.DateTime', {
 	 * @cfg {Object} dateConfig
 	 * Additional config options for the date field.
 	 */
-	dateConfig    : {},
+	dateConfig: {},
 	/**
 	 * @cfg {Object} timeConfig
 	 * Additional config options for the time field.
 	 */
-	timeConfig    : {},
+	timeConfig: {},
 
 
 	// properties
@@ -4268,38 +4269,39 @@ Ext.define('App.ux.form.fields.DateTime', {
 	 */
 	timeField: null,
 
-	initComponent: function() {
+	initComponent: function () {
 		var me = this;
 		me.items = me.items || [];
 
 		me.dateConfig.allowBlank = me.allowBlank;
 
 		me.dateField = Ext.create('Ext.form.field.Date', Ext.apply({
-			format     : me.dateFormat,
-			flex       : 1,
-            emptyText  : _('date'),
-            margin     : 0,
+			format: me.dateFormat,
+			submitFormat: me.dateSubmitFormat,
+			flex: 1,
+			emptyText: _('date'),
+			margin: 0,
 			submitValue: false
 		}, me.dateConfig));
 		me.items.push(me.dateField);
 
 		me.timeField = Ext.create('Ext.form.field.Time', Ext.apply({
-			format     : me.timeFormat,
-			flex       : 1,
-            emptyText  : _('time'),
-            margin     : 0,
+			format: me.timeFormat,
+			flex: 1,
+			emptyText: _('time'),
+			margin: 0,
 			submitValue: false
 		}, me.timeConfig));
 		me.items.push(me.timeField);
 
-		for(var i = 0; i < me.items.length; i++) {
+		for (var i = 0; i < me.items.length; i++) {
 			me.items[i].on('focus', Ext.bind(me.onItemFocus, me));
 			me.items[i].on('blur', Ext.bind(me.onItemBlur, me));
-			me.items[i].on('specialkey', function(field, event) {
+			me.items[i].on('specialkey', function (field, event) {
 				var key = event.getKey(),
 					tab = key == event.TAB;
 
-				if(tab && me.focussedItem == me.dateField) {
+				if (tab && me.focussedItem == me.dateField) {
 					event.stopEvent();
 					me.timeField.focus();
 					return;
@@ -4309,7 +4311,7 @@ Ext.define('App.ux.form.fields.DateTime', {
 			});
 		}
 
-		if(me.layout == 'vbox') me.height = 44;
+		if (me.layout == 'vbox') me.height = 44;
 
 		me.callParent();
 
@@ -4323,33 +4325,33 @@ Ext.define('App.ux.form.fields.DateTime', {
 		me.initField();
 	},
 
-	focus: function() {
+	focus: function () {
 		this.callParent();
 		this.dateField.focus();
 	},
 
-	onItemFocus: function(item) {
-		if(this.blurTask) this.blurTask.cancel();
+	onItemFocus: function (item) {
+		if (this.blurTask) this.blurTask.cancel();
 		this.focussedItem = item;
 	},
 
-	onItemBlur: function(item) {
+	onItemBlur: function (item) {
 		var me = this;
-		if(item != me.focussedItem) return;
+		if (item != me.focussedItem) return;
 		// 100ms to focus a new item that belongs to us, otherwise we will assume the user left the field
-		me.blurTask = new Ext.util.DelayedTask(function() {
+		me.blurTask = new Ext.util.DelayedTask(function () {
 			me.fireEvent('blur', me);
 		});
 		me.blurTask.delay(100);
 	},
 
-	getValue: function() {
+	getValue: function () {
 		var value = null,
 			date = this.dateField.getSubmitValue(),
 			time = this.timeField.getSubmitValue();
 
-		if(date) {
-			if(time) {
+		if (date) {
+			if (time) {
 				var format = this.getFormat();
 				value = Ext.Date.parse(date + ' ' + time, format);
 			}
@@ -4360,40 +4362,40 @@ Ext.define('App.ux.form.fields.DateTime', {
 		return value;
 	},
 
-	getSubmitValue: function() {
+	getSubmitValue: function () {
 		var value = this.getValue();
 		return value ? Ext.Date.format(value, this.dateTimeFormat) : null;
 	},
 
-	setValue: function(value) {
-		if(Ext.isString(value)) {
+	setValue: function (value) {
+		if (Ext.isString(value)) {
 			value = Ext.Date.parse(value, this.dateTimeFormat);
 		}
 		this.dateField.setValue(value);
 		this.timeField.setValue(value);
 	},
 
-	getFormat    : function() {
+	getFormat: function () {
 		return (this.dateField.submitFormat || this.dateField.format) + " " + (this.timeField.submitFormat || this.timeField.format);
 	},
 
 	// Bug? A field-mixin submits the data from getValue, not getSubmitValue
-	getSubmitData: function() {
+	getSubmitData: function () {
 		var me = this,
 			data = null;
-		if(!me.disabled && me.submitValue && !me.isFileUpload()) {
+		if (!me.disabled && me.submitValue && !me.isFileUpload()) {
 			data = {};
 			data[me.getName()] = '' + me.getSubmitValue();
 		}
 		return data;
 	},
 
-    setReadOnly:function(value){
-        this.dateField.setReadOnly(value);
-        this.timeField.setReadOnly(value);
-    },
+	setReadOnly: function (value) {
+		this.dateField.setReadOnly(value);
+		this.timeField.setReadOnly(value);
+	},
 
-	setMaxValue:function(date){
+	setMaxValue: function (date) {
 		this.dateField.setMaxValue(date);
 	}
 });
@@ -17716,6 +17718,10 @@ Ext.define('App.model.patient.Medications', {
 			len: 180
 		},
 		{
+			name: 'administer_in_house',
+			type: 'bool'
+		},
+		{
 			name: 'administered_uid',
 			type: 'int'
 		},
@@ -21870,7 +21876,77 @@ Ext.define('App.model.patient.Patient',{
             name: 'emergency_contact_portal_username',
             type: 'string',
             len: 40
-        }
+        },
+	    {
+		    name: 'religion',
+		    type: 'string',
+		    len: 20
+	    },
+	    {
+		    name: 'authorized_01_relation',
+		    type: 'string',
+		    len: 20
+	    },
+	    {
+		    name: 'authorized_01_fname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'authorized_01_mname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'authorized_01_lname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'authorized_02_relation',
+		    type: 'string',
+		    len: 20
+	    },
+	    {
+		    name: 'authorized_02_fname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'authorized_02_mname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'authorized_02_lname',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'authorized_01_phone',
+		    type: 'string',
+		    len: 20
+	    },
+	    {
+		    name: 'authorized_01_phone_type',
+		    type: 'string',
+		    len: 10
+	    },
+	    {
+		    name: 'authorized_02_phone',
+		    type: 'string',
+		    len: 20
+	    },
+	    {
+		    name: 'authorized_02_phone_type',
+		    type: 'string',
+		    len: 10
+	    },
+	    {
+		    name: 'phone_mobile_supplier',
+		    type: 'string',
+		    len: 25
+	    }
     ],
     idProperty: 'pid',
     proxy: {
@@ -30551,13 +30627,13 @@ Ext.define('App.view.administration.Lists', {
             store: me.listsStore,
             itemId: 'listsGrid',
             plugins: [ me.listsRowEditing ],
-            width: 50,
+            width: 450,
             margin: '0 2 0 0',
             region: 'west',
             columns: [
                 {
                     text: _('key'),
-	                width: 110,
+	                width: 120,
                     dataIndex: 'list_key',
                     editor: {
                         xtype:'textfield',
@@ -30586,13 +30662,13 @@ Ext.define('App.view.administration.Lists', {
                         padding: '0 0 0 18'
                     }
                 },
-                {
-                    text: _('in_use'),
-                    width: 55,
-                    sortable: false,
-                    dataIndex: 'in_use',
-                    renderer: me.boolRenderer
-                }
+                // {
+                //     text: _('in_use'),
+                //     width: 55,
+                //     sortable: false,
+                //     dataIndex: 'in_use',
+                //     renderer: me.boolRenderer
+                // }
             ],
             listeners: {
                 scope: me,
@@ -39610,13 +39686,15 @@ Ext.define('App.controller.ScriptCam', {
 			navigator.webkitGetUserMedia ||
 			navigator.mozGetUserMedia ||
 			navigator.msGetUserMedia);
-		navigator.getMedia({
+
+		me.media = navigator.getMedia({
 			video: true,
 			audio: false
 		}, me.onConnect, me.onError);
 	},
 
-	onConnect: function(stream){
+	onConnect: function(stream, b, c){
+
 		var me = app.getController('ScriptCam');
 
 		me.win = Ext.create('Ext.window.Window', {
@@ -39632,7 +39710,7 @@ Ext.define('App.controller.ScriptCam', {
 			],
 			listeners: {
 				close: function(){
-					stream.stop();
+					stream.active = false;
 				}
 			}
 		});
@@ -47953,96 +48031,6 @@ Ext.define('App.ux.LiveSnomedProcedureSearch', {
 			records[0].save();
 		});
 	}
-});
-
-Ext.define('App.view.patient.encounter.AdministeredMedications', {
-	extend: 'Ext.grid.Panel',
-	requires: [
-		'Ext.grid.plugin.RowEditing',
-		'App.ux.LiveRXNORMSearch',
-		'App.ux.LiveSigsSearch',
-		'App.ux.LiveUserSearch',
-		'App.ux.form.fields.DateTime'
-	],
-	xtype: 'administeredmedications',
-	itemId: 'AdministeredMedicationsGrid',
-	frame: true,
-	store: Ext.create('App.store.patient.Medications', {
-		autoSync: false
-	}),
-	columns: [
-		{
-			header: _('medication'),
-			flex: 1,
-			minWidth: 150,
-			dataIndex: 'STR',
-			editor: {
-				xtype: 'rxnormlivetsearch',
-				itemId: 'AdministeredMedicationsLiveSearch',
-				displayField: 'STR',
-				valueField: 'STR',
-				action: 'medication',
-				allowBlank: false
-			},
-			renderer: function(v, mets, record){
-				var codes = '';
-				if(record.data.RXCUI != ''){
-					codes += ' <b>RxNorm:</b> ' + record.data.RXCUI;
-				}
-				if(record.data.NDC != ''){
-					codes += ' <b>NDC:</b> ' + record.data.NDC;
-				}
-				codes = codes != '' ? (' (' + codes + ' )') : '';
-				return v + codes;
-			}
-		},
-		{
-			text: _('directions'),
-			dataIndex: 'directions',
-			flex: 1,
-			editor: {
-				xtype: 'textfield'
-			}
-		},
-		{
-			text: _('administered_by'),
-			dataIndex: 'administered_by',
-			width: 150,
-			editor: {
-				xtype: 'userlivetsearch',
-				acl: 'administer_medications',
-				valueField: 'fullname',
-				forceSelection: false,
-				itemId: 'AdministeredMedicationsUserLiveSearch'
-			}
-		},
-		{
-			xtype: 'datecolumn',
-			text: _('date'),
-			dataIndex: 'administered_date',
-			width: 120,
-			format: g('date_time_display_format'),
-			editor: {
-				xtype: 'mitos.datetime'
-			}
-		}
-	],
-	plugins: Ext.create('Ext.grid.plugin.RowEditing', {
-		autoCancel: false,
-		errorSummary: false,
-		clicksToEdit: 2
-	}),
-	tbar: [
-		_('administered_medications'),
-		'->',
-		{
-			text: _('medication'),
-			itemId: 'AdministeredMedicationsAddBtn',
-			action: 'encounterRecordAdd',
-			iconCls: 'icoAdd'
-		}
-	]
-
 });
 
 Ext.define('App.view.patient.DecisionSupportWarningPanel', {
@@ -58656,13 +58644,31 @@ Ext.define('App.view.patient.RxOrders', {
 							itemId: 'RxOrderGridFormContainerOne',
 							items: [
 								{
-									xtype: 'datefield',
-									fieldLabel: _('order_date'),
-									format: 'Y-m-d',
-									name: 'date_ordered',
-									allowBlank: false,
-									margin: '0 0 5 0'
+									xtype: 'container',
+									margin: '5 0',
+									layout: {
+										type: 'hbox'
+									},
+									items: [
+										{
+											xtype: 'datefield',
+											fieldLabel: _('order_date'),
+											format: 'Y-m-d',
+											name: 'date_ordered',
+											allowBlank: false,
+											margin: '0 10 0 0'
+										},
+										{
+											xtype: 'checkboxfield',
+											fieldLabel: _('administer_in_house'),
+											tooltip: _('administer_in_house'),
+											labelWidth: 120,
+											labelAlign: 'right',
+											name: 'administer_in_house'
+										}
+									]
 								},
+
 								{
 									xtype: 'rxnormlivetsearch',
 									itemId: 'RxNormOrderLiveSearch',
@@ -58982,9 +58988,9 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		'App.view.patient.encounter.CarePlanGoals',
 		'App.view.patient.encounter.CarePlanGoalsNewWindow',
 		'App.ux.LiveSnomedProcedureSearch',
-		'App.view.patient.encounter.AdministeredMedications',
 		'App.view.patient.encounter.AppointmentRequestGrid',
 		'App.view.patient.encounter.EducationResourcesGrid',
+		'App.view.patient.encounter.MedicationsAdministeredGrid'
 	],
 	action: 'patient.encounter.soap',
 	itemId: 'soapPanel',
@@ -59103,7 +59109,6 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		me.form = Ext.create('Ext.form.Panel', {
 			autoScroll: true,
 			action: 'encounter',
-			//bodyStyle: 'background-color:white',
 			region: 'center',
 			itemId: 'soapForm',
 			frame: true,
@@ -59257,6 +59262,10 @@ Ext.define('App.view.patient.encounter.SOAP', {
 							margin: '0 0 10 0',
 							anchor: '100%'
 						}),
+						{
+							xtype: 'medicationsadministeredgrid',
+							margin: '0 0 10 0'
+						},
 						{
 							xtype: 'appointmentrequestgrid',
 							margin: '0 0 10 0'

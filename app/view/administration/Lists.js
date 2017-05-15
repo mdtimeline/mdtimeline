@@ -51,13 +51,13 @@ Ext.define('App.view.administration.Lists', {
             store: me.listsStore,
             itemId: 'listsGrid',
             plugins: [ me.listsRowEditing ],
-            width: 50,
+            width: 450,
             margin: '0 2 0 0',
             region: 'west',
             columns: [
                 {
                     text: _('key'),
-	                width: 110,
+	                width: 120,
                     dataIndex: 'list_key',
                     editor: {
                         xtype:'textfield',
@@ -86,13 +86,13 @@ Ext.define('App.view.administration.Lists', {
                         padding: '0 0 0 18'
                     }
                 },
-                {
-                    text: _('in_use'),
-                    width: 55,
-                    sortable: false,
-                    dataIndex: 'in_use',
-                    renderer: me.boolRenderer
-                }
+                // {
+                //     text: _('in_use'),
+                //     width: 55,
+                //     sortable: false,
+                //     dataIndex: 'in_use',
+                //     renderer: me.boolRenderer
+                // }
             ],
             listeners: {
                 scope: me,

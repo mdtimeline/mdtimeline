@@ -189,12 +189,12 @@ class PoolArea {
 
 	public function getFacilityActivePoolAreas() {
 		$this->setPaModel();
-		return $this->pa->sql("SELECT * FROM pool_areas	WHERE facility_id = '{$_SESSION['user']['facility']}' AND active = '1'")->all();
+		return $this->pa->sql("SELECT * FROM pool_areas	WHERE facility_id = '{$_SESSION['user']['facility']}' AND active = '1' ORDER BY sequence")->all();
 	}
 
 	public function getActivePoolAreas() {
 		$this->setPaModel();
-		return $this->pa->sql("SELECT * FROM pool_areas	WHERE active = '1'")->all();
+		return $this->pa->sql("SELECT * FROM pool_areas	WHERE active = '1' ORDER BY sequence")->all();
 	}
 
 	/**
@@ -301,7 +301,8 @@ class PoolArea {
 					if(($activeArea['id'] == 1 && $this->acl->hasPermission('access_poolcheckin')) ||
 						($activeArea['id'] == 2 && $this->acl->hasPermission('access_pooltriage')) ||
 						($activeArea['id'] == 3 && $this->acl->hasPermission('access_poolphysician')) ||
-						($activeArea['id'] == 4 && $this->acl->hasPermission('access_poolcheckout'))
+						($activeArea['id'] == 4 && $this->acl->hasPermission('access_poolcheckout')) ||
+						($activeArea['id'] == 9 && $this->acl->hasPermission('access_pooltreatment'))
 					){
 						$areas[] = 'pp.area_id = \'' . $activeArea['id'] . '\'';
 					}

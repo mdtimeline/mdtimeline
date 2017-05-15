@@ -69,13 +69,31 @@ Ext.define('App.view.patient.RxOrders', {
 							itemId: 'RxOrderGridFormContainerOne',
 							items: [
 								{
-									xtype: 'datefield',
-									fieldLabel: _('order_date'),
-									format: 'Y-m-d',
-									name: 'date_ordered',
-									allowBlank: false,
-									margin: '0 0 5 0'
+									xtype: 'container',
+									margin: '5 0',
+									layout: {
+										type: 'hbox'
+									},
+									items: [
+										{
+											xtype: 'datefield',
+											fieldLabel: _('order_date'),
+											format: 'Y-m-d',
+											name: 'date_ordered',
+											allowBlank: false,
+											margin: '0 10 0 0'
+										},
+										{
+											xtype: 'checkboxfield',
+											fieldLabel: _('administer_in_house'),
+											tooltip: _('administer_in_house'),
+											labelWidth: 120,
+											labelAlign: 'right',
+											name: 'administer_in_house'
+										}
+									]
 								},
+
 								{
 									xtype: 'rxnormlivetsearch',
 									itemId: 'RxNormOrderLiveSearch',

@@ -146,6 +146,31 @@ class CronBootstrap
         }
     }
 
+    public function getParams(){
+        return $this->CronJobParams['data']['params'];
+    }
+
+    /**
+     * end
+     * The end of the running script, use this method to tell the Bootstrap that your strip has
+     * ended.
+     * `
+     * @return bool
+     */
+    public function end(){
+        try{
+            $data = new stdClass();
+            $data->id = $this->CronJobParams['data']['id'];
+            $data->pid = '';
+            $data->running = false;
+            $this->CronJobModel->save($data);
+            return true;
+        } catch(Exception $Error){
+            error_log($Error->getMessage());
+            return false;
+        }
+    }
+
     /**
      * killProcess
      * Kills a process that is currently running.
@@ -195,15 +220,18 @@ class CronBootstrap
             foreach ($numbers as $number) {
                 if (strpos($number, '-') !== false) {
                     $range = explode('-', $number);
-                    for($i = $range[0]; $i <= $range[1]; $i++){
-                        $tmp[] = $i;
-                    }
+                    for($i = $range[0]; $i <= $range[1]; $i++) $tmp[] = $i;
                 } else {
                     $tmp[] = $number;
                 }
             }
         } else {
-            $tmp[] = $value;
+            if (strpos($numbers, '-') !== false) {
+                $range = explode('-', $numbers);
+                for($i = $range[0]; $i <= $range[1]; $i++) $tmp[] = $i;
+            } else {
+                $tmp[] = $value;
+            }
         }
 
         // Now loop against the evaluated values and determine if it's a go or no go.
@@ -275,7 +303,7 @@ class CronBootstrap
                 foreach($tasks as $task) if($task['PID'] == $PID) return true;
                 break;
             case 'Darwin': // Darwin (MacOS)
-                $cmd = 'ps -Ao "%p|%t|%a"';
+                $cmd = 'ps -Ao "pid"';
                 $result = shell_exec($cmd);
                 $tasks = self::csv_to_array($result, "\n", "|");
                 foreach($tasks as $task) if($task['PID'] == $PID) return true;

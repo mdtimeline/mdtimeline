@@ -163,6 +163,10 @@ Ext.define('App.model.patient.Medications', {
 			len: 180
 		},
 		{
+			name: 'administer_in_house',
+			type: 'bool'
+		},
+		{
 			name: 'administered_uid',
 			type: 'int'
 		},

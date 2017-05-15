@@ -1263,7 +1263,22 @@ $API = [
             ],
 			'getPatientActiveMedicationsByPidAndCode' => [
 				'len' => 2
-            ]
+            ],
+			'getPatientMedicationsAdministered' => [
+				'len' => 1
+			],
+			'getPatientMedicationAdministered' => [
+				'len' => 1
+			],
+			'addPatientMedicationAdministered' => [
+				'len' => 1
+			],
+			'updatePatientMedicationAdministered' => [
+				'len' => 1
+			],
+			'destroyPatientMedicationAdministered' => [
+				'len' => 1
+			],
         ]
     ],
 	'Immunizations' => [

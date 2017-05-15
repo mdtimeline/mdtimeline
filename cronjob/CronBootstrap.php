@@ -146,6 +146,10 @@ class CronBootstrap
         }
     }
 
+    public function getParams(){
+        return $this->CronJobParams['data']['params'];
+    }
+
     /**
      * end
      * The end of the running script, use this method to tell the Bootstrap that your strip has
@@ -216,15 +220,18 @@ class CronBootstrap
             foreach ($numbers as $number) {
                 if (strpos($number, '-') !== false) {
                     $range = explode('-', $number);
-                    for($i = $range[0]; $i <= $range[1]; $i++){
-                        $tmp[] = $i;
-                    }
+                    for($i = $range[0]; $i <= $range[1]; $i++) $tmp[] = $i;
                 } else {
                     $tmp[] = $number;
                 }
             }
         } else {
-            $tmp[] = $value;
+            if (strpos($numbers, '-') !== false) {
+                $range = explode('-', $numbers);
+                for($i = $range[0]; $i <= $range[1]; $i++) $tmp[] = $i;
+            } else {
+                $tmp[] = $value;
+            }
         }
 
         // Now loop against the evaluated values and determine if it's a go or no go.

@@ -23,6 +23,10 @@ class Medications
      * @var MatchaCUP
      */
     private $m;
+    /**
+     * @var MatchaCUP
+     */
+    private $a;
 
     /**
      * @var PDO
@@ -36,6 +40,10 @@ class Medications
         $this->m->setOrFilterProperties(['id']);
         $this->db = Matcha::getConn();
     }
+
+    private function setAdministerModel(){
+    	if(!isset($this->a)) $this->a = MatchaModel::setSenchaModel('App.model.patient.MedicationAdministered', true);
+	}
 
     public function getPatientMedications($params)
     {
@@ -220,6 +228,120 @@ class Medications
         return $records;
     }
 
+
+	/**
+	 * @param $params
+	 *
+	 * @return mixed
+	 */
+	public function getPatientMedicationsAdministered($params){
+		$this->setAdministerModel();
+
+		if(isset($params->include_not_administered) && $params->include_not_administered){
+
+			$administered_records = $this->a->load($params)
+				->leftJoin(
+					[
+						'title' => 'administered_title',
+						'fname' => 'administered_fname',
+						'mname' => 'administered_mname',
+						'lname' => 'administered_lname',
+					],
+					'users', 'administered_uid', 'id'
+				)
+				->all();
+			$administer_order_ids = [];
+
+			foreach($administered_records as $administered_record){
+				$administer_order_ids[] = $administered_record['order_id'];
+			}
+
+			$administer_order_ids = implode(',', $administer_order_ids);
+
+			if($administer_order_ids != ''){
+				$administer_order_ids = " AND id NOT IN  ({$administer_order_ids})";
+			}
+
+			$not_administered_meds = $this->m->sql("SELECT * FROM patient_medications WHERE eid = :eid {$administer_order_ids} AND administer_in_house = 1")
+				->all([':eid' => $params->eid]);
+
+			foreach($not_administered_meds as $not_administered_med){
+
+
+				array_unshift($administered_records, [
+					'pid' => $not_administered_med['pid'],
+					'eid' => $not_administered_med['eid'],
+					'order_id' => $not_administered_med['id'],
+					'rxcui' => $not_administered_med['RXCUI'],
+					'description' => $not_administered_med['STR'],
+					'instructions' => $not_administered_med['directions'],
+				]);
+
+			}
+
+			return $administered_records;
+
+		} else{
+			return $this->a->load($params)->leftJoin(
+				[
+					'title' => 'administered_title',
+					'fname' => 'administered_fname',
+					'mname' => 'administered_mname',
+					'lname' => 'administered_lname',
+				],
+				'users', 'administered_uid', 'id'
+			)->all();
+		}
+
+	}
+
+	/**
+	 * @param $params
+	 *
+	 * @return mixed
+	 */
+	public function getPatientMedicationAdministered($params){
+		$this->setAdministerModel();
+    	return $this->a->load($params)->leftJoin(
+		    [
+			    'title' => 'administered_title',
+			    'fname' => 'administered_fname',
+			    'mname' => 'administered_mname',
+			    'lname' => 'administered_lname',
+		    ],
+		    'users', 'administered_uid', 'id'
+	    )->one();
+	}
+
+	/**
+	 * @param $params
+	 *
+	 * @return mixed
+	 */
+	public function addPatientMedicationAdministered($params){
+		$this->setAdministerModel();
+    	return $this->a->save($params);
+	}
+
+	/**
+	 * @param $params
+	 *
+	 * @return mixed
+	 */
+	public function updatePatientMedicationAdministered($params){
+		$this->setAdministerModel();
+		return $this->a->save($params);
+	}
+
+	/**
+	 * @param $params
+	 *
+	 * @return mixed
+	 */
+	public function destroyPatientMedicationAdministered($params){
+		$this->setAdministerModel();
+		return $this->a->destroy($params);
+	}
 
 }
 

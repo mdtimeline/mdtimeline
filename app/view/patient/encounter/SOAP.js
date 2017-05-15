@@ -25,9 +25,9 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		'App.view.patient.encounter.CarePlanGoals',
 		'App.view.patient.encounter.CarePlanGoalsNewWindow',
 		'App.ux.LiveSnomedProcedureSearch',
-		'App.view.patient.encounter.AdministeredMedications',
 		'App.view.patient.encounter.AppointmentRequestGrid',
 		'App.view.patient.encounter.EducationResourcesGrid',
+		'App.view.patient.encounter.MedicationsAdministeredGrid'
 	],
 	action: 'patient.encounter.soap',
 	itemId: 'soapPanel',
@@ -146,7 +146,6 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		me.form = Ext.create('Ext.form.Panel', {
 			autoScroll: true,
 			action: 'encounter',
-			//bodyStyle: 'background-color:white',
 			region: 'center',
 			itemId: 'soapForm',
 			frame: true,
@@ -300,6 +299,10 @@ Ext.define('App.view.patient.encounter.SOAP', {
 							margin: '0 0 10 0',
 							anchor: '100%'
 						}),
+						{
+							xtype: 'medicationsadministeredgrid',
+							margin: '0 0 10 0'
+						},
 						{
 							xtype: 'appointmentrequestgrid',
 							margin: '0 0 10 0'

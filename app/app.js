@@ -12612,6 +12612,12 @@ Ext.define('App.model.administration.ListOptions', {
             comment: 'List ID'
         },
         {
+            name: 'list_key',
+            type: 'string',
+	        index: true,
+	        len: 40
+        },
+        {
             name: 'option_value',
             type: 'string',
             index: true,
@@ -30812,13 +30818,14 @@ Ext.define('App.view.administration.Lists', {
      */
     onNewOption: function(){
         var me = this,
-	        listId = me.getCurrList(),
+	        list = me.getCurrList(),
 	        m;
 
-	    if(listId !== false){
+	    if(list !== false){
 		    me.optionsRowEditing.cancelEdit();
 		    m = Ext.create('App.model.administration.ListOptions', {
-			    list_id: listId
+			    list_id: list.id,
+			    list_Key: list.list_key
 		    });
 		    me.optionsStore.insert(0, m);
 		    me.optionsRowEditing.startEdit(0, 0);
@@ -30843,7 +30850,7 @@ Ext.define('App.view.administration.Lists', {
     onDragDrop: function(node, data, overModel){
         var me = this,
 	        items = overModel.stores[0].data.items,
-	        listId = me.getCurrList(),
+	        list = me.getCurrList(),
 	        gridItems = [];
 
         for(var i = 0; i < items.length; i++){
@@ -30859,8 +30866,8 @@ Ext.define('App.view.administration.Lists', {
 	        me.optionsStore.clearFilter(true);
 	        me.optionsStore.filter([
 		        {
-			        property:'list_id',
-			        value: listId
+			        property:'list_key',
+			        value: list.list_key
 		        }
 	        ]);
         });
@@ -30907,7 +30914,7 @@ Ext.define('App.view.administration.Lists', {
 		var records = this.listsGrid.getSelectionModel().getSelection();
 
 		if(records.length > 0){
-			return records[0].data.id;
+			return records[0].data;
 		}
 
 		return false;

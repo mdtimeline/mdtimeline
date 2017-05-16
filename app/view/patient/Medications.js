@@ -92,57 +92,11 @@ Ext.define('App.view.patient.Medications', {
 					}
 				},
 				{
-					text: _('directions'),
-					dataIndex: 'directions',
-                    groupable: false,
-					flex: 1,
-					editor: {
-						xtype: 'textfield'
-					}
-				},
-				{
-					text: _('dispense'),
-					dataIndex: 'dispense',
-                    groupable: false,
-					with: 200,
-					editor: {
-						xtype: 'textfield',
-						maxLength: 40
-					}
-				},
-				{
-					text: _('administered'),
-                    groupable: false,
-					columns:[
-						{
-							text: _('user'),
-							dataIndex: 'administered_by',
-							width: 200,
-							editor: {
-								xtype: 'userlivetsearch',
-								acl: 'administer_medications',
-								valueField: 'fullname',
-								itemId: 'PatientMedicationUserLiveSearch'
-							}
-						},
-						{
-							xtype: 'datecolumn',
-							text: _('date'),
-							dataIndex: 'administered_date',
-							width: 200,
-							format: g('date_time_display_format'),
-							editor: {
-								xtype: 'mitos.datetime'
-							}
-						}
-					]
-				},
-				{
 					xtype: 'datecolumn',
                     groupable: false,
 					format: 'Y-m-d',
 					header: _('begin_date'),
-					width: 90,
+					width: 150,
 					dataIndex: 'begin_date',
 					sortable: false,
 					hideable: false,
@@ -156,7 +110,7 @@ Ext.define('App.view.patient.Medications', {
                     groupable: false,
 					format: 'Y-m-d',
 					header: _('end_date'),
-					width: 90,
+					width: 150,
 					dataIndex: 'end_date',
 					sortable: false,
 					hideable: false,

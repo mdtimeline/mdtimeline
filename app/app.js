@@ -11795,10 +11795,6 @@ Ext.define('App.model.administration.Facility', {
 			len: 5
 		},
 		{
-			name: 'service_location',
-			type: 'bool'
-		},
-		{
 			name: 'billing_location',
 			type: 'bool'
 		},
@@ -11806,11 +11802,6 @@ Ext.define('App.model.administration.Facility', {
 			name: 'pos_code',
 			type: 'string',
 			len: 3
-		},
-		{
-			name: 'ssn',
-			type: 'string',
-			len: 15
 		},
 		{
 			name: 'ein',
@@ -11829,11 +11820,6 @@ Ext.define('App.model.administration.Facility', {
 		},
 		{
 			name: 'npi',
-			type: 'string',
-			len: 15
-		},
-		{
-			name: 'lic',
 			type: 'string',
 			len: 15
 		},
@@ -13356,16 +13342,6 @@ Ext.define('App.model.administration.ReferringProvider', {
         },
         {
             name: 'npi',
-            type: 'string',
-            len: 25
-        },
-        {
-            name: 'fda',
-            type: 'string',
-            len: 25
-        },
-        {
-            name: 'ess',
             type: 'string',
             len: 25
         },
@@ -28128,8 +28104,8 @@ Ext.define('App.view.administration.practice.Facilities', {
 										items: [
 											{
 												xtype: 'textfield',
-												fieldLabel: _('ssn'),
-												name: 'ssn',
+												fieldLabel: _('ess'),
+												name: 'ess',
 												margin: '0 10 0 0'
 											},
 											{
@@ -28174,11 +28150,6 @@ Ext.define('App.view.administration.practice.Facilities', {
 										xtype: 'checkbox',
 										fieldLabel: _('active'),
 										name: 'active'
-									},
-									{
-										xtype: 'checkbox',
-										fieldLabel: _('service_location'),
-										name: 'service_location'
 									},
 									{
 										xtype: 'checkbox',
@@ -47218,57 +47189,11 @@ Ext.define('App.view.patient.Medications', {
 					}
 				},
 				{
-					text: _('directions'),
-					dataIndex: 'directions',
-                    groupable: false,
-					flex: 1,
-					editor: {
-						xtype: 'textfield'
-					}
-				},
-				{
-					text: _('dispense'),
-					dataIndex: 'dispense',
-                    groupable: false,
-					with: 200,
-					editor: {
-						xtype: 'textfield',
-						maxLength: 40
-					}
-				},
-				{
-					text: _('administered'),
-                    groupable: false,
-					columns:[
-						{
-							text: _('user'),
-							dataIndex: 'administered_by',
-							width: 200,
-							editor: {
-								xtype: 'userlivetsearch',
-								acl: 'administer_medications',
-								valueField: 'fullname',
-								itemId: 'PatientMedicationUserLiveSearch'
-							}
-						},
-						{
-							xtype: 'datecolumn',
-							text: _('date'),
-							dataIndex: 'administered_date',
-							width: 200,
-							format: g('date_time_display_format'),
-							editor: {
-								xtype: 'mitos.datetime'
-							}
-						}
-					]
-				},
-				{
 					xtype: 'datecolumn',
                     groupable: false,
 					format: 'Y-m-d',
 					header: _('begin_date'),
-					width: 90,
+					width: 150,
 					dataIndex: 'begin_date',
 					sortable: false,
 					hideable: false,
@@ -47282,7 +47207,7 @@ Ext.define('App.view.patient.Medications', {
                     groupable: false,
 					format: 'Y-m-d',
 					header: _('end_date'),
-					width: 90,
+					width: 150,
 					dataIndex: 'end_date',
 					sortable: false,
 					hideable: false,

@@ -112,8 +112,8 @@ Ext.define('App.view.administration.practice.Facilities', {
 										items: [
 											{
 												xtype: 'textfield',
-												fieldLabel: _('ssn'),
-												name: 'ssn',
+												fieldLabel: _('ess'),
+												name: 'ess',
 												margin: '0 10 0 0'
 											},
 											{
@@ -158,11 +158,6 @@ Ext.define('App.view.administration.practice.Facilities', {
 										xtype: 'checkbox',
 										fieldLabel: _('active'),
 										name: 'active'
-									},
-									{
-										xtype: 'checkbox',
-										fieldLabel: _('service_location'),
-										name: 'service_location'
 									},
 									{
 										xtype: 'checkbox',

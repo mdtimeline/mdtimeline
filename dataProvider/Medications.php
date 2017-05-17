@@ -200,14 +200,6 @@ class Medications
         return $this->m->load()->leftJoin(['title', 'fname', 'mname', 'lname'], 'users', 'administered_uid', 'id')->all();
     }
 
-    public function getPatientAdministeredMedicationsByPidAndEid($pid, $eid)
-    {
-        $this->m->addFilter('pid', $pid);
-        if($eid) $this->m->addFilter('eid', $eid);
-        $this->m->addFilter('administered_date', null, '!=');
-        return $this->m->load()->leftJoin(['title', 'fname', 'mname', 'lname'], 'users', 'administered_uid', 'id')->all();
-    }
-
     public function getPatientActiveMedicationsByPidAndCode($pid, $code)
     {
         $this->m->addFilter('pid', $pid);
@@ -341,6 +333,16 @@ class Medications
 	public function destroyPatientMedicationAdministered($params){
 		$this->setAdministerModel();
 		return $this->a->destroy($params);
+	}
+
+	public function getPatientAdministeredMedicationsByPidAndEid($pid, $eid)
+	{
+		$this->setAdministerModel();
+		$this->a->addFilter('pid', $pid);
+		if($eid) $this->a->addFilter('eid', $eid);
+		$this->a->addFilter('administered', 1);
+		$this->a->addFilter('administered_date', null, '!=');
+		return $this->a->load()->leftJoin(['title', 'fname', 'mname', 'lname'], 'users', 'administered_uid', 'id')->all();
 	}
 
 }

@@ -94,10 +94,6 @@ Ext.define('App.model.administration.Facility', {
 			len: 5
 		},
 		{
-			name: 'service_location',
-			type: 'bool'
-		},
-		{
 			name: 'billing_location',
 			type: 'bool'
 		},
@@ -105,11 +101,6 @@ Ext.define('App.model.administration.Facility', {
 			name: 'pos_code',
 			type: 'string',
 			len: 3
-		},
-		{
-			name: 'ssn',
-			type: 'string',
-			len: 15
 		},
 		{
 			name: 'ein',
@@ -128,11 +119,6 @@ Ext.define('App.model.administration.Facility', {
 		},
 		{
 			name: 'npi',
-			type: 'string',
-			len: 15
-		},
-		{
-			name: 'lic',
 			type: 'string',
 			len: 15
 		},

@@ -35,6 +35,12 @@ Ext.define('App.model.administration.ListOptions', {
             comment: 'List ID'
         },
         {
+            name: 'list_key',
+            type: 'string',
+	        index: true,
+	        len: 40
+        },
+        {
             name: 'option_value',
             type: 'string',
             index: true,

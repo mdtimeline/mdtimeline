@@ -19,6 +19,7 @@
  */
 
 include_once(ROOT . '/dataProvider/AuditLog.php');
+require_once (ROOT . '/lib/PHPMailer/PHPMailerAutoload.php');
 
 class Email {
 
@@ -57,21 +58,22 @@ class Email {
 
 	}
 
-	/**
-	 * @param int         $pid
-	 * @param int         $eid
-	 * @param string      $to_address
-	 * @param string      $subject
-	 * @param string      $body
-	 * @param bool        $audit_log
-	 * @param int         $facility_id
-	 * @param array       $attachments
-	 * @param array       $embedded_images
-	 *
+	/***
+	 * @param $pid
+	 * @param $eid
+	 * @param $to_address
+	 * @param $subject
+	 * @param $from_email
+	 * @param $from_name
+	 * @param $body
+	 * @param bool $audit_log
+	 * @param null $facility_id
+	 * @param array $attachments
+	 * @param array $embedded_images
 	 * @return array
 	 * @throws Exception
 	 */
-	function Send($pid, $eid, $to_address, $subject, $body, $audit_log = true, $facility_id = null, $attachments = [], $embedded_images = []){
+	function Send($pid, $eid, $to_address, $subject, $from_email, $from_name, $body, $audit_log = true, $facility_id = null, $attachments = [], $embedded_images = []){
 
 		$PHPMailer = new PHPMailer();
 
@@ -87,6 +89,15 @@ class Email {
 		}else{
 			throw new Exception('Email: SMTP server not configured');
 		}
+
+		$PHPMailer->SMTPOptions = array(
+			'ssl' => array(
+				'verify_peer' => false,
+				'verify_peer_name' => false,
+				'allow_self_signed' => true
+			)
+		);
+		$PHPMailer->isHTML(true);
 
 		$PHPMailer->clearAddresses();
 		$PHPMailer->clearAllRecipients();
@@ -123,8 +134,16 @@ class Email {
 			$PHPMailer->addEmbeddedImage(site_path . '/logo-email.png', 'logo');
 		}
 
+		if(isset($from_email) && filter_var($from_email, FILTER_VALIDATE_EMAIL) !== false){
+			$from_address = $from_email;
+		}
+
+		if(!isset($from_name)){
+			$from_name = '';
+		}
+
 		if(isset($from_address)){
-			$PHPMailer->setFrom($from_address);
+			$PHPMailer->setFrom($from_address, $from_name);
 		}else{
 			$PHPMailer->setFrom($this->EMAIL_FROM_ADDRESS);
 		}
@@ -174,5 +193,33 @@ class Email {
 		$this->t->addFilter('template_type', 'master');
 		$this->t->addFilter('active', '1');
 		return $this->t->load()->sortBy('facility_id', 'DESC')->one();
+	}
+
+	private function getTemplateByType($facility_id, $template_type){
+		if(isset($facility_id)){
+			$this->t->addFilter('facility_id', $facility_id);
+		}
+		if(isset($template_type)){
+			$this->t->addFilter('template_type', $template_type);
+		}
+		$this->t->addFilter('active', '1');
+		return $this->t->load()->one();
+	}
+
+	function generateEmail($facility_id, $template_type, $placeholders, $values){
+
+		$tpl = $this->getTemplateByType($facility_id, $template_type);
+
+		if($tpl !== false){
+			$email_body = str_replace($placeholders, $values, $tpl['body']);
+			return [
+				'subject' => $tpl['subject'],
+				'from_email' => $tpl['from_email'],
+				'from_name' => $tpl['from_name'],
+				'body' => $email_body
+		        ];
+		}
+
+		return false;
 	}
 }

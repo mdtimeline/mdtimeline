@@ -73,7 +73,7 @@ Ext.define('App.view.patient.Medications', {
 					dataIndex: 'STR',
 					editor: {
 						xtype: 'rxnormlivetsearch',
-						itemId: 'patientMedicationLiveSearch',
+						itemId: 'PatientMedicationLiveSearch',
 						displayField: 'STR',
 						valueField: 'STR',
 						action: 'medication',

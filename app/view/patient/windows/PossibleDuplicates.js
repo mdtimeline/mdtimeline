@@ -113,10 +113,7 @@ Ext.define('App.view.patient.windows.PossibleDuplicates', {
 		me.buttons = [
 			{
 				text: _('cancel'),
-				itemId: 'PossiblePatientDuplicatesCancelBtn',
-				handler: function(btn){
-					btn.up('window').close();
-				}
+				itemId: 'PossiblePatientDuplicatesCancelBtn'
 			},
 			'-',
 			{

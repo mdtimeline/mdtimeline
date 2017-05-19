@@ -21,46 +21,32 @@ Ext.define('App.view.patient.encounter.DictationPanel', {
 	requires: [
 
 	],
-	action: 'patient.encounter.dicatation',
-	itemId: 'dictationPanel',
+	itemId: 'DictationPanel',
 	title: _('dictation'),
 	layout: 'fit',
 	frame: true,
 	bodyPadding: 10,
-	pid: null,
-	eid: null,
 
 	initComponent: function(){
 		var me = this;
 
-
 		me.items = [
 			{
-				xtype: 'textareafield'
+				xtype: 'textareafield',
+				name: 'dictation',
+				allowBlank:  false
 			}
-
 		];
 
-		me.buttons =[
+		me.buttons = [
 			{
 				text: _('save'),
 				iconCls: 'save',
-				action: 'dicatationSave',
-				scope: me,
-				itemId: 'encounterRecordAdd',
-				handler: me.onDictationSave
+				itemId: 'DictationPanelSaveBtn'
 			}
 		];
 
 		me.callParent(arguments);
 
-	},
-
-	/**
-	 *
-	 * @param btn
-	 */
-	onDictationSave: function(btn){
-		this.enc.onEncounterUpdate(btn)
 	}
 });

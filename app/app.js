@@ -17203,6 +17203,12 @@ Ext.define('App.model.patient.Encounter', {
 			name: 'educationresources',
 			primaryKey: 'eid',
 			foreignKey: 'eid'
+		},
+		{
+			model: 'App.model.patient.Dictation',
+			name: 'dictation',
+			primaryKey: 'eid',
+			foreignKey: 'eid'
 		}
 	],
 	isClose: function(){
@@ -24164,10 +24170,7 @@ Ext.define('App.view.patient.windows.PossibleDuplicates', {
 		me.buttons = [
 			{
 				text: _('cancel'),
-				itemId: 'PossiblePatientDuplicatesCancelBtn',
-				handler: function(btn){
-					btn.up('window').close();
-				}
+				itemId: 'PossiblePatientDuplicatesCancelBtn'
 			},
 			'-',
 			{
@@ -41528,10 +41531,7 @@ Ext.define('App.controller.patient.CCDImport', {
 					sex: patient.data.sex,
 					DOB: patient.data.DOB
 				},
-				'ccdImportDuplicateAction',
-				function(patient){
-
-				}
+				'ccdImportDuplicateAction'
 			);
 		}
 
@@ -41573,6 +41573,9 @@ Ext.define('App.controller.patient.CCDImport', {
      the system information panel.
      */
     onPossiblePatientDuplicatesGridItemDblClick:function(grid, record){
+
+    	if(!this.getCcdPatientPatientForm()) return;
+
         var me = this,
             cmb = me.getCcdImportWindowPatientSearchField(),
             systemPatientForm = me.getCcdPatientPatientForm().getForm(),
@@ -43949,6 +43952,9 @@ Ext.define('App.controller.patient.Patient', {
 			},
 			'#PossiblePatientDuplicatesContinueBtn': {
 				click: me.onPossiblePatientDuplicatesContinueBtnClick
+			},
+			'#PossiblePatientDuplicatesCancelBtn': {
+				click: me.onPossiblePatientDuplicatesCancelBtnClick
 			}
 		});
 	},
@@ -43959,12 +43965,17 @@ Ext.define('App.controller.patient.Patient', {
 
 	onPossiblePatientDuplicatesGridItemDblClick: function(grid, record){
 
-		if(this.getPossiblePatientDuplicatesWindow().action != 'openPatientSummary') return;
+		var win = this.getPossiblePatientDuplicatesWindow();
 
-		app.setPatient(record.data.pid, null, null, function(){
-			app.openPatientSummary();
-			grid.up('window').close();
-		});
+		if(typeof win.callbackFn === 'function'){
+			win.callbackFn(win, record);
+		}else if(win.action === 'openPatientSummary'){
+			app.setPatient(record.data.pid, null, null, function(){
+				app.openPatientSummary();
+				grid.up('window').close();
+			});
+		}
+
 	},
 
     onPossiblePatientDuplicatesWindowClose: function(window){
@@ -44001,12 +44012,10 @@ Ext.define('App.controller.patient.Patient', {
 			store = win.down('grid').getStore();
 
 		win.action = action;
+		win.callbackFn = callback;
 		store.getProxy().extraParams = params;
 		store.load({
 			callback: function(records){
-
-				if(typeof callback == 'function') callback(records);
-
 				if(records.length > 0){
 					win.show();
 				}else{
@@ -44023,6 +44032,20 @@ Ext.define('App.controller.patient.Patient', {
 	onPossiblePatientDuplicatesContinueBtnClick: function(btn){
 		var win = this.getPossiblePatientDuplicatesWindow();
 		win.fireEvent('continue', win);
+
+		if(typeof win.callbackFn === 'function') {
+			win.callbackFn(win, true);
+		}
+		win.close();
+	},
+
+	onPossiblePatientDuplicatesCancelBtnClick: function(){
+		var win = this.getPossiblePatientDuplicatesWindow();
+		win.fireEvent('cancel', win);
+
+		if(typeof win.callbackFn === 'function') {
+			win.callbackFn(win, false);
+		}
 		win.close();
 	}
 

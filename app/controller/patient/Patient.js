@@ -46,6 +46,9 @@ Ext.define('App.controller.patient.Patient', {
 			},
 			'#PossiblePatientDuplicatesContinueBtn': {
 				click: me.onPossiblePatientDuplicatesContinueBtnClick
+			},
+			'#PossiblePatientDuplicatesCancelBtn': {
+				click: me.onPossiblePatientDuplicatesCancelBtnClick
 			}
 		});
 	},
@@ -56,12 +59,17 @@ Ext.define('App.controller.patient.Patient', {
 
 	onPossiblePatientDuplicatesGridItemDblClick: function(grid, record){
 
-		if(this.getPossiblePatientDuplicatesWindow().action != 'openPatientSummary') return;
+		var win = this.getPossiblePatientDuplicatesWindow();
 
-		app.setPatient(record.data.pid, null, null, function(){
-			app.openPatientSummary();
-			grid.up('window').close();
-		});
+		if(typeof win.callbackFn === 'function'){
+			win.callbackFn(win, record);
+		}else if(win.action === 'openPatientSummary'){
+			app.setPatient(record.data.pid, null, null, function(){
+				app.openPatientSummary();
+				grid.up('window').close();
+			});
+		}
+
 	},
 
     onPossiblePatientDuplicatesWindowClose: function(window){
@@ -98,12 +106,10 @@ Ext.define('App.controller.patient.Patient', {
 			store = win.down('grid').getStore();
 
 		win.action = action;
+		win.callbackFn = callback;
 		store.getProxy().extraParams = params;
 		store.load({
 			callback: function(records){
-
-				if(typeof callback == 'function') callback(records);
-
 				if(records.length > 0){
 					win.show();
 				}else{
@@ -120,6 +126,20 @@ Ext.define('App.controller.patient.Patient', {
 	onPossiblePatientDuplicatesContinueBtnClick: function(btn){
 		var win = this.getPossiblePatientDuplicatesWindow();
 		win.fireEvent('continue', win);
+
+		if(typeof win.callbackFn === 'function') {
+			win.callbackFn(win, true);
+		}
+		win.close();
+	},
+
+	onPossiblePatientDuplicatesCancelBtnClick: function(){
+		var win = this.getPossiblePatientDuplicatesWindow();
+		win.fireEvent('cancel', win);
+
+		if(typeof win.callbackFn === 'function') {
+			win.callbackFn(win, false);
+		}
 		win.close();
 	}
 

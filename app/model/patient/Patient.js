@@ -695,6 +695,14 @@ Ext.define('App.model.patient.Patient',{
 		    name: 'phone_mobile_supplier',
 		    type: 'string',
 		    len: 25
+	    },
+	    {
+		    name: 'fullname',
+		    type: 'string',
+            convert: function (v, rec) {
+                return rec.get('lname') + ', ' + rec.get('fname') + ' ' + rec.get('mname');
+            },
+		    store: false
 	    }
     ],
     idProperty: 'pid',

@@ -535,6 +535,7 @@ header("Access-Control-Allow-Origin: *");
 					'patient.SOAP',
 					'patient.HCFAOptions',
 					'patient.EncounterService',
+					'patient.Dictation',
 
 					'patient.encounter.snippetTree',
 					'patient.encounter.Procedures',
@@ -888,6 +889,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.CCDImport',
 	                'patient.CognitiveAndFunctionalStatus',
 	                'patient.DecisionSupport',
+	                'patient.Dictation',
 	                'patient.DoctorsNotes',
 	                'patient.Documents',
 	                'patient.FamilyHistory',
@@ -902,6 +904,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.Medications',
 	                'patient.MedicationsAdministered',
 	                'patient.Patient',
+	                'patient.PatientMerge',
 	                'patient.PatientSearch',
 	                'patient.ProgressNotesHistory',
 	                'patient.RadOrders',

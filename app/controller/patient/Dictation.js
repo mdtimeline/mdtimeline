@@ -89,10 +89,6 @@ Ext.define('App.controller.patient.Dictation', {
 
 		if(!form.isValid()) return;
 
-
-		say(record);
-		say(values);
-
 		record.set(values);
 
 		record.save({

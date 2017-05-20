@@ -21934,6 +21934,14 @@ Ext.define('App.model.patient.Patient',{
 		    name: 'phone_mobile_supplier',
 		    type: 'string',
 		    len: 25
+	    },
+	    {
+		    name: 'fullname',
+		    type: 'string',
+            convert: function (v, rec) {
+                return rec.get('lname') + ', ' + rec.get('fname') + ' ' + rec.get('mname');
+            },
+		    store: false
 	    }
     ],
     idProperty: 'pid',
@@ -54041,6 +54049,14 @@ Ext.define('App.view.patient.Patient', {
 				text: _('possible_duplicates'),
 				minWidth: 75,
 				itemId: 'PatientPossibleDuplicatesBtn'
+			},
+			'-',
+			{
+				xtype: 'button',
+				action: 'readOnly',
+				text: _('merge_record'),
+				minWidth: 75,
+				itemId: 'PatientMergeBtn'
 			},
 			'-',
 			'->',

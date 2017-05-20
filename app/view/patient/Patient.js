@@ -1451,6 +1451,14 @@ Ext.define('App.view.patient.Patient', {
 				itemId: 'PatientPossibleDuplicatesBtn'
 			},
 			'-',
+			{
+				xtype: 'button',
+				action: 'readOnly',
+				text: _('merge_record'),
+				minWidth: 75,
+				itemId: 'PatientMergeBtn'
+			},
+			'-',
 			'->',
 			'-',
 			{

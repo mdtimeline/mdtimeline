@@ -62,6 +62,8 @@ Ext.define('App.controller.patient.PatientMerge', {
 	},
 
 	onPatientMergeBtnClick: function () {
+		if(!a('allow_merge_patients')) return;
+
 		this.showPatientMergeWindow();
 
 		this.getPatientMergeRecordOneForm().getForm().loadRecord(app.patient.record);

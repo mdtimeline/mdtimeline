@@ -54056,6 +54056,7 @@ Ext.define('App.view.patient.Patient', {
 				action: 'readOnly',
 				text: _('merge_record'),
 				minWidth: 75,
+				acl: a('allow_merge_patients'),
 				itemId: 'PatientMergeBtn'
 			},
 			'-',

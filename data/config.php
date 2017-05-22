@@ -2010,7 +2010,10 @@ $API = [
 				'len' => 0
             ],
 			'getRoles' => [
-				'len' => 0
+				'len' => 1
+            ],
+			'getRolesGroups' => [
+				'len' => 1
             ],
 			'getCodeTypes' => [
 				'len' => 0

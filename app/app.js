@@ -9978,38 +9978,34 @@ Ext.define('App.ux.combo.Race', {
 });
 
 Ext.define('App.ux.combo.Roles', {
-	extend       : 'Ext.form.ComboBox',
-	alias        : 'widget.mitos.rolescombo',
-	initComponent: function() {
+	extend: 'Ext.form.ComboBox',
+	alias: 'widget.mitos.rolescombo',
+	editable: false,
+	queryMode: 'local',
+	valueField: 'id',
+	displayField: 'role_name',
+	emptyText: _('select'),
+	includeAllOption: false,
+	initComponent: function () {
 		var me = this;
 
-		Ext.define('RolesComboModel', {
-			extend: 'Ext.data.Model',
+		me.store = Ext.create('Ext.data.Store', {
+			autoLoad: true,
 			fields: [
 				{name: 'id', type: 'int'},
 				{name: 'role_name', type: 'string'}
 			],
-			proxy : {
+			proxy: {
 				type: 'direct',
-				api : {
-					read: CombosData.getRoles
+				api: {
+					read: 'CombosData.getRoles'
+				},
+				extraParams: {
+					includeAllOption: me.includeAllOption
 				}
 			}
 		});
 
-		me.store = Ext.create('Ext.data.Store', {
-			model   : 'RolesComboModel',
-			autoLoad: true
-		});
-
-		Ext.apply(this, {
-			editable    : false,
-			queryMode   : 'local',
-			valueField  : 'id',
-			displayField: 'role_name',
-			emptyText   : _('select'),
-			store       : me.store
-		}, null);
 		me.callParent(arguments);
 	}
 });
@@ -38652,7 +38648,7 @@ Ext.define('App.controller.Cron', {
     extend: 'Ext.app.Controller',
 
     // in seconds - interval to run me.cronTask (check PHP session, refresh Patient Pool Areas, and PHP Cron Job)
-	cronTaskInterval: 10,
+	cronTaskInterval: 15,
 
 	fns:[
 		'app.getPatientsInPoolArea()',

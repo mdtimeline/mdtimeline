@@ -160,6 +160,8 @@ class authProcedures {
 			$_SESSION['user']['npi'] = $user['npi'] ;
 			$_SESSION['user']['site'] = site_name;
 			$_SESSION['user']['auth'] = true;
+			$_SESSION['user']['acl_groups'] = ACL::getUserGroups();
+			$_SESSION['user']['acl_roles'] = ACL::getUserRoles();
 			$_SESSION['site']['localization'] = $_SESSION['user']['localization'];
 			$_SESSION['site']['checkInMode'] = isset($params->checkInMode) ? $params->checkInMode: false;
 			$_SESSION['timeout'] = time();
@@ -197,7 +199,9 @@ class authProcedures {
 					'email' => $_SESSION['user']['email'],
 					'facility' => $_SESSION['user']['facility'],
 				    'localization' => $_SESSION['user']['localization'],
-				    'password_expired' => $_SESSION['user']['password_expired']
+				    'password_expired' => $_SESSION['user']['password_expired'],
+				    'acl_groups' => $_SESSION['user']['acl_groups'],
+				    'acl_roles' => $_SESSION['user']['acl_roles']
 				]
 			];
 		}

@@ -73,7 +73,7 @@ if(!defined('sites_count')){
 }
 
 // timeout values
-$_SESSION['inactive']['time'] = 15;
+$_SESSION['inactive']['time'] = 20;
 $_SESSION['inactive']['start'] = true;
 $_SESSION['inactive']['life'] = (time() - (isset($_SESSION['inactive']['timeout']) ? $_SESSION['inactive']['timeout'] : time()));
 $_SESSION['inactive']['timeout'] = time();

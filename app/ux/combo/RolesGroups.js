@@ -1,10 +1,10 @@
-Ext.define('App.ux.combo.Roles', {
+Ext.define('App.ux.combo.RolesGroups', {
 	extend: 'Ext.form.ComboBox',
-	alias: 'widget.mitos.rolescombo',
+	alias: 'widget.mitos.rolesgroupscombo',
 	editable: false,
 	queryMode: 'local',
 	valueField: 'id',
-	displayField: 'role_name',
+	displayField: 'title',
 	emptyText: _('select'),
 	includeAllOption: false,
 	initComponent: function () {
@@ -14,12 +14,12 @@ Ext.define('App.ux.combo.Roles', {
 			autoLoad: true,
 			fields: [
 				{name: 'id', type: 'int'},
-				{name: 'role_name', type: 'string'}
+				{name: 'title', type: 'string'}
 			],
 			proxy: {
 				type: 'direct',
 				api: {
-					read: 'CombosData.getRoles'
+					read: 'CombosData.getRolesGroups'
 				},
 				extraParams: {
 					includeAllOption: me.includeAllOption

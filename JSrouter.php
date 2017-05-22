@@ -91,6 +91,8 @@ if(!isset($_SESSION['site']['error']) && (isset($_SESSION['user']) && $_SESSION[
 	$userData['facility'] = $_SESSION['user']['facility'];
 	$userData['localization'] = $_SESSION['user']['localization'];
 	$userData['password_expired'] = $_SESSION['user']['password_expired'];
+	$userData['acl_groups'] = $_SESSION['user']['acl_groups'];
+	$userData['acl_roles'] = $_SESSION['user']['acl_roles'];
 	unset($User);
 
 	$Facilities = new Facilities();

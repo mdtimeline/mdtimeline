@@ -152,12 +152,13 @@ class MatchaCUP {
 	 * this is not the preferred way, but sometimes you need to do it.
 	 *
 	 * @param null $sql
+	 * @param bool $proxy_format
 	 *
 	 * @return MatchaCUP
 	 */
-	public function sql($sql = null) {
+	public function sql($sql = null, $proxy_format = false) {
 		try {
-			$this->isSenchaRequest = false;
+			$this->isSenchaRequest = $proxy_format;
 
 			if($sql == null){
 				throw new Exception("Error the SQL statement is not set.");

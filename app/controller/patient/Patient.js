@@ -114,6 +114,9 @@ Ext.define('App.controller.patient.Patient', {
 					win.show();
 				}else{
 					app.msg(_('sweet'), _('no_possible_duplicates_found'));
+					if(typeof win.callbackFn === 'function') {
+						win.callbackFn(win, true);
+					}
 				}
 			}
 		});

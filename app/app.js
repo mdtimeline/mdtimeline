@@ -16886,7 +16886,7 @@ Ext.define('App.model.patient.DoctorsNote', {
 				if(!record.data.restrictions){
 					return '';
 				}else if(record.data.restrictions.join){
-					return ecord.data.restrictions.join(', ');
+					return record.data.restrictions.join(', ');
 				}else{
 					return record.data.restrictions;
 				}
@@ -44024,6 +44024,9 @@ Ext.define('App.controller.patient.Patient', {
 					win.show();
 				}else{
 					app.msg(_('sweet'), _('no_possible_duplicates_found'));
+					if(typeof win.callbackFn === 'function') {
+						win.callbackFn(win, true);
+					}
 				}
 			}
 		});

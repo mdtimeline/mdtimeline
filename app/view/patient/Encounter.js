@@ -355,7 +355,6 @@ Ext.define('App.view.patient.Encounter', {
 					]
 				})
 			]
-
 		});
 
 		me.panelToolBar = Ext.create('Ext.toolbar.Toolbar', {
@@ -369,97 +368,113 @@ Ext.define('App.view.patient.Encounter', {
 				{
 					text: _('vaccs') + ' ',
 					action: 'immunization',
-					tooltip: _('vaccines_immunizations')
+					tooltip: _('vaccines_immunizations'),
+					acl: a('access_patient_immunizations')
 				},
 				'-',
 				{
 					text: _('al') + ' ',
 					action: 'allergies',
-					tooltip: _('allergies')
+					tooltip: _('allergies'),
+					acl: a('access_patient_allergies')
 				},
 				'-',
 				{
 					text: _('act_prob') + ' ',
 					action: 'activeproblems',
-					tooltip: _('active_problems')
+					tooltip: _('active_problems'),
+					acl: a('access_active_problems')
 				},
 				'-',
 				{
 					text: _('fam_hx') + ' ',
 					action: 'familyhistory',
-					tooltip: _('family_history')
+					tooltip: _('family_history'),
+					acl: a('access_family_history')
 				},
 				'-',
 				{
 					text: _('adv_dir') + ' ',
 					action: 'advancedirectives',
-					tooltip: _('advance_directives')
+					tooltip: _('advance_directives'),
+					acl: a('access_patient_advance_directive')
 				},
 				'-',
 				{
 					text: _('meds') + ' ',
 					action: 'medications',
-					tooltip: _('medications')
+					tooltip: _('medications'),
+					acl: a('access_patient_medications')
 				},
 				'-',
 				{
 					text: _('res') + ' ',
 					action: 'laboratories',
-					tooltip: _('results')
+					tooltip: _('results'),
+					acl: a('access_patient_results')
 				},
 				'-',
 				{
 					text: _('soc_hx') + ' ',
 					action: 'social',
-					tooltip: _('social_history')
+					tooltip: _('social_history'),
+					acl: a('access_patient_social_history')
 				},
 				'-',
 				{
 					text: _('func_stat') + ' ',
 					action: 'functionalstatus',
-					tooltip: _('functional_status')
+					tooltip: _('functional_status'),
+					acl: a('access_patient_functional_status')
 				},
 				'-',
 				{
 					text: _('refs') + ' ',
 					action: 'referrals',
-					tooltip: _('referrals')
+					tooltip: _('referrals'),
+					acl: a('access_patient_referrals')
 				},
 				'-',
 				{
 					text: _('imp_devs') + ' ',
 					action: 'ImplantableDeviceGrid',
-					tooltip: _('implantable_devices')
+					tooltip: _('implantable_devices'),
+					acl: a('access_patient_implantable_devices')
 				},
 				'-',
 				{
 					text: _('spb') + ' ',
 					action: 'SocialPsychologicalBehavioralPanel',
-					tooltip: _('social_psychological_behavioral')
+					tooltip: _('social_psychological_behavioral'),
+					acl: a('access_patient_psy_behavioral')
 				},
 				'-',
 				{
 					text: _('doc_nt'),
 					action: 'DoctorsNotes',
-					tooltip: _('doctors_notes')
+					tooltip: _('doctors_notes'),
+					acl: a('access_patient_doctors_notes')
 				},
 				'-',
 				{
 					text: _('lab_orders'),
 					action: 'LabOrders',
-					cls: 'order-btn'
+					cls: 'order-btn',
+					acl: a('access_patient_lab_orders')
 				},
 				'-',
 				{
 					text: _('xray_ct_orders'),
 					action: 'RadOrders',
-					cls: 'order-btn'
+					cls: 'order-btn',
+					acl: a('access_patient_rad_orders')
 				},
 				'-',
 				{
 					text: _('rx_orders'),
 					action: 'RxOrderGrid',
-					cls: 'order-btn'
+					cls: 'order-btn',
+					acl: a('access_patient_rx_orders')
 				},
 				'-',
 				'->',

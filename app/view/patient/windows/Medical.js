@@ -43,7 +43,155 @@ Ext.define('App.view.patient.windows.Medical', {
 	],
 
 	initComponent: function(){
-		var me = this;
+		var me = this,
+			tapPanelItems = [];
+
+
+		if(a('access_patient_immunizations')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype:'patientimmunizationspanel',
+				itemId: 'immunization',
+				tabConfig: {
+					tooltip: _('vaccines_immunizations')
+				}
+			});
+		}
+
+		if(a('access_patient_allergies')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientallergiespanel',
+				itemId: 'allergies',
+				tabConfig: {
+					tooltip: _('allergies')
+				}
+			});
+		}
+
+		if(a('access_active_problems')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientactiveproblemspanel',
+				itemId: 'activeproblems',
+				tabConfig: {
+					tooltip: _('active_problems')
+				}
+			});
+		}
+
+		if(a('access_family_history')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientfamilyhistorypanel',
+				itemId: 'familyhistory',
+				tabConfig: {
+					tooltip: _('family_history')
+				}
+			});
+		}
+
+		if(a('access_patient_advance_directive')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientadvancedirectivepanel',
+				itemId: 'advancedirectives',
+				tabConfig: {
+					tooltip: _('advance_directives')
+				}
+			});
+		}
+
+		if(a('access_patient_medications')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype:'patientmedicationspanel',
+				itemId: 'medications',
+				tabConfig: {
+					tooltip: _('medications')
+				}
+			});
+		}
+
+		if(a('access_patient_results')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype:'patientresultspanel',
+				itemId: 'laboratories',
+				tabConfig: {
+					tooltip: _('results')
+				}
+			});
+		}
+
+		if(a('access_patient_social_history')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientsocialpanel',
+				itemId: 'social',
+				tabConfig: {
+					tooltip: _('social_history')
+				}
+			});
+		}
+
+		if(a('access_patient_functional_status')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientcognitiveandfunctionalstatuspanel',
+				itemId: 'functionalstatus',
+				tabConfig: {
+					tooltip: _('functional_status')
+				}
+			});
+		}
+
+		if(a('access_patient_referrals')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientreferralspanel',
+				itemId: 'referrals',
+				tabConfig: {
+					tooltip: _('referrals')
+				}
+			});
+		}
+
+		if(a('access_patient_implantable_devices')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype:'implantabledevicepanel',
+				tabConfig: {
+					tooltip: _('implantable_devices')
+				}
+			});
+		}
+
+		if(a('access_patient_psy_behavioral')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype:'socialpsychologicalbehavioralpanel',
+				tabConfig: {
+					tooltip: _('social_psychological_behavioral')
+				}
+			});
+		}
+
+		if(a('access_patient_doctors_notes')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientdoctorsnotepanel',
+				tabConfig: {
+					tooltip: _('doctors_notes')
+				}
+			});
+		}
+
+		if(a('access_patient_lab_orders')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientlaborderspanel'
+			});
+		}
+
+		if(a('access_patient_rad_orders')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientradorderspanel'
+			});
+		}
+
+		if(a('access_patient_rx_orders')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype:'patientrxorderspanel'
+			});
+		}
+
 
 		me.items = [
 			{
@@ -54,117 +202,7 @@ Ext.define('App.view.patient.windows.Medical', {
 				margin: 5,
 				height: Ext.getBody().getHeight() < 700 ? (Ext.getBody().getHeight() - 100) : 600,
 				width: Ext.getBody().getWidth() < 1550 ? (Ext.getBody().getWidth() - 50) : 1500,
-				items:[
-					{
-						xtype:'patientimmunizationspanel',
-						itemId: 'immunization',
-						tabConfig: {
-							tooltip: _('vaccines_immunizations')
-						}
-					},
-					{
-						xtype: 'patientallergiespanel',
-						itemId: 'allergies',
-						tabConfig: {
-							tooltip: _('allergies')
-						}
-					},
-					{
-						xtype: 'patientactiveproblemspanel',
-						itemId: 'activeproblems',
-						tabConfig: {
-							tooltip: _('active_problems')
-						}
-					},
-					{
-						xtype: 'patientfamilyhistorypanel',
-						itemId: 'familyhistory',
-						tabConfig: {
-							tooltip: _('family_history')
-						}
-					},
-					{
-						xtype: 'patientadvancedirectivepanel',
-						itemId: 'advancedirectives',
-						tabConfig: {
-							tooltip: _('advance_directives')
-						}
-					},
-					{
-						xtype:'patientmedicationspanel',
-						itemId: 'medications',
-						tabConfig: {
-							tooltip: _('medications')
-						}
-					},
-					{
- 						xtype:'patientresultspanel',
-						itemId: 'laboratories',
-						tabConfig: {
-							tooltip: _('results')
-						}
-					},
-					{
-						xtype: 'patientsocialpanel',
-						itemId: 'social',
-						tabConfig: {
-							tooltip: _('social_history')
-						}
-					},
-					{
-						xtype: 'patientcognitiveandfunctionalstatuspanel',
-						itemId: 'functionalstatus',
-						tabConfig: {
-							tooltip: _('functional_status')
-						}
-					},
-					{
-						xtype: 'patientreferralspanel',
-						itemId: 'referrals',
-						tabConfig: {
-							tooltip: _('referrals')
-						}
-					},
-					{
-						xtype:'implantabledevicepanel',
-						tabConfig: {
-							tooltip: _('implantable_devices')
-						}
-					},
-					{
-						xtype:'socialpsychologicalbehavioralpanel',
-						tabConfig: {
-							tooltip: _('social_psychological_behavioral')
-						}
-					},
-					/**
-					 * DOCTORS NOTE
-					 */
-					{
-						xtype: 'patientdoctorsnotepanel',
-						tabConfig: {
-							tooltip: _('doctors_notes')
-						}
-					},
-					/**
-					 * LAB ORDERS PANEL
-					 */
-					{
-						xtype: 'patientlaborderspanel'
-					},
-					/**
-					 * X-RAY PANEL
-					 */
-					{
-						xtype: 'patientradorderspanel'
-					},
-					/**
-					 * PRESCRIPTION PANEL
-					 */
-					{
-						xtype:'patientrxorderspanel'
-					}
-				]
+				items: tapPanelItems
 			}
 		];
 

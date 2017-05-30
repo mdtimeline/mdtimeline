@@ -273,6 +273,8 @@ Ext.define('App.controller.administration.EncounterSnippets', {
 			specialty_id: me.getSoapTemplateSpecialtiesCombo().getValue()
 		});
 
+		say(categories);
+
 		me.showSnippetEditWindow();
 		me.getSnippetForm().getForm().loadRecord(records[0]);
 		me.getSnippetFormCategoryCmb().store.loadData(categories);

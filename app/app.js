@@ -49181,6 +49181,7 @@ Ext.define('App.view.patient.encounter.Snippets', {
 	width: 600,
 	layout: 'fit',
 	modal: true,
+	closeAction: 'hide',
 	items: [
 		{
 			xtype: 'form',

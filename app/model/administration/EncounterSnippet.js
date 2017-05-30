@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.model.patient.encounter.snippetTree', {
+Ext.define('App.model.administration.EncounterSnippet', {
 	extend: 'Ext.data.Model',
 	table: {
 		name: 'soap_snippets'
@@ -27,15 +27,13 @@ Ext.define('App.model.patient.encounter.snippetTree', {
 			type: 'string'
 		},
 		{
-			name: 'parentId',
-			type: 'string',
-			len: 20,
+			name: 'uid',
+			type: 'int',
 			index: true
 		},
 		{
 			name: 'specialty_id',
-			type: 'string',
-			len: 11,
+			type: 'int',
 			index: true
 		},
 		{
@@ -43,24 +41,39 @@ Ext.define('App.model.patient.encounter.snippetTree', {
 			type: 'int'
 		},
 		{
-			name: 'title',
+			name: 'description',
 			type: 'string',
 			len: 80
 		},
 		{
-			name: 'text',
+			name: 'category',
+			type: 'string',
+			len: 50
+		},
+		{
+			name: 'subjective',
 			type: 'string',
 			dataType: 'text'
 		},
 		{
-			name: 'category',
+			name: 'objective',
 			type: 'string',
-			len: 50,
-			index: true
+			dataType: 'text'
 		},
 		{
-			name: 'leaf',
-			type: 'bool'
+			name: 'assessment',
+			type: 'string',
+			dataType: 'text'
+		},
+		{
+			name: 'instructions',
+			type: 'string',
+			dataType: 'text'
+		},
+		{
+			name: 'diagnoses',
+			type: 'string',
+			dataType: 'text'
 		}
 	],
 	proxy: {

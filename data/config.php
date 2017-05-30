@@ -785,6 +785,9 @@ $API = [
             ],
 			'getICDByEid' => [
 				'len' => 1
+            ],
+			'getICDDataByCodes' => [
+				'len' => 1
             ]
         ]
     ],

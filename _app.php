@@ -537,7 +537,6 @@ header("Access-Control-Allow-Origin: *");
 					'patient.EncounterService',
 					'patient.Dictation',
 
-					'patient.encounter.snippetTree',
 					'patient.encounter.Procedures',
 
 					'patient.EducationResource',
@@ -659,7 +658,6 @@ header("Access-Control-Allow-Origin: *");
 	                'fees.PaymentTransactions',
 	                'navigation.Navigation',
 
-	                'patient.encounter.snippetTree',
 	                'patient.encounter.Procedures',
 
 	                'patient.AdvanceDirectives',
@@ -841,6 +839,7 @@ header("Access-Control-Allow-Origin: *");
 	                'administration.DataPortability',
 	                'administration.DecisionSupport',
 	                'administration.Documents',
+	                'administration.EncounterSnippets',
 	                'administration.FacilityStructure',
 	                'administration.FileSystems',
 	                'administration.HL7',
@@ -920,7 +919,6 @@ header("Access-Control-Allow-Origin: *");
                     'patient.encounter.Encounter',
 	                'patient.encounter.EncounterDocuments',
 	                'patient.encounter.EncounterSign',
-	                'patient.encounter.Snippets',
                     'patient.encounter.SOAP',
                     'patient.encounter.SuperBill'
                 ],

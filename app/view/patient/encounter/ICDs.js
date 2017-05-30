@@ -243,6 +243,35 @@ Ext.define('App.view.patient.encounter.ICDs', {
 		field.reset();
 	},
 
+	doAddIcd: function (data) {
+		var me = this,
+			soap = me.up('form').getForm().getRecord(),
+			group_cmb = me.getDxGroupCombo(),
+			group = group_cmb.getValue(),
+			type_cmb = me.getDxTypeCombo(),
+			type = type_cmb.getValue(),
+			order = me.getNextOrder(group),
+			dxRecords;
+
+		if(!group_cmb.isValid() && !type_cmb.isValid()) return;
+
+		if(me.store.find('code', data.code) !== -1) return;
+
+		dxRecords = me.store.add({
+			pid: soap.data.pid,
+			eid: soap.data.eid,
+			uid: app.user.id,
+			code: data.code,
+			code_text: data.code_text,
+			code_type: data.code_type,
+			dx_group: group,
+			dx_type: type,
+			dx_order: order
+		});
+
+		me.addIcd(dxRecords[0], group, order);
+	},
+
 	removeIcds: function(){
 
 		Ext.Object.each(this.dxGroup, function(key, group){

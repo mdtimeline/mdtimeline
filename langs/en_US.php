@@ -1879,6 +1879,7 @@ $LANG = array(
     'patient_added'                         => 'Patient Added',
     'patient_loaded'                        => 'Patient Loaded',
     'action_canceled'                       => 'Action Canceled',
+    'diagnoses'                             => 'Diagnoses',
     'merge'                                 => 'Merge',
     'merge_record'                          => 'Merge Record',
     'merge_record_missing'                  => 'Merge Record Missing',

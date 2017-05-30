@@ -25,27 +25,50 @@ Ext.define('App.view.patient.encounter.Snippets', {
 	itemId: 'SnippetWindow',
 	title: _('snippet'),
 	closable: false,
+	width: 800,
+	modal: true,
 	items: [
 		{
 			xtype: 'form',
 			itemId: 'SnippetForm',
+			border: false,
+			bodyPadding: 10,
 			fieldDefaults: {
 				labelAlign: 'top',
-				width: 600,
-				margin: 5
+				anchor: '100%',
+				margin: '0 0 10 0'
 			},
 			items: [
 				{
 					xtype: 'textfield',
-					fieldLabel: _('title'),
-					name: 'title'
+					fieldLabel: _('description'),
+					name: 'description',
+					allowBlank: false
 				},
 				{
 					xtype: 'textareafield',
-					fieldLabel: _('snippet'),
-					allowBlank: false,
-					itemId: 'SnippetFormTextField',
-					name: 'text'
+					fieldLabel: _('subjective'),
+					name: 'subjective'
+				},
+				{
+					xtype: 'textareafield',
+					fieldLabel: _('objective'),
+					name: 'objective'
+				},
+				{
+					xtype: 'textareafield',
+					fieldLabel: _('assessment'),
+					name: 'assessment'
+				},
+				{
+					xtype: 'textareafield',
+					fieldLabel: _('instructions'),
+					name: 'instructions'
+				},
+				{
+					xtype: 'textfield',
+					fieldLabel: _('diagnoses'),
+					name: 'diagnoses'
 				}
 			]
 		}

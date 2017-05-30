@@ -41,15 +41,16 @@ Ext.define('App.view.patient.encounter.SOAP', {
 	initComponent: function(){
 		var me = this;
 
-		me.snippetStore = Ext.create('App.store.patient.encounter.snippetTree', {
-			autoLoad: false
+		me.snippetStore = Ext.create('App.store.administration.EncounterSnippets', {
+			autoLoad: false,
+			groupField: 'category'
 		});
 
 		me.procedureStore = Ext.create('App.store.patient.encounter.Procedures');
 
-		var snippetCtrl = App.app.getController('patient.encounter.Snippets');
+		var snippetCtrl = App.app.getController('administration.EncounterSnippets');
 
-		me.snippets = Ext.create('Ext.tree.Panel', {
+		me.snippets = Ext.create('Ext.grid.Panel', {
 			title: _('snippets'),
 			itemId: 'SnippetsTreePanel',
 			region: 'west',
@@ -65,57 +66,32 @@ Ext.define('App.view.patient.encounter.SOAP', {
 			collapseMode: 'mini',
 			hideCollapseTool: true,
 			store: me.snippetStore,
+			features: [{ftype:'grouping'}],
 			tools: [
 				{
 					xtype: 'button',
-					text: _('category'),
+					text: _('snippet'),
 					iconCls: 'icoAdd',
-					itemId: 'SnippetCategoryAddBtn'
+					itemId: 'SnippetAddBtn'
 				}
 			],
 			columns: [
-				{
-					xtype: 'treecolumn', //this is so we know which column will show the tree
-					text: 'Template',
-					flex: 1,
-					dataIndex: 'title',
-					renderer: function(v, meta, record){
-						var toolTip = record.data.text ? ' data-qtip="' + record.data.text + '" ' : '';
-
-						return '<span ' + toolTip + '>' + (v !== '' ? v : record.data.text) + '</span>'
-					}
-				},
-				{
-					text: _('add'),
-					width: 25,
-					menuDisabled: true,
-					xtype: 'actioncolumn',
-					tooltip: _('add_snippet'),
-					align: 'center',
-					icon: 'resources/images/icons/add.png',
-					scope: me,
-					handler: function(grid, rowIndex, colIndex, actionItem, event, record){
-						snippetCtrl.onSnippetAddBtnClick(grid, rowIndex, colIndex, actionItem, event, record);
-					},
-					getClass: function(value, metadata, record){
-						if(!record.data.leaf){
-							return 'x-grid-center-icon';
-						}else{
-							return 'x-hide-display';
-						}
-					}
-				},
 				{
 					text: _('edit'),
 					width: 25,
 					menuDisabled: true,
 					xtype: 'actioncolumn',
-					tooltip: 'Edit task',
+					tooltip: 'Edit Snippet',
 					align: 'center',
 					icon: 'resources/images/icons/edit.png',
 					handler: function(grid, rowIndex, colIndex, actionItem, event, record){
 						snippetCtrl.onSnippetBtnEdit(grid, rowIndex, colIndex, actionItem, event, record);
 					}
+				},
+				{
+					text: _('description'),
+					dataIndex: 'description',
+					flex: 1
 				}
 			],
 			bbar:[
@@ -126,20 +102,17 @@ Ext.define('App.view.patient.encounter.SOAP', {
 				}
 			],
 			viewConfig: {
+				disableSelection: true,
 				plugins: {
 					ptype: 'treeviewdragdrop',
-					expandDelay: 500,
 					dragText: _('drag_and_drop_reorganize')
 				},
 				listeners: {
 					scope: me,
-					drop: me.onSnippetDrop
+					drop: function (node, data, overModel) {
+						snippetCtrl.onSnippetDrop(node, data, overModel);
+					}
 				}
-			},
-			listeners: {
-				scope: me,
-				itemclick: me.onSnippetClick,
-				itemdblclick: me.onSnippetDblClick
 			}
 		});
 
@@ -334,45 +307,6 @@ Ext.define('App.view.patient.encounter.SOAP', {
 			}
 		});
 
-		me.phWindow = Ext.widget('window', {
-			title: _('complete_snippet'),
-			closeAction: 'hide',
-			bodyPadding: 0,
-			bodyBorder: false,
-			border: false,
-			items: [
-				{
-					xtype: 'textarea',
-					border: false,
-					width: 500,
-					height: 150,
-					margin: 0,
-					grow: true,
-					enableKeyEvents: true,
-					listeners: {
-						scope: me,
-						specialkey: me.onPhTextAreaKey
-					}
-				}
-			],
-			buttons: [
-				{
-					xtype: 'tbtext',
-					text: _('shift_enter_submit')
-				},
-				'->',
-				{
-					text: _('cancel'),
-					handler: me.onPhWindowCancel
-				},
-				{
-					text: _('submit'),
-					scope: me,
-					handler: me.onPhWindowSubmit
-				}
-			]
-		});
-
 		Ext.apply(me, {
 			items: [ me.snippets, me.form ]
 		});
@@ -502,96 +436,5 @@ Ext.define('App.view.patient.encounter.SOAP', {
 			record.store.fireEvent('write');
 		});
 		this.dxField.loadIcds(record.dxCodes());
-	},
-
-	/**
-	 *
-	 * @param view
-	 * @param record
-	 */
-	onSnippetClick: function(view, record){
-		if(!record.data.leaf) record.expand();
-	},
-
-	/**
-	 *
-	 * @param view
-	 * @param record
-	 */
-	onSnippetDblClick: function(view, record){
-
-		if(record.data.leaf){
-			var me = this,
-				form = me.form.getForm(),
-				action = view.panel.action.split('-'),
-				field = form.findField(action[0]),
-				text = record.data.text,
-				value = field.getValue(),
-				PhIndex = text.indexOf('??'),
-				textArea = me.phWindow.down('textarea'),
-				glue = value.substr(value.length - 1) == ' ' ? '' : ' ';
-
-			if(PhIndex == -1){
-				field.setValue(value + glue + text);
-			}else{
-				me.phWindow.show();
-				textArea.setValue(text);
-				Ext.Function.defer(function(){
-					textArea.selectText(PhIndex, PhIndex + 2)
-				}, 300);
-			}
-		}else{
-			record.expand();
-		}
-	},
-
-	/**
-	 *
-	 */
-	onPhWindowSubmit: function(){
-		var me = this,
-			textArea = me.phWindow.down('textarea'),
-			form = me.form.getForm(),
-			action = me.snippets.action.split('-'),
-			field = form.findField(action[0]),
-			value = field.getValue(),
-			text = textArea.getValue(),
-			glue = value.substr(value.length - 1) == ' ' ? '' : ' ';
-
-		field.setValue(value + glue + text);
-		me.phWindow.close();
-		textArea.reset();
-	},
-
-	/**
-	 *
-	 * @param btn
-	 */
-	onPhWindowCancel: function(btn){
-		btn.up('window').close();
-	},
-
-	/**
-	 *
-	 * @param field
-	 * @param e
-	 */
-	onPhTextAreaKey: function(field, e){
-		if(e.getKey() == e.ENTER) this.onPhWindowSubmit();
-	},
-
-	/**
-	 *
-	 * @param node
-	 * @param data
-	 * @param overModel
-	 */
-	onSnippetDrop: function(node, data, overModel){
-		var me = this, pos = 10;
-		for(var i = 0; i < overModel.parentNode.childNodes.length; i++){
-			overModel.parentNode.childNodes[i].set({pos: pos});
-			pos = pos + 10;
-		}
-		me.snippetStore.sync();
 	}
 });

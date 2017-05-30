@@ -64,7 +64,6 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 
 		me.control({
 			'viewport': {
-				'beforeencounterload': me.onOpenEncounter,
 				'encounterbeforesync': me.onEncounterBeforeSync
 			},
 			'#soapPanel': {
@@ -83,20 +82,8 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 			},
 			'#soapProcedureWindow > form > textarea': {
 				focus: me.onProcedureTextFieldFocus
-			},
-			'#SoapTemplateSpecialtiesCombo': {
-				select: me.onSoapTemplateSpecialtiesComboChange,
-				change: me.onSoapTemplateSpecialtiesComboChange
 			}
 		});
-	},
-
-	onSoapTemplateSpecialtiesComboChange: function(cmb){
-		this.loadSnippets();
-	},
-
-	onOpenEncounter: function(encounter){
-		this.getSoapTemplateSpecialtiesCombo().setValue(encounter.data.specialty_id);
 	},
 
 	onEncounterBeforeSync: function(panel, store, form){
@@ -105,72 +92,30 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 		}
 	},
 
-	//onPanelActive: function(){
-	//	var me = this;
-	//	Ext.Function.defer(function(){
-	//		me.getEncounterProgressNotesPanel().expand();
-	//	}, 200);
-	//},
-	//
-	//onPanelDeActive: function(){
-	//	var me = this;
-	//	Ext.Function.defer(function(){
-	//		me.getEncounterProgressNotesPanel().collapse();
-	//	}, 200);
-	//},
-
 	onSoapTextFieldFocus: function(field){
 		this.field = field;
-		this.loadSnippets();
 
 		if(!Ext.isWebKit) return;
 		this.final_transcript = field.getValue();
 		this.interim_transcript = '';
+
+		if(this.field.tip) return;
+
+		this.field.tip = Ext.create('Ext.tip.ToolTip', {
+			target: this.field.el,
+			anchor: 'top',
+			anchorOffset: 85,
+			disabled: true,
+			html: 'Press this button to clear the form'
+		});
 	},
 
 	onProcedureTextFieldFocus: function(field){
 		this.field = field;
-		this.loadSnippets();
 
 		if(!Ext.isWebKit) return;
 		this.final_transcript = field.getValue();
 		this.interim_transcript = '';
-	},
-
-	loadSnippets: function(){
-		var me = this;
-
-		if(me.getSnippetsTreePanel().collapsed === false){
-			var templates = me.getSnippetsTreePanel(),
-				specialty_id = me.getSoapTemplateSpecialtiesCombo().getValue(),
-				action = me.field.name + '-' + specialty_id;
-
-			if(templates.action != action){
-
-				templates.setTitle(_(me.field.name) + ' ' + _('templates'));
-				templates.action = me.field.name + '-' + specialty_id;
-
-				templates.getSelectionModel().deselectAll();
-				templates.getStore().load({
-					filters: [
-						{
-							property: 'category',
-							value: me.field.name
-						},
-						{
-							property: 'specialty_id',
-							value: me.getSoapTemplateSpecialtiesCombo().getValue()
-						},
-						{
-							property: 'parentId',
-							value: 'root'
-						}
-					]
-				});
-
-			}
-
-		}
 	},
 
 	onPanelBeforeRender: function(panel){
@@ -235,16 +180,21 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 		};
 
 		me.recognition.onresult = function(event){
-			me.interim_transcript = '';
 			for(var i = event.resultIndex; i < event.results.length; ++i){
 				if(event.results[i].isFinal){
-					me.final_transcript += event.results[i][0].transcript;
+					if(me.field.tip){
+						me.field.tip.hide();
+						me.field.tip.setDisabled(true);
+					}
+					me.field.setValue(me.field.getValue() + event.results[i][0].transcript);
 				}else{
-					me.interim_transcript += event.results[i][0].transcript;
+					if(me.field.tip){
+						me.field.tip.setDisabled(false);
+						me.field.tip.update(event.results[i][0].transcript);
+						me.field.tip.show();
+					}
 				}
 			}
-
-			me.field.setValue(me.final_transcript);
 		};
 
 		me.recognition.start();

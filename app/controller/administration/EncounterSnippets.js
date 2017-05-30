@@ -28,6 +28,10 @@ Ext.define('App.controller.administration.EncounterSnippets', {
 			selector: '#SnippetForm'
 		},
 		{
+			ref: 'SnippetFormCategoryCmb',
+			selector: '#SnippetFormCategoryCmb'
+		},
+		{
 			ref: 'SnippetFormTextField',
 			selector: '#SnippetFormTextField'
 		},
@@ -256,7 +260,13 @@ Ext.define('App.controller.administration.EncounterSnippets', {
 
 	onSnippetAddBtnClick: function(){
 		var me = this,
-			store =  me.getSnippetsTreePanel().getStore();
+			store =  me.getSnippetsTreePanel().getStore(),
+			categories = [];
+
+		store.groups.items.forEach(function (group) {
+			if(group.key === '') return;
+			categories = Ext.Array.push(categories, { text: group.key });
+		});
 
 		var records = store.add({
 			uid: app.user.id,
@@ -265,6 +275,8 @@ Ext.define('App.controller.administration.EncounterSnippets', {
 
 		me.showSnippetEditWindow();
 		me.getSnippetForm().getForm().loadRecord(records[0]);
+		me.getSnippetFormCategoryCmb().store.loadData(categories);
+
 	},
 
 	onSnippetBtnEdit: function(grid, rowIndex, colIndex, actionItem, event, record){

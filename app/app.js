@@ -49193,11 +49193,33 @@ Ext.define('App.view.patient.encounter.Snippets', {
 			},
 			items: [
 				{
-					xtype: 'textfield',
-					fieldLabel: _('description'),
-					name: 'description',
-					allowBlank: false
+					xtype: 'fieldcontainer',
+					layout: 'hbox',
+					nacor: '100%',
+					items: [
+						{
+							xtype: 'combobox',
+							fieldLabel: _('category'),
+							name: 'category',
+							allowBlank: false,
+							flex: 1,
+							margin: '0 10 0 0',
+							queryMode: 'local',
+							itemId: 'SnippetFormCategoryCmb',
+							store: Ext.create('Ext.data.Store',{
+								fields: ['text']
+							})
+						},
+						{
+							xtype: 'textfield',
+							fieldLabel: _('description'),
+							name: 'description',
+							allowBlank: false,
+							flex: 1
+						}
+					]
 				},
+
 				{
 					xtype: 'textareafield',
 					fieldLabel: _('subjective'),

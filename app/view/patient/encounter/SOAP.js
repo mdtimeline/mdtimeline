@@ -43,6 +43,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 
 		me.snippetStore = Ext.create('App.store.administration.EncounterSnippets', {
 			autoLoad: false,
+			pageSize: 1000,
 			groupField: 'category'
 		});
 

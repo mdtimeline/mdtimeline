@@ -25,7 +25,8 @@ Ext.define('App.view.patient.encounter.Snippets', {
 	itemId: 'SnippetWindow',
 	title: _('snippet'),
 	closable: false,
-	width: 800,
+	width: 600,
+	layout: 'fit',
 	modal: true,
 	items: [
 		{
@@ -66,7 +67,6 @@ Ext.define('App.view.patient.encounter.Snippets', {
 						}
 					]
 				},
-
 				{
 					xtype: 'textareafield',
 					fieldLabel: _('subjective'),

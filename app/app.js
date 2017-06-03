@@ -7852,6 +7852,7 @@ Ext.define('App.ux.combo.Combo', {
     valueField: 'option_value',
     emptyText: _('select'),
     forceSelection: false,
+	editable: true,
 
 	/**
 	 * List by Key
@@ -46482,11 +46483,13 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 		};
 
 		me.recognition.onerror = function(event){
+			me.recognizing = false;
 			me.isError = true;
 			me.setRecordButton(false);
 		};
 
 		me.recognition.onend = function(){
+			me.recognizing = false;
 			me.setRecordButton(false);
 		};
 
@@ -49001,21 +49004,17 @@ Ext.define('App.view.patient.windows.ArchiveDocument', {
 					hidden: true
 				},
 				{
-					fieldLabel: _('title'),
-					name: 'title'
-				},
-				{
 					xtype: 'gaiaehr.combo',
 					fieldLabel: _('category'),
 					list: 102,
 					name: 'docTypeCode',
+					editable: false,
 					allowBlank: false
 				},
-				// {
-				// 	xtype: 'checkbox',
-				// 	name: 'encrypted',
-				// 	fieldLabel: _('encrypted')
-				// },
+				{
+					fieldLabel: _('title'),
+					name: 'title'
+				},
 				{
 					xtype: 'textareafield',
 					name: 'note',

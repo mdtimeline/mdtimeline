@@ -171,11 +171,13 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 		};
 
 		me.recognition.onerror = function(event){
+			me.recognizing = false;
 			me.isError = true;
 			me.setRecordButton(false);
 		};
 
 		me.recognition.onend = function(){
+			me.recognizing = false;
 			me.setRecordButton(false);
 		};
 

@@ -187,11 +187,12 @@ Ext.define('App.controller.Scanner', {
 	},
 
 	onScannerWindowAfterRender: function(){
-		this.doScannerComboLoad();
+		//this.doScannerComboLoad();
 	},
 
 	onScannerWindowShow: function (win) {
 		this.currentonScannerWindow = win;
+		this.doScannerComboLoad();
 	},
 
 	onScannerWindowClose: function(win){

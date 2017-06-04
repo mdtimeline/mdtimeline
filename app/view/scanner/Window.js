@@ -119,6 +119,8 @@ Ext.define('App.view.scanner.Window', {
 					width: 100
 				},
 				'-',
+				'->',
+				'-',
 				{
 					text: _('edit'),
 					enableToggle: true,
@@ -126,14 +128,13 @@ Ext.define('App.view.scanner.Window', {
 					itemId: 'ScannerImageEditBtn',
 					scale: 'medium',
 					width: 100
-				},
-				'->',
-				{
-					text: _('archive'),
-					itemId: 'ScannerImageArchiveBtn',
-					scale: 'medium',
-					width: 150
 				}
+				// {
+				// 	text: _('archive'),
+				// 	itemId: 'ScannerImageArchiveBtn',
+				// 	scale: 'medium',
+				// 	width: 150
+				// }
 			]
 		}
 	],

@@ -136,7 +136,7 @@ class Globals {
 
 	/**
 	 * @param string $global
-	 * @return mix
+	 * @return bool|string|int
 	 */
 	public static function getGlobal($global) {
 		if(!isset($_SESSION['globals'])){

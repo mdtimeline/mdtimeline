@@ -144,13 +144,37 @@ class authProcedures {
 			]
 		)->one();
 
-		if($user === false || $params->authPass != $user['password']){
+		$ldap_enabled = Globals::getGlobal('ldap_enabled');
+
+		if($ldap_enabled){
+			include_once (ROOT . '/dataProvider/LDAP.php');
+			$LDAP = new LDAP();
+			$ldap_response = $LDAP->Bind($params->authUser,$params->authPass);
+
+			if(!$ldap_response['success']){
+				return [
+					'success' => false,
+					'type' => 'error',
+					'message' => $ldap_response['error']
+				];
+			}
+
+			// LDAP auth ok but user not found in system
+			if($user === false){
+				return [
+					'success' => false,
+					'type' => 'error',
+					'message' => 'LDAP user not found in application.'
+				];
+			}
+
+		}elseif($user === false || $params->authPass != $user['password']){
 			return [
-                'success' => false,
-                'type' => 'error',
-                'message' => 'The username or password you provided is invalid.'
-            ];
-		} else{
+				'success' => false,
+				'type' => 'error',
+				'message' => 'The username or password you provided is invalid.'
+			];
+		}else{
 			// Change some User related variables and go
 			$_SESSION['user']['name'] = trim($user['title'] . ' ' . $user['lname'] . ', ' . $user['fname'] . ' ' . $user['mname']);
 			$_SESSION['user']['id'] = $user['id'];

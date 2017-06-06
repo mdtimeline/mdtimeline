@@ -1,5 +1,3 @@
-<?php
-
 /**
  * GaiaEHR (Electronic Health Records)
  * Copyright (C) 2013 Certun, LLC.
@@ -17,31 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-class Snippets {
 
-	/**
-	 * @var MatchaCUP
-	 */
-	private $s;
-
-	function __construct(){
-		$this->s = MatchaModel::setSenchaModel('App.model.administration.EncounterSnippet');
-	}
-
-	public function getSoapSnippets($params){
-		$this->s->setOrFilterProperties(['uid']);
-		return $this->s->load($params)->all();
-	}
-
-	public function addSoapSnippets($params){
-		return $this->s->save($params);
-	}
-
-	public function updateSoapSnippets($params){
-		return $this->s->save($params);
-	}
-
-	public function deleteSoapSnippets($params){
-		return $this->s->destroy($params);
-	}
-}
+Ext.define('App.store.administration.EncounterSnippets', {
+	model: 'App.model.administration.EncounterSnippet',
+	extend: 'Ext.data.Store'
+});

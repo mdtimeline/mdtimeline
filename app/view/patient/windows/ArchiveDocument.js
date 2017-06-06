@@ -40,21 +40,17 @@ Ext.define('App.view.patient.windows.ArchiveDocument', {
 					hidden: true
 				},
 				{
-					fieldLabel: _('title'),
-					name: 'title'
-				},
-				{
 					xtype: 'gaiaehr.combo',
 					fieldLabel: _('category'),
 					list: 102,
 					name: 'docTypeCode',
+					editable: false,
 					allowBlank: false
 				},
-				// {
-				// 	xtype: 'checkbox',
-				// 	name: 'encrypted',
-				// 	fieldLabel: _('encrypted')
-				// },
+				{
+					fieldLabel: _('title'),
+					name: 'title'
+				},
 				{
 					xtype: 'textareafield',
 					name: 'note',

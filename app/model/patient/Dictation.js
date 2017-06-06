@@ -19,8 +19,7 @@
 Ext.define('App.model.patient.Dictation', {
 	extend: 'Ext.data.Model',
 	table: {
-		name: 'encounter_dictation',
-		comment: 'Dictation Panel Data'
+		name: 'encounter_dictation'
 	},
 	fields: [
 		{
@@ -60,7 +59,9 @@ Ext.define('App.model.patient.Dictation', {
 	proxy: {
 		type: 'direct',
 		api: {
-			update: 'Encounter.updateDictation'
+			read: 'Dictation.getDictations',
+			create: 'Dictation.addDictation',
+			update: 'Dictation.updateDictation'
 		}
 	},
 	belongsTo: {

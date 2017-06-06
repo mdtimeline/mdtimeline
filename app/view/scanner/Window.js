@@ -20,7 +20,7 @@ Ext.define('App.view.scanner.Window', {
 	extend: 'Ext.window.Window',
 	xtype: 'scannerwindow',
 	itemId: 'ScannerWindow',
-	width: 700,
+	width: 900,
 	height: 500,
 	closeAction: 'hide',
 	title: _('scanner'),
@@ -30,7 +30,7 @@ Ext.define('App.view.scanner.Window', {
 		{
 			xtype: 'panel',
 			region: 'west',
-			width: 120,
+			width: 150,
 			split: true,
 			itemId: 'ScannerImageDataViewPanel',
 			autoScroll: true,
@@ -114,19 +114,27 @@ Ext.define('App.view.scanner.Window', {
 			tbar: [
 				{
 					text: _('scan'),
-					itemId: 'ScannerImageScanBtn'
+					itemId: 'ScannerImageScanBtn',
+					scale: 'medium',
+					width: 100
 				},
+				'-',
+				'->',
+				'-',
 				{
 					text: _('edit'),
 					enableToggle: true,
 					toggleGroup: 'ScannerImageEditGroup',
-					itemId: 'ScannerImageEditBtn'
-				},
-				'->',
-				{
-					text: _('archive'),
-					itemId: 'ScannerImageArchiveBtn'
+					itemId: 'ScannerImageEditBtn',
+					scale: 'medium',
+					width: 100
 				}
+				// {
+				// 	text: _('archive'),
+				// 	itemId: 'ScannerImageArchiveBtn',
+				// 	scale: 'medium',
+				// 	width: 150
+				// }
 			]
 		}
 	],

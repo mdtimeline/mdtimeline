@@ -3363,13 +3363,13 @@ class CCDDocument extends CDDDocumentBase
                 $medications['text']['table']['tbody']['tr'][] = [
                     'td' => [
                         [
-                            '@value' => isset($item['RXCUI']) ? $item['RXCUI'] : ''
+                            '@value' => isset($item['rxcui']) ? $item['rxcui'] : ''
                         ],
                         [
-                            '@value' => isset($item['STR']) ? $item['STR'] : ''
+                            '@value' => isset($item['description']) ? $item['description'] : ''
                         ],
                         [
-                            '@value' => isset($item['directions']) ? $item['directions'] : ''
+                            '@value' => isset($item['instructions']) ? $item['instructions'] : ''
                         ],
                         [
                             '@value' => date('F j, Y', strtotime($item['administered_date']))
@@ -3395,7 +3395,7 @@ class CCDDocument extends CDDDocumentBase
                     ]
                 ];
 
-                $entry['substanceAdministration']['text'] = $item['directions'];
+                $entry['substanceAdministration']['text'] = $item['instructions'];
 
                 $entry['substanceAdministration']['statusCode'] = [
                     '@attributes' => [
@@ -3434,9 +3434,9 @@ class CCDDocument extends CDDDocumentBase
                         'manufacturedMaterial' => [
                             'code' => [
                                 '@attributes' => [
-                                    'code' => $item['RXCUI'],
+                                    'code' => $item['rxcui'],
                                     'codeSystem' => '2.16.840.1.113883.6.88',
-                                    'displayName' => ucwords($item['STR']),
+                                    'displayName' => ucwords($item['description']),
                                     'codeSystemName' => 'RxNorm'
                                 ]
                             ]

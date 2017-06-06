@@ -7852,6 +7852,7 @@ Ext.define('App.ux.combo.Combo', {
     valueField: 'option_value',
     emptyText: _('select'),
     forceSelection: false,
+	editable: true,
 
 	/**
 	 * List by Key
@@ -9978,38 +9979,34 @@ Ext.define('App.ux.combo.Race', {
 });
 
 Ext.define('App.ux.combo.Roles', {
-	extend       : 'Ext.form.ComboBox',
-	alias        : 'widget.mitos.rolescombo',
-	initComponent: function() {
+	extend: 'Ext.form.ComboBox',
+	alias: 'widget.mitos.rolescombo',
+	editable: false,
+	queryMode: 'local',
+	valueField: 'id',
+	displayField: 'role_name',
+	emptyText: _('select'),
+	includeAllOption: false,
+	initComponent: function () {
 		var me = this;
 
-		Ext.define('RolesComboModel', {
-			extend: 'Ext.data.Model',
+		me.store = Ext.create('Ext.data.Store', {
+			autoLoad: true,
 			fields: [
 				{name: 'id', type: 'int'},
 				{name: 'role_name', type: 'string'}
 			],
-			proxy : {
+			proxy: {
 				type: 'direct',
-				api : {
-					read: CombosData.getRoles
+				api: {
+					read: 'CombosData.getRoles'
+				},
+				extraParams: {
+					includeAllOption: me.includeAllOption
 				}
 			}
 		});
 
-		me.store = Ext.create('Ext.data.Store', {
-			model   : 'RolesComboModel',
-			autoLoad: true
-		});
-
-		Ext.apply(this, {
-			editable    : false,
-			queryMode   : 'local',
-			valueField  : 'id',
-			displayField: 'role_name',
-			emptyText   : _('select'),
-			store       : me.store
-		}, null);
 		me.callParent(arguments);
 	}
 });
@@ -11795,10 +11792,6 @@ Ext.define('App.model.administration.Facility', {
 			len: 5
 		},
 		{
-			name: 'service_location',
-			type: 'bool'
-		},
-		{
 			name: 'billing_location',
 			type: 'bool'
 		},
@@ -11806,11 +11799,6 @@ Ext.define('App.model.administration.Facility', {
 			name: 'pos_code',
 			type: 'string',
 			len: 3
-		},
-		{
-			name: 'ssn',
-			type: 'string',
-			len: 15
 		},
 		{
 			name: 'ein',
@@ -11829,11 +11817,6 @@ Ext.define('App.model.administration.Facility', {
 		},
 		{
 			name: 'npi',
-			type: 'string',
-			len: 15
-		},
-		{
-			name: 'lic',
 			type: 'string',
 			len: 15
 		},
@@ -12626,6 +12609,12 @@ Ext.define('App.model.administration.ListOptions', {
             comment: 'List ID'
         },
         {
+            name: 'list_key',
+            type: 'string',
+	        index: true,
+	        len: 40
+        },
+        {
             name: 'option_value',
             type: 'string',
             index: true,
@@ -13356,16 +13345,6 @@ Ext.define('App.model.administration.ReferringProvider', {
         },
         {
             name: 'npi',
-            type: 'string',
-            len: 25
-        },
-        {
-            name: 'fda',
-            type: 'string',
-            len: 25
-        },
-        {
-            name: 'ess',
             type: 'string',
             len: 25
         },
@@ -15980,63 +15959,6 @@ Ext.define('App.model.patient.EncounterService', {
 		}
 	}
 });
-Ext.define('App.model.patient.encounter.snippetTree', {
-	extend: 'Ext.data.Model',
-	table: {
-		name: 'soap_snippets'
-	},
-	fields: [
-		{
-			name: 'id',
-			type: 'string'
-		},
-		{
-			name: 'parentId',
-			type: 'string',
-			len: 20,
-			index: true
-		},
-		{
-			name: 'specialty_id',
-			type: 'string',
-			len: 11,
-			index: true
-		},
-		{
-			name: 'index',
-			type: 'int'
-		},
-		{
-			name: 'title',
-			type: 'string',
-			len: 80
-		},
-		{
-			name: 'text',
-			type: 'string',
-			dataType: 'text'
-		},
-		{
-			name: 'category',
-			type: 'string',
-			len: 50,
-			index: true
-		},
-		{
-			name: 'leaf',
-			type: 'bool'
-		}
-	],
-	proxy: {
-		type: 'direct',
-		api: {
-			read: 'Snippets.getSoapSnippets',
-			create: 'Snippets.addSoapSnippets',
-			update: 'Snippets.updateSoapSnippets',
-			destroy: 'Snippets.deleteSoapSnippets'
-		}
-	}
-});
 Ext.define('App.model.patient.encounter.Procedures', {
 	extend: 'Ext.data.Model',
 	table: {
@@ -16908,7 +16830,7 @@ Ext.define('App.model.patient.DoctorsNote', {
 				if(!record.data.restrictions){
 					return '';
 				}else if(record.data.restrictions.join){
-					return ecord.data.restrictions.join(', ');
+					return record.data.restrictions.join(', ');
 				}else{
 					return record.data.restrictions;
 				}
@@ -17219,6 +17141,12 @@ Ext.define('App.model.patient.Encounter', {
 		{
 			model: 'App.model.patient.EducationResource',
 			name: 'educationresources',
+			primaryKey: 'eid',
+			foreignKey: 'eid'
+		},
+		{
+			model: 'App.model.patient.Dictation',
+			name: 'dictation',
 			primaryKey: 'eid',
 			foreignKey: 'eid'
 		}
@@ -21946,6 +21874,14 @@ Ext.define('App.model.patient.Patient',{
 		    name: 'phone_mobile_supplier',
 		    type: 'string',
 		    len: 25
+	    },
+	    {
+		    name: 'fullname',
+		    type: 'string',
+            convert: function (v, rec) {
+                return rec.get('lname') + ', ' + rec.get('fname') + ' ' + rec.get('mname');
+            },
+		    store: false
 	    }
     ],
     idProperty: 'pid',
@@ -23993,6 +23929,35 @@ Ext.define('App.view.patient.encounter.ICDs', {
 		field.reset();
 	},
 
+	doAddIcd: function (data) {
+		var me = this,
+			soap = me.up('form').getForm().getRecord(),
+			group_cmb = me.getDxGroupCombo(),
+			group = group_cmb.getValue(),
+			type_cmb = me.getDxTypeCombo(),
+			type = type_cmb.getValue(),
+			order = me.getNextOrder(group),
+			dxRecords;
+
+		if(!group_cmb.isValid() && !type_cmb.isValid()) return;
+
+		if(me.store.find('code', data.code) !== -1) return;
+
+		dxRecords = me.store.add({
+			pid: soap.data.pid,
+			eid: soap.data.eid,
+			uid: app.user.id,
+			code: data.code,
+			code_text: data.code_text,
+			code_type: data.code_type,
+			dx_group: group,
+			dx_type: type,
+			dx_order: order
+		});
+
+		me.addIcd(dxRecords[0], group, order);
+	},
+
 	removeIcds: function(){
 
 		Ext.Object.each(this.dxGroup, function(key, group){
@@ -24182,10 +24147,7 @@ Ext.define('App.view.patient.windows.PossibleDuplicates', {
 		me.buttons = [
 			{
 				text: _('cancel'),
-				itemId: 'PossiblePatientDuplicatesCancelBtn',
-				handler: function(btn){
-					btn.up('window').close();
-				}
+				itemId: 'PossiblePatientDuplicatesCancelBtn'
 			},
 			'-',
 			{
@@ -28128,8 +28090,8 @@ Ext.define('App.view.administration.practice.Facilities', {
 										items: [
 											{
 												xtype: 'textfield',
-												fieldLabel: _('ssn'),
-												name: 'ssn',
+												fieldLabel: _('ess'),
+												name: 'ess',
 												margin: '0 10 0 0'
 											},
 											{
@@ -28174,11 +28136,6 @@ Ext.define('App.view.administration.practice.Facilities', {
 										xtype: 'checkbox',
 										fieldLabel: _('active'),
 										name: 'active'
-									},
-									{
-										xtype: 'checkbox',
-										fieldLabel: _('service_location'),
-										name: 'service_location'
 									},
 									{
 										xtype: 'checkbox',
@@ -30841,13 +30798,14 @@ Ext.define('App.view.administration.Lists', {
      */
     onNewOption: function(){
         var me = this,
-	        listId = me.getCurrList(),
+	        list = me.getCurrList(),
 	        m;
 
-	    if(listId !== false){
+	    if(list !== false){
 		    me.optionsRowEditing.cancelEdit();
 		    m = Ext.create('App.model.administration.ListOptions', {
-			    list_id: listId
+			    list_id: list.id,
+			    list_Key: list.list_key
 		    });
 		    me.optionsStore.insert(0, m);
 		    me.optionsRowEditing.startEdit(0, 0);
@@ -30872,7 +30830,7 @@ Ext.define('App.view.administration.Lists', {
     onDragDrop: function(node, data, overModel){
         var me = this,
 	        items = overModel.stores[0].data.items,
-	        listId = me.getCurrList(),
+	        list = me.getCurrList(),
 	        gridItems = [];
 
         for(var i = 0; i < items.length; i++){
@@ -30888,8 +30846,8 @@ Ext.define('App.view.administration.Lists', {
 	        me.optionsStore.clearFilter(true);
 	        me.optionsStore.filter([
 		        {
-			        property:'list_id',
-			        value: listId
+			        property:'list_key',
+			        value: list.list_key
 		        }
 	        ]);
         });
@@ -30936,7 +30894,7 @@ Ext.define('App.view.administration.Lists', {
 		var records = this.listsGrid.getSelectionModel().getSelection();
 
 		if(records.length > 0){
-			return records[0].data.id;
+			return records[0].data;
 		}
 
 		return false;
@@ -35660,10 +35618,6 @@ Ext.define('App.store.navigation.Navigation', {
 	requires: ['App.model.navigation.Navigation'],
 	model   : 'App.model.navigation.Navigation'
 });
-Ext.define('App.store.patient.encounter.snippetTree', {
-	model: 'App.model.patient.encounter.snippetTree',
-	extend: 'Ext.data.TreeStore'
-});
 Ext.define('App.store.patient.encounter.Procedures', {
     model: 'App.model.patient.encounter.Procedures',
     extend: 'Ext.data.Store',
@@ -38663,7 +38617,7 @@ Ext.define('App.controller.Cron', {
     extend: 'Ext.app.Controller',
 
     // in seconds - interval to run me.cronTask (check PHP session, refresh Patient Pool Areas, and PHP Cron Job)
-	cronTaskInterval: 10,
+	cronTaskInterval: 15,
 
 	fns:[
 		'app.getPatientsInPoolArea()',
@@ -41550,10 +41504,7 @@ Ext.define('App.controller.patient.CCDImport', {
 					sex: patient.data.sex,
 					DOB: patient.data.DOB
 				},
-				'ccdImportDuplicateAction',
-				function(patient){
-
-				}
+				'ccdImportDuplicateAction'
 			);
 		}
 
@@ -41595,6 +41546,9 @@ Ext.define('App.controller.patient.CCDImport', {
      the system information panel.
      */
     onPossiblePatientDuplicatesGridItemDblClick:function(grid, record){
+
+    	if(!this.getCcdPatientPatientForm()) return;
+
         var me = this,
             cmb = me.getCcdImportWindowPatientSearchField(),
             systemPatientForm = me.getCcdPatientPatientForm().getForm(),
@@ -43705,6 +43659,10 @@ Ext.define('App.controller.patient.Medications', {
 			ref: 'PatientMedicationUserLiveSearch',
 			selector: '#PatientMedicationUserLiveSearch'
 		},
+		{
+			ref: 'PatientMedicationLiveSearch',
+			selector: '#PatientMedicationLiveSearch'
+		},
 
 		// administer refs
 		{
@@ -43831,14 +43789,7 @@ Ext.define('App.controller.patient.Medications', {
 	},
 
 	onPatientMedicationsGridBeforeEdit: function(plugin, context){
-		var me = this,
-			field = me.getPatientMedicationUserLiveSearch();
 
-		field.forceSelection = false;
-		field.setValue(context.record.data.administered_by);
-		Ext.Function.defer(function(){
-			field.forceSelection = true;
-		}, 200);
 	},
 
 	onPatientMedicationUserLiveSearchSelect: function(cmb, records){
@@ -43974,6 +43925,9 @@ Ext.define('App.controller.patient.Patient', {
 			},
 			'#PossiblePatientDuplicatesContinueBtn': {
 				click: me.onPossiblePatientDuplicatesContinueBtnClick
+			},
+			'#PossiblePatientDuplicatesCancelBtn': {
+				click: me.onPossiblePatientDuplicatesCancelBtnClick
 			}
 		});
 	},
@@ -43984,12 +43938,17 @@ Ext.define('App.controller.patient.Patient', {
 
 	onPossiblePatientDuplicatesGridItemDblClick: function(grid, record){
 
-		if(this.getPossiblePatientDuplicatesWindow().action != 'openPatientSummary') return;
+		var win = this.getPossiblePatientDuplicatesWindow();
 
-		app.setPatient(record.data.pid, null, null, function(){
-			app.openPatientSummary();
-			grid.up('window').close();
-		});
+		if(typeof win.callbackFn === 'function'){
+			win.callbackFn(win, record);
+		}else if(win.action === 'openPatientSummary'){
+			app.setPatient(record.data.pid, null, null, function(){
+				app.openPatientSummary();
+				grid.up('window').close();
+			});
+		}
+
 	},
 
     onPossiblePatientDuplicatesWindowClose: function(window){
@@ -44026,16 +43985,17 @@ Ext.define('App.controller.patient.Patient', {
 			store = win.down('grid').getStore();
 
 		win.action = action;
+		win.callbackFn = callback;
 		store.getProxy().extraParams = params;
 		store.load({
 			callback: function(records){
-
-				if(typeof callback == 'function') callback(records);
-
 				if(records.length > 0){
 					win.show();
 				}else{
 					app.msg(_('sweet'), _('no_possible_duplicates_found'));
+					if(typeof win.callbackFn === 'function') {
+						win.callbackFn(win, true);
+					}
 				}
 			}
 		});
@@ -44048,6 +44008,20 @@ Ext.define('App.controller.patient.Patient', {
 	onPossiblePatientDuplicatesContinueBtnClick: function(btn){
 		var win = this.getPossiblePatientDuplicatesWindow();
 		win.fireEvent('continue', win);
+
+		if(typeof win.callbackFn === 'function') {
+			win.callbackFn(win, true);
+		}
+		win.close();
+	},
+
+	onPossiblePatientDuplicatesCancelBtnClick: function(){
+		var win = this.getPossiblePatientDuplicatesWindow();
+		win.fireEvent('cancel', win);
+
+		if(typeof win.callbackFn === 'function') {
+			win.callbackFn(win, false);
+		}
 		win.close();
 	}
 
@@ -46402,7 +46376,6 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 
 		me.control({
 			'viewport': {
-				'beforeencounterload': me.onOpenEncounter,
 				'encounterbeforesync': me.onEncounterBeforeSync
 			},
 			'#soapPanel': {
@@ -46421,20 +46394,8 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 			},
 			'#soapProcedureWindow > form > textarea': {
 				focus: me.onProcedureTextFieldFocus
-			},
-			'#SoapTemplateSpecialtiesCombo': {
-				select: me.onSoapTemplateSpecialtiesComboChange,
-				change: me.onSoapTemplateSpecialtiesComboChange
 			}
 		});
-	},
-
-	onSoapTemplateSpecialtiesComboChange: function(cmb){
-		this.loadSnippets();
-	},
-
-	onOpenEncounter: function(encounter){
-		this.getSoapTemplateSpecialtiesCombo().setValue(encounter.data.specialty_id);
 	},
 
 	onEncounterBeforeSync: function(panel, store, form){
@@ -46443,72 +46404,30 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 		}
 	},
 
-	//onPanelActive: function(){
-	//	var me = this;
-	//	Ext.Function.defer(function(){
-	//		me.getEncounterProgressNotesPanel().expand();
-	//	}, 200);
-	//},
-	//
-	//onPanelDeActive: function(){
-	//	var me = this;
-	//	Ext.Function.defer(function(){
-	//		me.getEncounterProgressNotesPanel().collapse();
-	//	}, 200);
-	//},
-
 	onSoapTextFieldFocus: function(field){
 		this.field = field;
-		this.loadSnippets();
 
 		if(!Ext.isWebKit) return;
 		this.final_transcript = field.getValue();
 		this.interim_transcript = '';
+
+		if(this.field.tip) return;
+
+		this.field.tip = Ext.create('Ext.tip.ToolTip', {
+			target: this.field.el,
+			anchor: 'top',
+			anchorOffset: 85,
+			disabled: true,
+			html: 'Press this button to clear the form'
+		});
 	},
 
 	onProcedureTextFieldFocus: function(field){
 		this.field = field;
-		this.loadSnippets();
 
 		if(!Ext.isWebKit) return;
 		this.final_transcript = field.getValue();
 		this.interim_transcript = '';
-	},
-
-	loadSnippets: function(){
-		var me = this;
-
-		if(me.getSnippetsTreePanel().collapsed === false){
-			var templates = me.getSnippetsTreePanel(),
-				specialty_id = me.getSoapTemplateSpecialtiesCombo().getValue(),
-				action = me.field.name + '-' + specialty_id;
-
-			if(templates.action != action){
-
-				templates.setTitle(_(me.field.name) + ' ' + _('templates'));
-				templates.action = me.field.name + '-' + specialty_id;
-
-				templates.getSelectionModel().deselectAll();
-				templates.getStore().load({
-					filters: [
-						{
-							property: 'category',
-							value: me.field.name
-						},
-						{
-							property: 'specialty_id',
-							value: me.getSoapTemplateSpecialtiesCombo().getValue()
-						},
-						{
-							property: 'parentId',
-							value: 'root'
-						}
-					]
-				});
-
-			}
-
-		}
 	},
 
 	onPanelBeforeRender: function(panel){
@@ -46564,25 +46483,32 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 		};
 
 		me.recognition.onerror = function(event){
+			me.recognizing = false;
 			me.isError = true;
 			me.setRecordButton(false);
 		};
 
 		me.recognition.onend = function(){
+			me.recognizing = false;
 			me.setRecordButton(false);
 		};
 
 		me.recognition.onresult = function(event){
-			me.interim_transcript = '';
 			for(var i = event.resultIndex; i < event.results.length; ++i){
 				if(event.results[i].isFinal){
-					me.final_transcript += event.results[i][0].transcript;
+					if(me.field.tip){
+						me.field.tip.hide();
+						me.field.tip.setDisabled(true);
+					}
+					me.field.setValue(me.field.getValue() + event.results[i][0].transcript);
 				}else{
-					me.interim_transcript += event.results[i][0].transcript;
+					if(me.field.tip){
+						me.field.tip.setDisabled(false);
+						me.field.tip.update(event.results[i][0].transcript);
+						me.field.tip.show();
+					}
 				}
 			}
-
-			me.field.setValue(me.final_transcript);
 		};
 
 		me.recognition.start();
@@ -47199,7 +47125,7 @@ Ext.define('App.view.patient.Medications', {
 					dataIndex: 'STR',
 					editor: {
 						xtype: 'rxnormlivetsearch',
-						itemId: 'patientMedicationLiveSearch',
+						itemId: 'PatientMedicationLiveSearch',
 						displayField: 'STR',
 						valueField: 'STR',
 						action: 'medication',
@@ -47218,57 +47144,11 @@ Ext.define('App.view.patient.Medications', {
 					}
 				},
 				{
-					text: _('directions'),
-					dataIndex: 'directions',
-                    groupable: false,
-					flex: 1,
-					editor: {
-						xtype: 'textfield'
-					}
-				},
-				{
-					text: _('dispense'),
-					dataIndex: 'dispense',
-                    groupable: false,
-					with: 200,
-					editor: {
-						xtype: 'textfield',
-						maxLength: 40
-					}
-				},
-				{
-					text: _('administered'),
-                    groupable: false,
-					columns:[
-						{
-							text: _('user'),
-							dataIndex: 'administered_by',
-							width: 200,
-							editor: {
-								xtype: 'userlivetsearch',
-								acl: 'administer_medications',
-								valueField: 'fullname',
-								itemId: 'PatientMedicationUserLiveSearch'
-							}
-						},
-						{
-							xtype: 'datecolumn',
-							text: _('date'),
-							dataIndex: 'administered_date',
-							width: 200,
-							format: g('date_time_display_format'),
-							editor: {
-								xtype: 'mitos.datetime'
-							}
-						}
-					]
-				},
-				{
 					xtype: 'datecolumn',
                     groupable: false,
 					format: 'Y-m-d',
 					header: _('begin_date'),
-					width: 90,
+					width: 150,
 					dataIndex: 'begin_date',
 					sortable: false,
 					hideable: false,
@@ -47282,7 +47162,7 @@ Ext.define('App.view.patient.Medications', {
                     groupable: false,
 					format: 'Y-m-d',
 					header: _('end_date'),
-					width: 90,
+					width: 150,
 					dataIndex: 'end_date',
 					sortable: false,
 					hideable: false,
@@ -49124,21 +49004,17 @@ Ext.define('App.view.patient.windows.ArchiveDocument', {
 					hidden: true
 				},
 				{
-					fieldLabel: _('title'),
-					name: 'title'
-				},
-				{
 					xtype: 'gaiaehr.combo',
 					fieldLabel: _('category'),
 					list: 102,
 					name: 'docTypeCode',
+					editable: false,
 					allowBlank: false
 				},
-				// {
-				// 	xtype: 'checkbox',
-				// 	name: 'encrypted',
-				// 	fieldLabel: _('encrypted')
-				// },
+				{
+					fieldLabel: _('title'),
+					name: 'title'
+				},
 				{
 					xtype: 'textareafield',
 					name: 'note',
@@ -49301,27 +49177,73 @@ Ext.define('App.view.patient.encounter.Snippets', {
 	itemId: 'SnippetWindow',
 	title: _('snippet'),
 	closable: false,
+	width: 600,
+	layout: 'fit',
+	modal: true,
+	closeAction: 'hide',
 	items: [
 		{
 			xtype: 'form',
 			itemId: 'SnippetForm',
+			border: false,
+			bodyPadding: 10,
 			fieldDefaults: {
 				labelAlign: 'top',
-				width: 600,
-				margin: 5
+				anchor: '100%',
+				margin: '0 0 10 0'
 			},
 			items: [
 				{
-					xtype: 'textfield',
-					fieldLabel: _('title'),
-					name: 'title'
+					xtype: 'fieldcontainer',
+					layout: 'hbox',
+					nacor: '100%',
+					items: [
+						{
+							xtype: 'combobox',
+							fieldLabel: _('category'),
+							name: 'category',
+							allowBlank: false,
+							flex: 1,
+							margin: '0 10 0 0',
+							queryMode: 'local',
+							itemId: 'SnippetFormCategoryCmb',
+							store: Ext.create('Ext.data.Store',{
+								fields: ['text']
+							})
+						},
+						{
+							xtype: 'textfield',
+							fieldLabel: _('description'),
+							name: 'description',
+							allowBlank: false,
+							flex: 1
+						}
+					]
 				},
 				{
 					xtype: 'textareafield',
-					fieldLabel: _('snippet'),
-					allowBlank: false,
-					itemId: 'SnippetFormTextField',
-					name: 'text'
+					fieldLabel: _('subjective'),
+					name: 'subjective'
+				},
+				{
+					xtype: 'textareafield',
+					fieldLabel: _('objective'),
+					name: 'objective'
+				},
+				{
+					xtype: 'textareafield',
+					fieldLabel: _('assessment'),
+					name: 'assessment'
+				},
+				{
+					xtype: 'textareafield',
+					fieldLabel: _('instructions'),
+					name: 'instructions'
+				},
+				{
+					xtype: 'textfield',
+					fieldLabel: _('diagnoses'),
+					name: 'diagnoses'
 				}
 			]
 		}
@@ -54091,6 +54013,15 @@ Ext.define('App.view.patient.Patient', {
 				itemId: 'PatientPossibleDuplicatesBtn'
 			},
 			'-',
+			{
+				xtype: 'button',
+				action: 'readOnly',
+				text: _('merge_record'),
+				minWidth: 75,
+				acl: a('allow_merge_patients'),
+				itemId: 'PatientMergeBtn'
+			},
+			'-',
 			'->',
 			'-',
 			{
@@ -57282,199 +57213,6 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 
 });
 
-Ext.define('App.controller.patient.encounter.Snippets', {
-	extend: 'Ext.app.Controller',
-	requires: [
-		'App.view.patient.encounter.Snippets'
-	],
-	refs: [
-		{
-			ref: 'SnippetsTreePanel',
-			selector: '#SnippetsTreePanel'
-		},
-		{
-			ref: 'SnippetWindow',
-			selector: '#SnippetWindow'
-		},
-		{
-			ref: 'SnippetForm',
-			selector: '#SnippetForm'
-		},
-		{
-			ref: 'SnippetFormTextField',
-			selector: '#SnippetFormTextField'
-		},
-		{
-			ref: 'SnippetDeleteBtn',
-			selector: '#SnippetDeleteBtn'
-		},
-		{
-			ref: 'SnippetCancelBtn',
-			selector: '#SnippetCancelBtn'
-		},
-		{
-			ref: 'SnippetSaveBtn',
-			selector: '#SnippetSaveBtn'
-		},
-
-		// templates specialties combo
-		{
-			ref: 'SoapTemplateSpecialtiesCombo',
-			selector: '#SoapTemplateSpecialtiesCombo'
-		}
-	],
-
-	init: function(){
-		var me = this;
-
-		this.control({
-			'#SnippetDeleteBtn': {
-				click: me.onSnippetDeleteBtnClick
-			},
-			'#SnippetSaveBtn': {
-				click: me.onSnippetSaveBtnClick
-			},
-			'#SnippetCancelBtn': {
-				click: me.onSnippetCancelBtnClick
-			},
-			'#SnippetCategoryAddBtn': {
-				click: me.onSnippetCategoryAddBtnClick
-			}
-		});
-	},
-
-	onSnippetDeleteBtnClick: function(){
-		var me = this,
-			form = me.getSnippetForm().getForm(),
-			record = form.getRecord();
-
-		if(record.childNodes.length > 0){
-			app.msg(_('oops'),_('snippet_delete_child_error'), true);
-			return;
-		}
-
-		record.remove(true);
-		form.reset();
-		me.getSnippetWindow().close()
-	},
-
-	onSnippetAddBtnClick: function(grid, rowIndex, colIndex, actionItem, event, record){
-		var me = this,
-			win = me.getSnippetEditWindow(),
-			form = me.getSnippetForm(),
-			newRecord = Ext.create('App.model.patient.encounter.snippetTree', {
-				parentId: record.data.id,
-				specialty_id: me.getSoapTemplateSpecialtiesCombo().getValue(),
-				leaf: true
-			});
-
-		win.parentRecord = record;
-		form.getForm().loadRecord(newRecord);
-	},
-
-	onSnippetSaveBtnClick: function(){
-		var me = this,
-			win = me.getSnippetWindow(),
-			form = me.getSnippetForm().getForm(),
-			values = form.getValues(),
-			record = form.getRecord(),
-			isNew = record.data.id === '' || record.data.id === 0;
-
-		if(form.isValid()){
-
-			record.set(values);
-
-			if(isNew) win.parentRecord.appendChild(record);
-
-			record.save({
-				success: function(record, reuqest){
-					record.set({ id: reuqest.response.result.id });
-					record.commit();
-					app.msg(_('sweet'), _('record_saved'));
-				},
-				failure: function(){
-					app.msg(_('oops'), _('record_error'), true);
-				}
-			});
-
-
-			me.getSnippetWindow().close();
-		}
-	},
-
-	onSnippetCancelBtnClick: function(){
-		var record = this.getSnippetForm().getForm().getRecord();
-
-		if(record.data.id === '' || record.data.id === 0) record.destroy();
-		this.getSnippetWindow().close();
-	},
-
-	getSnippetEditWindow: function(){
-		var me = this;
-
-		if(me.getSnippetWindow()){
-			return me.getSnippetWindow().show();
-		}else{
-			return Ext.widget('snippetswindow').show();
-		}
-	},
-
-	onSnippetCategoryAddBtnClick: function(){
-		var me = this,
-			win = me.getSnippetEditWindow(),
-			tree = me.getSnippetsTreePanel(),
-			store =  tree.getStore(),
-			selection = tree.getSelectionModel().getSelection(),
-			category = tree.action.split('-'),
-			newRecord,
-			parentRecord;
-
-		me.getSnippetFormTextField().hide();
-		me.getSnippetFormTextField().disable();
-
-		if(selection.length === 0){
-			parentRecord = store.getRootNode();
-		}else if(selection[0].data.leaf){
-			parentRecord = selection[0].parentNode;
-		}else{
-			parentRecord = selection[0];
-		}
-
-		newRecord = Ext.create('App.model.patient.encounter.snippetTree', {
-			parentId: parentRecord.data.id,
-			category: (category.length > 1 ? category[0] : category[1]),
-			specialty_id: me.getSoapTemplateSpecialtiesCombo().getValue(),
-			leaf: false
-		});
-
-		win.parentRecord = parentRecord;
-
-		me.getSnippetForm().getForm().loadRecord(newRecord);
-	},
-
-	onSnippetBtnEdit: function(grid, rowIndex, colIndex, actionItem, event, record){
-
-		this.getSnippetEditWindow();
-
-		var me = this,
-			field = me.getSnippetFormTextField(),
-			win = me.getSnippetWindow(),
-			form = me.getSnippetForm().getForm();
-
-		if(record.get('leaf')){
-			win.setTitle(_('title') + ' (' + _('required') + ')');
-			field.show();
-			field.enable();
-		}else{
-			win.setTitle(_('title') + ' (' + _('optional') + ')');
-			field.hide();
-			field.disable();
-		}
-
-		form.loadRecord(record);
-	}
-
-});
 Ext.define('App.view.patient.Referrals', {
 	extend: 'Ext.grid.Panel',
 	requires: [
@@ -59004,15 +58742,17 @@ Ext.define('App.view.patient.encounter.SOAP', {
 	initComponent: function(){
 		var me = this;
 
-		me.snippetStore = Ext.create('App.store.patient.encounter.snippetTree', {
-			autoLoad: false
+		me.snippetStore = Ext.create('App.store.administration.EncounterSnippets', {
+			autoLoad: false,
+			pageSize: 1000,
+			groupField: 'category'
 		});
 
 		me.procedureStore = Ext.create('App.store.patient.encounter.Procedures');
 
-		var snippetCtrl = App.app.getController('patient.encounter.Snippets');
+		var snippetCtrl = App.app.getController('administration.EncounterSnippets');
 
-		me.snippets = Ext.create('Ext.tree.Panel', {
+		me.snippets = Ext.create('Ext.grid.Panel', {
 			title: _('snippets'),
 			itemId: 'SnippetsTreePanel',
 			region: 'west',
@@ -59028,57 +58768,32 @@ Ext.define('App.view.patient.encounter.SOAP', {
 			collapseMode: 'mini',
 			hideCollapseTool: true,
 			store: me.snippetStore,
+			features: [{ftype:'grouping'}],
 			tools: [
 				{
 					xtype: 'button',
-					text: _('category'),
+					text: _('snippet'),
 					iconCls: 'icoAdd',
-					itemId: 'SnippetCategoryAddBtn'
+					itemId: 'SnippetAddBtn'
 				}
 			],
 			columns: [
-				{
-					xtype: 'treecolumn', //this is so we know which column will show the tree
-					text: 'Template',
-					flex: 1,
-					dataIndex: 'title',
-					renderer: function(v, meta, record){
-						var toolTip = record.data.text ? ' data-qtip="' + record.data.text + '" ' : '';
-
-						return '<span ' + toolTip + '>' + (v !== '' ? v : record.data.text) + '</span>'
-					}
-				},
-				{
-					text: _('add'),
-					width: 25,
-					menuDisabled: true,
-					xtype: 'actioncolumn',
-					tooltip: _('add_snippet'),
-					align: 'center',
-					icon: 'resources/images/icons/add.png',
-					scope: me,
-					handler: function(grid, rowIndex, colIndex, actionItem, event, record){
-						snippetCtrl.onSnippetAddBtnClick(grid, rowIndex, colIndex, actionItem, event, record);
-					},
-					getClass: function(value, metadata, record){
-						if(!record.data.leaf){
-							return 'x-grid-center-icon';
-						}else{
-							return 'x-hide-display';
-						}
-					}
-				},
 				{
 					text: _('edit'),
 					width: 25,
 					menuDisabled: true,
 					xtype: 'actioncolumn',
-					tooltip: 'Edit task',
+					tooltip: 'Edit Snippet',
 					align: 'center',
 					icon: 'resources/images/icons/edit.png',
 					handler: function(grid, rowIndex, colIndex, actionItem, event, record){
 						snippetCtrl.onSnippetBtnEdit(grid, rowIndex, colIndex, actionItem, event, record);
 					}
+				},
+				{
+					text: _('description'),
+					dataIndex: 'description',
+					flex: 1
 				}
 			],
 			bbar:[
@@ -59089,20 +58804,17 @@ Ext.define('App.view.patient.encounter.SOAP', {
 				}
 			],
 			viewConfig: {
+				disableSelection: true,
 				plugins: {
 					ptype: 'treeviewdragdrop',
-					expandDelay: 500,
 					dragText: _('drag_and_drop_reorganize')
 				},
 				listeners: {
 					scope: me,
-					drop: me.onSnippetDrop
+					drop: function (node, data, overModel) {
+						snippetCtrl.onSnippetDrop(node, data, overModel);
+					}
 				}
-			},
-			listeners: {
-				scope: me,
-				itemclick: me.onSnippetClick,
-				itemdblclick: me.onSnippetDblClick
 			}
 		});
 
@@ -59297,45 +59009,6 @@ Ext.define('App.view.patient.encounter.SOAP', {
 			}
 		});
 
-		me.phWindow = Ext.widget('window', {
-			title: _('complete_snippet'),
-			closeAction: 'hide',
-			bodyPadding: 0,
-			bodyBorder: false,
-			border: false,
-			items: [
-				{
-					xtype: 'textarea',
-					border: false,
-					width: 500,
-					height: 150,
-					margin: 0,
-					grow: true,
-					enableKeyEvents: true,
-					listeners: {
-						scope: me,
-						specialkey: me.onPhTextAreaKey
-					}
-				}
-			],
-			buttons: [
-				{
-					xtype: 'tbtext',
-					text: _('shift_enter_submit')
-				},
-				'->',
-				{
-					text: _('cancel'),
-					handler: me.onPhWindowCancel
-				},
-				{
-					text: _('submit'),
-					scope: me,
-					handler: me.onPhWindowSubmit
-				}
-			]
-		});
-
 		Ext.apply(me, {
 			items: [ me.snippets, me.form ]
 		});
@@ -59465,97 +59138,6 @@ Ext.define('App.view.patient.encounter.SOAP', {
 			record.store.fireEvent('write');
 		});
 		this.dxField.loadIcds(record.dxCodes());
-	},
-
-	/**
-	 *
-	 * @param view
-	 * @param record
-	 */
-	onSnippetClick: function(view, record){
-		if(!record.data.leaf) record.expand();
-	},
-
-	/**
-	 *
-	 * @param view
-	 * @param record
-	 */
-	onSnippetDblClick: function(view, record){
-
-		if(record.data.leaf){
-			var me = this,
-				form = me.form.getForm(),
-				action = view.panel.action.split('-'),
-				field = form.findField(action[0]),
-				text = record.data.text,
-				value = field.getValue(),
-				PhIndex = text.indexOf('??'),
-				textArea = me.phWindow.down('textarea'),
-				glue = value.substr(value.length - 1) == ' ' ? '' : ' ';
-
-			if(PhIndex == -1){
-				field.setValue(value + glue + text);
-			}else{
-				me.phWindow.show();
-				textArea.setValue(text);
-				Ext.Function.defer(function(){
-					textArea.selectText(PhIndex, PhIndex + 2)
-				}, 300);
-			}
-		}else{
-			record.expand();
-		}
-	},
-
-	/**
-	 *
-	 */
-	onPhWindowSubmit: function(){
-		var me = this,
-			textArea = me.phWindow.down('textarea'),
-			form = me.form.getForm(),
-			action = me.snippets.action.split('-'),
-			field = form.findField(action[0]),
-			value = field.getValue(),
-			text = textArea.getValue(),
-			glue = value.substr(value.length - 1) == ' ' ? '' : ' ';
-
-		field.setValue(value + glue + text);
-		me.phWindow.close();
-		textArea.reset();
-	},
-
-	/**
-	 *
-	 * @param btn
-	 */
-	onPhWindowCancel: function(btn){
-		btn.up('window').close();
-	},
-
-	/**
-	 *
-	 * @param field
-	 * @param e
-	 */
-	onPhTextAreaKey: function(field, e){
-		if(e.getKey() == e.ENTER) this.onPhWindowSubmit();
-	},
-
-	/**
-	 *
-	 * @param node
-	 * @param data
-	 * @param overModel
-	 */
-	onSnippetDrop: function(node, data, overModel){
-		var me = this, pos = 10;
-		for(var i = 0; i < overModel.parentNode.childNodes.length; i++){
-			overModel.parentNode.childNodes[i].set({pos: pos});
-			pos = pos + 10;
-		}
-		me.snippetStore.sync();
 	}
 });
 
@@ -59975,7 +59557,155 @@ Ext.define('App.view.patient.windows.Medical', {
 	],
 
 	initComponent: function(){
-		var me = this;
+		var me = this,
+			tapPanelItems = [];
+
+
+		if(a('access_patient_immunizations')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype:'patientimmunizationspanel',
+				itemId: 'immunization',
+				tabConfig: {
+					tooltip: _('vaccines_immunizations')
+				}
+			});
+		}
+
+		if(a('access_patient_allergies')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientallergiespanel',
+				itemId: 'allergies',
+				tabConfig: {
+					tooltip: _('allergies')
+				}
+			});
+		}
+
+		if(a('access_active_problems')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientactiveproblemspanel',
+				itemId: 'activeproblems',
+				tabConfig: {
+					tooltip: _('active_problems')
+				}
+			});
+		}
+
+		if(a('access_family_history')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientfamilyhistorypanel',
+				itemId: 'familyhistory',
+				tabConfig: {
+					tooltip: _('family_history')
+				}
+			});
+		}
+
+		if(a('access_patient_advance_directive')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientadvancedirectivepanel',
+				itemId: 'advancedirectives',
+				tabConfig: {
+					tooltip: _('advance_directives')
+				}
+			});
+		}
+
+		if(a('access_patient_medications')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype:'patientmedicationspanel',
+				itemId: 'medications',
+				tabConfig: {
+					tooltip: _('medications')
+				}
+			});
+		}
+
+		if(a('access_patient_results')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype:'patientresultspanel',
+				itemId: 'laboratories',
+				tabConfig: {
+					tooltip: _('results')
+				}
+			});
+		}
+
+		if(a('access_patient_social_history')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientsocialpanel',
+				itemId: 'social',
+				tabConfig: {
+					tooltip: _('social_history')
+				}
+			});
+		}
+
+		if(a('access_patient_functional_status')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientcognitiveandfunctionalstatuspanel',
+				itemId: 'functionalstatus',
+				tabConfig: {
+					tooltip: _('functional_status')
+				}
+			});
+		}
+
+		if(a('access_patient_referrals')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientreferralspanel',
+				itemId: 'referrals',
+				tabConfig: {
+					tooltip: _('referrals')
+				}
+			});
+		}
+
+		if(a('access_patient_implantable_devices')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype:'implantabledevicepanel',
+				tabConfig: {
+					tooltip: _('implantable_devices')
+				}
+			});
+		}
+
+		if(a('access_patient_psy_behavioral')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype:'socialpsychologicalbehavioralpanel',
+				tabConfig: {
+					tooltip: _('social_psychological_behavioral')
+				}
+			});
+		}
+
+		if(a('access_patient_doctors_notes')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientdoctorsnotepanel',
+				tabConfig: {
+					tooltip: _('doctors_notes')
+				}
+			});
+		}
+
+		if(a('access_patient_lab_orders')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientlaborderspanel'
+			});
+		}
+
+		if(a('access_patient_rad_orders')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientradorderspanel'
+			});
+		}
+
+		if(a('access_patient_rx_orders')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype:'patientrxorderspanel'
+			});
+		}
+
 
 		me.items = [
 			{
@@ -59986,117 +59716,7 @@ Ext.define('App.view.patient.windows.Medical', {
 				margin: 5,
 				height: Ext.getBody().getHeight() < 700 ? (Ext.getBody().getHeight() - 100) : 600,
 				width: Ext.getBody().getWidth() < 1550 ? (Ext.getBody().getWidth() - 50) : 1500,
-				items:[
-					{
-						xtype:'patientimmunizationspanel',
-						itemId: 'immunization',
-						tabConfig: {
-							tooltip: _('vaccines_immunizations')
-						}
-					},
-					{
-						xtype: 'patientallergiespanel',
-						itemId: 'allergies',
-						tabConfig: {
-							tooltip: _('allergies')
-						}
-					},
-					{
-						xtype: 'patientactiveproblemspanel',
-						itemId: 'activeproblems',
-						tabConfig: {
-							tooltip: _('active_problems')
-						}
-					},
-					{
-						xtype: 'patientfamilyhistorypanel',
-						itemId: 'familyhistory',
-						tabConfig: {
-							tooltip: _('family_history')
-						}
-					},
-					{
-						xtype: 'patientadvancedirectivepanel',
-						itemId: 'advancedirectives',
-						tabConfig: {
-							tooltip: _('advance_directives')
-						}
-					},
-					{
-						xtype:'patientmedicationspanel',
-						itemId: 'medications',
-						tabConfig: {
-							tooltip: _('medications')
-						}
-					},
-					{
- 						xtype:'patientresultspanel',
-						itemId: 'laboratories',
-						tabConfig: {
-							tooltip: _('results')
-						}
-					},
-					{
-						xtype: 'patientsocialpanel',
-						itemId: 'social',
-						tabConfig: {
-							tooltip: _('social_history')
-						}
-					},
-					{
-						xtype: 'patientcognitiveandfunctionalstatuspanel',
-						itemId: 'functionalstatus',
-						tabConfig: {
-							tooltip: _('functional_status')
-						}
-					},
-					{
-						xtype: 'patientreferralspanel',
-						itemId: 'referrals',
-						tabConfig: {
-							tooltip: _('referrals')
-						}
-					},
-					{
-						xtype:'implantabledevicepanel',
-						tabConfig: {
-							tooltip: _('implantable_devices')
-						}
-					},
-					{
-						xtype:'socialpsychologicalbehavioralpanel',
-						tabConfig: {
-							tooltip: _('social_psychological_behavioral')
-						}
-					},
-					/**
-					 * DOCTORS NOTE
-					 */
-					{
-						xtype: 'patientdoctorsnotepanel',
-						tabConfig: {
-							tooltip: _('doctors_notes')
-						}
-					},
-					/**
-					 * LAB ORDERS PANEL
-					 */
-					{
-						xtype: 'patientlaborderspanel'
-					},
-					/**
-					 * X-RAY PANEL
-					 */
-					{
-						xtype: 'patientradorderspanel'
-					},
-					/**
-					 * PRESCRIPTION PANEL
-					 */
-					{
-						xtype:'patientrxorderspanel'
-					}
-				]
+				items: tapPanelItems
 			}
 		];
 
@@ -60548,7 +60168,6 @@ Ext.define('App.view.patient.Encounter', {
 					]
 				})
 			]
-
 		});
 
 		me.panelToolBar = Ext.create('Ext.toolbar.Toolbar', {
@@ -60562,97 +60181,113 @@ Ext.define('App.view.patient.Encounter', {
 				{
 					text: _('vaccs') + ' ',
 					action: 'immunization',
-					tooltip: _('vaccines_immunizations')
+					tooltip: _('vaccines_immunizations'),
+					acl: a('access_patient_immunizations')
 				},
 				'-',
 				{
 					text: _('al') + ' ',
 					action: 'allergies',
-					tooltip: _('allergies')
+					tooltip: _('allergies'),
+					acl: a('access_patient_allergies')
 				},
 				'-',
 				{
 					text: _('act_prob') + ' ',
 					action: 'activeproblems',
-					tooltip: _('active_problems')
+					tooltip: _('active_problems'),
+					acl: a('access_active_problems')
 				},
 				'-',
 				{
 					text: _('fam_hx') + ' ',
 					action: 'familyhistory',
-					tooltip: _('family_history')
+					tooltip: _('family_history'),
+					acl: a('access_family_history')
 				},
 				'-',
 				{
 					text: _('adv_dir') + ' ',
 					action: 'advancedirectives',
-					tooltip: _('advance_directives')
+					tooltip: _('advance_directives'),
+					acl: a('access_patient_advance_directive')
 				},
 				'-',
 				{
 					text: _('meds') + ' ',
 					action: 'medications',
-					tooltip: _('medications')
+					tooltip: _('medications'),
+					acl: a('access_patient_medications')
 				},
 				'-',
 				{
 					text: _('res') + ' ',
 					action: 'laboratories',
-					tooltip: _('results')
+					tooltip: _('results'),
+					acl: a('access_patient_results')
 				},
 				'-',
 				{
 					text: _('soc_hx') + ' ',
 					action: 'social',
-					tooltip: _('social_history')
+					tooltip: _('social_history'),
+					acl: a('access_patient_social_history')
 				},
 				'-',
 				{
 					text: _('func_stat') + ' ',
 					action: 'functionalstatus',
-					tooltip: _('functional_status')
+					tooltip: _('functional_status'),
+					acl: a('access_patient_functional_status')
 				},
 				'-',
 				{
 					text: _('refs') + ' ',
 					action: 'referrals',
-					tooltip: _('referrals')
+					tooltip: _('referrals'),
+					acl: a('access_patient_referrals')
 				},
 				'-',
 				{
 					text: _('imp_devs') + ' ',
 					action: 'ImplantableDeviceGrid',
-					tooltip: _('implantable_devices')
+					tooltip: _('implantable_devices'),
+					acl: a('access_patient_implantable_devices')
 				},
 				'-',
 				{
 					text: _('spb') + ' ',
 					action: 'SocialPsychologicalBehavioralPanel',
-					tooltip: _('social_psychological_behavioral')
+					tooltip: _('social_psychological_behavioral'),
+					acl: a('access_patient_psy_behavioral')
 				},
 				'-',
 				{
 					text: _('doc_nt'),
 					action: 'DoctorsNotes',
-					tooltip: _('doctors_notes')
+					tooltip: _('doctors_notes'),
+					acl: a('access_patient_doctors_notes')
 				},
 				'-',
 				{
 					text: _('lab_orders'),
 					action: 'LabOrders',
-					cls: 'order-btn'
+					cls: 'order-btn',
+					acl: a('access_patient_lab_orders')
 				},
 				'-',
 				{
 					text: _('xray_ct_orders'),
 					action: 'RadOrders',
-					cls: 'order-btn'
+					cls: 'order-btn',
+					acl: a('access_patient_rad_orders')
 				},
 				'-',
 				{
 					text: _('rx_orders'),
 					action: 'RxOrderGrid',
-					cls: 'order-btn'
+					cls: 'order-btn',
+					acl: a('access_patient_rx_orders')
 				},
 				'-',
 				'->',

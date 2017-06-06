@@ -49,7 +49,7 @@ class Printer {
 
 		$tmp_fname = tempnam(site_temp_path, "report-");
 		$handle = fopen($tmp_fname, "w");
-		fwrite($handle, base64_encode($document));
+		fwrite($handle, $document);
 		fclose($handle);
 
 		if($printer['printer_protocol'] == 'ipp'){
@@ -92,7 +92,8 @@ class Printer {
 			 * LPR basic print command
 			 */
 			$printer = $printer['printer_name'];
-			$command = "/usr/bin/lpr -P {$printer} {$tmp_fname} 2>&1";
+//			$command = "/usr/bin/lpr -P {$printer} {$tmp_fname} 2>&1";
+			$command = "lp -d {$printer} {$tmp_fname}";
 			shell_exec($command);
 		}
 

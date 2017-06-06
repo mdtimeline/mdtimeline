@@ -84,16 +84,6 @@ Ext.define('App.model.administration.ReferringProvider', {
             len: 25
         },
         {
-            name: 'fda',
-            type: 'string',
-            len: 25
-        },
-        {
-            name: 'ess',
-            type: 'string',
-            len: 25
-        },
-        {
             name: 'ssn',
             type: 'string',
             len: 25,

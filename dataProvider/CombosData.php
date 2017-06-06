@@ -65,6 +65,14 @@ class CombosData {
 	 * @var MatchaCUP
 	 */
 	private $DT;
+	/**
+	 * @var MatchaCUP
+	 */
+	private $AR;
+	/**
+	 * @var MatchaCUP
+	 */
+	private $AG;
 
     /**
      * @var MatchaCUP
@@ -290,10 +298,28 @@ class CombosData {
 	}
 
 
-	public function getRoles(){
-		if($this->F == null)
-			$this->F = MatchaModel::setSenchaModel('App.model.administration.AclRoles');
-		return $this->F->load()->all();
+	public function getRoles($params){
+		if($this->AR == null)
+			$this->AR = MatchaModel::setSenchaModel('App.model.administration.AclRoles');
+		$results = $this->AR->load()->all();
+
+		if(isset($params->includeAllOption) && $params->includeAllOption){
+			array_unshift($results, ['id' => 0, 'role_name' => 'All']);
+		}
+
+		return $results;
+	}
+
+	public function getRolesGroups($params){
+		if($this->AG == null)
+			$this->AG = MatchaModel::setSenchaModel('App.model.administration.AclGroup');
+		$results = $this->AG->load()->all();
+
+		if(isset($params->includeAllOption) && $params->includeAllOption){
+			array_unshift($results, ['id' => 0, 'title' => 'All']);
+		}
+
+		return $results;
 	}
 
 	public function getCalendarCategories(){

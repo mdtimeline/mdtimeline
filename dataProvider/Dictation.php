@@ -17,31 +17,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-class Snippets {
+
+class Dictation {
 
 	/**
-	 * @var MatchaCUP
+	 * @var bool|MatchaCUP
 	 */
-	private $s;
+	private $d;
 
-	function __construct(){
-		$this->s = MatchaModel::setSenchaModel('App.model.administration.EncounterSnippet');
+	function __construct() {
+
+		$this->d = MatchaModel::setSenchaModel('App.model.patient.Dictation');
 	}
 
-	public function getSoapSnippets($params){
-		$this->s->setOrFilterProperties(['uid']);
-		return $this->s->load($params)->all();
+	public function getDictations($params){
+		return $this->d->load($params)->all();
 	}
 
-	public function addSoapSnippets($params){
-		return $this->s->save($params);
+	public function getDictation($params){
+		return $this->d->load($params)->one();
 	}
 
-	public function updateSoapSnippets($params){
-		return $this->s->save($params);
+	public function addDictation($params){
+		return $this->d->save($params);
 	}
 
-	public function deleteSoapSnippets($params){
-		return $this->s->destroy($params);
+	public function updateDictation($params){
+		return $this->d->save($params);
 	}
 }

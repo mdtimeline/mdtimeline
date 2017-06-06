@@ -47,6 +47,7 @@ Ext.define('App.controller.Scanner', {
 		me.control({
 			'#ScannerWindow': {
 				afterrender: me.onScannerWindowAfterRender,
+				show: me.onScannerWindowShow,
 				close: me.onScannerWindowClose,
 				beforeclose: me.onScannerWindowBeforeClose
 			},
@@ -54,7 +55,8 @@ Ext.define('App.controller.Scanner', {
 				click: me.onScannerImageScanBtnClick
 			},
 			'#ScannerImageThumbsDataView': {
-				itemclick: me.onScannerImageThumbsDataViewItemClick
+				itemclick: me.onScannerImageThumbsDataViewItemClick,
+				itemdblclick: me.onScannerImageThumbsDataViewItemDblClick
 			},
 			'#ScannerImageArchiveBtn': {
 				click: me.onScannerImageArchiveBtnClick
@@ -68,11 +70,6 @@ Ext.define('App.controller.Scanner', {
 		});
 
 		me.helperCtrl = me.getController('App.controller.BrowserHelper');
-
-		// Ext.Function.defer(function () {
-		// 	me.showScanWindow();
-		// 	me.doScannerComboLoad();
-		// }, 1000);
 
 	},
 
@@ -136,7 +133,11 @@ Ext.define('App.controller.Scanner', {
 		this.getScannerImageViewerPanelImage().setSrc(record.get('src'));
 	},
 
-	showScanWindow: function(){
+	onScannerImageThumbsDataViewItemDblClick: function (view) {
+		this.onArchive(view);
+	},
+
+	showScanWindow: function(closeCallback, archivedCallback){
 
 		if(!this.helperCtrl.connected){
 			app.msg(_('oops'), _('browser_helper_not_connected'), true);
@@ -148,6 +149,8 @@ Ext.define('App.controller.Scanner', {
 		}
 
 		this.getScannerWindow().skip_validation = false;
+		this.closeCallback = closeCallback ? closeCallback : Ext.emptyFn;
+		this.archivedCallback = archivedCallback ? archivedCallback : Ext.emptyFn;
 
 		return this.getScannerWindow().show();
 	},
@@ -172,15 +175,11 @@ Ext.define('App.controller.Scanner', {
 	},
 
 	onScannerImageArchiveBtnClick: function (btn) {
+		this.onArchive(btn);
+	},
 
-		var win = btn.up('window'),
-			lastSelected = this.getLastSelectedDocument();
-
-		if(lastSelected.get('archived')){
-			app.msg(_('oops'), _('document_archived'), true);
-			return;
-		}
-
+	onArchive: function (cmp) {
+		var win = cmp.up('window');
 		var archive = Ext.widget('patientarchivedocumentwindow',{
 			documentWindow: win
 		});
@@ -188,14 +187,21 @@ Ext.define('App.controller.Scanner', {
 	},
 
 	onScannerWindowAfterRender: function(){
+		//this.doScannerComboLoad();
+	},
+
+	onScannerWindowShow: function (win) {
+		this.currentonScannerWindow = win;
 		this.doScannerComboLoad();
 	},
 
 	onScannerWindowClose: function(win){
 		win.skip_validation = false;
+		this.currentonScannerWindow = null;
 		this.documents_defautls = {};
 		this.getScannerImageThumbsDataView().store.removeAll();
 		this.getScannerImageViewerPanelImage().setSrc('');
+		this.closeCallback();
 	},
 
 	onScannerWindowBeforeClose: function(win){
@@ -233,7 +239,7 @@ Ext.define('App.controller.Scanner', {
 			return;
 		}
 
-		var model = Ext.create('App.model.patient.PatientDocuments',values);
+		var model = Ext.create('App.model.patient.PatientDocuments', values);
 
 		model.set({
 			date: new Date(),
@@ -242,21 +248,30 @@ Ext.define('App.controller.Scanner', {
 
 		model.save({
 		 	success: function () {
-				me.getLastSelectedDocument().set({
-					archived: true,
-					style: 'background-color:lightgreen;'
-				});
+
+		 		var selected = me.getLastSelectedDocument(),
+			        store = selected.store;
+
+			    me.archivedCallback(model);
+
+
+			    store.remove(selected);
+			    store.commitChanges();
 			    me.getScannerImageThumbsDataView().refresh();
 
 			    // send callback to close window
 			    callback(true);
+
+			    if(me.allArchived() && me.currentonScannerWindow){
+				    me.currentonScannerWindow.close();
+			    }
 			}
 		});
 	},
 	
 	allArchived: function () {
 		var store = this.getScannerImageThumbsDataView().store;
-		return store.find('archived', false) == -1;
+		return store.data.items.length == 0;
 	},
 
 	onScannerImageEditBtnToggle: function(btn, pressed){

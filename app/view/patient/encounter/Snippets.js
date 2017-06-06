@@ -25,27 +25,73 @@ Ext.define('App.view.patient.encounter.Snippets', {
 	itemId: 'SnippetWindow',
 	title: _('snippet'),
 	closable: false,
+	width: 600,
+	layout: 'fit',
+	modal: true,
+	closeAction: 'hide',
 	items: [
 		{
 			xtype: 'form',
 			itemId: 'SnippetForm',
+			border: false,
+			bodyPadding: 10,
 			fieldDefaults: {
 				labelAlign: 'top',
-				width: 600,
-				margin: 5
+				anchor: '100%',
+				margin: '0 0 10 0'
 			},
 			items: [
 				{
-					xtype: 'textfield',
-					fieldLabel: _('title'),
-					name: 'title'
+					xtype: 'fieldcontainer',
+					layout: 'hbox',
+					nacor: '100%',
+					items: [
+						{
+							xtype: 'combobox',
+							fieldLabel: _('category'),
+							name: 'category',
+							allowBlank: false,
+							flex: 1,
+							margin: '0 10 0 0',
+							queryMode: 'local',
+							itemId: 'SnippetFormCategoryCmb',
+							store: Ext.create('Ext.data.Store',{
+								fields: ['text']
+							})
+						},
+						{
+							xtype: 'textfield',
+							fieldLabel: _('description'),
+							name: 'description',
+							allowBlank: false,
+							flex: 1
+						}
+					]
 				},
 				{
 					xtype: 'textareafield',
-					fieldLabel: _('snippet'),
-					allowBlank: false,
-					itemId: 'SnippetFormTextField',
-					name: 'text'
+					fieldLabel: _('subjective'),
+					name: 'subjective'
+				},
+				{
+					xtype: 'textareafield',
+					fieldLabel: _('objective'),
+					name: 'objective'
+				},
+				{
+					xtype: 'textareafield',
+					fieldLabel: _('assessment'),
+					name: 'assessment'
+				},
+				{
+					xtype: 'textareafield',
+					fieldLabel: _('instructions'),
+					name: 'instructions'
+				},
+				{
+					xtype: 'textfield',
+					fieldLabel: _('diagnoses'),
+					name: 'diagnoses'
 				}
 			]
 		}

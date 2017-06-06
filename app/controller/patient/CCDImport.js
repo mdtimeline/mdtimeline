@@ -190,10 +190,7 @@ Ext.define('App.controller.patient.CCDImport', {
 					sex: patient.data.sex,
 					DOB: patient.data.DOB
 				},
-				'ccdImportDuplicateAction',
-				function(patient){
-
-				}
+				'ccdImportDuplicateAction'
 			);
 		}
 
@@ -235,6 +232,9 @@ Ext.define('App.controller.patient.CCDImport', {
      the system information panel.
      */
     onPossiblePatientDuplicatesGridItemDblClick:function(grid, record){
+
+    	if(!this.getCcdPatientPatientForm()) return;
+
         var me = this,
             cmb = me.getCcdImportWindowPatientSearchField(),
             systemPatientForm = me.getCcdPatientPatientForm().getForm(),

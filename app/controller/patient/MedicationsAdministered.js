@@ -105,8 +105,6 @@ Ext.define('App.controller.patient.MedicationsAdministered', {
 			form = me.getMedicationsAdministeredEditForm().getForm(),
 			record = form.getRecord();
 
-		say(selection);
-
 		record.set({
 			adverse_reaction_text: selection[0].get('option_name'),
 			adverse_reaction_code: selection[0].get('code'),
@@ -116,7 +114,6 @@ Ext.define('App.controller.patient.MedicationsAdministered', {
 	
 	onMedicationsAdministeredGridItemDblClick: function (grid, record) {
 
-		say(record);
 		this.showMedicationsAdministeredEditWindow();
 
 		var form = this.getMedicationsAdministeredEditForm().getForm();

@@ -2,7 +2,7 @@ Ext.define('App.controller.Cron', {
     extend: 'Ext.app.Controller',
 
     // in seconds - interval to run me.cronTask (check PHP session, refresh Patient Pool Areas, and PHP Cron Job)
-	cronTaskInterval: 10,
+	cronTaskInterval: 15,
 
 	fns:[
 		'app.getPatientsInPoolArea()',

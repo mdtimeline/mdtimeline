@@ -42,21 +42,25 @@ class Merge {
 	 */
 	public function merge($primaryPid, $transferPid){
 		try{
-			$this->conn->beginTransaction();
-			$this->conn->exec('SET FOREIGN_KEY_CHECKS = 0');
 
-			foreach($this->tables as $t){
-				$this->conn->exec("UPDATE `{$t}` SET `pid` = '{$primaryPid}' WHERE `pid` = '{$transferPid}'");
+			$table = '';
+
+			$this->conn->beginTransaction();
+			$this->conn->exec('SET FOREIGN_KEY_CHECKS = 0;');
+
+			foreach($this->tables as $table){
+				if($table == 'patient' || $table == 'patient_temp') continue;
+				$this->conn->exec("UPDATE `{$table}` SET `pid` = '{$primaryPid}' WHERE `pid` = '{$transferPid}';");
 			}
 
-			$this->conn->exec("DELETE FROM `patient` WHERE `pid` = '{$transferPid}'");
-			$this->conn->exec('SET FOREIGN_KEY_CHECKS = 0');
+			$this->conn->exec("DELETE FROM `patient` WHERE `pid` = '{$transferPid}';");
+			$this->conn->exec('SET FOREIGN_KEY_CHECKS = 0;');
 			$this->conn->commit();
 			return true;
 		}catch (Exception $e){
 			error_log($e->getMessage());
 			$this->conn->rollBack();
-			return false;
+			return $e->getMessage() . 'Table: '. $table;
 		}
 	}
 

@@ -5,6 +5,7 @@ Ext.define('App.ux.combo.Combo', {
     valueField: 'option_value',
     emptyText: _('select'),
     forceSelection: false,
+	editable: true,
 
 	/**
 	 * List by Key

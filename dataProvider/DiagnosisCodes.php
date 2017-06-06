@@ -126,6 +126,31 @@ class DiagnosisCodes {
 
 	}
 
+	public function getICDDataByCodes($codes) {
+
+		if(count($codes) == 0) return [];
+		$plaholders = array_fill(0, count($codes), '?');
+		$plaholders = implode(',', $plaholders);
+
+		$values = [];
+		foreach($codes as $i => $code){
+			$values[] = $code;
+		}
+		$values = array_merge($values, $values);
+
+		$revision = $this->getLastRevisionByCodeType('ICD10');
+
+		$sql = "SELECT *, `formatted_dx_code` AS `code`, 'ICD10' AS `code_type`
+				  FROM `icd10_dx_order_code`
+				 WHERE `dx_code` IN  ($plaholders)
+				   	OR formatted_dx_code  IN ($plaholders) 
+				   AND revision = '{$revision}'";
+
+		$sth = $this->conn->prepare($sql);
+		$sth->execute($values);
+		return $sth->fetchAll(PDO::FETCH_ASSOC);
+	}
+
 	public function getICDDataByCode($code, $code_type = null) {
 		$data = array();
 

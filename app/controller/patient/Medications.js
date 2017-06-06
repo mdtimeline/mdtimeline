@@ -44,6 +44,10 @@ Ext.define('App.controller.patient.Medications', {
 			ref: 'PatientMedicationUserLiveSearch',
 			selector: '#PatientMedicationUserLiveSearch'
 		},
+		{
+			ref: 'PatientMedicationLiveSearch',
+			selector: '#PatientMedicationLiveSearch'
+		},
 
 		// administer refs
 		{
@@ -170,14 +174,7 @@ Ext.define('App.controller.patient.Medications', {
 	},
 
 	onPatientMedicationsGridBeforeEdit: function(plugin, context){
-		var me = this,
-			field = me.getPatientMedicationUserLiveSearch();
 
-		field.forceSelection = false;
-		field.setValue(context.record.data.administered_by);
-		Ext.Function.defer(function(){
-			field.forceSelection = true;
-		}, 200);
 	},
 
 	onPatientMedicationUserLiveSearchSelect: function(cmb, records){

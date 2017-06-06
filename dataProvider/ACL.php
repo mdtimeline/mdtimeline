@@ -38,6 +38,10 @@ class ACL {
 	 */
 	private static $user_roles = [];
 	/**
+	 * @var array
+	 */
+	private static $user_groups = [];
+	/**
 	 * @var MatchaCup
 	 */
 	private static $U;
@@ -77,6 +81,7 @@ class ACL {
 			self::$user_id = isset($uid) ? $uid : ((isset($_SESSION) && isset($_SESSION['user']) && isset($_SESSION['user']['id'])) ? $_SESSION['user']['id'] : '0');
 			self::setModels();
 			self::$user_roles = self::getUserRoles();
+			self::$user_groups = self::getUserGroups();
 			self::$emerAccess = self::isEmergencyAccess();
 			self::buildACL();
 		}
@@ -323,7 +328,8 @@ class ACL {
 	/**
 	 * @return array
 	 */
-	private static function getUserRoles() {
+	public static function getUserRoles() {
+		self::construct();
 		$sth = $rolesRec = self::$conn->prepare("SELECT users.role_id FROM `users` WHERE users.id = ?");
 		$sth->execute([self::$user_id]);
 		$record = $sth->fetch(PDO::FETCH_ASSOC);
@@ -335,6 +341,32 @@ class ACL {
 		}
 
 		return $roles;
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function getUserGroups() {
+		self::construct();
+		$user_roles = self::$user_roles;
+		$role_ids = implode(',', $user_roles);
+
+		$sth =  self::$conn->prepare("SELECT acl_roles.group_id FROM `acl_roles` WHERE acl_roles.id IN ({$role_ids})");
+		$sth->execute();
+		$record = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+		$user_groups = [];
+
+		foreach($record as $row){
+			$user_groups[] = $row['group_id'];
+		}
+
+		return $user_groups;
+	}
+
+	public static function getUserId(){
+		self::construct();
+		return self::$user_id;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -18,6 +18,29 @@
  */
 
 $API = [
+    'Merge' => [
+        'methods' => [
+            'merge' => [
+                'len' => 2
+            ]
+        ]
+    ],
+    'Dictation' => [
+        'methods' => [
+            'getDictations' => [
+                'len' => 1
+            ],
+            'getDictation' => [
+                'len' => 1
+            ],
+            'addDictation' => [
+                'len' => 1
+            ],
+            'updateDictation' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'SocialPsychologicalBehavioral' => [
         'methods' => [
             'getSocialPsychologicalBehaviors' => [
@@ -761,6 +784,9 @@ $API = [
 				'len' => 1
             ],
 			'getICDByEid' => [
+				'len' => 1
+            ],
+			'getICDDataByCodes' => [
 				'len' => 1
             ]
         ]
@@ -1987,7 +2013,10 @@ $API = [
 				'len' => 0
             ],
 			'getRoles' => [
-				'len' => 0
+				'len' => 1
+            ],
+			'getRolesGroups' => [
+				'len' => 1
             ],
 			'getCodeTypes' => [
 				'len' => 0

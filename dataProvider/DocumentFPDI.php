@@ -229,14 +229,18 @@ class DocumentFPDI extends FPDI  {
 	public function Footer(){
 
 		$margins = $this->getMargins();
-		$footerLineY = $this->getPageHeight() - 0.5 * 15 - 2;
+		$page_height = $this->getPageHeight();
+		$page_width = $this->getPageWidth();
+		$footer_margin = $page_height - $this->getFooterMargin();
+
+		$footerLineY = $footer_margin - 0.5 * 15 - 2;
 		$this->SetLineStyle(array('width' => 0.2, 'color' => array(0,0,0)));
-		$this->Line($margins['left'], $footerLineY, $this->getPageWidth() - $margins['right'], $footerLineY);
+		$this->Line($margins['left'], $footerLineY, $page_width - $margins['right'], $footerLineY);
 		$this->SetFont('times', '', 9);
-		$this->SetY(-0.5 * 15);
+		$this->SetY($footer_margin - 0.5 * 15);
 		$this->SetX($margins['left']);
-		$this->Cell(100, 0, 'Created by mdTimeline (Electronic Health System)');
-		$this->SetX((($this->getPageWidth() - $margins['right']) - 12));
+		$this->Cell(100, 0, 'Created by mdTimeline (Electronic Health System) v' . VERSION);
+		$this->SetX((($page_width - $margins['right']) - 12));
 		if($this->page_number){
 			$pageText = trim('Page ' . $this->getAliasNumPage() . '/' . $this->getAliasNbPages());
 			$this->Cell(12, 0, $pageText, 0, 0, 'L', 0, '', 0, false, 'T', 'M');

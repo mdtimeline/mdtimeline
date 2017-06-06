@@ -495,7 +495,7 @@ class Documents {
 			'[FACILITY_POSTALCODE]' => $facilityInfo['postal_code'],
 			'[FACILITY_COUNTRYCODE]' => $facilityInfo['country_code'],
 			'[FACILITY_FEDERAL_EIN]' => $facilityInfo['ein'],
-			'[FACILITY_SERVICE_LOCATION]' => $facilityInfo['service_location'],
+//			'[FACILITY_SERVICE_LOCATION]' => $facilityInfo['service_location'],
 			'[FACILITY_BILLING_LOCATION]' => $facilityInfo['billing_location'],
 			'[FACILITY_FACILITY_NPI]' => $facilityInfo['npi']
 		];
@@ -528,11 +528,6 @@ class Documents {
 			$pdf->addCustomHeaderData($custom_header_data);
 		}
 
-		$pdf->SetDefaultMonospacedFont('courier');
-		$pdf->setHeaderMargin(0);
-		$pdf->setFooterMargin(0);
-		$pdf->SetAutoPageBreak(true, 20);
-
 		if(isset($params->facility_id)){
 			$template = $this->getPdfTemplateByFacilityId($params->facility_id);
 		}else{
@@ -546,7 +541,8 @@ class Documents {
 			'left' => isset($template['body_margin_left']) ? intval($template['body_margin_left']) : 25,
 			'top' => isset($template['body_margin_top']) ? intval($template['body_margin_top']) : 25,
 			'right' => isset($template['body_margin_right']) ? intval($template['body_margin_right']) : 25,
-			'bottom' => isset($template['body_margin_bottom']) ? intval($template['body_margin_bottom']) : 25
+			'bottom' => isset($template['body_margin_bottom']) ? intval($template['body_margin_bottom']) : 25,
+			'footer_margin' => isset($template['footer_margin']) ? intval($template['footer_margin']) : 0
 		];
 
 		$font = [
@@ -554,6 +550,11 @@ class Documents {
 			'size' => isset($template['body_font_size']) ? intval($template['body_font_size']) : 12,
 		    'style' => isset($template['body_font_style']) ? $template['body_font_style'] : '',
 		];
+
+		$pdf->SetDefaultMonospacedFont('courier');
+		$pdf->setHeaderMargin(0);
+		$pdf->setFooterMargin($margins['footer_margin']);
+		$pdf->SetAutoPageBreak(true, 20);
 
 		/**
 		 * courier : Courier

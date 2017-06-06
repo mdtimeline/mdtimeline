@@ -8,6 +8,10 @@
     src: url('../../fonts/OpenSans-CondLight.ttf');
 }
 
+.thumb-wrap.x-item-selected {
+    background-color: #00B6FF;
+}
+
 .highlight_fieldset {
     background-color: #343434;
 }

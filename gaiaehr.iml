@@ -7,8 +7,126 @@
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
-    <content url="file://$MODULE_DIR$" />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/_aire" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/DICOM" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/FPDI/filters" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/Matcha/TestApp" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/Matcha/documentation" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/Matcha/plugins" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/Matcha/press" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/PHPMailer/extras" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/PHPMailer/language" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/PdfFormFiller" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/RxNorm" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/ScriptCam" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/Sphinx" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/Wiky" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/ZeroClipboard" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/darkroomjs" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/.sencha" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/builds" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/cmd" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/docs" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/MVC" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/app" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/aria" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/build" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/calendar" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/charts" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/component-loader" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/core" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/data" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/dd" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/desktop" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/direct" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/draw" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/feed-viewer" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/form" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/grid" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/grid-filtering" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/grouptabs" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/history" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/key-feed-viewer" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/keynav" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/kitchensink" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/layout" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/layout-browser" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/locale" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/menu" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/message-box" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/multiselect" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/neptune-components" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/organizer" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/page-analyzer" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/panel" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/personel-review" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/platform" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/portal" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/qtips" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/resizer" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/restful" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/rtl" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/sandbox" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/shared" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/simple-tasks" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/simple-widgets" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/slider" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/state" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/statusbar" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/tabs" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/themes" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/toolbar" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/tree" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/videos" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/view" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/window" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/examples/writer" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/locale" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/plugins" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/resources" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/src" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/extjs-4.2.1/welcome" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/fpdf181" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/html2pdf_v4.03" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/jsqrcode" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/ocradjs" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/php-ipp" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/phpqrcode" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/phptopdf" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/sencha-touch-2.1.0-gpl" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/tcpdf/config" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/tcpdf/examples" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/tcpdf/fonts" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/tcpdf/include" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/tcpdf/tools" />
+      <excludeFolder url="file://$MODULE_DIR$/modules/worklist/node_modules" />
+      <excludeFolder url="file://$MODULE_DIR$/resources/audio" />
+      <excludeFolder url="file://$MODULE_DIR$/resources/ext-theme-access" />
+      <excludeFolder url="file://$MODULE_DIR$/resources/ext-theme-classic" />
+      <excludeFolder url="file://$MODULE_DIR$/resources/ext-theme-classic-sandbox" />
+      <excludeFolder url="file://$MODULE_DIR$/resources/ext-theme-gray" />
+      <excludeFolder url="file://$MODULE_DIR$/resources/ext-theme-neptune" />
+      <excludeFolder url="file://$MODULE_DIR$/resources/fonts" />
+      <excludeFolder url="file://$MODULE_DIR$/resources/report" />
+      <excludeFolder url="file://$MODULE_DIR$/resources/templates" />
+      <excludeFolder url="file://$MODULE_DIR$/resources/themes" />
+      <excludeFolder url="file://$MODULE_DIR$/sites/acaa" />
+      <excludeFolder url="file://$MODULE_DIR$/sites/default" />
+    </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="ExtJS GPL-4.2" level="application" />
+    <orderEntry type="module-library">
+      <library name="PHP Runtime" type="php">
+        <CLASSES>
+          <root url="jar://$APPLICATION_PLUGINS_DIR$/php/lib/php.jar!/stubs/standard" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$APPLICATION_PLUGINS_DIR$/php/lib/php.jar!/stubs/standard" />
+        </SOURCES>
+      </library>
+    </orderEntry>
   </component>
 </module>

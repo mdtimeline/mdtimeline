@@ -57,22 +57,6 @@ Ext.define('App.model.administration.Specialty', {
 			type: 'bool'
 		},
 		{
-			name: 'text_details',
-			type: 'string',
-			store: false,
-			convert: function(v, record){
-				return record.data.id + ': ' + record.data.title;
-			}
-		},
-		{
-			name: 'combo_text',
-			type: 'string',
-			store: false,
-			convert: function(v, record){
-				return record.data.id + ': ' + record.data.title + ' ' + (record.data.active ? ('(' + _('not_active') + ')') : '');
-			}
-		},
-		{
 			name: 'create_uid',
 			type: 'int'
 		},
@@ -89,7 +73,23 @@ Ext.define('App.model.administration.Specialty', {
 			name: 'update_date',
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s'
-		}
+		},
+        {
+            name: 'text_details',
+            type: 'string',
+            convert: function(v, record){
+                return record.data.id + ': ' + record.data.title;
+            },
+            store: false
+        },
+        {
+            name: 'combo_text',
+            type: 'string',
+            convert: function(v, record){
+                return record.data.id + ': ' + record.data.title + ' ' + (record.data.active ? ('(' + _('not_active') + ')') : '');
+            },
+            store: false
+        }
 	],
 	proxy: {
 		type: 'direct',

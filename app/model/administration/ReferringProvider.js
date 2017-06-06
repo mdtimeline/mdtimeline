@@ -26,28 +26,6 @@ Ext.define('App.model.administration.ReferringProvider', {
             type: 'int'
         },
         {
-            name: 'code',
-            type: 'string',
-            len: 40
-        },
-        {
-            name: 'username',
-            type: 'string',
-            len: 40,
-            index: true
-        },
-        {
-            name: 'password',
-            type: 'string',
-            len: 300,
-            encrypt: true
-        },
-        {
-            name: 'authorized',
-            type: 'bool',
-            index: true
-        },
-        {
             name: 'title',
             type: 'string',
             len: 10
@@ -85,9 +63,7 @@ Ext.define('App.model.administration.ReferringProvider', {
         },
         {
             name: 'ssn',
-            type: 'string',
-            len: 25,
-            comment: 'federal tax id'
+            type: 'string'
         },
         {
             name: 'taxonomy',
@@ -134,6 +110,28 @@ Ext.define('App.model.administration.ReferringProvider', {
         {
             name: 'allow_mail_notifications',
             type: 'bool'
+        },
+        {
+            name: 'code',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'username',
+            type: 'string',
+            len: 40,
+            index: true
+        },
+        {
+            name: 'password',
+            type: 'string',
+            len: 300,
+            encrypt: true
+        },
+        {
+            name: 'authorized',
+            type: 'bool',
+            index: true
         },
         {
             name: 'active',

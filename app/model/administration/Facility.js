@@ -130,7 +130,25 @@ Ext.define('App.model.administration.Facility', {
 		{
 			name: 'active',
 			type: 'bool'
-		}
+		},
+        {
+            name: 'create_uid',
+            type: 'int'
+        },
+        {
+            name: 'update_uid',
+            type: 'int'
+        },
+        {
+            name: 'create_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
+        },
+        {
+            name: 'update_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
+        }
 	],
 	proxy: {
 		type: 'direct',

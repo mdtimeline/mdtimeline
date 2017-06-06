@@ -72,24 +72,7 @@ Ext.define('App.model.administration.ReferringProviderFacility', {
 			len: 10
 		},
 		{
-			name: 'taxonomy',
-			type: 'string',
-			len: 40,
-			comment: 'taxonomy',
-			defaultValue: '207Q00000X'
-		},
-		{
-			name: 'accept_mc',
-			type: 'bool',
-			comment: 'Accepts Medicare'
-		},
-		{
 			name: 'email',
-			type: 'string',
-			len: 180
-		},
-		{
-			name: 'direct_address',
 			type: 'string',
 			len: 180
 		},
@@ -116,14 +99,14 @@ Ext.define('App.model.administration.ReferringProviderFacility', {
 			name: 'active',
 			type: 'bool'
 		},
-		{
-			name: 'create_uid',
-			type: 'int'
-		},
-		{
-			name: 'update_uid',
-			type: 'int'
-		},
+        {
+            name: 'create_uid',
+            type: 'int'
+        },
+        {
+            name: 'update_uid',
+            type: 'int'
+        },
 		{
 			name: 'create_date',
 			type: 'date',

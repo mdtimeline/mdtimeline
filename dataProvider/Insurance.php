@@ -22,13 +22,15 @@ class Insurance {
 	/**
 	 * @var MatchaCUP
 	 */
+	private $ic;
+	/**
+	 * @var MatchaCUP
+	 */
 	private $pi;
 
 	function __construct(){
         if(!isset($this->ic))
             $this->ic = MatchaModel::setSenchaModel('App.model.administration.InsuranceCompany');
-        if(!isset($this->in))
-            $this->in = MatchaModel::setSenchaModel('App.model.administration.InsuranceNumber');
         if(!isset($this->pi))
             $this->pi = MatchaModel::setSenchaModel('App.model.patient.Insurance');
 	}
@@ -54,34 +56,6 @@ class Insurance {
 		return $this->ic->destroy($params);
 	}
 
-	/** Numbers */
-	public function getInsuranceNumbers($params) {
-		$User = new User();
-		$numbers = $this->in->load($params)->all();
-		foreach($numbers as $i => $number){
-			$user = $User->getUser($number['provider_id']);
-			$insCo = $this->getInsuranceCompany($number['insurance_company_id']);
-			$numbers[$i]['insurance_company_id_text'] = $insCo['name'];
-			$numbers[$i]['provider_id_text'] = $user['fullname'];
-		}
-		return $numbers;
-	}
-
-	public function getInsuranceNumber($params) {
-		return $this->in->load($params)->one();
-	}
-
-	public function addInsuranceNumber($params) {
-		return $this->in->save($params);
-	}
-
-	public function updateInsuranceNumber($params) {
-		return $this->in->save($params);
-	}
-
-	public function destroyInsuranceNumber($params) {
-		return $this->in->destroy($params);
-	}
 
 	/** Patient */
 

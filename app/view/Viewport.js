@@ -854,7 +854,12 @@ Ext.define('App.view.Viewport', {
         if(post){
             me.setPatient(post.get('pid'), null, null, function(){
 	            combo.reset();
-                me.openPatientSummary();
+
+	            if(typeof me.onAppPatientSearchCallback === 'function'){
+		            me.onAppPatientSearchCallback(me.patient);
+	            }else {
+		            me.openPatientSummary();
+	            }
             });
         }
     },

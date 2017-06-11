@@ -11828,7 +11828,25 @@ Ext.define('App.model.administration.Facility', {
 		{
 			name: 'active',
 			type: 'bool'
-		}
+		},
+        {
+            name: 'create_uid',
+            type: 'int'
+        },
+        {
+            name: 'update_uid',
+            type: 'int'
+        },
+        {
+            name: 'create_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
+        },
+        {
+            name: 'update_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
+        }
 	],
 	proxy: {
 		type: 'direct',
@@ -11881,6 +11899,24 @@ Ext.define('App.model.administration.FacilityStructure', {
 			name: 'active',
 			type: 'bool'
 		},
+        {
+            name: 'create_uid',
+            type: 'int'
+        },
+        {
+            name: 'update_uid',
+            type: 'int'
+        },
+        {
+            name: 'create_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
+        },
+        {
+            name: 'update_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
+        },
 		{
 			name: 'leaf',
 			type: 'bool',
@@ -12225,10 +12261,28 @@ Ext.define('App.model.administration.InsuranceCompany', {
 				return record.data.id + ': ' + (record.data.name ? record.data.name : ' * ' ) + ' ' + (!record.data.active ? ('(' +  _('inactive') + ')') : '') ;
 			}
 		},
-		{
-			name: 'active',
-			type: 'bool'
-		}
+        {
+            name: 'active',
+            type: 'bool'
+        },
+        {
+            name: 'create_uid',
+            type: 'int'
+        },
+        {
+            name: 'update_uid',
+            type: 'int'
+        },
+        {
+            name: 'create_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
+        },
+        {
+            name: 'update_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
+        }
 	],
 	proxy: {
 		type: 'direct',
@@ -13205,24 +13259,7 @@ Ext.define('App.model.administration.ReferringProviderFacility', {
 			len: 10
 		},
 		{
-			name: 'taxonomy',
-			type: 'string',
-			len: 40,
-			comment: 'taxonomy',
-			defaultValue: '207Q00000X'
-		},
-		{
-			name: 'accept_mc',
-			type: 'bool',
-			comment: 'Accepts Medicare'
-		},
-		{
 			name: 'email',
-			type: 'string',
-			len: 180
-		},
-		{
-			name: 'direct_address',
 			type: 'string',
 			len: 180
 		},
@@ -13249,14 +13286,14 @@ Ext.define('App.model.administration.ReferringProviderFacility', {
 			name: 'active',
 			type: 'bool'
 		},
-		{
-			name: 'create_uid',
-			type: 'int'
-		},
-		{
-			name: 'update_uid',
-			type: 'int'
-		},
+        {
+            name: 'create_uid',
+            type: 'int'
+        },
+        {
+            name: 'update_uid',
+            type: 'int'
+        },
 		{
 			name: 'create_date',
 			type: 'date',
@@ -13289,28 +13326,6 @@ Ext.define('App.model.administration.ReferringProvider', {
         {
             name: 'id',
             type: 'int'
-        },
-        {
-            name: 'code',
-            type: 'string',
-            len: 40
-        },
-        {
-            name: 'username',
-            type: 'string',
-            len: 40,
-            index: true
-        },
-        {
-            name: 'password',
-            type: 'string',
-            len: 300,
-            encrypt: true
-        },
-        {
-            name: 'authorized',
-            type: 'bool',
-            index: true
         },
         {
             name: 'title',
@@ -13350,9 +13365,7 @@ Ext.define('App.model.administration.ReferringProvider', {
         },
         {
             name: 'ssn',
-            type: 'string',
-            len: 25,
-            comment: 'federal tax id'
+            type: 'string'
         },
         {
             name: 'taxonomy',
@@ -13399,6 +13412,28 @@ Ext.define('App.model.administration.ReferringProvider', {
         {
             name: 'allow_mail_notifications',
             type: 'bool'
+        },
+        {
+            name: 'code',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'username',
+            type: 'string',
+            len: 40,
+            index: true
+        },
+        {
+            name: 'password',
+            type: 'string',
+            len: 300,
+            encrypt: true
+        },
+        {
+            name: 'authorized',
+            type: 'bool',
+            index: true
         },
         {
             name: 'active',
@@ -13528,22 +13563,6 @@ Ext.define('App.model.administration.Specialty', {
 			type: 'bool'
 		},
 		{
-			name: 'text_details',
-			type: 'string',
-			store: false,
-			convert: function(v, record){
-				return record.data.id + ': ' + record.data.title;
-			}
-		},
-		{
-			name: 'combo_text',
-			type: 'string',
-			store: false,
-			convert: function(v, record){
-				return record.data.id + ': ' + record.data.title + ' ' + (record.data.active ? ('(' + _('not_active') + ')') : '');
-			}
-		},
-		{
 			name: 'create_uid',
 			type: 'int'
 		},
@@ -13560,7 +13579,23 @@ Ext.define('App.model.administration.Specialty', {
 			name: 'update_date',
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s'
-		}
+		},
+        {
+            name: 'text_details',
+            type: 'string',
+            convert: function(v, record){
+                return record.data.id + ': ' + record.data.title;
+            },
+            store: false
+        },
+        {
+            name: 'combo_text',
+            type: 'string',
+            convert: function(v, record){
+                return record.data.id + ': ' + record.data.title + ' ' + (record.data.active ? ('(' + _('not_active') + ')') : '');
+            },
+            store: false
+        }
 	],
 	proxy: {
 		type: 'direct',
@@ -28232,10 +28267,28 @@ Ext.define('App.model.administration.Department', {
 			type: 'string',
 			len: 100
 		},
-		{
-			name: 'active',
-			type: 'bool'
-		}
+        {
+            name: 'active',
+            type: 'bool'
+        },
+        {
+            name: 'create_uid',
+            type: 'int'
+        },
+        {
+            name: 'update_uid',
+            type: 'int'
+        },
+        {
+            name: 'create_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
+        },
+        {
+            name: 'update_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
+        }
 	],
 	proxy: {
 		type: 'direct',
@@ -29434,74 +29487,6 @@ Ext.define('App.view.administration.practice.Pharmacies', {
 	]
 });
 
-Ext.define('App.model.administration.InsuranceNumber', {
-	extend: 'Ext.data.Model',
-	table: {
-		name: 'insurance_numbers',
-		comment: 'Insurance Numbers'
-	},
-	fields: [
-		{
-			name: 'id',
-			type: 'int'
-		},
-		{
-			name: 'provider_id',
-			type: 'int'
-		},
-		{
-			name: 'insurance_company_id',
-			type: 'int'
-		},
-		{
-			name: 'provider_id_text',
-			type: 'string',
-			store: false
-		},
-		{
-			name: 'insurance_company_id_text',
-			type: 'string',
-			store: false
-		},
-		{
-			name: 'provider_number',
-			type: 'string',
-			len: 20
-		},
-		{
-			name: 'rendering_provider_number',
-			type: 'string',
-			len: 20
-		},
-		{
-			name: 'group_number',
-			type: 'string',
-			len: 20
-		},
-		{
-			name: 'provider_number_type',
-			type: 'string',
-			len: 4
-		},
-		{
-			name: 'rendering_provider_number_type',
-			type: 'string',
-			len: 4
-		}
-	],
-	proxy: {
-		type: 'direct',
-		api: {
-			read: 'Insurance.getInsuranceNumbers',
-			create: 'Insurance.addInsuranceNumber',
-			update: 'Insurance.updateInsuranceNumber'
-		}
-	}
-});
-Ext.define('App.store.administration.InsuranceNumbers', {
-	extend: 'Ext.data.Store',
-	model: 'App.model.administration.InsuranceNumber'
-});
 Ext.define('App.view.administration.practice.ProviderNumbers', {
 	extend: 'Ext.grid.Panel',
 	requires: [
@@ -29511,7 +29496,7 @@ Ext.define('App.view.administration.practice.ProviderNumbers', {
 	],
 	xtype: 'providersnumberspanel',
 	title: _('provider_numbers'),
-	store: Ext.create('App.store.administration.InsuranceNumbers'),
+	//store: Ext.create('App.store.administration.InsuranceNumbers'),
 	border: false,
 	frame: false,
 	columnLines: true,
@@ -61708,7 +61693,12 @@ Ext.define('App.view.Viewport', {
         if(post){
             me.setPatient(post.get('pid'), null, null, function(){
 	            combo.reset();
-                me.openPatientSummary();
+
+	            if(typeof me.onAppPatientSearchCallback === 'function'){
+		            me.onAppPatientSearchCallback(me.patient);
+	            }else {
+		            me.openPatientSummary();
+	            }
             });
         }
     },

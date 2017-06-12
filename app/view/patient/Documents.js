@@ -223,6 +223,30 @@ Ext.define('App.view.patient.Documents', {
 						flex: 1,
 						itemId: 'patientDocumentViewerFrame'
 					}
+				],
+				bbar: [
+					{
+						xtype: 'sliderfield',
+						value: 1,
+						increment: 0.1,
+						decimalPrecision: 1,
+						minValue: 0.1,
+						maxValue: 1,
+						flex: 1,
+						margin: '0 10',
+						stateId: 'PatientDocumentViewerOpacityField',
+						stateful: true,
+						itemId: 'PatientDocumentViewerOpacityField',
+						getState: function(){
+							return {"value": this.getValue()};
+						},
+						applyState: function(state){
+							this.setValue(state.value);
+						},
+						stateEvents: [
+							'change'
+						]
+					}
 				]
 			}
 		];

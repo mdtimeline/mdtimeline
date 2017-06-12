@@ -48129,6 +48129,30 @@ Ext.define('App.view.patient.Documents', {
 						flex: 1,
 						itemId: 'patientDocumentViewerFrame'
 					}
+				],
+				bbar: [
+					{
+						xtype: 'sliderfield',
+						value: 1,
+						increment: 0.1,
+						decimalPrecision: 1,
+						minValue: 0.1,
+						maxValue: 1,
+						flex: 1,
+						margin: '0 10',
+						stateId: 'PatientDocumentViewerOpacityField',
+						stateful: true,
+						itemId: 'PatientDocumentViewerOpacityField',
+						getState: function(){
+							return {"value": this.getValue()};
+						},
+						applyState: function(state){
+							this.setValue(state.value);
+						},
+						stateEvents: [
+							'change'
+						]
+					}
 				]
 			}
 		];
@@ -55748,6 +55772,10 @@ Ext.define('App.controller.patient.Documents', {
 		{
 			ref: 'PatientDocumentErrorNoteWindow',
 			selector: 'patientdocumenterrornotewindow'
+		},
+		{
+			ref: 'PatientDocumentViewerOpacityField',
+			selector: 'PatientDocumentViewerOpacityField'
 		}
 	],
 
@@ -55791,10 +55819,34 @@ Ext.define('App.controller.patient.Documents', {
 			},
 			'#DocumentErrorNoteSaveBtn': {
 				click: me.onDocumentErrorNoteSaveBtnClick
+			},
+			'#PatientDocumentViewerOpacityField': {
+				//afterrender: me.onDocumentErrorNoteSaveBtnClick
+				change: me.onPatientDocumentViewerOpacityFieldChange
+			},
+			'#patientDocumentViewerFrame': {
+				render: me.onPatientDocumentViewerFrameRender
 			}
 		});
 
 		me.nav = this.getController('Navigation');
+	},
+
+	onPatientDocumentViewerFrameRender:function (frame) {
+		var field = frame.up('panel').query('#PatientDocumentViewerOpacityField')[0];
+		this.setOpacity(frame, field.getValue());
+	},
+
+	onPatientDocumentViewerOpacityFieldChange: function (feild, value) {
+		var frame = feild.up('panel').query('#patientDocumentViewerFrame')[0];
+		this.setOpacity(frame, value);
+	},
+
+	setOpacity: function (frame, opacity) {
+		say('setOpacity');
+		say(opacity);
+
+		frame.el.applyStyles({ opacity: opacity });
 	},
 
 	onPatientDocumentGridBeforeItemContextMenu: function (grid, record, item, index, e, eOpts) {

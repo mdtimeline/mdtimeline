@@ -20,7 +20,8 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
     extend: 'Ext.grid.Panel',
     xtype: 'referringproviderspanel',
     requires: [
-        'Ext.ux.SlidingPager'
+        'Ext.ux.SlidingPager',
+	    'App.ux..grid.ColumnSearchField'
     ],
     title: _('referring_providers'),
 
@@ -30,6 +31,7 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
         me.store = Ext.create('App.store.administration.ReferringProviders', {
             autoSync: false,
             remoteSort: true,
+            remoteFilter: true,
             sorters: [
                 {
                     property: 'lname',
@@ -44,9 +46,18 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
                     width: 200,
                     text: _('name'),
                     sortable: true,
+	                dataIndex: 'lname',
                     renderer:function(v, meta, record){
                         return record.data.title + ' ' + record.data.lname + ', ' + record.data.fname + ' ' + record.data.mname;
-                    }
+                    },
+	                items: [
+		                {
+			                xtype: 'columnsearchfield',
+			                autoSearch: true,
+			                operator: 'LIKE',
+			                suffix: '%'
+		                }
+	                ]
                 },
                 {
                     flex: 1,
@@ -330,6 +341,12 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
                     xtype: 'toolbar',
                     dock: 'top',
                     items: [
+	                    {
+		                    xtype: '',
+		                    text: _('referring_provider'),
+		                    iconCls: 'icoAdd',
+		                    itemId: 'referringProviderAddBtn',
+	                    },
                         '->',
                         {
                             xtype: 'button',

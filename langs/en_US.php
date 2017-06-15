@@ -1896,4 +1896,5 @@ $LANG = array(
     'merge_imstructions_4'                  => '<mark style="background-color: #c3ffc3;">Green</mark> (Primary) - Record that will remain in system',
     'merge_imstructions_5'                  => '<mark style="background-color: #ffc3c3;">Red</mark> (Merge) - Record that will be remove after merge is completed',
     'merge_imstructions_6'                  => 'Click "Merge"',
+    'document_entered_in_error'             => 'Document Entered In Error',
 );

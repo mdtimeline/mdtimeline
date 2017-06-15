@@ -122,7 +122,7 @@ Ext.define('App.controller.patient.Documents', {
 				click: me.onDocumentErrorNoteSaveBtnClick
 			},
 			'#PatientDocumentViewerOpacityField': {
-				//afterrender: me.onDocumentErrorNoteSaveBtnClick
+				afterrender: me.onPatientDocumentViewerOpacityFieldAfterRender,
 				change: me.onPatientDocumentViewerOpacityFieldChange
 			},
 			'#patientDocumentViewerFrame': {
@@ -162,6 +162,10 @@ Ext.define('App.controller.patient.Documents', {
 	onPatientDocumentViewerFrameRender:function (frame) {
 		var field = frame.up('panel').query('#PatientDocumentViewerOpacityField')[0];
 		this.setOpacity(frame, field.getValue());
+	},
+
+	onPatientDocumentViewerOpacityFieldAfterRender: function (field) {
+		field.el.set({'data-qtip': 'document_brightness'});
 	},
 
 	onPatientDocumentViewerOpacityFieldChange: function (feild, value) {

@@ -102,9 +102,17 @@ class DocumentHandler {
 		$records = $this->d->load($params)->all();
 
 		/** lets unset the actual document data */
-		if(!$includeDocument && isset($records['data'])){
+		if(isset($records['data'])){
 			foreach($records['data'] as $i => $record){
-				unset($records['data'][$i]['document']);
+
+				if($records['data'][$i]['entered_in_error']){
+					$records['data'][$i]['docType'] = 'ENTERED IN ERROR';
+					$records['data'][$i]['docTypeCode'] = 'ZZZ';
+				}
+
+				if(!$includeDocument){
+					unset($records['data'][$i]['document']);
+				}
 			}
 		}
 		return $records;

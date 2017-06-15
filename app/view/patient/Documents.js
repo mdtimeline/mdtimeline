@@ -189,12 +189,22 @@ Ext.define('App.view.patient.Documents', {
 					'->',
 					'-',
 					{
-						text: _('scan'),
-						itemId: 'documentScanBtn'
+						icon: 'resources/images/icons/no.png',
+						itemId: 'PatientDocumentEnteredInErrorBtn',
+						tooltip: _('entered_in_error'),
+						acl: a('allow_document_enter_in_error')
 					},
+					'-',
 					{
-						text: _('upload'),
-						itemId: 'documentUploadBtn'
+						icon: 'resources/images/icons/icoScanner.png',
+						itemId: 'documentScanBtn',
+						tooltip: _('scan')
+					},
+					'-',
+					{
+						icon: 'resources/images/icons/upload.png',
+						itemId: 'documentUploadBtn',
+						tooltip: _('upload')
 					}
 				],
 				bbar: Ext.create('Ext.PagingToolbar', {

@@ -156,6 +156,10 @@ Ext.define('App.controller.Navigation', {
 		return [];
 	},
 
+	getUrlCls: function () {
+		return  this.getUrlParams()[0];
+	},
+
 	/**
 	 * this method handle the card layout when the URL changes
 	 * @param {string} url
@@ -164,7 +168,7 @@ Ext.define('App.controller.Navigation', {
 		var me = this,
 			tree = me.getMainNav(),
 			treeStore = tree.getStore(),
-			cls = me.getUrlParams()[0],
+			cls = me.getUrlCls(),
 			ref = me.getNavRefByClass(cls),
 			layout = me.getViewport().MainPanel.getLayout(),
 			sm = tree.getSelectionModel(),

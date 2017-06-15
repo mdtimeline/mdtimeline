@@ -39381,6 +39381,10 @@ Ext.define('App.controller.Navigation', {
 		return [];
 	},
 
+	getUrlCls: function () {
+		return  this.getUrlParams()[0];
+	},
+
 	/**
 	 * this method handle the card layout when the URL changes
 	 * @param {string} url
@@ -39389,7 +39393,7 @@ Ext.define('App.controller.Navigation', {
 		var me = this,
 			tree = me.getMainNav(),
 			treeStore = tree.getStore(),
-			cls = me.getUrlParams()[0],
+			cls = me.getUrlCls(),
 			ref = me.getNavRefByClass(cls),
 			layout = me.getViewport().MainPanel.getLayout(),
 			sm = tree.getSelectionModel(),
@@ -48112,12 +48116,22 @@ Ext.define('App.view.patient.Documents', {
 					'->',
 					'-',
 					{
-						text: _('scan'),
-						itemId: 'documentScanBtn'
+						icon: 'resources/images/icons/no.png',
+						itemId: 'PatientDocumentEnteredInErrorBtn',
+						tooltip: _('entered_in_error'),
+						acl: a('allow_document_enter_in_error')
 					},
+					'-',
 					{
-						text: _('upload'),
-						itemId: 'documentUploadBtn'
+						icon: 'resources/images/icons/icoScanner.png',
+						itemId: 'documentScanBtn',
+						tooltip: _('scan')
+					},
+					'-',
+					{
+						icon: 'resources/images/icons/upload.png',
+						itemId: 'documentUploadBtn',
+						tooltip: _('upload')
 					}
 				],
 				bbar: Ext.create('Ext.PagingToolbar', {
@@ -55843,10 +55857,36 @@ Ext.define('App.controller.patient.Documents', {
 			},
 			'#patientDocumentViewerFrame': {
 				render: me.onPatientDocumentViewerFrameRender
+			},
+			'#PatientDocumentEnteredInErrorBtn': {
+				click: me.onPatientDocumentEnteredInErrorBtnClick
 			}
 		});
 
 		me.nav = this.getController('Navigation');
+	},
+
+	onPatientDocumentEnteredInErrorBtnClick: function (btn) {
+
+		var me = this,
+			sm = btn.up('grid').getSelectionModel(),
+			document_records = sm.getSelection();
+
+		if(document_records.length === 0) return;
+
+		var document_record = document_records[0];
+
+		if(app.fireEvent('beforedocumententeredinerror', me, document_record) === false){
+			return;
+		}
+
+		if(document_record.get('entered_in_error')){
+			app.msg(_('oops'), _('document_entered_in_error'), true);
+			return;
+		}
+
+		me.setDocumentInError(document_record);
+
 	},
 
 	onPatientDocumentViewerFrameRender:function (frame) {
@@ -55860,14 +55900,14 @@ Ext.define('App.controller.patient.Documents', {
 	},
 
 	setOpacity: function (frame, opacity) {
-		say('setOpacity');
-		say(opacity);
-
 		frame.el.applyStyles({ opacity: opacity });
 	},
 
 	onPatientDocumentGridBeforeItemContextMenu: function (grid, record, item, index, e, eOpts) {
-		var me = this;
+		var me = this,
+		activePanelCls = this.getController('Navigation').getUrlCls();
+
+		if(activePanelCls !== 'App.view.patient.Summary') return;
 
 		e.preventDefault();
 		Ext.Msg.show({

@@ -201,6 +201,7 @@ Ext.define('App.ux.data.proxy.WebSocket', {
 		//if (Ext.isEmpty (cfg.websocket)) {
 		if(Ext.isEmpty(me.getWebsocket())){
 			me.setWebsocket(Ext.create('App.ux.data.WebSocket', {
+				storeId: me.getStoreId(),
 				url: me.getUrl(),
 				protocol: me.getProtocol(),
 				communicationType: 'event',
@@ -346,7 +347,11 @@ Ext.define('App.ux.data.proxy.WebSocket', {
 			}
 		}
 
-		ws.send(action, data);
+		if(scope.proxy.extraParams){
+			data = Ext.Object.merge(data, scope.proxy.extraParams);
+		}
+
+		ws.send(me.getStoreId(), action, data);
 	},
 
 	/**

@@ -55895,7 +55895,7 @@ Ext.define('App.controller.patient.Documents', {
 	},
 
 	onPatientDocumentViewerOpacityFieldAfterRender: function (field) {
-		field.el.set({'data-qtip': 'document_brightness'});
+		field.el.set({'data-qtip': _('document_brightness')});
 	},
 
 	onPatientDocumentViewerOpacityFieldChange: function (feild, value) {

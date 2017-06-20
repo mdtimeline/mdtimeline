@@ -123,6 +123,10 @@ Ext.define('App.ux.data.WebSocket', {
      */
 
     config: {
+	    /**
+	     * @cfg {String} storeId (required) Id of the store associated
+	     */
+	    storeId: '',
         /**
          * @cfg {String} url (required) The URL to connect
          */
@@ -344,6 +348,9 @@ Ext.define('App.ux.data.WebSocket', {
                 delete me.autoReconnectTask;
             }
 
+            me.send(me.getStoreId(), 'register', {uid: app.user.id});
+
+
             // Flush unset messages
             if (me.getKeepUnsentMessages() && me.messageQueue.length > 0) {
                 while (me.messageQueue.length > 0) {
@@ -480,7 +487,7 @@ Ext.define('App.ux.data.WebSocket', {
      * @return {App.ux.data.WebSocket} The websocket
      * @private
      */
-    sendBothMessage: function (events, data) {
+    sendBothMessage: function (storeId, events, data) {
         var me = this;
 
         // Treats it as normal message
@@ -494,6 +501,7 @@ Ext.define('App.ux.data.WebSocket', {
 
             for (var i = 0; i < events.length; i++) {
                 var msg = {
+	                storeId: storeId,
                     event: events[i],
                     data: data
                 };
@@ -513,13 +521,14 @@ Ext.define('App.ux.data.WebSocket', {
      * @return {App.ux.data.WebSocket} The websocket
      * @private
      */
-    sendEventMessage: function (events, data) {
+    sendEventMessage: function (storeId, events, data) {
         var me = this;
 
         events = Ext.isString(events) ? [events] : events;
 
         for (var i = 0; i < events.length; i++) {
             var msg = {
+	            storeId: storeId,
                 event: events[i],
                 data: data
             };

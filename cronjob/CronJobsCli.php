@@ -48,7 +48,7 @@ $root_dir = str_replace('\\', '/', dirname(__FILE__, 2));
 if(file_exists($root_dir . '/registry.php')){
 	include_once ($root_dir . '/registry.php');
 }else{
-	error_log('CronJobsCli.php registry file not found');
+	error_log('CronJobsCli.php registry file not found. ' . $root_dir . '/registry.php');
 }
 
 /**

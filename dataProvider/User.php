@@ -42,6 +42,7 @@ class User
 
     public function getUsers($params)
     {
+    	$this->u->setOrFilterProperties(['id']);
         $users = $this->u->load($params)->all();
         foreach ($users['data'] as $index => $user) {
             $user['fullname'] = Person::fullname($user['fname'], $user['mname'], $user['lname']);
@@ -231,6 +232,16 @@ class User
         $user = $this->u->load($uid == null ? $_SESSION['user']['id'] : $uid)->one();
         return $user;
     }
+
+	public function getUserByPin($pin)
+	{
+		if($pin === '') return false;
+		$params = new stdClass();
+		$params->filter[0] = new stdClass();
+		$params->filter[0]->property = 'pin';
+		$params->filter[0]->value = $pin;
+		return $this->getUser($params);
+	}
 
     public function getUserByNPI($npi)
     {

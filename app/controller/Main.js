@@ -16,12 +16,35 @@ Ext.define('App.controller.Main', {
 		var me = this;
 
 		me.control({
+			'viewport': {
+				usersessionswitch: me.onApplicationUserSessionSwitch
+			},
 			'#ApplicationFacilityCombo': {
 				select: me.onApplicationFacilityComboSelect,
 				beforerender: me.onApplicationFacilityComboBeforeRender
 			}
 		});
 
+	},
+
+	onApplicationUserSessionSwitch: function (ctrl, session) {
+
+		if(session.user.acl_roles[0] == app.user.acl_roles[0]){
+			Ext.Object.each(session.user, function (key, value) {
+				app.user[key] = value;
+			});
+			app.user.token = session.token;
+			app.userSplitBtn.setText(app.user.title + ' ' + app.user.fname[0] + '.' + app.user.lname);
+			ctrl.doApplicationUnLock();
+			app.msg(
+				_('sweet'),
+				Ext.String.format(_('application_successfully_switched_to_x'), '<b>' + (app.user.title + ' ' + app.user.fname + ' ' + app.user.lname) + '</b>')
+			);
+
+		}else {
+			window.onbeforeunload = null;
+			window.location.reload();
+		}
 	},
 
 	onApplicationFacilityComboSelect: function (cmb, records) {

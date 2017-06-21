@@ -65,9 +65,11 @@ Ext.define('App.controller.administration.Users', {
 
 			'#PasswordExpiredWindowUpdateBtn': {
 				click: me.onPasswordExpiredWindowUpdateBtnClick
+			},
+			'#SwitchUserBtn': {
+				click: me.onSwitchUserBtnClick
 			}
 		});
-
 	},
 
 
@@ -132,11 +134,6 @@ Ext.define('App.controller.administration.Users', {
 		});
 	},
 
-
-
-
-
-
 	onAdminUserGridPanelBeforeEdit: function(plugin, context){
 		var grid = plugin.editor.down('grid'),
 			store = grid.getStore(),
@@ -158,7 +155,6 @@ Ext.define('App.controller.administration.Users', {
 				property: 'provider_id',
 				value: null
 			});
-
 		}
 
 		store.load({
@@ -194,6 +190,9 @@ Ext.define('App.controller.administration.Users', {
 				active: false
 			});
 		}
+	},
 
+	onSwitchUserBtnClick: function () {
+		this.getController('LogOut').doApplicationLock();
 	}
 });

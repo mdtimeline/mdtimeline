@@ -23,11 +23,12 @@ Ext.define('App.ux.ActivityMonitor', {
 	runner: null,
 	task: null,
 	lastActive: null,
-
+	locked: false,
 	ready: false,
 	verbose: false,
 	interval: (1000 * 60), //1 minute
-	maxInactive: (1000 * 60 * 2), //5 minutes
+	maxLock: (1000 * 60 * 10), //1 minutes
+	maxInactive: (1000 * 60 * 5), //5 minutes
 
 	init: function(config){
 		if(!config){
@@ -52,6 +53,8 @@ Ext.define('App.ux.ActivityMonitor', {
 
 	isActive: Ext.emptyFn,
 	isInactive: Ext.emptyFn,
+	isLock: Ext.emptyFn,
+	isUnLock: Ext.emptyFn,
 
 	start: function(){
 		if(!this.isReady()){
@@ -88,22 +91,33 @@ Ext.define('App.ux.ActivityMonitor', {
 	},
 
 	captureActivity: function(){
-		if(this.controller.logoutWarinigWindow)
+		if(this.controller.logoutWarinigWindow) {
 			this.controller.cancelAutoLogout();
+		}
+
+		if(this.locked){
+			this.isUnLock();
+			this.locked = false;
+		}
+
 		this.lastActive = new Date();
 	},
 
 	monitorUI: function(){
 		var now = new Date(), inactive = (now - this.lastActive);
 
+		if(!this.locked && inactive >= this.maxLock){
+			this.log('MAXIMUM LOCK TIME HAS BEEN REACHED');
+			this.locked = true;
+			this.isLock();
+		}
+
 		if(inactive >= this.maxInactive){
 			this.log('MAXIMUM INACTIVE TIME HAS BEEN REACHED');
 			this.stop();
-			//remove event listeners
 
 			this.isInactive();
-		}
-		else{
+		}else{
 			this.log('CURRENTLY INACTIVE FOR ' + Math.floor(inactive / 1000) + ' SECONDS)');
 			this.isActive();
 		}

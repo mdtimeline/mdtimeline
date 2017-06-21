@@ -354,9 +354,23 @@ Ext.define('App.view.Viewport', {
 		    });
 	    }
 
+	    if(a('allow_user_switch')){
+		    me.HeaderRight.add({
+			    xtype: 'button',
+			    scale: 'large',
+			    margin: '0 3 0 0',
+			    cls: 'headerLargeBtn',
+			    padding: 0,
+			    itemId: 'SwitchUserBtn',
+			    icon: 'resources/images/icons/switch-user.png',
+			    scope: me,
+			    tooltip: _('switch_user')
+		    });
+	    }
+
 	    me.userSplitBtn = me.HeaderRight.add({
 		    xtype: 'button',
-		    text: me.user.title + ' ' + me.user.lname,
+		    text: me.user.title + ' ' + me.user.fname[0] + '.' + me.user.lname,
 		    scale: 'large',
 		    iconCls: isEmerAccess ? 'icoUnlocked32' : 'icoDoctor',
 		    iconAlign: 'left',

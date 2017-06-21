@@ -1898,4 +1898,7 @@ $LANG = array(
     'merge_imstructions_6'                  => 'Click "Merge"',
     'document_brightness'                   => 'Document Brightness',
     'document_entered_in_error'             => 'Document Entered In Error',
+    'switch_user'                           => 'Switch User',
+    'wrong_pin'                             => 'Wrong PIN',
+    'application_successfully_switched_to_x' => 'Application Successfully Switched to {0}',
 );

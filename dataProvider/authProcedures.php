@@ -131,6 +131,7 @@ class authProcedures {
 			],
 			[
 				'id',
+				'code',
 				'username',
 				'title',
 				'fname',
@@ -168,6 +169,8 @@ class authProcedures {
 				];
 			}
 
+			return $this->doAuth($params, $user);
+
 		}elseif($user === false || $params->authPass != $user['password']){
 			return [
 				'success' => false,
@@ -175,60 +178,62 @@ class authProcedures {
 				'message' => 'The username or password you provided is invalid.'
 			];
 		}else{
-			// Change some User related variables and go
-			$_SESSION['user']['name'] = trim($user['title'] . ' ' . $user['lname'] . ', ' . $user['fname'] . ' ' . $user['mname']);
-			$_SESSION['user']['id'] = $user['id'];
-			$_SESSION['user']['email'] = $user['email'];
-			$_SESSION['user']['facility'] = (!isset($params->facility) || $params->facility == 0) ? $user['facility_id'] : $params->facility;
-			$_SESSION['user']['localization'] = isset($params->lang) ? $params->lang : 'en_US';
-			$_SESSION['user']['npi'] = $user['npi'] ;
-			$_SESSION['user']['site'] = site_name;
-			$_SESSION['user']['auth'] = true;
-			$_SESSION['user']['acl_groups'] = ACL::getUserGroups();
-			$_SESSION['user']['acl_roles'] = ACL::getUserRoles();
-			$_SESSION['site']['localization'] = $_SESSION['user']['localization'];
-			$_SESSION['site']['checkInMode'] = isset($params->checkInMode) ? $params->checkInMode: false;
-			$_SESSION['timeout'] = time();
-			$_SESSION['user']['token'] = MatchaUtils::__encrypt('{"uid":' . $user['id'] . ',"sid":' . $this->session->loginSession() . ',"site":"' . site_name . '"}');
-			$_SESSION['inactive']['timeout'] = time();
+			return $this->doAuth($params, $user);
+		}
+	}
 
-			unset($db);
+	public function doAuth($params, $user){
 
-			session_regenerate_id();
+		$user = (array)$user;
 
-			$password_exp_flag = Globals::getGlobal('password_expiration');
-			if($password_exp_flag && $password_exp_flag != ''){
+		// Change some User related variables and go
+		$_SESSION['user']['id'] = $user['id'];
+		$_SESSION['user']['code'] = $user['code'];
+		$_SESSION['user']['username'] = $user['username'];
+		$_SESSION['user']['name'] = trim($user['title'] . ' ' . $user['lname'] . ', ' . $user['fname'] . ' ' . $user['mname']);
+		$_SESSION['user']['title'] = $user['title'];
+		$_SESSION['user']['fname'] = $user['fname'];
+		$_SESSION['user']['lname'] = $user['lname'];
+		$_SESSION['user']['mname'] = $user['mname'];
+		$_SESSION['user']['email'] = $user['email'];
+		$_SESSION['user']['facility'] = (!isset($params->facility) || $params->facility == 0) ? $user['facility_id'] : $params->facility;
+		$_SESSION['user']['localization'] = isset($params->lang) ? $params->lang : 'en_US';
+		$_SESSION['user']['npi'] = $user['npi'] ;
+		$_SESSION['user']['site'] = site_name;
+		$_SESSION['user']['auth'] = true;
+		$_SESSION['user']['acl_groups'] = ACL::getUserGroups();
+		$_SESSION['user']['acl_roles'] = ACL::getUserRoles();
+		$_SESSION['site']['localization'] = $_SESSION['user']['localization'];
+		$_SESSION['site']['checkInMode'] = isset($params->checkInMode) ? $params->checkInMode: false;
+		$_SESSION['timeout'] = time();
+		$_SESSION['user']['token'] = MatchaUtils::__encrypt('{"uid":' . $user['id'] . ',"sid":' . $this->session->loginSession() . ',"site":"' . site_name . '"}');
+		$_SESSION['inactive']['timeout'] = time();
 
-				if(is_numeric($password_exp_flag)){
-					$password_exp_flag .= 'D';
-				}
+		unset($db);
 
-				$threshold = new DateTime();
-				$threshold->sub(new DateInterval("P{$password_exp_flag}"));
-				$password_exp = new DateTime($user['password_date']);
+		session_regenerate_id();
 
-				$_SESSION['user']['password_expired'] = $password_exp < $threshold;
-			}else{
-				$_SESSION['user']['password_expired'] = false;
+		$password_exp_flag = Globals::getGlobal('password_expiration');
+		if($password_exp_flag && $password_exp_flag != ''){
+
+			if(is_numeric($password_exp_flag)){
+				$password_exp_flag .= 'D';
 			}
 
-			return [
-				'success' => true,
-				'token' => $_SESSION['user']['token'],
-				'user' => [
-					'id' => $_SESSION['user']['id'],
-					'name' => $_SESSION['user']['name'],
-					'npi' => $_SESSION['user']['npi'],
-					'site' => $_SESSION['user']['site'],
-					'email' => $_SESSION['user']['email'],
-					'facility' => $_SESSION['user']['facility'],
-				    'localization' => $_SESSION['user']['localization'],
-				    'password_expired' => $_SESSION['user']['password_expired'],
-				    'acl_groups' => $_SESSION['user']['acl_groups'],
-				    'acl_roles' => $_SESSION['user']['acl_roles']
-				]
-			];
+			$threshold = new DateTime();
+			$threshold->sub(new DateInterval("P{$password_exp_flag}"));
+			$password_exp = new DateTime($user['password_date']);
+
+			$_SESSION['user']['password_expired'] = $password_exp < $threshold;
+		}else{
+			$_SESSION['user']['password_expired'] = false;
 		}
+
+		return [
+			'success' => true,
+			'token' => $_SESSION['user']['token'],
+			'user' => $_SESSION['user']
+		];
 	}
 
 	/**

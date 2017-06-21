@@ -21,6 +21,19 @@ Ext.define('App.controller.LogOut', {
 	requires:[
 		'App.ux.ActivityMonitor'
 	],
+	refs: [
+		{
+			ref: 'ApplicationLockWindow',
+			selector: '#ApplicationLockWindow'
+		},
+		{
+			ref: 'ApplicationLockWindowPingField',
+			selector: '#ApplicationLockWindowPingField'
+		}
+	],
+
+	lockMask: undefined,
+
 	init: function() {
 		var me = this;
 
@@ -34,6 +47,7 @@ Ext.define('App.controller.LogOut', {
 		 * be inactive (no mouse or keyboard input)
 		 */
 		me.activityMonitorMaxInactive = eval(g('timeout'));
+		me.activityMonitorMaxLock = eval(g('lockscreen'));
 
 		me.cron = me.getController('Cron');
 
@@ -43,6 +57,15 @@ Ext.define('App.controller.LogOut', {
 			},
 			'menuitem[action=logout]':{
 				click: me.appLogout
+			},
+			'#ApplicationLockWindowPingField':{
+				keyup: me.onApplicationLockWindowPingFieldKeyUp
+			},
+			'#ApplicationLockWindowLogoutBtn':{
+				click: me.onApplicationLockWindowLogoutBtnClick
+			},
+			'#ApplicationLockWindowOkBtn':{
+				click: me.onApplicationLockWindowOkBtnClick
 			}
 		});
 
@@ -51,7 +74,7 @@ Ext.define('App.controller.LogOut', {
 	},
 
 	receiveMessage: function (event) {
-    	if(event.data == 'captureActivity'){
+    	if(event.data === 'captureActivity'){
 		    App.ux.ActivityMonitor.captureActivity();
 	    }
 	},
@@ -69,11 +92,18 @@ Ext.define('App.controller.LogOut', {
 			App.ux.ActivityMonitor.init({
 				interval: me.activityMonitorInterval * 1000,
 				maxInactive: (1000 * 60 * me.activityMonitorMaxInactive),
+				maxLock: (1000 * 60 * me.activityMonitorMaxLock),
 				verbose: false,
 				controller: me,
 				isInactive: function(){
 					me.startAutoLogout();
-				}
+				},
+				isLock: function(){
+					me.doApplicationLock();
+				},
+				// isUnLock: function(){
+				// 	me.doApplicationUnLock();
+				// }
 			});
 			me.cron.start();
 			App.ux.ActivityMonitor.start();
@@ -90,6 +120,17 @@ Ext.define('App.controller.LogOut', {
 		me.logoutWarinigWindow.destroy();
 		delete me.logoutWarinigWindow;
 		App.ux.ActivityMonitor.start();
+	},
+
+	doApplicationLock: function () {
+		this.appMask();
+		this.showApplicationLockWindow();
+		this.getApplicationLockWindowPingField().focus();
+	},
+
+	doApplicationUnLock: function () {
+		this.appUnMask();
+		this.hideApplicationLockWindow();
 	},
 
 	startAutoLogout: function(){
@@ -142,7 +183,7 @@ Ext.define('App.controller.LogOut', {
 		}else{
 			Ext.Msg.show({
 				title: _('please_confirm') + '...',
-				msg: _('are_you_sure_to_quit') + ' MD Timeline?',
+				msg: _('are_you_sure_to_quit') + ' mdTimeline?',
 				icon: Ext.MessageBox.QUESTION,
 				buttons: Ext.Msg.YESNO,
 				fn: function(btn){
@@ -158,5 +199,92 @@ Ext.define('App.controller.LogOut', {
 				}
 			});
 		}
+	},
+
+	showApplicationLockWindow: function () {
+		if(!this.getApplicationLockWindow()){
+			Ext.create('App.view.administration.ApplicationLockWindow');
+		}
+		this.getApplicationLockWindow().setTitle('LOCKED BY: ' + app.user.getFullName());
+
+		return this.getApplicationLockWindow().show();
+	},
+
+	hideApplicationLockWindow: function () {
+		if(this.getApplicationLockWindow()){
+			this.getApplicationLockWindow().close()
+		}
+	},
+	
+	appMask: function () {
+		var mask = app.el.mask();
+		mask.addCls('app-lock-mask');
+
+	},
+	
+	appUnMask: function () {
+		app.el.unmask();
+	},
+
+	onApplicationLockWindowLogoutBtnClick: function (btn) {
+		this.appLogout();
+	},
+
+	onApplicationLockWindowOkBtnClick: function () {
+		this.doValidate();
+	},
+
+	onApplicationLockWindowPingFieldKeyUp: function (field, e) {
+		if(e.getKey() !== e.RETURN) return;
+		this.doValidate(field);
+	},
+
+	doValidate: function (field) {
+		var me = this;
+
+		field = field || me.getApplicationLockWindowPingField();
+
+		if(!field.isValid()) return;
+
+		me.validatePin(field.getValue(), function (user) {
+			if(user){
+				me.doSwitchUser(user);
+			}else {
+				app.msg(_('oops'),_('wrong_pin'), true);
+				field.reset();
+			}
+		});
+	},
+
+	doSwitchUser: function (user) {
+
+		var me = this,
+			params = {
+			facility: app.user.facility
+		};
+
+		if(app.fireEvent('beforeusersessionswitch', user) === false) return;
+
+		authProcedures.doAuth(params, user, function (session) {
+			if(session.user.id != app.user.id){
+				app.fireEvent('usersessionswitch', me, session);
+			}else{
+				me.doApplicationUnLock();
+			}
+		});
+	},
+
+	validatePin: function (pin, callback) {
+		User.getUserByPin(pin, function (response) {
+
+			if(response === false){
+				callback(false);
+			}else{
+				callback((response.id == app.user.id || a('allow_user_switch')) ? response : false);
+			}
+
+
+		});
 	}
+
 });

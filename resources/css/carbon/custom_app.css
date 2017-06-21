@@ -8,6 +8,15 @@
     src: url('../../fonts/OpenSans-CondLight.ttf');
 }
 
+.app-lock-mask {
+    opacity: 1 !important;
+	background-repeat: no-repeat;
+	background-position: 50% 10%;
+	background-image: url("../../../resources/images/logo_190_190_dark.png");
+	background-color: #373737;
+	background-attachment: fixed;
+}
+
 .thumb-wrap.x-item-selected {
     background-color: #00B6FF;
 }

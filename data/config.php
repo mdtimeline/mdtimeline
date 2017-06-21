@@ -1953,6 +1953,9 @@ $API = [
 			'getUserFullNameById' => [
 				'len' => 1
             ],
+			'getUserByPin' => [
+				'len' => 1
+            ],
 			'userLiveSearch' => [
 				'len' => 1
             ]
@@ -1974,6 +1977,9 @@ $API = [
             ],
 			'getSites' => [
 				'len' => 0
+            ],
+			'doAuth' => [
+				'len' => 2
             ]
         ]
     ],

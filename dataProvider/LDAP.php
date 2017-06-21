@@ -53,10 +53,12 @@ class LDAP {
 		}
 
 		if(isset($this->ldap_user_domain)){
-			$password .= $this->ldap_user_domain;
+			$username = $user . $this->ldap_user_domain;
+		}else{
+			$username = $user;
 		}
 
-		$bind = @ldap_bind($this->ldap, $user, $password);
+		$bind = @ldap_bind($this->ldap, $username, $password);
 
 		if(!$bind){
 			// invalid name or password
@@ -66,40 +68,58 @@ class LDAP {
 			];
 		}
 
-		// valid
-		// check presence in groups
-		$filter = "(sAMAccountName=".$user.")";
-		$attr = array("memberof");
-		$result = ldap_search($this->ldap, $this->ldap_dn, $filter, $attr);
+		try{
 
-		if($result === false){
-			return [
-			'success' => false,
-				'error' => 'LDAP: Unable to search LDAP server'
-			];
-		}
+			// valid
+			// check presence in groups
+			$filter = "(sAMAccountName=".$user.")";
+			$attr = array("memberof");
 
-		$entries = ldap_get_entries($this->ldap, $result);
-		ldap_unbind($this->ldap);
+			$result = ldap_search($this->ldap, $this->ldap_dn, $filter, $attr);
 
-		$valid = false;
-
-		// check groups
-		foreach($entries[0]['memberof'] as $grps) {
-			if(strpos($grps, $this->ldap_app_group)) {
-				$valid = true;
-				break;
+			if($result === false){
+				return [
+					'success' => false,
+					'error' => 'LDAP: Unable to search LDAP server'
+				];
 			}
-		}
 
-		if($valid) {
-			return [
-				'success' => true
-			];
-		} else {
+			$entries = ldap_get_entries($this->ldap, $result);
+			ldap_unbind($this->ldap);
+
+			$valid = false;
+
+			// check groups
+			if(!isset($entries[0]) || !isset($entries[0]['memberof'])){
+				return [
+					'success' => false,
+					'error' => 'LDAP: User rights not found'
+				];
+			}
+
+
+			foreach($entries[0]['memberof'] as $grps) {
+				if(strpos($grps, $this->ldap_app_group)) {
+					$valid = true;
+					break;
+				}
+			}
+
+			if($valid) {
+				return [
+					'success' => true
+				];
+			} else {
+				return [
+					'success' => false,
+					'error' => 'LDAP: User has no rights'
+				];
+			}
+
+		}catch(Exception $e){
 			return [
 				'success' => false,
-				'error' => 'LDAP: User has no rights'
+				'error' => 'LDAP: ' . $e->getMessage()
 			];
 		}
 	}

@@ -2642,11 +2642,12 @@ Ext.define('App.ux.ActivityMonitor', {
 	runner: null,
 	task: null,
 	lastActive: null,
-
+	locked: false,
 	ready: false,
 	verbose: false,
 	interval: (1000 * 60), //1 minute
-	maxInactive: (1000 * 60 * 2), //5 minutes
+	maxLock: (1000 * 60 * 10), //1 minutes
+	maxInactive: (1000 * 60 * 5), //5 minutes
 
 	init: function(config){
 		if(!config){
@@ -2671,6 +2672,8 @@ Ext.define('App.ux.ActivityMonitor', {
 
 	isActive: Ext.emptyFn,
 	isInactive: Ext.emptyFn,
+	isLock: Ext.emptyFn,
+	isUnLock: Ext.emptyFn,
 
 	start: function(){
 		if(!this.isReady()){
@@ -2707,22 +2710,33 @@ Ext.define('App.ux.ActivityMonitor', {
 	},
 
 	captureActivity: function(){
-		if(this.controller.logoutWarinigWindow)
+		if(this.controller.logoutWarinigWindow) {
 			this.controller.cancelAutoLogout();
+		}
+
+		if(this.locked){
+			this.isUnLock();
+			this.locked = false;
+		}
+
 		this.lastActive = new Date();
 	},
 
 	monitorUI: function(){
 		var now = new Date(), inactive = (now - this.lastActive);
 
+		if(!this.locked && inactive >= this.maxLock){
+			this.log('MAXIMUM LOCK TIME HAS BEEN REACHED');
+			this.locked = true;
+			this.isLock();
+		}
+
 		if(inactive >= this.maxInactive){
 			this.log('MAXIMUM INACTIVE TIME HAS BEEN REACHED');
 			this.stop();
-			//remove event listeners
 
 			this.isInactive();
-		}
-		else{
+		}else{
 			this.log('CURRENTLY INACTIVE FOR ' + Math.floor(inactive / 1000) + ' SECONDS)');
 			this.isActive();
 		}
@@ -35924,12 +35938,30 @@ Ext.define('App.controller.Main', {
 		var me = this;
 
 		me.control({
+			'viewport': {
+				usersessionswitch: me.onApplicationUserSessionSwitch
+			},
 			'#ApplicationFacilityCombo': {
 				select: me.onApplicationFacilityComboSelect,
 				beforerender: me.onApplicationFacilityComboBeforeRender
 			}
 		});
 
+	},
+
+	onApplicationUserSessionSwitch: function (ctrl, session) {
+
+		if(session.user.acl_roles[0] == app.user.acl_roles[0]){
+			Ext.Object.each(session.user, function (key, value) {
+				app.user[key] = value;
+			});
+			app.user.token = session.token;
+			app.userSplitBtn.setText(app.user.title + ' ' + app.user.fname[0] + '.' + app.user.lname);
+			ctrl.doApplicationUnLock();
+		}else {
+			window.onbeforeunload = null;
+			window.location.reload();
+		}
 	},
 
 	onApplicationFacilityComboSelect: function (cmb, records) {
@@ -37372,9 +37404,11 @@ Ext.define('App.controller.administration.Users', {
 
 			'#PasswordExpiredWindowUpdateBtn': {
 				click: me.onPasswordExpiredWindowUpdateBtnClick
+			},
+			'#SwitchUserBtn': {
+				click: me.onSwitchUserBtnClick
 			}
 		});
-
 	},
 
 
@@ -37439,11 +37473,6 @@ Ext.define('App.controller.administration.Users', {
 		});
 	},
 
-
-
-
-
-
 	onAdminUserGridPanelBeforeEdit: function(plugin, context){
 		var grid = plugin.editor.down('grid'),
 			store = grid.getStore(),
@@ -37465,7 +37494,6 @@ Ext.define('App.controller.administration.Users', {
 				property: 'provider_id',
 				value: null
 			});
-
 		}
 
 		store.load({
@@ -37501,7 +37529,10 @@ Ext.define('App.controller.administration.Users', {
 				active: false
 			});
 		}
+	},
 
+	onSwitchUserBtnClick: function () {
+		this.getController('LogOut').doApplicationLock();
 	}
 });
 Ext.define('App.controller.areas.FloorPlan', {
@@ -39083,6 +39114,19 @@ Ext.define('App.controller.LogOut', {
 	requires:[
 		'App.ux.ActivityMonitor'
 	],
+	refs: [
+		{
+			ref: 'ApplicationLockWindow',
+			selector: '#ApplicationLockWindow'
+		},
+		{
+			ref: 'ApplicationLockWindowPingField',
+			selector: '#ApplicationLockWindowPingField'
+		}
+	],
+
+	lockMask: undefined,
+
 	init: function() {
 		var me = this;
 
@@ -39105,6 +39149,15 @@ Ext.define('App.controller.LogOut', {
 			},
 			'menuitem[action=logout]':{
 				click: me.appLogout
+			},
+			'#ApplicationLockWindowPingField':{
+				keyup: me.onApplicationLockWindowPingFieldKeyUp
+			},
+			'#ApplicationLockWindowLogoutBtn':{
+				click: me.onApplicationLockWindowLogoutBtnClick
+			},
+			'#ApplicationLockWindowOkBtn':{
+				click: me.onApplicationLockWindowOkBtnClick
 			}
 		});
 
@@ -39113,7 +39166,7 @@ Ext.define('App.controller.LogOut', {
 	},
 
 	receiveMessage: function (event) {
-    	if(event.data == 'captureActivity'){
+    	if(event.data === 'captureActivity'){
 		    App.ux.ActivityMonitor.captureActivity();
 	    }
 	},
@@ -39135,7 +39188,13 @@ Ext.define('App.controller.LogOut', {
 				controller: me,
 				isInactive: function(){
 					me.startAutoLogout();
-				}
+				},
+				isLock: function(){
+					me.doApplicationLock();
+				},
+				// isUnLock: function(){
+				// 	me.doApplicationUnLock();
+				// }
 			});
 			me.cron.start();
 			App.ux.ActivityMonitor.start();
@@ -39154,9 +39213,22 @@ Ext.define('App.controller.LogOut', {
 		App.ux.ActivityMonitor.start();
 	},
 
+	doApplicationLock: function () {
+		say('doApplicationLock');
+		this.appMask();
+		this.showApplicationLockWindow();
+		this.getApplicationLockWindowPingField().focus();
+	},
+
+	doApplicationUnLock: function () {
+		say('doApplicationUnLock');
+		this.appUnMask();
+		this.hideApplicationLockWindow();
+	},
+
 	startAutoLogout: function(){
 		var me = this;
-		me.logoutWarinigWindow = Ext.create('Ext.Container', {
+		me.logoutWarinigWindow = Ext.create('Ext.Pa', {
 			floating: true,
 			cls: 'logout-warning-window',
 			html: 'Logging Out in...',
@@ -39220,7 +39292,94 @@ Ext.define('App.controller.LogOut', {
 				}
 			});
 		}
+	},
+
+	showApplicationLockWindow: function () {
+		if(!this.getApplicationLockWindow()){
+			Ext.create('App.view.administration.ApplicationLockWindow');
+		}
+		this.getApplicationLockWindow().setTitle('LOCKED BY: ' + app.user.getFullName());
+
+		return this.getApplicationLockWindow().show();
+	},
+
+	hideApplicationLockWindow: function () {
+		if(this.getApplicationLockWindow()){
+			this.getApplicationLockWindow().close()
+		}
+	},
+	
+	appMask: function () {
+		var mask = app.el.mask();
+		mask.addCls('app-lock-mask');
+
+	},
+	
+	appUnMask: function () {
+		app.el.unmask();
+	},
+
+	onApplicationLockWindowLogoutBtnClick: function (btn) {
+		this.appLogout();
+	},
+
+	onApplicationLockWindowOkBtnClick: function () {
+		this.doValidate();
+	},
+
+	onApplicationLockWindowPingFieldKeyUp: function (field, e) {
+		if(e.getKey() !== e.RETURN) return;
+		this.doValidate(field);
+	},
+
+	doValidate: function (field) {
+		var me = this;
+
+		field = field || me.getApplicationLockWindowPingField();
+
+		if(!field.isValid()) return;
+
+		me.validatePin(field.getValue(), function (user) {
+			if(user){
+				me.doSwitchUser(user);
+			}else {
+				app.msg(_('oops'),_('wrong_pin'), true);
+				field.reset();
+			}
+		});
+	},
+
+	doSwitchUser: function (user) {
+
+		var me = this,
+			params = {
+			facility: app.user.facility
+		};
+
+		if(app.fireEvent('beforeusersessionswitch', user) === false) return;
+
+		authProcedures.doAuth(params, user, function (session) {
+			if(session.user.id != app.user.id){
+				app.fireEvent('usersessionswitch', me, session);
+			}else{
+				me.doApplicationUnLock();
+			}
+		});
+	},
+
+	validatePin: function (pin, callback) {
+		User.getUserByPin(pin, function (response) {
+
+			if(response === false){
+				callback(false);
+			}else{
+				callback((response.id == app.user.id || a('allow_user_switch')) ? response : false);
+			}
+
+
+		});
 	}
+
 });
 
 Ext.define('App.controller.Navigation', {
@@ -61306,9 +61465,23 @@ Ext.define('App.view.Viewport', {
 		    });
 	    }
 
+	    if(a('allow_user_switch')){
+		    me.HeaderRight.add({
+			    xtype: 'button',
+			    scale: 'large',
+			    margin: '0 3 0 0',
+			    cls: 'headerLargeBtn',
+			    padding: 0,
+			    itemId: 'SwitchUserBtn',
+			    icon: 'resources/images/icons/switch-user.png',
+			    scope: me,
+			    tooltip: _('switch_user')
+		    });
+	    }
+
 	    me.userSplitBtn = me.HeaderRight.add({
 		    xtype: 'button',
-		    text: me.user.title + ' ' + me.user.lname,
+		    text: me.user.title + ' ' + me.user.fname[0] + '.' + me.user.lname,
 		    scale: 'large',
 		    iconCls: isEmerAccess ? 'icoUnlocked32' : 'icoDoctor',
 		    iconAlign: 'left',

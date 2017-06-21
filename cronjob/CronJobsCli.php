@@ -42,9 +42,12 @@ switch(PHP_OS) {
         break;
 }
 
-$env_dir = str_replace('CronJobsCli.php', '', $_SERVER['PHP_SELF']);
+$env_dir = dirname($_SERVER['PHP_SELF']);
+$root_dir = dirname($env_dir);
 
-$root_dir = str_replace('\\', '/', dirname(__FILE__, 2));
+define('_GaiaEXEC', 1);
+define('_ISCLI', 1);
+
 if(file_exists($root_dir . '/registry.php')){
 	include_once ($root_dir . '/registry.php');
 }else{

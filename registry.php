@@ -56,6 +56,11 @@ if(!defined('VERSION'))
 // extjs sdk directory
 if(!defined('EXTJS'))
 	define('EXTJS', 'extjs-4.2.1');
+
+// IF CLI get out...
+if(defined('_ISCLI')) return;
+
+
 // sites values
 $_SESSION['sites'] = [];
 
@@ -134,9 +139,6 @@ if(file_exists(ROOT . '/sites/' . SITE . '/conf.php')){
 
 	unset($_SESSION['site']['error']);
 
-	//check for ip access
-	//	if(!isset($_SESSION['access_blocked']))
-	//    {
 	include_once(ROOT . '/dataProvider/IpAccessRules.php');
 	$IpAccessRules = new IpAccessRules();
 	$_SESSION['access_blocked'] = $IpAccessRules->isBlocked();

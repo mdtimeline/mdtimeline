@@ -44,6 +44,13 @@ switch(PHP_OS) {
 
 $env_dir = str_replace('CronJobsCli.php', '', $_SERVER['PHP_SELF']);
 
+$root_dir = str_replace('\\', '/', dirname(__FILE__, 2));
+if(file_exists($root_dir . '/registry.php')){
+	include_once ($root_dir . '/registry.php');
+}else{
+	error_log('CronJobsCli.php registry file not found');
+}
+
 /**
  * Load the complete list of sites directory into a variable (array) also
  * removes unwanted files and dotted directories

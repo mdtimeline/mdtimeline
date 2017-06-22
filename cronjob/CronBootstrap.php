@@ -52,7 +52,7 @@ class CronBootstrap
         define('URL', '');
         define('ROOT', str_replace('\\', '/', str_ireplace("cronjob","",getcwd())));
         define('SCRIPT', $filename);
-        define('SCRIPT_NAME', "Old Log Removal");
+        define('SCRIPT_NAME', $filename);
         include_once(ROOT."sites/".site_id."/conf.php");
         include_once(ROOT.'classes/MatchaHelper.php');
 

@@ -27,6 +27,18 @@ Ext.define('App.controller.administration.ReferringProviders', {
 		{
 			ref: 'ReferringProviderAddBtn',
 			selector: '#referringProviderAddBtn'
+		},
+		{
+			ref: 'ReferringProviderWindow',
+			selector: '#ReferringProviderWindow'
+		},
+		{
+			ref: 'ReferringProviderWindowForm',
+			selector: '#ReferringProviderWindowForm'
+		},
+		{
+			ref: 'ReferringProviderWindowGrid',
+			selector: '#ReferringProviderWindowGrid'
 		}
 	],
 
@@ -34,25 +46,147 @@ Ext.define('App.controller.administration.ReferringProviders', {
 		var me = this;
 
 		me.control({
+			'viewport': {
+				referringproviderddbtnclick: me.onReferringProviderSearchAddBtnClick
+			},
+			'referringproviderspanel': {
+				itemdblclick: me.onReferringProvidersPanelItemDblClick
+			},
 			'#referringProviderAddBtn': {
 				click: me.onReferringProviderAddBtnClick
+			},
+			'#ReferringProviderWindow': {
+				close: me.onReferringProviderWindowClose
+			},
+			'#ReferringProviderWindowCancelBtn': {
+				click: me.onReferringProviderWindowCancelBtnClick
+			},
+			'#ReferringProviderWindowSaveBtn': {
+				click: me.onReferringProviderWindowSaveBtnClick
+			},
+			'#ReferringProviderFacilityAddBtn': {
+				click: me.onReferringProviderFacilityAddBtnClick
 			}
 		});
 
+		//me.showReferringProviderWindow();
 	},
 
-	onReferringProviderAddBtnClick: function(btn){
-		var grid = btn.up('grid');
+	onReferringProviderSearchAddBtnClick: function (field) {
+		this.doReferringProviderWindow();
+		this.triggerField = field;
+	},
 
+	onReferringProviderAddBtnClick: function () {
+		this.doReferringProviderWindow();
+		this.triggerField = undefined;
+	},
+
+	onReferringProvidersPanelItemDblClick: function (grid, referring_record) {
+		this.doReferringProviderWindow(referring_record);
+		this.triggerField = undefined;
+	},
+	
+	doReferringProviderWindow: function (referring_record) {
+
+		referring_record = referring_record || Ext.create('App.model.administration.ReferringProvider', {
+				create_date: new Date(),
+				update_date: new Date(),
+				create_uid: app.user.id,
+				update_uid: app.user.id,
+				username: null,
+				active: 1
+			});
+
+		this.showReferringProviderWindow();
+
+		var form = this.getReferringProviderWindowForm().getForm(),
+			grid = this.getReferringProviderWindowGrid(),
+			facilities_store = referring_record.facilities();
+
+		form.loadRecord(referring_record);
+		grid.reconfigure(facilities_store);
+		facilities_store.load();
+	},
+
+	onReferringProviderWindowClose: function () {
+		this.getReferringProviderWindowForm().getForm().reset();
+		this.getReferringProviderWindowGrid().getStore().removeAll();
+	},
+
+	onReferringProviderWindowCancelBtnClick: function () {
+		this.getReferringProviderWindow().close();
+	},
+
+	onReferringProviderWindowSaveBtnClick: function () {
+		var me = this,
+			form = me.getReferringProviderWindowForm().getForm(),
+			store = me.getReferringProviderWindowGrid().getStore(),
+			record = form.getRecord(),
+			values = form.getValues();
+
+		if(!form.isValid()) return;
+
+		values.update_date = new Date();
+		values.update_uid = app.user.id;
+		if(values.username === '') values.username = null;
+
+		record.set(values);
+
+		record.save({
+			callback: function () {
+				var sync_records = Ext.Array.merge(store.getUpdatedRecords(), store.getNewRecords());
+
+				if(sync_records.length > 0){
+					sync_records.forEach(function (sync_record) {
+						sync_record.set({referring_provider_id: record.get('id')})
+					});
+
+					store.sync({
+						callback: function () {
+							me.getReferringProviderWindow().close();
+							me.recordSaveHandler(record);
+						}
+					});
+				}else {
+					me.getReferringProviderWindow().close();
+					me.recordSaveHandler(record);
+				}
+			}
+		});
+	},
+
+	recordSaveHandler: function (provider_record) {
+		if(this.triggerField){
+			var records = this.triggerField.store.add(provider_record.data);
+			this.triggerField.select(records[0]);
+			this.triggerField.fireEvent('select', this.triggerField, records);
+		}else if(!provider_record.store){
+			this.getReferringProvidersPanel().getStore().insert(0, provider_record);
+		}else{
+			this.getReferringProvidersPanel().view.refresh();
+		}
+	},
+
+	onReferringProviderFacilityAddBtnClick: function () {
+		var grid = this.getReferringProviderWindowGrid();
 		grid.editingPlugin.cancelEdit();
-		grid.getStore().insert(0, {
+
+		var records = grid.getStore().add({
 			create_date: new Date(),
 			update_date: new Date(),
 			create_uid: app.user.id,
-			update_uid: app.user.id,
-			active: 1
+			update_uid: app.user.id
 		});
-		grid.editingPlugin.startEdit(0, 0);
+
+		grid.editingPlugin.startEdit(records[0], 0);
+	},
+
+	showReferringProviderWindow: function () {
+		if(!this.getReferringProviderWindow()){
+			Ext.create('App.view.administration.ReferringProviderWindow');
+		}
+		return this.getReferringProviderWindow().show();
 	}
 
 });

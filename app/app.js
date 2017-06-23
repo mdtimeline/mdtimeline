@@ -13436,6 +13436,7 @@ Ext.define('App.model.administration.ReferringProvider', {
             name: 'username',
             type: 'string',
             len: 40,
+            useNull: true,
             index: true
         },
         {
@@ -14057,6 +14058,7 @@ Ext.define('App.model.administration.User', {
 			name: 'pin',
 			type: 'string',
 			comment: 'pin number',
+			useNull: true,
 			len: 10
 		},
 		{
@@ -29812,259 +29814,13 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
                     renderer: me.boolRenderer
                 }
             ],
-            plugins: [
-                me.formEditing = Ext.create('App.ux.grid.RowFormEditing', {
-                    clicksToEdit: 1,
-                    items: [
-                        {
-                            xtype: 'fieldcontainer',
-                            fieldLabel: _('first_middle_last'),
-                            labelWidth: 130,
-                            labelAlign: 'right',
-                            layout: {
-                                type: 'hbox',
-                                defaultMargins: {
-                                    top: 0,
-                                    right: 5,
-                                    bottom: 0,
-                                    left: 0
-                                }
-                            },
-                            msgTarget: 'under',
-                            items: [
-                                {
-                                    width: 50,
-                                    xtype: 'mitos.titlescombo',
-                                    name: 'title'
-                                },
-                                {
-                                    width: 150,
-                                    xtype: 'textfield',
-                                    name: 'fname',
-                                    allowBlank: false
-                                },
-                                {
-                                    width: 100,
-                                    xtype: 'textfield',
-                                    name: 'mname'
-                                },
-                                {
-                                    width: 150,
-                                    xtype: 'textfield',
-                                    name: 'lname',
-                                    allowBlank: false
-                                }
-                            ]
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            layout: {
-                                type: 'hbox',
-                                defaultMargins: {
-                                    top: 0,
-                                    right: 5,
-                                    bottom: 0,
-                                    left: 0
-                                }
-                            },
-                            items: [
-                                {
-                                    xtype: 'textfield',
-                                    name: 'email',
-                                    fieldLabel: _('email'),
-                                    labelWidth: 130,
-                                    labelAlign: 'right'
-                                },
-                                {
-                                    xtype: 'textfield',
-                                    fieldLabel: _('taxonomy'),
-                                    labelWidth: 130,
-                                    labelAlign: 'right',
-                                    name: 'taxonomy'
-                                }
-                            ]
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            layout: {
-                                type: 'hbox',
-                                defaultMargins: {
-                                    top: 0,
-                                    right: 5,
-                                    bottom: 0,
-                                    left: 0
-                                }
-                            },
-                            items: [
-                                {
-                                    xtype: 'textfield',
-                                    fieldLabel: _('upin'),
-                                    labelWidth: 130,
-                                    labelAlign: 'right',
-                                    name: 'upin'
-                                },
-                                {
-                                    xtype: 'textfield',
-                                    fieldLabel: _('npi'),
-                                    labelWidth: 130,
-                                    labelAlign: 'right',
-                                    name: 'npi'
-                                }
-                            ]
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            layout: {
-                                type: 'hbox',
-                                defaultMargins: {
-                                    top: 0,
-                                    right: 5,
-                                    bottom: 0,
-                                    left: 0
-                                }
-                            },
-                            items: [
-                                {
-                                    xtype: 'textfield',
-                                    fieldLabel: _('lic'),
-                                    labelWidth: 130,
-                                    labelAlign: 'right',
-                                    name: 'lic'
-                                },
-                                {
-                                    xtype: 'textfield',
-                                    fieldLabel: _('ssn'),
-                                    labelWidth: 130,
-                                    labelAlign: 'right',
-                                    name: 'ssn'
-                                }
-                            ]
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            layout: {
-                                type: 'hbox',
-                                defaultMargins: {
-                                    top: 0,
-                                    right: 5,
-                                    bottom: 0,
-                                    left: 0
-                                }
-                            },
-                            items: [
-                                {
-                                    xtype: 'textfield',
-                                    fieldLabel: _('phone_number'),
-                                    labelWidth: 130,
-                                    labelAlign: 'right',
-                                    name: 'phone_number'
-                                },
-                                {
-                                    xtype: 'textfield',
-                                    fieldLabel: _('fax_number'),
-                                    labelWidth: 130,
-                                    labelAlign: 'right',
-                                    name: 'fax_number'
-                                }
-
-                            ]
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            layout: {
-                                type: 'hbox',
-                                defaultMargins: {
-                                    top: 0,
-                                    right: 5,
-                                    bottom: 0,
-                                    left: 0
-                                }
-                            },
-                            items: [
-                                {
-                                    xtype: 'textfield',
-                                    fieldLabel: _('cell_number'),
-                                    labelWidth: 130,
-                                    labelAlign: 'right',
-                                    name: 'cel_number'
-                                },
-                                {
-                                    xtype: 'checkbox',
-                                    fieldLabel: _('active'),
-                                    labelWidth: 130,
-                                    labelAlign: 'right',
-                                    name: 'active'
-                                }
-
-                            ]
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            layout: {
-                                type: 'hbox',
-                                defaultMargins: {
-                                    top: 0,
-                                    right: 5,
-                                    bottom: 0,
-                                    left: 0
-                                }
-                            },
-                            items: [
-                                {
-                                    xtype: 'textfield',
-                                    fieldLabel: _('username'),
-                                    labelWidth: 130,
-                                    labelAlign: 'right',
-                                    minLength: 5,
-                                    maxLength: 15,
-                                    name: 'username'
-                                },
-                                {
-                                    xtype: 'textfield',
-                                    fieldLabel: _('password'),
-                                    labelWidth: 130,
-                                    labelAlign: 'right',
-                                    minLength: 8,
-                                    maxLength: 15,
-                                    name: 'password',
-                                    inputType: 'password',
-                                    vtype: 'strength',
-                                    strength: 24,
-                                    plugins: {
-                                        ptype: 'passwordstrength'
-                                    }
-                                },
-                                {
-                                    xtype: 'checkbox',
-                                    fieldLabel: _('authorized'),
-                                    labelWidth: 130,
-                                    labelAlign: 'right',
-                                    name: 'authorized'
-                                }
-
-                            ]
-                        },
-                        {
-                            height: 50,
-                            xtype: 'textareafield',
-                            name: 'notes',
-                            width: 600,
-                            fieldLabel: _('notes'),
-                            labelWidth: 130,
-                            labelAlign: 'right',
-                            emptyText: _('additional_info')
-                        }
-                    ]
-                })
-            ],
-
             dockedItems: [
                 {
                     xtype: 'toolbar',
                     dock: 'top',
                     items: [
 	                    {
-		                    xtype: '',
+		                    xtype: 'button',
 		                    text: _('referring_provider'),
 		                    iconCls: 'icoAdd',
 		                    itemId: 'referringProviderAddBtn',
@@ -35958,6 +35714,11 @@ Ext.define('App.controller.Main', {
 			app.user.token = session.token;
 			app.userSplitBtn.setText(app.user.title + ' ' + app.user.fname[0] + '.' + app.user.lname);
 			ctrl.doApplicationUnLock();
+			app.msg(
+				_('sweet'),
+				Ext.String.format(_('application_successfully_switched_to_x'), '<b>' + (app.user.title + ' ' + app.user.fname + ' ' + app.user.lname) + '</b>')
+			);
+
 		}else {
 			window.onbeforeunload = null;
 			window.location.reload();
@@ -37090,6 +36851,18 @@ Ext.define('App.controller.administration.ReferringProviders', {
 		{
 			ref: 'ReferringProviderAddBtn',
 			selector: '#referringProviderAddBtn'
+		},
+		{
+			ref: 'ReferringProviderWindow',
+			selector: '#ReferringProviderWindow'
+		},
+		{
+			ref: 'ReferringProviderWindowForm',
+			selector: '#ReferringProviderWindowForm'
+		},
+		{
+			ref: 'ReferringProviderWindowGrid',
+			selector: '#ReferringProviderWindowGrid'
 		}
 	],
 
@@ -37097,25 +36870,147 @@ Ext.define('App.controller.administration.ReferringProviders', {
 		var me = this;
 
 		me.control({
+			'viewport': {
+				referringproviderddbtnclick: me.onReferringProviderSearchAddBtnClick
+			},
+			'referringproviderspanel': {
+				itemdblclick: me.onReferringProvidersPanelItemDblClick
+			},
 			'#referringProviderAddBtn': {
 				click: me.onReferringProviderAddBtnClick
+			},
+			'#ReferringProviderWindow': {
+				close: me.onReferringProviderWindowClose
+			},
+			'#ReferringProviderWindowCancelBtn': {
+				click: me.onReferringProviderWindowCancelBtnClick
+			},
+			'#ReferringProviderWindowSaveBtn': {
+				click: me.onReferringProviderWindowSaveBtnClick
+			},
+			'#ReferringProviderFacilityAddBtn': {
+				click: me.onReferringProviderFacilityAddBtnClick
 			}
 		});
 
+		//me.showReferringProviderWindow();
 	},
 
-	onReferringProviderAddBtnClick: function(btn){
-		var grid = btn.up('grid');
+	onReferringProviderSearchAddBtnClick: function (field) {
+		this.doReferringProviderWindow();
+		this.triggerField = field;
+	},
 
+	onReferringProviderAddBtnClick: function () {
+		this.doReferringProviderWindow();
+		this.triggerField = undefined;
+	},
+
+	onReferringProvidersPanelItemDblClick: function (grid, referring_record) {
+		this.doReferringProviderWindow(referring_record);
+		this.triggerField = undefined;
+	},
+	
+	doReferringProviderWindow: function (referring_record) {
+
+		referring_record = referring_record || Ext.create('App.model.administration.ReferringProvider', {
+				create_date: new Date(),
+				update_date: new Date(),
+				create_uid: app.user.id,
+				update_uid: app.user.id,
+				username: null,
+				active: 1
+			});
+
+		this.showReferringProviderWindow();
+
+		var form = this.getReferringProviderWindowForm().getForm(),
+			grid = this.getReferringProviderWindowGrid(),
+			facilities_store = referring_record.facilities();
+
+		form.loadRecord(referring_record);
+		grid.reconfigure(facilities_store);
+		facilities_store.load();
+	},
+
+	onReferringProviderWindowClose: function () {
+		this.getReferringProviderWindowForm().getForm().reset();
+		this.getReferringProviderWindowGrid().getStore().removeAll();
+	},
+
+	onReferringProviderWindowCancelBtnClick: function () {
+		this.getReferringProviderWindow().close();
+	},
+
+	onReferringProviderWindowSaveBtnClick: function () {
+		var me = this,
+			form = me.getReferringProviderWindowForm().getForm(),
+			store = me.getReferringProviderWindowGrid().getStore(),
+			record = form.getRecord(),
+			values = form.getValues();
+
+		if(!form.isValid()) return;
+
+		values.update_date = new Date();
+		values.update_uid = app.user.id;
+		if(values.username === '') values.username = null;
+
+		record.set(values);
+
+		record.save({
+			callback: function () {
+				var sync_records = Ext.Array.merge(store.getUpdatedRecords(), store.getNewRecords());
+
+				if(sync_records.length > 0){
+					sync_records.forEach(function (sync_record) {
+						sync_record.set({referring_provider_id: record.get('id')})
+					});
+
+					store.sync({
+						callback: function () {
+							me.getReferringProviderWindow().close();
+							me.recordSaveHandler(record);
+						}
+					});
+				}else {
+					me.getReferringProviderWindow().close();
+					me.recordSaveHandler(record);
+				}
+			}
+		});
+	},
+
+	recordSaveHandler: function (provider_record) {
+		if(this.triggerField){
+			var records = this.triggerField.store.add(provider_record.data);
+			this.triggerField.select(records[0]);
+			this.triggerField.fireEvent('select', this.triggerField, records);
+		}else if(!provider_record.store){
+			this.getReferringProvidersPanel().getStore().insert(0, provider_record);
+		}else{
+			this.getReferringProvidersPanel().view.refresh();
+		}
+	},
+
+	onReferringProviderFacilityAddBtnClick: function () {
+		var grid = this.getReferringProviderWindowGrid();
 		grid.editingPlugin.cancelEdit();
-		grid.getStore().insert(0, {
+
+		var records = grid.getStore().add({
 			create_date: new Date(),
 			update_date: new Date(),
 			create_uid: app.user.id,
-			update_uid: app.user.id,
-			active: 1
+			update_uid: app.user.id
 		});
-		grid.editingPlugin.startEdit(0, 0);
+
+		grid.editingPlugin.startEdit(records[0], 0);
+	},
+
+	showReferringProviderWindow: function () {
+		if(!this.getReferringProviderWindow()){
+			Ext.create('App.view.administration.ReferringProviderWindow');
+		}
+		return this.getReferringProviderWindow().show();
 	}
 
 });
@@ -39140,6 +39035,7 @@ Ext.define('App.controller.LogOut', {
 		 * be inactive (no mouse or keyboard input)
 		 */
 		me.activityMonitorMaxInactive = eval(g('timeout'));
+		me.activityMonitorMaxLock = eval(g('lockscreen'));
 
 		me.cron = me.getController('Cron');
 
@@ -39184,6 +39080,7 @@ Ext.define('App.controller.LogOut', {
 			App.ux.ActivityMonitor.init({
 				interval: me.activityMonitorInterval * 1000,
 				maxInactive: (1000 * 60 * me.activityMonitorMaxInactive),
+				maxLock: (1000 * 60 * me.activityMonitorMaxLock),
 				verbose: false,
 				controller: me,
 				isInactive: function(){
@@ -39214,21 +39111,19 @@ Ext.define('App.controller.LogOut', {
 	},
 
 	doApplicationLock: function () {
-		say('doApplicationLock');
 		this.appMask();
 		this.showApplicationLockWindow();
 		this.getApplicationLockWindowPingField().focus();
 	},
 
 	doApplicationUnLock: function () {
-		say('doApplicationUnLock');
 		this.appUnMask();
 		this.hideApplicationLockWindow();
 	},
 
 	startAutoLogout: function(){
 		var me = this;
-		me.logoutWarinigWindow = Ext.create('Ext.Pa', {
+		me.logoutWarinigWindow = Ext.create('Ext.Container', {
 			floating: true,
 			cls: 'logout-warning-window',
 			html: 'Logging Out in...',
@@ -39276,7 +39171,7 @@ Ext.define('App.controller.LogOut', {
 		}else{
 			Ext.Msg.show({
 				title: _('please_confirm') + '...',
-				msg: _('are_you_sure_to_quit') + ' MD Timeline?',
+				msg: _('are_you_sure_to_quit') + ' mdTimeline?',
 				icon: Ext.MessageBox.QUESTION,
 				buttons: Ext.Msg.YESNO,
 				fn: function(btn){
@@ -51643,7 +51538,7 @@ Ext.define('App.view.administration.Users', {
 													},
 													items: [
 														{
-															width: 280,
+															width: 250,
 															xtype: 'textfield',
 															fieldLabel: _('username'),
 															name: 'username',
@@ -51652,7 +51547,8 @@ Ext.define('App.view.administration.Users', {
 															vtype: 'usernameField'
 														},
 														{
-															width: 300,
+															width: 200,
+															labelWidth: 60,
 															xtype: 'textfield',
 															fieldLabel: _('password'),
 															name: 'password',
@@ -51662,6 +51558,14 @@ Ext.define('App.view.administration.Users', {
 															plugins: {
 																ptype: 'passwordstrength'
 															}
+														},
+														{
+															width: 125,
+															labelWidth: 40,
+															xtype: 'textfield',
+															fieldLabel: _('pin'),
+															name: 'pin',
+															inputType: 'password'
 														}
 													]
 												},
@@ -52480,135 +52384,21 @@ Ext.define('App.view.miscellaneous.MyAccount', {
 									name: 'password',
 									inputType: 'password',
 									disabled: true
+								},
+								{
+									width: 50,
+									xtype: 'displayfield',
+									value: 'PIN: '
+								},
+								{
+									width: 50,
+									xtype: 'textfield',
+									name: 'pin'
 								}
 							]
 						}
 					]
-				},
-				//{
-				//	xtype: 'fieldset',
-				//	title: _('other_info'),
-				//	defaultType: 'textfield',
-				//	layout: 'anchor',
-				//	defaults: {
-				//		labelWidth: 89,
-				//		anchor: '100%',
-				//		layout: {
-				//			type: 'hbox',
-				//			defaultMargins: {
-				//				top: 0,
-				//				right: 5,
-				//				bottom: 0,
-				//				left: 0
-				//			}
-				//		}
-				//	},
-				//	items: [
-				//		{
-				//			xtype: 'fieldcontainer',
-				//			defaults: {
-				//				hideLabel: true
-				//			},
-				//			msgTarget: 'under',
-				//			items: [
-				//				{
-				//					width: 110,
-				//					xtype: 'displayfield',
-				//					value: 'Default Facility: '
-				//				},
-				//				{
-				//					xtype:'mitos.facilitiescombo',
-				//					width: 170,
-				//					name:'facility_id'
-				//				},
-				//				{
-				//					width: 100,
-				//					xtype: 'displayfield',
-				//					value: 'Taxonomy: '
-				//				},
-				//				{
-				//					width: 175,
-				//					xtype: 'textfield',
-				//					name: 'taxonomy'
-				//				}
-				//			]
-				//		},
-				//		{
-				//			xtype: 'fieldcontainer',
-				//			defaults: {
-				//				hideLabel: true
-				//			},
-				//			items: [
-				//				{
-				//					width: 110,
-				//					xtype: 'displayfield',
-				//					value: 'Federal Tax ID: '
-				//				},
-				//				{
-				//					width: 170,
-				//					xtype: 'textfield',
-				//					name: 'fedtaxid'
-				//				},
-				//				{
-				//					width: 100,
-				//					xtype: 'displayfield',
-				//					value: 'Fed Drug ID: '
-				//				},
-				//				{
-				//					width: 175,
-				//					xtype: 'textfield',
-				//					name: 'feddrugid'
-				//				}
-				//			]
-				//		},
-				//		{
-				//			xtype: 'fieldcontainer',
-				//			defaults: {
-				//				hideLabel: true
-				//			},
-				//			items: [
-				//				{
-				//					width: 110,
-				//					xtype: 'displayfield',
-				//					value: 'User PIN#: '
-				//				},
-				//				{
-				//					width: 170,
-				//					xtype: 'textfield',
-				//					name: 'pin'
-				//				},
-				//				{
-				//					width: 100,
-				//					xtype: 'displayfield',
-				//					value: 'NPI: '
-				//				},
-				//				{
-				//					width: 175,
-				//					xtype: 'textfield',
-				//					name: 'npi'
-				//				}
-				//			]
-				//		},
-				//		{
-				//			xtype: 'fieldcontainer',
-				//			defaults: {
-				//				hideLabel: true
-				//			},
-				//			items: [
-				//				{
-				//					width: 110,
-				//					xtype: 'displayfield',
-				//					value: 'Specialty: '
-				//				},
-				//				{
-				//					width: 455,
-				//					xtype: 'activespecialtiescombo',
-				//					name: 'specialty'
-				//				}
-				//			]
-				//		}
-				//	]
-				//}
+				}
 			],
 			tbar:[
 				{

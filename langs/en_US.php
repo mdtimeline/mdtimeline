@@ -1899,6 +1899,7 @@ $LANG = array(
     'document_brightness'                   => 'Document Brightness',
     'document_entered_in_error'             => 'Document Entered In Error',
     'switch_user'                           => 'Switch User',
+    'pin'                                   => 'PIN',
     'wrong_pin'                             => 'Wrong PIN',
     'application_successfully_switched_to_x' => 'Application Successfully Switched to {0}',
 );

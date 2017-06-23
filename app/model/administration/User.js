@@ -140,6 +140,7 @@ Ext.define('App.model.administration.User', {
 			name: 'pin',
 			type: 'string',
 			comment: 'pin number',
+			useNull: true,
 			len: 10
 		},
 		{

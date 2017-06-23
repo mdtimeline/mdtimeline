@@ -29,11 +29,18 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
 	typeAhead: false,
     forceSelection: false,
     allowOnlyWhitespace: true,
-	hideTrigger: true,
+	// hideTrigger: true,
     validateBlank: true,
     submitValue: true,
 	minChars: 0,
 	queryDelay: 200,
+	enableAddTrigger: true,
+	trigger1Cls: 'x-form-add-trigger',
+	hideTrigger1: false,
+	onTrigger1Click: function () {
+		this.reset();
+		app.fireEvent('referringproviderddbtnclick', this);
+	},
 	initComponent: function(){
 		var me = this;
 

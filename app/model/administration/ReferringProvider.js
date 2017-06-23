@@ -120,6 +120,7 @@ Ext.define('App.model.administration.ReferringProvider', {
             name: 'username',
             type: 'string',
             len: 40,
+            useNull: true,
             index: true
         },
         {

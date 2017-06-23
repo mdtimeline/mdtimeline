@@ -106,7 +106,7 @@ Ext.define('App.view.administration.Users', {
 													},
 													items: [
 														{
-															width: 280,
+															width: 250,
 															xtype: 'textfield',
 															fieldLabel: _('username'),
 															name: 'username',
@@ -115,7 +115,8 @@ Ext.define('App.view.administration.Users', {
 															vtype: 'usernameField'
 														},
 														{
-															width: 300,
+															width: 200,
+															labelWidth: 60,
 															xtype: 'textfield',
 															fieldLabel: _('password'),
 															name: 'password',
@@ -125,6 +126,14 @@ Ext.define('App.view.administration.Users', {
 															plugins: {
 																ptype: 'passwordstrength'
 															}
+														},
+														{
+															width: 125,
+															labelWidth: 40,
+															xtype: 'textfield',
+															fieldLabel: _('pin'),
+															name: 'pin',
+															inputType: 'password'
 														}
 													]
 												},

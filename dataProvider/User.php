@@ -80,6 +80,11 @@ class User
             if (!$this->usernameExist($params->username)) {
 
                 unset($params->fullname, $params->pwd_history1, $params->pwd_history2);
+
+                if(isset($params->pin) && $params->pin == ''){
+	                $params->pin = null;
+                }
+
                 $user = (object)$this->u->save($params);
                 $user = (object)isset($user->data) ? $user->data : $user;
                 unset($user->password, $user->pwd_history1, $user->pwd_history2);
@@ -100,6 +105,10 @@ class User
         if (isset($params->password) && $params->password == '') {
             unset($params->password);
         }
+	    if(isset($params->pin) && $params->pin == ''){
+		    $params->pin = null;
+	    }
+
         $user = $this->u->save($params);
 //		unset($user['password'], $user['pwd_history1'], $user['pwd_history2']);
         return (object)$user;
@@ -182,6 +191,11 @@ class User
     {
         $data = new $params;
         unset($data->password, $data->pwd_history1, $data->pwd_history2);
+
+	    if(isset($data->pin) && $data->pin == ''){
+		    $data->pin = null;
+	    }
+
         return $this->u->save($data);
     }
 

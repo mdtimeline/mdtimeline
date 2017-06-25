@@ -32,6 +32,16 @@ Ext.define('App.model.administration.IpAccessRule', {
 			len: 40
 		},
 		{
+			name: 'ip_from',
+			type: 'string',
+			len: 40
+		},
+		{
+			name: 'ip_to',
+			type: 'string',
+			len: 40
+		},
+		{
 			name: 'country_code',
 			type: 'string',
 			len: 50

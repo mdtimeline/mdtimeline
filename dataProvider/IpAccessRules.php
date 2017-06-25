@@ -120,18 +120,13 @@ class IpAccessRules {
 
 		$geo_data = GeoIpLocation::getGeoLocation($ip);
 
-		$ipBlocks = explode('.', $ip);
-		$where = [];
-		$where[] = '*';
-		$where[] = $ipBlocks[0] . '.*';
-		$where[] = $ipBlocks[0] . '.' . $ipBlocks[1] . '.*';
-		$where[] = $ipBlocks[0] . '.' . $ipBlocks[1] . '.' . $ipBlocks[2] . '.*';
-		$where[] = $ipBlocks[0] . '.' . $ipBlocks[1] . '.' . $ipBlocks[2] . '.' . $ipBlocks[3];
+		$ip_long = ip2long($ip);
+		$where = [ $ip_long, $ip_long ];
 
 		if($geo_data === false){
-			$sql = 'SELECT * FROM `ip_access_rules` WHERE active = 1 AND (ip = ? OR ip = ? OR ip = ? OR ip = ? OR ip = ?) ORDER BY weight DESC LIMIT 1';
+			$sql = 'SELECT * FROM `ip_access_rules` WHERE (active = 1 AND ip_from <= ? AND ip_to >= ?) ORDER BY weight DESC LIMIT 1';
 		} else {
-			$sql = 'SELECT * FROM `ip_access_rules` WHERE active = 1 AND (ip = ? OR ip = ? OR ip = ? OR ip = ? OR ip = ? OR country_code = ?) ORDER BY weight DESC LIMIT 1';
+			$sql = 'SELECT * FROM `ip_access_rules` WHERE (active = 1 AND ip_from <= ? AND ip_to >= ?) OR country_code = ? ORDER BY weight DESC LIMIT 1';
 			$where[] = $geo_data['country_code'];
 		}
 
@@ -144,7 +139,7 @@ class IpAccessRules {
 			$blocked = $result['rule'] == 'BLK';
 		} else {
 			// if no rule found blocked the IP if not inside local network
-			$blocked = !$this->ip_is_private($ip);
+			$blocked = !$this->ip_is_private($ip_long);
 		}
 
 		if($blocked){
@@ -160,7 +155,21 @@ class IpAccessRules {
 
 	}
 
-	function ip_is_private($ip) {
+	function cidr_match($ip, $mask) {
+		list($subnet, $bits) = explode('/', $mask);
+		$ip = ip2long($ip);
+		$subnet = ip2long($subnet);
+		$mask = -1 << (32 - $bits);
+		$subnet &= $mask; // nb: in case the supplied subnet wasn't correctly aligned
+		return ($ip & $mask) == $subnet;
+	}
+
+	/**
+	 * @param $long_ip
+	 *
+	 * @return bool
+	 */
+	function ip_is_private($long_ip) {
 		$pri_addrs = array(
 			'10.0.0.0|10.255.255.255',
 			// single class A network
@@ -174,7 +183,6 @@ class IpAccessRules {
 			// localhost
 		);
 
-		$long_ip = ip2long($ip);
 		if($long_ip != -1){
 
 			foreach($pri_addrs AS $pri_addr){

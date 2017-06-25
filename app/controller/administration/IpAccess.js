@@ -35,6 +35,18 @@ Ext.define('App.controller.administration.IpAccess', {
         {
             ref: 'IpAccessPanelContextMenu',
             selector: '#IpAccessPanelContextMenu'
+        },
+        {
+            ref: 'IpAccessRulesIpField',
+            selector: '#IpAccessRulesIpField'
+        },
+        {
+            ref: 'IpAccessRulesIpFormField',
+            selector: '#IpAccessRulesIpFormField'
+        },
+        {
+            ref: 'IpAccessRulesIpToField',
+            selector: '#IpAccessRulesIpToField'
         }
     ],
 
@@ -53,6 +65,9 @@ Ext.define('App.controller.administration.IpAccess', {
             },
             '#IpAccessPanelAddToWhiteListMenu':{
 	            click: me.onIpAccessPanelAddToWhiteListMenuClick
+            },
+            '#IpAccessRulesIpField':{
+	            keyup: me.onIpAccessRulesIpFieldKeyUp
             }
         });
 
@@ -65,12 +80,12 @@ Ext.define('App.controller.administration.IpAccess', {
             rulesGrid = me.getIpAccessRulesGrid();
 
         rulesGrid.editingPlugin.cancelEdit();
-        rulesGrid.getStore().add({
+        var rercords = rulesGrid.getStore().add({
             create_date: this.clockCtrl.getTime(),
             update_date: this.clockCtrl.getTime(),
             active: 1
         });
-        rulesGrid.editingPlugin.startEdit(0, 0);
+        rulesGrid.editingPlugin.startEdit(rercords[0], 0);
     },
 
     onIpAccessPanelActive: function(){
@@ -86,12 +101,16 @@ Ext.define('App.controller.administration.IpAccess', {
 
     	var net_log_record = this.getIpAccessLogGrid().getSelectionModel().getLastSelected(),
     	    ip_rules_store = this.getIpAccessRulesGrid().getStore(),
-    	    ip_rules_editingPlugin = this.getIpAccessRulesGrid().editingPlugin;
+    	    ip_rules_editingPlugin = this.getIpAccessRulesGrid().editingPlugin,
+		    ip = net_log_record.get('ip') + '/32',
+		    range = this.cidrToRange(ip, true);
 
 		ip_rules_editingPlugin.cancelEdit();
 
 		var records = ip_rules_store.add({
-			ip: net_log_record.get('ip'),
+			ip: ip,
+			ip_from: range[0],
+			ip_to: range[1],
 			rule: 'WHT',
 			create_date: this.clockCtrl.getTime(),
 			create_uid: app.user.id,
@@ -123,6 +142,97 @@ Ext.define('App.controller.administration.IpAccess', {
 		}
 
 		return this.getIpAccessPanelContextMenu().showAt(e.getXY());
+	},
+
+	onIpAccessRulesIpFieldKeyUp: function (field) {
+
+    	if(!field.isValid()) return;
+
+    	var value = field.getValue(),
+	        range = this.cidrToRange(value, true),
+	        record = field.up('form').getForm().getRecord();
+
+		record.set({
+			ip_from: range[0],
+			ip_to: range[1]
+		});
+	},
+
+	long2ip: function (ip) {
+		//  discuss at: http://locutus.io/php/long2ip/
+		// original by: Waldo Malqui Silva (http://waldo.malqui.info)
+		//   example 1: long2ip( 3221234342 )
+		//   returns 1: '192.0.34.166'
+
+		if (!isFinite(ip)) {
+			return false
+		}
+
+		return [ip >>> 24, ip >>> 16 & 0xFF, ip >>> 8 & 0xFF, ip & 0xFF].join('.')
+	},
+
+	ip2long: function(ip) {
+		//  discuss at: http://locutus.io/php/ip2long/
+		// original by: Waldo Malqui Silva (http://waldo.malqui.info)
+		// improved by: Victor
+		//  revised by: fearphage (http://http/my.opera.com/fearphage/)
+		//  revised by: Theriault (https://github.com/Theriault)
+		//    estarget: es2015
+		//   example 1: ip2long('192.0.34.166')
+		//   returns 1: 3221234342
+		//   example 2: ip2long('0.0xABCDEF')
+		//   returns 2: 11259375
+		//   example 3: ip2long('255.255.255.256')
+		//   returns 3: false
+
+		var i = 0;
+		// PHP allows decimal, octal, and hexadecimal IP components.
+		// PHP allows between 1 (e.g. 127) to 4 (e.g 127.0.0.1) components.
+
+		const pattern = new RegExp([
+			'^([1-9]\\d*|0[0-7]*|0x[\\da-f]+)',
+			'(?:\\.([1-9]\\d*|0[0-7]*|0x[\\da-f]+))?',
+			'(?:\\.([1-9]\\d*|0[0-7]*|0x[\\da-f]+))?',
+			'(?:\\.([1-9]\\d*|0[0-7]*|0x[\\da-f]+))?$'
+		].join(''), 'i');
+
+		ip = ip.match(pattern); // Verify ip format.
+		if (!ip) {
+			// Invalid format.
+			return false
+		}
+		// Reuse ip variable for component counter.
+		ip[0] = 0;
+		for (i = 1; i < 5; i += 1) {
+			ip[0] += !!((ip[i] || '').length);
+			ip[i] = parseInt(ip[i]) || 0
+		}
+		// Continue to use ip for overflow values.
+		// PHP does not allow any component to overflow.
+		ip.push(256, 256, 256, 256);
+		// Recalculate overflow of last component supplied to make up for missing components.
+		ip[4 + ip[0]] *= Math.pow(256, 4 - ip[0]);
+		if (ip[1] >= ip[5] ||
+			ip[2] >= ip[6] ||
+			ip[3] >= ip[7] ||
+			ip[4] >= ip[8]) {
+			return false
+		}
+
+		return ip[1] * (ip[0] === 1 || 16777216) +
+			ip[2] * (ip[0] <= 2 || 65536) +
+			ip[3] * (ip[0] <= 3 || 256) +
+			ip[4] * 1
+	},
+
+	cidrToRange: function(cidr, long) {
+		var range = [2];
+		cidr = cidr.split('/');
+		var start = this.ip2long(cidr[0]);
+		var stop = Math.pow(2, 32 - cidr[1]) + start - 1;
+		range[0] = long ? start : this.long2ip(start);
+		range[1] = long ? stop : this.long2ip(stop);
+		return range;
 	}
 
 });

@@ -18,6 +18,12 @@
 
 Ext.apply(Ext.form.VTypes, {
 
+	ipcidr: function(val){
+		return  val.match(/^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))$/ig);
+	},
+	ipcidrText: 'CIDR format required ei. 0.0.0.0/0',
+
+
 	nonspecialcharacters: function(val){
 		return  !val.match(/[`<>[\]~+!@#$%^&*():;\\/{}=^|?]/ig);
 	},

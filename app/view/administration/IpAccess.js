@@ -71,13 +71,38 @@ Ext.define('App.view.administration.IpAccess', {
                 },
                 columns: [
                     {
-                        text: _('ip'),
+                        text: _('ip') + ' (CIDR)',
                         dataIndex: 'ip',
-                        width: 200,
+                        width: 150,
                         editor: {
                             xtype: 'textfield',
-                            allowBlank: false
+                            vtype: 'ipcidr',
+                            allowBlank: false,
+	                        enableKeyEvents: true,
+                            itemId: 'IpAccessRulesIpField'
                         }
+                    },
+                    {
+                        text: _('range'),
+                        columns: [
+	                        {
+		                        text: _('from'),
+		                        dataIndex: 'ip_from',
+		                        width: 150,
+		                        renderer: function (v) {
+                                    return app.getController('administration.IpAccess').long2ip(v);
+		                        }
+
+                            },
+	                        {
+		                        text: _('to'),
+		                        dataIndex: 'ip_to',
+		                        width: 150,
+		                        renderer: function (v) {
+                                    return app.getController('administration.IpAccess').long2ip(v);
+		                        }
+	                        }
+                        ]
                     },
                     {
                         text: _('country_name'),

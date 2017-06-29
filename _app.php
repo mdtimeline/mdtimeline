@@ -835,6 +835,7 @@ header("Access-Control-Allow-Origin: *");
 	                'Main',
 
                     'administration.AuditLog',
+	                'administration.BackUp',
 	                'administration.CPT',
 	                'administration.DataPortability',
 	                'administration.DecisionSupport',

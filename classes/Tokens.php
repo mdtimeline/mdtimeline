@@ -34,7 +34,9 @@ class Tokens
 			'{DATETIME}',
 			'{YEAR}',
 			'{MONTH}',
-			'{DAY}'
+			'{DAY}',
+			'{WEEKDAY}',
+			'{YEARDAY}'
 		];
 
 		$values = [
@@ -43,7 +45,9 @@ class Tokens
 			$now->format('YmdHis'),
 			$now->format('Y'),
 			$now->format('m'),
-			$now->format('d')
+			$now->format('d'),
+			$now->format('w'),
+			$now->format('z')
 		];
 
 		if(!empty($additional_tokens)){

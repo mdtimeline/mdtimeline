@@ -1902,4 +1902,7 @@ $LANG = array(
     'pin'                                   => 'PIN',
     'wrong_pin'                             => 'Wrong PIN',
     'application_successfully_switched_to_x' => 'Application Successfully Switched to {0}',
+	'backup'                                => 'Backup',
+	'backups'                               => 'Backups',
+	'backup_now'                            => 'Backup Now',
 );

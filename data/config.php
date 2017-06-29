@@ -18,6 +18,16 @@
  */
 
 $API = [
+    'BackUp' => [
+        'methods' => [
+            'doBackUp' => [
+                'len' => 0
+            ],
+            'getBackUps' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'Merge' => [
         'methods' => [
             'merge' => [

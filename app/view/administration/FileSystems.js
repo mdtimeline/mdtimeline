@@ -23,7 +23,9 @@ Ext.define('App.view.administration.FileSystems', {
 	],
 	pageTitle: _('file_systems'),
 	itemId: 'AdminFileSystemsPanel',
-	pageLayout: 'fit',
+	pageLayout: {
+		type: 'border',
+	},
 	initComponent: function(){
 		var me = this;
 
@@ -32,6 +34,11 @@ Ext.define('App.view.administration.FileSystems', {
 		me.pageBody = [
 			{
 				xtype: 'grid',
+				title: 'ONLINE File Systems',
+				flex: 1,
+				region: 'center',
+				padding: 0,
+				frame: true,
 				store: store,
 				itemId: 'FileSystemsGrid',
 				plugins: [
@@ -117,6 +124,104 @@ Ext.define('App.view.administration.FileSystems', {
 						{
 							text: _('analyze'),
 							itemId: 'FileSystemsAnalyzeBtn'
+						},
+						'-'
+					]
+				}
+			},
+			{
+				xtype: 'grid',
+				title: 'NEARLINE File Systems',
+				flex: 1,
+				padding: 0,
+				frame: true,
+				region: 'south',
+				split: true,
+				//store: store,
+				itemId: 'FileSystemsNearlineGrid',
+				plugins: [
+					{
+						ptype: 'rowediting'
+					}
+				],
+				columns: [
+					{
+						text: _('id'),
+						dataIndex: 'id'
+					},
+					{
+						text: _('next_id'),
+						dataIndex: 'next_id',
+						editor: {
+							xtype: 'textfield'
+						}
+					},
+					{
+						text: _('dir_path'),
+						dataIndex: 'dir_path',
+						flex: 2,
+						editor: {
+							xtype: 'textfield'
+						}
+					},
+					{
+						text: _('status'),
+						dataIndex: 'status',
+						editor: {
+							xtype: 'combobox',
+							displayField: 'option',
+							valueField: 'value',
+							editable: false,
+							store: Ext.create('Ext.data.Store',{
+								fields: ['option', 'value'],
+								data: [
+									{ option: 'ACTIVE', value: 'ACTIVE' },
+									{ option: 'FULL', value: 'FULL' },
+									{ option: 'ONLINE', value: 'ONLINE' },
+									{ option: 'OFFLINE', value: 'OFFLINE' }
+								]
+							})
+						}
+					},
+					{
+						text: _('total_space'),
+						dataIndex: 'total_space'
+					},
+					{
+						text: _('free_space'),
+						dataIndex: 'free_space'
+					},
+					{
+						text: _('percent_used'),
+						dataIndex: 'percent',
+						renderer: function (v, meta, rec) {
+							return Math.floor(Math.abs(((rec.get('free_space') / rec.get('total_space')) * 100) - 100)) + '% Used';
+						}
+					},
+					{
+						text: _('error'),
+						dataIndex: 'error',
+						flex: 1
+					},
+				],
+				tbar: [
+					{
+						text: _('file_system'),
+						itemId: 'FileSystemsNearlineAddBtn',
+						iconCls: 'icoAdd'
+					}
+				],
+				bbar: {
+					xtype: 'pagingtoolbar',
+					pageSize: 10,
+					//store: store,
+					displayInfo: true,
+					plugins: new Ext.ux.SlidingPager(),
+					items: [
+						'-',
+						{
+							text: _('analyze'),
+							itemId: 'FileSystemsNearlineAnalyzeBtn'
 						},
 						'-'
 					]

@@ -68,8 +68,24 @@ $directories = array_values($directories);
  * a jobs php script, try to run it, and then finish the loop with an exit until
  * next call from the CronJob Service (Linux or Mac) or Task Scheduler (Windows)
  */
+
+$php_inis = [
+	'/etc/php/7.1/apache2/php.ini',
+	'/etc/php/7.0/apache2/php.ini',
+	'/etc/php/5.6/php.ini',
+	'/etc/php5/apache2/php.ini',
+	'/etc/php.ini'
+];
+
+$php_ini = '';
+foreach($php_inis as $file){
+	$php_ini = $file;
+	if(file_exists($php_ini)) break;
+}
+
 foreach($directories as $directory){
-    $conf = $sites_dir . $directory . '/conf.php';
+    $conf_dir = $sites_dir . $directory;
+    $conf = $conf_dir . '/conf.php';
     if(file_exists($conf) && is_dir($sites_dir . $directory . "/jobs")){
 
         // Fetch all the JOBS available on the site
@@ -77,8 +93,8 @@ foreach($directories as $directory){
 
         // Loop on all the jobs available and execute them
         foreach($jobsFiles as $jobsFile){
-            $env = 'cd '.$env_dir.' && ';
-            $cmd = $env." php -f ".$sites_dir.$directory ."/jobs/".$jobsFile." ".$directory." &";
+            $env = "cd {$env_dir} && ";
+            $cmd = "{$env} php  -c {$php_ini} -f {$conf_dir}/jobs/{$jobsFile} {$directory} &";
             shell_exec($cmd);
             print "Executing: $jobsFile...\n";
         }

@@ -530,6 +530,8 @@ class Documents {
 
 		if(isset($params->facility_id)){
 			$template = $this->getPdfTemplateByFacilityId($params->facility_id);
+		}elseif(isset($_SESSION['user']) && isset($_SESSION['user']['facility'])){
+			$template = $this->getPdfTemplateByFacilityId($_SESSION['user']['facility']);
 		}else{
 			$template = $this->getPdfTemplateByFacilityId();
 		}

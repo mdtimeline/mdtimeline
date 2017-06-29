@@ -109,7 +109,7 @@ class CombosData {
 	 *
 	 * @return array|bool|mixed
 	 */
-	public function getOptionsByListId(stdClass $params, &$int_value){
+	public function getOptionsByListId(stdClass $params, &$int_value = false){
 
 		$int_value = false;
 

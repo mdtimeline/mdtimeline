@@ -28,6 +28,17 @@ if(php_sapi_name() != 'cli'){
     exit(0);
 }
 
+include_once ('../lib/Cron/FieldInterface.php');
+include_once ('../lib/Cron/AbstractField.php');
+include_once ('../lib/Cron/DayOfMonthField.php');
+include_once ('../lib/Cron/DayOfWeekField.php');
+include_once ('../lib/Cron/HoursField.php');
+include_once ('../lib/Cron/MinutesField.php');
+include_once ('../lib/Cron/MonthField.php');
+include_once ('../lib/Cron/YearField.php');
+include_once ('../lib/Cron/FieldFactory.php');
+include_once ('../lib/Cron/CronExpression.php');
+
 class CronBootstrap
 {
     /**
@@ -110,34 +121,25 @@ class CronBootstrap
             // Try to check the time of it's schedule but first check if the script
             // is running, if it is running skip it.
             if($CJP['active'] && !$CJP['running']) {
-                // Check month
-                if ($this->evaluateValueRages($CJP['month'], 'month') || $CJP['month'] == '*') {
-                    // Check month day
-                    if ($this->evaluateValueRages($CJP['month_day'], 'month_day') || $CJP['month_day'] == '*') {
-                        // Check week day
-                        if ($this->evaluateValueRages($CJP['week_day'], 'week_day') || $CJP['week_day'] == '*') {
-                            // Check hour
-                            if ($this->evaluateValueRages($CJP['hour'], 'hour') || $CJP['hour'] ==  '*') {
-                                // Check minute
-                                if ($this->evaluateValueRages($CJP['minute'], 'minute') || $CJP['hour'] == '*') {
-                                    $params = new stdClass();
-                                    $params->filter[0] = new stdClass();
-                                    $params->filter[0]->property = 'filename';
-                                    $params->filter[0]->value = SCRIPT;
-                                    $CronJobRecords = $this->CronJobModel->load($params)->one();
 
-                                    $data = new stdClass();
-                                    $data->id = $CronJobRecords['data']['id'];
-                                    $data->pid = PID;
-                                    $data->running = true;
-                                    $data->last_run_date = date('Y-m-d H:i:s');
-                                    $this->CronJobModel->save($data);
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                }
+	            $cron = Cron\CronExpression::factory($CJP['expression']);
+
+	            if($cron->isDue()){
+		            $params = new stdClass();
+		            $params->filter[0] = new stdClass();
+		            $params->filter[0]->property = 'filename';
+		            $params->filter[0]->value = SCRIPT;
+		            $CronJobRecords = $this->CronJobModel->load($params)->one();
+
+		            $data = new stdClass();
+		            $data->id = $CronJobRecords['data']['id'];
+		            $data->pid = PID;
+		            $data->running = true;
+		            $data->last_run_date = date('Y-m-d H:i:s');
+		            $this->CronJobModel->save($data);
+		            return true;
+	            }
+
             }
             return false;
         } catch(ErrorException $Error){
@@ -347,6 +349,16 @@ class CronBootstrap
             $data->timeout = '3600';
             return $this->CronJobModel->save($data);
         } else {
+
+	        $CronJobRecords['data']['expression'] = sprintf(
+	        	'%s %s %s %s %s',
+		        $CronJobRecords['data']['minute'],
+		        $CronJobRecords['data']['hour'],
+		        $CronJobRecords['data']['month_day'],
+		        $CronJobRecords['data']['month'],
+		        $CronJobRecords['data']['week_day']
+	        );
+
             return $CronJobRecords;
         }
     }

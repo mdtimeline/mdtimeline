@@ -322,7 +322,7 @@ class FormLayoutEngine {
 		$params = new stdClass();
 		$params->list_id = $list_id;
 
-		$options = $this->cb->getOptionsByListId($params);
+		$options = $this->cb->getOptionsByListId($params, $int_value);
 
 		$fields = [
 			[
@@ -330,7 +330,7 @@ class FormLayoutEngine {
 			],
 			[
 				'name' =>'option_value',
-			    'type' => 'auto'
+			    'type' => ($int_value ? 'int' : 'auto')
 			],
 			[
 				'name' =>'code',

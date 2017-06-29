@@ -65,7 +65,13 @@ Ext.define('App.view.administration.CronJob', {
                         editor: {
                             xtype: 'textfield',
                             allowBlank: false,
-	                        inputAttrTpl: 'style="text-align:center"'
+	                        inputAttrTpl: 'style="text-align:center"',
+	                        validator: function (v) {
+		                        if(v < 0 || v > 59){
+			                        return 'Minute (0 - 59)';
+		                        }
+		                        return true;
+	                        }
                         }
                     },
                     {
@@ -75,7 +81,13 @@ Ext.define('App.view.administration.CronJob', {
                         editor: {
                             xtype: 'textfield',
                             allowBlank: false,
-	                        inputAttrTpl: 'style="text-align:center"'
+	                        inputAttrTpl: 'style="text-align:center"',
+	                        validator: function (v) {
+		                        if(v < 0 || v > 23){
+			                        return 'Hour (0 - 23)';
+		                        }
+		                        return true;
+	                        }
 
                         }
                     },
@@ -86,7 +98,13 @@ Ext.define('App.view.administration.CronJob', {
                         editor: {
                             xtype: 'textfield',
                             allowBlank: false,
-	                        inputAttrTpl: 'style="text-align:center"'
+	                        inputAttrTpl: 'style="text-align:center"',
+	                        validator: function (v) {
+		                        if(v < 1 || v > 31){
+			                        return 'Day of month (1 - 31)';
+		                        }
+		                        return true;
+	                        }
                         }
                     },
                     {
@@ -96,7 +114,13 @@ Ext.define('App.view.administration.CronJob', {
                         editor: {
                             xtype: 'textfield',
                             allowBlank: false,
-	                        inputAttrTpl: 'style="text-align:center"'
+	                        inputAttrTpl: 'style="text-align:center"',
+	                        validator: function (v) {
+		                        if(v < 1 || v > 12){
+			                        return 'Month (1 - 12)';
+		                        }
+		                        return true;
+	                        }
                         }
                     },
                     {
@@ -106,7 +130,14 @@ Ext.define('App.view.administration.CronJob', {
                         editor: {
                             xtype: 'textfield',
                             allowBlank: false,
-	                        inputAttrTpl: 'style="text-align:center"'
+	                        inputAttrTpl: 'style="text-align:center"',
+	                        validator: function (v) {
+                                if(v < 0 || v > 7){
+                                    return 'Day of week (0 - 7) (Sunday=0 or 7)';
+                                }
+                                return true;
+	                        }
+                            
                         }
                     },
                     {

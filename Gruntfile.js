@@ -421,6 +421,7 @@ module.exports = function(grunt){
 					'app/controller/administration/TemplatePanels.js',
 					'app/controller/administration/Users.js',
 					'app/controller/areas/FloorPlan.js',
+					'app/controller/areas/PatientPoolAreas.js',
 					'app/controller/dashboard/Dashboard.js',
 					'app/controller/dashboard/panel/NewResults.js',
 					'app/controller/dashboard/panel/DailyVisits.js',

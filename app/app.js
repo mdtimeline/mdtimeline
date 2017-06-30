@@ -20964,9 +20964,12 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 			values = form.getValues(),
 			record = form.getRecord(),
 			isNew = record.data.eid === 0;
+
 		if(form.isValid()){
 			if((isNew && a('add_encounters') || (!isNew && a('edit_encounters')))){
 				record.set(values);
+
+				say(values);
 
 				record.save({
 					callback: function(record){
@@ -37893,6 +37896,86 @@ Ext.define('App.controller.areas.FloorPlan', {
 	}
 
 });
+Ext.define('App.controller.areas.PatientPoolAreas', {
+	extend: 'Ext.app.Controller',
+	refs: [
+		{
+			ref: 'PatientPoolAreasPanel',
+			selector: '#PatientPoolAreasPanel'
+		},
+		{
+			ref: 'PatientPoolAreasRemovePatientMenu',
+			selector: '#PatientPoolAreasRemovePatientMenu'
+		}
+	],
+
+	init: function(){
+		var me = this;
+
+		me.control({
+			'#PatientPoolAreasPanel grid': {
+				beforeitemcontextmenu: me.onPatientPoolAreasGridBeforeItemContextMenu
+			},
+			'#PatientPoolAreasRemovePatientMenu': {
+				click: me.onPatientPoolAreasRemovePatientMenuClick
+			}
+		});
+	},
+
+	onPatientPoolAreasRemovePatientMenuClick: function (item) {
+		var me = this,
+			pool_record = item.up('menu').pool_record;
+
+		Ext.Msg.show({
+			title: _('wait'),
+			msg: _('remove_patient_pool_area_msg'),
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (btn) {
+				if(btn !== 'yes') return;
+				me.removePatientFromArea(pool_record);
+			}
+		});
+	},
+
+	removePatientFromArea: function (pool_record) {
+		var params = {
+			area_id: pool_record.get('id')
+		};
+
+		PoolArea.removePatientArrivalLog(params, function (response) {
+			if(response.success){
+				pool_record.store.reload();
+			}
+		});
+	},
+
+	onPatientPoolAreasGridBeforeItemContextMenu: function (view, pool_record, item, index, e) {
+		e.preventDefault();
+		this.showPatientPoolAreasPanelGridMenu(pool_record, e);
+	},
+
+	showPatientPoolAreasPanelGridMenu: function (pool_record, e) {
+		var me = this;
+		if(!me.grid_menu){
+			me.grid_menu = Ext.widget('menu', {
+				margin: '0 0 10 0',
+				items: [
+					{
+						text: _('remove_patient'),
+						itemId: 'PatientPoolAreasRemovePatientMenu',
+						icon: 'resources/images/icons/delete.png'
+					}
+				]
+			});
+		}
+		me.grid_menu.pool_record = pool_record;
+		me.grid_menu.showAt(e.getXY());
+
+		return me.grid_menu;
+	}
+
+});
 Ext.define('App.controller.dashboard.Dashboard', {
 	extend: 'Ext.app.Controller',
 	refs: [
@@ -48011,6 +48094,7 @@ Ext.define('App.view.patient.Documents', {
 	xtype: 'patientdocumentspanel',
 	title: _('documents'),
 	layout: 'border',
+	orientation: 'west',
 	initComponent: function(){
 		var me = this,
 			store = Ext.create('App.store.patient.PatientDocuments', {
@@ -48026,7 +48110,7 @@ Ext.define('App.view.patient.Documents', {
 		me.items = [
 			{
 				xtype: 'gridlivesearch',
-				region: 'west',
+				region: me.orientation,
 				split: true,
 				flex: 1,
 				columnLines: true,
@@ -50318,6 +50402,8 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 	requires:[
 		'App.ux.grid.AreasDragDrop'
 	],
+
+	itemId: 'PatientPoolAreasPanel',
 
 	pageTitle: _('patient_pool_areas'),
 
@@ -55756,6 +55842,10 @@ Ext.define('App.controller.patient.Documents', {
 		{
 			ref: 'PatientDocumentViewerOpacityField',
 			selector: 'PatientDocumentViewerOpacityField'
+		},
+		{
+			ref: 'DocumentWindow',
+			selector: '#DocumentWindow'
 		}
 	],
 
@@ -55809,10 +55899,32 @@ Ext.define('App.controller.patient.Documents', {
 			},
 			'#PatientDocumentEnteredInErrorBtn': {
 				click: me.onPatientDocumentEnteredInErrorBtnClick
+			},
+			'#EncounterPatientDocumentsBtn': {
+				click: me.onEncounterPatientDocumentsBtnClick
+			},
+			'#DocumentWindow': {
+				show: me.onDocumentWindowShow
 			}
 		});
 
 		me.nav = this.getController('Navigation');
+	},
+
+	onEncounterPatientDocumentsBtnClick: function () {
+		this.showDocumentWindow();
+	},
+
+	onDocumentWindowShow: function (win) {
+		var panel = win.down('panel');
+		this.onPatientDocumentPanelActive(panel);
+	},
+
+	showDocumentWindow: function () {
+		if(!this.getDocumentWindow()){
+			Ext.create('App.view.patient.windows.DocumentWindow');
+		}
+		return this.getDocumentWindow().show();
 	},
 
 	onPatientDocumentEnteredInErrorBtnClick: function (btn) {
@@ -60213,7 +60325,11 @@ Ext.define('App.view.patient.Encounter', {
 							}
 						}
 					]
-				})
+				}),
+				{
+					xtype: 'patientdocumentspanel',
+					orientation: 'east'
+				}
 			]
 		});
 
@@ -60337,6 +60453,13 @@ Ext.define('App.view.patient.Encounter', {
 					acl: a('access_patient_rx_orders')
 				},
 				'-',
+				{
+					text: _('documents'),
+					itemId: 'EncounterPatientDocumentsBtn',
+					icon: 'resources/images/icons/icoDOC-16.png',
+					//acl: a('access_patient_rx_orders')
+				},
+				'-',
 				'->',
 				'-',
 				{
@@ -60391,6 +60514,8 @@ Ext.define('App.view.patient.Encounter', {
 			app.updateEncounter(this.encounter);
 		}else if(btn.action === 'ccda'){
 			// this will be handled at controller/CCDImport.js
+		}else if(btn.itemId === 'EncounterPatientDocumentsBtn'){
+			// do nothing
 		}else{
 			app.onMedicalWin(btn.action);
 		}

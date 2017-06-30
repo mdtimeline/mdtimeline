@@ -30,6 +30,7 @@ Ext.define('App.view.patient.Documents', {
 	xtype: 'patientdocumentspanel',
 	title: _('documents'),
 	layout: 'border',
+	orientation: 'west',
 	initComponent: function(){
 		var me = this,
 			store = Ext.create('App.store.patient.PatientDocuments', {
@@ -45,7 +46,7 @@ Ext.define('App.view.patient.Documents', {
 		me.items = [
 			{
 				xtype: 'gridlivesearch',
-				region: 'west',
+				region: me.orientation,
 				split: true,
 				flex: 1,
 				columnLines: true,

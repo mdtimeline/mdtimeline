@@ -23,6 +23,8 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 		'App.ux.grid.AreasDragDrop'
 	],
 
+	itemId: 'PatientPoolAreasPanel',
+
 	pageTitle: _('patient_pool_areas'),
 
 	initComponent: function(){

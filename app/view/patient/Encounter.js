@@ -353,7 +353,11 @@ Ext.define('App.view.patient.Encounter', {
 							}
 						}
 					]
-				})
+				}),
+				{
+					xtype: 'patientdocumentspanel',
+					orientation: 'east'
+				}
 			]
 		});
 
@@ -477,6 +481,13 @@ Ext.define('App.view.patient.Encounter', {
 					acl: a('access_patient_rx_orders')
 				},
 				'-',
+				{
+					text: _('documents'),
+					itemId: 'EncounterPatientDocumentsBtn',
+					icon: 'resources/images/icons/icoDOC-16.png',
+					//acl: a('access_patient_rx_orders')
+				},
+				'-',
 				'->',
 				'-',
 				{
@@ -531,6 +542,8 @@ Ext.define('App.view.patient.Encounter', {
 			app.updateEncounter(this.encounter);
 		}else if(btn.action === 'ccda'){
 			// this will be handled at controller/CCDImport.js
+		}else if(btn.itemId === 'EncounterPatientDocumentsBtn'){
+			// do nothing
 		}else{
 			app.onMedicalWin(btn.action);
 		}

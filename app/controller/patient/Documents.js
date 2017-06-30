@@ -77,6 +77,10 @@ Ext.define('App.controller.patient.Documents', {
 		{
 			ref: 'PatientDocumentViewerOpacityField',
 			selector: 'PatientDocumentViewerOpacityField'
+		},
+		{
+			ref: 'DocumentWindow',
+			selector: '#DocumentWindow'
 		}
 	],
 
@@ -130,10 +134,32 @@ Ext.define('App.controller.patient.Documents', {
 			},
 			'#PatientDocumentEnteredInErrorBtn': {
 				click: me.onPatientDocumentEnteredInErrorBtnClick
+			},
+			'#EncounterPatientDocumentsBtn': {
+				click: me.onEncounterPatientDocumentsBtnClick
+			},
+			'#DocumentWindow': {
+				show: me.onDocumentWindowShow
 			}
 		});
 
 		me.nav = this.getController('Navigation');
+	},
+
+	onEncounterPatientDocumentsBtnClick: function () {
+		this.showDocumentWindow();
+	},
+
+	onDocumentWindowShow: function (win) {
+		var panel = win.down('panel');
+		this.onPatientDocumentPanelActive(panel);
+	},
+
+	showDocumentWindow: function () {
+		if(!this.getDocumentWindow()){
+			Ext.create('App.view.patient.windows.DocumentWindow');
+		}
+		return this.getDocumentWindow().show();
 	},
 
 	onPatientDocumentEnteredInErrorBtnClick: function (btn) {

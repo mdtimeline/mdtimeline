@@ -855,6 +855,7 @@ header("Access-Control-Allow-Origin: *");
                     'administration.CronJob',
 
 	                'areas.FloorPlan',
+	                'areas.PatientPoolAreas',
 
 	                'dashboard.Dashboard',
 	                'dashboard.panel.NewResults',

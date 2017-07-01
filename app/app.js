@@ -58887,7 +58887,8 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		'App.ux.LiveSnomedProcedureSearch',
 		'App.view.patient.encounter.AppointmentRequestGrid',
 		'App.view.patient.encounter.EducationResourcesGrid',
-		'App.view.patient.encounter.MedicationsAdministeredGrid'
+		'App.view.patient.encounter.MedicationsAdministeredGrid',
+		'App.ux.form.fields.plugin.FieldTab'
 	],
 	action: 'patient.encounter.soap',
 	itemId: 'soapPanel',
@@ -59048,8 +59049,14 @@ Ext.define('App.view.patient.encounter.SOAP', {
 						me.sField = Ext.widget('textarea', {
 							name: 'subjective',
 							anchor: '100%',
+							height: 200,
 							enableKeyEvents: true,
-							margin: '5 0 10 0'
+							margin: '5 0 10 0',
+							plugins: [
+								{
+									ptype: 'fieldtab'
+								}
+							]
 						})
 					]
 				},
@@ -59060,7 +59067,13 @@ Ext.define('App.view.patient.encounter.SOAP', {
 					items: [
 						me.oField = Ext.widget('textarea', {
 							name: 'objective',
-							anchor: '100%'
+							anchor: '100%',
+							height: 200,
+							plugins: [
+								{
+									ptype: 'fieldtab'
+								}
+							]
 						}),
 						me.pGrid = Ext.widget('grid', {
 							frame: true,
@@ -59112,7 +59125,13 @@ Ext.define('App.view.patient.encounter.SOAP', {
 					items: [
 						me.aField = Ext.widget('textarea', {
 							name: 'assessment',
-							anchor: '100%'
+							anchor: '100%',
+							height: 200,
+							plugins: [
+								{
+									ptype: 'fieldtab'
+								}
+							]
 						}),
 						me.dxField = Ext.widget('icdsfieldset', {
 							name: 'dxCodes',
@@ -59130,8 +59149,14 @@ Ext.define('App.view.patient.encounter.SOAP', {
 							fieldLabel: _('instructions'),
 							labelAlign: 'top',
 							name: 'instructions',
+							height: 200,
 							margin: '0 0 10 0',
-							anchor: '100%'
+							anchor: '100%',
+							plugins: [
+								{
+									ptype: 'fieldtab'
+								}
+							]
 						}),
 						{
 							xtype: 'medicationsadministeredgrid',

@@ -81,7 +81,7 @@ Ext.define('App.controller.patient.Allergies', {
 		me.control({
 			'patientallergiespanel': {
 				activate: me.onAllergiesGridActivate,
-                select: me.onAllergiesGridSelect
+                beforeedit: me.onAllergiesGridBeforeEdit
 			},
 			'patientallergiespanel #addAllergyBtn': {
 				click: me.onAddAllergyBtnClick
@@ -168,8 +168,6 @@ Ext.define('App.controller.patient.Allergies', {
 	onAllergyMetalComboSelect: function(cmb, records){
 		var form = cmb.up('form').getForm();
 
-		say('onAllergyMetalComboSelect');
-
 		form.getRecord().set({
 			allergy: records[0].get('FullySpecifiedName'),
 			allergy_code: records[0].get('ConceptId'),
@@ -234,28 +232,35 @@ Ext.define('App.controller.patient.Allergies', {
     /**
      * When a row is selected, it will look for the RowEditor plugin and get the form, then set the apropreate COMBO
      * for the Allergy, if it is a RxNorm medication or from the Allergy Combo. Finally set it's original value.
-     * @param grid
-     * @param record
-     * @param index
-     * @param eOpts
+     * @param plugin
+     * @param context
      */
-    onAllergiesGridSelect: function(grid, record, index, eOpts){
-        var RowForm = Ext.ComponentQuery.query('patientallergiespanel')[0].editingPlugin.getEditor(),
+    onAllergiesGridBeforeEdit: function(plugin, context){
+        var RowForm = plugin.editor.editingPlugin.getEditor(),
             AllergyMedicationCombo = RowForm.query('#allergyMedicationCombo')[0],
-            AllergySearchCombo = RowForm.query('#allergySearchCombo')[0];
-        if(record.data.allergy_code_type === 'RXNORM'){
-            AllergyMedicationCombo.setVisible(true);
-            AllergyMedicationCombo.setDisabled(false);
-            AllergySearchCombo.setVisible(false);
-            AllergySearchCombo.setDisabled(true);
-            AllergyMedicationCombo.setValue(record.data.allergy);
-        }else{
-            AllergyMedicationCombo.setVisible(false);
-            AllergyMedicationCombo.setDisabled(true);
-            AllergySearchCombo.setVisible(true);
-            AllergySearchCombo.setDisabled(false);
-            AllergySearchCombo.setValue(record.data.allergy);
-        }
+            AllergyMetalCombo = RowForm.query('#allergyMetalCombo')[0],
+            AllergySearchCombo = RowForm.query('#allergySearchCombo')[0],
+	        allergy_type_code = context.record.get('allergy_type_code'),
+	        isDrug = (allergy_type_code === '419511003' || allergy_type_code === '416098002' || allergy_type_code === '59037007'),
+	        isMetal = allergy_type_code === '300915004',
+	        isElse = !isDrug && !isMetal;
+
+	    AllergyMedicationCombo.setVisible(isDrug);
+	    AllergyMedicationCombo.setDisabled(!isDrug);
+
+	    AllergyMetalCombo.setVisible(isMetal);
+	    AllergyMetalCombo.setDisabled(!isMetal);
+
+	    AllergySearchCombo.setVisible(isElse);
+	    AllergySearchCombo.setDisabled(!isElse);
+
+	    if(isDrug){
+		    AllergyMedicationCombo.setValue(context.record.get('allergy'));
+	    }else if(isMetal){
+		    AllergyMetalCombo.setValue(context.record.get('allergy'));
+	    }else {
+		    AllergySearchCombo.setValue(context.record.get('allergy'));
+	    }
     },
 
 	onAllergiesGridActivate: function(){

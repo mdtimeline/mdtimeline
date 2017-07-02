@@ -79,7 +79,7 @@ Ext.define('App.view.patient.Allergies', {
 		autoCancel: false,
         itemId: 'allergiesGridRowEditor',
 		errorSummary: false,
-		clicksToEdit: 1,
+		clicksToEdit: 2,
 		items: [
 			{
 				title: _('general'),

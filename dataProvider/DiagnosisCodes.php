@@ -50,7 +50,7 @@ class DiagnosisCodes {
 			$w0 = ':W0' . $wheresIndex;
 			$wheres[$w0] = '%' . $q . '%';
 			$w1 = ':W1' . $wheresIndex;
-			$wheres[$w1] = $q . '%';
+			$wheres[$w1] = '%' . $q . '%';
 			$w2 = ':W2' . $wheresIndex;
 			$wheres[$w2] = $q . '%';
 			$w3 = ':W3' . $wheresIndex++;

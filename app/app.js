@@ -4699,7 +4699,7 @@ Ext.define('App.ux.form.AdvanceForm', {
      * @cfg {int} transition
      * Time of Fx background color transition. Default to 2000.
      */
-    transition: 2000,
+    transition: 0,
     /**
      * Init function
      * @param form
@@ -4760,7 +4760,7 @@ Ext.define('App.ux.form.AdvanceForm', {
     setFieldEvent: function(form){
         var fields = form.getForm().getFields().items;
         for(var i = 0; i < fields.length; i++){
-            if(fields[i].xtype == 'textfield' || fields[i].xtype == 'textareafield'){
+            if(fields[i].xtype == 'textfield' || fields[i].xtype == 'textarea'){
                 fields[i].enableKeyEvents = true;
                 fields[i].on('keyup', this.setFieldCondition, this);
 	            fields[i].on('change', this.setFieldCondition, this);
@@ -4790,7 +4790,7 @@ Ext.define('App.ux.form.AdvanceForm', {
 
 	    if(store == null) return;
 
-        if((!me.form.isLoading && field.xtype != 'radiofield') || (!me.form.isLoading && field.xtype == 'radiofield' && field.checked)){
+        if((!me.form.isLoading && field.xtype !== 'radiofield') || (!me.form.isLoading && field.xtype === 'radiofield' && field.checked)){
             obj[field.name] = field.getSubmitValue();
             record.set(obj);
             valueChanged = (Object.getOwnPropertyNames(record.getChanges()).length !== 0);
@@ -4800,7 +4800,7 @@ Ext.define('App.ux.form.AdvanceForm', {
                 me.setFieldDirty(field, el, false, me.transition);
             }
             if(this.formPanel.autoSync && this.syncAcl){
-                if(typeof me.bufferSyncFormFn == 'undefined'){
+                if(typeof me.bufferSyncFormFn === 'undefined'){
                     me.bufferSyncFormFn = Ext.Function.createBuffered(function(){
                         store.sync();
                     }, me.syncDelay);
@@ -4825,10 +4825,14 @@ Ext.define('App.ux.form.AdvanceForm', {
      */
     setFieldDirty: function(field, el, dirty, transition){
         transition = Ext.isNumber(transition) ? transition : 0;
+
         if((field.el.hasChanged && !dirty) || (!field.el.hasChanged && dirty)){
+
+        	var elToStyle = field.xtype === 'textarea' ? field.inputEl.el : field.el;
+
             field.el.hasChanged = dirty;
             Ext.create('Ext.fx.Animator', {
-                target: el,
+                target: elToStyle,
                 duration: transition, // 10 seconds
                 keyframes: {
                     0: {
@@ -4840,12 +4844,12 @@ Ext.define('App.ux.form.AdvanceForm', {
                 },
                 listeners: {
                     keyframe: function(fx, keyframe){
-                        if(keyframe == 1){
+                        if(keyframe === 1){
                             if(dirty){
-                                el.setStyle({'background-image': 'none'});
+	                            elToStyle.setStyle({'background-image': 'none'});
                             }else{
                                 Ext.Function.defer(function(){
-                                    el.setStyle({'background-image': null});
+	                                elToStyle.setStyle({'background-image': null});
                                 }, transition - 400);
                             }
                         }

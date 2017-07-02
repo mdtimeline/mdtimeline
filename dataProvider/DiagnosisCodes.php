@@ -1,4 +1,5 @@
 <?php
+
 /**
  * GaiaEHR (Electronic Health Records)
  * Copyright (C) 2013 Certun, LLC.
@@ -16,15 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 class DiagnosisCodes {
 	private $conn;
 
-	function __construct() {
+	function __construct(){
 		$this->conn = Matcha::getConn();
 	}
 
-	public function ICDCodeSearch($params) {
+	public function ICDCodeSearch($params){
 		ini_set('memory_limit', '256M');
 		$type = Globals::getGlobal('dx_code_type');
 
@@ -47,19 +47,19 @@ class DiagnosisCodes {
 
 		foreach($queries as $q){
 			$q = trim($q);
-			$w0 = ':W0'. $wheresIndex;
-			$wheres[$w0] = '%'.$q.'%';
-			$w1 = ':W1'. $wheresIndex;
-			$wheres[$w1] = $q.'%';
-			$w2 = ':W2'. $wheresIndex;
-			$wheres[$w2] = $q.'%';
-			$w3 = ':W3'. $wheresIndex++;
-			$wheres[$w3] = $q.'%';
+			$w0 = ':W0' . $wheresIndex;
+			$wheres[$w0] = '%' . $q . '%';
+			$w1 = ':W1' . $wheresIndex;
+			$wheres[$w1] = $q . '%';
+			$w2 = ':W2' . $wheresIndex;
+			$wheres[$w2] = $q . '%';
+			$w3 = ':W3' . $wheresIndex++;
+			$wheres[$w3] = $q . '%';
 
-			$whereQuery .= " AND (short_desc 	LIKE $w0
-                         OR long_desc 		    LIKE $w1
-                         OR dx_code			    LIKE $w2
-                         OR formatted_dx_code	LIKE $w3) ";
+			$whereQuery .= " AND (dx.short_desc 	LIKE $w0
+                         OR dx.long_desc 		    LIKE $w1
+                         OR dx.dx_code			    LIKE $w2
+                         OR dx.formatted_dx_code	LIKE $w3) ";
 		}
 
 		if($type == 'ICD9' || $type == 'BOTH'){
@@ -71,11 +71,11 @@ class DiagnosisCodes {
 						  formatted_dx_code,
 						  formatted_dx_code AS code,
 						  dx_code,
-						  dx_code 			AS xcode,
+						  dx_code AS xcode,
 						  long_desc,
-						  long_desc 		AS code_text,
+						  long_desc AS code_text,
 						  short_desc,
-						  'ICD9-DX'			AS code_type
+						  'ICD9-DX'	AS code_type
 				     FROM icd9_dx_code
 	                WHERE active = '1'
 	                  AND revision = '$revision'
@@ -84,7 +84,7 @@ class DiagnosisCodes {
 			$recordSet = $this->conn->prepare($sql);
 			$recordSet->execute($wheres);
 			$records = array_merge($records, $recordSet->fetchAll(PDO::FETCH_ASSOC));
-		} elseif($type == 'ICD10' || $type == 'BOTH') {
+		}else if($type == 'ICD10' || $type == 'BOTH'){
 			/**
 			 *  get last icd10 code revision
 			 */
@@ -92,20 +92,21 @@ class DiagnosisCodes {
 			/**
 			 * ICD10 DX
 			 */
-			$sql = "SELECT dx_id AS id,
-						  formatted_dx_code,
-						  formatted_dx_code AS code,
-						  dx_code,
-						  dx_code 			AS xcode,
-						  long_desc,
-						  TRIM(long_desc) 		AS code_text,
-						  short_desc,
-						  'ICD10-CM'		AS code_type
-					 FROM icd10_dx_order_code
-                    WHERE active = '1'
-                      AND revision = '$revision'
-                     $whereQuery
-                 ORDER BY formatted_dx_code ASC";
+			$sql = "
+				   SELECT occu.occurrences, dx_id AS id,
+						  dx.formatted_dx_code,
+						  dx.formatted_dx_code AS code,
+						  dx.dx_code,
+						  dx.dx_code AS xcode,
+						  dx.long_desc,
+						  TRIM(long_desc) AS code_text,
+						  dx.short_desc,
+						  'ICD10-CM' AS code_type
+					 FROM icd10_dx_order_code as dx
+				LEFT JOIN icd10_occurrences as occu ON occu.dx_code = dx.formatted_dx_code
+                    WHERE dx.active = '1'
+                      AND dx.revision = '{$revision}' {$whereQuery}
+                 ORDER BY occu.occurrences desc, dx.formatted_dx_code ASC";
 			$recordSet = $this->conn->prepare($sql);
 			$recordSet->execute($wheres);
 			$records = array_merge($records, $recordSet->fetchAll(PDO::FETCH_ASSOC));
@@ -116,17 +117,18 @@ class DiagnosisCodes {
 			if(isset($params->start) && isset($params->limit)){
 				$records = array_slice($records, $params->start, $params->limit, true);
 			}
+
 			return array(
 				'totals' => $total,
 				'rows' => $records
 			);
-		} else {
+		}else{
 			return $records;
 		}
 
 	}
 
-	public function getICDDataByCodes($codes) {
+	public function getICDDataByCodes($codes){
 
 		if(count($codes) == 0) return [];
 		$plaholders = array_fill(0, count($codes), '?');
@@ -148,10 +150,11 @@ class DiagnosisCodes {
 
 		$sth = $this->conn->prepare($sql);
 		$sth->execute($values);
+
 		return $sth->fetchAll(PDO::FETCH_ASSOC);
 	}
 
-	public function getICDDataByCode($code, $code_type = null) {
+	public function getICDDataByCode($code, $code_type = null){
 		$data = array();
 
 		if($code_type == null || ($code_type == 'ICD9' || $code_type == 'ICD9-DX')){
@@ -181,10 +184,11 @@ class DiagnosisCodes {
 				return $foo;
 			}
 		}
+
 		return array();
 	}
 
-	public function getICD9CodesByICD10Code($ICD10) {
+	public function getICD9CodesByICD10Code($ICD10){
 		$revision = $this->getLastRevisionByCodeType('ICD10');
 		$sql = "SELECT b.formatted_dx_code AS code,
 								  'ICD9-DX' AS code_type, b.*
@@ -195,10 +199,11 @@ class DiagnosisCodes {
 		$recordSet = $this->conn->prepare($sql);
 		$recordSet->execute(array(':c' => $ICD10));
 		$records = $recordSet->fetchAll(PDO::FETCH_ASSOC);
+
 		return $records;
 	}
 
-	public function getICD10CodesByICD9Code($ICD9) {
+	public function getICD10CodesByICD9Code($ICD9){
 		$revision = $this->getLastRevisionByCodeType('ICD9');
 		$sql = "SELECT b.formatted_dx_code AS code,
 								  'ICD10-DX' AS code_type, b.*
@@ -209,20 +214,22 @@ class DiagnosisCodes {
 		$recordSet = $this->conn->prepare($sql);
 		$recordSet->execute(array(':c' => $ICD9));
 		$records = $recordSet->fetchAll(PDO::FETCH_ASSOC);
+
 		return $records;
 	}
 
-	public function getLastRevisionByCodeType($codeType) {
+	public function getLastRevisionByCodeType($codeType){
 		$sql = "SELECT MAX(revision_number) AS last_revision
                         	 FROM standardized_tables_track
                         	WHERE code_type = :c";
 		$recordSet = $this->conn->prepare($sql);
 		$recordSet->execute(array(':c' => $codeType));
 		$record = $recordSet->fetch(PDO::FETCH_ASSOC);
+
 		return $record['last_revision'];
 	}
 
-	public function getICDByEid($eid, $group = null) {
+	public function getICDByEid($eid, $group = null){
 		$records = array();
 
 		$groupWhere = isset($group) ? " AND `dx_group` = '$group'" : '';
@@ -237,10 +244,11 @@ class DiagnosisCodes {
 			$dx = $this->getICDDataByCode($foo['code']);
 			$records[] = array_merge($dx, $foo);
 		}
+
 		return $records;
 	}
 
-	public function getICDByPid($pid, $active = false) {
+	public function getICDByPid($pid, $active = false){
 		$records = array();
 		$sql = "SELECT *
 			      FROM encounter_dx
@@ -252,10 +260,11 @@ class DiagnosisCodes {
 			$dx = $this->getICDDataByCode($foo['code']);
 			$records[] = array_merge($dx, $foo);
 		}
+
 		return $records;
 	}
 
-	public function liveCodeSearch(stdClass $params) {
+	public function liveCodeSearch(stdClass $params){
 
 		include_once(ROOT . '/classes/Arrays.php');
 
@@ -270,7 +279,7 @@ class DiagnosisCodes {
 					unset($records[$row['code']]);
 					$foo['weight']++;
 					$records[$row['code']] = $foo;
-				} else {
+				}else{
 					$row['weight'] = 1;
 					$haystack[$row['code']] = 1;
 					$records[$row['code']] = $row;
@@ -281,13 +290,14 @@ class DiagnosisCodes {
 		Arrays::sksort($records, 'weight', false);
 		$total = count($records);
 		$records = array_slice($records, $params->start, $params->limit, false);
+
 		return array(
 			'totals' => $total,
 			'rows' => array_values($records)
 		);
 	}
 
-	public function getServiceCodeByCodeAndCodeType($code, $codeType) {
+	public function getServiceCodeByCodeAndCodeType($code, $codeType){
 		if($code == '' || $codeType == '')
 			return '';
 		$codeTable = $codeType == 'ICD9-DX' ? 'icd9_dx_code' : 'icd10_dx_order_code';
@@ -297,7 +307,21 @@ class DiagnosisCodes {
 		$recordSet = $this->conn->prepare($sql);
 		$recordSet->execute(array(':c' => $code));
 		$record = $recordSet->fetch(PDO::FETCH_ASSOC);
+
 		return isset($record['code_text']) ? $record['code_text'] : '';
+	}
+
+	public function addOccurrence($dx_code){
+		$occurrence = 1;
+		$sql = "INSERT INTO icd10_occurrences (`dx_code`,`occurrences`)
+					 VALUES (:dx_code, :occurrence1)
+				         ON DUPLICATE KEY UPDATE `occurrences` = occurrences + :occurrence2";
+		$recordSet = $this->conn->prepare($sql);
+		$recordSet->execute([
+			':dx_code' => $dx_code,
+			':occurrence1' => $occurrence,
+			':occurrence2' => $occurrence,
+		]);
 	}
 
 }

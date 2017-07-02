@@ -3023,7 +3023,7 @@ Ext.define('App.ux.LiveICDXSearch', {
 	listConfig: {
 		loadingText: _('searching') + '...',
 		getInnerTpl: function(){
-			return '<div class="search-item">{code_type} <span style="font-weight: bold;">{code}</span>: {code_text}</div>';
+			return '<div class="search-item">{code_type} <span style="font-weight: bold;">{code}</span>: {code_text} - ({occurrences})</div>';
 		}
 	},
 
@@ -3037,7 +3037,8 @@ Ext.define('App.ux.LiveICDXSearch', {
 				{ name: 'code', type: 'string' },
 				{ name: 'xcode', type: 'string' },
 				{ name: 'code_text', type: 'string' },
-				{ name: 'code_type', type: 'string' }
+				{ name: 'code_type', type: 'string' },
+				{ name: 'occurrences', type: 'int' }
 			],
 			proxy: {
 				type: 'direct',
@@ -3062,6 +3063,14 @@ Ext.define('App.ux.LiveICDXSearch', {
 		});
 
 		me.callParent();
+
+		me.on('select', me.addOccurrence);
+	},
+
+	addOccurrence: function (cmb, records) {
+		if(records.length > 0 && records[0].get('code') !== ''){
+			DiagnosisCodes.addOccurrence(records[0].get('code'));
+		}
 	},
 
 	onRender: function(ct, position){

@@ -798,6 +798,9 @@ $API = [
             ],
 			'getICDDataByCodes' => [
 				'len' => 1
+            ],
+			'addOccurrence' => [
+				'len' => 1
             ]
         ]
     ],

@@ -59599,6 +59599,8 @@ Ext.define('App.view.patient.Allergies', {
 								itemId:'allergyMetalCombo',
 								name: 'allergy',
 								hideLabel: false,
+								displayField: 'FullySpecifiedName',
+								valueField: 'FullySpecifiedName',
 								hidden: true,
 								disabled: true,
 								enableKeyEvents: true,

@@ -1240,6 +1240,9 @@ $API = [
             ],
 			'updateLiveProblemCodeSearch' => [
 				'len' => 1
+            ],
+			'getMetalAllergiesCodes' => [
+				'len' => 1
             ]
         ]
     ],

@@ -106,4 +106,76 @@ class SnomedCodes {
 		return isset($result) && $result != false ? $result['FullySpecifiedName'] : '';
 	}
 
+	public function getMetalAllergiesCodes($params){
+		$metals_allergies = [
+			'105829002', // Actinium
+			'105830007', // Aluminum
+			'105880001', // Americium
+			'105831006', // Antimony
+			'105832004', // Barium
+			'105833009', // Beryllium
+			'105835002', // Bismuth
+			'105853008', // Calcium
+			'105834003', // Californium
+			'290033005', // Cerium
+			'105852003', // Cesium
+			'105839008', // Chromium
+			'105854002', // Cobalt
+			'105837005', // Copper
+			'429591003', // Europium
+			'105879004', // Gadolinium
+			'105841009', // Gallium
+			'105838000', // Germanium
+			'105856000', // Gold
+			'105857009', // Hafnium
+			'105855001', // Indium
+			'105861003', // Iridium
+			'105840005', // Iron
+			'414569007', // Lanthanum
+			'105864006', // Lithium
+			'105858004', // Magnesium
+			'105859007', // Manganese
+			'425620007', // Metal
+			'5160007',   // Metallic compound
+			'105860002', // Molybdenum
+			'105844001', // Nickel
+			'429310004', // Niobium
+			'105862005', // Osmium
+			'105870000', // Palladium
+			'105863000', // Platinum
+			'105845000', // Potassium
+			'105846004', // Radium
+			'395999005', // Rhenium
+			'105877002', // Rhodium
+			'105869001', // Rubidium
+			'105881002', // Ruthenium
+			'419295005', // Samarium
+			'105847008', // Silver
+			'105865007', // Sodium
+			'105868009', // Strontium
+			'105866008', // Tantalum
+			'105873003', // Technetium
+			'105827000', // Tellurium
+			'105867004', // Thorium
+			'105876006', // Titanium
+			'303702002', // Transuranic
+			'105874009', // Tungsten
+			'105850006', // Uranium
+			'105875005', // Vanadium
+			'105882009', // Ytterbium
+			'105851005', // Zinc
+			'105878007'  // Zirconium
+		];
+		$metals_allergies = implode(',', $metals_allergies);
+		$sql = "SELECT ConceptId, FullySpecifiedName, 'SNOMEDCT' as CodeType
+			     FROM sct_concepts
+	            WHERE sct_concepts.ConceptStatus = '0'
+	              AND sct_concepts.ConceptId IN($metals_allergies)";
+		$sth = $this->conn->prepare($sql);
+		$sth->execute();
+		$results = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+		return $results;
+	}
+
 }

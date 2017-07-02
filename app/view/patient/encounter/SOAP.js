@@ -184,7 +184,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 				{
 					xtype: 'fieldset',
 					title: _('subjective'),
-					margin: 5,
+					margin: 10,
 					items: [
 						me.sField = Ext.widget('textarea', {
 							name: 'subjective',
@@ -203,7 +203,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 				{
 					xtype: 'fieldset',
 					title: _('objective'),
-					margin: 5,
+					margin: 10,
 					items: [
 						me.oField = Ext.widget('textarea', {
 							name: 'objective',
@@ -261,7 +261,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 				{
 					xtype: 'fieldset',
 					title: _('assessment'),
-					margin: 5,
+					margin: 10,
 					items: [
 						me.aField = Ext.widget('textarea', {
 							name: 'assessment',
@@ -283,7 +283,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 				{
 					xtype: 'fieldset',
 					title: _('plan'),
-					margin: 5,
+					margin: 10,
 					items: [
 						me.pField = Ext.widget('textarea', {
 							fieldLabel: _('instructions'),

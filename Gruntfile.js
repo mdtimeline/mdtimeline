@@ -60,6 +60,7 @@ module.exports = function(grunt){
 					'app/ux/combo/Allergies.js',
 					'app/ux/combo/AllergiesAbdominal.js',
 					'app/ux/combo/AllergiesLocation.js',
+					'app/ux/combo/AllergiesMetals.js',
 					'app/ux/combo/AllergiesSeverity.js',
 					'app/ux/combo/AllergiesTypes.js',
 					'app/ux/combo/Authorizations.js',

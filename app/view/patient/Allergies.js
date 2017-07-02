@@ -154,6 +154,19 @@ Ext.define('App.view.patient.Allergies', {
 								allowBlank: false
 							},
 							{
+								xtype:'allergiesmetalcombo',
+								fieldLabel: _('allergy'),
+								itemId:'allergyMetalCombo',
+								name: 'allergy',
+								hideLabel: false,
+								hidden: true,
+								disabled: true,
+								enableKeyEvents: true,
+								width: 700,
+								labelWidth: 70,
+								allowBlank: false
+							},
+							{
 								fieldLabel: _('begin_date'),
 								xtype: 'datefield',
 								format: 'Y-m-d',

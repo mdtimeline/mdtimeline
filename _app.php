@@ -390,6 +390,7 @@ header("Access-Control-Allow-Origin: *");
 		            'App.ux.combo.Allergies',
 		            'App.ux.combo.AllergiesAbdominal',
 		            'App.ux.combo.AllergiesLocation',
+		            'App.ux.combo.AllergiesMetals',
 		            'App.ux.combo.AllergiesSeverity',
 		            'App.ux.combo.AllergiesTypes',
 		            'App.ux.combo.Authorizations',

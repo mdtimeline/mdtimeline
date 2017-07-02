@@ -7582,6 +7582,35 @@ Ext.define('App.ux.combo.AllergiesLocation', {
 		me.callParent(arguments);
 	}
 });
+Ext.define('App.ux.combo.AllergiesMetals', {
+	extend: 'Ext.form.ComboBox',
+	xtype: 'allergiesmetalcombo',
+	editable: false,
+	queryMode: 'local',
+	displayField: 'FullySpecifiedName',
+	valueField: 'ConceptId',
+	emptyText: _('select'),
+	initComponent: function () {
+		var me = this;
+
+		me.store = Ext.create('Ext.data.Store', {
+			autoLoad: true,
+			fields: [
+				{ name: 'ConceptId', type: 'string' },
+				{ name: 'FullySpecifiedName', type: 'string' },
+				{ name: 'CodeType', type: 'string' }
+			],
+			proxy: {
+				type: 'direct',
+				api: {
+					read: 'SnomedCodes.getMetalAllergiesCodes'
+				}
+			}
+		});
+
+		me.callParent(arguments);
+	}
+});
 Ext.define('App.ux.combo.AllergiesSeverity', {
 	extend       : 'Ext.form.ComboBox',
 	alias        : 'widget.mitos.allergiesseveritycombo',
@@ -40362,6 +40391,10 @@ Ext.define('App.controller.patient.Allergies', {
 			selector: '#allergyMedicationCombo'
 		},
 		{
+			ref: 'AllergyMetalCombo',
+			selector: '#allergyMetalCombo'
+		},
+		{
 			ref: 'AllergyReactionCombo',
 			selector: '#allergyReactionCombo'
 		},
@@ -40399,6 +40432,9 @@ Ext.define('App.controller.patient.Allergies', {
 			},
 			'#allergyMedicationCombo': {
 				select: me.onAllergyLiveSearchSelect
+			},
+			'#allergyMetalCombo': {
+				select: me.onAllergyMetalComboSelect
 			},
 			'#allergyLocationCombo': {
 				change: me.onAllergyLocationComboChange
@@ -40461,21 +40497,40 @@ Ext.define('App.controller.patient.Allergies', {
 		});
 	},
 
+	onAllergyMetalComboSelect: function(cmb, records){
+		var form = cmb.up('form').getForm();
+
+		say('onAllergyMetalComboSelect');
+
+		form.getRecord().set({
+			allergy: records[0].get('FullySpecifiedName'),
+			allergy_code: records[0].get('ConceptId'),
+			allergy_code_type: records[0].get('CodeType')
+		});
+	},
+
 	onAllergyTypeComboSelect: function(combo, records){
 
 		var me = this,
 			record = records[0],
 			code = record.data.code,
-			isDrug = code == '419511003' || code == '416098002' || code == '59037007';
+			isDrug = (code === '419511003' || code === '416098002' || code === '59037007'),
+			isMetal = code === '300915004',
+			isElse = !isDrug && !isMetal;
 
-		me.getAllergyMedicationCombo().setVisible(isDrug);
-		me.getAllergyMedicationCombo().setDisabled(!isDrug);
+		me.getAllergySearchCombo().setVisible(isDrug);
+		me.getAllergySearchCombo().setDisabled(!isDrug);
 
-		me.getAllergySearchCombo().setVisible(!isDrug);
-		me.getAllergySearchCombo().setDisabled(isDrug);
+		me.getAllergyMetalCombo().setVisible(isMetal);
+		me.getAllergyMetalCombo().setDisabled(!isMetal);
+
+		me.getAllergyMedicationCombo().setVisible(isElse);
+		me.getAllergyMedicationCombo().setDisabled(!isElse);
 
 		if(isDrug){
 			me.getAllergyMedicationCombo().reset();
+		}else if(isMetal) {
+			me.getAllergyMetalCombo().reset();
 		}else{
 			me.getAllergySearchCombo().store.load();
 		}
@@ -59044,7 +59099,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 				{
 					xtype: 'fieldset',
 					title: _('subjective'),
-					margin: 5,
+					margin: 10,
 					items: [
 						me.sField = Ext.widget('textarea', {
 							name: 'subjective',
@@ -59063,7 +59118,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 				{
 					xtype: 'fieldset',
 					title: _('objective'),
-					margin: 5,
+					margin: 10,
 					items: [
 						me.oField = Ext.widget('textarea', {
 							name: 'objective',
@@ -59121,7 +59176,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 				{
 					xtype: 'fieldset',
 					title: _('assessment'),
-					margin: 5,
+					margin: 10,
 					items: [
 						me.aField = Ext.widget('textarea', {
 							name: 'assessment',
@@ -59143,7 +59198,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 				{
 					xtype: 'fieldset',
 					title: _('plan'),
-					margin: 5,
+					margin: 10,
 					items: [
 						me.pField = Ext.widget('textarea', {
 							fieldLabel: _('instructions'),
@@ -59529,6 +59584,19 @@ Ext.define('App.view.patient.Allergies', {
 								xtype:'rxnormallergylivetsearch',
 								fieldLabel: _('allergy'),
 								itemId:'allergyMedicationCombo',
+								name: 'allergy',
+								hideLabel: false,
+								hidden: true,
+								disabled: true,
+								enableKeyEvents: true,
+								width: 700,
+								labelWidth: 70,
+								allowBlank: false
+							},
+							{
+								xtype:'allergiesmetalcombo',
+								fieldLabel: _('allergy'),
+								itemId:'allergyMetalCombo',
 								name: 'allergy',
 								hideLabel: false,
 								hidden: true,

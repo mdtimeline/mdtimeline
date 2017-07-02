@@ -59,6 +59,10 @@ Ext.define('App.controller.patient.Allergies', {
 			selector: '#allergyMedicationCombo'
 		},
 		{
+			ref: 'AllergyMetalCombo',
+			selector: '#allergyMetalCombo'
+		},
+		{
 			ref: 'AllergyReactionCombo',
 			selector: '#allergyReactionCombo'
 		},
@@ -96,6 +100,9 @@ Ext.define('App.controller.patient.Allergies', {
 			},
 			'#allergyMedicationCombo': {
 				select: me.onAllergyLiveSearchSelect
+			},
+			'#allergyMetalCombo': {
+				select: me.onAllergyMetalComboSelect
 			},
 			'#allergyLocationCombo': {
 				change: me.onAllergyLocationComboChange
@@ -158,21 +165,40 @@ Ext.define('App.controller.patient.Allergies', {
 		});
 	},
 
+	onAllergyMetalComboSelect: function(cmb, records){
+		var form = cmb.up('form').getForm();
+
+		say('onAllergyMetalComboSelect');
+
+		form.getRecord().set({
+			allergy: records[0].get('FullySpecifiedName'),
+			allergy_code: records[0].get('ConceptId'),
+			allergy_code_type: records[0].get('CodeType')
+		});
+	},
+
 	onAllergyTypeComboSelect: function(combo, records){
 
 		var me = this,
 			record = records[0],
 			code = record.data.code,
-			isDrug = code == '419511003' || code == '416098002' || code == '59037007';
+			isDrug = (code === '419511003' || code === '416098002' || code === '59037007'),
+			isMetal = code === '300915004',
+			isElse = !isDrug && !isMetal;
 
-		me.getAllergyMedicationCombo().setVisible(isDrug);
-		me.getAllergyMedicationCombo().setDisabled(!isDrug);
+		me.getAllergySearchCombo().setVisible(isDrug);
+		me.getAllergySearchCombo().setDisabled(!isDrug);
 
-		me.getAllergySearchCombo().setVisible(!isDrug);
-		me.getAllergySearchCombo().setDisabled(isDrug);
+		me.getAllergyMetalCombo().setVisible(isMetal);
+		me.getAllergyMetalCombo().setDisabled(!isMetal);
+
+		me.getAllergyMedicationCombo().setVisible(isElse);
+		me.getAllergyMedicationCombo().setDisabled(!isElse);
 
 		if(isDrug){
 			me.getAllergyMedicationCombo().reset();
+		}else if(isMetal) {
+			me.getAllergyMetalCombo().reset();
 		}else{
 			me.getAllergySearchCombo().store.load();
 		}

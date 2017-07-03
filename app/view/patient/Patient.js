@@ -1853,6 +1853,8 @@ Ext.define('App.view.patient.Patient', {
 
 		me.getPatientContacts(pid);
 
+		me.getPatientImages(app.patient.record);
+
 		app.patient.record.insurance().load({
 			filters: [
 				{

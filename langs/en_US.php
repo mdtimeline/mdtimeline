@@ -1906,4 +1906,7 @@ $LANG = array(
 	'backups'                               => 'Backups',
 	'backup_now'                            => 'Backup Now',
 	'remove_patient_pool_area_msg'          => 'Would You Like To Remove Patient From Pool Area',
+	'laboratory_orders'                     => 'Laboratory Orders',
+	'radiology_orders'                      => 'Radiology Orders',
+	'medication_orders'                     => 'Medication Orders',
 );

@@ -373,6 +373,10 @@ Ext.define('App.view.patient.Encounter', {
 					text: _('vaccs') + ' ',
 					action: 'immunization',
 					tooltip: _('vaccines_immunizations'),
+					style: {
+						backgroundColor: g('immunizations_tab_color'),
+						backgroundImage: 'none'
+					},
 					acl: a('access_patient_immunizations')
 				},
 				'-',
@@ -380,6 +384,10 @@ Ext.define('App.view.patient.Encounter', {
 					text: _('al') + ' ',
 					action: 'allergies',
 					tooltip: _('allergies'),
+					style: {
+						backgroundColor: g('allergies_tab_color'),
+						backgroundImage: 'none'
+					},
 					acl: a('access_patient_allergies')
 				},
 				'-',
@@ -387,6 +395,10 @@ Ext.define('App.view.patient.Encounter', {
 					text: _('act_prob') + ' ',
 					action: 'activeproblems',
 					tooltip: _('active_problems'),
+					style: {
+						backgroundColor: g('problems_tab_color'),
+						backgroundImage: 'none'
+					},
 					acl: a('access_active_problems')
 				},
 				'-',
@@ -394,6 +406,10 @@ Ext.define('App.view.patient.Encounter', {
 					text: _('fam_hx') + ' ',
 					action: 'familyhistory',
 					tooltip: _('family_history'),
+					style: {
+						backgroundColor: g('family_history_tab_color'),
+						backgroundImage: 'none'
+					},
 					acl: a('access_family_history')
 				},
 				'-',
@@ -401,6 +417,10 @@ Ext.define('App.view.patient.Encounter', {
 					text: _('adv_dir') + ' ',
 					action: 'advancedirectives',
 					tooltip: _('advance_directives'),
+					style: {
+						backgroundColor: g('advance_directive_tab_color'),
+						backgroundImage: 'none'
+					},
 					acl: a('access_patient_advance_directive')
 				},
 				'-',
@@ -408,6 +428,10 @@ Ext.define('App.view.patient.Encounter', {
 					text: _('meds') + ' ',
 					action: 'medications',
 					tooltip: _('medications'),
+					style: {
+						backgroundColor: g('medications_tab_color'),
+						backgroundImage: 'none'
+					},
 					acl: a('access_patient_medications')
 				},
 				'-',
@@ -415,6 +439,10 @@ Ext.define('App.view.patient.Encounter', {
 					text: _('res') + ' ',
 					action: 'laboratories',
 					tooltip: _('results'),
+					style: {
+						backgroundColor: g('results_tab_color'),
+						backgroundImage: 'none'
+					},
 					acl: a('access_patient_results')
 				},
 				'-',
@@ -422,6 +450,10 @@ Ext.define('App.view.patient.Encounter', {
 					text: _('soc_hx') + ' ',
 					action: 'social',
 					tooltip: _('social_history'),
+					style: {
+						backgroundColor: g('social_history_tab_color'),
+						backgroundImage: 'none'
+					},
 					acl: a('access_patient_social_history')
 				},
 				'-',
@@ -429,6 +461,10 @@ Ext.define('App.view.patient.Encounter', {
 					text: _('func_stat') + ' ',
 					action: 'functionalstatus',
 					tooltip: _('functional_status'),
+					style: {
+						backgroundColor: g('functional_status_tab_color'),
+						backgroundImage: 'none'
+					},
 					acl: a('access_patient_functional_status')
 				},
 				'-',
@@ -436,6 +472,10 @@ Ext.define('App.view.patient.Encounter', {
 					text: _('refs') + ' ',
 					action: 'referrals',
 					tooltip: _('referrals'),
+					style: {
+						backgroundColor: g('referrals_tab_color'),
+						backgroundImage: 'none'
+					},
 					acl: a('access_patient_referrals')
 				},
 				'-',
@@ -443,6 +483,10 @@ Ext.define('App.view.patient.Encounter', {
 					text: _('imp_devs') + ' ',
 					action: 'ImplantableDeviceGrid',
 					tooltip: _('implantable_devices'),
+					style: {
+						backgroundColor: g('implantable_devices_tab_color'),
+						backgroundImage: 'none'
+					},
 					acl: a('access_patient_implantable_devices')
 				},
 				'-',
@@ -450,6 +494,10 @@ Ext.define('App.view.patient.Encounter', {
 					text: _('spb') + ' ',
 					action: 'SocialPsychologicalBehavioralPanel',
 					tooltip: _('social_psychological_behavioral'),
+					style: {
+						backgroundColor: g('psy_behavioral_tab_color'),
+						backgroundImage: 'none'
+					},
 					acl: a('access_patient_psy_behavioral')
 				},
 				'-',
@@ -457,27 +505,40 @@ Ext.define('App.view.patient.Encounter', {
 					text: _('doc_nt'),
 					action: 'DoctorsNotes',
 					tooltip: _('doctors_notes'),
+					style: {
+						backgroundColor: g('doctors_notes_tab_color'),
+						backgroundImage: 'none'
+					},
 					acl: a('access_patient_doctors_notes')
 				},
 				'-',
 				{
 					text: _('lab_orders'),
 					action: 'LabOrders',
-					cls: 'order-btn',
+					style: {
+						backgroundColor: g('lab_orders_tab_color'),
+						backgroundImage: 'none'
+					},
 					acl: a('access_patient_lab_orders')
 				},
 				'-',
 				{
 					text: _('xray_ct_orders'),
 					action: 'RadOrders',
-					cls: 'order-btn',
+					style: {
+						backgroundColor: g('rad_orders_tab_color'),
+						backgroundImage: 'none'
+					},
 					acl: a('access_patient_rad_orders')
 				},
 				'-',
 				{
 					text: _('rx_orders'),
 					action: 'RxOrderGrid',
-					cls: 'order-btn',
+					style: {
+						backgroundColor: g('rx_orders_tab_color'),
+						backgroundImage: 'none'
+					},
 					acl: a('access_patient_rx_orders')
 				},
 				'-',

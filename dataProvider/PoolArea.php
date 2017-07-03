@@ -197,6 +197,12 @@ class PoolArea {
 		return $this->pa->sql("SELECT * FROM pool_areas	WHERE active = '1' ORDER BY sequence")->all();
 	}
 
+	public function getAreaByCode($area_code){
+		$this->setPaModel();
+		return $this->pa->sql("SELECT * FROM pool_areas	WHERE `code` = :area_code AND active = '1'")->one([':area_code' => $area_code]);
+
+	}
+
 	/**
 	 * This this return an arrays of Areas
 	 * where array index equal the area ID

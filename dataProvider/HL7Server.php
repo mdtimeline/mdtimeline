@@ -583,7 +583,11 @@ class HL7Server {
 
 		if($evt == 'A01'){
 			/**
-			 * Admit Visit
+			 * Patient Visit
+			 */
+		} elseif($evt == 'A02') {
+			/**
+			 * Patient transfer
 			 */
 		} elseif($evt == 'A04') {
 			/**
@@ -644,20 +648,21 @@ class HL7Server {
 				$this->ackMessage = 'Unable to find patient ' . $PID[3][1];
 			}
 
-			$newAreaId = $PV1[3][1];
+			$newAreaCode = $PV1[3][1];
 			//$oldAreaId = $PV1[6][1];
 
 			$PoolArea = new PoolArea();
-			$areas = $PoolArea->getAreasArray();
-			if(!array_key_exists($newAreaId, $areas)){
+			$area = $PoolArea->getAreaByCode($newAreaCode);
+
+			if($area === false){
 				$this->ackStatus = 'AR';
-				$this->ackMessage = 'Unable to find Area ID ' . $newAreaId;
+				$this->ackMessage = 'Unable to find Area code: ' . $newAreaCode;
 				return;
 			}
 
 			$params = new stdClass();
 			$params->pid = $patient['pid'];
-			$params->sendTo = $newAreaId;
+			$params->sendTo = $area['id'];
 			$PoolArea->sendPatientToPoolArea($params);
 			unset($params);
 
@@ -686,20 +691,21 @@ class HL7Server {
 				$this->ackMessage = 'Unable to find patient ' . $PID[3][1];
 			}
 
-			$newAreaId = $PV1[3][1];
+			$newAreaCode = $PV1[3][1];
 			//$oldAreaId = $PV1[6][1];
 
 			$PoolArea = new PoolArea();
-			$areas = $PoolArea->getAreasArray();
-			if(!array_key_exists($newAreaId, $areas)){
+			$area = $PoolArea->getAreaByCode($newAreaCode);
+
+			if($area === false){
 				$this->ackStatus = 'AR';
-				$this->ackMessage = 'Unable to find Area ID ' . $newAreaId;
+				$this->ackMessage = 'Unable to find Area code: ' . $newAreaCode;
 				return;
 			}
 
 			$params = new stdClass();
 			$params->pid = $patient['pid'];
-			$params->sendTo = $newAreaId;
+			$params->sendTo = $area['id'];
 			$PoolArea->sendPatientToPoolArea($params);
 			unset($params);
 

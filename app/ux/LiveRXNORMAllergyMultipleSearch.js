@@ -17,75 +17,84 @@
  */
 
 Ext.define('App.ux.LiveRXNORMAllergyMultipleSearch', {
-    extend: 'App.ux.form.fields.BoxSelect',
-    xtype: 'liverxnormallergymultiple',
-    allowBlank: true,
-    editable: true,
-    typeAhead: false,
-    autoSelect: false,
-    emptyText: _('allergy_search') + '...',
-    queryMode: 'remote',
-    labelTpl: '{STR} &#60;{RXCUI}&#62;',
-    forceSelection: false,
-    displayField: 'STR',
-    valueField: 'STR',
-    pageSize: 25,
+	extend: 'App.ux.form.fields.BoxSelect',
+	xtype: 'liverxnormallergymultiple',
+	allowBlank: true,
+	editable: true,
+	typeAhead: false,
+	autoSelect: false,
+	emptyText: _('allergy_search') + '...',
+	queryMode: 'remote',
+	labelTpl: '{STR} &#60;{RXCUI}&#62;',
+	forceSelection: false,
+	displayField: 'STR',
+	valueField: 'STR',
+	pageSize: 25,
 	enableReset: false,
-    initComponent: function(){
-        var me = this,
-            model = 'RXNORMAllergyMultipleSearchModel' + me.id;
+	initComponent: function () {
+		var me = this,
+			model = 'RXNORMAllergyMultipleSearchModel' + me.id;
 
-	    if(me.enableReset){
-		    me.trigger2Cls = 'x-form-clear-trigger';
-		    me.onTrigger2Click = function() {
-			    me.reset();
-		    }
-	    }
+		if (me.enableReset) {
+			me.trigger2Cls = 'x-form-clear-trigger';
+			me.onTrigger2Click = function () {
+				me.reset();
+			}
+		}
 
-        Ext.define(model, {
-            extend: 'Ext.data.Model',
-            fields: [
-                {name: 'RXCUI', type: 'auto'},
-                {name: 'CODE', type: 'auto'},
-                {name: 'STR', type: 'auto'},
-                {name: 'DST', type: 'auto'},
-                {name: 'DRT', type: 'auto'},
-                {name: 'DDF', type: 'auto'},
-                {name: 'DDFA', type: 'auto'},
-                {name: 'RXN_QUANTITY', type: 'auto'},
-                {name: 'SAB', type: 'auto'},
-                {name: 'RXAUI', type: 'auto'},
-                {name: 'CodeType', defaultValue: 'RXNORM'}
-            ],
-            proxy: {
-                type: 'direct',
-                api: {
-                    read: 'Rxnorm.getRXNORMAllergyLiveSearch'
-                },
-                reader: {
-                    totalProperty: 'totals',
-                    root: 'rows'
-                }
-            }
-        });
+		Ext.define(model, {
+			extend: 'Ext.data.Model',
+			fields: [
+				{name: 'RXCUI', type: 'auto'},
+				{name: 'CODE', type: 'auto'},
+				{name: 'STR', type: 'auto'},
+				{name: 'DST', type: 'auto'},
+				{name: 'DRT', type: 'auto'},
+				{name: 'DDF', type: 'auto'},
+				{name: 'DDFA', type: 'auto'},
+				{name: 'RXN_QUANTITY', type: 'auto'},
+				{name: 'SAB', type: 'auto'},
+				{name: 'RXAUI', type: 'auto'},
+				{name: 'CodeType', defaultValue: 'RXNORM'},
+				{name: 'occurrences', type: 'int'}
+			],
+			proxy: {
+				type: 'direct',
+				api: {
+					read: 'Rxnorm.getRXNORMAllergyLiveSearch'
+				},
+				reader: {
+					totalProperty: 'totals',
+					root: 'rows'
+				}
+			}
+		});
 
-        me.store = Ext.create('Ext.data.Store', {
-            model: 'RXNORMAllergyMultipleSearchModel' + me.id,
-            pageSize: 25,
-            autoLoad: false
-        });
+		me.store = Ext.create('Ext.data.Store', {
+			model: 'RXNORMAllergyMultipleSearchModel' + me.id,
+			pageSize: 25,
+			autoLoad: false
+		});
 
-        Ext.apply(this, {
-            store: me.store,
-            listConfig: {
-                loadingText: _('searching') + '...',
-                getInnerTpl: function(){
-                    return '<div class="search-item"><h3>{STR}<span style="font-weight: normal"> ({RXCUI}) </span></h3></div>';
-                }
-            },
-            pageSize: 25
-        });
+		Ext.apply(this, {
+			store: me.store,
+			listConfig: {
+				loadingText: _('searching') + '...',
+				getInnerTpl: function () {
+					return '<div class="search-item"><h3>{STR}<span style="font-weight: normal"> ({RXCUI}) ({occurrences})</span></h3></div>';
+				}
+			},
+			pageSize: 25
+		});
 
-        me.callParent();
-    }
+		me.callParent();
+
+		me.on('select', me.addOccurrence);
+	},
+
+	addOccurrence: function (cmb, records) {
+		if (records.length > 0 && records[0].get('RXCUI') !== '') {
+			Rxnorm.addOccurrence(records[0].get('RXCUI'));
+		}
+	}
 });

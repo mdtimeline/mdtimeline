@@ -1280,6 +1280,9 @@ $API = [
             ],
 			'destroyMedicationInstructions' => [
 				'len' => 1
+            ],
+			'addOccurrence' => [
+				'len' => 1
             ]
         ]
     ],

@@ -269,7 +269,7 @@ class Rxnorm
         }
 
         $sth = $this->db->prepare("
-			SELECT RX.*,
+			SELECT RX.*, RXO.occurrences,
 		    (SELECT rxnsat.`ATV` FROM rxnsat WHERE `rxnsat`.`RXCUI` = RX.RXCUI AND `rxnsat`.`ATN` = 'NDC' AND `rxnsat`.`ATV` IS NOT NULL LIMIT 1) AS NDC,
 			{$umls}
 		  	(SELECT rxnconso.`code` FROM rxnconso WHERE `rxnconso`.`RXCUI` = RX.RXCUI AND (`rxnconso`.`SAB` = 'GS') LIMIT 1) AS GS_CODE
@@ -281,9 +281,10 @@ class Rxnorm
 			    AND (c.`TTY` = 'SCD' OR c.`TTY` = 'SBD' {$groups} {$ingredients}) 
 			    LIMIT 50
 		    ) AS RX
+		    LEFT JOIN rxnoccurrences AS RXO ON RXO.rxcui = RX.RXCUI
 		    WHERE RX.SUPPRESS = 'N' AND RX.CVF <> ''
 		    GROUP BY RX.`STR` 
-		    ORDER BY RX.`TTY` DESC, RX.`STR` DESC;");
+		    ORDER BY RXO.occurrences DESC, RX.`TTY` DESC, RX.`STR` DESC;");
 
 //        $sth = $this->db->prepare("SELECT RX.*, `rxnsat`.`ATV` AS NDC,
 //                    (select code from rxnconso where SAB='GS' AND rxcui = RX.rxcui LIMIT 1) as GS_CODE
@@ -345,12 +346,27 @@ class Rxnorm
     public function getRXNORMAllergyLiveSearch(stdClass $params)
     {
         try {
-            $sth = $this->db->prepare("SELECT *
-                 FROM rxnconso
-                WHERE SAB='RXNORM'
-                AND (TTY = 'IN' OR TTY = 'PIN' OR TTY = 'BN' OR TTY='MIN' OR TTY='SBD' OR TTY='SBDC' OR TTY='SBDF' OR TTY='SCDG')
-                AND (RXCUI LIKE :q1 OR STR LIKE :q2)
-             GROUP BY RXCUI LIMIT 100");
+
+        	$sql = "SELECT RX.*, RXO.occurrences
+                  	  FROM rxnconso AS RX
+             	 LEFT JOIN rxnoccurrences AS RXO ON RXO.rxcui = RX.RXCUI
+                 	 WHERE SAB='RXNORM'
+                   	   AND (
+                   	    	RX.TTY = 'IN'
+                   	   	 OR RX.TTY = 'PIN'
+                   	   	 #OR RX.TTY = 'BN'
+                   	   	 #OR RX.TTY = 'MIN'
+                   	   	 #OR RX.TTY = 'SBD'
+                   	   	 #OR RX.TTY = 'SBDC'
+                   	   	 #OR RX.TTY = 'SBDF'
+                   	   	 #OR RX.TTY = 'SCDG'
+                   	   )
+                   	   AND (RX.RXCUI LIKE :q1 OR RX.STR LIKE :q2)
+              	  GROUP BY RX.RXCUI
+              	  ORDER BY RXO.occurrences DESC 
+              	  	 LIMIT 100";
+
+            $sth = $this->db->prepare($sql);
             $sth->execute([
                 ':q1' => $params->query . '%',
                 ':q2' => '%' . $params->query . '%'
@@ -370,6 +386,20 @@ class Rxnorm
             ];
         }
     }
+
+	public function addOccurrence($rxcui){
+    	$conn = Matcha::getConn();
+		$occurrence = 1;
+		$sql = "INSERT INTO rxnoccurrences (`rxcui`,`occurrences`)
+					 VALUES (:rxcui, :occurrence1)
+				         ON DUPLICATE KEY UPDATE `occurrences` = occurrences + :occurrence2";
+		$recordSet = $conn->prepare($sql);
+		$recordSet->execute([
+			':rxcui' => $rxcui,
+			':occurrence1' => $occurrence,
+			':occurrence2' => $occurrence,
+		]);
+	}
 
     public function getMedicationAttributesByRxcui($rxcui)
     {

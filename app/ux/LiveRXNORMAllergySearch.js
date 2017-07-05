@@ -38,7 +38,8 @@ Ext.define('App.ux.LiveRXNORMAllergySearch', {
 				{name: 'RXN_QUANTITY', type: 'auto'},
 				{name: 'SAB', type: 'auto'},
 				{name: 'RXAUI', type: 'auto'},
-				{name: 'CodeType', defaultValue: 'RXNORM'}
+				{name: 'CodeType', defaultValue: 'RXNORM'},
+				{name: 'occurrences', type: 'int'}
 			],
 			proxy: {
 				type: 'direct',
@@ -68,12 +69,20 @@ Ext.define('App.ux.LiveRXNORMAllergySearch', {
 			listConfig: {
 				loadingText: _('searching')+'...',
 				getInnerTpl: function(){
-					return '<div class="search-item"><h3>{STR}<span style="font-weight: normal"> ({RXCUI}) </span></h3></div>';
+					return '<div class="search-item"><h3>{STR}<span style="font-weight: normal"> ({RXCUI}) ({occurrences}) </span></h3></div>';
 				}
 			},
 			pageSize: 25
 		});
 
 		me.callParent();
+
+		me.on('select', me.addOccurrence);
+	},
+
+	addOccurrence: function (cmb, records) {
+		if (records.length > 0 && records[0].get('RXCUI') !== '') {
+			Rxnorm.addOccurrence(records[0].get('RXCUI'));
+		}
 	}
 });

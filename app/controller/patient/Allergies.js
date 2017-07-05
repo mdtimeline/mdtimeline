@@ -184,14 +184,14 @@ Ext.define('App.controller.patient.Allergies', {
 			isMetal = code === '300915004',
 			isElse = !isDrug && !isMetal;
 
-		me.getAllergySearchCombo().setVisible(isDrug);
-		me.getAllergySearchCombo().setDisabled(!isDrug);
+		me.getAllergyMedicationCombo().setVisible(isDrug);
+		me.getAllergyMedicationCombo().setDisabled(!isDrug);
 
 		me.getAllergyMetalCombo().setVisible(isMetal);
 		me.getAllergyMetalCombo().setDisabled(!isMetal);
 
-		me.getAllergyMedicationCombo().setVisible(isElse);
-		me.getAllergyMedicationCombo().setDisabled(!isElse);
+		me.getAllergySearchCombo().setVisible(isElse);
+		me.getAllergySearchCombo().setDisabled(!isElse);
 
 		if(isDrug){
 			me.getAllergyMedicationCombo().reset();

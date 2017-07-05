@@ -160,7 +160,7 @@ class PoolArea {
 		}
 		$record = new stdClass();
 		$record->pid  = $params->pid;
-		$record->uid  = $_SESSION['user']['id'];
+		$record->uid  = isset($_SESSION['user']['id']) ? $_SESSION['user']['id'] : 0;
 		$record->time_in  = date('Y-m-d H:i:s');
 		$record->area_id  = $params->sendTo;
 		$record->in_queue  = 1;

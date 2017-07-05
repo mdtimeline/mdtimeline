@@ -679,10 +679,10 @@ class HL7Server {
 			$PV1 = $msg->data['PV1'];
 
 			$filter = array();
-			if($PID[3][4][1] == $this->getAssigningAuthority()){
-				$filter['pid'] = $PID[3][1];
+			if($PID[3][0][4][1] == $this->getAssigningAuthority()){
+				$filter['pid'] = $PID[3][0][1];
 			} else {
-				$filter['pubpid'] = $PID[3][1];
+				$filter['pubpid'] = $PID[3][0][1];
 			}
 
 			$patient = $this->p->load($filter)->one();

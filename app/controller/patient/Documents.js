@@ -187,7 +187,7 @@ Ext.define('App.controller.patient.Documents', {
 
 	onPatientDocumentViewerFrameRender:function (frame) {
 		var field = frame.up('panel').query('#PatientDocumentViewerOpacityField')[0];
-		this.setOpacity(frame, field.getValue());
+		if(field) this.setOpacity(frame, field.getValue());
 	},
 
 	onPatientDocumentViewerOpacityFieldAfterRender: function (field) {
@@ -196,7 +196,7 @@ Ext.define('App.controller.patient.Documents', {
 
 	onPatientDocumentViewerOpacityFieldChange: function (feild, value) {
 		var frame = feild.up('panel').query('#patientDocumentViewerFrame')[0];
-		this.setOpacity(frame, value);
+		if(frame) this.setOpacity(frame, value);
 	},
 
 	setOpacity: function (frame, opacity) {

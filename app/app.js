@@ -41349,20 +41349,19 @@ Ext.define('App.controller.patient.CCD', {
 		this.onViewCcdBtnClick(panel.down('toolbar').down('button'));
 	},
 
-	onViewCcdBtnClick: function(btn){
-
+	onViewCcdBtnClick: function(btn) {
 		var eid = this.getEid(btn);
 
 		btn.up('panel').query('miframe')[0].setSrc(
 			'dataProvider/CCDDocument.php?' +
-            'action=view' +
-            '&site=' + window.site +
+			'action=view' +
+			'&site=' + window.site +
 			'&pid=' + app.patient.pid +
 			'&eid=' + eid +
 			'&exclude=' + this.getExclusions(btn) +
 			'&token=' + app.user.token
 		);
-        btn.up('panel').query('miframe')[0].el.unmask();
+		btn.up('panel').query('miframe')[0].el.unmask();
 
 		this.logCtrl.addLog(
 			app.patient.pid,
@@ -41370,15 +41369,16 @@ Ext.define('App.controller.patient.CCD', {
 			eid,
 			'encounters',
 			'VIEW',
-            eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
+			eid == null ? 'Patient C-CDA VIEWED' : 'Encounter C-CDA VIEWED'
 		);
 
-        TransactionLog.saveExportLog({
-            pid: app.patient.pid,
-            uid: app.user.id,
-            eid: eid,
-            event: eid ? 'Patient_CCDA_VIEWED' : 'Encounter_CCDA_VIEWED'
-        });
+		TransactionLog.saveExportLog({
+			pid: app.patient.pid,
+			uid: app.user.id,
+			eid: eid,
+			event: eid ? 'Patient_CCDA_VIEWED' : 'Encounter_CCDA_VIEWED'
+		});
+
 	},
 
 	onArchiveCcdBtnClick: function(btn){
@@ -56045,7 +56045,7 @@ Ext.define('App.controller.patient.Documents', {
 
 	onPatientDocumentViewerFrameRender:function (frame) {
 		var field = frame.up('panel').query('#PatientDocumentViewerOpacityField')[0];
-		this.setOpacity(frame, field.getValue());
+		if(field) this.setOpacity(frame, field.getValue());
 	},
 
 	onPatientDocumentViewerOpacityFieldAfterRender: function (field) {
@@ -56054,7 +56054,7 @@ Ext.define('App.controller.patient.Documents', {
 
 	onPatientDocumentViewerOpacityFieldChange: function (feild, value) {
 		var frame = feild.up('panel').query('#patientDocumentViewerFrame')[0];
-		this.setOpacity(frame, value);
+		if(frame) this.setOpacity(frame, value);
 	},
 
 	setOpacity: function (frame, opacity) {

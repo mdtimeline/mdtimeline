@@ -27,8 +27,7 @@ class HL7ServerHandler
         $data->id = $params->id;
         $data->token = $params->token = md5(time());
         $server->save($data);
-        $foo = parse_url(URL);
-        $url = $foo['scheme'] . '://' . $foo['host'] . $foo['path'] . '/lib/HL7/HL7Server.php';
+        $url = URL . '/lib/HL7/HL7Server.php';
         $curl = curl_init();
         $post = [
             'host' => $params->ip,

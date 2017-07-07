@@ -1,2 +1,0 @@
-# MatchaModel - Read Me
-

@@ -113,15 +113,19 @@ class Matcha
             $dbUser = (string)$databaseParameters['user'];
             $dbPass = (string)$databaseParameters['pass'];
 
-            self::$__conn = new PDO(
-                'mysql:host=' . $host . ';port=' . $port . ';',
-                $dbUser,
-                $dbPass, array(
-                    //PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
-                    PDO::MYSQL_ATTR_LOCAL_INFILE => 1,
-                    PDO::ATTR_PERSISTENT => false,
-                )
-            );
+            try{
+	            self::$__conn = new PDO(
+	                'mysql:host=' . $host . ';port=' . $port . ';',
+	                $dbUser,
+	                $dbPass, array(
+	                    //PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
+	                    PDO::MYSQL_ATTR_LOCAL_INFILE => 1,
+	                    PDO::ATTR_PERSISTENT => false,
+	                )
+	            );
+			} catch (PDOException $e){
+	            die('DATABASE FAILED: ' . $e->getMessage());
+            }
 
             // Check if the current version of PDO::MySQL has this parameter available
             // If not activate it.
@@ -153,13 +157,15 @@ class Matcha
 	}
 
     static public function reconnect(){
-	    if(self::$__reconnect_tries > self::$__max_reconnect_tries) return;
+	    if(self::$__reconnect_tries > self::$__max_reconnect_tries) return false;
         self::$__reconnect_tries++;
 
         error_log('Matcha::reconnect  Trying to reconnect... #' . self::$__reconnect_tries);
 
         self::$__conn = null;
         self::connect(self::$__databaseParameters);
+
+        return true;
     }
 
 	/**

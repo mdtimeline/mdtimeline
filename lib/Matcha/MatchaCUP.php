@@ -174,7 +174,7 @@ class MatchaCUP {
 
 	public function exec($where = null) {
 		$where = isset($where) ? $where : $this->where;
-		$statement = Matcha::$__conn->prepare($this->sql);
+		$statement = @Matcha::$__conn->prepare($this->sql);
 		$result = $statement->execute($where);
 		$statement->closeCursor();
 		return $result;
@@ -396,7 +396,7 @@ class MatchaCUP {
 			}
 			return $this;
 		} catch(PDOException $e) {
-			return MatchaErrorHandler::__errorProcess($e);
+			return $this->PDOExceptionHandler($e, 'load', [$where, $columns]);
 		}
 	}
 
@@ -590,7 +590,7 @@ class MatchaCUP {
 	public function all($where = null) {
 		try {
 			$where = isset($where) ? $where : $this->where;
-			$sth = Matcha::$__conn->prepare($this->sql);
+			$sth = @Matcha::$__conn->prepare($this->sql);
 			$sth->execute($where);
 			$this->record = $sth->fetchAll();
 
@@ -613,7 +613,7 @@ class MatchaCUP {
 			$this->builtRoot();
 			return $this->record;
 		} catch(PDOException $e) {
-			return MatchaErrorHandler::__errorProcess($e);
+			return $this->PDOExceptionHandler($e, 'all', [$where]);
 		}
 	}
 
@@ -625,7 +625,7 @@ class MatchaCUP {
 	public function one($where = null) {
 		try {
 			$where = isset($where) ? $where : $this->where;
-			$sth = Matcha::$__conn->prepare($this->sql);
+			$sth = @Matcha::$__conn->prepare($this->sql);
 			$sth->execute($where);
 			$this->record = $sth->fetch();
 
@@ -649,8 +649,22 @@ class MatchaCUP {
 
 			return $this->record;
 		} catch(PDOException $e) {
+			return $this->PDOExceptionHandler($e, 'one', [$where]);
+		}
+	}
+
+	/**
+	 * @param $e         PDOException
+	 * @param $method    string
+	 * @param $arguments array
+	 *
+	 * @return mixed
+	 */
+	private function PDOExceptionHandler($e, $method, $arguments){
+		if (strpos($e->getMessage(), 'server has gone away') === false || !Matcha::reconnect()) {
 			return MatchaErrorHandler::__errorProcess($e);
 		}
+		return call_user_func_array([$this, $method], $arguments);
 	}
 
 	/**
@@ -809,7 +823,7 @@ class MatchaCUP {
 			return $this->record;
 
 		} catch(PDOException $e) {
-			return MatchaErrorHandler::__errorProcess($e, $this);
+			return $this->PDOExceptionHandler($e, 'save', [$record, $where]);
 		}
 	}
 
@@ -831,7 +845,7 @@ class MatchaCUP {
 
 		$this->bindedValues = [];
 
-		$sth = Matcha::$__conn->prepare($this->sql);
+		$sth = @Matcha::$__conn->prepare($this->sql);
 		foreach($data as $key => $value){
 
 			if(is_object($record) && isset($record->{$key})){
@@ -1312,7 +1326,7 @@ class MatchaCUP {
 				$this->model->proxy->reader->root : $this->model->proxy->reader->rootProperty;
 
 			if($this->nolimitsql != ''){
-				$sth = Matcha::$__conn->prepare($this->nolimitsql);
+				$sth = @Matcha::$__conn->prepare($this->nolimitsql);
 				$sth->execute($this->where);
 				$total = $sth->rowCount();
 			} else {

@@ -52,9 +52,6 @@ class MatchaErrorHandler extends Matcha {
 		// normal output - to Apache error.log
 		error_log('Matcha::connect: ' . $constructErrorMessage);
 
-        if (strpos($msg, 'server has gone away') !== false) {
-            Matcha::reconnect();
-        }
 		return $e;
 	}
 

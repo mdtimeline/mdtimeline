@@ -139,7 +139,7 @@ class MatchaModel extends Matcha {
 
 				// add data - if the model has data defined.
 				if(isset(self::$__senchaModel['table']['data'])){
-					$rec = self::$__conn->prepare('SELECT * FROM ' . $table);
+					$rec = @self::$__conn->prepare('SELECT * FROM ' . $table);
 					$rec->execute();
 					if($rec->rowCount() <= 0){
 						MatchaModel::__setSenchaModelData(MatchaModel::$__senchaModel['table']['data']);
@@ -218,7 +218,7 @@ class MatchaModel extends Matcha {
 									$change = 'true'; // Comment
 
 							// Index....
-							$sth = self::$__conn->prepare("SHOW INDEX FROM $table WHERE Key_name = '{$field['name']}'");
+							$sth = @self::$__conn->prepare("SHOW INDEX FROM $table WHERE Key_name = '{$field['name']}'");
 							$sth->execute();
 							$recs = $sth->fetchAll();
 
@@ -237,8 +237,7 @@ class MatchaModel extends Matcha {
 
 			return true;
 		} catch(PDOException $e) {
-			MatchaErrorHandler::__errorProcess($e);
-			return false;
+			return self::PDOExceptionHandler($e, 'self::__SenchaModel', [$fileModel, $force, $instance]);
 		}
 	}
 
@@ -440,9 +439,11 @@ class MatchaModel extends Matcha {
 		try {
 			$file = (string)preg_replace('/^(\w*)./', '', $file);
 			$file = str_replace('.', '/', $file);
-			if(!@file_exists(self::$__app . '/' . $file . '.' . $ext))
-				throw new Exception('Sencha file "' . self::$__app . '/' . $file . '.' . $ext . '" not found.');
-			return (string)@file_get_contents(self::$__app . '/' . $file . '.' . $ext);
+			$filename = self::$__app . '/' . $file . '.' . $ext;
+
+			if(!@file_exists($filename))
+				throw new Exception('Sencha file "' . $filename . '" not found.');
+			return (string) @file_get_contents($filename);
 		} catch(Exception $e) {
 			MatchaErrorHandler::__errorProcess($e);
 			return false;
@@ -506,7 +507,7 @@ class MatchaModel extends Matcha {
 					//                    {
 					$foo = implode(',' . PHP_EOL, $rowValues);
 					$sql = $columns . $foo . ';';
-					$sth = Matcha::$__conn->prepare($sql);
+					$sth = @Matcha::$__conn->prepare($sql);
 					$sth->execute();
 					//                    }
 					$rowValues = [];
@@ -774,8 +775,7 @@ class MatchaModel extends Matcha {
 				$fields .= MatchaUtils::t(2) . self::__renderSenchaFieldSyntax($column) . chr(13);
 			return true;
 		} catch(PDOException $e) {
-			MatchaErrorHandler::__errorProcess($e);
-			return false;
+			return self::PDOExceptionHandler($e, 'self::__createModelTable', [$databaseTable, $fields]);
 		}
 	}
 
@@ -947,8 +947,7 @@ class MatchaModel extends Matcha {
 				self::__createTrigger($table, $trigger);
 			return true;
 		} catch(PDOException $e) {
-			MatchaErrorHandler::__errorProcess($e);
-			return false;
+			return self::PDOExceptionHandler($e, 'self::__createAllTriggers', [$senchaModel, $table]);
 		}
 	}
 
@@ -964,8 +963,7 @@ class MatchaModel extends Matcha {
 			self::$__conn->query($insert);
 			return true;
 		} catch(PDOException $e) {
-			MatchaErrorHandler::__errorProcess($e);
-			return false;
+			return self::PDOExceptionHandler($e, 'self::__createTrigger', [$table, $trigger]);
 		}
 	}
 
@@ -982,8 +980,7 @@ class MatchaModel extends Matcha {
 			self::$__conn->query($dropTrigger);
 			return true;
 		} catch(PDOException $e) {
-			MatchaErrorHandler::__errorProcess($e);
-			return false;
+			return self::PDOExceptionHandler($e, 'self::__destroyTrigger', [$table, $triggerName]);
 		}
 	}
 
@@ -1040,9 +1037,23 @@ class MatchaModel extends Matcha {
 			}
 			return true;
 		} catch(PDOException $e) {
+			return self::PDOExceptionHandler($e, 'self::__diffTriggers', [$senchaModel]);
+		}
+	}
+
+	/**
+	 * @param $e         PDOException
+	 * @param $method    string
+	 * @param $arguments array
+	 *
+	 * @return mixed
+	 */
+	static private function PDOExceptionHandler($e, $method, $arguments){
+		if (strpos($e->getMessage(), 'server has gone away') === false || !Matcha::reconnect()) {
 			MatchaErrorHandler::__errorProcess($e);
 			return false;
 		}
+		return call_user_func_array($method, $arguments);
 	}
 
 }

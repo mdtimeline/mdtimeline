@@ -46,8 +46,7 @@ class MatchaMemory extends Matcha
         }
         catch(PDOException $e)
         {
-            MatchaErrorHandler::__errorProcess($e);
-            return false;
+	        return self::PDOExceptionHandler($e, 'self::__createMemoryModel', []);
         }
     }
 
@@ -61,15 +60,14 @@ class MatchaMemory extends Matcha
         try
         {
 	        $sql = "SHOW TABLES LIKE '_sencha_model';";
-	        $sth = self::$__conn->prepare($sql);
+	        $sth = @self::$__conn->prepare($sql);
 	        $sth->execute();
 	        $recordSet = $sth->fetch(PDO::FETCH_ASSOC);
             if(!is_array($recordSet)) self::__createMemoryModel();
         }
         catch(PDOException $e)
         {
-            MatchaErrorHandler::__errorProcess($e);
-            return false;
+	        return self::PDOExceptionHandler($e, 'self::__checkMemoryModel', []);
         }
     }
 
@@ -92,14 +90,13 @@ class MatchaMemory extends Matcha
             self::__destroySenchaMemoryModel($senchaMemoryModelName);
             $sql = "INSERT INTO `_sencha_model` (model, modelData, modelLastChange) VALUES (?,?,?)";
             $params = [$senchaMemoryModelName, serialize($senchaModelArray), date('Y-m-d H:i:s', MatchaModel::__getFileModifyDate($senchaModelName))];
-            $sth = self::$__conn->prepare($sql);
+            $sth = @self::$__conn->prepare($sql);
             $sth->execute($params);
             return true;
         }
         catch(PDOException $e)
         {
-            MatchaErrorHandler::__errorProcess($e);
-            return false;
+	        return self::PDOExceptionHandler($e, 'self::__storeSenchaModel', [$senchaModelName, $instance]);
         }
     }
 
@@ -121,7 +118,7 @@ class MatchaMemory extends Matcha
 
             $sql = "SELECT * FROM _sencha_model WHERE model = ?;";
             $params = [$senchaMemoryModelName];
-            $sth = self::$__conn->prepare($sql);
+            $sth = @self::$__conn->prepare($sql);
             $sth->execute($params);
             $model = $sth->fetch(PDO::FETCH_ASSOC);
 
@@ -129,8 +126,7 @@ class MatchaMemory extends Matcha
         }
         catch(PDOException $e)
         {
-            MatchaErrorHandler::__errorProcess($e);
-            return false;
+	        return self::PDOExceptionHandler($e, 'self::__getModelFromMemory', [$senchaModelName, $instance]);
         }
     }
 
@@ -151,7 +147,7 @@ class MatchaMemory extends Matcha
 
             $sql = "SELECT * FROM _sencha_model WHERE model = ?;";
             $params = [$senchaMemoryModelName];
-            $sth = self::$__conn->prepare($sql);
+            $sth = @self::$__conn->prepare($sql);
             $sth->execute($params);
             $model = $sth->fetch(PDO::FETCH_ASSOC);
 
@@ -159,8 +155,7 @@ class MatchaMemory extends Matcha
         }
         catch(PDOException $e)
         {
-            MatchaErrorHandler::__errorProcess($e);
-            return false;
+	        return self::PDOExceptionHandler($e, 'self::__getSenchaModelLastChange', [$senchaModelName, $instance]);
         }
     }
 
@@ -181,7 +176,7 @@ class MatchaMemory extends Matcha
 
             $sql = "SELECT * FROM _sencha_model WHERE model = ?;";
             $params = [$senchaMemoryModelName];
-            $sth = self::$__conn->prepare($sql);
+            $sth = @self::$__conn->prepare($sql);
             $sth->execute($params);
             $model = $sth->fetch(PDO::FETCH_ASSOC);
 
@@ -189,8 +184,7 @@ class MatchaMemory extends Matcha
         }
         catch(PDOException $e)
         {
-            MatchaErrorHandler::__errorProcess($e);
-            return false;
+	        return self::PDOExceptionHandler($e, 'self::__isModelInMemory', [$senchaModelName, $instance]);
         }
     }
 
@@ -211,16 +205,31 @@ class MatchaMemory extends Matcha
 
             $sql = "DELETE FROM _sencha_model WHERE model = ?;";
             $params = [$senchaMemoryModelName];
-            $sth = self::$__conn->prepare($sql);
+            $sth = @self::$__conn->prepare($sql);
             $sth->execute($params);
 
             return true;
         }
         catch(PDOException $e)
         {
-            MatchaErrorHandler::__errorProcess($e);
-            return false;
+	        return self::PDOExceptionHandler($e, 'self::__destroySenchaMemoryModel', [$senchaModelName, $instance]);
         }
     }
+
+	/**
+	 * @param $e         PDOException
+	 * @param $method    string
+	 * @param $arguments array
+	 *
+	 * @return mixed
+	 */
+	private static function PDOExceptionHandler($e, $method, $arguments){
+		if (strpos($e->getMessage(), 'server has gone away') === false || !Matcha::reconnect()) {
+			MatchaErrorHandler::__errorProcess($e);
+			return false;
+		}
+		MatchaErrorHandler::__errorProcess($e);
+		return call_user_func_array($method, $arguments);
+	}
 
 }

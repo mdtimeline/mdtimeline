@@ -69,6 +69,21 @@ class Matcha
 	 */
 	public static $__installationNumber = 1;
 
+    /**
+     * @var array
+     */
+	private static $__databaseParameters = [];
+
+    /**
+     * @var int
+     */
+	private static $__reconnect_tries = 0;
+
+    /**
+     * @var int
+     */
+	private static $__max_reconnect_tries = 5;
+
 	/**
 	 * function connect($databaseParameters = array()):
 	 * Method that make the connection to the database
@@ -78,55 +93,57 @@ class Matcha
 	static public function connect($databaseParameters = []){
 		try{
 
-			if(self::$__conn === null){
+			if(self::$__conn !== null) self::$__conn;
 
-				// check for properties first.
-				if(!isset($databaseParameters['host']) &&
-                    !isset($databaseParameters['name']) &&
-                    !isset($databaseParameters['user']) &&
-                    !isset($databaseParameters['pass']) &&
-                    !isset($databaseParameters['app']))
-					throw new Exception('These parameters are obligatory: host="database ip or hostname", name="database name", user="database username", pass="database password", app="path of your sencha application"');
+            // check for properties first.
+            if(!isset($databaseParameters['host']) &&
+                !isset($databaseParameters['name']) &&
+                !isset($databaseParameters['user']) &&
+                !isset($databaseParameters['pass']) &&
+                !isset($databaseParameters['app']))
+                throw new Exception('These parameters are obligatory: host="database ip or hostname", name="database name", user="database username", pass="database password", app="path of your sencha application"');
 
-				// Connect using regular PDO Matcha::connect Abstraction layer.
-				// but make only a connection, not to the database.
-				// and then the database
-				self::$__app = $databaseParameters['app'];
-				$host = (string)(isset($databaseParameters['host']) ? $databaseParameters['host'] : 'localhost');
-				$port = (int)(isset($databaseParameters['port']) ? $databaseParameters['port'] : '3306');
-				$dbName = (string)$databaseParameters['name'];
-				$dbUser = (string)$databaseParameters['user'];
-				$dbPass = (string)$databaseParameters['pass'];
+            // Connect using regular PDO Matcha::connect Abstraction layer.
+            // but make only a connection, not to the database.
+            // and then the database
+            self::$__app = $databaseParameters['app'];
+            $host = (string)(isset($databaseParameters['host']) ? $databaseParameters['host'] : 'localhost');
+            $port = (int)(isset($databaseParameters['port']) ? $databaseParameters['port'] : '3306');
+            $dbName = (string)$databaseParameters['name'];
+            $dbUser = (string)$databaseParameters['user'];
+            $dbPass = (string)$databaseParameters['pass'];
 
-				self::$__conn = new PDO(
-                    'mysql:host=' . $host . ';port=' . $port . ';',
-                    $dbUser,
-                    $dbPass, array(
-					    //PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
-					    PDO::MYSQL_ATTR_LOCAL_INFILE => 1,
-					    PDO::ATTR_PERSISTENT => false,
-				    )
-                );
+            self::$__conn = new PDO(
+                'mysql:host=' . $host . ';port=' . $port . ';',
+                $dbUser,
+                $dbPass, array(
+                    //PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
+                    PDO::MYSQL_ATTR_LOCAL_INFILE => 1,
+                    PDO::ATTR_PERSISTENT => false,
+                )
+            );
 
-                // Check if the current version of PDO::MySQL has this parameter available
-                // If not activate it.
-                if( defined( 'PDO::MYSQL_ATTR_MAX_BUFFER_SIZE' ) )
-                {
-                    // Increase the size to 5MB
-                    self::$__conn->setAttribute(PDO::MYSQL_ATTR_MAX_BUFFER_SIZE, 1024 * 1024 * 10);
-                }
-				self::$__conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-				self::$__conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-				self::$__conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            // Check if the current version of PDO::MySQL has this parameter available
+            // If not activate it.
+            if( defined( 'PDO::MYSQL_ATTR_MAX_BUFFER_SIZE' ) )
+            {
+                // Increase the size to 5MB
+                self::$__conn->setAttribute(PDO::MYSQL_ATTR_MAX_BUFFER_SIZE, 1024 * 1024 * 10);
+            }
+            self::$__conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            self::$__conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            self::$__conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 
-				// check if the database exist.
-				self::__createDatabase($dbName);
-				self::$__conn->exec('USE ' . $dbName . ';');
+            // check if the database exist.
+            self::__createDatabase($dbName);
+            self::$__conn->exec('USE ' . $dbName . ';');
 
-				// set the encryption secret key if provided
-				if(isset($databaseParameters['key']))
-					self::$__secretKey = $databaseParameters['key'];
-			}
+            // set the encryption secret key if provided
+            if(isset($databaseParameters['key']))
+                self::$__secretKey = $databaseParameters['key'];
+
+            // set connection params fro reconnect if necessary
+            self::$__databaseParameters = $databaseParameters;
 
 			return self::$__conn;
 		} catch(Exception $e){
@@ -134,6 +151,16 @@ class Matcha
 			return false;
 		}
 	}
+
+    static public function reconnect(){
+	    if(self::$__reconnect_tries > self::$__max_reconnect_tries) return;
+        self::$__reconnect_tries++;
+
+        error_log('Matcha::reconnect  Trying to reconnect... #' . self::$__reconnect_tries);
+
+        self::$__conn = null;
+        self::connect(self::$__databaseParameters);
+    }
 
 	/**
 	 * function getLastId():

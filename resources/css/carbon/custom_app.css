@@ -8,6 +8,11 @@
     src: url('../../fonts/OpenSans-CondLight.ttf');
 }
 
+.app-huge-field {
+    font-size: 35px !important;
+    height: 50px !important;
+}
+
 .app-lock-mask {
     opacity: 1 !important;
 	background-repeat: no-repeat;
@@ -140,21 +145,24 @@
 }
 
 .btnGreenBackground {
-    background-color: #ccffcc !important;
+    background-color: #66cc66 !important;
+    background-image: none;
 }
 .btnGreenBackground.x-pressed {
-    background-color: #66cc66 !important;
+    background-color: #4acc4d !important;
 }
 
 .btnRedBackground {
-    background-color: #ffcccc !important;
+    background-color: #ff576b !important;
+    background-image: none;
 }
 .btnRedBackground.x-pressed {
-    background-color: #ff6666 !important;
+    background-color: #ff315d !important;
 }
 
 .btnBlueBackground {
     background-color: #daedff !important;
+    background-image: none;
 }
 .btnBlueBackground.x-pressed {
     background-color: #a9e2ff !important;

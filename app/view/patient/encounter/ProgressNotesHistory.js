@@ -24,6 +24,7 @@ Ext.define('App.view.patient.encounter.ProgressNotesHistory', {
 	xtype: 'progressnoteshistory',
 	title: _('history'),
 	hideHeaders: true,
+	cls: 'progress-motes-history-grid',
 	initComponent: function(){
 
 		var me = this;

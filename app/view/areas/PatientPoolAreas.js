@@ -43,7 +43,7 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 		});
 
 		me.listeners = {
-			beforerender: me.getPoolAreas
+			beforerender: me.setPoolAreas
 		};
 
 		me.callParent(arguments);
@@ -53,17 +53,15 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 
 		var me = this,
 			name = (data.records[0].data) ? data.records[0].data.name : data.records[0].name,
-			pid = (data.records[0].data) ? data.records[0].data.pid : data.records[0].pid,
-			params;
+			pid = (data.records[0].data) ? data.records[0].data.pid : data.records[0].pid;
 
-		app.msg(_('sweet'), name + ' ' + _('sent_to') + ' ' + this.panel.title);
+		app.msg(_('sweet'), name + ' ' + _('sent_to') + ' ' + me.panel.title);
 
-		params = {
-			pid: pid,
-			sendTo: this.panel.action
-		};
+		app.nav.activePanel.doSendPatientToPoolArea(pid, me.panel.action)
+	},
 
-		PoolArea.sendPatientToPoolArea(params, function(result){
+	doSendPatientToPoolArea: function (pid, area_id) {
+		PoolArea.sendPatientToPoolArea({ pid: pid, sendTo: area_id }, function(result){
 
 			if(result.floor_plan_id == null){
 				app.unsetPatient(null, true);
@@ -82,10 +80,14 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 			panel = me.getPageBody().down('container');
 
 		panel.removeAll();
-		me.getPoolAreas();
+		me.setPoolAreas();
 	},
 
-	getPoolAreas: function(){
+	getPoolAreas: function () {
+		return this.getPageBody().down('container').items.items;
+	},
+
+	setPoolAreas: function(){
 		var me = this,
 			panel = me.getPageBody().down('container'),
 			areas;

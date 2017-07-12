@@ -37968,6 +37968,14 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 		{
 			ref: 'PatientPoolAreasRemovePatientMenu',
 			selector: '#PatientPoolAreasRemovePatientMenu'
+		},
+		{
+			ref: 'PatientToNextAreaWindow',
+			selector: '#PatientToNextAreaWindow'
+		},
+		{
+			ref: 'PatientPoolAreasPanel',
+			selector: '#PatientPoolAreasPanel'
 		}
 	],
 
@@ -37980,8 +37988,75 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 			},
 			'#PatientPoolAreasRemovePatientMenu': {
 				click: me.onPatientPoolAreasRemovePatientMenuClick
+			},
+			'#PatientToNextAreaWindow': {
+				render: me.onPatientToNextAreaWindowBeforeRender
+			},
+			'#PatientToNextAreaWindow button[action=poolarea]': {
+				click: me.onPatientToNextAreaWindowPoolAreaBtnClick
+			},
+			'#PatientToNextAreaWindowCancelBtn': {
+				click: me.onPatientToNextAreaWindowCancelBtnClick
 			}
 		});
+	},
+
+	doSendPatientToNextArea: function (pid) {
+		var win = this.showPatientToNextAreaWindow();
+		win.pid = pid;
+	},
+
+	onPatientToNextAreaWindowPoolAreaBtnClick: function (btn) {
+		var win = btn.up('window'),
+			pid = win.pid,
+			poolAreaId = btn.poolAreaId;
+
+		app.goToPoolAreas();
+		this.getPatientPoolAreasPanel().doSendPatientToPoolArea(pid, poolAreaId);
+		win.close();
+	},
+
+	onPatientToNextAreaWindowCancelBtnClick: function (btn) {
+		btn.up('window').close();
+	},
+
+	showPatientToNextAreaWindow: function () {
+		if(!this.getPatientToNextAreaWindow()){
+			Ext.create('Ext.window.Window',{
+				itemId: 'PatientToNextAreaWindow',
+				title: _('send_patient_to_next_area'),
+				layout: 'hbox',
+				closeAction: 'hide',
+				bodyPadding: '10 0 10 10',
+				buttons: [
+					{
+						text: _('cancel'),
+						itemId: 'PatientToNextAreaWindowCancelBtn'
+					}
+				]
+			});
+		}
+		return this.getPatientToNextAreaWindow().show();
+	},
+
+	onPatientToNextAreaWindowBeforeRender: function (win) {
+		var me = this,
+			pools = me.getPatientPoolAreasPanel().getPoolAreas(),
+			buttons = [];
+
+		pools.forEach(function (pool) {
+			buttons = Ext.Array.push(buttons, {
+				xtype: 'button',
+				text: '-> ' + pool.title,
+				scale: 'medium',
+				width: 100,
+				action: 'poolarea',
+				poolAreaId: pool.action,
+				margin: '0 10 0 0'
+			});
+		});
+
+		win.add(buttons);
 	},
 
 	onPatientPoolAreasRemovePatientMenuClick: function (item) {
@@ -50516,7 +50591,7 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 		});
 
 		me.listeners = {
-			beforerender: me.getPoolAreas
+			beforerender: me.setPoolAreas
 		};
 
 		me.callParent(arguments);
@@ -50526,17 +50601,15 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 
 		var me = this,
 			name = (data.records[0].data) ? data.records[0].data.name : data.records[0].name,
-			pid = (data.records[0].data) ? data.records[0].data.pid : data.records[0].pid,
-			params;
+			pid = (data.records[0].data) ? data.records[0].data.pid : data.records[0].pid;
 
-		app.msg(_('sweet'), name + ' ' + _('sent_to') + ' ' + this.panel.title);
+		app.msg(_('sweet'), name + ' ' + _('sent_to') + ' ' + me.panel.title);
 
-		params = {
-			pid: pid,
-			sendTo: this.panel.action
-		};
+		app.nav.activePanel.doSendPatientToPoolArea(pid, me.panel.action)
+	},
 
-		PoolArea.sendPatientToPoolArea(params, function(result){
+	doSendPatientToPoolArea: function (pid, area_id) {
+		PoolArea.sendPatientToPoolArea({ pid: pid, sendTo: area_id }, function(result){
 
 			if(result.floor_plan_id == null){
 				app.unsetPatient(null, true);
@@ -50555,10 +50628,14 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 			panel = me.getPageBody().down('container');
 
 		panel.removeAll();
-		me.getPoolAreas();
+		me.setPoolAreas();
 	},
 
-	getPoolAreas: function(){
+	getPoolAreas: function () {
+		return this.getPageBody().down('container').items.items;
+	},
+
+	setPoolAreas: function(){
 		var me = this,
 			panel = me.getPageBody().down('container'),
 			areas;
@@ -59428,6 +59505,7 @@ Ext.define('App.view.patient.encounter.ProgressNotesHistory', {
 	xtype: 'progressnoteshistory',
 	title: _('history'),
 	hideHeaders: true,
+	cls: 'progress-motes-history-grid',
 	initComponent: function(){
 
 		var me = this;
@@ -60942,8 +61020,8 @@ Ext.define('App.view.patient.Encounter', {
 					me.setButtonsDisabled(me.getButtonsToDisable());
 				}else{
 					if(me.stopTimer()){
-						timer = me.timer(data.service_date, data.close_date),
-							patient = app.patient;
+						timer = me.timer(data.service_date, data.close_date);
+						var patient = app.patient;
 
 						me.updateTitle(
                             patient.name +
@@ -61001,7 +61079,7 @@ Ext.define('App.view.patient.Encounter', {
 
 				App.app.getController('patient.ProgressNotesHistory').loadPatientProgressHistory(data.pid, data.eid);
 
-				app.setEncounterClose(record.isClose());
+				// app.setEncounterClose(record.isClose());
 
 				app.fireEvent('encounterload', me.encounter);
 				me.el.unmask();
@@ -61018,6 +61096,8 @@ Ext.define('App.view.patient.Encounter', {
 		var me = this,
 			form,
 			values;
+
+		if(app.fireEvent('beforeecountersign', me, me.encounter) === false) return;
 
 		me.passwordVerificationWin(function(btn, password){
 			if(btn === 'ok'){
@@ -61040,6 +61120,9 @@ Ext.define('App.view.patient.Encounter', {
 				Encounter.signEncounter(values, function(provider, response){
                     var params;
 					if(response.result.success){
+
+						app.fireEvent('aferecountersign', me, me.encounter);
+
 						if(me.stopTimer()){
 
 							/** default data for notes and reminder **/
@@ -61058,11 +61141,11 @@ Ext.define('App.view.patient.Encounter', {
 							params.body = values.reminder;
 							if(params.body !== '') Ext.create('App.model.patient.Reminders', params).save();
 
-							/** unset the patient eid **/
-							app.patient.eid = null;
-							app.openPatientVisits();
 							me.msg(_('sweet'), _('encounter_closed'));
 							app.checkoutWindow.close();
+							app.stowPatientRecord();
+							app.getController('areas.PatientPoolAreas').doSendPatientToNextArea(me.pid);
+
 						}
 					}else{
 						Ext.Msg.show({
@@ -62173,13 +62256,13 @@ Ext.define('App.view.Viewport', {
         }
     },
 
-	setEncounterClose:function(close){
-		this.patient.encounterIsClose = close;
-		var buttons = Ext.ComponentQuery.query('#encounterRecordAdd, button[action=encounterRecordAdd]');
-		for(var i=0; i < buttons.length; i++){
-			buttons[i].setDisabled(close || app.patient.eid == null);
-		}
-	},
+	// setEncounterClose:function(close){
+	// 	this.patient.encounterIsClose = close;
+	// 	var buttons = Ext.ComponentQuery.query('#encounterRecordAdd, button[action=encounterRecordAdd]');
+	// 	for(var i=0; i < buttons.length; i++){
+	// 		buttons[i].setDisabled(close || app.patient.eid == null);
+	// 	}
+	// },
 
     setPatient: function(pid, eid, site, callback){
         var me = this;

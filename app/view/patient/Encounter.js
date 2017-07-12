@@ -762,8 +762,8 @@ Ext.define('App.view.patient.Encounter', {
 					me.setButtonsDisabled(me.getButtonsToDisable());
 				}else{
 					if(me.stopTimer()){
-						timer = me.timer(data.service_date, data.close_date),
-							patient = app.patient;
+						timer = me.timer(data.service_date, data.close_date);
+						var patient = app.patient;
 
 						me.updateTitle(
                             patient.name +
@@ -821,7 +821,7 @@ Ext.define('App.view.patient.Encounter', {
 
 				App.app.getController('patient.ProgressNotesHistory').loadPatientProgressHistory(data.pid, data.eid);
 
-				app.setEncounterClose(record.isClose());
+				// app.setEncounterClose(record.isClose());
 
 				app.fireEvent('encounterload', me.encounter);
 				me.el.unmask();
@@ -838,6 +838,8 @@ Ext.define('App.view.patient.Encounter', {
 		var me = this,
 			form,
 			values;
+
+		if(app.fireEvent('beforeecountersign', me, me.encounter) === false) return;
 
 		me.passwordVerificationWin(function(btn, password){
 			if(btn === 'ok'){
@@ -860,6 +862,9 @@ Ext.define('App.view.patient.Encounter', {
 				Encounter.signEncounter(values, function(provider, response){
                     var params;
 					if(response.result.success){
+
+						app.fireEvent('aferecountersign', me, me.encounter);
+
 						if(me.stopTimer()){
 
 							/** default data for notes and reminder **/
@@ -878,11 +883,11 @@ Ext.define('App.view.patient.Encounter', {
 							params.body = values.reminder;
 							if(params.body !== '') Ext.create('App.model.patient.Reminders', params).save();
 
-							/** unset the patient eid **/
-							app.patient.eid = null;
-							app.openPatientVisits();
 							me.msg(_('sweet'), _('encounter_closed'));
 							app.checkoutWindow.close();
+							app.stowPatientRecord();
+							app.getController('areas.PatientPoolAreas').doSendPatientToNextArea(me.pid);
+
 						}
 					}else{
 						Ext.Msg.show({

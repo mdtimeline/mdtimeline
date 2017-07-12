@@ -26,6 +26,14 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 		{
 			ref: 'PatientPoolAreasRemovePatientMenu',
 			selector: '#PatientPoolAreasRemovePatientMenu'
+		},
+		{
+			ref: 'PatientToNextAreaWindow',
+			selector: '#PatientToNextAreaWindow'
+		},
+		{
+			ref: 'PatientPoolAreasPanel',
+			selector: '#PatientPoolAreasPanel'
 		}
 	],
 
@@ -38,8 +46,75 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 			},
 			'#PatientPoolAreasRemovePatientMenu': {
 				click: me.onPatientPoolAreasRemovePatientMenuClick
+			},
+			'#PatientToNextAreaWindow': {
+				render: me.onPatientToNextAreaWindowBeforeRender
+			},
+			'#PatientToNextAreaWindow button[action=poolarea]': {
+				click: me.onPatientToNextAreaWindowPoolAreaBtnClick
+			},
+			'#PatientToNextAreaWindowCancelBtn': {
+				click: me.onPatientToNextAreaWindowCancelBtnClick
 			}
 		});
+	},
+
+	doSendPatientToNextArea: function (pid) {
+		var win = this.showPatientToNextAreaWindow();
+		win.pid = pid;
+	},
+
+	onPatientToNextAreaWindowPoolAreaBtnClick: function (btn) {
+		var win = btn.up('window'),
+			pid = win.pid,
+			poolAreaId = btn.poolAreaId;
+
+		app.goToPoolAreas();
+		this.getPatientPoolAreasPanel().doSendPatientToPoolArea(pid, poolAreaId);
+		win.close();
+	},
+
+	onPatientToNextAreaWindowCancelBtnClick: function (btn) {
+		btn.up('window').close();
+	},
+
+	showPatientToNextAreaWindow: function () {
+		if(!this.getPatientToNextAreaWindow()){
+			Ext.create('Ext.window.Window',{
+				itemId: 'PatientToNextAreaWindow',
+				title: _('send_patient_to_next_area'),
+				layout: 'hbox',
+				closeAction: 'hide',
+				bodyPadding: '10 0 10 10',
+				buttons: [
+					{
+						text: _('cancel'),
+						itemId: 'PatientToNextAreaWindowCancelBtn'
+					}
+				]
+			});
+		}
+		return this.getPatientToNextAreaWindow().show();
+	},
+
+	onPatientToNextAreaWindowBeforeRender: function (win) {
+		var me = this,
+			pools = me.getPatientPoolAreasPanel().getPoolAreas(),
+			buttons = [];
+
+		pools.forEach(function (pool) {
+			buttons = Ext.Array.push(buttons, {
+				xtype: 'button',
+				text: '-> ' + pool.title,
+				scale: 'medium',
+				width: 100,
+				action: 'poolarea',
+				poolAreaId: pool.action,
+				margin: '0 10 0 0'
+			});
+		});
+
+		win.add(buttons);
 	},
 
 	onPatientPoolAreasRemovePatientMenuClick: function (item) {

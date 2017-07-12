@@ -143,25 +143,28 @@ class PoolArea {
 		$this->setPpModel();
 		$prevArea = $this->getCurrentPatientPoolAreaByPid($params->pid);
 
+		$now = date('Y-m-d H:i:s');
+
 		/**
 		 * If patient comes from another area check him/her out
 		 */
 		if(!empty($prevArea)){
 			$record = new stdClass();
 			$record->id = $prevArea['id'];
-			$record->time_out = date('Y-m-d H:i:s');
+			$record->time_out = $now;
 			$this->pp->save($record);
 
 			// check out patient from any patient zone
-			$sql = "UPDATE `patient_zone` SET `time_out` = '{$record->time_out}' WHERE `pid` = {$prevArea['pid']} AND `time_out` IS NULL";
+			$sql = "UPDATE `patient_zone` SET `time_out` = :time_out WHERE `pid` = :pid AND `time_out` IS NULL";
 			$sth = $this->conn->prepare($sql);
-			$sth->execute();
+			$sth->execute([':time_out' => $record->time_out, ':pid' => $prevArea['pid']]);
 			unset($record);
 		}
+
 		$record = new stdClass();
 		$record->pid  = $params->pid;
 		$record->uid  = isset($_SESSION['user']['id']) ? $_SESSION['user']['id'] : 0;
-		$record->time_in  = date('Y-m-d H:i:s');
+		$record->time_in  = $now;
 		$record->area_id  = $params->sendTo;
 		$record->in_queue  = 1;
 		$record->priority  = (isset($params->priority) ? $params->priority : '');

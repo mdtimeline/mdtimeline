@@ -1909,4 +1909,6 @@ $LANG = array(
 	'laboratory_orders'                     => 'Laboratory Orders',
 	'radiology_orders'                      => 'Radiology Orders',
 	'medication_orders'                     => 'Medication Orders',
+	'send_patient_to_next_area'             => 'Send Patient To Next Area',
+
 );

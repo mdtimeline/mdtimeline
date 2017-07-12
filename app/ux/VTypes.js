@@ -116,7 +116,7 @@ Ext.apply(Ext.form.VTypes, {
 	// Validate for an valid Phone Number
 	// ---------------------------------------
 	phoneNumber: function(val, field){
-		var rgx = /^(\+1)?[- ]?\(?(\d{3})\)?[- ]?(\d{3})[- ]?(\d{4})$/;
+		var rgx = /^(\+\d{1,3}[- ]?)?\(?(\d{3})\)?[- ]?(\d{3})[- ]?(\d{4})$/;
 		return val.match(rgx);
 	},
 	phoneNumberText: _('vtype_phoneNumber'),

@@ -37841,7 +37841,7 @@ Ext.define('App.controller.areas.FloorPlan', {
 
 	},
 
-	promptPatientZoneAssignment: function(pid, floorPlanId){
+	promptPatientZoneAssignment: function(pid, floorPlanId, area_id){
 		var me = this;
 
 		if(!me.getFloorPlanPatientZoneAssignmentWindow()){
@@ -37922,6 +37922,7 @@ Ext.define('App.controller.areas.FloorPlan', {
 			field.getStore().loadData(result);
 		});
 		me.getFloorPlanPatientZoneAssignmentWindow().pid = pid;
+		me.getFloorPlanPatientZoneAssignmentWindow().area_id = area_id;
 		me.getFloorPlanPatientZoneAssignmentWindow().show();
 
 	},
@@ -38011,9 +38012,10 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 			pid = win.pid,
 			poolAreaId = btn.poolAreaId;
 
-		app.goToPoolAreas();
-		this.getPatientPoolAreasPanel().doSendPatientToPoolArea(pid, poolAreaId);
+		//app.goToPoolAreas();
 		win.close();
+		this.getPatientPoolAreasPanel().doSendPatientToPoolArea(pid, poolAreaId);
+		app.patientPoolStore.reload();
 	},
 
 	onPatientToNextAreaWindowCancelBtnClick: function (btn) {
@@ -50618,7 +50620,7 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 				return;
 			}
 
-			app.getController('areas.FloorPlan').promptPatientZoneAssignment(result.record.pid, result.floor_plan_id);
+			app.getController('areas.FloorPlan').promptPatientZoneAssignment(result.record.pid, result.floor_plan_id, area_id);
 
 		});
 	},
@@ -61936,7 +61938,7 @@ Ext.define('App.view.Viewport', {
                     hidden: true,
                     hideMode: 'offsets',
                     cls: 'patient-pool-view-footer x-toolbar x-toolbar-default x-box-layout-ct',
-                    tpl: '<div class="x-toolbar-separator x-toolbar-item x-toolbar-separator-horizontal" style="float:left; margin-top:5px;" role="presentation" tabindex="-1"></div>' + '<tpl for=".">' + '<div class="patient-pool-btn-small x-btn x-btn-default-small {priority}" style="float:left">' + '<div class="patient_btn_info">' + '<div class="patient-name">{name} ({pid})</div>' + '</div>' + '</div>' + '<div class="x-toolbar-separator x-toolbar-item x-toolbar-separator-horizontal" style="float:left; margin-top:5px; margin-left:3px;" role="presentation" tabindex="-1"></div>' + '</tpl>',
+                    tpl: '<div class="x-toolbar-separator x-toolbar-item x-toolbar-separator-horizontal" style="float:left; margin-top:5px;" role="presentation" tabindex="-1"></div>' + '<tpl for=".">' + '<div class="patient-pool-btn-small x-btn x-btn-default-small {priority}" style="float:left">' + '<div class="patient_btn_info">' + '<div class="patient-name">{shortName} ({pid})</div>' + '</div>' + '</div>' + '<div class="x-toolbar-separator x-toolbar-item x-toolbar-separator-horizontal" style="float:left; margin-top:5px; margin-left:3px;" role="presentation" tabindex="-1"></div>' + '</tpl>',
                     itemSelector: 'div.patient-pool-btn-small',
                     overItemCls: 'patient-over',
                     selectedItemClass: 'patient-selected',
@@ -62541,7 +62543,7 @@ Ext.define('App.view.Viewport', {
                         this.ddGroup = 'patientPoolAreas';
                     }else{
                         this.ddGroup = 'patient';
-                        app.MainPanel.el.mask(_('drop_here_to_open') + ' <strong>"' + panel.getRecord(sourceEl).data.name + '"</strong> ' + _('current_encounter'));
+                        app.MainPanel.el.mask(_('drop_here_to_open') + ' <strong>"' + panel.getRecord(sourceEl).data.shortName + '"</strong> ' + _('current_encounter'));
                     }
                     this.addToGroup(this.ddGroup);
                     this.newGroupReset = false;

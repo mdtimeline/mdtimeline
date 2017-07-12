@@ -70,7 +70,7 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 				return;
 			}
 
-			app.getController('areas.FloorPlan').promptPatientZoneAssignment(result.record.pid, result.floor_plan_id);
+			app.getController('areas.FloorPlan').promptPatientZoneAssignment(result.record.pid, result.floor_plan_id, area_id);
 
 		});
 	},

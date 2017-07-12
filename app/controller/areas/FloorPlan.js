@@ -362,7 +362,7 @@ Ext.define('App.controller.areas.FloorPlan', {
 
 	},
 
-	promptPatientZoneAssignment: function(pid, floorPlanId){
+	promptPatientZoneAssignment: function(pid, floorPlanId, area_id){
 		var me = this;
 
 		if(!me.getFloorPlanPatientZoneAssignmentWindow()){
@@ -443,6 +443,7 @@ Ext.define('App.controller.areas.FloorPlan', {
 			field.getStore().loadData(result);
 		});
 		me.getFloorPlanPatientZoneAssignmentWindow().pid = pid;
+		me.getFloorPlanPatientZoneAssignmentWindow().area_id = area_id;
 		me.getFloorPlanPatientZoneAssignmentWindow().show();
 
 	},

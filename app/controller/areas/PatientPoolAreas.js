@@ -69,9 +69,10 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 			pid = win.pid,
 			poolAreaId = btn.poolAreaId;
 
-		app.goToPoolAreas();
-		this.getPatientPoolAreasPanel().doSendPatientToPoolArea(pid, poolAreaId);
+		//app.goToPoolAreas();
 		win.close();
+		this.getPatientPoolAreasPanel().doSendPatientToPoolArea(pid, poolAreaId);
+		app.patientPoolStore.reload();
 	},
 
 	onPatientToNextAreaWindowCancelBtnClick: function (btn) {

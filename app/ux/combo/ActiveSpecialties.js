@@ -1,7 +1,7 @@
 Ext.define('App.ux.combo.ActiveSpecialties', {
 	extend: 'Ext.form.ComboBox',
 	xtype: 'activespecialtiescombo',
-	displayField: 'text_details',
+	displayField: 'title',
 	valueField: 'id',
 	editable: false,
 	emptyText: _('select'),

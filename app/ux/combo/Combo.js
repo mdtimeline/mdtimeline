@@ -113,6 +113,8 @@ Ext.define('App.ux.combo.Combo', {
 
         var me = this;
 
+        if(value == null) return;
+
         Ext.Function.defer(function () {
             var record = cmb.findRecordByValue(value);
 

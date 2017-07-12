@@ -8025,6 +8025,8 @@ Ext.define('App.ux.combo.Combo', {
 
         var me = this;
 
+        if(value == null) return;
+
         Ext.Function.defer(function () {
             var record = cmb.findRecordByValue(value);
 
@@ -49115,7 +49117,7 @@ Ext.define("App.ux.form.fields.plugin.PasswordStrength", {
 Ext.define('App.ux.combo.ActiveSpecialties', {
 	extend: 'Ext.form.ComboBox',
 	xtype: 'activespecialtiescombo',
-	displayField: 'text_details',
+	displayField: 'title',
 	valueField: 'id',
 	editable: false,
 	emptyText: _('select'),

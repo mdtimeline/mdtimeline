@@ -321,8 +321,9 @@ class Documents {
 		$encounter = $encounter['encounter'];
 
 		$encounterInformation = [
-			'[ENCOUNTER_START_DATE]' => $encounter['service_date'],
-			'[ENCOUNTER_END_DATE]' => $encounter['close_date'],
+			'[ENCOUNTER_DATE]' => $this->dateToString($encounter['service_date']),
+			'[ENCOUNTER_START_DATE]' => $this->dateToString($encounter['service_date']),
+			'[ENCOUNTER_END_DATE]' => $this->dateToString($encounter['close_date']),
 			'[ENCOUNTER_BRIEF_DESCRIPTION]' => $encounter['brief_description'],
 			'[ENCOUNTER_SENSITIVITY]' => $encounter['priority'],
 			'[ENCOUNTER_WEIGHT_LBS]' => $vitals['weight_lbs'],
@@ -375,6 +376,15 @@ class Documents {
 				$allNeededInfo[$i] = $encounterInformation[$tok];
 			}
 		}
+
+
+		//
+		if($key = array_search('[ENCOUNTER_PROGRESS_NOTE]', $tokens)){
+			$allNeededInfo[$key] = $this->Encounter->ProgressNoteString(
+				$this->Encounter->getProgressNoteByEid($params->eid)
+			);
+		}
+
 		return $allNeededInfo;
 	}
 
@@ -696,6 +706,7 @@ class Documents {
 			'[PROVIDER_FIRST_NAME]' => isset($provider['fname']) ? $provider['fname'] : '',
 			'[PROVIDER_MIDDLE_NAME]' => isset($provider['mname']) ? $provider['mname'] : '',
 			'[PROVIDER_LAST_NAME]' => isset($provider['lname']) ? $provider['lname'] : '',
+			'[PROVIDER_SIGNATURE]' => isset($provider['signature']) ? $provider['signature'] : '',
 			'[PROVIDER_NPI]' => isset($provider['npi']) ? $provider['npi'] : '',
 			'[PROVIDER_LIC]' => isset($provider['lic']) ? $provider['lic'] : '',
 			'[PROVIDER_DEA]' => isset($provider['feddrugid']) ? $provider['feddrugid'] : '',
@@ -850,6 +861,11 @@ class Documents {
 	private function isHtml($string)
 	{
 		return preg_match("/<[^<]+>/",$string,$m) != 0;
+	}
+
+	private function dateToString($date){
+		if(!isset($date)) return 'UNK';
+		return date('F j, Y', strtotime($date));
 	}
 
 	private function getPdfTemplateByFacilityId($facility_id = null){

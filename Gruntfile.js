@@ -467,6 +467,7 @@ module.exports = function(grunt){
 					'app/controller/patient/Referrals.js',
 					'app/controller/patient/RxOrders.js',
 					'app/controller/patient/Social.js',
+					'app/controller/patient/Visits.js',
 					'app/controller/patient/Vitals.js',
 					'app/controller/patient/Summary.js',
 					'app/controller/patient/encounter/EncounterDocuments.js',

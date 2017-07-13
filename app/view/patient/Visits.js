@@ -23,6 +23,7 @@ Ext.define('App.view.patient.Visits', {
 		'Ext.grid.Panel',
 		'Ext.ux.PreviewPlugin'
 	],
+	itemId: 'PatientVisitsPanel',
 	showRating: true,
 	initComponent: function(){
 		var me = this;
@@ -31,20 +32,13 @@ Ext.define('App.view.patient.Visits', {
 			remoteFilter: true
 		});
 
-		function open(val){
-			if(val !== null){
-				return '<img src="resources/images/icons/yes.png" />';
-			}else{
-				return '<img src="resources/images/icons/no.png" />';
-			}
-		}
-
 		//******************************************************************
 		// Visit History Grid
 		//******************************************************************
 		me.historyGrid = Ext.create('Ext.grid.Panel', {
 			title: _('encounter_history'),
 			store: me.store,
+			itemId: 'PatientVisitsGrid',
 			columns: [
 				{
 					header: 'eid',
@@ -57,7 +51,7 @@ Ext.define('App.view.patient.Visits', {
 					header: _('date'),
 					sortable: true,
 					dataIndex: 'service_date',
-					renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s')
+					// renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s')
 				},
 				{
 					flex: 1,
@@ -88,43 +82,25 @@ Ext.define('App.view.patient.Visits', {
 					header: _('close') + '?',
 					sortable: true,
 					dataIndex: 'close_date',
-					renderer: me.openBool
+					renderer: app.boolRenderer
 				}
 			],
-			viewConfig: {
-				itemId: 'view',
-				plugins: [
-					{
-						pluginId: 'preview',
-						ptype: 'preview',
-						bodyField: 'brief_description',
-						previewExpanded: false
-					}
-				],
-				listeners: {
-					scope: me,
-					itemclick: me.gridItemClick,
-					itemdblclick: me.gridItemDblClick
-				}
-			},
 			tbar: Ext.create('Ext.PagingToolbar', {
 				store: me.store,
 				displayInfo: true,
 				emptyMsg: 'No Encounters Found',
 				plugins: Ext.create('Ext.ux.SlidingPager', {}),
 				items: [
-					{
-						iconCls: '',
-						text: _('show_details'),
-						enableToggle: true,
-						scope: me,
-						toggleHandler: me.onDetailToggle
-					},
 					'-',
 					{
 						text: _('new_encounter'),
-						scope: me,
-						handler: me.createNewEncounter
+						itemId: 'PatientVisitsNewEncounterBtn'
+					},
+					'-',
+					{
+						text: _('progress_report'),
+						disabled: true,
+						itemId: 'PatientVisitsNewProgressReportsBtn'
 					}
 				]
 			})
@@ -132,52 +108,5 @@ Ext.define('App.view.patient.Visits', {
 		me.pageBody = [me.historyGrid];
 
 		me.callParent(arguments);
-	},
-
-	openBool: function(val){
-		if(val !== null){
-			return '<img src="resources/images/icons/yes.png" />';
-		}else{
-			return '<img src="resources/images/icons/no.png" />';
-		}
-	},
-
-	onDetailToggle: function(btn, pressed){
-		this.historyGrid.getComponent('view').getPlugin('preview').toggleExpanded(pressed);
-	},
-
-	gridItemClick: function(view){
-		view.getPlugin('preview').toggleRowExpanded();
-	},
-
-	gridItemDblClick: function(view, record){
-		app.openEncounter(record.data.eid);
-	},
-
-	createNewEncounter: function(){
-		app.createNewEncounter();
-	},
-
-	/**
-	 * This function is called from Viewport.js when
-	 * this panel is selected in the navigation panel.
-	 * place inside this function all the functions you want
-	 * to call every this panel becomes active
-	 */
-	onActive: function(callback){
-		if(this.checkIfCurrPatient()){
-			this.updateTitle(app.patient.name + ' (' + _('encounters') + ')');
-			this.store.clearFilter(true);
-			this.store.filter([
-				{
-					property: 'pid',
-					value: app.patient.pid
-				}
-			]);
-			callback(true);
-		}else{
-			callback(false);
-			this.currPatientError();
-		}
 	}
 });

@@ -516,10 +516,6 @@ class Encounter {
 		 * Add vitals to progress note
 		 */
 		unset($encounter['vitals']);
-//		if($_SESSION['globals']['enable_encounter_vitals']){
-//			if(count($encounter['vitals']) == 0)
-//				unset($encounter['vitals']);
-//		}
 
 		/**
 		 * Add Review of Systems to progress note
@@ -549,17 +545,16 @@ class Encounter {
 			$dxCodes = $this->diagnosis->getICDByEid($eid, true);
 
 			if(count($dxCodes) > 0){
-				$dxOl = '';
+				$dxOl = '<p>Diagnosis</p>';
 				$dxGroups = [];
 				foreach($dxCodes as $dxCode){
 					$dxGroups[$dxCode['dx_group']][] = $dxCode;
 				}
 
 				foreach($dxGroups as $dxGroup){
-					$dxOl .= '<p>Dx Group ' . $dxGroup[0]['dx_group'] . '</p>';
 					$dxOl .= '<ol  class="ProgressNote-ol">';
 					foreach($dxGroup as $dxCode){
-						$dxOl .= '<li><span style="font-weight:bold; text-decoration:none">' . $dxCode['code'] . '</span> - ' . $dxCode['long_desc'] . '</li>';
+						$dxOl .= '<li><span style="font-weight:bold; text-decoration:none">' . $dxCode['code'] . '</span> - ' . trim($dxCode['long_desc']) . '</li>';
 					}
 					$dxOl .= '</ol>';
 				}
@@ -586,6 +581,39 @@ class Encounter {
 		return $encounter;
 	}
 
+	public function ProgressNoteString($encounter){
+
+		$output = '';
+		$br = '<br>';
+
+		if(isset($encounter['soap'])){
+			$soap = $encounter['soap'];
+
+			if(isset($soap['subjective']) && $soap['subjective'] != ''){
+				$output .= 'SUBJECTIVE: ' . nl2br($soap['subjective']) . $br;
+			}
+			if(isset($soap['objective']) && $soap['objective'] != ''){
+				$output .= 'OBJECTIVE: ' . nl2br($soap['objective']) . $br;
+			}
+			if(isset($soap['assessment']) && $soap['assessment'] != ''){
+				$output .= 'ASSESSMENT: ' . nl2br($soap['assessment']) . $br;
+			}
+//			if(isset($soap['plan']) && $soap['plan'] != ''){
+//				$output .= 'PLAN: ' . $soap['plan'] . $br . $br;
+//			}
+			if(isset($soap['instructions']) && $soap['instructions'] != ''){
+				$output .= 'PLAN: ' . nl2br($soap['instructions']) . $br;
+			}
+
+			unset($soap);
+		}
+
+
+
+
+		return $output;
+	}
+
 	private function getObjectiveExtraDataByEid($eid, $encounter = null) {
 
 		if(!isset($encounter)){
@@ -598,16 +626,17 @@ class Encounter {
 		$vitals = $Vitals->getVitalsByEid($eid);
 
 		$str_buff .= '<div class="indent">';
+
 		if(!empty($vitals)){
 			$str_buff .= '<p><b>Vitals:</b></p>';
 			$vitals_buff = '';
 			foreach($vitals as $foo){
 
-				$vitals_buff .= '<p class="indent">';
+				$vital_buff = '';
 
 				if(isset($foo['date'])){
 					$date = strtotime($foo['date']);
-					$vitals_buff .= '<u>Date:</u> ' . date($_SESSION['globals']['date_time_display_format'], $date) . '<br>';
+					$vital_buff .= '<u>Date:</u> ' . date($_SESSION['globals']['date_time_display_format'], $date) . '<br>';
 				}
 
 				/**
@@ -617,7 +646,7 @@ class Encounter {
 					$buff = [];
 					$buff[0] = isset($foo['bp_systolic']) ? $foo['bp_systolic'] : '';
 					$buff[1] = isset($foo['bp_diastolic']) ? $foo['bp_diastolic'] : '';
-					$vitals_buff .= '<u>BP:</u> ' . implode('/', $buff) . '<br>';
+					$vital_buff .= '<u>BP:</u> ' . implode('/', $buff) . '<br>';
 					unset($buff);
 				}
 
@@ -628,11 +657,11 @@ class Encounter {
 				 */
 				if($is_metric){
 					if(isset($foo['temp_c']) && $foo['temp_c'] != ''){
-						$vitals_buff .= '<u>Temp:</u> ' . $foo['temp_c'] . ' &deg;C<br>';
+						$vital_buff .= '<u>Temp:</u> ' . $foo['temp_c'] . ' &deg;C<br>';
 					}
 				}else{
 					if(isset($foo['temp_f']) && $foo['temp_f'] != ''){
-						$vitals_buff .= '<u>Temp:</u> ' . $foo['temp_f'] . ' &deg;F<br>';
+						$vital_buff .= '<u>Temp:</u> ' . $foo['temp_f'] . ' &deg;F<br>';
 					}
 				}
 
@@ -645,11 +674,11 @@ class Encounter {
 				 */
 				if($is_metric){
 					if(isset($foo['height_cm']) && $foo['height_cm'] != ''){
-						$vitals_buff .= '<u>Height:</u> ' . $foo['height_cm'] . 'cm<br>';
+						$vital_buff .= '<u>Height:</u> ' . $foo['height_cm'] . 'cm<br>';
 					}
 				}else{
 					if(isset($foo['height_in']) && $foo['height_in'] != ''){
-						$vitals_buff .= '<u>Height:</u> ' . $foo['height_in'] . '"<br>';
+						$vital_buff .= '<u>Height:</u> ' . $foo['height_in'] . '"<br>';
 					}
 				}
 
@@ -658,11 +687,11 @@ class Encounter {
 				 */
 				if($is_metric){
 					if(isset($foo['weight_kg']) && $foo['weight_kg'] != ''){
-						$vitals_buff .= '<u>Weight:</u> ' . $foo['weight_lbs'] . 'Kg<br>';
+						$vital_buff .= '<u>Weight:</u> ' . $foo['weight_lbs'] . 'Kg<br>';
 					}
 				}else{
 					if(isset($foo['weight_lbs']) && $foo['weight_lbs'] != ''){
-						$vitals_buff .= '<u>Weight:</u> ' . $foo['weight_lbs'] . 'Lbs<br>';
+						$vital_buff .= '<u>Weight:</u> ' . $foo['weight_lbs'] . 'Lbs<br>';
 					}
 				}
 
@@ -670,29 +699,29 @@ class Encounter {
 				 * BMI
 				 */
 				if(isset($foo['bmi']) && $foo['bmi'] != ''){
-					$vitals_buff .= '<u>BMI: ' . $foo['bmi'] . '<br>';
+					$vital_buff .= '<u>BMI: ' . $foo['bmi'] . '<br>';
 				}
 				if(isset($foo['bmi_status']) && $foo['bmi_status'] != ''){
-					$vitals_buff .= '<u>BMI Status:</u> ' . $foo['bmi_status'] . '<br>';
+					$vital_buff .= '<u>BMI Status:</u> ' . $foo['bmi_status'] . '<br>';
 				}
 
 				/**
 				 * Pulse
 				 */
 				if(isset($foo['pulse']) && $foo['pulse'] != ''){
-					$vitals_buff .= '<u>Pulse:</u> ' . $foo['pulse'] . '<br>';
+					$vital_buff .= '<u>Pulse:</u> ' . $foo['pulse'] . '<br>';
 				}
 
 				/**
 				 * Administer Name
 				 */
 				if(isset($foo['administer_by']) && $foo['administer_by'] != ''){
-					$vitals_buff .= '<u>Administer By:</u> ' .$foo['administer_by'];
+					$vital_buff .= '<u>Administer By:</u> ' .$foo['administer_by'];
 				}
 
-				$vitals_buff .= '</p>';
-
-
+				if($vital_buff != ''){
+					$vitals_buff .= '<p class="indent">'.$vital_buff.'</p>';
+				}
 			}
 
 			$str_buff .= $vitals_buff;
@@ -722,17 +751,23 @@ class Encounter {
 				$fields[$buff['name']] = $buff['fieldLabel'];
 			}
 
-			$str_buff .= '<div class="indent">';
-			$str_buff .= '<p><b>Review of Systems:</b></p>';
-			$str_buff .= '<div class="indent">';
+			$ros_buff = '';
+
 			foreach($encounter['reviewofsystems'][0] as $key => $value){
 				if(!array_key_exists($key, $fields)) continue;
 				if(!isset($value)) continue;
-				$str_buff .= $fields[$key] . ': ' . ($value == 1 ? 'Yes' : $value) .'<br>';
+				$ros_buff .= $fields[$key] . ': ' . ($value == 1 ? 'Yes' : $value) .'<br>';
 			}
 
-			$str_buff .= '</div>';
-			$str_buff .= '</div>';
+			if($ros_buff !== ''){
+				$str_buff .= '<div class="indent">';
+				$str_buff .= '<p><b>Review of Systems:</b></p>';
+				$str_buff .= '<div class="indent">';
+				$str_buff .= $ros_buff;
+				$str_buff .= '</div>';
+				$str_buff .= '</div>';
+			}
+
 		}
 
 		/**
@@ -761,20 +796,24 @@ class Encounter {
 		 */
 		$ActiveProblems = new ActiveProblems();
 		$active_problems = $ActiveProblems->getPatientActiveProblemByEid($eid);
-		$str_buff .= '<div class="indent">';
+
 		if(!empty($active_problems)){
+			$str_buff .= '<div class="indent">';
 			$lis = '';
 			foreach($active_problems as $foo){
 				$lis .= '<li>[' . $foo['code'] . '] - ' . $foo['code_text'] . ' </li>';
 			}
 			$str_buff .= '<p><b>Active Problems:</b></p>';
 			$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
+			$str_buff .= '</div>';
 		}else{
 			if($encounter['review_active_problems']){
+				$str_buff .= '<div class="indent">';
 				$str_buff .= '<p><b>Active Problems:</b> No Active Problems</p>';
+				$str_buff .= '</div>';
 			}
 		}
-		$str_buff .= '</div>';
+
 		unset($ActiveProblems, $active_problems);
 
 		/**
@@ -782,8 +821,9 @@ class Encounter {
 		 */
 		$Allergies = new Allergies();
 		$allergies = $Allergies->getPatientAllergiesByEid($eid);
-		$str_buff .= '<div class="indent">';
+
 		if(!empty($allergies)){
+			$str_buff .= '<div class="indent">';
 			$lis = '';
 			foreach($allergies as $foo){
 				$lis .= '<li>Allergy: ' . $foo['allergy'] . ' (' . $foo['allergy_type'] . ')<br>';
@@ -794,12 +834,15 @@ class Encounter {
 			}
 			$str_buff .= '<p><b>Allergies:</b></p>';
 			$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
+			$str_buff .= '</div>';
 		}else{
 			if($encounter['review_allergies']){
+				$str_buff .= '<div class="indent">';
 				$str_buff .= '<p><b>Allergies:</b> No Known Allergies</p>';
+				$str_buff .= '</div>';
 			}
 		}
-		$str_buff .= '</div>';
+
 		unset($Allergies, $allergies);
 
 		/**
@@ -808,8 +851,9 @@ class Encounter {
 		if($encounter['review_immunizations']){
 			$Immunizations = new Immunizations();
 			$immunizations = $Immunizations->getImmunizationsByEncounterID($eid);
-			$str_buff .= '<div class="indent">';
+
 			if(!empty($immunizations)){
+				$str_buff .= '<div class="indent">';
 				$lis = '';
 				foreach($immunizations as $foo){
 					$administered_by = Person::fullname($foo['administered_fname'], $foo['administered_mname'], $foo['administered_lname']);
@@ -823,10 +867,13 @@ class Encounter {
 				}
 				$str_buff .= '<p><b>Immunizations:</b></p>';
 				$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
+				$str_buff .= '</div>';
 			} else {
+				$str_buff .= '<div class="indent">';
 				$str_buff .= '<p><b>Immunizations:</b> No Immunizations</p>';
+				$str_buff .= '</div>';
 			}
-			$str_buff .= '</div>';
+
 			unset($Immunizations, $immunizations);
 		}
 

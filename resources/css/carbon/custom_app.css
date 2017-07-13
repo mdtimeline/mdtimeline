@@ -8,6 +8,10 @@
     src: url('../../fonts/OpenSans-CondLight.ttf');
 }
 
+.progress-motes-history-grid .x-grid-cell-inner {
+    white-space: normal;
+}
+
 .app-huge-field {
     font-size: 35px !important;
     height: 50px !important;

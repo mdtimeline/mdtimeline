@@ -916,6 +916,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.RxOrders',
 	                'patient.Social',
 	                'patient.SocialPsychologicalBehavioral',
+	                'patient.Visits',
 	                'patient.Vitals',
 
 	                'patient.Summary',

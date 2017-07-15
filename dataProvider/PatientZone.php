@@ -52,6 +52,11 @@ class PatientZone {
 	public function getPatientsZonesByFloorPlanId($FloorPlanId){
 		$Patient = new Patient();
 		$Pool = new PoolArea();
+
+		if(!isset($FloorPlanId) || !is_numeric($FloorPlanId)){
+			return [];
+		}
+
 		$zones = $this->pz->sql("SELECT pz.id AS patientZoneId,
 								  pz.pid,
 								  pz.uid,
@@ -61,6 +66,7 @@ class PatientZone {
 							 FROM patient_zone AS pz
 						LEFT JOIN floor_plans_zones AS fpz ON pz.zone_id = fpz.id
 							WHERE fpz.floor_plan_id = $FloorPlanId AND pz.time_out IS NULL")->all();
+
 		foreach($zones as $i => $zone){
 			$zone['patient'] = $Patient->getPatientDemographicDataByPid($zone['pid']);
 			$zone['name'] = $Patient->getPatientFullName();
@@ -71,6 +77,7 @@ class PatientZone {
 			$zone['eid'] = $pool['eid'];
 			$zones[$i] = $zone;
 		}
+
 		unset($Patient, $Pool);
 		return $zones;
 	}

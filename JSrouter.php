@@ -58,7 +58,7 @@ $global['host']  = HOST;
 $global['site']  = site_dir;
 
 if(!defined('THEME')) {
-	define('THEME', $global['css_header']);
+	define('THEME', $global['application_theme']);
 }
 
 if(isset($global['recaptcha_secret_key'])){

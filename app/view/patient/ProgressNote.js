@@ -63,7 +63,7 @@ Ext.define('App.view.patient.ProgressNote', {
             '           <p><span>' + _('subjective') + ':</span> {[this.doHtmlDecode(values.subjective) || "-"]} </p>' +
             '           <p><span>' + _('objective') + ':</span> {[this.doHtmlDecode(values.objective) || "-"]}</p>' +
             '           <p><span>' + _('assessment') + ':</span> {[this.doHtmlDecode(values.assessment) || "-"]}</p>' +
-            '           <p><span>' + _('plan') + ':</span> {[this.doHtmlDecode(values.plan) || "-"]}</p>' +
+            '           <p><span>' + _('plan') + ':</span> {[this.doHtmlDecode(values.instructions) || "-"]}</p>' +
             '       </div>' +
             '   </tpl>' +
             /**

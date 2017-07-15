@@ -44,6 +44,10 @@ Ext.define('App.model.patient.ProgressNotesHistory', {
 			type: 'string'
 		},
 		{
+			name: 'instructions',
+			type: 'string'
+		},
+		{
 			name: 'progress',
 			type: 'string',
 			convert: function(v, record){
@@ -53,7 +57,8 @@ Ext.define('App.model.patient.ProgressNotesHistory', {
 				str += '<b>' + _('subjective') + ':</b> ' + Ext.String.htmlDecode(record.data.subjective) + '<br>';
 				str += '<b>' + _('objective') + ':</b> ' + Ext.String.htmlDecode(record.data.objective) + '<br>';
 				str += '<b>' + _('assessment') + ':</b> ' + Ext.String.htmlDecode(record.data.assessment) + '<br>';
-				str += '<b>' + _('plan') + ':</b> ' + Ext.String.htmlDecode(record.data.plan) + '<br>';
+				// str += '<b>' + _('plan') + ':</b> ' + Ext.String.htmlDecode(record.data.plan) + '<br>';
+				str += '<b>' + _('instructions') + ':</b> ' + Ext.String.htmlDecode(record.data.instructions) + '<br>';
 				return str;
 			}
 		}

@@ -82,8 +82,22 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 			},
 			'#soapProcedureWindow > form > textarea': {
 				focus: me.onProcedureTextFieldFocus
+			},
+			'#SoapDxCodesField': {
+				recordadd: me.onSoapDxCodesFieldRecordAdd
 			}
 		});
+	},
+
+	onSoapDxCodesFieldRecordAdd: function (field, record) {
+		say('onSoapDxCodesFieldIcdAdd');
+		say(record);
+
+		say(this.getSoapForm());
+		say(this.getSoapForm().autoSync);
+
+		if(this.getSoapForm().autoSync) this.getSoapDxCodesField().sync();
+
 	},
 
 	onEncounterBeforeSync: function(panel, store, form){

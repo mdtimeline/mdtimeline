@@ -450,8 +450,10 @@ Ext.define('App.view.Viewport', {
                     title: _('patient_pool_areas'),
                     region: 'south',
 	                action:'patientPoolArea',
+	                stateful: true,
+	                stateId:'PatientPoolAreaSateId',
                     bodyPadding: 5,
-                    height: 25,
+                    height: 200,
                     cls: 'patient-pool',
                     split: true,
                     collapsible: true,
@@ -1064,9 +1066,9 @@ Ext.define('App.view.Viewport', {
                 }
 
                 if(me.navColumn.collapsed === false && !me.navColumn.isCollapsingOrExpanding){
-                    height = (height > 300) ? 300 : height;
+                    // height = (height > 300) ? 300 : height;
                     poolArea.down('dataview').refresh();
-                    poolArea.setHeight(height);
+                    // poolArea.setHeight(height);
                 }
             }
         });

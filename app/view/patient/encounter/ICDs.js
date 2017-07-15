@@ -227,7 +227,7 @@ Ext.define('App.view.patient.encounter.ICDs', {
 
 		if(!group_cmb.isValid() && !type_cmb.isValid()) return;
 
-		dxRecords = this.store.add({
+		var record_data = {
 			pid: soap.data.pid,
 			eid: soap.data.eid,
 			uid: app.user.id,
@@ -237,7 +237,13 @@ Ext.define('App.view.patient.encounter.ICDs', {
 			dx_group: group,
 			dx_type: type,
 			dx_order: order
-		});
+		};
+
+		if(me.fireEvent('beforerecordadd', me, record_data) === false) return;
+
+		dxRecords = this.store.add(record_data);
+
+		me.fireEvent('recordadd', me, dxRecords[0]);
 
 		me.addIcd(dxRecords[0], group, order);
 		field.reset();
@@ -257,7 +263,7 @@ Ext.define('App.view.patient.encounter.ICDs', {
 
 		if(me.store.find('code', data.code) !== -1) return;
 
-		dxRecords = me.store.add({
+		var record_data = {
 			pid: soap.data.pid,
 			eid: soap.data.eid,
 			uid: app.user.id,
@@ -267,7 +273,9 @@ Ext.define('App.view.patient.encounter.ICDs', {
 			dx_group: group,
 			dx_type: type,
 			dx_order: order
-		});
+		};
+
+		dxRecords = me.store.add(record_data);
 
 		me.addIcd(dxRecords[0], group, order);
 	},

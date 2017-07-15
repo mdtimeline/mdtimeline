@@ -24029,7 +24029,7 @@ Ext.define('App.view.patient.encounter.ICDs', {
 
 		if(!group_cmb.isValid() && !type_cmb.isValid()) return;
 
-		dxRecords = this.store.add({
+		var record_data = {
 			pid: soap.data.pid,
 			eid: soap.data.eid,
 			uid: app.user.id,
@@ -24039,7 +24039,13 @@ Ext.define('App.view.patient.encounter.ICDs', {
 			dx_group: group,
 			dx_type: type,
 			dx_order: order
-		});
+		};
+
+		if(me.fireEvent('beforerecordadd', me, record_data) === false) return;
+
+		dxRecords = this.store.add(record_data);
+
+		me.fireEvent('recordadd', me, dxRecords[0]);
 
 		me.addIcd(dxRecords[0], group, order);
 		field.reset();
@@ -24059,7 +24065,7 @@ Ext.define('App.view.patient.encounter.ICDs', {
 
 		if(me.store.find('code', data.code) !== -1) return;
 
-		dxRecords = me.store.add({
+		var record_data = {
 			pid: soap.data.pid,
 			eid: soap.data.eid,
 			uid: app.user.id,
@@ -24069,7 +24075,9 @@ Ext.define('App.view.patient.encounter.ICDs', {
 			dx_group: group,
 			dx_type: type,
 			dx_order: order
-		});
+		};
+
+		dxRecords = me.store.add(record_data);
 
 		me.addIcd(dxRecords[0], group, order);
 	},
@@ -25187,7 +25195,7 @@ Ext.define('App.view.patient.ProgressNote', {
             '           <p><span>' + _('subjective') + ':</span> {[this.doHtmlDecode(values.subjective) || "-"]} </p>' +
             '           <p><span>' + _('objective') + ':</span> {[this.doHtmlDecode(values.objective) || "-"]}</p>' +
             '           <p><span>' + _('assessment') + ':</span> {[this.doHtmlDecode(values.assessment) || "-"]}</p>' +
-            '           <p><span>' + _('plan') + ':</span> {[this.doHtmlDecode(values.plan) || "-"]}</p>' +
+            '           <p><span>' + _('plan') + ':</span> {[this.doHtmlDecode(values.instructions) || "-"]}</p>' +
             '       </div>' +
             '   </tpl>' +
             /**
@@ -46725,8 +46733,22 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 			},
 			'#soapProcedureWindow > form > textarea': {
 				focus: me.onProcedureTextFieldFocus
+			},
+			'#SoapDxCodesField': {
+				recordadd: me.onSoapDxCodesFieldRecordAdd
 			}
 		});
+	},
+
+	onSoapDxCodesFieldRecordAdd: function (field, record) {
+		say('onSoapDxCodesFieldIcdAdd');
+		say(record);
+
+		say(this.getSoapForm());
+		say(this.getSoapForm().autoSync);
+
+		if(this.getSoapForm().autoSync) this.getSoapDxCodesField().sync();
+
 	},
 
 	onEncounterBeforeSync: function(panel, store, form){
@@ -61848,8 +61870,10 @@ Ext.define('App.view.Viewport', {
                     title: _('patient_pool_areas'),
                     region: 'south',
 	                action:'patientPoolArea',
+	                stateful: true,
+	                stateId:'PatientPoolAreaSateId',
                     bodyPadding: 5,
-                    height: 25,
+                    height: 200,
                     cls: 'patient-pool',
                     split: true,
                     collapsible: true,
@@ -62462,9 +62486,9 @@ Ext.define('App.view.Viewport', {
                 }
 
                 if(me.navColumn.collapsed === false && !me.navColumn.isCollapsingOrExpanding){
-                    height = (height > 300) ? 300 : height;
+                    // height = (height > 300) ? 300 : height;
                     poolArea.down('dataview').refresh();
-                    poolArea.setHeight(height);
+                    // poolArea.setHeight(height);
                 }
             }
         });
@@ -65279,6 +65303,10 @@ Ext.define('App.model.patient.ProgressNotesHistory', {
 			type: 'string'
 		},
 		{
+			name: 'instructions',
+			type: 'string'
+		},
+		{
 			name: 'progress',
 			type: 'string',
 			convert: function(v, record){
@@ -65288,7 +65316,8 @@ Ext.define('App.model.patient.ProgressNotesHistory', {
 				str += '<b>' + _('subjective') + ':</b> ' + Ext.String.htmlDecode(record.data.subjective) + '<br>';
 				str += '<b>' + _('objective') + ':</b> ' + Ext.String.htmlDecode(record.data.objective) + '<br>';
 				str += '<b>' + _('assessment') + ':</b> ' + Ext.String.htmlDecode(record.data.assessment) + '<br>';
-				str += '<b>' + _('plan') + ':</b> ' + Ext.String.htmlDecode(record.data.plan) + '<br>';
+				// str += '<b>' + _('plan') + ':</b> ' + Ext.String.htmlDecode(record.data.plan) + '<br>';
+				str += '<b>' + _('instructions') + ':</b> ' + Ext.String.htmlDecode(record.data.instructions) + '<br>';
 				return str;
 			}
 		}

@@ -49,7 +49,9 @@ define('_GaiaEXEC', 1);
 define('_ISCLI', 1);
 
 if(file_exists($root_dir . '/registry.php')){
-	include_once ($root_dir . '/registry.php');
+	include_once($root_dir . '/registry.php');
+}elseif(file_exists($root_dir . '/../registry.php')){
+	include_once ($root_dir . '/../registry.php');
 }else{
 	error_log('CronJobsCli.php registry file not found. ' . $root_dir . '/registry.php');
 }

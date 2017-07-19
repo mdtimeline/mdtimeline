@@ -429,7 +429,8 @@ Ext.define('App.view.Viewport', {
             width: parseFloat(g('gbl_nav_area_width')),
             split: true,
             collapsible: true,
-            collapsed: false,
+            collapsed: true,
+	        animCollapse: false,
 	        stateId: 'mainNavPanel',
 	        stateful: true,
             items: [

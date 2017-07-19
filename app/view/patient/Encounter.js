@@ -308,12 +308,14 @@ Ext.define('App.view.patient.Encounter', {
 			region: 'east',
 			split: true,
 			collapsible: true,
-			animCollapse: true,
+			animCollapse: false,
 			collapsed: true,
 			deferredRender: false,
 			bodyPadding: 0,
 			margin: 0,
 			padding: 0,
+			stateful: true,
+			stateId: 'EncounterProgressNotesPanel',
 			itemId: 'EncounterProgressNotesPanel',
 			listeners: {
 				scope: this,
@@ -331,8 +333,6 @@ Ext.define('App.view.patient.Encounter', {
 					bodyPadding: 0,
 					margin: 0,
 					padding: 0,
-					stateful: true,
-					stateId: 'EncounterProgressNoteState',
 					tbar: [
 						'->', {
 							xtype: 'tool',

@@ -331,6 +331,8 @@ Ext.define('App.view.patient.Encounter', {
 					bodyPadding: 0,
 					margin: 0,
 					padding: 0,
+					stateful: true,
+					stateId: 'EncounterProgressNoteState',
 					tbar: [
 						'->', {
 							xtype: 'tool',

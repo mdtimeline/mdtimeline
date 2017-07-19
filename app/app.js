@@ -25195,7 +25195,7 @@ Ext.define('App.view.patient.ProgressNote', {
             '           <p><span>' + _('subjective') + ':</span> {[this.doHtmlDecode(values.subjective) || "-"]} </p>' +
             '           <p><span>' + _('objective') + ':</span> {[this.doHtmlDecode(values.objective) || "-"]}</p>' +
             '           <p><span>' + _('assessment') + ':</span> {[this.doHtmlDecode(values.assessment) || "-"]}</p>' +
-            '           <p><span>' + _('plan') + ':</span> {[this.doHtmlDecode(values.instructions) || "-"]}</p>' +
+            '           <p><span>' + _('plan') + ':</span> {[this.doHtmlDecode(values.plan) || "-"]}</p>' +
             '       </div>' +
             '   </tpl>' +
             /**
@@ -60631,6 +60631,8 @@ Ext.define('App.view.patient.Encounter', {
 					bodyPadding: 0,
 					margin: 0,
 					padding: 0,
+					stateful: true,
+					stateId: 'EncounterProgressNoteState',
 					tbar: [
 						'->', {
 							xtype: 'tool',
@@ -65310,15 +65312,15 @@ Ext.define('App.model.patient.ProgressNotesHistory', {
 			name: 'progress',
 			type: 'string',
 			convert: function(v, record){
-				var str = '';
+				var str = '<div style="padding: 15px;">';
 				str += '<b>' + _('service_date') + ':</b> ' + Ext.Date.format(record.data.service_date, g('date_time_display_format')) + '<br>';
 				str += '<b>' + _('chief_complaint') + ':</b> ' + Ext.String.htmlDecode(record.data.brief_description) + '<br>';
 				str += '<b>' + _('subjective') + ':</b> ' + Ext.String.htmlDecode(record.data.subjective) + '<br>';
 				str += '<b>' + _('objective') + ':</b> ' + Ext.String.htmlDecode(record.data.objective) + '<br>';
 				str += '<b>' + _('assessment') + ':</b> ' + Ext.String.htmlDecode(record.data.assessment) + '<br>';
-				// str += '<b>' + _('plan') + ':</b> ' + Ext.String.htmlDecode(record.data.plan) + '<br>';
-				str += '<b>' + _('instructions') + ':</b> ' + Ext.String.htmlDecode(record.data.instructions) + '<br>';
-				return str;
+				str += '<b>' + _('plan') + ':</b> ' +  Ext.String.htmlDecode(record.data.plan) + '<br>';
+				// str += '<b>' + _('instructions') + ':</b> ' + Ext.String.htmlDecode(record.data.instructions) + '<br>';
+				return str + '</div>';
 			}
 		}
 	],

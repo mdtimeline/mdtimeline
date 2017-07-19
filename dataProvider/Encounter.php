@@ -461,7 +461,7 @@ class Encounter {
 			$encounter['subjective'] = $soap['subjective'];
 			$encounter['objective'] = $soap['objective'] . $this->getObjectiveExtraDataByEid($encounter['eid']);
 			$encounter['assessment'] = $soap['assessment'] . '<ul  class="ProgressNote-ul">' . $icds . '</ul>';
-			$encounter['plan'] = $soap['plan'] . $this->getPlanExtraDataByEid($encounter['eid']);
+			$encounter['plan'] = (isset($soap['plan']) ? $soap['plan'] : '') . $this->getPlanExtraDataByEid($encounter['eid'], $soap['instructions']);
 			unset($soap);
 		}
 		unset($filters);
@@ -564,7 +564,7 @@ class Encounter {
 			$soap['assessment'] = isset($soap['assessment']) ? $soap['assessment'] : '';
 			$soap['objective'] = (isset($soap['objective']) ? $soap['objective'] : '') . $this->getObjectiveExtraDataByEid($eid, $encounter);
 			$soap['assessment'] = $soap['assessment'] . (isset($dxOl) ? $dxOl : '');
-			$soap['plan'] = (isset($soap['plan']) ? $soap['plan'] : '') . $this->getPlanExtraDataByEid($eid);
+			$soap['plan'] = (isset($soap['plan']) ? $soap['plan'] : '') . $this->getPlanExtraDataByEid($eid, $soap['instructions']);
 			$encounter['soap'] = $soap;
 		}
 
@@ -882,38 +882,43 @@ class Encounter {
 		return $str_buff;
 	}
 
-	private function getPlanExtraDataByEid($eid){
+	private function getPlanExtraDataByEid($eid, $instructions = null){
 
 //		$record = $this->getEncounter($eid, true, false);
 //		$encounter = (array)$record['encounter'];
 
 		$str_buff = '';
 
+		if(isset($instructions) && $instructions != ''){
+			$str_buff .= '<div class="indent">';
+			$str_buff .= "<p><b>Instructions:</b> {$instructions}</p>";
+			$str_buff .= '</div>';
+		}
+
 		/**
 		 * Active Medications
 		 */
 
-			$Medications = new Medications();
-			$medications = $Medications->getPatientMedicationsOrdersByEid($eid);
+		$Medications = new Medications();
+		$medications = $Medications->getPatientMedicationsOrdersByEid($eid);
 
-			if(!empty($medications)){
-				$str_buff .= '<div class="indent">';
-				$str_buff .= '<p><b>Medications Orders:</b></p>';
+		if(!empty($medications)){
+			$str_buff .= '<div class="indent">';
+			$str_buff .= '<p><b>Medications Orders:</b></p>';
 
-				foreach($medications as $foo){
-					$str_buff .= '<p class="indent">';
-					$str_buff .= '<u>Medication: </u>' . $foo['STR'] . '<br>';
-					$str_buff .= '<u>Dispense: </u>' . $foo['dispense'] . '<br>';
-					$str_buff .= '<u>Refill: </u>' . $foo['refill'] . '<br>';
-					$str_buff .= '<u>Instruction: </u>' . $foo['directions'] . '<br>';
-					$str_buff .= '<u>Notes To Pharmacist: </u>' . $foo['notes'] . '<br>';
-					$str_buff .= '</p>';
-				}
-				$str_buff .= '</div>';
+			foreach($medications as $foo){
+				$str_buff .= '<p class="indent">';
+				$str_buff .= '<u>Medication: </u>' . $foo['STR'] . '<br>';
+				$str_buff .= '<u>Dispense: </u>' . $foo['dispense'] . '<br>';
+				$str_buff .= '<u>Refill: </u>' . $foo['refill'] . '<br>';
+				$str_buff .= '<u>Instruction: </u>' . $foo['directions'] . '<br>';
+				$str_buff .= '<u>Notes To Pharmacist: </u>' . $foo['notes'] . '<br>';
+				$str_buff .= '</p>';
 			}
+			$str_buff .= '</div>';
+		}
 
-			unset($ActiveMedications, $active_medications);
-
+		unset($ActiveMedications, $active_medications);
 
 
 		return $str_buff;

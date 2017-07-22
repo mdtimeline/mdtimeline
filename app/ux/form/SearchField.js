@@ -44,6 +44,25 @@ Ext.define('App.ux.form.SearchField', {
 		this.triggerCell.item(0).setDisplayed(false);
 	},
 
+	updateLayout: function () {
+		say('updateLayout');
+		say(this);
+
+		if(this.hasSearch){
+			this.inputEl.applyStyles({
+				backgroundColor: 'yellow',
+				color: 'black'
+			});
+		}else {
+			this.inputEl.applyStyles({
+				backgroundColor: null,
+				color: null
+			});
+		}
+
+		this.callParent();
+	},
+
 	onTrigger1Click : function(){
 		var me = this;
 

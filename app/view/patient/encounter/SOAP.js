@@ -66,6 +66,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 			collapsed: !eval(g('enable_encounter_soap_templates')),
 			collapsible: true,
 			collapseMode: 'mini',
+			animCollapse: false,
 			hideCollapseTool: true,
 			store: me.snippetStore,
 			features: [{ftype:'grouping'}],

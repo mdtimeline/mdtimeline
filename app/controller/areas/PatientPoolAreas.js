@@ -57,6 +57,8 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 				click: me.onPatientToNextAreaWindowCancelBtnClick
 			}
 		});
+
+		me.reloadAreaBuffer = Ext.Function.createBuffered(me.reloadArea, 50, me);
 	},
 
 	doSendPatientToNextArea: function (pid) {
@@ -120,7 +122,8 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 
 	onPatientPoolAreasRemovePatientMenuClick: function (item) {
 		var me = this,
-			pool_record = item.up('menu').pool_record;
+			pool_view = item.up('menu').pool_view,
+			pool_view_store = pool_view.store;
 
 		Ext.Msg.show({
 			title: _('wait'),
@@ -129,29 +132,39 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 			icon: Ext.Msg.QUESTION,
 			fn: function (btn) {
 				if(btn !== 'yes') return;
-				me.removePatientFromArea(pool_record);
+
+				var selection = pool_view.getSelectionModel().getSelection();
+
+				selection.forEach(function (pool_record) {
+					me.removePatientFromArea(pool_record, pool_view_store);
+				});
 			}
 		});
 	},
 
-	removePatientFromArea: function (pool_record) {
-		var params = {
+	reloadArea: function (store) {
+		store.reload();
+	},
+
+	removePatientFromArea: function (pool_record, pool_view_store) {
+		var me = this,
+			params = {
 			area_id: pool_record.get('id')
 		};
 
 		PoolArea.removePatientArrivalLog(params, function (response) {
 			if(response.success){
-				pool_record.store.reload();
+				me.reloadAreaBuffer(pool_view_store);
 			}
 		});
 	},
 
 	onPatientPoolAreasGridBeforeItemContextMenu: function (view, pool_record, item, index, e) {
 		e.preventDefault();
-		this.showPatientPoolAreasPanelGridMenu(pool_record, e);
+		this.showPatientPoolAreasPanelGridMenu(view, e);
 	},
 
-	showPatientPoolAreasPanelGridMenu: function (pool_record, e) {
+	showPatientPoolAreasPanelGridMenu: function (pool_view, e) {
 		var me = this;
 		if(!me.grid_menu){
 			me.grid_menu = Ext.widget('menu', {
@@ -165,7 +178,7 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 				]
 			});
 		}
-		me.grid_menu.pool_record = pool_record;
+		me.grid_menu.pool_view = pool_view;
 		me.grid_menu.showAt(e.getXY());
 
 		return me.grid_menu;

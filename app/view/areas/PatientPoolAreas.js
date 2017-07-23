@@ -116,6 +116,7 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 
 				panel.add({
 					xtype: 'grid',
+					multiSelect: true,
 					title: areas[i].title,
 					action: areas[i].id,
 					store: store,

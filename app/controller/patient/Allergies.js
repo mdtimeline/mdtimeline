@@ -59,6 +59,10 @@ Ext.define('App.controller.patient.Allergies', {
 			selector: '#allergyMedicationCombo'
 		},
 		{
+			ref: 'AllergyFoodCombo',
+			selector: '#allergyFoodCombo'
+		},
+		{
 			ref: 'AllergyMetalCombo',
 			selector: '#allergyMetalCombo'
 		},
@@ -103,6 +107,9 @@ Ext.define('App.controller.patient.Allergies', {
 			},
 			'#allergyMetalCombo': {
 				select: me.onAllergyMetalComboSelect
+			},
+			'#allergyFoodCombo': {
+				select: me.onAllergyFoodComboSelect
 			},
 			'#allergyLocationCombo': {
 				change: me.onAllergyLocationComboChange
@@ -175,14 +182,26 @@ Ext.define('App.controller.patient.Allergies', {
 		});
 	},
 
+	onAllergyFoodComboSelect: function (cmb, records) {
+		var form = cmb.up('form').getForm();
+
+		form.getRecord().set({
+			allergy: records[0].get('option_name'),
+			allergy_code: records[0].get('code'),
+			allergy_code_type: records[0].get('code_type')
+		});
+	},
+
+
 	onAllergyTypeComboSelect: function(combo, records){
 
 		var me = this,
 			record = records[0],
 			code = record.data.code,
 			isDrug = (code === '419511003' || code === '416098002' || code === '59037007'),
+			isFood = (code === '414285001' || code === '235719002' || code === '418471000'),
 			isMetal = code === '300915004',
-			isElse = !isDrug && !isMetal;
+			isElse = !isDrug && !isMetal && !isFood;
 
 		me.getAllergyMedicationCombo().setVisible(isDrug);
 		me.getAllergyMedicationCombo().setDisabled(!isDrug);
@@ -190,13 +209,18 @@ Ext.define('App.controller.patient.Allergies', {
 		me.getAllergyMetalCombo().setVisible(isMetal);
 		me.getAllergyMetalCombo().setDisabled(!isMetal);
 
+		me.getAllergyFoodCombo().setVisible(isFood);
+		me.getAllergyFoodCombo().setDisabled(!isFood);
+
 		me.getAllergySearchCombo().setVisible(isElse);
 		me.getAllergySearchCombo().setDisabled(!isElse);
 
 		if(isDrug){
 			me.getAllergyMedicationCombo().reset();
 		}else if(isMetal) {
-			me.getAllergyMetalCombo().reset();
+			me.getAllergyMedicationCombo().reset();
+		}else if(isFood) {
+			me.getAllergyFoodCombo().reset();
 		}else{
 			me.getAllergySearchCombo().store.load();
 		}
@@ -240,16 +264,21 @@ Ext.define('App.controller.patient.Allergies', {
             AllergyMedicationCombo = RowForm.query('#allergyMedicationCombo')[0],
             AllergyMetalCombo = RowForm.query('#allergyMetalCombo')[0],
             AllergySearchCombo = RowForm.query('#allergySearchCombo')[0],
+	        AllergyFoodCombo = RowForm.query('#allergyFoodCombo')[0],
 	        allergy_type_code = context.record.get('allergy_type_code'),
 	        isDrug = (allergy_type_code === '419511003' || allergy_type_code === '416098002' || allergy_type_code === '59037007'),
 	        isMetal = allergy_type_code === '300915004',
-	        isElse = !isDrug && !isMetal;
+	        isFood = allergy_type_code === '414285001' || allergy_type_code === '235719002' || allergy_type_code === '418471000',
+	        isElse = !isDrug && !isMetal && !isFood;
 
 	    AllergyMedicationCombo.setVisible(isDrug);
 	    AllergyMedicationCombo.setDisabled(!isDrug);
 
 	    AllergyMetalCombo.setVisible(isMetal);
 	    AllergyMetalCombo.setDisabled(!isMetal);
+
+	    AllergyFoodCombo.setVisible(isFood);
+	    AllergyFoodCombo.setDisabled(!isFood);
 
 	    AllergySearchCombo.setVisible(isElse);
 	    AllergySearchCombo.setDisabled(!isElse);
@@ -258,6 +287,8 @@ Ext.define('App.controller.patient.Allergies', {
 		    AllergyMedicationCombo.setValue(context.record.get('allergy'));
 	    }else if(isMetal){
 		    AllergyMetalCombo.setValue(context.record.get('allergy'));
+	    }else if(isFood){
+		    AllergyFoodCombo.setValue(context.record.get('allergy'));
 	    }else {
 		    AllergySearchCombo.setValue(context.record.get('allergy'));
 	    }

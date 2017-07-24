@@ -154,6 +154,20 @@ Ext.define('App.view.patient.Allergies', {
 								allowBlank: false
 							},
 							{
+								xtype:'gaiaehr.combo',
+								fieldLabel: _('allergy'),
+								itemId:'allergyFoodCombo',
+								name: 'allergy',
+								hideLabel: false,
+								hidden: true,
+								disabled: true,
+								enableKeyEvents: true,
+								width: 700,
+								labelWidth: 70,
+								allowBlank: false,
+								listKey: 'food_aller'
+							},
+							{
 								xtype:'allergiesmetalcombo',
 								fieldLabel: _('allergy'),
 								itemId:'allergyMetalCombo',

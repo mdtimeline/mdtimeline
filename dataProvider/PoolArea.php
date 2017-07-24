@@ -345,7 +345,7 @@ class PoolArea {
 						LEFT JOIN encounters AS enc ON enc.eid = pools.eid 
 						{$whereEncounters} 
 				      	ORDER BY pools.time_in
-				        LIMIT 10";
+				        LIMIT 50";
 
 				$patientPools = $this->pa->sql($sql)->all();
 

@@ -584,7 +584,7 @@ class Encounter {
 	public function ProgressNoteString($encounter){
 
 		$output = '';
-		$br = '<br>';
+		$br = '<br><br>';
 
 		if(isset($encounter['soap'])){
 			$soap = $encounter['soap'];

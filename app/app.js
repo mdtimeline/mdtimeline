@@ -24125,6 +24125,9 @@ Ext.define('App.view.patient.encounter.ICDs', {
 				ddGroup: 'group-' + group + '-dx'
 			},
 			listeners: {
+				render: function(cmp){
+					cmp.el.dom.setAttribute('data-qtip' , ('<b>' + record.get('code') + '</b>: ' +record.get('code_text')));
+				},
 				close: function(cmp){
 					me.store.remove(cmp.dxRecord);
 				}

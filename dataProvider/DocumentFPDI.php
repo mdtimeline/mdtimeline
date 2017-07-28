@@ -27,6 +27,10 @@ class DocumentFPDI extends FPDI  {
 	 * @var array
 	 */
 	protected $header_data = [];
+	/**
+	 * @var array
+	 */
+	protected $footer_data = [];
 
 	/**
 	 * @var bool
@@ -42,6 +46,11 @@ class DocumentFPDI extends FPDI  {
 	 * @var int
 	 */
 	protected $header_y = 0;
+
+	/**
+	 * @var int
+	 */
+	protected $footer_y = 0;
 
 	/**
 	 * @var array
@@ -68,6 +77,12 @@ class DocumentFPDI extends FPDI  {
 	 */
 	public function addCustomHeaderData(array $data){
 		$this->header_data = array_merge($this->header_data, $data);
+	}
+	/**
+	 * @param array $data
+	 */
+	public function addCustomFooterData(array $data){
+		$this->footer_data = array_merge($this->footer_data, $data);
 	}
 
 	/**
@@ -232,6 +247,41 @@ class DocumentFPDI extends FPDI  {
 		$page_height = $this->getPageHeight();
 		$page_width = $this->getPageWidth();
 		$footer_margin = $page_height - $this->getFooterMargin();
+		$header_cols = $this->getHeaderCols();
+		$footer_y = $footer_margin;
+
+		if(!empty($this->footer_data)){
+
+			foreach($this->footer_data as $line){
+
+				$line['y'] = $footer_y + $line['y'];
+
+				if(isset($line['col']) && isset($header_cols[$line['col']])){
+					$line['x'] = $header_cols[$line['col']]['x'];
+					$line['w'] = $header_cols[$line['col']]['w'];
+				}
+
+				$this->SetFont($line['font'], '', $line['font_size']);
+				$this->SetY($line['y']);
+				$this->SetX($line['x']);
+
+				if(isset($line['font_color'])){
+					$rbg = $this->hex2RGB($line['font_color']);
+					$this->SetTextColor($rbg['red'],$rbg['green'],$rbg['blue']);
+				}
+
+				if(isset($line['text']) && isset($line['w']) && isset($line['h'])){
+					$this->Cell($line['w'], $line['h'], $line['text'], $line['border'], 0, $line['text_align'], 0, '', 0, false, 'T', 'M');
+				}
+
+				if($this->footer_y < $line['y']){
+					$this->footer_y = $line['y'];
+				}
+			}
+
+			$this->footer_y = $footer_y - 8;
+
+		}
 
 		$footerLineY = $footer_margin - 0.5 * 15 - 2;
 		$this->SetLineStyle(array('width' => 0.2, 'color' => array(0,0,0)));

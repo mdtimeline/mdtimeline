@@ -57,6 +57,11 @@ class Documents {
 	 */
 	private $t;
 
+	/**
+	 * @var \MatchaCUP
+	 */
+	private $h;
+
 	function __construct() {
 		$this->db = new MatchaHelper();
 		$this->Patient = new Patient();
@@ -64,6 +69,7 @@ class Documents {
 		$this->User = new User();
 
 		$this->t = \MatchaModel::setSenchaModel('App.model.administration.DocumentsPdfTemplate');
+		$this->h = \MatchaModel::setSenchaModel('App.model.administration.DocumentsTemplatesHeaderFooter');
 		return;
 	}
 
@@ -522,11 +528,13 @@ class Documents {
 	 * @param $params
 	 * @param string $path
 	 * @param null|array $custom_header_data
+	 * @param null|array $custom_footer_data
 	 * @param array $key_images
 	 * @param string $water_mark
+	 * @param bool $singleColumn
 	 * @return bool
 	 */
-	public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $water_mark = '', $key_images = [], $singleColumn = false) {
+	public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $custom_footer_data = null, $water_mark = '', $key_images = [], $singleColumn = false) {
 		$pid = $params->pid;
 		$regex = '(\[\w*?\])';
 
@@ -537,6 +545,9 @@ class Documents {
 		if(isset($custom_header_data)){
 			$pdf->addCustomHeaderData($custom_header_data);
 		}
+		if(isset($custom_footer_data)){
+			$pdf->addCustomFooterData($custom_footer_data);
+		}
 
 		if(isset($params->facility_id)){
 			$template = $this->getPdfTemplateByFacilityId($params->facility_id);
@@ -544,6 +555,41 @@ class Documents {
 			$template = $this->getPdfTemplateByFacilityId($_SESSION['user']['facility']);
 		}else{
 			$template = $this->getPdfTemplateByFacilityId();
+		}
+
+		// get header/footer data
+		if(isset($template['id'])){
+			$header_footer_data = $this->h->load(['template_id' => $template['id']])->all();
+
+			if(!empty($header_footer_data)){
+
+				$header_data = [];
+				$footer_data = [];
+
+				$provider_data = $this->getProviderData($params);
+				$provider_tokens = array_keys($provider_data);
+				$provider_values = array_values($provider_data);
+				foreach($header_footer_data as $line){
+					$line['text'] = str_replace($provider_tokens, $provider_values, $line['text']);
+
+					if($line['data_type'] == 'HEADER'){
+						$header_data[] = $line;
+					}elseif($line['data_type'] == 'FOOTER'){
+						$footer_data[] = $line;
+					}
+				}
+				unset($header_footer_data, $provider_data, $provider_tokens, $provider_values);
+
+				if(!empty($header_data)){
+					$pdf->addCustomHeaderData($header_data);
+				}
+
+				if(!empty($footer_data)){
+					$pdf->addCustomFooterData($footer_data);
+				}
+
+				unset($header_data, $footer_data);
+			}
 		}
 
 		// template
@@ -693,13 +739,30 @@ class Documents {
 
 	private function addProviderData($params, $tokens, $allNeededInfo) {
 
-		$provider = $this->User->getUserByUid($params->provider_uid);
+		$info = $this->getProviderData($params);
 
-		if($provider === false){
+		if(empty($info)){
 			return $allNeededInfo;
 		}
 
-		$info = [
+		unset($provider);
+		foreach($tokens as $i => $tok){
+			if(isset($info[$tok]) && ($allNeededInfo[$i] == '' || $allNeededInfo[$i] == null)){
+				$allNeededInfo[$i] = $info[$tok];
+			}
+		}
+
+		return $allNeededInfo;
+	}
+
+	private function getProviderData($params){
+		$provider = $this->User->getUserByUid($params->provider_uid);
+
+		if($provider === false){
+			return [];
+		}
+
+		$data = [
 			'[PROVIDER_ID]' => $provider['id'],
 			'[PROVIDER_TITLE]' => isset($provider['title']) ? $provider['title'] : '',
 			'[PROVIDER_FULL_NAME]' => Person::fullname($provider['fname'], $provider['mname'], $provider['lname']),
@@ -725,14 +788,7 @@ class Documents {
 			'[PROVIDER_MOBILE]' => isset($provider['mobile']) ? $provider['mobile'] : '',
 		];
 
-		unset($provider);
-		foreach($tokens as $i => $tok){
-			if(isset($info[$tok]) && ($allNeededInfo[$i] == '' || $allNeededInfo[$i] == null)){
-				$allNeededInfo[$i] = $info[$tok];
-			}
-		}
-
-		return $allNeededInfo;
+		return $data;
 	}
 
 	private function addReferralData($params, $tokens, $allNeededInfo) {

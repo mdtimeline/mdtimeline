@@ -24,12 +24,12 @@ Ext.define('App.view.administration.ReferringProviderWindow', {
 	},
 	title: _('referring_provider'),
 	itemId: 'ReferringProviderWindow',
-	width: 800,
+	width: 1000,
 	height: 550,
 	modal: true,
 	bodyPadding: 5,
 	requires: [
-
+		'App.ux.NPIRegistrySearch'
 	],
 
 	initComponent: function(){
@@ -88,7 +88,7 @@ Ext.define('App.view.administration.ReferringProviderWindow', {
 												fieldLabel: _('middle_name')
 											},
 											{
-												width: 150,
+												width: 250,
 												xtype: 'textfield',
 												name: 'lname',
 												allowBlank: false,
@@ -111,31 +111,31 @@ Ext.define('App.view.administration.ReferringProviderWindow', {
 												xtype: 'textfield',
 												fieldLabel: _('npi'),
 												name: 'npi',
-												width: 100
+												width: 120
 											},
 											{
 												xtype: 'textfield',
 												fieldLabel: _('lic'),
 												name: 'lic',
-												width: 100
+												width: 120
 											},
 											{
 												xtype: 'textfield',
 												fieldLabel: _('taxonomy'),
 												name: 'taxonomy',
-												width: 100
+												width: 120
 											},
 											{
 												xtype: 'textfield',
 												fieldLabel: _('upin'),
 												name: 'upin',
-												width: 100
+												width: 120
 											},
 											{
 												xtype: 'textfield',
 												fieldLabel: _('ssn'),
 												name: 'ssn',
-												width: 100
+												width: 120
 											}
 										]
 									},
@@ -186,8 +186,7 @@ Ext.define('App.view.administration.ReferringProviderWindow', {
 						]
 					},
 					{
-						xtype: 'fieldset',
-						title: _('contact'),
+						xtype: 'container',
 						flex: 1,
 						layout: {
 							type: 'vbox',
@@ -195,28 +194,45 @@ Ext.define('App.view.administration.ReferringProviderWindow', {
 						},
 						items: [
 							{
-								xtype: 'textfield',
-								fieldLabel: _('email'),
-								name: 'email'
+								xtype: 'npiregistrysearch',
+								itemId: 'ReferringProviderWindowFormNpiSearchField',
+								fieldLabel: _('npi_lookup'),
+								submitValue: false
+
 							},
 							{
-								xtype: 'textfield',
-								fieldLabel: _('phone_number'),
-								name: 'phone_number'
-							},
-							{
-								xtype: 'textfield',
-								fieldLabel: _('fax_number'),
-								name: 'fax_number'
-							},
-							{
-								xtype: 'textfield',
-								fieldLabel: _('cell_number'),
-								name: 'cel_number'
+								xtype: 'fieldset',
+								title: _('contact'),
+								flex: 1,
+								layout: {
+									type: 'vbox',
+									align: 'stretch'
+								},
+								items: [
+									{
+										xtype: 'textfield',
+										fieldLabel: _('email'),
+										name: 'email'
+									},
+									{
+										xtype: 'textfield',
+										fieldLabel: _('phone_number'),
+										name: 'phone_number'
+									},
+									{
+										xtype: 'textfield',
+										fieldLabel: _('fax_number'),
+										name: 'fax_number'
+									},
+									{
+										xtype: 'textfield',
+										fieldLabel: _('cell_number'),
+										name: 'cel_number'
+									}
+								]
 							}
 						]
 					}
-
 				]
 			},
 			{
@@ -275,16 +291,16 @@ Ext.define('App.view.administration.ReferringProviderWindow', {
 					},
 					{
 						text: _('state'),
-						dataIndex: 'postal_code',
-						width: 90,
+						dataIndex: 'state',
+						width: 100,
 						editor: {
 							xtype: 'textfield'
 						}
 					},
 					{
 						text: _('zipcode'),
-						dataIndex: 'state',
-						width: 90,
+						dataIndex: 'postal_code',
+						width: 100,
 						editor: {
 							xtype: 'textfield'
 						}

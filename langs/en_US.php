@@ -1911,5 +1911,10 @@ $LANG = array(
 	'medication_orders'                     => 'Medication Orders',
 	'send_patient_to_next_area'             => 'Send Patient To Next Area',
 	'progress_report'                       => 'Progress Report',
-
+	'contact' => 'Contact',
+	'address_one' => 'Address One',
+	'address_two' => 'Address Two',
+	'provider_portal' => 'Provider Portal',
+	'npi_lookup' => 'NPI Lookup',
+	'no_provider_found' => 'No Provider Found',
 );

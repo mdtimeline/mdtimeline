@@ -406,6 +406,9 @@ $API = [
             ],
             'getProviderCredentializationForDate' => [
                 'len' => 3
+            ],
+            'npiRegistrySearchByNpi' => [
+                'len' => 1
             ]
         ]
     ],

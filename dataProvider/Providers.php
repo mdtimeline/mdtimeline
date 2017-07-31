@@ -93,4 +93,81 @@ class Providers {
 		}
 		return $this->pc->load()->one();
 	}
+
+	public function npiRegistrySearch($params){
+		return $this->npiRegistrySearchByNpi($params->query);
+	}
+
+	public function npiRegistrySearchByNpi($nip){
+
+		if(strlen($nip) !== 10 || !$this->isNpiValid($nip)){
+			return [
+				'success' => false,
+				'error' => 'NPI not valid'
+			];
+		}
+
+		$url = 'https://npiregistry.cms.hhs.gov/api/?number=' . $nip;
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$output = curl_exec($ch);
+		curl_close($ch);
+		$return = json_decode($output, true);
+
+		if($return['result_count'] == 0){
+			return [
+				'success' => true,
+				'data' => false
+			];
+		}
+
+		return [
+			'success' => true,
+			'data' => $return['results'][0]
+		];
+	}
+
+	/**
+	 * @param $npi
+	 * @return bool
+	 */
+	private function isNpiValid($npi) {
+
+		$tmp = null;
+		$sum = null;
+		$i = strlen($npi);
+
+		if(!is_numeric($npi)) return false;
+
+		if(($i == 15) && (substr($npi, 0, 5) == "80840")){
+			$sum = 0;
+		} else if($i == 10){
+			$sum = 24;
+		} else {
+			return false;
+		}
+
+		$j = 0;
+		while($i--) {
+			if(is_nan($npi{$i})){
+				return false;
+			}
+			$tmp = $npi{$i} - '0';
+			if($j++ & 1){
+				if(($tmp <<= 1) > 9){
+					$tmp -= 10;
+					$tmp++;
+				}
+			}
+			$sum += $tmp;
+		}
+
+		if($sum % 10){
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 }

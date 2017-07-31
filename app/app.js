@@ -36895,12 +36895,80 @@ Ext.define('App.controller.administration.ReferringProviders', {
 			},
 			'#ReferringProviderFacilityAddBtn': {
 				click: me.onReferringProviderFacilityAddBtnClick
+			},
+			'#ReferringProviderWindowFormNpiSearchField': {
+				searchresponse: me.onReferringProviderWindowFormNpiSearchFieldSearchResponse
 			}
 		});
-
-		//me.showReferringProviderWindow();
 	},
 
+	onReferringProviderWindowFormNpiSearchFieldSearchResponse: function (field, result) {
+
+		if (!result.success) {
+			app.msg(_('oops'), result.error, true);
+			return;
+		}
+
+		if (result.data === false) {
+			app.msg(_('oops'), _('no_provider_found'), true);
+			return;
+		}
+
+		var values = {
+			title: result.data.basic.name_prefix,
+			fname: result.data.basic.first_name,
+			mname: '',
+			lname: result.data.basic.last_name,
+			active: 1,
+			npi: result.data.number,
+			lic: '',
+			taxonomy: '',
+			upin: '',
+			ssn: '',
+			notes: 'NPI registry import',
+			username: '',
+			password: '',
+			authorized: 0,
+			email: '',
+			phone_number: '',
+			fax_number: '',
+			cel_number: ''
+		};
+
+		var facilities = [];
+
+		if(result.data.taxonomies) {
+			result.data.taxonomies.forEach(function (taxonomy) {
+				if (!taxonomy.primary) return;
+				values.taxonomy = taxonomy.code || '';
+				values.lic = taxonomy.license || '';
+			});
+		}
+
+		if(result.data.addresses){
+			result.data.addresses.forEach(function (address) {
+				if(address.address_purpose !== 'LOCATION') return;
+				values.phone_number = address.telephone_number || '';
+				values.fax_number = address.fax_number || '';
+
+				facilities = Ext.Array.push(facilities, {
+					name: '',
+					address: address.address_1 || '',
+					address_cont: address.address_2 || '',
+					city: address.city || '',
+					postal_code: address.postal_code || '',
+					state: address.state || ''
+				});
+			});
+		}
+
+		var form = field.up('form').getForm(),
+			store = this.getReferringProviderWindowGrid().getStore();
+		form.setValues(values);
+		store.add(facilities);
+
+	},
+	
 	onReferringProviderSearchAddBtnClick: function (field) {
 		this.doReferringProviderWindow();
 		this.triggerField = field;

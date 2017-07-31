@@ -590,19 +590,19 @@ class Encounter {
 			$soap = $encounter['soap'];
 
 			if(isset($soap['subjective']) && $soap['subjective'] != ''){
-				$output .= '<b>SUBJECTIVE:</b>' . $br . nl2br($soap['subjective']) . $br;
+				$output .= '<b>SUBJECTIVE:</b>' . $br . nl2br(Trim($soap['subjective'])) . $br;
 			}
 			if(isset($soap['objective']) && $soap['objective'] != ''){
-				$output .= '<b>OBJECTIVE:</b>' . $br . nl2br($soap['objective']) . $br;
+				$output .= '<b>OBJECTIVE:</b>' . $br . nl2br(Trim($soap['objective'])) . $br;
 			}
 			if(isset($soap['assessment']) && $soap['assessment'] != ''){
-				$output .= '<b>ASSESSMENT:</b>' . $br . nl2br($soap['assessment']) . $br;
+				$output .= '<b>ASSESSMENT:</b>' . $br . nl2br(Trim($soap['assessment'])) . $br;
 			}
 //			if(isset($soap['plan']) && $soap['plan'] != ''){
 //				$output .= 'PLAN: ' . $soap['plan'] . $br . $br;
 //			}
 			if(isset($soap['instructions']) && $soap['instructions'] != ''){
-				$output .= '<b>PLAN:</b>' . $br  . nl2br($soap['instructions']) . $br;
+				$output .= '<b>PLAN:</b>' . $br  . nl2br(Trim($soap['instructions'])) . $br;
 			}
 
 			unset($soap);

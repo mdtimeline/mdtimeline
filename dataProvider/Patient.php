@@ -874,8 +874,9 @@ class Patient
 			return [];
 		}
 
+		$params->date_from = $params->date_from . ' 00:00:00';
+		$params->date_to = $params->date_to . ' 23:59:59';
 		$patient_in = '';
-
 		$sorters = [];
 
 		if (isset($params->sort) && is_array($params->sort)) {

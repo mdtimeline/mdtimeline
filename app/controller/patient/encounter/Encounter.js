@@ -182,6 +182,15 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			me.importCtrl.CcdImport(ccdData, app.patient.pid);
 			me.importCtrl.validatePosibleDuplicates = true;
 		});
+	},
+
+	setEncounterClose:function(encounter_record){
+		app.patient.encounterIsClose = encounter_record.isClose();
+		if(app.user.id == encounter_record.get('provider_uid')) return;
+		var buttons = Ext.ComponentQuery.query('#encounterRecordAdd, button[action=encounterRecordAdd]');
+		for(var i=0; i < buttons.length; i++){
+			buttons[i].setDisabled(app.patient.encounterIsClose || app.patient.eid == null);
+		}
 	}
 
 });

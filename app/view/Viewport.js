@@ -881,14 +881,6 @@ Ext.define('App.view.Viewport', {
         }
     },
 
-	// setEncounterClose:function(close){
-	// 	this.patient.encounterIsClose = close;
-	// 	var buttons = Ext.ComponentQuery.query('#encounterRecordAdd, button[action=encounterRecordAdd]');
-	// 	for(var i=0; i < buttons.length; i++){
-	// 		buttons[i].setDisabled(close || app.patient.eid == null);
-	// 	}
-	// },
-
     setPatient: function(pid, eid, site, callback){
         var me = this;
 	    me.unsetPatient(null, true);

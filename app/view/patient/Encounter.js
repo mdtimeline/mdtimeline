@@ -59,6 +59,7 @@ Ext.define('App.view.patient.Encounter', {
 		var me = this;
 
 		me.renderAdministrative = a('access_enc_hcfa') || a('access_enc_cpt') || a('access_enc_history');
+		me.encounterCtrl = app.getController('patient.encounter.Encounter');
 
 		me.timerTask = {
 			scope: me,
@@ -823,7 +824,7 @@ Ext.define('App.view.patient.Encounter', {
 
 				App.app.getController('patient.ProgressNotesHistory').loadPatientProgressHistory(data.pid, data.eid);
 
-				// app.setEncounterClose(record.isClose());
+				me.encounterCtrl.setEncounterClose(record);
 
 				app.fireEvent('encounterload', me.encounter);
 				me.el.unmask();

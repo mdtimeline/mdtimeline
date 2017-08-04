@@ -186,11 +186,17 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 
 	setEncounterClose:function(encounter_record){
 		app.patient.encounterIsClose = encounter_record.isClose();
-		if(app.user.id == encounter_record.get('provider_uid')) return;
-		var buttons = Ext.ComponentQuery.query('#encounterRecordAdd, button[action=encounterRecordAdd]');
-		for(var i=0; i < buttons.length; i++){
-			buttons[i].setDisabled(app.patient.encounterIsClose || app.patient.eid == null);
-		}
+		var buttons = Ext.ComponentQuery.query('#encounterRecordAdd, button[action=encounterRecordAdd]'),
+			forms = Ext.ComponentQuery.query('#encounterPanel form[advanceFormPlugin]'),
+			allowEdit = app.user.id == encounter_record.get('provider_uid') || !app.patient.encounterIsClose || app.patient.eid == null;
+
+		buttons.forEach(function (button) {
+			button.setDisabled(!allowEdit);
+		});
+
+		forms.forEach(function (form) {
+			form.advanceFormPlugin.enabled = allowEdit;
+		});
 	}
 
 });

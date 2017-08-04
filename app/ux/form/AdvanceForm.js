@@ -32,6 +32,10 @@ Ext.define('App.ux.form.AdvanceForm', {
      */
     autoSync: false,
     /**
+     * @cfg {Boolean} enabled
+     */
+    enabled: true,
+    /**
      * True to add a tool component to the form panel. Default to true.
      * @cfg {Boolean} autoSyncTool
      */
@@ -52,7 +56,7 @@ Ext.define('App.ux.form.AdvanceForm', {
      */
     init: function(form){
         this.callParent(arguments);
-        form.pugin = this;
+        form.advanceFormPlugin = this;
         this.formPanel = form;
         this.formPanel.autoSync = this.autoSync;
         this.formPanel.on('beforerender', this.setFieldEvent, this);
@@ -68,7 +72,7 @@ Ext.define('App.ux.form.AdvanceForm', {
     loadRecord: function(record){
         var form = this,
 	        formPanel = form.owner,
-	        plugin = this.owner.pugin,
+	        plugin = this.owner.advanceFormPlugin,
 	        rec;
 
 	    if(!record) return form;
@@ -106,15 +110,15 @@ Ext.define('App.ux.form.AdvanceForm', {
     setFieldEvent: function(form){
         var fields = form.getForm().getFields().items;
         for(var i = 0; i < fields.length; i++){
-            if(fields[i].xtype == 'textfield' || fields[i].xtype == 'textarea'){
+            if(fields[i].xtype === 'textfield' || fields[i].xtype === 'textarea'){
                 fields[i].enableKeyEvents = true;
                 fields[i].on('keyup', this.setFieldCondition, this);
 	            fields[i].on('change', this.setFieldCondition, this);
-            }else if(fields[i].xtype == 'radiofield' || fields[i].xtype == 'checkbox'){
+            }else if(fields[i].xtype === 'radiofield' || fields[i].xtype === 'checkbox'){
                 fields[i].scope = this;
                 fields[i].handler = this.setFieldCondition;
 	            fields[i].on('change', this.setFieldCondition, this);
-            }else if(fields[i].xtype == 'datefield'){
+            }else if(fields[i].xtype === 'datefield'){
                 fields[i].on('select', this.setFieldCondition, this);
 	            fields[i].on('change', this.setFieldCondition, this);
             }else{
@@ -127,6 +131,8 @@ Ext.define('App.ux.form.AdvanceForm', {
      * @param field
      */
     setFieldCondition: function(field){
+        if(!this.enabled) return;
+
         var me = this,
 	        record = me.form.getRecord(),
 	        store = record ? record.store : null,

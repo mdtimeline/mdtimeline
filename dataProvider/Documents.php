@@ -558,8 +558,8 @@ class Documents {
 		}
 
 		// get header/footer data
-		if(isset($template['id'])){
-			$header_footer_data = $this->h->load(['template_id' => $template['id']])->all();
+		if(isset($params->templateId)){
+			$header_footer_data = $this->h->load(['template_id' => $params->templateId])->all();
 
 			if(!empty($header_footer_data)){
 

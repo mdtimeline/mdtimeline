@@ -50,7 +50,7 @@ Ext.define('App.view.administration.IpAccess', {
                 { name: 'ruleName', type: 'string' }
             ],
             data : [
-                { id: '', ruleName: 'Allow' },
+                { id: 'WHT', ruleName: 'Allow' },
                 { id: 'BLK', ruleName: 'Block' }
             ]
         });

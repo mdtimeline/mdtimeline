@@ -148,7 +148,13 @@ Ext.define('App.view.administration.IpAccess', {
                         disabled: true,
                         itemId: 'deleteIpRule'
                     }
-                ]
+                ],
+	            bbar: {
+		            xtype: 'pagingtoolbar',
+		            store: me.IpAccessRulesStore,
+		            dock: 'bottom',
+		            displayInfo: true
+	            }
             },
             {
                 xtype: 'grid',

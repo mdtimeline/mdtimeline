@@ -87,6 +87,25 @@ class Rxnorm
 		return $rec['ATV'];
 	}
 
+	/**
+	 * @param array $RXCUIs
+	 *
+	 * @return array
+	 */
+	public function getNDCByRxCUIs($RXCUIs){
+		$place_holders = array_fill(0, count($RXCUIs), '?');
+		$place_holders = implode(',', $place_holders);
+    	$sql = "SELECT atv FROM rxnsat WHERE atn = 'NDC' AND rxcui IN ({$place_holders}) AND sab = 'RXNORM'";
+		$sth = $this->db->prepare($sql);
+		$sth->execute($RXCUIs);
+		$results = $sth->fetchAll(PDO::FETCH_ASSOC);
+		$return = [];
+		foreach($results as $result){
+			$return[] = $result['atv'];
+		}
+		return $return;
+	}
+
 	public function getGsCodeByRxCUI($RXCUI)
 	{
 		$sth = $this->db->prepare("SELECT `rxnconso`.`CODE` as GS_CODE

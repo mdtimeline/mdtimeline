@@ -120,7 +120,7 @@ class Documents {
 			'[PATIENT_FULL_NAME]' => $this->Patient->getPatientFullNameByPid($patientData['pid']),
 			'[PATIENT_LAST_NAME]' => $patientData['lname'],
 			'[PATIENT_SEX]' => $patientData['sex'],
-			'[PATIENT_BIRTHDATE]' => $patientData['DOB'],
+			'[PATIENT_BIRTHDATE]' => $this->dateToString($patientData['DOB']),
 			'[PATIENT_MARITAL_STATUS]' => $patientData['marital_status'],
 			'[PATIENT_SOCIAL_SECURITY]' => $patientData['SS'],
 			'[PATIENT_EXTERNAL_ID]' => $patientData['pubpid'],

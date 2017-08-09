@@ -609,6 +609,7 @@ class Documents {
 		    'style' => isset($template['body_font_style']) ? $template['body_font_style'] : '',
 		];
 
+		$pdf->setCustomHeaderLine(isset($template['header_line']) ? $template['header_line'] : false);
 		$pdf->SetDefaultMonospacedFont('courier');
 		$pdf->setHeaderMargin(0);
 		$pdf->setFooterMargin($margins['footer_margin']);

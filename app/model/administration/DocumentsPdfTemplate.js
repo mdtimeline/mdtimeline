@@ -76,6 +76,10 @@ Ext.define('App.model.administration.DocumentsPdfTemplate', {
 			type: 'array'
 		},
 		{
+			name: 'header_line',
+			type: 'bool'
+		},
+		{
 			name: 'footer_margin',
 			type: 'int',
 			len: 3

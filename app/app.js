@@ -60299,18 +60299,18 @@ Ext.define('App.view.patient.windows.Medical', {
 			});
 		}
 
-		if(a('access_patient_psy_behavioral')){
-			tapPanelItems = Ext.Array.push(tapPanelItems, {
-				xtype:'socialpsychologicalbehavioralpanel',
-				tabConfig: {
-					tooltip: _('social_psychological_behavioral'),
-					style: {
-						backgroundColor: g('psy_behavioral_tab_color'),
-						backgroundImage: 'none'
-					}
-				}
-			});
-		}
+		// if(a('access_patient_psy_behavioral')){
+		// 	tapPanelItems = Ext.Array.push(tapPanelItems, {
+		// 		xtype:'socialpsychologicalbehavioralpanel',
+		// 		tabConfig: {
+		// 			tooltip: _('social_psychological_behavioral'),
+		// 			style: {
+		// 				backgroundColor: g('psy_behavioral_tab_color'),
+		// 				backgroundImage: 'none'
+		// 			}
+		// 		}
+		// 	});
+		// }
 
 		if(a('access_patient_doctors_notes')){
 			tapPanelItems = Ext.Array.push(tapPanelItems, {
@@ -60684,6 +60684,15 @@ Ext.define('App.view.patient.Encounter', {
 			);
 		}
 
+		if(a('access_patient_psy_behavioral')){
+			me.encounterTabPanel.add(
+				Ext.create('App.view.patient.SocialPsychologicalBehavioral', {
+					itemId: 'SocialPsychologicalBehavioralPanel',
+					bodyPadding: '7 5 2 5'
+				})
+			);
+		}
+
 		if(me.enableSOAP && a('access_soap')){
 			me.soapPanel = me.encounterTabPanel.add(
 				Ext.create('App.view.patient.encounter.SOAP', {
@@ -60964,17 +60973,17 @@ Ext.define('App.view.patient.Encounter', {
 					acl: a('access_patient_implantable_devices')
 				},
 				'-',
-				{
-					text: _('spb') + ' ',
-					action: 'SocialPsychologicalBehavioralPanel',
-					tooltip: _('social_psychological_behavioral'),
-					style: {
-						backgroundColor: g('psy_behavioral_tab_color'),
-						backgroundImage: 'none'
-					},
-					acl: a('access_patient_psy_behavioral')
-				},
-				'-',
+				// {
+				// 	text: _('spb') + ' ',
+				// 	action: 'SocialPsychologicalBehavioralPanel',
+				// 	tooltip: _('social_psychological_behavioral'),
+				// 	style: {
+				// 		backgroundColor: g('psy_behavioral_tab_color'),
+				// 		backgroundImage: 'none'
+				// 	},
+				// 	acl: a('access_patient_psy_behavioral')
+				// },
+				// '-',
 				{
 					text: _('doc_nt'),
 					action: 'DoctorsNotes',

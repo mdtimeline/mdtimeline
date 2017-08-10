@@ -200,18 +200,18 @@ Ext.define('App.view.patient.windows.Medical', {
 			});
 		}
 
-		if(a('access_patient_psy_behavioral')){
-			tapPanelItems = Ext.Array.push(tapPanelItems, {
-				xtype:'socialpsychologicalbehavioralpanel',
-				tabConfig: {
-					tooltip: _('social_psychological_behavioral'),
-					style: {
-						backgroundColor: g('psy_behavioral_tab_color'),
-						backgroundImage: 'none'
-					}
-				}
-			});
-		}
+		// if(a('access_patient_psy_behavioral')){
+		// 	tapPanelItems = Ext.Array.push(tapPanelItems, {
+		// 		xtype:'socialpsychologicalbehavioralpanel',
+		// 		tabConfig: {
+		// 			tooltip: _('social_psychological_behavioral'),
+		// 			style: {
+		// 				backgroundColor: g('psy_behavioral_tab_color'),
+		// 				backgroundImage: 'none'
+		// 			}
+		// 		}
+		// 	});
+		// }
 
 		if(a('access_patient_doctors_notes')){
 			tapPanelItems = Ext.Array.push(tapPanelItems, {

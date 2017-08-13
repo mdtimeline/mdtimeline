@@ -222,6 +222,15 @@ Ext.define('App.view.patient.Encounter', {
 			);
 		}
 
+		if(a('access_patient_mini_mental_state_exam')){
+			me.encounterTabPanel.add(
+				Ext.create('App.view.patient.MiniMentalStateExam', {
+					padding: 0,
+					bodyPadding: 0
+				})
+			);
+		}
+
 		if(me.enableSOAP && a('access_soap')){
 			me.soapPanel = me.encounterTabPanel.add(
 				Ext.create('App.view.patient.encounter.SOAP', {

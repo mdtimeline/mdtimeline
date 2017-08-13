@@ -905,6 +905,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.Medical',
 	                'patient.Medications',
 	                'patient.MedicationsAdministered',
+	                'patient.MiniMentalStateExam',
 	                'patient.Patient',
 	                'patient.PatientMerge',
 	                'patient.PatientSearch',

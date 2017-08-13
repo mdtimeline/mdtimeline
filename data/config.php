@@ -70,6 +70,25 @@ $API = [
             ]
         ]
     ],
+    'MiniMentalStateExam' => [
+        'methods' => [
+            'getMiniMentalStateExams' => [
+                'len' => 1
+            ],
+            'getMiniMentalStateExam' => [
+                'len' => 1
+            ],
+            'addMiniMentalStateExam' => [
+                'len' => 1
+            ],
+            'updateMiniMentalStateExam' => [
+                'len' => 1
+            ],
+            'destroyMiniMentalStateExamr' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'ImplantableDevice' => [
         'methods' => [
             'getUidData' => [

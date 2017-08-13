@@ -44266,6 +44266,151 @@ Ext.define('App.controller.patient.Medications', {
 
 });
 
+Ext.define('App.controller.patient.MiniMentalStateExam', {
+	extend: 'Ext.app.Controller',
+	requires: [],
+	refs: [
+		{
+			ref: 'MiniMentalStateExamGridPanel',
+			selector: '#MiniMentalStateExamGridPanel'
+		},
+		{
+			ref: 'MiniMentalStateExamWindow',
+			selector: '#MiniMentalStateExamWindow'
+		},
+		{
+			ref: 'MiniMentalStateExamForm',
+			selector: '#MiniMentalStateExamForm'
+		},
+	],
+
+	init: function () {
+		var me = this;
+		me.control({
+			'#MiniMentalStateExamGridPanel': {
+				activate: me.onMiniMentalStateExamGridPanelActivate,
+				itemdblclick: me.onMiniMentalStateExamGridPanelItemDblClick
+			},
+			'#MiniMentalStateExamAddBtn': {
+				click: me.onMiniMentalStateExamAddBtnClick
+			},
+			'#MiniMentalStateExamWindowCancelBtn': {
+				click: me.onMiniMentalStateExamWindowCancelBtnClick
+			},
+			'#MiniMentalStateExamWindowSaveBtn': {
+				click: me.onMiniMentalStateExamWindowSaveBtnClick
+			}
+		});
+
+		//me.showMiniMentalStateExamWindow();
+
+	},
+
+	onMiniMentalStateExamGridPanelActivate: function (grid) {
+		grid.getStore().load({
+			filters: [
+				{
+					property: 'pid',
+					value: app.patient.pid
+				}
+			]
+		})
+	},
+
+	onMiniMentalStateExamGridPanelItemDblClick: function (grid, record) {
+		this.showMiniMentalStateExamWindow();
+		this.getMiniMentalStateExamForm().getForm().loadRecord(record);
+	},
+
+
+	onMiniMentalStateExamWindowSaveBtnClick: function () {
+		var win = this.getMiniMentalStateExamWindow(),
+			form = this.getMiniMentalStateExamForm().getForm(),
+			store = this.getMiniMentalStateExamGridPanel().getStore(),
+			values = form.getValues(),
+			record = form.getRecord(),
+			total_score = 0;
+
+		if(!form.isValid()) return;
+
+
+		if(record.get('orientation_time_score')){
+			total_score = total_score + record.get('orientation_time_score');
+		}
+		if(record.get('orientation_place_score')){
+			total_score = total_score + record.get('orientation_place_score');
+		}
+		if(record.get('registration_score')){
+			total_score = total_score + record.get('registration_score');
+		}
+		if(record.get('attention_calculation_score')){
+			total_score = total_score + record.get('attention_calculation_score');
+		}
+		if(record.get('recall_score')){
+			total_score = total_score + record.get('recall_score');
+		}
+		if(record.get('language_score')){
+			total_score = total_score + record.get('language_score');
+		}
+		if(record.get('repetition_score')){
+			total_score = total_score + record.get('repetition_score');
+		}
+		if(record.get('complex_commands_score')){
+			total_score = total_score + record.get('complex_commands_score');
+		}
+
+		values.total_score = total_score;
+
+		record.set(values);
+
+		if(!record.store){
+			store.add(record);
+		}
+
+		if(
+			store.getModifiedRecords().length === 0 &&
+			store.getNewRecords().length === 0 &&
+			store.getRemovedRecords().length === 0
+		){
+			form.reset();
+			win.close();
+		}
+
+		store.sync({
+			callback: function () {
+				form.reset();
+				win.close();
+			}
+		});
+
+	},
+
+	onMiniMentalStateExamAddBtnClick: function () {
+		this.showMiniMentalStateExamWindow();
+
+		var record = Ext.create('App.model.patient.MiniMentalStateExam', {
+				pid: app.patient.pid,
+				eid:  app.patient.eid,
+				create_uid: app.user.id,
+				create_date: new Date()
+			}),
+			form = this.getMiniMentalStateExamForm().getForm();
+
+		form.loadRecord(record);
+	},
+
+	onMiniMentalStateExamWindowCancelBtnClick: function () {
+		this.getMiniMentalStateExamWindow().close();
+	},
+
+	showMiniMentalStateExamWindow: function () {
+		if(!this.getMiniMentalStateExamWindow()){
+			Ext.create('App.view.patient.windows.MiniMentalStateExam');
+		}
+		return this.getMiniMentalStateExamWindow().show();
+	}
+
+});
 Ext.define('App.controller.patient.Patient', {
 	extend: 'Ext.app.Controller',
 	requires: [
@@ -47692,6 +47837,103 @@ Ext.define('App.view.patient.Medications', {
 		}
 	]
 
+
+});
+
+Ext.define('App.view.patient.MiniMentalStateExam', {
+	extend: 'Ext.grid.Panel',
+	requires: [
+
+	],
+	itemId: 'MiniMentalStateExamGridPanel',
+	xtype: 'minimentalstateexamgridpanel',
+	title: _('mini_mental'),
+	tbar: [
+		{
+			text: _('mini_mental'),
+			iconCls: 'icoAdd',
+			action: 'encounterRecordAdd',
+			itemId: 'MiniMentalStateExamAddBtn'
+		}
+	],
+	initComponent: function () {
+
+		var me = this;
+
+		me.store = Ext.create('App.store.patient.MiniMentalStateExams', {
+			remoteFilter: true
+		});
+
+		me.columns = [
+			{
+				xtype: 'datecolumn',
+				text: _('observation_date'),
+				dataIndex: 'create_date',
+				format: 'F j, Y',
+				width: 110
+			},
+			{
+				text: _('total_score'),
+				dataIndex: 'total_score',
+				width: 110,
+				renderer: function (v) {
+
+					return v;
+				}
+			},
+			{
+				text: _('questionary'),
+				dataIndex: 'id',
+				flex: 1,
+				renderer: function (v, meta, record) {
+					var str = '<div style="display: table">';
+
+					str += Ext.String.format(
+						'<div style="display: table-row"><div style="display: table-cell; padding-bottom: 3px;"><b>{0}: </b></div><div style="display: table-cell; padding-left: 5px;">{1}</div> <div style="display: table-cell"> - {2}: {3}</div></div>',
+						_('orientation_time'), record.get('orientation_time_score'), _('notes'), record.get('orientation_time_notes')
+					);
+					str += Ext.String.format(
+						'<div style="display: table-row"><div style="display: table-cell; padding-bottom: 3px;"><b>{0}: </b></div><div style="display: table-cell; padding-left: 5px;">{1}</div> <div style="display: table-cell"> - {2}: {3}</div></div>',
+						_('orientation_place'), record.get('orientation_place_score'), _('notes'), record.get('orientation_place_notes')
+					);
+					str += Ext.String.format(
+						'<div style="display: table-row"><div style="display: table-cell; padding-bottom: 3px;"><b>{0}: </b></div><div style="display: table-cell; padding-left: 5px;">{1}</div> <div style="display: table-cell"> - {2}: {3}</div></div>',
+						_('registration'), record.get('registration_score'), _('notes'), record.get('registration_notes')
+					);
+					str += Ext.String.format(
+						'<div style="display: table-row"><div style="display: table-cell; padding-bottom: 3px;"><b>{0}: </b></div><div style="display: table-cell; padding-left: 5px;">{1}</div> <div style="display: table-cell"> - {2}: {3}</div></div>',
+						_('attention_calculation'), record.get('attention_calculation_score'), _('notes'), record.get('attention_calculation_notes')
+					);
+					str += Ext.String.format(
+						'<div style="display: table-row"><div style="display: table-cell; padding-bottom: 3px;"><b>{0}: </b></div><div style="display: table-cell; padding-left: 5px;">{1}</div> <div style="display: table-cell"> - {2}: {3}</div></div>',
+						_('recall'), record.get('recall_score'), _('notes'), record.get('recall_notes')
+					);
+					str += Ext.String.format(
+						'<div style="display: table-row"><div style="display: table-cell; padding-bottom: 3px;"><b>{0}: </b></div><div style="display: table-cell; padding-left: 5px;">{1}</div> <div style="display: table-cell"> - {2}: {3}</div></div>',
+						_('language'), record.get('language_score'), _('notes'), record.get('language_notes')
+					);
+					str += Ext.String.format(
+						'<div style="display: table-row"><div style="display: table-cell; padding-bottom: 3px;"><b>{0}: </b></div><div style="display: table-cell; padding-left: 5px;">{1}</div> <div style="display: table-cell"> - {2}: {3}</div></div>',
+						_('repetition'), record.get('repetition_score'), _('notes'), record.get('repetition_notes')
+					);
+					str += Ext.String.format(
+						'<div style="display: table-row"><div style="display: table-cell; padding-bottom: 3px;"><b>{0}: </b></div><div style="display: table-cell; padding-left: 5px;">{1}</div> <div style="display: table-cell"> - {2}: {3}</div></div>',
+						_('complex_commands'), record.get('complex_commands_score'), _('notes'), record.get('complex_commands_notes')
+					);
+					str += Ext.String.format(
+						'<div style="display: table-row"><div style="display: table-cell; padding-bottom: 3px;"><b>{0}: </b></div><div style="display: table-cell; padding-left: 5px;">{1}</div> <div style="display: table-cell"></div></div>',
+						_('assess_lvl'), record.get('assess_lvl')
+					);
+
+					str += '</div>';
+
+					return str;
+				}
+			}
+		];
+
+		me.callParent();
+	}
 
 });
 
@@ -60689,6 +60931,15 @@ Ext.define('App.view.patient.Encounter', {
 				Ext.create('App.view.patient.SocialPsychologicalBehavioral', {
 					itemId: 'SocialPsychologicalBehavioralPanel',
 					bodyPadding: '7 5 2 5'
+				})
+			);
+		}
+
+		if(a('access_patient_mini_mental_state_exam')){
+			me.encounterTabPanel.add(
+				Ext.create('App.view.patient.MiniMentalStateExam', {
+					padding: 0,
+					bodyPadding: 0
 				})
 			);
 		}

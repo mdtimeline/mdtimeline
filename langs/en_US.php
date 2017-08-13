@@ -1917,4 +1917,16 @@ $LANG = array(
 	'provider_portal' => 'Provider Portal',
 	'npi_lookup' => 'NPI Lookup',
 	'no_provider_found' => 'No Provider Found',
+
+	'mini_mental' => 'Mini Mental',
+	'total_score' => 'Total Score',
+	'questionary' => 'Questionary',
+	'orientation_time' => 'Orientation - Time',
+	'orientation_place' => 'Orientation - Place',
+	'registration' => 'Registration',
+	'attention_calculation' => 'Attention Calculation',
+	'recall' => 'Recall',
+	'repetition' => 'Repetition',
+	'complex_commands' => 'Complex Commands',
+	'assess_lvl' => 'ASSESS Lvl.',
 );

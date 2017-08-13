@@ -85,28 +85,28 @@ Ext.define('App.controller.patient.MiniMentalStateExam', {
 
 
 		if(values.orientation_time_score){
-			total_score = total_score + values.orientation_time_score;
+			total_score = total_score + parseInt(values.orientation_time_score);
 		}
 		if(values.orientation_place_score){
-			total_score = total_score + values.orientation_place_score;
+			total_score = total_score + parseInt(values.orientation_place_score);
 		}
 		if(values.registration_score){
-			total_score = total_score + values.registration_score;
+			total_score = total_score + parseInt(values.registration_score);
 		}
 		if(values.attention_calculation_score){
-			total_score = total_score + values.attention_calculation_score;
+			total_score = total_score + parseInt(values.attention_calculation_score);
 		}
 		if(values.recall_score){
-			total_score = total_score + values.recall_score;
+			total_score = total_score + parseInt(values.recall_score);
 		}
 		if(values.language_score){
-			total_score = total_score + values.language_score;
+			total_score = total_score + parseInt(values.language_score);
 		}
 		if(values.repetition_score){
-			total_score = total_score + values.repetition_score;
+			total_score = total_score + parseInt(values.repetition_score);
 		}
 		if(values.complex_commands_score){
-			total_score = total_score + values.complex_commands_score;
+			total_score = total_score + parseInt(values.complex_commands_score);
 		}
 
 		values.total_score = total_score;

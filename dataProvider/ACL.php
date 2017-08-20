@@ -74,6 +74,10 @@ class ACL {
 
 	private static $isConstructed = false;
 
+	public function __construct($uid = null){
+		self::construct($uid);
+	}
+
 	public static function construct($uid = null) {
 		if(!self::$isConstructed){
 			self::$isConstructed = true;

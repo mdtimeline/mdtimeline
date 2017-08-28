@@ -37,6 +37,11 @@ class DocumentHandler {
 	/**
 	 * @var MatchaCUP
 	 */
+	private $dt;
+
+	/**
+	 * @var MatchaCUP
+	 */
 	private $d;
 
 	/**
@@ -79,6 +84,11 @@ class DocumentHandler {
 		$this->db = new MatchaHelper();
 		$this->FileSystem = new FileSystem();
 		return;
+	}
+
+	private function setDocumentsTemplatesModel(){
+		if(!isset($this->dt))
+			$this->dt = MatchaModel::setSenchaModel('App.model.administration.DocumentsTemplates');
 	}
 
 	private function setPatientDocumentModel(){
@@ -529,24 +539,30 @@ class DocumentHandler {
 	 * @return array
 	 */
 	public function getDocumentsTemplates(){
-		$this->db->setSQL("SELECT * FROM documents_templates WHERE template_type = 'documenttemplate'");
-		return $this->db->fetchRecords(PDO::FETCH_ASSOC);
+		$this->setDocumentsTemplatesModel();
+		$this->dt->clearFilters();
+		$this->dt->addFilter('template_type', 'documenttemplate');
+		return $this->dt->load()->all();
 	}
 
 	/**
 	 * @return array
 	 */
 	public function getDefaultDocumentsTemplates(){
-		$this->db->setSQL("SELECT * FROM documents_templates WHERE template_type = 'defaulttemplate'");
-		return $this->db->fetchRecords(PDO::FETCH_ASSOC);
+		$this->setDocumentsTemplatesModel();
+		$this->dt->clearFilters();
+		$this->dt->addFilter('template_type', 'defaulttemplate');
+		return $this->dt->load()->all();
 	}
 
 	/**
 	 * @return array
 	 */
 	public function getHeadersAndFootersTemplates(){
-		$this->db->setSQL("SELECT * FROM documents_templates WHERE template_type = 'headerorfootertemplate'");
-		return $this->db->fetchRecords(PDO::FETCH_ASSOC);
+		$this->setDocumentsTemplatesModel();
+		$this->dt->clearFilters();
+		$this->dt->addFilter('template_type', 'headerorfootertemplate');
+		return $this->dt->load()->all();
 	}
 
 	/**
@@ -554,12 +570,9 @@ class DocumentHandler {
 	 * @return stdClass
 	 */
 	public function addDocumentsTemplates(stdClass $params){
-		$data = get_object_vars($params);
-		$data['created_by_uid'] = $_SESSION['user']['id'];
-		$this->db->setSQL($this->db->sqlBind($data, 'documents_templates', 'I'));
-		$this->db->execLog();
-		$params->id = $this->db->lastInsertId;
-		return $params;
+		$this->setDocumentsTemplatesModel();
+		$params->created_by_uid = $_SESSION['user']['id'];
+		return $this->dt->save($params);
 	}
 
 	/**
@@ -567,13 +580,9 @@ class DocumentHandler {
 	 * @return stdClass
 	 */
 	public function updateDocumentsTemplates(stdClass $params){
-		$data = get_object_vars($params);
-		$data['updated_by_uid'] = $_SESSION['user']['id'];
-		unset($data['id']);
-		$this->db->setSQL($this->db->sqlBind($data, 'documents_templates', 'U', ['id' => $params->id]));
-		$this->db->execLog();
-		return $params;
-
+		$this->setDocumentsTemplatesModel();
+		$params->updated_by_uid = $_SESSION['user']['id'];
+		return $this->dt->save($params);
 	}
 
 	/**

@@ -757,6 +757,9 @@ class Documents {
 	}
 
 	private function getProviderData($params){
+
+		if(!isset($params->provider_uid)) return [];
+
 		$provider = $this->User->getUserByUid($params->provider_uid);
 
 		if($provider === false){

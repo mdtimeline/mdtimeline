@@ -355,6 +355,8 @@ class ACL {
 		$user_roles = self::$user_roles;
 		$role_ids = implode(',', $user_roles);
 
+		if(!isset($role_ids) || $role_ids == '') return [];
+
 		$sth =  self::$conn->prepare("SELECT acl_roles.group_id FROM `acl_roles` WHERE acl_roles.id IN ({$role_ids})");
 		$sth->execute();
 		$record = $sth->fetchAll(PDO::FETCH_ASSOC);

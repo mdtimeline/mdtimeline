@@ -8,6 +8,25 @@
     src: url('../fonts/OpenSans-CondLight.ttf');
 }
 
+.x-action-col-cell-icon-64 img {
+    height: 64px;
+    width: 56px;
+}
+
+.x-action-col-cell-icon-doc img {
+    padding: 5px;
+    border: 2px solid cornflowerblue;
+    cursor: pointer;
+}
+
+.x-action-no-icon {
+    visibility: hidden !important;
+}
+
+.x-action-col-cell-icon-doc img:hover {
+    border: 3px solid lightcoral;
+}
+
 .progress-motes-history-grid .x-grid-cell-inner {
     white-space: normal;
 }

@@ -899,7 +899,7 @@ class Documents {
 		// table header
 		$table .= '<tr>';
 		foreach($th AS $cell){
-			$table .= '<th style="background-color:#5CB8E6;border-bottom:1px solid #000000;">' . $cell . '</th>';
+			$table .= '<th style="border-bottom:1px solid #000000;">' . $cell . '</th>';
 		}
 		$table .= '</tr>';
 

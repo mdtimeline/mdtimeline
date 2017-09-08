@@ -42,7 +42,7 @@ class DocumentHandler {
 	/**
 	 * @var MatchaCUP
 	 */
-	private $d;
+	public $d;
 
 	/**
 	 * @var MatchaCUP
@@ -109,6 +109,7 @@ class DocumentHandler {
 	 */
 	public function getPatientDocuments($params, $includeDocument = false){
 		$this->setPatientDocumentModel();
+		$this->d->setOrFilterProperties(['docTypeCode']);
 		$records = $this->d->load($params)->all();
 
 		/** lets unset the actual document data */

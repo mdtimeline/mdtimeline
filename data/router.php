@@ -133,6 +133,7 @@ function doRpc($cdata)
 			($action == 'PortalAuthorize' && $method == 'passwordReset') ||
 			($action == 'PortalAuthorize' && $method == 'passwordReset') ||
 			($action == 'PortalRegister' && $method == 'validateInvitation') ||
+			($action == 'RadiologyResults' && $method == 'authorization') ||
 			($action == 'CombosData' && $method == 'getActiveFacilities') ||
 			($action == 'i18nRouter' && $method == 'getAvailableLanguages') ||
             ($action == 'CombosData' && $method == 'getTimeZoneList') || // Used by SiteSetup

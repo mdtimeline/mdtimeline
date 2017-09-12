@@ -1929,4 +1929,6 @@ $LANG = array(
 	'repetition' => 'Repetition',
 	'complex_commands' => 'Complex Commands',
 	'assess_lvl' => 'ASSESS Lvl.',
+	'patient_note' => 'Patient Note',
+	'comments_body' => 'Comments/Body',
 );

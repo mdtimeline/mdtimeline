@@ -24378,86 +24378,6 @@ Ext.define('App.view.patient.DoctorsNotes', {
 			flex: 1
 		}
 	],
-	plugins: [
-		{
-			ptype: 'rowformediting',
-			clicksToEdit: 2,
-			items: [
-				{
-					xtype: 'container',
-					layout: {
-						type: 'hbox'
-					},
-					items: [
-						{
-							xtype: 'fieldset',
-							layout: 'anchor',
-							title: _('general'),
-							height: 145,
-							width: 300,
-							defaults: {
-								margin: '0 0 5 0'
-							},
-							items: [
-								{
-									xtype: 'datefield',
-									fieldLabel: _('order_date'),
-									format: g('date_display_format'),
-									name: 'order_date'
-								},
-								{
-									xtype: 'documentstemplatescombo',
-									fieldLabel: _('document'),
-									name: 'template_id'
-								},
-								{
-									xtype: 'datefield',
-									fieldLabel: _('from'),
-									format: g('date_display_format'),
-									name: 'from_date'
-								},
-								{
-									xtype: 'datefield',
-									fieldLabel: _('to'),
-									format: g('date_display_format'),
-									name: 'to_date'
-								}
-							]
-						},
-						{
-							xtype: 'fieldset',
-							layout: 'fit',
-							title: _('comments'),
-							flex: 1,
-							height: 145,
-							margin: '0 5',
-							items: [
-								{
-									xtype: 'textareafield',
-									anchor: '100%',
-									margin: 5,
-									name: 'comments'
-								}
-							]
-						},
-						{
-							xtype: 'fieldset',
-							title: _('restrictions'),
-							height: 145,
-							width: 400,
-							autoScroll: true,
-							items: [
-								{
-									xtype: 'multitextfield',
-									name: 'restrictions'
-								}
-							]
-						}
-					]
-				}
-			]
-		}
-	],
 	tbar: [
 		'->',
 		'-',
@@ -42859,6 +42779,14 @@ Ext.define('App.controller.patient.DoctorsNotes', {
 			selector: 'patientdoctorsnotepanel'
 		},
 		{
+			ref: 'PatientNoteWindow',
+			selector: '#PatientNoteWindow'
+		},
+		{
+			ref: 'PatientNoteForm',
+			selector: '#PatientNoteForm'
+		},
+		{
 			ref: 'PrintDoctorsNoteBtn',
 			selector: '#printDoctorsNoteBtn'
 		},
@@ -42875,14 +42803,19 @@ Ext.define('App.controller.patient.DoctorsNotes', {
 				activate: me.onDoctorsNotesGridActive,
 				selectionchange: me.onDoctorsNotesGridSelectionChange,
 				beforerender: me.onDoctorsNotesGridBeforeRender,
-				beforeedit: me.onDoctorsNotesGridBeforeEdit,
-				validateedit: me.onDoctorsNotesGridValidateEdit
+				itemdblclick: me.onDoctorsNotesGridItemDblClick
 			},
 			'#printDoctorsNoteBtn': {
 				click: me.onPrintDoctorsNoteBtn
 			},
 			'#newDoctorsNoteBtn': {
 				click: me.onNewDoctorsNoteBtn
+			},
+			'#PatientNoteWindowCancelBtn': {
+				click: me.onPatientNoteWindowCancelBtnClick
+			},
+			'#PatientNoteWindowSaveBtn': {
+				click: me.onPatientNoteWindowSaveBtnClick
 			}
 		});
 
@@ -42899,20 +42832,22 @@ Ext.define('App.controller.patient.DoctorsNotes', {
 
 	onDoctorsNotesGridBeforeRender: function(grid){
 		app.on('patientunset', function(){
-			grid.editingPlugin.cancelEdit();
 			grid.getStore().removeAll();
 		});
 	},
 
 	onDoctorsNotesGridSelectionChange: function(sm, selected){
-		this.getPrintDoctorsNoteBtn().setDisabled(selected.length == 0);
+		this.getPrintDoctorsNoteBtn().setDisabled(selected.length === 0);
 	},
 
 	onNewDoctorsNoteBtn: function(btn){
-		var grid = btn.up('grid');
 
-		grid.editingPlugin.cancelEdit();
-		grid.getStore().insert(0, {
+		this.showPatientNoteWindow();
+
+		var grid = btn.up('grid'),
+			form = this.getPatientNoteForm().getForm();
+
+		var records = grid.getStore().insert(0, {
 			pid: app.patient.pid,
 			eid: app.patient.eid,
 			uid: app.user.id,
@@ -42920,20 +42855,9 @@ Ext.define('App.controller.patient.DoctorsNotes', {
 			order_date: new Date(),
 			from_date: new Date()
 		});
-		grid.editingPlugin.startEdit(0, 0);
-	},
 
-	onDoctorsNotesGridValidateEdit: function(plugin, e){
-		var multiField = plugin.editor.query('multitextfield')[0],
-			values = multiField.getValue();
+		form.loadRecord(records[0]);
 
-		e.record.set({restrictions: values});
-	},
-
-	onDoctorsNotesGridBeforeEdit: function(plugin, e){
-		var multiField = plugin.editor.query('multitextfield')[0],
-			data = e.record.data.restrictions;
-		multiField.setValue(data);
 	},
 
 	onPrintDoctorsNoteBtn: function(note){
@@ -42959,19 +42883,74 @@ Ext.define('App.controller.patient.DoctorsNotes', {
 
 	onDoctorsNotesGridActive: function(grid){
 		var store = grid.getStore();
-		if(!grid.editingPlugin.editing){
-			store.clearFilter(true);
-			store.filter([
-				{
-					property: 'pid',
-					value: app.patient.pid
-				}
-			]);
-		}
+
+		store.clearFilter(true);
+		store.filter([
+			{
+				property: 'pid',
+				value: app.patient.pid
+			}
+		]);
 	},
 
 	templatesRenderer: function(v){
 		return this.docTemplates[v];
+	},
+
+	onDoctorsNotesGridItemDblClick: function (grid, record) {
+		this.showPatientNoteWindow();
+
+		var me = this,
+			panel = me.getPatientNoteForm(),
+			form = panel.getForm(),
+			restrictionsFIeld = panel.query('multitextfield')[0],
+			restrictions = record.get('restrictions');
+
+		form.loadRecord(record);
+		restrictionsFIeld.setValue(restrictions);
+
+	},
+
+	onPatientNoteWindowCancelBtnClick: function () {
+		this.getDoctorsNotesGrid().getStore().rejectChanges();
+		this.getPatientNoteForm().getForm().reset(true);
+		this.getPatientNoteWindow().close();
+	},
+
+	onPatientNoteWindowSaveBtnClick: function () {
+
+		var me = this,
+			panel = me.getPatientNoteForm(),
+			form = panel.getForm(),
+			values = form.getValues(),
+			record = form.getRecord(),
+			store = record.store,
+			restrictionsFIeld = panel.query('multitextfield')[0],
+			restrictions = restrictionsFIeld.getValue();
+
+		if(!form.isValid()) return;
+
+		values.restrictions = restrictions;
+		record.set(values);
+
+		if(Ext.isEmpty(store.getModifiedRecords())){
+			me.getPatientNoteForm().getForm().reset(true);
+			me.getPatientNoteWindow().close();
+		}else{
+			store.sync({
+				callback: function () {
+					me.getPatientNoteForm().getForm().reset(true);
+					me.getPatientNoteWindow().close();
+				}
+			});
+		}
+	},
+
+	showPatientNoteWindow: function () {
+		if(!this.getPatientNoteWindow()){
+			Ext.create('App.view.patient.windows.PatientNoteWindow');
+		}
+		return this.getPatientNoteWindow().show();
 	}
 
 });

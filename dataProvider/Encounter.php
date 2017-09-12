@@ -667,18 +667,11 @@ class Encounter {
 				$str_buff .= '</ul>';
 			}
 
-
-
-
 		}else{
 			$str_buff .= '<p><b>Smoking Status:</b> No Smoking Status Recorded</p>';
 		}
 
 		$str_buff .= '</div>';
-
-
-
-
 
 		return $str_buff;
 	}
@@ -768,7 +761,7 @@ class Encounter {
 				 * BMI
 				 */
 				if(isset($foo['bmi']) && $foo['bmi'] != ''){
-					$vital_buff .= '<u>BMI: ' . $foo['bmi'] . '<br>';
+					$vital_buff .= '<u>BMI:</u> ' . $foo['bmi'] . '<br>';
 				}
 				if(isset($foo['bmi_status']) && $foo['bmi_status'] != ''){
 					$vital_buff .= '<u>BMI Status:</u> ' . $foo['bmi_status'] . '<br>';

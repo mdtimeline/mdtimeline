@@ -15102,7 +15102,7 @@ Ext.define('App.model.patient.Vitals', {
 			name: 'bmi_status',
 			type: 'string',
 			useNull: true,
-			len: 10
+			len: 20
 		},
 		{
 			name: 'other_notes',

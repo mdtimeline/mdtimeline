@@ -644,7 +644,7 @@ class Encounter {
 
 		include_once (ROOT. '/dataProvider/SocialHistory.php');
 		$SocialHistory = new SocialHistory();
-		$smoking_statuses = $SocialHistory->getSocialHistoryByPidAndCode($eid, 'smoking_status');
+		$smoking_statuses = $SocialHistory->getSocialHistoryByEidAndCode($eid, 'smoking_status');
 		$str_buff .= '<div class="indent">';
 
 		if(!empty($smoking_statuses)){

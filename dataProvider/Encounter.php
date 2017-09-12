@@ -608,10 +608,6 @@ class Encounter {
 
 			unset($soap);
 		}
-
-
-
-
 		return $output;
 	}
 
@@ -638,9 +634,8 @@ class Encounter {
 		}
 
 		$str_buff .= '</div>';
-
-
 		unset($family_histories, $FamilyHistory);
+
 
 		include_once (ROOT. '/dataProvider/SocialHistory.php');
 		$SocialHistory = new SocialHistory();
@@ -786,12 +781,12 @@ class Encounter {
 					$vital_buff .= '<u>Pulse:</u> ' . $foo['pulse'] . '<br>';
 				}
 
-				/**
-				 * Administer Name
-				 */
-				if(isset($foo['administer_by']) && $foo['administer_by'] != ''){
-					$vital_buff .= '<u>Administer By:</u> ' .$foo['administer_by'];
-				}
+//				/**
+//				 * Administer Name
+//				 */
+//				if(isset($foo['administer_by']) && $foo['administer_by'] != ''){
+//					$vital_buff .= '<u>Administer By:</u> ' .$foo['administer_by'];
+//				}
 
 				if($vital_buff != ''){
 					$vitals_buff .= '<p class="indent">'.$vital_buff.'</p>';

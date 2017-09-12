@@ -619,6 +619,7 @@ class Encounter {
 
 		$str_buff = '';
 
+		include_once (ROOT. '/dataProvider/FamilyHistory.php');
 		$FamilyHistory = new FamilyHistory();
 		$family_histories = $FamilyHistory->getFamilyHistoryByEid($eid);
 		$str_buff .= '<div class="indent">';
@@ -641,6 +642,7 @@ class Encounter {
 
 		unset($family_histories, $FamilyHistory);
 
+		include_once (ROOT. '/dataProvider/SocialHistory.php');
 		$SocialHistory = new SocialHistory();
 		$smoking_statuses = $SocialHistory->getSocialHistoryByPidAndCode($eid, 'smoking_status');
 		$str_buff .= '<div class="indent">';

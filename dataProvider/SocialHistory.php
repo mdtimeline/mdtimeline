@@ -149,6 +149,24 @@ class SocialHistory {
 	}
 
 	/**
+	 * @param $eid
+	 * @param $code
+	 * @return mixed
+	 */
+	public function getSocialHistoryByEidAndCode($eid, $code = 'history'){
+		$this->setModel();
+		$filters = new stdClass();
+		$filters->filter[0] = new stdClass();
+		$filters->filter[0]->property = 'eid';
+		$filters->filter[0]->value = $eid;
+		if($code == 'smoking_status'){
+			return $this->getSmokeStatus($filters);
+		}else{
+			return $this->getSocialHistories($filters);
+		}
+	}
+
+	/**
 	 * @param $pid
 	 * @param $code
 	 * @return mixed

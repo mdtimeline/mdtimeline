@@ -72,6 +72,18 @@ class FamilyHistory {
 		$filters->filter[0]->value = $pid;
 		return $this->getFamilyHistory($filters);
 	}
+
+	/**
+	 * @param $eid
+	 * @return mixed
+	 */
+	public function getFamilyHistoryByEid($eid){
+		$filters = new stdClass();
+		$filters->filter[0] = new stdClass();
+		$filters->filter[0]->property = 'eid';
+		$filters->filter[0]->value = $eid;
+		return $this->getFamilyHistory($filters);
+	}
 	/**
 	 * @param $pid
 	 * @return mixed

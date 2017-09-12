@@ -458,7 +458,7 @@ class Encounter {
 			foreach($this->diagnosis->getICDByEid($encounter['eid'], true) as $code){
 				$icds .= '<li><span style="font-weight:bold; text-decoration:none">' . $code['code'] . '</span> - ' . $code['long_desc'] . '</li>';
 			}
-			$encounter['subjective'] = $soap['subjective'];
+			$encounter['subjective'] = $soap['subjective'] . $this->getSubjectiveExtraDataByEid($encounter['eid']);
 			$encounter['objective'] = $soap['objective'] . $this->getObjectiveExtraDataByEid($encounter['eid']);
 			$encounter['assessment'] = $soap['assessment'] . '<ul  class="ProgressNote-ul">' . $icds . '</ul>';
 			$encounter['plan'] = (isset($soap['plan']) ? $soap['plan'] : '') . $this->getPlanExtraDataByEid($encounter['eid'], $soap['instructions']);
@@ -561,6 +561,7 @@ class Encounter {
 			}
 
 			$soap = $this->getSoapByEid($eid);
+			$soap['subjective'] = (isset($soap['subjective']) ? $soap['subjective'] : '') . $this->getSubjectiveExtraDataByEid($eid, $encounter);
 			$soap['assessment'] = isset($soap['assessment']) ? $soap['assessment'] : '';
 			$soap['objective'] = (isset($soap['objective']) ? $soap['objective'] : '') . $this->getObjectiveExtraDataByEid($eid, $encounter);
 			$soap['assessment'] = $soap['assessment'] . (isset($dxOl) ? $dxOl : '');
@@ -612,6 +613,77 @@ class Encounter {
 
 
 		return $output;
+	}
+
+	private function getSubjectiveExtraDataByEid($eid, $encounter = null) {
+
+		$str_buff = '';
+
+		$FamilyHistory = new FamilyHistory();
+		$family_histories = $FamilyHistory->getFamilyHistoryByEid($eid);
+		$str_buff .= '<div class="indent">';
+
+		if(!empty($family_histories)){
+			$str_buff .= '<p><b>Family History:</b></p>';
+			foreach($family_histories as $family_history){
+				$str_buff .= '<ul>';
+				$str_buff .= '<li>Condition: ' . (isset($family_history['condition']) ? $family_history['condition'] : '') . '</li>';
+				$str_buff .= '<li>Relative: ' . (isset($family_history['relation']) ? $family_history['relation'] : '') . '</li>';
+				$str_buff .= '<li>Note: ' . (isset($family_history['notes']) ? $family_history['notes'] : '') . '</li>';
+				$str_buff .= '</ul>';
+			}
+		}else{
+			$str_buff .= '<p><b>Family History:</b> No Family History Recorded</p>';
+		}
+
+		$str_buff .= '</div>';
+
+
+		unset($family_histories, $FamilyHistory);
+
+		$SocialHistory = new SocialHistory();
+		$smoking_statuses = $SocialHistory->getSocialHistoryByPidAndCode($eid, 'smoking_status');
+		$str_buff .= '<div class="indent">';
+
+		if(!empty($smoking_statuses)){
+			$str_buff .= '<p><b>Smoking Status:</b></p>';
+			foreach($smoking_statuses as $smoking_status){
+
+				if(isset($smoking_status['start_date'])){
+					$from = date('F j, Y', strtotime($smoking_status['start_date']));
+					if($from == false) $from = 'UNK';
+				}else{
+					$from ='UNK';
+				}
+				if(isset($smoking_status['end_date'])){
+					$to = date('F j, Y', strtotime($smoking_status['end_date']));
+					if($to == false) $to = 'UNK';
+				}else{
+					$to ='UNK';
+				}
+
+				$str_buff .= '<ul>';
+				$str_buff .= '<li>Status: ' . (isset($smoking_status['status']) ? $smoking_status['status'] : '') . '</li>';
+				$str_buff .= '<li>Dates From/To: ' . $from . ' / ' . $to . '</li>';
+				$str_buff .= '<li>Counseling Given: ' . (isset($smoking_status['counseling']) && $smoking_status['counseling'] ? 'Yes' : 'No') . '</li>';
+				$str_buff .= '<li>Note: ' . (isset($smoking_status['note']) ? $smoking_status['note'] : '') . '</li>';
+				$str_buff .= '</ul>';
+			}
+
+
+
+
+		}else{
+			$str_buff .= '<p><b>Smoking Status:</b> No Smoking Status Recorded</p>';
+		}
+
+		$str_buff .= '</div>';
+
+
+
+
+
+		return $str_buff;
 	}
 
 	private function getObjectiveExtraDataByEid($eid, $encounter = null) {
@@ -727,7 +799,7 @@ class Encounter {
 			$str_buff .= $vitals_buff;
 
 		}else{
-			$str_buff .= '<p>Vitals: No Vitals Recorded</p>';
+			$str_buff .= '<p><b>Vitals:</b> No Vitals Recorded</p>';
 		}
 		$str_buff .= '</div>';
 

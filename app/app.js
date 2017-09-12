@@ -59636,6 +59636,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 			action: 'encounter',
 			region: 'center',
 			itemId: 'soapForm',
+			cls: 'encounter-soap-form',
 			frame: true,
 			fieldDefaults: {
 				msgTarget: 'side'

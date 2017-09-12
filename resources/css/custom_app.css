@@ -8,6 +8,10 @@
     src: url('../fonts/OpenSans-CondLight.ttf');
 }
 
+.encounter-soap-form .x-form-textarea {
+    font-size: 1.3em;
+}
+
 .x-action-col-cell-icon-64 img {
     height: 64px;
     width: 56px;

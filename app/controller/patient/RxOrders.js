@@ -318,8 +318,8 @@ Ext.define('App.controller.patient.RxOrders', {
 
 			if(!documents[doc_key]){
 				documents[doc_key] = {};
-				documents[doc_key].pid = app.patient.pid;
-				documents[doc_key].eid = app.patient.eid;
+				documents[doc_key].pid = order.get('pid');
+				documents[doc_key].eid = order.get('eid');
 				documents[doc_key].date_ordered = date_ordered;
 				documents[doc_key].provider_uid = order.get('uid');
 				documents[doc_key].orderItems = [];

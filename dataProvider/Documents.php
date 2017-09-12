@@ -109,146 +109,6 @@ class Documents {
 		return $givingValuesToTokens;
 	}
 
-	public function get_PatientTokensData($pid, $allNeededInfo, $tokens) {
-
-        $patientData = $this->getAllPatientData($pid);
-		$age = $this->Patient->getPatientAgeByDOB($patientData['DOB']);
-		$patienInformation = [
-			'[PATIENT_NAME]' => $patientData['fname'],
-			'[PATIENT_ID]' => $patientData['pid'],
-			'[PATIENT_RECORD_NUMBER]' => $patientData['pubpid'],
-			'[PATIENT_FULL_NAME]' => $this->Patient->getPatientFullNameByPid($patientData['pid']),
-			'[PATIENT_LAST_NAME]' => $patientData['lname'],
-			'[PATIENT_SEX]' => $patientData['sex'],
-			'[PATIENT_BIRTHDATE]' => $this->dateToString($patientData['DOB']),
-			'[PATIENT_MARITAL_STATUS]' => $patientData['marital_status'],
-			'[PATIENT_SOCIAL_SECURITY]' => $patientData['SS'],
-			'[PATIENT_EXTERNAL_ID]' => $patientData['pubpid'],
-			'[PATIENT_DRIVERS_LICENSE]' => $patientData['drivers_license'],
-
-			'[PATIENT_POSTAL_ADDRESS_LINE_ONE]' => isset($patientData['postal_address']) ? $patientData['postal_address'] : '',
-			'[PATIENT_POSTAL_ADDRESS_LINE_TWO]' => isset($patientData['postal_address_cont']) ? $patientData['postal_address_cont'] : '',
-			'[PATIENT_POSTAL_CITY]' => isset($patientData['postal_city']) ? $patientData['postal_city'] : '',
-			'[PATIENT_POSTAL_STATE]' => isset($patientData['postal_state']) ? $patientData['postal_state'] : '',
-			'[PATIENT_POSTAL_ZIP]' => isset($patientData['postal_zip']) ? $patientData['postal_zip'] : '',
-			'[PATIENT_POSTAL_COUNTRY]' => isset($patientData['postal_country']) ? $patientData['postal_country'] : '',
-
-			'[PATIENT_PHYSICAL_ADDRESS_LINE_ONE]' => isset($patientData['physical_address']) ? $patientData['physical_address'] : '',
-			'[PATIENT_PHYSICAL_ADDRESS_LINE_TWO]' => isset($patientData['physical_address_cont']) ? $patientData['physical_address_cont'] : '',
-			'[PATIENT_PHYSICAL_CITY]' => isset($patientData['physical_city']) ? $patientData['physical_city'] : '',
-			'[PATIENT_PHYSICAL_STATE]' => isset($patientData['physical_state']) ? $patientData['physical_state'] : '',
-			'[PATIENT_PHYSICAL_ZIP]' => isset($patientData['physical_zip']) ? $patientData['physical_zip'] : '',
-			'[PATIENT_PHYSICAL_COUNTRY]' => isset($patientData['physical_country']) ? $patientData['physical_country'] : '',
-
-			'[PATIENT_HOME_PHONE]' => isset($patientData['phone_home']) ? $patientData['phone_home'] : '',
-			'[PATIENT_MOBILE_PHONE]' => isset($patientData['phone_mobile']) ? $patientData['phone_mobile'] : '',
-			'[PATIENT_WORK_PHONE]' => isset($patientData['phone_work']) ? $patientData['phone_work'] : '',
-
-			'[PATIENT_EMAIL]' => isset($patientData['email']) ? $patientData['email'] : '',
-
-			'[PATIENT_MOTHERS_NAME]' => isset($patientData['mother_fname']) ?
-                Person::fullname(
-	                $patientData['mother_fname'],
-	                $patientData['mother_mname'],
-	                $patientData['mother_lname']
-                ) : '',
-
-			'[PATIENT_GUARDIANS_NAME]' => isset($patientData['guardians_fname']) ?
-                Person::fullname(
-	                $patientData['guardians_fname'],
-	                $patientData['guardians_mname'],
-	                $patientData['guardians_lname']
-                ) : '',
-
-			'[PATIENT_EMERGENCY_CONTACT]' => isset($patientData['emergency_contact_fname']) ?
-                Person::fullname(
-	                $patientData['emergency_contact_fname'],
-	                $patientData['emergency_contact_mname'],
-	                $patientData['emergency_contact_lname']
-                ) : '',
-
-            // TODO: Create a method to parse a phone number in the person dataProvider
-			'[PATIENT_EMERGENCY_PHONE]' => isset($patientData['emergency_contact_phone']) ? $patientData['emergency_contact_phone'] : '',
-
-			'[PATIENT_PROVIDER]' => is_numeric($patientData['provider']) ?
-                $this->User->getUserFullNameById($patientData['provider']) : '',
-
-			'[PATIENT_PHARMACY]' => $patientData['pharmacy'],
-			'[PATIENT_AGE]' => $age['DMY']['years'],
-			'[PATIENT_OCCUPATION]' => $patientData['occupation'],
-
-			'[PATIENT_EMPLOYEER]' => isset($patientData['employer_name']) ? $patientData['employer_name'] : '',
-
-			'[PATIENT_RACE]' => $patientData['race'],
-			'[PATIENT_ETHNICITY]' => $patientData['ethnicity'],
-			'[PATIENT_LENGUAGE]' => $patientData['language'],
-			'[PATIENT_PICTURE]' => '<img src="' . $patientData['image'] . '" style="width:100px;height:100px">',
-			'[PATIENT_QRCODE]' => '<img src="' . $patientData['qrcode'] . '" style="width:100px;height:100px">',
-
-//			'[PATIENT_TABACCO]' => 'tabaco',
-//			'[PATIENT_ALCOHOL]' => 'alcohol',
-			//            '[PATIENT_BALANCE]' => '$' . $this->fees->getPatientBalanceByPid($pid),
-			//            '[PATIENT_PRIMARY_PLAN]' => $patientData['primary_plan_name'],
-			//            '[PATIENT_PRIMARY_EFFECTIVE_DATE]' => $patientData['primary_effective_date'],
-			//            '[PATIENT_PRIMARY_SUBSCRIBER]' => $patientData['primary_subscriber_title'] . $patientData['primary_subscriber_fname'] . ' ' . $patientData['primary_subscriber_mname'] . ' ' . $patientData['primary_subscriber_lname'],
-			//            '[PATIENT_PRIMARY_POLICY_NUMBER]' => $patientData['primary_policy_number'],
-			//            '[PATIENT_PRIMARY_GROUP_NUMBER]' => $patientData['primary_group_number'],
-			//            '[PATIENT_PRIMARY_SUBSCRIBER_STREET]' => $patientData['primary_subscriber_street'],
-			//            '[PATIENT_PRIMARY_SUBSCRIBER_CITY]' => $patientData['primary_subscriber_city'],
-			//            '[PATIENT_PRIMARY_SUBSCRIBER_STATE]' => $patientData['primary_subscriber_state'],
-			//            '[PATIENT_PRIMARY_SUBSCRIBER_COUNTRY]' => $patientData['primary_subscriber_country'],
-			//            '[PATIENT_PRIMARY_SUBSCRIBER_ZIPCODE]' => $patientData['primary_subscriber_zip_code'],
-			//            '[PATIENT_PRIMARY_SUBSCRIBER_RELATIONSHIP]' => $patientData['primary_subscriber_relationship'],
-			//            '[PATIENT_PRIMARY_SUBSCRIBER_PHONE]' => $patientData['primary_subscriber_phone'],
-			//            '[PATIENT_PRIMARY_SUBSCRIBER_EMPLOYER]' => $patientData['primary_subscriber_employer'],
-			//            '[PATIENT_PRIMARY_SUBSCRIBER_EMPLOYER_CITY]' => $patientData['primary_subscriber_employer_city'],
-			//            '[PATIENT_PRIMARY_SUBSCRIBER_EMPLOYER_STATE]' => $patientData['primary_subscriber_employer_state'],
-			//            '[PATIENT_PRIMARY_SUBSCRIBER_EMPLOYER_COUNTRY]' => $patientData['primary_subscriber_employer_country'],
-			//            '[PATIENT_PRIMARY_SUBSCRIBER_EMPLOYER_ZIPCODE]' => $patientData['primary_subscriber_zip_code'],
-			//            '[PATIENT_SECONDARY_PLAN]' => $patientData['secondary_plan_name'],
-			//            '[PATIENT_SECONDARY_EFFECTIVE_DATE]' => $patientData['secondary_effective_date'],
-			//            '[PATIENT_SECONDARY_SUBSCRIBER]' => $patientData['secondary_subscriber_title'] . $patientData['primary_subscriber_fname'] . ' ' . $patientData['primary_subscriber_mname'] . ' ' . $patientData['primary_subscriber_lname'],
-			//            '[PATIENT_SECONDARY_POLICY_NUMBER]' => $patientData['secondary_policy_number'],
-			//            '[PATIENT_SECONDARY_GROUP_NUMBER]' => $patientData['secondary_group_number'],
-			//            '[PATIENT_SECONDARY_SUBSCRIBER_STREET]' => $patientData['secondary_subscriber_street'],
-			//            '[PATIENT_SECONDARY_SUBSCRIBER_CITY]' => $patientData['secondary_subscriber_city'],
-			//            '[PATIENT_SECONDARY_SUBSCRIBER_STATE]' => $patientData['secondary_subscriber_state'],
-			//            '[PATIENT_SECONDARY_SUBSCRIBER_COUNTRY]' => $patientData['secondary_subscriber_country'],
-			//            '[PATIENT_SECONDARY_SUBSCRIBER_ZIPCODE]' => $patientData['secondary_subscriber_zip_code'],
-			//            '[PATIENT_SECONDARY_SUBSCRIBER_RELATIONSHIP]' => $patientData['secondary_subscriber_relationship'],
-			//            '[PATIENT_SECONDARY_SUBSCRIBER_PHONE]' => $patientData['secondary_subscriber_phone'],
-			//            '[PATIENT_SECONDARY_SUBSCRIBER_EMPLOYER]' => $patientData['secondary_subscriber_employer'],
-			//            '[PATIENT_SECONDARY_SUBSCRIBER_EMPLOYER_CITY]' => $patientData['secondary_subscriber_employer_city'],
-			//            '[PATIENT_SECONDARY_SUBSCRIBER_EMPLOYER_STATE]' => $patientData['secondary_subscriber_employer_state'],
-			//            '[PATIENT_SECONDARY_SUBSCRIBER_EMPLOYER_COUNTRY]' => $patientData['secondary_subscriber_employer_country'],
-			//            '[PATIENT_SECONDARY_SUBSCRIBER_EMPLOYER_ZIPCODE]' => $patientData['secondary_subscriber_zip_code'],
-			//            '[PATIENT_TERTIARY_PLAN]' => $patientData['tertiary_plan_name'],
-			//            '[PATIENT_TERTIARY_EFFECTIVE_DATE]' => $patientData['tertiary_effective_date'],
-			//            '[PATIENT_TERTIARY_SUBSCRIBER]' => $patientData['tertiary_subscriber_title'] . $patientData['primary_subscriber_fname'] . ' ' . $patientData['primary_subscriber_mname'] . ' ' . $patientData['primary_subscriber_lname'],
-			//            '[PATIENT_TERTIARY_POLICY_NUMBER]' => $patientData['tertiary_policy_number'],
-			//            '[PATIENT_TERTIARY_GROUP_NUMBER]' => $patientData['tertiary_group_number'],
-			//            '[PATIENT_TERTIARY_SUBSCRIBER_STREET]' => $patientData['tertiary_subscriber_street'],
-			//            '[PATIENT_TERTIARY_SUBSCRIBER_CITY]' => $patientData['tertiary_subscriber_city'],
-			//            '[PATIENT_TERTIARY_SUBSCRIBER_STATE]' => $patientData['tertiary_subscriber_state'],
-			//            '[PATIENT_TERTIARY_SUBSCRIBER_COUNTRY]' => $patientData['tertiary_subscriber_country'],
-			//            '[PATIENT_TERTIARY_SUBSCRIBER_ZIPCODE]' => $patientData['tertiary_subscriber_zip_code'],
-			//            '[PATIENT_TERTIARY_SUBSCRIBER_RELATIONSHIP]' => $patientData['tertiary_subscriber_relationship'],
-			//            '[PATIENT_TERTIARY_SUBSCRIBER_PHONE]' => $patientData['tertiary_subscriber_phone'],
-			//            '[PATIENT_TERTIARY_SUBSCRIBER_EMPLOYER]' => $patientData['tertiary_subscriber_employer'],
-			//            '[PATIENT_TERTIARY_SUBSCRIBER_EMPLOYER_CITY]' => $patientData['tertiary_subscriber_employer_city'],
-			//            '[PATIENT_TERTIARY_SUBSCRIBER_EMPLOYER_STATE]' => $patientData['tertiary_subscriber_employer_state'],
-			//            '[PATIENT_TERTIARY_SUBSCRIBER_EMPLOYER_COUNTRY]' => $patientData['tertiary_subscriber_employer_country'],
-			//            '[PATIENT_TERTIARY_SUBSCRIBER_EMPLOYER_ZIPCODE]' => $patientData['tertiary_subscriber_zip_code']
-		];
-
-		foreach($tokens as $i => $tok){
-			if(isset($patienInformation[$tok]) && ($allNeededInfo[$i] == '' || $allNeededInfo[$i] == null)){
-				$allNeededInfo[$i] = $patienInformation[$tok];
-			};
-		}
-		return $allNeededInfo;
-	}
-
 	public function get_EncounterTokensData($eid, $allNeededInfo, $tokens) {
 
 		$params = new stdClass();
@@ -565,12 +425,15 @@ class Documents {
 
 				$header_data = [];
 				$footer_data = [];
+				$array1 = $this->getProviderData($params);
+				$array2 = $this->getPatientTokesDataByPid($pid);
+				$header_footer_tokens_data = array_merge($array1,$array2);
 
-				$provider_data = $this->getProviderData($params);
-				$provider_tokens = array_keys($provider_data);
-				$provider_values = array_values($provider_data);
+				$header_footer_tokens = array_keys($header_footer_tokens_data);
+				$header_footer_values = array_values($header_footer_tokens_data);
+
 				foreach($header_footer_data as $line){
-					$line['text'] = str_replace($provider_tokens, $provider_values, $line['text']);
+					$line['text'] = str_replace($header_footer_tokens, $header_footer_values, $line['text']);
 
 					if($line['data_type'] == 'HEADER'){
 						$header_data[] = $line;
@@ -578,7 +441,7 @@ class Documents {
 						$footer_data[] = $line;
 					}
 				}
-				unset($header_footer_data, $provider_data, $provider_tokens, $provider_values);
+				unset($header_footer_data, $provider_data, $header_footer_tokens, $header_footer_values);
 
 				if(!empty($header_data)){
 					$pdf->addCustomHeaderData($header_data);
@@ -794,6 +657,99 @@ class Documents {
 
 		return $data;
 	}
+
+	private function getPatientTokesDataByPid($pid){
+		$patientData = $this->getAllPatientData($pid);
+		$age = $this->Patient->getPatientAgeByDOB($patientData['DOB']);
+
+		$data = [
+			'[PATIENT_NAME]' => $patientData['fname'],
+			'[PATIENT_ID]' => $patientData['pid'],
+			'[PATIENT_RECORD_NUMBER]' => $patientData['pubpid'],
+			'[PATIENT_FULL_NAME]' => $this->Patient->getPatientFullNameByPid($patientData['pid']),
+			'[PATIENT_LAST_NAME]' => $patientData['lname'],
+			'[PATIENT_SEX]' => $patientData['sex'],
+			'[PATIENT_BIRTHDATE]' => $this->dateToString($patientData['DOB']),
+			'[PATIENT_MARITAL_STATUS]' => $patientData['marital_status'],
+			'[PATIENT_SOCIAL_SECURITY]' => $patientData['SS'],
+			'[PATIENT_EXTERNAL_ID]' => $patientData['pubpid'],
+			'[PATIENT_DRIVERS_LICENSE]' => $patientData['drivers_license'],
+
+			'[PATIENT_POSTAL_ADDRESS_LINE_ONE]' => isset($patientData['postal_address']) ? $patientData['postal_address'] : '',
+			'[PATIENT_POSTAL_ADDRESS_LINE_TWO]' => isset($patientData['postal_address_cont']) ? $patientData['postal_address_cont'] : '',
+			'[PATIENT_POSTAL_CITY]' => isset($patientData['postal_city']) ? $patientData['postal_city'] : '',
+			'[PATIENT_POSTAL_STATE]' => isset($patientData['postal_state']) ? $patientData['postal_state'] : '',
+			'[PATIENT_POSTAL_ZIP]' => isset($patientData['postal_zip']) ? $patientData['postal_zip'] : '',
+			'[PATIENT_POSTAL_COUNTRY]' => isset($patientData['postal_country']) ? $patientData['postal_country'] : '',
+
+			'[PATIENT_PHYSICAL_ADDRESS_LINE_ONE]' => isset($patientData['physical_address']) ? $patientData['physical_address'] : '',
+			'[PATIENT_PHYSICAL_ADDRESS_LINE_TWO]' => isset($patientData['physical_address_cont']) ? $patientData['physical_address_cont'] : '',
+			'[PATIENT_PHYSICAL_CITY]' => isset($patientData['physical_city']) ? $patientData['physical_city'] : '',
+			'[PATIENT_PHYSICAL_STATE]' => isset($patientData['physical_state']) ? $patientData['physical_state'] : '',
+			'[PATIENT_PHYSICAL_ZIP]' => isset($patientData['physical_zip']) ? $patientData['physical_zip'] : '',
+			'[PATIENT_PHYSICAL_COUNTRY]' => isset($patientData['physical_country']) ? $patientData['physical_country'] : '',
+
+			'[PATIENT_HOME_PHONE]' => isset($patientData['phone_home']) ? $patientData['phone_home'] : '',
+			'[PATIENT_MOBILE_PHONE]' => isset($patientData['phone_mobile']) ? $patientData['phone_mobile'] : '',
+			'[PATIENT_WORK_PHONE]' => isset($patientData['phone_work']) ? $patientData['phone_work'] : '',
+
+			'[PATIENT_EMAIL]' => isset($patientData['email']) ? $patientData['email'] : '',
+
+			'[PATIENT_MOTHERS_NAME]' => isset($patientData['mother_fname']) ?
+				Person::fullname(
+					$patientData['mother_fname'],
+					$patientData['mother_mname'],
+					$patientData['mother_lname']
+				) : '',
+
+			'[PATIENT_GUARDIANS_NAME]' => isset($patientData['guardians_fname']) ?
+				Person::fullname(
+					$patientData['guardians_fname'],
+					$patientData['guardians_mname'],
+					$patientData['guardians_lname']
+				) : '',
+
+			'[PATIENT_EMERGENCY_CONTACT]' => isset($patientData['emergency_contact_fname']) ?
+				Person::fullname(
+					$patientData['emergency_contact_fname'],
+					$patientData['emergency_contact_mname'],
+					$patientData['emergency_contact_lname']
+				) : '',
+
+			// TODO: Create a method to parse a phone number in the person dataProvider
+			'[PATIENT_EMERGENCY_PHONE]' => isset($patientData['emergency_contact_phone']) ? $patientData['emergency_contact_phone'] : '',
+
+			'[PATIENT_PROVIDER]' => is_numeric($patientData['provider']) ?
+				$this->User->getUserFullNameById($patientData['provider']) : '',
+
+			'[PATIENT_PHARMACY]' => $patientData['pharmacy'],
+			'[PATIENT_AGE]' => $age['DMY']['years'],
+			'[PATIENT_OCCUPATION]' => $patientData['occupation'],
+
+			'[PATIENT_EMPLOYEER]' => isset($patientData['employer_name']) ? $patientData['employer_name'] : '',
+
+			'[PATIENT_RACE]' => $patientData['race'],
+			'[PATIENT_ETHNICITY]' => $patientData['ethnicity'],
+			'[PATIENT_LENGUAGE]' => $patientData['language'],
+			'[PATIENT_PICTURE]' => '<img src="' . $patientData['image'] . '" style="width:100px;height:100px">',
+			'[PATIENT_QRCODE]' => '<img src="' . $patientData['qrcode'] . '" style="width:100px;height:100px">',
+		];
+
+		return $data;
+
+	}
+
+	public function get_PatientTokensData($pid, $allNeededInfo, $tokens) {
+		$data = $this->getPatientTokesDataByPid($pid);
+
+		foreach($tokens as $i => $tok){
+			if(isset($patienInformation[$tok]) && ($allNeededInfo[$i] == '' || $allNeededInfo[$i] == null)){
+				$allNeededInfo[$i] = $data[$tok];
+			};
+		}
+		return $allNeededInfo;
+	}
+
 
 	private function addReferralData($params, $tokens, $allNeededInfo) {
 

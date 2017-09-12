@@ -627,7 +627,7 @@ class Encounter {
 		if(!empty($family_histories)){
 			$str_buff .= '<p><b>Family History:</b></p>';
 			foreach($family_histories as $family_history){
-				$str_buff .= '<ul>';
+				$str_buff .= '<ul style="list-style-type:disc">';
 				$str_buff .= '<li>Condition: ' . (isset($family_history['condition']) ? $family_history['condition'] : '') . '</li>';
 				$str_buff .= '<li>Relative: ' . (isset($family_history['relation']) ? $family_history['relation'] : '') . '</li>';
 				$str_buff .= '<li>Note: ' . (isset($family_history['notes']) ? $family_history['notes'] : '') . '</li>';
@@ -664,7 +664,7 @@ class Encounter {
 					$to ='UNK';
 				}
 
-				$str_buff .= '<ul>';
+				$str_buff .= '<ul style="list-style-type:disc">';
 				$str_buff .= '<li>Status: ' . (isset($smoking_status['status']) ? $smoking_status['status'] : '') . '</li>';
 				$str_buff .= '<li>Dates From/To: ' . $from . ' / ' . $to . '</li>';
 				$str_buff .= '<li>Counseling Given: ' . (isset($smoking_status['counseling']) && $smoking_status['counseling'] ? 'Yes' : 'No') . '</li>';

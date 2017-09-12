@@ -15208,6 +15208,11 @@ Ext.define('App.model.patient.FamilyHistory',{
             len: 60
         },
         {
+            name: 'notes',
+            type: 'string',
+            dataType: 'TEXT'
+        },
+        {
             name: 'create_uid',
             type: 'int'
         },
@@ -42984,6 +42989,9 @@ Ext.define('App.controller.patient.FamilyHistory', {
 			'patientfamilyhistorypanel': {
 				activate: me.onFamilyHistoryGridActivate
 			},
+			'#FamilyHistoryForm': {
+				beforerender: me.onFamilyHistoryFormBeforeRneder
+			},
 			'#FamilyHistoryGridAddBtn': {
 				click: me.onFamilyHistoryGridAddBtnClick
 			},
@@ -42994,6 +43002,11 @@ Ext.define('App.controller.patient.FamilyHistory', {
 				click: me.onFamilyHistoryWindowCancelBtnClick
 			}
 		});
+	},
+
+	onFamilyHistoryFormBeforeRneder: function (form) {
+
+
 	},
 
     /**
@@ -43070,7 +43083,7 @@ Ext.define('App.controller.patient.FamilyHistory', {
 
 		Ext.Object.each(values, function(key, value){
 
-			if(value == '0~0') return;
+			if(value == '0~0' || value == '0~0~') return;
 
 			foo = value.split('~');
             condition = foo[0].split(':');
@@ -43089,12 +43102,13 @@ Ext.define('App.controller.patient.FamilyHistory', {
 				condition: condition[2],
 				condition_code: condition[1],
 				condition_code_type: condition[0],
+				notes: foo[2] || '',
 				create_uid: app.user.id,
 				create_date: new Date()
 			});
 		});
 
-		if(histories.length == 0){
+		if(histories.length === 0){
 			app.msg(_('oops'), _('no_history_selected'), true);
 			return;
 		}
@@ -58984,6 +58998,9 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 	inputValue: '1',
 	uncheckedValue: '0',
 
+	textField1: undefined,
+	textField2: undefined,
+
 	initComponent: function(){
 		var me = this;
 
@@ -59000,46 +59017,83 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 			}
 		];
 
-		me.textField = me.textField || {
-			xtype:'textfield'
+		me.textField1 = me.textField1 || {
+			xtype:'textField1'
 		};
 
-		Ext.apply(me.textField , {
+		Ext.apply(me.textField1 , {
 			submitValue: false,
 			flex: 1,
 			hidden: true,
 			emptyText: me.emptyText
 		});
 
-		me.items.push(me.textField);
+		me.items.push(me.textField1);
+
+
+		if(me.textField2){
+
+			Ext.apply(me.textField2 , {
+				submitValue: false,
+				flex: 1,
+				hidden: true,
+				emptyText: me.emptyText
+			});
+
+			me.items.push(me.textField2);
+		}
 
 		if(me.layout == 'vbox') me.height = 44;
 
 		me.callParent();
 
 		me.chekboxField = me.items.items[0];
-		me.textField = me.items.items[1];
+		me.textField1 = me.items.items[1];
+		me.chekboxField.on('change', me.settextField1, me);
 
-		me.chekboxField.on('change', me.setTextField, me);
-        
+
+		if(me.items.items[2]){
+			me.textField2 = me.items.items[2];
+			me.chekboxField.on('change', me.settextField2, me);
+		}
+
 		me.initField();
 	},
 
-	setTextField: function(checkbox, value){
+	settextField1: function(checkbox, value){
+		if(!this.textField1) return;
 		if(value == 0 || value == 'off' || value == false){
-			this.textField.reset();
-			this.textField.hide();
+			this.textField1.reset();
+			this.textField1.hide();
 		}else{
-			this.textField.show();
+			this.textField1.show();
+		}
+	},
+
+	settextField2: function(checkbox, value){
+
+		if(!this.textField2) return;
+		if(value == 0 || value == 'off' || value == false){
+			this.textField2.reset();
+			this.textField2.hide();
+		}else{
+			this.textField2.show();
 		}
 	},
 
 	getValue: function(){
 		var value = '',
 			ckValue = this.chekboxField.getSubmitValue(),
-			txtValue = this.textField.getSubmitValue() || '';
+			txtValue = this.textField1.getSubmitValue() || '';
 
-		if(ckValue)    value = ckValue + '~' + txtValue;
+		if(ckValue) {
+			value = ckValue + '~' + txtValue;
+
+			if(this.textField2){
+				value += ('~' + (this.textField2.getSubmitValue() || ''));
+			}
+		}
+
 		return value;
 	},
 
@@ -59051,11 +59105,17 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 		if(value && value.split){
 			var val = value.split('~');
 			this.chekboxField.setValue(val[0] || 0);
-			this.textField.setValue(val[1] || '');
+			this.textField1.setValue(val[1] || '');
+
+			if(this.textField2){
+				this.textField1.setValue(val[2] || '');
+			}
+
 			return;
 		}
 		this.chekboxField.setValue(0);
-		this.textField.setValue('');
+		this.textField1.setValue('');
+		if(this.textField2) this.textField2.setValue('');
 	},
 
 	// Bug? A field-mixin submits the data from getValue, not getSubmitValue
@@ -59071,11 +59131,12 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 
 	setReadOnly: function(value){
 		this.chekboxField.setReadOnly(value);
-		this.textField.setReadOnly(value);
+		this.textField1.setReadOnly(value);
+		if(this.textField2) this.textField2.setReadOnly(value);
 	},
 
 	isValid: function(){
-		return this.chekboxField.isValid() && this.textField.isValid();
+		return this.chekboxField.isValid() && this.textField1.isValid();
 	}
 });
 
@@ -60320,6 +60381,14 @@ Ext.define('App.view.patient.FamilyHistory', {
             }
 		},
 		{
+			header: _('notes'),
+			flex: 2,
+			dataIndex: 'notes',
+            editor:{
+                xtype: 'textfield'
+            }
+		},
+		{
 			header: _('status'),
 			flex: 1,
 			dataIndex: 'status'
@@ -60654,7 +60723,7 @@ Ext.define('App.view.patient.windows.Medical', {
 Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 	extend: 'App.ux.form.fields.CheckBoxWithText',
 	alias: 'widget.checkboxwithfamilyhistory',
-	textField: {
+	textField1: {
 		xtype: 'gaiaehr.combo',
 		fieldLabel: _('relation'),
 		labelAlign: 'right',
@@ -60662,6 +60731,12 @@ Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 		list: 109,
 		allowBlank: false,
 		loadStore: true
+	},
+	textField2: {
+		xtype: 'textfield',
+		fieldLabel: _('note'),
+		labelAlign: 'right',
+		labelWidth: 80
 	},
 
 	initComponent:function(){
@@ -60676,14 +60751,20 @@ Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 
 		if(ckValue != '0'){
 			ckValue += ':' + this.chekboxField.boxLabel;
-			var store = this.textField.getStore(),
-				rec = store.getById(this.textField.getSubmitValue());
+			var store = this.textField1.getStore(),
+				rec = store.getById(this.textField1.getSubmitValue());
 			txtValue = rec ? rec.get('code_type') + ':' + rec.get('code') + ':' + rec.get('option_name') : '0';
 		} else {
 			txtValue = '0';
 		}
 
-		if(ckValue)    value = ckValue + '~' + txtValue;
+		if(ckValue) {
+			value = ckValue + '~' + txtValue;
+
+			if(this.textField2){
+				value += '~' + this.textField2.getSubmitValue() || '';
+			}
+		}
 
 		return value;
 	},
@@ -60696,15 +60777,22 @@ Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 
 			if(val[1] != '0' && val[1].split){
 				var relation = val[1].split(':');
-				this.textField.select(relation[1] || relation[0] || '');
+				this.textField1.select(relation[1] || relation[0] || '');
 			} else {
-				this.textField.setValue('');
+				this.textField1.setValue('');
 			}
+
+			if(this.textField2 && val[2]){
+				this.textField2.setValue(val[2]) || '';
+			}
+
+
 
 			return;
 		}
 		this.chekboxField.setValue(0);
-		this.textField.setValue('');
+		this.textField1.setValue('');
+		if(this.textField2) this.textField2.setValue('');
 	}
 });
 

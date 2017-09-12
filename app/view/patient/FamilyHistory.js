@@ -82,6 +82,14 @@ Ext.define('App.view.patient.FamilyHistory', {
             }
 		},
 		{
+			header: _('notes'),
+			flex: 2,
+			dataIndex: 'notes',
+            editor:{
+                xtype: 'textfield'
+            }
+		},
+		{
 			header: _('status'),
 			flex: 1,
 			dataIndex: 'status'

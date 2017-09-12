@@ -46,6 +46,9 @@ Ext.define('App.controller.patient.FamilyHistory', {
 			'patientfamilyhistorypanel': {
 				activate: me.onFamilyHistoryGridActivate
 			},
+			'#FamilyHistoryForm': {
+				beforerender: me.onFamilyHistoryFormBeforeRneder
+			},
 			'#FamilyHistoryGridAddBtn': {
 				click: me.onFamilyHistoryGridAddBtnClick
 			},
@@ -56,6 +59,11 @@ Ext.define('App.controller.patient.FamilyHistory', {
 				click: me.onFamilyHistoryWindowCancelBtnClick
 			}
 		});
+	},
+
+	onFamilyHistoryFormBeforeRneder: function (form) {
+
+
 	},
 
     /**
@@ -132,7 +140,7 @@ Ext.define('App.controller.patient.FamilyHistory', {
 
 		Ext.Object.each(values, function(key, value){
 
-			if(value == '0~0') return;
+			if(value == '0~0' || value == '0~0~') return;
 
 			foo = value.split('~');
             condition = foo[0].split(':');
@@ -151,12 +159,13 @@ Ext.define('App.controller.patient.FamilyHistory', {
 				condition: condition[2],
 				condition_code: condition[1],
 				condition_code_type: condition[0],
+				notes: foo[2] || '',
 				create_uid: app.user.id,
 				create_date: new Date()
 			});
 		});
 
-		if(histories.length == 0){
+		if(histories.length === 0){
 			app.msg(_('oops'), _('no_history_selected'), true);
 			return;
 		}

@@ -38,6 +38,9 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 	inputValue: '1',
 	uncheckedValue: '0',
 
+	textField1: undefined,
+	textField2: undefined,
+
 	initComponent: function(){
 		var me = this;
 
@@ -54,46 +57,83 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 			}
 		];
 
-		me.textField = me.textField || {
-			xtype:'textfield'
+		me.textField1 = me.textField1 || {
+			xtype:'textField1'
 		};
 
-		Ext.apply(me.textField , {
+		Ext.apply(me.textField1 , {
 			submitValue: false,
 			flex: 1,
 			hidden: true,
 			emptyText: me.emptyText
 		});
 
-		me.items.push(me.textField);
+		me.items.push(me.textField1);
+
+
+		if(me.textField2){
+
+			Ext.apply(me.textField2 , {
+				submitValue: false,
+				flex: 1,
+				hidden: true,
+				emptyText: me.emptyText
+			});
+
+			me.items.push(me.textField2);
+		}
 
 		if(me.layout == 'vbox') me.height = 44;
 
 		me.callParent();
 
 		me.chekboxField = me.items.items[0];
-		me.textField = me.items.items[1];
+		me.textField1 = me.items.items[1];
+		me.chekboxField.on('change', me.settextField1, me);
 
-		me.chekboxField.on('change', me.setTextField, me);
-        
+
+		if(me.items.items[2]){
+			me.textField2 = me.items.items[2];
+			me.chekboxField.on('change', me.settextField2, me);
+		}
+
 		me.initField();
 	},
 
-	setTextField: function(checkbox, value){
+	settextField1: function(checkbox, value){
+		if(!this.textField1) return;
 		if(value == 0 || value == 'off' || value == false){
-			this.textField.reset();
-			this.textField.hide();
+			this.textField1.reset();
+			this.textField1.hide();
 		}else{
-			this.textField.show();
+			this.textField1.show();
+		}
+	},
+
+	settextField2: function(checkbox, value){
+
+		if(!this.textField2) return;
+		if(value == 0 || value == 'off' || value == false){
+			this.textField2.reset();
+			this.textField2.hide();
+		}else{
+			this.textField2.show();
 		}
 	},
 
 	getValue: function(){
 		var value = '',
 			ckValue = this.chekboxField.getSubmitValue(),
-			txtValue = this.textField.getSubmitValue() || '';
+			txtValue = this.textField1.getSubmitValue() || '';
 
-		if(ckValue)    value = ckValue + '~' + txtValue;
+		if(ckValue) {
+			value = ckValue + '~' + txtValue;
+
+			if(this.textField2){
+				value += ('~' + (this.textField2.getSubmitValue() || ''));
+			}
+		}
+
 		return value;
 	},
 
@@ -105,11 +145,17 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 		if(value && value.split){
 			var val = value.split('~');
 			this.chekboxField.setValue(val[0] || 0);
-			this.textField.setValue(val[1] || '');
+			this.textField1.setValue(val[1] || '');
+
+			if(this.textField2){
+				this.textField1.setValue(val[2] || '');
+			}
+
 			return;
 		}
 		this.chekboxField.setValue(0);
-		this.textField.setValue('');
+		this.textField1.setValue('');
+		if(this.textField2) this.textField2.setValue('');
 	},
 
 	// Bug? A field-mixin submits the data from getValue, not getSubmitValue
@@ -125,10 +171,11 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 
 	setReadOnly: function(value){
 		this.chekboxField.setReadOnly(value);
-		this.textField.setReadOnly(value);
+		this.textField1.setReadOnly(value);
+		if(this.textField2) this.textField2.setReadOnly(value);
 	},
 
 	isValid: function(){
-		return this.chekboxField.isValid() && this.textField.isValid();
+		return this.chekboxField.isValid() && this.textField1.isValid();
 	}
 });

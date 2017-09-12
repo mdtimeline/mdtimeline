@@ -23,10 +23,11 @@ Ext.define('App.view.patient.windows.FamilyHistory', {
 		'App.ux.form.fields.CheckBoxWithFamilyRelation'
 	],
 	title: _('family_history'),
-	width: 600,
+	width: 1000,
 	height: 400,
 	closeAction: 'hide',
 	modal: true,
+	layout: 'fit',
 	bodyStyle: 'background-color:white',
 	items: [
 		{
@@ -52,6 +53,18 @@ Ext.define('App.view.patient.windows.FamilyHistory', {
 	initComponent: function(){
 		var me = this;
 		me.callParent();
-		me.getFormItems(me.down('form'), 12);
+		var form = me.down('form');
+
+		me.getFormItems(form, 12, function (a,b,c) {
+			var fields = form.query('checkboxwithfamilyhistory');
+
+			fields.forEach(function (field) {
+				field.anchor = '100%';
+				field.width = '100%';
+				field.items.items[2].flex = 2;
+			});
+
+			form.doLayout();
+		});
 	}
 });

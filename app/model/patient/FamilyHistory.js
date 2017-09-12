@@ -54,6 +54,11 @@ Ext.define('App.model.patient.FamilyHistory',{
             len: 60
         },
         {
+            name: 'notes',
+            type: 'string',
+            dataType: 'TEXT'
+        },
+        {
             name: 'create_uid',
             type: 'int'
         },

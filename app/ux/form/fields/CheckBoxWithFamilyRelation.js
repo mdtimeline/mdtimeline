@@ -24,7 +24,7 @@
 Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 	extend: 'App.ux.form.fields.CheckBoxWithText',
 	alias: 'widget.checkboxwithfamilyhistory',
-	textField: {
+	textField1: {
 		xtype: 'gaiaehr.combo',
 		fieldLabel: _('relation'),
 		labelAlign: 'right',
@@ -32,6 +32,12 @@ Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 		list: 109,
 		allowBlank: false,
 		loadStore: true
+	},
+	textField2: {
+		xtype: 'textfield',
+		fieldLabel: _('note'),
+		labelAlign: 'right',
+		labelWidth: 80
 	},
 
 	initComponent:function(){
@@ -46,14 +52,20 @@ Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 
 		if(ckValue != '0'){
 			ckValue += ':' + this.chekboxField.boxLabel;
-			var store = this.textField.getStore(),
-				rec = store.getById(this.textField.getSubmitValue());
+			var store = this.textField1.getStore(),
+				rec = store.getById(this.textField1.getSubmitValue());
 			txtValue = rec ? rec.get('code_type') + ':' + rec.get('code') + ':' + rec.get('option_name') : '0';
 		} else {
 			txtValue = '0';
 		}
 
-		if(ckValue)    value = ckValue + '~' + txtValue;
+		if(ckValue) {
+			value = ckValue + '~' + txtValue;
+
+			if(this.textField2){
+				value += '~' + this.textField2.getSubmitValue() || '';
+			}
+		}
 
 		return value;
 	},
@@ -66,14 +78,21 @@ Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 
 			if(val[1] != '0' && val[1].split){
 				var relation = val[1].split(':');
-				this.textField.select(relation[1] || relation[0] || '');
+				this.textField1.select(relation[1] || relation[0] || '');
 			} else {
-				this.textField.setValue('');
+				this.textField1.setValue('');
 			}
+
+			if(this.textField2 && val[2]){
+				this.textField2.setValue(val[2]) || '';
+			}
+
+
 
 			return;
 		}
 		this.chekboxField.setValue(0);
-		this.textField.setValue('');
+		this.textField1.setValue('');
+		if(this.textField2) this.textField2.setValue('');
 	}
 });

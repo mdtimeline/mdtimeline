@@ -340,7 +340,7 @@ class Documents {
 	private function getCurrentTokensData($allNeededInfo, $tokens) {
 
 		$currentInformation = [
-			'[CURRENT_DATE]' => date('d-m-Y'),
+			'[CURRENT_DATE]' => date('F j, Y'),
 			'[CURRENT_USER_NAME]' => $_SESSION['user']['name'],
 			'[CURRENT_USER_FULL_NAME]' => $_SESSION['user']['name'],
 			'[CURRENT_USER_LICENSE_NUMBER]',

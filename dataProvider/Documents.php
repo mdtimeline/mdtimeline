@@ -743,7 +743,7 @@ class Documents {
 		$data = $this->getPatientTokesDataByPid($pid);
 
 		foreach($tokens as $i => $tok){
-			if(isset($patienInformation[$tok]) && ($allNeededInfo[$i] == '' || $allNeededInfo[$i] == null)){
+			if(isset($data[$tok]) && ($allNeededInfo[$i] == '' || $allNeededInfo[$i] == null)){
 				$allNeededInfo[$i] = $data[$tok];
 			};
 		}

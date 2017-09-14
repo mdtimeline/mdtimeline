@@ -183,6 +183,12 @@ Ext.define('App.model.administration.User', {
 			len: 80
 		},
 		{
+			name: 'statedrugid',
+			type: 'string',
+			comment: 'state tax id',
+			len: 80
+		},
+		{
 			name: 'notes',
 			type: 'string',
 			len: 300

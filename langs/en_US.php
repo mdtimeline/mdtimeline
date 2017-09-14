@@ -1931,4 +1931,5 @@ $LANG = array(
 	'assess_lvl' => 'ASSESS Lvl.',
 	'patient_note' => 'Patient Note',
 	'comments_body' => 'Comments/Body',
+	'state_drug_id' => 'State Drug ID',
 );

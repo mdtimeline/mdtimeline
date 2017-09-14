@@ -14169,6 +14169,12 @@ Ext.define('App.model.administration.User', {
 			len: 80
 		},
 		{
+			name: 'statedrugid',
+			type: 'string',
+			comment: 'state tax id',
+			len: 80
+		},
+		{
 			name: 'notes',
 			type: 'string',
 			len: 300
@@ -33592,6 +33598,10 @@ Ext.define('App.store.administration.DocumentToken', {
             token: '[PROVIDER_DEA]'
         },
         {
+            title: _('provider_state_drug_id'),
+            token: '[PROVIDER_SDI]'
+        },
+        {
             title: _('provider_fed_tax'),
             token: '[PROVIDER_FED_TAX]'
         },
@@ -52456,7 +52466,11 @@ Ext.define('App.view.administration.Users', {
 													xtype: 'textfield',
 													fieldLabel: _('fed_drug_id'),
 													name: 'feddrugid'
-
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: _('state_drug_id'),
+													name: 'statedrugid'
 												},
 												{
 													xtype: 'textfield',
@@ -60703,7 +60717,7 @@ Ext.define('App.view.patient.windows.Medical', {
 	},
 
 	setWindowTitle:function(title){
-		this.setTitle(app.patient.name + ' (' + title + ') ' + (app.patient.readOnly ? '-  <span style="color:red">[Read Mode]</span>' :''));
+		this.setTitle(title);
 	},
 
 	onMedicalWinShow: function(){

@@ -670,6 +670,7 @@ class Documents {
 			'[PROVIDER_NPI]' => isset($provider['npi']) ? $provider['npi'] : '',
 			'[PROVIDER_LIC]' => isset($provider['lic']) ? $provider['lic'] : '',
 			'[PROVIDER_DEA]' => isset($provider['feddrugid']) ? $provider['feddrugid'] : '',
+			'[PROVIDER_SDI]' => isset($provider['statedrugid']) ? $provider['statedrugid'] : '',
 			'[PROVIDER_FED_TAX]' => isset($provider['fedtaxid']) ? $provider['fedtaxid'] : '',
 			'[PROVIDER_ESS]' => isset($provider['ess']) ? $provider['ess'] : '',
 			'[PROVIDER_TAXONOMY]' => isset($provider['taxonomy']) ? $provider['taxonomy'] : '',

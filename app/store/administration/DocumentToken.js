@@ -325,6 +325,10 @@ Ext.define('App.store.administration.DocumentToken', {
             token: '[PROVIDER_DEA]'
         },
         {
+            title: _('provider_state_drug_id'),
+            token: '[PROVIDER_SDI]'
+        },
+        {
             title: _('provider_fed_tax'),
             token: '[PROVIDER_FED_TAX]'
         },

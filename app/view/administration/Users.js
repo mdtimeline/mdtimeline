@@ -369,7 +369,11 @@ Ext.define('App.view.administration.Users', {
 													xtype: 'textfield',
 													fieldLabel: _('fed_drug_id'),
 													name: 'feddrugid'
-
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: _('state_drug_id'),
+													name: 'statedrugid'
 												},
 												{
 													xtype: 'textfield',

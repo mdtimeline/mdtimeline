@@ -313,7 +313,7 @@ Ext.define('App.view.patient.windows.Medical', {
 	},
 
 	setWindowTitle:function(title){
-		this.setTitle(app.patient.name + ' (' + title + ') ' + (app.patient.readOnly ? '-  <span style="color:red">[Read Mode]</span>' :''));
+		this.setTitle(title);
 	},
 
 	onMedicalWinShow: function(){

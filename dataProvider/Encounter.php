@@ -565,7 +565,8 @@ class Encounter {
 			$soap['assessment'] = isset($soap['assessment']) ? $soap['assessment'] : '';
 			$soap['objective'] = (isset($soap['objective']) ? $soap['objective'] : '') . $this->getObjectiveExtraDataByEid($eid, $encounter);
 			$soap['assessment'] = $soap['assessment'] . (isset($dxOl) ? $dxOl : '');
-			$soap['plan'] = (isset($soap['plan']) ? $soap['plan'] : '') . $this->getPlanExtraDataByEid($eid, $soap['instructions']);
+			$instructions = isset($soap['instructions']) ? $soap['instructions'] : null;
+			$soap['plan'] = (isset($soap['plan']) ? $soap['plan'] : '') . $this->getPlanExtraDataByEid($eid, $instructions);
 			$encounter['soap'] = $soap;
 		}
 

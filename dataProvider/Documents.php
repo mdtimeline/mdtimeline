@@ -399,6 +399,9 @@ class Documents {
 		$regex = '(\[\w*?\])';
 
 		$pdf = new DocumentFPDI();
+		$tokens = [];
+		$header_data = [];
+		$footer_data = [];
 
 		$pdf->water_mark = $water_mark;
 
@@ -419,39 +422,43 @@ class Documents {
 
 		// get header/footer data
 		if(isset($params->templateId)){
-			$header_footer_data = $this->h->load(['template_id' => $params->templateId])->all();
+			$header_footer_lines = $this->h->load(['template_id' => $params->templateId])->all();
 
-			if(!empty($header_footer_data)){
-
-				$header_data = [];
-				$footer_data = [];
-				$array1 = $this->getProviderData($params);
-				$array2 = $this->getPatientTokesDataByPid($pid);
-				$header_footer_tokens_data = array_merge($array1,$array2);
-
-				$header_footer_tokens = array_keys($header_footer_tokens_data);
-				$header_footer_values = array_values($header_footer_tokens_data);
-
-				foreach($header_footer_data as $line){
-					$line['text'] = str_replace($header_footer_tokens, $header_footer_values, $line['text']);
-
-					if($line['data_type'] == 'HEADER'){
-						$header_data[] = $line;
-					}elseif($line['data_type'] == 'FOOTER'){
-						$footer_data[] = $line;
-					}
-				}
-				unset($header_footer_data, $provider_data, $header_footer_tokens, $header_footer_values);
-
-				if(!empty($header_data)){
-					$pdf->addCustomHeaderData($header_data);
+			if(!empty($header_footer_lines)){
+				foreach($header_footer_lines as $line){
+					preg_match_all('(\[\w*?\])', $line['text'], $line_tokens);
+					$tokens = array_merge($tokens, $line_tokens[0]);
 				}
 
-				if(!empty($footer_data)){
-					$pdf->addCustomFooterData($footer_data);
-				}
-
-				unset($header_data, $footer_data);
+//				$header_data = [];
+//				$footer_data = [];
+//				$array1 = $this->getProviderData($params);
+//				$array2 = $this->getPatientTokesDataByPid($pid);
+//				$header_footer_tokens_data = array_merge($array1,$array2);
+//
+//				$header_footer_tokens = array_keys($header_footer_tokens_data);
+//				$header_footer_values = array_values($header_footer_tokens_data);
+//
+//				foreach($header_footer_lines as $line){
+//					$line['text'] = str_replace($header_footer_tokens, $header_footer_values, $line['text']);
+//
+//					if($line['data_type'] == 'HEADER'){
+//						$header_data[] = $line;
+//					}elseif($line['data_type'] == 'FOOTER'){
+//						$footer_data[] = $line;
+//					}
+//				}
+//				unset($header_footer_lines, $provider_data, $header_footer_tokens, $header_footer_values);
+//
+//				if(!empty($header_data)){
+//					$pdf->addCustomHeaderData($header_data);
+//				}
+//
+//				if(!empty($footer_data)){
+//					$pdf->addCustomFooterData($footer_data);
+//				}
+//
+//				unset($header_data, $footer_data);
 			}
 		}
 
@@ -505,9 +512,10 @@ class Documents {
 		if(isset($params->DoctorsNote)){
 			$body = $params->DoctorsNote;
 			preg_match_all($regex, $body, $tokensfound);
-			$tokens = $tokensfound;
+			$tokens = array_merge($tokens, $tokensfound);
 		} elseif(isset($params->templateId)) {
-			$tokens = $this->getArrayWithTokensNeededByDocumentID($params->templateId);
+			$tokensfound = $this->getArrayWithTokensNeededByDocumentID($params->templateId);
+			$tokens = array_merge($tokens, $tokensfound);
 			//getting the template
 			$body = $this->getTemplateBodyById($params->templateId);
 		}else{
@@ -534,6 +542,28 @@ class Documents {
 			}
 			if(isset($params->provider_uid)){
 				$allNeededInfo = $this->addProviderData($params, $tokens, $allNeededInfo);
+			}
+
+			if(isset($header_footer_lines)){
+				foreach($header_footer_lines as $line){
+					$line['text'] = str_replace($tokens, $allNeededInfo, $line['text']);
+
+					if($line['data_type'] == 'HEADER'){
+						$header_data[] = $line;
+					}elseif($line['data_type'] == 'FOOTER'){
+						$footer_data[] = $line;
+					}
+				}
+
+				if(!empty($header_data)){
+					$pdf->addCustomHeaderData($header_data);
+				}
+
+				if(!empty($footer_data)){
+					$pdf->addCustomFooterData($footer_data);
+				}
+
+				unset($header_data, $footer_data);
 			}
 		}
 

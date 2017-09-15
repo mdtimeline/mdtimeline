@@ -459,7 +459,7 @@ class Encounter {
 				$icds .= '<li><span style="font-weight:bold; text-decoration:none">' . $code['code'] . '</span> - ' . $code['long_desc'] . '</li>';
 			}
 			$encounter['subjective'] = $soap['subjective'] . $this->getSubjectiveExtraDataByEid($encounter['eid']);
-			$encounter['objective'] = $soap['objective'] . $this->getObjectiveExtraDataByEid($encounter['eid']);
+			$encounter['objective'] = $this->getObjectiveExtraDataByEid($encounter['eid']) . $soap['objective'];
 			$encounter['assessment'] = $soap['assessment'] . '<ul  class="ProgressNote-ul">' . $icds . '</ul>';
 			$encounter['plan'] = (isset($soap['plan']) ? $soap['plan'] : '') . $this->getPlanExtraDataByEid($encounter['eid'], $soap['instructions']);
 			unset($soap);
@@ -563,7 +563,7 @@ class Encounter {
 			$soap = $this->getSoapByEid($eid);
 			$soap['subjective'] = (isset($soap['subjective']) ? $soap['subjective'] : '') . $this->getSubjectiveExtraDataByEid($eid, $encounter);
 			$soap['assessment'] = isset($soap['assessment']) ? $soap['assessment'] : '';
-			$soap['objective'] = (isset($soap['objective']) ? $soap['objective'] : '') . $this->getObjectiveExtraDataByEid($eid, $encounter);
+			$soap['objective'] = $this->getObjectiveExtraDataByEid($eid, $encounter) . (isset($soap['objective']) ? $soap['objective'] : '');
 			$soap['assessment'] = $soap['assessment'] . (isset($dxOl) ? $dxOl : '');
 			$instructions = isset($soap['instructions']) ? $soap['instructions'] : null;
 			$soap['plan'] = (isset($soap['plan']) ? $soap['plan'] : '') . $this->getPlanExtraDataByEid($eid, $instructions);
@@ -592,19 +592,19 @@ class Encounter {
 			$soap = $encounter['soap'];
 
 			if(isset($soap['subjective']) && $soap['subjective'] != ''){
-				$output .= '<b>SUBJECTIVE:</b>' . $br . nl2br(trim($soap['subjective'])) . $br;
+				$output .= '<b>SUBJECTIVE:</b>' . $br . nl2br(trim($soap['subjective'])) ;
 			}
 			if(isset($soap['objective']) && $soap['objective'] != ''){
-				$output .= '<b>OBJECTIVE:</b>' . $br . nl2br(trim($soap['objective'])) . $br;
+				$output .= '<b>OBJECTIVE:</b>' . nl2br(trim($soap['objective'])) . $br;
 			}
 			if(isset($soap['assessment']) && $soap['assessment'] != ''){
-				$output .= '<b>ASSESSMENT:</b>' . $br . nl2br(trim($soap['assessment'])) . $br;
+				$output .= '<b>ASSESSMENT:</b>' . $br . nl2br(trim($soap['assessment']));
 			}
 //			if(isset($soap['plan']) && $soap['plan'] != ''){
 //				$output .= 'PLAN: ' . $soap['plan'] . $br . $br;
 //			}
 			if(isset($soap['instructions']) && $soap['instructions'] != ''){
-				$output .= '<b>PLAN:</b>' . $br  . nl2br(trim($soap['instructions'])) . $br;
+				$output .= '<b>PLAN:</b>' . $br  . nl2br(trim($soap['instructions']));
 			}
 
 			unset($soap);

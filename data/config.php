@@ -51,6 +51,25 @@ $API = [
             ]
         ]
     ],
+    'ProcedureHistory' => [
+        'methods' => [
+            'getProcedureHistories' => [
+                'len' => 1
+            ],
+            'getProcedureHistory' => [
+                'len' => 1
+            ],
+            'addProcedureHistory' => [
+                'len' => 1
+            ],
+            'updateProcedureHistory' => [
+                'len' => 1
+            ],
+            'destroyProcedureHistory' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'SocialPsychologicalBehavioral' => [
         'methods' => [
             'getSocialPsychologicalBehaviors' => [

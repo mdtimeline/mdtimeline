@@ -78,6 +78,7 @@ Ext.define('App.controller.patient.FamilyHistory', {
                 pid: record.data.pid,
                 eid: record.data.eid
             };
+
         Ext.Msg.show({
             title:_('removal'),
             msg: _('sure_for_removal'),

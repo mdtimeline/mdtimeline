@@ -1111,30 +1111,15 @@ Ext.define('App.view.Viewport', {
 		this.initializeOpenEncounterDragZone(panel);
 
 		if(this.enablePoolAreaFadeInOut){
-			panel.el.setStyle({
-				opacity: 0.1
-			});
+
+			panel.el.setStyle({	opacity: 0.1 });
 
 			panel.el.on('mouseenter', function(event, el){
-				Ext.create('Ext.fx.Animator', {
-					target: el,
-					duration: 200,
-					keyframes: {
-						0: { opacity: 0.1 },
-						100: { opacity: 1 }
-					}
-				});
+				panel.el.setStyle({	opacity: 1 });
 			});
 
 			panel.el.on('mouseleave', function(event, el){
-				Ext.create('Ext.fx.Animator', {
-					target: el,
-					duration: 200,
-					keyframes: {
-						0: { opacity: 1 },
-						100: { opacity: 0.1 }
-					}
-				});
+				panel.el.setStyle({	opacity: 0.1 });
 			});
 		}
 	},

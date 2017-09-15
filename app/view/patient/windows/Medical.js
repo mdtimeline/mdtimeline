@@ -29,6 +29,7 @@ Ext.define('App.view.patient.windows.Medical', {
 		'App.view.patient.Immunizations',
 		'App.view.patient.Medications',
 		'App.view.patient.ActiveProblems',
+		'App.view.patient.ProceduresHistoryGrid',
 		'App.view.patient.SocialPanel',
 		'App.view.patient.Allergies',
 		'App.view.patient.AdvanceDirectives',
@@ -97,6 +98,20 @@ Ext.define('App.view.patient.windows.Medical', {
 					tooltip: _('family_history'),
 					style: {
 						backgroundColor: g('family_history_tab_color'),
+						backgroundImage: 'none'
+					}
+				}
+			});
+		}
+
+		if(a('access_procedures_history')){
+			tapPanelItems = Ext.Array.push(tapPanelItems, {
+				xtype: 'patientprocedureshistorygrid',
+				itemId: 'procedureshistory',
+				tabConfig: {
+					tooltip: _('procedure_history'),
+					style: {
+						backgroundColor: g('procedure_history_tab_color'),
 						backgroundImage: 'none'
 					}
 				}

@@ -435,6 +435,17 @@ Ext.define('App.view.patient.Encounter', {
 				},
 				'-',
 				{
+					text: _('proc_hx') + ' ',
+					action: 'procedureshistory',
+					tooltip: _('procedure_history'),
+					style: {
+						backgroundColor: g('procedure_history_tab_color'),
+						backgroundImage: 'none'
+					},
+					acl: a('access_procedures_history')
+				},
+				'-',
+				{
 					text: _('adv_dir') + ' ',
 					action: 'advancedirectives',
 					tooltip: _('advance_directives'),

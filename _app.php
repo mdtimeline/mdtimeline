@@ -909,6 +909,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.Patient',
 	                'patient.PatientMerge',
 	                'patient.PatientSearch',
+	                'patient.ProceduresHistory',
 	                'patient.ProgressNotesHistory',
 	                'patient.RadOrders',
 	                'patient.Referrals',

@@ -1778,6 +1778,8 @@ $LANG = array(
 	'doc_nt' => 'DOC NT',
 	'imp_devs' => 'IMP DEVS',
 	'spb' => 'SPB',
+	'proc_hx' => 'PROC HX',
+	'procedure_history' => 'Procedure History',
 
 	'rebill'                                => 'ReBill',
 	'not_billed'                            => 'Not Billed',
@@ -1932,4 +1934,6 @@ $LANG = array(
 	'patient_note' => 'Patient Note',
 	'comments_body' => 'Comments/Body',
 	'state_drug_id' => 'State Drug ID',
+	'performer' => 'Performer',
+
 );

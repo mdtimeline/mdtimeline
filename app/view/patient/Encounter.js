@@ -368,7 +368,7 @@ Ext.define('App.view.patient.Encounter', {
 								var wrap = document.createElement('div');
 								var html = wrap.appendChild(dom.cloneNode(true));
 								win.document.write(html.innerHTML);
-								Ext.defer(function(){
+								Ext.Function.defer(function(){
 									win.print();
 								}, 1000);
 							}
@@ -382,229 +382,43 @@ Ext.define('App.view.patient.Encounter', {
 			]
 		});
 
+		var medical_btns = app.getController('patient.Medical').getMedicalTabButtons();
+
+		Ext.Array.push(medical_btns, [
+			'-',
+			'->',
+			'-',
+			{
+				xtype:'button',
+				action: 'ccda',
+				itemId: 'EncounterCDAImportBtn',
+				tooltip: _('ccda_import'),
+				icon: 'resources/images/icons/icoOutbox.png'
+			},
+			'-',
+			{
+				xtype:'button',
+				action: 'encounter',
+				text: _('encounter_details')
+			},
+			'-',
+			me.priorityCombo = Ext.create('App.ux.combo.EncounterPriority', {
+				listeners: {
+					scope: me,
+					select: me.prioritySelect
+				}
+			}),
+			'-'
+		]);
+
 		me.panelToolBar = Ext.create('Ext.toolbar.Toolbar', {
 			dock: 'top',
+			itemId: 'EncounterMedicalToolbar',
 			defaults: {
 				scope: me,
 				handler: me.onToolbarBtnHandler
 			},
-			items: [
-				'-',
-				{
-					text: _('vaccs') + ' ',
-					action: 'immunization',
-					tooltip: _('vaccines_immunizations'),
-					style: {
-						backgroundColor: g('immunizations_tab_color'),
-						backgroundImage: 'none'
-					},
-					acl: a('access_patient_immunizations')
-				},
-				'-',
-				{
-					text: _('al') + ' ',
-					action: 'allergies',
-					tooltip: _('allergies'),
-					style: {
-						backgroundColor: g('allergies_tab_color'),
-						backgroundImage: 'none'
-					},
-					acl: a('access_patient_allergies')
-				},
-				'-',
-				{
-					text: _('act_prob') + ' ',
-					action: 'activeproblems',
-					tooltip: _('active_problems'),
-					style: {
-						backgroundColor: g('problems_tab_color'),
-						backgroundImage: 'none'
-					},
-					acl: a('access_active_problems')
-				},
-				'-',
-				{
-					text: _('fam_hx') + ' ',
-					action: 'familyhistory',
-					tooltip: _('family_history'),
-					style: {
-						backgroundColor: g('family_history_tab_color'),
-						backgroundImage: 'none'
-					},
-					acl: a('access_family_history')
-				},
-				'-',
-				{
-					text: _('proc_hx') + ' ',
-					action: 'procedureshistory',
-					tooltip: _('procedure_history'),
-					style: {
-						backgroundColor: g('procedure_history_tab_color'),
-						backgroundImage: 'none'
-					},
-					acl: a('access_procedures_history')
-				},
-				'-',
-				{
-					text: _('adv_dir') + ' ',
-					action: 'advancedirectives',
-					tooltip: _('advance_directives'),
-					style: {
-						backgroundColor: g('advance_directive_tab_color'),
-						backgroundImage: 'none'
-					},
-					acl: a('access_patient_advance_directive')
-				},
-				'-',
-				{
-					text: _('meds') + ' ',
-					action: 'medications',
-					tooltip: _('medications'),
-					style: {
-						backgroundColor: g('medications_tab_color'),
-						backgroundImage: 'none'
-					},
-					acl: a('access_patient_medications')
-				},
-				'-',
-				{
-					text: _('res') + ' ',
-					action: 'laboratories',
-					tooltip: _('results'),
-					style: {
-						backgroundColor: g('results_tab_color'),
-						backgroundImage: 'none'
-					},
-					acl: a('access_patient_results')
-				},
-				'-',
-				{
-					text: _('soc_hx') + ' ',
-					action: 'social',
-					tooltip: _('social_history'),
-					style: {
-						backgroundColor: g('social_history_tab_color'),
-						backgroundImage: 'none'
-					},
-					acl: a('access_patient_social_history')
-				},
-				'-',
-				{
-					text: _('func_stat') + ' ',
-					action: 'functionalstatus',
-					tooltip: _('functional_status'),
-					style: {
-						backgroundColor: g('functional_status_tab_color'),
-						backgroundImage: 'none'
-					},
-					acl: a('access_patient_functional_status')
-				},
-				'-',
-				{
-					text: _('refs') + ' ',
-					action: 'referrals',
-					tooltip: _('referrals'),
-					style: {
-						backgroundColor: g('referrals_tab_color'),
-						backgroundImage: 'none'
-					},
-					acl: a('access_patient_referrals')
-				},
-				'-',
-				{
-					text: _('imp_devs') + ' ',
-					action: 'ImplantableDeviceGrid',
-					tooltip: _('implantable_devices'),
-					style: {
-						backgroundColor: g('implantable_devices_tab_color'),
-						backgroundImage: 'none'
-					},
-					acl: a('access_patient_implantable_devices')
-				},
-				'-',
-				// {
-				// 	text: _('spb') + ' ',
-				// 	action: 'SocialPsychologicalBehavioralPanel',
-				// 	tooltip: _('social_psychological_behavioral'),
-				// 	style: {
-				// 		backgroundColor: g('psy_behavioral_tab_color'),
-				// 		backgroundImage: 'none'
-				// 	},
-				// 	acl: a('access_patient_psy_behavioral')
-				// },
-				// '-',
-				{
-					text: _('doc_nt'),
-					action: 'DoctorsNotes',
-					tooltip: _('doctors_notes'),
-					style: {
-						backgroundColor: g('doctors_notes_tab_color'),
-						backgroundImage: 'none'
-					},
-					acl: a('access_patient_doctors_notes')
-				},
-				'-',
-				{
-					text: _('lab_orders'),
-					action: 'LabOrders',
-					style: {
-						backgroundColor: g('lab_orders_tab_color'),
-						backgroundImage: 'none'
-					},
-					acl: a('access_patient_lab_orders')
-				},
-				'-',
-				{
-					text: _('xray_ct_orders'),
-					action: 'RadOrders',
-					style: {
-						backgroundColor: g('rad_orders_tab_color'),
-						backgroundImage: 'none'
-					},
-					acl: a('access_patient_rad_orders')
-				},
-				'-',
-				{
-					text: _('rx_orders'),
-					action: 'RxOrderGrid',
-					style: {
-						backgroundColor: g('rx_orders_tab_color'),
-						backgroundImage: 'none'
-					},
-					acl: a('access_patient_rx_orders')
-				},
-				'-',
-				{
-					text: _('documents'),
-					itemId: 'EncounterPatientDocumentsBtn',
-					icon: 'resources/images/icons/icoDOC-16.png',
-					//acl: a('access_patient_rx_orders')
-				},
-				'-',
-				'->',
-				'-',
-				{
-					xtype:'button',
-					action: 'ccda',
-					itemId: 'EncounterCDAImportBtn',
-					tooltip: _('ccda_import'),
-					icon: 'resources/images/icons/icoOutbox.png'
-				},
-				'-',
-				{
-					xtype:'button',
-					action: 'encounter',
-					text: _('encounter_details')
-				},
-				'-',
-				me.priorityCombo = Ext.create('App.ux.combo.EncounterPriority', {
-					listeners: {
-						scope: me,
-						select: me.prioritySelect
-					}
-				}),
-				'-'
-			]
+			items: medical_btns
 		});
 
 		if(a('access_encounter_checkout')){

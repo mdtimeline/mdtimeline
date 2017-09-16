@@ -624,15 +624,6 @@ Ext.define('App.view.Viewport', {
             ]
         });
 
-        me.MedicalWindow = Ext.create('App.view.patient.windows.Medical');
-        me.ChartsWindow = Ext.create('App.view.patient.windows.Charts');
-        me.PaymentEntryWindow = Ext.create('App.view.fees.PaymentEntryWindow');
-        me.newEncounterWindow = Ext.create('App.view.patient.windows.NewEncounter');
-
-        if(a('access_encounter_checkout')){
-            me.checkoutWindow = Ext.create('App.view.patient.windows.EncounterCheckOut');
-        }
-
         me.layout = {
             type: 'border',
             padding: 3
@@ -650,6 +641,14 @@ Ext.define('App.view.Viewport', {
             beforerender: me.beforeAppRender
         };
         me.callParent(arguments);
+
+	    me.ChartsWindow = Ext.create('App.view.patient.windows.Charts');
+	    me.PaymentEntryWindow = Ext.create('App.view.fees.PaymentEntryWindow');
+	    me.newEncounterWindow = Ext.create('App.view.patient.windows.NewEncounter');
+
+	    if(a('access_encounter_checkout')){
+		    me.checkoutWindow = Ext.create('App.view.patient.windows.EncounterCheckOut');
+	    }
 
 	    me.signature = Ext.create('App.view.signature.SignatureWindow');
     },
@@ -670,6 +669,9 @@ Ext.define('App.view.Viewport', {
      * Show the medical window dialog.
      */
     onMedicalWin: function(action){
+    	if(!this.MedicalWindow){
+		    this.MedicalWindow = Ext.create('App.view.patient.windows.Medical');
+	    }
         this.MedicalWindow.show();
         this.MedicalWindow.cardSwitch(action);
     },

@@ -45686,6 +45686,49 @@ Ext.define('App.controller.patient.RxOrders', {
 		});
 	},
 
+	onRxOrdersDeleteActionHandler: function (grid, rowIndex, colIndex, item, e, record) {
+
+		if(!a('remove_patient_medication')){
+			app.msg(_('oops'), _('not_authorized'), true);
+			return;
+		}
+
+		var me = this,
+			store = grid.getStore();
+
+		Ext.Msg.show({
+			title: _('wait'),
+			msg: _('delete_this_record'),
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (btn1) {
+				if(btn1 === 'yes'){
+					Ext.Msg.show({
+						title: _('wait'),
+						msg: _('this_action_can_not_be_undone_continue'),
+						buttons: Ext.Msg.YESNO,
+						icon: Ext.Msg.QUESTION,
+						fn: function (btn2) {
+							if(btn2 === 'yes'){
+								store.remove(record);
+								store.sync({
+									callback: function () {
+										store.remove(record);
+										store.sync({
+											callback: function () {
+
+											}
+										});
+									}
+								});
+							}
+						}
+					});
+				}
+			}
+		});
+	},
+
 	onRxOrderCompCheckBoxChange: function(field, value){
 		if(value){
 			this.getRxOrderSplyCheckBox().setValue(false);
@@ -60052,7 +60095,10 @@ Ext.define('App.view.patient.RxOrders', {
 			items: [
 				{
 					icon: 'resources/images/icons/cross.png',
-					tooltip: _('remove')
+					tooltip: _('remove'),
+					handler: function (grid, rowIndex, colIndex, item, e, record) {
+						App.app.getController('patient.RxOrders').onRxOrdersDeleteActionHandler(grid, rowIndex, colIndex, item, e, record);
+					}
 				}
 			]
 		},

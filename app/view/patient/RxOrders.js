@@ -300,7 +300,10 @@ Ext.define('App.view.patient.RxOrders', {
 			items: [
 				{
 					icon: 'resources/images/icons/cross.png',
-					tooltip: _('remove')
+					tooltip: _('remove'),
+					handler: function (grid, rowIndex, colIndex, item, e, record) {
+						App.app.getController('patient.RxOrders').onRxOrdersDeleteActionHandler(grid, rowIndex, colIndex, item, e, record);
+					}
 				}
 			]
 		},

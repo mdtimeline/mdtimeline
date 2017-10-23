@@ -63,7 +63,7 @@ if(file_exists($root_dir . '/registry.php')){
 $directories = array_diff(scandir($sites_dir), array('..', '.'));
 foreach($directories as $index => $directory)
     if(!is_dir($sites_dir.$directory)) unset($directories[$index]);
-$directories = array_values($directories);
+$sites = array_values($directories);
 
 /**
  * Check for a conf.php file and also a jobs directory, if the below code founds
@@ -85,20 +85,30 @@ foreach($php_inis as $file){
 	if(file_exists($php_ini)) break;
 }
 
-foreach($directories as $directory){
-    $conf_dir = $sites_dir . $directory;
-    $conf = $conf_dir . '/conf.php';
-    if(file_exists($conf) && is_dir($sites_dir . $directory . "/jobs")){
+$system_jobs = array_diff(scandir("{$root_dir}/cronjob/jobs/"), array('..', '.'));
 
-        // Fetch all the JOBS available on the site
-        $jobsFiles = array_diff(scandir($sites_dir . $directory . "/jobs/"), array('..', '.'));
+foreach($sites as $site){
+	$site_dir = $sites_dir . $site;
+    $conf = $site_dir . '/conf.php';
 
-        // Loop on all the jobs available and execute them
-        foreach($jobsFiles as $jobsFile){
+	// Loop on all the system jobs available and execute them
+	foreach($system_jobs as $job){
+		$env = "cd {$env_dir} && ";
+		$cmd = "{$env} php  -c {$php_ini} -f {$root_dir}/cronjob/jobs/{$job} {$site} &";
+		shell_exec($cmd);
+		print "Executing System Job: $job  Site: $site\n";
+	}
+
+    if(file_exists($conf) && is_dir($site_dir . "/jobs")){
+	    // Fetch all the JOBS available on the site
+	    $site_jobs = array_diff(scandir($sites_dir . $site . "/jobs/"), array('..', '.'));
+
+        // Loop on all the sites jobs available and execute them
+        foreach($site_jobs as $job){
             $env = "cd {$env_dir} && ";
-            $cmd = "{$env} php  -c {$php_ini} -f {$conf_dir}/jobs/{$jobsFile} {$directory} &";
+            $cmd = "{$env} php  -c {$php_ini} -f {$site_dir}/jobs/{$job} {$site} &";
             shell_exec($cmd);
-            print "Executing: $jobsFile...\n";
+            print "Executing Site Job: $job  Site: $site\n";
         }
     }
 }

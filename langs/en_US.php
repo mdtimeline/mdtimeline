@@ -920,7 +920,7 @@ $LANG = array(
 	'option_title'							=> 'Option Title',
 	'option_value'							=> 'Option Value',
 	'add_option'							=> 'Add Option',
-	'delete_this_record'					=> 'Are you sure to delete this record?',
+	'delete_this_record'					=> 'Are you sure you want to delete this record?',
 	'list'									=> 'List',
 	'unable_to_delete'						=> 'Unable to delete',
 	'list_currently_used_forms'				=> 'This List is currently been used by one or more forms',
@@ -1935,5 +1935,8 @@ $LANG = array(
 	'comments_body' => 'Comments/Body',
 	'state_drug_id' => 'State Drug ID',
 	'performer' => 'Performer',
+	'not_authorized' => 'Not Authorized',
+	'are_you_sure' => 'Are you sure???',
+	'this_action_can_not_be_undone_continue' => 'This action can not be undone, would you like to continue?',
 
 );

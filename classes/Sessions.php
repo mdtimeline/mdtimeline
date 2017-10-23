@@ -19,11 +19,8 @@
 
 if(!isset($_SESSION)){
     session_cache_limiter('private');
-    //session_cache_expire(1);
     session_name('mdTimeLine');
     session_start();
-//    if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
-//    setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 }
 include_once(ROOT . '/classes/MatchaHelper.php');
 include_once(ROOT . '/classes/Crypt.php');
@@ -94,29 +91,9 @@ class Sessions {
 	public function logoutInactiveUsers(){
 		$this->setModel();
 		$now = time();
-		$users = array();
-		$params = new stdClass();
-		$params->filter[0] = new stdClass();
-		$params->filter[0]->property = 'last_request';
-		$params->filter[0]->operator = '<';
-		$params->filter[0]->value = ($now - $_SESSION['inactive']['time']);
-		$params->filter[1] = new stdClass();
-		$params->filter[1]->property = 'logout';
-		$params->filter[1]->value = null;
-		$sessions = $this->s->load($params)->all();
-
-		foreach($sessions as $session){
-			if(isset($user['id'])){
-				$users[] = array('uid' => $session['uid']);
-				$data = new stdClass();
-				$data->id = $session['id'];
-				$data->logout = $now;
-				$this->s->save($data);
-				unset($data);
-			}
-		}
-		unset($params);
-		return $users;
+		$last_request = $now - 60;
+		$sql = 'UPDATE `users_sessions` SET `logout` = :now  WHERE last_request < :last_request AND logout IS NULL;';
+		return $this->s->sql($sql)->exec([ ':now' => $now, ':last_request' => $last_request ]);
 	}
 
 }

@@ -24,6 +24,7 @@ if(!isset($_SESSION)){
 }
 include_once(ROOT . '/classes/MatchaHelper.php');
 include_once(ROOT . '/classes/Crypt.php');
+include_once(ROOT . '/classes/Network.php');
 include_once(ROOT . '/dataProvider/User.php');
 
 class Sessions {
@@ -46,6 +47,7 @@ class Sessions {
 		$data->uid = $_SESSION['user']['id'];
 		$data->login = $date;
 		$data->last_request = $date;
+		$data->ip = Network::getIpAddress();
 		$record = (object) $this->s->save($data);
 		unset($data);
 		return $_SESSION['session_id'] =  $record->id;

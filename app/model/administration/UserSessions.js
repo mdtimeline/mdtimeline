@@ -49,6 +49,11 @@ Ext.define('App.model.administration.UserSessions', {
         {
             name: 'last_request',
             type: 'int'
+        },
+        {
+            name: 'ip',
+            type: 'string',
+            len: 60
         }
     ]
 });

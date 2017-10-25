@@ -305,7 +305,7 @@ Ext.define('App.view.login.Login', {
 	/**
 	 * Form Submit/Logon function
 	 */
-	loginSubmit: function(){
+	loginSubmit: function(force){
 
 		var me = this,
 			formPanel = me.winLogon.down('form'),
@@ -318,12 +318,35 @@ Ext.define('App.view.login.Login', {
 			return;
 		}
 
-
 		if(form.isValid()){
+
 			me.winLogon.el.mask('Sending credentials...');
+
+			if(force === true){
+				params.force = true;
+			}
+
 			authProcedures.login(params, function(provider, response){
 				if(response.result.success){
 					window.location.reload();
+				}else if(response.result.type === 'open_session'){
+
+					Ext.Msg.show({
+						title: response.result.message,
+						msg: 'Would you like to close active session and continue?',
+						buttons: Ext.Msg.YESNO,
+						icon: Ext.Msg.QUESTION,
+						fn: function (btn) {
+							if(btn === 'yes'){
+								me.loginSubmit(true);
+							}else {
+								me.msg('Oops!', response.result.message, true);
+								me.onFormReset();
+								me.winLogon.el.unmask();
+							}
+						}
+					});
+
 				}else{
 					me.msg('Oops!', response.result.message, true);
 					me.onFormReset();

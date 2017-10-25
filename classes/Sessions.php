@@ -72,6 +72,14 @@ class Sessions {
 		}
 	}
 
+	public function isActiveSession(){
+		$conn = Matcha::getConn();
+		$sth = $conn->prepare("SELECT * FROM `users_sessions` WHERE `id` = :id AND logout IS NULL;");
+		$sth->execute([':id' => $_SESSION['session_id']]);
+		$result = $sth->fetch(PDO::FETCH_ASSOC);
+		return $result !== false;
+	}
+
 	public function updateSession(){
 		$id = $_SESSION['session_id'];
 		$last_request = $_SESSION['inactive']['timeout'] = time();
@@ -83,10 +91,9 @@ class Sessions {
 	}
 
 	public function logoutSession(){
-		$id = $_SESSION['session_id'];
+		$this->setModel();
 		$logout = time();
-		$conn = Matcha::getConn();
-		$conn->exec("UPDATE `users_sessions` SET `logout` = '{$logout}' WHERE `id` = '{$id}'");
+		$this->s->sql("UPDATE `users_sessions` SET `logout` = '{$logout}' WHERE `id` = :id")->exec([ ':id' => $_SESSION['session_id'] ]);
 		return true;
 	}
 
@@ -96,6 +103,22 @@ class Sessions {
 		$last_request = $now - 60;
 		$sql = 'UPDATE `users_sessions` SET `logout` = :now  WHERE last_request < :last_request AND logout IS NULL;';
 		return $this->s->sql($sql)->exec([ ':now' => $now, ':last_request' => $last_request ]);
+	}
+
+	public function hasOpenSessionByUid($uid){
+		$this->setModel();
+		$now = time();
+		$last_request = $now - 60;
+		$sql = 'SELECT * FROM `users_sessions` WHERE uid = :uid AND last_request > :last_request AND logout IS NULL;';
+		$result = $this->s->sql($sql)->one([ ':uid' => $uid, ':last_request' => $last_request ]);
+		return $result !== false;
+	}
+
+	public function logoutSessionsByUid($uid){
+		$this->setModel();
+		$logout = time();
+		$result = $this->s->sql("UPDATE `users_sessions` SET `logout` = '{$logout}' WHERE `uid` = :uid AND logout IS NULL;")->exec([ ':uid' => $uid ]);
+		return true;
 	}
 
 }

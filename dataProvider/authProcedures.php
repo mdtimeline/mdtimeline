@@ -25,6 +25,11 @@ class authProcedures {
 
 	private $session;
 
+	/**
+	 * @var bool validate only one session per user
+	 */
+	private $sigle_user_session = false;
+
 	function __construct(){
 		$this->session = new Sessions();
 	}
@@ -186,6 +191,20 @@ class authProcedures {
 
 	public function doAuth($params, $user){
 
+		if($this->sigle_user_session){
+			if(isset($params->force) && $params->force){
+				$this->session->logoutSessionsByUid($user['id']);
+			}
+
+			if($this->session->hasOpenSessionByUid($user['id'])){
+				return [
+					'success' => false,
+					'type' => 'open_session',
+					'message' => 'User Active Session Found'
+				];
+			}
+		}
+
 		$user = (array)$user;
 
 		// Change some User related variables and go
@@ -268,10 +287,17 @@ class authProcedures {
 	 */
 	public function ckAuth(){
 
-		if(isset($_SESSION['session_id']) &&
+		if(
+			isset($_SESSION['session_id']) &&
             isset($_SESSION['user']) &&
             isset($_SESSION['user']['auth']) &&
-            $_SESSION['user']['auth']){
+            $_SESSION['user']['auth']
+		){
+			if($this->sigle_user_session && !$this->session->isActiveSession()){
+				$this->unAuth();
+				return array('authorized' => false);
+			}
+
 			$this->session->updateSession();
 			return array('authorized' => true, 'user' => $_SESSION['user']);
 		} elseif(isset($_SESSION['session_id']) && (isset($_SESSION['user']) && isset($_SESSION['user']['auth']) && !$_SESSION['user']['auth'])){

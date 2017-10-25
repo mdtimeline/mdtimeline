@@ -105,7 +105,7 @@ Ext.define('App.controller.patient.RxOrders', {
 
 		Ext.Msg.show({
 			title: _('wait'),
-			msg: _('delete_this_record') + '<br><br><b>' + record.get('STR') + '</b>',
+			msg: ('<b>' + record.get('STR') + '</b><br><br>' + _('delete_this_record')),
 			buttons: Ext.Msg.YESNO,
 			icon: Ext.Msg.QUESTION,
 			fn: function (btn1) {

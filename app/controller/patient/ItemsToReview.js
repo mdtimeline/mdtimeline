@@ -139,7 +139,8 @@ Ext.define('App.controller.patient.ItemsToReview', {
 
 		if(this.getReviewSmokingStatusCombo().isValid()){
 
-			var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+			var encounterCtrl = this.getController('patient.encounter.Encounter');
+			var encounter = encounterCtrl.getEncounterRecord();
 
 			encounter.set({
 				review_active_problems: true,
@@ -148,12 +149,13 @@ Ext.define('App.controller.patient.ItemsToReview', {
 				review_immunizations: true,
 				review_medications: true,
 				review_smoke: true,
-				review_surgery: true,
+				review_surgery: true
 			});
 
 			encounter.save({
 				success: function(){
 					app.msg(_('sweet'), _('items_to_review_save_and_review'));
+					encounterCtrl.getProgressNote();
 				},
 				failure: function(){
 					app.msg(_('oops'), _('items_to_review_entry_error'));

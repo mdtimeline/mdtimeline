@@ -9,6 +9,10 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			selector: '#encounterPanel'
 		},
 		{
+			ref: 'EncounterProgressNotePanel',
+			selector: '#EncounterProgressNotePanel'
+		},
+		{
 			ref: 'EncounterDetailWindow',
 			selector: '#EncounterDetailWindow'
 		},
@@ -49,6 +53,15 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		});
 
 		me.importCtrl = this.getController('patient.CCDImport');
+	},
+
+	getProgressNote: function(){
+		var me = this,
+		    encounterPanel = me.getEncounterPanel();
+
+		Encounter.getProgressNoteByEid(encounterPanel.eid, function(provider, response){
+			encounterPanel.progressNote.tpl.overwrite(encounterPanel.progressNote.body, response.result);
+		});
 	},
 
 	/**

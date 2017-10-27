@@ -348,6 +348,7 @@ Ext.define('App.view.patient.Encounter', {
 				},
 				me.progressNote = Ext.create('App.view.patient.ProgressNote', {
 					title: _('progress_note'),
+					itemId: 'EncounterProgressNotePanel',
 					autoScroll: true,
 					bodyPadding: 0,
 					margin: 0,

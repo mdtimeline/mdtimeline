@@ -47,6 +47,7 @@ Ext.define('App.controller.patient.FamilyHistory', {
 				activate: me.onFamilyHistoryGridActivate
 			},
 			'#FamilyHistoryForm': {
+				formitemsadded: me.onFamilyHistoryFormItemsAdded,
 				beforerender: me.onFamilyHistoryFormBeforeRneder
 			},
 			'#FamilyHistoryGridAddBtn': {
@@ -59,6 +60,35 @@ Ext.define('App.controller.patient.FamilyHistory', {
 				click: me.onFamilyHistoryWindowCancelBtnClick
 			}
 		});
+	},
+
+	onFamilyHistoryFormItemsAdded: function (form) {
+
+
+		say('onFamilyHistoryFormItemsAdded');
+		say(form);
+
+		// form.add({
+		// 	xtype: 'fieldset',
+		// 	title: _('other'),
+		// 	items: [
+		// 		{
+		// 			xtype: 'textfield',
+		// 			fieldLabel: _('contition'),
+		// 		},
+		// 		{
+		// 			xtype: 'textfield',
+		// 			fieldLabel: _('relation'),
+		// 		},
+		// 		{
+		// 			xtype: 'textfield',
+		// 			fieldLabel: _('contition'),
+		// 		}
+		// 	]
+		// });
+
+
+
 	},
 
 	onFamilyHistoryFormBeforeRneder: function (form) {

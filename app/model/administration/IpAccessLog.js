@@ -51,6 +51,10 @@ Ext.define('App.model.administration.IpAccessLog', {
 		type: 'direct',
 		api: {
 			read: 'IpAccessRules.getIpAccessLogs'
+		},
+		reader: {
+			totalProperty: 'total',
+			root: 'data'
 		}
 	}
 });

@@ -97,6 +97,14 @@ class Vitals {
 	}
 
 	/**
+	 * @param stdClass $params
+	 * @return stdClass
+	 */
+	public function removeVitals($params){
+		return $this->v->destroy($params);
+	}
+
+	/**
 	 * @param $pid
 	 * @return array
 	 */

@@ -1257,6 +1257,10 @@ Ext.define('App.view.Viewport', {
     beforeAppRender: function(){
 	    var me = this,
 		    params = me.nav.getUrlParams();
+
+	    say(params);
+
+
 		if(params[1]){
 			me.setPatient(params[1], null, null, function(){
 				Ext.Function.defer(function(){

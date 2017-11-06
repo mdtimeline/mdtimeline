@@ -198,7 +198,8 @@ Ext.define('App.model.patient.Vitals', {
 		api: {
 			read: 'Vitals.getVitals',
 			create: 'Vitals.addVitals',
-			update: 'Vitals.updateVitals'
+			update: 'Vitals.updateVitals',
+			destroy: 'Vitals.removeVitals'
 		},
 		writer: {
 			writeAllFields: true

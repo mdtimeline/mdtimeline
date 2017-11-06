@@ -102,6 +102,10 @@ Ext.define('App.model.administration.IpAccessRule', {
 		},
         writer: {
             writeAllFields: true
-        }
+        },
+		reader: {
+			totalProperty: 'total',
+			root: 'data'
+		}
 	}
 });

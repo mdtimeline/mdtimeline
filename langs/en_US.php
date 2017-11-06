@@ -1938,5 +1938,6 @@ $LANG = array(
 	'not_authorized' => 'Not Authorized',
 	'are_you_sure' => 'Are you sure???',
 	'this_action_can_not_be_undone_continue' => 'This action can not be undone, would you like to continue?',
+	'remove_encounter_related_error' => 'Record does not relate to this encounter',
 
 );

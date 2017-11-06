@@ -841,6 +841,8 @@ Ext.override(Ext.container.Container, {
 		    var items = Ext.JSON.decode(response.result.replace(/\\\\u/g, '\\u')), // UTF-8 \\u fixed
 				form = formPanel ? formPanel.add(items) : false;
 
+		    formPanel.fireEvent('formitemsadded', formPanel);
+
 		    if(typeof callback == 'function') callback(formPanel, items, true);
 		    return form;
 	    });

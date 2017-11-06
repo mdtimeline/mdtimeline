@@ -549,15 +549,28 @@ Ext.define('App.view.administration.Layout', {
             border: true,
             split: true,
             hideHeaders: true,
-            columns: [
+            plugins:[
                 {
-                    dataIndex: 'id',
-                    hidden: true
-                },
+                    ptype:'cellediting'
+                }
+            ],
+            tbar:[
+                {
+                    xtype:'button',
+                    text: _('form'),
+                    itemId: 'LayoutFormsAddFormBtn',
+                    scope: me,
+                    handler: me.onLayoutFormsAddFormBtnHandler
+                }
+            ],
+            columns: [
                 {
                     flex: 1,
                     sortable: true,
-                    dataIndex: 'name'
+                    dataIndex: 'name',
+                    editor: {
+                        xtype: 'textfield'
+                    }
                 }
             ],
             listeners: {
@@ -594,6 +607,7 @@ Ext.define('App.view.administration.Layout', {
                 }
             ]
         });
+
         me.pageBody = [
 	        me.fieldsGrid,
 	        me.formsGrid,
@@ -602,6 +616,14 @@ Ext.define('App.view.administration.Layout', {
         ];
         me.callParent(arguments);
     },
+
+	onLayoutFormsAddFormBtnHandler: function () {
+		this.formsGrid.editingPlugin.cancelEdit();
+		var records = this.formsGrid.getStore().insert(0, {
+            name: 'New Form'
+        });
+		this.formsGrid.editingPlugin.startEdit(records[0], 0);
+	},
 
     /**
      * if the form is valid send the POST request

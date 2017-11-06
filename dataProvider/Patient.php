@@ -436,15 +436,19 @@ class Patient
 			$age['months'] = $t->diff($from)->m;
 			$age['years'] = $t->diff($from)->y;
 			if ($age['years'] >= 2) {
-				$ageStr = $age['years'] . ' yr(s)';
+				$ageStr = $age['years'] . ' yrs';
 			} else {
 				if ($age['years'] >= 1) {
-					$ageStr = 12 + $age['months'] . ' mo(s)';
+					$ageStr = 12 + $age['months'] . ' mos';
 				} else {
-					if ($age['months'] >= 1) {
-						$ageStr = $age['months'] . ' mo(s) and ' . $age['days'] . ' day(s)';
+					if ($age['months'] > 1) {
+						$ageStr = $age['months'] . ' mos';
+					}elseif ($age['months'] == 1) {
+						$ageStr = $age['months'] . ' mo';
+					}elseif ($age['days'] > 1) {
+						$ageStr = $age['days'] . ' days';
 					} else {
-						$ageStr = $age['days'] . ' day(s)';
+						$ageStr = $age['days'] . ' day';
 					}
 				}
 			}

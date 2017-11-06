@@ -10675,6 +10675,7 @@ Ext.define('App.ux.window.Window', {
 		FormLayoutEngine.getFields({formToRender: formToRender}, function(provider, response) {
 			items = eval(response.result);
 			formPanel.add(items);
+			formPanel.fireEvent('formitemsadded', formPanel);
 			if(typeof callback == 'function') {
 				callback(formPanel, items, true);
 			}
@@ -15151,7 +15152,8 @@ Ext.define('App.model.patient.Vitals', {
 		api: {
 			read: 'Vitals.getVitals',
 			create: 'Vitals.addVitals',
-			update: 'Vitals.updateVitals'
+			update: 'Vitals.updateVitals',
+			destroy: 'Vitals.removeVitals'
 		},
 		writer: {
 			writeAllFields: true
@@ -24845,6 +24847,19 @@ Ext.define('App.view.patient.Vitals', {
 
 		var columns = [
 			{
+				xtype: 'actioncolumn',
+				width: 20,
+				items: [
+					{
+						icon: 'resources/images/icons/cross.png',
+						tooltip: _('remove'),
+						handler: function (grid, rowIndex, colIndex, item, e, record) {
+							App.app.getController('patient.Vitals').onRxOrdersDeleteActionHandler(grid, rowIndex, colIndex, item, e, record);
+						}
+					}
+				]
+			},
+			{
 				xtype:'datecolumn',
 				text: _('date'),
 				dataIndex: 'date',
@@ -33890,7 +33905,9 @@ Ext.define('App.store.administration.FormsList', {
     proxy: {
         type: 'direct',
         api: {
-            read: FormLayoutBuilder.getForms
+            read: 'FormLayoutBuilder.getForms',
+            create: 'FormLayoutBuilder.addForms',
+            update: 'FormLayoutBuilder.updateForms'
         }
     },
     autoSync: true,
@@ -34634,15 +34651,28 @@ Ext.define('App.view.administration.Layout', {
             border: true,
             split: true,
             hideHeaders: true,
-            columns: [
+            plugins:[
                 {
-                    dataIndex: 'id',
-                    hidden: true
-                },
+                    ptype:'cellediting'
+                }
+            ],
+            tbar:[
+                {
+                    xtype:'button',
+                    text: _('form'),
+                    itemId: 'LayoutFormsAddFormBtn',
+                    scope: me,
+                    handler: me.onLayoutFormsAddFormBtnHandler
+                }
+            ],
+            columns: [
                 {
                     flex: 1,
                     sortable: true,
-                    dataIndex: 'name'
+                    dataIndex: 'name',
+                    editor: {
+                        xtype: 'textfield'
+                    }
                 }
             ],
             listeners: {
@@ -34679,6 +34709,7 @@ Ext.define('App.view.administration.Layout', {
                 }
             ]
         });
+
         me.pageBody = [
 	        me.fieldsGrid,
 	        me.formsGrid,
@@ -34687,6 +34718,14 @@ Ext.define('App.view.administration.Layout', {
         ];
         me.callParent(arguments);
     },
+
+	onLayoutFormsAddFormBtnHandler: function () {
+		this.formsGrid.editingPlugin.cancelEdit();
+		var records = this.formsGrid.getStore().insert(0, {
+            name: 'New Form'
+        });
+		this.formsGrid.editingPlugin.startEdit(records[0], 0);
+	},
 
     /**
      * if the form is valid send the POST request
@@ -43000,6 +43039,7 @@ Ext.define('App.controller.patient.FamilyHistory', {
 				activate: me.onFamilyHistoryGridActivate
 			},
 			'#FamilyHistoryForm': {
+				formitemsadded: me.onFamilyHistoryFormItemsAdded,
 				beforerender: me.onFamilyHistoryFormBeforeRneder
 			},
 			'#FamilyHistoryGridAddBtn': {
@@ -43012,6 +43052,35 @@ Ext.define('App.controller.patient.FamilyHistory', {
 				click: me.onFamilyHistoryWindowCancelBtnClick
 			}
 		});
+	},
+
+	onFamilyHistoryFormItemsAdded: function (form) {
+
+
+		say('onFamilyHistoryFormItemsAdded');
+		say(form);
+
+		// form.add({
+		// 	xtype: 'fieldset',
+		// 	title: _('other'),
+		// 	items: [
+		// 		{
+		// 			xtype: 'textfield',
+		// 			fieldLabel: _('contition'),
+		// 		},
+		// 		{
+		// 			xtype: 'textfield',
+		// 			fieldLabel: _('relation'),
+		// 		},
+		// 		{
+		// 			xtype: 'textfield',
+		// 			fieldLabel: _('contition'),
+		// 		}
+		// 	]
+		// });
+
+
+
 	},
 
 	onFamilyHistoryFormBeforeRneder: function (form) {
@@ -46531,6 +46600,58 @@ Ext.define('App.controller.patient.Vitals', {
 				keyup:me.onVitalWeightKgFieldKeyUp
 			}
 		});
+	},
+
+	onRxOrdersDeleteActionHandler: function (grid, rowIndex, colIndex, item, e, record) {
+
+		if(!a('remove_patient_vitals')){
+			app.msg(_('oops'), _('not_authorized'), true);
+			return;
+		}
+
+		var me = this,
+			store = grid.getStore();
+
+		if(record.get('eid') !== app.patient.eid){
+			app.msg(_('oops'), _('remove_encounter_related_error'), true);
+			return;
+		}
+
+		Ext.Msg.show({
+			title: _('wait'),
+			msg: ('<b>' + Ext.Date.format(record.get('date'), g('date_time_display_format')) + '</b><br><br>' + _('delete_this_record')),
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (btn1) {
+				if(btn1 === 'yes'){
+					Ext.Msg.show({
+						title: _('wait'),
+						msg: _('this_action_can_not_be_undone_continue'),
+						buttons: Ext.Msg.YESNO,
+						icon: Ext.Msg.QUESTION,
+						fn: function (btn2) {
+							if(btn2 === 'yes'){
+								store.remove(record);
+								store.sync({
+									callback: function () {
+										store.remove(record);
+										store.sync({
+											callback: function () {
+
+											}
+										});
+									}
+								});
+							}
+						}
+					});
+				}
+			}
+		});
+
+
+
+
 	},
 
 	onAppBeforeEncounterLoad: function(record){
@@ -63485,6 +63606,10 @@ Ext.define('App.view.Viewport', {
     beforeAppRender: function(){
 	    var me = this,
 		    params = me.nav.getUrlParams();
+
+	    say(params);
+
+
 		if(params[1]){
 			me.setPatient(params[1], null, null, function(){
 				Ext.Function.defer(function(){

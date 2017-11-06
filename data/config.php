@@ -857,6 +857,9 @@ $API = [
 			'updateVitals' => [
 				'len' => 1
             ],
+			'removeVitals' => [
+				'len' => 1
+            ],
 			'getVitalsByPid' => [
 				'len' => 1
             ],
@@ -1849,6 +1852,12 @@ $API = [
 				'len' => 1
             ],
 			'getForms' => [
+				'len' => 1
+            ],
+			'addForms' => [
+				'len' => 1
+            ],
+			'updateForms' => [
 				'len' => 1
             ],
 			'getParentFields' => [

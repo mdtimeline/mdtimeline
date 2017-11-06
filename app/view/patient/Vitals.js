@@ -123,6 +123,19 @@ Ext.define('App.view.patient.Vitals', {
 
 		var columns = [
 			{
+				xtype: 'actioncolumn',
+				width: 20,
+				items: [
+					{
+						icon: 'resources/images/icons/cross.png',
+						tooltip: _('remove'),
+						handler: function (grid, rowIndex, colIndex, item, e, record) {
+							App.app.getController('patient.Vitals').onRxOrdersDeleteActionHandler(grid, rowIndex, colIndex, item, e, record);
+						}
+					}
+				]
+			},
+			{
 				xtype:'datecolumn',
 				text: _('date'),
 				dataIndex: 'date',

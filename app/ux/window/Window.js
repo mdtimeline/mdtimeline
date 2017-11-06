@@ -84,6 +84,7 @@ Ext.define('App.ux.window.Window', {
 		FormLayoutEngine.getFields({formToRender: formToRender}, function(provider, response) {
 			items = eval(response.result);
 			formPanel.add(items);
+			formPanel.fireEvent('formitemsadded', formPanel);
 			if(typeof callback == 'function') {
 				callback(formPanel, items, true);
 			}

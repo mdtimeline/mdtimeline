@@ -140,6 +140,58 @@ Ext.define('App.controller.patient.Vitals', {
 		});
 	},
 
+	onRxOrdersDeleteActionHandler: function (grid, rowIndex, colIndex, item, e, record) {
+
+		if(!a('remove_patient_vitals')){
+			app.msg(_('oops'), _('not_authorized'), true);
+			return;
+		}
+
+		var me = this,
+			store = grid.getStore();
+
+		if(record.get('eid') !== app.patient.eid){
+			app.msg(_('oops'), _('remove_encounter_related_error'), true);
+			return;
+		}
+
+		Ext.Msg.show({
+			title: _('wait'),
+			msg: ('<b>' + Ext.Date.format(record.get('date'), g('date_time_display_format')) + '</b><br><br>' + _('delete_this_record')),
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (btn1) {
+				if(btn1 === 'yes'){
+					Ext.Msg.show({
+						title: _('wait'),
+						msg: _('this_action_can_not_be_undone_continue'),
+						buttons: Ext.Msg.YESNO,
+						icon: Ext.Msg.QUESTION,
+						fn: function (btn2) {
+							if(btn2 === 'yes'){
+								store.remove(record);
+								store.sync({
+									callback: function () {
+										store.remove(record);
+										store.sync({
+											callback: function () {
+
+											}
+										});
+									}
+								});
+							}
+						}
+					});
+				}
+			}
+		});
+
+
+
+
+	},
+
 	onAppBeforeEncounterLoad: function(record){
 		if(this.getVitalsHistoryGrid()){
 			if(record.vitalsStore){

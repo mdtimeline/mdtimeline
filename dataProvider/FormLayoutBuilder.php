@@ -45,6 +45,11 @@ class FormLayoutBuilder {
 	private $ff;
 
 	/**
+	 * @var MatchaCUP
+	 */
+	private $fl;
+
+	/**
 	 * Creates the MatchaHelper instance
 	 */
 	function __construct(){
@@ -103,7 +108,7 @@ class FormLayoutBuilder {
 		 * the the field is not getting duplicated or change the name property
 		 * to save the field data inside another column.
 		 */
-		if($this->fieldHasColumn() && $data['xtype'] != 'radiofield'){
+		if(!empty($this->table) && $this->fieldHasColumn() && $data['xtype'] != 'radiofield'){
 			throw new Exception("Field '$this->name' exist, please verify the form or change the Field 'name' property");
 		} else{
 
@@ -111,7 +116,7 @@ class FormLayoutBuilder {
 			 * add field to the sencha model if
 			 * field is not a container and column doesn't exist
 			 */
-			if(!$container && !$this->fieldHasColumn()){
+			if(!empty($this->table) && !$container && !$this->fieldHasColumn()){
 				if(!$this->addFieldModel($data['xtype'])){
 					throw new Exception("Unable to modified '$this->model' sencha model");
 				}
@@ -219,7 +224,7 @@ class FormLayoutBuilder {
 				throw new Exception('This field has one or more child field(s). Please, remove or moved the child fields before removing this field.');
 			}
 
-		} else{
+		} elseif(!empty($this->table)){
 
 			/**
 			 * for all other fields lats check that the item has a
@@ -240,7 +245,7 @@ class FormLayoutBuilder {
 		 * If the field is NOT a container the remove database
 		 * column for this field
 		 */
-		if(!$container && !$this->fieldHasBrother()){
+		if(!empty($this->table) && !$container && !$this->fieldHasBrother()){
 			if(!$this->removeFieldModel()){
 				throw new Exception("Unable to modified '$this->model' sencha model");
 			}
@@ -489,6 +494,22 @@ class FormLayoutBuilder {
 	public function getForms($params){
 		$form = MatchaModel::setSenchaModel('App.model.administration.FormsList');
 		return $form->load($params)->all();
+	}
+	/**
+	 * @param $params
+	 * @return array
+	 */
+	public function addForms($params){
+		$form = MatchaModel::setSenchaModel('App.model.administration.FormsList');
+		return $form->save($params);
+	}
+	/**
+	 * @param $params
+	 * @return array
+	 */
+	public function updateForms($params){
+		$form = MatchaModel::setSenchaModel('App.model.administration.FormsList');
+		return $form->save($params);
 	}
 
 	/**

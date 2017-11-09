@@ -61943,6 +61943,7 @@ Ext.define('App.view.patient.Encounter', {
 					bodyPadding: 0,
 					margin: 0,
 					padding: 0,
+					cls: 'progress-motes-history',
 					tbar: [
 						'->', {
 							xtype: 'tool',

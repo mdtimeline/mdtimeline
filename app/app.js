@@ -7941,6 +7941,10 @@ Ext.define('App.ux.combo.Combo', {
      * value data type
      */
     valueDataType: 'string',
+	/**
+     *
+	 */
+	resetable: false,
 
 
     initComponent: function () {
@@ -8020,12 +8024,60 @@ Ext.define('App.ux.combo.Combo', {
             )
         };
 
+        if(me.resetable){
+	        me.trigger1Class = 'x-form-select-trigger';
+            me.trigger2Class = 'x-form-clear-trigger';
+        }
+
         me.callParent(arguments);
 
         me.on('change', function (cmb, value) {
             me.setFieldBgColor(cmb, value);
         });
     },
+
+	onRender: function(ct, position){
+		this.callParent(arguments);
+
+		if(!this.resetable) return;
+
+		var id = this.getId();
+		this.triggerConfig = {
+			tag: 'div',
+			cls: 'x-form-twin-triggers',
+			style: 'display:block;',
+			cn: [
+				{
+					tag: "img",
+					style: Ext.isIE ? 'margin-left:0;height:21px' : '',
+					src: Ext.BLANK_IMAGE_URL,
+					id: "trigger2" + id,
+					name: "trigger2" + id,
+					cls: "x-form-trigger " + this.trigger2Class
+				}
+			]
+		};
+		this.triggerEl.replaceWith(this.triggerConfig);
+
+		this.triggerEl.on('mouseup', function(e){
+			if(e.target.name == "trigger2" + id){
+				this.reset();
+				// this.oldValue = null;
+				// if(this.spObj !== '' && this.spExtraParam !== ''){
+				// 	Ext.getCmp(this.spObj).store.setExtraParam(this.spExtraParam, '');
+				// 	Ext.getCmp(this.spObj).store.load()
+				// }
+				// if(this.spForm !== ''){
+				// 	Ext.getCmp(this.spForm).getForm().reset();
+				// }
+				this.fireEvent('fieldreset', this);
+			}
+
+		}, this);
+
+		var trigger2 = Ext.get("trigger2" + id);
+		trigger2.addClsOnOver('x-form-trigger-over');
+	},
 
     setFieldBgColor: function (cmb, value) {
 
@@ -8034,9 +8086,14 @@ Ext.define('App.ux.combo.Combo', {
         if(value == null) return;
 
         Ext.Function.defer(function () {
+
+            var store = cmb.getStore();
+
+            if(!store) return;
+
             var record = cmb.findRecordByValue(value);
 
-            if (cmb.getStore().isLoading()) {
+            if (store.isLoading()) {
                 cmb.tries = cmb.tries ? cmb.tries + 1 : 1;
                 if (cmb.tries > 2) return;
 
@@ -43029,6 +43086,18 @@ Ext.define('App.controller.patient.FamilyHistory', {
 		{
 			ref: 'FamilyHistorySaveBtn',
 			selector: '#familyHistorySaveBtn'
+		},
+		{
+			ref: 'FamilyHistoryOtherConditionField',
+			selector: '#FamilyHistoryOtherConditionField'
+		},
+		{
+			ref: 'FamilyHistoryOtherReletionField',
+			selector: '#FamilyHistoryOtherReletionField'
+		},
+		{
+			ref: 'FamilyHistoryOtherNoteField',
+			selector: '#FamilyHistoryOtherNoteField'
 		}
 	],
 
@@ -43056,30 +43125,41 @@ Ext.define('App.controller.patient.FamilyHistory', {
 
 	onFamilyHistoryFormItemsAdded: function (form) {
 
-
-		say('onFamilyHistoryFormItemsAdded');
-		say(form);
-
-		// form.add({
-		// 	xtype: 'fieldset',
-		// 	title: _('other'),
-		// 	items: [
-		// 		{
-		// 			xtype: 'textfield',
-		// 			fieldLabel: _('contition'),
-		// 		},
-		// 		{
-		// 			xtype: 'textfield',
-		// 			fieldLabel: _('relation'),
-		// 		},
-		// 		{
-		// 			xtype: 'textfield',
-		// 			fieldLabel: _('contition'),
-		// 		}
-		// 	]
-		// });
-
-
+		form.insert(0, {
+			xtype: 'fieldset',
+			title: _('other'),
+			items: [
+				{
+					xtype: 'snomedlivesearch',
+					itemId: 'FamilyHistoryOtherConditionField',
+					fieldLabel: _('contition'),
+					name: 'other_contition',
+					hideLabel: false,
+					anchor: '100%'
+				},
+				{
+					xtype: 'gaiaehr.combo',
+					itemId: 'FamilyHistoryOtherReletionField',
+					fieldLabel: _('relation'),
+					name: 'other_relation',
+					action: 'relationcmb',
+					width: 300,
+					list: 109,
+					allowBlank: false,
+					loadStore: true,
+					editable: false,
+					resetable: true,
+					value: ''
+				},
+				{
+					xtype: 'textfield',
+					itemId: 'FamilyHistoryOtherNoteField',
+					fieldLabel: _('note'),
+					name: 'other_note',
+					anchor: '100%'
+				}
+			]
+		});
 
 	},
 
@@ -43159,32 +43239,65 @@ Ext.define('App.controller.patient.FamilyHistory', {
 			isValid =  true,
             foo,
             condition,
-            relation;
+			relations;
 
-		Ext.Object.each(values, function(key, value){
 
-			if(value == '0~0' || value == '0~0~') return;
+		var other_condition = this.getFamilyHistoryOtherConditionField(),
+			other_relation = this.getFamilyHistoryOtherReletionField(),
+			other_note = this.getFamilyHistoryOtherNoteField();
 
-			foo = value.split('~');
-            condition = foo[0].split(':');
-            relation = foo[1].split(':');
+		if(other_condition.getValue() && other_relation.getValue()){
 
-			if(isValid && relation[0] == '0'){
-				isValid = false;
-			}
+			var condition_record = other_condition.findRecordByValue(other_condition.getValue()),
+				relation_record = other_relation.findRecordByValue(other_relation.getValue());
 
 			Ext.Array.push(histories, {
 				pid: app.patient.pid,
 				eid: app.patient.eid,
-				relation: relation[2],
-				relation_code: relation[1],
-				relation_code_type: relation[0],
-				condition: condition[2],
-				condition_code: condition[1],
-				condition_code_type: condition[0],
-				notes: foo[2] || '',
+				relation: relation_record.get('option_name'),
+				relation_code: relation_record.get('code'),
+				relation_code_type: relation_record.get('code_type'),
+				condition: condition_record.get('FullySpecifiedName'),
+				condition_code: condition_record.get('ConceptId'),
+				condition_code_type: condition_record.get('CodeType'),
+				notes: other_note.getValue(),
 				create_uid: app.user.id,
 				create_date: new Date()
+			});
+		}
+
+		Ext.Object.each(values, function(key, value){
+
+			if(value === '0~0' || value === '0~0~') return;
+
+			foo = value.split('~');
+
+			if(foo.length === 1) return;
+
+            condition = foo[0].split(':');
+            relations = foo[1].split(',');
+
+			if(isValid && relations.length === 0){
+				isValid = false;
+			}
+
+			relations.forEach(function (relation) {
+
+				relation = relation.split(':');
+
+				Ext.Array.push(histories, {
+					pid: app.patient.pid,
+					eid: app.patient.eid,
+					relation: relation[2],
+					relation_code: relation[1],
+					relation_code_type: relation[0],
+					condition: condition[2],
+					condition_code: condition[1],
+					condition_code_type: condition[0],
+					notes: relation[3] || '',
+					create_uid: app.user.id,
+					create_date: new Date()
+				});
 			});
 		});
 
@@ -61324,26 +61437,120 @@ Ext.define('App.view.patient.windows.Medical', {
 
 Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 	extend: 'App.ux.form.fields.CheckBoxWithText',
-	alias: 'widget.checkboxwithfamilyhistory',
-	textField1: {
-		xtype: 'gaiaehr.combo',
-		fieldLabel: _('relation'),
-		labelAlign: 'right',
-		labelWidth: 80,
-		list: 109,
-		allowBlank: false,
-		loadStore: true
-	},
-	textField2: {
-		xtype: 'textfield',
-		fieldLabel: _('note'),
-		labelAlign: 'right',
-		labelWidth: 80
-	},
+	xtype: 'checkboxwithfamilyhistory',
 
 	initComponent:function(){
-		this.inputValue = this.code || '1';
-		this.callParent();
+
+		var me = this;
+		
+		me.textField1 = {
+			xtype: 'fieldcontainer',
+			layout: {
+				type: 'vbox',
+				align: 'stretch'
+			},
+			getSubmitValue: function () {
+				var values = [];
+
+				this.items.each(function (item) {
+
+					var relation_cmb  = item.getComponent(0),
+						relation_store = relation_cmb.store,
+						relation_record = relation_store.getById(relation_cmb.getSubmitValue()),
+						note  = item.getComponent(1).getValue();
+
+					if(!relation_record) return;
+
+					values.push(Ext.String.format(
+						'{0}:{1}:{2}:{3}',
+						relation_record.get('code_type'),
+						relation_record.get('code'),
+						relation_record.get('option_name'),
+						note
+					));
+
+				});
+
+				return values.join(',');
+
+			},
+			getValue: function () {
+				return this.getSubmitValue();
+			},
+			setValue: function () {
+
+			},
+			isValid: function () {
+
+			}
+		};
+
+		me.inputValue = me.code || '1';
+		me.callParent();
+		me.addRelationField();
+
+	},
+
+	addRelationField: function () {
+		var me = this;
+
+		me.textField1.add({
+			xtype: 'fieldcontainer',
+			action: 'fieldscontainer',
+			layout: {
+				type: 'hbox',
+				align: 'stretch'
+			},
+			items: [
+				{
+					xtype: 'gaiaehr.combo',
+					fieldLabel: _('relation'),
+					labelAlign: 'right',
+					action: 'relationcmb',
+					labelWidth: 100,
+					list: 109,
+					allowBlank: false,
+					loadStore: true,
+					editable: false,
+					resetable: true,
+					value: '',
+					isEmpty: true,
+					submitValue: false,
+					listeners: {
+						select: me.onRelationComoSelect,
+						fieldreset: me.onRelationComoReset,
+						scope: me
+					}
+				},
+				{
+					xtype: 'textfield',
+					fieldLabel: _('note'),
+					labelAlign: 'right',
+					labelWidth: 80,
+					flex: 1
+				}
+			]
+		});
+	},
+
+	onRelationComoReset: function (cmb) {
+
+		say('onRelationComoReset');
+		if(this.textField1.items.length === 1) return;
+		this.textField1.remove(cmb.up('fieldcontainer'))
+	},
+
+	onRelationComoSelect: function (cmb, selection) {
+		if(selection.length > 0){
+			cmb.isEmpty = false;
+		}
+
+		var fieldcontainer = cmb.up('fieldcontainer'),
+			emptyfields = this.textField1.query('[action=relationcmb][isEmpty]');
+
+		if(selection.length > 0 && emptyfields.length === 0){
+			this.addRelationField();
+		}
 	},
 
 	getValue: function(){
@@ -61353,9 +61560,7 @@ Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 
 		if(ckValue != '0'){
 			ckValue += ':' + this.chekboxField.boxLabel;
-			var store = this.textField1.getStore(),
-				rec = store.getById(this.textField1.getSubmitValue());
-			txtValue = rec ? rec.get('code_type') + ':' + rec.get('code') + ':' + rec.get('option_name') : '0';
+			txtValue = this.textField1.getSubmitValue();
 		} else {
 			txtValue = '0';
 		}
@@ -61368,33 +61573,36 @@ Ext.define('App.ux.form.fields.CheckBoxWithFamilyRelation', {
 			}
 		}
 
+
+		say('getValue');
+		say(value);
+
+
 		return value;
 	},
 
 	setValue: function(value){
+		// if(value && value.split){
+		// 	var val = value.split('~');
+		// 	this.chekboxField.setValue(val[0] || 0);
+		//
+		// 	if(val[1] != '0' && val[1].split){
+		// 		var relation = val[1].split(':');
+		// 		this.textField1.select(relation[1] || relation[0] || '');
+		// 	} else {
+		// 		this.textField1.setValue('');
+		// 	}
+		//
+		// 	if(this.textField2 && val[2]){
+		// 		this.textField2.setValue(val[2]) || '';
+		// 	}
+		//
+		// 	return;
+		// }
+		// this.chekboxField.setValue(0);
+		// this.textField1.setValue('');
+		// if(this.textField2) this.textField2.setValue('');
 
-		if(value && value.split){
-			var val = value.split('~');
-			this.chekboxField.setValue(val[0] || 0);
-
-			if(val[1] != '0' && val[1].split){
-				var relation = val[1].split(':');
-				this.textField1.select(relation[1] || relation[0] || '');
-			} else {
-				this.textField1.setValue('');
-			}
-
-			if(this.textField2 && val[2]){
-				this.textField2.setValue(val[2]) || '';
-			}
-
-
-
-			return;
-		}
-		this.chekboxField.setValue(0);
-		this.textField1.setValue('');
-		if(this.textField2) this.textField2.setValue('');
 	}
 });
 
@@ -62420,7 +62628,7 @@ Ext.define('App.view.Viewport', {
 	    }
 	    delete me.record_flags_buff;
 
-	    say(me.record_flags);
+	    //say(me.record_flags);
 
 	    me.patient = {
 	        pid: null,
@@ -63607,8 +63815,7 @@ Ext.define('App.view.Viewport', {
 	    var me = this,
 		    params = me.nav.getUrlParams();
 
-	    say(params);
-
+	    //say(params);
 
 		if(params[1]){
 			me.setPatient(params[1], null, null, function(){

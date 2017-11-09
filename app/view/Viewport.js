@@ -71,7 +71,7 @@ Ext.define('App.view.Viewport', {
 	    }
 	    delete me.record_flags_buff;
 
-	    say(me.record_flags);
+	    //say(me.record_flags);
 
 	    me.patient = {
 	        pid: null,
@@ -1258,8 +1258,7 @@ Ext.define('App.view.Viewport', {
 	    var me = this,
 		    params = me.nav.getUrlParams();
 
-	    say(params);
-
+	    //say(params);
 
 		if(params[1]){
 			me.setPatient(params[1], null, null, function(){

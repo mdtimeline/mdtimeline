@@ -25,7 +25,7 @@ Ext.define('App.view.patient.windows.FamilyHistory', {
 	title: _('family_history'),
 	width: 1000,
 	height: 400,
-	closeAction: 'hide',
+	//closeAction: 'hide',
 	modal: true,
 	layout: 'fit',
 	bodyStyle: 'background-color:white',
@@ -61,7 +61,7 @@ Ext.define('App.view.patient.windows.FamilyHistory', {
 			fields.forEach(function (field) {
 				field.anchor = '100%';
 				field.width = '100%';
-				field.items.items[2].flex = 2;
+				//field.items.items[2].flex = 2;
 			});
 
 			form.doLayout();

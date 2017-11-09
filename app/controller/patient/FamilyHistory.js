@@ -37,6 +37,18 @@ Ext.define('App.controller.patient.FamilyHistory', {
 		{
 			ref: 'FamilyHistorySaveBtn',
 			selector: '#familyHistorySaveBtn'
+		},
+		{
+			ref: 'FamilyHistoryOtherConditionField',
+			selector: '#FamilyHistoryOtherConditionField'
+		},
+		{
+			ref: 'FamilyHistoryOtherReletionField',
+			selector: '#FamilyHistoryOtherReletionField'
+		},
+		{
+			ref: 'FamilyHistoryOtherNoteField',
+			selector: '#FamilyHistoryOtherNoteField'
 		}
 	],
 
@@ -64,30 +76,41 @@ Ext.define('App.controller.patient.FamilyHistory', {
 
 	onFamilyHistoryFormItemsAdded: function (form) {
 
-
-		say('onFamilyHistoryFormItemsAdded');
-		say(form);
-
-		// form.add({
-		// 	xtype: 'fieldset',
-		// 	title: _('other'),
-		// 	items: [
-		// 		{
-		// 			xtype: 'textfield',
-		// 			fieldLabel: _('contition'),
-		// 		},
-		// 		{
-		// 			xtype: 'textfield',
-		// 			fieldLabel: _('relation'),
-		// 		},
-		// 		{
-		// 			xtype: 'textfield',
-		// 			fieldLabel: _('contition'),
-		// 		}
-		// 	]
-		// });
-
-
+		form.insert(0, {
+			xtype: 'fieldset',
+			title: _('other'),
+			items: [
+				{
+					xtype: 'snomedlivesearch',
+					itemId: 'FamilyHistoryOtherConditionField',
+					fieldLabel: _('contition'),
+					name: 'other_contition',
+					hideLabel: false,
+					anchor: '100%'
+				},
+				{
+					xtype: 'gaiaehr.combo',
+					itemId: 'FamilyHistoryOtherReletionField',
+					fieldLabel: _('relation'),
+					name: 'other_relation',
+					action: 'relationcmb',
+					width: 300,
+					list: 109,
+					allowBlank: false,
+					loadStore: true,
+					editable: false,
+					resetable: true,
+					value: ''
+				},
+				{
+					xtype: 'textfield',
+					itemId: 'FamilyHistoryOtherNoteField',
+					fieldLabel: _('note'),
+					name: 'other_note',
+					anchor: '100%'
+				}
+			]
+		});
 
 	},
 
@@ -167,32 +190,65 @@ Ext.define('App.controller.patient.FamilyHistory', {
 			isValid =  true,
             foo,
             condition,
-            relation;
+			relations;
 
-		Ext.Object.each(values, function(key, value){
 
-			if(value == '0~0' || value == '0~0~') return;
+		var other_condition = this.getFamilyHistoryOtherConditionField(),
+			other_relation = this.getFamilyHistoryOtherReletionField(),
+			other_note = this.getFamilyHistoryOtherNoteField();
 
-			foo = value.split('~');
-            condition = foo[0].split(':');
-            relation = foo[1].split(':');
+		if(other_condition.getValue() && other_relation.getValue()){
 
-			if(isValid && relation[0] == '0'){
-				isValid = false;
-			}
+			var condition_record = other_condition.findRecordByValue(other_condition.getValue()),
+				relation_record = other_relation.findRecordByValue(other_relation.getValue());
 
 			Ext.Array.push(histories, {
 				pid: app.patient.pid,
 				eid: app.patient.eid,
-				relation: relation[2],
-				relation_code: relation[1],
-				relation_code_type: relation[0],
-				condition: condition[2],
-				condition_code: condition[1],
-				condition_code_type: condition[0],
-				notes: foo[2] || '',
+				relation: relation_record.get('option_name'),
+				relation_code: relation_record.get('code'),
+				relation_code_type: relation_record.get('code_type'),
+				condition: condition_record.get('FullySpecifiedName'),
+				condition_code: condition_record.get('ConceptId'),
+				condition_code_type: condition_record.get('CodeType'),
+				notes: other_note.getValue(),
 				create_uid: app.user.id,
 				create_date: new Date()
+			});
+		}
+
+		Ext.Object.each(values, function(key, value){
+
+			if(value === '0~0' || value === '0~0~') return;
+
+			foo = value.split('~');
+
+			if(foo.length === 1) return;
+
+            condition = foo[0].split(':');
+            relations = foo[1].split(',');
+
+			if(isValid && relations.length === 0){
+				isValid = false;
+			}
+
+			relations.forEach(function (relation) {
+
+				relation = relation.split(':');
+
+				Ext.Array.push(histories, {
+					pid: app.patient.pid,
+					eid: app.patient.eid,
+					relation: relation[2],
+					relation_code: relation[1],
+					relation_code_type: relation[0],
+					condition: condition[2],
+					condition_code: condition[1],
+					condition_code_type: condition[0],
+					notes: relation[3] || '',
+					create_uid: app.user.id,
+					create_date: new Date()
+				});
 			});
 		});
 

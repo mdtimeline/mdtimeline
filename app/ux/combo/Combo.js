@@ -23,6 +23,10 @@ Ext.define('App.ux.combo.Combo', {
      * value data type
      */
     valueDataType: 'string',
+	/**
+     *
+	 */
+	resetable: false,
 
 
     initComponent: function () {
@@ -102,12 +106,60 @@ Ext.define('App.ux.combo.Combo', {
             )
         };
 
+        if(me.resetable){
+	        me.trigger1Class = 'x-form-select-trigger';
+            me.trigger2Class = 'x-form-clear-trigger';
+        }
+
         me.callParent(arguments);
 
         me.on('change', function (cmb, value) {
             me.setFieldBgColor(cmb, value);
         });
     },
+
+	onRender: function(ct, position){
+		this.callParent(arguments);
+
+		if(!this.resetable) return;
+
+		var id = this.getId();
+		this.triggerConfig = {
+			tag: 'div',
+			cls: 'x-form-twin-triggers',
+			style: 'display:block;',
+			cn: [
+				{
+					tag: "img",
+					style: Ext.isIE ? 'margin-left:0;height:21px' : '',
+					src: Ext.BLANK_IMAGE_URL,
+					id: "trigger2" + id,
+					name: "trigger2" + id,
+					cls: "x-form-trigger " + this.trigger2Class
+				}
+			]
+		};
+		this.triggerEl.replaceWith(this.triggerConfig);
+
+		this.triggerEl.on('mouseup', function(e){
+			if(e.target.name == "trigger2" + id){
+				this.reset();
+				// this.oldValue = null;
+				// if(this.spObj !== '' && this.spExtraParam !== ''){
+				// 	Ext.getCmp(this.spObj).store.setExtraParam(this.spExtraParam, '');
+				// 	Ext.getCmp(this.spObj).store.load()
+				// }
+				// if(this.spForm !== ''){
+				// 	Ext.getCmp(this.spForm).getForm().reset();
+				// }
+				this.fireEvent('fieldreset', this);
+			}
+
+		}, this);
+
+		var trigger2 = Ext.get("trigger2" + id);
+		trigger2.addClsOnOver('x-form-trigger-over');
+	},
 
     setFieldBgColor: function (cmb, value) {
 
@@ -116,9 +168,14 @@ Ext.define('App.ux.combo.Combo', {
         if(value == null) return;
 
         Ext.Function.defer(function () {
+
+            var store = cmb.getStore();
+
+            if(!store) return;
+
             var record = cmb.findRecordByValue(value);
 
-            if (cmb.getStore().isLoading()) {
+            if (store.isLoading()) {
                 cmb.tries = cmb.tries ? cmb.tries + 1 : 1;
                 if (cmb.tries > 2) return;
 

@@ -61429,8 +61429,12 @@ Ext.define('App.view.patient.windows.Medical', {
 	},
 
 	onMedicalWinClose: function(){
-		if(app.getActivePanel().$className == 'App.view.patient.Summary'){
-			app.getActivePanel().loadStores();
+		var panel = app.getActivePanel();
+
+		if(panel.$className === 'App.view.patient.Summary'){
+			panel.loadStores();
+		}else if(panel.$className === 'App.view.patient.Summary'){
+			panel.getProgressNote();
 		}
 	}
 });

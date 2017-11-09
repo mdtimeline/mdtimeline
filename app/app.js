@@ -61433,7 +61433,7 @@ Ext.define('App.view.patient.windows.Medical', {
 
 		if(panel.$className === 'App.view.patient.Summary'){
 			panel.loadStores();
-		}else if(panel.$className === 'App.view.patient.Summary'){
+		}else if(panel.$className === 'App.view.patient.Encounter'){
 			panel.getProgressNote();
 		}
 	}

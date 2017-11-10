@@ -37,11 +37,15 @@ Ext.define('App.controller.Clock', {
 	},
 
 	updateClock:function(date){
-		this.date.setHours(date.hours, date.minutes, date.seconds);
+		this.date = new Date(date.year, date.mon, date.mday, date.hours, date.minutes, date.seconds );
 	},
 
 	getTime: function () {
 		return Ext.clone(this.date);
+	},
+
+	getDate: function () {
+		return this.getTime();
 	}
 
 });

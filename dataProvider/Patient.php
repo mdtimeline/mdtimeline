@@ -720,6 +720,11 @@ class Patient
 		return $this->patient['pid'];
 	}
 
+	public function getPatientPubpid()
+	{
+		return $this->patient['pubpid'];
+	}
+
 	public function getPatientSex()
 	{
 		return $this->patient['sex'];

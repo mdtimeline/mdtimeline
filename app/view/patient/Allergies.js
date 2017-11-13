@@ -209,6 +209,7 @@ Ext.define('App.view.patient.Allergies', {
 								name: 'location',
 								action: 'location',
 								itemId: 'allergyLocationCombo',
+								addUnknownOption: true,
 								width: 225,
 								list: 79,
 								labelWidth: 70
@@ -217,6 +218,7 @@ Ext.define('App.view.patient.Allergies', {
 								xtype: 'gaiaehr.combo',
 								fieldLabel: _('reaction'),
 								itemId: 'allergyReactionCombo',
+								addUnknownOption: true,
 								name: 'reaction',
 								width: 230,
 								queryMode : 'local',
@@ -228,6 +230,7 @@ Ext.define('App.view.patient.Allergies', {
 								fieldLabel: _('severity'),
 								name: 'severity',
 								itemId: 'allergySeverityCombo',
+								addUnknownOption: true,
 								width: 225,
 								list: 84,
 								labelWidth: 70,

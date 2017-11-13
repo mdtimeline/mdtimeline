@@ -28,6 +28,8 @@ Ext.define('App.ux.combo.Combo', {
 	 */
 	resetable: false,
 
+	addUnknownOption: false,
+
 
     initComponent: function () {
         var me = this,
@@ -90,6 +92,23 @@ Ext.define('App.ux.combo.Combo', {
             model: model,
             autoLoad: me.loadStore
         });
+
+	    me.store.on('load', function (store, records) {
+
+	    	if(me.addUnknownOption){
+			    store.insert(0, {
+				    bg_color: undefined,
+				    code: "UNK",
+				    code_type: "UNK",
+				    color: "",
+				    extraListClass: "",
+				    option_name: "UNKNOWN",
+				    option_value: "UNK"
+			    });
+		    }
+
+            me.fireEvent('load', me, store, records)
+	    });
 
         me.listConfig = {
             itemTpl: new Ext.XTemplate(

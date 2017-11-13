@@ -111,11 +111,11 @@ Ext.define('App.controller.patient.Allergies', {
 			'#allergyFoodCombo': {
 				select: me.onAllergyFoodComboSelect
 			},
-			'#allergyLocationCombo': {
-				change: me.onAllergyLocationComboChange
-			},
 			'#allergySearchCombo': {
 				select: me.onAllergySearchComboSelect
+			},
+			'#allergyLocationCombo': {
+				change: me.onAllergyLocationComboChange
 			},
 			'#allergyReactionCombo': {
 				select: me.onAllergyReactionComboSelect
@@ -191,7 +191,6 @@ Ext.define('App.controller.patient.Allergies', {
 			allergy_code_type: records[0].get('code_type')
 		});
 	},
-
 
 	onAllergyTypeComboSelect: function(combo, records){
 

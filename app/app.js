@@ -7946,6 +7946,8 @@ Ext.define('App.ux.combo.Combo', {
 	 */
 	resetable: false,
 
+	addUnknownOption: false,
+
 
     initComponent: function () {
         var me = this,
@@ -8008,6 +8010,23 @@ Ext.define('App.ux.combo.Combo', {
             model: model,
             autoLoad: me.loadStore
         });
+
+	    me.store.on('load', function (store, records) {
+
+	    	if(me.addUnknownOption){
+			    store.insert(0, {
+				    bg_color: undefined,
+				    code: "UNK",
+				    code_type: "UNK",
+				    color: "",
+				    extraListClass: "",
+				    option_name: "UNKNOWN",
+				    option_value: "UNK"
+			    });
+		    }
+
+            me.fireEvent('load', me, store, records)
+	    });
 
         me.listConfig = {
             itemTpl: new Ext.XTemplate(
@@ -38812,11 +38831,15 @@ Ext.define('App.controller.Clock', {
 	},
 
 	updateClock:function(date){
-		this.date.setHours(date.hours, date.minutes, date.seconds);
+		this.date = new Date(date.year, date.mon, date.mday, date.hours, date.minutes, date.seconds );
 	},
 
 	getTime: function () {
 		return Ext.clone(this.date);
+	},
+
+	getDate: function () {
+		return this.getTime();
 	}
 
 });
@@ -40611,11 +40634,11 @@ Ext.define('App.controller.patient.Allergies', {
 			'#allergyFoodCombo': {
 				select: me.onAllergyFoodComboSelect
 			},
-			'#allergyLocationCombo': {
-				change: me.onAllergyLocationComboChange
-			},
 			'#allergySearchCombo': {
 				select: me.onAllergySearchComboSelect
+			},
+			'#allergyLocationCombo': {
+				change: me.onAllergyLocationComboChange
 			},
 			'#allergyReactionCombo': {
 				select: me.onAllergyReactionComboSelect
@@ -40691,7 +40714,6 @@ Ext.define('App.controller.patient.Allergies', {
 			allergy_code_type: records[0].get('code_type')
 		});
 	},
-
 
 	onAllergyTypeComboSelect: function(combo, records){
 
@@ -61172,6 +61194,7 @@ Ext.define('App.view.patient.Allergies', {
 								name: 'location',
 								action: 'location',
 								itemId: 'allergyLocationCombo',
+								addUnknownOption: true,
 								width: 225,
 								list: 79,
 								labelWidth: 70
@@ -61180,6 +61203,7 @@ Ext.define('App.view.patient.Allergies', {
 								xtype: 'gaiaehr.combo',
 								fieldLabel: _('reaction'),
 								itemId: 'allergyReactionCombo',
+								addUnknownOption: true,
 								name: 'reaction',
 								width: 230,
 								queryMode : 'local',
@@ -61191,6 +61215,7 @@ Ext.define('App.view.patient.Allergies', {
 								fieldLabel: _('severity'),
 								name: 'severity',
 								itemId: 'allergySeverityCombo',
+								addUnknownOption: true,
 								width: 225,
 								list: 84,
 								labelWidth: 70,

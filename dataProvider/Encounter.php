@@ -893,7 +893,7 @@ class Encounter {
 				$lis .= 'Reaction: ' . $foo['reaction'] . '<br>';
 				$lis .= 'Severity: ' . $foo['severity'] . '<br>';
 				$lis .= 'Location: ' . $foo['location'] . '<br>';
-				$lis .= 'Active?: ' . ($foo['end_date'] != null ? 'Yes' : 'No') . '</li>';
+				$lis .= 'Status: ' . (isset($foo['status']) ? $foo['status'] : 'Unknown') . '</li>';
 			}
 			$str_buff .= '<p><b>Allergies:</b></p>';
 			$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';

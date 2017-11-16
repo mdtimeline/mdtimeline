@@ -391,10 +391,11 @@ class Documents {
 	 * @param null|array $custom_footer_data
 	 * @param array $key_images
 	 * @param string $water_mark
-	 * @param bool $singleColumn
+	 * @param array $key_images
+	 * @param array $key_images_config
 	 * @return bool
 	 */
-	public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $custom_footer_data = null, $water_mark = '', $key_images = [], $singleColumn = false) {
+	public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $custom_footer_data = null, $water_mark = '', $key_images = [], $key_images_config = []) {
 		$pid = $params->pid;
 		$regex = '(\[\w*?\])';
 
@@ -575,7 +576,6 @@ class Documents {
 
 		foreach($pages AS $page){
 			$pdf->AddPage('','',true);
-
 			if($this->isHtml($page)){
 				$pdf->writeHTML($page);
 			}else{
@@ -583,9 +583,25 @@ class Documents {
 			}
 		}
 
-		$y = $pdf->GetY();
+		$pdf->SetY($pdf->GetY() + 5 );
 
-		$rowHeight = 0;
+		$imagesCount = count($key_images);
+
+		if(isset($key_images_config[$imagesCount])){
+			$imagesCols = $key_images_config[$imagesCount]['cols'];
+			$imagesPadding = $key_images_config[$imagesCount]['padding'];
+		}else{
+			$imagesCols = 1;
+			$imagesPadding = 2;
+		}
+
+		if($imagesCount < $imagesCols){
+			$imagesCols = $imagesCount;
+		}
+
+		$pageWidth = $pdf->getPageWidth();
+		$bodyWidth = $pageWidth - $margins['left'] - $margins['right'];
+		$imageWidth =  ($bodyWidth / $imagesCols);
 
 		//image //title
 		foreach ($key_images as $index => $key_image){
@@ -594,32 +610,16 @@ class Documents {
 				continue;
 			}
 
-			if($index === 0){
-				$y = $y + 10;
-			}
-
-			$newRow = $singleColumn || !($index % 2);
-
-			if($newRow){
-				$x = $margins['right'];
-				if($rowHeight > 0){
-					$y = $y + $rowHeight + 10;
-					$rowHeight = 0;
-				}
-			}else{
-				$x = $pdf->getCenter();
-				$y -= 5;
-			}
-
 			$img = 'data://text/plain;base64,' . $key_image['image'];
-			$y += 5;
-			$pdf->Image($img, $x, $y, 0, 0, 'jpg', '', 'N');
 
-			$imageBuffer = $pdf->getImageBuffer($img);
+			$lastCol = !(($index + 1)  % $imagesCols);
 
-			if($rowHeight < $imageBuffer['h']){
-				$rowHeight = $imageBuffer['h'] / 2;
+			if($lastCol){
+				$pdf->Image($img, '', '', $imageWidth, 0, 'jpg', '', 'N', true,300,'',false,false, array('LTRB' => array('width' => $imagesPadding, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(255, 255, 255))));
+			}else{
+				$pdf->Image($img, '', '', $imageWidth, 0, 'jpg', '', 'T', true,300,'',false,false, array('LTRB' => array('width' => $imagesPadding, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(255, 255, 255))));
 			}
+
 		}
 
 		if($path == ''){

@@ -587,39 +587,46 @@ class Documents {
 
 		$imagesCount = count($key_images);
 
-		if(isset($key_images_config[$imagesCount])){
-			$imagesCols = $key_images_config[$imagesCount]['cols'];
-			$imagesPadding = $key_images_config[$imagesCount]['padding'];
-		}else{
-			$imagesCols = 1;
-			$imagesPadding = 2;
-		}
 
-		if($imagesCount < $imagesCols){
-			$imagesCols = $imagesCount;
-		}
+		if($imagesCount > 0){
 
-		$pageWidth = $pdf->getPageWidth();
-		$bodyWidth = $pageWidth - $margins['left'] - $margins['right'];
-		$imageWidth =  ($bodyWidth / $imagesCols);
-
-		//image //title
-		foreach ($key_images as $index => $key_image){
-
-			if(!isset($key_image['image']) || !isset($key_image['title'])){
-				continue;
-			}
-
-			$img = 'data://text/plain;base64,' . $key_image['image'];
-
-			$lastCol = !(($index + 1)  % $imagesCols);
-
-			if($lastCol){
-				$pdf->Image($img, '', '', $imageWidth, 0, 'jpg', '', 'N', true,300,'',false,false, array('LTRB' => array('width' => $imagesPadding, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(255, 255, 255))));
+			if($imagesCount > count($key_images_config)){
+				$config = end($key_images_config);
+			}elseif(isset($key_images_config[$imagesCount])){
+				$config = $key_images_config[$imagesCount];
 			}else{
-				$pdf->Image($img, '', '', $imageWidth, 0, 'jpg', '', 'T', true,300,'',false,false, array('LTRB' => array('width' => $imagesPadding, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(255, 255, 255))));
+				$config = ['cols' => 1,'padding' => 2];
 			}
 
+			$imagesCols = $config['cols'];
+			$imagesPadding = $config['padding'];
+
+			if($imagesCount < $imagesCols){
+				$imagesCols = $imagesCount;
+			}
+
+			$pageWidth = $pdf->getPageWidth();
+			$bodyWidth = $pageWidth - $margins['left'] - $margins['right'];
+			$imageWidth =  ($bodyWidth / $imagesCols);
+
+			//image //title
+			foreach ($key_images as $index => $key_image){
+
+				if(!isset($key_image['image']) || !isset($key_image['title'])){
+					continue;
+				}
+
+				$img = 'data://text/plain;base64,' . $key_image['image'];
+
+				$lastCol = !(($index + 1)  % $imagesCols);
+
+				if($lastCol){
+					$pdf->Image($img, '', '', $imageWidth, 0, 'jpg', '', 'N', true,300,'',false,false, array('LTRB' => array('width' => $imagesPadding, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(255, 255, 255))));
+				}else{
+					$pdf->Image($img, '', '', $imageWidth, 0, 'jpg', '', 'T', true,300,'',false,false, array('LTRB' => array('width' => $imagesPadding, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(255, 255, 255))));
+				}
+
+			}
 		}
 
 		if($path == ''){

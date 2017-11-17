@@ -90,7 +90,7 @@ Ext.define('App.controller.BrowserHelper', {
 
 		data = JSON.parse(data);
 
-		if(data.action && data.action == 'command'){
+		if(data.action && data.action === 'command'){
 			this.log('fireEvent: ' + data.msg);
 			app.fireEvent(data.msg, this);
 		}else{

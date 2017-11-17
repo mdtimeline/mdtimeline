@@ -52,7 +52,7 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 				boxLabel: me.boxLabel,
 				submitValue: false,
 				inputValue: me.inputValue,
-				width: 130,
+				width: 150,
 				margin: '0 10 0 0'
 			}
 		];

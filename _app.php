@@ -362,9 +362,11 @@ header("Access-Control-Allow-Origin: *");
 		            /**
 		             * Load the form specific related fields
 		             * Not all the fields are the same.
-		             */
+	             */
 		            'App.ux.form.fields.Help',
 		            'App.ux.form.fields.Checkbox',
+		            'App.ux.form.fields.CheckBoxWithText',
+		            'App.ux.form.fields.CheckBoxWithFamilyRelation',
 		            'App.ux.form.fields.ColorPicker',
 		            'App.ux.form.fields.Currency',
 		            'App.ux.form.fields.CustomTrigger',

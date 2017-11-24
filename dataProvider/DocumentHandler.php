@@ -352,7 +352,7 @@ class DocumentHandler {
 				throw new Exception('Unable to write file. document_id: ' . $document->id . ' path: ' . $path);
 			}
 
-			$sth = $conn->prepare("UPDATE patient_documents SET filesystem_id = :filesystem_id, path = :path, `name` = :name WHERE id = :id;");
+			$sth = $conn->prepare("UPDATE patient_documents SET document = '', filesystem_id = :filesystem_id, path = :path, `name` = :name WHERE id = :id;");
 			$sth->execute([
 				':id' => $document->id,
 				':filesystem_id' => $filesystem_id,

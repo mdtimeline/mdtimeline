@@ -881,6 +881,7 @@ header("Access-Control-Allow-Origin: *");
 	                'ScriptCam',
 	                'Support',
 	                'Theme',
+	                'Upload',
 
 	                'patient.ActiveProblems',
 	                'patient.AdvanceDirectives',

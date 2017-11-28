@@ -110,6 +110,16 @@ class SocialHistory {
 		return $this->ss->save($params);
 	}
 
+
+	/**
+	 * @param $params
+	 * @return mixed
+	 */
+	public function destroySmokeStatus($params){
+		$this->setModel();
+		return $this->ss->destroy($params);
+	}
+
 	/**
 	 * @param $pid
 	 * @param null $start

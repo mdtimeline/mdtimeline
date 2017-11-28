@@ -1599,6 +1599,9 @@ $API = [
             ],
 			'updateSmokeStatus' => [
 				'len' => 1
+            ],
+			'destroySmokeStatus' => [
+				'len' => 1
             ]
         ]
     ],

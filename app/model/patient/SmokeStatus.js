@@ -102,7 +102,8 @@ Ext.define('App.model.patient.SmokeStatus', {
 		api: {
 			read: 'SocialHistory.getSmokeStatus',
 			create: 'SocialHistory.addSmokeStatus',
-			update: 'SocialHistory.updateSmokeStatus'
+			update: 'SocialHistory.updateSmokeStatus',
+			destroy: 'SocialHistory.destroySmokeStatus'
 		}
 	}
 });

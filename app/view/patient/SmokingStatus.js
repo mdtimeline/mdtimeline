@@ -21,7 +21,8 @@ Ext.define('App.view.patient.SmokingStatus', {
 	requires: [
 		'Ext.grid.plugin.RowEditing',
 		'App.store.patient.SmokeStatus',
-		'App.ux.combo.SmokingStatus'
+		'App.ux.combo.SmokingStatus',
+		'App.ux.grid.DeleteColumn'
 	],
 	xtype: 'patientsmokingstatusgrid',
 	itemId: 'PatientSmokingStatusGrid',
@@ -35,6 +36,11 @@ Ext.define('App.view.patient.SmokingStatus', {
 		}
 	],
 	columns: [
+		{
+			xtype: 'griddeletecolumn',
+			acl: a('delete_smoking_status'),
+			width: 25
+		},
 		{
 			xtype: 'datecolumn',
 			text: _('date'),

@@ -1941,5 +1941,6 @@ $LANG = array(
 	'remove_encounter_related_error' => 'Record does not relate to this encounter',
 	'contition' => 'Contition',
 	'ess' => 'ESS',
+	'permission_denied' => 'Permission Denied',
 
 );

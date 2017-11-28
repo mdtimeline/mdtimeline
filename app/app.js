@@ -6617,21 +6617,37 @@ Ext.define('App.ux.grid.DeleteColumn', {
 	acl: '*',
 	width: 30,
 	handler: function(grid, rowIndex, colIndex, item, e, record) {
-		if(this.acl === false || eval(a(this.acl)) === true){
-			Ext.Msg.show({
-				title:_('wait'),
-				msg: _('delete_record_confirmation'),
-				buttons: Ext.Msg.YESNO,
-				icon: Ext.Msg.QUESTION,
-				fn: function(btn){
-					if(btn == 'yes'){
-						record.store.remove(record);
-					}
-				}
-			});
-		}else{
-			app.msg(_('oops'), _('permission_denied'), true);
+		var acl = Ext.isString(this.acl) ? a(this.acl) : eval(this.acl),
+			eid = record.get('eid');
+
+		if(eid !== app.patient.eid && !Ext.isEmpty(eid)){
+			app.msg(_('oops'), _('remove_encounter_related_error'), true);
+			return;
 		}
+
+		if(acl !== true) {
+			app.msg(_('oops'), _('permission_denied'), true);
+			return;
+		}
+
+		Ext.Msg.show({
+			title:_('wait'),
+			msg: _('delete_record_confirmation'),
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function(btn){
+				if(btn === 'yes'){
+					var store = grid.store;
+					store.remove(record);
+					store.sync({
+						callback: function () {
+							app.msg(_('sweet'), _('record_removed'), 'yellow');
+						}
+					});
+				}
+			}
+		});
+
 	}
 });
 
@@ -11660,7 +11676,8 @@ Ext.define('App.model.patient.SmokeStatus', {
 		api: {
 			read: 'SocialHistory.getSmokeStatus',
 			create: 'SocialHistory.addSmokeStatus',
-			update: 'SocialHistory.updateSmokeStatus'
+			update: 'SocialHistory.updateSmokeStatus',
+			destroy: 'SocialHistory.destroySmokeStatus'
 		}
 	}
 });
@@ -26037,6 +26054,7 @@ Ext.define('App.view.patient.SocialHistory', {
 		'Ext.grid.feature.Grouping',
 		'App.store.patient.PatientSocialHistory',
 		'App.ux.combo.Combo',
+		'App.ux.grid.DeleteColumn'
 	],
 	xtype: 'patientsocialhistorypanel',
 	itemId: 'PatientSocialHistoryGrid',
@@ -26057,6 +26075,11 @@ Ext.define('App.view.patient.SocialHistory', {
 		}
 	],
 	columns: [
+		{
+			xtype: 'griddeletecolumn',
+			acl: a('delete_social_history'),
+			width: 25
+		},
 		{
 			text: _('type'),
 			dataIndex: 'category_code_text',
@@ -51171,7 +51194,8 @@ Ext.define('App.view.patient.SmokingStatus', {
 	requires: [
 		'Ext.grid.plugin.RowEditing',
 		'App.store.patient.SmokeStatus',
-		'App.ux.combo.SmokingStatus'
+		'App.ux.combo.SmokingStatus',
+		'App.ux.grid.DeleteColumn'
 	],
 	xtype: 'patientsmokingstatusgrid',
 	itemId: 'PatientSmokingStatusGrid',
@@ -51185,6 +51209,11 @@ Ext.define('App.view.patient.SmokingStatus', {
 		}
 	],
 	columns: [
+		{
+			xtype: 'griddeletecolumn',
+			acl: a('delete_smoking_status'),
+			width: 25
+		},
 		{
 			xtype: 'datecolumn',
 			text: _('date'),

@@ -808,10 +808,10 @@ Ext.define('App.view.Viewport', {
 
 	openCalendar: function(){
         var me = this,
-	        cls = me.nav.getNavRefByClass('Modules.appointments.view.Calendar'),
+	        cls = me.nav.getNavRefByClass('Modules.appointments.view.CalendarPanel'),
 	        panel =  me.nav[cls];
 		//if(panel && panel == me.nav.activePanel) panel.loadPatient();
-        me.nav.navigateTo('Modules.appointments.view.Calendar');
+        me.nav.navigateTo('Modules.appointments.view.CalendarPanel');
     },
 
 	stowPatientRecord: function(){

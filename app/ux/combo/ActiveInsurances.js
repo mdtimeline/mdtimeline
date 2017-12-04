@@ -22,7 +22,7 @@ Ext.define('App.ux.combo.ActiveInsurances', {
 				},
 				{
 					name: 'option_value',
-					type: 'string'
+					type: 'int'
 				}
 			],
 			proxy: {

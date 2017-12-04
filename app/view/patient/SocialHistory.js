@@ -23,6 +23,7 @@ Ext.define('App.view.patient.SocialHistory', {
 		'Ext.grid.feature.Grouping',
 		'App.store.patient.PatientSocialHistory',
 		'App.ux.combo.Combo',
+		'App.ux.grid.DeleteColumn'
 	],
 	xtype: 'patientsocialhistorypanel',
 	itemId: 'PatientSocialHistoryGrid',
@@ -43,6 +44,11 @@ Ext.define('App.view.patient.SocialHistory', {
 		}
 	],
 	columns: [
+		{
+			xtype: 'griddeletecolumn',
+			acl: a('delete_social_history'),
+			width: 25
+		},
 		{
 			text: _('type'),
 			dataIndex: 'category_code_text',

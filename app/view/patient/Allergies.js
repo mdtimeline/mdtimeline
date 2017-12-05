@@ -272,7 +272,7 @@ Ext.define('App.view.patient.Allergies', {
 		},
 		'->',
 		{
-			text: _('review'),
+			text: (_('no_known_allergies') + '/' + _('review')) ,
 			action: 'encounterRecordAdd',
 			itemId: 'reviewAllergiesBtn'
 		}

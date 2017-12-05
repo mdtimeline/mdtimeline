@@ -40737,7 +40737,7 @@ Ext.define('App.controller.patient.Allergies', {
 				toggle: me.onPatientAllergyReconciledBtnToggle
 			},
 			'patientallergiespanel #reviewAllergiesBtn': {
-				toggle: me.onReviewAllergiesBtnClick
+				click: me.onReviewAllergiesBtnClick
 			},
 			'#allergyTypeCombo': {
 				select: me.onAllergyTypeComboSelect
@@ -40994,7 +40994,7 @@ Ext.define('App.controller.patient.Allergies', {
 
 	onReviewAllergiesBtnClick: function(){
 		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
-		encounter.set({review_allergies:true});
+		encounter.set({review_allergies: true});
 		encounter.save({
 			success: function(){
 				app.msg(_('sweet'), _('items_to_review_save_and_review'));
@@ -61380,7 +61380,7 @@ Ext.define('App.view.patient.Allergies', {
 		},
 		'->',
 		{
-			text: _('review'),
+			text: (_('no_known_allergies') + '/' + _('review')) ,
 			action: 'encounterRecordAdd',
 			itemId: 'reviewAllergiesBtn'
 		}

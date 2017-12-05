@@ -347,7 +347,8 @@ class CronBootstrap
             $data->month = '*';
             $data->week_day = '*';
             $data->timeout = '3600';
-            return $this->CronJobModel->save($data);
+            $result =  $this->CronJobModel->save($data);
+	        $result['data'] = (array) $result['data'];
         } else {
 
 	        $CronJobRecords['data']['expression'] = sprintf(

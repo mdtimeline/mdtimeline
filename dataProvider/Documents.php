@@ -844,7 +844,7 @@ class Documents {
 		if(isset($params->date_ordered)){
 			$index = array_search('[ORDER_DATE]', $tokens);
 			if($index !== false){
-				$allNeededInfo[$index] = $params->date_ordered;
+				$allNeededInfo[$index] = $this->dateToString($params->date_ordered);
 			}
 		}
 

@@ -194,11 +194,24 @@ Ext.define('App.controller.patient.Vitals', {
 
 	onAppBeforeEncounterLoad: function(record){
 		if(this.getVitalsHistoryGrid()){
-			if(record.vitalsStore){
-				this.doReconfigureGrid(record.vitalsStore);
-			}else{
-				this.doReconfigureGrid(Ext.getStore('ext-empty-store'));
-			}
+
+			var store = this.getVitalsHistoryGrid().getStore();
+
+			say(store);
+
+			store.clearFilter(true);
+			store.filter([
+				{
+					property: 'pid',
+					value: record.get('pid')
+				}
+			]);
+
+			// if(record.vitalsStore){
+			//	this.doReconfigureGrid(record.vitalsStore);
+			// }else{
+			// 	this.doReconfigureGrid(Ext.getStore('ext-empty-store'));
+			// }
 
 		}
 	},

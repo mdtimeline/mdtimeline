@@ -220,7 +220,7 @@ class Encounter {
 			$this->e->addFilter('service_date', $end, '<=');
 		}
 
-		return $this->e->load()->all();;
+		return $this->e->load()->all();
 	}
 
 	/**
@@ -244,11 +244,10 @@ class Encounter {
 	/**
 	 * @param stdClass|int $params
 	 * @param bool $relations
-	 * @param bool $allVitals include all patient vitals
 	 *
 	 * @return array|mixed
 	 */
-	public function getEncounter($params, $relations = true, $allVitals = true) {
+	public function getEncounter($params, $relations = true) {
 
 		if(is_string($params) || is_int($params)){
 			$filters = new stdClass();
@@ -267,13 +266,13 @@ class Encounter {
 
 		$relations = isset($params->relations) ? $params->relations : $relations;
 		if($relations == false) return ['encounter' => $encounter];
-		$encounter = $this->getEncounterRelations($encounter, $allVitals);
+		$encounter = $this->getEncounterRelations($encounter);
 
 		unset($filters);
 		return ['encounter' => $encounter];
 	}
 
-	private function getEncounterRelations($encounter, $allVitals = true) {
+	private function getEncounterRelations($encounter) {
 		$filters = new stdClass();
 		$filters->filter[0] = new stdClass();
 		$filters->filter[0]->property = 'eid';
@@ -281,7 +280,7 @@ class Encounter {
 
 		$Vitals = new Vitals();
 		if($_SESSION['globals']['enable_encounter_vitals']){
-			$encounter['vitals'] = $allVitals ? $Vitals->getVitalsByPid($encounter['pid']) : $Vitals->getVitalsByEid($encounter['eid']);
+			$encounter['vitals'] = $Vitals->getVitalsByEid($encounter['eid']);
 		}
 		unset($Vitals);
 
@@ -318,7 +317,7 @@ class Encounter {
 
 	public function getEncounterSummary(stdClass $params) {
 		$this->setEid($params->eid);
-		$record = $this->getEncounter($params);
+		$record = $this->getEncounter($params, false);
 		$encounter = (array)$record['encounter'];
 		$encounter['patient'] = $this->patient->getPatientDemographicDataByPid($encounter['pid']);
 		if(!empty($e)){
@@ -503,7 +502,7 @@ class Encounter {
 	 */
 	public function getProgressNoteByEid($eid) {
 
-		$record = $this->getEncounter($eid, true, false);
+		$record = $this->getEncounter($eid, true);
 		$encounter = (array)$record['encounter'];
 		$user = new User();
 		$encounter['service_date'] = date('F j, Y, g:i a', strtotime($encounter['service_date']));
@@ -680,7 +679,7 @@ class Encounter {
 	private function getObjectiveExtraDataByEid($eid, $encounter = null) {
 
 		if(!isset($encounter)){
-			$record = $this->getEncounter($eid, true, false);
+			$record = $this->getEncounter($eid, true);
 			$encounter = (array)$record['encounter'];
 		}
 

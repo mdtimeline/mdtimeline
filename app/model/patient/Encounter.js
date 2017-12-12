@@ -205,12 +205,6 @@ Ext.define('App.model.patient.Encounter', {
 	},
 	hasMany: [
 		{
-			model: 'App.model.patient.Vitals',
-			name: 'vitals',
-			primaryKey: 'eid',
-			foreignKey: 'eid'
-		},
-		{
 			model: 'App.model.patient.ReviewOfSystems',
 			name: 'reviewofsystems',
 			primaryKey: 'eid',

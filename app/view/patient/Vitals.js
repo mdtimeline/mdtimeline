@@ -81,6 +81,9 @@ Ext.define('App.view.patient.Vitals', {
 			columnLines: true,
 			itemId: 'historyGrid',
 			multiSelect: true,
+			store: Ext.create('App.store.patient.Vitals',{
+				remoteFilter: true
+			}),
 			plugins: [
 				{
 					ptype: 'rowediting'
@@ -122,6 +125,12 @@ Ext.define('App.view.patient.Vitals', {
 		var me = this;
 
 		var columns = [
+			{
+				text: 'eid',
+				dataIndex: 'eid',
+				hidden: true,
+				width: 50
+			},
 			{
 				xtype: 'actioncolumn',
 				width: 20,

@@ -15251,10 +15251,6 @@ Ext.define('App.model.patient.Vitals', {
 		writer: {
 			writeAllFields: true
 		}
-	},
-	belongsTo: {
-		model: 'App.model.patient.Encounter',
-		foreignKey: 'eid'
 	}
 });
 
@@ -17415,12 +17411,6 @@ Ext.define('App.model.patient.Encounter', {
 		}
 	},
 	hasMany: [
-		{
-			model: 'App.model.patient.Vitals',
-			name: 'vitals',
-			primaryKey: 'eid',
-			foreignKey: 'eid'
-		},
 		{
 			model: 'App.model.patient.ReviewOfSystems',
 			name: 'reviewofsystems',
@@ -24992,6 +24982,9 @@ Ext.define('App.view.patient.Vitals', {
 			columnLines: true,
 			itemId: 'historyGrid',
 			multiSelect: true,
+			store: Ext.create('App.store.patient.Vitals',{
+				remoteFilter: true
+			}),
 			plugins: [
 				{
 					ptype: 'rowediting'
@@ -25033,6 +25026,12 @@ Ext.define('App.view.patient.Vitals', {
 		var me = this;
 
 		var columns = [
+			{
+				text: 'eid',
+				dataIndex: 'eid',
+				hidden: true,
+				width: 50
+			},
 			{
 				xtype: 'actioncolumn',
 				width: 20,
@@ -35794,8 +35793,7 @@ Ext.define('App.store.patient.VisitPayment', {
 Ext.define('App.store.patient.Vitals', {
 	extend: 'Ext.data.Store',
 	requires: ['App.model.patient.Vitals'],
-	pageSize: 10,
-	model   : 'App.model.patient.Vitals'
+	model: 'App.model.patient.Vitals'
 });
 Ext.define('App.store.patient.charts.BMIForAge', {
 	extend: 'Ext.data.Store',
@@ -46908,11 +46906,24 @@ Ext.define('App.controller.patient.Vitals', {
 
 	onAppBeforeEncounterLoad: function(record){
 		if(this.getVitalsHistoryGrid()){
-			if(record.vitalsStore){
-				this.doReconfigureGrid(record.vitalsStore);
-			}else{
-				this.doReconfigureGrid(Ext.getStore('ext-empty-store'));
-			}
+
+			var store = this.getVitalsHistoryGrid().getStore();
+
+			say(store);
+
+			store.clearFilter(true);
+			store.filter([
+				{
+					property: 'pid',
+					value: record.get('pid')
+				}
+			]);
+
+			// if(record.vitalsStore){
+			//	this.doReconfigureGrid(record.vitalsStore);
+			// }else{
+			// 	this.doReconfigureGrid(Ext.getStore('ext-empty-store'));
+			// }
 
 		}
 	},

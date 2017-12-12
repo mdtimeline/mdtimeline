@@ -204,9 +204,5 @@ Ext.define('App.model.patient.Vitals', {
 		writer: {
 			writeAllFields: true
 		}
-	},
-	belongsTo: {
-		model: 'App.model.patient.Encounter',
-		foreignKey: 'eid'
 	}
 });

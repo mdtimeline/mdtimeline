@@ -1967,7 +1967,7 @@ class CCDDocument extends CDDDocumentBase
         } elseif(is_numeric($this->eid)) {
             $params->filter[0]->property = 'eid';
             $params->filter[0]->value = $this->eid;
-            $encounter = $Encounter->getEncounter($params, false, false);
+            $encounter = $Encounter->getEncounter($params, false);
             $soap = $this->Encounter->getSoapByEid($encounter['encounter']['eid']);
             $tempSoap = 'Instructions: '. $soap['instructions'];
 

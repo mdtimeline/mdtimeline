@@ -381,10 +381,26 @@ Ext.define('App.view.patient.Summary', {
 					autoSync: false,
 					autoLoad: false
 				}),
-				plugins: Ext.create('Ext.grid.plugin.RowEditing', {
-					autoCancel: false,
-					errorSummary: false,
-					clicksToEdit: 2
+				plugins: Ext.create('App.ux.grid.RowFormEditing', {
+					// autoCancel: false,
+					// errorSummary: false,
+					clicksToEdit: 2,
+					items: [
+						{
+							xtype: 'textfield',
+							fieldLabel: _('type'),
+							name: 'type',
+							width: 300,
+							margin: '0 0 5 0'
+						},
+						{
+							xtype: 'textareafield',
+							fieldLabel: _('note'),
+							name: 'body',
+							height: 50,
+							anchor: '100%'
+						}
+					]
 				}),
 				columns: [
 					{
@@ -395,18 +411,12 @@ Ext.define('App.view.patient.Summary', {
 					},
 					{
 						header: _('type'),
-						dataIndex: 'type',
-						editor: {
-							xtype: 'textfield'
-						}
+						dataIndex: 'type'
 					},
 					{
 						text: _('note'),
 						dataIndex: 'body',
-						flex: 1,
-						editor: {
-							xtype: 'textfield'
-						}
+						flex: 1
 					},
 					{
 						text: _('user'),
@@ -570,6 +580,13 @@ Ext.define('App.view.patient.Summary', {
 			//
 			//	})
 			//});
+		}
+
+		if(a('access_patient_vitals')){
+			me.tabPanel.add({
+				xtype: 'vitalspanel',
+				border: true
+			});
 		}
 
 		if(a('access_patient_ccd')){

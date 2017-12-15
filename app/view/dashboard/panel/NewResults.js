@@ -22,7 +22,7 @@ Ext.define('App.view.dashboard.panel.NewResults', {
 	requires: [
 		'Ext.ux.SlidingPager'
 	],
-	maxHeight: 200,
+	height: 220,
 	columnLines: true,
 	disableSelection: true,
 	initComponent: function(){
@@ -44,7 +44,7 @@ Ext.define('App.view.dashboard.panel.NewResults', {
 				dataIndex: 'signed_uid',
 				width: 60,
 				renderer: function(v){
-					return app.boolRenderer(v);
+					return me.signedRenderer(v);
 				}
 			},
 			{
@@ -67,7 +67,13 @@ Ext.define('App.view.dashboard.panel.NewResults', {
 		me.callParent(arguments);
 	},
 
-
+	signedRenderer: function(uid) {
+		if(uid > 0) {
+			return '<img style="padding-left: 13px" src="resources/images/icons/yes.png" />';
+		} else {
+			return '<img style="padding-left: 13px" src="resources/images/icons/no.png" />';
+		}
+	},
 
 	/**
 	 * Custom function used for column renderer

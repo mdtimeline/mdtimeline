@@ -738,6 +738,7 @@ header("Access-Control-Allow-Origin: *");
 
 	                'dashboard.Dashboard',
 	                'dashboard.panel.NewResults',
+	                'dashboard.panel.NotSignedVitals',
 	                'dashboard.panel.DailyVisits',
 
 	                /**
@@ -862,6 +863,7 @@ header("Access-Control-Allow-Origin: *");
 
 	                'dashboard.Dashboard',
 	                'dashboard.panel.NewResults',
+	                'dashboard.panel.NotSignedVitals',
 	                'dashboard.panel.DailyVisits',
 
 	                'miscellaneous.Amendments',

@@ -34,7 +34,7 @@ Ext.define('App.view.patient.encounter.AppointmentRequestWindow', {
 				xtype: 'form',
 				bodyPadding: 10,
 				layout: 'anchor',
-				width: 670,
+				width: 760,
 				itemId: 'AppointmentRequestForm',
 				items: [
 					{
@@ -69,8 +69,8 @@ Ext.define('App.view.patient.encounter.AppointmentRequestWindow', {
 							},
 							{
 								xtype: 'button',
-								text: '+3 W',
-								action: '3W'
+								text: '+6 W',
+								action: '6W'
 							},
 							{
 								xtype: 'button',
@@ -79,8 +79,23 @@ Ext.define('App.view.patient.encounter.AppointmentRequestWindow', {
 							},
 							{
 								xtype: 'button',
+								text: '+2 M',
+								action: '2M'
+							},
+							{
+								xtype: 'button',
 								text: '+3 M',
 								action: '3M'
+							},
+							{
+								xtype: 'button',
+								text: '+4 M',
+								action: '4M'
+							},
+							{
+								xtype: 'button',
+								text: '+5 M',
+								action: '5M'
 							},
 							{
 								xtype: 'button',
@@ -91,16 +106,6 @@ Ext.define('App.view.patient.encounter.AppointmentRequestWindow', {
 								xtype: 'button',
 								text: '+1 Y',
 								action: '1Y'
-							},
-							{
-								xtype: 'button',
-								text: '+2 Y',
-								action: '2Y'
-							},
-							{
-								xtype: 'button',
-								text: '+3 Y',
-								action: '3Y'
 							}
 						]
 					},

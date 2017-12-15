@@ -636,6 +636,36 @@ class Encounter {
 		$str_buff .= '</div>';
 		unset($family_histories, $FamilyHistory);
 
+		/**
+		 * Allergies
+		 */
+		$Allergies = new Allergies();
+		$allergies = $Allergies->getPatientAllergiesByEid($eid);
+
+		if(!empty($allergies)){
+			$str_buff .= '<div class="indent">';
+			$lis = '';
+			foreach($allergies as $foo){
+				$lis .= '<li>Allergy: ' . $foo['allergy'] . ' (' . $foo['allergy_type'] . ')<br>';
+				$lis .= 'Reaction: ' . $foo['reaction'] . '<br>';
+				$lis .= 'Severity: ' . $foo['severity'] . '<br>';
+				$lis .= 'Location: ' . $foo['location'] . '<br>';
+				$lis .= 'Status: ' . (isset($foo['status']) ? $foo['status'] : 'Unknown') . '</li>';
+			}
+			$str_buff .= '<p><b>Allergies:</b></p>';
+			$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
+			$str_buff .= '</div>';
+		}else{
+			if($encounter['review_allergies']){
+				$str_buff .= '<div class="indent">';
+				$str_buff .= '<p><b>Allergies:</b> No Known Allergies</p>';
+				$str_buff .= '</div>';
+			}
+		}
+
+		unset($Allergies, $allergies);
+
+
 
 		include_once (ROOT. '/dataProvider/SocialHistory.php');
 		$SocialHistory = new SocialHistory();
@@ -878,34 +908,6 @@ class Encounter {
 
 		unset($ActiveProblems, $active_problems);
 
-		/**
-		 * Allergies
-		 */
-		$Allergies = new Allergies();
-		$allergies = $Allergies->getPatientAllergiesByEid($eid);
-
-		if(!empty($allergies)){
-			$str_buff .= '<div class="indent">';
-			$lis = '';
-			foreach($allergies as $foo){
-				$lis .= '<li>Allergy: ' . $foo['allergy'] . ' (' . $foo['allergy_type'] . ')<br>';
-				$lis .= 'Reaction: ' . $foo['reaction'] . '<br>';
-				$lis .= 'Severity: ' . $foo['severity'] . '<br>';
-				$lis .= 'Location: ' . $foo['location'] . '<br>';
-				$lis .= 'Status: ' . (isset($foo['status']) ? $foo['status'] : 'Unknown') . '</li>';
-			}
-			$str_buff .= '<p><b>Allergies:</b></p>';
-			$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
-			$str_buff .= '</div>';
-		}else{
-			if($encounter['review_allergies']){
-				$str_buff .= '<div class="indent">';
-				$str_buff .= '<p><b>Allergies:</b> No Known Allergies</p>';
-				$str_buff .= '</div>';
-			}
-		}
-
-		unset($Allergies, $allergies);
 
 		/**
 		 * Immunizations ????

@@ -15238,6 +15238,56 @@ Ext.define('App.model.patient.Vitals', {
 			name: 'authorized_by',
 			type: 'string',
 			store: false
+		},
+		{
+			name: 'patient_record_number',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'patient_fname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'patient_mname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'patient_lname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'administer_fname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'administer_mname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'administer_lname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'authorized_fname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'authorized_mname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'authorized_name',
+			type: 'string',
+			store: false
 		}
 	],
 	proxy: {
@@ -22502,7 +22552,7 @@ Ext.define('App.view.dashboard.panel.NewResults', {
 	requires: [
 		'Ext.ux.SlidingPager'
 	],
-	maxHeight: 200,
+	height: 220,
 	columnLines: true,
 	disableSelection: true,
 	initComponent: function(){
@@ -22524,7 +22574,7 @@ Ext.define('App.view.dashboard.panel.NewResults', {
 				dataIndex: 'signed_uid',
 				width: 60,
 				renderer: function(v){
-					return app.boolRenderer(v);
+					return me.signedRenderer(v);
 				}
 			},
 			{
@@ -22547,7 +22597,13 @@ Ext.define('App.view.dashboard.panel.NewResults', {
 		me.callParent(arguments);
 	},
 
-
+	signedRenderer: function(uid) {
+		if(uid > 0) {
+			return '<img style="padding-left: 13px" src="resources/images/icons/yes.png" />';
+		} else {
+			return '<img style="padding-left: 13px" src="resources/images/icons/no.png" />';
+		}
+	},
 
 	/**
 	 * Custom function used for column renderer
@@ -41300,26 +41356,29 @@ Ext.define('App.controller.patient.AppointmentRequests', {
 			case '2W':
 				date = Ext.Date.add(now, Ext.Date.DAY, 14);
 				break;
-			case '3W':
-				date = Ext.Date.add(now, Ext.Date.DAY, 21);
+			case '6W':
+				date = Ext.Date.add(now, Ext.Date.DAY, 42);
 				break;
 			case '1M':
 				date = Ext.Date.add(now, Ext.Date.MONTH, 1);
 				break;
+			case '2M':
+				date = Ext.Date.add(now, Ext.Date.MONTH, 2);
+				break;
 			case '3M':
 				date = Ext.Date.add(now, Ext.Date.MONTH, 3);
+				break;
+			case '4M':
+				date = Ext.Date.add(now, Ext.Date.MONTH, 4);
+				break;
+			case '5M':
+				date = Ext.Date.add(now, Ext.Date.MONTH, 5);
 				break;
 			case '6M':
 				date = Ext.Date.add(now, Ext.Date.MONTH, 6);
 				break;
 			case '1Y':
 				date = Ext.Date.add(now, Ext.Date.YEAR, 1);
-				break;
-			case '2Y':
-				date = Ext.Date.add(now, Ext.Date.YEAR, 2);
-				break;
-			case '3Y':
-				date = Ext.Date.add(now, Ext.Date.YEAR, 3);
 				break;
 			default:
 				date = now;
@@ -46815,6 +46874,9 @@ Ext.define('App.controller.patient.Vitals', {
 			'viewport': {
 				beforeencounterload: me.onAppBeforeEncounterLoad
 			},
+			'#PatientSummaryPanel vitalspanel': {
+				activate: me.onPatientSummaryPanelVitalsPanelActivate
+			},
 			'vitalspanel #historyGrid': {
 				selectionchange: me.onHistoryGridSelectionChange,
 				beforeselect: me.onHistoryGridBeforeSelect,
@@ -46850,6 +46912,18 @@ Ext.define('App.controller.patient.Vitals', {
 				keyup:me.onVitalWeightKgFieldKeyUp
 			}
 		});
+	},
+
+	onPatientSummaryPanelVitalsPanelActivate: function (vitals_panel) {
+		var store  = vitals_panel.down('grid').getStore();
+
+		store.clearFilter(true);
+		store.filter([
+			{
+				property: 'pid',
+				value: app.patient.pid
+			}
+		]);
 	},
 
 	onRxOrdersDeleteActionHandler: function (grid, rowIndex, colIndex, item, e, record) {
@@ -46898,10 +46972,6 @@ Ext.define('App.controller.patient.Vitals', {
 				}
 			}
 		});
-
-
-
-
 	},
 
 	onAppBeforeEncounterLoad: function(record){
@@ -56519,10 +56589,26 @@ Ext.define('App.view.patient.Summary', {
 					autoSync: false,
 					autoLoad: false
 				}),
-				plugins: Ext.create('Ext.grid.plugin.RowEditing', {
-					autoCancel: false,
-					errorSummary: false,
-					clicksToEdit: 2
+				plugins: Ext.create('App.ux.grid.RowFormEditing', {
+					// autoCancel: false,
+					// errorSummary: false,
+					clicksToEdit: 2,
+					items: [
+						{
+							xtype: 'textfield',
+							fieldLabel: _('type'),
+							name: 'type',
+							width: 300,
+							margin: '0 0 5 0'
+						},
+						{
+							xtype: 'textareafield',
+							fieldLabel: _('note'),
+							name: 'body',
+							height: 50,
+							anchor: '100%'
+						}
+					]
 				}),
 				columns: [
 					{
@@ -56533,18 +56619,12 @@ Ext.define('App.view.patient.Summary', {
 					},
 					{
 						header: _('type'),
-						dataIndex: 'type',
-						editor: {
-							xtype: 'textfield'
-						}
+						dataIndex: 'type'
 					},
 					{
 						text: _('note'),
 						dataIndex: 'body',
-						flex: 1,
-						editor: {
-							xtype: 'textfield'
-						}
+						flex: 1
 					},
 					{
 						text: _('user'),
@@ -56708,6 +56788,13 @@ Ext.define('App.view.patient.Summary', {
 			//
 			//	})
 			//});
+		}
+
+		if(a('access_patient_vitals')){
+			me.tabPanel.add({
+				xtype: 'vitalspanel',
+				border: true
+			});
 		}
 
 		if(a('access_patient_ccd')){

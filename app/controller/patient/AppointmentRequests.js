@@ -97,26 +97,29 @@ Ext.define('App.controller.patient.AppointmentRequests', {
 			case '2W':
 				date = Ext.Date.add(now, Ext.Date.DAY, 14);
 				break;
-			case '3W':
-				date = Ext.Date.add(now, Ext.Date.DAY, 21);
+			case '6W':
+				date = Ext.Date.add(now, Ext.Date.DAY, 42);
 				break;
 			case '1M':
 				date = Ext.Date.add(now, Ext.Date.MONTH, 1);
 				break;
+			case '2M':
+				date = Ext.Date.add(now, Ext.Date.MONTH, 2);
+				break;
 			case '3M':
 				date = Ext.Date.add(now, Ext.Date.MONTH, 3);
+				break;
+			case '4M':
+				date = Ext.Date.add(now, Ext.Date.MONTH, 4);
+				break;
+			case '5M':
+				date = Ext.Date.add(now, Ext.Date.MONTH, 5);
 				break;
 			case '6M':
 				date = Ext.Date.add(now, Ext.Date.MONTH, 6);
 				break;
 			case '1Y':
 				date = Ext.Date.add(now, Ext.Date.YEAR, 1);
-				break;
-			case '2Y':
-				date = Ext.Date.add(now, Ext.Date.YEAR, 2);
-				break;
-			case '3Y':
-				date = Ext.Date.add(now, Ext.Date.YEAR, 3);
 				break;
 			default:
 				date = now;

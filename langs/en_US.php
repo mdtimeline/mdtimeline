@@ -1943,5 +1943,7 @@ $LANG = array(
 	'ess' => 'ESS',
 	'permission_denied' => 'Permission Denied',
 	'no_known_allergies' => 'No Known Allergies',
+	'values' => 'Values',
+	'vitals_not_signed' => 'Vitals Not Signed',
 
 );

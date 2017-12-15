@@ -103,6 +103,9 @@ Ext.define('App.controller.patient.Vitals', {
 			'viewport': {
 				beforeencounterload: me.onAppBeforeEncounterLoad
 			},
+			'#PatientSummaryPanel vitalspanel': {
+				activate: me.onPatientSummaryPanelVitalsPanelActivate
+			},
 			'vitalspanel #historyGrid': {
 				selectionchange: me.onHistoryGridSelectionChange,
 				beforeselect: me.onHistoryGridBeforeSelect,
@@ -138,6 +141,18 @@ Ext.define('App.controller.patient.Vitals', {
 				keyup:me.onVitalWeightKgFieldKeyUp
 			}
 		});
+	},
+
+	onPatientSummaryPanelVitalsPanelActivate: function (vitals_panel) {
+		var store  = vitals_panel.down('grid').getStore();
+
+		store.clearFilter(true);
+		store.filter([
+			{
+				property: 'pid',
+				value: app.patient.pid
+			}
+		]);
 	},
 
 	onRxOrdersDeleteActionHandler: function (grid, rowIndex, colIndex, item, e, record) {
@@ -186,10 +201,6 @@ Ext.define('App.controller.patient.Vitals', {
 				}
 			}
 		});
-
-
-
-
 	},
 
 	onAppBeforeEncounterLoad: function(record){

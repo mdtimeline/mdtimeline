@@ -41,12 +41,31 @@ class Vitals {
 	 * @return array
 	 */
 	public function getVitals(stdClass $params){
-		$records =  $this->v->load($params)->all();
+		$records =  $this->v->load($params)->leftJoin(
+			[
+				'pubpid' => 'patient_record_number',
+				'fname' => 'patient_fname',
+				'mname' => 'patient_mname',
+				'lname' => 'patient_lname'
+			], 'patient', 'pid', 'pid'
+		)->leftJoin(
+			[
+				'fname' => 'administer_fname',
+				'mname' => 'administer_mname',
+				'lname' => 'administer_lname'
+			], 'users', 'uid', 'id'
+		)->leftJoin(
+			[
+				'fname' => 'authorized_fname',
+				'mname' => 'authorized_mname',
+				'lname' => 'authorized_lname'
+			], 'users', 'auth_uid', 'id'
+		)->all();
 		foreach($records as $i => $record){
 			$records[$i]['height_in'] = isset($record['height_in']) ? floatval($record['height_in']) : '';
 			$records[$i]['height_cm'] = isset($record['height_cm']) ? floatval($record['height_cm']) : '';
-			$records[$i]['administer_by'] = $record['uid'] != null ? $this->User->getUserNameById($record['uid']) : '';
-			$records[$i]['authorized_by'] = $record['auth_uid'] != null ? $this->User->getUserNameById($record['auth_uid']) : '';
+			$records[$i]['administer_by'] = $record['uid'] != null ? Person::fullname($record['administer_fname'],$record['administer_mname'],$record['administer_lname']) : '';
+			$records[$i]['authorized_by'] = $record['auth_uid'] != null ? Person::fullname($record['authorized_fname'],$record['authorized_mname'],$record['authorized_lname']) : '';
 		}
 		return $records;
 	}

@@ -191,6 +191,56 @@ Ext.define('App.model.patient.Vitals', {
 			name: 'authorized_by',
 			type: 'string',
 			store: false
+		},
+		{
+			name: 'patient_record_number',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'patient_fname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'patient_mname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'patient_lname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'administer_fname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'administer_mname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'administer_lname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'authorized_fname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'authorized_mname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'authorized_name',
+			type: 'string',
+			store: false
 		}
 	],
 	proxy: {

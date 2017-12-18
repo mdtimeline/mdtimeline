@@ -15376,10 +15376,6 @@ Ext.define('App.model.patient.FamilyHistory',{
             name: 'update_date',
             type: 'date',
             dateFormat: 'Y-m-d H:i:s'
-        },
-        {
-            name: 'congenital_heart_disease',
-            type: 'string'
         }
     ],
     proxy: {
@@ -15486,6 +15482,7 @@ Ext.define('App.model.patient.FamilyHistory',{
         }
     }
 });
+
 Ext.define('App.model.patient.ReviewOfSystems', {
 	extend: 'Ext.data.Model',
 	table: {
@@ -48150,13 +48147,13 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 			assessmentField = form.findField('assessment'),
 			instructionsField = form.findField('instructions');
 
-		say('onSoapFormReformatTextBtnClick');
-		say(me);
-		say(form);
-		say(subjectiveField);
-		say(objectiveField);
-		say(assessmentField);
-		say(instructionsField);
+		// say('onSoapFormReformatTextBtnClick');
+		// say(me);
+		// say(form);
+		// say(subjectiveField);
+		// say(objectiveField);
+		// say(assessmentField);
+		// say(instructionsField);
 
 		subjectiveField.setValue(me.textParser(subjectiveField.getValue(),false,false,true,true,true,true));
 		objectiveField.setValue(me.textParser(objectiveField.getValue(),false,false,true,true,true,true));

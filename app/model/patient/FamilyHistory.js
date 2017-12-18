@@ -1,4 +1,9 @@
-/** * Generated dynamically by Matcha::Connect * Create date: 2017-11-17 11:57:40 */Ext.define('App.model.patient.FamilyHistory',{
+/**
+ * Generated dynamically by Matcha::Connect
+ * Create date: 2017-11-17 11:57:40
+ */
+
+Ext.define('App.model.patient.FamilyHistory',{
     extend: 'Ext.data.Model',
     table: {
         name: 'patient_family_history'
@@ -70,10 +75,6 @@
             name: 'update_date',
             type: 'date',
             dateFormat: 'Y-m-d H:i:s'
-        },
-        {
-            name: 'congenital_heart_disease',
-            type: 'string'
         }
     ],
     proxy: {
@@ -179,4 +180,4 @@
             }
         }
     }
-});
+});

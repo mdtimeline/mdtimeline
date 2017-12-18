@@ -144,15 +144,25 @@ Ext.define('App.controller.patient.Vitals', {
 	},
 
 	onPatientSummaryPanelVitalsPanelActivate: function (vitals_panel) {
-		var store  = vitals_panel.down('grid').getStore();
+		var grid = vitals_panel.down('grid'),
+			sm = grid.getSelectionModel(),
+			store  = grid.getStore();
 
 		store.clearFilter(true);
-		store.filter([
-			{
-				property: 'pid',
-				value: app.patient.pid
+		store.load({
+			filters: [
+				{
+					property: 'pid',
+					value: app.patient.pid
+				}
+			],
+			callback: function (records) {
+				if(records.length > 0){
+					sm.select(records[0]);
+				}
 			}
-		]);
+		});
+
 	},
 
 	onRxOrdersDeleteActionHandler: function (grid, rowIndex, colIndex, item, e, record) {
@@ -206,24 +216,24 @@ Ext.define('App.controller.patient.Vitals', {
 	onAppBeforeEncounterLoad: function(record){
 		if(this.getVitalsHistoryGrid()){
 
-			var store = this.getVitalsHistoryGrid().getStore();
-
-			say(store);
+			var grid = this.getVitalsHistoryGrid(),
+				sm = grid.getSelectionModel(),
+				store  = grid.getStore();
 
 			store.clearFilter(true);
-			store.filter([
-				{
-					property: 'pid',
-					value: record.get('pid')
+			store.load({
+				filters: [
+					{
+						property: 'pid',
+						value: record.get('pid')
+					}
+				],
+				callback: function (records) {
+					if(records.length > 0){
+						sm.select(records[0]);
+					}
 				}
-			]);
-
-			// if(record.vitalsStore){
-			//	this.doReconfigureGrid(record.vitalsStore);
-			// }else{
-			// 	this.doReconfigureGrid(Ext.getStore('ext-empty-store'));
-			// }
-
+			});
 		}
 	},
 

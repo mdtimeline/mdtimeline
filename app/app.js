@@ -46915,15 +46915,25 @@ Ext.define('App.controller.patient.Vitals', {
 	},
 
 	onPatientSummaryPanelVitalsPanelActivate: function (vitals_panel) {
-		var store  = vitals_panel.down('grid').getStore();
+		var grid = vitals_panel.down('grid'),
+			sm = grid.getSelectionModel(),
+			store  = grid.getStore();
 
 		store.clearFilter(true);
-		store.filter([
-			{
-				property: 'pid',
-				value: app.patient.pid
+		store.load({
+			filters: [
+				{
+					property: 'pid',
+					value: app.patient.pid
+				}
+			],
+			callback: function (records) {
+				if(records.length > 0){
+					sm.select(records[0]);
+				}
 			}
-		]);
+		});
+
 	},
 
 	onRxOrdersDeleteActionHandler: function (grid, rowIndex, colIndex, item, e, record) {
@@ -46977,24 +46987,24 @@ Ext.define('App.controller.patient.Vitals', {
 	onAppBeforeEncounterLoad: function(record){
 		if(this.getVitalsHistoryGrid()){
 
-			var store = this.getVitalsHistoryGrid().getStore();
-
-			say(store);
+			var grid = this.getVitalsHistoryGrid(),
+				sm = grid.getSelectionModel(),
+				store  = grid.getStore();
 
 			store.clearFilter(true);
-			store.filter([
-				{
-					property: 'pid',
-					value: record.get('pid')
+			store.load({
+				filters: [
+					{
+						property: 'pid',
+						value: record.get('pid')
+					}
+				],
+				callback: function (records) {
+					if(records.length > 0){
+						sm.select(records[0]);
+					}
 				}
-			]);
-
-			// if(record.vitalsStore){
-			//	this.doReconfigureGrid(record.vitalsStore);
-			// }else{
-			// 	this.doReconfigureGrid(Ext.getStore('ext-empty-store'));
-			// }
-
+			});
 		}
 	},
 
@@ -48107,6 +48117,10 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 			'#soapPanel #soapForm': {
 				render: me.onPanelFormRender
 			},
+			'#SoapFormReformatTextBtn': {
+				render: me.onSoapFormReformatTextBtnRender,
+				click: me.onSoapFormReformatTextBtnClick
+			},
 			'#soapPanel button[action=speechBtn]': {
 				toggle: me.onSpeechBtnToggle
 			},
@@ -48120,6 +48134,35 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 				recordadd: me.onSoapDxCodesFieldRecordAdd
 			}
 		});
+
+
+	},
+
+	onSoapFormReformatTextBtnRender: function () {
+		app.on('KEY-ALT-W', this.onSoapFormReformatTextBtnClick, this);
+	},
+
+	onSoapFormReformatTextBtnClick: function () {
+		var me = this,
+			form = me.getSoapForm().getForm(),
+			subjectiveField = form.findField('subjective'),
+			objectiveField = form.findField('objective'),
+			assessmentField = form.findField('assessment'),
+			instructionsField = form.findField('instructions');
+
+		say('onSoapFormReformatTextBtnClick');
+		say(me);
+		say(form);
+		say(subjectiveField);
+		say(objectiveField);
+		say(assessmentField);
+		say(instructionsField);
+
+		subjectiveField.setValue(me.textParser(subjectiveField.getValue(),false,false,true,true,true,true));
+		objectiveField.setValue(me.textParser(objectiveField.getValue(),false,false,true,true,true,true));
+		assessmentField.setValue(me.textParser(assessmentField.getValue(),false,false,true,true,true,true));
+		instructionsField.setValue(me.textParser(instructionsField.getValue(),false,false,true,true,true,true));
+
 	},
 
 	onSoapDxCodesFieldRecordAdd: function (field, record) {
@@ -48169,6 +48212,13 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 		if(!Ext.isWebKit) return;
 
 		var btn = [
+			{
+				xtype: 'button',
+				icon: 'modules/worklist/resources/images/wand.png',
+				itemId: 'SoapFormReformatTextBtn',
+				tooltip: 'Reformat Text :: ALT-W',
+				minWidth: null
+			},
 			{
 				xtype: 'button',
 				action: 'speechBtn',
@@ -48251,6 +48301,61 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 
 	setRecordButton: function(recording){
 		this.getSpeechBtn().setIconCls(recording ? 'speech-icon-active' : 'speech-icon-inactive');
+	},
+
+	textParser:  function (report, upperFullTitle, capsFullText, fixEndSentences, fixStartSentences, fixEndSentences2Spaces, fixTextAfterColon) {
+
+		report = report.replace(/^[a-z]/, function(str){
+			return str.toUpperCase();
+		});
+
+		if(upperFullTitle){
+			report = report.replace(/.*:.*/g, function(str){
+				return str.toUpperCase();
+			});
+		}else{
+			report = report.replace(/.*:/g, function(str){
+				return str.toUpperCase();
+			});
+		}
+
+		if(capsFullText){
+			report = report.replace(/[.\n]\s*[a-z]/g, function(str){
+				return str.toUpperCase();
+			});
+		}
+
+		if(fixEndSentences){
+			if(fixEndSentences2Spaces){
+				report = report.replace(/([a-z]\.)( |)([a-z])/gi, function(str, p1, p2, p3){
+					return p1 + '  ' + p3.toUpperCase();
+				});
+			}else{
+				report = report.replace(/([a-z]\.)(  |)([a-z])/gi, function(str, p1, p2, p3){
+					return p1 + ' ' + p3.toUpperCase();
+				});
+			}
+		}
+
+		if(fixStartSentences){
+			report = report.replace(/([a-z]\.)( |  )([a-z])/gi, function(str, p1, p2, p3){
+				return p1 + '  ' + p3.toUpperCase();
+			});
+
+			report = report.replace(/(\r|\n|\r\n)([a-z])/gi, function(str, p1, p2, p3){
+				return p1 + p2.toUpperCase();
+			});
+		}
+
+		if(fixTextAfterColon){
+			report = report.replace(/:( |  )[a-z]/g, function(str){
+				return str.toUpperCase();
+			});
+		}
+
+
+
+		return report;
 	}
 
 });

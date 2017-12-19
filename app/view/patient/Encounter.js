@@ -600,7 +600,7 @@ Ext.define('App.view.patient.Encounter', {
 
 				me.currEncounterStartDate = data.service_date;
 
-				app.fireEvent('beforeencounterload', me.encounter);
+				app.fireEvent('beforeencounterload', me.encounter, me);
 
 				/** get progress note **/
 				me.getProgressNote();

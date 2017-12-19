@@ -22,7 +22,7 @@ Ext.define('App.view.patient.Vitals', {
 		'Ext.grid.plugin.RowEditing',
 		'App.ux.form.fields.DateTime'
 	],
-	alias: 'widget.vitalspanel',
+	xtype: 'vitalspanel',
 	title: _('vitals'),
 	layout: 'border',
 	bodyPadding: 5,

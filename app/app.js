@@ -24976,7 +24976,7 @@ Ext.define('App.view.patient.Vitals', {
 		'Ext.grid.plugin.RowEditing',
 		'App.ux.form.fields.DateTime'
 	],
-	alias: 'widget.vitalspanel',
+	xtype: 'vitalspanel',
 	title: _('vitals'),
 	layout: 'border',
 	bodyPadding: 5,
@@ -46788,6 +46788,10 @@ Ext.define('App.controller.patient.Vitals', {
 	extend: 'Ext.app.Controller',
 	refs: [
 		{
+			ref: 'EncounterPanelVitalsPanel',
+			selector: '#encounterPanel vitalspanel'
+		},
+		{
 			ref: 'VitalsPanel',
 			selector: 'vitalspanel'
 		},
@@ -46981,10 +46985,10 @@ Ext.define('App.controller.patient.Vitals', {
 		});
 	},
 
-	onAppBeforeEncounterLoad: function(record){
-		if(this.getVitalsHistoryGrid()){
+	onAppBeforeEncounterLoad: function(record, encounterPanel){
+		if(encounterPanel.down('vitalspanel')){
 
-			var grid = this.getVitalsHistoryGrid(),
+			var grid = encounterPanel.down('vitalspanel').down('grid'),
 				sm = grid.getSelectionModel(),
 				store  = grid.getStore();
 
@@ -47005,11 +47009,10 @@ Ext.define('App.controller.patient.Vitals', {
 		}
 	},
 
-	onHistoryGridSelectionChange: function(grid, records){
-		var me = this,
-			btn = me.getVitalSignBtn();
+	onHistoryGridSelectionChange: function(sm, records){
+		var btn = sm.view.panel.down('#vitalAddBtn');
 
-		this.doUpdateBlocks(records);
+		this.doUpdateBlocks(sm.view.panel.up('vitalspanel'), records);
 		if(records.length === 0 || records[0].data.auth_uid > 0){
 			btn.disable();
 		}else{
@@ -47044,7 +47047,7 @@ Ext.define('App.controller.patient.Vitals', {
 	},
 
 	onHistoryGridEdit: function(plugin, context){
-		this.doUpdateBlocks([context.record])
+		this.doUpdateBlocks(plugin.view.panel.up('vitalspanel'), [context.record])
 	},
 
 	onHistoryGridBeforeEdit: function(plugin, context){
@@ -47080,7 +47083,7 @@ Ext.define('App.controller.patient.Vitals', {
 
 		app.passwordVerificationWin(function(btn, password){
 
-			if(btn == 'ok'){
+			if(btn === 'ok'){
 
 				User.verifyUserPass(password, function(provider, response){
 					if(response.result){
@@ -47104,7 +47107,7 @@ Ext.define('App.controller.patient.Vitals', {
 							buttons: Ext.Msg.OKCANCEL,
 							icon: Ext.Msg.ERROR,
 							fn: function(btn){
-								if(btn == 'ok'){
+								if(btn === 'ok'){
 									me.onVitalSignBtnClick();
 								}
 							}
@@ -47116,36 +47119,42 @@ Ext.define('App.controller.patient.Vitals', {
 
 	},
 
-	doUpdateBlocks: function(records){
-		var me = this;
+	doUpdateBlocks: function(vitalspanel, records){
+		var me = this,
+			bpBlock = vitalspanel.down('#bpBlock'),
+			tempBlock = vitalspanel.down('#tempBlock'),
+			weighBlock = vitalspanel.down('#tempBlock'),
+			heightBlock = vitalspanel.down('#heightBlock'),
+			bmiBlock = vitalspanel.down('#bmiBlock'),
+			notesBlock = vitalspanel.down('#notesBlock');
 
 		if(records.length > 0){
-			me.getBpBlock().update(me.getBlockTemplate('bp', records[0]));
+			bpBlock.update(me.getBlockTemplate('bp', records[0]));
 			if(me.isMetric()){
-				me.getTempBlock().update(me.getBlockTemplate('temp_c', records[0]));
-				me.getWeighBlock().update(me.getBlockTemplate('weight_kg', records[0]));
-				me.getHeightBlock().update(me.getBlockTemplate('height_cm', records[0]));
+				tempBlock.update(me.getBlockTemplate('temp_c', records[0]));
+				weighBlock.update(me.getBlockTemplate('weight_kg', records[0]));
+				heightBlock.update(me.getBlockTemplate('height_cm', records[0]));
 			}else{
-				me.getTempBlock().update(me.getBlockTemplate('temp_f', records[0]));
-				me.getWeighBlock().update(me.getBlockTemplate('weight_lbs', records[0]));
-				me.getHeightBlock().update(me.getBlockTemplate('height_in', records[0]));
+				tempBlock.update(me.getBlockTemplate('temp_f', records[0]));
+				weighBlock.update(me.getBlockTemplate('weight_lbs', records[0]));
+				heightBlock.update(me.getBlockTemplate('height_in', records[0]));
 			}
-			me.getBmiBlock().update(me.getBlockTemplate('bmi', records[0]));
-			me.getNotesBlock().update(me.getBlockTemplate('other_notes', records[0]));
+			bmiBlock.update(me.getBlockTemplate('bmi', records[0]));
+			notesBlock.update(me.getBlockTemplate('other_notes', records[0]));
 		}else{
-			me.getBpBlock().update(me.getBlockTemplate('bp', false));
+			bpBlock.update(me.getBlockTemplate('bp', false));
 			if(me.isMetric()){
-				me.getTempBlock().update(me.getBlockTemplate('temp_c', false));
-				me.getWeighBlock().update(me.getBlockTemplate('weight_kg', false));
-				me.getHeightBlock().update(me.getBlockTemplate('height_cm', false));
+				tempBlock.update(me.getBlockTemplate('temp_c', false));
+				weighBlock.update(me.getBlockTemplate('weight_kg', false));
+				heightBlock.update(me.getBlockTemplate('height_cm', false));
 			}else{
-				me.getTempBlock().update(me.getBlockTemplate('temp_f', false));
-				me.getWeighBlock().update(me.getBlockTemplate('weight_lbs', false));
-				me.getHeightBlock().update(me.getBlockTemplate('height_in', false));
+				tempBlock.update(me.getBlockTemplate('temp_f', false));
+				weighBlock.update(me.getBlockTemplate('weight_lbs', false));
+				heightBlock.update(me.getBlockTemplate('height_in', false));
 			}
 
-			me.getBmiBlock().update(me.getBlockTemplate('bmi', false));
-			me.getNotesBlock().update(me.getBlockTemplate('other_notes', false));
+			bmiBlock.update(me.getBlockTemplate('bmi', false));
+			notesBlock.update(me.getBlockTemplate('other_notes', false));
 		}
 	},
 
@@ -47210,20 +47219,6 @@ Ext.define('App.controller.patient.Vitals', {
 		return '<p class="title">' + title + '</p><p class="value" style="text-align: ' + align + '">' + value + '</p><p class="extra">' + extra + '</p>';
 	},
 
-	doReconfigureGrid: function(store){
-		var me = this;
-
-		store.sort([
-			{
-				property: 'date',
-				direction: 'DESC'
-			}
-		]);
-
-		store.on('write', me.onVitalStoreWrite, me);
-		me.getVitalsHistoryGrid().reconfigure(store);
-		me.getVitalsHistoryGrid().getSelectionModel().select(0);
-	},
 
 	onVitalStoreWrite:function(store, operation, e){
 		app.fireEvent('vitalwrite', store, operation, e);
@@ -47362,7 +47357,7 @@ Ext.define('App.controller.patient.Vitals', {
 	 * return true if units of measurement is metric
 	 */
 	isMetric:function(){
-		return g('units_of_measurement') == 'metric';
+		return g('units_of_measurement') === 'metric';
 	},
 
     /*
@@ -62542,7 +62537,7 @@ Ext.define('App.view.patient.Encounter', {
 
 				me.currEncounterStartDate = data.service_date;
 
-				app.fireEvent('beforeencounterload', me.encounter);
+				app.fireEvent('beforeencounterload', me.encounter, me);
 
 				/** get progress note **/
 				me.getProgressNote();

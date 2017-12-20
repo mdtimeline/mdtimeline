@@ -47010,7 +47010,7 @@ Ext.define('App.controller.patient.Vitals', {
 	},
 
 	onHistoryGridSelectionChange: function(sm, records){
-		var btn = sm.view.panel.down('#vitalAddBtn');
+		var btn = sm.view.panel.down('#vitalSignBtn');
 
 		this.doUpdateBlocks(sm.view.panel.up('vitalspanel'), records);
 		if(records.length === 0 || records[0].data.auth_uid > 0){

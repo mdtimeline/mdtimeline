@@ -355,9 +355,12 @@ Ext.define('App.view.patient.Encounter', {
 					padding: 0,
 					cls: 'progress-motes-history',
 					tbar: [
-						'->', {
-							xtype: 'tool',
+						'->',
+						{
+							xtype: 'button',
 							type: 'print',
+							text: _('print'),
+							icon: 'resources/images/icons/printer.png',
 							tooltip: _('print_progress_note'),
 							scope: me,
 							handler: function(){

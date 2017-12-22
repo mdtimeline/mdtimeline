@@ -1945,5 +1945,6 @@ $LANG = array(
 	'no_known_allergies' => 'No Known Allergies',
 	'values' => 'Values',
 	'vitals_not_signed' => 'Vitals Not Signed',
+	'bpm' => 'bpm',
 
 );

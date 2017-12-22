@@ -46,6 +46,10 @@ Ext.define('App.view.patient.Vitals', {
 			},
 			items: [
 				{
+					itemId: 'pulseBlock',
+					html: '<p class="title">' + _('pulse') + '</p><p class="value">--</p><p class="extra">--</p>'
+				},
+				{
 					itemId: 'bpBlock',
 					margin: '0 5 5 0',
 					html: '<p class="title">' + _('bp') + '</p><p class="value">--/--</p><p class="extra">' + _('systolic') + '/' + _('diastolic') + '</p>'

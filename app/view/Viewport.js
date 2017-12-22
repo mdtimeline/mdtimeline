@@ -654,7 +654,7 @@ Ext.define('App.view.Viewport', {
     },
 
 	getUserFullname: function(){
-		return this.user.title + ' ' + this.user.fname + ' ' + this.user.mname + ' ' + this.user.lname
+		return this.user.lname + ', ' + this.user.fname + ' ' + this.user.mname
 	},
 
 	getController:function(controller){

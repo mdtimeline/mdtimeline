@@ -25000,6 +25000,10 @@ Ext.define('App.view.patient.Vitals', {
 			},
 			items: [
 				{
+					itemId: 'pulseBlock',
+					html: '<p class="title">' + _('pulse') + '</p><p class="value">--</p><p class="extra">--</p>'
+				},
+				{
 					itemId: 'bpBlock',
 					margin: '0 5 5 0',
 					html: '<p class="title">' + _('bp') + '</p><p class="value">--/--</p><p class="extra">' + _('systolic') + '/' + _('diastolic') + '</p>'
@@ -46844,6 +46848,10 @@ Ext.define('App.controller.patient.Vitals', {
 		// blocks
 		{
 			ref: 'BpBlock',
+			selector: 'vitalspanel #pulseBlock'
+		},
+		{
+			ref: 'BpBlock',
 			selector: 'vitalspanel #bpBlock'
 		},
 		{
@@ -47044,6 +47052,13 @@ Ext.define('App.controller.patient.Vitals', {
 			bmi: bmi,
 			bmi_status: bmiStatus
 		});
+
+		if(a('sign_enc') && context.record.get('auth_uid') === 0){
+			context.record.set({
+				authorized_by: app.getUserFullname(),
+				auth_uid: app.user.id
+			});
+		}
 	},
 
 	onHistoryGridEdit: function(plugin, context){
@@ -47068,6 +47083,7 @@ Ext.define('App.controller.patient.Vitals', {
 			pid: app.patient.pid,
 			eid: app.patient.eid,
 			uid: app.user.id,
+			administer_by: app.getUserFullname(),
 			date: new Date()
 		});
 		grid.editingPlugin.startEdit(records[0], 1);
@@ -47121,6 +47137,7 @@ Ext.define('App.controller.patient.Vitals', {
 
 	doUpdateBlocks: function(vitalspanel, records){
 		var me = this,
+			pulseBlock = vitalspanel.down('#pulseBlock'),
 			bpBlock = vitalspanel.down('#bpBlock'),
 			tempBlock = vitalspanel.down('#tempBlock'),
 			weighBlock = vitalspanel.down('#tempBlock'),
@@ -47129,6 +47146,7 @@ Ext.define('App.controller.patient.Vitals', {
 			notesBlock = vitalspanel.down('#notesBlock');
 
 		if(records.length > 0){
+			pulseBlock.update(me.getBlockTemplate('pulse', records[0]));
 			bpBlock.update(me.getBlockTemplate('bp', records[0]));
 			if(me.isMetric()){
 				tempBlock.update(me.getBlockTemplate('temp_c', records[0]));
@@ -47142,6 +47160,7 @@ Ext.define('App.controller.patient.Vitals', {
 			bmiBlock.update(me.getBlockTemplate('bmi', records[0]));
 			notesBlock.update(me.getBlockTemplate('other_notes', records[0]));
 		}else{
+			pulseBlock.update(me.getBlockTemplate('pulse', false));
 			bpBlock.update(me.getBlockTemplate('bp', false));
 			if(me.isMetric()){
 				tempBlock.update(me.getBlockTemplate('temp_c', false));
@@ -47166,35 +47185,39 @@ Ext.define('App.controller.patient.Vitals', {
 			align = 'center';
 
 		if(record !== false){
-			if(property == 'bp'){
+			if(property === 'pulse'){
+				title = _(property);
+				value = record.data.pulse ?  + record.data.pulse : '--';
+				extra = _('bpm');
+			}else if(property === 'bp'){
 				title = _(property);
 				value = (record.data.bp_systolic + '/' + record.data.bp_diastolic);
-				value = value == 'null/null' || value == '/' ? '--/--' : value;
+				value = value === 'null/null' || value === '/' ? '--/--' : value;
 				extra = _('systolic') + '/' + _('diastolic');
 
-			}else if(property == 'temp_c' || property == 'temp_f'){
+			}else if(property === 'temp_c' || property === 'temp_f'){
 				title = _('temp');
-				symbol = property == 'temp_c' ? '&deg;C' : '&deg;F';
+				symbol = property === 'temp_c' ? '&deg;C' : '&deg;F';
 				value = record.data[property] === null || record.data[property] === '' ? '--' : record.data[property] + symbol;
 				extra = record.data.temp_location === '' ? '--' : record.data.temp_location;
 
-			}else if(property == 'weight_lbs' || property == 'weight_kg'){
+			}else if(property === 'weight_lbs' || property === 'weight_kg'){
 				title = _('weight');
 				//				symbol = property == 'weight_lbs' ? ' lbs' : ' kg';
 				value = record.data[property] === null || record.data[property] === '' ? '--' : record.data[property] + symbol;
-				extra = property == 'weight_lbs' ? 'lbs/oz' : 'Kg';
+				extra = property === 'weight_lbs' ? 'lbs/oz' : 'Kg';
 
-			}else if(property == 'height_in' || property == 'height_cm'){
+			}else if(property === 'height_in' || property === 'height_cm'){
 				title = _('height');
-				symbol = property == 'height_in' ? ' in' : ' cm';
+				symbol = property === 'height_in' ? ' in' : ' cm';
 				value = record.data[property] === null || record.data[property] === '' ? '--' : record.data[property] + symbol;
 
-			}else if(property == 'bmi'){
+			}else if(property === 'bmi'){
 				title = _(property);
 				value = record.data[property] === null || record.data[property] === '' ? '--' : this.decimalRound10(record.data[property], -1);
 				extra = record.data.bmi_status === '' ? '--' : record.data.bmi_status;
 
-			}else if(property == 'other_notes'){
+			}else if(property === 'other_notes'){
 				title = _('notes');
 				value = record.data[property] === null || record.data[property] === '' ? '--' : record.data[property];
 				align = 'left'
@@ -62292,9 +62315,12 @@ Ext.define('App.view.patient.Encounter', {
 					padding: 0,
 					cls: 'progress-motes-history',
 					tbar: [
-						'->', {
-							xtype: 'tool',
+						'->',
+						{
+							xtype: 'button',
 							type: 'print',
+							text: _('print'),
+							icon: 'resources/images/icons/printer.png',
 							tooltip: _('print_progress_note'),
 							scope: me,
 							handler: function(){
@@ -63559,7 +63585,7 @@ Ext.define('App.view.Viewport', {
     },
 
 	getUserFullname: function(){
-		return this.user.title + ' ' + this.user.fname + ' ' + this.user.mname + ' ' + this.user.lname
+		return this.user.lname + ', ' + this.user.fname + ' ' + this.user.mname
 	},
 
 	getController:function(controller){

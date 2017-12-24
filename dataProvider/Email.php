@@ -25,6 +25,7 @@ class Email {
 
 	private $EMAIL_METHOD;
 	private $EMAIL_NOTIFICATION_HOUR;
+	private $EMAIL_FROM_ADDRESS;
 	private $SMS_GATEWAY_APIKEY;
 	private $SMS_GATEWAY_PASSWORD;
 	private $SMS_GATEWAY_USENAME;
@@ -76,6 +77,7 @@ class Email {
 	function Send($pid, $eid, $to_address, $subject, $from_email, $from_name, $body, $audit_log = true, $facility_id = null, $attachments = [], $embedded_images = []){
 
 		$PHPMailer = new PHPMailer();
+		//$PHPMailer->SMTPDebug = 2;
 
 		if($this->EMAIL_METHOD == 'SMTP'){
 			$PHPMailer->isSMTP();                       // Set mailer to use SMTP
@@ -84,7 +86,7 @@ class Email {
 			$PHPMailer->Username = $this->SMTP_USER;    // SMTP username
 			$PHPMailer->Password = $this->SMTP_PASS;    // SMTP password
 			$PHPMailer->SMTPSecure = 'tls';             // Enable TLS encryption, `ssl` also accepted
-			$PHPMailer->Port = $this->SMTP_PORT;        // TCP port to connect to
+			$PHPMailer->Port = 587; //$this->SMTP_PORT;        // TCP port to connect to
 
 		}else{
 			throw new Exception('Email: SMTP server not configured');
@@ -120,7 +122,7 @@ class Email {
 		$tpl = $this->getMasterTemplate($facility_id);
 		if($tpl !== false){
 
-			$body = str_replace('[BODY]', $body, $tpl);
+			$body = str_replace('[BODY]', $body, $tpl['body']);
 
 			if(
 				isset($tpl['from_address']) &&

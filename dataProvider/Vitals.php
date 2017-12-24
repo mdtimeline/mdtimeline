@@ -75,16 +75,16 @@ class Vitals {
 	 * @return stdClass
 	 */
 	public function addVitals($params){
-		if(is_array($params)){
-			foreach($params as $i => $param){
-				$params[$i] = (object) $this->v->save($param);
-				$params[$i]->administer_by = $this->User->getUserNameById($param->uid);
-			}
-		}else{
-			$params = (object) $this->v->save($params);
-			$params->administer_by = $this->User->getUserNameById($params->uid);
-		}
-		return $params;
+//		if(is_array($params)){
+//			foreach($params as $i => $param){
+//				$params[$i] = (object) $this->v->save($param);
+//				$params[$i]->administer_by = $this->User->getUserNameById($param->uid);
+//			}
+//		}else{
+//			$params = (object) $this->v->save($params);
+//			$params->administer_by = $this->User->getUserNameById($params->uid);
+//		}
+		return $this->v->save($params);;
 	}
 
 	/**
@@ -93,25 +93,25 @@ class Vitals {
 	 */
 	public function updateVitals($params){
 		$record = $this->v->save($params);
-		if(is_array($params)){
-			foreach($record as $i => $rec){
-				$record[$i] = $rec = (object) $rec;
-				if(isset($rec->uid)){
-					$record[$i]->administer_by = $rec->uid != 0 ? $this->User->getUserNameById($rec->uid) : '';
-				}
-				if(isset($rec->auth_uid)){
-					$record[$i]->authorized_by = $rec->auth_uid != 0 ? $this->User->getUserNameById($rec->auth_uid) : '';
-				}
-			}
-		}else{
-			$record = (object) $record;
-			if(isset($record->uid)){
-				$record->administer_by = $record->uid != 0 ? $this->User->getUserNameById($record->uid) : '';
-			}
-			if(isset($record->auth_uid)){
-				$record->authorized_by = $record->auth_uid != 0 ? $this->User->getUserNameById($record->auth_uid) : '';
-			}
-		}
+//		if(is_array($params)){
+//			foreach($record as $i => $rec){
+//				$record[$i] = $rec = (object) $rec;
+//				if(isset($rec->uid)){
+//					$record[$i]->administer_by = $rec->uid != 0 ? $this->User->getUserNameById($rec->uid) : '';
+//				}
+//				if(isset($rec->auth_uid)){
+//					$record[$i]->authorized_by = $rec->auth_uid != 0 ? $this->User->getUserNameById($rec->auth_uid) : '';
+//				}
+//			}
+//		}else{
+//			$record = (object) $record;
+//			if(isset($record->uid)){
+//				$record->administer_by = $record->uid != 0 ? $this->User->getUserNameById($record->uid) : '';
+//			}
+//			if(isset($record->auth_uid)){
+//				$record->authorized_by = $record->auth_uid != 0 ? $this->User->getUserNameById($record->auth_uid) : '';
+//			}
+//		}
 		return $record;
 	}
 

@@ -133,6 +133,7 @@ function doRpc($cdata)
 			($action == 'PortalAuthorize' && $method == 'passwordReset') ||
 			($action == 'PortalAuthorize' && $method == 'passwordReset') ||
 			($action == 'PortalRegister' && $method == 'validateInvitation') ||
+			($action == 'PortalRegister' && $method == 'register') ||
 			($action == 'RadiologyResults' && $method == 'authorization') ||
 			($action == 'CombosData' && $method == 'getActiveFacilities') ||
 			($action == 'i18nRouter' && $method == 'getAvailableLanguages') ||

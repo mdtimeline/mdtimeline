@@ -368,7 +368,7 @@ Ext.define('App.controller.patient.Vitals', {
 			pulseBlock = vitalspanel.down('#pulseBlock'),
 			bpBlock = vitalspanel.down('#bpBlock'),
 			tempBlock = vitalspanel.down('#tempBlock'),
-			weighBlock = vitalspanel.down('#tempBlock'),
+			weighBlock = vitalspanel.down('#weighBlock'),
 			heightBlock = vitalspanel.down('#heightBlock'),
 			bmiBlock = vitalspanel.down('#bmiBlock'),
 			notesBlock = vitalspanel.down('#notesBlock');

@@ -61,6 +61,10 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 		me.reloadAreaBuffer = Ext.Function.createBuffered(me.reloadArea, 50, me);
 	},
 
+	reRenderPoolAreas: function () {
+		this.getPatientPoolAreasPanel().reRenderPoolAreas();
+	},
+
 	doSendPatientToNextArea: function (pid) {
 		var win = this.showPatientToNextAreaWindow();
 		win.pid = pid;

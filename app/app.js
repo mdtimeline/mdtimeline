@@ -35967,8 +35967,12 @@ Ext.define('App.controller.Main', {
 
 				app.msg(_('sweet'), _('facility') + ' ' + records[0].data.option_name);
 				app.setWindowTitle(records[0].data.option_name);
-				app.nav['App_view_areas_PatientPoolDropZone'].reRenderPoolAreas();
-				app.nav['App_view_areas_FloorPlan'].renderZones();
+
+				me.getController('areas.PatientPoolAreas').reRenderPoolAreas();
+				me.getController('areas.FloorPlan').renderZones();
+
+				// app.nav['App_view_areas_PatientPoolAreas'].reRenderPoolAreas();
+				// app.nav['App_view_areas_FloorPlan'].renderZones();
 				app.getPatientsInPoolArea();
 			}
 		});
@@ -38238,6 +38242,10 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 		});
 
 		me.reloadAreaBuffer = Ext.Function.createBuffered(me.reloadArea, 50, me);
+	},
+
+	reRenderPoolAreas: function () {
+		this.getPatientPoolAreasPanel().reRenderPoolAreas();
 	},
 
 	doSendPatientToNextArea: function (pid) {
@@ -47140,7 +47148,7 @@ Ext.define('App.controller.patient.Vitals', {
 			pulseBlock = vitalspanel.down('#pulseBlock'),
 			bpBlock = vitalspanel.down('#bpBlock'),
 			tempBlock = vitalspanel.down('#tempBlock'),
-			weighBlock = vitalspanel.down('#tempBlock'),
+			weighBlock = vitalspanel.down('#weighBlock'),
 			heightBlock = vitalspanel.down('#heightBlock'),
 			bmiBlock = vitalspanel.down('#bmiBlock'),
 			notesBlock = vitalspanel.down('#notesBlock');

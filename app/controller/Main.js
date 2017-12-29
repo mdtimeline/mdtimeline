@@ -56,8 +56,12 @@ Ext.define('App.controller.Main', {
 
 				app.msg(_('sweet'), _('facility') + ' ' + records[0].data.option_name);
 				app.setWindowTitle(records[0].data.option_name);
-				app.nav['App_view_areas_PatientPoolDropZone'].reRenderPoolAreas();
-				app.nav['App_view_areas_FloorPlan'].renderZones();
+
+				me.getController('areas.PatientPoolAreas').reRenderPoolAreas();
+				me.getController('areas.FloorPlan').renderZones();
+
+				// app.nav['App_view_areas_PatientPoolAreas'].reRenderPoolAreas();
+				// app.nav['App_view_areas_FloorPlan'].renderZones();
 				app.getPatientsInPoolArea();
 			}
 		});

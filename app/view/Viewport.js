@@ -285,10 +285,8 @@ Ext.define('App.view.Viewport', {
 			    scale: 'large',
 			    margin: '0 3 0 0',
 			    padding: 4,
-			    itemId: 'patientNewReset',
+			    itemId: 'HeaderNewPatientBtn',
 			    iconCls: 'icoAddPatient',
-			    scope: me,
-			    handler: me.newPatient,
 			    tooltip: _('create_a_new_patient')
 		    });
 	    }
@@ -707,13 +705,6 @@ Ext.define('App.view.Viewport', {
     },
 
     /**
-     * Show the new patient form panel.
-     */
-    newPatient: function(){
-        this.nav.navigateTo('App.view.patient.NewPatient');
-    },
-
-    /**
      * EMERGENCY STUFF
      */
 	createEmergency: function(){
@@ -874,11 +865,11 @@ Ext.define('App.view.Viewport', {
             me.setPatient(post.get('pid'), null, null, function(){
 	            combo.reset();
 
-	            if(typeof me.onAppPatientSearchCallback === 'function'){
-		            me.onAppPatientSearchCallback(me.patient);
-	            }else {
-		            me.openPatientSummary();
-	            }
+	            // if(typeof me.onAppPatientSearchCallback === 'function'){
+		         //    me.onAppPatientSearchCallback(me.patient);
+	            // }else {
+		         //    me.openPatientSummary();
+	            // }
             });
         }
     },
@@ -915,38 +906,46 @@ Ext.define('App.view.Viewport', {
                 continueSettingPatient(false);
             }
 
-            function continueSettingPatient(readOnly){
-                me.patient = {
-                    pid: data.patient.pid,
-                    pubpid: data.patient.pubpid,
-                    name: data.patient.name,
-                    pic: data.patient.pic,
-                    sex: data.patient.sex,
-	                sexSymbol: data.patient.sex == 'F' ? '&#9792' : '&#9794',
-                    dob: Ext.Date.parse(data.patient.dob, "Y-m-d H:i:s"),
-                    age: data.patient.age,
-                    eid: eid,
-                    priority: data.patient.priority,
-                    readOnly: readOnly,
-                    rating: data.patient.rating,
-	                record: Ext.create('App.model.patient.Patient', data.patient.record)
-                };
+            function continueSettingPatient(readOnly) {
+	            me.patient = {
+		            pid: data.patient.pid,
+		            pubpid: data.patient.pubpid,
+		            name: data.patient.name,
+		            pic: data.patient.pic,
+		            sex: data.patient.sex,
+		            sexSymbol: data.patient.sex == 'F' ? '&#9792' : '&#9794',
+		            dob: Ext.Date.parse(data.patient.dob, "Y-m-d H:i:s"),
+		            age: data.patient.age,
+		            eid: eid,
+		            priority: data.patient.priority,
+		            readOnly: readOnly,
+		            rating: data.patient.rating,
+		            record: Ext.create('App.model.patient.Patient', data.patient.record)
+	            };
 
-                // fire global event
-                me.fireEvent('patientset', me.patient);
+	            // fire global event
+	            me.fireEvent('patientset', me.patient);
 
-                var panels = me.MainPanel.items.items;
-                for(var i=0; i<panels.length; i++) if(panels[i].pageRankingDiv) panels[i].pageRankingDiv.setValue(me.patient.rating);
-                me.patientButtonSet(me.patient);
-                if(me.patientSummaryBtn) me.patientSummaryBtn.enable();
-                if(me.patientOpenVisitsBtn) me.patientOpenVisitsBtn.enable();
-                if(me.patientCreateEncounterBtn) me.patientCreateEncounterBtn.enable();
-                if(me.patientCloseCurrEncounterBtn) me.patientCloseCurrEncounterBtn.enable();
+	            var panels = me.MainPanel.items.items;
+	            for (var i = 0; i < panels.length; i++) if (panels[i].pageRankingDiv) panels[i].pageRankingDiv.setValue(me.patient.rating);
+	            me.patientButtonSet(me.patient);
+	            if (me.patientSummaryBtn) me.patientSummaryBtn.enable();
+	            if (me.patientOpenVisitsBtn) me.patientOpenVisitsBtn.enable();
+	            if (me.patientCreateEncounterBtn) me.patientCreateEncounterBtn.enable();
+	            if (me.patientCloseCurrEncounterBtn) me.patientCloseCurrEncounterBtn.enable();
 //                if(me.patientChargeBtn) me.patientChargeBtn.enable();
-                if(me.patientCheckOutBtn) me.patientCheckOutBtn.enable();
-                if(typeof callback == 'function') callback(me.patient);
-            }
+	            if (me.patientCheckOutBtn) me.patientCheckOutBtn.enable();
 
+	            if (typeof callback === 'function') {
+		            callback(me.patient);
+	            }
+
+	            if(typeof me.onAppPatientSearchCallback === 'function'){
+		            me.onAppPatientSearchCallback(me.patient);
+	            }else {
+		            me.openPatientSummary();
+	            }
+            }
         });
     },
 

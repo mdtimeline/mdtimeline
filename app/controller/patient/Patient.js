@@ -23,6 +23,18 @@ Ext.define('App.controller.patient.Patient', {
 	],
 	refs: [
 		{
+			ref: 'NewPatientWindow',
+			selector: '#NewPatientWindow'
+		},
+		{
+			ref: 'NewPatientWindowForm',
+			selector: '#NewPatientWindowForm'
+		},
+		{
+			ref: 'NewPatientWindowInsuranceForm',
+			selector: '#NewPatientWindowInsuranceForm'
+		},
+		{
 			ref: 'PossiblePatientDuplicatesWindow',
 			selector: '#PossiblePatientDuplicatesWindow'
 		},
@@ -35,6 +47,20 @@ Ext.define('App.controller.patient.Patient', {
 	init: function(){
 		var me = this;
 		me.control({
+			'#NewPatientWindow': {
+				close: me.onNewPatientWindowClose
+			},
+			'#HeaderNewPatientBtn': {
+				click: me.onHeaderNewPatientBtnClick
+			},
+			'#NewPatientWindowCancelBtn': {
+				click: me.onNewPatientWindowCancelBtnClick
+			},
+			'#NewPatientWindowSaveBtn': {
+				click: me.onNewPatientWindowSaveBtnClick
+			},
+
+
 			'#PossiblePatientDuplicatesWindow': {
 				close: me.onPossiblePatientDuplicatesWindowClose
 			},
@@ -51,6 +77,89 @@ Ext.define('App.controller.patient.Patient', {
 				click: me.onPossiblePatientDuplicatesCancelBtnClick
 			}
 		});
+
+	},
+
+	onNewPatientWindowClose: function () {
+		this.getNewPatientWindowForm().getForm().reset();
+		this.getNewPatientWindowInsuranceForm().getForm().reset();
+	},
+
+	onHeaderNewPatientBtnClick: function () {
+		this.showNewPatientWindow(true);
+	},
+
+	onNewPatientWindowCancelBtnClick: function () {
+		this.getNewPatientWindowForm().getForm().reset(true);
+		this.getNewPatientWindow().close();
+	},
+
+	onNewPatientWindowSaveBtnClick: function (btn) {
+
+		var me = this,
+			win = me.getNewPatientWindow(),
+			demographics_form = me.getNewPatientWindowForm().getForm(),
+			demographics_values = demographics_form.getValues(),
+			demographics_params = {
+				fname: demographics_values.fname,
+				lname: demographics_values.lname,
+				sex: demographics_values.sex,
+				DOB: demographics_values.DOB
+			},
+			insurance_form = me.getNewPatientWindowInsuranceForm().getForm(),
+			insurance_values = insurance_form.getValues(),
+			has_insurance = insurance_values.insurance_id > 0;
+
+		if(!demographics_form.isValid()) return;
+
+		if(has_insurance){
+			demographics_params.insurance = {
+				insurance_id: insurance_values.insurance_id,
+				insurance_type: 'P',
+				effective_date: null,
+				expiration_date: null,
+				policy_number: insurance_values.policy_number,
+				group_number: insurance_values.group_number,
+				subscriber_given_name: insurance_values.subscriber_given_name,
+				subscriber_middle_name: insurance_values.subscriber_middle_name,
+				subscriber_surname_name: insurance_values.subscriber_surname_name,
+				display_order: 1,
+				create_uid: app.user.id,
+				update_uid: app.user.id,
+				create_date: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
+				update_date: Ext.Date.format(new Date(), 'Y-m-d H:i:s')
+			};
+
+			demographics_params.policy_number = insurance_values.policy_number || null;
+
+		}
+
+		me.lookForPossibleDuplicates(demographics_params, null, function (duplicared_win, response) {
+
+			if(response === true){
+				// continue clicked
+				Patient.createNewPatient(demographics_params, function (response) {
+					app.setPatient(response.pid, null, null, function(){
+						win.close();
+					});
+				});
+
+			}else if(response.isModel === true){
+				// duplicated record clicked
+				app.setPatient(response.get('pid'), null, null, function(){
+					duplicared_win.close();
+					win.close();
+				});
+			}
+		});
+
+	},
+
+	showNewPatientWindow: function () {
+		if(!this.getNewPatientWindow()){
+			Ext.create('App.view.patient.windows.NewPatient');
+		}
+		return this.getNewPatientWindow().show();
 	},
 
 	doCapitalizeEachLetterOnKeyUp: function(){

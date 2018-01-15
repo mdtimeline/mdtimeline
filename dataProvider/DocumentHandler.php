@@ -410,8 +410,8 @@ class DocumentHandler {
 		if(isset($params->document) && $params->document != ''){
 			$record->document = $params->document;
 		}else{
-			$this->documents = new Documents();
-			$record->document = base64_encode($this->documents->PDFDocumentBuilder((object) $params));;
+			$Documents = new Documents();
+			$record->document = base64_encode($Documents->PDFDocumentBuilder((object) $params));;
 		}
 		$record->create_date = date('Y-m-d H:i:s');
 		$record->document_name = isset($params->document_name) ? $params->document_name : '';

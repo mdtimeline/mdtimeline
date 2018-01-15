@@ -53,46 +53,39 @@ Ext.define('App.view.patient.windows.PossibleDuplicates', {
 						dataIndex: 'fullname',
 						flex: 1,
 						renderer: function(v, meta, record){
-							var phone = record.data.phones !== '' ? record.data.phones : '000-000-0000',
-								driver_lic = record.data.drivers_license !== '' ? record.data.drivers_license : '0000000000';
+
                             //say(record);
 							return '<table cellpadding="1" cellspacing="0" border="0" width="100%" style="font-size: 12px;">' +
 								'<tbody>' +
 
 								'<tr>' +
 								'<td width="20%"><b>' + _('record_number') + ':</b></td>' +
-								'<td>' + record.data.record_number +'</td>' +
+								'<td>' + record.get('pubpid') +'</td>' +
 								'</tr>' +
 
 								'<tr>' +
 								'<td><b>' + _('patient') + ':</b></td>' +
-								'<td>' + record.data.name + ' (' + record.data.sex + ') ' + record.data.DOBFormatted + '</td>' +
+								'<td>' + record.get('name') + ' (' + record.get('sex') + ') ' + record.get('DOBFormatted') + '</td>' +
 								'</tr>' +
-
 								'</tr>' +
 								'<tr>' +
 								'<td><b>' + _('address') + ':</b></td>' +
-								'<td>' + record.data.fulladdress + '</td>' +
+								'<td>' + record.get('fulladdress') + '</td>' +
 								'</tr>' +
 
 								'<tr>' +
-								'<td><b>' + _('home_phone') + ':</b></td>' +
-								'<td>' + phone + '</td>' +
+								'<td><b>' + _('phones') + ':</b></td>' +
+								'<td>' + record.get('phones') + '</td>' +
 								'</tr>' +
 
 								'<tr>' +
 								'<td><b>' + _('driver_lic') + ':</b></td>' +
-								'<td>' + driver_lic + '</td>' +
+								'<td>' + record.get('drivers_license') + '</td>' +
 								'</tr>' +
 
 								'<tr>' +
 								'<td><b>' + _('employer_name') + ':</b></td>' +
-								'<td>' + record.data.employer_name + '</td>' +
-								'</tr>' +
-
-								'<tr>' +
-								'<td><b>' + _('social_security') + ':</b></td>' +
-								'<td>' + record.data.SS +'</td>' +
+								'<td>' + record.get('employer_name') + '</td>' +
 								'</tr>' +
 								'</tbody>' +
 								'</table>';

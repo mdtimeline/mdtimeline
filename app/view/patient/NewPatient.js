@@ -29,6 +29,7 @@ Ext.define('App.view.patient.NewPatient', {
 		me.callParent(arguments);
 
 	},
+
 	/**
 	 *
 	 * @param {function} callback

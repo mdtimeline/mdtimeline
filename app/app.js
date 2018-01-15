@@ -17683,6 +17683,7 @@ Ext.define('App.model.patient.Insurance',{
         {
             name: 'insurance_id',
             type: 'int',
+	        useNull: true,
             index: true
         },
         {
@@ -17722,6 +17723,25 @@ Ext.define('App.model.patient.Insurance',{
             len: 10,
             index: true
         },
+	    {
+		    name: 'card_name_same_as_pateint',
+		    type: 'bool'
+	    },
+	    {
+		    name: 'card_first_name',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'card_middle_name',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'card_last_name',
+		    type: 'string',
+		    len: 80
+	    },
         {
             name: 'subscriber_title',
             type: 'string',
@@ -17757,6 +17777,10 @@ Ext.define('App.model.patient.Insurance',{
             name: 'subscriber_ss',
             type: 'string',
             len: 10
+        },
+        {
+            name: 'subscriber_address_same_as_pateint',
+            type: 'bool'
         },
         {
             name: 'subscriber_street',
@@ -21789,6 +21813,36 @@ Ext.define('App.model.patient.Patient',{
             len: 40
         },
         {
+            name: 'employer_name',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'employer_address',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'employer_city',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'employer_state',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'employer_country',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'employer_postal_code',
+            type: 'string',
+            len: 10
+        },
+        {
             name: 'rating',
             type: 'int',
             comment: 'patient stars rating'
@@ -24463,46 +24517,39 @@ Ext.define('App.view.patient.windows.PossibleDuplicates', {
 						dataIndex: 'fullname',
 						flex: 1,
 						renderer: function(v, meta, record){
-							var phone = record.data.phones !== '' ? record.data.phones : '000-000-0000',
-								driver_lic = record.data.drivers_license !== '' ? record.data.drivers_license : '0000000000';
+
                             //say(record);
 							return '<table cellpadding="1" cellspacing="0" border="0" width="100%" style="font-size: 12px;">' +
 								'<tbody>' +
 
 								'<tr>' +
 								'<td width="20%"><b>' + _('record_number') + ':</b></td>' +
-								'<td>' + record.data.record_number +'</td>' +
+								'<td>' + record.get('pubpid') +'</td>' +
 								'</tr>' +
 
 								'<tr>' +
 								'<td><b>' + _('patient') + ':</b></td>' +
-								'<td>' + record.data.name + ' (' + record.data.sex + ') ' + record.data.DOBFormatted + '</td>' +
+								'<td>' + record.get('name') + ' (' + record.get('sex') + ') ' + record.get('DOBFormatted') + '</td>' +
 								'</tr>' +
-
 								'</tr>' +
 								'<tr>' +
 								'<td><b>' + _('address') + ':</b></td>' +
-								'<td>' + record.data.fulladdress + '</td>' +
+								'<td>' + record.get('fulladdress') + '</td>' +
 								'</tr>' +
 
 								'<tr>' +
-								'<td><b>' + _('home_phone') + ':</b></td>' +
-								'<td>' + phone + '</td>' +
+								'<td><b>' + _('phones') + ':</b></td>' +
+								'<td>' + record.get('phones') + '</td>' +
 								'</tr>' +
 
 								'<tr>' +
 								'<td><b>' + _('driver_lic') + ':</b></td>' +
-								'<td>' + driver_lic + '</td>' +
+								'<td>' + record.get('drivers_license') + '</td>' +
 								'</tr>' +
 
 								'<tr>' +
 								'<td><b>' + _('employer_name') + ':</b></td>' +
-								'<td>' + record.data.employer_name + '</td>' +
-								'</tr>' +
-
-								'<tr>' +
-								'<td><b>' + _('social_security') + ':</b></td>' +
-								'<td>' + record.data.SS +'</td>' +
+								'<td>' + record.get('employer_name') + '</td>' +
 								'</tr>' +
 								'</tbody>' +
 								'</table>';
@@ -25308,6 +25355,7 @@ Ext.define('App.view.patient.NewPatient', {
 		me.callParent(arguments);
 
 	},
+
 	/**
 	 *
 	 * @param {function} callback
@@ -44046,7 +44094,31 @@ Ext.define('App.controller.patient.Insurance', {
 	refs: [
 		{
 			ref: 'PatientInsuranceFormSubscribeRelationshipCmb',
-			selector: 'PatientInsuranceFormSubscribeRelationshipCmb'
+			selector: '#PatientInsuranceFormSubscribeRelationshipCmb'
+		},
+		{
+			ref: 'PatientInsurancesPanel',
+			selector: '#PatientInsurancesPanel'
+		},
+		{
+			ref: 'PatientInsurancesPanelSaveBtn',
+			selector: '#PatientInsurancesPanelSaveBtn'
+		},
+		{
+			ref: 'PatientInsurancesPanelCancelBtn',
+			selector: '#PatientInsurancesPanelCancelBtn'
+		},
+		{
+			ref: 'InsuranceCardFirstNameField',
+			selector: '#InsuranceCardFirstNameField'
+		},
+		{
+			ref: 'InsuranceCardMiddleNameField',
+			selector: '#InsuranceCardMiddleNameField'
+		},
+		{
+			ref: 'InsuranceCardLastNameField',
+			selector: '#InsuranceCardLastNameField'
 		}
 	],
 
@@ -44054,46 +44126,158 @@ Ext.define('App.controller.patient.Insurance', {
 		var me = this;
 
 		me.control({
+			'viewport':{
+				demographicsrecordload: me.onDemographicsRecordLoad
+			},
+			'#PatientInsurancesPanel':{
+				beforeadd: me.onPatientInsurancesPanelBeforeAdd,
+				newtabclick: me.onPatientInsurancesPanelNewTabClick
+			},
 			'#PatientInsuranceFormSubscribeRelationshipCmb':{
-				change: me.onPatientInsuranceFormSubscribeRelationshipCmbChange
+				select: me.onPatientInsuranceFormSubscribeRelationshipCmbSelect
+			},
+			'#InsuranceSameAsPatientField':{
+				change: me.onInsuranceSameAsPatientFieldChange
+			},
+			'#InsuranceAddressSameAsPatientField':{
+				change: me.onInsuranceAddressSameAsPatientFieldChange
+			},
+			'#PatientInsurancesPanelSaveBtn':{
+				click: me.onPatientInsurancesPanelSaveBtnClick
+			},
+			'#PatientInsurancesPanelCancelBtn':{
+				click: me.onPatientInsurancesPanelCancelBtnClick
 			}
 		});
 	},
 
-	onPatientInsuranceFormSubscribeRelationshipCmbChange: function(cmb, value){
 
-		var me = this,
-			subscriberFields = cmb.up('fieldset').query('[isFormField]'),
-			disable = value == '01';
+	getActiveInsuranceFormPanel: function () {
+		return this.getPatientInsurancesPanel().getActiveTab();
+	},
 
-		for(var i = 0; i < subscriberFields.length; i++){
-			if(subscriberFields[i].name == 'subscriber_relationship') continue;
+	onPatientInsurancesPanelSaveBtnClick: function (btn) {
+		var form = this.getActiveInsuranceFormPanel().getForm(),
+			values = form.getValues(),
+			record = form.getRecord();
 
-			if(disable){
-				subscriberFields[i].setDisabled(true);
-				subscriberFields[i].reset();
-				subscriberFields[i].allowBlank = true;
-			}else{
-				subscriberFields[i].setDisabled(false);
+		if(!form.isValid()) return;
 
-				if(
-					subscriberFields[i].name == 'subscriber_given_name' ||
-					subscriberFields[i].name == 'subscriber_surname' ||
-					subscriberFields[i].name == 'subscriber_dob' ||
-					subscriberFields[i].name == 'subscriber_sex' ||
-					subscriberFields[i].name == 'subscriber_street' ||
-					subscriberFields[i].name == 'subscriber_city' ||
-					subscriberFields[i].name == 'subscriber_state' ||
-					subscriberFields[i].name == 'subscriber_country' ||
-					subscriberFields[i].name == 'subscriber_postal_code' ||
-					subscriberFields[i].name == 'subscriber_employer'
-				){
-					subscriberFields[i].allowBlank = false;
-				}
+		record.set(values);
 
+		if(Ext.Object.isEmpty(record.getChanges())) return;
+
+		record.save({
+			callback: function () {
+				app.msg(_('sweet'), _('record_saved'));
 			}
+		});
+
+	},
+
+	onPatientInsurancesPanelCancelBtnClick: function (btn) {
+		var form_panel = this.getActiveInsuranceFormPanel(),
+			form = form_panel.getForm(),
+			record = form.getRecord();
+
+		if(record.get('id')  > 0){
+			form.reset();
+			form.loadRecord(record);
+
+			return;
 		}
 
+		this.getPatientInsurancesPanel().remove(form_panel);
+
+	},
+
+	onDemographicsRecordLoad: function (patient_record, patient_panel) {
+
+		var me = this,
+			insurance_panel = me.getPatientInsurancesPanel();
+
+		patient_record.insurance().load({
+			filters: [
+				{
+					property: 'pid',
+					value: patient_record.get('pid')
+				}
+			],
+			callback: function(records){
+				// set the insurance panel
+				insurance_panel.removeAll(true);
+				for(var i = 0; i < records.length; i++){
+					insurance_panel.add(
+						Ext.widget('patientinsuranceform', {
+							closable: false,
+							insurance: records[i]
+						})
+					);
+				}
+
+				if(insurance_panel.items.length > 0) insurance_panel.setActiveTab(0);
+			}
+		});
+	},
+
+	onPatientInsurancesPanelBeforeAdd: function (tapPanel, panel) {
+			var me = this,
+				record = panel.insurance || Ext.create('App.model.patient.Insurance', {pid: me.pid});
+
+			panel.title = _('insurance') + ' (' + (record.get('insurance_type') ? record.get('insurance_type') : _('new')) + ')';
+
+			me.insuranceFormLoadRecord(panel, record);
+			if(record.get('image') !== '') panel.down('image').setSrc(record.get('image'));
+	},
+
+	onPatientInsurancesPanelNewTabClick: function (form) {
+
+		var record = Ext.create('App.model.patient.Insurance',{
+			pid: app.patient.pid,
+			card_name_same_as_pateint: 1,
+			create_uid: app.user.id,
+			update_uid: app.user.id,
+			create_date: new Date(),
+			update_date: new Date()
+		});
+
+		this.insuranceFormLoadRecord(form, record);
+	},
+
+	insuranceFormLoadRecord: function(form, record){
+		form.getForm().loadRecord(record);
+		app.fireEvent('insurancerecordload', form, record);
+	},
+
+	onInsuranceSameAsPatientFieldChange: function (field, value) {
+		field.up('fieldcontainer').down('#InsuranceCardFirstNameField').setDisabled(value);
+		field.up('fieldcontainer').down('#InsuranceCardMiddleNameField').setDisabled(value);
+		field.up('fieldcontainer').down('#InsuranceCardLastNameField').setDisabled(value);
+	},
+
+	onInsuranceAddressSameAsPatientFieldChange: function (field, value) {
+		field.up('fieldset').down('#InsuranceSubscriberStreetField').setDisabled(value);
+		field.up('fieldset').down('#InsuranceSubscriberCityField').setDisabled(value);
+		field.up('fieldset').down('#InsuranceSubscriberStatetField').setDisabled(value);
+		field.up('fieldset').down('#InsuranceSubscriberPostalField').setDisabled(value);
+		field.up('fieldset').down('#InsuranceSubscriberCountryField').setDisabled(value);
+	},
+
+	onPatientInsuranceFormSubscribeRelationshipCmbSelect: function(cmb, records){
+		var form = cmb.up('form').getForm();
+
+		// // SEL = Self
+		if(records[0].get('option_value') !== 'SEL') return;
+
+		form.findField('subscriber_title').setValue(app.patient.record.get('title'));
+		form.findField('subscriber_given_name').setValue(app.patient.record.get('fname'));
+		form.findField('subscriber_middle_name').setValue(app.patient.record.get('mname'));
+		form.findField('subscriber_surname').setValue(app.patient.record.get('lname'));
+		form.findField('subscriber_dob').setValue(app.patient.record.get('DOB'));
+		form.findField('subscriber_sex').setValue(app.patient.record.get('sex'));
+		form.findField('subscriber_phone').setValue(app.patient.record.get('phone_mobile') || app.patient.record.get('phone_home'));
+		form.findField('subscriber_employer').setValue(app.patient.record.get('employer_name'));
+		form.findField('subscriber_address_same_as_pateint').setValue(true);
 	}
 
 });
@@ -45424,6 +45608,18 @@ Ext.define('App.controller.patient.Patient', {
 	],
 	refs: [
 		{
+			ref: 'NewPatientWindow',
+			selector: '#NewPatientWindow'
+		},
+		{
+			ref: 'NewPatientWindowForm',
+			selector: '#NewPatientWindowForm'
+		},
+		{
+			ref: 'NewPatientWindowInsuranceForm',
+			selector: '#NewPatientWindowInsuranceForm'
+		},
+		{
 			ref: 'PossiblePatientDuplicatesWindow',
 			selector: '#PossiblePatientDuplicatesWindow'
 		},
@@ -45436,6 +45632,20 @@ Ext.define('App.controller.patient.Patient', {
 	init: function(){
 		var me = this;
 		me.control({
+			'#NewPatientWindow': {
+				close: me.onNewPatientWindowClose
+			},
+			'#HeaderNewPatientBtn': {
+				click: me.onHeaderNewPatientBtnClick
+			},
+			'#NewPatientWindowCancelBtn': {
+				click: me.onNewPatientWindowCancelBtnClick
+			},
+			'#NewPatientWindowSaveBtn': {
+				click: me.onNewPatientWindowSaveBtnClick
+			},
+
+
 			'#PossiblePatientDuplicatesWindow': {
 				close: me.onPossiblePatientDuplicatesWindowClose
 			},
@@ -45452,6 +45662,89 @@ Ext.define('App.controller.patient.Patient', {
 				click: me.onPossiblePatientDuplicatesCancelBtnClick
 			}
 		});
+
+	},
+
+	onNewPatientWindowClose: function () {
+		this.getNewPatientWindowForm().getForm().reset();
+		this.getNewPatientWindowInsuranceForm().getForm().reset();
+	},
+
+	onHeaderNewPatientBtnClick: function () {
+		this.showNewPatientWindow(true);
+	},
+
+	onNewPatientWindowCancelBtnClick: function () {
+		this.getNewPatientWindowForm().getForm().reset(true);
+		this.getNewPatientWindow().close();
+	},
+
+	onNewPatientWindowSaveBtnClick: function (btn) {
+
+		var me = this,
+			win = me.getNewPatientWindow(),
+			demographics_form = me.getNewPatientWindowForm().getForm(),
+			demographics_values = demographics_form.getValues(),
+			demographics_params = {
+				fname: demographics_values.fname,
+				lname: demographics_values.lname,
+				sex: demographics_values.sex,
+				DOB: demographics_values.DOB
+			},
+			insurance_form = me.getNewPatientWindowInsuranceForm().getForm(),
+			insurance_values = insurance_form.getValues(),
+			has_insurance = insurance_values.insurance_id > 0;
+
+		if(!demographics_form.isValid()) return;
+
+		if(has_insurance){
+			demographics_params.insurance = {
+				insurance_id: insurance_values.insurance_id,
+				insurance_type: 'P',
+				effective_date: null,
+				expiration_date: null,
+				policy_number: insurance_values.policy_number,
+				group_number: insurance_values.group_number,
+				subscriber_given_name: insurance_values.subscriber_given_name,
+				subscriber_middle_name: insurance_values.subscriber_middle_name,
+				subscriber_surname_name: insurance_values.subscriber_surname_name,
+				display_order: 1,
+				create_uid: app.user.id,
+				update_uid: app.user.id,
+				create_date: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
+				update_date: Ext.Date.format(new Date(), 'Y-m-d H:i:s')
+			};
+
+			demographics_params.policy_number = insurance_values.policy_number || null;
+
+		}
+
+		me.lookForPossibleDuplicates(demographics_params, null, function (duplicared_win, response) {
+
+			if(response === true){
+				// continue clicked
+				Patient.createNewPatient(demographics_params, function (response) {
+					app.setPatient(response.pid, null, null, function(){
+						win.close();
+					});
+				});
+
+			}else if(response.isModel === true){
+				// duplicated record clicked
+				app.setPatient(response.get('pid'), null, null, function(){
+					duplicared_win.close();
+					win.close();
+				});
+			}
+		});
+
+	},
+
+	showNewPatientWindow: function () {
+		if(!this.getNewPatientWindow()){
+			Ext.create('App.view.patient.windows.NewPatient');
+		}
+		return this.getNewPatientWindow().show();
 	},
 
 	doCapitalizeEachLetterOnKeyUp: function(){
@@ -54506,9 +54799,9 @@ Ext.define('App.view.patient.Patient', {
 
 		me.store = Ext.create('App.store.patient.Patient');
 		me.patientAlertsStore = Ext.create('App.store.patient.MeaningfulUseAlert');
-		me.patientContacsStore = Ext.create('App.store.patient.PatientContacts', {
-			autoLoad: false
-		});
+		// me.patientContacsStore = Ext.create('App.store.patient.PatientContacts', {
+		// 	autoLoad: false
+		// });
 
 		me.compactDemographics = eval(g('compact_demographics'));
 		me.containersWidth = 720;
@@ -55959,62 +56252,62 @@ Ext.define('App.view.patient.Patient', {
 
 		me.callParent(arguments);
 
-		Ext.Function.defer(function(){
-
-			me.insTabPanel = Ext.widget('tabpanel', {
-				itemId: 'PatientInsurancesPanel',
-				flex: 1,
-				defaults: {
-					autoScroll: true,
-					padding: 10
-				},
-				plugins: [
-					{
-						ptype: 'AddTabButton',
-						iconCls: 'icoAdd',
-						toolTip: _('new_insurance'),
-						btnText: _('add_insurance'),
-						forceText: true,
-						panelConfig: {
-							xtype: 'patientinsuranceform'
-						}
-					}
-				],
-				listeners: {
-					scope: me,
-					beforeadd: me.insurancePanelAdd
-				}
-			});
-
-			me.insTabPanel.title = _('insurance');
-			me.insTabPanel.addDocked({
-				xtype: 'toolbar',
-				dock: 'bottom',
-				items: [
-					'->',
-					'-',
-					{
-						xtype: 'button',
-						action: 'readOnly',
-						text: _('save'),
-						minWidth: 75,
-						scope: me,
-						handler: me.formSave
-					},
-					'-',
-					{
-						xtype: 'button',
-						text: _('cancel'),
-						action: 'readOnly',
-						minWidth: 75,
-						scope: me,
-						handler: me.formCancel
-					}
-				]
-			});
-
-			me.up('tabpanel').insert(1, me.insTabPanel);
-		}, 300);
+		// Ext.Function.defer(function(){
+		//
+		// 	me.insTabPanel = Ext.widget('tabpanel', {
+		// 		itemId: 'PatientInsurancesPanel',
+		// 		flex: 1,
+		// 		defaults: {
+		// 			autoScroll: true,
+		// 			padding: 10
+		// 		},
+		// 		plugins: [
+		// 			{
+		// 				ptype: 'AddTabButton',
+		// 				iconCls: 'icoAdd',
+		// 				toolTip: _('new_insurance'),
+		// 				btnText: _('add_insurance'),
+		// 				forceText: true,
+		// 				panelConfig: {
+		// 					xtype: 'patientinsuranceform'
+		// 				}
+		// 			}
+		// 		],
+		// 		listeners: {
+		// 			scope: me,
+		// 			beforeadd: me.insurancePanelAdd
+		// 		}
+		// 	});
+		//
+		// 	me.insTabPanel.title = _('insurance');
+		// 	me.insTabPanel.addDocked({
+		// 		xtype: 'toolbar',
+		// 		dock: 'bottom',
+		// 		items: [
+		// 			'->',
+		// 			'-',
+		// 			{
+		// 				xtype: 'button',
+		// 				action: 'readOnly',
+		// 				text: _('save'),
+		// 				minWidth: 75,
+		// 				scope: me,
+		// 				handler: me.formSave
+		// 			},
+		// 			'-',
+		// 			{
+		// 				xtype: 'button',
+		// 				text: _('cancel'),
+		// 				action: 'readOnly',
+		// 				minWidth: 75,
+		// 				scope: me,
+		// 				handler: me.formCancel
+		// 			}
+		// 		]
+		// 	});
+		//
+		// 	me.up('tabpanel').insert(1, me.insTabPanel);
+		// }, 300);
 	},
 
 	beforePanelRender: function(){
@@ -56034,123 +56327,115 @@ Ext.define('App.view.patient.Patient', {
 
 		if(dob) dob.setMaxValue(new Date());
 
-		if(me.newPatient){
-			crtl = App.app.getController('patient.Patient');
-			fname.on('blur', crtl.checkForPossibleDuplicates, crtl);
-			lname.on('blur', crtl.checkForPossibleDuplicates, crtl);
-			sex.on('blur', crtl.checkForPossibleDuplicates, crtl);
-			dob.dateField.on('blur', crtl.checkForPossibleDuplicates, crtl);
-		}else{
-			whoPanel = me.demoForm.query('[action=DemographicWhoFieldSet]')[0];
-			whoPanel.insert(0,
-				me.patientImages = Ext.create('Ext.panel.Panel', {
-					action: 'patientImage',
-					layout: 'vbox',
-					style: 'float:right;',
-					bodyPadding: 10,
-					height: 300,
-					width:180,
-					items: [
-						{
-							xtype: 'image',
-							itemId: 'image',
-							imageAlign: 'center',
-							width: 150,
-							height: 120,
-							margin: '0 5 10 5',
-							src: me.defaultPatientImage
-						},
-						{
-							xtype: 'textareafield',
-							name: 'image',
-							hidden: true
-						},
-						{
-							xtype: 'image',
-							itemId: 'qrcode',
-							imageAlign: 'center',
-							width: 150,
-							height: 120,
-							margin: '0 5 10 5',
-							src: me.defaultQRCodeImage
+		whoPanel = me.demoForm.query('[action=DemographicWhoFieldSet]')[0];
+		whoPanel.insert(0,
+			me.patientImages = Ext.create('Ext.panel.Panel', {
+				action: 'patientImage',
+				layout: 'vbox',
+				style: 'float:right;',
+				bodyPadding: 10,
+				height: 300,
+				width:180,
+				items: [
+					{
+						xtype: 'image',
+						itemId: 'image',
+						imageAlign: 'center',
+						width: 150,
+						height: 120,
+						margin: '0 5 10 5',
+						src: me.defaultPatientImage
+					},
+					{
+						xtype: 'textareafield',
+						name: 'image',
+						hidden: true
+					},
+					{
+						xtype: 'image',
+						itemId: 'qrcode',
+						imageAlign: 'center',
+						width: 150,
+						height: 120,
+						margin: '0 5 10 5',
+						src: me.defaultQRCodeImage
+					}
+				],
+				bbar: [
+					'-',
+					{
+						text: _('take_picture'),
+						action: 'onWebCam'
+						//handler: me.getPhotoIdWindow
+					},
+					'-',
+					'->',
+					'-',
+					{
+						text: _('print_qrcode'),
+						scope: me,
+						handler: function () {
+							window.printQRCode(app.patient.pid);
 						}
-					],
-					bbar: [
-						'-',
-						{
-							text: _('take_picture'),
-							action: 'onWebCam'
-							//handler: me.getPhotoIdWindow
-						},
-						'-',
-						'->',
-						'-',
-						{
-							text: _('print_qrcode'),
-							scope: me,
-							handler: function () {
-								window.printQRCode(app.patient.pid);
-							}
-						},
-						'-'
-					]
-				})
-			);
-		}
+					},
+					'-'
+				]
+			})
+		);
 	},
 
-	onAddNewContact: function(btn){
-		var grid = btn.up('grid'),
-			store = grid.store,
-			record;
+	// onAddNewContact: function(btn){
+	// 	var grid = btn.up('grid'),
+	// 		store = grid.store,
+	// 		record;
+	//
+	// 	record = {
+	// 		created_date: new Date(),
+	// 		pid: app.patient.pid,
+	// 		uid: app.user.id
+	// 	};
+	//
+	// 	grid.plugins[0].cancelEdit();
+	// 	store.insert(0, record);
+	// 	grid.plugins[0].startEdit(0, 0);
+	// },
 
-		record = {
-			created_date: new Date(),
-			pid: app.patient.pid,
-			uid: app.user.id
-		};
+	// insurancePanelAdd: function(tapPanel, panel){
+	// 	var me = this,
+	// 		record = panel.insurance || Ext.create('App.model.patient.Insurance', {pid: me.pid});
+	//
+	// 	panel.title = _('insurance') + ' (' + (record.data.insurance_type ? record.data.insurance_type : _('new')) + ')';
+	//
+	// 	me.insuranceFormLoadRecord(panel, record);
+	// 	if(record.data.image !== '') panel.down('image').setSrc(record.data.image);
+	// },
 
-		grid.plugins[0].cancelEdit();
-		store.insert(0, record);
-		grid.plugins[0].startEdit(0, 0);
-	},
+	// insuranceFormLoadRecord: function(form, record){
+	// 	form.getForm().loadRecord(record);
+	// 	app.fireEvent('insurancerecordload', form, record);
+	// },
 
-	insurancePanelAdd: function(tapPanel, panel){
-		var me = this,
-			record = panel.insurance || Ext.create('App.model.patient.Insurance', {pid: me.pid});
-
-		panel.title = _('insurance') + ' (' + (record.data.insurance_type ? record.data.insurance_type : _('new')) + ')';
-
-		me.insuranceFormLoadRecord(panel, record);
-		if(record.data.image !== '') panel.down('image').setSrc(record.data.image);
-	},
-
-	insuranceFormLoadRecord: function(form, record){
-		form.getForm().loadRecord(record);
-		app.fireEvent('insurancerecordload', form, record);
-	},
-
-	getValidInsurances: function(){
-		var me = this,
-			forms = me.insTabPanel.items.items,
-			records = [],
-			form,
-			rec;
-
-		for(var i = 0; i < forms.length; i++){
-			form = forms[i].getForm();
-			if(!form.isValid()){
-				me.insTabPanel.setActiveTab(forms[i]);
-				return false;
-			}
-			rec = form.getRecord();
-			app.fireEvent('beforepatientinsuranceset', form, rec);
-			rec.set(form.getValues());
-			app.fireEvent('afterpatientinsuranceset', form, rec);
-			records.push(rec);
-		}
-		return records;
-	},
+	// getValidInsurances: function(){
+	// 	var me = this,
+	// 		forms = me.insTabPanel.items.items,
+	// 		records = [],
+	// 		form,
+	// 		rec;
+	//
+	// 	for(var i = 0; i < forms.length; i++){
+	// 		form = forms[i].getForm();
+	// 		if(!form.isValid()){
+	// 			me.insTabPanel.setActiveTab(forms[i]);
+	// 			return false;
+	// 		}
+	// 		rec = form.getRecord();
+	// 		app.fireEvent('beforepatientinsuranceset', form, rec);
+	// 		rec.set(form.getValues());
+	// 		app.fireEvent('afterpatientinsuranceset', form, rec);
+	// 		records.push(rec);
+	// 	}
+	// 	return records;
+	// },
 
 	getPatientImages: function(record){
 		var me = this;
@@ -56166,22 +56451,22 @@ Ext.define('App.view.patient.Patient', {
 		}
 	},
 
-	getPatientContacts: function(pid){
-		var me = this;
-
-		me.patientContacsStore.clearFilter(true);
-		me.patientContacsStore.load({
-			params: {
-				pid: pid
-			},
-			filters: [
-				{
-					property: 'pid',
-					value: pid
-				}
-			]
-		});
-	},
+	// getPatientContacts: function(pid){
+	// 	var me = this;
+	//
+	// 	me.patientContacsStore.clearFilter(true);
+	// 	me.patientContacsStore.load({
+	// 		params: {
+	// 			pid: pid
+	// 		},
+	// 		filters: [
+	// 			{
+	// 				property: 'pid',
+	// 				value: pid
+	// 			}
+	// 		]
+	// 	});
+	// },
 
 	/**
 	 * verify the patient required info and add a yellow background if empty
@@ -56222,74 +56507,65 @@ Ext.define('App.view.patient.Patient', {
 		// }
 	},
 
-	getValidInsurances: function(){
-		var me = this,
-			forms = Ext.ComponentQuery.query('#PatientInsurancesPanel')[0].items.items,
-			records = [],
-			form,
-			rec;
-
-		for(var i = 0; i < forms.length; i++){
-			form = forms[i].getForm();
-			if(!form.isValid()){
-				me.insTabPanel.setActiveTab(forms[i]);
-				return false;
-			}
-			rec = form.getRecord();
-			app.fireEvent('beforepatientinsuranceset', form, rec);
-			rec.set(form.getValues());
-			app.fireEvent('afterpatientinsuranceset', form, rec);
-			records.push(rec);
-		}
-		return records;
-	},
+	// getValidInsurances: function(){
+	// 	var me = this,
+	// 		forms = Ext.ComponentQuery.query('#PatientInsurancesPanel')[0].items.items,
+	// 		records = [],
+	// 		form,
+	// 		rec;
+	//
+	// 	for(var i = 0; i < forms.length; i++){
+	// 		form = forms[i].getForm();
+	// 		if(!form.isValid()){
+	// 			me.insTabPanel.setActiveTab(forms[i]);
+	// 			return false;
+	// 		}
+	// 		rec = form.getRecord();
+	// 		app.fireEvent('beforepatientinsuranceset', form, rec);
+	// 		rec.set(form.getValues());
+	// 		app.fireEvent('afterpatientinsuranceset', form, rec);
+	// 		records.push(rec);
+	// 	}
+	// 	return records;
+	// },
 
 	formSave: function(){
 		var me = this,
 			form = me.demoForm.getForm(),
 			record = form.getRecord(),
 			values = form.getValues();
-		insRecs = me.getValidInsurances();
 
-		if(form.isValid() && insRecs !== false){
-			record.set(values);
+		//insRecs = me.getValidInsurances();
 
-			// fire global event
-			app.fireEvent('beforedemographicssave', record, me);
-
-			record.save({
-				scope: me,
-				callback: function(record){
-
-					app.setPatient(record.data.pid, null, null, function(){
-
-						var insStore = record.insurance();
-
-						for(var i = 0; i < insRecs.length; i++){
-							if(insRecs[i].data.id === 0){
-								insStore.add(insRecs[i]);
-							}
-						}
-
-						insStore.sync();
-
-						if(me.newPatient){
-							app.openPatientSummary();
-						}else{
-							me.getPatientImages(record);
-							me.verifyPatientRequiredInfo();
-							me.readOnlyFields(form.getFields());
-						}
-					});
-
-					// fire global event
-					app.fireEvent('afterdemographicssave', record, me);
-					me.msg(_('sweet'), _('record_saved'));
-				}
-			});
-		}else{
+		if(!form.isValid()) {
 			me.msg(_('oops'), _('missing_required_data'), true);
+			return;
 		}
+
+
+		record.set(values);
+
+		// fire global event
+		app.fireEvent('beforedemographicssave', record, me);
+
+		record.save({
+			scope: me,
+			callback: function(record){
+
+				app.setPatient(record.data.pid, null, null, function(){
+
+					me.getPatientImages(record);
+					me.verifyPatientRequiredInfo();
+					me.readOnlyFields(form.getFields());
+
+				});
+
+				// fire global event
+				app.fireEvent('afterdemographicssave', record, me);
+				me.msg(_('sweet'), _('record_saved'));
+			}
+		});
+
 	},
 
 	formCancel: function(btn){
@@ -56318,38 +56594,44 @@ Ext.define('App.view.patient.Patient', {
 
 		form.reset();
 
-		me.getPatientContacts(pid);
+		form.loadRecord(app.patient.record);
+
+		app.fireEvent('demographicsrecordload', app.patient.record, me);
+
+		me.setReadOnly(app.patient.readOnly);
+		me.setButtonsDisabled(me.query('button[action="readOnly"]'));
+		me.verifyPatientRequiredInfo();
 
 		me.getPatientImages(app.patient.record);
 
-		app.patient.record.insurance().load({
-			filters: [
-				{
-					property: 'pid',
-					value: app.patient.record.data.pid
-				}
-			],
-			callback: function(records){
-
-				form.loadRecord(app.patient.record);
-				me.setReadOnly(app.patient.readOnly);
-				me.setButtonsDisabled(me.query('button[action="readOnly"]'));
-				me.verifyPatientRequiredInfo();
-				me.insTabPanel = Ext.ComponentQuery.query('#PatientInsurancesPanel')[0];
-
-				// set the insurance panel
-				me.insTabPanel.removeAll(true);
-				for(var i = 0; i < records.length; i++){
-					me.insTabPanel.add(
-						Ext.widget('patientinsuranceform', {
-							closable: false,
-							insurance: records[i]
-						})
-					);
-				}
-				if(me.insTabPanel.items.length !== 0) me.insTabPanel.setActiveTab(0);
-			}
-		});
+		// app.patient.record.insurance().load({
+		// 	filters: [
+		// 		{
+		// 			property: 'pid',
+		// 			value: app.patient.record.data.pid
+		// 		}
+		// 	],
+		// 	callback: function(records){
+		//
+		// 		//form.loadRecord(app.patient.record);
+		// 		me.setReadOnly(app.patient.readOnly);
+		// 		me.setButtonsDisabled(me.query('button[action="readOnly"]'));
+		// 		me.verifyPatientRequiredInfo();
+		// 		//me.insTabPanel = Ext.ComponentQuery.query('#PatientInsurancesPanel')[0];
+		//
+		// 		// set the insurance panel
+		// 		// me.insTabPanel.removeAll(true);
+		// 		// for(var i = 0; i < records.length; i++){
+		// 		// 	me.insTabPanel.add(
+		// 		// 		Ext.widget('patientinsuranceform', {
+		// 		// 			closable: false,
+		// 		// 			insurance: records[i]
+		// 		// 		})
+		// 		// 	);
+		// 		// }
+		// 		// if(me.insTabPanel.items.length !== 0) me.insTabPanel.setActiveTab(0);
+		// 	}
+		// });
 	}
 });
 Ext.define('App.view.patient.Summary', {
@@ -56640,6 +56922,53 @@ Ext.define('App.view.patient.Summary', {
 				autoScroll: true,
 				title: _('demographics')
             });
+
+			me.insTabPanel = me.tabPanel.add({
+				xtype: 'tabpanel',
+				title: _('insurance'),
+				itemId: 'PatientInsurancesPanel',
+				flex: 1,
+				defaults: {
+					autoScroll: true,
+					padding: 10
+				},
+				plugins: [
+					{
+						ptype: 'AddTabButton',
+						iconCls: 'icoAdd',
+						toolTip: _('new_insurance'),
+						btnText: _('add_insurance'),
+						forceText: true,
+						panelConfig: {
+							xtype: 'patientinsuranceform'
+						}
+					}
+				],
+				bbar: [
+					'->',
+					'-',
+					{
+						xtype: 'button',
+						text: _('save'),
+						minWidth: 75,
+						itemId: 'PatientInsurancesPanelSaveBtn'
+					},
+					'-',
+					{
+						xtype: 'button',
+						text: _('cancel'),
+						action: 'readOnly',
+						minWidth: 75,
+						itemId: 'PatientInsurancesPanelCancelBtn'
+					}
+				]
+				// listeners: {
+				// 	scope: me,
+				// 	beforeadd: me.insurancePanelAdd
+				// }
+			});
+
+
 		}
 
 		if(a('access_patient_disclosures')){
@@ -63224,10 +63553,8 @@ Ext.define('App.view.Viewport', {
 			    scale: 'large',
 			    margin: '0 3 0 0',
 			    padding: 4,
-			    itemId: 'patientNewReset',
+			    itemId: 'HeaderNewPatientBtn',
 			    iconCls: 'icoAddPatient',
-			    scope: me,
-			    handler: me.newPatient,
 			    tooltip: _('create_a_new_patient')
 		    });
 	    }
@@ -63646,13 +63973,6 @@ Ext.define('App.view.Viewport', {
     },
 
     /**
-     * Show the new patient form panel.
-     */
-    newPatient: function(){
-        this.nav.navigateTo('App.view.patient.NewPatient');
-    },
-
-    /**
      * EMERGENCY STUFF
      */
 	createEmergency: function(){
@@ -63813,11 +64133,11 @@ Ext.define('App.view.Viewport', {
             me.setPatient(post.get('pid'), null, null, function(){
 	            combo.reset();
 
-	            if(typeof me.onAppPatientSearchCallback === 'function'){
-		            me.onAppPatientSearchCallback(me.patient);
-	            }else {
-		            me.openPatientSummary();
-	            }
+	            // if(typeof me.onAppPatientSearchCallback === 'function'){
+		         //    me.onAppPatientSearchCallback(me.patient);
+	            // }else {
+		         //    me.openPatientSummary();
+	            // }
             });
         }
     },
@@ -63854,38 +64174,46 @@ Ext.define('App.view.Viewport', {
                 continueSettingPatient(false);
             }
 
-            function continueSettingPatient(readOnly){
-                me.patient = {
-                    pid: data.patient.pid,
-                    pubpid: data.patient.pubpid,
-                    name: data.patient.name,
-                    pic: data.patient.pic,
-                    sex: data.patient.sex,
-	                sexSymbol: data.patient.sex == 'F' ? '&#9792' : '&#9794',
-                    dob: Ext.Date.parse(data.patient.dob, "Y-m-d H:i:s"),
-                    age: data.patient.age,
-                    eid: eid,
-                    priority: data.patient.priority,
-                    readOnly: readOnly,
-                    rating: data.patient.rating,
-	                record: Ext.create('App.model.patient.Patient', data.patient.record)
-                };
+            function continueSettingPatient(readOnly) {
+	            me.patient = {
+		            pid: data.patient.pid,
+		            pubpid: data.patient.pubpid,
+		            name: data.patient.name,
+		            pic: data.patient.pic,
+		            sex: data.patient.sex,
+		            sexSymbol: data.patient.sex == 'F' ? '&#9792' : '&#9794',
+		            dob: Ext.Date.parse(data.patient.dob, "Y-m-d H:i:s"),
+		            age: data.patient.age,
+		            eid: eid,
+		            priority: data.patient.priority,
+		            readOnly: readOnly,
+		            rating: data.patient.rating,
+		            record: Ext.create('App.model.patient.Patient', data.patient.record)
+	            };
 
-                // fire global event
-                me.fireEvent('patientset', me.patient);
+	            // fire global event
+	            me.fireEvent('patientset', me.patient);
 
-                var panels = me.MainPanel.items.items;
-                for(var i=0; i<panels.length; i++) if(panels[i].pageRankingDiv) panels[i].pageRankingDiv.setValue(me.patient.rating);
-                me.patientButtonSet(me.patient);
-                if(me.patientSummaryBtn) me.patientSummaryBtn.enable();
-                if(me.patientOpenVisitsBtn) me.patientOpenVisitsBtn.enable();
-                if(me.patientCreateEncounterBtn) me.patientCreateEncounterBtn.enable();
-                if(me.patientCloseCurrEncounterBtn) me.patientCloseCurrEncounterBtn.enable();
+	            var panels = me.MainPanel.items.items;
+	            for (var i = 0; i < panels.length; i++) if (panels[i].pageRankingDiv) panels[i].pageRankingDiv.setValue(me.patient.rating);
+	            me.patientButtonSet(me.patient);
+	            if (me.patientSummaryBtn) me.patientSummaryBtn.enable();
+	            if (me.patientOpenVisitsBtn) me.patientOpenVisitsBtn.enable();
+	            if (me.patientCreateEncounterBtn) me.patientCreateEncounterBtn.enable();
+	            if (me.patientCloseCurrEncounterBtn) me.patientCloseCurrEncounterBtn.enable();
 //                if(me.patientChargeBtn) me.patientChargeBtn.enable();
-                if(me.patientCheckOutBtn) me.patientCheckOutBtn.enable();
-                if(typeof callback == 'function') callback(me.patient);
-            }
+	            if (me.patientCheckOutBtn) me.patientCheckOutBtn.enable();
 
+	            if (typeof callback === 'function') {
+		            callback(me.patient);
+	            }
+
+	            if(typeof me.onAppPatientSearchCallback === 'function'){
+		            me.onAppPatientSearchCallback(me.patient);
+	            }else {
+		            me.openPatientSummary();
+	            }
+            }
         });
     },
 

@@ -304,6 +304,53 @@ Ext.define('App.view.patient.Summary', {
 				autoScroll: true,
 				title: _('demographics')
             });
+
+			me.insTabPanel = me.tabPanel.add({
+				xtype: 'tabpanel',
+				title: _('insurance'),
+				itemId: 'PatientInsurancesPanel',
+				flex: 1,
+				defaults: {
+					autoScroll: true,
+					padding: 10
+				},
+				plugins: [
+					{
+						ptype: 'AddTabButton',
+						iconCls: 'icoAdd',
+						toolTip: _('new_insurance'),
+						btnText: _('add_insurance'),
+						forceText: true,
+						panelConfig: {
+							xtype: 'patientinsuranceform'
+						}
+					}
+				],
+				bbar: [
+					'->',
+					'-',
+					{
+						xtype: 'button',
+						text: _('save'),
+						minWidth: 75,
+						itemId: 'PatientInsurancesPanelSaveBtn'
+					},
+					'-',
+					{
+						xtype: 'button',
+						text: _('cancel'),
+						action: 'readOnly',
+						minWidth: 75,
+						itemId: 'PatientInsurancesPanelCancelBtn'
+					}
+				]
+				// listeners: {
+				// 	scope: me,
+				// 	beforeadd: me.insurancePanelAdd
+				// }
+			});
+
+
 		}
 
 		if(a('access_patient_disclosures')){

@@ -369,7 +369,21 @@ class Patient
 	 */
 	public function createNewPatient(stdClass $params)
 	{
-		return $this->savePatient($params);
+
+		if(isset($params->insurance)){
+			$insurance = (object) $params->insurance;
+		}
+
+		$patient = $this->savePatient($params);
+
+		if(isset($insurance)){
+			$insurance->pid = $patient->pid;
+			include_once (ROOT . '/dataProvider/Insurance.php');
+			$Insurance = new Insurance();
+			$Insurance->addInsurance($insurance);
+		}
+
+		return $patient;
 	}
 
 	/**
@@ -619,7 +633,13 @@ class Patient
 		return $alert !== false;
 	}
 
-	/** Patient Charts */
+	/** Patient Charts
+	 *
+	 * @param $pid
+	 * @param $pool_area_id
+	 *
+	 * @return object|stdClass
+	 */
 	public function patientChartOutByPid($pid, $pool_area_id)
 	{
 		$this->setChartCheckoutModel();
@@ -831,42 +851,51 @@ class Patient
 	public function getPossibleDuplicatesByDemographic($params, $includeDateOfBirth = false)
 	{
 		$this->setPatientModel();
-		$sql = "SELECT *
-				  FROM `patient`
- 				 WHERE `fname` SOUNDS LIKE '{$params->fname}'
- 				   AND `lname` SOUNDS LIKE '{$params->lname}'
- 				   AND `sex` = '{$params->sex}'";
-		$this->patientContacts = new PatientContacts();
-		if ($includeDateOfBirth) {
-			$sql = " AND `DOB` = '{$params->DOB}'";
+
+		$sql_params = [
+			':fname' => $params->fname,
+			':lname' => $params->lname,
+		];
+
+		if(isset($params->policy_numer)){
+			$sql_params[':policy_numer'] = $params->policy_numer;
+			$sql[] = 'SELECT * FROM `patient` WHERE `pid` IN (SELECT pid FROM `patient_insurances` WHERE policy_numner = :policy_numer)';
 		}
 
-		if (isset($params->pid) && $params->pid != 0) {
-			$sql .= " AND `pid` != '{$params->pid}'";
-		}
+		$sql[] = "SELECT * FROM `patient` WHERE `fname` SOUNDS LIKE :fname AND `lname` SOUNDS LIKE :lname";
 
-		$results = $this->p->sql($sql)->all();
+
+//		if ($includeDateOfBirth && isset($params->DOB)) {
+//			$sql_params[':DOB'] = $params->DOB;
+//			$sql = " AND `DOB` = :DOB";
+//		}
+//
+//		if (isset($params->pid) && $params->pid != 0) {
+//			$sql_params[':pid'] = $params->pid;
+//			$sql .= " AND `pid` != :pid";
+//		}
+
+		$sql = implode(' UNION ', $sql);
+
+		$results = $this->p->sql($sql)->all($sql_params);
 		foreach ($results as $index => $record) {
-			$contact = $this->patientContacts->getSelfContact($record['pid']);
+
 			$results[$index]['name'] = Person::fullname(
 				$record['fname'],
 				$record['mname'],
 				$record['lname']
 			);
-			if (isset($contact)) {
-				$results[$index]['fulladdress'] = Person::fulladdress(
-					isset($contact['street_mailing_address']) ? $contact['street_mailing_address'] : '',
-					null,
-					isset($contact['city']) ? $contact['city'] : '',
-					isset($contact['state']) ? $contact['state'] : '',
-					isset($contact['zip']) ? $contact['zip'] : ''
-				);
-				$results[$index]['phones'] = isset($contact['phone_local_number'])
-					?
-					$contact['phone_use_code'] . '-' . $contact['phone_area_code'] . '-' . $contact['phone_local_number']
-					:
-					'';
-			}
+
+			$results[$index]['fulladdress'] = Person::fulladdress(
+				isset($record['postal_address']) ? $record['postal_address'] : '',
+				isset($record['postal_address_cont']) ? $record['postal_address_cont'] : '',
+				isset($record['postal_city']) ? $record['postal_city'] : '',
+				isset($record['postal_state']) ? $record['postal_state'] : '',
+				isset($record['postal_zip']) ? $record['postal_zip'] : ''
+			);
+			$results[$index]['phones'] = (isset($record['phone_home']) ?  $record['phone_home'] : '000-000-0000') . ' (h) | ';
+			$results[$index]['phones'] .= (isset($record['phone_mobile']) ?  $record['phone_mobile'] : '000-000-0000') . ' (m)';
+
 		}
 		return [
 			'total' => count($results),

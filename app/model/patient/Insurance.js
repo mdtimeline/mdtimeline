@@ -28,6 +28,7 @@ Ext.define('App.model.patient.Insurance',{
         {
             name: 'insurance_id',
             type: 'int',
+	        useNull: true,
             index: true
         },
         {
@@ -67,6 +68,25 @@ Ext.define('App.model.patient.Insurance',{
             len: 10,
             index: true
         },
+	    {
+		    name: 'card_name_same_as_pateint',
+		    type: 'bool'
+	    },
+	    {
+		    name: 'card_first_name',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'card_middle_name',
+		    type: 'string',
+		    len: 80
+	    },
+	    {
+		    name: 'card_last_name',
+		    type: 'string',
+		    len: 80
+	    },
         {
             name: 'subscriber_title',
             type: 'string',
@@ -102,6 +122,10 @@ Ext.define('App.model.patient.Insurance',{
             name: 'subscriber_ss',
             type: 'string',
             len: 10
+        },
+        {
+            name: 'subscriber_address_same_as_pateint',
+            type: 'bool'
         },
         {
             name: 'subscriber_street',

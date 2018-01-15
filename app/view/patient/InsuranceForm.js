@@ -27,8 +27,7 @@ Ext.define('App.view.patient.InsuranceForm', {
 	bodyBorder: false,
 	closable: true,
 	fieldDefaults: {
-		labelAlign: 'right',
-		labelWidth: 140
+		labelAlign: 'top'
 	},
 	items: [
 		{
@@ -52,8 +51,7 @@ Ext.define('App.view.patient.InsuranceForm', {
 									enableKeyEvents: true,
 									width: 700,
 									defaults: {
-										margin: '10 0 0 2',
-										labelAlign: 'right'
+										margin: '5 10 0 2'
 									},
 									items: [
 										{
@@ -61,7 +59,7 @@ Ext.define('App.view.patient.InsuranceForm', {
 											name: 'insurance_id',
 											fieldLabel: _('insurance'),
 											labelWidth: 120,
-											width: 432,
+											width: 430,
 											queryMode: 'local',
 											editable: false,
 											allowBlank: false
@@ -71,7 +69,7 @@ Ext.define('App.view.patient.InsuranceForm', {
 											emptyText: _('type'),
 											fieldLabel: _('type'),
 											labelWidth: 100,
-											width: 225,
+											flex: 1,
 											name: 'insurance_type',
 											list: 96,
 											queryMode: 'local',
@@ -83,19 +81,20 @@ Ext.define('App.view.patient.InsuranceForm', {
 								}, //Insurance Name
 								{
 									xtype: 'fieldcontainer',
-									layout: 'hbox',
+									layout: {
+										type: 'hbox',
+										align: 'bottom'
+									},
 									hideLabel: false,
 									width: 700,
 									defaults: {
-										margin: '3 0 0 2',
-										labelAlign: 'right'
+										margin: '3 10 0 2'
 									},
 									items: [
 										{
 											xtype: 'button',
 											text: 'Eligibility',
 											itemId: 'InsuranceEligibilityBtn',
-											//labelWidth: 70,
 											width: 90
 										},
 										{
@@ -104,7 +103,6 @@ Ext.define('App.view.patient.InsuranceForm', {
 											itemId: 'PatientInsuranceID',
 											emptyText: _('policy_number'),
 											fieldLabel: _('id'),
-											labelWidth: 28,
 											width: 150
 										},
 										{
@@ -112,33 +110,35 @@ Ext.define('App.view.patient.InsuranceForm', {
 											name: 'group_number',
 											emptyText: _('group_number'),
 											fieldLabel: _('group'),
-											labelWidth: 50,
-											width: 180
+											width: 165
 										},
 										{
-											xtype: 'gaiaehr.combo',
-											name: 'subscriber_relationship',
-											itemId: 'PatientInsuranceFormSubscribeRelationshipCmb',
-											fieldLabel: _('relationship'),
-											emptyText: _('relationship'),
-											queryMode: 'local',
-											list: 134,
-											loadStore: true,
-											editable: false,
-											labelWidth: 100,
-											width: 225
-										} //Relationship Insured vwith Patient
+											xtype: 'datefield',
+											name: 'effective_date',
+											emptyText: _('effective_date'),
+											fieldLabel: _('effective_date'),
+											flex: 1
+										},
+										{
+											xtype: 'datefield',
+											name: 'expiration_date',
+											emptyText: _('expiration_date'),
+											fieldLabel: _('expiration_date'),
+											flex: 1
+										}
 									]
-								}, //ID, Group, Dates Exp y Eff.
+								},
 								{
 									xtype: 'fieldcontainer',
-									layout: 'hbox',
+									layout: {
+										type: 'hbox',
+										align: 'bottom'
+									},
 									hideLabel: false,
 									enableKeyEvents: true,
 									width: 700,
 									defaults: {
-										margin: '3 0 0 2',
-										labelAlign: 'right'
+										margin: '3 10 0 2'
 									},
 									items: [
 										{
@@ -146,70 +146,68 @@ Ext.define('App.view.patient.InsuranceForm', {
 											name: 'card_first_name',
 											emptyText: _('first_name'),
 											fieldLabel: _('card_name'),
-											labelWidth: 120,
-											width: 225,
-											allowBlank: false
+											itemId: 'InsuranceCardFirstNameField',
+											width: 130
 										},
 										{
 											xtype: 'textfield',
 											name: 'card_middle_name',
 											emptyText: _('middle_name'),
-											width: 20,
-											allowBlank: true
+											itemId: 'InsuranceCardMiddleNameField',
+											width: 80
 										},
 										{
 											xtype: 'textfield',
 											name: 'card_last_name',
 											emptyText: _('last_name'),
-											width: 183,
-											allowBlank: false
+											itemId: 'InsuranceCardLastNameField',
+											width: 195
 										},
 										{
-											xtype: 'datefield',
-											name: 'effective_date',
-											emptyText: _('effective_date'),
-											fieldLabel: _('effective_date'),
-											labelWidth: 100,
-											width: 225
+											xtype: 'checkboxfield',
+											boxLabel:  _('same_as_patient'),
+											itemId: 'InsuranceSameAsPatientField',
+											name: 'card_name_same_as_pateint'
 										}
 									]
-								}, //Card Name
+								},
 								{
 									xtype: 'fieldcontainer',
 									layout: 'hbox',
 									hideLabel: false,
 									width: 700,
 									defaults: {
-										margin: '3 0 0 2',
-										labelAlign: 'right'
+										margin: '3 10 0 2'
 									},
 									items: [
 										{
 											xtype: 'textfield',
 											name: 'cover_medical',
-											emptyText: _('medical'),
-											fieldLabel: _('covers'),
-											labelWidth: 120,
-											width: 275
+											fieldLabel: _('medical_coverage') ,
+											width: 130
 										},
 										{
 											xtype: 'textfield',
-											emptyText: _('dental'),
-											width: 155,
-											name: 'cover_dental'
+											fieldLabel: _('radiology_coverage'),
+											width: 130,
+											name: 'cover_radiology'
 										},
 										{
-											xtype: 'datefield',
-											name: 'expiration_date',
-											emptyText: _('expiration_date'),
-											fieldLabel: _('expiration_date'),
-											labelWidth: 100,
-											width: 225
+											xtype: 'textfield',
+											fieldLabel: _('emergency_coverage'),
+											width: 130,
+											name: 'cover_emergency'
+										},
+										{
+											xtype: 'textfield',
+											fieldLabel: _('dental_coverage'),
+											width: 130,
+											name: 'cover_dental'
 										}
 									]
-								}  //Cubiertas Medical y Dental
+								}
 							]
-						}, //Patient Information
+						},
 						{
 							xtype: 'fieldset',
 							title: _('subscriber'),
@@ -217,13 +215,26 @@ Ext.define('App.view.patient.InsuranceForm', {
 							margin: '10 0 5 5',
 							items: [
 								{
+									xtype: 'gaiaehr.combo',
+									name: 'subscriber_relationship',
+									itemId: 'PatientInsuranceFormSubscribeRelationshipCmb',
+									fieldLabel: _('relationship'),
+									emptyText: _('relationship'),
+									queryMode: 'local',
+									list: 134,
+									loadStore: true,
+									editable: false,
+									width: 200
+								},
+								{
 									xtype: 'fieldcontainer',
-									layout: 'hbox',
+									layout: {
+										type: 'hbox',
+										align: 'bottom'
+									},
 									width: 700,
 									defaults: {
-										margin: '5 5 0 2',
-										labelWidth: 40,
-										labelAlign: 'right'
+										margin: '5 5 0 2'
 									},
 									items: [
 										{
@@ -275,22 +286,13 @@ Ext.define('App.view.patient.InsuranceForm', {
 											editable: false
 										}
 									]
-								} //Full Name
-							]
-						},  //Principal Insured Info
-						{
-							xtype: 'fieldset',
-							//title: _('subscriber'),
-							cls: 'highlight_fieldset',
-							margin: '5 0 5 5',
-							items: [
+								},
 								{
 									xtype: 'fieldcontainer',
 									layout: 'hbox',
 									width: 700,
 									defaults: {
-										margin: '5 5 0 0',
-										labelAlign: 'right'
+										margin: '0 5 0 0'
 									},
 									items: [
 										{
@@ -318,22 +320,16 @@ Ext.define('App.view.patient.InsuranceForm', {
 											width: 330
 										}
 									]
-								} //DOB Sex SocialSecurity Phone
-							]
-						},
-						{
-							xtype: 'fieldset',
-							//title: _('subscriber'),
-							cls: 'highlight_fieldset',
-							margin: '5 0 5 5',
-							items: [
+								},
 								{
 									xtype: 'fieldcontainer',
-									layout: 'hbox',
+									layout: {
+										type: 'hbox',
+										align: 'bottom'
+									},
 									width: 700,
 									defaults: {
-										margin: '5 5 0 0',
-										labelAlign: 'right'
+										margin: '0 5 0 0'
 									},
 									items: [
 										{
@@ -342,18 +338,26 @@ Ext.define('App.view.patient.InsuranceForm', {
 											fieldLabel: _('street'),
 											labelWidth: 40,
 											width: 340,
+											itemId: 'InsuranceSubscriberStreetField',
 											name: 'subscriber_street'
+										},
+										{
+											xtype: 'checkboxfield',
+											boxLabel:  _('same_as_patient'),
+											itemId: 'InsuranceAddressSameAsPatientField',
+											name: 'subscriber_address_same_as_pateint'
 										}
 									]
-								}, //Street
+								},
 								{
 									xtype: 'fieldcontainer',
-									layout: 'hbox',
+									layout: {
+										type: 'hbox',
+										align: 'bottom'
+									},
 									width: 700,
 									defaults: {
-										margin: '2 5 0 0',
-										labelWidth: 40,
-										labelAlign: 'right'
+										margin: '0 5 0 0'
 									},
 									items: [
 										{
@@ -361,6 +365,7 @@ Ext.define('App.view.patient.InsuranceForm', {
 											name: 'subscriber_city',
 											emptyText: _('city'),
 											fieldLabel: _('city'),
+											itemId: 'InsuranceSubscriberCityField',
 											width: 140
 										},
 										{
@@ -368,6 +373,7 @@ Ext.define('App.view.patient.InsuranceForm', {
 											name: 'subscriber_state',
 											emptyText: _('state'),
 											queryMode: 'local',
+											itemId: 'InsuranceSubscriberStatetField',
 											list: 20,
 											width: 100,
 											loadStore: true,
@@ -378,12 +384,14 @@ Ext.define('App.view.patient.InsuranceForm', {
 											xtype: 'textfield',
 											name: 'subscriber_postal_code',
 											emptyText: _('postal_code'),
+											itemId: 'InsuranceSubscriberPostalField',
 											width: 90
 										},
 										{
 											xtype: 'gaiaehr.combo',
 											name: 'subscriber_country',
 											emptyText: _('country'),
+											itemId: 'InsuranceSubscriberCountryField',
 											queryMode: 'local',
 											list: 3,
 											width: 100,
@@ -391,24 +399,9 @@ Ext.define('App.view.patient.InsuranceForm', {
 											editable: false
 										}
 									]
-								}, //City State Zip Country
-								{
-									xtype: 'fieldcontainer',
-									layout: 'hbox',
-									width: 700,
-									defaults: {
-										margin: '2 5 0 0',
-										labelWidth: 40,
-										labelAlign: 'right'
-									},
-									items: [
-									]
-								}  //Employer Suscriber
+								}
 							]
 						}
-
-
-
 					]
 				},
 				{
@@ -419,11 +412,20 @@ Ext.define('App.view.patient.InsuranceForm', {
 					},
 					items: [
 						{
+							xtype: 'textareafield',
+							fieldLabel: _('notes'),
+							margin: '0 0 40 10',
+							grow: false,
+							anchor: '98%',
+							height: 218,
+							name: 'notes'
+						},
+						{
 							xtype:'container',
 							anchor: '98%',
 							layout: {
 								type: 'vbox',
-								align: 'right'
+								align: 'center'
 							},
 							items:[
 								{
@@ -458,15 +460,6 @@ Ext.define('App.view.patient.InsuranceForm', {
 									]
 								}
 							]
-						},
-						{
-							xtype: 'textareafield',
-							labelAlign: 'top',
-							fieldLabel: _('notes'),
-							margin: '5 0 0 10',
-							grow: false,
-							anchor: '98%',
-							name: 'notes'
 						}
 					]
 				}

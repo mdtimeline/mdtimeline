@@ -1946,5 +1946,10 @@ $LANG = array(
 	'values' => 'Values',
 	'vitals_not_signed' => 'Vitals Not Signed',
 	'bpm' => 'bpm',
+	'same_as_patient' => 'Same as Patient',
+	'medical_coverage' => 'Medical Coverage',
+	'radiology_coverage' => 'Radiology Cover',
+	'emergency_coverage' => 'Emergency Cover',
+	'dental_coverage' => 'Dental Cover'
 
 );

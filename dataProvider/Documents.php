@@ -477,8 +477,20 @@ class Documents {
 		$font = [
 			'family' => isset($template['body_font_family']) ? $template['body_font_family'] : 'times',
 			'size' => isset($template['body_font_size']) ? intval($template['body_font_size']) : 12,
-		    'style' => isset($template['body_font_style']) ? $template['body_font_style'] : '',
+			'style' => isset($template['body_font_style']) ? $template['body_font_style'] : '',
 		];
+
+		if(isset($params->custom_font_family)){
+			$font['family'] = $params->custom_font_family;
+		}
+		if(isset($params->custom_font_size)){
+			$font['size'] = $params->custom_font_size;
+		}
+		if(isset($params->custom_font_style)){
+			$font['style'] = $params->custom_font_style;
+		}
+
+
 
 		$pdf->setCustomHeaderLine(isset($template['header_line']) ? $template['header_line'] : false);
 		$pdf->SetDefaultMonospacedFont('courier');

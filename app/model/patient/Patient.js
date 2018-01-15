@@ -251,6 +251,36 @@ Ext.define('App.model.patient.Patient',{
             len: 40
         },
         {
+            name: 'employer_name',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'employer_address',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'employer_city',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'employer_state',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'employer_country',
+            type: 'string',
+            len: 40
+        },
+        {
+            name: 'employer_postal_code',
+            type: 'string',
+            len: 10
+        },
+        {
             name: 'rating',
             type: 'int',
             comment: 'patient stars rating'

@@ -1950,6 +1950,7 @@ $LANG = array(
 	'medical_coverage' => 'Medical Coverage',
 	'radiology_coverage' => 'Radiology Cover',
 	'emergency_coverage' => 'Emergency Cover',
-	'dental_coverage' => 'Dental Cover'
+	'dental_coverage' => 'Dental Cover',
+	'eligibility' => 'Eligibility'
 
 );

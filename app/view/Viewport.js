@@ -865,11 +865,11 @@ Ext.define('App.view.Viewport', {
             me.setPatient(post.get('pid'), null, null, function(){
 	            combo.reset();
 
-	            // if(typeof me.onAppPatientSearchCallback === 'function'){
-		         //    me.onAppPatientSearchCallback(me.patient);
-	            // }else {
-		         //    me.openPatientSummary();
-	            // }
+	            if(typeof me.onAppPatientSearchCallback === 'function'){
+		            me.onAppPatientSearchCallback(me.patient);
+	            }else {
+		            me.openPatientSummary();
+	            }
             });
         }
     },
@@ -938,12 +938,6 @@ Ext.define('App.view.Viewport', {
 
 	            if (typeof callback === 'function') {
 		            callback(me.patient);
-	            }
-
-	            if(typeof me.onAppPatientSearchCallback === 'function'){
-		            me.onAppPatientSearchCallback(me.patient);
-	            }else {
-		            me.openPatientSummary();
 	            }
             }
         });

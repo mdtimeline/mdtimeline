@@ -106,8 +106,14 @@ class Medications
 
     public function addPatientMedication($params)
     {
-        if(!isset($params)) return;
-        $params->create_date = date('Y-m-d H:i:s');
+    	if(is_array($params)){
+			foreach($params as &$param){
+				$param->create_date = date('Y-m-d H:i:s');
+			}
+	    }else{
+		    $params->create_date = date('Y-m-d H:i:s');
+	    }
+
         return $this->m->save($params);
     }
 

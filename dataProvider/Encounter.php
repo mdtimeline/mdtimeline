@@ -703,6 +703,48 @@ class Encounter {
 
 		$str_buff .= '</div>';
 
+		/**
+		 * Review Of System
+		 */
+		if(
+			isset($encounter['reviewofsystems']) &&
+			count($encounter['reviewofsystems']) > 0 &&
+			is_array($encounter['reviewofsystems'][0])
+		){
+
+			$conn = Matcha::getConn();
+			$sql = 'SELECT o.options FROM forms_fields as f INNER JOIN forms_field_options as o ON o.field_id = f.id WHERE f.form_id = 8;';
+			$sth = $conn->prepare($sql);
+			$sth->execute();
+			$options = $sth->fetchAll(PDO::FETCH_ASSOC);
+			$fields = [];
+
+			foreach($options as $option){
+				$buff = json_decode($option['options'], true);
+				if(!isset($buff['name'])) continue;
+				$fields[$buff['name']] = $buff['fieldLabel'];
+			}
+
+			$ros_buff = '';
+
+			foreach($encounter['reviewofsystems'][0] as $key => $value){
+				if(!array_key_exists($key, $fields)) continue;
+				if(!isset($value)) continue;
+				$ros_buff .= $fields[$key] . ': ' . ($value == 1 ? 'Yes' : $value) .'<br>';
+			}
+
+			if($ros_buff !== ''){
+				$str_buff .= '<div class="indent">';
+				$str_buff .= '<p><b>Review of Systems:</b></p>';
+				$str_buff .= '<div class="indent">';
+				$str_buff .= $ros_buff;
+				$str_buff .= '</div>';
+				$str_buff .= '</div>';
+			}
+
+		}
+
+
 		return $str_buff;
 	}
 
@@ -822,45 +864,6 @@ class Encounter {
 			$str_buff .= '<p><b>Vitals:</b> No Vitals Recorded</p>';
 		}
 		$str_buff .= '</div>';
-
-
-		if(
-			isset($encounter['reviewofsystems']) &&
-			count($encounter['reviewofsystems']) > 0 &&
-			is_array($encounter['reviewofsystems'][0])
-		){
-
-			$conn = Matcha::getConn();
-			$sql = 'SELECT o.options FROM forms_fields as f INNER JOIN forms_field_options as o ON o.field_id = f.id WHERE f.form_id = 8;';
-			$sth = $conn->prepare($sql);
-			$sth->execute();
-			$options = $sth->fetchAll(PDO::FETCH_ASSOC);
-			$fields = [];
-
-			foreach($options as $option){
-				$buff = json_decode($option['options'], true);
-				if(!isset($buff['name'])) continue;
-				$fields[$buff['name']] = $buff['fieldLabel'];
-			}
-
-			$ros_buff = '';
-
-			foreach($encounter['reviewofsystems'][0] as $key => $value){
-				if(!array_key_exists($key, $fields)) continue;
-				if(!isset($value)) continue;
-				$ros_buff .= $fields[$key] . ': ' . ($value == 1 ? 'Yes' : $value) .'<br>';
-			}
-
-			if($ros_buff !== ''){
-				$str_buff .= '<div class="indent">';
-				$str_buff .= '<p><b>Review of Systems:</b></p>';
-				$str_buff .= '<div class="indent">';
-				$str_buff .= $ros_buff;
-				$str_buff .= '</div>';
-				$str_buff .= '</div>';
-			}
-
-		}
 
 		/**
 		 * Active Medications

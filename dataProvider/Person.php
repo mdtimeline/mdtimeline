@@ -22,9 +22,21 @@ Copyright (C) 2013 Certun, LLC.
  */
 class Person {
 
+	/**
+	 * @param string      $fname
+	 * @param string      $mname
+	 * @param string      $lname
+	 * @param bool|string $capitalize
+	 *
+	 * @return string
+	 */
 	public static function fullname($fname, $mname, $lname, $capitalize = true) {
 
-		if($capitalize){
+		if($capitalize === 'all'){
+			$fname = strtoupper($fname);
+			$mname = strtoupper($mname);
+			$lname = strtoupper($lname);
+		}else if($capitalize === true){
 			$fname = ucwords(strtolower($fname));
 			$mname = ucwords(strtolower($mname));
 			$lname = ucwords(strtolower($lname));

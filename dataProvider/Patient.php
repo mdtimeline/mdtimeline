@@ -505,11 +505,13 @@ class Patient
 	}
 
 	/**
+	 * @param bool|string $capitalize
+	 *
 	 * @return string
 	 */
-	public function getPatientFullName()
+	public function getPatientFullName($capitalize = true)
 	{
-		return Person::fullname($this->patient['fname'], $this->patient['mname'], $this->patient['lname']);
+		return Person::fullname($this->patient['fname'], $this->patient['mname'], $this->patient['lname'], $capitalize);
 	}
 
 	/**

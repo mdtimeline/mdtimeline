@@ -534,10 +534,10 @@ Ext.define('App.view.patient.Encounter', {
 					store = record.store;
 					values = me.addDefaultData(values);
 					record.set(values);
-					app.fireEvent('encounterbeforesync', me, store, form);
+					app.fireEvent('encounterbeforesync', me, store, form, record);
 					store.sync({
 						callback: function(){
-							app.fireEvent('encountersync', me, store, form);
+							app.fireEvent('encountersync', me, store, form, record);
 							me.msg(_('sweet'), _('encounter_updated'));
 						}
 					});

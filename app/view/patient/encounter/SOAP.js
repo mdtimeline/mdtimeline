@@ -185,6 +185,26 @@ Ext.define('App.view.patient.encounter.SOAP', {
 				}),
 				{
 					xtype: 'fieldset',
+					title: _('chief_complaint'),
+					margin: 10,
+					items: [
+						{
+							xtype: 'textarea',
+							anchor: '100%',
+							height: 100,
+							enableKeyEvents: true,
+							margin: '5 0 10 0',
+							name: 'chief_complaint',
+							plugins: [
+								{
+									ptype: 'fieldtab'
+								}
+							]
+						}
+					]
+				},
+				{
+					xtype: 'fieldset',
 					title: _('subjective'),
 					margin: 10,
 					items: [

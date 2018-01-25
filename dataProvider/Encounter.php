@@ -703,6 +703,18 @@ class Encounter {
 
 		$str_buff .= '</div>';
 
+		return $str_buff;
+	}
+
+	private function getObjectiveExtraDataByEid($eid, $encounter = null) {
+
+		if(!isset($encounter)){
+			$record = $this->getEncounter($eid, true);
+			$encounter = (array)$record['encounter'];
+		}
+
+		$str_buff = '';
+
 		/**
 		 * Review Of System
 		 */
@@ -741,21 +753,8 @@ class Encounter {
 				$str_buff .= '</div>';
 				$str_buff .= '</div>';
 			}
-
 		}
 
-
-		return $str_buff;
-	}
-
-	private function getObjectiveExtraDataByEid($eid, $encounter = null) {
-
-		if(!isset($encounter)){
-			$record = $this->getEncounter($eid, true);
-			$encounter = (array)$record['encounter'];
-		}
-
-		$str_buff = '';
 		$Vitals = new Vitals();
 		$vitals = $Vitals->getVitalsByEid($eid);
 
@@ -1111,7 +1110,9 @@ class Encounter {
 	}
 
 	public function getSoap($params) {
-		return $this->soap->load($params)->one();
+		return $this->soap->load($params)->leftJoin(
+			['brief_description' => 'chief_complaint'], 'encounters', 'eid', 'eid'
+		)->one();
 	}
 
 	public function addSoap($params) {

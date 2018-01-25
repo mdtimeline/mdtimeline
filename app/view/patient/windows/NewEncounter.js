@@ -66,7 +66,8 @@ Ext.define('App.view.patient.windows.NewEncounter', {
     {
         var me = this,
             form = me.down('form').getForm(),
-            record = form.getRecord();
+            record = form.getRecord(),
+            brief_description_field = form.findField('brief_description');
 
 		if(app.patient.pid)
         {
@@ -83,6 +84,9 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 						brief_description: g('default_chief_complaint')
 					})
 				);
+
+				if(brief_description_field) brief_description_field.enable();
+
 
 				Encounter.checkOpenEncountersByPid(app.patient.pid, function(provider, response){
 					if(response.result.encounter){
@@ -102,7 +106,7 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 				});
 			} else if(record && a('edit_encounters')){
 
-				// placeholder
+				if(brief_description_field) brief_description_field.disable();
 
 			} else{
 				app.accessDenied();

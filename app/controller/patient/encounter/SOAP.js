@@ -56,6 +56,15 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 		{
 			ref: 'SoapTemplateSpecialtiesCombo',
 			selector: '#SoapTemplateSpecialtiesCombo'
+		},
+
+		{
+			ref: 'EncounterPanel',
+			selector: '#encounterPanel'
+		},
+		{
+			ref: 'EncounterDetailForm',
+			selector: '#EncounterDetailForm'
 		}
 	],
 
@@ -72,7 +81,8 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 				//deactivate: me.onPanelDeActive
 			},
 			'#soapPanel #soapForm': {
-				render: me.onPanelFormRender
+				render: me.onPanelFormRender,
+				write: me.onSoapFormWrite
 			},
 			'#SoapFormReformatTextBtn': {
 				render: me.onSoapFormReformatTextBtnRender,
@@ -123,20 +133,29 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 	},
 
 	onSoapDxCodesFieldRecordAdd: function (field, record) {
-		say('onSoapDxCodesFieldIcdAdd');
-		say(record);
-
-		say(this.getSoapForm());
-		say(this.getSoapForm().autoSync);
-
 		if(this.getSoapForm().autoSync) this.getSoapDxCodesField().sync();
 
 	},
 
-	onEncounterBeforeSync: function(panel, store, form){
-		if(form.owner.itemId == 'soapForm'){
-			this.getSoapDxCodesField().sync();
-		}
+	doChiefComplaintHandler: function (soap_record) {
+		var encounter_record = this.getEncounterPanel().encounter;
+		encounter_record.set({brief_description: soap_record.get('chief_complaint')});
+		if(Ext.Object.isEmpty(encounter_record.getChanges())) return;
+		encounter_record.save();
+	},
+
+	onSoapFormWrite: function (store, operation) {
+		this.doChiefComplaintHandler(operation.records[0]);
+	},
+
+	onEncounterBeforeSync: function(panel, store, form, record){
+
+		if(form.owner.itemId !== 'soapForm') return;
+
+		this.doChiefComplaintHandler(record);
+
+		this.getSoapDxCodesField().sync();
+
 	},
 
 	onSoapTextFieldFocus: function(field){

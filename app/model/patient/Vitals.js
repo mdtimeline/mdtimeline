@@ -175,11 +175,11 @@ Ext.define('App.model.patient.Vitals', {
 			store: false
 		},
 		{
-			name: 'group_date',
+			name: 'group_field',
 			type: 'string',
 			store: false,
 			convert: function(v, record){
-				return Ext.Date.format(record.data.date, 'Y-m-d');
+				return record.get('eid') === app.patient.eid ? 'Encounter Vitals' : 'History';
 			}
 		},
 		{

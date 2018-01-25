@@ -19,5 +19,6 @@
 Ext.define('App.store.patient.Vitals', {
 	extend: 'Ext.data.Store',
 	requires: ['App.model.patient.Vitals'],
-	model: 'App.model.patient.Vitals'
+	model: 'App.model.patient.Vitals',
+	groupField: 'group_field'
 });

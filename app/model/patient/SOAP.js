@@ -52,6 +52,11 @@ Ext.define('App.model.patient.SOAP', {
 			dateFormat: 'Y-m-d H:i:s'
 		},
 		{
+			name: 'chief_complaint',
+			type: 'string',
+			store: false
+		},
+		{
 			name: 'subjective',
 			type: 'string',
 			dataType: 'mediumtext'

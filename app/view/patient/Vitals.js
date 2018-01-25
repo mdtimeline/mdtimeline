@@ -82,12 +82,17 @@ Ext.define('App.view.patient.Vitals', {
 			xtype: 'grid',
 			region: 'center',
 			flex: 1,
-			columnLines: true,
 			itemId: 'historyGrid',
 			multiSelect: true,
 			store: Ext.create('App.store.patient.Vitals',{
 				remoteFilter: true
 			}),
+			features: [
+				{
+					ftype:'grouping',
+					groupHeaderTpl: '{name}'
+				}
+			],
 			plugins: [
 				{
 					ptype: 'rowediting'

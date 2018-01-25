@@ -15222,11 +15222,11 @@ Ext.define('App.model.patient.Vitals', {
 			store: false
 		},
 		{
-			name: 'group_date',
+			name: 'group_field',
 			type: 'string',
 			store: false,
 			convert: function(v, record){
-				return Ext.Date.format(record.data.date, 'Y-m-d');
+				return record.get('eid') === app.patient.eid ? 'Encounter Vitals' : 'History';
 			}
 		},
 		{
@@ -21241,7 +21241,8 @@ Ext.define('App.view.patient.windows.NewEncounter', {
     {
         var me = this,
             form = me.down('form').getForm(),
-            record = form.getRecord();
+            record = form.getRecord(),
+            brief_description_field = form.findField('brief_description');
 
 		if(app.patient.pid)
         {
@@ -21258,6 +21259,9 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 						brief_description: g('default_chief_complaint')
 					})
 				);
+
+				if(brief_description_field) brief_description_field.enable();
+
 
 				Encounter.checkOpenEncountersByPid(app.patient.pid, function(provider, response){
 					if(response.result.encounter){
@@ -21277,7 +21281,7 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 				});
 			} else if(record && a('edit_encounters')){
 
-				// placeholder
+				if(brief_description_field) brief_description_field.disable();
 
 			} else{
 				app.accessDenied();
@@ -25083,12 +25087,17 @@ Ext.define('App.view.patient.Vitals', {
 			xtype: 'grid',
 			region: 'center',
 			flex: 1,
-			columnLines: true,
 			itemId: 'historyGrid',
 			multiSelect: true,
 			store: Ext.create('App.store.patient.Vitals',{
 				remoteFilter: true
 			}),
+			features: [
+				{
+					ftype:'grouping',
+					groupHeaderTpl: '{name}'
+				}
+			],
 			plugins: [
 				{
 					ptype: 'rowediting'
@@ -35898,7 +35907,8 @@ Ext.define('App.store.patient.VisitPayment', {
 Ext.define('App.store.patient.Vitals', {
 	extend: 'Ext.data.Store',
 	requires: ['App.model.patient.Vitals'],
-	model: 'App.model.patient.Vitals'
+	model: 'App.model.patient.Vitals',
+	groupField: 'group_field'
 });
 Ext.define('App.store.patient.charts.BMIForAge', {
 	extend: 'Ext.data.Store',
@@ -48415,6 +48425,15 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 		{
 			ref: 'SoapTemplateSpecialtiesCombo',
 			selector: '#SoapTemplateSpecialtiesCombo'
+		},
+
+		{
+			ref: 'EncounterPanel',
+			selector: '#encounterPanel'
+		},
+		{
+			ref: 'EncounterDetailForm',
+			selector: '#EncounterDetailForm'
 		}
 	],
 
@@ -48431,7 +48450,8 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 				//deactivate: me.onPanelDeActive
 			},
 			'#soapPanel #soapForm': {
-				render: me.onPanelFormRender
+				render: me.onPanelFormRender,
+				write: me.onSoapFormWrite
 			},
 			'#SoapFormReformatTextBtn': {
 				render: me.onSoapFormReformatTextBtnRender,
@@ -48482,20 +48502,29 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 	},
 
 	onSoapDxCodesFieldRecordAdd: function (field, record) {
-		say('onSoapDxCodesFieldIcdAdd');
-		say(record);
-
-		say(this.getSoapForm());
-		say(this.getSoapForm().autoSync);
-
 		if(this.getSoapForm().autoSync) this.getSoapDxCodesField().sync();
 
 	},
 
-	onEncounterBeforeSync: function(panel, store, form){
-		if(form.owner.itemId == 'soapForm'){
-			this.getSoapDxCodesField().sync();
-		}
+	doChiefComplaintHandler: function (soap_record) {
+		var encounter_record = this.getEncounterPanel().encounter;
+		encounter_record.set({brief_description: soap_record.get('chief_complaint')});
+		if(Ext.Object.isEmpty(encounter_record.getChanges())) return;
+		encounter_record.save();
+	},
+
+	onSoapFormWrite: function (store, operation) {
+		this.doChiefComplaintHandler(operation.records[0]);
+	},
+
+	onEncounterBeforeSync: function(panel, store, form, record){
+
+		if(form.owner.itemId !== 'soapForm') return;
+
+		this.doChiefComplaintHandler(record);
+
+		this.getSoapDxCodesField().sync();
+
 	},
 
 	onSoapTextFieldFocus: function(field){
@@ -51932,6 +51961,11 @@ Ext.define('App.model.patient.SOAP', {
 			name: 'date',
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'chief_complaint',
+			type: 'string',
+			store: false
 		},
 		{
 			name: 'subjective',
@@ -61320,6 +61354,26 @@ Ext.define('App.view.patient.encounter.SOAP', {
 				}),
 				{
 					xtype: 'fieldset',
+					title: _('chief_complaint'),
+					margin: 10,
+					items: [
+						{
+							xtype: 'textarea',
+							anchor: '100%',
+							height: 100,
+							enableKeyEvents: true,
+							margin: '5 0 10 0',
+							name: 'chief_complaint',
+							plugins: [
+								{
+									ptype: 'fieldtab'
+								}
+							]
+						}
+					]
+				},
+				{
+					xtype: 'fieldset',
 					title: _('subjective'),
 					margin: 10,
 					items: [
@@ -62831,10 +62885,10 @@ Ext.define('App.view.patient.Encounter', {
 					store = record.store;
 					values = me.addDefaultData(values);
 					record.set(values);
-					app.fireEvent('encounterbeforesync', me, store, form);
+					app.fireEvent('encounterbeforesync', me, store, form, record);
 					store.sync({
 						callback: function(){
-							app.fireEvent('encountersync', me, store, form);
+							app.fireEvent('encountersync', me, store, form, record);
 							me.msg(_('sweet'), _('encounter_updated'));
 						}
 					});

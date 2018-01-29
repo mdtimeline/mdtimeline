@@ -87,6 +87,8 @@ Ext.define('App.view.patient.Vitals', {
 			store: Ext.create('App.store.patient.Vitals',{
 				remoteFilter: true
 			}),
+			stateId: 'VitalsHistoryGrid',
+			stateful: true,
 			features: [
 				{
 					ftype:'grouping',
@@ -143,6 +145,7 @@ Ext.define('App.view.patient.Vitals', {
 			{
 				xtype: 'actioncolumn',
 				width: 20,
+				stateId: 'VitalsHistoryGridActionCol',
 				items: [
 					{
 						icon: 'resources/images/icons/cross.png',
@@ -159,6 +162,7 @@ Ext.define('App.view.patient.Vitals', {
 				dataIndex: 'date',
 				format: 'Y-m-d g:i a',
 				width: 180,
+				stateId: 'VitalsHistoryGridDateCol',
 				editor:{
 					xtype: 'mitos.datetime',
 					timeFormat: 'g:i a'
@@ -166,11 +170,13 @@ Ext.define('App.view.patient.Vitals', {
 			},
 			{
 				text: _('bp'),
+				stateId: 'VitalsHistoryGridBpCol',
 				columns:[
 					{
 						text: _('systolic'),
 						dataIndex: 'bp_systolic',
 						width: 65,
+						stateId: 'VitalsHistoryGridBpSystolicCol',
 						editor: {
 							xtype: 'textfield',
 							vtype: 'numeric'
@@ -180,6 +186,7 @@ Ext.define('App.view.patient.Vitals', {
 						text: _('diastolic'),
 						dataIndex: 'bp_diastolic',
 						width: 65,
+						stateId: 'VitalsHistoryGridBpDiastolicCol',
 						editor: {
 							xtype: 'textfield',
 							vtype: 'numeric'
@@ -194,6 +201,7 @@ Ext.define('App.view.patient.Vitals', {
 				text: _('temp'),
 				dataIndex: 'temp_f',
 				width: 70,
+				stateId: 'VitalsHistoryGridTempFCol',
 				editor: {
 					xtype: 'textfield',
 					itemId: 'vitalTempFField',
@@ -209,6 +217,7 @@ Ext.define('App.view.patient.Vitals', {
 				text: _('temp'),
 				dataIndex: 'temp_c',
 				width: 70,
+				stateId: 'VitalsHistoryGridTempCCol',
 				editor: {
 					xtype: 'textfield',
 					itemId: 'vitalTempCField',
@@ -224,6 +233,7 @@ Ext.define('App.view.patient.Vitals', {
 		columns.push({
 			text: _('temp_location'),
 			dataIndex: 'temp_location',
+			stateId: 'VitalsHistoryGridTempLocationCol',
 			editor: {
 				xtype: 'gaiaehr.combo',
 				list: 62
@@ -235,6 +245,7 @@ Ext.define('App.view.patient.Vitals', {
 				text: _('weight_lbs'),
 				dataIndex: 'weight_lbs',
 				width: 80,
+				stateId: 'VitalsHistoryGridWeightLbsCol',
 				editor: {
 					xtype: 'textfield',
 					itemId: 'vitalWeightLbsField',
@@ -249,6 +260,7 @@ Ext.define('App.view.patient.Vitals', {
 				text: _('height_in'),
 				dataIndex: 'height_in',
 				width: 70,
+				stateId: 'VitalsHistoryGridHeightInCol',
 				editor: {
 					xtype: 'textfield',
 					itemId: 'vitalHeightInField',
@@ -264,6 +276,7 @@ Ext.define('App.view.patient.Vitals', {
 				text: _('weight'),
 				dataIndex: 'weight_kg',
 				width: 80,
+				stateId: 'VitalsHistoryGridWeightKgCol',
 				editor: {
 					xtype: 'textfield',
 					itemId: 'vitalWeightKgField',
@@ -277,6 +290,7 @@ Ext.define('App.view.patient.Vitals', {
 			columns.push({
 				text: _('height_cm'),
 				dataIndex: 'height_cm',
+				stateId: 'VitalsHistoryGridHeightCmCol',
 				width: 70,
 				editor: {
 					xtype: 'textfield',
@@ -294,6 +308,7 @@ Ext.define('App.view.patient.Vitals', {
 			text: _('pulse'),
 			dataIndex: 'pulse',
 			width: 60,
+			stateId: 'VitalsHistoryGridPulseCol',
 			editor: {
 				xtype: 'textfield',
 				vtype: 'numeric'
@@ -306,6 +321,7 @@ Ext.define('App.view.patient.Vitals', {
 		columns.push({
 			text: _('respiration'),
 			dataIndex: 'respiration',
+			stateId: 'VitalsHistoryGridRespitarionCol',
 			editor: {
 				xtype: 'textfield',
 				vtype: 'numeric'
@@ -318,12 +334,14 @@ Ext.define('App.view.patient.Vitals', {
 		columns.push({
 			text: _('bmi'),
 			dataIndex: 'bmi',
+			stateId: 'VitalsHistoryGridBmiCol',
 			width: 50
 		});
 
 		columns.push({
 			text: _('other_notes'),
 			dataIndex: 'other_notes',
+			stateId: 'VitalsHistoryGridOtherNotesCol',
 			flex: 1,
 			editor: {
 				xtype: 'textfield'
@@ -332,12 +350,14 @@ Ext.define('App.view.patient.Vitals', {
 
 		columns.push({
 			text: _('administer_by'),
-			dataIndex: 'administer_by'
+			dataIndex: 'administer_by',
+			stateId: 'VitalsHistoryGridAdministerCol'
 		});
 
 		columns.push({
 			text: _('authorized_by'),
-			dataIndex: 'authorized_by'
+			dataIndex: 'authorized_by',
+			stateId: 'VitalsHistoryGridAuthorizedCol'
 		});
 
 		me.items[1].columns = columns;

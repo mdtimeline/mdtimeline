@@ -17425,7 +17425,8 @@ Ext.define('App.model.patient.Encounter', {
 		},
 		{
 			name: 'referring_physician',
-			type: 'int'
+			type: 'int',
+			useNull: true
 		},
 		{
 			name: 'patient_education_given',

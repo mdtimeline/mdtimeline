@@ -1384,6 +1384,10 @@ Ext.define('App.view.Viewport', {
 
 		return record_number;
 
+	},
+
+	getDate: function () {
+		return this.getController('Clock').getDate();
 	}
 
 

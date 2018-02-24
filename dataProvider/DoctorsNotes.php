@@ -30,6 +30,7 @@ class DoctorsNotes {
 	}
 
 	public function getDoctorsNotes($params){
+		$this->n->setOrFilterProperties(['id']);
 		return $this->n->load($params)->all();
 	}
 

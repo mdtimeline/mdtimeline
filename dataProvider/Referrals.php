@@ -27,6 +27,7 @@ class Referrals {
 	}
 
 	public function getPatientReferrals($params){
+		$this->r->setOrFilterProperties(['id']);
 		return $this->r->load($params)->all();
 	}
 

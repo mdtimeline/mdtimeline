@@ -131,15 +131,16 @@ class DocumentHandler {
 
 	/**
 	 * @param $params
-	 * @param $includeDocument
+	 * @param $include_document
+	 * @param $retun_binary
 	 *
 	 * @return mixed
 	 */
-	public function getPatientDocument($params, $includeDocument = false){
+	public function getPatientDocument($params, $include_document = false, $retun_binary = false){
 		$this->setPatientDocumentModel();
 		$record = $this->d->load($params)->one();
 
-		if($record !== false && $includeDocument){
+		if($record !== false && $include_document){
 
 			$file_path = $record['path'] . '/' . $record['name'];
 			$is_file = isset($record['path']) && $record['path'] != '' && file_exists($file_path);
@@ -154,8 +155,13 @@ class DocumentHandler {
 				}
 			}
 
-			if(isset($record['document']) && $this->isBinary($record['document'])){
-				$record['document'] = base64_encode($record['document']);
+			if(isset($record['document']) && !empty($record['document'])){
+				$is_binary = $this->isBinary($record['document']);
+				if($retun_binary && !$is_binary){
+					$record['document'] = base64_decode($record['document']);
+				}elseif(!$retun_binary && $is_binary){
+					$record['document'] = base64_encode($record['document']);
+				}
 			}
 		}
 
@@ -397,6 +403,21 @@ class DocumentHandler {
 	public function destroyPatientDocument($params){
 		$this->setPatientDocumentModel();
 		return $this->d->destroy($params);
+	}
+
+	/**
+	 * @param $params
+	 * @param $return_binary
+	 * @return object|stdClass
+	 */
+	public function getTempDocument($params, $return_binary = false){
+		$this->setPatientDocumentTempModel();
+		$record = $this->t->load($params)->one();
+
+		if($return_binary && !$this->isBinary($record['document']) ?
+			base64_decode($record['document']) : $record['document'])
+
+		return $record;
 	}
 
 	/**

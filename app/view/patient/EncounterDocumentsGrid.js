@@ -49,7 +49,16 @@ Ext.define('App.view.patient.EncounterDocumentsGrid', {
 	],
 	tools: [
 		{
-			type:'print',
+			xtype: 'button',
+			icon: 'resources/images/icons/preview.png',
+			tooltip: _('view'),
+			margin: '0 5 0 0',
+			itemId: 'EncounterDocumentsViewBtn'
+		},
+		{
+			xtype: 'button',
+			icon: 'resources/images/icons/printer.png',
+			tooltip: _('print'),
 			itemId: 'EncounterDocumentsPrintBtn'
 		}
 	],

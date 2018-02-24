@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.controller.administration.TemplatePanels', {
+Ext.define('App.controller.administration.EncounterTemplatePanels', {
 	extend: 'Ext.app.Controller',
 
 	requires: [],
@@ -52,7 +52,7 @@ Ext.define('App.controller.administration.TemplatePanels', {
 		}
 	],
 
-	init: function(){
+	init: function () {
 		var me = this;
 
 		me.control({
@@ -79,10 +79,10 @@ Ext.define('App.controller.administration.TemplatePanels', {
 
 	},
 
-	onEncounterLoad: function(encounter){
+	onEncounterLoad: function (encounter) {
 
-		if(!this.getTemplatePanelsWindow()){
-			Ext.create('App.view.patient.windows.TemplatePanels');
+		if (!this.getTemplatePanelsWindow()) {
+			Ext.create('App.view.patient.windows.EncounterTemplatePanels');
 		}
 
 		var me = this,
@@ -102,23 +102,23 @@ Ext.define('App.controller.administration.TemplatePanels', {
 		});
 	},
 
-	onSoapPanelAfterRender: function(){
-		this.getSoapForm().getDockedItems('toolbar[dock="bottom"]')[0].insert(0,{
+	onSoapPanelAfterRender: function () {
+		this.getSoapForm().getDockedItems('toolbar[dock="bottom"]')[0].insert(0, {
 			xtype: 'button',
 			text: _('templates'),
 			itemId: 'SoapTemplatesBtn'
 		});
 	},
 
-	onSoapPanelActivate: function(){
+	onSoapPanelActivate: function () {
 		var hasTemplates = this.getTemplatePanelsCombo().getStore().data.items.length > 0,
 			btn = this.getSoapTemplatesBtn();
 
-		if(hasTemplates){
+		if (hasTemplates) {
 			btn.disabled = false;
 			btn.setDisabled(false);
 			btn.setTooltip(_('clinical_templates'));
-		}else{
+		} else {
 			btn.disabled = true;
 			btn.setDisabled(true);
 			btn.setTooltip(_('no_templates_found'));
@@ -126,11 +126,11 @@ Ext.define('App.controller.administration.TemplatePanels', {
 
 	},
 
-	onSoapTemplatesBtnClick: function(){
+	onSoapTemplatesBtnClick: function () {
 		this.doTemplatePanelsWindowShow();
 	},
 
-	onTemplatePanelsComboSelect: function(cmb, records){
+	onTemplatePanelsComboSelect: function (cmb, records) {
 		var me = this,
 			grid = me.getTemplatePanelsGrid(),
 			sm = grid.getSelectionModel(),
@@ -138,26 +138,26 @@ Ext.define('App.controller.administration.TemplatePanels', {
 
 		grid.reconfigure(store);
 		store.load({
-			callback: function(){
+			callback: function () {
 				sm.selectAll();
 			}
 		});
 	},
 
-	doTemplatePanelsWindowShow: function(){
+	doTemplatePanelsWindowShow: function () {
 		this.getTemplatePanelsGrid().getStore().removeAll();
 		this.getTemplatePanelsCombo().reset();
 		return this.getTemplatePanelsWindow().show();
 	},
 
-	onTemplatePanelsAddBtnClick: function(){
+	onTemplatePanelsAddBtnClick: function () {
 		var me = this,
 			cmb = me.getTemplatePanelsCombo(),
 			records = me.getTemplatePanelsGrid().getSelectionModel().getSelection();
 
-		if(!cmb.isValid()) return;
+		if (!cmb.isValid()) return;
 
-		if(records.length === 0){
+		if (records.length === 0) {
 			app.msg(_('oops'), _('no_templates_to_add'), true);
 			return;
 		}
@@ -167,8 +167,8 @@ Ext.define('App.controller.administration.TemplatePanels', {
 			msg: _('add_templates_message'),
 			buttons: Ext.Msg.YESNO,
 			icon: Ext.Msg.QUESTION,
-			fn: function(btn){
-				if(btn == 'yes'){
+			fn: function (btn) {
+				if (btn == 'yes') {
 					me.doAddTemplates(records);
 					me.getTemplatePanelsWindow().close();
 				}
@@ -176,19 +176,26 @@ Ext.define('App.controller.administration.TemplatePanels', {
 		});
 	},
 
-	doAddTemplates: function(templates){
+	doAddTemplates: function (templates) {
 
-		for(var i = 0; i < templates.length; i++){
+		app.onMedicalWin();
 
-			var type = templates[i].get('template_type'),
-				data = eval('(' + templates[i].data.template_data + ')');
+		templates.forEach(function (template) {
 
-			if(!data) {
-				say('Error: data eval issue -- ' + templates[i].data.template_data);
-				continue;
+			var type = template.get('template_type'),
+				data = eval('(' + template.get('template_data') + ')');
+
+			if (!data) {
+				say('Error: data eval issue -- ' + data);
+				return;
 			}
 
-			switch (type){
+			data.pid = app.patient.pid;
+			data.eid = app.patient.eid;
+			data.uid = app.user.id;
+			data.date_ordered = new Date();
+
+			switch (type) {
 
 				case 'LAB':
 					App.app.getController('patient.LabOrders').doAddOrderByTemplate(data);
@@ -199,16 +206,98 @@ Ext.define('App.controller.administration.TemplatePanels', {
 				case 'RX':
 					App.app.getController('patient.RxOrders').doAddOrderByTemplate(data);
 					break;
+				case 'REF':
+					App.app.getController('patient.Referrals').doAddReferralByTemplate(data);
+					break;
 				default:
 					say('Error: no template_type found -- ' + type);
-					continue;
 					break;
 			}
-		}
+
+		});
+
+
+		Ext.Function.defer(function () {
+			app.getActivePanel().getProgressNote();
+		}, 1000);
+
+
 	},
 
-	onTemplatePanelsCancelBtnClick: function(){
+	onTemplatePanelsCancelBtnClick: function () {
 		this.getTemplatePanelsWindow().close();
+	},
+
+	getLabTemplate: function (code, description) {
+		return {
+			pid: 0,
+			eid: 0,
+			uid: 0,
+			code: code, //                  58410-2,    24356-8,    24321-2,    34529-8
+			code_type: "LOINC",
+			date_collected: null,
+			date_ordered: '',
+			description: description, //    CBC,        U/A,        BMP         PT & PPT
+			hl7_recipient_id: 0,
+			note: "",
+			order_type: "lab",
+			priority: "Normal",
+			status: "Pending",
+			type: "Laboratory",
+			void: false,
+			void_comment: ""
+		};
+	},
+
+	getRadTemplate: function (code, description) {
+		return {
+			pid: 0,
+			eid: 0,
+			uid: 0,
+			code: code,//               24650-4,                        36572-6
+			code_type: "LOINC",
+			date_collected: null,
+			date_ordered: '',
+			description: description,// Chest X-Ray AP & Lateral,       Chest X-Ray AP 1 View
+			hl7_recipient_id: 0,
+			note: "",
+			order_type: "rad",
+			priority: "Normal",
+			status: "Pending",
+			type: "Radiology",
+			void: false,
+			void_comment: ""
+		};
+	},
+
+	getRefTemplate: function (service_code, service_description, referal_reason) {
+
+		return {
+			pid: 0,
+			eid: 0,
+			refer_by: 0,
+			refer_by_text: "",
+			referral_date: '',
+			create_uid: 0,
+			update_uid: 0,
+			create_date: null,
+			update_date: null,
+
+			is_external_referral: true,
+			refer_to: "",
+			refer_to_text: "",
+
+			send_record: false,
+			service_code: service_code || '',   // 29303009
+			service_code_type: "SNOMED-CT",
+			service_text: service_description || '', // Electrocardiographic procedure (procedure)
+			risk_level: "low",
+			referal_reason: referal_reason || '', // PRE-OP
+			diagnosis_code: "",
+			diagnosis_code_type: "",
+			diagnosis_text: ""
+
+		};
 	}
 
 });

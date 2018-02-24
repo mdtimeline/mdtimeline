@@ -4782,7 +4782,7 @@ Ext.define('App.ux.form.AdvanceForm', {
     setFieldEvent: function(form){
         var fields = form.getForm().getFields().items;
         for(var i = 0; i < fields.length; i++){
-            if(fields[i].xtype === 'textfield' || fields[i].xtype === 'textarea'){
+            if(fields[i].xtype === 'textfield' || fields[i].xtype === 'textarea'|| fields[i].xtype === 'textareafield'){
                 fields[i].enableKeyEvents = true;
                 fields[i].on('keyup', this.setFieldCondition, this);
 	            fields[i].on('change', this.setFieldCondition, this);
@@ -13787,7 +13787,7 @@ Ext.define('App.model.administration.Specialty', {
 	}
 });
 
-Ext.define('App.model.administration.TemplatePanel', {
+Ext.define('App.model.administration.EncounterTemplatePanel', {
 	extend: 'Ext.data.Model',
 	table: {
 		name: 'template_panels'
@@ -13837,7 +13837,7 @@ Ext.define('App.model.administration.TemplatePanel', {
 	},
 	hasMany: [
 		{
-			model: 'App.model.administration.TemplatePanelTemplate',
+			model: 'App.model.administration.EncounterTemplatePanelTemplate',
 			name: 'templates',
 			foreignKey: 'panel_id',
 			storeConfig: {
@@ -13846,55 +13846,6 @@ Ext.define('App.model.administration.TemplatePanel', {
 		}
 	]
 });
-Ext.define('App.model.administration.TemplatePanelTemplate', {
-	extend: 'Ext.data.Model',
-	table: {
-		name: 'template_panels_templates'
-	},
-	fields: [
-		{
-			name: 'id',
-			type: 'int'
-		},
-		{
-			name: 'panel_id',
-			type: 'int'
-		},
-		{
-			name: 'template_type',
-			type: 'string',
-			len: 80,
-			comment: 'rx lab rad etc'
-		},
-		{
-			name: 'description',
-			type: 'string',
-			len: 300
-		},
-		{
-			name: 'template_data',
-			type: 'string',
-			dataType: 'mediumtext'
-		},
-		{
-			name: 'active',
-			type: 'bool'
-		}
-	],
-	proxy: {
-		type: 'direct',
-		api: {
-			read: 'TemplatePanels.getTemplatePanelTemplates',
-			create: 'TemplatePanels.createTemplatePanelTemplate',
-			update: 'TemplatePanels.updateTemplatePanelTemplate',
-			destroy: 'TemplatePanels.deleteTemplatePanelTemplate'
-		},
-		reader: {
-			root: 'data'
-		}
-	}
-});
-
 Ext.define('App.model.administration.TransactionLog', {
     extend: 'Ext.data.Model',
     table: {
@@ -24985,7 +24936,16 @@ Ext.define('App.view.patient.EncounterDocumentsGrid', {
 	],
 	tools: [
 		{
-			type:'print',
+			xtype: 'button',
+			icon: 'resources/images/icons/preview.png',
+			tooltip: _('view'),
+			margin: '0 5 0 0',
+			itemId: 'EncounterDocumentsViewBtn'
+		},
+		{
+			xtype: 'button',
+			icon: 'resources/images/icons/printer.png',
+			tooltip: _('print'),
 			itemId: 'EncounterDocumentsPrintBtn'
 		}
 	],
@@ -37438,7 +37398,7 @@ Ext.define('App.controller.administration.Specialties', {
 	}
 
 });
-Ext.define('App.controller.administration.TemplatePanels', {
+Ext.define('App.controller.administration.EncounterTemplatePanels', {
 	extend: 'Ext.app.Controller',
 
 	requires: [],
@@ -37474,7 +37434,7 @@ Ext.define('App.controller.administration.TemplatePanels', {
 		}
 	],
 
-	init: function(){
+	init: function () {
 		var me = this;
 
 		me.control({
@@ -37501,10 +37461,10 @@ Ext.define('App.controller.administration.TemplatePanels', {
 
 	},
 
-	onEncounterLoad: function(encounter){
+	onEncounterLoad: function (encounter) {
 
-		if(!this.getTemplatePanelsWindow()){
-			Ext.create('App.view.patient.windows.TemplatePanels');
+		if (!this.getTemplatePanelsWindow()) {
+			Ext.create('App.view.patient.windows.EncounterTemplatePanels');
 		}
 
 		var me = this,
@@ -37524,23 +37484,23 @@ Ext.define('App.controller.administration.TemplatePanels', {
 		});
 	},
 
-	onSoapPanelAfterRender: function(){
-		this.getSoapForm().getDockedItems('toolbar[dock="bottom"]')[0].insert(0,{
+	onSoapPanelAfterRender: function () {
+		this.getSoapForm().getDockedItems('toolbar[dock="bottom"]')[0].insert(0, {
 			xtype: 'button',
 			text: _('templates'),
 			itemId: 'SoapTemplatesBtn'
 		});
 	},
 
-	onSoapPanelActivate: function(){
+	onSoapPanelActivate: function () {
 		var hasTemplates = this.getTemplatePanelsCombo().getStore().data.items.length > 0,
 			btn = this.getSoapTemplatesBtn();
 
-		if(hasTemplates){
+		if (hasTemplates) {
 			btn.disabled = false;
 			btn.setDisabled(false);
 			btn.setTooltip(_('clinical_templates'));
-		}else{
+		} else {
 			btn.disabled = true;
 			btn.setDisabled(true);
 			btn.setTooltip(_('no_templates_found'));
@@ -37548,11 +37508,11 @@ Ext.define('App.controller.administration.TemplatePanels', {
 
 	},
 
-	onSoapTemplatesBtnClick: function(){
+	onSoapTemplatesBtnClick: function () {
 		this.doTemplatePanelsWindowShow();
 	},
 
-	onTemplatePanelsComboSelect: function(cmb, records){
+	onTemplatePanelsComboSelect: function (cmb, records) {
 		var me = this,
 			grid = me.getTemplatePanelsGrid(),
 			sm = grid.getSelectionModel(),
@@ -37560,26 +37520,26 @@ Ext.define('App.controller.administration.TemplatePanels', {
 
 		grid.reconfigure(store);
 		store.load({
-			callback: function(){
+			callback: function () {
 				sm.selectAll();
 			}
 		});
 	},
 
-	doTemplatePanelsWindowShow: function(){
+	doTemplatePanelsWindowShow: function () {
 		this.getTemplatePanelsGrid().getStore().removeAll();
 		this.getTemplatePanelsCombo().reset();
 		return this.getTemplatePanelsWindow().show();
 	},
 
-	onTemplatePanelsAddBtnClick: function(){
+	onTemplatePanelsAddBtnClick: function () {
 		var me = this,
 			cmb = me.getTemplatePanelsCombo(),
 			records = me.getTemplatePanelsGrid().getSelectionModel().getSelection();
 
-		if(!cmb.isValid()) return;
+		if (!cmb.isValid()) return;
 
-		if(records.length === 0){
+		if (records.length === 0) {
 			app.msg(_('oops'), _('no_templates_to_add'), true);
 			return;
 		}
@@ -37589,8 +37549,8 @@ Ext.define('App.controller.administration.TemplatePanels', {
 			msg: _('add_templates_message'),
 			buttons: Ext.Msg.YESNO,
 			icon: Ext.Msg.QUESTION,
-			fn: function(btn){
-				if(btn == 'yes'){
+			fn: function (btn) {
+				if (btn == 'yes') {
 					me.doAddTemplates(records);
 					me.getTemplatePanelsWindow().close();
 				}
@@ -37598,19 +37558,26 @@ Ext.define('App.controller.administration.TemplatePanels', {
 		});
 	},
 
-	doAddTemplates: function(templates){
+	doAddTemplates: function (templates) {
 
-		for(var i = 0; i < templates.length; i++){
+		app.onMedicalWin();
 
-			var type = templates[i].get('template_type'),
-				data = eval('(' + templates[i].data.template_data + ')');
+		templates.forEach(function (template) {
 
-			if(!data) {
-				say('Error: data eval issue -- ' + templates[i].data.template_data);
-				continue;
+			var type = template.get('template_type'),
+				data = eval('(' + template.get('template_data') + ')');
+
+			if (!data) {
+				say('Error: data eval issue -- ' + data);
+				return;
 			}
 
-			switch (type){
+			data.pid = app.patient.pid;
+			data.eid = app.patient.eid;
+			data.uid = app.user.id;
+			data.date_ordered = new Date();
+
+			switch (type) {
 
 				case 'LAB':
 					App.app.getController('patient.LabOrders').doAddOrderByTemplate(data);
@@ -37621,16 +37588,98 @@ Ext.define('App.controller.administration.TemplatePanels', {
 				case 'RX':
 					App.app.getController('patient.RxOrders').doAddOrderByTemplate(data);
 					break;
+				case 'REF':
+					App.app.getController('patient.Referrals').doAddReferralByTemplate(data);
+					break;
 				default:
 					say('Error: no template_type found -- ' + type);
-					continue;
 					break;
 			}
-		}
+
+		});
+
+
+		Ext.Function.defer(function () {
+			app.getActivePanel().getProgressNote();
+		}, 1000);
+
+
 	},
 
-	onTemplatePanelsCancelBtnClick: function(){
+	onTemplatePanelsCancelBtnClick: function () {
 		this.getTemplatePanelsWindow().close();
+	},
+
+	getLabTemplate: function (code, description) {
+		return {
+			pid: 0,
+			eid: 0,
+			uid: 0,
+			code: code, //                  58410-2,    24356-8,    24321-2,    34529-8
+			code_type: "LOINC",
+			date_collected: null,
+			date_ordered: '',
+			description: description, //    CBC,        U/A,        BMP         PT & PPT
+			hl7_recipient_id: 0,
+			note: "",
+			order_type: "lab",
+			priority: "Normal",
+			status: "Pending",
+			type: "Laboratory",
+			void: false,
+			void_comment: ""
+		};
+	},
+
+	getRadTemplate: function (code, description) {
+		return {
+			pid: 0,
+			eid: 0,
+			uid: 0,
+			code: code,//               24650-4,                        36572-6
+			code_type: "LOINC",
+			date_collected: null,
+			date_ordered: '',
+			description: description,// Chest X-Ray AP & Lateral,       Chest X-Ray AP 1 View
+			hl7_recipient_id: 0,
+			note: "",
+			order_type: "rad",
+			priority: "Normal",
+			status: "Pending",
+			type: "Radiology",
+			void: false,
+			void_comment: ""
+		};
+	},
+
+	getRefTemplate: function (service_code, service_description, referal_reason) {
+
+		return {
+			pid: 0,
+			eid: 0,
+			refer_by: 0,
+			refer_by_text: "",
+			referral_date: '',
+			create_uid: 0,
+			update_uid: 0,
+			create_date: null,
+			update_date: null,
+
+			is_external_referral: true,
+			refer_to: "",
+			refer_to_text: "",
+
+			send_record: false,
+			service_code: service_code || '',   // 29303009
+			service_code_type: "SNOMED-CT",
+			service_text: service_description || '', // Electrocardiographic procedure (procedure)
+			risk_level: "low",
+			referal_reason: referal_reason || '', // PRE-OP
+			diagnosis_code: "",
+			diagnosis_code_type: "",
+			diagnosis_text: ""
+
+		};
 	}
 
 });
@@ -45984,7 +46033,7 @@ Ext.define('App.controller.patient.RadOrders', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	onPrintRadOrderBtnClick: function(input){
+	onPrintRadOrderBtnClick: function(input, print){
 		var me = this,
 			grid = me.getRadOrdersGrid(),
 			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
@@ -46018,11 +46067,16 @@ Ext.define('App.controller.patient.RadOrders', {
 
 		Ext.Object.each(documents, function(key, params){
 			DocumentHandler.createTempDocument(params, function(provider, response){
-				if(window.dual){
-					dual.onDocumentView(response.result.id, 'Rad');
+				if(print === true){
+					Printer.doTempDocumentPrint(1, response.result.id);
 				}else{
-					app.onDocumentView(response.result.id, 'Rad');
+					if(window.dual){
+						dual.onDocumentView(response.result.id, 'Rad');
+					}else{
+						app.onDocumentView(response.result.id, 'Rad');
+					}
 				}
+
 			});
 		});
 	},
@@ -46062,7 +46116,7 @@ Ext.define('App.controller.patient.RadOrders', {
 
 	doAddOrderByTemplate: function(data){
 		var me = this,
-			grid = me.getLabOrdersGrid(),
+			grid = me.getRadOrdersGrid(),
 			store = grid.getStore();
 
 		data.pid = app.patient.pid;
@@ -46073,8 +46127,9 @@ Ext.define('App.controller.patient.RadOrders', {
 		data.status = 'Pending';
 		data.priority = 'Normal';
 
-		store.add(data);
-		store.sync({
+		var record = store.add(data)[0];
+
+		record.save({
 			success: function(){
 				app.msg(_('sweet'), data.description + ' ' + _('added'));
 			}
@@ -46191,7 +46246,7 @@ Ext.define('App.controller.patient.Referrals', {
 			'button[action=addReferralBtn]': {
 				click: me.onAddReferralBtnClicked
 			},
-			'#referralServiceSearch': {
+			'#ReferralServiceSearch': {
 				select: me.onReferralServiceSearchSelect
 			},
 			'#referralDiagnosisSearch': {
@@ -46236,7 +46291,7 @@ Ext.define('App.controller.patient.Referrals', {
 		record.set({refer_to: records[0].data.id});
 	},
 
-	onPrintReferralBtnClick:function(referral){
+	onPrintReferralBtnClick:function(referral, print){
 		var me = this,
 			grid = me.getReferralPanelGrid(),
 			sm = grid.getSelectionModel(),
@@ -46255,10 +46310,15 @@ Ext.define('App.controller.patient.Referrals', {
                 docType: 'Referral'
             };
 			DocumentHandler.createTempDocument(params, function(provider, response){
-				if(window.dual){
-					dual.onDocumentView(response.result.id, 'Referral');
-				}else{
-					app.onDocumentView(response.result.id, 'Referral');
+
+				if(print === true){
+					Printer.doTempDocumentPrint(1, response.result.id);
+				}else {
+					if(window.dual){
+						dual.onDocumentView(response.result.id, 'Referral');
+					}else{
+						app.onDocumentView(response.result.id, 'Referral');
+					}
 				}
 				if(grid.view.el) grid.view.el.unmask();
 			});
@@ -46272,9 +46332,9 @@ Ext.define('App.controller.patient.Referrals', {
 	onReferralServiceSearchSelect: function(cmb, records){
 		var referral = cmb.up('form').getForm().getRecord();
 		referral.set({
-			service_code: records[0].data.code,
-			service_code_type: records[0].data.code_type
-		})
+			service_code: records[0].get('ConceptId'),
+			service_code_type: records[0].get('CodeType')
+		});
 	},
 
 	onReferralDiagnosisSearchSelect: function(cmb, records){
@@ -46282,7 +46342,7 @@ Ext.define('App.controller.patient.Referrals', {
 		referral.set({
 			diagnosis_code: records[0].data.code,
 			diagnosis_code_type: records[0].data.code_type
-		})
+		});
 	},
 
 	onReferralExternalReferralCheckboxChange: function(checkbox, isExternal){
@@ -46313,11 +46373,36 @@ Ext.define('App.controller.patient.Referrals', {
 		records = store.add({
 			pid: app.patient.pid,
 			eid: app.patient.eid,
-			create_date: new Date(),
+			create_date: app.getDate(),
 			create_uid: app.user.id,
-			referral_date: new Date()
+			referral_date: app.getDate()
 		});
 		plugin.startEdit(records[0], 0);
+	},
+
+	doAddReferralByTemplate: function (data) {
+		var me = this,
+			grid = me.getReferralPanelGrid(),
+			store = grid.getStore();
+
+		data.pid = app.patient.pid;
+		data.eid = app.patient.eid;
+		data.refer_by = app.user.id;
+		data.refer_by_text = "";
+		data.referral_date = app.getDate();
+		data.create_uid =  app.user.id;
+		data.update_uid =  app.user.id;
+		data.create_date = app.getDate();
+		data.update_date = app.getDate();
+
+		var record = store.add(data)[0];
+
+		record.save({
+			success: function(){
+				app.msg(_('sweet'), data.service_text + ' Referral ' + _('added'));
+			}
+		});
+
 	}
 
 });
@@ -46646,7 +46731,7 @@ Ext.define('App.controller.patient.RxOrders', {
 		return records;
 	},
 
-	onPrintRxOrderBtnClick: function(input){
+	onPrintRxOrderBtnClick: function(input, print){
 		var me = this,
 			grid = me.getRxOrdersGrid(),
 			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
@@ -46749,11 +46834,16 @@ Ext.define('App.controller.patient.RxOrders', {
 
 		Ext.Object.each(documents, function(key, params){
 			DocumentHandler.createTempDocument(params, function(provider, response){
-				if(window.dual){
-					dual.onDocumentView(response.result.id, 'Rx');
+				if(print === true){
+					Printer.doTempDocumentPrint(1, response.result.id);
 				}else{
-					app.onDocumentView(response.result.id, 'Rx');
+					if(window.dual){
+						dual.onDocumentView(response.result.id, 'Rx');
+					}else{
+						app.onDocumentView(response.result.id, 'Rx');
+					}
 				}
+
 			});
 		});
 	},
@@ -47876,13 +47966,16 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 		var me = this;
 
 		this.control({
+			'#EncounterDocumentsViewBtn': {
+				click: me.onEncounterDocumentsViewBtnClick
+			},
 			'#EncounterDocumentsPrintBtn': {
 				click: me.onEncounterDocumentsPrintBtnClick
 			}
 		});
 	},
 
-	onEncounterDocumentsPrintBtnClick: function(btn){
+	onEncounterDocumentsPrintBtnClick: function (btn) {
 		var grid = btn.up('grid'),
 			selections = grid.getSelectionModel().getSelection(),
 			groups = {};
@@ -47900,10 +47993,31 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 			Ext.Array.push(groups[data.document_type]['items'], data.record_id);
 		}
 
-		this.doEncounterDocumentsPrint(groups);
+		this.doEncounterDocumentsView(groups, true);
 	},
 
-	doEncounterDocumentsPrint: function(groups){
+	onEncounterDocumentsViewBtnClick: function(btn){
+		var grid = btn.up('grid'),
+			selections = grid.getSelectionModel().getSelection(),
+			groups = {};
+
+		for(var i = 0; i < selections.length; i++){
+			var data = selections[i].data;
+
+			if(!groups[data.document_type]){
+				groups[data.document_type] = {};
+				groups[data.document_type]['controller'] = data.controller;
+				groups[data.document_type]['method'] = data.method;
+				groups[data.document_type]['items'] = [];
+			}
+
+			Ext.Array.push(groups[data.document_type]['items'], data.record_id);
+		}
+
+		this.doEncounterDocumentsView(groups, false);
+	},
+
+	doEncounterDocumentsView: function(groups, print){
 		var me = this, store, filters, i;
 
 		Ext.Object.each(groups, function(group, data){
@@ -47922,7 +48036,7 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 					store.load({
 						filters: filters,
 						callback: function (records) {
-							me.getController(data.controller)[data.method](records[0]);
+							me.getController(data.controller)[data.method](records[0], print);
 						}
 					});
 				}
@@ -47938,7 +48052,7 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 					store.load({
 						filters: filters,
 						callback: function(records){
-							me.getController(data.controller)[data.method](records[0]);
+							me.getController(data.controller)[data.method](records[0], print);
 						}
 					});
 				}
@@ -47962,15 +48076,13 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 				store.load({
 					filters: filters,
 					callback: function(records){
-						me.getController(data.controller)[data.method](records);
+						me.getController(data.controller)[data.method](records, print);
 					}
 				});
 			}
 		});
 	},
 
-	onDocumentView: function(grid, rowIndex){
-	},
 
 	loadDocumentsByEid: function(grid, eid){
 		var store = grid.getStore();
@@ -49770,16 +49882,16 @@ Ext.define('App.view.patient.LabOrders', {
             }
 		},
 		{
-			xtype: 'datecolumn',
 			header: _('date_collected'),
 			width: 100,
 			dataIndex: 'date_collected',
-			format: 'Y-m-d',
 			editor: {
 				xtype: 'datefield'
 			},
             renderer: function(v, meta, record)
             {
+            	v = v ? Ext.Date(v, g('date_display_format')) : '';
+
                 if(record.data.void) return '<span style="text-decoration: line-through;">'+ v + '</span>';
                 return '<span>'+ v + '</span>';
             }
@@ -56761,13 +56873,35 @@ Ext.define('App.view.patient.Summary', {
 				columns: [
 					{
 						xtype: 'datecolumn',
-						width: 80,
+						width: 90,
 						dataIndex: 'service_date',
-						format: g('date_display_format')
+						format: g('date_display_format'),
+						renderer: function (v, meta, rec) {
+							var service_date = rec.get('service_date');
+
+							if(!service_date) return v;
+
+							if(service_date.toLocaleDateString() === new Date().toLocaleDateString()){
+								meta.style = 'font-weight:bold;background-color:yellow;';
+							}
+
+							return Ext.Date.format(v, g('date_display_format'));
+						}
 					},
 					{
 						dataIndex: 'brief_description',
-						flex: 1
+						flex: 1,
+						renderer: function (v,meta,rec) {
+							var service_date = rec.get('service_date');
+
+							if(!service_date) return v;
+
+							if(service_date.toLocaleDateString() === new Date().toLocaleDateString()){
+								meta.style = 'font-weight:bold;background-color:yellow;';
+							}
+
+							return v;
+						}
 					}
 				]
 			});
@@ -58728,7 +58862,7 @@ Ext.define('App.controller.patient.LabOrders', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	onPrintLabOrderBtnClick: function(input){
+	onPrintLabOrderBtnClick: function(input, print){
 		var me = this,
 			grid = me.getLabOrdersGrid(),
 			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
@@ -58762,11 +58896,18 @@ Ext.define('App.controller.patient.LabOrders', {
 
 		Ext.Object.each(documents, function(key, params){
 			DocumentHandler.createTempDocument(params, function(provider, response){
-				if(window.dual){
-					dual.onDocumentView(response.result.id, 'Lab');
+
+				if(print === true){
+					Printer.doTempDocumentPrint(1, response.result.id);
 				}else{
-					app.onDocumentView(response.result.id, 'Lab');
+					if(window.dual){
+						dual.onDocumentView(response.result.id, 'Lab');
+					}else{
+						app.onDocumentView(response.result.id, 'Lab');
+					}
 				}
+
+
 			});
 		});
 	},
@@ -58825,8 +58966,9 @@ Ext.define('App.controller.patient.LabOrders', {
 		data.status = 'Pending';
 		data.priority = 'Normal';
 
-		store.add(data);
-		store.sync({
+		var record = store.add(data)[0];
+
+		record.save({
 			success: function(){
 				app.msg(_('sweet'), data.description + ' ' + _('added'));
 			}
@@ -59454,7 +59596,8 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 
 		this.control({
 			'viewport':{
-				patientunset: me.onPatientUnset
+				patientunset: me.onPatientUnset,
+				encounterload: me.onEncounterLoad
 			},
 			'#EncounterDetailForm combobox[name=visit_category]':{
 				select: me.onEncounterDetailFormVisitCategoryComboSelect
@@ -59472,6 +59615,20 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		});
 
 		me.importCtrl = this.getController('patient.CCDImport');
+	},
+
+	onEncounterLoad: function (encounter, encounter_panel) {
+
+		app.onMedicalWin();
+
+		if(encounter.get('service_date').toLocaleDateString() !== new Date().toLocaleDateString()){
+			encounter_panel.encounterTabPanel.ownerCt.addBodyCls('encounter-not-same-day');
+			encounter_panel.getPageBodyContainer().addCls('encounter-not-same-day');
+			app.msg(_('warning'),_('encounter_service_date_error_msg'), true);
+		}else{
+			encounter_panel.encounterTabPanel.ownerCt.removeBodyCls('encounter-not-same-day');
+			encounter_panel.getPageBodyContainer().removeCls('encounter-not-same-day');
+		}
 	},
 
 	getProgressNote: function(){
@@ -59684,13 +59841,13 @@ Ext.define('App.view.patient.Referrals', {
 									validateBlank: true
 								},
 								{
-									xtype: 'livecptsearch',
+									xtype: 'snomedliveproceduresearch',
 									fieldLabel: _('requested_service'),
+									displayField: 'FullySpecifiedName',
+									valueField: 'FullySpecifiedName',
 									name: 'service_text',
-									displayField: 'code_text',
-									valueField: 'code_text',
 									hideLabel: false,
-									itemId: 'referralServiceSearch',
+									itemId: 'ReferralServiceSearch',
 									anchor: '100%'
 								},
 								{
@@ -59805,6 +59962,13 @@ Ext.define('App.view.patient.Referrals', {
 			resizable: false
 		},
 		{
+			text: _('request'),
+			dataIndex: 'service_text',
+			menuDisabled: true,
+			resizable: false,
+			flex: 1
+		},
+		{
 			text: _('refer_by'),
 			dataIndex: 'refer_by_text',
 			menuDisabled: true,
@@ -59817,13 +59981,6 @@ Ext.define('App.view.patient.Referrals', {
 			menuDisabled: true,
 			resizable: false,
 			width: 200
-		},
-		{
-			text: _('request'),
-			dataIndex: 'referal_reason',
-			menuDisabled: true,
-			resizable: false,
-			flex: 1
 		}
 	],
 	tbar: [
@@ -60277,7 +60434,7 @@ Ext.define('App.view.patient.RadOrders', {
 			header: _('date_collected'),
 			width: 100,
 			dataIndex: 'date_collected',
-			format: 'Y-m-d',
+			format: g('date_display_format'),
 			editor: {
 				xtype: 'datefield'
 			}
@@ -63046,7 +63203,7 @@ Ext.define('App.view.patient.Encounter', {
 
 				me.encounterCtrl.setEncounterClose(record);
 
-				app.fireEvent('encounterload', me.encounter);
+				app.fireEvent('encounterload', me.encounter, me);
 				me.el.unmask();
 
 			}
@@ -64013,6 +64170,9 @@ Ext.define('App.view.Viewport', {
     	if(!this.MedicalWindow){
 		    this.MedicalWindow = Ext.create('App.view.patient.windows.Medical');
 	    }
+
+	    if(!action) return;
+
         this.MedicalWindow.show();
         this.MedicalWindow.cardSwitch(action);
     },
@@ -67241,24 +67401,24 @@ Ext.define('App.store.patient.ProgressNotesHistory', {
 
 
 
-Ext.define('App.store.administration.TemplatePanels', {
-	model: 'App.model.administration.TemplatePanel',
+Ext.define('App.store.administration.EncounterTemplatePanels', {
+	model: 'App.model.administration.EncounterTemplatePanel',
 	extend: 'Ext.data.Store'
 });
-Ext.define('App.view.patient.windows.TemplatePanels', {
+Ext.define('App.view.patient.windows.EncounterTemplatePanels', {
 	extend: 'App.ux.window.Window',
 	title: _('templates'),
 	closeAction: 'hide',
 	layout: 'fit',
 	modal: true,
 	width: 600,
-	height: 300,
+	height: 500,
 	itemId: 'TemplatePanelsWindow',
 	bodyPadding: 5,
 	tbar: [
 		{
 			xtype: 'combobox',
-			store: Ext.create('App.store.administration.TemplatePanels'),
+			store: Ext.create('App.store.administration.EncounterTemplatePanels'),
 			displayField: 'description',
 			valueField: 'id',
 			itemId: 'TemplatePanelsCombo',

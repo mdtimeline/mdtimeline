@@ -807,16 +807,23 @@ class Documents {
 		$data = $referral->getPatientReferral($params->referralId);
 		if($data === false)
 			return $allNeededInfo;
+
+		$diagnosis = (isset($data['diagnosis_text']) && !empty($data['diagnosis_text']) ?
+			$data['diagnosis_text'] . ' (' . $data['diagnosis_code_type'] . ':' . $data['diagnosis_code'] . ')' : '');
+		$service = (isset($data['service_text']) && !empty($data['service_text']) ?
+			$data['service_text'] . ' (' . $data['service_code_type'] . ':' . $data['service_code'] . ')' : '');
+
 		$info = [
 			'[REFERRAL_ID]' => $data['id'],
 			'[REFERRAL_DATE]' => $data['referral_date'],
 			'[REFERRAL_REASON]' => $data['referal_reason'],
-			'[REFERRAL_DIAGNOSIS]' => $data['diagnosis_code'] . ' (' . $data['diagnosis_code_type'] . ')',
-			'[REFERRAL_SERVICE]' => $data['service_code'] . ' (' . $data['service_code_type'] . ')',
+			'[REFERRAL_DIAGNOSIS]' => $diagnosis,
+			'[REFERRAL_SERVICE]' => $service,
 			'[REFERRAL_RISK_LEVEL]' => $data['risk_level'],
 			'[REFERRAL_BY_TEXT]' => $data['refer_by_text'],
 			'[REFERRAL_TO_TEXT]' => $data['refer_to_text']
 		];
+
 		unset($referral);
 		foreach($tokens as $i => $tok){
 			if(isset($info[$tok]) && ($allNeededInfo[$i] == '' || $allNeededInfo[$i] == null)){

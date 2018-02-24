@@ -35,7 +35,8 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 
 		this.control({
 			'viewport':{
-				patientunset: me.onPatientUnset
+				patientunset: me.onPatientUnset,
+				encounterload: me.onEncounterLoad
 			},
 			'#EncounterDetailForm combobox[name=visit_category]':{
 				select: me.onEncounterDetailFormVisitCategoryComboSelect
@@ -53,6 +54,20 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		});
 
 		me.importCtrl = this.getController('patient.CCDImport');
+	},
+
+	onEncounterLoad: function (encounter, encounter_panel) {
+
+		app.onMedicalWin();
+
+		if(encounter.get('service_date').toLocaleDateString() !== new Date().toLocaleDateString()){
+			encounter_panel.encounterTabPanel.ownerCt.addBodyCls('encounter-not-same-day');
+			encounter_panel.getPageBodyContainer().addCls('encounter-not-same-day');
+			app.msg(_('warning'),_('encounter_service_date_error_msg'), true);
+		}else{
+			encounter_panel.encounterTabPanel.ownerCt.removeBodyCls('encounter-not-same-day');
+			encounter_panel.getPageBodyContainer().removeCls('encounter-not-same-day');
+		}
 	},
 
 	getProgressNote: function(){

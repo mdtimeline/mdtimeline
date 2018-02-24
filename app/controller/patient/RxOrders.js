@@ -340,7 +340,7 @@ Ext.define('App.controller.patient.RxOrders', {
 		return records;
 	},
 
-	onPrintRxOrderBtnClick: function(input){
+	onPrintRxOrderBtnClick: function(input, print){
 		var me = this,
 			grid = me.getRxOrdersGrid(),
 			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
@@ -443,11 +443,16 @@ Ext.define('App.controller.patient.RxOrders', {
 
 		Ext.Object.each(documents, function(key, params){
 			DocumentHandler.createTempDocument(params, function(provider, response){
-				if(window.dual){
-					dual.onDocumentView(response.result.id, 'Rx');
+				if(print === true){
+					Printer.doTempDocumentPrint(1, response.result.id);
 				}else{
-					app.onDocumentView(response.result.id, 'Rx');
+					if(window.dual){
+						dual.onDocumentView(response.result.id, 'Rx');
+					}else{
+						app.onDocumentView(response.result.id, 'Rx');
+					}
 				}
+
 			});
 		});
 	},

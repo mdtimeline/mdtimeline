@@ -18,6 +18,16 @@
  */
 
 $API = [
+    'Printer' => [
+        'methods' => [
+            'doTempDocumentPrint' => [
+                'len' => 2
+            ],
+            'doDocumentPrint' => [
+                'len' => 2
+            ]
+        ]
+    ],
     'BackUp' => [
         'methods' => [
             'doBackUp' => [

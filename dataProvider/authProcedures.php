@@ -234,7 +234,7 @@ class authProcedures {
 
 		unset($db);
 
-		session_regenerate_id();
+		session_regenerate_id(true);
 
 		$password_exp_flag = Globals::getGlobal('password_expiration');
 		if($password_exp_flag && $password_exp_flag != ''){
@@ -269,7 +269,7 @@ class authProcedures {
 		try
 		{
 			$this->session->logoutSession();
-			session_regenerate_id();
+			session_regenerate_id(true);
 			session_unset();
 			session_destroy();
 			return;

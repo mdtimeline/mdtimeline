@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.store.administration.TemplatePanelTemplates', {
-	model: 'App.model.administration.TemplatePanelTemplate',
+Ext.define('App.store.administration.EncounterTemplatePanelTemplates', {
+	model: 'App.model.administration.EncounterTemplatePanelTemplate',
 	extend: 'Ext.data.Store'
 });

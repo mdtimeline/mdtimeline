@@ -170,16 +170,16 @@ Ext.define('App.view.patient.LabOrders', {
             }
 		},
 		{
-			xtype: 'datecolumn',
 			header: _('date_collected'),
 			width: 100,
 			dataIndex: 'date_collected',
-			format: 'Y-m-d',
 			editor: {
 				xtype: 'datefield'
 			},
             renderer: function(v, meta, record)
             {
+            	v = v ? Ext.Date(v, g('date_display_format')) : '';
+
                 if(record.data.void) return '<span style="text-decoration: line-through;">'+ v + '</span>';
                 return '<span>'+ v + '</span>';
             }

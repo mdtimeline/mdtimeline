@@ -7,13 +7,16 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 		var me = this;
 
 		this.control({
+			'#EncounterDocumentsViewBtn': {
+				click: me.onEncounterDocumentsViewBtnClick
+			},
 			'#EncounterDocumentsPrintBtn': {
 				click: me.onEncounterDocumentsPrintBtnClick
 			}
 		});
 	},
 
-	onEncounterDocumentsPrintBtnClick: function(btn){
+	onEncounterDocumentsPrintBtnClick: function (btn) {
 		var grid = btn.up('grid'),
 			selections = grid.getSelectionModel().getSelection(),
 			groups = {};
@@ -31,10 +34,31 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 			Ext.Array.push(groups[data.document_type]['items'], data.record_id);
 		}
 
-		this.doEncounterDocumentsPrint(groups);
+		this.doEncounterDocumentsView(groups, true);
 	},
 
-	doEncounterDocumentsPrint: function(groups){
+	onEncounterDocumentsViewBtnClick: function(btn){
+		var grid = btn.up('grid'),
+			selections = grid.getSelectionModel().getSelection(),
+			groups = {};
+
+		for(var i = 0; i < selections.length; i++){
+			var data = selections[i].data;
+
+			if(!groups[data.document_type]){
+				groups[data.document_type] = {};
+				groups[data.document_type]['controller'] = data.controller;
+				groups[data.document_type]['method'] = data.method;
+				groups[data.document_type]['items'] = [];
+			}
+
+			Ext.Array.push(groups[data.document_type]['items'], data.record_id);
+		}
+
+		this.doEncounterDocumentsView(groups, false);
+	},
+
+	doEncounterDocumentsView: function(groups, print){
 		var me = this, store, filters, i;
 
 		Ext.Object.each(groups, function(group, data){
@@ -53,7 +77,7 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 					store.load({
 						filters: filters,
 						callback: function (records) {
-							me.getController(data.controller)[data.method](records[0]);
+							me.getController(data.controller)[data.method](records[0], print);
 						}
 					});
 				}
@@ -69,7 +93,7 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 					store.load({
 						filters: filters,
 						callback: function(records){
-							me.getController(data.controller)[data.method](records[0]);
+							me.getController(data.controller)[data.method](records[0], print);
 						}
 					});
 				}
@@ -93,15 +117,13 @@ Ext.define('App.controller.patient.encounter.EncounterDocuments', {
 				store.load({
 					filters: filters,
 					callback: function(records){
-						me.getController(data.controller)[data.method](records);
+						me.getController(data.controller)[data.method](records, print);
 					}
 				});
 			}
 		});
 	},
 
-	onDocumentView: function(grid, rowIndex){
-	},
 
 	loadDocumentsByEid: function(grid, eid){
 		var store = grid.getStore();

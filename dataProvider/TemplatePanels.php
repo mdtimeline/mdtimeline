@@ -31,9 +31,9 @@ class TemplatePanels {
 
 	function __construct() {
         if(!isset($this->p))
-            $this->p = MatchaModel::setSenchaModel('App.model.administration.TemplatePanel');
+            $this->p = MatchaModel::setSenchaModel('App.model.administration.EncounterTemplatePanel');
         if(!isset($this->i))
-            $this->i = MatchaModel::setSenchaModel('App.model.administration.TemplatePanelTemplate');
+            $this->i = MatchaModel::setSenchaModel('App.model.administration.EncounterTemplatePanelTemplate');
 	}
 
 	public function getTemplatePanels($params){

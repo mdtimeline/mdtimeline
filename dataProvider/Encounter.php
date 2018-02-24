@@ -23,6 +23,8 @@ include_once(ROOT . '/dataProvider/Vitals.php');
 include_once(ROOT . '/dataProvider/PoolArea.php');
 include_once(ROOT . '/dataProvider/Allergies.php');
 include_once(ROOT . '/dataProvider/Medications.php');
+include_once(ROOT . '/dataProvider/Orders.php');
+include_once(ROOT . '/dataProvider/Referrals.php');
 include_once(ROOT . '/dataProvider/ActiveProblems.php');
 include_once(ROOT . '/dataProvider/Immunizations.php');
 include_once(ROOT . '/dataProvider/Services.php');
@@ -970,15 +972,15 @@ class Encounter {
 
 		if(!empty($medications)){
 			$str_buff .= '<div class="indent">';
-			$str_buff .= '<p><b>Medications Orders:</b></p>';
+			$str_buff .= '<p><b>Medications Order(s):</b></p>';
 
 			foreach($medications as $foo){
 				$str_buff .= '<p class="indent">';
-				$str_buff .= '<u>Medication: </u>' . $foo['STR'] . '<br>';
-				$str_buff .= '<u>Dispense: </u>' . $foo['dispense'] . '<br>';
-				$str_buff .= '<u>Refill: </u>' . $foo['refill'] . '<br>';
-				$str_buff .= '<u>Instruction: </u>' . $foo['directions'] . '<br>';
-				$str_buff .= '<u>Notes To Pharmacist: </u>' . $foo['notes'] . '<br>';
+				$str_buff .= '<u>Medication:</u> ' . $foo['STR'] . '<br>';
+				$str_buff .= '<u>Dispense:</u> ' . $foo['dispense'] . '<br>';
+				$str_buff .= '<u>Refill:</u> ' . $foo['refill'] . '<br>';
+				$str_buff .= '<u>Instruction:</u> ' . $foo['directions'] . '<br>';
+				$str_buff .= '<u>Notes To Pharmacist:</u> ' . $foo['notes'] . '<br>';
 				$str_buff .= '</p>';
 			}
 			$str_buff .= '</div>';
@@ -986,6 +988,73 @@ class Encounter {
 
 		unset($ActiveMedications, $active_medications);
 
+
+		$Orders = new Orders();
+
+		/**
+		 *  Laboratories
+		 */
+		$orders = $Orders->getPatientLabOrdersByEid($eid);
+
+		if(!empty($orders)){
+			$str_buff .= '<div class="indent">';
+			$str_buff .= '<p><b>Laboratory Order(s):</b></p>';
+
+			foreach($orders as $foo){
+				$str_buff .= '<p class="indent">';
+				$str_buff .= '<u>Description:</u> ' . $foo['description'] . '<br>';
+				$str_buff .= '<u>Notes:</u> ' . $foo['note'] . '<br>';
+				$str_buff .= '</p>';
+			}
+			$str_buff .= '</div>';
+		}
+
+		unset($orders);
+
+		/**
+		 * Radiology Ordes
+		 */
+
+		$orders = $Orders->getPatientRadOrdersByEid($eid);
+
+		if(!empty($orders)){
+			$str_buff .= '<div class="indent">';
+			$str_buff .= '<p><b>Radiology Order(s):</b></p>';
+
+			foreach($orders as $foo){
+				$str_buff .= '<p class="indent">';
+				$str_buff .= '<u>Description:</u> ' . $foo['description'] . '<br>';
+				$str_buff .= '<u>Notes:</u> ' . $foo['note'] . '<br>';
+				$str_buff .= '</p>';
+			}
+			$str_buff .= '</div>';
+		}
+
+		unset($Orders, $orders);
+
+		/**
+		 * Referrals
+		 */
+		$Referrals = new Referrals();
+
+		$referrals = $Referrals->getPatientReferralsByEid($eid);
+
+		if(!empty($referrals)){
+			$str_buff .= '<div class="indent">';
+			$str_buff .= '<p><b>Referral(s):</b></p>';
+
+			foreach($referrals as $foo){
+				$str_buff .= '<p class="indent">';
+				$str_buff .= '<u>Service:</u> ' . $foo['service_text'] . '<br>';
+				$str_buff .= '<u>Reason:</u> ' . $foo['referal_reason'] . '<br>';
+				$str_buff .= '<u>Risk Lvl:</u> ' . $foo['risk_level'] . '<br>';
+				$str_buff .= '<u>To:</u> ' . $foo['refer_to'] . '<br>';
+				$str_buff .= '</p>';
+			}
+			$str_buff .= '</div>';
+		}
+
+		unset($Referrals, $referrals);
 
 		return $str_buff;
 	}

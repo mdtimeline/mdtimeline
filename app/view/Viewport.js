@@ -670,6 +670,9 @@ Ext.define('App.view.Viewport', {
     	if(!this.MedicalWindow){
 		    this.MedicalWindow = Ext.create('App.view.patient.windows.Medical');
 	    }
+
+	    if(!action) return;
+
         this.MedicalWindow.show();
         this.MedicalWindow.cardSwitch(action);
     },

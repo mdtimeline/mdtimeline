@@ -674,7 +674,7 @@ Ext.define('App.view.patient.Encounter', {
 
 				me.encounterCtrl.setEncounterClose(record);
 
-				app.fireEvent('encounterload', me.encounter);
+				app.fireEvent('encounterload', me.encounter, me);
 				me.el.unmask();
 
 			}

@@ -1951,6 +1951,7 @@ $LANG = array(
 	'radiology_coverage' => 'Radiology Cover',
 	'emergency_coverage' => 'Emergency Cover',
 	'dental_coverage' => 'Dental Cover',
-	'eligibility' => 'Eligibility'
+	'eligibility' => 'Eligibility',
+	'encounter_service_date_error_msg' => 'Encounter service date does NOT match today\'s date'
 
 );

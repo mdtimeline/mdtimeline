@@ -88,13 +88,35 @@ Ext.define('App.view.patient.Summary', {
 				columns: [
 					{
 						xtype: 'datecolumn',
-						width: 80,
+						width: 90,
 						dataIndex: 'service_date',
-						format: g('date_display_format')
+						format: g('date_display_format'),
+						renderer: function (v, meta, rec) {
+							var service_date = rec.get('service_date');
+
+							if(!service_date) return v;
+
+							if(service_date.toLocaleDateString() === new Date().toLocaleDateString()){
+								meta.style = 'font-weight:bold;background-color:yellow;';
+							}
+
+							return Ext.Date.format(v, g('date_display_format'));
+						}
 					},
 					{
 						dataIndex: 'brief_description',
-						flex: 1
+						flex: 1,
+						renderer: function (v,meta,rec) {
+							var service_date = rec.get('service_date');
+
+							if(!service_date) return v;
+
+							if(service_date.toLocaleDateString() === new Date().toLocaleDateString()){
+								meta.style = 'font-weight:bold;background-color:yellow;';
+							}
+
+							return v;
+						}
 					}
 				]
 			});

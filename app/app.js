@@ -4918,7 +4918,7 @@ Ext.define('App.ux.form.AdvanceForm', {
             cls = me.formPanel.autoSync ? 'autosave' : '';
 
         if(bar && me.autoSyncTool){
-            bar.insert(0, Ext.create('Ext.panel.Tool',{
+            bar.insert((bar.items.length -1), Ext.create('Ext.panel.Tool',{
                 type:'save',
                 cls:cls,
                 tooltip: 'Autosave',
@@ -37425,6 +37425,10 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 			selector: '#encounterPanel'
 		},
 		{
+			ref: 'encounterPanel',
+			selector: '#encounterPanel'
+		},
+		{
 			ref: 'soapPanel',
 			selector: '#soapPanel'
 		},
@@ -37441,9 +37445,9 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 			'viewport': {
 				encounterload: me.onEncounterLoad
 			},
-			'#soapPanel': {
-				activate: me.onSoapPanelActivate,
-				afterrender: me.onSoapPanelAfterRender
+			'#encounterPanel': {
+				// activate: me.onSoapPanelActivate,
+				beforerender: me.onEncounterPanelBeforeRender
 			},
 			'#TemplatePanelsCombo': {
 				select: me.onTemplatePanelsComboSelect
@@ -37468,7 +37472,8 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 		}
 
 		var me = this,
-			store = me.getTemplatePanelsCombo().getStore();
+			store = me.getTemplatePanelsCombo().getStore(),
+			btn = me.getSoapTemplatesBtn();
 
 		store.load({
 			filters: [
@@ -37480,33 +37485,44 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 					property: 'active',
 					value: 1
 				}
-			]
+			],
+			callback: function (records) {
+				if (records.length > 0) {
+					btn.disabled = false;
+					btn.setDisabled(false);
+					btn.setTooltip(_('clinical_templates'));
+				} else {
+					btn.disabled = true;
+					btn.setDisabled(true);
+					btn.setTooltip(_('no_templates_found'));
+				}
+			}
 		});
 	},
 
-	onSoapPanelAfterRender: function () {
-		this.getSoapForm().getDockedItems('toolbar[dock="bottom"]')[0].insert(0, {
+	onEncounterPanelBeforeRender: function () {
+		this.getSoapForm().getDockedItems('toolbar[dock="bottom"]')[0].insert(0, [{
 			xtype: 'button',
 			text: _('templates'),
 			itemId: 'SoapTemplatesBtn'
-		});
+		}]);
 	},
 
-	onSoapPanelActivate: function () {
-		var hasTemplates = this.getTemplatePanelsCombo().getStore().data.items.length > 0,
-			btn = this.getSoapTemplatesBtn();
-
-		if (hasTemplates) {
-			btn.disabled = false;
-			btn.setDisabled(false);
-			btn.setTooltip(_('clinical_templates'));
-		} else {
-			btn.disabled = true;
-			btn.setDisabled(true);
-			btn.setTooltip(_('no_templates_found'));
-		}
-
-	},
+	// onSoapPanelActivate: function () {
+	// 	var hasTemplates = this.getTemplatePanelsCombo().getStore().data.items.length > 0,
+	// 		btn = this.getSoapTemplatesBtn();
+	//
+	// 	if (hasTemplates) {
+	// 		btn.disabled = false;
+	// 		btn.setDisabled(false);
+	// 		btn.setTooltip(_('clinical_templates'));
+	// 	} else {
+	// 		btn.disabled = true;
+	// 		btn.setDisabled(true);
+	// 		btn.setTooltip(_('no_templates_found'));
+	// 	}
+	//
+	// },
 
 	onSoapTemplatesBtnClick: function () {
 		this.doTemplatePanelsWindowShow();
@@ -37601,7 +37617,7 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 
 		Ext.Function.defer(function () {
 			app.getActivePanel().getProgressNote();
-		}, 1000);
+		}, 500);
 
 
 	},
@@ -48648,11 +48664,11 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 			'viewport': {
 				'encounterbeforesync': me.onEncounterBeforeSync
 			},
-			'#soapPanel': {
-				beforerender: me.onPanelBeforeRender
-				//activate: me.onPanelActive,
-				//deactivate: me.onPanelDeActive
-			},
+			// '#soapPanel': {
+			// 	// afterrender: me.onPanelBeforeRender
+			// 	//activate: me.onPanelActive,
+			// 	//deactivate: me.onPanelDeActive
+			// },
 			'#soapPanel #soapForm': {
 				render: me.onPanelFormRender,
 				write: me.onSoapFormWrite
@@ -48757,29 +48773,31 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 		this.interim_transcript = '';
 	},
 
-	onPanelBeforeRender: function(panel){
-		if(!Ext.isWebKit) return;
-
-		var btn = [
-			{
-				xtype: 'button',
-				icon: 'modules/worklist/resources/images/wand.png',
-				itemId: 'SoapFormReformatTextBtn',
-				tooltip: 'Reformat Text :: ALT-W',
-				minWidth: null
-			},
-			{
-				xtype: 'button',
-				action: 'speechBtn',
-				iconCls: 'speech-icon-inactive',
-				enableToggle: true,
-				minWidth: null
-			},
-			{ xtype: 'tbfill' }
-		];
-
-		panel.down('form').getDockedItems('toolbar[dock="bottom"]')[0].insert(0, btn);
-	},
+	// onPanelBeforeRender: function(panel){
+	// 	if(!Ext.isWebKit) return;
+	//
+	// 	var btn = [
+	// 		{
+	// 			xtype: 'button',
+	// 			icon: 'modules/worklist/resources/images/wand.png',
+	// 			itemId: 'SoapFormReformatTextBtn',
+	// 			tooltip: 'Reformat Text :: ALT-W',
+	// 			minWidth: null,
+	// 			hidden: !Ext.isWebKit
+	// 		},
+	// 		{
+	// 			xtype: 'button',
+	// 			action: 'speechBtn',
+	// 			iconCls: 'speech-icon-inactive',
+	// 			enableToggle: true,
+	// 			minWidth: null,
+	// 			hidden: !Ext.isWebKit
+	// 		},
+	// 		{ xtype: 'tbfill' }
+	// 	];
+	//
+	// 	panel.down('form').getDockedItems('toolbar[dock="bottom"]')[0].insert(0, btn);
+	// },
 
 	onPanelFormRender: function(panel){
 		Ext.widget('careplangoalsnewwindow', {
@@ -61778,6 +61796,23 @@ Ext.define('App.view.patient.encounter.SOAP', {
 				}
 			],
 			buttons: [
+				{
+					xtype: 'button',
+					icon: 'modules/worklist/resources/images/wand.png',
+					itemId: 'SoapFormReformatTextBtn',
+					tooltip: 'Reformat Text :: ALT-W',
+					minWidth: null,
+					hidden: !Ext.isWebKit
+				},
+				{
+					xtype: 'button',
+					action: 'speechBtn',
+					iconCls: 'speech-icon-inactive',
+					enableToggle: true,
+					minWidth: null,
+					hidden: !Ext.isWebKit
+				},
+				'->',
 				{
 					text: _('save'),
 					iconCls: 'save',

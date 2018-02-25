@@ -246,7 +246,7 @@ Ext.define('App.ux.form.AdvanceForm', {
             cls = me.formPanel.autoSync ? 'autosave' : '';
 
         if(bar && me.autoSyncTool){
-            bar.insert(0, Ext.create('Ext.panel.Tool',{
+            bar.insert((bar.items.length -1), Ext.create('Ext.panel.Tool',{
                 type:'save',
                 cls:cls,
                 tooltip: 'Autosave',

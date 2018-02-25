@@ -43,6 +43,10 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 			selector: '#encounterPanel'
 		},
 		{
+			ref: 'encounterPanel',
+			selector: '#encounterPanel'
+		},
+		{
 			ref: 'soapPanel',
 			selector: '#soapPanel'
 		},
@@ -59,9 +63,9 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 			'viewport': {
 				encounterload: me.onEncounterLoad
 			},
-			'#soapPanel': {
-				activate: me.onSoapPanelActivate,
-				afterrender: me.onSoapPanelAfterRender
+			'#encounterPanel': {
+				// activate: me.onSoapPanelActivate,
+				beforerender: me.onEncounterPanelBeforeRender
 			},
 			'#TemplatePanelsCombo': {
 				select: me.onTemplatePanelsComboSelect
@@ -86,7 +90,8 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 		}
 
 		var me = this,
-			store = me.getTemplatePanelsCombo().getStore();
+			store = me.getTemplatePanelsCombo().getStore(),
+			btn = me.getSoapTemplatesBtn();
 
 		store.load({
 			filters: [
@@ -98,33 +103,44 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 					property: 'active',
 					value: 1
 				}
-			]
+			],
+			callback: function (records) {
+				if (records.length > 0) {
+					btn.disabled = false;
+					btn.setDisabled(false);
+					btn.setTooltip(_('clinical_templates'));
+				} else {
+					btn.disabled = true;
+					btn.setDisabled(true);
+					btn.setTooltip(_('no_templates_found'));
+				}
+			}
 		});
 	},
 
-	onSoapPanelAfterRender: function () {
-		this.getSoapForm().getDockedItems('toolbar[dock="bottom"]')[0].insert(0, {
+	onEncounterPanelBeforeRender: function () {
+		this.getSoapForm().getDockedItems('toolbar[dock="bottom"]')[0].insert(0, [{
 			xtype: 'button',
 			text: _('templates'),
 			itemId: 'SoapTemplatesBtn'
-		});
+		}]);
 	},
 
-	onSoapPanelActivate: function () {
-		var hasTemplates = this.getTemplatePanelsCombo().getStore().data.items.length > 0,
-			btn = this.getSoapTemplatesBtn();
-
-		if (hasTemplates) {
-			btn.disabled = false;
-			btn.setDisabled(false);
-			btn.setTooltip(_('clinical_templates'));
-		} else {
-			btn.disabled = true;
-			btn.setDisabled(true);
-			btn.setTooltip(_('no_templates_found'));
-		}
-
-	},
+	// onSoapPanelActivate: function () {
+	// 	var hasTemplates = this.getTemplatePanelsCombo().getStore().data.items.length > 0,
+	// 		btn = this.getSoapTemplatesBtn();
+	//
+	// 	if (hasTemplates) {
+	// 		btn.disabled = false;
+	// 		btn.setDisabled(false);
+	// 		btn.setTooltip(_('clinical_templates'));
+	// 	} else {
+	// 		btn.disabled = true;
+	// 		btn.setDisabled(true);
+	// 		btn.setTooltip(_('no_templates_found'));
+	// 	}
+	//
+	// },
 
 	onSoapTemplatesBtnClick: function () {
 		this.doTemplatePanelsWindowShow();
@@ -219,7 +235,7 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 
 		Ext.Function.defer(function () {
 			app.getActivePanel().getProgressNote();
-		}, 1000);
+		}, 500);
 
 
 	},

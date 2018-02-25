@@ -1953,6 +1953,7 @@ $LANG = array(
 	'dental_coverage' => 'Dental Cover',
 	'eligibility' => 'Eligibility',
 	'show_all_medicatios' => 'Show All Medicatios',
+	'clinical_templates' => 'Clinical Templates',
 	'encounter_service_date_error_msg' => 'Encounter service date does NOT match today\'s date',
 	'unable_to_edit_non_ordered_medication' => 'Unable to edit non ordered items',
 

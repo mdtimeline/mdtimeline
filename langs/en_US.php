@@ -1952,6 +1952,8 @@ $LANG = array(
 	'emergency_coverage' => 'Emergency Cover',
 	'dental_coverage' => 'Dental Cover',
 	'eligibility' => 'Eligibility',
-	'encounter_service_date_error_msg' => 'Encounter service date does NOT match today\'s date'
+	'show_all_medicatios' => 'Show All Medicatios',
+	'encounter_service_date_error_msg' => 'Encounter service date does NOT match today\'s date',
+	'unable_to_edit_non_ordered_medication' => 'Unable to edit non ordered items',
 
 );

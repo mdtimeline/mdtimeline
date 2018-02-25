@@ -365,6 +365,28 @@ Ext.define('App.view.patient.RxOrders', {
 			dataIndex: 'end_date'
 		}
 	],
+	bbar: [
+		{
+			xtype: 'button',
+			text: _('show_all_medicatios'),
+			enableToggle: true,
+			stateful: true,
+			stateEvents: ['press'],
+			stateId: 'RxOrdersShowAllMedicationsBtnState',
+			itemId: 'RxOrdersShowAllMedicationsBtn',
+			getState: function() {
+				return { pressed: this.pressed };
+			},
+			applyState: function(state) {
+				this.toggle(state.pressed);
+			},
+			listeners: {
+				toggle: function(self, pressed, eOpts) {
+					this.fireEvent('press');
+				}
+			}
+		}
+	],
 	tbar: [
 		'->',
 		'-',

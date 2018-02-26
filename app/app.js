@@ -39159,11 +39159,11 @@ Ext.define('App.controller.Clock', {
 	},
 
 	getTime: function () {
-		return Ext.clone(this.date);
+		return new Date();
 	},
 
 	getDate: function () {
-		return this.getTime();
+		return new Date();
 	}
 
 });

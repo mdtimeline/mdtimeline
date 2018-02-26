@@ -37,9 +37,7 @@ Ext.define('App.controller.Clock', {
 	},
 
 	updateClock:function(date){
-    	say(date);
-    	say(Ext.String.format('Y: {0} M: {1} D: {2} H: {3} M: {4} S: {5} ', date.year, date.mon, date.mday, date.hours, date.minutes, date.seconds));
-		this.date = new Date(date.year, date.mon, date.mday, date.hours, date.minutes, date.seconds );
+		this.date = new Date(date.year, (date.mon -1), date.mday, date.hours, date.minutes, date.seconds );
 	},
 
 	getTime: function () {

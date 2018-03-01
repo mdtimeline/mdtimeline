@@ -414,8 +414,8 @@ class DocumentHandler {
 		$this->setPatientDocumentTempModel();
 		$record = $this->t->load($params)->one();
 
-		if($return_binary && !$this->isBinary($record['document']) ?
-			base64_decode($record['document']) : $record['document'])
+		$record['document'] = ($return_binary && !$this->isBinary($record['document']) ?
+			base64_decode($record['document']) : $record['document']);
 
 		return $record;
 	}

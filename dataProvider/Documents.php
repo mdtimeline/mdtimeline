@@ -480,6 +480,8 @@ class Documents {
 			'style' => isset($template['body_font_style']) ? $template['body_font_style'] : '',
 		];
 
+		$format = isset($template['format']) ? $template['format'] : 'A4';
+
 		if(isset($params->custom_font_family)){
 			$font['family'] = $params->custom_font_family;
 		}
@@ -489,7 +491,6 @@ class Documents {
 		if(isset($params->custom_font_style)){
 			$font['style'] = $params->custom_font_style;
 		}
-
 
 
 		$pdf->setCustomHeaderLine(isset($template['header_line']) ? $template['header_line'] : false);
@@ -587,7 +588,7 @@ class Documents {
 		$pages = explode('{newpage}', $html);
 
 		foreach($pages AS $page){
-			$pdf->AddPage('','',true);
+			$pdf->AddPage('',$format,true);
 			if($this->isHtml($page)){
 				$pdf->writeHTML($page);
 			}else{
@@ -904,24 +905,27 @@ class Documents {
 		if(!is_array($array) || count($array) == 0)
 			return 'N/A';
 		// open table tag
-		$table = '<table width="100%" border="0" cellspacing="0" cellpadding="5">';
+		$table = '<table width="100%" border="0" cellspacing="0" cellpadding="5" style="margin: 0">';
 
 		// get header row
 		$th = array_shift($array);
 
 		// table header
-		$table .= '<tr>';
-		foreach($th AS $cell){
-			$table .= '<th style="border-bottom:1px solid #000000;">' . $cell . '</th>';
+
+		if(count($th) > 1 && $th[0] !== ''){
+			$table .= '<tr>';
+			foreach($th AS $cell){
+				$table .= '<th style="border-bottom:1px solid #000000;">' . $cell . '</th>';
+			}
+			$table .= '</tr>';
 		}
-		$table .= '</tr>';
 
 		// table rows
 		foreach($array AS $index => $row){
 			$table .= '<tr>';
 			foreach($row AS $cell){
 				$color = ($index % 2 == 0 ? '#ffffff' : '#f6f6f6');
-				$table .= '<td style="background-color:' . $color . ';border-bottom:1px solid #999999;">' . $cell . '</td>';
+				$table .= '<td style="background-color:' . $color . ';">' . $cell . '</td>';
 			}
 			$table .= '</tr>';
 		}

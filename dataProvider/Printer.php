@@ -38,6 +38,10 @@ class Printer {
 
 		$DocumentHandler = new DocumentHandler();
 		$document_record = $DocumentHandler->getTempDocument(['id' => $temp_document_id], true);
+
+
+		error_log(print_r(base64_decode($document_record['document']), true));
+
 		$this->doPrint($printer_id, $document_record['document']);
 
 		unset($DocumentHandler, $document_record);

@@ -42,6 +42,10 @@ Ext.override(Ext.form.Basic, {
         Ext.suspendLayouts();
 
 		for (f = 0; f < fLen; f++) {
+
+			// added ignoreReset to ignonre flaged fields
+			if(fields[f].ignoreReset === true) continue;
+
 			fields[f].reset();
 		}
 

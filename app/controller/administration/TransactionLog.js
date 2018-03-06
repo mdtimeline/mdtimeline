@@ -104,6 +104,10 @@ Ext.define('App.controller.administration.TransactionLog', {
 
 	setTransactionLogDetailGrid: function (response) {
 
+		response.table = response.table || 'none';
+		response.columns = response.columns || [];
+		response.data = response.data || [];
+
     	var me = this,
 			model_name = 'App.model.' + Ext.String.capitalize(response.table) + '_TransactionLogDetailModel',
 			fields = [

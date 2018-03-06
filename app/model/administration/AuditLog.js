@@ -95,6 +95,11 @@ Ext.define('App.model.administration.AuditLog', {
 				return rec.data.user_lname + ', ' + rec.data.user_fname + ' ' + rec.data.user_mname
 			},
 			store: false
+		},
+		{
+			name: 'site',
+			type: 'string',
+			store: false
 		}
 	],
 	proxy: {

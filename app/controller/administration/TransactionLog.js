@@ -79,17 +79,17 @@ Ext.define('App.controller.administration.TransactionLog', {
 	},
 
 	onTransactionLogDataGridItemDblClick: function (grid, record) {
-    	this.doTransactionLogDetailByTableAndPk(record.get('table_name'), record.get('pk'))
+    	this.doTransactionLogDetailByTableAndPk(record.get('table_name'), record.get('pk'), false);
 	},
 
 	onAuditLogWindowGridDblClick: function (grid, record) {
-    	this.doTransactionLogDetailByTableAndPk(record.get('foreign_table'), record.get('foreign_id'))
+    	this.doTransactionLogDetailByTableAndPk(record.get('foreign_table'), record.get('foreign_id'), record.get('site'));
 	},
 
-	doTransactionLogDetailByTableAndPk: function (table, pk) {
+	doTransactionLogDetailByTableAndPk: function (table, pk, site) {
 		var me = this;
 
-		TransactionLog.getTransactionLogDetailByTableAndPk(table, pk, function (response) {
+		TransactionLog.getTransactionLogDetailByTableAndPk(table, pk, site, function (response) {
 
 			if(response.total == 0) {
 				app.msg(_('info'), _('no_record_fund'));

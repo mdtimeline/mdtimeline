@@ -139,7 +139,15 @@ class TransactionLog
 		];
 	}
 
-	public function getTransactionLogDetailByTableAndPk($table, $pk){
+	public function getTransactionLogDetailByTableAndPk($table, $pk, $site = false){
+
+		$site = $site === false ? site_name : $site;
+
+		if(isset($site) && isset($GLOBALS['worklist_dbs'][$site])){
+			\Matcha::$__conn = null;
+			\Matcha::connect($GLOBALS['worklist_dbs'][$site]);
+		}
+
 
 		$conn = Matcha::getConn();
 
@@ -163,6 +171,9 @@ class TransactionLog
 			$columns[] = $column;
 		}
 
+		$this->t->setExtraValues([
+			"{$site}" => '_event_site'
+		]);
 		$this->t->addFilter('table_name', $table);
 		$this->t->addFilter('pk', $pk);
 		$results = $this->t->load()->leftJoin(
@@ -189,6 +200,7 @@ class TransactionLog
 				$record_buff['_id'] = $result['eid'];
 			}
 
+			$record_buff['_event_site'] = $result['_event_site'];
 			$record_buff['_event_time'] = $result['date'];
 			$record_buff['_event_type'] = $result['event'];
 			$record_buff['_event_uid'] = $result['uid'];

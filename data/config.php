@@ -2507,7 +2507,7 @@ $API = [
                 'len' => 1
             ],
             'getTransactionLogDetailByTableAndPk' => [
-                'len' => 2
+                'len' => 3
             ]
         ]
     ],

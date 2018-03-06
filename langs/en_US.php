@@ -1957,5 +1957,7 @@ $LANG = array(
 	'encounter_service_date_error_msg' => 'Encounter service date does NOT match today\'s date',
 	'unable_to_edit_non_ordered_medication' => 'Unable to edit non ordered items',
 	'cities_separated_by_commas' => 'Cities separated by commas',
+	'transactions' => 'Transactions',
+	'event_info' => 'Event Info',
 
 );

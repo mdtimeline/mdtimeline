@@ -69,6 +69,11 @@ Ext.define('App.model.administration.AuditLog', {
 			format: 'Y-m-d H:i:s'
 		},
 		{
+			name: 'ip',
+			type: 'string',
+			len: 40
+		},
+		{
 			name: 'user_fname',
 			type: 'string',
 			store: false

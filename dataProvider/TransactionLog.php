@@ -192,6 +192,7 @@ class TransactionLog
 			$record_buff['_event_time'] = $result['date'];
 			$record_buff['_event_type'] = $result['event'];
 			$record_buff['_event_uid'] = $result['uid'];
+			$record_buff['_event_ip'] = $result['ip'];
 			$record_buff['_event_user_title'] = $result['user_title'];
 			$record_buff['_event_user_fname'] = $result['user_fname'];
 			$record_buff['_event_user_mname'] = $result['user_mname'];

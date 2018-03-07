@@ -1007,6 +1007,9 @@ $API = [
             ],
 			'getEncounterPrintDocumentsByEid' => [
 				'len' => 1
+            ],
+			'TransferEncounter' => [
+				'len' => 2
             ]
         ]
     ],

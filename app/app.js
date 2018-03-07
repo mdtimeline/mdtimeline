@@ -3396,7 +3396,7 @@ Ext.define('App.ux.LivePatientSearch', {
 					name: 'fullname',
 					type: 'string',
 					convert: function(v, record){
-						return record.data.fname + ' ' + record.data.mname + ' ' + record.data.lname
+						return record.data.lname + ', ' + record.data.fname + ' ' + record.data.mname
 					}
 				},
 				{
@@ -21167,6 +21167,19 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 			],
 			buttons: [
 				{
+					text: _('delete'),
+					itemId: 'EncounterDeletetBtn',
+					cls: 'toolWarning',
+					hidden: true
+				},
+				{
+					text: _('transfer'),
+					itemId: 'EncounterTransferBtn',
+					cls: 'toolWarning',
+					acl: a('transfer_encounters')
+				},
+				'->',
+				{
 					text: _('save'),
 					action: 'encounter',
 					scope: me,
@@ -21189,8 +21202,7 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 		me.callParent(arguments);
 	},
 
-	checkValidation: function()
-    {
+	checkValidation: function(){
         var me = this,
             form = me.down('form').getForm(),
             record = form.getRecord(),
@@ -59675,6 +59687,14 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		{
 			ref: 'EncounterDetailForm',
 			selector: '#EncounterDetailForm'
+		},
+		{
+			ref: 'EncounterTransferWindow',
+			selector: '#EncounterTransferWindow'
+		},
+		{
+			ref: 'EncounterTransferPatientSearchField',
+			selector: '#EncounterTransferPatientSearchField'
 		}
 	],
 
@@ -59698,10 +59718,99 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			},
 			'#EncounterCDAImportBtn': {
 				click: me.onEncounterCDAImportBtnClick
+			},
+			'#EncounterDeletetBtn': {
+				click: me.onEncounterDeletetBtnClick
+			},
+			'#EncounterTransferBtn': {
+				click: me.onEncounterTransferBtnClick
+			},
+			'#EncounterTransferWindowCancelBtn': {
+				click: me.onEncounterTransferWindowCancelBtnClick
+			},
+			'#EncounterTransferWindowTransferBtn': {
+				click: me.onEncounterTransferWindowTransferBtnlick
 			}
 		});
 
 		me.importCtrl = this.getController('patient.CCDImport');
+		me.auditLogCtrl = this.getController('administration.AuditLog');
+
+		//me.showEncounterTransferWindow();
+	},
+
+	onEncounterDeletetBtnClick: function (btn) {
+		// TODO
+	},
+
+	onEncounterTransferBtnClick: function (btn) {
+		this.showEncounterTransferWindow();
+	},
+
+	onEncounterTransferWindowCancelBtnClick: function (btn) {
+		this.getEncounterTransferPatientSearchField().reset();
+		this.getEncounterTransferWindow().close();
+	},
+
+	onEncounterTransferWindowTransferBtnlick: function (btn) {
+
+		var me = this,
+			patient_field = me.getEncounterTransferPatientSearchField(),
+			patient_pid = patient_field.getValue(),
+			patient_eid = app.patient.eid,
+			patient_record = patient_field.findRecordByValue(patient_pid);
+
+		if(!patient_field.isValid()) return;
+
+		me.getEncounterTransferPatientSearchField().reset();
+		me.getEncounterTransferWindow().close();
+
+
+		var from_name = app.patient.name,
+			to_name = patient_record.get('fullname');
+
+		Ext.Msg.show({
+			title: _('wait'),
+			msg: Ext.String.format(_('encounter_transfer_from_x_to_x_msg'), from_name, to_name),
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (btn) {
+
+				if(btn !== 'yes') return;
+
+				me.getEncounterDetailWindow().close();
+
+				Ext.getBody().mask(_('be_right_back'));
+
+				Encounter.TransferEncounter(patient_eid, patient_pid, function (success) {
+					Ext.getBody().unmask();
+
+					if(success){
+						me.auditLogCtrl.addLog(
+							patient_pid,
+							app.user.id,
+							patient_eid,
+							patient_eid,
+							'encounters',
+							'ENCOUNTER_TRANSFER',
+							Ext.String.format('Encounter trasnfer from {0} to {1}', from_name, to_name)
+						);
+
+						app.setPatient(patient_pid, patient_eid, app.user.site, function () {
+							app.openEncounter(patient_eid);
+						});
+					}
+				});
+			}
+		});
+
+	},
+
+	showEncounterTransferWindow: function () {
+		if(!this.getEncounterTransferWindow()){
+			Ext.create('App.view.patient.windows.EncounterTransferWindow');
+		}
+		return this.getEncounterTransferWindow().show();
 	},
 
 	onEncounterLoad: function (encounter, encounter_panel) {

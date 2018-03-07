@@ -1275,4 +1275,51 @@ class Encounter {
 		]);
 		return $sth->fetchAll(PDO::FETCH_ASSOC);
 	}
+
+	public function TransferEncounter($eid, $pid){
+
+		$transfer_tables = [];
+		$sth = $this->conn->prepare('SHOW TABLES');
+		$sth->execute();
+		$tables = $sth->fetchAll(PDO::FETCH_NUM);
+
+		foreach($tables as $table){
+			$table = $table[0];
+
+			if($table == 'patient' || $table == 'patient_temp' || $table == 'patient_sync') continue;
+			$sth = $this->conn->prepare("SHOW COLUMNS FROM {$table} WHERE Field = 'pid' OR Field = 'eid'");
+			$sth->execute();
+			$columns = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+			if(count($columns) != 2) continue;
+			$transfer_tables[] = $table;
+
+		}
+
+		$transfer_table = '';
+
+		try{
+
+			$this->conn->beginTransaction();
+			$this->conn->exec('SET FOREIGN_KEY_CHECKS = 0;');
+
+			foreach($transfer_tables as $transfer_table){
+				$sth = $this->conn->prepare("UPDATE {$transfer_table} SET `pid` = :pid WHERE `eid` = :eid");
+				$sth->execute([ 'pid' => $pid, ':eid' => $eid ]);
+			}
+
+			$this->conn->exec('SET FOREIGN_KEY_CHECKS = 0;');
+			$this->conn->commit();
+			return true;
+		}catch (Exception $e){
+			error_log($e->getMessage());
+			$this->conn->rollBack();
+			return $e->getMessage() . 'Table: '. $transfer_table;
+		}
+
+
+
+
+	}
+
 }

@@ -1959,5 +1959,8 @@ $LANG = array(
 	'cities_separated_by_commas' => 'Cities separated by commas',
 	'transactions' => 'Transactions',
 	'event_info' => 'Event Info',
+	'transfer' => 'Transfer',
+	'transfer_to' => 'Transfer To...',
+	'encounter_transfer_from_x_to_x_msg' => 'Your are about to transfer this encounter from <b>{0}</b> to <b>{1}</b><br><br>Would you like to continue?',
 
 );

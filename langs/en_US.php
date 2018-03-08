@@ -1951,6 +1951,23 @@ $LANG = array(
 	'radiology_coverage' => 'Radiology Cover',
 	'emergency_coverage' => 'Emergency Cover',
 	'dental_coverage' => 'Dental Cover',
-	'eligibility' => 'Eligibility'
+	'eligibility' => 'Eligibility',
+    'insurance_primary'      				=> 'Insurance Primary',
+    'insurance_secondary'      				=> 'Insurance Secondary',
+    'rendering'      				        => 'Rendering',
+    'rend'                                  => 'Rend',
+    'referring'      				        => 'Referring',
+    'provider_physician'                    => 'Provider Physician',
+    'rendering_physician'    		        => 'Rendering Physician',
+    'referring_physician' 			        => 'Referring Physician',
+    'service_date_from'                     => 'Service Date From',
+    'service_date_to'                       => 'Service Date to',
+    'place'                                 => 'Place',
+    'claim'                                 => 'Claim',
+    'POS'                                   => 'POS',
+    'min'                                   => 'Min',
+    'rate'                                  => 'Rate',
+    'place_of_service'                      => 'Place of Service'
+
 
 );

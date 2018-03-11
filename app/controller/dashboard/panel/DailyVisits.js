@@ -61,29 +61,40 @@ Ext.define('App.controller.dashboard.panel.DailyVisits', {
 			i,
 			j;
 
-		Encounter.getTodayEncounters(function(response){
+		Encounter.getDashboardTodayEncounters(function(response){
 
-			var encounters = response;
-			for(i=0; i < encounters.length; i++){
-				time = Ext.Date.parse(encounters[i].service_date, 'Y-m-d H:i:s').setMinutes(0,0,0);
-				var found = false;
+			// var encounters = response;
+			//
+			// for(i=0; i < encounters.length; i++){
+			// 	time = Ext.Date.parse(encounters[i].service_date, 'Y-m-d H:i:s').getHours();
+			//
+			// 	var found = false;
+			//
+			// 	say(encounters[i]);
+			// 	say(time);
+			//
+			// 	for(j=0; j < data.length; j++){
+			// 		if(data[j].time == time){
+			// 			data[j].total = data[j].total + 1;
+			// 			found = true;
+			// 		}
+			// 	}
+			//
+			// 	if(!found){
+			// 		data.push({
+			// 			total: 1,
+			// 			time: time
+			// 		});
+			// 	}
+			// }
+			//
+			//
+			//
+			// say(data);
 
-				for(j=0; j < data.length; j++){
-					if(data[j].time == time){
-						data[j].total = data[j].total + 1;
-						found = true;
-					}
-				}
+			store.loadData(response);
 
-				if(!found){
-					data.push({
-						total: 1,
-						time: time
-					});
-				}
-			}
-
-			store.loadData(data);
+			say(store);
 		});
 	}
 

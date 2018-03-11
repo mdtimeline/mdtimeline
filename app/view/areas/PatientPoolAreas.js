@@ -60,17 +60,23 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 		app.nav.activePanel.doSendPatientToPoolArea(pid, me.panel.action)
 	},
 
-	doSendPatientToPoolArea: function (pid, area_id) {
+	doSendPatientToPoolArea: function (pid, area_id, callback) {
 		PoolArea.sendPatientToPoolArea({ pid: pid, sendTo: area_id }, function(result){
 
 			if(result.floor_plan_id == null){
 				app.unsetPatient(null, true);
 				app.nav['App_view_areas_PatientPoolAreas'].reloadStores();
 				app.getPatientsInPoolArea();
+
+				if(callback) callback();
+
 				return;
 			}
 
 			app.getController('areas.FloorPlan').promptPatientZoneAssignment(result.record.pid, result.floor_plan_id, area_id);
+
+			if(callback) callback();
+
 
 		});
 	},

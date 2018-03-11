@@ -55,29 +55,46 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 			},
 			'#PatientToNextAreaWindowCancelBtn': {
 				click: me.onPatientToNextAreaWindowCancelBtnClick
+			},
+			'#HeaderSendToPoolAreaBtn': {
+				click: me.onHeaderSendToPoolAreaBtnClick
 			}
 		});
 
 		me.reloadAreaBuffer = Ext.Function.createBuffered(me.reloadArea, 50, me);
 	},
 
+	onHeaderSendToPoolAreaBtnClick: function () {
+
+		if(!app.patient.pid){
+			app.msg(_('oops'),_('no_patient_selected'), true);
+			return;
+		}
+
+		this.doSendPatientToNextArea(app.patient.pid, function () {
+			app.openDashboard();
+		});
+	},
+
 	reRenderPoolAreas: function () {
 		this.getPatientPoolAreasPanel().reRenderPoolAreas();
 	},
 
-	doSendPatientToNextArea: function (pid) {
+	doSendPatientToNextArea: function (pid, callback) {
 		var win = this.showPatientToNextAreaWindow();
 		win.pid = pid;
+		win.callback = callback;
 	},
 
 	onPatientToNextAreaWindowPoolAreaBtnClick: function (btn) {
 		var win = btn.up('window'),
 			pid = win.pid,
+			callback = win.callback,
 			poolAreaId = btn.poolAreaId;
 
 		//app.goToPoolAreas();
 		win.close();
-		this.getPatientPoolAreasPanel().doSendPatientToPoolArea(pid, poolAreaId);
+		this.getPatientPoolAreasPanel().doSendPatientToPoolArea(pid, poolAreaId, callback);
 		app.patientPoolStore.reload();
 	},
 

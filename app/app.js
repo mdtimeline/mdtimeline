@@ -22667,15 +22667,28 @@ Ext.define('App.view.dashboard.panel.DailyVisits', {
 				animate: false,
 				shadow: false,
 				store: me.store = Ext.create('Ext.data.JsonStore', {
-					fields: [ 'total', 'time' ]
+					fields: [
+						{
+							type: 'int',
+							name: 'total_by_hour'
+						},
+						{
+							type: 'date',
+							name: 'service_hour',
+							dateFormat: 'Y-m-d H:i:s'
+						}
+					]
 				}),
 				axes: [
 					{
 						type: 'Numeric',
 						minimum: 0,
+						decimals: 0,
 						position: 'left',
-						fields: [ 'total' ],
+						fields: [ 'total_by_hour' ],
 						title: 'Patients Per Hour',
+						majorTickSteps: 1,
+						minorTickSteps: 0,
 						label: {
 							font: '11px Arial'
 						}
@@ -22683,34 +22696,33 @@ Ext.define('App.view.dashboard.panel.DailyVisits', {
 					{
 						type: 'Time',
 						position: 'bottom',
-						fields: [ 'time' ],
+						fields: [ 'service_hour' ],
 						title: 'Time',
 						dateFormat: 'g:ia',
 						step: [Ext.Date.HOUR, 1],
 //						majorTickSteps: 5,
 //						minorTickSteps: 1,
 						constrain: true,
-						fromDate: new Date().setHours(6, 0, 0, 0),
-						toDate: new Date().setHours(20, 0, 0, 0)
 					}
 				],
 				series: [
 					{
-						type: 'line',
-						highlight: {
-							size: 7,
-							radius: 7
-						},
+						type: 'column',
+						highlight: true,
 						axis: 'left',
 						smooth: true,
 						fill: true,
-						xField: 'time',
-						yField: 'total',
-						markerConfig: {
-							type: 'circle',
-							size: 4,
-							radius: 4,
-							'stroke-width': 0
+						// xField: 'service_hour',
+						// yField: 'total_by_hour',
+						yField: 'total_by_hour',
+						xField: 'service_hour',
+						tips: {
+							trackMouse: true,
+							width: 140,
+							height: 28,
+							renderer: function(rec, item) {
+								this.setTitle(rec.get('total_by_hour') + ' ' + _('encounters'));
+							}
 						}
 					}
 				]
@@ -38394,29 +38406,46 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 			},
 			'#PatientToNextAreaWindowCancelBtn': {
 				click: me.onPatientToNextAreaWindowCancelBtnClick
+			},
+			'#HeaderSendToPoolAreaBtn': {
+				click: me.onHeaderSendToPoolAreaBtnClick
 			}
 		});
 
 		me.reloadAreaBuffer = Ext.Function.createBuffered(me.reloadArea, 50, me);
 	},
 
+	onHeaderSendToPoolAreaBtnClick: function () {
+
+		if(!app.patient.pid){
+			app.msg(_('oops'),_('no_patient_selected'), true);
+			return;
+		}
+
+		this.doSendPatientToNextArea(app.patient.pid, function () {
+			app.openDashboard();
+		});
+	},
+
 	reRenderPoolAreas: function () {
 		this.getPatientPoolAreasPanel().reRenderPoolAreas();
 	},
 
-	doSendPatientToNextArea: function (pid) {
+	doSendPatientToNextArea: function (pid, callback) {
 		var win = this.showPatientToNextAreaWindow();
 		win.pid = pid;
+		win.callback = callback;
 	},
 
 	onPatientToNextAreaWindowPoolAreaBtnClick: function (btn) {
 		var win = btn.up('window'),
 			pid = win.pid,
+			callback = win.callback,
 			poolAreaId = btn.poolAreaId;
 
 		//app.goToPoolAreas();
 		win.close();
-		this.getPatientPoolAreasPanel().doSendPatientToPoolArea(pid, poolAreaId);
+		this.getPatientPoolAreasPanel().doSendPatientToPoolArea(pid, poolAreaId, callback);
 		app.patientPoolStore.reload();
 	},
 
@@ -38687,29 +38716,40 @@ Ext.define('App.controller.dashboard.panel.DailyVisits', {
 			i,
 			j;
 
-		Encounter.getTodayEncounters(function(response){
+		Encounter.getDashboardTodayEncounters(function(response){
 
-			var encounters = response;
-			for(i=0; i < encounters.length; i++){
-				time = Ext.Date.parse(encounters[i].service_date, 'Y-m-d H:i:s').setMinutes(0,0,0);
-				var found = false;
+			// var encounters = response;
+			//
+			// for(i=0; i < encounters.length; i++){
+			// 	time = Ext.Date.parse(encounters[i].service_date, 'Y-m-d H:i:s').getHours();
+			//
+			// 	var found = false;
+			//
+			// 	say(encounters[i]);
+			// 	say(time);
+			//
+			// 	for(j=0; j < data.length; j++){
+			// 		if(data[j].time == time){
+			// 			data[j].total = data[j].total + 1;
+			// 			found = true;
+			// 		}
+			// 	}
+			//
+			// 	if(!found){
+			// 		data.push({
+			// 			total: 1,
+			// 			time: time
+			// 		});
+			// 	}
+			// }
+			//
+			//
+			//
+			// say(data);
 
-				for(j=0; j < data.length; j++){
-					if(data[j].time == time){
-						data[j].total = data[j].total + 1;
-						found = true;
-					}
-				}
+			store.loadData(response);
 
-				if(!found){
-					data.push({
-						total: 1,
-						time: time
-					});
-				}
-			}
-
-			store.loadData(data);
+			say(store);
 		});
 	}
 
@@ -52824,17 +52864,23 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 		app.nav.activePanel.doSendPatientToPoolArea(pid, me.panel.action)
 	},
 
-	doSendPatientToPoolArea: function (pid, area_id) {
+	doSendPatientToPoolArea: function (pid, area_id, callback) {
 		PoolArea.sendPatientToPoolArea({ pid: pid, sendTo: area_id }, function(result){
 
 			if(result.floor_plan_id == null){
 				app.unsetPatient(null, true);
 				app.nav['App_view_areas_PatientPoolAreas'].reloadStores();
 				app.getPatientsInPoolArea();
+
+				if(callback) callback();
+
 				return;
 			}
 
 			app.getController('areas.FloorPlan').promptPatientZoneAssignment(result.record.pid, result.floor_plan_id, area_id);
+
+			if(callback) callback();
+
 
 		});
 	},
@@ -64058,18 +64104,31 @@ Ext.define('App.view.Viewport', {
 	    }
 
 	    if(a('access_pool_areas_panel')){
-		    me.HeaderRight.add({
-			    xtype: 'button',
-			    scale: 'large',
-			    margin: '0 3 0 0',
-			    cls: 'headerLargeBtn',
-			    padding: 0,
-			    itemId: 'patientPoolArea',
-			    iconCls: 'icoPoolArea',
-			    scope: me,
-			    handler: me.goToPoolAreas,
-			    tooltip: _('pool_areas')
-		    });
+		    me.HeaderRight.add([
+			    {
+				    xtype: 'button',
+				    scale: 'large',
+				    margin: '0 3 0 0',
+				    cls: 'headerLargeBtn',
+				    padding: 0,
+				    itemId: 'HeaderSendToPoolAreaBtn',
+				    icon: 'resources/images/icons/next_pool.png',
+				    scope: me,
+				    tooltip: _('send_to_area')
+			    },
+		    	{
+				    xtype: 'button',
+				    scale: 'large',
+				    margin: '0 3 0 0',
+				    cls: 'headerLargeBtn',
+				    padding: 0,
+				    itemId: 'patientPoolArea',
+				    iconCls: 'icoPoolArea',
+				    scope: me,
+				    handler: me.goToPoolAreas,
+				    tooltip: _('pool_areas')
+			    }
+		    ]);
 	    }
 
 	    if(a('access_poolcheckin')){
@@ -64528,11 +64587,11 @@ Ext.define('App.view.Viewport', {
     },
 
 	openDashboard: function(){
-        var me = this,
-	        cls = me.nav.getNavRefByClass('App.view.dashboard.Dashboard'),
-	        panel =  me.nav[cls];
-		if(panel && panel == me.nav.activePanel) panel.loadPatient();
-        me.nav.navigateTo('App.view.dashboard.Dashboard');
+		// var me = this,
+	     //    cls = me.nav.getNavRefByClass('App.view.dashboard.Dashboard'),
+	     //    panel =  me.nav[cls];
+		// if(panel && panel == me.nav.activePanel) panel.loadPatient();
+        this.nav.navigateTo('App.view.dashboard.Dashboard');
     },
 
 	openCalendar: function(){

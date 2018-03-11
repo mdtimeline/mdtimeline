@@ -1010,6 +1010,9 @@ $API = [
             ],
 			'TransferEncounter' => [
 				'len' => 2
+            ],
+			'getDashboardTodayEncounters' => [
+				'len' => 0
             ]
         ]
     ],

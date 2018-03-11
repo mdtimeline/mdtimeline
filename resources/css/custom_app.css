@@ -1215,6 +1215,17 @@ body#login {
     margin: 0;
 }
 
+.toolWarning {
+    background-color: #ffcc91 ! important;
+    border: 1px solid #999999;
+}
+
+.toolWarning:hover {
+    background-color: #ffa243 ! important;
+    background-image: none;
+    border: 1px solid #999999;
+}
+
 .toolDelete {
     background-color: #ff0033 ! important;
     border: 1px solid #999999;
@@ -1241,9 +1252,21 @@ body#login {
     border: 1px solid #999999;
 }
 
-.winDelete {
+
+.winWarning {
     background: none;
-    background-color: #ff0033 !important
+    background-color: #ffcc91 !important
+}
+
+.winWarning:hover {
+    background: none;
+    background-image: none;
+    background-color: #ffa243 !important
+}
+
+.winWarning {
+    background: none;
+    background-color: #ff5973 !important
 }
 
 .winDelete:hover {

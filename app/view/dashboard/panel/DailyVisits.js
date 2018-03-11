@@ -31,15 +31,28 @@ Ext.define('App.view.dashboard.panel.DailyVisits', {
 				animate: false,
 				shadow: false,
 				store: me.store = Ext.create('Ext.data.JsonStore', {
-					fields: [ 'total', 'time' ]
+					fields: [
+						{
+							type: 'int',
+							name: 'total_by_hour'
+						},
+						{
+							type: 'date',
+							name: 'service_hour',
+							dateFormat: 'Y-m-d H:i:s'
+						}
+					]
 				}),
 				axes: [
 					{
 						type: 'Numeric',
 						minimum: 0,
+						decimals: 0,
 						position: 'left',
-						fields: [ 'total' ],
+						fields: [ 'total_by_hour' ],
 						title: 'Patients Per Hour',
+						majorTickSteps: 1,
+						minorTickSteps: 0,
 						label: {
 							font: '11px Arial'
 						}
@@ -47,34 +60,33 @@ Ext.define('App.view.dashboard.panel.DailyVisits', {
 					{
 						type: 'Time',
 						position: 'bottom',
-						fields: [ 'time' ],
+						fields: [ 'service_hour' ],
 						title: 'Time',
 						dateFormat: 'g:ia',
 						step: [Ext.Date.HOUR, 1],
 //						majorTickSteps: 5,
 //						minorTickSteps: 1,
 						constrain: true,
-						fromDate: new Date().setHours(6, 0, 0, 0),
-						toDate: new Date().setHours(20, 0, 0, 0)
 					}
 				],
 				series: [
 					{
-						type: 'line',
-						highlight: {
-							size: 7,
-							radius: 7
-						},
+						type: 'column',
+						highlight: true,
 						axis: 'left',
 						smooth: true,
 						fill: true,
-						xField: 'time',
-						yField: 'total',
-						markerConfig: {
-							type: 'circle',
-							size: 4,
-							radius: 4,
-							'stroke-width': 0
+						// xField: 'service_hour',
+						// yField: 'total_by_hour',
+						yField: 'total_by_hour',
+						xField: 'service_hour',
+						tips: {
+							trackMouse: true,
+							width: 140,
+							height: 28,
+							renderer: function(rec, item) {
+								this.setTitle(rec.get('total_by_hour') + ' ' + _('encounters'));
+							}
 						}
 					}
 				]

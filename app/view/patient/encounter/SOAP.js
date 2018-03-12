@@ -341,6 +341,23 @@ Ext.define('App.view.patient.encounter.SOAP', {
 			],
 			buttons: [
 				{
+					xtype: 'button',
+					icon: 'modules/worklist/resources/images/wand.png',
+					itemId: 'SoapFormReformatTextBtn',
+					tooltip: 'Reformat Text :: ALT-W',
+					minWidth: null,
+					hidden: !Ext.isWebKit
+				},
+				{
+					xtype: 'button',
+					action: 'speechBtn',
+					iconCls: 'speech-icon-inactive',
+					enableToggle: true,
+					minWidth: null,
+					hidden: !Ext.isWebKit
+				},
+				'->',
+				{
 					text: _('save'),
 					iconCls: 'save',
 					action: 'soapSave',

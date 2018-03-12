@@ -1951,6 +1951,17 @@ $LANG = array(
 	'radiology_coverage' => 'Radiology Cover',
 	'emergency_coverage' => 'Emergency Cover',
 	'dental_coverage' => 'Dental Cover',
-	'eligibility' => 'Eligibility'
+	'eligibility' => 'Eligibility',
+	'show_all_medicatios' => 'Show All Medicatios',
+	'clinical_templates' => 'Clinical Templates',
+	'encounter_service_date_error_msg' => 'Encounter service date does NOT match today\'s date',
+	'unable_to_edit_non_ordered_medication' => 'Unable to edit non ordered items',
+	'cities_separated_by_commas' => 'Cities separated by commas',
+	'transactions' => 'Transactions',
+	'event_info' => 'Event Info',
+	'send_to_area' => 'Send to Area',
+	'transfer' => 'Transfer',
+	'transfer_to' => 'Transfer To...',
+	'encounter_transfer_from_x_to_x_msg' => 'Your are about to transfer this encounter from <b>{0}</b> to <b>{1}</b><br><br>Would you like to continue?',
 
 );

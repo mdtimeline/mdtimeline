@@ -18,6 +18,16 @@
  */
 
 $API = [
+    'Printer' => [
+        'methods' => [
+            'doTempDocumentPrint' => [
+                'len' => 2
+            ],
+            'doDocumentPrint' => [
+                'len' => 2
+            ]
+        ]
+    ],
     'BackUp' => [
         'methods' => [
             'doBackUp' => [
@@ -997,6 +1007,12 @@ $API = [
             ],
 			'getEncounterPrintDocumentsByEid' => [
 				'len' => 1
+            ],
+			'TransferEncounter' => [
+				'len' => 2
+            ],
+			'getDashboardTodayEncounters' => [
+				'len' => 0
             ]
         ]
     ],
@@ -2500,7 +2516,7 @@ $API = [
                 'len' => 1
             ],
             'getTransactionLogDetailByTableAndPk' => [
-                'len' => 2
+                'len' => 3
             ]
         ]
     ],

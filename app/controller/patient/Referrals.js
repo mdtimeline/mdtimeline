@@ -64,7 +64,7 @@ Ext.define('App.controller.patient.Referrals', {
 			'button[action=addReferralBtn]': {
 				click: me.onAddReferralBtnClicked
 			},
-			'#referralServiceSearch': {
+			'#ReferralServiceSearch': {
 				select: me.onReferralServiceSearchSelect
 			},
 			'#referralDiagnosisSearch': {
@@ -109,7 +109,7 @@ Ext.define('App.controller.patient.Referrals', {
 		record.set({refer_to: records[0].data.id});
 	},
 
-	onPrintReferralBtnClick:function(referral){
+	onPrintReferralBtnClick:function(referral, print){
 		var me = this,
 			grid = me.getReferralPanelGrid(),
 			sm = grid.getSelectionModel(),
@@ -128,10 +128,15 @@ Ext.define('App.controller.patient.Referrals', {
                 docType: 'Referral'
             };
 			DocumentHandler.createTempDocument(params, function(provider, response){
-				if(window.dual){
-					dual.onDocumentView(response.result.id, 'Referral');
-				}else{
-					app.onDocumentView(response.result.id, 'Referral');
+
+				if(print === true){
+					Printer.doTempDocumentPrint(1, response.result.id);
+				}else {
+					if(window.dual){
+						dual.onDocumentView(response.result.id, 'Referral');
+					}else{
+						app.onDocumentView(response.result.id, 'Referral');
+					}
 				}
 				if(grid.view.el) grid.view.el.unmask();
 			});
@@ -145,9 +150,9 @@ Ext.define('App.controller.patient.Referrals', {
 	onReferralServiceSearchSelect: function(cmb, records){
 		var referral = cmb.up('form').getForm().getRecord();
 		referral.set({
-			service_code: records[0].data.code,
-			service_code_type: records[0].data.code_type
-		})
+			service_code: records[0].get('ConceptId'),
+			service_code_type: records[0].get('CodeType')
+		});
 	},
 
 	onReferralDiagnosisSearchSelect: function(cmb, records){
@@ -155,7 +160,7 @@ Ext.define('App.controller.patient.Referrals', {
 		referral.set({
 			diagnosis_code: records[0].data.code,
 			diagnosis_code_type: records[0].data.code_type
-		})
+		});
 	},
 
 	onReferralExternalReferralCheckboxChange: function(checkbox, isExternal){
@@ -186,11 +191,36 @@ Ext.define('App.controller.patient.Referrals', {
 		records = store.add({
 			pid: app.patient.pid,
 			eid: app.patient.eid,
-			create_date: new Date(),
+			create_date: app.getDate(),
 			create_uid: app.user.id,
-			referral_date: new Date()
+			referral_date: app.getDate()
 		});
 		plugin.startEdit(records[0], 0);
+	},
+
+	doAddReferralByTemplate: function (data) {
+		var me = this,
+			grid = me.getReferralPanelGrid(),
+			store = grid.getStore();
+
+		data.pid = app.patient.pid;
+		data.eid = app.patient.eid;
+		data.refer_by = app.user.id;
+		data.refer_by_text = "";
+		data.referral_date = app.getDate();
+		data.create_uid =  app.user.id;
+		data.update_uid =  app.user.id;
+		data.create_date = app.getDate();
+		data.update_date = app.getDate();
+
+		var record = store.add(data)[0];
+
+		record.save({
+			success: function(){
+				app.msg(_('sweet'), data.service_text + ' Referral ' + _('added'));
+			}
+		});
+
 	}
 
 });

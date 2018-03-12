@@ -104,7 +104,7 @@ Ext.define('App.controller.patient.LabOrders', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	onPrintLabOrderBtnClick: function(input){
+	onPrintLabOrderBtnClick: function(input, print){
 		var me = this,
 			grid = me.getLabOrdersGrid(),
 			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
@@ -138,10 +138,15 @@ Ext.define('App.controller.patient.LabOrders', {
 
 		Ext.Object.each(documents, function(key, params){
 			DocumentHandler.createTempDocument(params, function(provider, response){
-				if(window.dual){
-					dual.onDocumentView(response.result.id, 'Lab');
+
+				if(print === true){
+					Printer.doTempDocumentPrint(1, response.result.id);
 				}else{
-					app.onDocumentView(response.result.id, 'Lab');
+					if(window.dual){
+						dual.onDocumentView(response.result.id, 'Lab');
+					}else{
+						app.onDocumentView(response.result.id, 'Lab');
+					}
 				}
 			});
 		});
@@ -201,8 +206,9 @@ Ext.define('App.controller.patient.LabOrders', {
 		data.status = 'Pending';
 		data.priority = 'Normal';
 
-		store.add(data);
-		store.sync({
+		var record = store.add(data)[0];
+
+		record.save({
 			success: function(){
 				app.msg(_('sweet'), data.description + ' ' + _('added'));
 			}

@@ -167,8 +167,8 @@ module.exports = function(grunt){
 					'app/model/administration/ReferringProvider.js',
 					'app/model/administration/Services.js',
 					'app/model/administration/Specialty.js',
-					'app/model/administration/TemplatePanel.js',
-					'app/model/administration/TemplatePanelTemplate.js',
+					'app/model/administration/EncounterTemplatePanel.js',
+					'app/model/administration/EncounterTemplate.js',
 					'app/model/administration/TransactionLog.js',
 					'app/model/administration/XtypesComboModel.js',
 					'app/model/administration/User.js',
@@ -421,7 +421,7 @@ module.exports = function(grunt){
 					'app/controller/administration/Practice.js',
 					'app/controller/administration/ReferringProviders.js',
 					'app/controller/administration/Specialties.js',
-					'app/controller/administration/TemplatePanels.js',
+					'app/controller/administration/EncounterTemplatePanels.js',
 					'app/controller/administration/Users.js',
 					'app/controller/areas/FloorPlan.js',
 					'app/controller/areas/PatientPoolAreas.js',
@@ -565,8 +565,8 @@ module.exports = function(grunt){
 					'app/ux/combo/Departments.js',
 					'app/model/patient/ProgressNotesHistory.js',
 					'app/store/patient/ProgressNotesHistory.js',
-					'app/store/administration/TemplatePanels.js',
-					'app/view/patient/windows/TemplatePanels.js'
+					'app/store/administration/EncounterTemplatePanels.js',
+					'app/view/patient/windows/EncounterTemplatePanels.js'
 
 				],
 				dest: 'app/app.js'

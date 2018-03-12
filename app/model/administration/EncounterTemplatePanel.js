@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.model.administration.TemplatePanelTemplate', {
+Ext.define('App.model.administration.EncounterTemplatePanel', {
 	extend: 'Ext.data.Model',
 	table: {
-		name: 'template_panels_templates'
+		name: 'template_panels'
 	},
 	fields: [
 		{
@@ -27,14 +27,9 @@ Ext.define('App.model.administration.TemplatePanelTemplate', {
 			type: 'int'
 		},
 		{
-			name: 'panel_id',
-			type: 'int'
-		},
-		{
-			name: 'template_type',
-			type: 'string',
-			len: 80,
-			comment: 'rx lab rad etc'
+			name: 'specialty_id',
+			type: 'int',
+			index: true
 		},
 		{
 			name: 'description',
@@ -42,25 +37,41 @@ Ext.define('App.model.administration.TemplatePanelTemplate', {
 			len: 300
 		},
 		{
-			name: 'template_data',
+			name: 'sex',
 			type: 'string',
-			dataType: 'mediumtext'
+			len: 1,
+			index: true
+		},
+		{
+			name: 'order',
+			type: 'int'
 		},
 		{
 			name: 'active',
-			type: 'bool'
+			type: 'bool',
+			index: true
 		}
 	],
 	proxy: {
 		type: 'direct',
 		api: {
-			read: 'TemplatePanels.getTemplatePanelTemplates',
-			create: 'TemplatePanels.createTemplatePanelTemplate',
-			update: 'TemplatePanels.updateTemplatePanelTemplate',
-			destroy: 'TemplatePanels.deleteTemplatePanelTemplate'
+			read: 'TemplatePanels.getTemplatePanels',
+			create: 'TemplatePanels.createTemplatePanel',
+			update: 'TemplatePanels.updateTemplatePanel',
+			destroy: 'TemplatePanels.deleteTemplatePanel'
 		},
 		reader: {
 			root: 'data'
 		}
-	}
+	},
+	hasMany: [
+		{
+			model: 'App.model.administration.EncounterTemplatePanelTemplate',
+			name: 'templates',
+			foreignKey: 'panel_id',
+			storeConfig: {
+				groupField: 'template_type'
+			}
+		}
+	]
 });

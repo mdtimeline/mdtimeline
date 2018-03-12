@@ -16,7 +16,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.store.administration.TemplatePanels', {
-	model: 'App.model.administration.TemplatePanel',
-	extend: 'Ext.data.Store'
+Ext.define('App.view.patient.windows.EncounterTransferWindow', {
+	extend: 'Ext.window.Window',
+	requires: [
+
+	],
+	title: _('transfer_to'),
+	itemId: 'EncounterTransferWindow',
+	layout: 'fit',
+	closeAction: 'hide',
+	modal: true,
+	closable: false,
+	items: [
+		{
+			xtype: 'form',
+			items: [
+				{
+					xtype: 'patienlivetsearch',
+					itemId: 'EncounterTransferPatientSearchField',
+					allowBlank: false,
+					hideLabel: false,
+					labelAlign: 'top',
+					fieldLabel: _('patient'),
+					width: 400,
+					margin: '5 15 15 15'
+				}
+			]
+		}
+
+	],
+	buttons: [
+		{
+			text: _('cancel'),
+			itemId: 'EncounterTransferWindowCancelBtn'
+		},
+		{
+			text: _('transfer'),
+			itemId: 'EncounterTransferWindowTransferBtn'
+		}
+	]
 });

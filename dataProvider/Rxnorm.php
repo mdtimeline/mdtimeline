@@ -271,10 +271,10 @@ class Rxnorm
     public function getRXNORMLiveSearch(stdClass $params)
     {
         $include_ingredients = isset($params->include_ingredients) ? $params->include_ingredients : false;
-        $ingredients = $include_ingredients ? 'OR c.TTY=\'IN\'' : '';
+        $ingredients = $include_ingredients ? ',\'IN\'' : '';
 
         $include_groups = isset($params->include_groups) ? $params->include_groups : false;
-        $groups = $include_groups ? 'OR c.`TTY` = \'SBDC\' OR c.`TTY`=\'SCDG\'' : '';
+        $groups = $include_groups ? ',\'SBDC\',\'SCDG\'' : '';
 
         $include_umls = isset($params->include_umls) ? $params->include_umls : false;
         $umls = $include_umls ? '(SELECT rxnsat.`ATV` FROM rxnsat WHERE `rxnsat`.`RXCUI` = RX.RXCUI AND (`rxnsat`.`ATN` = \'UMLSAUI\' OR `rxnsat`.`ATN` = \'UMLSCUI\') AND `rxnsat`.`ATV` IS NOT NULL LIMIT 1) AS UMLSCUI' : '';
@@ -296,13 +296,12 @@ class Rxnorm
 		    FROM (
 		    	SELECT * 
 			    FROM rxnconso as c 
-			    WHERE ($where) 
-			    AND c.`SAB` = 'RXNORM' 
-			    AND (c.`TTY` = 'SCD' OR c.`TTY` = 'SBD' {$groups} {$ingredients}) 
-			    LIMIT 50
+			    WHERE (c.`SAB` = 'RXNORM') 
+			    AND c.`TTY` IN ('SCD','SBD'{$groups}{$ingredients})
+			    AND ($where) LIMIT 100
 		    ) AS RX
 		    LEFT JOIN rxnoccurrences AS RXO ON RXO.rxcui = RX.RXCUI
-		    WHERE RX.SUPPRESS = 'N' AND RX.CVF <> ''
+		    WHERE RX.SUPPRESS = 'N' -- AND RX.CVF <> ''
 		    GROUP BY RX.`STR` 
 		    ORDER BY RXO.occurrences DESC, RX.`TTY` DESC, RX.`STR` DESC;");
 
@@ -374,12 +373,12 @@ class Rxnorm
                    	   AND (
                    	    	RX.TTY = 'IN'
                    	   	 OR RX.TTY = 'PIN'
-                   	   	 #OR RX.TTY = 'BN'
-                   	   	 #OR RX.TTY = 'MIN'
-                   	   	 #OR RX.TTY = 'SBD'
-                   	   	 #OR RX.TTY = 'SBDC'
-                   	   	 #OR RX.TTY = 'SBDF'
-                   	   	 #OR RX.TTY = 'SCDG'
+                   	   	 # OR RX.TTY = 'BN'
+                   	   	 # OR RX.TTY = 'MIN'
+                   	   	 # OR RX.TTY = 'SBD'
+                   	   	 # OR RX.TTY = 'SBDC'
+                   	   	 # OR RX.TTY = 'SBDF'
+                   	   	 # OR RX.TTY = 'SCDG'
                    	   )
                    	   AND (RX.RXCUI LIKE :q1 OR RX.STR LIKE :q2)
               	  GROUP BY RX.RXCUI

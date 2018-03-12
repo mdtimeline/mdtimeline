@@ -67,13 +67,13 @@ Ext.define('App.view.patient.Referrals', {
 									validateBlank: true
 								},
 								{
-									xtype: 'livecptsearch',
+									xtype: 'snomedliveproceduresearch',
 									fieldLabel: _('requested_service'),
+									displayField: 'FullySpecifiedName',
+									valueField: 'FullySpecifiedName',
 									name: 'service_text',
-									displayField: 'code_text',
-									valueField: 'code_text',
 									hideLabel: false,
-									itemId: 'referralServiceSearch',
+									itemId: 'ReferralServiceSearch',
 									anchor: '100%'
 								},
 								{
@@ -188,6 +188,13 @@ Ext.define('App.view.patient.Referrals', {
 			resizable: false
 		},
 		{
+			text: _('request'),
+			dataIndex: 'service_text',
+			menuDisabled: true,
+			resizable: false,
+			flex: 1
+		},
+		{
 			text: _('refer_by'),
 			dataIndex: 'refer_by_text',
 			menuDisabled: true,
@@ -200,13 +207,6 @@ Ext.define('App.view.patient.Referrals', {
 			menuDisabled: true,
 			resizable: false,
 			width: 200
-		},
-		{
-			text: _('request'),
-			dataIndex: 'referal_reason',
-			menuDisabled: true,
-			resizable: false,
-			flex: 1
 		}
 	],
 	tbar: [

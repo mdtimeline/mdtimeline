@@ -56,6 +56,9 @@ Ext.define('App.controller.administration.TransactionLog', {
             },
             '#TransactionLogDataGrid':{
                 itemdblclick: me.onTransactionLogDataGridItemDblClick
+            },
+            '#AuditLogWindowGrid':{
+                itemdblclick: me.onAuditLogWindowGridDblClick
             }
         });
 
@@ -76,13 +79,17 @@ Ext.define('App.controller.administration.TransactionLog', {
 	},
 
 	onTransactionLogDataGridItemDblClick: function (grid, record) {
-    	this.doTransactionLogDetailByTableAndPk(record.get('table_name'), record.get('pk'))
+    	this.doTransactionLogDetailByTableAndPk(record.get('table_name'), record.get('pk'), false);
 	},
 
-	doTransactionLogDetailByTableAndPk: function (table, pk) {
+	onAuditLogWindowGridDblClick: function (grid, record) {
+    	this.doTransactionLogDetailByTableAndPk(record.get('foreign_table'), record.get('foreign_id'), record.get('site'));
+	},
+
+	doTransactionLogDetailByTableAndPk: function (table, pk, site) {
 		var me = this;
 
-		TransactionLog.getTransactionLogDetailByTableAndPk(table, pk, function (response) {
+		TransactionLog.getTransactionLogDetailByTableAndPk(table, pk, site, function (response) {
 
 			if(response.total == 0) {
 				app.msg(_('info'), _('no_record_fund'));
@@ -97,17 +104,18 @@ Ext.define('App.controller.administration.TransactionLog', {
 
 	setTransactionLogDetailGrid: function (response) {
 
+		response.table = response.table || 'none';
+		response.columns = response.columns || [];
+		response.data = response.data || [];
 
-		say('setTransactionLogDetailGrid');
-		say(response);
-
-		var me = this,
+    	var me = this,
 			model_name = 'App.model.' + Ext.String.capitalize(response.table) + '_TransactionLogDetailModel',
 			fields = [
 				'_id',
 				'_event_time',
 				'_event_type',
 				'_event_uid',
+				'_event_ip',
 				'_event_user_title',
 				'_event_user_fname',
 				'_event_user_mname',
@@ -140,6 +148,11 @@ Ext.define('App.controller.administration.TransactionLog', {
 							text: 'event_user',
 							dataIndex: '_event_user',
 							width: 150
+						},
+						{
+							text: 'ip',
+							dataIndex: '_event_ip',
+							width: 100
 						}
 					]
 				},
@@ -195,9 +208,12 @@ Ext.define('App.controller.administration.TransactionLog', {
 					{
 						xtype:'grid',
 						height: 400,
-						width: 1000,
+						width: 1200,
 						enableLocking: true,
 						itemId: 'TransactionLogDetailLogGrid',
+						viewConfig: {
+							enableTextSelection: true
+						},
 						columns: [
 							{
 								text: '',

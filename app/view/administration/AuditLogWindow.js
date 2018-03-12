@@ -68,6 +68,11 @@ Ext.define('App.view.administration.AuditLogWindow', {
 						text: _('user'),
 						dataIndex: 'user_name',
 						flex: 1
+					},
+					{
+						text: _('ip'),
+						dataIndex: 'ip',
+						width: 150
 					}
 				],
 				bbar: {

@@ -2412,6 +2412,9 @@ $API = [
 			'deleteServer' => [
 				'len' => 1
             ],
+			'Process' => [
+				'len' => 1
+            ],
         ]
     ],
 	'HL7Clients' => [

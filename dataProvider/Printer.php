@@ -79,7 +79,7 @@ class Printer {
 			$media_type =  $info->buffer($document);
 			$ipp->setMimeMediaType($media_type);
 			$ipp->setData($tmp_fname);
-			$ipp->printJob();
+			$s = $ipp->printJob();
 
 			print 'DEBUG...';
 			print '<pre>';

@@ -594,10 +594,6 @@ class Documents {
 		foreach($pages AS $page){
 			$pdf->AddPage('',$format,true);
 
-			if($page != '' && $encoding === 'UTF-8'){
-				$page = utf8_encode($page);
-			}
-
 			if($this->isHtml($page)){
 				$pdf->writeHTML($page);
 			}else{

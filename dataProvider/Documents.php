@@ -481,6 +481,7 @@ class Documents {
 		];
 
 		$format = isset($template['format']) ? $template['format'] : 'A4';
+		$encoding = isset($template['encoding']) ? $template['encoding'] : 'ISO-8859-1';
 
 		if(isset($params->custom_font_family)){
 			$font['family'] = $params->custom_font_family;
@@ -498,6 +499,7 @@ class Documents {
 		$pdf->setHeaderMargin(0);
 		$pdf->setFooterMargin($margins['footer_margin']);
 		$pdf->SetAutoPageBreak(true, 20);
+		$pdf->SetEncoding($encoding);
 
 		/**
 		 * courier : Courier
@@ -581,6 +583,8 @@ class Documents {
 			}
 		}
 
+		$pdf->SetFont($font['family'],$font['style'],$font['size'], true);
+
 		// add line token
 		$tokens[] = '{line}';
 		$allNeededInfo[] = '<hr style="margin: 10px;">';
@@ -593,9 +597,10 @@ class Documents {
 			if (
 				!empty($page) &&
 				function_exists('mb_detect_encoding') &&
-				mb_detect_encoding($page, 'UTF-8', false)
+				mb_detect_encoding($page, 'UTF-8', false) &&
+				$encoding != 'UTF-8'
 			){
-				$page = utf8_decode($page);
+				$page = mb_convert_encoding($page, $encoding, 'UTF-8');
 			}
 
 			if($this->isHtml($page)){

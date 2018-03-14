@@ -481,7 +481,7 @@ class Documents {
 		];
 
 		$format = isset($template['format']) ? $template['format'] : 'A4';
-		$encoding = isset($template['encoding']) ? $template['encoding'] : 'ISO-8859-1';
+		$encoding = isset($template['encoding']) ? $template['encoding'] : 'UTF-8';
 
 		if(isset($params->custom_font_family)){
 			$font['family'] = $params->custom_font_family;
@@ -594,13 +594,8 @@ class Documents {
 		foreach($pages AS $page){
 			$pdf->AddPage('',$format,true);
 
-			if (
-				!empty($page) &&
-				function_exists('mb_detect_encoding') &&
-				mb_detect_encoding($page, 'UTF-8', false) &&
-				$encoding != 'UTF-8'
-			){
-				$page = mb_convert_encoding($page, $encoding, 'UTF-8');
+			if($page != '' && $encoding === 'UTF-8'){
+				$page = utf8_encode($page);
 			}
 
 			if($this->isHtml($page)){

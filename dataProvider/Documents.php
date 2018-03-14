@@ -595,7 +595,7 @@ class Documents {
 				function_exists('mb_detect_encoding') &&
 				mb_detect_encoding($page, 'UTF-8', false)
 			){
-				$page = iconv('UTF-8', 'ISO-8859-1//IGNORE', $page);
+				$page = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $page);
 			}
 
 			if($this->isHtml($page)){

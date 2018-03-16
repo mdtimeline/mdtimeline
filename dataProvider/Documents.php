@@ -338,11 +338,13 @@ class Documents {
 	}
 
 	private function getCurrentTokensData($allNeededInfo, $tokens) {
+		$user_name = isset($_SESSION['user']) && isset($_SESSION['user']['name']) ?
+			$_SESSION['user']['name'] : '';
 
 		$currentInformation = [
 			'[CURRENT_DATE]' => date('F j, Y'),
-			'[CURRENT_USER_NAME]' => $_SESSION['user']['name'],
-			'[CURRENT_USER_FULL_NAME]' => $_SESSION['user']['name'],
+			'[CURRENT_USER_NAME]' => $user_name,
+			'[CURRENT_USER_FULL_NAME]' => $user_name,
 			'[CURRENT_USER_LICENSE_NUMBER]',
 			'[CURRENT_USER_DEA_LICENSE_NUMBER]',
 			'[CURRENT_USER_DM_LICENSE_NUMBER]',

@@ -61,11 +61,13 @@ class CronBootstrap
         define("PID",getmypid());
         define('site_id', $argv[1]);
         define('URL', '');
-        define('ROOT', str_replace('\\', '/', str_ireplace("cronjob","",getcwd())));
+        define('ROOT', rtrim(str_replace('\\', '/', str_ireplace("cronjob","",getcwd()))),'/');
         define('SCRIPT', $filename);
         define('SCRIPT_NAME', $filename);
-        include_once(ROOT."sites/".site_id."/conf.php");
-        include_once(ROOT.'classes/MatchaHelper.php');
+
+        include_once(ROOT."/registry.php");
+        include_once(ROOT."/sites/".site_id."/conf.php");
+        include_once(ROOT.'/classes/MatchaHelper.php');
 
         /**
          * Enable the error and also set the ROOT directory for
@@ -76,7 +78,7 @@ class CronBootstrap
          */
         error_reporting(-1);
         ini_set('display_errors', 1);
-        $logPath = ROOT . 'sites/' . site_id . '/log/';
+        $logPath = ROOT . '/sites/' . site_id . '/log/';
         if(file_exists($logPath) && is_writable($logPath)){
             $logFile = 'error_log.txt';
             $oldUmask = umask(0);

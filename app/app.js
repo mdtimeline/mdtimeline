@@ -25075,7 +25075,13 @@ Ext.define('App.view.patient.Vitals', {
 			itemId: 'historyGrid',
 			multiSelect: true,
 			store: Ext.create('App.store.patient.Vitals',{
-				remoteFilter: true
+				remoteFilter: true,
+				sorters: [
+					{
+						property: 'id',
+						direction: 'DESC'
+					}
+				]
 			}),
 			stateId: 'VitalsHistoryGrid',
 			stateful: true,

@@ -1053,6 +1053,9 @@ Ext.define('App.view.Viewport', {
     },
 
     getPatientsInPoolArea: function(){
+
+	    if(!a('use_pool_areas')) return;
+
         var me = this,
 	        poolArea = me.patientPoolArea,
 	        height = 35;

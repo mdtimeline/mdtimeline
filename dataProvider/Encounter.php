@@ -1157,9 +1157,20 @@ class Encounter {
 		$filters->filter[1] = new stdClass();
 		$filters->filter[1]->property = 'service_date';
 		$filters->filter[1]->operator = '<=';
-		$filters->filter[1]->value = $date . ' 00:00:00';
+		$filters->filter[1]->value = $date . ' 23:59:59';
 
 		return $this->getEncounters($filters, false);
+	}
+
+	public function getDashboardTodayEncounters(){
+
+		$sql = 'SELECT CONCAT(DATE(service_date), \' \' ,HOUR(service_date), \':00:00\' ) as service_hour, count(*) as total_by_hour  FROM (
+					SELECT eid, service_date FROM encounters WHERE service_date >= CONCAT(curdate(), \' 00:00:00\') && service_date <= CONCAT(curdate(), \' 23:59:59\')
+				) as enc GROUP BY service_hour;';
+
+		$sth = $this->conn->prepare($sql);
+		$sth->execute();
+		return $sth->fetchAll(PDO::FETCH_ASSOC);
 	}
 
 	public function getTodayEncounters() {

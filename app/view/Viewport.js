@@ -323,18 +323,31 @@ Ext.define('App.view.Viewport', {
 	    }
 
 	    if(a('access_pool_areas_panel')){
-		    me.HeaderRight.add({
-			    xtype: 'button',
-			    scale: 'large',
-			    margin: '0 3 0 0',
-			    cls: 'headerLargeBtn',
-			    padding: 0,
-			    itemId: 'patientPoolArea',
-			    iconCls: 'icoPoolArea',
-			    scope: me,
-			    handler: me.goToPoolAreas,
-			    tooltip: _('pool_areas')
-		    });
+		    me.HeaderRight.add([
+			    {
+				    xtype: 'button',
+				    scale: 'large',
+				    margin: '0 3 0 0',
+				    cls: 'headerLargeBtn',
+				    padding: 0,
+				    itemId: 'HeaderSendToPoolAreaBtn',
+				    icon: 'resources/images/icons/next_pool.png',
+				    scope: me,
+				    tooltip: _('send_to_area')
+			    },
+		    	{
+				    xtype: 'button',
+				    scale: 'large',
+				    margin: '0 3 0 0',
+				    cls: 'headerLargeBtn',
+				    padding: 0,
+				    itemId: 'patientPoolArea',
+				    iconCls: 'icoPoolArea',
+				    scope: me,
+				    handler: me.goToPoolAreas,
+				    tooltip: _('pool_areas')
+			    }
+		    ]);
 	    }
 
 	    if(a('access_poolcheckin')){
@@ -793,11 +806,11 @@ Ext.define('App.view.Viewport', {
     },
 
 	openDashboard: function(){
-        var me = this,
-	        cls = me.nav.getNavRefByClass('App.view.dashboard.Dashboard'),
-	        panel =  me.nav[cls];
-		if(panel && panel == me.nav.activePanel) panel.loadPatient();
-        me.nav.navigateTo('App.view.dashboard.Dashboard');
+		// var me = this,
+	     //    cls = me.nav.getNavRefByClass('App.view.dashboard.Dashboard'),
+	     //    panel =  me.nav[cls];
+		// if(panel && panel == me.nav.activePanel) panel.loadPatient();
+        this.nav.navigateTo('App.view.dashboard.Dashboard');
     },
 
 	openCalendar: function(){
@@ -1040,6 +1053,9 @@ Ext.define('App.view.Viewport', {
     },
 
     getPatientsInPoolArea: function(){
+
+	    if(!a('use_pool_areas')) return;
+
         var me = this,
 	        poolArea = me.patientPoolArea,
 	        height = 35;

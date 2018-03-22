@@ -175,6 +175,9 @@ class DocumentHandler {
 	 */
 	public function addPatientDocument($params){
 		$this->setPatientDocumentModel();
+
+		Matcha::pauseLog(true);
+
 		if(is_array($params)){
 			foreach($params as $i => $param){
 				/** remove the mime type */
@@ -218,6 +221,9 @@ class DocumentHandler {
 				$this->handleDocumentData($results);
 			}
 		}
+
+		Matcha::pauseLog(false);
+
 		return $results;
 	}
 
@@ -384,6 +390,8 @@ class DocumentHandler {
 	public function updatePatientDocument($params){
 		$this->setPatientDocumentModel();
 
+		Matcha::pauseLog(true);
+
 		if(is_array($params)){
 			foreach($params as &$param){
 				unset($param->document, $param->hash);
@@ -392,7 +400,11 @@ class DocumentHandler {
 			unset($params->document, $params->hash);
 		}
 
-		return $this->d->save($params);
+		$record = $this->d->save($params);
+
+		Matcha::pauseLog(false);
+
+		return $record;
 	}
 
 	/**
@@ -426,6 +438,9 @@ class DocumentHandler {
 	 */
 	public function createTempDocument($params){
 		$this->setPatientDocumentTempModel();
+
+		Matcha::pauseLog(true);
+
 		$params = (object) $params;
 		$record = new stdClass();
 		if(isset($params->document) && $params->document != ''){
@@ -438,6 +453,8 @@ class DocumentHandler {
 		$record->document_name = isset($params->document_name) ? $params->document_name : '';
 		$record = (object) $this->t->save($record);
 		unset($record->document);
+
+		Matcha::pauseLog(false);
 		return $record;
 	}
 
@@ -447,6 +464,9 @@ class DocumentHandler {
 	 */
 	public function createRawTempDocument($params){
 		$this->setPatientDocumentTempModel();
+
+		Matcha::pauseLog(true);
+
 		$params = (object) $params;
 		$record = new stdClass();
 		$record->create_date = date('Y-m-d H:i:s');
@@ -454,6 +474,9 @@ class DocumentHandler {
 		$record->document = base64_encode($params->document);
 		$record = (object) $this->t->save($record);
 		unset($record->document);
+
+		Matcha::pauseLog(false);
+
 		return $record;
 	}
 
@@ -470,6 +493,9 @@ class DocumentHandler {
 	public function transferTempDocument($params){
 		$this->setPatientDocumentModel();
 		$this->setPatientDocumentTempModel();
+
+		Matcha::pauseLog(false);
+
 		$record = $this->t->load($params)->one();
 		if($record == false) return ['success' => false];
 
@@ -480,6 +506,9 @@ class DocumentHandler {
 
 		$params = $this->addPatientDocument($params);
 		unset($params['data']->document);
+
+		Matcha::pauseLog(true);
+
 		return ['success' => true, 'record' => $params['data']];
 	}
 

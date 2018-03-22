@@ -40,6 +40,19 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 			],
 			buttons: [
 				{
+					text: _('delete'),
+					itemId: 'EncounterDeletetBtn',
+					cls: 'toolWarning',
+					hidden: true
+				},
+				{
+					text: _('transfer'),
+					itemId: 'EncounterTransferBtn',
+					cls: 'toolWarning',
+					acl: a('transfer_encounters')
+				},
+				'->',
+				{
 					text: _('save'),
 					action: 'encounter',
 					scope: me,
@@ -62,8 +75,7 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 		me.callParent(arguments);
 	},
 
-	checkValidation: function()
-    {
+	checkValidation: function(){
         var me = this,
             form = me.down('form').getForm(),
             record = form.getRecord(),

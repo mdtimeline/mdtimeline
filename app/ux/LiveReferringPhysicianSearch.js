@@ -130,6 +130,10 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
 			}
 		});
 
+		me.listeners = {
+			change: me.onReferringValueChange
+		};
+		
 		me.store = Ext.create('Ext.data.Store', {
 			model: 'referringPhysicianLiveSearchModel',
 			pageSize: 10,
@@ -148,5 +152,18 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
 		});
 
 		me.callParent();
+	},
+
+	onReferringValueChange: function (field, value) {
+		if(!Ext.isNumber(value) || value == '0') return;
+		var me = this;
+
+		App.model.administration.ReferringProvider.load(value, {
+			success: function(referring) {
+				if(me.store.getById(referring.get('id')) !== null) return;
+				me.store.add(referring.data);
+				me.setValue(value);
+			}
+		});
 	}
 });

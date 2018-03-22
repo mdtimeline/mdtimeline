@@ -69,6 +69,11 @@ Ext.define('App.model.administration.AuditLog', {
 			format: 'Y-m-d H:i:s'
 		},
 		{
+			name: 'ip',
+			type: 'string',
+			len: 40
+		},
+		{
 			name: 'user_fname',
 			type: 'string',
 			store: false
@@ -89,6 +94,11 @@ Ext.define('App.model.administration.AuditLog', {
 			convert: function(val, rec){
 				return rec.data.user_lname + ', ' + rec.data.user_fname + ' ' + rec.data.user_mname
 			},
+			store: false
+		},
+		{
+			name: 'site',
+			type: 'string',
 			store: false
 		}
 	],

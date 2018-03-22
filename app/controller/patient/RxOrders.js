@@ -59,6 +59,10 @@ Ext.define('App.controller.patient.RxOrders', {
 		{
 			ref: 'RxOrderSplyCheckBox',
 			selector: '#RxOrderSplyCheckBox'
+		},
+		{
+			ref: 'RxOrdersShowAllMedicationsBtn',
+			selector: '#RxOrdersShowAllMedicationsBtn'
 		}
 	],
 
@@ -89,8 +93,15 @@ Ext.define('App.controller.patient.RxOrders', {
 			},
 			'#RxOrderSplyCheckBox': {
 				change: me.onRxOrderSplyCheckBoxChange
+			},
+			'#RxOrdersShowAllMedicationsBtn': {
+				toggle: me.onRxOrdersShowAllMedicationsBtnToggle
 			}
 		});
+	},
+
+	onRxOrdersShowAllMedicationsBtnToggle: function (btn, pressed) {
+		this.doLoadOrdersGrid();
 	},
 
 	onRxOrdersDeleteActionHandler: function (grid, rowIndex, colIndex, item, e, record) {
@@ -191,7 +202,7 @@ Ext.define('App.controller.patient.RxOrders', {
 			if(response.propConceptGroup){
 				response.propConceptGroup.propConcept.forEach(function(propConcept){
 
-					if(propConcept.propCategory != 'ATTRIBUTES' && propConcept.propCategory != 'CODES') return;
+					if(propConcept.propCategory !== 'ATTRIBUTES' && propConcept.propCategory !== 'CODES') return;
 
 					if(!data[propConcept.propCategory]){
 						data[propConcept.propCategory] = {};
@@ -215,6 +226,11 @@ Ext.define('App.controller.patient.RxOrders', {
 	},
 
 	onRxOrdersGridBeforeEdit: function(plugin, context){
+
+		if(!context.record.data.date_ordered){
+			app.msg(_('oops'), _('unable_to_edit_non_ordered_medication'), true);
+			return false;
+		}
 
 		this.getRxEncounterDxCombo().getStore().load({
 			filters: [
@@ -250,7 +266,7 @@ Ext.define('App.controller.patient.RxOrders', {
 			buttons: Ext.Msg.YESNO,
 			icon: Ext.Msg.QUESTION,
 			fn: function(btn){
-				if(btn == 'yes'){
+				if(btn === 'yes'){
 					store = insCmb.getStore();
 					store.add({
 						rxcui: context.record.data.RXCUI,
@@ -293,7 +309,7 @@ Ext.define('App.controller.patient.RxOrders', {
 			buttons: Ext.Msg.YESNO,
 			icon: Ext.Msg.QUESTION,
 			fn: function(btn){
-				if(btn == 'yes'){
+				if(btn === 'yes'){
 					me.doCloneOrder();
 				}
 			}
@@ -322,7 +338,7 @@ Ext.define('App.controller.patient.RxOrders', {
 			data.uid = app.user.id;
 
 			data.ref_order = data.id;
-			if(typeof additionalReference == 'string'){
+			if(typeof additionalReference === 'string'){
 				data.ref_order += ('~' + additionalReference);
 			}
 
@@ -340,7 +356,7 @@ Ext.define('App.controller.patient.RxOrders', {
 		return records;
 	},
 
-	onPrintRxOrderBtnClick: function(input){
+	onPrintRxOrderBtnClick: function(input, print){
 		var me = this,
 			grid = me.getRxOrdersGrid(),
 			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
@@ -443,26 +459,22 @@ Ext.define('App.controller.patient.RxOrders', {
 
 		Ext.Object.each(documents, function(key, params){
 			DocumentHandler.createTempDocument(params, function(provider, response){
-				if(window.dual){
-					dual.onDocumentView(response.result.id, 'Rx');
+				if(print === true){
+					Printer.doTempDocumentPrint(1, response.result.id);
 				}else{
-					app.onDocumentView(response.result.id, 'Rx');
+					if(window.dual){
+						dual.onDocumentView(response.result.id, 'Rx');
+					}else{
+						app.onDocumentView(response.result.id, 'Rx');
+					}
 				}
+
 			});
 		});
 	},
 
-	onRxOrdersGridActive: function(grid){
-		var store = grid.getStore();
-		if(!grid.editingPlugin.editing){
-			store.clearFilter(true);
-			store.filter([
-				{
-					property: 'pid',
-					value: app.patient.pid
-				}
-			]);
-		}
+	onRxOrdersGridActive: function(){
+		this.doLoadOrdersGrid()
 	},
 
 	doAddOrderByTemplate: function(data){
@@ -485,6 +497,36 @@ Ext.define('App.controller.patient.RxOrders', {
 			}
 		});
 
+	},
+
+	doLoadOrdersGrid: function () {
+
+		if(!this.getRxOrdersGrid()) return;
+
+		var grid = this.getRxOrdersGrid(),
+			store = grid.getStore();
+
+		if(!grid.editingPlugin.editing){
+
+			var filters = [
+				{
+					property: 'pid',
+					value: app.patient.pid
+				}
+			];
+
+			if(!this.getRxOrdersShowAllMedicationsBtn().pressed){
+				Ext.Array.push(filters, {
+					property: 'date_ordered',
+					operator: '!=',
+					value: null
+				});
+			}
+
+			store.clearFilter(true);
+			store.filter(filters);
+
+		}
 	}
 
 });

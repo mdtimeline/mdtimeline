@@ -5,17 +5,32 @@ Ext.define('App.ux..grid.ColumnSearchField', {
 	operator: '=',
 	prefix: '',
 	suffix: '',
+	enableKeyEvents: true,
 	initComponent:function(){
 
-		say(this.autoSearch);
+		var me = this;
 
-		if(this.autoSearch !== true){
-			this.trigger2Cls = 'x-form-search-trigger';
+		if(me.autoSearch !== true){
+			me.trigger2Cls = 'x-form-search-trigger';
 		}
 
-		this.setFilterBuffer = Ext.Function.createBuffered(this.setFilter, 500, this);
+		me.setFilterBuffer = Ext.Function.createBuffered(me.setFilter, 500, me);
 
-		this.callParent();
+		me.callParent(arguments);
+
+		me.on('render', function() {
+			var mee = this;
+			mee.ownerCt.on('resize', function () {
+				mee.setWidth(this.getEl().getWidth());
+			});
+		});
+
+		me.on('change', function() {
+			if(me.autoSearch){
+				me.setFilterBuffer(me.up().dataIndex, me.getValue());
+			}
+		});
+
 	},
 
 	onTriggerClick: function() {
@@ -45,19 +60,6 @@ Ext.define('App.ux..grid.ColumnSearchField', {
 		} else {
 			store.filters.removeAtKey(filterId);
 			store.reload()
-		}
-	},
-	listeners: {
-		render: function(){
-			var me = this;
-			me.ownerCt.on('resize', function(){
-				me.setWidth(this.getEl().getWidth());
-			})
-		},
-		change: function() {
-			if(this.autoSearch){
-				this.setFilterBuffer(this.up().dataIndex, this.getValue());
-			}
 		}
 	}
 });

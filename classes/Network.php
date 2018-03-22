@@ -18,8 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class Network
-{
+class Network {
 
 	/**
 	 * Whether to use proxy addresses or not.
@@ -52,19 +51,30 @@ class Network
 	 *
 	 * @return string IP address.
 	 */
-	public static function getIpAddress()
-	{
+	public static function getIpAddress(){
 		$ip = self::getIpAddressFromProxy();
-		if ($ip) {
+		if($ip){
 			return $ip;
 		}
 
 		// direct IP address
-		if (isset($_SERVER['REMOTE_ADDR'])) {
+		if(isset($_SERVER['REMOTE_ADDR'])){
 			return $_SERVER['REMOTE_ADDR'];
 		}
 
 		return '';
+	}
+
+	public static function isLocalAddress($ip = null){
+
+		if(!isset($ip)){
+			$ip = self::getIpAddress();
+		}
+
+		if(!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)){
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -73,16 +83,15 @@ class Network
 	 * @see http://tools.ietf.org/html/draft-ietf-appsawg-http-forwarded-10#section-5.2
 	 * @return false|string
 	 */
-	protected static function getIpAddressFromProxy()
-	{
-		if (!self::$useProxy
+	protected static function getIpAddressFromProxy(){
+		if(!self::$useProxy
 			|| (isset($_SERVER['REMOTE_ADDR']) && !in_array($_SERVER['REMOTE_ADDR'], self::$trustedProxies))
-		) {
+		){
 			return false;
 		}
 
 		$header = self::$proxyHeader;
-		if (!isset($_SERVER[$header]) || empty($_SERVER[$header])) {
+		if(!isset($_SERVER[$header]) || empty($_SERVER[$header])){
 			return false;
 		}
 
@@ -94,7 +103,7 @@ class Network
 		$ips = array_diff($ips, self::$trustedProxies);
 
 		// Any left?
-		if (empty($ips)) {
+		if(empty($ips)){
 			return false;
 		}
 
@@ -104,6 +113,7 @@ class Network
 		// as the originating IP.
 		// @see http://en.wikipedia.org/wiki/X-Forwarded-For
 		$ip = array_pop($ips);
+
 		return $ip;
 	}
 

@@ -125,7 +125,7 @@ Ext.define('App.view.patient.RadOrders', {
 			header: _('date_collected'),
 			width: 100,
 			dataIndex: 'date_collected',
-			format: 'Y-m-d',
+			format: g('date_display_format'),
 			editor: {
 				xtype: 'datefield'
 			}

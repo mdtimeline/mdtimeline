@@ -16,20 +16,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.view.patient.windows.TemplatePanels', {
+Ext.define('App.view.patient.windows.EncounterTemplatePanels', {
 	extend: 'App.ux.window.Window',
 	title: _('templates'),
 	closeAction: 'hide',
 	layout: 'fit',
 	modal: true,
 	width: 600,
-	height: 300,
+	height: 500,
 	itemId: 'TemplatePanelsWindow',
 	bodyPadding: 5,
 	tbar: [
 		{
 			xtype: 'combobox',
-			store: Ext.create('App.store.administration.TemplatePanels'),
+			store: Ext.create('App.store.administration.EncounterTemplatePanels'),
 			displayField: 'description',
 			valueField: 'id',
 			itemId: 'TemplatePanelsCombo',

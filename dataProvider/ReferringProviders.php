@@ -105,6 +105,13 @@ class ReferringProviders {
         $whereValues = [];
         $where = [];
 
+        if(!isset($params->query)){
+	        return [
+		        'totals' => 0,
+		        'rows' => []
+	        ];
+        }
+
         $queries = explode(' ', $params->query);
         foreach($queries as $index => $query){
             $query = trim($query);

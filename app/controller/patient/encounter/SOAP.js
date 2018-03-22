@@ -75,11 +75,11 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 			'viewport': {
 				'encounterbeforesync': me.onEncounterBeforeSync
 			},
-			'#soapPanel': {
-				beforerender: me.onPanelBeforeRender
-				//activate: me.onPanelActive,
-				//deactivate: me.onPanelDeActive
-			},
+			// '#soapPanel': {
+			// 	// afterrender: me.onPanelBeforeRender
+			// 	//activate: me.onPanelActive,
+			// 	//deactivate: me.onPanelDeActive
+			// },
 			'#soapPanel #soapForm': {
 				render: me.onPanelFormRender,
 				write: me.onSoapFormWrite
@@ -184,29 +184,31 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 		this.interim_transcript = '';
 	},
 
-	onPanelBeforeRender: function(panel){
-		if(!Ext.isWebKit) return;
-
-		var btn = [
-			{
-				xtype: 'button',
-				icon: 'modules/worklist/resources/images/wand.png',
-				itemId: 'SoapFormReformatTextBtn',
-				tooltip: 'Reformat Text :: ALT-W',
-				minWidth: null
-			},
-			{
-				xtype: 'button',
-				action: 'speechBtn',
-				iconCls: 'speech-icon-inactive',
-				enableToggle: true,
-				minWidth: null
-			},
-			{ xtype: 'tbfill' }
-		];
-
-		panel.down('form').getDockedItems('toolbar[dock="bottom"]')[0].insert(0, btn);
-	},
+	// onPanelBeforeRender: function(panel){
+	// 	if(!Ext.isWebKit) return;
+	//
+	// 	var btn = [
+	// 		{
+	// 			xtype: 'button',
+	// 			icon: 'modules/worklist/resources/images/wand.png',
+	// 			itemId: 'SoapFormReformatTextBtn',
+	// 			tooltip: 'Reformat Text :: ALT-W',
+	// 			minWidth: null,
+	// 			hidden: !Ext.isWebKit
+	// 		},
+	// 		{
+	// 			xtype: 'button',
+	// 			action: 'speechBtn',
+	// 			iconCls: 'speech-icon-inactive',
+	// 			enableToggle: true,
+	// 			minWidth: null,
+	// 			hidden: !Ext.isWebKit
+	// 		},
+	// 		{ xtype: 'tbfill' }
+	// 	];
+	//
+	// 	panel.down('form').getDockedItems('toolbar[dock="bottom"]')[0].insert(0, btn);
+	// },
 
 	onPanelFormRender: function(panel){
 		Ext.widget('careplangoalsnewwindow', {

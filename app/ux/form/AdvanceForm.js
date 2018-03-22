@@ -110,7 +110,7 @@ Ext.define('App.ux.form.AdvanceForm', {
     setFieldEvent: function(form){
         var fields = form.getForm().getFields().items;
         for(var i = 0; i < fields.length; i++){
-            if(fields[i].xtype === 'textfield' || fields[i].xtype === 'textarea'){
+            if(fields[i].xtype === 'textfield' || fields[i].xtype === 'textarea'|| fields[i].xtype === 'textareafield'){
                 fields[i].enableKeyEvents = true;
                 fields[i].on('keyup', this.setFieldCondition, this);
 	            fields[i].on('change', this.setFieldCondition, this);
@@ -246,7 +246,7 @@ Ext.define('App.ux.form.AdvanceForm', {
             cls = me.formPanel.autoSync ? 'autosave' : '';
 
         if(bar && me.autoSyncTool){
-            bar.insert(0, Ext.create('Ext.panel.Tool',{
+            bar.insert((bar.items.length -1), Ext.create('Ext.panel.Tool',{
                 type:'save',
                 cls:cls,
                 tooltip: 'Autosave',

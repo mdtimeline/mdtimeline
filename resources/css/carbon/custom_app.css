@@ -8,6 +8,10 @@
     src: url('../../fonts/OpenSans-CondLight.ttf');
 }
 
+.encounter-not-same-day {
+    background-color: red !important;
+}
+
 .encounter-soap-form .x-form-textarea {
     font-size: 1.3em;
 }

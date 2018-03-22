@@ -226,17 +226,35 @@ class Laboratories {
 	}
 
 	public function getRadLoincLiveSearch(stdClass $params) {
+
+
+		if(!isset($params->query) || $params->query == ''){
+			return [];
+		}
+
+		$where = [];
+		$where_params = [];
+		$queries = explode(' ', $params->query);
+
+		foreach($queries as $query){
+			$where[] = "(l.long_common_name LIKE ? OR e.ALIAS LIKE ? OR l.loinc_num LIKE ?)";
+			$where_params[] = '%' . $query . '%';
+			$where_params[] = '%' . $query . '%';
+			$where_params[] = $query . '%';
+		}
+
+		$where = implode(' AND ' ,$where);
+
+
 		$sth = $this->conn->prepare("SELECT l.loinc_num AS id,
 								  IF(e.ALIAS IS NOT NULL && e.ALIAS != '', e.ALIAS, l.long_common_name) AS loinc_name,
 								  l.loinc_num AS loinc_number
 							 FROM loinc_extra AS e
 						LEFT JOIN loinc AS l ON e.LOINC_NUM = l.loinc_num
 							WHERE (l.class = 'RAD' OR l.class = 'PANEL.CARDIAC')
-							  AND (l.long_common_name LIKE '%$params->query%'
-							  		OR e.ALIAS LIKE '%$params->query%'
-							  		OR l.loinc_num LIKE '$params->query%')
+							  AND {$where}
 						      AND e.active = '1'");
-		$sth->execute();
+		$sth->execute($where_params);
 		$records = $sth->fetchAll(PDO::FETCH_ASSOC);
 		$total = count($records);
 		$records = array_slice($records, $params->start, $params->limit);

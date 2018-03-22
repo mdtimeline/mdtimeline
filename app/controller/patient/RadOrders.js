@@ -89,7 +89,7 @@ Ext.define('App.controller.patient.RadOrders', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	onPrintRadOrderBtnClick: function(input){
+	onPrintRadOrderBtnClick: function(input, print){
 		var me = this,
 			grid = me.getRadOrdersGrid(),
 			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
@@ -123,11 +123,16 @@ Ext.define('App.controller.patient.RadOrders', {
 
 		Ext.Object.each(documents, function(key, params){
 			DocumentHandler.createTempDocument(params, function(provider, response){
-				if(window.dual){
-					dual.onDocumentView(response.result.id, 'Rad');
+				if(print === true){
+					Printer.doTempDocumentPrint(1, response.result.id);
 				}else{
-					app.onDocumentView(response.result.id, 'Rad');
+					if(window.dual){
+						dual.onDocumentView(response.result.id, 'Rad');
+					}else{
+						app.onDocumentView(response.result.id, 'Rad');
+					}
 				}
+
 			});
 		});
 	},
@@ -167,7 +172,7 @@ Ext.define('App.controller.patient.RadOrders', {
 
 	doAddOrderByTemplate: function(data){
 		var me = this,
-			grid = me.getLabOrdersGrid(),
+			grid = me.getRadOrdersGrid(),
 			store = grid.getStore();
 
 		data.pid = app.patient.pid;
@@ -178,8 +183,9 @@ Ext.define('App.controller.patient.RadOrders', {
 		data.status = 'Pending';
 		data.priority = 'Normal';
 
-		store.add(data);
-		store.sync({
+		var record = store.add(data)[0];
+
+		record.save({
 			success: function(){
 				app.msg(_('sweet'), data.description + ' ' + _('added'));
 			}

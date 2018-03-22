@@ -670,6 +670,9 @@ Ext.define('App.view.Viewport', {
     	if(!this.MedicalWindow){
 		    this.MedicalWindow = Ext.create('App.view.patient.windows.Medical');
 	    }
+
+	    if(!action) return;
+
         this.MedicalWindow.show();
         this.MedicalWindow.cardSwitch(action);
     },
@@ -1384,6 +1387,10 @@ Ext.define('App.view.Viewport', {
 
 		return record_number;
 
+	},
+
+	getDate: function () {
+		return this.getController('Clock').getDate();
 	}
 
 

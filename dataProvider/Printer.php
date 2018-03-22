@@ -17,6 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+include_once (ROOT. '/dataProvider/DocumentHandler.php');
+
 class Printer {
 
 
@@ -25,8 +28,30 @@ class Printer {
 	 */
 	private $p;
 
+
 	function __construct() {
 		$this->p = \MatchaModel::setSenchaModel('App.model.administration.Printer');
+
+	}
+
+	public function doTempDocumentPrint($printer_id, $temp_document_id){
+
+		$DocumentHandler = new DocumentHandler();
+		$document_record = $DocumentHandler->getTempDocument(['id' => $temp_document_id], true);
+
+
+		error_log(print_r(base64_decode($document_record['document']), true));
+
+		$this->doPrint($printer_id, $document_record['document']);
+
+		unset($DocumentHandler, $document_record);
+	}
+
+	public function doDocumentPrint($printer_id, $document_id){
+		$DocumentHandler = new DocumentHandler();
+		$document_record = $DocumentHandler->getPatientDocument(['id' => $document_id], true, true);
+		$this->doPrint($printer_id, $document_record['document']);
+		unset($DocumentHandler, $document_record);
 	}
 
 	public function doPrint($printer_id, $document){

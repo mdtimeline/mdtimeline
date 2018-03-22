@@ -3,7 +3,7 @@
  * Create date: 2015-01-28 12:02:41
  */
 
-Ext.define('App.model.patient.InsuranceCovers',{
+Ext.define('App.model.patient.InsuranceCover',{
     extend: 'Ext.data.Model',
     table: {
         name: 'patient_insurance_covers',
@@ -60,7 +60,7 @@ Ext.define('App.model.patient.InsuranceCovers',{
             read: 'Insurance.getInsuranceCovers',
             create: 'Insurance.addInsuranceCover',
             update: 'Insurance.updateInsuranceCover',
-            destroy: 'Insurance.deleteInsuranceCover'
+            destroy: 'Insurance.destroyInsuranceCover'
         }
     },
     associations: [

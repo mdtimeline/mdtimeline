@@ -29,10 +29,9 @@ class Insurance {
 	private $pi;
 
 	function __construct(){
-        if(!isset($this->ic))
-            $this->ic = MatchaModel::setSenchaModel('App.model.administration.InsuranceCompany');
-        if(!isset($this->pi))
-            $this->pi = MatchaModel::setSenchaModel('App.model.patient.Insurance');
+        $this->ic = MatchaModel::setSenchaModel('App.model.administration.InsuranceCompany');
+        $this->pi = MatchaModel::setSenchaModel('App.model.patient.Insurance');
+        $this->pic = MatchaModel::setSenchaModel('App.model.patient.InsuranceCover');
 	}
 
 	/** Companies */
@@ -54,6 +53,34 @@ class Insurance {
 
 	public function destroyInsuranceCompany($params) {
 		return $this->ic->destroy($params);
+	}
+
+	public function getInsuranceCovers($params) {
+		return $this->pic->load($params)->leftJoin(
+		    [
+		        'title' => 'department_title'
+            ], 'departments', 'department_id', 'id'
+        )->all();
+	}
+
+	public function getInsuranceCover($params) {
+		return $this->pic->load($params)->leftJoin(
+            [
+                'title' => 'department_title'
+            ], 'departments', 'department_id', 'id'
+        )->one();
+	}
+
+	public function addInsuranceCover($params) {
+		return $this->pic->save($params);
+	}
+
+	public function updateInsuranceCover($params) {
+		return $this->pic->save($params);
+	}
+
+	public function destroyInsuranceCover($params) {
+		return $this->pic->destroy($params);
 	}
 
 

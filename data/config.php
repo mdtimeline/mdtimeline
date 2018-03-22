@@ -544,6 +544,21 @@ $API = [
             ],
             'getPatientComplementaryInsuranceByPid' => [
                 'len' => 1
+            ],
+            'getInsuranceCovers' => [
+                'len' => 1
+            ],
+            'getInsuranceCover' => [
+                'len' => 1
+            ],
+            'addInsuranceCover' => [
+                'len' => 1
+            ],
+            'updateInsuranceCover' => [
+                'len' => 1
+            ],
+            'destroyInsuranceCover' => [
+                'len' => 1
             ]
         ]
     ],

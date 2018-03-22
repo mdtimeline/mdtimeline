@@ -23,7 +23,7 @@ Ext.define('App.controller.Clock', {
 		me.cronTask = {
 			scope: me,
 			run: function(){
-				me.clock.update(Ext.Date.format(me.date, 'F j, Y, g:i:s a'));
+				me.clock.el.dom.firstChild.firstChild.innerHTML = Ext.Date.format(me.date, 'F j, Y, g:i:s a');
 				me.date = Ext.Date.add(me.date, Ext.Date.SECOND, 1);
 			},
 			interval: 1000

@@ -25075,7 +25075,13 @@ Ext.define('App.view.patient.Vitals', {
 			itemId: 'historyGrid',
 			multiSelect: true,
 			store: Ext.create('App.store.patient.Vitals',{
-				remoteFilter: true
+				remoteFilter: true,
+				sorters: [
+					{
+						property: 'id',
+						direction: 'DESC'
+					}
+				]
 			}),
 			stateId: 'VitalsHistoryGrid',
 			stateful: true,
@@ -39193,7 +39199,7 @@ Ext.define('App.controller.Clock', {
 		me.cronTask = {
 			scope: me,
 			run: function(){
-				me.clock.update(Ext.Date.format(me.date, 'F j, Y, g:i:s a'));
+				me.clock.el.dom.firstChild.firstChild.innerHTML = Ext.Date.format(me.date, 'F j, Y, g:i:s a');
 				me.date = Ext.Date.add(me.date, Ext.Date.SECOND, 1);
 			},
 			interval: 1000
@@ -64834,6 +64840,9 @@ Ext.define('App.view.Viewport', {
     },
 
     getPatientsInPoolArea: function(){
+
+	    if(!a('use_pool_areas')) return;
+
         var me = this,
 	        poolArea = me.patientPoolArea,
 	        height = 35;

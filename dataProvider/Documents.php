@@ -338,11 +338,13 @@ class Documents {
 	}
 
 	private function getCurrentTokensData($allNeededInfo, $tokens) {
+		$user_name = isset($_SESSION['user']) && isset($_SESSION['user']['name']) ?
+			$_SESSION['user']['name'] : '';
 
 		$currentInformation = [
 			'[CURRENT_DATE]' => date('F j, Y'),
-			'[CURRENT_USER_NAME]' => $_SESSION['user']['name'],
-			'[CURRENT_USER_FULL_NAME]' => $_SESSION['user']['name'],
+			'[CURRENT_USER_NAME]' => $user_name,
+			'[CURRENT_USER_FULL_NAME]' => $user_name,
 			'[CURRENT_USER_LICENSE_NUMBER]',
 			'[CURRENT_USER_DEA_LICENSE_NUMBER]',
 			'[CURRENT_USER_DM_LICENSE_NUMBER]',
@@ -481,6 +483,7 @@ class Documents {
 		];
 
 		$format = isset($template['format']) ? $template['format'] : 'A4';
+		$encoding = isset($template['encoding']) ? $template['encoding'] : 'UTF-8';
 
 		if(isset($params->custom_font_family)){
 			$font['family'] = $params->custom_font_family;
@@ -498,6 +501,7 @@ class Documents {
 		$pdf->setHeaderMargin(0);
 		$pdf->setFooterMargin($margins['footer_margin']);
 		$pdf->SetAutoPageBreak(true, 20);
+		$pdf->SetEncoding($encoding);
 
 		/**
 		 * courier : Courier
@@ -581,6 +585,8 @@ class Documents {
 			}
 		}
 
+		$pdf->SetFont($font['family'],$font['style'],$font['size'], true);
+
 		// add line token
 		$tokens[] = '{line}';
 		$allNeededInfo[] = '<hr style="margin: 10px;">';
@@ -589,6 +595,7 @@ class Documents {
 
 		foreach($pages AS $page){
 			$pdf->AddPage('',$format,true);
+
 			if($this->isHtml($page)){
 				$pdf->writeHTML($page);
 			}else{

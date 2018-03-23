@@ -29,6 +29,7 @@ Ext.define('App.ux.LiveCPTSearch', {
 	qtip: _('clearable_combo_box'),
 	trigger1Class: 'x-form-select-trigger',
 	trigger2Class: 'x-form-clear-trigger',
+    hideTrigger: true,
 	initComponent: function(){
 		var me = this;
 
@@ -73,7 +74,6 @@ Ext.define('App.ux.LiveCPTSearch', {
 			store: me.store,
 			emptyText: _('search') + '...',
 			typeAhead: false,
-			hideTrigger: true,
 			minChars: 1,
 			anchor: '100%',
 			listConfig: {
@@ -89,9 +89,12 @@ Ext.define('App.ux.LiveCPTSearch', {
 	},
 
 	onRender: function(ct, position){
-		this.callParent(arguments);
-		var id = this.getId();
-		this.triggerConfig = {
+
+	    var me = this;
+
+        me.callParent(arguments);
+		var id = me.getId();
+        me.triggerConfig = {
 			tag: 'div',
 			cls: 'x-form-twin-triggers',
 			style: 'display:block;',
@@ -102,24 +105,25 @@ Ext.define('App.ux.LiveCPTSearch', {
 					src: Ext.BLANK_IMAGE_URL,
 					id: "trigger2" + id,
 					name: "trigger2" + id,
-					cls: "x-form-trigger " + this.trigger2Class
+					cls: "x-form-trigger " + me.trigger2Class
 				}
 			]
 		};
-		this.triggerEl.replaceWith(this.triggerConfig);
-		this.triggerEl.on('mouseup', function(e){
+        me.triggerEl.replaceWith(me.triggerConfig);
+        me.triggerEl.on('mouseup', function(e){
 			if(e.target.name == "trigger2" + id){
-				this.reset();
-				this.oldValue = null;
-				if(this.spObj !== '' && this.spExtraParam !== ''){
-					Ext.getCmp(this.spObj).store.setExtraParam(this.spExtraParam, '');
-					Ext.getCmp(this.spObj).store.load()
+                me.clearValue();
+                // me.reset();
+                me.oldValue = null;
+				if(me.spObj !== '' && me.spExtraParam !== ''){
+					Ext.getCmp(me.spObj).store.setExtraParam(me.spExtraParam, '');
+					Ext.getCmp(me.spObj).store.load()
 				}
-				if(this.spForm !== ''){
-					Ext.getCmp(this.spForm).getForm().reset();
+				if(me.spForm !== ''){
+					Ext.getCmp(me.spForm).getForm().reset();
 				}
 			}
-		}, this);
+		});
 		var trigger2 = Ext.get("trigger2" + id);
 		trigger2.addClsOnOver('x-form-trigger-over');
 	}

@@ -77,6 +77,9 @@ Ext.define('App.controller.patient.Insurance', {
 			},
 			'#PatientInsurancesPanelCancelBtn':{
 				click: me.onPatientInsurancesPanelCancelBtnClick
+			},
+			'patientinsuranceform':{
+                loadrecord: me.onPatientInsurancesFormLoadRecord
 			}
 		});
 	},
@@ -149,6 +152,28 @@ Ext.define('App.controller.patient.Insurance', {
 			}
 		});
 	},
+
+    onPatientInsurancesFormLoadRecord: function (form, insurance_record) {
+
+        var grid = form.owner.down('grid'),
+            patient_insurance_id = insurance_record.get('id');
+
+        say('onPatientInsurancesFormLoadRecord');
+        say(grid);
+        say(patient_insurance_id);
+
+        if(!grid) return;
+
+        grid.getStore().load({
+            filters: [
+                {
+                    property: 'insurance_id',
+                    value: patient_insurance_id
+                }
+            ]
+        })
+
+    },
 
 	onPatientInsurancesPanelBeforeAdd: function (tapPanel, panel) {
 			var me = this,

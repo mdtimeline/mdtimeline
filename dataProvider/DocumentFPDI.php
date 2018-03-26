@@ -135,8 +135,8 @@ class DocumentFPDI extends FPDI  {
 					'w' => $columnsWidth
 				],
 				'center' => [
-					'x' => $this->original_margins['left'] + ($columnsWidth / 2),
-					'w' => $columnsWidth
+					'x' => $this->original_margins['left'],
+					'w' => ($columnsWidth * 2)
 				]
 			];
 		}
@@ -186,7 +186,11 @@ class DocumentFPDI extends FPDI  {
 				}
 
 				if(isset($line['text']) && isset($line['w']) && isset($line['h'])){
-					$this->Cell($line['w'], $line['h'], $line['text'], $line['border'], 0, $line['text_align'], 0, '', 0, false, 'T', 'M');
+					if(isset($line['is_html']) && $line['is_html']){
+						$this->writeHTMLCell($line['w'], $line['h'], $line['x'], $line['y'], $line['text'], $line['border'],0,false,true,$line['text_align']);
+					}else{
+						$this->Cell($line['w'], $line['h'], $line['text'], $line['border'], 0, $line['text_align'], 0, '', 0, false, 'T', 'M');
+					}
 				}
 
 				if($this->header_y < $line['y']){
@@ -271,7 +275,12 @@ class DocumentFPDI extends FPDI  {
 				}
 
 				if(isset($line['text']) && isset($line['w']) && isset($line['h'])){
-					$this->Cell($line['w'], $line['h'], $line['text'], $line['border'], 0, $line['text_align'], 0, '', 0, false, 'T', 'M');
+
+					if(isset($line['is_html']) && $line['is_html']){
+						$this->writeHTMLCell($line['w'], $line['h'], $line['x'], $line['y'], $line['text'], $line['border'],0,false,true,$line['text_align']);
+					}else{
+						$this->Cell($line['w'], $line['h'], $line['text'], $line['border'], 0, $line['text_align'], 0, '', 0, false, 'T', 'M');
+					}
 				}
 
 				if($this->footer_y < $line['y']){

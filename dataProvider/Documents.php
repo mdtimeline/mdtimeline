@@ -391,7 +391,6 @@ class Documents {
 	 * @param string $path
 	 * @param null|array $custom_header_data
 	 * @param null|array $custom_footer_data
-	 * @param array $key_images
 	 * @param string $water_mark
 	 * @param array $key_images
 	 * @param array $key_images_config

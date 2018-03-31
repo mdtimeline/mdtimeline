@@ -190,6 +190,14 @@
 .btnRedBackground.x-over {
     background-color: #ff315d !important;
 }
+.btnBrightRedBackground {
+    background-color: #ff0000 !important;
+    background-image: none;
+}
+.btnBrightRedBackground.x-pressed,
+.btnBrightRedBackground.x-over {
+    background-color: #bf0000 !important;
+}
 
 .btnBlueBackground {
     background-color: #8ee4ff !important;

@@ -101,24 +101,43 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 	},
 
 	settextField1: function(checkbox, value){
+
 		if(!this.textField1) return;
+
+		var body = this.up('form').body,
+			scroll = body.getScroll();
+
 		if(value == 0 || value == 'off' || value == false){
-			this.textField1.reset();
+			if(this.textField1.reset) this.textField1.reset();
 			this.textField1.hide();
+			this.textField1.disable();
 		}else{
 			this.textField1.show();
+			this.textField1.enable();
 		}
+
+		body.scrollTo('top', scroll.top, false);
+
 	},
 
 	settextField2: function(checkbox, value){
 
 		if(!this.textField2) return;
+
+		var body = this.up('form').body,
+			scroll = body.getScroll();
+
 		if(value == 0 || value == 'off' || value == false){
-			this.textField2.reset();
+			if(this.textField2.reset) this.textField2.reset();
 			this.textField2.hide();
+			this.textField2.disable();
 		}else{
 			this.textField2.show();
+			this.textField2.enable();
 		}
+
+		body.scrollTo('top', scroll.top, false);
+
 	},
 
 	getValue: function(){

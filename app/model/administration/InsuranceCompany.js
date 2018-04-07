@@ -30,39 +30,39 @@ Ext.define('App.model.administration.InsuranceCompany', {
 		{
 			name: 'code',
 			type: 'string',
-			len: 80,
+			len: 50,
 			index: true,
 			comment: 'use to reference the insurance to another software'
 		},
 		{
 			name: 'name',
 			type: 'string',
-			len: 120
+			len: 60
 		},
 		{
 			name: 'attn',
 			type: 'string',
-			len: 120
+			len: 60
 		},
 		{
 			name: 'address1',
 			type: 'string',
-			len: 100
+			len: 55
 		},
 		{
 			name: 'address2',
 			type: 'string',
-			len: 100
+			len: 55
 		},
 		{
 			name: 'city',
 			type: 'string',
-			len: 80
+			len: 30
 		},
 		{
 			name: 'state',
 			type: 'string',
-			len: 80
+			len: 2
 		},
 		{
 			name: 'zip_code',
@@ -72,48 +72,32 @@ Ext.define('App.model.administration.InsuranceCompany', {
 		{
 			name: 'country',
 			type: 'string',
-			len: 80
+			len: 3
 		},
 		{
 			name: 'phone1',
 			type: 'string',
-			len: 20
+			len: 25
 		},
 		{
 			name: 'phone2',
 			type: 'string',
-			len: 20
+			len: 25
 		},
 		{
 			name: 'fax',
 			type: 'string',
-			len: 20
+			len: 25
+		},
+		{
+			name: 'active',
+			type: 'bool'
 		},
 		{
 			name: 'dx_type',
 			type: 'string',
 			len: 5
 		},
-		{
-			name: 'address_full',
-			type: 'string',
-			store: false,
-			convert: function(v, record){
-				return record.data.address1 + ' ' +  record.data.address2 + ' ' +  record.data.city + ' ' +  record.data.state + ', ' +  record.data.zip_code;
-			}
-		},
-		{
-			name: 'combo_text',
-			type: 'string',
-			store: false,
-			convert: function(v, record){
-				return record.data.id + ': ' + (record.data.name ? record.data.name : ' * ' ) + ' ' + (!record.data.active ? ('(' +  _('inactive') + ')') : '') ;
-			}
-		},
-        {
-            name: 'active',
-            type: 'bool'
-        },
         {
             name: 'create_uid',
             type: 'int'
@@ -131,7 +115,23 @@ Ext.define('App.model.administration.InsuranceCompany', {
             name: 'update_date',
             type: 'date',
             dateFormat: 'Y-m-d H:i:s'
-        }
+        },
+		{
+			name: 'address_full',
+			type: 'string',
+			convert: function(v, record){
+				return record.data.address1 + ' ' +  record.data.address2 + ' ' +  record.data.city + ' ' +  record.data.state + ', ' +  record.data.zip_code;
+			},
+			store: false
+		},
+		{
+			name: 'combo_text',
+			type: 'string',
+			convert: function(v, record){
+				return record.data.id + ': ' + (record.data.name ? record.data.name : ' * ' ) + ' ' + (!record.data.active ? ('(' +  _('inactive') + ')') : '') ;
+			},
+			store: false
+		}
 	],
 	proxy: {
 		type: 'direct',

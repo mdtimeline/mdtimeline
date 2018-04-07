@@ -30,18 +30,18 @@ Ext.define('App.model.administration.Facility', {
 		{
 			name: 'code',
 			type: 'string',
-			len: 80
+			len: 15
 		},
 		{
 			name: 'name',
 			type: 'string',
-			len: 120,
+			len: 60,
 			comment: 'Facility Name'
 		},
 		{
 			name: 'legal_name',
 			type: 'string',
-			len: 180
+			len: 60
 		},
 		{
 			name: 'attn',
@@ -66,22 +66,22 @@ Ext.define('App.model.administration.Facility', {
 		{
 			name: 'address',
 			type: 'string',
-			len: 120
+			len: 55
 		},
 		{
 			name: 'address_cont',
 			type: 'string',
-			len: 120
+			len: 55
 		},
 		{
 			name: 'city',
 			type: 'string',
-			len: 80
+			len: 30
 		},
 		{
 			name: 'state',
 			type: 'string',
-			len: 80
+			len: 2
 		},
 		{
 			name: 'postal_code',
@@ -91,7 +91,7 @@ Ext.define('App.model.administration.Facility', {
 		{
 			name: 'country_code',
 			type: 'string',
-			len: 5
+			len: 3
 		},
 		{
 			name: 'billing_location',
@@ -100,7 +100,7 @@ Ext.define('App.model.administration.Facility', {
 		{
 			name: 'pos_code',
 			type: 'string',
-			len: 3
+			len: 2
 		},
 		{
 			name: 'ein',

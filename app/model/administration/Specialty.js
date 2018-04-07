@@ -30,7 +30,8 @@ Ext.define('App.model.administration.Specialty', {
 		{
 			name: 'code',
 			type: 'string',
-			len: 100
+			len: 5,
+			index: true
 		},
 		{
 			name: 'title',
@@ -40,7 +41,7 @@ Ext.define('App.model.administration.Specialty', {
 		{
 			name: 'taxonomy',
 			type: 'string',
-			len: 30
+			len: 15
 		},
 		{
 			name: 'modality',
@@ -48,9 +49,13 @@ Ext.define('App.model.administration.Specialty', {
 			len: 50
 		},
 		{
-			name: 'ges',
+			name: 'medical_education',
 			type: 'string',
-			len: 5
+			len: 1
+		},
+		{
+			name: 'isFda',
+			type: 'bool'
 		},
 		{
 			name: 'active',

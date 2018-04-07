@@ -20,6 +20,13 @@ Ext.define('App.model.patient.Patient',{
             type: 'int',
             comment: 'patient ID'
         },
+	    {
+		    name: 'pubpid',
+		    type: 'string',
+		    index: true,
+		    comment: 'external reference id',
+		    len: 40
+	    },
         {
             name: 'title',
             type: 'string',
@@ -31,14 +38,14 @@ Ext.define('App.model.patient.Patient',{
             type: 'string',
             comment: 'first name',
             index: true,
-            len: 60
+            len: 35
         },
         {
             name: 'mname',
             type: 'string',
             comment: 'middle name',
             index: true,
-            len: 40
+            len: 25
         },
         {
             name: 'lname',
@@ -46,11 +53,6 @@ Ext.define('App.model.patient.Patient',{
             comment: 'last name',
             index: true,
             len: 60
-        },
-        {
-            name: 'name',
-            type: 'string',
-            store: false
         },
         {
             name: 'sex',
@@ -102,42 +104,44 @@ Ext.define('App.model.patient.Patient',{
             comment: 'social security',
             len: 40
         },
-        {
-            name: 'pubpid',
-            type: 'string',
-            index: true,
-            comment: 'external reference id',
+	    {
+		    name: 'drivers_license',
+		    type: 'string',
+		    index: true,
+		    comment: 'driver licence #',
+		    len: 40
+	    },
+	    {
+		    name: 'drivers_license_state',
+		    type: 'string',
+		    len: 40
+	    },
+	    {
+		    name: 'drivers_license_exp',
+		    type: 'date',
+		    dataType: 'date',
+		    dateFormat: 'Y-m-d'
+	    },
+	    {
+		    name: 'provider',
+		    type: 'string',
             len: 40
-        },
-        {
-            name: 'pubaccount',
-            type: 'string',
-            index: true,
-            comment: 'external reference account',
+	    },
+	    {
+		    name: 'pharmacy',
+		    type: 'string',
             len: 40
-        },
+	    },
+	    {
+		    name: 'hipaa_notice',
+		    type: 'string',
+		    comment: 'HIPAA notice status',
+		    len: 40
+	    },
         {
             name: 'record_number',
             type: 'string',
             persist: false
-        },
-        {
-            name: 'drivers_license',
-            type: 'string',
-            index: true,
-            comment: 'driver licence #',
-            len: 40
-        },
-        {
-            name: 'drivers_license_state',
-            type: 'string',
-            len: 40
-        },
-        {
-            name: 'drivers_license_exp',
-            type: 'date',
-            dataType: 'date',
-            dateFormat: 'Y-m-d'
         },
         {
             name: 'fulladdress',
@@ -149,18 +153,6 @@ Ext.define('App.model.patient.Patient',{
             name: 'phones',
             type: 'string',
             store: false
-        },
-        {
-            name: 'pharmacy',
-            type: 'string',
-            comment: 'default pharmacy',
-            len: 40
-        },
-        {
-            name: 'hipaa_notice',
-            type: 'string',
-            comment: 'HIPAA notice status',
-            len: 40
         },
         {
             name: 'race',
@@ -253,32 +245,32 @@ Ext.define('App.model.patient.Patient',{
         {
             name: 'employer_name',
             type: 'string',
-            len: 40
+            len: 60
         },
         {
             name: 'employer_address',
             type: 'string',
-            len: 40
+            len: 55
         },
         {
             name: 'employer_city',
             type: 'string',
-            len: 40
+            len: 30
         },
         {
             name: 'employer_state',
             type: 'string',
-            len: 40
+            len: 2
         },
         {
             name: 'employer_country',
             type: 'string',
-            len: 40
+            len: 3
         },
         {
             name: 'employer_postal_code',
             type: 'string',
-            len: 10
+            len: 15
         },
         {
             name: 'rating',
@@ -297,6 +289,13 @@ Ext.define('App.model.patient.Patient',{
             dataType: 'mediumtext',
             comment: 'patient QRCode base64 string'
         },
+	    {
+		    name: 'pubaccount',
+		    type: 'string',
+		    index: true,
+		    comment: 'external reference account',
+		    len: 40
+	    },
         {
             name: 'birth_place',
             type: 'string',
@@ -427,92 +426,92 @@ Ext.define('App.model.patient.Patient',{
         {
             name: 'postal_address',
             type: 'string',
-	        len: 40
+	        len: 55
         },
         {
             name: 'postal_address_cont',
             type: 'string',
-	        len: 40
+	        len: 55
         },
         {
             name: 'postal_city',
             type: 'string',
-	        len: 35
+	        len: 30
         },
         {
             name: 'postal_state',
             type: 'string',
-	        len: 35
+	        len: 2
         },
         {
             name: 'postal_zip',
             type: 'string',
-	        len: 35
+	        len: 15
         },
         {
             name: 'postal_country',
             type: 'string',
-	        len: 35
+	        len: 3
         },
         {
             name: 'physical_address',
             type: 'string',
-	        len: 40
+	        len: 55
         },
         {
             name: 'physical_address_cont',
             type: 'string',
-	        len: 40
+	        len: 55
         },
         {
             name: 'physical_city',
             type: 'string',
-	        len: 35
+	        len: 30
         },
         {
             name: 'physical_state',
             type: 'string',
-	        len: 35
+	        len: 2
         },
         {
             name: 'physical_zip',
             type: 'string',
-	        len: 35
+	        len: 15
         },
         {
             name: 'physical_country',
             type: 'string',
-	        len: 35
+	        len: 3
         },
 	    {
 		    name: 'mother_fname',
 		    type: 'string',
-		    len: 80
+		    len: 35
 	    },
 	    {
 		    name: 'mother_mname',
 		    type: 'string',
-		    len: 80
+		    len: 25
 	    },
 	    {
 		    name: 'mother_lname',
 		    type: 'string',
-		    len: 80
+		    len: 60
 	    },
 	    {
 		    name: 'father_fname',
 		    type: 'string',
-		    len: 80
+		    len: 35
 	    },
 	    {
 		    name: 'father_mname',
 		    type: 'string',
-		    len: 80
+		    len: 25
 	    },
 	    {
 		    name: 'father_lname',
 		    type: 'string',
-		    len: 80
+		    len: 60
 	    },
 	    {
 		    name: 'guardians_relation',
@@ -522,22 +521,22 @@ Ext.define('App.model.patient.Patient',{
         {
             name: 'guardians_fname',
             type: 'string',
-	        len: 80
+	        len: 35
         },
         {
             name: 'guardians_mname',
             type: 'string',
-	        len: 80
+	        len: 25
         },
         {
             name: 'guardians_lname',
             type: 'string',
-	        len: 80
+	        len: 60
         },
         {
             name: 'guardians_phone',
             type: 'string',
-	        len: 20
+	        len: 25
         },
         {
             name: 'guardians_phone_type',
@@ -547,27 +546,27 @@ Ext.define('App.model.patient.Patient',{
         {
             name: 'guardians_address',
             type: 'string',
-            len: 35
+            len: 55
         },
         {
             name: 'guardians_address_cont',
             type: 'string',
-            len: 35
+            len: 55
         },
         {
             name: 'guardians_city',
             type: 'string',
-            len: 40
+            len: 30
         },
         {
             name: 'guardians_state',
             type: 'string',
-            len: 40
+            len: 2
         },
         {
             name: 'guardians_country',
             type: 'string',
-            len: 80
+            len: 3
         },
         {
             name: 'guardians_zip',
@@ -598,17 +597,17 @@ Ext.define('App.model.patient.Patient',{
         {
             name: 'emergency_contact_mname',
             type: 'string',
-	        len: 80
+	        len: 25
         },
         {
             name: 'emergency_contact_lname',
             type: 'string',
-	        len: 80
+	        len: 60
         },
         {
             name: 'emergency_contact_phone',
             type: 'string',
-	        len: 20
+	        len: 25
         },
         {
             name: 'emergency_contact_phone_type',
@@ -623,22 +622,22 @@ Ext.define('App.model.patient.Patient',{
 	    {
 		    name: 'emergency_contact_address_cont',
 		    type: 'string',
-		    len: 35
+		    len: 55
 	    },
 	    {
 		    name: 'emergency_contact_city',
 		    type: 'string',
-		    len: 40
+		    len: 55
 	    },
 	    {
 		    name: 'emergency_contact_state',
 		    type: 'string',
-		    len: 40
+		    len: 2
 	    },
 	    {
 		    name: 'emergency_contact_country',
 		    type: 'string',
-		    len: 80
+		    len: 3
 	    },
 	    {
 		    name: 'emergency_contact_zip',
@@ -669,17 +668,27 @@ Ext.define('App.model.patient.Patient',{
 	    {
 		    name: 'authorized_01_fname',
 		    type: 'string',
-		    len: 80
+		    len: 35
 	    },
 	    {
 		    name: 'authorized_01_mname',
 		    type: 'string',
-		    len: 80
+		    len: 25
 	    },
 	    {
 		    name: 'authorized_01_lname',
 		    type: 'string',
-		    len: 80
+		    len: 60
+	    },
+	    {
+		    name: 'authorized_01_phone',
+		    type: 'string',
+		    len: 25
+	    },
+	    {
+		    name: 'authorized_01_phone_type',
+		    type: 'string',
+		    len: 10
 	    },
 	    {
 		    name: 'authorized_02_relation',
@@ -689,32 +698,22 @@ Ext.define('App.model.patient.Patient',{
 	    {
 		    name: 'authorized_02_fname',
 		    type: 'string',
-		    len: 80
+		    len: 35
 	    },
 	    {
 		    name: 'authorized_02_mname',
 		    type: 'string',
-		    len: 80
+		    len: 25
 	    },
 	    {
 		    name: 'authorized_02_lname',
 		    type: 'string',
-		    len: 80
-	    },
-	    {
-		    name: 'authorized_01_phone',
-		    type: 'string',
-		    len: 20
-	    },
-	    {
-		    name: 'authorized_01_phone_type',
-		    type: 'string',
-		    len: 10
+		    len: 60
 	    },
 	    {
 		    name: 'authorized_02_phone',
 		    type: 'string',
-		    len: 20
+		    len: 25
 	    },
 	    {
 		    name: 'authorized_02_phone_type',
@@ -725,6 +724,11 @@ Ext.define('App.model.patient.Patient',{
 		    name: 'phone_mobile_supplier',
 		    type: 'string',
 		    len: 25
+	    },
+	    {
+		    name: 'name',
+		    type: 'string',
+		    store: false
 	    },
 	    {
 		    name: 'fullname',

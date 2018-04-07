@@ -30,7 +30,7 @@ Ext.define('App.model.administration.User', {
 		{
 			name: 'code',
 			type: 'string',
-			len: 40
+			len: 15
 		},
 		{
 			name: 'providerCode',
@@ -38,26 +38,26 @@ Ext.define('App.model.administration.User', {
 			len: 40
 		},
 		{
-			name: 'create_uid',
+			name: 'role_id',
 			type: 'int',
-			comment: 'create user ID'
+			comment: 'acl_user_roles relation'
 		},
 		{
-			name: 'update_uid',
+			name: 'facility_id',
 			type: 'int',
-			comment: 'update user ID'
+			comment: 'default facility',
+			index: true
 		},
 		{
-			name: 'create_date',
-			type: 'date',
-			comment: 'create date',
-			dateFormat: 'Y-m-d H:i:s'
+			name: 'department_id',
+			type: 'int',
+			comment: 'default department',
+			index: true
 		},
 		{
-			name: 'update_date',
-			type: 'date',
-			comment: 'last update date',
-			dateFormat: 'Y-m-d H:i:s'
+			name: 'warehouse_id',
+			type: 'int',
+			comment: 'default warehouse'
 		},
 		{
 			name: 'username',
@@ -125,28 +125,11 @@ Ext.define('App.model.administration.User', {
 			len: 100
 		},
 		{
-			name: 'fullname',
-			type: 'string',
-			comment: 'title full name',
-			store: false
-		},
-		{
-			name: 'shortname',
-			type: 'string',
-			comment: 'title and last name',
-			store: false
-		},
-		{
 			name: 'pin',
 			type: 'string',
 			comment: 'pin number',
 			useNull: true,
 			len: 10
-		},
-		{
-			name: 'is_attending',
-			type: 'bool',
-			index: true
 		},
 		{
 			name: 'npi',
@@ -163,7 +146,7 @@ Ext.define('App.model.administration.User', {
 		{
 			name: 'ess',
 			type: 'string',
-			len: 80
+			len: 10
 		},
 		{
 			name: 'upin',
@@ -200,14 +183,38 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
-			name: 'phone',
-			type: 'string',
+			name: 'specialty',
+			type: 'array',
+			comment: 'specialty',
 			len: 80
 		},
 		{
-			name: 'mobile',
+			name: 'medical_education',
 			type: 'string',
-			len: 80
+			len: 1
+		},
+		{
+			name: 'taxonomy',
+			type: 'string',
+			comment: 'taxonomy',
+			defaultValue: '207Q00000X',
+			len: 15,
+			index: true
+		},
+		{
+			name: 'calendar',
+			type: 'bool',
+			comment: 'has calendar? 0=no 1=yes',
+			index: true
+		},
+		{
+			name: 'authorized',
+			type: 'bool'
+		},
+		{
+			name: 'active',
+			type: 'bool',
+			index: true
 		},
 		{
 			name: 'direct_address',
@@ -217,46 +224,19 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
-			name: 'specialty',
-			type: 'array',
-			comment: 'specialty',
-			len: 80
-		},
-		{
-			name: 'taxonomy',
+			name: 'city',
 			type: 'string',
-			comment: 'taxonomy',
-			defaultValue: '207Q00000X',
-			len: 40,
-			index: true
+			len: 55
 		},
 		{
-			name: 'warehouse_id',
-			type: 'int',
-			comment: 'default warehouse'
+			name: 'state',
+			type: 'string',
+			len: 55
 		},
 		{
-			name: 'facility_id',
-			type: 'int',
-			comment: 'default facility',
-			index: true
-		},
-		{
-			name: 'department_id',
-			type: 'int',
-			comment: 'default department',
-			index: true
-		},
-		{
-			name: 'role_id',
-			type: 'int',
-			comment: 'acl_user_roles relation'
-		},
-		{
-			name: 'calendar',
-			type: 'bool',
-			comment: 'has calendar? 0=no 1=yes',
-			index: true
+			name: 'postal_code',
+			type: 'string',
+			len: 15
 		},
 		{
 			name: 'street',
@@ -269,33 +249,58 @@ Ext.define('App.model.administration.User', {
 			len: 55
 		},
 		{
-			name: 'city',
-			type: 'string',
-			len: 55
-		},
-		{
-            name: 'state',
-            type: 'string',
-            len: 55
-        },
-		{
-			name: 'postal_code',
-			type: 'string',
-			len: 15
-		},
-		{
 			name: 'country_code',
 			type: 'string',
 			len: 15
 		},
 		{
-			name: 'authorized',
-			type: 'bool'
+			name: 'phone',
+			type: 'string',
+			len: 80
 		},
 		{
-			name: 'active',
+			name: 'mobile',
+			type: 'string',
+			len: 80
+		},
+		{
+			name: 'create_uid',
+			type: 'int',
+			comment: 'create user ID'
+		},
+		{
+			name: 'update_uid',
+			type: 'int',
+			comment: 'update user ID'
+		},
+		{
+			name: 'create_date',
+			type: 'date',
+			comment: 'create date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'update_date',
+			type: 'date',
+			comment: 'last update date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'is_attending',
 			type: 'bool',
 			index: true
+		},
+		{
+			name: 'fullname',
+			type: 'string',
+			comment: 'title full name',
+			store: false
+		},
+		{
+			name: 'shortname',
+			type: 'string',
+			comment: 'title and last name',
+			store: false
 		}
 	],
 	proxy: {

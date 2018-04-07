@@ -15,25 +15,18 @@ Ext.define('App.model.patient.InsuranceCover',{
             type: 'int'
         },
         {
-            name: 'pid',
+            name: 'patient_insurance_id',
             type: 'int'
         },
         {
-            name: 'insurance_id',
-            type: 'int'
-        },
-        {
-            name: 'department_id',
-            type: 'int'
-        },
-        {
-            name: 'department_title',
+            name: 'department_code',
             type: 'string',
-            store: false
+            len: 5
         },
         {
-            name: 'patient_insurance_cover',
-            type: 'string'
+            name: 'cover',
+            type: 'string',
+            len: 50
         },
         {
             name: 'create_uid',
@@ -52,7 +45,12 @@ Ext.define('App.model.patient.InsuranceCover',{
             name: 'update_date',
             type: 'date',
             dateFormat: 'Y-m-d H:i:s'
-        }
+        },
+	    {
+		    name: 'department_title',
+		    type: 'string',
+		    store: false
+	    }
     ],
     proxy: {
         type: 'direct',

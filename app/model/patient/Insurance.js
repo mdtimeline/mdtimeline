@@ -56,17 +56,15 @@ Ext.define('App.model.patient.Insurance',{
             comment: 'group number',
             len: 40
         },
+	    {
+		    name: 'policy_number',
+		    type: 'string',
+		    len: 40
+	    },
         {
-            name: 'cover_medical',
+            name: 'cover_description',
             type: 'string',
-            len: 10,
-            index: true
-        },
-        {
-            name: 'cover_dental',
-            type: 'string',
-            len: 10,
-            index: true
+            len: 50
         },
 	    {
 		    name: 'card_name_same_as_pateint',
@@ -75,12 +73,12 @@ Ext.define('App.model.patient.Insurance',{
 	    {
 		    name: 'card_first_name',
 		    type: 'string',
-		    len: 80
+		    len: 35
 	    },
 	    {
 		    name: 'card_middle_name',
 		    type: 'string',
-		    len: 80
+		    len: 25
 	    },
 	    {
 		    name: 'card_last_name',
@@ -95,22 +93,27 @@ Ext.define('App.model.patient.Insurance',{
         {
             name: 'subscriber_given_name',
             type: 'string',
-            len: 80
+            len: 35
         },
         {
             name: 'subscriber_middle_name',
             type: 'string',
-            len: 80
+            len: 25
         },
         {
             name: 'subscriber_surname',
             type: 'string',
-            len: 80
+            len: 60
         },
         {
             name: 'subscriber_relationship',
             type: 'string',
-            len: 40
+            len: 1
+        },
+        {
+            name: 'subscriber_sex',
+            type: 'string',
+            len: 1
         },
         {
             name: 'subscriber_dob',
@@ -130,37 +133,37 @@ Ext.define('App.model.patient.Insurance',{
         {
             name: 'subscriber_street',
             type: 'string',
-            len: 80
+            len: 110
         },
         {
             name: 'subscriber_city',
             type: 'string',
-            len: 80
+            len: 30
         },
         {
             name: 'subscriber_state',
             type: 'string',
-            len: 80
+            len: 2
         },
         {
             name: 'subscriber_country',
             type: 'string',
-            len: 80
+            len: 3
         },
         {
             name: 'subscriber_postal_code',
             type: 'string',
-            len: 20
+            len: 15
         },
         {
             name: 'subscriber_phone',
             type: 'string',
-            len: 20
+            len: 25
         },
         {
             name: 'subscriber_employer',
             type: 'string',
-            len: 80
+            len: 60
         },
         {
             name: 'display_order',
@@ -169,7 +172,8 @@ Ext.define('App.model.patient.Insurance',{
         },
         {
             name: 'notes',
-            type: 'string'
+            type: 'string',
+            len: 320
         },
         {
             name: 'image',
@@ -194,16 +198,6 @@ Ext.define('App.model.patient.Insurance',{
             name: 'update_date',
             type: 'date',
             dateFormat: 'Y-m-d H:i:s'
-        },
-        {
-            name: 'subscriber_sex',
-            type: 'string',
-	        len: 1
-        },
-        {
-            name: 'policy_number',
-            type: 'string',
-	        len: 40
         }
     ],
     proxy: {

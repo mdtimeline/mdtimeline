@@ -33,42 +33,43 @@ Ext.define('App.model.administration.ReferringProvider', {
         {
             name: 'fname',
             type: 'string',
-            len: 80
+            len: 35
         },
         {
             name: 'mname',
             type: 'string',
-            len: 80
+            len: 25
         },
         {
             name: 'lname',
             type: 'string',
-            len: 120
+            len: 60
         },
         {
             name: 'upin',
             type: 'string',
-            len: 25,
+            len: 15,
             comment: 'Carrier Claim Referring Physician UPIN Number'
         },
         {
             name: 'lic',
             type: 'string',
-            len: 25
+            len: 15
         },
         {
             name: 'npi',
             type: 'string',
-            len: 25
+            len: 15
         },
         {
             name: 'ssn',
-            type: 'string'
+            type: 'string',
+	        len: 15
         },
         {
             name: 'taxonomy',
             type: 'string',
-            len: 40,
+            len: 15,
             comment: 'taxonomy',
             defaultValue: '207Q00000X'
         },
@@ -114,7 +115,7 @@ Ext.define('App.model.administration.ReferringProvider', {
         {
             name: 'code',
             type: 'string',
-            len: 40
+            len: 50
         },
         {
             name: 'username',

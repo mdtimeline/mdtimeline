@@ -39,27 +39,27 @@ Ext.define('App.model.administration.ReferringProviderFacility', {
 		{
 			name: 'name',
 			type: 'string',
-			len: 80
+			len: 60
 		},
 		{
 			name: 'address',
 			type: 'string',
-			len: 35
+			len: 55
 		},
 		{
 			name: 'address_cont',
 			type: 'string',
-			len: 35
+			len: 55
 		},
 		{
 			name: 'city',
 			type: 'string',
-			len: 35
+			len: 30
 		},
 		{
 			name: 'state',
 			type: 'string',
-			len: 35
+			len: 2
 		},
 		{
 			name: 'postal_code',
@@ -69,7 +69,7 @@ Ext.define('App.model.administration.ReferringProviderFacility', {
 		{
 			name: 'country',
 			type: 'string',
-			len: 10
+			len: 3
 		},
 		{
 			name: 'email',

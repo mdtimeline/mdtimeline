@@ -203,33 +203,21 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                     },
                                                     {
                                                         text: 'Cover Description',
-                                                        dataIndex: 'patient_insurance_cover',
+                                                        dataIndex: 'cover',
                                                         flex: 1
                                                     }
+                                                ],
+                                                plugins: [
+                                                    {
+                                                        ptype: 'rowediting',
+                                                        fieldDefaults: {
+                                                            labelAlign: 'top',
+                                                            margin: '0 5 0 0'
+                                                        }
+                                                        // items: [
+                                                        // ]
+                                                    }
                                                 ]
-
-
-                                                // plugins: [
-                                                //     // {
-                                                //     // 	ptype: 'rowexpander',
-                                                //     // 	expandOnDblClick: false,
-                                                //     // 	rowBodyTpl : new Ext.XTemplate(
-                                                //     // 		'<div style="margin-left:50px">',
-                                                //     // 		'<p><b>Notes:</b></p>',
-                                                //     // 		'<p>....</p>',
-                                                //     // 		'</div>'
-                                                //     // 	)
-                                                //     // },
-                                                //     {
-                                                //         ptype: 'rowediting',
-                                                //         fieldDefaults: {
-                                                //             labelAlign: 'top',
-                                                //             margin: '0 5 0 0'
-                                                //         }
-                                                //         // items: [
-                                                //         // ]
-                                                //     }
-                                                // ]
                                             }
                                         ]
                                     }

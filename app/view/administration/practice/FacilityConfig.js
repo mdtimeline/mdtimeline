@@ -94,10 +94,26 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 					},
 					columns: [
 						{
+							text: 'code',
+							dataIndex: 'code',
+							flex: 1
+						},
+						{
 							text: 'title',
 							dataIndex: 'title',
-							flex: 1
-						}
+							flex: 2
+						},
+                        {
+                            text: _('active'),
+                            sortable: true,
+                            dataIndex: 'active',
+                            renderer: function(v){
+                                return app.boolRenderer(v);
+                            },
+                            editor: {
+                                xtype: 'checkboxfield'
+                            }
+                        }
 					]
 				},
 				{
@@ -157,6 +173,24 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 								xtype: 'textfield'
 							}
 						},
+                        {
+                            text: _('medical_education'),
+                            sortable: true,
+                            dataIndex: 'medical_education',
+                            flex: 1,
+                            editor: {
+                                xtype: 'textfield'
+                            }
+                        },
+                        {
+                            text: _('isFda'),
+                            sortable: true,
+                            dataIndex: 'isFda',
+                            flex: 1,
+                            editor: {
+                                xtype: 'textfield'
+                            }
+                        },
 						{
 							text: _('active'),
 							sortable: true,

@@ -50,7 +50,54 @@ Ext.define('App.view.administration.practice.Facilities', {
 					width: 100,
 					sortable: true,
 					dataIndex: 'city'
-				}
+				},
+				{
+					text: _('pos_code'),
+					width: 100,
+					sortable: true,
+					dataIndex: 'pos_code'
+				},
+				{
+					text: _('ein'),
+					width: 100,
+					sortable: true,
+					dataIndex: 'ein'
+				},
+				{
+					text: _('clia'),
+					width: 100,
+					sortable: true,
+					dataIndex: 'clia'
+				},
+				{
+					text: _('fda'),
+					width: 100,
+					sortable: true,
+					dataIndex: 'fda'
+				},
+				{
+					text: _('npi'),
+					width: 100,
+					sortable: true,
+					dataIndex: 'npi'
+				},
+				{
+					text: _('ess'),
+					width: 100,
+					sortable: true,
+					dataIndex: 'ess'
+				},
+                {
+                    text: _('active'),
+                    sortable: true,
+                    dataIndex: 'active',
+                    renderer: function(v){
+                        return app.boolRenderer(v);
+                    },
+                    editor: {
+                        xtype: 'checkboxfield'
+                    }
+                }
 			],
 			plugins: Ext.create('App.ux.grid.RowFormEditing', {
 				autoCancel: false,

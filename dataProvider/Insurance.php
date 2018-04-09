@@ -56,10 +56,10 @@ class Insurance {
 	}
 
 	public function getInsuranceCovers($params) {
-		return $this->pic->load($params)->leftJoin(
+        return $this->pic->load($params)->leftJoin(
 		    [
 		        'title' => 'department_title'
-            ], 'departments', 'department_id', 'id'
+            ], 'departments', 'department_code', 'code'
         )->all();
 	}
 
@@ -67,7 +67,7 @@ class Insurance {
 		return $this->pic->load($params)->leftJoin(
             [
                 'title' => 'department_title'
-            ], 'departments', 'department_id', 'id'
+            ], 'departments', 'department_code', 'code'
         )->one();
 	}
 

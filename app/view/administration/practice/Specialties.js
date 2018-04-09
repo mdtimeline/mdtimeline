@@ -33,6 +33,15 @@ Ext.define('App.view.administration.practice.Specialties', {
 				autoSync: false
 			}),
 			columns: [
+                {
+                    text: _('code'),
+                    sortable: true,
+                    dataIndex: 'code',
+                    flex: 1,
+                    editor: {
+                        xtype: 'textfield'
+                    }
+                },
 				{
 					width: 200,
 					text: _('title'),
@@ -61,6 +70,24 @@ Ext.define('App.view.administration.practice.Specialties', {
 						xtype: 'textfield'
 					}
 				},
+                {
+                    text: _('medical_education'),
+                    sortable: true,
+                    dataIndex: 'medical_education',
+                    flex: 1,
+                    editor: {
+                        xtype: 'textfield'
+                    }
+                },
+                {
+                    text: _('isFda'),
+                    sortable: true,
+                    dataIndex: 'isFda',
+                    flex: 1,
+                    editor: {
+                        xtype: 'textfield'
+                    }
+                },
 				{
 					text: _('active'),
 					sortable: true,

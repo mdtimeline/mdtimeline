@@ -158,7 +158,7 @@ Ext.define('App.controller.patient.Insurance', {
         var grid = form.owner.down('grid'),
             patient_insurance_id = insurance_record.get('id');
 
-        say('onPatientInsurancesFormLoadRecord');
+        say('app.controller.patient.insurance.onPatientInsurancesFormLoadRecord');
         say(grid);
         say(patient_insurance_id);
 
@@ -167,7 +167,7 @@ Ext.define('App.controller.patient.Insurance', {
         grid.getStore().load({
             filters: [
                 {
-                    property: 'insurance_id',
+                    property: 'patient_insurance_id',
                     value: patient_insurance_id
                 }
             ]

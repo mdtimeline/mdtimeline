@@ -130,10 +130,6 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
 			}
 		});
 
-		me.listeners = {
-			change: me.onReferringValueChange
-		};
-		
 		me.store = Ext.create('Ext.data.Store', {
 			model: 'referringPhysicianLiveSearchModel',
 			pageSize: 10,
@@ -152,6 +148,8 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
 		});
 
 		me.callParent();
+
+		me.on('change', me.onReferringValueChange, me);
 	},
 
 	onReferringValueChange: function (field, value) {

@@ -270,14 +270,24 @@ class User
     {
         $acls = isset($params->acl) ? explode('&', $params->acl) : false;
 
-        if ($acls === false) {
-            $params->query = $params->query . '%';
-            $this->u->sql('SELECT `u`.*, `ar`.`role_name` AS role FROM users as u
+	    $params->query = trim($params->query);
+
+	    if(is_numeric($params->query)){
+		    $this->u->sql('SELECT `u`.*, `ar`.`role_name` AS role FROM users as u
 					    LEFT JOIN `acl_roles` AS ar ON `ar`.`id` = `u`.`role_id`
-						    WHERE `u`.`fname` LIKE ?
-						       OR `u`.`lname` LIKE ?
-						       OR `u`.`username` LIKE ?');
-            $records = $this->u->all([$params->query, $params->query, $params->query]);
+						    WHERE `u`.`id` = ?');
+		    $records = $this->u->all([$params->query]);
+
+	    }else if ($acls === false) {
+
+	        $params->query = $params->query . '%';
+	        $this->u->sql('SELECT `u`.*, `ar`.`role_name` AS role FROM users as u
+				    LEFT JOIN `acl_roles` AS ar ON `ar`.`id` = `u`.`role_id`
+					    WHERE `u`.`fname` LIKE ?
+					       OR `u`.`lname` LIKE ?
+					       OR `u`.`username` LIKE ?');
+	        $records = $this->u->all([$params->query, $params->query, $params->query]);
+
         } else {
             foreach ($acls as &$acl) {
                 $acl = '`ap`.`perm_key` = \'' . $acl . '\'';

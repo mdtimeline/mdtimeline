@@ -52,13 +52,13 @@ class User
         return $users;
     }
 
-    public function getUser($params)
+    public function getUser($params, $widthout_pass = true)
     {
         $user = $this->u->load($params)->one();
         if ($user !== false) {
             $user = isset($user['data']) ? $user['data'] : $user;
             $user['fullname'] = Person::fullname($user['fname'], $user['mname'], $user['lname']);
-            unset($user['password'], $user['pwd_history1'], $user['pwd_history2']);
+            if($widthout_pass) unset($user['password'], $user['pwd_history1'], $user['pwd_history2']);
         }
         return $user;
     }

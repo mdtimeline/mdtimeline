@@ -49,6 +49,18 @@ Ext.define('App.controller.patient.Insurance', {
 		{
 			ref: 'InsuranceCardLastNameField',
 			selector: '#InsuranceCardLastNameField'
+		},
+		{
+			ref: 'InsuranceFormGridLiveCoverSearchField',
+			selector: '#InsuranceFormGridLiveCoverSearchField'
+		},
+		{
+			ref: 'PatientInsuranceCoversGrid',
+			selector: '#PatientInsuranceCoversGrid'
+		},
+		{
+			ref: 'InsuranceFormPatientInsuranceCoverDeleteBtn',
+			selector: '#InsuranceFormPatientInsuranceCoverDeleteBtn'
 		}
 	],
 
@@ -80,7 +92,13 @@ Ext.define('App.controller.patient.Insurance', {
 			},
 			'patientinsuranceform':{
                 loadrecord: me.onPatientInsurancesFormLoadRecord
-			}
+			},
+            '#InsuranceFormGridLiveCoverSearchField':{
+                select: me.onInsuranceFormGridLiveCoverSearchFieldSelect
+            },
+            '#InsuranceFormPatientInsuranceCoverDeleteBtn':{
+                click: me.onInsuranceFormPatientInsuranceCoverDeleteBtn
+            }
 		});
 	},
 
@@ -179,7 +197,7 @@ Ext.define('App.controller.patient.Insurance', {
 			var me = this,
 				record = panel.insurance || Ext.create('App.model.patient.Insurance', {pid: me.pid});
 
-			panel.title = _('insurance') + ' (' + (record.get('insurance_type') ? record.get('insurance_type') : _('new')) + ')';
+			panel.title = record.get('ins_synonym') + ' (' + (record.get('insurance_type') ? record.get('insurance_type') : _('new')) + ')';
 
 			me.insuranceFormLoadRecord(panel, record);
 			if(record.get('image') !== '') panel.down('image').setSrc(record.get('image'));
@@ -233,6 +251,21 @@ Ext.define('App.controller.patient.Insurance', {
 		form.findField('subscriber_phone').setValue(app.patient.record.get('phone_mobile') || app.patient.record.get('phone_home'));
 		form.findField('subscriber_employer').setValue(app.patient.record.get('employer_name'));
 		form.findField('subscriber_address_same_as_pateint').setValue(true);
-	}
+	},
+
+
+
+    onInsuranceFormGridLiveCoverSearchFieldSelect: function (field, cover_records) {
+        say('onInsuranceFormGridLiveCoverSearchFieldSelect');
+
+        var patient_insurance_id = cover_records[0].get('id');
+
+        say(cover_records);
+
+        say(patient_insurance_id);
+
+    }
+
+
 
 });

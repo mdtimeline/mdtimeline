@@ -21,6 +21,12 @@ Ext.define('App.model.patient.Insurance',{
             index: true
         },
         {
+            name: 'ins_synonym',
+            type: 'string',
+            len: 15,
+            store: false
+        },
+        {
             name: 'pid',
             type: 'int',
             index: true

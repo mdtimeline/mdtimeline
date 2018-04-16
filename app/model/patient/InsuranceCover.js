@@ -47,7 +47,12 @@ Ext.define('App.model.patient.InsuranceCover',{
             dateFormat: 'Y-m-d H:i:s'
         },
 	    {
-		    name: 'department_title',
+		    name: 'departments_title',
+		    type: 'string',
+		    store: false
+	    },
+	    {
+		    name: 'departments_code',
 		    type: 'string',
 		    store: false
 	    }

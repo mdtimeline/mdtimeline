@@ -19,9 +19,14 @@
 Ext.define('App.view.patient.InsuranceForm', {
 	extend: 'Ext.form.Panel',
 	requires: [
+        'Ext.grid.plugin.RowEditing',
 		'App.ux.combo.Insurances',
-		'App.ux.combo.Combo'
+		'App.ux.combo.Combo',
+        'Modules.billing.ux.LiveBillingDepartmentSearch',
+        'Modules.billing.ux.LiveBillingCoverSearch'
 	],
+
+
 	xtype: 'patientinsuranceform',
 	border: false,
 	bodyBorder: false,
@@ -179,9 +184,9 @@ Ext.define('App.view.patient.InsuranceForm', {
                                         xtype: 'fieldcontainer',
                                         hideLabel: false,
                                         width: 700,
-                                        height: 125,
+                                        height: 145,
                                         defaults: {
-                                            margin: '3 10 0 2'
+                                            margin: '3 10 10 2'
                                         },
                                         items: [
                                             {
@@ -192,24 +197,60 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                 columnLines: true,
                                                 hideHeaders: false,
                                                 headerPosition: 'center',
+                                                height: 140,
+                                                autoScroll: true,
                                                 frame: true,
                                                 region: 'north',
                                                 margin: '10 0 5 0',
+
                                                 columns: [
                                                     {
-                                                        text: 'Department',
-                                                        dataIndex: 'department_title',
+                                                        text: _('code'),
+                                                        dataIndex: 'departments_code',
+                                                        align: 'center',
+                                                        width: 50
+                                                    },
+                                                    {
+                                                        text: _('department'),
+                                                        dataIndex: 'departments_title',
+                                                        align: 'left',
                                                         width: 200
                                                     },
                                                     {
                                                         text: 'Cover Description',
                                                         dataIndex: 'cover',
-                                                        flex: 1
+                                                        flex: 1,
+                                                        editor: {
+                                                            xtype: 'livebillingcoversearch',
+                                                            itemId: 'InsuranceFormGridLiveCoverSearchField',
+                                                            allowBlank: false,
+                                                            hideTrigger: false
+                                                        }
                                                     }
                                                 ],
+                                                // tbar: [
+                                                //     '-',
+                                                //     {
+                                                //         // xtype: 'button',
+                                                //         // iconCls: 'icoDelete',
+                                                //         // text: _('department'),
+                                                //         // itemId: 'InsuranceFormPatientInsuranceCoverDeleteBtn'
+                                                //     },
+                                                //     '-',
+                                                //     '->',
+                                                //     '-',
+                                                //     {
+                                                //         // xtype: 'button',
+                                                //         // iconCls: 'icoAdd',
+                                                //         // text: _('department'),
+                                                //         // itemId: 'InsuranceFormAddPatientInsuranceCover'
+                                                //     },
+                                                //     '-'
+                                                // ],
                                                 plugins: [
                                                     {
-                                                        ptype: 'rowediting',
+                                                        ptype: 'cellediting',
+                                                            clicksToEdit: 2,
                                                         fieldDefaults: {
                                                             labelAlign: 'top',
                                                             margin: '0 5 0 0'

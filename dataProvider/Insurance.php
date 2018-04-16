@@ -32,6 +32,14 @@ class Insurance {
         $this->ic = MatchaModel::setSenchaModel('App.model.administration.InsuranceCompany');
         $this->pi = MatchaModel::setSenchaModel('App.model.patient.Insurance');
         $this->pic = MatchaModel::setSenchaModel('App.model.patient.InsuranceCover');
+
+
+        \Matcha::setAppDir(ROOT.'/modules');
+
+        if(!isset($this->insurancesdata))
+            $this->insurancesdata = \MatchaModel::setSenchaModel('Modules.billing.model.BillingInsurancesData');
+
+        \Matcha::setAppDir(ROOT.'/app');
 	}
 
 	/** Companies */
@@ -56,17 +64,19 @@ class Insurance {
 	}
 
 	public function getInsuranceCovers($params) {
-        return $this->pic->load($params)->leftJoin(
+        return $this->pic->load($params)->RightJoin(
 		    [
-		        'title' => 'department_title'
+		        'title' => 'departments_title',
+                'code'  => 'departments_code'
             ], 'departments', 'department_code', 'code'
         )->all();
 	}
 
 	public function getInsuranceCover($params) {
-		return $this->pic->load($params)->leftJoin(
+		return $this->pic->load($params)->RightJoin(
             [
-                'title' => 'department_title'
+                'title' => 'departments_title',
+                'code'  => 'departments_code'
             ], 'departments', 'department_code', 'code'
         )->one();
 	}
@@ -91,7 +101,36 @@ class Insurance {
 	 * @return mixed
 	 */
 	public function getInsurances($params) {
-		return $this->pi->load($params)->all();
+
+        if (isset($params->filter[0]->value))
+        {
+            $patid = $params->filter[0]->value;
+        }
+        else
+            {
+                $patid = false ;
+            }
+
+        $exeValues = [];
+
+        if ($patid != false )
+        {
+            $exeValues['patid'] = $patid;
+        }
+
+        #region Sql Load Patient Insurances Data
+
+        $sqlLoad = "Select * from patient_insurances 
+                    Left Join insurance_companies on patient_insurances.insurance_id = insurance_companies.id 
+                    Left Join acc_billing_insurance_data on insurance_companies.code = acc_billing_insurance_data.ins_code 
+                    where patient_insurances.pid = :patid ";
+
+        #endregion
+
+        $getRecords = $this->pi->sql($sqlLoad)->all($exeValues);
+
+        return $getRecords;
+
 	}
 
 	/**
@@ -99,7 +138,11 @@ class Insurance {
 	 * @return mixed
 	 */
 	public function getInsurance($params) {
-		return $this->pi->load($params)->one();
+        return $this->pi->load($params)->LeftJoin(
+            [
+                'ins_synonym' => 'ins_synonym'
+            ], 'acc_billing_insurance_data', 'acc_billing_insurance_data.ins_code', 'insurance_companies.code'
+        )->one();
 	}
 
 	/**

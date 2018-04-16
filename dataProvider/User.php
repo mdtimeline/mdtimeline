@@ -52,13 +52,13 @@ class User
         return $users;
     }
 
-    public function getUser($params)
+    public function getUser($params, $widthout_pass = true)
     {
         $user = $this->u->load($params)->one();
         if ($user !== false) {
             $user = isset($user['data']) ? $user['data'] : $user;
             $user['fullname'] = Person::fullname($user['fname'], $user['mname'], $user['lname']);
-            unset($user['password'], $user['pwd_history1'], $user['pwd_history2']);
+            if($widthout_pass) unset($user['password'], $user['pwd_history1'], $user['pwd_history2']);
         }
         return $user;
     }
@@ -270,14 +270,24 @@ class User
     {
         $acls = isset($params->acl) ? explode('&', $params->acl) : false;
 
-        if ($acls === false) {
-            $params->query = $params->query . '%';
-            $this->u->sql('SELECT `u`.*, `ar`.`role_name` AS role FROM users as u
+	    $params->query = trim($params->query);
+
+	    if(is_numeric($params->query)){
+		    $this->u->sql('SELECT `u`.*, `ar`.`role_name` AS role FROM users as u
 					    LEFT JOIN `acl_roles` AS ar ON `ar`.`id` = `u`.`role_id`
-						    WHERE `u`.`fname` LIKE ?
-						       OR `u`.`lname` LIKE ?
-						       OR `u`.`username` LIKE ?');
-            $records = $this->u->all([$params->query, $params->query, $params->query]);
+						    WHERE `u`.`id` = ?');
+		    $records = $this->u->all([$params->query]);
+
+	    }else if ($acls === false) {
+
+	        $params->query = $params->query . '%';
+	        $this->u->sql('SELECT `u`.*, `ar`.`role_name` AS role FROM users as u
+				    LEFT JOIN `acl_roles` AS ar ON `ar`.`id` = `u`.`role_id`
+					    WHERE `u`.`fname` LIKE ?
+					       OR `u`.`lname` LIKE ?
+					       OR `u`.`username` LIKE ?');
+	        $records = $this->u->all([$params->query, $params->query, $params->query]);
+
         } else {
             foreach ($acls as &$acl) {
                 $acl = '`ap`.`perm_key` = \'' . $acl . '\'';

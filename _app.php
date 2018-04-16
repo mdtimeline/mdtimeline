@@ -37,6 +37,7 @@ header("Access-Control-Allow-Origin: *");
 		</script>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta content="utf-8" http-equiv="encoding">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 		<title>MD Timeline :: Loading...</title>
 		<link rel="stylesheet" type="text/css" href="resources/css/dashboard.css">
 
@@ -237,16 +238,32 @@ header("Access-Control-Allow-Origin: *");
 
 				if(e.xhr && e.xhr.aborted) return;
 
-				app.alert(
-					'<p><span style="font-weight:bold">'+
-					(e.where != 'undefined' ? e.message : e.message.replace(/\n/g,''))  +
-					'</span></p><hr>' +
-					'<p>'+
-					(typeof e.where != 'undefined' ? e.where.replace(/\n/g,'<br>') : e.data != null ?  e.data : '') +
-					'</p>',
-					'error'
-				);
+				app.msg(_('oops'), _('server_error'), true);
+
+				var data = {
+					message: 'Ext.Direct Exception Error',
+					source: e.data.sourceClass,
+					lineno: 0,
+					colno: 0,
+					error:  e.message
+				};
+
+				say(data);
+
 			});
+
+	        window.onerror = function(message, source, lineno, colno, error) {
+		        var data = {
+			        message: message,
+			        source: source,
+			        lineno: lineno,
+			        colno: colno,
+			        error: error
+		        };
+
+		        say(data);
+
+	        };
 
 		</script>
 

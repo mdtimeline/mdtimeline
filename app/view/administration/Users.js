@@ -82,7 +82,7 @@ Ext.define('App.view.administration.Users', {
 			],
 			plugins: [
 				me.formEditing = Ext.create('App.ux.grid.RowFormEditing', {
-					clicksToEdit: 1,
+					clicksToEdit: 2,
 					items: [
 						{
 							xtype: 'tabpanel',
@@ -318,7 +318,7 @@ Ext.define('App.view.administration.Users', {
 										},
 										{
 											xtype: 'fieldset',
-											title: _('phone'),
+											title: _('phone') + ' / ' + _('email'),
 											padding: 5,
 											defaults: {
 												margin: '0 0 5 0',
@@ -334,6 +334,12 @@ Ext.define('App.view.administration.Users', {
 													xtype: 'textfield',
 													fieldLabel: _('mobile'),
 													name: 'mobile'
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: _('email'),
+													name: 'email',
+													vtype: 'email'
 												}
 											]
 										}

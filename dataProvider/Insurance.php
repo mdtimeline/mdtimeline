@@ -169,7 +169,6 @@ class Insurance {
 		return $this->pi->destroy($params);
 	}
 
-
 	public function getInsuranceCompanyById($id){
 		$this->ic->addFilter('id', $id);
 		return $this->ic->load()->one();
@@ -191,5 +190,25 @@ class Insurance {
 		$this->pi->addFilter('pid', $pid);
 		$this->pi->addFilter('insurance_type', 'C');
 		return $this->pi->load()->one();
+	}
+
+	public function liveInsuranceCoverSearch($params){
+
+		$conn = \Matcha::getConn();
+		if(isset($params->ins_code)){
+			$sql = "SELECT * FROM `acc_billing_covers` WHERE `cover` LIKE ? AND `ins_code` = ?";
+			$sth = $conn->prepare($sql);
+			$sth->execute(array($params->query.'%', $params->insurance_id));
+		}else{
+			$sql = "SELECT * FROM `acc_billing_covers` WHERE `cover` LIKE ?";
+			$sth = $conn->prepare($sql);
+			$sth->execute(array($params->query.'%'));
+		}
+
+		$records = $sth->fetchAll(\PDO::FETCH_ASSOC);
+		$total = count($records);
+		$records = array_splice($records, $params->start, $params->limit);
+
+		return array('total' => $total, 'data' => $records);
 	}
 } 

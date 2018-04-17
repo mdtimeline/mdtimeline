@@ -168,18 +168,24 @@ Ext.define('App.controller.LogOut', {
 		}
 	},
 
+
+	doLogout: function(){
+		var nav = this.getController('Navigation');
+		if(app.patient.pid) Patient.unsetPatient(app.patient.pid);
+		app.fireEvent('applogut', this);
+		authProcedures.unAuth(function(){
+			nav.navigateTo('App.view.login.Login', null, true);
+			window.onbeforeunload = null;
+			window.location.reload();
+		});
+	},
+
 	appLogout: function(force){
-		var me = this,
-			nav = me.getController('Navigation');
+		var me = this;
 
 		if(force === true){
 			me.ActivityMonitor(false);
-			if(app.patient.pid) Patient.unsetPatient(app.patient.pid);
-			authProcedures.unAuth(function(){
-				nav.navigateTo('App.view.login.Login', null, true);
-				window.onbeforeunload = null;
-				window.location.reload();
-			});
+			me.doLogout();
 		}else{
 			Ext.Msg.show({
 				title: _('please_confirm') + '...',
@@ -188,13 +194,7 @@ Ext.define('App.controller.LogOut', {
 				buttons: Ext.Msg.YESNO,
 				fn: function(btn){
 					if(btn == 'yes'){
-						if(app.patient.pid) Patient.unsetPatient(app.patient.pid);
-						authProcedures.unAuth(function(){
-							me.ActivityMonitor(false);
-							nav.navigateTo('App.view.login.Login', null, true);
-							window.onbeforeunload = null;
-							window.location.reload();
-						});
+						me.doLogout();
 					}
 				}
 			});

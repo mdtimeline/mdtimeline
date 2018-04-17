@@ -96,9 +96,9 @@ Ext.define('App.controller.patient.Insurance', {
             '#InsuranceFormGridLiveCoverSearchField':{
                 select: me.onInsuranceFormGridLiveCoverSearchFieldSelect
             },
-            '#InsuranceFormPatientInsuranceCoverDeleteBtn':{
-                click: me.onInsuranceFormPatientInsuranceCoverDeleteBtn
-            }
+            // '#InsuranceFormPatientInsuranceCoverDeleteBtn':{
+            //     click: me.onInsuranceFormPatientInsuranceCoverDeleteBtn
+            // }
 		});
 	},
 
@@ -145,9 +145,9 @@ Ext.define('App.controller.patient.Insurance', {
 	onDemographicsRecordLoad: function (patient_record, patient_panel) {
 
 		var me = this,
-			insurance_panel = me.getPatientInsurancesPanel();
+			insurance_store = patient_record.insurance();
 
-		patient_record.insurance().load({
+		insurance_store.load({
 			filters: [
 				{
 					property: 'pid',
@@ -155,20 +155,77 @@ Ext.define('App.controller.patient.Insurance', {
 				}
 			],
 			callback: function(records){
-				// set the insurance panel
-				insurance_panel.removeAll(true);
-				for(var i = 0; i < records.length; i++){
-					insurance_panel.add(
-						Ext.widget('patientinsuranceform', {
-							closable: false,
-							insurance: records[i]
-						})
-					);
-				}
-
-				if(insurance_panel.items.length > 0) insurance_panel.setActiveTab(0);
+				me.patientInsurancePanelHandler(insurance_store);
 			}
 		});
+	},
+
+	patientInsurancePanelHandler: function(insurance_store){
+		var me = this,
+			insurance_panel = me.getPatientInsurancesPanel();
+
+		insurance_store.sort([
+			{
+				sorterFn: function(o1, o2) {
+					var getRank = function (o) {
+							var insurance_type = o.get('insurance_type');
+
+							if (insurance_type === 'P') {
+								return 1;
+							} else if (insurance_type === 'C') {
+								return 2;
+							} else if (insurance_type === 'S') {
+								return 3;
+							} else if (insurance_type === 'T') {
+								return 4;
+							} else {
+								return 5;
+							}
+						},
+						rank1 = getRank(o1),
+						rank2 = getRank(o2);
+
+					if (rank1 === rank2) {
+						return 0;
+					}
+
+					return rank1 < rank2 ? -1 : 1;
+				}
+			}
+		]);
+
+		// set the insurance panel
+		insurance_panel.removeAll(true);
+
+		var insurance_records = insurance_store.data.items;
+
+		for(var i = 0; i < insurance_records.length; i++){
+			insurance_panel.add(
+				Ext.widget('patientinsuranceform', {
+					closable: false,
+					insurance: insurance_records[i],
+					action: insurance_records[i].get('insurance_type')
+				})
+			);
+		}
+
+		if(insurance_panel.items.length > 0) insurance_panel.setActiveTab(0);
+
+	},
+
+	getPatientInsurancesByType: function(insurance_type){
+
+		var me = this,
+			insurance_panel = me.getPatientInsurancesPanel(),
+			insurance_tabs = insurance_panel.query(Ext.String.format('panel[action={0}]', insurance_type)),
+			insurance_records = [];
+
+		for(var i = 0; i < insurance_tabs.length; i++){
+			insurance_records.push(insurance_tabs[0].insurance);
+		}
+
+		return insurance_records;
+
 	},
 
     onPatientInsurancesFormLoadRecord: function (form, insurance_record) {
@@ -256,14 +313,7 @@ Ext.define('App.controller.patient.Insurance', {
 
 
     onInsuranceFormGridLiveCoverSearchFieldSelect: function (field, cover_records) {
-        say('onInsuranceFormGridLiveCoverSearchFieldSelect');
-
-        var patient_insurance_id = cover_records[0].get('id');
-
-        say(cover_records);
-
-        say(patient_insurance_id);
-
+		//
     }
 
 

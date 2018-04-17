@@ -559,6 +559,9 @@ $API = [
             ],
             'destroyInsuranceCover' => [
                 'len' => 1
+            ],
+            'liveInsuranceCoverSearch' => [
+                'len' => 1
             ]
         ]
     ],

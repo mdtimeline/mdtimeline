@@ -101,35 +101,21 @@ class Insurance {
 	 * @return mixed
 	 */
 	public function getInsurances($params) {
+        return $this->pi->load($params)->leftJoin(
+	        ['id' => 'insurance_company_id'], 'insurance_companies', 'insurance_id', 'id'
+        )->leftJoin(
+	        ['id' => 'insurance_data_id'], 'acc_billing_insurance_data', 'code', 'ins_code'
+        )->all();
+	}
 
-        if (isset($params->filter[0]->value))
-        {
-            $patid = $params->filter[0]->value;
-        }
-        else
-            {
-                $patid = false ;
-            }
+	public function getInsurancesByPid($pid) {
+		$getRecords = $this->pi->load(['pid' => $pid])->leftJoin(
+			['id' => 'insurance_company_id'], 'insurance_companies', 'insurance_id', 'id'
+		)->leftJoin(
+			['id' => 'insurance_data_id'], 'acc_billing_insurance_data', 'code', 'ins_code'
+		);
 
-        $exeValues = [];
-
-        if ($patid != false )
-        {
-            $exeValues['patid'] = $patid;
-        }
-
-        #region Sql Load Patient Insurances Data
-
-        $sqlLoad = "Select * from patient_insurances 
-                    Left Join insurance_companies on patient_insurances.insurance_id = insurance_companies.id 
-                    Left Join acc_billing_insurance_data on insurance_companies.code = acc_billing_insurance_data.ins_code 
-                    where patient_insurances.pid = :patid ";
-
-        #endregion
-
-        $getRecords = $this->pi->sql($sqlLoad)->all($exeValues);
-
-        return $getRecords;
+		return $getRecords;
 
 	}
 

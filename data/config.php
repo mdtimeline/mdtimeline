@@ -562,6 +562,9 @@ $API = [
             ],
             'liveInsuranceCoverSearch' => [
                 'len' => 1
+            ],
+            'getInsurancesByPid' => [
+                'len' => 1
             ]
         ]
     ],

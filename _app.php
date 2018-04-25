@@ -242,7 +242,7 @@ header("Access-Control-Allow-Origin: *");
 
 				var data = {
 					message: 'Ext.Direct Exception Error',
-					source: e.data.sourceClass,
+					source: e.data ? e.data.sourceClass : '',
 					lineno: 0,
 					colno: 0,
 					error:  e.message

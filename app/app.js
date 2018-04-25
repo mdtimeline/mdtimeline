@@ -24167,7 +24167,8 @@ Ext.define('App.view.patient.encounter.ICDs', {
 						value: 1,
 						margin: '0 3 0 0',
 						forceSelection: true,
-						editable: false
+						editable: false,
+						hide: true
 					},
 					{
 						xtype:'combobox',
@@ -48698,6 +48699,14 @@ Ext.define('App.controller.patient.encounter.SuperBill', {
 		{
 			ref: 'SuperBillEncounterDxCombo',
 			selector: '#SuperBillEncounterDxCombo'
+		},
+		{
+			ref: 'SuperBillPoceduresQuickPick',
+			selector: '#SuperBillPoceduresQuickPick'
+		},
+		{
+			ref: 'SuperBillPoceduresQuickPickForm',
+			selector: '#SuperBillPoceduresQuickPickForm'
 		}
 	],
 
@@ -48716,8 +48725,20 @@ Ext.define('App.controller.patient.encounter.SuperBill', {
 			},
 			'#SuperCptSearchCmb': {
 				select: me.onSuperCptSearchCmbSelect
+			},
+			'#SuperBillServiceQuickPickBtn': {
+				click: me.onSuperBillServiceQuickPickBtnClick
+			},
+			'#SuperBillPoceduresQuickPickCancelBtn': {
+				click: me.onSuperBillPoceduresQuickPickCancelBtnClick
+			},
+			'#SuperBillPoceduresQuickPickSaveBtn': {
+				click: me.onSuperBillPoceduresQuickPickSaveBtnClick
 			}
 		});
+
+
+		me.encounterCtl = this.getController('patient.encounter.Encounter');
 	},
 
 	onImmunizationEdit:function(controller, record){
@@ -48726,7 +48747,6 @@ Ext.define('App.controller.patient.encounter.SuperBill', {
 		if(serviceRecords.length == 0){
 			this.promptAddService(record, 'cvx');
 		}
-
 	},
 
 	promptAddService: function(record, type){
@@ -48764,7 +48784,7 @@ Ext.define('App.controller.patient.encounter.SuperBill', {
 	},
 
 	doAddService: function(record, type, service, callback){
-		var store = this.getController('patient.encounter.Encounter').getEncounterRecord().services(),
+		var store = this.ecounterCtl.getEncounterRecord().services(),
 			serviceData = {
 				pid: record.data.pid,
 				eid: record.data.eid,
@@ -48876,8 +48896,93 @@ Ext.define('App.controller.patient.encounter.SuperBill', {
 		}
 
 		return services;
-	}
+	},
 
+	onSuperBillServiceQuickPickBtnClick: function(){
+
+		this.showoSuperBillPoceduresQuickPick();
+		var form_panel = this.getSuperBillPoceduresQuickPickForm(),
+			encounter_record = this.encounterCtl.getEncounterRecord();
+
+		form_panel.getForm().reset();
+		this.loadQuickProceduresFields(form_panel, encounter_record.get('specialty_id'))
+
+	},
+
+	onSuperBillPoceduresQuickPickCancelBtnClick: function(){
+		this.getSuperBillPoceduresQuickPickForm().getForm().reset();
+		this.getSuperBillPoceduresQuickPick().close();
+	},
+
+	onSuperBillPoceduresQuickPickSaveBtnClick: function(){
+
+		var me = this,
+			form_panel = me.getSuperBillPoceduresQuickPickForm(),
+			form = form_panel.getForm(),
+			values = form.getValues(),
+			encounter_record = this.encounterCtl.getEncounterRecord(),
+			pid = encounter_record.get('pid'),
+			eid = encounter_record.get('eid'),
+			services = [];
+
+		if(!values.services || encounter_record == null) return;
+
+		values.services.forEach(function (service) {
+			if(service === '0') return;
+			var buff = service.split(':');
+			services.push({
+				pid: pid,
+				eid: eid,
+				units: 1,
+				reference_type: '',
+				reference_id: 0,
+				code: buff[1],
+				code_type: buff[0],
+				code_text: buff[2],
+				create_uid: app.user.id,
+				date_create: app.getDate()
+			});
+
+		});
+
+		var services_store = encounter_record.services();
+		services_store.add(services);
+
+		form_panel.el.mask(_('saving'));
+
+		services_store.sync({
+			callback: function () {
+				form_panel.el.unmask();
+				me.getSuperBillPoceduresQuickPickForm().getForm().reset();
+				me.getSuperBillPoceduresQuickPick().close();
+			}
+		});
+
+	},
+
+	showoSuperBillPoceduresQuickPick: function(){
+		if(!this.getSuperBillPoceduresQuickPick()){
+			Ext.create('App.view.patient.windows.SuperBillPoceduresQuickPick');
+		}
+		return this.getSuperBillPoceduresQuickPick().show();
+	},
+
+	loadQuickProceduresFields: function (form_panel, specialty_id) {
+
+		if(form_panel.specialty_id === specialty_id) return;
+
+		form_panel.specialty_id = specialty_id;
+
+		form_panel.removeAll();
+		form_panel.el.mask(_('loading'));
+
+		Services.getServicesQuickPickFieldsBySpecialty(1, function (fields) {
+			form_panel.add(fields);
+			form_panel.el.unmask();
+
+		});
+
+	}
 
 
 });
@@ -50341,7 +50446,7 @@ Ext.define('App.view.patient.SupperBill', {
 			header: _('units'),
 			dataIndex: 'units',
 			width: 40,
-			menuDisabled: true,
+			// menuDisabled: true,
 			editor: {
 				xtype: 'numberfield',
 				minValue: 1,
@@ -50351,14 +50456,14 @@ Ext.define('App.view.patient.SupperBill', {
 		{
 			header: _('code'),
 			dataIndex: 'code',
-			menuDisabled: true,
+			// menuDisabled: true,
 			width: 75
 		},
 		{
 			text: _('service'),
 			dataIndex: 'code_text',
 			flex: 1,
-			menuDisabled: true,
+			// menuDisabled: true,
 			editor: {
 				xtype: 'livecptsearch',
 				itemId: 'SuperCptSearchCmb',
@@ -50370,7 +50475,8 @@ Ext.define('App.view.patient.SupperBill', {
             text: _('financial'),
             dataIndex: 'financial_class',
             flex: 1,
-            menuDisabled: true,
+            //menuDisabled: true,
+	        hidden: true,
             editor: {
                 xtype: 'gaiaehr.listcombo',
                 displayField: 'option_name',
@@ -50384,7 +50490,7 @@ Ext.define('App.view.patient.SupperBill', {
 			header: _('modifiers'),
 			dataIndex: 'modifiers',
 			width: 100,
-			menuDisabled: true,
+			// menuDisabled: true,
 			editor: {
 				xtype: 'textfield'
 			}
@@ -50437,6 +50543,12 @@ Ext.define('App.view.patient.SupperBill', {
 			dock: 'top',
 			items: [
 				'->',
+				{
+					text: _('quick_pick'),
+					iconCls: 'icoAdd',
+					itemId: 'SuperBillServiceQuickPickBtn'
+				},
+				'-',
 				{
 					text: _('service'),
 					iconCls: 'icoAdd',

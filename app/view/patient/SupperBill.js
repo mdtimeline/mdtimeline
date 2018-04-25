@@ -51,7 +51,7 @@ Ext.define('App.view.patient.SupperBill', {
 			header: _('units'),
 			dataIndex: 'units',
 			width: 40,
-			menuDisabled: true,
+			// menuDisabled: true,
 			editor: {
 				xtype: 'numberfield',
 				minValue: 1,
@@ -61,14 +61,14 @@ Ext.define('App.view.patient.SupperBill', {
 		{
 			header: _('code'),
 			dataIndex: 'code',
-			menuDisabled: true,
+			// menuDisabled: true,
 			width: 75
 		},
 		{
 			text: _('service'),
 			dataIndex: 'code_text',
 			flex: 1,
-			menuDisabled: true,
+			// menuDisabled: true,
 			editor: {
 				xtype: 'livecptsearch',
 				itemId: 'SuperCptSearchCmb',
@@ -80,7 +80,8 @@ Ext.define('App.view.patient.SupperBill', {
             text: _('financial'),
             dataIndex: 'financial_class',
             flex: 1,
-            menuDisabled: true,
+            //menuDisabled: true,
+	        hidden: true,
             editor: {
                 xtype: 'gaiaehr.listcombo',
                 displayField: 'option_name',
@@ -94,7 +95,7 @@ Ext.define('App.view.patient.SupperBill', {
 			header: _('modifiers'),
 			dataIndex: 'modifiers',
 			width: 100,
-			menuDisabled: true,
+			// menuDisabled: true,
 			editor: {
 				xtype: 'textfield'
 			}
@@ -147,6 +148,12 @@ Ext.define('App.view.patient.SupperBill', {
 			dock: 'top',
 			items: [
 				'->',
+				{
+					text: _('quick_pick'),
+					iconCls: 'icoAdd',
+					itemId: 'SuperBillServiceQuickPickBtn'
+				},
+				'-',
 				{
 					text: _('service'),
 					iconCls: 'icoAdd',

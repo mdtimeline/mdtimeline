@@ -63,7 +63,8 @@ Ext.define('App.view.patient.encounter.ICDs', {
 						value: 1,
 						margin: '0 3 0 0',
 						forceSelection: true,
-						editable: false
+						editable: false,
+						hide: true
 					},
 					{
 						xtype:'combobox',

@@ -711,6 +711,23 @@ Ext.override(Ext.form.field.Checkbox, {
     inputValue: '1',
     uncheckedValue: '0'
 });
+Ext.override(Ext.form.field.ComboBox, {
+	initComponent: function() {
+
+		if(this.resetTriggerEnable === true){
+
+			this.trigger1Cls = 'x-form-clear-trigger';
+			this.trigger2Cls = 'x-form-arrow-trigger';
+
+			this.onTrigger1Click = function() {
+				this.clearValue();
+			}
+		}
+
+		this.wrapFocusCls = this.triggerWrapCls + '-focus';
+		this.callParent(arguments);
+	}
+});
 
 Ext.override(Ext.form.field.Date, {
 	format: g('date_display_format'),
@@ -721,6 +738,7 @@ Ext.override(Ext.grid.Panel, {
     emptyText: 'Nothing to Display',
 	columnLines: true
 });
+
 Ext.override(Ext.grid.plugin.Editing, {
     cancelEdit: function(){
         var me = this;

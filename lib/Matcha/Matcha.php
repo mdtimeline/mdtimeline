@@ -65,6 +65,10 @@ class Matcha
 	 */
 	public static $__secretKey = 'CryptSecretKey';
 	/**
+	 * @var string
+	 */
+	public static $__use_openssl = false;
+	/**
 	 * @var int
 	 */
 	public static $__installationNumber = 1;
@@ -145,6 +149,9 @@ class Matcha
             // set the encryption secret key if provided
             if(isset($databaseParameters['key']))
                 self::$__secretKey = $databaseParameters['key'];
+            // set the encryption secret key if provided
+            if(isset($databaseParameters['use_openssl']))
+                self::$__use_openssl = $databaseParameters['use_openssl'];
 
             // set connection params fro reconnect if necessary
             self::$__databaseParameters = $databaseParameters;

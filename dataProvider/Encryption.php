@@ -30,4 +30,37 @@ class Encryption
 		return Crypt::decrypt($data);
 	}
 
+	function Convert($column, $table, $to_openssl){
+
+		$conn = Matcha::getConn();
+
+		$sth = $conn->prepare("SHOW KEYS FROM `{$table}` WHERE Key_name = 'PRIMARY'");
+		$sth->execute();
+		$primary = $sth->fetch(PDO::FETCH_ASSOC);
+		$primary_comun = $primary['Column_name'];
+
+
+		$sth = $conn->prepare("SELECT `{$primary_comun}`, `{$column}` FROM `{$table}`");
+		$sth->execute();
+		$records = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+		foreach($records as $record){
+			$value = $record[$column];
+
+			if(!isset($value)) continue;
+
+			$pk_value = $record[$primary_comun];
+
+			if($to_openssl){
+				$new_value = MatchaUtils::__openssl_encrypt(MatchaUtils::__mcrypt_decrypt($value));
+			}else{
+				$new_value = MatchaUtils::__mcrypt_decrypt(MatchaUtils::__openssl_encrypt($value));
+			}
+
+			$sth = $conn->prepare("UPDATE `{$table}` SET `{$column}` = :new_value WHERE `{$primary_comun}` = :pk_value");
+			$sth->execute([':new_value' => $new_value, ':pk_value' => $pk_value]);
+		}
+
+	}
+
 }

@@ -26,6 +26,10 @@ class MatchaUtils extends Matcha
      * @param null $times
      * @return string
      */
+
+    static private $cipher = 'AES-256-CBC';
+    static private $iv = '04BKFA19P09MS3RQ';
+
     static public function t($times = NULL)
     {
         $tabs = '';
@@ -89,13 +93,29 @@ class MatchaUtils extends Matcha
 	}
 
 	static public function __encrypt($text){
+		return Matcha::$__use_openssl ? self::__openssl_encrypt($text) : self::__mcrypt_encrypt($text);
+	}
+
+	static public function __decrypt($text){
+		return Matcha::$__use_openssl ? self::__openssl_decrypt($text) : self::__mcrypt_decrypt($text);
+	}
+
+	static public function __openssl_encrypt($text){
+		return openssl_encrypt($text, self::$cipher, Matcha::$__secretKey, 0, self::$iv);
+	}
+
+	static public function __openssl_decrypt($text){
+		return openssl_decrypt(base64_decode($text), self::$cipher, Matcha::$__secretKey, 0, self::$iv);
+	}
+
+	static public function __mcrypt_encrypt($text){
 		$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB);
 		$iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
 		$cryptText = mcrypt_encrypt(MCRYPT_RIJNDAEL_256, Matcha::$__secretKey, $text, MCRYPT_MODE_ECB, $iv);
 		return base64_encode($cryptText);
 	}
 
-	static public function __decrypt($text){
+	static public function __mcrypt_decrypt($text){
 		$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB);
 		$iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
 		$deCryptText = mcrypt_decrypt(MCRYPT_RIJNDAEL_256, Matcha::$__secretKey, base64_decode($text), MCRYPT_MODE_ECB, $iv);

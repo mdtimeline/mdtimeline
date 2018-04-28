@@ -19,37 +19,19 @@
 if(!isset($_SESSION))
 {
     session_cache_limiter('private');
-    //session_cache_expire(1);
     session_name('mdTimeLine');
     session_start();
-//    if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
-//    setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
 }
 
 class Crypt
 {
 	public static function encrypt($text)
 	{
-	    return trim(
-		    base64_encode(
-			    mcrypt_encrypt(
-				    MCRYPT_RIJNDAEL_256,
-				    $_SESSION['site']['AESkey'],
-				    $text,
-				    MCRYPT_MODE_ECB,
-				    mcrypt_create_iv(
-					    mcrypt_get_iv_size(
-						    MCRYPT_RIJNDAEL_256,
-						    MCRYPT_MODE_ECB
-					    ),
-					    MCRYPT_RAND)
-			    )
-		    )
-	    );
+	    return MatchaUtils::encrypt($text);
 	}
 
 	public static function decrypt($text)
 	{
-	    return trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, site_aes_key, base64_decode($text), MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB), MCRYPT_RAND)));
+	    return MatchaUtils::decrypt($text);
 	}
 }

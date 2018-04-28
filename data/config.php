@@ -1776,6 +1776,9 @@ $API = [
             ],
 			'getCptCodes' => [
 				'len' => 1
+            ],
+			'getServicesQuickPickFieldsBySpecialty' => [
+				'len' => 1
             ]
         ]
     ],
@@ -2515,6 +2518,9 @@ $API = [
             ],
 			'Decrypt' => [
 				'len' => 1
+            ],
+			'Convert' => [
+				'len' => 3
             ]
         ]
     ],

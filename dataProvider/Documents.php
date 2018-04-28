@@ -243,10 +243,9 @@ class Documents {
 			}
 		}
 
-
-		//
-		if($key = array_search('[ENCOUNTER_PROGRESS_NOTE]', $tokens)){
-			$allNeededInfo[$key] = $this->Encounter->ProgressNoteString(
+		$progress_key = array_search('[ENCOUNTER_PROGRESS_NOTE]', $tokens);
+		if($progress_key !== false){
+			$allNeededInfo[$progress_key] = $this->Encounter->ProgressNoteString(
 				$this->Encounter->getProgressNoteByEid($params->eid)
 			);
 		}

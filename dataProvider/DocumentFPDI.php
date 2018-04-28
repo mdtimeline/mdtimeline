@@ -206,7 +206,7 @@ class DocumentFPDI extends FPDI  {
 			$this->header_y = $this->original_margins['top'];
 		}
 
-		$this->SetMargins($this->original_margins['left'], $this->header_y + 10, $this->original_margins['right'], true);
+		$this->SetMargins($this->original_margins['left'], $this->header_y + 5, $this->original_margins['right'], true);
 	}
 
 	private function addWaterMark() {

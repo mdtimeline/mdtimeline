@@ -34,7 +34,7 @@ class HL7ServerHandler {
 			'path' => ROOT . '/dataProvider',
 			'class' => 'HL7Server',
 			'method' => 'Process',
-			'site' => $_SESSION['user']['site'],
+			'site' => site_name,
 			'token' => $params->token
 		];
 		curl_setopt($curl, CURLOPT_URL, $url);

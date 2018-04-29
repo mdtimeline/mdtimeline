@@ -26,7 +26,7 @@ class HL7ServerHandler {
 		$data->token = $params->token = md5(time());
 		$data->started = true;
 		$server->save($data);
-		$url = URL . '/lib/HL7/HL7Server.php';
+		$url = (URL !== '' ? URL : 'https://127.0.0.1') . '/lib/HL7/HL7Server.php';
 		$curl = curl_init();
 		$post = [
 			'host' => $params->ip,

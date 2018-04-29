@@ -26,8 +26,11 @@ class HL7ServerHandler {
 		$data->token = $params->token = md5(time());
 		$data->started = true;
 		$server->save($data);
-		$url = (URL !== '' ? URL : 'https://127.0.0.1') . '/lib/HL7/HL7Server.php';
+		$url = (URL !== '' ? URL : 'https://127.0.0.1/') . '/lib/HL7/HL7Server.php';
 		$curl = curl_init();
+
+		//error_log($url);
+
 		$post = [
 			'host' => $params->ip,
 			'port' => $params->port,
@@ -37,6 +40,9 @@ class HL7ServerHandler {
 			'site' => site_name,
 			'token' => $params->token
 		];
+
+		//error_log(print_r($post, true));
+
 		curl_setopt($curl, CURLOPT_URL, $url);
 		curl_setopt($curl, CURLOPT_POST, true);
 		curl_setopt($curl, CURLOPT_POSTFIELDS, $post);
@@ -48,7 +54,13 @@ class HL7ServerHandler {
 		curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 1);
 		curl_setopt($curl, CURLOPT_DNS_CACHE_TIMEOUT, 10);
 		curl_setopt($curl, CURLOPT_FRESH_CONNECT, true);
-		curl_exec($curl);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+
+		if(curl_exec($curl) === false){
+			error_log('Curl error: ' . curl_error($curl));
+		}
+
 
 		return $this->status($params);
 	}

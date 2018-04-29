@@ -36654,6 +36654,7 @@ Ext.define('App.controller.administration.HL7', {
 
 	serverStopHandler: function(record){
 		HL7ServerHandler.stop({
+			id: record.data.id,
             token: record.data.token,
             ip: record.data.ip,
             port: record.data.port

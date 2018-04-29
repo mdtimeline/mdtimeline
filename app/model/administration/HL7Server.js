@@ -72,6 +72,11 @@ Ext.define('App.model.administration.HL7Server', {
 			len: 100
 		},
 		{
+			name: 'started',
+			type: 'bool',
+			index: true
+		},
+		{
 			name: 'online',
 			type: 'bool',
 			store: false

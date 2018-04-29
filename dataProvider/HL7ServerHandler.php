@@ -58,9 +58,8 @@ class HL7ServerHandler {
 		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
 
 		if(curl_exec($curl) === false){
-			error_log('Curl error: ' . curl_error($curl));
+			//error_log('Curl error: ' . curl_error($curl));
 		}
-
 
 		return $this->status($params);
 	}

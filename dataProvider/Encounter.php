@@ -768,6 +768,8 @@ class Encounter {
 			foreach($vitals as $foo){
 
 				$vital_buff = '';
+				$is_metric = $_SESSION['globals']['units_of_measurement'] == 'metric';
+
 
 				if(isset($foo['date'])){
 					$date = strtotime($foo['date']);
@@ -818,7 +820,6 @@ class Encounter {
 					unset($buff);
 				}
 
-				$is_metric = $_SESSION['globals']['units_of_measurement'] == 'metric';
 
 				/**
 				 * BMI

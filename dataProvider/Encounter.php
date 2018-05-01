@@ -775,6 +775,39 @@ class Encounter {
 				}
 
 				/**
+				 * Weight
+				 */
+				if($is_metric){
+					if(isset($foo['weight_kg']) && $foo['weight_kg'] != ''){
+						$vital_buff .= '<u>Weight:</u> ' . $foo['weight_lbs'] . 'Kg<br>';
+					}
+				}else{
+					if(isset($foo['weight_lbs']) && $foo['weight_lbs'] != ''){
+						$vital_buff .= '<u>Weight:</u> ' . $foo['weight_lbs'] . 'Lbs<br>';
+					}
+				}
+
+				/**
+				 * Height
+				 */
+				if($is_metric){
+					if(isset($foo['height_cm']) && $foo['height_cm'] != ''){
+						$vital_buff .= '<u>Height:</u> ' . $foo['height_cm'] . 'cm<br>';
+					}
+				}else{
+					if(isset($foo['height_in']) && $foo['height_in'] != ''){
+						$vital_buff .= '<u>Height:</u> ' . $foo['height_in'] . '"<br>';
+					}
+				}
+
+				/**
+				 * Pulse
+				 */
+				if(isset($foo['pulse']) && $foo['pulse'] != ''){
+					$vital_buff .= '<u>Pulse:</u> ' . $foo['pulse'] . '<br>';
+				}
+
+				/**
 				 * Blood Pressure
 				 */
 				if(isset($foo['bp_systolic']) || isset($foo['bp_diastolic'])){
@@ -786,6 +819,16 @@ class Encounter {
 				}
 
 				$is_metric = $_SESSION['globals']['units_of_measurement'] == 'metric';
+
+				/**
+				 * BMI
+				 */
+				if(isset($foo['bmi']) && $foo['bmi'] != ''){
+					$vital_buff .= '<u>BMI:</u> ' . $foo['bmi'] . '<br>';
+				}
+				if(isset($foo['bmi_status']) && $foo['bmi_status'] != ''){
+					$vital_buff .= '<u>BMI Status:</u> ' . $foo['bmi_status'] . '<br>';
+				}
 
 				/**
 				 * Temperature
@@ -804,48 +847,6 @@ class Encounter {
 					$vitals_buff .= '<u>Temp Loc:</u> ' . $foo['temp_location'] . '<br>';
 				}
 
-				/**
-				 * Height
-				 */
-				if($is_metric){
-					if(isset($foo['height_cm']) && $foo['height_cm'] != ''){
-						$vital_buff .= '<u>Height:</u> ' . $foo['height_cm'] . 'cm<br>';
-					}
-				}else{
-					if(isset($foo['height_in']) && $foo['height_in'] != ''){
-						$vital_buff .= '<u>Height:</u> ' . $foo['height_in'] . '"<br>';
-					}
-				}
-
-				/**
-				 * Weight
-				 */
-				if($is_metric){
-					if(isset($foo['weight_kg']) && $foo['weight_kg'] != ''){
-						$vital_buff .= '<u>Weight:</u> ' . $foo['weight_lbs'] . 'Kg<br>';
-					}
-				}else{
-					if(isset($foo['weight_lbs']) && $foo['weight_lbs'] != ''){
-						$vital_buff .= '<u>Weight:</u> ' . $foo['weight_lbs'] . 'Lbs<br>';
-					}
-				}
-
-				/**
-				 * BMI
-				 */
-				if(isset($foo['bmi']) && $foo['bmi'] != ''){
-					$vital_buff .= '<u>BMI:</u> ' . $foo['bmi'] . '<br>';
-				}
-				if(isset($foo['bmi_status']) && $foo['bmi_status'] != ''){
-					$vital_buff .= '<u>BMI Status:</u> ' . $foo['bmi_status'] . '<br>';
-				}
-
-				/**
-				 * Pulse
-				 */
-				if(isset($foo['pulse']) && $foo['pulse'] != ''){
-					$vital_buff .= '<u>Pulse:</u> ' . $foo['pulse'] . '<br>';
-				}
 
 //				/**
 //				 * Administer Name

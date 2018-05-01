@@ -1965,5 +1965,12 @@ $LANG = array(
 	'server_error' => 'Server Error',
 	'quick_pick' => 'Quick Pick',
 	'encounter_transfer_from_x_to_x_msg' => 'Your are about to transfer this encounter from <b>{0}</b> to <b>{1}</b><br><br>Would you like to continue?',
-	'cancelled' => 'Cancelled'
+	'cancelled' => 'Cancelled',
+	'size' => 'Size',
+	'no_backup_found_within_24_hours' => 'No Backup Found Within 24 Hours',
+	'would_you_like_to_create_one' => 'Would you like to create one?',
+	'this_action_may_take_a_long_time' => 'This action may take a long time.',
+	'creating_backup_be_right_back' => 'Creating Backup, Be Right Back!',
+	'would_you_like_to_continue' => 'Would you like to continue?',
+	'backup_completed' => 'Backup Completed',
 );

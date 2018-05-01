@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 include_once (ROOT. '/dataProvider/Globals.php');
+include (ROOT. '/dataProvider/AWS.php');
 
 class BackUp {
 
@@ -26,16 +27,43 @@ class BackUp {
 	 */
 	private $a;
 
+	/**
+	 * @var AWS
+	 */
+	private $AWS;
+
 	private $ignore_tables = [
 		'audit_transaction_log',
 		'documents_data_%'
 	];
 
+	private $backup_warning_hours = 24;
+
 	function __construct() {
+		set_time_limit(0);
+		$this->AWS = new AWS();
 		$this->a = MatchaModel::setSenchaModel('App.model.administration.AuditLog');
 	}
 
-	function doBackUp(){
+	function doBackUp($do_s3_upload = true){
+		$db_result = $this->doDatabaseBackup($do_s3_upload);
+
+		if($do_s3_upload){
+			$this->doDocumentsBackup();
+		}
+
+//		return [
+//			'success' => true
+//		];
+
+		return [
+			'success' => $db_result['success']
+		];
+
+	}
+
+
+	function doDatabaseBackup($do_s3_upload){
 		$options = '--compact --single-transaction --max_allowed_packet=1G --triggers ';
 		$bk_hosname = site_db_host;
 		$bk_username = site_db_username;
@@ -46,32 +74,46 @@ class BackUp {
 		$bk_directory = $this->getBackupDirectory();
 		$bk_directory = rtrim($bk_directory, '/');
 		$bk_filename = $this->getBackupFileName();
-		$bk_file = "{$bk_directory}/{$bk_filename}";
+		$bk_file = "{$bk_directory}/{$bk_filename}.gz";
 
-		$cmd = "mysqldump --host={$bk_hosname} --user={$bk_username} --password={$bk_password} {$options} {$bk_database} {$bk_tables} > {$bk_file}";
+		$cmd = "mysqldump --host={$bk_hosname} --user={$bk_username} --password={$bk_password} {$options} {$bk_database} {$bk_tables} | gzip > {$bk_file}";
 
 		$success = shell_exec($cmd);
 
 		return [
 			'success' => $success !== null
 		];
-
 	}
+
+	function doDocumentsBackup(){
+
+		$mysql_bk_directory = $this->getBackupDirectory();
+		$result = $this->AWS->uploadDirectory($mysql_bk_directory, 'mysql-backups');
+		$result->wait();
+
+		include (ROOT . '/dataProvider/FileSystem.php');
+		$FileSystem = new FileSystem();
+		$file_systems = $FileSystem->getFileSystems(null);
+
+		foreach($file_systems as $file_system){
+			$key_prefix = 'file_system-' . $file_system['id'] . '/';
+			$result = $this->AWS->uploadDirectory($file_system['dir_path'], "documents-backups/{$key_prefix}");
+			$result->wait();
+		}
+
+		return;
+	}
+
 
 	function getBackUps($params){
 		$bk_directory = $this->getBackupDirectory();
 		$bk_directory = rtrim($bk_directory, '/');
 
-
-		//return $bk_directory;
-
 		$backups = scandir($bk_directory);
-
 		$backup_files = [];
-
 		foreach($backups as $i => $backup){
 
-			if($backup == '.' || $backup == '..') continue;
+			if($backup == '.' || $backup == '..' || $backup == '.DS_Store') continue;
 
 			$file = $bk_directory .'/'. $backup;
 
@@ -84,6 +126,28 @@ class BackUp {
 		}
 
 		return $backup_files;
+	}
+
+	function doBackupCheck(){
+		$bk_directory = $this->getBackupDirectory();
+		$bk_directory = rtrim($bk_directory, '/');
+
+		$valid = false;
+		$time_threshold = strtotime("-{$this->backup_warning_hours} hours");
+
+		$backups = scandir($bk_directory);
+
+		foreach($backups as $i => $backup){
+			if($backup == '.' || $backup == '..' || $backup == '.DS_Store') continue;
+
+			$file = $bk_directory .'/'. $backup;
+			if(filemtime($file) > $time_threshold){
+				$valid = true;
+				break;
+			}
+		}
+
+		return $valid;
 	}
 
 	function getTables(){

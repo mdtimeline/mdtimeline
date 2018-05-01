@@ -21,12 +21,12 @@ Ext.define('App.controller.administration.BackUp', {
 
     refs: [
         {
-            ref:'AdministrationBackupRefreshBtn',
-            selector:'#AdministrationBackupRefreshBtn'
-        },
-        {
             ref:'AdministrationBackupGrid',
             selector:'#AdministrationBackupGrid'
+        },
+        {
+            ref:'AdministrationBackupRefreshBtn',
+            selector:'#AdministrationBackupRefreshBtn'
         }
     ],
 
@@ -34,6 +34,12 @@ Ext.define('App.controller.administration.BackUp', {
         var me = this;
 
         me.control({
+            viewport: {
+                render: me.onViewportRender
+            },
+            '#AdministrationBackupPanel': {
+                activate: me.onAdministrationBackupPanelActivate
+            },
             '#AdministrationBackupRefreshBtn': {
                 click: me.onAdministrationBackupRefreshBtnClick
             },
@@ -43,12 +49,60 @@ Ext.define('App.controller.administration.BackUp', {
         });
     },
 
+	onAdministrationBackupPanelActivate: function(){
+		this.getAdministrationBackupGrid().store.load();
+	},
+
+	onViewportRender: function(){
+		if(!a('access_backup_settings')) return;
+
+		BackUp.doBackupCheck(function (backup) {
+			if(backup) return;
+			app.alert(_('no_backup_found_within_24_hours'), 'warning');
+
+			Ext.Msg.show({
+				title: _('no_backup_found_within_24_hours'),
+				msg: _('would_you_like_to_create_one'),
+				buttons: Ext.Msg.YESNO,
+				icon: Ext.Msg.WARNING,
+				fn: function (btn) {
+					if(btn === 'yes'){
+						app.nav.navigateTo('App.view.administration.Backup');
+					}
+				}
+			});
+		});
+
+	},
+
 	onAdministrationBackupRefreshBtnClick: function () {
     	this.getAdministrationBackupGrid().getStore().load();
 	},
 
 	onAdministrationBackupAsyncBackupBtnClick: function () {
-		BackUp.doBackUp({});
+
+    	var me = this;
+
+		Ext.Msg.show({
+			title:  _('this_action_may_take_a_long_time'),
+			msg: _('would_you_like_to_continue'),
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.WARNING,
+			fn: function (btn) {
+				if(btn === 'yes'){
+					Ext.getBody().el.mask(_('creating_backup_be_right_back'));
+
+					BackUp.doBackUp(function () {
+						me.getAdministrationBackupGrid().store.load();
+						Ext.getBody().el.unmask();
+						Ext.Msg.alert(_('sweet'), _('backup_completed'));
+					});
+				}
+			}
+		});
+
+
+
 	}
 
 });

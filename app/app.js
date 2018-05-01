@@ -47837,7 +47837,8 @@ Ext.define('App.controller.patient.Vitals', {
 	},
 
 	onHistoryGridBeforeEdit: function(plugin, context){
-		if(context.record.data.auth_uid !== 0){
+		var auth_uid = context.record.get('auth_uid');
+		if(auth_uid !== 0 && auth_uid !== app.user.id){
 			app.msg(_('oops'), _('this_record_can_not_be_modified_because_it_has_been_signed_by') + ' ' + context.record.data.authorized_by, true);
 			return false;
 		}

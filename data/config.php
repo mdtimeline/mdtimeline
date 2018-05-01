@@ -35,6 +35,9 @@ $API = [
             ],
             'getBackUps' => [
                 'len' => 1
+            ],
+            'doBackupCheck' => [
+                'len' => 0
             ]
         ]
     ],

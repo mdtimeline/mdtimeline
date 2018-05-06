@@ -163,7 +163,7 @@ if (
 			$filesystem_path = $FileSystem->getFileSystemPath($doc['filesystem_id']);
 		}
 
-		$file_path = $filesystem_path . $doc['path'] . '/' . $doc['name'];
+		$file_path = rtrim($filesystem_path, '/') . '/' . trim($doc['path'], '/') . '/' . ltrim($doc['name'],'/');
 		$is_file = isset($doc['path']) && $doc['path'] != '' && file_exists($file_path);
 
 		if ($is_file) {

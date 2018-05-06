@@ -59,6 +59,9 @@ class DocumentHandler {
 
 	private $doctorsnotes;
 
+	private $directory_permission = 0755;
+	private $document_permission = 0644;
+
 	private $mime_types_ext = [
 
 		'application/pdf' => 'pdf',
@@ -324,18 +327,18 @@ class DocumentHandler {
 
 			if(!file_exists($filesystem_path . $document_path)){
 
-				mkdir($filesystem_path . $document_path, 0777, true);
+				mkdir($filesystem_path . $document_path, $this->directory_permission, true);
 				$directories = explode('/', trim($document_path, '/'));
+
 				if(isset($directories[0]) && $directories[0] !== ''){
-					chmod($filesystem_path . '/'. $directories[0], 755);
+					chmod($filesystem_path . '/'. $directories[0], $this->directory_permission);
 				}
 				if(isset($directories[1]) && $directories[1] !== ''){
-					chmod($filesystem_path . '/'. $directories[0]. '/'. $directories[1], 755);
+					chmod($filesystem_path . '/'. $directories[0]. '/'. $directories[1], $this->directory_permission);
 				}
 				if(isset($directories[2]) && $directories[2] !== ''){
-					chmod($filesystem_path . '/'. $directories[0] . '/'. $directories[1] . '/'. $directories[2], 755);
+					chmod($filesystem_path . '/'. $directories[0] . '/'. $directories[1] . '/'. $directories[2], $this->directory_permission);
 				}
-
 			}
 
 			if(isset($document->document_instance) && $document->document_instance > 0 && (!isset($document->document) || $document->document == '')){
@@ -375,7 +378,7 @@ class DocumentHandler {
 				throw new Exception('Unable to write file. document_id: ' . $document->id . ' path: ' . $path);
 			}
 
-			chmod($path, 644);
+			chmod($path, $this->document_permission);
 
 			$sth = $conn->prepare("UPDATE patient_documents SET document = '', filesystem_id = :filesystem_id, path = :path, `name` = :name WHERE id = :id;");
 			$sth->execute([

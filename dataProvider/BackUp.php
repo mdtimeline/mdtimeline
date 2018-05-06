@@ -52,10 +52,6 @@ class BackUp {
 			$this->doDocumentsBackup();
 		}
 
-//		return [
-//			'success' => true
-//		];
-
 		return [
 			'success' => $db_result['success']
 		];
@@ -88,8 +84,7 @@ class BackUp {
 	function doDocumentsBackup(){
 
 		$mysql_bk_directory = $this->getBackupDirectory();
-		$result = $this->AWS->uploadDirectory($mysql_bk_directory, 'mysql-backups');
-		$result->wait();
+		$this->AWS->uploadDirectory($mysql_bk_directory, 'mysql-backups');
 
 		include (ROOT . '/dataProvider/FileSystem.php');
 		$FileSystem = new FileSystem();
@@ -97,8 +92,7 @@ class BackUp {
 
 		foreach($file_systems as $file_system){
 			$key_prefix = 'file_system-' . $file_system['id'] . '/';
-			$result = $this->AWS->uploadDirectory($file_system['dir_path'], "documents-backups/{$key_prefix}");
-			$result->wait();
+			$this->AWS->uploadDirectory($file_system['dir_path'], "documents-backups/{$key_prefix}");
 		}
 
 		return;

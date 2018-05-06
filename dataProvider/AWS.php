@@ -100,7 +100,31 @@ class AWS {
 		]);
 	}
 
+	/**
+	 * @param      $directory
+	 * @param null $keyPrefix
+	 */
 	public function uploadDirectory($directory, $keyPrefix = null){
+		$this->createS3();
+		$this->createBucket($this->bucket);
+		$this->S3->uploadDirectory($directory, $this->bucket, $keyPrefix, [
+			'params' => [
+				'ACL' => 'private'
+			],
+			'before' => function(\Aws\CommandInterface $command) {
+				$command['StorageClass'] = $this->storage_class;
+			}
+		]);
+
+	}
+
+	/**
+	 * @param      $directory
+	 * @param null $keyPrefix
+	 *
+	 * @return \GuzzleHttp\Promise\PromiseInterface
+	 */
+	public function uploadDirectoryAsync($directory, $keyPrefix = null){
 		$this->createS3();
 		$this->createBucket($this->bucket);
 		return $this->S3->uploadDirectoryAsync($directory, $this->bucket, $keyPrefix, [

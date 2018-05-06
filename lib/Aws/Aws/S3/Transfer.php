@@ -343,7 +343,12 @@ class Transfer implements PromisorInterface
         $args['SourceFile'] = $filename;
         $args['Key'] = $this->createS3Key($filename);
         $command = $this->client->getCommand('PutObject', $args);
-        $this->before and call_user_func($this->before, $command);
+        $this->before and $is_same = call_user_func($this->before, $command);
+
+        //MDTIMELINE
+        if(isset($is_same) && $is_same === true){
+        	return false;
+        }
 
         return $this->client->executeAsync($command);
     }

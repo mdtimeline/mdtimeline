@@ -323,8 +323,19 @@ class DocumentHandler {
 			$document_path .= '/' . str_ireplace(['-', ' '], '/', substr($document->date, 0, 10));
 
 			if(!file_exists($filesystem_path . $document_path)){
+
 				mkdir($filesystem_path . $document_path, 0777, true);
-				chmod($filesystem_path . $document_path, 755);
+				$directories = explode('/', trim($document_path, '/'));
+				if(isset($directories[0]) && $directories[0] !== ''){
+					chmod($filesystem_path . '/'. $directories[0], 755);
+				}
+				if(isset($directories[1]) && $directories[1] !== ''){
+					chmod($filesystem_path . '/'. $directories[0]. '/'. $directories[1], 755);
+				}
+				if(isset($directories[2]) && $directories[2] !== ''){
+					chmod($filesystem_path . '/'. $directories[0] . '/'. $directories[1] . '/'. $directories[2], 755);
+				}
+
 			}
 
 			if(isset($document->document_instance) && $document->document_instance > 0 && (!isset($document->document) || $document->document == '')){
@@ -363,6 +374,8 @@ class DocumentHandler {
 			if(file_put_contents($path, $document->document) === false){
 				throw new Exception('Unable to write file. document_id: ' . $document->id . ' path: ' . $path);
 			}
+
+			chmod($path, 644);
 
 			$sth = $conn->prepare("UPDATE patient_documents SET document = '', filesystem_id = :filesystem_id, path = :path, `name` = :name WHERE id = :id;");
 			$sth->execute([

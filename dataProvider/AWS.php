@@ -111,8 +111,28 @@ class AWS {
 			'params' => [
 				'ACL' => 'private'
 			],
+			'force' => false,
+			'mup_threshold' => 52428800,
 			'before' => function(\Aws\CommandInterface $command) {
+
 				$command['StorageClass'] = $this->storage_class;
+
+				try{
+					$data = $command->toArray();
+
+					if(!isset($data['SourceFile'])){
+						return false;
+					}
+
+					$size = filesize($data['SourceFile']);
+					$head = $this->S3->headObject([
+						'Bucket' => $data['Bucket'],
+						'Key' => $data['Key']
+					])->toArray();
+					return $head['ContentLength'] === $size;
+				}catch(\Aws\Exception\AwsException $e){
+					return false;
+				}
 			}
 		]);
 
@@ -131,8 +151,22 @@ class AWS {
 			'params' => [
 				'ACL' => 'private'
 			],
+			'force' => false,
+			'mup_threshold' => 52428800,
 			'before' => function(\Aws\CommandInterface $command) {
 				$command['StorageClass'] = $this->storage_class;
+
+				try{
+					$data = $command->toArray();
+					$size = filesize($data['SourceFile']);
+					$head = $this->S3->headObject([
+						'Bucket' => $data['Bucket'],
+						'Key' => $data['Key']
+					])->toArray();
+					return $head['ContentLength'] === $size;
+				}catch(\Aws\Exception\AwsException $e){
+					return false;
+				}
 			}
 		]);
 

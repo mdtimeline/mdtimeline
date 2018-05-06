@@ -49,7 +49,10 @@ class BackUp {
 		$db_result = $this->doDatabaseBackup($do_s3_upload);
 
 		if($do_s3_upload){
-			$this->doDocumentsBackup();
+			if($db_result['success']){
+				$this->doAwsDatabaseBackup($db_result['bk_filename'], $db_result['bk_file']);
+			}
+			$this->doAwsDocumentsBackup();
 		}
 
 		return [
@@ -61,7 +64,7 @@ class BackUp {
 
 	function doDatabaseBackup($do_s3_upload){
 		$options = '--compact --single-transaction --max_allowed_packet=1G --triggers ';
-		$bk_hosname = site_db_host;
+		$bk_hostname = site_db_host;
 		$bk_username = site_db_username;
 		$bk_password = site_db_password;
 		$bk_database = site_db_database;
@@ -72,19 +75,23 @@ class BackUp {
 		$bk_filename = $this->getBackupFileName();
 		$bk_file = "{$bk_directory}/{$bk_filename}.gz";
 
-		$cmd = "mysqldump --host={$bk_hosname} --user={$bk_username} --password={$bk_password} {$options} {$bk_database} {$bk_tables} | gzip > {$bk_file}";
+		$cmd = "mysqldump --host={$bk_hostname} --user={$bk_username} --password={$bk_password} {$options} {$bk_database} {$bk_tables} | gzip > {$bk_file}";
 
 		$success = shell_exec($cmd);
 
 		return [
-			'success' => $success !== null
+			'success' => $success !== null,
+			'bk_filename' => $bk_filename,
+			'bk_file' => $bk_file
 		];
 	}
 
-	function doDocumentsBackup(){
+	function doAwsDatabaseBackup($bk_filename, $bk_file){
+		$this->AWS->putObject($bk_filename, $bk_file, 'mysql-backups');
+		return;
+	}
 
-		$mysql_bk_directory = $this->getBackupDirectory();
-		$this->AWS->uploadDirectory($mysql_bk_directory, 'mysql-backups');
+	function doAwsDocumentsBackup(){
 
 		include (ROOT . '/dataProvider/FileSystem.php');
 		$FileSystem = new FileSystem();

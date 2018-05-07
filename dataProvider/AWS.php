@@ -93,7 +93,7 @@ class AWS {
 		$this->createBucket($this->bucket);
 		return $this->S3->putObject([
 			'Bucket' => $this->bucket,
-			'Key'    => ($prefix . $filename),
+			'Key'    => ($prefix .'/'. $filename),
 			'SourceFile'   => $file,
 			'ACL' => 'private',
 			'StorageClass' => $this->storage_class

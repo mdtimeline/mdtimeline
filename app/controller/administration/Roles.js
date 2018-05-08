@@ -20,7 +20,8 @@ Ext.define('App.controller.administration.Roles', {
 	extend: 'Ext.app.Controller',
 
 	requires: [
-		'App.model.administration.AclGroupPerm'
+		'App.model.administration.AclGroupPerm',
+		'App.ux.grid.Printer'
 	],
 
 	refs: [
@@ -53,8 +54,15 @@ Ext.define('App.controller.administration.Roles', {
 			},
 			'button[action=adminAclCancel]': {
 				click: this.doCancelAcl
+			},
+			'#AdministrationRoleGridPrintBtn': {
+				click: this.onAdministrationRoleGridPrintBtnClick
 			}
 		});
+	},
+
+	onAdministrationRoleGridPrintBtnClick: function(){
+		App.ux.grid.Printer.print(this.getAdministrationRoleGrid());
 	},
 
 	onAdministrationRolePanelRender: function(){

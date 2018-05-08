@@ -1720,7 +1720,7 @@ Ext.define('App.ux.grid.LiveSearchGridPanel', {
 		this.onTextFieldChange();
 	}
 });
-Ext.define("Ext.ux.grid.Printer", {
+Ext.define("App.ux.grid.Printer", {
 
 	requires: 'Ext.XTemplate',
 
@@ -1851,7 +1851,7 @@ Ext.define("Ext.ux.grid.Printer", {
 
 			//get Styles file relative location, if not supplied
 			if(this.stylesheetPath === null){
-				var scriptPath = Ext.Loader.getPath('Ext.ux.grid.Printer');
+				var scriptPath = Ext.Loader.getPath('App.ux.grid.Printer');
 				this.stylesheetPath = scriptPath.substring(0, scriptPath.indexOf('Printer.js')) + 'gridPrinterCss/print.css';
 			}
 
@@ -54275,6 +54275,11 @@ Ext.define('App.view.administration.Roles', {
 				},
 				'-',
 				'->',
+				{
+					xtype: 'button',
+					text: _('print'),
+					itemId: 'AdministrationRoleGridPrintBtn'
+				},
 				'-',
 				{
 					xtype: 'button',
@@ -58112,7 +58117,8 @@ Ext.define('App.controller.administration.Roles', {
 	extend: 'Ext.app.Controller',
 
 	requires: [
-		'App.model.administration.AclGroupPerm'
+		'App.model.administration.AclGroupPerm',
+		'App.ux.grid.Printer'
 	],
 
 	refs: [
@@ -58145,8 +58151,15 @@ Ext.define('App.controller.administration.Roles', {
 			},
 			'button[action=adminAclCancel]': {
 				click: this.doCancelAcl
+			},
+			'#AdministrationRoleGridPrintBtn': {
+				click: this.onAdministrationRoleGridPrintBtnClick
 			}
 		});
+	},
+
+	onAdministrationRoleGridPrintBtnClick: function(){
+		App.ux.grid.Printer.print(this.getAdministrationRoleGrid());
 	},
 
 	onAdministrationRolePanelRender: function(){

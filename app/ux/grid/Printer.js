@@ -69,7 +69,7 @@
  * Set printLinkText and closeLinkText as params
  * Added param for page title.
  */
-Ext.define("Ext.ux.grid.Printer", {
+Ext.define("App.ux.grid.Printer", {
 
 	requires: 'Ext.XTemplate',
 
@@ -200,7 +200,7 @@ Ext.define("Ext.ux.grid.Printer", {
 
 			//get Styles file relative location, if not supplied
 			if(this.stylesheetPath === null){
-				var scriptPath = Ext.Loader.getPath('Ext.ux.grid.Printer');
+				var scriptPath = Ext.Loader.getPath('App.ux.grid.Printer');
 				this.stylesheetPath = scriptPath.substring(0, scriptPath.indexOf('Printer.js')) + 'gridPrinterCss/print.css';
 			}
 

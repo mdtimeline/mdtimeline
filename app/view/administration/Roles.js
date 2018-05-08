@@ -65,6 +65,11 @@ Ext.define('App.view.administration.Roles', {
 				},
 				'-',
 				'->',
+				{
+					xtype: 'button',
+					text: _('print'),
+					itemId: 'AdministrationRoleGridPrintBtn'
+				},
 				'-',
 				{
 					xtype: 'button',

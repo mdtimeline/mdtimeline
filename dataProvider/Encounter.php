@@ -562,12 +562,12 @@ class Encounter {
 			}
 
 			$soap = $this->getSoapByEid($eid);
-			$soap['subjective'] = (isset($soap['subjective']) ? $soap['subjective'] : '') . $this->getSubjectiveExtraDataByEid($eid, $encounter);
-			$soap['assessment'] = isset($soap['assessment']) ? $soap['assessment'] : '';
+			$soap['subjective'] = (isset($soap['subjective']) ? (trim($soap['subjective']) . '<br>') : '') . $this->getSubjectiveExtraDataByEid($eid, $encounter);
+			$soap['assessment'] = (isset($soap['assessment']) ? (trim($soap['assessment']) . '<br>') : '');
 			$soap['objective'] = $this->getObjectiveExtraDataByEid($eid, $encounter) . (isset($soap['objective']) ? $soap['objective'] : '');
 			$soap['assessment'] = $soap['assessment'] . (isset($dxOl) ? $dxOl : '');
-			$instructions = isset($soap['instructions']) ? $soap['instructions'] : null;
-			$soap['plan'] = (isset($soap['plan']) ? $soap['plan'] : '') . $this->getPlanExtraDataByEid($eid, $instructions);
+			$instructions = (isset($soap['instructions']) ? (trim($soap['instructions']) . '<br>') : null);
+			$soap['plan'] = (isset($soap['plan']) ? (trim($soap['plan']) . '<br>') : '') . '<br>' . $this->getPlanExtraDataByEid($eid, $instructions);
 			$encounter['soap'] = $soap;
 		}
 

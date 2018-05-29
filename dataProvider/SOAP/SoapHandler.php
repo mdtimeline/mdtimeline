@@ -798,6 +798,68 @@ class SoapHandler
 			'Success' => isset($result['data']->id)
 		];
 	}
+	/**
+	 * @param $params
+	 * @return array
+	 */
+	public function GetDocuments($params)
+	{
+		$this->constructor($params);
+
+		if (!$this->isAuth()) {
+			return [
+				'Success' => false,
+				'Error' => 'Error: HTTP 403 Access Forbidden'
+			];
+		}
+
+		if($params->DocumentIds === ''){
+			return [
+				'Success' => false,
+				'Error' => 'Error: DocumentIds required'
+			];
+		}
+
+		$ids = explode(',', $params->DocumentIds);
+
+		$filters = new stdClass();
+		$filters->filter = [];
+
+		foreach($ids as $id){
+			$foo = new stdClass();
+			$foo->property = 'id';
+			$foo->value = $id;
+			$filters->filter[] = $foo;
+		}
+
+		require_once(ROOT . '/dataProvider/DocumentHandler.php');
+		$DocumentHandler = new DocumentHandler();
+		$documents = $DocumentHandler->getPatientDocuments($filters, true, false);
+
+
+		$Documents = [];
+
+		foreach($documents['data'] as $document){
+			if(!isset($document['document']) || empty($document['document'])) continue;
+
+			$Documents[] = [
+				'Id' => $document['id'],
+				'Code' => $document['code'],
+				'Base64Data' => $document['document'],
+				'Date' => $document['date'],
+				'Title' => $document['title'],
+				'Category' => $document['docType'],
+				'Notes' => $document['note'],
+				'Encrypted' => false,
+			];
+
+		}
+
+		return [
+			'Success' => true,
+			'Document' => array_slice($Documents, 0, 99)
+		];
+	}
 
 	/**
 	 * @param $provider

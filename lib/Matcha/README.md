@@ -31,7 +31,7 @@ and also creates Sencha Model (.js) files dynamically.
 
 [MatchaModel Documentation](documentation/MatchaModel.md)
 
-##MatchaMemory Class:
+##MatchaCache Class:
 This class stores parsed Sencha Model into the server memory to speed things up. It can be used for other memory
 storing purposes.
 

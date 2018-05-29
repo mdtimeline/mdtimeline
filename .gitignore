@@ -1,6 +1,7 @@
 .idea
 sites/*/*
 temp/*
+lib/Matcha/cache/*
 GaiaEHR.iml
 gaiaehr.iml
 mdTimeLine EHR.iml

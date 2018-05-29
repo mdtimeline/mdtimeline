@@ -130,6 +130,12 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 
         Ext.onReady(function(){
             app = Ext.create('App.view.login.Login');
+
+            let kairos = Ext.create('Modules.kairos.Main');
+            if(kairos) {
+            	kairos.init();
+            }
+
         });
     </script>
 </head>

@@ -44,7 +44,7 @@ class MatchaModel extends Matcha {
 	 * This method needs rework, this method has to be the brain!
 	 *
 	 * @param string $fileModel 'App.model.Example'
-	 * @param bool $force for to read the sencha model file (skip the MatchaMemory)
+	 * @param bool $force for to read the sencha model file (skip the MatchaCache)
 	 * @param null $instance
 	 * @return bool success
 	 *
@@ -54,17 +54,18 @@ class MatchaModel extends Matcha {
 		try {
 			self::$fileModel = $fileModel;
 
-			// skip this entire routine if freeze option is true
-			if(!$force && self::$__freeze){
-				self::$__senchaModel = self::__getSenchaModel($fileModel, $instance);
+			self::$__senchaModel = [];
+
+			// check the difference in dates of the Sencha model file and the stored Sencha model on the server memory,
+			// if there are equal go ahead and load the model from memory and quit the procedure
+			if(!$force && self::__getFileModifyDate($fileModel) == MatchaCache::__getSenchaModelLastChange($fileModel, $instance)){
+				self::$__senchaModel = MatchaCache::__getModelFromMemory($fileModel, $instance);
 				return true;
 			}
 
-			self::$__senchaModel = [];
-			// check the difference in dates of the Sencha model file and the stored Sencha model on the server memory,
-			// if there are equal go ahead and load the model from memory and quit the procedure
-			if(!$force && self::__getFileModifyDate($fileModel) == MatchaMemory::__getSenchaModelLastChange($fileModel, $instance)){
-				self::$__senchaModel = MatchaMemory::__getModelFromMemory($fileModel, $instance);
+			// skip this entire routine if freeze option is true
+			if(!$force && self::$__freeze){
+				self::$__senchaModel = self::__getSenchaModel($fileModel, $instance);
 				return true;
 			}
 
@@ -301,7 +302,7 @@ class MatchaModel extends Matcha {
 			$model['parsed_data']['arrayFields'] = MatchaModel::__getArrayFields($model);
 			$model['parsed_data']['fieldsProperties'] = (array)MatchaModel::__getFieldsProperties($model);
 
-			if(!MatchaMemory::__storeSenchaModel($fileModel, $model, $instance)){
+			if(!MatchaCache::__storeSenchaModel($fileModel, $model, $instance)){
 				throw new Exception("Error storing sencha model into memory.");
 			}
 

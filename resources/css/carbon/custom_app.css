@@ -8,6 +8,14 @@
     src: url('../../fonts/OpenSans-CondLight.ttf');
 }
 
+.capture_invalid {
+    background: url("../../../resources/images/icons/capture_circle_invalid.png") no-repeat center center;
+}
+
+.capture_valid {
+    background: url("../../../resources/images/icons/capture_circle_valid.png") no-repeat center center;
+}
+
 .encounter-not-same-day {
     background-color: red !important;
 }

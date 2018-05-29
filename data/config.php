@@ -18,6 +18,13 @@
  */
 
 $API = [
+    'Site' => [
+        'methods' => [
+            'create_guid_col' => [
+                'len' => 0
+            ]
+        ]
+    ],
     'Printer' => [
         'methods' => [
             'doTempDocumentPrint' => [
@@ -2345,6 +2352,9 @@ $API = [
             ],
 			'convertToPath' => [
 				'len' => 1
+            ],
+			'documentSyncer' => [
+				'len' => 0
             ]
         ]
     ],

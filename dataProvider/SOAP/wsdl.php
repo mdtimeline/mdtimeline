@@ -2,6 +2,10 @@
 $functions = [];
 $complexTypes = [];
 
+if(!defined('_GaiaEXEC')) define('_GaiaEXEC', 1);
+include_once ('../../registry.php');
+
+
 /*****************************************************************************
  * To access this WSDL specification run via: /wsdl.php?WSDL
  * Any other access to this WSDL will display as a HTML document
@@ -30,21 +34,20 @@ $complexTypes = [];
  */
 
 $serviceName = 'mdTimeLine v.1.0 API';
-
-$Server = '10.23.150.10/GaiaEHR';
+$ServerURL =  URL;
 
 $complexTypes['Patient'] = [
 	[
 		'name' => 'Pid',
 		'type' => 'int',
 		'minOccurs' => '1',
-		'document' => 'GaiaEHR Internal ID'
+		'document' => 'mdtimeline Internal ID'
 	],
 	[
 		'name' => 'RecordNumber',
 		'type' => 'string',
 		'minOccurs' => '0',
-		'document' => 'GaiaEHR Public ID or Record Number'
+		'document' => 'mdtimeline Public ID or Record Number'
 	],
 	[
 		'name' => 'Title',
@@ -444,7 +447,17 @@ $complexTypes['Provider'] = [
 
 $complexTypes['Document'] = [
 	[
-		'name' => 'Base64Document',
+		'name' => 'Id',
+		'type' => 'int',
+		'minOccurs' => '0'
+	],
+	[
+		'name' => 'Code',
+		'type' => 'string',
+		'minOccurs' => '0'
+	],
+	[
+		'name' => 'Base64Data',
 		'type' => 'string',
 		'minOccurs' => '1'
 	],
@@ -511,7 +524,7 @@ $functions[] = [
 			'name' => 'ServerSite',
 			'type' => 'string',
 			'minOccurs' => '1',
-			'document' => 'GaiaEHR site'
+			'document' => 'mdtimeline site'
 		],
 		[
 			'name' => 'PatientRecordNumber',
@@ -570,7 +583,7 @@ $functions[] = [
 			'document' => 'If success == false an error message will be send back'
 		]
 	],
-	'soapAddress' => "http://$Server/dataProvider/SOAP/Server.php"
+	'soapAddress' => "{$ServerURL}/dataProvider/SOAP/Server.php"
 ];
 
 $functions[] = [
@@ -587,13 +600,13 @@ $functions[] = [
 			'name' => 'ServerSite',
 			'type' => 'string',
 			'minOccurs' => '1',
-			'document' => 'GaiaEHR site'
+			'document' => 'mdtimeline site'
 		],
 		[
 			'name' => 'Pid',
 			'type' => 'string',
 			'minOccurs' => '1',
-			'document' => 'GaiaEHR Internal ID'
+			'document' => 'mdtimeline Internal ID'
 		],
 		[
 			'name' => 'Facility',
@@ -634,7 +647,7 @@ $functions[] = [
 			'document' => 'If success == false an error message will be send back'
 		]
 	],
-	'soapAddress' => "http://$Server/dataProvider/SOAP/Server.php"
+	'soapAddress' => "{$ServerURL}/dataProvider/SOAP/Server.php"
 ];
 
 $functions[] = [
@@ -651,13 +664,13 @@ $functions[] = [
 			'name' => 'ServerSite',
 			'type' => 'string',
 			'minOccurs' => '1',
-			'document' => 'GaiaEHR site'
+			'document' => 'mdtimeline site'
 		],
 		[
 			'name' => 'Pid',
 			'type' => 'string',
 			'minOccurs' => '1',
-			'document' => 'GaiaEHR Internal ID'
+			'document' => 'mdtimeline Internal ID'
 		],
 		[
 			'name' => 'DateStart',
@@ -698,12 +711,12 @@ $functions[] = [
 			'document' => 'If success == false an error message will be send back'
 		]
 	],
-	'soapAddress' => "http://$Server/dataProvider/SOAP/Server.php"
+	'soapAddress' => "{$ServerURL}/dataProvider/SOAP/Server.php"
 ];
 
 $functions[] = [
 	'funcName' => 'AddPatient',
-	'doc' => 'This will add a patient to GaiaEHR',
+	'doc' => 'This will add a patient to mdtimeline',
 	'inputParams' => [
 		[
 			'name' => 'SecureKey',
@@ -715,7 +728,7 @@ $functions[] = [
 			'name' => 'ServerSite',
 			'type' => 'string',
 			'minOccurs' => '1',
-			'document' => 'GaiaEHR site'
+			'document' => 'mdtimeline site'
 		],
 		[
 			'name' => 'Patient',
@@ -749,12 +762,12 @@ $functions[] = [
 			'document' => 'If success == false an error message will be send back'
 		]
 	],
-	'soapAddress' => "http://$Server/dataProvider/SOAP/Server.php"
+	'soapAddress' => "{$ServerURL}/dataProvider/SOAP/Server.php"
 ];
 
 $functions[] = [
 	'funcName' => 'UpdatePatient',
-	'doc' => 'This will add a patient to GaiaEHR',
+	'doc' => 'This will add a patient to mdtimeline',
 	'inputParams' => [
 		[
 			'name' => 'SecureKey',
@@ -766,7 +779,7 @@ $functions[] = [
 			'name' => 'ServerSite',
 			'type' => 'string',
 			'minOccurs' => '1',
-			'document' => 'GaiaEHR site'
+			'document' => 'mdtimeline site'
 		],
 		[
 			'name' => 'Patient',
@@ -800,7 +813,7 @@ $functions[] = [
 			'document' => 'If success == false an error message will be send back'
 		]
 	],
-	'soapAddress' => "http://$Server/dataProvider/SOAP/Server.php"
+	'soapAddress' => "{$ServerURL}/dataProvider/SOAP/Server.php"
 ];
 
 $functions[] = [
@@ -817,7 +830,7 @@ $functions[] = [
 			'name' => 'ServerSite',
 			'type' => 'string',
 			'minOccurs' => '1',
-			'document' => 'GaiaEHR site'
+			'document' => 'mdtimeline site'
 		],
 		[
 			'name' => 'PrimaryPid',
@@ -866,7 +879,7 @@ $functions[] = [
 			'document' => 'If success == false an error message will be send back'
 		]
 	],
-	'soapAddress' => "http://$Server/dataProvider/SOAP/Server.php"
+	'soapAddress' => "{$ServerURL}/dataProvider/SOAP/Server.php"
 ];
 
 $functions[] = [
@@ -883,7 +896,7 @@ $functions[] = [
 			'name' => 'ServerSite',
 			'type' => 'string',
 			'minOccurs' => '1',
-			'document' => 'GaiaEHR site'
+			'document' => 'mdtimeline site'
 		],
 		[
 			'name' => 'PrimaryPid',
@@ -932,11 +945,11 @@ $functions[] = [
 			'document' => 'If success == false an error message will be send back'
 		]
 	],
-	'soapAddress' => "http://$Server/dataProvider/SOAP/Server.php"
+	'soapAddress' => "{$ServerURL}/dataProvider/SOAP/Server.php"
 ];
 
 $functions[] = [
-	'funcName' => 'AppPatientDocument',
+	'funcName' => 'UploadPatientDocument',
 	'doc' => 'This will add a document to the patient archive documents',
 	'inputParams' => [
 		[
@@ -949,7 +962,7 @@ $functions[] = [
 			'name' => 'ServerSite',
 			'type' => 'string',
 			'minOccurs' => '1',
-			'document' => 'GaiaEHR site'
+			'document' => 'mdtimeline site'
 		],
 		[
 			'name' => 'Pid',
@@ -970,7 +983,7 @@ $functions[] = [
 			'name' => 'OrderId',
 			'type' => 'int',
 			'minOccurs' => '0',
-			'document' => 'GaiaEHR Order ID if document is an result of an order'
+			'document' => 'mdtimeline Order ID if document is an result of an order'
 		],
 		[
 			'name' => 'Site',
@@ -1005,7 +1018,54 @@ $functions[] = [
 			'document' => 'If success == false an error message will be send back'
 		]
 	],
-	'soapAddress' => "http://$Server/dataProvider/SOAP/Server.php"
+	'soapAddress' => "{$ServerURL}/dataProvider/SOAP/Server.php"
+];
+
+$functions[] = [
+	'funcName' => 'GetDocuments',
+	'doc' => 'This will add a document to the patient archive documents',
+	'inputParams' => [
+		[
+			'name' => 'SecureKey',
+			'type' => 'string',
+			'minOccurs' => '1',
+			'document' => 'GUID Secure Key provided'
+		],
+		[
+			'name' => 'ServerSite',
+			'type' => 'string',
+			'minOccurs' => '1',
+			'document' => 'mdtimeline site'
+		],
+		[
+			'name' => 'DocumentIds',
+			'type' => 'string',
+			'minOccurs' => '1',
+			'document' => 'Document IDs comma delimited (1,2,3,4,5)'
+		]
+	],
+	'outputParams' => [
+		[
+			'name' => 'Success',
+			'type' => 'boolean',
+			'minOccurs' => '1',
+			'document' => 'True if request was successfully processed'
+		],
+		[
+			'name' => 'Document',
+			'type' => 'Document',
+			'minOccurs' => '0',
+			'maxOccurs' => '99',
+			'document' => 'document(s)'
+		],
+		[
+			'name' => 'Error',
+			'type' => 'string',
+			'minOccurs' => '0',
+			'document' => 'If success == false an error message will be send back'
+		]
+	],
+	'soapAddress' => "{$ServerURL}/dataProvider/SOAP/Server.php"
 ];
 
 $functions[] = [
@@ -1022,7 +1082,7 @@ $functions[] = [
 			'name' => 'ServerSite',
 			'type' => 'string',
 			'minOccurs' => '1',
-			'document' => 'GaiaEHR site'
+			'document' => 'mdtimeline site'
 		],
 		[
 			'name' => 'PatientAccount',
@@ -1072,7 +1132,7 @@ $functions[] = [
 			'document' => 'If success == false an error message will be send back'
 		]
 	],
-	'soapAddress' => "http://$Server/dataProvider/SOAP/Server.php"
+	'soapAddress' => "{$ServerURL}/dataProvider/SOAP/Server.php"
 ];
 
 $functions[] = [
@@ -1089,7 +1149,7 @@ $functions[] = [
 			'name' => 'ServerSite',
 			'type' => 'string',
 			'minOccurs' => '1',
-			'document' => 'GaiaEHR site'
+			'document' => 'mdtimeline site'
 		],
 		[
 			'name' => 'PortalId',
@@ -1131,7 +1191,7 @@ $functions[] = [
 			'name' => 'AmendmentId',
 			'type' => 'string',
 			'minOccurs' => '0',
-			'document' => 'GaiaEHR Amendment Reference ID'
+			'document' => 'mdtimeline Amendment Reference ID'
 		],
 		[
 			'name' => 'Error',
@@ -1140,7 +1200,7 @@ $functions[] = [
 			'document' => 'If success == false an error message will be send back'
 		]
 	],
-	'soapAddress' => "http://$Server/dataProvider/SOAP/Server.php"
+	'soapAddress' => "{$ServerURL}/dataProvider/SOAP/Server.php"
 ];
 
 $functions[] = [
@@ -1157,7 +1217,7 @@ $functions[] = [
 			'name' => 'ServerSite',
 			'type' => 'string',
 			'minOccurs' => '1',
-			'document' => 'GaiaEHR site'
+			'document' => 'mdtimeline site'
 		],
 		[
 			'name' => 'Pid',
@@ -1184,7 +1244,7 @@ $functions[] = [
 			'document' => 'If success == false an error message will be send back'
 		]
 	],
-	'soapAddress' => "http://$Server/dataProvider/SOAP/Server.php"
+	'soapAddress' => "{$ServerURL}/dataProvider/SOAP/Server.php"
 ];
 
 $functions[] = [
@@ -1201,7 +1261,7 @@ $functions[] = [
 			'name' => 'ServerSite',
 			'type' => 'string',
 			'minOccurs' => '1',
-			'document' => 'GaiaEHR site'
+			'document' => 'mdtimeline site'
 		]
 	],
 	'outputParams' => [
@@ -1224,7 +1284,7 @@ $functions[] = [
 			'document' => 'If success == false an error message will be send back'
 		]
 	],
-	'soapAddress' => "http://$Server/dataProvider/SOAP/Server.php"
+	'soapAddress' => "{$ServerURL}/dataProvider/SOAP/Server.php"
 ];
 
 $functions[] = [
@@ -1241,7 +1301,7 @@ $functions[] = [
 			'name' => 'ServerSite',
 			'type' => 'string',
 			'minOccurs' => '1',
-			'document' => 'GaiaEHR site'
+			'document' => 'mdtimeline site'
 		]
 	],
 	'outputParams' => [
@@ -1264,7 +1324,7 @@ $functions[] = [
 			'document' => 'If success == false an error message will be send back'
 		]
 	],
-	'soapAddress' => "http://$Server/dataProvider/SOAP/Server.php"
+	'soapAddress' => "{$ServerURL}/dataProvider/SOAP/Server.php"
 ];
 
 if(stristr($_SERVER['QUERY_STRING'], 'wsdl'))
@@ -1421,7 +1481,9 @@ function DisplayXML($xmlformat = true) {
 			$str .= $t3 . '<s:complexType>' . "\n";
 			$str .= $t4 . '<s:sequence>' . "\n";
 			for($j = 0; $j < count($functions[$i]['inputParams']); $j++){
-				$str .= $t5 . '<s:element minOccurs="' . $functions[$i]['inputParams'][$j]['minOccurs'] . '" maxOccurs="1" ';
+				$maxOccurs = isset($functions[$i]['inputParams'][$j]['maxOccurs']) ?
+					$functions[$i]['inputParams'][$j]['maxOccurs'] : 1;
+				$str .= $t5 . '<s:element minOccurs="' . $functions[$i]['inputParams'][$j]['minOccurs'] . '" maxOccurs="'.$maxOccurs.'" ';
 				$str .= 'name="' . $functions[$i]['inputParams'][$j]['name'] . '" ';
 				$str .= 'type="' . ((isset($complexTypes[$functions[$i]['inputParams'][$j]['type']])) ? 'tns' : 's');
 				$str .= ':' . $functions[$i]['inputParams'][$j]['type'] . '" />' . "\n";
@@ -1436,7 +1498,9 @@ function DisplayXML($xmlformat = true) {
 			$str .= $t3 . '<s:complexType>' . "\n";
 			$str .= $t4 . '<s:sequence>' . "\n";
 			for($j = 0; $j < count($functions[$i]['outputParams']); $j++){
-				$str .= $t5 . '<s:element minOccurs="' . $functions[$i]['outputParams'][$j]['minOccurs'] . '" maxOccurs="1" ';
+				$maxOccurs = isset($functions[$i]['outputParams'][$j]['maxOccurs']) ?
+					$functions[$i]['outputParams'][$j]['maxOccurs'] : 1;
+				$str .= $t5 . '<s:element minOccurs="' . $functions[$i]['outputParams'][$j]['minOccurs'] . '" maxOccurs="'.$maxOccurs.'" ';
 				$str .= 'name="' . $functions[$i]['outputParams'][$j]['name'] . '" ';
 				$str .= 'type="' . ((isset($complexTypes[$functions[$i]['outputParams'][$j]['type']])) ? 'tns' : 's');
 				$str .= ':' . $functions[$i]['outputParams'][$j]['type'] . '" />' . "\n";

@@ -136,6 +136,10 @@ class BackUp {
 		$valid = false;
 		$time_threshold = strtotime("-{$this->backup_warning_hours} hours");
 
+		if(!file_exists($bk_directory) || !is_writable($bk_directory)){
+			return true;
+		}
+
 		$backups = scandir($bk_directory);
 
 		foreach($backups as $i => $backup){

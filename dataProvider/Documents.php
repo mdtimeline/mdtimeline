@@ -62,6 +62,11 @@ class Documents {
 	 */
 	private $h;
 
+	/**
+	 * @var int
+	 */
+	private $max_order_rows = 99;
+
 	function __construct() {
 		$this->db = new MatchaHelper();
 		$this->Patient = new Patient();
@@ -83,7 +88,7 @@ class Documents {
 	}
 
 	public function getTemplateBodyById($id) {
-		$this->db->setSQL("SELECT title, body FROM documents_templates WHERE id = '$id' ");
+		$this->db->setSQL("SELECT title, body, max_order_items_per_page FROM documents_templates WHERE id = '$id' ");
 		return $this->db->fetchRecord(PDO::FETCH_ASSOC);
 	}
 
@@ -431,35 +436,6 @@ class Documents {
 					$tokens = array_merge($tokens, $line_tokens[0]);
 				}
 
-//				$header_data = [];
-//				$footer_data = [];
-//				$array1 = $this->getProviderData($params);
-//				$array2 = $this->getPatientTokesDataByPid($pid);
-//				$header_footer_tokens_data = array_merge($array1,$array2);
-//
-//				$header_footer_tokens = array_keys($header_footer_tokens_data);
-//				$header_footer_values = array_values($header_footer_tokens_data);
-//
-//				foreach($header_footer_lines as $line){
-//					$line['text'] = str_replace($header_footer_tokens, $header_footer_values, $line['text']);
-//
-//					if($line['data_type'] == 'HEADER'){
-//						$header_data[] = $line;
-//					}elseif($line['data_type'] == 'FOOTER'){
-//						$footer_data[] = $line;
-//					}
-//				}
-//				unset($header_footer_lines, $provider_data, $header_footer_tokens, $header_footer_values);
-//
-//				if(!empty($header_data)){
-//					$pdf->addCustomHeaderData($header_data);
-//				}
-//
-//				if(!empty($footer_data)){
-//					$pdf->addCustomFooterData($footer_data);
-//				}
-//
-//				unset($header_data, $footer_data);
 			}
 		}
 
@@ -536,6 +512,14 @@ class Documents {
 			$body = $this->getTemplateBodyById($params->templateId);
 		}else{
 			$body['body'] = isset($params->body) ? $params->body : '';
+		}
+
+		if(isset($body) && is_array($body) && $body['max_order_items_per_page']){
+			$max_items = intval($body['max_order_items_per_page']);
+
+			if($max_items > 0){
+				$this->max_order_rows = $max_items;
+			}
 		}
 
 		if(isset($tokens)){
@@ -909,35 +893,53 @@ class Documents {
 	public function arrayToTable($array) {
 		if(!is_array($array) || count($array) == 0)
 			return 'N/A';
-		// open table tag
-		$table = '<table width="100%" border="0" cellspacing="0" cellpadding="5" style="margin: 0">';
+
+		$html = '';
+		$max_rows = $this->max_order_rows;
+		$running_rows = 0;
+
 
 		// get header row
 		$th = array_shift($array);
 
-		// table header
-
-		if(count($th) > 1 && $th[0] !== ''){
-			$table .= '<tr>';
-			foreach($th AS $cell){
-				$table .= '<th style="border-bottom:1px solid #000000;">' . $cell . '</th>';
-			}
-			$table .= '</tr>';
-		}
+		$total_rows = count($array);
 
 		// table rows
 		foreach($array AS $index => $row){
-			$table .= '<tr>';
+
+			// start table
+			if($running_rows === 0){
+				$html .= '<table width="100%" border="0" cellspacing="0" cellpadding="5" style="margin: 0">';
+				if(count($th) > 1 && $th[0] !== ''){
+					$html .= '<tr>';
+					foreach($th AS $cell){
+						$html .= '<th style="border-bottom:1px solid #000000;">' . $cell . '</th>';
+					}
+					$html .= '</tr>';
+				}
+			}
+
+			$html .= '<tr>';
 			foreach($row AS $cell){
 				$color = ($index % 2 == 0 ? '#ffffff' : '#f6f6f6');
-				$table .= '<td style="background-color:' . $color . ';">' . $cell . '</td>';
+				$html .= '<td style="background-color:' . $color . ';">' . $cell . '</td>';
 			}
-			$table .= '</tr>';
+			$html .= '</tr>';
+
+			$running_rows++;
+
+			// end table
+			if($total_rows === ($index+1)){
+				$html .= '</table>';
+			}else if($running_rows === $max_rows){
+				$html .= '</table>';
+				$html .= '{newpage}';
+				$running_rows = 0;
+			}
+
 		}
 
-		// close table tag
-		$table .= '</table>';
-		return $table;
+		return $html;
 	}
 
 	private function isHtml($string)

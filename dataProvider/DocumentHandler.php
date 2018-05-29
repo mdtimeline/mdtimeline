@@ -53,6 +53,10 @@ class DocumentHandler {
 	 * @var FileSystem
 	 */
 	private $FileSystem;
+	/**
+	 * @var FileSystem
+	 */
+	private $file_systems = [];
 
 
 	private $storeAsFile = true;
@@ -86,6 +90,13 @@ class DocumentHandler {
 	function __construct(){
 		$this->db = new MatchaHelper();
 		$this->FileSystem = new FileSystem();
+
+		$file_systems = $this->FileSystem->getFileSystems(null);
+
+		foreach($file_systems as $file_system){
+			$this->file_systems[$file_system['id']] = $file_system;
+		}
+
 		return;
 	}
 
@@ -107,12 +118,14 @@ class DocumentHandler {
 	/**
 	 * @param      $params
 	 * @param bool $includeDocument
+	 * @param bool $return_binary
+	 * @param bool $compressed
 	 *
 	 * @return mixed
 	 */
-	public function getPatientDocuments($params, $includeDocument = false){
+	public function getPatientDocuments($params, $includeDocument = false, $return_binary = false, $compressed = false){
 		$this->setPatientDocumentModel();
-		$this->d->setOrFilterProperties(['docTypeCode']);
+		$this->d->setOrFilterProperties(['docTypeCode', 'id']);
 		$records = $this->d->load($params)->all();
 
 		/** lets unset the actual document data */
@@ -126,6 +139,8 @@ class DocumentHandler {
 
 				if(!$includeDocument){
 					unset($records['data'][$i]['document']);
+				}else{
+					$records['data'][$i]['document'] = $this->getDocumentData($record, $return_binary, $compressed);
 				}
 			}
 		}
@@ -169,6 +184,45 @@ class DocumentHandler {
 		}
 
 		return $record;
+	}
+
+	private function getDocumentData($record, $return_binary){
+
+		$document = '';
+
+		$file_system = isset($this->file_systems[$record['filesystem_id']]) ? $this->file_systems[$record['filesystem_id']] : false;
+
+		if($file_system !== false){
+			$file_path = rtrim($file_system['dir_path'],'/') . '/' . trim($record['path'],'/') . '/' . ltrim($record['name'], '/');
+			$is_file = isset($record['path']) && $record['path'] != '' && file_exists($file_path);
+		}else{
+			$file_path = '';
+			$is_file = false;
+		}
+
+
+		if ($is_file) {
+			$document = file_get_contents($file_path);
+		} elseif(isset($record['document_instance']) && $record['document_instance'] != ''){
+			$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $record['document_instance']);
+			$data = $dd->load($record['document_id'])->one();
+			if($data !== false){
+				$document = $data['document'];
+			}
+		}
+
+		if(!empty($document)){
+			$is_binary = $this->isBinary($document);
+
+			if($return_binary && !$is_binary){
+				$document = base64_decode($document);
+			}elseif(!$return_binary && $is_binary){
+				$document = base64_encode($document);
+			}
+		}
+
+		return $document;
+
 	}
 
 	/**
@@ -725,6 +779,108 @@ class DocumentHandler {
 		}else{
 			return base64_decode($document);
 		}
+	}
+
+
+	public function documentSyncer(){
+
+
+
+//		$server_url = 'http://local.tranextgen.com/mdtimeline';
+//		$site = 'default';
+//		$key = 'WDV2-RR2B-8RBI-V96Z-R0X3';
+//		$interval_hours = 8000;
+
+		$server_url = Globals::getGlobal('master_server_url');
+		$site = Globals::getGlobal('master_server_site');
+		$key = Globals::getGlobal('master_server_key');
+		$threshold_hours = Globals::getGlobal('master_server_sync_threshold_hrs');
+
+		$threshold = date('Y-m-d: h:i:s', strtotime("-{$threshold_hours} hours"));
+		$wsdl = rtrim($server_url, '/') . '/dataProvider/SOAP/wsdl.php?wsdl';
+		$SoapClient = new SoapClient($wsdl);
+
+		$request = new stdClass();
+		$request->SecureKey = $key;
+		$request->ServerSite = $site;
+		$request->DocumentIds = [];
+
+		$filters = new stdClass();
+		$foo = new stdClass();
+		$foo->property = 'date';
+		$foo->value = $threshold;
+		$foo->operator = '>';
+		$filters->filter[] = $foo;
+
+		$document_records = $this->getPatientDocuments($filters, true);
+
+		if($document_records['total'] === 0){
+			return [];
+		}
+
+		$document_records_buff = [];
+
+		foreach($document_records['data'] as $document_record){
+			if(empty($document_record['document'])) continue;
+			$request->DocumentIds[] = $document_record['id'];
+			$document_records_buff[$document_record['id']] = $document_record;
+		}
+
+		if(empty($request->DocumentIds)){
+			return [];
+		}
+
+		$request->DocumentIds = implode(',', $request->DocumentIds);
+
+		$results = $SoapClient->GetDocuments($request);
+
+		if(!$results->Success){
+			error_log("Document Syncer: Unsuccess SOAP Call");
+			return [];
+		}
+
+		if(!isset($results->Document)){
+			return [];
+		}
+
+		$documents = is_array($results->Document) ? $results->Document : [ $results->Document ];
+
+		foreach($documents as $document){
+
+
+			$document_id = $document->Id;
+			$document_record = isset($document_records_buff[$document_id]) ? $document_records_buff[$document_id] : false;
+
+			if($document_record === false){
+				error_log("Document Syncer: Document Record Buff Not Found - Documetn ID = {$document_id}");
+				continue;
+			}
+
+			$file_system = isset($this->file_systems[$document_record['filesystem_id']]) ? $this->file_systems[$document_record['filesystem_id']] : false;
+
+			if($file_system === false){
+				error_log("Document Syncer: FileSystem Not Found - FileSystem ID = {$document_record['filesystem_id']}");
+				continue;
+			}
+
+			$file_path = rtrim($file_system['dir_path'],'/') . '/' . trim($document_record['path'],'/') . '/' . ltrim($document_record['name'], '/');
+
+
+			if(file_exists($file_path)){
+				error_log("Document Syncer: File Exist - {$file_path}");
+				continue;
+			}
+
+			$success = file_put_contents($file_path, base64_decode($document->Base64Data));
+
+			if(!$success){
+				error_log("Document Syncer: Unable to Create File - {$file_path}");
+			}
+
+		}
+
+
+		return [];
 	}
 }
 

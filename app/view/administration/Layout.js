@@ -542,7 +542,7 @@ Ext.define('App.view.administration.Layout', {
          * forms, just to modified the fields of existing forms.
          */
         me.formsGrid = Ext.create('Ext.grid.Panel', {
-            title: _('form_list'),
+            title: _('forms'),
             region: 'west',
             store: me.formsGridStore,
             width: 200,
@@ -555,9 +555,11 @@ Ext.define('App.view.administration.Layout', {
                 }
             ],
             tbar:[
+                '->',
                 {
                     xtype:'button',
                     text: _('form'),
+                    iconCls: 'icoAdd',
                     itemId: 'LayoutFormsAddFormBtn',
                     scope: me,
                     handler: me.onLayoutFormsAddFormBtnHandler
@@ -620,8 +622,9 @@ Ext.define('App.view.administration.Layout', {
 	onLayoutFormsAddFormBtnHandler: function () {
 		this.formsGrid.editingPlugin.cancelEdit();
 		var records = this.formsGrid.getStore().insert(0, {
-            name: 'New Form'
-        });
+            name: 'New Form',
+            active: 1
+		});
 		this.formsGrid.editingPlugin.startEdit(records[0], 0);
 	},
 

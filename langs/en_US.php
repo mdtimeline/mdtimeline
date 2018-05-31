@@ -1973,4 +1973,5 @@ $LANG = array(
 	'creating_backup_be_right_back' => 'Creating Backup, Be Right Back!',
 	'would_you_like_to_continue' => 'Would you like to continue?',
 	'backup_completed' => 'Backup Completed',
+	'forms' => 'Forms',
 );

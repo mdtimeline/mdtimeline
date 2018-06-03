@@ -43,7 +43,9 @@ class User
     public function getUsers($params)
     {
     	$this->u->setOrFilterProperties(['id']);
-        $users = $this->u->load($params)->all();
+        $users = $this->u->load($params)->leftJoin(
+        	['role_name' => 'role'], 'acl_roles', 'role_id', 'id'
+        )->all();
         foreach ($users['data'] as $index => $user) {
             $user['fullname'] = Person::fullname($user['fname'], $user['mname'], $user['lname']);
             unset($user['password'], $user['pwd_history1'], $user['pwd_history2']);

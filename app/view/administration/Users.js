@@ -29,6 +29,7 @@ Ext.define('App.view.administration.Users', {
 		var me = this;
 
 		me.userStore = Ext.create('App.store.administration.User', {
+			remoteFilter: true,
 			remoteSort: true,
 			autoSync: false
 		});
@@ -44,16 +45,41 @@ Ext.define('App.view.administration.Users', {
 					width: 50
 				},
 				{
-					width: 100,
+					width: 150,
 					text: _('username'),
 					sortable: true,
-					dataIndex: 'username'
+					dataIndex: 'username',
+					items: [
+						{
+							xtype: 'columnsearchfield',
+							autoSearch: true,
+							operator: 'LIKE',
+							suffix: '%'
+						}
+					]
 				},
 				{
 					width: 200,
 					text: _('name'),
 					sortable: true,
-					dataIndex: 'fullname'
+					dataIndex: 'lname',
+					renderer: function(v, meta, rec){
+						return rec.get('fullname');
+					},
+					items: [
+						{
+							xtype: 'columnsearchfield',
+							autoSearch: true,
+							operator: 'LIKE',
+							suffix: '%'
+						}
+					]
+				},
+				{
+					flex: 1,
+					text: _('role'),
+					sortable: false,
+					dataIndex: 'role'
 				},
 				{
 					flex: 1,

@@ -301,6 +301,11 @@ Ext.define('App.model.administration.User', {
 			type: 'string',
 			comment: 'title and last name',
 			store: false
+		},
+		{
+			name: 'role',
+			type: 'string',
+			store: false
 		}
 	],
 	proxy: {

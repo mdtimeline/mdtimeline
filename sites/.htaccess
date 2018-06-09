@@ -1,0 +1,3 @@
+Options +FollowSymLinks
+RewriteEngine on
+RewriteRule ^([a-z]*/.*)$ auth.php?file=$1 [NC]

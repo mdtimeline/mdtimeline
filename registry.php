@@ -118,21 +118,8 @@ if(!defined('SITE')){
  *
  * NOTE: This should be part of Matcha::Connect
  */
-error_reporting(-1);
-ini_set('display_errors', 1);
-$logPath = ROOT . '/sites/' . SITE . '/log/';
-if(file_exists($logPath) && is_writable($logPath)){
-	$logFile = 'error_log.txt';
-	$oldUmask = umask(0);
-	clearstatcache();
-	if(!file_exists($logPath . $logFile)){
-		touch($logPath . $logFile);
-		chmod($logPath . $logFile, 0764);
-	}
-	if(is_writable($logPath . $logFile))
-		ini_set('error_log', $logPath . $logFile);
-	umask($oldUmask);
-}
+include_once (ROOT . '/classes/Log.php');
+Log::init();
 
 if(file_exists(ROOT . '/sites/' . SITE . '/conf.php')){
 	include_once(ROOT . '/sites/' . SITE . '/conf.php');

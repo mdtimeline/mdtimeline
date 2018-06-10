@@ -81,21 +81,27 @@ class CronBootstrap
          *
          * NOTE: This should be part of Matcha::Connect
          */
-        error_reporting(-1);
-        ini_set('display_errors', 1);
-        $logPath = ROOT . '/sites/' . site_id . '/log/';
-        if(file_exists($logPath) && is_writable($logPath)){
-            $logFile = 'error_log.txt';
-            $oldUmask = umask(0);
-            clearstatcache();
-            if(!file_exists($logPath . $logFile)){
-                touch($logPath . $logFile);
-                chmod($logPath . $logFile, 0764);
-            }
-            if(is_writable($logPath . $logFile))
-                ini_set('error_log', $logPath . $logFile);
-            umask($oldUmask);
-        }
+
+	    error_reporting(-1);
+	    ini_set('display_errors', 1);
+	    $log_path = ROOT . '/sites/' . site_id . '/log/';
+	    $log_file = 'error.log';
+	    $filename = $log_path . $log_file;
+
+	    if(!file_exists($filename)){
+		    touch($filename);
+		    chmod($filename, 0764);
+	    }
+
+	    $old_umask = umask(0);
+	    clearstatcache();
+	    $filename = $log_path . $log_file;
+
+	    if(is_writable($filename)) {
+		    ini_set('error_log', $filename);
+	    }
+
+	    umask($old_umask);
 
         if($this->CronJobModel == NULL)
             $this->CronJobModel = \MatchaModel::setSenchaModel('App.model.administration.CronJob');

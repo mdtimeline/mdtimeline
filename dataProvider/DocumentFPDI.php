@@ -301,7 +301,15 @@ class DocumentFPDI extends FPDI  {
 		$this->Cell(100, 0, 'Created by mdTimeline (Electronic Health System) v' . VERSION);
 		$this->SetX((($page_width - $margins['right']) - 12));
 		if($this->page_number){
-			$pageText = trim('Page ' . $this->getAliasNumPage() . '/' . $this->getAliasNbPages());
+
+			$w_page = isset($this->l['w_page']) ? $this->l['w_page'].' ' : '';
+			if (empty($this->pagegroups)) {
+				$pagenumtxt = $w_page.$this->getAliasNumPage().' / '.$this->getAliasNbPages();
+			} else {
+				$pagenumtxt = $w_page.$this->getPageNumGroupAlias().' / '.$this->getPageGroupAlias();
+			}
+
+			$pageText = trim('Page ' . $pagenumtxt);
 			$this->Cell(12, 0, $pageText, 0, 0, 'L', 0, '', 0, false, 'T', 'M');
 		}
 	}

@@ -72,6 +72,7 @@ $sites = array_values($directories);
  */
 
 $php_inis = [
+	'/usr/local/etc/php/7.0/php.ini',
 	'/etc/php/7.1/apache2/php.ini',
 	'/etc/php/7.0/apache2/php.ini',
 	'/etc/php/5.6/php.ini',
@@ -108,7 +109,7 @@ foreach($sites as $site){
             $env = "cd {$env_dir} && ";
             $cmd = "{$env} php  -c {$php_ini} -f {$site_dir}/jobs/{$job} {$site} &";
             shell_exec($cmd);
-            print "Executing Site Job: $job  Site: $site\n";
+            print "Executing Site Ini: $php_ini - Job: $job -  Site: $site\n";
         }
     }
 }

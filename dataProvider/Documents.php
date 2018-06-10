@@ -514,7 +514,7 @@ class Documents {
 			$body['body'] = isset($params->body) ? $params->body : '';
 		}
 
-		if(isset($body) && is_array($body) && $body['max_order_items_per_page']){
+		if(isset($body) && is_array($body) && isset($body['max_order_items_per_page'])){
 			$max_items = intval($body['max_order_items_per_page']);
 
 			if($max_items > 0){
@@ -573,15 +573,23 @@ class Documents {
 		$tokens[] = '{line}';
 		$allNeededInfo[] = '<hr style="margin: 10px;">';
 		$html = str_replace($tokens, $allNeededInfo, (isset($params->DoctorsNote)) ? $body : $body['body']);
-		$pages = explode('{newpage}', $html);
+		
+		$groups = explode('{newgroup}', $html);
 
-		foreach($pages AS $page){
-			$pdf->AddPage('',$format,true);
+		foreach($groups as $group){
 
-			if($this->isHtml($page)){
-				$pdf->writeHTML($page);
-			}else{
-				$pdf->writeHTML(nl2br($page));
+			$pdf->startPageGroup();
+
+			$pages = explode('{newpage}', $group);
+
+			foreach($pages AS $page){
+				$pdf->AddPage('',$format,true);
+
+				if($this->isHtml($page)){
+					$pdf->writeHTML($page);
+				}else{
+					$pdf->writeHTML(nl2br($page));
+				}
 			}
 		}
 

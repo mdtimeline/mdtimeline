@@ -119,9 +119,10 @@ class Matcha
 
             try{
 	            self::$__conn = new PDO(
-	                'mysql:host=' . $host . ';port=' . $port . ';',
+	                "mysql:dbname={$dbName};host=$host;port={$port};",
 	                $dbUser,
-	                $dbPass, array(
+	                $dbPass,
+	                array(
 	                    //PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
 	                    PDO::MYSQL_ATTR_LOCAL_INFILE => 1,
 	                    PDO::ATTR_PERSISTENT => false,

@@ -72,17 +72,25 @@ class Merge {
 	 */
 	public function mergeByPubpid($primaryPubpid, $transferPubpid, $transferRecordIfPrimaryNotFound = false){
 		$sth = $this->conn->prepare('SELECT pid FROM patient WHERE pubpid = ?');
+
 		$sth->execute(array($primaryPubpid));
 		$primary = $sth->fetch(PDO::FETCH_ASSOC);
+
 		$sth->execute(array($transferPubpid));
 		$transfer = $sth->fetch(PDO::FETCH_ASSOC);
+
 		unset($sth);
+
 		if($primary !== false && $transfer !== false){
+			error_log("Patient Merge - Primary PID: {$primary['pid']} - Transfer PID: {$transfer['pid']}");
 			return $this->merge($primary['pid'], $transfer['pid']);
+
 		}elseif($primary === false && $transfer !== false && $transferRecordIfPrimaryNotFound){
+			error_log("Patient Transfer - Primary Record Number: {$primaryPubpid} Transfer PID: {$transfer['pid']}");
 			$sth = $this->conn->prepare('UPDATE `patient` SET `pubpid` = ? WHERE `pid` = ?');
 			$sth->execute(array($primaryPubpid, $transfer['pid']));
 			return true;
+
 		}else{
 			return false;
 		}

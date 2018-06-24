@@ -64240,7 +64240,7 @@ Ext.define('App.view.Viewport', {
 
 	    // Ext.state.Manager.setProvider(Ext.create('Ext.state.CookieProvider'));
 	    Ext.tip.QuickTipManager.init();
-        var me = this;
+        var me = window.app = this;
 
 	    me.user.getFullName = function(){
 		    var fullname = me.user.title + ' ' + me.user.fname + ' ' + me.user.mname + ' ' + me.user.lname;
@@ -64603,7 +64603,7 @@ Ext.define('App.view.Viewport', {
 		    ],
 		    itemId:'userSplitButton',
 		    cls: 'drButton',
-		    margin: 0,
+            margin: '0 3 0 0',
 		    menu: [
 			    {
 				    text: _('my_account'),
@@ -64635,6 +64635,16 @@ Ext.define('App.view.Viewport', {
 			    handler:me.onEmergencyAccessClick
 		    });
 	    }
+
+        me.HeaderRight.add({
+            xtype: 'box',
+            margin: 0,
+			itemId: 'AppNetworkStatusBox',
+			width: 10,
+			height: 42,
+			cls: 'x-btn-default-large app-network-status-box'
+        });
+
 
 	    me.Header.add([me.HeaderLeft, me.HeaderRight]);
 

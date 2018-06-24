@@ -61,6 +61,7 @@ header("Access-Control-Allow-Origin: *");
 		<!-- JSrouter and Ext.deirect API files -->
 		<script src="JSrouter.php?site=<?php print SITE ?>&dc_=<?php print time() ?>" charset="utf-8"></script>
 		<script src="data/api.php?site=<?php print SITE ?>&dc_=<?php print time() ?>" charset="utf-8"></script>
+		<script type="text/javascript" src="lib/NetworkJs/network.js" charset="utf-8"></script>
 		<script type="text/javascript" src="lib/ZeroClipboard/ZeroClipboard.js" charset="utf-8"></script>
 		<script type="text/javascript" src="lib/darkroomjs/demo/vendor/fabric.js" charset="utf-8"></script>
 		<script type="text/javascript" src="lib/darkroomjs/build/darkroom.js" charset="utf-8"></script>
@@ -853,6 +854,7 @@ header("Access-Control-Allow-Origin: *");
                 ],
 
                 controllers:[
+                    'Network',
 	                'Main',
 
                     'administration.AuditLog',
@@ -955,8 +957,7 @@ header("Access-Control-Allow-Origin: *");
 	            },
                 launch: function() {
                     App.Current = this;
-                    say('Loading mdTImeLine EHR');
-                    window.app = Ext.create('App.view.Viewport');
+                    Ext.create('App.view.Viewport');
                 }
             });
 		</script>

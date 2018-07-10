@@ -13,14 +13,14 @@ Ext.define('App.controller.Network', {
 		var me = this;
 
 
-		say('new Network');
+		// say('new Network');
 
         me.Network = new Network();
 
         me.Network.latency.settings({
             endpoint: './classes/Latency.php',
-            measures: 3,
-            attempts: 3
+            measures: 2,
+            attempts: 2
         });
 
 
@@ -63,7 +63,7 @@ Ext.define('App.controller.Network', {
             bgcolor = 'red';
 		}
 
-		say('average_latency:' + average_latency);
+		// say('average_latency:' + average_latency);
 
         this.AppNetworkStatusBox.el.setStyle({
             backgroundColor: bgcolor,
@@ -95,7 +95,7 @@ Ext.define('App.controller.Network', {
 
     updateOnlineStatus: function () {
         app.fireEvent(navigator.onLine ? 'apponline' : 'appoffline', this);
-        say(navigator.onLine);
+        // say(navigator.onLine);
 
     },
 

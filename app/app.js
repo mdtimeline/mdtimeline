@@ -54582,6 +54582,8 @@ Ext.define('App.view.administration.Users', {
 															xtype: 'combobox',
 															fieldLabel: _('ldap_domain'),
 															editable: false,
+															name: 'ldap_domain',
+															queryMode: 'local',
 															store: g('ldap_user_domains') ? g('ldap_user_domains').split(',') : []
 														}
 													]

@@ -1974,4 +1974,5 @@ $LANG = array(
 	'would_you_like_to_continue' => 'Would you like to continue?',
 	'backup_completed' => 'Backup Completed',
 	'forms' => 'Forms',
+	'ldap_domain' => 'LDAP Domain',
 );

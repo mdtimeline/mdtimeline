@@ -224,6 +224,12 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
+			name: 'ldap_domain',
+			type: 'string',
+			comment: 'ldap_domain',
+			len: 150
+		},
+		{
 			name: 'city',
 			type: 'string',
 			len: 55

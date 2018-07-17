@@ -14265,6 +14265,12 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
+			name: 'ldap_domain',
+			type: 'string',
+			comment: 'ldap_domain',
+			len: 150
+		},
+		{
 			name: 'city',
 			type: 'string',
 			len: 55
@@ -54573,9 +54579,10 @@ Ext.define('App.view.administration.Users', {
 														},
 														{
 															width: 300,
-															xtype: 'mitos.authorizationscombo',
-															fieldLabel: _('authorizations'),
-															name: 'see_auth'
+															xtype: 'combobox',
+															fieldLabel: _('ldap_domain'),
+															editable: false,
+															store: g('ldap_user_domains') ? g('ldap_user_domains').split(',') : []
 														}
 													]
 												},

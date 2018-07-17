@@ -11,14 +11,14 @@ class LDAP {
 	private $ldap_host;
 	private $ldap_port;
 	private $ldap_dn;
-	private $ldap_user_domain;
+	private $ldap_user_domains;
 	private $ldap_app_group;
 
 	function __construct(){
 		$this->ldap_host = Globals::getGlobal('ldap_host'); //'server.clinic.example.com';
 		$this->ldap_port = Globals::getGlobal('ldap_port'); //389;
 		$this->ldap_dn = Globals::getGlobal('ldap_dn'); //'OU=mditimeline,DC=clinic,DC=example,DC=com';
-		$this->ldap_user_domain = Globals::getGlobal('ldap_user_domain'); //'@clinic.example.com';
+		$this->ldap_user_domains = explode(',', Globals::getGlobal('ldap_user_domains')); //'user@clinic.example.com';
 		$this->ldap_app_group = Globals::getGlobal('ldap_app_group'); //'mdtimeline';]
 	}
 
@@ -36,14 +36,31 @@ class LDAP {
 	}
 
 	/**
-	 * @param $user
+	 * @param $username
 	 * @param $password
+	 * @param $user
 	 *
 	 * @return array
 	 */
-	public function Bind($user, $password){
+	public function Bind($username, $password, $user){
 
 		$success = $this->Connect();
+
+		if($user === false || !isset($user['ldap_domain'])){
+			// invalid name or password
+			return [
+				'success' => false,
+				'error' => 'LDAP: User domain not defined'
+			];
+		}
+
+		if(array_search($user['ldap_domain'], $this->ldap_user_domains) === false){
+			// invalid name or password
+			return [
+				'success' => false,
+				'error' => 'LDAP: User domain invalid'
+			];
+		}
 
 		if($success === false){
 			return [
@@ -52,11 +69,7 @@ class LDAP {
 			];
 		}
 
-		if(isset($this->ldap_user_domain)){
-			$username = $user . $this->ldap_user_domain;
-		}else{
-			$username = $user;
-		}
+		$username = $username . $user['ldap_domain'];
 
 		$bind = @ldap_bind($this->ldap, $username, $password);
 

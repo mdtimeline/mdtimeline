@@ -144,6 +144,7 @@ class authProcedures {
 				'lname',
 				'email',
 				'facility_id',
+				'ldap_domain',
 				'npi',
 				'phone',
 				'mobile',
@@ -157,7 +158,7 @@ class authProcedures {
 		if($ldap_enabled){
 			include_once (ROOT . '/dataProvider/LDAP.php');
 			$LDAP = new LDAP();
-			$ldap_response = $LDAP->Bind($params->authUser,$params->authPass);
+			$ldap_response = $LDAP->Bind($params->authUser,$params->authPass, $user);
 
 			if(!$ldap_response['success']){
 				return [

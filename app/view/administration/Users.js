@@ -253,9 +253,10 @@ Ext.define('App.view.administration.Users', {
 														},
 														{
 															width: 300,
-															xtype: 'mitos.authorizationscombo',
-															fieldLabel: _('authorizations'),
-															name: 'see_auth'
+															xtype: 'combobox',
+															fieldLabel: _('ldap_domain'),
+															editable: false,
+															store: g('ldap_user_domains') ? g('ldap_user_domains').split(',') : []
 														}
 													]
 												},

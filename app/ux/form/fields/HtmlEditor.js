@@ -13,13 +13,14 @@ Ext.define('App.ux.form.fields.HtmlEditor', {
 	componentTpl: [
 		'{beforeTextAreaTpl}',
 		'<textarea id="{id}-textareaEl" name="{name}" tabIndex="-1" {inputAttrTpl}',
-		' class="{textareaCls}" autocomplete="off" data-nusa-custom-container-id="{id}-iframeEl" data-nusa-custom-control-type="Control_Type">',
+		' class="{textareaCls}" autocomplete="off" >',
 		'{[Ext.util.Format.htmlEncode(values.value)]}',
 		'</textarea>',
 		'{afterTextAreaTpl}',
 		'{beforeIFrameTpl}',
-		'<iframe id="{id}-iframeEl" name="{iframeName}" frameBorder="0" data-nusa-custom-container-type="Frame_Type" {iframeAttrTpl}',
+		'<iframe id="{id}-iframeEl" name="{iframeName}" frameBorder="0" data-nusa-enabled="true" data-nusa-custom-container-type="Frame_Type" {iframeAttrTpl}',
 		' src="{iframeSrc}" class="{iframeCls}"></iframe>',
+		'<div id="{id}-editEl" data-nusa-enabled="true" data-nusa-custom-container-id="{id}-iframeEl" data-nusa-custom-control-type="Control_Type"></div>',
 		'{afterIFrameTpl}',
 		{
 			disableFormats: true

@@ -19,8 +19,8 @@ Ext.define('App.controller.Network', {
 
         me.Network.latency.settings({
             endpoint: './classes/Latency.php',
-            measures: 2,
-            attempts: 2
+            measures: 1,
+            attempts: 1
         });
 
 
@@ -78,7 +78,7 @@ Ext.define('App.controller.Network', {
 	},
 
     onAppBeforeRender: function(){
-		var me = this;
+        var me = this;
 
         me.updateOnlineStatus();
 

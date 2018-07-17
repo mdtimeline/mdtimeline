@@ -318,6 +318,8 @@ class Navigation
                 'id' => 'App.view.administration.TransactionLog'
             ];
         }
+
+        // TODO change permission
         if($this->ACL->hasPermission('admin_access_transaction_log')){
             $admin['children'][] = [
                 'text' => $this->i18n('file_systems'),

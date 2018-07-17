@@ -65,6 +65,9 @@ Ext.define('App.view.scanner.Window', {
 						'</div>' +
 						'</tpl>'
 					),
+					// selModel: {
+					// 	mode: 'MULTI'
+					// },
 					trackOver: true,
 					overItemCls: 'x-item-over',
 					itemSelector: 'div.thumb-wrap',

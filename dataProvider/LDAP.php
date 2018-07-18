@@ -53,21 +53,21 @@ class LDAP {
 			];
 		}
 
-		if($user === false || !isset($user['ldap_domain'])){
-			// invalid name or password
-			return [
-				'success' => false,
-				'error' => 'LDAP: User domain not defined'
-			];
-		}
+//		if($user === false || !isset($user['ldap_domain'])){
+//			// invalid name or password
+//			return [
+//				'success' => false,
+//				'error' => 'LDAP: User domain not defined'
+//			];
+//		}
 
-		if(array_search($user['ldap_domain'], $this->ldap_user_domains) === false){
-			// invalid name or password
-			return [
-				'success' => false,
-				'error' => 'LDAP: User domain invalid'
-			];
-		}
+//		if(array_search($user['ldap_domain'], $this->ldap_user_domains) === false){
+//			// invalid name or password
+//			return [
+//				'success' => false,
+//				'error' => 'LDAP: User domain invalid'
+//			];
+//		}
 
 		if($success === false){
 			return [

@@ -107,38 +107,25 @@ class LDAP {
 
 			$valid = false;
 
-			foreach($entries[0]['memberof'] as $grps) {
-				if(strpos($grps, $this->ldap_app_group)) {
+			foreach ($entries as $entry){
+
+				foreach($entry['memberof'] as $grps) {
+					if(strpos($grps, $this->ldap_app_group)) {
+						break;
+					}
+				}
+
+				if ($entry['count'] == 0) {
+					break;
+				}
+
+				$userdn = $entry['dn'];
+				$auth_status = ldap_bind($this->ldap, $userdn, $password);
+
+				if ($auth_status !== false) {
 					$valid = true;
 					break;
 				}
-			}
-
-			if($valid){
-
-				if ((int) @$entries['count'] > 0) {
-
-					foreach ($entries as $entry){
-
-						$userdn = $entry['dn'];
-						$auth_status = ldap_bind($this->ldap, $userdn, $password);
-
-						if ($auth_status === false) {
-							continue;
-						}
-
-						$valid = true;
-						break;
-
-					}
-
-					$auth_status = ldap_bind($this->ldap, $this->ldap_dn, $password);
-					if ($auth_status === FALSE) {
-						die("Couldn't bind to LDAP as user!");
-					}
-
-				}
-
 			}
 
 			if($valid) {

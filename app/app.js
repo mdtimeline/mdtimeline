@@ -54383,7 +54383,7 @@ Ext.define('App.view.administration.Users', {
 			remoteFilter: true,
 			remoteSort: true,
 			autoSync: false,
-			pageSize: 1000
+			pageSize: 100
 		});
 
 		me.userGrid = Ext.create('Ext.grid.Panel', {

@@ -118,15 +118,18 @@ class LDAP {
 
 				if(!is_array($entry)) continue;
 
+				$in_group = false;
+
 				foreach($entry['memberof'] as $grps) {
 					if(strpos($grps, $this->ldap_app_group)) {
+						$in_group = true;
 						break;
 					}
 				}
 
-				if ($entry['count'] == 0) {
-					break;
-				}
+				if(!$in_group) continue;
+
+				if ($entry['count'] == 0 || !isset($entry['dn'])) continue;
 
 				$userdn = $entry['dn'];
 				$auth_status = @ldap_bind($this->ldap, $userdn, $password);

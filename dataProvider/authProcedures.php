@@ -117,8 +117,6 @@ class authProcedures {
 					];
 				}
 			}
-
-
 		}
 
 		// remove empty spaces single and double quotes from username and password
@@ -152,6 +150,10 @@ class authProcedures {
 				'password_date'
 			]
 		)->one();
+
+		// TODO: anadir authorization validation to LDAP
+		// Department...
+		// CSV export..
 
 		$ldap_enabled = Globals::getGlobal('ldap_enabled');
 

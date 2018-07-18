@@ -103,11 +103,20 @@ class LDAP {
 			}
 
 			$entries = ldap_get_entries($this->ldap, $search);
-			ldap_unbind($this->ldap);
 
 			$valid = false;
 
+			if($entries['count'] == 0){
+				ldap_unbind($this->ldap);
+				return [
+					'success' => false,
+					'error' => 'LDAP: User has no rights'
+				];
+			}
+
 			foreach ($entries as $entry){
+
+				if(!is_array($entry)) continue;
 
 				foreach($entry['memberof'] as $grps) {
 					if(strpos($grps, $this->ldap_app_group)) {
@@ -127,6 +136,8 @@ class LDAP {
 					break;
 				}
 			}
+
+			ldap_unbind($this->ldap);
 
 			if($valid) {
 				return [

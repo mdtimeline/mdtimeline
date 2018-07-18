@@ -53,22 +53,6 @@ class LDAP {
 			];
 		}
 
-//		if($user === false || !isset($user['ldap_domain'])){
-//			// invalid name or password
-//			return [
-//				'success' => false,
-//				'error' => 'LDAP: User domain not defined'
-//			];
-//		}
-
-//		if(array_search($user['ldap_domain'], $this->ldap_user_domains) === false){
-//			// invalid name or password
-//			return [
-//				'success' => false,
-//				'error' => 'LDAP: User domain invalid'
-//			];
-//		}
-
 		if($success === false){
 			return [
 				'success' => false,
@@ -82,7 +66,7 @@ class LDAP {
 			// invalid name or password
 			return [
 				'success' => false,
-				'error' => 'LDAP: Couldn\'t bind to LDAP as application user'
+				'error' => 'LDAP: Could not bind to LDAP as application user'
 			];
 		}
 
@@ -110,7 +94,7 @@ class LDAP {
 				@ldap_unbind($this->ldap);
 				return [
 					'success' => false,
-					'error' => 'LDAP: User has no rights'
+					'error' => 'LDAP: User Not Authorized'
 				];
 			}
 
@@ -149,7 +133,7 @@ class LDAP {
 			} else {
 				return [
 					'success' => false,
-					'error' => 'LDAP: User has no rights'
+					'error' => 'LDAP: User Not Authorized'
 				];
 			}
 

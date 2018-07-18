@@ -533,6 +533,13 @@ Ext.define('App.view.administration.Users', {
 					iconCls: 'icoAdd',
 					scope: me,
 					handler: me.onNewUser
+				},
+				'->',
+				{
+					xtype: 'button',
+					text: _('print'),
+					iconCls: 'icoPrint',
+					itemId: 'AdminUserGridPanelPrintBtn'
 				}
 			],
 			bbar: {

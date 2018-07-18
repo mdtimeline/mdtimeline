@@ -63,6 +63,9 @@ Ext.define('App.controller.administration.Users', {
 				click: me.onUserGridEditFormProviderCredentializationInactiveBtnClick
 			},
 
+			'#AdminUserGridPanelPrintBtn': {
+				click: me.onAdminUserGridPanelPrintBtnClick
+			},
 			'#PasswordExpiredWindowUpdateBtn': {
 				click: me.onPasswordExpiredWindowUpdateBtnClick
 			},
@@ -72,6 +75,22 @@ Ext.define('App.controller.administration.Users', {
 		});
 	},
 
+	onAdminUserGridPanelPrintBtnClick: function(){
+
+		var grid = this.getAdminUserGridPanel(),
+			store = grid.getStore();
+
+		store.load({
+			start: 0,
+			limit: 5000,
+			callback: function () {
+				App.ux.grid.Printer.mainTitle = 'User Report';
+				App.ux.grid.Printer.filtersHtml = '------------'; //optional
+				App.ux.grid.Printer.print(grid, null);
+			}
+		});
+
+	},
 
 	/***********************************************
 	 ** passwrod expiration

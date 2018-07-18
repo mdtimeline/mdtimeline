@@ -46,6 +46,13 @@ class LDAP {
 
 		$success = $this->Connect();
 
+		if(!isset($_ENV['ldap_service_account_username']) || !isset($_ENV['ldap_service_account_password'])){
+			return [
+				'success' => false,
+				'error' => 'LDAP: Service Account Error'
+			];
+		}
+
 		if($user === false || !isset($user['ldap_domain'])){
 			// invalid name or password
 			return [
@@ -69,15 +76,13 @@ class LDAP {
 			];
 		}
 
-		$username = $username . $user['ldap_domain'];
-
-		$bind = @ldap_bind($this->ldap, $username, $password);
+		$bind = @ldap_bind($this->ldap, $_ENV['ldap_service_account_username'], $_ENV['ldap_service_account_password']);
 
 		if(!$bind){
 			// invalid name or password
 			return [
 				'success' => false,
-				'error' => 'LDAP: Invalid username or password'
+				'error' => 'LDAP: Couldn\'t bind to LDAP as application user'
 			];
 		}
 
@@ -85,37 +90,55 @@ class LDAP {
 
 			// valid
 			// check presence in groups
-			$filter = "(sAMAccountName=".$user.")";
-			$attr = array("memberof");
+			$filter = "(sAMAccountName=".$username.")";
+			$attr = ["memberof"];
 
-			$result = ldap_search($this->ldap, $this->ldap_dn, $filter, $attr);
+			$search = ldap_search($this->ldap, $this->ldap_dn, $filter, $attr);
 
-			if($result === false){
+			if($search === false){
 				return [
 					'success' => false,
 					'error' => 'LDAP: Unable to search LDAP server'
 				];
 			}
 
-			$entries = ldap_get_entries($this->ldap, $result);
+			$entries = ldap_get_entries($this->ldap, $search);
 			ldap_unbind($this->ldap);
 
 			$valid = false;
-
-			// check groups
-			if(!isset($entries[0]) || !isset($entries[0]['memberof'])){
-				return [
-					'success' => false,
-					'error' => 'LDAP: User rights not found'
-				];
-			}
-
 
 			foreach($entries[0]['memberof'] as $grps) {
 				if(strpos($grps, $this->ldap_app_group)) {
 					$valid = true;
 					break;
 				}
+			}
+
+			if($valid){
+
+				if ((int) @$entries['count'] > 0) {
+
+					foreach ($entries as $entry){
+
+						$userdn = $entry['dn'];
+						$auth_status = ldap_bind($this->ldap, $userdn, $password);
+
+						if ($auth_status === false) {
+							continue;
+						}
+
+						$valid = true;
+						break;
+
+					}
+
+					$auth_status = ldap_bind($this->ldap, $this->ldap_dn, $password);
+					if ($auth_status === FALSE) {
+						die("Couldn't bind to LDAP as user!");
+					}
+
+				}
+
 			}
 
 			if($valid) {

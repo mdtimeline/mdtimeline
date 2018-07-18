@@ -607,6 +607,47 @@ class SoapHandler
 		];
 	}
 
+	public function MergePatient($params){
+
+        $this->constructor($params);
+        if (!$this->isAuth()) {
+            return [
+                'Success' => false,
+                'Error' => 'Error: HTTP 403 Access Forbidden'
+            ];
+        }
+
+
+
+        return [
+            'Success' => true,
+            'Pid' => 123,
+            'RecordNumber' => 'RECORD-NUMBER',
+            'Error' => 'Error Text is any'
+        ];
+
+    }
+	public function TransferPatient($params){
+
+        $this->constructor($params);
+        if (!$this->isAuth()) {
+            return [
+                'Success' => false,
+                'Error' => 'Error: HTTP 403 Access Forbidden'
+            ];
+        }
+
+
+
+        return [
+            'Success' => true,
+            'Pid' => 123,
+            'RecordNumber' => 'RECORD-NUMBER',
+            'Error' => 'Error Text is any'
+        ];
+
+    }
+
 	/**
 	 * @param $params
 	 * @return array

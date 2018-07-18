@@ -45,6 +45,8 @@ class User
     	$this->u->setOrFilterProperties(['id']);
         $users = $this->u->load($params)->leftJoin(
         	['role_name' => 'role'], 'acl_roles', 'role_id', 'id'
+        )->leftJoin(
+        	['title' => 'department'], 'departments', 'department_id', 'id'
         )->all();
         foreach ($users['data'] as $index => $user) {
             $user['fullname'] = Person::fullname($user['fname'], $user['mname'], $user['lname']);

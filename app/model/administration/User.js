@@ -312,6 +312,11 @@ Ext.define('App.model.administration.User', {
 			name: 'role',
 			type: 'string',
 			store: false
+		},
+		{
+			name: 'department',
+			type: 'string',
+			store: false
 		}
 	],
 	proxy: {

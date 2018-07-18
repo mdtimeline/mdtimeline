@@ -14353,6 +14353,11 @@ Ext.define('App.model.administration.User', {
 			name: 'role',
 			type: 'string',
 			store: false
+		},
+		{
+			name: 'department',
+			type: 'string',
+			store: false
 		}
 	],
 	proxy: {
@@ -54366,7 +54371,8 @@ Ext.define('App.view.administration.Users', {
 	requires: [
 		'App.ux.form.fields.plugin.PasswordStrength',
 		'App.ux.combo.ActiveSpecialties',
-		'App.ux.combo.Departments'
+		'App.ux.combo.Departments',
+		'App.ux.grid.exporter.Exporter'
 	],
 	pageTitle: _('users'),
 	itemId: 'AdminUsersPanel',
@@ -54376,7 +54382,8 @@ Ext.define('App.view.administration.Users', {
 		me.userStore = Ext.create('App.store.administration.User', {
 			remoteFilter: true,
 			remoteSort: true,
-			autoSync: false
+			autoSync: false,
+			pageSize: 1000
 		});
 
 		me.userGrid = Ext.create('Ext.grid.Panel', {
@@ -54425,6 +54432,12 @@ Ext.define('App.view.administration.Users', {
 					text: _('role'),
 					sortable: false,
 					dataIndex: 'role'
+				},
+				{
+					flex: 1,
+					text: _('department'),
+					sortable: false,
+					dataIndex: 'department'
 				},
 				{
 					flex: 1,
@@ -54880,16 +54893,28 @@ Ext.define('App.view.administration.Users', {
 					handler: me.onNewUser
 				},
 				'->',
+				'-',
 				{
 					xtype: 'button',
 					text: _('print'),
 					iconCls: 'icoPrint',
 					itemId: 'AdminUserGridPanelPrintBtn'
+				},
+				'-',
+				{
+					xtype: 'exporterbutton',
+					text: 'Save As CSV',
+				},
+				'-',
+				{
+					xtype: 'exporterbutton',
+					text: 'Save As XLS',
+					format: 'excel'
 				}
 			],
 			bbar: {
 				xtype: 'pagingtoolbar',
-				pageSize: 10,
+				pageSize: 1000,
 				store: me.userStore,
 				displayInfo: true,
 				plugins: new Ext.ux.SlidingPager()

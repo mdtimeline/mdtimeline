@@ -93,7 +93,7 @@ class LDAP {
 			$filter = "(sAMAccountName=".$username.")";
 			$attr = ["memberof"];
 
-			$search = ldap_search($this->ldap, $this->ldap_dn, $filter, $attr);
+			$search = @ldap_search($this->ldap, $this->ldap_dn, $filter, $attr);
 
 			if($search === false){
 				return [
@@ -102,12 +102,12 @@ class LDAP {
 				];
 			}
 
-			$entries = ldap_get_entries($this->ldap, $search);
+			$entries = @ldap_get_entries($this->ldap, $search);
 
 			$valid = false;
 
 			if($entries['count'] == 0){
-				ldap_unbind($this->ldap);
+				@ldap_unbind($this->ldap);
 				return [
 					'success' => false,
 					'error' => 'LDAP: User has no rights'
@@ -129,7 +129,7 @@ class LDAP {
 				}
 
 				$userdn = $entry['dn'];
-				$auth_status = ldap_bind($this->ldap, $userdn, $password);
+				$auth_status = @ldap_bind($this->ldap, $userdn, $password);
 
 				if ($auth_status !== false) {
 					$valid = true;
@@ -137,7 +137,7 @@ class LDAP {
 				}
 			}
 
-			ldap_unbind($this->ldap);
+			@ldap_unbind($this->ldap);
 
 			if($valid) {
 				return [

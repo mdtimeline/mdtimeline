@@ -145,6 +145,12 @@ Ext.define('App.model.patient.PatientDocuments', {
 			type: 'string',
 			store: false,
 			useNull: true
+		},
+		{
+			name: 'disabled_selection',
+			type: 'bool',
+			persist: false,
+			defaultValue: false
 		}
 	],
 	proxy: {

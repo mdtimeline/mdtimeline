@@ -18558,6 +18558,12 @@ Ext.define('App.model.patient.PatientDocuments', {
 			type: 'string',
 			store: false,
 			useNull: true
+		},
+		{
+			name: 'disabled_selection',
+			type: 'bool',
+			persist: false,
+			defaultValue: false
 		}
 	],
 	proxy: {
@@ -59066,13 +59072,13 @@ Ext.define('App.controller.patient.Documents', {
 		this.getPatientDocumentUploadScanBtn().setVisible(this.getController('Scanner').conencted);
 	},
 
-	onPatientDocumentGridSelectionChange: function(sm, records){
+	onPatientDocumentGridSelectionChange: function(sm, selection){
 		var frame = sm.view.panel.up('panel').query('#patientDocumentViewerFrame')[0];
 
-		if(records.length > 0){
-			frame.setSrc('dataProvider/DocumentViewer.php?site=' + this.site + '&token=' + app.user.token + '&id=' + records[0].data.id);
+		if(selection.length === 0 || selection[0].get('disabled_selection')){
+			frame.setSrc('about:blank');
 		}else{
-			frame.setSrc('dataProvider/DocumentViewer.php?site=' + this.site + '&token=' + app.user.token);
+			frame.setSrc('dataProvider/DocumentViewer.php?site=' + this.site + '&token=' + app.user.token + '&id=' + selection[0].data.id);
 		}
 	},
 

@@ -18,6 +18,7 @@
  */
 
 include_once(ROOT . '/classes/Sessions.php');
+include_once(ROOT . '/classes/Network.php');
 include_once(ROOT . '/classes/Crypt.php');
 include_once(ROOT . '/dataProvider/Patient.php');
 
@@ -142,7 +143,6 @@ class authProcedures {
 				'lname',
 				'email',
 				'facility_id',
-				'ldap_domain',
 				'npi',
 				'phone',
 				'mobile',
@@ -193,6 +193,14 @@ class authProcedures {
 	}
 
 	public function doAuth($params, $user){
+
+		if(!Network::isLocalAddress() && !ACL::hasPermissionByUid('allow_access_on_public_ips', $user['id'])){
+			return [
+				'success' => false,
+				'type' => 'error',
+				'message' => 'User NOT Authorized for External Access'
+			];
+		}
 
 		if($this->sigle_user_session){
 			if(isset($params->force) && $params->force){

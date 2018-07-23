@@ -67,12 +67,36 @@
     background-attachment: fixed;
 }
 
-.thumb-wrap.x-item-selected {
-    background-color: #00B6FF;
+.documents-data-view {
+    //background-color: #DFE8F6 !important;
+}
+
+.documents-data-view .thumb-wrap {
+    width: 50%;
+    padding: 10px;
+    float: left;
+}
+.documents-data-view .thumb-wrap p {
+    margin: 0 0 5px 0;
+    padding: 0;
+}
+
+.documents-data-view .thumb-wrap img {
+    width: 100%;
+    margin: 0;
+    border: solid 1px #ccc;
+}
+
+.documents-data-view .thumb-wrap.x-item-selected {
+    background-color: #ebebeb;
 }
 
 .highlight_fieldset {
     background-color: #dfe8f6;
+}
+
+.high-resolution-radiogroup .x-form-checkboxgroup-body {
+    padding: 0;
 }
 
 .login-window,

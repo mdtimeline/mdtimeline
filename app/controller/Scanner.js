@@ -6,9 +6,42 @@ Ext.define('App.controller.Scanner', {
 	],
 	refs: [
 		{
-			ref: 'ScannerWindow',
-			selector: '#ScannerWindow'
+			ref: 'DocumentScanWindow',
+			selector: '#DocumentScanWindow'
 		},
+		{
+			ref: 'DocumentScanDataViewPanel',
+			selector: '#DocumentScanDataViewPanel'
+		},
+		{
+			ref: 'DocumentScanThumbsDataView',
+			selector: '#DocumentScanThumbsDataView'
+		},
+		{
+			ref: 'DocumentScanForm',
+			selector: '#DocumentScanForm'
+		},
+		{
+			ref: 'DocumentScanSourceCombo',
+			selector: '#DocumentScanSourceCombo'
+		},
+		{
+			ref: 'DocumentScanDocTypeCombo',
+			selector: '#DocumentScanDocTypeCombo'
+		},
+		{
+			ref: 'DocumentScanProgressBar',
+			selector: '#DocumentScanProgressBar'
+		},
+		{
+			ref: 'DocumentScanRemoveDocumentBtn',
+			selector: '#DocumentScanRemoveDocumentBtn'
+		},
+
+
+
+
+		// old...
 		{
 			ref: 'ScannerImageThumbsDataView',
 			selector: '#ScannerImageThumbsDataView'
@@ -46,65 +79,86 @@ Ext.define('App.controller.Scanner', {
 		me.is_chrome_scan = window.chrome && window.chrome.documentScan;
 
 		me.control({
-			'#ScannerWindow': {
-				afterrender: me.onScannerWindowAfterRender,
-				show: me.onScannerWindowShow,
-				close: me.onScannerWindowClose,
-				beforeclose: me.onScannerWindowBeforeClose
+
+
+			'#DocumentScanWindow': {
+				show: me.onDocumentScanWindowShow,
+				close: me.onDocumentScanWindowClose,
+				beforeclose: me.onDocumentScanWindowBeforeClose
 			},
-			'#ScannerImageScanBtn': {
-				click: me.onScannerImageScanBtnClick
+			'#DocumentScanThumbsDataView': {
+				beforeitemcontextmenu: me.onDocumentScanThumbsDataViewBeforeContextMenu,
+				selectionchange: me.onDocumentScanThumbsDataViewSelectionChange,
 			},
-			'#ScannerImageThumbsDataView': {
-				itemclick: me.onScannerImageThumbsDataViewItemClick,
-				itemdblclick: me.onScannerImageThumbsDataViewItemDblClick
+			'#DocumentScanSaveBtn': {
+				click: me.onDocumentScanSaveBtnClick
 			},
-			'#ScannerImageArchiveBtn': {
-				click: me.onScannerImageArchiveBtnClick
+			'#DocumentScanCancelBtn': {
+				click: me.onDocumentScanCancelBtnClick
 			},
-			'#ScannerImageEditBtn': {
-				toggle: me.onScannerImageEditBtnToggle
+			'#DocumentScanStartScanBtn': {
+				click: me.onDocumentScanStartScanBtnClick
 			},
-			'#ScannerImageCloseBtn': {
-				click: me.onScannerImageCloseBtn
-			}
+			'#DocumentScanRemoveDocumentBtn': {
+				click: me.onDocumentScanRemoveDocumentBtnClick
+			},
+
 		});
 
 		me.helperCtrl = me.getController('App.controller.BrowserHelper');
 
 	},
 
-	doScan: function () {
-		var me = this,
-			scannerId = me.getScannerSourceCombo().getValue();
+	doScan: function (scannerId, options) {
+		var me = this;
 
 		if(!me.is_chrome_scan){
+
+
+			var progress_bar = this.getDocumentScanProgressBar();
+
+
+			progress_bar.wait({
+				interval: 100,
+				duration: (60 * 1000),
+				increment: 10,
+				text: _('scanning') + '...',
+				fn: function(){
+					progrss_bar.updateText(_('no_document_scanned'));
+				}
+			});
+
 			me.helperCtrl.sendMessage({
 				action: 'scan',
-				data: scannerId
+				data: scannerId,
+				options: options.join('|')
 			}, function (response) {
 
+				progress_bar.reset();
 
 				if(response.documents && response.documents.length > 0){
 					me.loadDocuments(response.documents, false);
+					progress_bar.updateProgress(1, response.documents.length + ' ' + _('documents_scanned'));
+
 				} else {
 
 					if(response.error && response.error != ''){
 						app.msg(_('oops'), response.error, true);
-					}
-
-					if(response.error && response.error != ''){
-						say(response.error)
+						say(response.error);
+						progress_bar.updateProgress(0, response.error);
+					} else {
+						progress_bar.updateProgress(0, _('no_document_scanned'));
 					}
 
 					if(response.stacktrace && response.stacktrace != ''){
-						say(response.stacktrace)
+						say(response.stacktrace);
 					}
-
 					return;
 				}
 
 				if(response.error && response.error != ''){
+					progress_bar.reset();
+					progress_bar.updateProgress(0, response.error);
 					say(response.error)
 				}
 
@@ -115,108 +169,84 @@ Ext.define('App.controller.Scanner', {
 			});
 		}
 
-
-
 	},
 
 	loadDocuments: function (data, mime_type_included) {
 
 		var me = this,
+			form = me.getDocumentScanForm().getForm(),
+			values = form.getValues(),
+			docTypeCmb = me.getDocumentScanDocTypeCombo(),
+			view = me.getDocumentScanThumbsDataView(),
+			store = view.getStore(),
 			documents = [];
 
 		data.forEach(function (document) {
 			Ext.Array.push(documents, {
-				id: '',
-				archived: false,
-				src: mime_type_included ? document : ('data:image/jpeg;base64,' + document)
+				pid: app.patient.pid,
+				eid: app.patient.eid,
+				uid: app.user.id,
+				facility_id: app.user.facility,
+				docType: docTypeCmb.findRecordByValue(values.docTypeCode).get('option_name'),
+				docTypeCode: values.docTypeCode,
+				date: app.getDate(),
+				title: values.title,
+				error_note: '',
+				document: mime_type_included ? document : ('data:image/jpeg;base64,' + document)
 			});
 		});
-
-		var view = me.getScannerImageThumbsDataView(),
-			store = view.getStore();
 
 		store.loadData(documents, true);
 		view.refresh();
 	},
 
-	onScannerImageThumbsDataViewItemClick: function (view, record) {
-		this.getScannerImageViewerPanelImage().setSrc(record.get('src'));
-	},
+	onDocumentScanStartScanBtnClick: function(){
 
-	onScannerImageThumbsDataViewItemDblClick: function (view) {
-		this.onArchive(view);
-	},
+		var me = this,
+			form = this.getDocumentScanForm().getForm(),
+			values = form.getValues(),
+			options = [];
 
-	showScanWindow: function(closeCallback, archivedCallback){
+		if(!form.isValid()) return;
 
-		if(!this.is_chrome_scan && !this.helperCtrl.connected){
-			app.msg(_('oops'), _('browser_helper_not_connected'), true);
-			return false;
+		if(values.duplex == '1'){
+			options.push('CAP_DUPLEX_ENABLED');
+		}
+		if(values.color == '1'){
+			options.push('CAP_PIXEL_TYPE_RBG');
+		}
+		if(values.landscape == '1'){
+			options.push('CAP_ORIENTATION_LANDSCAPE');
+		}
+		if(values.resolution == '1'){
+			options.push('CAP_RESOLUTION_NORMAL');
+		}
+		if(values.resolution == '2'){
+			options.push('CAP_RESOLUTION_HIGH');
 		}
 
-		if(!this.getScannerWindow()){
-			Ext.create('App.view.scanner.Window');
-		}
+		me.doScan(values.scannerId, options);
 
-		this.getScannerWindow().skip_validation = false;
-		this.closeCallback = closeCallback ? closeCallback : Ext.emptyFn;
-		this.archivedCallback = archivedCallback ? archivedCallback : Ext.emptyFn;
-
-		return this.getScannerWindow().show();
 	},
 
-	onScannerImageScanBtnClick: function(){
-		this.doScan();
-	},
-
-	onScannerImageArchiveBtnClick: function (btn) {
-		this.onArchive(btn);
-	},
-
-	onArchive: function (cmp) {
-		var win = cmp.up('window');
-		var archive = Ext.widget('patientarchivedocumentwindow',{
-			documentWindow: win
-		});
-		archive.down('form').getForm().setValues(this.documents_defautls);
-	},
-
-	onScannerWindowAfterRender: function(){
-		if(!this.is_chrome_scan) return;
-		this.getScannerSourceCombo().hide();
-	},
-
-	onScannerWindowShow: function (win) {
-		this.currentonScannerWindow = win;
+	onDocumentScanWindowShow: function(win){
 		if(this.is_chrome_scan) return;
+
+		var progress_bar = this.getDocumentScanProgressBar();
+		progress_bar.reset();
+		progress_bar.updateProgress(0);
+		progress_bar.updateText('');
+
 		this.doScannerComboLoad();
 	},
 
-	doScannerComboLoad: function () {
-		var me = this;
-
-		me.helperCtrl.sendMessage(
-			{
-				action: 'scanner/list'
-			}, function (response) {
-
-				if(response){
-					me.getScannerSourceCombo().store.loadRawData(response);
-					me.getScannerSourceCombo().select(me.getScannerSourceCombo().store.getAt(0));
-				}
-			});
-	},
-
-	onScannerWindowClose: function(win){
+	onDocumentScanWindowClose: function(win){
 		win.skip_validation = false;
-		this.currentonScannerWindow = null;
-		this.documents_defautls = {};
-		this.getScannerImageThumbsDataView().store.removeAll();
-		this.getScannerImageViewerPanelImage().setSrc('');
-		this.closeCallback();
+		this.getDocumentScanThumbsDataView().store.removeAll();
+		this.getDocumentScanThumbsDataView().store.commitChanges();
 	},
 
-	onScannerWindowBeforeClose: function(win){
+	onDocumentScanWindowBeforeClose: function(win){
 		if(win.skip_validation === true || this.allArchived()){
 			return true;
 		}else{
@@ -237,79 +267,104 @@ Ext.define('App.controller.Scanner', {
 		}
 	},
 
-	onScannerImageCloseBtn: function () {
-		this.getScannerWindow().close();
-	},
+	onDocumentScanSaveBtnClick: function(){
 
-	doArchive: function (values, callback) {
+		var me = this,
+			win = me.getDocumentScanWindow(),
+			scan_documents_view = me.getDocumentScanThumbsDataView(),
+			scan_documents_store = scan_documents_view.getStore(),
+			scan_documents_records = scan_documents_store.data.items;
 
-		var me = this;
-
-		if(!values.pid){
-			app.msg(_('oops'), _('no_patient_found'), true);
-			callback(false);
+		if(me.allArchived()) {
+			app.msg(_('oops'), 'Nothing to save', true);
 			return;
 		}
 
-		var model = Ext.create('App.model.patient.PatientDocuments', values);
 
-		model.set({
-			date: new Date(),
-			document: this.getDocument()
-		});
+		if(app.fireEvent('beforescandocumentssave', this, scan_documents_records) === false) return;
 
-		model.save({
-		 	success: function () {
+		win.mask(_('please_wait'));
 
-		 		var selected = me.getLastSelectedDocument(),
-			        store = selected.store;
+		scan_documents_store.sync({
+			success: function () {
 
-			    me.archivedCallback(model);
+				app.fireEvent('scandocumentssave', this, scan_documents_records);
 
+				scan_documents_store.removeAll();
+				scan_documents_store.commitChanges();
+				win.unmask();
+				win.close();
+			},
+			failure: function () {
 
-			    store.remove(selected);
-			    store.commitChanges();
-			    me.getScannerImageThumbsDataView().refresh();
-
-			    // send callback to close window
-			    callback(true);
-
-			    if(me.allArchived() && me.currentonScannerWindow){
-				    me.currentonScannerWindow.close();
-			    }
+				app.msg(_('oops'), _('record_error'), true);
+				win.unmask();
+				win.close();
 			}
 		});
 	},
-	
+
+	onDocumentScanCancelBtnClick: function(){
+		this.getDocumentScanWindow().close();
+	},
+
+	onDocumentScanThumbsDataViewBeforeContextMenu: function(view, record, item, index, e, eOpts ){
+		e.preventDefault();
+	},
+
+	onDocumentScanThumbsDataViewSelectionChange: function(sm, selection){
+		this.getDocumentScanRemoveDocumentBtn().setDisabled(selection.length === 0);
+	},
+
+	onDocumentScanRemoveDocumentBtnClick: function(){
+
+		var me = this,
+			scan_documents_view = me.getDocumentScanThumbsDataView(),
+			scan_documents_store = scan_documents_view.getStore(),
+			scan_documents_record = scan_documents_view.getSelectionModel().getLastSelected();
+
+		scan_documents_store.remove(scan_documents_record);
+
+	},
+
+	showDocumentScanWindow: function(){
+
+		if(!this.is_chrome_scan && !this.helperCtrl.connected){
+			app.msg(_('oops'), _('browser_helper_not_connected'), true);
+			return false;
+		}
+
+		if(!this.getDocumentScanWindow()){
+			Ext.create('App.view.scanner.DocumentScanWindow');
+		}
+
+		this.getDocumentScanWindow().skip_validation = false;
+
+		return this.getDocumentScanWindow().show();
+	},
+
+	doScannerComboLoad: function () {
+		var me = this,
+			cmb = me.getDocumentScanSourceCombo();
+
+		me.helperCtrl.sendMessage(
+			{
+				action: 'scanner/list'
+			}, function (response) {
+
+				if(response){
+					cmb.store.loadRawData(response);
+
+					if(!cmb.getValue()) {
+						cmb.select(cmb.store.getAt(0));
+					}
+				}
+			});
+	},
+
 	allArchived: function () {
-		var store = this.getScannerImageThumbsDataView().store;
+		var store = this.getDocumentScanThumbsDataView().store;
 		return store.data.items.length == 0;
 	},
 
-	onScannerImageEditBtnToggle: function(btn, pressed){
-		if(pressed){
-			var target = '#' + this.getScannerImageViewer().id;
-
-			this.dkrm = new Darkroom(target, {
-				save: false,
-				replaceDom: false
-			});
-			btn.setText(_('editing'));
-		}else{
-			this.dkrm.selfDestroy();
-			delete this.dkrm;
-			btn.setText(_('edit'));
-		}
-
-		this.getScannerImageScanBtn().setDisabled(pressed);
-		this.getScannerImageArchiveBtn().setDisabled(pressed);
-	},
-
-	getLastSelectedDocument: function(){
-		return this.getScannerImageThumbsDataView().getSelectionModel().getLastSelected();
-	},
-
-	getDocument: function(){
-		return this.getScannerImageViewer().imgEl.dom.src;
-	}
 });

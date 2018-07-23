@@ -1303,8 +1303,8 @@ class MatchaCUP {
 	}
 
 	private function dataUnSerialize(&$item, $key, $arrayFields) {
-		if(in_array($key, $arrayFields)){
-			$item = unserialize($item);
+		if(isset($item) && in_array($key, $arrayFields)){
+			$item = @unserialize($item);
 		}
 	}
 

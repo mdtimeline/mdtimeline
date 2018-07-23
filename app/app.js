@@ -52088,11 +52088,6 @@ Ext.define('App.view.patient.windows.UploadDocument', {
 						}
 					]
 				},
-				// {
-				// 	xtype: 'checkbox',
-				// 	name: 'encrypted',
-				// 	fieldLabel: _('encrypted')
-				// },
 				{
 					xtype: 'textareafield',
 					name: 'note',
@@ -59150,7 +59145,7 @@ Ext.define('App.controller.patient.Documents', {
 	},
 
 	onDocumentScanBtnClick: function () {
-		this.getController('Scanner').showScanWindow();
+		this.getController('Scanner').showDocumentScanWindow();
 	},
 
 	onDocumentUploadBtnClick: function(){

@@ -402,7 +402,7 @@ Ext.define('App.controller.patient.Documents', {
 	},
 
 	onDocumentScanBtnClick: function () {
-		this.getController('Scanner').showScanWindow();
+		this.getController('Scanner').showDocumentScanWindow();
 	},
 
 	onDocumentUploadBtnClick: function(){

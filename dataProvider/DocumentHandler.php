@@ -263,13 +263,19 @@ class DocumentHandler {
 
 		$results = $this->d->save($params);
 
-		if(is_array($results)){
-			foreach($results as &$result){
+		if(isset($results['data']) && is_array($results['data'])){
+			foreach($results['data'] as &$result){
 				if($this->storeAsFile){
 					$this->handleDocumentFile($result);
 				}else{
 					$this->handleDocumentData($result);
 				}
+			}
+		}else if(isset($results['data']) && is_object($results['data'])){
+			if($this->storeAsFile){
+				$this->handleDocumentFile($results['data']);
+			}else{
+				$this->handleDocumentData($results['data']);
 			}
 		}else{
 			if($this->storeAsFile){
@@ -381,17 +387,17 @@ class DocumentHandler {
 
 			if(!file_exists($filesystem_path . $document_path)){
 
-				mkdir($filesystem_path . $document_path, $this->directory_permission, true);
+				@mkdir($filesystem_path . $document_path, $this->directory_permission, true);
 				$directories = explode('/', trim($document_path, '/'));
 
 				if(isset($directories[0]) && $directories[0] !== ''){
-					chmod($filesystem_path . '/'. $directories[0], $this->directory_permission);
+					@chmod($filesystem_path . '/'. $directories[0], $this->directory_permission);
 				}
 				if(isset($directories[1]) && $directories[1] !== ''){
-					chmod($filesystem_path . '/'. $directories[0]. '/'. $directories[1], $this->directory_permission);
+					@chmod($filesystem_path . '/'. $directories[0]. '/'. $directories[1], $this->directory_permission);
 				}
 				if(isset($directories[2]) && $directories[2] !== ''){
-					chmod($filesystem_path . '/'. $directories[0] . '/'. $directories[1] . '/'. $directories[2], $this->directory_permission);
+					@chmod($filesystem_path . '/'. $directories[0] . '/'. $directories[1] . '/'. $directories[2], $this->directory_permission);
 				}
 			}
 

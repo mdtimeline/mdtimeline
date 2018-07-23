@@ -59,18 +59,14 @@ Ext.define('App.controller.Upload', {
 	},
 
 	onUploadDocumentWindowClose: function () {
-		this.closeCallback();
+
 	},
 
-	showUploadWindow: function(closeCallback, archivedCallback){
+	showUploadWindow: function(){
 
 		if(!this.getUploadDocumentWindow()){
 			Ext.create('App.view.upload.UploadDocumentWindow');
 		}
-
-		this.closeCallback = closeCallback ? closeCallback : Ext.emptyFn;
-		this.archivedCallback = archivedCallback ? archivedCallback : Ext.emptyFn;
-
 		return this.getUploadDocumentWindow().show();
 	},
 
@@ -106,9 +102,11 @@ Ext.define('App.controller.Upload', {
 		reader.onload = function(e){
 			record.set({document: e.target.result});
 
+			if(app.fireEvent('beforeuploaddocumentssave', this, [record]) === false) return;
+
 			record.save({
 				success: function () {
-					me.archivedCallback(record);
+					app.fireEvent('uploaddocumentssave', this, [record]);
 					win.close();
 				}
 			});

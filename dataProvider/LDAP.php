@@ -60,6 +60,16 @@ class LDAP {
 			];
 		}
 
+		if(isset($_ENV['ldap_service_tls']) && $_ENV['ldap_service_tls']){
+			$tls = @ldap_start_tls($this->ldap);
+			if(!$tls){
+				return [
+					'success' => false,
+					'error' => 'LDAP: Could not bind to LDAP TSL as application user'
+				];
+			}
+		}
+
 		$bind = @ldap_bind($this->ldap, $_ENV['ldap_service_account_username'], $_ENV['ldap_service_account_password']);
 
 		if(!$bind){

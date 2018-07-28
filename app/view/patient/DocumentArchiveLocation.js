@@ -348,7 +348,7 @@ Ext.define('App.view.patient.DocumentArchiveLocation', {
 			{
 				xtype: 'panel',
 				region: 'east',
-				width: 450,
+				width: 550,
 				title: _('document_preview'),
 				collapsible: true,
 				collapsed: true,

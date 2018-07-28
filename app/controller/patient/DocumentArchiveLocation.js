@@ -158,7 +158,7 @@ Ext.define('App.controller.patient.DocumentArchiveLocation', {
 
 		data.records.forEach(function (record) {
 
-			DocumentLocation.destroyPatientDocumentLocation(record.data, function () {
+			DocumentArchiveLocation.destroyPatientDocumentLocation(record.data, function () {
 
 				record.set({
 					id: 0,

@@ -917,6 +917,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.DecisionSupport',
 	                'patient.Dictation',
 	                'patient.DoctorsNotes',
+	                'patient.DocumentArchiveLocation',
 	                'patient.Documents',
 	                'patient.FamilyHistory',
 	                'patient.ImplantableDevice',

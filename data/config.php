@@ -2287,6 +2287,49 @@ $API = [
             ]
         ]
     ],
+	'DocumentArchiveLocation' => [
+		'methods' => [
+			'getDocumentLocations' => [
+				'len' => 1
+            ],
+			'getDocumentLocation' => [
+				'len' => 1
+            ],
+			'addDocumentLocation' => [
+				'len' => 1
+            ],
+			'updateDocumentLocation' => [
+				'len' => 1
+            ],
+			'destroyDocumentLocation' => [
+				'len' => 1
+            ],
+			'getPatientDocumentLocations' => [
+				'len' => 1
+            ],
+			'getPatientDocumentLocation' => [
+				'len' => 1
+            ],
+			'addPatientDocumentLocation' => [
+				'len' => 1
+            ],
+			'updatePatientDocumentLocation' => [
+				'len' => 1
+            ],
+			'destroyPatientDocumentLocation' => [
+				'len' => 1
+            ],
+			'addDocumentLocationSearch' => [
+				'len' => 1
+            ],
+			'archiveDocuments' => [
+				'len' => 1
+            ],
+			'unArchiveDocuments' => [
+				'len' => 1
+            ]
+        ]
+    ],
 	/**
 	 * Document Handler functions
 	 */

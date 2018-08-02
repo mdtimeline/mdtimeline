@@ -721,6 +721,7 @@ Ext.override(Ext.form.field.ComboBox, {
 
 			this.onTrigger1Click = function() {
 				this.clearValue();
+				this.fireEvent('reset', this);
 			}
 		}
 

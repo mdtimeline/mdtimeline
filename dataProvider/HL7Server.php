@@ -39,6 +39,14 @@ class HL7Server {
 	 * @var MatchaCUP
 	 */
 	protected $p;
+    /**
+     * @var MatchaCUP
+     */
+    protected $i;
+    /**
+     * @var MatchaCUP
+     */
+    protected $pi;
 	/**
 	 * @var MatchaCUP
 	 */
@@ -94,7 +102,7 @@ class HL7Server {
 	/**
 	 * @var string
 	 */
-	protected $updateKey = 'pid';
+	protected $updateKey = 'pubpid';
 
 	function __construct($port = 9000, $site = 'default') {
 		$this->site = defined('site_id') ? site_id : $site;
@@ -119,10 +127,14 @@ class HL7Server {
 			$this->m = MatchaModel::setSenchaModel('App.model.administration.HL7Message');
 		if(!isset($this->r))
 			$this->r = MatchaModel::setSenchaModel('App.model.administration.HL7Client');
+		if(!isset($this->i))
+			$this->i = MatchaModel::setSenchaModel('App.model.administration.InsuranceCompany');
 
 		/** Patient Model */
 		if(!isset($this->p))
 			$this->p = MatchaModel::setSenchaModel('App.model.patient.Patient');
+		if(!isset($this->pi))
+			$this->pi = MatchaModel::setSenchaModel('App.model.patient.Insurance');
 
 		/**
 		 * User facilities
@@ -170,7 +182,7 @@ class HL7Server {
 		/**
 		 * check HL7 version
 		 */
-		if($version != '2.5.1' && $version != '2.3'){
+		if($version != '2.5.1' && $version != '2.3' && $version != '2.4'){
 			$this->ackStatus = 'AR';
 			$this->ackMessage = 'HL7 version unsupported';
 		}
@@ -225,7 +237,12 @@ class HL7Server {
 					break;
 			}
 
-			if(isset($_SESSION['hooks']) && isset($_SESSION['hooks']['HL7Server']) && isset($_SESSION['hooks']['HL7Server']['Message']) && isset($_SESSION['hooks']['HL7Server']['Message'][$msg_type])){
+			if(
+			    isset($_SESSION['hooks']) &&
+                isset($_SESSION['hooks']['HL7Server']) &&
+                isset($_SESSION['hooks']['HL7Server']['Message']) &&
+                isset($_SESSION['hooks']['HL7Server']['Message'][$msg_type])
+            ){
 				foreach($_SESSION['hooks']['HL7Server']['Message'][$msg_type]['hooks'] as $i => $hook){
 					include_once($hook['file']);
 					$Hook = new $i();
@@ -574,7 +591,7 @@ class HL7Server {
 
 	/**
 	 * @param HL7 $hl7
-	 * @param ADT $msg
+	 * @param ADT|bool $msg
 	 * @param stdClass $msgRecord
 	 */
 	protected function ProcessADT($hl7, $msg, $msgRecord) {
@@ -594,13 +611,15 @@ class HL7Server {
 			 * Register a Patient
 			 */
 			$patientData = $this->PidToPatient($msg->data['PID'], $hl7);
-			$patient = $this->p->load($patientData[$this->updateKey])->one();
+			$patient = $this->p->load(['pubpid' => $patientData[$this->updateKey] ])->one();
 
 			if($patient === false){
-				$this->ackStatus = 'AR';
-				$this->ackMessage = 'Unable to find patient ' . $patientData[$this->updateKey];
-			}
-			$patient = array_merge($patient, $patientData);
+                $patient = (object) $patientData;
+                // force a new patient
+                unset($patient->pid);
+			}else{
+                $patient = array_merge($patient, $patientData);
+            }
 
 			$patient = $this->p->save((object)$patient);
 			$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
@@ -611,13 +630,15 @@ class HL7Server {
 			 * Update Patient Information
 			 */
 			$patientData = $this->PidToPatient($msg->data['PID'], $hl7);
-			$patient = $this->p->load($patientData[$this->updateKey])->one();
+            $patient = $this->p->load(['pubpid' => $patientData[$this->updateKey] ])->one();
 
-			if($patient === false){
-				$this->ackStatus = 'AR';
-				$this->ackMessage = 'Unable to find patient ' . $patientData[$this->updateKey];
-			}
-			$patient = array_merge($patient, $patientData);
+            if($patient === false){
+                $patient = (object) $patientData;
+                // force a new patient
+                unset($patient->pid);
+            }else{
+                $patient = array_merge($patient, $patientData);
+            }
 
 			$patient = $this->p->save((object)$patient);
 			$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
@@ -849,19 +870,22 @@ class HL7Server {
 			$p['race'] = $PID[10][0][1]; // Race
 		}
 		if($this->notEmpty($PID[11][0][1][1])){
-			$p['address'] = $PID[11][0][1][1]; // Patient Address
+			$p['postal_address'] = $PID[11][0][1][1]; // Patient Address
+		}
+		if($this->notEmpty($PID[11][0][2])){
+			$p['postal_address_cont'] = $PID[11][0][2]; // Patient Address Cont
 		}
 		if($this->notEmpty($PID[11][0][3])){
-			$p['city'] = $PID[11][0][3]; //
+			$p['postal_city'] = $PID[11][0][3]; //
 		}
 		if($this->notEmpty($PID[11][0][4])){
-			$p['state'] = $PID[11][0][4]; //
+			$p['postal_state'] = $PID[11][0][4]; //
 		}
 		if($this->notEmpty($PID[11][0][5])){
-			$p['zipcode'] = $PID[11][0][5]; //
+			$p['postal_zip'] = $PID[11][0][5]; //
 		}
 		if($this->notEmpty($PID[11][0][6])){
-			$p['country'] = $PID[11][0][6]; // Country Code
+			$p['postal_country'] = $PID[11][0][6]; // Country Code
 		}
 		if($this->notEmpty($PID[13][0][7])){
 			$p['home_phone'] = "{$PID[13][0][7]} . '-' . {$PID[13][0][1]}"; // Phone Number – Home
@@ -962,6 +986,30 @@ class HL7Server {
 					$this->IN3ToInsuranceObj($insurance, $hl7, $insObj);
 
 				}
+
+                $insObj->patient_insurance->pid = $patient->pid;
+                $insObj->patient_insurance->code = $patient->pubpid . '~' . $insObj->patient_insurance->company->code;
+
+				$insuranceCompanyRecord = $this->i->load(['code' => $insObj->patient_insurance->company->code])->one();
+
+				if($insuranceCompanyRecord === false) {
+                    $insuranceCompanyRecord = $this->i->save((object)$insObj->patient_insurance->company);
+
+                    if(isset($insuranceCompanyRecord['data'])){
+                        $insuranceCompanyRecord = (array) $insuranceCompanyRecord['data'];
+                    }
+                }
+
+                $insObj->patient_insurance->insurance_id = $insuranceCompanyRecord['id'];
+
+                $patientInsuranceRecord = $this->pi->load(array(
+                    'code' => $insObj->patient_insurance->code
+                ))->one();
+
+                if($patientInsuranceRecord === false) {
+                    $patientInsuranceRecord = $this->pi->save((object)$insObj->patient_insurance);
+                }
+
 				$insurances[] = $insObj;
 			}
 		}

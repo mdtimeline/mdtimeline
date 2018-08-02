@@ -66,20 +66,12 @@ class ORM extends Message {
 								'NTE' => array('repeatable' => true),
 								'CTD' => array(),
 								'DG1' => array('repeatable' => true),
-								'ORDER_DETAIL' => array(
-									'items' => array(
-										'OBR' => array('required' => true),
-										'NTE' => array('repeatable' => true),
-										'CTD' => array(),
-										'DG1' => array('repeatable' => true),
-									    'OBSERVATION' => array(
-										    'items' => array(
-											    'OBX' => array('required' => true),
-											    'NTE' => array('repeatable' => true),
-										    )
-									    )
-									)
-								)
+                                'OBSERVATION' => array(
+                                    'items' => array(
+                                        'OBX' => array('required' => true, 'repeatable' => true),
+                                        'NTE' => array('repeatable' => true),
+                                    )
+                                )
 							),
 						),
 						'FT1' => array('repeatable' => true),

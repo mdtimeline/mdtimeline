@@ -595,6 +595,7 @@ class HL7Server {
 	 * @param stdClass $msgRecord
 	 */
 	protected function ProcessADT($hl7, $msg, $msgRecord) {
+        $now = date('Y-m-d H:i:s');
 
 		$evt = $hl7->getMsgEventType();
 
@@ -617,8 +618,19 @@ class HL7Server {
                 $patient = (object) $patientData;
                 // force a new patient
                 unset($patient->pid);
+
+                $patient->create_date = $now;
+                $patient->update_date = $now;
+                $patient->create_uid = 0;
+                $patient->update_uid = 0;
 			}else{
                 $patient = array_merge($patient, $patientData);
+
+                if(!isset($patient['update_date'])){
+                    $patient['update_date'] = $now;
+                }
+
+                $patient['update_uid'] = 0;
             }
 
 			$patient = $this->p->save((object)$patient);
@@ -636,8 +648,19 @@ class HL7Server {
                 $patient = (object) $patientData;
                 // force a new patient
                 unset($patient->pid);
+
+                $patient->create_date = $now;
+                $patient->update_date = $now;
+                $patient->create_uid = 0;
+                $patient->update_uid = 0;
             }else{
                 $patient = array_merge($patient, $patientData);
+
+                if(!isset($patient['update_date'])){
+                    $patient['update_date'] = $now;
+                }
+
+                $patient['update_uid'] = 0;
             }
 
 			$patient = $this->p->save((object)$patient);

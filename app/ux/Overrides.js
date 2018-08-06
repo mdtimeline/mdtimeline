@@ -96,6 +96,42 @@ Ext.override(Ext.data.Connection, {
 Ext.override(Ext.window.Window, {
 	constrainHeader: true
 });
+Ext.override(Ext.form.field.Base, {
+	tooltip: false,
+	onRender : function() {
+		this.callParent(arguments);
+		this.renderActiveError();
+
+
+		if(this.tooltip && Ext.isString(this.tooltip)){
+			Ext.create('Ext.tip.ToolTip', {
+				trackMouse: true,
+				dismissDelay: 0,
+				showDelay: 250,
+				target: this.el,
+				html: this.tooltip
+			});
+		}
+	}
+});
+
+Ext.override(Ext.form.FieldContainer, {
+	tooltip: false,
+	onRender : function() {
+
+		this.callParent();
+
+		if(this.tooltip && Ext.isString(this.tooltip)){
+			Ext.create('Ext.tip.ToolTip', {
+				trackMouse: true,
+				dismissDelay: 0,
+				showDelay: 250,
+				target: this.el,
+				html: this.tooltip
+			});
+		}
+	}
+});
 
 Ext.override(Ext.form.Basic, {
 

@@ -522,7 +522,7 @@ class Documents {
 			}
 		}
 
-		if(isset($tokens)){
+		if(isset($tokens) && count($tokens) > 0){
 
 			$allNeededInfo = $this->setArraySizeOfTokenArray($tokens);
 			$allNeededInfo = $this->get_PatientTokensData($pid, $allNeededInfo, $tokens);

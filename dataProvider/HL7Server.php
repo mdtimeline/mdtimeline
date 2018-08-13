@@ -690,6 +690,7 @@ class HL7Server {
 			if($patient === false){
 				$this->ackStatus = 'AR';
 				$this->ackMessage = 'Unable to find patient ' . $PID[3][1];
+				return;
 			}
 
 			$newAreaCode = $PV1[3][1];
@@ -795,6 +796,7 @@ class HL7Server {
 			if($patient === false){
 				$this->ackStatus = 'AR';
 				$this->ackMessage = 'Unable to find patient ' . $patientData[$this->updateKey];
+				return;
 			}
 			$patient = array_merge($patient, $patientData);
 

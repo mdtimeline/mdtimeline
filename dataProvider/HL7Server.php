@@ -730,9 +730,12 @@ class HL7Server {
 			}
 
 			$patient = $this->p->load($filter)->one();
+
+
 			if($patient === false){
 				$this->ackStatus = 'AR';
 				$this->ackMessage = 'Unable to find patient ' . $PID[3][1];
+				return;
 			}
 
 			$newAreaCode = $PV1[3][1];

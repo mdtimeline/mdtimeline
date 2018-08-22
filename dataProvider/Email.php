@@ -35,6 +35,9 @@ class Email {
 	private $SMTP_PORT;
 	private $SMTP_USER;
 
+	private $API_ACCOUNT;
+	private $API_KEY;
+
 	private $AuditLog;
 
 	private $t;
@@ -54,6 +57,9 @@ class Email {
 		$this->SMTP_PASS = Globals::getGlobal('SMTP_PASS');
 		$this->SMTP_PORT = Globals::getGlobal('SMTP_PORT');
 		$this->SMTP_USER = Globals::getGlobal('SMTP_USER');
+
+		$this->API_ACCOUNT = Globals::getGlobal('API_ACCOUNT');
+		$this->API_KEY = Globals::getGlobal('API_KEY');
 
 		$this->AuditLog = new AuditLog();
 
@@ -75,6 +81,151 @@ class Email {
 	 * @throws Exception
 	 */
 	function Send($pid, $eid, $to_address, $subject, $from_email, $from_name, $body, $audit_log = true, $facility_id = null, $attachments = [], $embedded_images = []){
+
+		if($this->EMAIL_METHOD == 'SMTP'){
+			return $this->SendSMTP($pid, $eid, $to_address, $subject, $from_email, $from_name, $body, $audit_log, $facility_id, $attachments, $embedded_images);
+		}elseif($this->EMAIL_METHOD == 'API'){
+			return $this->SendAPI($pid, $eid, $to_address, $subject, $from_email, $from_name, $body, $audit_log, $facility_id, $attachments, $embedded_images);
+		}else{
+			throw new Exception('Email: SMTP or API not configured');
+		}
+	}
+
+	private function SendAPI($pid, $eid, $to_address, $subject, $from_email, $from_name, $body, $audit_log = true, $facility_id = null, $attachments = [], $embedded_images = []){
+
+
+		if($this->API_ACCOUNT == '' || $this->API_KEY == ''){
+			throw new Exception('Email: API not configured');
+		}
+
+		$message = [];
+
+		if(is_string($to_address)){
+			$message['recipients'][] = $to_address;
+		}elseif(is_array($to_address)){
+			if(isset($to_address[1])){
+				$message['recipients'][] = $to_address[0];
+			}elseif(isset($to_address[0])){
+				$message['recipients'][] = $to_address[0];
+			}
+		}
+
+		$tpl = $this->getMasterTemplate($facility_id);
+		if($tpl !== false){
+
+			$body = str_replace('[BODY]', $body, $tpl['body']);
+
+			if(
+				isset($tpl['from_address']) &&
+				filter_var($tpl['from_address'], FILTER_VALIDATE_EMAIL) !== false
+			){
+				$from_address = $tpl['from_address'];
+			}
+		}
+
+		if(isset($from_email) && filter_var($from_email, FILTER_VALIDATE_EMAIL) !== false){
+			$from_address = $from_email;
+		}
+
+		if(isset($from_address)){
+			$message['headers']['from'] = $from_address;
+		}else{
+			$message['headers']['from'] = $this->EMAIL_FROM_ADDRESS;
+		}
+
+		$message['headers']['subject'] = $subject;
+		$message['content']['text/html'] = $body;
+
+
+		if(file_exists(site_path . '/logo-email.png')){
+			//$PHPMailer->addEmbeddedImage(site_path . '/logo-email.png', 'logo');
+		}
+
+
+		foreach($attachments as $attachment){
+
+			$f = finfo_open();
+			$mime_type = finfo_buffer($f, base64_decode($attachment['data']), FILEINFO_MIME_TYPE);
+			finfo_close($f);
+
+			$message['attachments'][] = [
+				'fileName' => $attachment['filename'],
+				'contentType' => $mime_type,
+				'content' => $attachment['data'],
+			];
+
+		}
+
+
+		$url = "https://api.paubox.net/v1/{$this->API_ACCOUNT}/messages";
+	    $ch = curl_init($url);
+	    $data = ['data' => ['message' => $message ]];
+	    $payload = json_encode($data);
+
+	    curl_setopt($ch, CURLOPT_POST, true);
+	    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+	    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+		    "Content-Type: application/json",
+		    "Authorization: Token token={$this->API_KEY}"
+	    ]);
+
+		//execute the POST request
+	    $result = curl_exec($ch);
+
+
+	    $error_message = false;
+
+	    if($errno = curl_errno($ch)) {
+		    $error_message = curl_strerror($errno);
+	    }
+
+		//close cURL resource
+	    curl_close($ch);
+
+	    if($error_message !== false){
+		    error_log('Email: ' . $error_message);
+		    return [
+			    'success' => false,
+			    'error' => $error_message
+		    ];
+	    }
+
+	    $result = json_decode($result, true);
+
+	    if(isset($result['errors'])){
+
+		    $error_message = [];
+	    	foreach ($result['errors'] as $error){
+			    $error_message[] = 'Code: ' . $error['code'] . ' Description: ' .  $error['title'] . ' - ' . $error['details'];
+		    }
+
+		    if(!empty($error_message)){
+			    return [
+				    'success' => false,
+				    'error' => implode(', ', $error_message)
+			    ];
+		    }
+	    }
+
+		if($audit_log){
+			$log = new stdClass();
+			$log->pid = $pid;
+			$log->eid = $eid;
+			$log->event = 'SEND';
+			$log->event_description = 'Email Sent To: ' . $to_address;
+			$this->AuditLog->addLog($log);
+		}
+
+		return [
+			'success' => true,
+			'sourceTrackingId' => $result['sourceTrackingId'],
+			'error' => ''
+		];
+
+	}
+
+	private function SendSMTP($pid, $eid, $to_address, $subject, $from_email, $from_name, $body, $audit_log = true, $facility_id = null, $attachments = [], $embedded_images = []){
 
 		$PHPMailer = new PHPMailer();
 		//$PHPMailer->SMTPDebug = 2;

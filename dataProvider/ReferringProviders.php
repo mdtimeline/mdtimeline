@@ -120,10 +120,10 @@ class ReferringProviders {
             $whereValues[':fname'.$index] = $query . '%';
             $whereValues[':lname'.$index] = $query . '%';
             $whereValues[':mname'.$index] = $query . '%';
-            $whereValues[':taxonomy'.$index] = $query . '%';
-            $whereValues[':npi'.$index] = $query . '%';
-            $whereValues[':ssn'.$index] = '%' . $query;
-            $whereValues[':email'.$index] = '%' . $query;
+            $whereValues[':taxonomy'.$index] = $query;
+            $whereValues[':npi'.$index] = $query;
+            $whereValues[':ssn'.$index] = $query;
+            $whereValues[':email'.$index] = $query;
         }
         $sth = $conn->prepare('SELECT *
  								 FROM referring_providers WHERE ' . implode(' AND ', $where) . ' LIMIT 300');

@@ -108,10 +108,11 @@ Ext.define('App.view.administration.ReferringProviderWindow', {
 										},
 										items: [
 											{
-												xtype: 'textfield',
+												xtype: 'npiregistrysearch',
 												fieldLabel: _('npi'),
 												name: 'npi',
-												width: 120
+												width: 120,
+												itemId: 'ReferringProviderWindowFormNpiSearchField',
 											},
 											{
 												xtype: 'textfield',
@@ -186,7 +187,8 @@ Ext.define('App.view.administration.ReferringProviderWindow', {
 						]
 					},
 					{
-						xtype: 'container',
+						xtype: 'fieldset',
+						title: _('contact'),
 						flex: 1,
 						layout: {
 							type: 'vbox',
@@ -194,42 +196,24 @@ Ext.define('App.view.administration.ReferringProviderWindow', {
 						},
 						items: [
 							{
-								xtype: 'npiregistrysearch',
-								itemId: 'ReferringProviderWindowFormNpiSearchField',
-								fieldLabel: _('npi_lookup'),
-								submitValue: false
-
+								xtype: 'textfield',
+								fieldLabel: _('email'),
+								name: 'email'
 							},
 							{
-								xtype: 'fieldset',
-								title: _('contact'),
-								flex: 1,
-								layout: {
-									type: 'vbox',
-									align: 'stretch'
-								},
-								items: [
-									{
-										xtype: 'textfield',
-										fieldLabel: _('email'),
-										name: 'email'
-									},
-									{
-										xtype: 'textfield',
-										fieldLabel: _('phone_number'),
-										name: 'phone_number'
-									},
-									{
-										xtype: 'textfield',
-										fieldLabel: _('fax_number'),
-										name: 'fax_number'
-									},
-									{
-										xtype: 'textfield',
-										fieldLabel: _('cell_number'),
-										name: 'cel_number'
-									}
-								]
+								xtype: 'textfield',
+								fieldLabel: _('phone_number'),
+								name: 'phone_number'
+							},
+							{
+								xtype: 'textfield',
+								fieldLabel: _('fax_number'),
+								name: 'fax_number'
+							},
+							{
+								xtype: 'textfield',
+								fieldLabel: _('cell_number'),
+								name: 'cel_number'
 							}
 						]
 					}

@@ -147,6 +147,30 @@ class DocumentHandler {
 		return $records;
 	}
 
+	public function getPatientDocumentsBySql($sql, $includeDocument = false, $return_binary = false, $compressed = false){
+		$this->setPatientDocumentModel();
+		$this->d->setOrFilterProperties(['docTypeCode', 'id']);
+		$records = $this->d->sql($sql)->all();
+
+		/** lets unset the actual document data */
+		if(isset($records['data'])){
+			foreach($records['data'] as $i => $record){
+
+				if($records['data'][$i]['entered_in_error']){
+					$records['data'][$i]['docType'] = 'ENTERED IN ERROR';
+					$records['data'][$i]['docTypeCode'] = 'ZZZ';
+				}
+
+				if(!$includeDocument){
+					unset($records['data'][$i]['document']);
+				}else{
+					$records['data'][$i]['document'] = $this->getDocumentData($record, $return_binary, $compressed);
+				}
+			}
+		}
+		return $records;
+	}
+
 	/**
 	 * @param $params
 	 * @param $include_document
@@ -156,12 +180,64 @@ class DocumentHandler {
 	 */
 	public function getPatientDocument($params, $include_document = false, $retun_binary = false){
 		$this->setPatientDocumentModel();
-		$record = $this->d->load($params)->one();
+
+		if($include_document){
+			$record = $this->d->load($params)->leftJoin(['dir_path' => 'filesystem_path'], 'filesystems', 'filesystem_id', 'id' )->one();
+		}else{
+			$record = $this->d->load($params)->one();
+		}
+
+
 
 		if($record !== false && $include_document){
 
-			$file_path = $record['path'] . '/' . $record['name'];
-			$is_file = isset($record['path']) && $record['path'] != '' && file_exists($file_path);
+			if(isset($record['filesystem_path']) && isset($record['path'])){
+				$file_path = rtrim($record['filesystem_path'], '/') . '/' . rtrim($record['path'], '/') . '/' . $record['name'];
+			}else if(isset($record['path'])){
+				$file_path = rtrim($record['path'], '/') . '/' . $record['name'];
+			}else{
+				$file_path = '';
+			}
+
+			$is_file = file_exists($file_path);
+
+			if ($is_file) {
+				$record['document'] = file_get_contents($file_path);
+			} elseif(isset($record['document_instance']) && $record['document_instance'] != ''){
+				$dd = MatchaModel::setSenchaModel('App.model.administration.DocumentData', false, $record['document_instance']);
+				$data = $dd->load($record['document_id'])->one();
+				if($data !== false){
+					$record['document'] = $data['document'];
+				}
+			}
+
+			if(isset($record['document']) && !empty($record['document'])){
+				$is_binary = $this->isBinary($record['document']);
+				if($retun_binary && !$is_binary){
+					$record['document'] = base64_decode($record['document']);
+				}elseif(!$retun_binary && $is_binary){
+					$record['document'] = base64_encode($record['document']);
+				}
+			}
+		}
+
+		return $record;
+	}
+	public function getPatientDocumentBySql($sql, $include_document = false, $retun_binary = false){
+		$this->setPatientDocumentModel();
+		$record = $this->d->sql($sql)->one();
+
+		if($record !== false && $include_document){
+
+			if(isset($record['filesystem_path']) && isset($record['path'])){
+				$file_path = rtrim($record['filesystem_path'], '/') . '/' . rtrim($record['path'], '/') . '/' . $record['name'];
+			}else if(isset($record['path'])){
+				$file_path = rtrim($record['path'], '/') . '/' . $record['name'];
+			}else{
+				$file_path = '';
+			}
+
+			$is_file = file_exists($file_path);
 
 			if ($is_file) {
 				$record['document'] = file_get_contents($file_path);

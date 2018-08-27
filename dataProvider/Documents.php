@@ -493,7 +493,14 @@ class Documents {
 		 * timesI : Times New Roman Italic
 		 * zapfdingbats : Zapf Dingbats
 		 */
-		$pdf->SetFont($font['family'],$font['style'],$font['size'], true);
+		$font_path = ROOT . '/resources/fonts/' . $font['family'] . '.ttf';
+
+		if(file_exists($font_path)){
+			$fontname = TCPDF_FONTS::addTTFfont($font_path);
+			$pdf->SetFont($fontname,$font['style'],$font['size'], true);
+		}else{
+			$pdf->SetFont($font['family'],$font['style'],$font['size'], true);
+		}
 
 		$pdf->SetAutoPageBreak(true, $margins['bottom']);
 		$pdf->SetMargins($margins['left'], $margins['top'], $margins['right'], true);

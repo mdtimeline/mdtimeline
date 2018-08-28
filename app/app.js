@@ -64474,7 +64474,7 @@ Ext.define('App.view.Viewport', {
 	            margin: '0 3 0 0',
                 cls: 'headerLargeBtn',
                 padding: 0,
-                iconCls: 'icoPin',
+                icon: 'resources/images/icons/new_encounter.png',
                 scope: me,
                 handler: me.createNewEncounter,
                 tooltip: _('new_encounter')

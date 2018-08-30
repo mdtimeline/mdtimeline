@@ -179,6 +179,7 @@ Ext.define('App.ux.form.fields.DateTime', {
 			value = Ext.Date.parse(value, this.dateTimeFormat);
 		}
 		this.dateField.setValue(value);
+		this.timeField.reset();
 		this.timeField.setValue(value);
 	},
 

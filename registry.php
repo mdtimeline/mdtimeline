@@ -45,14 +45,14 @@ if(!defined('ROOT'))
 	define('ROOT', str_replace('\\', '/', dirname(__FILE__)));
 if(!defined('URL')){
 	$URL = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : HTTP . '://' . HOST . URI;
-	$URL = rtrim(preg_replace('/dataProvider.*/', '', $URL), '/');
+	$URL = rtrim(preg_replace('/dataProvider\/.*|modules\/.*/', '', $URL), '/');
 	$URL = rtrim(preg_replace('/\?(.*)/', '', $URL), '/');
 	define('URL', $URL);
 }
 
 // application version
 if(!defined('VERSION'))
-	define('VERSION', '1.0.949');
+	define('VERSION', '1.0.950');
 // extjs sdk directory
 if(!defined('EXTJS'))
 	define('EXTJS', 'extjs-4.2.1');

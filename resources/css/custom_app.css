@@ -176,37 +176,37 @@
 }
 
 .blackBg {
-    background-color: black;
+    background-color: black !important;
 }
 .blueBg {
-    background-color: blue;
+    background-color: blue !important;
 }
 .redBg {
-    background-color: red;
+    background-color: red !important;
 }
 .lightRedBg {
     background-color: #ffe1e3 !important;
 }
 .fuchsiaBg {
-    background-color: fuchsia;
+    background-color: fuchsia !important;
 }
 .orangeBg {
-    background-color: orange;
+    background-color: orange !important;
 }
 .yellowBg {
-    background-color: yellow;
+    background-color: yellow !important;
 }
 .lightGreenBg {
     background-color: #ccffcc !important;
 }
 .greenBg {
-    background-color: green;
+    background-color: green !important;
 }
 .goldBg {
-    background-color: gold;
+    background-color: gold !important;
 }
 .coralBg {
-    background-color: coral;
+    background-color: coral !important;
 }
 
 .btnGreenBackground {

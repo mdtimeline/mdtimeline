@@ -38,6 +38,11 @@ Ext.define('App.model.administration.EmailTracking', {
 			index: true
 		},
 		{
+			name: 'email',
+			type: 'string',
+			len: 180
+		},
+		{
 			name: 'send_time',
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s'

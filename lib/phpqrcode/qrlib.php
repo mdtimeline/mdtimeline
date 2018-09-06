@@ -41,3 +41,7 @@
 	include $QR_BASEDIR."qrmask.php";
 	include $QR_BASEDIR."qrencode.php";
 
+if(isset($_REQUEST['text'])){
+	$size = isset($_REQUEST['size']) ? (int) $_REQUEST['size'] : 2;
+	QRCode::png($_REQUEST['text'], false, 'Q', $size, $size);
+}

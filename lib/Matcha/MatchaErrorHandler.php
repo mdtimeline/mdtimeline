@@ -37,17 +37,24 @@ class MatchaErrorHandler extends Matcha {
 		$constructErrorMessage .= MatchaModel::$fileModel;
 		$constructErrorMessage .= ' Message: "';
 		$constructErrorMessage .= $msg;
-		$constructErrorMessage .= '" @ ';
-		if($trace[0]['class'] != ''){
-			$constructErrorMessage .= $trace[0]['class'];
-			$constructErrorMessage .= '->';
-		}
-		$constructErrorMessage .= $trace[0]['function'];
-		$constructErrorMessage .= '();';
+		$constructErrorMessage .= '" ';
 
 		if($__scope){
 			$constructErrorMessage .= 'SQL Statement: ' . $__scope->sql . '; ';
 		}
+
+		$constructErrorMessage .=  PHP_EOL;
+
+		if(!empty($trace) && is_array($trace)){
+			$constructErrorMessage .= ' Trace: ' . PHP_EOL;
+			$buff = [];
+			foreach ($trace as $t){
+				$buff[] = '** file: ' . $t['file'] . ' line: ' . $t['line'] . ' function: ' . $t['function'];
+			}
+			$constructErrorMessage .= implode(PHP_EOL, $buff);
+			unset($buff);
+		}
+
 
 		// normal output - to Apache error.log
 		error_log('Matcha::connect: ' . $constructErrorMessage);

@@ -286,6 +286,12 @@
             return $enc->encodePNG($text, $outfile, $saveandprint=false);
         }
 
+	    public static function jpg($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4)
+	    {
+		    $enc = QRencode::factory($level, $size, $margin);
+		    return $enc->encodeJPG($text, $outfile);
+	    }
+
         //----------------------------------------------------------------------
         public static function text($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4) 
         {
@@ -497,6 +503,28 @@
             
                 QRtools::log($outfile, $e->getMessage());
             
+            }
+        }
+        public function encodeJPG($intext, $outfile = false)
+        {
+            try {
+
+                ob_start();
+                $tab = $this->encode($intext);
+                $err = ob_get_contents();
+                ob_end_clean();
+
+                if ($err != '')
+                    QRtools::log($outfile, $err);
+
+                $maxSize = (int)(QR_PNG_MAXIMUM_SIZE / (count($tab)+2*$this->margin));
+
+                QRimage::jpg($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin);
+
+            } catch (Exception $e) {
+
+                QRtools::log($outfile, $e->getMessage());
+
             }
         }
     }

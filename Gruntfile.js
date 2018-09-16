@@ -103,6 +103,7 @@ module.exports = function(grunt){
 					'app/ux/combo/PrescriptionTypes.js',
 					'app/ux/combo/PrescriptionWhen.js',
 					'app/ux/combo/PreventiveCareTypes.js',
+					'app/ux/combo/Printers.js',
 					'app/ux/combo/ProceduresBodySites.js',
 					'app/ux/combo/Providers.js',
 					'app/ux/combo/Race.js',

@@ -72,7 +72,7 @@ Ext.define('App.controller.BrowserHelper', {
 		this.connected = true;
 		Ext.Function.defer(function () {
 			app.fireEvent('browserhelperopen', this);
-		},1000);
+		},1000, this);
 	},
 
 	onClose: function (data) {
@@ -81,7 +81,7 @@ Ext.define('App.controller.BrowserHelper', {
 		this.reconnect();
 		Ext.Function.defer(function () {
 			app.fireEvent('browserhelperclose', this);
-		},1000);
+		},1000, this);
 	},
 
 	onMessage: function (data) {

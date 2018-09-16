@@ -1576,6 +1576,7 @@ Ext.define('App.view.patient.Patient', {
 				bodyPadding: 10,
 				height: 300,
 				width:180,
+				itemId: 'PatientSummaryImagesPanel',
 				items: [
 					{
 						xtype: 'image',

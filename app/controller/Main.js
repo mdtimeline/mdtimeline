@@ -79,6 +79,10 @@ Ext.define('App.controller.Main', {
 
 	getCurrentFacility: function () {
 		return this.getApplicationFacilityCombo().findRecordByValue(app.user.facility);
+	},
+
+	getCurrentFacilityName: function () {
+		return this.getApplicationFacilityCombo().findRecordByValue(app.user.facility).get('option_name');
 	}
 
 });

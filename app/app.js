@@ -10029,6 +10029,23 @@ Ext.define('App.ux.combo.PreventiveCareTypes', {
 		me.callParent(arguments);
 	}
 });
+Ext.define('App.ux.combo.Printers', {
+	extend: 'Ext.form.ComboBox',
+	xtype: 'printerscombo',
+	editable: false,
+	queryMode: 'local',
+	displayField: 'name',
+	valueField: 'id',
+	emptyText: _('select'),
+	width: 200,
+	store: Ext.create('Ext.data.Store', {
+		fields: [
+			{ name: 'id', type: 'string' },
+			{ name: 'name', type: 'string' },
+			{ name: 'local', type: 'bool' }
+		]
+	})
+});
 Ext.define('App.ux.combo.ProceduresBodySites', {
 	extend       : 'Ext.form.ComboBox',
 	alias        : 'widget.mitos.proceduresbodysitescombo',
@@ -36208,6 +36225,10 @@ Ext.define('App.controller.Main', {
 
 	getCurrentFacility: function () {
 		return this.getApplicationFacilityCombo().findRecordByValue(app.user.facility);
+	},
+
+	getCurrentFacilityName: function () {
+		return this.getApplicationFacilityCombo().findRecordByValue(app.user.facility).get('option_name');
 	}
 
 });
@@ -36286,7 +36307,7 @@ Ext.define('App.controller.BrowserHelper', {
 		this.connected = true;
 		Ext.Function.defer(function () {
 			app.fireEvent('browserhelperopen', this);
-		},1000);
+		},1000, this);
 	},
 
 	onClose: function (data) {
@@ -36295,7 +36316,7 @@ Ext.define('App.controller.BrowserHelper', {
 		this.reconnect();
 		Ext.Function.defer(function () {
 			app.fireEvent('browserhelperclose', this);
-		},1000);
+		},1000, this);
 	},
 
 	onMessage: function (data) {
@@ -57107,6 +57128,7 @@ Ext.define('App.view.patient.Patient', {
 				bodyPadding: 10,
 				height: 300,
 				width:180,
+				itemId: 'PatientSummaryImagesPanel',
 				items: [
 					{
 						xtype: 'image',
@@ -65682,6 +65704,11 @@ Ext.define('App.view.Viewport', {
 
 	getDate: function () {
 		return this.getController('Clock').getDate();
+	},
+
+    calculateAge: function(base_date, dob_date) {
+		var birthday = +new Date(dob_date);
+		return~~ ((Ext.Date.now(base_date) - birthday) / (31557600000));
 	}
 
 

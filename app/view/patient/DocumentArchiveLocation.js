@@ -281,13 +281,26 @@ Ext.define('App.view.patient.DocumentArchiveLocation', {
 							}
 						],
 						store: me.documents_location_store,
-						bbar: {
-							xtype: 'pagingtoolbar',
-							pageSize: 10,
-							store: me.documents_location_store,
-							displayInfo: true,
-							plugins: new Ext.ux.SlidingPager()
-						},
+						dockedItems: [
+							{
+								xtype: 'pagingtoolbar',
+								dock: 'bottom',
+								pageSize: 10,
+								store: me.documents_location_store,
+								displayInfo: true,
+								plugins: new Ext.ux.SlidingPager(),
+								items: [
+									'-',
+									{
+										xtype: 'button',
+										iconCls: 'icoAdd',
+										text: _('entry'),
+										itemId: 'PatientDocumentArchiveLocationDocumentsEntryAddBtn'
+									},
+									'-'
+								]
+							}
+						],
 						columns: [
 							{
 								xtype: 'datecolumn',

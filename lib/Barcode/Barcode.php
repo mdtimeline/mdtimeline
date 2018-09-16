@@ -13,11 +13,6 @@
  *      <img src="/barcode.php?text=testing" alt="testing" />
  */
 
-// Get pararameters that are passed in through $_GET or set to the default value
-$text = (isset($_GET['text']) ? $_GET['text'] : '0');
-$size = (isset($_GET['size']) ? $_GET['size'] : '20');
-$showtext = filter_var((isset($_GET['showtext']) ? $_GET['showtext'] : true), FILTER_VALIDATE_BOOLEAN);
-
 class barCode
 {
     public $bcHeight, $bcThinWidth, $bcThickWidth, $bcFontSize, $mode;
@@ -101,5 +96,11 @@ class barCode
     }
 }
 
-$bc = new barCode('gif', $size);
-$bc->build($text, $showtext);
+if(isset($_GET['text'])){
+	$text = $_GET['text'];
+	$size = (isset($_GET['size']) ? $_GET['size'] : '20');
+	$showtext = filter_var((isset($_GET['showtext']) ? $_GET['showtext'] : true), FILTER_VALIDATE_BOOLEAN);
+	$bc = new barCode('gif', $size);
+	$bc->build($text, $showtext);
+}
+

@@ -84,6 +84,18 @@ Ext.define('App.controller.patient.DocumentArchiveLocation', {
 		{
 			ref: 'PatientDocumentArchiveLocationDocumentPreviewFrame',
 			selector: '#PatientDocumentArchiveLocationDocumentPreviewFrame'
+		},
+		{
+			ref: 'PatientDocumentArchiveLocationDocumentsEntryAddBtn',
+			selector: '#PatientDocumentArchiveLocationDocumentsEntryAddBtn'
+		},
+		{
+			ref: 'PatientDocumentArchiveLocationEntryWindow',
+			selector: '#PatientDocumentArchiveLocationEntryWindow'
+		},
+		{
+			ref: 'PatientDocumentArchiveLocationEntryForm',
+			selector: '#PatientDocumentArchiveLocationEntryForm'
 		}
 	],
 
@@ -136,6 +148,9 @@ Ext.define('App.controller.patient.DocumentArchiveLocation', {
 			'#PatientDocumentArchiveLocationDocumentsLocationNewEditBtn': {
 				click: me.onPatientDocumentLocationDocumentsLocationNewEditBtnClick
 			},
+			'#PatientDocumentArchiveLocationDocumentsEntryAddBtn': {
+				click: me.onPatientDocumentArchiveLocationDocumentsEntryAddBtnClick
+			},
 			'#DocumentLocationWindowCancelBtn': {
 				click: me.onDocumentLocationWindowCancelBtnClick
 			},
@@ -144,6 +159,12 @@ Ext.define('App.controller.patient.DocumentArchiveLocation', {
 			},
 			'#PatientDocumentArchiveLocationDocumentPreview': {
 				collapse: me.onPatientDocumentLocationDocumentPreviewCollapse
+			},
+			'#PatientDocumentArchiveLocationEntryCancelBtn': {
+				click: me.onPatientDocumentArchiveLocationEntryCancelBtnClick
+			},
+			'#PatientDocumentArchiveLocationEntrySaveBtn': {
+				click: me.onPatientDocumentArchiveLocationEntrySaveBtnClick
 			}
 		});
 
@@ -407,6 +428,112 @@ Ext.define('App.controller.patient.DocumentArchiveLocation', {
 			}
 		});
 	},
+
+	onPatientDocumentArchiveLocationDocumentsEntryAddBtnClick: function(){
+
+		var location_id = this.getPatientDocumentArchiveLocationDocumentsLocationSearch().getValue();
+
+		if(!location_id){
+			app.msg(_('oops'), _('document_location_required'), true);
+			return;
+		}
+
+		this.showPatientDocumentArchiveLocationEntryWindow();
+		this.getPatientDocumentArchiveLocationEntryForm().getForm().loadRecord(
+			Ext.create('App.model.patient.PatientDocumentArchiveLocation',{
+				location_id: location_id,
+				document_id: 0
+			})
+		);
+
+	},
+
+	onPatientDocumentArchiveLocationEntryCancelBtnClick: function(btn){
+
+		this.getPatientDocumentArchiveLocationEntryForm().getForm().reset(true);
+		this.getPatientDocumentArchiveLocationEntryWindow().close();
+	},
+
+	onPatientDocumentArchiveLocationEntrySaveBtnClick: function(){
+
+		var me = this,
+			store = me.getPatientDocumentArchiveLocationDocumentsLocationGrid().getStore(),
+			form = me.getPatientDocumentArchiveLocationEntryForm().getForm(),
+			record = form.getRecord(),
+			values = form.getValues();
+
+		record.set(values);
+
+		if(!record.phantom && Ext.Object.isEmpty(record.getChanges())){
+			me.getPatientDocumentArchiveLocationEntryWindow().close();
+			return;
+		}
+
+		if(record.phantom){
+			record.set({
+				create_date: app.getDate(),
+				update_date: app.getDate(),
+				create_uid: app.user.id,
+				update_uid: app.user.id,
+				archived_by_fname: app.user.fname,
+				archived_by_mname: app.user.mname,
+				archived_by_lname: app.user.lname,
+			});
+		}else{
+			record.set({
+				update_date: app.getDate(),
+				update_uid: app.user.id,
+			});
+		}
+
+		if(!record.store){
+			store.add(record);
+		}
+
+		store.sync({
+			callback: function () {
+				me.getPatientDocumentArchiveLocationEntryWindow().close();
+			}
+		});
+
+	},
+
+	showPatientDocumentArchiveLocationEntryWindow: function(){
+
+		if(!this.getPatientDocumentArchiveLocationEntryWindow()){
+			Ext.create('Ext.window.Window', {
+				title: _('entry'),
+				height: 200,
+				width: 400,
+				layout: 'fit',
+				closeAction: 'hide',
+				itemId: 'PatientDocumentArchiveLocationEntryWindow',
+				items: {
+					xtype: 'form',
+					itemId: 'PatientDocumentArchiveLocationEntryForm',
+					layout: 'fit',
+					items: [
+						{
+							xtype: 'textarea',
+							name: 'notes'
+						}
+					]
+				},
+				buttons: [
+					{
+						text: _('cancel'),
+						itemId: 'PatientDocumentArchiveLocationEntryCancelBtn',
+					},
+					{
+						text: _('save'),
+						itemId: 'PatientDocumentArchiveLocationEntrySaveBtn',
+					}
+				]
+			});
+		}
+		return this.getPatientDocumentArchiveLocationEntryWindow().show();
+	},
+
 
 	onPatientDocumentLocationDocumentsLocationNewEditBtnClick: function(){
 

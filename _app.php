@@ -19,6 +19,15 @@
 
 if (!defined('_GaiaEXEC')) die('No direct access allowed.');
 header("Access-Control-Allow-Origin: *");
+
+function starts_with($haystack, $needle, $case_sensitive = true) {
+    if ($case_sensitive) {
+        return strpos($haystack, $needle) === 0;
+    } else {
+        return stripos($haystack, $needle) === 0;
+    }
+}
+
 ?>
 <html>
 	<head>
@@ -83,7 +92,7 @@ header("Access-Control-Allow-Origin: *");
 
             window.say = function(msg){
 				var type = typeof msg;
-	            if (type == 'string' || type == 'number') {
+	            if (type === 'string' || type === 'number') {
 		            console.log('%c ' + msg, 'color: green;font-weight:bold;');
 	            }else{
 		            console.log(msg);
@@ -129,7 +138,7 @@ header("Access-Control-Allow-Origin: *");
 	            var theme = Ext.state.Manager.get('mdtimeline_theme', g('application_theme'));
 	            var s;
 
-	            if(theme == 'dark'){
+	            if(theme === 'dark'){
 		            globals.mdtimeline_theme = 'dark';
 		            link  = document.createElement('link');
 		            link.rel  = 'stylesheet';
@@ -272,7 +281,7 @@ header("Access-Control-Allow-Origin: *");
 		<script type="text/javascript" src="app/ux/VTypes.js"></script>
 
 		<!-- this is the compiled/minified version -->
-		<?php if(HOST != 'localhost') { ?>
+		<?php if(!starts_with(HOST, 'local')) { ?>
 			<script type="text/javascript" src="app/app.min.js?_v<?php print VERSION ?>"></script>
 
             <?php if (isset($_SESSION['modules'])) { ?>
@@ -452,6 +461,7 @@ header("Access-Control-Allow-Origin: *");
 		            'App.ux.combo.PrescriptionTypes',
 		            'App.ux.combo.PrescriptionWhen',
 		            'App.ux.combo.PreventiveCareTypes',
+		            'App.ux.combo.Printers',
 		            'App.ux.combo.ProceduresBodySites',
 		            'App.ux.combo.Providers',
 		            'App.ux.combo.Race',
@@ -898,6 +908,7 @@ header("Access-Control-Allow-Origin: *");
 	                'LogOut',
 	                'Navigation',
 	                'Notification',
+	                'Print',
 	                'Scanner',
 	                'ScriptCam',
 	                'Support',
@@ -932,6 +943,7 @@ header("Access-Control-Allow-Origin: *");
 	                'patient.MedicationsAdministered',
 	                'patient.MiniMentalStateExam',
 	                'patient.Patient',
+	                'patient.PictureIdCard',
 	                'patient.PatientMerge',
 	                'patient.PatientSearch',
 	                'patient.ProceduresHistory',

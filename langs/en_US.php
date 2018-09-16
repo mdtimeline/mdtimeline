@@ -1999,4 +1999,10 @@ $LANG = array(
 	'archived_date' => 'Archived Date',
 	'archived_by' => 'Archived By',
 	'new_edit' => 'New/Edit',
+	'id_card' => 'ID Card',
+	'picture_id_card' => 'Picture ID Card',
+	'document_location_required' => 'Document Location Required',
+	'entry' => 'Entry',
+	'no_printer_selected' => 'No Printer Selected',
+	'no_browser_helper_found' => 'No Browser Helper Found',
 );

@@ -1417,6 +1417,11 @@ Ext.define('App.view.Viewport', {
 
 	getDate: function () {
 		return this.getController('Clock').getDate();
+	},
+
+    calculateAge: function(base_date, dob_date) {
+		var birthday = +new Date(dob_date);
+		return~~ ((Ext.Date.now(base_date) - birthday) / (31557600000));
 	}
 
 

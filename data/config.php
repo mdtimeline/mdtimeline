@@ -25,6 +25,23 @@ $API = [
             ]
         ]
     ],
+    'PictureIdCard' => [
+        'methods' => [
+            'Create' => [
+                'len' => 1
+            ]
+        ]
+    ],
+    'Labels' => [
+        'methods' => [
+            'CreateLabels' => [
+                'len' => 4
+            ],
+            'CreateLabel' => [
+                'len' => 4
+            ]
+        ]
+    ],
     'Printer' => [
         'methods' => [
             'doTempDocumentPrint' => [

@@ -1840,6 +1840,7 @@ $LANG = array(
 	'communication'                         => 'Communication',
 	'religion'                              => 'Religion',
 	'secondary_race'                        => 'Secondary Race',
+	'secondary_ethnicity'                   => 'Secondary Ethnicity',
 	'allow'                                 => 'Allow',
 	'sms'                                   => 'SMS',
 	'medical'                               => 'Medical',

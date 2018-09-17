@@ -55587,7 +55587,8 @@ Ext.define('App.view.patient.Patient', {
 
 	initComponent: function(){
 		var me = this,
-			configs;
+			configs,
+			bodyWidth = Ext.getBody().getWidth();
 
 		me.store = Ext.create('App.store.patient.Patient');
 		me.patientAlertsStore = Ext.create('App.store.patient.MeaningfulUseAlert');
@@ -55596,7 +55597,13 @@ Ext.define('App.view.patient.Patient', {
 		// });
 
 		me.compactDemographics = eval(g('compact_demographics'));
-		me.containersWidth = 720;
+
+		if(bodyWidth < 1300){
+			me.containersWidth = 720;
+		}else{
+			me.containersWidth = 1000;
+		}
+
 
 		configs = {
 			items: [
@@ -56012,52 +56019,94 @@ Ext.define('App.view.patient.Patient', {
 													width: me.containersWidth,
 													defaults: {
 														margin: '0 5 0 0',
-														labelAlign: 'top'
 													},
 													items: [
 														{
-															xtype: 'gaiaehr.combo',
-															name: 'race',
-															fieldLabel: _('race'),
+															xtype: 'container',
+															layout: {
+																type: 'vbox',
+																align: 'stretch'
+															},
 															flex: 1,
-															listKey: 'race',
-															loadStore: true,
-															editable: false
+															items: [
+																{
+																	xtype: 'gaiaehr.combo',
+																	name: 'race',
+																	fieldLabel: _('race'),
+																	labelAlign: 'top',
+																	flex: 1,
+																	listKey: 'race',
+																	loadStore: true,
+																	editable: false
+																},
+																{
+																	xtype: 'gaiaehr.combo',
+																	name: _('secondary_race'),
+																	fieldLabel: _('secondary_race'),
+																	labelAlign: 'top',
+																	flex: 1,
+																	listKey: 'race',
+																	loadStore: true,
+																	editable: false
+																}
+															]
 														},
 														{
-															xtype: 'gaiaehr.combo',
-															name: _('secondary_race'),
-															fieldLabel: _('secondary_race'),
+															xtype: 'container',
+															layout: {
+																type: 'vbox',
+																align: 'stretch'
+															},
 															flex: 1,
-															listKey: 'race',
-															loadStore: true,
-															editable: false
+															items: [
+																{
+																	xtype: 'gaiaehr.combo',
+																	name: 'ethnicity',
+																	fieldLabel: _('ethnicity'),
+																	labelAlign: 'top',
+																	listKey: 'ethnicity',
+																	loadStore: true,
+																	editable: false
+																},
+																{
+																	xtype: 'gaiaehr.combo',
+																	name: 'secondary_ethnicity',
+																	fieldLabel: _('secondary_ethnicity'),
+																	labelAlign: 'top',
+																	listKey: 'ethnicity',
+																	loadStore: true,
+																	editable: false
+																},
+															]
 														},
 														{
-															xtype: 'gaiaehr.combo',
-															name: 'ethnicity',
-															fieldLabel: _('ethnicity'),
+															xtype: 'container',
+															layout: {
+																type: 'vbox',
+																align: 'stretch'
+															},
 															flex: 1,
-															listKey: 'ethnicity',
-															loadStore: true,
-															editable: false
-														},
-														{
-															xtype: 'gaiaehr.combo',
-															name: 'language',
-															fieldLabel: _('language'),
-															listKey: 'lang',
-															loadStore: true,
-															editable: false
-														},
-														{
-															xtype: 'gaiaehr.combo',
-															name: 'religion',
-															fieldLabel: _('religion'),
-															flex: 1,
-															listKey: 'religion',
-															loadStore: true,
-															editable: false
+															items: [
+																{
+																	xtype: 'gaiaehr.combo',
+																	name: 'language',
+																	fieldLabel: _('language'),
+																	labelAlign: 'top',
+																	listKey: 'lang',
+																	loadStore: true,
+																	editable: false
+																},
+																{
+																	xtype: 'gaiaehr.combo',
+																	name: 'religion',
+																	fieldLabel: _('religion'),
+																	labelAlign: 'top',
+																	flex: 1,
+																	listKey: 'religion',
+																	loadStore: true,
+																	editable: false
+																}
+															]
 														}
 													]
 												},      //Race, Ethnicity, Language, Religion...
@@ -56205,8 +56254,7 @@ Ext.define('App.view.patient.Patient', {
 													fieldLabel: _('fax'),
 													emptyText: '000-000-0000',
 													width: 160,
-													labelWidth: 30,
-													fieldLabel: _('fax')
+													labelWidth: 30
 												}
 											]
 										}, //Employer

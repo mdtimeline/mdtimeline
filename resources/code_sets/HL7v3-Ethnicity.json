@@ -1,0 +1,346 @@
+[
+	{
+		"code": "2135-2",
+		"code_type": "HL7v3",
+		"code_description": "Hispanic or Latino",
+		"parent_code": "",
+		"parent_description": "",
+		"indent_index": 0
+	},
+	{
+		"code": "2137-8",
+		"code_type": "HL7v3",
+		"code_description": "Spaniard",
+		"parent_code": "2135-2",
+		"parent_description": "Hispanic or Latino",
+		"indent_index": 1
+	},
+	{
+		"code": "2138-6",
+		"code_type": "HL7v3",
+		"code_description": "Andalusian",
+		"parent_code": "2137-8",
+		"parent_description": "Spaniard",
+		"indent_index": 2
+	},
+	{
+		"code": "2139-4",
+		"code_type": "HL7v3",
+		"code_description": "Asturian",
+		"parent_code": "2137-8",
+		"parent_description": "Spaniard",
+		"indent_index": 2
+	},
+	{
+		"code": "2140-2",
+		"code_type": "HL7v3",
+		"code_description": "Castillian",
+		"parent_code": "2137-8",
+		"parent_description": "Spaniard",
+		"indent_index": 2
+	},
+	{
+		"code": "2141-0",
+		"code_type": "HL7v3",
+		"code_description": "Catalonian",
+		"parent_code": "2137-8",
+		"parent_description": "Spaniard",
+		"indent_index": 2
+	},
+	{
+		"code": "2142-8",
+		"code_type": "HL7v3",
+		"code_description": "Belearic Islander",
+		"parent_code": "2137-8",
+		"parent_description": "Spaniard",
+		"indent_index": 2
+	},
+	{
+		"code": "2143-6",
+		"code_type": "HL7v3",
+		"code_description": "Gallego",
+		"parent_code": "2137-8",
+		"parent_description": "Spaniard",
+		"indent_index": 2
+	},
+	{
+		"code": "2144-4",
+		"code_type": "HL7v3",
+		"code_description": "Valencian",
+		"parent_code": "2137-8",
+		"parent_description": "Spaniard",
+		"indent_index": 2
+	},
+	{
+		"code": "2145-1",
+		"code_type": "HL7v3",
+		"code_description": "Canarian",
+		"parent_code": "2137-8",
+		"parent_description": "Spaniard",
+		"indent_index": 2
+	},
+	{
+		"code": "2146-9",
+		"code_type": "HL7v3",
+		"code_description": "Spanish Basque",
+		"parent_code": "2137-8",
+		"parent_description": "Spaniard",
+		"indent_index": 2
+	},
+	{
+		"code": "2148-5",
+		"code_type": "HL7v3",
+		"code_description": "Mexican",
+		"parent_code": "2135-2",
+		"parent_description": "Hispanic or Latino",
+		"indent_index": 1
+	},
+	{
+		"code": "2149-3",
+		"code_type": "HL7v3",
+		"code_description": "Mexican American",
+		"parent_code": "2148-5",
+		"parent_description": "Mexican",
+		"indent_index": 2
+	},
+	{
+		"code": "2150-1",
+		"code_type": "HL7v3",
+		"code_description": "Mexicano",
+		"parent_code": "2148-5",
+		"parent_description": "Mexican",
+		"indent_index": 2
+	},
+	{
+		"code": "2151-9",
+		"code_type": "HL7v3",
+		"code_description": "Chicano",
+		"parent_code": "2148-5",
+		"parent_description": "Mexican",
+		"indent_index": 2
+	},
+	{
+		"code": "2152-7",
+		"code_type": "HL7v3",
+		"code_description": "La Raza",
+		"parent_code": "2148-5",
+		"parent_description": "Mexican",
+		"indent_index": 2
+	},
+	{
+		"code": "2153-5",
+		"code_type": "HL7v3",
+		"code_description": "Mexican American Indian",
+		"parent_code": "2148-5",
+		"parent_description": "Mexican",
+		"indent_index": 2
+	},
+	{
+		"code": "2155-0",
+		"code_type": "HL7v3",
+		"code_description": "Central American",
+		"parent_code": "2135-2",
+		"parent_description": "Hispanic or Latino",
+		"indent_index": 1
+	},
+	{
+		"code": "2156-8",
+		"code_type": "HL7v3",
+		"code_description": "Costa Rican",
+		"parent_code": "2155-0",
+		"parent_description": "Central American",
+		"indent_index": 2
+	},
+	{
+		"code": "2157-6",
+		"code_type": "HL7v3",
+		"code_description": "Guatemalan",
+		"parent_code": "2155-0",
+		"parent_description": "Central American",
+		"indent_index": 2
+	},
+	{
+		"code": "2158-4",
+		"code_type": "HL7v3",
+		"code_description": "Honduran",
+		"parent_code": "2155-0",
+		"parent_description": "Central American",
+		"indent_index": 2
+	},
+	{
+		"code": "2159-2",
+		"code_type": "HL7v3",
+		"code_description": "Nicaraguan",
+		"parent_code": "2155-0",
+		"parent_description": "Central American",
+		"indent_index": 2
+	},
+	{
+		"code": "2160-0",
+		"code_type": "HL7v3",
+		"code_description": "Panamanian",
+		"parent_code": "2155-0",
+		"parent_description": "Central American",
+		"indent_index": 2
+	},
+	{
+		"code": "2161-8",
+		"code_type": "HL7v3",
+		"code_description": "Salvadoran",
+		"parent_code": "2155-0",
+		"parent_description": "Central American",
+		"indent_index": 2
+	},
+	{
+		"code": "2162-6",
+		"code_type": "HL7v3",
+		"code_description": "Central American Indian",
+		"parent_code": "2155-0",
+		"parent_description": "Central American",
+		"indent_index": 2
+	},
+	{
+		"code": "2163-4",
+		"code_type": "HL7v3",
+		"code_description": "Canal Zone",
+		"parent_code": "2155-0",
+		"parent_description": "Central American",
+		"indent_index": 2
+	},
+	{
+		"code": "2165-9",
+		"code_type": "HL7v3",
+		"code_description": "South American",
+		"parent_code": "2135-2",
+		"parent_description": "Hispanic or Latino",
+		"indent_index": 1
+	},
+	{
+		"code": "2166-7",
+		"code_type": "HL7v3",
+		"code_description": "Argentinean",
+		"parent_code": "2165-9",
+		"parent_description": "South American",
+		"indent_index": 2
+	},
+	{
+		"code": "2167-5",
+		"code_type": "HL7v3",
+		"code_description": "Bolivian",
+		"parent_code": "2165-9",
+		"parent_description": "South American",
+		"indent_index": 2
+	},
+	{
+		"code": "2168-3",
+		"code_type": "HL7v3",
+		"code_description": "Chilean",
+		"parent_code": "2165-9",
+		"parent_description": "South American",
+		"indent_index": 2
+	},
+	{
+		"code": "2169-1",
+		"code_type": "HL7v3",
+		"code_description": "Colombian",
+		"parent_code": "2165-9",
+		"parent_description": "South American",
+		"indent_index": 2
+	},
+	{
+		"code": "2170-9",
+		"code_type": "HL7v3",
+		"code_description": "Ecuadorian",
+		"parent_code": "2165-9",
+		"parent_description": "South American",
+		"indent_index": 2
+	},
+	{
+		"code": "2171-7",
+		"code_type": "HL7v3",
+		"code_description": "Paraguayan",
+		"parent_code": "2165-9",
+		"parent_description": "South American",
+		"indent_index": 2
+	},
+	{
+		"code": "2172-5",
+		"code_type": "HL7v3",
+		"code_description": "Peruvian",
+		"parent_code": "2165-9",
+		"parent_description": "South American",
+		"indent_index": 2
+	},
+	{
+		"code": "2173-3",
+		"code_type": "HL7v3",
+		"code_description": "Uruguayan",
+		"parent_code": "2165-9",
+		"parent_description": "South American",
+		"indent_index": 2
+	},
+	{
+		"code": "2174-1",
+		"code_type": "HL7v3",
+		"code_description": "Venezuelan",
+		"parent_code": "2165-9",
+		"parent_description": "South American",
+		"indent_index": 2
+	},
+	{
+		"code": "2175-8",
+		"code_type": "HL7v3",
+		"code_description": "South American Indian",
+		"parent_code": "2165-9",
+		"parent_description": "South American",
+		"indent_index": 2
+	},
+	{
+		"code": "2176-6",
+		"code_type": "HL7v3",
+		"code_description": "Criollo",
+		"parent_code": "2165-9",
+		"parent_description": "South American",
+		"indent_index": 2
+	},
+	{
+		"code": "2178-2",
+		"code_type": "HL7v3",
+		"code_description": "Latin American",
+		"parent_code": "2135-2",
+		"parent_description": "Hispanic or Latino",
+		"indent_index": 1
+	},
+	{
+		"code": "2180-8",
+		"code_type": "HL7v3",
+		"code_description": "Puerto Rican",
+		"parent_code": "2135-2",
+		"parent_description": "Hispanic or Latino",
+		"indent_index": 1
+	},
+	{
+		"code": "2182-4",
+		"code_type": "HL7v3",
+		"code_description": "Cuban",
+		"parent_code": "2135-2",
+		"parent_description": "Hispanic or Latino",
+		"indent_index": 1
+	},
+	{
+		"code": "2184-0",
+		"code_type": "HL7v3",
+		"code_description": "Dominican",
+		"parent_code": "2135-2",
+		"parent_description": "Hispanic or Latino",
+		"indent_index": 1
+	},
+	{
+		"code": "2186-5",
+		"code_type": "HL7v3",
+		"code_description": "Not Hispanic or Latino",
+		"parent_code": "",
+		"parent_description": "",
+		"indent_index": 0
+	}
+]

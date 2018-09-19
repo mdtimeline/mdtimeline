@@ -478,24 +478,18 @@ Ext.define('App.view.patient.Patient', {
 															flex: 1,
 															items: [
 																{
-																	xtype: 'gaiaehr.combo',
+																	xtype: 'racecombo',
 																	name: 'race',
 																	fieldLabel: _('race'),
 																	labelAlign: 'top',
-																	flex: 1,
-																	listKey: 'race',
-																	loadStore: true,
-																	editable: false
+																	flex: 1
 																},
 																{
-																	xtype: 'gaiaehr.combo',
-																	name: _('secondary_race'),
+																	xtype: 'racecombo',
+																	name: 'secondary_race',
 																	fieldLabel: _('secondary_race'),
 																	labelAlign: 'top',
-																	flex: 1,
-																	listKey: 'race',
-																	loadStore: true,
-																	editable: false
+																	flex: 1
 																}
 															]
 														},
@@ -508,22 +502,16 @@ Ext.define('App.view.patient.Patient', {
 															flex: 1,
 															items: [
 																{
-																	xtype: 'gaiaehr.combo',
+																	xtype: 'ethnicitycombo',
 																	name: 'ethnicity',
 																	fieldLabel: _('ethnicity'),
 																	labelAlign: 'top',
-																	listKey: 'ethnicity',
-																	loadStore: true,
-																	editable: false
 																},
 																{
-																	xtype: 'gaiaehr.combo',
+																	xtype: 'ethnicitycombo',
 																	name: 'secondary_ethnicity',
 																	fieldLabel: _('secondary_ethnicity'),
 																	labelAlign: 'top',
-																	listKey: 'ethnicity',
-																	loadStore: true,
-																	editable: false
 																},
 															]
 														},

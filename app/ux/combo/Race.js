@@ -17,41 +17,46 @@
  */
 
 Ext.define('App.ux.combo.Race', {
-	extend       : 'Ext.form.ComboBox',
-	alias        : 'widget.gaiaehr.racecombo',
-	initComponent: function() {
+	extend: 'Ext.form.ComboBox',
+	alias: 'widget.racecombo',
+	store: Ext.create('Ext.data.Store', {
+		fields: [
+			{name: 'code', type: 'string'},
+			{name: 'code_type', type: 'string'},
+			{name: 'code_description', type: 'string'},
+			{
+				name: 'indent_index',
+				type: 'int',
+				convert: function (v) {
+					var str = '';
+					while(v > 0){ str += '----'; v--; }
+					return str.trim();
+				}
+			},
+		],
+		autoLoad: true,
+		proxy: {
+			type: 'ajax',
+			url: 'resources/code_sets/HL7v3-Race.json',
+			reader: {
+				type: 'json'
+			}
+		}
+	}),
+	tpl: Ext.create('Ext.XTemplate',
+		'<tpl for=".">',
+		'<div class="x-boundlist-item">{indent_index} <b>{code_description}</b> [{code}]</div>',
+		'</tpl>'
+	),
+	typeAhead: true,
+	typeAheadDelay: 50,
+	queryMode: 'local',
+	displayField: 'code_description',
+	valueField: 'code',
+	emptyText: _('race'),
+	initComponent: function () {
 		var me = this;
 
-		Ext.define('raceModel', {
-			extend: 'Ext.data.Model',
-			fields: [
-				{name: 'option_name', type: 'string' },
-				{name: 'option_value', type: 'string' }
-			],
-			proxy : {
-				type       : 'direct',
-				api        : {
-					read: CombosData.getOptionsByListId
-				},
-				extraParams: {
-					list_id: 59
-				}
-			}
-		});
-
-		me.store = Ext.create('Ext.data.Store', {
-			model   : 'raceModel',
-			autoLoad: true
-		});
-
-		Ext.apply(this, {
-			editable    : false,
-			queryMode   : 'local',
-			displayField: 'option_name',
-			valueField  : 'option_value',
-			emptyText   : _('ethnicity'),
-			store       : me.store
-		}, null);
 		me.callParent(arguments);
 	}
 });

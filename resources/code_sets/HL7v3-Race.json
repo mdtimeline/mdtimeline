@@ -1,0 +1,7370 @@
+[
+	{
+		"code": "1002-5",
+		"code_type": "HL7v3",
+		"code_description": "American Indian or Alaska Native",
+		"parent_code": "",
+		"parent_description": "",
+		"indent_index": 0
+	},
+	{
+		"code": "1004-1",
+		"code_type": "HL7v3",
+		"code_description": "American Indian",
+		"parent_code": "1002-5",
+		"parent_description": "American Indian or Alaska Native",
+		"indent_index": 1
+	},
+	{
+		"code": "1006-6",
+		"code_type": "HL7v3",
+		"code_description": "Abenaki",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1008-2",
+		"code_type": "HL7v3",
+		"code_description": "Algonquian",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1010-8",
+		"code_type": "HL7v3",
+		"code_description": "Apache",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1011-6",
+		"code_type": "HL7v3",
+		"code_description": "Chiricahua",
+		"parent_code": "1010-8",
+		"parent_description": "Apache",
+		"indent_index": 3
+	},
+	{
+		"code": "1012-4",
+		"code_type": "HL7v3",
+		"code_description": "Fort Sill Apache",
+		"parent_code": "1010-8",
+		"parent_description": "Apache",
+		"indent_index": 3
+	},
+	{
+		"code": "1013-2",
+		"code_type": "HL7v3",
+		"code_description": "Jicarilla Apache",
+		"parent_code": "1010-8",
+		"parent_description": "Apache",
+		"indent_index": 3
+	},
+	{
+		"code": "1014-0",
+		"code_type": "HL7v3",
+		"code_description": "Lipan Apache",
+		"parent_code": "1010-8",
+		"parent_description": "Apache",
+		"indent_index": 3
+	},
+	{
+		"code": "1015-7",
+		"code_type": "HL7v3",
+		"code_description": "Mescalero Apache",
+		"parent_code": "1010-8",
+		"parent_description": "Apache",
+		"indent_index": 3
+	},
+	{
+		"code": "1016-5",
+		"code_type": "HL7v3",
+		"code_description": "Oklahoma Apache",
+		"parent_code": "1010-8",
+		"parent_description": "Apache",
+		"indent_index": 3
+	},
+	{
+		"code": "1017-3",
+		"code_type": "HL7v3",
+		"code_description": "Payson Apache",
+		"parent_code": "1010-8",
+		"parent_description": "Apache",
+		"indent_index": 3
+	},
+	{
+		"code": "1018-1",
+		"code_type": "HL7v3",
+		"code_description": "San Carlos Apache",
+		"parent_code": "1010-8",
+		"parent_description": "Apache",
+		"indent_index": 3
+	},
+	{
+		"code": "1019-9",
+		"code_type": "HL7v3",
+		"code_description": "White Mountain Apache",
+		"parent_code": "1010-8",
+		"parent_description": "Apache",
+		"indent_index": 3
+	},
+	{
+		"code": "1021-5",
+		"code_type": "HL7v3",
+		"code_description": "Arapaho",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1022-3",
+		"code_type": "HL7v3",
+		"code_description": "Northern Arapaho",
+		"parent_code": "1021-5",
+		"parent_description": "Arapaho",
+		"indent_index": 3
+	},
+	{
+		"code": "1023-1",
+		"code_type": "HL7v3",
+		"code_description": "Southern Arapaho",
+		"parent_code": "1021-5",
+		"parent_description": "Arapaho",
+		"indent_index": 3
+	},
+	{
+		"code": "1024-9",
+		"code_type": "HL7v3",
+		"code_description": "Wind River Arapaho",
+		"parent_code": "1021-5",
+		"parent_description": "Arapaho",
+		"indent_index": 3
+	},
+	{
+		"code": "1026-4",
+		"code_type": "HL7v3",
+		"code_description": "Arikara",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1028-0",
+		"code_type": "HL7v3",
+		"code_description": "Assiniboine",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1030-6",
+		"code_type": "HL7v3",
+		"code_description": "Assiniboine Sioux",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1031-4",
+		"code_type": "HL7v3",
+		"code_description": "Fort Peck Assiniboine Sioux",
+		"parent_code": "1030-6",
+		"parent_description": "Assiniboine Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1033-0",
+		"code_type": "HL7v3",
+		"code_description": "Bannock",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1035-5",
+		"code_type": "HL7v3",
+		"code_description": "Blackfeet",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1037-1",
+		"code_type": "HL7v3",
+		"code_description": "Brotherton",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1039-7",
+		"code_type": "HL7v3",
+		"code_description": "Burt Lake Band",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1041-3",
+		"code_type": "HL7v3",
+		"code_description": "Caddo",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1042-1",
+		"code_type": "HL7v3",
+		"code_description": "Oklahoma Cado",
+		"parent_code": "1041-3",
+		"parent_description": "Caddo",
+		"indent_index": 3
+	},
+	{
+		"code": "1044-7",
+		"code_type": "HL7v3",
+		"code_description": "Cahuilla",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1045-4",
+		"code_type": "HL7v3",
+		"code_description": "Agua Caliente Cahuilla",
+		"parent_code": "1044-7",
+		"parent_description": "Cahuilla",
+		"indent_index": 3
+	},
+	{
+		"code": "1046-2",
+		"code_type": "HL7v3",
+		"code_description": "Augustine",
+		"parent_code": "1044-7",
+		"parent_description": "Cahuilla",
+		"indent_index": 3
+	},
+	{
+		"code": "1047-0",
+		"code_type": "HL7v3",
+		"code_description": "Cabazon",
+		"parent_code": "1044-7",
+		"parent_description": "Cahuilla",
+		"indent_index": 3
+	},
+	{
+		"code": "1048-8",
+		"code_type": "HL7v3",
+		"code_description": "Los Coyotes",
+		"parent_code": "1044-7",
+		"parent_description": "Cahuilla",
+		"indent_index": 3
+	},
+	{
+		"code": "1049-6",
+		"code_type": "HL7v3",
+		"code_description": "Morongo",
+		"parent_code": "1044-7",
+		"parent_description": "Cahuilla",
+		"indent_index": 3
+	},
+	{
+		"code": "1050-4",
+		"code_type": "HL7v3",
+		"code_description": "Santa Rosa Cahuilla",
+		"parent_code": "1044-7",
+		"parent_description": "Cahuilla",
+		"indent_index": 3
+	},
+	{
+		"code": "1051-2",
+		"code_type": "HL7v3",
+		"code_description": "Torres-Martinez",
+		"parent_code": "1044-7",
+		"parent_description": "Cahuilla",
+		"indent_index": 3
+	},
+	{
+		"code": "1053-8",
+		"code_type": "HL7v3",
+		"code_description": "California Tribes",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1054-6",
+		"code_type": "HL7v3",
+		"code_description": "Cahto",
+		"parent_code": "1053-8",
+		"parent_description": "California Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1055-3",
+		"code_type": "HL7v3",
+		"code_description": "Chimariko",
+		"parent_code": "1053-8",
+		"parent_description": "California Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1056-1",
+		"code_type": "HL7v3",
+		"code_description": "Coast Miwok",
+		"parent_code": "1053-8",
+		"parent_description": "California Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1057-9",
+		"code_type": "HL7v3",
+		"code_description": "Digger",
+		"parent_code": "1053-8",
+		"parent_description": "California Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1058-7",
+		"code_type": "HL7v3",
+		"code_description": "Kawaiisu",
+		"parent_code": "1053-8",
+		"parent_description": "California Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1059-5",
+		"code_type": "HL7v3",
+		"code_description": "Kern River",
+		"parent_code": "1053-8",
+		"parent_description": "California Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1060-3",
+		"code_type": "HL7v3",
+		"code_description": "Mattole",
+		"parent_code": "1053-8",
+		"parent_description": "California Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1061-1",
+		"code_type": "HL7v3",
+		"code_description": "Red Wood",
+		"parent_code": "1053-8",
+		"parent_description": "California Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1062-9",
+		"code_type": "HL7v3",
+		"code_description": "Santa Rosa",
+		"parent_code": "1053-8",
+		"parent_description": "California Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1063-7",
+		"code_type": "HL7v3",
+		"code_description": "Takelma",
+		"parent_code": "1053-8",
+		"parent_description": "California Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1064-5",
+		"code_type": "HL7v3",
+		"code_description": "Wappo",
+		"parent_code": "1053-8",
+		"parent_description": "California Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1065-2",
+		"code_type": "HL7v3",
+		"code_description": "Yana",
+		"parent_code": "1053-8",
+		"parent_description": "California Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1066-0",
+		"code_type": "HL7v3",
+		"code_description": "Yuki",
+		"parent_code": "1053-8",
+		"parent_description": "California Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1068-6",
+		"code_type": "HL7v3",
+		"code_description": "Canadian and Latin American Indian",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1069-4",
+		"code_type": "HL7v3",
+		"code_description": "Canadian Indian",
+		"parent_code": "1068-6",
+		"parent_description": "Canadian and Latin American Indian",
+		"indent_index": 3
+	},
+	{
+		"code": "1070-2",
+		"code_type": "HL7v3",
+		"code_description": "Central American Indian",
+		"parent_code": "1068-6",
+		"parent_description": "Canadian and Latin American Indian",
+		"indent_index": 3
+	},
+	{
+		"code": "1071-0",
+		"code_type": "HL7v3",
+		"code_description": "French American Indian",
+		"parent_code": "1068-6",
+		"parent_description": "Canadian and Latin American Indian",
+		"indent_index": 3
+	},
+	{
+		"code": "1072-8",
+		"code_type": "HL7v3",
+		"code_description": "Mexican American Indian",
+		"parent_code": "1068-6",
+		"parent_description": "Canadian and Latin American Indian",
+		"indent_index": 3
+	},
+	{
+		"code": "1073-6",
+		"code_type": "HL7v3",
+		"code_description": "South American Indian",
+		"parent_code": "1068-6",
+		"parent_description": "Canadian and Latin American Indian",
+		"indent_index": 3
+	},
+	{
+		"code": "1074-4",
+		"code_type": "HL7v3",
+		"code_description": "Spanish American Indian",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1076-9",
+		"code_type": "HL7v3",
+		"code_description": "Catawba",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1741-8",
+		"code_type": "HL7v3",
+		"code_description": "Alatna",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1742-6",
+		"code_type": "HL7v3",
+		"code_description": "Alexander",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1743-4",
+		"code_type": "HL7v3",
+		"code_description": "Allakaket",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1744-2",
+		"code_type": "HL7v3",
+		"code_description": "Alanvik",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1745-9",
+		"code_type": "HL7v3",
+		"code_description": "Anvik",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1746-7",
+		"code_type": "HL7v3",
+		"code_description": "Arctic",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1747-5",
+		"code_type": "HL7v3",
+		"code_description": "Beaver",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1748-3",
+		"code_type": "HL7v3",
+		"code_description": "Birch Creek",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1749-1",
+		"code_type": "HL7v3",
+		"code_description": "Cantwell",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1750-9",
+		"code_type": "HL7v3",
+		"code_description": "Chalkyitsik",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1751-7",
+		"code_type": "HL7v3",
+		"code_description": "Chickaloon",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1752-5",
+		"code_type": "HL7v3",
+		"code_description": "Chistochina",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1753-3",
+		"code_type": "HL7v3",
+		"code_description": "Chitina",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1754-1",
+		"code_type": "HL7v3",
+		"code_description": "Circle",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1755-8",
+		"code_type": "HL7v3",
+		"code_description": "Cook Inlet",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1756-6",
+		"code_type": "HL7v3",
+		"code_description": "Copper Center",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1757-4",
+		"code_type": "HL7v3",
+		"code_description": "Copper River",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1758-2",
+		"code_type": "HL7v3",
+		"code_description": "Dot Lake",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1759-0",
+		"code_type": "HL7v3",
+		"code_description": "Doyon",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1760-8",
+		"code_type": "HL7v3",
+		"code_description": "Eagle",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1761-6",
+		"code_type": "HL7v3",
+		"code_description": "Eklutna",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1762-4",
+		"code_type": "HL7v3",
+		"code_description": "Evansville",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1763-2",
+		"code_type": "HL7v3",
+		"code_description": "Fort Yukon",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1764-0",
+		"code_type": "HL7v3",
+		"code_description": "Gakona",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1765-7",
+		"code_type": "HL7v3",
+		"code_description": "Galena",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1766-5",
+		"code_type": "HL7v3",
+		"code_description": "Grayling",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1767-3",
+		"code_type": "HL7v3",
+		"code_description": "Gulkana",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1768-1",
+		"code_type": "HL7v3",
+		"code_description": "Healy Lake",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1769-9",
+		"code_type": "HL7v3",
+		"code_description": "Holy Cross",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1770-7",
+		"code_type": "HL7v3",
+		"code_description": "Hughes",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1771-5",
+		"code_type": "HL7v3",
+		"code_description": "Huslia",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1772-3",
+		"code_type": "HL7v3",
+		"code_description": "Iliamna",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1773-1",
+		"code_type": "HL7v3",
+		"code_description": "Kaltag",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1774-9",
+		"code_type": "HL7v3",
+		"code_description": "Kluti Kaah",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1775-6",
+		"code_type": "HL7v3",
+		"code_description": "Knik",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1776-4",
+		"code_type": "HL7v3",
+		"code_description": "Koyukuk",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1777-2",
+		"code_type": "HL7v3",
+		"code_description": "Lake Minchumina",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1778-0",
+		"code_type": "HL7v3",
+		"code_description": "Lime",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1779-8",
+		"code_type": "HL7v3",
+		"code_description": "Mcgrath",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1780-6",
+		"code_type": "HL7v3",
+		"code_description": "Manley Hot Springs",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1781-4",
+		"code_type": "HL7v3",
+		"code_description": "Mentasta Lake",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1782-2",
+		"code_type": "HL7v3",
+		"code_description": "Minto",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1783-0",
+		"code_type": "HL7v3",
+		"code_description": "Nenana",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1784-8",
+		"code_type": "HL7v3",
+		"code_description": "Nikolai",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1785-5",
+		"code_type": "HL7v3",
+		"code_description": "Ninilchik",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1786-3",
+		"code_type": "HL7v3",
+		"code_description": "Nondalton",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1787-1",
+		"code_type": "HL7v3",
+		"code_description": "Northway",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1788-9",
+		"code_type": "HL7v3",
+		"code_description": "Nulato",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1789-7",
+		"code_type": "HL7v3",
+		"code_description": "Pedro Bay",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1790-5",
+		"code_type": "HL7v3",
+		"code_description": "Rampart",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1791-3",
+		"code_type": "HL7v3",
+		"code_description": "Ruby",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1792-1",
+		"code_type": "HL7v3",
+		"code_description": "Salamatof",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1793-9",
+		"code_type": "HL7v3",
+		"code_description": "Seldovia",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1794-7",
+		"code_type": "HL7v3",
+		"code_description": "Slana",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1795-4",
+		"code_type": "HL7v3",
+		"code_description": "Shageluk",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1796-2",
+		"code_type": "HL7v3",
+		"code_description": "Stevens",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1797-0",
+		"code_type": "HL7v3",
+		"code_description": "Stony River",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1798-8",
+		"code_type": "HL7v3",
+		"code_description": "Takotna",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1799-6",
+		"code_type": "HL7v3",
+		"code_description": "Tanacross",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1800-2",
+		"code_type": "HL7v3",
+		"code_description": "Tanaina",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1801-0",
+		"code_type": "HL7v3",
+		"code_description": "Tanana",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1802-8",
+		"code_type": "HL7v3",
+		"code_description": "Tanana Chiefs",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1803-6",
+		"code_type": "HL7v3",
+		"code_description": "Tazlina",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1804-4",
+		"code_type": "HL7v3",
+		"code_description": "Telida",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1805-1",
+		"code_type": "HL7v3",
+		"code_description": "Tetlin",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1806-9",
+		"code_type": "HL7v3",
+		"code_description": "Tok",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1807-7",
+		"code_type": "HL7v3",
+		"code_description": "Tyonek",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1808-5",
+		"code_type": "HL7v3",
+		"code_description": "Venetie",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1809-3",
+		"code_type": "HL7v3",
+		"code_description": "Wiseman",
+		"parent_code": "1076-9",
+		"parent_description": "Catawba",
+		"indent_index": 3
+	},
+	{
+		"code": "1078-5",
+		"code_type": "HL7v3",
+		"code_description": "Cayuse",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1080-1",
+		"code_type": "HL7v3",
+		"code_description": "Chehalis",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1082-7",
+		"code_type": "HL7v3",
+		"code_description": "Chemakuan",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1083-5",
+		"code_type": "HL7v3",
+		"code_description": "Hoh",
+		"parent_code": "1082-7",
+		"parent_description": "Chemakuan",
+		"indent_index": 3
+	},
+	{
+		"code": "1084-3",
+		"code_type": "HL7v3",
+		"code_description": "Quileute",
+		"parent_code": "1082-7",
+		"parent_description": "Chemakuan",
+		"indent_index": 3
+	},
+	{
+		"code": "1086-8",
+		"code_type": "HL7v3",
+		"code_description": "Chemehuevi",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1088-4",
+		"code_type": "HL7v3",
+		"code_description": "Cherokee",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1089-2",
+		"code_type": "HL7v3",
+		"code_description": "Cherokee Alabama",
+		"parent_code": "1088-4",
+		"parent_description": "Cherokee",
+		"indent_index": 3
+	},
+	{
+		"code": "1090-0",
+		"code_type": "HL7v3",
+		"code_description": "Cherokees of Northeast Alabama",
+		"parent_code": "1088-4",
+		"parent_description": "Cherokee",
+		"indent_index": 3
+	},
+	{
+		"code": "1091-8",
+		"code_type": "HL7v3",
+		"code_description": "Cherokees of Southeast Alabama",
+		"parent_code": "1088-4",
+		"parent_description": "Cherokee",
+		"indent_index": 3
+	},
+	{
+		"code": "1092-6",
+		"code_type": "HL7v3",
+		"code_description": "Eastern Cherokee",
+		"parent_code": "1088-4",
+		"parent_description": "Cherokee",
+		"indent_index": 3
+	},
+	{
+		"code": "1093-4",
+		"code_type": "HL7v3",
+		"code_description": "Echota Cherokee",
+		"parent_code": "1088-4",
+		"parent_description": "Cherokee",
+		"indent_index": 3
+	},
+	{
+		"code": "1094-2",
+		"code_type": "HL7v3",
+		"code_description": "Etowah Cherokee",
+		"parent_code": "1088-4",
+		"parent_description": "Cherokee",
+		"indent_index": 3
+	},
+	{
+		"code": "1095-9",
+		"code_type": "HL7v3",
+		"code_description": "Northern Cherokee",
+		"parent_code": "1088-4",
+		"parent_description": "Cherokee",
+		"indent_index": 3
+	},
+	{
+		"code": "1096-7",
+		"code_type": "HL7v3",
+		"code_description": "Tuscola",
+		"parent_code": "1088-4",
+		"parent_description": "Cherokee",
+		"indent_index": 3
+	},
+	{
+		"code": "1097-5",
+		"code_type": "HL7v3",
+		"code_description": "United Keetowah Band of Cherokee",
+		"parent_code": "1088-4",
+		"parent_description": "Cherokee",
+		"indent_index": 3
+	},
+	{
+		"code": "1098-3",
+		"code_type": "HL7v3",
+		"code_description": "Western Cherokee",
+		"parent_code": "1088-4",
+		"parent_description": "Cherokee",
+		"indent_index": 3
+	},
+	{
+		"code": "1100-7",
+		"code_type": "HL7v3",
+		"code_description": "Cherokee Shawnee",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1102-3",
+		"code_type": "HL7v3",
+		"code_description": "Cheyenne",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1103-1",
+		"code_type": "HL7v3",
+		"code_description": "Northern Cheyenne",
+		"parent_code": "1102-3",
+		"parent_description": "Cheyenne",
+		"indent_index": 3
+	},
+	{
+		"code": "1104-9",
+		"code_type": "HL7v3",
+		"code_description": "Southern Cheyenne",
+		"parent_code": "1102-3",
+		"parent_description": "Cheyenne",
+		"indent_index": 3
+	},
+	{
+		"code": "1106-4",
+		"code_type": "HL7v3",
+		"code_description": "Cheyenne-Arapaho",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1108-0",
+		"code_type": "HL7v3",
+		"code_description": "Chickahominy",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1109-8",
+		"code_type": "HL7v3",
+		"code_description": "Eastern Chickahominy",
+		"parent_code": "1108-0",
+		"parent_description": "Chickahominy",
+		"indent_index": 3
+	},
+	{
+		"code": "1110-6",
+		"code_type": "HL7v3",
+		"code_description": "Western Chickahominy",
+		"parent_code": "1108-0",
+		"parent_description": "Chickahominy",
+		"indent_index": 3
+	},
+	{
+		"code": "1112-2",
+		"code_type": "HL7v3",
+		"code_description": "Chickasaw",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1114-8",
+		"code_type": "HL7v3",
+		"code_description": "Chinook",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1115-5",
+		"code_type": "HL7v3",
+		"code_description": "Clatsop",
+		"parent_code": "1114-8",
+		"parent_description": "Chinook",
+		"indent_index": 3
+	},
+	{
+		"code": "1116-3",
+		"code_type": "HL7v3",
+		"code_description": "Columbia River Chinook",
+		"parent_code": "1114-8",
+		"parent_description": "Chinook",
+		"indent_index": 3
+	},
+	{
+		"code": "1117-1",
+		"code_type": "HL7v3",
+		"code_description": "Kathlamet",
+		"parent_code": "1114-8",
+		"parent_description": "Chinook",
+		"indent_index": 3
+	},
+	{
+		"code": "1118-9",
+		"code_type": "HL7v3",
+		"code_description": "Upper Chinook",
+		"parent_code": "1114-8",
+		"parent_description": "Chinook",
+		"indent_index": 3
+	},
+	{
+		"code": "1119-7",
+		"code_type": "HL7v3",
+		"code_description": "Wakiakum Chinook",
+		"parent_code": "1114-8",
+		"parent_description": "Chinook",
+		"indent_index": 3
+	},
+	{
+		"code": "1120-5",
+		"code_type": "HL7v3",
+		"code_description": "Willapa Chinook",
+		"parent_code": "1114-8",
+		"parent_description": "Chinook",
+		"indent_index": 3
+	},
+	{
+		"code": "1121-3",
+		"code_type": "HL7v3",
+		"code_description": "Wishram",
+		"parent_code": "1114-8",
+		"parent_description": "Chinook",
+		"indent_index": 3
+	},
+	{
+		"code": "1123-9",
+		"code_type": "HL7v3",
+		"code_description": "Chippewa",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1124-7",
+		"code_type": "HL7v3",
+		"code_description": "Bad River",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1125-4",
+		"code_type": "HL7v3",
+		"code_description": "Bay Mills Chippewa",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1126-2",
+		"code_type": "HL7v3",
+		"code_description": "Bois Forte",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1127-0",
+		"code_type": "HL7v3",
+		"code_description": "Burt Lake Chippewa",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1128-8",
+		"code_type": "HL7v3",
+		"code_description": "Fond du Lac",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1129-6",
+		"code_type": "HL7v3",
+		"code_description": "Grand Portage",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1130-4",
+		"code_type": "HL7v3",
+		"code_description": "Grand Traverse Band of Ottawa-Chippewa",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1131-2",
+		"code_type": "HL7v3",
+		"code_description": "Keweenaw",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1132-0",
+		"code_type": "HL7v3",
+		"code_description": "Lac Courte Oreilles",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1133-8",
+		"code_type": "HL7v3",
+		"code_description": "Lac du Flambeau",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1134-6",
+		"code_type": "HL7v3",
+		"code_description": "Lac Vieux Desert Chippewa",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1135-3",
+		"code_type": "HL7v3",
+		"code_description": "Lake Superior",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1136-1",
+		"code_type": "HL7v3",
+		"code_description": "Leech Lake",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1137-9",
+		"code_type": "HL7v3",
+		"code_description": "Little Shell Chippewa",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1138-7",
+		"code_type": "HL7v3",
+		"code_description": "Mille Lacs",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1139-5",
+		"code_type": "HL7v3",
+		"code_description": "Minnesota Chippewa",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1140-3",
+		"code_type": "HL7v3",
+		"code_description": "Ontonagon",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1141-1",
+		"code_type": "HL7v3",
+		"code_description": "Red Cliff Chippewa",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1142-9",
+		"code_type": "HL7v3",
+		"code_description": "Red Lake Chippewa",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1143-7",
+		"code_type": "HL7v3",
+		"code_description": "Saginaw Chippewa",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1144-5",
+		"code_type": "HL7v3",
+		"code_description": "St. Croix Chippewa",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1145-2",
+		"code_type": "HL7v3",
+		"code_description": "Sault Ste. Marie Chippewa",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1146-0",
+		"code_type": "HL7v3",
+		"code_description": "Sokoagon Chippewa",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1147-8",
+		"code_type": "HL7v3",
+		"code_description": "Turtle Mountain",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1148-6",
+		"code_type": "HL7v3",
+		"code_description": "White Earth",
+		"parent_code": "1123-9",
+		"parent_description": "Chippewa",
+		"indent_index": 3
+	},
+	{
+		"code": "1150-2",
+		"code_type": "HL7v3",
+		"code_description": "Chippewa Cree",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1151-0",
+		"code_type": "HL7v3",
+		"code_description": "Rocky Boy's Chippewa Cree",
+		"parent_code": "1150-2",
+		"parent_description": "Chippewa Cree",
+		"indent_index": 3
+	},
+	{
+		"code": "1153-6",
+		"code_type": "HL7v3",
+		"code_description": "Chitimacha",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1155-1",
+		"code_type": "HL7v3",
+		"code_description": "Choctaw",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1156-9",
+		"code_type": "HL7v3",
+		"code_description": "Clifton Choctaw",
+		"parent_code": "1155-1",
+		"parent_description": "Choctaw",
+		"indent_index": 3
+	},
+	{
+		"code": "1157-7",
+		"code_type": "HL7v3",
+		"code_description": "Jena Choctaw",
+		"parent_code": "1155-1",
+		"parent_description": "Choctaw",
+		"indent_index": 3
+	},
+	{
+		"code": "1158-5",
+		"code_type": "HL7v3",
+		"code_description": "Mississippi Choctaw",
+		"parent_code": "1155-1",
+		"parent_description": "Choctaw",
+		"indent_index": 3
+	},
+	{
+		"code": "1159-3",
+		"code_type": "HL7v3",
+		"code_description": "Mowa Band of Choctaw",
+		"parent_code": "1155-1",
+		"parent_description": "Choctaw",
+		"indent_index": 3
+	},
+	{
+		"code": "1160-1",
+		"code_type": "HL7v3",
+		"code_description": "Oklahoma Choctaw",
+		"parent_code": "1155-1",
+		"parent_description": "Choctaw",
+		"indent_index": 3
+	},
+	{
+		"code": "1162-7",
+		"code_type": "HL7v3",
+		"code_description": "Chumash",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1163-5",
+		"code_type": "HL7v3",
+		"code_description": "Santa Ynez",
+		"parent_code": "1162-7",
+		"parent_description": "Chumash",
+		"indent_index": 3
+	},
+	{
+		"code": "1165-0",
+		"code_type": "HL7v3",
+		"code_description": "Clear Lake",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1167-6",
+		"code_type": "HL7v3",
+		"code_description": "Coeur D'Alene",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1169-2",
+		"code_type": "HL7v3",
+		"code_description": "Coharie",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1171-8",
+		"code_type": "HL7v3",
+		"code_description": "Colorado River",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1173-4",
+		"code_type": "HL7v3",
+		"code_description": "Colville",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1175-9",
+		"code_type": "HL7v3",
+		"code_description": "Comanche",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1176-7",
+		"code_type": "HL7v3",
+		"code_description": "Oklahoma Comanche",
+		"parent_code": "1175-9",
+		"parent_description": "Comanche",
+		"indent_index": 3
+	},
+	{
+		"code": "1178-3",
+		"code_type": "HL7v3",
+		"code_description": "Coos, Lower Umpqua, Siuslaw",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1180-9",
+		"code_type": "HL7v3",
+		"code_description": "Coos",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1182-5",
+		"code_type": "HL7v3",
+		"code_description": "Coquilles",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1184-1",
+		"code_type": "HL7v3",
+		"code_description": "Costanoan",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1186-6",
+		"code_type": "HL7v3",
+		"code_description": "Coushatta",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1187-4",
+		"code_type": "HL7v3",
+		"code_description": "Alabama Coushatta",
+		"parent_code": "1186-6",
+		"parent_description": "Coushatta",
+		"indent_index": 3
+	},
+	{
+		"code": "1189-0",
+		"code_type": "HL7v3",
+		"code_description": "Cowlitz",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1191-6",
+		"code_type": "HL7v3",
+		"code_description": "Cree",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1193-2",
+		"code_type": "HL7v3",
+		"code_description": "Creek",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1194-0",
+		"code_type": "HL7v3",
+		"code_description": "Alabama Creek",
+		"parent_code": "1193-2",
+		"parent_description": "Creek",
+		"indent_index": 3
+	},
+	{
+		"code": "1195-7",
+		"code_type": "HL7v3",
+		"code_description": "Alabama Quassarte",
+		"parent_code": "1193-2",
+		"parent_description": "Creek",
+		"indent_index": 3
+	},
+	{
+		"code": "1196-5",
+		"code_type": "HL7v3",
+		"code_description": "Eastern Creek",
+		"parent_code": "1193-2",
+		"parent_description": "Creek",
+		"indent_index": 3
+	},
+	{
+		"code": "1197-3",
+		"code_type": "HL7v3",
+		"code_description": "Eastern Muscogee",
+		"parent_code": "1193-2",
+		"parent_description": "Creek",
+		"indent_index": 3
+	},
+	{
+		"code": "1198-1",
+		"code_type": "HL7v3",
+		"code_description": "Kialegee",
+		"parent_code": "1193-2",
+		"parent_description": "Creek",
+		"indent_index": 3
+	},
+	{
+		"code": "1199-9",
+		"code_type": "HL7v3",
+		"code_description": "Lower Muscogee",
+		"parent_code": "1193-2",
+		"parent_description": "Creek",
+		"indent_index": 3
+	},
+	{
+		"code": "1200-5",
+		"code_type": "HL7v3",
+		"code_description": "Machis Lower Creek Indian",
+		"parent_code": "1193-2",
+		"parent_description": "Creek",
+		"indent_index": 3
+	},
+	{
+		"code": "1201-3",
+		"code_type": "HL7v3",
+		"code_description": "Poarch Band",
+		"parent_code": "1193-2",
+		"parent_description": "Creek",
+		"indent_index": 3
+	},
+	{
+		"code": "1202-1",
+		"code_type": "HL7v3",
+		"code_description": "Principal Creek Indian Nation",
+		"parent_code": "1193-2",
+		"parent_description": "Creek",
+		"indent_index": 3
+	},
+	{
+		"code": "1203-9",
+		"code_type": "HL7v3",
+		"code_description": "Star Clan of Muscogee Creeks",
+		"parent_code": "1193-2",
+		"parent_description": "Creek",
+		"indent_index": 3
+	},
+	{
+		"code": "1204-7",
+		"code_type": "HL7v3",
+		"code_description": "Thlopthlocco",
+		"parent_code": "1193-2",
+		"parent_description": "Creek",
+		"indent_index": 3
+	},
+	{
+		"code": "1205-4",
+		"code_type": "HL7v3",
+		"code_description": "Tuckabachee",
+		"parent_code": "1193-2",
+		"parent_description": "Creek",
+		"indent_index": 3
+	},
+	{
+		"code": "1207-0",
+		"code_type": "HL7v3",
+		"code_description": "Croatan",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1209-6",
+		"code_type": "HL7v3",
+		"code_description": "Crow",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1211-2",
+		"code_type": "HL7v3",
+		"code_description": "Cupeno",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1212-0",
+		"code_type": "HL7v3",
+		"code_description": "Agua Caliente",
+		"parent_code": "1211-2",
+		"parent_description": "Cupeno",
+		"indent_index": 3
+	},
+	{
+		"code": "1214-6",
+		"code_type": "HL7v3",
+		"code_description": "Delaware",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1215-3",
+		"code_type": "HL7v3",
+		"code_description": "Eastern Delaware",
+		"parent_code": "1214-6",
+		"parent_description": "Delaware",
+		"indent_index": 3
+	},
+	{
+		"code": "1216-1",
+		"code_type": "HL7v3",
+		"code_description": "Lenni-Lenape",
+		"parent_code": "1214-6",
+		"parent_description": "Delaware",
+		"indent_index": 3
+	},
+	{
+		"code": "1217-9",
+		"code_type": "HL7v3",
+		"code_description": "Munsee",
+		"parent_code": "1214-6",
+		"parent_description": "Delaware",
+		"indent_index": 3
+	},
+	{
+		"code": "1218-7",
+		"code_type": "HL7v3",
+		"code_description": "Oklahoma Delaware",
+		"parent_code": "1214-6",
+		"parent_description": "Delaware",
+		"indent_index": 3
+	},
+	{
+		"code": "1219-5",
+		"code_type": "HL7v3",
+		"code_description": "Rampough Mountain",
+		"parent_code": "1214-6",
+		"parent_description": "Delaware",
+		"indent_index": 3
+	},
+	{
+		"code": "1220-3",
+		"code_type": "HL7v3",
+		"code_description": "Sand Hill",
+		"parent_code": "1214-6",
+		"parent_description": "Delaware",
+		"indent_index": 3
+	},
+	{
+		"code": "1222-9",
+		"code_type": "HL7v3",
+		"code_description": "Diegueno",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1223-7",
+		"code_type": "HL7v3",
+		"code_description": "Campo",
+		"parent_code": "1222-9",
+		"parent_description": "Diegueno",
+		"indent_index": 3
+	},
+	{
+		"code": "1224-5",
+		"code_type": "HL7v3",
+		"code_description": "Capitan Grande",
+		"parent_code": "1222-9",
+		"parent_description": "Diegueno",
+		"indent_index": 3
+	},
+	{
+		"code": "1225-2",
+		"code_type": "HL7v3",
+		"code_description": "Cuyapaipe",
+		"parent_code": "1222-9",
+		"parent_description": "Diegueno",
+		"indent_index": 3
+	},
+	{
+		"code": "1226-0",
+		"code_type": "HL7v3",
+		"code_description": "La Posta",
+		"parent_code": "1222-9",
+		"parent_description": "Diegueno",
+		"indent_index": 3
+	},
+	{
+		"code": "1227-8",
+		"code_type": "HL7v3",
+		"code_description": "Manzanita",
+		"parent_code": "1222-9",
+		"parent_description": "Diegueno",
+		"indent_index": 3
+	},
+	{
+		"code": "1228-6",
+		"code_type": "HL7v3",
+		"code_description": "Mesa Grande",
+		"parent_code": "1222-9",
+		"parent_description": "Diegueno",
+		"indent_index": 3
+	},
+	{
+		"code": "1229-4",
+		"code_type": "HL7v3",
+		"code_description": "San Pasqual",
+		"parent_code": "1222-9",
+		"parent_description": "Diegueno",
+		"indent_index": 3
+	},
+	{
+		"code": "1230-2",
+		"code_type": "HL7v3",
+		"code_description": "Santa Ysabel",
+		"parent_code": "1222-9",
+		"parent_description": "Diegueno",
+		"indent_index": 3
+	},
+	{
+		"code": "1231-0",
+		"code_type": "HL7v3",
+		"code_description": "Sycuan",
+		"parent_code": "1222-9",
+		"parent_description": "Diegueno",
+		"indent_index": 3
+	},
+	{
+		"code": "1233-6",
+		"code_type": "HL7v3",
+		"code_description": "Eastern Tribes",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1234-4",
+		"code_type": "HL7v3",
+		"code_description": "Attacapa",
+		"parent_code": "1233-6",
+		"parent_description": "Eastern Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1235-1",
+		"code_type": "HL7v3",
+		"code_description": "Biloxi",
+		"parent_code": "1233-6",
+		"parent_description": "Eastern Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1236-9",
+		"code_type": "HL7v3",
+		"code_description": "Georgetown",
+		"parent_code": "1233-6",
+		"parent_description": "Eastern Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1237-7",
+		"code_type": "HL7v3",
+		"code_description": "Moor",
+		"parent_code": "1233-6",
+		"parent_description": "Eastern Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1238-5",
+		"code_type": "HL7v3",
+		"code_description": "Nansemond",
+		"parent_code": "1233-6",
+		"parent_description": "Eastern Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1239-3",
+		"code_type": "HL7v3",
+		"code_description": "Natchez",
+		"parent_code": "1233-6",
+		"parent_description": "Eastern Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1240-1",
+		"code_type": "HL7v3",
+		"code_description": "Nausu Waiwash",
+		"parent_code": "1233-6",
+		"parent_description": "Eastern Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1241-9",
+		"code_type": "HL7v3",
+		"code_description": "Nipmuc",
+		"parent_code": "1233-6",
+		"parent_description": "Eastern Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1242-7",
+		"code_type": "HL7v3",
+		"code_description": "Paugussett",
+		"parent_code": "1233-6",
+		"parent_description": "Eastern Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1243-5",
+		"code_type": "HL7v3",
+		"code_description": "Pocomoke Acohonock",
+		"parent_code": "1233-6",
+		"parent_description": "Eastern Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1244-3",
+		"code_type": "HL7v3",
+		"code_description": "Southeastern Indians",
+		"parent_code": "1233-6",
+		"parent_description": "Eastern Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1245-0",
+		"code_type": "HL7v3",
+		"code_description": "Susquehanock",
+		"parent_code": "1233-6",
+		"parent_description": "Eastern Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1246-8",
+		"code_type": "HL7v3",
+		"code_description": "Tunica Biloxi",
+		"parent_code": "1233-6",
+		"parent_description": "Eastern Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1247-6",
+		"code_type": "HL7v3",
+		"code_description": "Waccamaw-Siousan",
+		"parent_code": "1233-6",
+		"parent_description": "Eastern Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1248-4",
+		"code_type": "HL7v3",
+		"code_description": "Wicomico",
+		"parent_code": "1233-6",
+		"parent_description": "Eastern Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1250-0",
+		"code_type": "HL7v3",
+		"code_description": "Esselen",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1252-6",
+		"code_type": "HL7v3",
+		"code_description": "Fort Belknap",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1254-2",
+		"code_type": "HL7v3",
+		"code_description": "Fort Berthold",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1256-7",
+		"code_type": "HL7v3",
+		"code_description": "Fort Mcdowell",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1258-3",
+		"code_type": "HL7v3",
+		"code_description": "Fort Hall",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1260-9",
+		"code_type": "HL7v3",
+		"code_description": "Gabrieleno",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1262-5",
+		"code_type": "HL7v3",
+		"code_description": "Grand Ronde",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1264-1",
+		"code_type": "HL7v3",
+		"code_description": "Gros Ventres",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1265-8",
+		"code_type": "HL7v3",
+		"code_description": "Atsina",
+		"parent_code": "1264-1",
+		"parent_description": "Gros Ventres",
+		"indent_index": 3
+	},
+	{
+		"code": "1267-4",
+		"code_type": "HL7v3",
+		"code_description": "Haliwa",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1269-0",
+		"code_type": "HL7v3",
+		"code_description": "Hidatsa",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1271-6",
+		"code_type": "HL7v3",
+		"code_description": "Hoopa",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1272-4",
+		"code_type": "HL7v3",
+		"code_description": "Trinity",
+		"parent_code": "1271-6",
+		"parent_description": "Hoopa",
+		"indent_index": 3
+	},
+	{
+		"code": "1273-2",
+		"code_type": "HL7v3",
+		"code_description": "Whilkut",
+		"parent_code": "1271-6",
+		"parent_description": "Hoopa",
+		"indent_index": 3
+	},
+	{
+		"code": "1275-7",
+		"code_type": "HL7v3",
+		"code_description": "Hoopa Extension",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1277-3",
+		"code_type": "HL7v3",
+		"code_description": "Houma",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1279-9",
+		"code_type": "HL7v3",
+		"code_description": "Inaja-Cosmit",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1281-5",
+		"code_type": "HL7v3",
+		"code_description": "Iowa",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1282-3",
+		"code_type": "HL7v3",
+		"code_description": "Iowa of Kansas-Nebraska",
+		"parent_code": "1281-5",
+		"parent_description": "Iowa",
+		"indent_index": 3
+	},
+	{
+		"code": "1283-1",
+		"code_type": "HL7v3",
+		"code_description": "Iowa of Oklahoma",
+		"parent_code": "1281-5",
+		"parent_description": "Iowa",
+		"indent_index": 3
+	},
+	{
+		"code": "1285-6",
+		"code_type": "HL7v3",
+		"code_description": "Iroquois",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1286-4",
+		"code_type": "HL7v3",
+		"code_description": "Cayuga",
+		"parent_code": "1285-6",
+		"parent_description": "Iroquois",
+		"indent_index": 3
+	},
+	{
+		"code": "1287-2",
+		"code_type": "HL7v3",
+		"code_description": "Mohawk",
+		"parent_code": "1285-6",
+		"parent_description": "Iroquois",
+		"indent_index": 3
+	},
+	{
+		"code": "1288-0",
+		"code_type": "HL7v3",
+		"code_description": "Oneida",
+		"parent_code": "1285-6",
+		"parent_description": "Iroquois",
+		"indent_index": 3
+	},
+	{
+		"code": "1289-8",
+		"code_type": "HL7v3",
+		"code_description": "Onondaga",
+		"parent_code": "1285-6",
+		"parent_description": "Iroquois",
+		"indent_index": 3
+	},
+	{
+		"code": "1290-6",
+		"code_type": "HL7v3",
+		"code_description": "Seneca",
+		"parent_code": "1285-6",
+		"parent_description": "Iroquois",
+		"indent_index": 3
+	},
+	{
+		"code": "1291-4",
+		"code_type": "HL7v3",
+		"code_description": "Seneca Nation",
+		"parent_code": "1285-6",
+		"parent_description": "Iroquois",
+		"indent_index": 3
+	},
+	{
+		"code": "1292-2",
+		"code_type": "HL7v3",
+		"code_description": "Seneca-Cayuga",
+		"parent_code": "1285-6",
+		"parent_description": "Iroquois",
+		"indent_index": 3
+	},
+	{
+		"code": "1293-0",
+		"code_type": "HL7v3",
+		"code_description": "Tonawanda Seneca",
+		"parent_code": "1285-6",
+		"parent_description": "Iroquois",
+		"indent_index": 3
+	},
+	{
+		"code": "1294-8",
+		"code_type": "HL7v3",
+		"code_description": "Tuscarora",
+		"parent_code": "1285-6",
+		"parent_description": "Iroquois",
+		"indent_index": 3
+	},
+	{
+		"code": "1295-5",
+		"code_type": "HL7v3",
+		"code_description": "Wyandotte",
+		"parent_code": "1285-6",
+		"parent_description": "Iroquois",
+		"indent_index": 3
+	},
+	{
+		"code": "1297-1",
+		"code_type": "HL7v3",
+		"code_description": "Juaneno",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1299-7",
+		"code_type": "HL7v3",
+		"code_description": "Kalispel",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1301-1",
+		"code_type": "HL7v3",
+		"code_description": "Karuk",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1303-7",
+		"code_type": "HL7v3",
+		"code_description": "Kaw",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1305-2",
+		"code_type": "HL7v3",
+		"code_description": "Kickapoo",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1306-0",
+		"code_type": "HL7v3",
+		"code_description": "Oklahoma Kickapoo",
+		"parent_code": "1305-2",
+		"parent_description": "Kickapoo",
+		"indent_index": 3
+	},
+	{
+		"code": "1307-8",
+		"code_type": "HL7v3",
+		"code_description": "Texas Kickapoo",
+		"parent_code": "1305-2",
+		"parent_description": "Kickapoo",
+		"indent_index": 3
+	},
+	{
+		"code": "1309-4",
+		"code_type": "HL7v3",
+		"code_description": "Kiowa",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1310-2",
+		"code_type": "HL7v3",
+		"code_description": "Oklahoma Kiowa",
+		"parent_code": "1309-4",
+		"parent_description": "Kiowa",
+		"indent_index": 3
+	},
+	{
+		"code": "1312-8",
+		"code_type": "HL7v3",
+		"code_description": "Klallam",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1313-6",
+		"code_type": "HL7v3",
+		"code_description": "Jamestown",
+		"parent_code": "1312-8",
+		"parent_description": "Klallam",
+		"indent_index": 3
+	},
+	{
+		"code": "1314-4",
+		"code_type": "HL7v3",
+		"code_description": "Lower Elwha",
+		"parent_code": "1312-8",
+		"parent_description": "Klallam",
+		"indent_index": 3
+	},
+	{
+		"code": "1315-1",
+		"code_type": "HL7v3",
+		"code_description": "Port Gamble Klallam",
+		"parent_code": "1312-8",
+		"parent_description": "Klallam",
+		"indent_index": 3
+	},
+	{
+		"code": "1317-7",
+		"code_type": "HL7v3",
+		"code_description": "Klamath",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1319-3",
+		"code_type": "HL7v3",
+		"code_description": "Konkow",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1321-9",
+		"code_type": "HL7v3",
+		"code_description": "Kootenai",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1323-5",
+		"code_type": "HL7v3",
+		"code_description": "Lassik",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1325-0",
+		"code_type": "HL7v3",
+		"code_description": "Long Island",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1326-8",
+		"code_type": "HL7v3",
+		"code_description": "Matinecock",
+		"parent_code": "1325-0",
+		"parent_description": "Long Island",
+		"indent_index": 3
+	},
+	{
+		"code": "1327-6",
+		"code_type": "HL7v3",
+		"code_description": "Montauk",
+		"parent_code": "1325-0",
+		"parent_description": "Long Island",
+		"indent_index": 3
+	},
+	{
+		"code": "1328-4",
+		"code_type": "HL7v3",
+		"code_description": "Poospatuck",
+		"parent_code": "1325-0",
+		"parent_description": "Long Island",
+		"indent_index": 3
+	},
+	{
+		"code": "1329-2",
+		"code_type": "HL7v3",
+		"code_description": "Setauket",
+		"parent_code": "1325-0",
+		"parent_description": "Long Island",
+		"indent_index": 3
+	},
+	{
+		"code": "1331-8",
+		"code_type": "HL7v3",
+		"code_description": "Luiseno",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1332-6",
+		"code_type": "HL7v3",
+		"code_description": "La Jolla",
+		"parent_code": "1331-8",
+		"parent_description": "Luiseno",
+		"indent_index": 3
+	},
+	{
+		"code": "1333-4",
+		"code_type": "HL7v3",
+		"code_description": "Pala",
+		"parent_code": "1331-8",
+		"parent_description": "Luiseno",
+		"indent_index": 3
+	},
+	{
+		"code": "1334-2",
+		"code_type": "HL7v3",
+		"code_description": "Pauma",
+		"parent_code": "1331-8",
+		"parent_description": "Luiseno",
+		"indent_index": 3
+	},
+	{
+		"code": "1335-9",
+		"code_type": "HL7v3",
+		"code_description": "Pechanga",
+		"parent_code": "1331-8",
+		"parent_description": "Luiseno",
+		"indent_index": 3
+	},
+	{
+		"code": "1336-7",
+		"code_type": "HL7v3",
+		"code_description": "Soboba",
+		"parent_code": "1331-8",
+		"parent_description": "Luiseno",
+		"indent_index": 3
+	},
+	{
+		"code": "1337-5",
+		"code_type": "HL7v3",
+		"code_description": "Twenty-Nine Palms",
+		"parent_code": "1331-8",
+		"parent_description": "Luiseno",
+		"indent_index": 3
+	},
+	{
+		"code": "1338-3",
+		"code_type": "HL7v3",
+		"code_description": "Temecula",
+		"parent_code": "1331-8",
+		"parent_description": "Luiseno",
+		"indent_index": 3
+	},
+	{
+		"code": "1340-9",
+		"code_type": "HL7v3",
+		"code_description": "Lumbee",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1342-5",
+		"code_type": "HL7v3",
+		"code_description": "Lummi",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1344-1",
+		"code_type": "HL7v3",
+		"code_description": "Maidu",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1345-8",
+		"code_type": "HL7v3",
+		"code_description": "Mountain Maidu",
+		"parent_code": "1344-1",
+		"parent_description": "Maidu",
+		"indent_index": 3
+	},
+	{
+		"code": "1346-6",
+		"code_type": "HL7v3",
+		"code_description": "Nishinam",
+		"parent_code": "1344-1",
+		"parent_description": "Maidu",
+		"indent_index": 3
+	},
+	{
+		"code": "1348-2",
+		"code_type": "HL7v3",
+		"code_description": "Makah",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1350-8",
+		"code_type": "HL7v3",
+		"code_description": "Maliseet",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1352-4",
+		"code_type": "HL7v3",
+		"code_description": "Mandan",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1354-0",
+		"code_type": "HL7v3",
+		"code_description": "Mattaponi",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1356-5",
+		"code_type": "HL7v3",
+		"code_description": "Menominee",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1358-1",
+		"code_type": "HL7v3",
+		"code_description": "Miami",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1359-9",
+		"code_type": "HL7v3",
+		"code_description": "Illinois Miami",
+		"parent_code": "1358-1",
+		"parent_description": "Miami",
+		"indent_index": 3
+	},
+	{
+		"code": "1360-7",
+		"code_type": "HL7v3",
+		"code_description": "Indiana Miami",
+		"parent_code": "1358-1",
+		"parent_description": "Miami",
+		"indent_index": 3
+	},
+	{
+		"code": "1361-5",
+		"code_type": "HL7v3",
+		"code_description": "Oklahoma Miami",
+		"parent_code": "1358-1",
+		"parent_description": "Miami",
+		"indent_index": 3
+	},
+	{
+		"code": "1363-1",
+		"code_type": "HL7v3",
+		"code_description": "Miccosukee",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1365-6",
+		"code_type": "HL7v3",
+		"code_description": "Micmac",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1366-4",
+		"code_type": "HL7v3",
+		"code_description": "Aroostook",
+		"parent_code": "1365-6",
+		"parent_description": "Micmac",
+		"indent_index": 3
+	},
+	{
+		"code": "1368-0",
+		"code_type": "HL7v3",
+		"code_description": "Mission Indians",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1370-6",
+		"code_type": "HL7v3",
+		"code_description": "Miwok",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1372-2",
+		"code_type": "HL7v3",
+		"code_description": "Modoc",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1374-8",
+		"code_type": "HL7v3",
+		"code_description": "Mohegan",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1376-3",
+		"code_type": "HL7v3",
+		"code_description": "Mono",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1378-9",
+		"code_type": "HL7v3",
+		"code_description": "Nanticoke",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1380-5",
+		"code_type": "HL7v3",
+		"code_description": "Narragansett",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1382-1",
+		"code_type": "HL7v3",
+		"code_description": "Navajo",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1383-9",
+		"code_type": "HL7v3",
+		"code_description": "Alamo Navajo",
+		"parent_code": "1382-1",
+		"parent_description": "Navajo",
+		"indent_index": 3
+	},
+	{
+		"code": "1384-7",
+		"code_type": "HL7v3",
+		"code_description": "Canoncito Navajo",
+		"parent_code": "1382-1",
+		"parent_description": "Navajo",
+		"indent_index": 3
+	},
+	{
+		"code": "1385-4",
+		"code_type": "HL7v3",
+		"code_description": "Ramah Navajo",
+		"parent_code": "1382-1",
+		"parent_description": "Navajo",
+		"indent_index": 3
+	},
+	{
+		"code": "1387-0",
+		"code_type": "HL7v3",
+		"code_description": "Nez Perce",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1389-6",
+		"code_type": "HL7v3",
+		"code_description": "Nomalaki",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1391-2",
+		"code_type": "HL7v3",
+		"code_description": "Northwest Tribes",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1392-0",
+		"code_type": "HL7v3",
+		"code_description": "Alsea",
+		"parent_code": "1391-2",
+		"parent_description": "Northwest Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1393-8",
+		"code_type": "HL7v3",
+		"code_description": "Celilo",
+		"parent_code": "1391-2",
+		"parent_description": "Northwest Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1394-6",
+		"code_type": "HL7v3",
+		"code_description": "Columbia",
+		"parent_code": "1391-2",
+		"parent_description": "Northwest Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1395-3",
+		"code_type": "HL7v3",
+		"code_description": "Kalapuya",
+		"parent_code": "1391-2",
+		"parent_description": "Northwest Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1396-1",
+		"code_type": "HL7v3",
+		"code_description": "Molala",
+		"parent_code": "1391-2",
+		"parent_description": "Northwest Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1397-9",
+		"code_type": "HL7v3",
+		"code_description": "Talakamish",
+		"parent_code": "1391-2",
+		"parent_description": "Northwest Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1398-7",
+		"code_type": "HL7v3",
+		"code_description": "Tenino",
+		"parent_code": "1391-2",
+		"parent_description": "Northwest Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1399-5",
+		"code_type": "HL7v3",
+		"code_description": "Tillamook",
+		"parent_code": "1391-2",
+		"parent_description": "Northwest Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1400-1",
+		"code_type": "HL7v3",
+		"code_description": "Wenatchee",
+		"parent_code": "1391-2",
+		"parent_description": "Northwest Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1401-9",
+		"code_type": "HL7v3",
+		"code_description": "Yahooskin",
+		"parent_code": "1391-2",
+		"parent_description": "Northwest Tribes",
+		"indent_index": 3
+	},
+	{
+		"code": "1403-5",
+		"code_type": "HL7v3",
+		"code_description": "Omaha",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1405-0",
+		"code_type": "HL7v3",
+		"code_description": "Oregon Athabaskan",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1407-6",
+		"code_type": "HL7v3",
+		"code_description": "Osage",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1409-2",
+		"code_type": "HL7v3",
+		"code_description": "Otoe-Missouria",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1411-8",
+		"code_type": "HL7v3",
+		"code_description": "Ottawa",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1412-6",
+		"code_type": "HL7v3",
+		"code_description": "Burt Lake Ottawa",
+		"parent_code": "1411-8",
+		"parent_description": "Ottawa",
+		"indent_index": 3
+	},
+	{
+		"code": "1413-4",
+		"code_type": "HL7v3",
+		"code_description": "Michigan Ottawa",
+		"parent_code": "1411-8",
+		"parent_description": "Ottawa",
+		"indent_index": 3
+	},
+	{
+		"code": "1414-2",
+		"code_type": "HL7v3",
+		"code_description": "Oklahoma Ottawa",
+		"parent_code": "1411-8",
+		"parent_description": "Ottawa",
+		"indent_index": 3
+	},
+	{
+		"code": "1416-7",
+		"code_type": "HL7v3",
+		"code_description": "Paiute",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1417-5",
+		"code_type": "HL7v3",
+		"code_description": "Bishop",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1418-3",
+		"code_type": "HL7v3",
+		"code_description": "Bridgeport",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1419-1",
+		"code_type": "HL7v3",
+		"code_description": "Burns Paiute",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1420-9",
+		"code_type": "HL7v3",
+		"code_description": "Cedarville",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1421-7",
+		"code_type": "HL7v3",
+		"code_description": "Fort Bidwell",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1422-5",
+		"code_type": "HL7v3",
+		"code_description": "Fort Independence",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1423-3",
+		"code_type": "HL7v3",
+		"code_description": "Kaibab",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1424-1",
+		"code_type": "HL7v3",
+		"code_description": "Las Vegas",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1425-8",
+		"code_type": "HL7v3",
+		"code_description": "Lone Pine",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1426-6",
+		"code_type": "HL7v3",
+		"code_description": "Lovelock",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1427-4",
+		"code_type": "HL7v3",
+		"code_description": "Malheur Paiute",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1428-2",
+		"code_type": "HL7v3",
+		"code_description": "Moapa",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1429-0",
+		"code_type": "HL7v3",
+		"code_description": "Northern Paiute",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1430-8",
+		"code_type": "HL7v3",
+		"code_description": "Owens Valley",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1431-6",
+		"code_type": "HL7v3",
+		"code_description": "Pyramid Lake",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1432-4",
+		"code_type": "HL7v3",
+		"code_description": "San Juan Southern Paiute",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1433-2",
+		"code_type": "HL7v3",
+		"code_description": "Southern Paiute",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1434-0",
+		"code_type": "HL7v3",
+		"code_description": "Summit Lake",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1435-7",
+		"code_type": "HL7v3",
+		"code_description": "Utu Utu Gwaitu Paiute",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1436-5",
+		"code_type": "HL7v3",
+		"code_description": "Walker River",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1437-3",
+		"code_type": "HL7v3",
+		"code_description": "Yerington Paiute",
+		"parent_code": "1416-7",
+		"parent_description": "Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1439-9",
+		"code_type": "HL7v3",
+		"code_description": "Pamunkey",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1441-5",
+		"code_type": "HL7v3",
+		"code_description": "Passamaquoddy",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1442-3",
+		"code_type": "HL7v3",
+		"code_description": "Indian Township",
+		"parent_code": "1441-5",
+		"parent_description": "Passamaquoddy",
+		"indent_index": 3
+	},
+	{
+		"code": "1443-1",
+		"code_type": "HL7v3",
+		"code_description": "Pleasant Point Passamaquoddy",
+		"parent_code": "1441-5",
+		"parent_description": "Passamaquoddy",
+		"indent_index": 3
+	},
+	{
+		"code": "1445-6",
+		"code_type": "HL7v3",
+		"code_description": "Pawnee",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1446-4",
+		"code_type": "HL7v3",
+		"code_description": "Oklahoma Pawnee",
+		"parent_code": "1445-6",
+		"parent_description": "Pawnee",
+		"indent_index": 3
+	},
+	{
+		"code": "1448-0",
+		"code_type": "HL7v3",
+		"code_description": "Penobscot",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1450-6",
+		"code_type": "HL7v3",
+		"code_description": "Peoria",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1451-4",
+		"code_type": "HL7v3",
+		"code_description": "Oklahoma Peoria",
+		"parent_code": "1450-6",
+		"parent_description": "Peoria",
+		"indent_index": 3
+	},
+	{
+		"code": "1453-0",
+		"code_type": "HL7v3",
+		"code_description": "Pequot",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1454-8",
+		"code_type": "HL7v3",
+		"code_description": "Marshantucket Pequot",
+		"parent_code": "1453-0",
+		"parent_description": "Pequot",
+		"indent_index": 3
+	},
+	{
+		"code": "1456-3",
+		"code_type": "HL7v3",
+		"code_description": "Pima",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1457-1",
+		"code_type": "HL7v3",
+		"code_description": "Gila River Pima-Maricopa",
+		"parent_code": "1456-3",
+		"parent_description": "Pima",
+		"indent_index": 3
+	},
+	{
+		"code": "1458-9",
+		"code_type": "HL7v3",
+		"code_description": "Salt River Pima-Maricopa",
+		"parent_code": "1456-3",
+		"parent_description": "Pima",
+		"indent_index": 3
+	},
+	{
+		"code": "1460-5",
+		"code_type": "HL7v3",
+		"code_description": "Piscataway",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1462-1",
+		"code_type": "HL7v3",
+		"code_description": "Pit River",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1464-7",
+		"code_type": "HL7v3",
+		"code_description": "Pomo",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1465-4",
+		"code_type": "HL7v3",
+		"code_description": "Central Pomo",
+		"parent_code": "1464-7",
+		"parent_description": "Pomo",
+		"indent_index": 3
+	},
+	{
+		"code": "1466-2",
+		"code_type": "HL7v3",
+		"code_description": "Dry Creek",
+		"parent_code": "1464-7",
+		"parent_description": "Pomo",
+		"indent_index": 3
+	},
+	{
+		"code": "1467-0",
+		"code_type": "HL7v3",
+		"code_description": "Eastern Pomo",
+		"parent_code": "1464-7",
+		"parent_description": "Pomo",
+		"indent_index": 3
+	},
+	{
+		"code": "1468-8",
+		"code_type": "HL7v3",
+		"code_description": "Kashia",
+		"parent_code": "1464-7",
+		"parent_description": "Pomo",
+		"indent_index": 3
+	},
+	{
+		"code": "1469-6",
+		"code_type": "HL7v3",
+		"code_description": "Northern Pomo",
+		"parent_code": "1464-7",
+		"parent_description": "Pomo",
+		"indent_index": 3
+	},
+	{
+		"code": "1470-4",
+		"code_type": "HL7v3",
+		"code_description": "Scotts Valley",
+		"parent_code": "1464-7",
+		"parent_description": "Pomo",
+		"indent_index": 3
+	},
+	{
+		"code": "1471-2",
+		"code_type": "HL7v3",
+		"code_description": "Stonyford",
+		"parent_code": "1464-7",
+		"parent_description": "Pomo",
+		"indent_index": 3
+	},
+	{
+		"code": "1472-0",
+		"code_type": "HL7v3",
+		"code_description": "Sulphur Bank",
+		"parent_code": "1464-7",
+		"parent_description": "Pomo",
+		"indent_index": 3
+	},
+	{
+		"code": "1474-6",
+		"code_type": "HL7v3",
+		"code_description": "Ponca",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1475-3",
+		"code_type": "HL7v3",
+		"code_description": "Nebraska Ponca",
+		"parent_code": "1474-6",
+		"parent_description": "Ponca",
+		"indent_index": 3
+	},
+	{
+		"code": "1476-1",
+		"code_type": "HL7v3",
+		"code_description": "Oklahoma Ponca",
+		"parent_code": "1474-6",
+		"parent_description": "Ponca",
+		"indent_index": 3
+	},
+	{
+		"code": "1478-7",
+		"code_type": "HL7v3",
+		"code_description": "Potawatomi",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1479-5",
+		"code_type": "HL7v3",
+		"code_description": "Citizen Band Potawatomi",
+		"parent_code": "1478-7",
+		"parent_description": "Potawatomi",
+		"indent_index": 3
+	},
+	{
+		"code": "1480-3",
+		"code_type": "HL7v3",
+		"code_description": "Forest County",
+		"parent_code": "1478-7",
+		"parent_description": "Potawatomi",
+		"indent_index": 3
+	},
+	{
+		"code": "1481-1",
+		"code_type": "HL7v3",
+		"code_description": "Hannahville",
+		"parent_code": "1478-7",
+		"parent_description": "Potawatomi",
+		"indent_index": 3
+	},
+	{
+		"code": "1482-9",
+		"code_type": "HL7v3",
+		"code_description": "Huron Potawatomi",
+		"parent_code": "1478-7",
+		"parent_description": "Potawatomi",
+		"indent_index": 3
+	},
+	{
+		"code": "1483-7",
+		"code_type": "HL7v3",
+		"code_description": "Pokagon Potawatomi",
+		"parent_code": "1478-7",
+		"parent_description": "Potawatomi",
+		"indent_index": 3
+	},
+	{
+		"code": "1484-5",
+		"code_type": "HL7v3",
+		"code_description": "Prairie Band",
+		"parent_code": "1478-7",
+		"parent_description": "Potawatomi",
+		"indent_index": 3
+	},
+	{
+		"code": "1485-2",
+		"code_type": "HL7v3",
+		"code_description": "Wisconsin Potawatomi",
+		"parent_code": "1478-7",
+		"parent_description": "Potawatomi",
+		"indent_index": 3
+	},
+	{
+		"code": "1487-8",
+		"code_type": "HL7v3",
+		"code_description": "Powhatan",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1489-4",
+		"code_type": "HL7v3",
+		"code_description": "Pueblo",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1490-2",
+		"code_type": "HL7v3",
+		"code_description": "Acoma",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1491-0",
+		"code_type": "HL7v3",
+		"code_description": "Arizona Tewa",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1492-8",
+		"code_type": "HL7v3",
+		"code_description": "Cochiti",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1493-6",
+		"code_type": "HL7v3",
+		"code_description": "Hopi",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1494-4",
+		"code_type": "HL7v3",
+		"code_description": "Isleta",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1495-1",
+		"code_type": "HL7v3",
+		"code_description": "Jemez",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1496-9",
+		"code_type": "HL7v3",
+		"code_description": "Keres",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1497-7",
+		"code_type": "HL7v3",
+		"code_description": "Laguna",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1498-5",
+		"code_type": "HL7v3",
+		"code_description": "Nambe",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1499-3",
+		"code_type": "HL7v3",
+		"code_description": "Picuris",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1500-8",
+		"code_type": "HL7v3",
+		"code_description": "Piro",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1501-6",
+		"code_type": "HL7v3",
+		"code_description": "Pojoaque",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1502-4",
+		"code_type": "HL7v3",
+		"code_description": "San Felipe",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1503-2",
+		"code_type": "HL7v3",
+		"code_description": "San Ildefonso",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1504-0",
+		"code_type": "HL7v3",
+		"code_description": "San Juan Pueblo",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1505-7",
+		"code_type": "HL7v3",
+		"code_description": "San Juan De",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1506-5",
+		"code_type": "HL7v3",
+		"code_description": "San Juan",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1507-3",
+		"code_type": "HL7v3",
+		"code_description": "Sandia",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1508-1",
+		"code_type": "HL7v3",
+		"code_description": "Santa Ana",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1509-9",
+		"code_type": "HL7v3",
+		"code_description": "Santa Clara",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1510-7",
+		"code_type": "HL7v3",
+		"code_description": "Santo Domingo",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1511-5",
+		"code_type": "HL7v3",
+		"code_description": "Taos",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1512-3",
+		"code_type": "HL7v3",
+		"code_description": "Tesuque",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1513-1",
+		"code_type": "HL7v3",
+		"code_description": "Tewa",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1514-9",
+		"code_type": "HL7v3",
+		"code_description": "Tigua",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1515-6",
+		"code_type": "HL7v3",
+		"code_description": "Zia",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1516-4",
+		"code_type": "HL7v3",
+		"code_description": "Zuni",
+		"parent_code": "1489-4",
+		"parent_description": "Pueblo",
+		"indent_index": 3
+	},
+	{
+		"code": "1518-0",
+		"code_type": "HL7v3",
+		"code_description": "Puget Sound Salish",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1519-8",
+		"code_type": "HL7v3",
+		"code_description": "Duwamish",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1520-6",
+		"code_type": "HL7v3",
+		"code_description": "Kikiallus",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1521-4",
+		"code_type": "HL7v3",
+		"code_description": "Lower Skagit",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1522-2",
+		"code_type": "HL7v3",
+		"code_description": "Muckleshoot",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1523-0",
+		"code_type": "HL7v3",
+		"code_description": "Nisqually",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1524-8",
+		"code_type": "HL7v3",
+		"code_description": "Nooksack",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1525-5",
+		"code_type": "HL7v3",
+		"code_description": "Port Madison",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1526-3",
+		"code_type": "HL7v3",
+		"code_description": "Puyallup",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1527-1",
+		"code_type": "HL7v3",
+		"code_description": "Samish",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1528-9",
+		"code_type": "HL7v3",
+		"code_description": "Sauk-Suiattle",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1529-7",
+		"code_type": "HL7v3",
+		"code_description": "Skokomish",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1530-5",
+		"code_type": "HL7v3",
+		"code_description": "Skykomish",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1531-3",
+		"code_type": "HL7v3",
+		"code_description": "Snohomish",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1532-1",
+		"code_type": "HL7v3",
+		"code_description": "Snoqualmie",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1533-9",
+		"code_type": "HL7v3",
+		"code_description": "Squaxin Island",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1534-7",
+		"code_type": "HL7v3",
+		"code_description": "Steilacoom",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1535-4",
+		"code_type": "HL7v3",
+		"code_description": "Stillaguamish",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1536-2",
+		"code_type": "HL7v3",
+		"code_description": "Suquamish",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1537-0",
+		"code_type": "HL7v3",
+		"code_description": "Swinomish",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1538-8",
+		"code_type": "HL7v3",
+		"code_description": "Tulalip",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1539-6",
+		"code_type": "HL7v3",
+		"code_description": "Upper Skagit",
+		"parent_code": "1518-0",
+		"parent_description": "Puget Sound Salish",
+		"indent_index": 3
+	},
+	{
+		"code": "1541-2",
+		"code_type": "HL7v3",
+		"code_description": "Quapaw",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1543-8",
+		"code_type": "HL7v3",
+		"code_description": "Quinault",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1545-3",
+		"code_type": "HL7v3",
+		"code_description": "Rappahannock",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1547-9",
+		"code_type": "HL7v3",
+		"code_description": "Reno-Sparks",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1549-5",
+		"code_type": "HL7v3",
+		"code_description": "Round Valley",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1551-1",
+		"code_type": "HL7v3",
+		"code_description": "Sac and Fox",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1552-9",
+		"code_type": "HL7v3",
+		"code_description": "Iowa Sac and Fox",
+		"parent_code": "1551-1",
+		"parent_description": "Sac and Fox",
+		"indent_index": 3
+	},
+	{
+		"code": "1553-7",
+		"code_type": "HL7v3",
+		"code_description": "Missouri Sac and Fox",
+		"parent_code": "1551-1",
+		"parent_description": "Sac and Fox",
+		"indent_index": 3
+	},
+	{
+		"code": "1554-5",
+		"code_type": "HL7v3",
+		"code_description": "Oklahoma Sac and Fox",
+		"parent_code": "1551-1",
+		"parent_description": "Sac and Fox",
+		"indent_index": 3
+	},
+	{
+		"code": "1556-0",
+		"code_type": "HL7v3",
+		"code_description": "Salinan",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1558-6",
+		"code_type": "HL7v3",
+		"code_description": "Salish",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1560-2",
+		"code_type": "HL7v3",
+		"code_description": "Salish and Kootenai",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1562-8",
+		"code_type": "HL7v3",
+		"code_description": "Schaghticoke",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1564-4",
+		"code_type": "HL7v3",
+		"code_description": "Scott Valley",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1566-9",
+		"code_type": "HL7v3",
+		"code_description": "Seminole",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1567-7",
+		"code_type": "HL7v3",
+		"code_description": "Big Cypress",
+		"parent_code": "1566-9",
+		"parent_description": "Seminole",
+		"indent_index": 3
+	},
+	{
+		"code": "1568-5",
+		"code_type": "HL7v3",
+		"code_description": "Brighton",
+		"parent_code": "1566-9",
+		"parent_description": "Seminole",
+		"indent_index": 3
+	},
+	{
+		"code": "1569-3",
+		"code_type": "HL7v3",
+		"code_description": "Florida Seminole",
+		"parent_code": "1566-9",
+		"parent_description": "Seminole",
+		"indent_index": 3
+	},
+	{
+		"code": "1570-1",
+		"code_type": "HL7v3",
+		"code_description": "Hollywood Seminole",
+		"parent_code": "1566-9",
+		"parent_description": "Seminole",
+		"indent_index": 3
+	},
+	{
+		"code": "1571-9",
+		"code_type": "HL7v3",
+		"code_description": "Oklahoma Seminole",
+		"parent_code": "1566-9",
+		"parent_description": "Seminole",
+		"indent_index": 3
+	},
+	{
+		"code": "1573-5",
+		"code_type": "HL7v3",
+		"code_description": "Serrano",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1574-3",
+		"code_type": "HL7v3",
+		"code_description": "San Manual",
+		"parent_code": "1573-5",
+		"parent_description": "Serrano",
+		"indent_index": 3
+	},
+	{
+		"code": "1576-8",
+		"code_type": "HL7v3",
+		"code_description": "Shasta",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1578-4",
+		"code_type": "HL7v3",
+		"code_description": "Shawnee",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1579-2",
+		"code_type": "HL7v3",
+		"code_description": "Absentee Shawnee",
+		"parent_code": "1578-4",
+		"parent_description": "Shawnee",
+		"indent_index": 3
+	},
+	{
+		"code": "1580-0",
+		"code_type": "HL7v3",
+		"code_description": "Eastern Shawnee",
+		"parent_code": "1578-4",
+		"parent_description": "Shawnee",
+		"indent_index": 3
+	},
+	{
+		"code": "1582-6",
+		"code_type": "HL7v3",
+		"code_description": "Shinnecock",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1584-2",
+		"code_type": "HL7v3",
+		"code_description": "Shoalwater Bay",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1586-7",
+		"code_type": "HL7v3",
+		"code_description": "Shoshone",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1587-5",
+		"code_type": "HL7v3",
+		"code_description": "Battle Mountain",
+		"parent_code": "1586-7",
+		"parent_description": "Shoshone",
+		"indent_index": 3
+	},
+	{
+		"code": "1588-3",
+		"code_type": "HL7v3",
+		"code_description": "Duckwater",
+		"parent_code": "1586-7",
+		"parent_description": "Shoshone",
+		"indent_index": 3
+	},
+	{
+		"code": "1589-1",
+		"code_type": "HL7v3",
+		"code_description": "Elko",
+		"parent_code": "1586-7",
+		"parent_description": "Shoshone",
+		"indent_index": 3
+	},
+	{
+		"code": "1590-9",
+		"code_type": "HL7v3",
+		"code_description": "Ely",
+		"parent_code": "1586-7",
+		"parent_description": "Shoshone",
+		"indent_index": 3
+	},
+	{
+		"code": "1591-7",
+		"code_type": "HL7v3",
+		"code_description": "Goshute",
+		"parent_code": "1586-7",
+		"parent_description": "Shoshone",
+		"indent_index": 3
+	},
+	{
+		"code": "1592-5",
+		"code_type": "HL7v3",
+		"code_description": "Panamint",
+		"parent_code": "1586-7",
+		"parent_description": "Shoshone",
+		"indent_index": 3
+	},
+	{
+		"code": "1593-3",
+		"code_type": "HL7v3",
+		"code_description": "Ruby Valley",
+		"parent_code": "1586-7",
+		"parent_description": "Shoshone",
+		"indent_index": 3
+	},
+	{
+		"code": "1594-1",
+		"code_type": "HL7v3",
+		"code_description": "Skull Valley",
+		"parent_code": "1586-7",
+		"parent_description": "Shoshone",
+		"indent_index": 3
+	},
+	{
+		"code": "1595-8",
+		"code_type": "HL7v3",
+		"code_description": "South Fork Shoshone",
+		"parent_code": "1586-7",
+		"parent_description": "Shoshone",
+		"indent_index": 3
+	},
+	{
+		"code": "1596-6",
+		"code_type": "HL7v3",
+		"code_description": "Te-Moak Western Shoshone",
+		"parent_code": "1586-7",
+		"parent_description": "Shoshone",
+		"indent_index": 3
+	},
+	{
+		"code": "1597-4",
+		"code_type": "HL7v3",
+		"code_description": "Timbi-Sha Shoshone",
+		"parent_code": "1586-7",
+		"parent_description": "Shoshone",
+		"indent_index": 3
+	},
+	{
+		"code": "1598-2",
+		"code_type": "HL7v3",
+		"code_description": "Washakie",
+		"parent_code": "1586-7",
+		"parent_description": "Shoshone",
+		"indent_index": 3
+	},
+	{
+		"code": "1599-0",
+		"code_type": "HL7v3",
+		"code_description": "Wind River Shoshone",
+		"parent_code": "1586-7",
+		"parent_description": "Shoshone",
+		"indent_index": 3
+	},
+	{
+		"code": "1600-6",
+		"code_type": "HL7v3",
+		"code_description": "Yomba",
+		"parent_code": "1586-7",
+		"parent_description": "Shoshone",
+		"indent_index": 3
+	},
+	{
+		"code": "1602-2",
+		"code_type": "HL7v3",
+		"code_description": "Shoshone Paiute",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1603-0",
+		"code_type": "HL7v3",
+		"code_description": "Duck Valley",
+		"parent_code": "1602-2",
+		"parent_description": "Shoshone Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1604-8",
+		"code_type": "HL7v3",
+		"code_description": "Fallon",
+		"parent_code": "1602-2",
+		"parent_description": "Shoshone Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1605-5",
+		"code_type": "HL7v3",
+		"code_description": "Fort McDermitt",
+		"parent_code": "1602-2",
+		"parent_description": "Shoshone Paiute",
+		"indent_index": 3
+	},
+	{
+		"code": "1607-1",
+		"code_type": "HL7v3",
+		"code_description": "Siletz",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1609-7",
+		"code_type": "HL7v3",
+		"code_description": "Sioux",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1610-5",
+		"code_type": "HL7v3",
+		"code_description": "Blackfoot Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1611-3",
+		"code_type": "HL7v3",
+		"code_description": "Brule Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1612-1",
+		"code_type": "HL7v3",
+		"code_description": "Cheyenne River Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1613-9",
+		"code_type": "HL7v3",
+		"code_description": "Crow Creek Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1614-7",
+		"code_type": "HL7v3",
+		"code_description": "Dakota Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1615-4",
+		"code_type": "HL7v3",
+		"code_description": "Flandreau Santee",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1616-2",
+		"code_type": "HL7v3",
+		"code_description": "Fort Peck",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1617-0",
+		"code_type": "HL7v3",
+		"code_description": "Lake Traverse Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1618-8",
+		"code_type": "HL7v3",
+		"code_description": "Lower Brule Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1619-6",
+		"code_type": "HL7v3",
+		"code_description": "Lower Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1620-4",
+		"code_type": "HL7v3",
+		"code_description": "Mdewakanton Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1621-2",
+		"code_type": "HL7v3",
+		"code_description": "Miniconjou",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1622-0",
+		"code_type": "HL7v3",
+		"code_description": "Oglala Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1623-8",
+		"code_type": "HL7v3",
+		"code_description": "Pine Ridge Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1624-6",
+		"code_type": "HL7v3",
+		"code_description": "Pipestone Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1625-3",
+		"code_type": "HL7v3",
+		"code_description": "Prairie Island Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1626-1",
+		"code_type": "HL7v3",
+		"code_description": "Prior Lake Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1627-9",
+		"code_type": "HL7v3",
+		"code_description": "Rosebud Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1628-7",
+		"code_type": "HL7v3",
+		"code_description": "Sans Arc Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1629-5",
+		"code_type": "HL7v3",
+		"code_description": "Santee Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1630-3",
+		"code_type": "HL7v3",
+		"code_description": "Sisseton-Wahpeton",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1631-1",
+		"code_type": "HL7v3",
+		"code_description": "Sisseton Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1632-9",
+		"code_type": "HL7v3",
+		"code_description": "Spirit Lake Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1633-7",
+		"code_type": "HL7v3",
+		"code_description": "Standing Rock Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1634-5",
+		"code_type": "HL7v3",
+		"code_description": "Teton Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1635-2",
+		"code_type": "HL7v3",
+		"code_description": "Two Kettle Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1636-0",
+		"code_type": "HL7v3",
+		"code_description": "Upper Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1637-8",
+		"code_type": "HL7v3",
+		"code_description": "Wahpekute Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1638-6",
+		"code_type": "HL7v3",
+		"code_description": "Wahpeton Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1639-4",
+		"code_type": "HL7v3",
+		"code_description": "Wazhaza Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1640-2",
+		"code_type": "HL7v3",
+		"code_description": "Yankton Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1641-0",
+		"code_type": "HL7v3",
+		"code_description": "Yanktonai Sioux",
+		"parent_code": "1609-7",
+		"parent_description": "Sioux",
+		"indent_index": 3
+	},
+	{
+		"code": "1643-6",
+		"code_type": "HL7v3",
+		"code_description": "Siuslaw",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1645-1",
+		"code_type": "HL7v3",
+		"code_description": "Spokane",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1647-7",
+		"code_type": "HL7v3",
+		"code_description": "Stewart",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1649-3",
+		"code_type": "HL7v3",
+		"code_description": "Stockbridge",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1651-9",
+		"code_type": "HL7v3",
+		"code_description": "Susanville",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1653-5",
+		"code_type": "HL7v3",
+		"code_description": "Tohono O'Odham",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1654-3",
+		"code_type": "HL7v3",
+		"code_description": "Ak-Chin",
+		"parent_code": "1653-5",
+		"parent_description": "Tohono O'Odham",
+		"indent_index": 3
+	},
+	{
+		"code": "1655-0",
+		"code_type": "HL7v3",
+		"code_description": "Gila Bend",
+		"parent_code": "1653-5",
+		"parent_description": "Tohono O'Odham",
+		"indent_index": 3
+	},
+	{
+		"code": "1656-8",
+		"code_type": "HL7v3",
+		"code_description": "San Xavier",
+		"parent_code": "1653-5",
+		"parent_description": "Tohono O'Odham",
+		"indent_index": 3
+	},
+	{
+		"code": "1657-6",
+		"code_type": "HL7v3",
+		"code_description": "Sells",
+		"parent_code": "1653-5",
+		"parent_description": "Tohono O'Odham",
+		"indent_index": 3
+	},
+	{
+		"code": "1659-2",
+		"code_type": "HL7v3",
+		"code_description": "Tolowa",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1661-8",
+		"code_type": "HL7v3",
+		"code_description": "Tonkawa",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1663-4",
+		"code_type": "HL7v3",
+		"code_description": "Tygh",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1665-9",
+		"code_type": "HL7v3",
+		"code_description": "Umatilla",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1667-5",
+		"code_type": "HL7v3",
+		"code_description": "Umpqua",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1668-3",
+		"code_type": "HL7v3",
+		"code_description": "Cow Creek Umpqua",
+		"parent_code": "1667-5",
+		"parent_description": "Umpqua",
+		"indent_index": 3
+	},
+	{
+		"code": "1670-9",
+		"code_type": "HL7v3",
+		"code_description": "Ute",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1671-7",
+		"code_type": "HL7v3",
+		"code_description": "Allen Canyon",
+		"parent_code": "1670-9",
+		"parent_description": "Ute",
+		"indent_index": 3
+	},
+	{
+		"code": "1672-5",
+		"code_type": "HL7v3",
+		"code_description": "Uintah Ute",
+		"parent_code": "1670-9",
+		"parent_description": "Ute",
+		"indent_index": 3
+	},
+	{
+		"code": "1673-3",
+		"code_type": "HL7v3",
+		"code_description": "Ute Mountain Ute",
+		"parent_code": "1670-9",
+		"parent_description": "Ute",
+		"indent_index": 3
+	},
+	{
+		"code": "1675-8",
+		"code_type": "HL7v3",
+		"code_description": "Wailaki",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1677-4",
+		"code_type": "HL7v3",
+		"code_description": "Walla-Walla",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1679-0",
+		"code_type": "HL7v3",
+		"code_description": "Wampanoag",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1680-8",
+		"code_type": "HL7v3",
+		"code_description": "Gay Head Wampanoag",
+		"parent_code": "1679-0",
+		"parent_description": "Wampanoag",
+		"indent_index": 3
+	},
+	{
+		"code": "1681-6",
+		"code_type": "HL7v3",
+		"code_description": "Mashpee Wampanoag",
+		"parent_code": "1679-0",
+		"parent_description": "Wampanoag",
+		"indent_index": 3
+	},
+	{
+		"code": "1683-2",
+		"code_type": "HL7v3",
+		"code_description": "Warm Springs",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1685-7",
+		"code_type": "HL7v3",
+		"code_description": "Wascopum",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1687-3",
+		"code_type": "HL7v3",
+		"code_description": "Washoe",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1688-1",
+		"code_type": "HL7v3",
+		"code_description": "Alpine",
+		"parent_code": "1687-3",
+		"parent_description": "Washoe",
+		"indent_index": 3
+	},
+	{
+		"code": "1689-9",
+		"code_type": "HL7v3",
+		"code_description": "Carson",
+		"parent_code": "1687-3",
+		"parent_description": "Washoe",
+		"indent_index": 3
+	},
+	{
+		"code": "1690-7",
+		"code_type": "HL7v3",
+		"code_description": "Dresslerville",
+		"parent_code": "1687-3",
+		"parent_description": "Washoe",
+		"indent_index": 3
+	},
+	{
+		"code": "1692-3",
+		"code_type": "HL7v3",
+		"code_description": "Wichita",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1694-9",
+		"code_type": "HL7v3",
+		"code_description": "Wind River",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1696-4",
+		"code_type": "HL7v3",
+		"code_description": "Winnebago",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1697-2",
+		"code_type": "HL7v3",
+		"code_description": "Ho-chunk",
+		"parent_code": "1696-4",
+		"parent_description": "Winnebago",
+		"indent_index": 3
+	},
+	{
+		"code": "1698-0",
+		"code_type": "HL7v3",
+		"code_description": "Nebraska Winnebago",
+		"parent_code": "1696-4",
+		"parent_description": "Winnebago",
+		"indent_index": 3
+	},
+	{
+		"code": "1700-4",
+		"code_type": "HL7v3",
+		"code_description": "Winnemucca",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1702-0",
+		"code_type": "HL7v3",
+		"code_description": "Wintun",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1704-6",
+		"code_type": "HL7v3",
+		"code_description": "Wiyot",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1705-3",
+		"code_type": "HL7v3",
+		"code_description": "Table Bluff",
+		"parent_code": "1704-6",
+		"parent_description": "Wiyot",
+		"indent_index": 3
+	},
+	{
+		"code": "1707-9",
+		"code_type": "HL7v3",
+		"code_description": "Yakama",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1709-5",
+		"code_type": "HL7v3",
+		"code_description": "Yakama Cowlitz",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1711-1",
+		"code_type": "HL7v3",
+		"code_description": "Yaqui",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1712-9",
+		"code_type": "HL7v3",
+		"code_description": "Barrio Libre",
+		"parent_code": "1711-1",
+		"parent_description": "Yaqui",
+		"indent_index": 3
+	},
+	{
+		"code": "1713-7",
+		"code_type": "HL7v3",
+		"code_description": "Pascua Yaqui",
+		"parent_code": "1711-1",
+		"parent_description": "Yaqui",
+		"indent_index": 3
+	},
+	{
+		"code": "1715-2",
+		"code_type": "HL7v3",
+		"code_description": "Yavapai Apache",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1717-8",
+		"code_type": "HL7v3",
+		"code_description": "Yokuts",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1718-6",
+		"code_type": "HL7v3",
+		"code_description": "Chukchansi",
+		"parent_code": "1717-8",
+		"parent_description": "Yokuts",
+		"indent_index": 3
+	},
+	{
+		"code": "1719-4",
+		"code_type": "HL7v3",
+		"code_description": "Tachi",
+		"parent_code": "1717-8",
+		"parent_description": "Yokuts",
+		"indent_index": 3
+	},
+	{
+		"code": "1720-2",
+		"code_type": "HL7v3",
+		"code_description": "Tule River",
+		"parent_code": "1717-8",
+		"parent_description": "Yokuts",
+		"indent_index": 3
+	},
+	{
+		"code": "1722-8",
+		"code_type": "HL7v3",
+		"code_description": "Yuchi",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1724-4",
+		"code_type": "HL7v3",
+		"code_description": "Yuman",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1725-1",
+		"code_type": "HL7v3",
+		"code_description": "Cocopah",
+		"parent_code": "1724-4",
+		"parent_description": "Yuman",
+		"indent_index": 3
+	},
+	{
+		"code": "1726-9",
+		"code_type": "HL7v3",
+		"code_description": "Havasupai",
+		"parent_code": "1724-4",
+		"parent_description": "Yuman",
+		"indent_index": 3
+	},
+	{
+		"code": "1727-7",
+		"code_type": "HL7v3",
+		"code_description": "Hualapai",
+		"parent_code": "1724-4",
+		"parent_description": "Yuman",
+		"indent_index": 3
+	},
+	{
+		"code": "1728-5",
+		"code_type": "HL7v3",
+		"code_description": "Maricopa",
+		"parent_code": "1724-4",
+		"parent_description": "Yuman",
+		"indent_index": 3
+	},
+	{
+		"code": "1729-3",
+		"code_type": "HL7v3",
+		"code_description": "Mohave",
+		"parent_code": "1724-4",
+		"parent_description": "Yuman",
+		"indent_index": 3
+	},
+	{
+		"code": "1730-1",
+		"code_type": "HL7v3",
+		"code_description": "Quechan",
+		"parent_code": "1724-4",
+		"parent_description": "Yuman",
+		"indent_index": 3
+	},
+	{
+		"code": "1731-9",
+		"code_type": "HL7v3",
+		"code_description": "Yavapai",
+		"parent_code": "1724-4",
+		"parent_description": "Yuman",
+		"indent_index": 3
+	},
+	{
+		"code": "1732-7",
+		"code_type": "HL7v3",
+		"code_description": "Yurok",
+		"parent_code": "1004-1",
+		"parent_description": "American Indian",
+		"indent_index": 2
+	},
+	{
+		"code": "1733-5",
+		"code_type": "HL7v3",
+		"code_description": "Coast Yurok",
+		"parent_code": "1732-7",
+		"parent_description": "Yurok",
+		"indent_index": 3
+	},
+	{
+		"code": "1735-0",
+		"code_type": "HL7v3",
+		"code_description": "Alaska Native",
+		"parent_code": "1002-5",
+		"parent_description": "American Indian or Alaska Native",
+		"indent_index": 1
+	},
+	{
+		"code": "1737-6",
+		"code_type": "HL7v3",
+		"code_description": "Alaska Indian",
+		"parent_code": "1735-0",
+		"parent_description": "Alaska Native",
+		"indent_index": 2
+	},
+	{
+		"code": "1739-2",
+		"code_type": "HL7v3",
+		"code_description": "Alaskan Athabascan",
+		"parent_code": "1737-6",
+		"parent_description": "Alaska Indian",
+		"indent_index": 3
+	},
+	{
+		"code": "1740-0",
+		"code_type": "HL7v3",
+		"code_description": "Ahtna",
+		"parent_code": "1739-2",
+		"parent_description": "Alaskan Athabascan",
+		"indent_index": 4
+	},
+	{
+		"code": "1811-9",
+		"code_type": "HL7v3",
+		"code_description": "Southeast Alaska",
+		"parent_code": "1737-6",
+		"parent_description": "Alaska Indian",
+		"indent_index": 3
+	},
+	{
+		"code": "1813-5",
+		"code_type": "HL7v3",
+		"code_description": "Tlingit-Haida",
+		"parent_code": "1811-9",
+		"parent_description": "Southeast Alaska",
+		"indent_index": 4
+	},
+	{
+		"code": "1814-3",
+		"code_type": "HL7v3",
+		"code_description": "Angoon",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1815-0",
+		"code_type": "HL7v3",
+		"code_description": "Central Council of Tlingit and Haida Tribes",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1816-8",
+		"code_type": "HL7v3",
+		"code_description": "Chilkat",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1817-6",
+		"code_type": "HL7v3",
+		"code_description": "Chilkoot",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1818-4",
+		"code_type": "HL7v3",
+		"code_description": "Craig",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1819-2",
+		"code_type": "HL7v3",
+		"code_description": "Douglas",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1820-0",
+		"code_type": "HL7v3",
+		"code_description": "Haida",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1821-8",
+		"code_type": "HL7v3",
+		"code_description": "Hoonah",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1822-6",
+		"code_type": "HL7v3",
+		"code_description": "Hydaburg",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1823-4",
+		"code_type": "HL7v3",
+		"code_description": "Kake",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1824-2",
+		"code_type": "HL7v3",
+		"code_description": "Kasaan",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1825-9",
+		"code_type": "HL7v3",
+		"code_description": "Kenaitze",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1826-7",
+		"code_type": "HL7v3",
+		"code_description": "Ketchikan",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1827-5",
+		"code_type": "HL7v3",
+		"code_description": "Klawock",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1828-3",
+		"code_type": "HL7v3",
+		"code_description": "Pelican",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1829-1",
+		"code_type": "HL7v3",
+		"code_description": "Petersburg",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1830-9",
+		"code_type": "HL7v3",
+		"code_description": "Saxman",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1831-7",
+		"code_type": "HL7v3",
+		"code_description": "Sitka",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1832-5",
+		"code_type": "HL7v3",
+		"code_description": "Tenakee Springs",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1833-3",
+		"code_type": "HL7v3",
+		"code_description": "Tlingit",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1834-1",
+		"code_type": "HL7v3",
+		"code_description": "Wrangell",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1835-8",
+		"code_type": "HL7v3",
+		"code_description": "Yakutat",
+		"parent_code": "1813-5",
+		"parent_description": "Tlingit-Haida",
+		"indent_index": 5
+	},
+	{
+		"code": "1837-4",
+		"code_type": "HL7v3",
+		"code_description": "Tsimshian",
+		"parent_code": "1811-9",
+		"parent_description": "Southeast Alaska",
+		"indent_index": 4
+	},
+	{
+		"code": "1838-2",
+		"code_type": "HL7v3",
+		"code_description": "Metlakatla",
+		"parent_code": "1837-4",
+		"parent_description": "Tsimshian",
+		"indent_index": 5
+	},
+	{
+		"code": "1840-8",
+		"code_type": "HL7v3",
+		"code_description": "Eskimo",
+		"parent_code": "1735-0",
+		"parent_description": "Alaska Native",
+		"indent_index": 2
+	},
+	{
+		"code": "1842-4",
+		"code_type": "HL7v3",
+		"code_description": "Greenland Eskimo",
+		"parent_code": "1840-8",
+		"parent_description": "Eskimo",
+		"indent_index": 3
+	},
+	{
+		"code": "1844-0",
+		"code_type": "HL7v3",
+		"code_description": "Inupiat Eskimo",
+		"parent_code": "1840-8",
+		"parent_description": "Eskimo",
+		"indent_index": 3
+	},
+	{
+		"code": "1845-7",
+		"code_type": "HL7v3",
+		"code_description": "Ambler",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1846-5",
+		"code_type": "HL7v3",
+		"code_description": "Anaktuvuk",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1847-3",
+		"code_type": "HL7v3",
+		"code_description": "Anaktuvuk Pass",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1848-1",
+		"code_type": "HL7v3",
+		"code_description": "Arctic Slope Inupiat",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1849-9",
+		"code_type": "HL7v3",
+		"code_description": "Arctic Slope Corporation",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1850-7",
+		"code_type": "HL7v3",
+		"code_description": "Atqasuk",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1851-5",
+		"code_type": "HL7v3",
+		"code_description": "Barrow",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1852-3",
+		"code_type": "HL7v3",
+		"code_description": "Bering Straits Inupiat",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1853-1",
+		"code_type": "HL7v3",
+		"code_description": "Brevig Mission",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1854-9",
+		"code_type": "HL7v3",
+		"code_description": "Buckland",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1855-6",
+		"code_type": "HL7v3",
+		"code_description": "Chinik",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1856-4",
+		"code_type": "HL7v3",
+		"code_description": "Council",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1857-2",
+		"code_type": "HL7v3",
+		"code_description": "Deering",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1858-0",
+		"code_type": "HL7v3",
+		"code_description": "Elim",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1859-8",
+		"code_type": "HL7v3",
+		"code_description": "Golovin",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1860-6",
+		"code_type": "HL7v3",
+		"code_description": "Inalik Diomede",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1861-4",
+		"code_type": "HL7v3",
+		"code_description": "Inupiaq",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1862-2",
+		"code_type": "HL7v3",
+		"code_description": "Kaktovik",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1863-0",
+		"code_type": "HL7v3",
+		"code_description": "Kawerak",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1864-8",
+		"code_type": "HL7v3",
+		"code_description": "Kiana",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1865-5",
+		"code_type": "HL7v3",
+		"code_description": "Kivalina",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1866-3",
+		"code_type": "HL7v3",
+		"code_description": "Kobuk",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1867-1",
+		"code_type": "HL7v3",
+		"code_description": "Kotzebue",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1868-9",
+		"code_type": "HL7v3",
+		"code_description": "Koyuk",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1869-7",
+		"code_type": "HL7v3",
+		"code_description": "Kwiguk",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1870-5",
+		"code_type": "HL7v3",
+		"code_description": "Mauneluk Inupiat",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1871-3",
+		"code_type": "HL7v3",
+		"code_description": "Nana Inupiat",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1872-1",
+		"code_type": "HL7v3",
+		"code_description": "Noatak",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1873-9",
+		"code_type": "HL7v3",
+		"code_description": "Nome",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1874-7",
+		"code_type": "HL7v3",
+		"code_description": "Noorvik",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1875-4",
+		"code_type": "HL7v3",
+		"code_description": "Nuiqsut",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1876-2",
+		"code_type": "HL7v3",
+		"code_description": "Point Hope",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1877-0",
+		"code_type": "HL7v3",
+		"code_description": "Point Lay",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1878-8",
+		"code_type": "HL7v3",
+		"code_description": "Selawik",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1879-6",
+		"code_type": "HL7v3",
+		"code_description": "Shaktoolik",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1880-4",
+		"code_type": "HL7v3",
+		"code_description": "Shishmaref",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1881-2",
+		"code_type": "HL7v3",
+		"code_description": "Shungnak",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1882-0",
+		"code_type": "HL7v3",
+		"code_description": "Solomon",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1883-8",
+		"code_type": "HL7v3",
+		"code_description": "Teller",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1884-6",
+		"code_type": "HL7v3",
+		"code_description": "Unalakleet",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1885-3",
+		"code_type": "HL7v3",
+		"code_description": "Wainwright",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1886-1",
+		"code_type": "HL7v3",
+		"code_description": "Wales",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1887-9",
+		"code_type": "HL7v3",
+		"code_description": "White Mountain",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1888-7",
+		"code_type": "HL7v3",
+		"code_description": "White Mountain Inupiat",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1889-5",
+		"code_type": "HL7v3",
+		"code_description": "Mary's Igloo",
+		"parent_code": "1844-0",
+		"parent_description": "Inupiat Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1891-1",
+		"code_type": "HL7v3",
+		"code_description": "Siberian Eskimo",
+		"parent_code": "1840-8",
+		"parent_description": "Eskimo",
+		"indent_index": 3
+	},
+	{
+		"code": "1892-9",
+		"code_type": "HL7v3",
+		"code_description": "Gambell",
+		"parent_code": "1891-1",
+		"parent_description": "Siberian Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1893-7",
+		"code_type": "HL7v3",
+		"code_description": "Savoonga",
+		"parent_code": "1891-1",
+		"parent_description": "Siberian Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1894-5",
+		"code_type": "HL7v3",
+		"code_description": "Siberian Yupik",
+		"parent_code": "1891-1",
+		"parent_description": "Siberian Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1896-0",
+		"code_type": "HL7v3",
+		"code_description": "Yupik Eskimo",
+		"parent_code": "1840-8",
+		"parent_description": "Eskimo",
+		"indent_index": 3
+	},
+	{
+		"code": "1897-8",
+		"code_type": "HL7v3",
+		"code_description": "Akiachak",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1898-6",
+		"code_type": "HL7v3",
+		"code_description": "Akiak",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1899-4",
+		"code_type": "HL7v3",
+		"code_description": "Alakanuk",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1900-0",
+		"code_type": "HL7v3",
+		"code_description": "Aleknagik",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1901-8",
+		"code_type": "HL7v3",
+		"code_description": "Andreafsky",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1902-6",
+		"code_type": "HL7v3",
+		"code_description": "Aniak",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1903-4",
+		"code_type": "HL7v3",
+		"code_description": "Atmautluak",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1904-2",
+		"code_type": "HL7v3",
+		"code_description": "Bethel",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1905-9",
+		"code_type": "HL7v3",
+		"code_description": "Bill Moore's Slough",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1906-7",
+		"code_type": "HL7v3",
+		"code_description": "Bristol Bay Yupik",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1907-5",
+		"code_type": "HL7v3",
+		"code_description": "Calista Yupik",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1908-3",
+		"code_type": "HL7v3",
+		"code_description": "Chefornak",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1909-1",
+		"code_type": "HL7v3",
+		"code_description": "Chevak",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1910-9",
+		"code_type": "HL7v3",
+		"code_description": "Chuathbaluk",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1911-7",
+		"code_type": "HL7v3",
+		"code_description": "Clark's Point",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1912-5",
+		"code_type": "HL7v3",
+		"code_description": "Crooked Creek",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1913-3",
+		"code_type": "HL7v3",
+		"code_description": "Dillingham",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1914-1",
+		"code_type": "HL7v3",
+		"code_description": "Eek",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1915-8",
+		"code_type": "HL7v3",
+		"code_description": "Ekuk",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1916-6",
+		"code_type": "HL7v3",
+		"code_description": "Ekwok",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1917-4",
+		"code_type": "HL7v3",
+		"code_description": "Emmonak",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1918-2",
+		"code_type": "HL7v3",
+		"code_description": "Goodnews Bay",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1919-0",
+		"code_type": "HL7v3",
+		"code_description": "Hooper Bay",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1920-8",
+		"code_type": "HL7v3",
+		"code_description": "Iqurmuit (Russian Mission)",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1921-6",
+		"code_type": "HL7v3",
+		"code_description": "Kalskag",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1922-4",
+		"code_type": "HL7v3",
+		"code_description": "Kasigluk",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1923-2",
+		"code_type": "HL7v3",
+		"code_description": "Kipnuk",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1924-0",
+		"code_type": "HL7v3",
+		"code_description": "Koliganek",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1925-7",
+		"code_type": "HL7v3",
+		"code_description": "Kongiganak",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1926-5",
+		"code_type": "HL7v3",
+		"code_description": "Kotlik",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1927-3",
+		"code_type": "HL7v3",
+		"code_description": "Kwethluk",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1928-1",
+		"code_type": "HL7v3",
+		"code_description": "Kwigillingok",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1929-9",
+		"code_type": "HL7v3",
+		"code_description": "Levelock",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1930-7",
+		"code_type": "HL7v3",
+		"code_description": "Lower Kalskag",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1931-5",
+		"code_type": "HL7v3",
+		"code_description": "Manokotak",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1932-3",
+		"code_type": "HL7v3",
+		"code_description": "Marshall",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1933-1",
+		"code_type": "HL7v3",
+		"code_description": "Mekoryuk",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1934-9",
+		"code_type": "HL7v3",
+		"code_description": "Mountain Village",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1935-6",
+		"code_type": "HL7v3",
+		"code_description": "Naknek",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1936-4",
+		"code_type": "HL7v3",
+		"code_description": "Napaumute",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1937-2",
+		"code_type": "HL7v3",
+		"code_description": "Napakiak",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1938-0",
+		"code_type": "HL7v3",
+		"code_description": "Napaskiak",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1939-8",
+		"code_type": "HL7v3",
+		"code_description": "Newhalen",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1940-6",
+		"code_type": "HL7v3",
+		"code_description": "New Stuyahok",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1941-4",
+		"code_type": "HL7v3",
+		"code_description": "Newtok",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1942-2",
+		"code_type": "HL7v3",
+		"code_description": "Nightmute",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1943-0",
+		"code_type": "HL7v3",
+		"code_description": "Nunapitchukv",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1944-8",
+		"code_type": "HL7v3",
+		"code_description": "Oscarville",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1945-5",
+		"code_type": "HL7v3",
+		"code_description": "Pilot Station",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1946-3",
+		"code_type": "HL7v3",
+		"code_description": "Pitkas Point",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1947-1",
+		"code_type": "HL7v3",
+		"code_description": "Platinum",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1948-9",
+		"code_type": "HL7v3",
+		"code_description": "Portage Creek",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1949-7",
+		"code_type": "HL7v3",
+		"code_description": "Quinhagak",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1950-5",
+		"code_type": "HL7v3",
+		"code_description": "Red Devil",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1951-3",
+		"code_type": "HL7v3",
+		"code_description": "St. Michael",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1952-1",
+		"code_type": "HL7v3",
+		"code_description": "Scammon Bay",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1953-9",
+		"code_type": "HL7v3",
+		"code_description": "Sheldon's Point",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1954-7",
+		"code_type": "HL7v3",
+		"code_description": "Sleetmute",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1955-4",
+		"code_type": "HL7v3",
+		"code_description": "Stebbins",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1956-2",
+		"code_type": "HL7v3",
+		"code_description": "Togiak",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1957-0",
+		"code_type": "HL7v3",
+		"code_description": "Toksook",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1958-8",
+		"code_type": "HL7v3",
+		"code_description": "Tulukskak",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1959-6",
+		"code_type": "HL7v3",
+		"code_description": "Tuntutuliak",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1960-4",
+		"code_type": "HL7v3",
+		"code_description": "Tununak",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1961-2",
+		"code_type": "HL7v3",
+		"code_description": "Twin Hills",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1962-0",
+		"code_type": "HL7v3",
+		"code_description": "Georgetown",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1963-8",
+		"code_type": "HL7v3",
+		"code_description": "St. Mary's",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1964-6",
+		"code_type": "HL7v3",
+		"code_description": "Umkumiate",
+		"parent_code": "1896-0",
+		"parent_description": "Yupik Eskimo",
+		"indent_index": 4
+	},
+	{
+		"code": "1966-1",
+		"code_type": "HL7v3",
+		"code_description": "Aleut",
+		"parent_code": "1735-0",
+		"parent_description": "Alaska Native",
+		"indent_index": 2
+	},
+	{
+		"code": "1968-7",
+		"code_type": "HL7v3",
+		"code_description": "Alutiiq Aleut",
+		"parent_code": "1966-1",
+		"parent_description": "Aleut",
+		"indent_index": 3
+	},
+	{
+		"code": "1969-5",
+		"code_type": "HL7v3",
+		"code_description": "Tatitlek",
+		"parent_code": "1968-7",
+		"parent_description": "Alutiiq Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1970-3",
+		"code_type": "HL7v3",
+		"code_description": "Ugashik",
+		"parent_code": "1968-7",
+		"parent_description": "Alutiiq Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1972-9",
+		"code_type": "HL7v3",
+		"code_description": "Bristol Bay Aleut",
+		"parent_code": "1966-1",
+		"parent_description": "Aleut",
+		"indent_index": 3
+	},
+	{
+		"code": "1973-7",
+		"code_type": "HL7v3",
+		"code_description": "Chignik",
+		"parent_code": "1972-9",
+		"parent_description": "Bristol Bay Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1974-5",
+		"code_type": "HL7v3",
+		"code_description": "Chignik Lake",
+		"parent_code": "1972-9",
+		"parent_description": "Bristol Bay Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1975-2",
+		"code_type": "HL7v3",
+		"code_description": "Egegik",
+		"parent_code": "1972-9",
+		"parent_description": "Bristol Bay Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1976-0",
+		"code_type": "HL7v3",
+		"code_description": "Igiugig",
+		"parent_code": "1972-9",
+		"parent_description": "Bristol Bay Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1977-8",
+		"code_type": "HL7v3",
+		"code_description": "Ivanof Bay",
+		"parent_code": "1972-9",
+		"parent_description": "Bristol Bay Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1978-6",
+		"code_type": "HL7v3",
+		"code_description": "King Salmon",
+		"parent_code": "1972-9",
+		"parent_description": "Bristol Bay Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1979-4",
+		"code_type": "HL7v3",
+		"code_description": "Kokhanok",
+		"parent_code": "1972-9",
+		"parent_description": "Bristol Bay Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1980-2",
+		"code_type": "HL7v3",
+		"code_description": "Perryville",
+		"parent_code": "1972-9",
+		"parent_description": "Bristol Bay Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1981-0",
+		"code_type": "HL7v3",
+		"code_description": "Pilot Point",
+		"parent_code": "1972-9",
+		"parent_description": "Bristol Bay Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1982-8",
+		"code_type": "HL7v3",
+		"code_description": "Port Heiden",
+		"parent_code": "1972-9",
+		"parent_description": "Bristol Bay Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1984-4",
+		"code_type": "HL7v3",
+		"code_description": "Chugach Aleut",
+		"parent_code": "1966-1",
+		"parent_description": "Aleut",
+		"indent_index": 3
+	},
+	{
+		"code": "1985-1",
+		"code_type": "HL7v3",
+		"code_description": "Chenega",
+		"parent_code": "1984-4",
+		"parent_description": "Chugach Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1986-9",
+		"code_type": "HL7v3",
+		"code_description": "Chugach Corporation",
+		"parent_code": "1984-4",
+		"parent_description": "Chugach Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1987-7",
+		"code_type": "HL7v3",
+		"code_description": "English Bay",
+		"parent_code": "1984-4",
+		"parent_description": "Chugach Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1988-5",
+		"code_type": "HL7v3",
+		"code_description": "Port Graham",
+		"parent_code": "1984-4",
+		"parent_description": "Chugach Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1990-1",
+		"code_type": "HL7v3",
+		"code_description": "Eyak",
+		"parent_code": "1966-1",
+		"parent_description": "Aleut",
+		"indent_index": 3
+	},
+	{
+		"code": "1992-7",
+		"code_type": "HL7v3",
+		"code_description": "Koniag Aleut",
+		"parent_code": "1966-1",
+		"parent_description": "Aleut",
+		"indent_index": 3
+	},
+	{
+		"code": "1993-5",
+		"code_type": "HL7v3",
+		"code_description": "Akhiok",
+		"parent_code": "1992-7",
+		"parent_description": "Koniag Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1994-3",
+		"code_type": "HL7v3",
+		"code_description": "Agdaagux",
+		"parent_code": "1992-7",
+		"parent_description": "Koniag Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1995-0",
+		"code_type": "HL7v3",
+		"code_description": "Karluk",
+		"parent_code": "1992-7",
+		"parent_description": "Koniag Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1996-8",
+		"code_type": "HL7v3",
+		"code_description": "Kodiak",
+		"parent_code": "1992-7",
+		"parent_description": "Koniag Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1997-6",
+		"code_type": "HL7v3",
+		"code_description": "Larsen Bay",
+		"parent_code": "1992-7",
+		"parent_description": "Koniag Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1998-4",
+		"code_type": "HL7v3",
+		"code_description": "Old Harbor",
+		"parent_code": "1992-7",
+		"parent_description": "Koniag Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "1999-2",
+		"code_type": "HL7v3",
+		"code_description": "Ouzinkie",
+		"parent_code": "1992-7",
+		"parent_description": "Koniag Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2000-8",
+		"code_type": "HL7v3",
+		"code_description": "Port Lions",
+		"parent_code": "1992-7",
+		"parent_description": "Koniag Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2002-4",
+		"code_type": "HL7v3",
+		"code_description": "Sugpiaq",
+		"parent_code": "1966-1",
+		"parent_description": "Aleut",
+		"indent_index": 3
+	},
+	{
+		"code": "2004-0",
+		"code_type": "HL7v3",
+		"code_description": "Suqpigaq",
+		"parent_code": "1966-1",
+		"parent_description": "Aleut",
+		"indent_index": 3
+	},
+	{
+		"code": "2006-5",
+		"code_type": "HL7v3",
+		"code_description": "Unangan Aleut",
+		"parent_code": "1966-1",
+		"parent_description": "Aleut",
+		"indent_index": 3
+	},
+	{
+		"code": "2007-3",
+		"code_type": "HL7v3",
+		"code_description": "Akutan",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2008-1",
+		"code_type": "HL7v3",
+		"code_description": "Aleut Corporation",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2009-9",
+		"code_type": "HL7v3",
+		"code_description": "Aleutian",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2010-7",
+		"code_type": "HL7v3",
+		"code_description": "Aleutian Islander",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2011-5",
+		"code_type": "HL7v3",
+		"code_description": "Atka",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2012-3",
+		"code_type": "HL7v3",
+		"code_description": "Belkofski",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2013-1",
+		"code_type": "HL7v3",
+		"code_description": "Chignik Lagoon",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2014-9",
+		"code_type": "HL7v3",
+		"code_description": "King Cove",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2015-6",
+		"code_type": "HL7v3",
+		"code_description": "False Pass",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2016-4",
+		"code_type": "HL7v3",
+		"code_description": "Nelson Lagoon",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2017-2",
+		"code_type": "HL7v3",
+		"code_description": "Nikolski",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2018-0",
+		"code_type": "HL7v3",
+		"code_description": "Pauloff Harbor",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2019-8",
+		"code_type": "HL7v3",
+		"code_description": "Qagan Toyagungin",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2020-6",
+		"code_type": "HL7v3",
+		"code_description": "Qawalangin",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2021-4",
+		"code_type": "HL7v3",
+		"code_description": "St. George",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2022-2",
+		"code_type": "HL7v3",
+		"code_description": "St. Paul",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2023-0",
+		"code_type": "HL7v3",
+		"code_description": "Sand Point",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2024-8",
+		"code_type": "HL7v3",
+		"code_description": "South Naknek",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2025-5",
+		"code_type": "HL7v3",
+		"code_description": "Unalaska",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2026-3",
+		"code_type": "HL7v3",
+		"code_description": "Unga",
+		"parent_code": "2006-5",
+		"parent_description": "Unangan Aleut",
+		"indent_index": 4
+	},
+	{
+		"code": "2028-9",
+		"code_type": "HL7v3",
+		"code_description": "Asian",
+		"parent_code": "",
+		"parent_description": "",
+		"indent_index": 0
+	},
+	{
+		"code": "2029-7",
+		"code_type": "HL7v3",
+		"code_description": "Asian Indian",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2030-5",
+		"code_type": "HL7v3",
+		"code_description": "Bangladeshi",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2031-3",
+		"code_type": "HL7v3",
+		"code_description": "Bhutanese",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2032-1",
+		"code_type": "HL7v3",
+		"code_description": "Burmese",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2033-9",
+		"code_type": "HL7v3",
+		"code_description": "Cambodian",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2034-7",
+		"code_type": "HL7v3",
+		"code_description": "Chinese",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2035-4",
+		"code_type": "HL7v3",
+		"code_description": "Taiwanese",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2036-2",
+		"code_type": "HL7v3",
+		"code_description": "Filipino",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2037-0",
+		"code_type": "HL7v3",
+		"code_description": "Hmong",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2038-8",
+		"code_type": "HL7v3",
+		"code_description": "Indonesian",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2039-6",
+		"code_type": "HL7v3",
+		"code_description": "Japanese",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2040-4",
+		"code_type": "HL7v3",
+		"code_description": "Korean",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2041-2",
+		"code_type": "HL7v3",
+		"code_description": "Laotian",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2042-0",
+		"code_type": "HL7v3",
+		"code_description": "Malaysian",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2043-8",
+		"code_type": "HL7v3",
+		"code_description": "Okinawan",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2044-6",
+		"code_type": "HL7v3",
+		"code_description": "Pakistani",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2045-3",
+		"code_type": "HL7v3",
+		"code_description": "Sri Lankan",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2046-1",
+		"code_type": "HL7v3",
+		"code_description": "Thai",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2047-9",
+		"code_type": "HL7v3",
+		"code_description": "Vietnamese",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2048-7",
+		"code_type": "HL7v3",
+		"code_description": "Iwo Jiman",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2049-5",
+		"code_type": "HL7v3",
+		"code_description": "Maldivian",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2050-3",
+		"code_type": "HL7v3",
+		"code_description": "Nepalese",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2051-1",
+		"code_type": "HL7v3",
+		"code_description": "Singaporean",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2052-9",
+		"code_type": "HL7v3",
+		"code_description": "Madagascar",
+		"parent_code": "2028-9",
+		"parent_description": "Asian",
+		"indent_index": 1
+	},
+	{
+		"code": "2054-5",
+		"code_type": "HL7v3",
+		"code_description": "Black or African American",
+		"parent_code": "",
+		"parent_description": "",
+		"indent_index": 0
+	},
+	{
+		"code": "2056-0",
+		"code_type": "HL7v3",
+		"code_description": "Black",
+		"parent_code": "2054-5",
+		"parent_description": "Black or African American",
+		"indent_index": 1
+	},
+	{
+		"code": "2058-6",
+		"code_type": "HL7v3",
+		"code_description": "African American",
+		"parent_code": "2054-5",
+		"parent_description": "Black or African American",
+		"indent_index": 1
+	},
+	{
+		"code": "2060-2",
+		"code_type": "HL7v3",
+		"code_description": "African",
+		"parent_code": "2054-5",
+		"parent_description": "Black or African American",
+		"indent_index": 1
+	},
+	{
+		"code": "2061-0",
+		"code_type": "HL7v3",
+		"code_description": "Botswanan",
+		"parent_code": "2060-2",
+		"parent_description": "African",
+		"indent_index": 2
+	},
+	{
+		"code": "2062-8",
+		"code_type": "HL7v3",
+		"code_description": "Ethiopian",
+		"parent_code": "2060-2",
+		"parent_description": "African",
+		"indent_index": 2
+	},
+	{
+		"code": "2063-6",
+		"code_type": "HL7v3",
+		"code_description": "Liberian",
+		"parent_code": "2060-2",
+		"parent_description": "African",
+		"indent_index": 2
+	},
+	{
+		"code": "2064-4",
+		"code_type": "HL7v3",
+		"code_description": "Namibian",
+		"parent_code": "2060-2",
+		"parent_description": "African",
+		"indent_index": 2
+	},
+	{
+		"code": "2065-1",
+		"code_type": "HL7v3",
+		"code_description": "Nigerian",
+		"parent_code": "2060-2",
+		"parent_description": "African",
+		"indent_index": 2
+	},
+	{
+		"code": "2066-9",
+		"code_type": "HL7v3",
+		"code_description": "Zairean",
+		"parent_code": "2060-2",
+		"parent_description": "African",
+		"indent_index": 2
+	},
+	{
+		"code": "2067-7",
+		"code_type": "HL7v3",
+		"code_description": "Bahamian",
+		"parent_code": "2054-5",
+		"parent_description": "Black or African American",
+		"indent_index": 1
+	},
+	{
+		"code": "2068-5",
+		"code_type": "HL7v3",
+		"code_description": "Barbadian",
+		"parent_code": "2054-5",
+		"parent_description": "Black or African American",
+		"indent_index": 1
+	},
+	{
+		"code": "2069-3",
+		"code_type": "HL7v3",
+		"code_description": "Dominican",
+		"parent_code": "2054-5",
+		"parent_description": "Black or African American",
+		"indent_index": 1
+	},
+	{
+		"code": "2070-1",
+		"code_type": "HL7v3",
+		"code_description": "Dominica Islander",
+		"parent_code": "2054-5",
+		"parent_description": "Black or African American",
+		"indent_index": 1
+	},
+	{
+		"code": "2071-9",
+		"code_type": "HL7v3",
+		"code_description": "Haitian",
+		"parent_code": "2054-5",
+		"parent_description": "Black or African American",
+		"indent_index": 1
+	},
+	{
+		"code": "2072-7",
+		"code_type": "HL7v3",
+		"code_description": "Jamaican",
+		"parent_code": "2054-5",
+		"parent_description": "Black or African American",
+		"indent_index": 1
+	},
+	{
+		"code": "2073-5",
+		"code_type": "HL7v3",
+		"code_description": "Tobagoan",
+		"parent_code": "2054-5",
+		"parent_description": "Black or African American",
+		"indent_index": 1
+	},
+	{
+		"code": "2074-3",
+		"code_type": "HL7v3",
+		"code_description": "Trinidadian",
+		"parent_code": "2054-5",
+		"parent_description": "Black or African American",
+		"indent_index": 1
+	},
+	{
+		"code": "2075-0",
+		"code_type": "HL7v3",
+		"code_description": "West Indian",
+		"parent_code": "2054-5",
+		"parent_description": "Black or African American",
+		"indent_index": 1
+	},
+	{
+		"code": "2076-8",
+		"code_type": "HL7v3",
+		"code_description": "Native Hawaiian or Other Pacific Islander",
+		"parent_code": "",
+		"parent_description": "",
+		"indent_index": 0
+	},
+	{
+		"code": "2078-4",
+		"code_type": "HL7v3",
+		"code_description": "Polynesian",
+		"parent_code": "2076-8",
+		"parent_description": "Native Hawaiian or Other Pacific Islander",
+		"indent_index": 1
+	},
+	{
+		"code": "2079-2",
+		"code_type": "HL7v3",
+		"code_description": "Native Hawaiian",
+		"parent_code": "2078-4",
+		"parent_description": "Polynesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2080-0",
+		"code_type": "HL7v3",
+		"code_description": "Samoan",
+		"parent_code": "2078-4",
+		"parent_description": "Polynesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2081-8",
+		"code_type": "HL7v3",
+		"code_description": "Tahitian",
+		"parent_code": "2078-4",
+		"parent_description": "Polynesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2082-6",
+		"code_type": "HL7v3",
+		"code_description": "Tongan",
+		"parent_code": "2078-4",
+		"parent_description": "Polynesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2083-4",
+		"code_type": "HL7v3",
+		"code_description": "Tokelauan",
+		"parent_code": "2078-4",
+		"parent_description": "Polynesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2085-9",
+		"code_type": "HL7v3",
+		"code_description": "Micronesian",
+		"parent_code": "2076-8",
+		"parent_description": "Native Hawaiian or Other Pacific Islander",
+		"indent_index": 1
+	},
+	{
+		"code": "2086-7",
+		"code_type": "HL7v3",
+		"code_description": "Guamanian or Chamorro",
+		"parent_code": "2085-9",
+		"parent_description": "Micronesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2087-5",
+		"code_type": "HL7v3",
+		"code_description": "Guamanian",
+		"parent_code": "2085-9",
+		"parent_description": "Micronesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2088-3",
+		"code_type": "HL7v3",
+		"code_description": "Chamorro",
+		"parent_code": "2085-9",
+		"parent_description": "Micronesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2089-1",
+		"code_type": "HL7v3",
+		"code_description": "Mariana Islander",
+		"parent_code": "2085-9",
+		"parent_description": "Micronesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2090-9",
+		"code_type": "HL7v3",
+		"code_description": "Marshallese",
+		"parent_code": "2085-9",
+		"parent_description": "Micronesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2091-7",
+		"code_type": "HL7v3",
+		"code_description": "Palauan",
+		"parent_code": "2085-9",
+		"parent_description": "Micronesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2092-5",
+		"code_type": "HL7v3",
+		"code_description": "Carolinian",
+		"parent_code": "2085-9",
+		"parent_description": "Micronesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2093-3",
+		"code_type": "HL7v3",
+		"code_description": "Kosraean",
+		"parent_code": "2085-9",
+		"parent_description": "Micronesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2094-1",
+		"code_type": "HL7v3",
+		"code_description": "Pohnpeian",
+		"parent_code": "2085-9",
+		"parent_description": "Micronesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2095-8",
+		"code_type": "HL7v3",
+		"code_description": "Saipanese",
+		"parent_code": "2085-9",
+		"parent_description": "Micronesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2096-6",
+		"code_type": "HL7v3",
+		"code_description": "Kiribati",
+		"parent_code": "2085-9",
+		"parent_description": "Micronesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2097-4",
+		"code_type": "HL7v3",
+		"code_description": "Chuukese",
+		"parent_code": "2085-9",
+		"parent_description": "Micronesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2098-2",
+		"code_type": "HL7v3",
+		"code_description": "Yapese",
+		"parent_code": "2085-9",
+		"parent_description": "Micronesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2100-6",
+		"code_type": "HL7v3",
+		"code_description": "Melanesian",
+		"parent_code": "2076-8",
+		"parent_description": "Native Hawaiian or Other Pacific Islander",
+		"indent_index": 1
+	},
+	{
+		"code": "2101-4",
+		"code_type": "HL7v3",
+		"code_description": "Fijian",
+		"parent_code": "2100-6",
+		"parent_description": "Melanesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2102-2",
+		"code_type": "HL7v3",
+		"code_description": "Papua New Guinean",
+		"parent_code": "2100-6",
+		"parent_description": "Melanesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2103-0",
+		"code_type": "HL7v3",
+		"code_description": "Solomon Islander",
+		"parent_code": "2100-6",
+		"parent_description": "Melanesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2104-8",
+		"code_type": "HL7v3",
+		"code_description": "New Hebrides",
+		"parent_code": "2100-6",
+		"parent_description": "Melanesian",
+		"indent_index": 2
+	},
+	{
+		"code": "2500-7",
+		"code_type": "HL7v3",
+		"code_description": "Other Pacific Islander",
+		"parent_code": "2076-8",
+		"parent_description": "Native Hawaiian or Other Pacific Islander",
+		"indent_index": 1
+	},
+	{
+		"code": "2106-3",
+		"code_type": "HL7v3",
+		"code_description": "White",
+		"parent_code": "",
+		"parent_description": "",
+		"indent_index": 0
+	},
+	{
+		"code": "2108-9",
+		"code_type": "HL7v3",
+		"code_description": "European",
+		"parent_code": "2106-3",
+		"parent_description": "White",
+		"indent_index": 1
+	},
+	{
+		"code": "2109-7",
+		"code_type": "HL7v3",
+		"code_description": "Armenian",
+		"parent_code": "2108-9",
+		"parent_description": "European",
+		"indent_index": 2
+	},
+	{
+		"code": "2110-5",
+		"code_type": "HL7v3",
+		"code_description": "English",
+		"parent_code": "2108-9",
+		"parent_description": "European",
+		"indent_index": 2
+	},
+	{
+		"code": "2111-3",
+		"code_type": "HL7v3",
+		"code_description": "French",
+		"parent_code": "2108-9",
+		"parent_description": "European",
+		"indent_index": 2
+	},
+	{
+		"code": "2112-1",
+		"code_type": "HL7v3",
+		"code_description": "German",
+		"parent_code": "2108-9",
+		"parent_description": "European",
+		"indent_index": 2
+	},
+	{
+		"code": "2113-9",
+		"code_type": "HL7v3",
+		"code_description": "Irish",
+		"parent_code": "2108-9",
+		"parent_description": "European",
+		"indent_index": 2
+	},
+	{
+		"code": "2114-7",
+		"code_type": "HL7v3",
+		"code_description": "Italian",
+		"parent_code": "2108-9",
+		"parent_description": "European",
+		"indent_index": 2
+	},
+	{
+		"code": "2115-4",
+		"code_type": "HL7v3",
+		"code_description": "Polish",
+		"parent_code": "2108-9",
+		"parent_description": "European",
+		"indent_index": 2
+	},
+	{
+		"code": "2116-2",
+		"code_type": "HL7v3",
+		"code_description": "Scottish",
+		"parent_code": "2108-9",
+		"parent_description": "European",
+		"indent_index": 2
+	},
+	{
+		"code": "2118-8",
+		"code_type": "HL7v3",
+		"code_description": "Middle Eastern or North African",
+		"parent_code": "2106-3",
+		"parent_description": "White",
+		"indent_index": 1
+	},
+	{
+		"code": "2119-6",
+		"code_type": "HL7v3",
+		"code_description": "Assyrian",
+		"parent_code": "2118-8",
+		"parent_description": "Middle Eastern or North African",
+		"indent_index": 2
+	},
+	{
+		"code": "2120-4",
+		"code_type": "HL7v3",
+		"code_description": "Egyptian",
+		"parent_code": "2118-8",
+		"parent_description": "Middle Eastern or North African",
+		"indent_index": 2
+	},
+	{
+		"code": "2121-2",
+		"code_type": "HL7v3",
+		"code_description": "Iranian",
+		"parent_code": "2118-8",
+		"parent_description": "Middle Eastern or North African",
+		"indent_index": 2
+	},
+	{
+		"code": "2122-0",
+		"code_type": "HL7v3",
+		"code_description": "Iraqi",
+		"parent_code": "2118-8",
+		"parent_description": "Middle Eastern or North African",
+		"indent_index": 2
+	},
+	{
+		"code": "2123-8",
+		"code_type": "HL7v3",
+		"code_description": "Lebanese",
+		"parent_code": "2118-8",
+		"parent_description": "Middle Eastern or North African",
+		"indent_index": 2
+	},
+	{
+		"code": "2124-6",
+		"code_type": "HL7v3",
+		"code_description": "Palestinian",
+		"parent_code": "2118-8",
+		"parent_description": "Middle Eastern or North African",
+		"indent_index": 2
+	},
+	{
+		"code": "2125-3",
+		"code_type": "HL7v3",
+		"code_description": "Syrian",
+		"parent_code": "2118-8",
+		"parent_description": "Middle Eastern or North African",
+		"indent_index": 2
+	},
+	{
+		"code": "2126-1",
+		"code_type": "HL7v3",
+		"code_description": "Afghanistani",
+		"parent_code": "2118-8",
+		"parent_description": "Middle Eastern or North African",
+		"indent_index": 2
+	},
+	{
+		"code": "2127-9",
+		"code_type": "HL7v3",
+		"code_description": "Israeili",
+		"parent_code": "2118-8",
+		"parent_description": "Middle Eastern or North African",
+		"indent_index": 2
+	},
+	{
+		"code": "2129-5",
+		"code_type": "HL7v3",
+		"code_description": "Arab",
+		"parent_code": "2106-3",
+		"parent_description": "White",
+		"indent_index": 1
+	},
+	{
+		"code": "2131-1",
+		"code_type": "HL7v3",
+		"code_description": "Other Race",
+		"parent_code": "",
+		"parent_description": "",
+		"indent_index": 0
+	}
+]

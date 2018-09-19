@@ -8476,41 +8476,46 @@ Ext.define('App.ux.combo.EncounterPriority', {
 	loadStore: true
 });
 Ext.define('App.ux.combo.Ethnicity', {
-	extend       : 'Ext.form.ComboBox',
-	alias        : 'widget.gaiaehr.ethnicitycombo',
-	initComponent: function() {
-		var me = this;
-
-		Ext.define('ethnicityModel', {
-			extend: 'Ext.data.Model',
-			fields: [
-				{name: 'option_name', type: 'string' },
-				{name: 'option_value', type: 'string' }
-			],
-			proxy : {
-				type       : 'direct',
-				api        : {
-					read: CombosData.getOptionsByListId
-				},
-				extraParams: {
-					list_id: 14
+	extend: 'Ext.form.ComboBox',
+	alias: 'widget.ethnicitycombo',
+	store: Ext.create('Ext.data.Store', {
+		fields: [
+			{name: 'code', type: 'string'},
+			{name: 'code_type', type: 'string'},
+			{name: 'code_description', type: 'string'},
+			{
+				name: 'indent_index',
+				type: 'int',
+				convert: function (v) {
+					var str = '';
+					while(v > 0){ str += '----'; v--; }
+					return str.trim();
 				}
 			}
-		});
+		],
+		autoLoad: true,
+		proxy: {
+			type: 'ajax',
+			url: 'resources/code_sets/HL7v3-Ethnicity.json',
+			reader: {
+				type: 'json'
+			}
+		}
+	}),
+	tpl: Ext.create('Ext.XTemplate',
+		'<tpl for=".">',
+		'<div class="x-boundlist-item">{indent_index} <b>{code_description}</b> [{code}]</div>',
+		'</tpl>'
+	),
+	typeAhead: true,
+	typeAheadDelay: 50,
+	queryMode: 'local',
+	displayField: 'code_description',
+	valueField: 'code',
+	emptyText: _('ethnicity'),
+	initComponent: function () {
+		var me = this;
 
-		me.store = Ext.create('Ext.data.Store', {
-			model   : 'ethnicityModel',
-			autoLoad: true
-		});
-
-		Ext.apply(this, {
-			editable    : false,
-			queryMode   : 'local',
-			displayField: 'option_name',
-			valueField  : 'option_value',
-			emptyText   : _('ethinicity'),
-			store       : me.store
-		}, null);
 		me.callParent(arguments);
 	}
 });
@@ -10126,41 +10131,46 @@ Ext.define('App.ux.combo.Providers', {
 	}
 });
 Ext.define('App.ux.combo.Race', {
-	extend       : 'Ext.form.ComboBox',
-	alias        : 'widget.gaiaehr.racecombo',
-	initComponent: function() {
+	extend: 'Ext.form.ComboBox',
+	alias: 'widget.racecombo',
+	store: Ext.create('Ext.data.Store', {
+		fields: [
+			{name: 'code', type: 'string'},
+			{name: 'code_type', type: 'string'},
+			{name: 'code_description', type: 'string'},
+			{
+				name: 'indent_index',
+				type: 'int',
+				convert: function (v) {
+					var str = '';
+					while(v > 0){ str += '----'; v--; }
+					return str.trim();
+				}
+			},
+		],
+		autoLoad: true,
+		proxy: {
+			type: 'ajax',
+			url: 'resources/code_sets/HL7v3-Race.json',
+			reader: {
+				type: 'json'
+			}
+		}
+	}),
+	tpl: Ext.create('Ext.XTemplate',
+		'<tpl for=".">',
+		'<div class="x-boundlist-item">{indent_index} <b>{code_description}</b> [{code}]</div>',
+		'</tpl>'
+	),
+	typeAhead: true,
+	typeAheadDelay: 50,
+	queryMode: 'local',
+	displayField: 'code_description',
+	valueField: 'code',
+	emptyText: _('race'),
+	initComponent: function () {
 		var me = this;
 
-		Ext.define('raceModel', {
-			extend: 'Ext.data.Model',
-			fields: [
-				{name: 'option_name', type: 'string' },
-				{name: 'option_value', type: 'string' }
-			],
-			proxy : {
-				type       : 'direct',
-				api        : {
-					read: CombosData.getOptionsByListId
-				},
-				extraParams: {
-					list_id: 59
-				}
-			}
-		});
-
-		me.store = Ext.create('Ext.data.Store', {
-			model   : 'raceModel',
-			autoLoad: true
-		});
-
-		Ext.apply(this, {
-			editable    : false,
-			queryMode   : 'local',
-			displayField: 'option_name',
-			valueField  : 'option_value',
-			emptyText   : _('ethnicity'),
-			store       : me.store
-		}, null);
 		me.callParent(arguments);
 	}
 });
@@ -21749,6 +21759,11 @@ Ext.define('App.model.patient.Patient',{
             name: 'ethnicity',
             type: 'string',
             comment: 'ethnicity',
+            len: 40
+        },
+        {
+            name: 'secondary_ethnicity',
+            type: 'string',
             len: 40
         },
         {
@@ -56030,24 +56045,18 @@ Ext.define('App.view.patient.Patient', {
 															flex: 1,
 															items: [
 																{
-																	xtype: 'gaiaehr.combo',
+																	xtype: 'racecombo',
 																	name: 'race',
 																	fieldLabel: _('race'),
 																	labelAlign: 'top',
-																	flex: 1,
-																	listKey: 'race',
-																	loadStore: true,
-																	editable: false
+																	flex: 1
 																},
 																{
-																	xtype: 'gaiaehr.combo',
-																	name: _('secondary_race'),
+																	xtype: 'racecombo',
+																	name: 'secondary_race',
 																	fieldLabel: _('secondary_race'),
 																	labelAlign: 'top',
-																	flex: 1,
-																	listKey: 'race',
-																	loadStore: true,
-																	editable: false
+																	flex: 1
 																}
 															]
 														},
@@ -56060,22 +56069,16 @@ Ext.define('App.view.patient.Patient', {
 															flex: 1,
 															items: [
 																{
-																	xtype: 'gaiaehr.combo',
+																	xtype: 'ethnicitycombo',
 																	name: 'ethnicity',
 																	fieldLabel: _('ethnicity'),
 																	labelAlign: 'top',
-																	listKey: 'ethnicity',
-																	loadStore: true,
-																	editable: false
 																},
 																{
-																	xtype: 'gaiaehr.combo',
+																	xtype: 'ethnicitycombo',
 																	name: 'secondary_ethnicity',
 																	fieldLabel: _('secondary_ethnicity'),
 																	labelAlign: 'top',
-																	listKey: 'ethnicity',
-																	loadStore: true,
-																	editable: false
 																},
 															]
 														},

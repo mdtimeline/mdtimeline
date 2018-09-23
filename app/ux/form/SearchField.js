@@ -51,11 +51,13 @@ Ext.define('App.ux.form.SearchField', {
 		if(this.hasSearch){
 			this.inputEl.applyStyles({
 				backgroundColor: 'yellow',
+				backgroundImage: 'none',
 				color: 'black'
 			});
 		}else {
 			this.inputEl.applyStyles({
 				backgroundColor: null,
+				backgroundImage: null,
 				color: null
 			});
 		}

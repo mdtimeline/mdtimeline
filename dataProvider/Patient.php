@@ -57,6 +57,11 @@ class Patient
 	private $patientContacts;
 
 	/**
+	 * @var array
+	 */
+	private $errors = [];
+
+	/**
 	 * @var PoolArea
 	 */
 	//private $poolArea;
@@ -190,12 +195,22 @@ class Patient
 		$params->filter[0]->property = 'pid';
 		$params->filter[0]->value = $pid;
 		$this->patient = $this->p->load($params)->one();
+		unset($params);
+
 		if ($this->patient !== false) {
 			$this->patient['pic'] = $this->patient['image'];
 			$this->patient['age'] = $this->getPatientAge();
 			$this->patient['name'] = $this->getPatientFullName();
+
+			if(
+				$this->patient['rating'] > 0 && isset($_SESSION['user']) && !ACL::hasPermission("allow_access_patient_rating_{$this->patient['rating']}")
+			){
+				$this->errors[] = "No Authorized to Access Patient With Rating {$this->patient['rating']}";
+				$this->patient = false;
+			}
 		}
-		unset($params);
+
+
 		return $this->patient;
 	}
 
@@ -395,7 +410,16 @@ class Patient
 	{
 
 		include_once(ROOT . '/dataProvider/PoolArea.php');
-		$this->setPatient($params->pid);
+		$patient = $this->setPatient($params->pid);
+
+		if($patient === false){
+			return [
+				'success' =>false,
+				'error' => implode(' & ', $this->errors)
+			];
+		}
+
+
 		$poolArea = new PoolArea();
 
 		$area = $poolArea->getCurrentPatientPoolAreaByPid($this->patient['pid']);
@@ -404,6 +428,7 @@ class Patient
 		$_SESSION['patient']['pid'] = $this->patient['pid'];
 
 		return [
+			'success' => true,
 			'patient' => [
 				'pid' => $this->patient['pid'],
 				'pubpid' => $this->patient['pubpid'],

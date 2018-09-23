@@ -904,10 +904,15 @@ Ext.define('App.view.Viewport', {
         var me = this;
 	    me.unsetPatient(null, true);
 
-        Patient.getPatientSetDataByPid({ pid:pid, prevPid:me.patient.pid, site:site }, function(provider, response){
-            var data = response.result,
-                msg1,
+        Patient.getPatientSetDataByPid({ pid:pid, prevPid:me.patient.pid, site:site }, function(data){
+            var msg1,
                 msg2;
+
+            if(data.success === false){
+	            me.msg(_('oops'), data.error, true);
+	            me.nav.navigateTo('App.view.dashboard.Dashboard');
+            	return;
+            }
 
             if(data.readOnly){
 

@@ -267,7 +267,7 @@ if (
 						     	plugins: {
 							        save: '{$doc['is_temp']}' == 'true' ? false : {
 							            callback: function(){
-					                        var msg = 'documentedit{"save":{"id":{$doc['id']},"document":"'+dkrm.snapshotImage()+'" }}';
+					                        var msg = 'documentedit{"save":{"id":{$doc['id']},"document":"'+ dkrm.canvas.toDataURL() +'" }}';
 					                        window.parent.postMessage(msg, '*');
 							            }
 							        }

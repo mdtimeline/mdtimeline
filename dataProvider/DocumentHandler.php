@@ -544,19 +544,46 @@ class DocumentHandler {
 
 		Matcha::pauseLog(true);
 
+
 		if(is_array($params)){
 			foreach($params as &$param){
 				unset($param->document, $param->hash);
 			}
 		}else{
-			unset($params->document, $params->hash);
+			if(!isset($params->edit_document) || $params->edit_document !== true){
+				unset($params->document, $params->hash);
+			}
 		}
 
-		$record = $this->d->save($params);
+		$results = $this->d->save($params);
+
+		if(isset($params->edit_document) && $params->edit_document === true){
+			if(isset($results['data']) && is_array($results['data'])){
+				foreach($results['data'] as &$result){
+					if($this->storeAsFile){
+						$this->handleDocumentFile($result);
+					}else{
+						$this->handleDocumentData($result);
+					}
+				}
+			}else if(isset($results['data']) && is_object($results['data'])){
+				if($this->storeAsFile){
+					$this->handleDocumentFile($results['data']);
+				}else{
+					$this->handleDocumentData($results['data']);
+				}
+			}else{
+				if($this->storeAsFile){
+					$this->handleDocumentFile($results);
+				}else{
+					$this->handleDocumentData($results);
+				}
+			}
+		}
 
 		Matcha::pauseLog(false);
 
-		return $record;
+		return $results;
 	}
 
 	/**

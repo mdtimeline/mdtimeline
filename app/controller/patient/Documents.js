@@ -285,25 +285,27 @@ Ext.define('App.controller.patient.Documents', {
 			record = store.getById(data.save.id);
 
 		if(record){
-			var src = data.save.document.split(',');
+			var src = data.save.document.split(','),
+				document = src[1] || src[0],
+				record_data;
 
-			record.set({document: (src[1] || src[0])});
-			record.save({
-				success: function(){
-					if(window.dual){
-						dual.msg('sweet', _('record_saved'));
-					}else{
-						app.msg('sweet', _('record_saved'));
-					}
-				},
-				failure: function(){
-					if(window.dual){
-						dual.msg('oops', _('record_error'), true);
-					}else{
-						app.msg('oops', _('record_error'), true);
-					}
+			record.set({ document: document });
+
+			record_data = record.data;
+			record_data.edit_document = true;
+
+			DocumentHandler.updatePatientDocument(record_data, function (response) {
+
+				record.commit();
+
+				if(window.dual){
+					dual.msg('sweet', _('record_saved'));
+				}else{
+					app.msg('sweet', _('record_saved'));
 				}
-			})
+
+			});
+
 		}
 	},
 

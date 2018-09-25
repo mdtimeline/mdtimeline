@@ -29,13 +29,12 @@ class SnomedCodes {
 
 	public function liveProblemCodeSearch($params) {
 
-		$sql = "SELECT ConceptId, Term, OCCURRENCE
-			     FROM sct_descriptions
-		   RIGHT JOIN sct_problem_list ON sct_descriptions.ConceptId = sct_problem_list.SNOMED_CID
-	            WHERE sct_descriptions.Active = '0'
-	              AND (sct_descriptions.Term LIKE :c1
-	              OR sct_descriptions.ConceptId LIKE :c2)
-	         ORDER BY sct_problem_list.OCCURRENCE DESC";
+		$sql = "SELECT d.ConceptId, d.Term, p.OCCURRENCE
+			     FROM sct_descriptions as d
+		   RIGHT JOIN sct_problem_list as p ON d.ConceptId = p.SNOMED_CID
+	            WHERE d.Active = '1'
+	              AND (d.Term LIKE :c1 OR d.ConceptId LIKE :c2)
+	         ORDER BY p.OCCURRENCE DESC";
 
 		$sth = $this->conn->prepare($sql);
 		$sth->execute([':c1' => '%'.$params->query.'%', ':c2' => $params->query.'%']);

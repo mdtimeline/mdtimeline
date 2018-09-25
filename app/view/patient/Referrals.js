@@ -69,8 +69,8 @@ Ext.define('App.view.patient.Referrals', {
 								{
 									xtype: 'snomedliveproceduresearch',
 									fieldLabel: _('requested_service'),
-									displayField: 'FullySpecifiedName',
-									valueField: 'FullySpecifiedName',
+									displayField: 'Term',
+									valueField: 'Term',
 									name: 'service_text',
 									hideLabel: false,
 									itemId: 'ReferralServiceSearch',

@@ -133,7 +133,7 @@ Ext.define('App.view.patient.encounter.AppointmentRequestWindow', {
 							{
 								xtype: 'snomedliveproceduresearch',
 								fieldLabel: _('procedure_one'),
-								valueField: 'FullySpecifiedName',
+								valueField: 'Term',
 								name: 'procedure1',
 								hideLabel: false,
 								width: null,
@@ -143,7 +143,7 @@ Ext.define('App.view.patient.encounter.AppointmentRequestWindow', {
 								xtype: 'snomedliveproceduresearch',
 								fieldLabel: _('procedure_two'),
 								name: 'procedure2',
-								valueField: 'FullySpecifiedName',
+								valueField: 'Term',
 								hideLabel: false,
 								width: null,
 								anchor: '100%'
@@ -152,7 +152,7 @@ Ext.define('App.view.patient.encounter.AppointmentRequestWindow', {
 								xtype: 'snomedliveproceduresearch',
 								fieldLabel: _('procedure_three'),
 								name: 'procedure3',
-								valueField: 'FullySpecifiedName',
+								valueField: 'Term',
 								hideLabel: false,
 								width: null,
 								anchor: '100%'

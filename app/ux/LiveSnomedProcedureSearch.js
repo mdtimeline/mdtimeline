@@ -20,7 +20,7 @@ Ext.define('App.ux.LiveSnomedProcedureSearch', {
 	extend: 'Ext.form.ComboBox',
 	alias: 'widget.snomedliveproceduresearch',
 	hideLabel: true,
-	displayField: 'FullySpecifiedName',
+	displayField: 'Term',
 	valueField: 'ConceptId',
 	emptyText: _('procedure_search') + '...',
 	typeAhead: false,
@@ -37,7 +37,7 @@ Ext.define('App.ux.LiveSnomedProcedureSearch', {
 					type: 'string'
 				},
 				{
-					name: 'FullySpecifiedName',
+					name: 'Term',
 					type: 'string'
 				},
 				{
@@ -75,7 +75,7 @@ Ext.define('App.ux.LiveSnomedProcedureSearch', {
 			listConfig: {
 				loadingText: _('searching') + '...',
 				getInnerTpl: function(){
-					return '<div class="search-item"><h3>{FullySpecifiedName}<span style="font-weight: normal"> ({ConceptId}) </span></h3></div>';
+					return '<div class="search-item"><h3>{Term}<span style="font-weight: normal"> ({ConceptId}) </span></h3></div>';
 				}
 			},
 			pageSize: 25

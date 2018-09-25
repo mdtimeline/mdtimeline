@@ -64,8 +64,8 @@ Ext.define('App.view.patient.CognitiveAndFunctionalStatus', {
 			editor: {
 				xtype: 'snomedlivesearch',
 				itemId: 'functionalStatusCodeCombo',
-				displayField: 'FullySpecifiedName',
-				valueField: 'FullySpecifiedName',
+				displayField: 'Term',
+				valueField: 'Term',
 				allowBlank: false
 			}
 		},

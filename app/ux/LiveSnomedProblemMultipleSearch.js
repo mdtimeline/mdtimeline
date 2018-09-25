@@ -25,9 +25,9 @@ Ext.define('App.ux.LiveSnomedProblemMultipleSearch', {
     autoSelect: false,
     emptyText: _('problem_search') + '...',
     queryMode: 'remote',
-    labelTpl: '{FullySpecifiedName} &#60;{ConceptId}&#62;',
+    labelTpl: '{Term} &#60;{ConceptId}&#62;',
     forceSelection: false,
-    displayField: 'FullySpecifiedName',
+    displayField: 'Term',
     valueField: 'ConceptId',
     pageSize: 25,
     enableReset: false,
@@ -35,7 +35,7 @@ Ext.define('App.ux.LiveSnomedProblemMultipleSearch', {
     listConfig: {
         tpl: [
             '<tpl for=".">',
-            '<div role="option" class="x-boundlist-item">({CodeType}) {FullySpecifiedName}  &#60;{ConceptId}&#62;</div>',
+            '<div role="option" class="x-boundlist-item">({CodeType}) {Term}  &#60;{ConceptId}&#62;</div>',
             '</tpl>'
         ]
     },
@@ -58,7 +58,7 @@ Ext.define('App.ux.LiveSnomedProblemMultipleSearch', {
                     type: 'string'
                 },
                 {
-                    name: 'FullySpecifiedName',
+                    name: 'Term',
                     type: 'string'
                 },
                 {
@@ -94,7 +94,7 @@ Ext.define('App.ux.LiveSnomedProblemMultipleSearch', {
             listConfig: {
                 loadingText: _('searching') + '...',
                 getInnerTpl: function(){
-                    return '<div class="search-item"><h3>{FullySpecifiedName}<span style="font-weight: normal"> ({ConceptId}) </span></h3></div>';
+                    return '<div class="search-item"><h3>{Term}<span style="font-weight: normal"> ({ConceptId}) </span></h3></div>';
                 }
             },
             pageSize: 25

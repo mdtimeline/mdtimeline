@@ -20,7 +20,7 @@ Ext.define('App.ux.combo.AllergiesMetals', {
 	xtype: 'allergiesmetalcombo',
 	editable: false,
 	queryMode: 'local',
-	displayField: 'FullySpecifiedName',
+	displayField: 'Term',
 	valueField: 'ConceptId',
 	emptyText: _('select'),
 	initComponent: function () {
@@ -30,7 +30,7 @@ Ext.define('App.ux.combo.AllergiesMetals', {
 			autoLoad: true,
 			fields: [
 				{ name: 'ConceptId', type: 'string' },
-				{ name: 'FullySpecifiedName', type: 'string' },
+				{ name: 'Term', type: 'string' },
 				{ name: 'CodeType', type: 'string' }
 			],
 			proxy: {

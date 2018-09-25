@@ -20,7 +20,7 @@ Ext.define('App.ux.LiveSnomedProblemSearch', {
 	extend: 'Ext.form.ComboBox',
 	alias: 'widget.snomedliveproblemsearch',
 	hideLabel: true,
-	displayField: 'FullySpecifiedName',
+	displayField: 'Term',
 	valueField: 'ConceptId',
 	emptyText: _('problem_search') + '...',
 	typeAhead: false,
@@ -37,7 +37,7 @@ Ext.define('App.ux.LiveSnomedProblemSearch', {
 					type: 'string'
 				},
 				{
-					name: 'FullySpecifiedName',
+					name: 'Term',
 					type: 'string'
 				},
 				{
@@ -75,7 +75,7 @@ Ext.define('App.ux.LiveSnomedProblemSearch', {
 			listConfig: {
 				loadingText: _('searching') + '...',
 				getInnerTpl: function(){
-					return '<div class="search-item"><h3>{FullySpecifiedName}<span style="font-weight: normal"> ({ConceptId}) </span></h3></div>';
+					return '<div class="search-item"><h3>{Term}<span style="font-weight: normal"> ({ConceptId}) </span></h3></div>';
 				}
 			},
 			pageSize: 25

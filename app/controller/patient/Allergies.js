@@ -176,7 +176,7 @@ Ext.define('App.controller.patient.Allergies', {
 		var form = cmb.up('form').getForm();
 
 		form.getRecord().set({
-			allergy: records[0].get('FullySpecifiedName'),
+			allergy: records[0].get('Term'),
 			allergy_code: records[0].get('ConceptId'),
 			allergy_code_type: records[0].get('CodeType')
 		});

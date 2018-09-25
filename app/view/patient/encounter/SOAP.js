@@ -154,8 +154,8 @@ Ext.define('App.view.patient.encounter.SOAP', {
 								{
 									xtype: 'snomedliveproceduresearch',
 									name: 'code_text',
-									displayField: 'FullySpecifiedName',
-									valueField: 'FullySpecifiedName',
+									displayField: 'Term',
+									valueField: 'Term',
 									listeners: {
 										scope: me,
 										select: me.onProcedureSelect
@@ -392,7 +392,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		procedure.set({
 			code: record[0].data.ConceptId,
 			code_type: record[0].data.CodeType,
-			code_text: record[0].data.FullySpecifiedName
+			code_text: record[0].data.Term
 		});
 	},
 

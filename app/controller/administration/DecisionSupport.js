@@ -262,7 +262,7 @@ Ext.define('App.controller.administration.DecisionSupport', {
 			rule_id: this.getRuleId(),
 			concept_type: grid.action,
 			concept_code: records[0].data.ConceptId,
-			concept_text: records[0].data.FullySpecifiedName,
+			concept_text: records[0].data.Term,
 			concept_code_type: records[0].data.CodeType
 		});
 		grid.editingPlugin.startEdit(foo[0], 2);

@@ -145,7 +145,7 @@ Ext.define('App.controller.patient.AppointmentRequests', {
 		var record = this.getAppointmentRequestForm().getForm().getRecord(),
 			values = {};
 
-		values[cmb.name] = records[0].data.FullySpecifiedName;
+		values[cmb.name] = records[0].data.Term;
 		values[cmb.name + '_code'] = records[0].data.ConceptId;
 		values[cmb.name + '_code_type'] = records[0].data.CodeType;
 		record.set(values);

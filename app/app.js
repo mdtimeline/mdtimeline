@@ -7636,7 +7636,7 @@ Ext.define('App.ux.combo.AllergiesMetals', {
 	xtype: 'allergiesmetalcombo',
 	editable: false,
 	queryMode: 'local',
-	displayField: 'FullySpecifiedName',
+	displayField: 'Term',
 	valueField: 'ConceptId',
 	emptyText: _('select'),
 	initComponent: function () {
@@ -7646,7 +7646,7 @@ Ext.define('App.ux.combo.AllergiesMetals', {
 			autoLoad: true,
 			fields: [
 				{ name: 'ConceptId', type: 'string' },
-				{ name: 'FullySpecifiedName', type: 'string' },
+				{ name: 'Term', type: 'string' },
 				{ name: 'CodeType', type: 'string' }
 			],
 			proxy: {
@@ -37035,7 +37035,7 @@ Ext.define('App.controller.administration.DecisionSupport', {
 			rule_id: this.getRuleId(),
 			concept_type: grid.action,
 			concept_code: records[0].data.ConceptId,
-			concept_text: records[0].data.FullySpecifiedName,
+			concept_text: records[0].data.Term,
 			concept_code_type: records[0].data.CodeType
 		});
 		grid.editingPlugin.startEdit(foo[0], 2);
@@ -41286,7 +41286,7 @@ Ext.define('App.controller.patient.Allergies', {
 		var form = cmb.up('form').getForm();
 
 		form.getRecord().set({
-			allergy: records[0].get('FullySpecifiedName'),
+			allergy: records[0].get('Term'),
 			allergy_code: records[0].get('ConceptId'),
 			allergy_code_type: records[0].get('CodeType')
 		});
@@ -41820,7 +41820,7 @@ Ext.define('App.controller.patient.AppointmentRequests', {
 		var record = this.getAppointmentRequestForm().getForm().getRecord(),
 			values = {};
 
-		values[cmb.name] = records[0].data.FullySpecifiedName;
+		values[cmb.name] = records[0].data.Term;
 		values[cmb.name + '_code'] = records[0].data.ConceptId;
 		values[cmb.name + '_code_type'] = records[0].data.CodeType;
 		record.set(values);
@@ -43869,7 +43869,7 @@ Ext.define('App.controller.patient.FamilyHistory', {
 				relation: relation_record.get('option_name'),
 				relation_code: relation_record.get('code'),
 				relation_code_type: relation_record.get('code_type'),
-				condition: condition_record.get('FullySpecifiedName'),
+				condition: condition_record.get('Term'),
 				condition_code: condition_record.get('ConceptId'),
 				condition_code_type: condition_record.get('CodeType'),
 				notes: other_note.getValue(),
@@ -50828,7 +50828,7 @@ Ext.define('App.ux.LiveSnomedProcedureSearch', {
 	extend: 'Ext.form.ComboBox',
 	alias: 'widget.snomedliveproceduresearch',
 	hideLabel: true,
-	displayField: 'FullySpecifiedName',
+	displayField: 'Term',
 	valueField: 'ConceptId',
 	emptyText: _('procedure_search') + '...',
 	typeAhead: false,
@@ -50845,7 +50845,7 @@ Ext.define('App.ux.LiveSnomedProcedureSearch', {
 					type: 'string'
 				},
 				{
-					name: 'FullySpecifiedName',
+					name: 'Term',
 					type: 'string'
 				},
 				{
@@ -50883,7 +50883,7 @@ Ext.define('App.ux.LiveSnomedProcedureSearch', {
 			listConfig: {
 				loadingText: _('searching') + '...',
 				getInnerTpl: function(){
-					return '<div class="search-item"><h3>{FullySpecifiedName}<span style="font-weight: normal"> ({ConceptId}) </span></h3></div>';
+					return '<div class="search-item"><h3>{Term}<span style="font-weight: normal"> ({ConceptId}) </span></h3></div>';
 				}
 			},
 			pageSize: 25
@@ -52348,7 +52348,7 @@ Ext.define('App.ux.LiveSnomedProblemSearch', {
 	extend: 'Ext.form.ComboBox',
 	alias: 'widget.snomedliveproblemsearch',
 	hideLabel: true,
-	displayField: 'FullySpecifiedName',
+	displayField: 'Term',
 	valueField: 'ConceptId',
 	emptyText: _('problem_search') + '...',
 	typeAhead: false,
@@ -52365,7 +52365,7 @@ Ext.define('App.ux.LiveSnomedProblemSearch', {
 					type: 'string'
 				},
 				{
-					name: 'FullySpecifiedName',
+					name: 'Term',
 					type: 'string'
 				},
 				{
@@ -52403,7 +52403,7 @@ Ext.define('App.ux.LiveSnomedProblemSearch', {
 			listConfig: {
 				loadingText: _('searching') + '...',
 				getInnerTpl: function(){
-					return '<div class="search-item"><h3>{FullySpecifiedName}<span style="font-weight: normal"> ({ConceptId}) </span></h3></div>';
+					return '<div class="search-item"><h3>{Term}<span style="font-weight: normal"> ({ConceptId}) </span></h3></div>';
 				}
 			},
 			pageSize: 25
@@ -52509,7 +52509,7 @@ Ext.define('App.ux.LiveSnomedSearch', {
 	extend: 'Ext.form.ComboBox',
 	alias: 'widget.snomedlivesearch',
 	hideLabel: true,
-	displayField: 'FullySpecifiedName',
+	displayField: 'Term',
 	valueField: 'ConceptId',
 	initComponent: function(){
 		var me = this;
@@ -52522,7 +52522,7 @@ Ext.define('App.ux.LiveSnomedSearch', {
 					type: 'string'
 				},
 				{
-					name: 'FullySpecifiedName',
+					name: 'Term',
 					type: 'string'
 				},
 				{
@@ -52558,7 +52558,7 @@ Ext.define('App.ux.LiveSnomedSearch', {
 			listConfig: {
 				loadingText: _('searching') + '...',
 				getInnerTpl: function(){
-					return '<div class="search-item"><h3>{FullySpecifiedName}<span style="font-weight: normal"> ({ConceptId}) </span></h3></div>';
+					return '<div class="search-item"><h3>{Term}<span style="font-weight: normal"> ({ConceptId}) </span></h3></div>';
 				}
 			},
 			pageSize: 25
@@ -60625,8 +60625,8 @@ Ext.define('App.view.patient.Referrals', {
 								{
 									xtype: 'snomedliveproceduresearch',
 									fieldLabel: _('requested_service'),
-									displayField: 'FullySpecifiedName',
-									valueField: 'FullySpecifiedName',
+									displayField: 'Term',
+									valueField: 'Term',
 									name: 'service_text',
 									hideLabel: false,
 									itemId: 'ReferralServiceSearch',
@@ -60870,8 +60870,8 @@ Ext.define('App.view.patient.ActiveProblems', {
 								hideLabel: false,
 								itemId: 'activeProblemLiveSearch',
 								enableKeyEvents: true,
-								displayField: 'FullySpecifiedName',
-								valueField: 'FullySpecifiedName',
+								displayField: 'Term',
+								valueField: 'Term',
 								width: 720,
 								labelWidth: 70,
 								margin: '0 10 5 0',
@@ -61052,8 +61052,8 @@ Ext.define('App.view.patient.CognitiveAndFunctionalStatus', {
 			editor: {
 				xtype: 'snomedlivesearch',
 				itemId: 'functionalStatusCodeCombo',
-				displayField: 'FullySpecifiedName',
-				valueField: 'FullySpecifiedName',
+				displayField: 'Term',
+				valueField: 'Term',
 				allowBlank: false
 			}
 		},
@@ -61328,8 +61328,8 @@ Ext.define('App.view.patient.encounter.CarePlanGoalsNewWindow', {
 					xtype: 'snomedliveproceduresearch',
 					itemId: 'CarePlanGoalSearchField',
 					fieldLabel: _('goal'),
-					displayField: 'FullySpecifiedName',
-					valueField: 'FullySpecifiedName',
+					displayField: 'Term',
+					valueField: 'Term',
 					labelAlign: 'top',
 					allowBlank: false,
 					hideLabel: false,
@@ -62326,8 +62326,8 @@ Ext.define('App.view.patient.encounter.SOAP', {
 								{
 									xtype: 'snomedliveproceduresearch',
 									name: 'code_text',
-									displayField: 'FullySpecifiedName',
-									valueField: 'FullySpecifiedName',
+									displayField: 'Term',
+									valueField: 'Term',
 									listeners: {
 										scope: me,
 										select: me.onProcedureSelect
@@ -62564,7 +62564,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		procedure.set({
 			code: record[0].data.ConceptId,
 			code_type: record[0].data.CodeType,
-			code_text: record[0].data.FullySpecifiedName
+			code_text: record[0].data.Term
 		});
 	},
 
@@ -62910,8 +62910,8 @@ Ext.define('App.view.patient.Allergies', {
 								itemId:'allergyMetalCombo',
 								name: 'allergy',
 								hideLabel: false,
-								displayField: 'FullySpecifiedName',
-								valueField: 'FullySpecifiedName',
+								displayField: 'Term',
+								valueField: 'Term',
 								hidden: true,
 								disabled: true,
 								enableKeyEvents: true,

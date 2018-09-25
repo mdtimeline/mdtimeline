@@ -208,7 +208,7 @@ Ext.define('App.controller.patient.FamilyHistory', {
 				relation: relation_record.get('option_name'),
 				relation_code: relation_record.get('code'),
 				relation_code_type: relation_record.get('code_type'),
-				condition: condition_record.get('FullySpecifiedName'),
+				condition: condition_record.get('Term'),
 				condition_code: condition_record.get('ConceptId'),
 				condition_code_type: condition_record.get('CodeType'),
 				notes: other_note.getValue(),

@@ -29,12 +29,12 @@ class SnomedCodes {
 
 	public function liveProblemCodeSearch($params) {
 
-		$sql = "SELECT ConceptId, FullySpecifiedName, OCCURRENCE
-			     FROM sct_concepts
-		   RIGHT JOIN sct_problem_list ON sct_concepts.ConceptId = sct_problem_list.SNOMED_CID
-	            WHERE sct_concepts.ConceptStatus = '0'
-	              AND (sct_concepts.FullySpecifiedName LIKE :c1
-	              OR sct_concepts.ConceptId LIKE :c2)
+		$sql = "SELECT ConceptId, Term, OCCURRENCE
+			     FROM sct_descriptions
+		   RIGHT JOIN sct_problem_list ON sct_descriptions.ConceptId = sct_problem_list.SNOMED_CID
+	            WHERE sct_descriptions.Active = '0'
+	              AND (sct_descriptions.Term LIKE :c1
+	              OR sct_descriptions.ConceptId LIKE :c2)
 	         ORDER BY sct_problem_list.OCCURRENCE DESC";
 
 		$sth = $this->conn->prepare($sql);
@@ -48,9 +48,9 @@ class SnomedCodes {
 
 	public function liveProcedureCodeSearch($params) {
 
-		$sql = "SELECT ConceptId, FullySpecifiedName, Occurrence
+		$sql = "SELECT ConceptId, Term, Occurrence
 			     FROM sct_procedure_list
-	            WHERE FullySpecifiedName 	LIKE :c1
+	            WHERE Term 	LIKE :c1
 	               OR ConceptId 			LIKE :c2
 	         ORDER BY Occurrence DESC";
 
@@ -65,11 +65,11 @@ class SnomedCodes {
 
 	public function liveCodeSearch($params) {
 
-		$sql = "SELECT ConceptId, FullySpecifiedName
-			     FROM sct_concepts
-	            WHERE sct_concepts.ConceptStatus = '0'
-	              AND sct_concepts.FullySpecifiedName LIKE :c1
-	              OR sct_concepts.ConceptId LIKE :c2";
+		$sql = "SELECT ConceptId, Term
+			     FROM sct_descriptions
+	            WHERE sct_descriptions.Active = '0'
+	              AND sct_descriptions.Term LIKE :c1
+	              OR sct_descriptions.ConceptId LIKE :c2";
 
 		$sth = $this->conn->prepare($sql);
 		$sth->execute([':c1' => '%'.$params->query.'%', ':c2' => $params->query.'%']);
@@ -99,11 +99,11 @@ class SnomedCodes {
 	}
 
 	public function getSnomedTextByConceptId($conceptId) {
-		$sql = "SELECT `FullySpecifiedName` FROM `sct_concepts` WHERE `ConceptId` = '$conceptId'";
+		$sql = "SELECT `Term` FROM `sct_descriptions` WHERE `ConceptId` = '$conceptId'";
 		$sth = $this->conn->prepare($sql);
 		$sth->execute();
 		$result = $sth->fetch(PDO::FETCH_ASSOC);
-		return isset($result) && $result != false ? $result['FullySpecifiedName'] : '';
+		return isset($result) && $result != false ? $result['Term'] : '';
 	}
 
 	public function getMetalAllergiesCodes($params){
@@ -167,10 +167,10 @@ class SnomedCodes {
 			'105878007'  // Zirconium
 		];
 		$metals_allergies = implode(',', $metals_allergies);
-		$sql = "SELECT ConceptId, FullySpecifiedName, 'SNOMEDCT' as CodeType
-			     FROM sct_concepts
-	            WHERE sct_concepts.ConceptStatus = '0'
-	              AND sct_concepts.ConceptId IN($metals_allergies)";
+		$sql = "SELECT ConceptId, Term, 'SNOMEDCT' as CodeType
+			     FROM sct_descriptions
+	            WHERE sct_descriptions.Active = '1'
+	              AND sct_descriptions.ConceptId IN($metals_allergies)";
 		$sth = $this->conn->prepare($sql);
 		$sth->execute();
 		$results = $sth->fetchAll(PDO::FETCH_ASSOC);

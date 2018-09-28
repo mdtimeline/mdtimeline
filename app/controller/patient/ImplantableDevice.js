@@ -109,7 +109,7 @@ Ext.define('App.controller.patient.ImplantableDevice', {
 
 	onImplantableDeviceDetailsParseBtnClick: function () {
 		var me = this,
-			udi = this.getImplantableDeviceDetailsUDIField().getValue();
+			udi = me.getImplantableDeviceDetailsUDIField().getValue();
 
 		ImplantableDevice.getUidData({udi: udi}, function (response) {
 
@@ -140,6 +140,7 @@ Ext.define('App.controller.patient.ImplantableDevice', {
 			};
 
 			me.getImplantableDeviceDetailsForm().getForm().setValues(values);
+			me.getImplantableDeviceDetailsSaveBtn().show();
 
 		});
 

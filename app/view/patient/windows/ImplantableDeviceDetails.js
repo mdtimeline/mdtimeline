@@ -48,7 +48,7 @@ Ext.define('App.view.patient.windows.ImplantableDeviceDetails', {
 							flex: 1,
 							submitValue: true,
 							margin: '0 10 0 0',
-							value: '(01)00619498372072(11)151025(10)1102397(21)20150086127'
+							value: ''
 						},
 						{
 							xtype: 'button',

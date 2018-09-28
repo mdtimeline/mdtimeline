@@ -127,7 +127,7 @@ Ext.define('App.controller.patient.ImplantableDevice', {
 				description: device.gmdnTerms.gmdn.gmdnPTName,
 				description_code: '',
 				description_code_type: 'GMDN',
-				lot_number: unit.lot_number | '',
+				lot_number: unit.lot_number || '',
 				serial_number: unit.serial_number || '',
 				exp_date: unit.expiration_date || null ,
 				mfg_date: unit.manufacturing_date || null,

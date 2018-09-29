@@ -193,7 +193,14 @@ class Encounter {
 	 * @return array
 	 */
 	public function getEncounters($params, $relations = true) {
-		$records = $this->e->load($params)->all();
+		$records = $this->e->load($params)->leftJoin([
+			'title' => 'provider_title',
+			'fname' => 'provider_fname',
+			'mname' => 'provider_mname',
+			'lname' => 'provider_lname',
+			'npi' => 'provider_npi',
+			'signature' => 'provider_signature',
+		], 'users', 'provider_uid', 'id')->all();
 		$encounters = (array)$records['encounter'];
 		$relations = isset($params->relations) ? $params->relations : $relations;
 

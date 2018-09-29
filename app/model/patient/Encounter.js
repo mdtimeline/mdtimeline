@@ -190,6 +190,36 @@ Ext.define('App.model.patient.Encounter', {
         {
             name: 'summary_care_provided',
             type: 'bool'
+        },
+        {
+            name: 'provider_title',
+            type: 'string',
+	        store: false
+        },
+        {
+            name: 'provider_fname',
+            type: 'string',
+	        store: false
+        },
+        {
+            name: 'provider_mname',
+            type: 'string',
+	        store: false
+        },
+        {
+            name: 'provider_lname',
+            type: 'string',
+	        store: false
+        },
+        {
+            name: 'provider_npi',
+            type: 'string',
+	        store: false
+        },
+        {
+            name: 'provider_signature',
+            type: 'string',
+	        store: false
         }
 	],
 	idProperty: 'eid',

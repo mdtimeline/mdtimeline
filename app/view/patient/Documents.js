@@ -147,7 +147,7 @@ Ext.define('App.view.patient.Documents', {
 								meta.tdCls += ' entered-in-error ';
 								meta.tdAttr = 'data-qtip="' + _('error_note') + ': ' + record.get('error_note') + '"';
 							}
-							return v;
+							return v.split('|').join('<br>');
 						}
 					},
 					// {

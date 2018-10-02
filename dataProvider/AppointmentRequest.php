@@ -28,16 +28,16 @@ class AppointmentRequest {
 
 	public function getAppointmentRequests($params) {
 		return $this->a->load($params)
-			->leftJoin(['FullySpecifiedName' => 'procedure1'],'sct_concepts','procedure1_code','ConceptId')
-			->leftJoin(['FullySpecifiedName' => 'procedure2'],'sct_concepts','procedure2_code','ConceptId')
-			->leftJoin(['FullySpecifiedName' => 'procedure3'],'sct_concepts','procedure3_code','ConceptId')->all();
+			->leftJoin(['Term' => 'procedure1'],'sct_descriptions','procedure1_code','ConceptId')
+			->leftJoin(['Term' => 'procedure2'],'sct_descriptions','procedure2_code','ConceptId')
+			->leftJoin(['Term' => 'procedure3'],'sct_descriptions','procedure3_code','ConceptId')->all();
 	}
 
 	public function getAppointmentRequest($params) {
 		return $this->a->load($params)
-			->leftJoin(['FullySpecifiedName' => 'procedure1'],'sct_concepts','procedure1_code','ConceptId')
-			->leftJoin(['FullySpecifiedName' => 'procedure2'],'sct_concepts','procedure2_code','ConceptId')
-			->leftJoin(['FullySpecifiedName' => 'procedure3'],'sct_concepts','procedure3_code','ConceptId')->one();
+			->leftJoin(['Term' => 'procedure1'],'sct_descriptions','procedure1_code','ConceptId')
+			->leftJoin(['Term' => 'procedure2'],'sct_descriptions','procedure2_code','ConceptId')
+			->leftJoin(['Term' => 'procedure3'],'sct_descriptions','procedure3_code','ConceptId')->one();
 	}
 
 	public function addAppointmentRequest($params) {

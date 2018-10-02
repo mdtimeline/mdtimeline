@@ -625,8 +625,12 @@ class DocumentHandler {
 		if(isset($params->document) && $params->document != ''){
 			$record->document = $params->document;
 		}else{
+			$pdf_format = isset($params->pdf_format) ? $params->pdf_format : null;
+
 			$Documents = new Documents();
-			$record->document = base64_encode($Documents->PDFDocumentBuilder((object) $params));;
+			$record->document = base64_encode(
+				$Documents->PDFDocumentBuilder((object) $params,'',null,null,'',[],[],$pdf_format)
+			);
 		}
 		$record->create_date = date('Y-m-d H:i:s');
 		$record->document_name = isset($params->document_name) ? $params->document_name : '';

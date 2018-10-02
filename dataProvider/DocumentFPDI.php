@@ -160,10 +160,12 @@ class DocumentFPDI extends FPDI  {
 
 		$this->header_y = 0;
 
-		if (is_null($this->_tplIdx)) {
-			$this->_tplIdx = $this->importPage(1);
+		if(isset($this->currentFilename)){
+			if (is_null($this->_tplIdx)) {
+				$this->_tplIdx = $this->importPage(1);
+			}
+			$this->useTemplate($this->_tplIdx, 0, 0, $pageWidth, $pageHeight);
 		}
-		$this->useTemplate($this->_tplIdx, 0, 0, $pageWidth, $pageHeight);
 
 		if(!empty($this->header_data)){
 

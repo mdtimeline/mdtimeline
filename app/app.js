@@ -46459,6 +46459,7 @@ Ext.define('App.controller.patient.RadOrders', {
 		orders.forEach(function(order){
 
 			var date_ordered = Ext.Date.format(order.get('date_ordered'),'Y-m-d'),
+				pdf_format = (g('order_pdf_format') || null),
 				doc_key = '_' + order.get('eid') +
 					order.get('pid') +
 					order.get('uid') +
@@ -46473,6 +46474,7 @@ Ext.define('App.controller.patient.RadOrders', {
 				documents[doc_key].orderItems = [];
 				documents[doc_key].docType = 'Rad';
 				documents[doc_key].templateId = 6;
+				documents[doc_key].pdf_format = pdf_format;
 				documents[doc_key].orderItems.push(['Description', 'Notes']);
 			}
 
@@ -47168,6 +47170,7 @@ Ext.define('App.controller.patient.RxOrders', {
 		var me = this,
 			grid = me.getRxOrdersGrid(),
 			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
+			pdf_format = (g('order_pdf_format') || null),
 			isSingleColumnTable = true,
 			references = '',
 			documents = {},
@@ -47192,6 +47195,7 @@ Ext.define('App.controller.patient.RxOrders', {
 				documents[doc_key].orderItems = [];
 				documents[doc_key].docType = 'Rx';
 				documents[doc_key].templateId = 5;
+				documents[doc_key].pdf_format = pdf_format;
 				if(isSingleColumnTable){
 					columns = [''];
 				}else{
@@ -47265,7 +47269,13 @@ Ext.define('App.controller.patient.RxOrders', {
 
 		});
 
+
+
 		Ext.Object.each(documents, function(key, params){
+
+
+
+
 			DocumentHandler.createTempDocument(params, function(provider, response){
 				if(print === true){
 					Printer.doTempDocumentPrint(1, response.result.id);
@@ -59587,6 +59597,7 @@ Ext.define('App.controller.patient.LabOrders', {
 
 		orders.forEach(function(order){
 			var date_ordered = Ext.Date.format(order.get('date_ordered'),'Y-m-d'),
+				pdf_format = (g('order_pdf_format') || null),
 				doc_key = '_' + order.get('eid') +
 					order.get('pid') +
 					order.get('uid') +
@@ -59601,6 +59612,7 @@ Ext.define('App.controller.patient.LabOrders', {
 				documents[doc_key].orderItems = [];
 				documents[doc_key].docType = 'Lab';
 				documents[doc_key].templateId = 4;
+				documents[doc_key].pdf_format = pdf_format;
 				documents[doc_key].orderItems.push(['Description', 'Notes']);
 
 			}

@@ -398,9 +398,10 @@ class Documents {
 	 * @param string $water_mark
 	 * @param array $key_images
 	 * @param array $key_images_config
+	 * @param array $pdf_format
 	 * @return bool
 	 */
-	public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $custom_footer_data = null, $water_mark = '', $key_images = [], $key_images_config = []) {
+	public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $custom_footer_data = null, $water_mark = '', $key_images = [], $key_images_config = [], $pdf_format = null) {
 		$pid = $params->pid;
 		$regex = '(\[\w*?\])';
 
@@ -419,11 +420,11 @@ class Documents {
 		}
 
 		if(isset($params->facility_id)){
-			$template = $this->getPdfTemplateByFacilityId($params->facility_id);
+			$template = $this->getPdfTemplateByFacilityId($params->facility_id, $pdf_format);
 		}elseif(isset($_SESSION['user']) && isset($_SESSION['user']['facility'])){
-			$template = $this->getPdfTemplateByFacilityId($_SESSION['user']['facility']);
+			$template = $this->getPdfTemplateByFacilityId($_SESSION['user']['facility'], $pdf_format);
 		}else{
-			$template = $this->getPdfTemplateByFacilityId();
+			$template = $this->getPdfTemplateByFacilityId(null, $pdf_format);
 		}
 
 		// get header/footer data
@@ -440,7 +441,9 @@ class Documents {
 		}
 
 		// template
-		$pdf->setSourceFile($template['template']);
+		if(file_exists($template['template']) && !is_dir($template['template'])){
+			$pdf->setSourceFile($template['template']);
+		}
 
 		$margins = [
 			'left' => isset($template['body_margin_left']) ? intval($template['body_margin_left']) : 25,
@@ -967,14 +970,28 @@ class Documents {
 		return date('F j, Y', strtotime($date));
 	}
 
-	private function getPdfTemplateByFacilityId($facility_id = null){
+	private function getPdfTemplateByFacilityId($facility_id = null, $pdf_format = null){
+
+		$filters = [];
+
 		if(isset($facility_id)){
-			$record = $this->t->load(['facility_id' =>$facility_id, 'active' => 1])->one();
+			$filters['facility_id'] = $facility_id;
+		}
+		if(isset($pdf_format)){
+			$filters['format'] = $pdf_format;
+		}
+
+		if(!empty($filters)){
+
+			$filters['active'] = 1;
+			$record = $this->t->load($filters)->one();
+
 			if($record !== false){
 				$record['template'] = ROOT . $record['template'];
 				return $record;
 			}
 		}
+
 		return [
 			'template' => ROOT . '/resources/templates/default.pdf',
 			'body_margin_left' => 25,
@@ -983,7 +1000,8 @@ class Documents {
 			'body_font_family' => 'times',
 			'body_font_style' => '',
 			'body_font_size' => 12,
-			'header_data' => null
+			'header_data' => null,
+			'format' => isset($pdf_format) ? $pdf_format : 'LETTER'
         ];
 	}
 }

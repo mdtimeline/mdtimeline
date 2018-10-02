@@ -98,6 +98,7 @@ Ext.define('App.controller.patient.RadOrders', {
 		orders.forEach(function(order){
 
 			var date_ordered = Ext.Date.format(order.get('date_ordered'),'Y-m-d'),
+				pdf_format = (g('order_pdf_format') || null),
 				doc_key = '_' + order.get('eid') +
 					order.get('pid') +
 					order.get('uid') +
@@ -112,6 +113,7 @@ Ext.define('App.controller.patient.RadOrders', {
 				documents[doc_key].orderItems = [];
 				documents[doc_key].docType = 'Rad';
 				documents[doc_key].templateId = 6;
+				documents[doc_key].pdf_format = pdf_format;
 				documents[doc_key].orderItems.push(['Description', 'Notes']);
 			}
 

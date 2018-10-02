@@ -360,6 +360,7 @@ Ext.define('App.controller.patient.RxOrders', {
 		var me = this,
 			grid = me.getRxOrdersGrid(),
 			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
+			pdf_format = (g('order_pdf_format') || null),
 			isSingleColumnTable = true,
 			references = '',
 			documents = {},
@@ -384,6 +385,7 @@ Ext.define('App.controller.patient.RxOrders', {
 				documents[doc_key].orderItems = [];
 				documents[doc_key].docType = 'Rx';
 				documents[doc_key].templateId = 5;
+				documents[doc_key].pdf_format = pdf_format;
 				if(isSingleColumnTable){
 					columns = [''];
 				}else{
@@ -457,7 +459,13 @@ Ext.define('App.controller.patient.RxOrders', {
 
 		});
 
+
+
 		Ext.Object.each(documents, function(key, params){
+
+
+
+
 			DocumentHandler.createTempDocument(params, function(provider, response){
 				if(print === true){
 					Printer.doTempDocumentPrint(1, response.result.id);

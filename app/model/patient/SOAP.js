@@ -86,6 +86,9 @@ Ext.define('App.model.patient.SOAP', {
 		type: 'direct',
 		api: {
 			update: 'Encounter.updateSoap'
+		},
+		writer: {
+			writeAllFields: true
 		}
 	},
 	hasMany: [

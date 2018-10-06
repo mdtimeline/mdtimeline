@@ -671,7 +671,8 @@ Ext.define('App.view.Viewport', {
 		    me.checkoutWindow = Ext.create('App.view.patient.windows.EncounterCheckOut');
 	    }
 
-	    me.signature = Ext.create('App.view.signature.SignatureWindow');
+	    //me.signature = Ext.create('App.view.signature.SignatureWindow');
+	    //Ext.create('Modules.worklist.view.ResultsPickUpWindow').show();
     },
 
 	getUserFullname: function(){

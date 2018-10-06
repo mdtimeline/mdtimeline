@@ -61,6 +61,8 @@ class Patient
 	 */
 	private $errors = [];
 
+	private $adult_age = 18;
+
 	/**
 	 * @var PoolArea
 	 */
@@ -202,9 +204,9 @@ class Patient
 			$this->patient['age'] = $this->getPatientAge();
 			$this->patient['name'] = $this->getPatientFullName();
 
-			if(
+			if (
 				$this->patient['rating'] > 0 && isset($_SESSION['user']) && !ACL::hasPermission("allow_access_patient_rating_{$this->patient['rating']}")
-			){
+			) {
 				$this->errors[] = "No Authorized to Access Patient With Rating {$this->patient['rating']}";
 				$this->patient = false;
 			}
@@ -385,15 +387,15 @@ class Patient
 	public function createNewPatient(stdClass $params)
 	{
 
-		if(isset($params->insurance)){
-			$insurance = (object) $params->insurance;
+		if (isset($params->insurance)) {
+			$insurance = (object)$params->insurance;
 		}
 
 		$patient = $this->savePatient($params);
 
-		if(isset($insurance)){
+		if (isset($insurance)) {
 			$insurance->pid = $patient->pid;
-			include_once (ROOT . '/dataProvider/Insurance.php');
+			include_once(ROOT . '/dataProvider/Insurance.php');
 			$Insurance = new Insurance();
 			$Insurance->addInsurance($insurance);
 		}
@@ -412,9 +414,9 @@ class Patient
 		include_once(ROOT . '/dataProvider/PoolArea.php');
 		$patient = $this->setPatient($params->pid);
 
-		if($patient === false){
+		if ($patient === false) {
 			return [
-				'success' =>false,
+				'success' => false,
 				'error' => implode(' & ', $this->errors)
 			];
 		}
@@ -482,9 +484,9 @@ class Patient
 				} else {
 					if ($age['months'] > 1) {
 						$ageStr = $age['months'] . ' mos';
-					}elseif ($age['months'] == 1) {
+					} elseif ($age['months'] == 1) {
 						$ageStr = $age['months'] . ' mo';
-					}elseif ($age['days'] > 1) {
+					} elseif ($age['days'] > 1) {
 						$ageStr = $age['days'] . ' days';
 					} else {
 						$ageStr = $age['days'] . ' day';
@@ -831,7 +833,7 @@ class Patient
 		$record = [];
 
 		$this->setPatientModel();
-		$patient = $this->p->load($params->pid, ['pid','language', 'race', 'ethnicity', 'fname', 'lname', 'sex', 'DOB',])->one();
+		$patient = $this->p->load($params->pid, ['pid', 'language', 'race', 'ethnicity', 'fname', 'lname', 'sex', 'DOB',])->one();
 		foreach ($patient as $key => $val) {
 			$val = ($val == null || $val == '') ? false : true;
 			$record[] = [
@@ -884,7 +886,7 @@ class Patient
 			':lname' => $params->lname,
 		];
 
-		if(isset($params->policy_numer)){
+		if (isset($params->policy_numer)) {
 			$sql_params[':policy_numer'] = $params->policy_numer;
 			$sql[] = 'SELECT * FROM `patient` WHERE `pid` IN (SELECT pid FROM `patient_insurances` WHERE policy_numner = :policy_numer)';
 		}
@@ -920,8 +922,8 @@ class Patient
 				isset($record['postal_state']) ? $record['postal_state'] : '',
 				isset($record['postal_zip']) ? $record['postal_zip'] : ''
 			);
-			$results[$index]['phones'] = (isset($record['phone_home']) ?  $record['phone_home'] : '000-000-0000') . ' (h) | ';
-			$results[$index]['phones'] .= (isset($record['phone_mobile']) ?  $record['phone_mobile'] : '000-000-0000') . ' (m)';
+			$results[$index]['phones'] = (isset($record['phone_home']) ? $record['phone_home'] : '000-000-0000') . ' (h) | ';
+			$results[$index]['phones'] .= (isset($record['phone_mobile']) ? $record['phone_mobile'] : '000-000-0000') . ' (m)';
 
 		}
 		return [
@@ -966,7 +968,7 @@ class Patient
 		) {
 			$where = [];
 
-			if(isset($params->ageTo)){
+			if (isset($params->ageTo)) {
 				$params->ageTo++;
 				$dob_start_time = new DateTime();
 				$dob_start_time->sub(new DateInterval("P{$params->ageTo}Y"));
@@ -974,17 +976,17 @@ class Patient
 				$dob_start = $dob_start_time->format('Y-m-d');
 				$where[] = "(p.DOB >= '$dob_start')";
 			}
-			if(isset($params->ageFrom)){
+			if (isset($params->ageFrom)) {
 				$dob_stop_time = new DateTime();
 				$dob_stop_time->sub(new DateInterval("P{$params->ageFrom}Y"));
 				$dob_stop = $dob_stop_time->format('Y-m-d');
 				$where[] = "(p.DOB <= '$dob_stop')";
 			}
 
-			if(isset($params->fname)){
+			if (isset($params->fname)) {
 				$where[] = "(p.fname LIKE '{$params->fname}%')";
 			}
-			if(isset($params->lname)){
+			if (isset($params->lname)) {
 				$where[] = "(p.lname LIKE '{$params->lname}%')";
 			}
 			if (isset($params->sex)) {
@@ -1035,12 +1037,12 @@ class Patient
 				$sql = "SELECT p.pid FROM patient as p WHERE {$where}";
 				$patients = $this->p->sql($sql)->all();
 
-				if(!empty($patients)){
+				if (!empty($patients)) {
 					$pid_list = [];
-					foreach ($patients as $patient){
+					foreach ($patients as $patient) {
 						$pid_list[] = $patient['pid'];
 					}
-					$pid_list = implode(',',$pid_list);
+					$pid_list = implode(',', $pid_list);
 					$patient_in = "AND patient.pid in ({$pid_list})";
 				}
 			}
@@ -1052,7 +1054,7 @@ class Patient
 
 			$date = "(enc.service_date >= '{$params->date_from}' AND enc.service_date <= '{$params->date_to}')";
 
-			if(isset($pid_list)){
+			if (isset($pid_list)) {
 				$patient_in = "AND enc.pid in ({$pid_list})";
 			}
 
@@ -1063,7 +1065,7 @@ class Patient
 			$where = implode(' OR ', $where);
 
 			$sort = '';
-			if(isset($sorters['providers'])){
+			if (isset($sorters['providers'])) {
 				$sort = 'ORDER BY u.lname';
 			}
 
@@ -1085,7 +1087,7 @@ class Patient
 
 			$date = "(aller.create_date >= '{$params->date_from}' AND aller.create_date <= '{$params->date_to}')";
 
-			if(isset($pid_list)){
+			if (isset($pid_list)) {
 				$patient_in = "AND aller.pid in ({$pid_list})";
 			}
 
@@ -1096,7 +1098,7 @@ class Patient
 			$where = implode(' OR ', $where);
 
 			$sort = '';
-			if(isset($sorters['allergies'])){
+			if (isset($sorters['allergies'])) {
 				$sort = 'ORDER BY aller.allergy';
 			}
 
@@ -1117,7 +1119,7 @@ class Patient
 
 			$date = "(pro.create_date >= '{$params->date_from}' AND pro.create_date <= '{$params->date_to}')";
 
-			if(isset($pid_list)){
+			if (isset($pid_list)) {
 				$patient_in = "AND pro.pid in ({$pid_list})";
 			}
 
@@ -1128,7 +1130,7 @@ class Patient
 			$where = implode(' OR ', $where);
 
 			$sort = '';
-			if(isset($sorters['problems'])){
+			if (isset($sorters['problems'])) {
 				$sort = 'ORDER BY pro.code_text';
 			}
 
@@ -1149,7 +1151,7 @@ class Patient
 
 			$date = "(med.begin_date >= '{$params->date_from}' AND med.begin_date <= '{$params->date_to}')";
 
-			if(isset($pid_list)){
+			if (isset($pid_list)) {
 				$patient_in = "AND med.pid in ({$pid_list})";
 			}
 
@@ -1160,7 +1162,7 @@ class Patient
 			$where = implode(' OR ', $where);
 
 			$sort = '';
-			if(isset($sorters['medications'])){
+			if (isset($sorters['medications'])) {
 				$sort = 'ORDER BY med.STR';
 			}
 
@@ -1181,7 +1183,7 @@ class Patient
 
 			$date = "(por.create_date >= '{$params->date_from}' AND por.create_date <= '{$params->date_to}')";
 
-			if(isset($pid_list)){
+			if (isset($pid_list)) {
 				$patient_in = "AND por.pid in ({$pid_list})";
 			}
 
@@ -1192,7 +1194,7 @@ class Patient
 			$where = implode(' OR ', $where);
 
 			$sort = '';
-			if(isset($sorters['lab_results'])){
+			if (isset($sorters['lab_results'])) {
 				$sort = 'ORDER BY poro.code';
 			}
 
@@ -1223,7 +1225,7 @@ class Patient
 					         FROM patient AS p  WHERE {$date} p.pid in ({$pid_list})";
 		}
 
-		if(empty($concepts)){
+		if (empty($concepts)) {
 			return [];
 		}
 
@@ -1231,25 +1233,25 @@ class Patient
 
 		$container = [];
 
-		if(isset($filter_providers)){
+		if (isset($filter_providers)) {
 			$container[] = "container.providers !=''";
 		}
-		if(isset($filter_allergies)){
+		if (isset($filter_allergies)) {
 			$container[] = "container.allergies !=''";
 		}
-		if(isset($filter_problems)){
+		if (isset($filter_problems)) {
 			$container[] = "container.problems !=''";
 		}
-		if(isset($filter_medications)){
+		if (isset($filter_medications)) {
 			$container[] = "container.medications !=''";
 		}
-		if(isset($filter_lab_results)){
+		if (isset($filter_lab_results)) {
 			$container[] = "container.lab_results !=''";
 		}
 
-		if(!empty($container)){
+		if (!empty($container)) {
 			$container = implode(' AND ', $container);
-		}else{
+		} else {
 			$container = '';
 		}
 
@@ -1275,7 +1277,7 @@ class Patient
 				JOIN patient ON concepts.pid = patient.pid GROUP BY patient.pid";
 
 
-		if($container != ''){
+		if ($container != '') {
 			$sql = "SELECT * FROM ({$sql}) AS container WHERE {$container}";
 		}
 
@@ -1337,7 +1339,7 @@ class Patient
 				FROM ({$concepts}) as concepts
 				JOIN patient ON concepts.pid = patient.pid GROUP BY patient.pid {$sorts} LIMIT {$params->start}, {$params->limit}";
 
-		if($container != ''){
+		if ($container != '') {
 			$sql = "SELECT * FROM ({$sql}) AS container WHERE {$container}";
 		}
 
@@ -1345,6 +1347,64 @@ class Patient
 			'total' => $total,
 			'data' => $this->p->sql($sql)->all()
 		];
+	}
+
+	public function getAuthorizedPersonsByPid($pid)
+	{
+
+		$results = [];
+
+		$patient = $this->getPatientByPid($pid);
+		$age_object = $this->getPatientAge();
+		$is_adult = $age_object['DMY']['years'] >= 18;
+
+
+		if($is_adult){
+			$results[] = [
+				'text' => $this->getPatientFullName() . ' (Patient)'
+			];
+		}else{
+			if(isset($patient['mother_lname'])) {
+				$results[] = [
+					'text' => Person::fullname(
+						$patient['father_fname'],
+						$patient['father_mname'],
+						$patient['father_lname']
+					) . ' (Father)'
+				];
+			}
+			if(isset($patient['mother_lname'])){
+				$results[] = [
+					'text' => Person::fullname(
+						$patient['mother_fname'],
+						$patient['mother_mname'],
+						$patient['mother_lname']
+					) . ' (Mother)'
+				];
+			}
+		}
+
+		if (isset($patient['authorized_01_lname'])){
+			$results[] = [
+				'text' => Person::fullname(
+					$patient['authorized_01_fname'],
+					$patient['authorized_01_mname'],
+					$patient['authorized_01_lname']
+				) . ' (Authorized Person 1)'
+			];
+		}
+
+		if (isset($patient['authorized_02_lname'])){
+			$results[] = [
+				'text' => Person::fullname(
+					$patient['authorized_02_fname'],
+					$patient['authorized_02_mname'],
+					$patient['authorized_02_lname']
+				) . ' (Authorized Person 2)'
+			];
+		}
+
+		return $results;
 	}
 }
 

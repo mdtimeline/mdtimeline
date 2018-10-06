@@ -2045,6 +2045,9 @@ $API = [
             ],
 			'search' => [
 				'len' => 1
+            ],
+			'getAuthorizedPersonsByPid' => [
+				'len' => 1
             ]
         ]
     ],

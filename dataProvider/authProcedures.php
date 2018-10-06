@@ -42,6 +42,10 @@ class authProcedures {
 	public function login(stdClass $params){
 		error_reporting(-1);
 
+		// sanitize tags
+		$params->authUser = strip_tags(trim($params->authUser));
+		$params->authPass = strip_tags(trim($params->authPass));
+
 		// Check that the username do not pass
 		// the maximum limit of the field.
 		//
@@ -120,10 +124,6 @@ class authProcedures {
 			}
 		}
 
-		// remove empty spaces single and double quotes from username and password
-		$params->authUser = trim(str_replace(array('\'', '"'), '', $params->authUser));
-		$params->authPass = trim(str_replace(array('\'', '"'), '', $params->authPass));
-
 		// Username & password match
 		// Only bring authorized and active users.
 		$u = MatchaModel::setSenchaModel('App.model.administration.User');
@@ -181,7 +181,7 @@ class authProcedures {
 
 			return $this->doAuth($params, $user);
 
-		}elseif($user === false || $params->authPass != $user['password']){
+		}elseif($user === false || $params->authPass !== $user['password']){
 			return [
 				'success' => false,
 				'type' => 'error',

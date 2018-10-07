@@ -731,6 +731,12 @@ Ext.define('App.model.patient.Patient',{
 		    len: 25
 	    },
 	    {
+		    name: 'authy_id',
+		    type: 'string',
+		    len: 45,
+            index: true
+	    },
+	    {
 		    name: 'name',
 		    type: 'string',
 		    store: false

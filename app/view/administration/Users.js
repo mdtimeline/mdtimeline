@@ -96,6 +96,11 @@ Ext.define('App.view.administration.Users', {
 					dataIndex: 'notes'
 				},
 				{
+					text: _('authy_id'),
+					sortable: true,
+					dataIndex: 'authy_id'
+				},
+				{
 					text: _('active'),
 					sortable: true,
 					dataIndex: 'active',
@@ -543,6 +548,11 @@ Ext.define('App.view.administration.Users', {
 					handler: me.onNewUser
 				},
 				'->',
+				{
+					xtype: 'button',
+					text: _('authy_register'),
+					itemId: 'AdminUserGridPanelAuthyRegisterBtn'
+				},
 				'-',
 				{
 					xtype: 'button',

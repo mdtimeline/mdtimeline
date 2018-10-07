@@ -311,6 +311,11 @@ Ext.define('App.model.administration.User', {
 			name: 'department',
 			type: 'string',
 			store: false
+		},
+		{
+			name: 'authy_id',
+			type: 'string',
+			index: true
 		}
 	],
 	proxy: {

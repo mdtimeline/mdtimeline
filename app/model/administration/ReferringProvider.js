@@ -136,6 +136,12 @@ Ext.define('App.model.administration.ReferringProvider', {
             index: true
         },
         {
+            name: 'authy_id',
+            type: 'string',
+            len: 45,
+            index: true
+        },
+        {
             name: 'active',
             type: 'bool',
             index: true

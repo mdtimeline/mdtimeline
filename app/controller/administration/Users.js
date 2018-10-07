@@ -71,8 +71,37 @@ Ext.define('App.controller.administration.Users', {
 			},
 			'#SwitchUserBtn': {
 				click: me.onSwitchUserBtnClick
+			},
+			'#AdminUserGridPanelAuthyRegisterBtn': {
+				click: me.onAdminUserGridPanelAuthyRegisterBtnClick
 			}
 		});
+	},
+
+	onAdminUserGridPanelAuthyRegisterBtnClick: function(btn){
+		var user_grid = this.getAdminUserGridPanel(),
+			user_store = user_grid.getStore(),
+			user_record = user_grid.getSelectionModel().getLastSelected();
+
+		say(user_record);
+
+		TwoFactorAuthentication.registerUserByIdAndType(
+			user_record.get('id'),
+			'application',
+			user_record.get('email'),
+			user_record.get('mobile').replace(/[-() ]/g,''),
+			function (response) {
+				say(response);
+				if(!response.success){
+					app.msg(_('oops'), response.errors.replace(/,/g, '<br>'), true);
+				}else {
+					user_record.set({authy_id: response.authy_id});
+					user_record.commit();
+					user_grid.view.refresh();
+				}
+			}
+		);
+
 	},
 
 	onAdminUserGridPanelPrintBtnClick: function(){

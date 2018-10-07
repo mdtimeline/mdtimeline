@@ -35,6 +35,7 @@ Ext.define('App.view.login.Login', {
 		me.logged = false;
 
 		me.enableReCaptcha = false;
+		me.enable2FA = (parseInt(g('authy_2fa_enable')) || 0) ? true : false;
 
 		me.theme = Ext.state.Manager.get('mdtimeline_theme', 'light');
 
@@ -102,6 +103,22 @@ Ext.define('App.view.login.Login', {
 								autocomplete:'new-password'
 							});
 						}
+					}
+				}
+			},
+			{
+				xtype: 'textfield',
+				name: 'authToken',
+				fieldLabel: _('authorization_token'),
+				labelAlign: 'top',
+				hidden: !me.enable2FA,
+				listeners: {
+					scope: me,
+					specialkey: me.onEnter,
+					afterrender:function(cmp){
+						cmp.inputEl.set({
+							autocomplete:'new-password'
+						});
 					}
 				}
 			},
@@ -343,6 +360,8 @@ Ext.define('App.view.login.Login', {
 							}else {
 								me.msg('Oops!', response.result.message, true);
 								me.onFormReset();
+								form.findField('authPass').reset();
+								form.findField('authToken').reset();
 								me.winLogon.el.unmask();
 							}
 						}
@@ -350,7 +369,8 @@ Ext.define('App.view.login.Login', {
 
 				}else{
 					me.msg('Oops!', response.result.message, true);
-					me.onFormReset();
+					form.findField('authPass').reset();
+					form.findField('authToken').reset();
 					me.winLogon.el.unmask();
 				}
 			});
@@ -394,6 +414,7 @@ Ext.define('App.view.login.Login', {
 			site: window.site,
 			authUser: '',
 			authPass: '',
+			authToken: '',
 			lang: me.siteLang
 		});
 

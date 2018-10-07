@@ -216,6 +216,42 @@ class authProcedures {
 			}
 		}
 
+
+		$authy_enable = Globals::getGlobal('authy_2fa_enable');
+
+		if($authy_enable == '1'){
+
+			try{
+
+				include_once (ROOT. '/dataProvider/TwoFactorAuthentication.php');
+				$TwoFactorAuthentication = new TwoFactorAuthentication();
+				$token_response = $TwoFactorAuthentication->verifyTokenByUserIdAndType($user['id'], 'application', $params->authToken);
+
+				if($token_response === false){
+					return [
+						'success' => false,
+						'type' => '2fa',
+						'message' => 'Unable to Validate Token'
+					];
+				}
+
+				if(!$token_response['success']){
+					return [
+						'success' => false,
+						'type' => '2fa',
+						'message' => $token_response['errors']
+					];
+				}
+
+			}catch (Exception $e){
+				return [
+					'success' => false,
+					'type' => '2fa',
+					'message' => $e->getMessage()
+				];
+			}
+		}
+
 		$user = (array)$user;
 
 		// Change some User related variables and go

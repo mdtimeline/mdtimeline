@@ -2006,4 +2006,7 @@ $LANG = array(
 	'entry' => 'Entry',
 	'no_printer_selected' => 'No Printer Selected',
 	'no_browser_helper_found' => 'No Browser Helper Found',
+	'authorization_token' => 'Authorization Token',
+	'authy_id' => 'Authy ID',
+	'authy_register' => 'Authy Register',
 );

@@ -25,6 +25,16 @@ $API = [
             ]
         ]
     ],
+    'TwoFactorAuthentication' => [
+        'methods' => [
+            'getUserStatusByUserIdAndType' => [
+                'len' => 2
+            ],
+            'registerUserByIdAndType' => [
+                'len' => 4
+            ]
+        ]
+    ],
     'PictureIdCard' => [
         'methods' => [
             'Create' => [

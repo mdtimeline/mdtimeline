@@ -226,7 +226,7 @@ class authProcedures {
 			$authy_2fa_enable = $local_ip ? 0 : 1;
 		}
 
-		if($authy_2fa_enable){
+		if($authy_2fa_enable === 1){
 
 			try{
 

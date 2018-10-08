@@ -149,9 +149,9 @@ class TwoFactorAuthentication
 		    }
 
 		    if($user_type === 'application'){
-			    $sql = 'UPDATE users SET authy_id = ? WHERE id = ?';
+			    $sql = 'UPDATE users SET authy_id = ?, mobile = ? WHERE id = ?';
 		    }elseif($user_type === 'referring'){
-			    $sql = 'UPDATE referring_providers  SET authy_id = ? WHERE id = ?';
+			    $sql = 'UPDATE referring_providers  SET authy_id = ?, cel_number = ? WHERE id = ?';
 		    }
 
 		    if (!isset($sql)){
@@ -160,7 +160,7 @@ class TwoFactorAuthentication
 
 		    $conn = Matcha::getConn();
 		    $sth = $conn->prepare($sql);
-		    $sth->execute([$authy_user->id(), $user_id]);
+		    $sth->execute([$authy_user->id(), $cellphone, $user_id]);
 
 		    return [
 			    'success' => true,

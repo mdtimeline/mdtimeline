@@ -61,6 +61,8 @@ $authy_2fa_enable = (int) \Globals::getGlobal('authy_2fa_enable');
 if($authy_2fa_enable === 2){
 	$local_ip = \Network::isLocalAddress();
 	$global['authy_2fa_enable'] = $local_ip ? 0 : 1;
+}elseif($authy_2fa_enable === 3){
+	$global['authy_2fa_enable'] = 0;
 }
 
 if(!defined('THEME')) {

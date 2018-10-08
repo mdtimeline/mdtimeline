@@ -216,10 +216,17 @@ class authProcedures {
 			}
 		}
 
+		// 0 disabled
+		// 1 enabled
+		// 2 enable for remote access
+		$authy_2fa_enable = (int) \Globals::getGlobal('authy_2fa_enable');
 
-		$authy_enable = Globals::getGlobal('authy_2fa_enable');
+		if($authy_2fa_enable === 2){
+			$local_ip = \Network::isLocalAddress();
+			$authy_2fa_enable = $local_ip ? 0 : 1;
+		}
 
-		if($authy_enable == '1'){
+		if($authy_2fa_enable){
 
 			try{
 

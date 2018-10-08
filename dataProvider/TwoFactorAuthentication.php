@@ -37,11 +37,11 @@ class TwoFactorAuthentication
 
 	    include (ROOT . '/lib/Authy/authy-autoloader.php');
 
-    	$authy_enable = Globals::getGlobal('authy_2fa_enable');
-
-	    if($authy_enable == '0'){
-		    throw new Exception("Authy Disabled");
-	    }
+//    	$authy_enable = Globals::getGlobal('authy_2fa_enable');
+//
+//	    if($authy_enable == '0'){
+//		    throw new Exception("Authy Disabled");
+//	    }
 
     	$api_key = Globals::getGlobal('authy_api_key');
 
@@ -137,33 +137,41 @@ class TwoFactorAuthentication
 	 * @throws Exception
 	 */
     public function registerUserByIdAndType ($user_id, $user_type, $email, $cellphone, $country_code = 1){
-	    $authy_user = $this->AuthyApi->registerUser($email, $cellphone, $country_code);
 
-	    if(!$authy_user->ok()){
+    	try{
+		    $authy_user = $this->AuthyApi->registerUser($email, $cellphone, $country_code);
+
+		    if(!$authy_user->ok()){
+			    return [
+				    'success' => false,
+				    'errors' => $this->getErrors($authy_user)
+			    ];
+		    }
+
+		    if($user_type === 'application'){
+			    $sql = 'UPDATE users SET authy_id = ? WHERE id = ?';
+		    }elseif($user_type === 'referring'){
+			    $sql = 'UPDATE referring_providers  SET authy_id = ? WHERE id = ?';
+		    }
+
+		    if (!isset($sql)){
+			    throw new Exception('Invalid User Type');
+		    }
+
+		    $conn = Matcha::getConn();
+		    $sth = $conn->prepare($sql);
+		    $sth->execute([$authy_user->id(), $user_id]);
+
+		    return [
+			    'success' => true,
+			    'authy_id' =>  $authy_user->id()
+		    ];
+	    }catch (Exception $e){
 		    return [
 			    'success' => false,
-			    'errors' => $this->getErrors($authy_user)
+			    'errors' =>  $e->getMessage()
 		    ];
 	    }
-
-	    if($user_type === 'application'){
-		    $sql = 'UPDATE users SET authy_id = ? WHERE id = ?';
-	    }elseif($user_type === 'referring'){
-		    $sql = 'UPDATE referring_providers  SET authy_id = ? WHERE id = ?';
-	    }
-
-	    if (!isset($sql)){
-		    throw new Exception('Invalid User Type');
-	    }
-
-	    $conn = Matcha::getConn();
-	    $sth = $conn->prepare($sql);
-	    $sth->execute([$authy_user->id(), $user_id]);
-
-	    return [
-		    'success' => true,
-		    'authy_id' =>  $authy_user->id()
-	    ];
 	}
 
 	/**

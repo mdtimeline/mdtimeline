@@ -13646,6 +13646,12 @@ Ext.define('App.model.administration.ReferringProvider', {
             index: true
         },
         {
+            name: 'authy_id',
+            type: 'string',
+            len: 45,
+            index: true
+        },
+        {
             name: 'active',
             type: 'bool',
             index: true
@@ -14380,6 +14386,11 @@ Ext.define('App.model.administration.User', {
 			name: 'department',
 			type: 'string',
 			store: false
+		},
+		{
+			name: 'authy_id',
+			type: 'string',
+			index: true
 		}
 	],
 	proxy: {
@@ -22350,6 +22361,12 @@ Ext.define('App.model.patient.Patient',{
 		    len: 25
 	    },
 	    {
+		    name: 'authy_id',
+		    type: 'string',
+		    len: 45,
+            index: true
+	    },
+	    {
 		    name: 'name',
 		    type: 'string',
 		    store: false
@@ -30290,6 +30307,12 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
                     dataIndex: 'notes'
                 },
                 {
+                    flex: 1,
+                    text: _('authy_id'),
+                    sortable: true,
+                    dataIndex: 'authy_id'
+                },
+                {
                     text: _('active'),
                     sortable: true,
                     dataIndex: 'active',
@@ -30308,6 +30331,12 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
 		                    itemId: 'referringProviderAddBtn',
 	                    },
                         '->',
+	                    {
+		                    xtype: 'button',
+		                    text: _('authy_register'),
+		                    itemId: 'ReferringProviderAuthyRegisterBtn'
+	                    },
+                        '-',
                         {
                             xtype: 'button',
                             text: _('referring_provider'),
@@ -37413,10 +37442,38 @@ Ext.define('App.controller.administration.ReferringProviders', {
 			'#ReferringProviderFacilityAddBtn': {
 				click: me.onReferringProviderFacilityAddBtnClick
 			},
+			'#ReferringProviderAuthyRegisterBtn': {
+				click: me.onReferringProviderAuthyRegisterBtnClick
+			},
 			'#ReferringProviderWindowFormNpiSearchField': {
 				searchresponse: me.onReferringProviderWindowFormNpiSearchFieldSearchResponse
 			}
 		});
+	},
+
+	onReferringProviderAuthyRegisterBtnClick: function(){
+		var referring_grid = this.getReferringProvidersPanel(),
+			referring_store = referring_grid.getStore(),
+			referring_record = referring_grid.getSelectionModel().getLastSelected();
+
+		say(referring_record);
+
+		TwoFactorAuthentication.registerUserByIdAndType(
+			referring_record.get('id'),
+			'referring',
+			referring_record.get('email'),
+			referring_record.get('cel_number').replace(/[-() ]/g,''),
+			function (response) {
+				say(response);
+				if(!response.success){
+					app.msg(_('oops'), response.errors.replace(/,/g, '<br>'), true);
+				}else {
+					referring_record.set({authy_id: response.authy_id});
+					referring_record.commit();
+					referring_grid.view.refresh();
+				}
+			}
+		);
 	},
 
 	onReferringProviderWindowFormNpiSearchFieldSearchResponse: function (field, result) {
@@ -38000,8 +38057,37 @@ Ext.define('App.controller.administration.Users', {
 			},
 			'#SwitchUserBtn': {
 				click: me.onSwitchUserBtnClick
+			},
+			'#AdminUserGridPanelAuthyRegisterBtn': {
+				click: me.onAdminUserGridPanelAuthyRegisterBtnClick
 			}
 		});
+	},
+
+	onAdminUserGridPanelAuthyRegisterBtnClick: function(btn){
+		var user_grid = this.getAdminUserGridPanel(),
+			user_store = user_grid.getStore(),
+			user_record = user_grid.getSelectionModel().getLastSelected();
+
+		say(user_record);
+
+		TwoFactorAuthentication.registerUserByIdAndType(
+			user_record.get('id'),
+			'application',
+			user_record.get('email'),
+			user_record.get('mobile').replace(/[-() ]/g,''),
+			function (response) {
+				say(response);
+				if(!response.success){
+					app.msg(_('oops'), response.errors.replace(/,/g, '<br>'), true);
+				}else {
+					user_record.set({authy_id: response.authy_id});
+					user_record.commit();
+					user_grid.view.refresh();
+				}
+			}
+		);
+
 	},
 
 	onAdminUserGridPanelPrintBtnClick: function(){
@@ -54521,6 +54607,11 @@ Ext.define('App.view.administration.Users', {
 					dataIndex: 'notes'
 				},
 				{
+					text: _('authy_id'),
+					sortable: true,
+					dataIndex: 'authy_id'
+				},
+				{
 					text: _('active'),
 					sortable: true,
 					dataIndex: 'active',
@@ -54968,6 +55059,11 @@ Ext.define('App.view.administration.Users', {
 					handler: me.onNewUser
 				},
 				'->',
+				{
+					xtype: 'button',
+					text: _('authy_register'),
+					itemId: 'AdminUserGridPanelAuthyRegisterBtn'
+				},
 				'-',
 				{
 					xtype: 'button',

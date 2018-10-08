@@ -67,10 +67,38 @@ Ext.define('App.controller.administration.ReferringProviders', {
 			'#ReferringProviderFacilityAddBtn': {
 				click: me.onReferringProviderFacilityAddBtnClick
 			},
+			'#ReferringProviderAuthyRegisterBtn': {
+				click: me.onReferringProviderAuthyRegisterBtnClick
+			},
 			'#ReferringProviderWindowFormNpiSearchField': {
 				searchresponse: me.onReferringProviderWindowFormNpiSearchFieldSearchResponse
 			}
 		});
+	},
+
+	onReferringProviderAuthyRegisterBtnClick: function(){
+		var referring_grid = this.getReferringProvidersPanel(),
+			referring_store = referring_grid.getStore(),
+			referring_record = referring_grid.getSelectionModel().getLastSelected();
+
+		say(referring_record);
+
+		TwoFactorAuthentication.registerUserByIdAndType(
+			referring_record.get('id'),
+			'referring',
+			referring_record.get('email'),
+			referring_record.get('cel_number').replace(/[-() ]/g,''),
+			function (response) {
+				say(response);
+				if(!response.success){
+					app.msg(_('oops'), response.errors.replace(/,/g, '<br>'), true);
+				}else {
+					referring_record.set({authy_id: response.authy_id});
+					referring_record.commit();
+					referring_grid.view.refresh();
+				}
+			}
+		);
 	},
 
 	onReferringProviderWindowFormNpiSearchFieldSearchResponse: function (field, result) {

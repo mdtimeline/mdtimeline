@@ -84,6 +84,12 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
                     dataIndex: 'notes'
                 },
                 {
+                    flex: 1,
+                    text: _('authy_id'),
+                    sortable: true,
+                    dataIndex: 'authy_id'
+                },
+                {
                     text: _('active'),
                     sortable: true,
                     dataIndex: 'active',
@@ -102,6 +108,12 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
 		                    itemId: 'referringProviderAddBtn',
 	                    },
                         '->',
+	                    {
+		                    xtype: 'button',
+		                    text: _('authy_register'),
+		                    itemId: 'ReferringProviderAuthyRegisterBtn'
+	                    },
+                        '-',
                         {
                             xtype: 'button',
                             text: _('referring_provider'),

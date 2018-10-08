@@ -57,6 +57,12 @@ $global['url']  = URL;
 $global['host']  = HOST;
 $global['site']  = site_dir;
 
+$authy_2fa_enable = (int) \Globals::getGlobal('authy_2fa_enable');
+if($authy_2fa_enable === 2){
+	$local_ip = \Network::isLocalAddress();
+	$global['authy_2fa_enable'] = $local_ip ? 0 : 1;
+}
+
 if(!defined('THEME')) {
 	define('THEME', $global['application_theme']);
 }

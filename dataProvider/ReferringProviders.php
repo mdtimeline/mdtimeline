@@ -124,6 +124,15 @@ class ReferringProviders {
             $whereValues[':npi'.$index] = $query;
             $whereValues[':email'.$index] = $query;
         }
+
+
+        if(empty($where)){
+	        return [
+		        'totals' => 0,
+		        'rows' => []
+	        ];
+        }
+
         $sth = $conn->prepare('SELECT * FROM referring_providers WHERE ' . implode(' AND ', $where) . ' LIMIT 300');
         $sth->execute($whereValues);
         $providers = $sth->fetchAll(PDO::FETCH_ASSOC);

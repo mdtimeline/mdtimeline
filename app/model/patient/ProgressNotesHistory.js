@@ -48,6 +48,10 @@ Ext.define('App.model.patient.ProgressNotesHistory', {
 			type: 'string'
 		},
 		{
+			name: 'specialty_id',
+			type: 'int'
+		},
+		{
 			name: 'provider_uid',
 			type: 'int'
 		},

@@ -46434,19 +46434,79 @@ Ext.define('App.controller.patient.ProgressNotesHistory', {
 		{
 			ref:'EncounterProgressNotesHistoryGrid',
 			selector: '#EncounterProgressNotesHistoryGrid'
+		},
+		{
+			ref:'ProgressNotesHistoryMineBtn',
+			selector: '#ProgressNotesHistoryMineBtn'
+		},
+		{
+			ref:'ProgressNotesHistorySpecialtyBtn',
+			selector: '#ProgressNotesHistorySpecialtyBtn'
 		}
 	],
 
 	init: function(){
 		var me = this;
+
 		me.control({
 			'#EncounterProgressNotesHistoryGrid': {
 				afterrender: me.onEncounterProgressNotesHistoryGridAfterRender
 			},
-			//'#ProgressNotesHistorySearchField': {
-			//	render: me.onEncounterProgressNotesHistoryGridRender
-			//}
+			'#ProgressNotesHistoryMineBtn': {
+				toggle: me.onProgressNotesHistoryMineBtnToggle
+			},
+			'#ProgressNotesHistorySpecialtyBtn': {
+				toggle: me.onProgressNotesHistorySpecialtyBtnToggle
+			}
 		});
+
+		me.encOunterCtl = this.getController('patient.encounter.Encounter');
+
+	},
+
+	onProgressNotesHistoryMineBtnToggle: function(btn, pressed){
+		this.doEncounterProgressNotesHistoryGridFilter();
+	},
+
+	onProgressNotesHistorySpecialtyBtnToggle: function(btn, pressed){
+		this.doEncounterProgressNotesHistoryGridFilter();
+	},
+
+	doEncounterProgressNotesHistoryGridFilter: function(){
+
+		var me = this,
+			store = me.getEncounterProgressNotesHistoryGrid().getStore(),
+			mine_btn = me.getProgressNotesHistoryMineBtn(),
+			specialty_btn = me.getProgressNotesHistorySpecialtyBtn(),
+			encounter_record = me.encOunterCtl.getEncounterRecord(),
+			filters = [], provider_uid, specialty_id;
+
+		if(encounter_record === null) return;
+
+		provider_uid = encounter_record.get('provider_uid');
+		specialty_id = encounter_record.get('specialty_id');
+
+
+		if(mine_btn.pressed && provider_uid != null){
+			filters.push({
+				property: 'provider_uid',
+				value: provider_uid
+			});
+		}
+
+		if(specialty_btn.pressed && specialty_id != null){
+			filters.push({
+				property: 'specialty_id',
+				value: specialty_id
+			});
+		}
+
+		if(filters.length === 0){
+			store.clearFilter();
+		}else{
+			store.clearFilter(true);
+			store.filter(filters);
+		}
 	},
 
 	onEncounterProgressNotesHistoryGridAfterRender: function(grid){
@@ -62830,12 +62890,22 @@ Ext.define('App.view.patient.encounter.ProgressNotesHistory', {
 
 		var me = this;
 
-		me.store = Ext.create('App.store.patient.ProgressNotesHistory');
+		me.store = Ext.create('App.store.patient.ProgressNotesHistory',{
+			sorters: [
+				{
+					property: 'service_date',
+					direction: 'desc'
+				}
+			]
+		});
 
 		me.columns = [
 			{
-				dataIndex: 'progress',
-				flex: 1
+				dataIndex: 'service_date',
+				flex: 1,
+				renderer: function (v, meta, record) {
+					return record.get('progress');
+				}
 			}
 		];
 
@@ -62850,6 +62920,24 @@ Ext.define('App.view.patient.encounter.ProgressNotesHistory', {
 					return record.data.progress.search(new RegExp(value, 'ig')) !== -1;
 
 				}
+			},
+			'-',
+			{
+				xtype: 'button',
+				text: _('provider'),
+				tooltip: _('show_only_same_provider_notes'),
+				itemId: 'ProgressNotesHistoryMineBtn',
+				enableToggle: true,
+				toggleGroup: 'ProgressNotesHistoryMineBtnGroup'
+			},
+			'-',
+			{
+				xtype: 'button',
+				text: _('specialty'),
+				tooltip: _('show_only_same_specialty_notes'),
+				itemId: 'ProgressNotesHistorySpecialtyBtn',
+				enableToggle: true,
+				toggleGroup: 'ProgressNotesHistorySpecialtyBtnGroup'
 			}
 		];
 
@@ -68388,6 +68476,10 @@ Ext.define('App.model.patient.ProgressNotesHistory', {
 		{
 			name: 'instructions',
 			type: 'string'
+		},
+		{
+			name: 'specialty_id',
+			type: 'int'
 		},
 		{
 			name: 'provider_uid',

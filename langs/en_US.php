@@ -2009,4 +2009,7 @@ $LANG = array(
 	'authorization_token' => 'Authorization Token',
 	'authy_id' => 'Authy ID',
 	'authy_register' => 'Authy Register',
+	'mine' => 'Mine',
+	'show_only_same_provider_notes' => 'Show Only Same Provider Notes',
+	'show_only_same_specialty_notes' => 'Show Only Same Specialty Notes',
 );

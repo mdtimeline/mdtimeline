@@ -963,7 +963,9 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 	                'patient.encounter.EncounterDocuments',
 	                'patient.encounter.EncounterSign',
                     'patient.encounter.SOAP',
-                    'patient.encounter.SuperBill'
+                    'patient.encounter.SuperBill',
+
+                    'reports.AppointmentRequestReport'
                 ],
 	            init : function() {
 

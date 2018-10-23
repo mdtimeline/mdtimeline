@@ -365,7 +365,7 @@ Ext.define('App.controller.Navigation', {
 		if(!nav){
 			Ext.Function.defer(function(){
 				this.addNavigationNodes(parentId, node, index);
-			}, 5000, this);
+			}, 10000, this);
 			return;
 		}
 
@@ -374,7 +374,7 @@ Ext.define('App.controller.Navigation', {
 		if(!store){
 			Ext.Function.defer(function(){
 				this.addNavigationNodes(parentId, node, index);
-			}, 5000, this);
+			}, 10000, this);
 			return;
 		}
 

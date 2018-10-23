@@ -431,6 +431,9 @@ $API = [
             ],
             'deleteAppointmentRequest' => [
                 'len' => 1
+            ],
+            'getAppointmentRequestReport' => [
+                'len' => 1
             ]
         ]
     ],

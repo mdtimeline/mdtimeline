@@ -352,6 +352,60 @@ Ext.define('App.controller.Navigation', {
 	disabledNavKeys: function(){
 		Ext.getBody().un('keydown', this.captureDownKey, this);
 		Ext.getBody().un('keyup', this.captureUpKey, this);
-	}
+	},
+
+	addNavigationNodes: function(parentId, node, index){
+		var parent,
+			firstChildNode,
+			nodes,
+			i,
+			nav = this.getMainNav(),
+			store;
+
+		if(!nav){
+			Ext.Function.defer(function(){
+				this.addNavigationNodes(parentId, node, index);
+			}, 5000, this);
+			return;
+		}
+
+		store = nav.getStore();
+
+		if(!store){
+			Ext.Function.defer(function(){
+				this.addNavigationNodes(parentId, node, index);
+			}, 5000, this);
+			return;
+		}
+
+		if(parentId == 'root' || parentId == null){
+			parent = store.getRootNode();
+		}
+		else{
+			parent = store.getNodeById(parentId);
+		}
+
+		say('addNavigationNodes');
+		say(parent);
+
+		if(parent){
+			firstChildNode = parent.findChildBy(function(node){
+				return node.hasChildNodes();
+			});
+
+			if(Ext.isArray(node)){
+				nodes = [];
+				for(i = 0; i < node.length; i++){
+					Ext.Array.push(nodes, parent.insertBefore(node[i], firstChildNode));
+				}
+				return nodes;
+			}
+			else if(index){
+				return parent.insertChild(index, node);
+			}else{
+				return parent.insertBefore(node, firstChildNode);
+			}
+		}
+	},
 
 });

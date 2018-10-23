@@ -2012,4 +2012,5 @@ $LANG = array(
 	'mine' => 'Mine',
 	'show_only_same_provider_notes' => 'Show Only Same Provider Notes',
 	'show_only_same_specialty_notes' => 'Show Only Same Specialty Notes',
+	'appointment_request_report' => 'Appointment Request Report',
 );

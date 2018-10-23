@@ -51,4 +51,25 @@ class AppointmentRequest {
 	public function deleteAppointmentRequest($params) {
 		return $this->a->destroy($params);
 	}
+
+	public function getAppointmentRequestReport($params) {
+		$results = $this->a->load($params)
+			->leftJoin([
+				'pubpid' => 'pubpid',
+				'fname' => 'fname',
+				'mname' => 'mname',
+				'lname' => 'lname',
+				'sex' => 'sex',
+				'language' => 'language',
+				'DOB' => 'DOB',
+				'phone_home' => 'phone_home',
+				'phone_mobile' => 'phone_mobile',
+				'phone_publicity' => 'phone_publicity'
+			], 'patient', 'pid', 'pid')
+			->leftJoin(['Term' => 'procedure1'],'sct_descriptions','procedure1_code','ConceptId')
+			->leftJoin(['Term' => 'procedure2'],'sct_descriptions','procedure2_code','ConceptId')
+			->leftJoin(['Term' => 'procedure3'],'sct_descriptions','procedure3_code','ConceptId')->all();
+
+		return $results;
+	}
 }

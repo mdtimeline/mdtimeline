@@ -396,6 +396,22 @@ class Navigation
 
 		if(isset($misc['children']) && count($misc['children']) > 0) array_push($nav, $misc);
 
+
+		// *************************************************************************************
+		// Reports Folder
+		// *************************************************************************************
+		$reports = [
+			'text' => $this->i18n('reports'),
+			'cls' => 'folder',
+			'expanded' => true,
+			'iconCls' => 'icoLogo',
+			'id' => 'reports',
+			'children' => []
+		];
+		array_push($nav, $reports);
+
+
+
 		return $nav;
 
 	}

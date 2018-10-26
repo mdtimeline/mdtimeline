@@ -72,7 +72,7 @@ Ext.define('App.model.patient.AppointmentRequest', {
 		{
 			name: 'procedure1',
 			type: 'string',
-			store: false
+			len: 180
 		},
 		{
 			name: 'procedure1_code',
@@ -87,7 +87,7 @@ Ext.define('App.model.patient.AppointmentRequest', {
 		{
 			name: 'procedure2',
 			type: 'string',
-			store: false
+			len: 180
 		},
 		{
 			name: 'procedure2_code',
@@ -102,7 +102,7 @@ Ext.define('App.model.patient.AppointmentRequest', {
 		{
 			name: 'procedure3',
 			type: 'string',
-			store: false
+			len: 180
 		},
 		{
 			name: 'procedure3_code',

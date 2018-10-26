@@ -120,6 +120,22 @@ Ext.define('App.model.reports.AppointmentRequest',{
 	    {
 		    name: 'create_uid',
 		    ype: 'int'
+	    },
+	    {
+		    name: 'provider_fname',
+		    ype: 'string'
+	    },
+	    {
+		    name: 'provider_mname',
+		    ype: 'string'
+	    },
+	    {
+		    name: 'provider_lname',
+		    ype: 'string'
+	    },
+	    {
+		    name: 'provider_npi',
+		    ype: 'string'
 	    }
     ],
     proxy: {

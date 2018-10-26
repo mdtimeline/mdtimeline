@@ -522,8 +522,8 @@ class Patient
 
 	public function createPatientQrCode($pid, $fullname)
 	{
-		$data = '{"name":"' . $fullname . '","pid":' . $pid . ',"ehr": "GaiaEHR"}';
-		include(ROOT . '/lib/phpqrcode/qrlib.php');
+		$data = '{"name":"' . $fullname . '","pid":' . $pid . ',"ehr": "mdtimeline"}';
+		include_once (ROOT . '/lib/phpqrcode/qrlib.php');
 		ob_start();
 		QRCode::png($data, false, 'Q', 2, 2);
 		$imageString = base64_encode(ob_get_contents());

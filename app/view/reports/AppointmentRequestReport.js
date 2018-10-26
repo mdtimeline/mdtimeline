@@ -192,6 +192,20 @@ Ext.define('App.view.reports.AppointmentRequestReport', {
 						}
 					},
 					{
+						text: _('provider'),
+						dataIndex: 'provider_lname',
+						width: 200,
+						renderer: function (v,meta,rec) {
+							return Ext.String.format(
+								'{0}, {1} {2} ({3})',
+								rec.get('provider_lname'),
+								rec.get('provider_fname'),
+								rec.get('provider_mname'),
+								rec.get('provider_npi')
+							);
+						}
+					},
+					{
 						text: _('procedures'),
 						dataIndex: 'id',
 						flex: 1,

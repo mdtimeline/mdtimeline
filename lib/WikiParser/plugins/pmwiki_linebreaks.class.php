@@ -28,10 +28,12 @@ class pmwiki_linebreaks implements startOfLine, endOfLine
     
     public function startOfLine($line) 
     {
-        if(preg_match(pmwiki_linebreaks::regular_expression, trim(strip_tags($line)),$matches) && trim($line) != "" && !$this->paragraph_open)
+	    if($line[0] == '<') return $line;
+
+	    if(preg_match(pmwiki_linebreaks::regular_expression, trim(strip_tags($line)),$matches) && trim($line) != "" && !$this->paragraph_open)
         {
             $this->paragraph_open = true;
-            return "<p>" . $line;
+            return "<p>" . ltrim($line);
         }
         
         return $line;
@@ -39,10 +41,12 @@ class pmwiki_linebreaks implements startOfLine, endOfLine
 
     public function endOfLine($line)
     {
+	    if(substr($line, -1) == '>') return $line;
+
         if(preg_match(pmwiki_linebreaks::regular_expression, $line,$matches) && $this->paragraph_open)
         {
             $this->paragraph_open = false;
-            return $line . "</p>";
+            return rtrim($line) . "</p>";
         }
         
         return $line;

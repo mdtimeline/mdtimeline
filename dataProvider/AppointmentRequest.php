@@ -78,7 +78,7 @@ class AppointmentRequest {
 				  FROM patient_appointment_requests
 			 LEFT JOIN patient AS p ON p.pid = patient_appointment_requests.pid
 			 LEFT JOIN users AS u ON u.id = patient_appointment_requests.create_uid
-			 LEFT JOIN patient_insurances AS pi ON pi.pid = patient_appointment_requests.pid AND pi.insurance_type IN ('A', 'C', 'S')
+			 LEFT JOIN patient_insurances AS pi ON pi.pid = patient_appointment_requests.pid AND pi.insurance_type IN ('P', 'S', 'C')
 			 LEFT JOIN insurance_companies AS ic ON ic.id = pi.insurance_id
 			 {$_where}
 			 GROUP BY patient_appointment_requests.id";

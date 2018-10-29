@@ -105,11 +105,6 @@ Ext.define('App.view.reports.AppointmentRequestReport', {
 				store: me.store,
 				columns: [
 					{
-						text: _('record_number'),
-						dataIndex: 'pubpid',
-						width: 150
-					},
-					{
 						xtype: 'datecolumn',
 						text: _('date'),
 						dataIndex: 'create_date',
@@ -118,32 +113,7 @@ Ext.define('App.view.reports.AppointmentRequestReport', {
 					{
 						text: _('patient'),
 						dataIndex: 'lname',
-						width: 250,
-						renderer: function (v,meta,rec) {
-							return Ext.String.format(
-								'{0}, {1} {2} ({3})',
-								rec.get('lname'),
-								rec.get('fname'),
-								rec.get('mname'),
-								rec.get('sex')
-							);
-						}
-					},
-					{
-						text: _('dob') + ' (age)',
-						dataIndex: 'DOB',
-						renderer: function (v,meta,rec) {
-							return Ext.String.format(
-								'{0} ({1})',
-								rec.get('DOBFormatted'),
-								rec.getAge(rec.get('DOB'))
-							);
-						}
-					},
-					{
-						text: _('phone'),
-						dataIndex: 'phone_home',
-						width: 120,
+						width: 300,
 						renderer: function (v,meta,rec) {
 
 							var phones = [];
@@ -155,46 +125,33 @@ Ext.define('App.view.reports.AppointmentRequestReport', {
 								phones.push(rec.get('phone_mobile') + ' (M)');
 							}
 
-							return phones.join('<br>');
+							return Ext.String.format(
+								'MRN: {0}<br>NAME: {1}, {2} {3} ({4})<br>DOB: {5}<br>PHONES: {6}',
+								rec.get('pubpid'),
+								rec.get('lname'),
+								rec.get('fname'),
+								rec.get('mname'),
+								rec.get('sex'),
+								Ext.String.format('{0} ({1})', rec.get('DOBFormatted'),	rec.getAge(rec.get('DOB'))),
+								phones.join(', ')
+							);
 						}
 					},
 					{
-						text: _('communication'),
-						dataIndex: 'phone_publicity',
-						width: 150,
+						text: _('insurance'),
+						dataIndex: 'insurance_companies',
+						width: 250,
 						renderer: function (v) {
-							if(v == '01'){
-								return 'No reminder/recall';
-							}else  if(v == '02'){
-								return 'Reminder/recall - any method';
-							}else  if(v == '03'){
-								return 'Reminder/recall - no calls';
-							}else  if(v == '04'){
-								return 'Reminder only - any method';
-							}else  if(v == '05'){
-								return 'Reminder only - no calls';
-							}else  if(v == '06'){
-								return 'Recall only - any method';
-							}else  if(v == '07'){
-								return 'Recall only - no calls';
-							}else  if(v == '08'){
-								return 'Reminder/recall - to provider';
-							}else  if(v == '09'){
-								return 'Reminder to provider';
-							}else  if(v == '10'){
-								return 'Only reminder to provider no recall';
-							}else  if(v == '11'){
-								return 'Recall to provider';
-							}else  if(v == '12'){
-								return 'Only recall to provider no reminder';
+							if(Ext.isString(v)){
+								return v.split(',').join('<br>');
 							}
-							return v;
+							return ''
 						}
 					},
 					{
 						text: _('provider'),
 						dataIndex: 'provider_lname',
-						width: 200,
+						width: 250,
 						renderer: function (v,meta,rec) {
 							return Ext.String.format(
 								'{0}, {1} {2} ({3})',

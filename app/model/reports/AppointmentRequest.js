@@ -136,6 +136,10 @@ Ext.define('App.model.reports.AppointmentRequest',{
 	    {
 		    name: 'provider_npi',
 		    ype: 'string'
+	    },
+	    {
+		    name: 'insurance_companies',
+		    ype: 'string'
 	    }
     ],
     proxy: {

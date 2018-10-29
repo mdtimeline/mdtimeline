@@ -528,6 +528,42 @@ class MatchaCUP {
 		return $whereArray;
 	}
 
+	public function whereHandler($filters){
+
+		$whereArray = $this->filterHandler($filters);
+
+		$this->clearFilters();
+
+		if(count($whereArray) > 0){
+			$ands = [];
+			foreach($whereArray as $key => $whereArrayItems){
+				if(count($whereArrayItems) == 1){
+					$ands[] = $whereArrayItems[0];
+					continue;
+				}
+
+				$isOrHandler = in_array($key, $this->orFilterProperties);
+				$ors = [];
+				foreach($whereArrayItems AS $whereArrayItem){
+					if(!$isOrHandler){
+						$ands[] = $whereArrayItem;
+						continue;
+					}
+					$ors[] = $whereArrayItem;
+				}
+				if(count($ors) == 0) continue;
+				$ands[] = '(' . implode(' OR ', $ors) . ')';
+			}
+
+			$_where = 'WHERE ' . implode(' AND ', $ands);
+		} else {
+			$_where = '';
+		}
+
+		return $_where;
+	}
+
+
 	private function sortHandler($sorters) {
 		$sortArray = [];
 		foreach($sorters as $sort){

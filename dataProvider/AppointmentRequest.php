@@ -53,25 +53,37 @@ class AppointmentRequest {
 	}
 
 	public function getAppointmentRequestReport($params) {
-		$results = $this->a->load($params)
-			->leftJoin([
-				'pubpid' => 'pubpid',
-				'fname' => 'fname',
-				'mname' => 'mname',
-				'lname' => 'lname',
-				'sex' => 'sex',
-				'language' => 'language',
-				'DOB' => 'DOB',
-				'phone_home' => 'phone_home',
-				'phone_mobile' => 'phone_mobile',
-				'phone_publicity' => 'phone_publicity'
-			], 'patient', 'pid', 'pid')
-			->leftJoin([
-				'fname' => 'provider_fname',
-				'mname' => 'provider_mname',
-				'lname' => 'provider_lname',
-				'npi' => 'provider_npi'
-			],'users','create_uid','id')->all();
+
+
+		$_where = $this->a->whereHandler($params->filter);
+
+		$sql = "SELECT patient_appointment_requests.*,
+					   p.pubpid AS pubpid,
+					   p.fname AS fname,
+					   p.mname AS mname,
+					   p.lname AS lname,
+					   p.sex AS sex,
+					   p.DOB AS DOB,
+					   p.phone_home AS phone_home,
+					   p.phone_mobile AS phone_mobile,
+					   p.phone_publicity AS phone_publicity,
+					   
+					   u.fname AS provider_fname,
+					   u.mname AS provider_mname,
+					   u.lname AS provider_lname,
+					   u.npi AS provider_npi,
+					   
+					    GROUP_CONCAT(CONCAT(ic.`name`, ' (', pi.insurance_type ,')' ) ) AS insurance_companies
+					   
+				  FROM patient_appointment_requests
+			 LEFT JOIN patient AS p ON p.pid = patient_appointment_requests.pid
+			 LEFT JOIN users AS u ON u.id = patient_appointment_requests.create_uid
+			 LEFT JOIN patient_insurances AS pi ON pi.pid = patient_appointment_requests.pid AND pi.insurance_type IN ('A', 'C', 'S')
+			 LEFT JOIN insurance_companies AS ic ON ic.id = pi.insurance_id
+			 {$_where}
+			 GROUP BY patient_appointment_requests.id";
+
+		$results = $this->a->sql($sql)->all();
 
 		return $results;
 	}

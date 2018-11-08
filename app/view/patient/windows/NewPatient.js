@@ -145,6 +145,32 @@ Ext.define('App.view.patient.windows.NewPatient', {
 									allowBlank: false
 								}
 							]
+						},
+						{
+							xtype: 'fieldcontainer',
+							layout: 'hbox',
+							defaults: {
+								margin: '0 5 0 0',
+								labelAlign: 'top'
+							},
+							items: [
+								{
+									xtype: 'textfield',
+									name: 'phone_mobile',
+									emptyText: '000-000-0000',
+									fieldLabel:_('mobile'),
+									width: 200,
+									vtype: 'phoneNumber'
+								},
+								{
+									xtype: 'textfield',
+									name: 'email',
+									emptyText: 'example@email.com',
+									fieldLabel:_('email'),
+									width: 200,
+									vtype: 'email'
+								}
+							]
 						}
 					]
 				}

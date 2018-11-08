@@ -73,7 +73,8 @@ Ext.define('App.controller.administration.AuditLog', {
     showLogByRecord: function(record){
         var me = this,
             win = me.showLogWindow(),
-            store = me.getAuditLogWindowGrid().getStore();
+            store = me.getAuditLogWindowGrid().getStore(),
+            idProperty = record.idProperty || 'id';
 
         store.clearFilter(true);
 
@@ -82,7 +83,7 @@ Ext.define('App.controller.administration.AuditLog', {
         store.filter([
             {
                 property: 'foreign_id',
-                value: record.get('id')
+                value: record.get(idProperty)
             },
             {
                 property: 'foreign_table',

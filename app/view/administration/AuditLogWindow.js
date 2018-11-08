@@ -21,7 +21,7 @@ Ext.define('App.view.administration.AuditLogWindow', {
 	layout: 'fit',
 	title: _('audit_log'),
 	itemId: 'AuditLogWindow',
-	width: 900,
+	width: 1000,
 	height: 500,
 	bodyPadding: 5,
 	modal: true,
@@ -54,7 +54,7 @@ Ext.define('App.view.administration.AuditLogWindow', {
 					{
 						text: _('event'),
 						dataIndex: 'event',
-						width: 150,
+						width: 100,
 						renderer: function(v){
 							return v.toUpperCase();
 						}
@@ -62,12 +62,15 @@ Ext.define('App.view.administration.AuditLogWindow', {
 					{
 						text: _('description'),
 						dataIndex: 'event_description',
-						flex: 1
+						flex: 1,
+						renderer: function(v){
+							return '<div style="white-space: normal">' + v + '</div>'
+						}
 					},
 					{
 						text: _('user'),
 						dataIndex: 'user_name',
-						flex: 1
+						width: 200
 					},
 					{
 						text: _('ip'),

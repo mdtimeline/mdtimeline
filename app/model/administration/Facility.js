@@ -49,6 +49,11 @@ Ext.define('App.model.administration.Facility', {
 			len: 80
 		},
 		{
+			name: 'region',
+			type: 'string',
+			len: 45
+		},
+		{
 			name: 'phone',
 			type: 'string',
 			len: 25

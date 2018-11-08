@@ -34,6 +34,12 @@ Ext.define('App.view.administration.practice.Facilities', {
 					dataIndex: 'name'
 				},
 				{
+					text: _('region'),
+					width: 100,
+					sortable: true,
+					dataIndex: 'region'
+				},
+				{
 					text: _('phone'),
 					width: 100,
 					sortable: true,
@@ -157,6 +163,14 @@ Ext.define('App.view.administration.practice.Facilities', {
 										xtype: 'fieldcontainer',
 										layout: 'hbox',
 										items: [
+											{
+												xtype: 'gaiaehr.combo',
+												fieldLabel: _('region'),
+												editable: false,
+												listKey: 'regions',
+												name: 'region',
+												margin: '0 10 0 0'
+											},
 											{
 												xtype: 'textfield',
 												fieldLabel: _('ess'),

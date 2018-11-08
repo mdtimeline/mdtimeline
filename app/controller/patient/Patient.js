@@ -102,9 +102,12 @@ Ext.define('App.controller.patient.Patient', {
 			demographics_values = demographics_form.getValues(),
 			demographics_params = {
 				fname: demographics_values.fname,
+				mname: demographics_values.mname,
 				lname: demographics_values.lname,
+				DOB: demographics_values.DOB,
 				sex: demographics_values.sex,
-				DOB: demographics_values.DOB
+				phone_mobile: demographics_values.phone_mobile,
+				email: demographics_values.email
 			},
 			insurance_form = me.getNewPatientWindowInsuranceForm().getForm(),
 			insurance_values = insurance_form.getValues(),
@@ -137,17 +140,21 @@ Ext.define('App.controller.patient.Patient', {
 		me.lookForPossibleDuplicates(demographics_params, null, function (duplicared_win, response) {
 
 			if(response === true){
+				win.el.mask(_('please_wait'));
 				// continue clicked
 				Patient.createNewPatient(demographics_params, function (response) {
 					app.setPatient(response.pid, null, null, function(){
+						win.el.unmask();
 						win.close();
 					});
 				});
 
 			}else if(response.isModel === true){
+				win.el.mask(_('please_wait'));
 				// duplicated record clicked
 				app.setPatient(response.get('pid'), null, null, function(){
 					duplicared_win.close();
+					win.el.unmask();
 					win.close();
 				});
 			}

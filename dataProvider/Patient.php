@@ -1406,5 +1406,12 @@ class Patient
 
 		return $results;
 	}
+
+	public function hashPid($pid){
+		return MatchaUtils::encrypt($pid);
+	}
+	public function unHashPid($pid){
+		return MatchaUtils::decrypt($pid);
+	}
 }
 

@@ -145,7 +145,7 @@ class Matcha
 
             // check if the database exist.
             self::__createDatabase($dbName);
-            self::$__conn->exec('USE ' . $dbName . ';');
+            self::$__conn->exec('USE `' . $dbName . '`;');
 
             // set the encryption secret key if provided
             if(isset($databaseParameters['key']))
@@ -343,7 +343,7 @@ class Matcha
 	 */
 	static protected function __createDatabase($databaseName){
 		try{
-			self::$__conn->query('CREATE DATABASE IF NOT EXISTS ' . $databaseName . ';');
+			self::$__conn->query('CREATE DATABASE IF NOT EXISTS `' . $databaseName . '`;');
 			return true;
 		} catch(PDOException $e){
 			MatchaErrorHandler::__errorProcess($e);

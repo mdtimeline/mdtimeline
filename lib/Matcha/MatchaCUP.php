@@ -328,11 +328,16 @@ class MatchaCUP {
 				// group
                 $_group = '';
                 if(isset($where->group)) {
-                    if(is_object($where->group)) $where->group = [ 0=>$where->group ];
-                    if(count($where->group) < 0) {
-                        $property = $where->group[0]->property;
-                        $direction = isset($where->group[0]->direction) ? $where->group[0]->direction : '';
-                        $_group = " GROUP BY `$property` $direction";
+                    if(is_object($where->group)) $where->group = [ $where->group ];
+                    if(count($where->group) > 0) {
+
+	                    $_groups = [];
+                    	foreach ($where->group as $g){
+		                    $property = $g->property;
+		                    $direction = isset($g->direction) ? $g->direction : '';
+		                    $_groups[] = "`{$this->table}`.`$property` $direction";
+	                    }
+                        $_group = ' GROUP BY ' . implode(', ', $_groups);
                     }
                 }
 
@@ -391,8 +396,8 @@ class MatchaCUP {
 
 				$this->primary_columns = $columns;
 
-				$this->nolimitsql = "SELECT $columns FROM `" . $this->table . "` $_where $_group $_sort";
-				$this->sql = "SELECT $columns FROM `" . $this->table . "` $_where $_group $_sort $_limits";
+				$this->nolimitsql = "SELECT {$columns} FROM `{$this->table}` {$_where} {$_group} {$_sort}";
+				$this->sql = "SELECT {$columns} FROM `{$this->table}` {$_where} {$_group} {$_sort} {$_limits}";
 			}
 			return $this;
 		} catch(PDOException $e) {
@@ -574,7 +579,7 @@ class MatchaCUP {
 				continue;
 
 			$sortDirection = (isset($sort->direction) ? $sort->direction : '');
-			$sortArray[] = '`' .$sort->property . '` ' . $sortDirection;
+			$sortArray[] = "`{$this->table}`.`{$sort->property}` {$sortDirection}";
 
 		}
 		return $sortArray;
@@ -743,18 +748,26 @@ class MatchaCUP {
 	 * @return $this
 	 */
 	public function sort($params) {
-		if(isset($params->sort)){
-			$sortArray = [];
-			foreach($params->sort as $sort){
-				if(isset($sort->property) && (!is_array($this->phantomFields) || (is_array($this->phantomFields) && in_array($sort->property, $this->phantomFields)))){
-					$sortDirection = (isset($sort->direction) ? $sort->direction : '');
-					$sortArray[] = $sort->property . ' ' . $sortDirection;
-				}
-			}
-			if(!empty($sortArray)){
-				$this->sql = $this->sql . ' ORDER BY ' . implode(', ', $sortArray);
-			}
+
+		if(!isset($params) || !isset($params->sort)){
+			return $this;
 		}
+
+		$sortArray = [];
+		foreach($params->sort as $sort) {
+
+			if (!isset($sort->property))
+				continue;
+			if (is_array($this->phantomFields) && in_array($sort->property, $this->phantomFields))
+				continue;
+
+			$sortDirection = (isset($sort->direction) ? $sort->direction : '');
+			$sortArray[] = "`{$this->table}`.`{$sort->property}` {$sortDirection}";;
+		}
+		if(!empty($sortArray)){
+			$this->sql = $this->sql . ' ORDER BY ' . implode(', ', $sortArray);
+		}
+
 		return $this;
 	}
 
@@ -772,14 +785,23 @@ class MatchaCUP {
 	/**
 	 * @param $params
 	 *
+	 * @param bool $append
 	 * @return $this
 	 */
-	public function group($params) {
-		if(isset($params->group)){
-			$property = $params->group[0]->property;
-			$direction = isset($params->group[0]->direction) ? $params->group[0]->direction : '';
-			$group = " GROUP BY `$property` $direction ";
+	public function group($params, $append = false) {
 
+		if(!isset($params) || !isset($params->group)){
+			return $this;
+		}
+
+		$property = $params->group[0]->property;
+		$direction = isset($params->group[0]->direction) ? $params->group[0]->direction : '';
+		$group = " GROUP BY `{$this->table}`.`$property` $direction ";
+
+		if($append){
+			$this->sql .= $group;
+			$this->nolimitsql .= $group;
+		}else{
 			if(preg_match('/ORDER BY/', $this->sql)){
 				$this->sql = preg_replace('/ORDER BY.*(ASC|DESC)/', $group . ' $1', $this->sql);
 			} elseif(preg_match('/LIMIT/', $this->sql)) {
@@ -788,7 +810,6 @@ class MatchaCUP {
 				$this->sql .= $group;
 			}
 			$this->nolimitsql .= $group;
-
 		}
 
 		return $this;

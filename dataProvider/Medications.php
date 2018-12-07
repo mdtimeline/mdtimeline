@@ -62,17 +62,32 @@ class Medications
 		    $filter->operator = '!=';
 		    $filter->value = 1;
 		    $params->filter[] = $filter;
-		    unset($filter, $params->reconciled);
-	    }
 
-        if (isset($params->reconciled) && $params->reconciled == true) {
-            $groups = new stdClass();
-            $groups->group[0] = new stdClass();
-            $groups->group[0]->property = 'RXCUI';
-            return $this->m->load($params)
-                ->leftJoin(['title', 'fname', 'mname', 'lname'], 'users', 'administered_uid', 'id')
-                ->group($groups)->all();
-        }
+		    $params->group[0] = new stdClass();
+		    $params->group[0]->property = 'RXCUI';
+		    $params->group[1] = new stdClass();
+		    $params->group[1]->property = 'begin_date';
+		    $params->group[1]->direction = 'DESC';
+
+		    $group = new stdClass();
+		    $group->group[0] = new stdClass();
+		    $group->group[0]->property = 'RXCUI';
+
+		    if(isset($params->sort)){
+			    $sorts = new stdClass();
+			    $sorts->sort =  $params->sort;
+		    }else{
+			    $sorts = null;
+		    }
+
+		    $sorts = isset($params->sort) ? $params->sort : null;
+		    unset($params->sort);
+
+		    return $this->m->load($params)
+			    ->leftJoin(['title', 'fname', 'mname', 'lname'], 'users', 'administered_uid', 'id')
+			    ->sort($sorts)
+			    ->group($group, true)->all();
+	    }
 
         return $this->m->load($params)
             ->leftJoin(['title', 'fname', 'mname', 'lname'], 'users', 'administered_uid', 'id')

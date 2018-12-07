@@ -330,14 +330,22 @@ class MatchaCUP {
                 if(isset($where->group)) {
                     if(is_object($where->group)) $where->group = [ $where->group ];
                     if(count($where->group) > 0) {
-
 	                    $_groups = [];
                     	foreach ($where->group as $g){
+
+		                    if($this->isPhantomField($g->property)){
+		                    	continue;
+		                    }
+
 		                    $property = $g->property;
 		                    $direction = isset($g->direction) ? $g->direction : '';
 		                    $_groups[] = "`{$this->table}`.`$property` $direction";
 	                    }
-                        $_group = ' GROUP BY ' . implode(', ', $_groups);
+
+                    	if(!empty($_groups)){
+		                    $_group = ' GROUP BY ' . implode(', ', $_groups);
+	                    }
+
                     }
                 }
 
@@ -403,6 +411,14 @@ class MatchaCUP {
 		} catch(PDOException $e) {
 			return $this->PDOExceptionHandler($e, 'load', [$where, $columns]);
 		}
+	}
+
+	/**
+	 * @param $field_name
+	 * @return bool
+	 */
+	private function isPhantomField($field_name){
+		return is_array($this->phantomFields) && in_array($field_name, $this->phantomFields);
 	}
 
 	/**
@@ -511,8 +527,11 @@ class MatchaCUP {
 
 		foreach($filters as $foo){
 			if(isset($foo->property)){
-				if(is_array($this->phantomFields) && in_array($foo->property, $this->phantomFields))
+
+				if($this->isPhantomField($foo->property)){
 					continue;
+				}
+
 				if(!isset($foo->value)){
                     $operator = (isset($foo->operator) && $foo->operator != '=') ? 'IS NOT' : 'IS';
                     $whereArray[$foo->property][] = "`$this->table`.`$foo->property` $operator NULL";
@@ -573,10 +592,13 @@ class MatchaCUP {
 		$sortArray = [];
 		foreach($sorters as $sort){
 
-			if(!isset($sort->property))
+			if(!isset($sort->property)){
 				continue;
-			if(is_array($this->phantomFields) && in_array($sort->property, $this->phantomFields))
+			}
+
+			if($this->isPhantomField($sort->property)){
 				continue;
+			}
 
 			$sortDirection = (isset($sort->direction) ? $sort->direction : '');
 			$sortArray[] = "`{$this->table}`.`{$sort->property}` {$sortDirection}";
@@ -756,10 +778,14 @@ class MatchaCUP {
 		$sortArray = [];
 		foreach($params->sort as $sort) {
 
-			if (!isset($sort->property))
+			if (!isset($sort->property)){
 				continue;
-			if (is_array($this->phantomFields) && in_array($sort->property, $this->phantomFields))
+			}
+
+			if($this->isPhantomField($sort->property)){
 				continue;
+			}
+
 
 			$sortDirection = (isset($sort->direction) ? $sort->direction : '');
 			$sortArray[] = "`{$this->table}`.`{$sort->property}` {$sortDirection}";;

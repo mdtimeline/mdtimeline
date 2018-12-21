@@ -34,7 +34,7 @@ class Router implements HttpServerInterface {
         try {
             $route = $this->_matcher->match($request->getPath());
         } catch (MethodNotAllowedException $nae) {
-            return $this->close($conn, 403);
+            return $this->close($conn, 405, array('Allow' => $nae->getAllowedMethods()));
         } catch (ResourceNotFoundException $nfe) {
             return $this->close($conn, 404);
         }
@@ -53,7 +53,9 @@ class Router implements HttpServerInterface {
                 $parameters[$key] = $value;
             }
         }
-        $url = Url::factory($request->getPath());
+        $parameters = array_merge($parameters, $request->getQuery()->getAll());
+
+        $url = Url::factory($request->getUrl());
         $url->setQuery($parameters);
         $request->setUrl($url);
 
@@ -64,8 +66,8 @@ class Router implements HttpServerInterface {
     /**
      * {@inheritdoc}
      */
-    function onMessage(ConnectionInterface $from, $msg, $server) {
-        $from->controller->onMessage($from, $msg, $server);
+    function onMessage(ConnectionInterface $from, $msg) {
+        $from->controller->onMessage($from, $msg);
     }
 
     /**
@@ -89,13 +91,15 @@ class Router implements HttpServerInterface {
     /**
      * Close a connection with an HTTP response
      * @param \Ratchet\ConnectionInterface $conn
-     * @param int                          $code HTTP status code
+     * @param int $code HTTP status code
+     * @param array $additionalHeaders
      * @return null
      */
-    protected function close(ConnectionInterface $conn, $code = 400) {
-        $response = new Response($code, array(
+    protected function close(ConnectionInterface $conn, $code = 400, array $additionalHeaders = array()) {
+        $headers = array_merge(array(
             'X-Powered-By' => \Ratchet\VERSION
-        ));
+        ), $additionalHeaders);
+        $response = new Response($code, $headers);
 
         $conn->send((string)$response);
         $conn->close();

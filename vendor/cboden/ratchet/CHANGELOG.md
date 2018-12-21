@@ -8,6 +8,30 @@ CHANGELOG
 
 ---
 
+* 0.3.6 (2017-01-06)
+ * BF: Keep host and scheme in HTTP request object attatched to connection
+ * BF: Return correct HTTP response (405) when non-GET request made
+
+* 0.3.5 (2016-05-25)
+
+ * BF: Unmask responding close frame
+ * Added write handler for PHP session serializer
+
+* 0.3.4 (2015-12-23)
+
+ * BF: Edge case where version check wasn't run on message coalesce
+ * BF: Session didn't start when using pdo_sqlite
+ * BF: WAMP currie prefix check when using '#'
+ * Compatibility with Symfony 3
+
+* 0.3.3 (2015-05-26)
+
+ * BF: Framing bug on large messages upon TCP fragmentation
+ * BF: Symfony Router query parameter defaults applied to Request
+ * BF: WAMP CURIE on all URIs
+ * OriginCheck rules applied to FlashPolicy
+ * Switched from PSR-0 to PSR-4
+
 * 0.3.2 (2014-06-08)
 
  * BF: No messages after closing handshake (fixed rare race condition causing 100% CPU)

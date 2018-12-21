@@ -1,5 +1,7 @@
 # Stream Component
 
+[![Build Status](https://secure.travis-ci.org/reactphp/stream.png?branch=master)](http://travis-ci.org/reactphp/stream)
+
 Basic readable and writable stream interfaces that support piping.
 
 In order to make the event loop easier to use, this component introduces the
@@ -56,7 +58,7 @@ This component depends on `événement`, which is an implementation of the
   the buffer, then close it.
 
 ## Usage
-
+```php
     $loop = React\EventLoop\Factory::create();
 
     $source = new React\Stream\Stream(fopen('omg.txt', 'r'), $loop);
@@ -65,3 +67,17 @@ This component depends on `événement`, which is an implementation of the
     $source->pipe($dest);
 
     $loop->run();
+```
+
+## Install
+
+The recommended way to install this library is [through Composer](http://getcomposer.org).
+[New to Composer?](http://getcomposer.org/doc/00-intro.md)
+
+This will install the latest supported version:
+
+```bash
+$ composer require react/stream:^0.4.6
+```
+
+More details about version upgrades can be found in the [CHANGELOG](CHANGELOG.md).

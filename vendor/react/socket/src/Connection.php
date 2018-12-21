@@ -4,22 +4,16 @@ namespace React\Socket;
 
 use React\Stream\Stream;
 
+/**
+ * The actual connection implementation for ConnectionInterface
+ *
+ * This class should only be used internally, see ConnectionInterface instead.
+ *
+ * @see ConnectionInterface
+ * @internal
+ */
 class Connection extends Stream implements ConnectionInterface
 {
-    public function handleData($stream)
-    {
-        // Socket is raw, not using fread as it's interceptable by filters
-        // See issues #192, #209, and #240
-        $data = stream_socket_recvfrom($stream, $this->bufferSize);
-        if ('' !== $data && false !== $data) {
-            $this->emit('data', array($data, $this));
-        }
-
-        if ('' === $data || false === $data || !is_resource($stream) || feof($stream)) {
-            $this->end();
-        }
-    }
-
     public function handleClose()
     {
         if (is_resource($this->stream)) {
@@ -32,11 +26,15 @@ class Connection extends Stream implements ConnectionInterface
 
     public function getRemoteAddress()
     {
-        return $this->parseAddress(stream_socket_get_name($this->stream, true));
+        return $this->parseAddress(@stream_socket_get_name($this->stream, true));
     }
 
     private function parseAddress($address)
     {
+        if ($address === false) {
+            return null;
+        }
+
         return trim(substr($address, 0, strrpos($address, ':')), '[]');
     }
 }

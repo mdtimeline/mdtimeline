@@ -7,12 +7,27 @@ session_cache_limiter('private');
 session_name('mdTimeLine');
 session_start();
 
-define('_GaiaEXEC', 1);
-require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
-include_once (ROOT . '/dataProvider/Site.php');
-Site::setAllowSiteSwitch(true);
-$URL = URL;
 $file = $_REQUEST['file'];
+
+if(!file_exists($file) || !is_readable($file)){
+	header("HTTP/1.1 403 Forbidden");
+	exit;
+}
+
+preg_match('/^[a-z]*/', $file, $matches);
+
+if(isset($matches[0])){
+	define('SITE',$matches[0]);
+}else{
+	header("HTTP/1.1 403 Forbidden");
+	exit;
+}
+
+define('_GaiaEXEC', 1);
+include_once ('../dataProvider/Site.php');
+Site::setAllowSiteSwitch(true);
+require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
+$URL = URL;
 
 if(!file_exists($file) || !is_readable($file)){
 	header("HTTP/1.1 403 Forbidden");

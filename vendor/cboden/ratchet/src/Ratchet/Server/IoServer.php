@@ -110,7 +110,7 @@ class IoServer {
      */
     public function handleData($data, $conn) {
         try {
-            $this->app->onMessage($conn->decor, $data, $this);
+            $this->app->onMessage($conn->decor, $data);
         } catch (\Exception $e) {
             $this->handleError($e, $conn);
         }

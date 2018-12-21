@@ -12053,6 +12053,11 @@ Ext.define('App.model.administration.Facility', {
 			len: 15
 		},
 		{
+			name: 'coordinates',
+			type: 'string',
+			len: 120
+		},
+		{
 			name: 'active',
 			type: 'bool'
 		},

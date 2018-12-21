@@ -3,8 +3,6 @@ namespace Ratchet\Http;
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 use Guzzle\Http\Message\Response;
-use Ratchet\Server\IoServer;
-
 
 class HttpServer implements MessageComponentInterface {
     /**
@@ -37,10 +35,10 @@ class HttpServer implements MessageComponentInterface {
     /**
      * {@inheritdoc}
      */
-    public function onMessage(ConnectionInterface $from, $msg, IoServer $server) {
+    public function onMessage(ConnectionInterface $from, $msg) {
         if (true !== $from->httpHeadersReceived) {
             try {
-                if (null === ($request = $this->_reqParser->onMessage($from, $msg, $server))) {
+                if (null === ($request = $this->_reqParser->onMessage($from, $msg))) {
                     return;
                 }
             } catch (\OverflowException $oe) {
@@ -52,7 +50,7 @@ class HttpServer implements MessageComponentInterface {
             return $this->_httpServer->onOpen($from, $request);
         }
 
-        $this->_httpServer->onMessage($from, $msg, $server);
+        $this->_httpServer->onMessage($from, $msg);
     }
 
     /**

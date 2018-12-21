@@ -87,8 +87,8 @@ class IpBlackList implements MessageComponentInterface {
     /**
      * {@inheritdoc}
      */
-    function onMessage(ConnectionInterface $from, $msg, $server) {
-        return $this->_decorating->onMessage($from, $msg, $server);
+    function onMessage(ConnectionInterface $from, $msg) {
+        return $this->_decorating->onMessage($from, $msg);
     }
 
     /**

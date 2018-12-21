@@ -82,7 +82,7 @@ class ServerProtocol implements MessageComponentInterface, WsServerInterface {
      * @throws \Ratchet\Wamp\Exception
      * @throws \Ratchet\Wamp\JsonException
      */
-    public function onMessage(ConnectionInterface $from, $msg, $server) {
+    public function onMessage(ConnectionInterface $from, $msg) {
         $from = $this->connections[$from];
 
         if (null === ($json = @json_decode($msg, true))) {
@@ -107,7 +107,7 @@ class ServerProtocol implements MessageComponentInterface, WsServerInterface {
                     $json = $json[0];
                 }
 
-                $this->_decorating->onCall($from, $callID, $procURI, $json);
+                $this->_decorating->onCall($from, $callID, $from->getUri($procURI), $json);
             break;
 
             case static::MSG_SUBSCRIBE:

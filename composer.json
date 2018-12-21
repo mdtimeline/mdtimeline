@@ -1,5 +1,7 @@
 {
 	"require": {
-		"cboden/ratchet": "0.3.*"
+		"cboden/ratchet": "0.3.*",
+		"guzzle/guzzle": "dev-master",
+		"slim/slim": "^3.0"
 	}
 }

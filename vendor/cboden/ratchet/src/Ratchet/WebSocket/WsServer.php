@@ -5,7 +5,6 @@ use Ratchet\ConnectionInterface;
 use Ratchet\Http\HttpServerInterface;
 use Guzzle\Http\Message\RequestInterface;
 use Guzzle\Http\Message\Response;
-use Ratchet\Server\IoServer;
 use Ratchet\WebSocket\Version;
 use Ratchet\WebSocket\Encoding\ToggleableValidator;
 
@@ -88,13 +87,13 @@ class WsServer implements HttpServerInterface {
     /**
      * {@inheritdoc}
      */
-    public function onMessage(ConnectionInterface $from, $msg, IoServer $server) {
+    public function onMessage(ConnectionInterface $from, $msg) {
         if ($from->WebSocket->closing) {
             return;
         }
 
         if (true === $from->WebSocket->established) {
-            return $from->WebSocket->version->onMessage($this->connections[$from], $msg, $server);
+            return $from->WebSocket->version->onMessage($this->connections[$from], $msg);
         }
 
         $this->attemptUpgrade($from, $msg);
@@ -103,13 +102,13 @@ class WsServer implements HttpServerInterface {
     protected function attemptUpgrade(ConnectionInterface $conn, $data = '') {
         if ('' !== $data) {
             $conn->WebSocket->request->getBody()->write($data);
-        } else {
-            if (!$this->versioner->isVersionEnabled($conn->WebSocket->request)) {
-                return $this->close($conn);
-            }
-
-            $conn->WebSocket->version = $this->versioner->getVersion($conn->WebSocket->request);
         }
+
+        if (!$this->versioner->isVersionEnabled($conn->WebSocket->request)) {
+            return $this->close($conn);
+        }
+
+        $conn->WebSocket->version = $this->versioner->getVersion($conn->WebSocket->request);
 
         try {
             $response = $conn->WebSocket->version->handshake($conn->WebSocket->request);

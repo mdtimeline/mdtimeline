@@ -3,7 +3,6 @@ namespace Ratchet\Http;
 use Ratchet\MessageInterface;
 use Ratchet\ConnectionInterface;
 use Ratchet\Http\Guzzle\Http\Message\RequestFactory;
-use Ratchet\Server\IoServer;
 
 /**
  * This class receives streaming data from a client request
@@ -20,14 +19,13 @@ class HttpRequestParser implements MessageInterface {
      */
     public $maxSize = 4096;
 
-	/**
-	 * @param \Ratchet\ConnectionInterface $context
-	 * @param string $data Data stream to buffer
-	 * @param \Ratchet\Server\IoServer $server
-	 * @throws \OverflowException If the message buffer has become too large
-	 * @return \Guzzle\Http\Message\RequestInterface|null
-	 */
-    public function onMessage(ConnectionInterface $context, $data, IoServer $server) {
+    /**
+     * @param \Ratchet\ConnectionInterface $context
+     * @param string                       $data Data stream to buffer
+     * @return \Guzzle\Http\Message\RequestInterface|null
+     * @throws \OverflowException If the message buffer has become too large
+     */
+    public function onMessage(ConnectionInterface $context, $data) {
         if (!isset($context->httpBuffer)) {
             $context->httpBuffer = '';
         }

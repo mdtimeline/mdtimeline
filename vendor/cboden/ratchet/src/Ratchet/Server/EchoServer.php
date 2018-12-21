@@ -10,7 +10,7 @@ class EchoServer implements MessageComponentInterface {
     public function onOpen(ConnectionInterface $conn) {
     }
 
-    public function onMessage(ConnectionInterface $from, $msg, $server) {
+    public function onMessage(ConnectionInterface $from, $msg) {
         $from->send($msg);
     }
 

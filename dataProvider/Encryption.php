@@ -54,7 +54,7 @@ class Encryption
 			if($to_openssl){
 				$new_value = MatchaUtils::__openssl_encrypt(MatchaUtils::__mcrypt_decrypt($value));
 			}else{
-				$new_value = MatchaUtils::__mcrypt_decrypt(MatchaUtils::__openssl_encrypt($value));
+				$new_value = MatchaUtils::__mcrypt_encrypt(MatchaUtils::__openssl_decrypt($value));
 			}
 
 			$sth = $conn->prepare("UPDATE `{$table}` SET `{$column}` = :new_value WHERE `{$primary_comun}` = :pk_value");

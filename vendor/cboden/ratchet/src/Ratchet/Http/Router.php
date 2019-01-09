@@ -4,6 +4,7 @@ use Ratchet\ConnectionInterface;
 use Guzzle\Http\Message\RequestInterface;
 use Guzzle\Http\Message\Response;
 use Guzzle\Http\Url;
+use Ratchet\Server\IoServer;
 use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
@@ -66,8 +67,8 @@ class Router implements HttpServerInterface {
     /**
      * {@inheritdoc}
      */
-    function onMessage(ConnectionInterface $from, $msg) {
-        $from->controller->onMessage($from, $msg);
+    function onMessage(ConnectionInterface $from, $msg, IoServer $server) {
+        $from->controller->onMessage($from, $msg, $server);
     }
 
     /**

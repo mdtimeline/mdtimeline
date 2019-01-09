@@ -1,6 +1,7 @@
 <?php
 namespace Ratchet\Mock;
 use Ratchet\MessageComponentInterface;
+use Ratchet\Server\IoServer;
 use Ratchet\WebSocket\WsServerInterface;
 use Ratchet\ConnectionInterface;
 
@@ -17,7 +18,7 @@ class Component implements MessageComponentInterface, WsServerInterface {
         $this->last[__FUNCTION__] = func_get_args();
     }
 
-    public function onMessage(ConnectionInterface $from, $msg) {
+    public function onMessage(ConnectionInterface $from, $msg, IoServer $server) {
         $this->last[__FUNCTION__] = func_get_args();
     }
 

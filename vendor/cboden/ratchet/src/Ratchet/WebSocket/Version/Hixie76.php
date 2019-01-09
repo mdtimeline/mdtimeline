@@ -2,6 +2,7 @@
 namespace Ratchet\WebSocket\Version;
 use Ratchet\ConnectionInterface;
 use Ratchet\MessageInterface;
+use Ratchet\Server\IoServer;
 use Ratchet\WebSocket\Version\Hixie76\Connection;
 use Guzzle\Http\Message\RequestInterface;
 use Guzzle\Http\Message\Response;
@@ -74,7 +75,7 @@ class Hixie76 implements VersionInterface {
         return $upgraded;
     }
 
-    public function onMessage(ConnectionInterface $from, $data) {
+    public function onMessage(ConnectionInterface $from, $data, IoServer $server) {
         $overflow = '';
 
         if (!isset($from->WebSocket->frame)) {
@@ -88,13 +89,13 @@ class Hixie76 implements VersionInterface {
             $parsed = $from->WebSocket->frame->getPayload();
             unset($from->WebSocket->frame);
 
-            $from->WebSocket->coalescedCallback->onMessage($from, $parsed);
+            $from->WebSocket->coalescedCallback->onMessage($from, $parsed, $server);
 
             unset($from->WebSocket->frame);
         }
 
         if (strlen($overflow) > 0) {
-            $this->onMessage($from, $overflow);
+            $this->onMessage($from, $overflow, $server);
         }
     }
 

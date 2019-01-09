@@ -2,6 +2,7 @@
 namespace Ratchet\Session;
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
+use Ratchet\Server\IoServer;
 use Ratchet\WebSocket\WsServerInterface;
 use Ratchet\Session\Storage\VirtualSessionStorage;
 use Ratchet\Session\Serialize\HandlerInterface;
@@ -90,8 +91,8 @@ class SessionProvider implements MessageComponentInterface, WsServerInterface {
     /**
      * {@inheritdoc}
      */
-    function onMessage(ConnectionInterface $from, $msg) {
-        return $this->_app->onMessage($from, $msg);
+    function onMessage(ConnectionInterface $from, $msg, IoServer $server) {
+        return $this->_app->onMessage($from, $msg, $server);
     }
 
     /**

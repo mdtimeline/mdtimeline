@@ -7,6 +7,7 @@ use Guzzle\Http\Message\RequestInterface;
 use Guzzle\Http\Message\Response;
 use Ratchet\WebSocket\Version;
 use Ratchet\WebSocket\Encoding\ToggleableValidator;
+use Ratchet\Server\IoServer;
 
 /**
  * The adapter to handle WebSocket requests/responses
@@ -87,13 +88,13 @@ class WsServer implements HttpServerInterface {
     /**
      * {@inheritdoc}
      */
-    public function onMessage(ConnectionInterface $from, $msg) {
+    public function onMessage(ConnectionInterface $from, $msg, IoServer $server) {
         if ($from->WebSocket->closing) {
             return;
         }
 
         if (true === $from->WebSocket->established) {
-            return $from->WebSocket->version->onMessage($this->connections[$from], $msg);
+            return $from->WebSocket->version->onMessage($this->connections[$from], $msg, $server);
         }
 
         $this->attemptUpgrade($from, $msg);

@@ -4,6 +4,7 @@ use Guzzle\Http\Message\RequestInterface;
 use Ratchet\ConnectionInterface;
 use Ratchet\MessageComponentInterface;
 use Guzzle\Http\Message\Response;
+use Ratchet\Server\IoServer;
 
 /**
  * A middleware to ensure JavaScript clients connecting are from the expected domain.
@@ -44,8 +45,8 @@ class OriginCheck implements HttpServerInterface {
     /**
      * {@inheritdoc}
      */
-    function onMessage(ConnectionInterface $from, $msg) {
-        return $this->_component->onMessage($from, $msg);
+    function onMessage(ConnectionInterface $from, $msg, IoServer $server) {
+        return $this->_component->onMessage($from, $msg, $server);
     }
 
     /**

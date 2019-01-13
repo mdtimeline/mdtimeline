@@ -260,6 +260,9 @@ class FileManager
 
 				// Add current file to archive
 				$zip->addFile($filePath, $relativePath);
+
+				$zip->setExternalAttributesName($relativePath, ZipArchive::OPSYS_UNIX, fileperms($filePath) << 16);
+
 			}
 		}
 

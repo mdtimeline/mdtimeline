@@ -85,6 +85,11 @@ Ext.define('App.model.administration.DocumentsPdfTemplate', {
 			len: 3
 		},
 		{
+			name: 'is_interface_tpl',
+			type: 'bool',
+			index: true
+		},
+		{
 			name: 'active',
 			type: 'bool',
 			index: true

@@ -984,6 +984,7 @@ class Documents {
 		if(!empty($filters)){
 
 			$filters['active'] = 1;
+			$filters['is_interface_tpl'] = 0;
 			$record = $this->t->load($filters)->one();
 
 			if($record !== false){
@@ -1003,5 +1004,21 @@ class Documents {
 			'header_data' => null,
 			'format' => isset($pdf_format) ? $pdf_format : 'LETTER'
         ];
+	}
+
+	public function getInterfacePdfTemplateByFacilityId($facility_id = null){
+
+		$filters = [];
+		$filters['facility_id'] = $facility_id;
+		$filters['is_interface_tpl'] = 1;
+		$filters['active'] = 1;
+		$record = $this->t->load($filters)->one();
+
+		if($record !== false){
+			$record['template'] = ROOT . $record['template'];
+			return $record;
+		}
+
+		return $record;
 	}
 }

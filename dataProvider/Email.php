@@ -201,6 +201,10 @@ class Email {
 		    }
 
 		    if(!empty($error_message)){
+
+			    error_log('Email Errors: ' . $error_message);
+			    error_log('Email Payload: ' . $payload);
+
 			    return [
 				    'success' => false,
 				    'error' => implode(', ', $error_message)

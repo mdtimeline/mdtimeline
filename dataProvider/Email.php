@@ -202,7 +202,7 @@ class Email {
 
 		    if(!empty($error_message)){
 
-			    error_log('Email Errors: ' . $error_message);
+			    error_log('Email Errors: ' . implode(', ', $error_message));
 			    error_log('Email Payload: ' . $payload);
 
 			    return [
@@ -309,7 +309,12 @@ class Email {
 		$PHPMailer->Body = $body;
 
 		foreach($attachments as $attachment){
-			$PHPMailer->addStringAttachment($attachment['data'], $attachment['filename']);
+			if(isset($attachment['path']) && file_exists($attachment['path'])){
+				$PHPMailer->addAttachment($attachment['path'], $attachment['filename']);
+			}else{
+				$data = base64_decode($attachment['data'], true) || $attachment['data'];
+				$PHPMailer->addStringAttachment($data, $attachment['filename']);
+			}
 		}
 
 		foreach($embedded_images as $embedded_image){

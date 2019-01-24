@@ -45935,7 +45935,7 @@ Ext.define('App.controller.patient.Medications', {
 			'#addPatientMedicationBtn': {
 				click: me.onAddPatientMedicationBtnClick
 			},
-			'#patientMedicationLiveSearch': {
+			'#PatientMedicationLiveSearch': {
 				select: me.onMedicationLiveSearchSelect
 			},
 			'#PatientMedicationActiveBtn': {
@@ -57837,7 +57837,12 @@ Ext.define('App.view.patient.Summary', {
 		if(a('access_patient_visits')){
 
 			me.stores.push(me.patientEncountersStore = Ext.create('App.store.patient.Encounters', {
-				autoLoad: false
+				autoLoad: false,
+                remoteSort: true,
+                sorters: [{
+                    property: 'service_date',
+                    direction: 'DESC'
+                }],
 			}));
 
 			Ext.Array.push(me.sidePanelItems, {
@@ -57845,6 +57850,7 @@ Ext.define('App.view.patient.Summary', {
 				title: _('encounters'),
 				itemId: 'PatientSummaryEncountersPanel',
 				hideHeaders: true,
+				scrollable: true,
 				store: me.patientEncountersStore,
 				columns: [
 					{

@@ -83,7 +83,7 @@ Ext.define('App.controller.patient.Medications', {
 			'#addPatientMedicationBtn': {
 				click: me.onAddPatientMedicationBtnClick
 			},
-			'#patientMedicationLiveSearch': {
+			'#PatientMedicationLiveSearch': {
 				select: me.onMedicationLiveSearchSelect
 			},
 			'#PatientMedicationActiveBtn': {

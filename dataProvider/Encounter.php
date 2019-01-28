@@ -574,7 +574,7 @@ class Encounter {
 			$soap['objective'] = $this->getObjectiveExtraDataByEid($eid, $encounter) . (isset($soap['objective']) ? $soap['objective'] : '');
 			$soap['assessment'] = $soap['assessment'] . (isset($dxOl) ? $dxOl : '');
 			$instructions = (isset($soap['instructions']) ? (trim($soap['instructions']) . '<br>') : null);
-			$soap['plan'] = (isset($soap['plan']) ? (trim($soap['plan']) . '<br>') : '') . '<br>' . $this->getPlanExtraDataByEid($eid, $instructions);
+			$soap['plan'] = (isset($soap['plan']) ? (trim($soap['plan']) . '<br>') : '') . $this->getPlanExtraDataByEid($eid, $instructions);
 			$encounter['soap'] = $soap;
 		}
 
@@ -611,12 +611,15 @@ class Encounter {
 //			if(isset($soap['plan']) && $soap['plan'] != ''){
 //				$output .= 'PLAN: ' . $soap['plan'] . $br . $br;
 //			}
-			if(isset($soap['instructions']) && $soap['instructions'] != ''){
-				$output .= '<b>PLAN:</b>' . $br  . nl2br(trim($soap['instructions']));
+			if(isset($soap['plan']) && $soap['plan'] != ''){
+				$output .= '<b>PLAN:</b>'  . nl2br(trim($soap['plan']));
 			}
 
 			unset($soap);
 		}
+
+		//$output .= $br . '--- END OF REPORT ---';
+
 		return $output;
 	}
 
@@ -980,20 +983,24 @@ class Encounter {
 		$medications = $Medications->getPatientMedicationsOrdersByEid($eid);
 
 		if(!empty($medications)){
-			$str_buff .= '<div class="indent">';
-			$str_buff .= '<p><b>Medications Order(s):</b></p>';
 
+			$str_buff .= '<div class="indent">';
+			$lis = '';
 			foreach($medications as $foo){
-				$str_buff .= '<p class="indent">';
-				$str_buff .= '<u>Medication:</u> ' . $foo['STR'] . '<br>';
-				$str_buff .= '<u>Dispense:</u> ' . $foo['dispense'] . '<br>';
-				$str_buff .= '<u>Refill:</u> ' . $foo['refill'] . '<br>';
-				$str_buff .= '<u>Instruction:</u> ' . $foo['directions'] . '<br>';
-				$str_buff .= '<u>Notes To Pharmacist:</u> ' . $foo['notes'] . '<br>';
-				$str_buff .= '</p>';
+				$lis .= '<li>';
+				$lis .= '<u>' . (isset($foo['STR']) ? $foo['STR'] : '')  . '</u><br>';
+				$lis .= 'Dispense: ' . (isset($foo['dispense']) ? $foo['dispense'] : '')  . '<br>';
+				$lis .= 'Refill: ' . (isset($foo['refill']) ? $foo['refill'] : '')  . '<br>';
+				$lis .= 'Instruction: ' . (isset($foo['directions']) ? $foo['directions'] : '')  . '<br>';
+				$lis .= 'Notes To Pharmacist: ' . (isset($foo['notes']) && $foo['notes'] !== '' ? $foo['notes'] : 'None');
+				$lis .= '</li>';
 			}
+			$str_buff .= '<p><b>Medications Order(s):</b></p>';
+			$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
 			$str_buff .= '</div>';
+
 		}
+
 
 		unset($ActiveMedications, $active_medications);
 

@@ -26,7 +26,7 @@ class DecisionAids {
 
 	function __construct(){
         if($this->d == NULL)
-            $this->d = MatchaModel::setSenchaModel('App.model.administration.DecisionAids', true);
+            $this->d = MatchaModel::setSenchaModel('App.model.administration.DecisionAids');
 	}
 
 	public function getDecisionAids($params){

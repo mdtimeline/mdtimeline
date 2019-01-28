@@ -57,7 +57,7 @@ class EducationResources {
 	function __construct() {
 
 		$this->e = MatchaModel::setSenchaModel('App.model.administration.EducationResource');
-		$this->pe = MatchaModel::setSenchaModel('App.model.patient.EducationResource', true);
+		$this->pe = MatchaModel::setSenchaModel('App.model.patient.EducationResource');
 	}
 
 	public function search($params){

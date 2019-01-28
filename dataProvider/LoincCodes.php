@@ -26,7 +26,7 @@ class LoincCodes {
 	private $lr;
 
 	function __construct() {
-		$this->lr = MatchaModel::setSenchaModel('App.model.administration.LoincRadiologyCode', true);
+		$this->lr = MatchaModel::setSenchaModel('App.model.administration.LoincRadiologyCode');
 	}
 
 	public function getLoincRadiologyCodes($params){

@@ -25,7 +25,7 @@ class MiniMentalStateExam {
 	private $m;
 
 	function __construct(){
-		$this->m = MatchaModel::setSenchaModel('App.model.patient.MiniMentalStateExam', true);
+		$this->m = MatchaModel::setSenchaModel('App.model.patient.MiniMentalStateExam');
 	}
 
 	public function getMiniMentalStateExams($params){

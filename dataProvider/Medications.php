@@ -42,7 +42,7 @@ class Medications
     }
 
     private function setAdministerModel(){
-    	if(!isset($this->a)) $this->a = MatchaModel::setSenchaModel('App.model.patient.MedicationAdministered', true);
+    	if(!isset($this->a)) $this->a = MatchaModel::setSenchaModel('App.model.patient.MedicationAdministered');
 	}
 
     public function getPatientMedications($params)

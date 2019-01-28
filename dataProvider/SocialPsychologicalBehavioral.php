@@ -25,7 +25,7 @@ class SocialPsychologicalBehavioral {
 	private $s;
 
 	function __construct(){
-		$this->s = MatchaModel::setSenchaModel('App.model.patient.SocialPsychologicalBehavioral', true);
+		$this->s = MatchaModel::setSenchaModel('App.model.patient.SocialPsychologicalBehavioral');
 	}
 
 	public function getSocialPsychologicalBehaviors($params){

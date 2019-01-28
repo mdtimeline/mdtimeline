@@ -25,7 +25,7 @@ class ImplantableDevice {
 	private $i;
 
 	function __construct(){
-		$this->i = MatchaModel::setSenchaModel('App.model.patient.ImplantableDevice', true);
+		$this->i = MatchaModel::setSenchaModel('App.model.patient.ImplantableDevice');
 	}
 
 	public function getPatientImplantableDevices($params){

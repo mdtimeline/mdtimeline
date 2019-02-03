@@ -164,6 +164,11 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 		'domain': window.location.hostname
 	});
 
+	gtag('event', 'client_version', {
+		'event_category': 'Client',
+		'event_label' : version
+	});
+
 	// gtag('event', 'logout', {
 	// 	'event_category': window.location.hostname,
 	// });

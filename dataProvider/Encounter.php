@@ -634,13 +634,16 @@ class Encounter {
 
 		if(!empty($family_histories)){
 			$str_buff .= '<p><b>Family History:</b></p>';
+			$str_buff .= '<ul style="list-style-type:disc">';
 			foreach($family_histories as $family_history){
-				$str_buff .= '<ul style="list-style-type:disc">';
-				$str_buff .= '<li>Condition: ' . (isset($family_history['condition']) ? $family_history['condition'] : '') . '</li>';
-				$str_buff .= '<li>Relative: ' . (isset($family_history['relation']) ? $family_history['relation'] : '') . '</li>';
-				$str_buff .= '<li>Note: ' . (isset($family_history['notes']) ? $family_history['notes'] : '') . '</li>';
-				$str_buff .= '</ul>';
+				$str_buff .= '<li>';
+				$str_buff .= '<u>' . (isset($family_history['condition']) ? $family_history['condition'] : '') . '</u> - ';
+				$str_buff .= '<u>Relative:</u> ' . (isset($family_history['relation']) ? $family_history['relation'] : '') . ' - ';
+				$str_buff .= '<u>Note:</u> ' . (isset($family_history['notes']) ? $family_history['notes'] : '') . ' - ';
+				$str_buff .= '</li>';
 			}
+			$str_buff .= '</ul>';
+
 		}else{
 			$str_buff .= '<p><b>Family History:</b> No Family History Recorded</p>';
 		}
@@ -653,28 +656,28 @@ class Encounter {
 		 */
 		$Allergies = new Allergies();
 		$allergies = $Allergies->getPatientAllergiesByEid($eid);
+		$str_buff .= '<div class="indent">';
 
 		if(!empty($allergies)){
-			$str_buff .= '<div class="indent">';
-			$lis = '';
-			foreach($allergies as $foo){
-				$lis .= '<li>Allergy: ' . $foo['allergy'] . ' (' . $foo['allergy_type'] . ')<br>';
-				$lis .= 'Reaction: ' . $foo['reaction'] . '<br>';
-				$lis .= 'Severity: ' . $foo['severity'] . '<br>';
-				$lis .= 'Location: ' . $foo['location'] . '<br>';
-				$lis .= 'Status: ' . (isset($foo['status']) ? $foo['status'] : 'Unknown') . '</li>';
-			}
 			$str_buff .= '<p><b>Allergies:</b></p>';
-			$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
-			$str_buff .= '</div>';
+			$str_buff .= '<ul style="list-style-type:disc">';
+			foreach($allergies as $foo){
+				$str_buff .= '<li>';
+				$str_buff .= '<u>' . $foo['allergy'] . ' (' . $foo['allergy_type'] . ')</u> - ';
+				$str_buff .= '<u>Reaction:</u> ' . $foo['reaction'] . ' - ';
+				$str_buff .= '<u>Severity:</u> ' . $foo['severity'] . ' - ';
+				$str_buff .= '<u>Location:</u> ' . $foo['location'] . ' - ';
+				$str_buff .= '<u>Status:</u> ' . (isset($foo['status']) ? $foo['status'] : 'Unknown');
+				$str_buff .= '</li>';
+			}
+			$str_buff .= '</ul>';
 		}else{
 			if($encounter['review_allergies']){
-				$str_buff .= '<div class="indent">';
 				$str_buff .= '<p><b>Allergies:</b> No Known Allergies</p>';
-				$str_buff .= '</div>';
 			}
 		}
 
+		$str_buff .= '</div>';
 		unset($Allergies, $allergies);
 
 
@@ -686,6 +689,7 @@ class Encounter {
 
 		if(!empty($smoking_statuses)){
 			$str_buff .= '<p><b>Smoking Status:</b></p>';
+			$str_buff .= '<ul style="list-style-type:disc">';
 			foreach($smoking_statuses as $smoking_status){
 
 				if(isset($smoking_status['start_date'])){
@@ -701,13 +705,12 @@ class Encounter {
 					$to ='UNK';
 				}
 
-				$str_buff .= '<ul style="list-style-type:disc">';
-				$str_buff .= '<li>Status: ' . (isset($smoking_status['status']) ? $smoking_status['status'] : '') . '</li>';
-				$str_buff .= '<li>Dates From/To: ' . $from . ' / ' . $to . '</li>';
-				$str_buff .= '<li>Counseling Given: ' . (isset($smoking_status['counseling']) && $smoking_status['counseling'] ? 'Yes' : 'No') . '</li>';
-				$str_buff .= '<li>Note: ' . (isset($smoking_status['note']) ? $smoking_status['note'] : '') . '</li>';
-				$str_buff .= '</ul>';
+				$str_buff .= '<u>' . (isset($smoking_status['status']) ? $smoking_status['status'] : '') . '</u> - ';
+				$str_buff .= '<u>Dates From/To:</u> ' . $from . ' / ' . $to . ' - ';
+				$str_buff .= '<u>Counseling Given:</u> ' . (isset($smoking_status['counseling']) && $smoking_status['counseling'] ? 'Yes' : 'No') . ' - ';
+				$str_buff .= '<u>Note:</u> ' . (isset($smoking_status['note']) ? $smoking_status['note'] : '');
 			}
+			$str_buff .= '</ul>';
 
 		}else{
 			$str_buff .= '<p><b>Smoking Status:</b> No Smoking Status Recorded</p>';
@@ -907,12 +910,12 @@ class Encounter {
 
 		if(!empty($active_problems)){
 			$str_buff .= '<div class="indent">';
-			$lis = '';
-			foreach($active_problems as $foo){
-				$lis .= '<li>[' . $foo['code'] . '] - ' . $foo['code_text'] . ' </li>';
-			}
 			$str_buff .= '<p><b>Active Problems:</b></p>';
-			$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
+			$str_buff .= '<ul class="ProgressNote-ul">';
+			foreach($active_problems as $foo){
+				$str_buff .= '<li>[' . $foo['code'] . '] - ' . $foo['code_text'] . '</li>';
+			}
+			$str_buff .= '</ul>';
 			$str_buff .= '</div>';
 		}else{
 			if($encounter['review_active_problems']){
@@ -938,12 +941,12 @@ class Encounter {
 				foreach($immunizations as $foo){
 					$administered_by = Person::fullname($foo['administered_fname'], $foo['administered_mname'], $foo['administered_lname']);
 
-					$lis .= '<li>Vaccine name: ' . $foo['vaccine_name'] . '<br>';
-					$lis .= 'Vaccine ID: (' . $foo['code_type'] . ')' . $foo['code'] . '<br>';
-					$lis .= 'Manufacturer: ' . $foo['manufacturer'] . '<br>';
-					$lis .= 'Lot Number: ' . $foo['lot_number'] . '<br>';
-					$lis .= 'Dose: ' . $foo['administer_amount'] . ' ' . $foo['administer_units'] . '<br>';
-					$lis .= 'Administered By: ' . $administered_by . '</li>';
+					$lis .= '<li><b>Vaccine name:</b> ' . $foo['vaccine_name'] . ' - ';
+					$lis .= '<b>Vaccine ID:</b> (' . $foo['code_type'] . ')' . $foo['code'] . ' - ';
+					$lis .= '<b>Manufacturer:</b> ' . $foo['manufacturer'] . ' - ';
+					$lis .= '<b>Lot Number:</b> ' . $foo['lot_number'] . ' - ';
+					$lis .= '<b>Dose:</b> ' . $foo['administer_amount'] . ' ' . $foo['administer_units'] . ' - ';
+					$lis .= '<b>Administered By:</b> ' . $administered_by . '</li>';
 				}
 				$str_buff .= '<p><b>Immunizations:</b></p>';
 				$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
@@ -988,15 +991,15 @@ class Encounter {
 			$lis = '';
 			foreach($medications as $foo){
 				$lis .= '<li>';
-				$lis .= '<u>' . (isset($foo['STR']) ? $foo['STR'] : '')  . '</u><br>';
-				$lis .= 'Dispense: ' . (isset($foo['dispense']) ? $foo['dispense'] : '')  . '<br>';
-				$lis .= 'Refill: ' . (isset($foo['refill']) ? $foo['refill'] : '')  . '<br>';
-				$lis .= 'Instruction: ' . (isset($foo['directions']) ? $foo['directions'] : '')  . '<br>';
-				$lis .= 'Notes To Pharmacist: ' . (isset($foo['notes']) && $foo['notes'] !== '' ? $foo['notes'] : 'None');
+				$lis .= '<u>' . (isset($foo['STR']) ? $foo['STR'] : '')  . '</u> - ';
+				$lis .= '<b>Dispense:</b> ' . (isset($foo['dispense']) ? $foo['dispense'] : '')  . ' - ';
+				$lis .= '<b>Refill:</b> ' . (isset($foo['refill']) ? $foo['refill'] : '')  . ' - ';
+				$lis .= '<b>Instruction:</b> ' . (isset($foo['directions']) ? $foo['directions'] : '')  . ' - ';
+				$lis .= '<b>Notes To Pharmacist:</b> ' . (isset($foo['notes']) && $foo['notes'] !== '' ? $foo['notes'] : 'None');
 				$lis .= '</li>';
 			}
 			$str_buff .= '<p><b>Medications Order(s):</b></p>';
-			$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
+			$str_buff .= '<ul style="list-style-type:disc">' . $lis . '</ul>';
 			$str_buff .= '</div>';
 
 		}

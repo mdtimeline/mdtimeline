@@ -145,4 +145,29 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 	<div style="float: left">Copyright (C) 2016 MD Timeline (Electronic Health Records) |:|  Open Source Software operating under <a href="javascript:void(0)" onClick="Ext.getCmp('winCopyright').show();">GPLv3</a> |:| v<?php print VERSION ?></div>
     <div style="float: right;">by <a href="http://mdtimeline.com/" target="_blank">The Right Answer, Inc.</a></div>
 </body>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-133663460-1"></script>
+<script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'UA-133663460-1', {
+		'page_path': window.location.hash,
+		'custom_map': {
+			'dimension2': 'domain'
+		}
+	});
+	gtag('event', 'client_domain', {
+		'event_category': 'Client',
+		'event_label' : window.location.hostname,
+		'domain': window.location.hostname
+	});
+
+	// gtag('event', 'logout', {
+	// 	'event_category': window.location.hostname,
+	// });
+
+</script>
+
 </html>

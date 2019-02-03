@@ -976,5 +976,24 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                 }
             });
 		</script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133663460-1"></script>
+        <script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+			gtag('config', 'UA-133663460-1', {
+				'page_path': window.location.hash,
+				'custom_map': {
+					'dimension2': 'domain'
+				}
+			});
+			gtag('event', 'client_domain', {
+				'event_category': 'Client',
+				'event_label' : window.location.hostname,
+				'domain': window.location.hostname
+			});
+
+        </script>
 	</body>
 </html>

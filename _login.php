@@ -166,7 +166,7 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 
 	gtag('event', 'client_version', {
 		'event_category': 'Client',
-		'event_label' : version
+		'event_label' : window.location.hostname + ' - ' + version
 	});
 
 	// gtag('event', 'logout', {

@@ -983,7 +983,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 			function gtag(){dataLayer.push(arguments);}
 			gtag('js', new Date());
 			gtag('config', 'UA-133663460-1', {
-				'page_path': window.location.hash,
+				'page_path': (window.location.pathname + window.location.hash),
 				'custom_map': {
 					'dimension2': 'domain'
 				}

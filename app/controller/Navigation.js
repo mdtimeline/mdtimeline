@@ -174,7 +174,6 @@ Ext.define('App.controller.Navigation', {
 			sm = tree.getSelectionModel(),
 			node = treeStore.getNodeById(cls);
 
-		gtag('config', 'UA-133663460-1', {'page_path': window.location.hash});
 
 		this.url = url;
 		sm.select(node);

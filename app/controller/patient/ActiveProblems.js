@@ -41,6 +41,10 @@ Ext.define('App.controller.patient.ActiveProblems', {
         {
             ref: 'PatientProblemsActiveBtn',
             selector: '#PatientProblemsActiveBtn'
+        },
+        {
+            ref: 'EncounterPanel',
+            selector: '#encounterPanel'
         }
 	],
 
@@ -66,13 +70,18 @@ Ext.define('App.controller.patient.ActiveProblems', {
                 click: me.onPatientProblemsActiveBtnClick
             }
 		});
+
+
+		me.encController = me.getController('patient.encounter.Encounter');
 	},
 
 
 	onAddActiveProblemBtnClick:function(){
 		var me = this,
 			grid = me.getActiveProblemsGrid(),
-			store = grid.getStore();
+			store = grid.getStore(),
+			encounter_record = me.encController.getEncounterRecord(),
+			begin_date = encounter_record ? encounter_record.get('service_date') : app.getDate();
 
 		grid.editingPlugin.cancelEdit();
 		store.insert(0, {
@@ -80,8 +89,8 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			eid: app.patient.eid,
 			uid: app.user.id,
 			created_uid: app.user.id,
-			create_date: new Date(),
-			begin_date: new Date()
+			create_date: app.getDate(),
+			begin_date: begin_date
 		});
 		grid.editingPlugin.startEdit(0, 0);
 	},

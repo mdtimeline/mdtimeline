@@ -76,8 +76,8 @@ Ext.define('App.view.patient.FamilyHistory', {
             editor:{
                 xtype: 'gaiaehr.listcombosimple',
                 list: 109,
-                id: 'relation',
-                name: 'relation',
+	            itemId: 'FamilyHistoryGridRelationField',
+	            valueField: 'option_name',
                 value: null
             }
 		},

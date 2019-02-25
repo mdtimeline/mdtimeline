@@ -27,6 +27,17 @@ Ext.define('App.model.patient.Insurance',{
             store: false
         },
         {
+            name: 'ins_name',
+            type: 'string',
+            store: false
+        },
+        {
+            name: 'patient_insurance_id',
+            type: 'int',
+            len: 15,
+            store: false
+        },
+        {
             name: 'pid',
             type: 'int',
             index: true
@@ -73,7 +84,7 @@ Ext.define('App.model.patient.Insurance',{
             len: 50
         },
 	    {
-		    name: 'card_name_same_as_pateint',
+		    name: 'card_name_same_as_patient',
 		    type: 'bool'
 	    },
 	    {
@@ -133,7 +144,7 @@ Ext.define('App.model.patient.Insurance',{
             len: 10
         },
         {
-            name: 'subscriber_address_same_as_pateint',
+            name: 'subscriber_address_same_as_patient',
             type: 'bool'
         },
         {
@@ -180,6 +191,14 @@ Ext.define('App.model.patient.Insurance',{
             name: 'notes',
             type: 'string',
             len: 320
+        },
+        {
+            name: 'cover_exceptions',
+            type: 'string'
+        },
+        {
+            name: 'deductible',
+            type: 'string'
         },
         {
             name: 'image',

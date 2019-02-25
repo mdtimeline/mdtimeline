@@ -135,6 +135,18 @@ Ext.define('App.model.administration.ReferringProvider', {
             type: 'bool',
             index: true
         },
+
+        {
+            name: 'external_id',
+            type: 'string',
+            len: 25
+        },
+        {
+            name: 'global_id',
+            type: 'string',
+            len: 50
+        },
+
         {
             name: 'authy_id',
             type: 'string',

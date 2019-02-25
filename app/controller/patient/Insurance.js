@@ -14,306 +14,430 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 Ext.define('App.controller.patient.Insurance', {
-	extend: 'Ext.app.Controller',
-	requires: [
+    extend: 'Ext.app.Controller',
+    requires: [],
+    refs: [
+        {
+            ref: 'PatientInsuranceFormSubscribeRelationshipCmb',
+            selector: '#PatientInsuranceFormSubscribeRelationshipCmb'
+        },
+        {
+            ref: 'PatientInsurancesPanel',
+            selector: '#PatientInsurancesPanel'
+        },
+        {
+            ref: 'PatientInsurancesForm',
+            selector: '#PatientInsurancesForm'
+        },
+        {
+            ref: 'PatientInsurancesPanelSaveBtn',
+            selector: '#PatientInsurancesPanelSaveBtn'
+        },
+        {
+            ref: 'PatientInsurancesPanelCancelBtn',
+            selector: '#PatientInsurancesPanelCancelBtn'
+        },
+        {
+            ref: 'InsuranceCardFirstNameField',
+            selector: '#InsuranceCardFirstNameField'
+        },
+        {
+            ref: 'InsuranceCardMiddleNameField',
+            selector: '#InsuranceCardMiddleNameField'
+        },
+        {
+            ref: 'InsuranceCardLastNameField',
+            selector: '#InsuranceCardLastNameField'
+        },
+        {
+            ref: 'InsuranceAddressSameAsPatientField',
+            selector: '#InsuranceAddressSameAsPatientField'
+        },
 
-	],
-	refs: [
-		{
-			ref: 'PatientInsuranceFormSubscribeRelationshipCmb',
-			selector: '#PatientInsuranceFormSubscribeRelationshipCmb'
-		},
-		{
-			ref: 'PatientInsurancesPanel',
-			selector: '#PatientInsurancesPanel'
-		},
-		{
-			ref: 'PatientInsurancesPanelSaveBtn',
-			selector: '#PatientInsurancesPanelSaveBtn'
-		},
-		{
-			ref: 'PatientInsurancesPanelCancelBtn',
-			selector: '#PatientInsurancesPanelCancelBtn'
-		},
-		{
-			ref: 'InsuranceCardFirstNameField',
-			selector: '#InsuranceCardFirstNameField'
-		},
-		{
-			ref: 'InsuranceCardMiddleNameField',
-			selector: '#InsuranceCardMiddleNameField'
-		},
-		{
-			ref: 'InsuranceCardLastNameField',
-			selector: '#InsuranceCardLastNameField'
-		},
-		{
-			ref: 'InsuranceFormGridLiveCoverSearchField',
-			selector: '#InsuranceFormGridLiveCoverSearchField'
-		},
-		{
-			ref: 'PatientInsuranceCoversGrid',
-			selector: '#PatientInsuranceCoversGrid'
-		},
-		{
-			ref: 'InsuranceFormPatientInsuranceCoverDeleteBtn',
-			selector: '#InsuranceFormPatientInsuranceCoverDeleteBtn'
-		}
-	],
 
-	init: function(){
-		var me = this;
+        {
+            ref: 'BillingPatientInsuranceCoverInformationCoverGrid',
+            selector: '#BillingPatientInsuranceCoverInformationCoverGrid'
+        },
+        {
+            ref: 'BillingPatientInsuranceCoverInformationCoverGridUpdateDateField',
+            selector: '#BillingPatientInsuranceCoverInformationCoverGridUpdateDateField'
+        },
+        {
+            ref: 'BillingPatientInsuranceCoverInformationCoverExceptionSearchField',
+            selector: '#BillingPatientInsuranceCoverInformationCoverExceptionSearchField'
+        },
+        {
+            ref: 'BillingPatientInsuranceCoverInformationDeductibleField',
+            selector: '#BillingPatientInsuranceCoverInformationDeductibleField'
+        }
 
-		me.control({
-			'viewport':{
-				demographicsrecordload: me.onDemographicsRecordLoad
-			},
-			'#PatientInsurancesPanel':{
-				beforeadd: me.onPatientInsurancesPanelBeforeAdd,
-				newtabclick: me.onPatientInsurancesPanelNewTabClick
-			},
-			'#PatientInsuranceFormSubscribeRelationshipCmb':{
-				select: me.onPatientInsuranceFormSubscribeRelationshipCmbSelect
-			},
-			'#InsuranceSameAsPatientField':{
-				change: me.onInsuranceSameAsPatientFieldChange
-			},
-			'#InsuranceAddressSameAsPatientField':{
-				change: me.onInsuranceAddressSameAsPatientFieldChange
-			},
-			'#PatientInsurancesPanelSaveBtn':{
-				click: me.onPatientInsurancesPanelSaveBtnClick
-			},
-			'#PatientInsurancesPanelCancelBtn':{
-				click: me.onPatientInsurancesPanelCancelBtnClick
-			},
-			'patientinsuranceform':{
-                loadrecord: me.onPatientInsurancesFormLoadRecord
-			},
-            '#InsuranceFormGridLiveCoverSearchField':{
-                select: me.onInsuranceFormGridLiveCoverSearchFieldSelect
+    ],
+
+    init: function () {
+        var me = this;
+
+        me.control({
+            'viewport': {
+                demographicsrecordload: me.onDemographicsRecordLoad
             },
-            // '#InsuranceFormPatientInsuranceCoverDeleteBtn':{
-            //     click: me.onInsuranceFormPatientInsuranceCoverDeleteBtn
-            // }
-		});
-	},
+            '#PatientInsurancesPanel': {
+                beforeadd: me.onPatientInsurancesPanelBeforeAdd,
+                newtabclick: me.onPatientInsurancesPanelNewTabClick
+            },
+
+            'patientinsuranceform': {
+                loadrecord: me.onPatientInsurancesFormLoadRecord
+            },
 
 
-	getActiveInsuranceFormPanel: function () {
-		return this.getPatientInsurancesPanel().getActiveTab();
-	},
+            '#PatientInsuranceFormSubscribeRelationshipCmb': {
+                select: me.onPatientInsuranceFormSubscribeRelationshipCmbSelect
+            },
+            '#InsuranceSameAsPatientField': {
+                change: me.onInsuranceSameAsPatientFieldChange
+            },
+            '#InsuranceAddressSameAsPatientField': {
+                change: me.onInsuranceAddressSameAsPatientFieldChange
+            },
+            '#PatientInsurancesPanelSaveBtn': {
+                click: me.onPatientInsurancesPanelSaveBtnClick
+            },
+            '#PatientInsurancesPanelCancelBtn': {
+                click: me.onPatientInsurancesPanelCancelBtnClick
+            },
 
-	onPatientInsurancesPanelSaveBtnClick: function (btn) {
-		var form = this.getActiveInsuranceFormPanel().getForm(),
-			values = form.getValues(),
-			record = form.getRecord();
 
-		if(!form.isValid()) return;
+            '#BillingPatientInsuranceCoverInformationCoverGrid': {
+                edit: me.onBillingPatientInsuranceCoverInformationCoverGridEdit,
+                validateedit: me.onBillingPatientInsuranceCoverInformationCoverGridValidateEdit
+            },
 
-		record.set(values);
+            '#BillingPatientInsuranceCoverInformationCoverExceptionSearchField': {
+                select: me.onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldSelect,
+                render: me.onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldRender
+            }
 
-		if(Ext.Object.isEmpty(record.getChanges())) return;
+        });
+    },
 
-		record.save({
-			callback: function () {
-				app.msg(_('sweet'), _('record_saved'));
-			}
-		});
 
-	},
+    getActiveInsuranceFormPanel: function () {
+        return this.getPatientInsurancesPanel().getActiveTab();
+    },
 
-	onPatientInsurancesPanelCancelBtnClick: function (btn) {
-		var form_panel = this.getActiveInsuranceFormPanel(),
-			form = form_panel.getForm(),
-			record = form.getRecord();
+    patientInsurancePanelHandler: function (insurance_store) {
+        var me = this,
+            insurance_panel = me.getPatientInsurancesPanel();
 
-		if(record.get('id')  > 0){
-			form.reset();
-			form.loadRecord(record);
+        insurance_store.sort([
+            {
+                sorterFn: function (o1, o2) {
+                    var getRank = function (o) {
+                            var insurance_type = o.get('insurance_type');
 
-			return;
-		}
+                            if (insurance_type === 'P') {
+                                return 1;
+                            } else if (insurance_type === 'C') {
+                                return 2;
+                            } else if (insurance_type === 'S') {
+                                return 3;
+                            } else if (insurance_type === 'T') {
+                                return 4;
+                            } else {
+                                return 5;
+                            }
+                        },
+                        rank1 = getRank(o1),
+                        rank2 = getRank(o2);
 
-		this.getPatientInsurancesPanel().remove(form_panel);
+                    if (rank1 === rank2) {
+                        return 0;
+                    }
 
-	},
+                    return rank1 < rank2 ? -1 : 1;
+                }
+            }
+        ]);
 
-	onDemographicsRecordLoad: function (patient_record, patient_panel) {
+        // set the insurance panel
+        insurance_panel.removeAll(true);
 
-		var me = this,
-			insurance_store = patient_record.insurance();
+        var insurance_records = insurance_store.data.items;
 
-		insurance_store.load({
-			filters: [
-				{
-					property: 'pid',
-					value: patient_record.get('pid')
-				}
-			],
-			callback: function(records){
-				me.patientInsurancePanelHandler(insurance_store);
-			}
-		});
-	},
+        for (var i = 0; i < insurance_records.length; i++) {
+            insurance_panel.add(
+                Ext.widget('patientinsuranceform', {
+                    closable: false,
+                    insurance: insurance_records[i],
+                    action: insurance_records[i].get('insurance_type')
+                })
+            );
+        }
 
-	patientInsurancePanelHandler: function(insurance_store){
-		var me = this,
-			insurance_panel = me.getPatientInsurancesPanel();
+        if (insurance_panel.items.length > 0) insurance_panel.setActiveTab(0);
 
-		insurance_store.sort([
-			{
-				sorterFn: function(o1, o2) {
-					var getRank = function (o) {
-							var insurance_type = o.get('insurance_type');
+    },
 
-							if (insurance_type === 'P') {
-								return 1;
-							} else if (insurance_type === 'C') {
-								return 2;
-							} else if (insurance_type === 'S') {
-								return 3;
-							} else if (insurance_type === 'T') {
-								return 4;
-							} else {
-								return 5;
-							}
-						},
-						rank1 = getRank(o1),
-						rank2 = getRank(o2);
+    onDemographicsRecordLoad: function (patient_record, patient_panel) {
 
-					if (rank1 === rank2) {
-						return 0;
-					}
+        var me = this,
+            insurance_store = patient_record.insurance();
 
-					return rank1 < rank2 ? -1 : 1;
-				}
-			}
-		]);
+        insurance_store.load({
+            filters: [
+                {
+                    property: 'pid',
+                    value: patient_record.get('pid')
+                }
+            ],
+            callback: function (records) {
+                me.patientInsurancePanelHandler(insurance_store);
+            }
+        });
+    },
 
-		// set the insurance panel
-		insurance_panel.removeAll(true);
-
-		var insurance_records = insurance_store.data.items;
-
-		for(var i = 0; i < insurance_records.length; i++){
-			insurance_panel.add(
-				Ext.widget('patientinsuranceform', {
-					closable: false,
-					insurance: insurance_records[i],
-					action: insurance_records[i].get('insurance_type')
-				})
-			);
-		}
-
-		if(insurance_panel.items.length > 0) insurance_panel.setActiveTab(0);
-
-	},
-
-	getPatientInsurancesByType: function(insurance_type){
-
-		var me = this,
-			insurance_panel = me.getPatientInsurancesPanel(),
-			insurance_tabs = insurance_panel.query(Ext.String.format('panel[action={0}]', insurance_type)),
-			insurance_records = [];
-
-		for(var i = 0; i < insurance_tabs.length; i++){
-			insurance_records.push(insurance_tabs[0].insurance);
-		}
-
-		return insurance_records;
-
-	},
+    insuranceFormLoadRecord: function (form, record) {
+        form.getForm().loadRecord(record);
+        app.fireEvent('insurancerecordload', form, record);
+    },
 
     onPatientInsurancesFormLoadRecord: function (form, insurance_record) {
-
-        var grid = form.owner.down('grid'),
+        var cover_grid = form.owner.down('grid'), //this.getBillingPatientInsuranceCoverInformationCoverGrid(),
+            patient_id = insurance_record.get('pid'),
             patient_insurance_id = insurance_record.get('id');
 
-        // say('app.controller.patient.insurance.onPatientInsurancesFormLoadRecord');
-        // say(grid);
-        // say(patient_insurance_id);
+        if (!cover_grid) return;
 
-        if(!grid) return;
-
-        grid.getStore().load({
+        cover_grid.getStore().load({
             filters: [
+                {
+                    property: 'patient_id',
+                    value: patient_id
+                },
                 {
                     property: 'patient_insurance_id',
                     value: patient_insurance_id
                 }
             ]
         })
+    },
+
+    getPatientInsurancesByType: function (insurance_type) {
+
+        var me = this,
+            insurance_panel = me.getPatientInsurancesPanel(),
+            insurance_tabs = insurance_panel.query(Ext.String.format('panel[action={0}]', insurance_type)),
+            insurance_records = [];
+
+        for (var i = 0; i < insurance_tabs.length; i++) {
+            insurance_records.push(insurance_tabs[0].insurance);
+        }
+
+        return insurance_records;
 
     },
 
-	onPatientInsurancesPanelBeforeAdd: function (tapPanel, panel) {
-			var me = this,
-				record = panel.insurance || Ext.create('App.model.patient.Insurance', {pid: me.pid});
+    onPatientInsurancesPanelBeforeAdd: function (tapPanel, panel) {
+        var me = this,
+            record = panel.insurance || Ext.create('App.model.patient.Insurance', {pid: me.pid});
 
-			panel.title = record.get('ins_synonym') + ' (' + (record.get('insurance_type') ? record.get('insurance_type') : _('new')) + ')';
+        panel.title = record.get('ins_synonym') + ' (' + (record.get('insurance_type') ? record.get('insurance_type') : _('new')) + ')';
 
-			me.insuranceFormLoadRecord(panel, record);
-			if(record.get('image') !== '') panel.down('image').setSrc(record.get('image'));
-	},
+        me.insuranceFormLoadRecord(panel, record);
+        if (record.get('image') !== '') panel.down('image').setSrc(record.get('image'));
+    },
 
-	onPatientInsurancesPanelNewTabClick: function (form) {
+    onPatientInsurancesPanelNewTabClick: function (form) {
 
-		var record = Ext.create('App.model.patient.Insurance',{
-			pid: app.patient.pid,
-			card_name_same_as_pateint: 1,
-			create_uid: app.user.id,
-			update_uid: app.user.id,
-			create_date: new Date(),
-			update_date: new Date()
-		});
+        var me = this,
+            insurance_panel = me.getPatientInsurancesPanel(),
+            insuranceTabs = insurance_panel.items.length;
 
-		this.insuranceFormLoadRecord(form, record);
-	},
+        var record = Ext.create('App.model.patient.Insurance', {
+            code: insuranceTabs + '~' + app.patient.pubpid,
+            pid: app.patient.pid,
+            card_name_same_as_patient: 1,
+            create_uid: app.user.id,
+            update_uid: app.user.id,
+            create_date: new Date(),
+            update_date: new Date()
+        });
 
-	insuranceFormLoadRecord: function(form, record){
-		form.getForm().loadRecord(record);
-		app.fireEvent('insurancerecordload', form, record);
-	},
+        this.insuranceFormLoadRecord(form, record);
+    },
 
-	onInsuranceSameAsPatientFieldChange: function (field, value) {
-		field.up('fieldcontainer').down('#InsuranceCardFirstNameField').setDisabled(value);
-		field.up('fieldcontainer').down('#InsuranceCardMiddleNameField').setDisabled(value);
-		field.up('fieldcontainer').down('#InsuranceCardLastNameField').setDisabled(value);
-	},
+    onInsuranceSameAsPatientFieldChange: function (field, value) {
+        field.up('fieldcontainer').down('#InsuranceCardFirstNameField').setDisabled(value);
+        field.up('fieldcontainer').down('#InsuranceCardMiddleNameField').setDisabled(value);
+        field.up('fieldcontainer').down('#InsuranceCardLastNameField').setDisabled(value);
+    },
 
-	onInsuranceAddressSameAsPatientFieldChange: function (field, value) {
-		field.up('fieldset').down('#InsuranceSubscriberStreetField').setDisabled(value);
-		field.up('fieldset').down('#InsuranceSubscriberCityField').setDisabled(value);
-		field.up('fieldset').down('#InsuranceSubscriberStatetField').setDisabled(value);
-		field.up('fieldset').down('#InsuranceSubscriberPostalField').setDisabled(value);
-		field.up('fieldset').down('#InsuranceSubscriberCountryField').setDisabled(value);
-	},
+    onInsuranceAddressSameAsPatientFieldChange: function (field, value) {
+        field.up('fieldset').down('#InsuranceSubscriberStreetField').setDisabled(value);
+        field.up('fieldset').down('#InsuranceSubscriberCityField').setDisabled(value);
+        field.up('fieldset').down('#InsuranceSubscriberStatetField').setDisabled(value);
+        field.up('fieldset').down('#InsuranceSubscriberPostalField').setDisabled(value);
+        field.up('fieldset').down('#InsuranceSubscriberCountryField').setDisabled(value);
+    },
 
-	onPatientInsuranceFormSubscribeRelationshipCmbSelect: function(cmb, records){
-		var form = cmb.up('form').getForm();
+    onPatientInsuranceFormSubscribeRelationshipCmbSelect: function (cmb, records) {
+        var form = cmb.up('form').getForm();
 
-		// // SEL = Self
-		if(records[0].get('option_value') !== 'SEL') return;
+        // // SEL = Self
+        if (records[0].get('option_value') !== 'SEL') return;
 
-		form.findField('subscriber_title').setValue(app.patient.record.get('title'));
-		form.findField('subscriber_given_name').setValue(app.patient.record.get('fname'));
-		form.findField('subscriber_middle_name').setValue(app.patient.record.get('mname'));
-		form.findField('subscriber_surname').setValue(app.patient.record.get('lname'));
-		form.findField('subscriber_dob').setValue(app.patient.record.get('DOB'));
-		form.findField('subscriber_sex').setValue(app.patient.record.get('sex'));
-		form.findField('subscriber_phone').setValue(app.patient.record.get('phone_mobile') || app.patient.record.get('phone_home'));
-		form.findField('subscriber_employer').setValue(app.patient.record.get('employer_name'));
-		form.findField('subscriber_address_same_as_pateint').setValue(true);
-	},
+        form.findField('subscriber_title').setValue(app.patient.record.get('title'));
+        form.findField('subscriber_given_name').setValue(app.patient.record.get('fname'));
+        form.findField('subscriber_middle_name').setValue(app.patient.record.get('mname'));
+        form.findField('subscriber_surname').setValue(app.patient.record.get('lname'));
+        form.findField('subscriber_dob').setValue(app.patient.record.get('DOB'));
+        form.findField('subscriber_sex').setValue(app.patient.record.get('sex'));
+        form.findField('subscriber_phone').setValue(app.patient.record.get('phone_mobile') || app.patient.record.get('phone_home'));
+        form.findField('subscriber_employer').setValue(app.patient.record.get('employer_name'));
+
+        this.getInsuranceAddressSameAsPatientField().setValue(true);
+
+        //form.findField('subscriber_address_same_as_patient').setValue(true);
+    },
+
+    onPatientInsurancesPanelCancelBtnClick: function (btn) {
+        var form_panel = this.getActiveInsuranceFormPanel(),
+            form = form_panel.getForm(),
+            record = form.getRecord();
+
+        if (record.get('id') > 0) {
+            form.reset();
+            form.loadRecord(record);
+
+            return;
+        }
+
+        this.getPatientInsurancesPanel().remove(form_panel);
+
+    },
+
+    onBillingPatientInsuranceCoverInformationCoverGridEdit: function (plugin, context) {
+        //actualizar Co_pay del Service Type Selected .
+
+        // context.record.save({
+        //     success: function () {
+        //     }
+        // });
+    },
 
 
+    //***********************
+    //*  NEEDS VALIDATION   *
+    //***********************
 
-    onInsuranceFormGridLiveCoverSearchFieldSelect: function (field, cover_records) {
-		//
+    onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldRender: function(field){
+
+        field.store.on('beforeload', function (store) {
+
+            var insurance_id = field.up('form').getForm().findField('insurance_id').getValue();
+
+            store.getProxy().extraParams = { insurance_id: insurance_id  };
+
+        }, this);
+    },
+
+    onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldSelect: function (field, selected_cover) {
+        var me = this,
+            cover_form = field.up('form'),
+            insurance_form = cover_form.getForm(),
+            insurance_form_record = insurance_form.getRecord();
+
+        me.getBillingPatientInsuranceCoverInformationDeductibleField().setValue(selected_cover[0].get('deductible'));
+        me.getBillingPatientInsuranceCoverInformationCoverExceptionSearchField().setValue(selected_cover[0].get('cover'));
+
+        var cover_grid = field.up('fieldset').down('grid'),
+            cover_grid_store = cover_grid.getStore(),
+            cover_grid_records = cover_grid_store.getRange();
+
+        BillingCover.getBillingCoverExceptionByCoverId(selected_cover[0].get('id'), function (response) {
+
+            for (var r = 0; r < response.length; r++) {
+
+                for (var i = 0; i < cover_grid_records.length; i++) {
+
+                    if (cover_grid_records[i].get('service_type_id') === response[r].service_type_id ) {
+                        cover_grid_records[i].set({
+                            copay: response[r].copay,
+                            update_date: new Date(),
+                            update_uid: app.user.id
+                        });
+                    }
+                }
+            }
+
+        });
+    },
+
+
+    //Grid Functions (Elegibility Btn) has its own controller
+    onBillingPatientInsuranceCoverInformationCoverGridValidateEdit: function (plugin, context) {
+
+        var cover_record = context.record,
+            prev_copay = cover_record.get('copay'),
+            copay = context.value;
+
+        cover_record.set({
+            copay: copay,
+            update_date: new Date(),
+            update_uid: app.user.id
+        });
+
+    },
+
+    onPatientInsurancesPanelSaveBtnClick: function (btn) {
+        var me = this,
+            insurance_panel = me.getPatientInsurancesPanel(),
+            insuranceItems = insurance_panel.items;
+
+        insuranceItems.each(function (form_panel) {
+
+            var form = form_panel.getForm(),
+                values = form.getValues(),
+                record = form.getRecord();
+
+            if (!form.isValid()) return;
+
+            record.set(values);
+
+            //if (Ext.Object.isEmpty(record.getChanges())) return;
+
+            record.save({
+
+                callback: function () {
+
+                    app.msg(_('sweet'), _('record_saved'));
+
+                    var cover_grid_store = form_panel.down('grid').getStore(),
+                        cover_grid_records = cover_grid_store.getRange();
+
+                    for (var i = 0; i < cover_grid_records.length; i++) {
+
+                        say(cover_grid_records[i]);
+
+                        cover_grid_records[i].set({
+                            patient_insurance_id: record.get('id')
+                        });
+
+                    }
+
+                    cover_grid_store.sync({
+                        success: function () {
+                        }
+                    });
+                }
+
+            });
+        });
     }
 
 

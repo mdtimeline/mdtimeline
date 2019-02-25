@@ -27,6 +27,14 @@ Ext.define('App.controller.patient.Summary', {
 			selector: 'PatientSummaryPanel'
 		},
 		{
+			ref: 'PatientSummaryEncounterServicesPanel',
+			selector: '#PatientSummaryEncounterServicesPanel'
+		},
+		{
+			ref: 'PatientSummaryEncounterServicesPanelRenderingPhysicianField',
+			selector: '#PatientSummaryEncounterServicesPanelRenderingPhysicianField'
+		},
+		{
 			ref: 'PatientDocumentPanel',
 			selector: 'patientdocumentspanel'
 		},
@@ -55,7 +63,8 @@ Ext.define('App.controller.patient.Summary', {
 				activate: me.onPatientSummaryPanel
 			},
 			'#PatientSummaryEncountersPanel': {
-				itemdblclick: me.onPatientSummaryEncounterDblClick
+				itemdblclick: me.onPatientSummaryEncounterDblClick,
+                selectionchange: me.onPatientSummaryEncounterServicesPanelClick
 			},
             '#PatientSummaryContactsPanel': {
                 activate: me.reloadGrid
@@ -122,5 +131,6 @@ Ext.define('App.controller.patient.Summary', {
 			]
 		})
 	}
+
 
 });

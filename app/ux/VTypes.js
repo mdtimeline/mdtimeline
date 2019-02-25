@@ -18,10 +18,15 @@
 
 Ext.apply(Ext.form.VTypes, {
 
-	dollarpercent: function(val){
-		return  val.match(/^\$\d{1,5}\.\d{2}$|^100%$|^\d{1,2}%$/ig);
+	dollaramount: function(val){
+		return  val.match(/^\d{1,5}\.\d{2}$/ig);
 	},
-	dollarpercentText: 'Invalid Format ( $0 or 100% )',
+	dollaramountText: 'Invalid Format ( 0.00 )',
+
+	dollarpercent: function(val){
+		return  val.match(/^\d{1,5}\.\d{2}$|^100%$|^\d{1,2}%$/ig);
+	},
+	dollarpercentText: 'Invalid Format ( 0.00 or 100% )',
 
 	ipcidr: function(val){
 		return  val.match(/^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))$/ig);

@@ -1,4 +1,5 @@
 /**
+/**
  * GaiaEHR (Electronic Health Records)
  * Copyright (C) 2013 Certun, LLC.
  *
@@ -15,6 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+Ext.override(Ext.grid.CellEditor, {
+    revertInvalid: false
+});
+
 
 Ext.override(Ext.data.Connection, {
 	request : function(options) {

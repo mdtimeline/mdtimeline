@@ -25,10 +25,11 @@ Ext.define('App.view.administration.practice.Practice', {
 		'App.view.administration.practice.FacilityConfig',
 		'App.view.administration.practice.Laboratories',
 		'App.view.administration.practice.Pharmacies',
-		'App.view.administration.practice.ProviderNumbers',
+		//'App.view.administration.practice.ProviderNumbers',
 		'App.view.administration.practice.ReferringProviders',
 		'App.view.administration.practice.DecisionAids'
-	],
+
+    ],
 	pageBody: [
 		{
 			xtype: 'tabpanel',
@@ -43,9 +44,9 @@ Ext.define('App.view.administration.practice.Practice', {
 				{
 					xtype: 'insurancecompaniespanel'
 				},
-				{
-					xtype: 'providersnumberspanel'
-				},
+				// {
+				// 	xtype: 'providersnumberspanel'
+				// },
 				{
 					xtype: 'referringproviderspanel'
 				},
@@ -61,6 +62,7 @@ Ext.define('App.view.administration.practice.Practice', {
 				{
 					xtype: 'decisionaidspanel'
 				}
+
 			]
 		}
 	]

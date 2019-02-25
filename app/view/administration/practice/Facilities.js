@@ -93,6 +93,7 @@ Ext.define('App.view.administration.practice.Facilities', {
 					sortable: true,
 					dataIndex: 'ess'
 				},
+
                 {
                     text: _('active'),
                     sortable: true,
@@ -180,8 +181,26 @@ Ext.define('App.view.administration.practice.Facilities', {
 											{
 												xtype: 'textfield',
 												fieldLabel: _('ein'),
-												labelWidth: 40,
+												labelWidth: 60,
 												name: 'ein'
+											}
+										]
+									},
+									{
+										xtype: 'fieldcontainer',
+										layout: 'hbox',
+										items: [
+											{
+												xtype: 'textfield',
+												fieldLabel: _('external_id'),
+												name: 'external_id',
+												margin: '0 10 0 0'
+											},
+											{
+												xtype: 'textfield',
+												fieldLabel: _('global_id'),
+												labelWidth: 60,
+												name: 'global_id'
 											}
 										]
 									}

@@ -19,14 +19,16 @@ Ext.define('App.model.patient.InsuranceCover',{
             type: 'int'
         },
         {
-            name: 'department_code',
-            type: 'string',
-            len: 5
+            name: 'service_type_id',
+            type: 'int'
         },
         {
-            name: 'cover',
-            type: 'string',
-            len: 50
+            name: 'copay',
+            type: 'string'
+        },
+        {
+            name: 'active',
+            type: 'bool'
         },
         {
             name: 'create_uid',
@@ -46,16 +48,31 @@ Ext.define('App.model.patient.InsuranceCover',{
             type: 'date',
             dateFormat: 'Y-m-d H:i:s'
         },
-	    {
-		    name: 'departments_title',
-		    type: 'string',
-		    store: false
-	    },
-	    {
-		    name: 'departments_code',
-		    type: 'string',
-		    store: false
-	    }
+        {
+            name: 'department_id',
+            type: 'string',
+            store: false
+        },
+        {
+            name: 'department_title',
+            type: 'string',
+            store: false
+        },
+        {
+            name: 'specialty_id',
+            type: 'string',
+            store: false
+        },
+        {
+            name: 'specialty_title',
+            type: 'string',
+            store: false
+        },
+        {
+            name: 'service_type_description',
+            type: 'string',
+            store: false
+        }
     ],
     proxy: {
         type: 'direct',
@@ -64,6 +81,9 @@ Ext.define('App.model.patient.InsuranceCover',{
             create: 'Insurance.addInsuranceCover',
             update: 'Insurance.updateInsuranceCover',
             destroy: 'Insurance.destroyInsuranceCover'
+        },
+        writer: {
+            writeAllFields: true
         }
     },
     associations: [

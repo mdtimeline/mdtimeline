@@ -124,6 +124,10 @@ Log::init();
 if(file_exists(ROOT . '/sites/' . SITE . '/conf.php')){
 	include_once(ROOT . '/sites/' . SITE . '/conf.php');
 
+	if(!defined('site_external_url')){
+		define('site_external_url', URL);
+	}
+
 	unset($_SESSION['site']['error']);
 
 	include_once(ROOT . '/dataProvider/IpAccessRules.php');

@@ -22385,6 +22385,51 @@ Ext.define('App.model.patient.Patient',{
 		    len: 25
 	    },
 	    {
+		    name: 'pbm_payer_id',
+		    type: 'string',
+		    len: 60
+	    },
+	    {
+		    name: 'pbm_payer_name',
+		    type: 'string',
+		    len: 45
+	    },
+	    {
+		    name: 'pbm_card_fname',
+		    type: 'string',
+		    len: 45
+	    },
+	    {
+		    name: 'pbm_card_lname',
+		    type: 'string',
+		    len: 45
+	    },
+        {
+            name: 'pbm_member_id',
+            type: 'string',
+            len: 45
+        },
+        {
+            name: 'pbm_group',
+            type: 'string',
+            len: 45
+        },
+	    {
+		    name: 'pbm_bin',
+		    type: 'string',
+		    len: 45
+	    },
+	    {
+		    name: 'pbm_pcn',
+		    type: 'string',
+		    len: 45
+	    },
+	    {
+		    name: 'pbm_consent',
+		    type: 'string',
+		    len: 45
+	    },
+	    {
 		    name: 'authy_id',
 		    type: 'string',
 		    len: 45,
@@ -44321,6 +44366,8 @@ Ext.define('App.controller.patient.Immunizations', {
 		});
 	},
 
+
+
 	onImmunizationsPresumedImmunityCheckboxAfterRender: function(checkbox){
 		var me = this;
 
@@ -44413,6 +44460,17 @@ Ext.define('App.controller.patient.Immunizations', {
 
 	onPatientImmunizationsGridEdit: function(plugin, context){
 		app.fireEvent('immunizationedit', this, context.record);
+
+		var pid = context.record.get('pid'),
+			immunization_id = context.record.get('id');
+
+		if(context.record.new_immunization === true){
+			this.doSendVxu(pid, immunization_id, 'NEW');
+		}else if(context.record.get('is_error')){
+			this.doSendVxu(pid, immunization_id, 'DELETE');
+		}else{
+			this.doSendVxu(pid, immunization_id, 'UPDATE');
+		}
 	},
 
 	onPatientImmunizationsPanelActive: function(){
@@ -44435,7 +44493,7 @@ Ext.define('App.controller.patient.Immunizations', {
 			store = grid.getStore();
 
 		grid.editingPlugin.cancelEdit();
-		store.insert(0, {
+		var records = store.insert(0, {
 			created_uid: app.user.id,
 			uid: app.user.id,
 			pid: app.patient.pid,
@@ -44445,7 +44503,10 @@ Ext.define('App.controller.patient.Immunizations', {
 			begin_date: new Date()
 
 		});
-		grid.editingPlugin.startEdit(0, 0);
+
+		records[0].new_immunization = true;
+
+		grid.editingPlugin.startEdit(records[0], 0);
 	},
 
 	loadPatientImmunizations: function(){
@@ -44458,6 +44519,21 @@ Ext.define('App.controller.patient.Immunizations', {
 			}
 		]);
 	},
+
+	getImmunizationHxFromRegistry: function(){
+
+		var params = {};
+
+
+		Immunizations.getImmunizationHxFromRegistry(params, function (response) {
+
+
+			say(response);
+
+		});
+
+	},
+
 
 	getVxuWindow: function(){
 		var me = this;
@@ -44645,37 +44721,22 @@ Ext.define('App.controller.patient.Immunizations', {
 		}
 	},
 
-	doSendVxu: function(btn){
+	doSendVxu: function(pid, immunization_id, action){
 		var me = this,
-			sm = me.getImmunizationsGrid().getSelectionModel(),
-			records = this.getSubmitImmunizationGrid().getStore().data.items,
-			params = {},
-			immunizations = [];
+			params = {};
 
-		if(me.vxuTo.isValid()){
+		params.pid = pid;
+		params.immunizations = [ immunization_id ];
+		params.action = action;
 
-			for(var i = 0; i < records.length; i++){
-				Ext.Array.push(immunizations, records[i].get('id'));
-				params.pid = records[i].get('pid');
+		HL7Messages.sendVXU(params, function(provider, response){
+			if(response.result.success){
+				app.msg(_('sweet'), _('registry_message_sent'));
+			}else{
+				app.msg(_('oops'), _('registry_message_error'), true);
 			}
+		});
 
-			params.from = me.vxuFrom.getValue();
-			params.to = me.vxuTo.getValue();
-			params.immunizations = immunizations;
-
-			me.vxuWindow.el.mask(_('sending'));
-
-			HL7Messages.sendVXU(params, function(provider, response){
-				me.vxuWindow.el.unmask();
-				if(response.result.success){
-					app.msg(_('sweet'), _('message_sent'));
-				}else{
-					app.msg(_('oops'), _('message_error'), true);
-				}
-				me.vxuWindow.close();
-				sm.deselectAll();
-			});
-		}
 	}
 
 });
@@ -57359,7 +57420,105 @@ Ext.define('App.view.patient.Patient', {
 													editable: false
 												}
 											]
-										} //Hipaa Notice, Organ Donor
+										}, //Hipaa Notice, Organ Donor
+										{
+											xtype: 'fieldset',
+											title: 'PBM (Pharmacy Benefit Management)',
+											cls: 'highlight_fieldset',
+											margin: '5 0 5 0',
+											padding: '15 10 10 10',
+											width: me.containersWidth,
+											layout: 'hbox',
+											defaults: {
+												margin: '0 5 0 0',
+												labelAlign: 'top'
+											},
+											items: [
+												{
+													xtype: 'container',
+													flex: 1,
+													layout: {
+														type: 'vbox',
+														align: 'stretch'
+													},
+													items: [
+														{
+															xtype: 'fieldcontainer',
+															layout: {
+																type: 'hbox',
+																align: 'stretch'
+															},
+															fieldLabel: _('card_name'),
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: _('last_name'),
+																	name: 'pbm_card_lname',
+																	flex: 1,
+																	margin: '0 5 0 0'
+																},
+																{
+																	xtype: 'textfield',
+																	fieldLabel: ',',
+																	labelSeparator: '',
+																	labelWidth: 3,
+																	emptyText: _('first_name'),
+																	name: 'pbm_card_fname',
+																	flex: 1
+																}
+															]
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: _('member_id'),
+															name: 'pbm_member_id',
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: _('consent'),
+															name: 'pbm_consent',
+														}
+													]
+												},
+												{
+													xtype: 'container',
+													flex: 1,
+													items: [
+														{
+															xtype: 'textfield',
+															fieldLabel: _('group'),
+															name: 'pbm_group',
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: _('bin'),
+															name: 'pbm_bin',
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: _('pcn'),
+															name: 'pbm_pcn',
+														}
+													]
+												},
+												{
+													xtype: 'container',
+													flex: 1,
+													items: [
+														{
+															xtype: 'textfield',
+															fieldLabel: _('payer_id'),
+															name: 'pbm_payer_id',
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: _('payer_name'),
+															name: 'pbm_payer_name',
+														}
+													]
+												},
+											]
+										} //PBM Info
 									]
 								}  //Additional Info
 							]

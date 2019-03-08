@@ -1468,7 +1468,105 @@ Ext.define('App.view.patient.Patient', {
 													editable: false
 												}
 											]
-										} //Hipaa Notice, Organ Donor
+										}, //Hipaa Notice, Organ Donor
+										{
+											xtype: 'fieldset',
+											title: 'PBM (Pharmacy Benefit Management)',
+											cls: 'highlight_fieldset',
+											margin: '5 0 5 0',
+											padding: '15 10 10 10',
+											width: me.containersWidth,
+											layout: 'hbox',
+											defaults: {
+												margin: '0 5 0 0',
+												labelAlign: 'top'
+											},
+											items: [
+												{
+													xtype: 'container',
+													flex: 1,
+													layout: {
+														type: 'vbox',
+														align: 'stretch'
+													},
+													items: [
+														{
+															xtype: 'fieldcontainer',
+															layout: {
+																type: 'hbox',
+																align: 'stretch'
+															},
+															fieldLabel: _('card_name'),
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: _('last_name'),
+																	name: 'pbm_card_lname',
+																	flex: 1,
+																	margin: '0 5 0 0'
+																},
+																{
+																	xtype: 'textfield',
+																	fieldLabel: ',',
+																	labelSeparator: '',
+																	labelWidth: 3,
+																	emptyText: _('first_name'),
+																	name: 'pbm_card_fname',
+																	flex: 1
+																}
+															]
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: _('member_id'),
+															name: 'pbm_member_id',
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: _('consent'),
+															name: 'pbm_consent',
+														}
+													]
+												},
+												{
+													xtype: 'container',
+													flex: 1,
+													items: [
+														{
+															xtype: 'textfield',
+															fieldLabel: _('group'),
+															name: 'pbm_group',
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: _('bin'),
+															name: 'pbm_bin',
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: _('pcn'),
+															name: 'pbm_pcn',
+														}
+													]
+												},
+												{
+													xtype: 'container',
+													flex: 1,
+													items: [
+														{
+															xtype: 'textfield',
+															fieldLabel: _('payer_id'),
+															name: 'pbm_payer_id',
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: _('payer_name'),
+															name: 'pbm_payer_name',
+														}
+													]
+												},
+											]
+										} //PBM Info
 									]
 								}  //Additional Info
 							]

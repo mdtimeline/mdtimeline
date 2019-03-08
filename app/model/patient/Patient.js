@@ -731,6 +731,51 @@ Ext.define('App.model.patient.Patient',{
 		    len: 25
 	    },
 	    {
+		    name: 'pbm_payer_id',
+		    type: 'string',
+		    len: 60
+	    },
+	    {
+		    name: 'pbm_payer_name',
+		    type: 'string',
+		    len: 45
+	    },
+	    {
+		    name: 'pbm_card_fname',
+		    type: 'string',
+		    len: 45
+	    },
+	    {
+		    name: 'pbm_card_lname',
+		    type: 'string',
+		    len: 45
+	    },
+        {
+            name: 'pbm_member_id',
+            type: 'string',
+            len: 45
+        },
+        {
+            name: 'pbm_group',
+            type: 'string',
+            len: 45
+        },
+	    {
+		    name: 'pbm_bin',
+		    type: 'string',
+		    len: 45
+	    },
+	    {
+		    name: 'pbm_pcn',
+		    type: 'string',
+		    len: 45
+	    },
+	    {
+		    name: 'pbm_consent',
+		    type: 'string',
+		    len: 45
+	    },
+	    {
 		    name: 'authy_id',
 		    type: 'string',
 		    len: 45,

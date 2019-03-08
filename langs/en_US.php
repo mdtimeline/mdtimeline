@@ -2013,4 +2013,10 @@ $LANG = array(
 	'show_only_same_provider_notes' => 'Show Only Same Provider Notes',
 	'show_only_same_specialty_notes' => 'Show Only Same Specialty Notes',
 	'appointment_request_report' => 'Appointment Request Report',
+	'payer_name' => 'Payer Name',
+	'payer_id' => 'Payer ID',
+	'pcn' => 'PCN',
+	'bin' => 'BIN',
+	'consent' => 'Consent',
+	'member_id' => 'Member ID',
 );

@@ -1092,6 +1092,12 @@ Ext.define('App.view.patient.Patient', {
 													listKey: 'publicity_code',
 													loadStore: true,
 													editable: false,
+													margin: '10 5 5 0'
+												},
+												{
+													xtype: 'datefield',
+													fieldLabel: _('effective_date'),
+													name: 'phone_publicity_date',
 													margin: '10 0 5 0'
 												}
 											]

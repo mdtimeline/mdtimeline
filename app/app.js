@@ -22052,6 +22052,11 @@ Ext.define('App.model.patient.Patient',{
 		    type: 'string',
 		    len: 10
 	    },
+	    {
+		    name: 'phone_publicity_date',
+		    type: 'date',
+            dataType: 'date'
+	    },
         {
             name: 'phone_home',
             type: 'string',
@@ -22429,6 +22434,25 @@ Ext.define('App.model.patient.Patient',{
 		    type: 'string',
 		    len: 45
 	    },
+        {
+            name: 'immunization_registry_status',
+            type: 'string',
+            len: 10
+        },
+        {
+            name: 'immunization_registry_status_date',
+            type: 'string',
+            len: 10
+        },
+        {
+            name: 'protection_indicator',
+            type: 'bool'
+        },
+        {
+            name: 'protection_indicator_date',
+            type: 'date',
+            dataType: 'date'
+        },
 	    {
 		    name: 'authy_id',
 		    type: 'string',
@@ -57426,13 +57450,9 @@ Ext.define('App.view.patient.Patient', {
 											title: 'PBM (Pharmacy Benefit Management)',
 											cls: 'highlight_fieldset',
 											margin: '5 0 5 0',
-											padding: '15 10 10 10',
+											padding: '5 10 10 10',
 											width: me.containersWidth,
 											layout: 'hbox',
-											defaults: {
-												margin: '0 5 0 0',
-												labelAlign: 'top'
-											},
 											items: [
 												{
 													xtype: 'container',
@@ -57440,6 +57460,10 @@ Ext.define('App.view.patient.Patient', {
 													layout: {
 														type: 'vbox',
 														align: 'stretch'
+													},
+													defaults: {
+														margin: '0 5 0 0',
+														labelAlign: 'top'
 													},
 													items: [
 														{
@@ -57472,17 +57496,21 @@ Ext.define('App.view.patient.Patient', {
 															xtype: 'textfield',
 															fieldLabel: _('member_id'),
 															name: 'pbm_member_id',
-														},
-														{
-															xtype: 'textfield',
-															fieldLabel: _('consent'),
-															name: 'pbm_consent',
 														}
 													]
 												},
 												{
 													xtype: 'container',
 													flex: 1,
+													defaults: {
+														margin: '0 5 0 0',
+														labelAlign: 'top',
+														fex: 1
+													},
+													layout: {
+														type: 'vbox',
+														align: 'stretch'
+													},
 													items: [
 														{
 															xtype: 'textfield',
@@ -57504,6 +57532,14 @@ Ext.define('App.view.patient.Patient', {
 												{
 													xtype: 'container',
 													flex: 1,
+													defaults: {
+														margin: '0 5 0 0',
+														labelAlign: 'top'
+													},
+													layout: {
+														type: 'vbox',
+														align: 'stretch'
+													},
 													items: [
 														{
 															xtype: 'textfield',
@@ -57517,8 +57553,89 @@ Ext.define('App.view.patient.Patient', {
 														}
 													]
 												},
+												{
+													xtype: 'textfield',
+													fieldLabel: _('consent'),
+													name: 'pbm_consent',
+													margin: '0 5 0 0',
+													labelAlign: 'top',
+												}
 											]
-										} //PBM Info
+										}, //PBM Info
+										{
+											xtype: 'fieldset',
+											title: _('immunization_registry_information'),
+											cls: 'highlight_fieldset',
+											margin: '5 0 5 0',
+											padding: '5 10 10 10',
+											width: me.containersWidth,
+											layout: {
+												type: 'vbox',
+												align: 'stretch'
+											},
+											defaults: {
+												margin: '0 5 0 0',
+												labelAlign: 'top'
+											},
+											items: [
+												{
+													xtype: 'container',
+													flex: 1,
+													defaults: {
+														margin: '0 5 0 0',
+														labelAlign: 'top'
+													},
+													layout: {
+														type: 'hbox',
+														align: 'stretch'
+													},
+													items: [
+														{
+															xtype: 'gaiaehr.combo',
+															fieldLabel: _('status'),
+															name: 'immunization_registry_status',
+															listKey: 'immu_registry_status',
+															width: 320
+														},
+														{
+															xtype: 'datefield',
+															fieldLabel: _('effective_date'),
+															name: 'immunization_registry_status_date',
+															margin: '0 10 0 0'
+														}
+													]
+												},
+												{
+													xtype: 'container',
+													flex: 1,
+													defaults: {
+														margin: '0 5 0 0',
+														labelAlign: 'top'
+													},
+													layout: {
+														type: 'hbox',
+														align: 'bottom'
+													},
+													items: [
+														{
+															xtype: 'combobox',
+															fieldLabel: _('protection_indicator'),
+															boxLabel: _('enabled'),
+															name: 'protection_indicator',
+															width: 320,
+															editable: false,
+															store: [[true, 'Yes'], [false, 'No']]
+														},
+														{
+															xtype: 'datefield',
+															fieldLabel: _('effective_date'),
+															name: 'protection_indicator_date',
+															margin: '0 10 0 0'
+														}
+													]
+												},
+											]
+										} //Immunization Status
 									]
 								}  //Additional Info
 							]

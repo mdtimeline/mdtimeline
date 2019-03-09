@@ -2019,4 +2019,8 @@ $LANG = array(
 	'bin' => 'BIN',
 	'consent' => 'Consent',
 	'member_id' => 'Member ID',
+	'protection' => 'Protection',
+	'protection_indicator' => 'Protection Indicator',
+	'immunization_registry_information' => 'Immunization Registry Information',
+	'patient_protection_information' => 'Patient Protection Information',
 );

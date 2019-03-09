@@ -398,6 +398,11 @@ Ext.define('App.model.patient.Patient',{
 		    type: 'string',
 		    len: 10
 	    },
+	    {
+		    name: 'phone_publicity_date',
+		    type: 'date',
+            dataType: 'date'
+	    },
         {
             name: 'phone_home',
             type: 'string',
@@ -775,6 +780,25 @@ Ext.define('App.model.patient.Patient',{
 		    type: 'string',
 		    len: 45
 	    },
+        {
+            name: 'immunization_registry_status',
+            type: 'string',
+            len: 10
+        },
+        {
+            name: 'immunization_registry_status_date',
+            type: 'string',
+            len: 10
+        },
+        {
+            name: 'protection_indicator',
+            type: 'bool'
+        },
+        {
+            name: 'protection_indicator_date',
+            type: 'date',
+            dataType: 'date'
+        },
 	    {
 		    name: 'authy_id',
 		    type: 'string',

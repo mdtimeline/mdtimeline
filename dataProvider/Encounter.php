@@ -718,6 +718,29 @@ class Encounter {
 
 		$str_buff .= '</div>';
 
+
+
+		$social_history = $SocialHistory->getSocialHistoryByEidAndCode($eid, 'history');
+
+		if(!empty($social_history)){
+			$str_buff .= '<div class="indent">';
+			$str_buff .= '<p><b>Social History:</b></p>';
+			$str_buff .= '<ul style="list-style-type:disc">';
+			foreach ($social_history as $history){
+
+				$str_buff .= '<li>';
+				$str_buff .= '<u>Category:</u> ' . $history['category_code_text'] . ' - ';
+				$str_buff .= '<u>Observation:</u> ' . $history['observation'] . ' - ';
+				$str_buff .= '<u>Note:</u> ' . $history['note'];
+				$str_buff .= '</li>';
+
+			}
+			$str_buff .= '</ul>';
+
+			$str_buff .= '</div>';
+
+		}
+
 		return $str_buff;
 	}
 

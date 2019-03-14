@@ -27,7 +27,7 @@ Ext.define('App.view.patient.FamilyHistory', {
 	columnLines: true,
 	store: Ext.create('App.store.patient.FamilyHistories', {
 		remoteFilter: true,
-		groupField: 'condition'
+		groupField: 'relation'
 	}),
 	features: [
 		{

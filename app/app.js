@@ -15423,7 +15423,8 @@ Ext.define('App.model.patient.FamilyHistory',{
             read: 'FamilyHistory.getFamilyHistory',
             create: 'FamilyHistory.addFamilyHistory',
             update: 'FamilyHistory.updateFamilyHistory'
-        }
+        },
+        remoteGroup: false
     },
     belongsTo: {
         model: 'App.model.patient.Encounter',
@@ -63669,7 +63670,7 @@ Ext.define('App.view.patient.FamilyHistory', {
 	columnLines: true,
 	store: Ext.create('App.store.patient.FamilyHistories', {
 		remoteFilter: true,
-		groupField: 'condition'
+		groupField: 'relation'
 	}),
 	features: [
 		{

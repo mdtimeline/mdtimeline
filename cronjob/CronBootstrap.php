@@ -83,7 +83,7 @@ class CronBootstrap
          */
 
 	    error_reporting(-1);
-	    ini_set('display_errors', 1);
+	    ini_set('display_errors', 'Off');
 	    $log_path = ROOT . '/sites/' . site_id . '/log/';
 	    $log_file = 'error.log';
 	    $filename = $log_path . $log_file;

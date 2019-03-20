@@ -8,6 +8,9 @@
     src: url('../fonts/OpenSans-CondLight.ttf');
 }
 
+.x-viewport,.x-viewport body {
+     position: relative;
+}
 .app-network-status-box {
     border: solid 1px #bbb;
 }

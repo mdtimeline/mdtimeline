@@ -8658,7 +8658,7 @@ svg, vml {
   border: 0 none;
   overflow: hidden;
   height: 100%;
-  position: static; }
+  position: relative; }
 
 /* line 5, ../../themes/stylesheets/carbon/custom/overrides/_general.scss */
 .x-css-shadow {

@@ -20,6 +20,7 @@
 
 include_once(ROOT . '/dataProvider/AuditLog.php');
 require_once (ROOT . '/lib/PHPMailer/PHPMailerAutoload.php');
+include_once (ROOT . '/dataProvider/Globals.php');
 
 class Email {
 

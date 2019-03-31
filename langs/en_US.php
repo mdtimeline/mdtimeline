@@ -2027,4 +2027,9 @@ $LANG = array(
 	'encounter_templates' => 'Encounter Templates',
 	'lad_order' => 'Lad Order',
 	'rad_order' => 'Rad Order',
+	'template_type' => 'Template Type',
+	'from_email' => 'From Email',
+	'from_name' => 'From Name',
+	'email_template' => 'Email Template',
+	'email_templates' => 'Email Templates',
 );

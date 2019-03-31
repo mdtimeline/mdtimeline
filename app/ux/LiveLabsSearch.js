@@ -17,7 +17,7 @@
  */
 Ext.define('App.ux.LiveLabsSearch', {
 	extend: 'Ext.form.ComboBox',
-	alias: 'widget.labslivetsearch',
+	xtype: 'labslivetsearch',
 	hideLabel: true,
 
 	initComponent: function(){

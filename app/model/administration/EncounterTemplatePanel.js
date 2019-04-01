@@ -62,7 +62,8 @@ Ext.define('App.model.administration.EncounterTemplatePanel', {
 		},
 		reader: {
 			root: 'data'
-		}
+		},
+		remoteGroup: false
 	},
 	hasMany: [
 		{

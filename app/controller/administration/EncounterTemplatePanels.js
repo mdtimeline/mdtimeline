@@ -585,7 +585,7 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 
 						if(record){
 							var tpl = me.getRadTemplate(record.get('loinc_number'), record.get('loinc_name'));
-							me.addAdministrationEncounterTemplateGridRecord(tpl.description, 'LAD', tpl);
+							me.addAdministrationEncounterTemplateGridRecord(tpl.description, 'LAB', tpl);
 						}
 
 						this.up('window').close();

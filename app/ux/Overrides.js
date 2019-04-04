@@ -196,6 +196,8 @@ Ext.override(Ext.view.Table, {
 Ext.override(Ext.button.Button, {
 
     acl: true,
+    disableOnCLick: false,
+    disableOnTime: 1000,
 
     beforeRender: function () {
         var me = this,
@@ -229,7 +231,23 @@ Ext.override(Ext.button.Button, {
 
         // Apply the renderData to the template args
         Ext.applyIf(me.renderData, me.getTemplateArgs());
-    }
+
+
+        if(me.disableOnCLick){
+        	me.on('click', me.onBtnClickDisable, me);
+        }
+    },
+
+	onBtnClickDisable: function () {
+		var me = this;
+
+    	if(me.isDisabled()) return;
+
+		me.setDisabled(true);
+		Ext.Function.defer(function () {
+			me.setDisabled(false);
+		}, me.disableOnTime, me);
+	}
 });
 
 Ext.override(Ext.menu.Item, {

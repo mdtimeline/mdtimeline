@@ -304,6 +304,7 @@ Ext.define('App.view.patient.windows.NewPatient', {
 		},
 		{
 			text: _('save'),
+			disableOnCLick: true,
 			itemId: 'NewPatientWindowSaveBtn'
 		}
 	]

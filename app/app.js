@@ -62347,17 +62347,19 @@ Ext.define('App.ux.form.SearchField', {
 	paramName : 'query',
 
 	filterFn: null,
+	autoSearch: false,
+	autoSearchDelay: 500,
 
 	initComponent: function() {
 		var me = this;
 
 		me.callParent(arguments);
 
-		me.on('specialkey', function(f, e){
-			if (e.getKey() == e.ENTER) {
-				me.onTrigger2Click();
-			}
-		});
+		if(me.autoSearch){
+			me.initAutoSearch();
+		}else{
+			me.initSpecialKey();
+		}
 
 		// We're going to use filtering
 		me.store.remoteFilter = me.filterFn === null;
@@ -62373,6 +62375,25 @@ Ext.define('App.ux.form.SearchField', {
 		me.store.proxy.encodeFilters = function(filters) {
 			return filters[0].value;
 		}
+	},
+
+	initSpecialKey: function(){
+		this.on('specialkey', function(f, e){
+			if (e.getKey() == e.ENTER) {
+				this.onTrigger2Click();
+			}
+		}, this);
+	},
+
+	initAutoSearch: function(){
+		var bufferedFn = Ext.Function.createBuffered(function () {
+				this.onTrigger2Click();
+			}, this.autoSearchDelay, this);
+
+		this.enableKeyEvents = true;
+		this.on('keyup', function(f, e){
+			bufferedFn();
+		}, this);
 	},
 
 	afterRender: function(){

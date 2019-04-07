@@ -336,6 +336,22 @@ class Navigation
                 'id' => 'App.view.administration.Backup'
             ];
         }
+        if($this->ACL->hasPermission('access_encounter_templates')){
+            $admin['children'][] = [
+                'text' => $this->i18n('encounter_templates'),
+                'leaf' => true,
+                'cls' => 'file',
+                'id' => 'App.view.administration.EncounterTemplates'
+            ];
+        }
+        if($this->ACL->hasPermission('access_email_templates')){
+            $admin['children'][] = [
+                'text' => $this->i18n('email_templates'),
+                'leaf' => true,
+                'cls' => 'file',
+                'id' => 'App.view.administration.EmailTemplates'
+            ];
+        }
 
 		if(isset($admin['children']) && count($admin['children']) > 0) array_push($nav, $admin);
 

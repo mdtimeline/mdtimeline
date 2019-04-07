@@ -56,5 +56,17 @@ Ext.define('App.model.administration.EmailTemplate', {
 			type: 'bool',
 			index: true
 		}
-	]
+	],
+	proxy: {
+		type: 'direct',
+		api: {
+			read: 'EmailTemplates.getEmailTemplates',
+			create: 'EmailTemplates.addEmailTemplate',
+			update: 'EmailTemplates.updateEmailTemplate'
+		},
+		reader: {
+			root: 'data'
+		},
+		remoteGroup: false
+	}
 });

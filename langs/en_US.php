@@ -2023,4 +2023,13 @@ $LANG = array(
 	'protection_indicator' => 'Protection Indicator',
 	'immunization_registry_information' => 'Immunization Registry Information',
 	'patient_protection_information' => 'Patient Protection Information',
+	'encounter_template' => 'Encounter Template',
+	'encounter_templates' => 'Encounter Templates',
+	'lad_order' => 'Lad Order',
+	'rad_order' => 'Rad Order',
+	'template_type' => 'Template Type',
+	'from_email' => 'From Email',
+	'from_name' => 'From Name',
+	'email_template' => 'Email Template',
+	'email_templates' => 'Email Templates',
 );

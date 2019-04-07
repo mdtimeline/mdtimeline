@@ -19,7 +19,10 @@
 Ext.define('App.controller.administration.EncounterTemplatePanels', {
 	extend: 'Ext.app.Controller',
 
-	requires: [],
+	uses: [
+		'App.ux.LiveRadsSearch',
+		'App.ux.LiveLabsSearch',
+	],
 
 	refs: [
 		{
@@ -53,7 +56,29 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 		{
 			ref: 'soapForm',
 			selector: '#soapForm'
-		}
+		},
+
+		// Admin
+		{
+			ref: 'AdministrationEncounterTemplatesPanel',
+			selector: '#AdministrationEncounterTemplatesPanel'
+		},
+		{
+			ref: 'AdministrationEncounterTemplatesGrid',
+			selector: '#AdministrationEncounterTemplatesGrid'
+		},
+		{
+			ref: 'AdministrationEncounterTemplateWindow',
+			selector: '#AdministrationEncounterTemplateWindow'
+		},
+		{
+			ref: 'AdministrationEncounterTemplateForm',
+			selector: '#AdministrationEncounterTemplateForm'
+		},
+		{
+			ref: 'AdministrationEncounterTemplateGrid',
+			selector: '#AdministrationEncounterTemplateGrid'
+		},
 	],
 
 	init: function () {
@@ -78,6 +103,32 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 			},
 			'#TemplatePanelsCancelBtn': {
 				click: me.onTemplatePanelsCancelBtnClick
+			},
+
+			// Admin
+			'#AdministrationEncounterTemplatesPanel': {
+				activate: me.onAdministrationEncounterTemplatesPanelActivate
+			},
+			'#AdministrationEncounterTemplatesGrid': {
+				itemdblclick: me.onAdministrationEncounterTemplatesGridItemDblClick
+			},
+			'#AdministrationEncounterTemplateForm': {
+				loadrecord: me.onAdministrationEncounterTemplateFormLoadRecord
+			},
+			'#EncounterTemplatesAddBtn': {
+				click: me.onEncounterTemplatesAddBtnClick
+			},
+			'#AdministrationEncounterTemplateRadOrderAddBtn': {
+				click: me.onAdministrationEncounterTemplateRadOrderAddBtnClick
+			},
+			'#AdministrationEncounterTemplateLabOrderAddBtn': {
+				click: me.onAdministrationEncounterTemplateLabOrderAddBtnClick
+			},
+			'#AdministrationEncounterTemplateCancelBtn': {
+				click: me.onAdministrationEncounterTemplateCancelBtnClick
+			},
+			'#AdministrationEncounterTemplateSaveBtn': {
+				click: me.onAdministrationEncounterTemplateSaveBtnClick
 			}
 		});
 
@@ -292,7 +343,7 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 			pid: 0,
 			eid: 0,
 			refer_by: 0,
-			refer_by_text: "",
+			refer_by_text: '',
 			referral_date: '',
 			create_uid: 0,
 			update_uid: 0,
@@ -300,8 +351,8 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 			update_date: null,
 
 			is_external_referral: true,
-			refer_to: "",
-			refer_to_text: "",
+			refer_to: '',
+			refer_to_text: '',
 
 			send_record: false,
 			service_code: service_code || '',   // 29303009
@@ -314,6 +365,234 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 			diagnosis_text: ""
 
 		};
+	},
+
+
+	onAdministrationEncounterTemplatesPanelActivate: function(panel){
+		this.getAdministrationEncounterTemplatesGrid().getStore().load();
+	},
+
+	onEncounterTemplatesAddBtnClick: function(){
+		this.showEncounterTemplateWindow();
+		this.getAdministrationEncounterTemplateForm().getForm().loadRecord(
+			Ext.create('App.model.administration.EncounterTemplatePanel')
+		);
+	},
+
+	onAdministrationEncounterTemplatesGridItemDblClick: function(gird, record){
+		this.showEncounterTemplateWindow();
+		this.getAdministrationEncounterTemplateForm().getForm().loadRecord(record);
+	},
+
+	onAdministrationEncounterTemplateFormLoadRecord: function(form, record){
+		say('onAdministrationEncounterTemplateFormLoadRecord');
+		say(form);
+		say(record);
+
+		var store = this.getAdministrationEncounterTemplateGrid().getStore();
+
+		if(record.get('id') > 0){
+			store.load({
+				filters: [
+					{
+						property: 'panel_id',
+						value: record.get('id')
+					}
+				]
+			});
+		} else {
+			store.removeAll();
+			store.commitChanges();
+		}
+	},
+
+	onAdministrationEncounterTemplateRadOrderAddBtnClick: function(btn){
+		this.getRadOrderWindow();
+	},
+
+	onAdministrationEncounterTemplateLabOrderAddBtnClick: function(btn){
+		this.getLadOrderWindow();
+	},
+
+	onAdministrationEncounterTemplateCancelBtnClick: function(btn){
+		this.getAdministrationEncounterTemplateForm().getForm().reset(true);
+		this.getAdministrationEncounterTemplateWindow().close();
+	},
+
+	onAdministrationEncounterTemplateSaveBtnClick: function(btn){
+
+		var me = this,
+			form = this.getAdministrationEncounterTemplateForm().getForm(),
+			template_record = form.getRecord(),
+			template_values = form.getValues();
+
+		if(!form.isValid()) return;
+
+		template_record.set(template_values);
+
+		var template_record_changes = template_record.getChanges();
+
+		if(!Ext.Object.isEmpty(template_record_changes)){
+			template_record.save({
+				callback: function (record) {
+					me.onAdministrationEncounterTemplateItemsSave(template_record);
+				}
+			});
+		}else{
+			me.onAdministrationEncounterTemplateItemsSave(template_record);
+		}
+
+	},
+
+	onAdministrationEncounterTemplateItemsSave: function(template_record){
+		var me = this,
+			items_store = this.getAdministrationEncounterTemplateGrid().getStore(),
+			items_modified_records = items_store.getModifiedRecords();
+
+
+		items_modified_records.forEach(function (items_modified_record) {
+			items_modified_record.set({panel_id: template_record.get('id')});
+		});
+
+		if(items_modified_records.length > 0){
+
+			items_store.sync({
+				callback: function () {
+					me.getAdministrationEncounterTemplateForm().getForm().reset(true);
+					me.getAdministrationEncounterTemplateWindow().close();
+				}
+			});
+
+		}else{
+			me.getAdministrationEncounterTemplateForm().getForm().reset(true);
+			me.getAdministrationEncounterTemplateWindow().close();
+		}
+
+
+
+
+
+
+
+
+	},
+
+
+	showEncounterTemplateWindow: function () {
+
+		if(!this.getAdministrationEncounterTemplateWindow()){
+			Ext.create('App.view.administration.EncounterTemplateWindow');
+		}
+		return this.getAdministrationEncounterTemplateWindow().show();
+	},
+
+	addAdministrationEncounterTemplateGridRecord: function(description, template_type, template_data){
+		var store = this.getAdministrationEncounterTemplateGrid().getStore();
+
+
+		store.add({
+			description: description,
+			template_type: template_type,
+			template_data: JSON.stringify(template_data),
+			active: 1,
+		});
+
+	},
+
+	getRadOrderWindow: function () {
+
+		var me = this;
+
+		Ext.create('Ext.window.Window',{
+			resizable: false,
+			items:[
+				{
+					xtype: 'form',
+					bodyPadding: 10,
+					items: [
+						{
+							xtype: 'radslivetsearch',
+							fieldLabel: _('study'),
+							labelAlign: 'top',
+							hideLabel: false,
+							width: 300
+						}
+					]
+				}
+			],
+			buttons:[
+				{
+					xtype: 'button',
+					text: _('cancel'),
+					handler: function () {
+						this.up('window').close();
+					}
+				},
+				{
+					xtype: 'button',
+					text: _('add'),
+					handler: function () {
+						var field = this.up('window').down('radslivetsearch'),
+							record = field.findRecordByValue(field.getValue());
+
+						if(record){
+							var tpl = me.getRadTemplate(record.get('loinc_number'), record.get('loinc_name'));
+							me.addAdministrationEncounterTemplateGridRecord(tpl.description, 'RAD', tpl);
+						}
+
+						this.up('window').close();
+					}
+				}
+			]
+		}).show();
+	},
+
+	getLadOrderWindow: function () {
+
+		var me = this;
+
+		Ext.create('Ext.window.Window',{
+			resizable: false,
+			items:[
+				{
+					xtype: 'form',
+					bodyPadding: 10,
+					items: [
+						{
+							xtype: 'labslivetsearch',
+							fieldLabel: _('study'),
+							labelAlign: 'top',
+							hideLabel: false,
+							width: 300
+						}
+					]
+				}
+			],
+			buttons:[
+				{
+					xtype: 'button',
+					text: _('cancel'),
+					handler: function () {
+						this.up('window').close();
+					}
+				},
+				{
+					xtype: 'button',
+					text: _('add'),
+					handler: function () {
+						var field = this.up('window').down('labslivetsearch'),
+							record = field.findRecordByValue(field.getValue());
+
+						if(record){
+							var tpl = me.getRadTemplate(record.get('loinc_number'), record.get('loinc_name'));
+							me.addAdministrationEncounterTemplateGridRecord(tpl.description, 'LAB', tpl);
+						}
+
+						this.up('window').close();
+					}
+				}
+			]
+		}).show();
 	}
 
 });

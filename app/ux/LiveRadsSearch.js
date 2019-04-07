@@ -17,7 +17,7 @@
  */
 Ext.define('App.ux.LiveRadsSearch', {
 	extend: 'Ext.form.ComboBox',
-	alias: 'widget.radslivetsearch',
+	xtype: 'radslivetsearch',
 	hideLabel: true,
 
 	initComponent: function(){

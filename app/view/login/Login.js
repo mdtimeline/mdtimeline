@@ -100,7 +100,7 @@ Ext.define('App.view.login.Login', {
 					afterrender:function(cmp){
 						if(!eval(g('save_password'))){
 							cmp.inputEl.set({
-								autocomplete:'new-password'
+								autocomplete:'off'
 							});
 						}
 					}
@@ -117,7 +117,7 @@ Ext.define('App.view.login.Login', {
 					specialkey: me.onEnter,
 					afterrender:function(cmp){
 						cmp.inputEl.set({
-							autocomplete:'new-password'
+							autocomplete:'off'
 						});
 					}
 				}

@@ -91,7 +91,7 @@ class MatchaModel extends Matcha {
 			// verify the existence of the table if it does not exist create it
 			$recordSet = self::$__conn->query("SHOW TABLES LIKE '" . $table . "';");
 			if(isset($recordSet)){
-				self::__createTable($table);
+				self::__createTable($table, $force);
 			}
 
 			// if id property is not set in sencha model look for propertyId.

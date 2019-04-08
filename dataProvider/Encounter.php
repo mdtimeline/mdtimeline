@@ -634,14 +634,38 @@ class Encounter {
 
 		if(!empty($family_histories)){
 			$str_buff .= '<p><b>Family History:</b></p>';
-			$str_buff .= '<ul style="list-style-type:disc">';
+			$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">';
+
+			$lu_buffs = [];
+
 			foreach($family_histories as $family_history){
-				$str_buff .= '<li>';
-				$str_buff .= '<u>' . (isset($family_history['condition']) ? $family_history['condition'] : '') . '</u> - ';
-				$str_buff .= '<u>Relative:</u> ' . (isset($family_history['relation']) ? $family_history['relation'] : '') . ' - ';
-				$str_buff .= '<u>Note:</u> ' . (isset($family_history['notes']) ? $family_history['notes'] : '') . ' - ';
-				$str_buff .= '</li>';
+
+				$relation = (isset($family_history['relation']) ? $family_history['relation'] : '');
+				$condition = (isset($family_history['condition']) ? $family_history['condition'] : '') ;
+				$notes = (isset($family_history['notes']) && $family_history['notes'] != '' ? $family_history['notes'] : '') ;
+
+				if(!isset($lu_buffs[$relation])){
+					$lu_buffs[$relation] = [];
+				}
+
+				$_buff = '<li>';
+				$_buff .= '<u>' . $condition . '</u>';
+
+				if($notes !== ''){
+					$_buff .= ' - Note: ' . $notes;
+				}
+
+				$_buff .= '</li>';
+
+				$lu_buffs[$relation][] = $_buff;
 			}
+
+			foreach ($lu_buffs as $relation => $lu_buff){
+				$str_buff .= '<li><u>' . $relation . ':</u></li>';
+				$foo = implode('', $lu_buff);
+				$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">' . $foo . '</ul>';
+			}
+
 			$str_buff .= '</ul>';
 
 		}else{
@@ -660,7 +684,7 @@ class Encounter {
 
 		if(!empty($allergies)){
 			$str_buff .= '<p><b>Allergies:</b></p>';
-			$str_buff .= '<ul style="list-style-type:disc">';
+			$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">';
 			foreach($allergies as $foo){
 				$str_buff .= '<li>';
 				$str_buff .= '<u>' . $foo['allergy'] . ' (' . $foo['allergy_type'] . ')</u> - ';
@@ -689,7 +713,7 @@ class Encounter {
 
 		if(!empty($smoking_statuses)){
 			$str_buff .= '<p><b>Smoking Status:</b></p>';
-			$str_buff .= '<ul style="list-style-type:disc">';
+			$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">';
 			foreach($smoking_statuses as $smoking_status){
 
 				if(isset($smoking_status['start_date'])){
@@ -717,6 +741,29 @@ class Encounter {
 		}
 
 		$str_buff .= '</div>';
+
+
+
+		$social_history = $SocialHistory->getSocialHistoryByEidAndCode($eid, 'history');
+
+		if(!empty($social_history)){
+			$str_buff .= '<div class="indent">';
+			$str_buff .= '<p><b>Social History:</b></p>';
+			$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">';
+			foreach ($social_history as $history){
+
+				$str_buff .= '<li>';
+				$str_buff .= '<u>Category:</u> ' . $history['category_code_text'] . ' - ';
+				$str_buff .= '<u>Observation:</u> ' . $history['observation'] . ' - ';
+				$str_buff .= '<u>Note:</u> ' . $history['note'];
+				$str_buff .= '</li>';
+
+			}
+			$str_buff .= '</ul>';
+
+			$str_buff .= '</div>';
+
+		}
 
 		return $str_buff;
 	}
@@ -870,7 +917,7 @@ class Encounter {
 //				}
 
 				if($vital_buff != ''){
-					$vitals_buff .= '<p class="indent">'.$vital_buff.'</p>';
+					$vitals_buff .= '<p class="indent" style="margin-left: 20px;">'.$vital_buff.'</p>';
 				}
 			}
 
@@ -999,7 +1046,7 @@ class Encounter {
 				$lis .= '</li>';
 			}
 			$str_buff .= '<p><b>Medications Order(s):</b></p>';
-			$str_buff .= '<ul style="list-style-type:disc">' . $lis . '</ul>';
+			$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">' . $lis . '</ul>';
 			$str_buff .= '</div>';
 
 		}
@@ -1020,7 +1067,7 @@ class Encounter {
 			$str_buff .= '<p><b>Laboratory Order(s):</b></p>';
 
 			foreach($orders as $foo){
-				$str_buff .= '<p class="indent">';
+				$str_buff .= '<p class="indent" style="margin-left: 20px;">';
 				$str_buff .= '<u>Description:</u> ' . $foo['description'] . '<br>';
 				$str_buff .= '<u>Notes:</u> ' . $foo['note'] . '<br>';
 				$str_buff .= '</p>';
@@ -1041,7 +1088,7 @@ class Encounter {
 			$str_buff .= '<p><b>Radiology Order(s):</b></p>';
 
 			foreach($orders as $foo){
-				$str_buff .= '<p class="indent">';
+				$str_buff .= '<p class="indent" style="margin-left: 20px;">';
 				$str_buff .= '<u>Description:</u> ' . $foo['description'] . '<br>';
 				$str_buff .= '<u>Notes:</u> ' . $foo['note'] . '<br>';
 				$str_buff .= '</p>';

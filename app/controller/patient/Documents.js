@@ -333,7 +333,7 @@ Ext.define('App.controller.patient.Documents', {
 		if(selection.length === 0 || selection[0].get('disabled_selection')){
 			frame.setSrc('about:blank');
 		}else{
-			frame.setSrc('dataProvider/DocumentViewer.php?site=' + this.site + '&token=' + app.user.token + '&id=' + selection[0].data.id);
+			frame.setSrc('dataProvider/DocumentViewer.php?site=' + this.site + '&token=' + app.user.token + '&id=' + selection[0].data.id + '&_dc=' + Ext.Date.now());
 		}
 	},
 

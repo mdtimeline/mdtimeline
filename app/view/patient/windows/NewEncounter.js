@@ -56,6 +56,7 @@ Ext.define('App.view.patient.windows.NewEncounter', {
 					text: _('save'),
 					action: 'encounter',
 					scope: me,
+					disableOnCLick: true,
 					handler: me.onFormSave
 				},
 				{

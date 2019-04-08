@@ -213,6 +213,7 @@ Ext.define('App.view.Viewport', {
                 icon: 'resources/images/icons/new_encounter.png',
                 scope: me,
                 handler: me.createNewEncounter,
+	            disableOnCLick: true,
                 tooltip: _('new_encounter')
             });
         }
@@ -287,6 +288,7 @@ Ext.define('App.view.Viewport', {
 			    padding: 4,
 			    itemId: 'HeaderNewPatientBtn',
 			    iconCls: 'icoAddPatient',
+			    disableOnCLick: true,
 			    tooltip: _('create_a_new_patient')
 		    });
 	    }
@@ -302,6 +304,7 @@ Ext.define('App.view.Viewport', {
 			    itemId: 'createEmergency',
 			    iconCls: 'icoEmer',
 			    scope: me,
+			    disableOnCLick: true,
 			    handler: me.createEmergency,
 			    tooltip: _('create_new_emergency')
 		    });

@@ -21,7 +21,7 @@ class Log
 {
 	static public function init(){
 		error_reporting(-1);
-		ini_set('display_errors', 1);
+		ini_set('display_errors', 'Off');
 		$log_path = ROOT . '/sites/' . SITE . '/log/';
 		$log_file = 'error.log';
 		$filename = $log_path . $log_file;
@@ -48,7 +48,7 @@ class Log
 
 		if(!isset($filename)){
 			error_reporting(-1);
-			ini_set('display_errors', 1);
+			ini_set('display_errors', 'Off');
 			$log_path = ROOT . '/sites/' . site_id . '/log/';
 			$log_file = 'error.log';
 			$filename = $log_path . $log_file;

@@ -52,7 +52,7 @@ if(!defined('URL')){
 
 // application version
 if(!defined('VERSION'))
-	define('VERSION', '1.0.999');
+	define('VERSION', '1.0.1011');
 // extjs sdk directory
 if(!defined('EXTJS'))
 	define('EXTJS', 'extjs-4.2.1');
@@ -123,6 +123,10 @@ Log::init();
 
 if(file_exists(ROOT . '/sites/' . SITE . '/conf.php')){
 	include_once(ROOT . '/sites/' . SITE . '/conf.php');
+
+	if(!defined('site_external_url')){
+		define('site_external_url', URL);
+	}
 
 	unset($_SESSION['site']['error']);
 

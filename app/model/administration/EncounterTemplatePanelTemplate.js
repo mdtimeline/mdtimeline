@@ -61,6 +61,7 @@ Ext.define('App.model.administration.EncounterTemplatePanelTemplate', {
 		},
 		reader: {
 			root: 'data'
-		}
+		},
+		remoteGroup: false
 	}
 });

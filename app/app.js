@@ -3174,7 +3174,7 @@ Ext.define('App.ux.LiveImmunizationSearch', {
 
 Ext.define('App.ux.LiveLabsSearch', {
 	extend: 'Ext.form.ComboBox',
-	alias: 'widget.labslivetsearch',
+	xtype: 'labslivetsearch',
 	hideLabel: true,
 
 	initComponent: function(){
@@ -13901,7 +13901,8 @@ Ext.define('App.model.administration.EncounterTemplatePanel', {
 		},
 		reader: {
 			root: 'data'
-		}
+		},
+		remoteGroup: false
 	},
 	hasMany: [
 		{
@@ -15423,7 +15424,8 @@ Ext.define('App.model.patient.FamilyHistory',{
             read: 'FamilyHistory.getFamilyHistory',
             create: 'FamilyHistory.addFamilyHistory',
             update: 'FamilyHistory.updateFamilyHistory'
-        }
+        },
+        remoteGroup: false
     },
     belongsTo: {
         model: 'App.model.patient.Encounter',
@@ -22052,6 +22054,11 @@ Ext.define('App.model.patient.Patient',{
 		    type: 'string',
 		    len: 10
 	    },
+	    {
+		    name: 'phone_publicity_date',
+		    type: 'date',
+            dataType: 'date'
+	    },
         {
             name: 'phone_home',
             type: 'string',
@@ -22384,6 +22391,70 @@ Ext.define('App.model.patient.Patient',{
 		    type: 'string',
 		    len: 25
 	    },
+	    {
+		    name: 'pbm_payer_id',
+		    type: 'string',
+		    len: 60
+	    },
+	    {
+		    name: 'pbm_payer_name',
+		    type: 'string',
+		    len: 45
+	    },
+	    {
+		    name: 'pbm_card_fname',
+		    type: 'string',
+		    len: 45
+	    },
+	    {
+		    name: 'pbm_card_lname',
+		    type: 'string',
+		    len: 45
+	    },
+        {
+            name: 'pbm_member_id',
+            type: 'string',
+            len: 45
+        },
+        {
+            name: 'pbm_group',
+            type: 'string',
+            len: 45
+        },
+	    {
+		    name: 'pbm_bin',
+		    type: 'string',
+		    len: 45
+	    },
+	    {
+		    name: 'pbm_pcn',
+		    type: 'string',
+		    len: 45
+	    },
+	    {
+		    name: 'pbm_consent',
+		    type: 'string',
+		    len: 45
+	    },
+        {
+            name: 'immunization_registry_status',
+            type: 'string',
+            len: 10
+        },
+        {
+            name: 'immunization_registry_status_date',
+            type: 'string',
+            len: 10
+        },
+        {
+            name: 'protection_indicator',
+            type: 'bool'
+        },
+        {
+            name: 'protection_indicator_date',
+            type: 'date',
+            dataType: 'date'
+        },
 	    {
 		    name: 'authy_id',
 		    type: 'string',
@@ -37743,7 +37814,10 @@ Ext.define('App.controller.administration.Specialties', {
 Ext.define('App.controller.administration.EncounterTemplatePanels', {
 	extend: 'Ext.app.Controller',
 
-	requires: [],
+	uses: [
+		'App.ux.LiveRadsSearch',
+		'App.ux.LiveLabsSearch',
+	],
 
 	refs: [
 		{
@@ -37777,7 +37851,29 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 		{
 			ref: 'soapForm',
 			selector: '#soapForm'
-		}
+		},
+
+		// Admin
+		{
+			ref: 'AdministrationEncounterTemplatesPanel',
+			selector: '#AdministrationEncounterTemplatesPanel'
+		},
+		{
+			ref: 'AdministrationEncounterTemplatesGrid',
+			selector: '#AdministrationEncounterTemplatesGrid'
+		},
+		{
+			ref: 'AdministrationEncounterTemplateWindow',
+			selector: '#AdministrationEncounterTemplateWindow'
+		},
+		{
+			ref: 'AdministrationEncounterTemplateForm',
+			selector: '#AdministrationEncounterTemplateForm'
+		},
+		{
+			ref: 'AdministrationEncounterTemplateGrid',
+			selector: '#AdministrationEncounterTemplateGrid'
+		},
 	],
 
 	init: function () {
@@ -37802,6 +37898,32 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 			},
 			'#TemplatePanelsCancelBtn': {
 				click: me.onTemplatePanelsCancelBtnClick
+			},
+
+			// Admin
+			'#AdministrationEncounterTemplatesPanel': {
+				activate: me.onAdministrationEncounterTemplatesPanelActivate
+			},
+			'#AdministrationEncounterTemplatesGrid': {
+				itemdblclick: me.onAdministrationEncounterTemplatesGridItemDblClick
+			},
+			'#AdministrationEncounterTemplateForm': {
+				loadrecord: me.onAdministrationEncounterTemplateFormLoadRecord
+			},
+			'#EncounterTemplatesAddBtn': {
+				click: me.onEncounterTemplatesAddBtnClick
+			},
+			'#AdministrationEncounterTemplateRadOrderAddBtn': {
+				click: me.onAdministrationEncounterTemplateRadOrderAddBtnClick
+			},
+			'#AdministrationEncounterTemplateLabOrderAddBtn': {
+				click: me.onAdministrationEncounterTemplateLabOrderAddBtnClick
+			},
+			'#AdministrationEncounterTemplateCancelBtn': {
+				click: me.onAdministrationEncounterTemplateCancelBtnClick
+			},
+			'#AdministrationEncounterTemplateSaveBtn': {
+				click: me.onAdministrationEncounterTemplateSaveBtnClick
 			}
 		});
 
@@ -38016,7 +38138,7 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 			pid: 0,
 			eid: 0,
 			refer_by: 0,
-			refer_by_text: "",
+			refer_by_text: '',
 			referral_date: '',
 			create_uid: 0,
 			update_uid: 0,
@@ -38024,8 +38146,8 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 			update_date: null,
 
 			is_external_referral: true,
-			refer_to: "",
-			refer_to_text: "",
+			refer_to: '',
+			refer_to_text: '',
 
 			send_record: false,
 			service_code: service_code || '',   // 29303009
@@ -38038,6 +38160,234 @@ Ext.define('App.controller.administration.EncounterTemplatePanels', {
 			diagnosis_text: ""
 
 		};
+	},
+
+
+	onAdministrationEncounterTemplatesPanelActivate: function(panel){
+		this.getAdministrationEncounterTemplatesGrid().getStore().load();
+	},
+
+	onEncounterTemplatesAddBtnClick: function(){
+		this.showEncounterTemplateWindow();
+		this.getAdministrationEncounterTemplateForm().getForm().loadRecord(
+			Ext.create('App.model.administration.EncounterTemplatePanel')
+		);
+	},
+
+	onAdministrationEncounterTemplatesGridItemDblClick: function(gird, record){
+		this.showEncounterTemplateWindow();
+		this.getAdministrationEncounterTemplateForm().getForm().loadRecord(record);
+	},
+
+	onAdministrationEncounterTemplateFormLoadRecord: function(form, record){
+		say('onAdministrationEncounterTemplateFormLoadRecord');
+		say(form);
+		say(record);
+
+		var store = this.getAdministrationEncounterTemplateGrid().getStore();
+
+		if(record.get('id') > 0){
+			store.load({
+				filters: [
+					{
+						property: 'panel_id',
+						value: record.get('id')
+					}
+				]
+			});
+		} else {
+			store.removeAll();
+			store.commitChanges();
+		}
+	},
+
+	onAdministrationEncounterTemplateRadOrderAddBtnClick: function(btn){
+		this.getRadOrderWindow();
+	},
+
+	onAdministrationEncounterTemplateLabOrderAddBtnClick: function(btn){
+		this.getLadOrderWindow();
+	},
+
+	onAdministrationEncounterTemplateCancelBtnClick: function(btn){
+		this.getAdministrationEncounterTemplateForm().getForm().reset(true);
+		this.getAdministrationEncounterTemplateWindow().close();
+	},
+
+	onAdministrationEncounterTemplateSaveBtnClick: function(btn){
+
+		var me = this,
+			form = this.getAdministrationEncounterTemplateForm().getForm(),
+			template_record = form.getRecord(),
+			template_values = form.getValues();
+
+		if(!form.isValid()) return;
+
+		template_record.set(template_values);
+
+		var template_record_changes = template_record.getChanges();
+
+		if(!Ext.Object.isEmpty(template_record_changes)){
+			template_record.save({
+				callback: function (record) {
+					me.onAdministrationEncounterTemplateItemsSave(template_record);
+				}
+			});
+		}else{
+			me.onAdministrationEncounterTemplateItemsSave(template_record);
+		}
+
+	},
+
+	onAdministrationEncounterTemplateItemsSave: function(template_record){
+		var me = this,
+			items_store = this.getAdministrationEncounterTemplateGrid().getStore(),
+			items_modified_records = items_store.getModifiedRecords();
+
+
+		items_modified_records.forEach(function (items_modified_record) {
+			items_modified_record.set({panel_id: template_record.get('id')});
+		});
+
+		if(items_modified_records.length > 0){
+
+			items_store.sync({
+				callback: function () {
+					me.getAdministrationEncounterTemplateForm().getForm().reset(true);
+					me.getAdministrationEncounterTemplateWindow().close();
+				}
+			});
+
+		}else{
+			me.getAdministrationEncounterTemplateForm().getForm().reset(true);
+			me.getAdministrationEncounterTemplateWindow().close();
+		}
+
+
+
+
+
+
+
+
+	},
+
+
+	showEncounterTemplateWindow: function () {
+
+		if(!this.getAdministrationEncounterTemplateWindow()){
+			Ext.create('App.view.administration.EncounterTemplateWindow');
+		}
+		return this.getAdministrationEncounterTemplateWindow().show();
+	},
+
+	addAdministrationEncounterTemplateGridRecord: function(description, template_type, template_data){
+		var store = this.getAdministrationEncounterTemplateGrid().getStore();
+
+
+		store.add({
+			description: description,
+			template_type: template_type,
+			template_data: JSON.stringify(template_data),
+			active: 1,
+		});
+
+	},
+
+	getRadOrderWindow: function () {
+
+		var me = this;
+
+		Ext.create('Ext.window.Window',{
+			resizable: false,
+			items:[
+				{
+					xtype: 'form',
+					bodyPadding: 10,
+					items: [
+						{
+							xtype: 'radslivetsearch',
+							fieldLabel: _('study'),
+							labelAlign: 'top',
+							hideLabel: false,
+							width: 300
+						}
+					]
+				}
+			],
+			buttons:[
+				{
+					xtype: 'button',
+					text: _('cancel'),
+					handler: function () {
+						this.up('window').close();
+					}
+				},
+				{
+					xtype: 'button',
+					text: _('add'),
+					handler: function () {
+						var field = this.up('window').down('radslivetsearch'),
+							record = field.findRecordByValue(field.getValue());
+
+						if(record){
+							var tpl = me.getRadTemplate(record.get('loinc_number'), record.get('loinc_name'));
+							me.addAdministrationEncounterTemplateGridRecord(tpl.description, 'RAD', tpl);
+						}
+
+						this.up('window').close();
+					}
+				}
+			]
+		}).show();
+	},
+
+	getLadOrderWindow: function () {
+
+		var me = this;
+
+		Ext.create('Ext.window.Window',{
+			resizable: false,
+			items:[
+				{
+					xtype: 'form',
+					bodyPadding: 10,
+					items: [
+						{
+							xtype: 'labslivetsearch',
+							fieldLabel: _('study'),
+							labelAlign: 'top',
+							hideLabel: false,
+							width: 300
+						}
+					]
+				}
+			],
+			buttons:[
+				{
+					xtype: 'button',
+					text: _('cancel'),
+					handler: function () {
+						this.up('window').close();
+					}
+				},
+				{
+					xtype: 'button',
+					text: _('add'),
+					handler: function () {
+						var field = this.up('window').down('labslivetsearch'),
+							record = field.findRecordByValue(field.getValue());
+
+						if(record){
+							var tpl = me.getRadTemplate(record.get('loinc_number'), record.get('loinc_name'));
+							me.addAdministrationEncounterTemplateGridRecord(tpl.description, 'LAB', tpl);
+						}
+
+						this.up('window').close();
+					}
+				}
+			]
+		}).show();
 	}
 
 });
@@ -40498,7 +40848,6 @@ Ext.define('App.controller.Navigation', {
 			sm = tree.getSelectionModel(),
 			node = treeStore.getNodeById(cls);
 
-		gtag('config', 'UA-133663460-1', {'page_path': window.location.hash});
 
 		this.url = url;
 		sm.select(node);
@@ -41026,6 +41375,10 @@ Ext.define('App.controller.patient.ActiveProblems', {
         {
             ref: 'PatientProblemsActiveBtn',
             selector: '#PatientProblemsActiveBtn'
+        },
+        {
+            ref: 'EncounterPanel',
+            selector: '#encounterPanel'
         }
 	],
 
@@ -41051,13 +41404,18 @@ Ext.define('App.controller.patient.ActiveProblems', {
                 click: me.onPatientProblemsActiveBtnClick
             }
 		});
+
+
+		me.encController = me.getController('patient.encounter.Encounter');
 	},
 
 
 	onAddActiveProblemBtnClick:function(){
 		var me = this,
 			grid = me.getActiveProblemsGrid(),
-			store = grid.getStore();
+			store = grid.getStore(),
+			encounter_record = me.encController.getEncounterRecord(),
+			begin_date = encounter_record ? encounter_record.get('service_date') : app.getDate();
 
 		grid.editingPlugin.cancelEdit();
 		store.insert(0, {
@@ -41065,8 +41423,8 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			eid: app.patient.eid,
 			uid: app.user.id,
 			created_uid: app.user.id,
-			create_date: new Date(),
-			begin_date: new Date()
+			create_date: app.getDate(),
+			begin_date: begin_date
 		});
 		grid.editingPlugin.startEdit(0, 0);
 	},
@@ -43942,8 +44300,23 @@ Ext.define('App.controller.patient.FamilyHistory', {
 			},
 			'#FamilyHistoryWindowCancelBtn': {
 				click: me.onFamilyHistoryWindowCancelBtnClick
+			},
+			'#FamilyHistoryGridRelationField': {
+				select: me.onFamilyHistoryGridRelationFieldSelect
 			}
 		});
+	},
+
+	onFamilyHistoryGridRelationFieldSelect: function(cmb, selection){
+
+		var selected_record = cmb.findRecordByValue(cmb.getValue()),
+			family_record = cmb.up('form').getForm().getRecord();
+
+		family_record.set({
+			relation: selected_record.get('option_name'),
+			relation_code: selected_record.get('option_value')
+		});
+
 	},
 
 	onFamilyHistoryFormItemsAdded: function (form) {
@@ -44298,6 +44671,8 @@ Ext.define('App.controller.patient.Immunizations', {
 		});
 	},
 
+
+
 	onImmunizationsPresumedImmunityCheckboxAfterRender: function(checkbox){
 		var me = this;
 
@@ -44390,6 +44765,17 @@ Ext.define('App.controller.patient.Immunizations', {
 
 	onPatientImmunizationsGridEdit: function(plugin, context){
 		app.fireEvent('immunizationedit', this, context.record);
+
+		var pid = context.record.get('pid'),
+			immunization_id = context.record.get('id');
+
+		if(context.record.new_immunization === true){
+			this.doSendVxu(pid, immunization_id, 'NEW');
+		}else if(context.record.get('is_error')){
+			this.doSendVxu(pid, immunization_id, 'DELETE');
+		}else{
+			this.doSendVxu(pid, immunization_id, 'UPDATE');
+		}
 	},
 
 	onPatientImmunizationsPanelActive: function(){
@@ -44412,7 +44798,7 @@ Ext.define('App.controller.patient.Immunizations', {
 			store = grid.getStore();
 
 		grid.editingPlugin.cancelEdit();
-		store.insert(0, {
+		var records = store.insert(0, {
 			created_uid: app.user.id,
 			uid: app.user.id,
 			pid: app.patient.pid,
@@ -44422,7 +44808,10 @@ Ext.define('App.controller.patient.Immunizations', {
 			begin_date: new Date()
 
 		});
-		grid.editingPlugin.startEdit(0, 0);
+
+		records[0].new_immunization = true;
+
+		grid.editingPlugin.startEdit(records[0], 0);
 	},
 
 	loadPatientImmunizations: function(){
@@ -44435,6 +44824,21 @@ Ext.define('App.controller.patient.Immunizations', {
 			}
 		]);
 	},
+
+	getImmunizationHxFromRegistry: function(){
+
+		var params = {};
+
+
+		Immunizations.getImmunizationHxFromRegistry(params, function (response) {
+
+
+			say(response);
+
+		});
+
+	},
+
 
 	getVxuWindow: function(){
 		var me = this;
@@ -44622,37 +45026,22 @@ Ext.define('App.controller.patient.Immunizations', {
 		}
 	},
 
-	doSendVxu: function(btn){
+	doSendVxu: function(pid, immunization_id, action){
 		var me = this,
-			sm = me.getImmunizationsGrid().getSelectionModel(),
-			records = this.getSubmitImmunizationGrid().getStore().data.items,
-			params = {},
-			immunizations = [];
+			params = {};
 
-		if(me.vxuTo.isValid()){
+		params.pid = pid;
+		params.immunizations = [ immunization_id ];
+		params.action = action;
 
-			for(var i = 0; i < records.length; i++){
-				Ext.Array.push(immunizations, records[i].get('id'));
-				params.pid = records[i].get('pid');
+		HL7Messages.sendVXU(params, function(provider, response){
+			if(response.result.success){
+				app.msg(_('sweet'), _('registry_message_sent'));
+			}else{
+				app.msg(_('oops'), _('registry_message_error'), true);
 			}
+		});
 
-			params.from = me.vxuFrom.getValue();
-			params.to = me.vxuTo.getValue();
-			params.immunizations = immunizations;
-
-			me.vxuWindow.el.mask(_('sending'));
-
-			HL7Messages.sendVXU(params, function(provider, response){
-				me.vxuWindow.el.unmask();
-				if(response.result.success){
-					app.msg(_('sweet'), _('message_sent'));
-				}else{
-					app.msg(_('oops'), _('message_error'), true);
-				}
-				me.vxuWindow.close();
-				sm.deselectAll();
-			});
-		}
 	}
 
 });
@@ -52858,7 +53247,7 @@ Ext.define('App.ux.LiveSnomedSearch', {
 
 Ext.define('App.ux.LiveRadsSearch', {
 	extend: 'Ext.form.ComboBox',
-	alias: 'widget.radslivetsearch',
+	xtype: 'radslivetsearch',
 	hideLabel: true,
 
 	initComponent: function(){
@@ -56960,6 +57349,12 @@ Ext.define('App.view.patient.Patient', {
 													listKey: 'publicity_code',
 													loadStore: true,
 													editable: false,
+													margin: '10 5 5 0'
+												},
+												{
+													xtype: 'datefield',
+													fieldLabel: _('effective_date'),
+													name: 'phone_publicity_date',
 													margin: '10 0 5 0'
 												}
 											]
@@ -57336,7 +57731,198 @@ Ext.define('App.view.patient.Patient', {
 													editable: false
 												}
 											]
-										} //Hipaa Notice, Organ Donor
+										}, //Hipaa Notice, Organ Donor
+										{
+											xtype: 'fieldset',
+											title: 'PBM (Pharmacy Benefit Management)',
+											cls: 'highlight_fieldset',
+											margin: '5 0 5 0',
+											padding: '5 10 10 10',
+											width: me.containersWidth,
+											layout: 'hbox',
+											items: [
+												{
+													xtype: 'container',
+													flex: 1,
+													layout: {
+														type: 'vbox',
+														align: 'stretch'
+													},
+													defaults: {
+														margin: '0 5 0 0',
+														labelAlign: 'top'
+													},
+													items: [
+														{
+															xtype: 'fieldcontainer',
+															layout: {
+																type: 'hbox',
+																align: 'stretch'
+															},
+															fieldLabel: _('card_name'),
+															items: [
+																{
+																	xtype: 'textfield',
+																	emptyText: _('last_name'),
+																	name: 'pbm_card_lname',
+																	flex: 1,
+																	margin: '0 5 0 0'
+																},
+																{
+																	xtype: 'textfield',
+																	fieldLabel: ',',
+																	labelSeparator: '',
+																	labelWidth: 3,
+																	emptyText: _('first_name'),
+																	name: 'pbm_card_fname',
+																	flex: 1
+																}
+															]
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: _('member_id'),
+															name: 'pbm_member_id',
+														}
+													]
+												},
+												{
+													xtype: 'container',
+													flex: 1,
+													defaults: {
+														margin: '0 5 0 0',
+														labelAlign: 'top',
+														fex: 1
+													},
+													layout: {
+														type: 'vbox',
+														align: 'stretch'
+													},
+													items: [
+														{
+															xtype: 'textfield',
+															fieldLabel: _('group'),
+															name: 'pbm_group',
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: _('bin'),
+															name: 'pbm_bin',
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: _('pcn'),
+															name: 'pbm_pcn',
+														}
+													]
+												},
+												{
+													xtype: 'container',
+													flex: 1,
+													defaults: {
+														margin: '0 5 0 0',
+														labelAlign: 'top'
+													},
+													layout: {
+														type: 'vbox',
+														align: 'stretch'
+													},
+													items: [
+														{
+															xtype: 'textfield',
+															fieldLabel: _('payer_id'),
+															name: 'pbm_payer_id',
+														},
+														{
+															xtype: 'textfield',
+															fieldLabel: _('payer_name'),
+															name: 'pbm_payer_name',
+														}
+													]
+												},
+												{
+													xtype: 'textfield',
+													fieldLabel: _('consent'),
+													name: 'pbm_consent',
+													margin: '0 5 0 0',
+													labelAlign: 'top',
+												}
+											]
+										}, //PBM Info
+										{
+											xtype: 'fieldset',
+											title: _('immunization_registry_information'),
+											cls: 'highlight_fieldset',
+											margin: '5 0 5 0',
+											padding: '5 10 10 10',
+											width: me.containersWidth,
+											layout: {
+												type: 'vbox',
+												align: 'stretch'
+											},
+											defaults: {
+												margin: '0 5 0 0',
+												labelAlign: 'top'
+											},
+											items: [
+												{
+													xtype: 'container',
+													flex: 1,
+													defaults: {
+														margin: '0 5 0 0',
+														labelAlign: 'top'
+													},
+													layout: {
+														type: 'hbox',
+														align: 'stretch'
+													},
+													items: [
+														{
+															xtype: 'gaiaehr.combo',
+															fieldLabel: _('status'),
+															name: 'immunization_registry_status',
+															listKey: 'immu_registry_status',
+															width: 320
+														},
+														{
+															xtype: 'datefield',
+															fieldLabel: _('effective_date'),
+															name: 'immunization_registry_status_date',
+															margin: '0 10 0 0'
+														}
+													]
+												},
+												{
+													xtype: 'container',
+													flex: 1,
+													defaults: {
+														margin: '0 5 0 0',
+														labelAlign: 'top'
+													},
+													layout: {
+														type: 'hbox',
+														align: 'bottom'
+													},
+													items: [
+														{
+															xtype: 'combobox',
+															fieldLabel: _('protection_indicator'),
+															boxLabel: _('enabled'),
+															name: 'protection_indicator',
+															width: 320,
+															editable: false,
+															store: [[true, 'Yes'], [false, 'No']]
+														},
+														{
+															xtype: 'datefield',
+															fieldLabel: _('effective_date'),
+															name: 'protection_indicator_date',
+															margin: '0 10 0 0'
+														}
+													]
+												},
+											]
+										} //Immunization Status
 									]
 								}  //Additional Info
 							]
@@ -59456,7 +60042,7 @@ Ext.define('App.controller.patient.Documents', {
 		if(selection.length === 0 || selection[0].get('disabled_selection')){
 			frame.setSrc('about:blank');
 		}else{
-			frame.setSrc('dataProvider/DocumentViewer.php?site=' + this.site + '&token=' + app.user.token + '&id=' + selection[0].data.id);
+			frame.setSrc('dataProvider/DocumentViewer.php?site=' + this.site + '&token=' + app.user.token + '&id=' + selection[0].data.id + '&_dc=' + Ext.Date.now());
 		}
 	},
 
@@ -61761,17 +62347,19 @@ Ext.define('App.ux.form.SearchField', {
 	paramName : 'query',
 
 	filterFn: null,
+	autoSearch: false,
+	autoSearchDelay: 500,
 
 	initComponent: function() {
 		var me = this;
 
 		me.callParent(arguments);
 
-		me.on('specialkey', function(f, e){
-			if (e.getKey() == e.ENTER) {
-				me.onTrigger2Click();
-			}
-		});
+		if(me.autoSearch){
+			me.initAutoSearch();
+		}else{
+			me.initSpecialKey();
+		}
 
 		// We're going to use filtering
 		me.store.remoteFilter = me.filterFn === null;
@@ -61787,6 +62375,25 @@ Ext.define('App.ux.form.SearchField', {
 		me.store.proxy.encodeFilters = function(filters) {
 			return filters[0].value;
 		}
+	},
+
+	initSpecialKey: function(){
+		this.on('specialkey', function(f, e){
+			if (e.getKey() == e.ENTER) {
+				this.onTrigger2Click();
+			}
+		}, this);
+	},
+
+	initAutoSearch: function(){
+		var bufferedFn = Ext.Function.createBuffered(function () {
+				this.onTrigger2Click();
+			}, this.autoSearchDelay, this);
+
+		this.enableKeyEvents = true;
+		this.on('keyup', function(f, e){
+			bufferedFn();
+		}, this);
 	},
 
 	afterRender: function(){
@@ -63364,7 +63971,7 @@ Ext.define('App.view.patient.FamilyHistory', {
 	columnLines: true,
 	store: Ext.create('App.store.patient.FamilyHistories', {
 		remoteFilter: true,
-		groupField: 'condition'
+		groupField: 'relation'
 	}),
 	features: [
 		{
@@ -63413,8 +64020,8 @@ Ext.define('App.view.patient.FamilyHistory', {
             editor:{
                 xtype: 'gaiaehr.listcombosimple',
                 list: 109,
-                id: 'relation',
-                name: 'relation',
+	            itemId: 'FamilyHistoryGridRelationField',
+	            valueField: 'option_name',
                 value: null
             }
 		},

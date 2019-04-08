@@ -83,7 +83,8 @@ Ext.define('App.model.patient.FamilyHistory',{
             read: 'FamilyHistory.getFamilyHistory',
             create: 'FamilyHistory.addFamilyHistory',
             update: 'FamilyHistory.updateFamilyHistory'
-        }
+        },
+        remoteGroup: false
     },
     belongsTo: {
         model: 'App.model.patient.Encounter',

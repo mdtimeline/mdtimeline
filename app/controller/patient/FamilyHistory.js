@@ -70,8 +70,23 @@ Ext.define('App.controller.patient.FamilyHistory', {
 			},
 			'#FamilyHistoryWindowCancelBtn': {
 				click: me.onFamilyHistoryWindowCancelBtnClick
+			},
+			'#FamilyHistoryGridRelationField': {
+				select: me.onFamilyHistoryGridRelationFieldSelect
 			}
 		});
+	},
+
+	onFamilyHistoryGridRelationFieldSelect: function(cmb, selection){
+
+		var selected_record = cmb.findRecordByValue(cmb.getValue()),
+			family_record = cmb.up('form').getForm().getRecord();
+
+		family_record.set({
+			relation: selected_record.get('option_name'),
+			relation_code: selected_record.get('option_value')
+		});
+
 	},
 
 	onFamilyHistoryFormItemsAdded: function (form) {

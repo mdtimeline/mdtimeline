@@ -25,6 +25,19 @@ $API = [
             ]
         ]
     ],
+    'EmailTemplates' => [
+        'methods' => [
+            'getEmailTemplates' => [
+                'len' => 1
+            ],
+            'addEmailTemplate' => [
+                'len' => 1
+            ],
+            'updateEmailTemplate' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'TwoFactorAuthentication' => [
         'methods' => [
             'getUserStatusByUserIdAndType' => [

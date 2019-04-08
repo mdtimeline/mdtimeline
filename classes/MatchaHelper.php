@@ -188,6 +188,13 @@ class MatchaHelper extends Matcha
 
 	    $table = isset($saveParams['table']) ? $saveParams['table'] : '';
 	    $event = isset($saveParams['event']) ? $saveParams['event'] : '';
+	    $uid = isset($_SESSION['user']['id']) ? $_SESSION['user']['id'] : '0';
+	    $fid = isset($_SESSION['user']['facility']) ? $_SESSION['user']['facility'] : '0';
+
+	    // ignore selects from system
+	    if($uid === '0' && $event === 'SELECT'){
+	    	return;
+	    }
 
 	    // if table is excluded get out
 	    if(isset(self::$exclude_tables[$event])){
@@ -231,8 +238,6 @@ class MatchaHelper extends Matcha
 //            }
 //        }
 
-        $uid = isset($_SESSION['user']['id']) ? $_SESSION['user']['id'] : '0';
-        $fid = isset($_SESSION['user']['facility']) ? $_SESSION['user']['facility'] : '0';
         $date = Time::getLocalTime('Y-m-d H:i:s');
         $sql = $saveParams['sql'];
         $data = isset($saveParams['data']) ? serialize($saveParams['data']) : '';

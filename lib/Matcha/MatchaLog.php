@@ -41,7 +41,7 @@ class MatchaLog extends Matcha
     function __construct()
     {
         error_reporting(-1);
-        ini_set('display_errors', 1);
+        ini_set('display_errors', 'Off');
         $oldUmask = umask(0);
         clearstatcache();
         // Check the directory first.

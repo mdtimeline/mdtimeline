@@ -44,7 +44,7 @@ class Insurance {
         \Matcha::setAppDir(ROOT.'/modules');
 
         if(!isset($this->bid))
-            $this->bid = \MatchaModel::setSenchaModel('Modules.billing.model.BillingInsurancesData');
+            $this->bid = \MatchaModel::setSenchaModel('Modules.billing.model.BillingInsuranceData');
 
         \Matcha::setAppDir(ROOT.'/app');
 	}

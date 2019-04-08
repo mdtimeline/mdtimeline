@@ -84,10 +84,6 @@ Ext.define('App.model.patient.Insurance',{
             len: 50
         },
 	    {
-		    name: 'card_name_same_as_patient',
-		    type: 'bool'
-	    },
-	    {
 		    name: 'card_first_name',
 		    type: 'string',
 		    len: 35

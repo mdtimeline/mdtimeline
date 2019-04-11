@@ -782,6 +782,7 @@ Ext.define('App.view.patient.Summary', {
             ')',
             app.patient.readOnly, null
         );
+
 		/**
 		 * verify if the patient is on read only mode
 		 */
@@ -794,6 +795,7 @@ Ext.define('App.view.patient.Summary', {
 		 * reset tab panel to the first tap
 		 */
 		me.tabPanel.setActiveTab(0);
+
 		/**
 		 * load all the stores
 		 */

@@ -16,6 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+Ext.override(Ext.grid.CellEditor, {
+    revertInvalid: false
+});
+
+
 Ext.override(Ext.data.Connection, {
 	request : function(options) {
 		options = options || {};

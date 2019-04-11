@@ -98,6 +98,18 @@ Ext.define('App.model.administration.InsuranceCompany', {
 			type: 'string',
 			len: 5
 		},
+
+        {
+            name: 'external_id',
+            type: 'string',
+            len: 25
+        },
+        {
+            name: 'global_id',
+            type: 'string',
+            len: 50
+        },
+
         {
             name: 'create_uid',
             type: 'int'
@@ -127,8 +139,10 @@ Ext.define('App.model.administration.InsuranceCompany', {
 		{
 			name: 'combo_text',
 			type: 'string',
+            sort: true,
 			convert: function(v, record){
-				return record.data.id + ': ' + (record.data.name ? record.data.name : ' * ' ) + ' ' + (!record.data.active ? ('(' +  _('inactive') + ')') : '') ;
+				// return record.data.id + ': ' + (record.data.name ? record.data.name : ' * ' ) + ' ' + (!record.data.active ? ('(' +  _('inactive') + ')') : '') ;
+				return (record.data.name ? record.data.name : ' * ' ) + ' ' + (!record.data.active ? ('(' +  _('inactive') + ')') : '') ;
 			},
 			store: false
 		}

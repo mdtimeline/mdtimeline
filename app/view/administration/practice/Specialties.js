@@ -71,15 +71,6 @@ Ext.define('App.view.administration.practice.Specialties', {
 					}
 				},
                 {
-                    text: _('medical_education'),
-                    sortable: true,
-                    dataIndex: 'medical_education',
-                    flex: 1,
-                    editor: {
-                        xtype: 'textfield'
-                    }
-                },
-                {
                     text: _('isFda'),
                     sortable: true,
                     dataIndex: 'isFda',

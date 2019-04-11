@@ -83,6 +83,7 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
                     sortable: true,
                     dataIndex: 'notes'
                 },
+
                 {
                     flex: 1,
                     text: _('authy_id'),

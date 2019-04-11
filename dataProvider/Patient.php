@@ -1407,6 +1407,28 @@ class Patient
 		return $results;
 	}
 
+
+	public function getRelatedRecordsByPid($pid){
+
+		$sql = "
+			SELECT * FROM (
+				(
+					SELECT pid, pubpid, email, sex, DOB, 'FATHER' as relation FROM patient WHERE 
+					(father_pid = :pid_1 AND DATE(DOB) > DATE_SUB(DATE(NOW()), INTERVAL 18 YEAR))
+				) UNION (
+					SELECT pid, pubpid, email, sex, DOB, 'MOTHER' as relation FROM patient WHERE 
+					(mother_pid = :pid_2 AND DATE(DOB) > DATE_SUB(DATE(NOW()), INTERVAL 18 YEAR))
+				) UNION (
+					SELECT pid, pubpid, email, sex, DOB, 'GUARDIAN' as relation FROM patient WHERE 
+					guardians_pid = :pid_3
+				)
+			) as results  group by pid
+		";
+
+		return $this->p->sql($sql)->all(['pid_1' => $pid, 'pid_2' => $pid, 'pid_3' => $pid]);
+
+	}
+
 	public function hashPid($pid){
 		return MatchaUtils::encrypt($pid);
 	}

@@ -56,6 +56,12 @@ Ext.define('App.view.administration.practice.Insurance', {
 									items: [
 										{
 											xtype: 'textfield',
+											fieldLabel: _('code'),
+											name: 'code',
+											allowBlank: false
+										},
+                                        {
+											xtype: 'textfield',
 											fieldLabel: _('name'),
 											name: 'name',
 											allowBlank: false,
@@ -111,7 +117,7 @@ Ext.define('App.view.administration.practice.Insurance', {
 										margin: '0 10 5 0'
 									},
 									items: [
-										{
+								{
 											xtype: 'textfield',
 											fieldLabel: _('phone_number'),
 											name: 'phone_number'
@@ -121,7 +127,7 @@ Ext.define('App.view.administration.practice.Insurance', {
 											fieldLabel: _('fax_number'),
 											name: 'fax_number'
 										},
-										{
+                                        {
 											xtype: 'checkbox',
 											fieldLabel: _('active'),
 											name: 'active'
@@ -143,6 +149,12 @@ Ext.define('App.view.administration.practice.Insurance', {
 			dataIndex: 'id'
 		},
 		{
+			header: _('code'),
+			width: 50,
+			sortable: true,
+			dataIndex: 'code'
+		},
+        {
 			header: _('insurance_name'),
 			width: 200,
 			sortable: true,
@@ -178,6 +190,8 @@ Ext.define('App.view.administration.practice.Insurance', {
 			sortable: true,
 			dataIndex: 'fax'
 		},
+
+
 		{
 			header: _('active'),
 			width: 55,

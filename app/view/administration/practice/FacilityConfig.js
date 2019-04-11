@@ -41,7 +41,7 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 				{
 					xtype: 'grid',
 					title: _('departments'),
-					hideHeaders: true,
+					hideHeaders: false,
 					frame: true,
 					margin: '0 0 5 0',
 					store: Ext.create('App.store.administration.Departments', {
@@ -93,16 +93,25 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 						}
 					},
 					columns: [
-						{
-							text: 'code',
-							dataIndex: 'code',
-							flex: 1
-						},
+                        {
+                            text: _('taxonomy'),
+                            dataIndex: 'taxonomy',
+                            flex: 1,
+                            editor: {
+                                xtype: 'textfield',
+                                allowBlank: false
+                            }
+                        },
 						{
 							text: 'title',
 							dataIndex: 'title',
 							flex: 2
 						},
+                        {
+                            text: 'code',
+                            dataIndex: 'code',
+                            flex: 1
+                        },
                         {
                             text: _('active'),
                             sortable: true,
@@ -145,7 +154,16 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 						}
 					},
 					columns: [
-						{
+                        {
+                            text: _('taxonomy'),
+                            sortable: true,
+                            dataIndex: 'taxonomy',
+                            flex: 1,
+                            editor: {
+                                xtype: 'textfield'
+                            }
+                        },
+                        {
 							width: 200,
 							text: _('title'),
 							dataIndex: 'title',
@@ -155,15 +173,7 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 								xtype: 'textfield'
 							}
 						},
-						{
-							text: _('taxonomy'),
-							sortable: true,
-							dataIndex: 'taxonomy',
-							flex: 1,
-							editor: {
-								xtype: 'textfield'
-							}
-						},
+
 						{
 							text: _('modality'),
 							sortable: true,
@@ -174,15 +184,6 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 							}
 						},
                         {
-                            text: _('medical_education'),
-                            sortable: true,
-                            dataIndex: 'medical_education',
-                            flex: 1,
-                            editor: {
-                                xtype: 'textfield'
-                            }
-                        },
-                        {
                             text: _('isFda'),
                             sortable: true,
                             dataIndex: 'isFda',
@@ -191,6 +192,7 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
                                 xtype: 'textfield'
                             }
                         },
+
 						{
 							text: _('active'),
 							sortable: true,

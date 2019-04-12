@@ -48,6 +48,9 @@ Ext.define('App.controller.patient.RadOrders', {
 				click: me.onPrintRadOrderBtnClick
 			}
 		});
+
+		me.encounterCtl = me.getController('patient.encounter.Encounter');
+
 	},
 
 	onRadOrdersGridBeforeRender: function(grid){
@@ -93,7 +96,27 @@ Ext.define('App.controller.patient.RadOrders', {
 		var me = this,
 			grid = me.getRadOrdersGrid(),
 			orders = (Ext.isArray(input) ? input : grid.getSelectionModel().getSelection()),
+			encounter_record,
+			soap_record,
+			dx_records,
+			dxs = [],
+			dxs_string = '',
 			documents = {};
+
+
+		encounter_record = me.encounterCtl.getEncounterRecord();
+
+		if(encounter_record){
+			soap_record  = encounter_record.soap().getAt(0);
+			if(soap_record){
+				dx_records = soap_record.dxCodesStore.data.items;
+				dx_records.forEach(function (dx_record) {
+					dxs.push(dx_record.get('code'));
+				});
+			}
+		}
+
+		dxs_string = dxs.join(' ');
 
 		orders.forEach(function(order){
 
@@ -114,11 +137,12 @@ Ext.define('App.controller.patient.RadOrders', {
 				documents[doc_key].docType = 'Rad';
 				documents[doc_key].templateId = 6;
 				documents[doc_key].pdf_format = pdf_format;
-				documents[doc_key].orderItems.push(['Description', 'Notes']);
+				documents[doc_key].orderItems.push(['Description', 'Dx', 'Notes']);
 			}
 
 			documents[doc_key].orderItems.push([
 				order.get('description') + ' [' + order.get('code_type') + ':' + order.get('code') + ']',
+				dxs_string,
 				order.get('note')
 			]);
 		});

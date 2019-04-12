@@ -494,6 +494,11 @@ Ext.define('App.model.patient.Patient',{
 	        len: 3
         },
 	    {
+		    name: 'mother_pid',
+		    type: 'int',
+            index: true
+	    },
+	    {
 		    name: 'mother_fname',
 		    type: 'string',
 		    len: 35
@@ -508,6 +513,11 @@ Ext.define('App.model.patient.Patient',{
 		    type: 'string',
 		    len: 60
 	    },
+        {
+            name: 'father_pid',
+            type: 'int',
+            index: true
+        },
 	    {
 		    name: 'father_fname',
 		    type: 'string',
@@ -523,6 +533,11 @@ Ext.define('App.model.patient.Patient',{
 		    type: 'string',
 		    len: 60
 	    },
+        {
+            name: 'guardians_pid',
+            type: 'int',
+            index: true
+        },
 	    {
 		    name: 'guardians_relation',
 		    type: 'string',

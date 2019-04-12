@@ -674,6 +674,20 @@ Ext.define('App.view.Viewport', {
 		    me.checkoutWindow = Ext.create('App.view.patient.windows.EncounterCheckOut');
 	    }
 
+
+	    // Ext.create('Ext.window.Window', {
+	    // 	height: 250,
+	    // 	width: 250,
+	    // 	items: [
+	    // 		Ext.create('App.ux.form.fields.Switch', {
+		//             // fieldLabel: 'Hello World 1',
+		//             // labelAlign: 'top',
+		//             boxLabel: 'Hello World 2',
+		//         })
+		//     ]
+	    // }).show();
+
+
 	    //me.signature = Ext.create('App.view.signature.SignatureWindow');
 	    //Ext.create('Modules.worklist.view.ResultsPickUpWindow').show();
     },

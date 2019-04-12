@@ -799,19 +799,19 @@ class Encounter {
 				$fields[$buff['name']] = $buff['fieldLabel'];
 			}
 
-			$ros_buff = '';
+			$ros_buff = [];
 
 			foreach($encounter['reviewofsystems'][0] as $key => $value){
 				if(!array_key_exists($key, $fields)) continue;
 				if(!isset($value)) continue;
-				$ros_buff .= $fields[$key] . ': ' . ($value == 1 ? 'Yes' : $value) .'<br>';
+				$ros_buff[] =  ' <b>' . $fields[$key] . ':</b> ' . ($value == 1 ? 'Yes' : 'No');
 			}
 
 			if($ros_buff !== ''){
 				$str_buff .= '<div class="indent">';
 				$str_buff .= '<p><b>Review of Systems:</b></p>';
 				$str_buff .= '<div class="indent">';
-				$str_buff .= $ros_buff;
+				$str_buff .= implode(',', $ros_buff);
 				$str_buff .= '</div>';
 				$str_buff .= '</div>';
 			}
@@ -822,6 +822,9 @@ class Encounter {
 
 		$str_buff .= '<div class="indent">';
 
+		/**
+		 * Vitals
+		 */
 		if(!empty($vitals)){
 			$str_buff .= '<p><b>Vitals:</b></p>';
 			$vitals_buff = '';

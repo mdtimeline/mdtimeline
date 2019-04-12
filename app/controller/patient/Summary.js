@@ -64,7 +64,8 @@ Ext.define('App.controller.patient.Summary', {
 			},
 			'#PatientSummaryEncountersPanel': {
 				itemdblclick: me.onPatientSummaryEncounterDblClick,
-                selectionchange: me.onPatientSummaryEncounterServicesPanelClick
+				// TODO preguntar a Carli pr esto esta aqui
+                //selectionchange: me.onPatientSummaryEncounterServicesPanelClick
 			},
             '#PatientSummaryContactsPanel': {
                 activate: me.reloadGrid

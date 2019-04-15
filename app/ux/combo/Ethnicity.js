@@ -23,6 +23,12 @@ Ext.define('App.ux.combo.Ethnicity', {
 			reader: {
 				type: 'json'
 			}
+		},
+		listeners: {
+			load: function () {
+				this.insert(0, [{code: 'ASKU', code_type: 'CDA', code_description: 'Declined to specify' }]);
+
+			}
 		}
 	}),
 	tpl: Ext.create('Ext.XTemplate',

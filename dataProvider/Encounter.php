@@ -796,17 +796,21 @@ class Encounter {
 			foreach($options as $option){
 				$buff = json_decode($option['options'], true);
 				if(!isset($buff['name'])) continue;
+				if($buff['name'] == 'notes') continue;
 				$fields[$buff['name']] = $buff['fieldLabel'];
 			}
 
 			$ros_reports_buff = [];
 			$ros_denies_buff = [];
+			$notes = false;
 
 			foreach($encounter['reviewofsystems'][0] as $key => $value){
 				if(!array_key_exists($key, $fields)) continue;
 				if(!isset($value)) continue;
 
-				if($value == 1){
+				if($key === 'notes'){
+					$notes = $value;
+				} elseif($value == 1){
 					$ros_reports_buff[] = $fields[$key];
 				}else{
 					$ros_denies_buff[] = $fields[$key];
@@ -822,6 +826,9 @@ class Encounter {
 				}
 				if(!empty($ros_denies_buff)){
 					$str_buff .= '<div><b>Patient Denies:</b> ' . implode(', ', $ros_denies_buff) . '</div>';
+				}
+				if($notes !== false){
+					$str_buff .= '<div><b>Notes:</b> ' . $notes . '</div>';
 				}
 				$str_buff .= '</div>';
 				$str_buff .= '</div>';

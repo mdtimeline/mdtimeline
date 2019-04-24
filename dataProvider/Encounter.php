@@ -796,7 +796,6 @@ class Encounter {
 			foreach($options as $option){
 				$buff = json_decode($option['options'], true);
 				if(!isset($buff['name'])) continue;
-				if($buff['name'] == 'notes') continue;
 				$fields[$buff['name']] = $buff['fieldLabel'];
 			}
 

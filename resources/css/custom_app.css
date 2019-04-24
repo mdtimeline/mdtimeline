@@ -8,6 +8,36 @@
     src: url('../fonts/OpenSans-CondLight.ttf');
 }
 
+.switch-field-slider .x-slider-horz,
+.switch-field-slider .x-slider-horz .x-slider-end,
+.switch-field-slider .x-slider-horz .x-slider-inner {
+    background-image: none;
+    background-color: #c7c7c7;
+    border-radius: 10px;
+}
+
+.switch-field-slider.switch-field-on .x-slider-horz,
+.switch-field-slider.switch-field-on .x-slider-horz .x-slider-end,
+.switch-field-slider.switch-field-on .x-slider-horz .x-slider-inner {
+    background-color: #36fc76;
+}
+
+.switch-field-slider.switch-field-off .x-slider-horz,
+.switch-field-slider.switch-field-off .x-slider-horz .x-slider-end,
+.switch-field-slider.switch-field-off .x-slider-horz .x-slider-inner {
+    background-color: #fc5a3e;
+}
+
+/*.switch-field-slider .x-slider-horz .x-slider-inner {*/
+/*    margin: 1px 2px;*/
+/*}*/
+
+.switch-field-slider .x-slider-horz .x-slider-thumb {
+    background-image: none;
+    background-color: #363837;
+    border-radius: 10px;
+}
+
 .x-viewport,.x-viewport body {
      position: relative;
 }

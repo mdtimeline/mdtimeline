@@ -400,6 +400,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 		            'App.ux.form.fields.DateTime',
 		            'App.ux.form.fields.MultiText',
 		            'App.ux.form.fields.Percent',
+		            'App.ux.form.fields.Switch',
 		            'App.ux.form.fields.plugin.BadgeText',
 		            'App.ux.form.fields.plugin.ReadOnlyLabel',
 		            'App.ux.form.AdvanceForm',

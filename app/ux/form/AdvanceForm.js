@@ -114,7 +114,7 @@ Ext.define('App.ux.form.AdvanceForm', {
                 fields[i].enableKeyEvents = true;
                 fields[i].on('keyup', this.setFieldCondition, this);
 	            fields[i].on('change', this.setFieldCondition, this);
-            }else if(fields[i].xtype === 'radiofield' || fields[i].xtype === 'checkbox'){
+            }else if(fields[i].xtype === 'radiofield' || fields[i].xtype === 'checkbox' || fields[i].xtype === 'switchfield'){
                 fields[i].scope = this;
                 fields[i].handler = this.setFieldCondition;
 	            fields[i].on('change', this.setFieldCondition, this);

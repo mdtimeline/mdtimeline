@@ -799,19 +799,36 @@ class Encounter {
 				$fields[$buff['name']] = $buff['fieldLabel'];
 			}
 
-			$ros_buff = '';
+			$ros_reports_buff = [];
+			$ros_denies_buff = [];
+			$notes = false;
 
 			foreach($encounter['reviewofsystems'][0] as $key => $value){
 				if(!array_key_exists($key, $fields)) continue;
 				if(!isset($value)) continue;
-				$ros_buff .= $fields[$key] . ': ' . ($value == 1 ? 'Yes' : $value) .'<br>';
+
+				if($key === 'notes'){
+					$notes = $value;
+				} elseif($value == 1){
+					$ros_reports_buff[] = $fields[$key];
+				}else{
+					$ros_denies_buff[] = $fields[$key];
+				}
 			}
 
-			if($ros_buff !== ''){
+			if(!empty($ros_reports_buff) || !empty($ros_denies_buff)){
 				$str_buff .= '<div class="indent">';
 				$str_buff .= '<p><b>Review of Systems:</b></p>';
 				$str_buff .= '<div class="indent">';
-				$str_buff .= $ros_buff;
+				if(!empty($ros_reports_buff)){
+					$str_buff .= '<div><b>Patient Reports:</b> ' . implode(', ', $ros_reports_buff) . '</div>';
+				}
+				if(!empty($ros_denies_buff)){
+					$str_buff .= '<div><b>Patient Denies:</b> ' . implode(', ', $ros_denies_buff) . '</div>';
+				}
+				if($notes !== false){
+					$str_buff .= '<div><b>Notes:</b> ' . $notes . '</div>';
+				}
 				$str_buff .= '</div>';
 				$str_buff .= '</div>';
 			}
@@ -822,6 +839,9 @@ class Encounter {
 
 		$str_buff .= '<div class="indent">';
 
+		/**
+		 * Vitals
+		 */
 		if(!empty($vitals)){
 			$str_buff .= '<p><b>Vitals:</b></p>';
 			$vitals_buff = '';

@@ -48,6 +48,9 @@ Ext.define('App.controller.patient.RadOrders', {
 				click: me.onPrintRadOrderBtnClick
 			}
 		});
+
+		me.encounterCtl = me.getController('patient.encounter.Encounter');
+
 	},
 
 	onRadOrdersGridBeforeRender: function(grid){

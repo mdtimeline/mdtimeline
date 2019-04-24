@@ -58,6 +58,13 @@ Ext.define('App.view.patient.Encounter', {
 	initComponent: function(){
 		var me = this;
 
+		say('ReviewOfSystems');
+		say(App.model.patient.ReviewOfSystems);
+		App.model.patient.ReviewOfSystems.getFields().forEach(function(field){
+			field.useNull = true;
+		});
+
+
 		me.renderAdministrative = a('access_enc_hcfa') || a('access_enc_cpt') || a('access_enc_history');
 		me.encounterCtrl = app.getController('patient.encounter.Encounter');
 
@@ -506,7 +513,7 @@ Ext.define('App.view.patient.Encounter', {
 		}
 
 		if(form.isValid()){
-			values = form.getValues();
+			values = form.getValues(false, true);
 
 			if(SaveBtn.action === 'encounter'){
 

@@ -61,6 +61,9 @@ Ext.define('App.controller.patient.LabOrders', {
 				click: me.onPrintLabOrderBtnClick
 			}
 		});
+
+		me.encounterCtl = me.getController('patient.encounter.Encounter');
+
 	},
 
 	onLabOrdersGridBeforeRender: function(grid){

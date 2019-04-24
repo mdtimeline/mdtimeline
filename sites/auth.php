@@ -45,6 +45,7 @@ if (
 	strpos($file, 'logo-dark.png') ||
 	strpos($file, 'logo-email.png') ||
 	strpos($file, 'logo-light.png') ||
+	strpos($file, 'logo-voucher.png') ||
 	strpos($file, 'portal_logo.png')
 ){
 	$mine = mime_content_type($file);

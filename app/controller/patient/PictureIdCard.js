@@ -79,8 +79,8 @@ Ext.define('App.controller.patient.PictureIdCard', {
 							itemId: 'PatientSummaryImagesPictureIdCardPrinterImage',
 							base64data: response.base64data,
 							src: ('data:image/jpg;base64,' + response.base64data),
-							width: response.width/2,
-							height: response.height/2
+							width: response.width/4,
+							height: response.height/4
 						}
 					],
 					dockedItems: [{

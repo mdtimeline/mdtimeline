@@ -304,7 +304,7 @@ Ext.define('App.view.patient.InsuranceForm', {
                                     type: 'vbox'
                                 },
                                 width: 1100,
-                                height: 115,
+                                height: 145,
                                 margin: '0 5 0 5',
                                 items: [
                                     {

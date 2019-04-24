@@ -173,6 +173,11 @@ class Documents {
 			}
 		}
 
+		$dx_records = $this->Encounter->getEncounterDxs(['eid' => $eid]);
+		foreach ($dx_records as $dx_record){
+			$dx[] = $dx_record['code'];
+		}
+
 		$Medications = new Medications();
 		$medications = $Medications->getPatientMedicationsByEid($eid);
 		unset($Medications);
@@ -220,7 +225,7 @@ class Documents {
 			'[ENCOUNTER_ASSESSMENT]' => (isset($soap['assessment']) ? $soap['assessment'] : ''),
 			'[ENCOUNTER_PLAN]' => (isset($soap['plan']) ? $soap['plan'] : ''),
 			'[ENCOUNTER_CPT_CODES]' => $this->tokensForEncountersList($cpt, 1),
-			'[ENCOUNTER_ICD_CODES]' => $this->tokensForEncountersList($dx, 2),
+			'[ENCOUNTER_ICD_CODES]' => implode(' ', $dx),
 			'[ENCOUNTER_HCPC_CODES]' => $this->tokensForEncountersList($hcpc, 3),
 			'[ENCOUNTER_ALLERGIES_LIST]' => $this->tokensForEncountersList($allergies, 4),
 			'[ENCOUNTER_MEDICATIONS_LIST]' => $this->tokensForEncountersList($medications, 5),

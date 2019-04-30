@@ -1425,13 +1425,13 @@ class Patient
 //			) as results  group by pid
 //		";
 
-        $sql = "SELECT pid, pubpid as recordNumber, email, sex, DOB as dob, fname, lname, 'FATHER' as relation FROM patient WHERE 
+        $sql = "SELECT pid, pubpid as recordNumber, email, sex, DOB as dob, fname, lname, 'FATHER' as relation FROM patient WHERE
 					(father_pid = :pid_1 AND DATE(DOB) > DATE_SUB(DATE(NOW()), INTERVAL 18 YEAR))
-				UNION 
-					SELECT pid, pubpid as recordNumber, email, sex, DOB as dob, fname, lname, 'MOTHER' as relation FROM patient WHERE 
+				UNION
+					SELECT pid, pubpid as recordNumber, email, sex, DOB as dob, fname, lname, 'MOTHER' as relation FROM patient WHERE
 					(mother_pid = :pid_2 AND DATE(DOB) > DATE_SUB(DATE(NOW()), INTERVAL 18 YEAR))
-				UNION 
-					SELECT pid, pubpid as recordNumber, email, sex, DOB as dob, fname, lname, 'GUARDIAN' as relation FROM patient WHERE 
+				UNION
+					SELECT pid, pubpid as recordNumber, email, sex, DOB as dob, fname, lname, 'GUARDIAN' as relation FROM patient WHERE
 					guardians_pid = :pid_3";
 
 		return $this->p->sql($sql)->all(['pid_1' => $pid, 'pid_2' => $pid, 'pid_3' => $pid]);

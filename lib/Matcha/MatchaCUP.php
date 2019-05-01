@@ -469,6 +469,26 @@ class MatchaCUP {
 		return $this;
 	}
 
+	/**
+	 * @param $columns {string|array}
+	 * @param $table
+	 * @param $onMainTable
+	 * @param $onMergeTable
+	 * @param string $operator
+	 * @return MatchaCUP
+	 */
+	public function innerJoin($columns = '*', $table, $onMainTable, $onMergeTable, $operator = '=') {
+		$columns = $this->joinColumnHandler($columns);
+		$alias = $this->getJoinTableAlias();
+		$join = " INNER JOIN {$table} AS $alias ON `{$this->table}`.`$onMainTable` $operator `$alias`.`$onMergeTable` ";
+		$this->joinTableHandler($columns, $join);
+		return $this;
+	}
+
+	/**
+	 * @param $columns
+	 * @param $join
+	 */
 	private function joinTableHandler($columns, $join) {
 
 		$joined = preg_match('/ JOIN/', $this->sql);

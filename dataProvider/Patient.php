@@ -1413,13 +1413,13 @@ class Patient
 		$sql = "
 			SELECT * FROM (
 				(
-					SELECT pid, pubpid as recordNumber, email, sex, DOB, fname, lname, 'FATHER' as relation FROM patient WHERE 
+					SELECT pid, pubpid as recordNumber, email, sex, DOB as dob, fname, lname, 'FATHER' as relation FROM patient WHERE 
 					(father_pid = :pid_1 AND DATE(DOB) > DATE_SUB(DATE(NOW()), INTERVAL 18 YEAR))
 				) UNION (
-					SELECT pid, pubpid as recordNumber, email, sex, DOB, fname, lname, 'MOTHER' as relation FROM patient WHERE 
+					SELECT pid, pubpid as recordNumber, email, sex, DOB as dob, fname, lname, 'MOTHER' as relation FROM patient WHERE 
 					(mother_pid = :pid_2 AND DATE(DOB) > DATE_SUB(DATE(NOW()), INTERVAL 18 YEAR))
 				) UNION (
-					SELECT pid, pubpid as recordNumber, email, sex, DOB, fname, lname, 'GUARDIAN' as relation FROM patient WHERE 
+					SELECT pid, pubpid as recordNumber, email, sex, DOB as dob, fname, lname, 'GUARDIAN' as relation FROM patient WHERE 
 					guardians_pid = :pid_3
 				)
 			) as results  group by pid

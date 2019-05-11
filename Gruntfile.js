@@ -183,8 +183,6 @@ module.exports = function(grunt){
 					'app/model/fees/PaymentTransactions.js',
 					'app/model/navigation/Navigation.js',
 					'app/model/patient/Vitals.js',
-					'app/model/patient/FamilyHistory.js',
-					'app/model/patient/ReviewOfSystems.js',
 					'app/model/patient/HCFAOptions.js',
 					'app/model/patient/EncounterService.js',
 					'app/model/patient/encounter/Procedures.js',

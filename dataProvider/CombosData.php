@@ -750,8 +750,7 @@ class CombosData {
 	}
 
 	public function getValuesByListIdAndOptionValue($listId, $optionValue) {
-		if($this->CLO == null)
-			$this->CLO = MatchaModel::setSenchaModel('App.model.administration.ListOptions');
+		if($this->CLO == null) $this->CLO = MatchaModel::setSenchaModel('App.model.administration.ListOptions');
 		$foo = $this->CLO->load([
 			'list_id' => $listId,
 			'option_value' => $optionValue

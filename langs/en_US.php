@@ -2050,4 +2050,11 @@ $LANG = array(
 	'from_name' => 'From Name',
 	'email_template' => 'Email Template',
 	'email_templates' => 'Email Templates',
+	'intervention' => 'Intervention',
+	'interventions' => 'Interventions',
+	'health_concern' => 'Health Concern',
+	'health_concerns' => 'Health Concerns',
+	'health_status' => 'Health Status',
+	'body_site' => 'Body Site',
+	'body_site_search' => 'Body Site Search',
 );

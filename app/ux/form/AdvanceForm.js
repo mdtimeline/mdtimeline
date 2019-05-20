@@ -46,11 +46,6 @@ Ext.define('App.ux.form.AdvanceForm', {
      */
     syncDelay: 3000,
     /**
-     * @cfg {int} transition
-     * Time of Fx background color transition. Default to 2000.
-     */
-    transition: 0,
-    /**
      * Init function
      * @param form
      */
@@ -98,7 +93,7 @@ Ext.define('App.ux.form.AdvanceForm', {
      * @param operation
      */
     onStoreWrite: function(store, operation){
-        this.setFormFieldsClean(this.transition);
+        this.setFormFieldsClean();
         this.formPanel.fireEvent('write', store, operation);
         app.msg('Sweet!', 'Record Saved');
         delete this.bufferSyncFormFn;
@@ -147,9 +142,9 @@ Ext.define('App.ux.form.AdvanceForm', {
             record.set(obj);
             valueChanged = (Object.getOwnPropertyNames(record.getChanges()).length !== 0);
             if(valueChanged === true){
-                me.setFieldDirty(field, el, true, me.transition);
+                me.setFieldDirty(field, el, true);
             }else{
-                me.setFieldDirty(field, el, false, me.transition);
+                me.setFieldDirty(field, el, false);
             }
             if(this.formPanel.autoSync && this.syncAcl){
                 if(typeof me.bufferSyncFormFn === 'undefined'){
@@ -161,7 +156,7 @@ Ext.define('App.ux.form.AdvanceForm', {
                     if(valueChanged === true){
                         me.bufferSyncFormFn();
                     }else{
-                        me.setFormFieldsClean(me.transition);
+                        me.setFormFieldsClean();
                         delete me.bufferSyncFormFn;
                     }
                 }
@@ -173,41 +168,20 @@ Ext.define('App.ux.form.AdvanceForm', {
      * @param field
      * @param el
      * @param dirty
-     * @param transition
      */
-    setFieldDirty: function(field, el, dirty, transition){
-        transition = Ext.isNumber(transition) ? transition : 0;
+    setFieldDirty: function(field, el, dirty){
 
         if((field.el.hasChanged && !dirty) || (!field.el.hasChanged && dirty)){
 
         	var elToStyle = field.xtype === 'textarea' ? field.inputEl.el : field.el;
 
             field.el.hasChanged = dirty;
-            Ext.create('Ext.fx.Animator', {
-                target: elToStyle,
-                duration: transition, // 10 seconds
-                keyframes: {
-                    0: {
-                        backgroundColor: dirty ? 'FFFFFF' : 'FFDDDD'
-                    },
-                    100: {
-                        backgroundColor: dirty ? 'FFDDDD' : 'FFFFFF'
-                    }
-                },
-                listeners: {
-                    keyframe: function(fx, keyframe){
-                        if(keyframe === 1){
-                            if(dirty){
-	                            elToStyle.setStyle({'background-image': 'none'});
-                            }else{
-                                Ext.Function.defer(function(){
-	                                elToStyle.setStyle({'background-image': null});
-                                }, transition - 400);
-                            }
-                        }
-                    }
-                }
-            });
+
+            if(dirty){
+                elToStyle.setStyle({'background-image': 'none', backgroundColor: 'FFDDDD'});
+            }else {
+                elToStyle.setStyle({'background-image': null, backgroundColor: null});
+            }
         }
     },
     /**
@@ -230,12 +204,12 @@ Ext.define('App.ux.form.AdvanceForm', {
     /**
      * This will set all the fields that has change
      */
-    setFormFieldsClean: function(transition){
+    setFormFieldsClean: function(){
         var me = this, fields = me.form.getFields().items, el;
         for(var i = 0; i < fields.length; i++){
             el = me.getFieldEl(fields[i]);
             if(typeof fields[i].el != 'undefined' && fields[i].el.hasChanged){
-                me.setFieldDirty(fields[i], el, false, transition);
+                me.setFieldDirty(fields[i], el, false);
             }
         }
     },

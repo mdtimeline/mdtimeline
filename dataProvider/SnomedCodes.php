@@ -45,6 +45,24 @@ class SnomedCodes {
 		];
 	}
 
+	public function liveBodySiteCodeSearch($params) {
+
+		$sql = "SELECT d.ConceptId, d.Term, p.OCCURRENCE
+			     FROM sct_descriptions as d
+				 JOIN sct_procedure_body_site_list as p ON d.ConceptId = p.ConceptId
+	            WHERE d.Active = '1'
+	              AND (d.Term LIKE :c1 OR d.ConceptId LIKE :c2)
+	         ORDER BY p.OCCURRENCE DESC";
+
+		$sth = $this->conn->prepare($sql);
+		$sth->execute([':c1' => '%'.$params->query.'%', ':c2' => $params->query.'%']);
+		$results = $sth->fetchAll(PDO::FETCH_ASSOC);
+		return [
+			'totals' => count($results),
+		    'data' => array_slice($results, $params->start, $params->limit)
+		];
+	}
+
 	public function liveProcedureCodeSearch($params) {
 
 		$sql = "SELECT ConceptId, Term, Occurrence
@@ -82,6 +100,14 @@ class SnomedCodes {
 
 	public function updateLiveProcedureCodeSearch($params) {
 		$sql = "UPDATE sct_procedure_list
+				   SET Occurrence = '{$params->Occurrence}'
+			     WHERE ConceptId = '{$params->ConceptId}'";
+		$this->conn->exec($sql);
+		return $params;
+	}
+
+	public function updateLiveBodySiteCodeSearch($params) {
+		$sql = "UPDATE sct_procedure_body_site_list
 				   SET Occurrence = '{$params->Occurrence}'
 			     WHERE ConceptId = '{$params->ConceptId}'";
 		$this->conn->exec($sql);

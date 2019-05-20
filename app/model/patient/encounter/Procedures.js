@@ -76,6 +76,21 @@ Ext.define('App.model.patient.encounter.Procedures', {
 			len: 15
 		},
 		{
+			name: 'target_site_code',
+			type: 'string',
+			len: 40
+		},
+		{
+			name: 'target_site_code_text',
+			type: 'string',
+			len: 300
+		},
+		{
+			name: 'target_site_code_type',
+			type: 'string',
+			len: 15
+		},
+		{
 			name: 'encounter_dx_id',
 			type: 'int'
 		},

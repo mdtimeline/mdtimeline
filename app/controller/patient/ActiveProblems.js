@@ -60,6 +60,9 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			'#ActiveProblemStatusCombo':{
 				select: me.onActiveProblemStatusComboSelect
 			},
+			'#ActiveProblemTypeCmb':{
+				select: me.onActiveProblemTypeCmbSelect
+			},
 			'patientactiveproblemspanel #addActiveProblemBtn':{
 				click: me.onAddActiveProblemBtnClick
 			},
@@ -149,6 +152,17 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			status: records[0].data.option_name,
 			status_code: records[0].data.code,
 			status_code_type: records[0].data.code_type
+		});
+	},
+
+	onActiveProblemTypeCmbSelect:function(cmb, records){
+		var form = cmb.up('form').getForm(),
+			record = form.getRecord();
+
+		record.set({
+			problem_type: records[0].data.option_name,
+			problem_type_code: records[0].data.code,
+			problem_type_code_type: records[0].data.code_type
 		});
 	}
 

@@ -80,6 +80,21 @@ Ext.define('App.model.patient.SOAP', {
 			name: 'instructions',
 			type: 'string',
 			dataType: 'mediumtext'
+		},
+		{
+			name: 'health_status',
+			type: 'string',
+			len: 80
+		},
+		{
+			name: 'health_status_code',
+			type: 'string',
+			len: 25
+		},
+		{
+			name: 'health_status_code_type',
+			type: 'string',
+			len: 25
 		}
 	],
 	proxy: {

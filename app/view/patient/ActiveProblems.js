@@ -47,6 +47,11 @@ Ext.define('App.view.patient.ActiveProblems', {
 			]
 		},
 		{
+			header: _('type'),
+			width: 150,
+			dataIndex: 'problem_type'
+		},
+		{
 			header: _('problem'),
 			flex: 1,
 			dataIndex: 'code_text',
@@ -98,19 +103,39 @@ Ext.define('App.view.patient.ActiveProblems', {
 						layout: 'vbox',
 						items: [
 							{
-								xtype: 'snomedliveproblemsearch',
-								fieldLabel: _('problem'),
-								name: 'code_text',
-								hideLabel: false,
-								itemId: 'activeProblemLiveSearch',
-								enableKeyEvents: true,
-								displayField: 'Term',
-								valueField: 'Term',
-								width: 720,
-								labelWidth: 70,
-								margin: '0 10 5 0',
-								allowBlank: false
+								xtype: 'fieldcontainer',
+								layout: 'hbox',
+								defaults: {
+									margin: '0 10 0 0'
+								},
+								items: [
+									{
+										xtype: 'gaiaehr.combo',
+										listKey: 'problems_types',
+										name: 'problem_type_code',
+										itemId: 'ActiveProblemTypeCmb',
+										labelWidth: 70,
+										width: 250,
+										fieldLabel: _('type'),
+										editable: false
+									},
+									{
+										xtype: 'snomedliveproblemsearch',
+										fieldLabel: _('problem'),
+										name: 'code_text',
+										hideLabel: false,
+										itemId: 'activeProblemLiveSearch',
+										enableKeyEvents: true,
+										displayField: 'Term',
+										valueField: 'Term',
+										width: 460,
+										labelWidth: 70,
+										margin: '0 10 0 0',
+										allowBlank: false
+									},
+								]
 							},
+
 							{
 								xtype: 'fieldcontainer',
 								layout: 'hbox',

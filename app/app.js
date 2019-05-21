@@ -4723,11 +4723,6 @@ Ext.define('App.ux.form.AdvanceForm', {
      */
     syncDelay: 3000,
     /**
-     * @cfg {int} transition
-     * Time of Fx background color transition. Default to 2000.
-     */
-    transition: 0,
-    /**
      * Init function
      * @param form
      */
@@ -4775,7 +4770,7 @@ Ext.define('App.ux.form.AdvanceForm', {
      * @param operation
      */
     onStoreWrite: function(store, operation){
-        this.setFormFieldsClean(this.transition);
+        this.setFormFieldsClean();
         this.formPanel.fireEvent('write', store, operation);
         app.msg('Sweet!', 'Record Saved');
         delete this.bufferSyncFormFn;
@@ -4824,9 +4819,9 @@ Ext.define('App.ux.form.AdvanceForm', {
             record.set(obj);
             valueChanged = (Object.getOwnPropertyNames(record.getChanges()).length !== 0);
             if(valueChanged === true){
-                me.setFieldDirty(field, el, true, me.transition);
+                me.setFieldDirty(field, el, true);
             }else{
-                me.setFieldDirty(field, el, false, me.transition);
+                me.setFieldDirty(field, el, false);
             }
             if(this.formPanel.autoSync && this.syncAcl){
                 if(typeof me.bufferSyncFormFn === 'undefined'){
@@ -4838,7 +4833,7 @@ Ext.define('App.ux.form.AdvanceForm', {
                     if(valueChanged === true){
                         me.bufferSyncFormFn();
                     }else{
-                        me.setFormFieldsClean(me.transition);
+                        me.setFormFieldsClean();
                         delete me.bufferSyncFormFn;
                     }
                 }
@@ -4850,41 +4845,20 @@ Ext.define('App.ux.form.AdvanceForm', {
      * @param field
      * @param el
      * @param dirty
-     * @param transition
      */
-    setFieldDirty: function(field, el, dirty, transition){
-        transition = Ext.isNumber(transition) ? transition : 0;
+    setFieldDirty: function(field, el, dirty){
 
         if((field.el.hasChanged && !dirty) || (!field.el.hasChanged && dirty)){
 
         	var elToStyle = field.xtype === 'textarea' ? field.inputEl.el : field.el;
 
             field.el.hasChanged = dirty;
-            Ext.create('Ext.fx.Animator', {
-                target: elToStyle,
-                duration: transition, // 10 seconds
-                keyframes: {
-                    0: {
-                        backgroundColor: dirty ? 'FFFFFF' : 'FFDDDD'
-                    },
-                    100: {
-                        backgroundColor: dirty ? 'FFDDDD' : 'FFFFFF'
-                    }
-                },
-                listeners: {
-                    keyframe: function(fx, keyframe){
-                        if(keyframe === 1){
-                            if(dirty){
-	                            elToStyle.setStyle({'background-image': 'none'});
-                            }else{
-                                Ext.Function.defer(function(){
-	                                elToStyle.setStyle({'background-image': null});
-                                }, transition - 400);
-                            }
-                        }
-                    }
-                }
-            });
+
+            if(dirty){
+                elToStyle.setStyle({'background-image': 'none', backgroundColor: 'FFDDDD'});
+            }else {
+                elToStyle.setStyle({'background-image': null, backgroundColor: null});
+            }
         }
     },
     /**
@@ -4907,12 +4881,12 @@ Ext.define('App.ux.form.AdvanceForm', {
     /**
      * This will set all the fields that has change
      */
-    setFormFieldsClean: function(transition){
+    setFormFieldsClean: function(){
         var me = this, fields = me.form.getFields().items, el;
         for(var i = 0; i < fields.length; i++){
             el = me.getFieldEl(fields[i]);
             if(typeof fields[i].el != 'undefined' && fields[i].el.hasChanged){
-                me.setFieldDirty(fields[i], el, false, transition);
+                me.setFieldDirty(fields[i], el, false);
             }
         }
     },
@@ -4940,6 +4914,7 @@ Ext.define('App.ux.form.AdvanceForm', {
         }
     }
 });
+
 Ext.define('App.ux.form.fields.Percent',{
     extend: 'Ext.form.field.Number', //Extending the NumberField
     alias: 'widget.mitos.percent', //Defining the xtype,
@@ -15703,6 +15678,21 @@ Ext.define('App.model.patient.encounter.Procedures', {
 			len: 15
 		},
 		{
+			name: 'target_site_code',
+			type: 'string',
+			len: 40
+		},
+		{
+			name: 'target_site_code_text',
+			type: 'string',
+			len: 300
+		},
+		{
+			name: 'target_site_code_type',
+			type: 'string',
+			len: 15
+		},
+		{
 			name: 'encounter_dx_id',
 			type: 'int'
 		},
@@ -15739,6 +15729,7 @@ Ext.define('App.model.patient.encounter.Procedures', {
 		}
 	}
 });
+
 Ext.define('App.model.patient.EducationResource', {
 	extend: 'Ext.data.Model',
 	requires: [
@@ -17624,6 +17615,21 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 		},
 		{
 			name: 'status_code_type',
+			type: 'string',
+			len: 20
+		},
+		{
+			name: 'problem_type',
+			type: 'string',
+			len: 20
+		},
+		{
+			name: 'problem_type_code',
+			type: 'string',
+			len: 20
+		},
+		{
+			name: 'problem_type_code_type',
 			type: 'string',
 			len: 20
 		},
@@ -37009,7 +37015,7 @@ Ext.define('App.controller.administration.ReferringProviders', {
 		store.add(facilities);
 
 	},
-	
+
 	onReferringProviderSearchAddBtnClick: function (field) {
 		this.doReferringProviderWindow();
 		this.triggerField = field;
@@ -37024,7 +37030,19 @@ Ext.define('App.controller.administration.ReferringProviders', {
 		this.doReferringProviderWindow(referring_record);
 		this.triggerField = undefined;
 	},
-	
+
+	doReferringProviderWindowByReferringId: function (referring_id, callback) {
+		var me = this;
+
+		App.model.administration.ReferringProvider.load(referring_id, {
+			success: function (referring_record) {
+				referring_record.saveCallback = callback;
+				me.doReferringProviderWindow(referring_record);
+			}
+		});
+	},
+
+
 	doReferringProviderWindow: function (referring_record) {
 
 		referring_record = referring_record || Ext.create('App.model.administration.ReferringProvider', {
@@ -37099,6 +37117,8 @@ Ext.define('App.controller.administration.ReferringProviders', {
 			var records = this.triggerField.store.add(provider_record.data);
 			this.triggerField.select(records[0]);
 			this.triggerField.fireEvent('select', this.triggerField, records);
+		}else if(provider_record.saveCallback && typeof provider_record.saveCallback == 'function'){
+			provider_record.saveCallback();
 		}else if(!provider_record.store){
 			this.getReferringProvidersPanel().getStore().insert(0, provider_record);
 		}else{
@@ -37128,6 +37148,7 @@ Ext.define('App.controller.administration.ReferringProviders', {
 	}
 
 });
+
 Ext.define('App.controller.administration.Specialties', {
 	extend: 'Ext.app.Controller',
 
@@ -40751,6 +40772,9 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			'#ActiveProblemStatusCombo':{
 				select: me.onActiveProblemStatusComboSelect
 			},
+			'#ActiveProblemTypeCmb':{
+				select: me.onActiveProblemTypeCmbSelect
+			},
 			'patientactiveproblemspanel #addActiveProblemBtn':{
 				click: me.onAddActiveProblemBtnClick
 			},
@@ -40840,6 +40864,17 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			status: records[0].data.option_name,
 			status_code: records[0].data.code,
 			status_code_type: records[0].data.code_type
+		});
+	},
+
+	onActiveProblemTypeCmbSelect:function(cmb, records){
+		var form = cmb.up('form').getForm(),
+			record = form.getRecord();
+
+		record.set({
+			problem_type: records[0].data.option_name,
+			problem_type_code: records[0].data.code,
+			problem_type_code_type: records[0].data.code_type
 		});
 	}
 
@@ -41968,6 +42003,7 @@ Ext.define('App.controller.patient.CarePlanGoals', {
 
 
 });
+
 Ext.define('App.controller.patient.CCD', {
 	extend: 'Ext.app.Controller',
 	requires: [],
@@ -49335,6 +49371,9 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 			},
 			'#SoapDxCodesField': {
 				recordadd: me.onSoapDxCodesFieldRecordAdd
+			},
+			'#SoapHealthStatusCmb': {
+				select: me.onSoapHealthStatusCmbSelect
 			}
 		});
 
@@ -49371,6 +49410,14 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 	onSoapDxCodesFieldRecordAdd: function (field, record) {
 		if(this.getSoapForm().autoSync) this.getSoapDxCodesField().sync();
 
+	},
+
+	onSoapHealthStatusCmbSelect: function(cmb, selection){
+		var soap_record = cmb.up('form').getForm().getRecord();
+		soap_record.set({
+			health_status_code: selection[0].get('code'),
+			health_status_code_type: selection[0].get('code_type')
+		});
 	},
 
 	doChiefComplaintHandler: function (soap_record) {
@@ -52862,6 +52909,21 @@ Ext.define('App.model.patient.SOAP', {
 			name: 'instructions',
 			type: 'string',
 			dataType: 'mediumtext'
+		},
+		{
+			name: 'health_status',
+			type: 'string',
+			len: 80
+		},
+		{
+			name: 'health_status_code',
+			type: 'string',
+			len: 25
+		},
+		{
+			name: 'health_status_code_type',
+			type: 'string',
+			len: 25
 		}
 	],
 	proxy: {
@@ -52893,6 +52955,7 @@ Ext.define('App.model.patient.SOAP', {
 	}
 
 });
+
 Ext.define('App.view.patient.windows.Charts', {
     extend       : 'Ext.window.Window',
     requires     : [
@@ -61207,6 +61270,11 @@ Ext.define('App.view.patient.ActiveProblems', {
 			]
 		},
 		{
+			header: _('type'),
+			width: 150,
+			dataIndex: 'problem_type'
+		},
+		{
 			header: _('problem'),
 			flex: 1,
 			dataIndex: 'code_text',
@@ -61258,19 +61326,39 @@ Ext.define('App.view.patient.ActiveProblems', {
 						layout: 'vbox',
 						items: [
 							{
-								xtype: 'snomedliveproblemsearch',
-								fieldLabel: _('problem'),
-								name: 'code_text',
-								hideLabel: false,
-								itemId: 'activeProblemLiveSearch',
-								enableKeyEvents: true,
-								displayField: 'Term',
-								valueField: 'Term',
-								width: 720,
-								labelWidth: 70,
-								margin: '0 10 5 0',
-								allowBlank: false
+								xtype: 'fieldcontainer',
+								layout: 'hbox',
+								defaults: {
+									margin: '0 10 0 0'
+								},
+								items: [
+									{
+										xtype: 'gaiaehr.combo',
+										listKey: 'problems_types',
+										name: 'problem_type_code',
+										itemId: 'ActiveProblemTypeCmb',
+										labelWidth: 70,
+										width: 250,
+										fieldLabel: _('type'),
+										editable: false
+									},
+									{
+										xtype: 'snomedliveproblemsearch',
+										fieldLabel: _('problem'),
+										name: 'code_text',
+										hideLabel: false,
+										itemId: 'activeProblemLiveSearch',
+										enableKeyEvents: true,
+										displayField: 'Term',
+										valueField: 'Term',
+										width: 460,
+										labelWidth: 70,
+										margin: '0 10 0 0',
+										allowBlank: false
+									},
+								]
 							},
+
 							{
 								xtype: 'fieldcontainer',
 								layout: 'hbox',
@@ -62615,6 +62703,8 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		'App.view.patient.encounter.AppointmentRequestGrid',
 		'App.view.patient.encounter.EducationResourcesGrid',
 		'App.view.patient.encounter.MedicationsAdministeredGrid',
+		//'App.view.patient.encounter.InterventionsGrid',
+		'App.view.patient.encounter.HealthConcernGrid',
 		'App.ux.form.fields.plugin.FieldTab'
 	],
 	action: 'patient.encounter.soap',
@@ -62722,54 +62812,54 @@ Ext.define('App.view.patient.encounter.SOAP', {
 				syncAcl: a('edit_encounters')
 			},
 			items: [
-				me.pWin = Ext.widget('window', {
-					title: _('procedure'),
-					maximized: true,
-					closable: false,
-					constrain: true,
-					closeAction: 'hide',
-					itemId: 'soapProcedureWindow',
-					layout: 'fit',
-					items: [
-						me.pForm = Ext.widget('form', {
-							bodyPadding: 10,
-							layout: {
-								type: 'vbox',
-								align: 'stretch'
-							},
-							items: [
-								{
-									xtype: 'snomedliveproceduresearch',
-									name: 'code_text',
-									displayField: 'Term',
-									valueField: 'Term',
-									listeners: {
-										scope: me,
-										select: me.onProcedureSelect
-									}
-								},
-								{
-									xtype: 'textareafield',
-									name: 'observation',
-									flex: 1
-								}
-							]
-						})
-					],
-					buttons: [
-						{
-							text: _('cancel'),
-							scope: me,
-							handler: me.onProcedureCancel
-						},
-						{
-							text: _('save'),
-							scope: me,
-							itemId: 'encounterRecordAdd',
-							handler: me.onProcedureSave
-						}
-					]
-				}),
+				// me.pWin = Ext.widget('window', {
+				// 	title: _('procedure'),
+				// 	maximized: true,
+				// 	closable: false,
+				// 	constrain: true,
+				// 	closeAction: 'hide',
+				// 	itemId: 'soapProcedureWindow',
+				// 	layout: 'fit',
+				// 	items: [
+				// 		me.pForm = Ext.widget('form', {
+				// 			bodyPadding: 10,
+				// 			layout: {
+				// 				type: 'vbox',
+				// 				align: 'stretch'
+				// 			},
+				// 			items: [
+				// 				{
+				// 					xtype: 'snomedliveproceduresearch',
+				// 					name: 'code_text',
+				// 					displayField: 'Term',
+				// 					valueField: 'Term',
+				// 					listeners: {
+				// 						scope: me,
+				// 						select: me.onProcedureSelect
+				// 					}
+				// 				},
+				// 				{
+				// 					xtype: 'textareafield',
+				// 					name: 'observation',
+				// 					flex: 1
+				// 				}
+				// 			]
+				// 		})
+				// 	],
+				// 	buttons: [
+				// 		{
+				// 			text: _('cancel'),
+				// 			scope: me,
+				// 			handler: me.onProcedureCancel
+				// 		},
+				// 		{
+				// 			text: _('save'),
+				// 			scope: me,
+				// 			itemId: 'encounterRecordAdd',
+				// 			handler: me.onProcedureSave
+				// 		}
+				// 	]
+				// }),
 				{
 					xtype: 'fieldset',
 					title: _('chief_complaint'),
@@ -62824,12 +62914,15 @@ Ext.define('App.view.patient.encounter.SOAP', {
 								}
 							]
 						}),
-						me.pGrid = Ext.widget('grid', {
+						{
+							xtype: 'grid',
 							frame: true,
 							name: 'procedures',
 							emptyText: _('no_procedures'),
 							margin: '5 0 10 0',
 							store: me.procedureStore,
+							itemId: 'EncounterProcedureGrid',
+							minHeight: 100,
 							columns: [
 								{
 									text: _('code'),
@@ -62838,13 +62931,14 @@ Ext.define('App.view.patient.encounter.SOAP', {
 								{
 									text: _('description'),
 									dataIndex: 'code_text',
+									flex: 2
+								},
+								{
+									text: _('body_site'),
+									dataIndex: 'target_site_code_text',
 									flex: 1
 								}
 							],
-							listeners: {
-								scope: me,
-								itemdblclick: me.procedureEdit
-							},
 							dockedItems: [
 								{
 									xtype: 'toolbar',
@@ -62856,15 +62950,14 @@ Ext.define('App.view.patient.encounter.SOAP', {
 										'->',
 										{
 											text: _('new_procedure'),
-											scope: me,
-											handler: me.onProcedureAdd,
+											itemId: 'EncounterProcedureGridAddBtn',
 											iconCls: 'icoAdd'
 										}
 									]
 								}
 
 							]
-						})
+						}
 					]
 				},
 				{
@@ -62886,7 +62979,20 @@ Ext.define('App.view.patient.encounter.SOAP', {
 							name: 'dxCodes',
 							margin: '5 0 10 0',
 							itemId: 'SoapDxCodesField'
-						})
+						}),
+						{
+							xtype: 'gaiaehr.combo',
+							itemId: 'SoapHealthStatusCmb',
+							editable: false,
+							loadStore: true,
+							queryMode: 'local',
+							listKey: 'health_stat',
+							name: 'health_status',
+							fieldLabel: _('health_status'),
+							labelAlign: 'top',
+							margin: '0 0 10 0',
+							width: 300,
+						}
 					]
 				},
 				{
@@ -62909,18 +63015,32 @@ Ext.define('App.view.patient.encounter.SOAP', {
 						}),
 						{
 							xtype: 'medicationsadministeredgrid',
+							minHeight: 125,
 							margin: '0 0 10 0'
 						},
 						{
 							xtype: 'appointmentrequestgrid',
+							minHeight: 125,
 							margin: '0 0 10 0'
 						},
+						// {
+						// 	xtype: 'interventionsgrid',
+						// 	minHeight: 125,
+						// 	margin: '0 0 10 0'
+						// },
 						{
 							xtype: 'careplangoalsgrid',
+							minHeight: 125,
 							margin: '0 0 10 0'
 						},
 						{
 							xtype: 'educationresourcesgrid',
+							minHeight: 125,
+							margin: '0 0 10 0'
+						},
+						{
+							xtype: 'healthconcerngird',
+							minHeight: 125,
 							margin: '0 0 10 0'
 						}
 					]
@@ -62968,66 +63088,66 @@ Ext.define('App.view.patient.encounter.SOAP', {
 	},
 
 	/**
-	 *
-	 * @param cmb
-	 * @param record
-	 */
-	onProcedureSelect: function(cmb, record){
-		var me = this,
-			form = me.pForm.getForm(),
-			procedure = form.getRecord();
-		procedure.set({
-			code: record[0].data.ConceptId,
-			code_type: record[0].data.CodeType,
-			code_text: record[0].data.Term
-		});
-	},
+	//  *
+	//  * @param cmb
+	//  * @param record
+	//  */
+	// onProcedureSelect: function(cmb, record){
+	// 	var me = this,
+	// 		form = me.pForm.getForm(),
+	// 		procedure = form.getRecord();
+	// 	procedure.set({
+	// 		code: record[0].data.ConceptId,
+	// 		code_type: record[0].data.CodeType,
+	// 		code_text: record[0].data.Term
+	// 	});
+	// },
+	//
+	// /**
+	//  *
+	//  */
+	// onProcedureAdd: function(){
+	// 	var me = this,
+	// 		rec;
+	// 	rec = Ext.create('App.model.patient.encounter.Procedures', {
+	// 		pid: me.pid,
+	// 		eid: me.eid,
+	// 		create_uid: app.user.id,
+	// 		update_uid: app.user.id,
+	// 		create_date: new Date(),
+	// 		update_date: new Date()
+	// 	});
+	//
+	// 	me.procedureStore.add(rec);
+	// 	me.procedureEdit(null, rec);
+	// },
 
-	/**
-	 *
-	 */
-	onProcedureAdd: function(){
-		var me = this,
-			rec;
-		rec = Ext.create('App.model.patient.encounter.Procedures', {
-			pid: me.pid,
-			eid: me.eid,
-			create_uid: app.user.id,
-			update_uid: app.user.id,
-			create_date: new Date(),
-			update_date: new Date()
-		});
-
-		me.procedureStore.add(rec);
-		me.procedureEdit(null, rec);
-	},
-
-	/**
-	 *
-	 */
-	onProcedureCancel: function(){
-		this.procedureStore.rejectChanges();
-		this.pWin.close();
-		this.query('button[action=soapSave]')[0].enable();
-		this.pWin.setTitle(_('procedure'));
-	},
-
-	/**
-	 *
-	 */
-	onProcedureSave: function(){
-		var me = this,
-			form = me.pForm.getForm(),
-			record = form.getRecord(),
-			values = form.getValues();
-
-		record.set(values);
-
-		this.procedureStore.sync();
-		this.pWin.close();
-		this.query('button[action=soapSave]')[0].enable();
-		this.pWin.setTitle(_('procedure'));
-	},
+	// /**
+	//  *
+	//  */
+	// onProcedureCancel: function(){
+	// 	this.procedureStore.rejectChanges();
+	// 	this.pWin.close();
+	// 	this.query('button[action=soapSave]')[0].enable();
+	// 	this.pWin.setTitle(_('procedure'));
+	// },
+	//
+	// /**
+	//  *
+	//  */
+	// onProcedureSave: function(){
+	// 	var me = this,
+	// 		form = me.pForm.getForm(),
+	// 		record = form.getRecord(),
+	// 		values = form.getValues();
+	//
+	// 	record.set(values);
+	//
+	// 	this.procedureStore.sync();
+	// 	this.pWin.close();
+	// 	this.query('button[action=soapSave]')[0].enable();
+	// 	this.pWin.setTitle(_('procedure'));
+	// },
 
 	/**
 	 *
@@ -63052,22 +63172,22 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		}
 	},
 
-	/**
-	 *
-	 * @param view
-	 * @param record
-	 */
-	procedureEdit: function(view, record){
-		if(record.data.code_text !== '' || record.data.code !== ''){
-			this.pWin.setTitle(record.data.code_text + ' [' + record.data.code + ']');
-		}else{
-			this.pWin.setTitle(_('new_procedure'));
-		}
-
-		this.pForm.getForm().loadRecord(record);
-		this.pWin.show(this.pGrid.el);
-		this.query('button[action=soapSave]')[0].disable();
-	},
+	// /**
+	//  *
+	//  * @param view
+	//  * @param record
+	//  */
+	// procedureEdit: function(view, record){
+	// 	if(record.data.code_text !== '' || record.data.code !== ''){
+	// 		this.pWin.setTitle(record.data.code_text + ' [' + record.data.code + ']');
+	// 	}else{
+	// 		this.pWin.setTitle(_('new_procedure'));
+	// 	}
+	//
+	// 	this.pForm.getForm().loadRecord(record);
+	// 	this.pWin.show(this.pGrid.el);
+	// 	this.query('button[action=soapSave]')[0].disable();
+	// },
 
 	/**
 	 *

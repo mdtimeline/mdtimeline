@@ -167,7 +167,7 @@ Ext.define('App.controller.administration.ReferringProviders', {
 		store.add(facilities);
 
 	},
-	
+
 	onReferringProviderSearchAddBtnClick: function (field) {
 		this.doReferringProviderWindow();
 		this.triggerField = field;
@@ -182,7 +182,19 @@ Ext.define('App.controller.administration.ReferringProviders', {
 		this.doReferringProviderWindow(referring_record);
 		this.triggerField = undefined;
 	},
-	
+
+	doReferringProviderWindowByReferringId: function (referring_id, callback) {
+		var me = this;
+
+		App.model.administration.ReferringProvider.load(referring_id, {
+			success: function (referring_record) {
+				referring_record.saveCallback = callback;
+				me.doReferringProviderWindow(referring_record);
+			}
+		});
+	},
+
+
 	doReferringProviderWindow: function (referring_record) {
 
 		referring_record = referring_record || Ext.create('App.model.administration.ReferringProvider', {
@@ -257,6 +269,8 @@ Ext.define('App.controller.administration.ReferringProviders', {
 			var records = this.triggerField.store.add(provider_record.data);
 			this.triggerField.select(records[0]);
 			this.triggerField.fireEvent('select', this.triggerField, records);
+		}else if(provider_record.saveCallback && typeof provider_record.saveCallback == 'function'){
+			provider_record.saveCallback();
 		}else if(!provider_record.store){
 			this.getReferringProvidersPanel().getStore().insert(0, provider_record);
 		}else{

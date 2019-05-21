@@ -1238,6 +1238,47 @@ $API = [
             ]
         ]
     ],
+	'Interventions' => [
+		'methods' => [
+			'getPatientInterventions' => [
+				'len' => 1
+            ],
+			'getPatientIntervention' => [
+				'len' => 1
+            ],
+			'addPatientIntervention' => [
+				'len' => 1
+            ],
+			'updatePatientIntervention' => [
+				'len' => 1
+            ],
+			'destroyPatientIntervention' => [
+				'len' => 1
+            ]
+        ]
+    ],
+	'HealthConcerns' => [
+		'methods' => [
+			'getPatientHealthConcerns' => [
+				'len' => 1
+            ],
+			'getPatientHealthConcern' => [
+				'len' => 1
+            ],
+			'addPatientHealthConcern' => [
+				'len' => 1
+            ],
+			'updatePatientHealthConcern' => [
+				'len' => 1
+            ],
+			'destroyPatientHealthConcern' => [
+				'len' => 1
+            ],
+			'getPatientHealthConcernsMaskByEid' => [
+				'len' => 1
+			]
+        ]
+    ],
     /**
 	 * FamilyHistory Functions
 	 */
@@ -1370,6 +1411,12 @@ $API = [
 				'len' => 1
             ],
 			'liveProcedureCodeSearch' => [
+				'len' => 1
+            ],
+			'liveBodySiteCodeSearch' => [
+				'len' => 1
+            ],
+			'updateLiveBodySiteCodeSearch' => [
 				'len' => 1
             ],
 			'updateLiveProcedureCodeSearch' => [

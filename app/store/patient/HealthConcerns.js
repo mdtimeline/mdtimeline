@@ -16,11 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-Ext.define('App.store.patient.Medications', {
+Ext.define('App.store.patient.HealthConcerns', {
 	extend: 'Ext.data.Store',
-    storeId: 'patientMedicationsStore',
-	model     : 'App.model.patient.Medications',
-    groupField: 'STR',
-    startCollapsed: true
+	model: 'App.model.patient.HealthConcern'
 });

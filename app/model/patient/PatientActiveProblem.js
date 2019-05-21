@@ -88,6 +88,21 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 			len: 20
 		},
 		{
+			name: 'problem_type',
+			type: 'string',
+			len: 20
+		},
+		{
+			name: 'problem_type_code',
+			type: 'string',
+			len: 20
+		},
+		{
+			name: 'problem_type_code_type',
+			type: 'string',
+			len: 20
+		},
+		{
 			name: 'note',
 			type: 'string',
 			len: 300

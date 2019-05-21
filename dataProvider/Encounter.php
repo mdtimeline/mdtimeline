@@ -1281,6 +1281,12 @@ class Encounter {
 		)->one();
 	}
 
+	public function getSoaps($params) {
+		return $this->soap->load($params)->leftJoin(
+			['brief_description' => 'chief_complaint'], 'encounters', 'eid', 'eid'
+		)->all();
+	}
+
 	public function addSoap($params) {
 		return $this->soap->save($params);
 	}

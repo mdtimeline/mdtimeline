@@ -933,11 +933,12 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 	                'patient.DocumentArchiveLocation',
 	                'patient.Documents',
 	                'patient.FamilyHistory',
-	                'patient.ImplantableDevice',
+	                'patient.HealthConcerns',
 	                'patient.HL7',
 	                'patient.Immunizations',
 	                'patient.ImplantableDevice',
 	                'patient.Insurance',
+	                'patient.Interventions',
 	                'patient.ItemsToReview',
 	                'patient.LabOrders',
 	                'patient.Medical',
@@ -966,6 +967,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 	                'patient.encounter.EncounterSign',
                     'patient.encounter.SOAP',
                     'patient.encounter.SuperBill',
+                    'patient.encounter.Procedure',
 
                     'reports.AppointmentRequestReport'
                 ],

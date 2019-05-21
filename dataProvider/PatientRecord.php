@@ -137,27 +137,41 @@ class PatientRecord {
 			$this->end_date = $end_date;
 		}
 
-		$this->excludes = $excludes;
+		if(isset($excludes)){
+			$this->excludes = $excludes;
+		}
 
 		$this->getPatientData();
 		$this->resetHeader();
 
 		$this->getRecordTarget();
-		$this->getProblemSection();
-		$this->getMedicationsSection();
-		$this->getAllergiesAndIntolerancesSection();
-		$this->getResultsSection();
-		$this->getVitalSignsSection();
-		$this->getProceduresSection();
-		$this->getImmunizationsSection();
+		$this->getProblemSection(); // Problems
+		$this->getMedicationsSection(); // Medications
+		$this->getAllergiesAndIntolerancesSection(); // MedicationAllergies
+		$this->getResultsSection(); // LaboratoryTests & LaboratoryValues
+		$this->getVitalSignsSection(); // VitalSigns
+		$this->getProceduresSection(); // Procedures
+		$this->getImmunizationsSection(); // Immunizations
 		$this->getImplantableDevices();
 		$this->getEncountersSection();
-		$this->getSmokingStatus();
+		$this->getSmokingStatus(); // SmokingStatus
 		$this->getSocialHistorySection();
 		$this->getFamilyHistorySection();
 		$this->getFunctionalStatusSection();
 		$this->getMentalStatusSection();
-		$this->getMedicationsAdministeredSection();
+		$this->getMedicationsAdministeredSection(); // MedicationsAdministered
+
+		// CarePlanFields
+		// CareTeamMembers
+		// ProvidersName
+		// DateLocationVisit
+		// ReasonForVisit
+		// DiagnosticTestsPending
+		// FutureAppointments
+		// ReferralsToOtherProviders
+		// FutureScheduledTests
+		// ClinicalInstructions
+
 
 		if(isset($this->referral_id)){
 			$this->getReasonForReferralSection();
@@ -174,7 +188,7 @@ class PatientRecord {
 //    	$this->getGoals();
 
 		// ??
-//    	$this->getHealthConcerns();
+    	$this->getHealthConcernsSection();
 //
 
 //    	$this->getInstructions();
@@ -212,6 +226,7 @@ class PatientRecord {
 			$problem = [];
 			$problem['Code'] = $this->code($result['code'], $result['code_type'], $result['code_text']);
 			$problem['Status'] = $this->code($result['status_code'], $result['status_code_type'], $result['status']);
+			$problem['Type'] = $this->code($result['problem_type_code'], $result['problem_type_code_type'], $result['problem_type']);
 			$problem['Dates'] = $this->dates($result['begin_date'], $result['end_date']);
 			$problem['CreatedDate'] = $result['create_date'];
 			$problems[] = $problem;
@@ -266,6 +281,11 @@ class PatientRecord {
 
 		foreach($results as $result){
 			$allergy = [];
+			$allergy['Type'] = $this->code(
+				$result['allergy_type_code'],
+				$result['allergy_type_code_type'],
+				$result['allergy_type']
+			);
 			$allergy['Substance'] = $this->code(
 				$result['allergy_code'],
 				$result['allergy_code_type'],
@@ -537,9 +557,16 @@ class PatientRecord {
 				$result['status_code_text']
 			);
 
-			$procedure['Date'] = $this->dates(
-				$result['create_date'],
-				$result['create_date']
+			$procedure['TargetSite'] = $this->code(
+				$result['status_code'],
+				$result['status_code_type'],
+				$result['status_code_text']
+			);
+
+			$procedure['Dates'] = $this->code(
+				$result['target_site_code'],
+				$result['target_site_code_type'],
+				$result['target_site_code_text']
 			);
 
 			$procedure['Observation'] = $result['observation'];
@@ -582,6 +609,7 @@ class PatientRecord {
 			}
 
 			$immunization['Status'] = isset($result['status']) ? ucfirst($result['status']) : 'UNK';
+			$immunization['Note'] = $result['note'];
 
 			$immunization['Administration']['Dose'] = $result['administer_amount'];
 			$immunization['Administration']['Unit'] = $result['administer_units'];
@@ -750,9 +778,54 @@ class PatientRecord {
 	private function getHealthConcernsSection(){
 		if($this->isExcluded('HealthConcernsSection')) return;
 
-		// TODO...
+		$health_concerns = [];
 
-		$this->patient_record['HealthConcernsSection']['HealthConcern'] = [];
+		// SOAP health status
+		include_once(ROOT . '/dataProvider/Encounter.php');
+		$Encounter = new Encounter();
+		if(isset($this->eid)){
+			$soaps = [ $Encounter->getSoapByEid($this->eid) ];
+		}else{
+			$soaps = $Encounter->getSoaps(['pid' => $this->pid]);
+		}
+
+		foreach ($soaps as $soap){
+
+			if(!isset($soap['health_status'])) continue;
+
+			$health_concern = [
+				'Type' => 'HealthStatusObservation',
+				'Description' => $this->code($soap['health_status_code'],$soap['health_status_code_type'], $soap['health_status']),
+				'Instructions' => '',
+				'Dates' => $this->dates($soap['date'], null)
+			];
+
+			$health_concerns[] = $health_concern;
+		}
+
+
+		include_once(ROOT . '/dataProvider/HealthConcerns.php');
+		$HealthConcerns = new HealthConcerns();
+		if(isset($this->eid)){
+			$concerns = $HealthConcerns->getPatientHealthConcernsByEid($this->eid);
+		}else{
+			$concerns = $HealthConcerns->getPatientHealthConcernsByPid($this->pid);
+		}
+
+		foreach ($concerns as $concern){
+
+			$health_concern = [
+				'Type' => $concern['health_concern_type'],
+				'Description' => $concern['description'],
+				'Instructions' => $concern['instructions'],
+				'Dates' => $this->dates($concern['active_from'], $concern['active_to'])
+			];
+
+			$health_concerns[] = $health_concern;
+
+		}
+
+		$this->patient_record['HealthConcernsSection']['HealthConcern'] = $health_concerns;
 	}
 
 	private function getEncounterSection(){
@@ -1115,6 +1188,24 @@ class PatientRecord {
 			);
 		}
 
+		$PatientRole['Email'] = $patientData['email'];
+
+		$religion = $this->CombosData->getValuesByListIdAndOptionValue(142, $patientData['religion']);
+		if($religion){
+			$PatientRole['Patient']['Religion'] = $this->code(
+				$religion['option_value'],
+				$religion['code_type'],
+				$religion['option_name']
+			);
+		}else{
+			$PatientRole['Religion'] = 'UNK';
+		}
+
+		$PatientRole['Patient']['Pk'] = $patientData['pid'];
+		$PatientRole['Patient']['RecordNumber'] = isset($patientData['pubpid']) && $patientData['pubpid'] != '' ?
+			$patientData['pubpid'] : $patientData['id'];
+
+
 		if(!$this->isExcluded('patient_name')){
 			$PatientRole['Patient']['Name'] = $this->name(
 				$patientData['title'],
@@ -1125,12 +1216,17 @@ class PatientRecord {
 		}
 
 		if(!$this->isExcluded('patient_sex')){
+			$sex = $this->CombosData->getValuesByListIdAndOptionValue(95, $patientData['sex']);
 
-			$PatientRole['Patient']['AdministrativeGenderCode'] = $this->code(
-				$patientData['sex'],
-				'AdministrativeGender'
-			);
-
+			if($sex){
+				$PatientRole['Patient']['AdministrativeGenderCode'] = $this->code(
+					$sex['option_value'],
+					'AdministrativeGender',
+					$sex['option_name']
+				);
+			}else{
+				$PatientRole['Patient']['AdministrativeGenderCode'] = 'UNK';
+			}
 
 			$PatientRole['Patient']['SexualOrientation'] = $this->code(
 				$patientData['orientation'],
@@ -1143,15 +1239,25 @@ class PatientRecord {
 		}
 
 		if(!$this->isExcluded('patient_dob')){
-			$PatientRole['Patient']['BirthTime'] = $patientData['DOB'];
+			$PatientRole['Patient']['DateOfBirth'] = substr($patientData['DOB'],0,10);
+			$PatientRole['Patient']['BirthTime'] = substr($patientData['DOB'],11,14);
 		}
 
 		if(!$this->isExcluded('patient_race')){
-			$race = $this->CombosData->getValuesByListIdAndOptionValue(14, $patientData['race']);
+			$races = json_decode(file_get_contents(ROOT. '/resources/code_sets/HL7v3-Race.json'), true);
+			$race_key = array_search($patientData['race'], array_column($races, 'code'));
+
 			$PatientRole['Patient']['RaceCode'] = $this->code(
-				$race['code'],
-				$race['code_type'],
-				$race['option_name']
+				$races[$race_key]['code'],
+				$races[$race_key]['code_type'],
+				$races[$race_key]['code_description']
+			);
+
+			$race_key = array_search($patientData['race'], array_column($races, 'code'));
+			$PatientRole['Patient']['SecondaryRaceCode'] = $this->code(
+				$races[$race_key]['code'],
+				$races[$race_key]['code_type'],
+				$races[$race_key]['code_description']
 			);
 
 			// TODO
@@ -1188,11 +1294,36 @@ class PatientRecord {
 		}
 
 		if(!$this->isExcluded('patient_marital_status')){
-			$patient['Patient']['MaritalStatusCode'] = $this->code(
+			$PatientRole['Patient']['MaritalStatusCode'] = $this->code(
 				$patientData['marital_status'],
 				'MaritalStatusCode'
 			);
 		}
+
+		$PatientRole['Patient']['PostalAddress'] = $this->address(
+			'H',
+			$patientData['postal_address'],
+			$patientData['postal_address_cont'],
+			$patientData['postal_city'],
+			$patientData['postal_state'],
+			$patientData['postal_zip'],
+			$patientData['postal_country']
+
+		);
+
+		$PatientRole['Patient']['PhysicalAddress'] = $this->address(
+			'H',
+			$patientData['physical_address'],
+			$patientData['physical_address_cont'],
+			$patientData['physical_city'],
+			$patientData['physical_state'],
+			$patientData['physical_zip'],
+			$patientData['physical_country']
+		);
+
+
+
+
 
 		$RecordTarget['PatientRole'] = $PatientRole;
 
@@ -1431,7 +1562,8 @@ class PatientRecord {
 		}
 		$address = [];
 		$address['Use'] = $use;
-		$address['StreetAddressLine'] = $line1 . ' ' . $line2;
+		$address['AddressOne'] = $line1 . ' ' . $line2;
+		$address['AddressTwo'] = $line2;
 		$address['City'] = $city;
 		$address['State'] = $state;
 		$address['PostalCode'] = $zip;

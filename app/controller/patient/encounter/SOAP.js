@@ -99,6 +99,9 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 			},
 			'#SoapDxCodesField': {
 				recordadd: me.onSoapDxCodesFieldRecordAdd
+			},
+			'#SoapHealthStatusCmb': {
+				select: me.onSoapHealthStatusCmbSelect
 			}
 		});
 
@@ -135,6 +138,14 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 	onSoapDxCodesFieldRecordAdd: function (field, record) {
 		if(this.getSoapForm().autoSync) this.getSoapDxCodesField().sync();
 
+	},
+
+	onSoapHealthStatusCmbSelect: function(cmb, selection){
+		var soap_record = cmb.up('form').getForm().getRecord();
+		soap_record.set({
+			health_status_code: selection[0].get('code'),
+			health_status_code_type: selection[0].get('code_type')
+		});
 	},
 
 	doChiefComplaintHandler: function (soap_record) {

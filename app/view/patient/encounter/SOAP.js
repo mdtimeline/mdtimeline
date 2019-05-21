@@ -28,6 +28,8 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		'App.view.patient.encounter.AppointmentRequestGrid',
 		'App.view.patient.encounter.EducationResourcesGrid',
 		'App.view.patient.encounter.MedicationsAdministeredGrid',
+		//'App.view.patient.encounter.InterventionsGrid',
+		'App.view.patient.encounter.HealthConcernGrid',
 		'App.ux.form.fields.plugin.FieldTab'
 	],
 	action: 'patient.encounter.soap',
@@ -135,54 +137,54 @@ Ext.define('App.view.patient.encounter.SOAP', {
 				syncAcl: a('edit_encounters')
 			},
 			items: [
-				me.pWin = Ext.widget('window', {
-					title: _('procedure'),
-					maximized: true,
-					closable: false,
-					constrain: true,
-					closeAction: 'hide',
-					itemId: 'soapProcedureWindow',
-					layout: 'fit',
-					items: [
-						me.pForm = Ext.widget('form', {
-							bodyPadding: 10,
-							layout: {
-								type: 'vbox',
-								align: 'stretch'
-							},
-							items: [
-								{
-									xtype: 'snomedliveproceduresearch',
-									name: 'code_text',
-									displayField: 'Term',
-									valueField: 'Term',
-									listeners: {
-										scope: me,
-										select: me.onProcedureSelect
-									}
-								},
-								{
-									xtype: 'textareafield',
-									name: 'observation',
-									flex: 1
-								}
-							]
-						})
-					],
-					buttons: [
-						{
-							text: _('cancel'),
-							scope: me,
-							handler: me.onProcedureCancel
-						},
-						{
-							text: _('save'),
-							scope: me,
-							itemId: 'encounterRecordAdd',
-							handler: me.onProcedureSave
-						}
-					]
-				}),
+				// me.pWin = Ext.widget('window', {
+				// 	title: _('procedure'),
+				// 	maximized: true,
+				// 	closable: false,
+				// 	constrain: true,
+				// 	closeAction: 'hide',
+				// 	itemId: 'soapProcedureWindow',
+				// 	layout: 'fit',
+				// 	items: [
+				// 		me.pForm = Ext.widget('form', {
+				// 			bodyPadding: 10,
+				// 			layout: {
+				// 				type: 'vbox',
+				// 				align: 'stretch'
+				// 			},
+				// 			items: [
+				// 				{
+				// 					xtype: 'snomedliveproceduresearch',
+				// 					name: 'code_text',
+				// 					displayField: 'Term',
+				// 					valueField: 'Term',
+				// 					listeners: {
+				// 						scope: me,
+				// 						select: me.onProcedureSelect
+				// 					}
+				// 				},
+				// 				{
+				// 					xtype: 'textareafield',
+				// 					name: 'observation',
+				// 					flex: 1
+				// 				}
+				// 			]
+				// 		})
+				// 	],
+				// 	buttons: [
+				// 		{
+				// 			text: _('cancel'),
+				// 			scope: me,
+				// 			handler: me.onProcedureCancel
+				// 		},
+				// 		{
+				// 			text: _('save'),
+				// 			scope: me,
+				// 			itemId: 'encounterRecordAdd',
+				// 			handler: me.onProcedureSave
+				// 		}
+				// 	]
+				// }),
 				{
 					xtype: 'fieldset',
 					title: _('chief_complaint'),
@@ -237,12 +239,15 @@ Ext.define('App.view.patient.encounter.SOAP', {
 								}
 							]
 						}),
-						me.pGrid = Ext.widget('grid', {
+						{
+							xtype: 'grid',
 							frame: true,
 							name: 'procedures',
 							emptyText: _('no_procedures'),
 							margin: '5 0 10 0',
 							store: me.procedureStore,
+							itemId: 'EncounterProcedureGrid',
+							minHeight: 100,
 							columns: [
 								{
 									text: _('code'),
@@ -251,13 +256,14 @@ Ext.define('App.view.patient.encounter.SOAP', {
 								{
 									text: _('description'),
 									dataIndex: 'code_text',
+									flex: 2
+								},
+								{
+									text: _('body_site'),
+									dataIndex: 'target_site_code_text',
 									flex: 1
 								}
 							],
-							listeners: {
-								scope: me,
-								itemdblclick: me.procedureEdit
-							},
 							dockedItems: [
 								{
 									xtype: 'toolbar',
@@ -269,15 +275,14 @@ Ext.define('App.view.patient.encounter.SOAP', {
 										'->',
 										{
 											text: _('new_procedure'),
-											scope: me,
-											handler: me.onProcedureAdd,
+											itemId: 'EncounterProcedureGridAddBtn',
 											iconCls: 'icoAdd'
 										}
 									]
 								}
 
 							]
-						})
+						}
 					]
 				},
 				{
@@ -299,7 +304,20 @@ Ext.define('App.view.patient.encounter.SOAP', {
 							name: 'dxCodes',
 							margin: '5 0 10 0',
 							itemId: 'SoapDxCodesField'
-						})
+						}),
+						{
+							xtype: 'gaiaehr.combo',
+							itemId: 'SoapHealthStatusCmb',
+							editable: false,
+							loadStore: true,
+							queryMode: 'local',
+							listKey: 'health_stat',
+							name: 'health_status',
+							fieldLabel: _('health_status'),
+							labelAlign: 'top',
+							margin: '0 0 10 0',
+							width: 300,
+						}
 					]
 				},
 				{
@@ -322,18 +340,32 @@ Ext.define('App.view.patient.encounter.SOAP', {
 						}),
 						{
 							xtype: 'medicationsadministeredgrid',
+							minHeight: 125,
 							margin: '0 0 10 0'
 						},
 						{
 							xtype: 'appointmentrequestgrid',
+							minHeight: 125,
 							margin: '0 0 10 0'
 						},
+						// {
+						// 	xtype: 'interventionsgrid',
+						// 	minHeight: 125,
+						// 	margin: '0 0 10 0'
+						// },
 						{
 							xtype: 'careplangoalsgrid',
+							minHeight: 125,
 							margin: '0 0 10 0'
 						},
 						{
 							xtype: 'educationresourcesgrid',
+							minHeight: 125,
+							margin: '0 0 10 0'
+						},
+						{
+							xtype: 'healthconcerngird',
+							minHeight: 125,
 							margin: '0 0 10 0'
 						}
 					]
@@ -381,66 +413,66 @@ Ext.define('App.view.patient.encounter.SOAP', {
 	},
 
 	/**
-	 *
-	 * @param cmb
-	 * @param record
-	 */
-	onProcedureSelect: function(cmb, record){
-		var me = this,
-			form = me.pForm.getForm(),
-			procedure = form.getRecord();
-		procedure.set({
-			code: record[0].data.ConceptId,
-			code_type: record[0].data.CodeType,
-			code_text: record[0].data.Term
-		});
-	},
+	//  *
+	//  * @param cmb
+	//  * @param record
+	//  */
+	// onProcedureSelect: function(cmb, record){
+	// 	var me = this,
+	// 		form = me.pForm.getForm(),
+	// 		procedure = form.getRecord();
+	// 	procedure.set({
+	// 		code: record[0].data.ConceptId,
+	// 		code_type: record[0].data.CodeType,
+	// 		code_text: record[0].data.Term
+	// 	});
+	// },
+	//
+	// /**
+	//  *
+	//  */
+	// onProcedureAdd: function(){
+	// 	var me = this,
+	// 		rec;
+	// 	rec = Ext.create('App.model.patient.encounter.Procedures', {
+	// 		pid: me.pid,
+	// 		eid: me.eid,
+	// 		create_uid: app.user.id,
+	// 		update_uid: app.user.id,
+	// 		create_date: new Date(),
+	// 		update_date: new Date()
+	// 	});
+	//
+	// 	me.procedureStore.add(rec);
+	// 	me.procedureEdit(null, rec);
+	// },
 
-	/**
-	 *
-	 */
-	onProcedureAdd: function(){
-		var me = this,
-			rec;
-		rec = Ext.create('App.model.patient.encounter.Procedures', {
-			pid: me.pid,
-			eid: me.eid,
-			create_uid: app.user.id,
-			update_uid: app.user.id,
-			create_date: new Date(),
-			update_date: new Date()
-		});
-
-		me.procedureStore.add(rec);
-		me.procedureEdit(null, rec);
-	},
-
-	/**
-	 *
-	 */
-	onProcedureCancel: function(){
-		this.procedureStore.rejectChanges();
-		this.pWin.close();
-		this.query('button[action=soapSave]')[0].enable();
-		this.pWin.setTitle(_('procedure'));
-	},
-
-	/**
-	 *
-	 */
-	onProcedureSave: function(){
-		var me = this,
-			form = me.pForm.getForm(),
-			record = form.getRecord(),
-			values = form.getValues();
-
-		record.set(values);
-
-		this.procedureStore.sync();
-		this.pWin.close();
-		this.query('button[action=soapSave]')[0].enable();
-		this.pWin.setTitle(_('procedure'));
-	},
+	// /**
+	//  *
+	//  */
+	// onProcedureCancel: function(){
+	// 	this.procedureStore.rejectChanges();
+	// 	this.pWin.close();
+	// 	this.query('button[action=soapSave]')[0].enable();
+	// 	this.pWin.setTitle(_('procedure'));
+	// },
+	//
+	// /**
+	//  *
+	//  */
+	// onProcedureSave: function(){
+	// 	var me = this,
+	// 		form = me.pForm.getForm(),
+	// 		record = form.getRecord(),
+	// 		values = form.getValues();
+	//
+	// 	record.set(values);
+	//
+	// 	this.procedureStore.sync();
+	// 	this.pWin.close();
+	// 	this.query('button[action=soapSave]')[0].enable();
+	// 	this.pWin.setTitle(_('procedure'));
+	// },
 
 	/**
 	 *
@@ -465,22 +497,22 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		}
 	},
 
-	/**
-	 *
-	 * @param view
-	 * @param record
-	 */
-	procedureEdit: function(view, record){
-		if(record.data.code_text !== '' || record.data.code !== ''){
-			this.pWin.setTitle(record.data.code_text + ' [' + record.data.code + ']');
-		}else{
-			this.pWin.setTitle(_('new_procedure'));
-		}
-
-		this.pForm.getForm().loadRecord(record);
-		this.pWin.show(this.pGrid.el);
-		this.query('button[action=soapSave]')[0].disable();
-	},
+	// /**
+	//  *
+	//  * @param view
+	//  * @param record
+	//  */
+	// procedureEdit: function(view, record){
+	// 	if(record.data.code_text !== '' || record.data.code !== ''){
+	// 		this.pWin.setTitle(record.data.code_text + ' [' + record.data.code + ']');
+	// 	}else{
+	// 		this.pWin.setTitle(_('new_procedure'));
+	// 	}
+	//
+	// 	this.pForm.getForm().loadRecord(record);
+	// 	this.pWin.show(this.pGrid.el);
+	// 	this.query('button[action=soapSave]')[0].disable();
+	// },
 
 	/**
 	 *

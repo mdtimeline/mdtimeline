@@ -88,12 +88,6 @@ foreach($php_inis as $file){
 
 $system_jobs = array_diff(scandir("{$root_dir}/cronjob/jobs/"), array('..', '.'));
 
-if(!isset($_SESSION)){
-	session_cache_limiter('private');
-	session_name('mdTimeLine');
-	session_start();
-}
-
 foreach($sites as $site){
 	$site_dir = $sites_dir . $site;
     $conf = $site_dir . '/conf.php';

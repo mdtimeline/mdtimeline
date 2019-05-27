@@ -112,8 +112,10 @@ class PatientRecord {
 	}
 
 	/**
-	 * @param int         $pid
-	 * @param null|int    $eid
+	 * @param int         $fid Facility ID
+	 * @param int         $uid User ID
+	 * @param int         $pid Patient ID
+	 * @param null|int    $eid Encounter ID
 	 * @param null        $referral_id
 	 * @param null|string $start_date
 	 * @param null|string $end_date
@@ -121,7 +123,7 @@ class PatientRecord {
 	 *
 	 * @return array|string
 	 */
-	public function getRecord($pid, $eid = null, $referral_id = null, $start_date = null, $end_date = null, $excludes = []){
+	public function getRecord($fid, $uid, $pid, $eid = null, $referral_id = null, $start_date = null, $end_date = null, $excludes = []){
 
 		// globals
 		$this->buff = [];
@@ -145,6 +147,14 @@ class PatientRecord {
 		$this->resetHeader();
 
 		$this->getRecordTarget();
+		$this->getAuthor($uid);
+		$this->getDataEnterer($uid);
+		$this->getInformant($uid);
+		$this->getCustodian($uid);
+		$this->getInformationRecipient($uid);
+		$this->getLegalAuthenticator($uid);
+		$this->getAuthenticator($uid);
+
 		$this->getProblemSection(); // Problems
 		$this->getMedicationsSection(); // Medications
 		$this->getAllergiesAndIntolerancesSection(); // MedicationAllergies
@@ -182,7 +192,7 @@ class PatientRecord {
 
 		// Plan of Treatment = Plan of Care
 		// Encounter Assessment
-//    	$this->getAssessmentAndPlanOfTreatment();
+    	$this->getPlanOfTreatment();
 
 		// CarePlanGoals
 //    	$this->getGoals();
@@ -224,6 +234,7 @@ class PatientRecord {
 
 		foreach($results as $result){
 			$problem = [];
+			$problem['Id'] = $result['id'];
 			$problem['Code'] = $this->code($result['code'], $result['code_type'], $result['code_text']);
 			$problem['Status'] = $this->code($result['status_code'], $result['status_code_type'], $result['status']);
 			$problem['Type'] = $this->code($result['problem_type_code'], $result['problem_type_code_type'], $result['problem_type']);
@@ -254,6 +265,7 @@ class PatientRecord {
 		foreach($results as $result){
 			$active = $this->isActiveByDate($result['end_date']);
 			$medication = [];
+			$medication['Id'] = $result['id'];
 			$medication['Medication'] = $result['STR'];
 			$medication['Instructions'] = $result['directions'];
 			$medication['Route'] = $result['route'];
@@ -281,6 +293,7 @@ class PatientRecord {
 
 		foreach($results as $result){
 			$allergy = [];
+			$allergy['Id'] = $result['id'];
 			$allergy['Type'] = $this->code(
 				$result['allergy_type_code'],
 				$result['allergy_type_code_type'],
@@ -417,12 +430,8 @@ class PatientRecord {
 				$result['date']
 			);
 
-			$vital['Performer']['Name'] = $this->name(
-				$result['administer_title'],
-				$result['administer_fname'],
-				$result['administer_mname'],
-				$result['administer_lname']
-			);
+			$vital['Performer'] = $this->performer($result['uid']);
+			$vital['Authorized'] = $this->performer($result['auth_uid']);
 
 			$vital['Observations'] = [];
 
@@ -545,6 +554,7 @@ class PatientRecord {
 		foreach($results as $result){
 			$procedure = [];
 
+			$procedure['Id'] = $result['id'];
 			$procedure['Procedure'] = $this->code(
 				$result['code'],
 				$result['code_type'],
@@ -558,15 +568,13 @@ class PatientRecord {
 			);
 
 			$procedure['TargetSite'] = $this->code(
-				$result['status_code'],
-				$result['status_code_type'],
-				$result['status_code_text']
-			);
-
-			$procedure['Dates'] = $this->code(
 				$result['target_site_code'],
 				$result['target_site_code_type'],
 				$result['target_site_code_text']
+			);
+
+			$procedure['Dates'] = $this->dates(
+				$result['procedure_date'], null
 			);
 
 			$procedure['Observation'] = $result['observation'];
@@ -590,6 +598,7 @@ class PatientRecord {
 		foreach($results as $result){
 
 			$immunization = [];
+			$immunization['Id'] = $result['id'];
 			$immunization['Vaccine'] = $this->code(
 				$result['code'],
 				$result['code_type'],
@@ -647,6 +656,12 @@ class PatientRecord {
 				$result['removed_date']
 			);
 
+			$device['Description'] = $this->code(
+				$result['description_code'],
+				$result['description_code_type'],
+				$result['description']
+			);
+
 			$device['Status'] = $this->code(
 				$result['status_code'],
 				$result['status_code_type'],
@@ -661,7 +676,7 @@ class PatientRecord {
 			$device['Device']['DonationID'] = $result['donation_id'];
 
 			$device['Production']['UDI'] = $result['udi'];
-			$device['Production']['GMDNPTName'] = $result['description'];
+			$device['Production']['GMDNPTName'] = $result['gmdnpt_name'];
 			$device['Production']['BrandName'] = $result['brand_name'];
 			$device['Production']['VersionModel'] = $result['version_model'];
 			$device['Production']['CompanyName'] = $result['company_name'];
@@ -794,6 +809,7 @@ class PatientRecord {
 			if(!isset($soap['health_status'])) continue;
 
 			$health_concern = [
+				'Id' => 'e-'. $soap['id'],
 				'Type' => 'HealthStatusObservation',
 				'Description' => $this->code($soap['health_status_code'],$soap['health_status_code_type'], $soap['health_status']),
 				'Instructions' => '',
@@ -815,6 +831,7 @@ class PatientRecord {
 		foreach ($concerns as $concern){
 
 			$health_concern = [
+				'Id' => 'c-' . $concern['id'],
 				'Type' => $concern['health_concern_type'],
 				'Description' => $concern['description'],
 				'Instructions' => $concern['instructions'],
@@ -908,14 +925,14 @@ class PatientRecord {
 		include_once(ROOT . '/dataProvider/SocialHistory.php');
 		$SocialHistory = new SocialHistory();
 		$results = $SocialHistory->getSocialHistoriesByPidAndDates($this->pid, $this->start_date, $this->end_date);
-		$smoke_status = $SocialHistory->getSmokeStatusByPidAndDates($this->pid, $this->start_date, $this->end_date);
+		$smoke_statuses = $SocialHistory->getSmokeStatusByPidAndDates($this->pid, $this->start_date, $this->end_date);
 
 		unset($SocialHistory);
 		$histories = [];
 
 		foreach($results as $result){
 			$history = [];
-
+			$history['Id'] = 'a-' . $result['id'];
 			$history['Dates'] = $this->dates(
 				$result['start_date'],
 				$result['end_date']
@@ -940,13 +957,14 @@ class PatientRecord {
 			$histories[] = $history;
 		}
 
-		// smoke status
-		if(count($smoke_status)){
-			$result = end($smoke_status);
+		$current_smoke_status = array_pop($smoke_statuses);
+		if(isset($current_smoke_status)){
 
+			$status = [];
+			$status['Id'] = 'b-' . $current_smoke_status['id'];
 			$status['Dates'] = $this->dates(
-				$result['create_date'],
-				$result['create_date']
+				$current_smoke_status['start_date'],
+				$current_smoke_status['end_date']
 			);
 
 			$status['Category'] = $this->code(
@@ -956,16 +974,80 @@ class PatientRecord {
 			);
 
 			$status['Observation'] = $this->code(
-				$result['status_code'],
-				$result['status_code_type'],
-				$result['status']
+				$current_smoke_status['status_code'],
+				$current_smoke_status['status_code_type'],
+				$current_smoke_status['status']
 			);
-			$status['Note'] = $result['note'];
-			$status['CounselingGiven'] = $result['counseling'] ? 'Yes' : 'No';
-			$status['Performer'] = $this->performer($result['create_uid']);
+			$status['Note'] = $current_smoke_status['note'];
+			$status['CounselingGiven'] = $current_smoke_status['counseling'] ? 'Yes' : 'No';
+			$status['Performer'] = $this->performer($current_smoke_status['create_uid']);
 
 			$histories[] = $status;
 		}
+
+
+		// smoke status
+		foreach ($smoke_statuses as $smoke_status){
+
+			$status = [];
+			$status['Id'] = 'c-' . $smoke_status['id'];
+			$status['Dates'] = $this->dates(
+				$smoke_status['start_date'],
+				$smoke_status['end_date']
+			);
+
+			$status['Category'] = $this->code(
+				'11367-0',
+				'LOINC',
+				'History of Tobacco use'
+			);
+
+			$status['Observation'] = $this->code(
+				$smoke_status['status_code'],
+				$smoke_status['status_code_type'],
+				$smoke_status['status']
+			);
+			$status['Note'] = $smoke_status['note'];
+			$status['CounselingGiven'] = $smoke_status['counseling'] ? 'Yes' : 'No';
+			$status['Performer'] = $this->performer($smoke_status['create_uid']);
+
+			$histories[] = $status;
+		}
+
+
+		// AdministrativeGender
+		if(isset($this->patient_record['RecordTarget']['PatientRole']['Patient']['AdministrativeGenderCode'])){
+
+			$status = [];
+
+			$gender =  $this->patient_record['RecordTarget']['PatientRole']['Patient']['AdministrativeGenderCode'];
+			$status['Id'] = '-g-' . $this->patient_record['RecordTarget']['PatientRole']['Patient']['Id'];
+			$status['Dates'] = $this->dates(
+				null, null
+			);
+
+			$status['Category'] = $this->code(
+				'76689-9',
+				'LOINC',
+				'Sex assigned at birth'
+			);
+
+			$status['Observation'] = $this->code(
+				$gender['Code'],
+				$gender['CodeSystemName'],
+				$gender['DisplayName']
+			);
+
+			$status['Note'] = '';
+			$status['CounselingGiven'] = 'UNK';
+			$status['Performer'] = 'UNK';
+
+			$histories[] = $status;
+		}
+
+
+
+
 
 
 		$this->patient_record['SocialHistorySection']['SocialHistory'] = $histories;
@@ -1020,7 +1102,7 @@ class PatientRecord {
 		$statuses = [];
 		foreach($results as $result){
 			$status = [];
-
+			$status['Id'] = $result['id'];
 			$status['Observation'] = $this->code(
 				$result['code'],
 				$result['code_type'],
@@ -1059,6 +1141,8 @@ class PatientRecord {
 		$statuses = [];
 		foreach($results as $result){
 			$status = [];
+
+			$status['Id'] = $result['id'];
 
 			$status['Observation'] = $this->code(
 				$result['code'],
@@ -1149,6 +1233,88 @@ class PatientRecord {
 		$this->patient_record['ReasonForReferralSection']['ReasonForReferral'] = $referral;
 	}
 
+	private function getPlanOfTreatment(){
+
+		include_once(ROOT . '/dataProvider/Orders.php');
+		include_once(ROOT . '/dataProvider/Referrals.php');
+		include_once(ROOT . '/dataProvider/CarePlanGoals.php');
+		include_once(ROOT . '/dataProvider/AppointmentRequest.php');
+
+		$Orders = new Orders();
+		$plan_of_care_data['OBS'] = $Orders->getOrderWithoutResultsByPid($this->pid);
+
+		$Referrals = new Referrals();
+		$plan_of_care_data['REF'] = $Referrals->getPatientReferrals(['pid' => $this->pid]);
+
+		$CarePlanGoals = new CarePlanGoals();
+		$plan_of_care_data['PROC'] = $CarePlanGoals->getPatientCarePlanGoalsByPid($this->pid);
+
+		$Appointments = new AppointmentRequest();
+		$plan_of_care_data['APPOINTMENTS'] = $Appointments->getAppointmentRequests(['pid' => $this->pid]);
+
+		$pocs_data = [];
+
+		foreach ($plan_of_care_data as $type => $plan_of_care){
+
+			foreach ($plan_of_care as $poc){
+
+				$data = [];
+
+				if($type === 'OBS'){
+
+					$data['Id'] = 'o-' . $poc['id'];
+					$data['Code'] = $this->code($poc['code'], $poc['code_type'], $poc['description']);
+					$data['Dates'] = $this->dates($poc['date_ordered'], null);
+					$data['Narrative'] = '';
+					$data['Status'] = $poc['status'];
+					$data['Type'] = 'OBS';
+					$data['TypeMoodCode'] = 'RQO';
+					//$data['TargetSite'] = $this->code('','');
+
+				}elseif ($type === 'REF'){
+
+					$data['Id'] = 'r-' . $poc['id'];
+					$data['Code'] = $this->code('', 'SNOMEDCT', $poc['referal_reason']);
+					$data['Dates'] = $this->dates($poc['referral_date'], $poc['referral_date']);
+					$data['Narrative'] = '';
+					$data['Status'] = '1';
+					$data['Type'] = 'ACT';
+					$data['TypeMoodCode'] = 'RQO';
+
+				}elseif ($type === 'PROC'){
+
+					$data['Id'] = 'p-' . $poc['id'];
+					$data['Code'] = $this->code($poc['goal_code'], $poc['goal_code_type'], $poc['goal']);
+					$data['Dates'] = $this->dates($poc['plan_date'], $poc['plan_date']);
+					$data['Narrative'] = $poc['notes'];
+					$data['Status'] = '1';
+					$data['Type'] = 'ACT';
+					$data['TypeMoodCode'] = 'RQO';
+
+				}elseif ($type === 'APPOINTMENTS'){
+
+					$data['Id'] = 'a-' . $poc['id'];
+					$data['Code'] = $this->code('281189005', 'SNOMEDCT', $poc['notes']);
+					$data['Dates'] = $this->dates($poc['requested_date'], $poc['requested_date']);
+					$data['Narrative'] = '';
+					$data['Status'] = 'new';
+					$data['Type'] = 'PROC';
+					$data['TypeMoodCode'] = 'RQO';
+
+				}
+
+				if(!empty($data)){
+					$pocs_data[] = $data;
+				}
+
+			}
+
+		}
+
+		$this->patient_record['PlanOfTreatmentSection']['PlanOfTreatment'] = $pocs_data;
+
+	}
+
 	private function getPatientData(){
 		$this->Patient = new Patient($this->pid);
 	}
@@ -1201,7 +1367,7 @@ class PatientRecord {
 			$PatientRole['Religion'] = 'UNK';
 		}
 
-		$PatientRole['Patient']['Pk'] = $patientData['pid'];
+		$PatientRole['Patient']['Id'] = $patientData['pid'];
 		$PatientRole['Patient']['RecordNumber'] = isset($patientData['pubpid']) && $patientData['pubpid'] != '' ?
 			$patientData['pubpid'] : $patientData['id'];
 
@@ -1335,15 +1501,63 @@ class PatientRecord {
 	 */
 	private function resetHeader(){
 		$this->patient_record['RecordTarget'] = [];
-//		$this->patient_record['Author'] = [];
-//		$this->patient_record['DataEnterer'] = [];
-//		$this->patient_record['Informant'] = [];
-//		$this->patient_record['Custodian'] = [];
-//		$this->patient_record['InformationRecipient'] = [];
-//		$this->patient_record['LegalAuthenticator'] = [];
-//		$this->patient_record['Authenticator'] = [];
+		$this->patient_record['Author'] = [];
+		$this->patient_record['DataEnterer'] = [];
+		$this->patient_record['Informant'] = [];
+		$this->patient_record['Custodian'] = [];
+		$this->patient_record['InformationRecipient'] = [];
+		$this->patient_record['LegalAuthenticator'] = [];
+		$this->patient_record['Authenticator'] = [];
 //		$this->patient_record['DocumentationOf'] = [];
 //		$this->patient_record['ComponentOf'] = [];
+	}
+
+	public function getAuthor($uid){
+		return $this->patient_record['Authors']['Author'] = $this->performer($uid);
+	}
+
+	public function getAssignedAuthor($uid){
+		return $this->patient_record['Authors']['AssignedAuthor'] = $this->performer($uid);
+	}
+
+	public function getDataEnterer($uid){
+		return $this->patient_record['Authors']['DataEnterer'] = $this->performer($uid);
+	}
+
+	public function getPerformer($uid){
+		return $this->patient_record['Authors']['Performer'] = $this->performer($uid);
+	}
+
+	public function getInformant($uid){
+		return $this->patient_record['Authors']['Informant'] = $this->performer($uid);
+	}
+
+	public function getParticipant($uid){
+		return $this->patient_record['Authors']['Participant'] = $this->performer($uid);
+	}
+
+	public function getInformantProvider($uid){
+		return $this->patient_record['Authors']['InformantProvider'] = $this->performer($uid);
+	}
+
+	public function getInformantRelation($uid){
+		return $this->patient_record['Authors']['InformantRelation'] = $this->performer($uid);
+	}
+
+	public function getCustodian($uid){
+		return $this->patient_record['Authors']['Custodian'] = $this->performer($uid);
+	}
+
+	public function getInformationRecipient($uid){
+		return $this->patient_record['Authors']['InformationRecipient'] = $this->performer($uid);
+	}
+
+	public function getLegalAuthenticator($uid){
+		return $this->patient_record['Authors']['LegalAuthenticator'] = $this->performer($uid);
+	}
+
+	public function getAuthenticator($uid){
+		return $this->patient_record['Authors']['Authenticator'] = $this->performer($uid);
 	}
 
 	/**
@@ -1353,6 +1567,7 @@ class PatientRecord {
 	 */
 	private function encounter($result, $soap){
 		$encounter = [];
+		$encounter['Id'] = $result['eid'];
 		$encounter['ChiefComplaint'] = $result['brief_description'];
 		$encounter['ServiceDates'] = $this->dates(
 			$result['service_date'],
@@ -1429,6 +1644,7 @@ class PatientRecord {
 			$user['country_code']
 
 		);
+		$performer['Taxonomy'] = $this->code($user['taxonomy'], 'TAXONOMY');
 		$performer['Organization'] = $this->organization($user['facility_id']);
 
 		return $this->buff['performers'][$user_id] = $performer;
@@ -1472,6 +1688,8 @@ class PatientRecord {
 			$facility['postal_code'],
 			$facility['country_code']
 		);
+
+		$performer['PlaceOfService'] = $this->code($facility['pos_code'], 'Place of Service Codes');
 
 		return $this->buff['organizations'][$facility_id] = $performer;
 	}

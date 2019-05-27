@@ -277,6 +277,21 @@ Ext.define('App.view.patient.Vitals', {
 					return v === 0 || v === null ? '' : v + ' in'
 				}
 			});
+			columns.push({
+				text: _('HC'),
+				dataIndex: 'head_circumference_in',
+				width: 70,
+				stateId: 'VitalsHistoryGridHeadCircumferenceCol',
+				editor: {
+					xtype: 'textfield',
+					itemId: 'vitalHeadCircumferenceInField',
+					vtype: 'numericWithDecimal',
+					enableKeyEvents: true
+				},
+				renderer:function(v){
+					return v === 0 || v === null ? '' : v + ' in'
+				}
+			});
 		}else{
 			columns.push({
 				text: _('weight'),
@@ -306,6 +321,21 @@ Ext.define('App.view.patient.Vitals', {
 				},
 				renderer:function(v){
 					return v === 0 || v === null ? '' : v + ' cm'
+				}
+			});
+			columns.push({
+				text: _('HC'),
+				dataIndex: 'head_circumference_cm',
+				width: 70,
+				stateId: 'VitalsHistoryGridHeadCircumferenceCol',
+				editor: {
+					xtype: 'textfield',
+					itemId: 'vitalHeadCircumferenceCmField',
+					vtype: 'numericWithDecimal',
+					enableKeyEvents: true
+				},
+				renderer:function(v){
+					return v === 0 || v === null ? '' : v + ' in'
 				}
 			});
 		}
@@ -341,6 +371,13 @@ Ext.define('App.view.patient.Vitals', {
 			text: _('bmi'),
 			dataIndex: 'bmi',
 			stateId: 'VitalsHistoryGridBmiCol',
+			width: 50
+		});
+
+		columns.push({
+			text: _('o2'),
+			dataIndex: 'oxygen_saturation',
+			stateId: 'VitalsHistoryGridOxygenSaturationCol',
 			width: 50
 		});
 

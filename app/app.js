@@ -8453,36 +8453,6 @@ Ext.define('App.ux.combo.EncounterPriority', {
 Ext.define('App.ux.combo.Ethnicity', {
 	extend: 'Ext.form.ComboBox',
 	alias: 'widget.ethnicitycombo',
-	store: Ext.create('Ext.data.Store', {
-		fields: [
-			{name: 'code', type: 'string'},
-			{name: 'code_type', type: 'string'},
-			{name: 'code_description', type: 'string'},
-			{
-				name: 'indent_index',
-				type: 'int',
-				convert: function (v) {
-					var str = '';
-					while(v > 0){ str += '----'; v--; }
-					return str.trim();
-				}
-			}
-		],
-		autoLoad: true,
-		proxy: {
-			type: 'ajax',
-			url: 'resources/code_sets/HL7v3-Ethnicity.json',
-			reader: {
-				type: 'json'
-			}
-		},
-		listeners: {
-			load: function () {
-				this.insert(0, [{code: 'ASKU', code_type: 'CDA', code_description: 'Declined to specify' }]);
-
-			}
-		}
-	}),
 	tpl: Ext.create('Ext.XTemplate',
 		'<tpl for=".">',
 		'<div class="x-boundlist-item">{indent_index} <b>{code_description}</b> [{code}]</div>',
@@ -8496,6 +8466,37 @@ Ext.define('App.ux.combo.Ethnicity', {
 	emptyText: _('ethnicity'),
 	initComponent: function () {
 		var me = this;
+
+		me.store = Ext.create('Ext.data.Store', {
+			fields: [
+				{name: 'code', type: 'string'},
+				{name: 'code_type', type: 'string'},
+				{name: 'code_description', type: 'string'},
+				{
+					name: 'indent_index',
+					type: 'int',
+					convert: function (v) {
+						var str = '';
+						while(v > 0){ str += '----'; v--; }
+						return str.trim();
+					}
+				}
+			],
+			autoLoad: true,
+			proxy: {
+				type: 'ajax',
+				url: 'resources/code_sets/HL7v3-Ethnicity.json',
+				reader: {
+					type: 'json'
+				}
+			},
+			listeners: {
+				load: function () {
+					this.insert(0, [{code: 'ASKU', code_type: 'CDA', code_description: 'Declined to specify' }]);
+
+				}
+			}
+		});
 
 		me.callParent(arguments);
 	}
@@ -10114,35 +10115,6 @@ Ext.define('App.ux.combo.Providers', {
 Ext.define('App.ux.combo.Race', {
 	extend: 'Ext.form.ComboBox',
 	alias: 'widget.racecombo',
-	store: Ext.create('Ext.data.Store', {
-		fields: [
-			{name: 'code', type: 'string'},
-			{name: 'code_type', type: 'string'},
-			{name: 'code_description', type: 'string'},
-			{
-				name: 'indent_index',
-				type: 'int',
-				convert: function (v) {
-					var str = '';
-					while(v > 0){ str += '----'; v--; }
-					return str.trim();
-				}
-			},
-		],
-		autoLoad: true,
-		proxy: {
-			type: 'ajax',
-			url: 'resources/code_sets/HL7v3-Race.json',
-			reader: {
-				type: 'json'
-			}
-		},
-		listeners: {
-			load: function () {
-				this.insert(0, [{code: 'ASKU', code_type: 'CDA', code_description: 'Declined to specify' }]);
-			}
-		}
-	}),
 	tpl: Ext.create('Ext.XTemplate',
 		'<tpl for=".">',
 		'<div class="x-boundlist-item">{indent_index} <b>{code_description}</b> [{code}]</div>',
@@ -10156,6 +10128,37 @@ Ext.define('App.ux.combo.Race', {
 	emptyText: _('race'),
 	initComponent: function () {
 		var me = this;
+
+		me.store = Ext.create('Ext.data.Store', {
+			fields: [
+				{name: 'code', type: 'string'},
+				{name: 'code_type', type: 'string'},
+				{name: 'code_description', type: 'string'},
+				{
+					name: 'indent_index',
+					type: 'int',
+					convert: function (v) {
+						var str = '';
+						while(v > 0){ str += '----'; v--; }
+						return str.trim();
+					}
+				},
+			],
+			autoLoad: true,
+			proxy: {
+				type: 'ajax',
+				url: 'resources/code_sets/HL7v3-Race.json',
+				reader: {
+					type: 'json'
+				}
+			},
+			listeners: {
+				load: function () {
+					this.insert(0, [{code: 'ASKU', code_type: 'CDA', code_description: 'Declined to specify' }]);
+				}
+			}
+		});
+
 		me.callParent(arguments);
 	}
 });
@@ -24796,6 +24799,21 @@ Ext.define('App.view.patient.Vitals', {
 					return v === 0 || v === null ? '' : v + ' in'
 				}
 			});
+			columns.push({
+				text: _('HC'),
+				dataIndex: 'head_circumference_in',
+				width: 70,
+				stateId: 'VitalsHistoryGridHeadCircumferenceCol',
+				editor: {
+					xtype: 'textfield',
+					itemId: 'vitalHeadCircumferenceInField',
+					vtype: 'numericWithDecimal',
+					enableKeyEvents: true
+				},
+				renderer:function(v){
+					return v === 0 || v === null ? '' : v + ' in'
+				}
+			});
 		}else{
 			columns.push({
 				text: _('weight'),
@@ -24825,6 +24843,21 @@ Ext.define('App.view.patient.Vitals', {
 				},
 				renderer:function(v){
 					return v === 0 || v === null ? '' : v + ' cm'
+				}
+			});
+			columns.push({
+				text: _('HC'),
+				dataIndex: 'head_circumference_cm',
+				width: 70,
+				stateId: 'VitalsHistoryGridHeadCircumferenceCol',
+				editor: {
+					xtype: 'textfield',
+					itemId: 'vitalHeadCircumferenceCmField',
+					vtype: 'numericWithDecimal',
+					enableKeyEvents: true
+				},
+				renderer:function(v){
+					return v === 0 || v === null ? '' : v + ' in'
 				}
 			});
 		}
@@ -24860,6 +24893,13 @@ Ext.define('App.view.patient.Vitals', {
 			text: _('bmi'),
 			dataIndex: 'bmi',
 			stateId: 'VitalsHistoryGridBmiCol',
+			width: 50
+		});
+
+		columns.push({
+			text: _('o2'),
+			dataIndex: 'oxygen_saturation',
+			stateId: 'VitalsHistoryGridOxygenSaturationCol',
 			width: 50
 		});
 
@@ -52664,13 +52704,6 @@ Ext.define('App.view.patient.SmokingStatus', {
 			width: 25
 		},
 		{
-			xtype: 'datecolumn',
-			text: _('date'),
-			dataIndex: 'create_date',
-			format: 'Y-m-d',
-			width: 120
-		},
-		{
 			text: _('status'),
 			dataIndex: 'status',
 			width: 250,
@@ -52708,6 +52741,18 @@ Ext.define('App.view.patient.SmokingStatus', {
 				format: g('date_display_format'),
 				submitFormat: 'Y-m-d'
 			}
+		},
+		{
+			xtype: 'datecolumn',
+			format: 'Y-m-d',
+			text: _('end_date'),
+			dataIndex: 'end_date',
+			width: 120,
+			editor: {
+				xtype: 'datefield',
+				format: g('date_display_format'),
+				submitFormat: 'Y-m-d'
+			}
 		}
 	],
 	tbar: [
@@ -52723,6 +52768,7 @@ Ext.define('App.view.patient.SmokingStatus', {
 		}
 	]
 });
+
 Ext.define('App.ux.LiveSnomedSearch', {
 	extend: 'Ext.form.ComboBox',
 	alias: 'widget.snomedlivesearch',

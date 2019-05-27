@@ -2057,4 +2057,6 @@ $LANG = array(
 	'health_status' => 'Health Status',
 	'body_site' => 'Body Site',
 	'body_site_search' => 'Body Site Search',
+	'hc' => 'HC',
+	'o2' => 'O2'
 );

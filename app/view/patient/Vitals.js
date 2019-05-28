@@ -378,14 +378,22 @@ Ext.define('App.view.patient.Vitals', {
 			text: _('o2%'),
 			dataIndex: 'oxygen_saturation',
 			stateId: 'VitalsHistoryGridOxygenSaturationCol',
-			width: 50
+			width: 50,
+			editor: {
+				xtype: 'textfield',
+				vtype: 'numericWithDecimal'
+			},
 		});
 
 		columns.push({
 			text: _('fio2%'),
 			dataIndex: 'oxygen_inhaled_concentration',
 			stateId: 'VitalsHistoryGridInhaledOxygenConcentrationCol',
-			width: 50
+			width: 50,
+			editor: {
+				xtype: 'textfield',
+				vtype: 'numericWithDecimal'
+			},
 		});
 
 		columns.push({

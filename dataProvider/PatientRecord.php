@@ -499,7 +499,18 @@ class PatientRecord {
 				'LOINC',
 				'O2 % BldC Oximetry'
 			);
-			$obs['Value']['Value'] = '';
+			$obs['Value']['Value'] = $result['oxygen_saturation'];
+			$obs['Value']['Unit'] = '%';
+			$vital['Observations'][] = $obs;
+
+			$obs = [];
+			$obs['Alias'] = 'O2';
+			$obs['Observation'] = $this->code(
+				'3150-0',
+				'LOINC',
+				'Inhaled Oxygen Concentration'
+			);
+			$obs['Value']['Value'] = $result['oxygen_inhaled_concentration'];
 			$obs['Value']['Unit'] = '%';
 			$vital['Observations'][] = $obs;
 

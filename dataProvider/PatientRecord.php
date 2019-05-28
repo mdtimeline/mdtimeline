@@ -1469,8 +1469,8 @@ class PatientRecord {
 		}
 
 		if(!$this->isExcluded('patient_dob')){
-			$PatientRole['Patient']['DateOfBirth'] = substr($patientData['DOB'],0,10);
-			$PatientRole['Patient']['BirthTime'] = substr($patientData['DOB'],11,14);
+			$PatientRole['Patient']['DateOfBirth'] = str_replace([' ', '-'], '', substr($patientData['DOB'],0,10));
+			$PatientRole['Patient']['BirthTime'] = str_replace([' ', ':'], '', substr($patientData['DOB'],11,14));
 		}
 
 		if(!$this->isExcluded('patient_race')){

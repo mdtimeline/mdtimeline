@@ -13589,7 +13589,12 @@ Ext.define('App.model.administration.ReferringProvider', {
         {
             name: 'lname',
             type: 'string',
-            len: 60
+            len: 120
+        },
+        {
+            name: 'organization_name',
+            type: 'string',
+            len: 120
         },
         {
             name: 'upin',
@@ -15647,7 +15652,7 @@ Ext.define('App.model.patient.encounter.Procedures', {
 			type: 'int'
 		},
 		{
-			name: 'uid',
+			name: 'performer_id',
 			type: 'int'
 		},
 		{
@@ -36981,7 +36986,35 @@ Ext.define('App.controller.administration.ReferringProviders', {
 			},
 			'#ReferringProviderWindowFormNpiSearchField': {
 				searchresponse: me.onReferringProviderWindowFormNpiSearchFieldSearchResponse
+			},
+			'#ProceduresHistoryGridPerformerField': {
+				select: me.onProceduresHistoryGridPerformerFieldSelect
+			},
+			'#ProceduresHistoryGridServiceLocationField': {
+				select: me.onProceduresHistoryGridServiceLocationFieldSelect
 			}
+		});
+	},
+
+	onProceduresHistoryGridPerformerFieldSelect: function(field, selection){
+
+		if(selection.length === 0) return;
+
+		var record = field.up('form').getForm().getRecord();
+
+		record.set({
+			performer_id: selection[0].get('id')
+		});
+	},
+
+	onProceduresHistoryGridServiceLocationFieldSelect: function(field, selection){
+
+		if(selection.length === 0) return;
+
+		var record = field.up('form').getForm().getRecord();
+
+		record.set({
+			service_location_id: selection[0].get('id')
 		});
 	},
 
@@ -37024,9 +37057,10 @@ Ext.define('App.controller.administration.ReferringProviders', {
 
 		var values = {
 			title: result.data.basic.name_prefix,
-			fname: result.data.basic.first_name,
+			fname: result.data.basic.first_name || '',
 			mname: '',
-			lname: result.data.basic.last_name,
+			lname: result.data.basic.last_name || '',
+			organization_name: result.data.basic.organization_name || '',
 			active: 1,
 			npi: result.data.number,
 			lic: '',
@@ -37060,7 +37094,7 @@ Ext.define('App.controller.administration.ReferringProviders', {
 				values.fax_number = address.fax_number || '';
 
 				facilities = Ext.Array.push(facilities, {
-					name: '',
+					name: values.organization_name,
 					address: address.address_1 || '',
 					address_cont: address.address_2 || '',
 					city: address.city || '',
@@ -37144,6 +37178,11 @@ Ext.define('App.controller.administration.ReferringProviders', {
 
 		if(!form.isValid()) return;
 
+		if((values.lname.trim() != '' || values.fname.trim() != '') && values.organization_name.trim() == ''){
+			app.msg(_('oops'), _('referring_name_validation_msg'), true);
+			return;
+		}
+
 		values.update_date = new Date();
 		values.update_uid = app.user.id;
 		if(values.username === '') values.username = null;
@@ -37151,23 +37190,23 @@ Ext.define('App.controller.administration.ReferringProviders', {
 		record.set(values);
 
 		record.save({
-			callback: function () {
+			callback: function (provider_record) {
 				var sync_records = Ext.Array.merge(store.getUpdatedRecords(), store.getNewRecords());
 
 				if(sync_records.length > 0){
 					sync_records.forEach(function (sync_record) {
-						sync_record.set({referring_provider_id: record.get('id')})
+						sync_record.set({referring_provider_id: provider_record.get('id')})
 					});
 
 					store.sync({
 						callback: function () {
 							me.getReferringProviderWindow().close();
-							me.recordSaveHandler(record);
+							me.recordSaveHandler(provider_record);
 						}
 					});
 				}else {
 					me.getReferringProviderWindow().close();
-					me.recordSaveHandler(record);
+					me.recordSaveHandler(provider_record);
 				}
 			}
 		});
@@ -45161,6 +45200,9 @@ Ext.define('App.controller.patient.Medical', {
             '#MedicalWindow #familyhistory': {
                 'show': me.onPanelShow
             },
+            '#MedicalWindow #patientprocedureshistorygrid': {
+                'show': me.onPanelShow
+            },
             '#MedicalWindow #advancedirectives': {
                 'show': me.onPanelShow
             },
@@ -51105,7 +51147,7 @@ Ext.define('App.view.patient.encounter.CarePlanGoals', {
 });
 Ext.define('App.ux.LiveSnomedProcedureSearch', {
 	extend: 'Ext.form.ComboBox',
-	alias: 'widget.snomedliveproceduresearch',
+	xtype: 'snomedliveproceduresearch',
 	hideLabel: true,
 	displayField: 'Term',
 	valueField: 'ConceptId',

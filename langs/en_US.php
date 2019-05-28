@@ -2060,4 +2060,6 @@ $LANG = array(
 	'hc' => 'HC',
 	'o2%' => 'O2%',
 	'fio2%' => 'FiO2%',
+	'organization_name' => 'Organization Name',
+	'referring_name_validation_msg' => '"Referring Name" or "Organization Name" Required',
 );

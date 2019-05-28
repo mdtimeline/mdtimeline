@@ -78,7 +78,6 @@ Ext.define('App.view.administration.ReferringProviderWindow', {
 												width: 150,
 												xtype: 'textfield',
 												name: 'fname',
-												allowBlank: false,
 												fieldLabel: _('first_name')
 											},
 											{
@@ -91,7 +90,6 @@ Ext.define('App.view.administration.ReferringProviderWindow', {
 												width: 250,
 												xtype: 'textfield',
 												name: 'lname',
-												allowBlank: false,
 												fieldLabel: _('last_name')
 											},
 											{
@@ -100,6 +98,11 @@ Ext.define('App.view.administration.ReferringProviderWindow', {
 												name: 'active'
 											}
 										]
+									},
+									{
+										xtype: 'textfield',
+										name: 'organization_name',
+										fieldLabel: _('organization_name')
 									},
 									{
 										xtype: 'fieldcontainer',

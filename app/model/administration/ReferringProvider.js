@@ -43,7 +43,12 @@ Ext.define('App.model.administration.ReferringProvider', {
         {
             name: 'lname',
             type: 'string',
-            len: 60
+            len: 120
+        },
+        {
+            name: 'organization_name',
+            type: 'string',
+            len: 120
         },
         {
             name: 'upin',

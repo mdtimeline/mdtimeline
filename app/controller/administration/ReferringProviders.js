@@ -72,7 +72,35 @@ Ext.define('App.controller.administration.ReferringProviders', {
 			},
 			'#ReferringProviderWindowFormNpiSearchField': {
 				searchresponse: me.onReferringProviderWindowFormNpiSearchFieldSearchResponse
+			},
+			'#ProceduresHistoryGridPerformerField': {
+				select: me.onProceduresHistoryGridPerformerFieldSelect
+			},
+			'#ProceduresHistoryGridServiceLocationField': {
+				select: me.onProceduresHistoryGridServiceLocationFieldSelect
 			}
+		});
+	},
+
+	onProceduresHistoryGridPerformerFieldSelect: function(field, selection){
+
+		if(selection.length === 0) return;
+
+		var record = field.up('form').getForm().getRecord();
+
+		record.set({
+			performer_id: selection[0].get('id')
+		});
+	},
+
+	onProceduresHistoryGridServiceLocationFieldSelect: function(field, selection){
+
+		if(selection.length === 0) return;
+
+		var record = field.up('form').getForm().getRecord();
+
+		record.set({
+			service_location_id: selection[0].get('id')
 		});
 	},
 
@@ -115,9 +143,10 @@ Ext.define('App.controller.administration.ReferringProviders', {
 
 		var values = {
 			title: result.data.basic.name_prefix,
-			fname: result.data.basic.first_name,
+			fname: result.data.basic.first_name || '',
 			mname: '',
-			lname: result.data.basic.last_name,
+			lname: result.data.basic.last_name || '',
+			organization_name: result.data.basic.organization_name || '',
 			active: 1,
 			npi: result.data.number,
 			lic: '',
@@ -151,7 +180,7 @@ Ext.define('App.controller.administration.ReferringProviders', {
 				values.fax_number = address.fax_number || '';
 
 				facilities = Ext.Array.push(facilities, {
-					name: '',
+					name: values.organization_name,
 					address: address.address_1 || '',
 					address_cont: address.address_2 || '',
 					city: address.city || '',
@@ -235,6 +264,11 @@ Ext.define('App.controller.administration.ReferringProviders', {
 
 		if(!form.isValid()) return;
 
+		if((values.lname.trim() != '' || values.fname.trim() != '') && values.organization_name.trim() == ''){
+			app.msg(_('oops'), _('referring_name_validation_msg'), true);
+			return;
+		}
+
 		values.update_date = new Date();
 		values.update_uid = app.user.id;
 		if(values.username === '') values.username = null;
@@ -242,23 +276,23 @@ Ext.define('App.controller.administration.ReferringProviders', {
 		record.set(values);
 
 		record.save({
-			callback: function () {
+			callback: function (provider_record) {
 				var sync_records = Ext.Array.merge(store.getUpdatedRecords(), store.getNewRecords());
 
 				if(sync_records.length > 0){
 					sync_records.forEach(function (sync_record) {
-						sync_record.set({referring_provider_id: record.get('id')})
+						sync_record.set({referring_provider_id: provider_record.get('id')})
 					});
 
 					store.sync({
 						callback: function () {
 							me.getReferringProviderWindow().close();
-							me.recordSaveHandler(record);
+							me.recordSaveHandler(provider_record);
 						}
 					});
 				}else {
 					me.getReferringProviderWindow().close();
-					me.recordSaveHandler(record);
+					me.recordSaveHandler(provider_record);
 				}
 			}
 		});

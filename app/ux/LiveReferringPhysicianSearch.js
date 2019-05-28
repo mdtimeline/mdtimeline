@@ -18,12 +18,11 @@
 
 Ext.define('App.ux.LiveReferringPhysicianSearch', {
 	extend: 'Ext.form.ComboBox',
-	alias: 'widget.referringphysicianlivetsearch',
+	xtype: 'referringphysicianlivetsearch',
 	hideLabel: true,
 	displayField: 'fullname',
 	valueField: 'id',
 	emptyText: _('search_for_a_physician') + '...',
-	maxLength: 40,
     queryMode: 'remote',
     allowBlank: true,
 	typeAhead: false,
@@ -68,10 +67,18 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
 					type: 'string'
 				},
 				{
+					name: 'organization_name',
+					type: 'string'
+				},
+				{
 					name: 'fullname',
 					type: 'string',
 					convert: function(v, record){
-						return record.data.fname + ' ' + record.data.mname + ' ' + record.data.lname
+						if(record.data.lname){
+							return record.data.fname + ' ' + record.data.mname + ' ' + record.data.lname
+						}else{
+							return record.data.organization_name
+						}
 					}
 				},
 				{

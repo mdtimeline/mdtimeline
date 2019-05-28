@@ -47,4 +47,16 @@ class ProcedureHistory {
 		return $this->p->destroy($params);
 	}
 
+	public function getPatientProcedureHistoryByPidAndDates($pid, $start = null, $end = null) {
+		$this->p->addFilter('pid', $pid);
+		if(isset($start)){
+			$this->p->addFilter('create_date', $start, '>=');
+		}
+		if(isset($end)) {
+			$this->p->addFilter('create_date', $end, '<=');
+		}
+
+		return $this->p->load()->all();
+	}
+
 }

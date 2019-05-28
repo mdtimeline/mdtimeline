@@ -58,14 +58,39 @@ Ext.define('App.model.patient.ProcedureHistory', {
 			len: 15
 		},
 		{
+			name: 'target_site_code',
+			type: 'string',
+			len: 40
+		},
+		{
+			name: 'target_site_code_text',
+			type: 'string',
+			len: 300
+		},
+		{
+			name: 'target_site_code_type',
+			type: 'string',
+			len: 15
+		},
+		{
 			name: 'performer',
 			type: 'string',
 			len: 300
 		},
 		{
-			name: 'performer_npi',
+			name: 'performer_id',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'service_location',
 			type: 'string',
-			len: 40
+			len: 300
+		},
+		{
+			name: 'service_location_id',
+			type: 'int',
+			index: true
 		},
 		{
 			name: 'notes',

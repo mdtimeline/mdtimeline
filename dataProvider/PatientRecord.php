@@ -20,6 +20,7 @@
 include_once(ROOT . '/dataProvider/User.php');
 include_once(ROOT . '/dataProvider/Patient.php');
 include_once(ROOT . '/dataProvider/Facilities.php');
+include_once(ROOT . '/dataProvider/ReferringProviders.php');
 include_once(ROOT . '/dataProvider/CombosData.php');
 
 class PatientRecord {
@@ -84,6 +85,11 @@ class PatientRecord {
 	private $Facilities;
 
 	/**
+	 * @var ReferringProviders
+	 */
+	private $ReferringProviders;
+
+	/**
 	 * @var CombosData
 	 */
 	private $CombosData;
@@ -107,7 +113,9 @@ class PatientRecord {
 		$this->returnType = $returnType;
 		$this->db = Matcha::getConn();
 		$this->User = new User();
+		$this->User = new User();
 		$this->Facilities = new Facilities();
+		$this->ReferringProviders = new ReferringProviders();
 		$this->CombosData = new CombosData();
 	}
 
@@ -590,10 +598,52 @@ class PatientRecord {
 
 			$procedure['Observation'] = $result['observation'];
 
-			$procedure['Performer'] = $this->performer(1); // TODO
+			$procedure['Performer'] = $this->performer($result['performer_id']);
 
 			$procedures[] = $procedure;
 		}
+
+
+		include_once(ROOT . '/dataProvider/ProcedureHistory.php');
+		$Procedures = new ProcedureHistory();
+		$results = $Procedures->getPatientProcedureHistoryByPidAndDates($this->pid, $this->start_date, $this->end_date);
+		unset($Procedures);
+
+		foreach($results as $result){
+			$procedure = [];
+
+			$procedure['Id'] = $result['id'];
+			$procedure['Procedure'] = $this->code(
+				$result['procedure_code'],
+				$result['procedure_code_type'],
+				$result['procedure']
+			);
+
+			$procedure['Status'] = $this->code(
+				'completed',
+				null,
+				'Completed'
+			);
+
+			$procedure['TargetSite'] = $this->code(
+				$result['target_site_code'],
+				$result['target_site_code_type'],
+				$result['target_site_code_text']
+			);
+
+			$procedure['Dates'] = $this->dates(
+				$result['performed_date'], null
+			);
+
+			$procedure['Observation'] = $result['observation'];
+			$procedure['Performer'] = $this->externalPerformer($result['performer_id']);
+			$procedure['ServiceLocation'] = $this->externalPerformer($result['service_location_id']);
+
+			$procedures[] = $procedure;
+		}
+
+
+
 		$this->patient_record['ProceduresSection']['Procedure'] = $procedures;
 	}
 
@@ -1662,6 +1712,73 @@ class PatientRecord {
 		$performer['Organization'] = $this->organization($user['facility_id']);
 
 		return $this->buff['performers'][$user_id] = $performer;
+	}
+
+	/**
+	 * @param $referring_id
+	 * @param $nullFlavor
+	 *
+	 * @return array|string
+	 */
+	private function externalPerformer($referring_id, $nullFlavor = 'UNK'){
+		if(
+			isset($this->buff['externalPerformers']) &&
+			isset($this->buff['externalPerformers'][$referring_id])
+		){
+			return $this->buff['externalPerformers'][$referring_id];
+		}
+
+		$referring = $this->ReferringProviders->getReferringProviderById($referring_id);
+
+		if($referring === false){
+			return $nullFlavor;
+		}
+
+		$performer = [];
+		$performer['Id'] = $referring['id'];
+		$performer['NPI'] = $referring['npi'];
+
+		if(isset($referring['lname']) && $referring['lname'] !== ''){
+			$performer['Name'] = $this->name(
+				$referring['title'],
+				$referring['fname'],
+				$referring['mname'],
+				$referring['lname']
+			);
+		}else{
+			$performer['Name'] = $referring['organization_name'];
+		}
+
+		$performer['Telecom'] = $this->phone(
+			'WP',
+			$referring['phone']
+		);
+
+		$performer['Taxonomy'] = $this->code($referring['taxonomy'], 'TAXONOMY');
+
+		if(isset($referring['facilities']) && is_array($referring['facilities']) && !empty($referring['facilities'])){
+			$performer['Address'] = $this->address(
+				'WP',
+				$referring['facilities'][0]['address'],
+				$referring['facilities'][0]['address_cont'],
+				$referring['facilities'][0]['city'],
+				$referring['facilities'][0]['state'],
+				$referring['facilities'][0]['postal_code'],
+				$referring['facilities'][0]['country']
+			);
+
+			if(isset($referring['facilities'][0]['facility_id']) && $referring['facilities'][0]['facility_id'] > 0){
+				$performer['Organization'] = $this->organization($referring['facilities'][0]['facility_id']);
+			}else{
+				$performer['Organization'] = null;
+			}
+
+		}else{
+			$performer['Address'] = null;
+			$performer['Organization'] = null;
+		}
+
+		return $this->buff['externalPerformers'][$referring_id] = $performer;
 	}
 
 	/**

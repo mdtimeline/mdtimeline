@@ -1371,6 +1371,9 @@ class PatientRecord {
 		$PatientRole['Patient']['RecordNumber'] = isset($patientData['pubpid']) && $patientData['pubpid'] != '' ?
 			$patientData['pubpid'] : $patientData['id'];
 
+		$PatientRole['Patient']['AccountNumber'] = isset($patientData['pubaccount']) && $patientData['pubaccount'] != '' ?
+			$patientData['pubaccount'] : $PatientRole['Patient']['RecordNumber'];
+
 
 		if(!$this->isExcluded('patient_name')){
 			$PatientRole['Patient']['Name'] = $this->name(

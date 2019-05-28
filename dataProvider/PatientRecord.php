@@ -1846,20 +1846,21 @@ class PatientRecord {
 	/**
 	 * @param $low
 	 * @param $high
+	 * @param $nullFlavor
 	 *
 	 * @return array
 	 */
-	private function dates($low, $high){
+	private function dates($low, $high, $nullFlavor = null){
 		$dates = [];
 		if(isset($low)){
-			$dates['Low'] = $low;
+			$dates['Low'] = str_replace([' ','-'], '', $low);
 		}else{
-			$dates['Low'] = 'UNK';
+			$dates['Low'] = $nullFlavor;
 		}
 		if(isset($high)){
-			$dates['High'] = $high;
+			$dates['High'] = str_replace([' ','-'], '', $high);;
 		}else{
-			$dates['High'] = 'UNK';
+			$dates['High'] = $nullFlavor;
 		}
 
 		return $dates;
@@ -1868,16 +1869,17 @@ class PatientRecord {
 	/**
 	 * @param $use
 	 * @param $number
+	 * @param $nullFlavor
 	 *
 	 * @return array
 	 */
-	private function phone($use, $number){
+	private function phone($use, $number, $nullFlavor = null){
 
 		$phone = [];
 		$phone['Use'] = $use;
 
 		if(!isset($number) || $number === ''){
-			$phone['Number'] = 'UNK';
+			$phone['Number'] = $nullFlavor;
 		}else{
 			$number = str_replace(['(', ')', '-', ' '], '', trim($number));
 			$phone['Number'] = $number;
@@ -1894,10 +1896,11 @@ class PatientRecord {
 	 * @param $state
 	 * @param $zip
 	 * @param $country
+	 * @param $nullFlavor
 	 *
 	 * @return array|string
 	 */
-	private function address($use, $line1, $line2, $city, $state, $zip, $country){
+	private function address($use, $line1, $line2, $city, $state, $zip, $country, $nullFlavor = null){
 
 		if(
 			(!isset($use) || $use === '') &&
@@ -1907,7 +1910,7 @@ class PatientRecord {
 			(!isset($state) || $state === '') &&
 			(!isset($zip) || $zip === '')
 		){
-			return 'UNK';
+			return $nullFlavor;
 		}
 		$address = [];
 		$address['Use'] = $use;
@@ -1925,17 +1928,18 @@ class PatientRecord {
 	 * @param      $code
 	 * @param      $codeSystemName
 	 * @param null $displayName
+	 * @param null $nullFlavor
 	 *
 	 * @return array|string
 	 */
-	private function code($code, $codeSystemName, $displayName = null){
+	private function code($code, $codeSystemName, $displayName = null, $nullFlavor = null){
 
 		if(!isset($code) || $code === ''){
 			if(isset($displayName) && $displayName !== ''){
 				return $displayName;
 			}
 
-			return 'UNK';
+			return $nullFlavor;
 		}
 
 		$buff = [];

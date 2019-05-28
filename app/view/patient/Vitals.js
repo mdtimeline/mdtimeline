@@ -278,7 +278,7 @@ Ext.define('App.view.patient.Vitals', {
 				}
 			});
 			columns.push({
-				text: _('HC'),
+				text: _('hc'),
 				dataIndex: 'head_circumference_in',
 				width: 70,
 				stateId: 'VitalsHistoryGridHeadCircumferenceCol',
@@ -324,7 +324,7 @@ Ext.define('App.view.patient.Vitals', {
 				}
 			});
 			columns.push({
-				text: _('HC'),
+				text: _('hc'),
 				dataIndex: 'head_circumference_cm',
 				width: 70,
 				stateId: 'VitalsHistoryGridHeadCircumferenceCol',
@@ -375,8 +375,15 @@ Ext.define('App.view.patient.Vitals', {
 		});
 
 		columns.push({
-			text: _('o2'),
+			text: _('o2%'),
 			dataIndex: 'oxygen_saturation',
+			stateId: 'VitalsHistoryGridOxygenSaturationCol',
+			width: 50
+		});
+
+		columns.push({
+			text: _('fio2%'),
+			dataIndex: 'oxygen_inhaled_concentration',
 			stateId: 'VitalsHistoryGridOxygenSaturationCol',
 			width: 50
 		});

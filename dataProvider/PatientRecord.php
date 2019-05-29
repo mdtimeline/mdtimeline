@@ -1853,12 +1853,12 @@ class PatientRecord {
 	private function dates($low, $high, $nullFlavor = null){
 		$dates = [];
 		if(isset($low)){
-			$dates['Low'] = str_replace([' ','-'], '', $low);
+			$dates['Low'] = str_replace([' ','-',':'], '', $low);
 		}else{
 			$dates['Low'] = $nullFlavor;
 		}
 		if(isset($high)){
-			$dates['High'] = str_replace([' ','-'], '', $high);;
+			$dates['High'] = str_replace([' ','-',':'], '', $high);;
 		}else{
 			$dates['High'] = $nullFlavor;
 		}

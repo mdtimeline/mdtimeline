@@ -1284,20 +1284,18 @@ class PatientRecord {
 			$referral['Organization'] = $this->organization($result['facility_id']);
 			$referral['ReferTo'] = $this->externalPerformer($result['refer_to']);
 
-			$referrals[] = $referral;
-
 			if(
 				isset($this->patient_record['EncounterSection']['Encounter']) &&
 				isset($this->patient_record['EncounterSection']['Encounter']['Id']) &&
 				$this->patient_record['EncounterSection']['Encounter']['Id'] ==  $result['eid']
 			){
-
+				$referrals[] = $referral;
 				$this->patient_record['EncounterSection']['Encounter']['ReferTo'][] = $referral['ReferTo'];
 			}
 
+			$this->patient_record['ReasonForReferralSection']['ReasonForReferrals'] = $referrals;
 		}
 
-		$this->patient_record['ReasonForReferralSection']['ReasonForReferrals'] = $referrals;
 	}
 
 	private function getPlanOfTreatment(){

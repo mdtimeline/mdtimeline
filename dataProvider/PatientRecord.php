@@ -1277,7 +1277,7 @@ class PatientRecord {
 
 			$referral = [];
 			$referral['Id'] = $result['id'];
-			$referral['Reason'] = $referral['referal_reason'];
+			$referral['Reason'] = $result['referal_reason'];
 			$referral['ToProvider'] = '';
 			$referral['Dates'] = '';
 			$referral['ScheduleDate '] = '';

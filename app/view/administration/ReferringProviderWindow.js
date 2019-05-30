@@ -201,6 +201,7 @@ Ext.define('App.view.administration.ReferringProviderWindow', {
 							{
 								xtype: 'textfield',
 								fieldLabel: _('email'),
+								vtype: 'email',
 								name: 'email'
 							},
 							{
@@ -217,6 +218,12 @@ Ext.define('App.view.administration.ReferringProviderWindow', {
 								xtype: 'textfield',
 								fieldLabel: _('cell_number'),
 								name: 'cel_number'
+							},
+							{
+								xtype: 'textfield',
+								fieldLabel: _('direct_address'),
+								vtype: 'email',
+								name: 'direct_address'
 							}
 						]
 					}

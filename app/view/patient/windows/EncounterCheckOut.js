@@ -163,24 +163,36 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 			]
 		}
 	],
-	buttons: [
+	dockedItems: [
 		{
-			xtype: 'encountersupervisorscombo',
-			itemId: 'EncounterCoSignSupervisorCombo',
-			allowBlank: false,
-			width: 250
-		},
-		{
-			text: _('co_sign') + ' (' + _('supervisor') + ')',
-			itemId: 'EncounterCoSignSupervisorBtn'
-		},
-		{
-			text: _('sign'),
-			itemId: 'EncounterSignBtn'
-		},
-		{
-			text: _('cancel'),
-			itemId: 'EncounterCancelSignBtn'
+			xtype: 'toolbar',
+			dock: 'bottom',
+			ui: 'footer',
+			itemId: 'EncounterSignWindowBottomToolbar',
+			defaults: {
+				minWidth: 70
+			},
+			items: [
+				'->',
+				{
+					xtype: 'encountersupervisorscombo',
+					itemId: 'EncounterCoSignSupervisorCombo',
+					allowBlank: false,
+					width: 250
+				},
+				{
+					text: _('co_sign') + ' (' + _('supervisor') + ')',
+					itemId: 'EncounterCoSignSupervisorBtn'
+				},
+				{
+					text: _('sign'),
+					itemId: 'EncounterSignBtn'
+				},
+				{
+					text: _('cancel'),
+					itemId: 'EncounterCancelSignBtn'
+				}
+			]
 		}
 	]
 });

@@ -142,6 +142,7 @@ Ext.define('App.controller.administration.ReferringProviders', {
 		}
 
 		var values = {
+			global_id: null,
 			title: result.data.basic.name_prefix,
 			fname: result.data.basic.first_name || '',
 			mname: '',
@@ -227,6 +228,7 @@ Ext.define('App.controller.administration.ReferringProviders', {
 	doReferringProviderWindow: function (referring_record) {
 
 		referring_record = referring_record || Ext.create('App.model.administration.ReferringProvider', {
+				global_id: null,
 				create_date: new Date(),
 				update_date: new Date(),
 				create_uid: app.user.id,

@@ -190,12 +190,12 @@ class PatientRecord {
 		// FutureScheduledTests
 		// ClinicalInstructions
 
-
-		if(isset($this->referral_id)){
-			$this->getReasonForReferralSection();
-		}
 		if(isset($this->eid)){
 			$this->getEncounterSection();
+		}
+
+		if(isset($this->eid)){
+			$this->getReasonForReferralSection();
 		}
 
 		// Plan of Treatment = Plan of Care
@@ -1267,31 +1267,41 @@ class PatientRecord {
 		if($this->isExcluded('ReasonForReferralSection')) return;
 
 		include_once(ROOT . '/dataProvider/Referrals.php');
-		include_once(ROOT . '/dataProvider/ReferringProviders.php');
 		$Referrals = new Referrals();
-		$ReferringProviders = new ReferringProviders();
 
 		if(!isset($this->referral_id)){
 			$this->patient_record['ReasonForReferral'] = [];
 		}
 
-		$result = $Referrals->getPatientReferralsById($this->referral_id);
-		$referringProvider = $ReferringProviders->getReferringProviderById($result['refer_to']);
+		$results = $Referrals->getPatientReferralsByEid($this->eid);
 
-		if($result === false){
-			$this->patient_record['ReasonForReferral'] = [];
+		$referrals = [];
+
+		foreach ($results as $result){
+
+			$referral = [];
+			$referral['Id'] = $result['id'];
+			$referral['Reason'] = $referral['referal_reason'];
+			$referral['ToProvider'] = '';
+			$referral['Dates'] = '';
+			$referral['ScheduleDate '] = '';
+			$referral['Organization'] = $this->organization($result['facility_id']);
+			$referral['ReferTo'] = $this->externalPerformer($result['refer_to']);
+
+			$referrals[] = $referral;
+
+			if(
+				isset($this->patient_record['EncounterSection']['Encounter']) &&
+				isset($this->patient_record['EncounterSection']['Encounter']['Id']) &&
+				$this->patient_record['EncounterSection']['Encounter']['Id'] ==  $result['eid']
+			){
+
+				$this->patient_record['EncounterSection']['Encounter']['ReferTo'][] = $referral['ReferTo'];
+			}
+
 		}
 
-		$referral = [];
-		$referral['Id'] = $result['id'];
-		$referral['Reason'] = $referral['referal_reason'];
-		$referral['ToProvider'] = '';
-		$referral['Dates'] = '';
-		$referral['ScheduleDate '] = '';
-		$referral['Organization'] = $this->organization($result['facility_id']);
-
-
-		$this->patient_record['ReasonForReferralSection']['ReasonForReferral'] = $referral;
+		$this->patient_record['ReasonForReferralSection']['ReasonForReferrals'] = $referrals;
 	}
 
 	private function getPlanOfTreatment(){
@@ -1415,6 +1425,7 @@ class PatientRecord {
 			);
 		}
 
+		$PatientRole['DirectAddress'] = $patientData['direct_address'];
 		$PatientRole['Email'] = $patientData['email'];
 
 		$religion = $this->CombosData->getValuesByListIdAndOptionValue(142, $patientData['religion']);
@@ -1551,10 +1562,6 @@ class PatientRecord {
 			$patientData['physical_country']
 		);
 
-
-
-
-
 		$RecordTarget['PatientRole'] = $PatientRole;
 
 		$this->patient_record['RecordTarget'] = $RecordTarget;
@@ -1626,6 +1633,7 @@ class PatientRecord {
 
 	/**
 	 * @param $result
+	 * @param $soap
 	 *
 	 * @return array
 	 */
@@ -1641,6 +1649,8 @@ class PatientRecord {
 		$encounter['Provider'] = $this->performer($result['provider_uid']);
 		$encounter['Technician'] = $this->performer($result['technician_uid']);
 		$encounter['Supervisor'] = $this->performer($result['supervisor_uid'], 'NA');
+		$encounter['ReferredBy'] = $this->externalPerformer($result['referring_physician'], 'NA');
+		$encounter['ReferTo'] = [];
 
 		$encounter['Assessment'] = isset($soap['assessment']) ? $soap['assessment'] : 'UNK';
 		$encounter['Instructions'] = isset($soap['instructions']) ? $soap['instructions'] : 'UNK';
@@ -1694,6 +1704,9 @@ class PatientRecord {
 			$user['mname'],
 			$user['lname']
 		);
+		$performer['DirectAddress'] = $user['direct_address'];
+		$performer['Email'] = $user['email'];
+
 		$performer['Telecom'] = $this->phone(
 			'WP',
 			$user['phone']
@@ -1706,7 +1719,6 @@ class PatientRecord {
 			$user['state'],
 			$user['postal_code'],
 			$user['country_code']
-
 		);
 		$performer['Taxonomy'] = $this->code($user['taxonomy'], 'TAXONOMY');
 		$performer['Organization'] = $this->organization($user['facility_id']);
@@ -1748,6 +1760,9 @@ class PatientRecord {
 		}else{
 			$performer['Name'] = $referring['organization_name'];
 		}
+
+		$performer['DirectAddress'] = $referring['direct_address'];
+		$performer['Email'] = $referring['email'];
 
 		$performer['Telecom'] = $this->phone(
 			'WP',

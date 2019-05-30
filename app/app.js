@@ -13686,7 +13686,6 @@ Ext.define('App.model.administration.ReferringProvider', {
             type: 'bool',
             index: true
         },
-
         {
             name: 'external_id',
             type: 'string',
@@ -13695,9 +13694,9 @@ Ext.define('App.model.administration.ReferringProvider', {
         {
             name: 'global_id',
             type: 'string',
-            len: 50
+            len: 50,
+            useNull: true
         },
-
         {
             name: 'authy_id',
             type: 'string',
@@ -37056,6 +37055,7 @@ Ext.define('App.controller.administration.ReferringProviders', {
 		}
 
 		var values = {
+			global_id: null,
 			title: result.data.basic.name_prefix,
 			fname: result.data.basic.first_name || '',
 			mname: '',
@@ -37141,6 +37141,7 @@ Ext.define('App.controller.administration.ReferringProviders', {
 	doReferringProviderWindow: function (referring_record) {
 
 		referring_record = referring_record || Ext.create('App.model.administration.ReferringProvider', {
+				global_id: null,
 				create_date: new Date(),
 				update_date: new Date(),
 				create_uid: app.user.id,
@@ -53472,24 +53473,36 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 			]
 		}
 	],
-	buttons: [
+	dockedItems: [
 		{
-			xtype: 'encountersupervisorscombo',
-			itemId: 'EncounterCoSignSupervisorCombo',
-			allowBlank: false,
-			width: 250
-		},
-		{
-			text: _('co_sign') + ' (' + _('supervisor') + ')',
-			itemId: 'EncounterCoSignSupervisorBtn'
-		},
-		{
-			text: _('sign'),
-			itemId: 'EncounterSignBtn'
-		},
-		{
-			text: _('cancel'),
-			itemId: 'EncounterCancelSignBtn'
+			xtype: 'toolbar',
+			dock: 'bottom',
+			ui: 'footer',
+			itemId: 'EncounterSignWindowBottomToolbar',
+			defaults: {
+				minWidth: 70
+			},
+			items: [
+				'->',
+				{
+					xtype: 'encountersupervisorscombo',
+					itemId: 'EncounterCoSignSupervisorCombo',
+					allowBlank: false,
+					width: 250
+				},
+				{
+					text: _('co_sign') + ' (' + _('supervisor') + ')',
+					itemId: 'EncounterCoSignSupervisorBtn'
+				},
+				{
+					text: _('sign'),
+					itemId: 'EncounterSignBtn'
+				},
+				{
+					text: _('cancel'),
+					itemId: 'EncounterCancelSignBtn'
+				}
+			]
 		}
 	]
 });

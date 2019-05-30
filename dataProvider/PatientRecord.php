@@ -1269,10 +1269,6 @@ class PatientRecord {
 		include_once(ROOT . '/dataProvider/Referrals.php');
 		$Referrals = new Referrals();
 
-		if(!isset($this->referral_id)){
-			$this->patient_record['ReasonForReferral'] = [];
-		}
-
 		$results = $Referrals->getPatientReferralsByEid($this->eid);
 
 		$referrals = [];

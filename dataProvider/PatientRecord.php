@@ -1351,7 +1351,7 @@ class PatientRecord {
 					$data['Id'] = 'p-' . $poc['id'];
 					$data['Code'] = $this->code($poc['goal_code'], $poc['goal_code_type'], $poc['goal']);
 					$data['Dates'] = $this->dates($poc['plan_date'], $poc['plan_date']);
-					$data['Narrative'] = $poc['notes'];
+					$data['Narrative'] = $poc['instructions'];
 					$data['Status'] = '1';
 					$data['Type'] = 'ACT';
 					$data['TypeMoodCode'] = 'RQO';

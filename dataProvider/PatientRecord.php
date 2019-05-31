@@ -1298,11 +1298,34 @@ class PatientRecord {
 
 	}
 
+	private function getCarePlanGoals(){
+		include_once(ROOT . '/dataProvider/CarePlanGoals.php');
+		$CarePlanGoals = new CarePlanGoals();
+		$goals = $CarePlanGoals->getPatientCarePlanGoalsByPid($this->pid);
+
+		$goals_data = [];
+
+		foreach ($goals as $goal){
+			$data['Id'] = $goal['id'];
+			$data['Code'] = $this->code($goal['goal_code'], $goal['goal_code_type'], $goal['goal']);
+			$data['Dates'] = $this->dates($goal['plan_date'], $goal['plan_date']);
+			$data['Narrative'] = $goal['instructions'];
+			$data['Status'] = 'Active';
+			if(is_string($data['Code'])){
+				$data['ValueType'] = 'ST';
+			}else{
+				$data['ValueType'] = 'PQ';
+			}
+		}
+
+		$this->patient_record['CarePlanGoalSection']['CarePlanGoal'] = $goals_data;
+
+	}
+
 	private function getPlanOfTreatment(){
 
 		include_once(ROOT . '/dataProvider/Orders.php');
 		include_once(ROOT . '/dataProvider/Referrals.php');
-		include_once(ROOT . '/dataProvider/CarePlanGoals.php');
 		include_once(ROOT . '/dataProvider/AppointmentRequest.php');
 
 		$Orders = new Orders();
@@ -1310,9 +1333,6 @@ class PatientRecord {
 
 		$Referrals = new Referrals();
 		$plan_of_care_data['REF'] = $Referrals->getPatientReferrals(['pid' => $this->pid]);
-
-		$CarePlanGoals = new CarePlanGoals();
-		$plan_of_care_data['PROC'] = $CarePlanGoals->getPatientCarePlanGoalsByPid($this->pid);
 
 		$Appointments = new AppointmentRequest();
 		$plan_of_care_data['APPOINTMENTS'] = $Appointments->getAppointmentRequests(['pid' => $this->pid]);
@@ -1348,13 +1368,14 @@ class PatientRecord {
 
 				}elseif ($type === 'PROC'){
 
-					$data['Id'] = 'p-' . $poc['id'];
-					$data['Code'] = $this->code($poc['goal_code'], $poc['goal_code_type'], $poc['goal']);
-					$data['Dates'] = $this->dates($poc['plan_date'], $poc['plan_date']);
-					$data['Narrative'] = $poc['instructions'];
-					$data['Status'] = '1';
-					$data['Type'] = 'ACT';
-					$data['TypeMoodCode'] = 'RQO';
+					// moved to care plan goal
+//					$data['Id'] = 'p-' . $poc['id'];
+//					$data['Code'] = $this->code($poc['goal_code'], $poc['goal_code_type'], $poc['goal']);
+//					$data['Dates'] = $this->dates($poc['plan_date'], $poc['plan_date']);
+//					$data['Narrative'] = $poc['instructions'];
+//					$data['Status'] = '1';
+//					$data['Type'] = 'ACT';
+//					$data['TypeMoodCode'] = 'RQO';
 
 				}elseif ($type === 'APPOINTMENTS'){
 

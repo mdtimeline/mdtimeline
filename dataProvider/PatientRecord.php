@@ -197,14 +197,7 @@ class PatientRecord {
 			$this->getCarePlanGoals();
 		}
 
-
-
-		// ??
     	$this->getHealthConcernsSection();
-//
-
-//    	$this->getInstructions();
-//    	$this->getPlanOfCare();
 
 
 		if($this->returnType === 'json'){
@@ -1310,6 +1303,8 @@ class PatientRecord {
 			}else{
 				$data['ValueType'] = 'PQ';
 			}
+
+			$goals_data[] = $data;
 		}
 
 		$this->patient_record['CarePlanGoalSection']['CarePlanGoal'] = $goals_data;

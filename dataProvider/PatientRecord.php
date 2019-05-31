@@ -259,10 +259,6 @@ class PatientRecord {
 
 		foreach($results as $result){
 
-			if(isset($this->eid) && $this->eid == $result['eid'] && isset($result['date_ordered'])) {
-				continue;
-			}
-
 			$medication = [];
 			$medication['Id'] = $result['id'];
 			$medication['Medication'] = $result['STR'];

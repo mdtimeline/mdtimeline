@@ -1375,9 +1375,9 @@ class PatientRecord {
 				}elseif ($type === 'APP'){
 
 					$data['Id'] = 'app-' . $poc['id'];
-					$data['Code'] = $this->code('281189005', 'SNOMEDCT', $poc['notes']);
+					$data['Code'] = $this->code($poc['procedure1_code'], $poc['procedure1_code_type'], $poc['procedure1']);
 					$data['Dates'] = $this->dates($poc['requested_date'], $poc['requested_date']);
-					$data['Narrative'] = '';
+					$data['Narrative'] = $poc['notes'];
 					$data['Status'] = 'new';
 					$data['Type'] = 'PROC';
 					$data['TypeMoodCode'] = 'RQO';

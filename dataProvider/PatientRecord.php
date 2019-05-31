@@ -1325,8 +1325,8 @@ class PatientRecord {
 		$Orders = new Medications();
 		$plan_of_care_data['MED'] = $Orders->getPatientMedicationsOrdersByEid($this->eid);
 
-		$Referrals = new Referrals();
-		$plan_of_care_data['REF'] = $Referrals->getPatientReferralsByEid($this->eid);
+//		$Referrals = new Referrals();
+//		$plan_of_care_data['REF'] = $Referrals->getPatientReferralsByEid($this->eid);
 
 		$Appointments = new AppointmentRequest();
 		$plan_of_care_data['APP'] = $Appointments->getAppointmentRequestsByEid($this->pid);
@@ -1364,13 +1364,13 @@ class PatientRecord {
 
 				}elseif ($type === 'REF'){
 
-					$data['Id'] = 'ref-' . $poc['id'];
-					$data['Code'] = $this->code('', 'SNOMEDCT', $poc['referal_reason']);
-					$data['Dates'] = $this->dates($poc['referral_date'], $poc['referral_date']);
-					$data['Narrative'] = '';
-					$data['Status'] = '1';
-					$data['Type'] = 'ACT';
-					$data['TypeMoodCode'] = 'RQO';
+//					$data['Id'] = 'ref-' . $poc['id'];
+//					$data['Code'] = null;
+//					$data['Dates'] = $this->dates($poc['referral_date'], $poc['referral_date']);
+//					$data['Narrative'] = $poc['referal_reason'];
+//					$data['Status'] = '1';
+//					$data['Type'] = 'ACT';
+//					$data['TypeMoodCode'] = 'RQO';
 
 				}elseif ($type === 'APP'){
 

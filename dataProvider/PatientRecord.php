@@ -253,11 +253,16 @@ class PatientRecord {
 
 		include_once(ROOT . '/dataProvider/Medications.php');
 		$Medications = new Medications();
-		$results = $Medications->getPatientActiveMedicationsByPid($this->pid, true);
+		$results = $Medications->getPatientMedicationsByPid($this->pid, true);
 		unset($Medications);
 		$medications = [];
 
 		foreach($results as $result){
+
+			if(isset($this->eid) && $this->eid == $result['eid'] && isset($result['date_ordered'])) {
+				continue;
+			}
+
 			$medication = [];
 			$medication['Id'] = $result['id'];
 			$medication['Medication'] = $result['STR'];

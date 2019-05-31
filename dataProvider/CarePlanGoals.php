@@ -52,5 +52,10 @@ class CarePlanGoals {
 		return $this->c->load()->all();
 	}
 
+	public function getPatientCarePlanGoalsByEid($pid){
+		$this->c->addFilter('eid', $pid);
+		return $this->c->load()->all();
+	}
+
 
 }

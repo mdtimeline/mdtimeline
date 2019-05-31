@@ -1329,8 +1329,8 @@ class PatientRecord {
 		$plan_of_care_data['RAD'] = $Orders->getPatientRabOrdersPendingByEid($this->eid);
 
 		// rad order
-		$Orders = new Medications();
-		$plan_of_care_data['MED'] = $Orders->getPatientMedicationsOrdersByEid($this->eid);
+//		$Orders = new Medications();
+//		$plan_of_care_data['MED'] = $Orders->getPatientMedicationsOrdersByEid($this->eid);
 
 //		$Referrals = new Referrals();
 //		$plan_of_care_data['REF'] = $Referrals->getPatientReferralsByEid($this->eid);
@@ -1370,15 +1370,15 @@ class PatientRecord {
 
 				}elseif ($type === 'MED'){
 
-					$data['Id'] = 'med-' . $poc['id'];
-					$data['Code'] = $this->code($poc['CODE'], $poc['RXNORM'], $poc['STR']);
-					$data['Dates'] = $this->dates($poc['date_ordered'], null);
-					$instruction = sprintf('Take %s %s beginning %s', $poc['STR'],$poc['directions'],  date('F j, Y', strtotime($poc['begin_date'])));
-					$data['Narrative'] = $instruction;
-					$data['Status'] = 'Active';
-					$data['Type'] = 'OBS';
-					$data['TypeMoodCode'] = 'RQO';
-					//$data['TargetSite'] = $this->code('','');
+//					$data['Id'] = 'med-' . $poc['id'];
+//					$data['Code'] = $this->code($poc['CODE'], $poc['RXNORM'], $poc['STR']);
+//					$data['Dates'] = $this->dates($poc['date_ordered'], null);
+//					$instruction = sprintf('Take %s %s beginning %s', $poc['STR'],$poc['directions'],  date('F j, Y', strtotime($poc['begin_date'])));
+//					$data['Narrative'] = $instruction;
+//					$data['Status'] = 'Active';
+//					$data['Type'] = 'OBS';
+//					$data['TypeMoodCode'] = 'RQO';
+//					//$data['TargetSite'] = $this->code('','');
 
 				}elseif ($type === 'REF'){
 
@@ -1407,6 +1407,22 @@ class PatientRecord {
 				}
 			}
 
+		}
+
+		if(
+			isset($this->patient_record['EncounterSection']['Encounter']) &&
+			isset($this->patient_record['EncounterSection']['Encounter']['Instructions']) &&
+			$this->patient_record['EncounterSection']['Encounter']['Instructions'] != ''
+		){
+			$data = [];
+			$data['Id'] = 'ins-' . $this->patient_record['EncounterSection']['Encounter']['Id'];
+			$data['Code'] = null;
+			$data['Dates'] = $this->patient_record['EncounterSection']['Encounter']['ServiceDates'];
+			$data['Narrative'] = $this->patient_record['EncounterSection']['Encounter']['Instructions'];
+			$data['Status'] = 'new';
+			$data['Type'] = 'ACT';
+			$data['TypeMoodCode'] = 'INT';
+			$pocs_data[] = $data;
 		}
 
 		$this->patient_record['PlanOfTreatmentSection']['PlanOfTreatment'] = $pocs_data;
@@ -1679,8 +1695,8 @@ class PatientRecord {
 		$encounter['ReferredBy'] = $this->externalPerformer($result['referring_physician'], 'NA');
 		$encounter['ReferTo'] = [];
 
-		$encounter['Assessment'] = isset($soap['assessment']) ? $soap['assessment'] : 'UNK';
-		$encounter['Instructions'] = isset($soap['instructions']) ? $soap['instructions'] : 'UNK';
+		$encounter['Assessment'] = isset($soap['assessment']) ? $soap['assessment'] : null;
+		$encounter['Instructions'] = isset($soap['instructions']) ? $soap['instructions'] : null;
 
 		$encounter['Diagnosis'] = [];
 		foreach($soap['dxCodes'] as $dx){

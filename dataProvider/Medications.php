@@ -211,6 +211,13 @@ class Medications
         return $this->m->load()->leftJoin(['title', 'fname', 'mname', 'lname'], 'users', 'administered_uid', 'id')->all();
     }
 
+	public function getPatientMedicationsNotOrdersByEid($eid)
+	{
+		$this->m->addFilter('date_ordered', null, '!=');
+		$this->m->addFilter('eid', $eid);
+		return $this->m->load()->leftJoin(['title', 'fname', 'mname', 'lname'], 'users', 'administered_uid', 'id')->all();
+	}
+
 	public function getPatientMedicationsOrdersByEid($eid)
 	{
 		$this->m->addFilter('date_ordered', null, '!=');

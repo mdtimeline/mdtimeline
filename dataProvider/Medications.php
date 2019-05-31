@@ -159,10 +159,29 @@ class Medications
             ->all();
     }
 
+	public function getPatientActiveMedicationsByPid($pid, $reconciled = false)
+	{
+		$this->m->addFilter('pid', $pid);
+		$this->m->addFilter('is_active', 1);
+
+		if ($reconciled) {
+			$groups = new stdClass();
+			$groups->group[0] = new stdClass();
+			$groups->group[0]->property = 'RXCUI';
+			return $this->m->load()
+				->leftJoin(['title', 'fname', 'mname', 'lname'], 'users', 'administered_uid', 'id')
+				->group($groups)
+				->all();
+		}
+		return $this->m->load()
+			->leftJoin(['title', 'fname', 'mname', 'lname'], 'users', 'administered_uid', 'id')
+			->all();
+	}
+
 	public function getPatientActiveMedicationsByPidAndDates($pid, $reconciled = false, $start = null, $end = null)
 	{
 		$this->m->addFilter('pid', $pid);
-		$this->m->addFilter('end_date', null);
+		$this->m->addFilter('is_active', 1);
 
 		if(isset($start)){
 			$this->m->addFilter('created_date', $start, '>=');
@@ -198,21 +217,6 @@ class Medications
 		$this->m->addFilter('eid', $eid);
 		return $this->m->load()->leftJoin(['title', 'fname', 'mname', 'lname'], 'users', 'administered_uid', 'id')->all();
 	}
-
-    public function getPatientActiveMedicationsByPid($pid, $reconciled = false)
-    {
-        $records = $this->getPatientMedicationsByPid($pid, $reconciled);
-        foreach ($records as $i => $record) {
-            if($record['administered_date'] != null){ unset($records[$i]); }
-            if (
-                $record['end_date'] == null ||
-                $record['end_date'] == '0000-00-00' ||
-                strtotime($record['end_date']) <= strtotime(date('Y-m-d'))
-            ) continue;
-            unset($records[$i]);
-        }
-        return $records;
-    }
 
     public function getPatientAdministeredMedicationsByPid($pid, $eid)
     {

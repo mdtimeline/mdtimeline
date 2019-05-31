@@ -253,19 +253,18 @@ class PatientRecord {
 
 		include_once(ROOT . '/dataProvider/Medications.php');
 		$Medications = new Medications();
-		$results = $Medications->getPatientActiveMedicationsByPidAndDates($this->pid, true);
+		$results = $Medications->getPatientActiveMedicationsByPid($this->pid, true);
 		unset($Medications);
 		$medications = [];
 
 		foreach($results as $result){
-			$active = $this->isActiveByDate($result['end_date']);
 			$medication = [];
 			$medication['Id'] = $result['id'];
 			$medication['Medication'] = $result['STR'];
 			$medication['Instructions'] = $result['directions'];
 			$medication['Route'] = $result['route'];
 			$medication['Quantity'] = $result['dispense'];
-			$medication['Status'] = $active ? 'Active' : 'Inactive';
+			$medication['Status'] = $result['is_active'] ? 'Active' : 'Inactive';
 			$medication['RXCUI'] = $result['RXCUI'];
 			$medication['NDC'] = $result['NDC'];
 			$medication['Dates'] = $this->dates($result['begin_date'], $result['end_date']);

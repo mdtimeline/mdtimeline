@@ -253,7 +253,7 @@ class PatientRecord {
 
 		include_once(ROOT . '/dataProvider/Medications.php');
 		$Medications = new Medications();
-		$results = $Medications->getPatientMedicationsByPidAndDates($this->pid, $this->start_date, $this->end_date);
+		$results = $Medications->getPatientActiveMedicationsByPidAndDates($this->pid, true);
 		unset($Medications);
 		$medications = [];
 
@@ -1317,14 +1317,19 @@ class PatientRecord {
 		include_once(ROOT . '/dataProvider/Referrals.php');
 		include_once(ROOT . '/dataProvider/AppointmentRequest.php');
 
+		// lab orders
 		$Orders = new Orders();
-		$plan_of_care_data['OBS'] = $Orders->getOrderWithoutResultsByPid($this->pid);
+		$plan_of_care_data['LAB'] = $Orders->getPatientLabOrdersByEid($this->eid);
+
+		// rad order
+		$Orders = new Medications();
+		$plan_of_care_data['MED'] = $Orders->getPatientMedicationsOrdersByEid($this->eid);
 
 		$Referrals = new Referrals();
-		$plan_of_care_data['REF'] = $Referrals->getPatientReferrals(['pid' => $this->pid]);
+		$plan_of_care_data['REF'] = $Referrals->getPatientReferralsByEid($this->eid);
 
 		$Appointments = new AppointmentRequest();
-		$plan_of_care_data['APPOINTMENTS'] = $Appointments->getAppointmentRequests(['pid' => $this->pid]);
+		$plan_of_care_data['APP'] = $Appointments->getAppointmentRequestsByEid($this->pid);
 
 		$pocs_data = [];
 
@@ -1334,9 +1339,9 @@ class PatientRecord {
 
 				$data = [];
 
-				if($type === 'OBS'){
+				if($type === 'LAB'){
 
-					$data['Id'] = 'o-' . $poc['id'];
+					$data['Id'] = 'lab-' . $poc['id'];
 					$data['Code'] = $this->code($poc['code'], $poc['code_type'], $poc['description']);
 					$data['Dates'] = $this->dates($poc['date_ordered'], null);
 					$data['Narrative'] = '';
@@ -1345,9 +1350,21 @@ class PatientRecord {
 					$data['TypeMoodCode'] = 'RQO';
 					//$data['TargetSite'] = $this->code('','');
 
+				}elseif ($type === 'MED'){
+
+					$data['Id'] = 'med-' . $poc['id'];
+					$data['Code'] = $this->code($poc['CODE'], $poc['RXNORM'], $poc['STR']);
+					$data['Dates'] = $this->dates($poc['date_ordered'], null);
+					$instruction = sprintf('Take %s %s beginning %s', $poc['STR'],$poc['directions'],  date('F j, Y', strtotime($poc['begin_date'])));
+					$data['Narrative'] = $instruction;
+					$data['Status'] = 'Active';
+					$data['Type'] = 'OBS';
+					$data['TypeMoodCode'] = 'RQO';
+					//$data['TargetSite'] = $this->code('','');
+
 				}elseif ($type === 'REF'){
 
-					$data['Id'] = 'r-' . $poc['id'];
+					$data['Id'] = 'ref-' . $poc['id'];
 					$data['Code'] = $this->code('', 'SNOMEDCT', $poc['referal_reason']);
 					$data['Dates'] = $this->dates($poc['referral_date'], $poc['referral_date']);
 					$data['Narrative'] = '';
@@ -1355,20 +1372,9 @@ class PatientRecord {
 					$data['Type'] = 'ACT';
 					$data['TypeMoodCode'] = 'RQO';
 
-				}elseif ($type === 'PROC'){
+				}elseif ($type === 'APP'){
 
-					// moved to care plan goal
-//					$data['Id'] = 'p-' . $poc['id'];
-//					$data['Code'] = $this->code($poc['goal_code'], $poc['goal_code_type'], $poc['goal']);
-//					$data['Dates'] = $this->dates($poc['plan_date'], $poc['plan_date']);
-//					$data['Narrative'] = $poc['instructions'];
-//					$data['Status'] = '1';
-//					$data['Type'] = 'ACT';
-//					$data['TypeMoodCode'] = 'RQO';
-
-				}elseif ($type === 'APPOINTMENTS'){
-
-					$data['Id'] = 'a-' . $poc['id'];
+					$data['Id'] = 'app-' . $poc['id'];
 					$data['Code'] = $this->code('281189005', 'SNOMEDCT', $poc['notes']);
 					$data['Dates'] = $this->dates($poc['requested_date'], $poc['requested_date']);
 					$data['Narrative'] = '';
@@ -1381,7 +1387,6 @@ class PatientRecord {
 				if(!empty($data)){
 					$pocs_data[] = $data;
 				}
-
 			}
 
 		}

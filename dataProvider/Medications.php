@@ -159,9 +159,10 @@ class Medications
             ->all();
     }
 
-	public function getPatientMedicationsByPidAndDates($pid, $reconciled = false, $start = null, $end = null)
+	public function getPatientActiveMedicationsByPidAndDates($pid, $reconciled = false, $start = null, $end = null)
 	{
 		$this->m->addFilter('pid', $pid);
+		$this->m->addFilter('end_date', null);
 
 		if(isset($start)){
 			$this->m->addFilter('created_date', $start, '>=');

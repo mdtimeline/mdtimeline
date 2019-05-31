@@ -1319,7 +1319,10 @@ class PatientRecord {
 
 		// lab orders
 		$Orders = new Orders();
-		$plan_of_care_data['LAB'] = $Orders->getPatientLabOrdersByEid($this->eid);
+		$plan_of_care_data['LAB'] = $Orders->getPatientLabOrdersPendingByEid($this->eid);
+
+		// rab orders
+		$plan_of_care_data['RAD'] = $Orders->getPatientRabOrdersPendingByEid($this->eid);
 
 		// rad order
 		$Orders = new Medications();
@@ -1342,6 +1345,17 @@ class PatientRecord {
 				if($type === 'LAB'){
 
 					$data['Id'] = 'lab-' . $poc['id'];
+					$data['Code'] = $this->code($poc['code'], $poc['code_type'], $poc['description']);
+					$data['Dates'] = $this->dates($poc['date_ordered'], null);
+					$data['Narrative'] = '';
+					$data['Status'] = $poc['status'];
+					$data['Type'] = 'OBS';
+					$data['TypeMoodCode'] = 'RQO';
+					//$data['TargetSite'] = $this->code('','');
+
+				}elseif($type === 'RAD'){
+
+					$data['Id'] = 'rab-' . $poc['id'];
 					$data['Code'] = $this->code($poc['code'], $poc['code_type'], $poc['description']);
 					$data['Dates'] = $this->dates($poc['date_ordered'], null);
 					$data['Narrative'] = '';

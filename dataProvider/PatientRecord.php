@@ -192,18 +192,12 @@ class PatientRecord {
 
 		if(isset($this->eid)){
 			$this->getEncounterSection();
-		}
-
-		if(isset($this->eid)){
 			$this->getReasonForReferralSection();
+			$this->getPlanOfTreatment();
+			$this->getCarePlanGoals();
 		}
 
-		// Plan of Treatment = Plan of Care
-		// Encounter Assessment
-    	$this->getPlanOfTreatment();
 
-		// CarePlanGoals
-//    	$this->getGoals();
 
 		// ??
     	$this->getHealthConcernsSection();
@@ -1301,7 +1295,7 @@ class PatientRecord {
 	private function getCarePlanGoals(){
 		include_once(ROOT . '/dataProvider/CarePlanGoals.php');
 		$CarePlanGoals = new CarePlanGoals();
-		$goals = $CarePlanGoals->getPatientCarePlanGoalsByPid($this->pid);
+		$goals = $CarePlanGoals->getPatientCarePlanGoalsByEid($this->eid);
 
 		$goals_data = [];
 

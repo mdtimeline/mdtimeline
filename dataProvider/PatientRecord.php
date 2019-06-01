@@ -335,6 +335,9 @@ class PatientRecord {
 		foreach($results as $result){
 			$result_data = [];
 
+
+			$result_data['ResultType'] = isset($result['order_type']) ? strtoupper($result['order_type']) : '';
+
 			$result_data['Order'] = $this->code(
 				$result['code'],
 				$result['code_type'],
@@ -357,6 +360,10 @@ class PatientRecord {
 				$result['result']['specimen_text']
 			);
 			$result_data['SpecimenNotes'] = $result['result']['specimen_notes'];
+
+			$result_data['ReportBody'] = $result['result']['report_body'];
+
+
 			$result_data['Observations'] = [];
 
 			foreach($result['result']['observations'] as $observation){

@@ -142,6 +142,10 @@ Ext.define('App.model.patient.Medications', {
 			type: 'bool'
 		},
 		{
+			name: 'is_active',
+			type: 'bool'
+		},
+		{
 			name: 'is_controlled',
 			type: 'bool'
 		},

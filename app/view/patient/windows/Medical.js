@@ -64,8 +64,8 @@ Ext.define('App.view.patient.windows.Medical', {
 						}
 					})
 				},
-				height: Ext.getBody().getHeight() < 700 ? (Ext.getBody().getHeight() - 100) : 600,
 				width: Ext.getBody().getWidth() < 1550 ? (Ext.getBody().getWidth() - 50) : 1500,
+				height: Ext.getBody().getHeight() < 1050 ? (Ext.getBody().getHeight() - 50) : 1000,
 				items: tapPanelItems
 			}
 		];
@@ -110,7 +110,7 @@ Ext.define('App.view.patient.windows.Medical', {
 	onMedicalWinShow: function(){
 		var p = this.down('tabpanel'),
 			w = Ext.getBody().getWidth() < 1550 ? (Ext.getBody().getWidth() - 50) : 1500,
-			h = Ext.getBody().getHeight() < 700 ? (Ext.getBody().getHeight() - 100) : 600;
+			h = Ext.getBody().getHeight() < 850 ? (Ext.getBody().getHeight() - 50) : 800;
 		p.setSize(w, h);
 		this.alignTo(Ext.getBody(), 'c-c');
 	},

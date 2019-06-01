@@ -134,6 +134,11 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 			len: 40
 		},
 		{
+			name: 'report_body',
+			type: 'string',
+			dataType: 'mediumtext'
+		},
+		{
 			name: 'documentId',
 			type: 'string',
 			comment: 'this is the document or hl7 message id - example -> doc|123 or hl7|123',

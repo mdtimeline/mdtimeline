@@ -180,7 +180,7 @@ Ext.define('App.view.patient.Results', {
 			split: true,
 			frame: true,
 			itemId: 'ResultsCardPanel',
-			height: 350,
+			height: 400,
 			hidden: true,
 			layout: 'card',
 			activeItem: 0,
@@ -516,10 +516,9 @@ Ext.define('App.view.patient.Results', {
 										},
 										{
 											xtype: 'fileuploadfield',
-											fieldLabel: _('report'),
+											fieldLabel: _('report_document'),
 											itemId: 'ResultsRadiologyFormUploadField',
-											submitValue: false,
-											allowBlank: false
+											submitValue: false
 										}
 									]
 								},
@@ -567,10 +566,33 @@ Ext.define('App.view.patient.Results', {
 							]
 						},
 						{
-							xtype: 'miframe',
+							xtype: 'tabpanel',
 							region: 'center',
-							style: 'background-color: white',
-							itemId: 'ResultsRadiologyDocumentIframe'
+							items: [
+								{
+									xtype: 'panel',
+									title: _('report'),
+									layout: 'fit',
+									items: [
+										{
+											xtype: 'textareafield',
+											itemId: 'ResultsRadiologyReportBody'
+										}
+									]
+								},
+								{
+									xtype: 'panel',
+									title: _('document'),
+									layout: 'fit',
+									items: [
+										{
+											xtype: 'miframe',
+											region: 'center',
+											itemId: 'ResultsRadiologyDocumentIframe'
+										}
+									]
+								}
+							]
 						}
 					]
 				}

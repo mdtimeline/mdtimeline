@@ -17377,6 +17377,10 @@ Ext.define('App.model.patient.Medications', {
 			type: 'bool'
 		},
 		{
+			name: 'is_active',
+			type: 'bool'
+		},
+		{
 			name: 'is_controlled',
 			type: 'bool'
 		},
@@ -18635,6 +18639,11 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 			name: 'specimen_code_type',
 			type: 'string',
 			len: 40
+		},
+		{
+			name: 'report_body',
+			type: 'string',
+			dataType: 'mediumtext'
 		},
 		{
 			name: 'documentId',
@@ -25340,7 +25349,7 @@ Ext.define('App.view.patient.Results', {
 			split: true,
 			frame: true,
 			itemId: 'ResultsCardPanel',
-			height: 350,
+			height: 400,
 			hidden: true,
 			layout: 'card',
 			activeItem: 0,
@@ -25676,10 +25685,9 @@ Ext.define('App.view.patient.Results', {
 										},
 										{
 											xtype: 'fileuploadfield',
-											fieldLabel: _('report'),
+											fieldLabel: _('report_document'),
 											itemId: 'ResultsRadiologyFormUploadField',
-											submitValue: false,
-											allowBlank: false
+											submitValue: false
 										}
 									]
 								},
@@ -25727,10 +25735,33 @@ Ext.define('App.view.patient.Results', {
 							]
 						},
 						{
-							xtype: 'miframe',
+							xtype: 'tabpanel',
 							region: 'center',
-							style: 'background-color: white',
-							itemId: 'ResultsRadiologyDocumentIframe'
+							items: [
+								{
+									xtype: 'panel',
+									title: _('report'),
+									layout: 'fit',
+									items: [
+										{
+											xtype: 'textareafield',
+											itemId: 'ResultsRadiologyReportBody'
+										}
+									]
+								},
+								{
+									xtype: 'panel',
+									title: _('document'),
+									layout: 'fit',
+									items: [
+										{
+											xtype: 'miframe',
+											region: 'center',
+											itemId: 'ResultsRadiologyDocumentIframe'
+										}
+									]
+								}
+							]
 						}
 					]
 				}
@@ -60314,6 +60345,10 @@ Ext.define('App.controller.patient.Results', {
 		{
 			ref: 'ResultsRadiologyDocumentIframe',
 			selector: '#ResultsRadiologyDocumentIframe'
+		},
+		{
+			ref: 'ResultsRadiologyReportBody',
+			selector: '#ResultsRadiologyReportBody'
 		}
 	],
 
@@ -60381,7 +60416,7 @@ Ext.define('App.controller.patient.Results', {
 			record;
 
 		app.passwordVerificationWin(function(btn, password){
-			if(btn == 'ok'){
+			if(btn === 'ok'){
 				User.verifyUserPass(password, function(success){
 					if(success){
 						record = me.getActiveForm().getForm().getRecord();
@@ -60412,7 +60447,7 @@ Ext.define('App.controller.patient.Results', {
 			sm = me.getResultsOrdersGrid().getSelectionModel(),
 			lastSelected = sm.getLastSelected();
 
-		if(operation.action == 'create'){
+		if(operation.action === 'create'){
 
 			if(lastSelected.data.order_type === 'lab') {
 				this.getLabOrderResult(lastSelected);
@@ -60613,6 +60648,7 @@ Ext.define('App.controller.patient.Results', {
 
 					form.loadRecord(records[last_result]);
 					me.getResultsOrderSignBtn().setDisabled(records[last_result].data.signed_uid > 0);
+					me.getResultsRadiologyReportBody().setValue(records[last_result].get('report_body'));
 					me.loadRadiologyDocument(records[last_result]);
 					me.setViewStudyBtn(records[last_result]);
 				}else{
@@ -60622,6 +60658,7 @@ Ext.define('App.controller.patient.Results', {
 						code_text: order_record.data.description,
 						code_type: order_record.data.code_type,
 						order_id: order_record.data.id,
+						report_body: '',
 						ordered_uid: order_record.data.uid,
 						create_date: new Date()
 					});
@@ -60631,6 +60668,7 @@ Ext.define('App.controller.patient.Results', {
 					});
 
 					form.loadRecord(newResult[0]);
+					me.getResultsRadiologyReportBody().setValue(newResult[0].get('report_body'));
 					me.loadRadiologyDocument(newResult[0]);
 					me.setViewStudyBtn(newResult[0]);
 				}
@@ -60704,20 +60742,32 @@ Ext.define('App.controller.patient.Results', {
 		var me = this,
 			result_record = form.getRecord(),
 			values = form.getValues(),
-			reader = new FileReader();
+			reader = new FileReader(),
+			files = me.getResultsRadiologyFormUploadField().extractFileInput().files;
 
-		reader.onload = function(e){
-			values.upload = e.target.result;
+		values.report_body = me.getResultsRadiologyReportBody().getValue();
+
+		if(files[0]){
+			reader.onload = function(e){
+				values.upload = e.target.result;
+				result_record.set(values);
+				result_record.save({
+					callback: function(){
+						me.loadRadiologyDocument(result_record);
+						app.msg(_('sweet'), _('record_saved'));
+					}
+				});
+			};
+			reader.readAsDataURL(me.getResultsRadiologyFormUploadField().extractFileInput().files[0]);
+		}else{
 			result_record.set(values);
 			result_record.save({
 				callback: function(){
 					me.loadRadiologyDocument(result_record);
-					app.msg(_('sweet'), _('record_save'));
+					app.msg(_('sweet'), _('record_saved'));
 				}
 			});
-		};
-
-		reader.readAsDataURL(me.getResultsRadiologyFormUploadField().extractFileInput().files[0]);
+		}
 	},
 
 	loadRadiologyDocument: function(result_record){
@@ -63839,8 +63889,8 @@ Ext.define('App.view.patient.windows.Medical', {
 						}
 					})
 				},
-				height: Ext.getBody().getHeight() < 700 ? (Ext.getBody().getHeight() - 100) : 600,
 				width: Ext.getBody().getWidth() < 1550 ? (Ext.getBody().getWidth() - 50) : 1500,
+				height: Ext.getBody().getHeight() < 1050 ? (Ext.getBody().getHeight() - 50) : 1000,
 				items: tapPanelItems
 			}
 		];
@@ -63885,7 +63935,7 @@ Ext.define('App.view.patient.windows.Medical', {
 	onMedicalWinShow: function(){
 		var p = this.down('tabpanel'),
 			w = Ext.getBody().getWidth() < 1550 ? (Ext.getBody().getWidth() - 50) : 1500,
-			h = Ext.getBody().getHeight() < 700 ? (Ext.getBody().getHeight() - 100) : 600;
+			h = Ext.getBody().getHeight() < 850 ? (Ext.getBody().getHeight() - 50) : 800;
 		p.setSize(w, h);
 		this.alignTo(Ext.getBody(), 'c-c');
 	},

@@ -18581,19 +18581,24 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 			len: 20
 		},
 		{
-			name: 'lab_order_id',
+			name: 'performer_order_id',
 			type: 'string',
 			len: 50,
 			index: true,
 			comment: 'OBR-3'
 		},
 		{
-			name: 'lab_name',
+			name: 'performer_id',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'performer_name',
 			type: 'string',
 			len: 150
 		},
 		{
-			name: 'lab_address',
+			name: 'performer_address',
 			type: 'string',
 			len: 200
 		},
@@ -18606,7 +18611,7 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 		{
 			name: 'result_date',
 			type: 'date',
-			dateFormat: 'Y-m-d H:i:s',
+			dateFormat: 'Y-m-d',
 			index: true
 		},
 		{
@@ -25194,6 +25199,7 @@ Ext.define('App.view.patient.Results', {
 		'App.store.patient.PatientsOrders',
 		'App.ux.LiveLabsSearch',
 		'App.ux.LiveRadsSearch',
+		'App.ux.LiveReferringPhysicianSearch',
 		'App.ux.window.voidComment',
 		'App.ux.form.fields.DateTime'
 	],
@@ -25407,7 +25413,7 @@ Ext.define('App.view.patient.Results', {
 										},
 										{
 											fieldLabel: _('report_number'),
-											name: 'lab_order_id',
+											name: 'performer_order_id',
 											allowBlank: false
 										},
 										{
@@ -25456,24 +25462,23 @@ Ext.define('App.view.patient.Results', {
 								},
 								{
 									xtype: 'fieldset',
-									title: _('laboratory_info'),
+									title: _('performer'),
 									defaults: {
-										xtype: 'textfield',
 										anchor: '100%'
 									},
 									layout: 'anchor',
 									margin: 0,
-									collapsible: true,
-									collapsed: true,
 									items: [
 										{
+											xtype: 'referringphysicianlivetsearch',
 											fieldLabel: _('name'),
-											name: 'lab_name'
+											hideLabel: false,
+											name: 'performer_name'
 										},
 										{
 											xtype: 'textareafield',
 											fieldLabel: _('address'),
-											name: 'lab_address',
+											name: 'performer_address',
 											height: 50
 										}
 									]
@@ -25676,7 +25681,7 @@ Ext.define('App.view.patient.Results', {
 										},
 										{
 											fieldLabel: _('report_number'),
-											name: 'lab_order_id',
+											name: 'performer_order_id',
 											allowBlank: false
 										},
 										{
@@ -25710,19 +25715,19 @@ Ext.define('App.view.patient.Results', {
 								},
 								{
 									xtype: 'fieldset',
-									title: _('radiologist'),
+									title: _('performer'),
 									defaults: {
 										xtype: 'textfield',
 										anchor: '100%'
 									},
 									layout: 'anchor',
 									margin: 0,
-									collapsible: true,
-									collapsed: true,
 									items: [
 										{
+											xtype: 'referringphysicianlivetsearch',
 											fieldLabel: _('name'),
-											name: 'radiologist_name'
+											hideLabel: false,
+											name: 'performer_name'
 										},
 										{
 											xtype: 'textareafield',
@@ -60395,8 +60400,25 @@ Ext.define('App.controller.patient.Results', {
 			},
 			'#ResultsRadiologyFormViewStudyBtn': {
 				click: me.onResultsRadiologyFormViewStudyBtnClick
+			},
+			'#ResultsCardPanel referringphysicianlivetsearch': {
+				select: me.onResultsCardPanelReferringPhysicianLiveSearchSelect
 			}
 		});
+	},
+
+	onResultsCardPanelReferringPhysicianLiveSearchSelect: function(field, selection){
+		var form = field.up('form').getForm();
+		var record = form.getRecord();
+
+		record.set({
+			performer_id: selection[0].get('id'),
+		});
+
+		form.setValues({
+			performer_name: selection[0].get('fullname'),
+		});
+
 	},
 
 	onResultsLabsLiveSearchFieldSelect: function(cmb, records){

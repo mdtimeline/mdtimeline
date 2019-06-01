@@ -344,9 +344,14 @@ class PatientRecord {
 				$result['description']
 			);
 
-			$result_data['LabOrderNumber'] = $result['result']['lab_order_id'];
-			$result_data['LabName'] = $result['result']['lab_name'];
-			$result_data['LabAddress'] = $result['result']['lab_address'];
+			$result_data['PerformerOrderNumber'] = $result['result']['performer_order_id'];
+
+			if(isset($result['result']['performer_id']) && $result['result']['performer_id'] > 0){
+				$result_data['Performer'] = $this->externalPerformer($result['result']['performer_id']);
+			}else{
+				$result_data['Performer'] = null;
+			}
+
 			$result_data['Status'] = $result['result']['result_status'];
 
 			$result_data['Dates'] = $this->dates(

@@ -25,6 +25,7 @@ Ext.define('App.view.patient.Results', {
 		'App.store.patient.PatientsOrders',
 		'App.ux.LiveLabsSearch',
 		'App.ux.LiveRadsSearch',
+		'App.ux.LiveReferringPhysicianSearch',
 		'App.ux.window.voidComment',
 		'App.ux.form.fields.DateTime'
 	],
@@ -238,7 +239,7 @@ Ext.define('App.view.patient.Results', {
 										},
 										{
 											fieldLabel: _('report_number'),
-											name: 'lab_order_id',
+											name: 'performer_order_id',
 											allowBlank: false
 										},
 										{
@@ -287,24 +288,23 @@ Ext.define('App.view.patient.Results', {
 								},
 								{
 									xtype: 'fieldset',
-									title: _('laboratory_info'),
+									title: _('performer'),
 									defaults: {
-										xtype: 'textfield',
 										anchor: '100%'
 									},
 									layout: 'anchor',
 									margin: 0,
-									collapsible: true,
-									collapsed: true,
 									items: [
 										{
+											xtype: 'referringphysicianlivetsearch',
 											fieldLabel: _('name'),
-											name: 'lab_name'
+											hideLabel: false,
+											name: 'performer_name'
 										},
 										{
 											xtype: 'textareafield',
 											fieldLabel: _('address'),
-											name: 'lab_address',
+											name: 'performer_address',
 											height: 50
 										}
 									]
@@ -507,7 +507,7 @@ Ext.define('App.view.patient.Results', {
 										},
 										{
 											fieldLabel: _('report_number'),
-											name: 'lab_order_id',
+											name: 'performer_order_id',
 											allowBlank: false
 										},
 										{
@@ -541,19 +541,19 @@ Ext.define('App.view.patient.Results', {
 								},
 								{
 									xtype: 'fieldset',
-									title: _('radiologist'),
+									title: _('performer'),
 									defaults: {
 										xtype: 'textfield',
 										anchor: '100%'
 									},
 									layout: 'anchor',
 									margin: 0,
-									collapsible: true,
-									collapsed: true,
 									items: [
 										{
+											xtype: 'referringphysicianlivetsearch',
 											fieldLabel: _('name'),
-											name: 'radiologist_name'
+											hideLabel: false,
+											name: 'performer_name'
 										},
 										{
 											xtype: 'textareafield',

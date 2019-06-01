@@ -74,19 +74,24 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 			len: 20
 		},
 		{
-			name: 'lab_order_id',
+			name: 'performer_order_id',
 			type: 'string',
 			len: 50,
 			index: true,
 			comment: 'OBR-3'
 		},
 		{
-			name: 'lab_name',
+			name: 'performer_id',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'performer_name',
 			type: 'string',
 			len: 150
 		},
 		{
-			name: 'lab_address',
+			name: 'performer_address',
 			type: 'string',
 			len: 200
 		},
@@ -99,7 +104,7 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 		{
 			name: 'result_date',
 			type: 'date',
-			dateFormat: 'Y-m-d H:i:s',
+			dateFormat: 'Y-m-d',
 			index: true
 		},
 		{

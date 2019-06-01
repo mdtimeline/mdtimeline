@@ -140,8 +140,25 @@ Ext.define('App.controller.patient.Results', {
 			},
 			'#ResultsRadiologyFormViewStudyBtn': {
 				click: me.onResultsRadiologyFormViewStudyBtnClick
+			},
+			'#ResultsCardPanel referringphysicianlivetsearch': {
+				select: me.onResultsCardPanelReferringPhysicianLiveSearchSelect
 			}
 		});
+	},
+
+	onResultsCardPanelReferringPhysicianLiveSearchSelect: function(field, selection){
+		var form = field.up('form').getForm();
+		var record = form.getRecord();
+
+		record.set({
+			performer_id: selection[0].get('id'),
+		});
+
+		form.setValues({
+			performer_name: selection[0].get('fullname'),
+		});
+
 	},
 
 	onResultsLabsLiveSearchFieldSelect: function(cmb, records){

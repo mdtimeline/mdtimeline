@@ -629,7 +629,7 @@ class PatientRecord {
 				$result['performed_date'], null
 			);
 
-			$procedure['Observation'] = $result['observation'];
+			$procedure['Observation'] = $result['notes'];
 			$procedure['Performer'] = $this->externalPerformer($result['performer_id']);
 			$procedure['ServiceLocation'] = $this->externalPerformer($result['service_location_id']);
 
@@ -1275,7 +1275,7 @@ class PatientRecord {
 			$referral['ToProvider'] = '';
 			$referral['Dates'] = '';
 			$referral['ScheduleDate '] = '';
-			$referral['Organization'] = $this->organization($result['facility_id']);
+			$referral['Organization'] = isset($result['facility_id']) ? $this->organization($result['facility_id']): null;
 			$referral['ReferTo'] = $this->externalPerformer($result['refer_to']);
 
 			if(
@@ -1471,7 +1471,7 @@ class PatientRecord {
 			);
 		}
 
-		$PatientRole['DirectAddress'] = $patientData['direct_address'];
+		$PatientRole['DirectAddress'] = isset($patientData['direct_address']) ? $patientData['direct_address'] : null;
 		$PatientRole['Email'] = $patientData['email'];
 
 		$religion = $this->CombosData->getValuesByListIdAndOptionValue(142, $patientData['religion']);
@@ -1812,7 +1812,7 @@ class PatientRecord {
 
 		$performer['Telecom'] = $this->phone(
 			'WP',
-			$referring['phone']
+			$referring['phone_number']
 		);
 
 		$performer['Taxonomy'] = $this->code($referring['taxonomy'], 'TAXONOMY');

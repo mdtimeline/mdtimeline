@@ -335,7 +335,7 @@ class PatientRecord {
 		foreach($results as $result){
 			$result_data = [];
 
-
+			$result_data['Id'] = $result['id'];
 			$result_data['ResultType'] = isset($result['order_type']) ? strtoupper($result['order_type']) : '';
 
 			$result_data['Order'] = $this->code(

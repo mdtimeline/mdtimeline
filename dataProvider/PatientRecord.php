@@ -1890,6 +1890,20 @@ class PatientRecord {
 			$facility['country_code']
 		);
 
+
+		if(isset($facility['service_loc_code']) && trim($facility['service_loc_code']) !== ''){
+			$locs = json_decode(file_get_contents(ROOT. '/resources/code_sets/PH_HealthcareServiceLoc_NHSN.json'), true);
+			$race_key = array_search($facility['service_loc_code'], array_column($locs, 'code'));
+			if($race_key !== false){
+				$performer['ServiceLocation'] = $this->code($facility['service_loc_code'], 'HealthcareServiceLocation', $locs[$race_key]['displayName']);
+			}else{
+				$performer['ServiceLocation'] = null;
+			}
+		}else{
+			$performer['ServiceLocation'] = null;
+		}
+
+
 		$performer['PlaceOfService'] = $this->code($facility['pos_code'], 'Place of Service Codes');
 
 		return $this->buff['organizations'][$facility_id] = $performer;
@@ -2117,7 +2131,7 @@ class PatientRecord {
 				return '2.16.840.1.113883.5.83';
 			case 'HumanLanguage':
 				return '2.16.840.1.113883.6.121';
-			case 'PH_HealthcareServiceLoc_NHSN':
+			case 'HealthcareServiceLocation':
 				return '2.16.840.1.113883.6.259';
 			case 'ActNoImmunizationReason':
 			case 'HL7 ActNoImmunizationReason':

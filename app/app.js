@@ -12016,6 +12016,11 @@ Ext.define('App.model.administration.Facility', {
 			len: 2
 		},
 		{
+			name: 'service_loc_code',
+			type: 'string',
+			len: 10
+		},
+		{
 			name: 'ein',
 			type: 'string',
 			len: 15
@@ -12092,6 +12097,7 @@ Ext.define('App.model.administration.Facility', {
 		root: 'data'
 	}
 });
+
 Ext.define('App.model.administration.FacilityStructure', {
 	extend: 'Ext.data.Model',
 	table: {
@@ -27954,6 +27960,11 @@ Ext.define('App.view.administration.practice.Facilities', {
 	xtype: 'facilitiespanel',
 	title: _('facilities'),
 
+	requires: [
+		'App.ux.combo.ServiceLocation'
+	],
+
+
 	initComponent: function(){
 		var me = this;
 
@@ -28150,6 +28161,12 @@ Ext.define('App.view.administration.practice.Facilities', {
 										xtype: 'mitos.poscodescombo',
 										fieldLabel: _('pos_code'),
 										name: 'pos_code',
+										anchor: '100%'
+									},
+									{
+										xtype: 'servicelocationcombo',
+										fieldLabel: _('service_location'),
+										name: 'service_loc_code',
 										anchor: '100%'
 									},
 									{

@@ -1561,17 +1561,32 @@ class PatientRecord {
 		}
 
 		if(!$this->isExcluded('patient_ethnicity')){
-			$ethnicity = $this->CombosData->getValuesByListIdAndOptionValue(14, $patientData['ethnicity']);
-			$code = $patientData['ethnicity'] == 'H' ? '2135-2' : '2186-5';
-			$codeName = 'Race & Ethnicity - CDC';
 
-			$PatientRole['Patient']['EthnicGroupCode'] = $this->code(
-				$code,
-				$codeName
-			);
+			$ethnicity = json_decode(file_get_contents(ROOT. '/resources/code_sets/HL7v3-Ethnicity.json'), true);
+			$ethnicity_key = array_search($patientData['ethnicity'], array_column($ethnicity, 'code'));
 
-			// TODO
-			$PatientRole['Patient']['SecondaryEthnicGroupCode'] = [];
+			if($ethnicity_key !== false){
+				$PatientRole['Patient']['EthnicGroupCode'] = $this->code(
+					$ethnicity[$ethnicity_key]['code'],
+					$ethnicity[$ethnicity_key]['code_type'],
+					$ethnicity[$ethnicity_key]['code_description']
+				);
+			}else{
+				$PatientRole['Patient']['EthnicGroupCode'] = null;
+			}
+
+			$ethnicity_key = array_search($patientData['secondary_ethnicity'], array_column($ethnicity, 'code'));
+
+			if($ethnicity_key !== false){
+				$PatientRole['Patient']['SecondaryEthnicGroupCode'] = $this->code(
+					$ethnicity[$ethnicity_key]['code'],
+					$ethnicity[$ethnicity_key]['code_type'],
+					$ethnicity[$ethnicity_key]['code_description']
+				);
+			}else{
+				$PatientRole['Patient']['SecondaryEthnicGroupCode'] = null;
+			}
+
 		}
 
 		if(!$this->isExcluded('patient_preferred_language')){

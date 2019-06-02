@@ -384,6 +384,8 @@ class PatientRecord {
 
 				$obs['Value'] = $observation['value'];
 				$obs['Unit'] = $observation['units'];
+				$obs['AbnormalFlag'] = $observation['abnormal_flag'];
+				$obs['Status'] = $observation['observation_result_status'];
 				$obs['InterpretationCode'] = $this->code(
 					$observation['abnormal_flag'],
 					'ObservationInterpretation'

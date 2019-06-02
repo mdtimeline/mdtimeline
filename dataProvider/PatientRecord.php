@@ -390,10 +390,10 @@ class PatientRecord {
 				);
 
 				$ranges = preg_split("/to|-/", $observation['reference_rage']);
-				if(is_array($ranges) && count($ranges) > 2){
-					$obs['ReferenceRange']['Low']['Value'] = $ranges[0];
+				if(is_array($ranges) && count($ranges) == 2){
+					$obs['ReferenceRange']['Low']['Value'] = trim($ranges[0]);
 					$obs['ReferenceRange']['Low']['Unit'] = $observation['units'];
-					$obs['ReferenceRange']['High']['Value'] = $ranges[1];
+					$obs['ReferenceRange']['High']['Value'] = trim($ranges[1]);
 					$obs['ReferenceRange']['High']['Unit'] = $observation['units'];
 				}else if(is_array($ranges) && count($ranges) == 1){
 					$obs['ReferenceRange']['Value'] = $ranges[0];

@@ -157,6 +157,7 @@ class PatientRecord {
 
 		$this->getRecordTarget();
 		$this->getAuthor($uid);
+		$this->getAssignedAuthor($uid);
 		$this->getDataEnterer($uid);
 		$this->getInformant($uid);
 		$this->getCustodian($uid);

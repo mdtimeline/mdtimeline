@@ -532,7 +532,7 @@ class PatientRecord {
 				'LOINC',
 				'Body Temperature'
 			);
-			$obs['Value']['Value'] = '';
+			$obs['Value']['Value'] = $result['temp_c'];
 			$obs['Value']['Unit'] = 'Cel';
 			$vital['Observations'][] = $obs;
 
@@ -543,8 +543,8 @@ class PatientRecord {
 				'LOINC',
 				'Respiratory Rate'
 			);
-			$obs['Value']['Value'] = '';
-			$obs['Value']['Unit'] = 'Cel';
+			$obs['Value']['Value'] = $result['respiration'];
+			$obs['Value']['Unit'] = '/min';
 			$vital['Observations'][] = $obs;
 
 			$obs = [];
@@ -554,7 +554,7 @@ class PatientRecord {
 				'LOINC',
 				'Heart Rate'
 			);
-			$obs['Value']['Value'] = '';
+			$obs['Value']['Value'] = $result['pulse'];
 			$obs['Value']['Unit'] = '/min';
 			$vital['Observations'][] = $obs;
 

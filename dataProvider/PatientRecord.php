@@ -2115,6 +2115,10 @@ class PatientRecord {
 				return '2.16.840.1.113883.6.238';
 			case 'ObservationInterpretation':
 				return '2.16.840.1.113883.5.83';
+			case 'HumanLanguage':
+				return '2.16.840.1.113883.6.121';
+			case 'PH_HealthcareServiceLoc_NHSN':
+				return '2.16.840.1.113883.6.259';
 			case 'ActNoImmunizationReason':
 			case 'HL7 ActNoImmunizationReason':
 				return '2.16.840.1.113883.1.11.19717';

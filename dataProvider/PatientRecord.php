@@ -1543,21 +1543,27 @@ class PatientRecord {
 			$races = json_decode(file_get_contents(ROOT. '/resources/code_sets/HL7v3-Race.json'), true);
 			$race_key = array_search($patientData['race'], array_column($races, 'code'));
 
-			$PatientRole['Patient']['RaceCode'] = $this->code(
-				$races[$race_key]['code'],
-				$races[$race_key]['code_type'],
-				$races[$race_key]['code_description']
-			);
+			if($race_key !== false){
+				$PatientRole['Patient']['RaceCode'] = $this->code(
+					$races[$race_key]['code'],
+					$races[$race_key]['code_type'],
+					$races[$race_key]['code_description']
+				);
+			}else{
+				$PatientRole['Patient']['RaceCode'] = null;
+			}
 
-			$race_key = array_search($patientData['race'], array_column($races, 'code'));
-			$PatientRole['Patient']['SecondaryRaceCode'] = $this->code(
-				$races[$race_key]['code'],
-				$races[$race_key]['code_type'],
-				$races[$race_key]['code_description']
-			);
+			$race_key = array_search($patientData['secondary_race'], array_column($races, 'code'));
+			if($race_key !== false){
+				$PatientRole['Patient']['SecondaryRaceCode'] = $this->code(
+					$races[$race_key]['code'],
+					$races[$race_key]['code_type'],
+					$races[$race_key]['code_description']
+				);
+			}else{
+				$PatientRole['Patient']['SecondaryRaceCode'] = null;
+			}
 
-			// TODO
-			$PatientRole['Patient']['SecondaryRaceCode'] = [];
 		}
 
 		if(!$this->isExcluded('patient_ethnicity')){

@@ -625,7 +625,7 @@ class PatientRecord {
 			$procedure['Status'] = $this->code(
 				'completed',
 				null,
-				'Completed'
+				'completed'
 			);
 
 			$procedure['TargetSite'] = $this->code(

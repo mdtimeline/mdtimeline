@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+include_once(ROOT . '/classes/UUID.php');
 include_once(ROOT . '/dataProvider/User.php');
 include_once(ROOT . '/dataProvider/Patient.php');
 include_once(ROOT . '/dataProvider/Facilities.php');
@@ -1800,7 +1801,7 @@ class PatientRecord {
 		}
 
 		$performer = [];
-		$performer['Id'] = $referring['id'];
+		$performer['Id'] = UUID::v4();
 		$performer['NPI'] = $referring['npi'];
 
 		if(isset($referring['lname']) && $referring['lname'] !== ''){

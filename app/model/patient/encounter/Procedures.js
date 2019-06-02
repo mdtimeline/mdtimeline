@@ -36,7 +36,7 @@ Ext.define('App.model.patient.encounter.Procedures', {
 			type: 'int'
 		},
 		{
-			name: 'uid',
+			name: 'performer_id',
 			type: 'int'
 		},
 		{

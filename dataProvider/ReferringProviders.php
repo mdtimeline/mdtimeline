@@ -75,7 +75,7 @@ class ReferringProviders {
 		return $this->f->destroy($params);
 	}
 
-	public function getReferringProviderById($id){
+	public function getReferringProviderById($id, $include_facilities = true){
 		return $this->getReferringProvider($id);
 	}
 
@@ -116,11 +116,11 @@ class ReferringProviders {
         foreach($queries as $index => $query){
             $query = trim($query);
             if($query == '') continue;
-            $where[] = " (npi = :npi{$index} OR fname LIKE :fname{$index} OR lname LIKE :lname{$index} OR mname LIKE :mname{$index} OR email LIKE :email{$index})";
+            $where[] = " (npi = :npi{$index} OR fname LIKE :fname{$index} OR lname LIKE :lname{$index} OR organization_name LIKE :organization_name{$index} OR email LIKE :email{$index})";
 
             $whereValues[':fname'.$index] = $query . '%';
             $whereValues[':lname'.$index] = $query . '%';
-            $whereValues[':mname'.$index] = $query . '%';
+            $whereValues[':organization_name'.$index] = '%' . $query . '%';
             $whereValues[':npi'.$index] = $query;
             $whereValues[':email'.$index] = $query;
         }

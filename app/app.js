@@ -8453,36 +8453,6 @@ Ext.define('App.ux.combo.EncounterPriority', {
 Ext.define('App.ux.combo.Ethnicity', {
 	extend: 'Ext.form.ComboBox',
 	alias: 'widget.ethnicitycombo',
-	store: Ext.create('Ext.data.Store', {
-		fields: [
-			{name: 'code', type: 'string'},
-			{name: 'code_type', type: 'string'},
-			{name: 'code_description', type: 'string'},
-			{
-				name: 'indent_index',
-				type: 'int',
-				convert: function (v) {
-					var str = '';
-					while(v > 0){ str += '----'; v--; }
-					return str.trim();
-				}
-			}
-		],
-		autoLoad: true,
-		proxy: {
-			type: 'ajax',
-			url: 'resources/code_sets/HL7v3-Ethnicity.json',
-			reader: {
-				type: 'json'
-			}
-		},
-		listeners: {
-			load: function () {
-				this.insert(0, [{code: 'ASKU', code_type: 'CDA', code_description: 'Declined to specify' }]);
-
-			}
-		}
-	}),
 	tpl: Ext.create('Ext.XTemplate',
 		'<tpl for=".">',
 		'<div class="x-boundlist-item">{indent_index} <b>{code_description}</b> [{code}]</div>',
@@ -8496,6 +8466,37 @@ Ext.define('App.ux.combo.Ethnicity', {
 	emptyText: _('ethnicity'),
 	initComponent: function () {
 		var me = this;
+
+		me.store = Ext.create('Ext.data.Store', {
+			fields: [
+				{name: 'code', type: 'string'},
+				{name: 'code_type', type: 'string'},
+				{name: 'code_description', type: 'string'},
+				{
+					name: 'indent_index',
+					type: 'int',
+					convert: function (v) {
+						var str = '';
+						while(v > 0){ str += '----'; v--; }
+						return str.trim();
+					}
+				}
+			],
+			autoLoad: true,
+			proxy: {
+				type: 'ajax',
+				url: 'resources/code_sets/HL7v3-Ethnicity.json',
+				reader: {
+					type: 'json'
+				}
+			},
+			listeners: {
+				load: function () {
+					this.insert(0, [{code: 'ASKU', code_type: 'CDA', code_description: 'Declined to specify' }]);
+
+				}
+			}
+		});
 
 		me.callParent(arguments);
 	}
@@ -10114,35 +10115,6 @@ Ext.define('App.ux.combo.Providers', {
 Ext.define('App.ux.combo.Race', {
 	extend: 'Ext.form.ComboBox',
 	alias: 'widget.racecombo',
-	store: Ext.create('Ext.data.Store', {
-		fields: [
-			{name: 'code', type: 'string'},
-			{name: 'code_type', type: 'string'},
-			{name: 'code_description', type: 'string'},
-			{
-				name: 'indent_index',
-				type: 'int',
-				convert: function (v) {
-					var str = '';
-					while(v > 0){ str += '----'; v--; }
-					return str.trim();
-				}
-			},
-		],
-		autoLoad: true,
-		proxy: {
-			type: 'ajax',
-			url: 'resources/code_sets/HL7v3-Race.json',
-			reader: {
-				type: 'json'
-			}
-		},
-		listeners: {
-			load: function () {
-				this.insert(0, [{code: 'ASKU', code_type: 'CDA', code_description: 'Declined to specify' }]);
-			}
-		}
-	}),
 	tpl: Ext.create('Ext.XTemplate',
 		'<tpl for=".">',
 		'<div class="x-boundlist-item">{indent_index} <b>{code_description}</b> [{code}]</div>',
@@ -10156,6 +10128,37 @@ Ext.define('App.ux.combo.Race', {
 	emptyText: _('race'),
 	initComponent: function () {
 		var me = this;
+
+		me.store = Ext.create('Ext.data.Store', {
+			fields: [
+				{name: 'code', type: 'string'},
+				{name: 'code_type', type: 'string'},
+				{name: 'code_description', type: 'string'},
+				{
+					name: 'indent_index',
+					type: 'int',
+					convert: function (v) {
+						var str = '';
+						while(v > 0){ str += '----'; v--; }
+						return str.trim();
+					}
+				},
+			],
+			autoLoad: true,
+			proxy: {
+				type: 'ajax',
+				url: 'resources/code_sets/HL7v3-Race.json',
+				reader: {
+					type: 'json'
+				}
+			},
+			listeners: {
+				load: function () {
+					this.insert(0, [{code: 'ASKU', code_type: 'CDA', code_description: 'Declined to specify' }]);
+				}
+			}
+		});
+
 		me.callParent(arguments);
 	}
 });
@@ -13586,7 +13589,12 @@ Ext.define('App.model.administration.ReferringProvider', {
         {
             name: 'lname',
             type: 'string',
-            len: 60
+            len: 120
+        },
+        {
+            name: 'organization_name',
+            type: 'string',
+            len: 120
         },
         {
             name: 'upin',
@@ -13678,7 +13686,6 @@ Ext.define('App.model.administration.ReferringProvider', {
             type: 'bool',
             index: true
         },
-
         {
             name: 'external_id',
             type: 'string',
@@ -13687,9 +13694,9 @@ Ext.define('App.model.administration.ReferringProvider', {
         {
             name: 'global_id',
             type: 'string',
-            len: 50
+            len: 50,
+            useNull: true
         },
-
         {
             name: 'authy_id',
             type: 'string',
@@ -15234,6 +15241,12 @@ Ext.define('App.model.patient.Vitals', {
 			len: 10
 		},
 		{
+			name: 'oxygen_inhaled_concentration',
+			type: 'float',
+			useNull: true,
+			len: 10
+		},
+		{
 			name: 'head_circumference_in',
 			type: 'float',
 			useNull: true,
@@ -15638,7 +15651,7 @@ Ext.define('App.model.patient.encounter.Procedures', {
 			type: 'int'
 		},
 		{
-			name: 'uid',
+			name: 'performer_id',
 			type: 'int'
 		},
 		{
@@ -17364,6 +17377,10 @@ Ext.define('App.model.patient.Medications', {
 			type: 'bool'
 		},
 		{
+			name: 'is_active',
+			type: 'bool'
+		},
+		{
 			name: 'is_controlled',
 			type: 'bool'
 		},
@@ -18564,19 +18581,24 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 			len: 20
 		},
 		{
-			name: 'lab_order_id',
+			name: 'performer_order_id',
 			type: 'string',
 			len: 50,
 			index: true,
 			comment: 'OBR-3'
 		},
 		{
-			name: 'lab_name',
+			name: 'performer_id',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'performer_name',
 			type: 'string',
 			len: 150
 		},
 		{
-			name: 'lab_address',
+			name: 'performer_address',
 			type: 'string',
 			len: 200
 		},
@@ -18589,7 +18611,7 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 		{
 			name: 'result_date',
 			type: 'date',
-			dateFormat: 'Y-m-d H:i:s',
+			dateFormat: 'Y-m-d',
 			index: true
 		},
 		{
@@ -18622,6 +18644,11 @@ Ext.define('App.model.patient.PatientsOrderResult', {
 			name: 'specimen_code_type',
 			type: 'string',
 			len: 40
+		},
+		{
+			name: 'report_body',
+			type: 'string',
+			dataType: 'mediumtext'
 		},
 		{
 			name: 'documentId',
@@ -24796,6 +24823,21 @@ Ext.define('App.view.patient.Vitals', {
 					return v === 0 || v === null ? '' : v + ' in'
 				}
 			});
+			columns.push({
+				text: _('hc'),
+				dataIndex: 'head_circumference_in',
+				width: 70,
+				stateId: 'VitalsHistoryGridHeadCircumferenceCol',
+				editor: {
+					xtype: 'textfield',
+					itemId: 'vitalHeadCircumferenceInField',
+					vtype: 'numericWithDecimal',
+					enableKeyEvents: true
+				},
+				renderer:function(v){
+					return v === 0 || v === null ? '' : v + ' in'
+				}
+			});
 		}else{
 			columns.push({
 				text: _('weight'),
@@ -24825,6 +24867,21 @@ Ext.define('App.view.patient.Vitals', {
 				},
 				renderer:function(v){
 					return v === 0 || v === null ? '' : v + ' cm'
+				}
+			});
+			columns.push({
+				text: _('hc'),
+				dataIndex: 'head_circumference_cm',
+				width: 70,
+				stateId: 'VitalsHistoryGridHeadCircumferenceCol',
+				editor: {
+					xtype: 'textfield',
+					itemId: 'vitalHeadCircumferenceCmField',
+					vtype: 'numericWithDecimal',
+					enableKeyEvents: true
+				},
+				renderer:function(v){
+					return v === 0 || v === null ? '' : v + ' in'
 				}
 			});
 		}
@@ -24861,6 +24918,28 @@ Ext.define('App.view.patient.Vitals', {
 			dataIndex: 'bmi',
 			stateId: 'VitalsHistoryGridBmiCol',
 			width: 50
+		});
+
+		columns.push({
+			text: _('o2%'),
+			dataIndex: 'oxygen_saturation',
+			stateId: 'VitalsHistoryGridOxygenSaturationCol',
+			width: 50,
+			editor: {
+				xtype: 'textfield',
+				vtype: 'numericWithDecimal'
+			},
+		});
+
+		columns.push({
+			text: _('fio2%'),
+			dataIndex: 'oxygen_inhaled_concentration',
+			stateId: 'VitalsHistoryGridInhaledOxygenConcentrationCol',
+			width: 50,
+			editor: {
+				xtype: 'textfield',
+				vtype: 'numericWithDecimal'
+			},
 		});
 
 		columns.push({
@@ -25120,6 +25199,7 @@ Ext.define('App.view.patient.Results', {
 		'App.store.patient.PatientsOrders',
 		'App.ux.LiveLabsSearch',
 		'App.ux.LiveRadsSearch',
+		'App.ux.LiveReferringPhysicianSearch',
 		'App.ux.window.voidComment',
 		'App.ux.form.fields.DateTime'
 	],
@@ -25275,7 +25355,7 @@ Ext.define('App.view.patient.Results', {
 			split: true,
 			frame: true,
 			itemId: 'ResultsCardPanel',
-			height: 350,
+			height: 400,
 			hidden: true,
 			layout: 'card',
 			activeItem: 0,
@@ -25333,7 +25413,7 @@ Ext.define('App.view.patient.Results', {
 										},
 										{
 											fieldLabel: _('report_number'),
-											name: 'lab_order_id',
+											name: 'performer_order_id',
 											allowBlank: false
 										},
 										{
@@ -25382,24 +25462,23 @@ Ext.define('App.view.patient.Results', {
 								},
 								{
 									xtype: 'fieldset',
-									title: _('laboratory_info'),
+									title: _('performer'),
 									defaults: {
-										xtype: 'textfield',
 										anchor: '100%'
 									},
 									layout: 'anchor',
 									margin: 0,
-									collapsible: true,
-									collapsed: true,
 									items: [
 										{
+											xtype: 'referringphysicianlivetsearch',
 											fieldLabel: _('name'),
-											name: 'lab_name'
+											hideLabel: false,
+											name: 'performer_name'
 										},
 										{
 											xtype: 'textareafield',
 											fieldLabel: _('address'),
-											name: 'lab_address',
+											name: 'performer_address',
 											height: 50
 										}
 									]
@@ -25602,7 +25681,7 @@ Ext.define('App.view.patient.Results', {
 										},
 										{
 											fieldLabel: _('report_number'),
-											name: 'lab_order_id',
+											name: 'performer_order_id',
 											allowBlank: false
 										},
 										{
@@ -25611,10 +25690,9 @@ Ext.define('App.view.patient.Results', {
 										},
 										{
 											xtype: 'fileuploadfield',
-											fieldLabel: _('report'),
+											fieldLabel: _('report_document'),
 											itemId: 'ResultsRadiologyFormUploadField',
-											submitValue: false,
-											allowBlank: false
+											submitValue: false
 										}
 									]
 								},
@@ -25637,19 +25715,19 @@ Ext.define('App.view.patient.Results', {
 								},
 								{
 									xtype: 'fieldset',
-									title: _('radiologist'),
+									title: _('performer'),
 									defaults: {
 										xtype: 'textfield',
 										anchor: '100%'
 									},
 									layout: 'anchor',
 									margin: 0,
-									collapsible: true,
-									collapsed: true,
 									items: [
 										{
+											xtype: 'referringphysicianlivetsearch',
 											fieldLabel: _('name'),
-											name: 'radiologist_name'
+											hideLabel: false,
+											name: 'performer_name'
 										},
 										{
 											xtype: 'textareafield',
@@ -25662,10 +25740,33 @@ Ext.define('App.view.patient.Results', {
 							]
 						},
 						{
-							xtype: 'miframe',
+							xtype: 'tabpanel',
 							region: 'center',
-							style: 'background-color: white',
-							itemId: 'ResultsRadiologyDocumentIframe'
+							items: [
+								{
+									xtype: 'panel',
+									title: _('report'),
+									layout: 'fit',
+									items: [
+										{
+											xtype: 'textareafield',
+											itemId: 'ResultsRadiologyReportBody'
+										}
+									]
+								},
+								{
+									xtype: 'panel',
+									title: _('document'),
+									layout: 'fit',
+									items: [
+										{
+											xtype: 'miframe',
+											region: 'center',
+											itemId: 'ResultsRadiologyDocumentIframe'
+										}
+									]
+								}
+							]
 						}
 					]
 				}
@@ -36920,7 +37021,35 @@ Ext.define('App.controller.administration.ReferringProviders', {
 			},
 			'#ReferringProviderWindowFormNpiSearchField': {
 				searchresponse: me.onReferringProviderWindowFormNpiSearchFieldSearchResponse
+			},
+			'#ProceduresHistoryGridPerformerField': {
+				select: me.onProceduresHistoryGridPerformerFieldSelect
+			},
+			'#ProceduresHistoryGridServiceLocationField': {
+				select: me.onProceduresHistoryGridServiceLocationFieldSelect
 			}
+		});
+	},
+
+	onProceduresHistoryGridPerformerFieldSelect: function(field, selection){
+
+		if(selection.length === 0) return;
+
+		var record = field.up('form').getForm().getRecord();
+
+		record.set({
+			performer_id: selection[0].get('id')
+		});
+	},
+
+	onProceduresHistoryGridServiceLocationFieldSelect: function(field, selection){
+
+		if(selection.length === 0) return;
+
+		var record = field.up('form').getForm().getRecord();
+
+		record.set({
+			service_location_id: selection[0].get('id')
 		});
 	},
 
@@ -36962,10 +37091,12 @@ Ext.define('App.controller.administration.ReferringProviders', {
 		}
 
 		var values = {
+			global_id: null,
 			title: result.data.basic.name_prefix,
-			fname: result.data.basic.first_name,
+			fname: result.data.basic.first_name || '',
 			mname: '',
-			lname: result.data.basic.last_name,
+			lname: result.data.basic.last_name || '',
+			organization_name: result.data.basic.organization_name || '',
 			active: 1,
 			npi: result.data.number,
 			lic: '',
@@ -36999,7 +37130,7 @@ Ext.define('App.controller.administration.ReferringProviders', {
 				values.fax_number = address.fax_number || '';
 
 				facilities = Ext.Array.push(facilities, {
-					name: '',
+					name: values.organization_name,
 					address: address.address_1 || '',
 					address_cont: address.address_2 || '',
 					city: address.city || '',
@@ -37046,6 +37177,7 @@ Ext.define('App.controller.administration.ReferringProviders', {
 	doReferringProviderWindow: function (referring_record) {
 
 		referring_record = referring_record || Ext.create('App.model.administration.ReferringProvider', {
+				global_id: null,
 				create_date: new Date(),
 				update_date: new Date(),
 				create_uid: app.user.id,
@@ -37083,6 +37215,11 @@ Ext.define('App.controller.administration.ReferringProviders', {
 
 		if(!form.isValid()) return;
 
+		if((values.lname.trim() != '' || values.fname.trim() != '') && values.organization_name.trim() == ''){
+			app.msg(_('oops'), _('referring_name_validation_msg'), true);
+			return;
+		}
+
 		values.update_date = new Date();
 		values.update_uid = app.user.id;
 		if(values.username === '') values.username = null;
@@ -37090,23 +37227,23 @@ Ext.define('App.controller.administration.ReferringProviders', {
 		record.set(values);
 
 		record.save({
-			callback: function () {
+			callback: function (provider_record) {
 				var sync_records = Ext.Array.merge(store.getUpdatedRecords(), store.getNewRecords());
 
 				if(sync_records.length > 0){
 					sync_records.forEach(function (sync_record) {
-						sync_record.set({referring_provider_id: record.get('id')})
+						sync_record.set({referring_provider_id: provider_record.get('id')})
 					});
 
 					store.sync({
 						callback: function () {
 							me.getReferringProviderWindow().close();
-							me.recordSaveHandler(record);
+							me.recordSaveHandler(provider_record);
 						}
 					});
 				}else {
 					me.getReferringProviderWindow().close();
-					me.recordSaveHandler(record);
+					me.recordSaveHandler(provider_record);
 				}
 			}
 		});
@@ -45100,6 +45237,9 @@ Ext.define('App.controller.patient.Medical', {
             '#MedicalWindow #familyhistory': {
                 'show': me.onPanelShow
             },
+            '#MedicalWindow #patientprocedureshistorygrid': {
+                'show': me.onPanelShow
+            },
             '#MedicalWindow #advancedirectives': {
                 'show': me.onPanelShow
             },
@@ -51044,7 +51184,7 @@ Ext.define('App.view.patient.encounter.CarePlanGoals', {
 });
 Ext.define('App.ux.LiveSnomedProcedureSearch', {
 	extend: 'Ext.form.ComboBox',
-	alias: 'widget.snomedliveproceduresearch',
+	xtype: 'snomedliveproceduresearch',
 	hideLabel: true,
 	displayField: 'Term',
 	valueField: 'ConceptId',
@@ -52664,13 +52804,6 @@ Ext.define('App.view.patient.SmokingStatus', {
 			width: 25
 		},
 		{
-			xtype: 'datecolumn',
-			text: _('date'),
-			dataIndex: 'create_date',
-			format: 'Y-m-d',
-			width: 120
-		},
-		{
 			text: _('status'),
 			dataIndex: 'status',
 			width: 250,
@@ -52708,6 +52841,18 @@ Ext.define('App.view.patient.SmokingStatus', {
 				format: g('date_display_format'),
 				submitFormat: 'Y-m-d'
 			}
+		},
+		{
+			xtype: 'datecolumn',
+			format: 'Y-m-d',
+			text: _('end_date'),
+			dataIndex: 'end_date',
+			width: 120,
+			editor: {
+				xtype: 'datefield',
+				format: g('date_display_format'),
+				submitFormat: 'Y-m-d'
+			}
 		}
 	],
 	tbar: [
@@ -52723,6 +52868,7 @@ Ext.define('App.view.patient.SmokingStatus', {
 		}
 	]
 });
+
 Ext.define('App.ux.LiveSnomedSearch', {
 	extend: 'Ext.form.ComboBox',
 	alias: 'widget.snomedlivesearch',
@@ -53363,24 +53509,36 @@ Ext.define('App.view.patient.windows.EncounterCheckOut', {
 			]
 		}
 	],
-	buttons: [
+	dockedItems: [
 		{
-			xtype: 'encountersupervisorscombo',
-			itemId: 'EncounterCoSignSupervisorCombo',
-			allowBlank: false,
-			width: 250
-		},
-		{
-			text: _('co_sign') + ' (' + _('supervisor') + ')',
-			itemId: 'EncounterCoSignSupervisorBtn'
-		},
-		{
-			text: _('sign'),
-			itemId: 'EncounterSignBtn'
-		},
-		{
-			text: _('cancel'),
-			itemId: 'EncounterCancelSignBtn'
+			xtype: 'toolbar',
+			dock: 'bottom',
+			ui: 'footer',
+			itemId: 'EncounterSignWindowBottomToolbar',
+			defaults: {
+				minWidth: 70
+			},
+			items: [
+				'->',
+				{
+					xtype: 'encountersupervisorscombo',
+					itemId: 'EncounterCoSignSupervisorCombo',
+					allowBlank: false,
+					width: 250
+				},
+				{
+					text: _('co_sign') + ' (' + _('supervisor') + ')',
+					itemId: 'EncounterCoSignSupervisorBtn'
+				},
+				{
+					text: _('sign'),
+					itemId: 'EncounterSignBtn'
+				},
+				{
+					text: _('cancel'),
+					itemId: 'EncounterCancelSignBtn'
+				}
+			]
 		}
 	]
 });
@@ -60192,6 +60350,10 @@ Ext.define('App.controller.patient.Results', {
 		{
 			ref: 'ResultsRadiologyDocumentIframe',
 			selector: '#ResultsRadiologyDocumentIframe'
+		},
+		{
+			ref: 'ResultsRadiologyReportBody',
+			selector: '#ResultsRadiologyReportBody'
 		}
 	],
 
@@ -60238,8 +60400,25 @@ Ext.define('App.controller.patient.Results', {
 			},
 			'#ResultsRadiologyFormViewStudyBtn': {
 				click: me.onResultsRadiologyFormViewStudyBtnClick
+			},
+			'#ResultsCardPanel referringphysicianlivetsearch': {
+				select: me.onResultsCardPanelReferringPhysicianLiveSearchSelect
 			}
 		});
+	},
+
+	onResultsCardPanelReferringPhysicianLiveSearchSelect: function(field, selection){
+		var form = field.up('form').getForm();
+		var record = form.getRecord();
+
+		record.set({
+			performer_id: selection[0].get('id'),
+		});
+
+		form.setValues({
+			performer_name: selection[0].get('fullname'),
+		});
+
 	},
 
 	onResultsLabsLiveSearchFieldSelect: function(cmb, records){
@@ -60259,7 +60438,7 @@ Ext.define('App.controller.patient.Results', {
 			record;
 
 		app.passwordVerificationWin(function(btn, password){
-			if(btn == 'ok'){
+			if(btn === 'ok'){
 				User.verifyUserPass(password, function(success){
 					if(success){
 						record = me.getActiveForm().getForm().getRecord();
@@ -60290,7 +60469,7 @@ Ext.define('App.controller.patient.Results', {
 			sm = me.getResultsOrdersGrid().getSelectionModel(),
 			lastSelected = sm.getLastSelected();
 
-		if(operation.action == 'create'){
+		if(operation.action === 'create'){
 
 			if(lastSelected.data.order_type === 'lab') {
 				this.getLabOrderResult(lastSelected);
@@ -60491,6 +60670,7 @@ Ext.define('App.controller.patient.Results', {
 
 					form.loadRecord(records[last_result]);
 					me.getResultsOrderSignBtn().setDisabled(records[last_result].data.signed_uid > 0);
+					me.getResultsRadiologyReportBody().setValue(records[last_result].get('report_body'));
 					me.loadRadiologyDocument(records[last_result]);
 					me.setViewStudyBtn(records[last_result]);
 				}else{
@@ -60500,6 +60680,7 @@ Ext.define('App.controller.patient.Results', {
 						code_text: order_record.data.description,
 						code_type: order_record.data.code_type,
 						order_id: order_record.data.id,
+						report_body: '',
 						ordered_uid: order_record.data.uid,
 						create_date: new Date()
 					});
@@ -60509,6 +60690,7 @@ Ext.define('App.controller.patient.Results', {
 					});
 
 					form.loadRecord(newResult[0]);
+					me.getResultsRadiologyReportBody().setValue(newResult[0].get('report_body'));
 					me.loadRadiologyDocument(newResult[0]);
 					me.setViewStudyBtn(newResult[0]);
 				}
@@ -60582,20 +60764,32 @@ Ext.define('App.controller.patient.Results', {
 		var me = this,
 			result_record = form.getRecord(),
 			values = form.getValues(),
-			reader = new FileReader();
+			reader = new FileReader(),
+			files = me.getResultsRadiologyFormUploadField().extractFileInput().files;
 
-		reader.onload = function(e){
-			values.upload = e.target.result;
+		values.report_body = me.getResultsRadiologyReportBody().getValue();
+
+		if(files[0]){
+			reader.onload = function(e){
+				values.upload = e.target.result;
+				result_record.set(values);
+				result_record.save({
+					callback: function(){
+						me.loadRadiologyDocument(result_record);
+						app.msg(_('sweet'), _('record_saved'));
+					}
+				});
+			};
+			reader.readAsDataURL(me.getResultsRadiologyFormUploadField().extractFileInput().files[0]);
+		}else{
 			result_record.set(values);
 			result_record.save({
 				callback: function(){
 					me.loadRadiologyDocument(result_record);
-					app.msg(_('sweet'), _('record_save'));
+					app.msg(_('sweet'), _('record_saved'));
 				}
 			});
-		};
-
-		reader.readAsDataURL(me.getResultsRadiologyFormUploadField().extractFileInput().files[0]);
+		}
 	},
 
 	loadRadiologyDocument: function(result_record){
@@ -63717,8 +63911,8 @@ Ext.define('App.view.patient.windows.Medical', {
 						}
 					})
 				},
-				height: Ext.getBody().getHeight() < 700 ? (Ext.getBody().getHeight() - 100) : 600,
 				width: Ext.getBody().getWidth() < 1550 ? (Ext.getBody().getWidth() - 50) : 1500,
+				height: Ext.getBody().getHeight() < 1050 ? (Ext.getBody().getHeight() - 50) : 1000,
 				items: tapPanelItems
 			}
 		];
@@ -63763,7 +63957,7 @@ Ext.define('App.view.patient.windows.Medical', {
 	onMedicalWinShow: function(){
 		var p = this.down('tabpanel'),
 			w = Ext.getBody().getWidth() < 1550 ? (Ext.getBody().getWidth() - 50) : 1500,
-			h = Ext.getBody().getHeight() < 700 ? (Ext.getBody().getHeight() - 100) : 600;
+			h = Ext.getBody().getHeight() < 850 ? (Ext.getBody().getHeight() - 50) : 800;
 		p.setSize(w, h);
 		this.alignTo(Ext.getBody(), 'c-c');
 	},

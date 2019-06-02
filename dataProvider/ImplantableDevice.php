@@ -69,6 +69,7 @@ class ImplantableDevice {
 		$response = [];
 		$response['parse'] = $this->parseUid($params);
 		$response['lookup'] = $this->lookup($params);
+		$response['snomed'] = $this->devicesSnomed($params);
 
 		return $response;
 	}
@@ -81,7 +82,7 @@ class ImplantableDevice {
 				'error' => 'UDI missing'
 			];
 		}
-		return $this->get('https://accessgudid.nlm.nih.gov/api/v1/parse_udi.json', (array) $params);
+		return $this->get('https://accessgudid.nlm.nih.gov/api/v2/parse_udi.json', (array) $params);
 	}
 
 	public function lookup($params){
@@ -92,17 +93,20 @@ class ImplantableDevice {
 			];
 		}
 
-		return $this->get('https://accessgudid.nlm.nih.gov/api/v1/devices/lookup.json', (array) $params);
+		return $this->get('https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json', (array) $params);
 	}
 
 	public function devicesImplantableList($params){
 		$params = (array) $params;
-		return $this->get('https://accessgudid.nlm.nih.gov/api/v1/devices/implantable/list.json', $params);
+		return $this->get('https://accessgudid.nlm.nih.gov/api/v2/devices/implantable/list.json', $params);
 	}
 
 	public function devicesSnomed($params){
 		$params = (array) $params;
-		return $this->get('https://accessgudid.nlm.nih.gov/api/v1/devices/snomed.json', $params);
+
+		$ticket = $this->getTicket('vela1606', 'S3cur3121201!');
+
+		return $this->get('https://accessgudid.nlm.nih.gov/api/v2/devices/snomed.json', $params, $ticket);
 	}
 
 	private function get($url, $params, $ticket = null){

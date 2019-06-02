@@ -19,7 +19,10 @@
 Ext.define('App.view.patient.ProceduresHistoryGrid', {
 	extend: 'Ext.grid.Panel',
 	requires: [
-		'Ext.grid.plugin.RowEditing'
+		'Ext.grid.plugin.RowEditing',
+		'App.ux.LiveSnomedProcedureSearch',
+		'App.ux.LiveReferringPhysicianSearch',
+		'App.ux.LiveSnomedBodySiteSearch'
 	],
 	xtype: 'patientprocedureshistorygrid',
 	title: _('proc_hx'),
@@ -62,7 +65,19 @@ Ext.define('App.view.patient.ProceduresHistoryGrid', {
 			width: 300,
 			dataIndex: 'procedure',
 			editor:{
-				xtype: 'textfield'
+				xtype: 'snomedliveproceduresearch',
+				itemId: 'ProceduresHistoryGridProcedureField',
+				valueField: 'Term',
+			}
+		},
+		{
+			header: _('body_site'),
+			width: 200,
+			dataIndex: 'target_site_code_text',
+			editor:{
+				xtype: 'snomedlivebodysitesearch',
+				itemId: 'ProceduresHistoryGridTargetSiteField',
+				valueField: 'Term',
 			}
 		},
 		{
@@ -70,7 +85,19 @@ Ext.define('App.view.patient.ProceduresHistoryGrid', {
 			width: 200,
 			dataIndex: 'performer',
 			editor:{
-				xtype: 'textfield'
+				xtype: 'referringphysicianlivetsearch',
+				itemId: 'ProceduresHistoryGridPerformerField',
+				valueField: 'fullname',
+			}
+		},
+		{
+			header: _('service_location'),
+			width: 200,
+			dataIndex: 'service_location',
+			editor:{
+				xtype: 'referringphysicianlivetsearch',
+				itemId: 'ProceduresHistoryGridServiceLocationField',
+				valueField: 'fullname',
 			}
 		},
 		{

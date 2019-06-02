@@ -43,7 +43,12 @@ Ext.define('App.model.administration.ReferringProvider', {
         {
             name: 'lname',
             type: 'string',
-            len: 60
+            len: 120
+        },
+        {
+            name: 'organization_name',
+            type: 'string',
+            len: 120
         },
         {
             name: 'upin',
@@ -135,7 +140,6 @@ Ext.define('App.model.administration.ReferringProvider', {
             type: 'bool',
             index: true
         },
-
         {
             name: 'external_id',
             type: 'string',
@@ -144,9 +148,9 @@ Ext.define('App.model.administration.ReferringProvider', {
         {
             name: 'global_id',
             type: 'string',
-            len: 50
+            len: 50,
+            useNull: true
         },
-
         {
             name: 'authy_id',
             type: 'string',

@@ -90,6 +90,10 @@ Ext.define('App.controller.patient.Results', {
 		{
 			ref: 'ResultsRadiologyDocumentIframe',
 			selector: '#ResultsRadiologyDocumentIframe'
+		},
+		{
+			ref: 'ResultsRadiologyReportBody',
+			selector: '#ResultsRadiologyReportBody'
 		}
 	],
 
@@ -136,8 +140,25 @@ Ext.define('App.controller.patient.Results', {
 			},
 			'#ResultsRadiologyFormViewStudyBtn': {
 				click: me.onResultsRadiologyFormViewStudyBtnClick
+			},
+			'#ResultsCardPanel referringphysicianlivetsearch': {
+				select: me.onResultsCardPanelReferringPhysicianLiveSearchSelect
 			}
 		});
+	},
+
+	onResultsCardPanelReferringPhysicianLiveSearchSelect: function(field, selection){
+		var form = field.up('form').getForm();
+		var record = form.getRecord();
+
+		record.set({
+			performer_id: selection[0].get('id'),
+		});
+
+		form.setValues({
+			performer_name: selection[0].get('fullname'),
+		});
+
 	},
 
 	onResultsLabsLiveSearchFieldSelect: function(cmb, records){
@@ -157,7 +178,7 @@ Ext.define('App.controller.patient.Results', {
 			record;
 
 		app.passwordVerificationWin(function(btn, password){
-			if(btn == 'ok'){
+			if(btn === 'ok'){
 				User.verifyUserPass(password, function(success){
 					if(success){
 						record = me.getActiveForm().getForm().getRecord();
@@ -188,7 +209,7 @@ Ext.define('App.controller.patient.Results', {
 			sm = me.getResultsOrdersGrid().getSelectionModel(),
 			lastSelected = sm.getLastSelected();
 
-		if(operation.action == 'create'){
+		if(operation.action === 'create'){
 
 			if(lastSelected.data.order_type === 'lab') {
 				this.getLabOrderResult(lastSelected);
@@ -389,6 +410,7 @@ Ext.define('App.controller.patient.Results', {
 
 					form.loadRecord(records[last_result]);
 					me.getResultsOrderSignBtn().setDisabled(records[last_result].data.signed_uid > 0);
+					me.getResultsRadiologyReportBody().setValue(records[last_result].get('report_body'));
 					me.loadRadiologyDocument(records[last_result]);
 					me.setViewStudyBtn(records[last_result]);
 				}else{
@@ -398,6 +420,7 @@ Ext.define('App.controller.patient.Results', {
 						code_text: order_record.data.description,
 						code_type: order_record.data.code_type,
 						order_id: order_record.data.id,
+						report_body: '',
 						ordered_uid: order_record.data.uid,
 						create_date: new Date()
 					});
@@ -407,6 +430,7 @@ Ext.define('App.controller.patient.Results', {
 					});
 
 					form.loadRecord(newResult[0]);
+					me.getResultsRadiologyReportBody().setValue(newResult[0].get('report_body'));
 					me.loadRadiologyDocument(newResult[0]);
 					me.setViewStudyBtn(newResult[0]);
 				}
@@ -480,20 +504,32 @@ Ext.define('App.controller.patient.Results', {
 		var me = this,
 			result_record = form.getRecord(),
 			values = form.getValues(),
-			reader = new FileReader();
+			reader = new FileReader(),
+			files = me.getResultsRadiologyFormUploadField().extractFileInput().files;
 
-		reader.onload = function(e){
-			values.upload = e.target.result;
+		values.report_body = me.getResultsRadiologyReportBody().getValue();
+
+		if(files[0]){
+			reader.onload = function(e){
+				values.upload = e.target.result;
+				result_record.set(values);
+				result_record.save({
+					callback: function(){
+						me.loadRadiologyDocument(result_record);
+						app.msg(_('sweet'), _('record_saved'));
+					}
+				});
+			};
+			reader.readAsDataURL(me.getResultsRadiologyFormUploadField().extractFileInput().files[0]);
+		}else{
 			result_record.set(values);
 			result_record.save({
 				callback: function(){
 					me.loadRadiologyDocument(result_record);
-					app.msg(_('sweet'), _('record_save'));
+					app.msg(_('sweet'), _('record_saved'));
 				}
 			});
-		};
-
-		reader.readAsDataURL(me.getResultsRadiologyFormUploadField().extractFileInput().files[0]);
+		}
 	},
 
 	loadRadiologyDocument: function(result_record){

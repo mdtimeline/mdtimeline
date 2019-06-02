@@ -42,13 +42,6 @@ Ext.define('App.view.patient.SmokingStatus', {
 			width: 25
 		},
 		{
-			xtype: 'datecolumn',
-			text: _('date'),
-			dataIndex: 'create_date',
-			format: 'Y-m-d',
-			width: 120
-		},
-		{
 			text: _('status'),
 			dataIndex: 'status',
 			width: 250,
@@ -80,6 +73,18 @@ Ext.define('App.view.patient.SmokingStatus', {
 			format: 'Y-m-d',
 			text: _('start_date'),
 			dataIndex: 'start_date',
+			width: 120,
+			editor: {
+				xtype: 'datefield',
+				format: g('date_display_format'),
+				submitFormat: 'Y-m-d'
+			}
+		},
+		{
+			xtype: 'datecolumn',
+			format: 'Y-m-d',
+			text: _('end_date'),
+			dataIndex: 'end_date',
 			width: 120,
 			editor: {
 				xtype: 'datefield',

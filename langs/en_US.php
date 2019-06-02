@@ -2057,4 +2057,10 @@ $LANG = array(
 	'health_status' => 'Health Status',
 	'body_site' => 'Body Site',
 	'body_site_search' => 'Body Site Search',
+	'hc' => 'HC',
+	'o2%' => 'O2%',
+	'fio2%' => 'FiO2%',
+	'organization_name' => 'Organization Name',
+	'referring_name_validation_msg' => '"Referring Name" or "Organization Name" Required',
+	'report_document' => 'Report Document',
 );

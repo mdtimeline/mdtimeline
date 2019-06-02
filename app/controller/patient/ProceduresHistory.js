@@ -36,7 +36,31 @@ Ext.define('App.controller.patient.ProceduresHistory', {
 			},
 			'#ProceduresHistoryGridAddBtn': {
 				click: me.onProceduresHistoryGridAddBtnClick
+			},
+			'#ProceduresHistoryGridProcedureField': {
+				select: me.onProceduresHistoryGridProcedureFieldSelect
+			},
+			'#ProceduresHistoryGridTargetSiteField': {
+				select: me.onProceduresHistoryGridTargetSiteFieldSelect
 			}
+		});
+	},
+
+	onProceduresHistoryGridProcedureFieldSelect: function(cmb, selection){
+		var procedure_record = cmb.up('form').getForm().getRecord();
+		procedure_record.set({
+			procedure_code: selection[0].get('ConceptId'),
+			procedure_code_type: selection[0].get('CodeType'),
+			procedure: selection[0].get('Term')
+		});
+	},
+
+	onProceduresHistoryGridTargetSiteFieldSelect: function(cmb, selection){
+		var procedure_record = cmb.up('form').getForm().getRecord();
+		procedure_record.set({
+			target_site_code: selection[0].get('ConceptId'),
+			target_site_code_type: selection[0].get('CodeType'),
+			target_site_code_text: selection[0].get('Term')
 		});
 	},
 

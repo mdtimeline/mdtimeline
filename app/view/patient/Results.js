@@ -25,6 +25,7 @@ Ext.define('App.view.patient.Results', {
 		'App.store.patient.PatientsOrders',
 		'App.ux.LiveLabsSearch',
 		'App.ux.LiveRadsSearch',
+		'App.ux.LiveReferringPhysicianSearch',
 		'App.ux.window.voidComment',
 		'App.ux.form.fields.DateTime'
 	],
@@ -180,7 +181,7 @@ Ext.define('App.view.patient.Results', {
 			split: true,
 			frame: true,
 			itemId: 'ResultsCardPanel',
-			height: 350,
+			height: 400,
 			hidden: true,
 			layout: 'card',
 			activeItem: 0,
@@ -238,7 +239,7 @@ Ext.define('App.view.patient.Results', {
 										},
 										{
 											fieldLabel: _('report_number'),
-											name: 'lab_order_id',
+											name: 'performer_order_id',
 											allowBlank: false
 										},
 										{
@@ -287,24 +288,23 @@ Ext.define('App.view.patient.Results', {
 								},
 								{
 									xtype: 'fieldset',
-									title: _('laboratory_info'),
+									title: _('performer'),
 									defaults: {
-										xtype: 'textfield',
 										anchor: '100%'
 									},
 									layout: 'anchor',
 									margin: 0,
-									collapsible: true,
-									collapsed: true,
 									items: [
 										{
+											xtype: 'referringphysicianlivetsearch',
 											fieldLabel: _('name'),
-											name: 'lab_name'
+											hideLabel: false,
+											name: 'performer_name'
 										},
 										{
 											xtype: 'textareafield',
 											fieldLabel: _('address'),
-											name: 'lab_address',
+											name: 'performer_address',
 											height: 50
 										}
 									]
@@ -507,7 +507,7 @@ Ext.define('App.view.patient.Results', {
 										},
 										{
 											fieldLabel: _('report_number'),
-											name: 'lab_order_id',
+											name: 'performer_order_id',
 											allowBlank: false
 										},
 										{
@@ -516,10 +516,9 @@ Ext.define('App.view.patient.Results', {
 										},
 										{
 											xtype: 'fileuploadfield',
-											fieldLabel: _('report'),
+											fieldLabel: _('report_document'),
 											itemId: 'ResultsRadiologyFormUploadField',
-											submitValue: false,
-											allowBlank: false
+											submitValue: false
 										}
 									]
 								},
@@ -542,19 +541,19 @@ Ext.define('App.view.patient.Results', {
 								},
 								{
 									xtype: 'fieldset',
-									title: _('radiologist'),
+									title: _('performer'),
 									defaults: {
 										xtype: 'textfield',
 										anchor: '100%'
 									},
 									layout: 'anchor',
 									margin: 0,
-									collapsible: true,
-									collapsed: true,
 									items: [
 										{
+											xtype: 'referringphysicianlivetsearch',
 											fieldLabel: _('name'),
-											name: 'radiologist_name'
+											hideLabel: false,
+											name: 'performer_name'
 										},
 										{
 											xtype: 'textareafield',
@@ -567,10 +566,33 @@ Ext.define('App.view.patient.Results', {
 							]
 						},
 						{
-							xtype: 'miframe',
+							xtype: 'tabpanel',
 							region: 'center',
-							style: 'background-color: white',
-							itemId: 'ResultsRadiologyDocumentIframe'
+							items: [
+								{
+									xtype: 'panel',
+									title: _('report'),
+									layout: 'fit',
+									items: [
+										{
+											xtype: 'textareafield',
+											itemId: 'ResultsRadiologyReportBody'
+										}
+									]
+								},
+								{
+									xtype: 'panel',
+									title: _('document'),
+									layout: 'fit',
+									items: [
+										{
+											xtype: 'miframe',
+											region: 'center',
+											itemId: 'ResultsRadiologyDocumentIframe'
+										}
+									]
+								}
+							]
 						}
 					]
 				}

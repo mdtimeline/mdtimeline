@@ -133,6 +133,18 @@ Ext.define('App.view.patient.windows.ImplantableDeviceDetails', {
 									submitValue: true
 								},
 								{
+									xtype: 'hiddenfield',
+									name: 'description_code'
+								},
+								{
+									xtype: 'hiddenfield',
+									name: 'description_code_type'
+								},
+								{
+									xtype: 'hiddenfield',
+									name: 'gmdnpt_name'
+								},
+								{
 									xtype: 'textfield',
 									fieldLabel: _('brand_name'),
 									anchor: '100%',

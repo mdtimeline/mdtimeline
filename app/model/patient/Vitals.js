@@ -119,6 +119,12 @@ Ext.define('App.model.patient.Vitals', {
 			len: 10
 		},
 		{
+			name: 'oxygen_inhaled_concentration',
+			type: 'float',
+			useNull: true,
+			len: 10
+		},
+		{
 			name: 'head_circumference_in',
 			type: 'float',
 			useNull: true,

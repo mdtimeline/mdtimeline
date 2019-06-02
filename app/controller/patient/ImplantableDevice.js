@@ -119,19 +119,22 @@ Ext.define('App.controller.patient.ImplantableDevice', {
 			}
 
 			var device = response.lookup.data.gudid.device,
-				unit = response.parse.data;
+				unit = response.parse.data,
+				snomed = response.snomed.data.concepts[0] ? response.snomed.data.concepts[0] : {},
+				gmdn = device.gmdnTerms.gmdn[0] ? device.gmdnTerms.gmdn[0] : {};
 
 			var values = {
 				udi: unit.udi,
 				di: unit.di,
-				description: device.gmdnTerms.gmdn.gmdnPTName,
-				description_code: '',
-				description_code_type: 'GMDN',
-				lot_number: unit.lot_number || '',
-				serial_number: unit.serial_number || '',
-				exp_date: unit.expiration_date || null ,
-				mfg_date: unit.manufacturing_date || null,
-				donation_id: unit.donation_id || '',
+				description: snomed.snomedCTName,
+				description_code: snomed.snomedIdentifier,
+				description_code_type: 'SNOMEDCT',
+				gmdnpt_name: gmdn.gmdnPTName || '',
+				lot_number: unit.lotNumber || '',
+				serial_number: unit.serialNumber || '',
+				exp_date: unit.expirationDate || null ,
+				mfg_date: unit.manufacturingDateOriginal || null,
+				donation_id: device.donationIdNumber || '',
 				brand_name: device.brandName || '',
 				version_model: device.versionModelNumber || '',
 				company_name: device.companyName || '',
@@ -161,6 +164,8 @@ Ext.define('App.controller.patient.ImplantableDevice', {
 			grid = this.getImplantableDeviceGrid(),
 			form = this.getImplantableDeviceDetailsForm().getForm(),
 			device_record = Ext.create('App.model.patient.ImplantableDevice', form.getValues());
+
+		say(form.getValues());
 
 		device_record.set({
 			pid: app.patient.pid,

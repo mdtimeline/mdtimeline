@@ -64,6 +64,11 @@ Ext.define('App.model.patient.ImplantableDevice', {
 			len: 20
 		},
 		{
+			name: 'gmdnpt_name',
+			type: 'string',
+			len: 160
+		},
+		{
 			name: 'lot_number',
 			type: 'string',
 			len: 20

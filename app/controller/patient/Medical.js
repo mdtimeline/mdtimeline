@@ -50,6 +50,9 @@ Ext.define('App.controller.patient.Medical', {
             '#MedicalWindow #familyhistory': {
                 'show': me.onPanelShow
             },
+            '#MedicalWindow #patientprocedureshistorygrid': {
+                'show': me.onPanelShow
+            },
             '#MedicalWindow #advancedirectives': {
                 'show': me.onPanelShow
             },

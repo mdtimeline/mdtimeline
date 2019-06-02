@@ -87,4 +87,12 @@ class AppointmentRequest {
 
 		return $results;
 	}
+
+	public function getAppointmentRequestsByEid($eid) {
+		$this->a->addFilter('eid', $eid);
+		return $this->a->load()
+			->leftJoin(['Term' => 'procedure1'],'sct_descriptions','procedure1_code','ConceptId')
+			->leftJoin(['Term' => 'procedure2'],'sct_descriptions','procedure2_code','ConceptId')
+			->leftJoin(['Term' => 'procedure3'],'sct_descriptions','procedure3_code','ConceptId')->all();
+	}
 }

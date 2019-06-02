@@ -462,9 +462,9 @@ class PatientRecord {
 			$obs = [];
 			$obs['Alias'] = 'WT';
 			$obs['Observation'] = $this->code(
-				'3141-9',
+				'29463-7',
 				'LOINC',
-				'Weight Measured'
+				'Body weight'
 			);
 			$obs['Value']['Value'] = $weight;
 			$obs['Value']['Unit'] = $weight_units;

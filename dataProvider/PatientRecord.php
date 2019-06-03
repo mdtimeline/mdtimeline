@@ -1109,11 +1109,6 @@ class PatientRecord {
 			$histories[] = $status;
 		}
 
-
-
-
-
-
 		$this->patient_record['SocialHistorySection']['SocialHistory'] = $histories;
 	}
 
@@ -1285,9 +1280,15 @@ class PatientRecord {
 			$referral['Dates'] = '';
 			$referral['ScheduleDate '] = '';
 			$referral['Organization'] = isset($result['facility_id']) ? $this->organization($result['facility_id']): null;
-			$referral['ReferTo'] = $this->externalPerformer($result['refer_to']);
+
+			if (isset($result['refer_to']) && $result['refer_to'] > 0){
+				$referral['ReferTo'] = $this->externalPerformer($result['refer_to']);
+			}else{
+				$referral['ReferTo'] = null;
+			}
 
 			if(
+				isset($referral['ReferTo']) &&
 				isset($this->patient_record['EncounterSection']['Encounter']) &&
 				isset($this->patient_record['EncounterSection']['Encounter']['Id']) &&
 				$this->patient_record['EncounterSection']['Encounter']['Id'] ==  $result['eid']
@@ -1725,7 +1726,12 @@ class PatientRecord {
 		$encounter['Provider'] = $this->performer($result['provider_uid']);
 		$encounter['Technician'] = $this->performer($result['technician_uid']);
 		$encounter['Supervisor'] = $this->performer($result['supervisor_uid'], 'NA');
-		$encounter['ReferredBy'] = $this->externalPerformer($result['referring_physician'], 'NA');
+
+		if(isset($result['referring_physician']) && $result['referring_physician'] > 0){
+			$encounter['ReferredBy'] = $this->externalPerformer($result['referring_physician'], 'NA');
+		}else{
+			$encounter['ReferredBy'] = null;
+		}
 		$encounter['ReferTo'] = [];
 
 		$encounter['Assessment'] = isset($soap['assessment']) ? $soap['assessment'] : null;

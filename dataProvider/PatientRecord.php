@@ -514,16 +514,16 @@ class PatientRecord {
 			$obs['Value']['Unit'] = '%';
 			$vital['Observations'][] = $obs;
 
-			$obs = [];
-			$obs['Alias'] = 'O2';
-			$obs['Observation'] = $this->code(
-				'3150-0',
-				'LOINC',
-				'Inhaled Oxygen Concentration'
-			);
-			$obs['Value']['Value'] = $result['oxygen_inhaled_concentration'];
-			$obs['Value']['Unit'] = '%';
-			$vital['Observations'][] = $obs;
+//			$obs = [];
+//			$obs['Alias'] = 'O2';
+//			$obs['Observation'] = $this->code(
+//				'3150-0',
+//				'LOINC',
+//				'Inhaled Oxygen Concentration'
+//			);
+//			$obs['Value']['Value'] = $result['oxygen_inhaled_concentration'];
+//			$obs['Value']['Unit'] = '%';
+//			$vital['Observations'][] = $obs;
 
 			$obs = [];
 			$obs['Alias'] = 'BT';

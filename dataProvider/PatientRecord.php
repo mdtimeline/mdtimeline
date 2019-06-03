@@ -569,14 +569,14 @@ class PatientRecord {
 
 		include_once(ROOT . '/dataProvider/Procedures.php');
 		$Procedures = new Procedures();
-		$results = $Procedures->getPatientProceduresByPidAndDates($this->pid, $this->start_date, $this->end_date);
+		$results = $Procedures->getPatientProceduresByPidAndDates($this->pid);
 		unset($Procedures);
 		$procedures = [];
 
 		foreach($results as $result){
 			$procedure = [];
 
-			$procedure['Id'] = $result['id'];
+			$procedure['Id'] = 'p-' . $result['id'];
 			$procedure['Procedure'] = $this->code(
 				$result['code'],
 				$result['code_type'],
@@ -608,14 +608,14 @@ class PatientRecord {
 
 
 		include_once(ROOT . '/dataProvider/ProcedureHistory.php');
-		$Procedures = new ProcedureHistory();
-		$results = $Procedures->getPatientProcedureHistoryByPidAndDates($this->pid, $this->start_date, $this->end_date);
-		unset($Procedures);
+		$ProcedureHistory = new ProcedureHistory();
+		$results = $ProcedureHistory->getPatientProcedureHistoryByPidAndDates($this->pid);
+		unset($ProcedureHistory);
 
 		foreach($results as $result){
 			$procedure = [];
 
-			$procedure['Id'] = $result['id'];
+			$procedure['Id'] = 'h-' . $result['id'];
 			$procedure['Procedure'] = $this->code(
 				$result['procedure_code'],
 				$result['procedure_code_type'],
@@ -639,8 +639,18 @@ class PatientRecord {
 			);
 
 			$procedure['Observation'] = $result['notes'];
-			$procedure['Performer'] = $this->externalPerformer($result['performer_id']);
-			$procedure['ServiceLocation'] = $this->externalPerformer($result['service_location_id']);
+
+			if(isset($result['performer_id'])){
+				$procedure['Performer'] = $this->externalPerformer($result['performer_id']);
+			}else{
+				$procedure['Performer'] = null;
+			}
+
+			if(isset($result['service_location_id'])){
+				$procedure['ServiceLocation'] = $this->externalPerformer($result['service_location_id']);
+			}else{
+				$procedure['ServiceLocation'] = null;
+			}
 
 			$procedures[] = $procedure;
 		}

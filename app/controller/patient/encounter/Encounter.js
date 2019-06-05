@@ -302,10 +302,36 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 	getDocumentData: function(stringXml){
 		var me = this;
 
-		CCDDocumentParse.parseDocument(stringXml, function(ccdData){
+		CDA_Parser.parseDocument(stringXml, function(ccdData){
 			me.importCtrl.validatePosibleDuplicates = false;
 			me.importCtrl.CcdImport(ccdData, app.patient.pid);
 			me.importCtrl.validatePosibleDuplicates = true;
+			me.promptCcdScore(stringXml, ccdData);
+		});
+	},
+
+	promptCcdScore: function(xml, ccdData){
+
+		var me = this;
+
+		Ext.Msg.show({
+			title:'C-CDA Score',
+			msg: 'Would you like to see this C-CDA score?',
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (btn) {
+				if(btn === 'yes'){
+					me.doCcdScore(xml, ccdData);
+				}
+			}
+		});
+	},
+
+	doCcdScore: function (xml, ccdData) {
+		CDA_ScoreCard.getScoreDocument(xml, Ext.String.format('{0}, {1} {3} (C-CDA)', ccdData.patient.lname, ccdData.patient.fname, ccdData.patient.title), function (temp_doc) {
+			if(temp_doc) {
+				app.getController('DocumentViewer').doDocumentView(temp_doc.id, 'temp');
+			}
 		});
 	},
 

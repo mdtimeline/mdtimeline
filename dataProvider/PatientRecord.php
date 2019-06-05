@@ -635,7 +635,7 @@ class PatientRecord {
 			);
 
 			$procedure['Dates'] = $this->dates(
-				$result['performed_date'], null
+				$result['performed_date'], $result['performed_date']
 			);
 
 			$procedure['Observation'] = $result['notes'];

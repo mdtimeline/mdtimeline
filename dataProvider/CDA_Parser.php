@@ -23,7 +23,7 @@ include_once(ROOT . '/dataProvider/Person.php');
 include_once(ROOT . '/dataProvider/PatientContacts.php');
 include_once(ROOT . '/dataProvider/Rxnorm.php');
 
-class CCDDocumentParse
+class CDA_Parser
 {
 
 	private $document;

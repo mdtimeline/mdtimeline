@@ -163,7 +163,6 @@ Ext.define('App.controller.patient.CCDImport', {
 		if(mergePid){
 			this.doLoadsystemPatientData(mergePid);
 		}
-
 	},
 
 	onCcdImportWindowShow: function(win){

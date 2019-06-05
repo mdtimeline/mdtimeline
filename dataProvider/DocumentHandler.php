@@ -661,6 +661,23 @@ class DocumentHandler {
 		return $record;
 	}
 
+	public function createRawTempDocumentByNameAndDocument($name, $document){
+		$this->setPatientDocumentTempModel();
+
+		Matcha::pauseLog(true);
+
+		$record = new stdClass();
+		$record->create_date = date('Y-m-d H:i:s');
+		$record->document_name = $name;
+		$record->document = base64_encode($document);
+		$record = (object) $this->t->save($record);
+		unset($record->document);
+
+		Matcha::pauseLog(false);
+
+		return $record;
+	}
+
 	public function destroyTempDocument($params){
 		$this->setPatientDocumentTempModel();
 		return $this->t->destroy($params);

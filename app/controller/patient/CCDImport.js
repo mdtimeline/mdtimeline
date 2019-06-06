@@ -504,8 +504,8 @@ Ext.define('App.controller.patient.CCDImport', {
 					DOB: patient.data.DOB
 				},
 				'ccdImportDuplicateAction',
-				function(records){
-					if(records.length === 0){
+				function(win, valid){
+					if(valid === true){
 						me.promptVerifyPatientImport(patient);
 					}
 				}
@@ -563,7 +563,7 @@ Ext.define('App.controller.patient.CCDImport', {
 		if(system_reconcile_records !== false){
 			Ext.Msg.show({
 				title: _('wait'),
-				msg: 'This action will reconcile information in system patient record.<br><br>Whould like to continue?',
+				msg: 'This action will import and reconcile patient record.<br><br>Would like to continue?',
 				buttons: Ext.Msg.YESNO,
 				icon: Ext.Msg.QUESTION,
 				fn: function (btn) {
@@ -593,6 +593,7 @@ Ext.define('App.controller.patient.CCDImport', {
 		say(problems);
 		say(medications);
 		say(allergies);
+
 		say('system_reconcile_records');
 		say(system_reconcile_records);
 

@@ -61,12 +61,6 @@ class CronBootstrap
 
     	$root = str_replace('\\', '/', str_ireplace("cronjob","", getcwd()));
 
-	    if(!isset($_SESSION)){
-		    session_cache_limiter('private');
-		    session_name('mdTimeLine');
-		    session_start();
-	    }
-
         define("PID",getmypid());
         define('site_id', $argv[1]);
         define('URL', '');

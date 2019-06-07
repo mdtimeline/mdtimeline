@@ -72,7 +72,12 @@ $sites = array_values($directories);
  */
 
 $php_inis = [
+	'/usr/local/etc/php/7.3/php.ini',
+	'/usr/local/etc/php/7.2/php.ini',
+	'/usr/local/etc/php/7.1/php.ini',
 	'/usr/local/etc/php/7.0/php.ini',
+	'/etc/php/7.3/apache2/php.ini',
+	'/etc/php/7.2/apache2/php.ini',
 	'/etc/php/7.1/apache2/php.ini',
 	'/etc/php/7.0/apache2/php.ini',
 	'/etc/php/5.6/php.ini',
@@ -87,20 +92,41 @@ foreach($php_inis as $file){
 }
 
 $system_jobs = array_diff(scandir("{$root_dir}/cronjob/jobs/"), array('..', '.'));
+$modules_jobs = [];
+$modules = array_diff(scandir("{$root_dir}/modules/"), array('..', '.'));;
+
+foreach ($modules as $module){
+	if(!file_exists("{$root_dir}/modules/{$module}/jobs/")) continue;
+	$jobs = array_diff(scandir("{$root_dir}/modules/{$module}/jobs/"), array('..', '.'));
+	if(empty($jobs)) continue;
+	$modules_jobs[$module] = $jobs;
+}
 
 foreach($sites as $site){
 	$site_dir = $sites_dir . $site;
     $conf = $site_dir . '/conf.php';
+
+    if(!file_exists($conf)) continue;
 
 	// Loop on all the system jobs available and execute them
 	foreach($system_jobs as $job){
 		$env = "cd {$env_dir} && ";
 		$cmd = "{$env} php  -c {$php_ini} -f {$root_dir}/cronjob/jobs/{$job} {$site} &";
 		shell_exec($cmd);
-		print "Executing System Job: $job  Site: $site\n";
+		print "Executing System Job: {$job}  Site: {$site}\n";
 	}
 
-    if(file_exists($conf) && is_dir($site_dir . "/jobs")){
+	// Loop on all the modules jobs available and execute them
+	foreach($modules_jobs as $module => $jobs){
+		foreach ($jobs as $job){
+			$env = "cd {$env_dir} && ";
+			$cmd = "{$env} php  -c {$php_ini} -f {$root_dir}/modules/{$module}/jobs/{$job} {$site} &";
+			shell_exec($cmd);
+			print "Executing Module Job: {$job}  Site: $site Module: {$module}\n";
+		}
+	}
+
+    if(is_dir($site_dir . "/jobs")){
 	    // Fetch all the JOBS available on the site
 	    $site_jobs = array_diff(scandir($sites_dir . $site . "/jobs/"), array('..', '.'));
 

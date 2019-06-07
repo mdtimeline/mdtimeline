@@ -401,7 +401,7 @@ class Email {
 
 		$sql = "SELECT * FROM email_tracking AS tk
 				 WHERE tk.send_time > DATE_SUB(CURDATE(), INTERVAL {$this->API_STATUS_CHECK_DAYS} DAY)
-				   AND (tk.delivery_status IS NULL OR tk.delivery_status = 'processing')";
+				   AND (tk.delivery_status IS NULL OR tk.delivery_status = 'processing' OR tk.opened_status IS NULL OR tk.opened_status = 'unopened')";
 
 		$emails = $this->tk->sql($sql)->all();
 

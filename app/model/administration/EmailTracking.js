@@ -12,9 +12,14 @@ Ext.define('App.model.administration.EmailTracking', {
 	},
 	fields: [
 		{
+			name: 'id',
+			type: 'int'
+		},
+		{
 			name: 'source_tracking_id',
 			type: 'string',
-			len: 80
+			len: 80,
+			index: true
 		},
 		{
 			name: 'pid',

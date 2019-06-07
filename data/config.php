@@ -25,6 +25,13 @@ $API = [
             ]
         ]
     ],
+    'Email' => [
+        'methods' => [
+            'CheckAPIEmails' => [
+                'len' => 0
+            ]
+        ]
+    ],
     'EmailTemplates' => [
         'methods' => [
             'getEmailTemplates' => [

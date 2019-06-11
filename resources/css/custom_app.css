@@ -214,6 +214,9 @@
 .blueBg {
     background-color: blue !important;
 }
+.lightBlueBg {
+    background-color: #8ee4ff !important;
+}
 .redBg {
     background-color: red !important;
 }
@@ -228,6 +231,9 @@
 }
 .yellowBg {
     background-color: yellow !important;
+}
+.lightYellowBg {
+    background-color: #FAFFA5 !important;
 }
 .lightGreenBg {
     background-color: #ccffcc !important;

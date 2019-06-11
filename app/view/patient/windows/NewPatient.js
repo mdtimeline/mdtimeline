@@ -299,6 +299,11 @@ Ext.define('App.view.patient.windows.NewPatient', {
 	],
 	buttons:[
 		{
+			text: _('import_from_cda'),
+			itemId: 'NewPatientWindowImportFromCdaBtn'
+		},
+		'->',
+		{
 			text: _('cancel'),
 			itemId: 'NewPatientWindowCancelBtn'
 		},

@@ -462,9 +462,9 @@ class PatientRecord {
 			$obs = [];
 			$obs['Alias'] = 'WT';
 			$obs['Observation'] = $this->code(
-				'3141-9',
+				'29463-7',
 				'LOINC',
-				'Weight Measured'
+				'Body weight'
 			);
 			$obs['Value']['Value'] = $weight;
 			$obs['Value']['Unit'] = $weight_units;
@@ -514,16 +514,16 @@ class PatientRecord {
 			$obs['Value']['Unit'] = '%';
 			$vital['Observations'][] = $obs;
 
-			$obs = [];
-			$obs['Alias'] = 'O2';
-			$obs['Observation'] = $this->code(
-				'3150-0',
-				'LOINC',
-				'Inhaled Oxygen Concentration'
-			);
-			$obs['Value']['Value'] = $result['oxygen_inhaled_concentration'];
-			$obs['Value']['Unit'] = '%';
-			$vital['Observations'][] = $obs;
+//			$obs = [];
+//			$obs['Alias'] = 'O2';
+//			$obs['Observation'] = $this->code(
+//				'3150-0',
+//				'LOINC',
+//				'Inhaled Oxygen Concentration'
+//			);
+//			$obs['Value']['Value'] = $result['oxygen_inhaled_concentration'];
+//			$obs['Value']['Unit'] = '%';
+//			$vital['Observations'][] = $obs;
 
 			$obs = [];
 			$obs['Alias'] = 'BT';
@@ -532,7 +532,7 @@ class PatientRecord {
 				'LOINC',
 				'Body Temperature'
 			);
-			$obs['Value']['Value'] = '';
+			$obs['Value']['Value'] = $result['temp_c'];
 			$obs['Value']['Unit'] = 'Cel';
 			$vital['Observations'][] = $obs;
 
@@ -543,8 +543,8 @@ class PatientRecord {
 				'LOINC',
 				'Respiratory Rate'
 			);
-			$obs['Value']['Value'] = '';
-			$obs['Value']['Unit'] = 'Cel';
+			$obs['Value']['Value'] = $result['respiration'];
+			$obs['Value']['Unit'] = '/min';
 			$vital['Observations'][] = $obs;
 
 			$obs = [];
@@ -554,7 +554,7 @@ class PatientRecord {
 				'LOINC',
 				'Heart Rate'
 			);
-			$obs['Value']['Value'] = '';
+			$obs['Value']['Value'] = $result['pulse'];
 			$obs['Value']['Unit'] = '/min';
 			$vital['Observations'][] = $obs;
 
@@ -569,14 +569,14 @@ class PatientRecord {
 
 		include_once(ROOT . '/dataProvider/Procedures.php');
 		$Procedures = new Procedures();
-		$results = $Procedures->getPatientProceduresByPidAndDates($this->pid, $this->start_date, $this->end_date);
+		$results = $Procedures->getPatientProceduresByPidAndDates($this->pid);
 		unset($Procedures);
 		$procedures = [];
 
 		foreach($results as $result){
 			$procedure = [];
 
-			$procedure['Id'] = $result['id'];
+			$procedure['Id'] = 'p-' . $result['id'];
 			$procedure['Procedure'] = $this->code(
 				$result['code'],
 				$result['code_type'],
@@ -608,14 +608,14 @@ class PatientRecord {
 
 
 		include_once(ROOT . '/dataProvider/ProcedureHistory.php');
-		$Procedures = new ProcedureHistory();
-		$results = $Procedures->getPatientProcedureHistoryByPidAndDates($this->pid, $this->start_date, $this->end_date);
-		unset($Procedures);
+		$ProcedureHistory = new ProcedureHistory();
+		$results = $ProcedureHistory->getPatientProcedureHistoryByPidAndDates($this->pid);
+		unset($ProcedureHistory);
 
 		foreach($results as $result){
 			$procedure = [];
 
-			$procedure['Id'] = $result['id'];
+			$procedure['Id'] = 'h-' . $result['id'];
 			$procedure['Procedure'] = $this->code(
 				$result['procedure_code'],
 				$result['procedure_code_type'],
@@ -625,7 +625,7 @@ class PatientRecord {
 			$procedure['Status'] = $this->code(
 				'completed',
 				null,
-				'Completed'
+				'completed'
 			);
 
 			$procedure['TargetSite'] = $this->code(
@@ -635,12 +635,22 @@ class PatientRecord {
 			);
 
 			$procedure['Dates'] = $this->dates(
-				$result['performed_date'], null
+				$result['performed_date'], $result['performed_date']
 			);
 
 			$procedure['Observation'] = $result['notes'];
-			$procedure['Performer'] = $this->externalPerformer($result['performer_id']);
-			$procedure['ServiceLocation'] = $this->externalPerformer($result['service_location_id']);
+
+			if(isset($result['performer_id'])){
+				$procedure['Performer'] = $this->externalPerformer($result['performer_id']);
+			}else{
+				$procedure['Performer'] = null;
+			}
+
+			if(isset($result['service_location_id'])){
+				$procedure['ServiceLocation'] = $this->externalPerformer($result['service_location_id']);
+			}else{
+				$procedure['ServiceLocation'] = null;
+			}
 
 			$procedures[] = $procedure;
 		}
@@ -1109,11 +1119,6 @@ class PatientRecord {
 			$histories[] = $status;
 		}
 
-
-
-
-
-
 		$this->patient_record['SocialHistorySection']['SocialHistory'] = $histories;
 	}
 
@@ -1285,9 +1290,15 @@ class PatientRecord {
 			$referral['Dates'] = '';
 			$referral['ScheduleDate '] = '';
 			$referral['Organization'] = isset($result['facility_id']) ? $this->organization($result['facility_id']): null;
-			$referral['ReferTo'] = $this->externalPerformer($result['refer_to']);
+
+			if (isset($result['refer_to']) && $result['refer_to'] > 0){
+				$referral['ReferTo'] = $this->externalPerformer($result['refer_to']);
+			}else{
+				$referral['ReferTo'] = null;
+			}
 
 			if(
+				isset($referral['ReferTo']) &&
 				isset($this->patient_record['EncounterSection']['Encounter']) &&
 				isset($this->patient_record['EncounterSection']['Encounter']['Id']) &&
 				$this->patient_record['EncounterSection']['Encounter']['Id'] ==  $result['eid']
@@ -1543,35 +1554,56 @@ class PatientRecord {
 			$races = json_decode(file_get_contents(ROOT. '/resources/code_sets/HL7v3-Race.json'), true);
 			$race_key = array_search($patientData['race'], array_column($races, 'code'));
 
-			$PatientRole['Patient']['RaceCode'] = $this->code(
-				$races[$race_key]['code'],
-				$races[$race_key]['code_type'],
-				$races[$race_key]['code_description']
-			);
+			if($race_key !== false){
+				$PatientRole['Patient']['RaceCode'] = $this->code(
+					$races[$race_key]['code'],
+					$races[$race_key]['code_type'],
+					$races[$race_key]['code_description']
+				);
+			}else{
+				$PatientRole['Patient']['RaceCode'] = null;
+			}
 
-			$race_key = array_search($patientData['race'], array_column($races, 'code'));
-			$PatientRole['Patient']['SecondaryRaceCode'] = $this->code(
-				$races[$race_key]['code'],
-				$races[$race_key]['code_type'],
-				$races[$race_key]['code_description']
-			);
+			$race_key = array_search($patientData['secondary_race'], array_column($races, 'code'));
+			if($race_key !== false){
+				$PatientRole['Patient']['SecondaryRaceCode'] = $this->code(
+					$races[$race_key]['code'],
+					$races[$race_key]['code_type'],
+					$races[$race_key]['code_description']
+				);
+			}else{
+				$PatientRole['Patient']['SecondaryRaceCode'] = null;
+			}
 
-			// TODO
-			$PatientRole['Patient']['SecondaryRaceCode'] = [];
 		}
 
 		if(!$this->isExcluded('patient_ethnicity')){
-			$ethnicity = $this->CombosData->getValuesByListIdAndOptionValue(14, $patientData['ethnicity']);
-			$code = $patientData['ethnicity'] == 'H' ? '2135-2' : '2186-5';
-			$codeName = 'Race & Ethnicity - CDC';
 
-			$PatientRole['Patient']['EthnicGroupCode'] = $this->code(
-				$code,
-				$codeName
-			);
+			$ethnicity = json_decode(file_get_contents(ROOT. '/resources/code_sets/HL7v3-Ethnicity.json'), true);
+			$ethnicity_key = array_search($patientData['ethnicity'], array_column($ethnicity, 'code'));
 
-			// TODO
-			$PatientRole['Patient']['SecondaryEthnicGroupCode'] = [];
+			if($ethnicity_key !== false){
+				$PatientRole['Patient']['EthnicGroupCode'] = $this->code(
+					$ethnicity[$ethnicity_key]['code'],
+					$ethnicity[$ethnicity_key]['code_type'],
+					$ethnicity[$ethnicity_key]['code_description']
+				);
+			}else{
+				$PatientRole['Patient']['EthnicGroupCode'] = null;
+			}
+
+			$ethnicity_key = array_search($patientData['secondary_ethnicity'], array_column($ethnicity, 'code'));
+
+			if($ethnicity_key !== false){
+				$PatientRole['Patient']['SecondaryEthnicGroupCode'] = $this->code(
+					$ethnicity[$ethnicity_key]['code'],
+					$ethnicity[$ethnicity_key]['code_type'],
+					$ethnicity[$ethnicity_key]['code_description']
+				);
+			}else{
+				$PatientRole['Patient']['SecondaryEthnicGroupCode'] = null;
+			}
+
 		}
 
 		if(!$this->isExcluded('patient_preferred_language')){
@@ -1704,7 +1736,12 @@ class PatientRecord {
 		$encounter['Provider'] = $this->performer($result['provider_uid']);
 		$encounter['Technician'] = $this->performer($result['technician_uid']);
 		$encounter['Supervisor'] = $this->performer($result['supervisor_uid'], 'NA');
-		$encounter['ReferredBy'] = $this->externalPerformer($result['referring_physician'], 'NA');
+
+		if(isset($result['referring_physician']) && $result['referring_physician'] > 0){
+			$encounter['ReferredBy'] = $this->externalPerformer($result['referring_physician'], 'NA');
+		}else{
+			$encounter['ReferredBy'] = null;
+		}
 		$encounter['ReferTo'] = [];
 
 		$encounter['Assessment'] = isset($soap['assessment']) ? $soap['assessment'] : null;
@@ -1889,6 +1926,20 @@ class PatientRecord {
 			$facility['postal_code'],
 			$facility['country_code']
 		);
+
+
+		if(isset($facility['service_loc_code']) && trim($facility['service_loc_code']) !== ''){
+			$locs = json_decode(file_get_contents(ROOT. '/resources/code_sets/PH_HealthcareServiceLoc_NHSN.json'), true);
+			$race_key = array_search($facility['service_loc_code'], array_column($locs, 'code'));
+			if($race_key !== false){
+				$performer['ServiceLocation'] = $this->code($facility['service_loc_code'], 'HealthcareServiceLocation', $locs[$race_key]['displayName']);
+			}else{
+				$performer['ServiceLocation'] = null;
+			}
+		}else{
+			$performer['ServiceLocation'] = null;
+		}
+
 
 		$performer['PlaceOfService'] = $this->code($facility['pos_code'], 'Place of Service Codes');
 
@@ -2115,6 +2166,10 @@ class PatientRecord {
 				return '2.16.840.1.113883.6.238';
 			case 'ObservationInterpretation':
 				return '2.16.840.1.113883.5.83';
+			case 'HumanLanguage':
+				return '2.16.840.1.113883.6.121';
+			case 'HealthcareServiceLocation':
+				return '2.16.840.1.113883.6.259';
 			case 'ActNoImmunizationReason':
 			case 'HL7 ActNoImmunizationReason':
 				return '2.16.840.1.113883.1.11.19717';

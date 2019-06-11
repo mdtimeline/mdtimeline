@@ -39,13 +39,24 @@ class Email {
 	private $API_ACCOUNT;
 	private $API_KEY;
 
+	private $API_STATUS_CHECK_DAYS = 30;
+
 	private $AuditLog;
 
+	/**
+	 * @var bool|MatchaCUP
+	 */
 	private $t;
+
+	/**
+	 * @var bool|MatchaCUP
+	 */
+	private $tk;
 
 	function __construct() {
 
 		$this->t = MatchaModel::setSenchaModel('App.model.administration.EmailTemplate');
+		$this->tk = MatchaModel::setSenchaModel('App.model.administration.EmailTracking');
 
 		$this->EMAIL_METHOD = Globals::getGlobal('EMAIL_METHOD');
 		$this->EMAIL_NOTIFICATION_HOUR = Globals::getGlobal('EMAIL_NOTIFICATION_HOUR');
@@ -369,7 +380,7 @@ class Email {
 		return $this->t->load()->one();
 	}
 
-	function generateEmail($facility_id, $template_type, $placeholders, $values){
+	public function generateEmail($facility_id, $template_type, $placeholders, $values){
 
 		$tpl = $this->getTemplateByType($facility_id, $template_type);
 
@@ -384,5 +395,90 @@ class Email {
 		}
 
 		return false;
+	}
+
+	public function CheckAPIEmails(){
+
+		$sql = "SELECT * FROM email_tracking AS tk
+				 WHERE tk.send_time > DATE_SUB(CURDATE(), INTERVAL {$this->API_STATUS_CHECK_DAYS} DAY)
+				   AND (tk.delivery_status IS NULL OR tk.delivery_status = 'processing' OR tk.opened_status IS NULL OR tk.opened_status = 'unopened')";
+
+		$emails = $this->tk->sql($sql)->all();
+
+		foreach ($emails as $email){
+			$response = $this->CheckAPIEmail($email['source_tracking_id']);
+
+			if(!$response['success']){
+				continue;
+			}
+
+			if(!isset($response['result']['data']['message']['message_deliveries'])){
+				continue;
+			}
+
+			$message_deliveries = $response['result']['data']['message']['message_deliveries'];
+			$message_delivery = end($message_deliveries);
+
+			if($message_delivery === false){
+				continue;
+			}
+
+			$email = (object) [
+				'id' => $email['id'],
+				'delivery_status' => $message_delivery['status']['deliveryStatus'],
+				'delivery_time' => date('Y-m-d H:i:s', strtotime($message_delivery['status']['deliveryTime'])),
+				'opened_status' => $message_delivery['status']['openedStatus'],
+				'opened_time' => date('Y-m-d H:i:s', strtotime($message_delivery['status']['openedTime'])),
+			];
+			$this->tk->save($email);
+
+		}
+	}
+
+	public function CheckAPIEmail($sourceTrackingId){
+
+
+		$url = "https://api.paubox.net/v1/{$this->API_ACCOUNT}/message_receipt?sourceTrackingId={$sourceTrackingId}";
+		$ch = curl_init($url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, [
+			"Content-Type: application/json",
+			"Authorization: Token token={$this->API_KEY}"
+		]);
+
+		//execute the POST request
+		$result = curl_exec($ch);
+
+		$error_message = false;
+
+		if($errno = curl_errno($ch)) {
+			$error_message = curl_strerror($errno);
+		}
+
+		//close cURL resource
+		curl_close($ch);
+
+		if($error_message !== false){
+			error_log('Email: ' . $error_message);
+			return [
+				'success' => false,
+				'error' => $error_message
+			];
+		}
+
+		$result = json_decode($result, true);
+
+		if(!isset($result)){
+			return [
+				'success' => false,
+				'error' => 'Unable to json_decode email status result'
+			];
+		}
+
+		return [
+			'success' => true,
+			'result' => $result
+		];
+
 	}
 }

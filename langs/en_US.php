@@ -2063,4 +2063,7 @@ $LANG = array(
 	'organization_name' => 'Organization Name',
 	'referring_name_validation_msg' => '"Referring Name" or "Organization Name" Required',
 	'report_document' => 'Report Document',
+	'region' => 'Region',
+	'import_from_cda' => 'Import From CDA',
+
 );

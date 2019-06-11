@@ -108,6 +108,11 @@ Ext.define('App.model.administration.Facility', {
 			len: 2
 		},
 		{
+			name: 'service_loc_code',
+			type: 'string',
+			len: 10
+		},
+		{
 			name: 'ein',
 			type: 'string',
 			len: 15

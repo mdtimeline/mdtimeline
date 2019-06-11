@@ -12016,6 +12016,11 @@ Ext.define('App.model.administration.Facility', {
 			len: 2
 		},
 		{
+			name: 'service_loc_code',
+			type: 'string',
+			len: 10
+		},
+		{
 			name: 'ein',
 			type: 'string',
 			len: 15
@@ -12092,6 +12097,7 @@ Ext.define('App.model.administration.Facility', {
 		root: 'data'
 	}
 });
+
 Ext.define('App.model.administration.FacilityStructure', {
 	extend: 'Ext.data.Model',
 	table: {
@@ -27954,6 +27960,11 @@ Ext.define('App.view.administration.practice.Facilities', {
 	xtype: 'facilitiespanel',
 	title: _('facilities'),
 
+	requires: [
+		'App.ux.combo.ServiceLocation'
+	],
+
+
 	initComponent: function(){
 		var me = this;
 
@@ -28150,6 +28161,12 @@ Ext.define('App.view.administration.practice.Facilities', {
 										xtype: 'mitos.poscodescombo',
 										fieldLabel: _('pos_code'),
 										name: 'pos_code',
+										anchor: '100%'
+									},
+									{
+										xtype: 'servicelocationcombo',
+										fieldLabel: _('service_location'),
+										name: 'service_loc_code',
 										anchor: '100%'
 									},
 									{
@@ -42434,10 +42451,37 @@ Ext.define('App.controller.patient.CCD', {
 	getDocumentData: function(stringXml){
 		var me = this;
 
-		CCDDocumentParse.parseDocument(stringXml, function(ccdData){
+		CDA_Parser.parseDocument(stringXml, function(ccdData){
 			me.importCtrl.validatePosibleDuplicates = false;
-			me.importCtrl.CcdImport(ccdData, app.patient.pid);
+			me.importCtrl.CcdImport(ccdData, app.patient.pid, stringXml);
 			me.importCtrl.validatePosibleDuplicates = true;
+			me.promptCcdScore(stringXml, ccdData);
+
+		});
+	},
+
+	promptCcdScore: function(xml, ccdData){
+
+		var me = this;
+
+		Ext.Msg.show({
+			title:'C-CDA Score',
+			msg: 'Would you like to see this C-CDA score?',
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (btn) {
+				if(btn === 'yes'){
+					me.doCcdScore(xml, ccdData);
+				}
+			}
+		});
+	},
+
+	doCcdScore: function (xml, ccdData) {
+		CDA_ScoreCard.getScoreDocument(xml, Ext.String.format('{0}, {1} {3} (C-CDA)', ccdData.patient.lname, ccdData.patient.fname, ccdData.patient.title), function (temp_doc) {
+			if(temp_doc) {
+				app.getController('DocumentViewer').doDocumentView(temp_doc.id, 'temp');
+			}
 		});
 	}
 
@@ -42590,7 +42634,6 @@ Ext.define('App.controller.patient.CCDImport', {
 		if(mergePid){
 			this.doLoadsystemPatientData(mergePid);
 		}
-
 	},
 
 	onCcdImportWindowShow: function(win){
@@ -42932,8 +42975,8 @@ Ext.define('App.controller.patient.CCDImport', {
 					DOB: patient.data.DOB
 				},
 				'ccdImportDuplicateAction',
-				function(records){
-					if(records.length === 0){
+				function(win, valid){
+					if(valid === true){
 						me.promptVerifyPatientImport(patient);
 					}
 				}
@@ -42991,7 +43034,7 @@ Ext.define('App.controller.patient.CCDImport', {
 		if(system_reconcile_records !== false){
 			Ext.Msg.show({
 				title: _('wait'),
-				msg: 'This action will reconcile information in system patient record.<br><br>Whould like to continue?',
+				msg: 'This action will import and reconcile patient record.<br><br>Would like to continue?',
 				buttons: Ext.Msg.YESNO,
 				icon: Ext.Msg.QUESTION,
 				fn: function (btn) {
@@ -43021,6 +43064,7 @@ Ext.define('App.controller.patient.CCDImport', {
 		say(problems);
 		say(medications);
 		say(allergies);
+
 		say('system_reconcile_records');
 		say(system_reconcile_records);
 
@@ -46368,6 +46412,9 @@ Ext.define('App.controller.patient.Patient', {
 				click: me.onNewPatientWindowSaveBtnClick
 			},
 
+			'#NewPatientWindowImportFromCdaBtn': {
+				click: me.onNewPatientWindowImportFromCdaBtnClick
+			},
 
 			'#PossiblePatientDuplicatesWindow': {
 				close: me.onPossiblePatientDuplicatesWindowClose
@@ -46385,6 +46432,8 @@ Ext.define('App.controller.patient.Patient', {
 				click: me.onPossiblePatientDuplicatesCancelBtnClick
 			}
 		});
+
+		me.importCtrl = this.getController('patient.CCDImport');
 
 	},
 
@@ -46568,6 +46617,60 @@ Ext.define('App.controller.patient.Patient', {
 			win.callbackFn(win, false);
 		}
 		win.close();
+	},
+
+
+	// C-CDA Patient Import
+	onNewPatientWindowImportFromCdaBtnClick: function(btn){
+
+		btn.up('window').close();
+
+		var me = this,
+			win = Ext.create('App.ux.form.fields.UploadString');
+
+		win.allowExtensions = ['xml','ccd','cda','ccda'];
+		win.on('uploadready', function(comp, stringXml){
+			me.getDocumentData(stringXml);
+		});
+
+		win.show();
+	},
+
+	getDocumentData: function(stringXml){
+		var me = this;
+
+		CDA_Parser.parseDocument(stringXml, function(ccdData){
+			me.importCtrl.validatePosibleDuplicates = false;
+			me.importCtrl.CcdImport(ccdData, null, stringXml);
+			me.importCtrl.validatePosibleDuplicates = true;
+			me.promptCcdScore(stringXml, ccdData);
+
+		});
+	},
+
+	promptCcdScore: function(xml, ccdData){
+
+		var me = this;
+
+		Ext.Msg.show({
+			title:'C-CDA Score',
+			msg: 'Would you like to see this C-CDA score?',
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (btn) {
+				if(btn === 'yes'){
+					me.doCcdScore(xml, ccdData);
+				}
+			}
+		});
+	},
+
+	doCcdScore: function (xml, ccdData) {
+		CDA_ScoreCard.getScoreDocument(xml, Ext.String.format('{0}, {1} {3} (C-CDA)', ccdData.patient.lname, ccdData.patient.fname, ccdData.patient.title), function (temp_doc) {
+			if(temp_doc) {
+				app.getController('DocumentViewer').doDocumentView(temp_doc.id, 'temp');
+			}
+		});
 	}
 
 });
@@ -61199,10 +61302,36 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 	getDocumentData: function(stringXml){
 		var me = this;
 
-		CCDDocumentParse.parseDocument(stringXml, function(ccdData){
+		CDA_Parser.parseDocument(stringXml, function(ccdData){
 			me.importCtrl.validatePosibleDuplicates = false;
 			me.importCtrl.CcdImport(ccdData, app.patient.pid);
 			me.importCtrl.validatePosibleDuplicates = true;
+			me.promptCcdScore(stringXml, ccdData);
+		});
+	},
+
+	promptCcdScore: function(xml, ccdData){
+
+		var me = this;
+
+		Ext.Msg.show({
+			title:'C-CDA Score',
+			msg: 'Would you like to see this C-CDA score?',
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (btn) {
+				if(btn === 'yes'){
+					me.doCcdScore(xml, ccdData);
+				}
+			}
+		});
+	},
+
+	doCcdScore: function (xml, ccdData) {
+		CDA_ScoreCard.getScoreDocument(xml, Ext.String.format('{0}, {1} {3} (C-CDA)', ccdData.patient.lname, ccdData.patient.fname, ccdData.patient.title), function (temp_doc) {
+			if(temp_doc) {
+				app.getController('DocumentViewer').doDocumentView(temp_doc.id, 'temp');
+			}
 		});
 	},
 

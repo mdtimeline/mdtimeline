@@ -1,0 +1,1325 @@
+[
+	{
+		"code": "1162-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "24-Hour observation area",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1184-1",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Administrative area",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1210-4",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Adult Mixed Acuity Unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1099-1",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Adult step down unit [post-critical care]",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1110-6",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Allergy clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1166-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Ambulatory surgical setting",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1212-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Any Age Mixed Acuity Unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1106-4",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Assisted living area",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1145-2",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Behavioral health clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1185-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Blood bank",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1195-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Blood collection [Blood drive campaign]",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1147-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Blood collection center",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1022-3",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Bone marrow transplant unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1026-4",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Burn critical care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1005-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Cardiac catheterization lab",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1112-2",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Cardiac rehabilitation center",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1113-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Cardiology clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1186-6",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Central sterile supply",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1187-4",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Central trash area",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1095-9",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Cesarean section room\/suite",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1011-6",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Clinical chemistry",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1010-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Clinical laboratory",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1148-6",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Continence clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1115-5",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Dermatology clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1198-1",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Dialysis SCA",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1207-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Donor Apheresis Center",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1108-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Emergency department",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1116-3",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Endocrinology clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1007-4",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Endoscopy lab",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1188-2",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Facility grounds",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1117-1",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Family medicine clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1206-2",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Float",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1118-9",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Gastroenterology clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1120-5",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "General internal medicine clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1121-3",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Gynecology clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1012-4",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Hematology",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1200-5",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Hematology\/oncology clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1088-4",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Hematology\/Oncology SCA",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1013-2",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Histology\/Surgical pathology",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1161-9",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Holistic medicine center",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1194-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Home-based hospice",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1182-5",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Housekeeping\/environmental services",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1017-3",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Hyperbaric oxygen center",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1018-1",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Infusion center",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1071-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient acute stroke ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1075-1",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient adolescent behavioral health ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1205-4",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient antenatal care ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1051-2",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient behavioral Health\/Psych Ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1052-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient burn ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1053-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient ear\/nose\/throat ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1054-6",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient gastrointestinal ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1055-3",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient genitourinary ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1056-1",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient gerontology ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1057-9",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient gynecology ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1165-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient hospice",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1171-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient jail unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1060-3",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient medical ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1061-1",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient medical\/surgical ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1062-9",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient neurology ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1063-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient neurosurgical ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1096-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient operating room\/suite",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1064-5",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient ophthalmology ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1066-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient orthopedic trauma ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1065-2",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient orthopedic ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1077-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient pediatric behavioral health ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1078-5",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient pediatric burn ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1079-3",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient pediatric ear, nose, throat ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1080-1",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient pediatric genitourinary ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1076-9",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient pediatric medical ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1081-9",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient pediatric medical\/surgical ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1082-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient pediatric neurology ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1083-5",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient pediatric neurosurgical ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1084-3",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient pediatric orthopedic ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1085-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient pediatric rehabilitation ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1086-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient pediatric surgical ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1067-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient plastic surgery ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1068-6",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient postpartum ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1069-4",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient pulmonary ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1070-2",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient rehabilitation ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1172-6",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient school infirmary",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1072-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient surgical ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1073-6",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient vascular surgery ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1038-9",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Inpatient well baby nursery [Level I]",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1170-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Institutional infirmary",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1203-9",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Interventional radiology",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1058-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Labor and delivery ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1059-5",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Labor, Delivery, Recovery, Postpartum suite [LDRP]",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1183-3",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Laundry room",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1204-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Location outside facility",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1090-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Long-term acute care [LTAC]",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1103-1",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Long-Term care alzheimer's unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1104-9",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Long-Term care behavioral health\/psych unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1105-6",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Long-Term care rehabilitation unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1102-3",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Long-Term care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1028-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Medical cardiac critical care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1027-2",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Medical critical care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1122-1",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Medical genetics clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1029-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Medical\/Surgical critical care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1014-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Microbiology",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1176-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Mobile blood collection center",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1174-2",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Mobile emergency services\/EMS",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1175-9",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Mobile MRI\/CT",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1189-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Morgue\/Autopsy room",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1039-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Neonatal critical care unit [Level II\/III]",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1040-5",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Neonatal critical care unit [Level III]",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1135-3",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Nephrology clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1123-9",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Neurology clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1035-5",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Neurology critical care and stroke unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1031-4",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Neurosurgical critical care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1151-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Occupational health clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1152-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Occupational therapy clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1124-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Opthalmology clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1125-4",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Orthopedics clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1149-4",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Ostomy clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1126-2",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Otorhinolaryngology clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1150-2",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Outpatient dental clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1153-6",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Outpatient hemodialysis clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1154-4",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Outpatient HIV clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1167-6",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Outpatient pediatric surgery center",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1168-4",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Outpatient plastic surgery center",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1155-1",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Outpatient rehabilitation clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1169-2",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Outpatient surgery recovery room\/post-anesthesia care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1127-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pain clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1192-4",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Patient's residence [Home care]",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1146-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric behavioral health clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1023-1",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric bone marrow transplant unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1042-1",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric burn critical care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1129-6",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric cardiology clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1128-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1130-4",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric dental clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1131-2",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric dermatology clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1132-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric diabetes\/endocrinology clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1091-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric dialysis SCA",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1109-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric emergency department",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1119-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric gastroenterology clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1136-1",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric hematology\/oncology clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1089-2",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric hematology\/oncology SCA",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1213-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric long-term acute care (LTAC)",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1044-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric medical critical care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1045-4",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric medical\/surgical critical care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1211-2",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric Mixed Acuity Unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1137-9",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric nephrology clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1046-2",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric neurosurgical critical care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1133-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric orthopedic clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1047-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric respiratory critical care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1138-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric rheumatology clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1134-6",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric scoliosis clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1093-4",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric solid organ transplant SCA",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1100-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric step  down unit [post-critical care]",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1043-9",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric surgical cardiothoracic critical care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1048-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric surgical critical care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1049-6",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric trauma critical care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1074-4",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pediatric ward",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1179-1",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pharmacy",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1181-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Physical plant operations center",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1202-1",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Physical therapy clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1140-3",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Podiatry clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1097-5",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Post-Anesthesia care unit\/recovery Room",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1156-9",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Prenatal clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1034-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Prenatal critical care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1141-1",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Provider's office",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1180-9",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Public area in healthcare facility",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1157-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pulmonary clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1009-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Pulmonary function testing",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1008-2",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Radiology diagnostics or therapeutics unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1033-0",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Respiratory critical care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1142-9",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Rheumatology clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1201-3",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Scoliosis clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1015-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Serology lab",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1020-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Sleep disorders unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1190-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Soiled utility area",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1092-6",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Solid organ transplant SCA",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1196-5",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Specimen collection area [Community]",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1019-9",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Specimen collection area [Healthcare]",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1158-5",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Speech therapy clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1041-3",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Step down neonatal ICU [Level II]",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1143-7",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Surgery clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1032-2",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Surgical cardiothoracic critical care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1030-6",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Surgical critical care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1208-8",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Telemetry Unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1178-3",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Transport services",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1025-6",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Trauma critical care unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1209-6",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Treatment Room",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1160-1",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Urgent care center",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1164-3",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Ventilator dependent unit",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1016-5",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Virology lab",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1139-5",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Well baby clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1144-5",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Wound clinic",
+		"level": "0",
+		"type": "L"
+	},
+	{
+		"code": "1159-3",
+		"codeSystem": "2.16.840.1.113883.6.259",
+		"displayName": "Wound ostomy continence clinic",
+		"level": "0",
+		"type": "L"
+	}
+]

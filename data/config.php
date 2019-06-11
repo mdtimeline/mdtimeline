@@ -25,6 +25,13 @@ $API = [
             ]
         ]
     ],
+    'Email' => [
+        'methods' => [
+            'CheckAPIEmails' => [
+                'len' => 0
+            ]
+        ]
+    ],
     'EmailTemplates' => [
         'methods' => [
             'getEmailTemplates' => [
@@ -218,13 +225,26 @@ $API = [
             ]
         ]
     ],
-    'CCDDocumentParse' => [
+    'CDA_Parser' => [
         'methods' => [
             'parseDocument' => [
                 'len' => 1
             ],
             'getTestCCD' => [
                 'len' => 1
+            ]
+        ]
+    ],
+    'CDA_ScoreCard' => [
+        'methods' => [
+            'getScorePdf' => [
+                'len' => 2
+            ],
+            'getScoreJson' => [
+                'len' => 2
+            ],
+            'getScoreDocument' => [
+                'len' => 2
             ]
         ]
     ],

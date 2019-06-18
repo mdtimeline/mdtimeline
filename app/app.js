@@ -57750,46 +57750,51 @@ Ext.define('App.view.patient.Patient', {
 			]
 		};
 
-		configs.bbar = [
-			{
-				xtype: 'button',
-				action: 'readOnly',
-				text: _('possible_duplicates'),
-				minWidth: 75,
-				itemId: 'PatientPossibleDuplicatesBtn'
-			},
-			'-',
-			{
-				xtype: 'button',
-				action: 'readOnly',
-				text: _('merge_record'),
-				minWidth: 75,
-				acl: a('allow_merge_patients'),
-				itemId: 'PatientMergeBtn'
-			},
-			'-',
-			'->',
-			'-',
-			{
-				xtype: 'button',
-				action: 'readOnly',
-				text: _('save'),
-				itemId: 'PatientDemographicSaveBtn',
-				minWidth: 75,
-				scope: me,
-				handler: me.formSave
-			},
-			'-',
-			{
-				xtype: 'button',
-				text: _('cancel'),
-				action: 'readOnly',
-				itemId: 'PatientDemographicCancelBtn',
-				minWidth: 75,
-				scope: me,
-				handler: me.formCancel
-			}
-		];
+		configs.dockedItems = [{
+			xtype: 'toolbar',
+			dock: 'bottom',
+			itemId: 'PatientDemographicsBottomBar',
+			items: [
+				{
+					xtype: 'button',
+					action: 'readOnly',
+					text: _('possible_duplicates'),
+					minWidth: 75,
+					itemId: 'PatientPossibleDuplicatesBtn'
+				},
+				'-',
+				{
+					xtype: 'button',
+					action: 'readOnly',
+					text: _('merge_record'),
+					minWidth: 75,
+					acl: a('allow_merge_patients'),
+					itemId: 'PatientMergeBtn'
+				},
+				'-',
+				'->',
+				'-',
+				{
+					xtype: 'button',
+					action: 'readOnly',
+					text: _('save'),
+					itemId: 'PatientDemographicSaveBtn',
+					minWidth: 75,
+					scope: me,
+					handler: me.formSave
+				},
+				'-',
+				{
+					xtype: 'button',
+					text: _('cancel'),
+					action: 'readOnly',
+					itemId: 'PatientDemographicCancelBtn',
+					minWidth: 75,
+					scope: me,
+					handler: me.formCancel
+				}
+			]
+		}];
 
 		configs.listeners = {
 			scope: me,
@@ -58183,6 +58188,7 @@ Ext.define('App.view.patient.Patient', {
 		// });
 	}
 });
+
 Ext.define('App.view.patient.Summary', {
 	extend: 'App.ux.RenderPanel',
 	pageTitle: _('patient_summary'),
@@ -65260,6 +65266,7 @@ Ext.define('App.view.Viewport', {
     currency: g('gbl_currency_symbol'), // currency used
 	patientImage:'resources/images/patientPhotoPlaceholder.jpg',
 	enablePoolAreaFadeInOut: eval(g('enable_poolarea_fade_in_out')),
+	userInteracted : false,
 
 	// end app settings
     initComponent: function(){
@@ -65909,7 +65916,7 @@ Ext.define('App.view.Viewport', {
 		    me.checkoutWindow = Ext.create('App.view.patient.windows.EncounterCheckOut');
 	    }
 
-
+	    me.el.on('click', me.onUserViewportClick, me);
 	    // Ext.create('Ext.window.Window', {
 	    // 	height: 250,
 	    // 	width: 250,
@@ -65926,6 +65933,12 @@ Ext.define('App.view.Viewport', {
 	    //me.signature = Ext.create('App.view.signature.SignatureWindow');
 	    //Ext.create('Modules.worklist.view.ResultsPickUpWindow').show();
     },
+
+	onUserViewportClick: function(){
+    	this.userInteracted = true;
+		this.el.un('click', this.onUserViewportClick, this);
+		this.fireEvent('userinteraction', this);
+	},
 
 	getUserFullname: function(){
 		return this.user.lname + ', ' + this.user.fname + ' ' + this.user.mname

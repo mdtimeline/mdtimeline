@@ -1675,46 +1675,51 @@ Ext.define('App.view.patient.Patient', {
 			]
 		};
 
-		configs.bbar = [
-			{
-				xtype: 'button',
-				action: 'readOnly',
-				text: _('possible_duplicates'),
-				minWidth: 75,
-				itemId: 'PatientPossibleDuplicatesBtn'
-			},
-			'-',
-			{
-				xtype: 'button',
-				action: 'readOnly',
-				text: _('merge_record'),
-				minWidth: 75,
-				acl: a('allow_merge_patients'),
-				itemId: 'PatientMergeBtn'
-			},
-			'-',
-			'->',
-			'-',
-			{
-				xtype: 'button',
-				action: 'readOnly',
-				text: _('save'),
-				itemId: 'PatientDemographicSaveBtn',
-				minWidth: 75,
-				scope: me,
-				handler: me.formSave
-			},
-			'-',
-			{
-				xtype: 'button',
-				text: _('cancel'),
-				action: 'readOnly',
-				itemId: 'PatientDemographicCancelBtn',
-				minWidth: 75,
-				scope: me,
-				handler: me.formCancel
-			}
-		];
+		configs.dockedItems = [{
+			xtype: 'toolbar',
+			dock: 'bottom',
+			itemId: 'PatientDemographicsBottomBar',
+			items: [
+				{
+					xtype: 'button',
+					action: 'readOnly',
+					text: _('possible_duplicates'),
+					minWidth: 75,
+					itemId: 'PatientPossibleDuplicatesBtn'
+				},
+				'-',
+				{
+					xtype: 'button',
+					action: 'readOnly',
+					text: _('merge_record'),
+					minWidth: 75,
+					acl: a('allow_merge_patients'),
+					itemId: 'PatientMergeBtn'
+				},
+				'-',
+				'->',
+				'-',
+				{
+					xtype: 'button',
+					action: 'readOnly',
+					text: _('save'),
+					itemId: 'PatientDemographicSaveBtn',
+					minWidth: 75,
+					scope: me,
+					handler: me.formSave
+				},
+				'-',
+				{
+					xtype: 'button',
+					text: _('cancel'),
+					action: 'readOnly',
+					itemId: 'PatientDemographicCancelBtn',
+					minWidth: 75,
+					scope: me,
+					handler: me.formCancel
+				}
+			]
+		}];
 
 		configs.listeners = {
 			scope: me,

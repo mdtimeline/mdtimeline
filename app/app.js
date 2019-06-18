@@ -29870,22 +29870,46 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
 	                ]
                 },
                 {
-                    flex: 1,
+                    width: 200,
                     text: _('email'),
                     sortable: true,
-                    dataIndex: 'email'
+                    dataIndex: 'email',
+                    items: [
+                        {
+                            xtype: 'columnsearchfield',
+                            autoSearch: true,
+                            operator: 'LIKE',
+                            suffix: '%'
+                        }
+                    ]
                 },
                 {
                     flex: 1,
                     text: _('phone_number'),
                     sortable: true,
-                    dataIndex: 'phone_number'
+                    dataIndex: 'phone_number',
+                    items: [
+                        {
+                            xtype: 'columnsearchfield',
+                            autoSearch: true,
+                            operator: 'LIKE',
+                            suffix: '%'
+                        }
+                    ]
                 },
                 {
                     flex: 1,
                     text: _('cell_number'),
                     sortable: true,
-                    dataIndex: 'cel_number'
+                    dataIndex: 'cel_number',
+                    items: [
+                        {
+                            xtype: 'columnsearchfield',
+                            autoSearch: true,
+                            operator: 'LIKE',
+                            suffix: '%'
+                        }
+                    ]
                 },
                 {
                     flex: 1,

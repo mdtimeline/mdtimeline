@@ -130,6 +130,7 @@ function doRpc($cdata)
 			($action == 'authProcedures' && $method == 'ckAuth') ||
 			($action == 'PortalAuthorize' && $method == 'login') ||
 			($action == 'PortalAuthorize' && $method == 'check') ||
+			($action == 'PortalAuthorize' && $method == 'checkApp') ||
 			($action == 'PortalAuthorize' && $method == 'checkToken') ||
 			($action == 'PortalAuthorize' && $method == 'globals') ||
 			($action == 'PortalAuthorize' && $method == 'passwordReset') ||

@@ -25,6 +25,7 @@ Ext.define('App.view.Viewport', {
     currency: g('gbl_currency_symbol'), // currency used
 	patientImage:'resources/images/patientPhotoPlaceholder.jpg',
 	enablePoolAreaFadeInOut: eval(g('enable_poolarea_fade_in_out')),
+	userInteracted : false,
 
 	// end app settings
     initComponent: function(){
@@ -674,7 +675,7 @@ Ext.define('App.view.Viewport', {
 		    me.checkoutWindow = Ext.create('App.view.patient.windows.EncounterCheckOut');
 	    }
 
-
+	    me.el.on('click', me.onUserViewportClick, me);
 	    // Ext.create('Ext.window.Window', {
 	    // 	height: 250,
 	    // 	width: 250,
@@ -691,6 +692,12 @@ Ext.define('App.view.Viewport', {
 	    //me.signature = Ext.create('App.view.signature.SignatureWindow');
 	    //Ext.create('Modules.worklist.view.ResultsPickUpWindow').show();
     },
+
+	onUserViewportClick: function(){
+    	this.userInteracted = true;
+		this.el.un('click', this.onUserViewportClick, this);
+		this.fireEvent('userinteraction', this);
+	},
 
 	getUserFullname: function(){
 		return this.user.lname + ', ' + this.user.fname + ' ' + this.user.mname

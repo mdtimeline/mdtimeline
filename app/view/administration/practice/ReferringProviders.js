@@ -75,9 +75,9 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
                 },
                 {
                     flex: 1,
-                    text: _('phone_number'),
+                    text: _('cell_number'),
                     sortable: true,
-                    dataIndex: 'phone_number',
+                    dataIndex: 'cel_number',
                     items: [
                         {
                             xtype: 'columnsearchfield',
@@ -89,9 +89,9 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
                 },
                 {
                     flex: 1,
-                    text: _('cell_number'),
+                    text: _('fax_number'),
                     sortable: true,
-                    dataIndex: 'cel_number',
+                    dataIndex: 'fax_number',
                     items: [
                         {
                             xtype: 'columnsearchfield',

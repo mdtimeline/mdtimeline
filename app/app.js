@@ -29885,9 +29885,9 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
                 },
                 {
                     flex: 1,
-                    text: _('phone_number'),
+                    text: _('cell_number'),
                     sortable: true,
-                    dataIndex: 'phone_number',
+                    dataIndex: 'cel_number',
                     items: [
                         {
                             xtype: 'columnsearchfield',
@@ -29899,9 +29899,9 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
                 },
                 {
                     flex: 1,
-                    text: _('cell_number'),
+                    text: _('fax_number'),
                     sortable: true,
-                    dataIndex: 'cel_number',
+                    dataIndex: 'fax_number',
                     items: [
                         {
                             xtype: 'columnsearchfield',
@@ -46439,6 +46439,9 @@ Ext.define('App.controller.patient.Patient', {
 			'#NewPatientWindowImportFromCdaBtn': {
 				click: me.onNewPatientWindowImportFromCdaBtnClick
 			},
+			'#PatientCdaImportBtn': {
+				click: me.onPatientCdaImportBtnClick
+			},
 
 			'#PossiblePatientDuplicatesWindow': {
 				close: me.onPossiblePatientDuplicatesWindowClose
@@ -46654,18 +46657,32 @@ Ext.define('App.controller.patient.Patient', {
 
 		win.allowExtensions = ['xml','ccd','cda','ccda'];
 		win.on('uploadready', function(comp, stringXml){
-			me.getDocumentData(stringXml);
+			me.getDocumentData(stringXml, null);
 		});
 
 		win.show();
 	},
 
-	getDocumentData: function(stringXml){
+	// C-CDA Patient Import
+	onPatientCdaImportBtnClick: function(btn){
+
+		var me = this,
+			win = Ext.create('App.ux.form.fields.UploadString');
+
+		win.allowExtensions = ['xml','ccd','cda','ccda'];
+		win.on('uploadready', function(comp, stringXml){
+			me.getDocumentData(stringXml, app.patient.pid);
+		});
+
+		win.show();
+	},
+
+	getDocumentData: function(stringXml, mergePid){
 		var me = this;
 
 		CDA_Parser.parseDocument(stringXml, function(ccdData){
 			me.importCtrl.validatePosibleDuplicates = false;
-			me.importCtrl.CcdImport(ccdData, null, stringXml);
+			me.importCtrl.CcdImport(ccdData, mergePid, stringXml);
 			me.importCtrl.validatePosibleDuplicates = true;
 			me.promptCcdScore(stringXml, ccdData);
 
@@ -57796,6 +57813,15 @@ Ext.define('App.view.patient.Patient', {
 					itemId: 'PatientMergeBtn'
 				},
 				'-',
+				{
+					xtype: 'button',
+					action: 'readOnly',
+					text: _('ccda_import'),
+					minWidth: 75,
+					//acl: a('allow_merge_patients'),
+					itemId: 'PatientCdaImportBtn'
+				},
+				'-',
 				'->',
 				'-',
 				{
@@ -65942,17 +65968,17 @@ Ext.define('App.view.Viewport', {
 
 	    me.el.on('click', me.onUserViewportClick, me);
 	    // Ext.create('Ext.window.Window', {
-	    // 	height: 250,
-	    // 	width: 250,
-	    // 	items: [
-	    // 		Ext.create('App.ux.form.fields.Switch', {
-		//             // fieldLabel: 'Hello World 1',
-		//             // labelAlign: 'top',
-		//             boxLabel: 'Hello World 2',
-		//         })
+	    // 	title: 'New Update!',
+	    // 	height: 400,
+	    // 	width: 600,
+		//     bodyStyle: 'background-color: white; padding: 20px',
+	    // 	html: 'Update Notes....',
+		//     buttons: [
+		// 	    {
+		// 	    	text: 'Don\'t Show Again'
+		// 	    }
 		//     ]
 	    // }).show();
-
 
 	    //me.signature = Ext.create('App.view.signature.SignatureWindow');
 	    //Ext.create('Modules.worklist.view.ResultsPickUpWindow').show();

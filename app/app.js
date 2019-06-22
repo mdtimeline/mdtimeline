@@ -58887,11 +58887,11 @@ Ext.define('App.view.patient.Summary', {
 			});
 		}
 
-		if(a('access_patient_ccd')){
-			me.reportPanel = me.tabPanel.add({
-				xtype: 'patientccdpanel'
-			});
-		}
+		// if(a('access_patient_ccd')){
+		// 	me.reportPanel = me.tabPanel.add({
+		// 		xtype: 'patientccdpanel'
+		// 	});
+		// }
 
 		me.callParent();
 	},
@@ -65968,17 +65968,17 @@ Ext.define('App.view.Viewport', {
 
 	    me.el.on('click', me.onUserViewportClick, me);
 	    // Ext.create('Ext.window.Window', {
-	    // 	title: 'New Update!',
-	    // 	height: 400,
-	    // 	width: 600,
-		//     bodyStyle: 'background-color: white; padding: 20px',
-	    // 	html: 'Update Notes....',
-		//     buttons: [
-		// 	    {
-		// 	    	text: 'Don\'t Show Again'
-		// 	    }
+	    // 	height: 250,
+	    // 	width: 250,
+	    // 	items: [
+	    // 		Ext.create('App.ux.form.fields.Switch', {
+		//             // fieldLabel: 'Hello World 1',
+		//             // labelAlign: 'top',
+		//             boxLabel: 'Hello World 2',
+		//         })
 		//     ]
 	    // }).show();
+
 
 	    //me.signature = Ext.create('App.view.signature.SignatureWindow');
 	    //Ext.create('Modules.worklist.view.ResultsPickUpWindow').show();

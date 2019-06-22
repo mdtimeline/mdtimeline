@@ -664,11 +664,11 @@ Ext.define('App.view.patient.Summary', {
 			});
 		}
 
-		if(a('access_patient_ccd')){
-			me.reportPanel = me.tabPanel.add({
-				xtype: 'patientccdpanel'
-			});
-		}
+		// if(a('access_patient_ccd')){
+		// 	me.reportPanel = me.tabPanel.add({
+		// 		xtype: 'patientccdpanel'
+		// 	});
+		// }
 
 		me.callParent();
 	},

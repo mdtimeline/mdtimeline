@@ -2065,5 +2065,6 @@ $LANG = array(
 	'report_document' => 'Report Document',
 	'region' => 'Region',
 	'import_from_cda' => 'Import From CDA',
+	'ccda_import' => 'C-CDA Import',
 
 );

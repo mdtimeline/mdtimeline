@@ -42,10 +42,10 @@ define('ROOT', str_replace('lib/HL7', '', str_replace('\\', '/', dirname(__FILE_
  *
  * NOTE: This should be part of Matcha::Connect
  */
-ini_set('display_errors', 1);
+ini_set('display_errors', 'Off');
 $logPath = ROOT . 'sites/' . $site . '/log/';
 if(file_exists($logPath) && is_writable($logPath)){
-	$logFile = 'error_log.txt';
+	$logFile = 'error.log';
 	$oldUmask = umask(0);
 	clearstatcache();
 	if(!file_exists($logPath . $logFile)){

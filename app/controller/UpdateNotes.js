@@ -37,6 +37,9 @@ Ext.define('App.controller.UpdateNotes', {
     },
 
     onViewportRender: function(){
+
+    	var  me = this;
+
         UpdateNotes.getLatestUpdate(function (lastUpdate) {
             me.version = lastUpdate.version;
             me.url = lastUpdate.url;

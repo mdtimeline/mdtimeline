@@ -26,13 +26,17 @@ Ext.define('App.controller.UpdateNotes', {
         me.version = null;
         me.url = null;
 
-        me.control(
-            {
-                '#UpdateNotesWindowDontShowAgainBtn': {
-                    click: me.onUpdateNotesWindowDontShowAgainBtn
-                }
-            });
+        me.control({
+            'viewport': {
+                render: me.onViewportRender
+            },
+            '#UpdateNotesWindowDontShowAgainBtn': {
+                click: me.onUpdateNotesWindowDontShowAgainBtn
+            }
+        });
+    },
 
+    onViewportRender: function(){
         UpdateNotes.getLatestUpdate(function (lastUpdate) {
             me.version = lastUpdate.version;
             me.url = lastUpdate.url;

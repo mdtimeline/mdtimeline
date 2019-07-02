@@ -915,6 +915,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 	                'ScriptCam',
 	                'Support',
 	                'Theme',
+                    'UpdateNotes',
 	                'Upload',
 
 	                'patient.ActiveProblems',

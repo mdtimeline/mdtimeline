@@ -2745,5 +2745,18 @@ $API = [
                 'len' => 1
             ]
         ]
+    ],
+    'UpdateNotes' => [
+        'methods' => [
+            'getLatestUpdate' => [
+                'len' => 0
+            ],
+            'getUpdateAcknowledge' => [
+                'len' => 2
+            ],
+            'setUpdateAcknowledge' => [
+                'len' => 2
+            ]
+        ]
     ]
 ];

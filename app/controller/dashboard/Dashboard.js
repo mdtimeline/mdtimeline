@@ -37,6 +37,14 @@ Ext.define('App.controller.dashboard.Dashboard', {
 		}
 	],
 
+	init: function(){
+		var me = this;
+
+
+		me.getController('App.controller.UpdateNotes');
+
+	},
+
 	addLeftPanel: function(title, item, index){
 		var panel;
 		if(index){

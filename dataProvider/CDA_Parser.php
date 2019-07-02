@@ -196,10 +196,10 @@ class CDA_Parser
 			throw new Exception('Error: Patient family name is required');
 		}
 		$names = $this->nameHandler($dom['patient']['name']);
-		$patient->fname = $names['fname'];
-		$patient->mname = $names['mname'];
-		$patient->lname = $names['lname'];
-		$patient->name = Person::fullname($names['fname'], $names['mname'], $names['lname']);
+		$patient->fname = $names['name']['fname'];
+		$patient->mname = $names['name']['mname'];
+		$patient->lname = $names['name']['lname'];
+		$patient->name = Person::fullname($patient->fname, $patient->mname, $patient->lname);
 		//gender
 		if (!isset($dom['patient']['administrativeGenderCode'])) {
 			throw new Exception('Error: Patient gender is required');
@@ -272,9 +272,9 @@ class CDA_Parser
 
 			if (isset($dom['assignedAuthor']['assignedPerson']['name'])) {
 				$names = $this->nameHandler($dom['assignedAuthor']['assignedPerson']['name']);
-				$author->fname = $names['fname'];
-				$author->mname = $names['mname'];
-				$author->lname = $names['lname'];
+				$author->fname = $names['name']['fname'];
+				$author->mname = $names['name']['mname'];
+				$author->lname = $names['name']['lname'];
 			}
 
 			if (isset($dom['assignedAuthor']['addr'])) {
@@ -395,7 +395,15 @@ class CDA_Parser
 			// reaction, severity, status
 			foreach ($entry['act']['entryRelationship']['observation']['entryRelationship'] as $obs) {
 				$key = null;
-				switch ($obs['observation']['templateId']['@attributes']['root']) {
+				$root = null;
+
+				if(isset($obs['templateId']['@attributes']['root'])){
+					$root = $obs['templateId']['@attributes']['root'];
+				}elseif ($obs['templateId'][0]['@attributes']['root']){
+					$root = $obs['templateId'][0]['@attributes']['root'];
+				}
+
+				switch ($root) {
 					case '2.16.840.1.113883.10.20.22.4.28':
 						$key = 'status';
 						break;
@@ -408,7 +416,7 @@ class CDA_Parser
 				}
 
 				if (isset($key)) {
-					$code = $this->codeHandler($obs['observation']['value']['@attributes']);
+					$code = $this->codeHandler($obs['value']['@attributes']);
 					$allergy->{$key} = $code['code_text'];
 					$allergy->{$key . '_code'} = $code['code'];
 					$allergy->{$key . '_code_type'} = $code['code_type'];
@@ -892,7 +900,7 @@ class CDA_Parser
 						$tel = isset($participant['telecom']) ? $participant['telecom']['@attributes']['value'] : '';
 
 						$name = $this->nameHandler($participant['playingEntity']['name']);
-						$directive->contact = $name['prefix'] . ' ' . $name['lname'] . ' ' . $name['fname'] . $name['mname'] . ' ~ ' . $tel . $address;
+						$directive->contact = $name['name']['prefix'] . ' ' . $name['name']['lname'] . ' ' . $name['name']['fname'] . $name['name']['mname'] . ' ~ ' . $tel . $address;
 
 					}
 
@@ -955,23 +963,40 @@ class CDA_Parser
 	{
 		$results = [];
 
-		$results['prefix'] = isset($name['prefix']) && is_string($name['prefix']) ? $name['prefix'] : '';
+		$results['name']['prefix'] = isset($name['prefix']) && is_string($name['prefix']) ? $name['prefix'] : '';
+		$results['name']['fname'] = '';
+		$results['name']['mname'] = '';
+		$results['name']['lname'] = '';
 
-		if (is_array($name['given'])) {
-			$results['fname'] = isset($name['given'][0]) ? $name['given'][0] : '';
-			if (!isset($name['given'][1])) {
-				$results['mname'] = '';
-			} elseif (is_string($name['given'][1])) {
-				$results['mname'] = isset($name['given'][1]) ? $name['given'][1] : '';
-			} elseif (is_array($name['given'][1])) {
-				$results['mname'] = isset($name['given'][1]['@value']) ? $name['given'][1]['@value'] : '';
+
+		foreach ($name['given'] as $given){
+
+			if(is_array($given)){
+
+			}else{
+				if($results['name']['fname'] === ''){
+					$results['name']['fname'] = $given;
+				}elseif ($results['name']['mname'] === ''){
+					$results['name']['mname'] = $given;
+				}
 			}
-		} else {
-			$results['fname'] = isset($name['given']) ? $name['given'] : '';
-			$results['mname'] = '';
 		}
 
-		$results['lname'] = isset($name['family']) ? $name['family'] : '';
+//		if (is_array($name['given'])) {
+//			$results['fname'] = isset($name['given'][0]) ? $name['given'][0] : '';
+//			if (!isset($name['given'][1])) {
+//				$results['mname'] = '';
+//			} elseif (is_string($name['given'][1])) {
+//				$results['mname'] = isset($name['given'][1]) ? $name['given'][1] : '';
+//			} elseif (is_array($name['given'][1])) {
+//				$results['mname'] = isset($name['given'][1]['@value']) ? $name['given'][1]['@value'] : '';
+//			}
+//		} else {
+//			$results['fname'] = isset($name['given']) ? $name['given'] : '';
+//			$results['mname'] = '';
+//		}
+
+		$results['name']['lname'] = isset($name['family']) ? $name['family'] : '';
 		return $results;
 	}
 

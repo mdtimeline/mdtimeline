@@ -68,6 +68,15 @@ Ext.define('App.controller.patient.CCDImport', {
 			selector: '#CcdPatientAllergiesGrid'
 		},
 
+		{
+			ref: 'CDAViewer',
+			selector: '#CDAViewer'
+		},
+		{
+			ref: 'CDAViewerImportBtn',
+			selector: '#CDAViewerImportBtn'
+		},
+
 
 		// preview patient...
 		{
@@ -140,6 +149,9 @@ Ext.define('App.controller.patient.CCDImport', {
 			},
 			'#CcdImportPreviewWindowCancelBtn': {
 				click: me.onCcdImportPreviewWindowCancelBtnClick
+			},
+			'#CDAViewerImportBtn': {
+				click: me.onCDAViewerImportBtnClick
 			}
 		});
 
@@ -808,6 +820,70 @@ Ext.define('App.controller.patient.CCDImport', {
 		record.save({
 			callback: function(record){
 				app.onDocumentView(record.data.id, 'ccd');
+			}
+		});
+	},
+
+	CcdImportFromXml: function(stringXml, mergePid, validatePossibleDuplicates){
+
+		var me = this;
+
+		CDA_Parser.parseDocument(stringXml, function(ccdData){
+			me.validatePosibleDuplicates = validatePossibleDuplicates;
+			me.CcdImport(ccdData, mergePid, stringXml);
+			me.validatePosibleDuplicates = true;
+			me.promptCcdScore(stringXml, ccdData);
+
+		});
+	},
+
+	viewCDAByXml: function(xmlString){
+
+    	this.showCDAViewer();
+    	var miframe = this.getCDAViewer().down('miframe');
+
+		Ext.Function.defer(function () {
+			miframe.frameElement.dom.contentWindow.postMessage(xmlString, document.origin);
+			miframe.cdaXmlString = xmlString;
+		}, 1000);
+	},
+
+	onCDAViewerImportBtnClick: function(btn){
+		var miframe = btn.up('window').down('miframe');
+		this.CcdImportFromXml(miframe.cdaXmlString, app.patient.pid, false);
+	},
+
+	showCDAViewer: function () {
+
+    	if(!this.getCDAViewer()){
+			Ext.create('App.view.patient.windows.CDAViewer')
+	    }
+    	return this.getCDAViewer().show();
+
+
+	},
+
+	promptCcdScore: function(xml, ccdData){
+
+		var me = this;
+
+		Ext.Msg.show({
+			title:'C-CDA Score',
+			msg: 'Would you like to see this C-CDA score?',
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (btn) {
+				if(btn === 'yes'){
+					me.doCcdScore(xml, ccdData);
+				}
+			}
+		});
+	},
+
+	doCcdScore: function (xml, ccdData) {
+		CDA_ScoreCard.getScoreDocument(xml, Ext.String.format('{0}, {1} {3} (C-CDA)', ccdData.patient.lname, ccdData.patient.fname, ccdData.patient.title), function (temp_doc) {
+			if(temp_doc) {
+				app.getController('DocumentViewer').doDocumentView(temp_doc.id, 'temp');
 			}
 		});
 	}

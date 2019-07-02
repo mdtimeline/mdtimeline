@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<title>HL7 C-CDA Viewer</title>
+
+	<script src="js/jquery-1.12.0.min.js"></script>
+	<script src="js/core.js"></script>
+	<link rel="stylesheet" type="text/css" media="all" href="css/cda.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="css/pure-min.css" />
+
+	<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.css">
+	<link rel="stylesheet" href="css/pureextension.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="css/marketing-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="css/marketing.css">
+    <!--<![endif]-->
+
+	<script src="js/packery.pkgd.min.js"></script>
+	<script src="js/draggabilly.pkgd.min.js"></script>
+
+	<script src="js/xslt/xslt.js"></script>
+	<script src="js/core.js"></script>
+
+</head>
+<body>
+<!--[if lte IE 8]>
+    <link rel="stylesheet" href="css/grids-responsive-old-ie-min.css">
+<![endif]-->
+<!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="css/grids-responsive-min.css">
+<!--<![endif]-->
+
+	<div class="content-wrapper" id="content-wrapper" style="top:auto">
+		<div class="pure-g"  style="margin-top:.1em">
+			<div class="pure-u-1">
+				<div class=" cdaview"  id="inputcda" style="padding:0;">
+					<div style="width: auto; margin-top: 2em; text-align: center; font-size: 1.5em">LOADING CDA...</div>
+				</div>
+				<div class=" cdaview"  id="viewcda">
+					<!--viewer-->
+				</div>
+				<div class="">
+					<span id="storagemsg"></span>
+				</div>
+			</div>
+		</div>
+	</div>
+<script>
+
+	function loadcda(cdaString) {
+		new Transformation().setXml(cdaString).setXslt('cda.xsl').transform("viewcda");
+	}
+
+	function messageHandler (evt) {
+		if (evt.origin !== document.origin) {
+			loadcda(evt.data)
+		}
+	}
+
+	if (window.addEventListener) {
+		window.addEventListener("message", messageHandler, false);
+	}else{
+		window.attachEvent("onmessage", messageHandler);
+	}
+
+</script>
+
+</body>
+</html>

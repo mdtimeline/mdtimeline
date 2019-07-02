@@ -24,7 +24,7 @@ Ext.define('App.view.patient.InsuranceForm', {
         'Ext.grid.plugin.CellEditing',
         'App.ux.combo.Insurances',
         'App.ux.combo.Combo',
-        'Modules.billing.view.patient.BillingPatientInsuranceCoverInformation'
+        //'Modules.billing.view.patient.BillingPatientInsuranceCoverInformation'
     ],
 
 

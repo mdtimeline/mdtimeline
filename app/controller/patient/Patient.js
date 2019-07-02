@@ -63,6 +63,9 @@ Ext.define('App.controller.patient.Patient', {
 			'#NewPatientWindowImportFromCdaBtn': {
 				click: me.onNewPatientWindowImportFromCdaBtnClick
 			},
+			'#PatientCdaImportBtn': {
+				click: me.onPatientCdaImportBtnClick
+			},
 
 			'#PossiblePatientDuplicatesWindow': {
 				close: me.onPossiblePatientDuplicatesWindowClose
@@ -278,18 +281,32 @@ Ext.define('App.controller.patient.Patient', {
 
 		win.allowExtensions = ['xml','ccd','cda','ccda'];
 		win.on('uploadready', function(comp, stringXml){
-			me.getDocumentData(stringXml);
+			me.getDocumentData(stringXml, null);
 		});
 
 		win.show();
 	},
 
-	getDocumentData: function(stringXml){
+	// C-CDA Patient Import
+	onPatientCdaImportBtnClick: function(btn){
+
+		var me = this,
+			win = Ext.create('App.ux.form.fields.UploadString');
+
+		win.allowExtensions = ['xml','ccd','cda','ccda'];
+		win.on('uploadready', function(comp, stringXml){
+			me.getDocumentData(stringXml, app.patient.pid);
+		});
+
+		win.show();
+	},
+
+	getDocumentData: function(stringXml, mergePid){
 		var me = this;
 
 		CDA_Parser.parseDocument(stringXml, function(ccdData){
 			me.importCtrl.validatePosibleDuplicates = false;
-			me.importCtrl.CcdImport(ccdData, null, stringXml);
+			me.importCtrl.CcdImport(ccdData, mergePid, stringXml);
 			me.importCtrl.validatePosibleDuplicates = true;
 			me.promptCcdScore(stringXml, ccdData);
 

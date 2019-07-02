@@ -1697,6 +1697,15 @@ Ext.define('App.view.patient.Patient', {
 					itemId: 'PatientMergeBtn'
 				},
 				'-',
+				{
+					xtype: 'button',
+					action: 'readOnly',
+					text: _('ccda_import'),
+					minWidth: 75,
+					//acl: a('allow_merge_patients'),
+					itemId: 'PatientCdaImportBtn'
+				},
+				'-',
 				'->',
 				'-',
 				{

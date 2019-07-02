@@ -1,4 +1,4 @@
-Ext.define('App.controller.UpdateNotes', {
+Ext.define('App.controller.administration.Version', {
     extend: 'Ext.app.Controller',
     requires: [
         'App.ux.ManagedIframe'
@@ -22,9 +22,11 @@ Ext.define('App.controller.UpdateNotes', {
     init: function () {
         var me = this;
 
-        me.lastUpdateId = null;
+        me.v_major = null;
+        me.v_minor = null;
+        me.v_patch = null;
+        me.v_notes_url = null;
         me.version = null;
-        me.url = null;
 
         me.control({
             'viewport': {
@@ -40,16 +42,24 @@ Ext.define('App.controller.UpdateNotes', {
 
     	var  me = this;
 
-        UpdateNotes.getLatestUpdate(function (lastUpdate) {
-            me.version = lastUpdate.version;
-            me.url = lastUpdate.url;
-            UpdateNotes.getUpdateAcknowledge(lastUpdate.id, app.user.id, function (acknowledge) {
-                me.lastUpdateId = lastUpdate.id;
-                if (!acknowledge) {
-                    me.showUpdateNotesWindow();
-                    me.getUpdateNotesWindowIframe().setSrc(me.url);
-                }
-            })
+        Version.getLatestUpdate(function (lastUpdate) {
+
+            me.v_major = lastUpdate.v_major;
+            me.v_minor = lastUpdate.v_minor;
+            me.v_patch = lastUpdate.v_patch;
+            me.v_notes_url = lastUpdate.v_notes_url;
+
+            me.version = me.v_major.toString() + '.' + me.v_minor.toString() + '.' + me.v_patch.toString();
+
+            if (me.v_major !== null && me.v_minor !== null && me.v_patch !== null && me.v_notes_url !== null){
+                Version.getUpdateAcknowledge(me.version, app.user.id, function (acknowledge) {
+                    say(acknowledge);
+                    if (!acknowledge) {
+                        me.showUpdateNotesWindow();
+                        me.getUpdateNotesWindowIframe().setSrc(me.v_notes_url);
+                    }
+                })
+            }
         });
     },
 
@@ -67,7 +77,7 @@ Ext.define('App.controller.UpdateNotes', {
     onUpdateNotesWindowDontShowAgainBtn: function (btn) {
         var me = this;
 
-        UpdateNotes.setUpdateAcknowledge(this.lastUpdateId,app.user.id,function (response) {
+        Version.setUpdateAcknowledge(me.version,app.user.id,function (response) {
             me.getUpdateNotesWindow().close();
         })
 
@@ -76,11 +86,11 @@ Ext.define('App.controller.UpdateNotes', {
     // getLastUpdate: function () {
     //     var me = this;
     //
-    //     UpdateNotes.getLatestUpdate(function (lastUpdate) {
+    //     Version.getLatestUpdate(function (lastUpdate) {
     //         me.version = lastUpdate.version;
     //         me.url = lastUpdate.url;
     //         if(me.version !== false || me.version != null || me.url.length !== 0 || me.url !== null){}
-    //         UpdateNotes.getUpdateAcknowledge(lastUpdate.id, app.user.id, function (acknowledge) {
+    //         Version.getUpdateAcknowledge(lastUpdate.id, app.user.id, function (acknowledge) {
     //             me.lastUpdateId = lastUpdate.id;
     //             if (!acknowledge) {
     //                 me.showUpdateNotesWindow();

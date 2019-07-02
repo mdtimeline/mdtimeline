@@ -2746,7 +2746,7 @@ $API = [
             ]
         ]
     ],
-    'UpdateNotes' => [
+    'Version' => [
         'methods' => [
             'getLatestUpdate' => [
                 'len' => 0

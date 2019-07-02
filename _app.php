@@ -885,6 +885,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 	                'administration.EmailTemplates',
 	                'administration.EncounterTemplatePanels',
 	                'administration.Users',
+	                'administration.Version',
                     'administration.IpAccess',
                     'administration.TransactionLog',
                     'administration.CronJob',
@@ -915,7 +916,6 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 	                'ScriptCam',
 	                'Support',
 	                'Theme',
-                    'UpdateNotes',
 	                'Upload',
 
 	                'patient.ActiveProblems',

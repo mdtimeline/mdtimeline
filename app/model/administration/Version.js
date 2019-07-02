@@ -16,28 +16,37 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.model.updateNotes.UpdateNotes', {
+Ext.define('App.model.administration.Version', {
     extend: 'Ext.data.Model',
     table: {
-        name: 'update_notes'
+        name: 'version'
     },
     fields: [
         {
-            name: 'id',
+            name: 'v_module',
+            type: 'string',
+            len: 80
+        },
+        {
+            name: 'v_major',
             type: 'int'
         },
         {
-            name: 'version',
-            type: 'double'
+            name: 'v_minor',
+            type: 'int'
         },
         {
-            name: 'url',
-            type: 'string'
+            name: 'v_patch',
+            type: 'int'
         },
         {
-            name: 'create_date',
-            type: 'date',
-            dateFormat: 'Y-m-d H:i:s'
+            name: 'v_timestamp',
+            type: 'date'
+        },
+        {
+            name: 'v_notes_url',
+            type: 'string',
+            len: 600
         }
     ]
 });

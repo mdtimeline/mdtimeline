@@ -16,10 +16,10 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.model.updateNotesAcknowledge.UpdateNotesAcknowledge', {
+Ext.define('App.model.administration.VersionAcknowledge', {
     extend: 'Ext.data.Model',
     table: {
-        name: 'update_notes_acknowledge'
+        name: 'version_acknowledge'
     },
     fields: [
         {
@@ -27,8 +27,9 @@ Ext.define('App.model.updateNotesAcknowledge.UpdateNotesAcknowledge', {
             type: 'int'
         },
         {
-            name: 'notes_id',
-            type: 'int'
+            name: 'version',
+            type: 'string',
+            len: 20
         },
         {
             name: 'user_id',

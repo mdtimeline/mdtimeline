@@ -44,10 +44,10 @@ Ext.define('App.controller.administration.Version', {
 
         Version.getLatestUpdate(function (lastUpdate) {
 
-            me.v_major = lastUpdate.v_major;
-            me.v_minor = lastUpdate.v_minor;
-            me.v_patch = lastUpdate.v_patch;
-            me.v_notes_url = lastUpdate.v_notes_url;
+            me.v_major = lastUpdate.v_major || 0;
+            me.v_minor = lastUpdate.v_minor || 0;
+            me.v_patch = lastUpdate.v_patch || 0;
+            me.v_notes_url = lastUpdate.v_notes_url || null;
 
             me.version = me.v_major.toString() + '.' + me.v_minor.toString() + '.' + me.v_patch.toString();
 

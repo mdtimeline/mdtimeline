@@ -178,6 +178,14 @@ Ext.define('App.view.patient.Patient', {
 																	maxLength: 35
 																},
 																{
+																	xtype: 'textfield',
+																	name: 'suffix',
+																	fieldLabel: _('suffix'),
+																	width: 50,
+																	allowBlank: false,
+																	maxLength: 35
+																},
+																{
 																	xtype: 'gaiaehr.combo',
 																	name: 'marital_status',
 																	fieldLabel: _('marital_status'),

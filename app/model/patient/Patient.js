@@ -55,6 +55,11 @@ Ext.define('App.model.patient.Patient',{
             len: 60
         },
         {
+            name: 'suffix',
+            type: 'string',
+            len: 35
+        },
+        {
             name: 'sex',
             type: 'string',
             comment: 'sex',

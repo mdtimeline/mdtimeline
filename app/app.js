@@ -21047,6 +21047,11 @@ Ext.define('App.model.patient.Patient',{
             len: 60
         },
         {
+            name: 'suffix',
+            type: 'string',
+            len: 35
+        },
+        {
             name: 'sex',
             type: 'string',
             comment: 'sex',
@@ -38891,6 +38896,7 @@ Ext.define('App.controller.dashboard.Dashboard', {
 	}
 
 });
+
 Ext.define('App.controller.dashboard.panel.NewResults', {
 	extend: 'App.controller.dashboard.Dashboard',
 
@@ -56366,6 +56372,14 @@ Ext.define('App.view.patient.Patient', {
 																	name: 'lname',
 																	fieldLabel: _('last_name'),
 																	flex: 2,
+																	allowBlank: false,
+																	maxLength: 35
+																},
+																{
+																	xtype: 'textfield',
+																	name: 'suffix',
+																	fieldLabel: _('suffix'),
+																	width: 50,
 																	allowBlank: false,
 																	maxLength: 35
 																},

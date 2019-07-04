@@ -288,6 +288,30 @@ class PatientRecord {
 		unset($Allergies);
 		$allergies = [];
 
+//		if(empty($results)){
+//			$results[] = [
+//				'allergy_type_code' => null,
+//				'allergy_type_code_type' => null,
+//				'allergy_type' => null,
+//
+//				'allergy_code' => null,
+//				'allergy_code_type' => null,
+//				'allergy' => null,
+//
+//				'reaction_code' => null,
+//				'reaction_code_type' => null,
+//				'reaction' => null,
+//
+//				'severity_code' => null,
+//				'severity_code_type' => null,
+//				'severity' => null,
+//
+//				'status_code' => null,
+//				'status_code_type' => null,
+//				'status' => null,
+//			];
+//		}
+
 		foreach($results as $result){
 			$allergy = [];
 			$allergy['Id'] = $result['id'];
@@ -1518,7 +1542,8 @@ class PatientRecord {
 				$patientData['title'],
 				$patientData['fname'],
 				$patientData['mname'],
-				$patientData['lname']
+				$patientData['lname'],
+				$patientData['suffix']
 			);
 		}
 
@@ -1951,15 +1976,17 @@ class PatientRecord {
 	 * @param $fname
 	 * @param $mname
 	 * @param $lname
+	 * @param $suffix
 	 *
 	 * @return array
 	 */
-	private function name($title, $fname, $mname, $lname){
+	private function name($title, $fname, $mname, $lname, $suffix = null){
 		$name = [];
 		$name['Title'] = $title;
 		$name['Given'] = $fname;
 		$name['Middle'] = $mname;
 		$name['Family'] = $lname;
+		$name['Suffix'] = $suffix;
 
 		return $name;
 	}

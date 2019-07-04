@@ -138,6 +138,7 @@ if(file_exists(ROOT . '/sites/' . SITE . '/conf.php')){
 	if($_SESSION['access_blocked']){
 		header("HTTP/1.1 401 Unauthorized");
 		header('Location: 401.html');
+		error_log($IpAccessRules->getUserIP() . ' HTTP/1.1 401 Unauthorized');
 		exit;
 	}
 

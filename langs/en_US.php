@@ -2066,5 +2066,7 @@ $LANG = array(
 	'region' => 'Region',
 	'import_from_cda' => 'Import From CDA',
 	'ccda_import' => 'C-CDA Import',
+	'suffix' => 'Suffix',
+	'prefix' => 'Prefix',
 
 );

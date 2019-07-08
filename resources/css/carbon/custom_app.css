@@ -972,6 +972,7 @@ li .Deceased {
     padding-left: 32px;
 }
 
+/*
 ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -994,6 +995,7 @@ li .Deceased {
     background-color: #ccc;
     -webkit-border-radius: 5px;
 }
+*/
 
 .timer {
     float: right;

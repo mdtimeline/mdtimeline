@@ -5223,8 +5223,9 @@ textarea.x-form-invalid-field {
 /* line 7, ../../themes/stylesheets/carbon/default/widgets/_panel.scss */
 .x-panel,
 .x-plain {
-  overflow: hidden;
-  position: relative; }
+  /*overflow: hidden;*/
+  position: relative;
+}
 
 /* line 24, ../../themes/stylesheets/carbon/default/widgets/_panel.scss */
 .x-ie .x-panel-header,
@@ -8674,8 +8675,8 @@ svg, vml {
 
 /* line 6, ../../themes/stylesheets/carbon/custom/overrides/_scrollbar-webkit.scss */
 .x-body ::-webkit-scrollbar {
-  width: 14px;
-  height: 14px;
+  width: 10px;
+  height: 10px;
   background-color: #141414; }
 /* line 13, ../../themes/stylesheets/carbon/custom/overrides/_scrollbar-webkit.scss */
 .x-body ::-webkit-scrollbar-thumb {

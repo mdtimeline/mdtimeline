@@ -64,6 +64,21 @@ $API = [
     ],
     'Labels' => [
         'methods' => [
+            'getLabels' => [
+                'len' => 1
+            ],
+            'getLabel' => [
+                'len' => 1
+            ],
+            'addLabel' => [
+                'len' => 1
+            ],
+            'updateLabel' => [
+                'len' => 1
+            ],
+            'destroyLabel' => [
+                'len' => 1
+            ],
             'CreateLabels' => [
                 'len' => 4
             ],

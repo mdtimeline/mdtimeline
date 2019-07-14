@@ -2,6 +2,8 @@
 	"require": {
 		"cboden/ratchet": "0.3.*",
 		"guzzle/guzzle": "dev-master",
-		"slim/slim": "^3.0"
+		"slim/slim": "^3.0",
+      "ext-curl": "*",
+		"ext-json": "*"
 	}
 }

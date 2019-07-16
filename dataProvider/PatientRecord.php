@@ -904,7 +904,7 @@ class PatientRecord {
 
 		foreach ($soaps as $soap){
 
-			if(!isset($soap['health_status'])) continue;
+			if(!isset($soap['health_status']) || $soap['health_status'] === '') continue;
 
 			$health_concern = [
 				'Id' => 'e-'. $soap['id'],

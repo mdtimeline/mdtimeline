@@ -59,6 +59,22 @@ Ext.define('App.view.patient.encounter.HealthConcernGrid', {
 			editor: {
 				xtype: 'textfield'
 			}
+		},
+		{
+			xtype: 'datecolumn',
+			text: _('from'),
+			dataIndex: 'active_from',
+			editor: {
+				xtype: 'datefield'
+			}
+		},
+		{
+			xtype: 'datecolumn',
+			text: _('to'),
+			dataIndex: 'active_to',
+			editor: {
+				xtype: 'datefield'
+			}
 		}
 	],
 	plugins: [

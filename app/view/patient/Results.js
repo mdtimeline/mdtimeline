@@ -232,7 +232,7 @@ Ext.define('App.view.patient.Results', {
 									layout: 'anchor',
 									items: [
 										{
-											xtype: 'mitos.datetime',
+											xtype: 'datefield',
 											fieldLabel: _('report_date'),
 											name: 'result_date',
 											allowBlank: false

@@ -51,14 +51,14 @@ Ext.define('App.controller.Network', {
 
 		var bgcolor;
 
-		if(average_latency < 50){
+		if(average_latency < 100){
             bgcolor = 'green';
-		}else if(average_latency < 75){
-            bgcolor = 'yellow';
-		}else if(average_latency < 100){
-            bgcolor = 'orange';
 		}else if(average_latency < 150){
+            bgcolor = 'yellow';
+		}else if(average_latency < 175){
             bgcolor = 'orange';
+		}else if(average_latency < 200){
+            bgcolor = 'violet';
 		}else {
             bgcolor = 'red';
 		}

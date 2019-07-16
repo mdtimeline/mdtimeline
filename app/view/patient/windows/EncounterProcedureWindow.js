@@ -44,6 +44,20 @@ Ext.define('App.view.patient.windows.EncounterProcedureWindow', {
 					layout: 'hbox',
 					items: [
 						{
+							xtype: 'datefield',
+							name: 'procedure_date',
+							fieldLabel: _('date'),
+							labelAlign: 'top',
+							width: 150,
+						}
+					]
+				},
+
+				{
+					xtype: 'container',
+					layout: 'hbox',
+					items: [
+						{
 							xtype: 'snomedliveproceduresearch',
 							name: 'code_text',
 							displayField: 'Term',

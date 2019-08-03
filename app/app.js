@@ -65992,9 +65992,7 @@ Ext.define('App.view.Viewport', {
 	                    },
 	                    '-',
                         {
-                            text: 'Copyright (C) 2016 MD Timeline (Electronic Health Records) |:|  Open Source Software operating under GPLv3 |:| v' + me.version,
-                            iconCls: 'icoGreen',
-                            disabled: true
+                            text: 'Copyright (C) 2019 MDTIMELINE, LLC |:| v' + me.version,
                         },
                         '->',
                         // {

@@ -24,7 +24,6 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 
     <script type="text/javascript" src="lib/<?php print EXTJS ?>/ext-all.js" charset="utf-8"></script>
 
-    <script src='https://www.google.com/recaptcha/api.js?hl=en'></script>
     <script type="text/javascript">
         var app,
             acl = {},
@@ -81,6 +80,12 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
             var head = document.getElementsByTagName('head')[0],
                 theme = Ext.state.Manager.get('mdtimeline_theme', g('application_theme')),
                 link;
+
+            if(parseInt(g('recaptcha_enable')) === 1){
+	            link  = document.createElement('script');
+	            link.src  = 'https://www.google.com/recaptcha/api.js?hl=en';
+	            head.appendChild(link);
+            }
 
             if(theme == 'dark'){
                 link  = document.createElement('link');
@@ -142,8 +147,8 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 <body id="login">
 <div id="msg-div"></div>
 <div id="copyright" style=" margin:0; overflow: auto; width: 100%; bottom: 0; left:0; padding: 5px 10px; ">
-	<div style="float: left">Copyright (C) 2016 MD Timeline (Electronic Health Records) |:|  Open Source Software operating under <a href="javascript:void(0)" onClick="Ext.getCmp('winCopyright').show();">GPLv3</a> |:| v<?php print VERSION ?></div>
-    <div style="float: right;">by <a href="http://mdtimeline.com/" target="_blank">The Right Answer, Inc.</a></div>
+	<div style="float: left">Copyright (C) 2019 MDTIMELINE, LLC |:| v<?php print VERSION ?></div>
+    <div style="float: right;">by <a href="http://mdtimeline.com/" target="_blank">MDTIMELINE, LLC.</a></div>
 </body>
 
 <!-- Global site tag (gtag.js) - Google Analytics -->

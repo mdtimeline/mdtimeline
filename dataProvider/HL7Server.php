@@ -915,6 +915,9 @@ class HL7Server {
 		if($this->notEmpty($PID[11][0][6])){
 			$p['postal_country'] = $PID[11][0][6]; // Country Code
 		}
+		if($this->notEmpty($PID[13][0][4])){
+			$p['email'] = $PID[13][0][4]; // Email - Home
+		}
 		if($this->notEmpty($PID[13][0][7])){
 			$p['home_phone'] = "{$PID[13][0][7]} . '-' . {$PID[13][0][1]}"; // Phone Number – Home
 		}

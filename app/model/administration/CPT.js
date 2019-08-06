@@ -61,6 +61,10 @@ Ext.define('App.model.administration.CPT', {
 			type: 'bool'
 		},
 		{
+			name: 'modality',
+			type: 'string'
+		},
+		{
 			name: 'active',
 			type: 'bool'
 		}

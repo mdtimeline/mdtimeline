@@ -221,24 +221,26 @@ Ext.define('App.controller.patient.Vitals', {
 		});
 	},
 
-	onAppBeforeEncounterLoad: function(record, encounterPanel){
+	onAppBeforeEncounterLoad: function(encounter_record, encounterPanel){
 		if(encounterPanel.down('vitalspanel')){
 
-			var grid = encounterPanel.down('vitalspanel').down('grid'),
+			var me = this,
+				grid = encounterPanel.down('vitalspanel').down('grid'),
 				sm = grid.getSelectionModel(),
-				store  = grid.getStore();
+				vitals_store  = grid.getStore();
 
-			store.clearFilter(true);
-			store.load({
+			vitals_store.clearFilter(true);
+			vitals_store.load({
 				filters: [
 					{
 						property: 'pid',
-						value: record.get('pid')
+						value: encounter_record.get('pid')
 					}
 				],
-				callback: function (records) {
-					if(records.length > 0){
-						sm.select(records[0]);
+				callback: function (vitals_records) {
+					if(vitals_records.length > 0){
+						sm.select(vitals_records[0]);
+						app.fireEvent('patientvitalsload', me, encounter_record, vitals_records, vitals_store);
 					}
 				}
 			});

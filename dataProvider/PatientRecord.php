@@ -173,6 +173,7 @@ class PatientRecord {
 		$this->getProceduresSection(); // Procedures
 		$this->getImmunizationsSection(); // Immunizations
 		$this->getImplantableDevices();
+		$this->getInterventionsSection();
 		$this->getEncountersSection();
 		$this->getSmokingStatus(); // SmokingStatus
 		$this->getSocialHistorySection();
@@ -267,6 +268,9 @@ class PatientRecord {
 			$medication['Instructions'] = $result['directions'];
 			$medication['Route'] = $result['route'];
 			$medication['Quantity'] = $result['dispense'];
+			$medication['Refills'] = $result['refill'];
+			$medication['PotencyCode'] = $result['potency_code'];
+			$medication['DispenseAsWritten'] = $result['daw'];
 			$medication['Status'] = $result['is_active'] ? 'Active' : 'Inactive';
 			$medication['RXCUI'] = $result['RXCUI'];
 			$medication['NDC'] = $result['NDC'];
@@ -682,6 +686,46 @@ class PatientRecord {
 
 
 		$this->patient_record['ProceduresSection']['Procedure'] = $procedures;
+	}
+
+	private function getInterventionsSection(){
+		if($this->isExcluded('InterventionsSection')) return;
+
+		include_once(ROOT . '/dataProvider/Interventions.php');
+		$Interventions = new Interventions();
+		$results = $Interventions->getPatientInterventionsByPidAndDates($this->pid);
+		unset($Interventions);
+		$interventions = [];
+
+		foreach($results as $result){
+			$intervention = [];
+
+			$procedure['Id'] = $result['id'];
+
+			$procedure['Code'] = $this->code(
+				$result['code'],
+				$result['code_type'],
+				$result['code_text']
+			);
+
+			$procedure['Type'] = $result['intervention_type'];
+
+			$procedure['Diagnosis'] = $this->code(
+				$result['dx_code'],
+				$result['dx_code_type'],
+				$result['dx_code_text']
+			);
+
+			$procedure['Dates'] = $this->dates(
+				$result['create_date'], $result['create_date']
+			);
+
+			$procedure['Performer'] = $this->performer($result['create_uid']);
+
+			$interventions[] = $intervention;
+		}
+
+		$this->patient_record['InterventionsSection']['Intervention'] = $interventions;
 	}
 
 	private function getImmunizationsSection(){

@@ -45,6 +45,21 @@ Ext.define('App.model.patient.Intervention', {
 			len: 20
 		},
 		{
+			name: 'dx_code',
+			type: 'string',
+			len: 80
+		},
+		{
+			name: 'dx_code_text',
+			type: 'string',
+			len: 300
+		},
+		{
+			name: 'dx_code_type',
+			type: 'string',
+			len: 20
+		},
+		{
 			name: 'notes',
 			type: 'string',
 			dataTYpe: 'text'

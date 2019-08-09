@@ -52,5 +52,23 @@ class Interventions {
 		return $this->i->load()->all();
 	}
 
+	public function getPatientInterventionsByPidAndDates($pid){
+
+		$params = new stdClass();
+		$params->sort[0] = new stdClass();
+		$params->sort[0]->property = 'date';
+		$params->sort[0]->direction = 'DESC';
+
+		$this->i->addFilter('pid', $pid);
+		if(isset($start)){
+			$this->i->addFilter('date', $start, '>=');
+		}
+		if(isset($end)) {
+			$this->i->addFilter('date', $end, '<=');
+		}
+
+		return $this->i->load()->all();
+	}
+
 
 }

@@ -28,7 +28,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		'App.view.patient.encounter.AppointmentRequestGrid',
 		'App.view.patient.encounter.EducationResourcesGrid',
 		'App.view.patient.encounter.MedicationsAdministeredGrid',
-		//'App.view.patient.encounter.InterventionsGrid',
+		'App.view.patient.encounter.InterventionsGrid',
 		'App.view.patient.encounter.HealthConcernGrid',
 		'App.ux.form.fields.plugin.FieldTab'
 	],
@@ -348,11 +348,11 @@ Ext.define('App.view.patient.encounter.SOAP', {
 							minHeight: 125,
 							margin: '0 0 10 0'
 						},
-						// {
-						// 	xtype: 'interventionsgrid',
-						// 	minHeight: 125,
-						// 	margin: '0 0 10 0'
-						// },
+						{
+							xtype: 'interventionsgrid',
+							minHeight: 125,
+							margin: '0 0 10 0'
+						},
 						{
 							xtype: 'careplangoalsgrid',
 							minHeight: 125,

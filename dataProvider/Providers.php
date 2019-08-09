@@ -107,7 +107,7 @@ class Providers {
 			];
 		}
 
-		$url = 'https://npiregistry.cms.hhs.gov/api/?number=' . $nip;
+		$url = 'https://npiregistry.cms.hhs.gov/api/?version=2.1&number=' . $nip;
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

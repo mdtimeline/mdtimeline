@@ -58,12 +58,15 @@ class Labels
 
 	public function CreateLabel($data, $height, $width, $dpi = 300){
 
-		include_once ('../lib/Barcode/Barcode.php');
 		include_once ('../lib/phpqrcode/qrlib.php');
 
 		$site = 'default';
 		$bg_img = "../sites/{$site}/label-{$height}x{$width}-bg.jpg";
 		$label_structure = $this->getStructure($height . 'x' . $width);
+
+		// fix margins
+		$width = $width - .3;
+		$height = $height - .18;
 
 		$width = $width * $dpi;
 		$height = $height * $dpi;
@@ -167,14 +170,26 @@ class Labels
 
 		if(!isset($code['text']) || $code['text'] == '') return;
 
-		$brcode = new barCode('jpeg', $code['height'],2.8, 3, 6);
-		$i_width = imagesx($im);
-		$i_height = imagesy($im);
+		include_once ('../lib/Barcode/Barcode2.php');
 
-		ob_start();
-		$brcode->build($code['text'], $code['show_text']);
-		$brcode_ob = ob_get_clean();
-		$brcode_im = imagecreatefromstring ($brcode_ob);
+		// try to shrink the record number
+		$text_array = explode('-', $code['text']);
+		if(isset($text_array[1])){
+			$text_array[1] = ltrim($text_array[1], '0');
+			$code['text'] = implode('-', $text_array);
+		}
+
+		$generator = new barcode_generator();
+
+		/* Create bitmap image. */
+		$brcode_im = $generator->render_image('code-39', $code['text'], [
+			'f' => 'jpeg',
+			'h' => $code['height'],
+			'w' => $code['width'],
+			'ts' => $code['font_size'],
+			'wn' => 1,
+		]);
+
 		$brcode_width = imagesx($brcode_im);
 		$brcode_height = imagesy($brcode_im);
 
@@ -183,6 +198,9 @@ class Labels
 			$brcode_width = imagesx($brcode_im);
 			$brcode_height = imagesy($brcode_im);
 		}
+
+		$i_width = imagesx($im);
+		$i_height = imagesy($im);
 
 		if($code['x'] === 'center'){
 			$code['x'] = ($i_width / 2) - ($brcode_width / 2);

@@ -44,11 +44,36 @@ Ext.define('App.controller.patient.Interventions', {
 		}
 	],
 
+	bmi_underweight_intervention: {
+		description: 'Underweight Diet Education Plan Intervention',
+		reason: 'BMI below 18.5 OR above > 25 kg/m2',
+		code: '11816003',
+		code_text: 'Counseling for Nutrition',
+		code_type: 'SNOMED-CT',
+		dx_code: '248342006',
+		dx_code_text: 'Underweight (finding)',
+		dx_code_type: 'SNOMED-CT',
+		threshold_in_months: -3
+	},
+
+	bmi_overweight_intervention: {
+		description: 'Overweight Diet Education Plan Intervention',
+		reason: 'BMI below 18.5 OR above > 25 kg/m2',
+		code: '11816003',
+		code_text: 'Counseling for Nutrition',
+		code_type: 'SNOMED-CT',
+		dx_code: '238131007',
+		dx_code_text: 'Overweight (finding)',
+		dx_code_type: 'SNOMED-CT',
+		threshold_in_months: -3
+	},
+
 	init: function(){
 		var me = this;
 		me.control({
 			'viewport': {
-				'beforeencounterload': me.onBeforeOpenEncounter
+				'beforeencounterload': me.onBeforeOpenEncounter,
+				'patientvitalsload': me.onPatientVitalsLoad
 			},
 			'#InterventionsGrid': {
 				'itemdblclick': me.onInterventionsGridItemDblClick
@@ -177,9 +202,6 @@ Ext.define('App.controller.patient.Interventions', {
 		return this.getInterventionWindow().show();
 	},
 
-
-
-
 	onCarePlanGoalSearchFieldSelect: function(cmb, records){
 		var me = this,
 			form = me.getCarePlanGoalsNewForm().getForm(),
@@ -191,10 +213,104 @@ Ext.define('App.controller.patient.Interventions', {
 		});
 	},
 
+	onPatientVitalsLoad: function(ctrl, encounter_record, vitals_records, vitals_store){
 
+		var me = this,
+			encounter_eid = encounter_record.get('eid'),
+			patient_age_years = app.patient.age.DMY.years,
 
+			underweight_found = vitals_store.findBy( function (vital_record) {
+				var bmi = vital_record.get('bmi');
+				return encounter_eid === vital_record.get('eid') && bmi > 1 && bmi <= 18.5;
+			}) !== -1,
+			overweight_found = vitals_store.findBy( function (vital_record) {
+				var bmi = vital_record.get('bmi');
+				return encounter_eid === vital_record.get('eid') && bmi >= 25;
+			}) !== -1,
+			intervention, params;
 
+		// is adult of no overweight
+		if(patient_age_years < 18) return;
 
+		if(overweight_found){
+			intervention = me.bmi_overweight_intervention;
+		}else if(underweight_found){
+			intervention = me.bmi_underweight_intervention;
+		}else{
+			return;
+		}
 
+		params = {
+			filters: [
+				{
+					property: 'pid',
+					value: encounter_record.get('pid')
+				},
+				{
+					property: 'code',
+					value: intervention.code
+				},
+				{
+					property: 'dx_code',
+					value: intervention.dx_code
+				},
+				{
+					property: 'create_date',
+					operator: '>=',
+					value: Ext.Date.format(Ext.Date.add(new Date(), Ext.Date.MONTH, intervention.threshold_in_months), 'Y-m-d 00:00:00')
+				},
+			]
+		};
+
+		Interventions.getPatientIntervention(params, function(response) {
+			if(response.data === false){
+				me.promptIntervention(intervention);
+			}
+		});
+
+	},
+
+	promptIntervention: function (intervention) {
+		var me = this;
+
+		Ext.Msg.show({
+			title: intervention.description + ' Required',
+			msg: 'Would you like to record this Intervention?',
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (btn) {
+				if(btn === 'yes'){
+					me.addAutoIntervention(intervention);
+				}
+			}
+		});
+	},
+
+	addAutoIntervention: function (intervention) {
+		var grid = this.getInterventionsGrid(),
+			store = grid.getStore(),
+			records;
+
+		records = store.add({
+			pid: app.patient.pid,
+			eid: app.patient.eid,
+			intervention_type: 'RecommendedNutrition',
+
+			code: intervention.code,
+			code_text: intervention.code_text,
+			code_type: intervention.code_type,
+			dx_code: intervention.dx_code,
+			dx_code_text: intervention.dx_code_text,
+			dx_code_type: intervention.dx_code_type,
+
+			create_uid: app.user.id,
+			create_date: app.getDate(),
+			update_uid: app.user.id,
+			update_date: app.getDate()
+		});
+
+		this.showInterventionsGrid();
+		this.getInterventionForm().getForm().loadRecord(records[0]);
+	}
 
 });

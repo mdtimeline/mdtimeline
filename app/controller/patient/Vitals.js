@@ -101,6 +101,18 @@ Ext.define('App.controller.patient.Vitals', {
 		{
 			ref: 'NotesBlock',
 			selector: 'vitalspanel #notesBlock'
+		},
+		{
+			ref: 'PatientChartsWindow',
+			selector: '#PatientChartsWindow'
+		},
+		{
+			ref: 'PatientChartsIframe',
+			selector: '#PatientChartsIframe'
+		},
+		{
+			ref: 'PatientChartWeightVsAgeToFiveBtn',
+			selector: '#PatientChartWeightVsAgeToFiveBtn'
 		}
 	],
 
@@ -127,7 +139,24 @@ Ext.define('App.controller.patient.Vitals', {
 			'vitalspanel #vitalSignBtn': {
 				click: me.onVitalSignBtnClick
 			},
-
+			'vitalspanel #vitalChartsBtn': {
+				click: me.onVitalChartsBtnClick
+			},
+			'#PatientChartWeightVsAgeToFiveBtn': {
+				click: me.onPatientChartWeightVsAgeToFiveBtnClick
+			},
+			'#PatientChartWeightVsAgeToTwentyBtn': {
+				click: me.onPatientChartWeightVsAgeToTwentyBtnClick
+			},
+			'#PatientChartHeadCircumferenceVsAgeToFiveBtn': {
+				click: me.onPatientChartHeadCircumferenceVsAgeToFiveBtnClick
+			},
+			'#PatientChartLengthVsAgeToFiveBtn': {
+				click: me.onPatientChartLengthVsAgeToFiveBtnClick
+			},
+			'#PatientChartBMIBtn': {
+				click: me.onPatientChartBMIBtnClick
+			},
 
 			/** conversions **/
 			'#vitalTempFField':{
@@ -149,6 +178,62 @@ Ext.define('App.controller.patient.Vitals', {
 				keyup:me.onVitalWeightKgFieldKeyUp
 			}
 		});
+	},
+
+	onVitalChartsBtnClick: function(){
+		if(!this.getPatientChartsWindow()){
+			Ext.create('App.view.patient.windows.Charts');
+		}
+		this.getPatientChartsWindow().show();
+	},
+
+	onPatientChartWeightVsAgeToFiveBtnClick: function(){
+		var chart_data = this.getChatData('weight_kg');
+ 		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=wfa_boys_0_to_5&data=' + JSON.stringify(chart_data));
+	},
+
+	onPatientChartWeightVsAgeToTwentyBtnClick: function(){
+		var chart_data = this.getChatData('weight_kg');
+		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=wfa_boys_2_to_20&data=' + JSON.stringify(chart_data));
+
+	},
+
+	onPatientChartHeadCircumferenceVsAgeToFiveBtnClick: function(){
+		var chart_data = this.getChatData('head_circumference_cm');
+		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=hcfa_boys_0_to_5&data=' + JSON.stringify(chart_data));
+
+	},
+
+	onPatientChartLengthVsAgeToFiveBtnClick: function(){
+		var chart_data = this.getChatData('height_cm');
+		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=lfa_boys_0_to_5&data=' + JSON.stringify(chart_data));
+	},
+
+	onPatientChartBMIBtnClick: function(){
+		var chart_data = this.getChatData('bmi');
+		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=bmi_boys_2_to_20&data=' + JSON.stringify(chart_data));
+	},
+
+	getChatData: function(measurement){
+		var me = this,
+			grid_store = me.getVitalsHistoryGrid().getStore(),
+			vital_records = grid_store.data.items,
+			patient_dob = app.patient.record.get('DOB'),
+			chart_data = [];
+
+		vital_records.forEach(function (vital_record) {
+
+			var value = vital_record.get(measurement),
+				age = app.getAge(patient_dob, vital_record.get('date')),
+				age_in_months = (age.years * 12) + age.months;
+
+			if(Ext.isEmpty(value) || value === 0) return;
+
+			chart_data.push([age_in_months, value]);
+
+		});
+
+		return chart_data;
 	},
 
 	onPatientSummaryPanelVitalsPanelActivate: function (vitals_panel) {

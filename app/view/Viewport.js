@@ -1450,6 +1450,30 @@ Ext.define('App.view.Viewport', {
     calculateAge: function(base_date, dob_date) {
 		var birthday = +new Date(dob_date);
 		return~~ ((Ext.Date.now(base_date) - birthday) / (31557600000));
+	},
+
+	getAge: function (dob, age_at) {
+
+		var _dob = new Date(dob);
+		var _aad = new Date(age_at);
+		var daysInMonth = 30.436875; // Days in a month on average.
+
+		var yearAad = _aad.getFullYear();
+		var yearDob = _dob.getFullYear();
+		var years = yearAad - yearDob; // Get age in years.
+		_dob.setFullYear(yearAad); // Set birthday for this year.
+		var aadMillis = _aad.getTime();
+		var dobMillis = _dob.getTime();
+		if (aadMillis < dobMillis) {
+			--years;
+			_dob.setFullYear(yearAad - 1); // Set to previous year's birthday
+			dobMillis = _dob.getTime();
+		}
+		var days = (aadMillis - dobMillis) / 86400000;
+		var monthsDec = days / daysInMonth; // Months with remainder.
+		var months = Math.floor(monthsDec); // Remove fraction from month.
+		days = Math.floor(daysInMonth * (monthsDec - months));
+		return {years: years, months: months, days: days};
 	}
 
 

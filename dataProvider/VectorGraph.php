@@ -33,15 +33,15 @@ class VectorGraph
 	 */
 	private $patient;
 	/**
-	 * @var Patient
+	 * @var Vitals
 	 */
-	private $encounter;
+	private $Vitals;
 
 	function __construct()
 	{
 		$this->db = new MatchaHelper();
 		$this->patient = new Patient();
-		$this->encounter = new Encounter();
+		$this->Vitals = new Vitals();
 	}
 
 	public function getGraphData(stdClass $params)
@@ -112,7 +112,7 @@ class VectorGraph
 	{
 		$data = array();
 		$dob = $this->patient->getPatientDOBByPid($pid);
-		foreach($this->encounter->getVitalsByPid($pid) as $foo){
+		foreach($this->Vitals->getVitalsByPid($pid) as $foo){
 			$fo['age'] = Age::getMonsBetweenDates($dob, $foo['date']) + .5;
 			$fo['PP'] = $foo['weight_kg'];
 			$data[] = $fo;
@@ -124,7 +124,7 @@ class VectorGraph
 	{
 		$data = array();
 		$dob = $this->patient->getPatientDOBByPid($pid);
-		foreach($this->encounter->getVitalsByPid($pid) as $foo){
+		foreach($this->Vitals->getVitalsByPid($pid) as $foo){
 			$fo['age'] = Age::getMonsBetweenDates($dob, $foo['date']) + .5;
 			$fo['PP'] = $foo['height_cm'];
 			$data[] = $fo;
@@ -135,7 +135,7 @@ class VectorGraph
 	public function getPatientWeightForRecumbentInfGraphDataByPid($pid)
 	{
 		$data = array();
-		foreach($this->encounter->getVitalsByPid($pid) as $foo){
+		foreach($this->Vitals->getVitalsByPid($pid) as $foo){
 			$fo['age'] = $foo['height_cm'];
 			$fo['PP'] = $foo['weight_kg'];
 			$data[] = $fo;
@@ -147,7 +147,7 @@ class VectorGraph
 	{
 		$data = array();
 		$dob = $this->patient->getPatientDOBByPid($pid);
-		foreach($this->encounter->getVitalsByPid($pid) as $foo){
+		foreach($this->Vitals->getVitalsByPid($pid) as $foo){
 			$fo['age'] = Age::getMonsBetweenDates($dob, $foo['date']) + .5;
 			$fo['PP'] = $foo['head_circumference_cm'];
 			if($fo['PP'] != null && $fo['PP'] != ''){
@@ -165,7 +165,7 @@ class VectorGraph
 	private function getPatientWeightForStatureGraphDataByPid($pid)
 	{
 		$data = array();
-		foreach($this->encounter->getVitalsByPid($pid) as $foo){
+		foreach($this->Vitals->getVitalsByPid($pid) as $foo){
 			$fo['height'] = $foo['height_cm'];
 			$fo['PP'] = $foo['weight_kg'];
 			$data[] = $fo;
@@ -177,7 +177,7 @@ class VectorGraph
 	{
 		$data = array();
 		$dob = $this->patient->getPatientDOBByPid($pid);
-		foreach($this->encounter->getVitalsByPid($pid) as $foo){
+		foreach($this->Vitals->getVitalsByPid($pid) as $foo){
 			$fo['age'] = Age::getMonsBetweenDates($dob, $foo['date']) + .5;
 			$fo['PP'] = $foo['weight_kg'];
 			$data[] = $fo;
@@ -189,7 +189,7 @@ class VectorGraph
 	{
 		$data = array();
 		$dob = $this->patient->getPatientDOBByPid($pid);
-		foreach($this->encounter->getVitalsByPid($pid) as $foo){
+		foreach($this->Vitals->getVitalsByPid($pid) as $foo){
 			$fo['age'] = Age::getMonsBetweenDates($dob, $foo['date']) + .5;
 			$fo['PP'] = $foo['height_cm'];
 			$data[] = $fo;
@@ -201,7 +201,7 @@ class VectorGraph
 	{
 		$data = array();
 		$dob = $this->patient->getPatientDOBByPid($pid);
-		foreach($this->encounter->getVitalsByPid($pid) as $foo){
+		foreach($this->Vitals->getVitalsByPid($pid) as $foo){
 			$fo['age'] = Age::getMonsBetweenDates($dob, $foo['date']) + .5;
 			$fo['PP'] = $foo['bmi'];
 			$data[] = $fo;

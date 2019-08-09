@@ -120,7 +120,15 @@ Ext.define('App.view.patient.Vitals', {
 						App.app.getController('InfoButton').doGetInfoByUrl('https://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta?v%3Aproject=medlineplus&query=vitals+signs&x=0&y=0');
 					}
 				},
+				'-',
+				{
+					xtype:'button',
+					text: 'Charts',
+					itemId: 'vitalChartsBtn',
+				},
+				'-',
 				'->',
+				'-',
 				{
 					text: _('vitals'),
 					iconCls: 'icoAdd',

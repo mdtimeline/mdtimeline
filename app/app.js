@@ -24682,7 +24682,15 @@ Ext.define('App.view.patient.Vitals', {
 						App.app.getController('InfoButton').doGetInfoByUrl('https://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta?v%3Aproject=medlineplus&query=vitals+signs&x=0&y=0');
 					}
 				},
+				'-',
+				{
+					xtype:'button',
+					text: 'Charts',
+					itemId: 'vitalChartsBtn',
+				},
+				'-',
 				'->',
+				'-',
 				{
 					text: _('vitals'),
 					iconCls: 'icoAdd',
@@ -48286,6 +48294,18 @@ Ext.define('App.controller.patient.Vitals', {
 		{
 			ref: 'NotesBlock',
 			selector: 'vitalspanel #notesBlock'
+		},
+		{
+			ref: 'PatientChartsWindow',
+			selector: '#PatientChartsWindow'
+		},
+		{
+			ref: 'PatientChartsIframe',
+			selector: '#PatientChartsIframe'
+		},
+		{
+			ref: 'PatientChartWeightVsAgeToFiveBtn',
+			selector: '#PatientChartWeightVsAgeToFiveBtn'
 		}
 	],
 
@@ -48312,7 +48332,24 @@ Ext.define('App.controller.patient.Vitals', {
 			'vitalspanel #vitalSignBtn': {
 				click: me.onVitalSignBtnClick
 			},
-
+			'vitalspanel #vitalChartsBtn': {
+				click: me.onVitalChartsBtnClick
+			},
+			'#PatientChartWeightVsAgeToFiveBtn': {
+				click: me.onPatientChartWeightVsAgeToFiveBtnClick
+			},
+			'#PatientChartWeightVsAgeToTwentyBtn': {
+				click: me.onPatientChartWeightVsAgeToTwentyBtnClick
+			},
+			'#PatientChartHeadCircumferenceVsAgeToFiveBtn': {
+				click: me.onPatientChartHeadCircumferenceVsAgeToFiveBtnClick
+			},
+			'#PatientChartLengthVsAgeToFiveBtn': {
+				click: me.onPatientChartLengthVsAgeToFiveBtnClick
+			},
+			'#PatientChartBMIBtn': {
+				click: me.onPatientChartBMIBtnClick
+			},
 
 			/** conversions **/
 			'#vitalTempFField':{
@@ -48334,6 +48371,62 @@ Ext.define('App.controller.patient.Vitals', {
 				keyup:me.onVitalWeightKgFieldKeyUp
 			}
 		});
+	},
+
+	onVitalChartsBtnClick: function(){
+		if(!this.getPatientChartsWindow()){
+			Ext.create('App.view.patient.windows.Charts');
+		}
+		this.getPatientChartsWindow().show();
+	},
+
+	onPatientChartWeightVsAgeToFiveBtnClick: function(){
+		var chart_data = this.getChatData('weight_kg');
+ 		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=wfa_boys_0_to_5&data=' + JSON.stringify(chart_data));
+	},
+
+	onPatientChartWeightVsAgeToTwentyBtnClick: function(){
+		var chart_data = this.getChatData('weight_kg');
+		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=wfa_boys_2_to_20&data=' + JSON.stringify(chart_data));
+
+	},
+
+	onPatientChartHeadCircumferenceVsAgeToFiveBtnClick: function(){
+		var chart_data = this.getChatData('head_circumference_cm');
+		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=hcfa_boys_0_to_5&data=' + JSON.stringify(chart_data));
+
+	},
+
+	onPatientChartLengthVsAgeToFiveBtnClick: function(){
+		var chart_data = this.getChatData('height_cm');
+		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=lfa_boys_0_to_5&data=' + JSON.stringify(chart_data));
+	},
+
+	onPatientChartBMIBtnClick: function(){
+		var chart_data = this.getChatData('bmi');
+		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=bmi_boys_2_to_20&data=' + JSON.stringify(chart_data));
+	},
+
+	getChatData: function(measurement){
+		var me = this,
+			grid_store = me.getVitalsHistoryGrid().getStore(),
+			vital_records = grid_store.data.items,
+			patient_dob = app.patient.record.get('DOB'),
+			chart_data = [];
+
+		vital_records.forEach(function (vital_record) {
+
+			var value = vital_record.get(measurement),
+				age = app.getAge(patient_dob, vital_record.get('date')),
+				age_in_months = (age.years * 12) + age.months;
+
+			if(Ext.isEmpty(value) || value === 0) return;
+
+			chart_data.push([age_in_months, value]);
+
+		});
+
+		return chart_data;
 	},
 
 	onPatientSummaryPanelVitalsPanelActivate: function (vitals_panel) {
@@ -53336,263 +53429,46 @@ Ext.define('App.model.patient.SOAP', {
 });
 
 Ext.define('App.view.patient.windows.Charts', {
-    extend       : 'Ext.window.Window',
-    requires     : [
-        'App.store.patient.Vitals'
+	extend: 'Ext.window.Window',
+	requires: [],
+	title: _('vector_charts'),
+	modal: true,
+	width: 1000,
+	height: 700,
+	layout: 'fit',
+	itemId: 'PatientChartsWindow',
+    items: [
+        {
+            xtype: 'miframe',
+	        itemId: 'PatientChartsIframe',
+        }
     ],
-    title        : _('vector_charts'),
-    layout       : 'card',
-    closeAction  : 'hide',
-    modal        : true,
-    width        : window.innerWidth - 200,
-    height       : window.innerHeight - 200,
-    maximizable  : true,
-    //maximized  : true,
-    initComponent: function() {
-        var me = this;
-
-        me.vitalsStore = Ext.create('App.store.patient.Vitals');
-        me.graphStore = Ext.create('App.store.patient.VectorGraph');
-
-        me.WeightForAgeInfStore = Ext.create('App.store.patient.charts.WeightForAgeInf');
-        me.LengthForAgeInfStore = Ext.create('App.store.patient.charts.LengthForAgeInf');
-        me.WeightForRecumbentInfStore = Ext.create('App.store.patient.charts.WeightForRecumbentInf');
-        me.HeadCircumferenceInfStore = Ext.create('App.store.patient.charts.HeadCircumferenceInf');
-        me.WeightForStatureStore = Ext.create('App.store.patient.charts.WeightForStature');
-        me.WeightForAgeStore = Ext.create('App.store.patient.charts.WeightForAge');
-        me.StatureForAgeStore = Ext.create('App.store.patient.charts.StatureForAge');
-        me.BMIForAgeStore = Ext.create('App.store.patient.charts.BMIForAge');
-
-        me.tbar = ['->', {
-            text        : _('bp_pulse_temp'),
-            action      : 'bpPulseTemp',
-            pressed     : true,
-            enableToggle: true,
-            toggleGroup : 'charts',
-            scope       : me,
-            handler     : me.onChartSwitch
-        },'-',{
-            text        : _('weight_for_age'),
-            action      : 'WeightForAgeInf',
-            enableToggle: true,
-            toggleGroup : 'charts',
-            scope       : me,
-            handler     : me.onChartSwitch
-        },'-',{
-            text        : _('length_for_age'),
-            action      : 'LengthForAgeInf',
-            enableToggle: true,
-            toggleGroup : 'charts',
-            scope       : me,
-            handler     : me.onChartSwitch
-        },'-',{
-            text        : _('weight_for_recumbent'),
-            action      : 'WeightForRecumbentInf',
-            enableToggle: true,
-            toggleGroup : 'charts',
-            scope       : me,
-            handler     : me.onChartSwitch
-        },'-',{
-            text        : _('head_circumference'),
-            action      : 'HeadCircumferenceInf',
-            enableToggle: true,
-            toggleGroup : 'charts',
-            scope       : me,
-            handler     : me.onChartSwitch
-        },'-',{
-            text        : _('weight_for_stature'),
-            action      : 'WeightForStature',
-            enableToggle: true,
-            toggleGroup : 'charts',
-            scope       : me,
-            handler     : me.onChartSwitch
-        },'-',{
-            text        : _('weight_for_age'),
-            action      : 'WeightForAge',
-            enableToggle: true,
-            toggleGroup : 'charts',
-            scope       : me,
-            handler     : me.onChartSwitch
-        },'-',{
-            text        : _('stature_for_age'),
-            action      : 'StatureForAge',
-            enableToggle: true,
-            toggleGroup : 'charts',
-            scope       : me,
-            handler     : me.onChartSwitch
-        },'-',{
-            text        : _('bmi_for_age'),
-            action      : 'BMIForAge',
-            enableToggle: true,
-            toggleGroup : 'charts',
-            scope       : me,
-            handler     : me.onChartSwitch
-        },'-'];
-
-        me.tools = [
-            {
-                type   : 'print',
-                tooltip: _('print_chart'),
-                handler: function() {
-                    console.log(this.up('window').down('chart'));
-                }
-            }
-        ];
-
-        me.items = [
-            Ext.create('App.view.patient.charts.BPPulseTemp', {
-                store: me.vitalsStore
-            }),
-
-            me.WeightForAgeInf = Ext.create('App.view.patient.charts.HeadCircumference', {
-                title   : _('weight_for_age_0_3_mos'),
-                xTitle  : _('weight_kg'),
-                yTitle  : _('age_months'),
-                xMinimum: 1,
-                xMaximum: 19,
-                yMinimum: 0,
-                yMaximum: 36,
-                store   : me.WeightForAgeInfStore
-            }),
-
-            me.LengthForAgeInf = Ext.create('App.view.patient.charts.HeadCircumference', {
-                title   : _('length_for_age_0_3_mos'),
-                xTitle  : _('length_cm'),
-                yTitle  : _('age_months'),
-                xMinimum: 40,
-                xMaximum: 110,
-                yMinimum: 0,
-                yMaximum: 36,
-                store   : me.LengthForAgeInfStore
-            }),
-
-            me.WeightForRecumbentInf = Ext.create('App.view.patient.charts.HeadCircumference', {
-                title   : _('weight_for_recumbent_0_3_mos'),
-                xTitle  : _('weight_kg'),
-                yTitle  : _('length_cm'),
-                xMinimum: 1,
-                xMaximum: 20,
-                yMinimum: 45,
-                yMaximum: 103.5,
-                store   : me.WeightForRecumbentInfStore
-            }),
-
-            me.HeadCircumferenceInf = Ext.create('App.view.patient.charts.HeadCircumference', {
-                title   : _('head_circumference_0_3_mos'),
-                xTitle  : _('circumference_cm'),
-                yTitle  : _('age_months'),
-                xMinimum: 30,
-                xMaximum: 55,
-                yMinimum: 0,
-                yMaximum: 36,
-                store   : me.HeadCircumferenceInfStore
-            }),
-
-            me.WeightForStature = Ext.create('App.view.patient.charts.HeightForStature', {
-////	            title   : _('weight_for_age_2_20_years'),
-////	            xTitle  : _('weight_kg'),
-////	            yTitle  : _('age_years'),
-//	            xMinimum: 7,
-//	            xMaximum: 30,
-//	            yMinimum: 76,
-//	            yMaximum: 122,
-                store: me.WeightForStatureStore
-            }),
-
-            me.WeightForAge = Ext.create('App.view.patient.charts.HeadCircumference', {
-                title   : _('weight_for_age_2_20_years'),
-                xTitle  : _('weight_kg'),
-                yTitle  : _('age_years'),
-                xMinimum: 10,
-                xMaximum: 110,
-                yMinimum: 2,
-                yMaximum: 20,
-                store   : me.WeightForAgeStore
-            }),
-
-            me.StatureForAge = Ext.create('App.view.patient.charts.HeadCircumference', {
-                title   : _('stature_for_age_2_20_years'),
-                xTitle  : _('stature_cm'),
-                yTitle  : _('age_years'),
-                xMinimum: 60,
-                xMaximum: 200,
-                yMinimum: 2,
-                yMaximum: 20,
-                store   : me.StatureForAgeStore
-            }),
-
-            me.BMIForAge = Ext.create('App.view.patient.charts.HeadCircumference', {
-                title   : _('bmi_for_age_2_20_years'),
-                xTitle  : _('bmi'),
-                yTitle  : _('age_years'),
-                xMinimum: 10,
-                xMaximum: 35,
-                yMinimum: 2,
-                yMaximum: 20,
-                store   : me.BMIForAgeStore
-            })
-        ];
-
-        me.listeners = {
-            scope: me,
-            show : me.onWinShow
-        };
-
-        me.callParent(arguments);
-    },
-
-    onWinShow: function() {
-        var me = this,
-	        layout = me.getLayout(),
-	        btns = me.down('toolbar').items.items,
-	        btn;
-        layout.setActiveItem(0);
-
-	    me.vitalsStore.load({params: {pid: app.patient.pid}});
-
-        for(var i = 0; i < btns.length; i++) {
-            btn = btns[i];
-            if(btn.type == 'button' && (
-                btn.action == 'WeightForAgeInf' || btn.action == 'LengthForAgeInf' || btn.action == 'WeightForRecumbentInf' || btn.action == 'HeadCircumferenceInf')) {
-                btn.setVisible(app.patient.age.DMY.years < 2);
-	            btns[i + 1].setVisible(app.patient.age.DMY.years < 2);
-            } else if(btn.type == 'button') {
-                btn.setVisible(app.patient.age.DMY.years >= 2);
-	            btns[i + 1].setVisible(app.patient.age.DMY.years >= 2);
-            }
-        }
-    },
-
-    onChartSwitch: function(btn) {
-        var me = this, layout = me.getLayout(), card, chart, x, y;
-        if(btn.action == 'bpPulseTemp') {
-            layout.setActiveItem(0);
-        } else if(btn.action == 'WeightForAgeInf') {
-            layout.setActiveItem(1);
-            me.WeightForAgeInfStore.load({params: {pid: app.patient.pid}});
-        } else if(btn.action == 'LengthForAgeInf') {
-            layout.setActiveItem(2);
-            me.LengthForAgeInfStore.load({params: {pid: app.patient.pid}});
-        } else if(btn.action == 'WeightForRecumbentInf') {
-            layout.setActiveItem(3);
-            me.WeightForRecumbentInfStore.load({params: {pid: app.patient.pid}});
-        } else if(btn.action == 'HeadCircumferenceInf') {
-            layout.setActiveItem(4);
-            me.HeadCircumferenceInfStore.load({params: {pid: app.patient.pid}});
-        } else if(btn.action == 'WeightForStature') {
-            layout.setActiveItem(5);
-            me.WeightForStatureStore.load({params: {pid: app.patient.pid}});
-        } else if(btn.action == 'WeightForAge') {
-            layout.setActiveItem(6);
-            me.WeightForAgeStore.load({params: {pid: app.patient.pid}});
-        } else if(btn.action == 'StatureForAge') {
-            layout.setActiveItem(7);
-            me.StatureForAgeStore.load({params: {pid: app.patient.pid}});
-        } else if(btn.action == 'BMIForAge') {
-            layout.setActiveItem(8);
-            me.BMIForAgeStore.load({params: {pid: app.patient.pid}});
-        }
-    }
+	tbar: [
+		{
+			text: 'Weight vs Age (0-5)',
+			itemId: 'PatientChartWeightVsAgeToFiveBtn',
+		},
+		'-',
+		{
+			text: 'Weight vs Age (2-20)',
+			itemId: 'PatientChartWeightVsAgeToTwentyBtn',
+		},
+		'-',
+		{
+			text: 'Head Circumference vs Age (0-5)',
+			itemId: 'PatientChartHeadCircumferenceVsAgeToFiveBtn',
+		},
+		'-',
+		{
+			text: 'Length vs Age (0-5)',
+			itemId: 'PatientChartLengthVsAgeToFiveBtn',
+		},
+		'-',
+		{
+			text: 'BMI (2-20)',
+			itemId: 'PatientChartBMIBtn',
+		}
+	]
 });
 
 Ext.define('App.view.patient.windows.EncounterCheckOut', {
@@ -66838,6 +66714,30 @@ Ext.define('App.view.Viewport', {
     calculateAge: function(base_date, dob_date) {
 		var birthday = +new Date(dob_date);
 		return~~ ((Ext.Date.now(base_date) - birthday) / (31557600000));
+	},
+
+	getAge: function (dob, age_at) {
+
+		var _dob = new Date(dob);
+		var _aad = new Date(age_at);
+		var daysInMonth = 30.436875; // Days in a month on average.
+
+		var yearAad = _aad.getFullYear();
+		var yearDob = _dob.getFullYear();
+		var years = yearAad - yearDob; // Get age in years.
+		_dob.setFullYear(yearAad); // Set birthday for this year.
+		var aadMillis = _aad.getTime();
+		var dobMillis = _dob.getTime();
+		if (aadMillis < dobMillis) {
+			--years;
+			_dob.setFullYear(yearAad - 1); // Set to previous year's birthday
+			dobMillis = _dob.getTime();
+		}
+		var days = (aadMillis - dobMillis) / 86400000;
+		var monthsDec = days / daysInMonth; // Months with remainder.
+		var months = Math.floor(monthsDec); // Remove fraction from month.
+		days = Math.floor(daysInMonth * (monthsDec - months));
+		return {years: years, months: months, days: days};
 	}
 
 

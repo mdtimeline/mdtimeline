@@ -1,0 +1,72 @@
+body {
+  /* font: 10px sans-serif; removed this to avoid changing all body font sizing, this is set for the text below */
+  text-align:center; /* added to center the chart in the containing element */
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.line {
+  fill: none;
+  stroke: gray;
+  stroke-width: 1.5px;
+}
+
+.pLine {
+  fill: none;
+  stroke: black;
+  stroke-width: 1.5px;
+}
+
+.area {
+  fill: steelblue;
+  opacity: 0.2;
+}
+
+.areaGirl {
+    fill: lightpink;
+    opacity: 0.2;
+}
+
+.dot {
+  fill: black;
+  stroke: black;
+  stroke-width: 1.5px;
+}
+
+.dotSelected {
+  fill: rgb(237,126,30);
+  stroke: rgb(237,126,30);
+  stroke-width: 1.5px;
+}
+
+.rect-to-axis {
+  /*fill: rgba(0,0,0,.05);*/
+  fill: rgba(0,0,0,0);
+  stroke: rgba(20,20,20, .8);
+}
+
+.backgroundRect {
+  fill: rgba(255,255,255,1);
+  stroke: rgba(20,20,20, .8);
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+text {
+    font-family: sans-serif;
+    font-size: 11px;
+}
+
+.tooltipTextBackground {
+  fill:rgba(237,126,30,0.5);
+  /*stroke: rgba(20,20,20, .8);*/
+}

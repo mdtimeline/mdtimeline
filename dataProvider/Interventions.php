@@ -24,7 +24,7 @@ class Interventions {
 
 	function __construct(){
         if($this->i == NULL)
-            $this->i = MatchaModel::setSenchaModel('App.model.patient.intervention', true);
+            $this->i = MatchaModel::setSenchaModel('App.model.patient.Intervention', true);
 	}
 
 	public function getPatientInterventions($params){

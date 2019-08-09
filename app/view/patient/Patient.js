@@ -182,7 +182,6 @@ Ext.define('App.view.patient.Patient', {
 																	name: 'suffix',
 																	fieldLabel: _('suffix'),
 																	width: 50,
-																	allowBlank: false,
 																	maxLength: 35
 																},
 																{

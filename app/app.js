@@ -46946,6 +46946,49 @@ Ext.define('App.controller.patient.RadOrders', {
 
 	},
 
+	onOrdersDeleteActionHandler: function (grid, rowIndex, colIndex, item, e, record) {
+
+		if(!a('remove_patient_order')){
+			app.msg(_('oops'), _('not_authorized'), true);
+			return;
+		}
+
+		var me = this,
+			store = grid.getStore();
+
+		Ext.Msg.show({
+			title: _('wait'),
+			msg: ('<b>' + record.get('STR') + '</b><br><br>' + _('delete_this_record')),
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (btn1) {
+				if(btn1 === 'yes'){
+					Ext.Msg.show({
+						title: _('wait'),
+						msg: _('this_action_can_not_be_undone_continue'),
+						buttons: Ext.Msg.YESNO,
+						icon: Ext.Msg.QUESTION,
+						fn: function (btn2) {
+							if(btn2 === 'yes'){
+								store.remove(record);
+								store.sync({
+									callback: function () {
+										store.remove(record);
+										store.sync({
+											callback: function () {
+
+											}
+										});
+									}
+								});
+							}
+						}
+					});
+				}
+			}
+		});
+	},
+
 	onRadOrdersGridBeforeRender: function(grid){
 		app.on('patientunset', function(){
 			grid.editingPlugin.cancelEdit();
@@ -48381,30 +48424,35 @@ Ext.define('App.controller.patient.Vitals', {
 	},
 
 	onPatientChartWeightVsAgeToFiveBtnClick: function(){
-		var chart_data = this.getChatData('weight_kg');
- 		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=wfa_boys_0_to_5&data=' + JSON.stringify(chart_data));
+		var chart_data = this.getChatData('weight_kg'),
+			genger = app.patient.sex === 'M' ? 'boys' : 'girls';
+ 		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=wfa_'+genger+'_0_to_5&data=' + JSON.stringify(chart_data));
 	},
 
 	onPatientChartWeightVsAgeToTwentyBtnClick: function(){
-		var chart_data = this.getChatData('weight_kg');
-		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=wfa_boys_2_to_20&data=' + JSON.stringify(chart_data));
+		var chart_data = this.getChatData('weight_kg'),
+			genger = app.patient.sex === 'M' ? 'boys' : 'girls';
+		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=wfa_'+genger+'_2_to_20&data=' + JSON.stringify(chart_data));
 
 	},
 
 	onPatientChartHeadCircumferenceVsAgeToFiveBtnClick: function(){
-		var chart_data = this.getChatData('head_circumference_cm');
-		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=hcfa_boys_0_to_5&data=' + JSON.stringify(chart_data));
+		var chart_data = this.getChatData('head_circumference_cm'),
+			genger = app.patient.sex === 'M' ? 'boys' : 'girls';
+		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=hcfa_'+genger+'_0_to_5&data=' + JSON.stringify(chart_data));
 
 	},
 
 	onPatientChartLengthVsAgeToFiveBtnClick: function(){
-		var chart_data = this.getChatData('height_cm');
-		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=lfa_boys_0_to_5&data=' + JSON.stringify(chart_data));
+		var chart_data = this.getChatData('height_cm'),
+			genger = app.patient.sex === 'M' ? 'boys' : 'girls';
+		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=lfa_'+genger+'_0_to_5&data=' + JSON.stringify(chart_data));
 	},
 
 	onPatientChartBMIBtnClick: function(){
-		var chart_data = this.getChatData('bmi');
-		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=bmi_boys_2_to_20&data=' + JSON.stringify(chart_data));
+		var chart_data = this.getChatData('bmi'),
+			genger = app.patient.sex === 'M' ? 'boys' : 'girls';
+		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=bmi_'+genger+'_2_to_20&data=' + JSON.stringify(chart_data));
 	},
 
 	getChatData: function(measurement){
@@ -61982,7 +62030,10 @@ Ext.define('App.view.patient.RadOrders', {
 			items: [
 				{
 					icon: 'resources/images/icons/cross.png',
-					tooltip: _('remove')
+					tooltip: _('remove'),
+					handler: function (grid, rowIndex, colIndex, item, e, record) {
+						App.app.getController('patient.RadOrders').onOrdersDeleteActionHandler(grid, rowIndex, colIndex, item, e, record);
+					}
 				}
 			]
 		},

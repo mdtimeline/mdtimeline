@@ -188,30 +188,35 @@ Ext.define('App.controller.patient.Vitals', {
 	},
 
 	onPatientChartWeightVsAgeToFiveBtnClick: function(){
-		var chart_data = this.getChatData('weight_kg');
- 		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=wfa_boys_0_to_5&data=' + JSON.stringify(chart_data));
+		var chart_data = this.getChatData('weight_kg'),
+			genger = app.patient.sex === 'M' ? 'boys' : 'girls';
+ 		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=wfa_'+genger+'_0_to_5&data=' + JSON.stringify(chart_data));
 	},
 
 	onPatientChartWeightVsAgeToTwentyBtnClick: function(){
-		var chart_data = this.getChatData('weight_kg');
-		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=wfa_boys_2_to_20&data=' + JSON.stringify(chart_data));
+		var chart_data = this.getChatData('weight_kg'),
+			genger = app.patient.sex === 'M' ? 'boys' : 'girls';
+		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=wfa_'+genger+'_2_to_20&data=' + JSON.stringify(chart_data));
 
 	},
 
 	onPatientChartHeadCircumferenceVsAgeToFiveBtnClick: function(){
-		var chart_data = this.getChatData('head_circumference_cm');
-		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=hcfa_boys_0_to_5&data=' + JSON.stringify(chart_data));
+		var chart_data = this.getChatData('head_circumference_cm'),
+			genger = app.patient.sex === 'M' ? 'boys' : 'girls';
+		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=hcfa_'+genger+'_0_to_5&data=' + JSON.stringify(chart_data));
 
 	},
 
 	onPatientChartLengthVsAgeToFiveBtnClick: function(){
-		var chart_data = this.getChatData('height_cm');
-		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=lfa_boys_0_to_5&data=' + JSON.stringify(chart_data));
+		var chart_data = this.getChatData('height_cm'),
+			genger = app.patient.sex === 'M' ? 'boys' : 'girls';
+		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=lfa_'+genger+'_0_to_5&data=' + JSON.stringify(chart_data));
 	},
 
 	onPatientChartBMIBtnClick: function(){
-		var chart_data = this.getChatData('bmi');
-		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=bmi_boys_2_to_20&data=' + JSON.stringify(chart_data));
+		var chart_data = this.getChatData('bmi'),
+			genger = app.patient.sex === 'M' ? 'boys' : 'girls';
+		this.getPatientChartsIframe().setSrc('lib/growthchart/index.html?type=bmi_'+genger+'_2_to_20&data=' + JSON.stringify(chart_data));
 	},
 
 	getChatData: function(measurement){

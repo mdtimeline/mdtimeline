@@ -893,6 +893,20 @@ class DocumentHandler {
 		return [ 'success' => true, 'total' => count($records) ];
 	}
 
+	public function convertToPathById($id){
+
+		ini_set('memory_limit', '-1');
+
+		$this->setPatientDocumentModel();
+		$record = $this->d->load(['id' => $id])->one();
+
+		if($record !== false){
+            $this->handleDocumentFile($record);
+        }
+
+		return [ 'success' => true, 'record' => $record ];
+	}
+
 	public function isBinary($document){
 		if(function_exists('is_binary')) {
 			return is_binary($document);

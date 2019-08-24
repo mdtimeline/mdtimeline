@@ -882,7 +882,7 @@ class DocumentHandler {
 		ini_set('memory_limit', '-1');
 
 		$this->setPatientDocumentModel();
-		$this->d->addFilter('path', null, '=');
+		$this->d->addFilter('path', '', '=');
 
 		$records = $this->d->load()->limit(0, $quantity)->all();
 

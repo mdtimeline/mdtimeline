@@ -2524,6 +2524,9 @@ $API = [
 			'convertToPath' => [
 				'len' => 1
             ],
+			'convertToPathById' => [
+				'len' => 1
+            ],
 			'documentSyncer' => [
 				'len' => 0
             ]

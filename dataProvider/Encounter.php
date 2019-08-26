@@ -232,12 +232,12 @@ class Encounter {
 		return $this->e->load()->all();
 	}
 	/**
-	 * @param $pid
 	 * @param null $start
 	 * @param null $end
+	 * @param bool $group_by_pid
 	 * @return mixed
 	 */
-	public function getEncountersByDates($start = null, $end = null) {
+	public function getEncountersByDates($start = null, $end = null, $group_by_pid = false) {
 
 		if(isset($start)){
 			$this->e->addFilter('service_date', $start, '>=');
@@ -245,6 +245,13 @@ class Encounter {
 		if(isset($end)) {
 			$this->e->addFilter('service_date', $end, '<=');
 		}
+
+		if($group_by_pid){
+		    $group = new stdClass();
+		    $group->property = 'pid';
+		    $group->direction = '';
+            $this->e->group((object)['group' => [$group]]);
+        }
 
 		return $this->e->load()->all();
 	}

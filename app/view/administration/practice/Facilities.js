@@ -93,7 +93,7 @@ Ext.define('App.view.administration.practice.Facilities', {
 					dataIndex: 'npi'
 				},
 				{
-					text: _('ess'),
+					text: _('tin'),
 					width: 100,
 					sortable: true,
 					dataIndex: 'ess'

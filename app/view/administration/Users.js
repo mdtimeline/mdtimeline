@@ -436,6 +436,11 @@ Ext.define('App.view.administration.Users', {
 													vtype: 'npi'
 												},
 												{
+													xtype: 'textfield',
+													fieldLabel: _('tin'),
+													name: 'ess'
+												},
+												{
 													xtype: 'activespecialtiescombo',
 													fieldLabel: _('specialties'),
 													name: 'specialty',

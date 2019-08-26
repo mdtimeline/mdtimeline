@@ -93,10 +93,10 @@ class FamilyHistory {
 		$this->fh->addFilter('pid', $pid);
 
 		if(isset($start)){
-			$this->fh->addFilter('create_data', $start, '>=');
+			$this->fh->addFilter('create_date', $start, '>=');
 		}
 		if(isset($end)) {
-			$this->fh->addFilter('create_data', $end, '<=');
+			$this->fh->addFilter('create_date', $end, '<=');
 		}
 
 		return $this->fh->load()->all();

@@ -231,6 +231,23 @@ class Encounter {
 
 		return $this->e->load()->all();
 	}
+	/**
+	 * @param $pid
+	 * @param null $start
+	 * @param null $end
+	 * @return mixed
+	 */
+	public function getEncountersByDates($start = null, $end = null) {
+
+		if(isset($start)){
+			$this->e->addFilter('service_date', $start, '>=');
+		}
+		if(isset($end)) {
+			$this->e->addFilter('service_date', $end, '<=');
+		}
+
+		return $this->e->load()->all();
+	}
 
 	/**
 	 * @param $eid

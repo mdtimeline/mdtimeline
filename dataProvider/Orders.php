@@ -392,10 +392,10 @@ class Orders {
 			$this->r->addFilter('order_id', $order['id']);
 
 			if(isset($start)){
-				$this->r->addFilter('created_date', $start, '>=');
+				$this->r->addFilter('result_date', $start, '>=');
 			}
 			if(isset($end)) {
-				$this->r->addFilter('created_date', $end, '<=');
+				$this->r->addFilter('result_date', $end, '<=');
 			}
 			$result = $this->r->load()->one();
 

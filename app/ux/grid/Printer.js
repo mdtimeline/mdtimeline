@@ -903,7 +903,7 @@ Ext.define("App.ux.grid.Printer", {
 		/**
 		 * It's like the slogan of a logo, this is custome made.
 		 */
-		filtersHtml: null,
+		filtersHtml: '',
 
 		/**
 		 * @property stylesheetPath

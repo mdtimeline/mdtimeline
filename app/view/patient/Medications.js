@@ -123,7 +123,10 @@ Ext.define('App.view.patient.Medications', {
 					header: _('active?'),
                     groupable: false,
 					width: 60,
-					dataIndex: 'active',
+					dataIndex: 'is_active',
+					editor: {
+						xtype: 'checkbox'
+					},
 					renderer: function(v){
 						return app.boolRenderer(v);
 					}

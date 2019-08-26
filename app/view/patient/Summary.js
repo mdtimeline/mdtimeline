@@ -29,7 +29,8 @@ Ext.define('App.view.patient.Summary', {
 		'App.view.patient.Patient',
 		'App.view.patient.Reminders',
 		'App.view.patient.Alerts',
-		'App.view.patient.Amendments'
+		'App.view.patient.Amendments',
+		'App.view.patient.InsurancesPanel'
 	],
 	itemId: 'PatientSummaryPanel',
 	showRating: true,
@@ -334,26 +335,8 @@ Ext.define('App.view.patient.Summary', {
             });
 
 			me.insTabPanel = me.tabPanel.add({
-				xtype: 'tabpanel',
-				title: _('insurance'),
+				xtype: 'insurancestabpanel',
 				itemId: 'PatientInsurancesPanel',
-				flex: 1,
-				defaults: {
-					autoScroll: true,
-					padding: 10
-				},
-				plugins: [
-					{
-						ptype: 'AddTabButton',
-						iconCls: 'icoAdd',
-						toolTip: _('new_insurance'),
-						btnText: _('add_insurance'),
-						forceText: true,
-						panelConfig: {
-							xtype: 'patientinsuranceform'
-						}
-					}
-				],
 				bbar: [
 					'->',
 					'-',
@@ -372,10 +355,6 @@ Ext.define('App.view.patient.Summary', {
 						itemId: 'PatientInsurancesPanelCancelBtn'
 					}
 				]
-				// listeners: {
-				// 	scope: me,
-				// 	beforeadd: me.insurancePanelAdd
-				// }
 			});
 
 

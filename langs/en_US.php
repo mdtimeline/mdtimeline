@@ -2068,5 +2068,6 @@ $LANG = array(
 	'ccda_import' => 'C-CDA Import',
 	'suffix' => 'Suffix',
 	'prefix' => 'Prefix',
+	'tin' => 'TIN',
 
 );

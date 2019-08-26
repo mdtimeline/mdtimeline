@@ -24,7 +24,6 @@ Ext.define('App.view.patient.InsuranceForm', {
         'Ext.grid.plugin.CellEditing',
         'App.ux.combo.Insurances',
         'App.ux.combo.Combo',
-        //'Modules.billing.view.patient.BillingPatientInsuranceCoverInformation'
     ],
 
 
@@ -54,7 +53,7 @@ Ext.define('App.view.patient.InsuranceForm', {
         me.textCenter = 'text-align:center;';
 
         me.stateful = true;
-        me.stateId = me.itemId + '_State_' + app.user.id;
+        //me.stateId = me.itemId + '_State_' + app.user.id;
 
         me.items = [
             {
@@ -234,11 +233,11 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                     }
                                                 ]
                                             },  //Insurance Card Container Name, DOB, Sex
-                                            {
-                                                xtype: 'billingpatientinsurancecoverinformation',
-                                                itemId: 'BillingPatientInsuranceCoverInformationxtype',
-                                                margin: '5 0 0 2'
-                                            }
+                                            // {
+                                            //     xtype: 'billingpatientinsurancecoverinformation',
+                                            //     itemId: 'BillingPatientInsuranceCoverInformationxtype',
+                                            //     margin: '5 0 0 2'
+                                            // }
                                         ]
                                     }, //Primary Insurance Informacion Fields
 

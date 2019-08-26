@@ -1323,13 +1323,17 @@ class PatientRecord {
 		$medications = [];
 
 		foreach($results as $result){
-			$active = $this->isActiveByDate($result['end_date']);
+			$active = $this->isActiveByDate($result['administered_date']);
 			$medication = [];
-			$medication['Medication'] = $result['STR'];
-			$medication['Instructions'] = $result['directions'];
-			$medication['Status'] = $active ? 'Active' : 'Inactive';
-			$medication['RXCUI'] = $result['RXCUI'];
-			$medication['NDC'] = $result['NDC'];
+			$medication['Medication'] = $result['description'];
+            $medication['Manufacturer'] = $result['manufacturer'];
+            $medication['ExpDate'] = $result['exp_date'];
+            $medication['LotNumber'] = $result['lot_number'];
+			$medication['Instructions'] = $result['instructions'];
+            $medication['AdverseReaction'] = $this->code($result['adverse_reaction_code'],$result['adverse_reaction_code_type'],$result['adverse_reaction_text']);
+			$medication['Status'] = 'Active';
+			$medication['RXCUI'] = $result['rxcui'];
+			$medication['NDC'] = null;
 			$medication['Dates'] = $this->dates($result['administered_date'], $result['administered_date']);
 			$medication['Performer'] = $this->performer($result['administered_uid']);
 
@@ -1859,6 +1863,7 @@ class PatientRecord {
 		$performer = [];
 		$performer['Id'] = $user['id'];
 		$performer['NPI'] = $user['npi'];
+		$performer['TIN'] = $user['ess'];
 		$performer['Name'] = $this->name(
 			$user['title'],
 			$user['fname'],

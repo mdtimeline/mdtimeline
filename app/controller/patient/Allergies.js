@@ -59,6 +59,10 @@ Ext.define('App.controller.patient.Allergies', {
 			selector: '#allergyMedicationCombo'
 		},
 		{
+			ref: 'allergyCvxLiveSearch',
+			selector: '#allergyCvxLiveSearch'
+		},
+		{
 			ref: 'AllergyFoodCombo',
 			selector: '#allergyFoodCombo'
 		},
@@ -104,6 +108,9 @@ Ext.define('App.controller.patient.Allergies', {
 			},
 			'#allergyMedicationCombo': {
 				select: me.onAllergyLiveSearchSelect
+			},
+			'#allergyCvxLiveSearch': {
+				select: me.onAllergyCvxLiveSearchSelect
 			},
 			'#allergyMetalCombo': {
 				select: me.onAllergyMetalComboSelect
@@ -172,6 +179,16 @@ Ext.define('App.controller.patient.Allergies', {
 		});
 	},
 
+	onAllergyCvxLiveSearchSelect: function(cmb, records){
+		var form = cmb.up('form').getForm();
+
+		form.getRecord().set({
+			allergy: records[0].data.name,
+			allergy_code: records[0].data.cvx_code,
+			allergy_code_type: 'CVX'
+		});
+	},
+
 	onAllergyMetalComboSelect: function(cmb, records){
 		var form = cmb.up('form').getForm();
 
@@ -200,10 +217,20 @@ Ext.define('App.controller.patient.Allergies', {
 			isDrug = (code === '419511003' || code === '416098002' || code === '59037007'),
 			isFood = (code === '414285001' || code === '235719002' || code === '418471000'),
 			isMetal = code === '300915004',
+			isDrugCvx = isDrug && record.data.option_value.search(/vaccine/i) !== -1,
 			isElse = !isDrug && !isMetal && !isFood;
+
+		// if is CVX can not be Drug
+		// this is here because a Vaccine is a drug but not for this purpose
+		if(isDrugCvx){
+			isDrug = false;
+		}
 
 		me.getAllergyMedicationCombo().setVisible(isDrug);
 		me.getAllergyMedicationCombo().setDisabled(!isDrug);
+
+		me.getAllergyCvxLiveSearch().setVisible(isDrugCvx);
+		me.getAllergyCvxLiveSearch().setDisabled(!isDrugCvx);
 
 		me.getAllergyMetalCombo().setVisible(isMetal);
 		me.getAllergyMetalCombo().setDisabled(!isMetal);
@@ -216,6 +243,8 @@ Ext.define('App.controller.patient.Allergies', {
 
 		if(isDrug){
 			me.getAllergyMedicationCombo().reset();
+		}else if(isDrugCvx) {
+			me.getAllergyCvxLiveSearch().reset();
 		}else if(isMetal) {
 			me.getAllergyMedicationCombo().reset();
 		}else if(isFood) {
@@ -264,14 +293,26 @@ Ext.define('App.controller.patient.Allergies', {
             AllergyMetalCombo = RowForm.query('#allergyMetalCombo')[0],
             AllergySearchCombo = RowForm.query('#allergySearchCombo')[0],
 	        AllergyFoodCombo = RowForm.query('#allergyFoodCombo')[0],
+			AllergyCvxLiveSearch = RowForm.query('#allergyCvxLiveSearch')[0],
 	        allergy_type_code = context.record.get('allergy_type_code'),
+			allergy_type = context.record.get('allergy_type'),
 	        isDrug = (allergy_type_code === '419511003' || allergy_type_code === '416098002' || allergy_type_code === '59037007'),
 	        isMetal = allergy_type_code === '300915004',
 	        isFood = allergy_type_code === '414285001' || allergy_type_code === '235719002' || allergy_type_code === '418471000',
+			isDrugCvx = isDrug && allergy_type.search(/vaccine/i) !== -1,
 	        isElse = !isDrug && !isMetal && !isFood;
+
+		// if is CVX can not be Drug
+		// this is here because a Vaccine is a drug but not for this purpose
+		if(isDrugCvx){
+			isDrug = false;
+		}
 
 	    AllergyMedicationCombo.setVisible(isDrug);
 	    AllergyMedicationCombo.setDisabled(!isDrug);
+
+		AllergyCvxLiveSearch.setVisible(isDrugCvx);
+		AllergyCvxLiveSearch.setDisabled(!isDrugCvx);
 
 	    AllergyMetalCombo.setVisible(isMetal);
 	    AllergyMetalCombo.setDisabled(!isMetal);
@@ -284,6 +325,8 @@ Ext.define('App.controller.patient.Allergies', {
 
 	    if(isDrug){
 		    AllergyMedicationCombo.setValue(context.record.get('allergy'));
+	    }else if(isDrugCvx){
+			AllergyCvxLiveSearch.setValue(context.record.get('allergy'));
 	    }else if(isMetal){
 		    AllergyMetalCombo.setValue(context.record.get('allergy'));
 	    }else if(isFood){

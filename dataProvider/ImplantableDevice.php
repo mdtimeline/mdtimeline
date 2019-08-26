@@ -49,10 +49,10 @@ class ImplantableDevice {
 		$this->i->addFilter('pid', $pid);
 
 		if(isset($start)){
-			$this->i->addFilter('created_date', $start, '>=');
+			$this->i->addFilter('implanted_date', $start, '>=');
 		}
 		if(isset($end)) {
-			$this->i->addFilter('created_date', $end, '<=');
+			$this->i->addFilter('implanted_date', $end, '<=');
 		}
 
 		return $this->i->load()->all();

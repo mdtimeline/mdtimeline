@@ -50,8 +50,8 @@ class Medications
         // Manage the active and inactive problems
         if(isset($params->active) && $params->active == true) {
 	        $filter = new stdClass();
-	        $filter->property = 'end_date';
-	        $filter->value = null;
+	        $filter->property = 'is_active';
+	        $filter->value = 1;
             $params->filter[] = $filter;
             unset($filter, $params->active);
         }
@@ -67,7 +67,7 @@ class Medications
 		    $params->group[0]->property = 'RXCUI';
 		    $params->group[1] = new stdClass();
 		    $params->group[1]->property = 'begin_date';
-		    $params->group[1]->direction = 'DESC';
+		    //$params->group[1]->direction = 'DESC';
 
 		    $group = new stdClass();
 		    $group->group[0] = new stdClass();

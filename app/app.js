@@ -2554,7 +2554,7 @@ Ext.define("App.ux.grid.Printer", {
 		/**
 		 * It's like the slogan of a logo, this is custome made.
 		 */
-		filtersHtml: null,
+		filtersHtml: '',
 
 		/**
 		 * @property stylesheetPath
@@ -28050,7 +28050,7 @@ Ext.define('App.view.administration.practice.Facilities', {
 					dataIndex: 'npi'
 				},
 				{
-					text: _('ess'),
+					text: _('tin'),
 					width: 100,
 					sortable: true,
 					dataIndex: 'ess'
@@ -41327,6 +41327,10 @@ Ext.define('App.controller.patient.Allergies', {
 			selector: '#allergyMedicationCombo'
 		},
 		{
+			ref: 'allergyCvxLiveSearch',
+			selector: '#allergyCvxLiveSearch'
+		},
+		{
 			ref: 'AllergyFoodCombo',
 			selector: '#allergyFoodCombo'
 		},
@@ -41372,6 +41376,9 @@ Ext.define('App.controller.patient.Allergies', {
 			},
 			'#allergyMedicationCombo': {
 				select: me.onAllergyLiveSearchSelect
+			},
+			'#allergyCvxLiveSearch': {
+				select: me.onAllergyCvxLiveSearchSelect
 			},
 			'#allergyMetalCombo': {
 				select: me.onAllergyMetalComboSelect
@@ -41440,6 +41447,16 @@ Ext.define('App.controller.patient.Allergies', {
 		});
 	},
 
+	onAllergyCvxLiveSearchSelect: function(cmb, records){
+		var form = cmb.up('form').getForm();
+
+		form.getRecord().set({
+			allergy: records[0].data.name,
+			allergy_code: records[0].data.cvx_code,
+			allergy_code_type: 'CVX'
+		});
+	},
+
 	onAllergyMetalComboSelect: function(cmb, records){
 		var form = cmb.up('form').getForm();
 
@@ -41468,10 +41485,20 @@ Ext.define('App.controller.patient.Allergies', {
 			isDrug = (code === '419511003' || code === '416098002' || code === '59037007'),
 			isFood = (code === '414285001' || code === '235719002' || code === '418471000'),
 			isMetal = code === '300915004',
+			isDrugCvx = isDrug && record.data.option_value.search(/vaccine/i) !== -1,
 			isElse = !isDrug && !isMetal && !isFood;
+
+		// if is CVX can not be Drug
+		// this is here because a Vaccine is a drug but not for this purpose
+		if(isDrugCvx){
+			isDrug = false;
+		}
 
 		me.getAllergyMedicationCombo().setVisible(isDrug);
 		me.getAllergyMedicationCombo().setDisabled(!isDrug);
+
+		me.getAllergyCvxLiveSearch().setVisible(isDrugCvx);
+		me.getAllergyCvxLiveSearch().setDisabled(!isDrugCvx);
 
 		me.getAllergyMetalCombo().setVisible(isMetal);
 		me.getAllergyMetalCombo().setDisabled(!isMetal);
@@ -41484,6 +41511,8 @@ Ext.define('App.controller.patient.Allergies', {
 
 		if(isDrug){
 			me.getAllergyMedicationCombo().reset();
+		}else if(isDrugCvx) {
+			me.getAllergyCvxLiveSearch().reset();
 		}else if(isMetal) {
 			me.getAllergyMedicationCombo().reset();
 		}else if(isFood) {
@@ -41532,14 +41561,26 @@ Ext.define('App.controller.patient.Allergies', {
             AllergyMetalCombo = RowForm.query('#allergyMetalCombo')[0],
             AllergySearchCombo = RowForm.query('#allergySearchCombo')[0],
 	        AllergyFoodCombo = RowForm.query('#allergyFoodCombo')[0],
+			AllergyCvxLiveSearch = RowForm.query('#allergyCvxLiveSearch')[0],
 	        allergy_type_code = context.record.get('allergy_type_code'),
+			allergy_type = context.record.get('allergy_type'),
 	        isDrug = (allergy_type_code === '419511003' || allergy_type_code === '416098002' || allergy_type_code === '59037007'),
 	        isMetal = allergy_type_code === '300915004',
 	        isFood = allergy_type_code === '414285001' || allergy_type_code === '235719002' || allergy_type_code === '418471000',
+			isDrugCvx = isDrug && allergy_type.search(/vaccine/i) !== -1,
 	        isElse = !isDrug && !isMetal && !isFood;
+
+		// if is CVX can not be Drug
+		// this is here because a Vaccine is a drug but not for this purpose
+		if(isDrugCvx){
+			isDrug = false;
+		}
 
 	    AllergyMedicationCombo.setVisible(isDrug);
 	    AllergyMedicationCombo.setDisabled(!isDrug);
+
+		AllergyCvxLiveSearch.setVisible(isDrugCvx);
+		AllergyCvxLiveSearch.setDisabled(!isDrugCvx);
 
 	    AllergyMetalCombo.setVisible(isMetal);
 	    AllergyMetalCombo.setDisabled(!isMetal);
@@ -41552,6 +41593,8 @@ Ext.define('App.controller.patient.Allergies', {
 
 	    if(isDrug){
 		    AllergyMedicationCombo.setValue(context.record.get('allergy'));
+	    }else if(isDrugCvx){
+			AllergyCvxLiveSearch.setValue(context.record.get('allergy'));
 	    }else if(isMetal){
 		    AllergyMetalCombo.setValue(context.record.get('allergy'));
 	    }else if(isFood){
@@ -50790,7 +50833,10 @@ Ext.define('App.view.patient.Medications', {
 					header: _('active?'),
                     groupable: false,
 					width: 60,
-					dataIndex: 'active',
+					dataIndex: 'is_active',
+					editor: {
+						xtype: 'checkbox'
+					},
 					renderer: function(v){
 						return app.boolRenderer(v);
 					}
@@ -55370,6 +55416,11 @@ Ext.define('App.view.administration.Users', {
 													vtype: 'npi'
 												},
 												{
+													xtype: 'textfield',
+													fieldLabel: _('tin'),
+													name: 'ess'
+												},
+												{
 													xtype: 'activespecialtiescombo',
 													fieldLabel: _('specialties'),
 													name: 'specialty',
@@ -58272,7 +58323,8 @@ Ext.define('App.view.patient.Summary', {
 		'App.view.patient.Patient',
 		'App.view.patient.Reminders',
 		'App.view.patient.Alerts',
-		'App.view.patient.Amendments'
+		'App.view.patient.Amendments',
+		'App.view.patient.InsurancesPanel'
 	],
 	itemId: 'PatientSummaryPanel',
 	showRating: true,
@@ -58577,26 +58629,8 @@ Ext.define('App.view.patient.Summary', {
             });
 
 			me.insTabPanel = me.tabPanel.add({
-				xtype: 'tabpanel',
-				title: _('insurance'),
+				xtype: 'insurancestabpanel',
 				itemId: 'PatientInsurancesPanel',
-				flex: 1,
-				defaults: {
-					autoScroll: true,
-					padding: 10
-				},
-				plugins: [
-					{
-						ptype: 'AddTabButton',
-						iconCls: 'icoAdd',
-						toolTip: _('new_insurance'),
-						btnText: _('add_insurance'),
-						forceText: true,
-						panelConfig: {
-							xtype: 'patientinsuranceform'
-						}
-					}
-				],
 				bbar: [
 					'->',
 					'-',
@@ -58615,10 +58649,6 @@ Ext.define('App.view.patient.Summary', {
 						itemId: 'PatientInsurancesPanelCancelBtn'
 					}
 				]
-				// listeners: {
-				// 	scope: me,
-				// 	beforeadd: me.insurancePanelAdd
-				// }
 			});
 
 
@@ -63725,6 +63755,7 @@ Ext.define('App.view.patient.Allergies', {
 		'App.ux.grid.RowFormEditing',
 		'App.ux.LiveRXNORMAllergySearch',
 		'App.ux.LiveAllergiesSearch',
+		'App.ux.LiveImmunizationSearch',
 		'App.ux.combo.Allergies',
 		'App.ux.combo.AllergiesReaction',
 		'App.ux.combo.AllergiesTypes',
@@ -63840,6 +63871,19 @@ Ext.define('App.view.patient.Allergies', {
 								enableKeyEvents: true,
 								width: 700,
 								labelWidth: 70,
+								allowBlank: false
+							},
+							{
+								xtype: 'immunizationlivesearch',
+								fieldLabel: _('allergy'),
+								itemId: 'allergyCvxLiveSearch',
+								name: 'allergy',
+								valueField: 'name',
+								hideLabel: false,
+								enableKeyEvents: true,
+								width: 700,
+								labelWidth: 70,
+								multiSelect: false,
 								allowBlank: false
 							},
 							{

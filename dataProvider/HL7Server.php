@@ -350,9 +350,9 @@ class HL7Server {
 					$foo->code_type = $obr[4][3] != '' ? $obr[4][3] : $orderRecord['code_type'];
 
 					$foo->order_id = $orderId;
-					$foo->lab_order_id = $obr[3][1];
-					$foo->lab_name = $this->recipient['facility'];
-					$foo->lab_address = $this->recipient['physical_address'];
+					$foo->performer_order_id = $obr[3][1];
+					$foo->performer_name = $this->recipient['facility'];
+					$foo->performer_address = $this->recipient['physical_address'];
 					$foo->observation_date = $hl7->time($obr[7][1]);
 					$foo->result_status = $obr[25];
 					$foo->result_date = $hl7->time($obr[22][1]);

@@ -41,6 +41,10 @@ class HL7Messages {
 	/**
 	 * @var MatchaCUP HL7Client
 	 */
+	private $s;
+	/**
+	 * @var MatchaCUP HL7Client
+	 */
 	private $c;
 
 	/**
@@ -124,6 +128,11 @@ class HL7Messages {
 	 */
 	private $anonymous = false;
 
+	/**
+	 * @var MSH
+	 */
+	private $msh;
+
 	function __construct() {
 		$this->hl7 = new HL7();
 		$this->conn = Matcha::getConn();
@@ -136,6 +145,7 @@ class HL7Messages {
 		$this->ReferringProvider = MatchaModel::setSenchaModel('App.model.administration.ReferringProvider');
 		$this->m = MatchaModel::setSenchaModel('App.model.administration.HL7Message');
 		$this->m->autoTrim = false;
+		$this->s = MatchaModel::setSenchaModel('App.model.administration.HL7Server');
 		$this->c = MatchaModel::setSenchaModel('App.model.administration.HL7Client');
 		$this->f = MatchaModel::setSenchaModel('App.model.administration.Facility');
 		$this->d = MatchaModel::setSenchaModel('App.model.administration.EducationResource');
@@ -334,383 +344,402 @@ class HL7Messages {
 
 	function sendVXU($params) {
 		try {
-			// set these globally to be used by MSH and PID
-			$this->to = $params->to;
-			$this->from = $params->from;
-			$this->patient = $params->pid;
-			$this->encounter = isset($params->eid) ? $params->eid : 0;
-			$this->type = 'VXU';
 
-			if(isset($params->map_codes_types)){
-				$this->map_codes_types = $params->map_codes_types;
+			$clients = $this->c->sql('SELECT * FROM hl7_clients WHERE allow_messages LIKE \'%VXU%\'')->all();
+			$server = $this->s->sql('SELECT * FROM hl7_servers WHERE started = 1')->one();
+
+			if($server === false){
+				throw new Exception('No HL7 Server found');
 			}
 
-			// MSH
-			$msh = $this->setMSH();
-			$msh->setValue('9.1', 'VXU');
-			$msh->setValue('9.2', 'V04');
-			$msh->setValue('9.3', 'VXU_V04');
-			// PID
-			$this->setPID();
-			// PV1
-			$this->setPV1();
+			if(empty($clients)){
+				throw new Exception('No HL7 Client found');
+			}
 
-			$this->setPD1();
+			foreach ($clients as $client){
 
-			$this->setNK1s();
+				$params->to = $client['id'];
+				$this->from = $server['id'];
 
-			$this->i = MatchaModel::setSenchaModel('App.model.patient.PatientImmunization');
-			include_once(ROOT . '/dataProvider/Immunizations.php');
-			include_once(ROOT . '/dataProvider/Services.php');
-			$immunization = new Immunizations();
-			$EncounterServices = new Services();
+				$this->buildVXU($params);
+				$msgRecord = $this->saveMsg();
 
-			// Immunizations loop
-			foreach($params->immunizations AS $i){
+				// If the delivery is set and for download, quit the rest of the process
+				if(isset($params->delivery) && $params->delivery = 'download') continue;
 
-				$immu = $this->i->load($i)->one();
-				$obx_group_sub_id = 1;
-
-				// ORC - 4.5.1 ORC - Common Order Segment
-				$ORC = $this->hl7->addSegment('ORC');
-				$ORC->setValue('1', 'RE'); //HL70119
-				$ORC->setValue('3.1', 'GAIA10001');
-				$ORC->setValue('3.2', $immu['id']);
-
-				if($this->notEmpty($immu['administered_uid'])){
-					$this->u->clearFilters();
-					$this->u->addFilter('id', $immu['administered_uid']);
-					$administered_by = $this->u->load()->one();
-					if($administered_by !== false){
-						$ORC->setValue('10.1', $administered_by['id']);
-						$ORC->setValue('10.2.1', $administered_by['lname']);
-						$ORC->setValue('10.3', $administered_by['fname']);
-						$ORC->setValue('10.4', $administered_by['mname']);
-						$ORC->setValue('10.9.1', $this->namespace_id);
-						$ORC->setValue('10.10', 'L');
-					}
-				}
-
-				if($this->notEmpty($immu['created_uid'])){
-					$this->u->clearFilters();
-					$this->u->addFilter('id', $immu['created_uid']);
-					$ordered_by = $this->u->load()->one();
-					if($ordered_by !== false){
-						$ORC->setValue('12.1', $ordered_by['id']);
-						$ORC->setValue('12.2.1', $ordered_by['lname']);
-						$ORC->setValue('12.3', $ordered_by['fname']);
-						$ORC->setValue('12.4', $ordered_by['mname']);
-						$ORC->setValue('12.9.1', $this->namespace_id);
-						$ORC->setValue('12.10', 'L');
-					}
-				}
-
-				// RXA - 4.14.7 RXA - Pharmacy/Treatment Administration Segment
-				$RXA = $this->hl7->addSegment('RXA');
-				$RXA->setValue('3.1', $this->date($immu['administered_date'])); //Date/Time Start of Administration
-				$RXA->setValue('4.1', $this->date($immu['administered_date'])); //Date/Time End of Administration
-				//Administered Code
-				$RXA->setValue('5.1', $immu['code']); //Identifier
-				$RXA->setValue('5.2', $immu['vaccine_name']); //Text
-				$RXA->setValue('5.3', $immu['code_type']); //Name of Coding System
-
-				if($this->isPresent($immu['administer_amount'])){
-					$RXA->setValue('6', $immu['administer_amount']); //Administered Amount
-					$RXA->setValue('7.1', $immu['administer_units']); //Identifier
-					$RXA->setValue('7.2', $immu['administer_units']); // Text
-					$RXA->setValue('7.3', 'UCUM'); //Name of Coding System HL70396
-					$administered = true;
+				if($this->to['route'] == 'file'){
+					$response = $this->Save();
 				} else {
-					$RXA->setValue('6', '999'); //Administered Amount
-					$administered = false;
+					$response = $this->Send();
 				}
 
-				if($this->notEmpty($immu['information_source_code'])){
-					$this->ListOptions->clearFilters();
-					$this->ListOptions->addFilter('list_id', 138);
-					$this->ListOptions->addFilter('option_value', $immu['information_source_code']);
-					$Record = $this->ListOptions->load()->one();
-					$RXA->setValue('9.1', $Record['option_value']);
-					$RXA->setValue('9.2', $Record['option_name']);
-					$RXA->setValue('9.3', 'NIP001');
+				$this->saveResponse($msgRecord, $response);
+
+			}
+
+			return ['success' => true];
+		} catch(Exception $Error) {
+			return ['success' => false];
+		}
+	}
+
+	function buildVXU($params){
+
+		$this->patient = $params->pid;
+		$this->encounter = isset($params->eid) ? $params->eid : 0;
+		$this->type = 'VXU';
+
+		if(isset($params->map_codes_types)){
+			$this->map_codes_types = $params->map_codes_types;
+		}
+
+		// MSH
+		$msh = $this->setMSH();
+		$msh->setValue('9.1', 'VXU');
+		$msh->setValue('9.2', 'V04');
+		$msh->setValue('9.3', 'VXU_V04');
+		// PID
+		$this->setPID();
+		// PV1
+		$this->setPV1();
+
+		$this->setPD1();
+
+		$this->setNK1s();
+
+		$this->i = MatchaModel::setSenchaModel('App.model.patient.PatientImmunization');
+		include_once(ROOT . '/dataProvider/Immunizations.php');
+		include_once(ROOT . '/dataProvider/Services.php');
+		$immunization = new Immunizations();
+		$EncounterServices = new Services();
+
+		// Immunizations loop
+		foreach($params->immunizations AS $i){
+
+			$immu = $this->i->load($i)->one();
+			$obx_group_sub_id = 1;
+
+			// ORC - 4.5.1 ORC - Common Order Segment
+			$ORC = $this->hl7->addSegment('ORC');
+			$ORC->setValue('1', 'RE'); //HL70119
+			$ORC->setValue('3.1', 'GAIA10001');
+			$ORC->setValue('3.2', $immu['id']);
+
+			if($this->notEmpty($immu['administered_uid'])){
+				$this->u->clearFilters();
+				$this->u->addFilter('id', $immu['administered_uid']);
+				$administered_by = $this->u->load()->one();
+				if($administered_by !== false){
+					$ORC->setValue('10.1', $administered_by['id']);
+					$ORC->setValue('10.2.1', $administered_by['lname']);
+					$ORC->setValue('10.3', $administered_by['fname']);
+					$ORC->setValue('10.4', $administered_by['mname']);
+					$ORC->setValue('10.9.1', $this->namespace_id);
+					$ORC->setValue('10.10', 'L');
 				}
+			}
 
-				if($this->notEmpty($immu['administered_uid'])){
-					if(isset($administered_by) && $administered_by !== false){
-						$RXA->setValue('10.1', $administered_by['id']);
-						$RXA->setValue('10.2.1', $administered_by['lname']);
-						$RXA->setValue('10.3', $administered_by['fname']);
-						$RXA->setValue('10.4', $administered_by['mname']);
-						$RXA->setValue('10.9.1', $this->namespace_id);
-						$RXA->setValue('10.10', 'L');
-					}
+			if($this->notEmpty($immu['created_uid'])){
+				$this->u->clearFilters();
+				$this->u->addFilter('id', $immu['created_uid']);
+				$ordered_by = $this->u->load()->one();
+				if($ordered_by !== false){
+					$ORC->setValue('12.1', $ordered_by['id']);
+					$ORC->setValue('12.2.1', $ordered_by['lname']);
+					$ORC->setValue('12.3', $ordered_by['fname']);
+					$ORC->setValue('12.4', $ordered_by['mname']);
+					$ORC->setValue('12.9.1', $this->namespace_id);
+					$ORC->setValue('12.10', 'L');
 				}
+			}
 
-				if($this->notEmpty($immu['facility_id']) && $administered){
-					$RXA->setValue('11.4.1', $immu['facility_id']);
-				}
+			// RXA - 4.14.7 RXA - Pharmacy/Treatment Administration Segment
+			$RXA = $this->hl7->addSegment('RXA');
+			$RXA->setValue('3.1', $this->date($immu['administered_date'])); //Date/Time Start of Administration
+			$RXA->setValue('4.1', $this->date($immu['administered_date'])); //Date/Time End of Administration
+			//Administered Code
+			$RXA->setValue('5.1', $immu['code']); //Identifier
+			$RXA->setValue('5.2', $immu['vaccine_name']); //Text
+			$RXA->setValue('5.3', $immu['code_type']); //Name of Coding System
 
-				if($this->notEmpty($immu['exp_date'])){
-					$RXA->setValue('16.1', $this->date($immu['exp_date']));
-				}
+			if($this->isPresent($immu['administer_amount'])){
+				$RXA->setValue('6', $immu['administer_amount']); //Administered Amount
+				$RXA->setValue('7.1', $immu['administer_units']); //Identifier
+				$RXA->setValue('7.2', $immu['administer_units']); // Text
+				$RXA->setValue('7.3', 'UCUM'); //Name of Coding System HL70396
+				$administered = true;
+			} else {
+				$RXA->setValue('6', '999'); //Administered Amount
+				$administered = false;
+			}
 
-				$RXA->setValue('15', $immu['lot_number']);
-
-				if($this->notEmpty($immu['manufacturer'])){
-					// get immunization manufacturer info
-					$mvx = $immunization->getMvxByCode($immu['manufacturer']);
-					$mText = isset($mvx['manufacturer']) ? $mvx['manufacturer'] : '';
-					//Substance ManufacturerName
-					$RXA->setValue('17.1', $immu['manufacturer']); //Identifier
-					$RXA->setValue('17.2', $mText); //Text
-					$RXA->setValue('17.3', 'MVX'); //Name of Coding System HL70396
-				}
-
-				if($this->notEmpty($immu['refusal_reason_code'])){
-					$this->ListOptions->clearFilters();
-					$this->ListOptions->addFilter('list_id', 139);
-					$this->ListOptions->addFilter('option_value', $immu['refusal_reason_code']);
-					$Record = $this->ListOptions->load()->one();
-					if($Record !== false){
-						$RXA->setValue('18.1', $Record['option_value']);
-						$RXA->setValue('18.2', $Record['option_name']);
-						$RXA->setValue('18.3', 'NIP002');
-						$RXA->setValue('20', 'RE');
-					}
-				}else if($immu['code'] == '998'){
-					$RXA->setValue('20', 'NA');
-				}else{
-					$RXA->setValue('20', 'CP'); //complete
-				}
-
-				$RXA->setValue('21', 'A'); //Action Code
-
-				// RXR - 4.14.2 RXR - Pharmacy/Treatment Route Segment
-				if(
-					$this->notEmpty($immu['route']) ||
-					$this->notEmpty($immu['administration_site'])
-				){
-					$RXR = $this->hl7->addSegment('RXR');
-					// Route
-					$this->ListOptions->clearFilters();
-					$this->ListOptions->addFilter('list_id', 6);
-					$this->ListOptions->addFilter('option_value', $immu['route']);
-					$Record = $this->ListOptions->load()->one();
-					$RXR->setValue('1.1', $Record['option_value']);
-					$RXR->setValue('1.2', $Record['option_name']);
-					$RXR->setValue('1.3', $Record['code_type']);
-					// Administration Site
-					$this->ListOptions->clearFilters();
-					$this->ListOptions->addFilter('list_id', 119);
-					$this->ListOptions->addFilter('code', $immu['administration_site']);
-					$Record = $this->ListOptions->load()->one();
-					$RXR->setValue('2.1', $Record['option_value']);
-					$RXR->setValue('2.2', $Record['option_name']);
-					$RXR->setValue('2.3', $Record['code_type']);
-				}
-
-				// OBX - 7.4.2 OBX - Observation/Result Segment
+			if($this->notEmpty($immu['information_source_code'])){
 				$this->ListOptions->clearFilters();
-				$this->ListOptions->addFilter('list_id', 135);
-				$this->ListOptions->addFilter('option_value', $immu['vfc_code']);
+				$this->ListOptions->addFilter('list_id', 138);
+				$this->ListOptions->addFilter('option_value', $immu['information_source_code']);
 				$Record = $this->ListOptions->load()->one();
+				$RXA->setValue('9.1', $Record['option_value']);
+				$RXA->setValue('9.2', $Record['option_name']);
+				$RXA->setValue('9.3', 'NIP001');
+			}
 
-				$obxCount = 1;
+			if($this->notEmpty($immu['administered_uid'])){
+				if(isset($administered_by) && $administered_by !== false){
+					$RXA->setValue('10.1', $administered_by['id']);
+					$RXA->setValue('10.2.1', $administered_by['lname']);
+					$RXA->setValue('10.3', $administered_by['fname']);
+					$RXA->setValue('10.4', $administered_by['mname']);
+					$RXA->setValue('10.9.1', $this->namespace_id);
+					$RXA->setValue('10.10', 'L');
+				}
+			}
+
+			if($this->notEmpty($immu['facility_id']) && $administered){
+				$RXA->setValue('11.4.1', $immu['facility_id']);
+			}
+
+			if($this->notEmpty($immu['exp_date'])){
+				$RXA->setValue('16.1', $this->date($immu['exp_date']));
+			}
+
+			$RXA->setValue('15', $immu['lot_number']);
+
+			if($this->notEmpty($immu['manufacturer'])){
+				// get immunization manufacturer info
+				$mvx = $immunization->getMvxByCode($immu['manufacturer']);
+				$mText = isset($mvx['manufacturer']) ? $mvx['manufacturer'] : '';
+				//Substance ManufacturerName
+				$RXA->setValue('17.1', $immu['manufacturer']); //Identifier
+				$RXA->setValue('17.2', $mText); //Text
+				$RXA->setValue('17.3', 'MVX'); //Name of Coding System HL70396
+			}
+
+			if($this->notEmpty($immu['refusal_reason_code'])){
+				$this->ListOptions->clearFilters();
+				$this->ListOptions->addFilter('list_id', 139);
+				$this->ListOptions->addFilter('option_value', $immu['refusal_reason_code']);
+				$Record = $this->ListOptions->load()->one();
+				if($Record !== false){
+					$RXA->setValue('18.1', $Record['option_value']);
+					$RXA->setValue('18.2', $Record['option_name']);
+					$RXA->setValue('18.3', 'NIP002');
+					$RXA->setValue('20', 'RE');
+				}
+			}else if($immu['code'] == '998'){
+				$RXA->setValue('20', 'NA');
+			}else{
+				$RXA->setValue('20', 'CP'); //complete
+			}
+
+			$RXA->setValue('21', 'A'); //Action Code
+
+			// RXR - 4.14.2 RXR - Pharmacy/Treatment Route Segment
+			if(
+				$this->notEmpty($immu['route']) ||
+				$this->notEmpty($immu['administration_site'])
+			){
+				$RXR = $this->hl7->addSegment('RXR');
+				// Route
+				$this->ListOptions->clearFilters();
+				$this->ListOptions->addFilter('list_id', 6);
+				$this->ListOptions->addFilter('option_value', $immu['route']);
+				$Record = $this->ListOptions->load()->one();
+				$RXR->setValue('1.1', $Record['option_value']);
+				$RXR->setValue('1.2', $Record['option_name']);
+				$RXR->setValue('1.3', $Record['code_type']);
+				// Administration Site
+				$this->ListOptions->clearFilters();
+				$this->ListOptions->addFilter('list_id', 119);
+				$this->ListOptions->addFilter('code', $immu['administration_site']);
+				$Record = $this->ListOptions->load()->one();
+				$RXR->setValue('2.1', $Record['option_value']);
+				$RXR->setValue('2.2', $Record['option_name']);
+				$RXR->setValue('2.3', $Record['code_type']);
+			}
+
+			// OBX - 7.4.2 OBX - Observation/Result Segment
+			$this->ListOptions->clearFilters();
+			$this->ListOptions->addFilter('list_id', 135);
+			$this->ListOptions->addFilter('option_value', $immu['vfc_code']);
+			$Record = $this->ListOptions->load()->one();
+
+			$obxCount = 1;
+
+			if($Record !== false){
+				$OBX = $this->hl7->addSegment('OBX');
+				$OBX->setValue('1', $obxCount);
+				$OBX->setValue('2', 'CE');
+				$OBX->setValue('3.1', '64994-7');
+				$OBX->setValue('3.2', 'Vaccine funding program eligibility category');
+				$OBX->setValue('3.3', 'LN');
+				$OBX->setValue('4', isset($immu['eid']) && $immu['eid'] > 0 ? $immu['eid'] : '0');
+				$OBX->setValue('5.1', $Record['option_value']);
+				$OBX->setValue('5.2', $Record['option_name']);
+				$OBX->setValue('5.3', $Record['code_type']);
+				$OBX->setValue('11', 'F');
+				$OBX->setValue('17.1', 'VXC40');
+				$OBX->setValue('17.2', 'Eligibility captured at the immunization level');
+				$OBX->setValue('17.3', 'CDCPHINVS');
+				$obxCount++;
+			}
+
+			if($this->notEmpty($immu['education_resource_1_id']) && $immu['education_resource_1_id'] > 0){
+				$document = $this->d->load(['id' => $immu['education_resource_1_id']])->one();
+				if($document !==  false){
+					$OBX = $this->hl7->addSegment('OBX');
+					$OBX->setValue('1', $obxCount);
+					$OBX->setValue('2', 'CE');
+					$OBX->setValue('3.1', '30956-7');
+					$OBX->setValue('3.2', 'vaccine type');
+					$OBX->setValue('3.3', 'LN');
+					$OBX->setValue('4', $immu['education_resource_1_id']);
+					$OBX->setValue('5.1', $document['code']);
+					$OBX->setValue('5.2', $document['code_text']);
+					$OBX->setValue('5.3', $document['code_type']);
+					$OBX->setValue('11', 'F');
+					$obxCount++;
+
+					if($this->notEmpty($document['publication_date'])){
+						$OBX = $this->hl7->addSegment('OBX');
+						$OBX->setValue('1', $obxCount);
+						$OBX->setValue('2', 'TS');
+						$OBX->setValue('3.1', '29768-9');
+						$OBX->setValue('3.2', 'Date vaccine information statement published');
+						$OBX->setValue('3.3', 'LN');
+						$OBX->setValue('4', $immu['education_resource_1_id']);
+						$OBX->setValue('5', $this->date($document['publication_date'], false));
+						$OBX->setValue('11', 'F');
+						$obxCount++;
+					}
+				}
+
+				if($this->notEmpty($immu['education_presented_1_date'])){
+					$OBX = $this->hl7->addSegment('OBX');
+					$OBX->setValue('1', $obxCount);
+					$OBX->setValue('2', 'TS');
+					$OBX->setValue('3.1', '29769-7');
+					$OBX->setValue('3.2', 'Date vaccine information statement presented');
+					$OBX->setValue('3.3', 'LN');
+					$OBX->setValue('4', $immu['education_resource_1_id']);
+					$OBX->setValue('5', $this->date($immu['education_presented_1_date'], false));
+					$OBX->setValue('11', 'F');
+					$obxCount++;
+				}
+			}
+
+			if($this->notEmpty($immu['education_resource_2_id']) && $immu['education_resource_2_id'] > 0){
+				$document = $this->d->load(['id' => $immu['education_resource_2_id']])->one();
+				if($document !==  false){
+					$OBX = $this->hl7->addSegment('OBX');
+					$OBX->setValue('1', $obxCount);
+					$OBX->setValue('2', 'CE');
+					$OBX->setValue('3.1', '30956-7');
+					$OBX->setValue('3.2', 'vaccine type');
+					$OBX->setValue('3.3', 'LN');
+					$OBX->setValue('4', $immu['education_resource_2_id']);
+					$OBX->setValue('5.1', $document['code']);
+					$OBX->setValue('5.2', $document['code_text']);
+					$OBX->setValue('5.3', $document['code_type']);
+					$OBX->setValue('11', 'F');
+					$obxCount++;
+
+					if($this->notEmpty($document['publication_date'])){
+						$OBX = $this->hl7->addSegment('OBX');
+						$OBX->setValue('1', $obxCount);
+						$OBX->setValue('2', 'TS');
+						$OBX->setValue('3.1', '29768-9');
+						$OBX->setValue('3.2', 'Date vaccine information statement published');
+						$OBX->setValue('3.3', 'LN');
+						$OBX->setValue('4', $immu['education_resource_2_id']);
+						$OBX->setValue('5', $this->date($document['publication_date'], false));
+						$OBX->setValue('11', 'F');
+						$obxCount++;
+					}
+				}
+
+				if($this->notEmpty($immu['education_presented_2_date'])){
+					$OBX = $this->hl7->addSegment('OBX');
+					$OBX->setValue('1', $obxCount);
+					$OBX->setValue('2', 'TS');
+					$OBX->setValue('3.1', '29769-7');
+					$OBX->setValue('3.2', 'Date vaccine information statement presented');
+					$OBX->setValue('3.3', 'LN');
+					$OBX->setValue('4', $immu['education_resource_2_id']);
+					$OBX->setValue('5', $this->date($immu['education_presented_2_date'], false));
+					$OBX->setValue('11', 'F');
+					$obxCount++;
+				}
+			}
+
+
+			if($this->notEmpty($immu['education_resource_3_id']) && $immu['education_resource_3_id'] > 0){
+				$document = $this->d->load(['id' => $immu['education_resource_3_id']])->one();
+				if($document !==  false){
+					$OBX = $this->hl7->addSegment('OBX');
+					$OBX->setValue('1', $obxCount);
+					$OBX->setValue('2', 'CE');
+					$OBX->setValue('3.1', '30956-7');
+					$OBX->setValue('3.2', 'vaccine type');
+					$OBX->setValue('3.3', 'LN');
+					$OBX->setValue('4', $immu['education_resource_3_id']);
+					$OBX->setValue('5.1', $document['code']);
+					$OBX->setValue('5.2', $document['code_text']);
+					$OBX->setValue('5.3', $document['code_type']);
+					$OBX->setValue('11', 'F');
+					$obxCount++;
+
+					if($this->notEmpty($document['publication_date'])){
+						$OBX = $this->hl7->addSegment('OBX');
+						$OBX->setValue('1', $obxCount);
+						$OBX->setValue('2', 'TS');
+						$OBX->setValue('3.1', '29768-9');
+						$OBX->setValue('3.2', 'Date vaccine information statement published');
+						$OBX->setValue('3.3', 'LN');
+						$OBX->setValue('4', $immu['education_resource_3_id']);
+						$OBX->setValue('5', $this->date($document['publication_date'], false));
+						$OBX->setValue('11', 'F');
+						$obxCount++;
+					}
+				}
+
+				if($this->notEmpty($immu['education_presented_3_date'])){
+					$OBX = $this->hl7->addSegment('OBX');
+					$OBX->setValue('1', $obxCount);
+					$OBX->setValue('2', 'TS');
+					$OBX->setValue('3.1', '29769-7');
+					$OBX->setValue('3.2', 'Date vaccine information statement presented');
+					$OBX->setValue('3.3', 'LN');
+					$OBX->setValue('4', $immu['education_resource_3_id']);
+					$OBX->setValue('5', $this->date($immu['education_presented_3_date'], false));
+					$OBX->setValue('11', 'F');
+					$obxCount++;
+				}
+			}
+
+
+
+			if($this->notEmpty($immu['is_presumed_immunity']) && $this->notEmpty($immu['presumed_immunity_code'])){
+
+				$this->ListOptions->clearFilters();
+				$this->ListOptions->addFilter('list_id', 140);
+				$this->ListOptions->addFilter('option_value', $immu['presumed_immunity_code']);
+				$Record = $this->ListOptions->load()->one();
 
 				if($Record !== false){
 					$OBX = $this->hl7->addSegment('OBX');
 					$OBX->setValue('1', $obxCount);
 					$OBX->setValue('2', 'CE');
-					$OBX->setValue('3.1', '64994-7');
-					$OBX->setValue('3.2', 'Vaccine funding program eligibility category');
+					$OBX->setValue('3.1', '59784-9');
+					$OBX->setValue('3.2', 'Disease with presumed immunity');
 					$OBX->setValue('3.3', 'LN');
-					$OBX->setValue('4', isset($immu['eid']) && $immu['eid'] > 0 ? $immu['eid'] : '0');
+					$OBX->setValue('4', $immu['id']);
 					$OBX->setValue('5.1', $Record['option_value']);
 					$OBX->setValue('5.2', $Record['option_name']);
 					$OBX->setValue('5.3', $Record['code_type']);
 					$OBX->setValue('11', 'F');
-					$OBX->setValue('17.1', 'VXC40');
-					$OBX->setValue('17.2', 'Eligibility captured at the immunization level');
-					$OBX->setValue('17.3', 'CDCPHINVS');
 					$obxCount++;
 				}
-
-				if($this->notEmpty($immu['education_resource_1_id']) && $immu['education_resource_1_id'] > 0){
-					$document = $this->d->load(['id' => $immu['education_resource_1_id']])->one();
-					if($document !==  false){
-						$OBX = $this->hl7->addSegment('OBX');
-						$OBX->setValue('1', $obxCount);
-						$OBX->setValue('2', 'CE');
-						$OBX->setValue('3.1', '30956-7');
-						$OBX->setValue('3.2', 'vaccine type');
-						$OBX->setValue('3.3', 'LN');
-						$OBX->setValue('4', $immu['education_resource_1_id']);
-						$OBX->setValue('5.1', $document['code']);
-						$OBX->setValue('5.2', $document['code_text']);
-						$OBX->setValue('5.3', $document['code_type']);
-						$OBX->setValue('11', 'F');
-						$obxCount++;
-
-						if($this->notEmpty($document['publication_date'])){
-							$OBX = $this->hl7->addSegment('OBX');
-							$OBX->setValue('1', $obxCount);
-							$OBX->setValue('2', 'TS');
-							$OBX->setValue('3.1', '29768-9');
-							$OBX->setValue('3.2', 'Date vaccine information statement published');
-							$OBX->setValue('3.3', 'LN');
-							$OBX->setValue('4', $immu['education_resource_1_id']);
-							$OBX->setValue('5', $this->date($document['publication_date'], false));
-							$OBX->setValue('11', 'F');
-							$obxCount++;
-						}
-					}
-
-					if($this->notEmpty($immu['education_presented_1_date'])){
-						$OBX = $this->hl7->addSegment('OBX');
-						$OBX->setValue('1', $obxCount);
-						$OBX->setValue('2', 'TS');
-						$OBX->setValue('3.1', '29769-7');
-						$OBX->setValue('3.2', 'Date vaccine information statement presented');
-						$OBX->setValue('3.3', 'LN');
-						$OBX->setValue('4', $immu['education_resource_1_id']);
-						$OBX->setValue('5', $this->date($immu['education_presented_1_date'], false));
-						$OBX->setValue('11', 'F');
-						$obxCount++;
-					}
-				}
-
-				if($this->notEmpty($immu['education_resource_2_id']) && $immu['education_resource_2_id'] > 0){
-					$document = $this->d->load(['id' => $immu['education_resource_2_id']])->one();
-					if($document !==  false){
-						$OBX = $this->hl7->addSegment('OBX');
-						$OBX->setValue('1', $obxCount);
-						$OBX->setValue('2', 'CE');
-						$OBX->setValue('3.1', '30956-7');
-						$OBX->setValue('3.2', 'vaccine type');
-						$OBX->setValue('3.3', 'LN');
-						$OBX->setValue('4', $immu['education_resource_2_id']);
-						$OBX->setValue('5.1', $document['code']);
-						$OBX->setValue('5.2', $document['code_text']);
-						$OBX->setValue('5.3', $document['code_type']);
-						$OBX->setValue('11', 'F');
-						$obxCount++;
-
-						if($this->notEmpty($document['publication_date'])){
-							$OBX = $this->hl7->addSegment('OBX');
-							$OBX->setValue('1', $obxCount);
-							$OBX->setValue('2', 'TS');
-							$OBX->setValue('3.1', '29768-9');
-							$OBX->setValue('3.2', 'Date vaccine information statement published');
-							$OBX->setValue('3.3', 'LN');
-							$OBX->setValue('4', $immu['education_resource_2_id']);
-							$OBX->setValue('5', $this->date($document['publication_date'], false));
-							$OBX->setValue('11', 'F');
-							$obxCount++;
-						}
-					}
-
-					if($this->notEmpty($immu['education_presented_2_date'])){
-						$OBX = $this->hl7->addSegment('OBX');
-						$OBX->setValue('1', $obxCount);
-						$OBX->setValue('2', 'TS');
-						$OBX->setValue('3.1', '29769-7');
-						$OBX->setValue('3.2', 'Date vaccine information statement presented');
-						$OBX->setValue('3.3', 'LN');
-						$OBX->setValue('4', $immu['education_resource_2_id']);
-						$OBX->setValue('5', $this->date($immu['education_presented_2_date'], false));
-						$OBX->setValue('11', 'F');
-						$obxCount++;
-					}
-				}
-
-
-				if($this->notEmpty($immu['education_resource_3_id']) && $immu['education_resource_3_id'] > 0){
-					$document = $this->d->load(['id' => $immu['education_resource_3_id']])->one();
-					if($document !==  false){
-						$OBX = $this->hl7->addSegment('OBX');
-						$OBX->setValue('1', $obxCount);
-						$OBX->setValue('2', 'CE');
-						$OBX->setValue('3.1', '30956-7');
-						$OBX->setValue('3.2', 'vaccine type');
-						$OBX->setValue('3.3', 'LN');
-						$OBX->setValue('4', $immu['education_resource_3_id']);
-						$OBX->setValue('5.1', $document['code']);
-						$OBX->setValue('5.2', $document['code_text']);
-						$OBX->setValue('5.3', $document['code_type']);
-						$OBX->setValue('11', 'F');
-						$obxCount++;
-
-						if($this->notEmpty($document['publication_date'])){
-							$OBX = $this->hl7->addSegment('OBX');
-							$OBX->setValue('1', $obxCount);
-							$OBX->setValue('2', 'TS');
-							$OBX->setValue('3.1', '29768-9');
-							$OBX->setValue('3.2', 'Date vaccine information statement published');
-							$OBX->setValue('3.3', 'LN');
-							$OBX->setValue('4', $immu['education_resource_3_id']);
-							$OBX->setValue('5', $this->date($document['publication_date'], false));
-							$OBX->setValue('11', 'F');
-							$obxCount++;
-						}
-					}
-
-					if($this->notEmpty($immu['education_presented_3_date'])){
-						$OBX = $this->hl7->addSegment('OBX');
-						$OBX->setValue('1', $obxCount);
-						$OBX->setValue('2', 'TS');
-						$OBX->setValue('3.1', '29769-7');
-						$OBX->setValue('3.2', 'Date vaccine information statement presented');
-						$OBX->setValue('3.3', 'LN');
-						$OBX->setValue('4', $immu['education_resource_3_id']);
-						$OBX->setValue('5', $this->date($immu['education_presented_3_date'], false));
-						$OBX->setValue('11', 'F');
-						$obxCount++;
-					}
-				}
-
-
-
-				if($this->notEmpty($immu['is_presumed_immunity']) && $this->notEmpty($immu['presumed_immunity_code'])){
-
-					$this->ListOptions->clearFilters();
-					$this->ListOptions->addFilter('list_id', 140);
-					$this->ListOptions->addFilter('option_value', $immu['presumed_immunity_code']);
-					$Record = $this->ListOptions->load()->one();
-
-					if($Record !== false){
-						$OBX = $this->hl7->addSegment('OBX');
-						$OBX->setValue('1', $obxCount);
-						$OBX->setValue('2', 'CE');
-						$OBX->setValue('3.1', '59784-9');
-						$OBX->setValue('3.2', 'Disease with presumed immunity');
-						$OBX->setValue('3.3', 'LN');
-						$OBX->setValue('4', $immu['id']);
-						$OBX->setValue('5.1', $Record['option_value']);
-						$OBX->setValue('5.2', $Record['option_name']);
-						$OBX->setValue('5.3', $Record['code_type']);
-						$OBX->setValue('11', 'F');
-						$obxCount++;
-					}
-				}
 			}
-
-			$msgRecord = $this->saveMsg();
-
-			// If the delivery is set and for download, quit the rest of the process
-			if(isset($params->delivery) && $params->delivery = 'download')
-				return;
-
-			if($this->to['route'] == 'file'){
-				$response = $this->Save();
-			} else {
-				$response = $this->Send();
-			}
-
-			$this->saveResponse($msgRecord, $response);
-
-			return ['success' => true];
-		} catch(Exception $Error) {
-			return ['success' => false];
 		}
 	}
 
@@ -723,22 +752,22 @@ class HL7Messages {
 		$this->to = $this->c->load($this->to)->one();
 		$this->from = $this->f->load($this->from)->one();
 		//
-		$msh = $this->hl7->addSegment('MSH');
-		$msh->setValue('3.1', 'mdTimeLineEHR'); // Sending Application
-		$msh->setValue('4.1', addslashes(substr($this->from['name'], 0, 20))); // Sending Facility
+		$this->msh = $this->hl7->addSegment('MSH');
+		$this->msh->setValue('3.1', 'MDTIMELINE'); // Sending Application
+		$this->msh->setValue('4.1', addslashes(substr($this->from['name'], 0, 20))); // Sending Facility
 		if($includeNPI){
-			$msh->setValue('4.2', $this->from['npi']);
-			$msh->setValue('4.3', 'NPI');
+			$this->msh->setValue('4.2', $this->from['npi']);
+			$this->msh->setValue('4.3', 'NPI');
 		}
 
-		$msh->setValue('5.1', $this->to['application_name']); // Receiving Application
-		$msh->setValue('6.1', $this->to['facility']); // Receiving Facility
-		$msh->setValue('7.1', date('YmdHis')); // Message Date Time
-		$msh->setValue('11.1', 'P'); // D = Debugging P = Production T = Training
-		$msh->setValue('12.1', '2.5.1'); // HL7 version
-		$msh->setValue('15', 'AL');
-		$msh->setValue('16', 'ER');
-		return $msh;
+		$this->msh->setValue('5.1', $this->to['application_name']); // Receiving Application
+		$this->msh->setValue('6.1', $this->to['facility']); // Receiving Facility
+		$this->msh->setValue('7.1', date('YmdHis')); // Message Date Time
+		$this->msh->setValue('11.1', 'P'); // D = Debugging P = Production T = Training
+		$this->msh->setValue('12.1', '2.5.1'); // HL7 version
+		$this->msh->setValue('15', 'AL');
+		$this->msh->setValue('16', 'ER');
+		return $this->msh;
 	}
 
 	private function setEVN() {

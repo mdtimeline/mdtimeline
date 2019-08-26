@@ -57,10 +57,10 @@ class CognitiveAndFunctionalStatus {
 		$this->c->addFilter('category_code', '363871006', '!=');
 
 		if(isset($start)){
-			$this->c->addFilter('create_date', $start, '>=');
+			$this->c->addFilter('created_date', $start, '>=');
 		}
 		if(isset($end)) {
-			$this->c->addFilter('create_date', $end, '<=');
+			$this->c->addFilter('created_date', $end, '<=');
 		}
 		return $this->c->load()->all();
 	}
@@ -70,10 +70,10 @@ class CognitiveAndFunctionalStatus {
 		$this->c->addFilter('category_code', '363871006');
 
 		if(isset($start)){
-			$this->c->addFilter('create_date', $start, '>=');
+			$this->c->addFilter('created_date', $start, '>=');
 		}
 		if(isset($end)) {
-			$this->c->addFilter('create_date', $end, '<=');
+			$this->c->addFilter('created_date', $end, '<=');
 		}
 
 		return $this->c->load()->all();

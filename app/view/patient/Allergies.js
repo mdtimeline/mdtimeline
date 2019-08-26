@@ -23,6 +23,7 @@ Ext.define('App.view.patient.Allergies', {
 		'App.ux.grid.RowFormEditing',
 		'App.ux.LiveRXNORMAllergySearch',
 		'App.ux.LiveAllergiesSearch',
+		'App.ux.LiveImmunizationSearch',
 		'App.ux.combo.Allergies',
 		'App.ux.combo.AllergiesReaction',
 		'App.ux.combo.AllergiesTypes',
@@ -138,6 +139,19 @@ Ext.define('App.view.patient.Allergies', {
 								enableKeyEvents: true,
 								width: 700,
 								labelWidth: 70,
+								allowBlank: false
+							},
+							{
+								xtype: 'immunizationlivesearch',
+								fieldLabel: _('allergy'),
+								itemId: 'allergyCvxLiveSearch',
+								name: 'allergy',
+								valueField: 'name',
+								hideLabel: false,
+								enableKeyEvents: true,
+								width: 700,
+								labelWidth: 70,
+								multiSelect: false,
 								allowBlank: false
 							},
 							{

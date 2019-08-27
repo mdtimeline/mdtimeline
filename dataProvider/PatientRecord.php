@@ -1163,7 +1163,7 @@ class PatientRecord {
 			$status = [];
 
 			$gender =  $this->patient_record['RecordTarget']['PatientRole']['Patient']['AdministrativeGenderCode'];
-			$status['Id'] = '-g-' . $this->patient_record['RecordTarget']['PatientRole']['Patient']['Id'];
+			$status['Id'] = 'g-' . $this->patient_record['RecordTarget']['PatientRole']['Patient']['Id'];
 			$status['Dates'] = $this->dates(
 				null, null
 			);

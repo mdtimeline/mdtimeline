@@ -700,27 +700,27 @@ class PatientRecord {
 		foreach($results as $result){
 			$intervention = [];
 
-			$procedure['Id'] = $result['id'];
+            $intervention['Id'] = $result['id'];
 
-			$procedure['Code'] = $this->code(
+            $intervention['Code'] = $this->code(
 				$result['code'],
 				$result['code_type'],
 				$result['code_text']
 			);
 
-			$procedure['Type'] = $result['intervention_type'];
+            $intervention['Type'] = $result['intervention_type'];
 
-			$procedure['Diagnosis'] = $this->code(
+            $intervention['Diagnosis'] = $this->code(
 				$result['dx_code'],
 				$result['dx_code_type'],
 				$result['dx_code_text']
 			);
 
-			$procedure['Dates'] = $this->dates(
+            $intervention['Dates'] = $this->dates(
 				$result['create_date'], $result['create_date']
 			);
 
-			$procedure['Performer'] = $this->performer($result['create_uid']);
+            $intervention['Performer'] = $this->performer($result['create_uid']);
 
 			$interventions[] = $intervention;
 		}

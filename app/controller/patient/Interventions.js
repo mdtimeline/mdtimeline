@@ -167,7 +167,7 @@ Ext.define('App.controller.patient.Interventions', {
 
 			record.set(values);
 
-			if(Ext.Object.isEmpty(record.getChanges())){
+			if(Ext.Object.isEmpty(record.getChanges() && !record.phantom)){
 				form.reset();
 				me.getInterventionWindow().close();
 				return;

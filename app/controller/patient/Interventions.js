@@ -47,8 +47,8 @@ Ext.define('App.controller.patient.Interventions', {
 	bmi_underweight_intervention: {
 		description: 'Underweight Diet Education Plan Intervention',
 		reason: 'BMI below 18.5 OR above > 25 kg/m2',
-		code: '443288003',
-		code_text: 'Dietary management education, guidance, and counseling',
+		code: '370847001',
+		code_text: 'Provides instruction regarding dietary needs',
 		code_type: 'SNOMEDCT',
 		dx_code: '248342006',
 		dx_code_text: 'Underweight (finding)',
@@ -59,8 +59,8 @@ Ext.define('App.controller.patient.Interventions', {
 	bmi_overweight_intervention: {
 		description: 'Overweight Diet Education Plan Intervention',
 		reason: 'BMI below 18.5 OR above > 25 kg/m2',
-		code: '443288003',
-		code_text: 'Dietary management education, guidance, and counseling',
+		code: '370847001',
+		code_text: 'Provides instruction regarding dietary needs',
 		code_type: 'SNOMEDCT',
 		dx_code: '238131007',
 		dx_code_text: 'Overweight (finding)',

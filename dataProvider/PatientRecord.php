@@ -157,6 +157,7 @@ class PatientRecord {
 
 		$this->getRecordTarget();
 		$this->getAuthor($uid);
+		$this->getPerformer($uid);
 		$this->getAssignedAuthor($uid);
 		$this->getDataEnterer($uid);
 		$this->getInformant($uid);
@@ -1738,6 +1739,7 @@ class PatientRecord {
 		$this->patient_record['Custodian'] = [];
 		$this->patient_record['InformationRecipient'] = [];
 		$this->patient_record['LegalAuthenticator'] = [];
+		$this->patient_record['Authenticator'] = [];
 		$this->patient_record['Authenticator'] = [];
 //		$this->patient_record['DocumentationOf'] = [];
 //		$this->patient_record['ComponentOf'] = [];

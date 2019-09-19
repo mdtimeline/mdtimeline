@@ -2114,7 +2114,7 @@ class PatientRecord {
 		}
 		$address = [];
 		$address['Use'] = $use;
-		$address['AddressOne'] = $line1 . ' ' . $line2;
+		$address['AddressOne'] = $line1;
 		$address['AddressTwo'] = $line2;
 		$address['City'] = $city;
 		$address['State'] = $state;

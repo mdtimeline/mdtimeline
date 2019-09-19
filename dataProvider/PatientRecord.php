@@ -1875,10 +1875,11 @@ class PatientRecord {
 		$performer['DirectAddress'] = $user['direct_address'];
 		$performer['Email'] = $user['email'];
 
-		$performer['Telecom'] = $this->phone(
+		$performer['Telecom'][] = $this->phone(
 			'WP',
 			$user['phone']
 		);
+
 		$performer['Address'] = $this->address(
 			'WP',
 			$user['street'],

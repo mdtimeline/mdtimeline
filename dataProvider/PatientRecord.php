@@ -277,6 +277,13 @@ class PatientRecord {
 			$medication['RXCUI'] = $result['RXCUI'];
 			$medication['NDC'] = $result['NDC'];
 			$medication['Dates'] = $this->dates($result['begin_date'], $result['end_date']);
+
+            $medication['NotPerformed'] = $this->code(
+                $result['not_performed_code'],
+                $result['not_performed_code_type'],
+                $result['not_performed_code_text']
+            );
+
 			$medication['Performer'] = $this->performer($result['uid']);
 
 			$medications[] = $medication;
@@ -631,6 +638,12 @@ class PatientRecord {
 
 			$procedure['Observation'] = $result['observation'];
 
+            $procedure['NotPerformed'] = $this->code(
+                $result['not_performed_code'],
+                $result['not_performed_code_type'],
+                $result['not_performed_code_text']
+            );
+
 			$procedure['Performer'] = $this->performer($result['performer_id']);
 
 			$procedures[] = $procedure;
@@ -722,6 +735,12 @@ class PatientRecord {
 				$result['create_date'], $result['create_date']
 			);
 
+            $intervention['NotPerformed'] = $this->code(
+                $result['not_performed_code'],
+                $result['not_performed_code_type'],
+                $result['not_performed_code_text']
+            );
+
             $intervention['Performer'] = $this->performer($result['create_uid']);
 
 			$interventions[] = $intervention;
@@ -770,6 +789,12 @@ class PatientRecord {
 				$result['administered_date'],
 				$result['administered_date']
 			);
+
+            $immunization['NotPerformed'] = $this->code(
+                $result['not_performed_code'],
+                $result['not_performed_code_type'],
+                $result['not_performed_code_text']
+            );
 
 			$educationGiven = isset($result['education_resource_1_id']) && $result['education_resource_1_id'] !== 0;
 			$immunization['Administration']['EducationGiven'] = $educationGiven ? 'Yes' : 'No';

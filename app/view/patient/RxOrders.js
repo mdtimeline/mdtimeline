@@ -84,6 +84,17 @@ Ext.define('App.view.patient.RxOrders', {
 											margin: '0 10 0 0'
 										},
 										{
+											xtype: 'gaiaehr.combo',
+											fieldLabel: _('unable_to_perform'),
+											labelWidth: 120,
+											width: 310,
+											editable: false,
+											labelAlign: 'right',
+											listKey: 'unable_to_perform_rx',
+											name: 'not_performed_code',
+											itemId: 'RxOrderGridFormUnableToPerformField'
+										},
+										{
 											xtype: 'checkboxfield',
 											fieldLabel: _('administer_in_house'),
 											tooltip: _('administer_in_house'),

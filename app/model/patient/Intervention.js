@@ -60,6 +60,21 @@ Ext.define('App.model.patient.Intervention', {
 			len: 20
 		},
 		{
+			name: 'not_performed_code',
+			type: 'string',
+			len: 10
+		},
+		{
+			name: 'not_performed_code_type',
+			type: 'string',
+			len: 15
+		},
+		{
+			name: 'not_performed_code_text',
+			type: 'string',
+			len: 255
+		},
+		{
 			name: 'notes',
 			type: 'string',
 			dataTYpe: 'text'

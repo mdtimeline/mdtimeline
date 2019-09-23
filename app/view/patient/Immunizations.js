@@ -340,20 +340,31 @@ Ext.define('App.view.patient.Immunizations', {
 								items: [
 									{
 										xtype: 'gaiaehr.combo',
-										list: 138,
+										list: 139,
 										width: 550,
-										name: 'information_source_code',
-										fieldLabel: _('info_source'),
+										name: 'refusal_reason_code',
+										fieldLabel: _('refusal_reason'),
 										margin: '0 0 5 0',
 										loadStore: true,
 										editable: false
 									},
 									{
 										xtype: 'gaiaehr.combo',
-										list: 139,
+										fieldLabel: _('unable_to_perform'),
 										width: 550,
-										name: 'refusal_reason_code',
-										fieldLabel: _('refusal_reason'),
+										margin: '0 0 5 0',
+										loadStore: true,
+										editable: false,
+										listKey: 'unable_to_perform_vac',
+										name: 'not_performed_code',
+										itemId: 'ImmunizationsUnableToPerformField'
+									},
+									{
+										xtype: 'gaiaehr.combo',
+										list: 138,
+										width: 550,
+										name: 'information_source_code',
+										fieldLabel: _('info_source'),
 										margin: '0 0 5 0',
 										loadStore: true,
 										editable: false

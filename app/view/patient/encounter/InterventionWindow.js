@@ -66,6 +66,16 @@ Ext.define('App.view.patient.encounter.InterventionWindow', {
 					labelAlign: 'top',
 					name: 'notes',
 					flex: 1
+				},
+				{
+					xtype: 'gaiaehr.combo',
+					fieldLabel: _('unable_to_perform'),
+					loadStore: true,
+					editable: false,
+					labelAlign: 'top',
+					listKey: 'unable_to_perform_inter',
+					name: 'not_performed_code',
+					itemId: 'InterventionUnableToPerformField'
 				}
 			]
 		}

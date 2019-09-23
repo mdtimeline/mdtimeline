@@ -15717,6 +15717,21 @@ Ext.define('App.model.patient.encounter.Procedures', {
 			len: 15
 		},
 		{
+			name: 'not_performed_code',
+			type: 'string',
+			len: 10
+		},
+		{
+			name: 'not_performed_code_type',
+			type: 'string',
+			len: 15
+		},
+		{
+			name: 'not_performed_code_text',
+			type: 'string',
+			len: 255
+		},
+		{
 			name: 'encounter_dx_id',
 			type: 'int'
 		},
@@ -17379,6 +17394,21 @@ Ext.define('App.model.patient.Medications', {
 			len: 210
 		},
 		{
+			name: 'not_performed_code',
+			type: 'string',
+			len: 10
+		},
+		{
+			name: 'not_performed_code_type',
+			type: 'string',
+			len: 15
+		},
+		{
+			name: 'not_performed_code_text',
+			type: 'string',
+			len: 255
+		},
+		{
 			name: 'system_notes',
 			type: 'string',
 			len: 210
@@ -18203,6 +18233,21 @@ Ext.define('App.model.patient.PatientImmunization', {
 			name: 'status',
 			type: 'string',
 			len: 40
+		},
+		{
+			name: 'not_performed_code',
+			type: 'string',
+			len: 10
+		},
+		{
+			name: 'not_performed_code_type',
+			type: 'string',
+			len: 15
+		},
+		{
+			name: 'not_performed_code_text',
+			type: 'string',
+			len: 255
 		},
 		{
 			name: 'is_error',
@@ -44403,10 +44448,24 @@ Ext.define('App.controller.patient.Immunizations', {
 			},
 			'#ImmunizationsPresumedImmunityCheckbox': {
 				afterrender: me.onImmunizationsPresumedImmunityCheckboxAfterRender
+			},
+			'#ImmunizationsUnableToPerformField': {
+				select: me.onImmunizationsUnableToPerformFieldSelect
 			}
 		});
 	},
 
+	onImmunizationsUnableToPerformFieldSelect: function(combo){
+		var form = combo.up('form').getForm(),
+			form_record = form.getRecord(),
+			selected_record = combo.findRecordByValue(combo.getValue());
+
+		form_record.set({
+			not_performed_code: selected_record.get('code'),
+			not_performed_code_type: selected_record.get('code_type'),
+			not_performed_code_text: selected_record.get('option_name'),
+		});
+	},
 
 
 	onImmunizationsPresumedImmunityCheckboxAfterRender: function(checkbox){
@@ -47527,7 +47586,22 @@ Ext.define('App.controller.patient.RxOrders', {
 			},
 			'#RxOrdersShowAllMedicationsBtn': {
 				toggle: me.onRxOrdersShowAllMedicationsBtnToggle
+			},
+			'#RxOrderGridFormUnableToPerformField': {
+				select: me.onRxOrderGridFormUnableToPerformFieldSelect
 			}
+		});
+	},
+
+	onRxOrderGridFormUnableToPerformFieldSelect: function(combo){
+		var form = combo.up('form').getForm(),
+			form_record = form.getRecord(),
+			selected_record = combo.findRecordByValue(combo.getValue());
+
+		form_record.set({
+			not_performed_code: selected_record.get('code'),
+			not_performed_code_type: selected_record.get('code_type'),
+			not_performed_code_text: selected_record.get('option_name'),
 		});
 	},
 
@@ -50574,20 +50648,31 @@ Ext.define('App.view.patient.Immunizations', {
 								items: [
 									{
 										xtype: 'gaiaehr.combo',
-										list: 138,
+										list: 139,
 										width: 550,
-										name: 'information_source_code',
-										fieldLabel: _('info_source'),
+										name: 'refusal_reason_code',
+										fieldLabel: _('refusal_reason'),
 										margin: '0 0 5 0',
 										loadStore: true,
 										editable: false
 									},
 									{
 										xtype: 'gaiaehr.combo',
-										list: 139,
+										fieldLabel: _('unable_to_perform'),
 										width: 550,
-										name: 'refusal_reason_code',
-										fieldLabel: _('refusal_reason'),
+										margin: '0 0 5 0',
+										loadStore: true,
+										editable: false,
+										listKey: 'unable_to_perform_vac',
+										name: 'not_performed_code',
+										itemId: 'ImmunizationsUnableToPerformField'
+									},
+									{
+										xtype: 'gaiaehr.combo',
+										list: 138,
+										width: 550,
+										name: 'information_source_code',
+										fieldLabel: _('info_source'),
 										margin: '0 0 5 0',
 										loadStore: true,
 										editable: false
@@ -62776,6 +62861,17 @@ Ext.define('App.view.patient.RxOrders', {
 											name: 'date_ordered',
 											allowBlank: false,
 											margin: '0 10 0 0'
+										},
+										{
+											xtype: 'gaiaehr.combo',
+											fieldLabel: _('unable_to_perform'),
+											labelWidth: 120,
+											width: 310,
+											editable: false,
+											labelAlign: 'right',
+											listKey: 'unable_to_perform_rx',
+											name: 'not_performed_code',
+											itemId: 'RxOrderGridFormUnableToPerformField'
 										},
 										{
 											xtype: 'checkboxfield',

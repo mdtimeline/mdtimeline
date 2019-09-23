@@ -95,7 +95,18 @@ Ext.define('App.view.patient.windows.EncounterProcedureWindow', {
 					fieldLabel: _('status'),
 					labelAlign: 'top',
 					itemId: 'EncounterProcedureStatusField',
-				}
+				},
+				{
+					xtype: 'gaiaehr.combo',
+					fieldLabel: _('unable_to_perform'),
+					labelWidth: 120,
+					width: 310,
+					editable: false,
+					labelAlign: 'top',
+					listKey: 'unable_to_perform_proc',
+					name: 'not_performed_code',
+					itemId: 'EncounterProcedureUnableToPerformField'
+				},
 			]
 		}
 	],

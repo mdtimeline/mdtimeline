@@ -72,26 +72,26 @@ Ext.define('App.controller.patient.Interventions', {
 		var me = this;
 		me.control({
 			'viewport': {
-				'beforeencounterload': me.onBeforeOpenEncounter,
-				'patientvitalsload': me.onPatientVitalsLoad
+				beforeencounterload: me.onBeforeOpenEncounter,
+				patientvitalsload: me.onPatientVitalsLoad
 			},
 			'#InterventionsGrid': {
-				'itemdblclick': me.onInterventionsGridItemDblClick
+				itemdblclick: me.onInterventionsGridItemDblClick
 			},
 			'#InterventionGridAddBtn': {
-				'click': me.onInterventionGridAddBtnClick
+				click: me.onInterventionGridAddBtnClick
 			},
 			'#InterventionSearchField': {
-				'select': me.onInterventionSearchFieldSelect
+				select: me.onInterventionSearchFieldSelect
 			},
 			'#InterventionFormCancelBtn': {
-				'click': me.onInterventionFormCancelBtnClick
+				click: me.onInterventionFormCancelBtnClick
 			},
 			'#InterventionFormSaveBtn': {
-				'click': me.onInterventionFormSaveBtnClick
+				click: me.onInterventionFormSaveBtnClick
 			},
 			'#InterventionUnableToPerformField': {
-				'select': me.onInterventionUnableToPerformFieldSelect
+				select: me.onInterventionUnableToPerformFieldSelect
 			},
 
 

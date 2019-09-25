@@ -32,13 +32,10 @@ Ext.define('App.controller.patient.HealthConcerns', {
 		var me = this;
 		me.control({
 			'viewport': {
-				'beforeencounterload': me.onBeforeOpenEncounter
-			},
-			'#InterventionsGrid': {
-				'itemdblclick': me.onInterventionsGridItemDblClick
+				beforeencounterload: me.onBeforeOpenEncounter
 			},
 			'#HealthConcernGridAddBtn': {
-				'click': me.onHealthConcernGridAddBtnClick
+				click: me.onHealthConcernGridAddBtnClick
 			}
 		});
 	},

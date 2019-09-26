@@ -1477,7 +1477,14 @@ class PatientRecord {
 					$data['Status'] = $poc['status'];
 					$data['Type'] = 'OBS';
 					$data['TypeMoodCode'] = 'RQO';
+					$data['Category'] = 'LAB';
 					//$data['TargetSite'] = $this->code('','');
+
+                    $data['NotPerformed'] = $this->code(
+                        $poc['not_performed_code'],
+                        $poc['not_performed_code_type'],
+                        $poc['not_performed_code_text']
+                    );
 
 				}elseif($type === 'RAD'){
 
@@ -1488,7 +1495,14 @@ class PatientRecord {
 					$data['Status'] = $poc['status'];
 					$data['Type'] = 'OBS';
 					$data['TypeMoodCode'] = 'RQO';
+                    $data['Category'] = 'RAD';
 					//$data['TargetSite'] = $this->code('','');
+
+                    $data['NotPerformed'] = $this->code(
+                        $poc['not_performed_code'],
+                        $poc['not_performed_code_type'],
+                        $poc['not_performed_code_text']
+                    );
 
 				}elseif ($type === 'MED'){
 
@@ -1521,7 +1535,7 @@ class PatientRecord {
 					$data['Status'] = 'new';
 					$data['Type'] = 'PROC';
 					$data['TypeMoodCode'] = 'RQO';
-
+                    $data['Category'] = 'APP';
 				}
 
 				if(!empty($data)){

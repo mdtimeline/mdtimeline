@@ -129,10 +129,11 @@ class PatientRecord {
 	 * @param null|string $start_date
 	 * @param null|string $end_date
 	 * @param array       $excludes
+	 * @param bool        $include_pot
 	 *
 	 * @return array|string
 	 */
-	public function getRecord($fid, $uid, $pid, $eid = null, $referral_id = null, $start_date = null, $end_date = null, $excludes = []){
+	public function getRecord($fid, $uid, $pid, $eid = null, $referral_id = null, $start_date = null, $end_date = null, $excludes = [], $include_pot = false){
 
 		// globals
 		$this->buff = [];
@@ -198,9 +199,13 @@ class PatientRecord {
 		if(isset($this->eid)){
 			$this->getEncounterSection();
 			$this->getReasonForReferralSection();
-			$this->getPlanOfTreatment();
+			$this->getPlanOfTreatment($this->eid);
 			$this->getCarePlanGoals();
-		}
+		}else{
+		    if($include_pot){
+                $this->getPlanOfTreatment(null);
+            }
+        }
 
     	$this->getHealthConcernsSection();
 
@@ -1437,7 +1442,7 @@ class PatientRecord {
 
 	}
 
-	private function getPlanOfTreatment(){
+	private function getPlanOfTreatment($eid = null){
 
 		include_once(ROOT . '/dataProvider/Orders.php');
 		include_once(ROOT . '/dataProvider/Referrals.php');
@@ -1445,10 +1450,18 @@ class PatientRecord {
 
 		// lab orders
 		$Orders = new Orders();
-		$plan_of_care_data['LAB'] = $Orders->getPatientLabOrdersPendingByEid($this->eid);
+		if(isset($eid)){
+            $plan_of_care_data['LAB'] = $Orders->getPatientLabOrdersPendingByEid($eid);
+        }else{
+            $plan_of_care_data['LAB'] = $Orders->getPatientLabOrdersPendingByPid($this->pid);
+        }
 
 		// rab orders
-		$plan_of_care_data['RAD'] = $Orders->getPatientRabOrdersPendingByEid($this->eid);
+        if(isset($eid)) {
+            $plan_of_care_data['RAD'] = $Orders->getPatientRabOrdersPendingByEid($eid);
+        }else{
+            $plan_of_care_data['RAD'] = $Orders->getPatientRabOrdersPendingByPid($this->pid);
+        }
 
 		// rad order
 //		$Orders = new Medications();
@@ -1560,7 +1573,6 @@ class PatientRecord {
 			$data['TypeMoodCode'] = 'INT';
 			$pocs_data[] = $data;
 		}
-
 		$this->patient_record['PlanOfTreatmentSection']['PlanOfTreatment'] = $pocs_data;
 
 	}

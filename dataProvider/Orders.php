@@ -427,12 +427,35 @@ class Orders {
 	}
 
 	/**
+	 * @param $pid
+	 * @return mixed
+	 */
+	public function getPatientLabOrdersPendingByPid($pid){
+		$this->setOrders();
+		$this->o->addFilter('pid', $pid);
+		$this->o->addFilter('order_type', 'lab');
+		$this->o->addFilter('status', 'Pending');
+		return $this->o->load()->all();
+	}
+
+	/**
 	 * @param $eid
 	 * @return mixed
 	 */
 	public function getPatientRabOrdersPendingByEid($eid){
 		$this->setOrders();
 		$this->o->addFilter('eid', $eid);
+		$this->o->addFilter('order_type', 'rab');
+		$this->o->addFilter('status', 'Pending');
+		return $this->o->load()->all();
+	}
+	/**
+	 * @param $pid
+	 * @return mixed
+	 */
+	public function getPatientRabOrdersPendingByPid($pid){
+		$this->setOrders();
+		$this->o->addFilter('pid', $pid);
 		$this->o->addFilter('order_type', 'rab');
 		$this->o->addFilter('status', 'Pending');
 		return $this->o->load()->all();

@@ -1632,7 +1632,7 @@ class PatientRecord {
 
 		$PatientRole['Patient']['Id'] = $patientData['pid'];
 		$PatientRole['Patient']['RecordNumber'] = isset($patientData['pubpid']) && $patientData['pubpid'] != '' ?
-			$patientData['pubpid'] : $patientData['id'];
+			$patientData['pubpid'] : $patientData['pid'];
 
 		$PatientRole['Patient']['AccountNumber'] = isset($patientData['pubaccount']) && $patientData['pubaccount'] != '' ?
 			$patientData['pubaccount'] : $PatientRole['Patient']['RecordNumber'];

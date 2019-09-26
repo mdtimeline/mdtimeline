@@ -2070,5 +2070,6 @@ $LANG = array(
 	'prefix' => 'Prefix',
 	'tin' => 'TIN',
 	'unable_to_perform' => 'Unable to Perform',
+	'record_no' => 'Record No.',
 
 );

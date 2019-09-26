@@ -125,6 +125,21 @@ Ext.define('App.model.patient.PatientsOrders', {
 			name: 'note',
 			type: 'string'
 		},
+		{
+			name: 'not_performed_code',
+			type: 'string',
+			len: 10
+		},
+		{
+			name: 'not_performed_code_type',
+			type: 'string',
+			len: 15
+		},
+		{
+			name: 'not_performed_code_text',
+			type: 'string',
+			len: 255
+		},
         {
             name: 'void',
             type: 'boolean',

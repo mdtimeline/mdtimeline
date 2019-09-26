@@ -99,7 +99,7 @@ Ext.define('App.view.patient.RadOrders', {
 		},
 		{
 			header: _('description'),
-			flex: 1,
+			flex: 2,
 			dataIndex: 'description',
 			editor: {
 				xtype: 'radslivetsearch',
@@ -108,10 +108,26 @@ Ext.define('App.view.patient.RadOrders', {
 		},
 		{
 			header: _('notes'),
-			flex: 1,
+			flex: 2,
 			dataIndex: 'note',
 			editor: {
 				xtype: 'textfield'
+			}
+		},
+		{
+			header: _('unable_to_perform'),
+			flex: 1,
+			dataIndex: 'not_performed_code_text',
+			editor: {
+				xtype: 'gaiaehr.combo',
+				listKey: 'unable_to_perform_ord',
+				displayField: 'option_name',
+				valueField: 'option_name',
+				itemId: 'RadOrdersUnableToPerformField',
+				loadStore: true,
+				editable: false,
+				queryMode: 'local',
+				resetable: true
 			}
 		},
 		{

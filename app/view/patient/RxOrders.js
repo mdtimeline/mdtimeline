@@ -92,7 +92,8 @@ Ext.define('App.view.patient.RxOrders', {
 											labelAlign: 'right',
 											listKey: 'unable_to_perform_rx',
 											name: 'not_performed_code',
-											itemId: 'RxOrderGridFormUnableToPerformField'
+											itemId: 'RxOrderGridFormUnableToPerformField',
+											resetable: true
 										},
 										{
 											xtype: 'checkboxfield',

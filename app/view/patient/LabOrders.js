@@ -156,6 +156,22 @@ Ext.define('App.view.patient.LabOrders', {
             }
 		},
 		{
+			header: _('unable_to_perform'),
+			flex: 1,
+			dataIndex: 'not_performed_code_text',
+			editor: {
+				xtype: 'gaiaehr.combo',
+				listKey: 'unable_to_perform_ord',
+				displayField: 'option_name',
+				valueField: 'option_name',
+				itemId: 'LabOrdersUnableToPerformField',
+				loadStore: true,
+				editable: false,
+				queryMode: 'local',
+				resetable: true
+			}
+		},
+		{
 			header: _('priority'),
 			width: 100,
 			dataIndex: 'priority',

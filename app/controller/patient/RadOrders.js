@@ -46,11 +46,39 @@ Ext.define('App.controller.patient.RadOrders', {
 			},
 			'patientradorderspanel #printRadOrderBtn': {
 				click: me.onPrintRadOrderBtnClick
+			},
+			'#RadOrdersUnableToPerformField': {
+				select: me.onRadOrdersUnableToPerformFieldSelect,
+				fieldreset: me.onRadOrdersUnableToPerformFieldReset
 			}
 		});
 
 		me.encounterCtl = me.getController('patient.encounter.Encounter');
 
+	},
+
+	onRadOrdersUnableToPerformFieldSelect: function(combo){
+		var form = combo.up('form').getForm(),
+			form_record = form.getRecord(),
+			selected_record = combo.findRecordByValue(combo.getValue());
+
+		form_record.set({
+			not_performed_code: selected_record.get('code'),
+			not_performed_code_type: selected_record.get('code_type'),
+			not_performed_code_text: selected_record.get('option_name'),
+		});
+	},
+
+	onRadOrdersUnableToPerformFieldReset: function(combo){
+		var form = combo.up('form').getForm(),
+			form_record = form.getRecord();
+
+		combo.setValue(null);
+		form_record.set({
+			not_performed_code: null,
+			not_performed_code_type: null,
+			not_performed_code_text: null,
+		});
 	},
 
 	onOrdersDeleteActionHandler: function (grid, rowIndex, colIndex, item, e, record) {

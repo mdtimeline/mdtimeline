@@ -98,7 +98,8 @@ Ext.define('App.controller.patient.RxOrders', {
 				toggle: me.onRxOrdersShowAllMedicationsBtnToggle
 			},
 			'#RxOrderGridFormUnableToPerformField': {
-				select: me.onRxOrderGridFormUnableToPerformFieldSelect
+				select: me.onRxOrderGridFormUnableToPerformFieldSelect,
+				fieldreset: me.onRxOrderGridFormUnableToPerformFieldReset
 			}
 		});
 	},
@@ -112,6 +113,18 @@ Ext.define('App.controller.patient.RxOrders', {
 			not_performed_code: selected_record.get('code'),
 			not_performed_code_type: selected_record.get('code_type'),
 			not_performed_code_text: selected_record.get('option_name'),
+		});
+	},
+
+	onRxOrderGridFormUnableToPerformFieldReset: function(combo){
+		var form = combo.up('form').getForm(),
+			form_record = form.getRecord();
+
+		combo.setValue(null);
+		form_record.set({
+			not_performed_code: null,
+			not_performed_code_type: null,
+			not_performed_code_text: null,
 		});
 	},
 

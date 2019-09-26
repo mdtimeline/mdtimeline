@@ -18884,6 +18884,21 @@ Ext.define('App.model.patient.PatientsOrders', {
 			name: 'note',
 			type: 'string'
 		},
+		{
+			name: 'not_performed_code',
+			type: 'string',
+			len: 10
+		},
+		{
+			name: 'not_performed_code_type',
+			type: 'string',
+			len: 15
+		},
+		{
+			name: 'not_performed_code_text',
+			type: 'string',
+			len: 255
+		},
         {
             name: 'void',
             type: 'boolean',
@@ -47041,11 +47056,39 @@ Ext.define('App.controller.patient.RadOrders', {
 			},
 			'patientradorderspanel #printRadOrderBtn': {
 				click: me.onPrintRadOrderBtnClick
+			},
+			'#RadOrdersUnableToPerformField': {
+				select: me.onRadOrdersUnableToPerformFieldSelect,
+				fieldreset: me.onRadOrdersUnableToPerformFieldReset
 			}
 		});
 
 		me.encounterCtl = me.getController('patient.encounter.Encounter');
 
+	},
+
+	onRadOrdersUnableToPerformFieldSelect: function(combo){
+		var form = combo.up('form').getForm(),
+			form_record = form.getRecord(),
+			selected_record = combo.findRecordByValue(combo.getValue());
+
+		form_record.set({
+			not_performed_code: selected_record.get('code'),
+			not_performed_code_type: selected_record.get('code_type'),
+			not_performed_code_text: selected_record.get('option_name'),
+		});
+	},
+
+	onRadOrdersUnableToPerformFieldReset: function(combo){
+		var form = combo.up('form').getForm(),
+			form_record = form.getRecord();
+
+		combo.setValue(null);
+		form_record.set({
+			not_performed_code: null,
+			not_performed_code_type: null,
+			not_performed_code_text: null,
+		});
 	},
 
 	onOrdersDeleteActionHandler: function (grid, rowIndex, colIndex, item, e, record) {
@@ -47588,7 +47631,8 @@ Ext.define('App.controller.patient.RxOrders', {
 				toggle: me.onRxOrdersShowAllMedicationsBtnToggle
 			},
 			'#RxOrderGridFormUnableToPerformField': {
-				select: me.onRxOrderGridFormUnableToPerformFieldSelect
+				select: me.onRxOrderGridFormUnableToPerformFieldSelect,
+				fieldreset: me.onRxOrderGridFormUnableToPerformFieldReset
 			}
 		});
 	},
@@ -47602,6 +47646,18 @@ Ext.define('App.controller.patient.RxOrders', {
 			not_performed_code: selected_record.get('code'),
 			not_performed_code_type: selected_record.get('code_type'),
 			not_performed_code_text: selected_record.get('option_name'),
+		});
+	},
+
+	onRxOrderGridFormUnableToPerformFieldReset: function(combo){
+		var form = combo.up('form').getForm(),
+			form_record = form.getRecord();
+
+		combo.setValue(null);
+		form_record.set({
+			not_performed_code: null,
+			not_performed_code_type: null,
+			not_performed_code_text: null,
 		});
 	},
 
@@ -51294,6 +51350,22 @@ Ext.define('App.view.patient.LabOrders', {
                 if(record.data.void) return '<span style="text-decoration: line-through;">'+ v + '</span>';
                 return '<span>'+ v + '</span>';
             }
+		},
+		{
+			header: _('unable_to_perform'),
+			flex: 1,
+			dataIndex: 'not_performed_code_text',
+			editor: {
+				xtype: 'gaiaehr.combo',
+				listKey: 'unable_to_perform_ord',
+				displayField: 'option_name',
+				valueField: 'option_name',
+				itemId: 'LabOrdersUnableToPerformField',
+				loadStore: true,
+				editable: false,
+				queryMode: 'local',
+				resetable: true
+			}
 		},
 		{
 			header: _('priority'),
@@ -60408,11 +60480,38 @@ Ext.define('App.controller.patient.LabOrders', {
 			},
 			'patientlaborderspanel #printLabOrderBtn': {
 				click: me.onPrintLabOrderBtnClick
+			},
+			'#LabOrdersUnableToPerformField': {
+				select: me.onLabOrdersUnableToPerformFieldSelect,
+				fieldreset: me.onLabOrdersUnableToPerformFieldReset
 			}
 		});
 
 		me.encounterCtl = me.getController('patient.encounter.Encounter');
 
+	},
+
+	onLabOrdersUnableToPerformFieldSelect: function(combo){
+		var form = combo.up('form').getForm(),
+			form_record = form.getRecord(),
+			selected_record = combo.findRecordByValue(combo.getValue());
+
+		form_record.set({
+			not_performed_code: selected_record.get('code'),
+			not_performed_code_type: selected_record.get('code_type'),
+			not_performed_code_text: selected_record.get('option_name'),
+		});
+	},
+
+	onLabOrdersUnableToPerformFieldReset: function(combo){
+		var form = combo.up('form').getForm(),
+			form_record = form.getRecord();
+		combo.setValue(null);
+		form_record.set({
+			not_performed_code: null,
+			not_performed_code_type: null,
+			not_performed_code_text: null,
+		});
 	},
 
 	onLabOrdersGridBeforeRender: function(grid){
@@ -62186,7 +62285,7 @@ Ext.define('App.view.patient.RadOrders', {
 		},
 		{
 			header: _('description'),
-			flex: 1,
+			flex: 2,
 			dataIndex: 'description',
 			editor: {
 				xtype: 'radslivetsearch',
@@ -62195,10 +62294,26 @@ Ext.define('App.view.patient.RadOrders', {
 		},
 		{
 			header: _('notes'),
-			flex: 1,
+			flex: 2,
 			dataIndex: 'note',
 			editor: {
 				xtype: 'textfield'
+			}
+		},
+		{
+			header: _('unable_to_perform'),
+			flex: 1,
+			dataIndex: 'not_performed_code_text',
+			editor: {
+				xtype: 'gaiaehr.combo',
+				listKey: 'unable_to_perform_ord',
+				displayField: 'option_name',
+				valueField: 'option_name',
+				itemId: 'RadOrdersUnableToPerformField',
+				loadStore: true,
+				editable: false,
+				queryMode: 'local',
+				resetable: true
 			}
 		},
 		{
@@ -62871,7 +62986,8 @@ Ext.define('App.view.patient.RxOrders', {
 											labelAlign: 'right',
 											listKey: 'unable_to_perform_rx',
 											name: 'not_performed_code',
-											itemId: 'RxOrderGridFormUnableToPerformField'
+											itemId: 'RxOrderGridFormUnableToPerformField',
+											resetable: true
 										},
 										{
 											xtype: 'checkboxfield',

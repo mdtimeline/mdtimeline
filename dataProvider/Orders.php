@@ -438,6 +438,17 @@ class Orders {
 		return $this->o->load()->all();
 	}
 
+    /**
+     * @param $eid
+     * @return mixed
+     */
+    public function getPatientLabOrdersByEid($eid){
+        $this->setOrders();
+        $this->o->addFilter('eid', $eid);
+        $this->o->addFilter('order_type', 'lab');
+        return $this->o->load()->all();
+    }
+
 	/**
 	 * @param $eid
 	 * @return mixed
@@ -445,7 +456,7 @@ class Orders {
 	public function getPatientRabOrdersPendingByEid($eid){
 		$this->setOrders();
 		$this->o->addFilter('eid', $eid);
-		$this->o->addFilter('order_type', 'rab');
+		$this->o->addFilter('order_type', 'rad');
 		$this->o->addFilter('status', 'Pending');
 		return $this->o->load()->all();
 	}
@@ -456,21 +467,11 @@ class Orders {
 	public function getPatientRabOrdersPendingByPid($pid){
 		$this->setOrders();
 		$this->o->addFilter('pid', $pid);
-		$this->o->addFilter('order_type', 'rab');
+		$this->o->addFilter('order_type', 'rad');
 		$this->o->addFilter('status', 'Pending');
 		return $this->o->load()->all();
 	}
 
-	/**
-	 * @param $eid
-	 * @return mixed
-	 */
-	public function getPatientLabOrdersByEid($eid){
-		$this->setOrders();
-		$this->o->addFilter('eid', $eid);
-		$this->o->addFilter('order_type', 'lab');
-		return $this->o->load()->all();
-	}
 	/**
 	 * @param $eid
 	 * @return mixed

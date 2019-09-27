@@ -130,11 +130,12 @@ class SocialHistory {
 		$this->setModel();
 		$this->ss->addFilter('pid', $pid);
 
+		// TODO Change to create_date
 		if(isset($start)){
-			$this->ss->addFilter('create_date', $start, '>=');
+			$this->ss->addFilter('start_date', $start, '>=');
 		}
 		if(isset($end)) {
-			$this->ss->addFilter('create_date', $end, '<=');
+			$this->ss->addFilter('start_date', $end, '<=');
 		}
 		return $this->ss->load()->all();
 	}
@@ -150,10 +151,10 @@ class SocialHistory {
 		$this->s->addFilter('pid', $pid);
 
 		if(isset($start)){
-			$this->s->addFilter('create_date', $start, '>=');
+			$this->s->addFilter('start_date', $start, '>=');
 		}
 		if(isset($end)) {
-			$this->s->addFilter('create_date', $end, '<=');
+			$this->s->addFilter('start_date', $end, '<=');
 		}
 		return $this->s->load()->all();
 	}

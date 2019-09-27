@@ -157,10 +157,10 @@ class ActiveProblems
 	{
 		$this->a->addFilter('pid', $pid);
 		if(isset($start)){
-			$this->a->addFilter('create_date', $start, '>=');
+			$this->a->addFilter('begin_date', $start, '>=');
 		}
 		if(isset($end)) {
-			$this->a->addFilter('create_date', $end, '<=');
+			$this->a->addFilter('begin_date', $end, '<=');
 		}
 		return $this->a->load()->all();
 	}

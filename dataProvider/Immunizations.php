@@ -119,10 +119,10 @@ class Immunizations {
 		$this->i->addFilter('pid', $pid);
 
 		if(isset($start)){
-			$this->i->addFilter('create_date', $start, '>=');
+			$this->i->addFilter('administered_date', $start, '>=');
 		}
 		if(isset($end)) {
-			$this->i->addFilter('create_date', $end, '<=');
+			$this->i->addFilter('administered_date', $end, '<=');
 		}
 
 		return $this->i->load()->leftJoin(
@@ -327,5 +327,11 @@ class Immunizations {
 		return ['success' => true];
 	}
 
+	public function getImmunizationHxFromRegistry($params){
+		include_once (ROOT. '/dataProvider/ImmunizationRegistry.php');
+		$ImmunizationRegistry = new ImmunizationRegistry();
+		$result = $ImmunizationRegistry->getImmunizationHx($params);
+		return $result;
+	}
 }
 

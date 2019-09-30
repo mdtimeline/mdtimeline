@@ -28,11 +28,11 @@ class Interventions {
 	}
 
 	public function getPatientInterventions($params){
-		return $this->i->load($params)->leftJoin(['service_date' => 'service_date'], 'encounter', 'eid', 'eid')->all();
+		return $this->i->load($params)->leftJoin(['service_date' => 'service_date'], 'encounters', 'eid', 'eid')->all();
 	}
 
 	public function getPatientIntervention($params){
-		return $this->i->load($params)->leftJoin(['service_date' => 'service_date'], 'encounter', 'eid', 'eid')->one();
+		return $this->i->load($params)->leftJoin(['service_date' => 'service_date'], 'encounters', 'eid', 'eid')->one();
 	}
 
 	public function addPatientIntervention($params){
@@ -49,7 +49,7 @@ class Interventions {
 
 	public function getPatientInterventionsByPid($pid){
 		$this->i->addFilter('pid', $pid);
-		return $this->i->load()->leftJoin(['service_date' => 'service_date'], 'encounter', 'eid', 'eid')->all();
+		return $this->i->load()->leftJoin(['service_date' => 'service_date'], 'encounters', 'eid', 'eid')->all();
 	}
 
 	public function getPatientInterventionsByPidAndDates($pid){
@@ -67,7 +67,7 @@ class Interventions {
 			$this->i->addFilter('date', $end, '<=');
 		}
 
-		return $this->i->load()->leftJoin(['service_date' => 'service_date'], 'encounter', 'eid', 'eid')->all();
+		return $this->i->load()->leftJoin(['service_date' => 'service_date'], 'encounters', 'eid', 'eid')->all();
 	}
 
 

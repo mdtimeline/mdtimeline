@@ -737,7 +737,7 @@ class PatientRecord {
 			);
 
             $intervention['Dates'] = $this->dates(
-				$result['create_date'], $result['create_date']
+				$result['service_date'], $result['service_date']
 			);
 
             $intervention['NotPerformed'] = $this->code(

@@ -580,26 +580,31 @@ class Patient
 		$whereValues = [];
 		$where = [];
 		$queries = explode(',', $params->query);
+
+		$single_query = count($queries) === 1;
+
 		foreach ($queries as $index => $query) {
 			$query = trim($query);
-			$where[] = " (pubpid REGEXP :pubpid{$index} OR fname LIKE :fname{$index} OR lname LIKE :lname{$index} OR mname LIKE :mname{$index} OR DOB LIKE :DOB{$index} OR pid LIKE :pid{$index} OR SS LIKE :ss{$index}) ";
 
 			$whereValues[':fname' . $index] = $query . '%';
 			$whereValues[':lname' . $index] = $query . '%';
 			$whereValues[':mname' . $index] = $query . '%';
 
-			if ($index == 0) {
-				if (preg_match('/^(.)-(.*)-(.{2})$/', $query, $matches)) {
-					$whereValues[':pubpid' . $index] = '^' . $matches[1] . '-' . str_pad($matches[2], 15, '0', STR_PAD_LEFT) . '-' . $matches[3] . '$';
+			if ($single_query) {
+                $where[] = " (pubpid REGEXP :reg_pubpid{$index} OR pubpid = :pubpid{$index} OR fname LIKE :fname{$index} OR lname LIKE :lname{$index} OR mname LIKE :mname{$index} OR DOB LIKE :DOB{$index} OR pid LIKE :pid{$index} OR SS LIKE :ss{$index}) ";
+                if (preg_match('/^(.)-(.*)-(.{2})$/', $query, $matches)) {
+					$whereValues[':reg_pubpid' . $index] = '^' . $matches[1] . '-' . str_pad($matches[2], 15, '0', STR_PAD_LEFT) . '-' . $matches[3] . '$';
 				} elseif (preg_match('/^(.)-(.*)$/', $query, $matches)) {
-					$whereValues[':pubpid' . $index] = '^' . $matches[1] . '-' . str_pad($matches[2], 15, '0', STR_PAD_LEFT);
+					$whereValues[':reg_pubpid' . $index] = '^' . $matches[1] . '-' . str_pad($matches[2], 15, '0', STR_PAD_LEFT);
 				} elseif (preg_match('/(.*)-(.{2})$/', $query, $matches)) {
-					$whereValues[':pubpid' . $index] = str_pad($matches[1], 15, '0', STR_PAD_LEFT) . '-' . $matches[2];
+					$whereValues[':reg_pubpid' . $index] = str_pad($matches[1], 15, '0', STR_PAD_LEFT) . '-' . $matches[2];
 				} else {
-					$whereValues[':pubpid' . $index] = trim($query, '-') . '-.{2}$';
+					$whereValues[':reg_pubpid' . $index] = trim($query, '-') . '-.{2}$';
 				}
+                $whereValues[':pubpid' . $index] = $query;
+
 			} else {
-				$whereValues[':pubpid' . $index] = trim($query, '-') . '-.{2}$';
+                $where[] = " (fname LIKE :fname{$index} OR lname LIKE :lname{$index} OR mname LIKE :mname{$index} OR DOB LIKE :DOB{$index} OR pid LIKE :pid{$index} OR SS LIKE :ss{$index}) ";
 			}
 
 			$whereValues[':DOB' . $index] = $query . '%';

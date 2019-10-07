@@ -638,7 +638,7 @@ class PatientRecord {
 			);
 
 			$procedure['Dates'] = $this->dates(
-				$result['procedure_date'], null
+				$result['procedure_date'], $result['procedure_date']
 			);
 
 			$procedure['Observation'] = $result['observation'];
@@ -1361,6 +1361,7 @@ class PatientRecord {
             $medication['Manufacturer'] = $result['manufacturer'];
             $medication['ExpDate'] = $result['exp_date'];
             $medication['LotNumber'] = $result['lot_number'];
+            $medication['Dose'] = $result['dose'];
 			$medication['Instructions'] = $result['instructions'];
             $medication['AdverseReaction'] = $this->code($result['adverse_reaction_code'],$result['adverse_reaction_code_type'],$result['adverse_reaction_text']);
 			$medication['Status'] = 'Active';
@@ -1647,6 +1648,13 @@ class PatientRecord {
 				$patientData['suffix']
 			);
 		}
+
+        $PatientRole['Patient']['BirthName'] = $this->name(
+            '',
+            $patientData['birth_fname'],
+            $patientData['birth_mname'],
+            $patientData['birth_lname'],
+        );
 
 		if(!$this->isExcluded('patient_sex')){
 			$sex = $this->CombosData->getValuesByListIdAndOptionValue(95, $patientData['sex']);

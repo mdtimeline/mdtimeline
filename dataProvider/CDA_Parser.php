@@ -248,8 +248,14 @@ class CDA_Parser
 
 		//marital StatusCode
 		$patient->marital_status = isset($dom['patient']['maritalStatusCode']['@attributes']['code']) ? $dom['patient']['maritalStatusCode']['@attributes']['code'] : '';
+
 		//race
 		$patient->race = isset($dom['patient']['raceCode']['@attributes']['code']) ? $dom['patient']['raceCode']['@attributes']['code'] : '';
+		//secondary race
+        $patient->secondry_race = isset($dom['patient']['sdtc:raceCode']['@attributes']['code']) ? $dom['patient']['sdtc:raceCode']['@attributes']['code'] : '';
+
+
+
 		//ethnicGroupCode
 		$patient->ethnicity = isset($dom['patient']['ethnicGroupCode']['@attributes']['code']) ? $dom['patient']['ethnicGroupCode']['@attributes']['code'] : '';
 		//birthplace

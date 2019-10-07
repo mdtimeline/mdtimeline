@@ -252,7 +252,7 @@ class CDA_Parser
 		//race
 		$patient->race = isset($dom['patient']['raceCode']['@attributes']['code']) ? $dom['patient']['raceCode']['@attributes']['code'] : '';
 		//secondary race
-        $patient->secondry_race = isset($dom['patient']['sdtc:raceCode']['@attributes']['code']) ? $dom['patient']['sdtc:raceCode']['@attributes']['code'] : '';
+        $patient->secondary_race = isset($dom['patient']['sdtc:raceCode']['@attributes']['code']) ? $dom['patient']['sdtc:raceCode']['@attributes']['code'] : '';
 
 
 
@@ -531,6 +531,17 @@ class CDA_Parser
 				$gs_code = $this->Rxnorm->getGsCodeByRxCUI($medication->RXCUI);
 				if($gs_code !== false) $medication->GS_CODE = $gs_code;
 			}
+
+			// route
+            if (isset($entry['substanceAdministration']['routeCode']['@attributes']['code'])) {
+                $code = $this->codeHandler($entry['substanceAdministration']['routeCode']['@attributes']);
+                $medication->route = $code['code'];
+                unset($code);
+            }
+            // dose
+            if (isset($entry['substanceAdministration']['doseQuantity']['@attributes']['value'])) {
+                $medication->dose = $entry['substanceAdministration']['doseQuantity']['@attributes']['value'];
+            }
 
 			// instructions...
             if(isset($entry['substanceAdministration']['entryRelationship'])) {

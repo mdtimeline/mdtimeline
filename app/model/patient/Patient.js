@@ -189,6 +189,21 @@ Ext.define('App.model.patient.Patient',{
             len: 10
         },
         {
+            name: 'birth_fname',
+            type: 'string',
+            len: 35
+        },
+        {
+            name: 'birth_mname',
+            type: 'string',
+            len: 35
+        },
+        {
+            name: 'birth_lname',
+            type: 'string',
+            len: 60
+        },
+        {
             name: 'allow_leave_msg',
             type: 'bool'
         },

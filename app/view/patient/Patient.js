@@ -1342,6 +1342,30 @@ Ext.define('App.view.patient.Patient', {
 											items: [
 												{
 													xtype: 'textfield',
+													name: 'birth_fname',
+													fieldLabel: _('birth_first_name'),
+													flex: 1,
+													allowBlank: false,
+													maxLength: 35
+												},
+												{
+													xtype: 'textfield',
+													name: 'birth_mname',
+													fieldLabel: _('birth_init'),
+													width: 75,
+													enableKeyEvents: true,
+													maxLength: 35
+												},
+												{
+													xtype: 'textfield',
+													name: 'birth_lname',
+													fieldLabel: _('birth_last_name'),
+													flex: 2,
+													allowBlank: false,
+													maxLength: 35
+												},
+												{
+													xtype: 'textfield',
 													name: 'alias',
 													fieldLabel: _('alias_name'),
 													flex: 1,

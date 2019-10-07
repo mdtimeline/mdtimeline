@@ -2071,5 +2071,8 @@ $LANG = array(
 	'tin' => 'TIN',
 	'unable_to_perform' => 'Unable to Perform',
 	'record_no' => 'Record No.',
+	'birth_first_name' => 'Birth First Name',
+	'birth_init' => 'Birth Init.',
+	'birth_last_name' => 'Birth Last Name',
 
 );

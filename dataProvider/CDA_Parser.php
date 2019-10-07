@@ -166,12 +166,32 @@ class CDA_Parser
 		// TODO: Here we need to create a new Patient Contact record. (Self)
 		$a = isset($dom['addr']) ? $dom['addr'] : [];
 		//$PatientContact = new PatientContacts();
-		$patient->address = isset($a['streetAddressLine']) ? $a['streetAddressLine'] : '';
-		$patient->city = isset($a['city']) ? $a['city'] : '';
-		$patient->state = isset($a['state']) ? $a['state'] : '';
-		$patient->zipcode = isset($a['postalCode']) ? $a['postalCode'] : '';
-		$patient->country = isset($a['country']) ? $a['country'] : '';
+		$patient->postal_address = isset($a['streetAddressLine']) ? $a['streetAddressLine'] : '';
+		$patient->postal_city = isset($a['city']) ? $a['city'] : '';
+		$patient->postal_state = isset($a['state']) ? $a['state'] : '';
+		$patient->postal_zip = isset($a['postalCode']) ? $a['postalCode'] : '';
+		$patient->postal_country = isset($a['country']) ? $a['country'] : '';
 		unset($a);
+
+        $patient->fulladdress = '';
+
+        if($patient->postal_address !== ''){
+            $patient->fulladdress .= ' ' . $patient->postal_address;
+        }
+        if($patient->postal_city !== ''){
+            $patient->fulladdress .= ' ' . $patient->postal_city;
+        }
+        if($patient->postal_state !== ''){
+            $patient->fulladdress .= ' ' . $patient->postal_state;
+        }
+        if($patient->postal_zip !== ''){
+            $patient->fulladdress .= ' ' . $patient->postal_zip;
+        }
+        if($patient->postal_country !== ''){
+            $patient->fulladdress .= ' ' . $patient->postal_country;
+        }
+
+        $patient->fulladdress = trim($patient->fulladdress);
 
 		// phones
 		if (isset($dom['telecom'])) {
@@ -185,6 +205,17 @@ class CDA_Parser
 			}
 		}
 
+        $patient->phones = [];
+		if(isset($patient->home_phone)){
+            $patient->phones[] = $patient->home_phone . ' (H)';
+        }
+		if(isset($patient->work_phone)){
+            $patient->phones[] = $patient->home_phone . ' (W)';
+        }
+
+        $patient->phones = implode('<br>', $patient->phones);
+
+
 		if (!isset($dom['patient'])) {
 			throw new Exception('Error: ClinicalDocument->recordTarget->patientRole->Patient is required');
 		}
@@ -195,11 +226,15 @@ class CDA_Parser
 		if (!isset($dom['patient']['name']['family'])) {
 			throw new Exception('Error: Patient family name is required');
 		}
-		$names = $this->nameHandler($dom['patient']['name']);
-		$patient->fname = $names['name']['fname'];
-		$patient->mname = $names['name']['mname'];
-		$patient->lname = $names['name']['lname'];
+		$names = $this->namesHandler($dom['patient']['name']);
+		$patient->fname = $names['L']['fname'];
+		$patient->mname = $names['L']['mname'];
+		$patient->lname = $names['L']['lname'];
 		$patient->name = Person::fullname($patient->fname, $patient->mname, $patient->lname);
+
+		$patient->birth_fname = $names['BR']['fname'];
+		$patient->birth_mname = $names['BR']['mname'];
+		$patient->birth_lname = $names['BR']['lname'];
 		//gender
 		if (!isset($dom['patient']['administrativeGenderCode'])) {
 			throw new Exception('Error: Patient gender is required');
@@ -271,10 +306,10 @@ class CDA_Parser
 			$author->id = $dom['assignedAuthor']['id']['@attributes']['extension'];
 
 			if (isset($dom['assignedAuthor']['assignedPerson']['name'])) {
-				$names = $this->nameHandler($dom['assignedAuthor']['assignedPerson']['name']);
-				$author->fname = $names['name']['fname'];
-				$author->mname = $names['name']['mname'];
-				$author->lname = $names['name']['lname'];
+				$names = $this->namesHandler($dom['assignedAuthor']['assignedPerson']['name']);
+				$author->fname = $names['L']['fname'];
+				$author->mname = $names['L']['mname'];
+				$author->lname = $names['L']['lname'];
 			}
 
 			if (isset($dom['assignedAuthor']['addr'])) {
@@ -899,8 +934,8 @@ class CDA_Parser
 
 						$tel = isset($participant['telecom']) ? $participant['telecom']['@attributes']['value'] : '';
 
-						$name = $this->nameHandler($participant['playingEntity']['name']);
-						$directive->contact = $name['name']['prefix'] . ' ' . $name['name']['lname'] . ' ' . $name['name']['fname'] . $name['name']['mname'] . ' ~ ' . $tel . $address;
+						$name = $this->namesHandler($participant['playingEntity']['name']);
+						$directive->contact = $name['L']['prefix'] . ' ' . $name['L']['lname'] . ' ' . $name['L']['fname'] . $name['L']['mname'] . ' ~ ' . $tel . $address;
 
 					}
 
@@ -956,49 +991,132 @@ class CDA_Parser
 	}
 
 	/**
-	 * @param $name
+	 * @param $names
 	 * @return array
 	 */
-	function nameHandler($name)
+	function namesHandler($names)
 	{
-		$results = [];
+	    $parsed_name = [
+            'L' => [
+                'prefix' => '',
+                'fname' => '',
+                'mname' => '',
+                'lname' => '',
+            ],
+            'BR' => [
+                'prefix' => '',
+                'fname' => '',
+                'mname' => '',
+                'lname' => '',
+            ]
+        ];
 
-		$results['name']['prefix'] = isset($name['prefix']) && is_string($name['prefix']) ? $name['prefix'] : '';
-		$results['name']['fname'] = '';
-		$results['name']['mname'] = '';
-		$results['name']['lname'] = '';
+        if(!isset($names)){
+            return $parsed_name;
+        }
 
+        if(isset($names[0])){
+            foreach ($names as $name){
+                $this->nameHandler($name, $parsed_name, true);
+            }
+        }else{
+            $this->nameHandler($names, $parsed_name, false);
+        }
 
-		foreach ($name['given'] as $given){
-
-			if(is_array($given)){
-
-			}else{
-				if($results['name']['fname'] === ''){
-					$results['name']['fname'] = $given;
-				}elseif ($results['name']['mname'] === ''){
-					$results['name']['mname'] = $given;
-				}
-			}
-		}
-
-//		if (is_array($name['given'])) {
-//			$results['fname'] = isset($name['given'][0]) ? $name['given'][0] : '';
-//			if (!isset($name['given'][1])) {
-//				$results['mname'] = '';
-//			} elseif (is_string($name['given'][1])) {
-//				$results['mname'] = isset($name['given'][1]) ? $name['given'][1] : '';
-//			} elseif (is_array($name['given'][1])) {
-//				$results['mname'] = isset($name['given'][1]['@value']) ? $name['given'][1]['@value'] : '';
-//			}
-//		} else {
-//			$results['fname'] = isset($name['given']) ? $name['given'] : '';
-//			$results['mname'] = '';
-//		}
-
-		$results['name']['lname'] = isset($name['family']) ? $name['family'] : '';
-		return $results;
+		return $parsed_name;
 	}
+
+	function nameHandler($name, &$parsed_name, $has_multiple)
+    {
+
+        $use = isset($name['@attributes']['use']) ? $name['@attributes']['use'] : '';
+        $is_primary = !$has_multiple || $use == 'L';
+
+        // if not a primary name get out... for now...
+        // this might change in the future
+        if (!$is_primary) return;
+
+        $foo = [];
+
+        $parsed_name['L']['prefix'] = isset($name['prefix']) && is_string($name['prefix']) ? $name['prefix'] : '';
+
+        if (is_array($name['given'])) {
+            foreach ($name['given'] as $given) {
+                $foo['value'] = isset($given['@value']) ? $given['@value'] : $given;
+                $foo['qualifier'] = isset($given['@attributes']['qualifier']) ? $given['@attributes']['qualifier'] : '';
+
+                if($foo['qualifier'] == 'BR'){
+                    if ($parsed_name['BR']['fname'] === '') {
+                        $parsed_name['BR']['fname'] = $foo['value'];
+                    } else {
+                        $parsed_name['BR']['mname'] = $foo['value'];
+                    }
+                }else{
+                    if ($parsed_name['L']['fname'] === '') {
+                        $parsed_name['L']['fname'] = $foo['value'];
+                    } else {
+                        $parsed_name['L']['mname'] = $foo['value'];
+                    }
+                }
+            }
+        } else {
+            $given = $name['given'];
+            $foo['value'] = isset($given['@value']) ? $given['@value'] : $given;
+            $foo['qualifier'] = isset($given['@attributes']['qualifier']) ? $given['@attributes']['qualifier'] : '';
+
+            if($foo['qualifier'] == 'BR'){
+                if ($parsed_name['BR']['fname'] === '') {
+                    $parsed_name['BR']['fname'] = $foo['value'];
+                } else {
+                    $parsed_name['BR']['mname'] = $foo['value'];
+                }
+            }else{
+                if ($parsed_name['L']['fname'] === '') {
+                    $parsed_name['L']['fname'] = $foo['value'];
+                } else {
+                    $parsed_name['L']['mname'] = $foo['value'];
+                }
+            }
+        }
+
+
+        if (is_array($name['family'])) {
+            foreach ($name['family'] as $family) {
+                $foo['value'] = isset($family['@value']) ? $family['@value'] : $family;
+                $foo['qualifier'] = isset($family['@attributes']['qualifier']) ? $family['@attributes']['qualifier'] : '';
+
+                if($foo['qualifier'] == 'BR'){
+                    $parsed_name['BR']['lname'] = $foo['value'];
+                }else{
+                    $parsed_name['L']['lname'] = $foo['value'];
+                }
+            }
+        } else {
+            $family = $name['family'];
+            $foo['value'] = isset($family['@value']) ? $family['@value'] : $family;
+            $foo['qualifier'] = isset($family['@attributes']['qualifier']) ? $family['@attributes']['qualifier'] : '';
+
+            if($foo['qualifier'] == 'BR'){
+                $parsed_name['BR']['lname'] = $foo['value'];
+            }else{
+                $parsed_name['L']['lname'] = $foo['value'];
+            }
+
+        }
+
+        if($parsed_name['BR']['fname'] === ''){
+            $parsed_name['BR']['fname'] = $parsed_name['L']['fname'];
+        }
+        if($parsed_name['BR']['mname'] === ''){
+            $parsed_name['BR']['mname'] = $parsed_name['L']['mname'];
+        }
+        if($parsed_name['BR']['lname'] === ''){
+            $parsed_name['BR']['lname'] = $parsed_name['L']['lname'];
+        }
+
+        return;
+
+    }
 
 	/**
 	 * @param $dates

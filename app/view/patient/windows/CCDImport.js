@@ -329,7 +329,7 @@ Ext.define('App.view.patient.windows.CCDImport', {
 												name: 'fulladdress'
 											},
 											{
-												fieldLabel: _('home_phone'),
+												fieldLabel: _('phones'),
 												name: 'phones'
 											}
 										]

@@ -1197,7 +1197,7 @@ class PatientRecord {
 			$gender =  $this->patient_record['RecordTarget']['PatientRole']['Patient']['AdministrativeGenderCode'];
 			$status['Id'] = 'g-' . $this->patient_record['RecordTarget']['PatientRole']['Patient']['Id'];
 			$status['Dates'] = $this->dates(
-				null, null
+				date('Ymd'), date('Ymd')
 			);
 
 			$status['Category'] = $this->code(
@@ -1653,7 +1653,7 @@ class PatientRecord {
             '',
             $patientData['birth_fname'],
             $patientData['birth_mname'],
-            $patientData['birth_lname'],
+            $patientData['birth_lname']
         );
 
 		if(!$this->isExcluded('patient_sex')){

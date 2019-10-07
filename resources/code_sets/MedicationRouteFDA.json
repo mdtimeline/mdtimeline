@@ -1,0 +1,744 @@
+[
+  {
+    "code": "C38192",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "AURICULAR (OTIC)",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38193",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "BUCCAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38194",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "CONJUNCTIVAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38675",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "CUTANEOUS",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38197",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "DENTAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38633",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "ELECTRO-OSMOSIS",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38205",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "ENDOCERVICAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38206",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "ENDOSINUSIAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38208",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "ENDOTRACHEAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38209",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "ENTERAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38210",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "EPIDURAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38211",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "EXTRA-AMNIOTIC",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38212",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "EXTRACORPOREAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38200",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "HEMODIALYSIS",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38215",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INFILTRATION",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38219",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTERSTITIAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38220",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRA-ABDOMINAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38221",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRA-AMNIOTIC",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38222",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRA-ARTERIAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38223",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRA-ARTICULAR",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38224",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRABILIARY",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38225",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRABRONCHIAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38226",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRABURSAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38227",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRACARDIAC",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38228",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRACARTILAGINOUS",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38229",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRACAUDAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38230",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRACAVERNOUS",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38231",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRACAVITARY",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38232",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRACEREBRAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38233",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRACISTERNAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38234",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRACORNEAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38217",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRACORONAL, DENTAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38218",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRACORONARY",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38235",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRACORPORUS CAVERNOSUM",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38238",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRADERMAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38239",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRADISCAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38240",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRADUCTAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38241",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRADUODENAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38242",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRADURAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38243",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAEPIDERMAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38245",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAESOPHAGEAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38246",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAGASTRIC",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38247",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAGINGIVAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38249",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAILEAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38250",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRALESIONAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38251",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRALUMINAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38252",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRALYMPHATIC",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38253",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAMEDULLARY",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38254",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAMENINGEAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C28161",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAMUSCULAR",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38255",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAOCULAR",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38256",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAOVARIAN",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38257",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAPERICARDIAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38258",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAPERITONEAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38259",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAPLEURAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38260",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAPROSTATIC",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38261",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAPULMONARY",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38262",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRASINAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38263",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRASPINAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38264",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRASYNOVIAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38265",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRATENDINOUS",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38266",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRATESTICULAR",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38267",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRATHECAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38207",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRATHORACIC",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38268",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRATUBULAR",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38269",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRATUMOR",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38270",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRATYMPANIC",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38272",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAUTERINE",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38273",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAVASCULAR",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38276",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAVENOUS",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38277",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAVENTRICULAR",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38278",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAVESICAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38280",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "INTRAVITREAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38203",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "IONTOPHORESIS",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38281",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "IRRIGATION",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38282",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "LARYNGEAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38284",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "NASAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38285",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "NASOGASTRIC",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C48623",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "NOT APPLICABLE",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38286",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "OCCLUSIVE DRESSING TECHNIQUE",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38287",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "OPHTHALMIC",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38288",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "ORAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38289",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "OROPHARYNGEAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38291",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "PARENTERAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38676",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "PERCUTANEOUS",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38292",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "PERIARTICULAR",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38677",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "PERIDURAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38293",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "PERINEURAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38294",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "PERIODONTAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38295",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "RECTAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38216",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "RESPIRATORY (INHALATION)",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38296",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "RETROBULBAR",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38198",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "SOFT TISSUE",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38297",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "SUBARACHNOID",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38298",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "SUBCONJUNCTIVAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38299",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "SUBCUTANEOUS",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38300",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "SUBLINGUAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38301",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "SUBMUCOSAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38304",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "TOPICAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38305",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "TRANSDERMAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38283",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "TRANSMUCOSAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38307",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "TRANSPLACENTAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38308",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "TRANSTRACHEAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38309",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "TRANSTYMPANIC",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38312",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "URETERAL",
+    "level": "0",
+    "type": "L"
+  },
+  {
+    "code": "C38271",
+    "codeSystem": "2.16.840.1.113883.3.26.1.1",
+    "displayName": "URETHRAL",
+    "level": "0",
+    "type": "L"
+  }
+]

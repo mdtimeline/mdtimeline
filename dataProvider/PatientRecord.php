@@ -267,13 +267,21 @@ class PatientRecord {
 		unset($Medications);
 		$medications = [];
 
+        $routes = json_decode(file_get_contents(ROOT. '/resources/code_sets/MedicationRouteFDA.json'), true);
+
 		foreach($results as $result){
 
 			$medication = [];
 			$medication['Id'] = $result['id'];
 			$medication['Medication'] = $result['STR'];
 			$medication['Instructions'] = $result['directions'];
-			$medication['Route'] = $result['route'];
+            $route_key = array_search($result['route'], array_column($routes, 'code'));
+            if($route_key !== false){
+                $medication['Route'] = $this->code($routes[$route_key]['code'], 'NCI', $routes[$route_key]['displayName']);
+            }else{
+                $medication['Route'] = null;
+            }
+			$medication['Dose'] = $result['dose'];
 			$medication['Quantity'] = $result['dispense'];
 			$medication['Refills'] = $result['refill'];
 			$medication['PotencyCode'] = $result['potency_code'];

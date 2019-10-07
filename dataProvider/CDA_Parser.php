@@ -1032,30 +1032,27 @@ class CDA_Parser
         $use = isset($name['@attributes']['use']) ? $name['@attributes']['use'] : '';
         $is_primary = !$has_multiple || $use == 'L';
 
-        // if not a primary name get out... for now...
-        // this might change in the future
-        if (!$is_primary) return;
-
         $foo = [];
 
         $parsed_name['L']['prefix'] = isset($name['prefix']) && is_string($name['prefix']) ? $name['prefix'] : '';
 
         if (is_array($name['given'])) {
             foreach ($name['given'] as $given) {
+
                 $foo['value'] = isset($given['@value']) ? $given['@value'] : $given;
                 $foo['qualifier'] = isset($given['@attributes']['qualifier']) ? $given['@attributes']['qualifier'] : '';
 
-                if($foo['qualifier'] == 'BR'){
-                    if ($parsed_name['BR']['fname'] === '') {
-                        $parsed_name['BR']['fname'] = $foo['value'];
-                    } else {
-                        $parsed_name['BR']['mname'] = $foo['value'];
-                    }
-                }else{
+                if($is_primary){
                     if ($parsed_name['L']['fname'] === '') {
                         $parsed_name['L']['fname'] = $foo['value'];
-                    } else {
+                    } else if($parsed_name['L']['mname'] == '') {
                         $parsed_name['L']['mname'] = $foo['value'];
+                    }
+                }else if($foo['qualifier'] == 'BR'){
+                    if ($parsed_name['BR']['fname'] === '') {
+                        $parsed_name['BR']['fname'] = $foo['value'];
+                    } else if($parsed_name['L']['mname'] == '') {
+                        $parsed_name['BR']['mname'] = $foo['value'];
                     }
                 }
             }
@@ -1064,31 +1061,30 @@ class CDA_Parser
             $foo['value'] = isset($given['@value']) ? $given['@value'] : $given;
             $foo['qualifier'] = isset($given['@attributes']['qualifier']) ? $given['@attributes']['qualifier'] : '';
 
-            if($foo['qualifier'] == 'BR'){
-                if ($parsed_name['BR']['fname'] === '') {
-                    $parsed_name['BR']['fname'] = $foo['value'];
-                } else {
-                    $parsed_name['BR']['mname'] = $foo['value'];
-                }
-            }else{
+            if($is_primary){
                 if ($parsed_name['L']['fname'] === '') {
                     $parsed_name['L']['fname'] = $foo['value'];
-                } else {
+                } else if($parsed_name['L']['mname'] == '') {
                     $parsed_name['L']['mname'] = $foo['value'];
+                }
+            }else if($foo['qualifier'] == 'BR'){
+                if ($parsed_name['BR']['fname'] === '') {
+                    $parsed_name['BR']['fname'] = $foo['value'];
+                } else if($parsed_name['L']['mname'] == '') {
+                    $parsed_name['BR']['mname'] = $foo['value'];
                 }
             }
         }
-
 
         if (is_array($name['family'])) {
             foreach ($name['family'] as $family) {
                 $foo['value'] = isset($family['@value']) ? $family['@value'] : $family;
                 $foo['qualifier'] = isset($family['@attributes']['qualifier']) ? $family['@attributes']['qualifier'] : '';
 
-                if($foo['qualifier'] == 'BR'){
-                    $parsed_name['BR']['lname'] = $foo['value'];
-                }else{
+                if($is_primary){
                     $parsed_name['L']['lname'] = $foo['value'];
+                }else if($foo['qualifier'] == 'BR'){
+                    $parsed_name['BR']['lname'] = $foo['value'];
                 }
             }
         } else {
@@ -1096,23 +1092,22 @@ class CDA_Parser
             $foo['value'] = isset($family['@value']) ? $family['@value'] : $family;
             $foo['qualifier'] = isset($family['@attributes']['qualifier']) ? $family['@attributes']['qualifier'] : '';
 
-            if($foo['qualifier'] == 'BR'){
-                $parsed_name['BR']['lname'] = $foo['value'];
-            }else{
+            if($is_primary){
                 $parsed_name['L']['lname'] = $foo['value'];
+            }else if($foo['qualifier'] == 'BR'){
+                $parsed_name['BR']['lname'] = $foo['value'];
             }
-
         }
 
-        if($parsed_name['BR']['fname'] === ''){
-            $parsed_name['BR']['fname'] = $parsed_name['L']['fname'];
-        }
-        if($parsed_name['BR']['mname'] === ''){
-            $parsed_name['BR']['mname'] = $parsed_name['L']['mname'];
-        }
-        if($parsed_name['BR']['lname'] === ''){
-            $parsed_name['BR']['lname'] = $parsed_name['L']['lname'];
-        }
+//        if($parsed_name['BR']['fname'] === ''){
+//            $parsed_name['BR']['fname'] = $parsed_name['L']['fname'];
+//        }
+//        if($parsed_name['BR']['mname'] === ''){
+//            $parsed_name['BR']['mname'] = $parsed_name['L']['mname'];
+//        }
+//        if($parsed_name['BR']['lname'] === ''){
+//            $parsed_name['BR']['lname'] = $parsed_name['L']['lname'];
+//        }
 
         return;
 

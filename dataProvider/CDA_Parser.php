@@ -254,8 +254,6 @@ class CDA_Parser
 		//secondary race
         $patient->secondary_race = isset($dom['patient']['sdtc:raceCode']['@attributes']['code']) ? $dom['patient']['sdtc:raceCode']['@attributes']['code'] : '';
 
-
-
 		//ethnicGroupCode
 		$patient->ethnicity = isset($dom['patient']['ethnicGroupCode']['@attributes']['code']) ? $dom['patient']['ethnicGroupCode']['@attributes']['code'] : '';
 		//birthplace
@@ -280,6 +278,15 @@ class CDA_Parser
 
 		//languageCommunication
 		$patient->language = isset($dom['patient']['languageCommunication']['languageCode']['@attributes']['code']) ? $dom['patient']['languageCommunication']['languageCode']['@attributes']['code'] : '';
+
+		switch (strtolower($patient->language)){
+            case 'eng':
+                $patient->language = 'en';
+                break;
+            case 'esp':
+                $patient->language = 'es';
+                break;
+        }
 
 		//religious  not implemented
 		//$patient->religion = '';
@@ -438,9 +445,13 @@ class CDA_Parser
 				$key = null;
 				$root = null;
 
+				if(isset($obs['observation'])){
+                    $obs = $obs['observation'];
+                }
+
 				if(isset($obs['templateId']['@attributes']['root'])){
 					$root = $obs['templateId']['@attributes']['root'];
-				}elseif ($obs['templateId'][0]['@attributes']['root']){
+				}elseif (isset($obs['templateId'][0]['@attributes']['root'])){
 					$root = $obs['templateId'][0]['@attributes']['root'];
 				}
 

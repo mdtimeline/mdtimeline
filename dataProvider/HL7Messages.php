@@ -1039,9 +1039,9 @@ class HL7Messages {
 			$pid->setValue('9.2', $this->patient->alias);
 		}
 
-        $race1 = $this->hl7->race($this->patient->secondary_race);
 		$race_index = 0;
-		if($this->notEmpty($this->patient->race)){
+        $race1 = $this->hl7->race($this->patient->race);
+        if($this->notEmpty($race1)){
 			$pid->setValue('10.1', $this->patient->race, $race_index);
 			$pid->setValue('10.2', $race1, $race_index); //Race Text
 			$pid->setValue('10.3', 'CDCREC', $race_index); // Race Name of Coding System
@@ -1049,7 +1049,7 @@ class HL7Messages {
 		}
 
         $race2 = $this->hl7->race($this->patient->secondary_race);
-		if($this->notEmpty($this->patient->secondary_race)){
+		if($this->notEmpty($race2)){
 			$pid->setValue('10.1', $this->patient->secondary_race, $race_index);
 			$pid->setValue('10.2', $race2, $race_index); //Race Text
 			$pid->setValue('10.3', 'CDCREC', $race_index); // Race Name of Coding System

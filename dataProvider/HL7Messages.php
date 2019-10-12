@@ -246,6 +246,7 @@ class HL7Messages {
 			$obx->setValue('1', 1);
 			$obx->setValue('2', 'CWE');
 			$obx->setValue('3.1', 'SS003');
+			$obx->setValue('3.1', 'Facility/Visit Type');
 			$obx->setValue('3.3', 'PHINQUESTION');
 
 			if($this->encounter->specialty !== false){
@@ -373,6 +374,7 @@ class HL7Messages {
             $obx->setValue('1', 1);
             $obx->setValue('2', 'CWE');
             $obx->setValue('3.1', 'SS003');
+            $obx->setValue('3.2', 'Facility/Visit Type');
             $obx->setValue('3.3', 'PHINQUESTION');
 
             if($this->encounter->specialty !== false){

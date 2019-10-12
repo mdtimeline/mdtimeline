@@ -223,7 +223,12 @@ class HL7Messages {
 		$msh = $this->setMSH(true);
 		$msh->setValue('9.1', 'ADT');
 		$msh->setValue('9.2', $event);
-		$msh->setValue('9.3', 'ADT_A01');
+
+		if ($event == 'A04'){
+            $msh->setValue('9.3', 'ADT_A01');
+        }elseif($event == 'A03'){
+            $msh->setValue('9.3', 'ADT_A03');
+        }
 
 		$msh->setValue('21.1', 'PH_SS-Ack');
 		$msh->setValue('21.2', 'SS Sender');

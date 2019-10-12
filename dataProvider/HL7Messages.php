@@ -1001,7 +1001,16 @@ class HL7Messages {
 		$index = 0;
 		if($this->notEmpty($this->patient->pubpid)){
 			$pid->setValue('3.1', $this->patient->pubpid, $index);
-			$pid->setValue('3.4', $this->namespace_id);
+
+            if($this->encounter->facility){
+                $pid->setValue('3.4.1', $this->encounter->facility->name);
+                $pid->setValue('3.4.2', $this->encounter->facility->npi);
+                $pid->setValue('3.4.3', 'NPI');
+
+            }else{
+                $pid->setValue('3.4', $this->namespace_id);
+            }
+
 			$pid->setValue('3.5', 'MR', $index); // IDNumber Type (HL70203) MR = Medical Record
 			$index++;
 		} elseif($this->notEmpty($this->patient->pid)) {
@@ -1019,6 +1028,7 @@ class HL7Messages {
 			$pid->setValue('3.5', 'MR', $index);  // IDNumber Type (HL70203) MR = Medical Record
 			$index++;
 		}
+
 		// added SS if exist
 		if($this->notEmpty($this->patient->SS)){
 			$pid->setValue('3.1', $this->patient->SS, $index);

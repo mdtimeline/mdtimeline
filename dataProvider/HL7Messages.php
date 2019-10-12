@@ -1002,11 +1002,10 @@ class HL7Messages {
 		if($this->notEmpty($this->patient->pubpid)){
 			$pid->setValue('3.1', $this->patient->pubpid, $index);
 
-            if($this->encounter->facility){
-                $pid->setValue('3.4.1', $this->encounter->facility->name);
-                $pid->setValue('3.4.2', $this->encounter->facility->npi);
+            if($this->encounter->facility !== false){
+                $pid->setValue('3.4.1', $this->encounter->facility['name']);
+                $pid->setValue('3.4.2', $this->encounter->facility['npi']);
                 $pid->setValue('3.4.3', 'NPI');
-
             }else{
                 $pid->setValue('3.4', $this->namespace_id);
             }
@@ -1016,11 +1015,10 @@ class HL7Messages {
 		} elseif($this->notEmpty($this->patient->pid)) {
 			$pid->setValue('3.1', $this->patient->pid, $index);
 
-			if($this->encounter->facility){
-                $pid->setValue('3.4.1', $this->encounter->facility->name);
-                $pid->setValue('3.4.2', $this->encounter->facility->npi);
+            if($this->encounter->facility !== false){
+                $pid->setValue('3.4.1', $this->encounter->facility['name']);
+                $pid->setValue('3.4.2', $this->encounter->facility['npi']);
                 $pid->setValue('3.4.3', 'NPI');
-
             }else{
                 $pid->setValue('3.4', $this->namespace_id);
             }

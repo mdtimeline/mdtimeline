@@ -225,7 +225,7 @@ class HL7Messages {
 		$msh->setValue('9.2', $event);
 		$msh->setValue('9.3', 'ADT_A01');
 
-		$msh->setValue('21.1', 'PH_SS-NoAck');
+		$msh->setValue('21.1', 'PH_SS-Ack');
 		$msh->setValue('21.2', 'SS Sender');
 		$msh->setValue('21.3', '2.16.840.1.114222.4.10.3');
 		$msh->setValue('21.4', 'ISO');
@@ -255,8 +255,8 @@ class HL7Messages {
 				$obx->setValue('5.1', $specialty['taxonomy']);
 				$obx->setValue('5.2', $specialty['title']);
 				$obx->setValue('5.3', 'NUCC');
-				$obx->setValue('11', 'F');
 			}
+            $obx->setValue('11', 'F');
 			unset($obx);
 
 			$age_in_years = $this->patient->age['DMY']['years'] >= 1;
@@ -379,8 +379,8 @@ class HL7Messages {
                 $obx->setValue('5.1', $specialty['taxonomy']);
                 $obx->setValue('5.2', $specialty['title']);
                 $obx->setValue('5.3', 'NUCC');
-                $obx->setValue('11', 'F');
             }
+            $obx->setValue('11', 'F');
             unset($obx);
 
             $age_in_years = $this->patient->age['DMY']['years'] >= 1;
@@ -979,7 +979,12 @@ class HL7Messages {
 
 		$this->patient = (object)$this->patient;
 
-		$this->patient->age = Patient::getPatientAgeByDOB($this->patient->DOB);
+		try{
+            $age_from = isset($this->encounter->service_date) ? new DateTime(strtotime($this->encounter->service_date)) : 'now';
+        }catch (Exception $e){
+            $age_from = 'now';
+        }
+        $this->patient->age = Patient::getPatientAgeByDOB($this->patient->DOB, $age_from);
 
 		$pid = $this->hl7->addSegment('PID');
 
@@ -1166,9 +1171,9 @@ class HL7Messages {
 				$pid->setValue('24', 'N');
 			}
 		}
-		if($this->notEmpty($this->patient->birth_order)){
-			$pid->setValue('25', $this->patient->birth_order);
-		}
+//		if($this->notEmpty($this->patient->birth_order)){
+//			$pid->setValue('25', $this->patient->birth_order);
+//		}
 		if($this->notEmpty($this->patient->citizenship)){
 			$pid->setValue('26.1', $this->patient->citizenship);
 		}
@@ -1207,7 +1212,7 @@ class HL7Messages {
 		if($this->notEmpty($this->encounter->patient_class)){
 			$pv1->setValue('2', $this->encounter->patient_class);
 		} else {
-			$pv1->setValue('2', 'U');
+			$pv1->setValue('2', '');
 		}
 		/**
 		 * 0007 A Accident
@@ -1694,6 +1699,10 @@ class HL7Messages {
 			case 'ICD9':
 			case 'ICD9-DX':
 				$code_type = 'I9CDX';
+				break;
+			case 'ICD10-CM':
+			case 'ICD10':
+				$code_type = 'I10C';
 				break;
 		}
 

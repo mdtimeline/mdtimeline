@@ -381,9 +381,9 @@ class HL7Messages {
             if($this->encounter->specialty !== false){
                 $obx->setValue('5.1', $this->encounter->specialty['taxonomy']);
                 $obx->setValue('5.2', $this->encounter->specialty['title']);
-                $obx->setValue('5.3', 'NUCC');
+                $obx->setValue('5.3', 'HCPTNUCC');
+                $obx->setValue('5.9', $this->encounter->specialty['title']);
             }
-
             $obx->setValue('11', 'F');
             unset($obx);
 
@@ -1305,7 +1305,7 @@ class HL7Messages {
 			$pv1->setValue('44.1', $this->date($this->encounter->service_date)); // Service Date
 		}
 		if($this->notEmpty($this->encounter->close_date)){
-			$pv1->setValue('44.2', $this->date($this->encounter->close_date)); // Close/Signed Date
+			$pv1->setValue('45.1', $this->date($this->encounter->close_date)); // Close/Signed Date
 		}
 	}
 

@@ -1166,7 +1166,7 @@ class HL7Messages {
 		// Ethnicity
         $ethnicity = $this->hl7->ethnic($this->patient->ethnicity);
 		if($this->notEmpty($ethnicity)){
-			$pid->setValue('22.1', $ethnicity['code']);
+			$pid->setValue('22.1', $this->patient->ethnicity);
 			$pid->setValue('22.2', $ethnicity);
 			$pid->setValue('22.3', 'CDCREC');
 		}

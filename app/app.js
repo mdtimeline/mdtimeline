@@ -21229,6 +21229,12 @@ Ext.define('App.model.patient.Patient',{
             len: 40
         },
         {
+            name: 'tertiary_race',
+            type: 'string',
+            comment: 'tertiary race',
+            len: 40
+        },
+        {
             name: 'ethnicity',
             type: 'string',
             comment: 'ethnicity',
@@ -24781,7 +24787,25 @@ Ext.define('App.view.patient.Vitals', {
 				}
 			]
 
+		},
+		{
+			xtype: 'form',
+			title: 'Diagnoses',
+			height: 100,
+			region: 'south',
+			collapsible: true,
+			stateful: true,
+			stateId: 'VitalsDxFromPanelState',
+			bodyPadding: 5,
+			items : [
+				{
+					xtype: 'icdsfieldset',
+					margin: '5 0 10 0',
+					itemId: 'VitalsDxCodesField'
+				}
+			]
 		}
+
 	],
 	initComponent:function(){
 		var me = this;
@@ -44370,7 +44394,7 @@ Ext.define('App.controller.patient.HL7', {
 			pid: app.patient.pid,
 			eid: app.patient.eid,
 			fid: app.user.facility,
-			event: 'A04',
+			event: app.patient.encounterIsClose ? 'A03' : 'A04',
 			anonymous: true,
 			map_codes_types: {
 				ethnicity: 'CDCREC'

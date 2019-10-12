@@ -120,6 +120,16 @@ class SocialHistory {
 		return $this->ss->destroy($params);
 	}
 
+    /**
+     * @param $eid
+     * @return mixed
+     */
+    public function getLastSmokeStatusByEid($eid){
+        $this->setModel();
+        $this->ss->addFilter('eid', $eid);
+        return $this->ss->load()->one();
+    }
+
 	/**
 	 * @param $pid
 	 * @param null $start

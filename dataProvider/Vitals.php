@@ -70,6 +70,42 @@ class Vitals {
 		return $records;
 	}
 
+    /**
+     * @param stdClass $params
+     * @return array
+     */
+    public function getVital($params){
+        $record =  $this->v->load($params)->leftJoin(
+            [
+                'pubpid' => 'patient_record_number',
+                'fname' => 'patient_fname',
+                'mname' => 'patient_mname',
+                'lname' => 'patient_lname'
+            ], 'patient', 'pid', 'pid'
+        )->leftJoin(
+            [
+                'fname' => 'administer_fname',
+                'mname' => 'administer_mname',
+                'lname' => 'administer_lname'
+            ], 'users', 'uid', 'id'
+        )->leftJoin(
+            [
+                'fname' => 'authorized_fname',
+                'mname' => 'authorized_mname',
+                'lname' => 'authorized_lname'
+            ], 'users', 'auth_uid', 'id'
+        )->one();
+
+        if($record !== false){
+            $record['height_in'] = isset($record['height_in']) ? floatval($record['height_in']) : '';
+            $record['height_cm'] = isset($record['height_cm']) ? floatval($record['height_cm']) : '';
+            $record['administer_by'] = $record['uid'] != null ? Person::fullname($record['administer_fname'],$record['administer_mname'],$record['administer_lname']) : '';
+            $record['authorized_by'] = $record['auth_uid'] != null ? Person::fullname($record['authorized_fname'],$record['authorized_mname'],$record['authorized_lname']) : '';
+        }
+
+        return $record;
+    }
+
 	/**
 	 * @param stdClass $params
 	 * @return stdClass
@@ -196,6 +232,17 @@ class Vitals {
 		$filters->sort[0]->property = 'date';
 		$filters->sort[0]->direction = 'DESC';
 		return $this->getVitals($filters);
+	}
+	/**
+	 * @param $eid
+	 * @return array
+	 */
+	public function getLastVitalsByEid($eid){
+		$filters = new stdClass();
+		$filters->filter[0] = new stdClass();
+		$filters->filter[0]->property = 'eid';
+		$filters->filter[0]->value = $eid;
+		return $this->getVital($filters);
 	}
 
 	public function getCodes(){

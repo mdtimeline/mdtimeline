@@ -172,6 +172,12 @@ Ext.define('App.model.patient.Patient',{
             len: 40
         },
         {
+            name: 'tertiary_race',
+            type: 'string',
+            comment: 'tertiary race',
+            len: 40
+        },
+        {
             name: 'ethnicity',
             type: 'string',
             comment: 'ethnicity',

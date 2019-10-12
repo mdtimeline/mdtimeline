@@ -322,39 +322,13 @@ class HL7 {
 	 * @return string
 	 */
 	function race($code){
-		/**
-		 * PID-10 Race (CE)
-		 * User-defined Table 0005 - Race
-		 * Value Description Comment
-		 * 1002-5 American Indian or Alaska Native
-		 * 2028-9 Asian
-		 * 2054-5 Black or African American
-		 * 2076-8 Native Hawaiian or Other Pacific Islander
-		 * 2106-3 White
-		 * 2131-1 Other Race
-		 */
-		$text = '';
-		switch($code){
-			case '1002-5':
-				$text = 'American Indian or Alaska Native';
-				break;
-			case '2028-9':
-				$text = 'Asian';
-				break;
-			case '2054-5':
-				$text = 'Black or African American';
-				break;
-			case '2076-8':
-				$text = 'Native Hawaiian or Other Pacific Islander';
-				break;
-			case '2106-3':
-				$text = 'White';
-				break;
-			case '2131-1':
-				$text = 'Other Race';
-				break;
-		};
-		return $text;
+        $races = json_decode(file_get_contents(ROOT. '/resources/code_sets/HL7v3-Race.json'), true);
+        $race_key = array_search($code, array_column($races, 'code'));
+        if($race_key !== false){
+            return $races[$race_key]['code_description'];
+        }
+
+		return '';
 
 	}
 

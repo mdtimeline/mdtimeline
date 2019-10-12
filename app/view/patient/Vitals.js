@@ -144,7 +144,25 @@ Ext.define('App.view.patient.Vitals', {
 				}
 			]
 
+		},
+		{
+			xtype: 'form',
+			title: 'Diagnoses',
+			height: 100,
+			region: 'south',
+			collapsible: true,
+			stateful: true,
+			stateId: 'VitalsDxFromPanelState',
+			bodyPadding: 5,
+			items : [
+				{
+					xtype: 'icdsfieldset',
+					margin: '5 0 10 0',
+					itemId: 'VitalsDxCodesField'
+				}
+			]
 		}
+
 	],
 	initComponent:function(){
 		var me = this;

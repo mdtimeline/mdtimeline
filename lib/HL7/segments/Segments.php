@@ -83,7 +83,7 @@ class Segments {
 		for($i = 0; $i < $length; $i++){
 			$n = $n . rand(0, 9);
 		}
-		return 'GAIA-' . $n;
+		return 'MDTL-' . $n;
 	}
 
 	/**

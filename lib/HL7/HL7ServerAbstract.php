@@ -67,6 +67,7 @@ class HL7ServerAbstract implements MessageComponentInterface {
 	}
 
 	public function onError(ConnectionInterface $conn, \Exception $e) {
+		error_log('HL7 Server error: ' . $e->getMessage());
 		unset($conn->handler);
 		$conn->close();
 	}

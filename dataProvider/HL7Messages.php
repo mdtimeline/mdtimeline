@@ -133,6 +133,15 @@ class HL7Messages {
 	 */
 	private $msh;
 
+    /**
+     * @var Vitals
+     */
+	private $Vitals;
+    /**
+     * @var SocialHistory
+     */
+	private $SocialHistory;
+
 	function __construct() {
 		$this->hl7 = new HL7();
 		$this->conn = Matcha::getConn();
@@ -150,9 +159,17 @@ class HL7Messages {
 		$this->f = MatchaModel::setSenchaModel('App.model.administration.Facility');
 		$this->d = MatchaModel::setSenchaModel('App.model.administration.EducationResource');
 		$this->ListOptions = MatchaModel::setSenchaModel('App.model.administration.ListOptions');
+		$this->ListOptions = MatchaModel::setSenchaModel('App.model.administration.ListOptions');
 	}
 
 	function broadcastADT($params) {
+
+        include_once(ROOT . '/dataProvider/Vitals.php');
+        include_once(ROOT . '/dataProvider/SocialHistory.php');
+
+        $this->Vitals = new Vitals();
+        $this->SocialHistory = new SocialHistory();
+
 		$this->c->addFilter('active', 1);
 		$clients = $this->c->load()->all();
 
@@ -176,6 +193,11 @@ class HL7Messages {
 		return ['success' => true];
 	}
 
+	function getActiveClients(){
+        $this->c->addFilter('active', 1);
+        return $this->c->load()->all();
+    }
+
 	/**
 	 * @param $params
 	 * @param $event
@@ -197,7 +219,6 @@ class HL7Messages {
 			$this->anonymous = $params->anonymous;
 		}
 
-
 		// MSH
 		$msh = $this->setMSH(true);
 		$msh->setValue('9.1', 'ADT');
@@ -215,10 +236,12 @@ class HL7Messages {
 
 		$this->setPV1();
 
+		$this->setPV2();
+
 		// Continue with message
 		if($event == 'A04'){
 
-			// Specialty
+			// Specialty/ Facility
 			$obx = $this->hl7->addSegment('OBX');
 			$obx->setValue('1', 1);
 			$obx->setValue('2', 'CWE');
@@ -236,25 +259,82 @@ class HL7Messages {
 			}
 			unset($obx);
 
+			$age_in_years = $this->patient->age['DMY']['years'] >= 1;
+			$age = $age_in_years ? $this->patient->age['DMY']['years'] : $this->patient->age['DMY']['months'];
+
 			// Age - Reportedx
 			$obx = $this->hl7->addSegment('OBX');
 			$obx->setValue('1', 2);
 			$obx->setValue('2', 'NM');
 			$obx->setValue('3.1', '21612-7');
+			$obx->setValue('3.2', 'Age at Time Patient Reported');
 			$obx->setValue('3.3', 'LN');
-			$obx->setValue('5', (string)$this->patient->age['DMY']['years']);
-			$obx->setValue('6.1', 'a');
-			$obx->setValue('6.3', 'UCUM');
+			$obx->setValue('5', (string) $age);
+			if($age_in_years){
+                $obx->setValue('6.1', 'a');
+                $obx->setValue('6.2', 'year');
+            }else{
+                $obx->setValue('6.1', 'mo');
+                $obx->setValue('6.2', 'month');
+            }
+            $obx->setValue('6.3', 'UCUM');
 			$obx->setValue('11', 'F');
 			unset($obx);
 
+			// Chief complaint
 			$obx = $this->hl7->addSegment('OBX');
 			$obx->setValue('1', 3);
-			$obx->setValue('2', 'CWE');
+			$obx->setValue('2', 'TX');
 			$obx->setValue('3.1', '8661-1');
+			$obx->setValue('3.2', 'Chief complaint:Find:Pt:Patient:Nom:Reported');
 			$obx->setValue('3.3', 'LN');
 			$obx->setValue('5.9', $this->encounter->brief_description);
 			$obx->setValue('11', 'F');
+            unset($obx);
+
+            $vitals = $this->Vitals->getLastVitalsByEid($this->encounter->eid);
+
+			//Height
+            $obx = $this->hl7->addSegment('OBX');
+            $obx->setValue('1', 4);
+            $obx->setValue('2', 'NM');
+            $obx->setValue('3.1', '8302-2');
+            $obx->setValue('3.2', 'Height');
+            $obx->setValue('3.3', 'LN');
+            $obx->setValue('5', $vitals['height_in']);
+            $obx->setValue('6.1', '[in_us]');
+            $obx->setValue('6.2', 'inch');
+            $obx->setValue('6.3', 'UCUM');
+            $obx->setValue('11', 'F');
+            unset($obx);
+
+			//Weight
+            $obx = $this->hl7->addSegment('OBX');
+            $obx->setValue('1', 5);
+            $obx->setValue('2', 'NM');
+            $obx->setValue('3.1', '3141-9');
+            $obx->setValue('3.2', 'Weight');
+            $obx->setValue('3.3', 'LN');
+            $obx->setValue('5', $vitals['weight_lbs']);
+            $obx->setValue('6.1', '[lb_av]');
+            $obx->setValue('6.2', 'pound');
+            $obx->setValue('6.3', 'UCUM');
+            $obx->setValue('11', 'F');
+            unset($obx);
+
+            $smoking_status = $this->SocialHistory->getLastSmokeStatusByEid($this->encounter->eid);
+
+            //Tobacco Smoking Status
+            $obx = $this->hl7->addSegment('OBX');
+            $obx->setValue('1', 6);
+            $obx->setValue('2', 'CWE');
+            $obx->setValue('3.1', '72166-2');
+            $obx->setValue('3.2', 'Tobacco Smoking Status');
+            $obx->setValue('3.3', 'LN');
+            $obx->setValue('5.1', $smoking_status['status_code']);
+            $obx->setValue('5.2', $smoking_status['status']);
+            $obx->setValue('5.3', 'SCT');
+            $obx->setValue('11', 'F');
 
 			// get diagnosis...
 			$diagnoses = $this->dx->load(['eid' => $this->encounter->eid])->all();
@@ -265,11 +345,122 @@ class HL7Messages {
 				$dg1->setValue('3.1', $diagnosis['code']);
 				$dg1->setValue('3.2', $diagnosis['code_text']);
 				$dg1->setValue('3.3', $this->cleanCodeType($diagnosis['code_type']));
-				$dg1->setValue('6', $diagnosis['dx_type']);
+				$dg1->setValue('6', 'W');
 				$index++;
 			}
 			unset($index);
-		}
+		}elseif($event == 'A03'){
+
+            // get diagnosis...
+            $diagnoses = $this->dx->load(['eid' => $this->encounter->eid])->all();
+            $index = 1;
+            foreach($diagnoses as $diagnosis){
+                $dg1 = $this->hl7->addSegment('DG1');
+                $dg1->setValue('1', $index);
+                $dg1->setValue('3.1', $diagnosis['code']);
+                $dg1->setValue('3.2', $diagnosis['code_text']);
+                $dg1->setValue('3.3', $this->cleanCodeType($diagnosis['code_type']));
+                $dg1->setValue('6', 'F');
+                $index++;
+            }
+            unset($index);
+
+            // Specialty/ Facility
+            $obx = $this->hl7->addSegment('OBX');
+            $obx->setValue('1', 1);
+            $obx->setValue('2', 'CWE');
+            $obx->setValue('3.1', 'SS003');
+            $obx->setValue('3.3', 'PHINQUESTION');
+
+            $sth = $this->conn->prepare('SELECT * FROM `specialties` WHERE id = ?');
+            $sth->execute([$this->encounter->specialty_id]);
+            $specialty = $sth->fetch(PDO::FETCH_ASSOC);
+            if($specialty !== false){
+                $obx->setValue('5.1', $specialty['taxonomy']);
+                $obx->setValue('5.2', $specialty['title']);
+                $obx->setValue('5.3', 'NUCC');
+                $obx->setValue('11', 'F');
+            }
+            unset($obx);
+
+            $age_in_years = $this->patient->age['DMY']['years'] >= 1;
+            $age = $age_in_years ? $this->patient->age['DMY']['years'] : $this->patient->age['DMY']['months'];
+
+            // Age - Reportedx
+            $obx = $this->hl7->addSegment('OBX');
+            $obx->setValue('1', 2);
+            $obx->setValue('2', 'NM');
+            $obx->setValue('3.1', '21612-7');
+            $obx->setValue('3.2', 'Age at Time Patient Reported');
+            $obx->setValue('3.3', 'LN');
+            $obx->setValue('5', (string) $age);
+            if($age_in_years){
+                $obx->setValue('6.1', 'a');
+                $obx->setValue('6.2', 'year');
+            }else{
+                $obx->setValue('6.1', 'mo');
+                $obx->setValue('6.2', 'month');
+            }
+            $obx->setValue('6.3', 'UCUM');
+            $obx->setValue('11', 'F');
+            unset($obx);
+
+            // Chief complaint
+            $obx = $this->hl7->addSegment('OBX');
+            $obx->setValue('1', 3);
+            $obx->setValue('2', 'TX');
+            $obx->setValue('3.1', '8661-1');
+            $obx->setValue('3.2', 'Chief complaint:Find:Pt:Patient:Nom:Reported');
+            $obx->setValue('3.3', 'LN');
+            $obx->setValue('5.9', $this->encounter->brief_description);
+            $obx->setValue('11', 'F');
+            unset($obx);
+
+            $vitals = $this->Vitals->getLastVitalsByEid($this->encounter->eid);
+
+            //Height
+            $obx = $this->hl7->addSegment('OBX');
+            $obx->setValue('1', 4);
+            $obx->setValue('2', 'NM');
+            $obx->setValue('3.1', '8302-2');
+            $obx->setValue('3.2', 'Height');
+            $obx->setValue('3.3', 'LN');
+            $obx->setValue('5', $vitals['height_in']);
+            $obx->setValue('6.1', '[in_us]');
+            $obx->setValue('6.2', 'inch');
+            $obx->setValue('6.3', 'UCUM');
+            $obx->setValue('11', 'F');
+            unset($obx);
+
+            //Weight
+            $obx = $this->hl7->addSegment('OBX');
+            $obx->setValue('1', 5);
+            $obx->setValue('2', 'NM');
+            $obx->setValue('3.1', '3141-9');
+            $obx->setValue('3.2', 'Weight');
+            $obx->setValue('3.3', 'LN');
+            $obx->setValue('5', $vitals['weight_lbs']);
+            $obx->setValue('6.1', '[lb_av]');
+            $obx->setValue('6.2', 'pound');
+            $obx->setValue('6.3', 'UCUM');
+            $obx->setValue('11', 'F');
+            unset($obx);
+
+            $smoking_status = $this->SocialHistory->getLastSmokeStatusByEid($this->encounter->eid);
+
+            //Tobacco Smoking Status
+            $obx = $this->hl7->addSegment('OBX');
+            $obx->setValue('1', 6);
+            $obx->setValue('2', 'CWE');
+            $obx->setValue('3.1', '72166-2');
+            $obx->setValue('3.2', 'Tobacco Smoking Status');
+            $obx->setValue('3.3', 'LN');
+            $obx->setValue('5.1', $smoking_status['status_code']);
+            $obx->setValue('5.2', $smoking_status['status']);
+            $obx->setValue('5.3', 'SCT');
+            $obx->setValue('11', 'F');
+
+        }
 
 		$msgRecord = $this->saveMsg();
 
@@ -847,9 +1038,25 @@ class HL7Messages {
 		if($this->notEmpty($this->patient->alias)){
 			$pid->setValue('9.2', $this->patient->alias);
 		}
+
+        $race1 = $this->hl7->race($this->patient->secondary_race);
 		if($this->notEmpty($this->patient->race)){
 			$pid->setValue('10.1', $this->patient->race);
-			$pid->setValue('10.2', $this->hl7->race($this->patient->race)); //Race Text
+			$pid->setValue('10.2', $race1); //Race Text
+			$pid->setValue('10.3', 'CDCREC'); // Race Name of Coding System
+		}
+
+        $race2 = $this->hl7->race($this->patient->secondary_race);
+		if($this->notEmpty($this->patient->secondary_race)){
+			$pid->setValue('10.1', $this->patient->secondary_race);
+			$pid->setValue('10.2', $race2); //Race Text
+			$pid->setValue('10.3', 'CDCREC'); // Race Name of Coding System
+		}
+
+		$race3 = $this->hl7->race($this->patient->tertiary_race);
+		if($this->notEmpty($race3)){
+			$pid->setValue('10.1', $this->patient->tertiary_race);
+			$pid->setValue('10.2', $race3); //Race Text
 			$pid->setValue('10.3', 'CDCREC'); // Race Name of Coding System
 		}
 
@@ -1054,6 +1261,15 @@ class HL7Messages {
 		if($this->notEmpty($this->encounter->service_date)){
 			$pv1->setValue('44.1', $this->date($this->encounter->service_date)); // Prefix Title
 		}
+	}
+
+	private function setPV2() {
+		if($this->encounter === false)
+			return;
+
+		$pv1 = $this->hl7->addSegment('PV2');
+		$pv1->setValue('1', 1);
+        $pv1->setValue('3.2', $this->encounter->brief_description);
 	}
 
 	private function setPD1() {

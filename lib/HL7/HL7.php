@@ -333,6 +333,22 @@ class HL7 {
 	}
 
 	/**
+	 * Get race text by code
+	 * @param $code
+	 * @return string
+	 */
+	function ethnicity($code){
+        $ethnicity = json_decode(file_get_contents(ROOT. '/resources/code_sets/HL7v3-Ethnicity.json'), true);
+        $ethnicity_key = array_search($code, array_column($ethnicity, 'code'));
+        if($ethnicity_key !== false){
+            return $ethnicity[$ethnicity_key]['code_description'];
+        }
+
+		return '';
+
+	}
+
+	/**
 	 * Get sex text by code
 	 * @param $code
 	 * @return string

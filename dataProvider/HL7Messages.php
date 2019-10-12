@@ -248,12 +248,9 @@ class HL7Messages {
 			$obx->setValue('3.1', 'SS003');
 			$obx->setValue('3.3', 'PHINQUESTION');
 
-			$sth = $this->conn->prepare('SELECT * FROM `specialties` WHERE id = ?');
-			$sth->execute([$this->encounter->specialty_id]);
-			$specialty = $sth->fetch(PDO::FETCH_ASSOC);
-			if($specialty !== false){
-				$obx->setValue('5.1', $specialty['taxonomy']);
-				$obx->setValue('5.2', $specialty['title']);
+			if($this->encounter->specialty !== false){
+				$obx->setValue('5.1', $this->encounter->specialty['taxonomy']);
+				$obx->setValue('5.2', $this->encounter->specialty['title']);
 				$obx->setValue('5.3', 'NUCC');
 			}
             $obx->setValue('11', 'F');
@@ -349,7 +346,12 @@ class HL7Messages {
 				$index++;
 			}
 			unset($index);
+
+
+
 		}elseif($event == 'A03'){
+
+
 
             // get diagnosis...
             $diagnoses = $this->dx->load(['eid' => $this->encounter->eid])->all();
@@ -372,14 +374,12 @@ class HL7Messages {
             $obx->setValue('3.1', 'SS003');
             $obx->setValue('3.3', 'PHINQUESTION');
 
-            $sth = $this->conn->prepare('SELECT * FROM `specialties` WHERE id = ?');
-            $sth->execute([$this->encounter->specialty_id]);
-            $specialty = $sth->fetch(PDO::FETCH_ASSOC);
-            if($specialty !== false){
-                $obx->setValue('5.1', $specialty['taxonomy']);
-                $obx->setValue('5.2', $specialty['title']);
+            if($this->encounter->specialty !== false){
+                $obx->setValue('5.1', $this->encounter->specialty['taxonomy']);
+                $obx->setValue('5.2', $this->encounter->specialty['title']);
                 $obx->setValue('5.3', 'NUCC');
             }
+
             $obx->setValue('11', 'F');
             unset($obx);
 
@@ -998,7 +998,16 @@ class HL7Messages {
 			$index++;
 		} elseif($this->notEmpty($this->patient->pid)) {
 			$pid->setValue('3.1', $this->patient->pid, $index);
-			$pid->setValue('3.4', $this->namespace_id);
+
+			if($this->encounter->facility){
+                $pid->setValue('3.4.1', $this->encounter->facility->name);
+                $pid->setValue('3.4.2', $this->encounter->facility->npi);
+                $pid->setValue('3.4.3', 'NPI');
+
+            }else{
+                $pid->setValue('3.4', $this->namespace_id);
+            }
+
 			$pid->setValue('3.5', 'MR', $index);  // IDNumber Type (HL70203) MR = Medical Record
 			$index++;
 		}
@@ -1148,15 +1157,11 @@ class HL7Messages {
 		}
 
 		// Ethnicity
-		if($this->notEmpty($this->patient->ethnicity)){
-			$this->ListOptions->clearFilters();
-			$this->ListOptions->addFilter('list_id', 59);
-			$this->ListOptions->addFilter('option_value', $this->patient->ethnicity);
-			$buff = $this->ListOptions->load()->one();
-			$ethnicity = $this->mapCode($this->patient->ethnicity, $buff['code_type'], 'ethnicity');
+        $ethnicity = $this->hl7->ethnic($this->patient->ethnicity);
+		if($this->notEmpty($ethnicity)){
 			$pid->setValue('22.1', $ethnicity['code']);
-			$pid->setValue('22.2', $buff['option_name']);
-			$pid->setValue('22.3', $ethnicity['code_type']);
+			$pid->setValue('22.2', $ethnicity);
+			$pid->setValue('22.3', 'CDCREC');
 		}
 
 		if($this->notEmpty($this->patient->birth_place)){
@@ -1264,8 +1269,17 @@ class HL7Messages {
 
 		if($this->notEmpty($this->encounter->eid)){
 			$pv1->setValue('19.1', $this->encounter->eid);
-			$pv1->setValue('19.5', 'VN');
 		}
+
+
+		if($this->encounter->facility !== false){
+            $pv1->setValue('19.4.1', $this->encounter->facility['name']);
+            $pv1->setValue('19.4.2', $this->encounter->facility['npi']);
+            $pv1->setValue('19.4.3', 'NPI');
+        }
+
+
+        $pv1->setValue('19.5', 'VN');
 
 		if($this->notEmpty($this->encounter->service_date)){
 			$pv1->setValue('44.1', $this->date($this->encounter->service_date)); // Prefix Title
@@ -1597,6 +1611,15 @@ class HL7Messages {
 		if($this->encounter === false)
 			return;
 		$this->encounter = (object)$this->encounter;
+
+        // facility info
+        $this->encounter->facility = $this->f->load($this->encounter->facility)->one();
+
+        // specialty info
+        $sth = $this->conn->prepare('SELECT * FROM `specialties` WHERE id = ?');
+        $sth->execute([$this->encounter->specialty_id]);
+        $this->encounter->specialty = $sth->fetch(PDO::FETCH_ASSOC);
+
 	}
 
 	public function saveMsg() {

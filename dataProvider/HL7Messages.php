@@ -251,7 +251,8 @@ class HL7Messages {
 			if($this->encounter->specialty !== false){
 				$obx->setValue('5.1', $this->encounter->specialty['taxonomy']);
 				$obx->setValue('5.2', $this->encounter->specialty['title']);
-				$obx->setValue('5.3', 'NUCC');
+				$obx->setValue('5.3', 'HCPTNUCC');
+				$obx->setValue('5.9', $this->encounter->specialty['title']);
 			}
             $obx->setValue('11', 'F');
 			unset($obx);

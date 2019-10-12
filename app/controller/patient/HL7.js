@@ -56,7 +56,7 @@ Ext.define('App.controller.patient.HL7', {
 			pid: app.patient.pid,
 			eid: app.patient.eid,
 			fid: app.user.facility,
-			event: 'A04',
+			event: app.patient.encounterIsClose ? 'A03' : 'A04',
 			anonymous: true,
 			map_codes_types: {
 				ethnicity: 'CDCREC'

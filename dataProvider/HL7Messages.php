@@ -1040,24 +1040,28 @@ class HL7Messages {
 		}
 
         $race1 = $this->hl7->race($this->patient->secondary_race);
+		$race_index = 0;
 		if($this->notEmpty($this->patient->race)){
-			$pid->setValue('10.1', $this->patient->race);
-			$pid->setValue('10.2', $race1); //Race Text
-			$pid->setValue('10.3', 'CDCREC'); // Race Name of Coding System
+			$pid->setValue('10.1', $this->patient->race, $race_index);
+			$pid->setValue('10.2', $race1, $race_index); //Race Text
+			$pid->setValue('10.3', 'CDCREC', $race_index); // Race Name of Coding System
+            $race_index++;
 		}
 
         $race2 = $this->hl7->race($this->patient->secondary_race);
 		if($this->notEmpty($this->patient->secondary_race)){
-			$pid->setValue('10.1', $this->patient->secondary_race);
-			$pid->setValue('10.2', $race2); //Race Text
-			$pid->setValue('10.3', 'CDCREC'); // Race Name of Coding System
+			$pid->setValue('10.1', $this->patient->secondary_race, $race_index);
+			$pid->setValue('10.2', $race2, $race_index); //Race Text
+			$pid->setValue('10.3', 'CDCREC', $race_index); // Race Name of Coding System
+            $race_index++;
 		}
 
 		$race3 = $this->hl7->race($this->patient->tertiary_race);
 		if($this->notEmpty($race3)){
-			$pid->setValue('10.1', $this->patient->tertiary_race);
-			$pid->setValue('10.2', $race3); //Race Text
-			$pid->setValue('10.3', 'CDCREC'); // Race Name of Coding System
+			$pid->setValue('10.1', $this->patient->tertiary_race, $race_index);
+			$pid->setValue('10.2', $race3, $race_index); //Race Text
+			$pid->setValue('10.3', 'CDCREC', $race_index); // Race Name of Coding System
+            $race_index++;
 		}
 
 		$has_address = false;

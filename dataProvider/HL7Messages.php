@@ -980,11 +980,18 @@ class HL7Messages {
 		$this->patient = (object)$this->patient;
 
 		try{
-            $age_from = isset($this->encounter->service_date) ? new DateTime(strtotime($this->encounter->service_date)) : 'now';
+		    if(isset($this->encounter->service_date)){
+                $time = strtotime($this->encounter->service_date);
+                $age_from =  new DateTime('@' . $time);
+                unset($time);
+            }else{
+                $age_from = 'now';
+            }
         }catch (Exception $e){
             $age_from = 'now';
         }
         $this->patient->age = Patient::getPatientAgeByDOB($this->patient->DOB, $age_from);
+        unset($age_from, $time);
 
 		$pid = $this->hl7->addSegment('PID');
 

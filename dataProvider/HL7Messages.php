@@ -234,12 +234,12 @@ class HL7Messages {
 
 		$this->setPID();
 
-		$this->setPV1();
+		$this->setPV1($event);
 
 		$this->setPV2();
 
 		// Continue with message
-		if($event == 'A04'){
+		if($event == 'A04'){ // Registration
 
 			// Specialty/ Facility
 			$obx = $this->hl7->addSegment('OBX');
@@ -349,11 +349,7 @@ class HL7Messages {
 			}
 			unset($index);
 
-
-
-		}elseif($event == 'A03'){
-
-
+		}elseif($event == 'A03'){ // Discharge
 
             // get diagnosis...
             $diagnoses = $this->dx->load(['eid' => $this->encounter->eid])->all();
@@ -1214,7 +1210,7 @@ class HL7Messages {
 		return $pid;
 	}
 
-	private function setPV1() {
+	private function setPV1($event) {
 
 		if($this->encounter === false)
 			return;
@@ -1296,11 +1292,15 @@ class HL7Messages {
             $pv1->setValue('19.4.3', 'NPI');
         }
 
-
         $pv1->setValue('19.5', 'VN');
 
+        $pv1->setValue('36', '01');
+
 		if($this->notEmpty($this->encounter->service_date)){
-			$pv1->setValue('44.1', $this->date($this->encounter->service_date)); // Prefix Title
+			$pv1->setValue('44.1', $this->date($this->encounter->service_date)); // Service Date
+		}
+		if($this->notEmpty($this->encounter->close_date)){
+			$pv1->setValue('44.2', $this->date($this->encounter->close_date)); // Close/Signed Date
 		}
 	}
 

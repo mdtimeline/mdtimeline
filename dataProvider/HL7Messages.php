@@ -1289,9 +1289,7 @@ class HL7Messages {
 	private function setPV2() {
 		if($this->encounter === false)
 			return;
-
 		$pv1 = $this->hl7->addSegment('PV2');
-		$pv1->setValue('1', 1);
         $pv1->setValue('3.2', $this->encounter->brief_description);
 	}
 

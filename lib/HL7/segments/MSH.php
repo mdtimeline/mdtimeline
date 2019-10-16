@@ -61,5 +61,9 @@ class MSH extends Segments{
 		$this->setField(20, 'ID', 20);
 		$this->setField(21, 'EI', 427, false, true);
 
+		// Generic Primitive Fields
+		$this->setField(22, 'GP', 427, false, true);
+		$this->setField(23, 'GP', 427, false, true);
+
 	}
 }

@@ -752,6 +752,17 @@ class Segments {
 		$types['SRT'][1] = $types['ST'];     // (ST)
 		$types['SRT'][2] = $types['ID'];     // (ID)
 
+        $types['GP'][0] = '';               // Generic Primitive
+        $types['GP'][1] = $types['CWE'];
+        $types['GP'][2] = $types['CWE'];
+        $types['GP'][3] = $types['CWE'];
+        $types['GP'][4] = $types['CWE'];
+        $types['GP'][5] = $types['CWE'];
+        $types['GP'][6] = $types['CWE'];
+        $types['GP'][7] = $types['CWE'];
+        $types['GP'][8] = $types['CWE'];
+        $types['GP'][9] = $types['CWE'];
+
 		return $types[$type];
 
 	}

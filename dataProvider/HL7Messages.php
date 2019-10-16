@@ -1090,7 +1090,7 @@ class HL7Messages {
 
         // PatientDateOfBirth
         if($this->notEmpty($this->patient->DOB)){
-            $qpd->setValue('6.1', $this->date($this->patient->DOB));
+            $qpd->setValue('6.1', $this->date($this->patient->DOB, false));
         }
 
         // Patient Sex

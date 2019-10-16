@@ -1100,7 +1100,7 @@ class HL7Messages {
 
         $has_address = false;
         if($this->notEmpty($this->patient->physical_address)){
-            $qpd->setValue('8.1.1', $this->patient->physical_address . ' ' . $this->patient->physical_address_cont);
+            $qpd->setValue('8.1.1', trim($this->patient->physical_address . ' ' . $this->patient->physical_address_cont));
             $has_address = true;
         }
 

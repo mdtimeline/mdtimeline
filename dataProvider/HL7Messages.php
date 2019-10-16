@@ -1088,8 +1088,14 @@ class HL7Messages {
         }
 
         // PatientMotherMaidenName
-        $qpd->setValue('5.1.1', ''); // Surname
-        $qpd->setValue('5.7', 'M'); // Name Type Code
+        $last_names_count = 0;
+        if(isset($this->patient->lname)){
+            $last_names_count = count(explode(' ', $this->patient->lname));
+        }
+        if($last_names_count == 1 && $this->notEmpty($this->patient->mother_lname)){
+            $qpd->setValue('5.1.1', $this->patient->mother_lname); // PatientMotherMaidenName Surname
+            $qpd->setValue('5.7', 'M'); // Name Type Code
+        }
 
         // PatientDateOfBirth
         if($this->notEmpty($this->patient->DOB)){

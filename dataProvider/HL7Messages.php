@@ -1030,6 +1030,9 @@ class HL7Messages {
         $msh->setValue('9.2', 'Q11');
         $msh->setValue('9.3', 'QBP_Q11');
 
+        $msh->setValue('21.1', 'Z44');
+        $msh->setValue('21.2', 'CDCPHINVS');
+
         $msh->setValue('22.1', 'NISTEHRFAC');
         $msh->setValue('22.6.1', 'NIST-AA-1');
         $msh->setValue('22.7', 'XX');

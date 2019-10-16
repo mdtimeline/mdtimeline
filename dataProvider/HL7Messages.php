@@ -1041,7 +1041,7 @@ class HL7Messages {
         $msh->setValue('23.10', '100-3322');
 
         // QPD
-        $qpd = $this->hl7->addSegment('QBP_Z44');
+        $qpd = $this->hl7->addSegment('QPD');
         $qpd->setValue('1.1', 'Z44'); // Identifier
         $qpd->setValue('1.2', 'Request Evaluated History and Forecast'); // Text
         $qpd->setValue('1.3', 'CDCPHINVS'); // Name of Coding System
@@ -1195,7 +1195,7 @@ class HL7Messages {
 
 		$this->msh->setValue('5.1', $this->to['application_name']); // Receiving Application
 		$this->msh->setValue('6.1', $this->to['facility']); // Receiving Facility
-		$this->msh->setValue('7.1', date('YmdHis')); // Message Date Time
+		$this->msh->setValue('7.1', date('YmdHisO')); // Message Date Time
 		$this->msh->setValue('11.1', 'P'); // D = Debugging P = Production T = Training
 		$this->msh->setValue('12.1', '2.5.1'); // HL7 version
 		$this->msh->setValue('15', 'ER');

@@ -1051,12 +1051,12 @@ class HL7Messages {
         $index = 0;
         if($this->notEmpty($this->patient->pubpid)){
             $qpd->setValue('3.1', $this->patient->pubpid, $index);
-            $qpd->setValue('3.4', $this->namespace_id);
+            $qpd->setValue('3.4', 'NIST-MPI-1');
             $qpd->setValue('3.5', 'MR', $index); // IDNumber Type (HL70203) MR = Medical Record
             $index++;
         } elseif($this->notEmpty($this->patient->pid)) {
             $qpd->setValue('3.1', $this->patient->pid, $index);
-            $qpd->setValue('3.4', $this->namespace_id);
+            $qpd->setValue('3.4', 'NIST-MPI-1');
             $qpd->setValue('3.5', 'MR', $index);  // IDNumber Type (HL70203) MR = Medical Record
             $index++;
         }

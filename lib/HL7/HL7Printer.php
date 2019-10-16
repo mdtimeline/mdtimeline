@@ -33,6 +33,8 @@ class HL7Printer {
      */
     static $children_reports = [];
 
+    static $document_width = 125;
+
 	static function printMessage($message, $title = ''){
 
         self::$message = $message;
@@ -46,8 +48,14 @@ class HL7Printer {
 		foreach ($message->data as $key => $data){
 			if($key == 'MSH'){
 				self::printMSH($data);
+			}elseif($key == 'MSA'){
+				self::printMSA($data);
+			}elseif($key == 'ERR'){
+				self::printErrors($data);
 			}elseif($key == 'PATIENT_RESULT'){
 				self::printPatientResults($data);
+			}elseif($key == 'ROW_DEFINITION'){
+				self::printRowDefinition($data);
 			}
 		}
 
@@ -91,6 +99,282 @@ class HL7Printer {
 			]
 		];
 	}
+
+	/**
+	 * @param $data
+	 * @return string
+	 */
+	private static function printMSA($data){
+
+        switch ($data[1]){
+            case 'AA':
+                $LINE_ONE = ' AA – Application Accept';
+                break;
+            case 'AE':
+                $LINE_ONE = ' AE – Application Error';
+                break;
+            case 'AR':
+                $LINE_ONE = ' AR – Application Reject';
+                break;
+            default:
+                $LINE_ONE = ' UNKNOWN';
+        }
+
+        $LINE_TWO = ' FROM MESSAGE ID: ' . $data[2];
+
+		self::$buffer['SECTIONS'][] = [
+			'TITLE' => ' ACKNOWLEDGEMENT',
+			'ROWS' => [
+				$LINE_ONE,
+				$LINE_TWO
+			]
+		];
+	}
+
+	/**
+	 * @param $data
+	 * @return string
+	 */
+	private static function printErrors($data){
+
+	    if($data === false){
+            return;
+        }
+
+        $SECTION['TITLE'] = ' ERRORS:';
+
+        $TABLE = [];
+        $TABLE['TH']['ERROR'] = 'ERROR';
+        $TABLE['TH']['SEVERITY'] = 'SEVERITY';
+        $TABLE['TH']['APP_ERROR'] = 'APP ERROR';
+        $TABLE['TH']['MESSAGE'] = 'MESSAGE';
+
+        foreach ($data as $error){
+            $TABLE['TR'][] = [
+                'ERROR' => $error[3][2],
+                'SEVERITY' => $error[4],
+                'APP_ERROR' => $error[5][2],
+                'MESSAGE' => $error[8],
+            ];
+
+        }
+
+        $SECTION['TABLES'][] = $TABLE;
+        self::$buffer['SECTIONS'][] = $SECTION;
+	}
+
+	/**
+	 * @param $data
+	 * @return string
+	 */
+	private static function printRowDefinition($data){
+
+        $SECTION['TITLE'] = ' RESPONSE';
+
+        if(isset($data['PATIENT'])){
+            $SECTION['SECTIONS'][] = self::printPatient($data['PATIENT']);
+        }
+        if(isset($data['ORDER_OBSERVATION'])){
+            $SECTION['SECTIONS'][] = self::printCvxObservations($data['ORDER_OBSERVATION']);
+        }
+
+        self::$buffer['SECTIONS'][] = $SECTION;
+
+	}
+
+
+    private static function printCvxObservations($order_observations){
+        $SECTION['TITLE'] = 'IMMUNIZATIONS:';
+
+        $REPORTS = [];
+        $obx_report_map = [];
+        $report_number_to_key = [];
+
+        foreach ($order_observations as $index => $order_observation){
+
+            $order_no = $order_observation['OBR'][2][1];
+            $report_no = $order_observation['OBR'][3][1];
+            $report_loinc = $order_observation['OBR'][4][1];
+            $parent_order_no =  $order_observation['OBR'][28][0][2][1];
+            $parent_report_no =  $order_observation['OBR'][29][2][1];
+            $report_key = $report_no .'-'.$report_loinc;
+
+            $parent_id = $order_observation['OBR'][26][1][1];
+            $parent_sub_id = $order_observation['OBR'][26][2];
+            $parent_obx_key = $parent_id .'-'. $parent_sub_id;
+
+            $REPORTS[$index] = self::printCvxObservation($order_observation, $index, $obx_report_map, $report_key);
+        }
+
+        $SECTION['SECTIONS'] = $REPORTS;
+
+        return $SECTION;
+    }
+
+    private static function printCvxObservation($order_observation, $index, $obx_report_map, $report_key){
+        $REPORT = [];
+
+
+        $performing_organizations = [];
+
+        if ($order_observation['OBR'][4][2] != '') {
+            $test_name = $order_observation['OBR'][4][2];
+        } else {
+            $test_name = $order_observation['OBR'][4][1];
+        }
+        $test_report_number = $order_observation['OBR'][3][1];
+        $test_report_date = $order_observation['OBR'][22][1];
+        if ($test_report_date != '') {
+            $test_report_date = date(self::$dates_format, strtotime($test_report_date));
+        }
+
+        $REPORT['TITLE'] = 'IMMUNIZATION: CVX:' . $order_observation['RXA'][5][1] . ' - '. strtoupper($order_observation['RXA'][5][2]);
+        $filler_order_no = 'FILLER ORDER NO.: ' . $order_observation['ORC'][3][1];
+        $placer_group_no = 'PLACER GROUP NO.: ' . $order_observation['ORC'][4][1];
+        $facility = 'FACILITY: ' . $order_observation['ORC'][17][2];
+
+        $REPORT['ROWS'][] = "$filler_order_no";
+        $REPORT['ROWS'][] = "$placer_group_no";
+        $REPORT['ROWS'][] = "$facility";
+        $REPORT['ROWS'][] = '';
+
+        $NOTES['TITLE'] = 'NOTES:';
+        if (isset($order_observation['NTE']) && is_array($order_observation['NTE'])) {
+            foreach ($order_observation['NTE'] as $i => $note) {
+                $NOTES['ROWS'][] = $index + 1 . '. ' . $note[3][0];
+            }
+        }
+
+        if (!empty($NOTES['ROWS'])) {
+            $NOTES['ROWS'][] = '';
+            $REPORT['SUB_SECTIONS'][] = $NOTES;
+        }
+
+        $TABLE = [];
+//			$TABLE['TITLE'] = 'OBSERVATIONS';
+        $TABLE['TH']['CODE'] = 'CODE';
+        $TABLE['TH']['DESCRIPTION'] = 'DESCRIPTION';
+        $TABLE['TH']['VALUE'] = 'VALUE';
+        $TABLE['TH']['STATUS'] = 'STATUS';
+        $TABLE['TH']['COMMENT'] = 'COMMENT';
+
+        foreach ($order_observation['OBSERVATION'] as $observation) {
+
+            if (!isset($observation['OBX'])) continue;
+
+            $TR['CODE'] = $observation['OBX'][3][1];
+            $TR['DESCRIPTION'] = $observation['OBX'][3][2];
+
+            if ($observation['OBX'][2] == 'SN') {
+                $TR['VALUE'] = $observation['OBX'][5][2];
+            } elseif ($observation['OBX'][2] == 'CWE') {
+                $TR['VALUE'] = $observation['OBX'][5][2];
+            } elseif ($observation['OBX'][2] == 'CE') {
+                if($observation['OBX'][3][1] == '30956-7' && isset($TABLE['TR'])){
+                    $TABLE['TR'][] = 'DIVIDER';
+                    $TR['VALUE'] = 'CVX:' . $observation['OBX'][5][1] . ' - ' . strtoupper($observation['OBX'][5][2]);
+                }else{
+                    $TR['VALUE'] = strtoupper($observation['OBX'][5][2]);
+                }
+            } elseif ($observation['OBX'][2] == 'DT') {
+                $TR['VALUE'] = date('F j, Y', strtotime($observation['OBX'][5]));
+            } else {
+                $TR['VALUE'] = $observation['OBX'][5];
+            }
+
+            $TR['STATUS'] = $observation['OBX'][11];
+
+            if (isset($observation['NTE']) && is_array($observation['NTE'])) {
+                if (is_array($observation['NTE'])) {
+                    $TR['COMMENT'] = '';
+                    foreach ($observation['NTE'] as $nte) {
+                        $TR['COMMENT'] .= $nte[3][0] . ' ';
+                    }
+                }
+            } else {
+                $TR['COMMENT'] = 'NONE           ';
+            }
+
+            $id = $observation['OBX'][3][1];
+            $sub_id = $observation['OBX'][4];
+
+            if($id === '' || $sub_id === ''){
+                $TABLE['TR'][] = $TR;
+            }else{
+                $TABLE['TR'][$id.'-'.$sub_id] = $TR;
+                $obx_report_map[$id.'-'.$sub_id] = $report_key;
+            }
+
+//            /**
+//             * ORGANIZATION
+//             */
+//            $organization_key = $observation['OBX'][23][1] != '' ? str_replace(' ', '_', $observation['OBX'][23][1]) : 'UNKNOWN';
+//
+//            if (!array_key_exists($organization_key, $performing_organizations)) {
+//                $organization_name = $observation['OBX'][23][1];
+//                $organization_address = $observation['OBX'][24][1][1];
+//                $organization_city = $observation['OBX'][24][3];
+//                $organization_state = $observation['OBX'][24][4];
+//                $organization_zip = $observation['OBX'][24][5];
+//                $organization_country = $observation['OBX'][24][6];
+//                $organization_parish = $observation['OBX'][24][9];
+//
+//                $performing_organization_director_id = $observation['OBX'][25][1];
+//                $performing_organization_director_name = '';
+//
+//                if ($observation['OBX'][25][6] != '') {
+//                    $performing_organization_director_name .= $observation['OBX'][25][6] . ' ';
+//                }
+//
+//                if ($observation['OBX'][25][2][1] != '') {
+//                    $performing_organization_director_name .= $observation['OBX'][25][2][1] . ' ';
+//                }
+//
+//                if ($observation['OBX'][25][3] != '') {
+//                    $performing_organization_director_name .= $observation['OBX'][25][3] . ' ';
+//                }
+//
+//                if ($observation['OBX'][25][4] != '') {
+//                    $performing_organization_director_name .= $observation['OBX'][25][4] . ' ';
+//                }
+//
+//
+//                $org['ROWS'][] = "CONTACT: $performing_organization_director_name";
+//                $org['ROWS'][] = "NAME: {$organization_name}";
+//                $org['ROWS'][] = "STREET: {$organization_address}";
+//                $org['ROWS'][] = "CITY: {$organization_city}";
+//                $org['ROWS'][] = "SATE: {$organization_state}";
+//                $org['ROWS'][] = "ZIP CODE: {$organization_zip}";
+//                $org['ROWS'][] = "COUNTRY: {$organization_country}";
+//                $org['ROWS'][] = "COUNTY/PARISH CODE: {$organization_parish}";
+//                $org['ROWS'][] = '';
+//                $performing_organizations[$organization_key] = $org;
+//
+//            }
+        }
+
+        $OBSERVATIONS['TITLE'] = 'OBSERVATIONS:';
+        $OBSERVATIONS['TABLES'][] = $TABLE;
+
+        $REPORT['SUB_SECTIONS'][] = $OBSERVATIONS;
+
+        /**
+         * PERFORMING ORGANIZATIONS
+         */
+        if(!empty($performing_organizations)){
+
+            $PERFORMING_ORGANIZATION['TITLE'] = 'PERFORMING ORGANIZATIONS:';
+            foreach ($performing_organizations as $performing_organization){
+                foreach ($performing_organization['ROWS'] as $org_row){
+                    $PERFORMING_ORGANIZATION['ROWS'][] = $org_row;
+                }
+            }
+            $REPORT['SUB_SECTIONS'][] = $PERFORMING_ORGANIZATION;
+        }
+
+        return $REPORT;
+    }
+
 
 	private static function printPID($data){
 
@@ -216,7 +500,10 @@ class HL7Printer {
 		$REPORT['ROWS'][] = "$placer_group_no";
 		$REPORT['ROWS'][] = '';
 
-		$ordering_provider_id = $order_observation['ORC'][12][0][9][1] . ' - ' . $order_observation['ORC'][12][0][9][3];
+		$provider_id_1 = isset($order_observation['ORC'][12][0][9][1]) ? $order_observation['ORC'][12][0][9][1] : '';
+		$provider_id_2 = isset($order_observation['ORC'][12][0][9][3]) ? $order_observation['ORC'][12][0][9][3] : '';
+
+		$ordering_provider_id = $provider_id_1 . ' - ' . $provider_id_2;
 		$ordering_provider_name = '';
 		// prefix
 		if ($order_observation['ORC'][12][0][6] != '') {
@@ -288,7 +575,10 @@ class HL7Printer {
 				$TR['RESULT'] = $observation['OBX'][5][2];
 			} elseif ($observation['OBX'][2] == 'CWE') {
 				$TR['RESULT'] = $observation['OBX'][5][2];
-			} else {
+			} elseif ($observation['OBX'][2] == 'CE') {
+			    // TODO
+                $TR['RESULT'] = '';
+            } else {
 				$TR['RESULT'] = $observation['OBX'][5];
 			}
 
@@ -560,18 +850,19 @@ class HL7Printer {
 
 	}
 
-
 	static function doPrint(){
 
 		$text = '';
+
+		$line = str_pad('', self::$document_width - 1, '-');
 
 		$buffer = self::$buffer;
 
 		if(isset($buffer['TITLE'])){
 			$text .= <<<TITLE
-|------------------------------------------------------------------------------------------------------------------------------------------------------
+|{$line}
 | {$buffer['TITLE']}
-|------------------------------------------------------------------------------------------------------------------------------------------------------
+|{$line}
 |
 
 TITLE;
@@ -584,9 +875,9 @@ TITLE;
 		if(isset($buffer['FOOTER'])){
 			$text .= <<<FOOTER
 |
-|------------------------------------------------------------------------------------------------------------------------------------------------------
+|{$line}
 | {$buffer['FOOTER']}
-|------------------------------------------------------------------------------------------------------------------------------------------------------
+|{$line}
 
 FOOTER;
 		}
@@ -599,7 +890,7 @@ FOOTER;
 
 		$buffer = '';
 		$pad = str_pad('', $indent * 3);
-		$line = str_pad("{$pad}",150, '-');
+		$line = str_pad("{$pad}",self::$document_width - 1, '-');
 
 		foreach ($SECTIONS as $SECTION) {
 
@@ -677,7 +968,8 @@ ROWS;
 
 		if(isset($TABLE['TR'])) {
 			foreach ($TABLE['TR'] as $ROW => $COLS) {
-				foreach ($COLS as $COL => $VAL){
+                if($COLS === 'DIVIDER') continue;
+                foreach ($COLS as $COL => $VAL){
 					$len = strlen($VAL);
 					if(!isset($columns_lens[$COL]) || $columns_lens[$COL] < $len){
 						$columns_lens[$COL] = $len;
@@ -691,8 +983,8 @@ ROWS;
 			$line_len = $line_len + ($columns_len +  5);
 		}
 
-		$th_line = str_pad("|$pad|", $line_len, '=') . PHP_EOL;
-		$tr_line = str_pad("|$pad|", $line_len, '-') . PHP_EOL;
+		$th_line = str_pad("|$pad|", self::$document_width, '=') . PHP_EOL;
+		$tr_line = str_pad("|$pad|", self::$document_width, '-') . PHP_EOL;
 
 		$buffer .= '|' . PHP_EOL;
 
@@ -716,12 +1008,24 @@ TH;
 
 		if(isset($TABLE['TR'])) {
 			foreach ($TABLE['TR'] as $ROW => $COLS) {
+                $is_divider = $COLS === 'DIVIDER';
+                $TR = '';
 
-				$TR = '';
-				foreach ($COLS as $COL => $VAL){
-					$col_len = $columns_lens[$COL] + 4;
-					$TR .= str_pad("| $VAL ", $col_len);
-				}
+                if($is_divider){
+                    $foo = '';
+                    foreach ($TABLE['TH'] as $COL => $VAL){
+                        $col_len = $columns_lens[$COL] + 4;
+                        $foo .= str_pad("|", $col_len, ' ');
+                    }
+                    $TR .= str_pad($foo, (self::$document_width - strlen("|{$pad}")), ' ');
+                    unset($foo);
+                }else{
+                    foreach ($COLS as $COL => $VAL){
+                        $col_len = $columns_lens[$COL] + 4;
+                        $TR .= str_pad("| $VAL ", $col_len);
+                    }
+                }
+
 
 				$buffer .= <<<TR
 |{$pad}{$TR}

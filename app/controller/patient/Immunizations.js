@@ -114,8 +114,44 @@ Ext.define('App.controller.patient.Immunizations', {
 			},
 			'#ImmunizationsUnableToPerformField': {
 				select: me.onImmunizationsUnableToPerformFieldSelect
+			},
+			'#ImmunizationHistorySearchBtn': {
+				click: me.onImmunizationHistorySearchBtnClick
 			}
 		});
+	},
+
+	onImmunizationHistorySearchBtnClick: function(btn){
+		var me = this;
+
+		ImmunizationRegistry.getImmunizationHxByPid(app.patient.pid, function (response) {
+			say(response);
+
+			if(response.success === false || !response.messages === undefined){
+				app.msg(_('oops'), 'Immunization Search Failed', true);
+				return;
+			}
+
+			response.messages.forEach(function (message) {
+				me.showImmunizationHistorySearchResponse(message);
+			});
+		});
+	},
+
+	showImmunizationHistorySearchResponse: function(message){
+		say('showImmunizationHistorySearchResponse');
+		say(message);
+
+		if(message.response.success === false){
+			app.msg(_('oops'), message.response.message, true);
+			return;
+		}
+
+		Ext.create('App.view.patient.windows.ImmunizationRegisterResponseWindow', {
+			hl7Message: message.response.message,
+			hl7Printed: message.response.print
+		}).show();
+
 	},
 
 	onImmunizationsUnableToPerformFieldSelect: function(combo){
@@ -245,6 +281,10 @@ Ext.define('App.controller.patient.Immunizations', {
 			selected = me.getImmunizationsGrid().getSelectionModel().getSelection();
 		me.vxuWindow = me.getVxuWindow();
 		me.vxuWindow.down('grid').getStore().loadData(selected);
+	},
+
+	onSubmitQpbBtnClick: function(){
+		this.sendQBP(app.patient.pid);
 	},
 
 	onReviewImmunizationsBtnClick: function(){
@@ -494,6 +534,26 @@ Ext.define('App.controller.patient.Immunizations', {
 
 		HL7Messages.sendVXU(params, function(provider, response){
 			if(response.result.success){
+				app.msg(_('sweet'), _('registry_message_sent'));
+			}else{
+				app.msg(_('oops'), _('registry_message_error'), true);
+			}
+		});
+
+	},
+
+	sendQBP: function(pid){
+		var me = this,
+			params = {};
+
+		params.pid = pid;
+
+		HL7Messages.sendQBP(params, function(response){
+
+			say(response);
+			say(response);
+
+			if(response.success){
 				app.msg(_('sweet'), _('registry_message_sent'));
 			}else{
 				app.msg(_('oops'), _('registry_message_error'), true);

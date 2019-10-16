@@ -467,6 +467,11 @@ Ext.define('App.view.patient.Immunizations', {
 					disabled: true,
 					itemId: 'submitVxuBtn'
 				},
+				{
+					xtype: 'button',
+					text: _('immunization_registry_history'),
+					itemId: 'ImmunizationHistorySearchBtn'
+				},
 				'-',
 				'->',
 				{

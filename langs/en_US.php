@@ -2074,5 +2074,6 @@ $LANG = array(
 	'birth_first_name' => 'Birth First Name',
 	'birth_init' => 'Birth Init.',
 	'birth_last_name' => 'Birth Last Name',
+	'immunization_registry_history' => 'Immunization Registry History',
 
 );

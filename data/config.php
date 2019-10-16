@@ -2690,6 +2690,9 @@ $API = [
 			'sendVXU' => [
 				'len' => 1
             ],
+			'sendQBP' => [
+				'len' => 1
+            ],
             'downloadVXU' => [
                 'len' => 1
             ],
@@ -2697,6 +2700,13 @@ $API = [
 				'len' => 1
             ],
 			'sendADT' => [
+				'len' => 1
+            ]
+        ]
+    ],
+	'ImmunizationRegistry' => [
+		'methods' => [
+			'getImmunizationHxByPid' => [
 				'len' => 1
             ]
         ]

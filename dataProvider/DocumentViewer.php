@@ -253,6 +253,7 @@ if (
 					</style>
 				</head>
 				<body style="overflow: hidden; position: relative;">
+					<input style="position: absolute; left:0;top:0" class="btn" type="button" value="Print" onclick="printImage(this);" />
 					<input style="position: absolute; right:0;top:0" class="btn" type="button" value="Edit" onclick="enableDarkroom(this);" />
 			        <div class="image-container target" style="left: 0; top:0;width:100%;">
 				        <img style="width:100%;" alt="" id="target" crossOrigin="anonymous" src="data:{$mineType};base64,{$document}">
@@ -273,6 +274,11 @@ if (
 							        }
 					            }
 						    });
+						}
+						
+						function printImage(btn){
+                            window.focus();
+                            window.print();
 						}
 				  </script>
 				</body>

@@ -16,26 +16,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-include_once (dirname(__FILE__).'/Message.php');
+include_once (dirname(__FILE__).'/Segments.php');
 
-class ACK extends Message {
-
-	function __construct($hl7){
-		parent::__construct($hl7);
-	}
+class RCP extends Segments{
 
 	function __destruct(){
 		parent::__destruct();
 	}
-	protected function Events($event){
 
-		$events = array(
-			'MSH' => '',
-			'SFT' => '',
-			'MSA' => '',
-			'ERR' => array('repeatable' => true)
-		);
-		return $events;
+	function __construct($hl7){
+		parent::__construct($hl7, 'RCP');
+
+		$this->setField(1, 'ID', 4);
+		$this->setField(2, 'CQ', 32);
+		$this->setField(3, 'NM', 32);
+		$this->setField(4, 'CWE', 32);
 
 	}
 }

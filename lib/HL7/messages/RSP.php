@@ -68,24 +68,14 @@ class RSP extends Message {
 										'TQ2' => array('repeatable' => true)
 									)
 								),
-								'CTD' => array(),
+								'RXA' => array('required' => true),
+								'RXR' => array(),
 								'OBSERVATION' => array(
 									'repeatable' => true,
 									'items' => array(
 										'OBX' => array('required' => true),
 										'NTE' => array('repeatable' => true)
 									)
-
-								),
-								'FT1' => array('repeatable' => true),
-								'CTI' => array('repeatable' => true),
-								'SPECIMEN' => array(
-									'required' => true,
-									'items' => array(
-										'SPM' => array('required' => true),
-										'OBX' => array('repeatable' => true)
-									)
-
 								)
 							)
 

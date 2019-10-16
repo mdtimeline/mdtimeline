@@ -1010,7 +1010,7 @@ class HL7Messages {
 
             return ['success' => true, 'messages' => $messages];
         } catch(Exception $Error) {
-            return ['success' => false, 'messages' => $messages];
+            return ['success' => false, 'messages' => $messages, 'error' => $Error];
         }
 	}
 

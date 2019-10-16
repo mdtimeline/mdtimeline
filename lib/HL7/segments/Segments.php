@@ -326,14 +326,6 @@ class Segments {
 		$types['IS'] = '';                  // (IS)
 		$types['FT'] = '';                  // (FT)
 
-		$types['CQ'][0] = '';               // (CQ)
-		$types['CQ'][1] = '';               // Identifier (ST)
-		$types['CQ'][2] = '';               // Text (ST)
-		$types['CQ'][3] = '';               // Name of Coding System (ID)>
-		$types['CQ'][4] = '';               // Alternate Identifier (ST)>
-		$types['CQ'][5] = '';               // Alternate Text (ST)>
-		$types['CQ'][6] = '';               // Name of Alternate Coding System (ID)
-
 		$types['EI'][0] = '';               // (EI)
 		$types['EI'][1] = '';               // Entity Identifier (ST)
 		$types['EI'][2] = '';               // Namespace ID (IS)
@@ -367,6 +359,14 @@ class Segments {
 		$types['HD'][1] = '';               // Namespace ID (IS)
 		$types['HD'][2] = '';               // Universal ID (ST)
 		$types['HD'][3] = '';               // Universal ID Type (ID)
+
+        $types['CQ'][0] = '';               // (CQ)
+        $types['CQ'][1] = '';               // Identifier (ST)
+        $types['CQ'][2] = $types['CE'];     // Text (ST)
+        $types['CQ'][3] = '';               // Name of Coding System (ID)>
+        $types['CQ'][4] = '';               // Alternate Identifier (ST)>
+        $types['CQ'][5] = '';               // Alternate Text (ST)>
+        $types['CQ'][6] = '';               // Name of Alternate Coding System (ID)
 
 		$types['DR'][0] = '';                  // (DR)
 		$types['DR'][1] = $types['TS'];        // Range Start Date/Time (TS)

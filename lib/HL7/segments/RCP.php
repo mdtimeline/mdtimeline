@@ -29,8 +29,11 @@ class RCP extends Segments{
 
 		$this->setField(1, 'ID', 4);
 		$this->setField(2, 'CQ', 32);
-		$this->setField(3, 'NM', 32);
-		$this->setField(4, 'CWE', 32);
+		$this->setField(3, 'CE', 32);
+		$this->setField(4, 'TS', 32);
+		$this->setField(5, 'ID', 32);
+		$this->setField(6, 'SRT', 32);
+		$this->setField(7, 'ID', 32);
 
 	}
 }

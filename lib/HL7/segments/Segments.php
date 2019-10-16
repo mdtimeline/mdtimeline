@@ -748,6 +748,10 @@ class Segments {
 		$types['SN'][2] = $types['ST'];     // (ST)
 		$types['SN'][2] = $types['NM'];     // (NM)
 
+		$types['SRT'][0] = '';               // (SRT)
+		$types['SRT'][1] = $types['ST'];     // (ST)
+		$types['SRT'][2] = $types['ID'];     // (ID)
+
 		return $types[$type];
 
 	}

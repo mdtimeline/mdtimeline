@@ -1046,6 +1046,8 @@ class HL7Messages {
         $qpd->setValue('1.2', 'Request Evaluated History and Forecast'); // Text
         $qpd->setValue('1.3', 'CDCPHINVS'); // Name of Coding System
 
+        $qpd->setValue('2', '	IZ-1.1-2015'); // Presence-System Generated
+
         $index = 0;
         if($this->notEmpty($this->patient->pubpid)){
             $qpd->setValue('3.1', $this->patient->pubpid, $index);

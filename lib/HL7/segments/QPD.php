@@ -18,14 +18,14 @@
  */
 include_once (dirname(__FILE__).'/Segments.php');
 
-class QBP_Z44 extends Segments{
+class QPD extends Segments{
 
 	function __destruct(){
 		parent::__destruct();
 	}
 
 	function __construct($hl7){
-		parent::__construct($hl7, 'QBP');
+		parent::__construct($hl7, 'QPD');
 
 		$this->setField(1, 'CE', 4);
 		$this->setField(2, 'ST', 32);

@@ -34,7 +34,7 @@ class QBP extends Message {
 			'Q11' => array(
 				'MSH' => array('required' => true),
 				'SFT' => array('repeatable' => true),
-				'QBP' => array('required' => true),
+				'QPD' => array('required' => true),
 				'RCP' => array('required' => true),
 				'DSC' => array()
 			)

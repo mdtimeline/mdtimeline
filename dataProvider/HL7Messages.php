@@ -1030,6 +1030,16 @@ class HL7Messages {
         $msh->setValue('9.2', 'Q11');
         $msh->setValue('9.3', 'QBP_Q11');
 
+        $msh->setValue('22.1', 'NISTEHRFAC');
+        $msh->setValue('22.6.1', 'NIST-AA-1');
+        $msh->setValue('22.7', 'XX');
+        $msh->setValue('22.10', '100-6482');
+
+        $msh->setValue('23.1', 'NISTIISFAC');
+        $msh->setValue('23.6.1', 'NIST-AA-1');
+        $msh->setValue('23.7', 'XX');
+        $msh->setValue('23.10', '100-3322');
+
         // QPD
         $qpd = $this->hl7->addSegment('QBP_Z44');
         $qpd->setValue('1.1', 'Z44'); // Identifier
@@ -1188,8 +1198,8 @@ class HL7Messages {
 		$this->msh->setValue('7.1', date('YmdHis')); // Message Date Time
 		$this->msh->setValue('11.1', 'P'); // D = Debugging P = Production T = Training
 		$this->msh->setValue('12.1', '2.5.1'); // HL7 version
-		$this->msh->setValue('15', 'AL');
-		$this->msh->setValue('16', 'ER');
+		$this->msh->setValue('15', 'ER');
+		$this->msh->setValue('16', 'AL');
 		return $this->msh;
 	}
 

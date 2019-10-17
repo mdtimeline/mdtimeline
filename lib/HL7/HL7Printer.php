@@ -54,6 +54,8 @@ class HL7Printer {
 				self::printErrors($data);
 			}elseif($key == 'QAK'){
 				self::printQAK($data);
+			}elseif($key == 'QPD'){
+				self::printQPD($data);
 			}elseif($key == 'PATIENT_RESULT'){
 				self::printPatientResults($data);
 			}elseif($key == 'ROW_DEFINITION'){
@@ -189,6 +191,33 @@ class HL7Printer {
 
 		self::$buffer['SECTIONS'][] = [
 			'TITLE' => ' QUERY RESPONSE STATUS:',
+			'ROWS' => $rows
+		];
+	}
+
+	/**
+	 * @param $data
+	 * @return void
+	 */
+	private static function printQPD($data){
+
+	    if($data === false) return;
+
+	    $rows = [];
+
+	    foreach ($data as $query){
+            $rows[] = ' TYPE: ' . $query[1][2];
+            $rows[] = ' MRN: ' . $query[3][0][1];
+            $rows[] = ' LAST NAME: ' . $query[4][0][1][1];
+            $rows[] = ' FIRST NAME: ' . $query[4][0][2];
+            $rows[] = ' DATE OF BIRTH: ' . $query[6][0][1];
+            $rows[] = ' SEX: ' . $query[7];
+            $rows[] = ' ADDRESS: ' . $query[8][0][1][0] . ', ' . $query[8][0][3] . ', ' . $query[8][0][4] . ' ' . $query[8][0][5];
+            $rows[] = ' PHONE: ' . $query[9][0][6] . $query[9][0][7];
+        }
+
+		self::$buffer['SECTIONS'][] = [
+			'TITLE' => ' QUERY:',
 			'ROWS' => $rows
 		];
 	}

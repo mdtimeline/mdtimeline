@@ -52,6 +52,8 @@ class HL7Printer {
 				self::printMSA($data);
 			}elseif($key == 'ERR'){
 				self::printErrors($data);
+			}elseif($key == 'QAK'){
+				self::printQAK($data);
 			}elseif($key == 'PATIENT_RESULT'){
 				self::printPatientResults($data);
 			}elseif($key == 'ROW_DEFINITION'){
@@ -106,28 +108,88 @@ class HL7Printer {
 	 */
 	private static function printMSA($data){
 
-        switch ($data[1]){
-            case 'AA':
-                $LINE_ONE = ' AA – Application Accept';
-                break;
-            case 'AE':
-                $LINE_ONE = ' AE – Application Error';
-                break;
-            case 'AR':
-                $LINE_ONE = ' AR – Application Reject';
-                break;
-            default:
-                $LINE_ONE = ' UNKNOWN';
+        $rows = [];
+
+        foreach ($data as $status){
+
+            switch ($status[1]){
+                case 'AA':
+                    $rows[] = ' AA – Application Accept [' . $status[1] . ']';
+                    break;
+                case 'AE':
+                    $rows[] = ' AE – Application Error [' . $status[1] . ']';
+                    break;
+                case 'AR':
+                    $rows[] = ' AR – Application Reject [' . $status[1] . ']';
+                    break;
+                case 'OK':
+                    $rows[] = ' OK – Data found, no errors [' . $status[1] . ']';
+                    break;
+                case 'PD':
+                    $rows[] = ' PD – Protected data [' . $status[1] . ']';
+                    break;
+                case 'TM':
+                    $rows[] = ' TM – Too much data found [' . $status[1] . ']';
+                    break;
+                default:
+                    $rows[] = ' UNKNOWN';
+            }
+
+            $rows[] = ' FROM MESSAGE ID: ' . $status[2];
+
+            self::$buffer['SECTIONS'][] = [
+                'TITLE' => ' ACKNOWLEDGEMENT:',
+                'ROWS' => $rows
+            ];
         }
 
-        $LINE_TWO = ' FROM MESSAGE ID: ' . $data[2];
+
+	}
+
+	/**
+	 * @param $data
+	 * @return void
+	 */
+	private static function printQAK($data){
+
+	    if($data === false) return;
+
+	    $rows = [];
+
+	    foreach ($data as $status){
+
+            switch ($status[2]){
+                case 'AA':
+                    $rows[] = ' AA – Application Accept';
+                    break;
+                case 'AE':
+                    $rows[] = ' AE – Application Error';
+                    break;
+                case 'AR':
+                    $rows[] = ' AR – Application Reject';
+                    break;
+                case 'OK':
+                    $rows[] = ' OK – Data found, no errors';
+                    break;
+                case 'PD':
+                    $rows[] = ' PD – Protected data';
+                    break;
+                case 'TM':
+                    $rows[] = ' TM – Too much data found';
+                    break;
+                case 'NF':
+                    $rows[] = ' NF – No data found';
+                    break;
+                default:
+                    $rows[] = ' UNKNOWN';
+            }
+
+            $rows[] = ' FROM QUERY ID: ' . $status[1];
+        }
 
 		self::$buffer['SECTIONS'][] = [
-			'TITLE' => ' ACKNOWLEDGEMENT',
-			'ROWS' => [
-				$LINE_ONE,
-				$LINE_TWO
-			]
+			'TITLE' => ' QUERY RESPONSE STATUS:',
+			'ROWS' => $rows
 		];
 	}
 
@@ -137,9 +199,7 @@ class HL7Printer {
 	 */
 	private static function printErrors($data){
 
-	    if($data === false){
-            return;
-        }
+        if($data === false) return;
 
         $SECTION['TITLE'] = ' ERRORS:';
 

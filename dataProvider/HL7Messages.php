@@ -608,6 +608,8 @@ class HL7Messages {
         $msh->setValue('9.1', 'VXU');
         $msh->setValue('9.2', 'V04');
         $msh->setValue('9.3', 'VXU_V04');
+        $msh->setValue('15', 'ER');
+
         // PID
         $this->setPID();
         // PV1
@@ -1031,6 +1033,10 @@ class HL7Messages {
         $msh->setValue('9.3', 'QBP_Q11');
 
         $msh->setValue('21.1', 'Z44');
+
+        $msh->setValue('15', 'ER');
+
+        $msh->setValue('21.1', 'Z44');
         $msh->setValue('21.2', 'CDCPHINVS');
 
         $msh->setValue('22.1', 'NISTEHRFAC');
@@ -1193,7 +1199,7 @@ class HL7Messages {
 		$this->msh->setValue('7.1', date('YmdHisO')); // Message Date Time
 		$this->msh->setValue('11.1', 'P'); // D = Debugging P = Production T = Training
 		$this->msh->setValue('12.1', '2.5.1'); // HL7 version
-		$this->msh->setValue('15', 'ER');
+		$this->msh->setValue('15', 'AL');
 		$this->msh->setValue('16', 'AL');
 		return $this->msh;
 	}
@@ -1532,12 +1538,11 @@ class HL7Messages {
 
         $pv1->setValue('19.5', 'VN');
 
-        $pv1->setValue('36', '01');
-
 		if($this->notEmpty($this->encounter->service_date)){
 			$pv1->setValue('44.1', $this->date($this->encounter->service_date)); // Service Date
 		}
 		if($this->notEmpty($this->encounter->close_date)){
+            $pv1->setValue('36', '01');
 			$pv1->setValue('45.1', $this->date($this->encounter->close_date)); // Close/Signed Date
 		}
 	}

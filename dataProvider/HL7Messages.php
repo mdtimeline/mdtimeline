@@ -541,14 +541,23 @@ class HL7Messages {
 		}
 	}
 
-	function sendVXU($params) {
+    /**
+     * @param $params
+     * @param null $SenderHandler
+     * @return array
+     */
+	function sendVXU($params, $SenderHandler = null) {
 
         $messages = [];
 
         try {
 
+            if(isset($SenderHandler)){
+                $this->SenderHandler = $SenderHandler;
+            }
+
 			$clients = $this->c->sql('SELECT * FROM hl7_clients WHERE allow_messages LIKE \'%VXU%\'')->all();
-			$server = $this->s->sql('SELECT * FROM hl7_servers WHERE started = 1')->one();
+			$server = $this->s->sql('SELECT * FROM hl7_servers')->one();
 
 			if($server === false){
 				throw new Exception('No HL7 Server found');
@@ -628,7 +637,12 @@ class HL7Messages {
         // Immunizations loop
         foreach($params->immunizations AS $i){
 
-            $immu = $this->i->load($i)->one();
+            if(is_numeric($i)){
+                $immu = $this->i->load($i)->one();
+            }else{
+                $immu = (array) $i;
+            }
+
             $obx_group_sub_id = 1;
 
             // ORC - 4.5.1 ORC - Common Order Segment
@@ -955,6 +969,11 @@ class HL7Messages {
         }
     }
 
+    /**
+     * @param $params
+     * @param null $SenderHandler
+     * @return array
+     */
 	function sendQBP($params, $SenderHandler = null) {
 
         $messages = [];
@@ -1454,7 +1473,7 @@ class HL7Messages {
 		return $pid;
 	}
 
-	private function setPV1($event) {
+	private function setPV1($event = null) {
 
 		if($this->encounter === false)
 			return;

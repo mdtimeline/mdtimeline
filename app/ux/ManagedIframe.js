@@ -120,7 +120,7 @@
 								},
 								me.frameStyle
 							),
-							sandbox: 'allow-scripts allow-modals',
+							// sandbox: 'allow-scripts allow-modals allow-forms allow-presentation allow-same-origin',
 							frameBorder: 'no',
 							role: me.ariaRole,
 							name: me.frameName

@@ -143,7 +143,11 @@ class Segments {
 		}
 
 		if($glue != 0){
-			$array[0] = rtrim(implode($glues[$glue], $buffer), $glues[$glue]);
+		    if($glue > 2){
+                $array[0] = rtrim(implode($glues[2], $buffer), $glues[2]);
+            }else{
+                $array[0] = rtrim(implode($glues[$glue], $buffer), $glues[$glue]);
+            }
 		} else {
 			$this->seg = rtrim(implode($glues[$glue], $buffer), $glues[$glue]);
 		}
@@ -617,7 +621,7 @@ class Segments {
 		$types['OSD'][11] = $types['ID'];    // Filler Order Number: Universal ID Type (ID)
 
 		$types['TQ'][0] = '';                // (TQ)
-		$types['TQ'][1] = $types['CQ'];      // Quantity (CQ)
+//		$types['TQ'][1] = $types['CQ'];      // Quantity (CQ)
 		$types['TQ'][2] = $types['RI'];      // Interval (RI)
 		$types['TQ'][3] = $types['ST'];      // Duration (ST)
 		$types['TQ'][4] = $types['TS'];      // Start Date/Time (TS)

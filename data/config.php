@@ -2708,6 +2708,9 @@ $API = [
 		'methods' => [
 			'getImmunizationHxByPid' => [
 				'len' => 1
+            ],
+			'sendImmunization' => [
+				'len' => 1
             ]
         ]
     ],

@@ -2075,5 +2075,8 @@ $LANG = array(
 	'birth_init' => 'Birth Init.',
 	'birth_last_name' => 'Birth Last Name',
 	'immunization_registry_history' => 'Immunization Registry History',
+	'vaccine_name' => 'Vaccine Name',
+	'administer_amount' => 'Administer Amount',
+	'administer_units' => 'Administer Units',
 
 );

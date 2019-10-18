@@ -795,6 +795,30 @@ class HL7Messages {
                 $OBX = $this->hl7->addSegment('OBX');
                 $OBX->setValue('1', $obxCount);
                 $OBX->setValue('2', 'CE');
+                $OBX->setValue('3.1', '30963-3');
+                $OBX->setValue('3.2', 'Vaccine Funding Source');
+                $OBX->setValue('3.3', 'LN');
+                $OBX->setValue('4', isset($immu['eid']) && $immu['eid'] > 0 ? $immu['eid'] : '0');
+
+                if($immu['vfc_code'] === 'V01'){
+                    $OBX->setValue('5.1','PHC70'); // PHC70
+                    $OBX->setValue('5.2', 'Private');  // Private
+                    $OBX->setValue('5.3', 'CDCPHINVS');    // CDCPHINVS
+                }else{
+                    $OBX->setValue('5.1', 'VXC50'); // VXC50
+                    $OBX->setValue('5.2', 'Public');  // Public
+                    $OBX->setValue('5.3', 'CDCPHINVS');    // CDCPHINVS
+                }
+
+                $OBX->setValue('11', 'F');
+                $OBX->setValue('14.1', $this->date($immu['administered_date'], false)); // date
+                $obxCount++;
+            }
+
+            if($Record !== false){
+                $OBX = $this->hl7->addSegment('OBX');
+                $OBX->setValue('1', $obxCount);
+                $OBX->setValue('2', 'CE');
                 $OBX->setValue('3.1', '64994-7');
                 $OBX->setValue('3.2', 'Vaccine funding program eligibility category');
                 $OBX->setValue('3.3', 'LN');

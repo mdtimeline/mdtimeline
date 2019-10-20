@@ -813,9 +813,8 @@ class HL7Messages {
                 $OBX->setValue('11', 'F');
                 $OBX->setValue('14.1', $this->date($immu['administered_date'], false)); // date
                 $obxCount++;
-            }
 
-            if($Record !== false){
+
                 $OBX = $this->hl7->addSegment('OBX');
                 $OBX->setValue('1', $obxCount);
                 $OBX->setValue('2', 'CE');

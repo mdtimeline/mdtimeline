@@ -21,6 +21,7 @@ Ext.define('App.view.patient.Immunizations', {
 	requires: [
 		'App.ux.combo.CVXManufacturersForCvx',
 		'App.ux.LiveImmunizationSearch',
+		'App.ux.LiveImmunizationNdcSearch',
 		'App.ux.grid.RowFormEditing',
 		'App.store.patient.CVXCodes',
 		'App.ux.form.fields.DateTime',
@@ -161,11 +162,33 @@ Ext.define('App.view.patient.Immunizations', {
 												margin: '0 0 10 0',
 												items: [
 													{
+														xtype: 'gaiaehr.combo',
+														itemId: 'ImmunizationsInformationSourceCombo',
+														list: 138,
+														width: 475,
+														name: 'information_source_code',
+														fieldLabel: _('source'),
+														margin: '0 0 5 0',
+														loadStore: true,
+														editable: false
+													},
+													{
 														xtype: 'immunizationlivesearch',
 														itemId: 'ImmunizationsImmunizationSearch',
 														fieldLabel: _('name'),
 														name: 'vaccine_name',
 														valueField: 'name',
+														hideLabel: false,
+														allowBlank: false,
+														enableKeyEvents: true,
+														width: 475
+													},
+													{
+														xtype: 'immunizationndclivesearch',
+														itemId: 'ImmunizationsImmunizationNdcSearch',
+														fieldLabel: _('name'),
+														name: 'vaccine_name',
+														valueField: 'UseUnitPropName',
 														hideLabel: false,
 														allowBlank: false,
 														enableKeyEvents: true,
@@ -358,16 +381,6 @@ Ext.define('App.view.patient.Immunizations', {
 										listKey: 'unable_to_perform_vac',
 										name: 'not_performed_code',
 										itemId: 'ImmunizationsUnableToPerformField'
-									},
-									{
-										xtype: 'gaiaehr.combo',
-										list: 138,
-										width: 550,
-										name: 'information_source_code',
-										fieldLabel: _('info_source'),
-										margin: '0 0 5 0',
-										loadStore: true,
-										editable: false
 									},
 									{
 										xtype: 'gaiaehr.combo',

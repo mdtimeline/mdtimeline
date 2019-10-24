@@ -65,6 +65,10 @@ Ext.define('App.controller.patient.Immunizations', {
 			selector: '#ImmunizationsImmunizationSearch'
 		},
 		{
+			ref: 'ImmunizationsImmunizationNdcSearch',
+			selector: '#ImmunizationsImmunizationNdcSearch'
+		},
+		{
 			ref: 'ImmunizationsDisorderCombo',
 			selector: '#ImmunizationsDisorderCombo'
 		},
@@ -97,8 +101,14 @@ Ext.define('App.controller.patient.Immunizations', {
 			'patientimmunizationspanel #addImmunizationBtn': {
 				click: me.onAddImmunizationBtnClick
 			},
+			'#ImmunizationsInformationSourceCombo': {
+				change: me.onInformationSourceComboChange
+			},
 			'#ImmunizationsImmunizationSearch': {
 				select: me.onImmunizationSearchSelect
+			},
+			'#ImmunizationsImmunizationNdcSearch': {
+				select: me.onImmunizationNdcSearchhSelect
 			},
 			'#patientImmunizationsEditFormAdministeredByField': {
 				select: me.onPatientImmunizationsEditFormAdministeredByFieldSelect
@@ -245,9 +255,10 @@ Ext.define('App.controller.patient.Immunizations', {
 	onImmunizationsPresumedImmunityCheckboxClick: function(checkbox){
 
 		var record = checkbox.up('form').getForm().getRecord(),
-			checked = checkbox.getValue();
+			checked = checkbox.getValue(),
+			is_ndc = record.get('code_type') === '' || record.get('code_type') === 'NDC';
 
-		this.setImmunizationFields(checked);
+		this.setImmunizationFields(checked, is_ndc);
 
 		this.getImmunizationsImmunizationSearch().reset();
 		this.getImmunizationsDisorderCombo().reset();
@@ -268,11 +279,17 @@ Ext.define('App.controller.patient.Immunizations', {
 		}
 	},
 
-	setImmunizationFields: function(presumed_immunity){
+	setImmunizationFields: function(presumed_immunity, is_ndc){
+
 		this.getImmunizationsDisorderCombo().setVisible(presumed_immunity);
 		this.getImmunizationsDisorderCombo().setDisabled(!presumed_immunity);
 		this.getImmunizationsImmunizationSearch().setVisible(!presumed_immunity);
 		this.getImmunizationsImmunizationSearch().setDisabled(presumed_immunity);
+
+		this.getImmunizationsImmunizationSearch().setVisible(!is_ndc);
+		this.getImmunizationsImmunizationSearch().setDisabled(is_ndc);
+		this.getImmunizationsImmunizationNdcSearch().setVisible(is_ndc);
+		this.getImmunizationsImmunizationNdcSearch().setDisabled(!is_ndc);
 	},
 
 	onPatientImmunizationsEditFormAdministeredByFieldSelect: function(comb, records){
@@ -287,17 +304,50 @@ Ext.define('App.controller.patient.Immunizations', {
 		});
 	},
 
+	onInformationSourceComboChange: function(combo, value){
+		var cvxField = this.getImmunizationsImmunizationSearch(),
+			ndcField = this.getImmunizationsImmunizationNdcSearch();
+
+		if(value === '' || value === null || value === '00'){
+			cvxField.hide();
+			cvxField.disable();
+
+			ndcField.show();
+			ndcField.enable();
+		}else{
+			cvxField.show();
+			cvxField.enable();
+
+			ndcField.hide();
+			ndcField.disable();
+		}
+	},
+
 	onImmunizationSearchSelect: function(combo, record){
 		var form = combo.up('form').getForm();
 
 		this.getCvxMvxCombo().getStore().load({
 			params: {
-				cvx_code: record[0].data.cvx_code
+				cvx_code: record[0].get('cvx_code')
 			}
 		});
 		form.getRecord().set({
-			code: record[0].data.cvx_code,
+			code: record[0].get('cvx_code'),
 			code_type: 'CVX'
+		});
+	},
+
+	onImmunizationNdcSearchhSelect: function(combo, record){
+		var form = combo.up('form').getForm();
+
+		this.getCvxMvxCombo().getStore().load({
+			params: {
+				cvx_code: record[0].get('CVXCode')
+			}
+		});
+		form.getRecord().set({
+			code: record[0].get('NDC11'),
+			code_type: 'NDC'
 		});
 	},
 
@@ -310,14 +360,26 @@ Ext.define('App.controller.patient.Immunizations', {
 	},
 
 	onPatientImmunizationsGridBeforeEdit: function(plugin, context){
-		var field = plugin.editor.getForm().findField('administered_by');
+		var record = context.record,
+			is_ndc = record.get('code_type') === '' || record.get('code_type') === 'NDC',
+			administer_field = plugin.editor.getForm().findField('administered_by'),
+			cvx_field = this.getImmunizationsImmunizationSearch(),
+			ndc_field = this.getImmunizationsImmunizationNdcSearch();
 
-		this.setImmunizationFields(context.record.get('is_presumed_immunity'));
+		this.setImmunizationFields(context.record.get('is_presumed_immunity'), is_ndc);
 
-		field.forceSelection = false;
+		administer_field.forceSelection = false;
 		Ext.Function.defer(function(){
-			field.setValue(context.record.data.administered_by);
-			field.forceSelection = true;
+			administer_field.setValue(context.record.data.administered_by);
+			administer_field.forceSelection = true;
+
+			if(is_ndc){
+				ndc_field.setValue(context.record.get('vaccine_name'));
+			}else {
+				cvx_field.setValue(context.record.get('vaccine_name'));
+			}
+
+
 		}, 200);
 	},
 

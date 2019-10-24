@@ -1571,6 +1571,9 @@ $API = [
 			'getImmunizationLiveSearch' => [
 				'len' => 1
             ],
+			'getImmunizationNDCLiveSearch' => [
+				'len' => 1
+            ],
 			'updateMVXCodes' => [
 				'len' => 1
             ],

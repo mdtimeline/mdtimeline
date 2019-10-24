@@ -278,6 +278,36 @@ class Immunizations {
 		];
 	}
 
+	public function getImmunizationNDCLiveSearch(stdClass $params) {
+		$sth = $this->conn->prepare("
+                    SELECT * FROM cvx_ndc_codes
+					WHERE (
+					    `CVXCode`               LIKE :CVXCode OR
+						`UseUnitPropName`       LIKE :UseUnitPropName OR
+						`UseUnitGenericName`    LIKE :UseUnitGenericName OR
+						`UseUnitLabelerName`    LIKE :UseUnitLabelerName OR
+						`CVXShortDescription`   LIKE :CVXShortDescription OR
+						`NDC11`    LIKE :NDC11
+					)");
+		$q = $params->query.'%';
+		$qq = '%'.$params->query.'%';
+		$sth->execute([
+		    ':CVXCode' => $q,
+		    ':UseUnitPropName' => $qq,
+		    ':UseUnitGenericName' => $qq,
+		    ':UseUnitLabelerName' => $qq,
+		    ':CVXShortDescription' => $qq,
+		    ':NDC11' => $q,
+        ]);
+		$records = $sth->fetchAll(PDO::FETCH_ASSOC);
+		$total = count($records);
+		$records = array_slice($records, $params->start, $params->limit);
+		return [
+			'total' => $total,
+			'data' => $records
+		];
+	}
+
 	public function getMvxByCode($code) {
 		$sth = $this->conn->prepare('SELECT * FROM cvx_mvx WHERE mvx_code = ?');
 		$sth->execute([$code]);

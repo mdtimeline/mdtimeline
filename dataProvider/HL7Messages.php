@@ -1648,7 +1648,7 @@ class HL7Messages {
 
 		if(isset($patient->guardians_lname) && $patient->guardians_lname != ''){
 			$NK1 = $this->hl7->addSegment('NK1');
-			$NK1->setValue('1.1', $NK1_index);
+			$NK1->setValue('1', $NK1_index);
 			if(isset($patient->guardians_lname) && $patient->guardians_lname != ''){
 				$NK1->setValue('2.1.1', $patient->guardians_lname);
 			}
@@ -1689,7 +1689,7 @@ class HL7Messages {
 
 		if(isset($patient->emergency_contact_lname) && $patient->emergency_contact_lname != ''){
 			$NK1 = $this->hl7->addSegment('NK1');
-			$NK1->setValue('2.1.1', $NK1_index);
+			$NK1->setValue('1', $NK1_index);
 			if(isset($patient->emergency_contact_lname) && $patient->emergency_contact_lname != ''){
 				$NK1->setValue('2.1.1', $patient->guardians_lname);
 			}

@@ -768,7 +768,7 @@ class HL7Messages {
                 $mText = isset($mvx['manufacturer']) ? $mvx['manufacturer'] : '';
                 //Substance ManufacturerName
                 $RXA->setValue('17.1', $immu['manufacturer']); //Identifier
-                $RXA->setValue('17.2', str_replace('/&/g', 'and', $mText)); //Text
+                $RXA->setValue('17.2', str_replace('&', 'and', $mText)); //Text
                 $RXA->setValue('17.3', 'MVX'); //Name of Coding System HL70396
             }
 
@@ -1697,7 +1697,7 @@ class HL7Messages {
 				$NK1->setValue('3.3', $listOptionsRecord['code_type']);
 			}
 
-			$NK1->setValue('4.1.1', $patient->guardians_address . ' ' . $patient->guardians_address_cont);
+			$NK1->setValue('4.1.1', trim($patient->guardians_address . ' ' . $patient->guardians_address_cont));
 			$NK1->setValue('4.3', $patient->guardians_city);
 			$NK1->setValue('4.4', $patient->guardians_state);
 			$NK1->setValue('4.5', $patient->guardians_zip);
@@ -1743,7 +1743,7 @@ class HL7Messages {
 			}
 
 			// TODO Address....
-			$NK1->setValue('4.1.2', $patient->emergency_contact_address . ' ' . $patient->emergency_contact_address_cont);
+			$NK1->setValue('4.1.1', trim($patient->emergency_contact_address . ' ' . $patient->emergency_contact_address_cont));
 			$NK1->setValue('4.3', $patient->emergency_contact_city);
 			$NK1->setValue('4.4', $patient->emergency_contact_state);
 			$NK1->setValue('4.5', $patient->emergency_contact_zip);

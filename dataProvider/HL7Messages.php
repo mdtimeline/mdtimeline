@@ -861,20 +861,8 @@ class HL7Messages {
                     $OBX->setValue('5.2', $document['code_text']);
                     $OBX->setValue('5.3', $document['code_type']);
                     $OBX->setValue('11', 'F');
+                    $OBX->setValue('14.1', $this->date($document['publication_date'], false));
                     $obxCount++;
-
-                    if($this->notEmpty($document['publication_date'])){
-                        $OBX = $this->hl7->addSegment('OBX');
-                        $OBX->setValue('1', $obxCount);
-                        $OBX->setValue('2', 'DT');
-                        $OBX->setValue('3.1', '29769-7');
-                        $OBX->setValue('3.2', 'Date vaccine information statement published');
-                        $OBX->setValue('3.3', 'LN');
-                        $OBX->setValue('4', $immu['education_resource_1_id']);
-                        $OBX->setValue('5', $this->date($document['publication_date'], false));
-                        $OBX->setValue('11', 'F');
-                        $obxCount++;
-                    }
                 }
 
                 if($this->notEmpty($immu['education_presented_1_date'])){
@@ -887,6 +875,7 @@ class HL7Messages {
                     $OBX->setValue('4', $immu['education_resource_1_id']);
                     $OBX->setValue('5', $this->date($immu['education_presented_1_date'], false));
                     $OBX->setValue('11', 'F');
+	                $OBX->setValue('14.1', $this->date($immu['education_presented_1_date'], false));
                     $obxCount++;
                 }
             }

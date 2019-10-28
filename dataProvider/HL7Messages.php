@@ -663,8 +663,12 @@ class HL7Messages {
             // ORC - 4.5.1 ORC - Common Order Segment
             $ORC = $this->hl7->addSegment('ORC');
             $ORC->setValue('1', 'RE'); //HL70119
-            $ORC->setValue('3.1', 'GAIA10001');
-            $ORC->setValue('3.2', $immu['id']);
+
+	        $ORC->setValue('2.1', $immu['id']);
+	        $ORC->setValue('2.2', $this->namespace_id);
+
+            $ORC->setValue('3.1', $immu['id']);
+            $ORC->setValue('3.2', $this->namespace_id);
 
             if($this->notEmpty($immu['created_uid'])){
                 $this->u->clearFilters();

@@ -1345,7 +1345,6 @@ Ext.define('App.view.patient.Patient', {
 													name: 'birth_fname',
 													fieldLabel: _('birth_first_name'),
 													flex: 1,
-													allowBlank: false,
 													maxLength: 35
 												},
 												{
@@ -1361,7 +1360,6 @@ Ext.define('App.view.patient.Patient', {
 													name: 'birth_lname',
 													fieldLabel: _('birth_last_name'),
 													flex: 2,
-													allowBlank: false,
 													maxLength: 35
 												},
 												{

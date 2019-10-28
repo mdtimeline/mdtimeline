@@ -853,8 +853,8 @@ class HL7Messages {
                     $OBX = $this->hl7->addSegment('OBX');
                     $OBX->setValue('1', $obxCount);
                     $OBX->setValue('2', 'CE');
-                    $OBX->setValue('3.1', '30956-7');
-                    $OBX->setValue('3.2', 'vaccine type');
+                    $OBX->setValue('3.1', '69764-9');
+                    $OBX->setValue('3.2', 'Document Type');
                     $OBX->setValue('3.3', 'LN');
                     $OBX->setValue('4', $immu['education_resource_1_id']);
                     $OBX->setValue('5.1', $document['code']);
@@ -866,8 +866,8 @@ class HL7Messages {
                     if($this->notEmpty($document['publication_date'])){
                         $OBX = $this->hl7->addSegment('OBX');
                         $OBX->setValue('1', $obxCount);
-                        $OBX->setValue('2', 'TS');
-                        $OBX->setValue('3.1', '29768-9');
+                        $OBX->setValue('2', 'DT');
+                        $OBX->setValue('3.1', '29769-7');
                         $OBX->setValue('3.2', 'Date vaccine information statement published');
                         $OBX->setValue('3.3', 'LN');
                         $OBX->setValue('4', $immu['education_resource_1_id']);

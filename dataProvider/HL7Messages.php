@@ -806,7 +806,7 @@ class HL7Messages {
                 // Administration Site
                 $this->ListOptions->clearFilters();
                 $this->ListOptions->addFilter('list_key', 'admin_sites');
-                $this->ListOptions->addFilter('code', $immu['administration_site']);
+                $this->ListOptions->addFilter('option_value', $immu['administration_site']);
                 $Record = $this->ListOptions->load()->one();
                 if($Record !== false){
 	                $RXR->setValue('2.1', $Record['option_value']);

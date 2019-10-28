@@ -1716,8 +1716,12 @@ class HL7Messages {
 				$NK1->setValue('5.2', 'PRN');
 				$NK1->setValue('5.3', $patient->guardians_phone_type);
 				$phone = explode('-', $patient->guardians_phone);
-				$NK1->setValue('5.6', $phone[0]);
-				$NK1->setValue('5.7', $phone[1] . $phone[2]);
+				if(isset($phone[0])){
+					$NK1->setValue('5.6', $phone[0]);
+				}
+				if(isset($phone[1]) && isset($phone[2])) {
+					$NK1->setValue('5.7', $phone[1] . $phone[2]);
+				}
 			}
 
 			$NK1_index++;

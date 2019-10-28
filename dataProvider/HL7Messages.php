@@ -767,8 +767,8 @@ class HL7Messages {
                 $mvx = $immunization->getMvxByCode($immu['manufacturer']);
                 $mText = isset($mvx['manufacturer']) ? $mvx['manufacturer'] : '';
                 //Substance ManufacturerName
-                $RXA->setValue('17.1', str_replace('/&/g', 'and', $immu['manufacturer'])); //Identifier
-                $RXA->setValue('17.2', $mText); //Text
+                $RXA->setValue('17.1', $immu['manufacturer']); //Identifier
+                $RXA->setValue('17.2', str_replace('/&/g', 'and', $mText)); //Text
                 $RXA->setValue('17.3', 'MVX'); //Name of Coding System HL70396
             }
 

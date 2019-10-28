@@ -29,7 +29,7 @@ Ext.define('App.model.administration.EducationResource', {
 		{
 			name: 'code',
 			type: 'string',
-			len: 15
+			len: 40
 		},
 		{
 			name: 'code_text',

@@ -405,7 +405,7 @@ Ext.define('App.view.patient.Immunizations', {
 														margin: '0 5 5 0',
 														fieldLabel: _('publication'),
 														name: 'education_resource_1_id',
-														codeType: 'CVX'
+														codeType: 'cdcgs1vis'
 													},
 													{
 														xtype: 'datefield',
@@ -425,7 +425,7 @@ Ext.define('App.view.patient.Immunizations', {
 														width: 145,
 														margin: '0 5 5 0',
 														name: 'education_resource_2_id',
-														codeType: 'CVX'
+														codeType: 'cdcgs1vis'
 													},
 													{
 														xtype: 'datefield',
@@ -444,7 +444,7 @@ Ext.define('App.view.patient.Immunizations', {
 														width: 145,
 														margin: '0 0 5 0',
 														name: 'education_resource_3_id',
-														codeType: 'CVX'
+														codeType: 'cdcgs1vis'
 													},
 													{
 														xtype: 'datefield',

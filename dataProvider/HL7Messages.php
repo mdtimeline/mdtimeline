@@ -677,6 +677,7 @@ class HL7Messages {
                     $ORC->setValue('10.4', $administered_by['mname']);
                     $ORC->setValue('10.9.1', $this->namespace_id);
                     $ORC->setValue('10.10', 'L');
+                    $ORC->setValue('10.13', 'PRN');
                 }
             }
 
@@ -691,6 +692,7 @@ class HL7Messages {
                     $ORC->setValue('12.4', $ordered_by['mname']);
                     $ORC->setValue('12.9.1', $this->namespace_id);
                     $ORC->setValue('12.10', 'L');
+                    $ORC->setValue('12.13', 'MD');
                 }
             }
 
@@ -732,6 +734,7 @@ class HL7Messages {
                     $RXA->setValue('10.4', $administered_by['mname']);
                     $RXA->setValue('10.9.1', $this->namespace_id);
                     $RXA->setValue('10.10', 'L');
+	                $RXA->setValue('10.13', 'PRN');
                 }
             }
 
@@ -787,7 +790,7 @@ class HL7Messages {
                 $Record = $this->ListOptions->load()->one();
                 $RXR->setValue('1.1', $Record['option_value']);
                 $RXR->setValue('1.2', $Record['option_name']);
-                $RXR->setValue('1.3', $Record['code_type']);
+                $RXR->setValue('1.3', 'NCIT');
                 // Administration Site
                 $this->ListOptions->clearFilters();
                 $this->ListOptions->addFilter('list_id', 119);
@@ -795,7 +798,7 @@ class HL7Messages {
                 $Record = $this->ListOptions->load()->one();
                 $RXR->setValue('2.1', $Record['option_value']);
                 $RXR->setValue('2.2', $Record['option_name']);
-                $RXR->setValue('2.3', $Record['code_type']);
+                $RXR->setValue('2.3', 'HL70163');
             }
 
             // OBX - 7.4.2 OBX - Observation/Result Segment

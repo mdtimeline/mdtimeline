@@ -618,6 +618,12 @@ class HL7Messages {
         $msh->setValue('9.2', 'V04');
         $msh->setValue('9.3', 'VXU_V04');
         $msh->setValue('15', 'ER');
+        $msh->setValue('16', 'AL');
+
+	    $msh->setValue('21.1', 'Z22');
+	    $msh->setValue('21.2', 'CDCPHINVS');
+	    $msh->setValue('22.1', 'NISTEHRFAC');
+	    $msh->setValue('23.1', 'NISTIISFAC');
 
         // PID
         $this->setPID();

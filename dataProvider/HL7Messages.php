@@ -108,6 +108,10 @@ class HL7Messages {
 	 */
 	private $encounter;
 	/**
+	 * @var bool|int|stdClass
+	 */
+	private $facility = false;
+	/**
 	 * @var string
 	 */
 	private $type;
@@ -606,6 +610,11 @@ class HL7Messages {
 
         $this->patient = $params->pid;
         $this->encounter = isset($params->eid) ? $params->eid : 0;
+
+        if(isset($params->facility_id) && $params->facility_id > 0){
+	        $this->facility = $this->f->load($params->facility_id)->one();
+        }
+
         $this->type = 'VXU';
 
         if(isset($params->map_codes_types)){
@@ -1291,7 +1300,11 @@ class HL7Messages {
 		if($this->notEmpty($this->patient->pubpid)){
 			$pid->setValue('3.1', $this->patient->pubpid, $index);
 
-            if($this->encounter->facility !== false){
+            if($this->facility !== false){
+                $pid->setValue('3.4.1', $this->facility['name']);
+                $pid->setValue('3.4.2', $this->facility['npi']);
+                $pid->setValue('3.4.3', 'NPI');
+            }elseif($this->encounter->facility !== false){
                 $pid->setValue('3.4.1', $this->encounter->facility['name']);
                 $pid->setValue('3.4.2', $this->encounter->facility['npi']);
                 $pid->setValue('3.4.3', 'NPI');
@@ -1304,7 +1317,11 @@ class HL7Messages {
 		} elseif($this->notEmpty($this->patient->pid)) {
 			$pid->setValue('3.1', $this->patient->pid, $index);
 
-            if($this->encounter->facility !== false){
+			if($this->facility !== false){
+				$pid->setValue('3.4.1', $this->facility['name']);
+				$pid->setValue('3.4.2', $this->facility['npi']);
+				$pid->setValue('3.4.3', 'NPI');
+			}elseif($this->encounter->facility !== false){
                 $pid->setValue('3.4.1', $this->encounter->facility['name']);
                 $pid->setValue('3.4.2', $this->encounter->facility['npi']);
                 $pid->setValue('3.4.3', 'NPI');
@@ -1586,7 +1603,11 @@ class HL7Messages {
 		}
 
 
-		if($this->encounter->facility !== false){
+		if($this->facility !== false){
+            $pv1->setValue('19.4.1', $this->facility['name']);
+            $pv1->setValue('19.4.2', $this->facility['npi']);
+            $pv1->setValue('19.4.3', 'NPI');
+        }elseif($this->encounter->facility !== false){
             $pv1->setValue('19.4.1', $this->encounter->facility['name']);
             $pv1->setValue('19.4.2', $this->encounter->facility['npi']);
             $pv1->setValue('19.4.3', 'NPI');

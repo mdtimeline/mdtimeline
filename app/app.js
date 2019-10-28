@@ -44595,7 +44595,7 @@ Ext.define('App.controller.patient.Immunizations', {
 			params = {
 				pid: app.patient.pid,
 				eid: app.patient.eid,
-				facility: app.user.facility,
+				facility_id: app.user.facility,
 				action: 'NEW',
 				immunizations: []
 			};

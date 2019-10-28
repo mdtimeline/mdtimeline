@@ -696,6 +696,16 @@ class HL7Messages {
                 }
             }
 
+	        if(isset($this->facility) && $this->facility !== false){
+		        $ORC->setValue('17.1', $this->facility['name']);
+		        $ORC->setValue('17.2', $this->facility['npi']);
+		        $ORC->setValue('17.3', 'NPI');
+	        }elseif(isset($this->encounter->facility) && $this->encounter->facility !== false){
+		        $ORC->setValue('17.1', $this->encounter->facility['name']);
+		        $ORC->setValue('17.2', $this->encounter->facility['npi']);
+		        $ORC->setValue('17.3', 'NPI');
+	        }
+
             // RXA - 4.14.7 RXA - Pharmacy/Treatment Administration Segment
             $RXA = $this->hl7->addSegment('RXA');
             $RXA->setValue('3.1', $this->date($immu['administered_date'], false)); //Date/Time Start of Administration

@@ -258,7 +258,7 @@ Ext.define('App.view.patient.Immunizations', {
 												list: 119,
 												queryMode: 'local',
 												loadStore: true,
-												name: 'administration_site'
+												name: 'route_of_administration'
 											}
 										]
 

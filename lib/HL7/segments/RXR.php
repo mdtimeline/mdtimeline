@@ -73,7 +73,7 @@ class RXR extends Segments{
          * Body Site may also be employed. Other appropriate external code sets (e.g., SNOMED) may also be
          * employed.
          */
-        $this->setField(2, 'ST', 250, false);
+        $this->setField(2, 'CWE', 250, false);
 
         /**
          * RXR-3 Administration Device (CE) 00311

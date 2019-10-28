@@ -795,20 +795,25 @@ class HL7Messages {
                 $RXR = $this->hl7->addSegment('RXR');
                 // Route
                 $this->ListOptions->clearFilters();
-                $this->ListOptions->addFilter('list_id', 6);
+                $this->ListOptions->addFilter('list_key', 'route_of_administration');
                 $this->ListOptions->addFilter('option_value', $immu['route']);
                 $Record = $this->ListOptions->load()->one();
-                $RXR->setValue('1.1', $Record['option_value']);
-                $RXR->setValue('1.2', $Record['option_name']);
-                $RXR->setValue('1.3', 'NCIT');
+	            if($Record !== false) {
+		            $RXR->setValue('1.1', $Record['option_value']);
+		            $RXR->setValue('1.2', $Record['option_name']);
+		            $RXR->setValue('1.3', 'NCIT');
+	            }
                 // Administration Site
                 $this->ListOptions->clearFilters();
-                $this->ListOptions->addFilter('list_id', 119);
+                $this->ListOptions->addFilter('list_key', 'admin_sites');
                 $this->ListOptions->addFilter('code', $immu['administration_site']);
                 $Record = $this->ListOptions->load()->one();
-                $RXR->setValue('2.1', $Record['option_value']);
-                $RXR->setValue('2.2', $Record['option_name']);
-                $RXR->setValue('2.3', 'HL70163');
+                if($Record !== false){
+	                $RXR->setValue('2.1', $Record['option_value']);
+	                $RXR->setValue('2.2', $Record['option_name']);
+	                $RXR->setValue('2.3', 'HL70163');
+                }
+
             }
 
             // OBX - 7.4.2 OBX - Observation/Result Segment

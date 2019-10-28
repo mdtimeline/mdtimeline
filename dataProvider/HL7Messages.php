@@ -885,42 +885,32 @@ class HL7Messages {
                 $document = $this->d->load(['id' => $immu['education_resource_2_id']])->one();
                 if($document !==  false){
                     $OBX = $this->hl7->addSegment('OBX');
-                    $OBX->setValue('1', $obxCount);
-                    $OBX->setValue('2', 'CE');
-                    $OBX->setValue('3.1', '30956-7');
-                    $OBX->setValue('3.2', 'vaccine type');
-                    $OBX->setValue('3.3', 'LN');
-                    $OBX->setValue('4', $immu['education_resource_2_id']);
-                    $OBX->setValue('5.1', $document['code']);
-                    $OBX->setValue('5.2', $document['code_text']);
-                    $OBX->setValue('5.3', $document['code_type']);
-                    $OBX->setValue('11', 'F');
+	                $OBX->setValue('1', $obxCount);
+	                $OBX->setValue('2', 'CE');
+	                $OBX->setValue('3.1', '69764-9');
+	                $OBX->setValue('3.2', 'Document Type');
+	                $OBX->setValue('3.3', 'LN');
+	                $OBX->setValue('4', $immu['education_resource_2_id']);
+	                $OBX->setValue('5.1', $document['code']);
+	                $OBX->setValue('5.2', $document['code_text']);
+	                $OBX->setValue('5.3', $document['code_type']);
+	                $OBX->setValue('11', 'F');
+	                $OBX->setValue('14.1', $this->date($immu['education_presented_2_date'], false));
                     $obxCount++;
 
-                    if($this->notEmpty($document['publication_date'])){
-                        $OBX = $this->hl7->addSegment('OBX');
-                        $OBX->setValue('1', $obxCount);
-                        $OBX->setValue('2', 'TS');
-                        $OBX->setValue('3.1', '29768-9');
-                        $OBX->setValue('3.2', 'Date vaccine information statement published');
-                        $OBX->setValue('3.3', 'LN');
-                        $OBX->setValue('4', $immu['education_resource_2_id']);
-                        $OBX->setValue('5', $this->date($document['publication_date'], false));
-                        $OBX->setValue('11', 'F');
-                        $obxCount++;
-                    }
                 }
 
                 if($this->notEmpty($immu['education_presented_2_date'])){
                     $OBX = $this->hl7->addSegment('OBX');
-                    $OBX->setValue('1', $obxCount);
-                    $OBX->setValue('2', 'TS');
-                    $OBX->setValue('3.1', '29769-7');
-                    $OBX->setValue('3.2', 'Date Vis Presented');
-                    $OBX->setValue('3.3', 'LN');
-                    $OBX->setValue('4', $immu['education_resource_2_id']);
-                    $OBX->setValue('5', $this->date($immu['education_presented_2_date'], false));
-                    $OBX->setValue('11', 'F');
+	                $OBX->setValue('1', $obxCount);
+	                $OBX->setValue('2', 'TS');
+	                $OBX->setValue('3.1', '29769-7');
+	                $OBX->setValue('3.2', 'Date Vis Presented');
+	                $OBX->setValue('3.3', 'LN');
+	                $OBX->setValue('4', $immu['education_resource_2_id']);
+	                $OBX->setValue('5', $this->date($immu['education_presented_2_date'], false));
+	                $OBX->setValue('11', 'F');
+	                $OBX->setValue('14.1', $this->date($immu['education_presented_2_date'], false));
                     $obxCount++;
                 }
             }
@@ -930,42 +920,31 @@ class HL7Messages {
                 $document = $this->d->load(['id' => $immu['education_resource_3_id']])->one();
                 if($document !==  false){
                     $OBX = $this->hl7->addSegment('OBX');
-                    $OBX->setValue('1', $obxCount);
-                    $OBX->setValue('2', 'CE');
-                    $OBX->setValue('3.1', '30956-7');
-                    $OBX->setValue('3.2', 'vaccine type');
-                    $OBX->setValue('3.3', 'LN');
-                    $OBX->setValue('4', $immu['education_resource_3_id']);
-                    $OBX->setValue('5.1', $document['code']);
-                    $OBX->setValue('5.2', $document['code_text']);
-                    $OBX->setValue('5.3', $document['code_type']);
-                    $OBX->setValue('11', 'F');
+	                $OBX->setValue('1', $obxCount);
+	                $OBX->setValue('2', 'CE');
+	                $OBX->setValue('3.1', '69764-9');
+	                $OBX->setValue('3.2', 'Document Type');
+	                $OBX->setValue('3.3', 'LN');
+	                $OBX->setValue('4', $immu['education_resource_3_id']);
+	                $OBX->setValue('5.1', $document['code']);
+	                $OBX->setValue('5.2', $document['code_text']);
+	                $OBX->setValue('5.3', $document['code_type']);
+	                $OBX->setValue('11', 'F');
+	                $OBX->setValue('14.1', $this->date($immu['education_presented_3_date'], false));
                     $obxCount++;
-
-                    if($this->notEmpty($document['publication_date'])){
-                        $OBX = $this->hl7->addSegment('OBX');
-                        $OBX->setValue('1', $obxCount);
-                        $OBX->setValue('2', 'TS');
-                        $OBX->setValue('3.1', '29768-9');
-                        $OBX->setValue('3.2', 'Date vaccine information statement published');
-                        $OBX->setValue('3.3', 'LN');
-                        $OBX->setValue('4', $immu['education_resource_3_id']);
-                        $OBX->setValue('5', $this->date($document['publication_date'], false));
-                        $OBX->setValue('11', 'F');
-                        $obxCount++;
-                    }
                 }
 
                 if($this->notEmpty($immu['education_presented_3_date'])){
                     $OBX = $this->hl7->addSegment('OBX');
-                    $OBX->setValue('1', $obxCount);
-                    $OBX->setValue('2', 'TS');
-                    $OBX->setValue('3.1', '29769-7');
-                    $OBX->setValue('3.2', 'Date Vis Presented');
-                    $OBX->setValue('3.3', 'LN');
-                    $OBX->setValue('4', $immu['education_resource_3_id']);
-                    $OBX->setValue('5', $this->date($immu['education_presented_3_date'], false));
-                    $OBX->setValue('11', 'F');
+	                $OBX->setValue('1', $obxCount);
+	                $OBX->setValue('2', 'TS');
+	                $OBX->setValue('3.1', '29769-7');
+	                $OBX->setValue('3.2', 'Date Vis Presented');
+	                $OBX->setValue('3.3', 'LN');
+	                $OBX->setValue('4', $immu['education_resource_1_id']);
+	                $OBX->setValue('5', $this->date($immu['education_presented_3_date'], false));
+	                $OBX->setValue('11', 'F');
+	                $OBX->setValue('14.1', $this->date($immu['education_presented_3_date'], false));
                     $obxCount++;
                 }
             }

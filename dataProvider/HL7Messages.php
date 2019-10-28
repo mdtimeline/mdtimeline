@@ -798,7 +798,7 @@ class HL7Messages {
                 $OBX->setValue('3.1', '30963-3');
                 $OBX->setValue('3.2', 'Vaccine Funding Source');
                 $OBX->setValue('3.3', 'LN');
-                $OBX->setValue('4', isset($immu['eid']) && $immu['eid'] > 0 ? $immu['eid'] : '0');
+                $OBX->setValue('4', '1');
 
                 if($immu['vfc_code'] === 'V01'){
                     $OBX->setValue('5.1','PHC70'); // PHC70
@@ -821,7 +821,7 @@ class HL7Messages {
                 $OBX->setValue('3.1', '64994-7');
                 $OBX->setValue('3.2', 'Vaccine funding program eligibility category');
                 $OBX->setValue('3.3', 'LN');
-                $OBX->setValue('4', isset($immu['eid']) && $immu['eid'] > 0 ? $immu['eid'] : '0');
+                $OBX->setValue('4', '2');
                 $OBX->setValue('5.1', $Record['option_value']);
                 $OBX->setValue('5.2', $Record['option_name']);
                 $OBX->setValue('5.3', $Record['code_type']);
@@ -964,7 +964,6 @@ class HL7Messages {
                     $obxCount++;
                 }
             }
-
 
 
             if($this->notEmpty($immu['is_presumed_immunity']) && $this->notEmpty($immu['presumed_immunity_code'])){

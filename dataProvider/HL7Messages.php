@@ -1348,6 +1348,9 @@ class HL7Messages {
 		if($this->notEmpty($this->patient->mother_mname)){
 			$pid->setValue('6.3', $this->patient->mother_mname);
 		}
+		if($this->notEmpty($this->patient->mother_lname)){
+			$pid->setValue('6.7', 'M');
+		}
 		if($this->notEmpty($this->patient->DOB)){
 			$pid->setValue('7.1', $this->date($this->patient->DOB));
 		}
@@ -1480,10 +1483,14 @@ class HL7Messages {
 			} else {
 				$pid->setValue('24', 'N');
 			}
+		}else{
+			$pid->setValue('24', 'N');
 		}
-//		if($this->notEmpty($this->patient->birth_order)){
-//			$pid->setValue('25', $this->patient->birth_order);
-//		}
+		if($this->notEmpty($this->patient->birth_order)){
+			$pid->setValue('25', $this->patient->birth_order);
+		}else{
+			$pid->setValue('25', '1');
+		}
 		if($this->notEmpty($this->patient->citizenship)){
 			$pid->setValue('26.1', $this->patient->citizenship);
 		}
@@ -1493,6 +1500,8 @@ class HL7Messages {
 		if($this->notEmpty($this->patient->death_date) && $this->notEmpty($this->patient->deceased)){
 			$pid->setValue('29.1', $this->date($this->patient->death_date));
 			$pid->setValue('30', 'Y');
+		}else{
+			$pid->setValue('30', 'N');
 		}
 		if($this->notEmpty($this->patient->update_date)){
 			$pid->setValue('33.1', $this->date($this->patient->update_date));

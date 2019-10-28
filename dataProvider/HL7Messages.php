@@ -699,7 +699,7 @@ class HL7Messages {
             // RXA - 4.14.7 RXA - Pharmacy/Treatment Administration Segment
             $RXA = $this->hl7->addSegment('RXA');
             $RXA->setValue('3.1', $this->date($immu['administered_date'], false)); //Date/Time Start of Administration
-            $RXA->setValue('4.1', $this->date($immu['administered_date'], false)); //Date/Time End of Administration
+            //$RXA->setValue('4.1', $this->date($immu['administered_date'], false)); //Date/Time End of Administration
             //Administered Code
             $RXA->setValue('5.1', $immu['code']); //Identifier
             $RXA->setValue('5.2', $immu['vaccine_name']); //Text
@@ -872,7 +872,7 @@ class HL7Messages {
                 if($this->notEmpty($immu['education_presented_1_date'])){
                     $OBX = $this->hl7->addSegment('OBX');
                     $OBX->setValue('1', $obxCount);
-                    $OBX->setValue('2', 'TS');
+                    $OBX->setValue('2', 'DT');
                     $OBX->setValue('3.1', '29769-7');
                     $OBX->setValue('3.2', 'Date Vis Presented');
                     $OBX->setValue('3.3', 'LN');
@@ -906,7 +906,7 @@ class HL7Messages {
                 if($this->notEmpty($immu['education_presented_2_date'])){
                     $OBX = $this->hl7->addSegment('OBX');
 	                $OBX->setValue('1', $obxCount);
-	                $OBX->setValue('2', 'TS');
+	                $OBX->setValue('2', 'DT');
 	                $OBX->setValue('3.1', '29769-7');
 	                $OBX->setValue('3.2', 'Date Vis Presented');
 	                $OBX->setValue('3.3', 'LN');
@@ -940,7 +940,7 @@ class HL7Messages {
                 if($this->notEmpty($immu['education_presented_3_date'])){
                     $OBX = $this->hl7->addSegment('OBX');
 	                $OBX->setValue('1', $obxCount);
-	                $OBX->setValue('2', 'TS');
+	                $OBX->setValue('2', 'DT');
 	                $OBX->setValue('3.1', '29769-7');
 	                $OBX->setValue('3.2', 'Date Vis Presented');
 	                $OBX->setValue('3.3', 'LN');

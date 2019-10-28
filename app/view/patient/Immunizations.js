@@ -255,10 +255,10 @@ Ext.define('App.view.patient.Immunizations', {
 												fieldLabel: _('administration_site'),
 												width: 295,
 												labelWidth: 110,
-												list: 119,
+												listKey: 'route_of_administration',
 												queryMode: 'local',
 												loadStore: true,
-												name: 'route_of_administration'
+												name: 'administration_site'
 											}
 										]
 

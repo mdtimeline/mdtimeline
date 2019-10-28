@@ -848,6 +848,7 @@ class HL7Messages {
             }
 
             if($this->notEmpty($immu['education_resource_1_id']) && $immu['education_resource_1_id'] > 0){
+
                 $document = $this->d->load(['id' => $immu['education_resource_1_id']])->one();
                 if($document !==  false){
                     $OBX = $this->hl7->addSegment('OBX');
@@ -861,7 +862,7 @@ class HL7Messages {
                     $OBX->setValue('5.2', $document['code_text']);
                     $OBX->setValue('5.3', $document['code_type']);
                     $OBX->setValue('11', 'F');
-                    $OBX->setValue('14.1', $this->date($document['publication_date'], false));
+                    $OBX->setValue('14.1', $this->date($immu['education_presented_1_date'], false));
                     $obxCount++;
                 }
 

@@ -50782,7 +50782,7 @@ Ext.define('App.view.patient.Immunizations', {
 												fieldLabel: _('administration_site'),
 												width: 295,
 												labelWidth: 110,
-												listKey: 'route_of_administration',
+												listKey: 'admin_sites',
 												queryMode: 'local',
 												loadStore: true,
 												name: 'administration_site'
@@ -50801,7 +50801,7 @@ Ext.define('App.view.patient.Immunizations', {
 											{
 												fieldLabel: _('route'),
 												xtype: 'gaiaehr.combo',
-												list: 6,
+												listKey: 'route_of_administration',
 												queryMode: 'local',
 												loadStore: true,
 												width: 295,

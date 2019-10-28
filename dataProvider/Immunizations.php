@@ -52,6 +52,9 @@ class Immunizations {
 	 * @return array
 	 */
 	public function getPatientImmunizations($params){
+
+		unset($params->group);
+
 		return $this->i->load($params)->leftJoin(
 			[
 				'title' => 'administered_title',
@@ -70,6 +73,9 @@ class Immunizations {
 	 * @return array
 	 */
 	public function getPatientImmunization($params){
+
+		unset($params->group);
+
 		return $this->i->load($params)->leftJoin(
 			[
 				'title' => 'administered_title',

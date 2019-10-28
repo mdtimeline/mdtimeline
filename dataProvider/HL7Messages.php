@@ -696,8 +696,8 @@ class HL7Messages {
 
             // RXA - 4.14.7 RXA - Pharmacy/Treatment Administration Segment
             $RXA = $this->hl7->addSegment('RXA');
-            $RXA->setValue('3.1', $this->date($immu['administered_date'])); //Date/Time Start of Administration
-            $RXA->setValue('4.1', $this->date($immu['administered_date'])); //Date/Time End of Administration
+            $RXA->setValue('3.1', $this->date($immu['administered_date'], false)); //Date/Time Start of Administration
+            $RXA->setValue('4.1', $this->date($immu['administered_date'], false)); //Date/Time End of Administration
             //Administered Code
             $RXA->setValue('5.1', $immu['code']); //Identifier
             $RXA->setValue('5.2', $immu['vaccine_name']); //Text

@@ -50,8 +50,7 @@ Ext.define('App.model.patient.PatientImmunization', {
 		{
 			name: 'code',
 			type: 'string',
-			len: 10,
-			comment: 'vaccine code (CVX)'
+			len: 20
 		},
 		{
 			name: 'code_type',

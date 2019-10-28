@@ -715,7 +715,7 @@ class HL7Messages {
             $RXA->setValue('5.2', $immu['vaccine_name']); //Text
             $RXA->setValue('5.3', $immu['code_type']); //Name of Coding System
 
-            if($this->isPresent($immu['administer_amount'])){
+            if($this->isPresent($immu['administer_amount']) && $immu['administer_amount'] !== '999'){
                 $RXA->setValue('6', $immu['administer_amount']); //Administered Amount
                 $RXA->setValue('7.1', $immu['administer_units']); //Identifier
                 $RXA->setValue('7.2', $immu['administer_units']); // Text

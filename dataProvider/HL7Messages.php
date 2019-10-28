@@ -666,35 +666,35 @@ class HL7Messages {
             $ORC->setValue('3.1', 'GAIA10001');
             $ORC->setValue('3.2', $immu['id']);
 
-            if($this->notEmpty($immu['administered_uid'])){
+            if($this->notEmpty($immu['created_uid'])){
                 $this->u->clearFilters();
-                $this->u->addFilter('id', $immu['administered_uid']);
-                $administered_by = $this->u->load()->one();
-                if($administered_by !== false){
-                    $ORC->setValue('10.1', $administered_by['id']);
-                    $ORC->setValue('10.2.1', $administered_by['lname']);
-                    $ORC->setValue('10.3', $administered_by['fname']);
-                    $ORC->setValue('10.4', $administered_by['mname']);
+                $this->u->addFilter('id', $immu['created_uid']);
+                $ordered_by = $this->u->load()->one();
+                if($ordered_by !== false){
+                    $ORC->setValue('10.1', $ordered_by['id']);
+                    $ORC->setValue('10.2.1', $ordered_by['lname']);
+                    $ORC->setValue('10.3', $ordered_by['fname']);
+                    $ORC->setValue('10.4', $ordered_by['mname']);
                     $ORC->setValue('10.9.1', $this->namespace_id);
                     $ORC->setValue('10.10', 'L');
                     $ORC->setValue('10.13', 'PRN');
                 }
             }
 
-            if($this->notEmpty($immu['created_uid'])){
-                $this->u->clearFilters();
-                $this->u->addFilter('id', $immu['created_uid']);
-                $ordered_by = $this->u->load()->one();
-                if($ordered_by !== false){
-                    $ORC->setValue('12.1', $ordered_by['id']);
-                    $ORC->setValue('12.2.1', $ordered_by['lname']);
-                    $ORC->setValue('12.3', $ordered_by['fname']);
-                    $ORC->setValue('12.4', $ordered_by['mname']);
-                    $ORC->setValue('12.9.1', $this->namespace_id);
-                    $ORC->setValue('12.10', 'L');
-                    $ORC->setValue('12.13', 'MD');
-                }
-            }
+	        if($this->notEmpty($immu['administered_uid'])){
+		        $this->u->clearFilters();
+		        $this->u->addFilter('id', $immu['administered_uid']);
+		        $administered_by = $this->u->load()->one();
+		        if($administered_by !== false){
+			        $ORC->setValue('12.1', $administered_by['id']);
+			        $ORC->setValue('12.2.1', $administered_by['lname']);
+			        $ORC->setValue('12.3', $administered_by['fname']);
+			        $ORC->setValue('12.4', $administered_by['mname']);
+			        $ORC->setValue('12.9.1', $this->namespace_id);
+			        $ORC->setValue('12.10', 'L');
+			        $ORC->setValue('12.13', 'MD');
+		        }
+	        }
 
 	        if(isset($this->facility) && $this->facility !== false){
 		        $ORC->setValue('17.1', $this->facility['name']);

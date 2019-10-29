@@ -784,10 +784,11 @@ class HL7Messages {
                     $RXA->setValue('18.2', $Record['option_name']);
                     $RXA->setValue('18.3', 'NIP002');
                     $RXA->setValue('20', 'RE');
+	                $ORC->setValue('3.1', '9999');
                 }
             }else if($immu['code'] == '998'){
                 $RXA->setValue('20', 'NA');
-	            $RXA->setValue('3.1', '9999');
+	            $ORC->setValue('3.1', '9999');
             }else{
                 $RXA->setValue('20', 'CP'); //complete
             }

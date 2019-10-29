@@ -787,6 +787,7 @@ class HL7Messages {
                 }
             }else if($immu['code'] == '998'){
                 $RXA->setValue('20', 'NA');
+	            $RXA->setValue('3.1', '9999');
             }else{
                 $RXA->setValue('20', 'CP'); //complete
             }

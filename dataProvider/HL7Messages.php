@@ -1292,48 +1292,26 @@ class HL7Messages {
 
 		$index = 0;
 		if($this->notEmpty($this->patient->pubpid)){
-			$pid->setValue('3.1', $this->patient->pubpid, $index);
-
-            if(isset($this->facility) && $this->facility !== false && $this->notEmpty($this->facility['external_id'])){
-                $pid->setValue('3.4.1', $this->facility['name']);
-                $pid->setValue('3.4.2', $this->facility['external_id']);
-                $pid->setValue('3.4.3', 'OID');
-            }elseif(isset($this->encounter->facility) && $this->encounter->facility !== false && $this->notEmpty($this->encounter->facility['external_id'])){
-                $pid->setValue('3.4.1', $this->encounter->facility['name']);
-                $pid->setValue('3.4.2', $this->encounter->facility['external_id']);
-                $pid->setValue('3.4.3', 'OID');
-            }else{
-                $pid->setValue('3.4', $this->namespace_id);
-            }
-
-			$pid->setValue('3.5', 'MR', $index); // IDNumber Type (HL70203) MR = Medical Record
-			$index++;
+			$pid->setValue('3.1', $this->patient->pubpid);
 		} elseif($this->notEmpty($this->patient->pid)) {
-			$pid->setValue('3.1', $this->patient->pid, $index);
-
-			if(isset($this->facility) && $this->facility !== false && $this->notEmpty($this->facility['npi'])){
-				$pid->setValue('3.4.1', $this->facility['name']);
-				$pid->setValue('3.4.2', $this->facility['npi']);
-				$pid->setValue('3.4.3', 'NPI');
-			}elseif(isset($this->encounter->facility) && $this->encounter->facility !== false && $this->notEmpty($this->encounter->facility['npi'])){
-                $pid->setValue('3.4.1', $this->encounter->facility['name']);
-                $pid->setValue('3.4.2', $this->encounter->facility['npi']);
-                $pid->setValue('3.4.3', 'NPI');
-            }else{
-                $pid->setValue('3.4', $this->namespace_id);
-            }
-
-			$pid->setValue('3.5', 'MR', $index);  // IDNumber Type (HL70203) MR = Medical Record
-			$index++;
+			$pid->setValue('3.1', $this->patient->pid);
 		}
 
-		// added SS if exist
-		if($this->notEmpty($this->patient->SS)){
-			$pid->setValue('3.1', $this->patient->SS, $index);
-			$pid->setValue('3.4', 'SSA', $index);
-			$pid->setValue('3.5', 'SS', $index); // IDNumber Type (HL70203) SS = Social Security
+		$facility = $this->facility || $this->encounter->facility;
+
+		if($facility !== false){
+			$pid->setValue('3.4.1', $facility['name']);
+			if($this->notEmpty($facility['external_id'])){
+				$pid->setValue('3.4.2', $facility['external_id']);
+			}elseif($this->notEmpty($this->facility['npi'])){
+				$pid->setValue('3.4.2', $facility['npi']);
+			}
+			$pid->setValue('3.4.3', 'ISO');
+		}else{
+			$pid->setValue('3.4', $this->namespace_id);
 		}
-		unset($index);
+
+		$pid->setValue('3.5', 'MR', $index); // IDNumber Type (HL70203) MR = Medical Record
 
 		if($this->anonymous){
 			$pid->setValue('5.7', 'S', 1);

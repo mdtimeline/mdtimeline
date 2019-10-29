@@ -245,7 +245,7 @@ class HL7Messages {
 
 		$this->setEVN();
 
-		$this->setPID();
+		$this->setPID(false);
 
 		$this->setPV1($event);
 
@@ -1264,7 +1264,7 @@ class HL7Messages {
 		$evn->setValue('7.3', 'NPI');
 	}
 
-	private function setPID() {
+	private function setPID($include_death_flag = true) {
 
 		$this->patient = $this->p->load($this->patient)->one();
 
@@ -1494,6 +1494,8 @@ class HL7Messages {
 		if($this->notEmpty($this->patient->death_date) && $this->notEmpty($this->patient->deceased)){
 			$pid->setValue('29.1', $this->date($this->patient->death_date));
 			$pid->setValue('30', 'Y');
+		}elseif($include_death_flag){
+			$pid->setValue('30', 'N');
 		}
 		if($this->notEmpty($this->patient->update_date)){
 			$pid->setValue('33.1', $this->date($this->patient->update_date));

@@ -1292,11 +1292,11 @@ class HL7Messages {
 		if($this->notEmpty($this->patient->pubpid)){
 			$pid->setValue('3.1', $this->patient->pubpid, $index);
 
-            if(isset($this->facility) && $this->facility !== false){
+            if(isset($this->facility) && $this->facility !== false && $this->notEmpty($this->facility['npi'])){
                 $pid->setValue('3.4.1', $this->facility['name']);
                 $pid->setValue('3.4.2', $this->facility['npi']);
                 $pid->setValue('3.4.3', 'NPI');
-            }elseif(isset($this->encounter->facility) && $this->encounter->facility !== false){
+            }elseif(isset($this->encounter->facility) && $this->encounter->facility !== false && $this->notEmpty($this->encounter->facility['npi'])){
                 $pid->setValue('3.4.1', $this->encounter->facility['name']);
                 $pid->setValue('3.4.2', $this->encounter->facility['npi']);
                 $pid->setValue('3.4.3', 'NPI');
@@ -1309,11 +1309,11 @@ class HL7Messages {
 		} elseif($this->notEmpty($this->patient->pid)) {
 			$pid->setValue('3.1', $this->patient->pid, $index);
 
-			if(isset($this->facility) && $this->facility !== false){
+			if(isset($this->facility) && $this->facility !== false && $this->notEmpty($this->facility['npi'])){
 				$pid->setValue('3.4.1', $this->facility['name']);
 				$pid->setValue('3.4.2', $this->facility['npi']);
 				$pid->setValue('3.4.3', 'NPI');
-			}elseif(isset($this->encounter->facility) && $this->encounter->facility !== false){
+			}elseif(isset($this->encounter->facility) && $this->encounter->facility !== false && $this->notEmpty($this->encounter->facility['npi'])){
                 $pid->setValue('3.4.1', $this->encounter->facility['name']);
                 $pid->setValue('3.4.2', $this->encounter->facility['npi']);
                 $pid->setValue('3.4.3', 'NPI');

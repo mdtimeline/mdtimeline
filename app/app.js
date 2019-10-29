@@ -44647,7 +44647,7 @@ Ext.define('App.controller.patient.Immunizations', {
 
 		var record = checkbox.up('form').getForm().getRecord(),
 			checked = checkbox.getValue(),
-			is_ndc = record.get('code_type') === '' || record.get('code_type') === 'NDC';
+			is_ndc = record.get('code_type') === 'NDC';
 
 		this.setImmunizationFields(checked, is_ndc);
 
@@ -44699,7 +44699,7 @@ Ext.define('App.controller.patient.Immunizations', {
 		var cvxField = this.getImmunizationsImmunizationSearch(),
 			ndcField = this.getImmunizationsImmunizationNdcSearch();
 
-		if(value === '' || value === null || value === '00'){
+		if(value === '00'){
 			cvxField.hide();
 			cvxField.disable();
 
@@ -44752,7 +44752,7 @@ Ext.define('App.controller.patient.Immunizations', {
 
 	onPatientImmunizationsGridBeforeEdit: function(plugin, context){
 		var record = context.record,
-			is_ndc = record.get('code_type') === '' || record.get('code_type') === 'NDC',
+			is_ndc = record.get('code_type') === 'NDC',
 			administer_field = plugin.editor.getForm().findField('administered_by'),
 			cvx_field = this.getImmunizationsImmunizationSearch(),
 			ndc_field = this.getImmunizationsImmunizationNdcSearch();

@@ -1492,8 +1492,6 @@ class HL7Messages {
 		if($this->notEmpty($this->patient->death_date) && $this->notEmpty($this->patient->deceased)){
 			$pid->setValue('29.1', $this->date($this->patient->death_date));
 			$pid->setValue('30', 'Y');
-		}else{
-			$pid->setValue('30', 'N');
 		}
 		if($this->notEmpty($this->patient->update_date)){
 			$pid->setValue('33.1', $this->date($this->patient->update_date));

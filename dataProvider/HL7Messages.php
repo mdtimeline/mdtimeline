@@ -1297,7 +1297,13 @@ class HL7Messages {
 			$pid->setValue('3.1', $this->patient->pid);
 		}
 
-		$facility = $this->facility || $this->encounter->facility;
+		if(isset($this->facility) && $this->facility !==false){
+			$facility = $this->facility;
+		}elseif(isset($this->encounter->facility) && $this->encounter->facility !== false){
+			$facility = $this->encounter->facility;
+		}else{
+			$facility = false;
+		}
 
 		if($facility !== false){
 			$pid->setValue('3.4.1', $facility['name']);

@@ -1475,17 +1475,14 @@ class HL7Messages {
 		if($this->notEmpty($this->patient->birth_multiple)){
 			if($this->patient->birth_multiple){
 				$pid->setValue('24', 'Y');
-			} else {
-				$pid->setValue('24', 'N');
+				if($this->notEmpty($this->patient->birth_order)){
+					$pid->setValue('25', $this->patient->birth_order);
+				}else{
+					$pid->setValue('25', '1');
+				}
 			}
-		}else{
-			$pid->setValue('24', 'N');
 		}
-		if($this->notEmpty($this->patient->birth_order)){
-			$pid->setValue('25', $this->patient->birth_order);
-		}else{
-			$pid->setValue('25', '1');
-		}
+
 		if($this->notEmpty($this->patient->citizenship)){
 			$pid->setValue('26.1', $this->patient->citizenship);
 		}

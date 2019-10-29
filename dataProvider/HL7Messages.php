@@ -1643,9 +1643,13 @@ class HL7Messages {
 			}
 		}
 
-		if($this->notEmpty($patient->allow_immunization_info_sharing)){
+		if(isset($patient->protection_indicator) && $patient->protection_indicator == 1){
+			$PD1->setValue('12', 'Y');
+		}else{
 			$PD1->setValue('12', 'N');
-			$PD1->setValue('13', $this->date($patient->create_date, false));
+		}
+		if(isset($patient->protection_indicator_date)){
+			$PD1->setValue('13', $this->date($patient->protection_indicator_date, false));
 		}
 
 		$PD1->setValue('16', 'A');

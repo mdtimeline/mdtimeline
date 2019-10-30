@@ -1239,15 +1239,28 @@ class HL7Messages {
 		$this->from = $this->f->load($this->from)->one();
 		//
 		$this->msh = $this->hl7->addSegment('MSH');
-		$this->msh->setValue('3.1', 'MDTIMELINE'); // Sending Application
-		$this->msh->setValue('4.1', addslashes(substr($this->from['name'], 0, 20))); // Sending Facility
-		if($includeNPI){
-			$this->msh->setValue('4.2', $this->from['npi']);
-			$this->msh->setValue('4.3', 'NPI');
-		}
+
+		$this->msh->setValue('3.1', isset($_ENV['HL7']['MSH-3.1']) ? $_ENV['HL7']['MSH-3.1'] : 'MDTIMELINE'); // Sending Application
+		$this->msh->setValue('3.2', isset($_ENV['HL7']['MSH-3.2']) ? $_ENV['HL7']['MSH-3.2'] : ''); // Sending Application
+		$this->msh->setValue('3.3', isset($_ENV['HL7']['MSH-3.3']) ? $_ENV['HL7']['MSH-3.3'] : ''); // Sending Application
+
+		$name = addslashes(substr($this->from['name'], 0, 20));
+		$this->msh->setValue('4.1', isset($_ENV['HL7']['MSH-4.1']) ? $_ENV['HL7']['MSH-4.1'] : $name); // Sending Facility
+		$this->msh->setValue('4.2', isset($_ENV['HL7']['MSH-4.2']) ? $_ENV['HL7']['MSH-4.2'] : ''); // Sending Facility
+		$this->msh->setValue('4.3', isset($_ENV['HL7']['MSH-4.3']) ? $_ENV['HL7']['MSH-4.3'] : ''); // Sending Facility
 
 		$this->msh->setValue('5.1', $this->to['application_name']); // Receiving Application
-		$this->msh->setValue('6.1', $this->to['facility']); // Receiving Facility
+		if(isset($this->to['application_iso_id']) && $this->to['application_iso_id'] !== ''){
+			$this->msh->setValue('5.2', $this->to['application_iso_id']); // Receiving Application
+			$this->msh->setValue('5.3', 'ISO'); // Receiving Application
+		}
+
+		$this->msh->setValue('6.1', $this->to['facility']);
+		if(isset($this->to['facility_iso_id']) && $this->to['facility_iso_id'] !== ''){
+			$this->msh->setValue('6.2', $this->to['facility_iso_id']); // Receiving Application
+			$this->msh->setValue('6.3', 'ISO'); // Receiving Application
+		}
+
 		$this->msh->setValue('7.1', date('YmdHisO')); // Message Date Time
 		$this->msh->setValue('11.1', 'P'); // D = Debugging P = Production T = Training
 		$this->msh->setValue('12.1', '2.5.1'); // HL7 version
@@ -1264,7 +1277,7 @@ class HL7Messages {
 		$evn->setValue('7.3', 'NPI');
 	}
 
-	private function setPID($include_death_flag = true) {
+	private function setPID($include_death_flag = true, $include_multi_birth_flag = true) {
 
 		$this->patient = $this->p->load($this->patient)->one();
 
@@ -1482,6 +1495,9 @@ class HL7Messages {
 				}else{
 					$pid->setValue('25', '1');
 				}
+			}elseif ($include_multi_birth_flag){
+				$pid->setValue('24', 'N');
+				$pid->setValue('25', '1');
 			}
 		}
 

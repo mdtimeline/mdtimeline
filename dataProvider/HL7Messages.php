@@ -1279,6 +1279,12 @@ class HL7Messages {
 		if(isset($_ENV['HL7']['MSH-22.6.3'])){
 			$this->msh->setValue('22.6.3', $_ENV['HL7']['MSH-22.6.3']);
 		}
+		if(isset($_ENV['HL7']['MSH-22.7'])){
+			$this->msh->setValue('22.7', $_ENV['HL7']['MSH-22.7']);
+		}
+		if(isset($_ENV['HL7']['MSH-22.10'])){
+			$this->msh->setValue('22.10', $_ENV['HL7']['MSH-22.10']);
+		}
 
 		if(isset($_ENV['HL7']['MSH-23.1'])){
 			$this->msh->setValue('23.1', $_ENV['HL7']['MSH-23.1']);
@@ -1292,6 +1298,13 @@ class HL7Messages {
 		if(isset($_ENV['HL7']['MSH-23.6.3'])){
 			$this->msh->setValue('23.6.3', $_ENV['HL7']['MSH-23.6.3']);
 		}
+		if(isset($_ENV['HL7']['MSH-23.7'])){
+			$this->msh->setValue('23.7', $_ENV['HL7']['MSH-23.7']);
+		}
+		if(isset($_ENV['HL7']['MSH-23.10'])){
+			$this->msh->setValue('23.10', $_ENV['HL7']['MSH-23.10']);
+		}
+
 		return $this->msh;
 	}
 

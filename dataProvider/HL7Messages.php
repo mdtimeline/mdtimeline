@@ -1552,7 +1552,11 @@ class HL7Messages {
 		}
 
 		if(isset($this->patient->deceased)){
-			$pid->setValue('30', $this->patient->deceased);
+			if($this->patient->deceased == '0'){
+				$pid->setValue('30', 'N');
+			}elseif($this->patient->deceased == '1'){
+				$pid->setValue('30', 'Y');
+			}
 		}
 
 		if($this->notEmpty($this->patient->update_date)){

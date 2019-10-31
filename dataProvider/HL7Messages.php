@@ -1526,18 +1526,19 @@ class HL7Messages {
 		}
 
 		// Birth Multiple
-		if($this->notEmpty($this->patient->birth_multiple)){
-			if($this->patient->birth_multiple){
-				$pid->setValue('24', 'Y');
-				if($this->notEmpty($this->patient->birth_order)){
-					$pid->setValue('25', $this->patient->birth_order);
-				}else{
-					$pid->setValue('25', '1');
-				}
-			}elseif ($include_multi_birth_flag){
+
+		if(isset($this->patient->birth_multiple)){
+			if($this->patient->birth_multiple == 0){
 				$pid->setValue('24', 'N');
-				$pid->setValue('25', '1');
+			}elseif ($this->patient->birth_multiple == 1){
+				$pid->setValue('24', 'Y');
 			}
+		}
+
+		if($this->notEmpty($this->patient->birth_order)){
+			$pid->setValue('25', $this->patient->birth_order);
+		}else{
+			$pid->setValue('25', '1');
 		}
 
 		if($this->notEmpty($this->patient->citizenship)){

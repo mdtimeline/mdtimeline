@@ -265,13 +265,20 @@ Ext.define('App.view.patient.Patient', {
 															fieldLabel:_('multiple_birth'),
 															items: [
 																{
-																	xtype: 'checkbox',
-																	name: 'birth_multiple'
+																	xtype: 'combobox',
+																	name: 'birth_multiple',
+																	editable: false,
+																	width: 50,
+																	store: [
+																		[null, '-'],
+																		[true, 'Yes'],
+																		[false,  'No']
+																	]
 																},
 																{
 																	xtype: 'box',
 																	margin: '5 5 5 5',
-																	html: 'Yes, birth order'
+																	html: ' birth order'
 																},
 																{
 																	xtype: 'numberfield',

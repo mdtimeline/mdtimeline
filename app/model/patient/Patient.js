@@ -334,7 +334,8 @@ Ext.define('App.model.patient.Patient',{
         },
         {
             name: 'birth_multiple',
-            type: 'bool'
+            type: 'bool',
+            useNull: true
         },
         {
             name: 'birth_order',

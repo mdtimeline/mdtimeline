@@ -57970,10 +57970,16 @@ Ext.define('App.view.patient.Patient', {
 											},
 											items: [
 												{
-													xtype: 'checkbox',
+													xtype: 'combobox',
 													name: 'deceased',
 													fieldLabel: _('deceased'),
-													boxLabel: _('yes')
+													editable: false,
+													width: 100,
+													store: [
+														['', ' -'],
+														['1', 'Yes'],
+														['0',  'No']
+													]
 												},
 												{
 													xtype: 'mitos.datetime',

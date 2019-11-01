@@ -595,6 +595,12 @@ class HL7Messages {
                     $message['response'] = $response = $this->Send();
 				}
 
+				if($response['success']){
+					$response_hl7 = new HL7();
+					$response_hl7->readMessage($message['response']['message']);
+					$message['response']['print'] =  $response_hl7->printMessage('IMMUNIZATION REGISTRY RESPONSE');
+				}
+
 				$this->saveResponse($msgRecord, $message['response']);
                 $messages[] = $message;
                 unset($message);

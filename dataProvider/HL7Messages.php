@@ -1565,10 +1565,8 @@ class HL7Messages {
 			}
 		}
 
-		if($this->notEmpty($this->patient->birth_order)){
+		if(isset($this->patient->birth_multiple)){
 			$pid->setValue('25', $this->patient->birth_order);
-		}else{
-			$pid->setValue('25', '1');
 		}
 
 		if($this->notEmpty($this->patient->citizenship)){

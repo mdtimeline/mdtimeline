@@ -666,9 +666,13 @@ class HL7Messages {
 
 	        $ORC->setValue('2.1', $immu['id']);
 	        $ORC->setValue('2.2', $this->namespace_id);
+	        $ORC->setValue('2.3', '2.16.840.1.113883.3.72.5.40.10');
+	        $ORC->setValue('2.4', 'ISO');
 
             $ORC->setValue('3.1', $immu['id']);
             $ORC->setValue('3.2', $this->namespace_id);
+            $ORC->setValue('3.3', '2.16.840.1.113883.3.72.5.40.10');
+            $ORC->setValue('3.4', 'ISO');
 
             if($this->notEmpty($immu['created_uid'])){
                 $this->u->clearFilters();
@@ -679,7 +683,11 @@ class HL7Messages {
                     $ORC->setValue('10.2.1', $ordered_by['lname']);
                     $ORC->setValue('10.3', $ordered_by['fname']);
                     $ORC->setValue('10.4', $ordered_by['mname']);
+
                     $ORC->setValue('10.9.1', $this->namespace_id);
+                    $ORC->setValue('10.9.2', '2.16.840.1.113883.3.72.5.40.7');
+                    $ORC->setValue('10.9.3', 'ISO');
+
                     $ORC->setValue('10.10', 'L');
                     $ORC->setValue('10.13', 'PRN');
                 }
@@ -694,7 +702,11 @@ class HL7Messages {
 			        $ORC->setValue('12.2.1', $administered_by['lname']);
 			        $ORC->setValue('12.3', $administered_by['fname']);
 			        $ORC->setValue('12.4', $administered_by['mname']);
+
 			        $ORC->setValue('12.9.1', $this->namespace_id);
+			        $ORC->setValue('12.9.2', '2.16.840.1.113883.3.72.5.40.7');
+			        $ORC->setValue('12.9.3', 'ISO');
+
 			        $ORC->setValue('12.10', 'L');
 			        $ORC->setValue('12.13', 'MD');
 		        }
@@ -748,7 +760,11 @@ class HL7Messages {
                     $RXA->setValue('10.2.1', $administered_by['lname']);
                     $RXA->setValue('10.3', $administered_by['fname']);
                     $RXA->setValue('10.4', $administered_by['mname']);
+
                     $RXA->setValue('10.9.1', $this->namespace_id);
+	                $RXA->setValue('10.9.2', '2.16.840.1.113883.3.72.5.40.7');
+	                $RXA->setValue('10.9.3', 'ISO');
+
                     $RXA->setValue('10.10', 'L');
 	                $RXA->setValue('10.13', 'PRN');
                 }
@@ -756,6 +772,8 @@ class HL7Messages {
 
             if($this->notEmpty($immu['facility_id']) && $administered){
                 $RXA->setValue('11.4.1', $immu['facility_id']);
+                $RXA->setValue('11.4.2', '2.16.840.1.113883.3.72.5.40.12');
+                $RXA->setValue('11.4.3', 'ISO');
             }
 
             if($this->notEmpty($immu['exp_date'])){

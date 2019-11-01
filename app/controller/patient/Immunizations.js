@@ -140,9 +140,9 @@ Ext.define('App.controller.patient.Immunizations', {
 		if(context.record.new_immunization === true){
 			//this.onImmunizationRecordEdit(pid, immunization_id, 'NEW');
 		}else if(context.record.get('is_error')){
-			this.onImmunizationRecordEdit(pid, immunization_id, 'DELETE');
+			this.onImmunizationRecordEdit(pid, context.record.data, 'DELETE');
 		}else{
-			this.onImmunizationRecordEdit(pid, immunization_id, 'UPDATE');
+			this.onImmunizationRecordEdit(pid, context.record.data, 'UPDATE');
 		}
 	},
 

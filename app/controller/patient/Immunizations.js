@@ -158,12 +158,12 @@ Ext.define('App.controller.patient.Immunizations', {
 			}
 
 			response.messages.forEach(function (message) {
-				me.showImmunizationHistorySearchResponse(message);
+				me.showImmunizationRegistryResponse(message);
 			});
 		});
 	},
 
-	showImmunizationHistorySearchResponse: function(message){
+	showImmunizationRegistryResponse: function(message){
 		say('showImmunizationHistorySearchResponse');
 		say(message);
 
@@ -188,11 +188,16 @@ Ext.define('App.controller.patient.Immunizations', {
 		params.action = action;
 
 		ImmunizationRegistry.sendImmunization(params, function(response){
-			if(response.success){
-				app.msg(_('sweet'), _('registry_message_sent'));
-			}else{
-				app.msg(_('oops'), _('registry_message_error'), true);
+
+			if(response.success === false || !response.messages === undefined){
+				app.msg(_('oops'), 'Immunization Search Failed', true);
+				return;
 			}
+
+			response.messages.forEach(function (message) {
+				me.showImmunizationRegistryResponse(message);
+			});
+
 		});
 	},
 
@@ -221,9 +226,16 @@ Ext.define('App.controller.patient.Immunizations', {
 
 			if(response.success){
 				app.msg(_('sweet'), _('registry_message_sent'));
+
+				response.messages.forEach(function (message) {
+					me.showImmunizationRegistryResponse(message);
+				});
+
+
 			}else{
 				app.msg(_('oops'), _('registry_message_error'), true);
 			}
+
 		});
 
 	},

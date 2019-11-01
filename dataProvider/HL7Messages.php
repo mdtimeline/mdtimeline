@@ -819,6 +819,8 @@ class HL7Messages {
 
             if($params->action == 'DELETE'){
 	            $RXA->setValue('21', 'D'); //Action Code
+            }elseif($params->action == 'UPDATE'){
+	            $RXA->setValue('21', 'U'); //Action Code
             }else{
 	            $RXA->setValue('21', 'A'); //Action Code
             }

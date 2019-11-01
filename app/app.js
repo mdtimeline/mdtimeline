@@ -44576,6 +44576,7 @@ Ext.define('App.controller.patient.Immunizations', {
 			params = {};
 
 		params.pid = pid;
+		params.facility_id = app.user.facility;
 		params.immunizations = [ immunization_id ];
 		params.action = action;
 

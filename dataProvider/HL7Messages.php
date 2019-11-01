@@ -817,7 +817,11 @@ class HL7Messages {
                 $RXA->setValue('20', 'CP'); //complete
             }
 
-            $RXA->setValue('21', 'A'); //Action Code
+            if($params->action == 'DELETE'){
+	            $RXA->setValue('21', 'D'); //Action Code
+            }else{
+	            $RXA->setValue('21', 'A'); //Action Code
+            }
 
             // RXR - 4.14.2 RXR - Pharmacy/Treatment Route Segment
             if(

@@ -340,7 +340,7 @@ Ext.define('App.model.patient.Patient',{
         {
             name: 'birth_order',
             type: 'int',
-            defaultValue: 1,
+            useNull: true,
             len: 2
         },
         {

@@ -44616,6 +44616,8 @@ Ext.define('App.controller.patient.Immunizations', {
 
 			if(response.success){
 
+				win.close();
+
 				response.messages.forEach(function (message) {
 					me.showImmunizationRegistryResponse(message);
 				});

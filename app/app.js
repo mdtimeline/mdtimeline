@@ -44614,10 +44614,7 @@ Ext.define('App.controller.patient.Immunizations', {
 
 		ImmunizationRegistry.sendImmunization(params, function(response){
 
-			say(response);
-
 			if(response.success){
-				app.msg(_('sweet'), _('registry_message_sent'));
 
 				response.messages.forEach(function (message) {
 					me.showImmunizationRegistryResponse(message);

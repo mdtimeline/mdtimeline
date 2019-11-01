@@ -32,7 +32,7 @@ class ACK extends Message {
 		$events = array(
 			'MSH' => '',
 			'SFT' => '',
-			'MSA' => '',
+			'MSA' => array('repeatable' => true),
 			'ERR' => array('repeatable' => true)
 		);
 		return $events;

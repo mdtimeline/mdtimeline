@@ -2301,7 +2301,7 @@ class PatientRecord {
 			case 'ActPriority':
 				return '2.16.840.1.113883.1.11.16866';
 			case 'TAXONOMY':
-				return '2.16.840.1.114222.4.11.106';
+				return '2.16.840.1.114222.4.11.1066';
 			case 'CDCREC':
 			case 'PH_RaceAndEthnicity_CDC':
 				return '2.16.840.1.113883.6.238';

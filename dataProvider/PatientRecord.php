@@ -1924,6 +1924,10 @@ class PatientRecord {
 			return $this->buff['performers'][$user_id];
 		}
 
+		if(!isset($user_id)){
+			return $nullFlavor;
+		}
+
 		$user = $this->User->getUserByUid($user_id);
 
 		if($user === false){

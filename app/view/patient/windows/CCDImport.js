@@ -251,6 +251,7 @@ Ext.define('App.view.patient.windows.CCDImport', {
 						title: _('import_data'),
 						flex: 1,
 						frame: true,
+						itemId: 'CcdImportPatient',
 						layout: {
 							type: 'vbox',
 							align: 'stretch'

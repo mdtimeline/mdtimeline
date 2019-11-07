@@ -52,6 +52,10 @@ Ext.define('App.controller.patient.CCDImport', {
 
 		// marge patient...
 		{
+			ref: 'CcdImportPatient',
+			selector: '#CcdImportPatient'
+		},
+		{
 			ref: 'CcdPatientPatientForm',
 			selector: '#CcdPatientPatientForm'
 		},
@@ -236,7 +240,7 @@ Ext.define('App.controller.patient.CCDImport', {
 			}
 
 			if(data.author){
-				var title = 'CCDA Import Data - ';
+				var title = 'Import Data - From: ';
 
 				if(data.author.fname){
 					title += ' ' + data.author.fname;
@@ -253,7 +257,7 @@ Ext.define('App.controller.patient.CCDImport', {
 				if(data.author.state){
 					title += ', ' + data.author.state;
 				}
-				me.getCcdImportWindow().setTitle(title);
+				me.getCcdImportPatient().setTitle(title);
 			}
 
 		}

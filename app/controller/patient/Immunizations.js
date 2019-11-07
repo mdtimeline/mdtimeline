@@ -150,7 +150,6 @@ Ext.define('App.controller.patient.Immunizations', {
 		var me = this;
 
 		ImmunizationRegistry.getImmunizationHxByPid(app.patient.pid, function (response) {
-			say(response);
 
 			if(response.success === false || !response.messages === undefined){
 				app.msg(_('oops'), 'Immunization Search Failed', true);
@@ -164,8 +163,6 @@ Ext.define('App.controller.patient.Immunizations', {
 	},
 
 	showImmunizationRegistryResponse: function(message){
-		say('showImmunizationHistorySearchResponse');
-		say(message);
 
 		if(message.response.success === false){
 			app.msg(_('oops'), message.response.message, true);
@@ -179,13 +176,13 @@ Ext.define('App.controller.patient.Immunizations', {
 
 	},
 
-	onImmunizationRecordEdit: function(pid, immunization_id, action){
+	onImmunizationRecordEdit: function(pid, immunization, action){
 		var me = this,
 			params = {};
 
 		params.pid = pid;
 		params.facility_id = app.user.facility;
-		params.immunizations = [ immunization_id ];
+		params.immunizations = [ immunization ];
 		params.action = action;
 
 		ImmunizationRegistry.sendImmunization(params, function(response){
@@ -218,22 +215,15 @@ Ext.define('App.controller.patient.Immunizations', {
 			params.immunizations.push(record.data);
 		});
 
-		say('doImmunizationVxuSubmit');
-		say(params);
-
 		ImmunizationRegistry.sendImmunization(params, function(response){
 
 			if(response.success){
-
 				win.close();
-
 				response.messages.forEach(function (message) {
 					me.showImmunizationRegistryResponse(message);
 				});
-
-
 			}else{
-				app.msg(_('oops'), _('registry_message_error'), true);
+				app.msg(_('oops'),'Registry Message Error', true);
 			}
 
 		});
@@ -442,21 +432,6 @@ Ext.define('App.controller.patient.Immunizations', {
 			}
 		]);
 	},
-
-	getImmunizationHxFromRegistry: function(){
-
-		var params = {};
-
-
-		Immunizations.getImmunizationHxFromRegistry(params, function (response) {
-
-
-			say(response);
-
-		});
-
-	},
-
 
 	getVxuWindow: function(){
 		var me = this;

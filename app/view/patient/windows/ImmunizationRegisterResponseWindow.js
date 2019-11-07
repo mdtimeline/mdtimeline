@@ -21,7 +21,7 @@ Ext.define('App.view.patient.windows.ImmunizationRegisterResponseWindow', {
 	requires: [
 		'App.view.patient.Documents'
 	],
-	title: _('register_response'),
+	title: 'Register Response',
 	layout: 'fit',
 	height: 700,
 	width: 1000,

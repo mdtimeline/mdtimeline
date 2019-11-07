@@ -96,7 +96,7 @@ Ext.define('App.view.patient.windows.CCDImport', {
 										items: [
 											{
 												fieldLabel: _('rec_num'),
-												name: 'record_number'
+												name: 'pubpid'
 											},
 											{
 												fieldLabel: _('name'),
@@ -167,7 +167,7 @@ Ext.define('App.view.patient.windows.CCDImport', {
 									},
 									{
 										xtype: 'datecolumn',
-										dataIndex: 'created_date',
+										dataIndex: 'begin_date',
 										width: 100,
 										format: g('date_display_format')
 									},
@@ -202,7 +202,7 @@ Ext.define('App.view.patient.windows.CCDImport', {
 									},
 									{
 										xtype: 'datecolumn',
-										dataIndex: 'update_date',
+										dataIndex: 'begin_date',
 										width: 100,
 										format: g('date_display_format')
 									},
@@ -234,7 +234,7 @@ Ext.define('App.view.patient.windows.CCDImport', {
 									},
 									{
 										xtype: 'datecolumn',
-										dataIndex: 'update_date',
+										dataIndex: 'begin_date',
 										width: 100,
 										format: g('date_display_format')
 									},
@@ -358,7 +358,7 @@ Ext.define('App.view.patient.windows.CCDImport', {
 									},
 									{
 										xtype: 'datecolumn',
-										dataIndex: 'created_date',
+										dataIndex: 'begin_date',
 										width: 100,
 										format: g('date_display_format')
 									},
@@ -394,7 +394,7 @@ Ext.define('App.view.patient.windows.CCDImport', {
 									},
 									{
 										xtype: 'datecolumn',
-										dataIndex: 'update_date',
+										dataIndex: 'begin_date',
 										width: 100,
 										format: g('date_display_format')
 									},
@@ -427,7 +427,7 @@ Ext.define('App.view.patient.windows.CCDImport', {
 									},
 									{
 										xtype: 'datecolumn',
-										dataIndex: 'update_date',
+										dataIndex: 'begin_date',
 										width: 100,
 										format: g('date_display_format')
 									},

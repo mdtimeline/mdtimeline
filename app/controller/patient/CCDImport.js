@@ -253,7 +253,7 @@ Ext.define('App.controller.patient.CCDImport', {
 				if(data.author.state){
 					title += ', ' + data.author.state;
 				}
-				this.getCcdImportWindow().updateTitle(title);
+				me.getCcdImportWindow().setTitle(title);
 			}
 
 		}

@@ -42906,6 +42906,28 @@ Ext.define('App.controller.patient.CCDImport', {
 			if(data.problems && data.problems.length > 0){
 				me.reconfigureGrid('getCcdImportActiveProblemsGrid', data.problems);
 			}
+
+			if(data.author){
+				var title = 'CCDA Import Data - ';
+
+				if(data.author.fname){
+					title += ' ' + data.author.fname;
+				}
+				if(data.author.lname){
+					title += ', ' + data.author.lname;
+				}
+				if(data.author.address){
+					title += ' - ' + data.author.address;
+				}
+				if(data.author.city){
+					title += ' ' + data.author.city;
+				}
+				if(data.author.state){
+					title += ', ' + data.author.state;
+				}
+				this.getCcdImportWindow().updateTitle(title);
+			}
+
 		}
 	},
 

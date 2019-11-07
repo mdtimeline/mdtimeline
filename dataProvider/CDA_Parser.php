@@ -434,7 +434,11 @@ class CDA_Parser
 			unset($code);
 
 			//dates
-			if (isset($entry['act']['effectiveTime'])) {
+			if(
+				isset($entry['act']['entryRelationship']['observation']['author']['time']['@attributes']['value'])
+			){
+				$allergy->begin_date = $entry['act']['entryRelationship']['observation']['author']['time']['@attributes']['value'];
+			}elseif (isset($entry['act']['effectiveTime'])) {
 				$dates = $this->datesHandler($entry['act']['effectiveTime'], true);
 				$allergy->begin_date = $dates['low'];
 				$allergy->end_date = $dates['high'];

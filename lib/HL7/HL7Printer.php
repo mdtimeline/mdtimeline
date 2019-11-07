@@ -320,7 +320,7 @@ class HL7Printer {
         $REPORT['TITLE'] = 'IMMUNIZATION: CVX:' . $order_observation['RXA'][5][1] . ' - '. strtoupper($order_observation['RXA'][5][2]);
 
         if(isset($order_observation['RXA'][3][1])){
-	        $REPORT['TITLE'] .= ' DATED: ' . date('F j, Y', strtotime($order_observation['RXA'][3][1]));
+	        $REPORT['TITLE'] .= ' - DATED: ' . date('F j, Y', strtotime($order_observation['RXA'][3][1]));
         }
 
         $filler_order_no = 'FILLER ORDER NO.: ' . $order_observation['ORC'][3][1];

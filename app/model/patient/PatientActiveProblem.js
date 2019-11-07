@@ -142,6 +142,11 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 			name: 'update_date',
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'source',
+			type: 'string',
+			store: false
 		}
 	],
 	proxy: {

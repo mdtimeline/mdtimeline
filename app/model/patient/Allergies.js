@@ -166,6 +166,11 @@ Ext.define('App.model.patient.Allergies', {
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s',
 			defaultValue: 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+		},
+		{
+			name: 'source',
+			type: 'string',
+			store: false
 		}
 	],
 	proxy: {

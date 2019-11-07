@@ -267,6 +267,11 @@ Ext.define('App.model.patient.Medications', {
             name: 'overridden',
             type: 'bool',
             comment: 'This is used by the Drug-To-Drug Interactions (MODULE)'
+        },
+        {
+            name: 'source',
+            type: 'string',
+            store: false
         }
 	],
 	proxy: {

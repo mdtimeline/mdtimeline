@@ -126,9 +126,9 @@ class CDA_Parser
 		$document->patient = $this->getPatient();
 		$document->encounter = $this->getEncounter();
 		$document->author = $this->getAuthor();
-		$document->allergies = $this->getAllergies();
-		$document->medications = $this->getMedications();
-		$document->problems = $this->getProblems();
+		$document->allergies = $this->getAllergies($document->author);
+		$document->medications = $this->getMedications($document->author);
+		$document->problems = $this->getProblems($document->author);
 		$document->procedures = $this->getProcedures();
 		$document->results = $this->getResults();
 		$document->encounters = $this->getEncounters();
@@ -394,7 +394,7 @@ class CDA_Parser
 	/**
 	 * @return array
 	 */
-	function getAllergies()
+	function getAllergies($author)
 	{
 		$allergies = [];
 
@@ -478,6 +478,7 @@ class CDA_Parser
 
 			$allergy->create_date = date('Y-m-d H:i:s');
 			$allergy->update_date = date('Y-m-d H:i:s');
+			$allergy->source = $author->lname  . ', ' . $author->fname;
 
 			$allergies[] = $allergy;
 		}
@@ -489,7 +490,7 @@ class CDA_Parser
 	/**
 	 * @return array
 	 */
-	function getMedications()
+	function getMedications($author)
 	{
 		$medications = [];
 
@@ -578,6 +579,7 @@ class CDA_Parser
 				$medication->update_date = $medication->begin_date . ' 00:00:00';;
 			}
 
+			$medication->source = $author->lname  . ', ' . $author->fname;
 
 			$medications[] = $medication;
 		}
@@ -588,7 +590,7 @@ class CDA_Parser
 	/**
 	 * @return array
 	 */
-	function getProblems()
+	function getProblems($author)
 	{
 		$problems = [];
 
@@ -663,6 +665,7 @@ class CDA_Parser
 			}
 
 			$problem->occurrence = 'Unknown or N/A';
+			$problem->source = $author->lname  . ', ' . $author->fname;
 
 			$problems[] = $problem;
 		}

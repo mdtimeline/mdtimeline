@@ -63,7 +63,3 @@ class ImmunizationRegistry {
 
 
 }
-
-
-//$ImmunizationRegistry = new ImmunizationRegistry();
-//$ImmunizationRegistry->getImmunizationHx(true);

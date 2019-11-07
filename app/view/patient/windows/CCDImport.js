@@ -286,7 +286,7 @@ Ext.define('App.view.patient.windows.CCDImport', {
 										items: [
 											{
 												fieldLabel: _('rec_num'),
-												name: 'record_number'
+												name: 'pubpid'
 											},
 											{
 												fieldLabel: _('name'),
@@ -371,6 +371,10 @@ Ext.define('App.view.patient.windows.CCDImport', {
 											}
 											return _('inactive');
 										}
+									},
+									{
+										dataIndex: 'source',
+										width: 100
 									}
 								]
 							},
@@ -400,6 +404,10 @@ Ext.define('App.view.patient.windows.CCDImport', {
 									},
 									{
 										dataIndex: 'status',
+										width: 100
+									},
+									{
+										dataIndex: 'source',
 										width: 100
 									}
 								]
@@ -433,6 +441,10 @@ Ext.define('App.view.patient.windows.CCDImport', {
 									},
 									{
 										dataIndex: 'status',
+										width: 100
+									},
+									{
+										dataIndex: 'source',
 										width: 100
 									}
 								]

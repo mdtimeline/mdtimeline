@@ -16211,6 +16211,11 @@ Ext.define('App.model.patient.Allergies', {
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s',
 			defaultValue: 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+		},
+		{
+			name: 'source',
+			type: 'string',
+			store: false
 		}
 	],
 	proxy: {
@@ -17529,6 +17534,11 @@ Ext.define('App.model.patient.Medications', {
             name: 'overridden',
             type: 'bool',
             comment: 'This is used by the Drug-To-Drug Interactions (MODULE)'
+        },
+        {
+            name: 'source',
+            type: 'string',
+            store: false
         }
 	],
 	proxy: {
@@ -17732,6 +17742,11 @@ Ext.define('App.model.patient.PatientActiveProblem', {
 			name: 'update_date',
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'source',
+			type: 'string',
+			store: false
 		}
 	],
 	proxy: {
@@ -69489,7 +69504,7 @@ Ext.define('App.view.patient.windows.CCDImport', {
 										items: [
 											{
 												fieldLabel: _('rec_num'),
-												name: 'record_number'
+												name: 'pubpid'
 											},
 											{
 												fieldLabel: _('name'),
@@ -69574,6 +69589,10 @@ Ext.define('App.view.patient.windows.CCDImport', {
 											}
 											return _('inactive');
 										}
+									},
+									{
+										dataIndex: 'source',
+										width: 100
 									}
 								]
 							},
@@ -69603,6 +69622,10 @@ Ext.define('App.view.patient.windows.CCDImport', {
 									},
 									{
 										dataIndex: 'status',
+										width: 100
+									},
+									{
+										dataIndex: 'source',
 										width: 100
 									}
 								]
@@ -69636,6 +69659,10 @@ Ext.define('App.view.patient.windows.CCDImport', {
 									},
 									{
 										dataIndex: 'status',
+										width: 100
+									},
+									{
+										dataIndex: 'source',
 										width: 100
 									}
 								]

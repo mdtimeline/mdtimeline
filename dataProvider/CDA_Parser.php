@@ -621,7 +621,14 @@ class CDA_Parser
 			$problem->code_type = $code['code_type'];
 			unset($code);
 
-			if (isset($entry['act']['effectiveTime'])) {
+
+			if(
+				isset($entry['act']['entryRelationship']['observation']['author']['time']['@attributes']['value'])
+			) {
+				$problem->create_date = date('Y-m-d H:i:s');
+				$problem->update_date = date('Y-m-d H:i:s');
+				$problem->begin_date = $entry['act']['entryRelationship']['observation']['author']['time']['@attributes']['value'];
+			}elseif (isset($entry['act']['effectiveTime'])) {
 				$dates = $this->datesHandler($entry['act']['effectiveTime'], true);
 				$problem->create_date = date('Y-m-d H:i:s');
 				$problem->update_date = date('Y-m-d H:i:s');

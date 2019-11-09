@@ -180,6 +180,15 @@ Ext.define('App.view.patient.windows.CCDImport', {
 											}
 											return _('inactive');
 										}
+									},
+									{
+										dataIndex: 'source',
+										width: 100,
+										renderer: function (v,m,r) {
+											r.set({source: 'System'});
+											r.commit();
+											return 'System'
+										}
 									}
 								]
 							},
@@ -209,6 +218,15 @@ Ext.define('App.view.patient.windows.CCDImport', {
 									{
 										dataIndex: 'status',
 										width: 100
+									},
+									{
+										dataIndex: 'source',
+										width: 100,
+										renderer: function (v,m,r) {
+											r.set({source: 'System'});
+											r.commit();
+											return 'System'
+										}
 									}
 								]
 							},
@@ -241,6 +259,15 @@ Ext.define('App.view.patient.windows.CCDImport', {
 									{
 										dataIndex: 'status',
 										width: 100
+									},
+									{
+										dataIndex: 'source',
+										width: 100,
+										renderer: function (v,m,r) {
+											r.set({source: 'System'});
+											r.commit();
+											return 'System'
+										}
 									}
 								]
 							}

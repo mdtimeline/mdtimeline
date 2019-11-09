@@ -87,7 +87,7 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 						items: [
 							{
 								fieldLabel: _('rec_num'),
-								name: 'record_number'
+								name: 'pubpid'
 							},
 							{
 								fieldLabel: _('name'),
@@ -159,7 +159,7 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 						}
 					},
 					{
-						dataIndex: 'created_date',
+						dataIndex: 'update_date',
 						width: 100,
 						renderer: me.importedRenderer
 					},
@@ -174,6 +174,11 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 							}
 							return me.importedRenderer(v, meta, record);
 						}
+					},
+					{
+						dataIndex: 'source',
+						width: 100,
+						renderer: me.importedRenderer
 					}
 				]
 			},
@@ -201,6 +206,11 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 					},
 					{
 						dataIndex: 'status',
+						width: 100,
+						renderer: me.importedRenderer
+					},
+					{
+						dataIndex: 'source',
 						width: 100,
 						renderer: me.importedRenderer
 					}
@@ -233,6 +243,11 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 					},
 					{
 						dataIndex: 'status',
+						width: 100,
+						renderer: me.importedRenderer
+					},
+					{
+						dataIndex: 'source',
 						width: 100,
 						renderer: me.importedRenderer
 					}

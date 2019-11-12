@@ -74,6 +74,20 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
                     ]
                 },
                 {
+                    width: 100,
+                    text: _('npi'),
+                    sortable: true,
+                    dataIndex: 'npi',
+                    items: [
+                        {
+                            xtype: 'columnsearchfield',
+                            autoSearch: true,
+                            operator: 'LIKE',
+                            suffix: '%'
+                        }
+                    ]
+                },
+                {
                     flex: 1,
                     text: _('cell_number'),
                     sortable: true,
@@ -107,12 +121,17 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
                     sortable: true,
                     dataIndex: 'notes'
                 },
-
                 {
                     flex: 1,
                     text: _('authy_id'),
                     sortable: true,
                     dataIndex: 'authy_id'
+                },
+                {
+                    text: _('authorized'),
+                    sortable: true,
+                    dataIndex: 'authorized',
+                    renderer: me.boolRenderer
                 },
                 {
                     text: _('active'),

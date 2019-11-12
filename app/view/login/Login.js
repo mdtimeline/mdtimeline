@@ -90,7 +90,7 @@ Ext.define('App.view.login.Login', {
 				validationEvent: false,
 				allowBlank: false,
 				minLength: 4,
-				maxLength: 12,
+				maxLength: 20,
 				// anchor: '97%',
 				msgTarget: 'side',
 				labelAlign: 'top',

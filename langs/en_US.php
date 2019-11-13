@@ -2078,5 +2078,6 @@ $LANG = array(
 	'vaccine_name' => 'Vaccine Name',
 	'administer_amount' => 'Administer Amount',
 	'administer_units' => 'Administer Units',
+	'patient_documents' => 'Patient Documents',
 
 );

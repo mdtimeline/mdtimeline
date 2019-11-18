@@ -338,7 +338,10 @@ class MatchaCUP {
 		                    }
 
 		                    $property = $g->property;
-		                    $direction = isset($g->direction) ? $g->direction : '';
+
+		                    // remove this for now...
+		                    //$direction = isset($g->direction) ? $g->direction : '';
+		                    $direction = '';
 		                    $_groups[] = "`{$this->table}`.`$property` $direction";
 	                    }
 
@@ -836,13 +839,19 @@ class MatchaCUP {
 	 */
 	public function group($params, $append = false) {
 
-		if(!isset($params) || !isset($params->group)){
+		if(!isset($params)){
 			return $this;
 		}
 
-		$property = $params->group[0]->property;
-		$direction = isset($params->group[0]->direction) ? $params->group[0]->direction : '';
-		$group = " GROUP BY `{$this->table}`.`$property` $direction ";
+		if(isset($params->group)){
+			$property = $params->group[0]->property;
+			$direction = isset($params->group[0]->direction) ? $params->group[0]->direction : '';
+			$group = " GROUP BY `{$this->table}`.`$property` $direction ";
+		}elseif(is_string($params)){
+			$group = " GROUP BY `{$this->table}`.`$params` ";
+		}else{
+			return $this;
+		}
 
 		if($append){
 			$this->sql .= $group;

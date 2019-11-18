@@ -30,7 +30,8 @@ Ext.define('App.view.patient.Summary', {
 		'App.view.patient.Reminders',
 		'App.view.patient.Alerts',
 		'App.view.patient.Amendments',
-		'App.view.patient.InsurancesPanel'
+		'App.view.patient.InsurancesPanel',
+		'App.view.patient.CareTeamGrid'
 	],
 	itemId: 'PatientSummaryPanel',
 	showRating: true,
@@ -73,6 +74,11 @@ Ext.define('App.view.patient.Summary', {
 		];
 
 		me.sidePanelItems = [];
+
+		Ext.Array.push(me.sidePanelItems, {
+			xtype: 'patientcareteamgrid',
+			itemId: 'PatientSummaryCareTeamGrid'
+		});
 
 		if(a('access_patient_visits')){
 
@@ -779,6 +785,9 @@ Ext.define('App.view.patient.Summary', {
 		 * load all the stores
 		 */
 		me.loadStores();
+
+		app.fireEvent('patientsummaryload',me, patient);
+
 		me.el.unmask();
 	},
 

@@ -29,11 +29,15 @@ Ext.define('App.ux.grid.DeleteColumn', {
 				if(btn === 'yes'){
 					var store = grid.store;
 					store.remove(record);
-					store.sync({
-						callback: function () {
-							app.msg(_('sweet'), _('record_removed'), 'yellow');
-						}
-					});
+					if(!store.autoSync){
+						store.sync({
+							callback: function () {
+								app.msg(_('sweet'), _('record_removed'), 'yellow');
+							}
+						});
+					}else {
+						app.msg(_('sweet'), _('record_removed'), 'yellow');
+					}
 				}
 			}
 		});

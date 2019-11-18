@@ -2068,6 +2068,25 @@ $API = [
             ]
         ]
     ],
+	'CareTeamMember' => [
+		'methods' => [
+			'getCareTeamMembers' => [
+				'len' => 1
+            ],
+			'getCareTeamMember' => [
+				'len' => 1
+            ],
+			'addCareTeamMember' => [
+				'len' => 1
+            ],
+			'updateCareTeamMember' => [
+				'len' => 1
+            ],
+			'destroyCareTeamMember' => [
+				'len' => 1
+            ]
+        ]
+    ],
 	/**
 	 * Patient Functions
 	 */

@@ -177,10 +177,14 @@ class Patient
 	}
 
 	/**
+	 * @param  $params
 	 * @return array
 	 */
-	public function getPatient()
+	public function getPatient($params = null)
 	{
+		if(isset($params)){
+			$this->patient = $this->p->load($params)->one();
+		}
 		return $this->patient;
 	}
 

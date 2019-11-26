@@ -131,7 +131,7 @@ class MeasureCalculation {
 		$denominator = count($ordered_prescriptions_ids);
 		$ordered_prescriptions_ids = join("','", $ordered_prescriptions_ids);
 
-		$sth = $this->conn->prepare("SELECT count(*) as `count` FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids}') ");
+		$sth = $this->conn->prepare("SELECT count(*) as `count` FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids}') GROUP BY orderId");
 		$sth->execute();
 		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
 		$numerator = $numerator['count'];
@@ -169,7 +169,7 @@ class MeasureCalculation {
 		$denominator = count($ordered_prescriptions_ids);
 		$ordered_prescriptions_ids = join("','", $ordered_prescriptions_ids);
 
-		$sth = $this->conn->prepare("SELECT count(*) as `count` FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids}') AND ndc IS NOT NULL ");
+		$sth = $this->conn->prepare("SELECT count(*) as `count` FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids}') AND ndc IS NOT NULL GROUP BY orderId");
 		$sth->execute();
 		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
 		$numerator = $numerator['count'];
@@ -205,7 +205,7 @@ class MeasureCalculation {
 		$denominator = count($ordered_prescriptions_ids);
 		$ordered_prescriptions_ids = join("','", $ordered_prescriptions_ids);
 
-		$sth = $this->conn->prepare("SELECT count(*) as `count` FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids}') AND ndc IS NOT NULL ");
+		$sth = $this->conn->prepare("SELECT count(*) as `count` FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids}') AND ndc IS NOT NULL GROUP BY orderId");
 		$sth->execute();
 		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
 		$numerator = $numerator['count'];

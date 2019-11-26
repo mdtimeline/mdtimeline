@@ -70,12 +70,12 @@ Ext.define('App.controller.administration.MeasureCalculation', {
             return;
         }
 
-        this.doReportMeasureByDates(
-            'ePrescribing',
-            providerField.getValue(),
-            Ext.Date.format(fromField.getValue(), 'Y-m-d'),
-            Ext.Date.format(toField.getValue(), 'Y-m-d')
-        );
+        var provider = providerField.getValue(),
+	        from = Ext.Date.format(fromField.getValue(), 'Y-m-d'),
+	        to = Ext.Date.format(toField.getValue(), 'Y-m-d');
+
+        this.doReportMeasureByDates('ePrescribing', provider, from, to);
+        this.doReportMeasureByDates('PatientEducation', provider, from, to);
 
     },
 

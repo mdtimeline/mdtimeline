@@ -62,6 +62,11 @@ Ext.define('App.model.patient.EducationResource', {
 			name: 'organization_name',
 			type: 'string',
 			dataType: 'text'
+		},
+		{
+			name: 'provided_date',
+			type: 'date',
+			dateFormat: 'Y-m-d'
 		}
 	],
 	proxy: {

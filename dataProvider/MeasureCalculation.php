@@ -89,7 +89,7 @@ class MeasureCalculation {
 		$denominator = count($ordered_prescriptions_ids);
 		$ordered_prescriptions_ids = join("','", $ordered_prescriptions_ids);
 
-		$sth = $this->conn->prepare("SELECT count(*) as `count` FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids}')");
+		$sth = $this->conn->prepare("SELECT count(*) as `count` FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids}') GROUP BY orderId");
 		$sth->execute();
 		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
 		$numerator = $numerator['count'];
@@ -234,6 +234,28 @@ class MeasureCalculation {
 		 * Modified Stage 2 Objective 8 Measure 1 and Stage 3 Objective 5 Measure 1
 		 * Promoting Interoperability Transition Objective 3 Measure 1 and Promoting Interoperability Objective 3 Measure 1
 		 */
+
+		$office_visit_codes = implode("','", $this->office_visit_codes);
+		$sth = $this->conn->prepare("SELECT p.pid, p.pubpid, e.service_date FROM encounters as e
+										  INNER JOIN patient as p on e.pid = p.pid
+											   WHERE e.provider_uid = '{$provider_id}' AND e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND visit_category_code IN ('{$office_visit_codes}')
+										    GROUP BY pid");
+		$sth->execute();
+		$patients =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$patients_pids = [];
+		$patients_record_numbers = [];
+		foreach($patients as $patient) {
+			$patients_pids[] = $patient['pid'];
+			$patients_record_numbers[] = $patient['pubpid'];
+		}
+		$denominator = count($patients_pids);
+		$patients_pids = join("','", $patients_pids);
+
+		$sth = $this->conn->prepare("SELECT count(*) as count FROM patient_education_resources WHERE pid IN ('{$patients_pids}') AND provided_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) GROUP BY pid");
+		$sth->execute();
+		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
+		$numerator = $numerator['count'];
+
 
 		/**
 		 * Modified Stage 2 Measure:
@@ -887,7 +909,6 @@ class MeasureCalculation {
 		 * Required Test 10 – CPOE Medications
 		 * Modified Stage 2 Objective 3 Measure 1 and Stage 3 Objective 4 Measure 1
 		 */
-
 
 		/**
 		 * Modified Stage 2 Measure:

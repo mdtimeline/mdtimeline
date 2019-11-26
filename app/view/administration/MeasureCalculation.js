@@ -105,7 +105,8 @@ Ext.define('App.view.administration.MeasureCalculation', {
 						dataIndex: 'goal',
 						width: 150,
 						renderer: function (v,m,r) {
-							return ((r.get('numerator')/r.get('denominator')) * 100).toFixed(1) + '%';
+							var pct = ((r.get('numerator')/r.get('denominator')) * 100);
+							return Number.isNaN(pct) ? 'N/A' : pct.toFixed(1) + '%';
 						}
 					},
 					{

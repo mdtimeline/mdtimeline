@@ -77,6 +77,10 @@ Ext.define('App.controller.administration.MeasureCalculation', {
         this.doReportMeasureByDates('ePrescribing', provider, from, to);
         this.doReportMeasureByDates('PatientEducation', provider, from, to);
 
+        this.doReportMeasureByDates('CPOEMedications', provider, from, to);
+        this.doReportMeasureByDates('CPOELaboratory', provider, from, to);
+        this.doReportMeasureByDates('CPOERadiology', provider, from, to);
+
     },
 
     doReportMeasureByDates: function (measure, provider_id, start_date, end_date) {

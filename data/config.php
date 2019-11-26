@@ -25,6 +25,13 @@ $API = [
             ]
         ]
     ],
+    'MeasureCalculation' => [
+        'methods' => [
+            'getReportMeasureByDates' => [
+                'len' => 4
+            ]
+        ]
+    ],
     'Email' => [
         'methods' => [
             'CheckAPIEmails' => [

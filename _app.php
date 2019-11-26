@@ -886,6 +886,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 	                'administration.EncounterTemplatePanels',
 	                'administration.Users',
 	                'administration.Version',
+                    'administration.MeasureCalculation',
                     'administration.IpAccess',
                     'administration.TransactionLog',
                     'administration.CronJob',

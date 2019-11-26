@@ -2079,5 +2079,9 @@ $LANG = array(
 	'administer_amount' => 'Administer Amount',
 	'administer_units' => 'Administer Units',
 	'patient_documents' => 'Patient Documents',
+	'measure_calculation' => 'Measure Calculation',
+	'denominator' => 'Denominator',
+	'numerator' => 'Numerator',
+	'percent' => 'Percent',
 
 );

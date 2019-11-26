@@ -352,6 +352,14 @@ class Navigation
                 'id' => 'App.view.administration.EmailTemplates'
             ];
         }
+        //if($this->ACL->hasPermission('access_email_templates')){
+            $admin['children'][] = [
+                'text' => 'Measure Calculation',
+                'leaf' => true,
+                'cls' => 'file',
+                'id' => 'App.view.administration.MeasureCalculation'
+            ];
+//        }
 
 		if(isset($admin['children']) && count($admin['children']) > 0) array_push($nav, $admin);
 

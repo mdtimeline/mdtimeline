@@ -69204,7 +69204,7 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 						}
 					},
 					{
-						dataIndex: 'update_date',
+						dataIndex: 'begin_date',
 						width: 100,
 						renderer: me.importedRenderer
 					},
@@ -69245,7 +69245,7 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 						}
 					},
 					{
-						dataIndex: 'update_date',
+						dataIndex: 'begin_date',
 						width: 100,
 						renderer: me.importedRenderer
 					},
@@ -69282,7 +69282,7 @@ Ext.define('App.view.patient.windows.CCDImportPreview', {
 						}
 					},
 					{
-						dataIndex: 'update_date',
+						dataIndex: 'begin_date',
 						width: 100,
 						renderer: me.importedRenderer
 					},

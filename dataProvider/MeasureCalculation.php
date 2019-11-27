@@ -79,20 +79,26 @@ class MeasureCalculation {
 		 * Numerator: Prescription generated, queried for a formulary, and transmitted electronically.
 		 * Denominator: Prescriptions generated.
 		 */
-		$sth = $this->conn->prepare("SELECT id FROM patient_medications WHERE uid = '{$provider_id}' AND date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND date_ordered IS NOT NULL");
+		$sth = $this->conn->prepare("SELECT id, pid FROM patient_medications WHERE uid = '{$provider_id}' AND date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND date_ordered IS NOT NULL");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$ordered_prescriptions_ids = [];
+		$denominator_pids = [];
 		foreach($ordered_prescriptions as $ordered_prescription) {
 			$ordered_prescriptions_ids[] = $ordered_prescription['id'];
+			$denominator_pids[] = $ordered_prescription['pid'];
 		}
 		$denominator = count($ordered_prescriptions_ids);
-		$ordered_prescriptions_ids = join("','", $ordered_prescriptions_ids);
+		$ordered_prescriptions_ids_str = join("','", $ordered_prescriptions_ids);
 
-		$sth = $this->conn->prepare("SELECT count(*) as `count` FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids}') GROUP BY orderId");
+		$sth = $this->conn->prepare("SELECT pid FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids_str}') GROUP BY orderId");
 		$sth->execute();
-		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
-		$numerator = $numerator['count'];
+		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$numerator_pids = [];
+		foreach($numerator_records as $numerator_record) {
+			$numerator_pids[] = $numerator_record['pid'];
+		}
+		$numerator = count($numerator_records);
 
 		$records[] = [
 			'group' => 'ePrescribing',
@@ -100,6 +106,8 @@ class MeasureCalculation {
 			'description' => 'Eligible Professional (EP): More than 50 percent of all permissible prescriptions written by the EP are queried for a drug formulary and transmitted electronically using Certified Health IT.',
 			'denominator' => $denominator,
 			'numerator' => $numerator,
+			'denominator_pids' => $denominator_pids,
+			'numerator_pids' => $numerator_pids,
 			'goal' => '50%'
 		];
 
@@ -121,20 +129,26 @@ class MeasureCalculation {
 		 * Denominator: Prescriptions generated.
 		 *
 		 */
-		$sth = $this->conn->prepare("SELECT id FROM patient_medications WHERE uid = '{$provider_id}' AND date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND date_ordered IS NOT NULL");
+		$sth = $this->conn->prepare("SELECT id, pid FROM patient_medications WHERE uid = '{$provider_id}' AND date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND date_ordered IS NOT NULL");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$ordered_prescriptions_ids = [];
+		$denominator_pids = [];
 		foreach($ordered_prescriptions as $ordered_prescription) {
 			$ordered_prescriptions_ids[] = $ordered_prescription['id'];
+			$denominator_pids[] = $ordered_prescription['id'];
 		}
 		$denominator = count($ordered_prescriptions_ids);
-		$ordered_prescriptions_ids = join("','", $ordered_prescriptions_ids);
+		$ordered_prescriptions_ids_str = join("','", $ordered_prescriptions_ids);
 
-		$sth = $this->conn->prepare("SELECT count(*) as `count` FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids}') GROUP BY orderId");
+		$sth = $this->conn->prepare("SELECT pid FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids_str}') GROUP BY orderId");
 		$sth->execute();
-		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
-		$numerator = $numerator['count'];
+		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$numerator_pids = [];
+		foreach($numerator_records as $numerator_record) {
+			$numerator_pids[] = $numerator_record['pid'];
+		}
+		$numerator = count($numerator_records);
 
 		$records[] = [
 			'group' => 'ePrescribing',
@@ -142,6 +156,8 @@ class MeasureCalculation {
 			'description' => 'Eligible Professional (EP): More than 60 percent of all permissible prescriptions written by the EP are queried for a drug formulary and transmitted electronically using CEHRT.',
 			'denominator' => $denominator,
 			'numerator' => $numerator,
+			'denominator_pids' => $denominator_pids,
+			'numerator_pids' => $numerator_pids,
 			'goal' => '60%'
 		];
 
@@ -159,20 +175,26 @@ class MeasureCalculation {
 		 * Numerator: Prescription generated, queried for a formulary, and transmitted electronically.
 		 * Denominator: Prescriptions other than controlled substances generated; or prescriptions generated.
 		 */
-		$sth = $this->conn->prepare("SELECT id FROM patient_medications WHERE uid = '{$provider_id}' AND date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND date_ordered IS NOT NULL");
+		$sth = $this->conn->prepare("SELECT id, pid FROM patient_medications WHERE uid = '{$provider_id}' AND date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND date_ordered IS NOT NULL");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$ordered_prescriptions_ids = [];
+		$denominator_pids = [];
 		foreach($ordered_prescriptions as $ordered_prescription) {
 			$ordered_prescriptions_ids[] = $ordered_prescription['id'];
+			$denominator_pids[] = $ordered_prescription['id'];
 		}
 		$denominator = count($ordered_prescriptions_ids);
-		$ordered_prescriptions_ids = join("','", $ordered_prescriptions_ids);
+		$ordered_prescriptions_ids_str = join("','", $ordered_prescriptions_ids);
 
-		$sth = $this->conn->prepare("SELECT count(*) as `count` FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids}') AND ndc IS NOT NULL GROUP BY orderId");
+		$sth = $this->conn->prepare("SELECT pid FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids_str}') GROUP BY orderId");
 		$sth->execute();
-		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
-		$numerator = $numerator['count'];
+		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$numerator_pids = [];
+		foreach($numerator_records as $numerator_record) {
+			$numerator_pids[] = $numerator_record['pid'];
+		}
+		$numerator = count($numerator_records);
 
 		$records[] = [
 			'group' => 'ePrescribing',
@@ -180,6 +202,8 @@ class MeasureCalculation {
 			'description' => 'Eligible Clinician (EC): At least one permissible prescription written by the MIPS EC is queried for a drug formulary and transmitted electronically using certified EHR technology.',
 			'denominator' => $denominator,
 			'numerator' => $numerator,
+			'denominator_pids' => $denominator_pids,
+			'numerator_pids' => $numerator_pids,
 			'goal' => '1'
 		];
 
@@ -195,20 +219,26 @@ class MeasureCalculation {
 		 * Numerator: Prescription generated, queried for a formulary, and transmitted electronically.
 		 * Denominator: Prescriptions other than controlled substances generated; or prescriptions generated.
 		 */
-		$sth = $this->conn->prepare("SELECT id FROM patient_medications WHERE uid = '{$provider_id}' AND date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND date_ordered IS NOT NULL");
+		$sth = $this->conn->prepare("SELECT id, pid FROM patient_medications WHERE uid = '{$provider_id}' AND date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND date_ordered IS NOT NULL");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$ordered_prescriptions_ids = [];
+		$denominator_pids = [];
 		foreach($ordered_prescriptions as $ordered_prescription) {
 			$ordered_prescriptions_ids[] = $ordered_prescription['id'];
+			$denominator_pids[] = $ordered_prescription['id'];
 		}
 		$denominator = count($ordered_prescriptions_ids);
-		$ordered_prescriptions_ids = join("','", $ordered_prescriptions_ids);
+		$ordered_prescriptions_ids_str = join("','", $ordered_prescriptions_ids);
 
-		$sth = $this->conn->prepare("SELECT count(*) as `count` FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids}') AND ndc IS NOT NULL GROUP BY orderId");
+		$sth = $this->conn->prepare("SELECT pid FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids_str}') GROUP BY orderId");
 		$sth->execute();
-		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
-		$numerator = $numerator['count'];
+		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$numerator_pids = [];
+		foreach($numerator_records as $numerator_record) {
+			$numerator_pids[] = $numerator_record['pid'];
+		}
+		$numerator = count($numerator_records);
 
 		$records[] = [
 			'group' => 'ePrescribing',
@@ -216,6 +246,8 @@ class MeasureCalculation {
 			'description' => 'EC: At least one permissible prescription written by the MIPS EC is queried for a drug formulary and transmitted electronically using certified EHR technology.',
 			'denominator' => $denominator,
 			'numerator' => $numerator,
+			'denominator_pids' => $denominator_pids,
+			'numerator_pids' => $numerator_pids,
 			'goal' => '1'
 		];
 
@@ -251,10 +283,13 @@ class MeasureCalculation {
 		$denominator = count($patients_pids);
 		$patients_pids = join("','", $patients_pids);
 
-		$sth = $this->conn->prepare("SELECT count(*) as count FROM patient_education_resources WHERE pid IN ('{$patients_pids}') AND provided_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) GROUP BY pid");
-		$sth->execute();
-		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
-		$numerator = $numerator['count'];
+		$sth = $this->conn->prepare("SELECT pid FROM patient_education_resources WHERE pid IN ('{$patients_pids}') AND provided_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) GROUP BY pid");
+		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$numerator_pids = [];
+		foreach($numerator_records as $numerator_record) {
+			$numerator_pids[] = $numerator_record['pid'];
+		}
+		$numerator = count($numerator_records);
 
 
 		/**
@@ -377,16 +412,21 @@ class MeasureCalculation {
 		$sth->execute();
 		$patients =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$patients_pids = [];
+		$denominator_pids = [];
 		foreach($patients as $patient) {
+			$denominator_pids[] = $patient['pid'];
 			$patients_pids[] = $patient['pid'];
 		}
 		$denominator = count($patients_pids);
 		$patients_pids = join("','", $patients_pids);
 
-		$sth = $this->conn->prepare("SELECT count(*) as count FROM patient_education_resources WHERE pid IN ('{$patients_pids}') AND provided_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) GROUP BY pid");
-		$sth->execute();
-		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
-		$numerator = $numerator['count'];
+		$sth = $this->conn->prepare("SELECT pid FROM patient_education_resources WHERE pid IN ('{$patients_pids}') AND provided_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) GROUP BY pid");
+		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$numerator_pids = [];
+		foreach($numerator_records as $numerator_record) {
+			$numerator_pids[] = $numerator_record['pid'];
+		}
+		$numerator = count($numerator_records);
 
 		$records[] = [
 			'group' => 'Patient Education',
@@ -394,6 +434,8 @@ class MeasureCalculation {
 			'description' => 'Eligible Professional (EP): Patient-specific education resources identified by Certified Health IT Module (CEHRT) are provided to patients for more than 10 percent of all unique patients with office visits seen by the EP during the reporting period.',
 			'denominator' => $denominator,
 			'numerator' => $numerator,
+			'denominator_pids' => $denominator_pids,
+			'numerator_pids' => $numerator_pids,
 			'goal' => '10%'
 		];
 
@@ -422,16 +464,21 @@ class MeasureCalculation {
 		$sth->execute();
 		$patients =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$patients_pids = [];
+		$denominator_pids = [];
 		foreach($patients as $patient) {
+			$denominator_pids[] = $patient['pid'];
 			$patients_pids[] = $patient['pid'];
 		}
 		$denominator = count($patients_pids);
 		$patients_pids = join("','", $patients_pids);
 
-		$sth = $this->conn->prepare("SELECT count(*) as count FROM patient_education_resources WHERE pid IN ('{$patients_pids}') AND provided_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) GROUP BY pid");
-		$sth->execute();
-		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
-		$numerator = $numerator['count'];
+		$sth = $this->conn->prepare("SELECT pid FROM patient_education_resources WHERE pid IN ('{$patients_pids}') AND provided_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) GROUP BY pid");
+		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$numerator_pids = [];
+		foreach($numerator_records as $numerator_record) {
+			$numerator_pids[] = $numerator_record['pid'];
+		}
+		$numerator = count($numerator_records);
 
 		$records[] = [
 			'group' => 'Patient Education',
@@ -439,6 +486,8 @@ class MeasureCalculation {
 			'description' => 'Eligible Professional: The EP must use clinically relevant information from CEHRT to identify patient-specific educational resources and provide electronic access to those materials to more than 35 percent of unique patients seen by the EP during the EHR reporting period.',
 			'denominator' => $denominator,
 			'numerator' => $numerator,
+			'denominator_pids' => $denominator_pids,
+			'numerator_pids' => $numerator_pids,
 			'goal' => '35%'
 		];
 
@@ -462,16 +511,21 @@ class MeasureCalculation {
 		$sth->execute();
 		$patients =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$patients_pids = [];
+		$denominator_pids = [];
 		foreach($patients as $patient) {
+			$denominator_pids[] = $patient['pid'];
 			$patients_pids[] = $patient['pid'];
 		}
 		$denominator = count($patients_pids);
 		$patients_pids = join("','", $patients_pids);
 
-		$sth = $this->conn->prepare("SELECT count(*) as count FROM patient_education_resources WHERE pid IN ('{$patients_pids}') AND provided_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) GROUP BY pid");
-		$sth->execute();
-		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
-		$numerator = $numerator['count'];
+		$sth = $this->conn->prepare("SELECT pid FROM patient_education_resources WHERE pid IN ('{$patients_pids}') AND provided_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) GROUP BY pid");
+		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$numerator_pids = [];
+		foreach($numerator_records as $numerator_record) {
+			$numerator_pids[] = $numerator_record['pid'];
+		}
+		$numerator = count($numerator_records);
 
 		$records[] = [
 			'group' => 'Patient Education',
@@ -479,6 +533,8 @@ class MeasureCalculation {
 			'description' => 'The MIPS EC must use clinically relevant information from certified EHR technology to identify patient-specific educational resources and provide access to those materials to at least one unique patient seen by the MIPS EC.',
 			'denominator' => $denominator,
 			'numerator' => $numerator,
+			'denominator_pids' => $denominator_pids,
+			'numerator_pids' => $numerator_pids,
 			'goal' => '1'
 		];
 
@@ -501,16 +557,21 @@ class MeasureCalculation {
 		$sth->execute();
 		$patients =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$patients_pids = [];
+		$denominator_pids = [];
 		foreach($patients as $patient) {
+			$denominator_pids[] = $patient['pid'];
 			$patients_pids[] = $patient['pid'];
 		}
 		$denominator = count($patients_pids);
 		$patients_pids = join("','", $patients_pids);
 
-		$sth = $this->conn->prepare("SELECT count(*) as count FROM patient_education_resources WHERE pid IN ('{$patients_pids}') AND provided_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) GROUP BY pid");
-		$sth->execute();
-		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
-		$numerator = $numerator['count'];
+		$sth = $this->conn->prepare("SELECT pid FROM patient_education_resources WHERE pid IN ('{$patients_pids}') AND provided_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) GROUP BY pid");
+		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$numerator_pids = [];
+		foreach($numerator_records as $numerator_record) {
+			$numerator_pids[] = $numerator_record['pid'];
+		}
+		$numerator = count($numerator_records);
 
 		$records[] = [
 			'group' => 'Patient Education',
@@ -518,6 +579,8 @@ class MeasureCalculation {
 			'description' => 'The MIPS EC must use clinically relevant information from certified EHR technology to identify patient-specific educational resources and provide electronic access to those materials to at least one unique patient seen by the MIPS eligible clinician.',
 			'denominator' => $denominator,
 			'numerator' => $numerator,
+			'denominator_pids' => $denominator_pids,
+			'numerator_pids' => $numerator_pids,
 			'goal' => '1'
 		];
 
@@ -926,7 +989,7 @@ class MeasureCalculation {
 		 * Numerator: Medication order recorded using CPOE.
 		 * Denominator: Number of medication orders.
 		 */
-		$sth = $this->conn->prepare("SELECT m.id FROM patient_medications as m
+		$sth = $this->conn->prepare("SELECT m.id, m.pid FROM patient_medications as m
 										  INNER JOIN encounters as e ON e.eid = m.eid
 										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
 											   WHERE e.provider_uid = '{$provider_id}' AND m.date_ordered IS NOT NULL AND m.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
@@ -934,16 +997,22 @@ class MeasureCalculation {
 		$sth->execute();
 		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$medication_ids = [];
+		$denominator_pids = [];
 		foreach($medications as $medication) {
+			$denominator_pids[] = $medication['pid'];
 			$medication_ids[] = $medication['id'];
 		}
 		$denominator = count($medication_ids);
 		$medication_ids = join("','", $medication_ids);
 
-		$sth = $this->conn->prepare("SELECT count(*) as count FROM patient_medications as m WHERE m.id IN ('{$medication_ids}')");
+		$sth = $this->conn->prepare("SELECT pid FROM patient_medications as m WHERE m.id IN ('{$medication_ids}')");
 		$sth->execute();
-		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
-		$numerator = $numerator['count'];
+		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$numerator_pids = [];
+		foreach($numerator_records as $numerator_record) {
+			$numerator_pids[] = $numerator_record['pid'];
+		}
+		$numerator = count($numerator_records);
 
 		$records[] = [
 			'group' => 'CPOE Medications',
@@ -951,6 +1020,8 @@ class MeasureCalculation {
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 60 percent of medication orders created by the EP or by authorized providers of the eligible hospital\'s or CAH\'s inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry.',
 			'denominator' => $denominator,
 			'numerator' => $numerator,
+			'denominator_pids' => $denominator_pids,
+			'numerator_pids' => $numerator_pids,
 			'goal' => '60%'
 		];
 
@@ -970,7 +1041,7 @@ class MeasureCalculation {
 		 * Numerator: Radiology order recorded using CPOE.
 		 * Denominator: Number of radiology orders.
 		 */
-		$sth = $this->conn->prepare("SELECT m.id FROM patient_medications as m
+		$sth = $this->conn->prepare("SELECT m.id, m.pid FROM patient_medications as m
 										  INNER JOIN encounters as e ON e.eid = m.eid
 										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
 											   WHERE e.provider_uid = '{$provider_id}' AND m.date_ordered IS NOT NULL AND m.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
@@ -978,16 +1049,22 @@ class MeasureCalculation {
 		$sth->execute();
 		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$medication_ids = [];
+		$denominator_pids = [];
 		foreach($medications as $medication) {
+			$denominator_pids[] = $medication['pid'];
 			$medication_ids[] = $medication['id'];
 		}
 		$denominator = count($medication_ids);
 		$medication_ids = join("','", $medication_ids);
 
-		$sth = $this->conn->prepare("SELECT count(*) as count FROM patient_medications as m WHERE m.id IN ('{$medication_ids}')");
+		$sth = $this->conn->prepare("SELECT pid FROM patient_medications as m WHERE m.id IN ('{$medication_ids}')");
 		$sth->execute();
-		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
-		$numerator = $numerator['count'];
+		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$numerator_pids = [];
+		foreach($numerator_records as $numerator_record) {
+			$numerator_pids[] = $numerator_record['pid'];
+		}
+		$numerator = count($numerator_records);
 
 		$records[] = [
 			'group' => 'CPOE Medications',
@@ -995,6 +1072,8 @@ class MeasureCalculation {
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 60 percent of medication orders created by the EP or authorized providers of the eligible hospital or CAH inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry.',
 			'denominator' => $denominator,
 			'numerator' => $numerator,
+			'denominator_pids' => $denominator_pids,
+			'numerator_pids' => $numerator_pids,
 			'goal' => '60%'
 		];
 
@@ -1029,7 +1108,7 @@ class MeasureCalculation {
 		 * Numerator: Laboratory order recorded using CPOE.
 		 * Denominator: Number of laboratory orders.
 		 */
-		$sth = $this->conn->prepare("SELECT o.id FROM patient_orders as o
+		$sth = $this->conn->prepare("SELECT o.id, o.pid FROM patient_orders as o
 										  INNER JOIN encounters as e ON e.eid = o.eid
 										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
 											   WHERE e.provider_uid = '{$provider_id}' AND o.order_type = 'lab' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
@@ -1037,16 +1116,22 @@ class MeasureCalculation {
 		$sth->execute();
 		$orders =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$orders_ids = [];
+		$denominator_pids = [];
 		foreach($orders as $order) {
+			$denominator_pids[] = $order['pid'];
 			$orders_ids[] = $order['id'];
 		}
 		$denominator = count($orders_ids);
 		$orders_ids = join("','", $orders_ids);
 
-		$sth = $this->conn->prepare("SELECT count(*) as count FROM patient_orders as o WHERE o.id IN ('{$orders_ids}')");
+		$sth = $this->conn->prepare("SELECT pid FROM patient_orders as o WHERE o.id IN ('{$orders_ids}')");
 		$sth->execute();
-		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
-		$numerator = $numerator['count'];
+		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$numerator_pids = [];
+		foreach($numerator_records as $numerator_record) {
+			$numerator_pids[] = $numerator_record['pid'];
+		}
+		$numerator = count($numerator_records);
 
 		$records[] = [
 			'group' => 'CPOE Laboratory',
@@ -1054,6 +1139,8 @@ class MeasureCalculation {
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 30 percent of laboratory orders created by the EP or by authorized providers of the eligible hospital\'s or CAH\'s inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry.',
 			'denominator' => $denominator,
 			'numerator' => $numerator,
+			'denominator_pids' => $denominator_pids,
+			'numerator_pids' => $numerator_pids,
 			'goal' => '30%'
 		];
 
@@ -1073,7 +1160,7 @@ class MeasureCalculation {
 		 * Numerator: Laboratory order recorded using CPOE.
 		 * Denominator: Number of laboratory orders.
 		 */
-		$sth = $this->conn->prepare("SELECT o.id FROM patient_orders as o
+		$sth = $this->conn->prepare("SELECT o.id, o.pid FROM patient_orders as o
 										  INNER JOIN encounters as e ON e.eid = o.eid
 										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
 											   WHERE e.provider_uid = '{$provider_id}' AND o.order_type = 'lab' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
@@ -1081,16 +1168,22 @@ class MeasureCalculation {
 		$sth->execute();
 		$orders =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$orders_ids = [];
+		$denominator_pids = [];
 		foreach($orders as $order) {
+			$denominator_pids[] = $order['pid'];
 			$orders_ids[] = $order['id'];
 		}
 		$denominator = count($orders_ids);
 		$orders_ids = join("','", $orders_ids);
 
-		$sth = $this->conn->prepare("SELECT count(*) as count FROM patient_orders as o WHERE o.id IN ('{$orders_ids}')");
+		$sth = $this->conn->prepare("SELECT pid FROM patient_orders as o WHERE o.id IN ('{$orders_ids}')");
 		$sth->execute();
-		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
-		$numerator = $numerator['count'];
+		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$numerator_pids = [];
+		foreach($numerator_records as $numerator_record) {
+			$numerator_pids[] = $numerator_record['pid'];
+		}
+		$numerator = count($numerator_records);
 
 		$records[] = [
 			'group' => 'CPOE Laboratory',
@@ -1098,6 +1191,8 @@ class MeasureCalculation {
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 60 percent of laboratory orders created by the EP or authorized providers of the eligible hospital or CAH inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry.',
 			'denominator' => $denominator,
 			'numerator' => $numerator,
+			'denominator_pids' => $denominator_pids,
+			'numerator_pids' => $numerator_pids,
 			'goal' => '60%'
 		];
 
@@ -1131,7 +1226,7 @@ class MeasureCalculation {
 		 * Numerator: Radiology order recorded using CPOE.
 		 * Denominator: Number of radiology orders.
 		 */
-		$sth = $this->conn->prepare("SELECT o.id as o FROM patient_orders as o
+		$sth = $this->conn->prepare("SELECT o.id, o.pid FROM patient_orders as o
 										  INNER JOIN encounters as e ON e.eid = o.eid
 										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
 											   WHERE e.provider_uid = '{$provider_id}' AND o.order_type = 'rad' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
@@ -1139,16 +1234,22 @@ class MeasureCalculation {
 		$sth->execute();
 		$orders =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$orders_ids = [];
+		$denominator_pids = [];
 		foreach($orders as $order) {
+			$denominator_pids[] = $order['pid'];
 			$orders_ids[] = $order['id'];
 		}
 		$denominator = count($orders_ids);
 		$orders_ids = join("','", $orders_ids);
 
-		$sth = $this->conn->prepare("SELECT count(*) as count FROM patient_orders as o WHERE o.id IN ('{$orders_ids}')");
+		$sth = $this->conn->prepare("SELECT pid FROM patient_orders as o WHERE o.id IN ('{$orders_ids}')");
 		$sth->execute();
-		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
-		$numerator = $numerator['count'];
+		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$numerator_pids = [];
+		foreach($numerator_records as $numerator_record) {
+			$numerator_pids[] = $numerator_record['pid'];
+		}
+		$numerator = count($numerator_records);
 
 		$records[] = [
 			'group' => 'CPOE Radiology/Diagnostic Imaging',
@@ -1156,6 +1257,8 @@ class MeasureCalculation {
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 30 percent of radiology orders created by the EP or by authorized providers of the eligible hospital\'s or CAH\'s inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry',
 			'denominator' => $denominator,
 			'numerator' => $numerator,
+			'denominator_pids' => $denominator_pids,
+			'numerator_pids' => $numerator_pids,
 			'goal' => '30%'
 		];
 
@@ -1175,7 +1278,7 @@ class MeasureCalculation {
 		 * Numerator: Radiology order recorded using CPOE.
 		 * Denominator: Number of radiology orders.
 		 */
-		$sth = $this->conn->prepare("SELECT o.id as o FROM patient_orders as o
+		$sth = $this->conn->prepare("SELECT o.id, o.pid FROM patient_orders as o
 										  INNER JOIN encounters as e ON e.eid = o.eid
 										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
 											   WHERE e.provider_uid = '{$provider_id}' AND o.order_type = 'rad' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
@@ -1183,16 +1286,22 @@ class MeasureCalculation {
 		$sth->execute();
 		$orders =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$orders_ids = [];
+		$denominator_pids = [];
 		foreach($orders as $order) {
+			$denominator_pids[] = $order['pid'];
 			$orders_ids[] = $order['id'];
 		}
 		$denominator = count($orders_ids);
 		$orders_ids = join("','", $orders_ids);
 
-		$sth = $this->conn->prepare("SELECT count(*) as count FROM patient_orders as o WHERE o.id IN ('{$orders_ids}')");
+		$sth = $this->conn->prepare("SELECT pid as count FROM patient_orders as o WHERE o.id IN ('{$orders_ids}')");
 		$sth->execute();
-		$numerator =  $sth->fetch(PDO::FETCH_ASSOC);
-		$numerator = $numerator['count'];
+		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$numerator_pids = [];
+		foreach($numerator_records as $numerator_record) {
+			$numerator_pids[] = $numerator_record['pid'];
+		}
+		$numerator = count($numerator_records);
 
 		$records[] = [
 			'group' => 'CPOE Radiology/Diagnostic Imaging',
@@ -1200,12 +1309,10 @@ class MeasureCalculation {
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 60 percent of diagnostic imaging orders created by the EP or authorized providers of the eligible hospital or CAH inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry.',
 			'denominator' => $denominator,
 			'numerator' => $numerator,
+			'denominator_pids' => $denominator_pids,
+			'numerator_pids' => $numerator_pids,
 			'goal' => '60%'
 		];
-
-
-
-
 
 		return $records;
 	}

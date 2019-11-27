@@ -52,8 +52,21 @@ Ext.define('App.controller.administration.MeasureCalculation', {
         me.control({
             '#MeasureCalculationRefreshBtn': {
                 click: me.onMeasureCalculationRefreshBtnClick
+            },
+            '#MeasureCalculationGrid': {
+                celldblclick: me.onMeasureCalculationGridCellDblClick
             }
         });
+    },
+
+    onMeasureCalculationGridCellDblClick: function(view, td, cellIndex, record, tr, rowIndex, e, eOpts ){
+        var column = view.panel.columnManager.getHeaderAtIndex(cellIndex);
+        if(column.dataIndex !== 'denominator' && column.dataIndex !== 'numerator') return;
+
+        say('show patient records');
+        say(column.dataIndex + '_pids');
+        say(record.get(column.dataIndex + '_pids'));
+
     },
 
     onMeasureCalculationRefreshBtnClick: function (btn) {
@@ -61,7 +74,6 @@ Ext.define('App.controller.administration.MeasureCalculation', {
             toField = this.getMeasureCalculationToField(),
             providerField = this.getMeasureCalculationProviderField(),
             grid_store = this.getMeasureCalculationGrid().getStore();
-
 
         grid_store.removeAll();
         grid_store.commitChanges();

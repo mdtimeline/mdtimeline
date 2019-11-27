@@ -248,14 +248,19 @@ class CDA_Parser
 
 		//marital StatusCode
 		$patient->marital_status = isset($dom['patient']['maritalStatusCode']['@attributes']['code']) ? $dom['patient']['maritalStatusCode']['@attributes']['code'] : '';
+		$patient->marital_statu_name = isset($dom['patient']['maritalStatusCode']['@attributes']['displayName']) ? $dom['patient']['maritalStatusCode']['@attributes']['displayName'] : '';
 
 		//race
 		$patient->race = isset($dom['patient']['raceCode']['@attributes']['code']) ? $dom['patient']['raceCode']['@attributes']['code'] : '';
 		//secondary race
         $patient->secondary_race = isset($dom['patient']['sdtc:raceCode']['@attributes']['code']) ? $dom['patient']['sdtc:raceCode']['@attributes']['code'] : '';
+        $patient->secondary_race_name = isset($dom['patient']['sdtc:raceCode']['@attributes']['displayName']) ? $dom['patient']['sdtc:raceCode']['@attributes']['displayName'] : '';
 
 		//ethnicGroupCode
 		$patient->ethnicity = isset($dom['patient']['ethnicGroupCode']['@attributes']['code']) ? $dom['patient']['ethnicGroupCode']['@attributes']['code'] : '';
+		$patient->ethnicity_name = isset($dom['patient']['ethnicGroupCode']['@attributes']['displayName']) ? $dom['patient']['ethnicGroupCode']['@attributes']['displayName'] : '';
+
+
 		//birthplace
 		if (isset($dom['patient']['birthplace']['place']['addr'])) {
 			$addr = $dom['patient']['birthplace']['place']['addr'];
@@ -278,6 +283,7 @@ class CDA_Parser
 
 		//languageCommunication
 		$patient->language = isset($dom['patient']['languageCommunication']['languageCode']['@attributes']['code']) ? $dom['patient']['languageCommunication']['languageCode']['@attributes']['code'] : '';
+		$patient->language_name = isset($dom['patient']['languageCommunication']['languageCode']['@attributes']['displayName']) ? $dom['patient']['languageCommunication']['languageCode']['@attributes']['displayName'] : '';
 
 		switch (strtolower($patient->language)){
             case 'eng':
@@ -323,6 +329,10 @@ class CDA_Parser
 				$author->fname = $names['L']['fname'];
 				$author->mname = $names['L']['mname'];
 				$author->lname = $names['L']['lname'];
+			}
+
+			if(!isset($author->lname) && isset($dom['assignedAuthor']['representedOrganization']['name'])){
+				$author->lname = $dom['assignedAuthor']['representedOrganization']['name'];
 			}
 
 			if (isset($dom['assignedAuthor']['addr'])) {
@@ -478,6 +488,12 @@ class CDA_Parser
 					$allergy->{$key . '_code_type'} = $code['code_type'];
 					unset($code);
 				};
+			}
+
+			if(!isset($allergy->end_date) && !isset($allergy->status)){
+				$allergy->status = 'Active';
+				$allergy->status_code = '55561003';
+				$allergy->status_code_type = 'SNOMEDCT';
 			}
 
 			$allergy->create_date = date('Y-m-d H:i:s');

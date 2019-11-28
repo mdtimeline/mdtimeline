@@ -213,14 +213,14 @@ Ext.define('App.controller.patient.CCDImport', {
 		// list 14 race
         // phone from Patient Contacts
 		if(data.patient.race && data.patient.race !== ''){
-			CombosData.getDisplayValueByListIdAndOptionValue(14, data.patient.race, function(response){
-                ccdPatientForm.findField('race_text').setValue(response);
+			CombosData.getRaceByCode(data.patient.race, function(response){
+                ccdPatientForm.findField('race_text').setValue(response.code_description);
 			});
 		}
 
 		if(data.patient.ethnicity && data.patient.ethnicity !== ''){
-			CombosData.getDisplayValueByListIdAndOptionCode(59, data.patient.ethnicity, function(response){
-                ccdPatientForm.findField('ethnicity_text').setValue(response);
+			CombosData.getEthnicityByCode(data.patient.ethnicity, function(response){
+                ccdPatientForm.findField('ethnicity_text').setValue(response.code_description);
 			});
 		}
 
@@ -321,14 +321,14 @@ Ext.define('App.controller.patient.CCDImport', {
 				pForm.loadRecord(patient);
 
 				if(patient.data.race && patient.data.race !== ''){
-					CombosData.getDisplayValueByListIdAndOptionValue(14, patient.data.race, function(response){
-						pForm.findField('race_text').setValue(response);
+					CombosData.getRaceByCode(patient.data.race, function(response){
+						pForm.findField('race_text').setValue(response.code_description);
 					});
 				}
 
 				if(patient.data.ethnicity && patient.data.ethnicity !== ''){
-					CombosData.getDisplayValueByListIdAndOptionValue(59, patient.data.ethnicity, function(response){
-						pForm.findField('ethnicity_text').setValue(response);
+					CombosData.getEthnicityByCode(patient.data.ethnicity, function(response){
+						pForm.findField('ethnicity_text').setValue(response.code_description);
 					});
 				}
 

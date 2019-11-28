@@ -2350,6 +2350,15 @@ $API = [
             ],
 			'getDisplayValueByListIdAndOptionCode' => [
 				'len' => 2
+            ],
+			'getDisplayValueByListKeyAndOptionValue' => [
+				'len' => 2
+            ],
+			'getEthnicityByCode' => [
+				'len' => 1
+            ],
+			'getRaceByCode' => [
+				'len' => 1
             ]
         ]
     ],

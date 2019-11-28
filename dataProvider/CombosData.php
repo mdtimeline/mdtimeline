@@ -200,6 +200,24 @@ class CombosData {
 		return $options;
 	}
 
+	public function getEthnicityByCode($code){
+		$ethnicity = json_decode(file_get_contents(ROOT. '/resources/code_sets/HL7v3-Ethnicity.json'), true);
+		$ethnicity_key = array_search($code, array_column($ethnicity, 'code'));
+		if($ethnicity_key !== false){
+			return $ethnicity[$ethnicity_key];
+		}
+		return $code;
+	}
+
+	public function getRaceByCode($code){
+		$races = json_decode(file_get_contents(ROOT. '/resources/code_sets/HL7v3-Race.json'), true);
+		$race_key = array_search($code, array_column($races, 'code'));
+		if($race_key !== false){
+			return $races[$race_key];
+		}
+		return $code;
+	}
+
 	public function getReferringPhysicians($query = ''){
 		if($this->R == null)
 			$this->R = MatchaModel::setSenchaModel('App.model.administration.ReferringProvider');
@@ -763,6 +781,16 @@ class CombosData {
 			$this->CLO = MatchaModel::setSenchaModel('App.model.administration.ListOptions');
 		$foo = $this->CLO->load([
 			'list_id' => $listId,
+			'option_value' => $optionValue
+		])->one();
+		return $foo !== false ? $foo['option_name'] : $optionValue;
+	}
+
+	public function getDisplayValueByListKeyAndOptionValue($listKey, $optionValue) {
+		if($this->CLO == null)
+			$this->CLO = MatchaModel::setSenchaModel('App.model.administration.ListOptions');
+		$foo = $this->CLO->load([
+			'list_key' => $listKey,
 			'option_value' => $optionValue
 		])->one();
 		return $foo !== false ? $foo['option_name'] : $optionValue;

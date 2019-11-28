@@ -267,31 +267,6 @@ class MeasureCalculation {
 		 * Promoting Interoperability Transition Objective 3 Measure 1 and Promoting Interoperability Objective 3 Measure 1
 		 */
 
-		$office_visit_codes = implode("','", $this->office_visit_codes);
-		$sth = $this->conn->prepare("SELECT p.pid, p.pubpid, e.service_date FROM encounters as e
-										  INNER JOIN patient as p on e.pid = p.pid
-											   WHERE e.provider_uid = '{$provider_id}' AND e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND visit_category_code IN ('{$office_visit_codes}')
-										    GROUP BY pid");
-		$sth->execute();
-		$patients =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$patients_pids = [];
-		$patients_record_numbers = [];
-		foreach($patients as $patient) {
-			$patients_pids[] = $patient['pid'];
-			$patients_record_numbers[] = $patient['pubpid'];
-		}
-		$denominator = count($patients_pids);
-		$patients_pids = join("','", $patients_pids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM patient_education_resources WHERE pid IN ('{$patients_pids}') AND provided_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) GROUP BY pid");
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			$numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-
 		/**
 		 * Modified Stage 2 Measure:
 		 * Eligible Professional (EP): More than 50 percent of all unique patients seen by the EP during the EHR reporting
@@ -310,6 +285,37 @@ class MeasureCalculation {
 		 * Denominator: Number of patients seen by EP.
 		 */
 
+		$sth = $this->conn->prepare("SELECT pid FROM encounters WHERE provider_uid = '{$provider_id}' AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
+		$sth->execute();
+		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$denominator_pids = [];
+		foreach($ordered_prescriptions as $ordered_prescription) {
+			$denominator_pids[] = $ordered_prescription['pid'];
+		}
+		$denominator = count($ordered_prescription);
+		$ordered_prescription_str = join("','", $ordered_prescription);
+
+		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
+										  INNER JOIN audit_log as a ON a.pid = e.pid AND e.eid = a.eid AND a.event_date < DATE_ADD(e.service_date, INTERVAL 48 HOUR)
+											   WHERE e.pid IN ('{$ordered_prescription_str}') GROUP BY e.pid");
+		$sth->execute();
+		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$numerator_pids = [];
+		foreach($numerator_records as $numerator_record) {
+			$numerator_pids[] = $numerator_record['pid'];
+		}
+		$numerator = count($numerator_records);
+
+		$records[] = [
+			'group' => 'Provide Patients Electronic Access',
+			'title' => 'Modified Stage 2 Measure',
+			'description' => 'Eligible Professional (EP): More than 50 percent of all unique patients seen by the EP during the EHR reporting period are provided timely access to view online, download, and transmit to a third party their health information subject to the EP\'s discretion to withhold certain information.',
+			'denominator' => $denominator,
+			'numerator' => $numerator,
+			'denominator_pids' => $denominator_pids,
+			'numerator_pids' => $numerator_pids,
+			'goal' => '50%'
+		];
 
 		/**
 		 * Stage 3 Measure:
@@ -319,7 +325,7 @@ class MeasureCalculation {
 		 * for the patient (or patient-authorized representative) to access using any application of their choice that
 		 * is configured to meet the technical specifications of the API in the provider’s CEHRT.
 		 *
-		 * Modified Stage 2 Measure English Statements:
+		 * Stage 3 Measure English Statements:
 		 * Numerator: The number of patients in the denominator (or patient-authorized representative) who are provided
 		 * timely access to health information to view online, download, and transmit to a third party and to access
 		 * using an application of their choice that is configured meet the technical specifications of the API in
@@ -334,6 +340,37 @@ class MeasureCalculation {
 		 * Denominator: Number of patients seen by the EP.
 		 */
 
+		$sth = $this->conn->prepare("SELECT pid FROM encounters WHERE provider_uid = '{$provider_id}' AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
+		$sth->execute();
+		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$denominator_pids = [];
+		foreach($ordered_prescriptions as $ordered_prescription) {
+			$denominator_pids[] = $ordered_prescription['pid'];
+		}
+		$denominator = count($ordered_prescription);
+		$ordered_prescription_str = join("','", $ordered_prescription);
+
+		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
+										  INNER JOIN audit_log as a ON a.pid = e.pid AND e.eid = a.eid AND a.event_date < DATE_ADD(e.service_date, INTERVAL 48 HOUR)
+											   WHERE e.pid IN ('{$ordered_prescription_str}') GROUP BY e.pid");
+		$sth->execute();
+		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$numerator_pids = [];
+		foreach($numerator_records as $numerator_record) {
+			$numerator_pids[] = $numerator_record['pid'];
+		}
+		$numerator = count($numerator_records);
+
+		$records[] = [
+			'group' => 'Provide Patients Electronic Access',
+			'title' => 'Stage 3 Measure',
+			'description' => 'Eligible Professional (EP): For more than 80 percent of all unique patients seen by the EP: (1) The patient (or the patient-authorized representative) is provided timely access to view online, download, and transmit his or her health information; and (2) The provider ensures the patient’s health information is available for the patient (or patient-authorized representative) to access using any application of their choice that is configured to meet the technical specifications of the API in the provider’s CEHRT.',
+			'denominator' => $denominator,
+			'numerator' => $numerator,
+			'denominator_pids' => $denominator_pids,
+			'numerator_pids' => $numerator_pids,
+			'goal' => '80%'
+		];
 
 		/**
 		 * Promoting Interoperability Transition Measure:
@@ -353,6 +390,37 @@ class MeasureCalculation {
 		 * Denominator: Number of patients seen by the EC.
 		 */
 
+		$sth = $this->conn->prepare("SELECT pid FROM encounters WHERE provider_uid = '{$provider_id}' AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
+		$sth->execute();
+		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$denominator_pids = [];
+		foreach($ordered_prescriptions as $ordered_prescription) {
+			$denominator_pids[] = $ordered_prescription['pid'];
+		}
+		$denominator = count($ordered_prescription);
+		$ordered_prescription_str = join("','", $ordered_prescription);
+
+		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
+										  INNER JOIN audit_log as a ON a.pid = e.pid AND e.eid = a.eid AND a.event_date < DATE_ADD(e.service_date, INTERVAL 48 HOUR)
+											   WHERE e.pid IN ('{$ordered_prescription_str}') GROUP BY e.pid");
+		$sth->execute();
+		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$numerator_pids = [];
+		foreach($numerator_records as $numerator_record) {
+			$numerator_pids[] = $numerator_record['pid'];
+		}
+		$numerator = count($numerator_records);
+
+		$records[] = [
+			'group' => 'Promoting Interoperability Transition Measure',
+			'title' => 'Stage 3 Measure',
+			'description' => 'At least one patient seen by the MIPS EC during the performance period is provided timely access to view online, download, and transmit to a third party their health information subject to the MIPS EC\'s discretion to withhold certain information.',
+			'denominator' => $denominator,
+			'numerator' => $numerator,
+			'denominator_pids' => $denominator_pids,
+			'numerator_pids' => $numerator_pids,
+			'goal' => '1'
+		];
 
 		/**
 		 * Promoting Interoperability Measure:
@@ -376,6 +444,38 @@ class MeasureCalculation {
 		 *  Date and time information made available to an API.
 		 * Denominator: Number of patients seen by the EC.
 		 */
+
+		$sth = $this->conn->prepare("SELECT pid FROM encounters WHERE provider_uid = '{$provider_id}' AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
+		$sth->execute();
+		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$denominator_pids = [];
+		foreach($ordered_prescriptions as $ordered_prescription) {
+			$denominator_pids[] = $ordered_prescription['pid'];
+		}
+		$denominator = count($ordered_prescription);
+		$ordered_prescription_str = join("','", $ordered_prescription);
+
+		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
+										  INNER JOIN audit_log as a ON a.pid = e.pid AND e.eid = a.eid AND a.event_date < DATE_ADD(e.service_date, INTERVAL 48 HOUR)
+											   WHERE e.pid IN ('{$ordered_prescription_str}') GROUP BY e.pid");
+		$sth->execute();
+		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$numerator_pids = [];
+		foreach($numerator_records as $numerator_record) {
+			$numerator_pids[] = $numerator_record['pid'];
+		}
+		$numerator = count($numerator_records);
+
+		$records[] = [
+			'group' => 'Promoting Interoperability Measure',
+			'title' => 'Stage 3 Measure',
+			'description' => 'EC: For at least one unique patient seen by the MIPS EC (1) the patient (or the patient authorized representative) is provided timely access to view online, download, and transmit his or her health information; and (2) the MIPS EC ensures the patient\'s health information is available for the patient (or patient-authorized representative) to access using any application of their choice that is configured to meet the technical specifications of the API in the MIPS EC\'s CEHRT.',
+			'denominator' => $denominator,
+			'numerator' => $numerator,
+			'denominator_pids' => $denominator_pids,
+			'numerator_pids' => $numerator_pids,
+			'goal' => '1'
+		];
 
 		return $records;
 	}

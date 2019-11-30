@@ -29,6 +29,9 @@ $API = [
         'methods' => [
             'getReportMeasureByDates' => [
                 'len' => 4
+            ],
+            'getPatientList' => [
+                'len' => 1
             ]
         ]
     ],

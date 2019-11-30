@@ -84,6 +84,12 @@ Ext.define('App.view.administration.MeasureCalculation', {
 						xtype: 'button',
 						text: _('refresh'),
 						itemId: 'MeasureCalculationRefreshBtn'
+					},
+					'->',
+					{
+						xtype: 'button',
+						text: _('print'),
+						itemId: 'MeasureCalculationGridPrintBtn'
 					}
 				],
 				columns: [

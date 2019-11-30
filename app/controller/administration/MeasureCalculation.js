@@ -18,8 +18,9 @@
 
 Ext.define('App.controller.administration.MeasureCalculation', {
     extend: 'Ext.app.Controller',
-    requires: [],
-
+    uses: [
+        'App.ux.grid.Printer'
+    ],
     refs: [
         {
             selector: '#MeasureCalculation',
@@ -55,17 +56,47 @@ Ext.define('App.controller.administration.MeasureCalculation', {
             },
             '#MeasureCalculationGrid': {
                 celldblclick: me.onMeasureCalculationGridCellDblClick
+            },
+            '#MeasureCalculationGridPrintBtn': {
+                click: me.onMeasureCalculationGridPrintBtnClick
             }
         });
     },
 
-    onMeasureCalculationGridCellDblClick: function(view, td, cellIndex, record, tr, rowIndex, e, eOpts ){
-        var column = view.panel.columnManager.getHeaderAtIndex(cellIndex);
+    onMeasureCalculationGridPrintBtnClick: function(btn){
+
+        var fromField = this.getMeasureCalculationFromField(),
+            toField = this.getMeasureCalculationToField(),
+            providerField = this.getMeasureCalculationProviderField(),
+            provider = providerField.findRecordByValue(providerField.getValue()),
+            grid = this.getMeasureCalculationGrid();
+
+        if(!fromField.isValid() || !toField.isValid() || !providerField.isValid() || grid.store.count() === 0) return;
+
+        App.ux.grid.Printer.mainTitle = 'Measure Calculation'; //optional
+        App.ux.grid.Printer.filtersHtml = Ext.String.format(
+            '<b>From:</b> {0}<br><b>To:</b> {1}<br><b>Provider:</b> {2}',
+            Ext.Date.format(fromField.getValue(), 'F j, Y'),
+            Ext.Date.format(toField.getValue(), 'F j, Y'),
+            provider.get('fullname'),
+        ); //optional
+        App.ux.grid.Printer.print(grid);
+    },
+
+    onMeasureCalculationGridCellDblClick: function(view, td, cellIndex, record){
+        var me = this,
+            column = view.panel.columnManager.getHeaderAtIndex(cellIndex),
+            pids;
+
         if(column.dataIndex !== 'denominator' && column.dataIndex !== 'numerator') return;
 
-        say('show patient records');
-        say(column.dataIndex + '_pids');
-        say(record.get(column.dataIndex + '_pids'));
+        pids = record.get(column.dataIndex + '_pids');
+
+        if(pids == '') return;
+
+        MeasureCalculation.getPatientList(pids, function (response) {
+            me.showMeasureCalculationPatientListWindow(Ext.String.capitalize(column.dataIndex) + ' Patient List', response);
+        });
 
     },
 
@@ -88,10 +119,17 @@ Ext.define('App.controller.administration.MeasureCalculation', {
 
         this.doReportMeasureByDates('ePrescribing', provider, from, to);
         this.doReportMeasureByDates('PatientEducation', provider, from, to);
-
+        this.doReportMeasureByDates('ProvidePatientsElectronicAccess', provider, from, to);
+        this.doReportMeasureByDates('ViewDownloadTransmit', provider, from, to);
+        this.doReportMeasureByDates('SecureMessaging', provider, from, to);
+        this.doReportMeasureByDates('PatientGeneratedHealthData', provider, from, to);
+        this.doReportMeasureByDates('SupportElectronicReferralLoopsSending', provider, from, to);
+        this.doReportMeasureByDates('ReceiveAndIncorporate', provider, from, to);
+        this.doReportMeasureByDates('MedicationClinicalInformationReconciliation', provider, from, to);
         this.doReportMeasureByDates('CPOEMedications', provider, from, to);
         this.doReportMeasureByDates('CPOELaboratory', provider, from, to);
         this.doReportMeasureByDates('CPOERadiology', provider, from, to);
+        this.doReportMeasureByDates('SupportElectronicReferralLoopsReceiving', provider, from, to);
 
     },
 
@@ -104,6 +142,68 @@ Ext.define('App.controller.administration.MeasureCalculation', {
 
 
 
+    },
+
+    showMeasureCalculationPatientListWindow: function (title, data) {
+
+        say(title);
+        say(data);
+
+        var store = Ext.create('Ext.data.ArrayStore', {
+            fields: [
+                {  name: 'pid', type: 'string' },
+                {  name: 'pubpid', type: 'string'  },
+                {  name: 'fname', type: 'string'  },
+                {  name: 'mname', type: 'string'  },
+                {  name: 'lname', type: 'string'  },
+                {  name: 'sex', type: 'string'  },
+                {  name: 'DOB', type: 'date', dateFormat: 'Y-m-d H:i:s' }
+            ]
+        });
+
+        Ext.create('Ext.window.Window', {
+            title: title + ' [' + data.length + ']',
+            width: 800,
+            height: 500,
+            layout: 'fit',
+            items: {  // Let's put an empty grid in just to illustrate fit layout
+                xtype: 'grid',
+                store: store,
+                columns: [
+                    {
+                        text: 'ID',
+                        dataIndex: 'pid',
+                        width: 50
+                    },
+                    {
+                        text: 'MRN',
+                        dataIndex: 'pubpid',
+                        width: 120
+                    },
+                    {
+                        text: 'Name',
+                        dataIndex: 'pubpid',
+                        flex: 1,
+                        renderer: function (v,m,r) {
+                            return Ext.String.format('{0}, {1} {2}', r.get('lname'), r.get('fname'), r.get('mname'))
+                        }
+                    },
+                    {
+                        text: 'Sex',
+                        dataIndex: 'sex',
+                        width: 50
+                    },
+                    {
+                        xtype: 'datecolumn',
+                        text: 'DOB',
+                        format:'Y-m-d',
+                        dataIndex: 'DOB'
+                    }
+                ]
+            }
+        }).show();
+
+        store.loadData(data);
     }
 
 });

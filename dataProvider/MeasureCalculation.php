@@ -47,7 +47,7 @@ class MeasureCalculation {
 
 		$results = [];
 		$sth = $this->conn->prepare("SELECT * FROM _measures WHERE `provider_id` IN ('{$provider_id}') AND `measure` = ?");
-		$sth->execute([$provider_id,$measure]);
+		$sth->execute([$measure]);
 		$results =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		//return $results;
 
@@ -141,7 +141,7 @@ class MeasureCalculation {
 		 * Numerator: Prescription generated, queried for a formulary, and transmitted electronically.
 		 * Denominator: Prescriptions generated.
 		 */
-		$sth = $this->conn->prepare("SELECT id, pid FROM patient_medications WHERE uid = '{$provider_id}' AND date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND date_ordered IS NOT NULL");
+		$sth = $this->conn->prepare("SELECT id, pid FROM patient_medications WHERE uid = '{$provider_id}' AND is_controlled = '0' AND date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND date_ordered IS NOT NULL");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$ordered_prescriptions_ids = [];
@@ -191,7 +191,7 @@ class MeasureCalculation {
 		 * Denominator: Prescriptions generated.
 		 *
 		 */
-		$sth = $this->conn->prepare("SELECT id, pid FROM patient_medications WHERE uid = '{$provider_id}' AND date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND date_ordered IS NOT NULL");
+		$sth = $this->conn->prepare("SELECT id, pid FROM patient_medications WHERE uid = '{$provider_id}' AND is_controlled = '0' AND date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND date_ordered IS NOT NULL");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$ordered_prescriptions_ids = [];
@@ -359,7 +359,7 @@ class MeasureCalculation {
 		$denominator_pids_str = join("','", $denominator_pids);
 
 		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
-										  INNER JOIN audit_log as a ON a.pid = e.pid AND e.eid = a.eid AND a.event_date < DATE_ADD(e.service_date, INTERVAL 48 HOUR)
+										  INNER JOIN audit_log as a ON a.pid = e.pid AND e.eid = a.eid AND CAST(CONCAT(DATE(a.event_date), ' 23:59:59') AS DATE) < DATE_ADD(e.service_date, INTERVAL 4 DAY)
 											   WHERE e.pid IN ('{$denominator_pids_str}') AND a.event IN ('CCDA_CREATED') GROUP BY e.pid");
 		$sth->execute();
 		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -414,7 +414,7 @@ class MeasureCalculation {
 		$denominator_pids_str = join("','", $denominator_pids);
 
 		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
-										  INNER JOIN audit_log as a ON a.pid = e.pid AND e.eid = a.eid AND a.event_date < DATE_ADD(e.service_date, INTERVAL 48 HOUR)
+										  INNER JOIN audit_log as a ON a.pid = e.pid AND e.eid = a.eid AND CAST(CONCAT(DATE(a.event_date), ' 23:59:59') AS DATE) < DATE_ADD(e.service_date, INTERVAL 48 HOUR)
 											   WHERE e.pid IN ('{$denominator_pids_str}') AND a.event IN ('CCDA_CREATED') GROUP BY e.pid");
 		$sth->execute();
 		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);

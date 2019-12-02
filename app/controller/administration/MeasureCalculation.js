@@ -129,7 +129,6 @@ Ext.define('App.controller.administration.MeasureCalculation', {
         this.doReportMeasureByDates('CPOEMedications', provider, from, to);
         this.doReportMeasureByDates('CPOELaboratory', provider, from, to);
         this.doReportMeasureByDates('CPOERadiology', provider, from, to);
-        this.doReportMeasureByDates('SupportElectronicReferralLoopsReceiving', provider, from, to);
 
     },
 
@@ -139,8 +138,6 @@ Ext.define('App.controller.administration.MeasureCalculation', {
         MeasureCalculation.getReportMeasureByDates(measure, provider_id, start_date, end_date, function (response) {
             me.getMeasureCalculationGrid().getStore().loadData(response, true);
         });
-
-
 
     },
 

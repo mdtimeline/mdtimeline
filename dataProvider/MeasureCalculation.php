@@ -87,9 +87,6 @@ class MeasureCalculation {
 			} else
 			if($measure == 'CPOERadiology'){
 				$results = $this->getCPOERadiology($provider_id, $start_date, $end_date);
-			} else
-			if($measure == 'SupportElectronicReferralLoopsReceiving'){
-				$results = $this->getSupportElectronicReferralLoopsReceivingReportByDates($provider_id, $start_date, $end_date);
 			}
 
 			$this->conn->exec("DELETE FROM `_measures` WHERE provider_id = '{$provider_id}' AND measure = '{$measure}'");
@@ -2263,91 +2260,6 @@ class MeasureCalculation {
 			'denominator_pids' => implode(',', $denominator_pids),
 			'numerator_pids' => implode(',', $numerator_pids),
 			'goal' => '60%'
-		];
-
-		return $records;
-	}
-
-	// Required Test 15 – Support Electronic Referral Loops by Receiving and Incorporating Health Information
-	private function getSupportElectronicReferralLoopsReceivingReportByDates($provider_id, $start_date, $end_date){
-
-		$records = [];
-
-		/**
-		 * Required Test 15 – Support Electronic Referral Loops by Receiving and Incorporating Health Information
-		 * Stage 3
-		 * Promoting Interoperability
-		 */
-
-		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
-										 -- INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-										  INNER JOIN patient_referrals as r ON r.eid = e.eid
-											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$denominator_pids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
-		}
-		$denominator = count($denominator_pids);
-		$denominator_pids_str = join("','", $denominator_pids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM audit_log as a WHERE a.pid IN ('{$denominator_pids_str}') AND event IN ('INBOUND_TOC') GROUP BY a.pid");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => 'Support Electronic Referral Loops by Receiving and Incorporating Health Information',
-			'title' => 'Stage 3 Measure (Starting in 2019):',
-			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): Patient generated health data or data from a nonclinical setting is incorporated into the CEHRT for more than 5 percent of all unique patients seen by the EP or discharged from the eligible hospital or CAH inpatient or emergency department (POS 21 or 23) during the EHR reporting period.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '10%'
-		];
-
-		/**
-		 *
-		 */
-		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
-										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-										  INNER JOIN patient_referrals as r ON r.eid = e.eid
-											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$denominator_pids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
-		}
-		$denominator = count($denominator_pids);
-		$denominator_pids_str = join("','", $denominator_pids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM audit_log as a WHERE a.pid IN ('{$denominator_pids_str}') AND event IN ('INBOUND_TOC') GROUP BY a.pid");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => 'Support Electronic Referral Loops by Receiving and Incorporating Health Information',
-			'title' => 'Promoting Interoperability Measures (starting in 2019):',
-			'description' => 'Eligible Professional (EP): For more than 50% of transitions of care and referrals, the EP that transitions or refers their patient to another setting of care or provider of care: (1) creates a summary of care record using CEHRT; and (2) electronically exchanges the summary of care record.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '50%'
 		];
 
 		return $records;

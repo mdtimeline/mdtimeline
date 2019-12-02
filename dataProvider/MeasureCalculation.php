@@ -163,7 +163,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'ePrescribing',
+			'group' => '1. ePrescribing',
 			'title' => 'Modified Stage 2 Measure',
 			'description' => 'Eligible Professional (EP): More than 50 percent of all permissible prescriptions written by the EP are queried for a drug formulary and transmitted electronically using Certified Health IT.',
 			'denominator' => $denominator,
@@ -213,7 +213,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'ePrescribing',
+			'group' => '1. ePrescribing',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional (EP): More than 60 percent of all permissible prescriptions written by the EP are queried for a drug formulary and transmitted electronically using CEHRT.',
 			'denominator' => $denominator,
@@ -223,6 +223,7 @@ class MeasureCalculation {
 			'goal' => '60%'
 		];
 
+		return $records;
 
 		/**
 		 * Promoting Interoperability Transition Measure:
@@ -259,7 +260,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'ePrescribing',
+			'group' => '1. ePrescribing',
 			'title' => 'Promoting Interoperability Transition Measure',
 			'description' => 'Eligible Clinician (EC): At least one permissible prescription written by the MIPS EC is queried for a drug formulary and transmitted electronically using certified EHR technology.',
 			'denominator' => $denominator,
@@ -303,7 +304,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'ePrescribing',
+			'group' => '1. ePrescribing',
 			'title' => 'Promoting Interoperability Measure',
 			'description' => 'EC: At least one permissible prescription written by the MIPS EC is queried for a drug formulary and transmitted electronically using certified EHR technology.',
 			'denominator' => $denominator,
@@ -369,7 +370,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Provide Patients Electronic Access',
+			'group' => '2. Provide Patients Electronic Access',
 			'title' => 'Modified Stage 2 Measure',
 			'description' => 'Eligible Professional (EP): More than 50 percent of all unique patients seen by the EP during the EHR reporting period are provided timely access to view online, download, and transmit to a third party their health information subject to the EP\'s discretion to withhold certain information.',
 			'denominator' => $denominator,
@@ -424,7 +425,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Provide Patients Electronic Access',
+			'group' => '2. Provide Patients Electronic Access',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional (EP): For more than 80 percent of all unique patients seen by the EP: (1) The patient (or the patient-authorized representative) is provided timely access to view online, download, and transmit his or her health information; and (2) The provider ensures the patient’s health information is available for the patient (or patient-authorized representative) to access using any application of their choice that is configured to meet the technical specifications of the API in the provider’s CEHRT.',
 			'denominator' => $denominator,
@@ -433,6 +434,8 @@ class MeasureCalculation {
 			'numerator_pids' => implode(',', $numerator_pids),
 			'goal' => '80%'
 		];
+
+		return $records;
 
 		/**
 		 * Promoting Interoperability Transition Measure:
@@ -474,7 +477,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Provide Patients Electronic Access',
+			'group' => '2. Provide Patients Electronic Access',
 			'title' => 'Promoting Interoperability Transition Measure',
 			'description' => 'At least one patient seen by the MIPS EC during the performance period is provided timely access to view online, download, and transmit to a third party their health information subject to the MIPS EC\'s discretion to withhold certain information.',
 			'denominator' => $denominator,
@@ -529,7 +532,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Provide Patients Electronic Access',
+			'group' => '2. Provide Patients Electronic Access',
 			'title' => 'Promoting Interoperability Measure',
 			'description' => 'EC: For at least one unique patient seen by the MIPS EC (1) the patient (or the patient authorized representative) is provided timely access to view online, download, and transmit his or her health information; and (2) the MIPS EC ensures the patient\'s health information is available for the patient (or patient-authorized representative) to access using any application of their choice that is configured to meet the technical specifications of the API in the MIPS EC\'s CEHRT.',
 			'denominator' => $denominator,
@@ -591,7 +594,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Patient Education',
+			'group' => '3. Patient Education',
 			'title' => 'Modified Stage 2 Measure',
 			'description' => 'Eligible Professional (EP): Patient-specific education resources identified by Certified Health IT Module (CEHRT) are provided to patients for more than 10 percent of all unique patients with office visits seen by the EP during the reporting period.',
 			'denominator' => $denominator,
@@ -643,7 +646,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Patient Education',
+			'group' => '3. Patient Education',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional: The EP must use clinically relevant information from CEHRT to identify patient-specific educational resources and provide electronic access to those materials to more than 35 percent of unique patients seen by the EP during the EHR reporting period.',
 			'denominator' => $denominator,
@@ -653,6 +656,7 @@ class MeasureCalculation {
 			'goal' => '35%'
 		];
 
+		return $records;
 
 		/**
 		 * Promoting Interoperability Transition Measure:
@@ -690,7 +694,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Patient Education',
+			'group' => '3. Patient Education',
 			'title' => 'Promoting Interoperability Transition Measure',
 			'description' => 'The MIPS EC must use clinically relevant information from certified EHR technology to identify patient-specific educational resources and provide access to those materials to at least one unique patient seen by the MIPS EC.',
 			'denominator' => $denominator,
@@ -736,7 +740,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Patient Education',
+			'group' => '3. Patient Education',
 			'title' => 'Promoting Interoperability Measure',
 			'description' => 'The MIPS EC must use clinically relevant information from certified EHR technology to identify patient-specific educational resources and provide electronic access to those materials to at least one unique patient seen by the MIPS eligible clinician.',
 			'denominator' => $denominator,
@@ -800,7 +804,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'View, Download, Transmit',
+			'group' => '4. View, Download, Transmit',
 			'title' => 'Modified Stage 2 Measure',
 			'description' => 'Eligible Professional (EP): For an EHR reporting period in 2017, more than 5 percent of unique patients seen by the EP during the EHR reporting period (or his or her authorized representatives) view, download, or transmit to a third party their health information during the reporting period.',
 			'denominator' => $denominator,
@@ -858,7 +862,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'View, Download, Transmit',
+			'group' => '4. View, Download, Transmit',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional (EP): During the EHR reporting period, more than 10 percent of all unique patients (or their authorized representatives) seen by the EP actively engage with the electronic health record made accessible by the provider and either: (1) view, download, or transmit to a third party their health information; or (2) access their health information through the use of an API that can be used by applications chosen by the patient and configured to the API in the provider\'s CEHRT; or (3) a combination of (1) and (2).',
 			'denominator' => $denominator,
@@ -868,6 +872,7 @@ class MeasureCalculation {
 			'goal' => '10%'
 		];
 
+		return $records;
 
 		/**
 		 * Promoting Interoperability Transition Measure:
@@ -906,7 +911,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'View, Download, Transmit',
+			'group' => '4. View, Download, Transmit',
 			'title' => 'Promoting Interoperability Transition Measure',
 			'description' => 'At least one patient seen by the MIPS EC during the performance period (or patient-authorized representative) views, downloads, or transmits their health information to a third party during the performance period.',
 			'denominator' => $denominator,
@@ -959,7 +964,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'View, Download, Transmit',
+			'group' => '4. View, Download, Transmit',
 			'title' => 'Promoting Interoperability Measure (2018 only)',
 			'description' => 'During the performance period, at least one unique patient (or patient-authorized representatives) seen by the MIPS EC actively engages with the EHR made accessible by the MIPS EC by either: (1) viewing, downloading, or transmitting to a third party their health information; or (2) accessing their health information through the use of an API that can be used by applications chosen by the patient and configured to the API in the MIPS eligible clinician\'s certified EHR technology; or (3) a combination of (1) and (2).',
 			'denominator' => $denominator,
@@ -1027,7 +1032,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Secure Messaging',
+			'group' => '5. Secure Messaging',
 			'title' => 'Modified Stage 2 Measure',
 			'description' => 'Eligible Professional (EP): For an EHR reporting period in 2017, more than 5 percent of unique patients seen by the EP during the EHR reporting period (or his or her authorized representatives) view, download, or transmit to a third party their health information during the reporting period.',
 			'denominator' => $denominator,
@@ -1084,7 +1089,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Secure Messaging',
+			'group' => '5. Secure Messaging',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional (EP): For more than 25 percent of all unique patients seen by the EP during the EHR reporting period, a secure message was sent using the electronic messaging function of CEHRT to the patient (or the patient-authorized representative), or in response to a secure message sent by the patient or their authorized representative. For an EHR reporting period in 2016, the threshold for this measure is at least one message sent rather than 25 percent. For an EHR reporting period in 2017, the threshold for this measure is 5 percent rather than 25 percent.',
 			'denominator' => $denominator,
@@ -1093,6 +1098,8 @@ class MeasureCalculation {
 			'numerator_pids' => implode(',', $numerator_pids),
 			'goal' => '25%'
 		];
+
+		return $records;
 
 		/**
 		 * Promoting Interoperability Transition Measure:
@@ -1136,7 +1143,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Secure Messaging',
+			'group' => '5. Secure Messaging',
 			'title' => 'Promoting Interoperability Transition Measure',
 			'description' => 'For at least one patient seen by the MIPS EC during the performance period, a secure message was sent using the electronic messaging function of certified EHR technology to the patient (or the patient-authorized representative), or in response to a secure message sent by the patient (or patient-authorized representative) during the performance period.',
 			'denominator' => $denominator,
@@ -1189,7 +1196,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Secure Messaging',
+			'group' => '5. Secure Messaging',
 			'title' => 'Promoting Interoperability Measure Elements (2018 only)',
 			'description' => 'For at least one unique patient seen by the MIPS EC during the performance period, a secure message was sent using the electronic messaging function of certified EHR technology to the patient (or the patient-authorized representative), or in response to a secure message sent by the patient (or patient-authorized representative) during the performance period.',
 			'denominator' => $denominator,
@@ -1258,8 +1265,8 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Patient Generated Health Data',
-			'title' => 'Stage 3 Measure Elements',
+			'group' => '6. Patient Generated Health Data',
+			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): Patient generated health data or data from a nonclinical setting is incorporated into the CEHRT for more than 5 percent of all unique patients seen by the EP or discharged from the eligible hospital or CAH inpatient or emergency department (POS 21 or 23) during the EHR reporting period.',
 			'denominator' => $denominator,
 			'numerator' => $numerator,
@@ -1267,6 +1274,8 @@ class MeasureCalculation {
 			'numerator_pids' => implode(',', $numerator_pids),
 			'goal' => '5%'
 		];
+
+		return $records;
 
 		/**
 		 * Promoting Interoperability Measure (2018 only):
@@ -1309,7 +1318,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Patient Generated Health Data',
+			'group' => '6. Patient Generated Health Data',
 			'title' => 'Promoting Interoperability Measure (2018 only)',
 			'description' => 'Patient-generated health data or data from a non-clinical setting is incorporated into the certified EHR technology for at least one unique patient seen by the MIPS EC during the performance period.',
 			'denominator' => $denominator,
@@ -1379,7 +1388,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Support Electronic Referral Loops by Sending Health Information',
+			'group' => '7. Support Electronic Referral Loops by Sending Health Information',
 			'title' => 'Modified Stage 2 Measure',
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): Patient generated health data or data from a nonclinical setting is incorporated into the CEHRT for more than 5 percent of all unique patients seen by the EP or discharged from the eligible hospital or CAH inpatient or emergency department (POS 21 or 23) during the EHR reporting period.',
 			'denominator' => $denominator,
@@ -1434,7 +1443,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Support Electronic Referral Loops by Sending Health Information',
+			'group' => '7. Support Electronic Referral Loops by Sending Health Information',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional (EP): For more than 50% of transitions of care and referrals, the EP that transitions or refers their patient to another setting of care or provider of care: (1) creates a summary of care record using CEHRT; and (2) electronically exchanges the summary of care record.',
 			'denominator' => $denominator,
@@ -1443,6 +1452,8 @@ class MeasureCalculation {
 			'numerator_pids' => implode(',', $numerator_pids),
 			'goal' => '50%'
 		];
+
+		return $records;
 
 		/**
 		 * Promoting Interoperability Transition Measure:
@@ -1488,7 +1499,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Support Electronic Referral Loops by Sending Health Information',
+			'group' => '7. Support Electronic Referral Loops by Sending Health Information',
 			'title' => 'Promoting Interoperability Transition Measure',
 			'description' => 'The MIPS EC that transitions or refers their patient to another setting of care or health care provider: (1) uses certified EHR technology to create a summary of care record; and (2) electronically transmits such summary to a receiving health care provider for at least one transition of care or referral.',
 			'denominator' => $denominator,
@@ -1542,7 +1553,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Support Electronic Referral Loops by Sending Health Information',
+			'group' => '7. Support Electronic Referral Loops by Sending Health Information',
 			'title' => 'Promoting Interoperability Measure',
 			'description' => 'For at least one transition of care or referral, the MIPS EC that transitions or refers their patient to another setting of care or health care provider: (1) creates a summary of care record using certified EHR technology; and (2) electronically exchanges the summary of care record.',
 			'denominator' => $denominator,
@@ -1615,7 +1626,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Receive and Incorporate',
+			'group' => '8. Receive and Incorporate',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional (EP): For more than 40 percent of transitions or referrals received and patient encounters in which the provider has never before encountered the patient, the EP incorporates into the patient\'s EHR an electronic summary of care document.',
 			'denominator' => $denominator,
@@ -1624,6 +1635,8 @@ class MeasureCalculation {
 			'numerator_pids' => implode(',', $numerator_pids),
 			'goal' => '40%'
 		];
+
+		return $records;
 
 		/**
 		 * Promoting Interoperability Measure (2018 only):
@@ -1672,8 +1685,8 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Receive and Incorporate',
-			'title' => 'Stage 3 Measure',
+			'group' => '8. Receive and Incorporate',
+			'title' => 'Promoting Interoperability Measure Elements (2018 only)',
 			'description' => 'For at least one transition of care or referral received or patient encounter in which the MIPS EC has never before encountered the patient, the MIPS EC receives or retrieves and incorporates into the patient\'s record and electronic summary of care document.',
 			'denominator' => $denominator,
 			'numerator' => $numerator,
@@ -1736,7 +1749,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Medication/Clinical Information Reconciliation',
+			'group' => '9. Medication/Clinical Information Reconciliation',
 			'title' => 'Modified Stage 2 Measure',
 			'description' => 'Eligible Professional (EP): The EP performs medication reconciliation for more than 50 percent of transitions of care in which the patient is transitioned into the care of the EP during the reporting period.',
 			'denominator' => $denominator,
@@ -1792,7 +1805,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Medication/Clinical Information Reconciliation',
+			'group' => '9. Medication/Clinical Information Reconciliation',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional (EP): For more than 80 percent of transitions or referrals received and patient encounters in which the provider has never before encountered the patient, the EP performs a clinical information reconciliation. The provider must implement clinical information reconciliation for the following three clinical information sets: (a) Review of the patient\'s medication, including the name, dosage, frequency, and route of each medication; (b) Review of the patient\'s known medication allergies; and (c) Review of the patient\'s current and active diagnoses.',
 			'denominator' => $denominator,
@@ -1801,6 +1814,8 @@ class MeasureCalculation {
 			'numerator_pids' => implode(',', $numerator_pids),
 			'goal' => '80%'
 		];
+
+		return $records;
 
 		/**
 		 * Promoting Interoperability Transition Measure:
@@ -1843,7 +1858,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Medication/Clinical Information Reconciliation',
+			'group' => '9. Medication/Clinical Information Reconciliation',
 			'title' => 'Promoting Interoperability Transition Measure',
 			'description' => 'The MIPS EC performs medication reconciliation for at least one transition of care in which the patient is transitioned into the care of the MIPS EC.',
 			'denominator' => $denominator,
@@ -1899,7 +1914,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'Medication/Clinical Information Reconciliation',
+			'group' => '9. Medication/Clinical Information Reconciliation',
 			'title' => 'Promoting Interoperability Measure (2018 only)',
 			'description' => 'For at least one transition of care or referral received or patient encounter in which the MIPS EC has never before encountered the patient, the MIPS EC performs clinical information reconciliation. The clinician must implement clinical information reconciliation for the following three clinical information sets: (1) Medication. Review of the patient\'s medication, including the name, dosage, frequency, and route of each medication. (2) Medication allergy. Review of the patient\'s known medication allergies. (3) Current Problem list. Review of the patient\'s current and active diagnoses.',
 			'denominator' => $denominator,
@@ -1964,7 +1979,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'CPOE Medications',
+			'group' => '10. CPOE Medications',
 			'title' => 'Modified Stage 2 Measure',
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 60 percent of medication orders created by the EP or by authorized providers of the eligible hospital\'s or CAH\'s inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry.',
 			'denominator' => $denominator,
@@ -2016,7 +2031,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'CPOE Medications',
+			'group' => '10. CPOE Medications',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 60 percent of medication orders created by the EP or authorized providers of the eligible hospital or CAH inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry.',
 			'denominator' => $denominator,
@@ -2082,7 +2097,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'CPOE Laboratory',
+			'group' => '11. CPOE Laboratory',
 			'title' => 'Modified Stage 2 Measure',
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 30 percent of laboratory orders created by the EP or by authorized providers of the eligible hospital\'s or CAH\'s inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry.',
 			'denominator' => $denominator,
@@ -2134,7 +2149,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'CPOE Laboratory',
+			'group' => '11. CPOE Laboratory',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 60 percent of laboratory orders created by the EP or authorized providers of the eligible hospital or CAH inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry.',
 			'denominator' => $denominator,
@@ -2200,7 +2215,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'CPOE Radiology/Diagnostic Imaging',
+			'group' => '12. CPOE Radiology/Diagnostic Imaging',
 			'title' => 'Modified Stage 2 Measure',
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 30 percent of radiology orders created by the EP or by authorized providers of the eligible hospital\'s or CAH\'s inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry',
 			'denominator' => $denominator,
@@ -2252,7 +2267,7 @@ class MeasureCalculation {
 		$numerator = count($numerator_records);
 
 		$records[] = [
-			'group' => 'CPOE Radiology/Diagnostic Imaging',
+			'group' => '12. CPOE Radiology/Diagnostic Imaging',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 60 percent of diagnostic imaging orders created by the EP or authorized providers of the eligible hospital or CAH inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry.',
 			'denominator' => $denominator,

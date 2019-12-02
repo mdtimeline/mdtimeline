@@ -61,6 +61,8 @@ Ext.define('App.controller.administration.MeasureCalculation', {
                 click: me.onMeasureCalculationGridPrintBtnClick
             }
         });
+
+        me.doSortGridStoreBuffer = Ext.Function.createBuffered(me.doSortGridStore, 250, me);
     },
 
     onMeasureCalculationGridPrintBtnClick: function(btn){
@@ -136,9 +138,15 @@ Ext.define('App.controller.administration.MeasureCalculation', {
         var me = this;
 
         MeasureCalculation.getReportMeasureByDates(measure, provider_id, start_date, end_date, function (response) {
-            me.getMeasureCalculationGrid().getStore().loadData(response, true);
+            var store =  me.getMeasureCalculationGrid().getStore();
+            store.loadData(response, true);
+            me.doSortGridStoreBuffer(store);
         });
 
+    },
+
+    doSortGridStore: function(store){
+        store.sort();
     },
 
     showMeasureCalculationPatientListWindow: function (title, data) {

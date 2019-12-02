@@ -2072,7 +2072,7 @@ class MeasureCalculation {
 		$denominator = count($orders_ids);
 		$orders_ids = join("','", $orders_ids);
 
-		$sth = $this->conn->prepare("SELECT pid FROM patient_orders as o WHERE o.id IN ('{$orders_ids}')");
+		$sth = $this->conn->prepare("SELECT pid FROM patient_orders as o WHERE o.id IN ('{$orders_ids}') AND (o.priority IS NOT NULL AND o.priority != '')");
 		$sth->execute();
 		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$numerator_pids = [];
@@ -2124,7 +2124,7 @@ class MeasureCalculation {
 		$denominator = count($orders_ids);
 		$orders_ids = join("','", $orders_ids);
 
-		$sth = $this->conn->prepare("SELECT pid FROM patient_orders as o WHERE o.id IN ('{$orders_ids}')");
+		$sth = $this->conn->prepare("SELECT pid FROM patient_orders as o WHERE o.id IN ('{$orders_ids}') AND (o.priority IS NOT NULL AND o.priority != '')");
 		$sth->execute();
 		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$numerator_pids = [];
@@ -2190,7 +2190,7 @@ class MeasureCalculation {
 		$denominator = count($orders_ids);
 		$orders_ids = join("','", $orders_ids);
 
-		$sth = $this->conn->prepare("SELECT pid FROM patient_orders as o WHERE o.id IN ('{$orders_ids}')");
+		$sth = $this->conn->prepare("SELECT pid FROM patient_orders as o WHERE o.id IN ('{$orders_ids}') AND (o.priority IS NOT NULL AND o.priority != '')");
 		$sth->execute();
 		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$numerator_pids = [];
@@ -2242,7 +2242,7 @@ class MeasureCalculation {
 		$denominator = count($orders_ids);
 		$orders_ids = join("','", $orders_ids);
 
-		$sth = $this->conn->prepare("SELECT pid as count FROM patient_orders as o WHERE o.id IN ('{$orders_ids}')");
+		$sth = $this->conn->prepare("SELECT pid FROM patient_orders as o WHERE o.id IN ('{$orders_ids}') AND (o.priority IS NOT NULL AND o.priority != '')");
 		$sth->execute();
 		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$numerator_pids = [];

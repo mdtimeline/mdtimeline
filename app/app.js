@@ -46608,6 +46608,7 @@ Ext.define('App.controller.patient.Medications', {
 			uid: app.user.id,
 			created_uid: app.user.id,
 			create_date: new Date(),
+			created_date: new Date(),
 			begin_date: new Date()
 		});
 		grid.editingPlugin.startEdit(0, 0);

@@ -1729,7 +1729,7 @@ class MeasureCalculation {
 		$denominator = count($medication_ids);
 		$medication_ids = join("','", $medication_ids);
 
-		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.event IN ('RECONCILE')");
+		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.event IN ('RECONCILE')");
 		$sth->execute();
 		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$numerator_pids = [];
@@ -1785,7 +1785,7 @@ class MeasureCalculation {
 		$denominator = count($medication_ids);
 		$medication_ids = join("','", $medication_ids);
 
-		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.event IN ('RECONCILE')");
+		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.event IN ('RECONCILE')");
 		$sth->execute();
 		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$numerator_pids = [];
@@ -1836,7 +1836,7 @@ class MeasureCalculation {
 		$denominator = count($medication_ids);
 		$medication_ids = join("','", $medication_ids);
 
-		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.event IN ('RECONCILE')");
+		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.event IN ('RECONCILE')");
 		$sth->execute();
 		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$numerator_pids = [];
@@ -1892,7 +1892,7 @@ class MeasureCalculation {
 		$denominator = count($medication_ids);
 		$medication_ids = join("','", $medication_ids);
 
-		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.event IN ('RECONCILE')");
+		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.event IN ('RECONCILE')");
 		$sth->execute();
 		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$numerator_pids = [];

@@ -355,12 +355,12 @@ class MeasureCalculation {
 		foreach($ordered_prescriptions as $ordered_prescription) {
 			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
 		}
-		$denominator = count($ordered_prescription);
-		$ordered_prescription_str = join("','", $ordered_prescription);
+		$denominator = count($denominator_pids);
+		$denominator_pids_str = join("','", $denominator_pids);
 
 		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
 										  INNER JOIN audit_log as a ON a.pid = e.pid AND e.eid = a.eid AND a.event_date < DATE_ADD(e.service_date, INTERVAL 48 HOUR)
-											   WHERE e.pid IN ('{$ordered_prescription_str}') GROUP BY e.pid");
+											   WHERE e.pid IN ('{$denominator_pids_str}') AND a.event IN ('CCDA_CREATED') GROUP BY e.pid");
 		$sth->execute();
 		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$numerator_pids = [];
@@ -410,12 +410,12 @@ class MeasureCalculation {
 		foreach($ordered_prescriptions as $ordered_prescription) {
 			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
 		}
-		$denominator = count($ordered_prescription);
-		$ordered_prescription_str = join("','", $ordered_prescription);
+		$denominator = count($denominator_pids);
+		$denominator_pids_str = join("','", $denominator_pids);
 
 		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
 										  INNER JOIN audit_log as a ON a.pid = e.pid AND e.eid = a.eid AND a.event_date < DATE_ADD(e.service_date, INTERVAL 48 HOUR)
-											   WHERE e.pid IN ('{$ordered_prescription_str}') GROUP BY e.pid");
+											   WHERE e.pid IN ('{$denominator_pids_str}') AND a.event IN ('CCDA_CREATED') GROUP BY e.pid");
 		$sth->execute();
 		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$numerator_pids = [];
@@ -1738,7 +1738,7 @@ class MeasureCalculation {
 		$denominator = count($event_pids);
 		$event_pids = join("','", $denominator_pids);
 
-		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.eid IN ('{$event_pids}') AND a.event IN ('RECONCILE')");
+		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.pid IN ('{$event_pids}') AND a.event IN ('RECONCILE')");
 		$sth->execute();
 		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$numerator_pids = [];
@@ -1783,17 +1783,16 @@ class MeasureCalculation {
 		 */
 		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.uid IN ('{$provider_id}') AND a.event IN ('INBOUND_TOC') AND a.event_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)");
 		$sth->execute();
-		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$event_ids = [];
+		$events =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$event_pids = [];
 		$denominator_pids = [];
-		foreach($medications as $medication) {
-			if(!in_array($medication['pid'], $denominator_pids)) $denominator_pids[] = $medication['pid'];
-			$event_ids[] = $medication['id'];
+		foreach($events as $event) {
+			if(!in_array($event['pid'], $denominator_pids)) $denominator_pids[] = $event['pid'];
 		}
-		$denominator = count($event_ids);
-		$event_ids = join("','", $event_ids);
+		$denominator = count($event_pids);
+		$event_pids = join("','", $denominator_pids);
 
-		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.eid IN ('{$event_ids}') AND a.event IN ('RECONCILE')");
+		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.pid IN ('{$event_pids}') AND a.event IN ('RECONCILE')");
 		$sth->execute();
 		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$numerator_pids = [];

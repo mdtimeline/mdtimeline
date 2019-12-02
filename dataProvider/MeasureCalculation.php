@@ -45,7 +45,7 @@ class MeasureCalculation {
 		$sth = $this->conn->prepare("SELECT * FROM _measures WHERE `provider_id` = ? AND `measure` = ?");
 		$sth->execute([$provider_id,$measure]);
 		$results =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		return $results;
+		//return $results;
 
 		try{
 			if($measure == 'ePrescribing'){

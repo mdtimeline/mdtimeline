@@ -1727,19 +1727,18 @@ class MeasureCalculation {
 		 *  Number of transitions of care for which the EP was the receiving party;
 		 *  Number of patients the EP has not previously encountered.
 		 */
-		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.uid IN ('{$provider_id}') AND a.event = 'INBOUND_TOC' AND a.event_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)");
+		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.uid IN ('{$provider_id}') AND a.event IN ('INBOUND_TOC') AND a.event_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)");
 		$sth->execute();
-		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$medication_ids = [];
+		$events =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		$event_pids = [];
 		$denominator_pids = [];
-		foreach($medications as $medication) {
-			if(!in_array($medication['pid'], $denominator_pids)) $denominator_pids[] = $medication['pid'];
-			$medication_ids[] = $medication['id'];
+		foreach($events as $event) {
+			if(!in_array($event['pid'], $denominator_pids)) $denominator_pids[] = $event['pid'];
 		}
-		$denominator = count($medication_ids);
-		$medication_ids = join("','", $medication_ids);
+		$denominator = count($event_pids);
+		$event_pids = join("','", $denominator_pids);
 
-		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.event IN ('RECONCILE')");
+		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.eid IN ('{$event_pids}') AND a.event IN ('RECONCILE')");
 		$sth->execute();
 		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$numerator_pids = [];
@@ -1782,19 +1781,19 @@ class MeasureCalculation {
 		 *  Number of transitions of care or referrals for which the EP was the recipient;
 		 *  Number of patients the EP has not previously encountered.
 		 */
-		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.uid IN ('{$provider_id}') AND a.event = 'INBOUND_TOC' AND a.event_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)");
+		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.uid IN ('{$provider_id}') AND a.event IN ('INBOUND_TOC') AND a.event_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)");
 		$sth->execute();
 		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$medication_ids = [];
+		$event_ids = [];
 		$denominator_pids = [];
 		foreach($medications as $medication) {
 			if(!in_array($medication['pid'], $denominator_pids)) $denominator_pids[] = $medication['pid'];
-			$medication_ids[] = $medication['id'];
+			$event_ids[] = $medication['id'];
 		}
-		$denominator = count($medication_ids);
-		$medication_ids = join("','", $medication_ids);
+		$denominator = count($event_ids);
+		$event_ids = join("','", $event_ids);
 
-		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.event IN ('RECONCILE')");
+		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.eid IN ('{$event_ids}') AND a.event IN ('RECONCILE')");
 		$sth->execute();
 		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$numerator_pids = [];
@@ -1816,112 +1815,111 @@ class MeasureCalculation {
 
 		return $records;
 
-		/**
-		 * Promoting Interoperability Transition Measure:
-		 * The MIPS EC performs medication reconciliation for at least one transition of care in which the patient is
-		 * transitioned into the care of the MIPS EC.
-		 *
-		 * Promoting Interoperability Transition Measure English Statements:
-		 * Numerator: The number of transitions of care or referrals in the denominator where medication reconciliation
-		 * was performed.
-		 * Denominator: Number of transitions of care or referrals during the performance period for which the MIPS EC
-		 * was the recipient of the transition or referral or has never been encountered by the patient.
-		 *
-		 * Promoting Interoperability Transition Measure Elements:
-		 * Numerator: Indication that medication reconciliation occurred.
-		 * Denominator:
-		 *  Provision of summary of care record of any type for an existing patient;
-		 *  Number of transitions of care for which the EC was the receiving party;
-		 *  Number of patients the EC has not previously encountered.
-		 */
-		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.uid IN ('{$provider_id}') AND a.event = 'INBOUND_TOC' BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											");
-		$sth->execute();
-		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$medication_ids = [];
-		$denominator_pids = [];
-		foreach($medications as $medication) {
-			if(!in_array($medication['pid'], $denominator_pids)) $denominator_pids[] = $medication['pid'];
-			$medication_ids[] = $medication['id'];
-		}
-		$denominator = count($medication_ids);
-		$medication_ids = join("','", $medication_ids);
-
-		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.event IN ('RECONCILE')");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '9. Medication/Clinical Information Reconciliation',
-			'title' => 'Promoting Interoperability Transition Measure',
-			'description' => 'The MIPS EC performs medication reconciliation for at least one transition of care in which the patient is transitioned into the care of the MIPS EC.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '1'
-		];
-
-		/**
-		 * Promoting Interoperability Measure (2018 only):
-		 * For at least one transition of care or referral received or patient encounter in which the MIPS EC has never
-		 * before encountered the patient, the MIPS EC performs clinical information reconciliation. The clinician must
-		 * implement clinical information reconciliation for the following three clinical information sets: (1)
-		 * Medication. Review of the patient's medication, including the name, dosage, frequency, and route of each
-		 * medication. (2) Medication allergy. Review of the patient's known medication allergies. (3) Current Problem
-		 * list. Review of the patient's current and active diagnoses.
-		 *
-		 * Promoting Interoperability Measure English Statements (2018 only):
-		 * Numerator: The number of transitions of care or referrals in the denominator where the following three
-		 * clinical information reconciliations were performed: medication list, medication allergy list, and current
-		 * problem list.
-		 * Denominator: Number of transitions of care or referrals during the performance period for which the MIPS EC
-		 * was the recipient of the transition or referral or has never before encountered the patient.
-		 *
-		 * Promoting Interoperability Measure Elements (2018 only):
-		 * Numerator: Indication that medication reconciliation occurred.
-		 * Denominator:
-		 *  Provision of summary of care record of any type for an existing patient;
-		 *  Number of transitions of care for which the EC was the receiving party;
-		 *  Number of patients the EC has not previously encountered.
-		 */
-		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.uid IN ('{$provider_id}') AND a.event = 'INBOUND_TOC' BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											");
-		$sth->execute();
-		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$medication_ids = [];
-		$denominator_pids = [];
-		foreach($medications as $medication) {
-			if(!in_array($medication['pid'], $denominator_pids)) $denominator_pids[] = $medication['pid'];
-			$medication_ids[] = $medication['id'];
-		}
-		$denominator = count($medication_ids);
-		$medication_ids = join("','", $medication_ids);
-
-		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.event IN ('RECONCILE')");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '9. Medication/Clinical Information Reconciliation',
-			'title' => 'Promoting Interoperability Measure (2018 only)',
-			'description' => 'For at least one transition of care or referral received or patient encounter in which the MIPS EC has never before encountered the patient, the MIPS EC performs clinical information reconciliation. The clinician must implement clinical information reconciliation for the following three clinical information sets: (1) Medication. Review of the patient\'s medication, including the name, dosage, frequency, and route of each medication. (2) Medication allergy. Review of the patient\'s known medication allergies. (3) Current Problem list. Review of the patient\'s current and active diagnoses.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '1'
-		];
+//		/**
+//		 * Promoting Interoperability Transition Measure:
+//		 * The MIPS EC performs medication reconciliation for at least one transition of care in which the patient is
+//		 * transitioned into the care of the MIPS EC.
+//		 *
+//		 * Promoting Interoperability Transition Measure English Statements:
+//		 * Numerator: The number of transitions of care or referrals in the denominator where medication reconciliation
+//		 * was performed.
+//		 * Denominator: Number of transitions of care or referrals during the performance period for which the MIPS EC
+//		 * was the recipient of the transition or referral or has never been encountered by the patient.
+//		 *
+//		 * Promoting Interoperability Transition Measure Elements:
+//		 * Numerator: Indication that medication reconciliation occurred.
+//		 * Denominator:
+//		 *  Provision of summary of care record of any type for an existing patient;
+//		 *  Number of transitions of care for which the EC was the receiving party;
+//		 *  Number of patients the EC has not previously encountered.
+//		 */
+//		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.uid IN ('{$provider_id}') AND a.event IN ('INBOUND_TOC') BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)");
+//		$sth->execute();
+//		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
+//		$event_ids = [];
+//		$denominator_pids = [];
+//		foreach($medications as $medication) {
+//			if(!in_array($medication['pid'], $denominator_pids)) $denominator_pids[] = $medication['pid'];
+//			$event_ids[] = $medication['id'];
+//		}
+//		$denominator = count($event_ids);
+//		$event_ids = join("','", $event_ids);
+//
+//		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.id IN ('{$event_ids}')  AND a.event IN ('RECONCILE')");
+//		$sth->execute();
+//		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+//		$numerator_pids = [];
+//		foreach($numerator_records as $numerator_record) {
+//			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
+//		}
+//		$numerator = count($numerator_records);
+//
+//		$records[] = [
+//			'group' => '9. Medication/Clinical Information Reconciliation',
+//			'title' => 'Promoting Interoperability Transition Measure',
+//			'description' => 'The MIPS EC performs medication reconciliation for at least one transition of care in which the patient is transitioned into the care of the MIPS EC.',
+//			'denominator' => $denominator,
+//			'numerator' => $numerator,
+//			'denominator_pids' => implode(',', $denominator_pids),
+//			'numerator_pids' => implode(',', $numerator_pids),
+//			'goal' => '1'
+//		];
+//
+//		/**
+//		 * Promoting Interoperability Measure (2018 only):
+//		 * For at least one transition of care or referral received or patient encounter in which the MIPS EC has never
+//		 * before encountered the patient, the MIPS EC performs clinical information reconciliation. The clinician must
+//		 * implement clinical information reconciliation for the following three clinical information sets: (1)
+//		 * Medication. Review of the patient's medication, including the name, dosage, frequency, and route of each
+//		 * medication. (2) Medication allergy. Review of the patient's known medication allergies. (3) Current Problem
+//		 * list. Review of the patient's current and active diagnoses.
+//		 *
+//		 * Promoting Interoperability Measure English Statements (2018 only):
+//		 * Numerator: The number of transitions of care or referrals in the denominator where the following three
+//		 * clinical information reconciliations were performed: medication list, medication allergy list, and current
+//		 * problem list.
+//		 * Denominator: Number of transitions of care or referrals during the performance period for which the MIPS EC
+//		 * was the recipient of the transition or referral or has never before encountered the patient.
+//		 *
+//		 * Promoting Interoperability Measure Elements (2018 only):
+//		 * Numerator: Indication that medication reconciliation occurred.
+//		 * Denominator:
+//		 *  Provision of summary of care record of any type for an existing patient;
+//		 *  Number of transitions of care for which the EC was the receiving party;
+//		 *  Number of patients the EC has not previously encountered.
+//		 */
+//		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.uid IN ('{$provider_id}') AND a.event IN ('INBOUND_TOC') BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+//											");
+//		$sth->execute();
+//		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
+//		$medication_ids = [];
+//		$denominator_pids = [];
+//		foreach($medications as $medication) {
+//			if(!in_array($medication['pid'], $denominator_pids)) $denominator_pids[] = $medication['pid'];
+//			$medication_ids[] = $medication['id'];
+//		}
+//		$denominator = count($medication_ids);
+//		$medication_ids = join("','", $medication_ids);
+//
+//		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.event IN ('RECONCILE')");
+//		$sth->execute();
+//		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
+//		$numerator_pids = [];
+//		foreach($numerator_records as $numerator_record) {
+//			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
+//		}
+//		$numerator = count($numerator_records);
+//
+//		$records[] = [
+//			'group' => '9. Medication/Clinical Information Reconciliation',
+//			'title' => 'Promoting Interoperability Measure (2018 only)',
+//			'description' => 'For at least one transition of care or referral received or patient encounter in which the MIPS EC has never before encountered the patient, the MIPS EC performs clinical information reconciliation. The clinician must implement clinical information reconciliation for the following three clinical information sets: (1) Medication. Review of the patient\'s medication, including the name, dosage, frequency, and route of each medication. (2) Medication allergy. Review of the patient\'s known medication allergies. (3) Current Problem list. Review of the patient\'s current and active diagnoses.',
+//			'denominator' => $denominator,
+//			'numerator' => $numerator,
+//			'denominator_pids' => implode(',', $denominator_pids),
+//			'numerator_pids' => implode(',', $numerator_pids),
+//			'goal' => '1'
+//		];
 
 		return $records;
 	}

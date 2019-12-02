@@ -114,7 +114,7 @@ class Rxnorm
  								      AND `rxnconso`.`SAB` = 'GS' LIMIT 1");
 		$sth->execute([':c' => $RXCUI]);
 		$rec = $sth->fetch(PDO::FETCH_ASSOC);
-		return $rec['GS_CODE'];
+		return $rec === false ? '' : $rec['GS_CODE'];
 	}
 
     /**

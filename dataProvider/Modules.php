@@ -83,6 +83,8 @@ class Modules {
 		foreach($records AS $m){
 			if(isset($m['name'])){
 				$foo = $this->getModuleConfig($m['name']);
+				if($foo === false) continue;
+
 				if($foo['active']){
 					$modules[] = $foo;
 					if(isset($foo['actionsAPI']))
@@ -175,6 +177,7 @@ class Modules {
 		Matcha::pauseLog(true);
 		foreach(FileManager::scanDir($this->modulesDir) AS $module){
 			$ModuleConfig = $this->getModuleConfig($module);
+			if($ModuleConfig === false) continue;
 			if($ModuleConfig['active']){
 				$moduleRecord = $this->m->load(['name' => $ModuleConfig['name']])->one();
 				if(empty($moduleRecord)){

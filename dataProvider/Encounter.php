@@ -720,7 +720,7 @@ class Encounter {
 			}
 			$str_buff .= '</ul>';
 		}else{
-			if($encounter['review_allergies']){
+			if(isset($encounter) && $encounter['review_allergies']){
 				$str_buff .= '<p><b>Allergies:</b> No Known Allergies</p>';
 			}
 		}

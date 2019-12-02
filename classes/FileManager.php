@@ -227,7 +227,7 @@ class FileManager
         if (!$readmeFiles) {
             $count = 0;
             foreach ($files as $file) {
-                if (strtolower($file) == 'readme.md' || strtolower($file) == 'readme') {
+                if (strtolower($file) == 'readme.md' || strtolower($file) == 'readme' || strrpos($file, '.') === 0) {
                     unset($files[$count]);
                 }
                 $count++;

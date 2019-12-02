@@ -498,7 +498,7 @@ class CDA_Parser
 
 			$allergy->create_date = date('Y-m-d H:i:s');
 			$allergy->update_date = date('Y-m-d H:i:s');
-			$allergy->source = $author->lname  . ', ' . $author->fname;
+			$allergy->source = $author->lname  . (isset($author->fname) ? (', ' . $author->fname) : '');
 
 			$allergies[] = $allergy;
 		}
@@ -599,7 +599,7 @@ class CDA_Parser
 				$medication->update_date = $medication->begin_date . ' 00:00:00';;
 			}
 
-			$medication->source = $author->lname  . ', ' . $author->fname;
+			$medication->source = $author->lname  . (isset($author->fname) ? (', ' . $author->fname) : '');
 
 			$medications[] = $medication;
 		}
@@ -692,7 +692,8 @@ class CDA_Parser
 			}
 
 			$problem->occurrence = 'Unknown or N/A';
-			$problem->source = $author->lname  . ', ' . $author->fname;
+			$problem->source = $author->lname  . (isset($author->fname) ? (', ' . $author->fname) : '');
+
 
 			$problems[] = $problem;
 		}

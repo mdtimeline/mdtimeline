@@ -1940,8 +1940,8 @@ class MeasureCalculation {
 		 */
 		$sth = $this->conn->prepare("SELECT m.id, m.pid FROM patient_medications as m
 										  INNER JOIN encounters as e ON e.eid = m.eid
-										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-											   WHERE e.provider_uid = '{$provider_id}' AND m.date_ordered IS NOT NULL AND m.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+										 --  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
+											   WHERE e.provider_uid = '{$provider_id}' AND m.created_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											GROUP BY m.id");
 		$sth->execute();
 		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -1954,7 +1954,7 @@ class MeasureCalculation {
 		$denominator = count($medication_ids);
 		$medication_ids = join("','", $medication_ids);
 
-		$sth = $this->conn->prepare("SELECT pid FROM patient_medications as m WHERE m.id IN ('{$medication_ids}')");
+		$sth = $this->conn->prepare("SELECT pid FROM patient_medications as m WHERE m.id IN ('{$medication_ids}') AND m.date_ordered IS NOT NULL");
 		$sth->execute();
 		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$numerator_pids = [];
@@ -1992,8 +1992,8 @@ class MeasureCalculation {
 		 */
 		$sth = $this->conn->prepare("SELECT m.id, m.pid FROM patient_medications as m
 										  INNER JOIN encounters as e ON e.eid = m.eid
-										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-											   WHERE e.provider_uid = '{$provider_id}' AND m.date_ordered IS NOT NULL AND m.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+										 --  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
+											   WHERE e.provider_uid = '{$provider_id}' AND m.created_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											GROUP BY m.id");
 		$sth->execute();
 		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -2006,7 +2006,7 @@ class MeasureCalculation {
 		$denominator = count($medication_ids);
 		$medication_ids = join("','", $medication_ids);
 
-		$sth = $this->conn->prepare("SELECT pid FROM patient_medications as m WHERE m.id IN ('{$medication_ids}')");
+		$sth = $this->conn->prepare("SELECT pid FROM patient_medications as m WHERE m.id IN ('{$medication_ids}') AND m.date_ordered IS NOT NULL");
 		$sth->execute();
 		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$numerator_pids = [];
@@ -2058,7 +2058,7 @@ class MeasureCalculation {
 		 */
 		$sth = $this->conn->prepare("SELECT o.id, o.pid FROM patient_orders as o
 										  INNER JOIN encounters as e ON e.eid = o.eid
-										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
+										 -- INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
 											   WHERE e.provider_uid = '{$provider_id}' AND o.order_type = 'lab' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											GROUP BY o.id");
 		$sth->execute();
@@ -2110,7 +2110,7 @@ class MeasureCalculation {
 		 */
 		$sth = $this->conn->prepare("SELECT o.id, o.pid FROM patient_orders as o
 										  INNER JOIN encounters as e ON e.eid = o.eid
-										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
+										 -- INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
 											   WHERE e.provider_uid = '{$provider_id}' AND o.order_type = 'lab' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											GROUP BY o.id");
 		$sth->execute();
@@ -2176,7 +2176,7 @@ class MeasureCalculation {
 		 */
 		$sth = $this->conn->prepare("SELECT o.id, o.pid FROM patient_orders as o
 										  INNER JOIN encounters as e ON e.eid = o.eid
-										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
+										 -- INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
 											   WHERE e.provider_uid = '{$provider_id}' AND o.order_type = 'rad' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											GROUP BY o.id");
 		$sth->execute();
@@ -2228,7 +2228,7 @@ class MeasureCalculation {
 		 */
 		$sth = $this->conn->prepare("SELECT o.id, o.pid FROM patient_orders as o
 										  INNER JOIN encounters as e ON e.eid = o.eid
-										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
+										 -- INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
 											   WHERE e.provider_uid = '{$provider_id}' AND o.order_type = 'rad' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											GROUP BY o.id");
 		$sth->execute();
@@ -2277,7 +2277,7 @@ class MeasureCalculation {
 		 */
 
 		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
-										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
+										 -- INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
 										  INNER JOIN patient_referrals as r ON r.eid = e.eid
 											   WHERE e.provider_uid = '{$provider_id}' AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											");

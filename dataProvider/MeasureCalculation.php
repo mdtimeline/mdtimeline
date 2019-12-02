@@ -1782,8 +1782,7 @@ class MeasureCalculation {
 		 *  Number of transitions of care or referrals for which the EP was the recipient;
 		 *  Number of patients the EP has not previously encountered.
 		 */
-		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.uid IN ('{$provider_id}') AND a.event = 'INBOUND_TOC' BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											");
+		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.uid IN ('{$provider_id}') AND a.event = 'INBOUND_TOC' AND a.event_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)");
 		$sth->execute();
 		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$medication_ids = [];

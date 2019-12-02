@@ -41,8 +41,12 @@ class MeasureCalculation {
 
 	public function getReportMeasureByDates($measure, $provider_id, $start_date, $end_date){
 
+		if(is_array($provider_id)){
+			$provider_id = implode("','", $provider_id);
+		}
+
 		$results = [];
-		$sth = $this->conn->prepare("SELECT * FROM _measures WHERE `provider_id` = ? AND `measure` = ?");
+		$sth = $this->conn->prepare("SELECT * FROM _measures WHERE `provider_id` IN ('{$provider_id}') AND `measure` = ?");
 		$sth->execute([$provider_id,$measure]);
 		$results =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		//return $results;
@@ -569,7 +573,7 @@ class MeasureCalculation {
 		 */
 
 		$office_visit_codes = implode("','", $this->office_visit_codes);
-		$sth = $this->conn->prepare("SELECT pid FROM encounters WHERE provider_uid = '{$provider_id}' AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND visit_category_code IN ('{$office_visit_codes}') GROUP BY pid");
+		$sth = $this->conn->prepare("SELECT pid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND visit_category_code IN ('{$office_visit_codes}') GROUP BY pid");
 		$sth->execute();
 		$patients =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$patients_pids = [];
@@ -621,7 +625,7 @@ class MeasureCalculation {
 		 *  Number of patients discharged from the EH or CAH.
 		 */
 		$office_visit_codes = implode("','", $this->office_visit_codes);
-		$sth = $this->conn->prepare("SELECT pid FROM encounters WHERE provider_uid = '{$provider_id}' AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND visit_category_code IN ('{$office_visit_codes}') GROUP BY pid");
+		$sth = $this->conn->prepare("SELECT pid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND visit_category_code IN ('{$office_visit_codes}') GROUP BY pid");
 		$sth->execute();
 		$patients =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$patients_pids = [];
@@ -668,7 +672,7 @@ class MeasureCalculation {
 		 * Denominator: Number of patients seen by the EC.
 		 */
 		$office_visit_codes = implode("','", $this->office_visit_codes);
-		$sth = $this->conn->prepare("SELECT pid FROM encounters WHERE provider_uid = '{$provider_id}' AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND visit_category_code IN ('{$office_visit_codes}') GROUP BY pid");
+		$sth = $this->conn->prepare("SELECT pid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND visit_category_code IN ('{$office_visit_codes}') GROUP BY pid");
 		$sth->execute();
 		$patients =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$patients_pids = [];
@@ -714,7 +718,7 @@ class MeasureCalculation {
 		 * Denominator: Number of patients seen by the EC.
 		 */
 		$office_visit_codes = implode("','", $this->office_visit_codes);
-		$sth = $this->conn->prepare("SELECT pid FROM encounters WHERE provider_uid = '{$provider_id}' AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND visit_category_code IN ('{$office_visit_codes}') GROUP BY pid");
+		$sth = $this->conn->prepare("SELECT pid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND visit_category_code IN ('{$office_visit_codes}') GROUP BY pid");
 		$sth->execute();
 		$patients =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$patients_pids = [];
@@ -777,7 +781,7 @@ class MeasureCalculation {
 		 * Denominator: Number of patients seen by the EP.
 		 */
 
-		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid = '{$provider_id}' AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
+		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$denominator_pids = [];
@@ -835,7 +839,7 @@ class MeasureCalculation {
 		 *  Denominator: Number of patients seen by the EP.
 		 */
 
-		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid = '{$provider_id}' AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
+		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$denominator_pids = [];
@@ -883,7 +887,7 @@ class MeasureCalculation {
 		 * Numerator: Patient views, downloads, or transmits their information.
 		 * Denominator: Number of patients seen by the EC.
 		 */
-		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid = '{$provider_id}' AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
+		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$denominator_pids = [];
@@ -936,7 +940,7 @@ class MeasureCalculation {
 		 *  Patient accesses their information via an API.
 		 * Denominator: Number of patients seen by the EC.
 		 */
-		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid = '{$provider_id}' AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
+		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$denominator_pids = [];
@@ -1004,7 +1008,7 @@ class MeasureCalculation {
 		 * Denominator: Number of patients seen by the EP.
 		 */
 
-		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid = '{$provider_id}' AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
+		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$denominator_pids = [];
@@ -1061,7 +1065,7 @@ class MeasureCalculation {
 		 * Denominator: Number of unique patients seen by the EP or discharged from the EH or CAH.
 		 */
 
-		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid = '{$provider_id}' AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
+		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$denominator_pids = [];
@@ -1113,7 +1117,7 @@ class MeasureCalculation {
 		 * Denominator: Number of patients seen by the EC.
 		 */
 
-		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid = '{$provider_id}' AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
+		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$denominator_pids = [];
@@ -1166,7 +1170,7 @@ class MeasureCalculation {
 		 * Denominator: Number of patients seen by the EC.
 		 */
 
-		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid = '{$provider_id}' AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
+		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$denominator_pids = [];
@@ -1236,7 +1240,7 @@ class MeasureCalculation {
 
 		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e 
 										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-											   WHERE e.provider_uid = '{$provider_id}' AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											GROUP BY e.pid");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -1287,7 +1291,7 @@ class MeasureCalculation {
 
 		$sth = $this->conn->prepare("SELECT e.pid FROM  encounters as e 
 										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-											   WHERE e.provider_uid = '{$provider_id}' AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											GROUP BY e.pid");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -1357,7 +1361,7 @@ class MeasureCalculation {
 		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
 										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
 										  INNER JOIN patient_referrals as r ON r.eid = e.eid
-											   WHERE e.provider_uid = '{$provider_id}' AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -1412,7 +1416,7 @@ class MeasureCalculation {
 		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
 										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
 										  INNER JOIN patient_referrals as r ON r.eid = e.eid
-											   WHERE e.provider_uid = '{$provider_id}' AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -1466,7 +1470,7 @@ class MeasureCalculation {
 		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
 										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
 										  INNER JOIN patient_referrals as r ON r.eid = e.eid
-											   WHERE e.provider_uid = '{$provider_id}' AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -1520,7 +1524,7 @@ class MeasureCalculation {
 		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
 										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
 										  INNER JOIN patient_referrals as r ON r.eid = e.eid
-											   WHERE e.provider_uid = '{$provider_id}' AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -1593,7 +1597,7 @@ class MeasureCalculation {
 		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
 										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
 										  INNER JOIN patient_referrals as r ON r.eid = e.eid
-											   WHERE e.provider_uid = '{$provider_id}' AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -1650,7 +1654,7 @@ class MeasureCalculation {
 		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
 										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
 										  INNER JOIN patient_referrals as r ON r.eid = e.eid
-											   WHERE e.provider_uid = '{$provider_id}' AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -1713,8 +1717,7 @@ class MeasureCalculation {
 		 *  Number of transitions of care for which the EP was the receiving party;
 		 *  Number of patients the EP has not previously encountered.
 		 */
-		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.event = 'INBOUND_TOC' BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											");
+		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.uid IN ('{$provider_id}') AND a.event = 'INBOUND_TOC' BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)");
 		$sth->execute();
 		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
 		$medication_ids = [];
@@ -1769,7 +1772,7 @@ class MeasureCalculation {
 		 *  Number of transitions of care or referrals for which the EP was the recipient;
 		 *  Number of patients the EP has not previously encountered.
 		 */
-		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.event = 'INBOUND_TOC' BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.uid IN ('{$provider_id}') AND a.event = 'INBOUND_TOC' BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											");
 		$sth->execute();
 		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -1820,7 +1823,7 @@ class MeasureCalculation {
 		 *  Number of transitions of care for which the EC was the receiving party;
 		 *  Number of patients the EC has not previously encountered.
 		 */
-		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.event = 'INBOUND_TOC' BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.uid IN ('{$provider_id}') AND a.event = 'INBOUND_TOC' BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											");
 		$sth->execute();
 		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -1876,7 +1879,7 @@ class MeasureCalculation {
 		 *  Number of transitions of care for which the EC was the receiving party;
 		 *  Number of patients the EC has not previously encountered.
 		 */
-		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.event = 'INBOUND_TOC' BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.uid IN ('{$provider_id}') AND a.event = 'INBOUND_TOC' BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											");
 		$sth->execute();
 		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -1941,7 +1944,7 @@ class MeasureCalculation {
 		$sth = $this->conn->prepare("SELECT m.id, m.pid FROM patient_medications as m
 										  INNER JOIN encounters as e ON e.eid = m.eid
 										 --  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-											   WHERE e.provider_uid = '{$provider_id}' AND m.created_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+											   WHERE e.provider_uid IN ('{$provider_id}') AND m.created_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											GROUP BY m.id");
 		$sth->execute();
 		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -1993,7 +1996,7 @@ class MeasureCalculation {
 		$sth = $this->conn->prepare("SELECT m.id, m.pid FROM patient_medications as m
 										  INNER JOIN encounters as e ON e.eid = m.eid
 										 --  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-											   WHERE e.provider_uid = '{$provider_id}' AND m.created_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+											   WHERE e.provider_uid IN ('{$provider_id}') AND m.created_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											GROUP BY m.id");
 		$sth->execute();
 		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -2059,7 +2062,7 @@ class MeasureCalculation {
 		$sth = $this->conn->prepare("SELECT o.id, o.pid FROM patient_orders as o
 										  INNER JOIN encounters as e ON e.eid = o.eid
 										 -- INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-											   WHERE e.provider_uid = '{$provider_id}' AND o.order_type = 'lab' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+											   WHERE e.provider_uid IN ('{$provider_id}') AND o.order_type = 'lab' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											GROUP BY o.id");
 		$sth->execute();
 		$orders =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -2111,7 +2114,7 @@ class MeasureCalculation {
 		$sth = $this->conn->prepare("SELECT o.id, o.pid FROM patient_orders as o
 										  INNER JOIN encounters as e ON e.eid = o.eid
 										 -- INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-											   WHERE e.provider_uid = '{$provider_id}' AND o.order_type = 'lab' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+											   WHERE e.provider_uid IN ('{$provider_id}') AND o.order_type = 'lab' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											GROUP BY o.id");
 		$sth->execute();
 		$orders =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -2177,7 +2180,7 @@ class MeasureCalculation {
 		$sth = $this->conn->prepare("SELECT o.id, o.pid FROM patient_orders as o
 										  INNER JOIN encounters as e ON e.eid = o.eid
 										 -- INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-											   WHERE e.provider_uid = '{$provider_id}' AND o.order_type = 'rad' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+											   WHERE e.provider_uid IN ('{$provider_id}') AND o.order_type = 'rad' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											GROUP BY o.id");
 		$sth->execute();
 		$orders =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -2229,7 +2232,7 @@ class MeasureCalculation {
 		$sth = $this->conn->prepare("SELECT o.id, o.pid FROM patient_orders as o
 										  INNER JOIN encounters as e ON e.eid = o.eid
 										 -- INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-											   WHERE e.provider_uid = '{$provider_id}' AND o.order_type = 'rad' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+											   WHERE e.provider_uid IN ('{$provider_id}') AND o.order_type = 'rad' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											GROUP BY o.id");
 		$sth->execute();
 		$orders =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -2279,7 +2282,7 @@ class MeasureCalculation {
 		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
 										 -- INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
 										  INNER JOIN patient_referrals as r ON r.eid = e.eid
-											   WHERE e.provider_uid = '{$provider_id}' AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -2316,7 +2319,7 @@ class MeasureCalculation {
 		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
 										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
 										  INNER JOIN patient_referrals as r ON r.eid = e.eid
-											   WHERE e.provider_uid = '{$provider_id}' AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
+											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
 											");
 		$sth->execute();
 		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);

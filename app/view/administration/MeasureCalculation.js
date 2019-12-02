@@ -77,6 +77,7 @@ Ext.define('App.view.administration.MeasureCalculation', {
 						labelWidth: 50,
 						width: 300,
 						allowBlank: false,
+						multiSelect: true,
 						itemId: 'MeasureCalculationProviderField'
 					},
 					'-',

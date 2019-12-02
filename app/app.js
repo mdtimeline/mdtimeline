@@ -63257,6 +63257,7 @@ Ext.define('App.view.patient.RxOrders', {
 											fieldLabel: _('order_date'),
 											format: 'Y-m-d',
 											name: 'date_ordered',
+											width: 200,
 											allowBlank: false,
 											margin: '0 10 0 0'
 										},
@@ -63340,7 +63341,7 @@ Ext.define('App.view.patient.RxOrders', {
 										},
 										{
 											xtype: 'numberfield',
-											width: 130,
+											width: 120,
 											fieldLabel: _('days_supply'),
 											labelAlign: 'right',
 											labelWidth: 75,
@@ -63351,7 +63352,7 @@ Ext.define('App.view.patient.RxOrders', {
 										},
 										{
 											xtype: 'numberfield',
-											width: 100,
+											width: 90,
 											fieldLabel: _('refill'),
 											labelAlign: 'right',
 											labelWidth: 40,
@@ -63362,15 +63363,45 @@ Ext.define('App.view.patient.RxOrders', {
 											allowBlank: false
 										},
 										{
-											xtype: 'encountericdscombo',
-											itemId: 'RxEncounterDxCombo',
-											fieldLabel: _('dx'),
+											xtype: 'numberfield',
+											width: 90,
+											fieldLabel: _('dose'),
 											labelAlign: 'right',
-											labelWidth: 30,
-											width: 295,
-											name: 'dxs'
-										}
+											labelWidth: 40,
+											maxValue: 99,
+											minValue: 0,
+											name: 'dose',
+											vtype: 'numeric'
+										},
+										{
+											xtype: 'combobox',
+											width: 222,
+											fieldLabel: _('route'),
+											labelAlign: 'right',
+											labelWidth: 40,
+											name: 'route',
+											editable: false,
+											store: [
+												['C38238', 'Intradermal'],
+												['C28161', 'Intramuscular'],
+												['C38276', 'Intravenous'],
+												['C38284', 'Nasal'],
+												['C38288', 'Oral'],
+												['C38676', 'Percutaneous'],
+												['C38299', 'Subcutaneous'],
+												['C38305', 'Transdermal']
+											]
+										},
 									]
+								},
+								{
+									xtype: 'encountericdscombo',
+									itemId: 'RxEncounterDxCombo',
+									fieldLabel: _('dx'),
+									labelAlign: 'right',
+									labelWidth: 30,
+									width: 295,
+									name: 'dxs'
 								},
 								{
 									xtype: 'medicationinstructionscombo',

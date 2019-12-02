@@ -116,13 +116,13 @@ Ext.define('App.view.administration.MeasureCalculation', {
 						flex: 1
 					},
 					{
-						text: _('denominator'),
-						dataIndex: 'denominator',
+						text: _('numerator'),
+						dataIndex: 'numerator',
 						width: 150
 					},
 					{
-						text: _('numerator'),
-						dataIndex: 'numerator',
+						text: _('denominator'),
+						dataIndex: 'denominator',
 						width: 150
 					},
 					{

@@ -39,6 +39,13 @@ class MeasureCalculation {
 	 */
 
 
+	/**
+	 * @param $measure
+	 * @param $provider_id
+	 * @param $start_date
+	 * @param $end_date
+	 * @return array
+	 */
 	public function getReportMeasureByDates($measure, $provider_id, $start_date, $end_date){
 
 		if(is_array($provider_id)){
@@ -46,10 +53,6 @@ class MeasureCalculation {
 		}
 
 		$results = [];
-		$sth = $this->conn->prepare("SELECT * FROM _measures WHERE `provider_id` IN ('{$provider_id}') AND `measure` = ?");
-		$sth->execute([$measure]);
-		$results =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		//return $results;
 
 		try{
 			if($measure == 'ePrescribing'){
@@ -87,26 +90,6 @@ class MeasureCalculation {
 			} else
 			if($measure == 'CPOERadiology'){
 				$results = $this->getCPOERadiology($provider_id, $start_date, $end_date);
-			}
-
-			$this->conn->exec("DELETE FROM `_measures` WHERE provider_id = '{$provider_id}' AND measure = '{$measure}'");
-
-			foreach ($results as $result){
-				$sql = "INSERT INTO `_measures` (`provider_id`,`measure`,`group`, `title`, `description`, `denominator`, `numerator`, `denominator_pids`, `numerator_pids`, `goal`) VALUES
-                     (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-				$sth = $this->conn->prepare($sql);
-				$sth->execute([
-					$provider_id,
-					$measure,
-					$result['group'],
-					$result['title'],
-					$result['description'],
-					$result['denominator'],
-					$result['numerator'],
-					$result['denominator_pids'],
-					$result['numerator_pids'],
-					$result['goal']
-				]);
 			}
 
 			return $results;

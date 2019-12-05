@@ -112,52 +112,6 @@ class MeasureCalculation {
 
 
 		/**
-		 * Modified Stage 2 Measure:
-		 * Eligible Professional (EP): More than 50 percent of all permissible prescriptions written by the EP are
-		 * queried for a drug formulary and transmitted electronically using Certified Health IT.
-		 *
-		 * Modified Stage 2 Measure English Statements:
-		 * Numerator: The number of prescriptions in the denominator generated, queried for a drug formulary, and transmitted electronically.
-		 * Denominator: Number of permissible prescriptions written during the EHR reporting period for drugs requiring a prescription in order to be dispensed.
-		 *
-		 * Modified Stage 2 Measure Elements:
-		 * Numerator: Prescription generated, queried for a formulary, and transmitted electronically.
-		 * Denominator: Prescriptions generated.
-		 */
-		$sth = $this->conn->prepare("SELECT id, pid FROM patient_medications WHERE uid = '{$provider_id}' AND is_controlled = '0' AND date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND date_ordered IS NOT NULL");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$ordered_prescriptions_ids = [];
-		$denominator_pids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			$ordered_prescriptions_ids[] = $ordered_prescription['id'];
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
-		}
-		$denominator = count($ordered_prescriptions_ids);
-		$ordered_prescriptions_ids_str = join("','", $ordered_prescriptions_ids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids_str}') GROUP BY orderId");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '1. ePrescribing',
-			'title' => 'Modified Stage 2 Measure',
-			'description' => 'Eligible Professional (EP): More than 50 percent of all permissible prescriptions written by the EP are queried for a drug formulary and transmitted electronically using Certified Health IT.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '50%'
-		];
-
-
-		/**
 		 * Stage 3 Measure:
 		 * Eligible Professional (EP): More than 60 percent of all permissible prescriptions written by the EP are
 		 * queried for a drug formulary and transmitted electronically using CEHRT.
@@ -174,130 +128,23 @@ class MeasureCalculation {
 		 * Denominator: Prescriptions generated.
 		 *
 		 */
-		$sth = $this->conn->prepare("SELECT id, pid FROM patient_medications WHERE uid = '{$provider_id}' AND is_controlled = '0' AND date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND date_ordered IS NOT NULL");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$ordered_prescriptions_ids = [];
-		$denominator_pids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			$ordered_prescriptions_ids[] = $ordered_prescription['id'];
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['id'];
-		}
-		$denominator = count($ordered_prescriptions_ids);
-		$ordered_prescriptions_ids_str = join("','", $ordered_prescriptions_ids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids_str}') GROUP BY orderId");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
+		$sth = $this->conn->prepare("CALL `getPrescribingReportByDates`(?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date]);
+		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '1. ePrescribing',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional (EP): More than 60 percent of all permissible prescriptions written by the EP are queried for a drug formulary and transmitted electronically using CEHRT.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
+			'denominator' => $report['denominator'],
+			'numerator' => $report['numerator'],
+			'denominator_pids' => $report['denominator_pids'],
+			'numerator_pids' => $report['numerator_pids'],
 			'goal' => '60%'
 		];
 
 		return $records;
 
-		/**
-		 * Promoting Interoperability Transition Measure:
-		 * Eligible Clinician (EC): At least one permissible prescription written by the MIPS EC is queried for a drug
-		 * formulary and transmitted electronically using certified EHR technology.
-		 *
-		 * Promoting Interoperability Transition English Statements:
-		 * Numerator: The number of prescriptions in the denominator generated, queried for a drug formulary, and transmitted electronically using certified EHR technology.
-		 * Denominator: Number of prescriptions written for drugs requiring a prescription to be dispensed other than controlled substances during the performance period; or number of prescriptions written for drugs requiring a prescription in order to be dispensed during the performance period.
-		 *
-		 * Promoting Interoperability Transition Measure Elements:
-		 * Numerator: Prescription generated, queried for a formulary, and transmitted electronically.
-		 * Denominator: Prescriptions other than controlled substances generated; or prescriptions generated.
-		 */
-		$sth = $this->conn->prepare("SELECT id, pid FROM patient_medications WHERE uid = '{$provider_id}' AND date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND date_ordered IS NOT NULL");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$ordered_prescriptions_ids = [];
-		$denominator_pids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			$ordered_prescriptions_ids[] = $ordered_prescription['id'];
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['id'];
-		}
-		$denominator = count($ordered_prescriptions_ids);
-		$ordered_prescriptions_ids_str = join("','", $ordered_prescriptions_ids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids_str}') GROUP BY orderId");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '1. ePrescribing',
-			'title' => 'Promoting Interoperability Transition Measure',
-			'description' => 'Eligible Clinician (EC): At least one permissible prescription written by the MIPS EC is queried for a drug formulary and transmitted electronically using certified EHR technology.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '1'
-		];
-
-		/**
-		 * Promoting Interoperability Measure:
-		 * EC: At least one permissible prescription written by the MIPS EC is queried for a drug formulary and transmitted electronically using certified EHR technology.
-		 *
-		 * Promoting Interoperability Transition English Statements:
-		 * Numerator: The number of prescriptions in the denominator generated, queried for a drug formulary, and transmitted electronically using certified EHR technology.
-		 * Denominator: Number of prescriptions written for drugs requiring a prescription in order to be dispensed other than controlled substances during the performance period; or number of prescriptions written for drugs requiring a prescription in order to be dispensed during the performance period.
-		 *
-		 * Promoting Interoperability Transition Measure Elements:
-		 * Numerator: Prescription generated, queried for a formulary, and transmitted electronically.
-		 * Denominator: Prescriptions other than controlled substances generated; or prescriptions generated.
-		 */
-		$sth = $this->conn->prepare("SELECT id, pid FROM patient_medications WHERE uid = '{$provider_id}' AND date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND date_ordered IS NOT NULL");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$ordered_prescriptions_ids = [];
-		$denominator_pids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			$ordered_prescriptions_ids[] = $ordered_prescription['id'];
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['id'];
-		}
-		$denominator = count($ordered_prescriptions_ids);
-		$ordered_prescriptions_ids_str = join("','", $ordered_prescriptions_ids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM erx_prescriptions WHERE orderId IN ('{$ordered_prescriptions_ids_str}') GROUP BY orderId");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '1. ePrescribing',
-			'title' => 'Promoting Interoperability Measure',
-			'description' => 'EC: At least one permissible prescription written by the MIPS EC is queried for a drug formulary and transmitted electronically using certified EHR technology.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '1'
-		];
-
-		return $records;
 
 	}
 

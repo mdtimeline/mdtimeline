@@ -33,7 +33,7 @@ BEGIN
              encounters AS e
                  LEFT JOIN audit_log AS a ON a.pid = e.pid AND e.eid = a.eid AND a.event IN ('CCDA_RECEIVED')
          WHERE
-                 e.provider_uid = (provider_id)
+                 e.provider_uid = provider_id
            AND e.service_date IS NOT NULL
            AND e.service_date BETWEEN start_date AND end_date
 
@@ -47,8 +47,9 @@ BEGIN
     CREATE TEMPORARY TABLE g2_report_numerator_ds
     SELECT 1 as `value`, pid FROM g2_report_ds WHERE in_time = '1' AND eid IN (SELECT eid FROM g2_report_ds_first_encounters) group by pid;
 
-    INSERT INTO g2_report_numerator_ds
-    SELECT -1 as `value`, pid FROM g2_report_ds WHERE in_time = '0' AND eid NOT IN (SELECT eid FROM g2_report_ds_first_encounters) group by pid;
+    DELETE FROM  g2_report_numerator_ds WHERE pid IN (
+        SELECT pid FROM g2_report_ds WHERE in_time = '0' AND eid NOT IN (SELECT eid FROM g2_report_ds_first_encounters) group by pid
+    );
 
     SET @denominator = (SELECT sum(`value`) FROM g2_report_denominator_ds);
     SET @numerator = (SELECT sum(`value`) FROM g2_report_numerator_ds);

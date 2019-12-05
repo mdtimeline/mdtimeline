@@ -13,7 +13,7 @@ class MeasureCalculation {
 			'99202',
 			'99203',
 			'99205',
-			'99205',
+			'99206',
 			'99211',
 			'99212',
 			'99213',
@@ -211,54 +211,6 @@ class MeasureCalculation {
 		 * Modified Stage 2 Objective 6 and Stage 3 Objective 5 Measure 2
 		 * Promoting Interoperability Transition Objective 4 Measure 1 and Promoting Interoperability Objective 3 Measure 2
 		 */
-
-
-		/**
-		 * Modified Stage 2 Measure:
-		 * Eligible Professional (EP): Patient-specific education resources identified by Certified Health IT Module (CEHRT)
-		 * are provided to patients for more than 10 percent of all unique patients with office visits seen by the EP
-		 * during the reporting period.
-		 *
-		 * MModified Stage 2 Measure English Statements:
-		 * Numerator: The number of patients in the denominator who were provided patient-specific education resources identified by the EHR technology.
-		 * Denominator: Number of unique patients with office visits seen by the EP during the EHR reporting period.
-		 *
-		 * Modified Stage 2 Measure Elements:
-		 * Numerator: Provision of patient specific education resource(s) identified by the CEHRT.
-		 * Denominator: Number of patients with visits to the EP.
-		 */
-
-		$office_visit_codes = implode("','", $this->office_visit_codes);
-		$sth = $this->conn->prepare("SELECT pid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND visit_category_code IN ('{$office_visit_codes}') GROUP BY pid");
-		$sth->execute();
-		$patients =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$patients_pids = [];
-		$denominator_pids = [];
-		foreach($patients as $patient) {
-			if(!in_array($patient['pid'], $denominator_pids)) $denominator_pids[] = $patient['pid'];
-			$patients_pids[] = $patient['pid'];
-		}
-		$denominator = count($patients_pids);
-		$patients_pids = join("','", $patients_pids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM patient_education_resources WHERE pid IN ('{$patients_pids}') AND provided_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) GROUP BY pid");
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '3. Patient Education',
-			'title' => 'Modified Stage 2 Measure',
-			'description' => 'Eligible Professional (EP): Patient-specific education resources identified by Certified Health IT Module (CEHRT) are provided to patients for more than 10 percent of all unique patients with office visits seen by the EP during the reporting period.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '10%'
-		];
 
 
 		/**

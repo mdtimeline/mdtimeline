@@ -37,7 +37,7 @@ class EducationResources {
 	/**
 	 * @var string
 	 */
-	private $medline_connect_url = 'https://apps.nlm.nih.gov/medlineplus/services/mpconnect_service.cfm';
+	private $medline_connect_url = 'https://connect.medlineplus.gov/service';
 
 	/**
 	 * @var Medications
@@ -53,6 +53,10 @@ class EducationResources {
 	 * @var ActiveProblems
 	 */
 	private $ActiveProblems;
+	/**
+	 * @var Allergies
+	 */
+	private $Allergies;
 
 	function __construct() {
 
@@ -128,6 +132,7 @@ class EducationResources {
 		include_once (ROOT . '/dataProvider/Medications.php');
 		include_once (ROOT . '/dataProvider/Orders.php');
 		include_once (ROOT . '/dataProvider/ActiveProblems.php');
+		include_once (ROOT . '/dataProvider/Allergies.php');
 
 		if(!isset($this->Medications)){
 			$this->Medications = new Medications();
@@ -138,11 +143,15 @@ class EducationResources {
 		if(!isset($this->ActiveProblems)){
 			$this->ActiveProblems = new ActiveProblems();
 		}
+		if(!isset($this->Allergies)){
+			$this->Allergies = new Allergies();
+		}
 
 		$response = [];
 		$codes['MEDS'] = $this->Medications->getPatientMedicationsByEid($params->eid);
 		$codes['LABS'] = $this->Orders->getPatientLabOrdersByEid($params->eid);
 		$codes['PROB'] = $this->ActiveProblems->getPatientActiveProblemByEid($params->eid);
+		$codes['ALLE'] = $this->Allergies->getPatientAllergiesByEid($params->eid);
 
 		$codes_searched = [
 			'RXNORM' => [],
@@ -156,7 +165,7 @@ class EducationResources {
 
 			if(array_search($med['RXCUI'], $codes_searched['RXNORM']) !== false) continue;
 
-			$documents = $this->getDocumentsByCodeAndCodeType($med['RXCUI'], 'RXNORM', $documents_found, $params->language);
+			$documents = $this->getDocumentsByCodeAndCodeType($med['RXCUI'], 'RXNORM', $documents_found, $params->language, 'Medications');
 			$codes_searched['RXNORM'][] = $med['RXCUI'];
 
 			$response = array_merge($response, $documents);
@@ -167,7 +176,7 @@ class EducationResources {
 
 			if(array_search($lab['code'], $codes_searched['LOINC']) !== false) continue;
 
-			$documents = $this->getDocumentsByCodeAndCodeType($lab['code'], 'LOINC', $documents_found, $params->language);
+			$documents = $this->getDocumentsByCodeAndCodeType($lab['code'], 'LOINC', $documents_found, $params->language, 'Laboratories');
 			$codes_searched['LOINC'][] = $lab['code'];
 
 			$response = array_merge($response, $documents);
@@ -178,18 +187,28 @@ class EducationResources {
 
 			if(array_search($prob['code'], $codes_searched['SNOMEDCT']) !== false) continue;
 
-			$documents = $this->getDocumentsByCodeAndCodeType($prob['code'], 'SNOMEDCT', $documents_found, $params->language);
+			$documents = $this->getDocumentsByCodeAndCodeType($prob['code'], 'SNOMEDCT', $documents_found, $params->language, 'Problems');
 			$codes_searched['SNOMEDCT'][] = $prob['code'];
 
 			$response = array_merge($response, $documents);
 		}
 		unset($this->ActiveProblems,$codes['PROB'], $prob);
 
+		foreach ($codes['ALLE'] as $alle){
+
+			if(array_search($alle['code'], $codes_searched['SNOMEDCT']) !== false) continue;
+			$documents = $this->getDocumentsByCodeAndCodeType($alle['allergy_code'], $alle['allergy_code_type'], $documents_found, $params->language, 'Allergies', $alle['allergy']);
+			$codes_searched[$alle['allergy_code']][] = $alle['allergy_code'];
+
+			$response = array_merge($response, $documents);
+		}
+		unset($this->Allergies,$codes['ALLE'], $alle);
+
 		return $response;
 
 	}
 
-	private function getDocumentsByCodeAndCodeType($code, $code_type, &$documents_found, $language = 'en'){
+	private function getDocumentsByCodeAndCodeType($code, $code_type, &$documents_found, $language = 'en', $category = '', $title = null){
 
 		if($code_type == 'RXNORM'){
 			$mainSearchCriteria = '2.16.840.1.113883.6.88';
@@ -240,14 +259,17 @@ class EducationResources {
 
 				if(isset($entry['link']) && is_array($entry['link']) && isset($entry['link'][0])){
 
-					if($entry['link'][0]['title'] == '') continue;
 					if($entry['link'][0]['href'] == '') continue;
 
-					if(array_search($entry['link'][0]['href'], $documents_found) !== false) continue;
+					if(!isset($entry['link'][0]['title'])){
+						$entry['link'][0]['title'] = $title;
+					}
 
+					if(array_search($entry['link'][0]['href'], $documents_found) !== false) continue;
 					$documents_found[] = $entry['link'][0]['href'];
 
 					$documents[] = [
+						'category' => $category,
 						'title' => $entry['link'][0]['title'],
 						'url' => $entry['link'][0]['href'],
 						'organization_name' => $author,

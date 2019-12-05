@@ -1,7 +1,7 @@
-DROP FUNCTION IF EXISTS `getProvidePatientsElectronicAccessReportByDates`;
+DROP PROCEDURE IF EXISTS `getProvidePatientsElectronicAccessReportByDates`;
 
 DELIMITER $$
-CREATE FUNCTION `getProvidePatientsElectronicAccessReportByDates` (IN provider_id INT, IN start_date DATE, IN end_date DATE)
+CREATE PROCEDURE `getProvidePatientsElectronicAccessReportByDates` (IN provider_id INT, IN start_date DATE, IN end_date DATE)
 BEGIN
     DROP TABLE IF EXISTS g2_report_ds;
     DROP TABLE IF EXISTS g2_report_ds_first_encounters;

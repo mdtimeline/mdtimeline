@@ -73,6 +73,11 @@ class DocumentFPDI extends FPDI  {
 	public $original_margins;
 
 	/**
+	 * @var bool
+	 */
+	public $has_mail_cover = false;
+
+	/**
 	 * @param array $data
 	 */
 	public function addCustomHeaderData(array $data){
@@ -144,8 +149,36 @@ class DocumentFPDI extends FPDI  {
 		return $this->header_cols;
 	}
 
+	/**
+	 * DocumentFPDI constructor.
+	 * @param string $orientation
+	 * @param string $unit
+	 * @param string $size
+	 */
+	function __construct($orientation = 'P', $unit = 'mm', $size = 'A4')
+	{
+		parent::__construct($orientation, $unit, $size);
+	}
+
+	/**
+	 * @param $mail_cover_text
+	 */
+	public function CreateCover($mail_cover_text){
+		$mail_cover_xy = Globals::getGlobal('mail_cover_xy_coordinates');
+		if($mail_cover_xy !== false){
+			$mail_cover_xy = explode(',', $mail_cover_xy);
+			$this->has_mail_cover = true;
+			$this->AddPage();
+			$this->writeHTMLCell(250, 250, $mail_cover_xy[0], $mail_cover_xy[1], $mail_cover_text);
+		}else{
+			error_log('Cover letter text set but "mail_cover_xy_coordinates" global not found');
+		}
+	}
+
 	//Page header
 	public function Header() {
+
+		if($this->has_mail_cover && $this->PageNo() == 1) return;
 
 		if(!isset($this->original_margins)){
 			$this->original_margins = $this->getMargins();
@@ -248,6 +281,8 @@ class DocumentFPDI extends FPDI  {
 
 	// Page footer
 	public function Footer(){
+
+		if($this->has_mail_cover && $this->PageNo() == 1) return;
 
 		$margins = $this->getMargins();
 		$page_height = $this->getPageHeight();

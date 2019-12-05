@@ -406,7 +406,7 @@ class Documents {
 	 * @param array $pdf_format
 	 * @return bool
 	 */
-	public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $custom_footer_data = null, $water_mark = '', $key_images = [], $key_images_config = [], $pdf_format = null) {
+	public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $custom_footer_data = null, $water_mark = '', $key_images = [], $key_images_config = [], $pdf_format = null, $mail_cover_text = 'asdasd') {
 		$pid = $params->pid;
 		$regex = '(\[\w*?\])';
 
@@ -414,6 +414,10 @@ class Documents {
 		$tokens = [];
 		$header_data = [];
 		$footer_data = [];
+
+		if($mail_cover_text !== ''){
+			$pdf->CreateCover($mail_cover_text);
+		}
 
 		$pdf->water_mark = $water_mark;
 

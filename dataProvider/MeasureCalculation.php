@@ -367,9 +367,9 @@ FROM
         encounters AS e
     LEFT JOIN audit_log AS a ON a.pid = e.pid AND e.eid = a.eid AND a.event IN ('CCDA_RECEIVED')
     WHERE
-        e.provider_uid IN ('5')
+        e.provider_uid IN ('{$provider_id}')
              AND e.service_date IS NOT NULL
-             AND e.service_date BETWEEN CAST('2019-01-01' AS DATE) AND CAST('2019-12-31' AS DATE)
+             AND e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
            
 	) r ORDER BY r.service_date;
 

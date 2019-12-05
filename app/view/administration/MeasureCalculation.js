@@ -41,7 +41,8 @@ Ext.define('App.view.administration.MeasureCalculation', {
 						{name: 'description_denominator', type: 'string'},
 						{name: 'description_numerator', type: 'string'},
 						{name: 'denominator_pids'},
-						{name: 'numerator_pids',},
+						{name: 'numerator_pids'},
+						{name: 'numerator_types'},
 					],
 					groupers: [
 						{

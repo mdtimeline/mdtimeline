@@ -265,55 +265,6 @@ class MeasureCalculation {
 
 
 		/**
-		 * Modified Stage 2 Measure:
-		 * Eligible Professional (EP): For an EHR reporting period in 2017, more than 5 percent of unique patients seen
-		 * by the EP during the EHR reporting period (or his or her authorized representatives) view, download, or
-		 * transmit to a third party their health information during the reporting period.
-		 *
-		 * MModified Stage 2 Measure English Statements:
-		 * Numerator: The number of patients (or patient-authorized representative) in the denominator who view,
-		 * download, or transmit to a third party their health information.
-		 * Denominator: Number of unique patients seen by the EP during the EHR reporting period.
-		 *
-		 * Modified Stage 2 Measure Elements:
-		 * Numerator: Patient/authorized representative views, downloads, or transmits their information.
-		 * Denominator: Number of patients seen by the EP.
-		 */
-
-		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$denominator_pids = [];
-		$denominator_eids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
-			$denominator_eids[] = $ordered_prescription['eid'];
-		}
-		$denominator = count($denominator_pids);
-		$denominator_eids_str = join("','", $denominator_eids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM audit_log as a WHERE a.eid IN ('{$denominator_eids_str}') AND event IN ('CCDA_VDT') GROUP BY a.pid");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '4. View, Download, Transmit',
-			'title' => 'Modified Stage 2 Measure',
-			'description' => 'Eligible Professional (EP): For an EHR reporting period in 2017, more than 5 percent of unique patients seen by the EP during the EHR reporting period (or his or her authorized representatives) view, download, or transmit to a third party their health information during the reporting period.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '5%'
-		];
-
-
-		/**
 		 * Stage 3 Measure:
 		 * Eligible Professional (EP): During the EHR reporting period, more than 10 percent of all unique patients
 		 * (or their authorized representatives) seen by the EP actively engage with the electronic health record made
@@ -338,138 +289,19 @@ class MeasureCalculation {
 		 *  Denominator: Number of patients seen by the EP.
 		 */
 
-		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$denominator_pids = [];
-		$denominator_eids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
-			$denominator_eids[] = $ordered_prescription['eid'];
-		}
-		$denominator = count($denominator_pids);
-		$denominator_eids_str = join("','", $denominator_eids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM audit_log as a WHERE a.eid IN ('{$denominator_eids_str}') AND event IN ('CCDA_VDT') GROUP BY a.pid");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
+		$sth = $this->conn->prepare("CALL `getViewDownloadTransmitReportByDates`(?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date]);
+		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '4. View, Download, Transmit',
-			'title' => 'Stage 3 Measure',
-			'description' => 'Eligible Professional (EP): During the EHR reporting period, more than 10 percent of all unique patients (or their authorized representatives) seen by the EP actively engage with the electronic health record made accessible by the provider and either: (1) view, download, or transmit to a third party their health information; or (2) access their health information through the use of an API that can be used by applications chosen by the patient and configured to the API in the provider\'s CEHRT; or (3) a combination of (1) and (2).',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '10%'
-		];
-
-		return $records;
-
-		/**
-		 * Promoting Interoperability Transition Measure:
-		 * At least one patient seen by the MIPS EC during the performance period (or patient-authorized representative)
-		 * views, downloads, or transmits their health information to a third party during the performance period.
-		 *
-		 * Promoting Interoperability Transition English Statements:
-		 * Numerator: Numerator: The number of unique patients in the denominator (or their authorized representatives)
-		 * who have viewed online, downloaded, or transmitted to a third party the patient’s health information during
-		 * the performance period.
-		 * Denominator: Number of unique patients seen by the MIPS EC during the performance period.
-		 *
-		 * Promoting Interoperability Transition Measure Elements:
-		 * Numerator: Patient views, downloads, or transmits their information.
-		 * Denominator: Number of patients seen by the EC.
-		 */
-		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$denominator_pids = [];
-		$denominator_eids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
-			$denominator_eids[] = $ordered_prescription['eid'];
-		}
-		$denominator = count($denominator_pids);
-		$denominator_eids_str = join("','", $denominator_eids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM audit_log as a WHERE a.eid IN ('{$denominator_eids_str}') AND event IN ('CCDA_VDT') GROUP BY a.pid");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '4. View, Download, Transmit',
-			'title' => 'Promoting Interoperability Transition Measure',
-			'description' => 'At least one patient seen by the MIPS EC during the performance period (or patient-authorized representative) views, downloads, or transmits their health information to a third party during the performance period.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '1'
-		];
-
-		/**
-		 * Promoting Interoperability Measure (2018 only):
-		 * During the performance period, at least one unique patient (or patient-authorized representatives) seen by
-		 * the MIPS EC actively engages with the EHR made accessible by the MIPS EC by either: (1) viewing, downloading,
-		 * or transmitting to a third party their health information; or (2) accessing their health information through
-		 * the use of an API that can be used by applications chosen by the patient and configured to the API in the
-		 * MIPS eligible clinician's certified EHR technology; or (3) a combination of (1) and (2).
-		 *
-		 * Promoting Interoperability English Statements (2018 only):
-		 * Numerator: The number of unique patients (or their authorized representatives) who have viewed online,
-		 * downloaded, or transmitted to a third party the patient’s health information during the performance period
-		 * and the number of unique patients (or their authorized representatives) who have accessed their health
-		 * information through the use of an API during the performance period.
-		 * Denominator: Number of unique patients seen by the MIPS EC during the performance period.
-		 *
-		 * Promoting Interoperability Transition Measure Elements:
-		 * Numerator:
-		 *  Patient views, transmits, or downloads their information;
-		 *  Patient accesses their information via an API.
-		 * Denominator: Number of patients seen by the EC.
-		 */
-		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$denominator_pids = [];
-		$denominator_eids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
-			$denominator_eids[] = $ordered_prescription['eid'];
-		}
-		$denominator = count($denominator_pids);
-		$denominator_eids_str = join("','", $denominator_eids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM audit_log as a WHERE a.eid IN ('{$denominator_eids_str}') AND event IN ('CCDA_VDT') GROUP BY a.pid");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '4. View, Download, Transmit',
-			'title' => 'Promoting Interoperability Measure (2018 only)',
-			'description' => 'During the performance period, at least one unique patient (or patient-authorized representatives) seen by the MIPS EC actively engages with the EHR made accessible by the MIPS EC by either: (1) viewing, downloading, or transmitting to a third party their health information; or (2) accessing their health information through the use of an API that can be used by applications chosen by the patient and configured to the API in the MIPS eligible clinician\'s certified EHR technology; or (3) a combination of (1) and (2).',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '1'
+			'title' => 'Modified Stage 2 Measure',
+			'description' => 'Eligible Professional (EP): For an EHR reporting period in 2017, more than 5 percent of unique patients seen by the EP during the EHR reporting period (or his or her authorized representatives) view, download, or transmit to a third party their health information during the reporting period.',
+			'denominator' => $report['denominator'],
+			'numerator' => $report['numerator'],
+			'denominator_pids' => $report['denominator_pids'],
+			'numerator_pids' => $report['numerator_pids'],
+			'goal' => '5%'
 		];
 
 		return $records;

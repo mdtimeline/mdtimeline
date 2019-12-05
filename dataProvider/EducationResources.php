@@ -253,16 +253,18 @@ class EducationResources {
 
 		if(isset($response['feed']) && isset($response['feed']['entry']) && is_array($response['feed']['entry'])){
 
+			$author = (isset($response['feed']['author']) && isset($response['feed']['author']['name'])) ? $response['feed']['author']['name']['_value'] : '';
+
 			foreach ($response['feed']['entry'] as $entry){
-				$author = (isset($entry['author']) && isset($entry['author']['name'])) ? $entry['author']['name']['_value'] : '';
+
 				$snippet = isset($entry['summary']) ? $entry['summary']['_value'] : '';
 
 				if(isset($entry['link']) && is_array($entry['link']) && isset($entry['link'][0])){
 
 					if($entry['link'][0]['href'] == '') continue;
 
-					if(!isset($entry['link'][0]['title'])){
-						$entry['link'][0]['title'] = $title;
+					if(!isset($entry['title']['_value'])){
+						$title = $entry['title']['_value'];
 					}
 
 					if(array_search($entry['link'][0]['href'], $documents_found) !== false) continue;
@@ -270,7 +272,7 @@ class EducationResources {
 
 					$documents[] = [
 						'category' => $category,
-						'title' => $entry['link'][0]['title'],
+						'title' => $title,
 						'url' => $entry['link'][0]['href'],
 						'organization_name' => $author,
 						'snippet' => $snippet

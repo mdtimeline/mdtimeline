@@ -232,130 +232,20 @@ class MeasureCalculation {
 		 *  Number of patients seen by the EP.
 		 *  Number of patients discharged from the EH or CAH.
 		 */
-		$office_visit_codes = implode("','", $this->office_visit_codes);
-		$sth = $this->conn->prepare("SELECT pid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND visit_category_code IN ('{$office_visit_codes}') GROUP BY pid");
-		$sth->execute();
-		$patients =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$patients_pids = [];
-		$denominator_pids = [];
-		foreach($patients as $patient) {
-			if(!in_array($patient['pid'], $denominator_pids)) $denominator_pids[] = $patient['pid'];
-			$patients_pids[] = $patient['pid'];
-		}
-		$denominator = count($patients_pids);
-		$patients_pids = join("','", $patients_pids);
 
-		$sth = $this->conn->prepare("SELECT pid FROM patient_education_resources WHERE pid IN ('{$patients_pids}') AND provided_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) GROUP BY pid");
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
+		$sth = $this->conn->prepare("CALL `getPatientEducationReportByDates`(?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date]);
+		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '3. Patient Education',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional: The EP must use clinically relevant information from CEHRT to identify patient-specific educational resources and provide electronic access to those materials to more than 35 percent of unique patients seen by the EP during the EHR reporting period.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
+			'denominator' => $report['denominator'],
+			'numerator' => $report['numerator'],
+			'denominator_pids' => $report['denominator_pids'],
+			'numerator_pids' => $report['numerator_pids'],
 			'goal' => '35%'
-		];
-
-		return $records;
-
-		/**
-		 * Promoting Interoperability Transition Measure:
-		 * The MIPS EC must use clinically relevant information from certified EHR technology to identify patient-specific
-		 * educational resources and provide access to those materials to at least one unique patient seen by the MIPS EC.
-		 *
-		 * Promoting Interoperability Transition English Statements:
-		 * Numerator: The number of patients in the denominator who were provided access to patient-specific educational
-		 * resources using clinically relevant information identified from certified EHR technology during the performance period.
-		 * Denominator: The number of unique patients seen by the MIPS EC during the performance period.
-		 *
-		 * Promoting Interoperability Transition Measure Elements:
-		 * Numerator: Provision of patient specific education resource(s) identified by the CEHRT.
-		 * Denominator: Number of patients seen by the EC.
-		 */
-		$office_visit_codes = implode("','", $this->office_visit_codes);
-		$sth = $this->conn->prepare("SELECT pid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND visit_category_code IN ('{$office_visit_codes}') GROUP BY pid");
-		$sth->execute();
-		$patients =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$patients_pids = [];
-		$denominator_pids = [];
-		foreach($patients as $patient) {
-			if(!in_array($patient['pid'], $denominator_pids)) $denominator_pids[] = $patient['pid'];
-			$patients_pids[] = $patient['pid'];
-		}
-		$denominator = count($patients_pids);
-		$patients_pids = join("','", $patients_pids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM patient_education_resources WHERE pid IN ('{$patients_pids}') AND provided_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) GROUP BY pid");
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '3. Patient Education',
-			'title' => 'Promoting Interoperability Transition Measure',
-			'description' => 'The MIPS EC must use clinically relevant information from certified EHR technology to identify patient-specific educational resources and provide access to those materials to at least one unique patient seen by the MIPS EC.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '1'
-		];
-
-		/**
-		 * Promoting Interoperability Measure (2018 only):
-		 * The MIPS EC must use clinically relevant information from certified EHR technology to identify patient-specific
-		 * educational resources and provide electronic access to those materials to at least one unique patient seen by the MIPS eligible clinician.
-		 *
-		 * Promoting Interoperability English Statements (2018 only):
-		 * umerator: The number of patients in the denominator who were provided electronic access to patient-specific
-		 * educational resources using clinically relevant information identified from certified EHR technology during the performance period.
-		 * Denominator: The number of unique patients seen by the MIPS EC during the performance period.
-		 *
-		 * Promoting Interoperability Transition Measure Elements:
-		 * Numerator: Provision of electronic access to patient-specific education resource(s) identified by the CEHRT.
-		 * Denominator: Number of patients seen by the EC.
-		 */
-		$office_visit_codes = implode("','", $this->office_visit_codes);
-		$sth = $this->conn->prepare("SELECT pid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND visit_category_code IN ('{$office_visit_codes}') GROUP BY pid");
-		$sth->execute();
-		$patients =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$patients_pids = [];
-		$denominator_pids = [];
-		foreach($patients as $patient) {
-			if(!in_array($patient['pid'], $denominator_pids)) $denominator_pids[] = $patient['pid'];
-			$patients_pids[] = $patient['pid'];
-		}
-		$denominator = count($patients_pids);
-		$patients_pids = join("','", $patients_pids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM patient_education_resources WHERE pid IN ('{$patients_pids}') AND provided_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) GROUP BY pid");
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '3. Patient Education',
-			'title' => 'Promoting Interoperability Measure',
-			'description' => 'The MIPS EC must use clinically relevant information from certified EHR technology to identify patient-specific educational resources and provide electronic access to those materials to at least one unique patient seen by the MIPS eligible clinician.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '1'
 		];
 
 		return $records;

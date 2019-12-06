@@ -3,41 +3,10 @@
 class MeasureCalculation {
 
 	private $conn;
-	private $office_visit_codes;
 
-	function __construct()
-	{
+	function __construct(){
 		$this->conn = Matcha::getConn();
-		$this->office_visit_codes = [
-			'99201',
-			'99202',
-			'99203',
-			'99205',
-			'99206',
-			'99211',
-			'99212',
-			'99213',
-			'99214',
-			'99215'
-		];
 	}
-
-	/**
-	 *
-	 CREATE TABLE `a_measures` (
-		`id` INT NOT NULL,
-		`group` VARCHAR(120) NULL,
-		`title` VARCHAR(120) NULL,
-		`description` TEXT NULL,
-		`denominator` VARCHAR(45) NULL,
-		`numerator` VARCHAR(45) NULL,
-		`denominator_pids` TEXT NULL,
-		`numerator_pids` TEXT NULL,
-		`goal` VARCHAR(45) NULL,
-		PRIMARY KEY (`id`));
-
-	 */
-
 
 	/**
 	 * @param $measure
@@ -83,13 +52,13 @@ class MeasureCalculation {
 				$results = $this->getMedicationClinicalInformationReconciliationReportByDates($provider_id, $start_date, $end_date);
 			} else
 			if($measure == 'CPOEMedications'){
-				$results = $this->getCPOEMedications($provider_id, $start_date, $end_date);
+				$results = $this->getCPOEMedicationsReportByDates($provider_id, $start_date, $end_date);
 			} else
 			if($measure == 'CPOELaboratory'){
-				$results = $this->getCPOELaboratory($provider_id, $start_date, $end_date);
+				$results = $this->getCPOELaboratoryReportByDates($provider_id, $start_date, $end_date);
 			} else
 			if($measure == 'CPOERadiology'){
-				$results = $this->getCPOERadiology($provider_id, $start_date, $end_date);
+				$results = $this->getCPOERadiologyReportByDates($provider_id, $start_date, $end_date);
 			}
 
 			return $results;
@@ -301,11 +270,11 @@ class MeasureCalculation {
 			'numerator' => $report['numerator'],
 			'denominator_pids' => $report['denominator_pids'],
 			'numerator_pids' => $report['numerator_pids'],
+			'numerator_types' => $report['numerator_types'],
 			'goal' => '5%'
 		];
 
 		return $records;
-
 	}
 
 	// Required Test 5 – Secure Messaging
@@ -318,59 +287,6 @@ class MeasureCalculation {
 		 * Modified Stage 2 Objective 9 and Stage 3 Objective 6 Measure 2
 		 * Promoting Interoperability Transition Objective 5 Measure 1 and Promoting Interoperability Objective 4 Measure 2
 		 */
-
-		/**
-		 * Modified Stage 2 Measure:
-		 * Eligible Professional (EP): For an EHR reporting period in 2017, for more than 5 percent of unique patients
-		 * seen by the EP during the EHR reporting period, a secure message was sent using the electronic messaging
-		 * function of CEHRT to the patient (or the patient-authorized representative), or in response to a secure
-		 * message sent by the patient (or the patient-authorized representative) during the EHR reporting period.
-		 * For an EHR reporting period in 2016, the threshold for this measure is at least one message sent.
-		 *
-		 * Modified Stage 2 Measure English Statements:
-		 * Numerator: The number of patients in the denominator for whom a secure electronic message is sent to the
-		 * patient (or patient-authorized representative), or in response to a secure message sent by the patient
-		 * (or patient-authorized representative).
-		 * Denominator: Number of unique patients seen by the EP during the EHR reporting period.
-		 *
-		 * Modified Stage 2 Measure Elements:
-		 * Numerator:
-		 *  EP Replies to Secure Electronic Message from Patient or Patient Representative;
-		 *  EP Sends Secure Electronic Message to Patient or Patient Representative.
-		 * Denominator: Number of patients seen by the EP.
-		 */
-
-		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$denominator_pids = [];
-		$denominator_eids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
-			$denominator_eids[] = $ordered_prescription['eid'];
-		}
-		$denominator = count($denominator_pids);
-		$denominator_eids_str = join("','", $denominator_eids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM audit_log as a WHERE a.eid IN ('{$denominator_eids_str}') AND event IN ('SECURE_MSG_TO_PAT','SECURE_MSG_FROM_PAT_TO_PRO') GROUP BY a.pid");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '5. Secure Messaging',
-			'title' => 'Modified Stage 2 Measure',
-			'description' => 'Eligible Professional (EP): For an EHR reporting period in 2017, more than 5 percent of unique patients seen by the EP during the EHR reporting period (or his or her authorized representatives) view, download, or transmit to a third party their health information during the reporting period.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '5%'
-		];
 
 
 		/**
@@ -397,149 +313,26 @@ class MeasureCalculation {
 		 * Denominator: Number of unique patients seen by the EP or discharged from the EH or CAH.
 		 */
 
-		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$denominator_pids = [];
-		$denominator_eids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
-			$denominator_eids[] = $ordered_prescription['eid'];
-		}
-		$denominator = count($denominator_pids);
-		$denominator_eids_str = join("','", $denominator_eids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM audit_log as a WHERE a.eid IN ('{$denominator_eids_str}') AND event IN ('SECURE_MSG_TO_PAT','SECURE_MSG_FROM_PAT_TO_PRO') GROUP BY a.pid");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
+		$sth = $this->conn->prepare("CALL `getSecureMessagingReportByDates`(?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date]);
+		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '5. Secure Messaging',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional (EP): For more than 25 percent of all unique patients seen by the EP during the EHR reporting period, a secure message was sent using the electronic messaging function of CEHRT to the patient (or the patient-authorized representative), or in response to a secure message sent by the patient or their authorized representative. For an EHR reporting period in 2016, the threshold for this measure is at least one message sent rather than 25 percent. For an EHR reporting period in 2017, the threshold for this measure is 5 percent rather than 25 percent.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
+			'denominator' => $report['denominator'],
+			'numerator' => $report['numerator'],
+			'denominator_pids' => $report['denominator_pids'],
+			'numerator_pids' => $report['numerator_pids'],
 			'goal' => '25%'
-		];
-
-		return $records;
-
-		/**
-		 * Promoting Interoperability Transition Measure:
-		 * For at least one patient seen by the MIPS EC during the performance period, a secure message was sent using
-		 * the electronic messaging function of certified EHR technology to the patient (or the patient-authorized
-		 * representative), or in response to a secure message sent by the patient (or patient-authorized
-		 * representative) during the performance period.
-		 *
-		 * Promoting Interoperability Transition Measure English Statements:
-		 * Numerator: The number of patients in the denominator for whom a secure electronic message is sent to the
-		 * patient (or patient-authorized representative) or in response to a secure message sent by the patient
-		 * (or patient-authorized representative), during the performance period
-		 * Denominator: Number of unique patients seen by the MIPS EC during the performance period.
-		 *
-		 * Promoting Interoperability Transition Measure Elements:
-		 * Numerator:
-		 *  EC Replies to Secure Electronic Message from Patient or Patient Representative;
-		 *  EC Sends Secure Electronic Message to Patient or Patient Representative.
-		 * Denominator: Number of patients seen by the EC.
-		 */
-
-		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$denominator_pids = [];
-		$denominator_eids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
-			$denominator_eids[] = $ordered_prescription['eid'];
-		}
-		$denominator = count($denominator_pids);
-		$denominator_eids_str = join("','", $denominator_eids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM audit_log as a WHERE a.eid IN ('{$denominator_eids_str}') AND event IN ('SECURE_MSG_TO_PAT','SECURE_MSG_FROM_PAT_TO_PRO') GROUP BY a.pid");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '5. Secure Messaging',
-			'title' => 'Promoting Interoperability Transition Measure',
-			'description' => 'For at least one patient seen by the MIPS EC during the performance period, a secure message was sent using the electronic messaging function of certified EHR technology to the patient (or the patient-authorized representative), or in response to a secure message sent by the patient (or patient-authorized representative) during the performance period.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '1'
-		];
-
-		/**
-		 * Promoting Interoperability Measure (2018 only):
-		 * For at least one unique patient seen by the MIPS EC during the performance period, a secure message was sent
-		 * using the electronic messaging function of certified EHR technology to the patient (or the patient-authorized
-		 * representative), or in response to a secure message sent by the patient (or patient-authorized
-		 * representative) during the performance period.
-		 *
-		 * Promoting Interoperability Measure English Statements (2018 only):
-		 * Numerator: The number of patients in the denominator for whom a secure electronic message is sent to the
-		 * patient (or patient-authorized representative) or in response to a secure message sent by the patient
-		 * (or patient-authorized representative), during the performance period.
-		 * Denominator: Number of unique patients seen by the MIPS EC during the performance period.
-		 *
-		 * Promoting Interoperability Measure Elements (2018 only):
-		 * Numerator:
-		 *  EC replies to secure electronic message from patient or patient representative;
-		 *  EC sends secure electronic message to patient or patient representative;
-		 *  EC sends secure message to provider including
-		 * Denominator: Number of patients seen by the EC.
-		 */
-
-		$sth = $this->conn->prepare("SELECT pid, eid FROM encounters WHERE provider_uid IN ('{$provider_id}') AND service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE) AND service_date IS NOT NULL GROUP BY pid");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$denominator_pids = [];
-		$denominator_eids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
-			$denominator_eids[] = $ordered_prescription['eid'];
-		}
-		$denominator = count($denominator_pids);
-		$denominator_eids_str = join("','", $denominator_eids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM audit_log as a WHERE a.eid IN ('{$denominator_eids_str}') AND event IN ('SECURE_MSG_TO_PAT','SECURE_MSG_FROM_PAT_TO_PRO') GROUP BY a.pid");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '5. Secure Messaging',
-			'title' => 'Promoting Interoperability Measure Elements (2018 only)',
-			'description' => 'For at least one unique patient seen by the MIPS EC during the performance period, a secure message was sent using the electronic messaging function of certified EHR technology to the patient (or the patient-authorized representative), or in response to a secure message sent by the patient (or patient-authorized representative) during the performance period.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '1'
 		];
 
 		return $records;
 
 	}
 
+	// TODO
 	// Required Test 6 – Patient Generated Health Data
 	public function getPatientGeneratedHealthDataReportByDates($provider_id, $start_date, $end_date){
 
@@ -572,95 +365,26 @@ class MeasureCalculation {
 		 * Denominator: Number of patients seen by the EP.
 		 */
 
-		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e 
-										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											GROUP BY e.pid");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$denominator_pids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
-		}
-		$denominator = count($denominator_pids);
-		$denominator_pids_str = join("','", $denominator_pids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM audit_log as a WHERE a.pid IN ('{$denominator_pids_str}') AND event IN ('GENERATED_HEALTH_DATA') GROUP BY a.pid");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
+		$sth = $this->conn->prepare("CALL `getPatientGeneratedHealthDataReportByDates`(?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date]);
+		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '6. Patient Generated Health Data',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): Patient generated health data or data from a nonclinical setting is incorporated into the CEHRT for more than 5 percent of all unique patients seen by the EP or discharged from the eligible hospital or CAH inpatient or emergency department (POS 21 or 23) during the EHR reporting period.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
+			'denominator' => $report['denominator'],
+			'numerator' => $report['numerator'],
+			'denominator_pids' => $report['denominator_pids'],
+			'numerator_pids' => $report['numerator_pids'],
 			'goal' => '5%'
 		];
 
 		return $records;
 
-		/**
-		 * Promoting Interoperability Measure (2018 only):
-		 * Patient-generated health data or data from a non-clinical setting is incorporated into the certified EHR
-		 * technology for at least one unique patient seen by the MIPS EC during the performance period.
-		 *
-		 * Promoting Interoperability Measure English Statements (2018 only):
-		 * Numerator: The number of patients in the denominator for whom data from non-clinical settings, which may
-		 * include patient-generated health data, is captured through the certified EHR technology into the patient
-		 * record during the performance period.
-		 * Denominator: Number of unique patients seen by the MIPS EC during the performance period.
-		 *
-		 * Promoting Interoperability Measure Elements (2018 only):
-		 * Numerator:
-		 *  Patients with non-clinical data incorporated into the record;
-		 *  Patients with patient-generated health data incorporated into the record.
-		 * Denominator: Number of patients seen by the EP.
-		 */
-
-		$sth = $this->conn->prepare("SELECT e.pid FROM  encounters as e 
-										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											GROUP BY e.pid");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$denominator_pids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
-		}
-		$denominator = count($denominator_pids);
-		$denominator_pids_str = join("','", $denominator_pids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM audit_log as a WHERE a.pid IN ('{$denominator_pids_str}') AND event IN ('GENERATED_HEALTH_DATA') GROUP BY a.pid");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '6. Patient Generated Health Data',
-			'title' => 'Promoting Interoperability Measure (2018 only)',
-			'description' => 'Patient-generated health data or data from a non-clinical setting is incorporated into the certified EHR technology for at least one unique patient seen by the MIPS EC during the performance period.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '5%'
-		];
-
-		return $records;
 	}
 
+	// TODO
 	// Required Test 7 – Support Electronic Referral Loops by Sending Health Information (formerly Transitions of Care)
 	public function getSupportElectronicReferralLoopsSendingReportByDates($provider_id, $start_date, $end_date){
 
@@ -671,62 +395,6 @@ class MeasureCalculation {
 		 * Modified Stage 2 Objective 5 and Stage 3 Objective 7 Measure 1
 		 * Promoting Interoperability Transition Objective 6 Measure 1 and Promoting Interoperability Objective 5 Measure 1
 		 */
-
-		/**
-		 * Modified Stage 2 Measure:
-		 * Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): The EP, eligible hospital,
-		 * or CAH that transitions or refers their patient to another setting of care or provider of care must – (1)
-		 * use CEHRT to create a summary of care record; and (2) electronically transmit such summary to a receiving
-		 * provider for more than 10 percent of transitions of care and referrals.
-		 *
-		 * Modified Stage 2 Measure English Statements:
-		 * Numerator: The number of transitions of care and referrals in the denominator where a summary of care record
-		 * was created using CEHRT and exchanged electronically.
-		 * Denominator: Number of transitions of care and referrals during the EHR reporting period for which the EP
-		 * or eligible hospital's or CAH's inpatient or emergency department (POS 21 or 23) was the transferring or
-		 * referring provider.
-		 *
-		 * Modified Stage 2 Measure Elements:
-		 * Numerator:
-		 *  Summary of care record created and exchanged;
-		 *  Summary of care record receipt confirmed.
-		 * Denominator: Number of transitions of care and referrals for which the EP, EH or CAH was the transferring
-		 * of referring provider.
-		 */
-
-		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
-										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-										  INNER JOIN patient_referrals as r ON r.eid = e.eid
-											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$denominator_pids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
-		}
-		$denominator = count($denominator_pids);
-		$denominator_pids_str = join("','", $denominator_pids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM audit_log as a WHERE a.pid IN ('{$denominator_pids_str}') AND event IN ('OUTBOUND_TOC') GROUP BY a.pid");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '7. Support Electronic Referral Loops by Sending Health Information',
-			'title' => 'Modified Stage 2 Measure',
-			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): Patient generated health data or data from a nonclinical setting is incorporated into the CEHRT for more than 5 percent of all unique patients seen by the EP or discharged from the eligible hospital or CAH inpatient or emergency department (POS 21 or 23) during the EHR reporting period.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '10%'
-		];
 
 		/**
 		 * Stage 3 Measure:
@@ -749,151 +417,23 @@ class MeasureCalculation {
 		 * of referring provider.
 		 */
 
-		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
-										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-										  INNER JOIN patient_referrals as r ON r.eid = e.eid
-											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$denominator_pids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
-		}
-		$denominator = count($denominator_pids);
-		$denominator_pids_str = join("','", $denominator_pids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM audit_log as a WHERE a.pid IN ('{$denominator_pids_str}') AND event IN ('OUTBOUND_TOC') GROUP BY a.pid");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
+		$sth = $this->conn->prepare("CALL `getSupportElectronicReferralLoopsSendingReportByDates`(?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date]);
+		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '7. Support Electronic Referral Loops by Sending Health Information',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional (EP): For more than 50% of transitions of care and referrals, the EP that transitions or refers their patient to another setting of care or provider of care: (1) creates a summary of care record using CEHRT; and (2) electronically exchanges the summary of care record.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
+			'denominator' => $report['denominator'],
+			'numerator' => $report['numerator'],
+			'denominator_pids' => $report['denominator_pids'],
+			'numerator_pids' => $report['numerator_pids'],
 			'goal' => '50%'
 		];
 
 		return $records;
 
-		/**
-		 * Promoting Interoperability Transition Measure:
-		 * Eligible Professional (EP): For more than 50% of transitions of care and referrals, the EP that transitions
-		 * or refers their patient to another setting of care or provider of care: (1) creates a summary of care record
-		 * using CEHRT; and (2) electronically exchanges the summary of care record.
-		 *
-		 * SPromoting Interoperability Transition Measure English Statements:
-		 * Numerator: The number of transitions of care and referrals in the denominator where a summary of care
-		 * record was created using certified EHR technology and exchanged electronically.
-		 * Denominator: Number of transitions of care and referrals during the performance period for which the EP
-		 * was the transferring or referring health care provider.
-		 *
-		 * Promoting Interoperability Transition Measure Elements:
-		 * Numerator:
-		 *  Summary of care record created and exchanged;
-		 *  Summary of care record receipt confirmed.
-		 * Denominator: Number of transitions of care and referrals for which the EP, EH or CAH was the transferring
-		 * of referring provider.
-		 */
-
-		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
-										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-										  INNER JOIN patient_referrals as r ON r.eid = e.eid
-											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$denominator_pids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
-		}
-		$denominator = count($denominator_pids);
-		$denominator_pids_str = join("','", $denominator_pids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM audit_log as a WHERE a.pid IN ('{$denominator_pids_str}') AND event IN ('OUTBOUND_TOC') GROUP BY a.pid");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '7. Support Electronic Referral Loops by Sending Health Information',
-			'title' => 'Promoting Interoperability Transition Measure',
-			'description' => 'The MIPS EC that transitions or refers their patient to another setting of care or health care provider: (1) uses certified EHR technology to create a summary of care record; and (2) electronically transmits such summary to a receiving health care provider for at least one transition of care or referral.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '1'
-		];
-
-		/**
-		 * Promoting Interoperability Measure:
-		 * For at least one transition of care or referral, the MIPS EC that transitions or refers their patient to
-		 * another setting of care or health care provider: (1) creates a summary of care record using certified EHR
-		 * technology; and (2) electronically exchanges the summary of care record.
-		 *
-		 * Promoting Interoperability Measure English Statements:
-		 * Numerator: The number of transitions of care and referrals in the denominator where a summary of care
-		 * record was created using certified EHR technology and exchanged electronically.
-		 * Denominator: Number of transitions of care and referrals during the performance period for which the MIPS
-		 * EC was the transferring or referring clinician.
-		 *
-		 * Promoting Interoperability Measure Elements:
-		 * Numerator:
-		 *  Summary of care record created and exchanged;
-		 *  Summary of care record receipt confirmed.
-		 * Denominator: Number of transitions of care and referrals for which the EP, EH or CAH was the transferring
-		 * of referring provider.
-		 */
-
-		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
-										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-										  INNER JOIN patient_referrals as r ON r.eid = e.eid
-											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$denominator_pids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
-		}
-		$denominator = count($denominator_pids);
-		$denominator_pids_str = join("','", $denominator_pids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM audit_log as a WHERE a.pid IN ('{$denominator_pids_str}') AND event IN ('OUTBOUND_TOC') GROUP BY a.pid");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '7. Support Electronic Referral Loops by Sending Health Information',
-			'title' => 'Promoting Interoperability Measure',
-			'description' => 'For at least one transition of care or referral, the MIPS EC that transitions or refers their patient to another setting of care or health care provider: (1) creates a summary of care record using certified EHR technology; and (2) electronically exchanges the summary of care record.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '1'
-		];
-
-		return $records;
 	}
 
 	// TODO
@@ -932,103 +472,26 @@ class MeasureCalculation {
 		 *  Electronic summary of care record is available.
 		 */
 
-		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
-										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-										  INNER JOIN patient_referrals as r ON r.eid = e.eid
-											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$denominator_pids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
-		}
-		$denominator = count($denominator_pids);
-		$denominator_pids_str = join("','", $denominator_pids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM audit_log as a WHERE a.pid IN ('{$denominator_pids_str}') AND event IN ('OUTBOUND_TOC') GROUP BY a.pid");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
+		$sth = $this->conn->prepare("CALL `getReceiveAndIncorporateReportByDates`(?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date]);
+		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '8. Receive and Incorporate',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional (EP): For more than 40 percent of transitions or referrals received and patient encounters in which the provider has never before encountered the patient, the EP incorporates into the patient\'s EHR an electronic summary of care document.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
+			'denominator' => $report['denominator'],
+			'numerator' => $report['numerator'],
+			'denominator_pids' => $report['denominator_pids'],
+			'numerator_pids' => $report['numerator_pids'],
 			'goal' => '40%'
 		];
 
 		return $records;
 
-		/**
-		 * Promoting Interoperability Measure (2018 only):
-		 * For at least one transition of care or referral received or patient encounter in which the MIPS EC has
-		 * never before encountered the patient, the MIPS EC receives or retrieves and incorporates into the patient's
-		 * record and electronic summary of care document.
-		 *
-		 * Promoting Interoperability Measure English Statements (2018 only):
-		 * Numerator: The number of transitions of care or referrals in the denominator where an electronic summary
-		 * of care record received is incorporated by the provider into the certified EHR technology.
-		 * Denominator: Number of transitions of care or referrals during the performance period for which the MIPS
-		 * EC was the recipient of the transition or referral or had never before encountered the patient.
-		 *
-		 * Promoting Interoperability Measure Elements (2018 only):
-		 * Numerator:
-		 *  Requested and available;
-		 *  Received through query or request;
-		 *  Incorporated into the record.
-		 * Denominator:
-		 *  Number of patient encounters where the EP, EH or CAH was the receiving party of a transition or referral;
-		 *  Number of patient encounters where the EP, EH, or CAH has never before encountered the patient;
-		 *  Electronic summary of care record is available.
-		 */
-
-		$sth = $this->conn->prepare("SELECT e.pid FROM encounters as e
-										  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-										  INNER JOIN patient_referrals as r ON r.eid = e.eid
-											   WHERE e.provider_uid IN ('{$provider_id}') AND  e.service_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											");
-		$sth->execute();
-		$ordered_prescriptions =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$denominator_pids = [];
-		foreach($ordered_prescriptions as $ordered_prescription) {
-			if(!in_array($ordered_prescription['pid'], $denominator_pids)) $denominator_pids[] = $ordered_prescription['pid'];
-		}
-		$denominator = count($denominator_pids);
-		$denominator_pids_str = join("','", $denominator_pids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM audit_log as a WHERE a.pid IN ('{$denominator_pids_str}') AND event IN ('OUTBOUND_TOC') GROUP BY a.pid");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '8. Receive and Incorporate',
-			'title' => 'Promoting Interoperability Measure Elements (2018 only)',
-			'description' => 'For at least one transition of care or referral received or patient encounter in which the MIPS EC has never before encountered the patient, the MIPS EC receives or retrieves and incorporates into the patient\'s record and electronic summary of care document.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '1'
-		];
-
-
-		return $records;
 	}
 
+	// TODO
 	// Required Test 9 – Medication/Clinical Information Reconciliation
 	public function getMedicationClinicalInformationReconciliationReportByDates($provider_id, $start_date, $end_date){
 
@@ -1039,54 +502,6 @@ class MeasureCalculation {
 		 * Modified Stage 2 Objective 7 and Stage 3 Objective 7 Measure 3
 		 * Promoting Interoperability Transition Objective 7 Measure 1 and Promoting Interoperability Objective 5 Measure 3
 		 */
-
-		/**
-		 * Modified Stage 2 Measure:
-		 * Eligible Professional (EP): The EP performs medication reconciliation for more than 50 percent of
-		 * transitions of care in which the patient is transitioned into the care of the EP during the reporting period.
-		 *
-		 * Modified Stage 2 Measure English Statements:
-		 * Numerator: The number of transitions of care in the denominator where medication reconciliation was performed.
-		 * Denominator: Number of transitions of care during the EHR reporting period for which the EP was the receiving
-		 * party of the transition.
-		 *
-		 * Modified Stage 2 Measure Elements:
-		 * Numerator: Indication that medication reconciliation occurred.
-		 * Denominator:
-		 *  Provision of summary of care record of any type for an existing patient;
-		 *  Number of transitions of care for which the EP was the receiving party;
-		 *  Number of patients the EP has not previously encountered.
-		 */
-		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.uid IN ('{$provider_id}') AND a.event IN ('INBOUND_TOC') AND a.event_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)");
-		$sth->execute();
-		$events =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$event_pids = [];
-		$denominator_pids = [];
-		foreach($events as $event) {
-			if(!in_array($event['pid'], $denominator_pids)) $denominator_pids[] = $event['pid'];
-		}
-		$denominator = count($event_pids);
-		$event_pids = join("','", $denominator_pids);
-
-		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.pid IN ('{$event_pids}') AND a.event IN ('RECONCILE')");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '9. Medication/Clinical Information Reconciliation',
-			'title' => 'Modified Stage 2 Measure',
-			'description' => 'Eligible Professional (EP): The EP performs medication reconciliation for more than 50 percent of transitions of care in which the patient is transitioned into the care of the EP during the reporting period.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '50%'
-		];
 
 		/**
 		 * Stage 3 Measure:
@@ -1111,150 +526,27 @@ class MeasureCalculation {
 		 *  Number of transitions of care or referrals for which the EP was the recipient;
 		 *  Number of patients the EP has not previously encountered.
 		 */
-		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.uid IN ('{$provider_id}') AND a.event IN ('INBOUND_TOC') AND a.event_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)");
-		$sth->execute();
-		$events =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$event_pids = [];
-		$denominator_pids = [];
-		foreach($events as $event) {
-			if(!in_array($event['pid'], $denominator_pids)) $denominator_pids[] = $event['pid'];
-		}
-		$denominator = count($event_pids);
-		$event_pids = join("','", $denominator_pids);
-
-		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.pid IN ('{$event_pids}') AND a.event IN ('RECONCILE')");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
+		$sth = $this->conn->prepare("CALL `getMedicationClinicalInformationReconciliationReportByDates`(?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date]);
+		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '9. Medication/Clinical Information Reconciliation',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional (EP): For more than 80 percent of transitions or referrals received and patient encounters in which the provider has never before encountered the patient, the EP performs a clinical information reconciliation. The provider must implement clinical information reconciliation for the following three clinical information sets: (a) Review of the patient\'s medication, including the name, dosage, frequency, and route of each medication; (b) Review of the patient\'s known medication allergies; and (c) Review of the patient\'s current and active diagnoses.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
+			'denominator' => $report['denominator'],
+			'numerator' => $report['numerator'],
+			'denominator_pids' => $report['denominator_pids'],
+			'numerator_pids' => $report['numerator_pids'],
 			'goal' => '80%'
 		];
 
 		return $records;
 
-//		/**
-//		 * Promoting Interoperability Transition Measure:
-//		 * The MIPS EC performs medication reconciliation for at least one transition of care in which the patient is
-//		 * transitioned into the care of the MIPS EC.
-//		 *
-//		 * Promoting Interoperability Transition Measure English Statements:
-//		 * Numerator: The number of transitions of care or referrals in the denominator where medication reconciliation
-//		 * was performed.
-//		 * Denominator: Number of transitions of care or referrals during the performance period for which the MIPS EC
-//		 * was the recipient of the transition or referral or has never been encountered by the patient.
-//		 *
-//		 * Promoting Interoperability Transition Measure Elements:
-//		 * Numerator: Indication that medication reconciliation occurred.
-//		 * Denominator:
-//		 *  Provision of summary of care record of any type for an existing patient;
-//		 *  Number of transitions of care for which the EC was the receiving party;
-//		 *  Number of patients the EC has not previously encountered.
-//		 */
-//		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.uid IN ('{$provider_id}') AND a.event IN ('INBOUND_TOC') BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)");
-//		$sth->execute();
-//		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
-//		$event_ids = [];
-//		$denominator_pids = [];
-//		foreach($medications as $medication) {
-//			if(!in_array($medication['pid'], $denominator_pids)) $denominator_pids[] = $medication['pid'];
-//			$event_ids[] = $medication['id'];
-//		}
-//		$denominator = count($event_ids);
-//		$event_ids = join("','", $event_ids);
-//
-//		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.id IN ('{$event_ids}')  AND a.event IN ('RECONCILE')");
-//		$sth->execute();
-//		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-//		$numerator_pids = [];
-//		foreach($numerator_records as $numerator_record) {
-//			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-//		}
-//		$numerator = count($numerator_records);
-//
-//		$records[] = [
-//			'group' => '9. Medication/Clinical Information Reconciliation',
-//			'title' => 'Promoting Interoperability Transition Measure',
-//			'description' => 'The MIPS EC performs medication reconciliation for at least one transition of care in which the patient is transitioned into the care of the MIPS EC.',
-//			'denominator' => $denominator,
-//			'numerator' => $numerator,
-//			'denominator_pids' => implode(',', $denominator_pids),
-//			'numerator_pids' => implode(',', $numerator_pids),
-//			'goal' => '1'
-//		];
-//
-//		/**
-//		 * Promoting Interoperability Measure (2018 only):
-//		 * For at least one transition of care or referral received or patient encounter in which the MIPS EC has never
-//		 * before encountered the patient, the MIPS EC performs clinical information reconciliation. The clinician must
-//		 * implement clinical information reconciliation for the following three clinical information sets: (1)
-//		 * Medication. Review of the patient's medication, including the name, dosage, frequency, and route of each
-//		 * medication. (2) Medication allergy. Review of the patient's known medication allergies. (3) Current Problem
-//		 * list. Review of the patient's current and active diagnoses.
-//		 *
-//		 * Promoting Interoperability Measure English Statements (2018 only):
-//		 * Numerator: The number of transitions of care or referrals in the denominator where the following three
-//		 * clinical information reconciliations were performed: medication list, medication allergy list, and current
-//		 * problem list.
-//		 * Denominator: Number of transitions of care or referrals during the performance period for which the MIPS EC
-//		 * was the recipient of the transition or referral or has never before encountered the patient.
-//		 *
-//		 * Promoting Interoperability Measure Elements (2018 only):
-//		 * Numerator: Indication that medication reconciliation occurred.
-//		 * Denominator:
-//		 *  Provision of summary of care record of any type for an existing patient;
-//		 *  Number of transitions of care for which the EC was the receiving party;
-//		 *  Number of patients the EC has not previously encountered.
-//		 */
-//		$sth = $this->conn->prepare("SELECT a.id, a.pid, a.eid FROM audit_log as a WHERE a.uid IN ('{$provider_id}') AND a.event IN ('INBOUND_TOC') BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-//											");
-//		$sth->execute();
-//		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
-//		$medication_ids = [];
-//		$denominator_pids = [];
-//		foreach($medications as $medication) {
-//			if(!in_array($medication['pid'], $denominator_pids)) $denominator_pids[] = $medication['pid'];
-//			$medication_ids[] = $medication['id'];
-//		}
-//		$denominator = count($medication_ids);
-//		$medication_ids = join("','", $medication_ids);
-//
-//		$sth = $this->conn->prepare("SELECT a.pid FROM audit_log as a WHERE a.foreign_table = 'patient_medications' AND a.event IN ('RECONCILE')");
-//		$sth->execute();
-//		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-//		$numerator_pids = [];
-//		foreach($numerator_records as $numerator_record) {
-//			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-//		}
-//		$numerator = count($numerator_records);
-//
-//		$records[] = [
-//			'group' => '9. Medication/Clinical Information Reconciliation',
-//			'title' => 'Promoting Interoperability Measure (2018 only)',
-//			'description' => 'For at least one transition of care or referral received or patient encounter in which the MIPS EC has never before encountered the patient, the MIPS EC performs clinical information reconciliation. The clinician must implement clinical information reconciliation for the following three clinical information sets: (1) Medication. Review of the patient\'s medication, including the name, dosage, frequency, and route of each medication. (2) Medication allergy. Review of the patient\'s known medication allergies. (3) Current Problem list. Review of the patient\'s current and active diagnoses.',
-//			'denominator' => $denominator,
-//			'numerator' => $numerator,
-//			'denominator_pids' => implode(',', $denominator_pids),
-//			'numerator_pids' => implode(',', $numerator_pids),
-//			'goal' => '1'
-//		];
-
-		return $records;
 	}
 
 	// Required Test 10 – CPOE Medications
-	private function getCPOEMedications($provider_id, $start_date, $end_date){
+	private function getCPOEMedicationsReportByDates($provider_id, $start_date, $end_date){
 
 		$records = [];
 
@@ -1262,58 +554,6 @@ class MeasureCalculation {
 		 * Required Test 10 – CPOE Medications
 		 * Modified Stage 2 Objective 3 Measure 1 and Stage 3 Objective 4 Measure 1
 		 */
-
-		/**
-		 * Modified Stage 2 Measure:
-		 * Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 60 percent of
-		 * medication orders created by the EP or by authorized providers of the eligible hospital's or CAH's inpatient
-		 * or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized
-		 * provider order entry.
-		 *
-		 * Modified Stage 2 Measure English Statements:
-		 * Numerator: The number of medication orders in the denominator recorded using CPOE.
-		 * Denominator: Number of medication orders created by the EP or authorized providers in the eligible hospital's
-		 * or CAH's inpatient or emergency department (POS 21 or 23) during the EHR reporting period.
-		 *
-		 * Modified Stage 2 Measure Elements:
-		 * Numerator: Medication order recorded using CPOE.
-		 * Denominator: Number of medication orders.
-		 */
-		$sth = $this->conn->prepare("SELECT m.id, m.pid FROM patient_medications as m
-										  INNER JOIN encounters as e ON e.eid = m.eid
-										 --  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-											   WHERE e.provider_uid IN ('{$provider_id}') AND m.created_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											GROUP BY m.id");
-		$sth->execute();
-		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$medication_ids = [];
-		$denominator_pids = [];
-		foreach($medications as $medication) {
-			if(!in_array($medication['pid'], $denominator_pids)) $denominator_pids[] = $medication['pid'];
-			$medication_ids[] = $medication['id'];
-		}
-		$denominator = count($medication_ids);
-		$medication_ids = join("','", $medication_ids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM patient_medications as m WHERE m.id IN ('{$medication_ids}') AND m.date_ordered IS NOT NULL");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '10. CPOE Medications',
-			'title' => 'Modified Stage 2 Measure',
-			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 60 percent of medication orders created by the EP or by authorized providers of the eligible hospital\'s or CAH\'s inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '60%'
-		];
 
 		/**
 		 * Stage 3 Measure:
@@ -1331,39 +571,19 @@ class MeasureCalculation {
 		 * Numerator: Radiology order recorded using CPOE.
 		 * Denominator: Number of radiology orders.
 		 */
-		$sth = $this->conn->prepare("SELECT m.id, m.pid FROM patient_medications as m
-										  INNER JOIN encounters as e ON e.eid = m.eid
-										 --  INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-											   WHERE e.provider_uid IN ('{$provider_id}') AND m.created_date BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											GROUP BY m.id");
-		$sth->execute();
-		$medications =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$medication_ids = [];
-		$denominator_pids = [];
-		foreach($medications as $medication) {
-			if(!in_array($medication['pid'], $denominator_pids)) $denominator_pids[] = $medication['pid'];
-			$medication_ids[] = $medication['id'];
-		}
-		$denominator = count($medication_ids);
-		$medication_ids = join("','", $medication_ids);
 
-		$sth = $this->conn->prepare("SELECT pid FROM patient_medications as m WHERE m.id IN ('{$medication_ids}') AND m.date_ordered IS NOT NULL");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
+		$sth = $this->conn->prepare("CALL `getCPOEMedicationsReportByDates`(?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date]);
+		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '10. CPOE Medications',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 60 percent of medication orders created by the EP or authorized providers of the eligible hospital or CAH inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
+			'denominator' => $report['denominator'],
+			'numerator' => $report['numerator'],
+			'denominator_pids' => $report['denominator_pids'],
+			'numerator_pids' => $report['numerator_pids'],
 			'goal' => '60%'
 		];
 
@@ -1371,7 +591,7 @@ class MeasureCalculation {
 	}
 
 	// Required Test 11 – CPOE Laboratory
-	private function getCPOELaboratory($provider_id, $start_date, $end_date){
+	private function getCPOELaboratoryReportByDates($provider_id, $start_date, $end_date){
 
 		$records = [];
 
@@ -1379,59 +599,6 @@ class MeasureCalculation {
 		 * Required Test 11 – CPOE Laboratory
 		 * Modified Stage 2 Objective 3 Measure 2 and Stage 3 Objective 4 Measure 2
 		 */
-
-
-		/**
-		 * Modified Stage 2 Measure:
-		 * Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 30 percent of
-		 * laboratory orders created by the EP or by authorized providers of the eligible hospital's or CAH's inpatient
-		 * or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized
-		 * provider order entry.
-		 *
-		 * Modified Stage 2 Measure English Statements:
-		 * Numerator: The number of laboratory orders in the denominator recorded using CPOE.
-		 * Denominator: Number of laboratory orders created by the EP or authorized providers in the eligible
-		 * hospital's or CAH's inpatient or emergency department (POS 21 or 23) during the EHR reporting period.
-		 *
-		 * Modified Stage 2 Measure Elements:
-		 * Numerator: Laboratory order recorded using CPOE.
-		 * Denominator: Number of laboratory orders.
-		 */
-		$sth = $this->conn->prepare("SELECT o.id, o.pid FROM patient_orders as o
-										  INNER JOIN encounters as e ON e.eid = o.eid
-										 -- INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-											   WHERE e.provider_uid IN ('{$provider_id}') AND o.order_type = 'lab' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											GROUP BY o.id");
-		$sth->execute();
-		$orders =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$orders_ids = [];
-		$denominator_pids = [];
-		foreach($orders as $order) {
-			if(!in_array($order['pid'], $denominator_pids)) $denominator_pids[] = $order['pid'];
-			$orders_ids[] = $order['id'];
-		}
-		$denominator = count($orders_ids);
-		$orders_ids = join("','", $orders_ids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM patient_orders as o WHERE o.id IN ('{$orders_ids}') AND (o.priority IS NOT NULL AND o.priority != '')");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '11. CPOE Laboratory',
-			'title' => 'Modified Stage 2 Measure',
-			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 30 percent of laboratory orders created by the EP or by authorized providers of the eligible hospital\'s or CAH\'s inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '30%'
-		];
 
 		/**
 		 * Stage 3 Measure:
@@ -1449,39 +616,19 @@ class MeasureCalculation {
 		 * Numerator: Laboratory order recorded using CPOE.
 		 * Denominator: Number of laboratory orders.
 		 */
-		$sth = $this->conn->prepare("SELECT o.id, o.pid FROM patient_orders as o
-										  INNER JOIN encounters as e ON e.eid = o.eid
-										 -- INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-											   WHERE e.provider_uid IN ('{$provider_id}') AND o.order_type = 'lab' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											GROUP BY o.id");
-		$sth->execute();
-		$orders =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$orders_ids = [];
-		$denominator_pids = [];
-		foreach($orders as $order) {
-			if(!in_array($order['pid'], $denominator_pids)) $denominator_pids[] = $order['pid'];
-			$orders_ids[] = $order['id'];
-		}
-		$denominator = count($orders_ids);
-		$orders_ids = join("','", $orders_ids);
 
-		$sth = $this->conn->prepare("SELECT pid FROM patient_orders as o WHERE o.id IN ('{$orders_ids}') AND (o.priority IS NOT NULL AND o.priority != '')");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
+		$sth = $this->conn->prepare("CALL `getCPOELaboratoryReportByDates`(?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date]);
+		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '11. CPOE Laboratory',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 60 percent of laboratory orders created by the EP or authorized providers of the eligible hospital or CAH inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
+			'denominator' => $report['denominator'],
+			'numerator' => $report['numerator'],
+			'denominator_pids' => $report['denominator_pids'],
+			'numerator_pids' => $report['numerator_pids'],
 			'goal' => '60%'
 		];
 
@@ -1489,7 +636,7 @@ class MeasureCalculation {
 	}
 
 	// Required Test 12 – CPOE Radiology/Diagnostic Imaging
-	private function getCPOERadiology($provider_id, $start_date, $end_date){
+	private function getCPOERadiologyReportByDates($provider_id, $start_date, $end_date){
 
 		$records = [];
 
@@ -1497,59 +644,6 @@ class MeasureCalculation {
 		 * Required Test 12 – CPOE Radiology/Diagnostic Imaging
 		 * Modified Stage 2 Objective 3 Measure 3 and Stage 3 Objective 4 Measure 3
 		 */
-
-
-		/**
-		 * Modified Stage 2 Measure:
-		 * Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 30 percent of
-		 * radiology orders created by the EP or by authorized providers of the eligible hospital's or CAH's inpatient
-		 * or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized
-		 * provider order entry.
-		 *
-		 * Modified Stage 2 Measure English Statements:
-		 * Numerator: The number of radiology orders in the denominator recorded using CPOE.
-		 * Denominator: Number of radiology orders created by the EP or authorized providers in the eligible hospital's
-		 * or CAH's inpatient or emergency department (POS 21 or 23) during the EHR reporting period.
-		 *
-		 * Modified Stage 2 Measure Elements:
-		 * Numerator: Radiology order recorded using CPOE.
-		 * Denominator: Number of radiology orders.
-		 */
-		$sth = $this->conn->prepare("SELECT o.id, o.pid FROM patient_orders as o
-										  INNER JOIN encounters as e ON e.eid = o.eid
-										 -- INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-											   WHERE e.provider_uid IN ('{$provider_id}') AND o.order_type = 'rad' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											GROUP BY o.id");
-		$sth->execute();
-		$orders =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$orders_ids = [];
-		$denominator_pids = [];
-		foreach($orders as $order) {
-			if(!in_array($order['pid'], $denominator_pids)) $denominator_pids[] = $order['pid'];
-			$orders_ids[] = $order['id'];
-		}
-		$denominator = count($orders_ids);
-		$orders_ids = join("','", $orders_ids);
-
-		$sth = $this->conn->prepare("SELECT pid FROM patient_orders as o WHERE o.id IN ('{$orders_ids}') AND (o.priority IS NOT NULL AND o.priority != '')");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
-
-		$records[] = [
-			'group' => '12. CPOE Radiology/Diagnostic Imaging',
-			'title' => 'Modified Stage 2 Measure',
-			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 30 percent of radiology orders created by the EP or by authorized providers of the eligible hospital\'s or CAH\'s inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
-			'goal' => '30%'
-		];
 
 		/**
 		 * Stage 3 Measure:
@@ -1567,39 +661,19 @@ class MeasureCalculation {
 		 * Numerator: Radiology order recorded using CPOE.
 		 * Denominator: Number of radiology orders.
 		 */
-		$sth = $this->conn->prepare("SELECT o.id, o.pid FROM patient_orders as o
-										  INNER JOIN encounters as e ON e.eid = o.eid
-										 -- INNER JOIN facility as f ON f.id = e.facility AND f.pos_code IN ('21', '23')
-											   WHERE e.provider_uid IN ('{$provider_id}') AND o.order_type = 'rad' AND o.date_ordered BETWEEN CAST('{$start_date}' AS DATE) AND CAST('{$end_date}' AS DATE)
-											GROUP BY o.id");
-		$sth->execute();
-		$orders =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$orders_ids = [];
-		$denominator_pids = [];
-		foreach($orders as $order) {
-			if(!in_array($order['pid'], $denominator_pids)) $denominator_pids[] = $order['pid'];
-			$orders_ids[] = $order['id'];
-		}
-		$denominator = count($orders_ids);
-		$orders_ids = join("','", $orders_ids);
 
-		$sth = $this->conn->prepare("SELECT pid FROM patient_orders as o WHERE o.id IN ('{$orders_ids}') AND (o.priority IS NOT NULL AND o.priority != '')");
-		$sth->execute();
-		$numerator_records =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		$numerator_pids = [];
-		foreach($numerator_records as $numerator_record) {
-			if(!in_array($numerator_record['pid'], $numerator_pids)) $numerator_pids[] = $numerator_record['pid'];
-		}
-		$numerator = count($numerator_records);
+		$sth = $this->conn->prepare("CALL `getCPOERadiologyReportByDates`(?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date]);
+		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '12. CPOE Radiology/Diagnostic Imaging',
 			'title' => 'Stage 3 Measure',
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 60 percent of diagnostic imaging orders created by the EP or authorized providers of the eligible hospital or CAH inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry.',
-			'denominator' => $denominator,
-			'numerator' => $numerator,
-			'denominator_pids' => implode(',', $denominator_pids),
-			'numerator_pids' => implode(',', $numerator_pids),
+			'denominator' => $report['denominator'],
+			'numerator' => $report['numerator'],
+			'denominator_pids' => $report['denominator_pids'],
+			'numerator_pids' => $report['numerator_pids'],
 			'goal' => '60%'
 		];
 

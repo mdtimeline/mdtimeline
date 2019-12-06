@@ -85,6 +85,7 @@ Ext.define('App.view.patient.Summary', {
 			me.stores.push(me.patientEncountersStore = Ext.create('App.store.patient.Encounters', {
 				autoLoad: false,
                 remoteSort: true,
+				pageSize: 999,
                 sorters: [{
                     property: 'service_date',
                     direction: 'DESC'
@@ -97,6 +98,7 @@ Ext.define('App.view.patient.Summary', {
 				itemId: 'PatientSummaryEncountersPanel',
 				hideHeaders: true,
 				scrollable: true,
+				maxHeight: 200,
 				store: me.patientEncountersStore,
 				columns: [
 					{
@@ -145,6 +147,8 @@ Ext.define('App.view.patient.Summary', {
 				title: _('active_medications'),
 				itemId: 'PatientSummaryMedicationsPanel',
 				hideHeaders: true,
+				scrollable: true,
+				maxHeight: 200,
 				store: me.patientMedicationsStore,
 				tools: [
 					{
@@ -182,6 +186,8 @@ Ext.define('App.view.patient.Summary', {
 				title: _('immunizations'),
 				itemId: 'PatientSummaryImmunizationPanel',
 				hideHeaders: true,
+				scrollable: true,
+				maxHeight: 200,
 				store: me.immuCheckListStore,
 				region: 'center',
 				tools: [
@@ -220,6 +226,8 @@ Ext.define('App.view.patient.Summary', {
 				title: _('allergies'),
 				itemId: 'PatientSummaryAllergiesPanel',
 				hideHeaders: true,
+				scrollable: true,
+				maxHeight: 200,
 				store: me.patientAllergiesListStore,
 				region: 'center',
 				tools: [
@@ -258,6 +266,8 @@ Ext.define('App.view.patient.Summary', {
 				title: _('active_problems'),
 				itemId: 'PatientSummaryActiveProblemsPanel',
 				hideHeaders: true,
+				scrollable: true,
+				maxHeight: 200,
 				store: me.patientActiveProblemsStore,
 				tools: [
 					{

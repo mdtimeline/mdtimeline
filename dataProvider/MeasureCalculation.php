@@ -13,9 +13,10 @@ class MeasureCalculation {
 	 * @param $provider_id
 	 * @param $start_date
 	 * @param $end_date
+	 * @param $stages
 	 * @return array
 	 */
-	public function getReportMeasureByDates($measure, $provider_id, $start_date, $end_date){
+	public function getReportMeasureByDates($measure, $provider_id, $start_date, $end_date, $stages = '3'){
 
 		if(is_array($provider_id)){
 			$provider_id = implode("','", $provider_id);
@@ -25,40 +26,40 @@ class MeasureCalculation {
 
 		try{
 			if($measure == 'ePrescribing'){
-				$results = $this->getPrescribingReportByDates($provider_id, $start_date, $end_date);
+				$results = $this->getPrescribingReportByDates($provider_id, $start_date, $end_date, $stages);
 			} else
 			if($measure == 'ProvidePatientsElectronicAccess'){
-				$results = $this->getProvidePatientsElectronicAccessReportByDates($provider_id, $start_date, $end_date);
+				$results = $this->getProvidePatientsElectronicAccessReportByDates($provider_id, $start_date, $end_date, $stages);
 			} else
 			if($measure == 'PatientEducation'){
-				$results = $this->getPatientEducationReportByDates($provider_id, $start_date, $end_date);
+				$results = $this->getPatientEducationReportByDates($provider_id, $start_date, $end_date, $stages);
 			} else
 			if($measure == 'ViewDownloadTransmit'){
-				$results = $this->getViewDownloadTransmitReportByDates($provider_id, $start_date, $end_date);
+				$results = $this->getViewDownloadTransmitReportByDates($provider_id, $start_date, $end_date, $stages);
 			} else
 			if($measure == 'SecureMessaging'){
-				$results = $this->getSecureMessagingReportByDates($provider_id, $start_date, $end_date);
+				$results = $this->getSecureMessagingReportByDates($provider_id, $start_date, $end_date, $stages);
 			} else
 			if($measure == 'PatientGeneratedHealthData'){
-				$results = $this->getPatientGeneratedHealthDataReportByDates($provider_id, $start_date, $end_date);
+				$results = $this->getPatientGeneratedHealthDataReportByDates($provider_id, $start_date, $end_date, $stages);
 			} else
 			if($measure == 'SupportElectronicReferralLoopsSending'){
-				return $this->getSupportElectronicReferralLoopsSendingReportByDates($provider_id, $start_date, $end_date);
+				return $this->getSupportElectronicReferralLoopsSendingReportByDates($provider_id, $start_date, $end_date, $stages);
 			} else
 			if($measure == 'ReceiveAndIncorporate'){
-				$results = $this->getReceiveAndIncorporateReportByDates($provider_id, $start_date, $end_date);
+				$results = $this->getReceiveAndIncorporateReportByDates($provider_id, $start_date, $end_date, $stages);
 			} else
 			if($measure == 'MedicationClinicalInformationReconciliation'){
-				$results = $this->getMedicationClinicalInformationReconciliationReportByDates($provider_id, $start_date, $end_date);
+				$results = $this->getMedicationClinicalInformationReconciliationReportByDates($provider_id, $start_date, $end_date, $stages);
 			} else
 			if($measure == 'CPOEMedications'){
-				$results = $this->getCPOEMedicationsReportByDates($provider_id, $start_date, $end_date);
+				$results = $this->getCPOEMedicationsReportByDates($provider_id, $start_date, $end_date, $stages);
 			} else
 			if($measure == 'CPOELaboratory'){
-				$results = $this->getCPOELaboratoryReportByDates($provider_id, $start_date, $end_date);
+				$results = $this->getCPOELaboratoryReportByDates($provider_id, $start_date, $end_date, $stages);
 			} else
 			if($measure == 'CPOERadiology'){
-				$results = $this->getCPOERadiologyReportByDates($provider_id, $start_date, $end_date);
+				$results = $this->getCPOERadiologyReportByDates($provider_id, $start_date, $end_date, $stages);
 			}
 
 			return $results;
@@ -69,7 +70,7 @@ class MeasureCalculation {
 
 	// ....
 	// Required Test 1 - ePrescribing
-	public function getPrescribingReportByDates($provider_id, $start_date, $end_date){
+	public function getPrescribingReportByDates($provider_id, $start_date, $end_date, $stages){
 
 		$records = [];
 
@@ -97,13 +98,14 @@ class MeasureCalculation {
 		 * Denominator: Prescriptions generated.
 		 *
 		 */
-		$sth = $this->conn->prepare("CALL `getPrescribingReportByDates`(?, ?, ?);");
-		$sth->execute([$provider_id, $start_date, $end_date]);
+		$sth = $this->conn->prepare("CALL `getPrescribingReportByDates`(?, ?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date, $stages]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '1. ePrescribing',
-			'title' => 'Stage 3 Measure',
+			'provider' => $report['provider'],
+			'title' => $report['title'],
 			'description' => 'Eligible Professional (EP): More than 60 percent of all permissible prescriptions written by the EP are queried for a drug formulary and transmitted electronically using CEHRT.',
 			'denominator' => $report['denominator'],
 			'numerator' => $report['numerator'],
@@ -119,7 +121,7 @@ class MeasureCalculation {
 
 	// .... b
 	// Required Test 2a, b, or c – Provide Patients Electronic Access to Their Health Information (formerly Patient Electronic Access)
-	public function getProvidePatientsElectronicAccessReportByDates($provider_id, $start_date, $end_date){
+	public function getProvidePatientsElectronicAccessReportByDates($provider_id, $start_date, $end_date, $stages){
 
 		$records = [];
 
@@ -152,13 +154,14 @@ class MeasureCalculation {
 		 * Denominator: Number of patients seen by the EP.
 		 */
 
-		$sth = $this->conn->prepare("CALL `getProvidePatientsElectronicAccessReportByDates`(?, ?, ?);");
-		$sth->execute([$provider_id, $start_date, $end_date]);
+		$sth = $this->conn->prepare("CALL `getProvidePatientsElectronicAccessReportByDates`(?, ?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date, $stages]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '2. Provide Patients Electronic Access',
-			'title' => 'Stage 3 Measure',
+			'provider' => $report['provider'],
+			'title' => $report['title'],
 			'description' => 'Eligible Professional (EP): For more than 80 percent of all unique patients seen by the EP: (1) The patient (or the patient-authorized representative) is provided timely access to view online, download, and transmit his or her health information; and (2) The provider ensures the patient’s health information is available for the patient (or patient-authorized representative) to access using any application of their choice that is configured to meet the technical specifications of the API in the provider’s CEHRT.',
 			'denominator' => $report['denominator'],
 			'numerator' => $report['numerator'],
@@ -171,7 +174,7 @@ class MeasureCalculation {
 	}
 
 	// Required Test 3 – Patient Education
-	public function getPatientEducationReportByDates($provider_id, $start_date, $end_date){
+	public function getPatientEducationReportByDates($provider_id, $start_date, $end_date, $stages){
 
 		$records = [];
 
@@ -202,13 +205,14 @@ class MeasureCalculation {
 		 *  Number of patients discharged from the EH or CAH.
 		 */
 
-		$sth = $this->conn->prepare("CALL `getPatientEducationReportByDates`(?, ?, ?);");
-		$sth->execute([$provider_id, $start_date, $end_date]);
+		$sth = $this->conn->prepare("CALL `getPatientEducationReportByDates`(?, ?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date, $stages]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '3. Patient Education',
-			'title' => 'Stage 3 Measure',
+			'provider' => $report['provider'],
+			'title' => $report['title'],
 			'description' => 'Eligible Professional: The EP must use clinically relevant information from CEHRT to identify patient-specific educational resources and provide electronic access to those materials to more than 35 percent of unique patients seen by the EP during the EHR reporting period.',
 			'denominator' => $report['denominator'],
 			'numerator' => $report['numerator'],
@@ -222,7 +226,7 @@ class MeasureCalculation {
 	}
 
 	// Required Test 4a, b, or c – View, Download, Transmit
-	public function getViewDownloadTransmitReportByDates($provider_id, $start_date, $end_date){
+	public function getViewDownloadTransmitReportByDates($provider_id, $start_date, $end_date, $stages){
 
 		$records = [];
 
@@ -258,27 +262,28 @@ class MeasureCalculation {
 		 *  Denominator: Number of patients seen by the EP.
 		 */
 
-		$sth = $this->conn->prepare("CALL `getViewDownloadTransmitReportByDates`(?, ?, ?);");
-		$sth->execute([$provider_id, $start_date, $end_date]);
+		$sth = $this->conn->prepare("CALL `getViewDownloadTransmitReportByDates`(?, ?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date, $stages]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '4. View, Download, Transmit',
-			'title' => 'Modified Stage 2 Measure',
-			'description' => 'Eligible Professional (EP): For an EHR reporting period in 2017, more than 5 percent of unique patients seen by the EP during the EHR reporting period (or his or her authorized representatives) view, download, or transmit to a third party their health information during the reporting period.',
+			'provider' => $report['provider'],
+			'title' => $report['title'],
+			'description' => 'Eligible Professional (EP): During the EHR reporting period, more than 10 percent of all unique patients (or their authorized representatives) seen by the EP actively engage with the electronic health record made accessible by the provider and either: (1) view, download, or transmit to a third party their health information; or (2) access their health information through the use of an API that can be used by applications chosen by the patient and configured to the API in the provider\'s CEHRT; or (3) a combination of (1) and (2).',
 			'denominator' => $report['denominator'],
 			'numerator' => $report['numerator'],
 			'denominator_pids' => $report['denominator_pids'],
 			'numerator_pids' => $report['numerator_pids'],
 			'numerator_types' => $report['numerator_types'],
-			'goal' => '5%'
+			'goal' => '10%'
 		];
 
 		return $records;
 	}
 
 	// Required Test 5 – Secure Messaging
-	public function getSecureMessagingReportByDates($provider_id, $start_date, $end_date){
+	public function getSecureMessagingReportByDates($provider_id, $start_date, $end_date, $stages){
 
 		$records = [];
 
@@ -313,13 +318,14 @@ class MeasureCalculation {
 		 * Denominator: Number of unique patients seen by the EP or discharged from the EH or CAH.
 		 */
 
-		$sth = $this->conn->prepare("CALL `getSecureMessagingReportByDates`(?, ?, ?);");
-		$sth->execute([$provider_id, $start_date, $end_date]);
+		$sth = $this->conn->prepare("CALL `getSecureMessagingReportByDates`(?, ?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date, $stages]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '5. Secure Messaging',
-			'title' => 'Stage 3 Measure',
+			'provider' => $report['provider'],
+			'title' => $report['title'],
 			'description' => 'Eligible Professional (EP): For more than 25 percent of all unique patients seen by the EP during the EHR reporting period, a secure message was sent using the electronic messaging function of CEHRT to the patient (or the patient-authorized representative), or in response to a secure message sent by the patient or their authorized representative. For an EHR reporting period in 2016, the threshold for this measure is at least one message sent rather than 25 percent. For an EHR reporting period in 2017, the threshold for this measure is 5 percent rather than 25 percent.',
 			'denominator' => $report['denominator'],
 			'numerator' => $report['numerator'],
@@ -334,7 +340,7 @@ class MeasureCalculation {
 
 	// TODO
 	// Required Test 6 – Patient Generated Health Data
-	public function getPatientGeneratedHealthDataReportByDates($provider_id, $start_date, $end_date){
+	public function getPatientGeneratedHealthDataReportByDates($provider_id, $start_date, $end_date, $stages){
 
 		$records = [];
 
@@ -365,13 +371,14 @@ class MeasureCalculation {
 		 * Denominator: Number of patients seen by the EP.
 		 */
 
-		$sth = $this->conn->prepare("CALL `getPatientGeneratedHealthDataReportByDates`(?, ?, ?);");
-		$sth->execute([$provider_id, $start_date, $end_date]);
+		$sth = $this->conn->prepare("CALL `getPatientGeneratedHealthDataReportByDates`(?, ?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date, $stages]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '6. Patient Generated Health Data',
-			'title' => 'Stage 3 Measure',
+			'provider' => $report['provider'],
+			'title' => $report['title'],
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): Patient generated health data or data from a nonclinical setting is incorporated into the CEHRT for more than 5 percent of all unique patients seen by the EP or discharged from the eligible hospital or CAH inpatient or emergency department (POS 21 or 23) during the EHR reporting period.',
 			'denominator' => $report['denominator'],
 			'numerator' => $report['numerator'],
@@ -386,7 +393,7 @@ class MeasureCalculation {
 
 	// TODO
 	// Required Test 7 – Support Electronic Referral Loops by Sending Health Information (formerly Transitions of Care)
-	public function getSupportElectronicReferralLoopsSendingReportByDates($provider_id, $start_date, $end_date){
+	public function getSupportElectronicReferralLoopsSendingReportByDates($provider_id, $start_date, $end_date, $stages){
 
 		$records = [];
 
@@ -417,13 +424,13 @@ class MeasureCalculation {
 		 * of referring provider.
 		 */
 
-		$sth = $this->conn->prepare("CALL `getSupportElectronicReferralLoopsSendingReportByDates`(?, ?, ?);");
-		$sth->execute([$provider_id, $start_date, $end_date]);
+		$sth = $this->conn->prepare("CALL `getSupportElectronicReferralLoopsSendingReportByDates`(?, ?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date, $stages]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '7. Support Electronic Referral Loops by Sending Health Information',
-			'title' => 'Stage 3 Measure',
+			'title' => $report['title'],
 			'description' => 'Eligible Professional (EP): For more than 50% of transitions of care and referrals, the EP that transitions or refers their patient to another setting of care or provider of care: (1) creates a summary of care record using CEHRT; and (2) electronically exchanges the summary of care record.',
 			'denominator' => $report['denominator'],
 			'numerator' => $report['numerator'],
@@ -438,7 +445,7 @@ class MeasureCalculation {
 
 	// TODO
 	// Required Test 8 Receive and Incorporate
-	public function getReceiveAndIncorporateReportByDates($provider_id, $start_date, $end_date){
+	public function getReceiveAndIncorporateReportByDates($provider_id, $start_date, $end_date, $stages){
 
 		$records = [];
 
@@ -472,13 +479,14 @@ class MeasureCalculation {
 		 *  Electronic summary of care record is available.
 		 */
 
-		$sth = $this->conn->prepare("CALL `getReceiveAndIncorporateReportByDates`(?, ?, ?);");
-		$sth->execute([$provider_id, $start_date, $end_date]);
+		$sth = $this->conn->prepare("CALL `getReceiveAndIncorporateReportByDates`(?, ?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date, $stages]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '8. Receive and Incorporate',
-			'title' => 'Stage 3 Measure',
+			'provider' => $report['provider'],
+			'title' => $report['title'],
 			'description' => 'Eligible Professional (EP): For more than 40 percent of transitions or referrals received and patient encounters in which the provider has never before encountered the patient, the EP incorporates into the patient\'s EHR an electronic summary of care document.',
 			'denominator' => $report['denominator'],
 			'numerator' => $report['numerator'],
@@ -493,7 +501,7 @@ class MeasureCalculation {
 
 	// TODO
 	// Required Test 9 – Medication/Clinical Information Reconciliation
-	public function getMedicationClinicalInformationReconciliationReportByDates($provider_id, $start_date, $end_date){
+	public function getMedicationClinicalInformationReconciliationReportByDates($provider_id, $start_date, $end_date, $stages){
 
 		$records = [];
 
@@ -526,13 +534,13 @@ class MeasureCalculation {
 		 *  Number of transitions of care or referrals for which the EP was the recipient;
 		 *  Number of patients the EP has not previously encountered.
 		 */
-		$sth = $this->conn->prepare("CALL `getMedicationClinicalInformationReconciliationReportByDates`(?, ?, ?);");
-		$sth->execute([$provider_id, $start_date, $end_date]);
+		$sth = $this->conn->prepare("CALL `getMedicationClinicalInformationReconciliationReportByDates`(?, ?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date, $stages]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '9. Medication/Clinical Information Reconciliation',
-			'title' => 'Stage 3 Measure',
+			'title' => $report['title'],
 			'description' => 'Eligible Professional (EP): For more than 80 percent of transitions or referrals received and patient encounters in which the provider has never before encountered the patient, the EP performs a clinical information reconciliation. The provider must implement clinical information reconciliation for the following three clinical information sets: (a) Review of the patient\'s medication, including the name, dosage, frequency, and route of each medication; (b) Review of the patient\'s known medication allergies; and (c) Review of the patient\'s current and active diagnoses.',
 			'denominator' => $report['denominator'],
 			'numerator' => $report['numerator'],
@@ -546,7 +554,7 @@ class MeasureCalculation {
 	}
 
 	// Required Test 10 – CPOE Medications
-	private function getCPOEMedicationsReportByDates($provider_id, $start_date, $end_date){
+	private function getCPOEMedicationsReportByDates($provider_id, $start_date, $end_date, $stages){
 
 		$records = [];
 
@@ -572,13 +580,14 @@ class MeasureCalculation {
 		 * Denominator: Number of radiology orders.
 		 */
 
-		$sth = $this->conn->prepare("CALL `getCPOEMedicationsReportByDates`(?, ?, ?);");
-		$sth->execute([$provider_id, $start_date, $end_date]);
+		$sth = $this->conn->prepare("CALL `getCPOEMedicationsReportByDates`(?, ?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date, $stages]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '10. CPOE Medications',
-			'title' => 'Stage 3 Measure',
+			'provider' => $report['provider'],
+			'title' => $report['title'],
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 60 percent of medication orders created by the EP or authorized providers of the eligible hospital or CAH inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry.',
 			'denominator' => $report['denominator'],
 			'numerator' => $report['numerator'],
@@ -591,7 +600,7 @@ class MeasureCalculation {
 	}
 
 	// Required Test 11 – CPOE Laboratory
-	private function getCPOELaboratoryReportByDates($provider_id, $start_date, $end_date){
+	private function getCPOELaboratoryReportByDates($provider_id, $start_date, $end_date, $stages){
 
 		$records = [];
 
@@ -617,13 +626,14 @@ class MeasureCalculation {
 		 * Denominator: Number of laboratory orders.
 		 */
 
-		$sth = $this->conn->prepare("CALL `getCPOELaboratoryReportByDates`(?, ?, ?);");
-		$sth->execute([$provider_id, $start_date, $end_date]);
+		$sth = $this->conn->prepare("CALL `getCPOELaboratoryReportByDates`(?, ?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date, $stages]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '11. CPOE Laboratory',
-			'title' => 'Stage 3 Measure',
+			'provider' => $report['provider'],
+			'title' => $report['title'],
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 60 percent of laboratory orders created by the EP or authorized providers of the eligible hospital or CAH inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry.',
 			'denominator' => $report['denominator'],
 			'numerator' => $report['numerator'],
@@ -636,7 +646,7 @@ class MeasureCalculation {
 	}
 
 	// Required Test 12 – CPOE Radiology/Diagnostic Imaging
-	private function getCPOERadiologyReportByDates($provider_id, $start_date, $end_date){
+	private function getCPOERadiologyReportByDates($provider_id, $start_date, $end_date, $stages){
 
 		$records = [];
 
@@ -662,13 +672,14 @@ class MeasureCalculation {
 		 * Denominator: Number of radiology orders.
 		 */
 
-		$sth = $this->conn->prepare("CALL `getCPOERadiologyReportByDates`(?, ?, ?);");
-		$sth->execute([$provider_id, $start_date, $end_date]);
+		$sth = $this->conn->prepare("CALL `getCPOERadiologyReportByDates`(?, ?, ?, ?);");
+		$sth->execute([$provider_id, $start_date, $end_date, $stages]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
 			'group' => '12. CPOE Radiology/Diagnostic Imaging',
-			'title' => 'Stage 3 Measure',
+			'provider' => $report['provider'],
+			'title' => $report['title'],
 			'description' => 'Eligible Professional/Eligible Hospital/Critical Access Hospital (EP/EH/CAH): More than 60 percent of diagnostic imaging orders created by the EP or authorized providers of the eligible hospital or CAH inpatient or emergency department (POS 21 or 23) during the EHR reporting period are recorded using computerized provider order entry.',
 			'denominator' => $report['denominator'],
 			'numerator' => $report['numerator'],

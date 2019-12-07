@@ -293,7 +293,6 @@ class MeasureCalculation {
 		 * Promoting Interoperability Transition Objective 5 Measure 1 and Promoting Interoperability Objective 4 Measure 2
 		 */
 
-
 		/**
 		 * Stage 3 Measure:
 		 * Eligible Professional (EP): For more than 25 percent of all unique patients seen by the EP during the EHR
@@ -338,7 +337,6 @@ class MeasureCalculation {
 
 	}
 
-	// TODO
 	// Required Test 6 – Patient Generated Health Data
 	public function getPatientGeneratedHealthDataReportByDates($provider_id, $start_date, $end_date, $stages){
 
@@ -391,7 +389,6 @@ class MeasureCalculation {
 
 	}
 
-	// TODO
 	// Required Test 7 – Support Electronic Referral Loops by Sending Health Information (formerly Transitions of Care)
 	public function getSupportElectronicReferralLoopsSendingReportByDates($provider_id, $start_date, $end_date, $stages){
 

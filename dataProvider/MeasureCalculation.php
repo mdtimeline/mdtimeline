@@ -427,6 +427,7 @@ class MeasureCalculation {
 
 		$records[] = [
 			'group' => '7. Support Electronic Referral Loops by Sending Health Information',
+			'provider' => $report['provider'],
 			'title' => $report['title'],
 			'description' => 'Eligible Professional (EP): For more than 50% of transitions of care and referrals, the EP that transitions or refers their patient to another setting of care or provider of care: (1) creates a summary of care record using CEHRT; and (2) electronically exchanges the summary of care record.',
 			'denominator' => $report['denominator'],
@@ -440,7 +441,6 @@ class MeasureCalculation {
 
 	}
 
-	// TODO
 	// Required Test 8 Receive and Incorporate
 	public function getReceiveAndIncorporateReportByDates($provider_id, $start_date, $end_date, $stages){
 
@@ -496,7 +496,6 @@ class MeasureCalculation {
 
 	}
 
-	// TODO
 	// Required Test 9 – Medication/Clinical Information Reconciliation
 	public function getMedicationClinicalInformationReconciliationReportByDates($provider_id, $start_date, $end_date, $stages){
 
@@ -537,6 +536,7 @@ class MeasureCalculation {
 
 		$records[] = [
 			'group' => '9. Medication/Clinical Information Reconciliation',
+			'provider' => $report['provider'],
 			'title' => $report['title'],
 			'description' => 'Eligible Professional (EP): For more than 80 percent of transitions or referrals received and patient encounters in which the provider has never before encountered the patient, the EP performs a clinical information reconciliation. The provider must implement clinical information reconciliation for the following three clinical information sets: (a) Review of the patient\'s medication, including the name, dosage, frequency, and route of each medication; (b) Review of the patient\'s known medication allergies; and (c) Review of the patient\'s current and active diagnoses.',
 			'denominator' => $report['denominator'],

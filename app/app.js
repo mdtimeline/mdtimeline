@@ -43517,8 +43517,9 @@ Ext.define('App.controller.patient.CCDImport', {
 					pid: pid,
 					eid: (pid == app.patient.pid ? app.patient.eid : '0'),
 					uid: app.user.id,
-					foreign_table: 'CCDA_ARCHIVED',
-					event: 'Patient C-CDA Archived'
+					foreign_table: 'patient',
+					event: 'CCDA_ARCHIVED',
+					event_description: 'Patient C-CDA Archived'
 				});
 			}
 		});

@@ -42850,6 +42850,9 @@ Ext.define('App.controller.patient.CCDImport', {
 			'#CcdImportWindowViewRawCcdBtn': {
 				click: me.onCcdImportWindowViewRawCcdBtnClick
 			},
+			'#CcdImportWindowSaveCcdaBtn': {
+				click: me.onCcdImportWindowSaveCcdaBtnClick
+			},
 			'#PossiblePatientDuplicatesWindow > grid': {
 				itemdblclick: me.onPossiblePatientDuplicatesGridItemDblClick
 			},
@@ -42874,11 +42877,13 @@ Ext.define('App.controller.patient.CCDImport', {
 		return this.getCcdImportWindow().enableSystemReconciliation;
 	},
 
-	CcdImport: function(ccdData, mergePid){
+	CcdImport: function(ccdData, mergePid, stringXml){
 		if(!this.getCcdImportWindow()){
 			Ext.create('App.view.patient.windows.CCDImport');
 		}
+		this.getCcdImportWindow().ccd = stringXml;
 		this.getCcdImportWindow().ccdData = ccdData;
+		this.getCcdImportWindow().ccdDataImported = false;
 		this.getCcdImportWindow().show();
 
 		if(mergePid){
@@ -43462,10 +43467,30 @@ Ext.define('App.controller.patient.CCDImport', {
 
 	addCdaToPatientDocument: function (pid) {
 		var me = this,
-			documentType = (me.getCcdImportWindow().ccd ? 'C-CDA' : 'CCR'),
-			document = me.getCcdImportWindow().ccd || me.getCcdImportWindow().ccr;
+			win = me.getCcdImportWindow();
 
-		record = Ext.create('App.model.patient.PatientDocuments', {
+		if(win.ccdDataImported) return;
+
+		Ext.Msg.show({
+			title:'Save/Archive',
+			msg: 'Would you like to save/archive this C-CDA?',
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (btn) {
+				if(btn !== 'yes') return;
+				me.addCdaToPatientDocumentHandler(pid);
+			}
+		});
+
+	},
+
+	addCdaToPatientDocumentHandler: function (pid) {
+		var me = this,
+			win = me.getCcdImportWindow();
+
+		if(win.ccdDataImported) return;
+
+		var record = Ext.create('App.model.patient.PatientDocuments', {
 			code: '',
 			pid: pid,
 			eid: 0,
@@ -43473,19 +43498,28 @@ Ext.define('App.controller.patient.CCDImport', {
 			facility_id: app.user.facility,
 			docType: 'C-CDA',
 			docTypeCode: 'CD',
-			date: new Date(),
-			name: documentType == 'CCR' ? 'imported_ccr.xml' : 'imported_ccd.xml',
+			date: app.getDate(),
+			name: 'imported_ccd.xml',
 			note: '',
-			title: documentType + ' Imported',
+			title: 'C-CDA Imported',
 			encrypted: false,
 			error_note: '',
 			site: app.user.site,
-			document: document
+			document: win.ccd
 		});
 
 		record.save({
 			callback: function () {
-				say(_('sweet'), documentType + ' Imported');
+				say(_('sweet'), 'C-CDA Imported');
+				win.ccdDataImported = true;
+
+				AuditLog.addLog({
+					pid: pid,
+					eid: (pid == app.patient.pid ? app.patient.eid : '0'),
+					uid: app.user.id,
+					foreign_table: 'CCDA_ARCHIVED',
+					event: 'Patient C-CDA Archived'
+				});
 			}
 		});
 	},
@@ -43553,6 +43587,16 @@ Ext.define('App.controller.patient.CCDImport', {
 				app.onDocumentView(record.data.id, 'ccd');
 			}
 		});
+	},
+
+	onCcdImportWindowSaveCcdaBtnClick: function(btn){
+
+    	if(!app.patient.pid){
+			app.msg(_('oops'),_('no_patient_selected'), true);
+    		return;
+	    }
+
+		this.addCdaToPatientDocument(app.patient.pid);
 	},
 
 	CcdImportFromXml: function(stringXml, mergePid, validatePossibleDuplicates){
@@ -69866,7 +69910,12 @@ Ext.define('App.view.patient.windows.CCDImport', {
 			items: [
 				{
 					text: _('view_raw_ccd'),
-					itemId: 'CcdImportWindowViewRawCcdBtn'
+					itemId: 'CcdImportWindowViewRawCcdBtn',
+					hide: true
+				},
+				{
+					text: _('save_ccda'),
+					itemId: 'CcdImportWindowSaveCcdaBtn'
 				},
 				'->',
 				{

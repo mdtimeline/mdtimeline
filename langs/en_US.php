@@ -2084,5 +2084,6 @@ $LANG = array(
 	'numerator' => 'Numerator',
 	'percent' => 'Percent',
 	'ccda_available' => 'CCDA Available',
+	'requested' => 'Requested',
 
 );

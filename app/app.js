@@ -16813,6 +16813,10 @@ Ext.define('App.model.patient.Encounter', {
             type: 'bool'
         },
         {
+            name: 'summary_care_requested',
+            type: 'bool'
+        },
+        {
             name: 'provider_title',
             type: 'string',
 	        store: false
@@ -61808,11 +61812,24 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		var container = cmb.up('container');
 
 		container.insert((container.items.indexOf(cmb) + 1), {
-			xtype: 'checkbox',
-			itemId: 'EncounterCcdaAvailableField',
-			fieldLabel: _('ccda_available'),
-			labelWidth: cmb.labelWidth,
-			name: 'summary_care_provided'
+			xtype: 'fieldcontainer',
+			layout: 'hbox',
+			items: [
+				{
+					xtype: 'checkbox',
+					itemId: 'EncounterCcdaAvailableField',
+					fieldLabel: _('ccda_available'),
+					labelWidth: cmb.labelWidth,
+					name: 'summary_care_provided'
+				},
+				{
+					xtype: 'checkbox',
+					fieldLabel: _('requested'),
+					labelWidth: 80,
+					labelAlign: 'right',
+					name: 'summary_care_requested'
+				}
+			]
 		});
 	},
 

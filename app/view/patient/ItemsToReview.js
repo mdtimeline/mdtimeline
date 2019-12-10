@@ -188,41 +188,41 @@ Ext.define('App.view.patient.ItemsToReview', {
 						}
 					]
 				},
-				{
-					xtype: 'fieldset',
-					title: _('patient_education'),
-                    margin: '0 10 0 0',
-					items: [
-						{
-							xtype: 'checkbox',
-							boxLabel: _('education_given'),
-							itemId: 'ItemsToReviewEducationGivenField'
-						}
-					]
-				},
-                {
-                    xtype: 'fieldset',
-                    title: _('medical_reconciliation'),
-                    layout: 'hbox',
-	                margin: '0 10 0 0',
-                    items: [
-                        {
-                            xtype: 'checkboxfield',
-                            checked: false,
-                            itemId: 'EncounterMedicationReconciliations',
-                            name: 'medication_reconciliations',
-	                        margin: '0 5 0 0'
-                        },
-                        {
-                            xtype: 'datefield',
-                            fieldLabel: _('performed_date'),
-                            labelWidth: 100,
-                            width: 210,
-                            itemId: 'EncounterMedicationReconciliationsDateField',
-                            name: 'medication_reconciliations_date'
-                        }
-                    ]
-                },
+				// {
+				// 	xtype: 'fieldset',
+				// 	title: _('patient_education'),
+                //     margin: '0 10 0 0',
+				// 	items: [
+				// 		{
+				// 			xtype: 'checkbox',
+				// 			boxLabel: _('education_given'),
+				// 			itemId: 'ItemsToReviewEducationGivenField'
+				// 		}
+				// 	]
+				// },
+                // {
+                //     xtype: 'fieldset',
+                //     title: _('medical_reconciliation'),
+                //     layout: 'hbox',
+	            //     margin: '0 10 0 0',
+                //     items: [
+                //         {
+                //             xtype: 'checkboxfield',
+                //             checked: false,
+                //             itemId: 'EncounterMedicationReconciliations',
+                //             name: 'medication_reconciliations',
+	            //             margin: '0 5 0 0'
+                //         },
+                //         {
+                //             xtype: 'datefield',
+                //             fieldLabel: _('performed_date'),
+                //             labelWidth: 100,
+                //             width: 210,
+                //             itemId: 'EncounterMedicationReconciliationsDateField',
+                //             name: 'medication_reconciliations_date'
+                //         }
+                //     ]
+                // },
 				{
 					xtype: 'fieldset',
 					title: _('patient_summary'),
@@ -233,7 +233,7 @@ Ext.define('App.view.patient.ItemsToReview', {
 							checked: false,
 							padding: '0 0 5 10',
 							itemId: 'EncounterSummaryCareProvided',
-							boxLabel: _('summary_of_care_provided'),
+							boxLabel: _('ccda_available'),
 							name: 'summary_care_provided'
 						}
 					]

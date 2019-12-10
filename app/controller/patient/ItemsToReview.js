@@ -119,20 +119,20 @@ Ext.define('App.controller.patient.ItemsToReview', {
 
 		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
 
-        me.getEncounterMedicationReconciliations().suspendEvents(false);
-        me.getEncounterMedicationReconciliationsDateField().suspendEvents(false);
+        // me.getEncounterMedicationReconciliations().suspendEvents(false);
+        // me.getEncounterMedicationReconciliationsDateField().suspendEvents(false);
         me.getEncounterSummaryCareProvided().suspendEvents(false);
-        me.getItemsToReviewEducationGivenField().suspendEvents(false);
+        // me.getItemsToReviewEducationGivenField().suspendEvents(false);
 
-        me.getEncounterMedicationReconciliations().setValue(encounter.get('medication_reconciliations'));
-        me.getEncounterMedicationReconciliationsDateField().setValue(encounter.get('medication_reconciliations_date'));
+        // me.getEncounterMedicationReconciliations().setValue(encounter.get('medication_reconciliations'));
+        // me.getEncounterMedicationReconciliationsDateField().setValue(encounter.get('medication_reconciliations_date'));
         me.getEncounterSummaryCareProvided().setValue(encounter.get('summary_care_provided'));
-        me.getItemsToReviewEducationGivenField().setValue(encounter.get('patient_education_given'));
+        // me.getItemsToReviewEducationGivenField().setValue(encounter.get('patient_education_given'));
 
-        me.getEncounterMedicationReconciliations().resumeEvents();
-        me.getEncounterMedicationReconciliationsDateField().resumeEvents();
+        // me.getEncounterMedicationReconciliations().resumeEvents();
+        // me.getEncounterMedicationReconciliationsDateField().resumeEvents();
         me.getEncounterSummaryCareProvided().resumeEvents();
-        me.getItemsToReviewEducationGivenField().resumeEvents();
+        // me.getItemsToReviewEducationGivenField().resumeEvents();
 	},
 
 	onReviewAll: function(){

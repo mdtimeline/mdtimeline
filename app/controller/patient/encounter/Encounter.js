@@ -49,6 +49,9 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			'#EncounterDetailForm combobox[name=visit_category]':{
 				select: me.onEncounterDetailFormVisitCategoryComboSelect
 			},
+			'#EncounterDetailForm combobox[name=referring_physician]':{
+				beforerender: me.onEncounterDetailFormReferringComboSelect
+			},
 			'#EncounterDetailWindow': {
 				show: me.onEncounterDetailWindowShow
 			},
@@ -213,6 +216,19 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			width: cmb.width,
 			name: 'specialty_id',
 			allowBlank: false
+		});
+
+	},
+
+	onEncounterDetailFormReferringComboSelect: function(cmb){
+		var container = cmb.up('container');
+
+		container.insert((container.items.indexOf(cmb) + 1), {
+			xtype: 'checkbox',
+			itemId: 'EncounterCcdaAvailableField',
+			fieldLabel: _('ccda_available'),
+			labelWidth: cmb.labelWidth,
+			name: 'summary_care_provided'
 		});
 	},
 

@@ -24543,41 +24543,41 @@ Ext.define('App.view.patient.ItemsToReview', {
 						}
 					]
 				},
-				{
-					xtype: 'fieldset',
-					title: _('patient_education'),
-                    margin: '0 10 0 0',
-					items: [
-						{
-							xtype: 'checkbox',
-							boxLabel: _('education_given'),
-							itemId: 'ItemsToReviewEducationGivenField'
-						}
-					]
-				},
-                {
-                    xtype: 'fieldset',
-                    title: _('medical_reconciliation'),
-                    layout: 'hbox',
-	                margin: '0 10 0 0',
-                    items: [
-                        {
-                            xtype: 'checkboxfield',
-                            checked: false,
-                            itemId: 'EncounterMedicationReconciliations',
-                            name: 'medication_reconciliations',
-	                        margin: '0 5 0 0'
-                        },
-                        {
-                            xtype: 'datefield',
-                            fieldLabel: _('performed_date'),
-                            labelWidth: 100,
-                            width: 210,
-                            itemId: 'EncounterMedicationReconciliationsDateField',
-                            name: 'medication_reconciliations_date'
-                        }
-                    ]
-                },
+				// {
+				// 	xtype: 'fieldset',
+				// 	title: _('patient_education'),
+                //     margin: '0 10 0 0',
+				// 	items: [
+				// 		{
+				// 			xtype: 'checkbox',
+				// 			boxLabel: _('education_given'),
+				// 			itemId: 'ItemsToReviewEducationGivenField'
+				// 		}
+				// 	]
+				// },
+                // {
+                //     xtype: 'fieldset',
+                //     title: _('medical_reconciliation'),
+                //     layout: 'hbox',
+	            //     margin: '0 10 0 0',
+                //     items: [
+                //         {
+                //             xtype: 'checkboxfield',
+                //             checked: false,
+                //             itemId: 'EncounterMedicationReconciliations',
+                //             name: 'medication_reconciliations',
+	            //             margin: '0 5 0 0'
+                //         },
+                //         {
+                //             xtype: 'datefield',
+                //             fieldLabel: _('performed_date'),
+                //             labelWidth: 100,
+                //             width: 210,
+                //             itemId: 'EncounterMedicationReconciliationsDateField',
+                //             name: 'medication_reconciliations_date'
+                //         }
+                //     ]
+                // },
 				{
 					xtype: 'fieldset',
 					title: _('patient_summary'),
@@ -24588,7 +24588,7 @@ Ext.define('App.view.patient.ItemsToReview', {
 							checked: false,
 							padding: '0 0 5 10',
 							itemId: 'EncounterSummaryCareProvided',
-							boxLabel: _('summary_of_care_provided'),
+							boxLabel: _('ccda_available'),
 							name: 'summary_care_provided'
 						}
 					]
@@ -45605,20 +45605,20 @@ Ext.define('App.controller.patient.ItemsToReview', {
 
 		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
 
-        me.getEncounterMedicationReconciliations().suspendEvents(false);
-        me.getEncounterMedicationReconciliationsDateField().suspendEvents(false);
+        // me.getEncounterMedicationReconciliations().suspendEvents(false);
+        // me.getEncounterMedicationReconciliationsDateField().suspendEvents(false);
         me.getEncounterSummaryCareProvided().suspendEvents(false);
-        me.getItemsToReviewEducationGivenField().suspendEvents(false);
+        // me.getItemsToReviewEducationGivenField().suspendEvents(false);
 
-        me.getEncounterMedicationReconciliations().setValue(encounter.get('medication_reconciliations'));
-        me.getEncounterMedicationReconciliationsDateField().setValue(encounter.get('medication_reconciliations_date'));
+        // me.getEncounterMedicationReconciliations().setValue(encounter.get('medication_reconciliations'));
+        // me.getEncounterMedicationReconciliationsDateField().setValue(encounter.get('medication_reconciliations_date'));
         me.getEncounterSummaryCareProvided().setValue(encounter.get('summary_care_provided'));
-        me.getItemsToReviewEducationGivenField().setValue(encounter.get('patient_education_given'));
+        // me.getItemsToReviewEducationGivenField().setValue(encounter.get('patient_education_given'));
 
-        me.getEncounterMedicationReconciliations().resumeEvents();
-        me.getEncounterMedicationReconciliationsDateField().resumeEvents();
+        // me.getEncounterMedicationReconciliations().resumeEvents();
+        // me.getEncounterMedicationReconciliationsDateField().resumeEvents();
         me.getEncounterSummaryCareProvided().resumeEvents();
-        me.getItemsToReviewEducationGivenField().resumeEvents();
+        // me.getItemsToReviewEducationGivenField().resumeEvents();
 	},
 
 	onReviewAll: function(){
@@ -61633,6 +61633,9 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			'#EncounterDetailForm combobox[name=visit_category]':{
 				select: me.onEncounterDetailFormVisitCategoryComboSelect
 			},
+			'#EncounterDetailForm combobox[name=referring_physician]':{
+				beforerender: me.onEncounterDetailFormReferringComboSelect
+			},
 			'#EncounterDetailWindow': {
 				show: me.onEncounterDetailWindowShow
 			},
@@ -61797,6 +61800,19 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			width: cmb.width,
 			name: 'specialty_id',
 			allowBlank: false
+		});
+
+	},
+
+	onEncounterDetailFormReferringComboSelect: function(cmb){
+		var container = cmb.up('container');
+
+		container.insert((container.items.indexOf(cmb) + 1), {
+			xtype: 'checkbox',
+			itemId: 'EncounterCcdaAvailableField',
+			fieldLabel: _('ccda_available'),
+			labelWidth: cmb.labelWidth,
+			name: 'summary_care_provided'
 		});
 	},
 

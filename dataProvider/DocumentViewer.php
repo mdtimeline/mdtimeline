@@ -319,10 +319,11 @@ HTML;
 
 		    }else{
 			    $isCcr = preg_match('/<ccr:/',$document);
+			    $url = str_replace('index.php','',URL);
 			    if($isCcr){
-				    $href =  URL.'/lib/CCRCDA/schema/ccr.xsl';
+				    $href =  $url.'/lib/CCRCDA/schema/ccr.xsl';
 			    }else{
-				    $href =  URL.'/lib/CCRCDA/schema/cda2.xsl';
+				    $href =  $url.'/lib/CCRCDA/schema/cda2.xsl';
 			    }
 
 			    if(preg_match('/xml-stylesheet/', $document)){

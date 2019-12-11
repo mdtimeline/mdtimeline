@@ -670,7 +670,7 @@ Ext.define('App.controller.patient.CCDImport', {
 			});
 		}
 
-        if(allergies.lengh >= 1){
+        if(allergies.length >= 1){
 		    if(system_reconcile_records !== false){
                 event = 'RECONCILE';
             } else {

@@ -84,7 +84,8 @@ class DocumentHandler {
 		'text/gif' => 'xml',
 		'image/xml' => 'wav',
 		'text/plain' => 'txt',
-		'text/html' => 'html'
+		'text/html' => 'html',
+		'text/xml' => 'xml'
 	];
 
 	function __construct(){
@@ -318,7 +319,7 @@ class DocumentHandler {
 				if(isset($params[$i]->encrypted) && $params[$i]->encrypted){
 					$params[$i]->document = MatchaUtils::encrypt($params[$i]->document);
 				};
-				$binary_file = $this->isBinary($params[$i]->document) ?
+				$binary_file = $this->isBinary($params[$i]->document) || $this->isXml($params[$i]->document) ?
 					$params[$i]->document : base64_decode($params[$i]->document);
 				$params[$i]->hash = hash('sha256', $binary_file);
 			}
@@ -329,7 +330,7 @@ class DocumentHandler {
 			if(isset($params->encrypted) && $params->encrypted){
 				$params->document = MatchaUtils::encrypt($params->document);
 			};
-			$binary_file = $this->isBinary($params->document) ?
+			$binary_file = $this->isBinary($params->document) || $this->isXml($params->document) ?
 				$params->document : base64_decode($params->document);
 
 			$params->hash = hash('sha256', $binary_file);
@@ -914,9 +915,13 @@ class DocumentHandler {
 		return preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0;
 	}
 
+	public function isXml($document){
+		return preg_match('/<\?xml/', $document) > 0;
+	}
+
 	public function base64ToBinary($document, $encrypted = false) {
 		// handle binary documents
-		if($this->isBinary($document)){
+		if($this->isBinary($document) || $this->isXml($document)){
 			return $document;
 		}else{
 			return base64_decode($document);

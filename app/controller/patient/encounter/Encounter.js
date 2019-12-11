@@ -333,7 +333,7 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 
 		CDA_Parser.parseDocument(stringXml, function(ccdData){
 			me.importCtrl.validatePosibleDuplicates = false;
-			me.importCtrl.CcdImport(ccdData, app.patient.pid);
+			me.importCtrl.CcdImport(ccdData, app.patient.pid, stringXml);
 			me.importCtrl.validatePosibleDuplicates = true;
 			me.promptCcdScore(stringXml, ccdData);
 		});

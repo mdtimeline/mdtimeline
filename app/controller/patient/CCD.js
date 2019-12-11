@@ -311,7 +311,7 @@ Ext.define('App.controller.patient.CCD', {
 
 		CDA_Parser.parseDocument(xml, function(ccdData){
 			me.importCtrl.validatePosibleDuplicates = false;
-			me.importCtrl.CcdImport(ccdData, app.patient.pid, xml, 'test');
+			me.importCtrl.CcdImport(ccdData, app.patient.pid, xml);
 			me.importCtrl.validatePosibleDuplicates = true;
 			me.promptCcdScore(xml, ccdData);
 		});

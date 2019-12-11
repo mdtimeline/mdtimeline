@@ -306,14 +306,14 @@ Ext.define('App.controller.patient.CCD', {
 		win.show();
 	},
 
-	getDocumentData: function(stringXml){
+	getDocumentData: function(xml){
 		var me = this;
 
-		CDA_Parser.parseDocument(stringXml, function(ccdData){
-				me.importCtrl.validatePosibleDuplicates = false;
-				me.importCtrl.CcdImport(ccdData, app.patient.pid, stringXml);
-				me.importCtrl.validatePosibleDuplicates = true;
-				me.promptCcdScore(stringXml, ccdData);
+		CDA_Parser.parseDocument(xml, function(ccdData){
+			me.importCtrl.validatePosibleDuplicates = false;
+			me.importCtrl.CcdImport(ccdData, app.patient.pid, xml, 'test');
+			me.importCtrl.validatePosibleDuplicates = true;
+			me.promptCcdScore(xml, ccdData);
 		});
 	},
 

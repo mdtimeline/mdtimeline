@@ -310,11 +310,10 @@ Ext.define('App.controller.patient.CCD', {
 		var me = this;
 
 		CDA_Parser.parseDocument(stringXml, function(ccdData){
-			me.importCtrl.validatePosibleDuplicates = false;
-			me.importCtrl.CcdImport(ccdData, app.patient.pid, stringXml);
-			me.importCtrl.validatePosibleDuplicates = true;
-			me.promptCcdScore(stringXml, ccdData);
-
+				me.importCtrl.validatePosibleDuplicates = false;
+				me.importCtrl.CcdImport(ccdData, app.patient.pid, stringXml);
+				me.importCtrl.validatePosibleDuplicates = true;
+				me.promptCcdScore(stringXml, ccdData);
 		});
 	},
 

@@ -327,7 +327,7 @@ HTML;
 			    }
 
 			    if(preg_match('/xml-stylesheet/', $document)){
-				    $document = preg_replace('/(href=").*\.xsl(")/', "$1{$href}$2" ,$document, 1);
+				    $document = preg_replace('/(href=["\']).*\.xsl(["\'])/', "$1{$href}$2" ,$document, 1);
 			    }else{
 				    $stylesheet = "<?xml-stylesheet type=\"text/xsl\" href=\"{$href}\"?>";
 				    $document = preg_replace('/(<\?xml version.*\?>)/', "$1$stylesheet" ,$document, 1);

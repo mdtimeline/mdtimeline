@@ -43382,6 +43382,7 @@ Ext.define('App.controller.patient.CCDImport', {
             }
             AuditLog.addLog({
                 pid: pid,
+	            eid: (pid == app.patient.pid ? app.patient.eid : '0'),
                 uid: app.user.id,
                 foreign_table: 'patient_allergies',
                 event: event,
@@ -43415,6 +43416,7 @@ Ext.define('App.controller.patient.CCDImport', {
             }
             AuditLog.addLog({
                 pid: pid,
+	            eid: (pid == app.patient.pid ? app.patient.eid : '0'),
                 uid: app.user.id,
                 foreign_table: 'patient_medications',
                 event: event,
@@ -43448,6 +43450,7 @@ Ext.define('App.controller.patient.CCDImport', {
             }
             AuditLog.addLog({
                 pid: pid,
+	            eid: (pid == app.patient.pid ? app.patient.eid : '0'),
                 uid: app.user.id,
                 foreign_table: 'patient_active_problems',
                 event: event,
@@ -43457,6 +43460,7 @@ Ext.define('App.controller.patient.CCDImport', {
 
         AuditLog.addLog({
             pid: pid,
+	        eid: (pid == app.patient.pid ? app.patient.eid : '0'),
             uid: app.user.id,
             foreign_table: 'IMPORT',
             event: 'Patient C-CDA IMPORT'
@@ -43492,7 +43496,7 @@ Ext.define('App.controller.patient.CCDImport', {
 		var record = Ext.create('App.model.patient.PatientDocuments', {
 			code: '',
 			pid: pid,
-			eid: 0,
+			eid: (pid == app.patient.pid ? app.patient.eid : '0'),
 			uid: app.user.id,
 			facility_id: app.user.facility,
 			docType: 'C-CDA',

@@ -305,7 +305,7 @@ HTML;
 
 		print $html;
 	} else {
-    	if($mineType === 'application/xml'){
+    	if($mineType === 'application/xml' || $mineType === 'text/xml'){
 
     		if(isset($_REQUEST['rawXml'])){
 

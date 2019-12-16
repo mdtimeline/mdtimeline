@@ -1435,7 +1435,6 @@ class Patient
 		";
 
 		return $this->p->sql($sql)->all(['pid_1' => $pid, 'pid_2' => $pid, 'pid_3' => $pid]);
-
 	}
 
 	public function hashPid($pid){

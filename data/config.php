@@ -99,6 +99,9 @@ $API = [
     ],
     'Printer' => [
         'methods' => [
+            'getPrinters' => [
+                'len' => 0
+            ],
             'doTempDocumentPrint' => [
                 'len' => 2
             ],

@@ -406,7 +406,7 @@ class Documents {
 	 * @param array $pdf_format
 	 * @return bool
 	 */
-	public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $custom_footer_data = null, $water_mark = '', $key_images = [], $key_images_config = [], $pdf_format = null, $mail_cover_text = 'asdasd') {
+	public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $custom_footer_data = null, $water_mark = '', $key_images = [], $key_images_config = [], $pdf_format = null, $mail_cover_info = []) {
 		$pid = $params->pid;
 		$regex = '(\[\w*?\])';
 
@@ -415,8 +415,8 @@ class Documents {
 		$header_data = [];
 		$footer_data = [];
 
-		if($mail_cover_text !== ''){
-			$pdf->CreateCover($mail_cover_text);
+		if(!empty($mail_cover_info)){
+			$pdf->CreateCover($mail_cover_info);
 		}
 
 		$pdf->water_mark = $water_mark;
@@ -607,7 +607,7 @@ class Documents {
 				if($this->isHtml($page)){
 					$pdf->writeHTML($page);
 				}else{
-					$pdf->writeHTML(nl2br($page));
+                    $pdf->writeHTMLCell(0,0,'','',nl2br($page));
 				}
 			}
 		}

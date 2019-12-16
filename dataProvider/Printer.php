@@ -34,6 +34,11 @@ class Printer {
 
 	}
 
+	public function getPrinters(){
+        $printers = $this->p->load()->all();
+        return $printers;
+    }
+
 	public function doTempDocumentPrint($printer_id, $temp_document_id){
 
 		$DocumentHandler = new DocumentHandler();

@@ -160,19 +160,32 @@ class DocumentFPDI extends FPDI  {
 		parent::__construct($orientation, $unit, $size);
 	}
 
-	/**
-	 * @param $mail_cover_text
-	 */
-	public function CreateCover($mail_cover_text){
-		$mail_cover_xy = Globals::getGlobal('mail_cover_xy_coordinates');
-		if($mail_cover_xy !== false){
-			$mail_cover_xy = explode(',', $mail_cover_xy);
-			$this->has_mail_cover = true;
-			$this->AddPage();
-			$this->writeHTMLCell(250, 250, $mail_cover_xy[0], $mail_cover_xy[1], $mail_cover_text);
-		}else{
-			error_log('Cover letter text set but "mail_cover_xy_coordinates" global not found');
-		}
+    /**
+     * @param array $mail_cover_texts
+     */
+	public function CreateCover(array $mail_cover_texts){
+		$mail_cover_xy_patient_info = Globals::getGlobal('mail_cover_xy_coordinates_patient_info');
+		$mail_cover_xy_facility_info = Globals::getGlobal('mail_cover_xy_coordinates_facility_info');
+
+        $canWritePatientInfo = $mail_cover_xy_patient_info !== false && isset($mail_cover_texts['PATIENT_INFO']) && $mail_cover_texts['PATIENT_INFO'] !== '';
+        $canWriteFacilityInfo = $mail_cover_xy_facility_info !== false && isset($mail_cover_texts['FACILITY_INFO']) && $mail_cover_texts['FACILITY_INFO'] !== '';
+
+        if($canWritePatientInfo || $canWriteFacilityInfo){
+            $this->has_mail_cover = true;
+
+            $this->AddPage('','A4',true);
+
+            if($canWritePatientInfo){
+                $mail_cover_xy_patient_info = explode(',', $mail_cover_xy_patient_info);
+                $this->writeHTMLCell(0, 0, (int)$mail_cover_xy_patient_info[0], (int)$mail_cover_xy_patient_info[1], $mail_cover_texts['PATIENT_INFO']);
+            }
+            if($canWriteFacilityInfo){
+                $mail_cover_xy_facility_info = explode(',', $mail_cover_xy_facility_info);
+                $this->writeHTMLCell(0, 0, (int)$mail_cover_xy_facility_info[0], (int)$mail_cover_xy_facility_info[1], $mail_cover_texts['FACILITY_INFO']);
+            }
+        }else{
+            error_log('Cover letter text set but "mail_cover_xy_coordinates_patient_info" global not found');
+        }
 	}
 
 	//Page header

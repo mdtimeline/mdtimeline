@@ -395,17 +395,18 @@ class Documents {
 		return $allNeededInfo;
 	}
 
-	/**
-	 * @param $params
-	 * @param string $path
-	 * @param null|array $custom_header_data
-	 * @param null|array $custom_footer_data
-	 * @param string $water_mark
-	 * @param array $key_images
-	 * @param array $key_images_config
-	 * @param array $pdf_format
-	 * @return bool
-	 */
+    /**
+     * @param $params
+     * @param string $path
+     * @param null $custom_header_data
+     * @param null $custom_footer_data
+     * @param string $water_mark
+     * @param array $key_images
+     * @param array $key_images_config
+     * @param null $pdf_format
+     * @param array $mail_cover_info
+     * @return bool|string
+     */
 	public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $custom_footer_data = null, $water_mark = '', $key_images = [], $key_images_config = [], $pdf_format = null, $mail_cover_info = []) {
 		$pid = $params->pid;
 		$regex = '(\[\w*?\])';
@@ -607,6 +608,7 @@ class Documents {
 				if($this->isHtml($page)){
 					$pdf->writeHTML($page);
 				}else{
+//					$pdf->writeHTML(nl2br($page));
                     $pdf->writeHTMLCell(0,0,'','',nl2br($page));
 				}
 			}

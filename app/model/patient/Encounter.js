@@ -192,6 +192,10 @@ Ext.define('App.model.patient.Encounter', {
             type: 'bool'
         },
         {
+            name: 'summary_care_requested',
+            type: 'bool'
+        },
+        {
             name: 'provider_title',
             type: 'string',
 	        store: false

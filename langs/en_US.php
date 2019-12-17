@@ -2083,5 +2083,8 @@ $LANG = array(
 	'denominator' => 'Denominator',
 	'numerator' => 'Numerator',
 	'percent' => 'Percent',
+	'ccda_available' => 'C-CDA Available',
+	'requested' => 'Requested',
+	'save_ccda' => 'Save C-CDA',
 
 );

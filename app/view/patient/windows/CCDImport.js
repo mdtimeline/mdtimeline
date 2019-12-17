@@ -494,7 +494,12 @@ Ext.define('App.view.patient.windows.CCDImport', {
 			items: [
 				{
 					text: _('view_raw_ccd'),
-					itemId: 'CcdImportWindowViewRawCcdBtn'
+					itemId: 'CcdImportWindowViewRawCcdBtn',
+					hide: true
+				},
+				{
+					text: _('save_ccda'),
+					itemId: 'CcdImportWindowSaveCcdaBtn'
 				},
 				'->',
 				{

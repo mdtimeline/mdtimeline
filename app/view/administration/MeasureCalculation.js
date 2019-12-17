@@ -33,6 +33,7 @@ Ext.define('App.view.administration.MeasureCalculation', {
 				store: Ext.create('Ext.data.ArrayStore',{
 					fields: [
 						{name: 'group', type: 'string'},
+						{name: 'provider', type: 'string'},
 						{name: 'title', type: 'string'},
 						{name: 'denominator', type: 'int'},
 						{name: 'numerator', type: 'int'},
@@ -41,7 +42,8 @@ Ext.define('App.view.administration.MeasureCalculation', {
 						{name: 'description_denominator', type: 'string'},
 						{name: 'description_numerator', type: 'string'},
 						{name: 'denominator_pids'},
-						{name: 'numerator_pids',},
+						{name: 'numerator_pids'},
+						{name: 'numerator_types'},
 					],
 					groupers: [
 						{
@@ -113,6 +115,11 @@ Ext.define('App.view.administration.MeasureCalculation', {
 					{
 						text: _('title'),
 						dataIndex: 'title',
+						flex: 1
+					},
+					{
+						text: _('provider'),
+						dataIndex: 'provider',
 						flex: 1
 					},
 					{

@@ -16813,6 +16813,10 @@ Ext.define('App.model.patient.Encounter', {
             type: 'bool'
         },
         {
+            name: 'summary_care_requested',
+            type: 'bool'
+        },
+        {
             name: 'provider_title',
             type: 'string',
 	        store: false
@@ -24543,41 +24547,41 @@ Ext.define('App.view.patient.ItemsToReview', {
 						}
 					]
 				},
-				{
-					xtype: 'fieldset',
-					title: _('patient_education'),
-                    margin: '0 10 0 0',
-					items: [
-						{
-							xtype: 'checkbox',
-							boxLabel: _('education_given'),
-							itemId: 'ItemsToReviewEducationGivenField'
-						}
-					]
-				},
-                {
-                    xtype: 'fieldset',
-                    title: _('medical_reconciliation'),
-                    layout: 'hbox',
-	                margin: '0 10 0 0',
-                    items: [
-                        {
-                            xtype: 'checkboxfield',
-                            checked: false,
-                            itemId: 'EncounterMedicationReconciliations',
-                            name: 'medication_reconciliations',
-	                        margin: '0 5 0 0'
-                        },
-                        {
-                            xtype: 'datefield',
-                            fieldLabel: _('performed_date'),
-                            labelWidth: 100,
-                            width: 210,
-                            itemId: 'EncounterMedicationReconciliationsDateField',
-                            name: 'medication_reconciliations_date'
-                        }
-                    ]
-                },
+				// {
+				// 	xtype: 'fieldset',
+				// 	title: _('patient_education'),
+                //     margin: '0 10 0 0',
+				// 	items: [
+				// 		{
+				// 			xtype: 'checkbox',
+				// 			boxLabel: _('education_given'),
+				// 			itemId: 'ItemsToReviewEducationGivenField'
+				// 		}
+				// 	]
+				// },
+                // {
+                //     xtype: 'fieldset',
+                //     title: _('medical_reconciliation'),
+                //     layout: 'hbox',
+	            //     margin: '0 10 0 0',
+                //     items: [
+                //         {
+                //             xtype: 'checkboxfield',
+                //             checked: false,
+                //             itemId: 'EncounterMedicationReconciliations',
+                //             name: 'medication_reconciliations',
+	            //             margin: '0 5 0 0'
+                //         },
+                //         {
+                //             xtype: 'datefield',
+                //             fieldLabel: _('performed_date'),
+                //             labelWidth: 100,
+                //             width: 210,
+                //             itemId: 'EncounterMedicationReconciliationsDateField',
+                //             name: 'medication_reconciliations_date'
+                //         }
+                //     ]
+                // },
 				{
 					xtype: 'fieldset',
 					title: _('patient_summary'),
@@ -24588,7 +24592,7 @@ Ext.define('App.view.patient.ItemsToReview', {
 							checked: false,
 							padding: '0 0 5 10',
 							itemId: 'EncounterSummaryCareProvided',
-							boxLabel: _('summary_of_care_provided'),
+							boxLabel: _('ccda_available'),
 							name: 'summary_care_provided'
 						}
 					]
@@ -42678,15 +42682,14 @@ Ext.define('App.controller.patient.CCD', {
 		win.show();
 	},
 
-	getDocumentData: function(stringXml){
+	getDocumentData: function(xml){
 		var me = this;
 
-		CDA_Parser.parseDocument(stringXml, function(ccdData){
+		CDA_Parser.parseDocument(xml, function(ccdData){
 			me.importCtrl.validatePosibleDuplicates = false;
-			me.importCtrl.CcdImport(ccdData, app.patient.pid, stringXml);
+			me.importCtrl.CcdImport(ccdData, app.patient.pid, xml);
 			me.importCtrl.validatePosibleDuplicates = true;
-			me.promptCcdScore(stringXml, ccdData);
-
+			me.promptCcdScore(xml, ccdData);
 		});
 	},
 
@@ -42846,6 +42849,9 @@ Ext.define('App.controller.patient.CCDImport', {
 			'#CcdImportWindowViewRawCcdBtn': {
 				click: me.onCcdImportWindowViewRawCcdBtnClick
 			},
+			'#CcdImportWindowSaveCcdaBtn': {
+				click: me.onCcdImportWindowSaveCcdaBtnClick
+			},
 			'#PossiblePatientDuplicatesWindow > grid': {
 				itemdblclick: me.onPossiblePatientDuplicatesGridItemDblClick
 			},
@@ -42870,11 +42876,13 @@ Ext.define('App.controller.patient.CCDImport', {
 		return this.getCcdImportWindow().enableSystemReconciliation;
 	},
 
-	CcdImport: function(ccdData, mergePid){
+	CcdImport: function(ccdData, mergePid, stringXml){
 		if(!this.getCcdImportWindow()){
 			Ext.create('App.view.patient.windows.CCDImport');
 		}
+		this.getCcdImportWindow().ccd = stringXml;
 		this.getCcdImportWindow().ccdData = ccdData;
+		this.getCcdImportWindow().ccdDataImported = false;
 		this.getCcdImportWindow().show();
 
 		if(mergePid){
@@ -43366,7 +43374,7 @@ Ext.define('App.controller.patient.CCDImport', {
 			});
 		}
 
-        if(allergies.lengh >= 1){
+        if(allergies.length >= 1){
 		    if(system_reconcile_records !== false){
                 event = 'RECONCILE';
             } else {
@@ -43374,6 +43382,7 @@ Ext.define('App.controller.patient.CCDImport', {
             }
             AuditLog.addLog({
                 pid: pid,
+	            eid: (pid == app.patient.pid ? app.patient.eid : '0'),
                 uid: app.user.id,
                 foreign_table: 'patient_allergies',
                 event: event,
@@ -43407,6 +43416,7 @@ Ext.define('App.controller.patient.CCDImport', {
             }
             AuditLog.addLog({
                 pid: pid,
+	            eid: (pid == app.patient.pid ? app.patient.eid : '0'),
                 uid: app.user.id,
                 foreign_table: 'patient_medications',
                 event: event,
@@ -43440,6 +43450,7 @@ Ext.define('App.controller.patient.CCDImport', {
             }
             AuditLog.addLog({
                 pid: pid,
+	            eid: (pid == app.patient.pid ? app.patient.eid : '0'),
                 uid: app.user.id,
                 foreign_table: 'patient_active_problems',
                 event: event,
@@ -43449,39 +43460,71 @@ Ext.define('App.controller.patient.CCDImport', {
 
         AuditLog.addLog({
             pid: pid,
+	        eid: (pid == app.patient.pid ? app.patient.eid : '0'),
             uid: app.user.id,
-            foreign_table: 'IMPORT',
-            event: 'Patient C-CDA IMPORT'
+            foreign_table: 'patient',
+            event: 'CCDA_IMPORT',
+	        event_description: 'Patient C-CDA IMPORT'
         });
 
 	},
 
 	addCdaToPatientDocument: function (pid) {
 		var me = this,
-			documentType = (me.getCcdImportWindow().ccd ? 'C-CDA' : 'CCR'),
-			document = me.getCcdImportWindow().ccd || me.getCcdImportWindow().ccr;
+			win = me.getCcdImportWindow();
 
-		record = Ext.create('App.model.patient.PatientDocuments', {
+		if(win.ccdDataImported) return;
+
+		Ext.Msg.show({
+			title:'Save/Archive',
+			msg: 'Would you like to save/archive this C-CDA?',
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (btn) {
+				if(btn !== 'yes') return;
+				me.addCdaToPatientDocumentHandler(pid);
+			}
+		});
+
+	},
+
+	addCdaToPatientDocumentHandler: function (pid) {
+		var me = this,
+			win = me.getCcdImportWindow();
+
+		if(win.ccdDataImported) return;
+
+		var record = Ext.create('App.model.patient.PatientDocuments', {
 			code: '',
 			pid: pid,
-			eid: 0,
+			eid: (pid == app.patient.pid ? app.patient.eid : '0'),
 			uid: app.user.id,
 			facility_id: app.user.facility,
 			docType: 'C-CDA',
 			docTypeCode: 'CD',
-			date: new Date(),
-			name: documentType == 'CCR' ? 'imported_ccr.xml' : 'imported_ccd.xml',
+			date: app.getDate(),
+			name: 'imported_ccd.xml',
 			note: '',
-			title: documentType + ' Imported',
+			title: 'C-CDA Imported',
 			encrypted: false,
 			error_note: '',
 			site: app.user.site,
-			document: document
+			document: win.ccd
 		});
 
 		record.save({
 			callback: function () {
-				say(_('sweet'), documentType + ' Imported');
+				say(_('sweet'), 'C-CDA Imported');
+				win.ccdDataImported = true;
+
+				AuditLog.addLog({
+					pid: pid,
+					eid: (pid == app.patient.pid ? app.patient.eid : '0'),
+					uid: app.user.id,
+					foreign_table: 'patient',
+					event: 'CCDA_ARCHIVED',
+					event_description: 'Patient C-CDA Archived'
+				});
 			}
 		});
 	},
@@ -43549,6 +43592,16 @@ Ext.define('App.controller.patient.CCDImport', {
 				app.onDocumentView(record.data.id, 'ccd');
 			}
 		});
+	},
+
+	onCcdImportWindowSaveCcdaBtnClick: function(btn){
+
+    	if(!app.patient.pid){
+			app.msg(_('oops'),_('no_patient_selected'), true);
+    		return;
+	    }
+
+		this.addCdaToPatientDocument(app.patient.pid);
 	},
 
 	CcdImportFromXml: function(stringXml, mergePid, validatePossibleDuplicates){
@@ -45605,20 +45658,20 @@ Ext.define('App.controller.patient.ItemsToReview', {
 
 		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
 
-        me.getEncounterMedicationReconciliations().suspendEvents(false);
-        me.getEncounterMedicationReconciliationsDateField().suspendEvents(false);
+        // me.getEncounterMedicationReconciliations().suspendEvents(false);
+        // me.getEncounterMedicationReconciliationsDateField().suspendEvents(false);
         me.getEncounterSummaryCareProvided().suspendEvents(false);
-        me.getItemsToReviewEducationGivenField().suspendEvents(false);
+        // me.getItemsToReviewEducationGivenField().suspendEvents(false);
 
-        me.getEncounterMedicationReconciliations().setValue(encounter.get('medication_reconciliations'));
-        me.getEncounterMedicationReconciliationsDateField().setValue(encounter.get('medication_reconciliations_date'));
+        // me.getEncounterMedicationReconciliations().setValue(encounter.get('medication_reconciliations'));
+        // me.getEncounterMedicationReconciliationsDateField().setValue(encounter.get('medication_reconciliations_date'));
         me.getEncounterSummaryCareProvided().setValue(encounter.get('summary_care_provided'));
-        me.getItemsToReviewEducationGivenField().setValue(encounter.get('patient_education_given'));
+        // me.getItemsToReviewEducationGivenField().setValue(encounter.get('patient_education_given'));
 
-        me.getEncounterMedicationReconciliations().resumeEvents();
-        me.getEncounterMedicationReconciliationsDateField().resumeEvents();
+        // me.getEncounterMedicationReconciliations().resumeEvents();
+        // me.getEncounterMedicationReconciliationsDateField().resumeEvents();
         me.getEncounterSummaryCareProvided().resumeEvents();
-        me.getItemsToReviewEducationGivenField().resumeEvents();
+        // me.getItemsToReviewEducationGivenField().resumeEvents();
 	},
 
 	onReviewAll: function(){
@@ -58811,6 +58864,7 @@ Ext.define('App.view.patient.Summary', {
 			me.stores.push(me.patientEncountersStore = Ext.create('App.store.patient.Encounters', {
 				autoLoad: false,
                 remoteSort: true,
+				pageSize: 999,
                 sorters: [{
                     property: 'service_date',
                     direction: 'DESC'
@@ -58823,6 +58877,7 @@ Ext.define('App.view.patient.Summary', {
 				itemId: 'PatientSummaryEncountersPanel',
 				hideHeaders: true,
 				scrollable: true,
+				maxHeight: 200,
 				store: me.patientEncountersStore,
 				columns: [
 					{
@@ -58871,6 +58926,8 @@ Ext.define('App.view.patient.Summary', {
 				title: _('active_medications'),
 				itemId: 'PatientSummaryMedicationsPanel',
 				hideHeaders: true,
+				scrollable: true,
+				maxHeight: 200,
 				store: me.patientMedicationsStore,
 				tools: [
 					{
@@ -58908,6 +58965,8 @@ Ext.define('App.view.patient.Summary', {
 				title: _('immunizations'),
 				itemId: 'PatientSummaryImmunizationPanel',
 				hideHeaders: true,
+				scrollable: true,
+				maxHeight: 200,
 				store: me.immuCheckListStore,
 				region: 'center',
 				tools: [
@@ -58946,6 +59005,8 @@ Ext.define('App.view.patient.Summary', {
 				title: _('allergies'),
 				itemId: 'PatientSummaryAllergiesPanel',
 				hideHeaders: true,
+				scrollable: true,
+				maxHeight: 200,
 				store: me.patientAllergiesListStore,
 				region: 'center',
 				tools: [
@@ -58984,6 +59045,8 @@ Ext.define('App.view.patient.Summary', {
 				title: _('active_problems'),
 				itemId: 'PatientSummaryActiveProblemsPanel',
 				hideHeaders: true,
+				scrollable: true,
+				maxHeight: 200,
 				store: me.patientActiveProblemsStore,
 				tools: [
 					{
@@ -61623,6 +61686,9 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			'#EncounterDetailForm combobox[name=visit_category]':{
 				select: me.onEncounterDetailFormVisitCategoryComboSelect
 			},
+			'#EncounterDetailForm combobox[name=referring_physician]':{
+				beforerender: me.onEncounterDetailFormReferringComboSelect
+			},
 			'#EncounterDetailWindow': {
 				show: me.onEncounterDetailWindowShow
 			},
@@ -61788,6 +61854,32 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			name: 'specialty_id',
 			allowBlank: false
 		});
+
+	},
+
+	onEncounterDetailFormReferringComboSelect: function(cmb){
+		var container = cmb.up('container');
+
+		container.insert((container.items.indexOf(cmb) + 1), {
+			xtype: 'fieldcontainer',
+			layout: 'hbox',
+			items: [
+				{
+					xtype: 'checkbox',
+					itemId: 'EncounterCcdaAvailableField',
+					fieldLabel: _('ccda_available'),
+					labelWidth: cmb.labelWidth,
+					name: 'summary_care_provided'
+				},
+				{
+					xtype: 'checkbox',
+					fieldLabel: _('requested'),
+					labelWidth: 80,
+					labelAlign: 'right',
+					name: 'summary_care_requested'
+				}
+			]
+		});
 	},
 
 	onEncounterProviderCmbSelect: function(cmb, slected){
@@ -61878,7 +61970,7 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 
 		CDA_Parser.parseDocument(stringXml, function(ccdData){
 			me.importCtrl.validatePosibleDuplicates = false;
-			me.importCtrl.CcdImport(ccdData, app.patient.pid);
+			me.importCtrl.CcdImport(ccdData, app.patient.pid, stringXml);
 			me.importCtrl.validatePosibleDuplicates = true;
 			me.promptCcdScore(stringXml, ccdData);
 		});
@@ -69823,7 +69915,12 @@ Ext.define('App.view.patient.windows.CCDImport', {
 			items: [
 				{
 					text: _('view_raw_ccd'),
-					itemId: 'CcdImportWindowViewRawCcdBtn'
+					itemId: 'CcdImportWindowViewRawCcdBtn',
+					hide: true
+				},
+				{
+					text: _('save_ccda'),
+					itemId: 'CcdImportWindowSaveCcdaBtn'
 				},
 				'->',
 				{

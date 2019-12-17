@@ -49,6 +49,9 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			'#EncounterDetailForm combobox[name=visit_category]':{
 				select: me.onEncounterDetailFormVisitCategoryComboSelect
 			},
+			'#EncounterDetailForm combobox[name=referring_physician]':{
+				beforerender: me.onEncounterDetailFormReferringComboSelect
+			},
 			'#EncounterDetailWindow': {
 				show: me.onEncounterDetailWindowShow
 			},
@@ -214,6 +217,32 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			name: 'specialty_id',
 			allowBlank: false
 		});
+
+	},
+
+	onEncounterDetailFormReferringComboSelect: function(cmb){
+		var container = cmb.up('container');
+
+		container.insert((container.items.indexOf(cmb) + 1), {
+			xtype: 'fieldcontainer',
+			layout: 'hbox',
+			items: [
+				{
+					xtype: 'checkbox',
+					itemId: 'EncounterCcdaAvailableField',
+					fieldLabel: _('ccda_available'),
+					labelWidth: cmb.labelWidth,
+					name: 'summary_care_provided'
+				},
+				{
+					xtype: 'checkbox',
+					fieldLabel: _('requested'),
+					labelWidth: 80,
+					labelAlign: 'right',
+					name: 'summary_care_requested'
+				}
+			]
+		});
 	},
 
 	onEncounterProviderCmbSelect: function(cmb, slected){
@@ -304,7 +333,7 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 
 		CDA_Parser.parseDocument(stringXml, function(ccdData){
 			me.importCtrl.validatePosibleDuplicates = false;
-			me.importCtrl.CcdImport(ccdData, app.patient.pid);
+			me.importCtrl.CcdImport(ccdData, app.patient.pid, stringXml);
 			me.importCtrl.validatePosibleDuplicates = true;
 			me.promptCcdScore(stringXml, ccdData);
 		});

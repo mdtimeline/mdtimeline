@@ -85,19 +85,33 @@ Ext.define('App.controller.administration.MeasureCalculation', {
         App.ux.grid.Printer.print(grid);
     },
 
-    onMeasureCalculationGridCellDblClick: function(view, td, cellIndex, record){
+    onMeasureCalculationGridCellDblClick: function(view, td, cellIndex, report_record){
         var me = this,
             column = view.panel.columnManager.getHeaderAtIndex(cellIndex),
             pids;
 
         if(column.dataIndex !== 'denominator' && column.dataIndex !== 'numerator') return;
 
-        pids = record.get(column.dataIndex + '_pids');
+        pids = report_record.get(column.dataIndex + '_pids');
 
         if(pids == '') return;
 
+        var numerator_types = report_record.get('numerator_types'), i, len,
+            numerator_types_obj = {}, v;
+
+        if(numerator_types){
+
+            numerator_types = numerator_types.split(',');
+
+            len = numerator_types.length;
+            for (i = 0; i < len; i++) {
+                v = numerator_types[i].split('~');
+                numerator_types_obj[v[0]] = v[1]
+            }
+        }
+
         MeasureCalculation.getPatientList(pids, function (response) {
-            me.showMeasureCalculationPatientListWindow(Ext.String.capitalize(column.dataIndex) + ' Patient List', response);
+            me.showMeasureCalculationPatientListWindow(Ext.String.capitalize(column.dataIndex) + ' Patient List', response, numerator_types_obj);
         });
 
     },
@@ -149,10 +163,8 @@ Ext.define('App.controller.administration.MeasureCalculation', {
         store.sort();
     },
 
-    showMeasureCalculationPatientListWindow: function (title, data) {
+    showMeasureCalculationPatientListWindow: function (title, data, numerator_types_obj) {
 
-        say(title);
-        say(data);
 
         var store = Ext.create('Ext.data.ArrayStore', {
             fields: [
@@ -203,6 +215,20 @@ Ext.define('App.controller.administration.MeasureCalculation', {
                         text: 'DOB',
                         format:'Y-m-d',
                         dataIndex: 'DOB'
+                    },
+                    {
+                        text: 'Action',
+                        dataIndex: 'pid',
+                        renderer: function (v) {
+                            switch (numerator_types_obj[v]) {
+                                case 'CCDA_VDT':
+                                    return 'VDT';
+                                case 'CCDA_VDT_API':
+                                    return 'API';
+                                default:
+                                    return 'N/A';
+                            }
+                        }
                     }
                 ]
             }

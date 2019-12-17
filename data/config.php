@@ -2573,6 +2573,9 @@ $API = [
             ],
 			'documentSyncer' => [
 				'len' => 0
+            ],
+			'addCcdaDocument' => [
+				'len' => 1
             ]
         ]
     ],

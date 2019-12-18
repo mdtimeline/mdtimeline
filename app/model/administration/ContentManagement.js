@@ -5,7 +5,7 @@
  * Time: 6:28 PM
  * To change this template use File | Settings | File Templates.
  */
-Ext.define('App.model.administration.TextTemplate', {
+Ext.define('App.model.administration.ContentManagement', {
     extend: 'Ext.data.Model',
     table: {
         name: 'content_management'

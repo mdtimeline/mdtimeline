@@ -18,33 +18,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class TextTemplates {
+class ContentManagement {
 
     private $t;
 
     function __construct() {
-        $this->t = MatchaModel::setSenchaModel('App.model.administration.TextTemplate');
+        $this->t = MatchaModel::setSenchaModel('App.model.administration.ContentManagement');
     }
 
-    public function getTextTemplates($params){
+    public function getContentManagements($params){
         return $this->t->load($params)->all();
     }
-    public function getTextTemplate($params){
+    public function getContentManagement($params){
         return $this->t->load($params)->one();
     }
-    public function addTextTemplate($params){
+    public function addContentManagement($params){
         return $this->t->save($params);
     }
-    public function updateTextTemplate($params){
+    public function updateContentManagement($params){
         return $this->t->save($params);
     }
-    public function destroyTextTemplate($params){
+    public function destroyContentManagement($params){
         return $this->t->save($params);
     }
 
-    public function generateTextTemplate($template_type,$language, $placeholders, $values){
+    public function generateContentManagement($template_type, $language, $placeholders, $values){
 
-        $template = $this->getTextTemplate(['content_type' => $template_type,'content_lang' => $language]);
+        $template = $this->getContentManagement(['content_type' => $template_type,'content_lang' => $language]);
 
         if($template !== false){
             $text_template = str_replace($placeholders, $values, $template['content_body']);

@@ -416,6 +416,7 @@ class Documents {
 		$header_data = [];
 		$footer_data = [];
 
+
 		if(!empty($mail_cover_info)){
 			$pdf->CreateCover($mail_cover_info);
 		}

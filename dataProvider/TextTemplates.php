@@ -42,9 +42,9 @@ class TextTemplates {
         return $this->t->save($params);
     }
 
-    public function generateTextTemplate($template_type, $placeholders, $values){
+    public function generateTextTemplate($template_type,$language, $placeholders, $values){
 
-        $template = $this->getTextTemplate(['content_type' => $template_type]);
+        $template = $this->getTextTemplate(['content_type' => $template_type,'content_lang' => $language]);
 
         if($template !== false){
             $text_template = str_replace($placeholders, $values, $template['content_body']);

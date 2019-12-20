@@ -1,7 +1,7 @@
-DROP PROCEDURE IF EXISTS `getProvidePatientsElectronicAccessReportByDates`;
+DROP PROCEDURE IF EXISTS `getPatientGeneratedHealthDataReportByDates`;
 
 DELIMITER $$
-CREATE PROCEDURE `getProvidePatientsElectronicAccessReportByDates` (IN provider_id INT, IN start_date DATE, IN end_date DATE, IN stages VARCHAR(40))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getPatientGeneratedHealthDataReportByDates`(IN provider_id INT, IN start_date DATE, IN end_date DATE, IN stages VARCHAR(40))
 BEGIN
     DROP TABLE IF EXISTS g2_report_ds;
     DROP TABLE IF EXISTS g2_report_ds_first_encounters;
@@ -16,9 +16,10 @@ BEGIN
         r.pid,
         r.provider,
         r.facility,
-        r.in_time,
+        r.data_generated,
         r.service_date,
         r.event_id,
+        r.event,
         r.event_date
     FROM
         (SELECT
@@ -28,21 +29,20 @@ BEGIN
              e.pid,
              e.service_date,
              a.id AS event_id,
+             a.event,
              a.event_date,
-             IF(e.service_date IS NOT NULL
-                    AND CAST(CONCAT(DATE(a.event_date), ' 23:59:59') AS DATETIME) < DATE_ADD(e.service_date, INTERVAL 48 HOUR), 1, 0) AS in_time
+             IF(a.id IS NOT NULL, 1, 0) AS data_generated
          FROM
              encounters AS e
-                 LEFT JOIN audit_log AS a ON  e.eid = a.eid AND a.event IN ('CCDA_RECEIVED')
+                 LEFT JOIN audit_log AS a ON a.pid = e.pid
+                     AND a.event IN ('GENERATED_HEALTH_DATA')
+                     AND a.event_date BETWEEN start_date AND end_date
          WHERE
                  e.provider_uid = provider_id
            AND e.service_date IS NOT NULL
            AND e.service_date BETWEEN start_date AND end_date
 
-        ) r ORDER BY r.service_date;
-
-
-    CREATE TEMPORARY TABLE g2_report_ds_first_encounters SELECT eid, pid,provider,facility FROM g2_report_ds GROUP BY pid, provider;
+         ) r ORDER BY r.service_date;
 
     SET @stage3 = (SELECT FIND_IN_SET('3',stages));
 
@@ -52,11 +52,7 @@ BEGIN
         SELECT 1 as `value`, pid FROM g2_report_ds GROUP BY pid;
 
         CREATE TEMPORARY TABLE g2_report_numerator_ds
-        SELECT 1 as `value`, pid FROM g2_report_ds WHERE in_time = '1' AND eid IN (SELECT eid FROM g2_report_ds_first_encounters) group by pid;
-
-        DELETE FROM  g2_report_numerator_ds WHERE pid IN (
-            SELECT pid FROM g2_report_ds WHERE in_time = '0' AND eid NOT IN (SELECT eid FROM g2_report_ds_first_encounters) group by pid
-        );
+        SELECT 1 as `value`, pid FROM g2_report_ds WHERE data_generated = '1' group by pid;
 
         SET @denominator = (SELECT sum(`value`) FROM g2_report_denominator_ds);
         SET @numerator = (SELECT sum(`value`) FROM g2_report_numerator_ds);
@@ -71,10 +67,5 @@ BEGIN
 
     END IF ;
 
-
-
-
 END$$
-
 DELIMITER ;
-

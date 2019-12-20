@@ -1,7 +1,7 @@
-DROP PROCEDURE IF EXISTS `getProvidePatientsElectronicAccessReportByDates`;
+DROP PROCEDURE IF EXISTS `getSupportElectronicReferralLoopsSendingReportByDates`;
 
 DELIMITER $$
-CREATE PROCEDURE `getProvidePatientsElectronicAccessReportByDates` (IN provider_id INT, IN start_date DATE, IN end_date DATE, IN stages VARCHAR(40))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getSupportElectronicReferralLoopsSendingReportByDates`(IN provider_id INT, IN start_date DATE, IN end_date DATE, IN stages VARCHAR(40))
 BEGIN
     DROP TABLE IF EXISTS g2_report_ds;
     DROP TABLE IF EXISTS g2_report_ds_first_encounters;
@@ -16,9 +16,14 @@ BEGIN
         r.pid,
         r.provider,
         r.facility,
-        r.in_time,
+        r.inboud_toc,
+        r.outboud_toc,
+        r.inbound_referral,
+        r.outbound_referral,
+        r.number_of_previous_encounters,
         r.service_date,
         r.event_id,
+        r.event,
         r.event_date
     FROM
         (SELECT
@@ -28,35 +33,35 @@ BEGIN
              e.pid,
              e.service_date,
              a.id AS event_id,
+             a.event,
              a.event_date,
-             IF(e.service_date IS NOT NULL
-                    AND CAST(CONCAT(DATE(a.event_date), ' 23:59:59') AS DATETIME) < DATE_ADD(e.service_date, INTERVAL 48 HOUR), 1, 0) AS in_time
+             IF(a.id IS NOT NULL AND a.event = 'INBOUND_TOC', '1', '0') AS inboud_toc,
+             IF(a.id IS NOT NULL AND a.event = 'OUTBOUND_TOC', '1', '0') AS outboud_toc,
+             IF(e.referring_physician IS NOT NULL, 1, 0) AS inbound_referral,
+             IF(pr.id IS NOT NULL, 1, 0) AS outbound_referral,
+             (SELECT count(prev_e.eid) FROM encounters as prev_e WHERE prev_e.pid = e.pid AND prev_e.service_date < e.service_date) AS number_of_previous_encounters
          FROM
              encounters AS e
-                 LEFT JOIN audit_log AS a ON  e.eid = a.eid AND a.event IN ('CCDA_RECEIVED')
+                 INNER JOIN patient_referrals AS pr on e.eid = pr.eid
+                 LEFT JOIN audit_log AS a ON a.pid = e.pid
+                     AND a.eid = e.eid
+                     AND a.event IN ('INBOUND_TOC' OR 'OUTBOUND_TOC')
          WHERE
                  e.provider_uid = provider_id
            AND e.service_date IS NOT NULL
            AND e.service_date BETWEEN start_date AND end_date
 
-        ) r ORDER BY r.service_date;
-
-
-    CREATE TEMPORARY TABLE g2_report_ds_first_encounters SELECT eid, pid,provider,facility FROM g2_report_ds GROUP BY pid, provider;
+         ) r ORDER BY r.service_date;
 
     SET @stage3 = (SELECT FIND_IN_SET('3',stages));
 
     IF @stage3 > 0 THEN
 
         CREATE TEMPORARY TABLE g2_report_denominator_ds
-        SELECT 1 as `value`, pid FROM g2_report_ds GROUP BY pid;
+        SELECT 1 as `value`, pid, outboud_toc, eid FROM g2_report_ds WHERE outbound_referral = '1' GROUP BY eid;
 
         CREATE TEMPORARY TABLE g2_report_numerator_ds
-        SELECT 1 as `value`, pid FROM g2_report_ds WHERE in_time = '1' AND eid IN (SELECT eid FROM g2_report_ds_first_encounters) group by pid;
-
-        DELETE FROM  g2_report_numerator_ds WHERE pid IN (
-            SELECT pid FROM g2_report_ds WHERE in_time = '0' AND eid NOT IN (SELECT eid FROM g2_report_ds_first_encounters) group by pid
-        );
+        SELECT 1 as `value`, pid, eid FROM g2_report_ds WHERE outbound_referral = '1' AND outboud_toc = '1' group by eid;
 
         SET @denominator = (SELECT sum(`value`) FROM g2_report_denominator_ds);
         SET @numerator = (SELECT sum(`value`) FROM g2_report_numerator_ds);
@@ -71,10 +76,5 @@ BEGIN
 
     END IF ;
 
-
-
-
 END$$
-
 DELIMITER ;
-

@@ -1903,7 +1903,8 @@ Ext.define("App.ux.grid.Printer", {
 				'<a class="' + Ext.baseCSSPrefix + 'ux-grid-printer-linkprint" href="javascript:void(0);" onclick="window.print();">' + this.printLinkText + '</a>',
 				'<a class="' + Ext.baseCSSPrefix + 'ux-grid-printer-linkclose" href="javascript:void(0);" onclick="window.close();">' + this.closeLinkText + '</a>',
 				'</div>',
-				'<h1>' + this.mainTitle + '</h1>',
+				'<img src="'+ this.mainLogo +'" style="height: 75px; padding-bottom: 10px;">',
+				'<h1 style="padding-bottom: 5px;">' + this.mainTitle + '</h1>',
 				'<div cllass="rep-filters-class">' + this.filtersHtml + '</div>',
 				'<table>',
 				'<tr>',
@@ -2594,6 +2595,13 @@ Ext.define("App.ux.grid.Printer", {
 		 * (defaults to empty)
 		 */
 		mainTitle: '',
+
+		/**
+		 * @property mainTitle
+		 * @type String
+		 * (defaults to empty)
+		 */
+		mainLogo: 'sites/default/logo-email.png',
 
 		/**
 		 * Text show on print link

@@ -135,6 +135,8 @@ Ext.define('App.controller.DocumentViewer', {
 		}else{
 			win.show();
 		}
+
+		return win;
 	}
 
 

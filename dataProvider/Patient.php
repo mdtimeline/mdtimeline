@@ -429,7 +429,11 @@ class Patient
 		$poolArea = new PoolArea();
 
 		$area = $poolArea->getCurrentPatientPoolAreaByPid($this->patient['pid']);
-		$chart = $this->patientChartOutByPid($this->patient['pid'], $area['area_id']);
+		if($area !== false){
+			$chart = $this->patientChartOutByPid($this->patient['pid'], $area['area_id']);
+		}else{
+			$chart = null;
+		}
 
 		$_SESSION['patient']['pid'] = $this->patient['pid'];
 
@@ -443,13 +447,13 @@ class Patient
 				'sex' => $this->getPatientSex(),
 				'dob' => $this->getPatientDOB(),
 				'age' => $this->getPatientAge(),
-				'area' => $area['poolArea'],
+				'area' => $area !== false ? $area['poolArea'] : '',
 				'priority' => (empty($area) ? null : $area['priority']),
 				'rating' => (isset($this->patient['rating']) ? $this->patient['rating'] : 0),
 				'record' => $this->patient
 			],
 			'chart' => [
-				'readOnly' => $chart->read_only == '1',
+				'readOnly' => (isset($chart) && $chart->read_only == '1') || '0',
 				'overrideReadOnly' => $this->acl->hasPermission('override_readonly'),
 				'outUser' => isset($chart->outChart->uid) ? $this->user->getUserFullNameById($chart->outChart->uid) : 0,
 				'outArea' => isset($chart->outChart->pool_area_id) ? $poolArea->getAreaTitleById($chart->outChart->pool_area_id) : 0,

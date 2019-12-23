@@ -19,8 +19,7 @@
 Ext.define('App.model.administration.TransactionLog', {
     extend: 'Ext.data.Model',
     table: {
-        name: 'audit_transaction_log',
-        comment: 'Data INSERT UPDATE DELETE Logs'
+        name: 'audit_transaction_log'
     },
     fields: [
         {
@@ -61,8 +60,7 @@ Ext.define('App.model.administration.TransactionLog', {
         {
             name: 'category',
             type: 'string',
-            len: 50,
-            comment: ''
+            len: 50
         },
         {
             name: 'event',
@@ -84,10 +82,10 @@ Ext.define('App.model.administration.TransactionLog', {
             name: 'data',
             type: 'array',
             dataType: 'mediumtext',
-            comment: 'serialized data',
             convert: function (v, record) {
                 return record.serializeEventData(v);
-            }
+            },
+            comment: 'serialized data'
         },
         {
             name: 'ip',
@@ -137,26 +135,26 @@ Ext.define('App.model.administration.TransactionLog', {
         {
             name: 'user_name',
             type: 'string',
-            store: false,
             convert: function (v, record) {
                 var str = '';
-	            if (record.data.user_lname) str += record.data.user_lname + ', ';
+                if (record.data.user_lname) str += record.data.user_lname + ', ';
                 if (record.data.user_fname) str += record.data.user_fname + ' ';
                 if (record.data.user_mname) str += record.data.user_mname;
                 return str;
-            }
+            },
+            store: false
         },
         {
             name: 'patient_name',
             type: 'string',
-            store: false,
             convert: function (v, record) {
                 var str = '';
 	            if (record.data.patient_lname) str += record.data.patient_lname + ', ';
                 if (record.data.patient_fname) str += record.data.patient_fname + ' ';
                 if (record.data.patient_mname) str += record.data.patient_mname;
                 return str;
-            }
+            },
+            store: false
         },
         {
             name: 'valid',
@@ -184,7 +182,5 @@ Ext.define('App.model.administration.TransactionLog', {
             str += key + ' - ' + value + '<br>';
         });
         return str;
-
-
     }
 });

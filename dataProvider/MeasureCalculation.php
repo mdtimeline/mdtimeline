@@ -24,6 +24,11 @@ class MeasureCalculation {
 
 		$results = [];
 
+		$sth = $this->conn->prepare("SELECT * FROM _measures WHERE `provider_id` IN ('{$provider_id}') AND `measure` = ?");
+		$sth->execute([$measure]);
+		$results =  $sth->fetchAll(PDO::FETCH_ASSOC);
+		//return $results;
+
 		try{
 			if($measure == 'ePrescribing'){
 				$results = $this->getPrescribingReportByDates($provider_id, $start_date, $end_date, $stages);
@@ -60,6 +65,26 @@ class MeasureCalculation {
 			} else
 			if($measure == 'CPOERadiology'){
 				$results = $this->getCPOERadiologyReportByDates($provider_id, $start_date, $end_date, $stages);
+			}
+
+			$this->conn->exec("DELETE FROM `_measures` WHERE provider_id = '{$provider_id}' AND measure = '{$measure}'");
+			foreach ($results as $result){
+				$sql = "INSERT INTO `_measures` (`provider_id`,`provider`,`measure`,`group`, `title`, `description`, `denominator`, `numerator`, `denominator_pids`, `numerator_pids`, `goal`) VALUES
+                     (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+				$sth = $this->conn->prepare($sql);
+				$sth->execute([
+					$provider_id,
+					$result['provider'],
+					$measure,
+					$result['group'],
+					$result['title'],
+					$result['description'],
+					$result['denominator'],
+					$result['numerator'],
+					$result['denominator_pids'],
+					$result['numerator_pids'],
+					$result['goal']
+				]);
 			}
 
 			return $results;
@@ -168,6 +193,20 @@ class MeasureCalculation {
 			'denominator_pids' => $report['denominator_pids'],
 			'numerator_pids' => $report['numerator_pids'],
 			'goal' => '80%'
+		];
+
+		return [
+			[
+				"group" => "2. Provide Patients Electronic Access",
+				"provider" => " RT2, ONE  (NPI:1861479502)",
+				"title" => "Stage 3 Measure",
+				"description" => "",
+				"denominator" => 1,
+				"numerator" => 1,
+				"denominator_pids" => '1,2,3,4,5',
+				"numerator_pids" => '1,2,3',
+				"goal" => "80%"
+			]
 		];
 
 		return $records;

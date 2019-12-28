@@ -11,6 +11,10 @@ class PictureIdCard
 
 	private $masked = true;
 	private $font_file = ROOT . '/resources/fonts/Arial.ttf';
+	private $printer;
+	private $img_width;
+	private $img_height;
+
 
 	function Create($data){
 
@@ -20,11 +24,14 @@ class PictureIdCard
 
 		$has_bg = file_exists($bg);
 
-		$printer['dpi'] = 300;
+		$printer['dpi'] = 600;
 		$printer['margin'] = 1;
 		$printer['width'] = 3.375;
 		$printer['height'] = 2.125;
 		$printer['font'] = 12;
+
+		$this->printer = $printer;
+
 
 		$margin = $printer['dpi'] * $printer['margin'] / 100;
 		$img_width = floor($printer['width'] * $printer['dpi']);
@@ -38,6 +45,9 @@ class PictureIdCard
 
 		$img_width = imagesx($im);
 		$img_height = imagesy($im);
+
+		$this->img_width = $img_width;
+		$this->img_height = $img_height;
 
 
 		if(!$has_bg){
@@ -66,55 +76,55 @@ class PictureIdCard
 		$card_structure = [
 			[
 				'type' => 'text',
-				'font_size' => 24,
+				'font_size' => 10,
 				'angle' => 0,
-				'x' => 350,
-				'y' => 120,
+				'x' => 220,
+				'y' => 110,
 				'color' => 'black',
 				'text' => 'Patient:',
 			],
 			[
 				'type' => 'text',
-				'font_size' => 24,
+				'font_size' => 10,
 				'angle' => 0,
-				'x' => 350,
-				'y' => 150,
+				'x' => 220,
+				'y' => 160,
 				'color' => 'black',
 				'text' => '[PATIENT_NAME]',
 			],
 			[
 				'type' => 'text',
-				'font_size' => 24,
+				'font_size' => 10,
 				'angle' => 0,
-				'x' => 350,
-				'y' => 210,
+				'x' => 220,
+				'y' => 220,
 				'color' => 'black',
 				'text' => 'Record Number:',
 			],
 			[
 				'type' => 'text',
-				'font_size' => 24,
+				'font_size' => 10,
 				'angle' => 0,
-				'x' => 350,
-				'y' => 240,
+				'x' => 220,
+				'y' => 260,
 				'color' => 'black',
 				'text' => '[RECORD_NUMBER]',
 			],
 			[
 				'type' => 'text',
-				'font_size' => 24,
+				'font_size' => 10,
 				'angle' => 0,
-				'x' => 350,
-				'y' => 300,
+				'x' => 220,
+				'y' => 330,
 				'color' => 'black',
 				'text' => 'Facility:',
 			],
 			[
 				'type' => 'text',
-				'font_size' => 24,
+				'font_size' => 10,
 				'angle' => 0,
-				'x' => 350,
-				'y' => 330,
+				'x' => 220,
+				'y' => 370,
 				'color' => 'black',
 				'text' => '[FACILITY]',
 			],
@@ -122,21 +132,21 @@ class PictureIdCard
 				'type' => 'qrcode',
 				'font_size' => 24,
 				'angle' => 0,
-				'x' => 775,
-				'y' => 400,
-				'height' => 6,
-				'width' => 6,
+				'x' => 450,
+				'y' => 360,
+				'height' => 10,
+				'width' => 10,
 				'color' => 'black',
 				'text' => '[RECORD_NUMBER]',
 			],
 			[
 				'type' => 'image',
-				'font_size' => 24,
+				'font_size' => 10,
 				'angle' => 0,
-				'x' => 25,
-				'y' => 75,
-				'height' => 300,
-				'width' => 300,
+				'x' => 20,
+				'y' => 80,
+				'height' => 100,
+				'width' => 100,
 				'color' => 'black',
 				'text' => '[IMAGE]',
 			]
@@ -178,6 +188,18 @@ class PictureIdCard
 
 	}
 
+	private function getSize($size){
+		return $this->printer['dpi'] * $size / 100;
+	}
+
+	private function getPointX($point){
+		return $this->img_width * $point / $this->printer['dpi'];
+	}
+
+	private function getPointY($point){
+		return $this->img_height * $point / $this->printer['dpi'];
+	}
+
 	private function addImage($im, $line){
 		if(!isset($line['text']) || $line['text'] == '') return;
 
@@ -187,11 +209,18 @@ class PictureIdCard
 		$pic_width = imagesx($pic_im);
 		$pic_height = imagesy($pic_im);
 
-		$resmple_pic_im = imagecreatetruecolor($line['width'], $line['height']);
+		$line_width = $this->getSize($line['width']);
+		$line_height = $this->getSize($line['height']);
+		$line_x = $this->getPointX($line['x']);
+		$line_y = $this->getPointY($line['y']);
 
-		imagecopyresampled($resmple_pic_im, $pic_im, 0, 0, 0, 0, $line['width'], $line['height'], $pic_width, $pic_height);
 
-		imagecopymerge($im, $resmple_pic_im, $line['x'], $line['y'], 0, 0, $line['width'], $line['height'], 100); //h
+
+		$resmple_pic_im = imagecreatetruecolor($line_width, $line_height);
+
+		imagecopyresampled($resmple_pic_im, $pic_im, 0, 0, 0, 0, $line_width, $line_height, $pic_width, $pic_height);
+
+		imagecopymerge($im, $resmple_pic_im, $line_x, $line_y, 0, 0, $line_width, $line_height, 100); //h
 
 	}
 
@@ -199,10 +228,10 @@ class PictureIdCard
 
 		imagettftext(
 			$im,
-			$line['font_size'],
+			$this->getSize($line['font_size']),
 			$line['angle'],
-			$line['x'],
-			$line['y'],
+			$this->getPointX($line['x']),
+			$this->getPointY($line['y']),
 			$black,
 			$this->font_file,
 			$line['text']
@@ -218,7 +247,12 @@ class PictureIdCard
 		$qrcode_width = imagesx($qrcode_im);
 		$qrcode_height = imagesy($qrcode_im);
 
-		imagecopymerge($im, $qrcode_im, $code['x'], $code['y'], 0, 0, $qrcode_width, $qrcode_height, 100); //have to play with these numbers for it to work for you, etc.
+		$code_width = $this->getSize($code['width']);
+		$code_height = $this->getSize($code['height']);
+		$code_x = $this->getPointX($code['x']);
+		$code_y = $this->getPointY($code['y']);
+
+		imagecopymerge($im, $qrcode_im, $code_x, $code_y, 0, 0, $qrcode_width, $qrcode_height, 100); //have to play with these numbers for it to work for you, etc.
 
 
 	}

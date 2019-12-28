@@ -473,6 +473,10 @@ class Documents {
 		$format = isset($template['format']) ? $template['format'] : 'A4';
 		$encoding = isset($template['encoding']) ? $template['encoding'] : 'UTF-8';
 
+		if(isset($template['header_body_space'])){
+			$pdf->setHeaderBodySpace($template['header_body_space']);
+		}
+
 		if(isset($params->custom_font_family)){
 			$font['family'] = $params->custom_font_family;
 		}
@@ -607,7 +611,8 @@ class Documents {
 				$pdf->AddPage('',$format,true);
 
 				if($this->isHtml($page)){
-					$pdf->writeHTML($page);
+					//$pdf->writeHTML($page);
+					$pdf->writeHTMLCell(0,0,'','',$page);
 				}else{
 //					$pdf->writeHTML(nl2br($page));
                     $pdf->writeHTMLCell(0,0,'','',nl2br($page));

@@ -51,6 +51,10 @@ class DocumentFPDI extends FPDI  {
 	 * @var int
 	 */
 	protected $footer_y = 0;
+	/**
+	 * @var int
+	 */
+	protected $header_body_space = 0;
 
 	/**
 	 * @var array
@@ -76,6 +80,10 @@ class DocumentFPDI extends FPDI  {
 	 * @var bool
 	 */
 	public $has_mail_cover = false;
+
+	public function setHeaderBodySpace($header_body_space){
+		$this->header_body_space = (int) $header_body_space;
+	}
 
 	/**
 	 * @param array $data
@@ -254,7 +262,7 @@ class DocumentFPDI extends FPDI  {
 			$this->header_y = $this->original_margins['top'];
 		}
 
-		$this->SetMargins($this->original_margins['left'], $this->header_y + 5, $this->original_margins['right'], true);
+		$this->SetMargins($this->original_margins['left'], $this->header_y + $this->header_body_space, $this->original_margins['right'], true);
 	}
 
 	private function addWaterMark() {

@@ -355,7 +355,7 @@ class authProcedures {
 			}
 
 			$this->session->updateSession();
-			return array('authorized' => true, 'user' => $_SESSION['user']);
+			return array('authorized' => true, 'user' => $_SESSION['user'], 'ip' =>  Network::getIpAddress());
 		} elseif(isset($_SESSION['session_id']) && (isset($_SESSION['user']) && isset($_SESSION['user']['auth']) && !$_SESSION['user']['auth'])){
 			$this->unAuth();
 			return array('authorized' => false);

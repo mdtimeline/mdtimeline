@@ -62,11 +62,13 @@ Ext.define('App.controller.Cron', {
 	},
 
 	checkSession: function(){
-		authProcedures.ckAuth(function(provider, response){
-			if(!response.result.authorized){
+		authProcedures.ckAuth(function(response){
+			app.setIpAddress(response.ip);
+			if(!response.authorized){
 				window.location.reload();
 			}
 		});
+
 	},
 
 	getTime: function(){

@@ -31,6 +31,12 @@ Ext.define('App.ux..grid.ColumnSearchField', {
 			}
 		});
 
+		me.on('keyup', function(f, e) {
+			if(e.getKey() === e.ENTER) {
+				me.setFilterBuffer(me.up().dataIndex, me.getValue());
+			}
+		});
+
 	},
 
 	onTriggerClick: function() {

@@ -68,6 +68,20 @@ Ext.define('App.ux.LivePatientSearch', {
 					}
 				},
 				{
+					name: 'hl7_fullname',
+					type: 'string',
+					convert: function(v, record){
+						var name = [ record.data.lname ];
+						if(record.data.fname){
+							name.push(record.data.fname);
+						}
+						if(record.data.mname){
+							name.push(record.data.mname);
+						}
+						return name.join('^');
+					}
+				},
+				{
 					name: 'DOB',
 					type: 'date',
 					dateFormat: 'Y-m-d H:i:s'

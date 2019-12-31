@@ -3412,6 +3412,20 @@ Ext.define('App.ux.LivePatientSearch', {
 					}
 				},
 				{
+					name: 'hl7_fullname',
+					type: 'string',
+					convert: function(v, record){
+						var name = [ record.data.lname ];
+						if(record.data.fname){
+							name.push(record.data.fname);
+						}
+						if(record.data.mname){
+							name.push(record.data.mname);
+						}
+						return name.join('^');
+					}
+				},
+				{
 					name: 'DOB',
 					type: 'date',
 					dateFormat: 'Y-m-d H:i:s'
@@ -39730,11 +39744,13 @@ Ext.define('App.controller.Cron', {
 	},
 
 	checkSession: function(){
-		authProcedures.ckAuth(function(provider, response){
-			if(!response.result.authorized){
+		authProcedures.ckAuth(function(response){
+			app.setIpAddress(response.ip);
+			if(!response.authorized){
 				window.location.reload();
 			}
 		});
+
 	},
 
 	getTime: function(){
@@ -66013,6 +66029,7 @@ Ext.define('App.view.Viewport', {
 	patientImage:'resources/images/patientPhotoPlaceholder.jpg',
 	enablePoolAreaFadeInOut: eval(g('enable_poolarea_fade_in_out')),
 	userInteracted : false,
+	ip: null,
 
 	// end app settings
     initComponent: function(){
@@ -66598,8 +66615,15 @@ Ext.define('App.view.Viewport', {
 	                    },
 	                    '-',
                         {
-                            text: 'Copyright (C) 2019 MDTIMELINE, LLC |:| v' + me.version,
+	                        xtype: 'tbtext',
+	                        text: 'Copyright (C) 2019 MDTIMELINE, LLC |:| v' + me.version,
                         },
+	                    '-',
+	                    {
+		                    xtype: 'tbtext',
+		                    text: 'IP: 0.0.0.0',
+		                    itemId: 'ApplicationIpAddress'
+	                    },
                         '->',
                         // {
                         //     text: _('news'),
@@ -66677,6 +66701,12 @@ Ext.define('App.view.Viewport', {
 	    //me.signature = Ext.create('App.view.signature.SignatureWindow');
 	    //Ext.create('Modules.worklist.view.ResultsPickUpWindow').show();
     },
+
+	setIpAddress: function(ip){
+		if(this.ip !== ip){
+			this.Footer.query('#ApplicationIpAddress')[0].update('IP: ' + ip);
+		}
+	},
 
 	onUserViewportClick: function(){
     	this.userInteracted = true;

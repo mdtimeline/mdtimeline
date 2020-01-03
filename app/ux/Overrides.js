@@ -464,6 +464,11 @@ Ext.override(Ext.data.writer.Writer, {
 	writeAllFields: false
 });
 
+// remove the grid column sort on enter
+Ext.override(Ext.grid.column.Column, {
+	onEnterKey: Ext.emptyFn
+});
+
 Ext.override(Ext.data.proxy.Server, {
     // remoteGroup default to true
     remoteGroup: true,

@@ -21,7 +21,7 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
     xtype: 'referringproviderspanel',
     requires: [
         'Ext.ux.SlidingPager',
-	    'App.ux..grid.ColumnSearchField'
+	    'App.ux.grid.ColumnSearchField'
     ],
     title: _('referring_providers'),
 

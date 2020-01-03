@@ -1,7 +1,7 @@
-Ext.define('App.ux.grid.ColumnSearchField', {
-	extend: 'Ext.form.field.Trigger',
-	xtype: 'columnsearchfield',
-	triggerCls: 'x-form-clear-trigger',
+Ext.define('App.ux.grid.ColumnDateField', {
+	extend: 'Ext.form.field.Date',
+	xtype: 'columndatefield',
+	// triggerCls: 'x-form-clear-trigger',
 	operator: '=',
 	prefix: '',
 	suffix: '',
@@ -18,31 +18,31 @@ Ext.define('App.ux.grid.ColumnSearchField', {
 
 		me.callParent(arguments);
 
-		me.on('render', function() {
-			var mee = this;
-			mee.ownerCt.on('resize', function () {
-				mee.setWidth(this.getEl().getWidth());
-			});
-		});
-
-		me.on('change', function() {
-			if(me.autoSearch){
-				me.setFilterBuffer(me.up().dataIndex, me.getValue());
-			}
-		});
-
-		me.on('keyup', function(f, e) {
-			if(e.getKey() === e.ENTER) {
-				me.setFilterBuffer(me.up().dataIndex, me.getValue());
-			}
-		});
+		// me.on('render', function() {
+		// 	var mee = this;
+		// 	mee.ownerCt.on('resize', function () {
+		// 		mee.setWidth(this.getEl().getWidth());
+		// 	});
+		// });
+		//
+		// me.on('change', function() {
+		// 	if(me.autoSearch){
+		// 		me.setFilterBuffer(me.up().dataIndex, me.getValue());
+		// 	}
+		// });
+		//
+		// me.on('keyup', function(f, e) {
+		// 	if(e.getKey() === e.ENTER) {
+		// 		me.setFilterBuffer(me.up().dataIndex, me.getValue());
+		// 	}
+		// });
 
 	},
 
-	onTriggerClick: function() {
-		this.setValue('');
-		this.setFilter(this.up().dataIndex, undefined);
-	},
+	// onTriggerClick: function() {
+	// 	this.setValue('');
+	// 	this.setFilter(this.up().dataIndex, undefined);
+	// },
 
 	onTrigger2Click: function() {
 		this.setFilter(this.up().dataIndex, this.getValue());

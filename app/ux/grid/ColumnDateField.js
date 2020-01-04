@@ -18,31 +18,26 @@ Ext.define('App.ux.grid.ColumnDateField', {
 
 		me.callParent(arguments);
 
-		// me.on('render', function() {
-		// 	var mee = this;
-		// 	mee.ownerCt.on('resize', function () {
-		// 		mee.setWidth(this.getEl().getWidth());
-		// 	});
-		// });
-		//
-		// me.on('change', function() {
-		// 	if(me.autoSearch){
-		// 		me.setFilterBuffer(me.up().dataIndex, me.getValue());
-		// 	}
-		// });
-		//
-		// me.on('keyup', function(f, e) {
-		// 	if(e.getKey() === e.ENTER) {
-		// 		me.setFilterBuffer(me.up().dataIndex, me.getValue());
-		// 	}
-		// });
+		me.on('render', function() {
+			var mee = this;
+			mee.ownerCt.on('resize', function () {
+				mee.setWidth(this.getEl().getWidth());
+			});
+		});
+
+		me.on('change', function() {
+			if(me.autoSearch){
+				me.setFilterBuffer(me.up().dataIndex, me.getSubmitValue());
+			}
+		});
+
+		me.on('keyup', function(f, e) {
+			if(e.getKey() === e.ENTER) {
+				me.setFilterBuffer(me.up().dataIndex, me.getSubmitValue());
+			}
+		});
 
 	},
-
-	// onTriggerClick: function() {
-	// 	this.setValue('');
-	// 	this.setFilter(this.up().dataIndex, undefined);
-	// },
 
 	onTrigger2Click: function() {
 		this.setFilter(this.up().dataIndex, this.getValue());

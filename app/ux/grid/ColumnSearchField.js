@@ -27,13 +27,13 @@ Ext.define('App.ux.grid.ColumnSearchField', {
 
 		me.on('change', function() {
 			if(me.autoSearch){
-				me.setFilterBuffer(me.up().dataIndex, me.getValue());
+				me.setFilterBuffer(me.up().dataIndex, me.getSubmitValue());
 			}
 		});
 
 		me.on('keyup', function(f, e) {
 			if(e.getKey() === e.ENTER) {
-				me.setFilterBuffer(me.up().dataIndex, me.getValue());
+				me.setFilterBuffer(me.up().dataIndex, me.getSubmitValue());
 			}
 		});
 

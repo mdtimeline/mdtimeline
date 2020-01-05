@@ -40,7 +40,7 @@ Ext.define('App.ux.grid.ColumnDateField', {
 	},
 
 	onTrigger2Click: function() {
-		this.setFilter(this.up().dataIndex, this.getValue());
+		this.setFilter(this.up().dataIndex, this.getSubmitValue());
 	},
 
 	setFilter: function(filterId, value){

@@ -25,10 +25,8 @@ Ext.define('App.ux.grid.ColumnDateField', {
 			});
 		});
 
-		me.on('change', function() {
-			if(me.autoSearch){
-				me.setFilterBuffer(me.up().dataIndex, me.getSubmitValue());
-			}
+		me.on('select', function() {
+			me.setFilterBuffer(me.up().dataIndex, me.getSubmitValue());
 		});
 
 		me.on('keyup', function(f, e) {

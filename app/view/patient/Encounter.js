@@ -598,8 +598,15 @@ Ext.define('App.view.patient.Encounter', {
 		App.model.patient.Encounter.load(eid, {
 			scope: me,
 			callback: function(record){
-                var timer,
-                    data;
+				var timer,
+					data;
+
+				if(record.get('is_private') && record.get('provider_uid') !== app.user.id && !a('global_private_encounter_access')){
+					// go back...
+					app.msg('Private Encounter', Ext.String.format('Encounter can only be accessed by {0}, {1}', record.get('provider_lname'), record.get('provider_fname')), true);
+					app.getController('Navigation').goBack();
+					return;
+				}
 
 				me.encounter = record;
 				data = me.encounter.data;
@@ -614,26 +621,25 @@ Ext.define('App.view.patient.Encounter', {
 
 				/** get progress note **/
 				me.getProgressNote();
+				var patient = app.patient;
+
+				me.pageTitle = _('encounter');
 
 				if(!data.close_date){
+					me.pageTitle =  patient.name + ' - ' + patient.sexSymbol + ' - ' + patient.age.str + ' - ' + Ext.Date.format(data.service_date, 'F j, Y, g:i:s a');
+					if(me.encounter.get('is_private')){
+						me.pageTitle += ' <img height="20px" src="resources/images/icons/icoShield.png" data-qtip="Private Encounter">';
+					}
 					me.startTimer();
 					me.setButtonsDisabled(me.getButtonsToDisable());
 				}else{
 					if(me.stopTimer()){
 						timer = me.timer(data.service_date, data.close_date);
-						var patient = app.patient;
-
-						me.updateTitle(
-                            patient.name +
-                            ' - ' +
-                            patient.sexSymbol +
-                            ' - ' +
-                            patient.age.str +
-                            ' - ' +
-                            Ext.Date.format(me.currEncounterStartDate, 'F j, Y, g:i:s a') +
-                            ' (' +
-                            _('closed_encounter') +
-                            ')', app.patient.readOnly, timer);
+						me.pageTitle =  patient.name + ' - ' + patient.sexSymbol + ' - ' + patient.age.str + ' - ' + Ext.Date.format(data.service_date, 'F j, Y, g:i:s a') + ' (' + _('closed_encounter') + ')';
+						if(me.encounter.get('is_private')){
+							me.pageTitle += ' <img src="resources/images/icons/icoShield.png">';
+						}
+						me.updateTitle(me.pageTitle, app.patient.readOnly, timer);
 						me.setButtonsDisabled(me.getButtonsToDisable(), true);
 					}
 				}
@@ -838,7 +844,7 @@ Ext.define('App.view.patient.Encounter', {
 	encounterTimer: function(){
 		var me = this, timer = me.timer(me.currEncounterStartDate, new Date());
 		if(app.patient.pid !== null){
-			me.updateTitle(app.patient.name + ' - ' + app.patient.sexSymbol + ' - ' + app.patient.age.str + ' - ' + Ext.Date.format(me.currEncounterStartDate, 'F j, Y, g:i:s a') + ' (' + _('open_encounter') + ')', app.patient.readOnly, timer);
+			me.updateTitle(me.pageTitle, app.patient.readOnly, timer);
 		}else{
 			me.stopTimer();
 		}

@@ -59,6 +59,11 @@ Ext.define('App.model.patient.Encounter', {
 			index: true
 		},
 		{
+			name: 'is_private',
+			type: 'bool',
+			index: true
+		},
+		{
 			name: 'service_date',
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s',

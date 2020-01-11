@@ -221,28 +221,7 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 	},
 
 	onEncounterDetailFormReferringComboSelect: function(cmb){
-		var container = cmb.up('container');
 
-		container.insert((container.items.indexOf(cmb) + 1), {
-			xtype: 'fieldcontainer',
-			layout: 'hbox',
-			items: [
-				{
-					xtype: 'checkbox',
-					itemId: 'EncounterCcdaAvailableField',
-					fieldLabel: _('ccda_available'),
-					labelWidth: cmb.labelWidth,
-					name: 'summary_care_provided'
-				},
-				{
-					xtype: 'checkbox',
-					fieldLabel: _('requested'),
-					labelWidth: 80,
-					labelAlign: 'right',
-					name: 'summary_care_requested'
-				}
-			]
-		});
 	},
 
 	onEncounterProviderCmbSelect: function(cmb, slected){

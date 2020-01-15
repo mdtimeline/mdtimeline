@@ -937,7 +937,7 @@ Ext.define('App.view.Viewport', {
         }
     },
 
-    setPatient: function(pid, eid, site, callback){
+    setPatient: function(pid, eid, site, callback, force_callback){
         var me = this;
 	    me.unsetPatient(null, true);
 
@@ -1003,6 +1003,8 @@ Ext.define('App.view.Viewport', {
 	            if (me.patientCloseCurrEncounterBtn) me.patientCloseCurrEncounterBtn.enable();
 //                if(me.patientChargeBtn) me.patientChargeBtn.enable();
 	            if (me.patientCheckOutBtn) me.patientCheckOutBtn.enable();
+
+	            if(me.fireEvent('beforepatientsetcallback', me.patient) === false && force_callback !== true) return;
 
 	            if (typeof callback === 'function') {
 		            callback(me.patient);

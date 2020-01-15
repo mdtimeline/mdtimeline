@@ -47193,7 +47193,7 @@ Ext.define('App.controller.patient.Patient', {
 					app.setPatient(response.pid, null, null, function(){
 						win.el.unmask();
 						win.close();
-					});
+					}, true);
 				});
 
 			}else if(response.isModel === true){
@@ -47203,7 +47203,7 @@ Ext.define('App.controller.patient.Patient', {
 					duplicared_win.close();
 					win.el.unmask();
 					win.close();
-				});
+				}, true);
 			}
 		});
 
@@ -67077,7 +67077,7 @@ Ext.define('App.view.Viewport', {
         }
     },
 
-    setPatient: function(pid, eid, site, callback){
+    setPatient: function(pid, eid, site, callback, force_callback){
         var me = this;
 	    me.unsetPatient(null, true);
 
@@ -67143,6 +67143,8 @@ Ext.define('App.view.Viewport', {
 	            if (me.patientCloseCurrEncounterBtn) me.patientCloseCurrEncounterBtn.enable();
 //                if(me.patientChargeBtn) me.patientChargeBtn.enable();
 	            if (me.patientCheckOutBtn) me.patientCheckOutBtn.enable();
+
+	            if(me.fireEvent('beforepatientsetcallback', me.patient) === false && force_callback !== true) return;
 
 	            if (typeof callback === 'function') {
 		            callback(me.patient);

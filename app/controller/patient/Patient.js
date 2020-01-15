@@ -154,7 +154,7 @@ Ext.define('App.controller.patient.Patient', {
 					app.setPatient(response.pid, null, null, function(){
 						win.el.unmask();
 						win.close();
-					});
+					}, true);
 				});
 
 			}else if(response.isModel === true){
@@ -164,7 +164,7 @@ Ext.define('App.controller.patient.Patient', {
 					duplicared_win.close();
 					win.el.unmask();
 					win.close();
-				});
+				}, true);
 			}
 		});
 

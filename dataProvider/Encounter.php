@@ -620,6 +620,10 @@ class Encounter {
 		$output = '';
 		$br = '<br><br>';
 
+		if(isset($encounter['brief_description']) && $encounter['brief_description'] != ''){
+			$output .= '<b>CHIEF COMPLAINT:</b>' . $br . nl2br(trim($encounter['brief_description'])) . $br;
+		}
+
 		if(isset($encounter['soap'])){
 			$soap = $encounter['soap'];
 

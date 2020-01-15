@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+include_once(ROOT . '/classes/Tokens.php');
 include_once(ROOT . '/dataProvider/Person.php');
 include_once(ROOT . '/dataProvider/User.php');
 include_once(ROOT . '/dataProvider/ACL.php');
@@ -144,20 +145,13 @@ class Patient
 	public function savePatient($params)
 	{
 		$this->setPatientModel();
-
-		if (isset($params->fullname)) {
-			$params->qrcode = $this->createPatientQrCode($this->patient['pid'], $params->fullname);
-		} else if (isset($params->fname) && isset($params->mname) && isset($params->lname)) {
-			$params->qrcode = $this->createPatientQrCode(
-				$this->patient['pid'],
-				Person::fullname($params->fname, $params->mname, $params->lname)
-			);
-		}
-
 		$params->update_uid = isset($_SESSION['user']['id']) ? $_SESSION['user']['id'] : '0';
 		$params->update_date = date('Y-m-d H:i:s');
 		$this->patient = (object)$this->p->save($params);
+		$this->generateQrCodes($this->patient);
+		$this->generatePubpid($this->patient);
 		$this->createPatientDir($this->patient->pid);
+
 		return $this->patient;
 	}
 
@@ -346,6 +340,46 @@ class Patient
 	public function getPatientDemographicData(stdClass $params)
 	{
 		return $this->setPatient($params->pid);
+	}
+
+	public function generateQrCodes(&$patient){
+		$buff = [];
+		if (isset($patient->fullname)) {
+			$buff['pid'] = $patient->pid;
+			$patient->qrcode = $buff['qrcode'] = $this->createPatientQrCode($patient->pid, $patient->fullname);
+		} else if (isset($params->fname) && isset($params->mname) && isset($params->lname)) {
+			$buff['pid'] = $patient->pid;
+			$patient->qrcode = $buff['qrcode'] = $this->createPatientQrCode($patient->pid,
+				Person::fullname($patient->fname, $patient->mname, $patient->lname)
+			);
+		}
+		if(!empty($buff)){
+			$this->p->save((object)$buff);
+		}
+	}
+
+	public function generatePubpid(&$patient){
+		if(isset($patient->pubpid) && $patient->pubpid != '') return;
+
+		$pubpid = Globals::getGlobal('record_number_token');
+
+		if($pubpid === false) return;
+
+		$additional_tokens = [
+			'{PID}' => $patient->pid,
+			'{SEX}' => strtoupper($patient->sex),
+			'{LAST_NAME_START_LETTER}' => strtoupper($patient->lname[0]),
+			'{FIRST_NAME_START_LETTER}' => strtoupper($patient->fname[0]),
+		];
+
+		$pubpid = Tokens::StringReplace($pubpid, $additional_tokens);
+
+		if($pubpid !== ''){
+			$this->p->save((object)['pid' => $patient->pid, 'pubpid' => $pubpid]);
+		}
+
+
+
 	}
 
 	/**
@@ -598,8 +632,16 @@ class Patient
 			$whereValues[':lname' . $index] = $query . '%';
 			$whereValues[':mname' . $index] = $query . '%';
 
+			if(preg_match('/\d{3}-\d{3}-\d{4}/', $query)){
+				$phone_query = " OR phone_home = :phone_home_{$index} OR phone_mobile = :phone_mobile_{$index}";
+				$whereValues[':phone_home_' . $index] = $query;
+				$whereValues[':phone_mobile_' . $index] = $query;
+			}else{
+				$phone_query = '';
+			}
+
 			if ($single_query) {
-                $where[] = " (pubpid REGEXP :reg_pubpid{$index} OR pubpid = :pubpid{$index} OR fname LIKE :fname{$index} OR lname LIKE :lname{$index} OR mname LIKE :mname{$index} OR DOB LIKE :DOB{$index} OR pid LIKE :pid{$index} OR SS LIKE :ss{$index}) ";
+                $where[] = " (pubpid REGEXP :reg_pubpid{$index} OR pubpid = :pubpid{$index} OR fname LIKE :fname{$index} OR lname LIKE :lname{$index} OR mname LIKE :mname{$index} OR DOB LIKE :DOB{$index} OR pid LIKE :pid{$index} OR SS LIKE :ss{$index} {$phone_query}) ";
                 if (preg_match('/^(.)-(.*)-(.{2})$/', $query, $matches)) {
 					$whereValues[':reg_pubpid' . $index] = '^' . $matches[1] . '-' . str_pad($matches[2], 15, '0', STR_PAD_LEFT) . '-' . $matches[3] . '$';
 				} elseif (preg_match('/^(.)-(.*)$/', $query, $matches)) {
@@ -612,7 +654,7 @@ class Patient
                 $whereValues[':pubpid' . $index] = $query;
 
 			} else {
-                $where[] = " (fname LIKE :fname{$index} OR lname LIKE :lname{$index} OR mname LIKE :mname{$index} OR DOB LIKE :DOB{$index} OR pid LIKE :pid{$index} OR SS LIKE :ss{$index}) ";
+                $where[] = " (fname LIKE :fname{$index} OR lname LIKE :lname{$index} OR mname LIKE :mname{$index} OR DOB LIKE :DOB{$index} OR pid LIKE :pid{$index} OR SS LIKE :ss{$index} {$phone_query}) ";
 			}
 
 			$whereValues[':DOB' . $index] = $query . '%';

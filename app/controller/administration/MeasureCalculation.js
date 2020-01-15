@@ -80,7 +80,7 @@ Ext.define('App.controller.administration.MeasureCalculation', {
             '<b>From:</b> {0}<br><b>To:</b> {1}<br><b>Provider:</b> {2}',
             Ext.Date.format(fromField.getValue(), 'F j, Y'),
             Ext.Date.format(toField.getValue(), 'F j, Y'),
-            provider.get('fullname'),
+            provider.get('fullname')
         ); //optional
         App.ux.grid.Printer.print(grid);
     },

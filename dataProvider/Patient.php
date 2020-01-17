@@ -147,9 +147,14 @@ class Patient
 		$this->setPatientModel();
 		$params->update_uid = isset($_SESSION['user']['id']) ? $_SESSION['user']['id'] : '0';
 		$params->update_date = date('Y-m-d H:i:s');
+
+		$new_patient = isset($params->pid);
+
 		$this->patient = (object)$this->p->save($params);
 		$this->generateQrCodes($this->patient);
-		$this->generatePubpid($this->patient);
+		if($new_patient){
+			$this->generatePubpid($this->patient);
+		}
 		$this->createPatientDir($this->patient->pid);
 
 		return $this->patient;

@@ -153,7 +153,7 @@ class Patient
 		$this->patient = (object)$this->p->save($params);
 		$this->generateQrCodes($this->patient);
 		if($new_patient){
-			$this->generatePubpid($this->patient);
+			//$this->generatePubpid($this->patient);
 		}
 		$this->createPatientDir($this->patient->pid);
 

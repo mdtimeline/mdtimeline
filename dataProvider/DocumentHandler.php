@@ -90,7 +90,6 @@ class DocumentHandler
 
     function __construct()
     {
-        $this->db = new MatchaHelper();
         $this->FileSystem = new FileSystem();
 
         $file_systems = $this->FileSystem->getFileSystems(null);
@@ -146,7 +145,7 @@ class DocumentHandler
                 if (!$includeDocument) {
                     unset($records['data'][$i]['document']);
                 } else {
-                    $records['data'][$i]['document'] = $this->getDocumentData($record, $return_binary, $compressed);
+                    $records['data'][$i]['document'] = $this->getDocumentData($record, $return_binary);
                 }
             }
         }
@@ -171,7 +170,7 @@ class DocumentHandler
                 if (!$includeDocument) {
                     unset($records['data'][$i]['document']);
                 } else {
-                    $records['data'][$i]['document'] = $this->getDocumentData($record, $return_binary, $compressed);
+                    $records['data'][$i]['document'] = $this->getDocumentData($record, $return_binary);
                 }
             }
         }
@@ -761,8 +760,9 @@ class DocumentHandler
      */
     public function getDocumentPathById($id)
     {
-        $this->db->setSQL("SELECT * FROM patient_documents WHERE id = '$id'");
-        $doc = $this->db->fetchRecord(PDO::FETCH_ASSOC);
+    	$conn = Matcha::getConn();
+	    $sth = $conn->prepare("SELECT * FROM patient_documents WHERE id = '{$id}'");
+        $doc = $sth->fetch(PDO::FETCH_ASSOC);
         return site_path . '/patients/' . $doc['pid'] . '/' . strtolower(str_replace(' ', '_', $doc['docType'])) . '/' . $doc['name'];
     }
 

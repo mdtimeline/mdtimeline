@@ -719,7 +719,13 @@ class DocumentHandler
 
         Matcha::pauseLog(false);
 
+	    if(isset($params->site) && isset($GLOBALS['worklist_dbs'][$params->site])){
+		    \Matcha::$__conn = null;
+		    \Matcha::connect($GLOBALS['worklist_dbs'][$params->site]);
+	    }
+
         $record = $this->t->load($params)->one();
+
         if ($record == false) return ['success' => false];
 
         $params->document = $record['document'];
@@ -728,6 +734,17 @@ class DocumentHandler
         unset($params->id);
 
         $params = $this->addPatientDocument($params);
+
+	    \Matcha::$__conn = null;
+	    \Matcha::connect([
+		    'host' => site_db_host,
+		    'port' => site_db_port,
+		    'name' => site_db_database,
+		    'user' => site_db_username,
+		    'pass' => site_db_password,
+		    'app' => ROOT . '/app'
+	    ]);
+
         unset($params['data']->document);
 
         Matcha::pauseLog(true);

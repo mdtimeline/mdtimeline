@@ -220,7 +220,7 @@ Ext.apply(Ext.form.VTypes, {
 	numericWithSlashText: _('please_enter_a_valid_number'),
 
 	numericWithDecimal: function(val, field){
-		var rgx = /^[\d.]*$/;
+		var rgx = /^-?[0-9]\d*(\.\d+)?$/;
 		return val.match(rgx);
 	},
 	numericWithDecimalText: _('please_enter_a_valid_number'),

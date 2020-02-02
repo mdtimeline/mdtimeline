@@ -33,6 +33,7 @@ Ext.define('App.ux.RenderPanel', {
 	pageBBar: null,
 	pagePadding: null,
 	showRating: false,
+	pageAutoScroll: false,
 
 	initComponent: function(){
 		var me = this;
@@ -60,6 +61,7 @@ Ext.define('App.ux.RenderPanel', {
 							border: false,
 							itemId: 'pageLayout',
 							defaults: { frame: false, border: false, autoScroll: true },
+							autoScroll: me.pageAutoScroll,
 							layout: me.pageLayout,
 							items: me.pageBody,
 							tbar: me.pageTBar,

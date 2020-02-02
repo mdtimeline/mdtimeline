@@ -940,7 +940,9 @@ class DocumentHandler
         ini_set('memory_limit', '-1');
 
         $this->setPatientDocumentModel();
-        $this->d->addFilter('path', '', '=');
+        $this->d->setOrFilterProperties(['filesystem_id']);
+        $this->d->addFilter('filesystem_id', null, '=');
+	    $this->d->addFilter('filesystem_id', '', '=');
 
         $records = $this->d->load()->limit(0, $quantity)->all();
 

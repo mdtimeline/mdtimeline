@@ -34,146 +34,277 @@ Ext.define('App.view.patient.windows.NewPatient', {
 			bodyPadding: '10 10 0 10',
 			border: false,
 			items: [
-				// {
-				// 	xtype: 'fieldset',
-				// 	cls: 'highlight_fieldset',
-				// 	margin: '0 0 5 0',
-				// 	padding: 10,
-				// 	title: _('numbers'),
-				// 	layout: 'hbox',
-				// 	defaults: {
-				// 		margin: '0 10 5 0',
-				// 		labelAlign: 'top'
-				// 	},
-				// 	items: [
-				// 		{
-				// 			xtype: 'textfield',
-				// 			name: 'pubpid',
-				// 			fieldLabel: _('medical'), //external_record
-				// 			flex: 1,
-				// 			enableKeyEvents: true
-				// 		},
-				// 		{
-				// 			xtype: 'textfield',
-				// 			name: 'pubaccount',
-				// 			fieldLabel: _('account'), //external_account
-				// 			flex: 1,
-				// 			enableKeyEvents: true
-				// 		},
-				// 		{
-				// 			xtype: 'textfield',
-				// 			name: 'interface_mrn',
-				// 			fieldLabel: _('interface_mrn'), //external_account
-				// 			flex: 1,
-				// 			margin: 0,
-				// 			enableKeyEvents: true
-				// 		}
-				// 	]
-				// },
 				{
-					xtype: 'fieldset',
-					cls: 'highlight_fieldset',
-					margin: '0 0 5 0',
-					padding: 10,
-					title: _('demographics'),
-					layout: {
-						type: 'vbox',
-						align: 'stretch'
-					},
+					xtype: 'tabpanel',
+					plain: true,
 					items: [
 						{
-							xtype: 'fieldcontainer',
-							layout: 'hbox',
-							defaults: {
-								margin: '0 5 0 0',
-								labelWidth: 50,
-								labelAlign: 'top'
+							xtype: 'panel',
+							padding: 10,
+							title: _('demographics'),
+							cls: 'highlight_fieldset',
+							bodyCls: 'highlight_fieldset',
+							layout: {
+								type: 'vbox',
+								align: 'stretch'
 							},
 							items: [
 								{
-									xtype: 'textfield',
-									name: 'fname',
-									fieldLabel: _('first_name'),
-									flex: 1,
-									allowBlank: false,
-									maxLength: 35
+									xtype: 'fieldcontainer',
+									layout: 'hbox',
+									defaults: {
+										margin: '0 5 0 0',
+										labelWidth: 50,
+										labelAlign: 'top'
+									},
+									items: [
+										{
+											xtype: 'textfield',
+											name: 'fname',
+											fieldLabel: _('first_name'),
+											flex: 1,
+											allowBlank: false,
+											maxLength: 35
+										},
+										{
+											xtype: 'textfield',
+											name: 'mname',
+											fieldLabel: _('init'),
+											width: 50,
+											enableKeyEvents: true,
+											maxLength: 35
+										},
+										{
+											xtype: 'textfield',
+											name: 'lname',
+											fieldLabel: _('last_name'),
+											flex: 2,
+											allowBlank: false,
+											maxLength: 35,
+											enableKeyEvents: true,
+											action: 'last_name_field'
+										}
+									]
 								},
 								{
-									xtype: 'textfield',
-									name: 'mname',
-									fieldLabel: _('init'),
-									width: 50,
-									enableKeyEvents: true,
-									maxLength: 35
+									xtype: 'fieldcontainer',
+									layout: 'hbox',
+									defaults: {
+										margin: '0 5 0 0',
+										labelAlign: 'top'
+									},
+									items: [
+										{
+											xtype: 'gaiaehr.combo',
+											name: 'sex',
+											fieldLabel: _('sex_at_birth'),
+											width: 200,
+											enableKeyEvents: true,
+											allowBlank: false,
+											listKey: 'sex',
+											loadStore: true,
+											editable: false
+										},
+										{
+											xtype: 'datefield',
+											name: 'DOB',
+											format: 'm/d/Y',
+											width: 200,
+											fieldLabel: _('dob'),
+											enableKeyEvents: true,
+											allowBlank: false
+										}
+									]
 								},
 								{
-									xtype: 'textfield',
-									name: 'lname',
-									fieldLabel: _('last_name'),
-									flex: 2,
-									allowBlank: false,
-									maxLength: 35
+									xtype: 'fieldcontainer',
+									layout: 'hbox',
+									defaults: {
+										margin: '0 5 0 0',
+										labelAlign: 'top'
+									},
+									items: [
+										{
+											xtype: 'textfield',
+											name: 'phone_mobile',
+											emptyText: '000-000-0000',
+											fieldLabel:_('mobile'),
+											width: 200,
+											vtype: 'phoneNumber'
+										},
+										{
+											xtype: 'textfield',
+											name: 'email',
+											emptyText: 'example@email.com',
+											fieldLabel:_('email'),
+											width: 200,
+											vtype: 'email'
+										}
+									]
+								},
+								{
+									xtype: 'fieldcontainer',
+									layout: 'hbox',
+									defaults: {
+										margin: '0 5 0 0',
+										labelAlign: 'top'
+									},
+									items: [
+										{
+											xtype: 'textfield',
+											name: 'phone_home',
+											emptyText: '000-000-0000',
+											fieldLabel:_('home'),
+											width: 200,
+											vtype: 'phoneNumber'
+										},
+										{
+											xtype: 'textfield',
+											name: 'phone_work',
+											emptyText: '000-000-0000',
+											fieldLabel:_('work'),
+											width: 200,
+											vtype: 'phoneNumber'
+										}
+									]
 								}
 							]
 						},
 						{
-							xtype: 'fieldcontainer',
-							layout: 'hbox',
-							defaults: {
-								margin: '0 5 0 0',
-								labelAlign: 'top'
+							xtype: 'panel',
+							padding: 10,
+							title: _('postal_address'),
+							cls: 'highlight_fieldset',
+							bodyCls: 'highlight_fieldset',
+							layout: {
+								type: 'vbox',
+								align: 'stretch'
 							},
 							items: [
 								{
-									xtype: 'gaiaehr.combo',
-									name: 'sex',
-									fieldLabel: _('sex_at_birth'),
-									width: 200,
-									enableKeyEvents: true,
-									allowBlank: false,
-									listKey: 'sex',
-									loadStore: true,
-									editable: false
+									xtype: 'textfield',
+									anchor: '100%',
+									fieldLabel: _('street'),
+									labelAlign: 'top',
+									name: 'postal_address'
 								},
 								{
-									xtype: 'datefield',
-									name: 'DOB',
-									format: 'm/d/Y',
-									width: 200,
-									fieldLabel: _('dob'),
-									enableKeyEvents: true,
-									allowBlank: false
+									xtype: 'textfield',
+									anchor: '100%',
+									fieldLabel: '(' + _('optional') + ')',
+									name: 'postal_address_cont',
+									labelAlign: 'top',
+								},
+								{
+									xtype: 'fieldcontainer',
+									anchor: '100%',
+									layout: 'hbox',
+									defaults: {
+										margin: '0 5 0 0'
+									},
+									items: [
+										{
+											xtype: 'textfield',
+											fieldLabel: _('city'),
+											labelAlign: 'top',
+											width: 119,
+											name: 'postal_city'
+										},
+										{
+											xtype: 'textfield',
+											fieldLabel: _('state'),
+											labelAlign: 'top',
+											width: 40,
+											name: 'postal_state'
+										},
+										{
+											xtype: 'textfield',
+											fieldLabel: _('zip'),
+											labelAlign: 'top',
+											width: 80,
+											name: 'postal_zip'
+										},
+										{
+											xtype: 'textfield',
+											fieldLabel: _('country'),
+											labelAlign: 'top',
+											flex: 1,
+											name: 'postal_country',
+											margin: 0
+										}
+									]
 								}
 							]
 						},
 						{
-							xtype: 'fieldcontainer',
-							layout: 'hbox',
-							defaults: {
-								margin: '0 5 0 0',
-								labelAlign: 'top'
+							xtype: 'panel',
+							padding: 10,
+							title: _('physical_address'),
+							cls: 'highlight_fieldset',
+							bodyCls: 'highlight_fieldset',
+							layout: {
+								type: 'vbox',
+								align: 'stretch'
 							},
 							items: [
 								{
 									xtype: 'textfield',
-									name: 'phone_mobile',
-									emptyText: '000-000-0000',
-									fieldLabel:_('mobile'),
-									width: 200,
-									vtype: 'phoneNumber'
+									fieldLabel: _('street'),
+									labelAlign: 'top',
+									anchor: '100%',
+									name: 'physical_address'
 								},
 								{
 									xtype: 'textfield',
-									name: 'email',
-									emptyText: 'example@email.com',
-									fieldLabel:_('email'),
-									width: 200,
-									vtype: 'email'
+									fieldLabel: '(' + _('optional') + ')',
+									labelAlign: 'top',
+									anchor: '100%',
+									name: 'physical_address_cont'
+								},
+								{
+									xtype: 'container',
+									layout: 'hbox',
+									anchor: '100%',
+									defaults: {
+										margin: '0 5 5 0'
+									},
+									items: [
+										{
+											xtype: 'textfield',
+											fieldLabel: _('city'),
+											labelAlign: 'top',
+											width: 119,
+											name: 'physical_city'
+										},
+										{
+											xtype: 'textfield',
+											fieldLabel: _('state'),
+											labelAlign: 'top',
+											width: 40,
+											name: 'physical_state'
+										},
+										{
+											xtype: 'textfield',
+											fieldLabel: _('zip'),
+											labelAlign: 'top',
+											width: 80,
+											name: 'physical_zip'
+										},
+										{
+											xtype: 'textfield',
+											fieldLabel: _('country'),
+											labelAlign: 'top',
+											flex: 1,
+											name: 'physical_country',
+											margin: 0
+										}
+									]
 								}
 							]
 						}
 					]
-				}
+				},
+
 			]
 		},
 		{

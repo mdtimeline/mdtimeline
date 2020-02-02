@@ -3977,6 +3977,7 @@ Ext.define('App.ux.RenderPanel', {
 	pageBBar: null,
 	pagePadding: null,
 	showRating: false,
+	pageAutoScroll: false,
 
 	initComponent: function(){
 		var me = this;
@@ -4004,6 +4005,7 @@ Ext.define('App.ux.RenderPanel', {
 							border: false,
 							itemId: 'pageLayout',
 							defaults: { frame: false, border: false, autoScroll: true },
+							autoScroll: me.pageAutoScroll,
 							layout: me.pageLayout,
 							items: me.pageBody,
 							tbar: me.pageTBar,
@@ -47120,11 +47122,27 @@ Ext.define('App.controller.patient.Patient', {
 			},
 			'#PossiblePatientDuplicatesCancelBtn': {
 				click: me.onPossiblePatientDuplicatesCancelBtnClick
+			},
+
+			'textfield[action=last_name_field]': {
+				keyup: me.onPatientLastNameFieldKeyUp
 			}
 		});
 
 		me.importCtrl = this.getController('patient.CCDImport');
 
+	},
+
+	onPatientLastNameFieldKeyUp: function(field){
+		var has_two_last_names = field.getValue().trim().split(' ').length > 1;
+		field.has_two_last_names = has_two_last_names;
+
+		if(!has_two_last_names){
+			field.has_two_last_names =('x-field-yellow');
+			field.addCls('x-field-yellow');
+		}else{
+			field.removeCls('x-field-yellow');
+		}
 	},
 
 	onNewPatientWindowClose: function () {
@@ -54515,15 +54533,20 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 	},
 
 	doSendPatientToPoolArea: function (pid, area_id, callback) {
+
+		var me = this;
+
+		app.fireEvent('beforesendpatienttoarea', me, pid, area_id);
+
 		PoolArea.sendPatientToPoolArea({ pid: pid, sendTo: area_id }, function(result){
+
+			app.fireEvent('sendpatienttoarea', me, pid, area_id);
 
 			if(result.floor_plan_id == null){
 				app.unsetPatient(null, true);
 				app.nav['App_view_areas_PatientPoolAreas'].reloadStores();
 				app.getPatientsInPoolArea();
-
 				if(callback) callback();
-
 				return;
 			}
 
@@ -63037,6 +63060,7 @@ Ext.define('App.ux.form.fields.plugin.HelpIcon', {
 });
 Ext.define('App.ux.combo.ComboResettable', {
 	extend: 'Ext.form.ComboBox',
+	xtype: 'comboresettable',
 	triggerTip: _('click_to_clear_selection'),
 	spObj: '',
 	spForm: '',

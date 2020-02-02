@@ -17,6 +17,7 @@
  */
 Ext.define('App.ux.combo.ComboResettable', {
 	extend: 'Ext.form.ComboBox',
+	xtype: 'comboresettable',
 	triggerTip: _('click_to_clear_selection'),
 	spObj: '',
 	spForm: '',

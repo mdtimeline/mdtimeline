@@ -61,15 +61,20 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 	},
 
 	doSendPatientToPoolArea: function (pid, area_id, callback) {
+
+		var me = this;
+
+		app.fireEvent('beforesendpatienttoarea', me, pid, area_id);
+
 		PoolArea.sendPatientToPoolArea({ pid: pid, sendTo: area_id }, function(result){
+
+			app.fireEvent('sendpatienttoarea', me, pid, area_id);
 
 			if(result.floor_plan_id == null){
 				app.unsetPatient(null, true);
 				app.nav['App_view_areas_PatientPoolAreas'].reloadStores();
 				app.getPatientsInPoolArea();
-
 				if(callback) callback();
-
 				return;
 			}
 

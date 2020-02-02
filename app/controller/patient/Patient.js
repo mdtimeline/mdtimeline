@@ -81,11 +81,27 @@ Ext.define('App.controller.patient.Patient', {
 			},
 			'#PossiblePatientDuplicatesCancelBtn': {
 				click: me.onPossiblePatientDuplicatesCancelBtnClick
+			},
+
+			'textfield[action=last_name_field]': {
+				keyup: me.onPatientLastNameFieldKeyUp
 			}
 		});
 
 		me.importCtrl = this.getController('patient.CCDImport');
 
+	},
+
+	onPatientLastNameFieldKeyUp: function(field){
+		var has_two_last_names = field.getValue().trim().split(' ').length > 1;
+		field.has_two_last_names = has_two_last_names;
+
+		if(!has_two_last_names){
+			field.has_two_last_names =('x-field-yellow');
+			field.addCls('x-field-yellow');
+		}else{
+			field.removeCls('x-field-yellow');
+		}
 	},
 
 	onNewPatientWindowClose: function () {

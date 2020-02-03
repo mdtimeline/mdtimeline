@@ -30,6 +30,7 @@ class Snippets {
 
 	public function getSoapSnippets($params){
 		$this->s->setOrFilterProperties(['uid']);
+		unset($params->group);
 		return $this->s->load($params)->all();
 	}
 

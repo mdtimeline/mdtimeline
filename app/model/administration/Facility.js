@@ -44,6 +44,23 @@ Ext.define('App.model.administration.Facility', {
 			len: 60
 		},
 		{
+			name: 'lname',
+			type: 'string'
+		},
+		{
+			name: 'fname',
+			type: 'string'
+		},
+		{
+			name: 'mname',
+			type: 'string'
+		},
+		{
+			name: 'facility_entity',
+			type: 'string',
+			len: 1
+		},
+		{
 			name: 'attn',
 			type: 'string',
 			len: 80

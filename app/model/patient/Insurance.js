@@ -32,12 +32,6 @@ Ext.define('App.model.patient.Insurance',{
             store: false
         },
         {
-            name: 'patient_insurance_id',
-            type: 'int',
-            len: 15,
-            store: false
-        },
-        {
             name: 'pid',
             type: 'int',
             index: true

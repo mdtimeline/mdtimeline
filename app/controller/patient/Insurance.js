@@ -94,7 +94,6 @@ Ext.define('App.controller.patient.Insurance', {
                 loadrecord: me.onPatientInsurancesFormLoadRecord
             },
 
-
             '#PatientInsuranceFormSubscribeRelationshipCmb': {
                 select: me.onPatientInsuranceFormSubscribeRelationshipCmbSelect
             },
@@ -110,7 +109,6 @@ Ext.define('App.controller.patient.Insurance', {
             '#PatientInsurancesPanelCancelBtn': {
                 click: me.onPatientInsurancesPanelCancelBtnClick
             },
-
 
             '#BillingPatientInsuranceCoverInformationCoverGrid': {
                 edit: me.onBillingPatientInsuranceCoverInformationCoverGridEdit,
@@ -321,6 +319,15 @@ Ext.define('App.controller.patient.Insurance', {
 
     },
 
+
+
+
+
+    //***********************
+    //*  NEEDS VALIDATION   *
+    //***********************
+
+
     onBillingPatientInsuranceCoverInformationCoverGridEdit: function (plugin, context) {
         //actualizar Co_pay del Service Type Selected .
 
@@ -331,9 +338,26 @@ Ext.define('App.controller.patient.Insurance', {
     },
 
 
-    //***********************
-    //*  NEEDS VALIDATION   *
-    //***********************
+    //Grid Functions (Elegibility Btn) has its own controller
+    onBillingPatientInsuranceCoverInformationCoverGridValidateEdit: function (plugin, context) {
+
+        say('onBillingPatientInsuranceCoverInformationCoverGridValidateEdit');
+        say(context);
+
+        if (context.field = 'isDollar') return;
+
+        var cover_record = context.record,
+            prev_copay = cover_record.get('copay'),
+            copay = context.value;
+
+        cover_record.set({
+            copay: copay,
+            update_date: new Date(),
+            update_uid: app.user.id
+        });
+    },
+
+
 
     onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldRender: function(field){
 
@@ -378,22 +402,6 @@ Ext.define('App.controller.patient.Insurance', {
         });
     },
 
-
-    //Grid Functions (Elegibility Btn) has its own controller
-    onBillingPatientInsuranceCoverInformationCoverGridValidateEdit: function (plugin, context) {
-
-        var cover_record = context.record,
-            prev_copay = cover_record.get('copay'),
-            copay = context.value;
-
-        cover_record.set({
-            copay: copay,
-            update_date: new Date(),
-            update_uid: app.user.id
-        });
-
-    },
-
     onPatientInsurancesPanelSaveBtnClick: function (btn) {
         var me = this,
             insurance_panel = me.getPatientInsurancesPanel(),
@@ -409,7 +417,10 @@ Ext.define('App.controller.patient.Insurance', {
 
             record.set(values);
 
-            //if (Ext.Object.isEmpty(record.getChanges())) return;
+            /**
+             *  Instruccion en Comentario, si no, el Grid de Cubierta no ejecuta el save. CARLI
+             *  if (Ext.Object.isEmpty(record.getChanges())) return;
+             */
 
             record.save({
 

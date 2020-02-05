@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 include_once(ROOT .'/dataProvider/User.php');
+
 class Insurance {
 
 	/**
@@ -100,7 +101,8 @@ class Insurance {
                             dp.title             as department_title,
                             st.specialty_id      as specialty_id,
                             sp.title             as specialty_title,
-                               ''                as copay,
+                            st.isDollar          as isDollar,
+                              0.00               as copay,
                             st.active            as active,
                             :create_uid          as create_uid,
                             :update_uid          as update_uid,  
@@ -136,6 +138,7 @@ class Insurance {
                     specialty_id,
                     specialty_title,
                     service_type_description,
+                    max(isDollar) as isDollar,
                     max(copay) as copay,
                     max(valueExist) as valueExist,
                     max(update_date) as update_date
@@ -148,6 +151,7 @@ class Insurance {
                             st.specialty_id      as specialty_id,
                             sp.title             as specialty_title,
                             st.description       as service_type_description,
+                            st.isDollar          as isDollar,
                             ''                   as copay,
                             'add'                as valueExist,
                             now()                as update_date
@@ -165,12 +169,13 @@ class Insurance {
                             st.specialty_id      as specialty_id,
                             sp.title             as specialty_title,
                             st.description       as service_type_description,
+                            st.isDollar          as isDollar,
                             copay,
                             case st.active 
                             when true then 'load'
                             when false then 'delete'
                             end as valueExist,
-                            pic.update_date as update_date
+                            pic.update_date      as update_date
                         from patient_insurance_covers pic
                             join acc_billing_271_service_types st on st.id = pic.service_type_id
                             join departments dp  on st.department_id = dp.id
@@ -192,7 +197,7 @@ class Insurance {
 
         foreach ($results as $result) {
 
-            if ($result['valueExist'] == "delete") {
+            if ($result['valueExist'] === "delete") {
 
                 $service_type_id = $result['service_type_id'];
 
@@ -206,12 +211,13 @@ class Insurance {
 
             }
 
-            if ($result['valueExist'] == "add") {
+            if ($result['valueExist'] === "add") {
 
                 $_add_params = (object) array(
                             'id' =>  0,
                             'patient_insurance_id' =>  $patient_insurance_id,
                             'service_type_id' =>  $result['service_type_id'],
+                            'isDollar' => true,
                             'copay' =>  "",
                             'active' =>  1,
                             'create_uid' =>  $_SESSION['user']['id'],
@@ -231,6 +237,7 @@ class Insurance {
                             pic.id                   as id, 
                             pic.patient_insurance_id as patient_insurance_id,
                             pic.service_type_id      as service_type_id,
+                            pic.isDollar             as isDollar,
                             pic.copay                as copay,
                             pic.active               as active,
                             pic.create_uid           as create_uid,
@@ -314,6 +321,7 @@ class Insurance {
                     specialty_id,
                     specialty_title,
                     service_type_description,
+                    max(isDollar) as isDollar,
                     max(copay) as copay,
                     max(valueExist) as valueExist,
                     max(update_date) as update_date
@@ -409,6 +417,7 @@ class Insurance {
                             pic.id                   as id, 
                             pic.patient_insurance_id as patient_insurance_id,
                             pic.service_type_id      as service_type_id,
+                            pic.isDollar             as isDollar,
                             pic.copay                as copay,
                             pic.active               as active,
                             pic.create_uid           as create_uid,
@@ -458,11 +467,13 @@ class Insurance {
 	 */
 	public function getInsurances($params) {
 
-        return $this->pi->load($params)->leftJoin(
+        $getRecords =  $this->pi->load($params)->leftJoin(
 	        ['id' => 'insurance_company_id', 'name' => 'ins_name'], 'insurance_companies', 'insurance_id', 'id'
         )->leftJoin(
 	        ['synonym' => 'ins_synonym'], 'acc_billing_insurance_data', 'insurance_id', 'insurance_id'
         )->all();
+
+        return $getRecords;
 	}
 
 
@@ -480,12 +491,12 @@ class Insurance {
 
     public function getInsurancesByPid($pid) {
 		$getRecords = $this->pi->load(['pid' => $pid])->leftJoin(
-			['id' => 'insurance_company_id', 'name' => 'ins_name'], 'insurance_companies', 'insurance_id', 'id'
-		)->leftJoin(
-			['synonym' => 'ins_synonym'], 'acc_billing_insurance_data', 'insurance_id', 'insurance_id'
-		);
+            ['id' => 'insurance_company_id', 'name' => 'ins_name'], 'insurance_companies', 'insurance_id', 'id'
+        )->leftJoin(
+            ['synonym' => 'ins_synonym'], 'acc_billing_insurance_data', 'insurance_id', 'insurance_id'
+        )->all();
 
-		return $getRecords;
+        return $getRecords;
 	}
 
 	/**
@@ -493,7 +504,8 @@ class Insurance {
 	 * @return array
 	 */
 	public function addInsurance($params) {
-		return $this->pi->save($params);
+        $patient_insurance = $this->pi->save($params);
+        return $patient_insurance;
 	}
 
 	/**
@@ -501,10 +513,11 @@ class Insurance {
 	 * @return array
 	 */
 	public function updateInsurance($params) {
-		return $this->pi->save($params);
-	}
+            $patient_insurance = $this->pi->save($params);
+            return $patient_insurance;
+    }
 
-	/**
+    /**
 	 * @param $params
 	 * @return mixed
 	 */

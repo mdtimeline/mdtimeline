@@ -1021,6 +1021,15 @@ Ext.override(Ext.container.Container, {
         return val;
     },
 
+    isDollarRenderer: function(val){
+        if(val == '1' || val == true || val == 'true'){
+            return '<div style="margin-left:auto; margin-right:auto; width:16px; height:16px"><img src="resources/images/icons/icoDotGreen.png" /></div>';
+        }else if(val == '0' || val == false || val == 'false'){
+            return '<div style="margin-left:auto; margin-right:auto; width:16px; height:16px"><img src="resources/images/icons/icoDotRed.png" /></div>';
+        }
+        return val;
+    },
+
     /**
      * A custom renderer to show VOIDed records in a Grid Panel.
      * @param val

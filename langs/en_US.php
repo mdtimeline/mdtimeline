@@ -481,6 +481,7 @@ $LANG = array(
 	'tax'							        => 'Tax',
 	'amount_due'							=> 'Amount Due',
 	'payment_amount'						=> 'Payment Amount',
+	'header_amount'						    => 'Header Amount',
 	'balance'								=> 'Balance',
 	'add_service'							=> 'Add Service',
 	'add_copay'								=> 'Add Co-Pay',
@@ -2048,6 +2049,7 @@ $LANG = array(
 	'template_type' => 'Template Type',
 	'from_email' => 'From Email',
 	'from_name' => 'From Name',
+	'region' => 'Region',
 	'email_template' => 'Email Template',
 	'email_templates' => 'Email Templates',
 	'intervention' => 'Intervention',
@@ -2087,4 +2089,7 @@ $LANG = array(
 	'requested' => 'Requested',
 	'save_ccda' => 'Save C-CDA',
 
+    'name_last' => 'Name Last',
+    'first' => 'First',
+    'middle' => 'Middle'
 );

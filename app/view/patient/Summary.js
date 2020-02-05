@@ -348,7 +348,7 @@ Ext.define('App.view.patient.Summary', {
 				newPatient: false,
 				autoScroll: true,
 				title: _('demographics')
-            });
+             });
 
 			me.insTabPanel = me.tabPanel.add({
 				xtype: 'insurancestabpanel',

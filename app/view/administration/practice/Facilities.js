@@ -180,13 +180,14 @@ Ext.define('App.view.administration.practice.Facilities', {
 											{
 												xtype: 'textfield',
 												fieldLabel: _('ess'),
+                                                labelWidth: 30,
 												name: 'ess',
 												margin: '0 10 0 0'
 											},
 											{
 												xtype: 'textfield',
 												fieldLabel: _('ein'),
-												labelWidth: 60,
+                                                labelWidth: 30,
 												name: 'ein'
 											}
 										]
@@ -255,11 +256,52 @@ Ext.define('App.view.administration.practice.Facilities', {
 										fieldLabel: _('billing_location'),
 										name: 'billing_location'
 									},
-									{
-										xtype: 'checkbox',
-										fieldLabel: _('accepts_assignment'),
-										name: 'accepts_assignment'
-									}
+                                    {
+                                        xtype: 'fieldcontainer',
+                                        layout: 'hbox',
+                                        items: [
+                                            {
+                                                xtype: 'textfield',
+                                                labelWidth: 100,
+                                                fieldLabel: _('name_last'),
+                                                width: 400,
+                                                name: 'lname',
+                                                margin: '0 10 0 0'
+                                            },
+                                            {
+                                                xtype: 'textfield',
+                                                name: 'fname',
+                                                labelWidth: 40,
+                                                fieldLabel: _('first'),
+                                                flex: 2,
+                                                margin: '0 10 0 0'
+                                            },
+                                            {
+                                                xtype: 'textfield',
+                                                name: 'mname',
+                                                labelWidth: 40,
+                                                fieldLabel: _('middle'),
+                                                flex: 1,
+                                                margin: '0 10 0 0'
+                                            }
+                                        ]
+                                    },
+                                    // {
+                                    //     xtype: 'checkbox',
+                                    //     fieldLabel: _('accepts_assignment'),
+                                    //     labelWidth: 120,
+                                    //     width: 140,
+                                    //     name: 'accepts_assignment',
+                                    //     margin: '10 10 0 0'
+                                    // },
+                                    {
+                                        xtype: 'textfield',
+                                        name: 'facility_entity',
+                                        labelWidth: 35,
+                                        width: 55,
+                                        fieldLabel: _('entity'),
+                                        margin: '10 10 0 0'
+                                    }
 								]
 							}
 						]

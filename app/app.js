@@ -60133,7 +60133,7 @@ Ext.define('App.controller.DocumentViewer', {
 		DocumentHandler.destroyTempDocument({id: win.documentId});
 	},
 
-	doDocumentView: function(id, type, site){
+	doDocumentView: function(id, type, site, closable){
 
 		var windows = Ext.ComponentQuery.query('documentviewerwindow'),
 			src = 'dataProvider/DocumentViewer.php?site=' + (site || app.user.site) + '&id=' + id + '&token=' + app.user.token,
@@ -60146,6 +60146,7 @@ Ext.define('App.controller.DocumentViewer', {
 		win = Ext.create('App.view.patient.windows.DocumentViewer',{
 			documentType: type,
 			documentId: id,
+			closable: (closable !== undefined ? closable : true),
 			items:[
 				{
 					xtype:'miframe',

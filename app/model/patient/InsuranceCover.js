@@ -31,6 +31,18 @@ Ext.define('App.model.patient.InsuranceCover',{
             type: 'float'
         },
         {
+            name: 'exception_isDollar',
+            type: 'bool'
+        },
+        {
+            name: 'exception_copay',
+            type: 'float'
+        },
+        {
+            name: 'exception',
+            type: 'bool'
+        },
+        {
             name: 'active',
             type: 'bool'
         },

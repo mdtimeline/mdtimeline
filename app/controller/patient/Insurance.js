@@ -117,6 +117,7 @@ Ext.define('App.controller.patient.Insurance', {
 
             '#BillingPatientInsuranceCoverInformationCoverExceptionSearchField': {
                 select: me.onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldSelect,
+                change: me.onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldchange,
                 render: me.onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldRender
             }
 
@@ -337,12 +338,26 @@ Ext.define('App.controller.patient.Insurance', {
         // });
     },
 
+    onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldchange: function (field, newValue, oldValue, eOpts) {
+
+        if (newValue) { return; }
+
+        var cover_grid = field.up('fieldset').down('grid'),
+            cover_grid_store = cover_grid.getStore(),
+            cover_grid_records = cover_grid_store.getRange();
+
+        for (var c = 0; c < cover_grid_records.length; c++) {
+            cover_grid_records[c].set({
+                exception_copay: 0.00,
+                exception_isDollar: true,
+                exception: false
+            });
+        }
+    },
+
 
     //Grid Functions (Elegibility Btn) has its own controller
     onBillingPatientInsuranceCoverInformationCoverGridValidateEdit: function (plugin, context) {
-
-        say('onBillingPatientInsuranceCoverInformationCoverGridValidateEdit');
-        say(context);
 
         if (context.field = 'isDollar') return;
 
@@ -357,8 +372,6 @@ Ext.define('App.controller.patient.Insurance', {
         });
     },
 
-
-
     onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldRender: function(field){
 
         field.store.on('beforeload', function (store) {
@@ -371,6 +384,9 @@ Ext.define('App.controller.patient.Insurance', {
     },
 
     onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldSelect: function (field, selected_cover) {
+
+        if (field.value.length === 0) return;
+
         var me = this,
             cover_form = field.up('form'),
             insurance_form = cover_form.getForm(),
@@ -385,13 +401,24 @@ Ext.define('App.controller.patient.Insurance', {
 
         BillingCover.getBillingCoverExceptionByCoverId(selected_cover[0].get('id'), function (response) {
 
+            for (var c = 0; c < cover_grid_records.length; c++) {
+                cover_grid_records[c].set({
+                    exception_copay: 0.00,
+                    exception_isDollar: true,
+                    exception: false
+                });
+            }
+
+
             for (var r = 0; r < response.length; r++) {
 
                 for (var i = 0; i < cover_grid_records.length; i++) {
 
                     if (cover_grid_records[i].get('service_type_id') === response[r].service_type_id ) {
                         cover_grid_records[i].set({
-                            copay: response[r].copay,
+                            exception_copay: response[r].copay,
+                            exception_isDollar: response[r].isDollar,
+                            exception: true,
                             update_date: new Date(),
                             update_uid: app.user.id
                         });
@@ -432,8 +459,6 @@ Ext.define('App.controller.patient.Insurance', {
                         cover_grid_records = cover_grid_store.getRange();
 
                     for (var i = 0; i < cover_grid_records.length; i++) {
-
-                        say(cover_grid_records[i]);
 
                         cover_grid_records[i].set({
                             patient_insurance_id: record.get('id')

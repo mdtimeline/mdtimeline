@@ -439,16 +439,18 @@ Ext.define('App.view.patient.Patient', {
 													},
 													items: [
 														{
-															xtype: 'textfield',
+															xtypxe: 'textfield',
 															name: 'phone_home',
 															emptyText: '000-000-0000',
 															fieldLabel: _('home'),
+															allowBlank: g('require_patient_home_phone') === "0",
 															flex: 1
 														},
 														{
 															xtype: 'textfield',
 															name: 'phone_mobile',
 															emptyText: '000-000-0000',
+															allowBlank: g('require_patient_mobile_phone') === "0",
 															fieldLabel:_('mobile'),
 															flex: 1
 														},
@@ -466,6 +468,7 @@ Ext.define('App.view.patient.Patient', {
 															xtype: 'textfield',
 															name: 'email',
 															emptyText: 'example@email.com',
+															allowBlank: g('require_patient_email') === "0",
 															fieldLabel:_('email'),
 															flex: 2
 														}

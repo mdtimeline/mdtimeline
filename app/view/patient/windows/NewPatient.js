@@ -130,6 +130,7 @@ Ext.define('App.view.patient.windows.NewPatient', {
 											emptyText: '000-000-0000',
 											fieldLabel:_('mobile'),
 											width: 200,
+											allowBlank: g('require_patient_mobile_phone') === "0",
 											vtype: 'phoneNumber'
 										},
 										{
@@ -138,6 +139,7 @@ Ext.define('App.view.patient.windows.NewPatient', {
 											emptyText: 'example@email.com',
 											fieldLabel:_('email'),
 											width: 200,
+											allowBlank: g('require_patient_email') === "0",
 											vtype: 'email'
 										}
 									]

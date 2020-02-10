@@ -215,184 +215,7 @@ class Insurance {
             }
         }
 
-        if ($patient_insurance_id === 0) {
-
-            #region Seguro Paciente NO SE HA ANADIDO. POR ENDE Patient_Insurance_Id === 0
-
-            $_query_params = [];
-            $_query_params['create_uid'] =  $_SESSION['user']['id'];
-            $_query_params['update_uid'] =  $_SESSION['user']['id'];
-            $_query_params['create_date'] =  date("Y-m-d H:i:s");
-            $_query_params['update_date'] =  date("Y-m-d H:i:s");
-
-            $sqlSelect = "select
-                              ''                 as id, 
-                              ''                 as patient_insurance_id,
-                            st.id                as service_type_id,
-                            st.description       as service_type_description,
-                            st.department_id     as department_id,
-                            dp.title             as department_title,
-                            st.isDollar          as isDollar,
-                              0.00               as copay,
-                            st.isDollar          as exception_isDollar,
-                              0.00               as exception_copay,
-                              false              as exception,
-                            st.active            as active,
-                            :create_uid          as create_uid,
-                            :update_uid          as update_uid,  
-                            :create_date         as create_date,
-                            :update_date         as update_date
-                        from acc_billing_271_service_types st
-                            left join departments dp  on st.department_id = dp.id
-                        where st.active = true  ";
-
-            $finalResults =  $this->pic->sql($sqlSelect)->all($_query_params);
-
-            foreach ($finalResults as &$finalResult){
-                $finalResult['id'] = null;
-                $finalResult['patient_insurance_id'] = null;
-            }
-
-            #endregion
-
-            return $finalResults;
-        }
-
-        #region Validar el Template de Cubiertas con las del Paciente (Para anadir nuevas y eliminar Inactivas)
-
-        $_query_params = [];
-        $_query_params['patientInsuranceId'] =  $patient_insurance_id;
-
-        $sqlSelect = "
-                select
-                    service_type_id,
-                    department_id,
-                    department_title,
-                    service_type_description,
-                    max(isDollar) as isDollar,
-                    max(copay) as copay,
-                    max(exception_isDollar) as exception_isDollar,
-                    max(exception_copay) as exception_copay,
-                    max(exception) as exception,
-                    max(valueExist) as valueExist,
-                    max(update_date) as update_date
-                from
-                    (
-                        select
-                            st.id                as service_type_id,
-                            st.department_id     as department_id,
-                            dp.title             as department_title,
-                            st.description       as service_type_description,
-                            st.isDollar          as isDollar,
-                            0.00                 as copay,
-                            st.isDollar          as exception_isDollar,
-                            0.00                 as exception_copay,
-                            false                as exception,
-                            'add'                as valueExist,
-                            now()                as update_date
-                        from acc_billing_271_service_types st
-                            join departments dp  on st.department_id = dp.id
-                        where st.active = true 
-                        
-                        union
-                        
-                        select
-                            st.id                as service_type_id,
-                            st.department_id     as department_id,
-                            dp.title             as department_title,
-                            st.description       as service_type_description,
-                            pic.isDollar,
-                            pic.copay,
-                            pic.exception_isDollar,
-                            pic.exception_copay,
-                            pic.exception,
-                            case st.active 
-                            when true then 'load'
-                            when false then 'delete'
-                            end as valueExist,
-                            pic.update_date      as update_date
-                        from patient_insurance_covers pic
-                            join acc_billing_271_service_types st on st.id = pic.service_type_id
-                            join departments dp  on st.department_id = dp.id
-                        where patient_insurance_id = :patientInsuranceId
-                        
-                    ) t1
-                    
-                group by
-                    service_type_id,
-                    department_id,
-                    department_title,
-                    service_type_description ";
-
-        $results = $this->pic->sql($sqlSelect)->all($_query_params);
-
-
-        foreach ($results as $result) {
-
-            if ($result['valueExist'] === "delete") {
-
-                $service_type_id = $result['service_type_id'];
-
-                $_delete_params = [];
-                $_delete_params['patientInsuranceId'] =  $patient_insurance_id;
-                $_delete_params['serviceTypeId'] =  $service_type_id;
-
-                $sqlDelete = "delete from patient_insurance_covers where patient_insurance_id = :patientInsuranceId and service_type_id = :serviceTypeId ";
-
-                $this->pic->sql($sqlDelete)->all($_delete_params);
-
-            }
-
-            if ($result['valueExist'] === "add") {
-
-                $_add_params = (object) array(
-                    'id' =>  null,
-                    'patient_insurance_id' =>  $patient_insurance_id,
-                    'service_type_id' =>  $result['service_type_id'],
-                    'isDollar' => true,
-                    'copay' =>  0.00,
-                    'exception_isDollar' => true,
-                    'exception_copay' =>  0.00,
-                    'exception' =>  false,
-                    'active' =>  1,
-                    'create_uid' =>  $_SESSION['user']['id'],
-                    'update_uid' =>  $_SESSION['user']['id'],
-                    'create_date' =>  date("Y-m-d H:i:s"),
-                    'update_date' =>  date("Y-m-d H:i:s"));
-
-                $this->pic->save($_add_params);
-            }
-
-        }
-        #endregion
-
-        #region Cargar la Cubierta ya actualizada.
-
-        $sqlSelect = "select
-                            pic.id                   as id, 
-                            pic.patient_insurance_id as patient_insurance_id,
-                            pic.service_type_id      as service_type_id,
-                            pic.isDollar             as isDollar,
-                            pic.copay                as copay,
-                            pic.exception_isDollar   as exception_isDollar,
-                            pic.exception_copay      as exception_copay,
-                            pic.exception            as exception,
-                            pic.active               as active,
-                            pic.create_uid           as create_uid,
-                            pic.update_uid           as update_uid,
-                            pic.create_date          as create_date,
-                            pic.update_date          as update_date,
-                            st.department_id         as department_id,
-                            dp.title                 as department_title,
-                            st.description           as service_type_description
-                        from patient_insurance_covers pic
-                            join acc_billing_271_service_types st on st.id = pic.service_type_id
-                            join departments dp  on st.department_id = dp.id
-                        where patient_insurance_id = :patientInsuranceId ";
-
-        $finalResults = $this->pic->sql($sqlSelect)->all($_query_params);
-
-        #endregion
+        $finalResults = $this->doGetPatientInsuranceCovers($patient_insurance_id);
 
         return $finalResults;
     }
@@ -401,6 +224,13 @@ class Insurance {
         $_query_params = [];
         $_query_params['patientInsuranceId'] =  $patient_insurance_id;
 
+        $finalResults = $this->doGetPatientInsuranceCovers($patient_insurance_id);
+
+        return $finalResults;
+    }
+
+    public function doGetPatientInsuranceCovers($patient_insurance_id) {
+
         if ($patient_insurance_id === 0) {
 
             #region Seguro Paciente NO SE HA ANADIDO. POR ENDE Patient_Insurance_Id === 0
@@ -418,9 +248,9 @@ class Insurance {
                             st.description       as service_type_description,
                             st.department_id     as department_id,
                             dp.title             as department_title,
-                            true                 as isDollar,
+                            st.isDollar          as isDollar,
                             0.00                 as copay,
-                            true                 as exception_isDollar,
+                            st.isDollar          as exception_isDollar,
                             0.00                 as exception_copay,
                             false                as exception,
                             st.active            as active,
@@ -447,10 +277,12 @@ class Insurance {
         #region Validar el Template de Cubiertas con las del Paciente (Para anadir nuevas y eliminar Inactivas)
 
         $_query_params = [];
-        $_query_params['patientInsuranceId'] =  $patient_insurance_id;
+        $_query_params['patientInsuranceId_0'] =  $patient_insurance_id;
+        $_query_params['patientInsuranceId_1'] =  $patient_insurance_id;
 
         $sqlSelect = "
                 select
+                    pic_id, 
                     service_type_id,
                     department_id,
                     department_title,
@@ -460,38 +292,47 @@ class Insurance {
                     max(exception_isDollar) as exception_isDollar,
                     max(exception_copay) as exception_copay,
                     max(exception) as exception,
+                    max(active) as active,
                     max(valueExist) as valueExist,
                     max(update_date) as update_date
                 from
                     (
                         select
+                            null                 as pic_id,
                             st.id                as service_type_id,
                             st.department_id     as department_id,
                             dp.title             as department_title,
                             st.description       as service_type_description,
-                            true                 as isDollar,
+                            st.isDollar          as isDollar,
                             0.00                 as copay,
-                            true                 as exception_isDollar,
+                            st.isDollar          as exception_isDollar,
                             0.00                 as exception_copay,
                             false                as exception,
+                            true                 as active,
                             'add'                as valueExist,
                             now()                as update_date
                         from acc_billing_271_service_types st
                             join departments dp  on st.department_id = dp.id
-                        where st.active = true 
+                        where st.active = true and 
+                              st.id not in ( select service_type_id 
+										     from patient_insurance_covers 
+                                             where patient_insurance_id = :patientInsuranceId_0
+                                             group by service_type_id )
                         
                         union
                         
                         select
+                            pic.id               as pic_id,
                             st.id                as service_type_id,
                             st.department_id     as department_id,
                             dp.title             as department_title,
                             st.description       as service_type_description,
-                            pic.isDollar,
+                            st.isDollar          as isDollar,
                             pic.copay,
-                            pic.exception_isDollar,
+                            st.isDollar          as exception_isDollar,
                             pic.exception_copay,
                             pic.exception, 
+                            pic.active, 
                             case st.active 
                             when true then 'load'
                             when false then 'delete'
@@ -500,7 +341,7 @@ class Insurance {
                         from patient_insurance_covers pic
                             join acc_billing_271_service_types st on st.id = pic.service_type_id
                             join departments dp  on st.department_id = dp.id
-                        where patient_insurance_id = :patientInsuranceId
+                        where patient_insurance_id = :patientInsuranceId_1 
                         
                     ) t1
                     
@@ -529,18 +370,39 @@ class Insurance {
 
             }
 
+
+            if ($result['valueExist'] == "load") {
+
+                $_add_params = (object) array(
+                    'id' =>  $result['pic_id'],
+                    'patient_insurance_id' =>  $patient_insurance_id,
+                    'service_type_id' =>  $result['service_type_id'],
+                    'isDollar' => $result['isDollar'],
+                    'copay' =>  $result['copay'],
+                    'exception_isDollar' => $result['exception_isDollar'],
+                    'exception_copay' => $result['exception_copay'],
+                    'exception' => $result['exception'],
+                    'active' =>  $result['active'],
+                    'create_uid' =>  $_SESSION['user']['id'],
+                    'update_uid' =>  $_SESSION['user']['id'],
+                    'create_date' =>  date("Y-m-d H:i:s"),
+                    'update_date' =>  date("Y-m-d H:i:s"));
+
+                $this->pic->save($_add_params);
+            }
+
             if ($result['valueExist'] == "add") {
 
                 $_add_params = (object) array(
                     'id' =>  null,
                     'patient_insurance_id' =>  $patient_insurance_id,
                     'service_type_id' =>  $result['service_type_id'],
-                    'isDollar' => true,
-                    'copay' =>  0.00,
-                    'exception_isDollar' => true,
-                    'exception_copay' => 0.00,
-                    'exception' => false,
-                    'active' =>  1,
+                    'isDollar' => $result['isDollar'],
+                    'copay' =>  $result['copay'],
+                    'exception_isDollar' => $result['exception_isDollar'],
+                    'exception_copay' => $result['exception_copay'],
+                    'exception' => $result['exception'],
+                    'active' =>  $result['active'],
                     'create_uid' =>  $_SESSION['user']['id'],
                     'update_uid' =>  $_SESSION['user']['id'],
                     'create_date' =>  date("Y-m-d H:i:s"),
@@ -554,6 +416,9 @@ class Insurance {
 
         #region Cargar la Cubierta ya actualizada.
 
+        $_query_params = [];
+        $_query_params['patientInsuranceId'] =  $patient_insurance_id;
+
         $sqlSelect = "select
                             pic.id                   as id, 
                             pic.patient_insurance_id as patient_insurance_id,
@@ -562,7 +427,7 @@ class Insurance {
                             pic.copay                as copay,
                             pic.exception_isDollar   as exception_isDollar,
                             pic.exception_copay      as exception_copay,
-                            pic.exception            as exception, 
+                            pic.exception            as exception,
                             pic.active               as active,
                             pic.create_uid           as create_uid,
                             pic.update_uid           as update_uid,
@@ -581,6 +446,8 @@ class Insurance {
         #endregion
 
         return $finalResults;
+
+
     }
 
     public function getInsuranceCover($params) {

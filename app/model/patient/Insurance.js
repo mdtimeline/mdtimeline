@@ -223,6 +223,9 @@ Ext.define('App.model.patient.Insurance',{
             update: 'Insurance.updateInsurance'
         }
     },
+    writer: {
+        writeAllFields: true
+    },
     associations: [
         {
             type: 'belongsTo',

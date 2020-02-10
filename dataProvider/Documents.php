@@ -1000,8 +1000,12 @@ class Documents {
 
 		if(!empty($filters)){
 
+
+//message = "SQLSTATE[42S22]: Column not found: 1054 Unknown column 'documents_pdf_templates.is_interface_tpl' in 'where clause'"
+
+
 			$filters['active'] = 1;
-			$filters['is_interface_tpl'] = 0;
+//			$filters['is_interface_tpl'] = 0;
 			$record = $this->t->load($filters)->one();
 
 			if($record !== false){

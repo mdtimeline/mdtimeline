@@ -55,16 +55,6 @@ Ext.define('App.model.patient.InsuranceCover',{
             type: 'int'
         },
         {
-            name: 'create_date',
-            type: 'date',
-            dateFormat: 'Y-m-d H:i:s'
-        },
-        {
-            name: 'update_date',
-            type: 'date',
-            dateFormat: 'Y-m-d H:i:s'
-        },
-        {
             name: 'department_id',
             type: 'string',
             store: false
@@ -88,6 +78,16 @@ Ext.define('App.model.patient.InsuranceCover',{
             name: 'service_type_description',
             type: 'string',
             store: false
+        },
+        {
+            name: 'create_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
+        },
+        {
+            name: 'update_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
         }
     ],
     proxy: {

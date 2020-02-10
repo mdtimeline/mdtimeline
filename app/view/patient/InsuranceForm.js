@@ -286,7 +286,7 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                 width: 380,
                                                 //grow: false,
                                                 //anchor: '98%',
-                                                height: 150,
+                                                height: 170,
                                                 margin: '0 0 15 0',
                                                 name: 'notes'
 

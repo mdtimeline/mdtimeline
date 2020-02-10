@@ -321,21 +321,12 @@ Ext.define('App.controller.patient.Insurance', {
     },
 
 
-
-
-
-    //***********************
-    //*  NEEDS VALIDATION   *
-    //***********************
-
+    /**
+     * PATIENT INSURANCE COVER PANEL FUNCTIONS
+     */
 
     onBillingPatientInsuranceCoverInformationCoverGridEdit: function (plugin, context) {
-        //actualizar Co_pay del Service Type Selected .
 
-        // context.record.save({
-        //     success: function () {
-        //     }
-        // });
     },
 
     onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldchange: function (field, newValue, oldValue, eOpts) {
@@ -354,6 +345,12 @@ Ext.define('App.controller.patient.Insurance', {
             });
         }
     },
+
+    //***********************
+    //*  NEEDS VALIDATION   *
+    //***********************
+
+
 
 
     //Grid Functions (Elegibility Btn) has its own controller

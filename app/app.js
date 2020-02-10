@@ -2828,9 +2828,8 @@ Ext.define('App.ux.AbstractPanel', {
     },
 
 	boolRenderer: function(val) {
-
 		if(val == '1' || val == true || val == 'true') {
-			return '<div style="margin-left:auto; margin-right:auto; width:16px"><img src="resources/images/icons/yes.png" /></div>';
+			return '<div style="margin-left:auto; margin-right:auto; width:16"><img src="resources/images/icons/yes.png" /></div>';
 		} else if(val == '0' || val == false || val == 'false') {
 			return '<div style="margin-left:auto; margin-right:auto; width:16"><img src="resources/images/icons/no.png" /></div>';
 		}
@@ -11991,6 +11990,26 @@ Ext.define('App.model.administration.Facility', {
 			len: 60
 		},
 		{
+			name: 'lname',
+			type: 'string',
+			len: 35
+		},
+		{
+			name: 'fname',
+			type: 'string',
+			len: 35
+		},
+		{
+			name: 'mname',
+			type: 'string',
+			len: 35
+		},
+		{
+			name: 'facility_entity',
+			type: 'string',
+			len: 1
+		},
+		{
 			name: 'attn',
 			type: 'string',
 			len: 80
@@ -17119,12 +17138,6 @@ Ext.define('App.model.patient.Insurance',{
             store: false
         },
         {
-            name: 'patient_insurance_id',
-            type: 'int',
-            len: 15,
-            store: false
-        },
-        {
             name: 'pid',
             type: 'int',
             index: true
@@ -17315,6 +17328,9 @@ Ext.define('App.model.patient.Insurance',{
             create: 'Insurance.addInsurance',
             update: 'Insurance.updateInsurance'
         }
+    },
+    writer: {
+        writeAllFields: true
     },
     associations: [
         {
@@ -28442,13 +28458,14 @@ Ext.define('App.view.administration.practice.Facilities', {
 											{
 												xtype: 'textfield',
 												fieldLabel: _('ess'),
+                                                labelWidth: 30,
 												name: 'ess',
 												margin: '0 10 0 0'
 											},
 											{
 												xtype: 'textfield',
 												fieldLabel: _('ein'),
-												labelWidth: 60,
+                                                labelWidth: 30,
 												name: 'ein'
 											}
 										]
@@ -28517,11 +28534,52 @@ Ext.define('App.view.administration.practice.Facilities', {
 										fieldLabel: _('billing_location'),
 										name: 'billing_location'
 									},
-									{
-										xtype: 'checkbox',
-										fieldLabel: _('accepts_assignment'),
-										name: 'accepts_assignment'
-									}
+                                    {
+                                        xtype: 'fieldcontainer',
+                                        layout: 'hbox',
+                                        items: [
+                                            {
+                                                xtype: 'textfield',
+                                                labelWidth: 100,
+                                                fieldLabel: _('name_last'),
+                                                width: 400,
+                                                name: 'lname',
+                                                margin: '0 10 0 0'
+                                            },
+                                            {
+                                                xtype: 'textfield',
+                                                name: 'fname',
+                                                labelWidth: 40,
+                                                fieldLabel: _('first'),
+                                                flex: 2,
+                                                margin: '0 10 0 0'
+                                            },
+                                            {
+                                                xtype: 'textfield',
+                                                name: 'mname',
+                                                labelWidth: 40,
+                                                fieldLabel: _('middle'),
+                                                flex: 1,
+                                                margin: '0 10 0 0'
+                                            }
+                                        ]
+                                    },
+                                    // {
+                                    //     xtype: 'checkbox',
+                                    //     fieldLabel: _('accepts_assignment'),
+                                    //     labelWidth: 120,
+                                    //     width: 140,
+                                    //     name: 'accepts_assignment',
+                                    //     margin: '10 10 0 0'
+                                    // },
+                                    {
+                                        xtype: 'textfield',
+                                        name: 'facility_entity',
+                                        labelWidth: 35,
+                                        width: 55,
+                                        fieldLabel: _('entity'),
+                                        margin: '10 10 0 0'
+                                    }
 								]
 							}
 						]
@@ -45385,7 +45443,6 @@ Ext.define('App.controller.patient.Insurance', {
                 loadrecord: me.onPatientInsurancesFormLoadRecord
             },
 
-
             '#PatientInsuranceFormSubscribeRelationshipCmb': {
                 select: me.onPatientInsuranceFormSubscribeRelationshipCmbSelect
             },
@@ -45402,7 +45459,6 @@ Ext.define('App.controller.patient.Insurance', {
                 click: me.onPatientInsurancesPanelCancelBtnClick
             },
 
-
             '#BillingPatientInsuranceCoverInformationCoverGrid': {
                 edit: me.onBillingPatientInsuranceCoverInformationCoverGridEdit,
                 validateedit: me.onBillingPatientInsuranceCoverInformationCoverGridValidateEdit
@@ -45410,6 +45466,7 @@ Ext.define('App.controller.patient.Insurance', {
 
             '#BillingPatientInsuranceCoverInformationCoverExceptionSearchField': {
                 select: me.onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldSelect,
+                change: me.onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldchange,
                 render: me.onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldRender
             }
 
@@ -45612,19 +45669,54 @@ Ext.define('App.controller.patient.Insurance', {
 
     },
 
-    onBillingPatientInsuranceCoverInformationCoverGridEdit: function (plugin, context) {
-        //actualizar Co_pay del Service Type Selected .
 
-        // context.record.save({
-        //     success: function () {
-        //     }
-        // });
+    /**
+     * PATIENT INSURANCE COVER PANEL FUNCTIONS
+     */
+
+    onBillingPatientInsuranceCoverInformationCoverGridEdit: function (plugin, context) {
+
     },
 
+    onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldchange: function (field, newValue, oldValue, eOpts) {
+
+        if (newValue) { return; }
+
+        var cover_grid = field.up('fieldset').down('grid'),
+            cover_grid_store = cover_grid.getStore(),
+            cover_grid_records = cover_grid_store.getRange();
+
+        for (var c = 0; c < cover_grid_records.length; c++) {
+            cover_grid_records[c].set({
+                exception_copay: 0.00,
+                exception_isDollar: true,
+                exception: false
+            });
+        }
+    },
 
     //***********************
     //*  NEEDS VALIDATION   *
     //***********************
+
+
+
+
+    //Grid Functions (Elegibility Btn) has its own controller
+    onBillingPatientInsuranceCoverInformationCoverGridValidateEdit: function (plugin, context) {
+
+        if (context.field = 'isDollar') return;
+
+        var cover_record = context.record,
+            prev_copay = cover_record.get('copay'),
+            copay = context.value;
+
+        cover_record.set({
+            copay: copay,
+            update_date: new Date(),
+            update_uid: app.user.id
+        });
+    },
 
     onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldRender: function(field){
 
@@ -45638,6 +45730,9 @@ Ext.define('App.controller.patient.Insurance', {
     },
 
     onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldSelect: function (field, selected_cover) {
+
+        if (field.value.length === 0) return;
+
         var me = this,
             cover_form = field.up('form'),
             insurance_form = cover_form.getForm(),
@@ -45652,13 +45747,24 @@ Ext.define('App.controller.patient.Insurance', {
 
         BillingCover.getBillingCoverExceptionByCoverId(selected_cover[0].get('id'), function (response) {
 
+            for (var c = 0; c < cover_grid_records.length; c++) {
+                cover_grid_records[c].set({
+                    exception_copay: 0.00,
+                    exception_isDollar: true,
+                    exception: false
+                });
+            }
+
+
             for (var r = 0; r < response.length; r++) {
 
                 for (var i = 0; i < cover_grid_records.length; i++) {
 
                     if (cover_grid_records[i].get('service_type_id') === response[r].service_type_id ) {
                         cover_grid_records[i].set({
-                            copay: response[r].copay,
+                            exception_copay: response[r].copay,
+                            exception_isDollar: response[r].isDollar,
+                            exception: true,
                             update_date: new Date(),
                             update_uid: app.user.id
                         });
@@ -45667,22 +45773,6 @@ Ext.define('App.controller.patient.Insurance', {
             }
 
         });
-    },
-
-
-    //Grid Functions (Elegibility Btn) has its own controller
-    onBillingPatientInsuranceCoverInformationCoverGridValidateEdit: function (plugin, context) {
-
-        var cover_record = context.record,
-            prev_copay = cover_record.get('copay'),
-            copay = context.value;
-
-        cover_record.set({
-            copay: copay,
-            update_date: new Date(),
-            update_uid: app.user.id
-        });
-
     },
 
     onPatientInsurancesPanelSaveBtnClick: function (btn) {
@@ -45700,7 +45790,10 @@ Ext.define('App.controller.patient.Insurance', {
 
             record.set(values);
 
-            //if (Ext.Object.isEmpty(record.getChanges())) return;
+            /**
+             *  Instruccion en Comentario, si no, el Grid de Cubierta no ejecuta el save. CARLI
+             *  if (Ext.Object.isEmpty(record.getChanges())) return;
+             */
 
             record.save({
 
@@ -45712,8 +45805,6 @@ Ext.define('App.controller.patient.Insurance', {
                         cover_grid_records = cover_grid_store.getRange();
 
                     for (var i = 0; i < cover_grid_records.length; i++) {
-
-                        say(cover_grid_records[i]);
 
                         cover_grid_records[i].set({
                             patient_insurance_id: record.get('id')
@@ -57269,16 +57360,18 @@ Ext.define('App.view.patient.Patient', {
 													},
 													items: [
 														{
-															xtype: 'textfield',
+															xtypxe: 'textfield',
 															name: 'phone_home',
 															emptyText: '000-000-0000',
 															fieldLabel: _('home'),
+															allowBlank: g('require_patient_home_phone') === "0",
 															flex: 1
 														},
 														{
 															xtype: 'textfield',
 															name: 'phone_mobile',
 															emptyText: '000-000-0000',
+															allowBlank: g('require_patient_mobile_phone') === "0",
 															fieldLabel:_('mobile'),
 															flex: 1
 														},
@@ -57296,6 +57389,7 @@ Ext.define('App.view.patient.Patient', {
 															xtype: 'textfield',
 															name: 'email',
 															emptyText: 'example@email.com',
+															allowBlank: g('require_patient_email') === "0",
 															fieldLabel:_('email'),
 															flex: 2
 														}
@@ -59327,7 +59421,7 @@ Ext.define('App.view.patient.Summary', {
 				newPatient: false,
 				autoScroll: true,
 				title: _('demographics')
-            });
+             });
 
 			me.insTabPanel = me.tabPanel.add({
 				xtype: 'insurancestabpanel',
@@ -64104,6 +64198,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 							anchor: '100%',
 							height: 100,
 							enableKeyEvents: true,
+							nusaEnabled: true,
 							margin: '5 0 10 0',
 							name: 'chief_complaint',
 							plugins: [
@@ -64124,6 +64219,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 							anchor: '100%',
 							height: 200,
 							enableKeyEvents: true,
+							nusaEnabled: true,
 							margin: '5 0 10 0',
 							plugins: [
 								{
@@ -64142,6 +64238,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 							name: 'objective',
 							anchor: '100%',
 							height: 200,
+							nusaEnabled: true,
 							plugins: [
 								{
 									ptype: 'fieldtab'
@@ -64203,6 +64300,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 							name: 'assessment',
 							anchor: '100%',
 							height: 200,
+							nusaEnabled: true,
 							plugins: [
 								{
 									ptype: 'fieldtab'
@@ -64241,6 +64339,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 							height: 200,
 							margin: '0 0 10 0',
 							anchor: '100%',
+							nusaEnabled: true,
 							plugins: [
 								{
 									ptype: 'fieldtab'

@@ -195,6 +195,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 							anchor: '100%',
 							height: 100,
 							enableKeyEvents: true,
+							nusaEnabled: true,
 							margin: '5 0 10 0',
 							name: 'chief_complaint',
 							plugins: [
@@ -215,6 +216,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 							anchor: '100%',
 							height: 200,
 							enableKeyEvents: true,
+							nusaEnabled: true,
 							margin: '5 0 10 0',
 							plugins: [
 								{
@@ -233,6 +235,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 							name: 'objective',
 							anchor: '100%',
 							height: 200,
+							nusaEnabled: true,
 							plugins: [
 								{
 									ptype: 'fieldtab'
@@ -294,6 +297,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 							name: 'assessment',
 							anchor: '100%',
 							height: 200,
+							nusaEnabled: true,
 							plugins: [
 								{
 									ptype: 'fieldtab'
@@ -332,6 +336,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 							height: 200,
 							margin: '0 0 10 0',
 							anchor: '100%',
+							nusaEnabled: true,
 							plugins: [
 								{
 									ptype: 'fieldtab'

@@ -53394,6 +53394,12 @@ Ext.define('App.ux.combo.ActiveSpecialties', {
 				value: true
 			}
 		],
+		sorters: [
+			{
+				property: 'title',
+				direction: 'ASC'
+			}
+		],
 		pageSize: 500,
 		autoLoad: true
 	})

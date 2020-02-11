@@ -57366,7 +57366,7 @@ Ext.define('App.view.patient.Patient', {
 													},
 													items: [
 														{
-															xtypxe: 'textfield',
+															xtype: 'textfield',
 															name: 'phone_home',
 															emptyText: '000-000-0000',
 															fieldLabel: _('home'),

@@ -243,12 +243,14 @@ Ext.define('App.controller.patient.Insurance', {
 
     onPatientInsurancesPanelBeforeAdd: function (tapPanel, panel) {
         var me = this,
+            form = panel.getForm(),
             record = panel.insurance || Ext.create('App.model.patient.Insurance', {pid: me.pid});
 
-        panel.title = record.get('ins_synonym') + ' (' + (record.get('insurance_type') ? record.get('insurance_type') : _('new')) + ')';
-
         me.insuranceFormLoadRecord(panel, record);
+
         if (record.get('image') !== '') panel.down('image').setSrc(record.get('image'));
+
+        panel.title = record.get('ins_synonym') + ' (' + (record.get('insurance_type') ? record.get('insurance_type') : _('new')) + ')';
     },
 
     onPatientInsurancesPanelNewTabClick: function (form) {
@@ -257,15 +259,44 @@ Ext.define('App.controller.patient.Insurance', {
             insurance_panel = me.getPatientInsurancesPanel(),
             insuranceTabs = insurance_panel.items.length;
 
+        /**
+         * SEL = Self
+         */
+
         var record = Ext.create('App.model.patient.Insurance', {
             code: insuranceTabs + '~' + app.patient.pubpid,
             pid: app.patient.pid,
-            card_name_same_as_patient: 1,
+
+            card_name_same_as_patient: true,
+            card_first_name: app.patient.record.get('fname'),
+            card_middle_name: app.patient.record.get('mname'),
+            card_last_name: app.patient.record.get('lname'),
+
+            subscriber_relationship: 'SEL',
+            subscriber_title: app.patient.record.get('title'),
+            subscriber_given_name: app.patient.record.get('fname'),
+            subscriber_middle_name: app.patient.record.get('mname'),
+            subscriber_surname: app.patient.record.get('lname'),
+            subscriber_dob: app.patient.record.get('DOB'),
+            subscriber_sex: app.patient.record.get('sex'),
+            subscriber_phone: (app.patient.record.get('phone_mobile') || app.patient.record.get('phone_home')),
+            subscriber_employer: app.patient.record.get('employer_name'),
+
+            subscriber_street: app.patient.record.get('postal_address') + ', ' + app.patient.record.get('postal_address_cont'),
+            subscriber_city: app.patient.record.get('postal_city'),
+            subscriber_state: app.patient.record.get('postal_state'),
+            subscriber_country: app.patient.record.get('postal_country'),
+            subscriber_postal_code: app.patient.record.get('postal_zip'),
+            subscriber_address_same_as_patient: true,
+
             create_uid: app.user.id,
             update_uid: app.user.id,
             create_date: new Date(),
             update_date: new Date()
         });
+
+        say('app.patient.record');
+        say(app.patient.record);
 
         this.insuranceFormLoadRecord(form, record);
     },
@@ -285,9 +316,15 @@ Ext.define('App.controller.patient.Insurance', {
     },
 
     onPatientInsuranceFormSubscribeRelationshipCmbSelect: function (cmb, records) {
-        var form = cmb.up('form').getForm();
+        var form = cmb.up('form').getForm(),
+            ins_record = form.getRecord();
 
-        // // SEL = Self
+        form.findField('subscriber_relationship').setValue(records[0].get('option_value'));
+
+        /**
+         * SEL = Self
+         */
+
         if (records[0].get('option_value') !== 'SEL') return;
 
         form.findField('subscriber_title').setValue(app.patient.record.get('title'));
@@ -299,9 +336,9 @@ Ext.define('App.controller.patient.Insurance', {
         form.findField('subscriber_phone').setValue(app.patient.record.get('phone_mobile') || app.patient.record.get('phone_home'));
         form.findField('subscriber_employer').setValue(app.patient.record.get('employer_name'));
 
-        this.getInsuranceAddressSameAsPatientField().setValue(true);
+        // this.getInsuranceAddressSameAsPatientField().setValue(true);
 
-        //form.findField('subscriber_address_same_as_patient').setValue(true);
+        // form.findField('subscriber_address_same_as_patient').setValue(true);
     },
 
     onPatientInsurancesPanelCancelBtnClick: function (btn) {

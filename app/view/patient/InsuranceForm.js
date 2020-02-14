@@ -157,17 +157,22 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                     {
                                                         xtype: 'datefield',
                                                         name: 'effective_date',
-                                                        emptyText: _('effective_date'),
-                                                        fieldLabel: _('effective_date'),
-                                                        flex: 1
-                                                    },
-                                                    {
-                                                        xtype: 'datefield',
-                                                        name: 'expiration_date',
-                                                        emptyText: _('expiration_date'),
-                                                        fieldLabel: _('expiration_date'),
-                                                        flex: 1
+                                                        itemId: 'PatientInsurancesFormEffectiveDate',
+                                                        labelAlign: 'top',
+                                                        emptyText: _('effective') + ' ' + _('date'),
+                                                        fieldLabel: _('effective'),
+                                                        labelWidth: 60,
+                                                        width: 100
                                                     }
+                                                    // {
+                                                    //     xtype: 'datefield',
+                                                    //     name: 'expiration_date',
+                                                    //     labelAlign: 'left',
+                                                    //     emptyText: _('expiration'),
+                                                    //     fieldLabel: _('expiration'),
+                                                    //     labelWidth: 60,
+                                                    //     width: 160
+                                                    // }
                                                 ]
                                             },  //Insurance Card Container Policy Number, Group, Effective, Expiration
                                             {
@@ -328,7 +333,10 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                 list: 134,
                                                 loadStore: true,
                                                 editable: false,
-                                                width: 100
+                                                width: 100,
+                                                allowBlank: false
+
+
                                             },
                                             {
                                                 xtype: 'gaiaehr.combo',

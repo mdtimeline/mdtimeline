@@ -73,6 +73,9 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			},
 			'#EncounterTransferWindowTransferBtn': {
 				click: me.onEncounterTransferWindowTransferBtnlick
+			},
+			'#EncounterNewProgressNoteBtn': {
+				click: me.onEncounterNewProgressNoteBtnClick
 			}
 		});
 
@@ -80,6 +83,13 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		me.auditLogCtrl = this.getController('administration.AuditLog');
 
 		//me.showEncounterTransferWindow();
+	},
+
+
+	onEncounterNewProgressNoteBtnClick: function(btn){
+
+
+
 	},
 
 	onEncounterDeletetBtnClick: function (btn) {

@@ -167,6 +167,31 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 		store.reload();
 	},
 
+	sendPatientToPoolArea: function(pid, area_id, callback){
+
+		var me = this;
+
+		PoolArea.sendPatientToPoolArea({ pid: pid, sendTo: area_id }, function(result){
+
+			app.fireEvent('sendpatienttoarea', me, pid, area_id);
+
+			if(result.floor_plan_id == null){
+				app.unsetPatient(null, true);
+				app.nav['App_view_areas_PatientPoolAreas'].reloadStores();
+				app.getPatientsInPoolArea();
+				if(callback) callback();
+				return;
+			}
+
+			app.getController('areas.FloorPlan').promptPatientZoneAssignment(result.record.pid, result.floor_plan_id, area_id);
+
+			if(callback) callback();
+
+
+		});
+	},
+
+
 	removePatientFromArea: function (pool_record, pool_view_store) {
 		var me = this,
 			params = {

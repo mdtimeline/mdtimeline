@@ -39190,6 +39190,31 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 		store.reload();
 	},
 
+	sendPatientToPoolArea: function(pid, area_id, callback){
+
+		var me = this;
+
+		PoolArea.sendPatientToPoolArea({ pid: pid, sendTo: area_id }, function(result){
+
+			app.fireEvent('sendpatienttoarea', me, pid, area_id);
+
+			if(result.floor_plan_id == null){
+				app.unsetPatient(null, true);
+				app.nav['App_view_areas_PatientPoolAreas'].reloadStores();
+				app.getPatientsInPoolArea();
+				if(callback) callback();
+				return;
+			}
+
+			app.getController('areas.FloorPlan').promptPatientZoneAssignment(result.record.pid, result.floor_plan_id, area_id);
+
+			if(callback) callback();
+
+
+		});
+	},
+
+
 	removePatientFromArea: function (pool_record, pool_view_store) {
 		var me = this,
 			params = {
@@ -45592,12 +45617,14 @@ Ext.define('App.controller.patient.Insurance', {
 
     onPatientInsurancesPanelBeforeAdd: function (tapPanel, panel) {
         var me = this,
+            form = panel.getForm(),
             record = panel.insurance || Ext.create('App.model.patient.Insurance', {pid: me.pid});
 
-        panel.title = record.get('ins_synonym') + ' (' + (record.get('insurance_type') ? record.get('insurance_type') : _('new')) + ')';
-
         me.insuranceFormLoadRecord(panel, record);
+
         if (record.get('image') !== '') panel.down('image').setSrc(record.get('image'));
+
+        panel.title = record.get('ins_synonym') + ' (' + (record.get('insurance_type') ? record.get('insurance_type') : _('new')) + ')';
     },
 
     onPatientInsurancesPanelNewTabClick: function (form) {
@@ -45606,15 +45633,44 @@ Ext.define('App.controller.patient.Insurance', {
             insurance_panel = me.getPatientInsurancesPanel(),
             insuranceTabs = insurance_panel.items.length;
 
+        /**
+         * SEL = Self
+         */
+
         var record = Ext.create('App.model.patient.Insurance', {
             code: insuranceTabs + '~' + app.patient.pubpid,
             pid: app.patient.pid,
-            card_name_same_as_patient: 1,
+
+            card_name_same_as_patient: true,
+            card_first_name: app.patient.record.get('fname'),
+            card_middle_name: app.patient.record.get('mname'),
+            card_last_name: app.patient.record.get('lname'),
+
+            subscriber_relationship: 'SEL',
+            subscriber_title: app.patient.record.get('title'),
+            subscriber_given_name: app.patient.record.get('fname'),
+            subscriber_middle_name: app.patient.record.get('mname'),
+            subscriber_surname: app.patient.record.get('lname'),
+            subscriber_dob: app.patient.record.get('DOB'),
+            subscriber_sex: app.patient.record.get('sex'),
+            subscriber_phone: (app.patient.record.get('phone_mobile') || app.patient.record.get('phone_home')),
+            subscriber_employer: app.patient.record.get('employer_name'),
+
+            subscriber_street: app.patient.record.get('postal_address') + ', ' + app.patient.record.get('postal_address_cont'),
+            subscriber_city: app.patient.record.get('postal_city'),
+            subscriber_state: app.patient.record.get('postal_state'),
+            subscriber_country: app.patient.record.get('postal_country'),
+            subscriber_postal_code: app.patient.record.get('postal_zip'),
+            subscriber_address_same_as_patient: true,
+
             create_uid: app.user.id,
             update_uid: app.user.id,
             create_date: new Date(),
             update_date: new Date()
         });
+
+        say('app.patient.record');
+        say(app.patient.record);
 
         this.insuranceFormLoadRecord(form, record);
     },
@@ -45634,9 +45690,15 @@ Ext.define('App.controller.patient.Insurance', {
     },
 
     onPatientInsuranceFormSubscribeRelationshipCmbSelect: function (cmb, records) {
-        var form = cmb.up('form').getForm();
+        var form = cmb.up('form').getForm(),
+            ins_record = form.getRecord();
 
-        // // SEL = Self
+        form.findField('subscriber_relationship').setValue(records[0].get('option_value'));
+
+        /**
+         * SEL = Self
+         */
+
         if (records[0].get('option_value') !== 'SEL') return;
 
         form.findField('subscriber_title').setValue(app.patient.record.get('title'));
@@ -45648,9 +45710,9 @@ Ext.define('App.controller.patient.Insurance', {
         form.findField('subscriber_phone').setValue(app.patient.record.get('phone_mobile') || app.patient.record.get('phone_home'));
         form.findField('subscriber_employer').setValue(app.patient.record.get('employer_name'));
 
-        this.getInsuranceAddressSameAsPatientField().setValue(true);
+        // this.getInsuranceAddressSameAsPatientField().setValue(true);
 
-        //form.findField('subscriber_address_same_as_patient').setValue(true);
+        // form.findField('subscriber_address_same_as_patient').setValue(true);
     },
 
     onPatientInsurancesPanelCancelBtnClick: function (btn) {
@@ -62013,6 +62075,9 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			},
 			'#EncounterTransferWindowTransferBtn': {
 				click: me.onEncounterTransferWindowTransferBtnlick
+			},
+			'#EncounterNewProgressNoteBtn': {
+				click: me.onEncounterNewProgressNoteBtnClick
 			}
 		});
 
@@ -62020,6 +62085,13 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		me.auditLogCtrl = this.getController('administration.AuditLog');
 
 		//me.showEncounterTransferWindow();
+	},
+
+
+	onEncounterNewProgressNoteBtnClick: function(btn){
+
+
+
 	},
 
 	onEncounterDeletetBtnClick: function (btn) {
@@ -65317,6 +65389,7 @@ Ext.define('App.view.patient.Encounter', {
 		'App.view.patient.encounter.CurrentProceduralTerminology',
 		'App.view.patient.encounter.ProgressNotesHistory',
 		'App.view.patient.encounter.DictationPanel',
+		'App.view.patient.encounter.NursesNotesGrid',
 		'App.view.patient.ProgressNote',
 		'App.view.patient.DecisionSupportWarningPanel',
 		'App.ux.combo.EncounterPriority',
@@ -65326,6 +65399,7 @@ Ext.define('App.view.patient.Encounter', {
 	enableCPT: eval(g('enable_encounter_cpt')),
 	enableHCFA: eval(g('enable_encounter_hcfa')),
 	enableSOAP: eval(g('enable_encounter_soap')),
+	enableNurseNotes: true, // eval(g('enable_encounter_nurse_notes')),
 	enableVitals: eval(g('enable_encounter_vitals')),
 	enableEncHistory: eval(g('enable_encounter_history')),
 	enableFamilyHistory: eval(g('enable_encounter_family_history')),
@@ -65525,6 +65599,15 @@ Ext.define('App.view.patient.Encounter', {
 			);
 		}
 
+		//if(me.enableNurseNotes && a('access_enc_nurse_notes')){
+			me.encounterTabPanel.add(
+				Ext.create('App.view.patient.encounter.NursesNotesGrid', {
+					padding: 0,
+					bodyPadding: 0
+				})
+			);
+		//}
+
 		if(me.enableSOAP && a('access_soap')){
 			me.soapPanel = me.encounterTabPanel.add(
 				Ext.create('App.view.patient.encounter.SOAP', {
@@ -65693,6 +65776,12 @@ Ext.define('App.view.patient.Encounter', {
 				itemId: 'EncounterCDAImportBtn',
 				tooltip: _('ccda_import'),
 				icon: 'resources/images/icons/icoOutbox.png'
+			},
+			'-',
+			{
+				xtype:'button',
+				itemId: 'EncounterNewProgressNoteBtn',
+				text: _('new_progress_note')
 			},
 			'-',
 			{

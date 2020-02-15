@@ -30,6 +30,7 @@ Ext.define('App.view.patient.Encounter', {
 		'App.view.patient.encounter.CurrentProceduralTerminology',
 		'App.view.patient.encounter.ProgressNotesHistory',
 		'App.view.patient.encounter.DictationPanel',
+		'App.view.patient.encounter.NursesNotesGrid',
 		'App.view.patient.ProgressNote',
 		'App.view.patient.DecisionSupportWarningPanel',
 		'App.ux.combo.EncounterPriority',
@@ -39,6 +40,7 @@ Ext.define('App.view.patient.Encounter', {
 	enableCPT: eval(g('enable_encounter_cpt')),
 	enableHCFA: eval(g('enable_encounter_hcfa')),
 	enableSOAP: eval(g('enable_encounter_soap')),
+	enableNurseNotes: true, // eval(g('enable_encounter_nurse_notes')),
 	enableVitals: eval(g('enable_encounter_vitals')),
 	enableEncHistory: eval(g('enable_encounter_history')),
 	enableFamilyHistory: eval(g('enable_encounter_family_history')),
@@ -238,6 +240,15 @@ Ext.define('App.view.patient.Encounter', {
 			);
 		}
 
+		//if(me.enableNurseNotes && a('access_enc_nurse_notes')){
+			me.encounterTabPanel.add(
+				Ext.create('App.view.patient.encounter.NursesNotesGrid', {
+					padding: 0,
+					bodyPadding: 0
+				})
+			);
+		//}
+
 		if(me.enableSOAP && a('access_soap')){
 			me.soapPanel = me.encounterTabPanel.add(
 				Ext.create('App.view.patient.encounter.SOAP', {
@@ -406,6 +417,12 @@ Ext.define('App.view.patient.Encounter', {
 				itemId: 'EncounterCDAImportBtn',
 				tooltip: _('ccda_import'),
 				icon: 'resources/images/icons/icoOutbox.png'
+			},
+			'-',
+			{
+				xtype:'button',
+				itemId: 'EncounterNewProgressNoteBtn',
+				text: _('new_progress_note')
 			},
 			'-',
 			{

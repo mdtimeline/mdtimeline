@@ -353,7 +353,8 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                 xtype: 'textfield',
                                                 name: 'subscriber_given_name',
                                                 emptyText: _('first_name'),
-                                                width: 100
+                                                width: 100,
+                                                allowBlank: false
                                             },
                                             {
                                                 xtype: 'textfield',
@@ -365,7 +366,8 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                 xtype: 'textfield',
                                                 name: 'subscriber_surname',
                                                 emptyText: _('last_name'),
-                                                width: 200
+                                                width: 200,
+                                                allowBlank: false
                                             },
                                             {
                                                 xtype: 'textfield',
@@ -381,7 +383,8 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                 emptyText: '000-000-0000',
                                                 fieldLabel: _('phone'),
                                                 labelWidth: 40,
-                                                width: 120
+                                                width: 120,
+                                                allowBlank: false
                                             },
                                             {
                                                 xtype: 'textfield',

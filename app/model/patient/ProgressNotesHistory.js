@@ -92,8 +92,8 @@ Ext.define('App.model.patient.ProgressNotesHistory', {
 			name: 'progress',
 			type: 'string',
 			convert: function(v, record){
-				var my_encounter_style = record.get('provider_uid') === app.user.id ? 'background-color:#ffff0080;color:black;' : '',
-				str = '<div style="padding: 15px;' + my_encounter_style +'">';
+				var my_encounter_style = record.get('provider_uid') === app.user.id ? 'background-color:#ffff003d;' : '',
+				str = '<div style="width:90%; display: inline-block; font-size: 125%; padding: 5px 0 5px 5px; color: black; ' + my_encounter_style +'">';
 				str += '<b>' + _('provider') + ':</b> ' + Ext.String.htmlDecode(record.get('provider')) + '<br>';
 				str += '<b>' + _('service_date') + ':</b> ' + Ext.Date.format(record.get('service_date'), 'F j, Y, g:i a (l)') + '<br>';
 				str += '--------------------- <br>';

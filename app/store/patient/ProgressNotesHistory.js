@@ -17,7 +17,7 @@
  */
 
 Ext.define('App.store.patient.ProgressNotesHistory', {
-	extend: 'Ext.data.Store',
+	extend: 'Ext.data.TreeStore',
 	requires:['App.model.patient.ProgressNotesHistory'],
 	model: 'App.model.patient.ProgressNotesHistory',
 	remoteFilter: false

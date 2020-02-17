@@ -35,6 +35,25 @@ $API = [
             ]
         ]
     ],
+    'NursesNotes' => [
+        'methods' => [
+            'getNursesNotes' => [
+                'len' => 1
+            ],
+            'getNursesNote' => [
+                'len' => 1
+            ],
+            'addNursesNote' => [
+                'len' => 1
+            ],
+            'updateNursesNote' => [
+                'len' => 1
+            ],
+            'destroyNursesNote' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'Email' => [
         'methods' => [
             'CheckAPIEmails' => [

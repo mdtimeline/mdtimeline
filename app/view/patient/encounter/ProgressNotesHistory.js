@@ -17,7 +17,7 @@
  */
 
 Ext.define('App.view.patient.encounter.ProgressNotesHistory', {
-	extend: 'Ext.grid.Panel',
+	extend: 'Ext.tree.Panel',
 	requires: [
 		'App.ux.form.SearchField'
 	],
@@ -25,6 +25,11 @@ Ext.define('App.view.patient.encounter.ProgressNotesHistory', {
 	title: _('history'),
 	hideHeaders: true,
 	cls: 'progress-motes-history-grid',
+	useArrows: true,
+	lines: true,
+	rootVisible: false,
+	multiSelect: false,
+	singleExpand: false,
 	initComponent: function(){
 
 		var me = this;
@@ -40,10 +45,11 @@ Ext.define('App.view.patient.encounter.ProgressNotesHistory', {
 
 		me.columns = [
 			{
-				dataIndex: 'service_date',
+				xtype: 'treecolumn',
+				dataIndex: 'progress',
 				flex: 1,
 				renderer: function (v, meta, record) {
-					return record.get('progress');
+					return v;
 				}
 			}
 		];

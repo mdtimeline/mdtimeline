@@ -100,6 +100,14 @@ Ext.define('App.view.patient.Summary', {
 				scrollable: true,
 				maxHeight: 200,
 				store: me.patientEncountersStore,
+				tools: [
+					{
+						xtype: 'button',
+						text: _('new_progress'),
+						itemId: 'PatientSummeryNewProgressNoteBtn',
+						acl: a('add_encounters')
+					}
+				],
 				columns: [
 					{
 						xtype: 'datecolumn',

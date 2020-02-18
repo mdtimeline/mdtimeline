@@ -463,11 +463,11 @@ class Encounter {
 		$filters->filter[0] = new stdClass();
 		$filters->filter[0]->property = 'eid';
 		$filters->filter[0]->operator = '!=';
-		$filters->filter[0]->value = $params->eid;
+		$filters->filter[0]->value = isset($params->eid) ? $params->eid : '0' ;
 		$filters->filter[1] = new stdClass();
 		$filters->filter[1]->property = 'pid';
 		$filters->filter[1]->operator = '=';
-		$filters->filter[1]->value = $params->pid;
+		$filters->filter[1]->value = isset($params->pid) ? $params->pid : '0';
 
 		$filters->sort[0] = new stdClass();
 		$filters->sort[0]->property = 'service_date';

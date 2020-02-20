@@ -121,8 +121,8 @@ Ext.define('App.view.administration.practice.Facilities', {
 						layout: 'column',
 						defaults: {
 							xtype: 'container',
-							columnWidth: 0.5,
 							padding: 5,
+                            labelWidth: 100,
 							layout: 'anchor',
 							defaultType: 'textfield'
 						},
@@ -131,88 +131,149 @@ Ext.define('App.view.administration.practice.Facilities', {
 								defaults: {
 									anchor: '100%'
 								},
+                                columnWidth: 0.4,
 								items: [
 									{
+                                        xtype: 'textfield',
 										fieldLabel: _('name'),
 										name: 'name',
 										allowBlank: false
 									},
 									{
+                                        xtype: 'textfield',
 										fieldLabel: _('phone'),
 										name: 'phone'
 									},
 									{
+                                        xtype: 'textfield',
 										fieldLabel: _('fax'),
 										name: 'fax'
 									},
-									{
-										fieldLabel: _('street'),
-										name: 'address'
-									},
-									{
-										fieldLabel: _('city'),
-										name: 'city'
-									},
-									{
-										fieldLabel: _('state'),
-										name: 'state'
-									},
-									{
-										fieldLabel: _('postal_code'),
-										name: 'postal_code'
-									},
-									{
-										fieldLabel: _('country_code'),
-										name: 'country_code'
-									},
-									{
-										xtype: 'fieldcontainer',
-										layout: 'hbox',
-										items: [
-											{
-												xtype: 'gaiaehr.combo',
-												fieldLabel: _('region'),
-												editable: false,
-												listKey: 'regions',
-												name: 'region',
-												margin: '0 10 0 0'
-											},
-											{
-												xtype: 'textfield',
-												fieldLabel: _('ess'),
-                                                labelWidth: 30,
-												name: 'ess',
-												margin: '0 10 0 0'
-											},
-											{
-												xtype: 'textfield',
-												fieldLabel: _('ein'),
-                                                labelWidth: 30,
-												name: 'ein'
-											}
-										]
-									},
-									{
-										xtype: 'fieldcontainer',
-										layout: 'hbox',
-										items: [
-											{
-												xtype: 'textfield',
-												fieldLabel: _('external_id'),
-												name: 'external_id',
-												margin: '0 10 0 0'
-											},
-											{
-												xtype: 'textfield',
-												fieldLabel: _('global_id'),
-												labelWidth: 60,
-												name: 'global_id'
-											}
-										]
-									}
+                                    {
+                                        xtype: 'textfield',
+                                        fieldLabel: _('address'),
+                                        name: 'address'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        fieldLabel: _('address'),
+                                        name: 'address_cont'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        fieldLabel: _('city'),
+                                        name: 'city'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        fieldLabel: _('state'),
+                                        name: 'state'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        fieldLabel: _('postal_code'),
+                                        name: 'postal_code'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        fieldLabel: _('country_code'),
+                                        name: 'country_code'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        name: 'facility_entity',
+                                        width: 100,
+                                        fieldLabel: _('entity')
+                                    },
+                                    {
+                                        xtype: 'gaiaehr.combo',
+                                        fieldLabel: _('region'),
+                                        editable: false,
+                                        listKey: 'regions',
+                                        name: 'region'
+                                    }
+
 								]
 							},
+                            {
+                                defaults: {
+                                    anchor: '100%'
+                                },
+
+                                columnWidth: 0.4,
+                                items: [
+                                    {
+                                        xtype: 'fieldcontainer',
+                                        layout: 'hbox',
+                                        items: [
+                                            {
+                                                xtype: 'textfield',
+                                                fieldLabel: _('contact') + ' ' + _('name'),
+                                                flex: 2,
+                                                name: 'lname',
+                                                margin: '0 10 0 0'
+                                            },
+                                            {
+                                                xtype: 'textfield',
+                                                name: 'fname',
+                                                labelWidth: 30,
+                                                fieldLabel: _('first'),
+                                                flex: 1,
+                                                margin: '0 10 0 0'
+                                            },
+                                            {
+                                                xtype: 'textfield',
+                                                name: 'mname',
+                                                flex: 1,
+                                                labelWidth: 40,
+                                                fieldLabel: _('middle'),
+                                                width: 20
+                                            }
+                                        ]
+                                    },
+
+                                    {
+                                        xtype: 'textfield',
+                                        fieldLabel: _('ess'),
+                                        name: 'ess'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        fieldLabel: _('ein'),
+                                        name: 'ein'
+                                    },
+                                    {
+                                        fieldLabel: 'PO' + ' ' + _('address'),
+                                        name: 'postal_address'
+                                    },
+                                    {
+                                        fieldLabel: 'PO' + ' ' +  _('address'),
+                                        name: 'postal_address_cont'
+                                    },
+                                    {
+                                        fieldLabel: 'PO' + ' ' +  _('city'),
+                                        name: 'postal_city'
+                                    },
+                                    {
+                                        fieldLabel: 'PO' + ' ' +  _('state'),
+                                        name: 'postal_state'
+                                    },
+                                    {
+                                        fieldLabel: 'PO' + ' ' + _('postal_code'),
+                                        name: 'postal_zip_code'
+                                    },
+                                    {
+                                        fieldLabel: 'PO' + ' ' + _('country_code'),
+                                        name: 'postal_country_code'
+                                    }
+                                ]
+
+                            },
 							{
+                                defaults: {
+                                    anchor: '100%'
+                                },
+                                columnWidth: 0.2,
 								items: [
 									{
 										fieldLabel: _('billing_attn'),
@@ -257,35 +318,16 @@ Ext.define('App.view.administration.practice.Facilities', {
 										name: 'billing_location'
 									},
                                     {
-                                        xtype: 'fieldcontainer',
-                                        layout: 'hbox',
-                                        items: [
-                                            {
-                                                xtype: 'textfield',
-                                                labelWidth: 100,
-                                                fieldLabel: _('name_last'),
-                                                width: 400,
-                                                name: 'lname',
-                                                margin: '0 10 0 0'
-                                            },
-                                            {
-                                                xtype: 'textfield',
-                                                name: 'fname',
-                                                labelWidth: 40,
-                                                fieldLabel: _('first'),
-                                                flex: 2,
-                                                margin: '0 10 0 0'
-                                            },
-                                            {
-                                                xtype: 'textfield',
-                                                name: 'mname',
-                                                labelWidth: 40,
-                                                fieldLabel: _('middle'),
-                                                flex: 1,
-                                                margin: '0 10 0 0'
-                                            }
-                                        ]
+                                        xtype: 'textfield',
+                                        fieldLabel: _('external_id'),
+                                        name: 'external_id'
                                     },
+                                    {
+                                        xtype: 'textfield',
+                                        fieldLabel: _('global_id'),
+                                        name: 'global_id'
+                                    }
+
                                     // {
                                     //     xtype: 'checkbox',
                                     //     fieldLabel: _('accepts_assignment'),
@@ -294,14 +336,17 @@ Ext.define('App.view.administration.practice.Facilities', {
                                     //     name: 'accepts_assignment',
                                     //     margin: '10 10 0 0'
                                     // },
-                                    {
-                                        xtype: 'textfield',
-                                        name: 'facility_entity',
-                                        labelWidth: 35,
-                                        width: 55,
-                                        fieldLabel: _('entity'),
-                                        margin: '10 10 0 0'
-                                    }
+
+
+
+                                    // {
+                                    //     xtype: 'fieldcontainer',
+                                    //     layout: 'hbox',
+                                    //     items: [
+                                    //     ]
+                                    // }
+
+
 								]
 							}
 						]

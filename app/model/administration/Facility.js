@@ -118,6 +118,36 @@ Ext.define('App.model.administration.Facility', {
 			type: 'string',
 			len: 3
 		},
+        {
+            name: 'postal_address',
+            type: 'string',
+            len: 55
+        },
+        {
+            name: 'postal_address_cont',
+            type: 'string',
+            len: 55
+        },
+        {
+            name: 'postal_city',
+            type: 'string',
+            len: 30
+        },
+        {
+            name: 'postal_state',
+            type: 'string',
+            len: 2
+        },
+        {
+            name: 'postal_zip_code',
+            type: 'string',
+            len: 15
+        },
+        {
+            name: 'postal_country_code',
+            type: 'string',
+            len: 3
+        },
 		{
 			name: 'billing_location',
 			type: 'bool'

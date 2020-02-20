@@ -769,6 +769,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 	                'dashboard.panel.NewResults',
 	                'dashboard.panel.NotSignedVitals',
 	                'dashboard.panel.DailyVisits',
+	                'dashboard.panel.OpenEncounters',
 
 	                /**
 	                 * Load the root related panels
@@ -898,6 +899,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 	                'dashboard.panel.NewResults',
 	                'dashboard.panel.NotSignedVitals',
 	                'dashboard.panel.DailyVisits',
+	                'dashboard.panel.OpenEncounters',
 
 	                'miscellaneous.Amendments',
 

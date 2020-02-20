@@ -307,13 +307,13 @@ class PoolArea {
 			if(!empty($activeAreas)){
 
 				foreach($activeAreas as $activeArea){
-					if(($activeArea['id'] == 1 && $this->acl->hasPermission('access_poolcheckin')) ||
-						($activeArea['id'] == 2 && $this->acl->hasPermission('access_pooltriage')) ||
-						($activeArea['id'] == 3 && $this->acl->hasPermission('access_poolphysician')) ||
-						($activeArea['id'] == 4 && $this->acl->hasPermission('access_poolcheckout')) ||
-						($activeArea['id'] == 9 && $this->acl->hasPermission('access_pooltreatment'))
+					if(($activeArea['concept'] == 'CHECKIN' && $this->acl->hasPermission('access_poolcheckin')) ||
+						($activeArea['concept'] == 'TRIAGE' && $this->acl->hasPermission('access_pooltriage')) ||
+						($activeArea['concept'] == 'PHYSICIAN' && $this->acl->hasPermission('access_poolphysician')) ||
+						($activeArea['concept'] == 'CHECKOUT' && $this->acl->hasPermission('access_poolcheckout')) ||
+						($activeArea['concept'] == 'TREATMENT' && $this->acl->hasPermission('access_pooltreatment'))
 					){
-						$areas[] = 'pp.area_id = \'' . $activeArea['id'] . '\'';
+						$areas[] = "pp.area_id = '{$activeArea['id']}'";
 					}
 				}
 

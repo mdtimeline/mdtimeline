@@ -1484,4 +1484,37 @@ class Encounter {
 
 	}
 
+	public function getOpenEncounters($params){
+
+		$where = '';
+		$values = [];
+
+		if(isset($params->provider_uid)){
+			$where = 'AND e.provider_uid = :provider_uid';
+			$values[':provider_uid'] = $params->provider_uid;
+		}
+
+		$sth = $this->conn->prepare("
+			SELECT e.service_date,
+			       e.provider_uid,
+			       e.eid,
+			       e.pid,
+			       CONCAT(u.lname,', ', u.fname) as provider,
+			       CONCAT(p.lname,', ', p.fname) as patient
+			FROM encounters as e
+			INNER JOIN users as u ON u.id = e.provider_uid
+			INNER JOIN patient as p ON p.pid = e.pid
+			WHERE e.close_date IS NULL {$where}
+		");
+
+		$sth->execute($values);
+		$results = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+		return [
+			'total' => count($results),
+			'data' => array_slice($results, $params->start, $params->limit)
+		];
+
+	}
+
 }

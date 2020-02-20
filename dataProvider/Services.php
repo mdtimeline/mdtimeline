@@ -396,6 +396,8 @@ class Services {
 99213 = 15 Min
 99214 = 25 Min
 99215 = 40 Min
+[Procedures]
+71045 = Chest 2 Views
 TXT;
 
 		$services = parse_ini_string($sevices_ini, true);

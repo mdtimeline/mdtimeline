@@ -2049,7 +2049,6 @@ $LANG = array(
 	'template_type' => 'Template Type',
 	'from_email' => 'From Email',
 	'from_name' => 'From Name',
-	'region' => 'Region',
 	'email_template' => 'Email Template',
 	'email_templates' => 'Email Templates',
 	'intervention' => 'Intervention',
@@ -2091,5 +2090,10 @@ $LANG = array(
 
     'name_last' => 'Name Last',
     'first' => 'First',
-    'middle' => 'Middle'
+    'middle' => 'Middle',
+    'actor' => 'Actor',
+    'nurse_notes' => 'Nurse Notes',
+    'new_progress' => 'New Progress',
+    'new_progress_note' => 'New Progress Note',
+    'no_encounter_selected' => 'No Encounter Selected'
 );

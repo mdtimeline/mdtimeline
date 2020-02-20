@@ -15,6 +15,11 @@ Ext.define('App.model.patient.Encounter', {
 			type: 'int'
 		},
 		{
+			name: 'parent_eid',
+			type: 'int',
+			index: true
+		},
+		{
 			name: 'pid',
 			type: 'int',
 			index: true

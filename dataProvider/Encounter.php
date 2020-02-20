@@ -463,11 +463,11 @@ class Encounter {
 		$filters->filter[0] = new stdClass();
 		$filters->filter[0]->property = 'eid';
 		$filters->filter[0]->operator = '!=';
-		$filters->filter[0]->value = $params->eid;
+		$filters->filter[0]->value = isset($params->eid) ? $params->eid : '0' ;
 		$filters->filter[1] = new stdClass();
 		$filters->filter[1]->property = 'pid';
 		$filters->filter[1]->operator = '=';
-		$filters->filter[1]->value = $params->pid;
+		$filters->filter[1]->value = isset($params->pid) ? $params->pid : '0';
 
 		$filters->sort[0] = new stdClass();
 		$filters->sort[0]->property = 'service_date';
@@ -497,8 +497,39 @@ class Encounter {
 			unset($soap);
 		}
 		unset($filters);
-		return $encounters;
+
+		$encounters_children = [];
+
+		foreach ($encounters as $encounter) {
+			$encounter['leaf'] = true;
+			if(!isset($encounter['parent_eid']) || $encounter['parent_eid'] == 0){
+				$encounters_children[] = $encounter;
+			}else{
+				$this->encounterGridHandler($encounters_children, $encounter);;
+			}
+		}
+
+		return $encounters_children;
 	}
+
+	private function encounterGridHandler(&$encounters_children, $encounter){
+
+		foreach ($encounters_children as &$encounters_tree_child){
+
+			if($encounters_tree_child['eid'] === $encounter['parent_eid']){
+				$encounters_tree_child['leaf'] = false;
+				$encounters_tree_child['expanded'] = true;
+				$encounters_tree_child['children'][] = $encounter;
+				break;
+			}
+
+			if(isset($encounters_tree_child['children'])){
+				$this->encounterGridHandler($encounters_tree_child['children'], $encounter);
+			}
+		}
+
+	}
+
 
 	/**
 	 * TODO: get all codes CPT/CVX/HCPCS/ICD9/ICD10 encounter

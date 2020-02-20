@@ -16680,6 +16680,11 @@ Ext.define('App.model.patient.Encounter', {
 			type: 'int'
 		},
 		{
+			name: 'parent_eid',
+			type: 'int',
+			index: true
+		},
+		{
 			name: 'pid',
 			type: 'int',
 			index: true
@@ -59241,6 +59246,14 @@ Ext.define('App.view.patient.Summary', {
 				scrollable: true,
 				maxHeight: 200,
 				store: me.patientEncountersStore,
+				tools: [
+					{
+						xtype: 'button',
+						text: _('new_progress'),
+						itemId: 'PatientSummeryNewProgressNoteBtn',
+						acl: a('add_encounters')
+					}
+				],
 				columns: [
 					{
 						xtype: 'datecolumn',
@@ -62037,6 +62050,10 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		{
 			ref: 'EncounterTransferPatientSearchField',
 			selector: '#EncounterTransferPatientSearchField'
+		},
+		{
+			ref: 'PatientSummaryEncountersPanel',
+			selector: '#PatientSummaryEncountersPanel'
 		}
 	],
 
@@ -62065,7 +62082,7 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 				click: me.onEncounterCDAImportBtnClick
 			},
 			'#EncounterDeletetBtn': {
-				click: me.onEncounterDeletetBtnClick
+				click: me.onEncounterDeleteBtnClick
 			},
 			'#EncounterTransferBtn': {
 				click: me.onEncounterTransferBtnClick
@@ -62078,6 +62095,9 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			},
 			'#EncounterNewProgressNoteBtn': {
 				click: me.onEncounterNewProgressNoteBtnClick
+			},
+			'#PatientSummeryNewProgressNoteBtn': {
+				click: me.onPatientSummeryNewProgressNoteBtnClick
 			}
 		});
 
@@ -62087,14 +62107,85 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		//me.showEncounterTransferWindow();
 	},
 
+	doNewEncounterWindow: function(default_values){
+		var me = this,
+			win = me.getEncounterDetailWindow(),
+			form = win.down('form').getForm();
+
+		default_values = default_values || {};
+
+		if(a('add_encounters')){
+			win.show();
+			form.loadRecord(Ext.create('App.model.patient.Encounter', default_values));
+		}else{
+			app.accessDenied();
+		}
+	},
 
 	onEncounterNewProgressNoteBtnClick: function(btn){
+
+		var encounter = this.getEncounterPanel().encounter,
+			default_values = {
+				pid: app.patient.pid,
+				parent_eid: app.patient.eid,
+				brief_description: Ext.String.format('FOLLOW-UP: {0}',encounter.get('brief_description')),
+				open_uid: app.user.id,
+				service_date: app.getDate(),
+				onset_date: encounter.get('onset_date'),
+				patient_class: encounter.get('patient_class'),
+				specialty_id: encounter.get('specialty_id'),
+				provider_uid: encounter.get('provider_uid'),
+				provider_title: encounter.get('provider_title'),
+				provider_fname: encounter.get('provider_fname'),
+				provider_mname: encounter.get('provider_mname'),
+				provider_lname: encounter.get('provider_lname'),
+				priority: encounter.get('priority'),
+				facility: encounter.get('facility'),
+				referring_physician: encounter.get('referring_physician'),
+		};
+
+		this.doNewEncounterWindow(default_values);
+
+	},
+
+	onPatientSummeryNewProgressNoteBtnClick: function(){
+		var me = this,
+			selected_encounters = me.getPatientSummaryEncountersPanel().getSelectionModel().getSelection(),
+			encounter;
+
+		if(selected_encounters.length === 0){
+			app.msg(_('oops'), _('no_encounter_selected'), true);
+			return;
+		}
+
+		var encounter = selected_encounters[0],
+			default_values = {
+				pid: app.patient.pid,
+				parent_eid: app.patient.eid,
+				brief_description: Ext.String.format('FOLLOW-UP: {0}',encounter.get('brief_description')),
+				open_uid: app.user.id,
+				service_date: app.getDate(),
+				onset_date: encounter.get('onset_date'),
+				patient_class: encounter.get('patient_class'),
+				specialty_id: encounter.get('specialty_id'),
+				provider_uid: encounter.get('provider_uid'),
+				provider_title: encounter.get('provider_title'),
+				provider_fname: encounter.get('provider_fname'),
+				provider_mname: encounter.get('provider_mname'),
+				provider_lname: encounter.get('provider_lname'),
+				priority: encounter.get('priority'),
+				facility: encounter.get('facility'),
+				referring_physician: encounter.get('referring_physician'),
+			};
+
+		this.doNewEncounterWindow(default_values);
+
 
 
 
 	},
 
-	onEncounterDeletetBtnClick: function (btn) {
+	onEncounterDeleteBtnClick: function (btn) {
 		// TODO
 	},
 
@@ -64623,7 +64714,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 });
 
 Ext.define('App.view.patient.encounter.ProgressNotesHistory', {
-	extend: 'Ext.grid.Panel',
+	extend: 'Ext.tree.Panel',
 	requires: [
 		'App.ux.form.SearchField'
 	],
@@ -64631,6 +64722,11 @@ Ext.define('App.view.patient.encounter.ProgressNotesHistory', {
 	title: _('history'),
 	hideHeaders: true,
 	cls: 'progress-motes-history-grid',
+	useArrows: true,
+	lines: true,
+	rootVisible: false,
+	multiSelect: false,
+	singleExpand: false,
 	initComponent: function(){
 
 		var me = this;
@@ -64646,10 +64742,11 @@ Ext.define('App.view.patient.encounter.ProgressNotesHistory', {
 
 		me.columns = [
 			{
-				dataIndex: 'service_date',
+				xtype: 'treecolumn',
+				dataIndex: 'progress',
 				flex: 1,
 				renderer: function (v, meta, record) {
-					return record.get('progress');
+					return v;
 				}
 			}
 		];
@@ -70433,8 +70530,8 @@ Ext.define('App.model.patient.ProgressNotesHistory', {
 			name: 'progress',
 			type: 'string',
 			convert: function(v, record){
-				var my_encounter_style = record.get('provider_uid') === app.user.id ? 'background-color:#ffff0080;color:black;' : '',
-				str = '<div style="padding: 15px;' + my_encounter_style +'">';
+				var my_encounter_style = record.get('provider_uid') === app.user.id ? 'background-color:#ffff003d;' : '',
+				str = '<div style="width:90%; display: inline-block; font-size: 125%; padding: 5px 0 5px 5px; color: black; ' + my_encounter_style +'">';
 				str += '<b>' + _('provider') + ':</b> ' + Ext.String.htmlDecode(record.get('provider')) + '<br>';
 				str += '<b>' + _('service_date') + ':</b> ' + Ext.Date.format(record.get('service_date'), 'F j, Y, g:i a (l)') + '<br>';
 				str += '--------------------- <br>';
@@ -70457,7 +70554,7 @@ Ext.define('App.model.patient.ProgressNotesHistory', {
 	}
 });
 Ext.define('App.store.patient.ProgressNotesHistory', {
-	extend: 'Ext.data.Store',
+	extend: 'Ext.data.TreeStore',
 	requires:['App.model.patient.ProgressNotesHistory'],
 	model: 'App.model.patient.ProgressNotesHistory',
 	remoteFilter: false

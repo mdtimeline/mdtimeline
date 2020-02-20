@@ -35,6 +35,10 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		{
 			ref: 'EncounterTransferPatientSearchField',
 			selector: '#EncounterTransferPatientSearchField'
+		},
+		{
+			ref: 'PatientSummaryEncountersPanel',
+			selector: '#PatientSummaryEncountersPanel'
 		}
 	],
 
@@ -63,7 +67,7 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 				click: me.onEncounterCDAImportBtnClick
 			},
 			'#EncounterDeletetBtn': {
-				click: me.onEncounterDeletetBtnClick
+				click: me.onEncounterDeleteBtnClick
 			},
 			'#EncounterTransferBtn': {
 				click: me.onEncounterTransferBtnClick
@@ -76,6 +80,9 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 			},
 			'#EncounterNewProgressNoteBtn': {
 				click: me.onEncounterNewProgressNoteBtnClick
+			},
+			'#PatientSummeryNewProgressNoteBtn': {
+				click: me.onPatientSummeryNewProgressNoteBtnClick
 			}
 		});
 
@@ -85,14 +92,85 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		//me.showEncounterTransferWindow();
 	},
 
+	doNewEncounterWindow: function(default_values){
+		var me = this,
+			win = me.getEncounterDetailWindow(),
+			form = win.down('form').getForm();
+
+		default_values = default_values || {};
+
+		if(a('add_encounters')){
+			win.show();
+			form.loadRecord(Ext.create('App.model.patient.Encounter', default_values));
+		}else{
+			app.accessDenied();
+		}
+	},
 
 	onEncounterNewProgressNoteBtnClick: function(btn){
+
+		var encounter = this.getEncounterPanel().encounter,
+			default_values = {
+				pid: app.patient.pid,
+				parent_eid: app.patient.eid,
+				brief_description: Ext.String.format('FOLLOW-UP: {0}',encounter.get('brief_description')),
+				open_uid: app.user.id,
+				service_date: app.getDate(),
+				onset_date: encounter.get('onset_date'),
+				patient_class: encounter.get('patient_class'),
+				specialty_id: encounter.get('specialty_id'),
+				provider_uid: encounter.get('provider_uid'),
+				provider_title: encounter.get('provider_title'),
+				provider_fname: encounter.get('provider_fname'),
+				provider_mname: encounter.get('provider_mname'),
+				provider_lname: encounter.get('provider_lname'),
+				priority: encounter.get('priority'),
+				facility: encounter.get('facility'),
+				referring_physician: encounter.get('referring_physician'),
+		};
+
+		this.doNewEncounterWindow(default_values);
+
+	},
+
+	onPatientSummeryNewProgressNoteBtnClick: function(){
+		var me = this,
+			selected_encounters = me.getPatientSummaryEncountersPanel().getSelectionModel().getSelection(),
+			encounter;
+
+		if(selected_encounters.length === 0){
+			app.msg(_('oops'), _('no_encounter_selected'), true);
+			return;
+		}
+
+		var encounter = selected_encounters[0],
+			default_values = {
+				pid: app.patient.pid,
+				parent_eid: app.patient.eid,
+				brief_description: Ext.String.format('FOLLOW-UP: {0}',encounter.get('brief_description')),
+				open_uid: app.user.id,
+				service_date: app.getDate(),
+				onset_date: encounter.get('onset_date'),
+				patient_class: encounter.get('patient_class'),
+				specialty_id: encounter.get('specialty_id'),
+				provider_uid: encounter.get('provider_uid'),
+				provider_title: encounter.get('provider_title'),
+				provider_fname: encounter.get('provider_fname'),
+				provider_mname: encounter.get('provider_mname'),
+				provider_lname: encounter.get('provider_lname'),
+				priority: encounter.get('priority'),
+				facility: encounter.get('facility'),
+				referring_physician: encounter.get('referring_physician'),
+			};
+
+		this.doNewEncounterWindow(default_values);
+
 
 
 
 	},
 
-	onEncounterDeletetBtnClick: function (btn) {
+	onEncounterDeleteBtnClick: function (btn) {
 		// TODO
 	},
 

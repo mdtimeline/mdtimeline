@@ -2095,5 +2095,6 @@ $LANG = array(
     'nurse_notes' => 'Nurse Notes',
     'new_progress' => 'New Progress',
     'new_progress_note' => 'New Progress Note',
-    'no_encounter_selected' => 'No Encounter Selected'
+    'no_encounter_selected' => 'No Encounter Selected',
+    'open_encounters' => 'Open Encounters'
 );

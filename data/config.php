@@ -1154,6 +1154,9 @@ $API = [
             ],
 			'getDashboardTodayEncounters' => [
 				'len' => 0
+            ],
+			'getOpenEncounters' => [
+				'len' => 1
             ]
         ]
     ],

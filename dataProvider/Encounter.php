@@ -71,6 +71,10 @@ class Encounter {
 	/**
 	 * @var bool|MatchaCUP
 	 */
+	private $ross;
+	/**
+	 * @var bool|MatchaCUP
+	 */
 	private $soap;
 	/**
 	 * @var bool|MatchaCUP
@@ -95,6 +99,7 @@ class Encounter {
 
         if(!isset($this->e)) $this->e = MatchaModel::setSenchaModel('App.model.patient.Encounter');
         if(!isset($this->ros)) $this->ros = MatchaModel::setSenchaModel('App.model.patient.ReviewOfSystems');
+        if(!isset($this->ross)) $this->ross = MatchaModel::setSenchaModel('App.model.administration.ReviewOfSystemSettings');
         if(!isset($this->soap)) $this->soap = MatchaModel::setSenchaModel('App.model.patient.SOAP');
         if(!isset($this->d)) $this->d = MatchaModel::setSenchaModel('App.model.patient.Dictation');
         if(!isset($this->hcfa)) $this->hcfa = MatchaModel::setSenchaModel('App.model.patient.HCFAOptions');
@@ -1344,6 +1349,15 @@ class Encounter {
 		return $this->soap->load($params)->leftJoin(
 			['brief_description' => 'chief_complaint'], 'encounters', 'eid', 'eid'
 		)->all();
+	}
+
+	public function getReviewOfSystemSettingsByUserId($user_id){
+		$this->ross->addFilter('user_id', $user_id);
+		return $this->ross->load()->one();
+	}
+
+	public function saveReviewOfSystemSettings($params){
+		return $this->ross->save($params);
 	}
 
 	public function addSoap($params) {

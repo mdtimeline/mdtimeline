@@ -155,6 +155,7 @@ Ext.define('App.view.patient.Encounter', {
 				Ext.create('Ext.form.Panel', {
 					autoScroll: true,
 					action: 'encounter',
+					itemId: 'ReviewOfSystemForm',
 					title: _('review_of_systems'),
 					frame: true,
 					bodyPadding: 5,
@@ -169,6 +170,13 @@ Ext.define('App.view.patient.Encounter', {
 						syncAcl: a('edit_encounters')
 					},
 					buttons: [
+						{
+							xtype: 'button',
+							icon: 'resources/images/icons/gear.png',
+							itemId: 'ReviewOfSystemSetupBtn',
+							minWidth: null
+						},
+						'->',
 						{
 							text: _('save'),
 							iconCls: 'save',

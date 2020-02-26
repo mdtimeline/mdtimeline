@@ -66,7 +66,13 @@ class FloorPlans {
 
 	public function getFloorPlanZones(stdClass $params){
 		if(isset($params->floor_plan_id)){
-			return $this->getFloorPlanZonesByFloorPlanId($params->floor_plan_id);
+
+			if(is_array($params->floor_plan_id)){
+				return $this->getFloorPlanZonesByFloorPlanIs($params->floor_plan_id);
+			}else{
+				return $this->getFloorPlanZonesByFloorPlanId($params->floor_plan_id);
+			}
+
 		}
 		return  $this->fpz->load($params)->all();
 	}
@@ -94,10 +100,19 @@ class FloorPlans {
 	}
 
 	public function getFloorPlanZonesByFloorPlanId($floor_plan_id){
-		$sql = 'SELECT DISTINCT fpz.*, (SELECT 1 FROM `patient_zone` as pz WHERE pz.zone_id = fpz.id AND pz.time_out IS NULL LIMIT 1) as in_use
+		$sql = 'SELECT DISTINCT fpz.*, (SELECT count(*) FROM `patient_zone` as pz WHERE pz.zone_id = fpz.id AND pz.time_out IS NULL LIMIT 1) as in_use
 				  FROM `floor_plans_zones` as fpz
  				 WHERE fpz.floor_plan_id = ?';
 		return $this->fpz->sql($sql)->all(array($floor_plan_id));
+	}
+
+	public function getFloorPlanZonesByFloorPlanIds($floor_plan_ids){
+
+		$floor_plan_ids = implode(',', $floor_plan_ids);
+		$sql = "SELECT DISTINCT fpz.*, (SELECT count(*) FROM `patient_zone` as pz WHERE pz.zone_id = fpz.id AND pz.time_out IS NULL LIMIT 1) as in_use
+				  FROM `floor_plans_zones` as fpz
+ 				 WHERE fpz.floor_plan_id IN ({$floor_plan_ids})";
+		return $this->fpz->sql($sql)->all();
 	}
 
 }

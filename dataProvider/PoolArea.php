@@ -19,6 +19,8 @@
 
 include_once(ROOT . '/dataProvider/Patient.php');
 include_once(ROOT . '/dataProvider/ACL.php');
+include_once(ROOT . '/dataProvider/FloorPlansRules.php');
+include_once(ROOT . '/dataProvider/PatientZone.php');
 
 class PoolArea {
 
@@ -31,6 +33,11 @@ class PoolArea {
 	 * @var Patient
 	 */
 	private $patient;
+
+	/**
+	 * @var FloorPlansRules
+	 */
+	private $FloorPlansRules;
 
 	/**
 	 * @var
@@ -55,6 +62,11 @@ class PoolArea {
 	private function setPatient(){
 		if(!isset($this->patient)){
 			$this->patient = new Patient();
+		}
+	}
+	private function setFloorPlansRules(){
+		if(!isset($this->FloorPlansRules)){
+			$this->FloorPlansRules = new FloorPlansRules();
 		}
 	}
 
@@ -166,11 +178,14 @@ class PoolArea {
 		$record->uid  = isset($_SESSION['user']['id']) ? $_SESSION['user']['id'] : 0;
 		$record->time_in  = $now;
 		$record->area_id  = $params->sendTo;
+		$record->appointment_id  = isset($params->appointment_id) ? $params->appointment_id : null;
 		$record->in_queue  = 1;
 		$record->priority  = (isset($params->priority) ? $params->priority : '');
+
 		if(!empty($prevArea)){
 			$record->parent_id  = $this->getParentPoolId($prevArea['id']);
 			$record->eid  = $prevArea['eid'];
+			$record->appointment_id  = $prevArea['appointment_id'];
 			$record->priority  = $prevArea['priority'];
 		}
 		$record = (object) $this->pp->save($record);
@@ -182,7 +197,22 @@ class PoolArea {
 			Matcha::pauseLog(false);
 		}
 
-		return ['record' => $record, 'floor_plan_id' => $this->getFloorPlanIdByPoolAreaId($record->area_id)];
+		$this->setFloorPlansRules();
+		$rule = $this->FloorPlansRules->getFloorPlansRuleByFloorPlanRecord((object)$record);
+
+		$zone = null;
+		if($rule !== false && isset($rule['zone_id'])){
+			$PatientZone = new PatientZone();
+			$buff = (object)[
+				'pid' => $record->pid,
+				'zone_id' => $rule['zone_id'],
+				'provider_id' => $rule['provider_user_id'],
+				'zone' => $rule['zone']
+			];
+			$zone = $PatientZone->addPatientToZone($buff);
+		}
+
+		return ['record' => $record, 'floor_plan_id' => $this->getFloorPlanIdByPoolAreaId($record->area_id), 'zone' => $zone];
 
 	}
 
@@ -259,20 +289,24 @@ class PoolArea {
 	private function getPatientsByPoolAreaId($area_id, $in_queue) {
 		$this->setPatient();
 		$this->setPpModel();
-		$patients = $this->pp->sql("SELECT pp.*, p.fname, p.lname, p.mname
-									  FROM `patient_pools` AS pp
-								 LEFT JOIN `patient` AS p ON pp.pid = p.pid
-								 	 WHERE pp.area_id = '$area_id'
-									   AND pp.time_out IS NULL
-									   AND pp.in_queue = '$in_queue'
-									   ORDER BY pp.time_in")->all();
-		foreach($patients as &$patient){
-			if(isset($patient['pid'])){
-				$patient['name'] = ($patient['eid'] != null ? '*' : '') . Person::fullname($patient['fname'], $patient['mname'], $patient['lname']);
-			}
-		}
-		unset($patient);
-		return $patients;
+		return $this->pp->sql("SELECT `pp`.*,
+                                        `p`.pubpid,
+                                        `p`.fname,
+                                        `p`.lname,
+                                        `p`.mname,
+                                        `fpz`.title as zone,
+                                        `ae`.start as appointment_time
+								  FROM (SELECT *
+								          FROM `patient_pools` AS pp WHERE pp.area_id = '$area_id'
+								           AND pp.time_out IS NULL
+								           AND pp.in_queue = '$in_queue'
+								       ) AS pp
+							 INNER JOIN `patient` AS p ON pp.pid = p.pid
+						     LEFT JOIN `patient_zone` AS pz ON pz.pid = pp.pid AND pz.time_out IS NULL
+						     LEFT JOIN `floor_plans_zones` AS fpz ON fpz.id = pz.zone_id
+						     LEFT JOIN `appointments_events` AS ae ON ae.id = pp.appointment_id
+							   ORDER BY `ae`.start")->all();
+
 	}
 
 	/**
@@ -292,6 +326,13 @@ class PoolArea {
 			return [];
 		} else {
 			$uid = $_SESSION['user']['id'];
+		}
+
+		$zones_inner_join = '';
+
+		if(isset($params->zones)){
+			$zone_ids = implode(',', $params->zones);
+			$zones_inner_join = "INNER JOIN `patient_zone` AS pz ON pz.pid = pp.pid AND pz.time_out IS NULL AND pz.zone_id IN ({$zone_ids})";
 		}
 
 		$this->acl = new ACL($uid);
@@ -338,6 +379,7 @@ class PoolArea {
 							  FROM `patient_pools` AS pp
 						 LEFT JOIN `patient` AS p ON pp.pid = p.pid
 						 LEFT JOIN `pool_areas` AS pa ON pp.area_id = pa.id
+							{$zones_inner_join}
 	                         WHERE {$whereAreas}
 							   AND pp.time_out IS NULL
 							   AND pp.in_queue = '1'

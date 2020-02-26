@@ -54,6 +54,8 @@ Ext.define('App.controller.Main', {
 				// set user global facility value
 				app.user.facility = records[0].data.option_value;
 
+				app.fireEvent('appfacilitychanged', me, app.user.facility, cmb);
+
 				app.msg(_('sweet'), _('facility') + ' ' + records[0].data.option_name);
 				app.setWindowTitle(records[0].data.option_name);
 

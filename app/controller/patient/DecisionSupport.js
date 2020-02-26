@@ -25,6 +25,14 @@ Ext.define('App.controller.patient.DecisionSupport', {
 		{
 			ref: 'DecisionSupportWarningPanel',
 			selector: '#DecisionSupportWarningPanel'
+		},
+		{
+			ref: 'MedicalDecisionSupportWarningPanel',
+			selector: '#MedicalDecisionSupportWarningPanel'
+		},
+		{
+			ref: 'MedicalDecisioMedicalWindownSupportWarningPanel',
+			selector: '#MedicalWindow'
 		}
 	],
 
@@ -33,6 +41,9 @@ Ext.define('App.controller.patient.DecisionSupport', {
 		me.control({
 			'viewport':{
 				beforeencounterload: me.onBeforeEncounterLoad
+			},
+			'#MedicalWindow':{
+				show: me.onMedicalWindowShow
 			},
 			'#DecisionSupportWarningPanelCloseBtn':{
 				click: me.DecisionSupportWarningPanelCloseBtnClick
@@ -52,19 +63,34 @@ Ext.define('App.controller.patient.DecisionSupport', {
 		this.getDecisionSupportAlerts();
 	},
 
+	onMedicalWindowShow: function(){
+		this.getDecisionSupportAlerts();
+	},
+
 	getDecisionSupportAlerts:function(){
         var btn,
             warning,
+	        win_warning,
             i;
 
-		if(!this.getDecisionSupportWarningPanel()) return;
-
 		warning = this.getDecisionSupportWarningPanel();
-		warning.collapse();
-		warning.hide();
-		warning.removeAll();
+		win_warning = this.getMedicalDecisionSupportWarningPanel();
 
-		DecisionSupport.getAlerts({ pid:app.patient.pid, alertType:'P' }, function(results){
+		if(!warning && !win_warning) return;
+
+		if(warning){
+			warning.collapse();
+			warning.hide();
+			warning.removeAll();
+		}
+
+		if(win_warning) {
+			win_warning.collapse();
+			win_warning.hide();
+			win_warning.removeAll();
+		}
+
+		DecisionSupport.getAlerts({ pid: app.patient.pid, alertType: 'P' }, function(results){
 
 			for(i=0; i < results.length; i++){
 
@@ -100,12 +126,23 @@ Ext.define('App.controller.patient.DecisionSupport', {
 					}
 				};
 
-				warning.add(btn);
+				if(warning) {
+					warning.add(btn);
+				}
+				if(win_warning) {
+					win_warning.add(btn);
+				}
 			}
 
 			if(results.length > 0){
-				warning.show();
-				warning.expand();
+				if(warning) {
+					warning.show();
+					warning.expand();
+				}
+				if(win_warning) {
+					win_warning.show();
+					win_warning.expand();
+				}
 			}
 
 		});

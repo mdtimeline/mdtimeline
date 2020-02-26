@@ -94,6 +94,10 @@ Ext.define('App.model.administration.FloorPlanZones', {
 			type: 'bool'
 		},
 		{
+			name: 'is_multi_patient',
+			type: 'bool'
+		},
+		{
 			name: 'active',
 			type: 'bool',
 			index: true

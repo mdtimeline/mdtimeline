@@ -330,7 +330,7 @@ class PoolArea {
 
 		$zones_inner_join = '';
 
-		if(isset($params->zones)){
+		if(isset($params->zones) && !empty($params->zones)){
 			$zone_ids = implode(',', $params->zones);
 			$zones_inner_join = "INNER JOIN `patient_zone` AS pz ON pz.pid = pp.pid AND pz.time_out IS NULL AND pz.zone_id IN ({$zone_ids})";
 		}

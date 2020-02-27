@@ -39267,9 +39267,9 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 	},
 
 	onNavigationPatientPoolAreaFloorPlanZonesComboBeforeRender: function(cmb){
-		say('onNavigationPatientPoolAreaFloorPlanZonesComboBeforeRender');
-		say(cmb);
-
+		// say('onNavigationPatientPoolAreaFloorPlanZonesComboBeforeRender');
+		// say(cmb);
+		// TODO: load only the zones allowed by user
 		cmb.store.load();
 
 	},

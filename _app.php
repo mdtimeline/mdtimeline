@@ -892,6 +892,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                     'administration.TransactionLog',
                     'administration.CronJob',
 
+	                'areas.FloorPlansRules',
 	                'areas.FloorPlan',
 	                'areas.PatientPoolAreas',
 
@@ -961,6 +962,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 	                'patient.Referrals',
 	                'patient.Reminders',
 	                'patient.Results',
+	                'patient.ReviewOfSystem',
 	                'patient.RxOrders',
 	                'patient.Social',
 	                'patient.SocialPsychologicalBehavioral',

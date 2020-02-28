@@ -362,8 +362,10 @@ Ext.define('App.controller.areas.FloorPlan', {
 
 	},
 
-	promptPatientZoneAssignment: function(pid, floorPlanId, area_id){
+	promptPatientZoneAssignment: function(pid, floorPlanId, area_id, zone){
 		var me = this;
+
+		if(zone) return;
 
 		if(!me.getFloorPlanPatientZoneAssignmentWindow()){
 
@@ -401,7 +403,7 @@ Ext.define('App.controller.areas.FloorPlan', {
 									name: 'display',
 									type: 'string',
 									convert: function(v, record){
-										if(record.data.in_use){
+										if(!record.get('is_multi_patient') && record.get('in_use') > 0){
 											return '<span style="text-decoration: line-through; color: #c1c1c1">' +
 												record.data.title + '</span> (' + _('inuse') + ')';
 										}
@@ -409,8 +411,12 @@ Ext.define('App.controller.areas.FloorPlan', {
 									}
 								},
 								{
-									name: 'in_use',
+									name: 'is_multi_patient',
 									type: 'bool'
+								},
+								{
+									name: 'in_use',
+									type: 'int'
 								}
 							]
 						})
@@ -475,8 +481,7 @@ Ext.define('App.controller.areas.FloorPlan', {
 	},
 
 	onFloorPlanPatientZoneAssignmentComboBeforeSelect: function(cmb, record){
-		return !record.data.in_use;
-
+		return record.get('is_multi_patient') || record.get('in_use') === 0;
 	}
 
 });

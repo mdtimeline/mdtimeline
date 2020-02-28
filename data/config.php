@@ -1157,6 +1157,12 @@ $API = [
             ],
 			'getOpenEncounters' => [
 				'len' => 1
+            ],
+			'getReviewOfSystemSettingsByUserId' => [
+				'len' => 1
+            ],
+			'saveReviewOfSystemSettings' => [
+				'len' => 1
             ]
         ]
     ],
@@ -1190,6 +1196,25 @@ $API = [
 				'len' => 1
             ],
 			'getFloorPlanZonesByFloorPlanId' => [
+				'len' => 1
+            ]
+        ]
+    ],
+	'FloorPlansRules' => [
+		'methods' => [
+			'getFloorPlansRules' => [
+				'len' => 1
+            ],
+			'getFloorPlansRule' => [
+				'len' => 1
+            ],
+			'addFloorPlansRule' => [
+				'len' => 1
+            ],
+			'updateFloorPlansRule' => [
+				'len' => 1
+            ],
+			'destroyFloorPlansRule' => [
 				'len' => 1
             ]
         ]

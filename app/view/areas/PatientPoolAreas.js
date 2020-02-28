@@ -33,7 +33,7 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 		me.pageBody = Ext.create('Ext.container.Container', {
 			defaults: {
 				flex: 1,
-				margin: 5,
+				margin: 2,
 				frame: false
 			},
 			layout: {
@@ -46,7 +46,20 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 			beforerender: me.setPoolAreas
 		};
 
+		me.pageBBar = [
+			'->',
+			{
+				xtype: 'button',
+				icon: 'resources/images/icons/gear.png',
+				itemId: 'PatientPoolAreasRulesBtn'
+			}
+		];
+
+
+		me.patientPoolAreaCtl = app.getController('areas.PatientPoolAreas');
+
 		me.callParent(arguments);
+
 	},
 
 	onPatientDrop: function(node, data, overModel, dropPosition, eOpts){
@@ -57,33 +70,58 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 
 		app.msg(_('sweet'), name + ' ' + _('sent_to') + ' ' + me.panel.title);
 
-		app.nav.activePanel.doSendPatientToPoolArea(pid, me.panel.action)
+		app.nav.activePanel.doSendPatientToPoolArea(pid, me.panel.action, undefined, function (response) {
+
+			// say('onPatientDrop');
+			// say(data);
+			// say(response);
+			// say(response.zone.data.zone);
+
+			if(response.zone){
+				data.records[0].set({zone: response.zone.data.zone, time_in: app.getDate()});
+			}else{
+				data.records[0].set({time_in: app.getDate()});
+			}
+			data.records[0].commit();
+
+		});
 	},
 
-	doSendPatientToPoolArea: function (pid, area_id, callback) {
+	doSendPatientToPoolArea: function (pid, area_id, appointment_id, callback) {
 
 		var me = this;
 
-		app.fireEvent('beforesendpatienttoarea', me, pid, area_id);
+		app.fireEvent('beforesendpatienttoarea', me, pid, area_id, appointment_id);
 
-		PoolArea.sendPatientToPoolArea({ pid: pid, sendTo: area_id }, function(result){
+		PoolArea.sendPatientToPoolArea({
+			pid: pid,
+			sendTo: area_id,
+			appointment_id: appointment_id
+		}, function(response){
 
-			app.fireEvent('sendpatienttoarea', me, pid, area_id);
+			app.fireEvent('sendpatienttoarea', me, pid, area_id, appointment_id);
 
-			if(result.floor_plan_id == null){
+			if(response.floor_plan_id == null || response.zone){
 				app.unsetPatient(null, true);
 				app.nav['App_view_areas_PatientPoolAreas'].reloadStores();
 				app.getPatientsInPoolArea();
-				if(callback) callback();
+				if(callback) callback(response);
 				return;
 			}
 
-			app.getController('areas.FloorPlan').promptPatientZoneAssignment(result.record.pid, result.floor_plan_id, area_id);
+			app.getController('areas.FloorPlan').promptPatientZoneAssignment(response.record.pid, response.floor_plan_id, area_id, response.zone);
 
-			if(callback) callback();
-
+			if(callback) callback(response);
 
 		});
+	},
+
+	doSendPatientToPoolAreaByConcept: function (pid, area_concept, appointment_id, callback) {
+
+		var me = this,
+			area_id = me.patientPoolAreaCtl.getPoolAreaIdByConcept(area_concept);
+
+		me.doSendPatientToPoolArea(pid, area_id, appointment_id, callback)
 	},
 
 	reRenderPoolAreas:function(){
@@ -112,6 +150,7 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 			for(var i = 0; i < areas.length; i++){
 
 				var store = Ext.create('App.store.areas.PoolDropAreas', {
+					groupField: (areas[i].floor_plan_id !== null ? 'zone' : undefined),
 					proxy: {
 						type: 'direct',
 						api: {
@@ -132,24 +171,64 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 					action: areas[i].id,
 					store: store,
 					floorPlanId: areas[i].floor_plan_id,
+					floorPlanConcept: areas[i].concept,
+					features: (areas[i].floor_plan_id !== null ? [{ftype:'grouping'}] : []),
+					collapsible: true,
+					collapseDirection: 'left',
+					animCollapse: false,
 					columns: [
 						Ext.create('Ext.grid.RowNumberer'),
 						{
 							header: _('record') + ' #',
 							width: 100,
-							dataIndex: 'pid'
+							dataIndex: 'pubpid',
+							hidden: true,
+							renderer: function (v,m,r) {
+								m.style = 'background-color:' + r.get('alert_color');
+								return v;
+							}
 						},
 						{
 							header: _('patient_name'),
 							flex: 1,
-							dataIndex: 'name'
+							dataIndex: 'lname',
+							renderer: function (v,m,r) {
+								m.style = 'background-color:' + r.get('alert_color');
+								return Ext.String.format(
+									'{0}{1}, {2} {3}',
+									(r.get('eid') ? '*':''),
+									r.get('lname'),
+									r.get('fname'),
+									r.get('mname')
+								);
+							}
 						},
 						{
-							xtype: 'datecolumn',
 							header: _('time_in'),
-							width: 100,
+							width: 65,
 							dataIndex: 'time_in',
-							format: g('time_display_format')
+							renderer: function (v,m,r) {
+								m.style = 'background-color:' + r.get('alert_color');
+								return Ext.Date.format(v,g('time_display_format'));
+							}
+						},
+						{
+							header: _('schedule'),
+							width: 65,
+							dataIndex: 'appointment_time',
+							renderer: function (v,m,r) {
+								m.style = 'background-color:' + r.get('alert_color');
+								return Ext.Date.format(v,g('time_display_format'));
+							}
+						},
+						{
+							header: _('timer'),
+							width: 65,
+							dataIndex: 'timer',
+							renderer: function (v,m,r) {
+								m.style = 'background-color:' + r.get('alert_color');
+								return v;
+							}
 						}
 					],
 					viewConfig: {

@@ -34,7 +34,20 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 		{
 			ref: 'PatientPoolAreasPanel',
 			selector: '#PatientPoolAreasPanel'
+		},
+
+
+		//navigation pool area
+		{
+			ref: 'NavigationPatientPoolAreaDatView',
+			selector: '#NavigationPatientPoolAreaDatView'
+		},
+		{
+			ref: 'NavigationPatientPoolAreaFloorPlanZonesCombo',
+			selector: '#NavigationPatientPoolAreaFloorPlanZonesCombo'
 		}
+
+
 	],
 
 	init: function(){
@@ -58,10 +71,33 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 			},
 			'#HeaderSendToPoolAreaBtn': {
 				click: me.onHeaderSendToPoolAreaBtnClick
+			},
+			'#NavigationPatientPoolAreaFloorPlanZonesCombo': {
+				beforerender: me.onNavigationPatientPoolAreaFloorPlanZonesComboBeforeRender
 			}
 		});
 
 		me.reloadAreaBuffer = Ext.Function.createBuffered(me.reloadArea, 50, me);
+	},
+
+	getSelectedPoolAreaZones: function(){
+		return this.getNavigationPatientPoolAreaFloorPlanZonesCombo().getValue();
+	},
+
+	onNavigationPatientPoolAreaFloorPlanZonesComboBeforeRender: function(cmb){
+		// say('onNavigationPatientPoolAreaFloorPlanZonesComboBeforeRender');
+		// say(cmb);
+		// TODO: load only the zones allowed by user
+		cmb.store.load();
+
+	},
+
+	getPoolAreaIdByConcept: function(concept){
+
+		var container = this.getPatientPoolAreasPanel().getPageBody().down('container'),
+			grid = container.child('grid[floorPlanConcept='+concept+']');
+
+		return grid.floorPlanId || false;
 	},
 
 	onHeaderSendToPoolAreaBtnClick: function () {
@@ -167,25 +203,29 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 		store.reload();
 	},
 
-	sendPatientToPoolArea: function(pid, area_id, callback){
+	sendPatientToPoolArea: function(pid, area_id, appointment_id, callback){
 
 		var me = this;
 
-		PoolArea.sendPatientToPoolArea({ pid: pid, sendTo: area_id }, function(result){
+		PoolArea.sendPatientToPoolArea({
+			pid: pid,
+			sendTo: area_id,
+			appointment_id: appointment_id
+		}, function(response){
 
-			app.fireEvent('sendpatienttoarea', me, pid, area_id);
+			app.fireEvent('sendpatienttoarea', me, pid, area_id, response);
 
-			if(result.floor_plan_id == null){
+			if(response.floor_plan_id == null){
 				app.unsetPatient(null, true);
 				app.nav['App_view_areas_PatientPoolAreas'].reloadStores();
 				app.getPatientsInPoolArea();
-				if(callback) callback();
+				if(callback) callback(response);
 				return;
 			}
 
-			app.getController('areas.FloorPlan').promptPatientZoneAssignment(result.record.pid, result.floor_plan_id, area_id);
+			app.getController('areas.FloorPlan').promptPatientZoneAssignment(response.record.pid, response.floor_plan_id, area_id, response.zone);
 
-			if(callback) callback();
+			if(callback) callback(response);
 
 
 		});

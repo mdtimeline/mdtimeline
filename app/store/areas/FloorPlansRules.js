@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.store.administration.FloorPlanZones', {
-	extend: 'Ext.data.Store',
-	model: 'App.model.administration.FloorPlanZones'
-});
+Ext.define('App.store.areas.FloorPlansRules', {
+	model: 'App.model.areas.FloorPlansRule',
+	extend: 'Ext.data.Store'
+}); 

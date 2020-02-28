@@ -47,6 +47,15 @@ Ext.define('App.view.patient.windows.Medical', {
 		var me = this,
 			tapPanelItems = app.getController('patient.Medical').getMedicalTabPanelItems();
 
+		if(a('access_clinical_decision_support')){
+			me.tbar = [{
+				xtype: 'decisionsupportwarningpanel',
+				itemId: 'MedicalDecisionSupportWarningPanel',
+				flex: 1
+			}];
+		}
+
+
 		me.items = [
 			{
 				xtype:'tabpanel',

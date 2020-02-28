@@ -2096,5 +2096,10 @@ $LANG = array(
     'new_progress' => 'New Progress',
     'new_progress_note' => 'New Progress Note',
     'no_encounter_selected' => 'No Encounter Selected',
-    'open_encounters' => 'Open Encounters'
+    'open_encounters' => 'Open Encounters',
+    'timer' => 'Timer',
+    'schedule' => 'Schedule',
+    'floor_plan_rules' => 'Floor Plan Rules',
+    'pool_area' => 'Pool Area',
+    'zone_rule' => 'Zone Rule',
 );

@@ -491,6 +491,7 @@ Ext.define('App.view.Viewport', {
                             xtype: 'dataview',
                             loadMask: false,
                             cls: 'patient-pool-view',
+	                        itemId: 'NavigationPatientPoolAreaDatView',
                             tpl: new Ext.XTemplate(
 	                            '<tpl for=".">' +
                                 '<div class="patient-pool-btn x-btn x-btn-default-large {priority}">' +
@@ -519,7 +520,17 @@ Ext.define('App.view.Viewport', {
                                 render: me.onEncounterDragZoneRender
                             }
                         }
-                    ]
+                    ],
+	                bbar: [
+		                {
+		                	xtype: 'floorplanazonescombo',
+			                multiSelect: true,
+			                itemId: 'NavigationPatientPoolAreaFloorPlanZonesCombo',
+			                stateful: true,
+			                stateId: 'NavigationPatientPoolAreaFloorPlanZonesComboState',
+			                flex: 1
+		                }
+	                ]
                 })
             ],
             dockedItems: [
@@ -1112,10 +1123,11 @@ Ext.define('App.view.Viewport', {
 
         var me = this,
 	        poolArea = me.patientPoolArea,
+	        zones = me.getController('areas.PatientPoolAreas').getSelectedPoolAreaZones(),
 	        height = 35;
 
 	    this.patientPoolStore.load({
-            extraPrams:{ uid:me.user.id },
+            params:{ uid: me.user.id, zones: zones },
             callback: function(records){
 
 	            if(records.length >= 1){

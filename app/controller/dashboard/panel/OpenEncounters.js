@@ -20,7 +20,7 @@ Ext.define('App.controller.dashboard.panel.OpenEncounters', {
 	extend: 'App.controller.dashboard.Dashboard',
 
 	init: function(){
-		// if(!a('view_dashboard_open_encounters')) return;
+		if(!a('view_dashboard_open_encounters')) return;
 
 		var me = this;
 

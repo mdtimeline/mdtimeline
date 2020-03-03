@@ -70,9 +70,6 @@ Ext.define('App.controller.patient.Summary', {
             '#PatientSummaryContactsPanel': {
                 activate: me.reloadGrid
             },
-			'#PatientSummaryDisclosuresPanel': {
-				activate: me.reloadGrid
-			},
 			'#PatientSummeryNotesPanel': {
 				activate: me.reloadGrid
 			},

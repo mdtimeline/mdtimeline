@@ -31,7 +31,8 @@ Ext.define('App.view.patient.Summary', {
 		'App.view.patient.Alerts',
 		'App.view.patient.Amendments',
 		'App.view.patient.InsurancesPanel',
-		'App.view.patient.CareTeamGrid'
+		'App.view.patient.CareTeamGrid',
+		'App.view.patient.DisclosuresGrid'
 	],
 	itemId: 'PatientSummaryPanel',
 	showRating: true,
@@ -380,72 +381,12 @@ Ext.define('App.view.patient.Summary', {
 					}
 				]
 			});
-
-
 		}
 
 		if(a('access_patient_disclosures')){
 			me.tabPanel.add({
-				xtype: 'grid',
-				title: _('disclosures'),
-				itemId: 'PatientSummaryDisclosuresPanel',
-				bodyPadding: 0,
-				store: Ext.create('App.store.patient.Disclosures', {
-					autoSync: false,
-					autoLoad: false
-				}),
-				plugins: Ext.create('Ext.grid.plugin.RowEditing', {
-					autoCancel: false,
-					errorSummary: false,
-					clicksToEdit: 2
-				}),
-				columns: [
-					{
-						xtype: 'datecolumn',
-						format: 'Y-m-d H:i:s',
-						text: _('date'),
-                        with: 220,
-						dataIndex: 'date'
-					},
-					{
-						header: _('type'),
-						dataIndex: 'type',
-						editor: {
-                            xtype: 'gaiaehr.combo',
-                            list_key: 'disclosures_types'
-						},
-						renderer: function(v){
-							return _(v);
-						}
-					},
-					{
-						header: _('recipient'),
-						dataIndex: 'recipient',
-						editor: {
-							xtype: 'textfield'
-						},
-						renderer: function(v){
-							return _(v);
-						}
-					},
-					{
-						text: _('description'),
-						dataIndex: 'description',
-						flex: 1,
-						editor: {
-							xtype: 'textfield'
-						}
-					}
-				],
-				tbar: [
-					'->',
-					{
-						text: _('disclosure'),
-						iconCls: 'icoAdd',
-						action: 'disclosure',
-						handler: me.onAddNew
-					}
-				]
+				xtype: 'patientdisclosuresgrid',
+				bodyPadding: 0
 			});
 		}
 

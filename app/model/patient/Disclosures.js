@@ -42,17 +42,12 @@ Ext.define('App.model.patient.Disclosures', {
 			type: 'int'
 		},
 		{
-			name: 'date',
-			type: 'date',
-			dateFormat: 'Y-m-d H:i:s'
-		},
-		{
 			name: 'type',
 			type: 'string',
 			len: 25
 		},
 		{
-			name: 'recipient',
+			name: 'status',
 			type: 'string',
 			len: 25
 		},
@@ -62,8 +57,43 @@ Ext.define('App.model.patient.Disclosures', {
 			dataType: 'text'
 		},
 		{
+			name: 'request_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'fulfil_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'pickup_date',
+			type: 'date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
+			name: 'pickup_signature',
+			type: 'string',
+			dataType: 'text'
+		},
+		{
 			name: 'active',
 			type: 'bool'
+		},
+		{
+			name: 'document_inventory',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'document_inventory_ids',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'document_inventory_count',
+			type: 'int',
+			store: false
 		}
 	],
 	proxy: {

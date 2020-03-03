@@ -741,6 +741,24 @@ $API = [
             ],
             'destroyDisclosure' => [
                 'len' => 1
+            ],
+            'getDisclosuresDocuments' => [
+                'len' => 1
+            ],
+            'getDisclosuresDocument' => [
+                'len' => 1
+            ],
+            'addDisclosuresDocument' => [
+                'len' => 1
+            ],
+            'updateDisclosuresDocument' => [
+                'len' => 1
+            ],
+            'destroyDisclosuresDocument' => [
+                'len' => 1
+            ],
+            'removeDisclosuresDocumentsById' => [
+                'len' => 1
             ]
         ]
     ],

@@ -16,22 +16,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.view.patient.windows.DocumentWindow', {
-	extend: 'Ext.window.Window',
-	requires: [
-		'App.view.patient.Documents'
-	],
-	title: _('patient_documents'),
-	itemId: 'DocumentWindow',
-	layout: 'fit',
-	height: 700,
-	width: 1000,
-	// closeAction: 'hide',
-	maximizable: true,
-	items: [
+Ext.define('App.model.patient.DisclosuresDocument', {
+	extend: 'Ext.data.Model',
+	table: {
+		name: 'patient_disclosures_documents'
+	},
+	fields: [
 		{
-			xtype: 'patientdocumentspanel',
-			title: null
+			name: 'id',
+			type: 'int'
+		},
+		{
+			name: 'disclosure_id',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'document_id',
+			type: 'int',
+			index: true
 		}
-	]
+	],
+	proxy: {
+		type: 'direct',
+		api: {
+			read: 'Disclosure.getDisclosuresDocuments',
+			create: 'Disclosure.addDisclosuresDocument',
+			update: 'Disclosure.updateDisclosuresDocument',
+			destroy: 'Disclosure.destroyDisclosuresDocument'
+		}
+	}
 });
+

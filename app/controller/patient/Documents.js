@@ -156,9 +156,10 @@ Ext.define('App.controller.patient.Documents', {
 		this.onPatientDocumentPanelActive(panel);
 	},
 
-	showDocumentWindow: function () {
+	showDocumentWindow: function (configs) {
 		if(!this.getDocumentWindow()){
-			Ext.create('App.view.patient.windows.DocumentWindow');
+			configs = configs || {};
+			Ext.create('App.view.patient.windows.DocumentWindow', configs);
 		}
 		return this.getDocumentWindow().show();
 	},

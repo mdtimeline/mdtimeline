@@ -23,14 +23,41 @@ class Disclosure {
 	 * @var MatchaCUP
 	 */
 	private $d;
+	/**
+	 * @var MatchaCUP
+	 */
+	private $ds;
 
 	function __construct(){
-        if($this->d == NULL)
             $this->d = MatchaModel::setSenchaModel('App.model.patient.Disclosures');
+            $this->ds = MatchaModel::setSenchaModel('App.model.patient.DisclosuresDocument');
 	}
 
 	public function getDisclosures($params){
-		return $this->d->load($params)->all();
+
+		$where = '';
+		$values = [];
+
+		if(isset($params->filter)){
+			$buff = [];
+			foreach ($params->filter as $filter){
+				$buff [] = "d.{$filter->property} {$filter->operator} :{$filter->property}";
+				$values[":{$filter->property}"] = $filter->value;
+			}
+			$where = 'WHERE ' . implode(' AND ', $buff);
+		}
+
+		$sql = "SELECT d.*,
+					   GROUP_CONCAT(CONCAT(pd.docType,' - ', pd.title) SEPARATOR '<br>') as document_inventory,
+					   GROUP_CONCAT(pd.id) as document_inventory_ids,
+					   COUNT(*) as document_inventory_count
+				  FROM patient_disclosures as d
+			 LEFT JOIN patient_disclosures_documents as dd ON dd.disclosure_id = d.id
+			 LEFT JOIN patient_documents as pd ON pd.id = dd.document_id
+			  {$where}
+			  GROUP BY d.id";
+
+		return $this->d->sql($sql)->all($values);
 	}
 
 	public function getDisclosure($params){
@@ -47,6 +74,45 @@ class Disclosure {
 
 	public function destroyDisclosure($params){
 		return $this->d->destroy($params);
+	}
+
+	public function getDisclosuresDocuments($params){
+		return $this->ds->load($params)->all();
+	}
+
+	public function getDisclosuresDocument($params){
+		return $this->ds->load($params)->one();
+	}
+
+	public function addDisclosuresDocument($params){
+		return $this->ds->save($params);
+	}
+
+	public function updateDisclosuresDocument($params){
+		return $this->ds->save($params);
+	}
+
+	public function destroyDisclosuresDocument($params){
+		return $this->ds->destroy($params);
+	}
+
+	public function removeDisclosuresDocumentsById($disclosure_id){
+		$this->ds->sql('DELETE FROM patient_disclosures_documents WHERE disclosure_id = :disclosure_id');
+		$this->ds->exec([':disclosure_id' => $disclosure_id]);
+	}
+
+	public function generateDisclosure($pid, $document_ids){
+
+
+
+
+
+
+
+
+		return [
+			'success' => true
+		];
 	}
 
 

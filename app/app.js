@@ -8583,7 +8583,7 @@ Ext.define('App.ux.combo.FloorPlanAreas', {
 			proxy: {
 				type: 'direct',
 				api: {
-					read: CombosData.getFloorPlanAreas
+					read: 'CombosData.getFloorPlanAreas'
 				}
 			}
 		});
@@ -9124,10 +9124,12 @@ Ext.define('App.ux.combo.FloorPlanZones', {
 	valueField: 'id',
 	emptyText: _('all'),
 	initComponent: function () {
-		this.store = Ext.create('App.store.administration.FloorPlanZones',{
-			autoLoad: false,
-			remoteFilter: false
-		});
+		if(!this.store){
+			this.store = Ext.create('App.store.administration.FloorPlanZones',{
+				autoLoad: false,
+				remoteFilter: false
+			});
+		}
 		this.callParent();
 	}
 
@@ -20554,12 +20556,19 @@ Ext.define('App.model.areas.PoolArea', {
 			len: 80
 		},
 		{
+			name: 'concept',
+			type: 'string',
+			len: 80
+		},
+		{
 			name: 'floor_plan_id',
-			type: 'int'
+			type: 'int',
+			useNull: true
 		},
 		{
 			name: 'facility_id',
-			type: 'int'
+			type: 'int',
+			useNull: true
 		},
 		{
 			name: 'sequence',
@@ -20568,8 +20577,29 @@ Ext.define('App.model.areas.PoolArea', {
 		{
 			name: 'active',
 			type: 'bool'
+		},
+		{
+			name: 'facility_name',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'floor_plan_title',
+			type: 'string',
+			store: false
 		}
-	]
+	],
+	proxy: {
+		type: 'direct',
+		api: {
+			read: 'PoolArea.getPoolAreas',
+			create: 'PoolArea.addPoolArea',
+			update: 'PoolArea.updatePoolArea',
+			destroy: 'PoolArea.destroyPoolArea'
+		},
+		remoteGroup: false
+	},
+	remoteGroup: false
 });
 Ext.define('App.model.areas.PoolDropAreas', {
 	extend: 'Ext.data.Model',

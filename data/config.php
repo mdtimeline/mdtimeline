@@ -2099,6 +2099,21 @@ $API = [
             ],
 			'getPatientsByPoolAreaAccess' => [
 				'len' => 1
+            ],
+			'getPoolAreas' => [
+				'len' => 1
+            ],
+			'getPoolArea' => [
+				'len' => 1
+            ],
+			'addPoolArea' => [
+				'len' => 1
+            ],
+			'updatePoolArea' => [
+				'len' => 1
+            ],
+			'destroyPoolArea' => [
+				'len' => 1
             ]
         ]
     ],

@@ -214,6 +214,12 @@ class Navigation
 		}
 		if($this->ACL->hasPermission('access_floor_plans')){
 			$admin['children'][] = [
+				'text' => $this->i18n('pool_areas'),
+				'leaf' => true,
+				'cls' => 'file',
+				'id' => 'App.view.administration.PoolAreas'
+			];
+			$admin['children'][] = [
 				'text' => $this->i18n('floor_areas'),
 				'leaf' => true,
 				'cls' => 'file',

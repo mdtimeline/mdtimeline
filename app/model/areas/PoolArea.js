@@ -32,12 +32,19 @@ Ext.define('App.model.areas.PoolArea', {
 			len: 80
 		},
 		{
+			name: 'concept',
+			type: 'string',
+			len: 80
+		},
+		{
 			name: 'floor_plan_id',
-			type: 'int'
+			type: 'int',
+			useNull: true
 		},
 		{
 			name: 'facility_id',
-			type: 'int'
+			type: 'int',
+			useNull: true
 		},
 		{
 			name: 'sequence',
@@ -46,6 +53,27 @@ Ext.define('App.model.areas.PoolArea', {
 		{
 			name: 'active',
 			type: 'bool'
+		},
+		{
+			name: 'facility_name',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'floor_plan_title',
+			type: 'string',
+			store: false
 		}
-	]
+	],
+	proxy: {
+		type: 'direct',
+		api: {
+			read: 'PoolArea.getPoolAreas',
+			create: 'PoolArea.addPoolArea',
+			update: 'PoolArea.updatePoolArea',
+			destroy: 'PoolArea.destroyPoolArea'
+		},
+		remoteGroup: false
+	},
+	remoteGroup: false
 });

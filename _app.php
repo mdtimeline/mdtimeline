@@ -879,6 +879,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 	                'administration.FacilityStructure',
 	                'administration.FileSystems',
 	                'administration.HL7',
+	                'administration.PoolAreas',
 	                'administration.Practice',
 	                'administration.ReferringProviders',
 	                'administration.Roles',

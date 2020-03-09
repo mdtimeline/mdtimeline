@@ -87,6 +87,47 @@ class PoolArea
             $this->pp = MatchaModel::setSenchaModel('App.model.areas.PatientPool');
     }
 
+	public function getPoolAreas($params){
+    	$this->setPaModel();
+    	return $this->pa->load($params)->leftJoin(
+    		[
+				'name' => 'facility_name'
+		    ],'facility', 'facility_id', 'id'
+	    )->leftJoin(
+    		[
+				'title' => 'floor_plan_title'
+		    ],'floor_plans', 'floor_plan_id', 'id'
+	    )->all();
+	}
+
+	public function getPoolArea($params){
+		$this->setPaModel();
+    	return $this->pa->load($params)->leftJoin(
+		    [
+			    'name' => 'facility_name'
+		    ],'facility', 'facility_id', 'id'
+	    )->leftJoin(
+		    [
+			    'title' => 'floor_plan_title'
+		    ],'floor_plans', 'floor_plan_id', 'id'
+	    )->all();
+	}
+
+	public function addPoolArea($params){
+		$this->setPaModel();
+    	return $this->pa->save($params);
+	}
+
+	public function updatePoolArea($params){
+		$this->setPaModel();
+    	return $this->pa->save($params);
+	}
+
+	public function destroyPoolArea($params){
+		$this->setPaModel();
+    	return $this->pa->destroy($params);
+	}
+
     public function getPatientsArrivalLog(stdClass $params)
     {
         $this->setPatient();

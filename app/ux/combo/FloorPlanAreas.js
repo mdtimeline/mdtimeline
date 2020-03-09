@@ -13,7 +13,7 @@ Ext.define('App.ux.combo.FloorPlanAreas', {
 			proxy: {
 				type: 'direct',
 				api: {
-					read: CombosData.getFloorPlanAreas
+					read: 'CombosData.getFloorPlanAreas'
 				}
 			}
 		});

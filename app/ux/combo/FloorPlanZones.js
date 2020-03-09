@@ -7,10 +7,12 @@ Ext.define('App.ux.combo.FloorPlanZones', {
 	valueField: 'id',
 	emptyText: _('all'),
 	initComponent: function () {
-		this.store = Ext.create('App.store.administration.FloorPlanZones',{
-			autoLoad: false,
-			remoteFilter: false
-		});
+		if(!this.store){
+			this.store = Ext.create('App.store.administration.FloorPlanZones',{
+				autoLoad: false,
+				remoteFilter: false
+			});
+		}
 		this.callParent();
 	}
 

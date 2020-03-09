@@ -610,7 +610,13 @@ class Documents {
 			foreach($pages AS $page){
 				$pdf->AddPage('',$format,true);
 
-                $pdf->writeHTMLCell(0,0,'','',nl2br($page));
+				if($this->isHtml($page)){
+					//$pdf->writeHTML($page);
+					$pdf->writeHTMLCell(0,0,'','',$page);
+				}else{
+//					$pdf->writeHTML(nl2br($page));
+					$pdf->writeHTMLCell(0,0,'','',nl2br($page));
+				}
 			}
 		}
 

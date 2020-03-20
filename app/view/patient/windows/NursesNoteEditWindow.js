@@ -16,43 +16,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.view.patient.encounter.NursesNotesGrid', {
-	extend: 'Ext.grid.Panel',
+Ext.define('App.view.patient.windows.NursesNoteEditWindow', {
+	extend: 'Ext.window.Window',
 	requires: [
 
 	],
-	xtype: 'nursesnotesgrid',
-	itemId: 'NursesNotesGrid',
-	title: _('nurse_notes'),
-	frame: true,
-	disableSelection: true,
-	store: Ext.create('App.store.patient.NursesNotes'),
-	columns: [
+	title: _('nurse_note'),
+	itemId: 'NursesNoteEditWindow',
+	layout: 'fit',
+	height: 700,
+	width: 900,
+	closeAction: 'hide',
+	modal: true,
+	closable: false,
+	bodyPadding: 5,
+	items: [
 		{
-			xtype: 'datecolumn',
-			text: _('date'),
-			width: 150,
-			format: g('date_time_display_format'),
-			dataIndex: 'create_date'
-		},
-		{
-			text: _('note'),
-			flex: 1,
-			dataIndex: 'note'
-		},
-		{
-			text: _('nurse'),
-			width: 200,
-			dataIndex: 'nurse_name'
+			xtype: 'form',
+			itemId: 'NursesNoteEditWindowForm',
+			bodyPadding: 15,
+			layout: {
+				type: 'vbox',
+				align: 'stretch'
+			},
+			items: [
+				{
+					xtype: 'textarea',
+					name: 'note',
+					// fieldLabel: _('note'),
+					// labelAlign: 'top',
+					flex: 1
+				}
+			]
 		}
 	],
-	tbar: [
-		'->',
+	buttons: [
 		{
-			text: _('note'),
-			itemId: 'NursesNotesGridAddBtn',
-			action: 'encounterRecordAdd',
-			iconCls: 'icoAdd'
+			text: _('cancel'),
+			itemId: 'NursesNoteEditWindowCancelBtn'
+		},
+		{
+			text: _('save'),
+			itemId: 'NursesNoteEditWindowSaveBtn'
 		}
 	]
 });

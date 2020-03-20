@@ -33,7 +33,13 @@ class NursesNotes {
 	 * @return array
 	 */
 	public function getNursesNotes($params){
-		return $this->n->load($params)->all();
+		return $this->n->load($params)->leftJoin(
+			[
+				'fname' => 'nurse_fname',
+				'mname' => 'nurse_mname',
+				'lname' => 'nurse_lname',
+			], 'users', 'create_uid', 'id'
+		)->all();
 	}
 
 	/**
@@ -41,7 +47,13 @@ class NursesNotes {
 	 * @return array
 	 */
 	public function getNursesNote($params){
-		return $this->n->load($params)->one();
+		return $this->n->load($params)->leftJoin(
+			[
+				'fname' => 'nurse_fname',
+				'mname' => 'nurse_mname',
+				'lname' => 'nurse_lname',
+			], 'users', 'create_uid', 'id'
+		)->one();
 	}
 
 	/**
@@ -66,6 +78,16 @@ class NursesNotes {
 	 */
 	public function destroyNursesNote($params){
 		return $this->n->destroy($params);
+	}
+
+	public function getNursesNotesByEid($eid){
+		return $this->n->load(['eid' => $eid])->leftJoin(
+			[
+				'fname' => 'nurse_fname',
+				'mname' => 'nurse_mname',
+				'lname' => 'nurse_lname',
+			], 'users', 'create_uid', 'id'
+		)->all();
 	}
 
 }

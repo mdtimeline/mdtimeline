@@ -87,6 +87,14 @@ Ext.define('App.model.patient.NursesNote', {
 			name: 'nurse_lname',
 			type: 'string',
 			store: false
+		},
+		{
+			name: 'nurse_name',
+			type: 'string',
+			convert: function(v,r){
+				return v || Ext.String.format('{0}, {1} {2}', r.get('nurse_lname'), r.get('nurse_fname'), r.get('nurse_mname'))
+			},
+			store: false
 		}
 	],
 	proxy: {

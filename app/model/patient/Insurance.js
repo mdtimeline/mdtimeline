@@ -221,10 +221,10 @@ Ext.define('App.model.patient.Insurance',{
             read: 'Insurance.getInsurances',
             create: 'Insurance.addInsurance',
             update: 'Insurance.updateInsurance'
+        },
+        writer: {
+            writeAllFields: true
         }
-    },
-    writer: {
-        writeAllFields: true
     },
     associations: [
         {

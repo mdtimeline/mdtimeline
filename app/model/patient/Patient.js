@@ -868,6 +868,9 @@ Ext.define('App.model.patient.Patient',{
             read: 'Patient.getPatients',
             create: 'Patient.savePatient',
             update: 'Patient.savePatient'
+        },
+        writer: {
+            writeAllFields: true
         }
     },
     hasMany: [

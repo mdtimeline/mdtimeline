@@ -30,6 +30,7 @@ include_once(ROOT . '/dataProvider/Immunizations.php');
 include_once(ROOT . '/dataProvider/Services.php');
 include_once(ROOT . '/dataProvider/DiagnosisCodes.php');
 include_once(ROOT . '/dataProvider/FamilyHistory.php');
+include_once(ROOT . '/dataProvider/NursesNotes.php');
 
 class Encounter {
 	/**
@@ -89,6 +90,11 @@ class Encounter {
 	 * @var bool|MatchaCUP
 	 */
 	private $edx;
+
+	/**
+	 * @var FamilyHistory
+	 */
+	private $FamilyHistory;
 
 	function __construct() {
 		$this->conn = Matcha::getConn();
@@ -498,7 +504,7 @@ class Encounter {
 			$encounter['subjective'] = $soap['subjective'] . $this->getSubjectiveExtraDataByEid($encounter['eid']);
 			$encounter['objective'] = $this->getObjectiveExtraDataByEid($encounter['eid']) . $soap['objective'];
 			$encounter['assessment'] = $soap['assessment'] . '<ul  class="ProgressNote-ul">' . $icds . '</ul>';
-			$encounter['plan'] = (isset($soap['plan']) ? $soap['plan'] : '') . $this->getPlanExtraDataByEid($encounter['eid'], $soap['instructions']);
+			$encounter['plan'] = (isset($soap['plan']) ? $soap['plan'] : '') . $this->getPlanExtraDataByEid($encounter['eid'], $soap['instructions'], true);
 			unset($soap);
 		}
 		unset($filters);
@@ -566,10 +572,11 @@ class Encounter {
 
 	/**
 	 * @param $eid
+	 * @param $include_nurse_data
 	 * @return array
 	 *  Naming: "closePatientEncounter"
 	 */
-	public function getProgressNoteByEid($eid) {
+	public function getProgressNoteByEid($eid, $include_nurse_data = true) {
 
 		$record = $this->getEncounter($eid, true);
 		$encounter = (array)$record['encounter'];
@@ -634,7 +641,7 @@ class Encounter {
 			$soap['objective'] = $this->getObjectiveExtraDataByEid($eid, $encounter) . (isset($soap['objective']) ? $soap['objective'] : '');
 			$soap['assessment'] = $soap['assessment'] . (isset($dxOl) ? $dxOl : '');
 			$instructions = (isset($soap['instructions']) ? (trim($soap['instructions']) . '<br>') : null);
-			$soap['plan'] = (isset($soap['plan']) ? (trim($soap['plan']) . '<br>') : '') . $this->getPlanExtraDataByEid($eid, $instructions);
+			$soap['plan'] = (isset($soap['plan']) ? (trim($soap['plan']) . '<br>') : '') . $this->getPlanExtraDataByEid($eid, $instructions, $include_nurse_data);
 			$encounter['soap'] = $soap;
 		}
 
@@ -1091,12 +1098,10 @@ class Encounter {
 			unset($Immunizations, $immunizations);
 		}
 
-
-
 		return $str_buff;
 	}
 
-	private function getPlanExtraDataByEid($eid, $instructions = null){
+	private function getPlanExtraDataByEid($eid, $instructions = null, $include_nurse_data = true){
 
 //		$record = $this->getEncounter($eid, true, false);
 //		$encounter = (array)$record['encounter'];
@@ -1162,7 +1167,7 @@ class Encounter {
 		unset($orders);
 
 		/**
-		 * Radiology Ordes
+		 * Radiology Orders
 		 */
 
 		$orders = $Orders->getPatientRadOrdersByEid($eid);
@@ -1205,6 +1210,37 @@ class Encounter {
 		}
 
 		unset($Referrals, $referrals);
+
+
+		// dont include nurse data if false
+		if(!$include_nurse_data){
+			return $str_buff;
+		}
+
+		/**
+		 * Nurses Notes
+		 */
+		$NursesNotes = new NursesNotes();
+		$notes = $NursesNotes->getNursesNotesByEid($eid);
+
+		if(!empty($notes)){
+			$str_buff .= '<div class="indent" style="color:orangered">';
+			$str_buff .= '<p><b>Nurses Notes(s):</b></p>';
+
+			foreach($notes as $note){
+				$str_buff .= '<p class="indent">';
+				$str_buff .= '<u>Note:</u> ' . $note['note'] . '<br>';
+				$str_buff .= '<u>Nurse:</u> ' . sprintf(
+					'%s, %s %s',
+					$note['nurse_lname'],
+					$note['nurse_fname'],
+					$note['nurse_mname']) . '<br>';
+				$str_buff .= '</p>';
+			}
+			$str_buff .= '</div>';
+		}
+
+		unset($NursesNotes, $notes);
 
 		return $str_buff;
 	}

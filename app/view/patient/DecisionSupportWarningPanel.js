@@ -21,8 +21,8 @@ Ext.define('App.view.patient.DecisionSupportWarningPanel', {
 	xtype: 'decisionsupportwarningpanel',
 	cls: 'decisionSupportWarning',
 	header: false,
-	collapsible: true,
-	collapsed: true,
+	// collapsible: true,
+	// collapsed: true,
 	hidden: true,
 	margin: 0,
 	dockedItems:[

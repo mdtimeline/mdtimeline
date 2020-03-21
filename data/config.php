@@ -51,6 +51,9 @@ $API = [
             ],
             'destroyNursesNote' => [
                 'len' => 1
+            ],
+            'getNursesNotesByEid' => [
+                'len' => 1
             ]
         ]
     ],

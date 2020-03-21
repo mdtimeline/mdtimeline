@@ -27,8 +27,8 @@ Ext.define('App.controller.patient.NursesNotes', {
 			selector: '#NursesNotesGrid'
 		},
 		{
-			ref: 'NursesNoteWindow',
-			selector: '#NursesNoteWindow'
+			ref: 'NursesNoteEditWindow',
+			selector: '#NursesNoteEditWindow'
 		},
 	],
 
@@ -41,18 +41,58 @@ Ext.define('App.controller.patient.NursesNotes', {
 			'#NursesNotesGridAddBtn': {
 				click: me.onNursesNotesGridAddBtnClick
 			},
+			'#NursesNoteEditWindowCancelBtn': {
+				click: me.onNursesNoteEditWindowCancelBtnClick
+			},
+			'#NursesNoteEditWindowSaveBtn': {
+				click: me.onNursesNoteEditWindowSaveBtnClick
+			},
 		});
 	},
 
-	showNursesNotesWindow: function(){
-		if(!this.getNursesNoteWindow()){
-			Ext.create('App.view.patient.NursesNoteWindow');
-		}
-		return this.getNursesNoteWindow().show();
+	onNursesNoteEditWindowCancelBtnClick: function(btn){
+		this.getNursesNotesGrid().getStore().rejectChanges();
+		btn.up('window').close();
+	},
+
+	onNursesNoteEditWindowSaveBtnClick: function(btn){
+		var win = btn.up('window'),
+			form = win.down('form').getForm(),
+			values = form.getValues(),
+			record = form.getRecord(),
+			store = this.getNursesNotesGrid().getStore();
+
+		record.set(values);
+		store.sync({
+			callback: function () {
+				win.close();
+			}
+		});
 	},
 
 	onNursesNotesGridAddBtnClick: function(btn){
 
+		var form  = this.showNursesNotesWindow().down('form').getForm(),
+			store = btn.up('grid').getStore(),
+			records = store.add({
+				pid: app.patient.pid,
+				eid: app.patient.eid,
+				in_error: false,
+				create_uid: app.user.id,
+				update_uid: app.user.id,
+				create_date: app.getDate(),
+				update_date: app.getDate(),
+				nurse_name: app.user.getFullName()
+			});
+
+		form.loadRecord(records[0]);
+	},
+
+	showNursesNotesWindow: function(){
+		if(!this.getNursesNoteEditWindow()){
+			Ext.create('App.view.patient.windows.NursesNoteEditWindow');
+		}
+		return this.getNursesNoteEditWindow().show();
 	},
 
 	onNursesNotesGridActive: function(grid){

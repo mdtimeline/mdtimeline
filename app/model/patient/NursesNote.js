@@ -92,7 +92,7 @@ Ext.define('App.model.patient.NursesNote', {
 			name: 'nurse_name',
 			type: 'string',
 			convert: function(v,r){
-				return v || Ext.String.format('{0}, {1} {2}', r.get('nurse_lname'), r.get('nurse_fname'), r.get('nurse_mname'))
+				return v !== '' ? v : Ext.String.format('{0}, {1} {2}', r.get('nurse_lname'), r.get('nurse_fname'), r.get('nurse_mname'))
 			},
 			store: false
 		}
@@ -107,6 +107,9 @@ Ext.define('App.model.patient.NursesNote', {
 		},
 		reader: {
 			root: 'data'
+		},
+		writer: {
+			writeAllFields: true
 		},
 		remoteGroup: false
 	}

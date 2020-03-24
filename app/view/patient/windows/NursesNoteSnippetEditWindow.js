@@ -43,11 +43,16 @@ Ext.define('App.view.patient.windows.NursesNoteSnippetEditWindow', {
 					anchor: '100%'
 				},
 				{
-					xtype: 'textfield',
+					xtype: 'combo',
 					name: 'category',
 					fieldLabel: _('category'),
 					labelAlign: 'top',
-					anchor: '100%'
+					anchor: '100%',
+					store: [
+						'Meds Intravenous',
+						'Meds Intramuscular',
+						'Serum/Infiltrations'
+					]
 				},
 				{
 					xtype: 'textareafield',

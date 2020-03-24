@@ -94,6 +94,7 @@ Ext.define('App.controller.patient.NursesNotes', {
 
 	onNursesNoteSnippetEditWindowCancelBtnClick: function(btn){
 		btn.up('window').close();
+		this.getNursesNoteSnippetsGrid().getStore().rejectChanges();
 	},
 
 	onNursesNoteSnippetEditWindowSaveBtnClick: function(btn){

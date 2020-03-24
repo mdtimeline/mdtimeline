@@ -30,6 +30,22 @@ Ext.define('App.controller.patient.NursesNotes', {
 			ref: 'NursesNoteEditWindow',
 			selector: '#NursesNoteEditWindow'
 		},
+		{
+			ref: 'NursesNoteSnippetsGrid',
+			selector: '#NursesNoteSnippetsGrid'
+		},
+		{
+			ref: 'NursesNoteSnippetEditWindow',
+			selector: '#NursesNoteSnippetEditWindow'
+		},
+		{
+			ref: 'NursesNoteSnippetEditWindowForm',
+			selector: '#NursesNoteSnippetEditWindowForm'
+		},
+		{
+			ref: 'NursesNoteEditWindowFormNoteField',
+			selector: '#NursesNoteEditWindowFormNoteField'
+		},
 	],
 
 	init: function(){
@@ -47,7 +63,72 @@ Ext.define('App.controller.patient.NursesNotes', {
 			'#NursesNoteEditWindowSaveBtn': {
 				click: me.onNursesNoteEditWindowSaveBtnClick
 			},
+			'#NursesNoteSnippetAddBtn': {
+				click: me.onNursesNoteSnippetAddBtnClick
+			},
+			'#NursesNoteSnippetsGrid': {
+				render: me.onNursesNoteEditWindowRender,
+				itemdblclick: me.onNursesNoteSnippetsGridItemDblClick
+			},
+			'#NursesNoteSnippetEditWindowCancelBtn': {
+				click: me.onNursesNoteSnippetEditWindowCancelBtnClick
+			},
+			'#NursesNoteSnippetEditWindowSaveBtn': {
+				click: me.onNursesNoteSnippetEditWindowSaveBtnClick
+			},
 		});
+	},
+
+	onNursesNoteSnippetsGridItemDblClick: function(grid, record){
+
+		var snippet = record.get('snippet'),
+			field = this.getNursesNoteEditWindowFormNoteField();
+
+		if(Ext.isChrome){
+			field.inputEl.dom.focus();
+			document.execCommand("insertText", false, snippet);
+		}else{
+			field.inputEl.dom.value += ' ' + snippet;
+		}
+	},
+
+	onNursesNoteSnippetEditWindowCancelBtnClick: function(btn){
+		btn.up('window').close();
+	},
+
+	onNursesNoteSnippetEditWindowSaveBtnClick: function(btn){
+		var win = btn.up('window'),
+			form = win.down('form').getForm(),
+			values = form.getValues(),
+			record = form.getRecord(),
+			store = this.getNursesNoteSnippetsGrid().getStore();
+
+		record.set(values);
+		store.sync({
+			callback: function () {
+				win.close();
+			}
+		});
+	},
+
+	onNursesNoteSnippetAddBtnClick: function(btn){
+		var form  = this.showNursesNoteSnippetEditWindow().down('form').getForm(),
+			store = btn.up('grid').getStore(),
+			records = store.add({
+				uid: app.user.id,
+				index: 0,
+				create_uid: app.user.id,
+				update_uid: app.user.id,
+				create_date: app.getDate(),
+				update_date: app.getDate()
+			});
+
+		form.loadRecord(records[0]);
+
+	},
+
+	onNursesNoteEditWindowRender: function(grid){
+		grid.getStore().load();
 	},
 
 	onNursesNoteEditWindowCancelBtnClick: function(btn){
@@ -93,6 +174,13 @@ Ext.define('App.controller.patient.NursesNotes', {
 			Ext.create('App.view.patient.windows.NursesNoteEditWindow');
 		}
 		return this.getNursesNoteEditWindow().show();
+	},
+
+	showNursesNoteSnippetEditWindow: function(){
+		if(!this.getNursesNoteSnippetEditWindow()){
+			Ext.create('App.view.patient.windows.NursesNoteSnippetEditWindow');
+		}
+		return this.getNursesNoteSnippetEditWindow().show();
 	},
 
 	onNursesNotesGridActive: function(grid){

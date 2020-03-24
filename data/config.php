@@ -54,6 +54,21 @@ $API = [
             ],
             'getNursesNotesByEid' => [
                 'len' => 1
+            ],
+            'getNursesNoteSnippets' => [
+                'len' => 1
+            ],
+            'getNursesNoteSnippet' => [
+                'len' => 1
+            ],
+            'addNursesNoteSnippet' => [
+                'len' => 1
+            ],
+            'updateNursesNoteSnippet' => [
+                'len' => 1
+            ],
+            'deleteNursesNoteSnippet' => [
+                'len' => 1
             ]
         ]
     ],

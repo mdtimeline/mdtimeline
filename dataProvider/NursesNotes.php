@@ -23,9 +23,14 @@ class NursesNotes {
 	 * @var MatchaCUP
 	 */
 	private $n;
+	/**
+	 * @var MatchaCUP
+	 */
+	private $s;
 
 	function __construct(){
 		$this->n = MatchaModel::setSenchaModel('App.model.patient.NursesNote', true);
+		$this->s = MatchaModel::setSenchaModel('App.model.administration.NursesNoteSnippet', true);
 	}
 
 	/**
@@ -88,6 +93,47 @@ class NursesNotes {
 				'lname' => 'nurse_lname',
 			], 'users', 'create_uid', 'id'
 		)->all();
+	}
+
+
+	/**
+	 * @param $params
+	 * @return array
+	 */
+	public function getNursesNoteSnippets($params){
+		return $this->s->load($params)->all();
+	}
+
+	/**
+	 * @param $params
+	 * @return array
+	 */
+	public function getNursesNoteSnippet($params){
+		return $this->s->load($params)->one();
+	}
+
+	/**
+	 * @param $params
+	 * @return mixed
+	 */
+	public function addNursesNoteSnippet($params){
+		return $this->s->save($params);
+	}
+
+	/**
+	 * @param $params
+	 * @return mixed
+	 */
+	public function updateNursesNoteSnippet($params){
+		return $this->s->save($params);
+	}
+
+	/**
+	 * @param $params
+	 * @return mixed
+	 */
+	public function deleteNursesNoteSnippet($params){
+		return $this->s->destroy($params);
 	}
 
 }

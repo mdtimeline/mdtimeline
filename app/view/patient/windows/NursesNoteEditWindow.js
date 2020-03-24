@@ -23,7 +23,7 @@ Ext.define('App.view.patient.windows.NursesNoteEditWindow', {
 	],
 	title: _('nurse_note'),
 	itemId: 'NursesNoteEditWindow',
-	layout: 'fit',
+	layout: 'border',
 	height: 700,
 	width: 900,
 	closeAction: 'hide',
@@ -32,8 +32,57 @@ Ext.define('App.view.patient.windows.NursesNoteEditWindow', {
 	bodyPadding: 5,
 	items: [
 		{
+			xtype: 'grid',
+			title: _('snippets'),
+			itemId: 'NursesNoteSnippetsGrid',
+			region: 'west',
+			width: 300,
+			split: true,
+			animate: false,
+			hideHeaders: true,
+			useArrows: true,
+			rootVisible: false,
+			singleExpand: true,
+			collapsible: true,
+			collapseMode: 'mini',
+			animCollapse: false,
+			hideCollapseTool: true,
+			store: Ext.create('App.store.administration.NursesNoteSnippets',{
+				groupField: 'category'
+			}),
+			features: [{ ftype:'grouping' }],
+			tools: [
+				{
+					xtype: 'button',
+					text: _('snippet'),
+					iconCls: 'icoAdd',
+					itemId: 'NursesNoteSnippetAddBtn'
+				}
+			],
+			columns: [
+				{
+					text: _('edit'),
+					width: 25,
+					menuDisabled: true,
+					xtype: 'actioncolumn',
+					tooltip: 'Edit Snippet',
+					align: 'center',
+					icon: 'resources/images/icons/edit.png',
+					handler: function(grid, rowIndex, colIndex, actionItem, event, record){
+						snippetCtrl.onSnippetBtnEdit(grid, rowIndex, colIndex, actionItem, event, record);
+					}
+				},
+				{
+					text: _('description'),
+					dataIndex: 'description',
+					flex: 1
+				}
+			]
+		},
+		{
 			xtype: 'form',
 			itemId: 'NursesNoteEditWindowForm',
+			region: 'center',
 			bodyPadding: 15,
 			layout: {
 				type: 'vbox',
@@ -42,9 +91,8 @@ Ext.define('App.view.patient.windows.NursesNoteEditWindow', {
 			items: [
 				{
 					xtype: 'textarea',
+					itemId: 'NursesNoteEditWindowFormNoteField',
 					name: 'note',
-					// fieldLabel: _('note'),
-					// labelAlign: 'top',
 					flex: 1
 				}
 			]

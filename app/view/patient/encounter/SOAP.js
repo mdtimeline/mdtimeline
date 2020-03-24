@@ -71,7 +71,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 			animCollapse: false,
 			hideCollapseTool: true,
 			store: me.snippetStore,
-			features: [{ftype:'grouping'}],
+			features: [{ ftype:'grouping' }],
 			tools: [
 				{
 					xtype: 'button',

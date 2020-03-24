@@ -3405,6 +3405,10 @@ Ext.define('App.ux.LivePatientSearch', {
 					type: 'string'
 				},
 				{
+					name: 'email',
+					type: 'string'
+				},
+				{
 					name: 'fullname',
 					type: 'string',
 					convert: function(v, record){
@@ -13923,6 +13927,15 @@ Ext.define('App.model.administration.Specialty', {
 			type: 'string',
 			len: 50
 		},
+        {
+            name: 'medical_education',
+            type: 'string'
+        },
+        {
+            name: 'modality',
+            type: 'string',
+            len: 50
+        },
 		{
 			name: 'isFda',
 			type: 'bool'
@@ -17399,10 +17412,10 @@ Ext.define('App.model.patient.Insurance',{
             read: 'Insurance.getInsurances',
             create: 'Insurance.addInsurance',
             update: 'Insurance.updateInsurance'
+        },
+        writer: {
+            writeAllFields: true
         }
-    },
-    writer: {
-        writeAllFields: true
     },
     associations: [
         {
@@ -17721,20 +17734,43 @@ Ext.define('App.model.patient.Notes', {
 		},
 		{
 			name: 'body',
-			type: 'string',
-			len: 600
+			type: 'string'
 		},
 		{
 			name: 'type',
-			type: 'string',
-			len: 80,
-			index: true
+			type: 'string'
 		},
 		{
 			name: 'user_name',
 			type: 'string',
 			store: false
-		}
+		},
+        {
+            name: 'external_id',
+            type: 'string'
+        },
+        {
+            name: 'global_id',
+            type: 'string'
+        },
+        {
+            name: 'create_uid',
+            type: 'int'
+        },
+        {
+            name: 'update_uid',
+            type: 'int'
+        },
+        {
+            name: 'create_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
+        },
+        {
+            name: 'update_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
+        }
 	],
 	proxy: {
 		type: 'direct',
@@ -22313,6 +22349,9 @@ Ext.define('App.model.patient.Patient',{
             read: 'Patient.getPatients',
             create: 'Patient.savePatient',
             update: 'Patient.savePatient'
+        },
+        writer: {
+            writeAllFields: true
         }
     },
     hasMany: [
@@ -36230,9 +36269,7 @@ Ext.define('App.store.patient.MeaningfulUseAlert', {
 });
 Ext.define('App.store.patient.Notes', {
 	extend: 'Ext.data.Store',
-	model     : 'App.model.patient.Notes',
-	remoteSort: false,
-	autoLoad  : false
+	model: 'App.model.patient.Notes'
 });
 Ext.define('App.store.patient.Patient', {
 	extend: 'Ext.data.Store',
@@ -44346,13 +44383,13 @@ Ext.define('App.controller.patient.DecisionSupport', {
 		if(!warning && !win_warning) return;
 
 		if(warning){
-			warning.collapse();
+			// warning.collapse();
 			warning.hide();
 			warning.removeAll();
 		}
 
 		if(win_warning) {
-			win_warning.collapse();
+			// win_warning.collapse();
 			win_warning.hide();
 			win_warning.removeAll();
 		}
@@ -44404,11 +44441,11 @@ Ext.define('App.controller.patient.DecisionSupport', {
 			if(results.length > 0){
 				if(warning) {
 					warning.show();
-					warning.expand();
+					// warning.expand();
 				}
 				if(win_warning) {
 					win_warning.show();
-					win_warning.expand();
+					// win_warning.expand();
 				}
 			}
 
@@ -52931,8 +52968,8 @@ Ext.define('App.view.patient.DecisionSupportWarningPanel', {
 	xtype: 'decisionsupportwarningpanel',
 	cls: 'decisionSupportWarning',
 	header: false,
-	collapsible: true,
-	collapsed: true,
+	// collapsible: true,
+	// collapsed: true,
 	hidden: true,
 	margin: 0,
 	dockedItems:[
@@ -66081,6 +66118,15 @@ Ext.define('App.view.patient.Encounter', {
 			);
 		}
 
+		//if(me.enableNurseNotes && a('access_enc_nurse_notes')){
+			me.encounterTabPanel.add(
+				Ext.create('App.view.patient.encounter.NursesNotesGrid', {
+					padding: 0,
+					bodyPadding: 0
+				})
+			);
+		//}
+
 		if(me.enableReviewOfSystem && a('access_review_of_systems')){
 			me.reviewSysPanel = me.encounterTabPanel.add(
 				Ext.create('Ext.form.Panel', {
@@ -66178,15 +66224,6 @@ Ext.define('App.view.patient.Encounter', {
 				})
 			);
 		}
-
-		//if(me.enableNurseNotes && a('access_enc_nurse_notes')){
-			me.encounterTabPanel.add(
-				Ext.create('App.view.patient.encounter.NursesNotesGrid', {
-					padding: 0,
-					bodyPadding: 0
-				})
-			);
-		//}
 
 		if(me.enableSOAP && a('access_soap')){
 			me.soapPanel = me.encounterTabPanel.add(

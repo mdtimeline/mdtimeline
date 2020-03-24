@@ -20,3 +20,12 @@ contrib/icd10/*
 /modules/reportcenter/reports/AutomatedMeasureCalculation
 /modules/billing/
 /modules/dental/
+/modules/conference/
+/modules/cqmsolution/
+/modules/kiosk/
+/modules/laboratory/
+/modules/messaging/
+/modules/powerbi/
+/modules/quickmedical/
+/modules/ringcentral/
+/modules/speechtotext/

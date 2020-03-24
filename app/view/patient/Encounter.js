@@ -150,6 +150,15 @@ Ext.define('App.view.patient.Encounter', {
 			);
 		}
 
+		//if(me.enableNurseNotes && a('access_enc_nurse_notes')){
+			me.encounterTabPanel.add(
+				Ext.create('App.view.patient.encounter.NursesNotesGrid', {
+					padding: 0,
+					bodyPadding: 0
+				})
+			);
+		//}
+
 		if(me.enableReviewOfSystem && a('access_review_of_systems')){
 			me.reviewSysPanel = me.encounterTabPanel.add(
 				Ext.create('Ext.form.Panel', {
@@ -247,15 +256,6 @@ Ext.define('App.view.patient.Encounter', {
 				})
 			);
 		}
-
-		//if(me.enableNurseNotes && a('access_enc_nurse_notes')){
-			me.encounterTabPanel.add(
-				Ext.create('App.view.patient.encounter.NursesNotesGrid', {
-					padding: 0,
-					bodyPadding: 0
-				})
-			);
-		//}
 
 		if(me.enableSOAP && a('access_soap')){
 			me.soapPanel = me.encounterTabPanel.add(

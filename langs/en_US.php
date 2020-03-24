@@ -2102,4 +2102,6 @@ $LANG = array(
     'floor_plan_rules' => 'Floor Plan Rules',
     'pool_area' => 'Pool Area',
     'zone_rule' => 'Zone Rule',
+    'nurse' => 'Nurse',
+    'nurse_note' => 'Nurse Note',
 );

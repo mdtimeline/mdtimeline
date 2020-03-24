@@ -79,13 +79,13 @@ Ext.define('App.controller.patient.DecisionSupport', {
 		if(!warning && !win_warning) return;
 
 		if(warning){
-			warning.collapse();
+			// warning.collapse();
 			warning.hide();
 			warning.removeAll();
 		}
 
 		if(win_warning) {
-			win_warning.collapse();
+			// win_warning.collapse();
 			win_warning.hide();
 			win_warning.removeAll();
 		}
@@ -137,11 +137,11 @@ Ext.define('App.controller.patient.DecisionSupport', {
 			if(results.length > 0){
 				if(warning) {
 					warning.show();
-					warning.expand();
+					// warning.expand();
 				}
 				if(win_warning) {
 					win_warning.show();
-					win_warning.expand();
+					// win_warning.expand();
 				}
 			}
 

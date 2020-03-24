@@ -1,9 +1,10 @@
 {
 	"require": {
 		"cboden/ratchet": "0.3.*",
-		"guzzle/guzzle": "dev-master",
+		"guzzlehttp/guzzle": "dev-master",
 		"slim/slim": "^3.0",
-      "ext-curl": "*",
-		"ext-json": "*"
+        "ext-curl": "*",
+		"ext-json": "*",
+		"adhocore/jwt": "*"
 	}
 }

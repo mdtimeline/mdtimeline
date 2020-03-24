@@ -29,9 +29,11 @@ Ext.define('App.view.patient.encounter.NursesNotesGrid', {
 	store: Ext.create('App.store.patient.NursesNotes'),
 	columns: [
 		{
+			xtype: 'datecolumn',
 			text: _('date'),
 			width: 150,
-			dataIndex: 'created_date'
+			format: g('date_time_display_format'),
+			dataIndex: 'create_date'
 		},
 		{
 			text: _('note'),
@@ -40,11 +42,8 @@ Ext.define('App.view.patient.encounter.NursesNotesGrid', {
 		},
 		{
 			text: _('nurse'),
-			width: 150,
-			dataIndex: 'nurse_lname',
-			renderer: function (v,m,r) {
-				return Ext.String.format('{0}, {1} (2)', r.get('nurse_lname'), r.get('nurse_fname'), r.get('nurse_mname'));
-			}
+			width: 200,
+			dataIndex: 'nurse_name'
 		}
 	],
 	tbar: [

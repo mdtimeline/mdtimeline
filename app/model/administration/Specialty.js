@@ -48,6 +48,15 @@ Ext.define('App.model.administration.Specialty', {
 			type: 'string',
 			len: 50
 		},
+        {
+            name: 'medical_education',
+            type: 'string'
+        },
+        {
+            name: 'modality',
+            type: 'string',
+            len: 50
+        },
 		{
 			name: 'isFda',
 			type: 'bool'

@@ -527,17 +527,28 @@ class DocumentHandler
 
             chmod($path, $this->document_permission);
 
-            $sth = $conn->prepare("UPDATE patient_documents SET document = '', filesystem_id = :filesystem_id, path = :path, `name` = :name WHERE id = :id;");
+            include_once(ROOT . '/dataProvider/Patient.php');
+            $patient = new Patient();
+            $p = $patient->getPatientByPid($document->pid);
+            $code = $document->code;
+
+            if(isset($p) && isset($p['pubpid']) && $document->code == ''){
+                $code = $p['pubpid'] . '~' . $document_code . '~' . $file_name;
+            }
+
+            $sth = $conn->prepare("UPDATE patient_documents SET document = '', filesystem_id = :filesystem_id, path = :path, `name` = :name, `code` = :code WHERE id = :id;");
             $sth->execute([
                 ':id' => $document->id,
                 ':filesystem_id' => $filesystem_id,
                 ':path' => $document_path,
-                ':name' => $file_name
+                ':name' => $file_name,
+                ':code' => $code
             ]);
 
             //error_log('DOCUMENT COMPLETE');
             unset($document->document);
             unset($data, $record, $document_model);
+            unset($patient, $p, $code);
 
         } catch (Exception $e) {
             error_log('Error Converting Document');

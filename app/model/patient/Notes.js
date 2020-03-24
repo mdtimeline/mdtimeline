@@ -49,20 +49,43 @@ Ext.define('App.model.patient.Notes', {
 		},
 		{
 			name: 'body',
-			type: 'string',
-			len: 600
+			type: 'string'
 		},
 		{
 			name: 'type',
-			type: 'string',
-			len: 80,
-			index: true
+			type: 'string'
 		},
 		{
 			name: 'user_name',
 			type: 'string',
 			store: false
-		}
+		},
+        {
+            name: 'external_id',
+            type: 'string'
+        },
+        {
+            name: 'global_id',
+            type: 'string'
+        },
+        {
+            name: 'create_uid',
+            type: 'int'
+        },
+        {
+            name: 'update_uid',
+            type: 'int'
+        },
+        {
+            name: 'create_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
+        },
+        {
+            name: 'update_date',
+            type: 'date',
+            dateFormat: 'Y-m-d H:i:s'
+        }
 	],
 	proxy: {
 		type: 'direct',

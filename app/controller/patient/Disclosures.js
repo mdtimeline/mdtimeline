@@ -17,318 +17,505 @@
  */
 
 Ext.define('App.controller.patient.Disclosures', {
-	extend: 'Ext.app.Controller',
-	requires: [],
-	refs: [
-		{
-			ref: 'PatientDisclosuresGrid',
-			selector: '#PatientDisclosuresGrid'
-		},
-		{
-			ref: 'DisclosuresRecipientWindow',
-			selector: '#DisclosuresRecipientWindow'
-		},
-		{
-			ref: 'DisclosuresRecipientForm',
-			selector: '#DisclosuresRecipientForm'
-		},
-		{
-			ref: 'DisclosuresRecipientField',
-			selector: '#DisclosuresRecipientField'
-		},
-		{
-			ref: 'DisclosuresDescriptionField',
-			selector: '#DisclosuresDescriptionField'
-		},
-		{
-			ref: 'DisclosuresRecipientCancelBtn',
-			selector: '#DisclosuresRecipientCancelBtn'
-		},
-		{
-			ref: 'DisclosuresRecipientSaveBtn',
-			selector: '#DisclosuresRecipientSaveBtn'
-		}
-	],
+    extend: 'Ext.app.Controller',
+    requires: [],
+    refs: [
+        {
+            ref: 'PatientDisclosuresGrid',
+            selector: '#PatientDisclosuresGrid'
+        },
+        {
+            ref: 'DisclosureEditWindow',
+            selector: '#DisclosureEditWindow'
+        },
+        {
+            ref: 'DisclosureEditWindowForm',
+            selector: '#DisclosureEditWindowForm'
+        },
+        {
+            ref: 'DisclosuresRecipientWindow',
+            selector: '#DisclosuresRecipientWindow'
+        },
+        {
+            ref: 'DisclosuresRecipientForm',
+            selector: '#DisclosuresRecipientForm'
+        },
+        {
+            ref: 'DisclosuresRecipientField',
+            selector: '#DisclosuresRecipientField'
+        },
+        {
+            ref: 'DisclosuresDescriptionField',
+            selector: '#DisclosuresDescriptionField'
+        },
+        {
+            ref: 'DisclosuresRecipientCancelBtn',
+            selector: '#DisclosuresRecipientCancelBtn'
+        },
+        {
+            ref: 'DisclosuresRecipientSaveBtn',
+            selector: '#DisclosuresRecipientSaveBtn'
+        },
+        {
+            ref: 'PatientDisclosuresPrinterCmb',
+            selector: '#PatientDisclosuresPrinterCmb'
+        }
+    ],
 
-	init: function(){
-		var me = this;
+    init: function () {
+        var me = this;
 
-		me.control({
-			'#PatientDisclosuresGrid': {
-				activate: me.onPatientDisclosuresGridActivate,
-				beforeitemcontextmenu: me.onPatientDisclosuresGridBeforeItemContextMenu
-			},
-			'#PatientDisclosuresGridAddBtn': {
-				click: me.onPatientDisclosuresGridAddBtnClick
-			},
-			'#DisclosuresRecipientCancelBtn': {
-				click: me.onDisclosuresRecipientCancelBtnClick
-			},
-			'#DisclosuresRecipientSaveBtn': {
-				click: me.onDisclosuresRecipientSaveBtnClick
-			},
-			'#PatientDisclosuresAttacheDocumentsMenu': {
-				click: me.onPatientDisclosuresAttacheDocumentsMenuClick
-			},
-			'#PatientDisclosuresAttacheDocumentsCancelBtn': {
-				click: me.onPatientDisclosuresAttacheDocumentsCancelBtnClick
-			},
-			'#PatientDisclosuresAttacheDocumentsSaveBtn': {
-				click: me.onPatientDisclosuresAttacheDocumentsSaveBtnClick
-			},
-			'#PatientDisclosuresPrintBtn': {
-				click: me.onPatientDisclosuresPrintBtnClick
-			},
-			'#PatientDisclosuresDownloadBtn': {
-				click: me.onPatientDisclosuresDownloadBtnClick
-			},
-			'#PatientDisclosuresBurnBtn': {
-				click: me.onPatientDisclosuresBurnBtnClick
-			}
-		});
-	},
+        me.control({
+            '#PatientDisclosuresGrid': {
+                activate: me.onPatientDisclosuresGridActivate,
+                beforeitemcontextmenu: me.onPatientDisclosuresGridBeforeItemContextMenu,
+                itemdblclick: me.onPatientDisclosuresGridDblClick
+            },
+            '#PatientDisclosuresGridAddBtn': {
+                click: me.onPatientDisclosuresGridAddBtnClick
+            },
+            '#DisclosureEditWindowFormCancelBtn': {
+                click: me.onDisclosureEditWindowFormCancelBtnClick
+            },
+            '#DisclosureEditWindowFormSaveBtn': {
+                click: me.onDisclosureEditWindowFormSaveBtnClick
+            },
+            // '#DisclosureEditWindowRequestedDate': {
+            //     select: me.onDisclosureEditWindowDateSelect
+            // },
+            // '#DisclosureEditWindowFulfilDate': {
+            //     select: me.onDisclosureEditWindowDateSelect
+            // },
+            // '#DisclosureEditWindowPickupDate': {
+            //     select: me.onDisclosureEditWindowDateSelect
+            // },
+            '#DisclosuresRecipientCancelBtn': {
+                click: me.onDisclosuresRecipientCancelBtnClick
+            },
+            '#DisclosuresRecipientSaveBtn': {
+                click: me.onDisclosuresRecipientSaveBtnClick
+            },
+            '#PatientDisclosuresAttacheDocumentsMenu': {
+                click: me.onPatientDisclosuresAttacheDocumentsMenuClick
+            },
+            '#PatientDisclosuresAttacheDocumentsCancelBtn': {
+                click: me.onPatientDisclosuresAttacheDocumentsCancelBtnClick
+            },
+            '#PatientDisclosuresAttacheDocumentsSaveBtn': {
+                click: me.onPatientDisclosuresAttacheDocumentsSaveBtnClick
+            },
+            '#PatientDisclosuresPrintBtn': {
+                click: me.onPatientDisclosuresPrintBtnClick
+            },
+            '#PatientDisclosuresDownloadBtn': {
+                click: me.onPatientDisclosuresDownloadBtnClick
+            },
+            '#PatientDisclosuresBurnBtn': {
+                click: me.onPatientDisclosuresBurnBtnClick
+            },
+            '#PatientDisclosuresPrinterCmb': {
+                beforerender: me.onPatientDisclosuresPrinterCmbBeforeRender
+            },
+        });
+    },
 
-	onPatientDisclosuresPrintBtnClick: function(btn){
-		// TODO
-	},
+    onPatientDisclosuresPrintBtnClick: function (btn) {
+        var me = this,
+            grid = me.getPatientDisclosuresGrid(),
+            records = grid.getSelectionModel().getSelection(),
+            printer_id = me.getPatientDisclosuresPrinterCmb().getValue();
 
-	onPatientDisclosuresDownloadBtnClick: function(btn){
-		// TODO
-	},
+        if (records.length <= 0) {
+            app.msg(_('warning'), "No disclosures selected", true);
+            return;
+        }
 
-	onPatientDisclosuresBurnBtnClick: function(btn){
-		// TODO
-	},
+        if (printer_id === null) {
+            app.msg(_('warning'), "No printer selected", true);
+            return;
+        }
 
-	onPatientDisclosuresAttacheDocumentsCancelBtnClick: function(btn){
-		btn.up('window').close();
-	},
+        app.msg("Printing... ", "Printing disclosure", false);
+        records.forEach(function (record) {
+            if (record.get('document_inventory_count') > 0) {
+                Disclosure.printDisclosure(record.getData(), printer_id);
+            }
+        });
+    },
 
-	onPatientDisclosuresAttacheDocumentsSaveBtnClick: function(btn){
-		var win = btn.up('window'),
-			grid = win.down('grid'),
-			selection = grid.getSelectionModel().getSelection(),
-			disclosure_grid = this.getPatientDisclosuresGrid(),
-			disclosure_record = disclosure_grid.getSelectionModel().getLastSelected(),
-			disclosure_documents = [];
+    onPatientDisclosuresDownloadBtnClick: function (btn) {
+        var me = this,
+            grid = me.getPatientDisclosuresGrid(),
+            records = grid.getSelectionModel().getSelection();
 
-		selection.forEach(function (document_record) {
-			disclosure_documents.push({
-				disclosure_id: disclosure_record.get('id'),
-				document_id: document_record.get('id')
-			});
-		});
+        if (records.length <= 0) {
+            app.msg(_('warning'), "No disclosures selected", true);
+            return;
+        }
 
-		Disclosure.removeDisclosuresDocumentsById(disclosure_record.get('id'));
-		Disclosure.addDisclosuresDocument(disclosure_documents, function (response) {
-			win.close();
-			disclosure_grid.getStore().reload();
-		});
+        app.msg("Downloading... ", "Downloading disclosure", false);
 
-	},
+        records.forEach(function (record, i) {
+            Ext.Function.defer(function () {
+                me.disclosureDownload(record);
+            }, 1000);
+        });
 
-	onDocumentsLoad: function(document_grid, document_store, document_records){
-		// TODO select records already added to disclosure
+    },
 
-		var document_sm = document_grid.getSelectionModel(),
-			disclosure_grid = this.getPatientDisclosuresGrid(),
-			disclosure_record = disclosure_grid.getSelectionModel().getLastSelected(),
-			document_inventory_ids = disclosure_record.get('document_inventory_ids').split(','),
-			suppress_event = false;
+    onPatientDisclosuresBurnBtnClick: function (btn) {
+        var me = this,
+            grid = me.getPatientDisclosuresGrid(),
+            records = grid.getSelectionModel().getSelection();
 
-		document_inventory_ids.forEach(function (document_inventory_id) {
-			document_sm.select([document_store.getById(parseInt(document_inventory_id))], true, suppress_event);
-			suppress_event= true;
-		});
+        if (records.length <= 0) {
+            app.msg(_('warning'), "No disclosures selected", true);
+            return;
+        }
 
-	},
+        app.msg("Burning... ", "Burning disclosure", false);
+        records.forEach(function (record) {
+            if (record.get('document_inventory_count') > 0) {
+                Disclosure.burnDisclosure(record.getData());
+            }
+        });
+    },
 
-	onPatientDisclosuresGridBeforeItemContextMenu: function(grid, record, item, index, e){
-		e.preventDefault();
-		this.showPatientDisclosuresGridBeforeItemContextMenu(record, e);
-	},
+    onPatientDisclosuresAttacheDocumentsCancelBtnClick: function (btn) {
+        btn.up('window').close();
+    },
 
-	showPatientDisclosuresGridBeforeItemContextMenu: function(disclosure_record, e){
+    onPatientDisclosuresAttacheDocumentsSaveBtnClick: function (btn) {
+        var win = btn.up('window'),
+            grid = win.down('grid'),
+            selection = grid.getSelectionModel().getSelection(),
+            disclosure_grid = this.getPatientDisclosuresGrid(),
+            disclosure_record = disclosure_grid.getSelectionModel().getLastSelected(),
+            disclosure_documents = [];
 
-		if(!this.patientDisclosuresGridMenu){
-			this.patientDisclosuresGridMenu = Ext.widget('menu', {
-				margin: '0 0 10 0',
-				items: [
-					{
-						text: _('attach_documents'),
-						itemId: 'PatientDisclosuresAttacheDocumentsMenu'
-					}
-				]
-			});
-		}
+        selection.forEach(function (document_record) {
+            disclosure_documents.push({
+                disclosure_id: disclosure_record.get('id'),
+                document_id: document_record.get('id')
+            });
+        });
 
-		return this.patientDisclosuresGridMenu.showAt(e.getXY());
-	},
+        Disclosure.removeDisclosuresDocumentsById(disclosure_record.get('id'));
+        Disclosure.addDisclosuresDocument(disclosure_documents, function (response) {
+            win.close();
+            disclosure_grid.getStore().reload();
+        });
 
-	onPatientDisclosuresAttacheDocumentsMenuClick: function(){
-		var me = this,
-			configs = {
-				buttons: [
-					{
-						xtype: 'button',
-						text: _('cancel'),
-						width: 70,
-						itemId: 'PatientDisclosuresAttacheDocumentsCancelBtn'
-					},
-					{
-						xtype: 'button',
-						text: _('save'),
-						width: 70,
-						itemId: 'PatientDisclosuresAttacheDocumentsSaveBtn'
-					}
-				]
-			},
-			doc_win = me.getController('patient.Documents').showDocumentWindow(configs),
-			doc_grid = doc_win.down('grid');
+        disclosure_grid.getSelectionModel().deselectAll();
+    },
 
-		doc_grid.getStore().on('load', function (store, records) {
-			me.onDocumentsLoad(doc_grid, store, records);
-		});
-	},
+    onDisclosureEditWindowFormSaveBtnClick: function (btn) {
+        var me = this,
+            grid = me.getPatientDisclosuresGrid(),
+            win = me.getDisclosureEditWindow(),
+            selection = grid.getSelectionModel().getSelection(),
+            values = me.getDisclosureEditWindowForm().getValues(),
+            record = me.getDisclosureEditWindowForm().getRecord();
+        values.id = null;
 
-	onPatientDisclosuresGridActivate: function(grid){
-		grid.store.load({
-			filters:[
-				{
-					property: 'pid',
-					value: app.patient.pid
-				}
-			]
-		});
-	},
+        if (selection.length > 0) {
+            values.id = selection[0].get('id');
+        }
 
-	onPatientDisclosuresGridAddBtnClick: function(btn){
-		var grid = btn.up('grid'),
-			store = grid.store;
 
-		grid.plugins[0].cancelEdit();
-		store.insert(0, {
-			request_date: app.getDate(),
-			pid: app.patient.pid,
-			iud: app.user.id,
-			active: 1
-		});
-		grid.plugins[0].startEdit(0, 0);
-	},
+        win.mask('Saving...');
+        record.set(values);
 
-	onDisclosuresRecipientCancelBtnClick: function(){
-		this.getDisclosuresRecipientWindow().close();
-	},
+        grid.store.sync({
+            callback: function () {
+                win.unmask();
+                win.close();
+            }
+        });
 
-	onDisclosuresRecipientSaveBtnClick: function(){
+    },
 
-		var win = this.getDisclosuresRecipientWindow(),
-			form = this.getDisclosuresRecipientForm().getForm(),
-			values = form.getValues(),
-			disclosure_data = win.disclosure_data;
+    onPatientDisclosuresPrinterCmbBeforeRender: function (cmb) {
+        Printer.getPrinters(function (printers) {
+            cmb.store.loadData(printers);
+            if (printers.length <= 0) {
+                //1 is pass to enable the valueNotFoundText config.
+                //Does't matter what value you pass
+                cmb.setValue(1);
+            } else {
+                //sets the first element in the array.
+                cmb.setValue(printers[0].id);
+            }
+        });
 
-		if(!form.isValid()) return;
+    },
 
-		disclosure_data.recipient = values.recipient;
-		disclosure_data.description = values.description;
+    onDocumentsLoad: function (document_grid, document_store, document_records) {
+        // TODO select records already added to disclosure
 
-		Disclosure.addDisclosure(disclosure_data, win.disclosure_callback);
+        var document_sm = document_grid.getSelectionModel(),
+            disclosure_grid = this.getPatientDisclosuresGrid(),
+            disclosure_record = disclosure_grid.getSelectionModel().getLastSelected(),
+            document_inventory_ids = disclosure_record.get('document_inventory_ids').split(','),
+            suppress_event = false;
 
-		win.close();
+        document_inventory_ids.forEach(function (document_inventory_id) {
+            document_sm.select([document_store.getById(parseInt(document_inventory_id))], true, suppress_event);
+            suppress_event = true;
+        });
 
-	},
+    },
 
-	addRawDisclosure: function(data, callback){
-		var me = this;
+    onPatientDisclosuresGridBeforeItemContextMenu: function (grid, record, item, index, e) {
+        e.preventDefault();
+        this.showPatientDisclosuresGridBeforeItemContextMenu(record, e);
+    },
 
-		if(!data.pid) return;
+    onPatientDisclosuresGridDblClick: function (grid, record, item, index, e, eOpts) {
+        var win = this.showDisclosureEditWindow(),
+            form = win.down('form').getForm();
+        form.loadRecord(record);
+    },
 
-		Ext.Msg.show({
-			title: _('wait'),
-			msg: _('raw_disclosure_message'),
-			buttons: Ext.Msg.YESNO,
-			icon: Ext.Msg.QUESTION,
-			fn: function(btn){
-				if(btn == 'yes'){
-					me.promptRecipient(data, callback);
-				}
-			}
-		});
-	},
+    showPatientDisclosuresGridBeforeItemContextMenu: function (disclosure_record, e) {
 
-	promptRecipient: function(data, callback){
-		var win = this.showRecipientWindow();
-		win.disclosure_data = data;
-		win.disclosure_callback = callback;
+        if (!this.patientDisclosuresGridMenu) {
+            this.patientDisclosuresGridMenu = Ext.widget('menu', {
+                margin: '0 0 10 0',
+                items: [
+                    {
+                        text: _('attach_documents'),
+                        itemId: 'PatientDisclosuresAttacheDocumentsMenu'
+                    }
+                ]
+            });
+        }
 
-		this.getDisclosuresRecipientField().reset();
-		this.getDisclosuresDescriptionField().setValue(data.description);
-	},
+        return this.patientDisclosuresGridMenu.showAt(e.getXY());
+    },
 
-	showRecipientWindow: function(){
+    onPatientDisclosuresAttacheDocumentsMenuClick: function () {
+        var me = this,
+            configs = {
+                buttons: [
+                    {
+                        xtype: 'button',
+                        text: _('cancel'),
+                        width: 70,
+                        itemId: 'PatientDisclosuresAttacheDocumentsCancelBtn'
+                    },
+                    {
+                        xtype: 'button',
+                        text: _('save'),
+                        width: 70,
+                        itemId: 'PatientDisclosuresAttacheDocumentsSaveBtn'
+                    }
+                ]
+            },
+            doc_win = me.getController('patient.Documents').showDocumentWindow(configs),
+            doc_grid = doc_win.down('grid');
 
-		if(!this.getDisclosuresRecipientWindow()){
-			Ext.create('Ext.window.Window', {
-				title: _('disclosures'),
-				layout: 'fit',
-				itemId: 'DisclosuresRecipientWindow',
-				items: [
-					{
-						xtype: 'form',
-						itemId: 'DisclosuresRecipientForm',
-						width: 300,
-						bodyPadding: 10,
-						items: [
-							{
-								xtype: 'combobox',
-								labelAlign: 'top',
-								fieldLabel: 'Choose Recipient',
-								queryMode: 'local',
-								displayField: 'text',
-								valueField: 'value',
-								itemId: 'DisclosuresRecipientField',
-								allowBlank: false,
-								anchor: '100%',
-								editable: false,
-								name: 'recipient',
-								store: Ext.create('Ext.data.Store', {
-									fields: ['text', 'value'],
-									data: [
-										{ text: _('emer_contact'), value: 'emer_contact' },
-										{ text: _('father'), value: 'father' },
-										{ text: _('guardian'), value: 'guardian' },
-										{ text: _('mother'), value: 'mother' },
-										{ text: _('patient'), value: 'patient' }
-									]
-								})
-							},
-							{
-								xtype: 'textareafield',
-								labelAlign: 'top',
-								fieldLabel: 'Description',
-								name: 'description',
-								itemId: 'DisclosuresDescriptionField',
-								allowBlank: false,
-								anchor: '100%'
-							}
-						]
-					}
-				],
-				buttons: [
-					{
-						text: _('cancel'),
-						itemId: 'DisclosuresRecipientCancelBtn'
-					},
-					{
-						text: _('save'),
-						itemId: 'DisclosuresRecipientSaveBtn'
-					}
-				]
-			});
-		}
+        doc_grid.getStore().on('load', function (store, records) {
+            me.onDocumentsLoad(doc_grid, store, records);
+        });
+    },
 
-		return this.getDisclosuresRecipientWindow().show();
+    onPatientDisclosuresGridActivate: function (grid) {
+        grid.store.load({
+            filters: [
+                {
+                    property: 'pid',
+                    value: app.patient.pid
+                }
+            ]
+        });
+    },
 
-	}
+    onPatientDisclosuresGridAddBtnClick: function (btn) {
+        this.getPatientDisclosuresGrid().getSelectionModel().deselectAll();
 
+        var store = this.getPatientDisclosuresGrid().getStore(),
+            win = this.showDisclosureEditWindow(),
+            form = win.down('form').getForm(),
+            records = store.add({
+                pid: app.patient.pid,
+                uid: app.user.id,
+                request_date: app.getDate(),
+                active: true
+            });
+        form.loadRecord(records[0]);
+    },
+
+    onDisclosureEditWindowFormCancelBtnClick: function (btn) {
+        this.getPatientDisclosuresGrid().getStore().rejectChanges();
+        btn.up('window').close();
+    },
+
+    showDisclosureEditWindow: function () {
+        if (!this.getDisclosureEditWindow()) {
+            Ext.create('App.view.patient.DisclosureEditWindow');
+        }
+        return this.getDisclosureEditWindow().show();
+    },
+
+    onDisclosuresRecipientCancelBtnClick: function () {
+        this.getDisclosuresRecipientWindow().close();
+    },
+
+    onDisclosuresRecipientSaveBtnClick: function () {
+        var win = this.getDisclosuresRecipientWindow(),
+            form = this.getDisclosuresRecipientForm().getForm(),
+            values = form.getValues(),
+            disclosure_data = win.disclosure_data;
+
+        if (!form.isValid()) return;
+
+        disclosure_data.recipient = values.recipient;
+        disclosure_data.description = values.description;
+
+        Disclosure.addDisclosure(disclosure_data, win.disclosure_callback);
+
+        win.close();
+
+    },
+
+    addRawDisclosure: function (data, callback) {
+        var me = this;
+
+        if (!data.pid) return;
+
+        Ext.Msg.show({
+            title: _('wait'),
+            msg: _('raw_disclosure_message'),
+            buttons: Ext.Msg.YESNO,
+            icon: Ext.Msg.QUESTION,
+            fn: function (btn) {
+                if (btn == 'yes') {
+                    me.promptRecipient(data, callback);
+                }
+            }
+        });
+    },
+
+    promptRecipient: function (data, callback) {
+        var win = this.showRecipientWindow();
+        win.disclosure_data = data;
+        win.disclosure_callback = callback;
+
+        this.getDisclosuresRecipientField().reset();
+        this.getDisclosuresDescriptionField().setValue(data.description);
+    },
+
+    showRecipientWindow: function () {
+
+        if (!this.getDisclosuresRecipientWindow()) {
+            Ext.create('Ext.window.Window', {
+                title: _('disclosures'),
+                layout: 'fit',
+                itemId: 'DisclosuresRecipientWindow',
+                items: [
+                    {
+                        xtype: 'form',
+                        itemId: 'DisclosuresRecipientForm',
+                        width: 300,
+                        bodyPadding: 10,
+                        items: [
+                            {
+                                xtype: 'combobox',
+                                labelAlign: 'top',
+                                fieldLabel: 'Choose Recipient',
+                                queryMode: 'local',
+                                displayField: 'text',
+                                valueField: 'value',
+                                itemId: 'DisclosuresRecipientField',
+                                allowBlank: false,
+                                anchor: '100%',
+                                editable: false,
+                                name: 'recipient',
+                                store: Ext.create('Ext.data.Store', {
+                                    fields: ['text', 'value'],
+                                    data: [
+                                        {text: _('emer_contact'), value: 'emer_contact'},
+                                        {text: _('father'), value: 'father'},
+                                        {text: _('guardian'), value: 'guardian'},
+                                        {text: _('mother'), value: 'mother'},
+                                        {text: _('patient'), value: 'patient'}
+                                    ]
+                                })
+                            },
+                            {
+                                xtype: 'textareafield',
+                                labelAlign: 'top',
+                                fieldLabel: 'Description',
+                                name: 'description',
+                                itemId: 'DisclosuresDescriptionField',
+                                allowBlank: false,
+                                anchor: '100%'
+                            }
+                        ]
+                    }
+                ],
+                buttons: [
+                    {
+                        text: _('cancel'),
+                        itemId: 'DisclosuresRecipientCancelBtn'
+                    },
+                    {
+                        text: _('save'),
+                        itemId: 'DisclosuresRecipientSaveBtn'
+                    }
+                ]
+            });
+        }
+
+        return this.getDisclosuresRecipientWindow().show();
+
+    },
+
+    disclosureDownload: function (record) {
+        var me = this;
+        if (record.get('document_inventory_count') > 0) {
+            var formPanel = Ext.create('Ext.form.Panel', {
+                    url: 'dataProvider/DisclosureDownload.php'
+                }),
+                form = formPanel.getForm();
+            form.standardSubmit = true;
+            window.onbeforeunload = null;
+            form.submit({
+                params: {
+                    disclosure: JSON.stringify(record.getData())
+                },
+                success: function (form, action) {
+                    say('success');
+                    window.onbeforeunload = function () {
+                        return _('you_should_logout_before_quitting');
+                    };
+                    Ext.destroy(formPanel);
+                },
+                failure: function (form, action) {
+                    switch (action.failureType) {
+                        case Ext.form.action.Action.CLIENT_INVALID:
+                            Ext.Msg.alert('Failure', 'Form fields may not be submitted with invalid values');
+                            break;
+                        case Ext.form.action.Action.CONNECT_FAILURE:
+                            Ext.Msg.alert('Failure', 'Ajax communication failed');
+                            break;
+                        case Ext.form.action.Action.SERVER_INVALID:
+                            Ext.Msg.alert('Failure', "????");
+                    }
+                    Ext.destroy(formPanel);
+                    window.onbeforeunload = function () {
+                        return _('you_should_logout_before_quitting');
+                    };
+                }
+            });
+        }
+    },
+
+    // onDisclosureEditWindowDateSelect: function (field,value,eOpts) {
+    //     var d = new Date();
+    //     say(d.getTime());
+    //     value.setTime(d.getTime());
+    //     field.setValue(value);
+    // }
 });

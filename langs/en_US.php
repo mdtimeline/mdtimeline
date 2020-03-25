@@ -2104,4 +2104,5 @@ $LANG = array(
     'zone_rule' => 'Zone Rule',
     'nurse' => 'Nurse',
     'nurse_note' => 'Nurse Note',
+    'burn' => 'Burn'
 );

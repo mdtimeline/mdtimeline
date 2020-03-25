@@ -17,104 +17,137 @@
  */
 
 Ext.define('App.view.patient.DisclosuresGrid', {
-	extend: 'Ext.grid.Panel',
-	requires: [
-	],
-	xtype: 'patientdisclosuresgrid',
-	title: _('disclosures'),
-	itemId: 'PatientDisclosuresGrid',
-	bodyPadding: 0,
-	plugins: Ext.create('Ext.grid.plugin.RowEditing', {
-		autoCancel: false,
-		errorSummary: false,
-		clicksToEdit: 2
-	}),
-	columns: [
-		{
-			xtype: 'datecolumn',
-			format: 'Y-m-d H:i:s',
-			text: _('date'),
-			with: 220,
-			dataIndex: 'request_date',
-			editor: {
-				xtype: 'datefield'
-			},
-		},
-		{
-			header: _('type'),
-			dataIndex: 'type',
-			editor: {
-				xtype: 'gaiaehr.combo',
-				list_key: 'disclosures_types'
-			},
-			renderer: function(v){
-				return _(v);
-			}
-		},
-		{
-			header: _('recipient'),
-			dataIndex: 'recipient',
-			editor: {
-				xtype: 'textfield'
-			},
-			renderer: function(v){
-				return _(v);
-			}
-		},
-		{
-			text: _('description'),
-			dataIndex: 'description',
-			flex: 1,
-			editor: {
-				xtype: 'textfield'
-			}
-		},
-		{
-			text: _('document_inventory'),
-			dataIndex: 'document_inventory',
-			flex: 1
-		},
-		{
-			text: _('document_count'),
-			dataIndex: 'total_document_inventory',
-			width: 100
-		}
-	],
-	tbar: [
-		'->',
-		{
-			xtype: 'button',
-			text: _('print'),
-			itemId: 'PatientDisclosuresPrintBtn',
-		},
-		{
-			xtype: 'button',
-			text: _('download'),
-			itemId: 'PatientDisclosuresDownloadBtn',
-		},
-		{
-			xtype: 'button',
-			text: _('burn'),
-			itemId: 'PatientDisclosuresBurnBtn',
-		},
-		'-',
-		{
-			text: _('disclosure'),
-			iconCls: 'icoAdd',
-			itemId: 'PatientDisclosuresGridAddBtn',
-		}
-	],
+    extend: 'Ext.grid.Panel',
+    requires: [
+        'App.ux.TopazSignature'
+    ],
+    xtype: 'patientdisclosuresgrid',
+    selType: 'checkboxmodel',
+    title: _('disclosures'),
+    itemId: 'PatientDisclosuresGrid',
+    bodyPadding: 0,
+    tbar: [
+        '->',
+        {
+            xtype: 'container',
+            items: [
+                {
+                    xtype: 'combobox',
+                    itemId: 'PatientDisclosuresPrinterCmb',
+                    store: Ext.create('App.store.administration.Printer'),
+                    queryMode: 'local',
+                    editable: false,
+                    forceSelection: true,
+                    autoSelect: true,
+                    valueField: 'id',
+                    displayField: 'printer_description',
+                    emptyText: 'Select Printer',
+                    labelPad: 0,
+                    width: 200
+                }
+            ]
+        },
+        {
+            xtype: 'button',
+            text: _('print'),
+            itemId: 'PatientDisclosuresPrintBtn',
+        },
+        {
+            xtype: 'button',
+            text: _('download'),
+            itemId: 'PatientDisclosuresDownloadBtn',
+        },
+        {
+            xtype: 'button',
+            text: _('burn'),
+            itemId: 'PatientDisclosuresBurnBtn',
+        },
+        '-',
+        {
+            text: _('disclosure'),
+            iconCls: 'icoAdd',
+            itemId: 'PatientDisclosuresGridAddBtn',
+        }
+    ],
+    columns: [
+        // {
+        //     header: _('type'),
+        //     dataIndex: 'type',
+        //     flex: 1,
+        // },
+        // {
+        //     header: _('status'),
+        //     dataIndex: 'status',
+        //     flex: 1,
+        // },
+        {
+            text: _('description'),
+            dataIndex: 'description',
+            flex: 1,
+        },
+        {
+            header: _('recipient'),
+            dataIndex: 'recipient',
+            flex: 1,
+        },
+        {
+            xtype: 'datecolumn',
+            format: 'F j, Y',
+            text: _('request_date'),
+            dataIndex: 'request_date',
+            flex: 1,
+        },
+        {
+            xtype: 'datecolumn',
+            format: 'F j, Y',
+            text: _('fulfil_date'),
+            dataIndex: 'fulfil_date',
+            flex: 1,
+        },
+        {
+            xtype: 'datecolumn',
+            format: 'F j, Y',
+            text: _('pickup_date'),
+            dataIndex: 'pickup_date',
+            flex: 1,
+        },
+        {
+            text: _('signature'),
+            dataIndex: 'signature',
+            flex: 1,
+            renderer: function (v, meta, record) {
+                meta.tdCls = record.data.rowClasses;
 
-	initComponent: function () {
-		var me = this;
+                var signature =  record.get('signature');
 
-		me.store = Ext.create('App.store.patient.Disclosures', {
-			autoSync: false,
-			autoLoad: false
-		});
+                if(signature){
+                    signature = '<img src="' + signature + '" height="30" >';
+                    return Ext.String.format('<div><b>Signature By:</b></div> {0}', signature);
+                }
 
-		me.callParent();
+                return '';
+
+            }
+        },
+        {
+            xtype: 'numbercolumn',
+            text: _('document_attached'),
+            dataIndex: 'document_inventory_count',
+            flex: 1,
+            format: '0'
+        }
+    ],
+
+    initComponent: function () {
+        var me = this;
+
+        me.store = Ext.create('App.store.patient.Disclosures', {
+            autoSync: false,
+            autoLoad: false
+        });
+
+        me.callParent();
 
 
-	}
+    }
 });

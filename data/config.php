@@ -777,6 +777,15 @@ $API = [
             ],
             'removeDisclosuresDocumentsById' => [
                 'len' => 1
+            ],
+            'printDisclosure' => [
+                'len' => 2
+            ],
+            'downloadDisclosureDocuments' => [
+                'len' => 1
+            ],
+            'burnDisclosure' => [
+                'len' => 1
             ]
         ]
     ],

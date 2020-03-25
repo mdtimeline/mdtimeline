@@ -638,9 +638,10 @@ class DocumentHandler
 
     /**
      * @param $params
+     * @param bool $getDocument
      * @return object|stdClass
      */
-    public function createTempDocument($params)
+    public function createTempDocument($params,$getDocument = false)
     {
         $this->setPatientDocumentTempModel();
 
@@ -665,7 +666,9 @@ class DocumentHandler
         $record->create_date = date('Y-m-d H:i:s');
         $record->document_name = isset($params->document_name) ? $params->document_name : '';
         $record = (object)$this->t->save($record);
-        unset($record->document);
+        if(!$getDocument){
+            unset($record->document);
+        }
 
         Matcha::pauseLog(false);
         return $record;

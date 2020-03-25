@@ -45,6 +45,10 @@ Ext.define('App.model.patient.Disclosures', {
 			name: 'type',
 			type: 'string',
 			len: 25
+		},{
+			name: 'recipient',
+			type: 'string',
+			len: 25
 		},
 		{
 			name: 'status',
@@ -59,17 +63,20 @@ Ext.define('App.model.patient.Disclosures', {
 		{
 			name: 'request_date',
 			type: 'date',
-			dateFormat: 'Y-m-d H:i:s'
+			dateFormat: 'Y-m-d H:i:s',
+			useNull: true
 		},
 		{
 			name: 'fulfil_date',
 			type: 'date',
-			dateFormat: 'Y-m-d H:i:s'
+			dateFormat: 'Y-m-d H:i:s',
+			useNull: true
 		},
 		{
 			name: 'pickup_date',
 			type: 'date',
-			dateFormat: 'Y-m-d H:i:s'
+			dateFormat: 'Y-m-d H:i:s',
+			useNull: true
 		},
 		{
 			name: 'pickup_signature',
@@ -93,6 +100,11 @@ Ext.define('App.model.patient.Disclosures', {
 		{
 			name: 'document_inventory_count',
 			type: 'int',
+			store: false
+		},
+		{
+			name: 'document_file_paths',
+			type: 'string',
 			store: false
 		}
 	],

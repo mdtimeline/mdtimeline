@@ -70,8 +70,8 @@ class Disclosure
         $template = $this->getDisclosureTemplate();
         if (!$template) return false;
 
-        $cover_letter = $this->createCoverLetter($template['content_body'], $Disclosure, true);
-        return file_put_contents($path . '/index.pdf', base64_decode($cover_letter->document));
+        $cover_letter = $this->createCoverLetter($template, $Disclosure, true);
+        return file_put_contents($path , base64_decode($cover_letter->document));
     }
 
     private function createDisclosureZipFile($Disclosure, $disclosure_temp_path)
@@ -211,7 +211,7 @@ class Disclosure
         }
     }
 
-    private function custom_copy($src, $dst)
+    private function copyDirectory($src, $dst)
     {
         $dir = opendir($src);
         mkdir($dst);
@@ -219,7 +219,7 @@ class Disclosure
         while ($file = readdir($dir)) {
             if (($file != '.') && ($file != '..')) {
                 if (is_dir($src . '/' . $file)) {
-                    $this->custom_copy($src . '/' . $file, $dst . '/' . $file);
+                    $this->copyDirectory($src . '/' . $file, $dst . '/' . $file);
                 } else {
                     copy($src . '/' . $file, $dst . '/' . $file);
                 }
@@ -233,7 +233,7 @@ class Disclosure
     {
         $dest = Globals::getGlobal('disclosure_burner_directory');
         $dest = $dest . '/' . basename($burner_root_dir);
-        $this->custom_copy($burner_root_dir, $dest);
+        $this->copyDirectory($burner_root_dir, $dest);
     }
 
     public function getDisclosures($params)
@@ -385,7 +385,7 @@ class Disclosure
         ];
 
         $this->copyPDFsToDataPath($Disclosure->document_file_paths, $data_dir);
-        $this->createSaveCoverLetter($Disclosure, $data_dir);
+        $this->createSaveCoverLetter($Disclosure, $data_dir . '/index.pdf');
 
         $session = basename($root_dir);
         $Patient = new Patient($Disclosure->pid);

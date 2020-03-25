@@ -52,7 +52,8 @@ Ext.define('App.controller.patient.NursesNotes', {
 		var me = this;
 		me.control({
 			'#NursesNotesGrid': {
-				activate: me.onNursesNotesGridActive
+				activate: me.onNursesNotesGridActive,
+				itemdblclick: me.onNursesNotesGridItemDblClick
 			},
 			'#NursesNotesGridAddBtn': {
 				click: me.onNursesNotesGridAddBtnClick
@@ -94,6 +95,7 @@ Ext.define('App.controller.patient.NursesNotes', {
 
 	onNursesNoteSnippetEditWindowCancelBtnClick: function(btn){
 		btn.up('window').close();
+		this.getNursesNoteSnippetsGrid().getStore().rejectChanges();
 	},
 
 	onNursesNoteSnippetEditWindowSaveBtnClick: function(btn){
@@ -127,6 +129,11 @@ Ext.define('App.controller.patient.NursesNotes', {
 
 	},
 
+	onSnippetBtnEdit: function(grid, rowIndex, colIndex, actionItem, event, record){
+		var form  = this.showNursesNoteSnippetEditWindow().down('form').getForm();
+		form.loadRecord(record);
+	},
+
 	onNursesNoteEditWindowRender: function(grid){
 		grid.getStore().load();
 	},
@@ -142,6 +149,10 @@ Ext.define('App.controller.patient.NursesNotes', {
 			values = form.getValues(),
 			record = form.getRecord(),
 			store = this.getNursesNotesGrid().getStore();
+
+		values.nurse_fname = app.user.fname;
+		values.nurse_mname = app.user.mname;
+		values.nurse_lname = app.user.lname;
 
 		record.set(values);
 		store.sync({
@@ -167,6 +178,11 @@ Ext.define('App.controller.patient.NursesNotes', {
 			});
 
 		form.loadRecord(records[0]);
+	},
+
+	onNursesNotesGridItemDblClick: function(grid, record){
+		var form  = this.showNursesNotesWindow().down('form').getForm();
+		form.loadRecord(record);
 	},
 
 	showNursesNotesWindow: function(){

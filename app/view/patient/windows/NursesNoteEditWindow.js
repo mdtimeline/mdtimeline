@@ -69,6 +69,7 @@ Ext.define('App.view.patient.windows.NursesNoteEditWindow', {
 					align: 'center',
 					icon: 'resources/images/icons/edit.png',
 					handler: function(grid, rowIndex, colIndex, actionItem, event, record){
+						var snippetCtrl = app.getController('patient.NursesNotes');
 						snippetCtrl.onSnippetBtnEdit(grid, rowIndex, colIndex, actionItem, event, record);
 					}
 				},

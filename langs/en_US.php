@@ -2104,5 +2104,10 @@ $LANG = array(
     'zone_rule' => 'Zone Rule',
     'nurse' => 'Nurse',
     'nurse_note' => 'Nurse Note',
-    'burn' => 'Burn'
+    'burn' => 'Burn',
+    'recipient' => 'Recipient',
+    'request_date' => 'Request Date',
+    'fulfil_date' => 'Fulfil Date',
+    'pickup_date' => 'Pickup Date',
+    'document_attached' => 'Document Attached'
 );

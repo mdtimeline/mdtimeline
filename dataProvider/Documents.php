@@ -536,7 +536,13 @@ class Documents {
 			//getting the template
 			$body = $this->getTemplateBodyById($params->templateId);
 		}else{
-			$body['body'] = isset($params->body) ? $params->body : '';
+            $body['body'] = '';
+
+            if(isset($params->body)){
+                $body['body'] = $params->body;
+                preg_match_all($regex, $body['body'], $tokensfound);
+                $tokens = array_merge($tokens, $tokensfound[0]);
+            }
 		}
 
 		if(isset($body) && is_array($body) && isset($body['max_order_items_per_page'])){
@@ -567,6 +573,9 @@ class Documents {
 			}
 			if(isset($params->provider_uid)){
 				$allNeededInfo = $this->addProviderData($params, $tokens, $allNeededInfo);
+			}
+			if(isset($params->disclosure)){
+				$allNeededInfo = $this->getDisclosureTokensData($params->disclosure, $allNeededInfo, $tokens);
 			}
 
 			if(isset($header_footer_lines)){
@@ -816,6 +825,19 @@ class Documents {
 
 	public function get_PatientTokensData($pid, $allNeededInfo, $tokens) {
 		$data = $this->getPatientTokesDataByPid($pid);
+
+		foreach($tokens as $i => $tok){
+			if(isset($data[$tok]) && ($allNeededInfo[$i] == '' || $allNeededInfo[$i] == null)){
+				$allNeededInfo[$i] = $data[$tok];
+			};
+		}
+		return $allNeededInfo;
+	}
+
+	public function getDisclosureTokensData($disclosure, $allNeededInfo, $tokens) {
+		$data = [
+            '[DISCLOSURE_DOCUMENTS]' => "Documents:<br>{$disclosure->document_inventory}"
+        ];
 
 		foreach($tokens as $i => $tok){
 			if(isset($data[$tok]) && ($allNeededInfo[$i] == '' || $allNeededInfo[$i] == null)){

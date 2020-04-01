@@ -1683,5 +1683,11 @@ $LANG = array(
     'clinical_summary'                      => 'Clinical Summary.',
     'raw_disclosure_message'                => 'Would you like to add a patient disclosure?',
     'patient_education'                     => 'Patient Education',
-    'education_given'                       => 'Education Given'
+    'education_given'                       => 'Education Given',
+    'burn'                                  => 'Quemar',
+    'recipient'                             => 'Destinatario',
+    'request_date'                          => 'Fecha de solicitud',
+    'fulfil_date'                           => 'Fecha de cumplimiento',
+    'pickup_date'                           => 'Fecha de recogido',
+    'document_attached'                     => 'Documento adjuntos'
 );

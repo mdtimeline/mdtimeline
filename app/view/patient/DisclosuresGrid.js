@@ -70,16 +70,6 @@ Ext.define('App.view.patient.DisclosuresGrid', {
         }
     ],
     columns: [
-        // {
-        //     header: _('type'),
-        //     dataIndex: 'type',
-        //     flex: 1,
-        // },
-        // {
-        //     header: _('status'),
-        //     dataIndex: 'status',
-        //     flex: 1,
-        // },
         {
             text: _('description'),
             dataIndex: 'description',

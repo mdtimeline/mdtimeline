@@ -111,8 +111,17 @@ class Disclosure
                 $Disclosure->document_file_paths = explode(",", $Disclosure->document_file_paths);
             }
 
-            foreach ($Disclosure->document_file_paths as $path) {
-                $zip->addFile($path, $disclosure_zip_name . '/' . basename($path));
+            include_once (ROOT . '/dataProvider/DocumentHandler.php');
+            $DocumentHandler = new DocumentHandler();
+            $document_inventory_ids = explode(',', $Disclosure->document_inventory_ids);
+
+            foreach ($document_inventory_ids as $document_inventory_id) {
+
+            	$document = $DocumentHandler->getPatientDocument(['id' => $document_inventory_id], true);
+	            $document_base64 = base64_decode($document['document']);
+	            $document_name = 'documents/' . $document_inventory_id . '_' . $document['name'];
+	            $zip->addFromString($document_name, $document_base64);
+
             }
 
             // close and save archive

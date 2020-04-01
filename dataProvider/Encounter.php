@@ -1038,7 +1038,8 @@ class Encounter {
 		/**
 		 * Active Medications
 		 */
-		if($encounter['review_medications'] && isset($encounter)){
+//		if($encounter['review_medications'] && isset($encounter)){
+		if(isset($encounter)){
 			$ActiveMedications = new Medications();
 			$active_medications = $ActiveMedications->getPatientActiveMedicationsByPid($encounter['pid']);
 

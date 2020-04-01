@@ -115,7 +115,7 @@ class Disclosure
 
                 $document = $DocumentHandler->getPatientDocument(['id' => $document_inventory_id], true);
                 $document_base64 = base64_decode($document['document']);
-                $document_name = 'documents/' . $document['name'];
+                $document_name = 'documents/' . $document['id'] .'_'.$document['name'];
                 if (!$zip->addFromString($document_name, $document_base64)) {
                     throw new Exception("{$document['name']} could not be added to the zip file");
                 }

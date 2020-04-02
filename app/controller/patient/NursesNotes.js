@@ -51,6 +51,9 @@ Ext.define('App.controller.patient.NursesNotes', {
 	init: function(){
 		var me = this;
 		me.control({
+			'#NursesNoteEditWindow': {
+				close: me.onNursesNoteEditWindowClose
+			},
 			'#NursesNotesGrid': {
 				activate: me.onNursesNotesGridActive,
 				itemdblclick: me.onNursesNotesGridItemDblClick
@@ -78,6 +81,13 @@ Ext.define('App.controller.patient.NursesNotes', {
 				click: me.onNursesNoteSnippetEditWindowSaveBtnClick
 			},
 		});
+	},
+
+	onNursesNoteEditWindowClose: function(){
+		var panel = app.getActivePanel();
+		if(panel.$className === 'App.view.patient.Encounter'){
+			panel.getProgressNote();
+		}
 	},
 
 	onNursesNoteSnippetsGridItemDblClick: function(grid, record){

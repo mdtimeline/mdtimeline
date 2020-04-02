@@ -33,9 +33,16 @@ require_once(ROOT . '/dataProvider/Disclosure.php');
 new \MatchaHelper();
 $Disclosure = new \Disclosure();
 
+header('Content-Type: application/zip');
+header('Content-Transfer-Encoding: Binary');
+
 if(isset($_POST['disclosure'])){
 	if($authorized){
 		$params = json_decode($_POST['disclosure']);
-		$Disclosure->downloadDisclosureDocuments($params);
+		$response = $Disclosure->downloadDisclosureDocuments($params);
+
+		if(isset($response->success) && $response->success === false && isset($response->errorMsg)){
+			print 'Error: ' . $response->errorMsg;
+		}
 	}
 }

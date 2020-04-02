@@ -138,7 +138,9 @@ Ext.define('App.controller.patient.Disclosures', {
         app.msg("Printing... ", "Printing disclosure", false);
         records.forEach(function (record) {
             if (record.get('document_inventory_count') > 0) {
-                Disclosure.printDisclosure(record.getData(), printer_id);
+                Disclosure.printDisclosure(record.getData(), printer_id, function (response) {
+                    if(!response.success) app.msg("Error", response.errorMsg, true);
+                });
             }
         });
     },
@@ -158,7 +160,7 @@ Ext.define('App.controller.patient.Disclosures', {
         records.forEach(function (record, i) {
             Ext.Function.defer(function () {
                 me.disclosureDownload(record);
-            }, 1000);
+            }, 1000 * i);
         });
 
     },
@@ -176,7 +178,9 @@ Ext.define('App.controller.patient.Disclosures', {
         app.msg("Burning... ", "Burning disclosure", false);
         records.forEach(function (record) {
             if (record.get('document_inventory_count') > 0) {
-                Disclosure.burnDisclosure(record.getData());
+                Disclosure.burnDisclosure(record.getData(),function (response) {
+                    if(!response.success) app.msg("Error", response.errorMsg, true);
+                });
             }
         });
     },

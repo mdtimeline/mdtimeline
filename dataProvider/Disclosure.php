@@ -64,88 +64,85 @@ class Disclosure
         return;
     }
 
-    private function createSaveCoverLetter($Disclosure, $path)
+    private function createTempDisclosureDir($Disclosure)
     {
-        $template = $this->getDisclosureTemplate();
-
-        $cover_letter = $this->createCoverLetter($template, $Disclosure, true);
-        if (!file_put_contents($path, base64_decode($cover_letter->document))) throw new Exception('Cover letter could not be saved');
-    }
-
-    private function createDisclosureZipFile($Disclosure, $disclosure_temp_path)
-    {
-        try {
-            $disclosure_zip_name = "disclosure-{$Disclosure->id}";
-            $disclosure_zip_path = $disclosure_temp_path . '/' . $disclosure_zip_name . '.zip';
-            $cover_letter_path = $disclosure_temp_path . '/index.pdf';
-
-            if (!file_exists(site_temp_path) || !is_writable(site_temp_path)) {
-                throw new Exception('Temp folder dont exist or is nor writable');
-            }
-
-            if (!file_exists($disclosure_temp_path)) {
-                if (!mkdir($disclosure_temp_path))
-                    throw new Exception('Disclosure temp folder could not be created');
-            }
-
-            $zip = new ZipArchive();
-
-            if (file_exists($disclosure_zip_path)) {
-                unlink($disclosure_zip_path);
-            }
-            if (file_exists($cover_letter_path)) {
-                unlink($cover_letter_path);
-            }
-
-            if ($zip->open($disclosure_zip_path, ZIPARCHIVE::CREATE) != TRUE) {
-                throw new Exception('Disclosure zip folder could not be created');
-            }
-
-            $this->createSaveCoverLetter($Disclosure, $cover_letter_path);
-
-            if (!$zip->addFile($cover_letter_path, basename($cover_letter_path))) {
-                throw new Exception('Disclosure index could not be added to the zip file');
-            }
-
-            include_once(ROOT . '/dataProvider/DocumentHandler.php');
-            $DocumentHandler = new DocumentHandler();
-            $document_inventory_ids = explode(',', $Disclosure->document_inventory_ids);
-
-            foreach ($document_inventory_ids as $document_inventory_id) {
-
-                $document = $DocumentHandler->getPatientDocument(['id' => $document_inventory_id], true);
-                $document_base64 = base64_decode($document['document']);
-                $document_name = 'documents/' . $document['id'] .'_'.$document['name'];
-                if (!$zip->addFromString($document_name, $document_base64)) {
-                    throw new Exception("{$document['name']} could not be added to the zip file");
-                }
-
-            }
-
-            // close and save archive
-            $zip->close();
-
-            return $disclosure_zip_path;
-        } catch (Exception $e) {
-            throw $e;
+        if (!file_exists(site_temp_path) || !is_writable(site_temp_path)) {
+            throw new Exception('Temp folder dont exist or is not writable');
         }
 
-    }
+        $disclosure_temp_path = site_temp_path . '/' . uniqid('disclosures_');
+        $disclosure_temp_documents_path = $disclosure_temp_path . '/documents';
 
-    private function deleteFolder($temp_dir)
-    {
-        if (file_exists($temp_dir)) {
-            exec("rm -rf $temp_dir");
+        if (!file_exists($disclosure_temp_path)) {
+            if (!mkdir($disclosure_temp_path))
+                throw new Exception('Disclosure temp folder could not be created');
         }
+
+        if (!file_exists($disclosure_temp_documents_path)) {
+            if (!mkdir($disclosure_temp_documents_path))
+                throw new Exception('Disclosure temp documents folder could not be created');
+        }
+
+        $this->createSaveCoverLetter($Disclosure, $disclosure_temp_path . '/index.pdf');
+
+        include_once(ROOT . '/dataProvider/DocumentHandler.php');
+        $DocumentHandler = new DocumentHandler();
+        $document_inventory_ids = explode(',', $Disclosure->document_inventory_ids);
+
+        foreach ($document_inventory_ids as $document_inventory_id) {
+
+            $document = $DocumentHandler->getPatientDocument(['id' => $document_inventory_id], true);
+            $document_name = $document['id'] . '_' . $document['name'];
+            $document_path = $disclosure_temp_documents_path . '/' . $document_name;
+            $document_base64 = base64_decode($document['document']);
+            if (!file_put_contents($document_path, $document_base64)) {
+                throw new Exception("{$document['name']} could not be saved");
+            }
+
+        }
+
+        return $disclosure_temp_path;
     }
 
-    private function getDisclosureTemplate()
+    private function createTempBurnerDirectory($Disclosure, $disclosure_temp_path)
     {
-        include_once(ROOT . '/dataProvider/ContentManagement.php');
-        $ContentManagement = new \ContentManagement();
-        $template = $ContentManagement->generateContentManagement('disclosure', 'en', null, null);
-        if (!$template) throw new Exception('Disclosure template not configured!');
-        return $template;
+        $burner_root = $this->createTempBurnerRootDir($disclosure_temp_path);
+        $burner_data_dir = $this->createBurnerDataDir($burner_root);
+        $burner_print_dir = $this->createBurnerPrintDir($burner_root);
+
+        if (!is_readable($disclosure_temp_path)) {
+            throw new Exception("Directory {$disclosure_temp_path} is not readable or does not have permissions");
+        }
+
+        if (!is_readable($disclosure_temp_path . '/documents')) {
+            throw new Exception("Directory {$disclosure_temp_path}/documents is not readable or does not have permissions");
+        }
+
+        if (!is_writable($burner_data_dir)) {
+            throw new Exception("Directory {$burner_data_dir} is not writable or does not have permissions");
+        }
+
+        if (!is_writable($burner_print_dir)) {
+            throw new Exception("Directory {$burner_print_dir} is not writable or does not have permissions");
+        }
+
+        $cover_letter_src = $disclosure_temp_path . '/index.pdf';
+        $cover_letter_dst = $burner_data_dir . '/index.pdf';
+
+        if (!copy($cover_letter_src, $cover_letter_dst)) {
+            throw new Exception("Could not copy index.pdf from {$cover_letter_src} to {$cover_letter_dst}");
+        }
+
+        $documents_src = $disclosure_temp_path . '/documents';
+        $documents_dst = $burner_data_dir . '/documents';
+
+        $this->copyDirectory($documents_src, $documents_dst);
+
+        $this->createConfigTextFile($Disclosure, basename($burner_root), $burner_print_dir);
+
+        $this->copyBurnerLabelToDir($burner_print_dir);
+
+        return $burner_root;
     }
 
     private function createCoverLetter($template, $Disclosure, $getDocument)
@@ -162,19 +159,54 @@ class Disclosure
         return $DocumentHandler->createTempDocument($params, $getDocument);
     }
 
-    private function createDisclosureBurnerDir()
+    private function createSaveCoverLetter($Disclosure, $path)
     {
-        $disclosure_burner_path = site_temp_path . '/' . uniqid('disclosure_burner_');
-//        $disclosure_burner_path = site_temp_path . '/disclosure-burner';
-        if (file_exists($disclosure_burner_path)) return $disclosure_burner_path;
-        if (!mkdir($disclosure_burner_path)) throw new Exception('Could not create disclosure burner temp directory');
+        $template = $this->getDisclosureTemplate($Disclosure);
 
-        return $disclosure_burner_path;
+        $cover_letter = $this->createCoverLetter($template, $Disclosure, true);
+        if (!file_put_contents($path, base64_decode($cover_letter->document))) throw new Exception('Cover letter could not be saved');
     }
 
-    private function createTempBurnerRootDir($disclosure_burner_path)
+    private function createDisclosureZipFile($Disclosure, $disclosure_temp_path)
     {
-        $temp_burner_path = $disclosure_burner_path . '/' . date('YmdHisv');
+        try {
+            $disclosure_zip_name = "disclosure-{$Disclosure->id}";
+            $disclosure_zip_path = $disclosure_temp_path . '/' . $disclosure_zip_name . '.zip';
+            $cover_letter_path = $disclosure_temp_path . '/index.pdf';
+
+            $zip = new ZipArchive();
+
+            if ($zip->open($disclosure_zip_path, ZIPARCHIVE::CREATE) != TRUE) {
+                throw new Exception('Disclosure zip folder could not be created');
+            }
+
+            if (!$zip->addFile($cover_letter_path, 'index.pdf')) {
+                throw new Exception('Disclosure index could not be added to the zip file');
+            }
+
+            $file_names = array_diff(scandir($disclosure_temp_path . '/documents'), array('.', '..'));
+
+            foreach ($file_names as $file_name) {
+                $file_path = $disclosure_temp_path . '/documents/' . $file_name;
+                $local_name = 'documents/' . $file_name;
+                if (!$zip->addFile($file_path, $local_name)) {
+                    throw new Exception('Disclosure index could not be added to the zip file');
+                }
+            }
+
+            // close and save archive
+            $zip->close();
+
+            return $disclosure_zip_path;
+        } catch (Exception $e) {
+            throw $e;
+        }
+
+    }
+
+    private function createTempBurnerRootDir($disclosure_temp_path)
+    {
+        $temp_burner_path = $disclosure_temp_path . '/' . date('YmdHisv');
         if (!mkdir($temp_burner_path)) throw new Exception('Could not create disclosure burner temp root directory');
 
         return $temp_burner_path;
@@ -211,22 +243,25 @@ class Disclosure
         return $file_path;
     }
 
-    private function copyPDFsToDataPath($document_inventory_ids, $data_path)
+    private function copyTempBurnerDirToBurner($burner_root_dir)
     {
-        include_once(ROOT . '/dataProvider/DocumentHandler.php');
-        $DocumentHandler = new DocumentHandler();
-        $document_inventory_ids = explode(',', $document_inventory_ids);
+        $dest = Globals::getGlobal('disclosure_burner_directory');
+        if ($dest === false) throw new Exception('Global disclosure_burner_directory not configured!');
+        if (!is_writable($dest)) throw new Exception("Directory {$dest} is not writable or does not have permissions");
 
-        foreach ($document_inventory_ids as $document_inventory_id) {
+        $dest = $dest . '/' . basename($burner_root_dir);
+        $this->copyDirectory($burner_root_dir, $dest);
+    }
 
-            $document = $DocumentHandler->getPatientDocument(['id' => $document_inventory_id], false);
-            $source = $document['path'] . '/' . $document['name'];
-            $destination_path = $data_path . '/' . $document['name'];
-            if (!copy($source, $destination_path)){
-                throw new Exception("Could not copy pdf from {$source} to {$destination_path}");
-            }
+    private function copyBurnerLabelToDir($path)
+    {
+        $src = Globals::getGlobal('disclosure_burner_label_location');
+        if ($src === false) throw new Exception('Global disclosure_burner_label_location not configured!');
+        if (!is_readable($src)) throw new Exception("File {$src} is not readable or does not have permissions");
 
-        }
+        $dst = $path . '/' . basename($src);
+
+        if (!copy($src, $dst)) throw new Exception("Could not copy burner label from {$src} to {$path}");
     }
 
     private function copyDirectory($src, $dst)
@@ -251,24 +286,26 @@ class Disclosure
         closedir($dir);
     }
 
-    private function copyTempBurnerDirToBurner($burner_root_dir)
+    private function deleteFolder($temp_dir)
     {
-        $dest = Globals::getGlobal('disclosure_burner_directory');
-        if ($dest === false) throw new Exception('Global disclosure_burner_directory not configured!');
-        if (!is_writable($dest)) throw new Exception("Directory {$dest} is not writable or does not have permissions");
-
-        $dest = $dest . '/' . basename($burner_root_dir);
-        $this->copyDirectory($burner_root_dir, $dest);
+        if (file_exists($temp_dir)) {
+            exec("rm -rf $temp_dir");
+        }
     }
 
-    private function copyBurnerLabelToDir($path){
-        $src = Globals::getGlobal('disclosure_burner_label_location');
-        if ($src === false) throw new Exception('Global disclosure_burner_label_location not configured!');
-        if (!is_readable($src)) throw new Exception("File {$src} is not readable or does not have permissions");
+    private function getDisclosureTemplate($Disclosure)
+    {
+        include_once(ROOT . '/dataProvider/ContentManagement.php');
+        include_once(ROOT . '/dataProvider/Patient.php');
 
-        $dst = $path . '/' . basename($src);
+        $Patient = new Patient($Disclosure->pid);
+        $patient = $Patient->getPatient();
+        $language = isset($patient['language']) ? $patient['language'] : 'es';
 
-        if (!copy($src, $dst)) throw new Exception("Could not copy burner label from {$src} to {$path}");
+        $ContentManagement = new \ContentManagement();
+        $template = $ContentManagement->generateContentManagement('disclosure', $language, null, null);
+        if (!$template) throw new Exception('Disclosure template not configured!');
+        return $template;
     }
 
     public function getDisclosures($params)
@@ -342,7 +379,7 @@ class Disclosure
                 $Disclosure->document_inventory_ids = $ids;
             }
 
-            $template = $this->getDisclosureTemplate();
+            $template = $this->getDisclosureTemplate($Disclosure);
 
             include_once(ROOT . '/dataProvider/Printer.php');
             $Printer = new \Printer();
@@ -373,9 +410,9 @@ class Disclosure
         try {
             if (!isset($Disclosure)) throw new Exception('Disclosure Missing');
 
-            $disclosure_temp_path = site_temp_path . '/' . uniqid('disclosures_');
+            $temp_disclosure_path = $this->createTempDisclosureDir($Disclosure);
 
-            $zip_path = $this->createDisclosureZipFile($Disclosure, $disclosure_temp_path);
+            $zip_path = $this->createDisclosureZipFile($Disclosure, $temp_disclosure_path);
 
             if (!file_exists($zip_path)) throw new Exception('Zip file dont exist');
 
@@ -385,7 +422,7 @@ class Disclosure
             flush(); // Flush system output buffer
             readfile($zip_path);
 
-            $this->deleteFolder($disclosure_temp_path);
+            $this->deleteFolder($temp_disclosure_path);
 
             return (object)[
                 'success' => true,
@@ -393,6 +430,8 @@ class Disclosure
             ];
 
         } catch (Exception $e) {
+            if (isset($temp_disclosure_path)) $this->deleteFolder($temp_disclosure_path);
+
             error_log($e->getMessage());
 
             return (object)[
@@ -407,25 +446,13 @@ class Disclosure
         try {
             if (!isset($Disclosure)) throw new Exception('Disclosure Missing');
 
-            $disclosure_burner_dir = $this->createDisclosureBurnerDir();
+            $temp_disclosure_path = $this->createTempDisclosureDir($Disclosure);
 
-            $root_dir = $this->createTempBurnerRootDir($disclosure_burner_dir);
+            $burner_root = $this->createTempBurnerDirectory($Disclosure, $temp_disclosure_path);
 
-            $data_dir = $this->createBurnerDataDir($root_dir);
+            $this->copyTempBurnerDirToBurner($burner_root);
 
-            $print_dir = $this->createBurnerPrintDir($root_dir);
-
-            $this->copyPDFsToDataPath($Disclosure->document_inventory_ids, $data_dir);
-
-            $this->createSaveCoverLetter($Disclosure, $data_dir . '/index.pdf');
-
-            $config_file_path = $this->createConfigTextFile($Disclosure, basename($root_dir), $print_dir);
-
-            $this->copyBurnerLabelToDir($print_dir);
-
-            $this->copyTempBurnerDirToBurner($root_dir);
-
-            $this->deleteFolder($disclosure_burner_dir);
+            $this->deleteFolder($temp_disclosure_path);
 
             return (object)[
                 'success' => true,
@@ -433,7 +460,7 @@ class Disclosure
             ];
 
         } catch (Exception $e) {
-            if (isset($disclosure_burner_dir)) $this->deleteFolder($disclosure_burner_dir);
+            if (isset($temp_disclosure_path)) $this->deleteFolder($temp_disclosure_path);
 
             error_log($e->getMessage());
 

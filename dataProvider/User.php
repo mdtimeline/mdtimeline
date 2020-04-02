@@ -220,10 +220,10 @@ class User
     public function getProviders()
     {
         $records = [];
-        $records[] = ['name' => 'All', 'id' => 'all'];
-        $users = $this->u->load(['role_id' => 2])->all();
+        //$records[] = ['name' => 'All', 'id' => 'all'];
+        $users = $this->u->load(['is_attending' => 1])->all();
         foreach ($users As $row) {
-            $row['name'] = $this->getUserNameById($row['id']);
+            //$row['name'] = $this->getUserNameById($row['id']);
             $records[] = $row;
         }
         return $records;

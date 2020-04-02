@@ -65,6 +65,10 @@ Ext.define('App.ux.LivePatientSearch', {
 					type: 'string'
 				},
 				{
+					name: 'phone_mobile',
+					type: 'string'
+				},
+				{
 					name: 'fullname',
 					type: 'string',
 					convert: function(v, record){

@@ -2112,4 +2112,5 @@ $LANG = array(
     'pickup_date' => 'Pickup Date',
     'document_attached' => 'Document Attached',
     'first_visit' => 'First Visit',
+    'schedule_date' => 'Schedule Date',
 );

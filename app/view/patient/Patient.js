@@ -584,11 +584,14 @@ Ext.define('App.view.patient.Patient', {
 															forceSelection: true
 														},
 														{
-															xtype: 'activeproviderscombo',
-															name: 'primary_provider',
-															fieldLabel: _('provider'),
-															flex: 1,
-															forceSelection: true
+                                                            xtype: 'datefield',
+                                                            name: 'first_visit_date',
+                                                            format: 'm/d/Y',
+                                                            width: 130,
+                                                            fieldLabel: _('first') + ' ' + _('visit'),
+                                                            enableKeyEvents: true,
+                                                            allowBlank: false
+
 														}
 													]
 												}       //Facility y Provider

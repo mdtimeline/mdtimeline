@@ -378,8 +378,10 @@ Ext.define('App.model.patient.Patient',{
             type: 'int'
         },
         {
-            name: 'primary_provider',
-            type: 'int'
+            name: 'first_visit_date',
+            type: 'date',
+            dataType: 'date',
+            dateFormat: 'Y-m-d'
         },
         {
             name: 'administrative_status',

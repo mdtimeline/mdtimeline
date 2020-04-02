@@ -2110,5 +2110,6 @@ $LANG = array(
     'request_date' => 'Request Date',
     'fulfil_date' => 'Fulfil Date',
     'pickup_date' => 'Pickup Date',
-    'document_attached' => 'Document Attached'
+    'document_attached' => 'Document Attached',
+    'first_visit' => 'First Visit',
 );

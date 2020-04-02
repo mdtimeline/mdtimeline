@@ -70,8 +70,8 @@ Ext.define('App.view.fees.Billing',
 				width : 200
 			},
 			{
-				header : _( 'primary_provider' ),
-				dataIndex : 'primaryProvider',
+				header :  _('first') + ' ' + _('visit'),
+				dataIndex : 'first_visit_date',
 				width : 200
 			},
 			{

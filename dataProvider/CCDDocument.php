@@ -173,8 +173,6 @@ class CCDDocument extends CDDDocumentBase
             $this->user['id'] = 0;
         }
 
-        $this->primaryProvider = $this->User->getUserByUid($this->patientData['primary_provider']);
-
         $this->xmlData['recordTarget'] = $this->getRecordTarget();
         $this->xmlData['author'] = $this->getAuthor();
         $this->xmlData['dataEnterer'] = $this->getDataEnterer();

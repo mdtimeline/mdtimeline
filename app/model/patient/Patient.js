@@ -563,6 +563,26 @@ Ext.define('App.model.patient.Patient',{
 		    len: 60
 	    },
         {
+            name: 'spouse_pid',
+            type: 'int',
+            index: true
+        },
+        {
+            name: 'spouse_fname',
+            type: 'string',
+            len: 35
+        },
+        {
+            name: 'spouse_mname',
+            type: 'string',
+            len: 25
+        },
+        {
+            name: 'spouse_lname',
+            type: 'string',
+            len: 60
+        },
+        {
             name: 'guardians_pid',
             type: 'int',
             index: true
@@ -831,8 +851,8 @@ Ext.define('App.model.patient.Patient',{
         },
         {
             name: 'immunization_registry_status_date',
-            type: 'string',
-            len: 10
+            type: 'date',
+            dateFormat: 'Y-m-d'
         },
         {
             name: 'protection_indicator',

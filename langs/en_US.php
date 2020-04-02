@@ -1678,6 +1678,7 @@ $LANG = array(
     'sure_for_removal'                      => 'Are you sure to remove this record?',
     'conversation_group'                    => 'Conversation Group',
     'prev'                                  => 'Prev.',
+    'spouse'                                => 'Spouse.',
     'father'                                => 'Father.',
     'mother'                                => 'Mother.',
     'guardian'                              => 'Guardian.',

@@ -835,8 +835,20 @@ class Documents {
 	}
 
 	public function getDisclosureTokensData($disclosure, $allNeededInfo, $tokens) {
+        $patient_language = $this->getPatientTokesDataByPid($disclosure->pid)['[PATIENT_LENGUAGE]'];
+
+        if(!isset($patient_language)) $patient_language = 'es';
+
+        include_once (ROOT . '/classes/Utils.php');
+
 		$data = [
-            '[DISCLOSURE_DOCUMENTS]' => "Documents:<br>{$disclosure->document_inventory}"
+            '[DISCLOSURE_DOCUMENTS]' => $disclosure->document_inventory,
+            '[DISCLOSURE_RECIPIENT]' => $disclosure->recipient,
+            '[DISCLOSURE_DESCRIPTION]' => $disclosure->description,
+            '[DISCLOSURE_REQUEST_DATE]' => Utils::dateTimeToString($disclosure->request_date,$patient_language),
+            '[DISCLOSURE_FULFIL_DATE]' => Utils::dateTimeToString($disclosure->fulfil_date,$patient_language),
+            '[DISCLOSURE_PICKUP_DATE]' => Utils::dateTimeToString($disclosure->pickup_date,$patient_language),
+            '[DISCLOSURE_DOCUMENT_COUNT]' => (string)$disclosure->document_inventory_count
         ];
 
 		foreach($tokens as $i => $tok){

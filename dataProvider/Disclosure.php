@@ -161,7 +161,7 @@ class Disclosure
 
     private function createSaveCoverLetter($Disclosure, $path)
     {
-        $template = $this->getDisclosureTemplate();
+        $template = $this->getDisclosureTemplate($Disclosure);
 
         $cover_letter = $this->createCoverLetter($template, $Disclosure, true);
         if (!file_put_contents($path, base64_decode($cover_letter->document))) throw new Exception('Cover letter could not be saved');
@@ -186,7 +186,7 @@ class Disclosure
 
             $file_names = array_diff(scandir($disclosure_temp_path . '/documents'), array('.', '..'));
 
-            foreach ($file_names as $file_name){
+            foreach ($file_names as $file_name) {
                 $file_path = $disclosure_temp_path . '/documents/' . $file_name;
                 $local_name = 'documents/' . $file_name;
                 if (!$zip->addFile($file_path, $local_name)) {
@@ -293,11 +293,17 @@ class Disclosure
         }
     }
 
-    private function getDisclosureTemplate()
+    private function getDisclosureTemplate($Disclosure)
     {
         include_once(ROOT . '/dataProvider/ContentManagement.php');
+        include_once(ROOT . '/dataProvider/Patient.php');
+
+        $Patient = new Patient($Disclosure->pid);
+        $patient = $Patient->getPatient();
+        $language = isset($patient['language']) ? $patient['language'] : 'es';
+
         $ContentManagement = new \ContentManagement();
-        $template = $ContentManagement->generateContentManagement('disclosure', 'en', null, null);
+        $template = $ContentManagement->generateContentManagement('disclosure', $language, null, null);
         if (!$template) throw new Exception('Disclosure template not configured!');
         return $template;
     }
@@ -373,7 +379,7 @@ class Disclosure
                 $Disclosure->document_inventory_ids = $ids;
             }
 
-            $template = $this->getDisclosureTemplate();
+            $template = $this->getDisclosureTemplate($Disclosure);
 
             include_once(ROOT . '/dataProvider/Printer.php');
             $Printer = new \Printer();
@@ -442,7 +448,7 @@ class Disclosure
 
             $temp_disclosure_path = $this->createTempDisclosureDir($Disclosure);
 
-            $burner_root = $this->createTempBurnerDirectory($Disclosure,$temp_disclosure_path);
+            $burner_root = $this->createTempBurnerDirectory($Disclosure, $temp_disclosure_path);
 
             $this->copyTempBurnerDirToBurner($burner_root);
 

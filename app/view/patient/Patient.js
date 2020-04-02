@@ -618,7 +618,7 @@ Ext.define('App.view.patient.Patient', {
                                         {
                                             xtype: 'fieldset',
                                             cls: 'highlight_fieldset',
-                                            margin: '5 350 5 0',
+                                            margin: '5 250 5 0',
                                             padding: '15 10 10 10',
                                             width: me.containersWidth,
                                             layout: {
@@ -734,7 +734,7 @@ Ext.define('App.view.patient.Patient', {
                                             xtype: 'fieldset',
                                             title: _('employer'),
                                             cls: 'highlight_fieldset',
-                                            margin: '5 350 5 0',
+                                            margin: '5 250 5 0',
                                             padding: '15 10 10 10',
                                             width: me.containersWidth,
                                             layout: 'hbox',
@@ -783,7 +783,7 @@ Ext.define('App.view.patient.Patient', {
                                             xtype: 'fieldset',
                                             title: _('persons_authorized'),
                                             cls: 'highlight_fieldset',
-                                            margin: '5 350 5 0',
+                                            margin: '5 250 5 0',
                                             padding: '15 10 10 10',
                                             layout: {
                                                 type: 'vbox',
@@ -915,7 +915,7 @@ Ext.define('App.view.patient.Patient', {
                                             xtype: 'fieldset',
                                             title: _('emer_contact'),
                                             cls: 'highlight_fieldset',
-                                            margin: '5 350 5 0',
+                                            margin: '5 250 5 0',
                                             padding: '15 10 10 10',
                                             layout: {
                                                 type: 'vbox',
@@ -1035,7 +1035,7 @@ Ext.define('App.view.patient.Patient', {
                                             xtype: 'fieldset',
                                             title: _('guardians_contact'),
                                             cls: 'highlight_fieldset',
-                                            margin: '5 350 5 0',
+                                            margin: '5 250 5 0',
                                             padding: '15 10 10 10',
                                             layout: {
                                                 type: 'vbox',
@@ -1157,22 +1157,30 @@ Ext.define('App.view.patient.Patient', {
 									xtype: 'panel',
 									title: _('communication'),
 									action: 'DemographicWhoFieldSet',
-									border: false,
-									bodyBorder: false,
-									bodyPadding: 10,
-									layout: 'vbox',
+                                    margin: '5 250 5 0',
+                                    border: false,
+                                    bodyBorder: false,
+                                    bodyPadding: 10,
+                                    layout: {
+                                        type: 'vbox',
+                                        align: 'stretch'
+                                    },
+                                    defaults: {
+                                        margin: '0 5 0 0',
+                                        labelAlign: 'top'
+                                    },
 									items: [
 										{
 											xtype: 'fieldset',
 											cls: 'highlight_fieldset',
-											margin: '5 0 5 0',
-											padding: '15 10 10 10',
-											width: me.containersWidth,
-											layout: 'hbox',
-											defaults: {
-												margin: '0 5 0 0',
-												labelAlign: 'top'
-											},
+                                            layout: 'hbox',
+                                            margin: '5 0 5 0',
+                                            padding: '15 10 10 10',
+                                            width: me.containersWidth,
+                                            defaults: {
+                                                margin: '0 5 0 0',
+                                                labelAlign: 'top'
+                                            },
 											items: [
 												{
 													xtype: 'gaiaehr.combo',
@@ -1407,10 +1415,18 @@ Ext.define('App.view.patient.Patient', {
 									xtype: 'panel',
 									title: _('aditional_info')+'.',
 									action: 'DemographicWhoFieldSet',
-									border: false,
-									bodyBorder: false,
-									bodyPadding: 10,
-									layout: 'vbox',
+                                    margin: '5 250 5 0',
+                                    border: false,
+                                    bodyBorder: false,
+                                    bodyPadding: 10,
+                                    layout: {
+                                        type: 'vbox',
+                                        align: 'stretch'
+                                    },
+                                    defaults: {
+                                        margin: '0 5 0 0',
+                                        labelAlign: 'top'
+                                    },
 									items: [
 										{
 											xtype: 'fieldset',

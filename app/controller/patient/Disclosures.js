@@ -479,12 +479,14 @@ Ext.define('App.controller.patient.Disclosures', {
     disclosureDownload: function (record) {
         var me = this;
         if (record.get('document_inventory_count') > 0) {
+
             var formPanel = Ext.create('Ext.form.Panel', {
                     url: 'dataProvider/DisclosureDownload.php'
                 }),
                 form = formPanel.getForm();
             form.standardSubmit = true;
             window.onbeforeunload = null;
+
             form.submit({
                 params: {
                     disclosure: JSON.stringify(record.getData())

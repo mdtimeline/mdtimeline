@@ -29,3 +29,6 @@ contrib/icd10/*
 /modules/quickmedical/
 /modules/ringcentral/
 /modules/speechtotext/
+/modules/mobileapp/
+/modules/twilio/
+/modules/worklist/

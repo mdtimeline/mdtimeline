@@ -79,6 +79,28 @@ $API = [
             ]
         ]
     ],
+    'Reports' => [
+        'methods' => [
+            'getReports' => [
+                'len' => 1
+            ],
+            'getReport' => [
+                'len' => 1
+            ],
+            'addReport' => [
+                'len' => 1
+            ],
+            'updateReport' => [
+                'len' => 1
+            ],
+            'deleteReport' => [
+                'len' => 1
+            ],
+            'runReportByIdAndFilters' => [
+                'len' => 2
+            ]
+        ]
+    ],
     'EmailTemplates' => [
         'methods' => [
             'getEmailTemplates' => [

@@ -588,10 +588,7 @@ Ext.define('App.view.patient.Patient', {
                                                             name: 'first_visit_date',
                                                             format: 'm/d/Y',
                                                             width: 130,
-                                                            fieldLabel: _('first') + ' ' + _('visit'),
-                                                            enableKeyEvents: true,
-                                                            allowBlank: false
-
+                                                            fieldLabel: _('first_visit')
 														}
 													]
 												}       //Facility y Provider

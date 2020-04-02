@@ -366,7 +366,7 @@ Ext.define('App.controller.Navigation', {
 		if(!nav){
 			Ext.Function.defer(function(){
 				this.addNavigationNodes(parentId, node, index);
-			}, 10000, this);
+			}, 5000, this);
 			return;
 		}
 

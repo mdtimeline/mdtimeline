@@ -261,6 +261,16 @@ class Disclosure
         $this->copyDirectory($burner_root_dir, $dest);
     }
 
+    private function copyBurnerLabelToDir($path){
+        $src = Globals::getGlobal('disclosure_burner_label_location');
+        if ($src === false) throw new Exception('Global disclosure_burner_label_location not configured!');
+        if (!is_readable($src)) throw new Exception("File {$src} is not readable or does not have permissions");
+
+        $dst = $path . '/' . basename($src);
+
+        if (!copy($src, $dst)) throw new Exception("Could not copy burner label from {$src} to {$path}");
+    }
+
     public function getDisclosures($params)
     {
         $this->disclosureHandler($params, $sql, $values);
@@ -410,6 +420,8 @@ class Disclosure
             $this->createSaveCoverLetter($Disclosure, $data_dir . '/index.pdf');
 
             $config_file_path = $this->createConfigTextFile($Disclosure, basename($root_dir), $print_dir);
+
+            $this->copyBurnerLabelToDir($print_dir);
 
             $this->copyTempBurnerDirToBurner($root_dir);
 

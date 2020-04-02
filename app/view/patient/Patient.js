@@ -483,7 +483,7 @@ Ext.define('App.view.patient.Patient', {
 													layout: 'hbox',
 													width: me.containersWidth,
 													defaults: {
-														margin: '0 5 0 0',
+														margin: '0 5 0 0'
 													},
 													items: [
 														{
@@ -647,7 +647,7 @@ Ext.define('App.view.patient.Patient', {
                                                             xtype: 'textfield',
                                                             name: 'father_mname',
                                                             fieldLabel: _('init'),
-                                                            flex: 1,
+                                                            width: 50,
                                                             maxLength: 20
                                                         },
                                                         {
@@ -681,7 +681,7 @@ Ext.define('App.view.patient.Patient', {
                                                             xtype: 'textfield',
                                                             name: 'mother_mname',
                                                             fieldLabel: _('init'),
-                                                            flex: 1,
+                                                            width: 50,
                                                             maxLength: 20
                                                         },
                                                         {
@@ -715,7 +715,7 @@ Ext.define('App.view.patient.Patient', {
                                                             xtype: 'textfield',
                                                             name: 'spouse_mname',
                                                             fieldLabel: _('init'),
-                                                            flex: 1,
+                                                            width: 50,
                                                             maxLength: 20
                                                         },
                                                         {
@@ -767,7 +767,7 @@ Ext.define('App.view.patient.Patient', {
                                                     name: 'phone_work_ext',
                                                     width: 105,
                                                     labelWidth: 30,
-                                                    fieldLabel: _('ext') + '.',
+                                                    fieldLabel: _('ext') + '.'
                                                 },
                                                 {
                                                     xtype: 'textfield',
@@ -800,7 +800,7 @@ Ext.define('App.view.patient.Patient', {
                                                     width: me.containersWidth,
                                                     defaults: {
                                                         labelWidth: 50,
-                                                        margin: '5 0 5 5',
+                                                        margin: '5 5 0 0',
                                                         labelAlign: 'top'
                                                     },
                                                     items: [
@@ -824,7 +824,7 @@ Ext.define('App.view.patient.Patient', {
                                                             xtype: 'textfield',
                                                             name: 'authorized_01_mname',
                                                             fieldLabel: _('init'),
-                                                            flex: 1,
+                                                            width: 50,
                                                             enableKeyEvents: true
                                                         },
                                                         {
@@ -839,13 +839,13 @@ Ext.define('App.view.patient.Patient', {
                                                             name: 'authorized_01_phone',
                                                             fieldLabel: _('phone'),
                                                             emptyText: '000-000-0000',
-                                                            width: 90
+                                                            width: 115
                                                         },
                                                         {
                                                             xtype: 'gaiaehr.combo',
                                                             name: 'authorized_01_phone_type',
                                                             fieldLabel: _('phone_type'),
-                                                            width: 113,
+                                                            width: 120,
                                                             listKey: 'phone_type',
                                                             loadStore: true,
                                                             editable: false
@@ -857,7 +857,7 @@ Ext.define('App.view.patient.Patient', {
                                                     layout: 'hbox',
                                                     defaults: {
                                                         labelWidth: 50,
-                                                        margin: '5 0 5 5',
+                                                        margin: '5 5 0 0',
                                                         labelAlign: 'top'
                                                     },
                                                     items: [
@@ -881,7 +881,7 @@ Ext.define('App.view.patient.Patient', {
                                                             xtype: 'textfield',
                                                             name: 'authorized_02_mname',
                                                             fieldLabel: _('init'),
-                                                            flex: 1,
+                                                            width: 50,
                                                             enableKeyEvents: true
                                                         },
                                                         {
@@ -896,19 +896,19 @@ Ext.define('App.view.patient.Patient', {
                                                             name: 'authorized_02_phone',
                                                             fieldLabel: _('phone'),
                                                             emptyText: '000-000-0000',
-                                                            width: 90
+                                                            width: 115
                                                         },
                                                         {
                                                             xtype: 'gaiaehr.combo',
                                                             name: 'authorized_02_phone_type',
                                                             fieldLabel: _('phone_type'),
-                                                            width: 113,
+                                                            width: 120,
                                                             listKey: 'phone_type',
                                                             loadStore: true,
                                                             editable: false
                                                         }
                                                     ]
-                                                }, //Persons Authorized to Pickup Results
+                                                } //Persons Authorized to Pickup Results
                                             ]
                                         },
                                         {
@@ -929,6 +929,11 @@ Ext.define('App.view.patient.Patient', {
                                                 {
                                                     xtype: 'fieldcontainer',
                                                     layout: 'hbox',
+                                                    width: me.containersWidth - 10,
+                                                    defaults: {
+                                                        margin: '0 5 0 0',
+                                                        labelAlign: 'top'
+                                                    },
                                                     items: [
                                                         {
                                                             xtype: 'gaiaehr.combo',
@@ -944,14 +949,13 @@ Ext.define('App.view.patient.Patient', {
                                                             name: 'emergency_contact_fname',
                                                             emptyText: _('first_name'),
                                                             flex: 1,
-                                                            //fieldLabel: _('name'),
                                                             enableKeyEvents: true
                                                         },
                                                         {
                                                             xtype: 'textfield',
                                                             name: 'emergency_contact_mname',
                                                             emptyText: _('middle_name'),
-                                                            flex: 1,
+                                                            width: 50,
                                                             enableKeyEvents: true
                                                         },
                                                         {
@@ -965,13 +969,13 @@ Ext.define('App.view.patient.Patient', {
                                                             xtype: 'textfield',
                                                             name: 'emergency_contact_phone',
                                                             emptyText: '000-000-0000',
-                                                            width: 90
+                                                            width: 115
                                                         },
                                                         {
                                                             xtype: 'gaiaehr.combo',
                                                             name: 'emergency_contact_phone_type',
                                                             emptyText: _('phone_type'),
-                                                            width: 113,
+                                                            width: 120,
                                                             listKey: 'phone_type',
                                                             loadStore: true,
                                                             editable: false
@@ -981,7 +985,11 @@ Ext.define('App.view.patient.Patient', {
                                                 {
                                                     xtype: 'fieldcontainer',
                                                     layout: 'hbox',
-                                                    width: me.containersWidth,
+                                                    width: me.containersWidth - 10,
+                                                    defaults: {
+                                                        margin: '5 5 0 0',
+                                                        labelAlign: 'top'
+                                                    },
                                                     items: [
                                                         {
                                                             xtype: 'textfield',
@@ -1017,7 +1025,7 @@ Ext.define('App.view.patient.Patient', {
                                                             xtype: 'textfield',
                                                             name: 'emergency_contact_country',
                                                             emptyText: _('country'),
-                                                            width: 90
+                                                            width: 120
                                                         }
                                                     ]
                                                 }
@@ -1029,11 +1037,19 @@ Ext.define('App.view.patient.Patient', {
                                             cls: 'highlight_fieldset',
                                             margin: '5 350 5 0',
                                             padding: '15 10 10 10',
-                                            layout: 'vbox',
+                                            layout: {
+                                                type: 'vbox',
+                                                align: 'stretch'
+                                            },
+                                            defaults: {
+                                                margin: '0 5 0 0',
+                                                labelAlign: 'top'
+                                            },
                                             items: [
                                                 {
                                                     xtype: 'fieldcontainer',
                                                     layout: 'hbox',
+                                                    width: me.containersWidth - 10,
                                                     defaults: {
                                                         margin: '0 5 0 0',
                                                         labelAlign: 'top'
@@ -1059,7 +1075,7 @@ Ext.define('App.view.patient.Patient', {
                                                             xtype: 'textfield',
                                                             name: 'guardians_mname',
                                                             emptyText: _('middle_name'),
-                                                            flex: 1,
+                                                            width: 50,
                                                             enableKeyEvents: true
                                                         },
                                                         {
@@ -1073,13 +1089,13 @@ Ext.define('App.view.patient.Patient', {
                                                             xtype: 'textfield',
                                                             name: 'guardians_phone',
                                                             emptyText: '000-000-0000',
-                                                            width: 90
+                                                            width: 115
                                                         },
                                                         {
                                                             xtype: 'gaiaehr.combo',
                                                             name: 'guardians_phone_type',
                                                             emptyText: _('phone_type'),
-                                                            width: 113,
+                                                            width: 120,
                                                             listKey: 'phone_type',
                                                             loadStore: true,
                                                             editable: false
@@ -1089,6 +1105,7 @@ Ext.define('App.view.patient.Patient', {
                                                 {
                                                     xtype: 'fieldcontainer',
                                                     layout: 'hbox',
+                                                    width: me.containersWidth - 10,
                                                     defaults: {
                                                         margin: '5 5 0 0',
                                                         labelAlign: 'top'
@@ -1128,7 +1145,7 @@ Ext.define('App.view.patient.Patient', {
                                                             xtype: 'textfield',
                                                             name: 'guardians_country',
                                                             emptyText: _('country'),
-                                                            width: 90
+                                                            width: 120
                                                         }
                                                     ]
                                                 }

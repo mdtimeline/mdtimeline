@@ -75,10 +75,11 @@ Ext.define('App.controller.reports.Reports', {
 	},
 
 	onReportsGridItemDblClick: function (grid, record) {
-		var win = this.showReportsWindow(),
+		var me = this,
+			win = me.showReportsWindow(),
 			form = win.down('form'),
 			report_grid = win.down('grid'),
-			fields = [], columns;
+			model_fields = [], search_fields = [], columns;
 
 		win.setTitle(record.get('title'));
 		win.el.mask('Getting Things Ready');
@@ -93,9 +94,14 @@ Ext.define('App.controller.reports.Reports', {
 
 			response.parameters.forEach(function (parameter) {
 
-				say(parameter);
+				// fire event... any module can listen for this event and handle the search field
+				// just make sure the listener function return false to continue to the next field
+				if(app.fireEvent('beforereportfilteradd', me, parameter, search_fields) === false){
+					return;
+				}
+
 				if(parameter.DATA_TYPE === 'date' || parameter.DATA_TYPE === 'datetime'){
-					form.add({
+					search_fields.push({
 						xtype: 'datefield',
 						fieldLabel: _(parameter.PARAMETER_NAME),
 						labelAlign: 'top',
@@ -105,7 +111,7 @@ Ext.define('App.controller.reports.Reports', {
 					return;
 				}
 				if(parameter.PARAMETER_NAME === 'facility_id'){
-					form.add({
+					search_fields.push({
 						xtype: 'mitos.facilitiescombo',
 						fieldLabel: _(parameter.PARAMETER_NAME),
 						labelAlign: 'top',
@@ -115,7 +121,7 @@ Ext.define('App.controller.reports.Reports', {
 					return;
 				}
 				if(parameter.PARAMETER_NAME === 'specialty_id'){
-					form.add({
+					search_fields.push({
 						xtype: 'specialtiescombo',
 						fieldLabel: _(parameter.PARAMETER_NAME),
 						labelAlign: 'top',
@@ -125,7 +131,7 @@ Ext.define('App.controller.reports.Reports', {
 					return;
 				}
 				if(parameter.PARAMETER_NAME === 'department_id'){
-					form.add({
+					search_fields.push({
 						xtype: 'depatmentscombo',
 						fieldLabel: _(parameter.PARAMETER_NAME),
 						labelAlign: 'top',
@@ -134,28 +140,34 @@ Ext.define('App.controller.reports.Reports', {
 					});
 					return;
 				}
-				if(parameter.PARAMETER_NAME.search(/uid$/) !== -1){
-					form.add({
+				// any parameter ending in _uid will add a user search field
+				if(parameter.PARAMETER_NAME.search(/_uid$/) !== -1){
+					search_fields.push({
 						xtype: 'userlivetsearch',
 						fieldLabel: _(parameter.PARAMETER_NAME),
 						labelAlign: 'top',
 						margin: '0 5 0 0',
-						name: parameter.PARAMETER_NAME
-					});
-					return;
-				}
-				if(parameter.PARAMETER_NAME.search(/pid$/) !== -1){
-					form.add({
-						xtype: 'patienlivetsearch',
-						fieldLabel: _(parameter.PARAMETER_NAME),
-						labelAlign: 'top',
-						margin: '0 5 0 0',
+						hideLabel: false,
 						name: parameter.PARAMETER_NAME
 					});
 					return;
 				}
 
-				form.add({
+				// any pid field or ending in _pid will add a patient live search
+				if(parameter.PARAMETER_NAME.search(/^pid$|_pid$/) !== -1){
+					search_fields.push({
+						xtype: 'patienlivetsearch',
+						fieldLabel: _(parameter.PARAMETER_NAME),
+						labelAlign: 'top',
+						margin: '0 5 0 0',
+						hideLabel: false,
+						name: parameter.PARAMETER_NAME
+					});
+					return;
+				}
+
+				// by default add the text field
+				search_fields.push({
 					xtype: 'textfield',
 					fieldLabel: _(parameter.PARAMETER_NAME),
 					labelAlign: 'top',
@@ -165,17 +177,21 @@ Ext.define('App.controller.reports.Reports', {
 
 
 			});
+
+			// add fields to the form
+			form.add(search_fields);
+
 			columns = eval('([' + response.columns + '])');
 			columns.forEach(function (column) {
 
-				fields.push({
+				model_fields.push({
 					type: column.dataType,
 					name: column.dataIndex
 				});
 
 			});
 
-			report_grid.reconfigure(Ext.create('Ext.data.Store',{ fields: fields }), columns);
+			report_grid.reconfigure(Ext.create('Ext.data.Store',{ fields: model_fields }), columns);
 		});
 
 	},

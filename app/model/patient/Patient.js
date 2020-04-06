@@ -27,6 +27,13 @@ Ext.define('App.model.patient.Patient',{
 		    comment: 'external reference id',
 		    len: 40
 	    },
+	    {
+		    name: 'interface_number',
+		    type: 'string',
+		    index: true,
+		    comment: 'interface reference number',
+		    len: 40
+	    },
         {
             name: 'title',
             type: 'string',

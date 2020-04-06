@@ -117,8 +117,8 @@ Ext.define('App.view.patient.Patient', {
 														},
 														{
 															xtype: 'textfield',
-															name: 'interface_mrn',
-															fieldLabel: _('interface_mrn'), //external_account
+															name: 'interface_number',
+															fieldLabel: _('interface_number'), //external_account
 															flex: 1,
 															enableKeyEvents: true
 														}

@@ -26,25 +26,45 @@ Ext.define('App.ux.grid.ColumnDateField', {
 		});
 
 		me.on('select', function() {
-			me.setFilterBuffer(me.up().dataIndex, me.getSubmitValue());
+			me.setFilterBuffer(me.up('headercontainer').dataIndex, me.getSubmitValue());
 		});
 
 		me.on('keyup', function(f, e) {
 			if(e.getKey() === e.ENTER) {
-				me.setFilterBuffer(me.up().dataIndex, me.getSubmitValue());
+				me.setFilterBuffer(me.up('headercontainer').dataIndex, me.getSubmitValue());
 			}
 		});
 
 	},
 
 	onTrigger2Click: function() {
-		this.setFilter(this.up().dataIndex, this.getSubmitValue());
+		this.setFilter(this.up('headercontainer').dataIndex, this.getSubmitValue());
 	},
 
 	setFilter: function(filterId, value){
-		var store = this.up('grid').getStore();
+		var store = this.up('grid').getStore(),
+			parentContainer = this.up('container');
+
+		if(parentContainer){
+
+			say('setFilter');
+			say(parentContainer);
+
+			var datefields = parentContainer.query('datefield');
+
+			say(datefields);
+
+			if(datefields.length === 2) {
+				value = Ext.String.format('{0}~{1}', datefields[0].getSubmitValue(), datefields[1].getSubmitValue());
+
+				say(value);
+
+			}
+		}
+
+
 		if(value){
-			store.removeFilter(filterId, false);
+			store.filters.removeAtKey(filterId);
 			var filter = {
 				id: filterId,
 				property: filterId,

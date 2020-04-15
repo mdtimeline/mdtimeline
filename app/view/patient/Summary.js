@@ -361,25 +361,7 @@ Ext.define('App.view.patient.Summary', {
 
 			me.insTabPanel = me.tabPanel.add({
 				xtype: 'insurancestabpanel',
-				itemId: 'PatientInsurancesPanel',
-				bbar: [
-					'->',
-					'-',
-					{
-						xtype: 'button',
-						text: _('save'),
-						minWidth: 75,
-						itemId: 'PatientInsurancesPanelSaveBtn'
-					},
-					'-',
-					{
-						xtype: 'button',
-						text: _('cancel'),
-						action: 'readOnly',
-						minWidth: 75,
-						itemId: 'PatientInsurancesPanelCancelBtn'
-					}
-				]
+				itemId: 'PatientInsurancesPanel'
 			});
 		}
 

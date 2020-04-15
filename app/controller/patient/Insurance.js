@@ -74,6 +74,12 @@ Ext.define('App.controller.patient.Insurance', {
         {
             ref: 'BillingPatientInsuranceCoverInformationDeductibleField',
             selector: '#BillingPatientInsuranceCoverInformationDeductibleField'
+        },
+
+        // insurance window
+        {
+            ref: 'PatientInsurancesWindow',
+            selector: '#PatientInsurancesWindow'
         }
 
     ],
@@ -119,19 +125,69 @@ Ext.define('App.controller.patient.Insurance', {
                 select: me.onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldSelect,
                 change: me.onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldchange,
                 render: me.onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldRender
+            },
+
+            '#PatientInsurancesWindow': {
+                show: me.onPatientInsurancesWindowShow
+            },
+            '#PatientInsurancesWindowSaveBtn': {
+                click: me.onPatientInsurancesWindowSaveBtnClick
+            },
+            '#PatientInsurancesWindowCancelBtn': {
+                click: me.onPatientInsurancesWindowCancelBtnClick
             }
 
         });
     },
 
+    onPatientInsurancesWindowSaveBtnClick: function(btn){
+        btn.up('window').close();
+
+
+
+
+
+
+    },
+
+    onPatientInsurancesWindowCancelBtnClick: function(btn){
+        btn.up('window').close();
+    },
+
+    onPatientInsurancesWindowShow: function(win){
+        var me = this,
+            insurance_store = app.patient.record.insurance(),
+            insurance_panel = win.down('insurancestabpanel');
+
+        if(insurance_store.count() > 0){
+            me.patientInsurancePanelHandler(insurance_store, insurance_panel);
+        }else{
+            insurance_store.load({
+                filters: [
+                    {
+                        property: 'pid',
+                        value: app.patient.record.get('pid')
+                    }
+                ],
+                callback: function (records) {
+                    me.patientInsurancePanelHandler(insurance_store, insurance_panel);
+                }
+            });
+        }
+    },
+
+    showPatientInsurancesWindow: function(){
+        if(!this.getPatientInsurancesWindow()){
+            Ext.create('App.view.patient.windows.PatientInsurancesWindow');
+        }
+        return this.getPatientInsurancesWindow().show();
+    },
 
     getActiveInsuranceFormPanel: function () {
         return this.getPatientInsurancesPanel().getActiveTab();
     },
 
-    patientInsurancePanelHandler: function (insurance_store) {
-        var me = this,
-            insurance_panel = me.getPatientInsurancesPanel();
+    patientInsurancePanelHandler: function (insurance_store, insurance_panel) {
 
         insurance_store.sort([
             {
@@ -166,18 +222,19 @@ Ext.define('App.controller.patient.Insurance', {
         // set the insurance panel
         insurance_panel.removeAll(true);
 
-        var insurance_records = insurance_store.data.items;
+        var insurance_records = insurance_store.data.items,
+            items = [], i;
 
-        for (var i = 0; i < insurance_records.length; i++) {
-            insurance_panel.add(
-                Ext.widget('patientinsuranceform', {
-                    closable: false,
-                    insurance: insurance_records[i],
-                    action: insurance_records[i].get('insurance_type')
-                })
-            );
+        for (i = 0; i < insurance_records.length; i++) {
+            items.push({
+                xtype: 'patientinsuranceform',
+                closable: false,
+                insurance: insurance_records[i],
+                action: insurance_records[i].get('insurance_type')
+            });
         }
 
+        insurance_panel.add(items);
         if (insurance_panel.items.length > 0) insurance_panel.setActiveTab(0);
 
     },
@@ -185,7 +242,8 @@ Ext.define('App.controller.patient.Insurance', {
     onDemographicsRecordLoad: function (patient_record, patient_panel) {
 
         var me = this,
-            insurance_store = patient_record.insurance();
+            insurance_store = app.patient.record.insurance(),
+            insurance_panel = patient_panel.ownerCt.down('insurancestabpanel');
 
         insurance_store.load({
             filters: [
@@ -195,7 +253,7 @@ Ext.define('App.controller.patient.Insurance', {
                 }
             ],
             callback: function (records) {
-                me.patientInsurancePanelHandler(insurance_store);
+                me.patientInsurancePanelHandler(insurance_store, insurance_panel);
             }
         });
     },
@@ -465,7 +523,7 @@ Ext.define('App.controller.patient.Insurance', {
 
     onPatientInsurancesPanelSaveBtnClick: function (btn) {
         var me = this,
-            insurance_panel = me.getPatientInsurancesPanel(),
+            insurance_panel = btn.up('insurancestabpanel'),
             insuranceItems = insurance_panel.items;
 
         insuranceItems.each(function (form_panel) {

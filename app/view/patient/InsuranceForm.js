@@ -330,7 +330,7 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                 fieldLabel: _('relationship'),
                                                 emptyText: _('relationship'),
                                                 queryMode: 'local',
-                                                list: 134,
+                                                list: 25,
                                                 loadStore: true,
                                                 editable: false,
                                                 width: 100,
@@ -353,20 +353,20 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                 xtype: 'textfield',
                                                 name: 'subscriber_given_name',
                                                 emptyText: _('first_name'),
-                                                width: 100,
+                                                width: 120,
                                                 allowBlank: false
                                             },
                                             {
                                                 xtype: 'textfield',
                                                 name: 'subscriber_middle_name',
                                                 emptyText: _('middle_name'),
-                                                width: 20
+                                                width: 30
                                             },
                                             {
                                                 xtype: 'textfield',
                                                 name: 'subscriber_surname',
                                                 emptyText: _('last_name'),
-                                                width: 200,
+                                                flex: 2,
                                                 allowBlank: false
                                             },
                                             {
@@ -375,7 +375,15 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                 fieldLabel: _('ssn'),
                                                 emptyText: _('ssn'),
                                                 labelWidth: 90,
-                                                width: 120
+                                                width: 100
+                                            },
+
+                                            {
+                                                xtype: 'textfield',
+                                                name: 'subscriber_policy_number',
+                                                emptyText: _('policy_number'),
+                                                fieldLabel: _('id'),
+                                                flex: 1
                                             },
                                             {
                                                 xtype: 'textfield',
@@ -383,7 +391,7 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                 emptyText: '000-000-0000',
                                                 fieldLabel: _('phone'),
                                                 labelWidth: 40,
-                                                width: 120,
+                                                width: 100,
                                                 allowBlank: false
                                             },
                                             {
@@ -392,7 +400,7 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                 emptyText: _('employer'),
                                                 fieldLabel: _('employer'),
                                                 labelWidth: 60,
-                                                width: 200
+                                                flex: 1
                                             }
                                         ]
                                     },  //Subscriber Relationship, Name //Subscriber Phone, SSN, Employer

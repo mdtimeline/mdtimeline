@@ -54,6 +54,10 @@ Ext.define('App.model.administration.Department', {
             len: 50
         },
         {
+            name: 'is_specialty_required_for_billing',
+            type: 'bool'
+        },
+        {
             name: 'active',
             type: 'bool'
         },

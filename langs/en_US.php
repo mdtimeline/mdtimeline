@@ -1836,7 +1836,7 @@ $LANG = array(
 	'mothers_name'                          => 'Mothers Name',
 	'fathers_name'                          => 'Fathers Name',
 	'mrn'                                   => 'MRN',
-	'interface_mrn'                         => 'Interface',
+	'interface_number'                      => 'Interface Number',
 	'postal_address'                        => 'Postal Address',
 	'patient_info'                          => 'Information',
 	'communication'                         => 'Communication',
@@ -2151,4 +2151,5 @@ $LANG = array(
     'content_body' => 'Content Body',
     'content_type' => 'Content Type',
     'content_version' => 'Content Version',
+    'specialty_required_for_billing' => 'Specialty Rq To Bill',
 );

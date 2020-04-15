@@ -113,6 +113,17 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
                             flex: 1
                         },
                         {
+                            text: _('specialty_required_for_billing'),
+                            sortable: true,
+                            dataIndex: 'is_specialty_required_for_billing',
+                            renderer: function(v){
+                                return app.boolRenderer(v);
+                            },
+                            editor: {
+                                xtype: 'checkboxfield'
+                            }
+                        },
+                        {
                             text: _('active'),
                             sortable: true,
                             dataIndex: 'active',

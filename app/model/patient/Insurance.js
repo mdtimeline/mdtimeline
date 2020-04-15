@@ -93,6 +93,11 @@ Ext.define('App.model.patient.Insurance',{
 		    len: 80
 	    },
         {
+            name: 'subscriber_policy_number',
+            type: 'string',
+            len: 40
+        },
+        {
             name: 'subscriber_title',
             type: 'string',
             len: 10
@@ -139,6 +144,11 @@ Ext.define('App.model.patient.Insurance',{
         },
         {
             name: 'subscriber_street',
+            type: 'string',
+            len: 110
+        },
+        {
+            name: 'subscriber_street_cont',
             type: 'string',
             len: 110
         },

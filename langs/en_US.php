@@ -2113,4 +2113,5 @@ $LANG = array(
     'document_attached' => 'Document Attached',
     'first_visit' => 'First Visit',
     'schedule_date' => 'Schedule Date',
+    'specialty_required_for_billing' => 'Specialty Rq To Bill',
 );

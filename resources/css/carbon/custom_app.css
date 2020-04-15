@@ -254,6 +254,9 @@
     background-color: #66cc66 !important;
     background-image: none;
 }
+.btnGreenBackground .x-btn-inner {
+    color: #3e3e3e !important;
+}
 .btnGreenBackground.x-pressed {
     background-color: #4acc4d !important;
 }
@@ -261,6 +264,9 @@
 .btnRedBackground {
     background-color: #ff576b !important;
     background-image: none;
+}
+.btnRedBackground .x-btn-inner {
+    color: #3e3e3e !important;
 }
 .btnRedBackground.x-pressed {
     background-color: #ff315d !important;
@@ -270,6 +276,9 @@
     background-color: #ff0000 !important;
     background-image: none;
 }
+.btnBrightRedBackground .x-btn-inner {
+    color: #3e3e3e !important;
+}
 .btnBrightRedBackground.x-pressed,
 .btnBrightRedBackground.x-over {
     background-color: #bf0000 !important;
@@ -278,6 +287,9 @@
 .btnBlueBackground {
     background-color: #daedff !important;
     background-image: none;
+}
+.btnBlueBackground .x-btn-inner {
+    color: #3e3e3e !important;
 }
 .btnBlueBackground.x-pressed {
     background-color: #a9e2ff !important;

@@ -27,7 +27,8 @@ class ContentManagement {
     }
 
     public function getContentManagements($params){
-        return $this->t->load($params)->all();
+        $record = $this->t->load($params)->all();
+        return $record;
     }
     public function getContentManagement($params){
         return $this->t->load($params)->one();

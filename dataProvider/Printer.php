@@ -39,6 +39,27 @@ class Printer {
         return $printers;
     }
 
+    public function getPrinter($params)
+    {
+        $printer = $this->p->load()->one($params);
+        return $printer;
+    }
+
+    public function addPrinter($params)
+    {
+        return $this->p->save($params);
+    }
+
+    public function updatePrinter($params)
+    {
+        return $this->p->save($params);
+    }
+
+    public function destroyPrinter($params)
+    {
+        return $this->p->destroy($params);
+    }
+
 	public function doTempDocumentPrint($printer_id, $temp_document_id){
 
 		$DocumentHandler = new DocumentHandler();

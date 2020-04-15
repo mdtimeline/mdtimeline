@@ -243,14 +243,13 @@ class Disclosure
         return $file_path;
     }
 
-    private function copyTempBurnerDirToBurner($burner_root_dir)
+    private function copyTempBurnerDirToBurner($burner_temp_path, $burner)
     {
-        $dest = Globals::getGlobal('disclosure_burner_directory');
-        if ($dest === false) throw new Exception('Global disclosure_burner_directory not configured!');
-        if (!is_writable($dest)) throw new Exception("Directory {$dest} is not writable or does not have permissions");
+        if (!isset($burner->path)) throw new Exception('Burner path not configured.');
+        if (!is_writable($burner->path)) throw new Exception("Directory {$burner->path} is not writable or does not have permissions");
 
-        $dest = $dest . '/' . basename($burner_root_dir);
-        $this->copyDirectory($burner_root_dir, $dest);
+        $dest = $burner->path . '/' . basename($burner_temp_path);
+        $this->copyDirectory($burner_temp_path, $dest);
     }
 
     private function copyBurnerLabelToDir($path)
@@ -441,16 +440,17 @@ class Disclosure
         }
     }
 
-    public function burnDisclosure($Disclosure)
+    public function burnDisclosure($Disclosure,$burner)
     {
         try {
             if (!isset($Disclosure)) throw new Exception('Disclosure Missing');
+            if (!isset($burner)) throw new Exception('Burner Missing');
 
             $temp_disclosure_path = $this->createTempDisclosureDir($Disclosure);
 
-            $burner_root = $this->createTempBurnerDirectory($Disclosure, $temp_disclosure_path);
+            $burner_temp_path = $this->createTempBurnerDirectory($Disclosure, $temp_disclosure_path);
 
-            $this->copyTempBurnerDirToBurner($burner_root);
+            $this->copyTempBurnerDirToBurner($burner_temp_path,$burner);
 
             $this->deleteFolder($temp_disclosure_path);
 

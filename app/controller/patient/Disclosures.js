@@ -59,6 +59,10 @@ Ext.define('App.controller.patient.Disclosures', {
         {
             ref: 'PatientDisclosuresPrinterCmb',
             selector: '#PatientDisclosuresPrinterCmb'
+        },
+        {
+            ref: 'PatientDisclosuresBurnersCmb',
+            selector: '#PatientDisclosuresBurnersCmb'
         }
     ],
 
@@ -113,9 +117,9 @@ Ext.define('App.controller.patient.Disclosures', {
             '#PatientDisclosuresBurnBtn': {
                 click: me.onPatientDisclosuresBurnBtnClick
             },
-            '#PatientDisclosuresPrinterCmb': {
-                beforerender: me.onPatientDisclosuresPrinterCmbBeforeRender
-            },
+            '#PatientDisclosuresBurnersCmb': {
+                beforerender: me.onPatientDisclosuresBurnersCmbBeforeRender
+            }
         });
     },
 
@@ -168,17 +172,24 @@ Ext.define('App.controller.patient.Disclosures', {
     onPatientDisclosuresBurnBtnClick: function (btn) {
         var me = this,
             grid = me.getPatientDisclosuresGrid(),
-            records = grid.getSelectionModel().getSelection();
+            records = grid.getSelectionModel().getSelection(),
+            burner_id = me.getPatientDisclosuresBurnersCmb().getValue(),
+            burner_record = me.getPatientDisclosuresBurnersCmb().findRecordByValue(burner_id);
 
         if (records.length <= 0) {
             app.msg(_('warning'), "No disclosures selected", true);
             return;
         }
 
+        if (burner_id === null) {
+            app.msg(_('warning'), "No burner selected", true);
+            return;
+        }
+
         app.msg("Burning... ", "Burning disclosure", false);
         records.forEach(function (record) {
             if (record.get('document_inventory_count') > 0) {
-                Disclosure.burnDisclosure(record.getData(),function (response) {
+                Disclosure.burnDisclosure(record.getData(), burner_record.getData(), function (response) {
                     if(!response.success) app.msg("Error", response.errorMsg, true);
                 });
             }
@@ -239,19 +250,12 @@ Ext.define('App.controller.patient.Disclosures', {
 
     },
 
-    onPatientDisclosuresPrinterCmbBeforeRender: function (cmb) {
-        Printer.getPrinters(function (printers) {
-            cmb.store.loadData(printers);
-            if (printers.length <= 0) {
-                //1 is pass to enable the valueNotFoundText config.
-                //Does't matter what value you pass
-                cmb.setValue(1);
-            } else {
-                //sets the first element in the array.
-                cmb.setValue(printers[0].id);
-            }
-        });
+    onPatientDisclosuresBurnersCmbBeforeRender: function (cmb) {
+        var store = cmb.getStore();
 
+        if(store.getCount() > 0){
+            cmb.setValue(store.first());
+        }
     },
 
     onDocumentsLoad: function (document_grid, document_store, document_records) {

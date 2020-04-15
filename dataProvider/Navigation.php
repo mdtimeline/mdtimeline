@@ -366,6 +366,22 @@ class Navigation
                 'id' => 'App.view.administration.MeasureCalculation'
             ];
 //        }
+        if($this->ACL->hasPermission('access_admin_printer')){
+            $admin['children'][] = [
+                'text' => 'Printers',
+                'leaf' => true,
+                'cls' => 'file',
+                'id' => 'App.view.administration.Printers'
+            ];
+        }
+        if($this->ACL->hasPermission('access_admin_content_management')){
+            $admin['children'][] = [
+                'text' => 'Content Management',
+                'leaf' => true,
+                'cls' => 'file',
+                'id' => 'App.view.administration.ContentManagement'
+            ];
+        }
 
 		if(isset($admin['children']) && count($admin['children']) > 0) array_push($nav, $admin);
 

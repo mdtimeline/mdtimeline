@@ -74,6 +74,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 		<script type="text/javascript" src="lib/ZeroClipboard/ZeroClipboard.js" charset="utf-8"></script>
 		<script type="text/javascript" src="lib/darkroomjs/demo/vendor/fabric.js" charset="utf-8"></script>
 		<script type="text/javascript" src="lib/darkroomjs/build/darkroom.js" charset="utf-8"></script>
+		<script type="text/javascript" src="lib/Print/print.min.js" charset="utf-8"></script>
 
         <script type="text/javascript">
 

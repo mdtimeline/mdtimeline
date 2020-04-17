@@ -114,6 +114,28 @@ $API = [
             ]
         ]
     ],
+    'ContentManagement' => [
+        'methods' => [
+            'getContentManagements' => [
+                'len' => 1
+            ],
+            'getContentManagement' => [
+                'len' => 1
+            ],
+            'addContentManagement' => [
+                'len' => 1
+            ],
+            'updateContentManagement' => [
+                'len' => 1
+            ],
+            'destroyContentManagement' => [
+                'len' => 1
+            ],
+            'generateContentManagement' => [
+                'len' => 4
+            ]
+        ]
+    ],
     'TwoFactorAuthentication' => [
         'methods' => [
             'getUserStatusByUserIdAndType' => [
@@ -160,6 +182,18 @@ $API = [
         'methods' => [
             'getPrinters' => [
                 'len' => 0
+            ],
+            'getPrinter' => [
+                'len' => 1
+            ],
+            'addPrinter' => [
+                'len' => 1
+            ],
+            'updatePrinter' => [
+                'len' => 1
+            ],
+            'destroyPrinter' => [
+                'len' => 1
             ],
             'doTempDocumentPrint' => [
                 'len' => 2
@@ -807,7 +841,7 @@ $API = [
                 'len' => 1
             ],
             'burnDisclosure' => [
-                'len' => 1
+                'len' => 2
             ]
         ]
     ],

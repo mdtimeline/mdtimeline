@@ -38,5 +38,21 @@ Ext.define('App.model.administration.ContentManagement', {
             len:10,
             index: true
         }
-    ]
+    ],
+    proxy: {
+        type: 'direct',
+        api: {
+            read: 'ContentManagement.getContentManagements',
+            create: 'ContentManagement.addContentManagement',
+            update: 'ContentManagement.updateContentManagement',
+            destroy: 'ContentManagement.destroyContentManagement'
+        },
+        reader: {
+            root: 'data'
+        },
+        writer: {
+            writeAllFields: true
+        },
+        remoteGroup: false
+    }
 });

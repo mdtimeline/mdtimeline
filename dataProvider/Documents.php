@@ -409,7 +409,7 @@ class Documents {
      */
 	public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $custom_footer_data = null, $water_mark = '', $key_images = [], $key_images_config = [], $pdf_format = null, $mail_cover_info = []) {
 		$pid = $params->pid;
-		$regex = '(\[\w*?\])';
+		$regex = '(\[\w*?\]|\[\/\w*?\])';
 
 		$pdf = new DocumentFPDI();
 		$tokens = [];
@@ -577,8 +577,9 @@ class Documents {
 			if(isset($params->disclosure)){
 				$allNeededInfo = $this->getDisclosureTokensData($params->disclosure, $allNeededInfo, $tokens);
 			}
+            $allNeededInfo = $this->getFormatTokensData($params->pid, $allNeededInfo, $tokens);
 
-			if(isset($header_footer_lines)){
+            if(isset($header_footer_lines)){
 				foreach($header_footer_lines as $line){
 					$line['text'] = str_replace($tokens, $allNeededInfo, $line['text']);
 
@@ -849,6 +850,32 @@ class Documents {
             '[DISCLOSURE_FULFIL_DATE]' => Utils::dateTimeToString($disclosure->fulfil_date,$patient_language),
             '[DISCLOSURE_PICKUP_DATE]' => Utils::dateTimeToString($disclosure->pickup_date,$patient_language),
             '[DISCLOSURE_DOCUMENT_COUNT]' => (string)$disclosure->document_inventory_count
+        ];
+
+		foreach($tokens as $i => $tok){
+			if(isset($data[$tok]) && ($allNeededInfo[$i] == '' || $allNeededInfo[$i] == null)){
+				$allNeededInfo[$i] = $data[$tok];
+			};
+		}
+		return $allNeededInfo;
+	}
+
+	public function getFormatTokensData($pid,$allNeededInfo, $tokens) {
+        $patient_language = $this->getPatientTokesDataByPid($pid)['[PATIENT_LENGUAGE]'];
+
+        if(!isset($patient_language)) $patient_language = 'es';
+
+        include_once (ROOT . '/classes/Utils.php');
+
+		$data = [
+            '[TODAY]' => Utils::dateTimeToString(date('Y-m-d H:i:s'),$patient_language),
+            '[B]' => '<b>',
+            '[/B]' => '</b>',
+            '[U]' => '<u>',
+            '[/U]' => '</u>',
+            '[I]' => '<i>',
+            '[/I]' => '</i>',
+            '[TAB]' => '&nbsp;&nbsp;&nbsp;&nbsp;'
         ];
 
 		foreach($tokens as $i => $tok){

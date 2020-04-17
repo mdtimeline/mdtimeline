@@ -19,7 +19,8 @@
 Ext.define('App.view.patient.DisclosuresGrid', {
     extend: 'Ext.grid.Panel',
     requires: [
-        'App.ux.TopazSignature'
+        'App.ux.TopazSignature',
+        'App.ux.combo.Burners'
     ],
     xtype: 'patientdisclosuresgrid',
     selType: 'checkboxmodel',
@@ -27,26 +28,50 @@ Ext.define('App.view.patient.DisclosuresGrid', {
     itemId: 'PatientDisclosuresGrid',
     bodyPadding: 0,
     tbar: [
-        '->',
         {
             xtype: 'container',
             items: [
                 {
-                    xtype: 'combobox',
+                    xtype: 'printerscombo',
                     itemId: 'PatientDisclosuresPrinterCmb',
-                    store: Ext.create('App.store.administration.Printer'),
-                    queryMode: 'local',
-                    editable: false,
+                    emptyText: 'Select Printer',
+                    fieldLabel: 'Printer',
+                    labelWidth: 45,
+                    width: 250,
+                    margin: '0 5 0 5'
+                }
+                // {
+                //     xtype: 'combobox',
+                //     itemId: 'PatientDisclosuresPrinterCmb',
+                //     store: Ext.create('App.store.administration.Printer'),
+                //     queryMode: 'local',
+                //     editable: false,
+                //     forceSelection: true,
+                //     autoSelect: true,
+                //     valueField: 'id',
+                //     displayField: 'printer_description',
+                //     emptyText: 'Select Printer',
+                //     fieldLabel: 'Printer',
+                //     // labelPad: 1,
+                //     width: 200
+                // }
+            ]
+        },
+        {
+            xtype: 'container',
+            items: [
+                {
+                    xtype: 'burnerscombo',
+                    itemId: 'PatientDisclosuresBurnersCmb',
+                    fieldLabel: 'Burner',
                     forceSelection: true,
                     autoSelect: true,
-                    valueField: 'id',
-                    displayField: 'printer_description',
-                    emptyText: 'Select Printer',
-                    labelPad: 0,
-                    width: 200
+                    labelWidth: 45,
+                    width: 250
                 }
             ]
         },
+        '->',
         {
             xtype: 'button',
             text: _('print'),

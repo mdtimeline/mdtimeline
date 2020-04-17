@@ -110,15 +110,15 @@ Ext.define('App.controller.patient.PictureIdCard', {
 
 	onPatientSummaryImagesPictureIdCardPrintBtnClick: function(btn){
 
-		var printer = this.getPatientSummaryImagesPictureIdCardPrintersCombo().getValue(),
+		var printer_record = this.getPatientSummaryImagesPictureIdCardPrintersCombo().findRecordByValue(this.getPatientSummaryImagesPictureIdCardPrintersCombo().getValue()),
 			img = this.getPatientSummaryImagesPictureIdCardPrinterImage();
 
-		if(!printer){
+		if(!printer_record){
 			app.msg(_('oops'), _('no_printer_selected'), true);
 			return;
 		}
 
-		app.getController('Print').doLocalPrint(printer, img.base64data);
+		app.getController('Print').doPrint(printer_record, img.base64data);
 
 	},
 

@@ -550,7 +550,7 @@ Ext.define('App.view.Viewport', {
                         text: 'MD Timeline Support',
                         iconCls: 'icoHelp',
 	                    action: 'supportBtn',
-	                    src: 'http://gaiaehr.org/forums/'
+	                    src: 'https://mdtimeline.freshdesk.com/support/login'
                     }, '-']
                 }
             ]

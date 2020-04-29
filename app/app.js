@@ -10065,21 +10065,70 @@ Ext.define('App.ux.combo.PreventiveCareTypes', {
 	}
 });
 Ext.define('App.ux.combo.Printers', {
-	extend: 'Ext.form.ComboBox',
-	xtype: 'printerscombo',
-	editable: false,
-	queryMode: 'local',
-	displayField: 'name',
-	valueField: 'id',
-	emptyText: _('select'),
-	width: 200,
-	store: Ext.create('Ext.data.Store', {
-		fields: [
-			{ name: 'id', type: 'string' },
-			{ name: 'name', type: 'string' },
-			{ name: 'local', type: 'bool' }
-		]
-	})
+    extend: 'Ext.form.ComboBox',
+    xtype: 'printerscombo',
+    editable: false,
+    queryMode: 'local',
+    displayField: 'display_value',
+    valueField: 'id',
+    emptyText: _('select'),
+    width: 200,
+    stateful: true,
+    stateId: 'PrinterComboState',
+    store: Ext.create('Ext.data.Store', {
+        fields: [
+            {
+                name: 'id',
+                type: 'int',
+                convert: function (v, r) {
+                    return typeof v === 'string' ? parseInt(v) : v;
+                }
+            },
+            {name: 'name', type: 'string'},
+            {name: 'printer_description', type: 'string'},
+            {name: 'local', type: 'bool'},
+            {name: 'facility_id', type: 'int'},
+            {name: 'active', type: 'bool'},
+            {
+                name: 'display_value',
+                convert: function (v, r) {
+                    if (r.get('local')) {
+                        return r.get('name') + ' (local)';
+                    }
+                    return r.get('printer_description') + ' (remote)';
+                }
+            }
+        ],
+        remoteFilter: false
+    }),
+
+    showAllPrinters: function () {
+        this.store.clearFilter();
+    },
+    showRemotePrinters: function () {
+        this.store.clearFilter(true);
+        this.store.filter({
+            property: 'local',
+            value: false
+        });
+    },
+    showLocalPrinters: function () {
+        this.store.clearFilter(true);
+        this.store.filter({
+            property: 'local',
+            value: true
+        });
+    },
+    showPrintersByFacility: function () {
+        this.store.clearFilter(true);
+        this.store.filter(
+            {
+                filterFn: function (item) {
+                    return (item.get("facility_id") === app.user.facility && item.get("active")) || item.get('local');
+                }
+            });
+    }
+
 });
 Ext.define('App.ux.combo.ProceduresBodySites', {
 	extend       : 'Ext.form.ComboBox',
@@ -41612,11 +41661,13 @@ Ext.define('App.controller.Support', {
 	supportBtnClick: function(btn){
 		var me = this;
 
-		me.getSupportWindow();
-		me.winSupport.remove(me.miframe);
-		me.winSupport.add(
-			me.miframe = Ext.create('App.ux.ManagedIframe',{src: btn.src})
-		);
+		window.open(btn.src, '_blank');
+
+		// me.getSupportWindow();
+		// me.winSupport.remove(me.miframe);
+		// me.winSupport.add(
+		// 	me.miframe = Ext.create('App.ux.ManagedIframe',{src: btn.src})
+		// );
 	},
 
 	getSupportWindow:function(){
@@ -44592,6 +44643,10 @@ Ext.define('App.controller.patient.Disclosures', {
         {
             ref: 'PatientDisclosuresPrinterCmb',
             selector: '#PatientDisclosuresPrinterCmb'
+        },
+        {
+            ref: 'PatientDisclosuresBurnersCmb',
+            selector: '#PatientDisclosuresBurnersCmb'
         }
     ],
 
@@ -44646,9 +44701,9 @@ Ext.define('App.controller.patient.Disclosures', {
             '#PatientDisclosuresBurnBtn': {
                 click: me.onPatientDisclosuresBurnBtnClick
             },
-            '#PatientDisclosuresPrinterCmb': {
-                beforerender: me.onPatientDisclosuresPrinterCmbBeforeRender
-            },
+            '#PatientDisclosuresBurnersCmb': {
+                beforerender: me.onPatientDisclosuresBurnersCmbBeforeRender
+            }
         });
     },
 
@@ -44701,17 +44756,24 @@ Ext.define('App.controller.patient.Disclosures', {
     onPatientDisclosuresBurnBtnClick: function (btn) {
         var me = this,
             grid = me.getPatientDisclosuresGrid(),
-            records = grid.getSelectionModel().getSelection();
+            records = grid.getSelectionModel().getSelection(),
+            burner_id = me.getPatientDisclosuresBurnersCmb().getValue(),
+            burner_record = me.getPatientDisclosuresBurnersCmb().findRecordByValue(burner_id);
 
         if (records.length <= 0) {
             app.msg(_('warning'), "No disclosures selected", true);
             return;
         }
 
+        if (burner_id === null) {
+            app.msg(_('warning'), "No burner selected", true);
+            return;
+        }
+
         app.msg("Burning... ", "Burning disclosure", false);
         records.forEach(function (record) {
             if (record.get('document_inventory_count') > 0) {
-                Disclosure.burnDisclosure(record.getData(),function (response) {
+                Disclosure.burnDisclosure(record.getData(), burner_record.getData(), function (response) {
                     if(!response.success) app.msg("Error", response.errorMsg, true);
                 });
             }
@@ -44772,19 +44834,12 @@ Ext.define('App.controller.patient.Disclosures', {
 
     },
 
-    onPatientDisclosuresPrinterCmbBeforeRender: function (cmb) {
-        Printer.getPrinters(function (printers) {
-            cmb.store.loadData(printers);
-            if (printers.length <= 0) {
-                //1 is pass to enable the valueNotFoundText config.
-                //Does't matter what value you pass
-                cmb.setValue(1);
-            } else {
-                //sets the first element in the array.
-                cmb.setValue(printers[0].id);
-            }
-        });
+    onPatientDisclosuresBurnersCmbBeforeRender: function (cmb) {
+        var store = cmb.getStore();
 
+        if(store.getCount() > 0){
+            cmb.setValue(store.first());
+        }
     },
 
     onDocumentsLoad: function (document_grid, document_store, document_records) {
@@ -67942,7 +67997,7 @@ Ext.define('App.view.Viewport', {
                         text: 'MD Timeline Support',
                         iconCls: 'icoHelp',
 	                    action: 'supportBtn',
-	                    src: 'http://gaiaehr.org/forums/'
+	                    src: 'https://mdtimeline.freshdesk.com/support/login'
                     }, '-']
                 }
             ]

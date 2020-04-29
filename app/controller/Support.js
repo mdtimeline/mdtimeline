@@ -23,11 +23,13 @@ Ext.define('App.controller.Support', {
 	supportBtnClick: function(btn){
 		var me = this;
 
-		me.getSupportWindow();
-		me.winSupport.remove(me.miframe);
-		me.winSupport.add(
-			me.miframe = Ext.create('App.ux.ManagedIframe',{src: btn.src})
-		);
+		window.open(btn.src, '_blank');
+
+		// me.getSupportWindow();
+		// me.winSupport.remove(me.miframe);
+		// me.winSupport.add(
+		// 	me.miframe = Ext.create('App.ux.ManagedIframe',{src: btn.src})
+		// );
 	},
 
 	getSupportWindow:function(){

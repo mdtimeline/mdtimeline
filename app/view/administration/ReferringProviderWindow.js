@@ -63,6 +63,13 @@ Ext.define('App.view.administration.ReferringProviderWindow', {
 								padding: '10 10 15 10',
 								items: [
 									{
+										xtype: 'npiregistrysearch',
+										fieldLabel: _('npi'),
+										name: 'npi',
+										width: 120,
+										itemId: 'ReferringProviderWindowFormNpiSearchField',
+									},
+									{
 										xtype: 'fieldcontainer',
 										layout: {
 											type: 'hbox'
@@ -110,13 +117,6 @@ Ext.define('App.view.administration.ReferringProviderWindow', {
 											type: 'hbox'
 										},
 										items: [
-											{
-												xtype: 'npiregistrysearch',
-												fieldLabel: _('npi'),
-												name: 'npi',
-												width: 120,
-												itemId: 'ReferringProviderWindowFormNpiSearchField',
-											},
 											{
 												xtype: 'textfield',
 												fieldLabel: _('lic'),

@@ -793,14 +793,14 @@ tr.x-container:before {
   padding: 0 4px; }
 
 /* line 692, ../../themes/stylesheets/carbon/default/widgets/_button.scss */
-.x-btn-default-small-icon button,
-.x-btn-default-small-icon a,
-.x-btn-default-small-icon .x-btn-inner,
-.x-btn-default-small-noicon button,
-.x-btn-default-small-noicon a,
-.x-btn-default-small-noicon .x-btn-inner {
-  height: 16px;
-  line-height: 16px; }
+/*.x-btn-default-small-icon button,*/
+/*.x-btn-default-small-icon a,*/
+/*.x-btn-default-small-icon .x-btn-inner,*/
+/*.x-btn-default-small-noicon button,*/
+/*.x-btn-default-small-noicon a,*/
+/*.x-btn-default-small-noicon .x-btn-inner {*/
+  /*height: 16px;*/
+  /*line-height: 16px; }*/
 
 /* line 701, ../../themes/stylesheets/carbon/default/widgets/_button.scss */
 .x-btn-default-small-icon button,

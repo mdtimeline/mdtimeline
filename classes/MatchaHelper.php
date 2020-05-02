@@ -161,8 +161,6 @@ class MatchaHelper extends Matcha
         self::$__use_openssl = defined('use_openssl') ? use_openssl : false;
 
 
-        return;
-
         if (isset(self::$__conn)) {
             MatchaAudit::$__audit = true;
             MatchaAudit::$hookTable = 'audit_transaction_log';

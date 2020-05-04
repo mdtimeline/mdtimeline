@@ -204,6 +204,18 @@ Ext.override(Ext.button.Button, {
     disableOnCLick: false,
     disableOnTime: 1000,
 
+	stateEvents: ['press'],
+
+	getState: function() {
+		return { pressed: this.pressed };
+	},
+
+	applyState: function(state) {
+    	Ext.Function.defer(function () {
+		    this.toggle(state.pressed);
+	    }, 250, this);
+	},
+
     beforeRender: function () {
         var me = this,
             autoEl = me.autoEl,
@@ -237,10 +249,12 @@ Ext.override(Ext.button.Button, {
         // Apply the renderData to the template args
         Ext.applyIf(me.renderData, me.getTemplateArgs());
 
-
         if(me.disableOnCLick){
         	me.on('click', me.onBtnClickDisable, me);
         }
+	    me.on('toggle', function(self, pressed, eOpts) {
+		    me.fireEvent('press');
+	    }, me);
     },
 
 	onBtnClickDisable: function () {

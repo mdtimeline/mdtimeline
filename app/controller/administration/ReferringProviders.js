@@ -198,9 +198,20 @@ Ext.define('App.controller.administration.ReferringProviders', {
 
 	},
 
-	onReferringProviderSearchAddBtnClick: function (field) {
-		this.doReferringProviderWindow();
-		this.triggerField = field;
+	onReferringProviderSearchAddBtnClick: function (field, field_record) {
+		var me = this;
+
+		if(field_record){
+			App.model.administration.ReferringProvider.load(field_record.get('id'), {
+				success: function(referring_record) {
+					me.doReferringProviderWindow(referring_record);
+				}
+			});
+		}else{
+			me.doReferringProviderWindow();
+		}
+
+		me.triggerField = field;
 	},
 
 	onReferringProviderAddBtnClick: function () {

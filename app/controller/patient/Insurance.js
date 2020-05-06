@@ -138,16 +138,64 @@ Ext.define('App.controller.patient.Insurance', {
             }
 
         });
+
+        me.doPatientInsurancesWindowCloseBuffered = Ext.Function.createBuffered(me.doPatientInsurancesWindowClose, 250, me);
     },
 
     onPatientInsurancesWindowSaveBtnClick: function(btn){
-        btn.up('window').close();
 
+        var me = this,
+            win = btn.up('window'),
+            insurance_panel = btn.up('insurancestabpanel'),
+            insuranceItems = insurance_panel.items;
 
+        insuranceItems.each(function (form_panel) {
 
+            var form = form_panel.getForm(),
+                values = form.getValues(),
+                record = form.getRecord();
 
+            if (!form.isValid()) return;
 
+            record.set(values);
 
+            record.save({
+                callback: function (saved_record) {
+                    app.msg(_('sweet'), _('record_saved'));
+
+                    var cover_grid_store = form_panel.down('grid').getStore(),
+                        cover_grid_records = cover_grid_store.getRange();
+
+                    for (var i = 0; i < cover_grid_records.length; i++) {
+                        cover_grid_records[i].set({
+                            patient_insurance_id: record.get('id')
+                        });
+                    }
+
+                    if(Ext.Object.isEmpty(cover_grid_store.getModifiedRecords())){
+                        me.updatePatientInsuranceForm(saved_record);
+                        me.doPatientInsurancesWindowCloseBuffered(win);
+                    }else{
+                        cover_grid_store.sync({
+                            success: function () {
+                                me.updatePatientInsuranceForm(saved_record);
+                                me.doPatientInsurancesWindowCloseBuffered(win);
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    },
+
+    updatePatientInsuranceForm: function(){
+        say('updatePatientInsuranceForm');
+
+        this.patientInsurancePanelHandler(app.patient.record.insurance(), this.getPatientInsurancesPanel());
+    },
+
+    doPatientInsurancesWindowClose: function(win){
+        win.close();
     },
 
     onPatientInsurancesWindowCancelBtnClick: function(btn){
@@ -188,6 +236,8 @@ Ext.define('App.controller.patient.Insurance', {
     },
 
     patientInsurancePanelHandler: function (insurance_store, insurance_panel) {
+
+        say('patientInsurancePanelHandler');
 
         insurance_store.sort([
             {
@@ -235,6 +285,10 @@ Ext.define('App.controller.patient.Insurance', {
         }
 
         insurance_panel.add(items);
+
+
+        say(insurance_panel);
+
         if (insurance_panel.items.length > 0) insurance_panel.setActiveTab(0);
 
     },
@@ -353,8 +407,8 @@ Ext.define('App.controller.patient.Insurance', {
             update_date: new Date()
         });
 
-        say('app.patient.record');
-        say(app.patient.record);
+        // say('app.patient.record');
+        // say(app.patient.record);
 
         this.insuranceFormLoadRecord(form, record);
     },

@@ -139,10 +139,6 @@ Ext.define('App.model.patient.Insurance',{
             len: 10
         },
         {
-            name: 'subscriber_address_same_as_patient',
-            type: 'bool'
-        },
-        {
             name: 'subscriber_street',
             type: 'string',
             len: 110

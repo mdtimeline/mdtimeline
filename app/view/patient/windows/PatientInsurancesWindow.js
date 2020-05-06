@@ -24,7 +24,25 @@ Ext.define('App.view.patient.windows.PatientInsurancesWindow', {
         {
             xtype: 'insurancestabpanel',
             title: '',
-            itemId: 'PatientInsurancesPanel'
+            itemId: 'PatientInsurancesPanel',
+            bbar: [
+                '->',
+                '-',
+                {
+                    xtype: 'button',
+                    text: _('save'),
+                    minWidth: 75,
+                    itemId: 'PatientInsurancesWindowSaveBtn'
+                },
+                '-',
+                {
+                    xtype: 'button',
+                    text: _('cancel'),
+                    action: 'readOnly',
+                    minWidth: 75,
+                    itemId: 'PatientInsurancesWindowCancelBtn'
+                }
+            ]
         }
     ]
 });

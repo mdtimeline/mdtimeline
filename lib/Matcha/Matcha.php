@@ -144,7 +144,9 @@ class Matcha
             self::$__conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 
             // check if the database exist.
-            self::__createDatabase($dbName);
+			if(!self::getFreeze()){
+				self::__createDatabase($dbName);
+			}
             self::$__conn->exec('USE `' . $dbName . '`;');
 
             // set the encryption secret key if provided

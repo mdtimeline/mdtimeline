@@ -970,6 +970,8 @@ class MatchaCUP {
 
 			if(is_int($value)){
 				$param = PDO::PARAM_INT;
+            } elseif(is_float($value)) {
+                $param = PDO::PARAM_STR;
 			} elseif(is_bool($value)) {
 				$param = PDO::PARAM_INT;  //PDO::PARAM_BOOL
 			} elseif(is_null($value)) {

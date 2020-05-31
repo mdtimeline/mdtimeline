@@ -65,12 +65,12 @@ class Printer {
 		$DocumentHandler = new DocumentHandler();
 		$document_record = $DocumentHandler->getTempDocument(['id' => $temp_document_id], true);
 
-
 		error_log(print_r(base64_decode($document_record['document']), true));
 
 		$this->doPrint($printer_id, $document_record['document']);
 
 		unset($DocumentHandler, $document_record);
+
 	}
 
 	public function doDocumentPrint($printer_id, $document_id){
@@ -125,7 +125,6 @@ class Printer {
 				$ipp->setAuthentication($printer['printer_user'], $printer['printer_pass']);
 			}
 
-
 			$info = new finfo(FILEINFO_MIME_TYPE);
 			$media_type =  $info->buffer($document);
 			$ipp->setMimeMediaType($media_type);
@@ -138,14 +137,17 @@ class Printer {
 			print $ipp->getDebug();
 			print '<pre/>';
 
-		}else{
+		} else {
+
 			/**
 			 * LPR basic print command
 			 */
+
 			$printer = $printer['printer_name'];
 //			$command = "/usr/bin/lpr -P {$printer} {$tmp_fname} 2>&1";
 			$command = "lp -d {$printer} {$tmp_fname}";
 			shell_exec($command);
+
 		}
 
 		unlink($tmp_fname);
@@ -198,7 +200,6 @@ class Printer {
 
 		}
 	}
-
 
 	public function testPrint($printer_id){
 

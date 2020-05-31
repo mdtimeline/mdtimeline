@@ -5,6 +5,7 @@
 		"slim/slim": "^3.0",
         "ext-curl": "*",
 		"ext-json": "*",
-		"adhocore/jwt": "*"
+		"adhocore/jwt": "*",
+		"clegginabox/pdf-merger": "dev-master"
 	}
 }

@@ -16,6 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+Ext.override(Ext.tree.ViewDragZone, {
+	onBeforeDrag: function (data, e) {
+		return this.view.fireEvent('beforedrag');
+	}
+});
+
 Ext.override(Ext.grid.CellEditor, {
     revertInvalid: false
 });

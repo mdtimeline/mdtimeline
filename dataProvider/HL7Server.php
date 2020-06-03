@@ -226,38 +226,22 @@ class HL7Server {
 			 */
 			$msg_type = $hl7->getMsgType();
 
-			switch($msg_type) {
-				case 'ORU':
-					$this->ProcessORU($hl7, $msg, $msgRecord);
-					break;
-				case 'ADT':
-					$this->ProcessADT($hl7, $msg, $msgRecord);
-					break;
-				default:
-					break;
-			}
-
-			if(
-			    isset($_SESSION['hooks']) &&
-                isset($_SESSION['hooks']['HL7Server']) &&
-                isset($_SESSION['hooks']['HL7Server']['Message']) &&
-                isset($_SESSION['hooks']['HL7Server']['Message'][$msg_type])
-            ){
-				foreach($_SESSION['hooks']['HL7Server']['Message'][$msg_type]['hooks'] as $i => $hook){
-					include_once($hook['file']);
-					$Hook = new $i();
-					call_user_func_array(array(
-						$Hook,
-						$hook['method']
-					), [
-						&$this,
-						&$hl7,
-						&$msg,
-						&$msgRecord
-					]);
+			try {
+				switch($msg_type) {
+					case 'ORU':
+						$this->ProcessORU($hl7, $msg, $msgRecord);
+						break;
+					case 'ADT':
+						$this->ProcessADT($hl7, $msg, $msgRecord);
+						break;
+					default:
+						break;
 				}
+			}catch (Exception $e){
+				error_log('HL7 Message core exception: ' . $e->getMessage());
 			}
 
+			$this->processHook($hl7, $msg, $msgRecord, $msg_type);
 		}
 
 		/**
@@ -283,6 +267,31 @@ class HL7Server {
 		unset($ack, $hl7, $msg, $msgRecord, $oData, $result);
 
 		return $addSocketCharacters ? "\v" . $ackMsg . chr(0x1c) . chr(0x0d) : $ackMsg;
+
+	}
+
+	protected function processHook(&$hl7, &$msg, &$msgRecord, $msg_type){
+
+		if(
+			isset($_SESSION['hooks']) &&
+			isset($_SESSION['hooks']['HL7Server']) &&
+			isset($_SESSION['hooks']['HL7Server']['Message']) &&
+			isset($_SESSION['hooks']['HL7Server']['Message'][$msg_type])
+		){
+			foreach($_SESSION['hooks']['HL7Server']['Message'][$msg_type]['hooks'] as $i => $hook){
+				include_once($hook['file']);
+				$Hook = new $i();
+				call_user_func_array(array(
+					$Hook,
+					$hook['method']
+				), [
+					&$this,
+					&$hl7,
+					&$msg,
+					&$msgRecord
+				]);
+			}
+		}
 
 	}
 

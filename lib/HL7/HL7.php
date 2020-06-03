@@ -129,7 +129,7 @@ class HL7 {
 	}
 
 	/**
-	 * @return array
+	 * @return string
 	 */
 	function getMsgControlId(){
 		$seg = $this->getSegment('MSH');
@@ -138,7 +138,7 @@ class HL7 {
 	}
 
 	/**
-	 * @return array
+	 * @return string
 	 */
 	function getMsgProcessingId(){
 		$seg = $this->getSegment('MSH');
@@ -147,7 +147,7 @@ class HL7 {
 	}
 
 	/**
-	 * @return array
+	 * @return string
 	 */
 	function getMsgProcessingMode(){
 		$seg = $this->getSegment('MSH');

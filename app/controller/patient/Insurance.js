@@ -434,10 +434,10 @@ Ext.define('App.controller.patient.Insurance', {
         form.findField('subscriber_relationship').setValue(records[0].get('option_value'));
 
         /**
-         * SEL = Self
+         * SEL = Self == 01
          */
 
-        if (records[0].get('option_value') !== 'SEL') return;
+        if (records[0].get('option_value') !== '01') return;
 
         form.findField('subscriber_title').setValue(app.patient.record.get('title'));
         form.findField('subscriber_given_name').setValue(app.patient.record.get('fname'));

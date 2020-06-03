@@ -134,6 +134,10 @@ Ext.define('App.controller.administration.ContentManagement', {
             tokens = tokens.concat(this.breastImagingReminderTokens());
         }
 
+        if (content_type === 'sms_worklist_report_ready') {
+            tokens = tokens.concat(this.smsWorklistReporReadyTokens());
+        }
+
         if (content_type == null || content_type === '' || tokens.length <= 0) {
             tokens = tokens.concat(this.defaultTokens());
         }
@@ -222,6 +226,14 @@ Ext.define('App.controller.administration.ContentManagement', {
             '[I]',
             '[/I]',
             '[TAB]'
+        ];
+    },
+
+    smsWorklistReporReadyTokens: function () {
+        return [
+            '[FACILITY_NAME]',
+            '[SERVICE_DATE]',
+            '[ACCESSION_NUMBER]'
         ];
     },
 

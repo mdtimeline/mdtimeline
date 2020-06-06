@@ -410,6 +410,68 @@ class SoapHandler
 		return $response;
 	}
 
+	public function UserAuthorize($params)
+	{
+		$this->constructor($params);
+		$logObject = new stdClass();
+
+		if (!$this->isAuth()) {
+
+			// Save AuditLog
+			$logObject->event = 'APP LOGIN (Error)';
+			$logObject->foreign_table = 'user';
+			$logObject->event_description = 'Patient portal login attempt: Secure key';
+			$this->AuditLog->addLog($logObject);
+			unset($logObject);
+
+			return [
+				'Success' => false,
+				'Error' => 'Error: HTTP 403 Access Forbidden'
+			];
+		}
+
+		$user = $this->getUser($params->Username);
+
+		if($user == false){
+			return [
+				'Success' => false,
+				'Error' => 'Not Authorized'
+			];
+		}
+
+		if(!isset($user['password']) || $user['password'] === ''){
+			return [
+				'Success' => false,
+				'Error' => 'Not Authorized'
+			];
+		}
+
+		if(!isset($user['authorized']) || $user['authorized'] != '1'){
+			return [
+				'Success' => false,
+				'Error' => 'Not Authorized'
+			];
+		}
+
+		if($user['password'] !== $params->Password){
+			return [
+				'Success' => false,
+				'Error' => 'Not Authorized'
+			];
+		}
+
+		return [
+			'Success' => true,
+			'User' => [
+				'Id' => $user['id'],
+				'FirstName' => $user['fname'],
+				'MiddleName' => $user['mname'],
+				'LastName' => $user['lname'],
+			]
+		];
+
+	}
+
 	/**
 	 * Method to handle patient amendments from the Patient Portal
 	 * @param $params
@@ -940,6 +1002,16 @@ class SoapHandler
 
 		unset($Patient);
 		return $this->patient !== false ? $this->convertPatient($patientValidate, false) : $patientValidate;
+	}
+	/**
+	 * @param $username string
+	 *
+	 * @return mixed|object
+	 */
+	private function getUser($username)
+	{		require_once(ROOT . '/dataProvider/User.php');
+		$User = new User();
+		return $User->getUser(['username' => $username], false);
 	}
 
 	/**

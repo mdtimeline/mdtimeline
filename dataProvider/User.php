@@ -217,6 +217,20 @@ class User
         return $user['password'] == $pass;
     }
 
+    public function verifyUserPassByUsername($pass, $username)
+    {
+        $user = $this->u->load(
+            [
+                'username' => $username,
+                'authorized' => '1'
+            ],
+            [
+                'password'
+            ]
+        )->one();
+        return $user['password'] == $pass;
+    }
+
     public function getProviders()
     {
         $records = [];

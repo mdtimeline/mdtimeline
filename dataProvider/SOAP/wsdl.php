@@ -417,6 +417,33 @@ $complexTypes['Patient'] = [
 
 ];
 
+$complexTypes['User'] = [
+	[
+		'name' => 'Id',
+		'type' => 'int',
+		'minOccurs' => '1',
+		'document' => 'mdtimeline Internal ID'
+	],
+	[
+		'name' => 'FirstName',
+		'type' => 'string',
+		'minOccurs' => '1',
+		'document' => 'First Name'
+	],
+	[
+		'name' => 'MiddleName',
+		'type' => 'string',
+		'minOccurs' => '0',
+		'document' => 'Middle Name'
+	],
+	[
+		'name' => 'LastName',
+		'type' => 'string',
+		'minOccurs' => '1',
+		'document' => 'Last Name'
+	]
+];
+
 $complexTypes['Provider'] = [
 	[
 		'name' => 'NPI',
@@ -1124,6 +1151,56 @@ $functions[] = [
 			'type' => 'Patient',
 			'minOccurs' => '0',
 			'document' => 'Patient Object'
+		],
+		[
+			'name' => 'Error',
+			'type' => 'string',
+			'minOccurs' => '0',
+			'document' => 'If success == false an error message will be send back'
+		]
+	],
+	'soapAddress' => "{$ServerURL}/dataProvider/SOAP/Server.php"
+];
+
+$functions[] = [
+	'funcName' => 'UserAuthorize',
+	'doc' => 'This will verify if user has access',
+	'inputParams' => [
+		[
+			'name' => 'SecureKey',
+			'type' => 'string',
+			'minOccurs' => '1',
+			'document' => 'GUID Secure Key provided'
+		],
+		[
+			'name' => 'ServerSite',
+			'type' => 'string',
+			'minOccurs' => '1',
+			'document' => 'mdtimeline site'
+		],
+		[
+			'name' => 'Username',
+			'type' => 'string',
+			'minOccurs' => '1'
+		],
+		[
+			'name' => 'Password',
+			'type' => 'string',
+			'minOccurs' => '1'
+		]
+	],
+	'outputParams' => [
+		[
+			'name' => 'Success',
+			'type' => 'boolean',
+			'minOccurs' => '1',
+			'document' => 'True if request was successfully processed'
+		],
+		[
+			'name' => 'User',
+			'type' => 'User',
+			'minOccurs' => '0',
+			'document' => 'User Object'
 		],
 		[
 			'name' => 'Error',

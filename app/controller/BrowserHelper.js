@@ -93,6 +93,9 @@ Ext.define('App.controller.BrowserHelper', {
 		if(data.action && data.action === 'command'){
 			this.log('fireEvent: ' + data.msg);
 			app.fireEvent(data.msg, this);
+		}else if(data.action && data.action === 'burnermsg'){
+			this.log('fireEvent: ' + data.msg);
+			app.fireEvent('burnermsg', this, data);
 		}else{
 
 			// callback is defined

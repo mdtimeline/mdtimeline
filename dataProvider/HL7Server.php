@@ -886,7 +886,7 @@ class HL7Server {
 	}
 
 	private function savePatient($now, $msg, &$hl7, $facilityRecord, $allow_insert = true){
-		$patientData = $this->PidToPatient($msg->data['PID'], $hl7, $facilityRecord);
+		$patientData = $this->PidToPatient($msg->data['PATIENT']['PID'], $hl7, $facilityRecord);
 		$patient = $this->p->load(['pubpid' => $patientData[$this->updateKey] ])->one();
 
 		if($patient === false){

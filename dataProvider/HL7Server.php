@@ -640,6 +640,14 @@ class HL7Server {
 			$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
 
 			return;
+		} elseif($evt == 'A05') {
+			/**
+			 * Pre-Admit a Patient
+			 */
+			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
+			$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
+
+			return;
 		} elseif($evt == 'A08') {
 			/**
 			 * Update Patient Information

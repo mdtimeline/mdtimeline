@@ -1563,6 +1563,18 @@ class HL7Server {
 		$aPatient = (array)$aPatient;
 		$bPatient = (array)$bPatient;
 
+		$filter = (object)[
+			'filter' => [
+				(object)[
+					'property' => 'pid',
+					'value' => $bPatient['pid']
+				]
+			]
+		];
+
+		$this->pa->destroy((object)[], $filter);
+
+
 		$Merge = new Merge();
 		$success = $Merge->merge($aPatient['pid'], $bPatient['pid']);
 		unset($Merge);

@@ -632,6 +632,11 @@ class HL7Server {
 			/**
 			 * Patient transfer
 			 */
+
+			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
+			$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
+			return;
+
 		} elseif($evt == 'A04') {
 			/**
 			 * Register a Patient

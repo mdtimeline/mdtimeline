@@ -874,6 +874,8 @@ class HL7Server {
 			$patient->create_uid = 0;
 			$patient->update_uid = 0;
 		}else{
+
+			$patient = (array) $patient;
 			$patient = array_merge($patient, $patientData);
 
 			if(!isset($patient['update_date'])){

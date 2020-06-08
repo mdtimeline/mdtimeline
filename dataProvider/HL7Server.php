@@ -841,23 +841,23 @@ class HL7Server {
 
 			$merge_id = $msg->data['PATIENT']['MRG'][1][1];
 
+
+			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord, false);
+			if(isset($msg->data['INSURANCE'])){
+				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
+			}
+
 			if($this->mergeKey == 'pubpid'){
-				$aPatient = $this->p->load(['pubpid' => $pubpid])->one();
+//				$aPatient = $this->p->load(['pubpid' => $pubpid])->one();
 				$bPatient = $this->p->load(['pubpid' => $merge_id])->one();
 			}else{
 
 				if($this->mergeKey == 'account_no'){
-					$aAccount = $this->pa->load(['account_no' => $account_no])->sortBy('created_date','DESC')->one();
 					$bAccount = $this->pa->load(['account_no' => $merge_id])->sortBy('created_date','DESC')->one();
+//					$bAccount = $this->pa->load(['account_no' => $account_no])->sortBy('created_date','DESC')->one();
 				}elseif($this->mergeKey == 'account_no_alt'){
-					$aAccount = $this->pa->load(['account_no_alt' => $account_no_alt])->sortBy('created_date','DESC')->one();
 					$bAccount = $this->pa->load(['account_no_alt' => $merge_id])->sortBy('created_date','DESC')->one();
-				}
-
-				if(isset($aAccount)){
-					$aPatient = $this->p->load(['pid' => $aAccount['pid']])->one();
-				}else{
-					$aPatient = false;
+//					$bAccount = $this->pa->load(['account_no_alt' => $account_no_alt])->sortBy('created_date','DESC')->one();
 				}
 
 				if(isset($bAccount)){
@@ -868,8 +868,13 @@ class HL7Server {
 
 			}
 
-			$this->MergeHandler($aPatient, $bPatient, $pubpid, $merge_id);
+			if($bPatient === false){
+				$this->ackStatus = 'AR';
+				$this->ackMessage = 'MRG patient not found';
+				return;
+			}
 
+			$this->MergeHandler($patient, $bPatient, $pubpid, $merge_id);
 			return;
 		}
 

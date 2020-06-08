@@ -916,8 +916,8 @@ class HL7Server {
 		$patient =  $this->p->save((object)$patient);
 
 		$this->pa->sql("INSERT INTO patient_account (pid, facility_id, account_no, account_no_alt, created_date)
-				VALUES (:pid, :facility_id, :account_no, :account_no_alt, NOW())
-				ON DUPLICATE KEY UPDATE account_no = :account_no_2, account_no_alt = :account_no_alt_2, updated_date = NOW()");
+				VALUES (:pid, :facility_id, :account_no, :account_no_alt, CURRENT_TIMESTAMP)
+				ON DUPLICATE KEY UPDATE account_no = :account_no_2, account_no_alt = :account_no_alt_2, updated_date = CURRENT_TIMESTAMP");
 
 		foreach ($accounts as $facility_id => $account){
 			$this->pa->exec([

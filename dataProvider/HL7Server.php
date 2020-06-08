@@ -825,8 +825,20 @@ class HL7Server {
 			}
 
 			$pubpid = $msg->data['PATIENT']['PID'][2][1];
-			$account_no = $msg->data['PATIENT']['PID'][3][1];
-			$account_no_alt = $msg->data['PATIENT']['PID'][4][1];
+
+			if(isset($msg->data['PATIENT']['PID'][3][0])){
+				$account_no = $msg->data['PATIENT']['PID'][3][0][1];
+			}else{
+				$account_no = '';
+			}
+			if(isset($msg->data['PATIENT']['PID'][4][0])){
+				$account_no_alt = $msg->data['PATIENT']['PID'][4][0][1];
+			}else{
+				$account_no_alt = '';
+			}
+//			$account_no = $msg->data['PATIENT']['PID'][3][1];
+//			$account_no_alt = $msg->data['PATIENT']['PID'][4][1];
+
 			$merge_id = $msg->data['PATIENT']['MRG'][1][1];
 
 			if($this->mergeKey == 'pubpid'){

@@ -634,7 +634,10 @@ class HL7Server {
 			 */
 
 			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
-			$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
+			if(isset($msg->data['INSURANCE'])){
+				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
+			}
+
 			return;
 
 		} elseif($evt == 'A04') {
@@ -642,24 +645,27 @@ class HL7Server {
 			 * Register a Patient
 			 */
 			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
-			$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
-
+			if(isset($msg->data['INSURANCE'])){
+				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
+			}
 			return;
 		} elseif($evt == 'A05') {
 			/**
 			 * Pre-Admit a Patient
 			 */
 			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
-			$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
-
+			if(isset($msg->data['INSURANCE'])){
+				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
+			}
 			return;
 		} elseif($evt == 'A08') {
 			/**
 			 * Update Patient Information
 			 */
 			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
-			$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
-
+			if(isset($msg->data['INSURANCE'])){
+				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
+			}
 			return;
 		} elseif($evt == 'A09') {
 			/**
@@ -773,8 +779,9 @@ class HL7Server {
 			$patientData['pubpid'] = $patientData['pid'];
 			$patientData['pid'] = 0;
 			$patient = $this->p->save((object)$patientData);
-			$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
-
+			if(isset($msg->data['INSURANCE'])){
+				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
+			}
 			return;
 		} elseif($evt == 'A29') {
 			/**
@@ -793,8 +800,9 @@ class HL7Server {
 				return;
 			}
 
-			$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
-
+			if(isset($msg->data['INSURANCE'])){
+				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
+			}
 			return;
 		} elseif($evt == 'A32') {
 			/** Cancel Patient Arriving - Tracking **/

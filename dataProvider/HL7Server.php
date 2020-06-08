@@ -1560,6 +1560,9 @@ class HL7Server {
 			return;
 		}
 
+		$aPatient = (array)$aPatient;
+		$bPatient = (array)$bPatient;
+
 		$Merge = new Merge();
 		$success = $Merge->merge($aPatient['pid'], $bPatient['pid']);
 		unset($Merge);

@@ -847,11 +847,11 @@ class HL7Server {
 			}else{
 
 				if($this->mergeKey == 'account_no'){
-					$aAccount = $this->pa->load(['account_no' => $account_no])->sortBy('id','DESC')->one();
-					$bAccount = $this->pa->load(['account_no' => $merge_id])->sortBy('id','DESC')->one();
+					$aAccount = $this->pa->load(['account_no' => $account_no])->sortBy('created_date','DESC')->one();
+					$bAccount = $this->pa->load(['account_no' => $merge_id])->sortBy('created_date','DESC')->one();
 				}elseif($this->mergeKey == 'account_no_alt'){
-					$aAccount = $this->pa->load(['account_no_alt' => $account_no_alt])->sortBy('id','DESC')->one();
-					$bAccount = $this->pa->load(['account_no_alt' => $merge_id])->sortBy('id','DESC')->one();
+					$aAccount = $this->pa->load(['account_no_alt' => $account_no_alt])->sortBy('created_date','DESC')->one();
+					$bAccount = $this->pa->load(['account_no_alt' => $merge_id])->sortBy('created_date','DESC')->one();
 				}
 
 				if(isset($aAccount)){
@@ -915,9 +915,9 @@ class HL7Server {
 
 		$patient =  $this->p->save((object)$patient);
 
-		$this->pa->sql("INSERT INTO patient_account (pid, facility_id, account_no, account_no_alt)
-				VALUES (:pid, :facility_id, :account_no, :account_no_alt)
-				ON DUPLICATE KEY UPDATE account_no = :account_no_2, account_no_alt = :account_no_alt_2");
+		$this->pa->sql("INSERT INTO patient_account (pid, facility_id, account_no, account_no_alt, created_date)
+				VALUES (:pid, :facility_id, :account_no, :account_no_alt, NOW())
+				ON DUPLICATE KEY UPDATE account_no = :account_no_2, account_no_alt = :account_no_alt_2, updated_date = NOW()");
 
 		foreach ($accounts as $facility_id => $account){
 			$this->pa->exec([

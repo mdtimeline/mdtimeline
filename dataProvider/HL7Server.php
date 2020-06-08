@@ -885,6 +885,7 @@ class HL7Server {
 			$patient['update_uid'] = 0;
 		}
 
+		$patient = (array) $patient;
 		$accounts = isset($patient['accounts']) ? $patient['accounts'] : [];
 
 		$patient =  $this->p->save((object)$patient);

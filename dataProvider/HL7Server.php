@@ -841,8 +841,8 @@ class HL7Server {
 
 			$merge_id = $msg->data['PATIENT']['MRG'][1][1];
 
+			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
 
-			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord, false);
 			if(isset($msg->data['INSURANCE'])){
 				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
 			}

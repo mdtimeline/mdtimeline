@@ -368,6 +368,18 @@ class ADT extends Message {
 				'DB1' => array('repeatable' => true),
 				'OBX' => array('repeatable' => true)
 			),
+			/** ADT/ACK - Merge Patient - Patient ID (Event A34) */
+			'A34' => array(
+				'MSH' => array('required' => true),
+				'SFT' => array('repeatable' => true),
+				'EVN' => array('required' => true),
+				'PATIENT' => array(
+					'PID' => array('required' => true),
+					'PD1' => array(),
+					'MRG' => array('required' => true),
+					'PV1' => array()
+				)
+			),
 			/** ADT/ACK - Merge Person - Patient ID (Event A39) */
 			'A39' => array(
 				'MSH' => array('required' => true),

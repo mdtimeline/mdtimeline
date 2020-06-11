@@ -112,6 +112,9 @@ class HL7Server {
 	 */
 	protected $mergeKey = 'account_no';
 
+	protected $process_insurance_segments = false;
+
+
 	function __construct($port = 9000, $site = 'default') {
 		$this->site = defined('site_id') ? site_id : $site;
 
@@ -1098,6 +1101,11 @@ class HL7Server {
 	public function InsuranceGroupHandler($insGroups, $hl7, $patient = null) {
 
 		$insurances = [];
+
+		// get out if flag is false
+		if(!$this->process_insurance_segments){
+			return $insurances;
+		}
 
 		foreach($insGroups as $insuranceGroup){
 			foreach($insuranceGroup as $key => $insurance){

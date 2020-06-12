@@ -18,6 +18,11 @@
 
 Ext.apply(Ext.form.VTypes, {
 
+	filmformat: function(val){
+		return  val.match(/^[0-9]{1,2}x[0-9]{1,2}$/ig);
+	},
+	filmformatText: 'Invalid format, ex: 3x3 or 10X10',
+
 	dollaramount: function(val){
 		return  val.match(/^\d{1,5}\.\d{2}$/ig);
 	},

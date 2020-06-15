@@ -221,6 +221,38 @@ class HL7Server {
 
 		$facilityRecord = $this->Facility->getFacility(['code' => $facility]);
 
+
+        $hl7_client_config = <<<'INI_CONFIG'
+
+[HL7]
+
+hl7_pubpid_field = $PID[2][1]
+hl7_account_no_field = $PID[3][0][1]
+hl7_account_no_alt_field = $PID[4][0][1]
+hl7_visit_no_field = $PID[18][1]
+hl7_reference_no_field = $OBR[18]
+hl7_department_code_field = $OBR[20]
+
+[ORM]
+
+hl7_allow_update_final_order = false
+hl7_orm_validate_referring_npi = false
+hl7_order_code_field = $ORC[2][1]
+hl7_orm_accession_number_field = $OBR[2][1]
+hl7_orm_specialty_code_field = explode(\'^\',$OBR[18])[0]
+
+
+[ORU]
+
+hl7_oru_validate_patient = false
+hl7_report_code_field = $OBR[2][1]
+hl7_oru_specialty_code_field = explode(\'^\',$OBR[18])[0]
+
+INI_CONFIG;
+
+
+        $hl7_client_config = parse_ini_string($hl7_client_config, true, INI_SCANNER_RAW);
+
 		/**
 		 *
 		 */

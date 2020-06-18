@@ -51,6 +51,10 @@ class Patient
 	 * @var MatchaCUP
 	 */
 	private $c;
+	/**
+	 * @var MatchaCUP
+	 */
+	private $pa;
 
 	/**
 	 * @var MatchaCUP
@@ -116,6 +120,17 @@ class Patient
 			$this->e = MatchaModel::setSenchaModel('App.model.patient.Encounter');
 		}
 		return $this->e;
+	}
+
+	/**
+	 * @return MatchaCUP
+	 */
+	public function setPatientAccountModel()
+	{
+		if ($this->pa == null) {
+			$this->pa = MatchaModel::setSenchaModel('App.model.patient.Encounter');
+		}
+		return $this->pa;
 	}
 
 	/**
@@ -1493,6 +1508,24 @@ class Patient
 	}
 	public function unHashPid($pid){
 		return MatchaUtils::decrypt($pid);
+	}
+
+	// patient account stuff
+	public function getPatientAccounts($params){
+		$this->setPatientAccountModel();
+		return $this->pa->load($params)->all();
+	}
+	public function addPatientAccount($params){
+		$this->setPatientAccountModel();
+		return $this->pa->save($params);
+	}
+	public function updatePatientAccount($params){
+		$this->setPatientAccountModel();
+		return $this->pa->save($params);
+	}
+	public function destroyPatientAccount($params){
+		$this->setPatientAccountModel();
+		return $this->pa->destroy($params);
 	}
 }
 

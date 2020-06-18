@@ -39,6 +39,10 @@ class HL7Server {
 	 * @var MatchaCUP
 	 */
 	protected $p;
+	/**
+	 * @var MatchaCUP
+	 */
+	protected $pa;
     /**
      * @var MatchaCUP
      */
@@ -103,6 +107,13 @@ class HL7Server {
 	 * @var string
 	 */
 	protected $updateKey = 'pubpid';
+	/**
+	 * @var string pid || pubpid || account_no || account_no_alt
+	 */
+	protected $mergeKey = 'account_no';
+
+	protected $process_insurance_segments = false;
+
 
 	function __construct($port = 9000, $site = 'default') {
 		$this->site = defined('site_id') ? site_id : $site;
@@ -133,6 +144,8 @@ class HL7Server {
 		/** Patient Model */
 		if(!isset($this->p))
 			$this->p = MatchaModel::setSenchaModel('App.model.patient.Patient');
+		if(!isset($this->pa))
+			$this->pa = MatchaModel::setSenchaModel('App.model.patient.PatientAccount');
 		if(!isset($this->pi))
 			$this->pi = MatchaModel::setSenchaModel('App.model.patient.Insurance');
 
@@ -205,6 +218,41 @@ class HL7Server {
 			$this->ackStatus = 'AE';
 			$this->ackMessage = 'Unable to parse HL7 message, please contact Support Desk';
 		}
+
+		$facilityRecord = $this->Facility->getFacility(['code' => $facility]);
+
+
+        $hl7_client_config = <<<'INI_CONFIG'
+
+[HL7]
+
+hl7_pubpid_field = $PID[2][1]
+hl7_account_no_field = $PID[3][0][1]
+hl7_account_no_alt_field = $PID[4][0][1]
+hl7_visit_no_field = $PID[18][1]
+hl7_reference_no_field = $OBR[18]
+hl7_department_code_field = $OBR[20]
+
+[ORM]
+
+hl7_allow_update_final_order = false
+hl7_orm_validate_referring_npi = false
+hl7_order_code_field = $ORC[2][1]
+hl7_orm_accession_number_field = $OBR[2][1]
+hl7_orm_specialty_code_field = explode(\'^\',$OBR[18])[0]
+
+
+[ORU]
+
+hl7_oru_validate_patient = false
+hl7_report_code_field = $OBR[2][1]
+hl7_oru_specialty_code_field = explode(\'^\',$OBR[18])[0]
+
+INI_CONFIG;
+
+
+        $hl7_client_config = parse_ini_string($hl7_client_config, true, INI_SCANNER_RAW);
+
 		/**
 		 *
 		 */
@@ -229,10 +277,10 @@ class HL7Server {
 			try {
 				switch($msg_type) {
 					case 'ORU':
-						$this->ProcessORU($hl7, $msg, $msgRecord);
+						$this->ProcessORU($hl7, $msg, $msgRecord, $facilityRecord);
 						break;
 					case 'ADT':
-						$this->ProcessADT($hl7, $msg, $msgRecord);
+						$this->ProcessADT($hl7, $msg, $msgRecord, $facilityRecord);
 						break;
 					default:
 						break;
@@ -241,7 +289,7 @@ class HL7Server {
 				error_log('HL7 Message core exception: ' . $e->getMessage());
 			}
 
-			$this->processHook($hl7, $msg, $msgRecord, $msg_type);
+			$this->processHook($hl7, $msg, $msgRecord, $msg_type, $facilityRecord);
 		}
 
 		/**
@@ -270,7 +318,7 @@ class HL7Server {
 
 	}
 
-	protected function processHook(&$hl7, &$msg, &$msgRecord, $msg_type){
+	protected function processHook(&$hl7, &$msg, &$msgRecord, $msg_type, $facilityRecord){
 
 		if(
 			isset($_SESSION['hooks']) &&
@@ -288,7 +336,8 @@ class HL7Server {
 					&$this,
 					&$hl7,
 					&$msg,
-					&$msgRecord
+					&$msgRecord,
+					&$facilityRecord
 				]);
 			}
 		}
@@ -299,8 +348,9 @@ class HL7Server {
 	 * @param $hl7 HL7
 	 * @param $msg
 	 * @param $msgRecord
+	 * @param $facilityRecord
 	 */
-	protected function ProcessORU($hl7, $msg, $msgRecord) {
+	protected function ProcessORU($hl7, $msg, $msgRecord, $facilityRecord) {
 		foreach($msg->data['PATIENT_RESULT'] AS $patient_result){
 			$patient = isset($patient_result['PATIENT']) ? $patient_result['PATIENT'] : null;
 
@@ -602,8 +652,9 @@ class HL7Server {
 	 * @param HL7 $hl7
 	 * @param ADT|bool $msg
 	 * @param stdClass $msgRecord
+	 * @param array $facilityRecord
 	 */
-	protected function ProcessADT($hl7, $msg, $msgRecord) {
+	protected function ProcessADT($hl7, $msg, $msgRecord, $facilityRecord) {
         $now = date('Y-m-d H:i:s');
 
 		$evt = $hl7->getMsgEventType();
@@ -616,65 +667,40 @@ class HL7Server {
 			/**
 			 * Patient transfer
 			 */
+
+			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
+			if(isset($msg->data['INSURANCE'])){
+				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
+			}
+
+			return;
+
 		} elseif($evt == 'A04') {
 			/**
 			 * Register a Patient
 			 */
-			$patientData = $this->PidToPatient($msg->data['PID'], $hl7);
-			$patient = $this->p->load(['pubpid' => $patientData[$this->updateKey] ])->one();
-
-			if($patient === false){
-                $patient = (object) $patientData;
-                // force a new patient
-                unset($patient->pid);
-
-                $patient->create_date = $now;
-                $patient->update_date = $now;
-                $patient->create_uid = 0;
-                $patient->update_uid = 0;
-			}else{
-                $patient = array_merge($patient, $patientData);
-
-                if(!isset($patient['update_date'])){
-                    $patient['update_date'] = $now;
-                }
-
-                $patient['update_uid'] = 0;
-            }
-
-			$patient = $this->p->save((object)$patient);
-			$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
-
+			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
+			if(isset($msg->data['INSURANCE'])){
+				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
+			}
+			return;
+		} elseif($evt == 'A05') {
+			/**
+			 * Pre-Admit a Patient
+			 */
+			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
+			if(isset($msg->data['INSURANCE'])){
+				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
+			}
 			return;
 		} elseif($evt == 'A08') {
 			/**
 			 * Update Patient Information
 			 */
-			$patientData = $this->PidToPatient($msg->data['PID'], $hl7);
-            $patient = $this->p->load(['pubpid' => $patientData[$this->updateKey] ])->one();
-
-            if($patient === false){
-                $patient = (object) $patientData;
-                // force a new patient
-                unset($patient->pid);
-
-                $patient->create_date = $now;
-                $patient->update_date = $now;
-                $patient->create_uid = 0;
-                $patient->update_uid = 0;
-            }else{
-                $patient = array_merge($patient, $patientData);
-
-                if(!isset($patient['update_date'])){
-                    $patient['update_date'] = $now;
-                }
-
-                $patient['update_uid'] = 0;
-            }
-
-			$patient = $this->p->save((object)$patient);
-			$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
-
+			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
+			if(isset($msg->data['INSURANCE'])){
+				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
+			}
 			return;
 		} elseif($evt == 'A09') {
 			/**
@@ -784,12 +810,13 @@ class HL7Server {
 			 * Add Person or Patient Information
 			 * PID-2.1 <= MRG-4.1
 			 */
-			$patientData = $this->PidToPatient($msg->data['PID'], $hl7);
+			$patientData = $this->PidToPatient($msg->data['PID'], $hl7, $facilityRecord);
 			$patientData['pubpid'] = $patientData['pid'];
 			$patientData['pid'] = 0;
 			$patient = $this->p->save((object)$patientData);
-			$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
-
+			if(isset($msg->data['INSURANCE'])){
+				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
+			}
 			return;
 		} elseif($evt == 'A29') {
 			/**
@@ -799,19 +826,18 @@ class HL7Server {
 			/**
 			 * Update Person Information
 			 */
-			$patientData = $this->PidToPatient($msg->data['PID'], $hl7);
-			$patient = $this->p->load($patientData[$this->updateKey])->one();
+
+			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord, false);
 
 			if($patient === false){
 				$this->ackStatus = 'AR';
-				$this->ackMessage = 'Unable to find patient ' . $patientData[$this->updateKey];
+				$this->ackMessage = 'Unable to find patient';
 				return;
 			}
-			$patient = array_merge($patient, $patientData);
 
-			$patient = $this->p->save((object)$patient);
-			$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
-
+			if(isset($msg->data['INSURANCE'])){
+				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
+			}
 			return;
 		} elseif($evt == 'A32') {
 			/** Cancel Patient Arriving - Tracking **/
@@ -821,41 +847,69 @@ class HL7Server {
 			/** Cancel Patient Departing - Tracking **/
 
 			return;
-		} elseif($evt == 'A39') {
-			/**
-			 * Merge Person - Patient ID (Using External ID)
-			 * PID-2.1 <= MRG-4.1
-			 */
-			$pid = $msg->data['PATIENT']['PID'][2][1];
-			$mrg = $msg->data['PATIENT']['MRG'][4][1];
-			$aPatient = $this->p->load(array('pubpid' => $pid))->one();
-			$bPatient = $this->p->load(array('pubpid' => $mrg))->one();
-			$this->MergeHandler($aPatient, $bPatient, $pid, $mrg);
-
-			return;
-		} elseif($evt == 'A40') {
+		} elseif($evt == 'A34' || $evt == 'A39' || $evt == 'A40' || $evt == 'A41') {
 			/**
 			 * Merge Patient - Patient Identifier List
 			 * PID-3.1 <= MRG-1.1
 			 */
-			$pid = $msg->data['PATIENT']['PID'][3][1];
-			$mrg = $msg->data['PATIENT']['MRG'][1][1];
-			$aPatient = $this->p->load(array('pid' => $pid))->one();
-			$bPatient = $this->p->load(array('pid' => $mrg))->one();
-			$this->MergeHandler($aPatient, $bPatient, $pid, $mrg);
 
-			return;
-		} elseif($evt == 'A41') {
-			/**
-			 * Merge Account - Patient Account Number
-			 * PID-18.1 <= MRG-3.1
-			 */
-			$pid = $msg->data['PATIENT']['PID'][18][1];
-			$mrg = $msg->data['PATIENT']['MRG'][3][1];
-			$aPatient = $this->p->load(array('pubaccount' => $pid))->one();
-			$bPatient = $this->p->load(array('pubaccount' => $mrg))->one();
-			$this->MergeHandler($aPatient, $bPatient, $pid, $mrg);
+			if(!isset($msg->data['PATIENT']['MRG'])){
+				$this->ackStatus = 'AR';
+				$this->ackMessage = 'MRG segment missing';
+				return;
+			}
 
+			$pubpid = $msg->data['PATIENT']['PID'][2][1];
+
+			if(isset($msg->data['PATIENT']['PID'][3][0])){
+				$account_no = $msg->data['PATIENT']['PID'][3][0][1];
+			}else{
+				$account_no = '';
+			}
+			if(isset($msg->data['PATIENT']['PID'][4][0])){
+				$account_no_alt = $msg->data['PATIENT']['PID'][4][0][1];
+			}else{
+				$account_no_alt = '';
+			}
+//			$account_no = $msg->data['PATIENT']['PID'][3][1];
+//			$account_no_alt = $msg->data['PATIENT']['PID'][4][1];
+
+			$merge_id = $msg->data['PATIENT']['MRG'][1][1];
+
+			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
+
+			if(isset($msg->data['INSURANCE'])){
+				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
+			}
+
+			if($this->mergeKey == 'pubpid'){
+//				$aPatient = $this->p->load(['pubpid' => $pubpid])->one();
+				$bPatient = $this->p->load(['pubpid' => $merge_id])->one();
+			}else{
+
+				if($this->mergeKey == 'account_no'){
+					$bAccount = $this->pa->load(['account_no' => $merge_id])->sortBy('created_date','DESC')->one();
+//					$bAccount = $this->pa->load(['account_no' => $account_no])->sortBy('created_date','DESC')->one();
+				}elseif($this->mergeKey == 'account_no_alt'){
+					$bAccount = $this->pa->load(['account_no_alt' => $merge_id])->sortBy('created_date','DESC')->one();
+//					$bAccount = $this->pa->load(['account_no_alt' => $account_no_alt])->sortBy('created_date','DESC')->one();
+				}
+
+				if(isset($bAccount)){
+					$bPatient = $this->p->load(['pid' => $bAccount['pid']])->one();
+				}else{
+					$bPatient = false;
+				}
+
+			}
+
+			if($bPatient === false){
+				$this->ackStatus = 'AR';
+				$this->ackMessage = 'MRG patient not found';
+				return;
+			}
+
+			$this->MergeHandler($patient, $bPatient, $pubpid, $merge_id);
 			return;
 		}
 
@@ -866,22 +920,93 @@ class HL7Server {
 		$this->ackMessage = 'Unable to handle ADT_' . $evt;
 	}
 
+	private function savePatient($now, $msg, &$hl7, $facilityRecord, $allow_insert = true){
+		$patientData = $this->PidToPatient(
+			isset($msg->data['PATIENT']['PID']) ? $msg->data['PATIENT']['PID'] : $msg->data['PID'],
+			$hl7,
+			$facilityRecord
+		);
+		$patient = $this->p->load(['pubpid' => $patientData[$this->updateKey] ])->one();
+
+		if($patient === false){
+
+			if($allow_insert === false){
+				return false;
+			}
+
+			$patient = (object) $patientData;
+			// force a new patient
+			unset($patient->pid);
+
+			$patient->create_date = $now;
+			$patient->update_date = $now;
+			$patient->create_uid = 0;
+			$patient->update_uid = 0;
+		}else{
+
+			$patient = (array) $patient;
+			$patient = array_merge($patient, $patientData);
+
+			if(!isset($patient['update_date'])){
+				$patient['update_date'] = $now;
+			}
+
+			$patient['update_uid'] = 0;
+		}
+
+		$patient = (array) $patient;
+		$accounts = isset($patient['accounts']) ? $patient['accounts'] : [];
+
+		$patient =  $this->p->save((object)$patient);
+
+		$this->pa->sql("INSERT INTO patient_account (pid, facility_id, account_no, account_no_alt, created_date)
+				VALUES (:pid, :facility_id, :account_no, :account_no_alt, CURRENT_TIMESTAMP)
+				ON DUPLICATE KEY UPDATE account_no = :account_no_2, account_no_alt = :account_no_alt_2, updated_date = CURRENT_TIMESTAMP");
+
+		foreach ($accounts as $facility_id => $account){
+			$this->pa->exec([
+				':pid' => $patient->pid,
+				':facility_id' => $facility_id,
+				':account_no' => $account['number'],
+				':account_no_alt' => $account['number_alt'],
+				':account_no_2' => $account['number'],
+				':account_no_alt_2' => $account['number_alt'],
+			]);
+		}
+
+		return $patient;
+
+	}
+
 	/**
 	 * @param array $PID
 	 * @param HL7 $hl7
+	 * @param array|false $facilityRecord
 	 *
 	 * @return array
 	 */
-	public function PidToPatient($PID, &$hl7) {
+	public function PidToPatient($PID, &$hl7, $facilityRecord = false) {
 		$p = [];
 		if($this->notEmpty($PID[2][1])){
 			$p['pubpid'] = $PID[2][1]; // Patient ID (External ID)
 		}
-		if(!isset($p['pubpid'])){
+
+		// handle accounts
+		if($facilityRecord !== false){
 			if($this->notEmpty($PID[3][0][1])){
-				$p['pubpid'] = $PID[3][0][1]; // Patient ID (Internal ID)
+				$p['accounts'][$facilityRecord['id']]['number'] = $PID[3][0][1]; // Patient ID (Internal ID)
+			}
+			if($this->notEmpty($PID[4][0][1])){
+				$p['accounts'][$facilityRecord['id']]['number_alt'] = $PID[4][0][1]; // Patient ID (Internal ID)
+			}
+		}else{
+			if(!isset($p['pubpid'])){
+				if($this->notEmpty($PID[3][0][1])){
+					$p['pubpid'] = $PID[3][0][1]; // Patient ID (Internal ID)
+				}
 			}
 		}
+
 		if($this->notEmpty($PID[5][0][2])){
 			$p['fname'] = $PID[5][0][2]; // Patient Name...
 		}
@@ -1008,6 +1133,11 @@ class HL7Server {
 	public function InsuranceGroupHandler($insGroups, $hl7, $patient = null) {
 
 		$insurances = [];
+
+		// get out if flag is false
+		if(!$this->process_insurance_segments){
+			return $insurances;
+		}
 
 		foreach($insGroups as $insuranceGroup){
 			foreach($insuranceGroup as $key => $insurance){
@@ -1474,9 +1604,24 @@ class HL7Server {
 			return;
 		}
 
-		$merge = new Merge();
-		$success = $merge->merge($aPatient['pid'], $bPatient['pid']);
-		unset($merge);
+		$aPatient = (array)$aPatient;
+		$bPatient = (array)$bPatient;
+
+		$filter = (object)[
+			'filter' => [
+				(object)[
+					'property' => 'pid',
+					'value' => $bPatient['pid']
+				]
+			]
+		];
+
+		$this->pa->destroy((object)[], $filter);
+
+
+		$Merge = new Merge();
+		$success = $Merge->merge($aPatient['pid'], $bPatient['pid']);
+		unset($Merge);
 
 		if($success === false){
 			$this->ackStatus = 'AR';

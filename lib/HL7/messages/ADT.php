@@ -70,8 +70,84 @@ class ADT extends Message {
 					'PDA' => array()
 				),
 			),
+			'A02' => array(
+				'MSH' => array('required' => true),
+				'SFT' => array('repeatable' => true),
+				'EVN' => array('required' => true),
+				'PID' => array('required' => true),
+				'PD1' => array(),
+				'ROL' => array('repeatable' => true),
+				'NK1' => array('repeatable' => true),
+				'PV1' => array('required' => true),
+				'PV2' => array(),
+				'DB1' => array('repeatable' => true),
+				'OBX' => array('repeatable' => true),
+				'AL1' => array('repeatable' => true),
+				'DG1' => array(
+					'repeatable' => true,
+					'DRG' => array(),
+					'PROCEDURE' => array(
+						'repeatable' => true,
+						'items' => array(
+							'PR1' => array('required' => true),
+							'ROL' => array('repeatable' => true),
+						)
+					),
+					'GT1' => array('repeatable' => true),
+					'INSURANCE' => array(
+						'repeatable' => true,
+						'items' => array(
+							'IN1' => array('required' => true),
+							'IN2' => array(),
+							'IN3' => array('repeatable' => true),
+							'ROL' => array('repeatable' => true),
+						)
+					),
+					'ACC' => array(),
+					'UB1' => array(),
+					'UB2' => array(),
+					'PDA' => array()
+				),
+			),
 			/** ADT/ACK - Register a Patient (Event A04) */
 			'A04' => array(
+				'MSH' => array('required' => true),
+				'SFT' => array('repeatable' => true),
+				'EVN' => array('required' => true),
+				'PID' => array('required' => true),
+				'PD1' => array(),
+				'ROL' => array('repeatable' => true),
+				'NK1' => array('repeatable' => true),
+				'PV1' => array('required' => true),
+				'PV2' => array(),
+				'DB1' => array('repeatable' => true),
+				'OBX' => array('repeatable' => true),
+				'AL1' => array('repeatable' => true),
+				'DG1' => array('repeatable' => true),
+				'DRG' => array(),
+				'PROCEDURE' => array(
+					'repeatable' => true,
+					'items' => array(
+						'PR1' => array('required' => true),
+						'ROL' => array('repeatable' => true),
+					)
+				),
+				'GT1' => array('repeatable' => true),
+				'INSURANCE' => array(
+					'repeatable' => true,
+					'items' => array(
+						'IN1' => array('required' => true),
+						'IN2' => array(),
+						'IN3' => array('repeatable' => true),
+						'ROL' => array('repeatable' => true),
+					)
+				),
+				'ACC' => array(),
+				'UB1' => array(),
+				'UB2' => array(),
+				'PDA' => array()
+			),
+			'A05' => array(
 				'MSH' => array('required' => true),
 				'SFT' => array('repeatable' => true),
 				'EVN' => array('required' => true),
@@ -291,6 +367,18 @@ class ADT extends Message {
 				'PV2' => array(),
 				'DB1' => array('repeatable' => true),
 				'OBX' => array('repeatable' => true)
+			),
+			/** ADT/ACK - Merge Patient - Patient ID (Event A34) */
+			'A34' => array(
+				'MSH' => array('required' => true),
+				'SFT' => array('repeatable' => true),
+				'EVN' => array('required' => true),
+				'PATIENT' => array(
+					'PID' => array('required' => true),
+					'PD1' => array(),
+					'MRG' => array('required' => true),
+					'PV1' => array()
+				)
 			),
 			/** ADT/ACK - Merge Person - Patient ID (Event A39) */
 			'A39' => array(

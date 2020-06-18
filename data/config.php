@@ -2354,6 +2354,18 @@ $API = [
             ],
 			'getAuthorizedPersonsByPid' => [
 				'len' => 1
+            ],
+			'getPatientAccounts' => [
+				'len' => 1
+            ],
+			'addPatientAccount' => [
+				'len' => 1
+            ],
+			'updatePatientAccount' => [
+				'len' => 1
+            ],
+			'destroyPatientAccount' => [
+				'len' => 1
             ]
         ]
     ],

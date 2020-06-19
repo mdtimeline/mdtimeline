@@ -22,7 +22,9 @@ Ext.define('App.ux.combo.ActiveSpecialties', {
 				}
 			],
 			pageSize: 500,
-			autoLoad: true
+			autoLoad: true,
+			remoteFilter: true,
+			remoteSort: false
 		});
 
 		this.callParent();

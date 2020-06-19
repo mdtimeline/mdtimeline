@@ -45,6 +45,13 @@ class Merge {
 
 			$table = '';
 
+			if(file_exists(ROOT. '/modules/worklist/dataProvider/WorkListMerge.php')){
+				include_once (ROOT. '/modules/worklist/dataProvider/WorkListMerge.php');
+				$WorkListMerge = new modules\worklist\dataProvider\WorkListMerge();
+				$WorkListMerge->MergePacsPatientByPid($transferPid, $primaryPid);
+				unset($Dcm4Chee);
+			}
+
 			$this->conn->beginTransaction();
 			$this->conn->exec('SET FOREIGN_KEY_CHECKS = 0;');
 
@@ -56,13 +63,6 @@ class Merge {
 			$this->conn->exec("DELETE FROM `patient` WHERE `pid` = '{$transferPid}';");
 			$this->conn->exec('SET FOREIGN_KEY_CHECKS = 0;');
 			$this->conn->commit();
-
-			if(file_exists(ROOT. '/modules/worklist/dataProvider/WorkListMerge.php')){
-				include_once (ROOT. '/modules/worklist/dataProvider/WorkListMerge.php');
-				$WorkListMerge = new modules\worklist\dataProvider\WorkListMerge();
-				$WorkListMerge->MergePacsPatientByPid($transferPid, $primaryPid);
-				unset($Dcm4Chee);
-			}
 
 			return true;
 		}catch (Exception $e){

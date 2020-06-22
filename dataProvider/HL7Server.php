@@ -669,6 +669,11 @@ INI_CONFIG;
 			 */
 
 			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
+
+			if($patient !== false){
+				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
+			}
+
 			if(isset($msg->data['INSURANCE'])){
 				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
 			}
@@ -680,6 +685,11 @@ INI_CONFIG;
 			 * Register a Patient
 			 */
 			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
+
+			if($patient !== false){
+				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
+			}
+
 			if(isset($msg->data['INSURANCE'])){
 				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
 			}
@@ -689,6 +699,11 @@ INI_CONFIG;
 			 * Pre-Admit a Patient
 			 */
 			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
+
+			if($patient !== false){
+				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
+			}
+
 			if(isset($msg->data['INSURANCE'])){
 				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
 			}
@@ -698,6 +713,11 @@ INI_CONFIG;
 			 * Update Patient Information
 			 */
 			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
+
+			if($patient !== false){
+				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
+			}
+
 			if(isset($msg->data['INSURANCE'])){
 				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
 			}
@@ -722,6 +742,11 @@ INI_CONFIG;
 			}
 
 			$patient = $this->p->load($filter)->one();
+
+			if($patient !== false){
+				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
+			}
+
 			if($patient === false){
 				$this->ackStatus = 'AR';
 				$this->ackMessage = 'Unable to find patient ' . $PID[3][1];
@@ -767,6 +792,9 @@ INI_CONFIG;
 
 			$patient = $this->p->load($filter)->one();
 
+			if($patient !== false){
+				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
+			}
 
 			if($patient === false){
 				$this->ackStatus = 'AR';
@@ -814,6 +842,11 @@ INI_CONFIG;
 			$patientData['pubpid'] = $patientData['pid'];
 			$patientData['pid'] = 0;
 			$patient = $this->p->save((object)$patientData);
+
+			if($patient !== false){
+				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
+			}
+
 			if(isset($msg->data['INSURANCE'])){
 				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
 			}
@@ -828,6 +861,10 @@ INI_CONFIG;
 			 */
 
 			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord, false);
+
+			if($patient !== false){
+				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
+			}
 
 			if($patient === false){
 				$this->ackStatus = 'AR';
@@ -878,6 +915,10 @@ INI_CONFIG;
 
 			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
 
+			if($patient !== false){
+				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
+			}
+
 			if(isset($msg->data['INSURANCE'])){
 				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
 			}
@@ -919,17 +960,17 @@ INI_CONFIG;
 		$this->ackStatus = 'AR';
 		$this->ackMessage = 'Unable to handle ADT_' . $evt;
 
-		if(isset($patient)){
-			$conn = \Matcha::getConn();
-			$sth = $conn->prepare("UPDATE hl7_messages SET reference = :reference WHERE id = :hl7_msg_id");
-			$reference = 'patient:' . $patient->pid;
-			$hl7_msg_id = $msgRecord['id'];
-			$sth->bindParam(':reference', $reference);
-			$sth->bindParam(':hl7_msg_id', $hl7_msg_id);
-			$sth->execute();
-			unset($sth, $reference, $hl7_msg_id);
-		}
+	}
 
+	private function addHL7MessageReference($pid, $msg_record_id){
+		$conn = \Matcha::getConn();
+		$sth = $conn->prepare("UPDATE hl7_messages SET reference = :reference WHERE id = :hl7_msg_id");
+		$reference = 'patient:' . $pid;
+		$hl7_msg_id = $msg_record_id;
+		$sth->bindParam(':reference', $reference);
+		$sth->bindParam(':hl7_msg_id', $hl7_msg_id);
+		$sth->execute();
+		unset($sth, $reference, $hl7_msg_id);
 	}
 
 	private function savePatient($now, $msg, &$hl7, $facilityRecord, $allow_insert = true){

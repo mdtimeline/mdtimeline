@@ -918,6 +918,18 @@ INI_CONFIG;
 		 */
 		$this->ackStatus = 'AR';
 		$this->ackMessage = 'Unable to handle ADT_' . $evt;
+
+		if(isset($patient)){
+			$conn = \Matcha::getConn();
+			$sth = $conn->prepare("UPDATE hl7_messages SET reference = :reference WHERE id = :hl7_msg_id");
+			$reference = 'patient:' . $patient->pid;
+			$hl7_msg_id = $msgRecord['id'];
+			$sth->bindParam(':reference', $reference);
+			$sth->bindParam(':hl7_msg_id', $hl7_msg_id);
+			$sth->execute();
+			unset($sth, $reference, $hl7_msg_id);
+		}
+
 	}
 
 	private function savePatient($now, $msg, &$hl7, $facilityRecord, $allow_insert = true){

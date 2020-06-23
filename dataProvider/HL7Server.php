@@ -1175,8 +1175,8 @@ INI_CONFIG;
 			$p['update_date'] = $hl7->time($PID[33][1]); // Last update time stamp
 		}
 
-		if(isset($PV1) && $this->notEmpty($PV1[18][1])){
-			$p['last_visit_id'] = $PV1[18][1]; // Last Visit ID
+		if($this->notEmpty($PID[18][1])){
+			$p['last_visit_id'] = $PID[18][1]; // Last Visit ID
 		}
 		return $p;
 	}

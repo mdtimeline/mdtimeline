@@ -978,7 +978,7 @@ INI_CONFIG;
 
 		$PID = isset($msg->data['PATIENT']['PID']) ? $msg->data['PATIENT']['PID'] : $msg->data['PID'];
 
-		if(isset($msg->data['VISIT']['PV1']) ? $msg->data['VISIT']['PV1'] : $msg->data['PV1']){
+		if(isset($msg->data['VISIT']['PV1'])){
 			$PV1 = $msg->data['VISIT']['PV1'];
 		}elseif(isset($msg->data['PV1'])){
 			$PV1 = $msg->data['PV1'];

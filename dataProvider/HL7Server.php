@@ -838,7 +838,8 @@ INI_CONFIG;
 			 * Add Person or Patient Information
 			 * PID-2.1 <= MRG-4.1
 			 */
-			$patientData = $this->PidToPatient($msg->data['PID'], $hl7, $facilityRecord);
+			$PV1 = isset($msg->data['PV1']) ? $msg->data['PV1'] : null;
+			$patientData = $this->PidToPatient($msg->data['PID'], $PV1, $hl7, $facilityRecord);
 			$patientData['pubpid'] = $patientData['pid'];
 			$patientData['pid'] = 0;
 			$patient = $this->p->save((object)$patientData);
@@ -974,11 +975,18 @@ INI_CONFIG;
 	}
 
 	private function savePatient($now, $msg, &$hl7, $facilityRecord, $allow_insert = true){
-		$patientData = $this->PidToPatient(
-			isset($msg->data['PATIENT']['PID']) ? $msg->data['PATIENT']['PID'] : $msg->data['PID'],
-			$hl7,
-			$facilityRecord
-		);
+
+		$PID = isset($msg->data['PATIENT']['PID']) ? $msg->data['PATIENT']['PID'] : $msg->data['PID'];
+
+		if(isset($msg->data['VISIT']['PV1']) ? $msg->data['VISIT']['PV1'] : $msg->data['PV1']){
+			$PV1 = $msg->data['VISIT']['PV1'];
+		}elseif(isset($msg->data['PV1'])){
+			$PV1 = $msg->data['PV1'];
+		}else{
+			$PV1 = null;
+		}
+
+		$patientData = $this->PidToPatient($PID, $PV1, $hl7, $facilityRecord);
 		$patient = $this->p->load(['pubpid' => $patientData[$this->updateKey] ])->one();
 
 		if($patient === false){
@@ -1033,12 +1041,13 @@ INI_CONFIG;
 
 	/**
 	 * @param array $PID
+	 * @param array $PV1
 	 * @param HL7 $hl7
 	 * @param array|false $facilityRecord
 	 *
 	 * @return array
 	 */
-	public function PidToPatient($PID, &$hl7, $facilityRecord = false) {
+	public function PidToPatient($PID, $PV1, &$hl7, $facilityRecord = false) {
 		$p = [];
 		if($this->notEmpty($PID[2][1])){
 			$p['pubpid'] = $PID[2][1]; // Patient ID (External ID)
@@ -1164,6 +1173,10 @@ INI_CONFIG;
 		}
 		if($this->notEmpty($PID[33][1])){
 			$p['update_date'] = $hl7->time($PID[33][1]); // Last update time stamp
+		}
+
+		if(isset($PV1) && $this->notEmpty($PV1[18][1])){
+			$p['last_visit_id'] = $PV1[18][1]; // Last Visit ID
 		}
 		return $p;
 	}

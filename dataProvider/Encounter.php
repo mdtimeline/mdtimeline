@@ -27,6 +27,7 @@ include_once(ROOT . '/dataProvider/Orders.php');
 include_once(ROOT . '/dataProvider/Referrals.php');
 include_once(ROOT . '/dataProvider/ActiveProblems.php');
 include_once(ROOT . '/dataProvider/Immunizations.php');
+include_once(ROOT . '/dataProvider/Procedures.php');
 include_once(ROOT . '/dataProvider/Services.php');
 include_once(ROOT . '/dataProvider/DiagnosisCodes.php');
 include_once(ROOT . '/dataProvider/FamilyHistory.php');
@@ -1122,6 +1123,34 @@ class Encounter {
 			unset($Immunizations, $immunizations);
 		}
 
+		$Procedures = new Procedures();
+		$procedures = $Procedures->getPatientProceduresByEid($eid);
+
+		if(!empty($procedures)){
+			$str_buff .= '<div class="indent">';
+			$lis = '';
+			foreach($procedures as $foo){
+				$performed_by = Person::fullname($foo['performer_fname'], $foo['performer_mname'], $foo['performer_lname']);
+				$lis .= sprintf('<li><b>Description: </b> %s [%s] - ', $foo['code_text'], $foo['code']);
+
+				if(isset($foo['not_performed_code_text']) && $foo['not_performed_code_text'] != ''){
+					$lis .= sprintf('<b>Not Performed:</b> %s - </li>', $foo['not_performed_code_text']);
+				}else{
+					$lis .= sprintf('<b>Status:</b> %s - ', $foo['status_code_text']);
+					$lis .= sprintf('<b>Observation:</b> %s - ', $foo['observation']);
+					$lis .= sprintf('<b>Target Site:</b> %s - ', $foo['target_site_code_text']);
+//					$lis .= sprintf('<b>Performed By:</b> %s </li>', $performed_by);
+				}
+			}
+			$str_buff .= '<p><b>Procedures:</b></p>';
+			$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
+			$str_buff .= '</div>';
+		}
+
+		unset($Procedures, $procedures);
+
+
+
 		return $str_buff;
 	}
 
@@ -1588,9 +1617,6 @@ class Encounter {
 			$this->conn->rollBack();
 			return $e->getMessage() . 'Table: '. $transfer_table;
 		}
-
-
-
 
 	}
 

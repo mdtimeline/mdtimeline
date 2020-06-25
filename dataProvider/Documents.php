@@ -23,6 +23,7 @@ include_once(ROOT . '/dataProvider/PatientContacts.php');
 include_once(ROOT . '/dataProvider/User.php');
 include_once(ROOT . '/dataProvider/Encounter.php');
 include_once(ROOT . '/dataProvider/Referrals.php');
+include_once(ROOT . '/dataProvider/ReferringProviders.php');
 include_once(ROOT . '/dataProvider/Facilities.php');
 include_once(ROOT . '/dataProvider/DocumentFPDI.php');
 include_once(ROOT . '/dataProvider/i18nRouter.php');
@@ -48,6 +49,11 @@ class Documents {
 	private $User;
 
 	/**
+	 * @var ReferringProviders
+	 */
+	private $ReferringProviders;
+
+	/**
 	 * @var DocumentFPDI
 	 */
 	public $pdf;
@@ -67,11 +73,17 @@ class Documents {
 	 */
 	private $max_order_rows = 99;
 
+	/**
+	 * @var array
+	 */
+	private $encounter = null;
+
 	function __construct() {
 		$this->db = new MatchaHelper();
 		$this->Patient = new Patient();
 		$this->Encounter = new Encounter();
 		$this->User = new User();
+		$this->ReferringProviders = new ReferringProviders();
 
 		$this->t = \MatchaModel::setSenchaModel('App.model.administration.DocumentsPdfTemplate');
 		$this->h = \MatchaModel::setSenchaModel('App.model.administration.DocumentsTemplatesHeaderFooter');
@@ -259,6 +271,8 @@ class Documents {
 				$this->Encounter->getProgressNoteByEid($params->eid, false)
 			);
 		}
+
+		$this->encounter = $encounter;
 
 		return $allNeededInfo;
 	}
@@ -557,9 +571,11 @@ class Documents {
 
 			$allNeededInfo = $this->setArraySizeOfTokenArray($tokens);
 			$allNeededInfo = $this->get_PatientTokensData($pid, $allNeededInfo, $tokens);
+
 			if(isset($params->eid) && $params->eid != 0 && $params->eid != ''){
 				$allNeededInfo = $this->get_EncounterTokensData($params->eid, $allNeededInfo, $tokens);
 			}
+
 			$allNeededInfo = $this->getCurrentTokensData($allNeededInfo, $tokens);
 			$allNeededInfo = $this->getClinicTokensData($allNeededInfo, $tokens);
 			if(isset($params->orderItems) || isset($params->date_ordered)){
@@ -577,6 +593,10 @@ class Documents {
 			if(isset($params->disclosure)){
 				$allNeededInfo = $this->getDisclosureTokensData($params->disclosure, $allNeededInfo, $tokens);
 			}
+			if(isset($this->encounter)){
+				$allNeededInfo = $this->addReferringProviderData($this->encounter, $tokens, $allNeededInfo);
+			}
+
             $allNeededInfo = $this->getFormatTokensData($params->pid, $allNeededInfo, $tokens);
 
             if(isset($header_footer_lines)){
@@ -684,6 +704,58 @@ class Documents {
 			return true;
 		}
 	}
+
+	private function addReferringProviderData($encounter, $tokens, $allNeededInfo) {
+
+		$info = $this->getReferringProviderData($encounter);
+
+		if(empty($info)){
+			return $allNeededInfo;
+		}
+
+		unset($provider);
+		foreach($tokens as $i => $tok){
+			if(isset($info[$tok]) && ($allNeededInfo[$i] == '' || $allNeededInfo[$i] == null)){
+				$allNeededInfo[$i] = $info[$tok];
+			}
+		}
+
+		return $allNeededInfo;
+	}
+
+	private function getReferringProviderData($encounter){
+
+		if(!isset($encounter['referring_physician']) || $encounter['referring_physician'] == 0){
+			return [];
+		}
+
+		$provider = $this->ReferringProviders->getReferringProviderById($this->encounter['referring_physician']);
+
+		if($provider === false){
+			return [];
+		}
+
+		$data = [
+			'[REFERRING_ID]' => $provider['id'],
+			'[REFERRING_TITLE]' => isset($provider['title']) ? $provider['title'] : '',
+			'[REFERRING_FULL_NAME]' => Person::fullname($provider['fname'], $provider['mname'], $provider['lname']),
+			'[REFERRING_FIRST_NAME]' => isset($provider['fname']) ? $provider['fname'] : '',
+			'[REFERRING_MIDDLE_NAME]' => isset($provider['mname']) ? $provider['mname'] : '',
+			'[REFERRING_LAST_NAME]' => isset($provider['lname']) ? $provider['lname'] : '',
+			'[REFERRING_NPI]' => isset($provider['npi']) ? $provider['npi'] : '',
+			'[REFERRING_LIC]' => isset($provider['lic']) ? $provider['lic'] : '',
+			'[REFERRING_FED_TAX]' => isset($provider['ssn']) ? $provider['ssn'] : '',
+			'[REFERRING_TAXONOMY]' => isset($provider['taxonomy']) ? $provider['taxonomy'] : '',
+			'[REFERRING_EMAIL]' => isset($provider['email']) ? $provider['email'] : '',
+			'[REFERRING_DIRECT_ADDRESS]' => isset($provider['direct_address']) ? $provider['direct_address'] : '',
+			'[REFERRING_PHONE]' => isset($provider['phone_number']) ? $provider['phone_number'] : '',
+			'[REFERRING_MOBILE]' => isset($provider['cel_number']) ? $provider['cel_number'] : '',
+			'[REFERRING_FAX]' => isset($provider['fax_number']) ? $provider['fax_number'] : '',
+		];
+
+		return $data;
+	}
+
 
 	private function addProviderData($params, $tokens, $allNeededInfo) {
 

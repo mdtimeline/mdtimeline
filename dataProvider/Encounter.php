@@ -1238,7 +1238,7 @@ class Encounter {
 		/**
 		 *  Laboratories
 		 */
-		$orders = $Orders->getPatientLabOrdersByEid($eid);
+		$orders = $Orders->getPatientLabOrdersByEid($eid, true);
 
 		if(!empty($orders)){
 			$str_buff .= '<div class="indent">';

@@ -188,6 +188,7 @@ Ext.define('App.controller.patient.RadOrders', {
 				documents[doc_key].docType = 'Rad';
 				documents[doc_key].templateId = 6;
 				documents[doc_key].pdf_format = pdf_format;
+				documents[doc_key].dx_required = true;
 				documents[doc_key].orderItems.push(['Description', 'Notes']);
 			}
 

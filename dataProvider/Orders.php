@@ -440,12 +440,16 @@ class Orders {
 
     /**
      * @param $eid
+     * @param $exclude_void
      * @return mixed
      */
-    public function getPatientLabOrdersByEid($eid){
+    public function getPatientLabOrdersByEid($eid, $exclude_void = false){
         $this->setOrders();
         $this->o->addFilter('eid', $eid);
         $this->o->addFilter('order_type', 'lab');
+        if($exclude_void === true){
+	        $this->o->addFilter('void', '1', '!=');
+        }
         return $this->o->load()->all();
     }
 

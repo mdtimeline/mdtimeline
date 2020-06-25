@@ -46,7 +46,8 @@ Ext.define('App.controller.patient.LabOrders', {
 			'patientlaborderspanel': {
 				activate: me.onLabOrdersGridActive,
 				selectionchange: me.onLabOrdersGridSelectionChange,
-				beforerender: me.onLabOrdersGridBeforeRender
+				beforerender: me.onLabOrdersGridBeforeRender,
+				validateedit: me.onLabOrdersGridValidateEdit
 			},
 			'#rxLabOrderLabsLiveSearch': {
 				select: me.onLoincSearchSelect
@@ -68,6 +69,69 @@ Ext.define('App.controller.patient.LabOrders', {
 
 		me.encounterCtl = me.getController('patient.encounter.Encounter');
 
+	},
+
+	onOrdersDeleteActionHandler: function (grid, rowIndex, colIndex, item, e, record) {
+
+		if(!a('remove_patient_order')){
+			app.msg(_('oops'), _('not_authorized'), true);
+			return;
+		}
+
+		var me = this,
+			store = grid.getStore();
+
+		Ext.Msg.show({
+			title: _('wait'),
+			msg: ('<b>' + record.get('description') + '</b><br><br>' + _('delete_this_record')),
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (btn1) {
+				if(btn1 === 'yes'){
+					Ext.Msg.show({
+						title: _('wait'),
+						msg: _('this_action_can_not_be_undone_continue'),
+						buttons: Ext.Msg.YESNO,
+						icon: Ext.Msg.QUESTION,
+						fn: function (btn2) {
+							if(btn2 === 'yes'){
+								store.remove(record);
+								store.sync({
+									callback: function () {
+										store.remove(record);
+										store.sync({
+											callback: function () {
+
+											}
+										});
+									}
+								});
+							}
+						}
+					});
+				}
+			}
+		});
+	},
+
+	onLabOrdersGridValidateEdit: function(plugin, context){
+		var form = plugin.editor.getForm(),
+			combo = form.findField('description'),
+			combo_value = combo.getValue(),
+			selected_record = combo.findRecordByValue(combo_value);
+
+		if(combo_value === null){
+			context.record.set({
+				code: null,
+				description: null,
+			});
+		}else if(selected_record){
+			context.record.set({
+				code: selected_record.get('loinc_number'),
+				code_type: 'LOINC',
+				description: selected_record.get('loinc_name')
+			});
+		}
 	},
 
 	onLabOrdersUnableToPerformFieldSelect: function(combo){
@@ -143,10 +207,12 @@ Ext.define('App.controller.patient.LabOrders', {
 		orders.forEach(function(order){
 			var date_ordered = Ext.Date.format(order.get('date_ordered'),'Y-m-d'),
 				pdf_format = (g('order_pdf_format') || null),
-				doc_key = '_' + order.get('eid') +
-					order.get('pid') +
-					order.get('uid') +
-					date_ordered;
+				doc_key = '_' + order.get('eid') + order.get('pid') + order.get('uid') + date_ordered;
+
+			if(order.get('void')){
+				app.msg(_('oops'), Ext.String.format('Unable to print voided order #{0}', order.get('id')), true);
+				return;
+			}
 
 			if(!documents[doc_key]){
 				documents[doc_key] = {};
@@ -158,8 +224,8 @@ Ext.define('App.controller.patient.LabOrders', {
 				documents[doc_key].docType = 'Lab';
 				documents[doc_key].templateId = 4;
 				documents[doc_key].pdf_format = pdf_format;
+				documents[doc_key].dx_required = true;
 				documents[doc_key].orderItems.push(['Description', 'Notes']);
-
 			}
 
 			documents[doc_key].orderItems.push([
@@ -167,6 +233,10 @@ Ext.define('App.controller.patient.LabOrders', {
 				order.get('note')
 			]);
 		});
+
+		if(Ext.Object.isEmpty(documents)){
+			return;
+		}
 
 		Ext.Object.each(documents, function(key, params){
 			DocumentHandler.createTempDocument(params, function(provider, response){

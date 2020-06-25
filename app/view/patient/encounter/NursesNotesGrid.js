@@ -38,7 +38,11 @@ Ext.define('App.view.patient.encounter.NursesNotesGrid', {
 		{
 			text: _('note'),
 			flex: 1,
-			dataIndex: 'note'
+			dataIndex: 'note',
+			renderer: function(value, metaData) {
+				metaData.style = "white-space: normal;";
+				return value;
+			}
 		},
 		{
 			text: _('nurse'),

@@ -699,171 +699,7 @@ class Encounter {
 
 		$str_buff = '';
 
-		include_once (ROOT. '/dataProvider/FamilyHistory.php');
-		$FamilyHistory = new FamilyHistory();
 
-		if(isset($encounter)){
-			$family_histories = $FamilyHistory->getFamilyHistoryByPid($encounter['pid']);
-		}else{
-			$family_histories = $FamilyHistory->getFamilyHistoryByEid($eid);
-		}
-
-		$str_buff .= '<div class="indent">';
-
-		if(!empty($family_histories)){
-			$str_buff .= '<p><b>Family History:</b></p>';
-			$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">';
-			$lu_buffs = [];
-
-			foreach($family_histories as $family_history){
-
-				$relation = (isset($family_history['relation']) ? $family_history['relation'] : '');
-				$condition = (isset($family_history['condition']) ? $family_history['condition'] : '') ;
-				$notes = (isset($family_history['notes']) && $family_history['notes'] != '' ? $family_history['notes'] : '') ;
-
-				if(!isset($lu_buffs[$relation])){
-					$lu_buffs[$relation] = [];
-				}
-
-				$source = $family_history['eid'] == $eid ? '*' : '';
-				$_buff = '<li>';
-				$_buff .= "<u>{$source}{$condition}</u>";
-
-				if($notes !== ''){
-					$_buff .= ' - Note: ' . $notes;
-				}
-
-				$_buff .= '</li>';
-
-				$lu_buffs[$relation][] = $_buff;
-			}
-
-			foreach ($lu_buffs as $relation => $lu_buff){
-				$str_buff .= '<li><u>' . $relation . ':</u></li>';
-				$foo = implode('', $lu_buff);
-				$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">' . $foo . '</ul>';
-			}
-
-			$str_buff .= '</ul>';
-
-		}else{
-			$str_buff .= '<p><b>Family History:</b> No Family History Recorded</p>';
-		}
-
-		$str_buff .= '</div>';
-		unset($family_histories, $FamilyHistory);
-
-		/**
-		 * Allergies
-		 */
-		$Allergies = new Allergies();
-
-		if(isset($encounter)){
-			$allergies = $Allergies->getPatientAllergiesByPid($encounter['pid']);
-		}else{
-			$allergies = $Allergies->getPatientAllergiesByEid($eid);
-		}
-
-		$str_buff .= '<div class="indent">';
-
-		if(!empty($allergies)){
-			$str_buff .= '<p><b>Allergies:</b></p>';
-			$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">';
-			foreach($allergies as $foo){
-				$source = $foo['eid'] == $eid ? '*' : '';
-				if($source !== '*' && $foo['status'] !== 'Active'){
-					continue;
-				}
-				$str_buff .= '<li>';
-				$str_buff .= "<u>{$source}" . $foo['allergy'] . ' (' . $foo['allergy_type'] . ')</u> - ';
-				$str_buff .= '<u>Reaction:</u> ' . $foo['reaction'] . ' - ';
-				$str_buff .= '<u>Severity:</u> ' . $foo['severity'] . ' - ';
-				$str_buff .= '<u>Location:</u> ' . $foo['location'] . ' - ';
-				$str_buff .= '<u>Status:</u> ' . (isset($foo['status']) ? $foo['status'] : 'Unknown');
-				$str_buff .= '</li>';
-			}
-			$str_buff .= '</ul>';
-		}else{
-			if(isset($encounter) && $encounter['review_allergies']){
-				$str_buff .= '<p><b>Allergies:</b> No Known Allergies</p>';
-			}
-		}
-
-		$str_buff .= '</div>';
-		unset($Allergies, $allergies);
-
-
-
-		include_once (ROOT. '/dataProvider/SocialHistory.php');
-		$SocialHistory = new SocialHistory();
-		$smoking_statuses = $SocialHistory->getSocialHistoryByEidAndCode($eid, 'smoking_status');
-		$str_buff .= '<div class="indent">';
-
-		if(!empty($smoking_statuses)){
-			$str_buff .= '<p><b>Smoking Status:</b></p>';
-			$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">';
-			foreach($smoking_statuses as $smoking_status){
-
-				if(isset($smoking_status['start_date'])){
-					$from = date('F j, Y', strtotime($smoking_status['start_date']));
-					if($from == false) $from = 'UNK';
-				}else{
-					$from ='UNK';
-				}
-				if(isset($smoking_status['end_date'])){
-					$to = date('F j, Y', strtotime($smoking_status['end_date']));
-					if($to == false) $to = 'UNK';
-				}else{
-					$to ='UNK';
-				}
-
-				$str_buff .= '<u>' . (isset($smoking_status['status']) ? $smoking_status['status'] : '') . '</u> - ';
-				$str_buff .= '<u>Dates From/To:</u> ' . $from . ' / ' . $to . ' - ';
-				$str_buff .= '<u>Counseling Given:</u> ' . (isset($smoking_status['counseling']) && $smoking_status['counseling'] ? 'Yes' : 'No') . ' - ';
-				$str_buff .= '<u>Note:</u> ' . (isset($smoking_status['note']) ? $smoking_status['note'] : '');
-			}
-			$str_buff .= '</ul>';
-
-		}else{
-			$str_buff .= '<p><b>Smoking Status:</b> No Smoking Status Recorded</p>';
-		}
-
-		$str_buff .= '</div>';
-
-
-
-		$social_history = $SocialHistory->getSocialHistoryByEidAndCode($eid, 'history');
-
-		if(!empty($social_history)){
-			$str_buff .= '<div class="indent">';
-			$str_buff .= '<p><b>Social History:</b></p>';
-			$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">';
-			foreach ($social_history as $history){
-
-				$str_buff .= '<li>';
-				$str_buff .= '<u>Category:</u> ' . $history['category_code_text'] . ' - ';
-				$str_buff .= '<u>Observation:</u> ' . $history['observation'] . ' - ';
-				$str_buff .= '<u>Note:</u> ' . $history['note'];
-				$str_buff .= '</li>';
-
-			}
-			$str_buff .= '</ul>';
-
-			$str_buff .= '</div>';
-
-		}
-
-		return $str_buff;
-	}
-
-	private function getObjectiveExtraDataByEid($eid, $encounter = null) {
-
-		if(!isset($encounter)){
-			$record = $this->getEncounter($eid, true);
-			$encounter = (array)$record['encounter'];
-		}
-
-		$str_buff = '';
 
 		/**
 		 * Review Of System
@@ -921,6 +757,232 @@ class Encounter {
 				$str_buff .= '</div>';
 			}
 		}
+
+
+		/**
+		 * Active Medications
+		 */
+//		if($encounter['review_medications'] && isset($encounter)){
+		if(isset($encounter)){
+			$ActiveMedications = new Medications();
+			$active_medications = $ActiveMedications->getPatientActiveMedicationsByPid($encounter['pid']);
+
+			$str_buff .= '<div class="indent">';
+			if(!empty($active_medications)){
+				$lis = '';
+				foreach($active_medications as $foo){
+					$source = $foo['eid'] == $eid ? '*' : '';
+					$lis .= "<li>{$source}" . $foo['STR'] . '</li>';
+				}
+				$str_buff .= '<p><b>Active Medications:</b></p>';
+				$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
+			} else {
+				$str_buff .= '<p><b>Active Medications:</b> No Active Medications</p>';
+			}
+			$str_buff .= '</div>';
+			unset($ActiveMedications, $active_medications);
+		}
+
+		/**
+		 * Allergies
+		 */
+		$Allergies = new Allergies();
+
+		if(isset($encounter)){
+			$allergies = $Allergies->getPatientAllergiesByPid($encounter['pid']);
+		}else{
+			$allergies = $Allergies->getPatientAllergiesByEid($eid);
+		}
+
+		$str_buff .= '<div class="indent">';
+
+		if(!empty($allergies)){
+			$str_buff .= '<p><b>Allergies:</b></p>';
+			$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">';
+			foreach($allergies as $foo){
+				$source = $foo['eid'] == $eid ? '*' : '';
+				if($source !== '*' && $foo['status'] !== 'Active'){
+					continue;
+				}
+				$str_buff .= '<li>';
+				$str_buff .= "<u>{$source}" . $foo['allergy'] . ' (' . $foo['allergy_type'] . ')</u> - ';
+				$str_buff .= '<u>Reaction:</u> ' . $foo['reaction'] . ' - ';
+				$str_buff .= '<u>Severity:</u> ' . $foo['severity'] . ' - ';
+				$str_buff .= '<u>Location:</u> ' . $foo['location'] . ' - ';
+				$str_buff .= '<u>Status:</u> ' . (isset($foo['status']) ? $foo['status'] : 'Unknown');
+				$str_buff .= '</li>';
+			}
+			$str_buff .= '</ul>';
+		}else{
+			if(isset($encounter) && $encounter['review_allergies']){
+				$str_buff .= '<p><b>Allergies:</b> No Known Allergies</p>';
+			}
+		}
+
+		$str_buff .= '</div>';
+		unset($Allergies, $allergies);
+
+
+		/**
+		 * Family History
+		 */
+		include_once (ROOT. '/dataProvider/FamilyHistory.php');
+		$FamilyHistory = new FamilyHistory();
+
+		if(isset($encounter)){
+			$family_histories = $FamilyHistory->getFamilyHistoryByPid($encounter['pid']);
+		}else{
+			$family_histories = $FamilyHistory->getFamilyHistoryByEid($eid);
+		}
+
+		$str_buff .= '<div class="indent">';
+
+		if(!empty($family_histories)){
+			$str_buff .= '<p><b>Family History:</b></p>';
+			$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">';
+			$lu_buffs = [];
+
+			foreach($family_histories as $family_history){
+
+				$relation = (isset($family_history['relation']) ? $family_history['relation'] : '');
+				$condition = (isset($family_history['condition']) ? $family_history['condition'] : '') ;
+				$notes = (isset($family_history['notes']) && $family_history['notes'] != '' ? $family_history['notes'] : '') ;
+
+				if(!isset($lu_buffs[$relation])){
+					$lu_buffs[$relation] = [];
+				}
+
+				$source = $family_history['eid'] == $eid ? '*' : '';
+				$_buff = '<li>';
+				$_buff .= "<u>{$source}{$condition}</u>";
+
+				if($notes !== ''){
+					$_buff .= ' - Note: ' . $notes;
+				}
+
+				$_buff .= '</li>';
+
+				$lu_buffs[$relation][] = $_buff;
+			}
+
+			foreach ($lu_buffs as $relation => $lu_buff){
+				$str_buff .= '<li><u>' . $relation . ':</u></li>';
+				$foo = implode('', $lu_buff);
+				$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">' . $foo . '</ul>';
+			}
+
+			$str_buff .= '</ul>';
+
+		}else{
+			$str_buff .= '<p><b>Family History:</b> No Family History Recorded</p>';
+		}
+
+		$str_buff .= '</div>';
+		unset($family_histories, $FamilyHistory);
+
+
+		/**
+		 * Active Problems found in this Encounter
+		 */
+		$ActiveProblems = new ActiveProblems();
+		if(isset($encounter)){
+			$active_problems = $ActiveProblems->getPatientActiveProblemByPid($encounter['pid']);
+		}else{
+			$active_problems = $ActiveProblems->getPatientActiveProblemByEid($eid);
+		}
+
+		if(!empty($active_problems)){
+			$str_buff .= '<div class="indent">';
+			$str_buff .= '<p><b>Active Problems:</b></p>';
+			$str_buff .= '<ul class="ProgressNote-ul">';
+			foreach($active_problems as $foo){
+				$source = $foo['eid'] == $eid ? '*' : '';
+				$str_buff .= "<li>{$source}[" . $foo['code'] . '] - ' . $foo['code_text'] . '</li>';
+			}
+			$str_buff .= '</ul>';
+			$str_buff .= '</div>';
+		}else{
+			if($encounter['review_active_problems']){
+				$str_buff .= '<div class="indent">';
+				$str_buff .= '<p><b>Active Problems:</b> No Active Problems</p>';
+				$str_buff .= '</div>';
+			}
+		}
+
+		unset($ActiveProblems, $active_problems);
+
+
+		/**
+		 * Social History
+		 */
+		include_once (ROOT. '/dataProvider/SocialHistory.php');
+		$SocialHistory = new SocialHistory();
+		$smoking_statuses = $SocialHistory->getSocialHistoryByEidAndCode($eid, 'smoking_status');
+		$str_buff .= '<div class="indent">';
+
+		if(!empty($smoking_statuses)){
+			$str_buff .= '<p><b>Smoking Status:</b></p>';
+			$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">';
+			foreach($smoking_statuses as $smoking_status){
+
+				if(isset($smoking_status['start_date'])){
+					$from = date('F j, Y', strtotime($smoking_status['start_date']));
+					if($from == false) $from = 'UNK';
+				}else{
+					$from ='UNK';
+				}
+				if(isset($smoking_status['end_date'])){
+					$to = date('F j, Y', strtotime($smoking_status['end_date']));
+					if($to == false) $to = 'UNK';
+				}else{
+					$to ='UNK';
+				}
+
+				$str_buff .= '<u>' . (isset($smoking_status['status']) ? $smoking_status['status'] : '') . '</u> - ';
+				$str_buff .= '<u>Dates From/To:</u> ' . $from . ' / ' . $to . ' - ';
+				$str_buff .= '<u>Counseling Given:</u> ' . (isset($smoking_status['counseling']) && $smoking_status['counseling'] ? 'Yes' : 'No') . ' - ';
+				$str_buff .= '<u>Note:</u> ' . (isset($smoking_status['note']) ? $smoking_status['note'] : '');
+			}
+			$str_buff .= '</ul>';
+
+		}else{
+			$str_buff .= '<p><b>Smoking Status:</b> No Smoking Status Recorded</p>';
+		}
+
+		$str_buff .= '</div>';
+
+		$social_history = $SocialHistory->getSocialHistoryByEidAndCode($eid, 'history');
+
+		if(!empty($social_history)){
+			$str_buff .= '<div class="indent">';
+			$str_buff .= '<p><b>Social History:</b></p>';
+			$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">';
+			foreach ($social_history as $history){
+
+				$str_buff .= '<li>';
+				$str_buff .= '<u>Category:</u> ' . $history['category_code_text'] . ' - ';
+				$str_buff .= '<u>Observation:</u> ' . $history['observation'] . ' - ';
+				$str_buff .= '<u>Note:</u> ' . $history['note'];
+				$str_buff .= '</li>';
+
+			}
+			$str_buff .= '</ul>';
+
+			$str_buff .= '</div>';
+
+		}
+
+		return $str_buff;
+	}
+
+	private function getObjectiveExtraDataByEid($eid, $encounter = null) {
+
+		if(!isset($encounter)){
+			$record = $this->getEncounter($eid, true);
+			$encounter = (array)$record['encounter'];
+		}
+
+		$str_buff = '';
 
 		$Vitals = new Vitals();
 		$vitals = $Vitals->getVitalsByEid($eid);
@@ -1036,60 +1098,6 @@ class Encounter {
 		}
 		$str_buff .= '</div>';
 
-		/**
-		 * Active Medications
-		 */
-//		if($encounter['review_medications'] && isset($encounter)){
-		if(isset($encounter)){
-			$ActiveMedications = new Medications();
-			$active_medications = $ActiveMedications->getPatientActiveMedicationsByPid($encounter['pid']);
-
-			$str_buff .= '<div class="indent">';
-			if(!empty($active_medications)){
-				$lis = '';
-				foreach($active_medications as $foo){
-					$source = $foo['eid'] == $eid ? '*' : '';
-					$lis .= "<li>{$source}" . $foo['STR'] . '</li>';
-				}
-				$str_buff .= '<p><b>Active Medications:</b></p>';
-				$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
-			} else {
-				$str_buff .= '<p><b>Active Medications:</b> No Active Medications</p>';
-			}
-			$str_buff .= '</div>';
-			unset($ActiveMedications, $active_medications);
-		}
-
-		/**
-		 * Active Problems found in this Encounter
-		 */
-		$ActiveProblems = new ActiveProblems();
-		if(isset($encounter)){
-			$active_problems = $ActiveProblems->getPatientActiveProblemByPid($encounter['pid']);
-		}else{
-			$active_problems = $ActiveProblems->getPatientActiveProblemByEid($eid);
-		}
-
-		if(!empty($active_problems)){
-			$str_buff .= '<div class="indent">';
-			$str_buff .= '<p><b>Active Problems:</b></p>';
-			$str_buff .= '<ul class="ProgressNote-ul">';
-			foreach($active_problems as $foo){
-				$source = $foo['eid'] == $eid ? '*' : '';
-				$str_buff .= "<li>{$source}[" . $foo['code'] . '] - ' . $foo['code_text'] . '</li>';
-			}
-			$str_buff .= '</ul>';
-			$str_buff .= '</div>';
-		}else{
-			if($encounter['review_active_problems']){
-				$str_buff .= '<div class="indent">';
-				$str_buff .= '<p><b>Active Problems:</b> No Active Problems</p>';
-				$str_buff .= '</div>';
-			}
-		}
-
-		unset($ActiveProblems, $active_problems);
-
 
 		/**
 		 * Immunizations ????
@@ -1123,9 +1131,52 @@ class Encounter {
 			unset($Immunizations, $immunizations);
 		}
 
+		/**
+		 * Medications Administered
+		 */
+		$Medications = new Medications();
+		$medications_administered = $Medications->getPatientMedicationsAdministered((object)['eid' => $eid]);
+		if(!empty($medications_administered)){
+
+			$str_buff .= '<div class="indent">';
+			$lis = '';
+			foreach($medications_administered as $foo){
+
+				$lis .= '<li>';
+				$lis .= '<u>' . (isset($foo['description']) ? $foo['description'] : '')  . '</u> - ';
+
+				if(isset($foo['not_performed_text']) && $foo['not_performed_text'] != ''){
+					$lis .= '<b> Not Performed:</b> ' . $foo['not_performed_text'];
+				}else{
+					$lis .= '<b> Amount:</b> ' . (isset($foo['administered_amount']) ? $foo['administered_amount'] : '')  . ' - ';
+					$lis .= '<b> Units:</b> ' . (isset($foo['administered_units']) ? $foo['administered_units'] : '')  . ' - ';
+					$lis .= '<b> Site:</b> ' . (isset($foo['administered_site']) ? $foo['administered_site'] : '')  . ' - ';
+					$lis .= '<b> Exp. Date:</b> ' . (isset($foo['exp_date']) && $foo['exp_date'] !== '' ? $foo['exp_date'] : ' - ');
+					$lis .= '<b> Lot No.:</b> ' . (isset($foo['lot_number']) && $foo['lot_number'] !== '' ? $foo['lot_number'] : ' - ');
+				}
+
+				if(isset($foo['adverse_reaction_text']) && $foo['adverse_reaction_text'] != ' '){
+					$lis .= '<b> Adverse Reaction:</b> ' . $foo['adverse_reaction_text'];
+				}
+
+				if(isset($foo['administered_lname']) && $foo['administered_lname'] != ' ') {
+					$lis .= '<b> Administer By:</b> ' . sprintf('%s, %s', $foo['administered_lname'], $foo['administered_fname']);
+				}
+
+				$lis .= '</li>';
+			}
+			$str_buff .= '<p><b>Medications Administered:</b></p>';
+			$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">' . $lis . '</ul>';
+			$str_buff .= '</div>';
+
+		}
+		unset($ActiveMedications, $medications_ordered, $medications_administered);
+
+		/**
+		 * Procedures
+		 */
 		$Procedures = new Procedures();
 		$procedures = $Procedures->getPatientProceduresByEid($eid);
-
 		if(!empty($procedures)){
 			$str_buff .= '<div class="indent">';
 			$lis = '';
@@ -1146,9 +1197,7 @@ class Encounter {
 			$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
 			$str_buff .= '</div>';
 		}
-
 		unset($Procedures, $procedures);
-
 
 
 		return $str_buff;
@@ -1191,55 +1240,12 @@ class Encounter {
 
 		}
 
-		/**
-		 * Medications Administered
-		 */
-		$medications_administered = $Medications->getPatientMedicationsAdministered((object)['eid' => $eid]);
-		if(!empty($medications_administered)){
-
-			$str_buff .= '<div class="indent">';
-			$lis = '';
-			foreach($medications_administered as $foo){
-
-				$lis .= '<li>';
-				$lis .= '<u>' . (isset($foo['description']) ? $foo['description'] : '')  . '</u> - ';
-
-				if(isset($foo['not_performed_text']) && $foo['not_performed_text'] != ''){
-					$lis .= '<b> Not Performed:</b> ' . $foo['not_performed_text'];
-				}else{
-					$lis .= '<b> Amount:</b> ' . (isset($foo['administered_amount']) ? $foo['administered_amount'] : '')  . ' - ';
-					$lis .= '<b> Units:</b> ' . (isset($foo['administered_units']) ? $foo['administered_units'] : '')  . ' - ';
-					$lis .= '<b> Site:</b> ' . (isset($foo['administered_site']) ? $foo['administered_site'] : '')  . ' - ';
-					$lis .= '<b> Exp. Date:</b> ' . (isset($foo['exp_date']) && $foo['exp_date'] !== '' ? $foo['exp_date'] : ' - ');
-					$lis .= '<b> Lot No.:</b> ' . (isset($foo['lot_number']) && $foo['lot_number'] !== '' ? $foo['lot_number'] : ' - ');
-				}
-
-				if(isset($foo['adverse_reaction_text']) && $foo['adverse_reaction_text'] != ' '){
-					$lis .= '<b> Adverse Reaction:</b> ' . $foo['adverse_reaction_text'];
-				}
-
-				if(isset($foo['administered_lname']) && $foo['administered_lname'] != ' ') {
-					$lis .= '<b> Administer By:</b> ' . sprintf('%s, %s', $foo['administered_lname'], $foo['administered_fname']);
-				}
-
-				$lis .= '</li>';
-			}
-			$str_buff .= '<p><b>Medications Administered:</b></p>';
-			$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">' . $lis . '</ul>';
-			$str_buff .= '</div>';
-
-		}
-
-		unset($ActiveMedications, $medications_ordered, $medications_administered);
-
-
 		$Orders = new Orders();
 
 		/**
 		 *  Laboratories
 		 */
 		$orders = $Orders->getPatientLabOrdersByEid($eid, true);
-
 		if(!empty($orders)){
 			$str_buff .= '<div class="indent">';
 			$str_buff .= '<p><b>Laboratory Order(s):</b></p>';
@@ -1258,9 +1264,7 @@ class Encounter {
 		/**
 		 * Radiology Orders
 		 */
-
 		$orders = $Orders->getPatientRadOrdersByEid($eid);
-
 		if(!empty($orders)){
 			$str_buff .= '<div class="indent">';
 			$str_buff .= '<p><b>Radiology Order(s):</b></p>';
@@ -1280,9 +1284,7 @@ class Encounter {
 		 * Referrals
 		 */
 		$Referrals = new Referrals();
-
 		$referrals = $Referrals->getPatientReferralsByEid($eid);
-
 		if(!empty($referrals)){
 			$str_buff .= '<div class="indent">';
 			$str_buff .= '<p><b>Referral(s):</b></p>';
@@ -1297,7 +1299,6 @@ class Encounter {
 			}
 			$str_buff .= '</div>';
 		}
-
 		unset($Referrals, $referrals);
 
 
@@ -1311,7 +1312,6 @@ class Encounter {
 		 */
 		$NursesNotes = new NursesNotes();
 		$notes = $NursesNotes->getNursesNotesByEid($eid);
-
 		if(!empty($notes)){
 			$str_buff .= '<div class="indent" style="color:orangered">';
 			$str_buff .= '<p><b>Nurses Notes(s):</b></p>';
@@ -1328,8 +1328,8 @@ class Encounter {
 			}
 			$str_buff .= '</div>';
 		}
-
 		unset($NursesNotes, $notes);
+
 
 		return $str_buff;
 	}

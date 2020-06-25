@@ -505,6 +505,66 @@ Ext.define('App.store.administration.DocumentToken', {
             token: '[CURRENT_USER_NPI_LICENSE_NUMBER]'
         },
         {
+            title: '',
+            token: '[REFERRING_ID]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_TITLE]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_FULL_NAME]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_FIRST_NAME]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_MIDDLE_NAME]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_LAST_NAME]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_NPI]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_LIC]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_FED_TAX]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_TAXONOMY]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_EMAIL]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_DIRECT_ADDRESS]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_PHONE]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_MOBILE]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_FAX]'
+        },
+        {
             title: _('referral_id'),
             token: '[REFERRAL_ID]'
         },

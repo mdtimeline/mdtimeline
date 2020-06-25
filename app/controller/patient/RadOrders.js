@@ -173,21 +173,19 @@ Ext.define('App.controller.patient.RadOrders', {
 
 			var date_ordered = Ext.Date.format(order.get('date_ordered'),'Y-m-d'),
 				pdf_format = (g('order_pdf_format') || null),
-				doc_key = '_' + order.get('eid') +
-					order.get('pid') +
-					order.get('uid') +
-					date_ordered;
+				doc_key = '_' + order.get('eid') + order.get('pid') + order.get('uid') + date_ordered;
 
 			if(!documents[doc_key]){
 				documents[doc_key] = {};
-				documents[doc_key].pid = app.patient.pid;
-				documents[doc_key].eid = app.patient.eid;
+				documents[doc_key].pid = order.get('pid');
+				documents[doc_key].eid = order.get('eid');
 				documents[doc_key].date_ordered = date_ordered;
 				documents[doc_key].provider_uid = order.get('uid');
 				documents[doc_key].orderItems = [];
 				documents[doc_key].docType = 'Rad';
 				documents[doc_key].templateId = 6;
 				documents[doc_key].pdf_format = pdf_format;
+				documents[doc_key].dx_required = true;
 				documents[doc_key].orderItems.push(['Description', 'Notes']);
 			}
 
@@ -198,14 +196,20 @@ Ext.define('App.controller.patient.RadOrders', {
 		});
 
 		Ext.Object.each(documents, function(key, params){
-			DocumentHandler.createTempDocument(params, function(provider, response){
+			DocumentHandler.createTempDocument(params, function(response){
+
+				if(Ext.isString(response)){
+					app.msg(_('oops'), response, true);
+					return;
+				}
+
 				if(print === true){
-					Printer.doTempDocumentPrint(1, response.result.id);
+					Printer.doTempDocumentPrint(1, response.id);
 				}else{
 					if(window.dual){
-						dual.onDocumentView(response.result.id, 'Rad');
+						dual.onDocumentView(response.id, 'Rad');
 					}else{
-						app.onDocumentView(response.result.id, 'Rad');
+						app.onDocumentView(response.id, 'Rad');
 					}
 				}
 

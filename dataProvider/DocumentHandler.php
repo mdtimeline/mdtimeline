@@ -639,39 +639,44 @@ class DocumentHandler
     /**
      * @param $params
      * @param bool $getDocument
-     * @return object|stdClass
+     * @return object|stdClass|string
      */
     public function createTempDocument($params,$getDocument = false)
     {
-        $this->setPatientDocumentTempModel();
+    	try{
+		    $this->setPatientDocumentTempModel();
 
-        Matcha::pauseLog(true);
+		    Matcha::pauseLog(true);
 
-        $params = (object)$params;
-        $record = new stdClass();
-        if (isset($params->document) && $params->document != '') {
-            $record->document = $params->document;
-        } else {
-            $pdf_format = isset($params->pdf_format) ? $params->pdf_format : null;
+		    $params = (object)$params;
+		    $record = new stdClass();
+		    if (isset($params->document) && $params->document != '') {
+			    $record->document = $params->document;
+		    } else {
+			    $pdf_format = isset($params->pdf_format) ? $params->pdf_format : null;
 
-            $header_data = isset($params->header_data) && is_array($params->header_data) ? $params->header_data : null;
-            $footer_data = isset($params->footer_data) && is_array($params->footer_data) ? $params->footer_data : null;
-            $mail_cover_info = isset($params->mail_cover_info) && is_array($params->mail_cover_info) ? $params->mail_cover_info : null;
+			    $header_data = isset($params->header_data) && is_array($params->header_data) ? $params->header_data : null;
+			    $footer_data = isset($params->footer_data) && is_array($params->footer_data) ? $params->footer_data : null;
+			    $mail_cover_info = isset($params->mail_cover_info) && is_array($params->mail_cover_info) ? $params->mail_cover_info : null;
 
-            $Documents = new Documents();
-            $record->document = base64_encode(
-                $Documents->PDFDocumentBuilder((object)$params, '', $header_data, $footer_data, '', [], [], $pdf_format,$mail_cover_info)
-            );
-        }
-        $record->create_date = date('Y-m-d H:i:s');
-        $record->document_name = isset($params->document_name) ? $params->document_name : '';
-        $record = (object)$this->t->save($record);
-        if(!$getDocument){
-            unset($record->document);
-        }
+			    $Documents = new Documents();
+			    $record->document = base64_encode(
+				    $Documents->PDFDocumentBuilder((object)$params, '', $header_data, $footer_data, '', [], [], $pdf_format,$mail_cover_info)
+			    );
+		    }
+		    $record->create_date = date('Y-m-d H:i:s');
+		    $record->document_name = isset($params->document_name) ? $params->document_name : '';
+		    $record = (object)$this->t->save($record);
+		    if(!$getDocument){
+			    unset($record->document);
+		    }
 
-        Matcha::pauseLog(false);
-        return $record;
+		    Matcha::pauseLog(false);
+		    return $record;
+	    }catch (Exception $e){
+			return $e->getMessage();
+	    }
+
     }
 
     /**

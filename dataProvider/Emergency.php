@@ -69,7 +69,7 @@ class Emergency {
 			 */
 			$params = new stdClass();
 			$params->pid = $this->pid;
-			$params->brief_description = '***EMERGENCY***';
+			$params->brief_description = '';
 			$params->visit_category = 'Emergency';
 			$params->priority = $this->priority;
 			$params->service_date = Time::getLocalTime();

@@ -34758,6 +34758,66 @@ Ext.define('App.store.administration.DocumentToken', {
             token: '[CURRENT_USER_NPI_LICENSE_NUMBER]'
         },
         {
+            title: '',
+            token: '[REFERRING_ID]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_TITLE]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_FULL_NAME]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_FIRST_NAME]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_MIDDLE_NAME]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_LAST_NAME]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_NPI]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_LIC]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_FED_TAX]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_TAXONOMY]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_EMAIL]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_DIRECT_ADDRESS]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_PHONE]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_MOBILE]'
+        },
+        {
+            title: '',
+            token: '[REFERRING_FAX]'
+        },
+        {
             title: _('referral_id'),
             token: '[REFERRAL_ID]'
         },
@@ -48767,21 +48827,19 @@ Ext.define('App.controller.patient.RadOrders', {
 
 			var date_ordered = Ext.Date.format(order.get('date_ordered'),'Y-m-d'),
 				pdf_format = (g('order_pdf_format') || null),
-				doc_key = '_' + order.get('eid') +
-					order.get('pid') +
-					order.get('uid') +
-					date_ordered;
+				doc_key = '_' + order.get('eid') + order.get('pid') + order.get('uid') + date_ordered;
 
 			if(!documents[doc_key]){
 				documents[doc_key] = {};
-				documents[doc_key].pid = app.patient.pid;
-				documents[doc_key].eid = app.patient.eid;
+				documents[doc_key].pid = order.get('pid');
+				documents[doc_key].eid = order.get('eid');
 				documents[doc_key].date_ordered = date_ordered;
 				documents[doc_key].provider_uid = order.get('uid');
 				documents[doc_key].orderItems = [];
 				documents[doc_key].docType = 'Rad';
 				documents[doc_key].templateId = 6;
 				documents[doc_key].pdf_format = pdf_format;
+				documents[doc_key].dx_required = true;
 				documents[doc_key].orderItems.push(['Description', 'Notes']);
 			}
 
@@ -48792,14 +48850,20 @@ Ext.define('App.controller.patient.RadOrders', {
 		});
 
 		Ext.Object.each(documents, function(key, params){
-			DocumentHandler.createTempDocument(params, function(provider, response){
+			DocumentHandler.createTempDocument(params, function(response){
+
+				if(Ext.isString(response)){
+					app.msg(_('oops'), response, true);
+					return;
+				}
+
 				if(print === true){
-					Printer.doTempDocumentPrint(1, response.result.id);
+					Printer.doTempDocumentPrint(1, response.id);
 				}else{
 					if(window.dual){
-						dual.onDocumentView(response.result.id, 'Rad');
+						dual.onDocumentView(response.id, 'Rad');
 					}else{
-						app.onDocumentView(response.result.id, 'Rad');
+						app.onDocumentView(response.id, 'Rad');
 					}
 				}
 
@@ -52859,9 +52923,22 @@ Ext.define('App.view.patient.LabOrders', {
 	],
 	columns: [
 		{
+			xtype: 'actioncolumn',
+			width: 20,
+			items: [
+				{
+					icon: 'resources/images/icons/cross.png',
+					tooltip: _('remove'),
+					handler: function (grid, rowIndex, colIndex, item, e, record) {
+						App.app.getController('patient.LabOrders').onOrdersDeleteActionHandler(grid, rowIndex, colIndex, item, e, record);
+					}
+				}
+			]
+		},
+		{
             header: _('void'),
             groupable: false,
-            width: 60,
+            width: 50,
             align: 'center',
             dataIndex: 'void',
             tooltip: _('void'),
@@ -52909,8 +52986,9 @@ Ext.define('App.view.patient.LabOrders', {
 			},
             renderer: function(v, meta, record)
             {
-                if(record.data.void) return '<span style="text-decoration: line-through;">'+ v + '</span>';
-                return '<span>'+ v + '</span>';
+            	var dt = Ext.Date.format(v, g('date_display_format'));
+                if(record.data.void) return '<span style="text-decoration: line-through;">'+ dt + '</span>';
+                return '<span>'+ dt + '</span>';
             }
 		},
 		{
@@ -62243,7 +62321,8 @@ Ext.define('App.controller.patient.LabOrders', {
 			'patientlaborderspanel': {
 				activate: me.onLabOrdersGridActive,
 				selectionchange: me.onLabOrdersGridSelectionChange,
-				beforerender: me.onLabOrdersGridBeforeRender
+				beforerender: me.onLabOrdersGridBeforeRender,
+				validateedit: me.onLabOrdersGridValidateEdit
 			},
 			'#rxLabOrderLabsLiveSearch': {
 				select: me.onLoincSearchSelect
@@ -62265,6 +62344,69 @@ Ext.define('App.controller.patient.LabOrders', {
 
 		me.encounterCtl = me.getController('patient.encounter.Encounter');
 
+	},
+
+	onOrdersDeleteActionHandler: function (grid, rowIndex, colIndex, item, e, record) {
+
+		if(!a('remove_patient_order')){
+			app.msg(_('oops'), _('not_authorized'), true);
+			return;
+		}
+
+		var me = this,
+			store = grid.getStore();
+
+		Ext.Msg.show({
+			title: _('wait'),
+			msg: ('<b>' + record.get('description') + '</b><br><br>' + _('delete_this_record')),
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (btn1) {
+				if(btn1 === 'yes'){
+					Ext.Msg.show({
+						title: _('wait'),
+						msg: _('this_action_can_not_be_undone_continue'),
+						buttons: Ext.Msg.YESNO,
+						icon: Ext.Msg.QUESTION,
+						fn: function (btn2) {
+							if(btn2 === 'yes'){
+								store.remove(record);
+								store.sync({
+									callback: function () {
+										store.remove(record);
+										store.sync({
+											callback: function () {
+
+											}
+										});
+									}
+								});
+							}
+						}
+					});
+				}
+			}
+		});
+	},
+
+	onLabOrdersGridValidateEdit: function(plugin, context){
+		var form = plugin.editor.getForm(),
+			combo = form.findField('description'),
+			combo_value = combo.getValue(),
+			selected_record = combo.findRecordByValue(combo_value);
+
+		if(combo_value === null){
+			context.record.set({
+				code: null,
+				description: null,
+			});
+		}else if(selected_record){
+			context.record.set({
+				code: selected_record.get('loinc_number'),
+				code_type: 'LOINC',
+				description: selected_record.get('loinc_name')
+			});
+		}
 	},
 
 	onLabOrdersUnableToPerformFieldSelect: function(combo){
@@ -62340,23 +62482,25 @@ Ext.define('App.controller.patient.LabOrders', {
 		orders.forEach(function(order){
 			var date_ordered = Ext.Date.format(order.get('date_ordered'),'Y-m-d'),
 				pdf_format = (g('order_pdf_format') || null),
-				doc_key = '_' + order.get('eid') +
-					order.get('pid') +
-					order.get('uid') +
-					date_ordered;
+				doc_key = '_' + order.get('eid') + order.get('pid') + order.get('uid') + date_ordered;
+
+			if(order.get('void')){
+				app.msg(_('oops'), Ext.String.format('Unable to print voided order #{0}', order.get('id')), true);
+				return;
+			}
 
 			if(!documents[doc_key]){
 				documents[doc_key] = {};
-				documents[doc_key].pid = app.patient.pid;
-				documents[doc_key].eid = app.patient.eid;
+				documents[doc_key].pid = order.get('pid');
+				documents[doc_key].eid = order.get('eid');
 				documents[doc_key].date_ordered = date_ordered;
 				documents[doc_key].provider_uid = order.get('uid');
 				documents[doc_key].orderItems = [];
 				documents[doc_key].docType = 'Lab';
 				documents[doc_key].templateId = 4;
 				documents[doc_key].pdf_format = pdf_format;
+				documents[doc_key].dx_required = true;
 				documents[doc_key].orderItems.push(['Description', 'Notes']);
-
 			}
 
 			documents[doc_key].orderItems.push([
@@ -62365,16 +62509,25 @@ Ext.define('App.controller.patient.LabOrders', {
 			]);
 		});
 
+		if(Ext.Object.isEmpty(documents)){
+			return;
+		}
+
 		Ext.Object.each(documents, function(key, params){
-			DocumentHandler.createTempDocument(params, function(provider, response){
+			DocumentHandler.createTempDocument(params, function(response){
+
+				if(Ext.isString(response)){
+					app.msg(_('oops'), response, true);
+					return;
+				}
 
 				if(print === true){
-					Printer.doTempDocumentPrint(1, response.result.id);
+					Printer.doTempDocumentPrint(1, response.id);
 				}else{
 					if(window.dual){
-						dual.onDocumentView(response.result.id, 'Lab');
+						dual.onDocumentView(response.id, 'Lab');
 					}else{
-						app.onDocumentView(response.result.id, 'Lab');
+						app.onDocumentView(response.id, 'Lab');
 					}
 				}
 			});

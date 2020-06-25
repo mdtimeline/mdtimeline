@@ -126,17 +126,18 @@ class Documents {
 		return $givingValuesToTokens;
 	}
 
-	public function get_EncounterTokensData($eid, $allNeededInfo, $tokens) {
+	public function get_EncounterTokensData($params, $allNeededInfo, $tokens) {
 
-		$params = new stdClass();
-		$params->eid = $eid;
-		$encounter = $this->Encounter->getEncounter($params);
+		$enc_params = new stdClass();
+		$enc_params->eid = $params->eid;
+		$eid = $params->eid;
+		$encounter = $this->Encounter->getEncounter($enc_params);
 
 		if(!isset($encounter['encounter'])){
 			return $allNeededInfo;
 		}
 
-		$encounterCodes = $this->Encounter->getEncounterCodes($params);
+		$encounterCodes = $this->Encounter->getEncounterCodes($enc_params);
 
 		$vitals = end($encounter['encounter']['vitals']);
 
@@ -188,6 +189,10 @@ class Documents {
 		$dx_records = $this->Encounter->getEncounterDxs(['eid' => $eid]);
 		foreach ($dx_records as $dx_record){
 			$dx[] = $dx_record['code'];
+		}
+
+		if(isset($params->dx_required) && empty($dx)){
+			throw new Exception('Encounter Diagnosis Required');
 		}
 
 		$Medications = new Medications();
@@ -268,7 +273,7 @@ class Documents {
 		$progress_key = array_search('[ENCOUNTER_PROGRESS_NOTE]', $tokens);
 		if($progress_key !== false){
 			$allNeededInfo[$progress_key] = $this->Encounter->ProgressNoteString(
-				$this->Encounter->getProgressNoteByEid($params->eid, false)
+				$this->Encounter->getProgressNoteByEid($enc_params->eid, false)
 			);
 		}
 
@@ -573,7 +578,7 @@ class Documents {
 			$allNeededInfo = $this->get_PatientTokensData($pid, $allNeededInfo, $tokens);
 
 			if(isset($params->eid) && $params->eid != 0 && $params->eid != ''){
-				$allNeededInfo = $this->get_EncounterTokensData($params->eid, $allNeededInfo, $tokens);
+				$allNeededInfo = $this->get_EncounterTokensData($params, $allNeededInfo, $tokens);
 			}
 
 			$allNeededInfo = $this->getCurrentTokensData($allNeededInfo, $tokens);

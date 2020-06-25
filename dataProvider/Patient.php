@@ -204,10 +204,12 @@ class Patient
 
 	/**
 	 * @param $pid
+	 * @param $include_accounts
+	 * @param $account_facility_id
 	 *
 	 * @return mixed
 	 */
-	public function getPatientByPid($pid)
+	public function getPatientByPid($pid, $include_accounts = false, $account_facility_id = null)
 	{
 		$this->setPatientModel();
 		$params = new stdClass();
@@ -222,13 +224,20 @@ class Patient
 			$this->patient['age'] = $this->getPatientAge();
 			$this->patient['name'] = $this->getPatientFullName();
 
+			if($include_accounts === true && isset($account_facility_id)){
+				$this->patient['account'] = $this->getPatientAccountsByPidAndFacility($pid, $account_facility_id);
+			}
+
 			if (
 				$this->patient['rating'] > 0 && isset($_SESSION['user']) && !ACL::hasPermission("allow_access_patient_rating_{$this->patient['rating']}")
 			) {
 				$this->errors[] = "No Authorized to Access Patient With Rating {$this->patient['rating']}";
 				$this->patient = false;
 			}
+
 		}
+
+
 
 
 		return $this->patient;
@@ -1526,6 +1535,12 @@ class Patient
 	public function destroyPatientAccount($params){
 		$this->setPatientAccountModel();
 		return $this->pa->destroy($params);
+	}
+	public function getPatientAccountsByPidAndFacility($pid, $facility_id){
+		$this->setPatientAccountModel();
+		$this->pa->addFilter('pid', $pid);
+		$this->pa->addFilter('facility_id', $facility_id);
+		return $this->pa->load()->one();
 	}
 }
 

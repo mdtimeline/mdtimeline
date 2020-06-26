@@ -92,6 +92,12 @@ Ext.define('App.view.patient.encounter.Snippets', {
 					xtype: 'textfield',
 					fieldLabel: _('diagnoses'),
 					name: 'diagnoses'
+				},
+				{
+					xtype: 'userscombo',
+					fieldLabel: _('owner'),
+					includeAllOption: true,
+					name: 'uid'
 				}
 			]
 		}

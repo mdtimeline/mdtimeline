@@ -383,6 +383,15 @@ class Navigation
             ];
         }
 
+//        if($this->ACL->hasPermission('access_admin_snippets_manager')){
+            $admin['children'][] = [
+                'text' => 'Snippets Manager',
+                'leaf' => true,
+                'cls' => 'file',
+                'id' => 'App.view.administration.SnippetsManager'
+            ];
+//        }
+
 		if(isset($admin['children']) && count($admin['children']) > 0) array_push($nav, $admin);
 
 

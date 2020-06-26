@@ -29,8 +29,8 @@ class NursesNotes {
 	private $s;
 
 	function __construct(){
-		$this->n = MatchaModel::setSenchaModel('App.model.patient.NursesNote', true);
-		$this->s = MatchaModel::setSenchaModel('App.model.administration.NursesNoteSnippet', true);
+		$this->n = MatchaModel::setSenchaModel('App.model.patient.NursesNote');
+		$this->s = MatchaModel::setSenchaModel('App.model.administration.NursesNoteSnippet');
 	}
 
 	/**
@@ -101,6 +101,7 @@ class NursesNotes {
 	 * @return array
 	 */
 	public function getNursesNoteSnippets($params){
+		unset($params->group);
 		return $this->s->load($params)->all();
 	}
 

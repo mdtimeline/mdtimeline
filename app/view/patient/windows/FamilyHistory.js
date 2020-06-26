@@ -25,15 +25,15 @@ Ext.define('App.view.patient.windows.FamilyHistory', {
 	title: _('family_history'),
 	width: 1000,
 	height: 400,
-	//closeAction: 'hide',
 	modal: true,
-	layout: 'fit',
 	bodyStyle: 'background-color:white',
+	bodyPadding: 10,
+	autoScroll: true,
 	items: [
 		{
 			xtype: 'form',
-			bodyPadding: 10,
-			autoScroll: true,
+			frame: false,
+			border: false,
 			itemId: 'FamilyHistoryForm'
 		}
 	],
@@ -64,7 +64,7 @@ Ext.define('App.view.patient.windows.FamilyHistory', {
 				//field.items.items[2].flex = 2;
 			});
 
-			form.doLayout();
+			me.doLayout();
 		});
 	}
 });

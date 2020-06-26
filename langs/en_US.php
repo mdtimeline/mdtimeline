@@ -2152,4 +2152,5 @@ $LANG = array(
     'content_type' => 'Content Type',
     'content_version' => 'Content Version',
     'specialty_required_for_billing' => 'Specialty Rq To Bill',
+    'config' => 'Config',
 );

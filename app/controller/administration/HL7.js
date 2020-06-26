@@ -86,9 +86,102 @@ Ext.define('App.controller.administration.HL7', {
 			},
 			'#HL7MessagesGrid': {
 				itemdblclick: me.onHL7MessagesGridItemDblClick
+			},
+			'#HL7ServerConfigBtn': {
+				click: me.onHL7ServerConfigBtnClick
+			},
+			'#HL7ClientConfigBtn': {
+				click: me.onHL7ClientConfigBtnClick
+			},
+			'#HL7ConfigEditorCancelBtn': {
+				click: me.onHL7ConfigEditorCancelBtnClick
+			},
+			'#HL7ConfigEditorSaveBtn': {
+				click: me.onHL7ConfigEditorSaveBtnClick
 			}
 		});
 
+	},
+
+	onHL7ConfigEditorCancelBtnClick: function(btn){
+		btn.up('window').close();
+	},
+
+	onHL7ConfigEditorSaveBtnClick: function(btn){
+		var win = btn.up('window'),
+			form = win.down('form').getForm(),
+			values = form.getValues(),
+			record = form.getRecord();
+
+		record.set(values);
+
+		if(!Ext.Object.isEmpty(record.getChanges())){
+			record.save({
+				callback: function () {
+					win.close();
+					app.msg(_('sweet'), _('record_saved'));
+				}
+			});
+		}else{
+			win.close();
+		}
+
+	},
+
+	onHL7ServerConfigBtnClick: function(btn){
+		var grid = btn.up('grid'),
+			selection = grid.getSelectionModel().getSelection();
+
+		if(selection.length === 0){
+			return;
+		}
+
+		var win = this.showConfigEditorWindow();
+		win.down('form').getForm().loadRecord(selection[0]);
+	},
+
+	onHL7ClientConfigBtnClick: function(btn){
+		var grid = btn.up('grid'),
+			selection = grid.getSelectionModel().getSelection();
+
+		if(selection.length === 0){
+			return;
+		}
+
+		var win = this.showConfigEditorWindow();
+		win.down('form').getForm().loadRecord(selection[0]);
+	},
+
+	showConfigEditorWindow: function(){
+		return Ext.create('Ext.window.Window', {
+			title: 'Configuration',
+			height: 400,
+			width: 600,
+			layout: 'fit',
+			modal: true,
+			items: {
+				xtype: 'form',
+				layout: 'fit',
+				items: [
+					{
+						xtype: 'textareafield',
+						name: 'config'
+					}
+				]
+			},
+			buttons: [
+				{
+					xtype: 'button',
+					text: _('cancel'),
+					itemId: 'HL7ConfigEditorCancelBtn'
+				},
+				{
+					xtype: 'button',
+					text: _('save'),
+					itemId: 'HL7ConfigEditorSaveBtn'
+				}
+			]
+		}).show();
 	},
 
 	onAddHL7ServerBtnClick: function(){

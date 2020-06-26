@@ -216,6 +216,11 @@ Ext.define('App.controller.patient.NursesNotes', {
 	},
 
 	onNursesNotesGridItemDblClick: function(grid, record){
+		// validate user is the owner of this note
+		if(record.get('create_uid') > 0 && record.get('create_uid') !== app.user.id){
+			app.msg(_('oops'), 'Cannot modify notes signed by another user', true);
+			return;
+		}
 		var form  = this.showNursesNotesWindow().down('form').getForm();
 		form.loadRecord(record);
 	},

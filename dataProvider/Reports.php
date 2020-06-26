@@ -32,6 +32,7 @@ class Reports
 	}
 
 	public function getReports($params){
+		unset($params->group);
 		return $this->r->load($params)->all();
 	}
 

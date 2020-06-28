@@ -902,7 +902,7 @@ class Encounter {
 			$str_buff .= '</ul>';
 			$str_buff .= '</div>';
 		}else{
-			if($encounter['review_active_problems']){
+			if(isset($encounter) && $encounter['review_active_problems']){
 				$str_buff .= '<div class="indent">';
 				$str_buff .= '<p><b>Active Problems:</b> No Active Problems</p>';
 				$str_buff .= '</div>';

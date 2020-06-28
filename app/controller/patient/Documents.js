@@ -331,10 +331,10 @@ Ext.define('App.controller.patient.Documents', {
 	onPatientDocumentGridSelectionChange: function(sm, selection){
 		var frame = sm.view.panel.up('panel').query('#patientDocumentViewerFrame')[0];
 
-		if(selection.length === 0 || selection[0].get('disabled_selection')){
+		if(selection.length === 0 || selection[selection.length - 1].get('disabled_selection')){
 			frame.setSrc('about:blank');
 		}else{
-			frame.setSrc('dataProvider/DocumentViewer.php?site=' + this.site + '&token=' + app.user.token + '&id=' + selection[0].data.id + '&_dc=' + Ext.Date.now());
+			frame.setSrc('dataProvider/DocumentViewer.php?site=' + this.site + '&token=' + app.user.token + '&id=' + selection[selection.length - 1].data.id + '&_dc=' + Ext.Date.now());
 		}
 	},
 

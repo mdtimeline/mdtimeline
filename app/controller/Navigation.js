@@ -174,9 +174,12 @@ Ext.define('App.controller.Navigation', {
 			sm = tree.getSelectionModel(),
 			node = treeStore.getNodeById(cls);
 
-
 		this.url = url;
-		sm.select(node);
+		if(node){
+			sm.select(node);
+		}else{
+			sm.deselectAll();
+		}
 
 		// ignore the Login
 		if(cls == 'App.view.login.Login') return;

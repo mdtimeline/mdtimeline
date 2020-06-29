@@ -2153,4 +2153,5 @@ $LANG = array(
     'content_version' => 'Content Version',
     'specialty_required_for_billing' => 'Specialty Rq To Bill',
     'config' => 'Config',
+    'insurance_id' => 'Insurance ID',
 );

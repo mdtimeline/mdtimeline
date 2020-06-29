@@ -140,6 +140,16 @@ Ext.define('App.controller.reports.Reports', {
 					});
 					return;
 				}
+				if(parameter.PARAMETER_NAME === 'insurance_id'){
+					search_fields.push({
+						xtype: 'insurancescombo',
+						fieldLabel: _(parameter.PARAMETER_NAME),
+						labelAlign: 'top',
+						margin: '0 5 0 0',
+						name: parameter.PARAMETER_NAME
+					});
+					return;
+				}
 				// any parameter ending in _uid will add a user search field
 				if(parameter.PARAMETER_NAME.search(/_uid$/) !== -1){
 					search_fields.push({

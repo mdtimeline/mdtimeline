@@ -301,8 +301,17 @@ class Disclosure
         $patient = $Patient->getPatient();
         $language = isset($patient['language']) ? $patient['language'] : 'es';
 
+        switch ($language){
+	        case 'esp':
+	        case 'es':
+		        $lan = 'es';
+		        break;
+	        default:
+	        	$lan = 'en';
+        }
+
         $ContentManagement = new \ContentManagement();
-        $template = $ContentManagement->generateContentManagement('disclosure', $language, null, null);
+        $template = $ContentManagement->generateContentManagement('disclosure', $lan, null, null);
         if (!$template) throw new Exception('Disclosure template not configured!');
         return $template;
     }

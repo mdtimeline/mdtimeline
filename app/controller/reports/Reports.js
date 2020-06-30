@@ -65,8 +65,34 @@ Ext.define('App.controller.reports.Reports', {
 			},
 			'#ReportWindowReloadBtn': {
 				click: me.onReportWindowReloadBtnClick
+			},
+			'#ReportWindowGridPrintBtn': {
+				click: me.onReportWindowGridPrintBtnClick
 			}
 		});
+
+	},
+
+	onReportWindowGridPrintBtnClick: function(btn){
+
+		var report_grid = btn.up('grid'),
+			report_win = report_grid.up('window'),
+			report_form = report_win.down('form').getForm(),
+			filters = [];
+
+		if(!report_grid.filters){
+			app.msg(_('oops'), 'No Filters Found', true);
+			return;
+		}
+
+		Ext.Object.each(report_grid.filters, function (property, filter) {
+			var val = filter ? filter : 'None';
+			filters.push(Ext.String.format('<b>{0}</b>: {1}', _(property), val));
+		});
+
+		App.ux.grid.Printer.mainTitle = Ext.String.format('{0} Report', report_win.title);
+		App.ux.grid.Printer.filtersHtml = 'Filters: ' + filters.join(', ');
+		App.ux.grid.Printer.print(report_grid);
 
 	},
 
@@ -79,8 +105,10 @@ Ext.define('App.controller.reports.Reports', {
 			win = me.showReportsWindow(),
 			form = win.down('form'),
 			report_grid = win.down('grid'),
-			model_fields = [], search_fields = [], columns;
+			group_fields = record.get('group_fields'),
+			model_fields = [], search_fields = [], columns, group_by;
 
+		report_grid.filters = undefined;
 		win.setTitle(record.get('title'));
 		win.el.mask('Getting Things Ready');
 
@@ -116,6 +144,7 @@ Ext.define('App.controller.reports.Reports', {
 						fieldLabel: _(parameter.PARAMETER_NAME),
 						labelAlign: 'top',
 						margin: '0 5 0 0',
+						multiSelect: true,
 						name: parameter.PARAMETER_NAME
 					});
 					return;
@@ -126,6 +155,7 @@ Ext.define('App.controller.reports.Reports', {
 						fieldLabel: _(parameter.PARAMETER_NAME),
 						labelAlign: 'top',
 						margin: '0 5 0 0',
+						multiSelect: true,
 						name: parameter.PARAMETER_NAME
 					});
 					return;
@@ -136,6 +166,7 @@ Ext.define('App.controller.reports.Reports', {
 						fieldLabel: _(parameter.PARAMETER_NAME),
 						labelAlign: 'top',
 						margin: '0 5 0 0',
+						multiSelect: true,
 						name: parameter.PARAMETER_NAME
 					});
 					return;
@@ -146,6 +177,7 @@ Ext.define('App.controller.reports.Reports', {
 						fieldLabel: _(parameter.PARAMETER_NAME),
 						labelAlign: 'top',
 						margin: '0 5 0 0',
+						multiSelect: true,
 						name: parameter.PARAMETER_NAME
 					});
 					return;
@@ -188,10 +220,33 @@ Ext.define('App.controller.reports.Reports', {
 
 			});
 
+			if(group_fields !== ''){
+				group_fields = group_fields.split(',');
+				var data = [];
+
+				group_fields.forEach(function (group_field) {
+					if(group_by == null) {
+						group_by = group_field;
+					}
+					data.push([group_field, _(group_field)]);
+				});
+
+				search_fields.push({
+					xtype: 'combo',
+					fieldLabel: _('group_by'),
+					labelAlign: 'top',
+					margin: '0 5 0 0',
+					itemId: 'ReportWindowGroupByCmb',
+					submitValue: false,
+					value: group_by,
+					store: data
+				});
+			}
+
 			// add fields to the form
 			form.add(search_fields);
 
-			columns = eval('([' + response.columns + '])');
+			columns = eval('(' + response.columns + ')');
 			columns.forEach(function (column) {
 
 				model_fields.push({
@@ -201,7 +256,11 @@ Ext.define('App.controller.reports.Reports', {
 
 			});
 
-			report_grid.reconfigure(Ext.create('Ext.data.Store',{ fields: model_fields }), columns);
+			if(group_by){
+				report_grid.reconfigure(Ext.create('Ext.data.Store',{ fields: model_fields, groupField: group_by  }), columns);
+			}else{
+				report_grid.reconfigure(Ext.create('Ext.data.Store',{ fields: model_fields }), columns);
+			}
 		});
 
 	},
@@ -216,6 +275,7 @@ Ext.define('App.controller.reports.Reports', {
 			report_record = me.getReportsGrid().getSelectionModel().getSelection()[0];
 
 		report_grid.view.el.mask('Loading!!!');
+		report_grid.filters = filters;
 
 		Reports.runReportByIdAndFilters(report_record.get('id'), filters, function (response) {
 

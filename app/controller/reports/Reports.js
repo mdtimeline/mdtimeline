@@ -274,8 +274,17 @@ Ext.define('App.controller.reports.Reports', {
 			filters = filter_form.getValues(),
 			report_record = me.getReportsGrid().getSelectionModel().getSelection()[0];
 
+		Ext.Object.each(filters, function (property, value) {
+			if(Ext.isArray(value)){
+				filters[property] = value.join(',');
+			}
+		});
+
 		report_grid.view.el.mask('Loading!!!');
 		report_grid.filters = filters;
+
+
+
 
 		Reports.runReportByIdAndFilters(report_record.get('id'), filters, function (response) {
 

@@ -34,6 +34,8 @@ class LDAP {
 			];
 		}
 
+		$this->log("LDAP CONNECT: HOST: {$this->ldap_host} PORT: {$this->ldap_port}");
+
 		$this->ldap = ldap_connect($this->ldap_host, (int) $this->ldap_port);
 
 		if($this->ldap === false) {
@@ -55,6 +57,8 @@ class LDAP {
 				];
 			}
 		}
+
+		$this->log("LDAP BINDING: USER: {$_ENV['ldap_service_account_username']} PASS: {$_ENV['ldap_service_account_password']}");
 
 		$bind = @ldap_bind($this->ldap, $_ENV['ldap_service_account_username'], $_ENV['ldap_service_account_password']);
 
@@ -125,6 +129,8 @@ class LDAP {
 			$filter = "(sAMAccountName=".$username.")";
 			$attr = ["memberof"];
 
+			$this->log("LDAP SEARCH: DN: {$this->ldap_dn} FILTER: {$username}");
+
 			$search = @ldap_search($this->ldap, $this->ldap_dn, $filter, $attr);
 
 			if($search === false){
@@ -190,6 +196,12 @@ class LDAP {
 				'success' => false,
 				'error' => 'LDAP: ' . $e->getMessage()
 			];
+		}
+	}
+
+	private function log($message){
+		if(isset($_ENV['ldap_log']) && $_ENV['ldap_log'] === true){
+			error_log($message);
 		}
 	}
 }

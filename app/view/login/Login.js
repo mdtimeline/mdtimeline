@@ -69,7 +69,7 @@ Ext.define('App.view.login.Login', {
 				name: 'authUser',
 				minLengthText: 'Username must be at least 3 characters long.',
 				minLength: 2,
-				maxLength: 12,
+				maxLength: 26,
 				allowBlank: false,
 				validationEvent: false,
 				// anchor: '97%',

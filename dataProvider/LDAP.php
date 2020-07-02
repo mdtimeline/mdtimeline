@@ -23,28 +23,9 @@ class LDAP {
 	}
 
 	/**
-	 * @return bool
-	 */
-	private function Connect(){
-		$this->ldap = ldap_connect($this->ldap_host, (int) $this->ldap_port);
-
-		if($this->ldap === false) return false;
-
-		ldap_set_option($this->ldap,LDAP_OPT_PROTOCOL_VERSION,3);
-		ldap_set_option($this->ldap,LDAP_OPT_REFERRALS,0);
-		return true;
-	}
-
-	/**
-	 * @param $username
-	 * @param $password
-	 * @param $user
-	 *
 	 * @return array
 	 */
-	public function Bind($username, $password, $user){
-
-		$success = $this->Connect();
+	private function Connect(){
 
 		if(!isset($_ENV['ldap_service_account_username']) || !isset($_ENV['ldap_service_account_password'])){
 			return [
@@ -53,12 +34,17 @@ class LDAP {
 			];
 		}
 
-		if($success === false){
+		$this->ldap = ldap_connect($this->ldap_host, (int) $this->ldap_port);
+
+		if($this->ldap === false) {
 			return [
 				'success' => false,
 				'error' => 'LDAP: Unable to connect to LDAP server'
 			];
 		}
+
+		ldap_set_option($this->ldap,LDAP_OPT_PROTOCOL_VERSION,3);
+		ldap_set_option($this->ldap,LDAP_OPT_REFERRALS,0);
 
 		if(isset($_ENV['ldap_service_tls']) && $_ENV['ldap_service_tls']){
 			$tls = @ldap_start_tls($this->ldap);
@@ -78,6 +64,58 @@ class LDAP {
 				'success' => false,
 				'error' => 'LDAP: Could not bind to LDAP as application user'
 			];
+		}
+
+		return [
+			'success' => true,
+		];
+
+	}
+
+	public function Sync(){
+
+		$response = $this->Connect();
+
+		if(!$response['success']){
+			return $response;
+		}
+
+		$filter = "(groupName={$this->ldap_app_group})";
+		$attr = ["memberof"];
+
+		$search = @ldap_search($this->ldap, $this->ldap_dn, $filter, $attr);
+
+		if($search === false){
+			return [
+				'success' => false,
+				'error' => 'LDAP: Unable to search LDAP server'
+			];
+		}
+
+		$entries = @ldap_get_entries($this->ldap, $search);
+
+		print_r($entries);
+
+		@ldap_unbind($this->ldap);
+
+		return [
+			'success' => true
+		];
+	}
+
+	/**
+	 * @param $username
+	 * @param $password
+	 * @param $user
+	 *
+	 * @return array
+	 */
+	public function Bind($username, $password, $user){
+
+		$response = $this->Connect();
+
+		if(!$response['success']){
+			return $response;
 		}
 
 		try{

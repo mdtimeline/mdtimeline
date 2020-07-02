@@ -28,17 +28,19 @@ class LDAP {
 	private function Connect(){
 
 		if(!isset($_ENV['ldap_service_account_username']) || !isset($_ENV['ldap_service_account_password'])){
+			$this->log("LDAP: Service Account Error");
 			return [
 				'success' => false,
 				'error' => 'LDAP: Service Account Error'
 			];
 		}
 
-		$this->log("LDAP CONNECT: HOST: {$this->ldap_host} PORT: {$this->ldap_port}");
+		$this->log("LDAP: CONNECT: HOST: {$this->ldap_host} PORT: {$this->ldap_port}");
 
 		$this->ldap = ldap_connect($this->ldap_host, (int) $this->ldap_port);
 
 		if($this->ldap === false) {
+			$this->log("LDAP: Unable to connect to LDAP server");
 			return [
 				'success' => false,
 				'error' => 'LDAP: Unable to connect to LDAP server'
@@ -51,6 +53,7 @@ class LDAP {
 		if(isset($_ENV['ldap_service_tls']) && $_ENV['ldap_service_tls']){
 			$tls = @ldap_start_tls($this->ldap);
 			if(!$tls){
+				$this->log("LDAP: Could not bind to LDAP TSL as application user");
 				return [
 					'success' => false,
 					'error' => 'LDAP: Could not bind to LDAP TSL as application user'
@@ -58,12 +61,13 @@ class LDAP {
 			}
 		}
 
-		$this->log("LDAP BINDING: USER: {$_ENV['ldap_service_account_username']} PASS: {$_ENV['ldap_service_account_password']}");
+		$this->log("LDAP: BINDING: USER: {$_ENV['ldap_service_account_username']} PASS: {$_ENV['ldap_service_account_password']}");
 
 		$bind = @ldap_bind($this->ldap, $_ENV['ldap_service_account_username'], $_ENV['ldap_service_account_password']);
 
 		if(!$bind){
 			// invalid name or password
+			$this->log("LDAP: Could not bind to LDAP as application user");
 			return [
 				'success' => false,
 				'error' => 'LDAP: Could not bind to LDAP as application user'
@@ -90,6 +94,7 @@ class LDAP {
 		$search = @ldap_search($this->ldap, $this->ldap_dn, $filter, $attr);
 
 		if($search === false){
+			$this->log("LDAP: Unable to search LDAP server");
 			return [
 				'success' => false,
 				'error' => 'LDAP: Unable to search LDAP server'

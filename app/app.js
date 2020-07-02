@@ -71399,9 +71399,6 @@ Ext.define('App.controller.reports.Reports', {
 		report_grid.view.el.mask('Loading!!!');
 		report_grid.filters = filters;
 
-
-
-
 		Reports.runReportByIdAndFilters(report_record.get('id'), filters, function (response) {
 
 			report_grid.getStore().loadData(response);
@@ -73408,6 +73405,13 @@ Ext.define('App.view.patient.Encounter', {
 				if(record.get('is_private') && record.get('provider_uid') !== app.user.id && !a('global_private_encounter_access')){
 					// go back...
 					app.msg('Private Encounter', Ext.String.format('Encounter can only be accessed by {0}, {1}', record.get('provider_lname'), record.get('provider_fname')), true);
+					app.getController('Navigation').goBack();
+					return;
+				}
+
+				if(app.user.is_attending && record.get('provider_uid') !== app.user.id){
+					// go back...
+					app.msg('Oops!', Ext.String.format('This encounter is owned by {0}, {1}', record.get('provider_lname'), record.get('provider_fname')), true);
 					app.getController('Navigation').goBack();
 					return;
 				}

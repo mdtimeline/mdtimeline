@@ -169,6 +169,11 @@ class LDAP {
 
 				$in_group = false;
 
+				if(isset($entry['memberof'])){
+					$this->log("LDAP: memberof not set");
+					$this->log(print_r($entry, true));
+				}
+
 				foreach($entry['memberof'] as $grps) {
 					if(strpos($grps, $this->ldap_app_group)) {
 						$in_group = true;

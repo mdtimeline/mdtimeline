@@ -155,7 +155,7 @@ class LDAP {
 			if($entries['count'] == 0){
 				@ldap_unbind($this->ldap);
 
-				$this->log("LDAP: User Not Authorized");
+				$this->log("LDAP: User Not Authorized (not found)");
 
 				return [
 					'success' => false,
@@ -196,6 +196,9 @@ class LDAP {
 					'success' => true
 				];
 			} else {
+
+				$this->log("LDAP: User Not Authorized (not in group)");
+
 				return [
 					'success' => false,
 					'error' => 'LDAP: User Not Authorized'

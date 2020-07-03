@@ -139,6 +139,9 @@ class LDAP {
 			$search = @ldap_search($this->ldap, $this->ldap_dn, $filter, $attr);
 
 			if($search === false){
+
+				$this->log("LDAP: Unable to search LDAP server");
+
 				return [
 					'success' => false,
 					'error' => 'LDAP: Unable to search LDAP server'
@@ -151,6 +154,9 @@ class LDAP {
 
 			if($entries['count'] == 0){
 				@ldap_unbind($this->ldap);
+
+				$this->log("LDAP: User Not Authorized");
+
 				return [
 					'success' => false,
 					'error' => 'LDAP: User Not Authorized'

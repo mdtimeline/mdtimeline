@@ -90,6 +90,8 @@ class LDAP {
 
 		$filter = "(groupName={$this->ldap_app_group})";
 
+		$this->log("LDAP: SEARCH: DN: {$this->ldap_dn} FILTER: {$filter}");
+
 		$search = @ldap_search($this->ldap, $this->ldap_dn, $filter);
 
 		if($search === false){
@@ -134,7 +136,7 @@ class LDAP {
 			$filter = "(sAMAccountName=".$username.")";
 			$attr = ["memberof"];
 
-			$this->log("LDAP: SEARCH: DN: {$this->ldap_dn} FILTER: {$username}");
+			$this->log("LDAP: SEARCH: DN: {$this->ldap_dn} FILTER: {$filter}");
 
 			$search = @ldap_search($this->ldap, $this->ldap_dn, $filter, $attr);
 

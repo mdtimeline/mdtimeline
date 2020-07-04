@@ -74,7 +74,24 @@ Ext.define('App.controller.administration.Users', {
 			},
 			'#AdminUserGridPanelAuthyRegisterBtn': {
 				click: me.onAdminUserGridPanelAuthyRegisterBtnClick
+			},
+			'#AdminUserGridPanelLDAPSyncBtn': {
+				click: me.onAdminUserGridPanelLDAPSyncBtnClick
 			}
+		});
+	},
+
+	onAdminUserGridPanelLDAPSyncBtnClick: function(btn){
+
+		LDAP.Sync(function (response) {
+
+			if(response.success){
+				btn.up('grid').getStore().reload();
+				return;
+			}else {
+				app.msg(_('oops'), response.error, true);
+			}
+
 		});
 	},
 

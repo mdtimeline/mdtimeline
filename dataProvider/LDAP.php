@@ -121,6 +121,8 @@ class LDAP {
 		include_once (ROOT . '/dataProvider/User.php');
 		$User = new User();
 
+		$new_users = 0;
+
 		foreach ($groups as $group){
 
 			if(!is_array($group)) continue;
@@ -172,6 +174,7 @@ class LDAP {
 				if($user_record === false){
 					$this->log("LDAP: NEW USER: {$user_object->username}");
 					$User->addUser($user_object);
+					$new_users++;
 				}
 				unset($user_object, $user, $user_record);
 
@@ -181,7 +184,8 @@ class LDAP {
 		@ldap_unbind($this->ldap);
 
 		return [
-			'success' => true
+			'success' => true,
+			'message' => sprintf('%s New Users Synced', $new_users)
 		];
 	}
 

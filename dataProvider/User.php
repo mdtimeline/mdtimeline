@@ -78,6 +78,17 @@ class User
         return $user;
     }
 
+    public function getUserUsername($username)
+    {
+        $user = $this->u->load(['username' => $username])->one();
+        if ($user !== false) {
+            $user = isset($user['data']) ? $user['data'] : $user;
+            $user['fullname'] = Person::fullname($user['fname'], $user['mname'], $user['lname']);
+            unset($user['password'], $user['pwd_history1'], $user['pwd_history2']);
+        }
+        return $user;
+    }
+
     public function addUser(stdClass $params)
     {
         try {

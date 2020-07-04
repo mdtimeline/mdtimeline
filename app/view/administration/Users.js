@@ -48,6 +48,20 @@ Ext.define('App.view.administration.Users', {
 				},
 				{
 					width: 150,
+					text: _('code'),
+					sortable: true,
+					dataIndex: 'code',
+					items: [
+						{
+							xtype: 'columnsearchfield',
+							autoSearch: true,
+							operator: 'LIKE',
+							suffix: '%'
+						}
+					]
+				},
+				{
+					width: 150,
 					text: _('username'),
 					sortable: true,
 					dataIndex: 'username',
@@ -135,6 +149,16 @@ Ext.define('App.view.administration.Users', {
 											xtype: 'container',
 											itemId: 'UserGridEditFormContainerLeft',
 											items: [
+												{
+													width: 250,
+													xtype: 'textfield',
+													fieldLabel: _('code'),
+													name: 'code',
+													allowBlank: false,
+													validateOnBlur: true,
+													margin: '0 0 5 0',
+													labelAlign: 'right'
+												},
 												{
 													xtype: 'fieldcontainer',
 													layout: {

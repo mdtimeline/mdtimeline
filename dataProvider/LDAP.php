@@ -89,9 +89,8 @@ class LDAP {
 		}
 
 		$filter = "(groupName={$this->ldap_app_group})";
-		$attr = ["memberof"];
 
-		$search = @ldap_search($this->ldap, $this->ldap_dn, $filter, $attr);
+		$search = @ldap_search($this->ldap, $this->ldap_dn, $filter);
 
 		if($search === false){
 			$this->log("LDAP: Unable to search LDAP server");
@@ -103,7 +102,8 @@ class LDAP {
 
 		$entries = @ldap_get_entries($this->ldap, $search);
 
-		print_r($entries);
+		$this->log("LDAP: SEARCH ENTRIES:");
+		$this->log(print_r($entries, true));
 
 		@ldap_unbind($this->ldap);
 
@@ -169,7 +169,7 @@ class LDAP {
 
 				$in_group = false;
 
-				if(isset($entry['memberof'])){
+				if(!isset($entry['memberof'])){
 					$this->log("LDAP: memberof not set");
 					$this->log(print_r($entry, true));
 				}

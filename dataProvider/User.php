@@ -155,6 +155,12 @@ class User
         return $user !== false;
     }
 
+    public function codeExist($username)
+    {
+        $user = $this->u->load(['code' => $username])->one();
+        return $user !== false;
+    }
+
     public function getCurrentUserId()
     {
         return isset($_SESSION['user']['id']) ? $_SESSION['user']['id'] : 0;

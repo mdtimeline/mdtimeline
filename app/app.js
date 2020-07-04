@@ -41720,8 +41720,8 @@ Ext.define('App.controller.administration.Users', {
 		LDAP.Sync(function (response) {
 
 			if(response.success){
+				app.msg(_('oops'), response.message);
 				btn.up('grid').getStore().reload();
-				return;
 			}else {
 				app.msg(_('oops'), response.error, true);
 			}

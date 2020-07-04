@@ -581,7 +581,7 @@ Ext.define('App.view.administration.Users', {
 					xtype: 'button',
 					text: 'LDAP Sync',
 					itemId: 'AdminUserGridPanelLDAPSyncBtn',
-					acl: g('globals.ldap_enabled')
+					acl: g('ldap_enabled')
 				},
 				'-',
 				'->',

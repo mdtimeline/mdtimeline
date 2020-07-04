@@ -81,18 +81,18 @@ class LDAP {
 	}
 
 	public function Sync(){
-
 		$response = $this->Connect();
 
 		if(!$response['success']){
 			return $response;
 		}
 
-		$filter = "(groupName={$this->ldap_app_group})";
+		$filter = "(&(objectCategory=group) (cn={$this->ldap_app_group}))";
+		$attr = ["member"];
 
 		$this->log("LDAP: SEARCH: DN: {$this->ldap_dn} FILTER: {$filter}");
 
-		$search = @ldap_search($this->ldap, $this->ldap_dn, $filter);
+		$search = @ldap_search($this->ldap, $this->ldap_dn, $filter, $attr);
 
 		if($search === false){
 			$this->log("LDAP: Unable to search LDAP server");
@@ -102,10 +102,81 @@ class LDAP {
 			];
 		}
 
-		$entries = @ldap_get_entries($this->ldap, $search);
+		$groups = @ldap_get_entries($this->ldap, $search);
 
-		$this->log("LDAP: SEARCH ENTRIES:");
-		$this->log(print_r($entries, true));
+		$this->log("LDAP: SEARCH GROUPS:");
+		$this->log(print_r($groups, true));
+
+		if($groups['count'] == 0){
+			@ldap_unbind($this->ldap);
+
+			$this->log("LDAP: Group not found");
+
+			return [
+				'success' => false,
+				'error' => 'LDAP: Group not found'
+			];
+		}
+
+		include_once (ROOT . '/dataProvider/User.php');
+		$User = new User();
+
+		foreach ($groups as $group){
+
+			if(!is_array($group)) continue;
+
+			foreach($group['member'] as $member){
+
+				//$this->log("LDAP: MEMBER:");
+				//$this->log(print_r($member, true));
+
+				$filter = "(&(objectCategory=user) (distinguishedName={$member}))";
+				$attr = ["sAMAccountName","name","givenName","initials","SN","title"."userPrincipalName","objectClass","objectCategory","mail","gender","mobile"];
+
+				//$this->log("LDAP: SEARCH: DN: {$this->ldap_dn} FILTER: {$filter}");
+				$search = @ldap_search($this->ldap, $this->ldap_dn, $filter, $attr);
+
+
+				if($search === false){
+					$this->log("LDAP: Member search error");
+					continue;
+				}
+
+				$user = @ldap_get_entries($this->ldap, $search);
+
+				if($user['count'] == 0){
+					continue;
+				}
+
+				$user_object = new stdClass();
+				$user_object->code = strtoupper(isset($user[0]['samaccountname'][0]) ? $user[0]['samaccountname'][0] : '');
+				$user_object->username = strtolower(isset($user[0]['samaccountname'][0]) ? $user[0]['samaccountname'][0] : '');
+				$user_object->fname = isset($user[0]['givenname'][0]) ? $user[0]['givenname'][0] : '';
+				$user_object->mname = isset($user[0]['initials'][0]) ? $user[0]['initials'][0] : '';
+				$user_object->lname = isset($user[0]['sn'][0]) ? $user[0]['sn'][0] : '';
+				$user_object->sex = isset($user[0]['gender'][0]) ? $user[0]['gender'][0] : '';
+				$user_object->email = isset($user[0]['mail'][0]) ? $user[0]['mail'][0] : '';
+				$user_object->mobile = isset($user[0]['mobile'][0]) ? $user[0]['mobile'][0] : '';
+				$user_object->authorized = 0;
+				$user_object->active = 0;
+				$user_object->direct_address = '';
+				$user_object->notes = 'Imported from LDAP';
+
+				if($user_object->username === ''){
+					$this->log("LDAP: UNABLE TO SYNC USER:");
+					$this->log(print_r($user_object, true));
+					continue;
+				}
+
+				$user_record = $User->getUserUsername($user_object->username);
+				if($user_record === false){
+					$this->log("LDAP: NEW USER: {$user_object->username}");
+					$User->addUser($user_object);
+				}
+				unset($user_object, $user, $user_record);
+
+			}
+		}
 
 		@ldap_unbind($this->ldap);
 

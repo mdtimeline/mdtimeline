@@ -66,7 +66,7 @@ class authProcedures {
 		// NOTE:
 		// If this condition is met, the user did not
 		// use the logon form. Possible hack.
-		if(strlen($params->authPass) >= 15){
+		if(strlen($params->authPass) >= 20){
 			return [
                 'success' => false,
                 'type' => 'error',
@@ -148,7 +148,8 @@ class authProcedures {
 				'mobile',
 				'signature',
 				'password',
-				'password_date'
+				'password_date',
+				'is_attending'
 			]
 		)->one();
 
@@ -278,6 +279,7 @@ class authProcedures {
 		$_SESSION['user']['facility'] = (!isset($params->facility) || $params->facility == 0) ? $user['facility_id'] : $params->facility;
 		$_SESSION['user']['localization'] = isset($params->lang) ? $params->lang : 'en_US';
 		$_SESSION['user']['npi'] = $user['npi'] ;
+		$_SESSION['user']['is_attending'] = $user['is_attending'] ;
 		$_SESSION['user']['site'] = site_name;
 		$_SESSION['user']['auth'] = true;
 		$_SESSION['user']['acl_groups'] = ACL::getUserGroups();

@@ -18,6 +18,13 @@
  */
 
 $API = [
+    'LDAP' => [
+        'methods' => [
+            'Sync' => [
+                'len' => 0
+            ]
+        ]
+    ],
     'Site' => [
         'methods' => [
             'create_guid_col' => [

@@ -54,7 +54,18 @@ Ext.define('App.view.reports.ReportWindow', {
 				frame: true,
 				title: _('report'),
 				itemId: 'ReportWindowGrid',
+				features: [{
+					groupHeaderTpl: '{name}',
+					ftype: 'groupingsummary'
+				}],
 				flex: 1,
+				tools: [
+					{
+						xtype:'button',
+						iconCls: 'icoPrint',
+						itemId: 'ReportWindowGridPrintBtn'
+					}
+				],
 				columns: [
 					{
 						text: 'ID',

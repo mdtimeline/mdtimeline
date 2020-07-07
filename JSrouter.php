@@ -103,6 +103,7 @@ if(!isset($_SESSION['site']['error']) && (isset($_SESSION['user']) && $_SESSION[
 	$userData['acl_roles'] = $_SESSION['user']['acl_roles'];
 	$userData['phone'] = $_SESSION['user']['phone'];
 	$userData['mobile'] = $_SESSION['user']['mobile'];
+	$userData['is_attending'] = $_SESSION['user']['is_attending'];
 	$userData['signature'] = $_SESSION['user']['signature'];
 	unset($User);
 

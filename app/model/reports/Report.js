@@ -34,6 +34,10 @@ Ext.define('App.model.reports.Report',{
             type: 'auto'
         },
         {
+            name: 'group_fields',
+            type: 'string'
+        },
+        {
             name: 'columns',
             type: 'string'
         }

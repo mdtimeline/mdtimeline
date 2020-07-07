@@ -41708,7 +41708,24 @@ Ext.define('App.controller.administration.Users', {
 			},
 			'#AdminUserGridPanelAuthyRegisterBtn': {
 				click: me.onAdminUserGridPanelAuthyRegisterBtnClick
+			},
+			'#AdminUserGridPanelLDAPSyncBtn': {
+				click: me.onAdminUserGridPanelLDAPSyncBtnClick
 			}
+		});
+	},
+
+	onAdminUserGridPanelLDAPSyncBtnClick: function(btn){
+
+		LDAP.Sync(function (response) {
+
+			if(response.success){
+				app.msg(_('oops'), response.message);
+				btn.up('grid').getStore().reload();
+			}else {
+				app.msg(_('oops'), response.error, true);
+			}
+
 		});
 	},
 
@@ -67121,6 +67138,20 @@ Ext.define('App.view.administration.Users', {
 				},
 				{
 					width: 150,
+					text: _('code'),
+					sortable: true,
+					dataIndex: 'code',
+					items: [
+						{
+							xtype: 'columnsearchfield',
+							autoSearch: true,
+							operator: 'LIKE',
+							suffix: '%'
+						}
+					]
+				},
+				{
+					width: 150,
 					text: _('username'),
 					sortable: true,
 					dataIndex: 'username',
@@ -67208,6 +67239,16 @@ Ext.define('App.view.administration.Users', {
 											xtype: 'container',
 											itemId: 'UserGridEditFormContainerLeft',
 											items: [
+												{
+													width: 250,
+													xtype: 'textfield',
+													fieldLabel: _('code'),
+													name: 'code',
+													allowBlank: false,
+													validateOnBlur: true,
+													margin: '0 0 5 0',
+													labelAlign: 'right'
+												},
 												{
 													xtype: 'fieldcontainer',
 													layout: {
@@ -67625,7 +67666,16 @@ Ext.define('App.view.administration.Users', {
 					scope: me,
 					handler: me.onNewUser
 				},
+				'-',
+				{
+					xtype: 'button',
+					text: 'LDAP Sync',
+					itemId: 'AdminUserGridPanelLDAPSyncBtn',
+					acl: g('ldap_enabled')
+				},
+				'-',
 				'->',
+				'-',
 				{
 					xtype: 'button',
 					text: _('authy_register'),
@@ -71181,8 +71231,34 @@ Ext.define('App.controller.reports.Reports', {
 			},
 			'#ReportWindowReloadBtn': {
 				click: me.onReportWindowReloadBtnClick
+			},
+			'#ReportWindowGridPrintBtn': {
+				click: me.onReportWindowGridPrintBtnClick
 			}
 		});
+
+	},
+
+	onReportWindowGridPrintBtnClick: function(btn){
+
+		var report_grid = btn.up('grid'),
+			report_win = report_grid.up('window'),
+			report_form = report_win.down('form').getForm(),
+			filters = [];
+
+		if(!report_grid.filters){
+			app.msg(_('oops'), 'No Filters Found', true);
+			return;
+		}
+
+		Ext.Object.each(report_grid.filters, function (property, filter) {
+			var val = filter ? filter : 'None';
+			filters.push(Ext.String.format('<b>{0}</b>: {1}', _(property), val));
+		});
+
+		App.ux.grid.Printer.mainTitle = Ext.String.format('{0} Report', report_win.title);
+		App.ux.grid.Printer.filtersHtml = 'Filters: ' + filters.join(', ');
+		App.ux.grid.Printer.print(report_grid);
 
 	},
 
@@ -71195,8 +71271,10 @@ Ext.define('App.controller.reports.Reports', {
 			win = me.showReportsWindow(),
 			form = win.down('form'),
 			report_grid = win.down('grid'),
-			model_fields = [], search_fields = [], columns;
+			group_fields = record.get('group_fields'),
+			model_fields = [], search_fields = [], columns, group_by;
 
+		report_grid.filters = undefined;
 		win.setTitle(record.get('title'));
 		win.el.mask('Getting Things Ready');
 
@@ -71232,6 +71310,7 @@ Ext.define('App.controller.reports.Reports', {
 						fieldLabel: _(parameter.PARAMETER_NAME),
 						labelAlign: 'top',
 						margin: '0 5 0 0',
+						multiSelect: true,
 						name: parameter.PARAMETER_NAME
 					});
 					return;
@@ -71242,6 +71321,7 @@ Ext.define('App.controller.reports.Reports', {
 						fieldLabel: _(parameter.PARAMETER_NAME),
 						labelAlign: 'top',
 						margin: '0 5 0 0',
+						multiSelect: true,
 						name: parameter.PARAMETER_NAME
 					});
 					return;
@@ -71252,6 +71332,7 @@ Ext.define('App.controller.reports.Reports', {
 						fieldLabel: _(parameter.PARAMETER_NAME),
 						labelAlign: 'top',
 						margin: '0 5 0 0',
+						multiSelect: true,
 						name: parameter.PARAMETER_NAME
 					});
 					return;
@@ -71262,6 +71343,7 @@ Ext.define('App.controller.reports.Reports', {
 						fieldLabel: _(parameter.PARAMETER_NAME),
 						labelAlign: 'top',
 						margin: '0 5 0 0',
+						multiSelect: true,
 						name: parameter.PARAMETER_NAME
 					});
 					return;
@@ -71304,10 +71386,33 @@ Ext.define('App.controller.reports.Reports', {
 
 			});
 
+			if(group_fields !== ''){
+				group_fields = group_fields.split(',');
+				var data = [];
+
+				group_fields.forEach(function (group_field) {
+					if(group_by == null) {
+						group_by = group_field;
+					}
+					data.push([group_field, _(group_field)]);
+				});
+
+				search_fields.push({
+					xtype: 'combo',
+					fieldLabel: _('group_by'),
+					labelAlign: 'top',
+					margin: '0 5 0 0',
+					itemId: 'ReportWindowGroupByCmb',
+					submitValue: false,
+					value: group_by,
+					store: data
+				});
+			}
+
 			// add fields to the form
 			form.add(search_fields);
 
-			columns = eval('([' + response.columns + '])');
+			columns = eval('(' + response.columns + ')');
 			columns.forEach(function (column) {
 
 				model_fields.push({
@@ -71317,7 +71422,11 @@ Ext.define('App.controller.reports.Reports', {
 
 			});
 
-			report_grid.reconfigure(Ext.create('Ext.data.Store',{ fields: model_fields }), columns);
+			if(group_by){
+				report_grid.reconfigure(Ext.create('Ext.data.Store',{ fields: model_fields, groupField: group_by  }), columns);
+			}else{
+				report_grid.reconfigure(Ext.create('Ext.data.Store',{ fields: model_fields }), columns);
+			}
 		});
 
 	},
@@ -71331,7 +71440,17 @@ Ext.define('App.controller.reports.Reports', {
 			filters = filter_form.getValues(),
 			report_record = me.getReportsGrid().getSelectionModel().getSelection()[0];
 
+		Ext.Object.each(filters, function (property, value) {
+			if(Ext.isArray(value)){
+				filters[property] = value.join(',');
+			}
+		});
+
 		report_grid.view.el.mask('Loading!!!');
+		report_grid.filters = filters;
+
+
+
 
 		Reports.runReportByIdAndFilters(report_record.get('id'), filters, function (response) {
 
@@ -73339,6 +73458,13 @@ Ext.define('App.view.patient.Encounter', {
 				if(record.get('is_private') && record.get('provider_uid') !== app.user.id && !a('global_private_encounter_access')){
 					// go back...
 					app.msg('Private Encounter', Ext.String.format('Encounter can only be accessed by {0}, {1}', record.get('provider_lname'), record.get('provider_fname')), true);
+					app.getController('Navigation').goBack();
+					return;
+				}
+
+				if(app.user.is_attending && record.get('provider_uid') !== app.user.id){
+					// go back...
+					app.msg('Oops!', Ext.String.format('This encounter is owned by {0}, {1}', record.get('provider_lname'), record.get('provider_fname')), true);
 					app.getController('Navigation').goBack();
 					return;
 				}

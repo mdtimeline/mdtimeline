@@ -2916,6 +2916,9 @@ $API = [
 			'getMessageById' => [
 				'len' => 1
             ],
+			'getResendMessageById' => [
+				'len' => 1
+            ],
 			'sendVXU' => [
 				'len' => 1
             ],

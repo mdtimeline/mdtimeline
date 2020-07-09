@@ -153,6 +153,7 @@ class LDAP {
 				$user_object = new stdClass();
 				$user_object->code = strtoupper(isset($user[0]['samaccountname'][0]) ? $user[0]['samaccountname'][0] : '');
 				$user_object->username = strtolower(isset($user[0]['samaccountname'][0]) ? $user[0]['samaccountname'][0] : '');
+				$user_object->title = '';
 				$user_object->fname = isset($user[0]['givenname'][0]) ? $user[0]['givenname'][0] : '';
 				$user_object->mname = isset($user[0]['initials'][0]) ? $user[0]['initials'][0] : '';
 				$user_object->lname = isset($user[0]['sn'][0]) ? $user[0]['sn'][0] : '';

@@ -163,6 +163,7 @@ class LDAP {
 				$user_object->authorized = 0;
 				$user_object->active = 0;
 				$user_object->direct_address = '';
+				$user_object->signature = '';
 				$user_object->notes = 'Imported from LDAP';
 
 				if($user_object->username === ''){

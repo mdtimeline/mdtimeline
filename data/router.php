@@ -142,7 +142,18 @@ function doRpc($cdata)
 			($action == 'CombosData' && $method == 'getActiveFacilities') ||
 			($action == 'i18nRouter' && $method == 'getAvailableLanguages') ||
             ($action == 'CombosData' && $method == 'getTimeZoneList') || // Used by SiteSetup
-            ($action == 'CombosData' && $method == 'getThemes') // Used by SiteSetup
+			($action == 'CombosData' && $method == 'getThemes') || // Used by SiteSetup
+			// Required by SiteSetup during installation
+			($action == 'SiteSetup' && $method == 'checkRequirements') ||
+			($action == 'SiteSetup' && $method == 'checkDatabaseCredentials') ||
+			($action == 'SiteSetup' && $method == 'setSiteDirBySiteId') ||
+			($action == 'SiteSetup' && $method == 'createDatabaseStructure') ||
+			($action == 'SiteSetup' && $method == 'loadDatabaseStructure') ||
+			($action == 'SiteSetup' && $method == 'loadDatabaseData') ||
+			($action == 'SiteSetup' && $method == 'dropDatabase') ||
+			($action == 'SiteSetup' && $method == 'createConfigurationFile') ||
+			($action == 'SiteSetup' && $method == 'createSiteAdmin') ||
+			($action == 'SiteSetup' && $method == 'loadCode')
 		)
         {
 

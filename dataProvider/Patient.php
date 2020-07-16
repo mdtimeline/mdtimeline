@@ -128,7 +128,7 @@ class Patient
 	public function setPatientAccountModel()
 	{
 		if ($this->pa == null) {
-			$this->pa = MatchaModel::setSenchaModel('App.model.patient.Encounter');
+			$this->pa = MatchaModel::setSenchaModel('App.model.patient.PatientAccount');
 		}
 		return $this->pa;
 	}

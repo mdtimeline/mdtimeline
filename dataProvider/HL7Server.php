@@ -1115,10 +1115,14 @@ INI_CONFIG;
 			$p['email'] = $PID[13][0][4]; // Email - Home
 		}
 		if($this->notEmpty($PID[13][0][7])){
-			$p['home_phone'] = "{$PID[13][0][7]} . '-' . {$PID[13][0][1]}"; // Phone Number – Home
-		}
+			$p['phone_home'] = "{$PID[13][0][7]} . '-' . {$PID[13][0][1]}"; // Phone Number – Home
+		}elseif ($this->notEmpty($PID[13][0][1])){
+            $p['phone_home'] = "{$PID[13][0][1]}"; // Phone Number – Home
+        }
+
+
 		if($this->notEmpty($PID[14][0][7])){
-			$p['work_phone'] = "{$PID[14][0][7]} . '-' . {$PID[14][0][1]}"; // Phone Number – Business
+			$p['phone_work'] = "{$PID[14][0][7]} . '-' . {$PID[14][0][1]}"; // Phone Number – Business
 		}
 		if($this->notEmpty($PID[15][1])){
 			$p['language'] = $PID[15][1]; // Primary Language

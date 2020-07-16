@@ -2152,4 +2152,11 @@ $LANG = array(
     'content_type' => 'Content Type',
     'content_version' => 'Content Version',
     'specialty_required_for_billing' => 'Specialty Rq To Bill',
+    'config' => 'Config',
+    'insurance_id' => 'Insurance ID',
+    'scan_document' => 'Scan Document',
+    'foreign_address' => 'Foreign Address',
+    'foreign_facility' => 'Foreign Facility',
+    'foreign_application' => 'Foreign Application',
+    'application' => 'Application',
 );

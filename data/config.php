@@ -18,6 +18,13 @@
  */
 
 $API = [
+    'LDAP' => [
+        'methods' => [
+            'Sync' => [
+                'len' => 0
+            ]
+        ]
+    ],
     'Site' => [
         'methods' => [
             'create_guid_col' => [
@@ -2913,6 +2920,9 @@ $API = [
 				'len' => 1
             ],
 			'getMessageById' => [
+				'len' => 1
+            ],
+			'getResendMessageById' => [
 				'len' => 1
             ],
 			'sendVXU' => [

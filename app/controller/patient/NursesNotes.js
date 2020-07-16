@@ -154,22 +154,47 @@ Ext.define('App.controller.patient.NursesNotes', {
 	},
 
 	onNursesNoteEditWindowSaveBtnClick: function(btn){
-		var win = btn.up('window'),
+		var me = this,
+			win = btn.up('window'),
 			form = win.down('form').getForm(),
 			values = form.getValues(),
 			record = form.getRecord(),
 			store = this.getNursesNotesGrid().getStore();
 
-		values.nurse_fname = app.user.fname;
-		values.nurse_mname = app.user.mname;
-		values.nurse_lname = app.user.lname;
+		app.passwordVerificationWin(function(ver_btn, password){
 
-		record.set(values);
-		store.sync({
-			callback: function () {
-				win.close();
+			if(ver_btn === 'ok'){
+
+				User.verifyUserPass(password, function(response){
+					if(response){
+						values.nurse_fname = app.user.fname;
+						values.nurse_mname = app.user.mname;
+						values.nurse_lname = app.user.lname;
+
+						record.set(values);
+						store.sync({
+							callback: function () {
+								win.close();
+							}
+						});
+
+					}else{
+						Ext.Msg.show({
+							title: 'Oops!',
+							msg: _('incorrect_password'),
+							buttons: Ext.Msg.OKCANCEL,
+							icon: Ext.Msg.ERROR,
+							fn: function(msg_btn){
+								if(msg_btn === 'ok'){
+									me.onNursesNoteEditWindowSaveBtnClick(btn);
+								}
+							}
+						});
+					}
+				});
 			}
 		});
+
 	},
 
 	onNursesNotesGridAddBtnClick: function(btn){
@@ -191,6 +216,11 @@ Ext.define('App.controller.patient.NursesNotes', {
 	},
 
 	onNursesNotesGridItemDblClick: function(grid, record){
+		// validate user is the owner of this note
+		if(record.get('create_uid') > 0 && record.get('create_uid') !== app.user.id){
+			app.msg(_('oops'), 'Cannot modify notes signed by another user', true);
+			return;
+		}
 		var form  = this.showNursesNotesWindow().down('form').getForm();
 		form.loadRecord(record);
 	},

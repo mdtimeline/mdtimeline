@@ -88,6 +88,11 @@ Ext.define('App.model.administration.HL7Client', {
 			type: 'string'
 		},
 		{
+			name: 'config',
+			type: 'string',
+			dataType: 'TEXT'
+		},
+		{
 			name: 'active',
 			type: 'bool'
 		}

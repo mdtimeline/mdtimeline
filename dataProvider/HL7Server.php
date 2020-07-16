@@ -221,6 +221,38 @@ class HL7Server {
 
 		$facilityRecord = $this->Facility->getFacility(['code' => $facility]);
 
+
+        $hl7_client_config = <<<'INI_CONFIG'
+
+[HL7]
+
+hl7_pubpid_field = $PID[2][1]
+hl7_account_no_field = $PID[3][0][1]
+hl7_account_no_alt_field = $PID[4][0][1]
+hl7_visit_no_field = $PID[18][1]
+hl7_reference_no_field = $OBR[18]
+hl7_department_code_field = $OBR[20]
+
+[ORM]
+
+hl7_allow_update_final_order = false
+hl7_orm_validate_referring_npi = false
+hl7_order_code_field = $ORC[2][1]
+hl7_orm_accession_number_field = $OBR[2][1]
+hl7_orm_specialty_code_field = explode(\'^\',$OBR[18])[0]
+
+
+[ORU]
+
+hl7_oru_validate_patient = false
+hl7_report_code_field = $OBR[2][1]
+hl7_oru_specialty_code_field = explode(\'^\',$OBR[18])[0]
+
+INI_CONFIG;
+
+
+        $hl7_client_config = parse_ini_string($hl7_client_config, true, INI_SCANNER_RAW);
+
 		/**
 		 *
 		 */
@@ -637,6 +669,11 @@ class HL7Server {
 			 */
 
 			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
+
+			if($patient !== false){
+				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
+			}
+
 			if(isset($msg->data['INSURANCE'])){
 				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
 			}
@@ -648,6 +685,11 @@ class HL7Server {
 			 * Register a Patient
 			 */
 			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
+
+			if($patient !== false){
+				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
+			}
+
 			if(isset($msg->data['INSURANCE'])){
 				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
 			}
@@ -657,6 +699,11 @@ class HL7Server {
 			 * Pre-Admit a Patient
 			 */
 			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
+
+			if($patient !== false){
+				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
+			}
+
 			if(isset($msg->data['INSURANCE'])){
 				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
 			}
@@ -666,6 +713,11 @@ class HL7Server {
 			 * Update Patient Information
 			 */
 			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
+
+			if($patient !== false){
+				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
+			}
+
 			if(isset($msg->data['INSURANCE'])){
 				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
 			}
@@ -690,6 +742,11 @@ class HL7Server {
 			}
 
 			$patient = $this->p->load($filter)->one();
+
+			if($patient !== false){
+				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
+			}
+
 			if($patient === false){
 				$this->ackStatus = 'AR';
 				$this->ackMessage = 'Unable to find patient ' . $PID[3][1];
@@ -735,6 +792,9 @@ class HL7Server {
 
 			$patient = $this->p->load($filter)->one();
 
+			if($patient !== false){
+				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
+			}
 
 			if($patient === false){
 				$this->ackStatus = 'AR';
@@ -778,10 +838,16 @@ class HL7Server {
 			 * Add Person or Patient Information
 			 * PID-2.1 <= MRG-4.1
 			 */
-			$patientData = $this->PidToPatient($msg->data['PID'], $hl7, $facilityRecord);
+			$PV1 = isset($msg->data['PV1']) ? $msg->data['PV1'] : null;
+			$patientData = $this->PidToPatient($msg->data['PID'], $PV1, $hl7, $facilityRecord);
 			$patientData['pubpid'] = $patientData['pid'];
 			$patientData['pid'] = 0;
 			$patient = $this->p->save((object)$patientData);
+
+			if($patient !== false){
+				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
+			}
+
 			if(isset($msg->data['INSURANCE'])){
 				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
 			}
@@ -796,6 +862,10 @@ class HL7Server {
 			 */
 
 			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord, false);
+
+			if($patient !== false){
+				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
+			}
 
 			if($patient === false){
 				$this->ackStatus = 'AR';
@@ -846,6 +916,10 @@ class HL7Server {
 
 			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
 
+			if($patient !== false){
+				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
+			}
+
 			if(isset($msg->data['INSURANCE'])){
 				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
 			}
@@ -886,14 +960,33 @@ class HL7Server {
 		 */
 		$this->ackStatus = 'AR';
 		$this->ackMessage = 'Unable to handle ADT_' . $evt;
+
+	}
+
+	private function addHL7MessageReference($pid, $msg_record_id){
+		$conn = \Matcha::getConn();
+		$sth = $conn->prepare("UPDATE hl7_messages SET reference = :reference WHERE id = :hl7_msg_id");
+		$reference = 'patient:' . $pid;
+		$hl7_msg_id = $msg_record_id;
+		$sth->bindParam(':reference', $reference);
+		$sth->bindParam(':hl7_msg_id', $hl7_msg_id);
+		$sth->execute();
+		unset($sth, $reference, $hl7_msg_id);
 	}
 
 	private function savePatient($now, $msg, &$hl7, $facilityRecord, $allow_insert = true){
-		$patientData = $this->PidToPatient(
-			isset($msg->data['PATIENT']['PID']) ? $msg->data['PATIENT']['PID'] : $msg->data['PID'],
-			$hl7,
-			$facilityRecord
-		);
+
+		$PID = isset($msg->data['PATIENT']['PID']) ? $msg->data['PATIENT']['PID'] : $msg->data['PID'];
+
+		if(isset($msg->data['VISIT']['PV1'])){
+			$PV1 = $msg->data['VISIT']['PV1'];
+		}elseif(isset($msg->data['PV1'])){
+			$PV1 = $msg->data['PV1'];
+		}else{
+			$PV1 = null;
+		}
+
+		$patientData = $this->PidToPatient($PID, $PV1, $hl7, $facilityRecord);
 		$patient = $this->p->load(['pubpid' => $patientData[$this->updateKey] ])->one();
 
 		if($patient === false){
@@ -948,12 +1041,13 @@ class HL7Server {
 
 	/**
 	 * @param array $PID
+	 * @param array $PV1
 	 * @param HL7 $hl7
 	 * @param array|false $facilityRecord
 	 *
 	 * @return array
 	 */
-	public function PidToPatient($PID, &$hl7, $facilityRecord = false) {
+	public function PidToPatient($PID, $PV1, &$hl7, $facilityRecord = false) {
 		$p = [];
 		if($this->notEmpty($PID[2][1])){
 			$p['pubpid'] = $PID[2][1]; // Patient ID (External ID)
@@ -1079,6 +1173,10 @@ class HL7Server {
 		}
 		if($this->notEmpty($PID[33][1])){
 			$p['update_date'] = $hl7->time($PID[33][1]); // Last update time stamp
+		}
+
+		if($this->notEmpty($PID[18][1])){
+			$p['last_visit_id'] = $PID[18][1]; // Last Visit ID
 		}
 		return $p;
 	}

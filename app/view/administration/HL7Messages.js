@@ -32,7 +32,9 @@ Ext.define('App.view.administration.HL7Messages', {
 	initComponent: function(){
 		var me = this;
 
-		me.store = Ext.create('App.store.administration.HL7Messages');
+		me.store = Ext.create('App.store.administration.HL7Messages',{
+			remoteFilter: true
+		});
 
 		me.items = [
 			{

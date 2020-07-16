@@ -72,6 +72,11 @@ Ext.define('App.model.administration.HL7Server', {
 			len: 100
 		},
 		{
+			name: 'config',
+			type: 'string',
+			dataType: 'TEXT'
+		},
+		{
 			name: 'started',
 			type: 'bool',
 			index: true

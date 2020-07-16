@@ -391,8 +391,7 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                 emptyText: '000-000-0000',
                                                 fieldLabel: _('phone'),
                                                 labelWidth: 40,
-                                                width: 100,
-                                                allowBlank: false
+                                                width: 100
                                             },
                                             {
                                                 xtype: 'textfield',

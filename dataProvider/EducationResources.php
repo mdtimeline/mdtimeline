@@ -90,7 +90,7 @@ class EducationResources {
 			];
 		} else {
 
-			$array = XML2Array::createArray($data);
+            $array = XML2Array::createArray($data);
 
 			$results = [
 				'success' => true,

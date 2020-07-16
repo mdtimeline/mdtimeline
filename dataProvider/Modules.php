@@ -61,7 +61,7 @@ class Modules {
 		$modules = [];
 		foreach(FileManager::scanDir($this->modulesDir) AS $module){
 			$foo = $this->getModuleConfig($module);
-			if($foo['active']){
+			if($foo !== false && $foo['active']){
 				$record = $this->m->load(['name' => $foo['name']])->one();
 				if($record === false)
 					continue;

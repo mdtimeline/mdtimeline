@@ -174,16 +174,19 @@ Ext.define('App.controller.Navigation', {
 			sm = tree.getSelectionModel(),
 			node = treeStore.getNodeById(cls);
 
-
 		this.url = url;
-		sm.select(node);
+		if(node){
+			sm.select(node);
+		}else{
+			sm.deselectAll();
+		}
 
 		// ignore the Login
 		if(cls == 'App.view.login.Login') return;
 
 		// if the panel is 'undefined' added to MainPanel
 		if (typeof me[ref] == 'undefined') {
-			me.getViewport().MainPanel.el.mask();
+			//me.getViewport().MainPanel.el.mask();
 			me[ref] = me.getViewport().MainPanel.add(Ext.create(cls));
 
 		// if the class is destroyed then render it
@@ -196,7 +199,7 @@ Ext.define('App.controller.Navigation', {
 
 		// call panel onActive method
 		me[ref].onActive(function(success){
-			me.getViewport().MainPanel.el.unmask();
+			//me.getViewport().MainPanel.el.unmask();
 			if(success){
 				me.activePanel = layout.setActiveItem(me[ref]);
 			}

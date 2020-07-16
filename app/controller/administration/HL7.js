@@ -45,16 +45,8 @@ Ext.define('App.controller.administration.HL7', {
 			selector: '#HL7MessageViewerWindow'
 		},
 		{
-			ref: 'HL7MessageViewerWindowWarnings',
-			selector: '#HL7MessageViewerWindowWarnings'
-		},
-		{
-			ref: 'HL7MessageViewerWindowMessageField',
-			selector: '#HL7MessageViewerWindowMessageField'
-		},
-		{
-			ref: 'HL7MessageViewerWindowAcknowledgeField',
-			selector: '#HL7MessageViewerWindowAcknowledgeField'
+			ref: 'HL7MessageViewerForm',
+			selector: '#HL7MessageViewerForm'
 		}
 	],
 
@@ -86,9 +78,116 @@ Ext.define('App.controller.administration.HL7', {
 			},
 			'#HL7MessagesGrid': {
 				itemdblclick: me.onHL7MessagesGridItemDblClick
+			},
+			'#HL7ServerConfigBtn': {
+				click: me.onHL7ServerConfigBtnClick
+			},
+			'#HL7ClientConfigBtn': {
+				click: me.onHL7ClientConfigBtnClick
+			},
+			'#HL7ConfigEditorCancelBtn': {
+				click: me.onHL7ConfigEditorCancelBtnClick
+			},
+			'#HL7ConfigEditorSaveBtn': {
+				click: me.onHL7ConfigEditorSaveBtnClick
+			},
+
+
+			'#HL7MessageViewerWindowResendBtn': {
+				click: me.onHL7MessageViewerWindowResendBtnClick
+			},
+			'#HL7MessageViewerWindowPreviousBtn': {
+				click: me.onHL7MessageViewerWindowPreviousBtnClick
+			},
+			'#HL7MessageViewerWindowNextBtn': {
+				click: me.onHL7MessageViewerWindowNextBtnClick
+			},
+			'#HL7MessageViewerWindowCloseBtn': {
+				click: me.onHL7MessageViewerWindowCloseBtnClick
 			}
 		});
 
+	},
+
+	onHL7ConfigEditorCancelBtnClick: function(btn){
+		btn.up('window').close();
+	},
+
+	onHL7ConfigEditorSaveBtnClick: function(btn){
+		var win = btn.up('window'),
+			form = win.down('form').getForm(),
+			values = form.getValues(),
+			record = form.getRecord();
+
+		record.set(values);
+
+		if(!Ext.Object.isEmpty(record.getChanges())){
+			record.save({
+				callback: function () {
+					win.close();
+					app.msg(_('sweet'), _('record_saved'));
+				}
+			});
+		}else{
+			win.close();
+		}
+
+	},
+
+	onHL7ServerConfigBtnClick: function(btn){
+		var grid = btn.up('grid'),
+			selection = grid.getSelectionModel().getSelection();
+
+		if(selection.length === 0){
+			return;
+		}
+
+		var win = this.showConfigEditorWindow();
+		win.down('form').getForm().loadRecord(selection[0]);
+	},
+
+	onHL7ClientConfigBtnClick: function(btn){
+		var grid = btn.up('grid'),
+			selection = grid.getSelectionModel().getSelection();
+
+		if(selection.length === 0){
+			return;
+		}
+
+		var win = this.showConfigEditorWindow();
+		win.down('form').getForm().loadRecord(selection[0]);
+	},
+
+	showConfigEditorWindow: function(){
+		return Ext.create('Ext.window.Window', {
+			title: 'Configuration',
+			height: 400,
+			width: 600,
+			layout: 'fit',
+			modal: true,
+			items: {
+				xtype: 'form',
+				layout: 'fit',
+				items: [
+					{
+						xtype: 'textareafield',
+						name: 'config'
+					}
+				]
+			},
+			buttons: [
+				{
+					xtype: 'button',
+					text: _('cancel'),
+					itemId: 'HL7ConfigEditorCancelBtn'
+				},
+				{
+					xtype: 'button',
+					text: _('save'),
+					itemId: 'HL7ConfigEditorSaveBtn'
+				}
+			]
+		}).show();
 	},
 
 	onAddHL7ServerBtnClick: function(){
@@ -167,8 +266,23 @@ Ext.define('App.controller.administration.HL7', {
 	},
 
 	onHL7MessagesViewBtnClick: function(){
+		this.showHL7MessagesByReference(undefined);
+	},
+
+	showHL7MessagesByReference: function(reference){
 		this.showHL7MessagesWindow();
-		this.getHL7MessagesGrid().getStore().load();
+		if(reference){
+			this.getHL7MessagesGrid().getStore().clearFilter(true);
+			this.getHL7MessagesGrid().getStore().filter([
+				{
+					property: 'reference',
+					value: reference
+				}
+			]);
+		}else{
+			this.getHL7MessagesGrid().getStore().clearFilter(true);
+			this.getHL7MessagesGrid().getStore().load();
+		}
 	},
 
 	onHL7MessagesGridItemDblClick: function(grid, record){
@@ -176,22 +290,14 @@ Ext.define('App.controller.administration.HL7', {
 	},
 
 	viewHL7MessageDetailById: function(message_id){
-		var me = this;
+		var me = this,
+			win = me.showHL7MessageDetailWindow(),
+			form = win.down('form').getForm();
 
-		me.showHL7MessageDetailWindow();
-
-		HL7Messages.getMessageById(message_id, function(provider, response){
-
-			var warnings = (response.result.hash !== response.result.current_hash) ?
-				'<span style="color: red">' : '<span style="color: green">';
-			warnings += '<b>' + _('stored_hash') + ':</b> ' + response.result.hash + '<br>';
-			warnings += '<b>' + _('current_hash') + ':</b> ' + response.result.current_hash + '<br>';
-			warnings += '</span>';
-
-			me.getHL7MessageViewerWindowWarnings().update(warnings);
-			me.getHL7MessageViewerWindowMessageField().setValue(response.result.message);
-			me.getHL7MessageViewerWindowAcknowledgeField().setValue(response.result.response);
-
+		HL7Messages.getMessageById(message_id, function(response){
+			response.message = me.colourizer(response.message);
+			response.response = me.colourizer(response.response);
+			form.setValues(response);
 		});
 	},
 
@@ -207,6 +313,154 @@ Ext.define('App.controller.administration.HL7', {
 			Ext.create('App.view.administration.HL7Messages');
 		}
 		return this.getHL7MessagesWindow().show();
+	},
+
+	onHL7MessageViewerWindowResendBtnClick: function(btn){
+		var values = btn.up('window').down('form').getForm().getValues(),
+			message_id = values.id,
+			is_outbound = values.isOutbound;
+
+		if(!is_outbound){
+			app.msg(_('oops'), 'Only outbound messages can be resend', true);
+			return;
+		}
+
+		HL7Messages.getResendMessageById(message_id, function (response) {
+
+			say(response);
+
+
+		});
+	},
+
+	onHL7MessageViewerWindowPreviousBtnClick: function(btn){
+		var messages_grid = this.getHL7MessagesWindow().down('grid'),
+			messages_store = messages_grid.getStore(),
+			message_sm = messages_grid.getSelectionModel(),
+			message_last_selected = message_sm.getLastSelected(),
+			message_last_selected_index = messages_store.findBy(function (record, id) {
+				return message_last_selected.get('id') === id;
+			}),
+			message_next_record_index = message_last_selected_index - 1,
+			message_next_record = messages_store.getAt(message_next_record_index),
+			message_form = btn.up('window').down('form').getForm();
+
+		say(message_last_selected_index);
+		say(message_next_record_index);
+		say(message_form);
+
+		if(!message_next_record){
+			btn.up('window').close();
+			return;
+		}
+
+
+		message_sm.select(message_next_record);
+
+		this.viewHL7MessageDetailById(message_next_record.get('id'));
+
+	},
+
+	onHL7MessageViewerWindowNextBtnClick: function(btn){
+		var messages_grid = this.getHL7MessagesWindow().down('grid'),
+			messages_store = messages_grid.getStore(),
+			message_sm = messages_grid.getSelectionModel(),
+			message_last_selected = message_sm.getLastSelected(),
+			message_last_selected_index = messages_store.findBy(function (record, id) {
+				return message_last_selected.get('id') === id;
+			}),
+			message_next_record_index = message_last_selected_index + 1,
+			message_next_record = messages_store.getAt(message_next_record_index),
+			message_form = btn.up('window').down('form').getForm();
+
+		say(message_last_selected_index);
+		say(message_next_record_index);
+		say(message_form);
+
+		if(!message_next_record){
+			btn.up('window').close();
+			return;
+		}
+
+		message_sm.select(message_next_record);
+
+		this.viewHL7MessageDetailById(message_next_record.get('id'));
+	},
+
+	onHL7MessageViewerWindowCloseBtnClick: function(btn){
+		btn.up('window').close();
+	},
+
+	colourizer: function(message) {
+
+		var lines = message.split("\r");
+		var output = "";
+		for (var index in lines) {
+			var nextLine = lines[index];
+			if (nextLine.length < 3) {
+				output = output + nextLine + "<br>";
+				continue;
+			}
+
+			var fields = nextLine.split("|");
+			for (var fIndex in fields) {
+				var nextField = fields[fIndex];
+				if (fIndex == 0) {
+					output = output + "<span style=\"color: #000080;\"><b>" + nextField + "</b></span>";
+				} else {
+
+					var reps = nextField.split("~");
+					for (var rIndex in reps) {
+						var nextRep = reps[rIndex];
+
+						if (rIndex > 0) {
+							output = output + "<span style=\"color: #808080;\">~</span>";
+						}
+
+						var comps = nextRep.split("^");
+						for (var cIndex in comps) {
+							var nextComp = comps[cIndex];
+
+							if (cIndex > 0) {
+								output = output + "<span style=\"color: #808080;\">^</span>";
+							}
+
+							var subcomps = nextComp.split("&");
+							for (var sIndex in subcomps) {
+								var nextSubComp = subcomps[sIndex];
+
+								if (sIndex > 0) {
+									output = output + "<span style=\"color: #808080;\">&</span>";
+								}
+
+								if (nextSubComp.match(/^[0-9./]+/)) {
+									nextSubComp = "<span style=\"color: #990033;\">" + nextSubComp + "</span>";
+								}
+
+								output = output + nextSubComp;
+
+							}
+						}
+					}
+				}
+
+				output = output + "<span style=\"color: #808080;\"><b>|</b></span>";
+
+			}
+
+			output = output + "<br>";
+		}
+
+		return output;
+
+		// output = output.replace(/<br>/g, "<br>\n");
+		// output = output.replace(/&/g, "&amp;");
+		// output = output.replace(/>/g, "&gt;");
+		// output = output.replace(/</g, "&lt;");
+		// document.getElementById('outHtml').innerHTML = "<pre>" + output + "</pre>";
+
+		//window.alert(value);
+
 	}
 
 });

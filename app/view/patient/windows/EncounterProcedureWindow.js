@@ -95,6 +95,13 @@ Ext.define('App.view.patient.windows.EncounterProcedureWindow', {
 					fieldLabel: _('status'),
 					labelAlign: 'top',
 					itemId: 'EncounterProcedureStatusField',
+					editable: false,
+					store: [
+						['aborted', 'Aborted'],
+						['active', 'Active'],
+						['cancelled', 'Cancelled'],
+						['completed', 'Completed']
+					]
 				},
 				{
 					xtype: 'gaiaehr.combo',

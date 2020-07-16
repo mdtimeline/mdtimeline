@@ -69,7 +69,14 @@ class Procedures {
 		$params->filter[0] = new stdClass();
 		$params->filter[0]->property = 'eid';
 		$params->filter[0]->value =  $eid;
-		return $this->p->load($params)->all();
+		return $this->p->load($params)->leftJoin(
+			[
+				'fname' => 'performer_fname',
+				'mname' => 'performer_mname',
+				'lname' => 'performer_lname',
+				'npi' => 'performer_npi',
+			], 'users', 'performer_id', 'id'
+		)->all();
 	}
 
 	public function getPatientProceduresByPidAndCode($pid, $code) {

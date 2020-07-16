@@ -105,13 +105,20 @@ class DataManager
             ];
         }
 
-        $records = $this->labs->getAllLoincPanels($params);
-        $total = count($records);
-        $records = array_slice($records, $params->start, $params->limit);
-        return [
-            'totals' => $total,
-            'rows' => $records
-        ];
+        if ($params->code_type == 'LOINC') {
+	        $records = $this->labs->getAllLoincPanels($params);
+	        $total = count($records);
+	        $records = array_slice($records, $params->start, $params->limit);
+	        return [
+		        'totals' => $total,
+		        'rows' => $records
+	        ];
+        }
+
+	    return [
+		    'totals' => 0,
+		    'rows' => []
+	    ];
 
     }
 

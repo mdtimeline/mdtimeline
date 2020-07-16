@@ -532,7 +532,7 @@ class DocumentHandler
             $p = $patient->getPatientByPid($document->pid);
             $code = $document->code;
 
-            if (isset($p) && isset($p['pubpid']) && $document->code == '') {
+            if(isset($p) && isset($p['pubpid']) && $document->code == ''){
                 $code = $p['pubpid'] . '~' . $document_code . '~' . $file_name;
             }
 
@@ -687,39 +687,44 @@ class DocumentHandler
     /**
      * @param $params
      * @param bool $getDocument
-     * @return object|stdClass
+     * @return object|stdClass|string
      */
-    public function createTempDocument($params, $getDocument = false)
+    public function createTempDocument($params,$getDocument = false)
     {
-        $this->setPatientDocumentTempModel();
+    	try{
+		    $this->setPatientDocumentTempModel();
 
-        Matcha::pauseLog(true);
+		    Matcha::pauseLog(true);
 
-        $params = (object)$params;
-        $record = new stdClass();
-        if (isset($params->document) && $params->document != '') {
-            $record->document = $params->document;
-        } else {
-            $pdf_format = isset($params->pdf_format) ? $params->pdf_format : null;
+		    $params = (object)$params;
+		    $record = new stdClass();
+		    if (isset($params->document) && $params->document != '') {
+			    $record->document = $params->document;
+		    } else {
+			    $pdf_format = isset($params->pdf_format) ? $params->pdf_format : null;
 
-            $header_data = isset($params->header_data) && is_array($params->header_data) ? $params->header_data : null;
-            $footer_data = isset($params->footer_data) && is_array($params->footer_data) ? $params->footer_data : null;
-            $mail_cover_info = isset($params->mail_cover_info) && is_array($params->mail_cover_info) ? $params->mail_cover_info : null;
+			    $header_data = isset($params->header_data) && is_array($params->header_data) ? $params->header_data : null;
+			    $footer_data = isset($params->footer_data) && is_array($params->footer_data) ? $params->footer_data : null;
+			    $mail_cover_info = isset($params->mail_cover_info) && is_array($params->mail_cover_info) ? $params->mail_cover_info : null;
 
-            $Documents = new Documents();
-            $record->document = base64_encode(
-                $Documents->PDFDocumentBuilder((object)$params, '', $header_data, $footer_data, '', [], [], $pdf_format, $mail_cover_info)
-            );
-        }
-        $record->create_date = date('Y-m-d H:i:s');
-        $record->document_name = isset($params->document_name) ? $params->document_name : '';
-        $record = (object)$this->t->save($record);
-        if (!$getDocument) {
-            unset($record->document);
-        }
+			    $Documents = new Documents();
+			    $record->document = base64_encode(
+				    $Documents->PDFDocumentBuilder((object)$params, '', $header_data, $footer_data, '', [], [], $pdf_format,$mail_cover_info)
+			    );
+		    }
+		    $record->create_date = date('Y-m-d H:i:s');
+		    $record->document_name = isset($params->document_name) ? $params->document_name : '';
+		    $record = (object)$this->t->save($record);
+		    if(!$getDocument){
+			    unset($record->document);
+		    }
 
-        Matcha::pauseLog(false);
-        return $record;
+		    Matcha::pauseLog(false);
+		    return $record;
+	    }catch (Exception $e){
+			return $e->getMessage();
+	    }
+
     }
 
     /**
@@ -781,10 +786,10 @@ class DocumentHandler
 
         Matcha::pauseLog(false);
 
-        if (isset($params->site) && isset($GLOBALS['worklist_dbs'][$params->site])) {
-            \Matcha::$__conn = null;
-            \Matcha::connect($GLOBALS['worklist_dbs'][$params->site]);
-        }
+	    if(isset($params->site) && isset($GLOBALS['worklist_dbs'][$params->site])){
+		    \Matcha::$__conn = null;
+		    \Matcha::connect($GLOBALS['worklist_dbs'][$params->site]);
+	    }
 
         $record = $this->t->load($params)->one();
 
@@ -1004,7 +1009,7 @@ class DocumentHandler
         $this->setPatientDocumentModel();
         $this->d->setOrFilterProperties(['filesystem_id']);
         $this->d->addFilter('filesystem_id', null, '=');
-        $this->d->addFilter('filesystem_id', '', '=');
+	    $this->d->addFilter('filesystem_id', '', '=');
 
         $records = $this->d->load()->limit(0, $quantity)->all();
 

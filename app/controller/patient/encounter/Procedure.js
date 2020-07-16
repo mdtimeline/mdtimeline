@@ -99,7 +99,8 @@ Ext.define('App.controller.patient.encounter.Procedure', {
 		var win = this.getEncounterProcedureWindow(),
 			form = this.getEncounterProcedureForm().getForm(),
 			values = form.getValues(),
-			record = form.getRecord();
+			record = form.getRecord(),
+			encounter_ctl = app.getController('patient.encounter.Encounter');
 
 		if(!form.isValid()) return;
 
@@ -113,6 +114,7 @@ Ext.define('App.controller.patient.encounter.Procedure', {
 				callback: function () {
 					form.reset();
 					win.close();
+					encounter_ctl.getProgressNote();
 				}
 			});
 		}

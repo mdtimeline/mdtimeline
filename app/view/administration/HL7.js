@@ -275,12 +275,16 @@ Ext.define('App.view.administration.HL7', {
 						disabled: true
 					},
 					'-',
-					'->',
-					'-',
 					{
 						text: _('messages'),
 						itemId: 'HL7MessagesViewBtn'
-					}
+					},
+					'-',
+					{
+						text: _('config'),
+						itemId: 'HL7ServerConfigBtn'
+					},
+					'-'
 				]
 			})
 		},
@@ -394,6 +398,11 @@ Ext.define('App.view.administration.HL7', {
 						iconCls: 'icoDelete',
 						itemId: 'removeHL7ClientBtn',
 						disabled: true
+					},
+					'-',
+					{
+						text: _('config'),
+						itemId: 'HL7ClientConfigBtn'
 					},
 					'-'
 				]

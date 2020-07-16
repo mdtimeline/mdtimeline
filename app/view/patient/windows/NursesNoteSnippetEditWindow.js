@@ -61,6 +61,14 @@ Ext.define('App.view.patient.windows.NursesNoteSnippetEditWindow', {
 					labelAlign: 'top',
 					height: 200,
 					anchor: '100%'
+				},
+				{
+					xtype: 'userscombo',
+					fieldLabel: _('owner'),
+					labelAlign: 'top',
+					includeAllOption: true,
+					name: 'uid',
+					anchor: '100%'
 				}
 			]
 		}

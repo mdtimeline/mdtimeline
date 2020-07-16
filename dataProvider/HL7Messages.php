@@ -2114,6 +2114,22 @@ class HL7Messages {
 		return $this->c->load($params)->all();
 	}
 
+	public function getResendMessageById($id){
+
+		$message_record = $this->getMessageById($id);
+		$this->c->addFilter('active', 1);
+		$clients = $this->c->load()->all();
+		$responses = [];
+
+		foreach ($clients as $client){
+			$hl7_client = new HL7Client($client['address'], $client['port']);
+			$response = $hl7_client->Send($message_record['message']);
+			$responses[] = $response;
+		}
+
+		return $responses;
+	}
+
 	private function saveResponse($msgRecord, $response){
 		$msgRecord->response = $response['message'];
 

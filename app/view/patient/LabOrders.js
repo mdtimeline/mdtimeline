@@ -64,9 +64,22 @@ Ext.define('App.view.patient.LabOrders', {
 	],
 	columns: [
 		{
+			xtype: 'actioncolumn',
+			width: 20,
+			items: [
+				{
+					icon: 'resources/images/icons/cross.png',
+					tooltip: _('remove'),
+					handler: function (grid, rowIndex, colIndex, item, e, record) {
+						App.app.getController('patient.LabOrders').onOrdersDeleteActionHandler(grid, rowIndex, colIndex, item, e, record);
+					}
+				}
+			]
+		},
+		{
             header: _('void'),
             groupable: false,
-            width: 60,
+            width: 50,
             align: 'center',
             dataIndex: 'void',
             tooltip: _('void'),
@@ -114,8 +127,9 @@ Ext.define('App.view.patient.LabOrders', {
 			},
             renderer: function(v, meta, record)
             {
-                if(record.data.void) return '<span style="text-decoration: line-through;">'+ v + '</span>';
-                return '<span>'+ v + '</span>';
+            	var dt = Ext.Date.format(v, g('date_display_format'));
+                if(record.data.void) return '<span style="text-decoration: line-through;">'+ dt + '</span>';
+                return '<span>'+ dt + '</span>';
             }
 		},
 		{

@@ -395,6 +395,42 @@ class Documents {
 		return $allNeededInfo;
 	}
 
+    public function mergeDocuments($files_paths)
+    {
+        include_once (ROOT . '/classes/Utils.php');
+        $os = Utils::getOS();
+        //command example: pdftk file1.pdf file2.pdf file3.pdf cat output out.pdf
+        $command = '';
+
+        $command = Globals::getGlobal('pdftk_location');
+
+        if($command === false) return false;
+
+        //Add a space to the command for the following arguments
+        $command .= ' ';
+
+        foreach ($files_paths AS $files_path){
+            $command .= $files_path . ' ';
+        }
+
+//        $outputMergedDocumentPath = '/Users/mdtimeline/Desktop' . '/' . uniqid('mergedDocument_') . '.pdf';
+        $outputMergedDocumentPath = site_temp_path . '/' . uniqid('mergedDocument_') . '.pdf';
+
+        $command .= "cat output {$outputMergedDocumentPath}";
+
+        $result = exec($command);
+
+        if($result != '') return false;
+
+        $mergedDocumentData = file_get_contents($outputMergedDocumentPath);
+
+        $mergedDocumentBase64 = base64_encode($mergedDocumentData);
+
+        unlink($outputMergedDocumentPath);
+
+        return $mergedDocumentBase64;
+    }
+
     /**
      * @param $params
      * @param string $path
@@ -420,6 +456,7 @@ class Documents {
 		if(!empty($mail_cover_info)){
 			$pdf->CreateCover($mail_cover_info);
 		}
+
 
 		$pdf->water_mark = $water_mark;
 

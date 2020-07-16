@@ -8,13 +8,13 @@ class Utils
     {
         if ($language == 'en') {
 
-            if(is_string($dateTime)) $dateTime = date($format_en, strtotime($dateTime));
-            if($dateTime instanceof DateTime) $dateTime = date($format_en, $dateTime);
+            if (is_string($dateTime)) $dateTime = date($format_en, strtotime($dateTime));
+            if ($dateTime instanceof DateTime) $dateTime = date($format_en, $dateTime);
 
         } else {
 
-            if(is_string($dateTime)) $dateTime = date($format_es, strtotime($dateTime));
-            if($dateTime instanceof DateTime) $dateTime = date($format_es, $dateTime);
+            if (is_string($dateTime)) $dateTime = date($format_es, strtotime($dateTime));
+            if ($dateTime instanceof DateTime) $dateTime = date($format_es, $dateTime);
 
             $ts = array(
                 'Sunday',
@@ -62,6 +62,18 @@ class Utils
             $dateTime = str_replace($ts, $tr, $dateTime);
         }
         return $dateTime;
+    }
+
+    public static function getOS()
+    {
+        $user_agent = $_SERVER['HTTP_USER_AGENT'];
+
+        if(strpos($user_agent, "Win") !== FALSE)
+            return "WIN";
+        elseif(strpos($user_agent, "Mac") !== FALSE)
+            return "MAC";
+        else
+            return "LINUX";
     }
 
 }

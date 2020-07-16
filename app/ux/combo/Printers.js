@@ -60,6 +60,10 @@ Ext.define('App.ux.combo.Printers', {
                 filterFn: function (item) {
                     return (item.get("facility_id") === app.user.facility && item.get("active")) || item.get('local');
                 }
+            },
+            {
+                property: 'local',
+                value: true
             });
     }
 

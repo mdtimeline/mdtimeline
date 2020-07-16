@@ -532,7 +532,7 @@ class DocumentHandler
             $p = $patient->getPatientByPid($document->pid);
             $code = $document->code;
 
-            if(isset($p) && isset($p['pubpid']) && $document->code == ''){
+            if (isset($p) && isset($p['pubpid']) && $document->code == '') {
                 $code = $p['pubpid'] . '~' . $document_code . '~' . $file_name;
             }
 
@@ -554,6 +554,26 @@ class DocumentHandler
             error_log('Error Converting Document');
             error_log($e->getMessage());
         }
+    }
+
+    /**
+     * @param $base64Document
+     * @param $prefix it is use to for pdf file name
+     * @return bool|string
+     */
+    private function saveDocumentOnTempFolder($base64Document,$prefix)
+    {
+        $path = site_temp_path . '/' . uniqid($prefix) . '.pdf';
+
+        if(!file_put_contents($path, base64_decode($base64Document))){
+            return false;
+        }
+
+        return $path;
+    }
+
+    private function deleteDocumentOnTempFolder($documentPath){
+        return unlink($documentPath);
     }
 
     /**
@@ -637,11 +657,39 @@ class DocumentHandler
     }
 
     /**
+     * @param $base64Documents
+     * @return string
+     */
+    public function mergeDocumentsByBase64($base64Documents)
+    {
+        $documentsPaths = [];
+
+        foreach ($base64Documents as $base64Document) {
+            $filePath = $this->saveDocumentOnTempFolder($base64Document,'mergeDocument_');
+            if($filePath === false) return false;
+
+            $documentsPaths[] = $filePath;
+        }
+
+        $Documents = new Documents();
+
+        $mergedDocumentBase64 = $Documents->mergeDocuments($documentsPaths);
+
+        foreach ($documentsPaths AS $documentsPath){
+            $this->deleteDocumentOnTempFolder($documentsPath);
+        }
+
+        if($mergedDocumentBase64 === false) return false;
+
+        return $mergedDocumentBase64;
+    }
+
+    /**
      * @param $params
      * @param bool $getDocument
      * @return object|stdClass
      */
-    public function createTempDocument($params,$getDocument = false)
+    public function createTempDocument($params, $getDocument = false)
     {
         $this->setPatientDocumentTempModel();
 
@@ -660,13 +708,13 @@ class DocumentHandler
 
             $Documents = new Documents();
             $record->document = base64_encode(
-                $Documents->PDFDocumentBuilder((object)$params, '', $header_data, $footer_data, '', [], [], $pdf_format,$mail_cover_info)
+                $Documents->PDFDocumentBuilder((object)$params, '', $header_data, $footer_data, '', [], [], $pdf_format, $mail_cover_info)
             );
         }
         $record->create_date = date('Y-m-d H:i:s');
         $record->document_name = isset($params->document_name) ? $params->document_name : '';
         $record = (object)$this->t->save($record);
-        if(!$getDocument){
+        if (!$getDocument) {
             unset($record->document);
         }
 
@@ -733,10 +781,10 @@ class DocumentHandler
 
         Matcha::pauseLog(false);
 
-	    if(isset($params->site) && isset($GLOBALS['worklist_dbs'][$params->site])){
-		    \Matcha::$__conn = null;
-		    \Matcha::connect($GLOBALS['worklist_dbs'][$params->site]);
-	    }
+        if (isset($params->site) && isset($GLOBALS['worklist_dbs'][$params->site])) {
+            \Matcha::$__conn = null;
+            \Matcha::connect($GLOBALS['worklist_dbs'][$params->site]);
+        }
 
         $record = $this->t->load($params)->one();
 
@@ -749,15 +797,15 @@ class DocumentHandler
 
         $params = $this->addPatientDocument($params);
 
-	    \Matcha::$__conn = null;
-	    \Matcha::connect([
-		    'host' => site_db_host,
-		    'port' => site_db_port,
-		    'name' => site_db_database,
-		    'user' => site_db_username,
-		    'pass' => site_db_password,
-		    'app' => ROOT . '/app'
-	    ]);
+        \Matcha::$__conn = null;
+        \Matcha::connect([
+            'host' => site_db_host,
+            'port' => site_db_port,
+            'name' => site_db_database,
+            'user' => site_db_username,
+            'pass' => site_db_password,
+            'app' => ROOT . '/app'
+        ]);
 
         unset($params['data']->document);
 
@@ -791,8 +839,8 @@ class DocumentHandler
      */
     public function getDocumentPathById($id)
     {
-    	$conn = Matcha::getConn();
-	    $sth = $conn->prepare("SELECT * FROM patient_documents WHERE id = '{$id}'");
+        $conn = Matcha::getConn();
+        $sth = $conn->prepare("SELECT * FROM patient_documents WHERE id = '{$id}'");
         $doc = $sth->fetch(PDO::FETCH_ASSOC);
         return site_path . '/patients/' . $doc['pid'] . '/' . strtolower(str_replace(' ', '_', $doc['docType'])) . '/' . $doc['name'];
     }
@@ -956,7 +1004,7 @@ class DocumentHandler
         $this->setPatientDocumentModel();
         $this->d->setOrFilterProperties(['filesystem_id']);
         $this->d->addFilter('filesystem_id', null, '=');
-	    $this->d->addFilter('filesystem_id', '', '=');
+        $this->d->addFilter('filesystem_id', '', '=');
 
         $records = $this->d->load()->limit(0, $quantity)->all();
 

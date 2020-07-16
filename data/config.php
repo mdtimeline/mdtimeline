@@ -198,6 +198,9 @@ $API = [
             'doTempDocumentPrint' => [
                 'len' => 2
             ],
+            'doPrint' => [
+                'len' => 2
+            ],
             'doDocumentPrint' => [
                 'len' => 2
             ]
@@ -2630,6 +2633,9 @@ $API = [
 	'Documents' => [
 		'methods' => [
 			'updateDocumentsTitle' => [
+				'len' => 1
+            ],
+			'mergeDocuments' => [
 				'len' => 1
             ]
         ]

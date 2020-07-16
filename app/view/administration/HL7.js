@@ -366,9 +366,18 @@ Ext.define('App.view.administration.HL7', {
 					}
 				},
 				{
+					text: _('allow_messages'),
+					dataIndex: 'allow_messages',
+					width: 200,
+					editor: {
+						xtype: 'textfield'
+					}
+				},
+				{
 					text: _('secret_key'),
 					dataIndex: 'secret_key',
 					width: 200,
+					hidden: true,
 					editor: {
 						xtype: 'textfield'
 					}

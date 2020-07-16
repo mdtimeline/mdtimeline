@@ -64,8 +64,8 @@ Ext.define('App.model.administration.HL7Client', {
 		},
 		{
 			name: 'allow_messages',
-			type: 'array',
-			dataType: 'longtext'
+			type: 'string',
+			dataType: 'text'
 		},
 		{
 			name: 'address',

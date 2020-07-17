@@ -45,14 +45,8 @@ Ext.define('App.controller.Print', {
     loadRemotePrinters: function () {
         var me = this;
 
-        say('loadRemotePrinters');
-
         Printer.getPrinters(function (printers){
-            say(printers);
             me.printers = Ext.Array.merge(me.printers, printers);
-
-            say(me.printers);
-
         });
     },
 
@@ -64,23 +58,17 @@ Ext.define('App.controller.Print', {
         say('onBrowserHelperOpen');
 
         me.browserHelperCtl.send('{"action":"printer/list"}', function (printers) {
-            say(printers);
-
+            //Add local property to each printer
             for (var i = 0; i < printers.length; i++) {
                 printers[i].local = true;
             }
 
             me.printers = Ext.Array.merge(me.printers, printers);
-            say(me.printers);
         });
 
     },
 
     onPrintersComboBeforeRender: function (cmb) {
-        say('onBeforeRender');
-        say(this.printers);
-
-
         cmb.store.loadData(this.printers);
 
         //register combobox to change when facility changes

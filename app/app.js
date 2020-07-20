@@ -9246,6 +9246,10 @@ Ext.define('App.ux.combo.Printers', {
                 filterFn: function (item) {
                     return (item.get("facility_id") === app.user.facility && item.get("active")) || item.get('local');
                 }
+            },
+            {
+                property: 'local',
+                value: true
             });
     }
 
@@ -45736,16 +45740,21 @@ Ext.define('App.controller.Print', {
                 say(response);
             });
         } else {
-
-
+            Printer.doPrint(printer_record.get('id'), base64data);
         }
     },
 
     loadRemotePrinters: function () {
         var me = this;
 
-        Printer.getPrinters(function (printers) {
+        say('loadRemotePrinters');
+
+        Printer.getPrinters(function (printers){
+            say(printers);
             me.printers = Ext.Array.merge(me.printers, printers);
+
+            say(me.printers);
+
         });
     },
 
@@ -45754,14 +45763,26 @@ Ext.define('App.controller.Print', {
 
         me.browserHelperCtl = ctl;
 
+        say('onBrowserHelperOpen');
+
         me.browserHelperCtl.send('{"action":"printer/list"}', function (printers) {
             say(printers);
+
+            for (var i = 0; i < printers.length; i++) {
+                printers[i].local = true;
+            }
+
             me.printers = Ext.Array.merge(me.printers, printers);
+            say(me.printers);
         });
 
     },
 
     onPrintersComboBeforeRender: function (cmb) {
+        say('onBeforeRender');
+        say(this.printers);
+
+
         cmb.store.loadData(this.printers);
 
         //register combobox to change when facility changes

@@ -903,6 +903,9 @@ class MatchaCUP {
 	 */
 	public function save($record, $where = []) {
 		try {
+
+		    $this->nolimitsql = '';
+
 			if(!empty($where)){
 				$this->isSenchaRequest = false;
 				$data = get_object_vars($record);

@@ -502,7 +502,7 @@ Ext.define('App.model.patient.ReviewOfSystems', {
 			type: 'bool'
 		},
 		{
-			name: 'Warm',
+			name: 'warm',
 			type: 'bool'
 		},
 		{

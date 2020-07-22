@@ -72,7 +72,6 @@ Ext.define('App.model.administration.Specialty', {
             type: 'string',
             len: 50
         },
-
 		{
 			name: 'active',
 			type: 'bool'

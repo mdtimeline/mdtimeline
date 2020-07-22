@@ -14075,7 +14075,6 @@ Ext.define('App.model.administration.Specialty', {
             type: 'string',
             len: 50
         },
-
 		{
 			name: 'active',
 			type: 'bool'
@@ -64407,27 +64406,18 @@ Ext.define('App.ux.combo.ActiveSpecialties', {
 	editable: false,
 	emptyText: _('select'),
 	queryMode: 'local',
+	store: Ext.create('App.store.administration.Specialties',{
+		pageSize: 500,
+		autoLoad: true
+	}),
 	initComponent: function(){
-
-		this.store = Ext.create('App.store.administration.Specialties',{
-			filters: [
-				{
-					property:'active',
-					value: true
-				}
-			],
-			sorters: [
-				{
-					property: 'title',
-					direction: 'ASC'
-				}
-			],
-			pageSize: 500,
-			autoLoad: true,
-			remoteFilter: true,
-			remoteSort: false
-		});
-
+		this.store.clearFilter(true);
+		this.store.filter([
+			{
+				property: 'active',
+				value: true
+			}
+		]);
 		this.callParent();
 	}
 

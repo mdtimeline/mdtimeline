@@ -506,9 +506,12 @@ class Encounter {
 			$encounter['objective'] = $this->getObjectiveExtraDataByEid($encounter['eid']) . $soap['objective'];
 			$encounter['assessment'] = $soap['assessment'] . '<ul  class="ProgressNote-ul">' . $icds . '</ul>';
 			$encounter['plan'] = (isset($soap['plan']) ? $soap['plan'] : '') . $this->getPlanExtraDataByEid($encounter['eid'], $soap['instructions'], true);
+			$encounter['leaf'] = true;
 			unset($soap);
 		}
 		unset($filters);
+
+		$encounter['leaf'] = true;
 
 		$encounters_children = [];
 

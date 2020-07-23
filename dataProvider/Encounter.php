@@ -511,7 +511,7 @@ class Encounter {
 		}
 		unset($filters);
 
-		$encounter['leaf'] = true;
+		return $encounters;
 
 		$encounters_children = [];
 

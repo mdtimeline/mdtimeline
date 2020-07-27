@@ -26,7 +26,7 @@ Ext.define('App.view.reports.ReportWindow', {
 	},
 	bodyPadding: 5,
 	requires: [
-
+		'App.ux.grid.exporter.Exporter'
 	],
 	initComponent: function () {
 		var me = this;
@@ -59,11 +59,24 @@ Ext.define('App.view.reports.ReportWindow', {
 					ftype: 'groupingsummary'
 				}],
 				flex: 1,
-				tools: [
+				tbar: [
+					'->',
 					{
 						xtype:'button',
 						iconCls: 'icoPrint',
+						text: 'Print',
 						itemId: 'ReportWindowGridPrintBtn'
+					},
+					'-',
+					{
+						xtype: 'exporterbutton',
+						text: 'Save As CSV',
+					},
+					'-',
+					{
+						xtype: 'exporterbutton',
+						text: 'Save As XLS',
+						format: 'excel'
 					}
 				],
 				columns: [

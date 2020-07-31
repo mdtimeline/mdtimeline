@@ -16,6 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Deprecation warning about (MCrypt) will be displayed during installation 
+// causing the JSON parser to fail reading a success feedback of this class.
+// suppressing the warning will solve this
+error_reporting(0);
+
 use Carbon\Carbon;
 
 class MatchaUtils extends Matcha

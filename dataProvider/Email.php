@@ -370,6 +370,8 @@ class Email {
 	}
 
 	private function getTemplateByType($facility_id, $template_type){
+        $this->t->setOrFilterProperties(['facility_id']);
+        $this->t->addFilter('facility_id', '0');
 		if(isset($facility_id)){
 			$this->t->addFilter('facility_id', $facility_id);
 		}

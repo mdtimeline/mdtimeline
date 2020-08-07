@@ -103,7 +103,7 @@ class Email {
 		}
 	}
 
-	private function SendAPI($pid, $eid, $to_address, $subject, $from_email, $from_name, $body, $audit_log = true, $facility_id = null, $attachments = [], $embedded_images = []){
+	private function SendAPI($pid, $eid, $to_address, $subject, $from_email, $from_name, $body, $audit_log = true, $facility_id = 0, $attachments = [], $embedded_images = []){
 
 
 		if($this->API_ACCOUNT == '' || $this->API_KEY == ''){
@@ -370,6 +370,8 @@ class Email {
 	}
 
 	private function getTemplateByType($facility_id, $template_type){
+        $this->t->setOrFilterProperties(['facility_id']);
+        $this->t->addFilter('facility_id', '0');
 		if(isset($facility_id)){
 			$this->t->addFilter('facility_id', $facility_id);
 		}

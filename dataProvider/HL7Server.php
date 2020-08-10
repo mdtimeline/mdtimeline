@@ -1072,9 +1072,9 @@ INI_CONFIG;
 		if($this->notEmpty($PID[5][0][2])){
 			$p['fname'] = $PID[5][0][2]; // Patient Name...
 		}
-		if($this->notEmpty($PID[5][0][3])){
+//		if($this->notEmpty($PID[5][0][3])){
 			$p['mname'] = $PID[5][0][3]; //
-		}
+//		}
 		if($this->notEmpty($PID[5][0][1][1])){
 			$p['lname'] = $PID[5][0][1][1]; //
 		}

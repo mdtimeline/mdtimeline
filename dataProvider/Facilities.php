@@ -164,6 +164,15 @@ class Facilities {
 	}
 
 	/**
+	 * @param $facilityId
+	 * @return mixed
+	 */
+	public function getFacilityById($facilityId){
+		$this->setFacilityModel();
+		return $this->f->load(['id' => $facilityId])->one();
+	}
+
+	/**
 	 * @return mixed
 	 */
 	public function getBillingFacilities(){

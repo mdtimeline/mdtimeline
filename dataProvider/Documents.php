@@ -423,7 +423,10 @@ class Documents {
 
         $command = Globals::getGlobal('pdftk_location');
 
-        if($command === false) return false;
+        if($command === false || empty($command)){
+            error_log('Global setting pdftk_location is not set');
+            return false;
+        }
 
         //Add a space to the command for the following arguments
         $command .= ' ';
@@ -435,19 +438,21 @@ class Documents {
 //        $outputMergedDocumentPath = '/Users/mdtimeline/Desktop' . '/' . uniqid('mergedDocument_') . '.pdf';
         $outputMergedDocumentPath = site_temp_path . '/' . uniqid('mergedDocument_') . '.pdf';
 
-        $command .= "cat output {$outputMergedDocumentPath}";
+        $command .= "cat output {$outputMergedDocumentPath} uncompress";
 
         $result = exec($command);
 
-        if($result != '') return false;
+        if($result != ''){
+            error_log('Merge could not be done. Command return: {$result}');
+            return false;
+        }
 
         $mergedDocumentData = file_get_contents($outputMergedDocumentPath);
 
-        $mergedDocumentBase64 = base64_encode($mergedDocumentData);
-
         unlink($outputMergedDocumentPath);
 
-        return $mergedDocumentBase64;
+        return $mergedDocumentData;
+//        return $mergedDocumentBase64;
     }
 
     /**

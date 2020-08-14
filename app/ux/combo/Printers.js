@@ -13,10 +13,7 @@ Ext.define('App.ux.combo.Printers', {
         fields: [
             {
                 name: 'id',
-                type: 'int',
-                convert: function (v, r) {
-                    return typeof v === 'string' ? parseInt(v) : v;
-                }
+                type: 'string'
             },
             {name: 'name', type: 'string'},
             {name: 'printer_description', type: 'string'},

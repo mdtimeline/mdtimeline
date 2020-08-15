@@ -286,7 +286,6 @@ Ext.define('App.controller.patient.Insurance', {
 
         insurance_panel.add(items);
 
-
         say(insurance_panel);
 
         if (insurance_panel.items.length > 0) insurance_panel.setActiveTab(0);

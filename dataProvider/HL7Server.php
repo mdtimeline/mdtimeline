@@ -101,6 +101,10 @@ class HL7Server {
 	 * @var DocumentHandler
 	 */
 	private $DocumentHandler;
+	/**
+	 * @var Facilities
+	 */
+	private $Facility;
 
 
 	/**
@@ -171,7 +175,11 @@ class HL7Server {
 	 */
 	protected function getServerByPort($port) {
 		$this->s->addFilter('port', $port);
-		return $this->s->load()->one();
+		$this->server = $this->s->load()->one();
+		if($this->server !== false && isset($this->server['config'])){
+			$this->server['config'] = parse_ini_string($this->server['config'], true, INI_SCANNER_RAW);
+		}
+		return $this->server;
 	}
 
 	public function Process($msg = '', $addSocketCharacters = true) {
@@ -1787,4 +1795,28 @@ INI_CONFIG;
 		}
 
 	}
+
+	/**
+	 * @param $hl7_server_config
+	 * @param string $type  ALL|ADT|ORU
+	 */
+	function parseIni($hl7_server_config, $type = 'ALL'){
+
+		foreach ($hl7_server_config['ALL'] as $property => $value){
+			if($value !== 'false' && $value !== 'true'){
+				$value = "'$value'";
+			}
+			$foo = ("\$this->{$property} = $value;");
+			print_r($foo . PHP_EOL);
+		}
+		foreach ($hl7_server_config[$type] as $property => $value){
+			if($value !== 'false' && $value !== 'true'){
+				$value = "'$value'";
+			}
+			$foo = ("\$this->{$property} = $value;");
+			print_r($foo . PHP_EOL);
+		}
+
+	}
+
 }

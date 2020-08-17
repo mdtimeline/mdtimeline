@@ -565,7 +565,8 @@ class DocumentHandler
     {
         $path = site_temp_path . '/' . uniqid($prefix) . '.pdf';
 
-        if(!file_put_contents($path, base64_decode($base64Document))){
+        if(!file_put_contents($path, base64_decode($base64Document), FILE_USE_INCLUDE_PATH)){
+            error_log('Temp document could not be saved on this location. {$path}');
             return false;
         }
 
@@ -657,31 +658,42 @@ class DocumentHandler
     }
 
     /**
-     * @param $base64Documents
+     * @param $base64_documents
      * @return string
      */
-    public function mergeDocumentsByBase64($base64Documents)
+    public function mergeDocumentsByBase64($base64_documents)
     {
-        $documentsPaths = [];
+        $documents_paths = [];
 
-        foreach ($base64Documents as $base64Document) {
-            $filePath = $this->saveDocumentOnTempFolder($base64Document,'mergeDocument_');
+        foreach ($base64_documents as $base64_document) {
+            $filePath = $this->saveDocumentOnTempFolder($base64_document,'mergeDocument_');
             if($filePath === false) return false;
 
-            $documentsPaths[] = $filePath;
+            $documents_paths[] = $filePath;
         }
 
+        $merged_document_data = $this->mergeDocuments($documents_paths);
+
+        foreach ($documents_paths AS $document_path){
+            $this->deleteDocumentOnTempFolder($document_path);
+        }
+
+        if($merged_document_data === false) return false;
+
+        return $merged_document_data;
+    }
+
+    public function mergeDocuments($file_paths, $return_as_base64 = false)
+    {
         $Documents = new Documents();
 
-        $mergedDocumentBase64 = $Documents->mergeDocuments($documentsPaths);
+        $merged_document = $Documents->mergeDocuments($file_paths);
 
-        foreach ($documentsPaths AS $documentsPath){
-            $this->deleteDocumentOnTempFolder($documentsPath);
-        }
+        if($merged_document === false) return false;
 
-        if($mergedDocumentBase64 === false) return false;
+        if($return_as_base64) return base64_encode($merged_document);
 
-        return $mergedDocumentBase64;
+        return $merged_document;
     }
 
     /**

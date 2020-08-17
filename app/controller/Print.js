@@ -25,7 +25,7 @@ Ext.define('App.controller.Print', {
 
     },
 
-    doPrint: function (printer_record, base64data) {
+    doPrint: function (printer_record, data) {
         var me = this;
 
         if (printer_record.get('local')) {
@@ -34,25 +34,21 @@ Ext.define('App.controller.Print', {
                 return;
             }
 
-            me.browserHelperCtl.send('{"action":"print", "printer": "' + printer_record.get('id') + '", "payload": "' + base64data + '"}', function (response) {
-                say(response);
+            me.browserHelperCtl.send('{"action":"print", "printer": "' + printer_record.get('id') + '", "payload": "' + btoa(data) + '"}', function (response) {
+                if(!response.success){
+                    app.msg(_('oops'), 'Document could not be printed', true);
+                }
             });
         } else {
-            Printer.doPrint(printer_record.get('id'), base64data);
+            Printer.doPrint(printer_record.get('id'), data);
         }
     },
 
     loadRemotePrinters: function () {
         var me = this;
 
-        say('loadRemotePrinters');
-
         Printer.getPrinters(function (printers){
-            say(printers);
             me.printers = Ext.Array.merge(me.printers, printers);
-
-            say(me.printers);
-
         });
     },
 
@@ -64,23 +60,17 @@ Ext.define('App.controller.Print', {
         say('onBrowserHelperOpen');
 
         me.browserHelperCtl.send('{"action":"printer/list"}', function (printers) {
-            say(printers);
-
+            //Add local property to each printer
             for (var i = 0; i < printers.length; i++) {
                 printers[i].local = true;
             }
 
             me.printers = Ext.Array.merge(me.printers, printers);
-            say(me.printers);
         });
 
     },
 
     onPrintersComboBeforeRender: function (cmb) {
-        say('onBeforeRender');
-        say(this.printers);
-
-
         cmb.store.loadData(this.printers);
 
         //register combobox to change when facility changes

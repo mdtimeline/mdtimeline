@@ -2163,10 +2163,16 @@ Ext.define('App.view.patient.Patient', {
 		}
 
 
+		if(record.isSaving === true){
+			return;
+		}
+
 		record.set(values);
 
 		// fire global event
 		app.fireEvent('beforedemographicssave', record, me);
+
+		record.isSaving = true;
 
 		record.save({
 			scope: me,
@@ -2183,6 +2189,8 @@ Ext.define('App.view.patient.Patient', {
 				// fire global event
 				app.fireEvent('afterdemographicssave', record, me);
 				me.msg(_('sweet'), _('record_saved'));
+
+				record.isSaving = false;
 			}
 		});
 

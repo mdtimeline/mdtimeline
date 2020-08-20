@@ -250,12 +250,28 @@ Ext.define('App.view.patient.windows.NewPatient', {
 							},
 							items: [
 								{
-									xtype: 'textfield',
-									fieldLabel: _('street'),
-									labelAlign: 'top',
-									anchor: '100%',
-									name: 'physical_address'
+									xtype: 'fieldcontainer',
+									layout: {
+										type: 'hbox',
+										align: 'bottom'
+									},
+									items: [
+										{
+											xtype: 'textfield',
+											fieldLabel: _('street'),
+											labelAlign: 'top',
+											anchor: '100%',
+											name: 'physical_address',
+											flex: 1
+										},
+										{
+											xtype: 'button',
+											text: 'Copy From Postal',
+											itemId: 'InsuranceSubscriberAddressCopyBtn'
+										}
+									]
 								},
+
 								{
 									xtype: 'textfield',
 									fieldLabel: '(' + _('optional') + ')',

@@ -22,6 +22,10 @@ Ext.define('App.controller.patient.Insurance', {
     requires: [],
     refs: [
         {
+            ref: 'PatientDemographicsPanel',
+            selector: '#PatientDemographicsPanel'
+        },
+        {
             ref: 'PatientInsuranceFormSubscribeRelationshipCmb',
             selector: '#PatientInsuranceFormSubscribeRelationshipCmb'
         },
@@ -54,8 +58,8 @@ Ext.define('App.controller.patient.Insurance', {
             selector: '#InsuranceCardLastNameField'
         },
         {
-            ref: 'InsuranceAddressSameAsPatientField',
-            selector: '#InsuranceAddressSameAsPatientField'
+            ref: 'InsuranceAddressSameAsPatientBtn',
+            selector: '#InsuranceAddressSameAsPatientBtn'
         },
 
 
@@ -103,11 +107,8 @@ Ext.define('App.controller.patient.Insurance', {
             '#PatientInsuranceFormSubscribeRelationshipCmb': {
                 select: me.onPatientInsuranceFormSubscribeRelationshipCmbSelect
             },
-            '#InsuranceSameAsPatientField': {
-                change: me.onInsuranceSameAsPatientFieldChange
-            },
-            '#InsuranceAddressSameAsPatientField': {
-                change: me.onInsuranceAddressSameAsPatientFieldChange
+            '#InsuranceAddressSameAsPatientBtn': {
+                click: me.onInsuranceAddressSameAsPatientBtnClick
             },
             '#PatientInsurancesPanelSaveBtn': {
                 click: me.onPatientInsurancesPanelSaveBtnClick
@@ -135,11 +136,31 @@ Ext.define('App.controller.patient.Insurance', {
             },
             '#PatientInsurancesWindowCancelBtn': {
                 click: me.onPatientInsurancesWindowCancelBtnClick
+            },
+
+            '#InsuranceSubscriberAddressCopyBtn': {
+                click: me.onInsuranceSubscriberAddressCopyBtnClick
             }
 
         });
 
         me.doPatientInsurancesWindowCloseBuffered = Ext.Function.createBuffered(me.doPatientInsurancesWindowClose, 250, me);
+    },
+
+    onInsuranceSubscriberAddressCopyBtnClick: function (btn){
+        var form = btn.up('form').getForm(),
+            values = form.getValues();
+
+        form.setValues({
+            physical_address: values.postal_address,
+            physical_address_cont: values.postal_address_cont,
+            physical_city: values.postal_city,
+            physical_state: values.postal_state,
+            physical_zip: values.postal_zip,
+            physical_country: values.postal_country,
+        });
+
+        app.msg(_('info'), _('postal_address_copied'), 'blue');
     },
 
     onPatientInsurancesWindowSaveBtnClick: function(btn){
@@ -398,7 +419,6 @@ Ext.define('App.controller.patient.Insurance', {
             subscriber_state: app.patient.record.get('postal_state'),
             subscriber_country: app.patient.record.get('postal_country'),
             subscriber_postal_code: app.patient.record.get('postal_zip'),
-            subscriber_address_same_as_patient: true,
 
             create_uid: app.user.id,
             update_uid: app.user.id,
@@ -412,18 +432,22 @@ Ext.define('App.controller.patient.Insurance', {
         this.insuranceFormLoadRecord(form, record);
     },
 
-    onInsuranceSameAsPatientFieldChange: function (field, value) {
-        field.up('fieldcontainer').down('#InsuranceCardFirstNameField').setDisabled(value);
-        field.up('fieldcontainer').down('#InsuranceCardMiddleNameField').setDisabled(value);
-        field.up('fieldcontainer').down('#InsuranceCardLastNameField').setDisabled(value);
-    },
+    onInsuranceAddressSameAsPatientBtnClick: function (field, value) {
 
-    onInsuranceAddressSameAsPatientFieldChange: function (field, value) {
-        field.up('fieldset').down('#InsuranceSubscriberStreetField').setDisabled(value);
-        field.up('fieldset').down('#InsuranceSubscriberCityField').setDisabled(value);
-        field.up('fieldset').down('#InsuranceSubscriberStatetField').setDisabled(value);
-        field.up('fieldset').down('#InsuranceSubscriberPostalField').setDisabled(value);
-        field.up('fieldset').down('#InsuranceSubscriberCountryField').setDisabled(value);
+        var insurance_form = field.up('form').getForm(),
+            demographic_panel = this.getPatientDemographicsPanel(),
+            demographic_form = demographic_panel.down('form').getForm(),
+            demographic_values = demographic_form.getValues();
+
+        insurance_form.setValues({
+            subscriber_street: demographic_values.postal_address,
+            subscriber_city: demographic_values.postal_address_cont,
+            subscriber_state: demographic_values.postal_address,
+            subscriber_postal_code: demographic_values.postal_zip,
+            subscriber_country: demographic_values.postal_country,
+        });
+
+        app.msg(_('info'), _('postal_address_copied'), 'blue');
     },
 
     onPatientInsuranceFormSubscribeRelationshipCmbSelect: function (cmb, records) {

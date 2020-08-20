@@ -210,14 +210,6 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                         itemId: 'InsuranceCardLastNameField',
                                                         width: 200
                                                     },
-
-                                                    // {
-                                                    //     xtype: 'checkboxfield',
-                                                    //     boxLabel:  _('same_as_patient'),
-                                                    //     itemId: 'InsuranceSameAsPatientField',
-                                                    //     name: 'card_name_same_as_'
-                                                    // },
-
                                                     {
                                                         xtype: 'datefield',
                                                         name: 'subscriber_dob',
@@ -462,10 +454,9 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                 editable: false
                                             },
                                             {
-                                                xtype: 'checkboxfield',
-                                                boxLabel: _('same_as_patient'),
-                                                itemId: 'InsuranceAddressSameAsPatientField',
-                                                name: 'subscriber_address_same_as_patient'
+                                                xtype: 'button',
+                                                text: _('copy_from_patient'),
+                                                itemId: 'InsuranceAddressSameAsPatientBtn',
                                             }
                                         ]
                                     }  //Subscriber Address (Street) //Subscriber Address (City, State, Zip, Country)

@@ -41,6 +41,10 @@ Ext.define('App.controller.patient.Patient', {
 		{
 			ref: 'PatientDemographicForm',
 			selector: '#PatientDemographicForm'
+		},
+		{
+			ref: 'PatientDemographicsPanel',
+			selector: '#PatientDemographicsPanel'
 		}
 	],
 
@@ -85,10 +89,31 @@ Ext.define('App.controller.patient.Patient', {
 
 			'textfield[action=last_name_field]': {
 				keyup: me.onPatientLastNameFieldKeyUp
+			},
+
+			'#DemographicAddressCopyBtn': {
+				click: me.onDemographicAddressCopyBtnClick
 			}
 		});
 
 		me.importCtrl = this.getController('patient.CCDImport');
+
+	},
+
+	onDemographicAddressCopyBtnClick: function (btn){
+		var form = btn.up('form').getForm(),
+			values = form.getValues();
+
+		form.setValues({
+			physical_address: values.postal_address,
+			physical_address_cont: values.postal_address_cont,
+			physical_city: values.postal_city,
+			physical_state: values.postal_state,
+			physical_zip: values.postal_zip,
+			physical_country: values.postal_country,
+		});
+
+		app.msg(_('info'), _('postal_address_copied'), 'blue');
 
 	},
 
@@ -145,7 +170,9 @@ Ext.define('App.controller.patient.Patient', {
 				physical_city: demographics_values.physical_city,
 				physical_state: demographics_values.physical_state,
 				physical_zip: demographics_values.physical_zip,
-				physical_country: demographics_values.physical_country
+				physical_country: demographics_values.physical_country,
+				first_visit_date: app.getDate(),
+				primary_facility: app.user.facility
 			},
 			insurance_form = me.getNewPatientWindowInsuranceForm().getForm(),
 			insurance_values = insurance_form.getValues(),
@@ -164,9 +191,14 @@ Ext.define('App.controller.patient.Patient', {
 				card_first_name: insurance_values.subscriber_given_name,
 				card_middle_name: insurance_values.subscriber_middle_name,
 				card_last_name: insurance_values.subscriber_surname_name,
+				subscriber_relationship: '01',
 				subscriber_given_name: insurance_values.subscriber_given_name,
 				subscriber_middle_name: insurance_values.subscriber_middle_name,
-				subscriber_surname_name: insurance_values.subscriber_surname_name,
+				subscriber_surname: insurance_values.subscriber_surname,
+				subscriber_sex: demographics_params.sex,
+				subscriber_dob: demographics_params.DOB,
+				subscriber_policy_number: insurance_values.subscriber_policy_number,
+				subscriber_phone: demographics_params.phone_mobile || demographics_params.phone_home,
 				display_order: 1,
 				create_uid: app.user.id,
 				update_uid: app.user.id,

@@ -370,6 +370,15 @@ Ext.define('App.view.patient.Patient', {
 															]
 														},
 														{
+															xtype: 'button',
+															itemId: 'DemographicAddressCopyBtn',
+															text: '>',
+															width: 20,
+															flex: null,
+															margin: '18 0 4 0',
+															tooltip: _('copy_postal_to_physical_address')
+														},
+														{
 															xtype: 'fieldcontainer',
 															fieldLabel: _('physical_address'),
 															margin: '0 0 0 5',

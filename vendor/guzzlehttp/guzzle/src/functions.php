@@ -79,7 +79,7 @@ function default_ca_bundle()
  * Creates an associative array of lowercase header names to the actual
  * header casing.
  */
-function normalize_header_keys(array $headers)
+function normalize_header_keys( $headers)
 {
     return Utils::normalizeHeaderKeys($headers);
 }
@@ -103,7 +103,7 @@ function normalize_header_keys(array $headers)
  *
  * @throws Exception\InvalidArgumentException
  */
-function is_host_in_noproxy(string $host, array $noProxyArray)
+function is_host_in_noproxy( $host,  $noProxyArray)
 {
     return Utils::isHostInNoProxy($host, $noProxyArray);
 }
@@ -123,7 +123,7 @@ function is_host_in_noproxy(string $host, array $noProxyArray)
  *
  * @link https://www.php.net/manual/en/function.json-decode.php
  */
-function json_decode(string $json, bool $assoc = false, int $depth = 512, int $options = 0)
+function json_decode( $json, $assoc = false, $depth = 512, $options = 0)
 {
     return Utils::jsonDecode($json, $assoc, $depth, $options);
 }
@@ -139,7 +139,7 @@ function json_decode(string $json, bool $assoc = false, int $depth = 512, int $o
  *
  * @link https://www.php.net/manual/en/function.json-encode.php
  */
-function json_encode($value, int $options = 0, int $depth = 512)
+function json_encode($value,  $options = 0,  $depth = 512)
 {
     return Utils::jsonEncode($value, $options, $depth);
 }

@@ -2159,4 +2159,5 @@ $LANG = array(
     'foreign_facility' => 'Foreign Facility',
     'foreign_application' => 'Foreign Application',
     'application' => 'Application',
+    'effective' => 'Effective',
 );

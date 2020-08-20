@@ -305,8 +305,7 @@ Ext.define('App.view.patient.windows.NewPatient', {
 							]
 						}
 					]
-				},
-
+				}
 			]
 		},
 		{

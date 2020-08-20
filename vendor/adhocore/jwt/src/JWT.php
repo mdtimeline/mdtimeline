@@ -107,7 +107,7 @@ class JWT
      *
      * @return self
      */
-    public function registerKeys(array $keys)
+    public function registerKeys( $keys)
     {
         $this->keys = \array_merge($this->keys, $keys);
 
@@ -122,7 +122,7 @@ class JWT
      *
      * @return string URL safe JWT token.
      */
-    public function encode(array $payload, array $header = [])
+    public function encode( $payload,  $header = [])
     {
         $header = ['typ' => 'JWT', 'alg' => $this->algo] + $header;
 

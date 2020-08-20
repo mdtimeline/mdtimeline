@@ -7,7 +7,7 @@ namespace GuzzleHttp;
  * @return string Returns a string containing the type of the variable and
  *                if a class is provided, the class name.
  */
-function describe_type($input): string
+function describe_type($input)
 {
     return Utils::describeType($input);
 }
@@ -18,7 +18,7 @@ function describe_type($input): string
  * @param iterable $lines Header lines array of strings in the following
  *                        format: "Name: Value"
  */
-function headers_from_lines($lines): array
+function headers_from_lines($lines)
 {
     return Utils::headersFromLines($lines);
 }
@@ -44,7 +44,7 @@ function debug_resource($value = null)
  *
  * @return callable Returns the best handler for the given system.
  */
-function choose_handler(): callable
+function choose_handler()
 {
     return Utils::chooseHandler();
 }
@@ -52,7 +52,7 @@ function choose_handler(): callable
 /**
  * Get the default User-Agent string to use with Guzzle.
  */
-function default_user_agent(): string
+function default_user_agent()
 {
     return Utils::defaultUserAgent();
 }
@@ -70,7 +70,7 @@ function default_user_agent(): string
  *
  * @throws \RuntimeException if no bundle can be found.
  */
-function default_ca_bundle(): string
+function default_ca_bundle()
 {
     return Utils::defaultCaBundle();
 }
@@ -79,7 +79,7 @@ function default_ca_bundle(): string
  * Creates an associative array of lowercase header names to the actual
  * header casing.
  */
-function normalize_header_keys(array $headers): array
+function normalize_header_keys(array $headers)
 {
     return Utils::normalizeHeaderKeys($headers);
 }
@@ -103,7 +103,7 @@ function normalize_header_keys(array $headers): array
  *
  * @throws Exception\InvalidArgumentException
  */
-function is_host_in_noproxy(string $host, array $noProxyArray): bool
+function is_host_in_noproxy(string $host, array $noProxyArray)
 {
     return Utils::isHostInNoProxy($host, $noProxyArray);
 }
@@ -139,7 +139,7 @@ function json_decode(string $json, bool $assoc = false, int $depth = 512, int $o
  *
  * @link https://www.php.net/manual/en/function.json-encode.php
  */
-function json_encode($value, int $options = 0, int $depth = 512): string
+function json_encode($value, int $options = 0, int $depth = 512)
 {
     return Utils::jsonEncode($value, $options, $depth);
 }

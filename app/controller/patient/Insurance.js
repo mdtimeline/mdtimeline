@@ -371,7 +371,7 @@ Ext.define('App.controller.patient.Insurance', {
             insuranceTabs = insurance_panel.items.length;
 
         /**
-         * SEL = Self
+         * 01 = Self
          */
 
         var record = Ext.create('App.model.patient.Insurance', {
@@ -383,7 +383,7 @@ Ext.define('App.controller.patient.Insurance', {
             card_middle_name: app.patient.record.get('mname'),
             card_last_name: app.patient.record.get('lname'),
 
-            subscriber_relationship: 'SEL',
+            subscriber_relationship: '01',
             subscriber_title: app.patient.record.get('title'),
             subscriber_given_name: app.patient.record.get('fname'),
             subscriber_middle_name: app.patient.record.get('mname'),

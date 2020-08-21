@@ -46,6 +46,7 @@ Ext.define('App.view.patient.InsurancesPanel', {
             xtype: 'button',
             text: _('save'),
             minWidth: 75,
+            disableOnCLick: true,
             itemId: 'PatientInsurancesPanelSaveBtn'
         },
         '-',

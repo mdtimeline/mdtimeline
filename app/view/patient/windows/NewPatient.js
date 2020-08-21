@@ -432,7 +432,7 @@ Ext.define('App.view.patient.windows.NewPatient', {
 								},
 								{
 									xtype: 'textfield',
-									name: 'subscriber_surname_name',
+									name: 'subscriber_surname',
 									fieldLabel: _('last_name'),
 									flex: 2,
 									allowBlank: false,

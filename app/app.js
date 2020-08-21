@@ -54023,7 +54023,7 @@ Ext.define('App.controller.patient.Patient', {
 				group_number: insurance_values.group_number,
 				card_first_name: insurance_values.subscriber_given_name,
 				card_middle_name: insurance_values.subscriber_middle_name,
-				card_last_name: insurance_values.subscriber_surname_name,
+				card_last_name: insurance_values.subscriber_surname,
 				subscriber_relationship: '01',
 				subscriber_given_name: insurance_values.subscriber_given_name,
 				subscriber_middle_name: insurance_values.subscriber_middle_name,

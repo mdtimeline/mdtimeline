@@ -1864,6 +1864,7 @@ Ext.define('App.view.patient.Patient', {
 					text: _('save'),
 					itemId: 'PatientDemographicSaveBtn',
 					minWidth: 75,
+					disableOnCLick: true,
 					scope: me,
 					handler: me.formSave
 				},

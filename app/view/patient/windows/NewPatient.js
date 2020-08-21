@@ -18,6 +18,9 @@
 
 Ext.define('App.view.patient.windows.NewPatient', {
 	extend: 'Ext.window.Window',
+	requires: [
+		'App.ux.form.fields.InputTextMask'
+	],
 	itemId: 'NewPatientWindow',
 	title: _('new_patient'),
 	closeAction: 'hide',
@@ -131,6 +134,7 @@ Ext.define('App.view.patient.windows.NewPatient', {
 											fieldLabel:_('mobile'),
 											width: 200,
 											allowBlank: g('require_patient_mobile_phone') === "0",
+											plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')],
 											vtype: 'phoneNumber'
 										},
 										{
@@ -158,6 +162,7 @@ Ext.define('App.view.patient.windows.NewPatient', {
 											emptyText: '000-000-0000',
 											fieldLabel:_('home'),
 											width: 200,
+											plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')],
 											vtype: 'phoneNumber'
 										},
 										{
@@ -166,6 +171,7 @@ Ext.define('App.view.patient.windows.NewPatient', {
 											emptyText: '000-000-0000',
 											fieldLabel:_('work'),
 											width: 200,
+											plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')],
 											vtype: 'phoneNumber'
 										}
 									]

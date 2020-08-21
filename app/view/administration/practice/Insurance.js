@@ -21,7 +21,8 @@ Ext.define('App.view.administration.practice.Insurance', {
 	requires: [
 		'App.ux.combo.Titles',
 		'App.ux.grid.RowFormEditing',
-		'App.ux.combo.TransmitMethod'
+		'App.ux.combo.TransmitMethod',
+		'App.ux.form.fields.InputTextMask'
 	],
 	xtype: 'insurancecompaniespanel',
 	title: _('insurance_companies'),
@@ -60,7 +61,7 @@ Ext.define('App.view.administration.practice.Insurance', {
 											name: 'code',
 											allowBlank: false
 										},
-                                        {
+										{
 											xtype: 'textfield',
 											fieldLabel: _('name'),
 											name: 'name',
@@ -117,17 +118,18 @@ Ext.define('App.view.administration.practice.Insurance', {
 										margin: '0 10 5 0'
 									},
 									items: [
-								{
+										{
 											xtype: 'textfield',
 											fieldLabel: _('phone_number'),
-											name: 'phone_number'
+											name: 'phone_number',
+											plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')]
 										},
 										{
 											xtype: 'textfield',
 											fieldLabel: _('fax_number'),
 											name: 'fax_number'
 										},
-                                        {
+										{
 											xtype: 'checkbox',
 											fieldLabel: _('active'),
 											name: 'active'

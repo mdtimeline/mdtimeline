@@ -22,7 +22,8 @@ Ext.define('App.view.administration.practice.Facilities', {
 	title: _('facilities'),
 
 	requires: [
-		'App.ux.combo.ServiceLocation'
+		'App.ux.combo.ServiceLocation',
+		'App.ux.form.fields.InputTextMask'
 	],
 
 
@@ -142,7 +143,8 @@ Ext.define('App.view.administration.practice.Facilities', {
 									{
                                         xtype: 'textfield',
 										fieldLabel: _('phone'),
-										name: 'phone'
+										name: 'phone',
+										plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')]
 									},
 									{
                                         xtype: 'textfield',

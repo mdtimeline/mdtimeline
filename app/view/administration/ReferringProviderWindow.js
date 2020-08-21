@@ -29,7 +29,8 @@ Ext.define('App.view.administration.ReferringProviderWindow', {
 	modal: true,
 	bodyPadding: 5,
 	requires: [
-		'App.ux.NPIRegistrySearch'
+		'App.ux.NPIRegistrySearch',
+		'App.ux.form.fields.InputTextMask'
 	],
 
 	initComponent: function(){
@@ -207,7 +208,8 @@ Ext.define('App.view.administration.ReferringProviderWindow', {
 							{
 								xtype: 'textfield',
 								fieldLabel: _('phone_number'),
-								name: 'phone_number'
+								name: 'phone_number',
+								plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')],
 							},
 							{
 								xtype: 'textfield',

@@ -22,7 +22,8 @@ Ext.define('App.view.administration.Users', {
 		'App.ux.form.fields.plugin.PasswordStrength',
 		'App.ux.combo.ActiveSpecialties',
 		'App.ux.combo.Departments',
-		'App.ux.grid.exporter.Exporter'
+		'App.ux.grid.exporter.Exporter',
+		'App.ux.form.fields.InputTextMask'
 	],
 	pageTitle: _('users'),
 	itemId: 'AdminUsersPanel',
@@ -394,7 +395,8 @@ Ext.define('App.view.administration.Users', {
 												{
 													xtype: 'textfield',
 													fieldLabel: _('home'),
-													name: 'phone'
+													name: 'phone',
+													plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')],
 												},
 												{
 													xtype: 'textfield',

@@ -24,6 +24,7 @@ Ext.define('App.view.patient.InsuranceForm', {
         'Ext.grid.plugin.CellEditing',
         'App.ux.combo.Insurances',
         'App.ux.combo.Combo',
+        'App.ux.form.fields.InputTextMask',
         'Modules.billing.view.patient.BillingPatientInsuranceCoverInformation'
     ],
 
@@ -382,6 +383,7 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                 name: 'subscriber_phone',
                                                 emptyText: '000-000-0000',
                                                 fieldLabel: _('phone'),
+                                                plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')],
                                                 labelWidth: 40,
                                                 width: 100
                                             },

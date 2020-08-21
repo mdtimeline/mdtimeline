@@ -31077,7 +31077,8 @@ Ext.define('App.view.administration.practice.Insurance', {
 	requires: [
 		'App.ux.combo.Titles',
 		'App.ux.grid.RowFormEditing',
-		'App.ux.combo.TransmitMethod'
+		'App.ux.combo.TransmitMethod',
+		'App.ux.form.fields.InputTextMask'
 	],
 	xtype: 'insurancecompaniespanel',
 	title: _('insurance_companies'),
@@ -31116,7 +31117,7 @@ Ext.define('App.view.administration.practice.Insurance', {
 											name: 'code',
 											allowBlank: false
 										},
-                                        {
+										{
 											xtype: 'textfield',
 											fieldLabel: _('name'),
 											name: 'name',
@@ -31173,17 +31174,18 @@ Ext.define('App.view.administration.practice.Insurance', {
 										margin: '0 10 5 0'
 									},
 									items: [
-								{
+										{
 											xtype: 'textfield',
 											fieldLabel: _('phone_number'),
-											name: 'phone_number'
+											name: 'phone_number',
+											plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')]
 										},
 										{
 											xtype: 'textfield',
 											fieldLabel: _('fax_number'),
 											name: 'fax_number'
 										},
-                                        {
+										{
 											xtype: 'checkbox',
 											fieldLabel: _('active'),
 											name: 'active'
@@ -66407,7 +66409,8 @@ Ext.define('App.view.administration.practice.Facilities', {
 	title: _('facilities'),
 
 	requires: [
-		'App.ux.combo.ServiceLocation'
+		'App.ux.combo.ServiceLocation',
+		'App.ux.form.fields.InputTextMask'
 	],
 
 
@@ -66527,7 +66530,8 @@ Ext.define('App.view.administration.practice.Facilities', {
 									{
                                         xtype: 'textfield',
 										fieldLabel: _('phone'),
-										name: 'phone'
+										name: 'phone',
+										plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')]
 									},
 									{
                                         xtype: 'textfield',
@@ -67441,7 +67445,8 @@ Ext.define('App.view.administration.Users', {
 		'App.ux.form.fields.plugin.PasswordStrength',
 		'App.ux.combo.ActiveSpecialties',
 		'App.ux.combo.Departments',
-		'App.ux.grid.exporter.Exporter'
+		'App.ux.grid.exporter.Exporter',
+		'App.ux.form.fields.InputTextMask'
 	],
 	pageTitle: _('users'),
 	itemId: 'AdminUsersPanel',
@@ -67813,7 +67818,8 @@ Ext.define('App.view.administration.Users', {
 												{
 													xtype: 'textfield',
 													fieldLabel: _('home'),
-													name: 'phone'
+													name: 'phone',
+													plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')],
 												},
 												{
 													xtype: 'textfield',
@@ -75326,6 +75332,7 @@ Ext.define('App.view.patient.InsuranceForm', {
         'Ext.grid.plugin.CellEditing',
         'App.ux.combo.Insurances',
         'App.ux.combo.Combo',
+        'App.ux.form.fields.InputTextMask',
         'Modules.billing.view.patient.BillingPatientInsuranceCoverInformation'
     ],
 
@@ -75684,6 +75691,7 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                 name: 'subscriber_phone',
                                                 emptyText: '000-000-0000',
                                                 fieldLabel: _('phone'),
+                                                plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')],
                                                 labelWidth: 40,
                                                 width: 100
                                             },
@@ -75783,7 +75791,8 @@ Ext.define('App.view.patient.Patient', {
 	extend: 'Ext.panel.Panel',
 	requires: [
 		'App.ux.AddTabButton',
-		'App.view.patient.InsuranceForm'
+		'App.ux.form.fields.InputTextMask',
+		'App.view.patient.InsuranceForm',
 	],
 
 	layout: 'fit',
@@ -76216,6 +76225,7 @@ Ext.define('App.view.patient.Patient', {
 															emptyText: '000-000-0000',
 															fieldLabel: _('home'),
 															allowBlank: g('require_patient_home_phone') === "0",
+															plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')],
 															flex: 1
 														},
 														{
@@ -76224,6 +76234,7 @@ Ext.define('App.view.patient.Patient', {
 															emptyText: '000-000-0000',
 															allowBlank: g('require_patient_mobile_phone') === "0",
 															fieldLabel:_('mobile'),
+															plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')],
 															flex: 1
 														},
 														{
@@ -76529,6 +76540,7 @@ Ext.define('App.view.patient.Patient', {
                                                     name: 'phone_work',
                                                     fieldLabel: _('phone'),
                                                     emptyText: '000-000-0000',
+	                                                plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')],
                                                     width: 100
                                                 },
                                                 {
@@ -76543,6 +76555,7 @@ Ext.define('App.view.patient.Patient', {
                                                     name: 'phone_fax',
                                                     fieldLabel: _('fax'),
                                                     emptyText: '000-000-0000',
+	                                                plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')],
                                                     width: 160,
                                                     labelWidth: 30
                                                 }
@@ -76608,6 +76621,7 @@ Ext.define('App.view.patient.Patient', {
                                                             name: 'authorized_01_phone',
                                                             fieldLabel: _('phone'),
                                                             emptyText: '000-000-0000',
+	                                                        plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')],
                                                             width: 115
                                                         },
                                                         {
@@ -76665,6 +76679,7 @@ Ext.define('App.view.patient.Patient', {
                                                             name: 'authorized_02_phone',
                                                             fieldLabel: _('phone'),
                                                             emptyText: '000-000-0000',
+	                                                        plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')],
                                                             width: 115
                                                         },
                                                         {
@@ -76738,6 +76753,7 @@ Ext.define('App.view.patient.Patient', {
                                                             xtype: 'textfield',
                                                             name: 'emergency_contact_phone',
                                                             emptyText: '000-000-0000',
+	                                                        plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')],
                                                             width: 115
                                                         },
                                                         {
@@ -76858,6 +76874,7 @@ Ext.define('App.view.patient.Patient', {
                                                             xtype: 'textfield',
                                                             name: 'guardians_phone',
                                                             emptyText: '000-000-0000',
+	                                                        plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')],
                                                             width: 115
                                                         },
                                                         {

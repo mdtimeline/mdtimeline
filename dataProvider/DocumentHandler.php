@@ -194,6 +194,10 @@ class DocumentHandler
             $record = $this->d->load($params)->one();
         }
 
+        if(isset($record['data'])){
+	        $record = $record['data'];
+        }
+
         if ($record !== false && $include_document) {
 
             if (isset($record['filesystem_path']) && isset($record['path'])) {

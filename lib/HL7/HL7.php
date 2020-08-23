@@ -276,6 +276,16 @@ class HL7 {
 		return HL7Printer::printMessage($this->message, $title);
 	}
 
+	function date($date, $returnTime = true) {
+		//$date = str_replace([' ',':','-'], '', $date);
+		$dateObject = new \DateTime($date);
+		if($returnTime){
+			return $dateObject->format('YmdHis');
+		} else {
+			return $dateObject->format('Ymd');
+		}
+	}
+
 	function time($time, $format = 'Y-m-d H:i:s'){
 
 		$parsed_time = date($format, strtotime($time));

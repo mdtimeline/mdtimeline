@@ -52,7 +52,7 @@ if(!defined('URL')){
 
 // application version
 if(!defined('VERSION'))
-	define('VERSION', '2.0.1081');
+	define('VERSION', '2.0.1082');
 // extjs sdk directory
 if(!defined('EXTJS'))
 	define('EXTJS', 'extjs-4.2.1');

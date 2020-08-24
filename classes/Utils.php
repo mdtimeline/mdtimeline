@@ -76,4 +76,21 @@ class Utils
             return "LINUX";
     }
 
+    public static function isBinary($document)
+    {
+        if (function_exists('is_binary')) {
+            return is_binary($document);
+        }
+        return preg_match('~[^\x20-\x7E\t\r\n]~', $document) > 0;
+    }
+
+    public static function base64ToBinary($document)
+    {
+        // handle binary documents
+        if (self::isBinary($document)) {
+            return $document;
+        } else {
+            return base64_decode($document);
+        }
+    }
 }

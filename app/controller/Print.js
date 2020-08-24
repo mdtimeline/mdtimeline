@@ -25,7 +25,7 @@ Ext.define('App.controller.Print', {
 
     },
 
-    doPrint: function (printer_record, data) {
+    doPrint: function (printer_record, document_base64) {
         var me = this;
 
         if (printer_record.get('local')) {
@@ -34,13 +34,14 @@ Ext.define('App.controller.Print', {
                 return;
             }
 
-            me.browserHelperCtl.send('{"action":"print", "printer": "' + printer_record.get('id') + '", "payload": "' + btoa(data) + '"}', function (response) {
+            me.browserHelperCtl.send('{"action":"print", "printer": "' + printer_record.get('id') + '", "payload": "' + document_base64 + '"}', function (response) {
                 if(!response.success){
                     app.msg(_('oops'), 'Document could not be printed', true);
                 }
             });
         } else {
-            Printer.doPrint(printer_record.get('id'), data);
+            Printer.doPrint(printer_record.get('id'), document_base64);
+            // Printer.doPrint(printer_record.get('id'), data);
         }
     },
 

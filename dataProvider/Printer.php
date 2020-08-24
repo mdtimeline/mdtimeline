@@ -18,23 +18,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-include_once (ROOT. '/dataProvider/DocumentHandler.php');
+include_once(ROOT . '/dataProvider/DocumentHandler.php');
+include_once(ROOT . '/classes/Utils.php');
 
-class Printer {
-
-
-	/**
-	 * @var bool|\MatchaCUP
-	 */
-	private $p;
+class Printer
+{
 
 
-	function __construct() {
-		$this->p = \MatchaModel::setSenchaModel('App.model.administration.Printer');
+    /**
+     * @var bool|\MatchaCUP
+     */
+    private $p;
 
-	}
 
-	public function getPrinters(){
+    function __construct()
+    {
+        $this->p = \MatchaModel::setSenchaModel('App.model.administration.Printer');
+
+    }
+
+    public function getPrinters()
+    {
         $printers = $this->p->load()->all();
         return $printers;
     }
@@ -60,197 +64,238 @@ class Printer {
         return $this->p->destroy($params);
     }
 
-	public function doTempDocumentPrint($printer_id, $temp_document_id){
+    public function doTempDocumentPrint($printer_id, $temp_document_id)
+    {
 
-		$DocumentHandler = new DocumentHandler();
-		$document_record = $DocumentHandler->getTempDocument(['id' => $temp_document_id], true);
+        $DocumentHandler = new DocumentHandler();
+        $document_record = $DocumentHandler->getTempDocument(['id' => $temp_document_id], true);
 
-		error_log(print_r(base64_decode($document_record['document']), true));
+        error_log(print_r(base64_decode($document_record['document']), true));
 
-		$this->doPrint($printer_id, $document_record['document']);
+        $this->doPrint($printer_id, $document_record['document']);
 
-		unset($DocumentHandler, $document_record);
+        unset($DocumentHandler, $document_record);
 
-	}
+    }
 
-	public function doDocumentPrint($printer_id, $document_id){
-		$DocumentHandler = new DocumentHandler();
-		$document_record = $DocumentHandler->getPatientDocument(['id' => $document_id], true, true);
-		$this->doPrint($printer_id, $document_record['document']);
-		unset($DocumentHandler, $document_record);
-	}
+    public function doDocumentPrint($printer_id, $document_id)
+    {
+        $DocumentHandler = new DocumentHandler();
+        $document_record = $DocumentHandler->getPatientDocument(['id' => $document_id], true, true);
+        $this->doPrint($printer_id, $document_record['document']);
+        unset($DocumentHandler, $document_record);
+    }
 
-	public function doPrint($printer_id, $document){
+    public function doPrint($printer_id, $document)
+    {
 
-		$printer = $this->p->load(['id' => $printer_id])->one();
+        $printer = $this->p->load(['id' => $printer_id])->one();
 
-		if($printer === false){
-			return [
-				'success' => false,
-				'error' => 'Printer not found'
-			];
-		}
+        if ($printer === false) {
+            return [
+                'success' => false,
+                'error' => 'Printer not found'
+            ];
+        }
 
-		if(!file_exists(site_temp_path) || !is_writable(site_temp_path)){
-			return [
-				'success' => false,
-				'error' => 'Document temp directory issue'
-			];
-		}
+        if (!file_exists(site_temp_path) || !is_writable(site_temp_path)) {
+            return [
+                'success' => false,
+                'error' => 'Document temp directory issue'
+            ];
+        }
 
-		$tmp_fname = tempnam(site_temp_path, "report-");
-		$handle = fopen($tmp_fname, "w");
-		fwrite($handle, $document);
-		fclose($handle);
+        if (!Utils::isBinary($document)) {
+            $document = base64_decode($document);
+        }
 
-		if($printer['printer_protocol'] == 'ipp'){
+        $temp_file_path = site_temp_path . '/' . uniqid('print_');
 
-			require_once(ROOT. '/lib/php-ipp/PrintIPP.php');
+        if (!file_put_contents($temp_file_path, $document, FILE_USE_INCLUDE_PATH)) {
+            error_log('Print document could not be saved on this location. {$tem_fname}');
+            return [
+                'success' => false,
+                'error' => 'Print document could not be saved'
+            ];
+        }
 
-			$ipp = new \PrintIPP();
-			$ipp->setLog(null,0,0);
+        if ($printer['printer_protocol'] == 'ipp') {
 
-			$ipp->setHost($printer['printer_host']);
+            require_once(ROOT . '/lib/php-ipp/PrintIPP.php');
 
-			if(isset($printer['printer_port']) && $printer['printer_port'] != ''){
-				$ipp->setPort($printer['printer_port']);
-			}
+            $ipp = new \PrintIPP();
+            $ipp->setLog(null, 0, 0);
 
-			$ipp->setPrinterURI($printer['printer_uri']);
+            $ipp->setHost($printer['printer_host']);
 
-			if(
-				isset($printer['printer_user']) && $printer['printer_user'] != '' &&
-				isset($printer['printer_pass'])
-			){
-				$ipp->setAuthentication($printer['printer_user'], $printer['printer_pass']);
-			}
+            if (isset($printer['printer_port']) && $printer['printer_port'] != '') {
+                $ipp->setPort($printer['printer_port']);
+            }
 
-			$info = new finfo(FILEINFO_MIME_TYPE);
-			$media_type =  $info->buffer($document);
-			$ipp->setMimeMediaType($media_type);
-			$ipp->setData($tmp_fname);
-			$s = $ipp->printJob();
+            $ipp->setPrinterURI($printer['printer_uri']);
 
-			print 'DEBUG...';
-			print '<pre>';
+            if (
+                isset($printer['printer_user']) && $printer['printer_user'] != '' &&
+                isset($printer['printer_pass'])
+            ) {
+                $ipp->setAuthentication($printer['printer_user'], $printer['printer_pass']);
+            }
 
-			print $ipp->getDebug();
-			print '<pre/>';
+            $info = new finfo(FILEINFO_MIME_TYPE);
+            $media_type = $info->buffer($document);
+            $ipp->setMimeMediaType($media_type);
+            $ipp->setData($temp_file_path);
+            $s = $ipp->printJob();
 
-		} else {
+            print 'DEBUG...';
+            print '<pre>';
 
-			/**
-			 * LPR basic print command
-			 */
+            print $ipp->getDebug();
+            print '<pre/>';
 
-			$printer = $printer['printer_name'];
-//			$command = "/usr/bin/lpr -P {$printer} {$tmp_fname} 2>&1";
-			$command = "lp -d {$printer} {$tmp_fname}";
-			shell_exec($command);
+        } else {
 
-		}
-
-		unlink($tmp_fname);
-
-		return [
-			'success' => true,
-			'error' => ''
-		];
-
-	}
-
-	public function getStatus($printer_id){
-		$printer = $this->p->load(['id' => $printer_id])->one();
-
-		if($printer === false){
-			return [
-				'success' => false,
-				'error' => 'Printer not found'
-			];
-		}
-
-		if($printer['printer_protocol'] == 'ipp'){
-
-			require_once(ROOT . '/lib/php-ipp/PrintIPP.php');
-
-			$ipp = new \PrintIPP();
-			//$ipp->debug_level = 0;
-			$ipp->setLog(null,0,0);
-			$ipp->setHost($printer['printer_host']);
-			if(isset($printer['printer_port']) && $printer['printer_port'] != ''){
-				$ipp->setPort($printer['printer_port']);
-			}
-			$ipp->setPrinterURI($printer['printer_uri']);
-			if(
-				isset($printer['printer_user']) && $printer['printer_user'] != '' &&
-				isset($printer['printer_pass'])
-			){
-				$ipp->setAuthentication($printer['printer_user'], $printer['printer_pass']);
-			}
+            /**
+             * LPR basic print command
+             */
 
 
-			$ipp->getPrinterAttributes();
+            $printer_name = $printer['printer_name'];
 
-			echo "Getting Jobs: ".$ipp->getJobs($my_jobs=true,$limit=0,"completed",true)."<br />";
-			echo "Job 0 state: ".$ipp->jobs_attributes->job_0->job_state->_value0."<br />";
-			echo "Job 0 state-reasons: ".$ipp->jobs_attributes->job_0->job_state_reasons->_value0."<br />";
-			echo "<pre>";
-			print_r($ipp->jobs_attributes);
-			echo "</pre>";
+            if (!isset($printer_name) || empty($printer_name)) {
+                error_log('Printer name is not set');
+                return [
+                    'success' => false,
+                    'error' => 'Printer name is not set'
+                ];
+            }
 
-		}
-	}
+            $command_args = [];
 
-	public function testPrint($printer_id){
+            $command_args[] = "lp -d {$printer_name}";
 
-		$printer = $this->p->load(['id' => $printer_id])->one();
+            if (isset($printer['size']) && !empty($printer['size'])) $command_args[] = "-o media={$printer['size']}";
+            if (isset($printer['landscape']) && $printer['landscape'] === true) $command_args[] = '-o landscape';
+            if ((isset($printer['fit_to_page']) && $printer['fit_to_page'] === true) || !isset($printer['fit_to_page'])) $command_args[] = '-o fit-to-page';
+            if (isset($printer['one_side']) && $printer['one_side'] === true) $command_args[] = '-o sides=one-sided';
+            if (isset($printer['two_side']) && $printer['two_side'] === true && $printer['one_side'] === false) {
+                if (isset($printer['landscape']) && $printer['landscape'] === true) {
+                    $command_args[] = '-o sides=two-sided-short-edge';
+                } else {
+                    $command_args[] = '-o sides=two-sided-long-edge';
+                }
+            }
 
-		if($printer === false){
-			return [
-				'success' => false,
-				'error' => 'Printer not found'
-			];
-		}
+            $command_args[] = $temp_file_path;
 
-		if($printer['printer_protocol'] == 'ipp'){
+            $command = implode(' ', $command_args);
 
-			require_once(ROOT. '/lib/php-ipp/PrintIPP.php');
+            shell_exec($command);
+        }
 
-			$ipp = new \PrintIPP();
-			//$ipp->debug_level = 0;
-			$ipp->setLog(null,0,0);
-			$ipp->setHost($printer['printer_host']);
+        unlink($temp_file_path);
 
-			if(isset($printer['printer_port']) && $printer['printer_port'] != ''){
-				$ipp->setPort($printer['printer_port']);
-			}
+        return [
+            'success' => true,
+            'error' => ''
+        ];
 
-			$ipp->setPrinterURI($printer['printer_uri']);
+    }
 
-			if(
-				isset($printer['printer_user']) && $printer['printer_user'] != '' &&
-				isset($printer['printer_pass'])
-			){
-				$ipp->setAuthentication($printer['printer_user'], $printer['printer_pass']);
-			}
+    public function getStatus($printer_id)
+    {
+        $printer = $this->p->load(['id' => $printer_id])->one();
 
-			$ipp->setMimeMediaType("text/plain");
-			$ipp->setData('TEST PAGE');
-			$ipp->setRawText();
-			$ipp->printJob();
+        if ($printer === false) {
+            return [
+                'success' => false,
+                'error' => 'Printer not found'
+            ];
+        }
 
-			print '<pre>';
-			print $ipp->getDebug();
-			print '<pre/>';
+        if ($printer['printer_protocol'] == 'ipp') {
 
-		}else{
-			/**
-			 * LPR basic print command
-			 */
-			$printer = $printer['printer_name'];
+            require_once(ROOT . '/lib/php-ipp/PrintIPP.php');
+
+            $ipp = new \PrintIPP();
+            //$ipp->debug_level = 0;
+            $ipp->setLog(null, 0, 0);
+            $ipp->setHost($printer['printer_host']);
+            if (isset($printer['printer_port']) && $printer['printer_port'] != '') {
+                $ipp->setPort($printer['printer_port']);
+            }
+            $ipp->setPrinterURI($printer['printer_uri']);
+            if (
+                isset($printer['printer_user']) && $printer['printer_user'] != '' &&
+                isset($printer['printer_pass'])
+            ) {
+                $ipp->setAuthentication($printer['printer_user'], $printer['printer_pass']);
+            }
+
+
+            $ipp->getPrinterAttributes();
+
+            echo "Getting Jobs: " . $ipp->getJobs($my_jobs = true, $limit = 0, "completed", true) . "<br />";
+            echo "Job 0 state: " . $ipp->jobs_attributes->job_0->job_state->_value0 . "<br />";
+            echo "Job 0 state-reasons: " . $ipp->jobs_attributes->job_0->job_state_reasons->_value0 . "<br />";
+            echo "<pre>";
+            print_r($ipp->jobs_attributes);
+            echo "</pre>";
+
+        }
+    }
+
+    public function testPrint($printer_id)
+    {
+
+        $printer = $this->p->load(['id' => $printer_id])->one();
+
+        if ($printer === false) {
+            return [
+                'success' => false,
+                'error' => 'Printer not found'
+            ];
+        }
+
+        if ($printer['printer_protocol'] == 'ipp') {
+
+            require_once(ROOT . '/lib/php-ipp/PrintIPP.php');
+
+            $ipp = new \PrintIPP();
+            //$ipp->debug_level = 0;
+            $ipp->setLog(null, 0, 0);
+            $ipp->setHost($printer['printer_host']);
+
+            if (isset($printer['printer_port']) && $printer['printer_port'] != '') {
+                $ipp->setPort($printer['printer_port']);
+            }
+
+            $ipp->setPrinterURI($printer['printer_uri']);
+
+            if (
+                isset($printer['printer_user']) && $printer['printer_user'] != '' &&
+                isset($printer['printer_pass'])
+            ) {
+                $ipp->setAuthentication($printer['printer_user'], $printer['printer_pass']);
+            }
+
+            $ipp->setMimeMediaType("text/plain");
+            $ipp->setData('TEST PAGE');
+            $ipp->setRawText();
+            $ipp->printJob();
+
+            print '<pre>';
+            print $ipp->getDebug();
+            print '<pre/>';
+
+        } else {
+            /**
+             * LPR basic print command
+             */
+            $printer = $printer['printer_name'];
 //			$pdf = '/Library/WebServer/Documents/gaiaehr/resources/templates/default.pdf';
-			//$command = "/usr/bin/lpr -P {$printer} {$pdf} 2>&1";
-			//print shell_exec($command);
+            //$command = "/usr/bin/lpr -P {$printer} {$pdf} 2>&1";
+            //print shell_exec($command);
 
 //			$data = base64_decode('TEST PAGE');
 //			$handles = array(
@@ -279,8 +324,8 @@ class Printer {
 //				// proc_close in order to avoid a deadlock
 //				$return_value = proc_close($process);
 //			}
-		}
+        }
 
-	}
+    }
 
 }

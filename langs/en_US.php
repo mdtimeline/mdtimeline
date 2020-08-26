@@ -2163,4 +2163,5 @@ $LANG = array(
     'copy_postal_to_physical_address' => 'Copy Postal Address to Physical Address',
     'copy_from_patient' => 'Copy From Patient',
     'postal_address_copied' => 'Postal Address Copied',
+    'assign_user' => 'Assign User',
 );

@@ -119,6 +119,18 @@ class DocumentHandler
             $this->t = MatchaModel::setSenchaModel('App.model.patient.PatientDocumentsTemp');
     }
 
+    private function createTempTxtFile($data)
+    {
+        $temp_path = site_temp_path . '/' . uniqid('tempTXT_') . '.txt';
+
+        if (!file_put_contents($temp_path, $data)) {
+            error_log("Could not create temp txt file on {$temp_path}");
+            return false;
+        }
+
+        return $temp_path;
+    }
+
     /**
      * @param      $params
      * @param bool $includeDocument
@@ -194,8 +206,8 @@ class DocumentHandler
             $record = $this->d->load($params)->one();
         }
 
-        if(isset($record['data'])){
-	        $record = $record['data'];
+        if (isset($record['data'])) {
+            $record = $record['data'];
         }
 
         if ($record !== false && $include_document) {
@@ -536,7 +548,7 @@ class DocumentHandler
             $p = $patient->getPatientByPid($document->pid);
             $code = $document->code;
 
-            if(isset($p) && isset($p['pubpid']) && $document->code == ''){
+            if (isset($p) && isset($p['pubpid']) && $document->code == '') {
                 $code = $p['pubpid'] . '~' . $document_code . '~' . $file_name;
             }
 
@@ -565,11 +577,11 @@ class DocumentHandler
      * @param $prefix it is use to for pdf file name
      * @return bool|string
      */
-    private function saveDocumentOnTempFolder($base64Document,$prefix)
+    private function saveDocumentOnTempFolder($base64Document, $prefix)
     {
         $path = site_temp_path . '/' . uniqid($prefix) . '.pdf';
 
-        if(!file_put_contents($path, base64_decode($base64Document), FILE_USE_INCLUDE_PATH)){
+        if (!file_put_contents($path, base64_decode($base64Document), FILE_USE_INCLUDE_PATH)) {
             error_log('Temp document could not be saved on this location. {$path}');
             return false;
         }
@@ -577,7 +589,8 @@ class DocumentHandler
         return $path;
     }
 
-    private function deleteDocumentOnTempFolder($documentPath){
+    private function deleteDocumentOnTempFolder($documentPath)
+    {
         return unlink($documentPath);
     }
 
@@ -663,26 +676,27 @@ class DocumentHandler
 
     /**
      * @param $base64_documents
+     * @param bool $return_as_base64
      * @return string
      */
-    public function mergeDocumentsByBase64($base64_documents)
+    public function mergeDocumentsByBase64($base64_documents, $return_as_base64 = false)
     {
         $documents_paths = [];
 
         foreach ($base64_documents as $base64_document) {
-            $filePath = $this->saveDocumentOnTempFolder($base64_document,'mergeDocument_');
-            if($filePath === false) return false;
+            $filePath = $this->saveDocumentOnTempFolder($base64_document, 'documentToMerge_');
+            if ($filePath === false) return false;
 
             $documents_paths[] = $filePath;
         }
 
-        $merged_document_data = $this->mergeDocuments($documents_paths);
+        $merged_document_data = $this->mergeDocuments($documents_paths, $return_as_base64);
 
-        foreach ($documents_paths AS $document_path){
+        foreach ($documents_paths as $document_path) {
             $this->deleteDocumentOnTempFolder($document_path);
         }
 
-        if($merged_document_data === false) return false;
+        if ($merged_document_data === false) return false;
 
         return $merged_document_data;
     }
@@ -693,9 +707,9 @@ class DocumentHandler
 
         $merged_document = $Documents->mergeDocuments($file_paths);
 
-        if($merged_document === false) return false;
+        if ($merged_document === false) return false;
 
-        if($return_as_base64) return base64_encode($merged_document);
+        if ($return_as_base64) return base64_encode($merged_document);
 
         return $merged_document;
     }
@@ -705,43 +719,97 @@ class DocumentHandler
      * @param bool $getDocument
      * @return object|stdClass|string
      */
-    public function createTempDocument($params,$getDocument = false)
+    public function createTempDocument($params, $getDocument = false)
     {
-    	try{
-		    $this->setPatientDocumentTempModel();
+        try {
+            $this->setPatientDocumentTempModel();
 
-		    Matcha::pauseLog(true);
+            Matcha::pauseLog(true);
 
-		    $params = (object)$params;
-		    $record = new stdClass();
-		    if (isset($params->document) && $params->document != '') {
-			    $record->document = $params->document;
-		    } else {
-			    $pdf_format = isset($params->pdf_format) ? $params->pdf_format : null;
+            $params = (object)$params;
+            $record = new stdClass();
+            if (isset($params->document) && $params->document != '') {
+                $record->document = $params->document;
+            } elseif (isset($params->force_txt) && $params->force_txt === true) {
+                $document_base64 = $this->createPDFfromTxt($params->body, true);
+                if ($document_base64 === false) {
+                    return false;
+                }
 
-			    $header_data = isset($params->header_data) && is_array($params->header_data) ? $params->header_data : null;
-			    $footer_data = isset($params->footer_data) && is_array($params->footer_data) ? $params->footer_data : null;
-			    $mail_cover_info = isset($params->mail_cover_info) && is_array($params->mail_cover_info) ? $params->mail_cover_info : null;
+                $record->document = $document_base64;
+            } else {
+                $pdf_format = isset($params->pdf_format) ? $params->pdf_format : null;
 
-			    $Documents = new Documents();
-			    $record->document = base64_encode(
-				    $Documents->PDFDocumentBuilder((object)$params, '', $header_data, $footer_data, '', [], [], $pdf_format,$mail_cover_info)
-			    );
-		    }
-		    $record->create_date = date('Y-m-d H:i:s');
-		    $record->document_name = isset($params->document_name) ? $params->document_name : '';
-		    $record = (object)$this->t->save($record);
-		    if(!$getDocument){
-			    unset($record->document);
-		    }
+                $header_data = isset($params->header_data) && is_array($params->header_data) ? $params->header_data : null;
+                $footer_data = isset($params->footer_data) && is_array($params->footer_data) ? $params->footer_data : null;
+                $mail_cover_info = isset($params->mail_cover_info) && is_array($params->mail_cover_info) ? $params->mail_cover_info : null;
 
-		    Matcha::pauseLog(false);
-		    return $record;
-	    }catch (Exception $e){
-			return $e->getMessage();
-	    }
+                $Documents = new Documents();
+                $record->document = base64_encode(
+                    $Documents->PDFDocumentBuilder((object)$params, '', $header_data, $footer_data, '', [], [], $pdf_format, $mail_cover_info)
+                );
+            }
+            $record->create_date = date('Y-m-d H:i:s');
+            $record->document_name = isset($params->document_name) ? $params->document_name : '';
+            $record = (object)$this->t->save($record);
+            if (!$getDocument) {
+                unset($record->document);
+            }
+
+            Matcha::pauseLog(false);
+            return $record;
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
 
     }
+
+    public function createPDFfromTxt($txt, $return_as_base64 = false)
+    {
+        $command_args = [];
+        $pdf_temp_path = site_temp_path . '/' . uniqid('txt_to_pdf_') . '.pdf';
+        $text_path = $this->createTempTxtFile($txt);
+
+        if ($text_path === false) {
+            return false;
+        }
+
+        $command_args[] = 'wkhtmltopdf -s Letter';
+        $command_args[] = $text_path;
+        $command_args[] = $pdf_temp_path;
+
+        $command = implode(' ', $command_args);
+
+        $exec_result = exec($command);
+
+        unlink($text_path);
+
+        if ($exec_result != '') {
+            error_log("wkhtmltopdf throw the following error ${$exec_result} Command run: ${command}");
+            return false;
+        }
+
+        if (!file_exists($pdf_temp_path)) {
+            error_log("Could not execute ${$command} or could not create file on ${pdf_temp_path}");
+            return false;
+        }
+
+        $data = file_get_contents($pdf_temp_path);
+
+        unlink($pdf_temp_path);
+
+        if ($data === false) {
+            error_log("Could not get the data of ${$pdf_temp_path}");
+            return false;
+        }
+
+        if ($return_as_base64) {
+            return base64_encode($data);
+        }
+
+        return $data;
+    }
+
 
     /**
      * @param $params
@@ -802,10 +870,10 @@ class DocumentHandler
 
         Matcha::pauseLog(false);
 
-	    if(isset($params->site) && isset($GLOBALS['worklist_dbs'][$params->site])){
-		    \Matcha::$__conn = null;
-		    \Matcha::connect($GLOBALS['worklist_dbs'][$params->site]);
-	    }
+        if (isset($params->site) && isset($GLOBALS['worklist_dbs'][$params->site])) {
+            \Matcha::$__conn = null;
+            \Matcha::connect($GLOBALS['worklist_dbs'][$params->site]);
+        }
 
         $record = $this->t->load($params)->one();
 
@@ -1025,7 +1093,7 @@ class DocumentHandler
         $this->setPatientDocumentModel();
         $this->d->setOrFilterProperties(['filesystem_id']);
         $this->d->addFilter('filesystem_id', null, '=');
-	    $this->d->addFilter('filesystem_id', '', '=');
+        $this->d->addFilter('filesystem_id', '', '=');
 
         $records = $this->d->load()->limit(0, $quantity)->all();
 

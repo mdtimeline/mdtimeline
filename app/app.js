@@ -45725,7 +45725,7 @@ Ext.define('App.controller.Print', {
 
     },
 
-    doPrint: function (printer_record, data) {
+    doPrint: function (printer_record, document_base64) {
         var me = this;
 
         if (printer_record.get('local')) {
@@ -45734,13 +45734,14 @@ Ext.define('App.controller.Print', {
                 return;
             }
 
-            me.browserHelperCtl.send('{"action":"print", "printer": "' + printer_record.get('id') + '", "payload": "' + btoa(data) + '"}', function (response) {
+            me.browserHelperCtl.send('{"action":"print", "printer": "' + printer_record.get('id') + '", "payload": "' + document_base64 + '"}', function (response) {
                 if(!response.success){
                     app.msg(_('oops'), 'Document could not be printed', true);
                 }
             });
         } else {
-            Printer.doPrint(printer_record.get('id'), data);
+            Printer.doPrint(printer_record.get('id'), document_base64);
+            // Printer.doPrint(printer_record.get('id'), data);
         }
     },
 
@@ -61293,7 +61294,14 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 	setPoolAreas: function(){
 		var me = this,
 			panel = me.getPageBody().down('container'),
+			poolarea_order_by = g('poolarea_order_by'),
 			areas;
+		// sorters appointment_time | time_in
+		if(poolarea_order_by === 'appointment'){
+			poolarea_order_by = 'appointment_time'
+		}if(poolarea_order_by === 'checkin'){
+			poolarea_order_by = 'time_in'
+		}
 
 		me.stores = [];
 
@@ -61305,6 +61313,12 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 
 				var store = Ext.create('App.store.areas.PoolDropAreas', {
 					groupField: (areas[i].floor_plan_id !== null ? 'zone' : undefined),
+					sorters: [
+						{
+							property: poolarea_order_by,
+							direction: 'asc'
+						}
+					],
 					proxy: {
 						type: 'direct',
 						api: {

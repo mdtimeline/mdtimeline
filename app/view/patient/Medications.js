@@ -82,13 +82,24 @@ Ext.define('App.view.patient.Medications', {
 					renderer: function(v, mets, record){
 						var codes = '';
 						if(record.data.RXCUI != ''){
-							codes += ' <b>RxNorm:</b> ' + record.data.RXCUI;
+							codes += ' RxNorm: ' + record.data.RXCUI;
 						}
 						if(record.data.NDC != ''){
-							codes += ' <b>NDC:</b> ' + record.data.NDC;
+							codes += ' NDC: ' + record.data.NDC;
 						}
 						codes = codes != '' ? (' (' + codes + ' )') : '';
-						return v + codes;
+						return '<b>' + v + '</b>' + codes;
+					}
+				},
+				{
+					header: _('instructions') + ' (SIG)',
+					flex: 1,
+                    groupable: true,
+                    hidden: false,
+					minWidth: 200,
+					dataIndex: 'directions',
+					editor: {
+						xtype: 'textfield'
 					}
 				},
 				{

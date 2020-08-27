@@ -191,7 +191,7 @@ Ext.define('App.view.patient.LabOrders', {
 			dataIndex: 'priority',
 			editor: {
 				xtype: 'gaiaehr.combo',
-				list: 98
+				listKey: 'proority'
 			},
             renderer: function(v, meta, record)
             {

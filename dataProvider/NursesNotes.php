@@ -43,7 +43,7 @@ class NursesNotes {
 				'fname' => 'nurse_fname',
 				'mname' => 'nurse_mname',
 				'lname' => 'nurse_lname',
-			], 'users', 'create_uid', 'id'
+			], 'users', 'signer_uid', 'id'
 		)->all();
 	}
 
@@ -57,7 +57,7 @@ class NursesNotes {
 				'fname' => 'nurse_fname',
 				'mname' => 'nurse_mname',
 				'lname' => 'nurse_lname',
-			], 'users', 'create_uid', 'id'
+			], 'users', 'signer_uid', 'id'
 		)->one();
 	}
 
@@ -91,7 +91,7 @@ class NursesNotes {
 				'fname' => 'nurse_fname',
 				'mname' => 'nurse_mname',
 				'lname' => 'nurse_lname',
-			], 'users', 'create_uid', 'id'
+			], 'users', 'signer_uid', 'id'
 		)->all();
 	}
 

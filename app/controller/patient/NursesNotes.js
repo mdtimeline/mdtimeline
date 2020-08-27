@@ -67,6 +67,9 @@ Ext.define('App.controller.patient.NursesNotes', {
 			'#NursesNoteEditWindowSaveBtn': {
 				click: me.onNursesNoteEditWindowSaveBtnClick
 			},
+			'#NursesNoteEditWindowSignBtn': {
+				click: me.onNursesNoteEditWindowSignBtnClick
+			},
 			'#NursesNoteSnippetAddBtn': {
 				click: me.onNursesNoteSnippetAddBtnClick
 			},
@@ -161,15 +164,42 @@ Ext.define('App.controller.patient.NursesNotes', {
 			record = form.getRecord(),
 			store = this.getNursesNotesGrid().getStore();
 
+		record.set(values);
+
+		if(Ext.Object.isEmpty(record.getChanges())){
+			win.close();
+			return;
+		}
+
+		store.sync({
+			callback: function () {
+				win.close();
+			}
+		});
+
+	},
+
+	onNursesNoteEditWindowSignBtnClick: function(btn){
+		var me = this,
+			win = btn.up('window'),
+			form = win.down('form').getForm(),
+			values = form.getValues(),
+			record = form.getRecord(),
+			store = this.getNursesNotesGrid().getStore();
+
 		app.passwordVerificationWin(function(ver_btn, password){
 
 			if(ver_btn === 'ok'){
 
 				User.verifyUserPass(password, function(response){
 					if(response){
+
+						values.signer_uid = app.user.id;
+						values.signer_date = app.getDate();
 						values.nurse_fname = app.user.fname;
 						values.nurse_mname = app.user.mname;
 						values.nurse_lname = app.user.lname;
+						values.nurse_name = '';
 
 						record.set(values);
 						store.sync({
@@ -218,7 +248,11 @@ Ext.define('App.controller.patient.NursesNotes', {
 	onNursesNotesGridItemDblClick: function(grid, record){
 		// validate user is the owner of this note
 		if(record.get('create_uid') > 0 && record.get('create_uid') !== app.user.id){
-			app.msg(_('oops'), 'Cannot modify notes signed by another user', true);
+			app.msg(_('oops'), 'Cannot modify notes from another user', true);
+			return;
+		}
+		if(record.get('signer_uid') > 0){
+			app.msg(_('oops'), 'Cannot modify signed notes', true);
 			return;
 		}
 		var form  = this.showNursesNotesWindow().down('form').getForm();

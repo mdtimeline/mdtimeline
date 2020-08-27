@@ -131,7 +131,7 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 			listConfig: {
 				loadingText: _('searching') + '...',
 				getInnerTpl: function(){
-					return '<div class="search-item {[values.TTY == "SCD" ? "lightGreenBg" : "" ]}">{STR}<br><b>RxNorm:</b> {RXCUI} <b>NDC:</b> {NDC} ({occurrences})</div>';
+					return '<div class="search-item {[values.TTY == "SCD" ? "lightGreenBg" : "" ]}"><b>{STR}</b><br>RxNorm: {RXCUI} NDC: {NDC} ({occurrences})</div>';
 				}
 			},
 			pageSize: 25

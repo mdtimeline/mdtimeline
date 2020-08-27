@@ -2164,4 +2164,5 @@ $LANG = array(
     'copy_from_patient' => 'Copy From Patient',
     'postal_address_copied' => 'Postal Address Copied',
     'assign_user' => 'Assign User',
+    'save_sign' => 'Save/Sign',
 );

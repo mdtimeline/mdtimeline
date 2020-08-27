@@ -136,7 +136,7 @@ Ext.define('App.view.patient.RadOrders', {
 			dataIndex: 'priority',
 			editor: {
 				xtype: 'gaiaehr.combo',
-				list: 98
+				listKey: 'proority'
 			}
 		},
 		{

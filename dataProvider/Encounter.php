@@ -1190,9 +1190,10 @@ class Encounter {
 				if(isset($foo['not_performed_code_text']) && $foo['not_performed_code_text'] != ''){
 					$lis .= sprintf('<b>Not Performed:</b> %s - </li>', $foo['not_performed_code_text']);
 				}else{
-					$lis .= sprintf('<b>Status:</b> %s - ', $foo['status_code_text']);
+					$lis .= sprintf('<b>Status:</b> %s - ', $foo['status_code']);
 					$lis .= sprintf('<b>Observation:</b> %s - ', $foo['observation']);
 					$lis .= sprintf('<b>Target Site:</b> %s - ', $foo['target_site_code_text']);
+					$lis .= sprintf('<b>Date:</b> %s', $foo['procedure_date']);
 //					$lis .= sprintf('<b>Performed By:</b> %s </li>', $performed_by);
 				}
 			}

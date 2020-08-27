@@ -1618,7 +1618,7 @@ Ext.define('App.view.patient.Patient', {
 													xtype: 'gaiaehr.combo',
 													name: 'organ_donor_code',
 													fieldLabel: _('organ_donor'),
-													listKey: 'proc_lateral',
+													listKey: 'organ_donor',
 													flex: 1,
 													loadStore: true,
 													editable: false

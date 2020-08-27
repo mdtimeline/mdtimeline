@@ -10939,7 +10939,7 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 			listConfig: {
 				loadingText: _('searching') + '...',
 				getInnerTpl: function(){
-					return '<div class="search-item {[values.TTY == "SCD" ? "lightGreenBg" : "" ]}">{STR}<br><b>RxNorm:</b> {RXCUI} <b>NDC:</b> {NDC} ({occurrences})</div>';
+					return '<div class="search-item {[values.TTY == "SCD" ? "lightGreenBg" : "" ]}"><b>{STR}</b><br>RxNorm: {RXCUI} NDC: {NDC} ({occurrences})</div>';
 				}
 			},
 			pageSize: 25
@@ -53537,6 +53537,9 @@ Ext.define('App.controller.patient.NursesNotes', {
 			'#NursesNoteEditWindowSaveBtn': {
 				click: me.onNursesNoteEditWindowSaveBtnClick
 			},
+			'#NursesNoteEditWindowSignBtn': {
+				click: me.onNursesNoteEditWindowSignBtnClick
+			},
 			'#NursesNoteSnippetAddBtn': {
 				click: me.onNursesNoteSnippetAddBtnClick
 			},
@@ -53631,15 +53634,42 @@ Ext.define('App.controller.patient.NursesNotes', {
 			record = form.getRecord(),
 			store = this.getNursesNotesGrid().getStore();
 
+		record.set(values);
+
+		if(Ext.Object.isEmpty(record.getChanges())){
+			win.close();
+			return;
+		}
+
+		store.sync({
+			callback: function () {
+				win.close();
+			}
+		});
+
+	},
+
+	onNursesNoteEditWindowSignBtnClick: function(btn){
+		var me = this,
+			win = btn.up('window'),
+			form = win.down('form').getForm(),
+			values = form.getValues(),
+			record = form.getRecord(),
+			store = this.getNursesNotesGrid().getStore();
+
 		app.passwordVerificationWin(function(ver_btn, password){
 
 			if(ver_btn === 'ok'){
 
 				User.verifyUserPass(password, function(response){
 					if(response){
+
+						values.signer_uid = app.user.id;
+						values.signer_date = app.getDate();
 						values.nurse_fname = app.user.fname;
 						values.nurse_mname = app.user.mname;
 						values.nurse_lname = app.user.lname;
+						values.nurse_name = '';
 
 						record.set(values);
 						store.sync({
@@ -53688,7 +53718,11 @@ Ext.define('App.controller.patient.NursesNotes', {
 	onNursesNotesGridItemDblClick: function(grid, record){
 		// validate user is the owner of this note
 		if(record.get('create_uid') > 0 && record.get('create_uid') !== app.user.id){
-			app.msg(_('oops'), 'Cannot modify notes signed by another user', true);
+			app.msg(_('oops'), 'Cannot modify notes from another user', true);
+			return;
+		}
+		if(record.get('signer_uid') > 0){
+			app.msg(_('oops'), 'Cannot modify signed notes', true);
 			return;
 		}
 		var form  = this.showNursesNotesWindow().down('form').getForm();
@@ -58723,13 +58757,24 @@ Ext.define('App.view.patient.Medications', {
 					renderer: function(v, mets, record){
 						var codes = '';
 						if(record.data.RXCUI != ''){
-							codes += ' <b>RxNorm:</b> ' + record.data.RXCUI;
+							codes += ' RxNorm: ' + record.data.RXCUI;
 						}
 						if(record.data.NDC != ''){
-							codes += ' <b>NDC:</b> ' + record.data.NDC;
+							codes += ' NDC: ' + record.data.NDC;
 						}
 						codes = codes != '' ? (' (' + codes + ' )') : '';
-						return v + codes;
+						return '<b>' + v + '</b>' + codes;
+					}
+				},
+				{
+					header: _('instructions') + ' (SIG)',
+					flex: 1,
+                    groupable: true,
+                    hidden: false,
+					minWidth: 200,
+					dataIndex: 'directions',
+					editor: {
+						xtype: 'textfield'
 					}
 				},
 				{
@@ -59749,7 +59794,7 @@ Ext.define('App.view.patient.LabOrders', {
 			dataIndex: 'priority',
 			editor: {
 				xtype: 'gaiaehr.combo',
-				list: 98
+				listKey: 'proority'
 			},
             renderer: function(v, meta, record)
             {
@@ -59919,7 +59964,7 @@ Ext.define('App.view.patient.RadOrders', {
 			dataIndex: 'priority',
 			editor: {
 				xtype: 'gaiaehr.combo',
-				list: 98
+				listKey: 'proority'
 			}
 		},
 		{
@@ -62324,6 +62369,17 @@ Ext.define('App.model.patient.NursesNote', {
 		{
 			name: 'in_error',
 			type: 'bool'
+		},
+		{
+			name: 'signer_uid',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'signer_date',
+			type: 'date',
+			comment: 'create date',
+			dateFormat: 'Y-m-d H:i:s'
 		},
 		{
 			name: 'create_uid',
@@ -77403,7 +77459,7 @@ Ext.define('App.view.patient.Patient', {
 													xtype: 'gaiaehr.combo',
 													name: 'organ_donor_code',
 													fieldLabel: _('organ_donor'),
-													listKey: 'proc_lateral',
+													listKey: 'organ_donor',
 													flex: 1,
 													loadStore: true,
 													editable: false

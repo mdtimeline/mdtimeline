@@ -52,6 +52,17 @@ Ext.define('App.model.patient.NursesNote', {
 			type: 'bool'
 		},
 		{
+			name: 'signer_uid',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'signer_date',
+			type: 'date',
+			comment: 'create date',
+			dateFormat: 'Y-m-d H:i:s'
+		},
+		{
 			name: 'create_uid',
 			type: 'int',
 			comment: 'create user ID'

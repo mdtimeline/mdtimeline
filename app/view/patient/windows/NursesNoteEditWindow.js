@@ -107,6 +107,10 @@ Ext.define('App.view.patient.windows.NursesNoteEditWindow', {
 		{
 			text: _('save'),
 			itemId: 'NursesNoteEditWindowSaveBtn'
+		},
+		{
+			text: _('save_sign'),
+			itemId: 'NursesNoteEditWindowSignBtn'
 		}
 	]
 });

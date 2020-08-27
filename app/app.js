@@ -49495,7 +49495,8 @@ Ext.define('App.controller.patient.DocumentArchiveLocation', {
 				change: me.onPatientDocumentLocationToDateChange
 			},
 			'#PatientDocumentArchiveLocationPatientSearch': {
-				change: me.onPatientDocumentLocationPatientSearchChange
+				select: me.onPatientDocumentLocationPatientSearchSelect,
+				reset: me.onPatientDocumentLocationPatientSearchSelect
 			},
 			'#PatientDocumentArchiveLocationScannedBySearch': {
 				change: me.onPatientDocumentLocationScannedBySearchChange
@@ -49533,7 +49534,7 @@ Ext.define('App.controller.patient.DocumentArchiveLocation', {
 		});
 
 
-		me.doDocumentsSearchBuffer = Ext.Function.createBuffered(me.doDocumentsSearch, 500, me);
+		me.doDocumentsSearchBuffer = Ext.Function.createBuffered(me.doDocumentsSearch, 1000, me);
 
 		me.docExtraParams = {};
 		me.locExtraParams = {};
@@ -49694,7 +49695,7 @@ Ext.define('App.controller.patient.DocumentArchiveLocation', {
 		params.archived = archiveBtn.pressed;
 		params.is_worklist = true;
 
-		if(patientField.getValue()){
+		if(Ext.isNumber(patientField.getValue())){
 			params.pid =  patientField.getValue();
 		}
 
@@ -49734,7 +49735,7 @@ Ext.define('App.controller.patient.DocumentArchiveLocation', {
 		this.doDocumentsSearchBuffer();
 	},
 
-	onPatientDocumentLocationPatientSearchChange: function(){
+	onPatientDocumentLocationPatientSearchSelect: function(){
 		this.doDocumentsSearchBuffer();
 	},
 

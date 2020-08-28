@@ -52,7 +52,8 @@ Ext.define('App.controller.patient.ActiveProblems', {
 		var me = this;
 		me.control({
 			'patientactiveproblemspanel':{
-				activate: me.onActiveProblemsGridActive
+				activate: me.onActiveProblemsGridActive,
+				beforeitemcontextmenu: me.onActiveProblemsGridBeforeItemContextMenu
 			},
 			'#activeProblemLiveSearch':{
 				select: me.onActiveProblemLiveSearchSelect
@@ -71,13 +72,67 @@ Ext.define('App.controller.patient.ActiveProblems', {
             },
             '#PatientProblemsActiveBtn': {
                 click: me.onPatientProblemsActiveBtnClick
-            }
+            },
+			'#ActiveProblemsGridActivateMenu': {
+				click: me.onActiveProblemsGridActivateMenuClick
+			},
+			'#ActiveProblemsGridInactivateMenu': {
+				click: me.onActiveProblemsGridInactivateMenu
+			}
 		});
 
 
 		me.encController = me.getController('patient.encounter.Encounter');
 	},
 
+	onActiveProblemsGridBeforeItemContextMenu: function (grid, record, item, index, e, eOpts){
+		e.preventDefault();
+		this.showContextMenu(grid, record, e);
+	},
+
+	showContextMenu: function (grid, record, e){
+		if(!grid.context_menu){
+			grid.context_menu = Ext.widget('menu', {
+				margin: '0 0 10 0',
+				items: [
+					{
+						text: _('activate'),
+						itemId: 'ActiveProblemsGridActivateMenu'
+					},
+					{
+						text: _('inactivate'),
+						itemId: 'ActiveProblemsGridInactivateMenu'
+					}
+				]
+			});
+		}
+		grid.context_menu.record = record;
+		grid.context_menu.showAt(e.getXY())
+	},
+
+	onActiveProblemsGridActivateMenuClick: function (item){
+		var record = item.up('menu').record;
+
+		record.set({
+			status: 'Active',
+			status_code: '55561003',
+			status_code_type: 'SNOMEDCT',
+		});
+
+		record.store.sync();
+	},
+
+	onActiveProblemsGridInactivateMenu: function (item){
+		var record = item.up('menu').record;
+
+		record.set({
+			status: 'Inactive',
+			status_code: '73425007',
+			status_code_type: 'SNOMEDCT',
+		});
+
+		record.store.sync();
+	},
 
 	onAddActiveProblemBtnClick:function(){
 		var me = this,

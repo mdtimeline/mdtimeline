@@ -2165,4 +2165,6 @@ $LANG = array(
     'postal_address_copied' => 'Postal Address Copied',
     'assign_user' => 'Assign User',
     'save_sign' => 'Save/Sign',
+    'activate' => 'Activate',
+    'inactivate' => 'Inactivate',
 );

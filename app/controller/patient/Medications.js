@@ -78,7 +78,8 @@ Ext.define('App.controller.patient.Medications', {
                 activate: me.onMedicationsPanelActive
             },
 			'#patientMedicationsGrid': {
-				beforeedit: me.onPatientMedicationsGridBeforeEdit
+				beforeedit: me.onPatientMedicationsGridBeforeEdit,
+				beforeitemcontextmenu: me.onPatientMedicationsGridBeforeItemContextMenu
 			},
 			'#addPatientMedicationBtn': {
 				click: me.onAddPatientMedicationBtnClick
@@ -109,9 +110,61 @@ Ext.define('App.controller.patient.Medications', {
 			},
 			'#AdministeredMedicationsAddBtn': {
 				click: me.onAdministeredMedicationsAddBtnClick
+			},
+			'#PatientMedicationsGridActivateMenu': {
+				click: me.onPatientMedicationsGridActivateMenuClick
+			},
+			'#PatientMedicationsGridInactivateMenu': {
+				click: me.onPatientMedicationsGridInactivateMenu
 			}
 		});
 	},
+
+	onPatientMedicationsGridBeforeItemContextMenu: function (grid, record, item, index, e, eOpts){
+		e.preventDefault();
+		this.showContextMenu(grid, record, e);
+	},
+
+	showContextMenu: function (grid, record, e){
+		if(!grid.context_menu){
+			grid.context_menu = Ext.widget('menu', {
+				margin: '0 0 10 0',
+				items: [
+					{
+						text: _('activate'),
+						itemId: 'PatientMedicationsGridActivateMenu'
+					},
+					{
+						text: _('inactivate'),
+						itemId: 'PatientMedicationsGridInactivateMenu'
+					}
+				]
+			});
+		}
+		grid.context_menu.record = record;
+		grid.context_menu.showAt(e.getXY())
+	},
+
+	onPatientMedicationsGridActivateMenuClick: function (item){
+		var record = item.up('menu').record;
+
+		record.set({
+			is_active: true
+		});
+
+		record.store.sync();
+	},
+
+	onPatientMedicationsGridInactivateMenu: function (item){
+		var record = item.up('menu').record;
+
+		record.set({
+			is_active: false
+		});
+
+		record.store.sync();
+	},
+
 
 	onViewportEncounterLoad: function(encounter){
 

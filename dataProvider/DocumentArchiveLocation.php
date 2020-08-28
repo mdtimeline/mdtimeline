@@ -48,17 +48,17 @@ class DocumentArchiveLocation {
 			$wheres_params['date_to'] = $params->date_to;
 
 			if(isset($params->pid)){
-				$wheres[] = '`pid` <= :pid';
+				$wheres[] = '`pid` = :pid';
 				$wheres_params['pid'] = $params->pid;
 			}
 
 			if(isset($params->uid)){
-				$wheres[] = '`uid` <= :uid';
+				$wheres[] = '`uid` = :uid';
 				$wheres_params['uid'] = $params->uid;
 			}
 
 			if(isset($params->facility_id)){
-				$wheres[] = '`facility_id` <= :facility_id';
+				$wheres[] = '`facility_id` = :facility_id';
 				$wheres_params['facility_id'] = $params->facility_id;
 			}
 

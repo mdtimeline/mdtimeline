@@ -46266,6 +46266,9 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			pid: app.patient.pid,
 			eid: app.patient.eid,
 			uid: app.user.id,
+			status: 'Active',
+			status_code: '55561003',
+			status_code_type: 'SNOMEDCT',
 			created_uid: app.user.id,
 			create_date: app.getDate(),
 			begin_date: begin_date
@@ -46911,8 +46914,11 @@ Ext.define('App.controller.patient.Allergies', {
 			uid: app.user.id,
 			pid: app.patient.pid,
 			eid: app.patient.eid,
-			create_date: new Date(),
-			begin_date: new Date()
+			status: 'Active',
+			status_code: '55561003',
+			status_code_type: 'SNOMEDCT',
+			create_date: app.getDate(),
+			begin_date: app.getDate()
 		});
 		grid.editingPlugin.startEdit(0, 0);
 	},

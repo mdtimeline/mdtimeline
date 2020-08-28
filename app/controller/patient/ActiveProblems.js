@@ -91,6 +91,9 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			pid: app.patient.pid,
 			eid: app.patient.eid,
 			uid: app.user.id,
+			status: 'Active',
+			status_code: '55561003',
+			status_code_type: 'SNOMEDCT',
 			created_uid: app.user.id,
 			create_date: app.getDate(),
 			begin_date: begin_date

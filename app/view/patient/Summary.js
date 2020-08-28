@@ -388,11 +388,17 @@ Ext.define('App.view.patient.Summary', {
 					clicksToEdit: 2,
 					items: [
 						{
-							xtype: 'textfield',
+							xtype: 'gaiaehr.combo',
+							// xtype: 'textfield',
 							fieldLabel: _('type'),
 							name: 'type',
+							emptyText: _('type'),
+							queryMode: 'local',
+							listKey: 'admin_note_types',
 							width: 300,
-							margin: '0 0 5 0'
+							margin: '0 0 5 0',
+							loadStore: true,
+							editable: false
 						},
 						{
 							xtype: 'textareafield',

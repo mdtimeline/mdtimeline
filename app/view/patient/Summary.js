@@ -344,6 +344,7 @@ Ext.define('App.view.patient.Summary', {
 				defaults: {
 					margin: '5 5 0 5'
 				},
+				itemId: 'PatientSummarySidePanel',
 				items: me.sidePanelItems
 			});
 

@@ -132,6 +132,7 @@ class LDAP {
 				//$this->log("LDAP: MEMBER:");
 				//$this->log(print_r($member, true));
 
+                $member = ldap_escape($member, "", LDAP_ESCAPE_FILTER);
 				$filter = "(&(objectCategory=user) (distinguishedName={$member}))";
 				$attr = ["sAMAccountName","name","givenName","initials","SN","title"."userPrincipalName","objectClass","objectCategory","mail","gender","mobile"];
 

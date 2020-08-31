@@ -2167,4 +2167,5 @@ $LANG = array(
     'save_sign' => 'Save/Sign',
     'activate' => 'Activate',
     'inactivate' => 'Inactivate',
+    'print_jobs' => 'Print Jobs',
 );

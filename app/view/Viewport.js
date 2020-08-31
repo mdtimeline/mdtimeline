@@ -625,7 +625,18 @@ Ext.define('App.view.Viewport', {
 	                    {
 							xtype: 'container',
 		                    itemId: 'ApplicationFooterContainer',
-		                    flex: 1
+		                    flex: 1,
+		                    defaults: {
+			                    xtype: 'button',
+								minWidth: 70
+		                    },
+		                    items: [
+			                    {
+			                    	xtype: 'button',
+				                    text: _('print_jobs'),
+				                    itemId: 'ApplicationFooterPrintJobsBtn'
+			                    }
+		                    ]
 	                    },
 	                    '-',
                         {

@@ -18290,6 +18290,10 @@ Ext.define('App.model.patient.Notes', {
 			type: 'string'
 		},
 		{
+			name: 'list_key',
+			type: 'string'
+		},
+		{
 			name: 'user_name',
 			type: 'string',
 			store: false

@@ -622,6 +622,12 @@ Ext.define('App.view.Viewport', {
 		                    itemId: 'ApplicationFacilityCombo'
 	                    },
 	                    '-',
+	                    {
+							xtype: 'container',
+		                    itemId: 'ApplicationFooterContainer',
+		                    flex: 1
+	                    },
+	                    '-',
                         {
 	                        xtype: 'tbtext',
 	                        text: 'Copyright (C) 2019 MDTIMELINE, LLC |:| v' + me.version,
@@ -632,30 +638,7 @@ Ext.define('App.view.Viewport', {
 		                    text: 'IP: 0.0.0.0',
 		                    itemId: 'ApplicationIpAddress'
 	                    },
-                        '->',
-                        // {
-                        //     text: _('news'),
-	                     //    action: 'supportBtn',
-	                     //    src: 'http://GaiaEHR.org/projects/GaiaEHR001/news'
-                        // },
-                        // '-',
-                        // {
-                        //     text: _('wiki'),
-	                     //    action: 'supportBtn',
-	                     //    src: 'http://gaiaehr.org/'
-                        // },
-                        // '-',
-                        // {
-                        //     text: _('issues'),
-	                     //    action: 'supportBtn',
-                        //     src: 'http://gaiaehr.org:8181/issues/?jql='
-                        // },
-                        // '-',
-                        // {
-                        //     text: _('forums'),
-	                     //    action: 'supportBtn',
-	                     //    src: 'http://gaiaehr.org/forums/'
-                        // }
+                        '-',
 	                    {
 		                    xtype: 'container',
 		                    itemId: 'ApplicationClockContainer',

@@ -276,6 +276,8 @@ INI_CONFIG;
 		$msgRecord = $this->m->save($msgRecord);
 		$msgRecord = (array)$msgRecord['data'];
 
+		error_log('HL7 Message: ' . $hl7->getMsgType() . '^' . $hl7->getMsgEventType());
+
 		if($this->ackStatus == 'AA'){
 			/**
 			 *

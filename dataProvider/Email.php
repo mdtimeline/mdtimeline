@@ -39,7 +39,7 @@ class Email {
 	private $API_ACCOUNT;
 	private $API_KEY;
 
-	private $API_STATUS_CHECK_DAYS = 5;
+	private $API_STATUS_CHECK_DAYS = 1;
 
 	private $AuditLog;
 

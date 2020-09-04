@@ -320,6 +320,7 @@ Ext.define('App.controller.patient.Allergies', {
 			status: 'Active',
 			status_code: '55561003',
 			status_code_type: 'SNOMEDCT',
+			end_date: null
 		});
 
 		record.store.sync();
@@ -332,6 +333,7 @@ Ext.define('App.controller.patient.Allergies', {
 			status: 'Inactive',
 			status_code: '73425007',
 			status_code_type: 'SNOMEDCT',
+			end_date: app.getDate()
 		});
 
 		record.store.sync();

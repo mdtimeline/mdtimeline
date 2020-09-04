@@ -149,7 +149,8 @@ Ext.define('App.controller.patient.Medications', {
 		var record = item.up('menu').record;
 
 		record.set({
-			is_active: true
+			is_active: true,
+			end_date: null
 		});
 
 		record.store.sync();
@@ -159,7 +160,8 @@ Ext.define('App.controller.patient.Medications', {
 		var record = item.up('menu').record;
 
 		record.set({
-			is_active: false
+			is_active: false,
+			end_date: app.getDate()
 		});
 
 		record.store.sync();

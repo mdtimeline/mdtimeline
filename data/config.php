@@ -1504,6 +1504,25 @@ $API = [
             ]
         ]
     ],
+    'Locations' => [
+        'methods' => [
+            'getLocations' => [
+                'len' => 1
+            ],
+            'getLocation' => [
+                'len' => 1
+            ],
+            'addLocation' => [
+                'len' => 1
+            ],
+            'updateLocation' => [
+                'len' => 1
+            ],
+            'deleteLocation' => [
+                'len' => 1
+            ]
+        ]
+    ],
 	/**
 	 * Facilities Functions
 	 */

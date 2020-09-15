@@ -305,7 +305,7 @@ Ext.define('App.view.administration.Globals', {
 			]
 		});
 
-		me.grid = Ext.create('Ext.grid.Panel',{
+		me.grid = Ext.create('App.ux.grid.LiveSearchGridPanel',{
 			store: me.store,
 			features: [
 				{

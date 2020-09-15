@@ -6115,6 +6115,8 @@ Ext.define('App.ux.grid.DeleteColumn', {
 						}else {
 							app.msg(_('sweet'), _('record_removed'), 'yellow');
 						}
+					}else{
+						store.rejectChanges();
 					}
 				}
 			});
@@ -32670,7 +32672,7 @@ Ext.define('App.view.administration.Globals', {
 			]
 		});
 
-		me.grid = Ext.create('Ext.grid.Panel',{
+		me.grid = Ext.create('App.ux.grid.LiveSearchGridPanel',{
 			store: me.store,
 			features: [
 				{

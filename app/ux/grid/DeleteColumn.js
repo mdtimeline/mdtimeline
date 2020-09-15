@@ -42,6 +42,8 @@ Ext.define('App.ux.grid.DeleteColumn', {
 						}else {
 							app.msg(_('sweet'), _('record_removed'), 'yellow');
 						}
+					}else{
+						store.rejectChanges();
 					}
 				}
 			});

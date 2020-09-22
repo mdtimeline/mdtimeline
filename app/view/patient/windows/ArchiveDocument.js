@@ -17,58 +17,99 @@
  */
 
 Ext.define('App.view.patient.windows.ArchiveDocument', {
-	extend: 'Ext.window.Window',
-	xtype: 'patientarchivedocumentwindow',
-	draggable: false,
-	modal: true,
-	autoShow: true,
-	closeAction: 'hide',
-	title: _('archive_document'),
-	items: [
-		{
-			xtype: 'form',
-			bodyPadding: 10,
-			width: 400,
-			defaults:{
-				xtype: 'textfield',
-				anchor: '100%',
-				labelWidth: 70
-			},
-			items: [
-				{
-					name: 'id',
-					hidden: true
-				},
-				{
-					xtype: 'gaiaehr.combo',
-					fieldLabel: _('category'),
-					list: 102,
-					name: 'docTypeCode',
-					editable: false,
-					allowBlank: false
-				},
-				{
-					fieldLabel: _('title'),
-					name: 'title'
-				},
-				{
-					xtype: 'textareafield',
-					name: 'note',
-					fieldLabel: _('notes')
-				}
-			]
-		}
-	],
-	buttons: [
-		{
-			text: _('cancel'),
-			handler: function(btn){
-				btn.up('window').close();
-			}
-		},
-		{
-			text: _('archive'),
-			itemId: 'archiveBtn'
-		}
-	]
+    extend: 'Ext.window.Window',
+    xtype: 'patientarchivedocumentwindow',
+    draggable: false,
+    modal: true,
+    autoShow: true,
+    closeAction: 'hide',
+    title: _('archive_document'),
+    items: [
+        {
+            xtype: 'form',
+            bodyPadding: 10,
+            width: 400,
+            defaults: {
+                xtype: 'textfield',
+                anchor: '100%',
+                labelWidth: 70
+            },
+            items: [
+                {
+                    name: 'id',
+                    hidden: true
+                },
+                {
+                    xtype: 'gaiaehr.combo',
+                    fieldLabel: _('category'),
+                    list: 102,
+                    name: 'docTypeCode',
+                    editable: false,
+                    allowBlank: false
+                },
+                {
+                    fieldLabel: _('title'),
+                    name: 'title'
+                },
+                {
+                    xtype: 'textareafield',
+                    name: 'note',
+                    fieldLabel: _('notes')
+                },
+                {
+                    xtype: 'fieldset',
+                    itemId: 'ArchiveDocumentOptionalFieldSet',
+                    title: 'Print (' + _('optional') + ')',
+                    margin: '0 0 0 10',
+                    // width: 220,
+                    items: [
+                        {
+                            xtype: 'printerscombo',
+                            itemId: 'archiveDocumentPrintersCombo',
+                            emptyText: _('select_print_optional'),
+                            fieldLabel: 'Printer',
+                            name: 'printer',
+                            editable: false,
+                            width: 300
+                        },
+                        {
+                            xtype: 'combobox',
+                            fieldLabel: _('priority'),
+                            name: 'priority',
+                            store: Ext.create('Ext.data.Store', {
+                                fields: ['value', 'display'],
+                                data : [
+                                    {"value": 1, "display":"High"},
+                                    {"value": 2, "display":"Med"},
+                                    {"value": 3, "display":"Low"},
+                                ]
+                            }),
+                            value: 2,
+                            displayField: 'display',
+                            valueField: 'value',
+                            editable: false,
+                            width: 300
+                        },
+                        {
+                            xtype: 'checkbox',
+                            name: 'printNow',
+                            fieldLabel: 'Print Now',
+                        },
+                    ]
+                },
+            ]
+        }
+    ],
+    buttons: [
+        {
+            text: _('cancel'),
+            handler: function (btn) {
+                btn.up('window').close();
+            }
+        },
+        {
+            text: _('archive'),
+            itemId: 'archiveBtn'
+        }
+    ]
 });

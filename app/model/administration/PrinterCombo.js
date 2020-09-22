@@ -16,29 +16,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.view.patient.windows.DocumentViewer', {
-	extend: 'Ext.window.Window',
-	xtype: 'documentviewerwindow',
-	title: _('documents_viewer_window'),
-	layout: 'fit',
-	height: 700,
-	width: 800,
-	bodyStyle: 'background-color:#fff',
-	maximizable: true,
-	defaults: {
-		margin: 5
-	},
-	tbar: [
-		'->',
+Ext.define('App.model.administration.PrinterCombo', {
+	extend: 'Ext.data.Model',
+	fields: [
 		{
-			text: _('archive_and_add_to_print_jobs'),
-			itemId: 'documentViewerAddToPrintJobBtn',
-			icon: 'resources/images/icons/add.png'
+			name: 'id',
+			type: 'string'
 		},
 		{
-			text: _('archive_document'),
-			itemId: 'archiveDocumentBtn',
-			icon: 'resources/images/icons/save.png'
+			name: 'name',
+			type: 'string'
+		},
+		{
+			name: 'printer_description',
+			type: 'string'
+		},
+		{
+			name: 'local',
+			type: 'bool'
+		},
+		{
+			name: 'facility_id',
+			type: 'int'
+		},
+		{
+			name: 'active',
+			type: 'bool'
+		},
+		{
+			name: 'display_value',
+			convert: function (v, r) {
+				if (r.get('local')) {
+					return r.get('name') + ' (local)';
+				}
+				return r.get('printer_description') + ' (remote)';
+			}
 		}
 	]
 });

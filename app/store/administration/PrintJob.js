@@ -16,29 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.view.patient.windows.DocumentViewer', {
-	extend: 'Ext.window.Window',
-	xtype: 'documentviewerwindow',
-	title: _('documents_viewer_window'),
-	layout: 'fit',
-	height: 700,
-	width: 800,
-	bodyStyle: 'background-color:#fff',
-	maximizable: true,
-	defaults: {
-		margin: 5
-	},
-	tbar: [
-		'->',
-		{
-			text: _('archive_and_add_to_print_jobs'),
-			itemId: 'documentViewerAddToPrintJobBtn',
-			icon: 'resources/images/icons/add.png'
-		},
-		{
-			text: _('archive_document'),
-			itemId: 'archiveDocumentBtn',
-			icon: 'resources/images/icons/save.png'
-		}
-	]
+Ext.define('App.store.administration.PrintJob', {
+	extend: 'Ext.data.Store',
+	requires: ['App.model.administration.PrintJob'],
+	model: 'App.model.administration.PrintJob'
 });

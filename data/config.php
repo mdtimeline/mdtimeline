@@ -245,10 +245,29 @@ $API = [
                 'len' => 2
             ],
             'doPrint' => [
-                'len' => 2
+                'len' => 3
             ],
             'doDocumentPrint' => [
                 'len' => 2
+            ]
+        ]
+    ],
+    'PrintJob' => [
+        'methods' => [
+            'getPrintJobs' => [
+                'len' => 1
+            ],
+            'getPrintJob' => [
+                'len' => 1
+            ],
+            'addPrintJob' => [
+                'len' => 1
+            ],
+            'updatePrintJob' => [
+                'len' => 1
+            ],
+            'destroyPrintJob' => [
+                'len' => 1
             ]
         ]
     ],
@@ -2763,7 +2782,7 @@ $API = [
 				'len' => 1
             ],
 			'getPatientDocument' => [
-				'len' => 1
+				'len' => 2
             ],
 			'addPatientDocument' => [
 				'len' => 1

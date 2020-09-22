@@ -1,144 +1,188 @@
 Ext.define('App.controller.DocumentViewer', {
     extend: 'Ext.app.Controller',
-	requires:[
-		'App.view.patient.windows.ArchiveDocument'
-	],
-	refs: [
+    requires: [
+        'App.view.patient.windows.ArchiveDocument'
+    ],
+    refs: [
         {
-            ref:'DocumentViewerWindow',
-            selector:'documentviewerwindow'
+            ref: 'DocumentViewerWindow',
+            selector: 'documentviewerwindow'
         },
         {
-            ref:'DocumentViewerWindow',
-            selector:'documentviewerwindow > form'
-        },
-		{
-			ref:'ArchiveDocumentBtn',
-			selector:'documentviewerwindow #archiveDocumentBtn'
-		},
-        {
-            ref:'ArchiveWindow',
-            selector:'patientarchivedocumentwindow'
+            ref: 'DocumentViewerWindow',
+            selector: 'documentviewerwindow > form'
         },
         {
-            ref:'ArchiveForm',
-            selector:'patientarchivedocumentwindow > form'
+            ref: 'ArchiveDocumentBtn',
+            selector: 'documentviewerwindow #archiveDocumentBtn'
+        },
+        {
+            ref: '#documentViewerAddToPrintJobBtn',
+            selector: 'documentViewerAddToPrintJobBtn'
+        },
+        {
+            ref: 'ArchiveWindow',
+            selector: 'patientarchivedocumentwindow'
+        },
+        {
+            ref: 'ArchiveForm',
+            selector: 'patientarchivedocumentwindow > form'
+        },
+        {
+            selector: '#ArchiveDocumentOptionalFieldSet',
+            ref: 'ArchiveDocumentOptionalFieldSet'
         }
-	],
+    ],
 
-	init: function() {
-		var me = this;
+    init: function () {
+        var me = this;
 
-		me.control({
-			'documentviewerwindow':{
-				close: me.onViewerDocumentsWinClose
-			},
-			'documentviewerwindow #archiveDocumentBtn': {
-				click: me.onArchiveDocumentBtnClick
-			},
-			'patientarchivedocumentwindow #archiveBtn': {
-				click: me.onArchiveBtnClick
-			}
-		});
-	},
+        me.control({
+            'documentviewerwindow': {
+                close: me.onViewerDocumentsWinClose
+            },
+            'documentviewerwindow #archiveDocumentBtn': {
+                click: me.onArchiveDocumentBtnClick
+            },
+            '#documentViewerAddToPrintJobBtn': {
+                click: me.onDocumentViewerAddToPrinterJobBtn
+            },
+            'patientarchivedocumentwindow #archiveBtn': {
+                click: me.onArchiveBtnClick
+            }
+        });
+    },
 
-	onArchiveBtnClick: function(btn){
-		var win = btn.up('window'),
-			form = win.down('form').getForm(),
-			values = form.getValues(),
-			docTypeField = form.findField('docTypeCode');
+    onArchiveBtnClick: function (btn) {
+        var win = btn.up('window'),
+            form = win.down('form').getForm(),
+            values = form.getValues(),
+            docTypeField = form.findField('docTypeCode'),
+            printerCmb = form.findField('printer'),
+            printerRecord = printerCmb.findRecordByValue(printerCmb.getValue()),
+            priority = form.findField('priority').getValue(),
+            printNow = form.findField('printNow').getValue();
 
-		if(form.isValid()){
-			values.pid = app.patient.pid;
-			values.eid = app.patient.eid;
-			values.uid = app.user.id;
+        if (form.isValid()) {
+            values.pid = app.patient.pid;
+            values.eid = app.patient.eid;
+            values.uid = app.user.id;
 
-			var docTypeRecord = docTypeField.findRecordByValue(values.docTypeCode);
-			values.docType = docTypeRecord.get('option_name');
+            var docTypeRecord = docTypeField.findRecordByValue(values.docTypeCode);
+            values.docType = docTypeRecord.get('option_name');
 
-			// scanner archive logic
-			if(Ext.getClassName(win.documentWindow) == 'App.view.scanner.Window'){
+            // scanner archive logic
+            if (Ext.getClassName(win.documentWindow) === 'App.view.scanner.Window') {
 
-				var controller = app.getController('Scanner');
-				controller.doArchive(values, function (success) {
-					if(success) win.close();
-				});
+                var controller = app.getController('Scanner');
+                controller.doArchive(values, function (success) {
+                    if (success) win.close();
+                });
 
-			}else{
-				DocumentHandler.transferTempDocument(values, function(provider, response){
-					if(response.result.success){
-						if(window.dual){
-							window.dual.msg(_('sweet'), 'document_transferred');
-						}else{
-							window.app.msg(_('sweet'), 'document_transferred');
-						}
-						win.documentWindow.close();
-						win.close();
-					}else{
-						if(window.dual){
-							window.dual.msg(_('oops'), 'document_transfer_failed', true);
-						}else{
-							window.app.msg(_('oops'), 'document_transfer_failed', true);
-						}
-					}
-				});
-			}
-		}
-	},
+            } else {
+                DocumentHandler.transferTempDocument(values, function (response) {
+                    if (response.success) {
+                        if (window.dual) {
+                            window.dual.msg(_('sweet'), 'document_transferred');
+                        } else {
+                            window.app.msg(_('sweet'), 'document_transferred');
+                        }
 
-	onArchiveDocumentBtnClick: function(btn){
-		var win = btn.up('window'),
-			values = {
-				id: win.documentId,
-				docType: win.documentType,
-				title: win.documentType +  ' ' + _('order')
-			};
-		var archive = Ext.widget('patientarchivedocumentwindow',{
-			documentWindow: win
-		});
-		archive.down('form').getForm().setValues(values);
-	},
+                        if (win.doAddPrintJobCallback) {
+                            win.doAddPrintJobCallback(response.record,printerRecord,printNow,priority);
+                        }
+                        win.documentWindow.close();
+                        win.close();
+                    } else {
+                        if (window.dual) {
+                            window.dual.msg(_('oops'), 'document_transfer_failed', true);
+                        } else {
+                            window.app.msg(_('oops'), 'document_transfer_failed', true);
+                        }
+                    }
+                });
+            }
+        }
+    },
 
-	onViewerDocumentsWinClose: function(win){
-		DocumentHandler.destroyTempDocument({id: win.documentId});
-	},
+    onArchiveDocumentBtnClick: function (btn) {
+        var win = btn.up('window'),
+            values = {
+                id: win.documentId,
+                docType: win.documentType,
+                title: win.documentType + ' ' + _('order')
+            };
+        var archive_window = Ext.widget('patientarchivedocumentwindow', {
+            documentWindow: win,
+            doAddPrintJobCallback: undefined
+        });
 
-	doDocumentView: function(id, type, site, closable){
+        var form = archive_window.down('form').getForm();
+        form.setValues(values);
 
-		var windows = Ext.ComponentQuery.query('documentviewerwindow'),
-			src = 'dataProvider/DocumentViewer.php?site=' + (site || app.user.site) + '&id=' + id + '&token=' + app.user.token,
-			win;
+        //optional fieldset not visible
+        archive_window.down('fieldset').setVisible(false);
+    },
 
-		if(typeof type != 'undefined') src += '&temp=' + type;
+    onDocumentViewerAddToPrinterJobBtn: function (btn) {
+        var win = btn.up('window'),
+            values = {
+                id: win.documentId,
+                docType: win.documentType,
+                title: win.documentType + ' ' + _('order')
+            };
+        var archive_window = Ext.widget('patientarchivedocumentwindow', {
+            documentWindow: win,
+            doAddPrintJobCallback: this.doAddPrintJob
+        });
 
-		src += '&_dc=' + Ext.Date.now();
+        archive_window.down('form').getForm().setValues(values);
+    },
 
-		win = Ext.create('App.view.patient.windows.DocumentViewer',{
-			documentType: type,
-			documentId: id,
-			closable: (closable !== undefined ? closable : true),
-			items:[
-				{
-					xtype:'miframe',
-					autoMask: false,
-					src: src
-				}
-			]
-		});
+    doAddPrintJob: function (document, printer_record, print_now, priority) {
+        app.getController('PrintJob').addPrintJob(document.id,printer_record, print_now, priority);
+    },
 
-		if(windows.length > 0){
-			var last = windows[(windows.length - 1)];
-			for(var i=0; i < windows.length; i++){
-				windows[i].toFront();
-			}
-			win.showAt((last.x + 25), (last.y + 5));
+    onViewerDocumentsWinClose: function (win) {
+        DocumentHandler.destroyTempDocument({id: win.documentId});
+    },
 
-		}else{
-			win.show();
-		}
+    doDocumentView: function (id, type, site, closable) {
 
-		return win;
-	}
+        var windows = Ext.ComponentQuery.query('documentviewerwindow'),
+            src = 'dataProvider/DocumentViewer.php?site=' + (site || app.user.site) + '&id=' + id + '&token=' + app.user.token,
+            win;
+
+        if (typeof type != 'undefined') src += '&temp=' + type;
+
+        src += '&_dc=' + Ext.Date.now();
+
+        win = Ext.create('App.view.patient.windows.DocumentViewer', {
+            documentType: type,
+            documentId: id,
+            closable: (closable !== undefined ? closable : true),
+            items: [
+                {
+                    xtype: 'miframe',
+                    autoMask: false,
+                    src: src
+                }
+            ]
+        });
+
+        if (windows.length > 0) {
+            var last = windows[(windows.length - 1)];
+            for (var i = 0; i < windows.length; i++) {
+                windows[i].toFront();
+            }
+            win.showAt((last.x + 25), (last.y + 5));
+
+        } else {
+            win.show();
+        }
+
+        return win;
+    }
 
 
 });

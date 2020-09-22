@@ -21,11 +21,13 @@ Ext.define('App.controller.Print', {
             }
         });
 
+        me.printJobCtl = this.getController('PrintJob');
+
         me.loadRemotePrinters();
 
     },
 
-    doPrint: function (printer_record, document_base64) {
+    doPrint: function (printer_record, document_base64, job_id) {
         var me = this;
 
         if (printer_record.get('local')) {
@@ -34,21 +36,27 @@ Ext.define('App.controller.Print', {
                 return;
             }
 
-            me.browserHelperCtl.send('{"action":"print", "printer": "' + printer_record.get('id') + '", "payload": "' + document_base64 + '"}', function (response) {
-                if(!response.success){
+            job_id = job_id || "";
+
+            me.browserHelperCtl.send('{"action":"print", "printer": "' + printer_record.get('id') + '", "payload": "' + document_base64 + '", "job_id": ' + job_id + '}', function (response) {
+                if (!response.success) {
                     app.msg(_('oops'), 'Document could not be printed', true);
                 }
             });
         } else {
-            Printer.doPrint(printer_record.get('id'), document_base64);
-            // Printer.doPrint(printer_record.get('id'), data);
+            Printer.doPrint(printer_record.get('id'), document_base64, job_id);
         }
+    },
+
+    addPrintJob: function (document_id, printer_record) {
+        var me = this;
+        me.printJobCtl.addPrintJob(document_id, printer_record);
     },
 
     loadRemotePrinters: function () {
         var me = this;
 
-        Printer.getPrinters(function (printers){
+        Printer.getPrinters(function (printers) {
             me.printers = Ext.Array.merge(me.printers, printers);
         });
     },
@@ -57,8 +65,6 @@ Ext.define('App.controller.Print', {
         var me = this;
 
         me.browserHelperCtl = ctl;
-
-        say('onBrowserHelperOpen');
 
         me.browserHelperCtl.send('{"action":"printer/list"}', function (printers) {
             //Add local property to each printer
@@ -72,6 +78,7 @@ Ext.define('App.controller.Print', {
     },
 
     onPrintersComboBeforeRender: function (cmb) {
+        say(this.printers);
         cmb.store.loadData(this.printers);
 
         //register combobox to change when facility changes
@@ -94,6 +101,12 @@ Ext.define('App.controller.Print', {
             cmb.store.getCount() > 0 ? cmb.setValue(cmb.store.first()) : cmb.setValue(null);
         }
 
+    },
+
+    getPrinters: function () {
+        var me = this;
+
+        return me.printers;
     },
 
     promptPrint: function () {

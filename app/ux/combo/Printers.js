@@ -9,29 +9,30 @@ Ext.define('App.ux.combo.Printers', {
     width: 200,
     stateful: true,
     stateId: 'PrinterComboState',
-    store: Ext.create('Ext.data.Store', {
-        fields: [
-            {
-                name: 'id',
-                type: 'string'
-            },
-            {name: 'name', type: 'string'},
-            {name: 'printer_description', type: 'string'},
-            {name: 'local', type: 'bool'},
-            {name: 'facility_id', type: 'int'},
-            {name: 'active', type: 'bool'},
-            {
-                name: 'display_value',
-                convert: function (v, r) {
-                    if (r.get('local')) {
-                        return r.get('name') + ' (local)';
-                    }
-                    return r.get('printer_description') + ' (remote)';
-                }
-            }
-        ],
-        remoteFilter: false
-    }),
+    store: Ext.create('App.store.administration.PrinterCombo'),
+    // store: Ext.create('Ext.data.Store', {
+    //     fields: [
+    //         {
+    //             name: 'id',
+    //             type: 'string'
+    //         },
+    //         {name: 'name', type: 'string'},
+    //         {name: 'printer_description', type: 'string'},
+    //         {name: 'local', type: 'bool'},
+    //         {name: 'facility_id', type: 'int'},
+    //         {name: 'active', type: 'bool'},
+    //         {
+    //             name: 'display_value',
+    //             convert: function (v, r) {
+    //                 if (r.get('local')) {
+    //                     return r.get('name') + ' (local)';
+    //                 }
+    //                 return r.get('printer_description') + ' (remote)';
+    //             }
+    //         }
+    //     ],
+    //     remoteFilter: false
+    // }),
 
     showAllPrinters: function () {
         this.store.clearFilter();

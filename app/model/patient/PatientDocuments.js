@@ -28,6 +28,13 @@ Ext.define('App.model.patient.PatientDocuments', {
 			type: 'int'
 		},
 		{
+			name: 'global_id',
+			type: 'string',
+			len: 40,
+			useNull: true,
+			index: true
+		},
+		{
 			name: 'code',
 			type: 'string',
 			len: 120,
@@ -145,6 +152,21 @@ Ext.define('App.model.patient.PatientDocuments', {
 			type: 'string',
 			store: false,
 			useNull: true
+		},
+		{
+			name: 'pubpid',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'order_number',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'accession_number',
+			type: 'string',
+			store: false
 		},
 		{
 			name: 'disabled_selection',

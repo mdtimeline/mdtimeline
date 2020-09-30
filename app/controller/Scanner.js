@@ -114,9 +114,7 @@ Ext.define('App.controller.Scanner', {
 
 		if(!me.is_chrome_scan){
 
-
 			var progress_bar = this.getDocumentScanProgressBar();
-
 
 			progress_bar.wait({
 				interval: 100,
@@ -183,9 +181,11 @@ Ext.define('App.controller.Scanner', {
 
 		data.forEach(function (document) {
 			Ext.Array.push(documents, {
+				pubpid: app.patient.pubpid,
 				pid: app.patient.pid,
 				eid: app.patient.eid,
 				uid: app.user.id,
+				global_id: app.uuidv4(),
 				facility_id: app.user.facility,
 				docType: docTypeCmb.findRecordByValue(values.docTypeCode).get('option_name'),
 				docTypeCode: values.docTypeCode,
@@ -280,6 +280,11 @@ Ext.define('App.controller.Scanner', {
 			return;
 		}
 
+		if(win.default_values){
+			scan_documents_records.forEach(function (scan_documents_record){
+				scan_documents_record.set(win.default_values);
+			});
+		}
 
 		if(app.fireEvent('beforescandocumentssave', this, scan_documents_records) === false) return;
 
@@ -327,7 +332,7 @@ Ext.define('App.controller.Scanner', {
 
 	},
 
-	showDocumentScanWindow: function(){
+	showDocumentScanWindow: function(default_values){
 
 		if(!this.is_chrome_scan && !this.helperCtrl.connected){
 			app.msg(_('oops'), _('browser_helper_not_connected'), true);
@@ -338,6 +343,7 @@ Ext.define('App.controller.Scanner', {
 			Ext.create('App.view.scanner.DocumentScanWindow');
 		}
 
+		this.getUploadDocumentWindow().default_values = default_values;
 		this.getDocumentScanWindow().skip_validation = false;
 
 		return this.getDocumentScanWindow().show();

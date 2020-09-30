@@ -18634,6 +18634,13 @@ Ext.define('App.model.patient.PatientDocuments', {
 			type: 'int'
 		},
 		{
+			name: 'global_id',
+			type: 'string',
+			len: 40,
+			useNull: true,
+			index: true
+		},
+		{
 			name: 'code',
 			type: 'string',
 			len: 120,
@@ -18751,6 +18758,21 @@ Ext.define('App.model.patient.PatientDocuments', {
 			type: 'string',
 			store: false,
 			useNull: true
+		},
+		{
+			name: 'pubpid',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'order_number',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'accession_number',
+			type: 'string',
+			store: false
 		},
 		{
 			name: 'disabled_selection',
@@ -46125,6 +46147,7 @@ Ext.define('App.controller.Upload', {
 
 		me.control({
 			'#UploadDocumentWindow': {
+				show: me.onUploadDocumentWindowShow,
 				close: me.onUploadDocumentWindowClose
 			},
 			'#UploadCancelBtn': {
@@ -46137,15 +46160,22 @@ Ext.define('App.controller.Upload', {
 
 	},
 
+	onUploadDocumentWindowShow: function (win) {
+		if(win.default_values){
+			win.down('form').getForm().setValues(win.default_values);
+		}
+	},
+
 	onUploadDocumentWindowClose: function () {
 
 	},
 
-	showUploadWindow: function(){
+	showUploadWindow: function(default_values){
 
 		if(!this.getUploadDocumentWindow()){
 			Ext.create('App.view.upload.UploadDocumentWindow');
 		}
+		this.getUploadDocumentWindow().default_values = default_values;
 		return this.getUploadDocumentWindow().show();
 	},
 
@@ -46166,10 +46196,12 @@ Ext.define('App.controller.Upload', {
 		if(!form.isValid()) return;
 
 		values.date =  new Date();
+		values.pubpid =  app.patient.pubpid;
 		values.pid =  app.patient.pid;
 		values.eid =  app.patient.eid;
 		values.uid =  app.user.id;
 		values.facility_id =  app.user.facility;
+		values.global_id = app.uuidv4();
 
 		var docTypeRecord = docTypeCodeField.findRecordByValue(values.docTypeCode);
 		if(docTypeRecord){
@@ -69339,9 +69371,7 @@ Ext.define('App.controller.Scanner', {
 
 		if(!me.is_chrome_scan){
 
-
 			var progress_bar = this.getDocumentScanProgressBar();
-
 
 			progress_bar.wait({
 				interval: 100,
@@ -69408,9 +69438,11 @@ Ext.define('App.controller.Scanner', {
 
 		data.forEach(function (document) {
 			Ext.Array.push(documents, {
+				pubpid: app.patient.pubpid,
 				pid: app.patient.pid,
 				eid: app.patient.eid,
 				uid: app.user.id,
+				global_id: app.uuidv4(),
 				facility_id: app.user.facility,
 				docType: docTypeCmb.findRecordByValue(values.docTypeCode).get('option_name'),
 				docTypeCode: values.docTypeCode,
@@ -69505,6 +69537,11 @@ Ext.define('App.controller.Scanner', {
 			return;
 		}
 
+		if(win.default_values){
+			scan_documents_records.forEach(function (scan_documents_record){
+				scan_documents_record.set(win.default_values);
+			});
+		}
 
 		if(app.fireEvent('beforescandocumentssave', this, scan_documents_records) === false) return;
 
@@ -69552,7 +69589,7 @@ Ext.define('App.controller.Scanner', {
 
 	},
 
-	showDocumentScanWindow: function(){
+	showDocumentScanWindow: function(default_values){
 
 		if(!this.is_chrome_scan && !this.helperCtrl.connected){
 			app.msg(_('oops'), _('browser_helper_not_connected'), true);
@@ -69563,6 +69600,7 @@ Ext.define('App.controller.Scanner', {
 			Ext.create('App.view.scanner.DocumentScanWindow');
 		}
 
+		this.getUploadDocumentWindow().default_values = default_values;
 		this.getDocumentScanWindow().skip_validation = false;
 
 		return this.getDocumentScanWindow().show();
@@ -82748,8 +82786,14 @@ Ext.define('App.view.Viewport', {
 		var months = Math.floor(monthsDec); // Remove fraction from month.
 		days = Math.floor(daysInMonth * (monthsDec - months));
 		return {years: years, months: months, days: days};
-	}
+	},
 
+	uuidv4: function () {
+		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+			var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+			return v.toString(16);
+		});
+	}
 
 });
 

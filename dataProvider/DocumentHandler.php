@@ -244,6 +244,12 @@ class DocumentHandler
 
         return $record;
     }
+    public function getPatientDocumentByGlobalId($global_id, $include_document = false, $retun_binary = false)
+    {
+        $this->setPatientDocumentModel();
+        $this->d->addFilter('global_id', $global_id);
+        return  $this->getPatientDocument(null, $include_document, $retun_binary);
+    }
 
     public function getPatientDocumentBySql($sql, $include_document = false, $retun_binary = false)
     {

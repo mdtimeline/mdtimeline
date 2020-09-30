@@ -46,6 +46,7 @@ Ext.define('App.controller.Upload', {
 
 		me.control({
 			'#UploadDocumentWindow': {
+				show: me.onUploadDocumentWindowShow,
 				close: me.onUploadDocumentWindowClose
 			},
 			'#UploadCancelBtn': {
@@ -58,15 +59,22 @@ Ext.define('App.controller.Upload', {
 
 	},
 
+	onUploadDocumentWindowShow: function (win) {
+		if(win.default_values){
+			win.down('form').getForm().setValues(win.default_values);
+		}
+	},
+
 	onUploadDocumentWindowClose: function () {
 
 	},
 
-	showUploadWindow: function(){
+	showUploadWindow: function(default_values){
 
 		if(!this.getUploadDocumentWindow()){
 			Ext.create('App.view.upload.UploadDocumentWindow');
 		}
+		this.getUploadDocumentWindow().default_values = default_values;
 		return this.getUploadDocumentWindow().show();
 	},
 
@@ -87,10 +95,12 @@ Ext.define('App.controller.Upload', {
 		if(!form.isValid()) return;
 
 		values.date =  new Date();
+		values.pubpid =  app.patient.pubpid;
 		values.pid =  app.patient.pid;
 		values.eid =  app.patient.eid;
 		values.uid =  app.user.id;
 		values.facility_id =  app.user.facility;
+		values.global_id = app.uuidv4();
 
 		var docTypeRecord = docTypeCodeField.findRecordByValue(values.docTypeCode);
 		if(docTypeRecord){

@@ -2168,4 +2168,6 @@ $LANG = array(
     'activate' => 'Activate',
     'inactivate' => 'Inactivate',
     'print_jobs' => 'Print Jobs',
+    'rooms' => 'Rooms',
+    'room' => 'Room',
 );

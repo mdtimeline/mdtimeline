@@ -343,7 +343,7 @@ Ext.define('App.controller.Scanner', {
 			Ext.create('App.view.scanner.DocumentScanWindow');
 		}
 
-		this.getUploadDocumentWindow().default_values = default_values;
+		this.getDocumentScanWindow().default_values = default_values;
 		this.getDocumentScanWindow().skip_validation = false;
 
 		return this.getDocumentScanWindow().show();

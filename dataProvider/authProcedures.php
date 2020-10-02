@@ -149,7 +149,9 @@ class authProcedures {
 				'signature',
 				'password',
 				'password_date',
-				'is_attending'
+				'is_attending',
+				'is_resident',
+				'default_attending'
 			]
 		)->one();
 
@@ -280,6 +282,8 @@ class authProcedures {
 		$_SESSION['user']['localization'] = isset($params->lang) ? $params->lang : 'en_US';
 		$_SESSION['user']['npi'] = $user['npi'] ;
 		$_SESSION['user']['is_attending'] = $user['is_attending'] ;
+		$_SESSION['user']['is_resident'] = $user['is_resident'] ;
+		$_SESSION['user']['default_attending'] = $user['default_attending'] ;
 		$_SESSION['user']['site'] = site_name;
 		$_SESSION['user']['auth'] = true;
 		$_SESSION['user']['acl_groups'] = ACL::getUserGroups();

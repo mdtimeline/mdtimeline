@@ -164,6 +164,16 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                         fieldLabel: _('effective'),
                                                         labelWidth: 60,
                                                         width: 100
+                                                    },
+                                                    {
+                                                        xtype: 'checkboxfield',
+                                                        name: 'active',
+                                                        checked: false,
+                                                        itemId: 'PatientInsurancesFormIsActiveCkBox',
+                                                        fieldLabel: _('active'),
+                                                        margin: '0 0 0 25',
+                                                        labelAlign: 'right',
+                                                        labelWidth: 60
                                                     }
                                                     // {
                                                     //     xtype: 'datefield',

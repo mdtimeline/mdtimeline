@@ -45,7 +45,7 @@ Ext.define('App.model.patient.Insurance',{
         {
             name: 'insurance_type',
             type: 'string',
-            comment: 'P = primary S = supplemental C =complementary D = Disable',
+            comment: 'P = primary S = supplemental C =complementary',
             len: 1,
             index: true
         },
@@ -201,6 +201,10 @@ Ext.define('App.model.patient.Insurance',{
             type: 'string',
             dataType: 'mediumtext',
             comment: 'insurance image base64 string'
+        },
+        {
+            name: 'active',
+            type: 'bool'
         },
         {
             name: 'create_uid',

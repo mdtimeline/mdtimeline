@@ -291,6 +291,16 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
+			name: 'is_resident',
+			type: 'bool',
+			index: true
+		},
+		{
+			name: 'default_attending',
+			type: 'int',
+			index: true
+		},
+		{
 			name: 'fullname',
 			type: 'string',
 			comment: 'title full name',

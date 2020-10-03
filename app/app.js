@@ -14809,6 +14809,16 @@ Ext.define('App.model.administration.User', {
 			index: true
 		},
 		{
+			name: 'is_resident',
+			type: 'bool',
+			index: true
+		},
+		{
+			name: 'default_attending',
+			type: 'int',
+			index: true
+		},
+		{
 			name: 'fullname',
 			type: 'string',
 			comment: 'title full name',
@@ -67840,6 +67850,12 @@ Ext.define('App.view.administration.Users', {
 					sortable: true,
 					dataIndex: 'is_attending',
 					renderer: me.boolRenderer
+				},
+				{
+					text: _('is_resident'),
+					sortable: true,
+					dataIndex: 'is_resident',
+					renderer: me.boolRenderer
 				}
 			],
 			plugins: [
@@ -68141,6 +68157,11 @@ Ext.define('App.view.administration.Users', {
 													xtype: 'checkbox',
 													fieldLabel: _('is_attending'),
 													name: 'is_attending'
+												},
+												{
+													xtype: 'checkbox',
+													fieldLabel: _('is_resident'),
+													name: 'is_resident'
 												},
 												{
 													xtype: 'textfield',

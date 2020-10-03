@@ -1619,6 +1619,7 @@ $LANG = array(
     'financial'                             => 'Financial',
     'attending_physician'                   => 'Attending Physician',
     'is_attending'                          => 'Is Attending',
+    'is_resident'                          => 'Is Resident',
     'you_should_logout_before_quitting'     => 'You Should Logout Before Quitting',
     'condition'                             => 'Condition',
     'no_history_selected'                   => 'No History Selected',

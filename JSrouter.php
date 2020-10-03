@@ -103,7 +103,9 @@ if(!isset($_SESSION['site']['error']) && (isset($_SESSION['user']) && $_SESSION[
 	$userData['acl_roles'] = $_SESSION['user']['acl_roles'];
 	$userData['phone'] = $_SESSION['user']['phone'];
 	$userData['mobile'] = $_SESSION['user']['mobile'];
-	$userData['is_attending'] = $_SESSION['user']['is_attending'];
+	$userData['is_attending'] = isset($_SESSION['user']['is_attending']) ? $_SESSION['user']['is_attending'] : null ;
+	$userData['is_resident'] = isset($_SESSION['user']['is_resident']) ? $_SESSION['user']['is_resident'] : null;
+	$userData['default_attending'] = $_SESSION['user']['default_attending'];
 	$userData['signature'] = $_SESSION['user']['signature'];
 	unset($User);
 

@@ -416,11 +416,11 @@ tr.x-container:before {
   -ms-transform: rotate(90deg);
   -o-transform: rotate(90deg);
   transform: rotate(90deg);
-  -webkit-transform-origin: 0 0 0 50%;
-  -moz-transform-origin: 0 0 0 50%;
-  -ms-transform-origin: 0 0 0 50%;
-  -o-transform-origin: 0 0 0 50%;
-  transform-origin: 0 0 0 50%; }
+  -webkit-transform-origin: 0 0;
+  -moz-transform-origin: 0 0;
+  -ms-transform-origin: 0 0;
+  -o-transform-origin: 0 0;
+  transform-origin: 0 0; }
 
 /* line 26, ../../themes/stylesheets/carbon/custom/overrides/_panel.scss */
 .x-ie8 .x-panel-header-default-vertical .x-panel-header-text-container, .x-ie7 .x-panel-header-default-vertical .x-panel-header-text-container, .x-ie9 .x-panel-header-default-vertical .x-panel-header-text-container {
@@ -442,11 +442,11 @@ tr.x-container:before {
   -ms-transform: rotate(90deg);
   -o-transform: rotate(90deg);
   transform: rotate(90deg);
-  -webkit-transform-origin: 0 0 0 50%;
-  -moz-transform-origin: 0 0 0 50%;
-  -ms-transform-origin: 0 0 0 50%;
-  -o-transform-origin: 0 0 0 50%;
-  transform-origin: 0 0 0 50%; }
+  -webkit-transform-origin: 0 0;
+  -moz-transform-origin: 0 0 0;
+  -ms-transform-origin: 0 0;
+  -o-transform-origin: 0 0;
+  transform-origin: 0 0; }
 
 /* line 26, ../../themes/stylesheets/carbon/custom/overrides/_panel.scss */
 .x-ie8 .x-panel-header-default-framed-vertical .x-panel-header-text-container, .x-ie7 .x-panel-header-default-framed-vertical .x-panel-header-text-container, .x-ie9 .x-panel-header-default-framed-vertical .x-panel-header-text-container {

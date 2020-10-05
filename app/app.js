@@ -20302,7 +20302,7 @@ Ext.define('App.model.patient.Insurance',{
         {
             name: 'insurance_type',
             type: 'string',
-            comment: 'P = primary S = supplemental C =complementary D = Disable',
+            comment: 'P = primary S = supplemental C =complementary',
             len: 1,
             index: true
         },
@@ -20458,6 +20458,10 @@ Ext.define('App.model.patient.Insurance',{
             type: 'string',
             dataType: 'mediumtext',
             comment: 'insurance image base64 string'
+        },
+        {
+            name: 'active',
+            type: 'bool'
         },
         {
             name: 'create_uid',
@@ -50738,6 +50742,10 @@ Ext.define('App.controller.patient.Insurance', {
             ref: 'BillingPatientInsuranceCoverInformationDeductibleField',
             selector: '#BillingPatientInsuranceCoverInformationDeductibleField'
         },
+        {
+            ref: 'PatientInsurancesFormIsActiveBtn',
+            selector: '#PatientInsurancesFormIsActiveBtn'
+        },
 
         // insurance window
         {
@@ -50799,11 +50807,23 @@ Ext.define('App.controller.patient.Insurance', {
 
             '#InsuranceSubscriberAddressCopyBtn': {
                 click: me.onInsuranceSubscriberAddressCopyBtnClick
+            },
+
+            '#PatientInsurancesFormIsActiveCkBox': {
+                change: me.onPatientInsurancesFormIsActiveCkBoxChange
             }
 
         });
 
         me.doPatientInsurancesWindowCloseBuffered = Ext.Function.createBuffered(me.doPatientInsurancesWindowClose, 250, me);
+    },
+
+    onPatientInsurancesFormIsActiveCkBoxChange: function (field){
+
+        var form = field.up('form').getForm(),
+            values = form.getValues();
+
+
     },
 
     onInsuranceSubscriberAddressCopyBtnClick: function (btn){
@@ -50923,15 +50943,17 @@ Ext.define('App.controller.patient.Insurance', {
             {
                 sorterFn: function (o1, o2) {
                     var getRank = function (o) {
-                            var insurance_type = o.get('insurance_type');
 
-                            if (insurance_type === 'P') {
+                            var insurance_type = o.get('insurance_type'),
+                                active = o.get('active');
+
+                            if ((insurance_type === 'P') && (active)) {
                                 return 1;
-                            } else if (insurance_type === 'C') {
+                            } else if ((insurance_type === 'C') && (active)) {
                                 return 2;
-                            } else if (insurance_type === 'S') {
+                            } else if ((insurance_type === 'S') && (active)) {
                                 return 3;
-                            } else if (insurance_type === 'T') {
+                            } else if ((insurance_type === 'T') && (active)) {
                                 return 4;
                             } else {
                                 return 5;
@@ -51079,6 +51101,7 @@ Ext.define('App.controller.patient.Insurance', {
             subscriber_country: app.patient.record.get('postal_country'),
             subscriber_postal_code: app.patient.record.get('postal_zip'),
 
+            active: true,
             create_uid: app.user.id,
             update_uid: app.user.id,
             create_date: new Date(),
@@ -75784,6 +75807,16 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                         fieldLabel: _('effective'),
                                                         labelWidth: 60,
                                                         width: 100
+                                                    },
+                                                    {
+                                                        xtype: 'checkboxfield',
+                                                        name: 'active',
+                                                        checked: false,
+                                                        itemId: 'PatientInsurancesFormIsActiveCkBox',
+                                                        fieldLabel: _('active'),
+                                                        margin: '0 0 0 25',
+                                                        labelAlign: 'right',
+                                                        labelWidth: 60
                                                     }
                                                     // {
                                                     //     xtype: 'datefield',

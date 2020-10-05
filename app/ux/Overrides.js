@@ -16,6 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+Ext.override(Ext.util.Format, {
+
+	originalNumberFormatter: Ext.util.Format.number,
+
+	number: function (v, formatString) {
+		if (v < 0) {
+			//negative number: flip the sign, format then prepend '-' onto output
+			return '-' + this.originalNumberFormatter(v * -1, formatString);
+		} else {
+			//positive number: as you were
+			return this.originalNumberFormatter(v, formatString);
+		}
+
+	}
+});
+
+
 Ext.override(Ext.tree.ViewDragZone, {
 	onBeforeDrag: function (data, e) {
 		return this.view.fireEvent('beforedrag');

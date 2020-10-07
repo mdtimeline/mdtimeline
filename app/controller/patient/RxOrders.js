@@ -351,7 +351,8 @@ Ext.define('App.controller.patient.RxOrders', {
 			sm = grid.getSelectionModel(),
 			store = grid.getStore(),
 			selection = sm.getSelection(),
-			newDate = new Date(),
+			newDate = app.getDate(),
+			records_data = [],
 			records,
 			data;
 
@@ -376,10 +377,14 @@ Ext.define('App.controller.patient.RxOrders', {
 
 			// clear the id
 			data.id = null;
-			records = store.insert(0, data);
+			records_data.push(data);
 		}
 
-		grid.editingPlugin.startEdit(records[0], 0);
+		records = store.insert(0, records_data);
+
+		store.sync();
+
+		//grid.editingPlugin.startEdit(records[0], 0);
 
 		return records;
 	},

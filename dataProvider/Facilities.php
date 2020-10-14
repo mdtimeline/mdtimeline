@@ -144,7 +144,7 @@ class Facilities {
 	 */
 	public function getActiveFacilities(){
 		$this->setFacilityModel();
-		return $this->f->load(['active' => '1'])->one();
+		return $this->f->load(['active' => '1'])->all();
 	}
 	/**
 	 * @return mixed

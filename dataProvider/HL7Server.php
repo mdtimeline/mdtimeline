@@ -947,7 +947,7 @@ INI_CONFIG;
 //					$bAccount = $this->pa->load(['account_no_alt' => $account_no_alt])->sortBy('created_date','DESC')->one();
 				}
 
-				if(isset($bAccount)){
+				if(isset($bAccount) && $bAccount !== false){
 					$bPatient = $this->p->load(['pid' => $bAccount['pid']])->one();
 				}else{
 					$bPatient = false;

@@ -662,7 +662,12 @@ Ext.define('App.view.Viewport', {
 			                    	xtype: 'button',
 				                    text: _('print_jobs'),
 				                    itemId: 'ApplicationFooterPrintJobsBtn'
-			                    }
+			                    },
+								// {
+								// 	xtype: 'button',
+								// 	text: 'Test Document Viewer',
+								// 	itemId: 'ApplicationFooterTestDocumentViewerBtn'
+								// }
 		                    ]
 	                    },
 	                    '-',

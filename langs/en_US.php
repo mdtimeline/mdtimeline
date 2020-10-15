@@ -2195,5 +2195,11 @@ $LANG = array(
     'archive_and_add_to_print_jobs' => 'Archive and add to print job queue',
     'document_title' => 'Document Title',
     'document_doc_type' => 'Document Type',
+    'document_note' => 'Document Note',
+    'med' => 'Med',
+    'printing' => 'Printing',
+    'archive_and_add_to_print_jobs' => 'Archive and add to print job queue',
+    'document_title' => 'Document Title',
+    'document_doc_type' => 'Document Type',
     'document_note' => 'Document Note'
 );

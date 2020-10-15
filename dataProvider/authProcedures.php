@@ -20,6 +20,7 @@
 include_once(ROOT . '/classes/Sessions.php');
 include_once(ROOT . '/classes/Network.php');
 include_once(ROOT . '/classes/Crypt.php');
+include_once(ROOT . '/dataProvider/Client.php');
 include_once(ROOT . '/dataProvider/Patient.php');
 
 class authProcedures {
@@ -197,6 +198,18 @@ class authProcedures {
 	}
 
 	public function doAuth($params, $user){
+
+	    // check client lic.
+	    $Client = new Client();
+	    $access = $Client->hasAccess();
+
+        if(!$access['success']){
+            return [
+                'success' => false,
+                'type' => 'error',
+                'message' => $access['errorMsg']
+            ];
+        }
 
 		if(!Network::isLocalAddress() && !ACL::hasPermissionByUid('allow_access_on_public_ips', $user['id'])){
 			return [

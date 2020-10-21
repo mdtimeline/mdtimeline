@@ -89,7 +89,9 @@ class SoapHandler
 
 		if (!defined('_GaiaEXEC')) define('_GaiaEXEC', 1);
 
-		define('SITE', $params->ServerSite);
+		if(!defined('SITE')) {
+		    define('SITE', $params->ServerSite);
+        }
 
 		include_once(str_replace('\\', '/', dirname(__FILE__)) . '/../../registry.php');
 		include_once(ROOT . "/sites/{$this->site}/conf.php");

@@ -2045,6 +2045,7 @@ class HL7Messages {
         unset($age_from, $time);
 
 	}
+
 	private function setEncounter() {
 		$this->encounter = $this->e->load($this->encounter)->one();
 		if($this->encounter === false)
@@ -2124,6 +2125,24 @@ class HL7Messages {
 		foreach ($clients as $client){
 			$hl7_client = new HL7Client($client['address'], $client['port']);
 			$response = $hl7_client->Send($message_record['message']);
+			$responses[] = $response;
+		}
+
+		return $responses;
+	}
+
+	public function getResendMessage($message){
+
+        $message = trim(str_replace("\n", "\r", $message));
+        $message = str_replace(chr(28), "", $message);
+
+		$this->c->addFilter('active', 1);
+		$clients = $this->c->load()->all();
+		$responses = [];
+
+		foreach ($clients as $client){
+			$hl7_client = new HL7Client($client['address'], $client['port']);
+			$response = $hl7_client->Send($message);
 			$responses[] = $response;
 		}
 

@@ -47,6 +47,14 @@ Ext.define('App.controller.administration.HL7', {
 		{
 			ref: 'HL7MessageViewerForm',
 			selector: '#HL7MessageViewerForm'
+		},
+		{
+			ref: 'HL7MessageViewerRawMessageField',
+			selector: '#HL7MessageViewerRawMessageField'
+		},
+		{
+			ref: 'HL7MessageViewerMessageField',
+			selector: '#HL7MessageViewerMessageField'
 		}
 	],
 
@@ -104,6 +112,9 @@ Ext.define('App.controller.administration.HL7', {
 			},
 			'#HL7MessageViewerWindowCloseBtn': {
 				click: me.onHL7MessageViewerWindowCloseBtnClick
+			},
+			'#HL7MessageViewerMessageEditBtn': {
+				toggle: me.onHL7MessageViewerMessageEditBtnToggle
 			}
 		});
 
@@ -295,6 +306,7 @@ Ext.define('App.controller.administration.HL7', {
 			form = win.down('form').getForm();
 
 		HL7Messages.getMessageById(message_id, function(response){
+			response.raw_message = Ext.clone(response.message).split("\r").join("\r\n");
 			response.message = me.colourizer(response.message);
 			response.response = me.colourizer(response.response);
 			form.setValues(response);
@@ -317,7 +329,7 @@ Ext.define('App.controller.administration.HL7', {
 
 	onHL7MessageViewerWindowResendBtnClick: function(btn){
 		var values = btn.up('window').down('form').getForm().getValues(),
-			message_id = values.id,
+			message = values.raw_message,
 			is_outbound = values.isOutbound;
 
 		if(!is_outbound){
@@ -325,12 +337,19 @@ Ext.define('App.controller.administration.HL7', {
 			return;
 		}
 
-		HL7Messages.getResendMessageById(message_id, function (response) {
+		HL7Messages.getResendMessage(message, function (response) {
 
 			say(response);
 
 
 		});
+	},
+
+	onHL7MessageViewerMessageEditBtnToggle: function (btn, pressed){
+
+		this.getHL7MessageViewerRawMessageField().setVisible(pressed);
+		this.getHL7MessageViewerMessageField().setVisible(!pressed);
+
 	},
 
 	onHL7MessageViewerWindowPreviousBtnClick: function(btn){

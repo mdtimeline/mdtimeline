@@ -40221,6 +40221,14 @@ Ext.define('App.controller.administration.HL7', {
 		{
 			ref: 'HL7MessageViewerForm',
 			selector: '#HL7MessageViewerForm'
+		},
+		{
+			ref: 'HL7MessageViewerRawMessageField',
+			selector: '#HL7MessageViewerRawMessageField'
+		},
+		{
+			ref: 'HL7MessageViewerMessageField',
+			selector: '#HL7MessageViewerMessageField'
 		}
 	],
 
@@ -40278,6 +40286,9 @@ Ext.define('App.controller.administration.HL7', {
 			},
 			'#HL7MessageViewerWindowCloseBtn': {
 				click: me.onHL7MessageViewerWindowCloseBtnClick
+			},
+			'#HL7MessageViewerMessageEditBtn': {
+				toggle: me.onHL7MessageViewerMessageEditBtnToggle
 			}
 		});
 
@@ -40469,6 +40480,7 @@ Ext.define('App.controller.administration.HL7', {
 			form = win.down('form').getForm();
 
 		HL7Messages.getMessageById(message_id, function(response){
+			response.raw_message = Ext.clone(response.message).split("\r").join("\r\n");
 			response.message = me.colourizer(response.message);
 			response.response = me.colourizer(response.response);
 			form.setValues(response);
@@ -40491,7 +40503,7 @@ Ext.define('App.controller.administration.HL7', {
 
 	onHL7MessageViewerWindowResendBtnClick: function(btn){
 		var values = btn.up('window').down('form').getForm().getValues(),
-			message_id = values.id,
+			message = values.raw_message,
 			is_outbound = values.isOutbound;
 
 		if(!is_outbound){
@@ -40499,12 +40511,19 @@ Ext.define('App.controller.administration.HL7', {
 			return;
 		}
 
-		HL7Messages.getResendMessageById(message_id, function (response) {
+		HL7Messages.getResendMessage(message, function (response) {
 
 			say(response);
 
 
 		});
+	},
+
+	onHL7MessageViewerMessageEditBtnToggle: function (btn, pressed){
+
+		this.getHL7MessageViewerRawMessageField().setVisible(pressed);
+		this.getHL7MessageViewerMessageField().setVisible(!pressed);
+
 	},
 
 	onHL7MessageViewerWindowPreviousBtnClick: function(btn){
@@ -66191,7 +66210,7 @@ Ext.define('App.view.administration.HL7MessageViewer', {
 	extend: 'Ext.window.Window',
 	title: _('hl7_viewer'),
 	itemId: 'HL7MessageViewerWindow',
-	width: 1000,
+	width: 1200,
 	maximizable: true,
 	modal: true,
 	layout: 'fit',
@@ -66258,6 +66277,21 @@ Ext.define('App.view.administration.HL7MessageViewer', {
 					]
 				},
 				{
+					xtype: 'button',
+					text: 'Edit Message',
+					itemId: 'HL7MessageViewerMessageEditBtn',
+					enableToggle: true
+				},
+				{
+					xtype: 'textareafield',
+					fieldLabel: 'Editable Message',
+					name: 'raw_message',
+					readOnly: false,
+					height: 250,
+					hidden: true,
+					itemId: 'HL7MessageViewerRawMessageField',
+				},
+				{
 					xtype: 'htmleditor',
 					fieldLabel: _('message'),
 					name: 'message',
@@ -66269,7 +66303,8 @@ Ext.define('App.view.administration.HL7MessageViewer', {
 					enableFormat: false,
 					enableLinks: false,
 					enableLists: false,
-					enableSourceEdit: false
+					enableSourceEdit: false,
+					itemId: 'HL7MessageViewerMessageField',
 				},
 				{
 					xtype: 'htmleditor',

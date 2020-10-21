@@ -22,7 +22,7 @@ Ext.define('App.view.administration.HL7MessageViewer', {
 	extend: 'Ext.window.Window',
 	title: _('hl7_viewer'),
 	itemId: 'HL7MessageViewerWindow',
-	width: 1000,
+	width: 1200,
 	maximizable: true,
 	modal: true,
 	layout: 'fit',
@@ -89,6 +89,21 @@ Ext.define('App.view.administration.HL7MessageViewer', {
 					]
 				},
 				{
+					xtype: 'button',
+					text: 'Edit Message',
+					itemId: 'HL7MessageViewerMessageEditBtn',
+					enableToggle: true
+				},
+				{
+					xtype: 'textareafield',
+					fieldLabel: 'Editable Message',
+					name: 'raw_message',
+					readOnly: false,
+					height: 250,
+					hidden: true,
+					itemId: 'HL7MessageViewerRawMessageField',
+				},
+				{
 					xtype: 'htmleditor',
 					fieldLabel: _('message'),
 					name: 'message',
@@ -100,7 +115,8 @@ Ext.define('App.view.administration.HL7MessageViewer', {
 					enableFormat: false,
 					enableLinks: false,
 					enableLists: false,
-					enableSourceEdit: false
+					enableSourceEdit: false,
+					itemId: 'HL7MessageViewerMessageField',
 				},
 				{
 					xtype: 'htmleditor',

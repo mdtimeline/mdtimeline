@@ -555,6 +555,16 @@ class Documents
             $pdf->setHeaderBodySpace($template['header_body_space']);
         }
 
+        $tagvs = array(
+            'b' => array(0 => array('h' => 0, 'n' => 0), 1 => array('h' => 0, 'n' => 0)),
+            'p' => array(0 => array('h' => 0, 'n' => 0), 1 => array('h' => 0, 'n' => 0)),
+            'br' => array(0 => array('h' => 1.5, 'n' => 1.5), 1 => array('h' => 1.5, 'n' => 1.5)),
+            'ul' => array(0 => array('h' => 0, 'n' => 0), 1 => array('h' => 0, 'n' => 0)),
+            'ol' => array(0 => array('h' => 0, 'n' => 0), 1 => array('h' => 0, 'n' => 0)),
+            'div' => array(0 => array('h' => 0, 'n' => 0), 1 => array('h' => 0, 'n' => 0))
+        );
+        $pdf->setHtmlVSpace($tagvs);
+
         if (isset($params->custom_font_family)) {
             $font['family'] = $params->custom_font_family;
         }

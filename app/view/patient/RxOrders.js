@@ -137,27 +137,27 @@ Ext.define('App.view.patient.RxOrders', {
 											decimalPrecision: 3,
 											maxLength: 10,
 											allowBlank: false,
-											fixPrecision: function(value){
+											fixPrecision: function (value) {
 												var me = this,
 													nan = isNaN(value),
 													precision = me.decimalPrecision,
-                                                    num,
-                                                    numArr;
+													num,
+													numArr;
 
-												if(nan || !value){
+												if (nan || !value) {
 													return nan ? '' : value;
-												}else if(!me.allowDecimals || precision <= 0){
+												} else if (!me.allowDecimals || precision <= 0) {
 													precision = 0;
 												}
 												num = String(value);
-												if(num.indexOf('.') !== -1){
+												if (num.indexOf('.') !== -1) {
 													numArr = num.split(".");
-													if(numArr.length == 1){
+													if (numArr.length == 1) {
 														return Number(num);
-													}else{
+													} else {
 														return Number(numArr[0] + "." + numArr[1].charAt(0) + numArr[1].charAt(1) + numArr[1].charAt(2));
 													}
-												}else{
+												} else {
 													return Number(num);
 												}
 											}
@@ -243,7 +243,7 @@ Ext.define('App.view.patient.RxOrders', {
 									fieldLabel: '*' + _('notes_to_pharmacist'),
 									itemId: 'RxOrderGridFormNotesField',
 									name: 'notes',
-									plugins:[
+									plugins: [
 										{
 											ptype: 'helpicon',
 											helpMsg: _('rx_notes_to_pharmacist_warning')
@@ -267,7 +267,7 @@ Ext.define('App.view.patient.RxOrders', {
 								{
 									xtype: 'container',
 									layout: 'hbox',
-									items:[
+									items: [
 										{
 											xtype: 'checkboxfield',
 											fieldLabel: _('daw'),
@@ -366,7 +366,7 @@ Ext.define('App.view.patient.RxOrders', {
 			width: 40,
 			dataIndex: 'daw',
 			tooltip: _('dispensed_as_written'),
-			renderer: function(v){
+			renderer: function (v) {
 				return app.boolRenderer(v);
 			}
 		},
@@ -389,7 +389,7 @@ Ext.define('App.view.patient.RxOrders', {
 			header: _('related_dx'),
 			width: 200,
 			dataIndex: 'dxs',
-			renderer: function(v){
+			renderer: function (v) {
 				return v == false || v == 'false' || v[0] == false ? '' : v;
 			}
 		},
@@ -408,53 +408,91 @@ Ext.define('App.view.patient.RxOrders', {
 			dataIndex: 'end_date'
 		}
 	],
-	bbar: [
+
+	dockedItems: [
 		{
-			xtype: 'button',
-			text: _('show_all_medicatios'),
-			enableToggle: true,
-			stateful: true,
-			stateEvents: ['press'],
-			stateId: 'RxOrdersShowAllMedicationsBtnState',
-			itemId: 'RxOrdersShowAllMedicationsBtn',
-			getState: function() {
-				return { pressed: this.pressed };
-			},
-			applyState: function(state) {
-				this.toggle(state.pressed);
-			},
-			listeners: {
-				toggle: function(self, pressed, eOpts) {
-					this.fireEvent('press');
+			xtype: 'toolbar',
+			dock: 'top',
+			itemId: 'RxOrdersGridTopToolbar',
+			items: [
+				'Show: ',
+				{
+					text: _('all'),
+					action: 'rx_show',
+					action2: 'all',
+					pressed: true,
+					enableToggle: true,
+					toggleGroup: 'rxshowgroup'
+				},
+				'-',
+				{
+					text: _('last_6_months'),
+					action: 'rx_show',
+					action2: 'last_6_months',
+					enableToggle: true,
+					toggleGroup: 'rxshowgroup'
+				},
+				'-',
+				{
+					text: _('last_year'),
+					action: 'rx_show',
+					action2: 'last_year',
+					enableToggle: true,
+					toggleGroup: 'rxshowgroup'
+				},
+				'-',
+				'->',
+				'-',
+				{
+					text: _('new_order'),
+					iconCls: 'icoAdd',
+					action: 'encounterRecordAdd',
+					itemId: 'newRxOrderBtn'
+				},
+				'-',
+				{
+					text: _('clone_order'),
+					iconCls: 'icoAdd',
+					disabled: true,
+					margin: '0 5 0 0',
+					action: 'encounterRecordAdd',
+					itemId: 'cloneRxOrderBtn'
+				},
+				'-',
+				{
+					text: _('print'),
+					iconCls: 'icoPrint',
+					disabled: true,
+					margin: '0 5 0 0',
+					itemId: 'printRxOrderBtn'
+				}]
+		},
+		{
+			xtype: 'toolbar',
+			dock: 'bottom',
+			itemId: 'RxOrdersGridBottomToolbar',
+			items: [
+				{
+					xtype: 'button',
+					text: _('show_all_medicatios'),
+					enableToggle: true,
+					stateful: true,
+					stateEvents: ['press'],
+					stateId: 'RxOrdersShowAllMedicationsBtnState',
+					itemId: 'RxOrdersShowAllMedicationsBtn',
+					getState: function () {
+						return {pressed: this.pressed};
+					},
+					applyState: function (state) {
+						this.toggle(state.pressed);
+					},
+					listeners: {
+						toggle: function (self, pressed, eOpts) {
+							this.fireEvent('press');
+						}
+					}
 				}
-			}
-		}
-	],
-	tbar: [
-		'->',
-		'-',
-		{
-			text: _('new_order'),
-			iconCls: 'icoAdd',
-			action: 'encounterRecordAdd',
-			itemId: 'newRxOrderBtn'
-		},
-		'-',
-		{
-			text: _('clone_order'),
-			iconCls: 'icoAdd',
-			disabled: true,
-			margin: '0 5 0 0',
-			action: 'encounterRecordAdd',
-			itemId: 'cloneRxOrderBtn'
-		},
-		'-',
-		{
-			text: _('print'),
-			iconCls: 'icoPrint',
-			disabled: true,
-			margin: '0 5 0 0',
-			itemId: 'printRxOrderBtn'
+			]
 		}
 	]
 });

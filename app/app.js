@@ -43530,6 +43530,10 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 		{
 			ref: 'NavigationPatientPoolAreaFloorPlanZonesCombo',
 			selector: '#NavigationPatientPoolAreaFloorPlanZonesCombo'
+		},
+		{
+			ref: 'PatientPoolAreasDisableAlertColorsBtn',
+			selector: '#PatientPoolAreasDisableAlertColorsBtn'
 		}
 
 
@@ -43540,7 +43544,8 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 
 		me.control({
 			'#PatientPoolAreasPanel grid': {
-				beforeitemcontextmenu: me.onPatientPoolAreasGridBeforeItemContextMenu
+				beforeitemcontextmenu: me.onPatientPoolAreasGridBeforeItemContextMenu,
+				beforerender: me.onPatientPoolAreasGridBeforeRender
 			},
 			'#PatientPoolAreasRemovePatientMenu': {
 				click: me.onPatientPoolAreasRemovePatientMenuClick
@@ -43559,10 +43564,26 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 			},
 			'#NavigationPatientPoolAreaFloorPlanZonesCombo': {
 				beforerender: me.onNavigationPatientPoolAreaFloorPlanZonesComboBeforeRender
+			},
+			'#PatientPoolAreasDisableAlertColorsBtn': {
+				toggle: me.onPatientPoolAreasDisableAlertColorsBtnToggle
 			}
 		});
 
 		me.reloadAreaBuffer = Ext.Function.createBuffered(me.reloadArea, 50, me);
+	},
+
+	onPatientPoolAreasDisableAlertColorsBtnToggle: function (btn, pressed){
+		var area_grids = this.getPatientPoolAreasPanel().query('grid');
+
+		area_grids.forEach(function (grid){
+			grid.showAlertColor = !pressed;
+			grid.view.refresh();
+		});
+	},
+
+	onPatientPoolAreasGridBeforeRender: function (grid){
+		grid.showAlertColor = !this.getPatientPoolAreasDisableAlertColorsBtn().pressed;
 	},
 
 	getSelectedPoolAreaZones: function(){
@@ -55478,6 +55499,10 @@ Ext.define('App.controller.patient.RxOrders', {
 			selector: 'patientrxorderspanel'
 		},
 		{
+			ref: 'RxOrdersGridTopToolbar',
+			selector: '#RxOrdersGridTopToolbar'
+		},
+		{
 			ref: 'RxNormOrderLiveSearch',
 			selector: '#RxNormOrderLiveSearch'
 		},
@@ -55528,6 +55553,9 @@ Ext.define('App.controller.patient.RxOrders', {
 				beforerender: me.onRxOrdersGridBeforeRender,
 				beforeedit: me.onRxOrdersGridBeforeEdit,
 				edit: me.onRxOrdersGridEdit
+			},
+			'#RxOrdersGridTopToolbar > button[action=rx_show]': {
+				toggle: me.onRxOrdersGridShowBtnToggle
 			},
 			'#RxNormOrderLiveSearch': {
 				beforeselect: me.onRxNormOrderLiveSearchBeforeSelect
@@ -55967,8 +55995,14 @@ Ext.define('App.controller.patient.RxOrders', {
 		});
 	},
 
+	onRxOrdersGridShowBtnToggle: function (btn, pressed){
+		if(pressed){
+			this.doLoadOrdersGrid();
+		}
+	},
+
 	onRxOrdersGridActive: function(){
-		this.doLoadOrdersGrid()
+		this.doLoadOrdersGrid();
 	},
 
 	doAddOrderByTemplate: function(data){
@@ -55998,7 +56032,8 @@ Ext.define('App.controller.patient.RxOrders', {
 		if(!this.getRxOrdersGrid()) return;
 
 		var grid = this.getRxOrdersGrid(),
-			store = grid.getStore();
+			store = grid.getStore(),
+			show_btn = this.getRxOrdersGridTopToolbar().query('button[pressed]');
 
 		if(!grid.editingPlugin.editing){
 
@@ -56009,8 +56044,22 @@ Ext.define('App.controller.patient.RxOrders', {
 				}
 			];
 
+			if(show_btn.length > 0 && show_btn[0].action2 === 'last_6_months'){
+				filters.push({
+					property: 'date_ordered',
+					operator: '>=',
+					value: Ext.util.Format.date(Ext.Date.subtract(new Date(), Ext.Date.MONTH, 6), 'Y-m-d H:i:s')
+				});
+			}else if(show_btn.length > 0 && show_btn[0].action2 === 'last_year'){
+				filters.push({
+					property: 'date_ordered',
+					operator: '>=',
+					value: Ext.util.Format.date(Ext.Date.subtract(new Date(), Ext.Date.MONTH, 12), 'Y-m-d H:i:s')
+				});
+			}
+
 			if(!this.getRxOrdersShowAllMedicationsBtn().pressed){
-				Ext.Array.push(filters, {
+				filters.push({
 					property: 'date_ordered',
 					operator: '!=',
 					value: null
@@ -61519,6 +61568,15 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 		};
 
 		me.pageBBar = [
+			{
+				xtype: 'button',
+				text: _('disable_alert_colors'),
+				enableToggle: true,
+				stateful: true,
+				stateId: 'PatientPoolAreasDisableAlertColorsBtnState',
+				itemId: 'PatientPoolAreasDisableAlertColorsBtn',
+
+			},
 			'->',
 			{
 				xtype: 'button',
@@ -61661,6 +61719,7 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 					collapsible: true,
 					collapseDirection: 'left',
 					animCollapse: false,
+					showAlertColor: true,
 					columns: [
 						Ext.create('Ext.grid.RowNumberer'),
 						{
@@ -61669,7 +61728,9 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 							dataIndex: 'pubpid',
 							hidden: true,
 							renderer: function (v,m,r) {
-								m.style = 'background-color:' + r.get('alert_color');
+								if(this.showAlertColor){
+									m.style = 'background-color:' + r.get('alert_color');
+								}
 								return v;
 							}
 						},
@@ -61678,7 +61739,9 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 							flex: 1,
 							dataIndex: 'lname',
 							renderer: function (v,m,r) {
-								m.style = 'background-color:' + r.get('alert_color');
+								if(this.showAlertColor) {
+									m.style = 'background-color:' + r.get('alert_color');
+								}
 								return Ext.String.format(
 									'{0}{1}, {2} {3}',
 									(r.get('eid') ? '*':''),
@@ -61693,7 +61756,9 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 							width: 65,
 							dataIndex: 'time_in',
 							renderer: function (v,m,r) {
-								m.style = 'background-color:' + r.get('alert_color');
+								if(this.showAlertColor) {
+									m.style = 'background-color:' + r.get('alert_color');
+								}
 								return Ext.Date.format(v,g('time_display_format'));
 							}
 						},
@@ -61702,7 +61767,9 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 							width: 65,
 							dataIndex: 'appointment_time',
 							renderer: function (v,m,r) {
-								m.style = 'background-color:' + r.get('alert_color');
+								if(this.showAlertColor) {
+									m.style = 'background-color:' + r.get('alert_color');
+								}
 								return Ext.Date.format(v,g('time_display_format'));
 							}
 						},
@@ -61711,7 +61778,9 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 							width: 65,
 							dataIndex: 'timer',
 							renderer: function (v,m,r) {
-								m.style = 'background-color:' + r.get('alert_color');
+								if(this.showAlertColor) {
+									m.style = 'background-color:' + r.get('alert_color');
+								}
 								return v;
 							}
 						}
@@ -73159,27 +73228,27 @@ Ext.define('App.view.patient.RxOrders', {
 											decimalPrecision: 3,
 											maxLength: 10,
 											allowBlank: false,
-											fixPrecision: function(value){
+											fixPrecision: function (value) {
 												var me = this,
 													nan = isNaN(value),
 													precision = me.decimalPrecision,
-                                                    num,
-                                                    numArr;
+													num,
+													numArr;
 
-												if(nan || !value){
+												if (nan || !value) {
 													return nan ? '' : value;
-												}else if(!me.allowDecimals || precision <= 0){
+												} else if (!me.allowDecimals || precision <= 0) {
 													precision = 0;
 												}
 												num = String(value);
-												if(num.indexOf('.') !== -1){
+												if (num.indexOf('.') !== -1) {
 													numArr = num.split(".");
-													if(numArr.length == 1){
+													if (numArr.length == 1) {
 														return Number(num);
-													}else{
+													} else {
 														return Number(numArr[0] + "." + numArr[1].charAt(0) + numArr[1].charAt(1) + numArr[1].charAt(2));
 													}
-												}else{
+												} else {
 													return Number(num);
 												}
 											}
@@ -73265,7 +73334,7 @@ Ext.define('App.view.patient.RxOrders', {
 									fieldLabel: '*' + _('notes_to_pharmacist'),
 									itemId: 'RxOrderGridFormNotesField',
 									name: 'notes',
-									plugins:[
+									plugins: [
 										{
 											ptype: 'helpicon',
 											helpMsg: _('rx_notes_to_pharmacist_warning')
@@ -73289,7 +73358,7 @@ Ext.define('App.view.patient.RxOrders', {
 								{
 									xtype: 'container',
 									layout: 'hbox',
-									items:[
+									items: [
 										{
 											xtype: 'checkboxfield',
 											fieldLabel: _('daw'),
@@ -73388,7 +73457,7 @@ Ext.define('App.view.patient.RxOrders', {
 			width: 40,
 			dataIndex: 'daw',
 			tooltip: _('dispensed_as_written'),
-			renderer: function(v){
+			renderer: function (v) {
 				return app.boolRenderer(v);
 			}
 		},
@@ -73411,7 +73480,7 @@ Ext.define('App.view.patient.RxOrders', {
 			header: _('related_dx'),
 			width: 200,
 			dataIndex: 'dxs',
-			renderer: function(v){
+			renderer: function (v) {
 				return v == false || v == 'false' || v[0] == false ? '' : v;
 			}
 		},
@@ -73430,53 +73499,91 @@ Ext.define('App.view.patient.RxOrders', {
 			dataIndex: 'end_date'
 		}
 	],
-	bbar: [
+
+	dockedItems: [
 		{
-			xtype: 'button',
-			text: _('show_all_medicatios'),
-			enableToggle: true,
-			stateful: true,
-			stateEvents: ['press'],
-			stateId: 'RxOrdersShowAllMedicationsBtnState',
-			itemId: 'RxOrdersShowAllMedicationsBtn',
-			getState: function() {
-				return { pressed: this.pressed };
-			},
-			applyState: function(state) {
-				this.toggle(state.pressed);
-			},
-			listeners: {
-				toggle: function(self, pressed, eOpts) {
-					this.fireEvent('press');
+			xtype: 'toolbar',
+			dock: 'top',
+			itemId: 'RxOrdersGridTopToolbar',
+			items: [
+				'Show: ',
+				{
+					text: _('all'),
+					action: 'rx_show',
+					action2: 'all',
+					pressed: true,
+					enableToggle: true,
+					toggleGroup: 'rxshowgroup'
+				},
+				'-',
+				{
+					text: _('last_6_months'),
+					action: 'rx_show',
+					action2: 'last_6_months',
+					enableToggle: true,
+					toggleGroup: 'rxshowgroup'
+				},
+				'-',
+				{
+					text: _('last_year'),
+					action: 'rx_show',
+					action2: 'last_year',
+					enableToggle: true,
+					toggleGroup: 'rxshowgroup'
+				},
+				'-',
+				'->',
+				'-',
+				{
+					text: _('new_order'),
+					iconCls: 'icoAdd',
+					action: 'encounterRecordAdd',
+					itemId: 'newRxOrderBtn'
+				},
+				'-',
+				{
+					text: _('clone_order'),
+					iconCls: 'icoAdd',
+					disabled: true,
+					margin: '0 5 0 0',
+					action: 'encounterRecordAdd',
+					itemId: 'cloneRxOrderBtn'
+				},
+				'-',
+				{
+					text: _('print'),
+					iconCls: 'icoPrint',
+					disabled: true,
+					margin: '0 5 0 0',
+					itemId: 'printRxOrderBtn'
+				}]
+		},
+		{
+			xtype: 'toolbar',
+			dock: 'bottom',
+			itemId: 'RxOrdersGridBottomToolbar',
+			items: [
+				{
+					xtype: 'button',
+					text: _('show_all_medicatios'),
+					enableToggle: true,
+					stateful: true,
+					stateEvents: ['press'],
+					stateId: 'RxOrdersShowAllMedicationsBtnState',
+					itemId: 'RxOrdersShowAllMedicationsBtn',
+					getState: function () {
+						return {pressed: this.pressed};
+					},
+					applyState: function (state) {
+						this.toggle(state.pressed);
+					},
+					listeners: {
+						toggle: function (self, pressed, eOpts) {
+							this.fireEvent('press');
+						}
+					}
 				}
-			}
-		}
-	],
-	tbar: [
-		'->',
-		'-',
-		{
-			text: _('new_order'),
-			iconCls: 'icoAdd',
-			action: 'encounterRecordAdd',
-			itemId: 'newRxOrderBtn'
-		},
-		'-',
-		{
-			text: _('clone_order'),
-			iconCls: 'icoAdd',
-			disabled: true,
-			margin: '0 5 0 0',
-			action: 'encounterRecordAdd',
-			itemId: 'cloneRxOrderBtn'
-		},
-		'-',
-		{
-			text: _('print'),
-			iconCls: 'icoPrint',
-			disabled: true,
-			margin: '0 5 0 0',
-			itemId: 'printRxOrderBtn'
+			]
 		}
 	]
 });

@@ -47,6 +47,15 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 		};
 
 		me.pageBBar = [
+			{
+				xtype: 'button',
+				text: _('disable_alert_colors'),
+				enableToggle: true,
+				stateful: true,
+				stateId: 'PatientPoolAreasDisableAlertColorsBtnState',
+				itemId: 'PatientPoolAreasDisableAlertColorsBtn',
+
+			},
 			'->',
 			{
 				xtype: 'button',
@@ -189,6 +198,7 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 					collapsible: true,
 					collapseDirection: 'left',
 					animCollapse: false,
+					showAlertColor: true,
 					columns: [
 						Ext.create('Ext.grid.RowNumberer'),
 						{
@@ -197,7 +207,9 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 							dataIndex: 'pubpid',
 							hidden: true,
 							renderer: function (v,m,r) {
-								m.style = 'background-color:' + r.get('alert_color');
+								if(this.showAlertColor){
+									m.style = 'background-color:' + r.get('alert_color');
+								}
 								return v;
 							}
 						},
@@ -206,7 +218,9 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 							flex: 1,
 							dataIndex: 'lname',
 							renderer: function (v,m,r) {
-								m.style = 'background-color:' + r.get('alert_color');
+								if(this.showAlertColor) {
+									m.style = 'background-color:' + r.get('alert_color');
+								}
 								return Ext.String.format(
 									'{0}{1}, {2} {3}',
 									(r.get('eid') ? '*':''),
@@ -221,7 +235,9 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 							width: 65,
 							dataIndex: 'time_in',
 							renderer: function (v,m,r) {
-								m.style = 'background-color:' + r.get('alert_color');
+								if(this.showAlertColor) {
+									m.style = 'background-color:' + r.get('alert_color');
+								}
 								return Ext.Date.format(v,g('time_display_format'));
 							}
 						},
@@ -230,7 +246,9 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 							width: 65,
 							dataIndex: 'appointment_time',
 							renderer: function (v,m,r) {
-								m.style = 'background-color:' + r.get('alert_color');
+								if(this.showAlertColor) {
+									m.style = 'background-color:' + r.get('alert_color');
+								}
 								return Ext.Date.format(v,g('time_display_format'));
 							}
 						},
@@ -239,7 +257,9 @@ Ext.define('App.view.areas.PatientPoolAreas', {
 							width: 65,
 							dataIndex: 'timer',
 							renderer: function (v,m,r) {
-								m.style = 'background-color:' + r.get('alert_color');
+								if(this.showAlertColor) {
+									m.style = 'background-color:' + r.get('alert_color');
+								}
 								return v;
 							}
 						}

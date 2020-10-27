@@ -25,6 +25,10 @@ Ext.define('App.controller.patient.RxOrders', {
 			selector: 'patientrxorderspanel'
 		},
 		{
+			ref: 'RxOrdersGridTopToolbar',
+			selector: '#RxOrdersGridTopToolbar'
+		},
+		{
 			ref: 'RxNormOrderLiveSearch',
 			selector: '#RxNormOrderLiveSearch'
 		},
@@ -75,6 +79,9 @@ Ext.define('App.controller.patient.RxOrders', {
 				beforerender: me.onRxOrdersGridBeforeRender,
 				beforeedit: me.onRxOrdersGridBeforeEdit,
 				edit: me.onRxOrdersGridEdit
+			},
+			'#RxOrdersGridTopToolbar > button[action=rx_show]': {
+				toggle: me.onRxOrdersGridShowBtnToggle
 			},
 			'#RxNormOrderLiveSearch': {
 				beforeselect: me.onRxNormOrderLiveSearchBeforeSelect
@@ -514,8 +521,14 @@ Ext.define('App.controller.patient.RxOrders', {
 		});
 	},
 
+	onRxOrdersGridShowBtnToggle: function (btn, pressed){
+		if(pressed){
+			this.doLoadOrdersGrid();
+		}
+	},
+
 	onRxOrdersGridActive: function(){
-		this.doLoadOrdersGrid()
+		this.doLoadOrdersGrid();
 	},
 
 	doAddOrderByTemplate: function(data){
@@ -545,7 +558,8 @@ Ext.define('App.controller.patient.RxOrders', {
 		if(!this.getRxOrdersGrid()) return;
 
 		var grid = this.getRxOrdersGrid(),
-			store = grid.getStore();
+			store = grid.getStore(),
+			show_btn = this.getRxOrdersGridTopToolbar().query('button[pressed]');
 
 		if(!grid.editingPlugin.editing){
 
@@ -556,8 +570,22 @@ Ext.define('App.controller.patient.RxOrders', {
 				}
 			];
 
+			if(show_btn.length > 0 && show_btn[0].action2 === 'last_6_months'){
+				filters.push({
+					property: 'date_ordered',
+					operator: '>=',
+					value: Ext.util.Format.date(Ext.Date.subtract(new Date(), Ext.Date.MONTH, 6), 'Y-m-d H:i:s')
+				});
+			}else if(show_btn.length > 0 && show_btn[0].action2 === 'last_year'){
+				filters.push({
+					property: 'date_ordered',
+					operator: '>=',
+					value: Ext.util.Format.date(Ext.Date.subtract(new Date(), Ext.Date.MONTH, 12), 'Y-m-d H:i:s')
+				});
+			}
+
 			if(!this.getRxOrdersShowAllMedicationsBtn().pressed){
-				Ext.Array.push(filters, {
+				filters.push({
 					property: 'date_ordered',
 					operator: '!=',
 					value: null

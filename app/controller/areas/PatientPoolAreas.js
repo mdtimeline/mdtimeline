@@ -45,6 +45,10 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 		{
 			ref: 'NavigationPatientPoolAreaFloorPlanZonesCombo',
 			selector: '#NavigationPatientPoolAreaFloorPlanZonesCombo'
+		},
+		{
+			ref: 'PatientPoolAreasDisableAlertColorsBtn',
+			selector: '#PatientPoolAreasDisableAlertColorsBtn'
 		}
 
 
@@ -55,7 +59,8 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 
 		me.control({
 			'#PatientPoolAreasPanel grid': {
-				beforeitemcontextmenu: me.onPatientPoolAreasGridBeforeItemContextMenu
+				beforeitemcontextmenu: me.onPatientPoolAreasGridBeforeItemContextMenu,
+				beforerender: me.onPatientPoolAreasGridBeforeRender
 			},
 			'#PatientPoolAreasRemovePatientMenu': {
 				click: me.onPatientPoolAreasRemovePatientMenuClick
@@ -74,10 +79,26 @@ Ext.define('App.controller.areas.PatientPoolAreas', {
 			},
 			'#NavigationPatientPoolAreaFloorPlanZonesCombo': {
 				beforerender: me.onNavigationPatientPoolAreaFloorPlanZonesComboBeforeRender
+			},
+			'#PatientPoolAreasDisableAlertColorsBtn': {
+				toggle: me.onPatientPoolAreasDisableAlertColorsBtnToggle
 			}
 		});
 
 		me.reloadAreaBuffer = Ext.Function.createBuffered(me.reloadArea, 50, me);
+	},
+
+	onPatientPoolAreasDisableAlertColorsBtnToggle: function (btn, pressed){
+		var area_grids = this.getPatientPoolAreasPanel().query('grid');
+
+		area_grids.forEach(function (grid){
+			grid.showAlertColor = !pressed;
+			grid.view.refresh();
+		});
+	},
+
+	onPatientPoolAreasGridBeforeRender: function (grid){
+		grid.showAlertColor = !this.getPatientPoolAreasDisableAlertColorsBtn().pressed;
 	},
 
 	getSelectedPoolAreaZones: function(){

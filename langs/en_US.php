@@ -2171,4 +2171,7 @@ $LANG = array(
     'print_jobs' => 'Print Jobs',
     'rooms' => 'Rooms',
     'room' => 'Room',
+    'last_6_months' => 'Last 6 Months',
+    'last_year' => 'Last Year',
+    'disable_alert_colors' => 'Disable Alert Colors',
 );

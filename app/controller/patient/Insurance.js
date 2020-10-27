@@ -76,6 +76,10 @@ Ext.define('App.controller.patient.Insurance', {
             selector: '#BillingPatientInsuranceCoverInformationCoverExceptionSearchField'
         },
         {
+            ref: 'BillingPatientInsuranceCoverInformationMspInsuranceTypeField',
+            selector: '#BillingPatientInsuranceCoverInformationMspInsuranceTypeField'
+        },
+        {
             ref: 'BillingPatientInsuranceCoverInformationDeductibleField',
             selector: '#BillingPatientInsuranceCoverInformationDeductibleField'
         },
@@ -130,6 +134,9 @@ Ext.define('App.controller.patient.Insurance', {
                 select: me.onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldSelect,
                 change: me.onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldchange,
                 render: me.onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldRender
+            },
+            '#BillingPatientInsuranceCoverInformationMspInsuranceTypeField': {
+                select: me.onBillingPatientInsuranceCoverInformationMspInsuranceTypeFieldSelect
             },
 
             '#PatientInsurancesWindow': {
@@ -535,6 +542,21 @@ Ext.define('App.controller.patient.Insurance', {
                 exception: false
             });
         }
+    },
+
+    onBillingPatientInsuranceCoverInformationMspInsuranceTypeFieldSelect: function (field, selected_mspType) {
+
+        if (field.value.length === 0) return;
+
+        var me = this,
+            cover_form = field.up('form'),
+            insurance_form = cover_form.getForm(),
+            insurance_form_record = insurance_form.getRecord();
+
+        insurance_form_record.set({
+            msp_insurance_type: selected_mspType[0].get('code')
+        });
+
     },
 
     //***********************

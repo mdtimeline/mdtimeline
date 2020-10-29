@@ -197,6 +197,10 @@ Ext.define('App.model.patient.Insurance',{
             type: 'string'
         },
         {
+            name: 'msp_insurance_type',
+            type: 'string'
+        },
+        {
             name: 'image',
             type: 'string',
             dataType: 'mediumtext',

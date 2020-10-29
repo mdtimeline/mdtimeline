@@ -10213,110 +10213,6 @@ Ext.define('App.ux.window.Window', {
 	}
 });
 
-Ext.define('Modules.Module', {
-	extend: 'Ext.app.Controller',
-	refs: [
-		{
-			ref: 'viewport',
-			selector: 'viewport'
-		},
-		{
-			ref: 'mainNav',
-			selector: 'treepanel[action=mainNav]'
-		}
-	],
-	/**
-	 * @param panel
-	 */
-	addAppPanel: function(panel){
-		this.getViewport().MainPanel.add(panel);
-	},
-
-	/**
-	 * @param item
-	 */
-	addHeaderItem: function(item){
-		this.getViewport().Header.add(item);
-	},
-
-	/**
-	 * @param parentId
-	 * @param node
-	 * @param index
-	 *
-	 * Desc: Method to add items to the navigation tree.
-	 *
-	 */
-	addNavigationNodes: function(parentId, node, index){
-		var parent,
-            firstChildNode,
-            nodes,
-            i,
-			nav = this.getMainNav(),
-			store;
-
-		if(!nav){
-			Ext.Function.defer(this.addNavigationNodes(parentId, node, index), 500, this);
-			return;
-		}
-
-		store = nav.getStore();
-
-		if(!store){
-			Ext.Function.defer(this.addNavigationNodes(parentId, node, index), 500, this);
-			return;
-		}
-
-		if(parentId == 'root' || parentId == null){
-			parent = store.getRootNode();
-		}
-		else{
-			parent = store.getNodeById(parentId);
-		}
-
-		if(parent){
-			firstChildNode = parent.findChildBy(function(node){
-				return node.hasChildNodes();
-			});
-
-			if(Ext.isArray(node)){
-				nodes = [];
-				for(i = 0; i < node.length; i++){
-					Ext.Array.push(nodes, parent.insertBefore(node[i], firstChildNode));
-				}
-				return nodes;
-			}
-			else if(index){
-				return parent.insertChild(index, node);
-			}else{
-				return parent.insertBefore(node, firstChildNode);
-			}
-		}
-	},
-
-	getModuleData: function(name){
-		var me = this;
-		Modules.getModuleByName(name, function(provider, response){
-			me.fireEvent('moduledata', response.result)
-		});
-	},
-
-	updateModuleData: function(data){
-		var me = this;
-		Modules.updateModule(data, function(provider, response){
-			me.fireEvent('moduledataupdate', response.result)
-		});
-	},
-
-	addLanguages: function(languages){
-
-	},
-
-	insertToHead: function(link){
-		Ext.getHead().appendChild(link);
-	}
-});
-
 Ext.define('App.view.search.PatientSearch',
 {
 	extend : 'App.ux.RenderPanel',
@@ -10864,7 +10760,6 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 					convert: function(v){
 						v = v.replace(/\(.*\) | \(.*\)|\(.*\)/g, '');
 						v = v.replace(/[\[\]]/g, '');
-						v = v.replace(/\+/g, '');
 						return v;
 					}
 				},
@@ -20452,6 +20347,10 @@ Ext.define('App.model.patient.Insurance',{
         },
         {
             name: 'deductible',
+            type: 'string'
+        },
+        {
+            name: 'msp_insurance_type',
             type: 'string'
         },
         {
@@ -50780,6 +50679,10 @@ Ext.define('App.controller.patient.Insurance', {
             selector: '#BillingPatientInsuranceCoverInformationCoverExceptionSearchField'
         },
         {
+            ref: 'BillingPatientInsuranceCoverInformationMspInsuranceTypeField',
+            selector: '#BillingPatientInsuranceCoverInformationMspInsuranceTypeField'
+        },
+        {
             ref: 'BillingPatientInsuranceCoverInformationDeductibleField',
             selector: '#BillingPatientInsuranceCoverInformationDeductibleField'
         },
@@ -50834,6 +50737,9 @@ Ext.define('App.controller.patient.Insurance', {
                 select: me.onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldSelect,
                 change: me.onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldchange,
                 render: me.onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldRender
+            },
+            '#BillingPatientInsuranceCoverInformationMspInsuranceTypeField': {
+                select: me.onBillingPatientInsuranceCoverInformationMspInsuranceTypeFieldSelect
             },
 
             '#PatientInsurancesWindow': {
@@ -51239,6 +51145,21 @@ Ext.define('App.controller.patient.Insurance', {
                 exception: false
             });
         }
+    },
+
+    onBillingPatientInsuranceCoverInformationMspInsuranceTypeFieldSelect: function (field, selected_mspType) {
+
+        if (field.value.length === 0) return;
+
+        var me = this,
+            cover_form = field.up('form'),
+            insurance_form = cover_form.getForm(),
+            insurance_form_record = insurance_form.getRecord();
+
+        insurance_form_record.set({
+            msp_insurance_type: selected_mspType[0].get('code')
+        });
+
     },
 
     //***********************

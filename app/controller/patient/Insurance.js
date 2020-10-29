@@ -407,7 +407,14 @@ Ext.define('App.controller.patient.Insurance', {
 
         if (record.get('image') !== '') panel.down('image').setSrc(record.get('image'));
 
-        panel.title = record.get('ins_synonym') + ' (' + (record.get('insurance_type') ? record.get('insurance_type') : _('new')) + ')';
+        if (record.get('active')) {
+            panel.setIcon('modules/billing/resources/images/icoDotGreen.png');
+        } else {
+            panel.setIcon('modules/billing/resources/images/icoDotRed.png');
+        }
+        panel.title = record.get('ins_synonym') + ' (' + (record.get('insurance_type') ? record.get('insurance_type') : _('new')) + ')' ;
+        panel.header.hide(true);
+
     },
 
     onPatientInsurancesPanelNewTabClick: function (form) {

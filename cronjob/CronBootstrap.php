@@ -174,6 +174,9 @@ class CronBootstrap
      */
     public function end(){
         try{
+
+            if(!isset($this->CronJobParams['data']['id'])) return false;
+
             $data = new stdClass();
             $data->id = $this->CronJobParams['data']['id'];
             $data->pid = '';
@@ -280,6 +283,8 @@ class CronBootstrap
     private function removeRunningStatus($PID){
         try
         {
+            if(!isset($this->CronJobParams['data']['id'])) return false;
+
             $params = new stdClass();
             $params->filter[0] = new stdClass();
             $params->filter[0]->property = 'filename';

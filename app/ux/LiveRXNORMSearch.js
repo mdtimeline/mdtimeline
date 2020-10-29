@@ -54,6 +54,7 @@ Ext.define('App.ux.LiveRXNORMSearch', {
 					convert: function(v){
 						v = v.replace(/\(.*\) | \(.*\)|\(.*\)/g, '');
 						v = v.replace(/[\[\]]/g, '');
+						v = v.replace(/\+/g, '');
 						return v;
 					}
 				},

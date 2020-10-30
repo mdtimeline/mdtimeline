@@ -118,6 +118,13 @@ class HL7Server {
 
 	protected $process_insurance_segments = false;
 
+    /**
+     * @var bool|int|string
+     */
+	protected $hl7_encoding = 'UTF-8';
+	protected $hl7_encoding_mode = 'IGNORE';
+	protected $hl7_locale = 'en_US.UTF8';
+
 
 	function __construct($port = 9000, $site = 'default') {
 		$this->site = defined('site_id') ? site_id : $site;
@@ -132,6 +139,7 @@ class HL7Server {
 		include_once(ROOT . '/dataProvider/PoolArea.php');
 		include_once(ROOT . '/dataProvider/Merge.php');
 		include_once(ROOT . '/dataProvider/Facilities.php');
+		include_once(ROOT . '/dataProvider/Globals.php');
 
 		new MatchaHelper();
 
@@ -166,6 +174,10 @@ class HL7Server {
 		if(!isset($this->pObservation))
 			$this->pObservation = MatchaModel::setSenchaModel('App.model.patient.PatientsOrderObservation');
 		$this->server = $this->getServerByPort($port);
+
+        $this->hl7_encoding = Globals::getGlobal('hl7_encoding');
+        $this->hl7_encoding_mode = Globals::getGlobal('hl7_encoding_mode');
+        $this->hl7_locale = Globals::getGlobal('hl7_locale');
 	}
 
 	/**
@@ -182,11 +194,41 @@ class HL7Server {
 		return $this->server;
 	}
 
+	private function FixEncoding(){
+        if(is_string($this->hl7_encoding) && $this->hl7_encoding !== ''){
+
+            $message_encoding = mb_detect_encoding($this->msg, mb_detect_order(), true);
+
+            if($message_encoding !== false){
+
+                if(is_string($this->hl7_locale) && $this->hl7_locale != ''){
+                    setlocale(LC_ALL, $this->hl7_locale);
+                }
+
+                $converted_msg = iconv("{$message_encoding}//{$this->hl7_encoding_mode}", $this->hl7_encoding, $this->msg);
+
+                if($converted_msg !== false){
+                    $this->msg = $converted_msg;
+                    unset($converted_msg);
+                }else{
+                    error_log("HL7->Process Error: Unable to fix HL7 message encoding from '{$message_encoding}//{$this->hl7_encoding_mode}' to '{$this->hl7_encoding}'");
+                    error_log("HL7->Process HL7 Message: " . $this->msg);
+                }
+            }else{
+                error_log("HL7->Process Error: Unable to detect HL7 message encoding. mb_detect_order is: " . implode(", ", mb_detect_order()));
+                error_log("HL7->Process HL7 Message: " . $this->msg);
+            }
+
+        }
+    }
+
 	public function Process($msg = '', $addSocketCharacters = true) {
 		$this->msg = $msg;
 
 		$this->ackStatus = 'AA';
 		$this->ackMessage = '';
+
+		$this->FixEncoding();
 
 		/**
 		 * Parse the HL7 Message

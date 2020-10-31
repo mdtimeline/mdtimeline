@@ -28,16 +28,20 @@ Ext.define('App.view.administration.FloorPlans', {
         me.floorPlansStore = Ext.create('App.store.administration.FloorPlans');
         me.floorZonesStore = Ext.create('App.store.administration.FloorPlanZones');
         me.floorPlans = Ext.create('Ext.grid.Panel', {
+            requires: [
+                'Ext.grid.plugin.CellEditing'
+            ],
             title: _('floor_plans'),
             region: 'west',
-            width: 200,
+            width: 300,
             split: true,
             hideHeaders: true,
             store: me.floorPlansStore,
+            columnsLines: true,
             plugins: [
-                me.floorPlanEditing = Ext.create('Ext.grid.plugin.RowEditing', {
-                    clicksToEdit: 2
-                })
+                {
+                    ptype: 'rowediting'
+                }
             ],
             columns: [
                 {
@@ -47,9 +51,18 @@ Ext.define('App.view.administration.FloorPlans', {
                     flex: 1,
                     editor: {
                         xtype: 'textfield',
-                        emptyText:_('new_floor')
+                        emptyText:_('new_floor'),
+                        allowBlank: false
                     }
-                }
+                },
+                {
+                    text: _('facility_id'),
+                    dataIndex: 'facility_id',
+                    editor: {
+                        xtype: 'mitos.facilitiescombo',
+                        allowBlank: false
+                    }
+                },
             ],
             tbar: [
                 {
@@ -273,7 +286,11 @@ Ext.define('App.view.administration.FloorPlans', {
             width:record.data.width,
             height:record.data.height
         };
-        record.store.sync();
+        record.save({
+            callback: function (){
+                app.fireEvent('floorplanzonesave', me, record);
+            }
+        });
         me.applyZoneConfig(editor.zone, config);
         me.setEditMode(false);
     },
@@ -404,8 +421,17 @@ Ext.define('App.view.administration.FloorPlans', {
             y: zone.y
         });
     },
-    onNewFloorPlan: function(){
-        this.floorPlansStore.add({});
+    onNewFloorPlan: function(btn){
+        var me = this,
+            grid = btn.up('grid'),
+            editingPlugin = grid.editingPlugin,
+            records;
+
+        editingPlugin.cancelEdit();
+
+        records = this.floorPlansStore.add({});
+
+        editingPlugin.startEdit(records[0],0);
     },
     onFloorPlanSelected: function(model, record){
         this.setEditMode(false);

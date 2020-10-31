@@ -2,7 +2,7 @@ Ext.define('App.ux.combo.FloorPlanZones', {
 	extend: 'App.ux.combo.ComboResettable',
 	xtype: 'floorplanazonescombo',
 	editable: false,
-	queryMode: 'local',
+	//queryMode: 'local',
 	displayField: 'title',
 	valueField: 'id',
 	emptyText: _('all'),

@@ -119,6 +119,7 @@ class HL7Server {
 	protected $process_insurance_segments = false;
 
 
+
 	function __construct($port = 9000, $site = 'default') {
 		$this->site = defined('site_id') ? site_id : $site;
 
@@ -127,11 +128,13 @@ class HL7Server {
 		require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
 		include_once(ROOT . "/sites/{$this->site}/conf.php");
 		include_once(ROOT . '/classes/MatchaHelper.php');
+		include_once(ROOT . '/classes/Encoding.php');
 		include_once(ROOT . '/lib/HL7/HL7.php');
 		include_once(ROOT . '/dataProvider/HL7ServerHandler.php');
 		include_once(ROOT . '/dataProvider/PoolArea.php');
 		include_once(ROOT . '/dataProvider/Merge.php');
 		include_once(ROOT . '/dataProvider/Facilities.php');
+		include_once(ROOT . '/dataProvider/Globals.php');
 
 		new MatchaHelper();
 
@@ -166,6 +169,7 @@ class HL7Server {
 		if(!isset($this->pObservation))
 			$this->pObservation = MatchaModel::setSenchaModel('App.model.patient.PatientsOrderObservation');
 		$this->server = $this->getServerByPort($port);
+
 	}
 
 	/**
@@ -187,6 +191,8 @@ class HL7Server {
 
 		$this->ackStatus = 'AA';
 		$this->ackMessage = '';
+
+        $this->msg = ForceUTF8\Encoding::fixUTF8($this->msg);
 
 		/**
 		 * Parse the HL7 Message

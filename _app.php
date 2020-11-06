@@ -342,6 +342,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                 name: 'App',
 
 	            requires: Ext.Array.merge([
+	            	'App.ux.HelpBtn',
 		            'Ext.ux.LiveSearchGridPanel',
 		            'Ext.ux.SlidingPager',
 		            'Ext.ux.PreviewPlugin',
@@ -867,6 +868,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                 ],
 
                 controllers:[
+                    'HelpDocuments',
                     'Network',
 	                'Main',
 

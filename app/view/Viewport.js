@@ -401,6 +401,22 @@ Ext.define('App.view.Viewport', {
 		    cls: 'drButton',
             margin: '0 3 0 0',
 		    menu: [
+			    { xtype: 'menuseparator' },
+			    {
+				    text: _('help_documents'),
+				    itemId:'AppHelpDocumentMenu',
+				    icon: 'resources/images/icons/icohelp.png',
+				    menu: [
+					    {
+						    text: 'RIS Software User Guide',
+						    icon: 'resources/images/icons/icohelp.png',
+						    documentTitle: 'RIS Software User Guide',
+						    documentUrl: 'https://docs.google.com/document/d/e/2PACX-1vTA3ymEgqFz8JhE0AxcGghVyEkuCxnoiiJmnbcL-FIIz3MIvv8DSHxWi5Xe4Atg8vMus-u9WSgUKjEW/pub?embedded=true'
+					    },
+				    ]
+			    },
+
+			    { xtype: 'menuseparator' },
 			    {
 				    text: _('my_account'),
 				    iconCls: 'icoUser',

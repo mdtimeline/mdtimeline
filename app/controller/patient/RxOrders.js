@@ -367,7 +367,20 @@ Ext.define('App.controller.patient.RxOrders', {
 		sm.deselectAll();
 
 		for(var i = 0; i < selection.length; i++){
+
 			data = Ext.clone(selection[i].data);
+
+			// inactivate previous order
+			selection[i].set({
+				is_active: false,
+				active: false,
+				end_date: newDate
+			});
+
+			// make sure new order is active
+			data.is_active = true;
+			data.active = true;
+			data.end_date = null
 
 			data.pid = app.patient.pid;
 			data.eid = app.patient.eid;

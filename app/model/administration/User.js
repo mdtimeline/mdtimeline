@@ -297,7 +297,8 @@ Ext.define('App.model.administration.User', {
 		},
 		{
 			name: 'default_attending',
-			type: 'int',
+			type: 'string',
+			len: 40,
 			index: true
 		},
 		{

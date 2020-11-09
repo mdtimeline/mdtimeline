@@ -20331,6 +20331,26 @@ Ext.define('App.model.patient.Insurance',{
 		    type: 'string',
 		    len: 40
 	    },
+	    {
+		    name: 'rx_member_id',
+		    type: 'string',
+		    len: 40
+	    },
+	    {
+		    name: 'rx_group',
+		    type: 'string',
+		    len: 40
+	    },
+	    {
+		    name: 'rx_bin',
+		    type: 'string',
+		    len: 40
+	    },
+	    {
+		    name: 'rx_pnc',
+		    type: 'string',
+		    len: 40
+	    },
         {
             name: 'cover_description',
             type: 'string',

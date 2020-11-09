@@ -140,25 +140,67 @@ class Insurance {
 
 	public function getInsuranceCompanyById($id){
 		$this->ic->addFilter('id', $id);
-		return $this->ic->load()->one();
+		return $this->ic->load()->leftJoin(
+            [
+                'synonym' => 'insurance_company_synonym',
+                'payer_id' => 'insurance_company_payer_id',
+                'ess_no' => 'insurance_company_ess_no',
+            ],
+            'acc_billing_insurance_data',
+            'insurance_id',
+            'id'
+        )->one();
 	}
 
 	public function getPatientPrimaryInsuranceByPid($pid) {
 		$this->pi->addFilter('pid', $pid);
 		$this->pi->addFilter('insurance_type', 'P');
-		return $this->pi->load()->one();
+		return $this->pi->load()->leftJoin(
+		    [
+		        'code' => 'insurance_company_code',
+		        'name' => 'insurance_company_name'
+            ],
+            'insurance_companies',
+            'insurance_id',
+            'id'
+        )->leftJoin(
+		    [
+		        'synonym' => 'insurance_company_synonym',
+		        'payer_id' => 'insurance_company_payer_id',
+		        'ess_no' => 'insurance_company_ess_no',
+            ],
+            'acc_billing_insurance_data',
+            'insurance_id',
+            'id'
+        )->one();
 	}
 
 	public function getPatientSecondaryInsuranceByPid($pid) {
 		$this->pi->addFilter('pid', $pid);
 		$this->pi->addFilter('insurance_type', 'S');
-		return $this->pi->load()->one();
+		return $this->pi->load()->leftJoin(
+            [
+                'code' => 'insurance_company_code',
+                'name' => 'insurance_company_name'
+            ],
+            'insurance_companies',
+            'insurance_id',
+            'id'
+        )->one();
 	}
 
 	public function getPatientComplementaryInsuranceByPid($pid) {
 		$this->pi->addFilter('pid', $pid);
 		$this->pi->addFilter('insurance_type', 'C');
-		return $this->pi->load()->one();
+		return $this->pi->load()->leftJoin(
+            [
+                'code' => 'insurance_company_code',
+                'name' => 'insurance_company_name'
+            ],
+            'insurance_companies',
+            'insurance_id',
+            'id'
+        )->one();
 	}
 
     function arraySort($records, $field, $reverse=true)

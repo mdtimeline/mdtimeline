@@ -643,9 +643,9 @@ class Encounter {
 			$soap['subjective'] = (isset($soap['subjective']) ? (trim($soap['subjective']) . '<br>') : '') . $this->getSubjectiveExtraDataByEid($eid, $encounter);
 			$soap['assessment'] = (isset($soap['assessment']) ? (trim($soap['assessment']) . '<br>') : '');
 			$soap['objective'] = $this->getObjectiveExtraDataByEid($eid, $encounter) . (isset($soap['objective']) ? $soap['objective'] : '');
-			$soap['assessment'] = $soap['assessment'] . (isset($dxOl) ? $dxOl : '');
-			$instructions = (isset($soap['instructions']) ? (trim($soap['instructions']) . '<br>') : null);
-			$soap['plan'] = (isset($soap['plan']) ? (trim($soap['plan']) . '<br>') : '') . $this->getPlanExtraDataByEid($eid, $instructions, $include_nurse_data);
+			$soap['assessment'] = $soap['assessment'] . (isset($dxOl) ? $dxOl : '<br>');
+			$instructions = (isset($soap['instructions']) ? (trim($soap['instructions'])) : null);
+			$soap['plan'] = (isset($soap['plan']) ? trim($soap['plan']) : '') . $this->getPlanExtraDataByEid($eid, $instructions, $include_nurse_data);
 			$encounter['soap'] = $soap;
 		}
 
@@ -797,9 +797,11 @@ class Encounter {
 			$allergies = $Allergies->getPatientAllergiesByEid($eid);
 		}
 
-		$str_buff .= '<div class="indent">';
+
 
 		if(!empty($allergies)){
+
+            $str_buff .= '<div class="indent">';
 			$str_buff .= '<p><b>Allergies:</b></p>';
 			$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">';
 			foreach($allergies as $foo){
@@ -816,13 +818,18 @@ class Encounter {
 				$str_buff .= '</li>';
 			}
 			$str_buff .= '</ul>';
+            $str_buff .= '</div>';
+
 		}else{
 			if(isset($encounter) && $encounter['review_allergies']){
+
+                $str_buff .= '<div class="indent">';
 				$str_buff .= '<p><b>Allergies:</b> No Known Allergies</p>';
+                $str_buff .= '</div>';
 			}
 		}
 
-		$str_buff .= '</div>';
+
 		unset($Allergies, $allergies);
 
 
@@ -1215,6 +1222,7 @@ class Encounter {
 		$str_buff = '';
 
 		if(isset($instructions) && $instructions != ''){
+            $instructions = trim($instructions);
 			$str_buff .= '<div class="indent">';
 			$str_buff .= "<p><b>Instructions:</b> {$instructions}</p>";
 			$str_buff .= '</div>';

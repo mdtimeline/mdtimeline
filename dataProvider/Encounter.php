@@ -642,7 +642,7 @@ class Encounter {
 			$soap = $this->getSoapByEid($eid);
 			$soap['subjective'] = (isset($soap['subjective']) ? (trim($soap['subjective']) . '<br>') : '') . $this->getSubjectiveExtraDataByEid($eid, $encounter);
 			$soap['assessment'] = (isset($soap['assessment']) ? (trim($soap['assessment']) . '<br>') : '');
-			$soap['objective'] = $this->getObjectiveExtraDataByEid($eid, $encounter) . (isset($soap['objective']) ? $soap['objective'] : '');
+			$soap['objective'] = $this->getObjectiveExtraDataByEid($eid, $encounter) . (isset($soap['objective']) ? trim($soap['objective']) : '');
 			$soap['assessment'] = $soap['assessment'] . (isset($dxOl) ? $dxOl : '<br>');
 			$instructions = (isset($soap['instructions']) ? (trim($soap['instructions'])) : null);
 			$soap['plan'] = (isset($soap['plan']) ? trim($soap['plan']) : '') . $this->getPlanExtraDataByEid($eid, $instructions, $include_nurse_data);
@@ -1097,6 +1097,7 @@ class Encounter {
 //				}
 
 				if($vital_buff != ''){
+                    $vitals_buff = trim(preg_replace('/<br>$/', '', $vitals_buff));
 					$vitals_buff .= '<p class="indent" style="margin-left: 20px;">'.$vital_buff.'</p>';
 				}
 			}

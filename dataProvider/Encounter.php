@@ -1013,7 +1013,7 @@ class Encounter {
 
 				if(isset($foo['date'])){
 					$date = strtotime($foo['date']);
-					$vital_buff[] = '<u>Date:</u> ' . date($_SESSION['globals']['date_time_display_format'], $date) . '<br>';
+					$vital_buff[] = '<u>Date:</u> ' . date($_SESSION['globals']['date_time_display_format'], $date);
 				}
 
 				/**
@@ -1021,11 +1021,11 @@ class Encounter {
 				 */
 				if($is_metric){
 					if(isset($foo['weight_kg']) && $foo['weight_kg'] != ''){
-						$vital_buff[] = '<u>Weight:</u> ' . $foo['weight_lbs'] . 'Kg<br>';
+						$vital_buff[] = '<u>Weight:</u> ' . $foo['weight_lbs'] . 'Kg';
 					}
 				}else{
 					if(isset($foo['weight_lbs']) && $foo['weight_lbs'] != ''){
-						$vital_buff[] = '<u>Weight:</u> ' . $foo['weight_lbs'] . 'Lbs<br>';
+						$vital_buff[] = '<u>Weight:</u> ' . $foo['weight_lbs'] . 'Lbs';
 					}
 				}
 
@@ -1034,11 +1034,11 @@ class Encounter {
 				 */
 				if($is_metric){
 					if(isset($foo['height_cm']) && $foo['height_cm'] != ''){
-						$vital_buff[] = '<u>Height:</u> ' . $foo['height_cm'] . 'cm<br>';
+						$vital_buff[] = '<u>Height:</u> ' . $foo['height_cm'] . 'cm';
 					}
 				}else{
 					if(isset($foo['height_in']) && $foo['height_in'] != ''){
-						$vital_buff[] = '<u>Height:</u> ' . $foo['height_in'] . '"<br>';
+						$vital_buff[] = '<u>Height:</u> ' . $foo['height_in'] . '"';
 					}
 				}
 
@@ -1046,7 +1046,7 @@ class Encounter {
 				 * Pulse
 				 */
 				if(isset($foo['pulse']) && $foo['pulse'] != ''){
-					$vital_buff[] = '<u>Pulse:</u> ' . $foo['pulse'] . '<br>';
+					$vital_buff[] = '<u>Pulse:</u> ' . $foo['pulse'];
 				}
 
 				/**
@@ -1056,7 +1056,7 @@ class Encounter {
 					$buff = [];
 					$buff[0] = isset($foo['bp_systolic']) ? $foo['bp_systolic'] : '';
 					$buff[1] = isset($foo['bp_diastolic']) ? $foo['bp_diastolic'] : '';
-					$vital_buff[] = '<u>BP:</u> ' . implode('/', $buff) . '<br>';
+					$vital_buff[] = '<u>BP:</u> ' . implode('/', $buff);
 					unset($buff);
 				}
 
@@ -1065,10 +1065,10 @@ class Encounter {
 				 * BMI
 				 */
 				if(isset($foo['bmi']) && $foo['bmi'] != ''){
-					$vital_buff[] = '<u>BMI:</u> ' . $foo['bmi'] . '<br>';
+					$vital_buff[] = '<u>BMI:</u> ' . $foo['bmi'];
 				}
 				if(isset($foo['bmi_status']) && $foo['bmi_status'] != ''){
-					$vital_buff[] = '<u>BMI Status:</u> ' . $foo['bmi_status'] . '<br>';
+					$vital_buff[] = '<u>BMI Status:</u> ' . $foo['bmi_status'];
 				}
 
 				/**
@@ -1076,16 +1076,16 @@ class Encounter {
 				 */
 				if($is_metric){
 					if(isset($foo['temp_c']) && $foo['temp_c'] != ''){
-						$vital_buff[] = '<u>Temp:</u> ' . $foo['temp_c'] . ' &deg;C<br>';
+						$vital_buff[] = '<u>Temp:</u> ' . $foo['temp_c'] . ' &deg;C';
 					}
 				}else{
 					if(isset($foo['temp_f']) && $foo['temp_f'] != ''){
-						$vital_buff[] = '<u>Temp:</u> ' . $foo['temp_f'] . ' &deg;F<br>';
+						$vital_buff[] = '<u>Temp:</u> ' . $foo['temp_f'] . ' &deg;F';
 					}
 				}
 
 				if(isset($foo['temp_location']) && $foo['temp_location'] != ''){
-                    $vital_buff[] = '<u>Temp Loc:</u> ' . $foo['temp_location'] . '<br>';
+                    $vital_buff[] = '<u>Temp Loc:</u> ' . $foo['temp_location'];
 				}
 
 
@@ -1097,7 +1097,7 @@ class Encounter {
 //				}
 
 				if(!empty($vital_buff)){
-					$vitals_buff .= '<p class="indent" style="margin-left: 20px;">'.implode('<br>', $vital_buff) . '</p>';
+					$vitals_buff .= '<div class="indent" style="margin-left: 20px;">'.implode('<br>', $vital_buff) . '</div>';
 				}
 			}
 

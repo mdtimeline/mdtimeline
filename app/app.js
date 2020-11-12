@@ -20347,7 +20347,7 @@ Ext.define('App.model.patient.Insurance',{
 		    len: 40
 	    },
 	    {
-		    name: 'rx_pnc',
+		    name: 'rx_pcn',
 		    type: 'string',
 		    len: 40
 	    },
@@ -75920,7 +75920,8 @@ Ext.define('App.view.patient.InsuranceForm', {
                 xtype: 'container',
                 padding: '0 0 0 0',
                 layout: {
-                    type: 'vbox'
+                    type: 'vbox',
+                    align: 'stretch'
                 },
                 items: [
                     {
@@ -75929,25 +75930,26 @@ Ext.define('App.view.patient.InsuranceForm', {
                         itemId: 'PatientInsurancesForm',
                         padding: '0 0 10 0',
                         layout: {
-                            type: 'vbox'
+                            type: 'vbox',
+                            align: 'stretch'
                         },
                         items: [
-
                             {
                                 xtype: 'fieldset',
-                                //title: _('card'),
                                 cls: 'highlight_fieldset',
                                 layout: {
-                                    type: 'hbox'
+                                    type: 'hbox',
+                                    align: 'stretch'
                                 },
                                 width: 1100,
-                                //height: 330,
                                 margin: '0 5 5 5',
                                 items: [
                                     {
                                         xtype: 'fieldcontainer',
-                                        layout: 'vbox',
-                                        enableKeyEvents: true,
+                                        layout: {
+                                            type: 'vbox',
+                                            align: 'stretch'
+                                        },
                                         defaults: {
                                             margin: '0 10 0 2'
                                         },
@@ -76050,8 +76052,6 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                     type: 'hbox',
                                                     align: 'bottom'
                                                 },
-                                                hideLabel: false,
-                                                enableKeyEvents: true,
                                                 width: 650,
                                                 defaults: {
                                                     margin: '0 10 0 2'
@@ -76101,22 +76101,61 @@ Ext.define('App.view.patient.InsuranceForm', {
                                                 ]
                                             },  //Insurance Card Container Name, DOB, Sex
                                             {
+                                                xtype: 'fieldcontainer',
+                                                layout: {
+                                                    type: 'hbox'
+                                                },
+                                                width: 650,
+                                                defaults: {
+                                                    margin: '0 10 0 2'
+                                                },
+                                                items: [
+                                                    {
+                                                        xtype: 'textfield',
+                                                        name: 'rx_group',
+                                                        fieldLabel: _('rx_group'),
+                                                        flex: 1
+                                                    },
+                                                    {
+                                                        xtype: 'textfield',
+                                                        name: 'rx_bin',
+                                                        fieldLabel: _('rx_bin'),
+                                                        flex: 1
+                                                    },
+                                                    {
+                                                        xtype: 'textfield',
+                                                        name: 'rx_pcn',
+                                                        fieldLabel: _('rx_pcn'),
+                                                        flex: 1
+                                                    },
+                                                    {
+                                                        xtype: 'textfield',
+                                                        name: 'rx_member_id',
+                                                        fieldLabel: _('rx_member_id'),
+                                                        flex: 1
+                                                    }
+                                                ]
+                                            },  //Insurance Card Container Name, DOB, Sex
+                                            {
                                                 xtype: 'billingpatientinsurancecoverinformation',
                                                 itemId: 'BillingPatientInsuranceCoverInformationxtype',
-                                                margin: '5 0 0 2'
+                                                margin: '5 0 0 2',
+                                                flex: 1
                                             }
                                         ]
                                     }, //Primary Insurance Informacion Fields
-
                                     {
-                                        xtype: 'fieldset',
-                                        layout: 'vbox',
-                                        margin: '10 0 15 5',
+                                        xtype: 'container',
+                                        layout: {
+                                            type: 'vbox',
+                                            align: 'stretch'
+                                        },
+                                        margin: '10 0 5 15',
                                         items: [
                                             {
                                                 xtype: 'panel',
                                                 cls: 'highlight_fieldset',
-                                                margin: '10 0 5 0',
+                                                margin: '0 0 0 0',
                                                 width: 380,
                                                 height: 250,
                                                 itemId: 'PatientInsuranceFormCardContainer',
@@ -76149,14 +76188,12 @@ Ext.define('App.view.patient.InsuranceForm', {
                                             {
                                                 xtype: 'textareafield',
                                                 fieldLabel: _('notes'),
-                                                width: 380,
-                                                //grow: false,
-                                                //anchor: '98%',
-                                                height: 170,
-                                                margin: '0 0 15 0',
+                                                grow: false,
+                                                height: 160,
                                                 name: 'notes'
+                                            },  //Notes
 
-                                            }  //Notes
+
                                         ]
 
                                     }  //Insurance Information Card and Notes
@@ -76170,7 +76207,7 @@ Ext.define('App.view.patient.InsuranceForm', {
                                     type: 'vbox'
                                 },
                                 width: 1100,
-                                height: 145,
+                                //height: 145,
                                 margin: '0 5 0 5',
                                 items: [
                                     {
@@ -76179,7 +76216,6 @@ Ext.define('App.view.patient.InsuranceForm', {
                                             type: 'hbox',
                                             align: 'bottom'
                                         },
-                                        flex: 1,
                                         defaults: {
                                             margin: '0 5 0 2'
                                         },

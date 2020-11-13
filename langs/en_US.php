@@ -2176,4 +2176,10 @@ $LANG = array(
     'disable_alert_colors' => 'Disable Alert Colors',
     'help_document' => 'Help Document',
     'help_documents' => 'Help Documents',
+    'rx_group' => 'Rx Group',
+    'rx_bin' => 'Rx BIN',
+    'rx_pcn' => 'Rx PCN',
+    'rx_member_id' => 'Rx Member ID',
+    'upload_image' => 'Upload Image',
+    'msp_ins_type' => 'MSP Ins Type',
 );

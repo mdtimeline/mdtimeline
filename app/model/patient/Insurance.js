@@ -88,7 +88,7 @@ Ext.define('App.model.patient.Insurance',{
 		    len: 40
 	    },
 	    {
-		    name: 'rx_pnc',
+		    name: 'rx_pcn',
 		    type: 'string',
 		    len: 40
 	    },

@@ -40,29 +40,30 @@ class Labels
 		return $this->l->destroy($params);
 	}
 
-	private function getStructure($size){
-		return $this->getLabels(['label_size' => $size]);
+	private function getStructure($label_type, $label_size){
+		return $this->getLabels(['label_type' => $label_type, 'label_size' => $label_size]);
 	}
 
-	public function CreateLabels($data, $height, $width, $dpi = 300){
+	public function CreateLabels($label_type, $data, $height, $width, $dpi = 300){
 
 		$results = [];
 
 		foreach ($data as $label_data){
-			$results[] = $this->CreateLabel($label_data, $height, $width, $dpi);
+			$results[] = $this->CreateLabel($label_type, $label_data, $height, $width, $dpi);
 		}
 
 		return $results;
 
 	}
 
-	public function CreateLabel($data, $height, $width, $dpi = 300){
+	public function CreateLabel($label_type, $data, $height, $width, $dpi = 300){
 
 		include_once ('../lib/phpqrcode/qrlib.php');
 
 		$site = 'default';
-		$bg_img = "../sites/{$site}/label-{$height}x{$width}-bg.jpg";
-		$label_structure = $this->getStructure($height . 'x' . $width);
+		$label_size = $height . 'x' . $width;
+		$bg_img = "../sites/{$site}/label-{$label_size}-bg.jpg";
+		$label_structure = $this->getStructure($label_type, $label_size);
 
 		// fix margins
 		$width = $width - .3;

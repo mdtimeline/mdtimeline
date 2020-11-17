@@ -178,10 +178,10 @@ $API = [
                 'len' => 1
             ],
             'CreateLabels' => [
-                'len' => 4
+                'len' => 5
             ],
             'CreateLabel' => [
-                'len' => 4
+                'len' => 5
             ]
         ]
     ],

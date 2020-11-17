@@ -88,24 +88,28 @@ Ext.define('App.controller.ScriptCam', {
 			],
 			listeners: {
 				close: function(){
-					stream.active = false;
+					//stream.active = false;
+					stream.getTracks().forEach(function(track) {
+						if (track.readyState == 'live') {
+							track.stop();
+						}
+					});
 				}
 			}
 		});
 
 		me.video = document.getElementById('WebCamVideo');
-		me.video.src = window.URL ? window.URL.createObjectURL(stream) : stream;
+
+		try {
+			me.video.srcObject = stream;
+		} catch (error) {
+			me.video.src = window.URL.createObjectURL(stream);
+		}
 		me.video.play();
 	},
 
 	onError: function(error){
 		say(error);
-	},
-
-	onClose: function(){
-		var video = document.getElementById('WebCamVideo');
-		video.src = window.URL ? window.URL.createObjectURL(stream) : stream;
-		video.play();
 	},
 
 	onCapture: function(){

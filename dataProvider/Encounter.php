@@ -678,7 +678,7 @@ class Encounter {
 				$output .= '<p><b>SUBJECTIVE:</b></p>' . nl2br(trim($soap['subjective'])) ;
 			}
 			if(isset($soap['objective']) && $soap['objective'] != ''){
-				$output .= '<p><b>OBJECTIVE:</b></p>' . nl2br(trim($soap['objective'])) . $br;
+				$output .= '<p><b>OBJECTIVE:</b></p>' . nl2br(trim($soap['objective']));
 			}
 			if(isset($soap['assessment']) && $soap['assessment'] != ''){
 				$output .= '<p><b>ASSESSMENT:</b></p>' . nl2br(trim($soap['assessment']));

@@ -465,36 +465,38 @@ Ext.define('App.controller.patient.RxOrders', {
 
 			if(isSingleColumnTable){
 
-				text = '<u>' + _('order_number') + '</u>: ' + g('rx_order_number_prefix') + order.get('id') + '<br>';
-				text += '<u>' + _('description') + '</u>: ' + '<b>' + order.get('STR').toUpperCase() + '</b><br>';
-				text += '<u>' + _('dispense_as_written') + '</u>: ' + (order.get('daw') ? _('yes') : _('no')) + '<br>';
-				text += '<u>' + _('quantity') + '</u>: ' + order.get('dispense') + '<br>';
+				var lines = [];
+
+				lines.push('<u>' + _('order_number') + '</u>: ' + g('rx_order_number_prefix') + order.get('id'));
+				lines.push('<u>' + _('description') + '</u>: ' + '<b>' + order.get('STR').toUpperCase() + '</b>');
+				lines.push('<u>' + _('dispense_as_written') + '</u>: ' + (order.get('daw') ? _('yes') : _('no')));
+				lines.push('<u>' + _('quantity') + '</u>: ' + order.get('dispense'));
 
 				if(order.get('days_supply')){
-					text += '<u>' + _('days_supply') + '</u>: ' + order.get('days_supply') + '<br>';
+					lines.push('<u>' + _('days_supply') + '</u>: ' + order.get('days_supply'));
 				}
 
-				text += '<u>' + _('refill') + '</u>: ' + order.get('refill') + '<br>';
-				text += '<u>' + _('instructions') + '</u>: ' + order.get('directions') + '<br>';
+				lines.push('<u>' + _('refill') + '</u>: ' + order.get('refill'));
+				lines.push('<u>' + _('instructions') + '</u>: ' + order.get('directions'));
 
 				var dxs = (order.get('dxs').join ? order.get('dxs').join(', ') : order.get('dxs'));
 				if(dxs && dxs !== ''){
-					text += '<u>' + _('dx') + '</u>: ' + (order.get('dxs').join ? order.get('dxs').join(', ') : order.get('dxs')) + '<br>';
+					lines.push('<u>' + _('dx') + '</u>: ' + (order.get('dxs').join ? order.get('dxs').join(', ') : order.get('dxs')));
 				}
 
 				if(order.get('notes') !== ''){
-					text += '<u>' + _('notes_to_pharmacist') + '</u>: ' + order.get('notes') + '<br>';
+					lines.push('<u>' + _('notes_to_pharmacist') + '</u>: ' + order.get('notes'));
 				}
 
 				if(references !== ''){
-					text += '<u>References</u>: ' + references + '<br>';
+					lines.push('<u>References</u>: ' + references);
 				}
 
 				if(order.get('system_notes') !== ''){
-					text += '<b>' + order.get('system_notes') + '</b><br>';
+					lines.push('<b>' + order.get('system_notes') + '</b>');
 				}
 
-				documents[doc_key].orderItems.push([text]);
+				documents[doc_key].orderItems.push([lines.join('<br>')]);
 
 			}else{
 

@@ -46001,24 +46001,28 @@ Ext.define('App.controller.ScriptCam', {
 			],
 			listeners: {
 				close: function(){
-					stream.active = false;
+					//stream.active = false;
+					stream.getTracks().forEach(function(track) {
+						if (track.readyState == 'live') {
+							track.stop();
+						}
+					});
 				}
 			}
 		});
 
 		me.video = document.getElementById('WebCamVideo');
-		me.video.src = window.URL ? window.URL.createObjectURL(stream) : stream;
+
+		try {
+			me.video.srcObject = stream;
+		} catch (error) {
+			me.video.src = window.URL.createObjectURL(stream);
+		}
 		me.video.play();
 	},
 
 	onError: function(error){
 		say(error);
-	},
-
-	onClose: function(){
-		var video = document.getElementById('WebCamVideo');
-		video.src = window.URL ? window.URL.createObjectURL(stream) : stream;
-		video.play();
 	},
 
 	onCapture: function(){
@@ -54258,12 +54262,24 @@ Ext.define('App.controller.patient.Patient', {
 		{
 			ref: 'PatientDemographicsPanel',
 			selector: '#PatientDemographicsPanel'
+		},
+		{
+			ref: 'PatientSummaryPatientImage',
+			selector: '#PatientSummaryPatientImage'
+		},
+		{
+			ref: 'PatientSummaryQrcodeImage',
+			selector: '#PatientSummaryQrcodeImage'
 		}
 	],
 
 	init: function(){
 		var me = this;
 		me.control({
+			'viewport': {
+				afterdemographicssave: me.onAfterDemographicsSave,
+				demographicsrecordload: me.onDemographicsRecordLoad
+			},
 			'#NewPatientWindow': {
 				close: me.onNewPatientWindowClose
 			},
@@ -54306,11 +54322,36 @@ Ext.define('App.controller.patient.Patient', {
 
 			'#DemographicAddressCopyBtn': {
 				click: me.onDemographicAddressCopyBtnClick
+			},
+
+			'#PatientSummaryQrcodeImagePrintBtn': {
+				click: me.onPatientSummaryQrcodeImagePrintBtnClick
 			}
 		});
 
 		me.importCtrl = this.getController('patient.CCDImport');
 
+	},
+
+	onAfterDemographicsSave: function (patient, panel){
+		this.setPatientImages(patient, panel);
+	},
+
+	onDemographicsRecordLoad: function (patient, panel){
+		this.setPatientImages(patient, panel);
+	},
+
+	setPatientImages: function (patient, panel){
+		var patient_image = this.getPatientSummaryPatientImage(),
+			qrcode_image = this.getPatientSummaryQrcodeImage();
+		patient_image.setSrc((patient.data.image !== '' ? patient.data.image : panel.defaultPatientImage));
+		qrcode_image.setSrc((patient.data.qrcode !== '' ? patient.data.qrcode : panel.defaultQRCodeImage));
+
+	},
+
+	onPatientSummaryQrcodeImagePrintBtnClick: function (btn){
+		var qrcode_image = this.getPatientSummaryQrcodeImage();
+		printJS({ printable: qrcode_image.imgEl.dom.src, type: 'image', documentTitle: ''});
 	},
 
 	onDemographicAddressCopyBtnClick: function (btn){
@@ -55994,36 +56035,38 @@ Ext.define('App.controller.patient.RxOrders', {
 
 			if(isSingleColumnTable){
 
-				text = '<u>' + _('order_number') + '</u>: ' + g('rx_order_number_prefix') + order.get('id') + '<br>';
-				text += '<u>' + _('description') + '</u>: ' + '<b>' + order.get('STR').toUpperCase() + '</b><br>';
-				text += '<u>' + _('dispense_as_written') + '</u>: ' + (order.get('daw') ? _('yes') : _('no')) + '<br>';
-				text += '<u>' + _('quantity') + '</u>: ' + order.get('dispense') + '<br>';
+				var lines = [];
+
+				lines.push('<u>' + _('order_number') + '</u>: ' + g('rx_order_number_prefix') + order.get('id'));
+				lines.push('<u>' + _('description') + '</u>: ' + '<b>' + order.get('STR').toUpperCase() + '</b>');
+				lines.push('<u>' + _('dispense_as_written') + '</u>: ' + (order.get('daw') ? _('yes') : _('no')));
+				lines.push('<u>' + _('quantity') + '</u>: ' + order.get('dispense'));
 
 				if(order.get('days_supply')){
-					text += '<u>' + _('days_supply') + '</u>: ' + order.get('days_supply') + '<br>';
+					lines.push('<u>' + _('days_supply') + '</u>: ' + order.get('days_supply'));
 				}
 
-				text += '<u>' + _('refill') + '</u>: ' + order.get('refill') + '<br>';
-				text += '<u>' + _('instructions') + '</u>: ' + order.get('directions') + '<br>';
+				lines.push('<u>' + _('refill') + '</u>: ' + order.get('refill'));
+				lines.push('<u>' + _('instructions') + '</u>: ' + order.get('directions'));
 
 				var dxs = (order.get('dxs').join ? order.get('dxs').join(', ') : order.get('dxs'));
 				if(dxs && dxs !== ''){
-					text += '<u>' + _('dx') + '</u>: ' + (order.get('dxs').join ? order.get('dxs').join(', ') : order.get('dxs')) + '<br>';
+					lines.push('<u>' + _('dx') + '</u>: ' + (order.get('dxs').join ? order.get('dxs').join(', ') : order.get('dxs')));
 				}
 
 				if(order.get('notes') !== ''){
-					text += '<u>' + _('notes_to_pharmacist') + '</u>: ' + order.get('notes') + '<br>';
+					lines.push('<u>' + _('notes_to_pharmacist') + '</u>: ' + order.get('notes'));
 				}
 
 				if(references !== ''){
-					text += '<u>References</u>: ' + references + '<br>';
+					lines.push('<u>References</u>: ' + references);
 				}
 
 				if(order.get('system_notes') !== ''){
-					text += '<b>' + order.get('system_notes') + '</b><br>';
+					lines.push('<b>' + order.get('system_notes') + '</b>');
 				}
 
-				documents[doc_key].orderItems.push([text]);
+				documents[doc_key].orderItems.push([lines.join('<br>')]);
 
 			}else{
 
@@ -76454,6 +76497,61 @@ Ext.define('App.view.patient.Patient', {
 									bodyPadding: 10,
 									items: [
 										{
+											xtype: 'panel',
+											action: 'patientImage',
+											layout: 'vbox',
+											style: 'float:right;',
+											bodyPadding: 10,
+											//height: 300,
+											width:180,
+											itemId: 'PatientSummaryImagesPanel',
+											items: [
+												{
+													xtype: 'image',
+													itemId: 'PatientSummaryPatientImage',
+													imageAlign: 'center',
+													width: 150,
+													height: 120,
+													margin: '0 5 10 5',
+													src: me.defaultPatientImage
+												},
+												{
+													xtype: 'textareafield',
+													name: 'image',
+													hidden: true
+												},
+												{
+													xtype: 'image',
+													itemId: 'PatientSummaryQrcodeImage',
+													imageAlign: 'center',
+													width: 150,
+													height: 150,
+													margin: '0 5 10 5',
+													src: me.defaultQRCodeImage
+												}
+											],
+											dockedItems: [
+												{
+													xtype: 'toolbar',
+													dock: 'bottom',
+													items: [
+														{
+															text: _('take_picture'),
+															action: 'onWebCam',
+															flex: 1
+															//handler: me.getPhotoIdWindow
+														},
+														'-',
+														{
+															text: _('print_qrcode'),
+															flex: 1,
+															itemId: 'PatientSummaryQrcodeImagePrintBtn'
+														}
+													]
+												}
+											]
+										},
+										{
 											xtype: 'fieldcontainer',
 											layout: 'vbox',
 											items: [
@@ -78332,62 +78430,6 @@ Ext.define('App.view.patient.Patient', {
 
 		if(dob) dob.setMaxValue(new Date());
 
-		whoPanel = me.demoForm.query('[action=DemographicWhoFieldSet]')[0];
-		whoPanel.insert(0,
-			me.patientImages = Ext.create('Ext.panel.Panel', {
-				action: 'patientImage',
-				layout: 'vbox',
-				style: 'float:right;',
-				bodyPadding: 10,
-				height: 300,
-				width:180,
-				itemId: 'PatientSummaryImagesPanel',
-				items: [
-					{
-						xtype: 'image',
-						itemId: 'image',
-						imageAlign: 'center',
-						width: 150,
-						height: 120,
-						margin: '0 5 10 5',
-						src: me.defaultPatientImage
-					},
-					{
-						xtype: 'textareafield',
-						name: 'image',
-						hidden: true
-					},
-					{
-						xtype: 'image',
-						itemId: 'qrcode',
-						imageAlign: 'center',
-						width: 150,
-						height: 120,
-						margin: '0 5 10 5',
-						src: me.defaultQRCodeImage
-					}
-				],
-				bbar: [
-					'-',
-					{
-						text: _('take_picture'),
-						action: 'onWebCam'
-						//handler: me.getPhotoIdWindow
-					},
-					'-',
-					'->',
-					'-',
-					{
-						text: _('print_qrcode'),
-						scope: me,
-						handler: function () {
-							window.printQRCode(app.patient.pid);
-						}
-					},
-					'-'
-				]
-			})
-		);
 	},
 
 	// onAddNewContact: function(btn){
@@ -78442,20 +78484,6 @@ Ext.define('App.view.patient.Patient', {
 	// 	}
 	// 	return records;
 	// },
-
-	getPatientImages: function(record){
-		var me = this;
-		if(me.patientImages){
-			me.patientImages.getComponent('image').setSrc(
-				(record.data.image !== '' ? record.data.image : me.defaultPatientImage)
-			);
-		}
-		if(me.patientImages){
-			me.patientImages.getComponent('qrcode').setSrc(
-				(record.data.qrcode !== '' ? record.data.qrcode : me.defaultQRCodeImage)
-			);
-		}
-	},
 
 	// getPatientContacts: function(pid){
 	// 	var me = this;
@@ -78566,7 +78594,6 @@ Ext.define('App.view.patient.Patient', {
 
 				app.setPatient(record.data.pid, null, null, function(){
 
-					me.getPatientImages(record);
 					me.verifyPatientRequiredInfo();
 					me.readOnlyFields(form.getFields());
 
@@ -78615,8 +78642,6 @@ Ext.define('App.view.patient.Patient', {
 		me.setReadOnly(app.patient.readOnly);
 		me.setButtonsDisabled(me.query('button[action="readOnly"]'));
 		me.verifyPatientRequiredInfo();
-
-		me.getPatientImages(app.patient.record);
 
 		// app.patient.record.insurance().load({
 		// 	filters: [

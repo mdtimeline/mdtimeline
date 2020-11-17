@@ -45,12 +45,24 @@ Ext.define('App.controller.patient.Patient', {
 		{
 			ref: 'PatientDemographicsPanel',
 			selector: '#PatientDemographicsPanel'
+		},
+		{
+			ref: 'PatientSummaryPatientImage',
+			selector: '#PatientSummaryPatientImage'
+		},
+		{
+			ref: 'PatientSummaryQrcodeImage',
+			selector: '#PatientSummaryQrcodeImage'
 		}
 	],
 
 	init: function(){
 		var me = this;
 		me.control({
+			'viewport': {
+				afterdemographicssave: me.onAfterDemographicsSave,
+				demographicsrecordload: me.onDemographicsRecordLoad
+			},
 			'#NewPatientWindow': {
 				close: me.onNewPatientWindowClose
 			},
@@ -93,11 +105,36 @@ Ext.define('App.controller.patient.Patient', {
 
 			'#DemographicAddressCopyBtn': {
 				click: me.onDemographicAddressCopyBtnClick
+			},
+
+			'#PatientSummaryQrcodeImagePrintBtn': {
+				click: me.onPatientSummaryQrcodeImagePrintBtnClick
 			}
 		});
 
 		me.importCtrl = this.getController('patient.CCDImport');
 
+	},
+
+	onAfterDemographicsSave: function (patient, panel){
+		this.setPatientImages(patient, panel);
+	},
+
+	onDemographicsRecordLoad: function (patient, panel){
+		this.setPatientImages(patient, panel);
+	},
+
+	setPatientImages: function (patient, panel){
+		var patient_image = this.getPatientSummaryPatientImage(),
+			qrcode_image = this.getPatientSummaryQrcodeImage();
+		patient_image.setSrc((patient.data.image !== '' ? patient.data.image : panel.defaultPatientImage));
+		qrcode_image.setSrc((patient.data.qrcode !== '' ? patient.data.qrcode : panel.defaultQRCodeImage));
+
+	},
+
+	onPatientSummaryQrcodeImagePrintBtnClick: function (btn){
+		var qrcode_image = this.getPatientSummaryQrcodeImage();
+		printJS({ printable: qrcode_image.imgEl.dom.src, type: 'image', documentTitle: ''});
 	},
 
 	onDemographicAddressCopyBtnClick: function (btn){

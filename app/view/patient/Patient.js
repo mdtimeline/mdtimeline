@@ -87,6 +87,61 @@ Ext.define('App.view.patient.Patient', {
 									bodyPadding: 10,
 									items: [
 										{
+											xtype: 'panel',
+											action: 'patientImage',
+											layout: 'vbox',
+											style: 'float:right;',
+											bodyPadding: 10,
+											//height: 300,
+											width:180,
+											itemId: 'PatientSummaryImagesPanel',
+											items: [
+												{
+													xtype: 'image',
+													itemId: 'PatientSummaryPatientImage',
+													imageAlign: 'center',
+													width: 150,
+													height: 120,
+													margin: '0 5 10 5',
+													src: me.defaultPatientImage
+												},
+												{
+													xtype: 'textareafield',
+													name: 'image',
+													hidden: true
+												},
+												{
+													xtype: 'image',
+													itemId: 'PatientSummaryQrcodeImage',
+													imageAlign: 'center',
+													width: 150,
+													height: 150,
+													margin: '0 5 10 5',
+													src: me.defaultQRCodeImage
+												}
+											],
+											dockedItems: [
+												{
+													xtype: 'toolbar',
+													dock: 'bottom',
+													items: [
+														{
+															text: _('take_picture'),
+															action: 'onWebCam',
+															flex: 1
+															//handler: me.getPhotoIdWindow
+														},
+														'-',
+														{
+															text: _('print_qrcode'),
+															flex: 1,
+															itemId: 'PatientSummaryQrcodeImagePrintBtn'
+														}
+													]
+												}
+											]
+										},
+										{
 											xtype: 'fieldcontainer',
 											layout: 'vbox',
 											items: [
@@ -1965,62 +2020,6 @@ Ext.define('App.view.patient.Patient', {
 
 		if(dob) dob.setMaxValue(new Date());
 
-		whoPanel = me.demoForm.query('[action=DemographicWhoFieldSet]')[0];
-		whoPanel.insert(0,
-			me.patientImages = Ext.create('Ext.panel.Panel', {
-				action: 'patientImage',
-				layout: 'vbox',
-				style: 'float:right;',
-				bodyPadding: 10,
-				height: 300,
-				width:180,
-				itemId: 'PatientSummaryImagesPanel',
-				items: [
-					{
-						xtype: 'image',
-						itemId: 'image',
-						imageAlign: 'center',
-						width: 150,
-						height: 120,
-						margin: '0 5 10 5',
-						src: me.defaultPatientImage
-					},
-					{
-						xtype: 'textareafield',
-						name: 'image',
-						hidden: true
-					},
-					{
-						xtype: 'image',
-						itemId: 'qrcode',
-						imageAlign: 'center',
-						width: 150,
-						height: 120,
-						margin: '0 5 10 5',
-						src: me.defaultQRCodeImage
-					}
-				],
-				bbar: [
-					'-',
-					{
-						text: _('take_picture'),
-						action: 'onWebCam'
-						//handler: me.getPhotoIdWindow
-					},
-					'-',
-					'->',
-					'-',
-					{
-						text: _('print_qrcode'),
-						scope: me,
-						handler: function () {
-							window.printQRCode(app.patient.pid);
-						}
-					},
-					'-'
-				]
-			})
-		);
 	},
 
 	// onAddNewContact: function(btn){
@@ -2075,20 +2074,6 @@ Ext.define('App.view.patient.Patient', {
 	// 	}
 	// 	return records;
 	// },
-
-	getPatientImages: function(record){
-		var me = this;
-		if(me.patientImages){
-			me.patientImages.getComponent('image').setSrc(
-				(record.data.image !== '' ? record.data.image : me.defaultPatientImage)
-			);
-		}
-		if(me.patientImages){
-			me.patientImages.getComponent('qrcode').setSrc(
-				(record.data.qrcode !== '' ? record.data.qrcode : me.defaultQRCodeImage)
-			);
-		}
-	},
 
 	// getPatientContacts: function(pid){
 	// 	var me = this;
@@ -2199,7 +2184,6 @@ Ext.define('App.view.patient.Patient', {
 
 				app.setPatient(record.data.pid, null, null, function(){
 
-					me.getPatientImages(record);
 					me.verifyPatientRequiredInfo();
 					me.readOnlyFields(form.getFields());
 
@@ -2248,8 +2232,6 @@ Ext.define('App.view.patient.Patient', {
 		me.setReadOnly(app.patient.readOnly);
 		me.setButtonsDisabled(me.query('button[action="readOnly"]'));
 		me.verifyPatientRequiredInfo();
-
-		me.getPatientImages(app.patient.record);
 
 		// app.patient.record.insurance().load({
 		// 	filters: [

@@ -665,10 +665,10 @@ class Encounter {
 	public function ProgressNoteString($encounter){
 
 		$output = '';
-		$br = '<br><br>';
+		$br = '<br>';
 
 		if(isset($encounter['brief_description']) && $encounter['brief_description'] != ''){
-			$output .= '<p><b>CHIEF COMPLAINT:</b></p>' . nl2br(trim($encounter['brief_description'])) . $br;
+			$output .= '<p><b>CHIEF COMPLAINT:</b></p>' . nl2br(trim($encounter['brief_description'])) . $br. $br;
 		}
 
 		if(isset($encounter['soap'])){
@@ -678,7 +678,7 @@ class Encounter {
 				$output .= '<p><b>SUBJECTIVE:</b></p>' . nl2br(trim($soap['subjective'])) ;
 			}
 			if(isset($soap['objective']) && $soap['objective'] != ''){
-				$output .= '<p><b>OBJECTIVE:</b></p>' . nl2br(trim($soap['objective']));
+				$output .= '<p><b>OBJECTIVE:</b></p>' . nl2br(trim($soap['objective'])) . $br;
 			}
 			if(isset($soap['assessment']) && $soap['assessment'] != ''){
 				$output .= '<p><b>ASSESSMENT:</b></p>' . nl2br(trim($soap['assessment']));

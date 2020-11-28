@@ -432,43 +432,30 @@ class SoapHandler
 			];
 		}
 
-		$user = $this->getUser($params->Username);
+        include_once(ROOT . '/dataProvider/Globals.php');
+        include_once(ROOT . '/dataProvider/authProcedures.php');
+		$authProcedures = new authProcedures();
 
-		if($user == false){
-			return [
-				'Success' => false,
-				'Error' => 'Not Authorized'
-			];
-		}
+        ob_start();
+        $response = $authProcedures->login((object)[
+            'authUser' => $params->Username,
+            'authPass' => $params->Password,
+        ]);
 
-		if(!isset($user['password']) || $user['password'] === ''){
-			return [
-				'Success' => false,
-				'Error' => 'Not Authorized'
-			];
-		}
-
-		if(!isset($user['authorized']) || $user['authorized'] != '1'){
-			return [
-				'Success' => false,
-				'Error' => 'Not Authorized'
-			];
-		}
-
-		if($user['password'] !== $params->Password){
-			return [
-				'Success' => false,
-				'Error' => 'Not Authorized'
-			];
-		}
+        if(!$response['success']){
+            return [
+                'Success' => false,
+                'Error' => $response['message']
+            ];
+        }
 
 		return [
 			'Success' => true,
 			'User' => [
-				'Id' => $user['id'],
-				'FirstName' => $user['fname'],
-				'MiddleName' => $user['mname'],
-				'LastName' => $user['lname'],
+				'Id' => $response['user']['id'],
+				'FirstName' => $response['user']['fname'],
+				'MiddleName' => $response['user']['mname'],
+				'LastName' => $response['user']['lname'],
 			]
 		];
 

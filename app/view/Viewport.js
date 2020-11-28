@@ -741,7 +741,7 @@ Ext.define('App.view.Viewport', {
 	},
 
 	setWindowTitle:function(facility){
-		window.document.title = 'MD Timeline :: ' + facility;
+		window.document.title = 'MDTL :: ' + facility;
 	},
 
     /**

@@ -47,7 +47,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta content="utf-8" http-equiv="encoding">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-		<title>MD Timeline :: Loading...</title>
+		<title>MDTL :: Loading...</title>
 		<link rel="stylesheet" type="text/css" href="resources/css/dashboard.css">
 
         <link rel="stylesheet" type="text/css" href="resources/report/reportStyle.css">

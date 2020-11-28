@@ -36,7 +36,7 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
     </script>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta content="utf-8" http-equiv="encoding">
-    <title>MD Timeline Logon Screen</title>
+    <title>MDTL Logon Screen</title>
     <link rel="shortcut icon" href="favicon.ico">
 
     <script src="JSrouter.php?site=<?php print SITE ?>&dc_=<?php print time() ?>" charset="utf-8"></script>

@@ -1169,6 +1169,8 @@ Ext.define('App.ux.LivePatientSearch', {
 	minChars: 1,
 	queryDelay: 500,
 	resetEnabled: false,
+	newPatientEnabled: false,
+	newPatientCallback: undefined,
 	initComponent: function(){
 		var me = this;
 
@@ -1201,6 +1203,14 @@ Ext.define('App.ux.LivePatientSearch', {
 				},
 				{
 					name: 'phone_mobile',
+					type: 'string'
+				},
+				{
+					name: 'phone_mobile',
+					type: 'string'
+				},
+				{
+					name: 'phone_home',
 					type: 'string'
 				},
 				{
@@ -1283,8 +1293,27 @@ Ext.define('App.ux.LivePatientSearch', {
 			me.trigger2Class = 'x-form-clear-trigger';
 		}
 
-
 		me.callParent();
+
+		me.on('render', function (){
+			me.getPicker().down('toolbar').insert(0,{
+				xtype: 'button',
+				text: _('new_patient'),
+				cls: 'btnGreenBackground',
+				itemId: 'SearchNewPatientBtn',
+				newPatientCallback: function (patient){
+					if(me.newPatientCallback){
+						me.newPatientCallback(me, patient);
+					}
+				},
+				handler: function (){
+					me.reset();
+					me.picker.hide();
+				}
+			});
+
+			//me.inputEl.dom.setAttribute('autocomplete', Ext.isChrome ? 'none' : 'false');
+		});
 	},
 
 	onRender: function(ct, position){
@@ -27345,7 +27374,7 @@ Ext.define('App.view.patient.ProgressNote', {
             '               <td>' +
             '                   <div class="header row">' + _('name') + ': {patient_name} </div>' +
             '                   <div class="header row">' + _('record') + ': #{pid} </div>' +
-            '                   <div class="header row">' + _('provider_date') + ': {open_by} </div>' +
+            '                   <div class="header row">' + _('provider') + ': {open_by} </div>' +
             '                   <div class="header row">' + _('onset_date') + ': {[values.onset_date || "-"]} </div>' +
             '                   <div class="header row">' + _('provider') + ': {[values.signed_by || "-"]} </div>' +
             '               </td>' +
@@ -54286,6 +54315,9 @@ Ext.define('App.controller.patient.Patient', {
 			'#HeaderNewPatientBtn': {
 				click: me.onHeaderNewPatientBtnClick
 			},
+			'#SearchNewPatientBtn': {
+				click: me.onSearchNewPatientBtnClick
+			},
 			'#NewPatientWindowCancelBtn': {
 				click: me.onNewPatientWindowCancelBtnClick
 			},
@@ -54389,7 +54421,11 @@ Ext.define('App.controller.patient.Patient', {
 	},
 
 	onHeaderNewPatientBtnClick: function () {
-		this.showNewPatientWindow(true);
+		this.showNewPatientWindow();
+	},
+
+	onSearchNewPatientBtnClick: function (btn) {
+		this.showNewPatientWindow(btn.newPatientCallback);
 	},
 
 	onNewPatientWindowCancelBtnClick: function () {
@@ -54480,6 +54516,9 @@ Ext.define('App.controller.patient.Patient', {
 					app.setPatient(response.pid, null, null, function(){
 						win.el.unmask();
 						win.close();
+						if(win.newPatientCallback){
+							win.newPatientCallback(response);
+						}
 					}, true);
 				});
 
@@ -54490,16 +54529,20 @@ Ext.define('App.controller.patient.Patient', {
 					duplicared_win.close();
 					win.el.unmask();
 					win.close();
+					if(win.newPatientCallback){
+						win.newPatientCallback(response);
+					}
 				}, true);
 			}
 		});
 
 	},
 
-	showNewPatientWindow: function () {
+	showNewPatientWindow: function (newPatientCallback) {
 		if(!this.getNewPatientWindow()){
 			Ext.create('App.view.patient.windows.NewPatient');
 		}
+		this.getNewPatientWindow().newPatientCallback = newPatientCallback;
 		return this.getNewPatientWindow().show();
 	},
 
@@ -82528,6 +82571,9 @@ Ext.define('App.view.Viewport', {
 
 	stowPatientRecord: function(){
         this.unsetPatient(null, true);
+        if(app.fireEvent('stowpatientrecord', this) === false){
+        	return;
+		}
         this.nav.navigateTo('App.view.dashboard.Dashboard');
     },
 

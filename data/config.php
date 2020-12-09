@@ -18,6 +18,13 @@
  */
 
 $API = [
+    'DocumentPdfForms' => [
+        'methods' => [
+            'generatePdfForm' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'LDAP' => [
         'methods' => [
             'Sync' => [

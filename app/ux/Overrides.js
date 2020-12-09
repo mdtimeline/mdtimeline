@@ -126,10 +126,16 @@ Ext.override(Ext.window.Window, {
 });
 Ext.override(Ext.form.field.Base, {
 	tooltip: false,
+
+    inputAttrTpl: ('autocomplete=' + (Ext.isChrome ? 'new-password' : 'off')),
+
 	onRender : function() {
 		this.callParent(arguments);
 		this.renderActiveError();
 
+		// if(this.inputEl){
+        //     this.inputEl.dom.setAttribute('autocomplete', Ext.isChrome ? 'none' : 'false');
+        // }
 
 		if(this.tooltip && Ext.isString(this.tooltip)){
 			Ext.create('Ext.tip.ToolTip', {

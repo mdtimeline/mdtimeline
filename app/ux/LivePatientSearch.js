@@ -34,6 +34,8 @@ Ext.define('App.ux.LivePatientSearch', {
 	minChars: 1,
 	queryDelay: 500,
 	resetEnabled: false,
+	newPatientEnabled: false,
+	newPatientCallback: undefined,
 	initComponent: function(){
 		var me = this;
 
@@ -66,6 +68,14 @@ Ext.define('App.ux.LivePatientSearch', {
 				},
 				{
 					name: 'phone_mobile',
+					type: 'string'
+				},
+				{
+					name: 'phone_mobile',
+					type: 'string'
+				},
+				{
+					name: 'phone_home',
 					type: 'string'
 				},
 				{
@@ -148,8 +158,27 @@ Ext.define('App.ux.LivePatientSearch', {
 			me.trigger2Class = 'x-form-clear-trigger';
 		}
 
-
 		me.callParent();
+
+		me.on('render', function (){
+			me.getPicker().down('toolbar').insert(0,{
+				xtype: 'button',
+				text: _('new_patient'),
+				cls: 'btnGreenBackground',
+				itemId: 'SearchNewPatientBtn',
+				newPatientCallback: function (patient){
+					if(me.newPatientCallback){
+						me.newPatientCallback(me, patient);
+					}
+				},
+				handler: function (){
+					me.reset();
+					me.picker.hide();
+				}
+			});
+
+			//me.inputEl.dom.setAttribute('autocomplete', Ext.isChrome ? 'none' : 'false');
+		});
 	},
 
 	onRender: function(ct, position){

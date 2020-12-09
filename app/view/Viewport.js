@@ -891,6 +891,9 @@ Ext.define('App.view.Viewport', {
 
 	stowPatientRecord: function(){
         this.unsetPatient(null, true);
+        if(app.fireEvent('stowpatientrecord', this) === false){
+        	return;
+		}
         this.nav.navigateTo('App.view.dashboard.Dashboard');
     },
 

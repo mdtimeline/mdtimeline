@@ -69,6 +69,9 @@ Ext.define('App.controller.patient.Patient', {
 			'#HeaderNewPatientBtn': {
 				click: me.onHeaderNewPatientBtnClick
 			},
+			'#SearchNewPatientBtn': {
+				click: me.onSearchNewPatientBtnClick
+			},
 			'#NewPatientWindowCancelBtn': {
 				click: me.onNewPatientWindowCancelBtnClick
 			},
@@ -172,7 +175,11 @@ Ext.define('App.controller.patient.Patient', {
 	},
 
 	onHeaderNewPatientBtnClick: function () {
-		this.showNewPatientWindow(true);
+		this.showNewPatientWindow();
+	},
+
+	onSearchNewPatientBtnClick: function (btn) {
+		this.showNewPatientWindow(btn.newPatientCallback);
 	},
 
 	onNewPatientWindowCancelBtnClick: function () {
@@ -263,6 +270,9 @@ Ext.define('App.controller.patient.Patient', {
 					app.setPatient(response.pid, null, null, function(){
 						win.el.unmask();
 						win.close();
+						if(win.newPatientCallback){
+							win.newPatientCallback(response);
+						}
 					}, true);
 				});
 
@@ -273,16 +283,20 @@ Ext.define('App.controller.patient.Patient', {
 					duplicared_win.close();
 					win.el.unmask();
 					win.close();
+					if(win.newPatientCallback){
+						win.newPatientCallback(response);
+					}
 				}, true);
 			}
 		});
 
 	},
 
-	showNewPatientWindow: function () {
+	showNewPatientWindow: function (newPatientCallback) {
 		if(!this.getNewPatientWindow()){
 			Ext.create('App.view.patient.windows.NewPatient');
 		}
+		this.getNewPatientWindow().newPatientCallback = newPatientCallback;
 		return this.getNewPatientWindow().show();
 	},
 

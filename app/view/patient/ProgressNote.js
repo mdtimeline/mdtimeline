@@ -34,7 +34,7 @@ Ext.define('App.view.patient.ProgressNote', {
             '               <td>' +
             '                   <div class="header row">' + _('name') + ': {patient_name} </div>' +
             '                   <div class="header row">' + _('record') + ': #{pid} </div>' +
-            '                   <div class="header row">' + _('provider_date') + ': {open_by} </div>' +
+            '                   <div class="header row">' + _('provider') + ': {open_by} </div>' +
             '                   <div class="header row">' + _('onset_date') + ': {[values.onset_date || "-"]} </div>' +
             '                   <div class="header row">' + _('provider') + ': {[values.signed_by || "-"]} </div>' +
             '               </td>' +

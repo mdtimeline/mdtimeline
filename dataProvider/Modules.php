@@ -176,25 +176,27 @@ class Modules {
 	private function setNewModules() {
 		Matcha::pauseLog(true);
 		foreach(FileManager::scanDir($this->modulesDir) AS $module){
-			$ModuleConfig = $this->getModuleConfig($module);
-			if($ModuleConfig === false) continue;
-			if($ModuleConfig['active']){
-				$moduleRecord = $this->m->load(['name' => $ModuleConfig['name']])->one();
-				if(empty($moduleRecord)){
+			$conf = $this->getModuleConfig($module);
+			if($conf === false) continue;
+			if($conf['active']){
+				$record = $this->m->load(['name' => $conf['name']])->one();
+				if(empty($record)){
 					$data = new stdClass();
-					$data->title = $ModuleConfig['title'];
-					$data->name = $ModuleConfig['name'];
-					$data->description = $ModuleConfig['description'];
+					$data->title = $conf['title'];
+					$data->name = $conf['name'];
+					$data->description = $conf['description'];
 					$data->enable = '0';
-					$data->installed_version = $ModuleConfig['version'];
+					$data->installed_version = $conf['version'];
 					$this->m->save($data);
-				}else if($moduleRecord['version'] != $ModuleConfig['version']){
-
-                    $moduleRecord['title'] = $ModuleConfig['title'];
-                    $moduleRecord['name'] = $ModuleConfig['name'];
-                    $moduleRecord['description'] = $ModuleConfig['description'];
-                    $moduleRecord['installed_version'] = $ModuleConfig['version'];
-                    $this->m->save((object)$moduleRecord);
+				}else if($record['installed_version'] != $conf['version']){
+                    $record['title'] = $conf['title'];
+                    $record['name'] = $conf['name'];
+                    $record['description'] = $conf['description'];
+                    $record['installed_version'] = $conf['version'];
+                    $this->m->save((object)$record);
+                    if(isset($conf['permissions'])){
+                        ACL::updateModulePermissions($conf['title'], $conf['permissions'], $record['enable']);
+                    }
                 }
 			}
 		}

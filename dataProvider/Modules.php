@@ -188,7 +188,14 @@ class Modules {
 					$data->enable = '0';
 					$data->installed_version = $ModuleConfig['version'];
 					$this->m->save($data);
-				}
+				}else if($moduleRecord['version'] != $ModuleConfig['version']){
+
+                    $moduleRecord['title'] = $ModuleConfig['title'];
+                    $moduleRecord['name'] = $ModuleConfig['name'];
+                    $moduleRecord['description'] = $ModuleConfig['description'];
+                    $moduleRecord['installed_version'] = $ModuleConfig['version'];
+                    $this->m->save((object)$moduleRecord);
+                }
 			}
 		}
 		Matcha::pauseLog(false);

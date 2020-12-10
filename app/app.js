@@ -4405,7 +4405,6 @@ Ext.define('App.ux.RenderPanel', {
 
 		me.pageTimerDiv = me.mainHeader.add(
 			Ext.widget('container', {
-				style: 'float:right',
 				width: 200
 			})
 		);
@@ -55941,7 +55940,9 @@ Ext.define('App.controller.patient.RxOrders', {
 			daw: null,
 			date_ordered: new Date(),
 			begin_date: new Date(),
-			created_date: new Date()
+			created_date: new Date(),
+			is_active: true,
+			active: true,
 		});
 
 		grid.editingPlugin.startEdit(0, 0);

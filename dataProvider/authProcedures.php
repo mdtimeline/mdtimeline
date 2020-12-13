@@ -355,7 +355,7 @@ class authProcedures {
             isset($_SESSION['user']['auth']) &&
             $_SESSION['user']['auth']
 		){
-			if($this->sigle_user_session && !$this->session->isActiveSession()){
+			if(!$this->session->isActiveSession()){
 				$this->unAuth();
 				return array('authorized' => false);
 			}

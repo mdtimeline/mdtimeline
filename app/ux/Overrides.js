@@ -127,7 +127,7 @@ Ext.override(Ext.window.Window, {
 Ext.override(Ext.form.field.Base, {
 	tooltip: false,
 
-    inputAttrTpl: ('autocomplete=' + (Ext.isChrome ? 'new-password' : 'off')),
+    inputAttrTpl: 'autocomplete="Off" autocorrect="Off"',
 
 	onRender : function() {
 		this.callParent(arguments);

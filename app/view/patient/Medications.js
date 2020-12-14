@@ -127,7 +127,8 @@ Ext.define('App.view.patient.Medications', {
 					hideable: false,
 					editor: {
 						xtype: 'datefield',
-						format: 'Y-m-d'
+						format: 'Y-m-d',
+						itemId: 'PatientMedicationEndDateField'
 					}
 				},
 				{

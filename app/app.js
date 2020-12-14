@@ -53325,6 +53325,9 @@ Ext.define('App.controller.patient.Medications', {
 				beforeedit: me.onPatientMedicationsGridBeforeEdit,
 				beforeitemcontextmenu: me.onPatientMedicationsGridBeforeItemContextMenu
 			},
+			'#PatientMedicationEndDateField': {
+				select: me.onPatientMedicationEndDateFieldSelect
+			},
 			'#addPatientMedicationBtn': {
 				click: me.onAddPatientMedicationBtnClick
 			},
@@ -53361,6 +53364,17 @@ Ext.define('App.controller.patient.Medications', {
 			'#PatientMedicationsGridInactivateMenu': {
 				click: me.onPatientMedicationsGridInactivateMenu
 			}
+		});
+	},
+
+	onPatientMedicationEndDateFieldSelect: function (field){
+		var form = field.up('form').getForm();
+
+		form.findField('is_active').setValue(false);
+
+		form.getRecord().set({
+			is_active: false,
+			active: false
 		});
 	},
 
@@ -55690,10 +55704,14 @@ Ext.define('App.controller.patient.RxOrders', {
 				selectionchange: me.onRxOrdersGridSelectionChange,
 				beforerender: me.onRxOrdersGridBeforeRender,
 				beforeedit: me.onRxOrdersGridBeforeEdit,
-				edit: me.onRxOrdersGridEdit
+				edit: me.onRxOrdersGridEdit,
+				validedit: me.onRxOrdersGridValidEdit
 			},
 			'#RxOrdersGridTopToolbar > button[action=rx_show]': {
 				toggle: me.onRxOrdersGridShowBtnToggle
+			},
+			'#RxOrderEndDateField': {
+				select: me.onRxOrderEndDateFieldSelect
 			},
 			'#RxNormOrderLiveSearch': {
 				beforeselect: me.onRxNormOrderLiveSearchBeforeSelect
@@ -55720,6 +55738,18 @@ Ext.define('App.controller.patient.RxOrders', {
 				select: me.onRxOrderGridFormUnableToPerformFieldSelect,
 				fieldreset: me.onRxOrderGridFormUnableToPerformFieldReset
 			}
+		});
+	},
+
+	onRxOrderEndDateFieldSelect: function (field){
+		var form = field.up('form').getForm();
+
+		say('onRxOrderEndDateFieldSelect');
+		say(field);
+
+		form.getRecord().set({
+			is_active: false,
+			active: false
 		});
 	},
 
@@ -55896,6 +55926,10 @@ Ext.define('App.controller.patient.RxOrders', {
 				}
 			]
 		});
+	},
+
+	onRxOrdersGridValidEdit: function (){
+
 	},
 
 	onRxOrdersGridEdit: function(plugin, context){
@@ -59278,7 +59312,8 @@ Ext.define('App.view.patient.Medications', {
 					hideable: false,
 					editor: {
 						xtype: 'datefield',
-						format: 'Y-m-d'
+						format: 'Y-m-d',
+						itemId: 'PatientMedicationEndDateField'
 					}
 				},
 				{
@@ -73583,7 +73618,8 @@ Ext.define('App.view.patient.RxOrders', {
 									labelAlign: 'right',
 									format: 'Y-m-d',
 									width: 258,
-									name: 'end_date'
+									name: 'end_date',
+									itemId: 'RxOrderEndDateField'
 								}
 							]
 						},
@@ -73669,6 +73705,14 @@ Ext.define('App.view.patient.RxOrders', {
 			width: 75,
 			format: 'Y-m-d',
 			dataIndex: 'end_date'
+		},
+		{
+			header: _('active?'),
+			width: 60,
+			dataIndex: 'is_active',
+			renderer: function (v){
+				return app.boolRenderer(v);
+			}
 		}
 	],
 

@@ -320,7 +320,8 @@ Ext.define('App.view.patient.RxOrders', {
 									labelAlign: 'right',
 									format: 'Y-m-d',
 									width: 258,
-									name: 'end_date'
+									name: 'end_date',
+									itemId: 'RxOrderEndDateField'
 								}
 							]
 						},
@@ -406,6 +407,14 @@ Ext.define('App.view.patient.RxOrders', {
 			width: 75,
 			format: 'Y-m-d',
 			dataIndex: 'end_date'
+		},
+		{
+			header: _('active?'),
+			width: 60,
+			dataIndex: 'is_active',
+			renderer: function (v){
+				return app.boolRenderer(v);
+			}
 		}
 	],
 

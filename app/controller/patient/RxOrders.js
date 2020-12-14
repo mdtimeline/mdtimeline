@@ -78,10 +78,14 @@ Ext.define('App.controller.patient.RxOrders', {
 				selectionchange: me.onRxOrdersGridSelectionChange,
 				beforerender: me.onRxOrdersGridBeforeRender,
 				beforeedit: me.onRxOrdersGridBeforeEdit,
-				edit: me.onRxOrdersGridEdit
+				edit: me.onRxOrdersGridEdit,
+				validedit: me.onRxOrdersGridValidEdit
 			},
 			'#RxOrdersGridTopToolbar > button[action=rx_show]': {
 				toggle: me.onRxOrdersGridShowBtnToggle
+			},
+			'#RxOrderEndDateField': {
+				select: me.onRxOrderEndDateFieldSelect
 			},
 			'#RxNormOrderLiveSearch': {
 				beforeselect: me.onRxNormOrderLiveSearchBeforeSelect
@@ -108,6 +112,18 @@ Ext.define('App.controller.patient.RxOrders', {
 				select: me.onRxOrderGridFormUnableToPerformFieldSelect,
 				fieldreset: me.onRxOrderGridFormUnableToPerformFieldReset
 			}
+		});
+	},
+
+	onRxOrderEndDateFieldSelect: function (field){
+		var form = field.up('form').getForm();
+
+		say('onRxOrderEndDateFieldSelect');
+		say(field);
+
+		form.getRecord().set({
+			is_active: false,
+			active: false
 		});
 	},
 
@@ -284,6 +300,10 @@ Ext.define('App.controller.patient.RxOrders', {
 				}
 			]
 		});
+	},
+
+	onRxOrdersGridValidEdit: function (){
+
 	},
 
 	onRxOrdersGridEdit: function(plugin, context){

@@ -81,6 +81,9 @@ Ext.define('App.controller.patient.Medications', {
 				beforeedit: me.onPatientMedicationsGridBeforeEdit,
 				beforeitemcontextmenu: me.onPatientMedicationsGridBeforeItemContextMenu
 			},
+			'#PatientMedicationEndDateField': {
+				select: me.onPatientMedicationEndDateFieldSelect
+			},
 			'#addPatientMedicationBtn': {
 				click: me.onAddPatientMedicationBtnClick
 			},
@@ -117,6 +120,17 @@ Ext.define('App.controller.patient.Medications', {
 			'#PatientMedicationsGridInactivateMenu': {
 				click: me.onPatientMedicationsGridInactivateMenu
 			}
+		});
+	},
+
+	onPatientMedicationEndDateFieldSelect: function (field){
+		var form = field.up('form').getForm();
+
+		form.findField('is_active').setValue(false);
+
+		form.getRecord().set({
+			is_active: false,
+			active: false
 		});
 	},
 

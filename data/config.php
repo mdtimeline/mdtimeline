@@ -2463,10 +2463,12 @@ $API = [
 	'authProcedures' => [
 		'methods' => [
 			'login' => [
-				'len' => 1
+				'len' => 1,
+                'secure' => false
             ],
 			'ckAuth' => [
-				'len' => 0
+				'len' => 0,
+                'secure' => false
             ],
 			'unAuth' => [
 				'len' => 0
@@ -2494,7 +2496,8 @@ $API = [
 				'len' => 1
             ],
 			'getTimeZoneList' => [
-				'len' => 1
+				'len' => 1,
+                'secure' => false
             ],
 			'getActivePharmacies' => [
 				'len' => 0
@@ -2506,10 +2509,12 @@ $API = [
 				'len' => 0
             ],
 			'getFacilities' => [
-				'len' => 0
+				'len' => 0,
+                'secure' => false
             ],
 			'getActiveFacilities' => [
-				'len' => 0
+				'len' => 0,
+                'secure' => false
             ],
 			'getBillingFacilities' => [
 				'len' => 0
@@ -2557,7 +2562,8 @@ $API = [
 				'len' => 0
             ],
 			'getThemes' => [
-				'len' => 0
+				'len' => 0,
+                'secure' => false
             ],
 			'getEncounterSupervisors' => [
 				'len' => 0
@@ -2838,7 +2844,8 @@ $API = [
 				'len' => 0
             ],
 			'getAvailableLanguages' => [
-				'len' => 0
+				'len' => 0,
+                'secure' => false
             ]
         ]
     ],

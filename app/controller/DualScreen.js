@@ -15,6 +15,10 @@ Ext.define('App.controller.DualScreen', {
         {
             ref:'TabPanel',
             selector:'#dualViewport tabpanel'
+        },
+        {
+            ref:'ApplicationDualScreenBtn',
+            selector:'#ApplicationDualScreenBtn'
         }
 	],
 
@@ -28,12 +32,23 @@ Ext.define('App.controller.DualScreen', {
 		me._screen = null;
 
 		me.control({
+			'#ApplicationDualScreenBtn':{
+				toggle: me.onApplicationDualScreenBtnToggle
+			},
 			'#dualViewport':{
 				render:me.onDualViewportRender,
 				beforerender:me.onDualViewportBeforeRender
 			}
 		});
 
+	},
+
+	onApplicationDualScreenBtnToggle: function (btn){
+		if(btn.pressed){
+			this.startDual();
+		}else{
+			this.stopDual();
+		}
 	},
 
 	startDual:function(){
@@ -46,7 +61,7 @@ Ext.define('App.controller.DualScreen', {
 
 	stopDual:function(){
 		this.disable();
-		this._screen.close();
+		if(this._screen) this._screen.close();
 		this._screen = null;
 	},
 

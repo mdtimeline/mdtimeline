@@ -26,6 +26,7 @@ Ext.define('App.view.Viewport', {
 	patientImage:'resources/images/patientPhotoPlaceholder.jpg',
 	enablePoolAreaFadeInOut: eval(g('enable_poolarea_fade_in_out')),
 	userInteracted : false,
+	itemId: 'Viewport',
 	ip: null,
 
 	// end app settings
@@ -48,7 +49,7 @@ Ext.define('App.view.Viewport', {
 
 	    me.logged = true;
 
-        if(eval(g('enable_dual_monitor'))) me.dual.startDual();
+        //if(eval(g('enable_dual_monitor'))) me.dual.startDual();
 
 	    me.lastCardNode = null;
         me.prevNode = null;
@@ -636,6 +637,16 @@ Ext.define('App.view.Viewport', {
 		                    width: parseFloat(g('gbl_nav_area_width')) - 4,
 		                    hidden: !eval(a('access_to_other_facilities')),
 		                    itemId: 'ApplicationFacilityCombo'
+	                    },
+						'-',
+	                    {
+		                    xtype: 'button',
+		                    text: _('dual_screen'),
+		                    itemId: 'ApplicationDualScreenBtn',
+							enableToggle: true,
+							toggleGroup: 'ApplicationDualScreenBtnGroup',
+							stateful: true,
+							stateId: ('ApplicationDualScreenBtnState' + app.user.id)
 	                    },
 	                    '-',
 	                    {

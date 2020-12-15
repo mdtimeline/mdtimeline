@@ -37,68 +37,93 @@ Ext.define('App.view.ViewportDual', {
 		type: 'vbox',
 		align: 'stretch'
 	},
-	itemId:'dualViewport',
+	itemId: 'dualViewport',
 	style: {
 		'background-color': '#DFE8F6'
 	},
-	items:[
-		{
-			xtype: 'container',
-			cls: 'RenderPanel-header',
-			itemId: 'RenderPanel-header',
-			region: 'north',
-			margin: '5 0 0 0',
-			height: 33
-		},
-		{
-			xtype:'tabpanel',
-			activeTab: 0,
-			frame: true,
-			margin: '0 5 5 5',
-			flex: 1,
-			items:[
-				{
-					xtype:'patientdocumentspanel'
-				},
-				{
-					xtype:'patientimmunizationspanel'
-				},
-				{
-					xtype:'patientallergiespanel'
-				},
-				{
-					xtype:'patientactiveproblemspanel'
-				},
-				{
-					xtype: 'patientadvancedirectivepanel'
-				},
-				{
-					xtype:'patientmedicationspanel'
-				},
-				{
-					xtype:'patientsocialpanel'
-				},
-				{
-					xtype:'patientresultspanel'
-				},
-				{
-					xtype:'patientreferralspanel'
-				},
-				{
-					xtype:'patientlaborderspanel'
-				},
-				{
-					xtype:'patientradorderspanel'
-				},
-				{
-					xtype:'patientrxorderspanel'
-				},
-				{
-					xtype:'patientdoctorsnotepanel'
-				}
-			]
-		}
-	],
+
+
+	initComponent: function (){
+
+    	var me = this;
+
+    	say('access_patient_doctors_notes');
+		say(a('access_patient_doctors_notes'));
+
+		me.items = [
+			{
+				xtype: 'container',
+				cls: 'RenderPanel-header',
+				itemId: 'RenderPanel-header',
+				region: 'north',
+				margin: '5 0 0 0',
+				height: 33
+			},
+			{
+				xtype:'tabpanel',
+				activeTab: 0,
+				frame: true,
+				margin: '0 5 5 5',
+				flex: 1,
+				items:[
+					{
+						xtype:'patientdocumentspanel',
+						hidden: !a('access_patient_documents')
+					},
+					{
+						xtype:'patientimmunizationspanel',
+						hidden: !a('access_patient_immunizations')
+					},
+					{
+						xtype:'patientallergiespanel',
+						hidden: !a('access_patient_allergies')
+					},
+					{
+						xtype:'patientactiveproblemspanel',
+						hidden: !a('access_active_problems')
+					},
+					{
+						xtype: 'patientadvancedirectivepanel',
+						hidden: !a('access_patient_advance_directive')
+					},
+					{
+						xtype:'patientmedicationspanel',
+						hidden: !a('access_patient_medications')
+					},
+					{
+						xtype:'patientsocialpanel',
+						hidden: !a('access_patient_social_history')
+					},
+					{
+						xtype:'patientresultspanel',
+						hidden: !a('access_patient_results')
+					},
+					{
+						xtype:'patientreferralspanel',
+						hidden: !a('access_patient_referrals')
+					},
+					{
+						xtype:'patientlaborderspanel',
+						hidden: !a('access_patient_lab_orders')
+					},
+					{
+						xtype:'patientradorderspanel',
+						hidden: !a('access_patient_rad_orders')
+					},
+					{
+						xtype:'patientrxorderspanel',
+						hidden: !a('access_patient_rx_orders')
+					},
+					{
+						xtype:'patientdoctorsnotepanel',
+						hidden: !a('access_patient_doctors_notes')
+					}
+				]
+			}
+		];
+
+    	me.callParent(arguments);
+	},
 
 	onDocumentView: function(id, type){
 		var windows = Ext.ComponentQuery.query('documentviewerwindow'),

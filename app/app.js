@@ -44780,6 +44780,10 @@ Ext.define('App.controller.DualScreen', {
         {
             ref:'TabPanel',
             selector:'#dualViewport tabpanel'
+        },
+        {
+            ref:'ApplicationDualScreenBtn',
+            selector:'#ApplicationDualScreenBtn'
         }
 	],
 
@@ -44793,12 +44797,23 @@ Ext.define('App.controller.DualScreen', {
 		me._screen = null;
 
 		me.control({
+			'#ApplicationDualScreenBtn':{
+				toggle: me.onApplicationDualScreenBtnToggle
+			},
 			'#dualViewport':{
 				render:me.onDualViewportRender,
 				beforerender:me.onDualViewportBeforeRender
 			}
 		});
 
+	},
+
+	onApplicationDualScreenBtnToggle: function (btn){
+		if(btn.pressed){
+			this.startDual();
+		}else{
+			this.stopDual();
+		}
 	},
 
 	startDual:function(){
@@ -44811,7 +44826,7 @@ Ext.define('App.controller.DualScreen', {
 
 	stopDual:function(){
 		this.disable();
-		this._screen.close();
+		if(this._screen) this._screen.close();
 		this._screen = null;
 	},
 
@@ -81751,6 +81766,7 @@ Ext.define('App.view.Viewport', {
 	patientImage:'resources/images/patientPhotoPlaceholder.jpg',
 	enablePoolAreaFadeInOut: eval(g('enable_poolarea_fade_in_out')),
 	userInteracted : false,
+	itemId: 'Viewport',
 	ip: null,
 
 	// end app settings
@@ -81773,7 +81789,7 @@ Ext.define('App.view.Viewport', {
 
 	    me.logged = true;
 
-        if(eval(g('enable_dual_monitor'))) me.dual.startDual();
+        //if(eval(g('enable_dual_monitor'))) me.dual.startDual();
 
 	    me.lastCardNode = null;
         me.prevNode = null;
@@ -82361,6 +82377,16 @@ Ext.define('App.view.Viewport', {
 		                    width: parseFloat(g('gbl_nav_area_width')) - 4,
 		                    hidden: !eval(a('access_to_other_facilities')),
 		                    itemId: 'ApplicationFacilityCombo'
+	                    },
+						'-',
+	                    {
+		                    xtype: 'button',
+		                    text: _('dual_screen'),
+		                    itemId: 'ApplicationDualScreenBtn',
+							enableToggle: true,
+							toggleGroup: 'ApplicationDualScreenBtnGroup',
+							stateful: true,
+							stateId: ('ApplicationDualScreenBtnState' + app.user.id)
 	                    },
 	                    '-',
 	                    {

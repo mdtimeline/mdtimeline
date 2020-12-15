@@ -2182,4 +2182,5 @@ $LANG = array(
     'rx_member_id' => 'Rx Member ID',
     'upload_image' => 'Upload Image',
     'msp_ins_type' => 'MSP Ins Type',
+    'dual_screen' => 'Dual Screen',
 );

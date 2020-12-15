@@ -120,29 +120,15 @@ function doRpc($cdata)
 
 		$method = $cdata->method;
 
+		$is_secure_method = !isset($a['methods'][$method]['secure']) || $a['methods'][$method]['secure'];
+
         // TODO: Create a config file for those classes and methods that not require authorization
         // TODO: Create am authorization for the SiteSetup. This has security flaws
 		if(
 			isset($_SESSION['user']) &&
 			(isset($_SESSION['user']['auth']) && $_SESSION['user']['auth'] == true) ||
 			(isset($_SESSION['user']['portal_authorized']) && $_SESSION['user']['portal_authorized'] == true ) ||
-			($action == 'authProcedures' && $method == 'login') ||
-			($action == 'authProcedures' && $method == 'ckAuth') ||
-			($action == 'PortalAuthorize' && $method == 'login') ||
-			($action == 'PortalAuthorize' && $method == 'check') ||
-			($action == 'PortalAuthorize' && $method == 'checkApp') ||
-			($action == 'PortalAuthorize' && $method == 'checkToken') ||
-			($action == 'PortalAuthorize' && $method == 'globals') ||
-			($action == 'PortalAuthorize' && $method == 'passwordReset') ||
-			($action == 'PortalAuthorize' && $method == 'passwordReset') ||
-			($action == 'PortalAuthorize' && $method == 'registerAuthy') ||
-			($action == 'PortalRegister' && $method == 'validateInvitation') ||
-			($action == 'PortalRegister' && $method == 'register') ||
-			($action == 'RadiologyResults' && $method == 'authorization') ||
-			($action == 'CombosData' && $method == 'getActiveFacilities') ||
-			($action == 'i18nRouter' && $method == 'getAvailableLanguages') ||
-            ($action == 'CombosData' && $method == 'getTimeZoneList') || // Used by SiteSetup
-            ($action == 'CombosData' && $method == 'getThemes') // Used by SiteSetup
+            !$is_secure_method
 		)
         {
 

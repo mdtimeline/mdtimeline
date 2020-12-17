@@ -510,8 +510,11 @@ Ext.define('App.controller.patient.Insurance', {
     },
 
     onPatientInsurancesPanelCancelBtnClick: function (btn) {
-        var form_panel = this.getActiveInsuranceFormPanel(),
-            form = form_panel.getForm(),
+        var form_panel = this.getActiveInsuranceFormPanel();
+
+        if (!form_panel) return;
+
+        var form = form_panel.getForm(),
             record = form.getRecord();
 
         if (record.get('id') > 0) {

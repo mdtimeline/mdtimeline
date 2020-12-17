@@ -24,7 +24,7 @@ Ext.define('App.view.administration.ContentManagementWindow', {
 		type: 'fit'
 	},
 	width: 1100,
-	height: 800,
+	height: 700,
 	items: [
 		{
 			xtype: 'form',
@@ -75,6 +75,14 @@ Ext.define('App.view.administration.ContentManagementWindow', {
 							readOnly: true,
 							allowBlank: false
 						},
+						{
+							xtype: 'checkboxfield',
+							name: 'is_html',
+							fieldLabel: _('is_html'),
+							labelAlign: 'top',
+							flex: 1,
+							margin: '0 10 0 0'
+						},
 					]
 				},
 				{
@@ -90,12 +98,23 @@ Ext.define('App.view.administration.ContentManagementWindow', {
 						{
 							xtype: 'textareafield',
 							name: 'content_body',
-
 							fieldLabel: _('body'),
 							labelAlign: 'top',
 							flex: 1,
 							allowBlank: false,
-							margin: '0 10 0 0'
+							margin: '0 10 0 0',
+							action: 'content_body'
+						},
+						{
+							xtype: 'htmleditor',
+							name: 'content_body',
+							fieldLabel: _('body'),
+							labelAlign: 'top',
+							flex: 1,
+							allowBlank: false,
+							margin: '0 10 0 0',
+							hidden: true,
+							action: 'content_body'
 						},
 						{
 							xtype: 'textareafield',

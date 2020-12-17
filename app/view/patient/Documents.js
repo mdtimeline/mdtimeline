@@ -57,7 +57,7 @@ Ext.define('App.view.patient.Documents', {
 					{
 						ftype: 'grouping',
 						hideGroupedHeader: true,
-						startCollapsed: me.startCollapsed || false,
+						startCollapsed: true,
 						groupHeaderTpl: Ext.create('Ext.XTemplate',
 							'{children:this.getGroupName}',
 							{
@@ -212,7 +212,14 @@ Ext.define('App.view.patient.Documents', {
 					pageSize: 10,
 					store: store,
 					displayInfo: true,
-					plugins: Ext.create('Ext.ux.SlidingPager', {})
+					items: [
+						{
+							text: 'Show...',
+							destroyMenu: true,
+							itemId: 'PatientDocumentGridGroupBtn',
+							menu: []
+						}
+					]
 				})
 			},
 			{

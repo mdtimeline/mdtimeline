@@ -34280,7 +34280,7 @@ Ext.define('App.view.administration.Lists', {
 		    me.optionsRowEditing.cancelEdit();
 		    m = Ext.create('App.model.administration.ListOptions', {
 			    list_id: list.id,
-			    list_Key: list.list_key
+                list_key: list.list_key
 		    });
 		    me.optionsStore.insert(0, m);
 		    me.optionsRowEditing.startEdit(0, 0);
@@ -39122,11 +39122,26 @@ Ext.define('App.controller.administration.ContentManagement', {
 
         var me = this,
             content_type = record.get('content_type'),
-            form = me.getContentManagementWindowForm().getForm();
-
+            form_panel = me.getContentManagementWindowForm(),
+            form = form_panel.getForm(),
+            is_html = record.get('is_html'),
+            textareafield = form_panel.down('textareafield[action=content_body]'),
+            htmleditor = form_panel.down('htmleditor[action=content_body]');
 
         form.reset();
         form.loadRecord(record);
+
+
+        textareafield.setValue(record.get('content_body'));
+        textareafield.submitValue = !is_html;
+        textareafield.setDisabled(is_html);
+        textareafield.setVisible(!is_html);
+
+        htmleditor.setValue(record.get('content_body'));
+        htmleditor.submitValue = is_html;
+        htmleditor.setDisabled(!is_html);
+        htmleditor.setVisible(is_html);
+
         me.setTokensTextAreaFieldByContentType(content_type);
     },
 
@@ -55880,41 +55895,50 @@ Ext.define('App.controller.patient.RxOrders', {
 			insCmb = this.getRxOrderMedicationInstructionsCombo(),
 			order_record = form.getRecord(),
             store;
+
 		order_record.set({
+			STR: record.data.STR,
 			RXCUI: record.data.RXCUI,
 			CODE: record.data.CODE,
             GS_CODE: record.data.GS_CODE,
 			NDC: record.data.NDC,
 			TTY: record.data.TTY
 		});
-		var data = {};
 
-		Rxnorm.getMedicationAttributesByRxcuiApi(record.data.RXCUI, function(response){
+		try{
+			var data = {};
 
-			if(response.propConceptGroup){
-				response.propConceptGroup.propConcept.forEach(function(propConcept){
+			Rxnorm.getMedicationAttributesByRxcuiApi(record.data.RXCUI, function(response){
 
-					if(propConcept.propCategory !== 'ATTRIBUTES' && propConcept.propCategory !== 'CODES') return;
+				if(response.propConceptGroup){
+					response.propConceptGroup.propConcept.forEach(function(propConcept){
 
-					if(!data[propConcept.propCategory]){
-						data[propConcept.propCategory] = {};
-					}
-					var propName = propConcept.propName.replace(' ', '_');
-					data[propConcept.propCategory][propName] = propConcept.propValue;
-				});
-			}
+						if(propConcept.propCategory !== 'ATTRIBUTES' && propConcept.propCategory !== 'CODES') return;
 
-			if(data.ATTRIBUTES && data.ATTRIBUTES.SCHEDULE && data.ATTRIBUTES.SCHEDULE != '0'){
-				order_record.set({ is_controlled: true });
-			}
-		});
+						if(!data[propConcept.propCategory]){
+							data[propConcept.propCategory] = {};
+						}
+						var propName = propConcept.propName.replace(' ', '_');
+						data[propConcept.propCategory][propName] = propConcept.propValue;
+					});
+				}
+
+				if(data.ATTRIBUTES && data.ATTRIBUTES.SCHEDULE && data.ATTRIBUTES.SCHEDULE != '0'){
+					order_record.set({ is_controlled: true });
+				}
+			});
 
 
-		store = record.instructions();
-		insCmb.bindStore(store, true);
-		insCmb.store = store;
-		insCmb.store.load();
-		form.findField('dispense').focus(false, 200);
+			store = record.instructions();
+			insCmb.bindStore(store, true);
+			insCmb.store = store;
+			insCmb.store.load();
+			form.findField('dispense').focus(false, 200);
+
+		}catch (e){
+
+		}
+
 	},
 
 	onRxOrdersGridBeforeEdit: function(plugin, context){
@@ -63669,7 +63693,7 @@ Ext.define('App.view.patient.Documents', {
 					{
 						ftype: 'grouping',
 						hideGroupedHeader: true,
-						startCollapsed: me.startCollapsed || false,
+						startCollapsed: true,
 						groupHeaderTpl: Ext.create('Ext.XTemplate',
 							'{children:this.getGroupName}',
 							{
@@ -63824,7 +63848,14 @@ Ext.define('App.view.patient.Documents', {
 					pageSize: 10,
 					store: store,
 					displayInfo: true,
-					plugins: Ext.create('Ext.ux.SlidingPager', {})
+					items: [
+						{
+							text: 'Show...',
+							destroyMenu: true,
+							itemId: 'PatientDocumentGridGroupBtn',
+							menu: []
+						}
+					]
 				})
 			},
 			{
@@ -70080,6 +70111,8 @@ Ext.define('App.controller.patient.Documents', {
 	init: function(){
 		var me = this;
 
+		// me.onPatientDocumentGridBeforeRefreshBuffered = Ext.Function.createBuffered(me.onPatientDocumentGridBeforeRefresh, 25,me);
+
 		me.control({
 			'viewport': {
 				browserhelperopen: me.onBrowserHelperOpen,
@@ -70094,6 +70127,9 @@ Ext.define('App.controller.patient.Documents', {
 				selectionchange: me.onPatientDocumentGridSelectionChange,
 				afterrender: me.onPatientDocumentGridAfterRender,
 				beforeitemcontextmenu: me.onPatientDocumentGridBeforeItemContextMenu
+			},
+			'patientdocumentspanel #patientDocumentGrid gridview': {
+				beforerefresh: me.onPatientDocumentGridBeforeRefresh
 			},
 			'patientdocumentspanel [toggleGroup=documentgridgroup]': {
 				toggle: me.onDocumentGroupBtnToggle
@@ -70112,6 +70148,12 @@ Ext.define('App.controller.patient.Documents', {
 			},
 			'#patientDocumentUploadWindow #uploadBtn': {
 				click: me.onDocumentUploadSaveBtnClick
+			},
+			'#PatientDocumentGridGroupBtn': {
+				beforerender: me.onPatientDocumentGridGroupBtnBeforeRender
+			},
+			'#PatientDocumentGridGroupBtn menucheckitem': {
+				checkchange: me.onPatientDocumentGridGroupBtnCheckChange
 			},
 			'#DocumentErrorNoteSaveBtn': {
 				click: me.onDocumentErrorNoteSaveBtnClick
@@ -70135,6 +70177,52 @@ Ext.define('App.controller.patient.Documents', {
 		});
 
 		me.nav = this.getController('Navigation');
+
+		me.document_group_menu = [];
+		me.document_groups = {};
+
+		CombosData.getOptionsByListId({list_key : 'doc_type_cat'}, function (groups){
+			groups.forEach(function (group){
+
+				var stateId = ((group.option_value+ '-' + group.option_name + '_').replace(' ', '_') + app.user.id),
+					state = Ext.state.Manager.get(stateId, {});
+
+				me.document_groups[group.option_value] = state.checked || false;
+
+				me.document_group_menu.push({
+					xtype: 'menucheckitem',
+					text: group.option_value + ' - ' + group.option_name,
+					stateful: true,
+					stateId: stateId,
+					_document_group: group.option_value
+				});
+			});
+		});
+
+	},
+
+	onPatientDocumentGridBeforeRefresh: function (v){
+		var me = this,
+			groups = v.store.getGroups();
+
+		if(groups.length === 0){
+			return;
+		}
+		groups.forEach(function (group){
+			if(me.document_groups[group.name]){
+				v.summaryFeature.expand(group.name);
+			}else{
+				v.summaryFeature.collapse(group.name);
+			}
+		});
+	},
+
+	onPatientDocumentGridGroupBtnBeforeRender: function (btn){
+		btn.menu.add(Ext.clone(this.document_group_menu));
+	},
+
+	onPatientDocumentGridGroupBtnCheckChange: function (btn){
+		this.document_groups[btn._document_group] = btn.checked;
 	},
 
 	onEncounterPatientDocumentsBtnClick: function () {

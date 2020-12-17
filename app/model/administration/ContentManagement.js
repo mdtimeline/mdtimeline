@@ -33,6 +33,10 @@ Ext.define('App.model.administration.ContentManagement', {
             dataType: 'mediumtext'
         },
         {
+            name: 'is_html',
+            type: 'bool'
+        },
+        {
             name: 'content_version',
             type: 'string',
             len:10,

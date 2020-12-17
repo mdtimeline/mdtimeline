@@ -272,7 +272,7 @@ Ext.define('App.view.administration.Lists', {
 		    me.optionsRowEditing.cancelEdit();
 		    m = Ext.create('App.model.administration.ListOptions', {
 			    list_id: list.id,
-			    list_Key: list.list_key
+                list_key: list.list_key
 		    });
 		    me.optionsStore.insert(0, m);
 		    me.optionsRowEditing.startEdit(0, 0);

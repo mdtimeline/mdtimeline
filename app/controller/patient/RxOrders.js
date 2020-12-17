@@ -239,41 +239,50 @@ Ext.define('App.controller.patient.RxOrders', {
 			insCmb = this.getRxOrderMedicationInstructionsCombo(),
 			order_record = form.getRecord(),
             store;
+
 		order_record.set({
+			STR: record.data.STR,
 			RXCUI: record.data.RXCUI,
 			CODE: record.data.CODE,
             GS_CODE: record.data.GS_CODE,
 			NDC: record.data.NDC,
 			TTY: record.data.TTY
 		});
-		var data = {};
 
-		Rxnorm.getMedicationAttributesByRxcuiApi(record.data.RXCUI, function(response){
+		try{
+			var data = {};
 
-			if(response.propConceptGroup){
-				response.propConceptGroup.propConcept.forEach(function(propConcept){
+			Rxnorm.getMedicationAttributesByRxcuiApi(record.data.RXCUI, function(response){
 
-					if(propConcept.propCategory !== 'ATTRIBUTES' && propConcept.propCategory !== 'CODES') return;
+				if(response.propConceptGroup){
+					response.propConceptGroup.propConcept.forEach(function(propConcept){
 
-					if(!data[propConcept.propCategory]){
-						data[propConcept.propCategory] = {};
-					}
-					var propName = propConcept.propName.replace(' ', '_');
-					data[propConcept.propCategory][propName] = propConcept.propValue;
-				});
-			}
+						if(propConcept.propCategory !== 'ATTRIBUTES' && propConcept.propCategory !== 'CODES') return;
 
-			if(data.ATTRIBUTES && data.ATTRIBUTES.SCHEDULE && data.ATTRIBUTES.SCHEDULE != '0'){
-				order_record.set({ is_controlled: true });
-			}
-		});
+						if(!data[propConcept.propCategory]){
+							data[propConcept.propCategory] = {};
+						}
+						var propName = propConcept.propName.replace(' ', '_');
+						data[propConcept.propCategory][propName] = propConcept.propValue;
+					});
+				}
+
+				if(data.ATTRIBUTES && data.ATTRIBUTES.SCHEDULE && data.ATTRIBUTES.SCHEDULE != '0'){
+					order_record.set({ is_controlled: true });
+				}
+			});
 
 
-		store = record.instructions();
-		insCmb.bindStore(store, true);
-		insCmb.store = store;
-		insCmb.store.load();
-		form.findField('dispense').focus(false, 200);
+			store = record.instructions();
+			insCmb.bindStore(store, true);
+			insCmb.store = store;
+			insCmb.store.load();
+			form.findField('dispense').focus(false, 200);
+
+		}catch (e){
+
+		}
+
 	},
 
 	onRxOrdersGridBeforeEdit: function(plugin, context){

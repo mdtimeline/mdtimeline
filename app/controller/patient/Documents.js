@@ -90,6 +90,8 @@ Ext.define('App.controller.patient.Documents', {
 	init: function(){
 		var me = this;
 
+		// me.onPatientDocumentGridBeforeRefreshBuffered = Ext.Function.createBuffered(me.onPatientDocumentGridBeforeRefresh, 25,me);
+
 		me.control({
 			'viewport': {
 				browserhelperopen: me.onBrowserHelperOpen,
@@ -104,6 +106,9 @@ Ext.define('App.controller.patient.Documents', {
 				selectionchange: me.onPatientDocumentGridSelectionChange,
 				afterrender: me.onPatientDocumentGridAfterRender,
 				beforeitemcontextmenu: me.onPatientDocumentGridBeforeItemContextMenu
+			},
+			'patientdocumentspanel #patientDocumentGrid gridview': {
+				beforerefresh: me.onPatientDocumentGridBeforeRefresh
 			},
 			'patientdocumentspanel [toggleGroup=documentgridgroup]': {
 				toggle: me.onDocumentGroupBtnToggle
@@ -122,6 +127,12 @@ Ext.define('App.controller.patient.Documents', {
 			},
 			'#patientDocumentUploadWindow #uploadBtn': {
 				click: me.onDocumentUploadSaveBtnClick
+			},
+			'#PatientDocumentGridGroupBtn': {
+				beforerender: me.onPatientDocumentGridGroupBtnBeforeRender
+			},
+			'#PatientDocumentGridGroupBtn menucheckitem': {
+				checkchange: me.onPatientDocumentGridGroupBtnCheckChange
 			},
 			'#DocumentErrorNoteSaveBtn': {
 				click: me.onDocumentErrorNoteSaveBtnClick
@@ -145,6 +156,52 @@ Ext.define('App.controller.patient.Documents', {
 		});
 
 		me.nav = this.getController('Navigation');
+
+		me.document_group_menu = [];
+		me.document_groups = {};
+
+		CombosData.getOptionsByListId({list_key : 'doc_type_cat'}, function (groups){
+			groups.forEach(function (group){
+
+				var stateId = ((group.option_value+ '-' + group.option_name + '_').replace(' ', '_') + app.user.id),
+					state = Ext.state.Manager.get(stateId, {});
+
+				me.document_groups[group.option_value] = state.checked || false;
+
+				me.document_group_menu.push({
+					xtype: 'menucheckitem',
+					text: group.option_value + ' - ' + group.option_name,
+					stateful: true,
+					stateId: stateId,
+					_document_group: group.option_value
+				});
+			});
+		});
+
+	},
+
+	onPatientDocumentGridBeforeRefresh: function (v){
+		var me = this,
+			groups = v.store.getGroups();
+
+		if(groups.length === 0){
+			return;
+		}
+		groups.forEach(function (group){
+			if(me.document_groups[group.name]){
+				v.summaryFeature.expand(group.name);
+			}else{
+				v.summaryFeature.collapse(group.name);
+			}
+		});
+	},
+
+	onPatientDocumentGridGroupBtnBeforeRender: function (btn){
+		btn.menu.add(Ext.clone(this.document_group_menu));
+	},
+
+	onPatientDocumentGridGroupBtnCheckChange: function (btn){
+		this.document_groups[btn._document_group] = btn.checked;
 	},
 
 	onEncounterPatientDocumentsBtnClick: function () {

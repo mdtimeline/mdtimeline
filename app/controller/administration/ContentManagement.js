@@ -106,11 +106,26 @@ Ext.define('App.controller.administration.ContentManagement', {
 
         var me = this,
             content_type = record.get('content_type'),
-            form = me.getContentManagementWindowForm().getForm();
-
+            form_panel = me.getContentManagementWindowForm(),
+            form = form_panel.getForm(),
+            is_html = record.get('is_html'),
+            textareafield = form_panel.down('textareafield[action=content_body]'),
+            htmleditor = form_panel.down('htmleditor[action=content_body]');
 
         form.reset();
         form.loadRecord(record);
+
+
+        textareafield.setValue(record.get('content_body'));
+        textareafield.submitValue = !is_html;
+        textareafield.setDisabled(is_html);
+        textareafield.setVisible(!is_html);
+
+        htmleditor.setValue(record.get('content_body'));
+        htmleditor.submitValue = is_html;
+        htmleditor.setDisabled(!is_html);
+        htmleditor.setVisible(is_html);
+
         me.setTokensTextAreaFieldByContentType(content_type);
     },
 

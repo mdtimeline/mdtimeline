@@ -352,6 +352,20 @@ Ext.override(Ext.menu.Item, {
 
 });
 
+Ext.override(Ext.menu.CheckItem, {
+
+    stateEvents: ['checkchange'],
+
+    getState: function() {
+        return { checked: this.checked };
+    },
+
+    applyState: function(state) {
+        this.setChecked(state.checked);
+    },
+
+});
+
 Ext.override(Ext.menu.Menu, {
 
     acl: true,
@@ -621,9 +635,6 @@ Ext.override(Ext.data.proxy.Server, {
 	}
 });
 
-
-
-
 Ext.override(Ext.data.reader.Reader, {
 	/**
 	 * Creates new Reader.
@@ -818,6 +829,7 @@ Ext.override(Ext.form.field.Checkbox, {
     inputValue: '1',
     uncheckedValue: '0'
 });
+
 Ext.override(Ext.form.field.ComboBox, {
 	initComponent: function() {
 

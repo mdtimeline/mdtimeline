@@ -19,6 +19,7 @@
 
 include_once(ROOT . '/classes/MatchaHelper.php');
 include_once(ROOT . '/classes/FileManager.php');
+include_once(ROOT . '/dataProvider/ACL.php');
 
 class Modules {
 	/**

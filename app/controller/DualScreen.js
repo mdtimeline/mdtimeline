@@ -61,15 +61,17 @@ Ext.define('App.controller.DualScreen', {
 
 	stopDual:function(){
 		this.disable();
-		if(this._screen) this._screen.close();
+		//if(this._screen) this._screen.close();
 		this._screen = null;
 	},
 
 	enable:function(){
+		app._dual_enable = true;
 		this._enable = true;
 	},
 
 	disable:function(){
+		app._dual_enable = false;
 		this._enable = false;
 	},
 
@@ -167,7 +169,12 @@ Ext.define('App.controller.DualScreen', {
 		var me = this,
 			task = {
 			run: function(){
-				if(window.opener == null) window.close();
+				if(window.opener == null || !window.app._dual_enable){
+					window.app.un('patientset', this.onPatientSet, this);
+					window.app.un('patientunset', this.onPatientUnset, this);
+					window.app = null;
+					window.close();
+				}
 				if(!window.opener.app.logged && !me._loggedout){
 					me.mask(_('logged_out'));
 					me._loggedout = true;

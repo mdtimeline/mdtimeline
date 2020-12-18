@@ -44804,6 +44804,7 @@ Ext.define('App.controller.DualScreen', {
 
 	isDual: false,
 	appMask: null,
+	pid: null,
 	init: function() {
 		var me = this;
 
@@ -44862,8 +44863,8 @@ Ext.define('App.controller.DualScreen', {
 	onDualViewportBeforeRender:function(){
 		this.isDual = true;
 		window.app = window.opener.app;
-		app.on('patientset', this.onPatientSet, this);
-		app.on('patientunset', this.onPatientUnset, this);
+		// app.on('patientset', this.onPatientSet, this);
+		// app.on('patientunset', this.onPatientUnset, this);
 	},
 
 	onDualViewportRender:function(){
@@ -44950,14 +44951,18 @@ Ext.define('App.controller.DualScreen', {
 			task = {
 			run: function(){
 				if(window.opener == null || !window.app._dual_enable){
-					window.app.un('patientset', this.onPatientSet, this);
-					window.app.un('patientunset', this.onPatientUnset, this);
+					// window.app.un('patientset', this.onPatientSet, this);
+					// window.app.un('patientunset', this.onPatientUnset, this);
 					window.app = null;
 					window.close();
-				}
-				if(!window.opener.app.logged && !me._loggedout){
+				}else if(!window.opener.app.logged && !me._loggedout){
 					me.mask(_('logged_out'));
 					me._loggedout = true;
+				}else if(window.opener.app.patient.pid === null){
+					me.onPatientUnset();
+				}else if(window.opener.app.patient.pid !== me.pid){
+					me.pid = Ext.clone(window.opener.app.patient.pid);
+					me.onPatientSet(true);
 				}
 			},
 			interval: 1000,

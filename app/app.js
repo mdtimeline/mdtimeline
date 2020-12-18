@@ -44954,11 +44954,14 @@ Ext.define('App.controller.DualScreen', {
 					// window.app.un('patientset', this.onPatientSet, this);
 					// window.app.un('patientunset', this.onPatientUnset, this);
 					window.app = null;
+					me.pid = null;
 					window.close();
 				}else if(!window.opener.app.logged && !me._loggedout){
+					me.pid = null;
 					me.mask(_('logged_out'));
 					me._loggedout = true;
 				}else if(window.opener.app.patient.pid === null){
+					me.pid = null;
 					me.onPatientUnset();
 				}else if(window.opener.app.patient.pid !== me.pid){
 					me.pid = Ext.clone(window.opener.app.patient.pid);

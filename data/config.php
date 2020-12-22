@@ -18,6 +18,19 @@
  */
 
 $API = [
+    'AppState' => [
+        'methods' => [
+            'get' => [
+                'len' => 1
+            ],
+            'set' => [
+                'len' => 1
+            ],
+            'unset' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'DocumentPdfForms' => [
         'methods' => [
             'generatePdfForm' => [

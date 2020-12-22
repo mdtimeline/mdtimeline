@@ -1,7 +1,8 @@
 <?php
 
 //require_once (ROOT . '/lib/phptopdf/phpToPDF.php');
-//require_once (ROOT . '/lib/tcpdf/tcpdf.php');
+require_once (ROOT . '/dataProvider/Patient.php');
+require_once (ROOT . '/dataProvider/DocumentHandler.php');
 
 class DocumentPdfForms {
 
@@ -29,6 +30,29 @@ class DocumentPdfForms {
         $this->Patient = new \Patient();
         $this->DocumentHandler = new \DocumentHandler();
     }
+
+    public function getDocumentPdfFormsToSign($params){
+        // TODO only return the not signed documents
+
+        $this->d->addFilter('facility_id', $params->facility_id);
+        $this->d->addFilter('is_active', true);
+
+
+
+        return $this->d->load()->all();
+    }
+
+    public function saveDocumentPdfFormsSigned($params){
+
+
+
+
+
+        return [
+            'success' => true
+        ];
+    }
+
 
     public function getDocumentPdfForm($params){
         return $this->d->load($params)->one();
@@ -107,7 +131,7 @@ class DocumentPdfForms {
             'PATIENT_MNAME' => isset($patient['mname']) ? $patient['mname'] : '',
             'PATIENT_LNAME' => isset($patient['lname']) ? $patient['lname'] : '',
             'PATIENT_NAME' => isset($patient['name']) ? $patient['name'] : '',
-            'PATIENT_AGE' => isset($patient['age']) ? $patient['age'] : '',
+            'PATIENT_AGE' => isset($patient['age']) ? $patient['age']['str'] : '',
         ];
 
         if(isset($params->custom_data)){
@@ -115,8 +139,8 @@ class DocumentPdfForms {
             $fields_data = array_merge($fields_data, $params->custom_data);
         }
 
-        $pdf_form_title = $pdf_form->document_title;
-        $pdf_form_path = $pdf_form->document_path;
+        $pdf_form_title = $pdf_form['document_title'];
+        $pdf_form_path = $pdf_form['document_path'];
 
         $binary_document = $this->fillForm($fields_data, $pdf_form_path);
 

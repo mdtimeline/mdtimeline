@@ -79,15 +79,6 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 
         <script type="text/javascript">
 
-	        if(Ext.supports.LocalStorage){
-		        Ext.state.Manager.setProvider(new Ext.state.LocalStorageProvider());
-	        }else{
-		        Ext.state.Manager.setProvider(new Ext.state.CookieProvider({
-			        secure: location.protocol === 'https:',
-			        expires : new Date(Ext.Date.now() + (1000*60*60*24*90)) // 90 days
-		        }));
-	        }
-
             window.i18n = window._ = function(key){
                 return window.lang[key] || '*'+key+'*';
             };
@@ -245,6 +236,18 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 			for(var x = 0; x < App.data.length; x++){
 				Ext.direct.Manager.addProvider(App.data[x]);
 			}
+
+            if(Ext.supports.LocalStorage){
+                Ext.state.Manager.setProvider(Ext.create('App.ux.state.HttpProvider',{
+                    storeSyncOnLoadEnabled: true,
+                    writeBuffer: 1000 * 10
+                }));
+            }else{
+                Ext.state.Manager.setProvider(new Ext.state.CookieProvider({
+                    secure: location.protocol === 'https:',
+                    expires : new Date(Ext.Date.now() + (1000*60*60*24*90)) // 90 days
+                }));
+            }
 
 			Ext.direct.Manager.on('exception', function(e, o){
 

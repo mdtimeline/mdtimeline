@@ -18,6 +18,25 @@
  */
 
 $API = [
+    'LegalLetters' => [
+        'methods' => [
+            'getLegalLetters' => [
+                'len' => 1
+            ],
+            'getLegalLetter' => [
+                'len' => 1
+            ],
+            'addLegalLetter' => [
+                'len' => 1
+            ],
+            'updateLegalLetter' => [
+                'len' => 1
+            ],
+            'destroyLegalLetter' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'AppState' => [
         'methods' => [
             'get' => [

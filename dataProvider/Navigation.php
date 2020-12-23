@@ -358,14 +358,14 @@ class Navigation
                 'id' => 'App.view.administration.EmailTemplates'
             ];
         }
-        //if($this->ACL->hasPermission('access_email_templates')){
+        if($this->ACL->hasPermission('access_admin_measure_calculation')){
             $admin['children'][] = [
                 'text' => 'Measure Calculation',
                 'leaf' => true,
                 'cls' => 'file',
                 'id' => 'App.view.administration.MeasureCalculation'
             ];
-//        }
+        }
         if($this->ACL->hasPermission('access_admin_printer')){
             $admin['children'][] = [
                 'text' => 'Printers',
@@ -383,14 +383,23 @@ class Navigation
             ];
         }
 
-//        if($this->ACL->hasPermission('access_admin_snippets_manager')){
+        if($this->ACL->hasPermission('access_admin_snippets_manager')){
             $admin['children'][] = [
                 'text' => 'Snippets Manager',
                 'leaf' => true,
                 'cls' => 'file',
                 'id' => 'App.view.administration.SnippetsManager'
             ];
-//        }
+        }
+
+        if($this->ACL->hasPermission('access_admin_legal_letters')){
+            $admin['children'][] = [
+                'text' => 'Legal Letters',
+                'leaf' => true,
+                'cls' => 'file',
+                'id' => 'App.view.administration.LegalLetters'
+            ];
+        }
 
 		if(isset($admin['children']) && count($admin['children']) > 0) array_push($nav, $admin);
 

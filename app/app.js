@@ -72314,6 +72314,10 @@ Ext.define('App.controller.reports.Reports', {
 		{
 			ref: 'ReportWindowGrid',
 			selector: '#ReportWindowGrid'
+		},
+		{
+			ref: 'AdministrationReportWindow',
+			selector: '#AdministrationReportWindow'
 		}
 	],
 
@@ -72334,17 +72338,172 @@ Ext.define('App.controller.reports.Reports', {
 		me.control({
 			'#ReportsGrid': {
 				beforerender: me.onReportsGridBeforeRender,
-				itemdblclick: me.onReportsGridItemDblClick
+				itemdblclick: me.onReportsGridItemDblClick,
+				beforeitemcontextmenu: me.onReportsGridBeforeItemContextMenu
 			},
 			'#ReportWindowReloadBtn': {
 				click: me.onReportWindowReloadBtnClick
 			},
 			'#ReportWindowGridPrintBtn': {
 				click: me.onReportWindowGridPrintBtnClick
+			},
+			'#AdministrationReportsAddBtn': {
+				click: me.onAdministrationReportsAddBtnClick
+			},
+			'#AdministrationReportCancelBtn': {
+				click: me.onAdministrationReportCancelBtnClick
+			},
+			'#AdministrationReportSaveBtn': {
+				click: me.onAdministrationReportSaveBtnClick
 			}
 		});
 
 	},
+
+	showAdministrationReportWindow: function (){
+
+		if(!this.getAdministrationReportWindow()){
+
+			Ext.create('Ext.window.Window',{
+				title: _('report'),
+				layout: 'fit',
+				bodyPadding: 5,
+				width: 800,
+				itemId: 'AdministrationReportWindow',
+				items: [
+					{
+						xtype: 'form',
+						bodyPadding: 10,
+						items: [
+							{
+								xtype: 'textfield',
+								fieldLabel: _('title'),
+								name: 'title',
+								anchor: '100%',
+								allowBlank: false
+							},
+							{
+								xtype: 'textfield',
+								fieldLabel: _('description'),
+								name: 'description',
+								anchor: '100%',
+								allowBlank: false
+							},
+							{
+								xtype: 'textfield',
+								fieldLabel: _('store_procedure_name'),
+								name: 'store_procedure_name',
+								anchor: '100%',
+								allowBlank: false
+							},
+							{
+								xtype: 'textfield',
+								fieldLabel: _('group_fields'),
+								name: 'group_fields',
+								anchor: '100%'
+							},
+							{
+								xtype: 'textareafield',
+								fieldLabel: _('columns'),
+								name: 'columns',
+								height: 500,
+								anchor: '100%',
+								allowBlank: false,
+								enableKeyEvents: true,
+								fieldStyle: { 'fontFamily': 'Courier', 'fontSize': '12px'},
+								listeners: {
+									specialkey: function(field, e){
+
+										if (e.getKey() == e.TAB) {
+											e.stopEvent();
+											var el = field.inputEl.dom;
+											if (el.setSelectionRange) {
+												var withIns = el.value.substring(0, el.selectionStart) + '    ';
+												var pos = withIns.length;
+												el.value = withIns + el.value.substring(el.selectionEnd, el.value.length);
+												el.setSelectionRange(pos, pos);
+											}
+											else if (document.selection) {
+												document.selection.createRange().text = '    ';
+											}
+										}
+									}
+								}
+							}
+						]
+					}
+				],
+				buttons: [
+					{
+						xtype: 'button',
+						text: _('cancel'),
+						itemId: 'AdministrationReportCancelBtn'
+					},
+					{
+						xtype: 'button',
+						text: _('save'),
+						itemId: 'AdministrationReportSaveBtn'
+					}
+				]
+			});
+
+		}
+		return this.getAdministrationReportWindow().show();
+	},
+
+	onReportsGridBeforeItemContextMenu: function (grid, report_record, item,index, e){
+		e.preventDefault();
+		if(a('access_admin_reports')){
+			var win = this.showAdministrationReportWindow();
+			win.down('form').getForm().loadRecord(report_record);
+		}
+	},
+
+	onAdministrationReportsAddBtnClick: function () {
+		var win = this.showAdministrationReportWindow(),
+			added_records = this.getReportsGrid().getStore().add({
+				workflow: 'PRE-REGISTRATION',
+				days_valid_for: 365,
+				version: '1.0',
+				active: false
+			});
+
+		win.down('form').getForm().loadRecord(added_records[0]);
+
+	},
+
+	onAdministrationReportCancelBtnClick: function (btn){
+		var win = btn.up('window');
+		win.down('form').getForm().reset(true);
+		this.getReportsGrid().getStore().rejectChanges();
+		win.close();
+	},
+
+	onAdministrationReportSaveBtnClick: function (btn){
+		var win = btn.up('window'),
+			form = win.down('form').getForm(),
+			record = form.getRecord(),
+			values = form.getValues()
+
+		if(!form.isValid()){
+			return;
+		}
+
+		record.set(values);
+
+		if(record.store.getModifiedRecords().length > 0){
+			record.store.sync({
+				callback: function (){
+					win.close();
+				}
+			});
+		}else{
+			win.close();
+		}
+	},
+
+
+
 
 	onReportWindowGridPrintBtnClick: function(btn){
 

@@ -40,6 +40,15 @@ Ext.define('App.view.reports.ReportsPanel', {
 				itemId: 'ReportsGrid',
 				store: me.store,
 				features: [{ftype:'grouping'}],
+				tools: [
+					{
+						xtype:'button',
+						text: _('report'),
+						iconCls: 'icoAdd',
+						itemId: 'AdministrationReportsAddBtn',
+						acl: a('access_admin_reports')
+					}
+				],
 				columns: [
 					{
 						text: _('category'),

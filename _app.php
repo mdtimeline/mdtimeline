@@ -900,6 +900,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 	                'administration.Version',
                     'administration.MeasureCalculation',
                     'administration.IpAccess',
+                    'administration.LegalLetters',
                     'administration.TransactionLog',
                     'administration.CronJob',
 

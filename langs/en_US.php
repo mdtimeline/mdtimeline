@@ -2183,4 +2183,12 @@ $LANG = array(
     'upload_image' => 'Upload Image',
     'msp_ins_type' => 'MSP Ins Type',
     'dual_screen' => 'Dual Screen',
+    'legal_letters' => 'Legal Letters',
+    'legal_letter' => 'Legal Letter',
+    'workflow' => 'Workflow',
+    'days_valid_for' => 'Days Valid For',
+    'content' => 'Content',
+    'columns' => 'Columns',
+    'group_fields' => 'Group Fields',
+    'store_procedure_name' => 'Store Procedure Name',
 );

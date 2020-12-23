@@ -17,7 +17,7 @@
  */
 Ext.define('App.view.administration.LegalLetters', {
     extend: 'App.ux.RenderPanel',
-    pageTitle: _('content_management'),
+    pageTitle: _('legal_letters'),
     itemId: 'AdministrationLegalLetters',
     initComponent: function(){
         var me = this;
@@ -25,8 +25,16 @@ Ext.define('App.view.administration.LegalLetters', {
         me.store = Ext.create('App.store.administration.LegalLetters');
 
         me.grid = Ext.create('Ext.grid.Panel', {
-            itemId: 'LegalLettersGrid',
+            itemId: 'AdministrationLegalLettersGrid',
             store: me.store,
+            tools: [
+                {
+                    xtype:'button',
+                    text: _('letter'),
+                    iconCls: 'icoAdd',
+                    itemId: 'AdministrationLegalLettersAddBtn'
+                }
+            ],
             columns: [
                 {
                     text: _('title'),

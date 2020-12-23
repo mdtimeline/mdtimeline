@@ -37,7 +37,7 @@ Ext.define('App.view.login.Login', {
 		me.enableReCaptcha = false;
 		me.enable2FA = (parseInt(g('authy_2fa_enable')) || 0) ? true : false;
 
-		me.theme = Ext.state.Manager.get('mdtimeline_theme', 'light');
+		me.theme =  Ext.util.Cookies.get('mdtimeline_theme') || 'light';
 
 		/**
 		 * The Copyright Notice Window
@@ -299,8 +299,8 @@ Ext.define('App.view.login.Login', {
 	},
 
 	onThemeSwitch: function (btn) {
-		var theme = this.theme == 'dark' ? 'light' : 'dark';
-		Ext.state.Manager.set('mdtimeline_theme', theme);
+		var theme = this.theme === 'dark' ? 'light' : 'dark';
+		Ext.util.Cookies.set('mdtimeline_theme', theme);
 		window.location.reload();
 	},
 

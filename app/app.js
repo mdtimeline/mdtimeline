@@ -46244,13 +46244,13 @@ Ext.define('App.controller.Theme', {
 
 	goLight: function(btn){
 		btn.action = 'light';
-		Ext.state.Manager.set('mdtimeline_theme', 'light');
+		Ext.util.Cookies.set('mdtimeline_theme', 'light');
 		window.location.reload();
 	},
 
 	goDark: function(btn){
 		btn.action = 'dark';
-		Ext.state.Manager.set('mdtimeline_theme', 'dark');
+		Ext.util.Cookies.set('mdtimeline_theme', 'dark');
 		window.location.reload();
 	}
 

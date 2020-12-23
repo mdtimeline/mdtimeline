@@ -128,7 +128,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 					'"><\/script>'
 				);
 
-	            var theme = Ext.state.Manager.get('mdtimeline_theme', g('application_theme'));
+	            var theme = Ext.util.Cookies.get('mdtimeline_theme') || g('application_theme');
 	            var s;
 
 	            if(theme === 'dark'){

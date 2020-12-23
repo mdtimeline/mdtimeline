@@ -78,7 +78,7 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 
         (function(){
             var head = document.getElementsByTagName('head')[0],
-                theme = Ext.state.Manager.get('mdtimeline_theme', g('application_theme')),
+                theme = Ext.util.Cookies.get('mdtimeline_theme') || g('application_theme'),
                 link;
 
             if(parseInt(g('recaptcha_enable')) === 1){
@@ -87,7 +87,7 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 	            head.appendChild(link);
             }
 
-            if(theme == 'dark'){
+            if(theme === 'dark'){
                 link  = document.createElement('link');
                 link.rel  = 'stylesheet';
                 link.type = 'text/css';

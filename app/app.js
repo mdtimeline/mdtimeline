@@ -47731,7 +47731,7 @@ Ext.define('App.controller.patient.CareTeam', {
 				filter: [
 					{
 						property: 'pid',
-						value: patient.pid
+						value: app.patient.pid
 					}
 				]
 			});

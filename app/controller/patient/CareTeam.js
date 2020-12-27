@@ -85,9 +85,6 @@ Ext.define('App.controller.patient.CareTeam', {
 	},
 
 	onPatientSummaryLoad: function(ctl, patient){
-
-		say('onPatientSummaryLoad');
-
 		var me = this;
 
 		if(!me.getPatientSummaryCareTeamGrid()){
@@ -95,14 +92,20 @@ Ext.define('App.controller.patient.CareTeam', {
 		}
 
 		Ext.Function.defer(function () {
-			me.getPatientSummaryCareTeamGrid().getStore().load({
-				filter: [
-					{
-						property: 'pid',
-						value: patient.pid
-					}
-				]
-			});
+
+			var careteamstore = me.getPatientSummaryCareTeamGrid().getStore();
+
+			careteamstore.clearFilter(true);
+
+			careteamstore.filter([{
+				property: 'pid',
+				value: patient.pid
+			}]);
+
+			me.getPatientSummaryCareTeamGrid().reconfigure(careteamstore);
+
+			careteamstore.load();
+
 		}, 250);
 
 	},

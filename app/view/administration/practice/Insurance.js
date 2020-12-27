@@ -26,7 +26,13 @@ Ext.define('App.view.administration.practice.Insurance', {
 	],
 	xtype: 'insurancecompaniespanel',
 	title: _('insurance_companies'),
-	store: this._adminInsuranceCmonpanySotrie = Ext.create('App.store.administration.InsuranceCompanies'),
+
+	store: this._adminInsuranceCmonpanySotrie = Ext.create('App.store.administration.InsuranceCompanies',{
+		remoteSort: false,
+		remoteGroup: false,
+		pageSize: 250
+	}),
+
 	//	border: false,
 	//	frame: false,
 	columnLines: true,

@@ -102,8 +102,6 @@ Ext.define('App.controller.patient.CareTeam', {
 				value: patient.pid
 			}]);
 
-			me.getPatientSummaryCareTeamGrid().reconfigure(careteamstore);
-
 			careteamstore.load();
 
 		}, 250);

@@ -9225,29 +9225,30 @@ Ext.define('App.ux.combo.Printers', {
     width: 200,
     stateful: true,
     stateId: 'PrinterComboState',
-    store: Ext.create('Ext.data.Store', {
-        fields: [
-            {
-                name: 'id',
-                type: 'string'
-            },
-            {name: 'name', type: 'string'},
-            {name: 'printer_description', type: 'string'},
-            {name: 'local', type: 'bool'},
-            {name: 'facility_id', type: 'int'},
-            {name: 'active', type: 'bool'},
-            {
-                name: 'display_value',
-                convert: function (v, r) {
-                    if (r.get('local')) {
-                        return r.get('name') + ' (local)';
-                    }
-                    return r.get('printer_description') + ' (remote)';
-                }
-            }
-        ],
-        remoteFilter: false
-    }),
+    store: Ext.create('App.store.administration.PrinterCombo'),
+    // store: Ext.create('Ext.data.Store', {
+    //     fields: [
+    //         {
+    //             name: 'id',
+    //             type: 'string'
+    //         },
+    //         {name: 'name', type: 'string'},
+    //         {name: 'printer_description', type: 'string'},
+    //         {name: 'local', type: 'bool'},
+    //         {name: 'facility_id', type: 'int'},
+    //         {name: 'active', type: 'bool'},
+    //         {
+    //             name: 'display_value',
+    //             convert: function (v, r) {
+    //                 if (r.get('local')) {
+    //                     return r.get('name') + ' (local)';
+    //                 }
+    //                 return r.get('printer_description') + ' (remote)';
+    //             }
+    //         }
+    //     ],
+    //     remoteFilter: false
+    // }),
 
     showAllPrinters: function () {
         this.store.clearFilter();
@@ -11402,7 +11403,7 @@ Ext.define('App.ux.combo.FloorPlanZones', {
 	extend: 'App.ux.combo.ComboResettable',
 	xtype: 'floorplanazonescombo',
 	editable: false,
-	queryMode: 'local',
+	//queryMode: 'local',
 	displayField: 'title',
 	valueField: 'id',
 	emptyText: _('all'),
@@ -22762,6 +22763,11 @@ Ext.define('App.view.patient.windows.DocumentViewer', {
 	},
 	tbar: [
 		'->',
+		{
+			text: _('archive_and_add_to_print_jobs'),
+			itemId: 'documentViewerAddToPrintJobBtn',
+			icon: 'resources/images/icons/add.png'
+		},
 		{
 			text: _('archive_document'),
 			itemId: 'archiveDocumentBtn',
@@ -34722,16 +34728,20 @@ Ext.define('App.view.administration.FloorPlans', {
         me.floorPlansStore = Ext.create('App.store.administration.FloorPlans');
         me.floorZonesStore = Ext.create('App.store.administration.FloorPlanZones');
         me.floorPlans = Ext.create('Ext.grid.Panel', {
+            requires: [
+                'Ext.grid.plugin.CellEditing'
+            ],
             title: _('floor_plans'),
             region: 'west',
-            width: 200,
+            width: 300,
             split: true,
             hideHeaders: true,
             store: me.floorPlansStore,
+            columnsLines: true,
             plugins: [
-                me.floorPlanEditing = Ext.create('Ext.grid.plugin.RowEditing', {
-                    clicksToEdit: 2
-                })
+                {
+                    ptype: 'rowediting'
+                }
             ],
             columns: [
                 {
@@ -34741,9 +34751,18 @@ Ext.define('App.view.administration.FloorPlans', {
                     flex: 1,
                     editor: {
                         xtype: 'textfield',
-                        emptyText:_('new_floor')
+                        emptyText:_('new_floor'),
+                        allowBlank: false
                     }
-                }
+                },
+                {
+                    text: _('facility_id'),
+                    dataIndex: 'facility_id',
+                    editor: {
+                        xtype: 'mitos.facilitiescombo',
+                        allowBlank: false
+                    }
+                },
             ],
             tbar: [
                 {
@@ -34967,7 +34986,11 @@ Ext.define('App.view.administration.FloorPlans', {
             width:record.data.width,
             height:record.data.height
         };
-        record.store.sync();
+        record.save({
+            callback: function (){
+                app.fireEvent('floorplanzonesave', me, record);
+            }
+        });
         me.applyZoneConfig(editor.zone, config);
         me.setEditMode(false);
     },
@@ -35098,8 +35121,17 @@ Ext.define('App.view.administration.FloorPlans', {
             y: zone.y
         });
     },
-    onNewFloorPlan: function(){
-        this.floorPlansStore.add({});
+    onNewFloorPlan: function(btn){
+        var me = this,
+            grid = btn.up('grid'),
+            editingPlugin = grid.editingPlugin,
+            records;
+
+        editingPlugin.cancelEdit();
+
+        records = this.floorPlansStore.add({});
+
+        editingPlugin.startEdit(records[0],0);
     },
     onFloorPlanSelected: function(model, record){
         this.setEditMode(false);
@@ -45908,11 +45940,13 @@ Ext.define('App.controller.Print', {
             }
         });
 
+        me.printJobCtl = this.getController('PrintJob');
+
         me.loadRemotePrinters();
 
     },
 
-    doPrint: function (printer_record, document_base64) {
+    doPrint: function (printer_record, document_base64, job_id) {
         var me = this;
 
         if (printer_record.get('local')) {
@@ -45921,21 +45955,27 @@ Ext.define('App.controller.Print', {
                 return;
             }
 
-            me.browserHelperCtl.send('{"action":"print", "printer": "' + printer_record.get('id') + '", "payload": "' + document_base64 + '"}', function (response) {
-                if(!response.success){
+            job_id = job_id || "";
+
+            me.browserHelperCtl.send('{"action":"print", "printer": "' + printer_record.get('id') + '", "payload": "' + document_base64 + '", "job_id": ' + job_id + '}', function (response) {
+                if (!response.success) {
                     app.msg(_('oops'), 'Document could not be printed', true);
                 }
             });
         } else {
-            Printer.doPrint(printer_record.get('id'), document_base64);
-            // Printer.doPrint(printer_record.get('id'), data);
+            Printer.doPrint(printer_record.get('id'), document_base64, job_id);
         }
+    },
+
+    addPrintJob: function (document_id, printer_record) {
+        var me = this;
+        me.printJobCtl.addPrintJob(document_id, printer_record);
     },
 
     loadRemotePrinters: function () {
         var me = this;
 
-        Printer.getPrinters(function (printers){
+        Printer.getPrinters(function (printers) {
             me.printers = Ext.Array.merge(me.printers, printers);
         });
     },
@@ -45944,8 +45984,6 @@ Ext.define('App.controller.Print', {
         var me = this;
 
         me.browserHelperCtl = ctl;
-
-        say('onBrowserHelperOpen');
 
         me.browserHelperCtl.send('{"action":"printer/list"}', function (printers) {
             //Add local property to each printer
@@ -45959,6 +45997,7 @@ Ext.define('App.controller.Print', {
     },
 
     onPrintersComboBeforeRender: function (cmb) {
+        say(this.printers);
         cmb.store.loadData(this.printers);
 
         //register combobox to change when facility changes
@@ -45981,6 +46020,12 @@ Ext.define('App.controller.Print', {
             cmb.store.getCount() > 0 ? cmb.setValue(cmb.store.first()) : cmb.setValue(null);
         }
 
+    },
+
+    getPrinters: function () {
+        var me = this;
+
+        return me.printers;
     },
 
     promptPrint: function () {
@@ -65224,60 +65269,101 @@ Ext.define('App.model.administration.ReviewOfSystemSettings', {
 });
 
 Ext.define('App.view.patient.windows.ArchiveDocument', {
-	extend: 'Ext.window.Window',
-	xtype: 'patientarchivedocumentwindow',
-	draggable: false,
-	modal: true,
-	autoShow: true,
-	closeAction: 'hide',
-	title: _('archive_document'),
-	items: [
-		{
-			xtype: 'form',
-			bodyPadding: 10,
-			width: 400,
-			defaults:{
-				xtype: 'textfield',
-				anchor: '100%',
-				labelWidth: 70
-			},
-			items: [
-				{
-					name: 'id',
-					hidden: true
-				},
-				{
-					xtype: 'gaiaehr.combo',
-					fieldLabel: _('category'),
-					list: 102,
-					name: 'docTypeCode',
-					editable: false,
-					allowBlank: false
-				},
-				{
-					fieldLabel: _('title'),
-					name: 'title'
-				},
-				{
-					xtype: 'textareafield',
-					name: 'note',
-					fieldLabel: _('notes')
-				}
-			]
-		}
-	],
-	buttons: [
-		{
-			text: _('cancel'),
-			handler: function(btn){
-				btn.up('window').close();
-			}
-		},
-		{
-			text: _('archive'),
-			itemId: 'archiveBtn'
-		}
-	]
+    extend: 'Ext.window.Window',
+    xtype: 'patientarchivedocumentwindow',
+    draggable: false,
+    modal: true,
+    autoShow: true,
+    closeAction: 'hide',
+    title: _('archive_document'),
+    items: [
+        {
+            xtype: 'form',
+            bodyPadding: 10,
+            width: 400,
+            defaults: {
+                xtype: 'textfield',
+                anchor: '100%',
+                labelWidth: 70
+            },
+            items: [
+                {
+                    name: 'id',
+                    hidden: true
+                },
+                {
+                    xtype: 'gaiaehr.combo',
+                    fieldLabel: _('category'),
+                    list: 102,
+                    name: 'docTypeCode',
+                    editable: false,
+                    allowBlank: false
+                },
+                {
+                    fieldLabel: _('title'),
+                    name: 'title'
+                },
+                {
+                    xtype: 'textareafield',
+                    name: 'note',
+                    fieldLabel: _('notes')
+                },
+                {
+                    xtype: 'fieldset',
+                    itemId: 'ArchiveDocumentOptionalFieldSet',
+                    title: 'Print (' + _('optional') + ')',
+                    margin: '0 0 0 10',
+                    // width: 220,
+                    items: [
+                        {
+                            xtype: 'printerscombo',
+                            itemId: 'archiveDocumentPrintersCombo',
+                            emptyText: _('select_print_optional'),
+                            fieldLabel: 'Printer',
+                            name: 'printer',
+                            editable: false,
+                            width: 300
+                        },
+                        {
+                            xtype: 'combobox',
+                            fieldLabel: _('priority'),
+                            name: 'priority',
+                            store: Ext.create('Ext.data.Store', {
+                                fields: ['value', 'display'],
+                                data : [
+                                    {"value": 1, "display":"High"},
+                                    {"value": 2, "display":"Med"},
+                                    {"value": 3, "display":"Low"},
+                                ]
+                            }),
+                            value: 2,
+                            displayField: 'display',
+                            valueField: 'value',
+                            editable: false,
+                            width: 300
+                        },
+                        {
+                            xtype: 'checkbox',
+                            name: 'printNow',
+                            fieldLabel: 'Print Now',
+                        },
+                    ]
+                },
+            ]
+        }
+    ],
+    buttons: [
+        {
+            text: _('cancel'),
+            handler: function (btn) {
+                btn.up('window').close();
+            }
+        },
+        {
+            text: _('archive'),
+            itemId: 'archiveBtn'
+        }
+    ]
 });
 Ext.define('App.view.notifications.Grid', {
 	extend: 'Ext.grid.Panel',
@@ -69358,145 +69444,189 @@ Ext.define('App.controller.administration.Roles', {
 });
 Ext.define('App.controller.DocumentViewer', {
     extend: 'Ext.app.Controller',
-	requires:[
-		'App.view.patient.windows.ArchiveDocument'
-	],
-	refs: [
+    requires: [
+        'App.view.patient.windows.ArchiveDocument'
+    ],
+    refs: [
         {
-            ref:'DocumentViewerWindow',
-            selector:'documentviewerwindow'
+            ref: 'DocumentViewerWindow',
+            selector: 'documentviewerwindow'
         },
         {
-            ref:'DocumentViewerWindow',
-            selector:'documentviewerwindow > form'
-        },
-		{
-			ref:'ArchiveDocumentBtn',
-			selector:'documentviewerwindow #archiveDocumentBtn'
-		},
-        {
-            ref:'ArchiveWindow',
-            selector:'patientarchivedocumentwindow'
+            ref: 'DocumentViewerWindow',
+            selector: 'documentviewerwindow > form'
         },
         {
-            ref:'ArchiveForm',
-            selector:'patientarchivedocumentwindow > form'
+            ref: 'ArchiveDocumentBtn',
+            selector: 'documentviewerwindow #archiveDocumentBtn'
+        },
+        {
+            ref: '#documentViewerAddToPrintJobBtn',
+            selector: 'documentViewerAddToPrintJobBtn'
+        },
+        {
+            ref: 'ArchiveWindow',
+            selector: 'patientarchivedocumentwindow'
+        },
+        {
+            ref: 'ArchiveForm',
+            selector: 'patientarchivedocumentwindow > form'
+        },
+        {
+            selector: '#ArchiveDocumentOptionalFieldSet',
+            ref: 'ArchiveDocumentOptionalFieldSet'
         }
-	],
+    ],
 
-	init: function() {
-		var me = this;
+    init: function () {
+        var me = this;
 
-		me.control({
-			'documentviewerwindow':{
-				close: me.onViewerDocumentsWinClose
-			},
-			'documentviewerwindow #archiveDocumentBtn': {
-				click: me.onArchiveDocumentBtnClick
-			},
-			'patientarchivedocumentwindow #archiveBtn': {
-				click: me.onArchiveBtnClick
-			}
-		});
-	},
+        me.control({
+            'documentviewerwindow': {
+                close: me.onViewerDocumentsWinClose
+            },
+            'documentviewerwindow #archiveDocumentBtn': {
+                click: me.onArchiveDocumentBtnClick
+            },
+            '#documentViewerAddToPrintJobBtn': {
+                click: me.onDocumentViewerAddToPrinterJobBtn
+            },
+            'patientarchivedocumentwindow #archiveBtn': {
+                click: me.onArchiveBtnClick
+            }
+        });
+    },
 
-	onArchiveBtnClick: function(btn){
-		var win = btn.up('window'),
-			form = win.down('form').getForm(),
-			values = form.getValues(),
-			docTypeField = form.findField('docTypeCode');
+    onArchiveBtnClick: function (btn) {
+        var win = btn.up('window'),
+            form = win.down('form').getForm(),
+            values = form.getValues(),
+            docTypeField = form.findField('docTypeCode'),
+            printerCmb = form.findField('printer'),
+            printerRecord = printerCmb.findRecordByValue(printerCmb.getValue()),
+            priority = form.findField('priority').getValue(),
+            printNow = form.findField('printNow').getValue();
 
-		if(form.isValid()){
-			values.pid = app.patient.pid;
-			values.eid = app.patient.eid;
-			values.uid = app.user.id;
+        if (form.isValid()) {
+            values.pid = app.patient.pid;
+            values.eid = app.patient.eid;
+            values.uid = app.user.id;
 
-			var docTypeRecord = docTypeField.findRecordByValue(values.docTypeCode);
-			values.docType = docTypeRecord.get('option_name');
+            var docTypeRecord = docTypeField.findRecordByValue(values.docTypeCode);
+            values.docType = docTypeRecord.get('option_name');
 
-			// scanner archive logic
-			if(Ext.getClassName(win.documentWindow) == 'App.view.scanner.Window'){
+            // scanner archive logic
+            if (Ext.getClassName(win.documentWindow) === 'App.view.scanner.Window') {
 
-				var controller = app.getController('Scanner');
-				controller.doArchive(values, function (success) {
-					if(success) win.close();
-				});
+                var controller = app.getController('Scanner');
+                controller.doArchive(values, function (success) {
+                    if (success) win.close();
+                });
 
-			}else{
-				DocumentHandler.transferTempDocument(values, function(provider, response){
-					if(response.result.success){
-						if(window.dual){
-							window.dual.msg(_('sweet'), 'document_transferred');
-						}else{
-							window.app.msg(_('sweet'), 'document_transferred');
-						}
-						win.documentWindow.close();
-						win.close();
-					}else{
-						if(window.dual){
-							window.dual.msg(_('oops'), 'document_transfer_failed', true);
-						}else{
-							window.app.msg(_('oops'), 'document_transfer_failed', true);
-						}
-					}
-				});
-			}
-		}
-	},
+            } else {
+                DocumentHandler.transferTempDocument(values, function (response) {
+                    if (response.success) {
+                        if (window.dual) {
+                            window.dual.msg(_('sweet'), 'document_transferred');
+                        } else {
+                            window.app.msg(_('sweet'), 'document_transferred');
+                        }
 
-	onArchiveDocumentBtnClick: function(btn){
-		var win = btn.up('window'),
-			values = {
-				id: win.documentId,
-				docType: win.documentType,
-				title: win.documentType +  ' ' + _('order')
-			};
-		var archive = Ext.widget('patientarchivedocumentwindow',{
-			documentWindow: win
-		});
-		archive.down('form').getForm().setValues(values);
-	},
+                        if (win.doAddPrintJobCallback) {
+                            win.doAddPrintJobCallback(response.record,printerRecord,printNow,priority);
+                        }
+                        win.documentWindow.close();
+                        win.close();
+                    } else {
+                        if (window.dual) {
+                            window.dual.msg(_('oops'), 'document_transfer_failed', true);
+                        } else {
+                            window.app.msg(_('oops'), 'document_transfer_failed', true);
+                        }
+                    }
+                });
+            }
+        }
+    },
 
-	onViewerDocumentsWinClose: function(win){
-		DocumentHandler.destroyTempDocument({id: win.documentId});
-	},
+    onArchiveDocumentBtnClick: function (btn) {
+        var win = btn.up('window'),
+            values = {
+                id: win.documentId,
+                docType: win.documentType,
+                title: win.documentType + ' ' + _('order')
+            };
+        var archive_window = Ext.widget('patientarchivedocumentwindow', {
+            documentWindow: win,
+            doAddPrintJobCallback: undefined
+        });
 
-	doDocumentView: function(id, type, site, closable){
+        var form = archive_window.down('form').getForm();
+        form.setValues(values);
 
-		var windows = Ext.ComponentQuery.query('documentviewerwindow'),
-			src = 'dataProvider/DocumentViewer.php?site=' + (site || app.user.site) + '&id=' + id + '&token=' + app.user.token,
-			win;
+        //optional fieldset not visible
+        archive_window.down('fieldset').setVisible(false);
+    },
 
-		if(typeof type != 'undefined') src += '&temp=' + type;
+    onDocumentViewerAddToPrinterJobBtn: function (btn) {
+        var win = btn.up('window'),
+            values = {
+                id: win.documentId,
+                docType: win.documentType,
+                title: win.documentType + ' ' + _('order')
+            };
+        var archive_window = Ext.widget('patientarchivedocumentwindow', {
+            documentWindow: win,
+            doAddPrintJobCallback: this.doAddPrintJob
+        });
 
-		src += '&_dc=' + Ext.Date.now();
+        archive_window.down('form').getForm().setValues(values);
+    },
 
-		win = Ext.create('App.view.patient.windows.DocumentViewer',{
-			documentType: type,
-			documentId: id,
-			closable: (closable !== undefined ? closable : true),
-			items:[
-				{
-					xtype:'miframe',
-					autoMask: false,
-					src: src
-				}
-			]
-		});
+    doAddPrintJob: function (document, printer_record, print_now, priority) {
+        app.getController('PrintJob').addPrintJob(document.id,printer_record, print_now, priority);
+    },
 
-		if(windows.length > 0){
-			var last = windows[(windows.length - 1)];
-			for(var i=0; i < windows.length; i++){
-				windows[i].toFront();
-			}
-			win.showAt((last.x + 25), (last.y + 5));
+    onViewerDocumentsWinClose: function (win) {
+        DocumentHandler.destroyTempDocument({id: win.documentId});
+    },
 
-		}else{
-			win.show();
-		}
+    doDocumentView: function (id, type, site, closable) {
 
-		return win;
-	}
+        var windows = Ext.ComponentQuery.query('documentviewerwindow'),
+            src = 'dataProvider/DocumentViewer.php?site=' + (site || app.user.site) + '&id=' + id + '&token=' + app.user.token,
+            win;
+
+        if (typeof type != 'undefined') src += '&temp=' + type;
+
+        src += '&_dc=' + Ext.Date.now();
+
+        win = Ext.create('App.view.patient.windows.DocumentViewer', {
+            documentType: type,
+            documentId: id,
+            closable: (closable !== undefined ? closable : true),
+            items: [
+                {
+                    xtype: 'miframe',
+                    autoMask: false,
+                    src: src
+                }
+            ]
+        });
+
+        if (windows.length > 0) {
+            var last = windows[(windows.length - 1)];
+            for (var i = 0; i < windows.length; i++) {
+                windows[i].toFront();
+            }
+            win.showAt((last.x + 25), (last.y + 5));
+
+        } else {
+            win.show();
+        }
+
+        return win;
+    }
 
 
 });
@@ -81481,6 +81611,9 @@ Ext.define('App.controller.BrowserHelper', {
 		}else if(data.action && data.action === 'burnermsg'){
 			this.log('fireEvent: ' + data.msg);
 			app.fireEvent('burnermsg', this, data);
+		}else if(data.action && data.action === 'printermsg'){
+			this.log('fireEvent: ' + data.msg);
+			app.fireEvent('printermsg', this, data);
 		}else{
 
 			// callback is defined
@@ -82674,7 +82807,12 @@ Ext.define('App.view.Viewport', {
 			                    	xtype: 'button',
 				                    text: _('print_jobs'),
 				                    itemId: 'ApplicationFooterPrintJobsBtn'
-			                    }
+			                    },
+								// {
+								// 	xtype: 'button',
+								// 	text: 'Test Document Viewer',
+								// 	itemId: 'ApplicationFooterTestDocumentViewerBtn'
+								// }
 		                    ]
 	                    },
 	                    '-',

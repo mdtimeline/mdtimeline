@@ -199,17 +199,17 @@ class authProcedures {
 
 	public function doAuth($params, $user){
 
-	    // check client lic.
-	    $Client = new Client();
-	    $access = $Client->hasAccess();
-
-        if(!$access['success']){
-            return [
-                'success' => false,
-                'type' => 'error',
-                'message' => $access['errorMsg']
-            ];
-        }
+	    // TODO check client lic.
+//	    $Client = new Client();
+//	    $access = $Client->hasAccess();
+//
+//        if(!$access['success']){
+//            return [
+//                'success' => false,
+//                'type' => 'error',
+//                'message' => $access['errorMsg']
+//            ];
+//        }
 
 		if(!Network::isLocalAddress() && !ACL::hasPermissionByUid('allow_access_on_public_ips', $user['id'])){
 			return [

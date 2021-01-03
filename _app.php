@@ -929,6 +929,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 	                'Navigation',
 	                'Notification',
 	                'Print',
+	                'PrintJob',
 	                'Scanner',
 	                'ScriptCam',
 	                'Support',

@@ -99,7 +99,7 @@ Ext.define('App.controller.PrintJob', {
 
         me.print_task = setInterval(function () {
             me.checkJobsToPrint();
-        }, 10000);
+        }, (1000 * 60));
     },
 
     checkJobsToPrint: function () {

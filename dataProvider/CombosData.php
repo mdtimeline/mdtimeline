@@ -200,6 +200,21 @@ class CombosData {
 		return $options;
 	}
 
+    public function getEthnicity($only_primary = false){
+        $codes = json_decode(file_get_contents(ROOT. '/resources/code_sets/HL7v3-Ethnicity.json'), true);
+        if(!$only_primary){
+            return $codes;
+        }
+        $response = [];
+        foreach ($codes as $code){
+
+            if($code['indent_index'] === 0){
+                $response[] = $code;
+            }
+        }
+        return $response;
+	}
+
 	public function getEthnicityByCode($code){
 		$ethnicity = json_decode(file_get_contents(ROOT. '/resources/code_sets/HL7v3-Ethnicity.json'), true);
 		$ethnicity_key = array_search($code, array_column($ethnicity, 'code'));
@@ -216,6 +231,21 @@ class CombosData {
 			return $races[$race_key];
 		}
 		return $code;
+	}
+
+	public function getRace($only_primary = false){
+        $codes = json_decode(file_get_contents(ROOT. '/resources/code_sets/HL7v3-Race.json'), true);
+        if(!$only_primary){
+            return $codes;
+        }
+        $response = [];
+        foreach ($codes as $code){
+
+            if($code['indent_index'] === 0){
+                $response[] = $code;
+            }
+        }
+        return $response;
 	}
 
 	public function getReferringPhysicians($query = ''){

@@ -72,6 +72,7 @@ $sites = array_values($directories);
  */
 
 $php_inis = [
+	'/usr/local/etc/php/7.4/php.ini',
 	'/usr/local/etc/php/7.3/php.ini',
 	'/usr/local/etc/php/7.2/php.ini',
 	'/usr/local/etc/php/7.1/php.ini',

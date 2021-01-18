@@ -141,8 +141,10 @@ Ext.define('App.controller.administration.ContentManagement', {
             tokens = [],
             tokenTextAreaField = me.getContentManagementWindowTokensTextArea();
 
+        tokens = tokens.concat(this.patientTokens()());
+
         if (content_type === 'disclosure') {
-            tokens = tokens.concat(this.disclosureTokens(), this.patientTokens(),  this.formatTokens());
+            tokens = tokens.concat(this.disclosureTokens(), this.formatTokens());
         }
 
         if (content_type === 'reminder_mammography_one_year' || content_type === 'reminder_mammography_six_months' || content_type === 'reminder_mammography_pathology') {
@@ -203,6 +205,13 @@ Ext.define('App.controller.administration.ContentManagement', {
             '[PATIENT_LENGUAGE]',
             '[PATIENT_PICTURE]',
             '[PATIENT_QRCODE]',
+        ];
+    },
+
+    billingTokens: function () {
+        return [
+            '[SERVICES_TABLE]',
+            '[CLAIM_TABLE]',
         ];
     },
 

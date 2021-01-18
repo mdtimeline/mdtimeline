@@ -43,9 +43,61 @@ class ContentManagement {
         return $this->t->save($params);
     }
 
-    public function generateContentManagement($template_type, $language, $placeholders, $values){
+    public function generateContentManagement($template_type, $language, $placeholders, $values, $pid =  null){
 
         $template = $this->getContentManagement(['content_type' => $template_type,'content_lang' => $language]);
+
+        if(isset($pid)){
+            /*
+             *
+            '[PATIENT_NAME]',
+            '[PATIENT_ID]',
+            '[PATIENT_RECORD_NUMBER]',
+            '[PATIENT_FULL_NAME]',
+            '[PATIENT_LAST_NAME]',
+            '[PATIENT_SEX]',
+            '[PATIENT_BIRTHDATE]',
+            '[PATIENT_MARITAL_STATUS]',
+            '[PATIENT_SOCIAL_SECURITY]',
+            '[PATIENT_EXTERNAL_ID]',
+            '[PATIENT_DRIVERS_LICENSE]',
+            '[PATIENT_POSTAL_ADDRESS_LINE_ONE]',
+            '[PATIENT_POSTAL_ADDRESS_LINE_TWO]',
+            '[PATIENT_POSTAL_CITY]',
+            '[PATIENT_POSTAL_STATE]',
+            '[PATIENT_POSTAL_ZIP]',
+            '[PATIENT_POSTAL_COUNTRY]',
+            '[PATIENT_PHYSICAL_ADDRESS_LINE_ONE]',
+            '[PATIENT_PHYSICAL_ADDRESS_LINE_TWO]',
+            '[PATIENT_PHYSICAL_CITY]',
+            '[PATIENT_PHYSICAL_STATE]',
+            '[PATIENT_PHYSICAL_ZIP]',
+            '[PATIENT_PHYSICAL_COUNTRY]',
+            '[PATIENT_HOME_PHONE]',
+            '[PATIENT_MOBILE_PHONE]',
+            '[PATIENT_WORK_PHONE]',
+            '[PATIENT_EMAIL]',
+            '[PATIENT_MOTHERS_NAME]',
+            '[PATIENT_GUARDIANS_NAME]',
+            '[PATIENT_EMERGENCY_CONTACT]',
+            '[PATIENT_EMERGENCY_PHONE]',
+            '[PATIENT_PROVIDER]',
+            '[PATIENT_PHARMACY]',
+            '[PATIENT_AGE]',
+            '[PATIENT_OCCUPATION]',
+            '[PATIENT_EMPLOYEER]',
+            '[PATIENT_RACE]',
+            '[PATIENT_ETHNICITY]',
+            '[PATIENT_LENGUAGE]',
+            '[PATIENT_PICTURE]',
+            '[PATIENT_QRCODE]',
+             */
+
+
+
+
+        }
+
 
         if($template !== false){
             $text_template = str_replace($placeholders, $values, $template['content_body']);

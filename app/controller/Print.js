@@ -27,7 +27,7 @@ Ext.define('App.controller.Print', {
 
     },
 
-    doPrint: function (printer_record, document_base64, job_id) {
+    doPrint: function (printer_record, document_base64, job_id, callback) {
         var me = this;
 
         if (printer_record.get('local')) {
@@ -42,15 +42,18 @@ Ext.define('App.controller.Print', {
                 if (!response.success) {
                     app.msg(_('oops'), 'Document could not be printed', true);
                 }
+                if(callback) callback(response);
             });
         } else {
-            Printer.doPrint(printer_record.get('id'), document_base64, job_id);
+            Printer.doPrint(printer_record.get('id'), document_base64, job_id, function (response){
+                if(callback) callback(response);
+            });
         }
     },
 
-    addPrintJob: function (document_id, printer_record) {
+    addPrintJob: function (document_id, printer_record, print_now, priority) {
         var me = this;
-        me.printJobCtl.addPrintJob(document_id, printer_record);
+        me.printJobCtl.addPrintJob(document_id, printer_record, print_now, priority);
     },
 
     loadRemotePrinters: function () {
@@ -58,6 +61,12 @@ Ext.define('App.controller.Print', {
 
         Printer.getPrinters(function (printers) {
             me.printers = Ext.Array.merge(me.printers, printers);
+            var rendered_printer_combos = Ext.ComponentQuery.query('printerscombo[rendered]');
+            rendered_printer_combos.forEach(function (rendered_printer_combo){
+                rendered_printer_combo.store.loadData(me.printers);
+                rendered_printer_combo.showPrintersByFacility();
+                rendered_printer_combo.setValue(rendered_printer_combo.getValue());
+            });
         });
     },
 
@@ -73,6 +82,14 @@ Ext.define('App.controller.Print', {
             }
 
             me.printers = Ext.Array.merge(me.printers, printers);
+
+            var rendered_printer_combos = Ext.ComponentQuery.query('printerscombo[rendered]');
+            rendered_printer_combos.forEach(function (rendered_printer_combo){
+                rendered_printer_combo.store.loadData(me.printers);
+                rendered_printer_combo.showPrintersByFacility();
+                rendered_printer_combo.setValue(rendered_printer_combo.getValue());
+            });
+
         });
 
     },
@@ -84,11 +101,11 @@ Ext.define('App.controller.Print', {
         //register combobox to change when facility changes
         app.on('appfacilitychanged', function () {
             cmb.showPrintersByFacility();
-            if (cmb.store.getCount() > 0) {
-                cmb.setValue(cmb.store.first());
-            } else {
-                cmb.setValue(null);
-            }
+            // if (cmb.store.getCount() > 0) {
+            //     cmb.setValue(cmb.store.first());
+            // } else {
+            //     cmb.setValue(null);
+            // }
         });
 
         //filter printers by facility and local
@@ -96,9 +113,9 @@ Ext.define('App.controller.Print', {
 
         if (cmb.store.find('id', cmb.getValue()) === cmb.getValue()) {
             // fix to stateful not selecting
-            cmb.setValue(cmb.getValue());
+            // cmb.setValue(cmb.getValue());
         } else {
-            cmb.store.getCount() > 0 ? cmb.setValue(cmb.store.first()) : cmb.setValue(null);
+            // cmb.store.getCount() > 0 ? cmb.setValue(cmb.store.first()) : cmb.setValue(null);
         }
 
     },

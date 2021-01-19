@@ -108,7 +108,7 @@ class Printer
         $printer = $this->p->load(['id' => $printer_id])->one();
 
         if ($printer === false) {
-            $this->updatePrintJobStatus($print_job_id, 'failed');
+            $this->updatePrintJobStatus($print_job_id, 'FAILED');
             return [
                 'success' => false,
                 'error' => 'Printer not found'
@@ -116,7 +116,7 @@ class Printer
         }
 
         if (!file_exists(site_temp_path) || !is_writable(site_temp_path)) {
-            $this->updatePrintJobStatus($print_job_id, 'failed');
+            $this->updatePrintJobStatus($print_job_id, 'FAILED');
             return [
                 'success' => false,
                 'error' => 'Document temp directory issue'
@@ -131,7 +131,7 @@ class Printer
 
         if (!file_put_contents($temp_file_path, $document, FILE_USE_INCLUDE_PATH)) {
             error_log('Print document could not be saved on this location. {$tem_fname}');
-            $this->updatePrintJobStatus($print_job_id, 'failed');
+            $this->updatePrintJobStatus($print_job_id, 'FAILED');
             return [
                 'success' => false,
                 'error' => 'Print document could not be saved'
@@ -183,7 +183,7 @@ class Printer
 
             if (!isset($printer_name) || empty($printer_name)) {
                 error_log('Printer name is not set');
-                $this->updatePrintJobStatus($print_job_id, 'failed');
+                $this->updatePrintJobStatus($print_job_id, 'FAILED');
                 return [
                     'success' => false,
                     'error' => 'Printer name is not set'
@@ -215,7 +215,7 @@ class Printer
 
         unlink($temp_file_path);
 
-        $this->updatePrintJobStatus($print_job_id, 'done');
+        $this->updatePrintJobStatus($print_job_id, 'DONE');
 
         return [
             'success' => true,

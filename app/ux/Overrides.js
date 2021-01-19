@@ -827,7 +827,16 @@ Ext.override(Ext.grid.plugin.RowEditing, {
 
 Ext.override(Ext.form.field.Checkbox, {
     inputValue: '1',
-    uncheckedValue: '0'
+    uncheckedValue: '0',
+    stateEvents: ['change'],
+
+    getState: function() {
+        return { checked: this.checked };
+    },
+
+    applyState: function(state) {
+        this.setValue(state.checked);
+    },
 });
 
 Ext.override(Ext.form.field.ComboBox, {

@@ -109,13 +109,14 @@ Ext.define('App.ux.state.HttpProvider', {
     },
 
     set: function (name, value) {
-        var me = this, pos = me.store.find('name', name), row;
+        var me = this, pos = me.store.findExact('name', name), row;
 
         if (pos > -1) {
             row = me.store.getAt(pos);
             row.set('value', me.encodeValue(value));
         } else {
             me.store.add({
+                uid : app.user.id,
                 name : name,
                 value: me.encodeValue(value)
             });
@@ -136,7 +137,7 @@ Ext.define('App.ux.state.HttpProvider', {
     },
 
     clear: function (name) {
-        var me = this, pos = me.store.find('name', name);
+        var me = this, pos = me.store.findExact('name', name);
         if (pos > -1) {
             me.store.removeAt(pos);
             me.fireEvent('statechange', me, name, null);

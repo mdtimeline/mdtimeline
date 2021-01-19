@@ -155,12 +155,174 @@ Ext.define('App.controller.patient.Insurance', {
 
             '#PatientInsurancesFormIsActiveCkBox': {
                 change: me.onPatientInsurancesFormIsActiveCkBoxChange
+            },
+
+            '#PatientInsuranceFormScannerBtn': {
+                click: me.onPatientInsuranceFormScannerBtnClick
+            },
+            '#PatientInsuranceFormScannerOcrBtn': {
+                click: me.onPatientInsuranceFormScannerOcrBtnClick
             }
 
         });
 
+        me.scannerCtrl = me.getController('Scanner');
+
         me.doPatientInsurancesWindowCloseBuffered = Ext.Function.createBuffered(me.doPatientInsurancesWindowClose, 250, me);
     },
+
+    onPatientInsuranceFormScannerBtnClick: function (btn){
+
+        var me = this,
+            insurance_img_container = btn.up('#PatientInsuranceFormCardContainer'),
+            insurance_img = insurance_img_container.down('image'),
+            textareafield = insurance_img_container.down('textareafield');
+
+        // say('onPatientInsuranceFormScannerBtnClick');
+        // say(insurance_img_container);
+        // say(insurance_img);
+
+        me.scannerCtrl.showBasicScanWindow([], function (scanned_images){
+
+            var img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.onload = function () {
+                var imageData = me.trimImage(img);
+                insurance_img.setSrc(imageData);
+                insurance_img_container.doLayout();
+            };
+            img.src = 'data:image/jpeg;base64,' + scanned_images[0];
+            textareafield.setValue('data:image/jpeg;base64,' + scanned_images[0]);
+
+        });
+    },
+
+    onPatientInsuranceFormScannerOcrBtnClick: function (btn){
+        var me = this,
+            insurance_img_container = btn.up('#PatientInsuranceFormCardContainer'),
+            insurance_img = insurance_img_container.down('image'),
+            mask = new Ext.LoadMask({
+                msg: 'Progress... 0%',
+                target: insurance_img
+            });
+
+        mask.show();
+
+        Tesseract.recognize(
+            insurance_img.src,
+            'eng',
+            {
+                logger: function (m){
+
+                    say(m);
+
+                    if(m.status === 'recognizing text'){
+                        mask.msgTextEl.update(Ext.String.format('Progress... {0}%', Math.floor(m.progress * 100)));
+                    }
+                 }
+            }
+        ).then(function (data) {
+            mask.hide();
+            mask.destroy();
+            me.onOcrComplete(data, insurance_img);
+        });
+
+    },
+
+    onOcrComplete: function (data, insurance_img){
+        say('onOcrComplete');
+        say(data);
+        say(insurance_img);
+
+
+
+    },
+
+    trimImage: function (imageObject) {
+
+        var rbgThreshold = 255;
+        var imgWidth = imageObject.width;
+        var imgHeight = imageObject.height;
+        var canvas = document.createElement('canvas');
+        canvas.setAttribute("width", imgWidth);
+        canvas.setAttribute("height", imgHeight);
+        var context = canvas.getContext('2d');
+        context.drawImage(imageObject, 0, 0);
+
+        var imageData = context.getImageData(0, 0, imgWidth, imgHeight),
+            data = imageData.data,
+            getRBG = function(x, y) {
+                var offset = imgWidth * y + x;
+                return {
+                    red:     data[offset * 4],
+                    green:   data[offset * 4 + 1],
+                    blue:    data[offset * 4 + 2],
+                    opacity: data[offset * 4 + 3]
+                };
+            },
+            isWhite = function (rgb) {
+                // many images contain noise, as the white is not a pure #fff white
+                return rgb.red > rbgThreshold && rgb.green > rbgThreshold && rgb.blue > rbgThreshold;
+            },
+            scanY = function (fromTop) {
+                var offset = fromTop ? 1 : -1;
+
+                // loop through each row
+                for(var y = fromTop ? 0 : imgHeight - 1; fromTop ? (y < imgHeight) : (y > -1); y += offset) {
+
+                    // loop through each column
+                    for(var x = 0; x < imgWidth; x++) {
+                        var rgb = getRBG(x, y);
+                        if (!isWhite(rgb)) {
+                            if (fromTop) {
+                                return y;
+                            } else {
+                                return Math.min(y + 1, imgHeight);
+                            }
+                        }
+                    }
+                }
+                return null; // all image is white
+            },
+            scanX = function (fromLeft) {
+                var offset = fromLeft? 1 : -1;
+
+                // loop through each column
+                for(var x = fromLeft ? 0 : imgWidth - 1; fromLeft ? (x < imgWidth) : (x > -1); x += offset) {
+
+                    // loop through each row
+                    for(var y = 0; y < imgHeight; y++) {
+                        var rgb = getRBG(x, y);
+                        if (!isWhite(rgb)) {
+                            if (fromLeft) {
+                                return x;
+                            } else {
+                                return Math.min(x + 1, imgWidth);
+                            }
+                        }
+                    }
+                }
+                return null; // all image is white
+            };
+
+        var cropTop = scanY(true),
+            cropBottom = scanY(false),
+            cropLeft = scanX(true),
+            cropRight = scanX(false),
+            cropWidth = cropRight - cropLeft,
+            cropHeight = cropBottom - cropTop;
+
+        canvas.setAttribute("width", cropWidth);
+        canvas.setAttribute("height", cropHeight);
+        // finally crop the guy
+
+        context.drawImage(imageObject,
+            cropLeft, cropTop, cropWidth, cropHeight,
+            0, 0, cropWidth, cropHeight);
+
+        return canvas.toDataURL();
+    },
+
 
     onPatientInsurancesFormIsActiveCkBoxChange: function (field){
 

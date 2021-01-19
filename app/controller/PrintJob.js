@@ -44,11 +44,17 @@ Ext.define('App.controller.PrintJob', {
         {
             selector: '#PrintJobsWindowUserLiveSearch',
             ref: 'PrintJobsWindowUserLiveSearch'
+        },
+        {
+            selector: '#ApplicationFooterDefaultPrinterCmb',
+            ref: 'ApplicationFooterDefaultPrinterCmb'
         }
     ],
 
     init: function () {
         var me = this;
+
+        say('App.controller.PrintJob');
 
         me.control({
             'viewport': {
@@ -110,7 +116,10 @@ Ext.define('App.controller.PrintJob', {
             me.print_job_store.reload();
         } else {
             this.print_job_store.each(function (print_job_record) {
-                if (print_job_record.get('print_status') === 'send') {
+                if (print_job_record.get('print_status') === 'QUEUED') {
+
+                    say(' checkJobsToPrint');
+
                     me.doPrintJob(print_job_record);
                 }
             });
@@ -123,18 +132,17 @@ Ext.define('App.controller.PrintJob', {
                 },
                 {
                     property: 'print_status',
-                    value: 'send'
+                    value: 'QUEUED'
                 },
                 {
                     property: 'print_status',
-                    value: 'printing'
+                    value: 'PRINTING'
                 },
             ]);
         }
     },
 
     doPrintJob: function (print_job_record) {
-        print_job_record.set({print_status: 'printing'});
 
         var me = this,
             printController = app.getController('Print'),
@@ -143,18 +151,29 @@ Ext.define('App.controller.PrintJob', {
                 id: print_job_record.get('document_id')
             };
 
-        for (i = 0; i < printers.length; i++) {
-            var printer_record = Ext.create('App.model.administration.PrinterCombo', printers[i]);
+        for (var i = 0; i < printers.length; i++) {
 
             //* Printer record id is a string and printer_id is an int
-            if (printer_record.get('id') == print_job_record.get('printer_id')) {
+            if (printers[i].id == print_job_record.get('printer_id')) {
+
+                var printer_record = Ext.create('App.model.administration.PrinterCombo', printers[i]);
+
                 DocumentHandler.getPatientDocument(params, true, function (patient_document) {
                     if (patient_document === false) {
                         app.msg(_('error'), _('patient_document_not_found'), true);
                         return;
                     }
 
-                    printController.doPrint(printer_record, patient_document.document, print_job_record.get('id'));
+                    print_job_record.set({print_status: 'PRINTING'});
+                    printController.doPrint(printer_record, patient_document.document, print_job_record.get('id'), function (printer_response){
+
+                        if(printer_response.success){
+                            print_job_record.set({print_status: 'DONE'});
+                        }else{
+                            print_job_record.set({print_status: 'FAILED'});
+                        }}
+
+                    );
                 });
 
                 break;
@@ -223,11 +242,11 @@ Ext.define('App.controller.PrintJob', {
         filters.push({property: 'created_at', operator: '>=', value: from_date});
         filters.push({property: 'created_at', operator: '<=', value: to_date});
         if (user_id !== null) filters.push({property: 'uid', value: user_id});
-        if (status_send) filters.push({property: 'print_status', value: 'send'});
-        if (status_printing) filters.push({property: 'print_status', value: 'printing'});
-        if (status_waiting) filters.push({property: 'print_status', value: 'waiting'});
-        if (status_failed) filters.push({property: 'print_status', value: 'failed'});
-        if (status_done) filters.push({property: 'print_status', value: 'done'});
+        if (status_send) filters.push({property: 'print_status', value: 'QUEUED'});
+        if (status_printing) filters.push({property: 'print_status', value: 'PRINTING'});
+        if (status_waiting) filters.push({property: 'print_status', value: 'HOLD'});
+        if (status_failed) filters.push({property: 'print_status', value: 'FAILED'});
+        if (status_done) filters.push({property: 'print_status', value: 'DONE'});
         if (priority_high) filters.push({property: 'priority', value: 1});
         if (priority_med) filters.push({property: 'priority', value: 2});
         if (priority_low) filters.push({property: 'priority', value: 3});
@@ -266,16 +285,16 @@ Ext.define('App.controller.PrintJob', {
 
         selected_records.forEach(function (print_job_record) {
             print_job_record.set({
-                print_status: 'send',
+                print_status: 'QUEUED',
                 printer_id: printer_record.get('id'),
-                printer_type: printer_record.get('local') ? 'local' : 'remote'
+                printer_type: printer_record.get('local') ? 'LOCAL' : 'REMOTE'
             });
 
             me.doPrintJob(print_job_record);
 
             // if (print_job_record.get('print_status') === 'waiting') {
             //     print_job_record.set({
-            //         print_status: 'send',
+            //         print_status: 'QUEUED',
             //         printer_id: print_job_record.get('printer_id'),
             //         printer_type: printer_record.get('local')
             //     });
@@ -291,7 +310,15 @@ Ext.define('App.controller.PrintJob', {
     },
 
     addPrintJob: function (document_id, printer_record, print_now, priority) {
-        var me = this;
+
+        say('addPrintJob: function (document_id, printer_record, print_now, priority)');
+
+        var me = this,
+            default_printer_cmb = this.getApplicationFooterDefaultPrinterCmb(),
+            default_printer_record =  default_printer_cmb.findRecordByValue(default_printer_cmb.getValue());
+
+        printer_record = printer_record || default_printer_record;
+        priority = priority === undefined || priority === null ? 2 : priority;
 
         if (document_id === null || document_id === 0) {
             app.msg(_('error'), 'Print job could not be added. Document Missing.', true)
@@ -305,15 +332,19 @@ Ext.define('App.controller.PrintJob', {
             app.msg(_('error'), 'Print job could not be added. Priority Missing.', true)
         }
 
-        me.print_job_store.add({
+        var print_job_record = me.print_job_store.add({
             uid: app.user.id,
             document_id: document_id,
             printer_id: printer_record.get('id'),
-            printer_type: printer_record.get('local') ? 'local' : 'remote',
-            print_status: print_now ? 'send' : 'waiting',
+            printer_type: printer_record.get('local') ? 'LOCAL' : 'REMOTE',
+            print_status: print_now ? 'QUEUED' : 'HOLD',
             priority: priority,
-            created_at: Ext.Date.format(new Date(), 'Y-m-d H:i:s')
-        });
+            created_at: Ext.Date.format(app.getDate(), 'Y-m-d H:i:s')
+        })[0];
+
+        if(print_now){
+            me.doPrintJob(print_job_record);
+        }
     },
 
     onApplicationFooterPrintJobsBtnClick: function () {

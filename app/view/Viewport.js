@@ -653,21 +653,27 @@ Ext.define('App.view.Viewport', {
 							xtype: 'container',
 		                    itemId: 'ApplicationFooterContainer',
 		                    flex: 1,
+							layout: 'hbox',
 		                    defaults: {
 			                    xtype: 'button',
 								minWidth: 70
 		                    },
 		                    items: [
 			                    {
+									xtype: 'printerscombo',
+				                    fieldLabel: _('default_printer'),
+									labelAlign: 'right',
+				                    itemId: 'ApplicationFooterDefaultPrinterCmb',
+				                    stateful: true,
+				                    stateId: 'ApplicationFooterDefaultPrinterCmbState',
+									margin: '0 5 0 0',
+									width: 300
+			                    },
+			                    {
 			                    	xtype: 'button',
 				                    text: _('print_jobs'),
 				                    itemId: 'ApplicationFooterPrintJobsBtn'
-			                    },
-								// {
-								// 	xtype: 'button',
-								// 	text: 'Test Document Viewer',
-								// 	itemId: 'ApplicationFooterTestDocumentViewerBtn'
-								// }
+			                    }
 		                    ]
 	                    },
 	                    '-',
@@ -959,6 +965,10 @@ Ext.define('App.view.Viewport', {
     getActivePanel: function(){
         return this.MainPanel.getLayout().getActiveItem();
     },
+
+	addPrintJob: function (document_id, printer_record, print_now, priority){
+		this.getController('PrintJob').addPrintJob(document_id, printer_record, print_now, priority);
+	},
 
     liveSearchSelect: function(combo, selection){
         var me = this,

@@ -39,6 +39,16 @@ Ext.define('App.controller.Scanner', {
 		},
 
 
+		{
+			ref: 'BasicScanWindow',
+			selector: '#BasicScanWindow'
+		},
+		{
+			ref: 'BasicScanSourceCombo',
+			selector: '#BasicScanSourceCombo'
+		},
+
+
 
 
 		// old...
@@ -79,8 +89,6 @@ Ext.define('App.controller.Scanner', {
 		me.is_chrome_scan = window.chrome && window.chrome.documentScan;
 
 		me.control({
-
-
 			'#DocumentScanWindow': {
 				show: me.onDocumentScanWindowShow,
 				close: me.onDocumentScanWindowClose,
@@ -103,18 +111,67 @@ Ext.define('App.controller.Scanner', {
 				click: me.onDocumentScanRemoveDocumentBtnClick
 			},
 
+
+			'#BasicScanWindow': {
+				show: me.onBasicScanWindowShow
+			},
+			'#BasicScanCancelBtn': {
+				click: me.onBasicScanCancelBtnClick
+			},
+			'#BasicScanScanBtn': {
+				click: me.onBasicScanScanBtnClick
+			},
+
 		});
 
 		me.helperCtrl = me.getController('App.controller.BrowserHelper');
 
 	},
 
-	doScan: function (scannerId, options) {
+	onBasicScanWindowShow: function (win){
+
+		var progress_bar = win.down('progressbar');
+		progress_bar.reset();
+		progress_bar.updateProgress(0);
+		progress_bar.updateText('');
+
+		this.doScannerComboLoad(win.down('#BasicScanSourceCombo'));
+	},
+
+	onBasicScanCancelBtnClick: function (btn){
+		this.getBasicScanWindow().close();
+	},
+
+	onBasicScanScanBtnClick: function (btn){
+
+		var me = this,
+			win = btn.up('window'),
+			cmb = win.down('#BasicScanSourceCombo'),
+			landscape = win.down('#BasicScanLandscapeCheckbox').getValue(),
+			options = [];
+
+		if(!cmb.isValid()){
+			return;
+		}
+
+		if(landscape){
+			options.push('CAP_ORIENTATION_LANDSCAPE');
+		}
+
+		if(win.scan_options && win.scan_options.length > 0){
+			options = Ext.Array.merge(options, win.scan_options);
+		}
+
+		me.doScan(win, cmb.getValue(), options, win.scan_callback);
+	},
+
+
+	doScan: function (win, scannerId, options, callback) {
 		var me = this;
 
 		if(!me.is_chrome_scan){
 
-			var progress_bar = this.getDocumentScanProgressBar();
+			var progress_bar = win.down('progressbar');
 
 			progress_bar.wait({
 				interval: 100,
@@ -135,7 +192,12 @@ Ext.define('App.controller.Scanner', {
 				progress_bar.reset();
 
 				if(response.documents && response.documents.length > 0){
-					me.loadDocuments(response.documents, false);
+					if(callback){
+						win.close();
+						callback(response.documents);
+					}else{
+						me.loadDocuments(response.documents, false);
+					}
 					progress_bar.updateProgress(1, response.documents.length + ' ' + _('documents_scanned'));
 
 				} else {
@@ -163,7 +225,11 @@ Ext.define('App.controller.Scanner', {
 			});
 		}else {
 			chrome.documentScan.scan({ maxImages: 10 }, function(result){
-				me.loadDocuments(result.dataUrls, true);
+				if(callback){
+					callback(result.dataUrls);
+				}else{
+					me.loadDocuments(result.dataUrls, true);
+				}
 			});
 		}
 
@@ -200,9 +266,10 @@ Ext.define('App.controller.Scanner', {
 		view.refresh();
 	},
 
-	onDocumentScanStartScanBtnClick: function(){
+	onDocumentScanStartScanBtnClick: function(btn){
 
 		var me = this,
+			win = btn.up('win'),
 			form = this.getDocumentScanForm().getForm(),
 			values = form.getValues(),
 			options = [];
@@ -225,7 +292,7 @@ Ext.define('App.controller.Scanner', {
 			options.push('CAP_RESOLUTION_HIGH');
 		}
 
-		me.doScan(values.scannerId, options);
+		me.doScan(win, values.scannerId, options);
 
 	},
 
@@ -237,7 +304,7 @@ Ext.define('App.controller.Scanner', {
 		progress_bar.updateProgress(0);
 		progress_bar.updateText('');
 
-		this.doScannerComboLoad();
+		this.doScannerComboLoad(win.down('#DocumentScanSourceCombo'));
 	},
 
 	onDocumentScanWindowClose: function(win){
@@ -349,9 +416,25 @@ Ext.define('App.controller.Scanner', {
 		return this.getDocumentScanWindow().show();
 	},
 
-	doScannerComboLoad: function () {
-		var me = this,
-			cmb = me.getDocumentScanSourceCombo();
+	showBasicScanWindow: function(options, callback){
+
+		if(!this.helperCtrl.connected){
+			app.msg(_('oops'), _('browser_helper_not_connected'), true);
+			return false;
+		}
+
+		if(!this.getBasicScanWindow()){
+			Ext.create('App.view.scanner.BasicScanWindow');
+		}
+
+		this.getBasicScanWindow().scan_options = options;
+		this.getBasicScanWindow().scan_callback = callback;
+
+		return this.getBasicScanWindow().show();
+	},
+
+	doScannerComboLoad: function (cmb) {
+		var me = this;
 
 		me.helperCtrl.sendMessage(
 			{
@@ -359,6 +442,9 @@ Ext.define('App.controller.Scanner', {
 			}, function (response) {
 
 				if(response){
+
+					say(response);
+
 					cmb.store.loadRawData(response);
 
 					if(!cmb.getValue()) {

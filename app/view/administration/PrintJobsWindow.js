@@ -27,12 +27,14 @@ Ext.define('App.view.administration.PrintJobsWindow', {
         var me = this,
             ctl = app.getController('PrintJob');
 
+
         me.items = [
             {
                 xtype: 'grid',
                 store: ctl.print_job_store,
                 itemId: 'PrintJobsWindowGird',
                 selType: 'checkboxmodel',
+
                 columns: [
                     {
                         text: 'Job Id',
@@ -51,11 +53,13 @@ Ext.define('App.view.administration.PrintJobsWindow', {
                     },
                     {
                         text: _('document_title'),
-                        dataIndex: 'document_title'
+                        dataIndex: 'document_title',
+                        flex: 2
                     },
                     {
                         text: _('document_doc_type'),
                         dataIndex: 'document_doc_type',
+                        flex: 1.5
                     },
                     {
                         text: _('document_note'),
@@ -63,32 +67,18 @@ Ext.define('App.view.administration.PrintJobsWindow', {
                         hidden: true
                     },
                     {
-                        text: _('username'),
-                        dataIndex: 'user_username'
-                    },
-                    {
-                        text: _('user') +' ' + _('first_name'),
-                        dataIndex: 'user_fname'
-                    },
-                    {
-                        text: _('user') +' ' + _('last_name'),
-                        dataIndex: 'user_lname'
-                    },
-                    {
-                        text: _('user') +' ' + _('middle_name'),
-                        dataIndex: 'user_mname',
-                        hidden: true
-                    },
-                    {
                         text: 'Printer Type',
-                        dataIndex: 'printer_type'
+                        dataIndex: 'printer_type',
+                        flex: 1
                     },
                     {
                         text: 'Status',
-                        dataIndex: 'print_status'
+                        dataIndex: 'print_status',
+                        flex: 1
                     },
                     {
                         text: _('priority'),
+                        flex: 1,
                         dataIndex: 'priority',
                         renderer: function(value){
                             if (value === 1) {
@@ -105,20 +95,43 @@ Ext.define('App.view.administration.PrintJobsWindow', {
                         }
                     },
                     {
+                        text: _('username'),
+                        dataIndex: 'user_username',
+                        flex: 1
+                    },
+                    {
+                        text: _('user') +' ' + _('first_name'),
+                        dataIndex: 'user_fname',
+                        hidden: true
+                    },
+                    {
+                        text: _('user') +' ' + _('last_name'),
+                        dataIndex: 'user_lname',
+                        hidden: true
+                    },
+                    {
+                        text: _('user') +' ' + _('middle_name'),
+                        dataIndex: 'user_mname',
+                        hidden: true
+                    },
+                    {
                         xtype: 'datecolumn',
                         text: 'Created At',
                         dataIndex: 'created_at',
-                        format: 'M j Y \\a\\t g:i a'
+                        format: 'M j Y \\a\\t g:i a',
+                        flex: 1
                     },
                     {
                         xtype: 'datecolumn',
                         text: 'Updated At',
                         dataIndex: 'updated_at',
-                        format: 'M j Y \\a\\t g:i a'
+                        format: 'M j Y \\a\\t g:i a',
+                        hidden: true
                     },
                 ]
             }
         ];
+
         me.bbar = {
             xtype: 'pagingtoolbar',
             pageSize: 10,

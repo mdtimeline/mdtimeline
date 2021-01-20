@@ -321,15 +321,18 @@ Ext.define('App.controller.PrintJob', {
         priority = priority === undefined || priority === null ? 2 : priority;
 
         if (document_id === null || document_id === 0) {
-            app.msg(_('error'), 'Print job could not be added. Document Missing.', true)
+            app.msg(_('error'), 'Print job could not be added. Document Missing.', true);
+            return;
         }
 
         if (printer_record === null || printer_record.get('id') === null) {
-            app.msg(_('error'), 'Print job could not be added. Printer Missing.', true)
+            app.msg(_('error'), 'Print job could not be added. Printer Missing.', true);
+            return;
         }
 
         if (priority === null || !Number.isInteger(priority)) {
-            app.msg(_('error'), 'Print job could not be added. Priority Missing.', true)
+            app.msg(_('error'), 'Print job could not be added. Priority Missing.', true);
+            return;
         }
 
         var print_job_record = me.print_job_store.add({

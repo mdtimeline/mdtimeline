@@ -56,7 +56,7 @@ Ext.define('App.controller.DualScreen', {
 		var me = this;
 		me.enable();
 		if(me._screen == null || me._screen.closed){
-			me._screen = window.open('./?dual=true','_target','fullscreen=yes,menubar=no',true);
+			me._screen = window.open(('./?site='+ app.user.site + '&dual=true'),'_target','fullscreen=yes,menubar=no',true);
 		}
 	},
 

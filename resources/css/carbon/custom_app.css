@@ -8,6 +8,17 @@
     src: url('../../fonts/OpenSans-CondLight.ttf');
 }
 
+.x-btn-icon-el {
+    font-size: 16px;
+    color: #1b9bfc;
+}
+.x-btn-default-toolbar-medium .x-btn-icon-el {
+    font-size: 32px;
+}
+.x-btn-default-toolbar-large .x-btn-icon-el {
+    font-size: 64px;
+}
+
 .switch-field-slider .x-slider-horz,
 .switch-field-slider .x-slider-horz .x-slider-end,
 .switch-field-slider .x-slider-horz .x-slider-inner {

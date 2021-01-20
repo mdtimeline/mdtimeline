@@ -644,6 +644,7 @@ Ext.define('App.view.Viewport', {
 		                    text: _('dual_screen'),
 		                    itemId: 'ApplicationDualScreenBtn',
 							enableToggle: true,
+							iconCls: 'fa fa-desktop',
 							toggleGroup: 'ApplicationDualScreenBtnGroup',
 							stateful: true,
 							stateId: ('ApplicationDualScreenBtnState' + app.user.id)
@@ -662,6 +663,7 @@ Ext.define('App.view.Viewport', {
 			                    {
 									xtype: 'printerscombo',
 				                    fieldLabel: _('default_printer'),
+									labelWidth: 80,
 									labelAlign: 'right',
 				                    itemId: 'ApplicationFooterDefaultPrinterCmb',
 				                    stateful: true,
@@ -672,6 +674,7 @@ Ext.define('App.view.Viewport', {
 			                    {
 			                    	xtype: 'button',
 				                    text: _('print_jobs'),
+									iconCls: 'fa fa-briefcase',
 				                    itemId: 'ApplicationFooterPrintJobsBtn'
 			                    }
 		                    ]

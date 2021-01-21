@@ -70275,7 +70275,7 @@ Ext.define('App.controller.Scanner', {
 	onDocumentScanStartScanBtnClick: function(btn){
 
 		var me = this,
-			win = btn.up('win'),
+			win = btn.up('window'),
 			form = this.getDocumentScanForm().getForm(),
 			values = form.getValues(),
 			options = [];

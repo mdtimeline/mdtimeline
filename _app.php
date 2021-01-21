@@ -240,10 +240,19 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 			}
 
             if(Ext.supports.LocalStorage){
+
+                var modules_mains = [];
+
                 Ext.state.Manager.setProvider(Ext.create('App.ux.state.HttpProvider',{
                     storeSyncOnLoadEnabled: true,
                     writeBuffer: 1000 * 5,
                     onFirstLoad: function (store, data){
+
+
+
+                        window.modules.forEach(function (module) {
+                            modules_mains.push('Modules.' + module + '.Main');
+                        });
 
                         /**
                          * Sencha ExtJS OnReady Event
@@ -1001,14 +1010,6 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                     app.QRCodePrintWin.print();
                 }, 1000);
             }
-
-
-            var modules_mains = [];
-
-            window.modules.forEach(function (module) {
-	            modules_mains.push('Modules.' + module + '.Main');
-            });
-
 
 		</script>
         <!-- Global site tag (gtag.js) - Google Analytics -->

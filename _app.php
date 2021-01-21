@@ -77,7 +77,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 		<script type="text/javascript" src="lib/qrcodejs/qrcode.min.js" charset="utf-8"></script>
 		<script type="text/javascript" src="lib/Print/print.min.js" charset="utf-8"></script>
 		<script type="text/javascript" src="lib/tesseract/tesseract.min.js" charset="utf-8"></script>
-        <script type="text/javascript" src="lib/fontawesome/fontawesome.js"></script>
+        <script type="text/javascript" src="lib/fontawesome-pro-web/js/all.min.js"></script>
 
         <script type="text/javascript">
 

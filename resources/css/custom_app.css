@@ -940,6 +940,7 @@ li .Deceased {
     border: 1px solid #999999;
     border-radius: 25px;
     margin-top: -8px;
+    padding: 3px;
 }
 
 .patient_btn_info {
@@ -1058,7 +1059,7 @@ li .Deceased {
     width: 50px !important;
     height: 40px !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 3px !important;
     /*background-position: center center;*/
     background-repeat: no-repeat;
 }

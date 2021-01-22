@@ -105,10 +105,10 @@ Ext.define('App.ux.TopazSignature', {
 			str = event.target.getAttribute("msgAttribute"),
 			obj = JSON.parse(str);
 
-		this.SetValues(obj, me.getWidth(), me.getHeight());
+		this.SetValues(obj);
 	},
 
-	SetValues: function (objResponse, imageWidth, imageHeight) {
+	SetValues: function (objResponse) {
 
 		var me = this,
 			obj = JSON.parse(JSON.stringify(objResponse));

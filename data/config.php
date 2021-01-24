@@ -39,13 +39,13 @@ $API = [
     ],
     'AppState' => [
         'methods' => [
-            'get' => [
+            'AppStateGet' => [
                 'len' => 1
             ],
-            'set' => [
+            'AppStateSet' => [
                 'len' => 1
             ],
-            'unSet' => [
+            'AppStateUnSet' => [
                 'len' => 1
             ]
         ]

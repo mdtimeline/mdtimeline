@@ -62,7 +62,7 @@ class AppState {
      * @param $params
      * @return array
      */
-	public function unset($params) {
+	public function unSet($params) {
         return $this->s->destroy($params);
 	}
 

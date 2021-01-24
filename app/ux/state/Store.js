@@ -42,7 +42,7 @@ Ext.define('App.ux.state.Store', {
             read: 'AppState.get',
             create: 'AppState.set',
             update: 'AppState.set',
-            destroy: 'AppState.unset',
+            destroy: 'AppState.unSet',
         },
         reader: {
             type: 'json',

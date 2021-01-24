@@ -45,7 +45,7 @@ $API = [
             'set' => [
                 'len' => 1
             ],
-            'unset' => [
+            'unSet' => [
                 'len' => 1
             ]
         ]

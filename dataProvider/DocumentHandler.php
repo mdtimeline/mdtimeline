@@ -552,9 +552,9 @@ class DocumentHandler
             include_once(ROOT . '/dataProvider/Patient.php');
             $patient = new Patient();
             $p = $patient->getPatientByPid($document->pid);
-            $code = $document->code;
+            $code = isset($document->code) ? $document->code: '';
 
-            if (isset($p) && isset($p['pubpid']) && $document->code == '') {
+            if (isset($p) && isset($p['pubpid']) && $code == '') {
                 $code = $p['pubpid'] . '~' . $document_code . '~' . $file_name;
             }
 

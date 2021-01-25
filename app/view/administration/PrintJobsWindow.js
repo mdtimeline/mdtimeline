@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 Ext.define('App.view.administration.PrintJobsWindow', {
     extend: 'Ext.window.Window',
     pageTitle: _('print_jobs'),
@@ -59,7 +60,7 @@ Ext.define('App.view.administration.PrintJobsWindow', {
                     {
                         text: _('document_doc_type'),
                         dataIndex: 'document_doc_type',
-                        flex: 1.5
+                        flex: 1
                     },
                     {
                         text: _('document_note'),

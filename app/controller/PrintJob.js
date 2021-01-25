@@ -54,8 +54,6 @@ Ext.define('App.controller.PrintJob', {
     init: function () {
         var me = this;
 
-        say('App.controller.PrintJob');
-
         me.control({
             'viewport': {
                 printermsg: me.onApplicationPrinterMsg
@@ -86,7 +84,7 @@ Ext.define('App.controller.PrintJob', {
             },
             '#PrintJobsWindowUserLiveSearch': {
                 beforerender: me.onPrintJobsWindowUserLiveSearchBeforeRender,
-                select: me.onPrintJobsWindowUserLiveSearchSelect
+                change: me.onChangeFilters
             }
         });
 
@@ -117,9 +115,6 @@ Ext.define('App.controller.PrintJob', {
         } else {
             this.print_job_store.each(function (print_job_record) {
                 if (print_job_record.get('print_status') === 'QUEUED') {
-
-                    say(' checkJobsToPrint');
-
                     me.doPrintJob(print_job_record);
                 }
             });
@@ -182,6 +177,7 @@ Ext.define('App.controller.PrintJob', {
     },
 
     onChangeFilters: function () {
+
         var me = this,
             from_date_field = me.getPrintJobsWindowFromField(),
             to_date_field = me.getPrintJobsWindowToField(),
@@ -202,6 +198,8 @@ Ext.define('App.controller.PrintJob', {
             user_id = me.getPrintJobsWindowUserLiveSearch().getValue(),
             filters = [];
 
+        say('user_id');
+        say(me.getPrintJobsWindowUserLiveSearch());
         say(user_id);
 
         selected_status_checkboxes.forEach(function (checkbox) {
@@ -238,10 +236,15 @@ Ext.define('App.controller.PrintJob', {
             }
         });
 
-        filters.push({property: 'uid', value: app.user.id});
         filters.push({property: 'created_at', operator: '>=', value: from_date});
         filters.push({property: 'created_at', operator: '<=', value: to_date});
-        if (user_id !== null) filters.push({property: 'uid', value: user_id});
+
+        if (!user_id){
+            filters.push({property: 'uid', value: app.user.id});
+        } else {
+            filters.push({property: 'uid', value: user_id});
+        }
+
         if (status_send) filters.push({property: 'print_status', value: 'QUEUED'});
         if (status_printing) filters.push({property: 'print_status', value: 'PRINTING'});
         if (status_waiting) filters.push({property: 'print_status', value: 'HOLD'});
@@ -253,6 +256,7 @@ Ext.define('App.controller.PrintJob', {
 
         me.print_job_store.clearFilter(true);
         me.print_job_store.filter(filters);
+
     },
 
     onApplicationPrinterMsg: function (msg, data) {
@@ -310,9 +314,6 @@ Ext.define('App.controller.PrintJob', {
     },
 
     addPrintJob: function (document_id, printer_record, print_now, priority) {
-
-        say('addPrintJob: function (document_id, printer_record, print_now, priority)');
-
         var me = this,
             default_printer_cmb = this.getApplicationFooterDefaultPrinterCmb(),
             default_printer_record =  default_printer_cmb.findRecordByValue(default_printer_cmb.getValue());
@@ -385,10 +386,6 @@ Ext.define('App.controller.PrintJob', {
         if(!allow_to_see_other_print_jobs){
             cmb.setVisible(false);
         }
-    },
-
-    onPrintJobsWindowUserLiveSearchSelect: function (cmb,records){
-        this.onChangeFilters();
     },
 
     onPrintJobsWindowGridItemDblClick: function (grid, record, item, index){

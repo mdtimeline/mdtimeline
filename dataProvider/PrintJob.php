@@ -35,26 +35,24 @@ class PrintJob
     public function getPrintJobs($params)
     {
         $this->p->setOrFilterProperties(['print_status', 'priority', 'uid']);
-        return $this->p->load($params)->leftJoin(
+        $pringJobs = $this->p->load($params)->leftJoin(
             [
                 'fname' => 'user_fname',
                 'lname' => 'user_lname',
                 'mname' => 'user_mname',
                 'username' => 'user_username',
             ],
-            'users',
-            'uid',
-            'id'
+            'users', 'uid', 'id'
         )->leftJoin(
             [
                 'docType' => 'document_doc_type',
                 'title' => 'document_title',
                 'note' => 'document_note'
             ],
-            'patient_documents',
-            'document_id',
-            'id'
+            'patient_documents', 'document_id',  'id'
         )->all();
+
+        return $pringJobs;
     }
 
     public function getPrintJob($params)

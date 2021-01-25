@@ -23,7 +23,7 @@ Ext.define('App.view.Viewport', {
     version: window.version, // string defined on _app.php
     minWidthToFullMode: 1700, // full mode = nav expanded 1585
     currency: g('gbl_currency_symbol'), // currency used
-	patientImage:'resources/images/patientPhotoPlaceholder.jpg',
+	patientImage:'resources/images/icons/user-light.svg',
 	enablePoolAreaFadeInOut: eval(g('enable_poolarea_fade_in_out')),
 	userInteracted : false,
 	itemId: 'Viewport',
@@ -145,7 +145,7 @@ Ext.define('App.view.Viewport', {
 		    margin: '0 3 0 0',
 		    cls: 'headerLargeBtn',
 		    padding: 0,
-		    iconCls: 'icoHome',
+		    iconCls: 'fal fa-home',
 		    scope: me,
 		    handler: me.openDashboard,
 		    tooltip: _('patient_visits_history')
@@ -157,7 +157,7 @@ Ext.define('App.view.Viewport', {
 		    margin: '0 3 0 0',
 		    cls: 'headerLargeBtn',
 		    padding: 0,
-		    iconCls: 'icoCalendar2',
+		    iconCls: 'fal fa-calendar-alt',
 		    scope: me,
 		    handler: me.openCalendar,
 		    tooltip: _('patient_visits_history')
@@ -186,7 +186,7 @@ Ext.define('App.view.Viewport', {
             margin: '0 3 0 0',
             cls: 'headerLargeBtn',
             padding: 0,
-            iconCls: 'icoPatientInfo',
+            iconCls: 'fal fa-info-circle',
             scope: me,
             handler: me.openPatientSummary,
             tooltip: _('patient_summary')
@@ -199,7 +199,7 @@ Ext.define('App.view.Viewport', {
 			    margin: '0 3 0 0',
 			    cls: 'headerLargeBtn',
 			    padding: 0,
-			    iconCls: 'icoBackClock',
+			    iconCls: 'fal fa-history',
 			    scope: me,
 			    handler: me.openPatientVisits,
 			    tooltip: _('patient_visits_history')
@@ -213,7 +213,8 @@ Ext.define('App.view.Viewport', {
 	            margin: '0 3 0 0',
                 cls: 'headerLargeBtn',
                 padding: 0,
-                icon: 'resources/images/icons/new_encounter.png',
+                // icon: 'resources/images/icons/new_encounter.png',
+                iconCls: 'fal fa-plus-circle',
                 scope: me,
                 handler: me.createNewEncounter,
 	            disableOnCLick: true,
@@ -227,7 +228,7 @@ Ext.define('App.view.Viewport', {
 		    margin: '0 3 0 0',
             cls: 'headerLargeBtn',
             padding: 0,
-            iconCls: 'icoStow',
+            iconCls: 'fal fa-folder-download',
             scope: me,
             handler: me.stowPatientRecord,
             tooltip: _('stow_patient_record')
@@ -290,7 +291,7 @@ Ext.define('App.view.Viewport', {
 			    margin: '0 3 0 0',
 			    padding: 4,
 			    itemId: 'HeaderNewPatientBtn',
-			    iconCls: 'icoAddPatient',
+			    iconCls: 'fal fa-user-plus',
 			    disableOnCLick: true,
 			    tooltip: _('create_a_new_patient')
 		    });
@@ -305,7 +306,7 @@ Ext.define('App.view.Viewport', {
 			    overCls: 'emerBtnOver',
 			    padding: 0,
 			    itemId: 'createEmergency',
-			    iconCls: 'icoEmer',
+			    iconCls: 'fas fa-plus-circle',
 			    scope: me,
 			    disableOnCLick: true,
 			    handler: me.createEmergency,

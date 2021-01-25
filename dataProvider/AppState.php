@@ -32,7 +32,7 @@ class AppState {
      * @param $params
      * @return array
      */
-	public function get($params) {
+	public function AppStateGet($params) {
 	    if(isset($_SESSION['user']['id'])){
             $this->s->addFilter('uid', $_SESSION['user']['id']);
             return $this->s->load()->all();
@@ -42,11 +42,7 @@ class AppState {
 
 	}
 
-    /**
-     * @param $params
-     * @return array
-     */
-	public function set($params) {
+	public function AppStateSet($params){
 	    $uid = isset($_SESSION['user']['id']) ? $_SESSION['user']['id'] : 0;
 	    if(is_array($params)){
 	        foreach ($params as &$param){
@@ -58,11 +54,7 @@ class AppState {
         return $this->s->save($params);
 	}
 
-    /**
-     * @param $params
-     * @return array
-     */
-	public function unset($params) {
+	public function AppStateUnSet($params){
         return $this->s->destroy($params);
 	}
 

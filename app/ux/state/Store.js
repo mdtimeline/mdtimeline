@@ -39,10 +39,10 @@ Ext.define('App.ux.state.Store', {
     proxy: {
         type  : 'direct',
         api: {
-            read: 'AppState.get',
-            create: 'AppState.set',
-            update: 'AppState.set',
-            destroy: 'AppState.unset',
+            read: 'AppState.AppStateGet',
+            create: 'AppState.AppStateSet',
+            update: 'AppState.AppStateSet',
+            destroy: 'AppState.AppStateUnSet',
         },
         reader: {
             type: 'json',

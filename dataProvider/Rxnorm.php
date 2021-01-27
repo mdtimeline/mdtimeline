@@ -303,6 +303,7 @@ class Rxnorm
 		    LEFT JOIN rxnoccurrences AS RXO ON RXO.rxcui = RX.RXCUI
 		    WHERE RX.SUPPRESS = 'N' -- AND RX.CVF <> ''
 		    -- GROUP BY RX.`STR` 
+			HAVING NDC IS NOT NULL
 		    ORDER BY RXO.occurrences DESC, RX.`TTY` DESC, RX.`STR` DESC;");
 
 //        $sth = $this->db->prepare("SELECT RX.*, `rxnsat`.`ATV` AS NDC,

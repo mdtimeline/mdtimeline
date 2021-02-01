@@ -334,7 +334,7 @@ class DocumentHandler
     /**
      * @param $params
      *
-     * @return array
+     * @return array|object
      */
     public function addPatientDocument($params)
     {

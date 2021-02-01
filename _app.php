@@ -876,6 +876,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                                 'patient.Interventions',
                                 'patient.ItemsToReview',
                                 'patient.LabOrders',
+                                'patient.LegalLetterSignatures',
                                 'patient.Medical',
                                 'patient.Medications',
                                 'patient.MedicationsAdministered',

@@ -32,7 +32,8 @@ Ext.define('App.view.patient.Summary', {
 		'App.view.patient.Amendments',
 		'App.view.patient.InsurancesPanel',
 		'App.view.patient.CareTeamGrid',
-		'App.view.patient.DisclosuresGrid'
+		'App.view.patient.DisclosuresGrid',
+		'App.view.patient.LegalLetters'
 	],
 	itemId: 'PatientSummaryPanel',
 	showRating: true,
@@ -363,6 +364,11 @@ Ext.define('App.view.patient.Summary', {
 			me.insTabPanel = me.tabPanel.add({
 				xtype: 'insurancestabpanel',
 				itemId: 'PatientInsurancesPanel'
+			});
+
+			me.tabPanel.add({
+				xtype: 'patientlegalletters',
+				itemId: 'PatientLegalLettersGrid'
 			});
 		}
 

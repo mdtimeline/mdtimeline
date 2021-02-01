@@ -2197,5 +2197,8 @@ $LANG = array(
     'document_title' => 'Document Title',
     'document_doc_type' => 'Document Type',
     'document_note' => 'Document Note',
-    'default_printer' => 'Default Printer'
+    'default_printer' => 'Default Printer',
+    'ip_address' => 'IP Address',
+    'letter_version' => 'Letter Version',
+    'date_signed' => 'Date Signed',
 );

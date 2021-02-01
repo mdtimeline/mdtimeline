@@ -16,14 +16,25 @@ Ext.define('App.model.administration.LegalLetterSignature', {
 			type: 'int'
 		},
 		{
+			name: 'pid',
+			type: 'int',
+			index: true
+		},
+		{
 			name: 'letter_id',
 			type: 'int',
 			index: true
 		},
 		{
-			name: 'pid',
+			name: 'document_id',
 			type: 'int',
 			index: true
+		},
+		{
+			name: 'letter_version',
+			type: 'string',
+			index: true,
+			len: 20
 		},
 		{
 			name: 'signature',
@@ -51,11 +62,6 @@ Ext.define('App.model.administration.LegalLetterSignature', {
 		},
 		{
 			name: 'letter_content',
-			type: 'string',
-			store: false
-		},
-		{
-			name: 'letter_version',
 			type: 'string',
 			store: false
 		},

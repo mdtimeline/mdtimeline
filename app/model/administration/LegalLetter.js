@@ -32,6 +32,11 @@ Ext.define('App.model.administration.LegalLetter', {
 			len: 120
 		},
 		{
+			name: 'document_code',
+			type: 'string',
+			len: 20
+		},
+		{
 			name: 'content',
 			type: 'string',
 			dataType: 'TEXT'

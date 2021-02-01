@@ -1543,5 +1543,65 @@ class Patient
 		$this->pa->addFilter('facility_id', $facility_id);
 		return $this->pa->load()->one();
 	}
+
+	public function getPatientTokenByPid($pid){
+
+	    $patient = $this->getPatientByPid($pid);
+        $tokens = [];
+
+        if($patient === false){
+            return $tokens;
+        }
+
+        $tokens['[PATIENT_NAME]'] = trim(sprintf('%s, %s %s', $patient['lname'],$patient['fname'],$patient['mname']));
+        $tokens['[PATIENT_ID]'] = $patient['pid'];
+        $tokens['[PATIENT_RECORD_NUMBER]'] = $patient['pubpid'];
+        $tokens['[PATIENT_FIRST_NAME]'] = $patient['fname'];
+        $tokens['[PATIENT_LAST_NAME]'] = $patient['lname'];
+        $tokens['[PATIENT_MIDDLE_NAME]'] = $patient['mname'];
+        $tokens['[PATIENT_SEX]'] = $patient['sex'];
+        $tokens['[PATIENT_BIRTHDATE]'] = $patient['DOB'];
+        $tokens['[PATIENT_MARITAL_STATUS]'] = $patient['marital_status'];
+        $tokens['[PATIENT_SOCIAL_SECURITY]'] = $patient['SS'];
+        $tokens['[PATIENT_INTERFACE_NO]'] = $patient['interface_number'];
+        $tokens['[PATIENT_DRIVERS_LICENSE]'] = $patient['drivers_license'];
+        $tokens['[PATIENT_POSTAL_ADDRESS_LINE_ONE]'] = $patient['postal_address'];
+        $tokens['[PATIENT_POSTAL_ADDRESS_LINE_TWO]'] = $patient['postal_address_cont'];
+        $tokens['[PATIENT_POSTAL_CITY]'] = $patient['postal_city'];
+        $tokens['[PATIENT_POSTAL_STATE]'] = $patient['postal_state'];
+        $tokens['[PATIENT_POSTAL_ZIP]'] = $patient['postal_zip'];
+        $tokens['[PATIENT_POSTAL_COUNTRY]'] = $patient['postal_country'];
+        $tokens['[PATIENT_PHYSICAL_ADDRESS_LINE_ONE]'] = $patient['physical_address'];
+        $tokens['[PATIENT_PHYSICAL_ADDRESS_LINE_TWO]'] = $patient['physical_address_cont'];
+        $tokens['[PATIENT_PHYSICAL_CITY]'] = $patient['physical_city'];
+        $tokens['[PATIENT_PHYSICAL_STATE]'] = $patient['physical_state'];
+        $tokens['[PATIENT_PHYSICAL_ZIP]'] = $patient['physical_zip'];
+        $tokens['[PATIENT_PHYSICAL_COUNTRY]'] = $patient['physical_country'];
+        $tokens['[PATIENT_HOME_PHONE]'] = $patient['phone_home'];
+        $tokens['[PATIENT_MOBILE_PHONE]'] = $patient['phone_mobile'];
+        $tokens['[PATIENT_WORK_PHONE]'] = $patient['phone_work'];
+        $tokens['[PATIENT_WORK_PHONE_EXT]'] = $patient['phone_work_ext'];
+        $tokens['[PATIENT_EMAIL]'] = $patient['email'];
+        $tokens['[PATIENT_MOTHERS_NAME]'] = trim(sprintf('%s, %s %s', $patient['mother_lname'],$patient['mother_fname'],$patient['mother_mname']));
+        $tokens['[PATIENT_FATHERS_NAME]'] = trim(sprintf('%s, %s %s', $patient['father_lname'],$patient['father_fname'],$patient['father_mname']));
+        $tokens['[PATIENT_GUARDIANS_NAME]'] = trim(sprintf('%s, %s %s', $patient['guardians_lname'],$patient['guardians_fname'],$patient['guardians_mname']));
+        $tokens['[PATIENT_EMERGENCY_CONTACT]'] = trim(sprintf('%s, %s %s', $patient['emergency_contact_lname'],$patient['emergency_contact_fname'],$patient['emergency_contact_mname']));
+        $tokens['[PATIENT_EMERGENCY_PHONE]'] = $patient['emergency_contact_phone'];
+        $tokens['[PATIENT_PROVIDER]'] = '';
+        $tokens['[PATIENT_PHARMACY]'] = '';
+        $age = $this->getPatientAge();
+        $tokens['[PATIENT_AGE]'] = $age['str'];
+        $tokens['[PATIENT_OCCUPATION]'] = $patient['occupation'];
+        $tokens['[PATIENT_EMPLOYER]'] = $patient['employer_name'];
+        $tokens['[PATIENT_RACE]'] = $patient['race'];
+        $tokens['[PATIENT_ETHNICITY]'] = $patient['ethnicity'];
+        $tokens['[PATIENT_LANGUAGE]'] = $patient['language'];
+        $tokens['[PATIENT_PICTURE]'] = $patient['image'];
+        $tokens['[PATIENT_QRCODE]'] = $patient['qrcode'];
+
+
+
+	    return $tokens;
+    }
 }
 

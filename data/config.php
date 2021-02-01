@@ -34,6 +34,15 @@ $API = [
             ],
             'destroyLegalLetter' => [
                 'len' => 1
+            ],
+            'getLegalLetterSignatures' => [
+                'len' => 1
+            ],
+            'addLegalLetterSignature' => [
+                'len' => 1
+            ],
+            'getLegalLettersToSignByPid' => [
+                'len' => 3
             ]
         ]
     ],

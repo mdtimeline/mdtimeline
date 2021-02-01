@@ -138,19 +138,19 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 		            link  = document.createElement('link');
 		            link.rel  = 'stylesheet';
 		            link.type = 'text/css';
-		            link.href = 'resources/css/carbon/carbon.css';
+		            link.href = 'resources/css/carbon/carbon.css?dc_=<?php print time() ?>';
 		            link.media = 'all';
 		            head.appendChild(link);
 		            link  = document.createElement('link');
 		            link.rel  = 'stylesheet';
 		            link.type = 'text/css';
-		            link.href = 'resources/css/carbon/style_newui.css';
+		            link.href = 'resources/css/carbon/style_newui.css?dc_=<?php print time() ?>';
 		            link.media = 'all';
 		            head.appendChild(link);
 		            link  = document.createElement('link');
 		            link.rel  = 'stylesheet';
 		            link.type = 'text/css';
-		            link.href = 'resources/css/carbon/custom_app.css';
+		            link.href = 'resources/css/carbon/custom_app.css?dc_=<?php print time() ?>';
 		            link.media = 'all';
 		            head.appendChild(link);
 
@@ -159,7 +159,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 				            link  = document.createElement('link');
 				            link.rel  = 'stylesheet';
 				            link.type = 'text/css';
-				            link.href = window.dark_styles[s];
+				            link.href = (window.dark_styles[s] + '?dc_=<?php print time() ?>');
 				            link.media = 'all';
 				            head.appendChild(link);
 			            }
@@ -170,19 +170,19 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 		            link  = document.createElement('link');
 		            link.rel  = 'stylesheet';
 		            link.type = 'text/css';
-		            link.href = 'resources/css/ext-all-gray.css';
+		            link.href = 'resources/css/ext-all-gray.css?dc_=<?php print time() ?>';
 		            link.media = 'all';
 		            head.appendChild(link);
 		            link  = document.createElement('link');
 		            link.rel  = 'stylesheet';
 		            link.type = 'text/css';
-		            link.href = 'resources/css/style_newui.css';
+		            link.href = 'resources/css/style_newui.css?dc_=<?php print time() ?>';
 		            link.media = 'all';
 		            head.appendChild(link);
 		            link  = document.createElement('link');
 		            link.rel  = 'stylesheet';
 		            link.type = 'text/css';
-		            link.href = 'resources/css/custom_app.css';
+		            link.href = 'resources/css/custom_app.css?dc_=<?php print time() ?>';
 		            link.media = 'all';
 		            head.appendChild(link);
 
@@ -191,7 +191,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 				            link  = document.createElement('link');
 				            link.rel  = 'stylesheet';
 				            link.type = 'text/css';
-				            link.href = window.light_styles[s];
+				            link.href = (window.light_styles[s] + '?dc_=<?php print time() ?>');
 				            link.media = 'all';
 				            head.appendChild(link);
 			            }
@@ -207,7 +207,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 			            link  = document.createElement('link');
 			            link.rel  = 'stylesheet';
 			            link.type = 'text/css';
-			            link.href = window.styles[s];
+			            link.href = (window.styles[s] + '?dc_=<?php print time() ?>');
 			            link.media = 'all';
 			            head.appendChild(link);
 		            }

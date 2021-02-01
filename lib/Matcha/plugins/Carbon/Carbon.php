@@ -251,7 +251,7 @@ class Carbon extends \DateTime
         return $this;
     }
 
-    public function setTime($hour, $minute, $second = 0, $microseconds = 0)
+    public function setTime($hour, $minute, $second = 0)
     {
         return $this->hour($hour)->minute($minute)->second($second);
     }

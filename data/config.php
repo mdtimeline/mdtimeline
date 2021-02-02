@@ -43,6 +43,9 @@ $API = [
             ],
             'getLegalLettersToSignByPid' => [
                 'len' => 3
+            ],
+            'doSignDocuments' => [
+                'len' => 2
             ]
         ]
     ],

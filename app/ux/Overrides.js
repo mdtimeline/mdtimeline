@@ -365,6 +365,19 @@ Ext.override(Ext.menu.CheckItem, {
     },
 
 });
+Ext.override(Ext.slider.Single, {
+
+    stateEvents: ['change'],
+
+    getState: function() {
+        return { value: this.getValue() };
+    },
+
+    applyState: function(state) {
+        this.setValue(state.value);
+    },
+
+});
 
 Ext.override(Ext.menu.Menu, {
 

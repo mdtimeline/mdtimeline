@@ -66,6 +66,11 @@ Ext.define('App.model.administration.LegalLetterSignature', {
 			store: false
 		},
 		{
+			name: 'document_code',
+			type: 'string',
+			store: false
+		},
+		{
 			name: 'signer_fname',
 			type: 'string',
 			store: false

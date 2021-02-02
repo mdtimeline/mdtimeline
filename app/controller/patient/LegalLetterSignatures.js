@@ -65,7 +65,8 @@ Ext.define('App.controller.patient.LegalLetterSignatures', {
 					pid: app.patient.pid,
 					id: letter.get('letter_id'),
 					version: letter.get('letter_version'),
-					content: letter.get('letter_content')
+					content: letter.get('letter_content'),
+					document_code: letter.get('document_code')
 				});
 			}
 		});
@@ -188,6 +189,7 @@ Ext.define('App.controller.patient.LegalLetterSignatures', {
 						letter_version: letter.version,
 						letter_title: letter.title,
 						letter_content: letter.content,
+						document_code: letter.document_code,
 						pid: app.patient.pid,
 						signature: ''
 					});

@@ -55,8 +55,11 @@ Ext.define('App.view.patient.Encounter', {
 	pid: null,
 	eid: null,
 	encounter: null,
+	timerStartTime: null,
+	timerWarning: 5,
 
-	currEncounterStartDate: null,
+	encounterServiceDate: null,
+
 	initComponent: function(){
 		var me = this;
 
@@ -72,9 +75,7 @@ Ext.define('App.view.patient.Encounter', {
 
 		me.timerTask = {
 			scope: me,
-			run: function(){
-				me.encounterTimer();
-			},
+			run: me.encounterTimer,
 			interval: 1000 //1 second
 		};
 
@@ -466,6 +467,28 @@ Ext.define('App.view.patient.Encounter', {
 			}, '-');
 		}
 
+		me.panelToolBar.add({
+			xtype: 'combobox',
+			tooltip: 'Timer Warning',
+			value: me.timerWarning,
+			editable: false,
+			width: 75,
+			store: [
+				[5, '5 min'],
+				[10, '10 min'],
+				[15, '15 min'],
+				[20, '20 min'],
+				[30, '30 min'],
+				[45, '45 min'],
+				[60, '60 min'],
+			],
+			listeners: {
+				change: function (cmb, value) {
+					me.timerWarning = value;
+				}
+			}
+		}, '-');
+
 		me.pageBody = [me.centerPanel, me.rightPanel];
 
 		me.listeners = {
@@ -647,7 +670,7 @@ Ext.define('App.view.patient.Encounter', {
 				me.pid = data.pid;
 				me.eid = data.eid;
 
-				me.currEncounterStartDate = data.service_date;
+				me.encounterServiceDate = data.service_date;
 
 				app.fireEvent('beforeencounterload', me.encounter, me);
 
@@ -662,18 +685,17 @@ Ext.define('App.view.patient.Encounter', {
 					if(me.encounter.get('is_private')){
 						me.pageTitle += ' <img height="20px" src="resources/images/icons/icoShield.png" data-qtip="Private Encounter">';
 					}
-					me.startTimer();
+					me.askStartTimer();
 					me.setButtonsDisabled(me.getButtonsToDisable());
 				}else{
-					if(me.stopTimer()){
-						timer = me.timer(data.service_date, data.close_date);
-						me.pageTitle =  patient.name + ' - ' + patient.sexSymbol + ' - ' + patient.age.str + ' - ' + Ext.Date.format(data.service_date, 'F j, Y, g:i:s a') + ' (' + _('closed_encounter') + ')';
-						if(me.encounter.get('is_private')){
-							me.pageTitle += ' <img src="resources/images/icons/icoShield.png">';
-						}
-						me.updateTitle(me.pageTitle, app.patient.readOnly, timer);
-						me.setButtonsDisabled(me.getButtonsToDisable(), true);
+					me.stopTimer()
+
+					me.pageTitle =  patient.name + ' - ' + patient.sexSymbol + ' - ' + patient.age.str + ' - ' + Ext.Date.format(data.service_date, 'F j, Y, g:i:s a') + ' (' + _('closed_encounter') + ')';
+					if(me.encounter.get('is_private')){
+						me.pageTitle += ' <img src="resources/images/icons/icoShield.png">';
 					}
+					me.updateTitle(me.pageTitle, app.patient.readOnly, '');
+					me.setButtonsDisabled(me.getButtonsToDisable(), true);
 				}
 
 				if(me.reviewSysPanel){
@@ -761,30 +783,29 @@ Ext.define('App.view.patient.Encounter', {
 
 						app.fireEvent('aferecountersign', me, me.encounter);
 
-						if(me.stopTimer()){
+						me.stopTimer()
 
-							/** default data for notes and reminder **/
-							params = {
-								pid: me.pid,
-								eid: me.eid,
-								uid: app.user.id,
-								type: 'checkout',
-								date: new Date()
-							};
+						/** default data for notes and reminder **/
+						params = {
+							pid: me.pid,
+							eid: me.eid,
+							uid: app.user.id,
+							type: 'checkout',
+							date: new Date()
+						};
 
-							/** create a new note if not blank **/
-							params.body = values.note;
-							if(params.body !== '') Ext.create('App.model.patient.Notes', params).save();
-							/** create a new reminder if not blank **/
-							params.body = values.reminder;
-							if(params.body !== '') Ext.create('App.model.patient.Reminders', params).save();
+						/** create a new note if not blank **/
+						params.body = values.note;
+						if(params.body !== '') Ext.create('App.model.patient.Notes', params).save();
+						/** create a new reminder if not blank **/
+						params.body = values.reminder;
+						if(params.body !== '') Ext.create('App.model.patient.Reminders', params).save();
 
-							me.msg(_('sweet'), _('encounter_closed'));
-							app.checkoutWindow.close();
-							app.stowPatientRecord();
-							app.getController('areas.PatientPoolAreas').doSendPatientToNextArea(me.pid);
+						me.msg(_('sweet'), _('encounter_closed'));
+						app.checkoutWindow.close();
+						app.stowPatientRecord();
+						app.getController('areas.PatientPoolAreas').doSendPatientToNextArea(me.pid);
 
-						}
 					}else{
 						Ext.Msg.show({
 							title: _('oops'),
@@ -802,7 +823,7 @@ Ext.define('App.view.patient.Encounter', {
 	 * CheckOut Functions
 	 */
 	onSignEncounter: function(){
-		var title = app.patient.name + ' #' + app.patient.pid + ' - ' + Ext.Date.format(this.currEncounterStartDate, 'F j, Y, g:i:s a') + ' (' + _('checkout') + ')';
+		var title = app.patient.name + ' #' + app.patient.pid + ' - ' + Ext.Date.format(this.encounterServiceDate, 'F j, Y, g:i:s a') + ' (' + _('checkout') + ')';
 		app.checkoutWindow.enc = this;
 		app.checkoutWindow.setTitle(title);
 		app.checkoutWindow.show();
@@ -857,7 +878,30 @@ Ext.define('App.view.patient.Encounter', {
 	/**
 	 * Start the timerTask
 	 */
+	askStartTimer: function(){
+		var me = this;
+
+		if(!a('use_encounter_timer')){
+			return;
+		}
+
+		Ext.Msg.show({
+			title: 'Encounter Timer',
+			msg: 'Would you like to start encounter timer?',
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (btn){
+				if(btn === 'yes'){
+					me.startTimer();
+				}
+			}
+		});
+	},
+	/**
+	 * Start the timerTask
+	 */
 	startTimer: function(){
+		this.timerStartTime = app.getDate();
 		Ext.TaskManager.start(this.timerTask);
 		return true;
 	},
@@ -874,7 +918,7 @@ Ext.define('App.view.patient.Encounter', {
 	 * This will update the timer every sec
 	 */
 	encounterTimer: function(){
-		var me = this, timer = me.timer(me.currEncounterStartDate, new Date());
+		var me = this, timer = me.timer(me.timerStartTime, app.getDate());
 		if(app.patient.pid !== null){
 			me.updateTitle(me.pageTitle, app.patient.readOnly, timer);
 		}else{
@@ -902,12 +946,17 @@ Ext.define('App.view.patient.Encounter', {
 		sec = sec % 60;
 		t = twoDigit(sec);
 		var hr = Math.floor(min / 60);
+
+		if(min >= this.timerWarning && sec % 10 === 0){
+			app.msg('INFO', 'Encounter Time Expired', 'yellow');
+		}
+
 		min = min % 60;
 		t = twoDigit(min) + ":" + t;
 		var day = Math.floor(hr / 24);
 		hr = hr % 24;
 		t = twoDigit(hr) + ":" + t;
-		t = (day == 0 ) ? '<span class="time">' + t + '</span>' : '<span class="day">' + day + ' ' + _('day_s') + '</span><span class="time">' + t + '</span>';
+		t = (day === 0 ) ? '<span class="time">' + t + '</span>' : '<span class="day">' + day + ' ' + _('day_s') + '</span><span class="time">' + t + '</span>';
 		return t;
 	},
 

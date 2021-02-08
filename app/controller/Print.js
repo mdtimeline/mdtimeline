@@ -36,7 +36,7 @@ Ext.define('App.controller.Print', {
                 return;
             }
 
-            job_id = job_id || "";
+            job_id = job_id || "0";
 
             me.browserHelperCtl.send('{"action":"print", "printer": "' + printer_record.get('id') + '", "payload": "' + document_base64 + '", "job_id": ' + job_id + '}', function (response) {
                 if (!response.success) {

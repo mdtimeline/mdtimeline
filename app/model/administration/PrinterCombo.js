@@ -21,7 +21,7 @@ Ext.define('App.model.administration.PrinterCombo', {
 	fields: [
 		{
 			name: 'id',
-			type: 'int'
+			type: 'string'
 		},
 		{
 			name: 'name',

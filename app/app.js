@@ -75209,7 +75209,8 @@ Ext.define('App.view.patient.Encounter', {
 					return;
 				}
 
-				if(app.user.is_attending && record.get('provider_uid') !== app.user.id){
+				// TODO: add permission... disabled it for now....
+				if(false && app.user.is_attending && record.get('provider_uid') !== app.user.id){
 					// go back...
 					app.msg('Oops!', Ext.String.format('This encounter is owned by {0}, {1}', record.get('provider_lname'), record.get('provider_fname')), true);
 					app.getController('Navigation').goBack();

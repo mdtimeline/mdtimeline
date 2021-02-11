@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-include_once(ROOT . '/classes/XMLParser.class.php');
+//include_once(ROOT . '/classes/XMLParser.class.php');
 include_once(ROOT . '/dataProvider/DiagnosisCodes.php');
 
 class Immunizations {

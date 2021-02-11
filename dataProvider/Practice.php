@@ -236,6 +236,11 @@ class Practice
     private function getAddress($record)
     {
 	    $a = $this->address->load($record['address_id'])->one();
+
+	    if($a === false){
+	        return $record;
+        }
+
 	    $record['line1'] = $a['line1'];
 	    $record['line2'] = $a['line2'];
 	    $record['city'] = $a['city'];
@@ -258,6 +263,11 @@ class Practice
     private function getPhones($record)
     {
 	    $p = $this->phone->load($record['phone_id'])->one();
+
+        if($p === false){
+            return $record;
+        }
+
         $record['phone_country_code'] = $p['country_code'];
 	    $record['phone_area_code'] = $p['area_code'];
 	    $record['phone_prefix'] = $p['prefix'];

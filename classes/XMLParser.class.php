@@ -24,7 +24,7 @@ For support, please visit http://www.criticaldevelopment.net/xml/
  *
  * @version 1.3.0
  */
-class XMLParser
+class XMLParser2
 {
     /**
      * The XML parser

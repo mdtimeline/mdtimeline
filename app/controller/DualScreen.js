@@ -29,7 +29,7 @@ Ext.define('App.controller.DualScreen', {
 		var me = this;
 
 		me._loggedout = false;
-		me._enable = true;
+		me._enable = false;
 		me._screen = null;
 
 		me.control({

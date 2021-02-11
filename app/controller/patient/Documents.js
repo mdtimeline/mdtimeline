@@ -90,7 +90,7 @@ Ext.define('App.controller.patient.Documents', {
 	init: function(){
 		var me = this;
 
-		// me.onPatientDocumentGridBeforeRefreshBuffered = Ext.Function.createBuffered(me.onPatientDocumentGridBeforeRefresh, 25,me);
+		// me.onPatientDocumentGridBeforeRefreshBuffered = Ext.Function.createBuffered(me.onPatientDocumentGridBeforeRefresh, 100, me);
 
 		me.control({
 			'viewport': {
@@ -105,11 +105,12 @@ Ext.define('App.controller.patient.Documents', {
 			'patientdocumentspanel #patientDocumentGrid': {
 				selectionchange: me.onPatientDocumentGridSelectionChange,
 				afterrender: me.onPatientDocumentGridAfterRender,
+				beforerender: me.onPatientDocumentGridBeforeRender,
 				beforeitemcontextmenu: me.onPatientDocumentGridBeforeItemContextMenu
 			},
-			'patientdocumentspanel #patientDocumentGrid gridview': {
-				beforerefresh: me.onPatientDocumentGridBeforeRefresh
-			},
+			// 'patientdocumentspanel #patientDocumentGrid gridview': {
+			// 	beforerefresh: me.onPatientDocumentGridBeforeRefresh
+			// },
 			'patientdocumentspanel [toggleGroup=documentgridgroup]': {
 				toggle: me.onDocumentGroupBtnToggle
 			},
@@ -180,21 +181,28 @@ Ext.define('App.controller.patient.Documents', {
 
 	},
 
-	onPatientDocumentGridBeforeRefresh: function (v){
+	onPatientDocumentGridBeforeRefresh: function (grid){
 		var me = this,
-			groups = v.store.getGroups();
+			groups = grid.store.getGroups(),
+			v = grid.view;
 
 		if(groups.length === 0){
 			return;
 		}
+
 		groups.forEach(function (group){
-			if(me.document_groups[group.name]){
-				v.summaryFeature.expand(group.name);
-			}else{
-				v.summaryFeature.collapse(group.name);
+			try{
+				if(me.document_groups[group.name]){
+					v.summaryFeature.expand(group.name);
+				}else{
+					v.summaryFeature.collapse(group.name);
+				}
+			}catch (e){
+				say('Document Group Collapse/Expand Error');
+				say(e);
 			}
 		});
-	},
+		},
 
 	onPatientDocumentGridGroupBtnBeforeRender: function (btn){
 		btn.menu.add(Ext.clone(this.document_group_menu));
@@ -399,6 +407,12 @@ Ext.define('App.controller.patient.Documents', {
 		if(eval(a('allow_document_drag_drop_upload'))) {
 			this.initDocumentDnD(container);
 		}
+	},
+
+	onPatientDocumentGridBeforeRender: function (grid) {
+		grid.store.on('load', function (store){
+			this.onPatientDocumentGridBeforeRefresh(grid, store);
+		}, this);
 	},
 
 	onPatientDocumentPanelActive: function(panel){

@@ -500,7 +500,10 @@ class Encounter {
 			$encounter['service_date'] = date($_SESSION['globals']['date_time_display_format'], strtotime($encounter['service_date']));
 			$icds = '';
 			foreach($this->diagnosis->getICDByEid($encounter['eid'], true) as $code){
-				$icds .= '<li><span style="font-weight:bold; text-decoration:none">' . $code['code'] . '</span> - ' . $code['long_desc'] . '</li>';
+				$icds .= '<li><span style="font-weight:bold; text-decoration:none">' .
+                    $code['code'] . '</span> - ' .
+                    (isset($code['long_desc']) ? $code['long_desc'] : $code['code_text']) .
+                    '</li>';
 			}
 			$encounter['subjective'] = $soap['subjective'] . $this->getSubjectiveExtraDataByEid($encounter['eid']);
 			$encounter['objective'] = $this->getObjectiveExtraDataByEid($encounter['eid']) . $soap['objective'];

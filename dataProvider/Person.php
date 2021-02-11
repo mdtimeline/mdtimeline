@@ -61,7 +61,7 @@ class Person {
 		return $fullname;
 	}
 
-	public static function fulladdress($street, $streetb = null, $city, $state, $zip) {
+	public static function fulladdress($street, $streetb = null, $city = null, $state = null, $zip = null) {
 
 		if($street != NULL || $street != ""){
 			$street = $street . "<br>";

@@ -432,7 +432,7 @@ class MatchaCUP {
 	 * @param string $operator
 	 * @return MatchaCUP
 	 */
-	public function leftJoin($columns = '*', $table, $onMainTable, $onMergeTable, $operator = '=') {
+	public function leftJoin($columns, $table, $onMainTable, $onMergeTable, $operator = '=') {
 		$columns = $this->joinColumnHandler($columns);
 		$alias = $this->getJoinTableAlias();
 		$join = " LEFT JOIN `{$table}` AS $alias ON `{$this->table}`.`$onMainTable` $operator `$alias`.`$onMergeTable` ";
@@ -448,7 +448,7 @@ class MatchaCUP {
 	 * @param string $operator
 	 * @return MatchaCUP
 	 */
-	public function rightJoin($columns = '*', $table, $onMainTable, $onMergeTable, $operator = '=') {
+	public function rightJoin($columns, $table, $onMainTable, $onMergeTable, $operator = '=') {
 		$columns = $this->joinColumnHandler($columns);
 		$alias = $this->getJoinTableAlias();
 		$join = " RIGHT JOIN `{$table}` AS $alias ON `{$this->table}`.`$onMainTable` $operator `$alias`.`$onMergeTable` ";
@@ -464,7 +464,7 @@ class MatchaCUP {
 	 * @param string $operator
 	 * @return MatchaCUP
 	 */
-	public function join($columns = '*', $table, $onMainTable, $onMergeTable, $operator = '=') {
+	public function join($columns, $table, $onMainTable, $onMergeTable, $operator = '=') {
 		$columns = $this->joinColumnHandler($columns);
 		$alias = $this->getJoinTableAlias();
 		$join = " JOIN {$table} AS $alias ON `{$this->table}`.`$onMainTable` $operator `$alias`.`$onMergeTable` ";
@@ -480,7 +480,7 @@ class MatchaCUP {
 	 * @param string $operator
 	 * @return MatchaCUP
 	 */
-	public function innerJoin($columns = '*', $table, $onMainTable, $onMergeTable, $operator = '=') {
+	public function innerJoin($columns, $table, $onMainTable, $onMergeTable, $operator = '=') {
 		$columns = $this->joinColumnHandler($columns);
 		$alias = $this->getJoinTableAlias();
 		$join = " INNER JOIN {$table} AS $alias ON `{$this->table}`.`$onMainTable` $operator `$alias`.`$onMergeTable` ";
@@ -1156,7 +1156,7 @@ class MatchaCUP {
 	 * @param array $dataInjectArray
 	 */
 	public function callBackMethod($dataInjectArray = []) {
-		if(method_exists(MatchaAudit::$hookClass, MatchaAudit::$hookMethod) && MatchaAudit::$__audit)
+		if(isset(MatchaAudit::$hookClass) && method_exists(MatchaAudit::$hookClass, MatchaAudit::$hookMethod) && MatchaAudit::$__audit)
 			call_user_func_array([
 				MatchaAudit::$hookClass,
 				MatchaAudit::$hookMethod

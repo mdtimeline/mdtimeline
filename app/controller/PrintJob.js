@@ -316,7 +316,9 @@ Ext.define('App.controller.PrintJob', {
     addPrintJob: function (document_id, printer_record, print_now, priority) {
         var me = this,
             default_printer_cmb = this.getApplicationFooterDefaultPrinterCmb(),
-            default_printer_record =  default_printer_cmb.findRecordByValue(default_printer_cmb.getValue());
+            default_printer_record =  default_printer_cmb.findRecordByValue(default_printer_cmb.getValue()),
+            printer_id,
+            printer_type;
 
         printer_record = printer_record || default_printer_record;
         priority = priority === undefined || priority === null ? 2 : priority;
@@ -326,10 +328,18 @@ Ext.define('App.controller.PrintJob', {
             return;
         }
 
-        if (printer_record === null || printer_record.get('id') === null) {
-            app.msg(_('error'), 'Print job could not be added. Printer Missing.', true);
-            return;
+        if (!printer_record) {
+            printer_id = null;
+            printer_type = 'REMOTE';
+        } else {
+            printer_id = printer_record.get('id');
+            printer_type = printer_record.get('local') ? 'LOCAL' : 'REMOTE';
         }
+
+        // if (printer_record === null || printer_record.get('id') === null) {
+        //     app.msg(_('error'), 'Print job could not be added. Printer Missing.', true);
+        //     return;
+        // }
 
         if (priority === null || !Number.isInteger(priority)) {
             app.msg(_('error'), 'Print job could not be added. Priority Missing.', true);
@@ -339,8 +349,8 @@ Ext.define('App.controller.PrintJob', {
         var print_job_record = me.print_job_store.add({
             uid: app.user.id,
             document_id: document_id,
-            printer_id: printer_record.get('id'),
-            printer_type: printer_record.get('local') ? 'LOCAL' : 'REMOTE',
+            printer_id: printer_id,
+            printer_type: printer_type,
             print_status: print_now ? 'QUEUED' : 'HOLD',
             priority: priority,
             created_at: Ext.Date.format(app.getDate(), 'Y-m-d H:i:s')

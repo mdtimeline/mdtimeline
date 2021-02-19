@@ -1238,7 +1238,7 @@ class Documents
 
 
             $filters['active'] = 1;
-//			$filters['is_interface_tpl'] = 0;
+			$filters['is_interface_tpl'] = 0;
             $record = $this->t->load($filters)->one();
 
             if ($record !== false) {

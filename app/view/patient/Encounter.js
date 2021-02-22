@@ -686,6 +686,7 @@ Ext.define('App.view.patient.Encounter', {
 					if(me.encounter.get('is_private')){
 						me.pageTitle += ' <img height="20px" src="resources/images/icons/icoShield.png" data-qtip="Private Encounter">';
 					}
+					me.updateTitle(me.pageTitle, app.patient.readOnly, '');
 					me.askStartTimer();
 					me.setButtonsDisabled(me.getButtonsToDisable());
 				}else{

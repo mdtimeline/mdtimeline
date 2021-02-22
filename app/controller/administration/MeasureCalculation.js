@@ -27,20 +27,20 @@ Ext.define('App.controller.administration.MeasureCalculation', {
             ref: 'MeasureCalculation'
         },
         {
-            selector: '#MeasureCalculationGrid',
-            ref: 'MeasureCalculationGrid'
+            selector: '#MeaningfulUseGrid',
+            ref: 'MeaningfulUseGrid'
         },
         {
-            selector: '#MeasureCalculationFromField',
-            ref: 'MeasureCalculationFromField'
+            selector: '#MeaningfulUseFromField',
+            ref: 'MeaningfulUseFromField'
         },
         {
-            selector: '#MeasureCalculationToField',
-            ref: 'MeasureCalculationToField'
+            selector: '#MeaningfulUseToField',
+            ref: 'MeaningfulUseToField'
         },
         {
-            selector: '#MeasureCalculationProviderField',
-            ref: 'MeasureCalculationProviderField'
+            selector: '#MeaningfulUseProviderField',
+            ref: 'MeaningfulUseProviderField'
         },
     ],
 
@@ -51,27 +51,27 @@ Ext.define('App.controller.administration.MeasureCalculation', {
         var me = this;
 
         me.control({
-            '#MeasureCalculationRefreshBtn': {
-                click: me.onMeasureCalculationRefreshBtnClick
+            '#MeaningfulUseRefreshBtn': {
+                click: me.onMeaningfulUseRefreshBtnClick
             },
-            '#MeasureCalculationGrid': {
-                celldblclick: me.onMeasureCalculationGridCellDblClick
+            '#MeaningfulUseGrid': {
+                celldblclick: me.onMeaningfulUseGridCellDblClick
             },
-            '#MeasureCalculationGridPrintBtn': {
-                click: me.onMeasureCalculationGridPrintBtnClick
+            '#MeaningfulUseGridPrintBtn': {
+                click: me.onMeaningfulUseGridPrintBtnClick
             }
         });
 
         me.doSortGridStoreBuffer = Ext.Function.createBuffered(me.doSortGridStore, 250, me);
     },
 
-    onMeasureCalculationGridPrintBtnClick: function(btn){
+    onMeaningfulUseGridPrintBtnClick: function(btn){
 
-        var fromField = this.getMeasureCalculationFromField(),
-            toField = this.getMeasureCalculationToField(),
-            providerField = this.getMeasureCalculationProviderField(),
+        var fromField = this.getMeaningfulUseFromField(),
+            toField = this.getMeaningfulUseToField(),
+            providerField = this.getMeaningfulUseProviderField(),
             provider = providerField.findRecordByValue(providerField.getValue()),
-            grid = this.getMeasureCalculationGrid();
+            grid = this.getMeaningfulUseGrid();
 
         if(!fromField.isValid() || !toField.isValid() || !providerField.isValid() || grid.store.count() === 0) return;
 
@@ -85,7 +85,7 @@ Ext.define('App.controller.administration.MeasureCalculation', {
         App.ux.grid.Printer.print(grid);
     },
 
-    onMeasureCalculationGridCellDblClick: function(view, td, cellIndex, report_record){
+    onMeaningfulUseGridCellDblClick: function(view, td, cellIndex, report_record){
         var me = this,
             column = view.panel.columnManager.getHeaderAtIndex(cellIndex),
             pids;
@@ -116,11 +116,11 @@ Ext.define('App.controller.administration.MeasureCalculation', {
 
     },
 
-    onMeasureCalculationRefreshBtnClick: function (btn) {
-        var fromField = this.getMeasureCalculationFromField(),
-            toField = this.getMeasureCalculationToField(),
-            providerField = this.getMeasureCalculationProviderField(),
-            grid_store = this.getMeasureCalculationGrid().getStore();
+    onMeaningfulUseRefreshBtnClick: function (btn) {
+        var fromField = this.getMeaningfulUseFromField(),
+            toField = this.getMeaningfulUseToField(),
+            providerField = this.getMeaningfulUseProviderField(),
+            grid_store = this.getMeaningfulUseGrid().getStore();
 
         grid_store.removeAll();
         grid_store.commitChanges();
@@ -152,7 +152,7 @@ Ext.define('App.controller.administration.MeasureCalculation', {
         var me = this;
 
         MeasureCalculation.getReportMeasureByDates(measure, provider_id, start_date, end_date, function (response) {
-            var store =  me.getMeasureCalculationGrid().getStore();
+            var store =  me.getMeaningfulUseGrid().getStore();
             store.loadData(response, true);
             me.doSortGridStoreBuffer(store);
         });

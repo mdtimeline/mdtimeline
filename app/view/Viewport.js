@@ -433,6 +433,11 @@ Ext.define('App.view.Viewport', {
 				    icon: 'resources/images/icons/theme.png'
 			    },
 			    {
+				    text: _('clear_stateful_state'),
+				    itemId:'AppCleatState',
+					iconCls: 'fas fa-eraser'
+			    },
+			    {
 				    text: _('logout'),
 				    iconCls: 'icoLogout',
 				    action:'logout'

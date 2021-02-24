@@ -58,5 +58,18 @@ class AppState {
         return $this->s->destroy($params);
 	}
 
+	public function AppStateUnClearByUid($uid){
+
+	    $filter = (object)[
+	        'filter' => [
+	            (object)[
+	                'property' =>'uid',
+                    'value' => $uid
+                ]
+            ]
+        ];
+        return $this->s->destroy((object)[], $filter);
+	}
+
 
 }

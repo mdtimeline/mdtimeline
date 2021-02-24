@@ -75,7 +75,7 @@ class Sessions {
 	public function isActiveSession(){
 		$conn = Matcha::getConn();
         $now = time();
-        $last_request = $now - 60;
+        $last_request = $now - 120;
 		$sth = $conn->prepare("SELECT * FROM `users_sessions` WHERE `id` = :id AND logout IS NULL AND last_request > :last_request;");
 		$sth->execute([':id' => $_SESSION['session_id'], ':last_request' => $last_request]);
 		$result = $sth->fetch(PDO::FETCH_ASSOC);

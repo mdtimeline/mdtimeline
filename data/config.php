@@ -59,6 +59,9 @@ $API = [
             ],
             'AppStateUnSet' => [
                 'len' => 1
+            ],
+            'AppStateUnClearByUid' => [
+                'len' => 1
             ]
         ]
     ],
@@ -86,7 +89,7 @@ $API = [
     'MeasureCalculation' => [
         'methods' => [
             'getReportMeasureByDates' => [
-                'len' => 4
+                'len' => 5
             ],
             'getPatientList' => [
                 'len' => 1

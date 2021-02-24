@@ -2201,4 +2201,5 @@ $LANG = array(
     'ip_address' => 'IP Address',
     'letter_version' => 'Letter Version',
     'date_signed' => 'Date Signed',
+    'clear_stateful_state' => 'Clear Stateful State',
 );

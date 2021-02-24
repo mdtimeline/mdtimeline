@@ -26,6 +26,8 @@ Ext.define('App.controller.administration.MeasureCalculation', {
             selector: '#MeasureCalculation',
             ref: 'MeasureCalculation'
         },
+
+        // Meaningful Use
         {
             selector: '#MeaningfulUseGrid',
             ref: 'MeaningfulUseGrid'
@@ -42,6 +44,28 @@ Ext.define('App.controller.administration.MeasureCalculation', {
             selector: '#MeaningfulUseProviderField',
             ref: 'MeaningfulUseProviderField'
         },
+
+        // MIPS
+        {
+            selector: '#MIPSGrid',
+            ref: 'MIPSGrid'
+        },
+        {
+            selector: '#MIPSGridFromField',
+            ref: 'MIPSGridFromField'
+        },
+        {
+            selector: '#MIPSGridToField',
+            ref: 'MIPSGridToField'
+        },
+        {
+            selector: '#MIPSGridProviderField',
+            ref: 'MIPSGridProviderField'
+        },
+        {
+            selector: '#MIPSGridInsuranceField',
+            ref: 'MIPSGridInsuranceField'
+        }
     ],
 
     /**
@@ -59,10 +83,68 @@ Ext.define('App.controller.administration.MeasureCalculation', {
             },
             '#MeaningfulUseGridPrintBtn': {
                 click: me.onMeaningfulUseGridPrintBtnClick
+            },
+
+
+            '#MIPSGridRefreshBtn': {
+                click: me.onMIPSGridRefreshBtnClick
+            },
+            '#MIPSGrid': {
+                celldblclick: me.onMIPSGridCellDblClick
+            },
+            '#MIPSGridPrintBtn': {
+                click: me.onMIPSGridPrintBtnClick
             }
         });
 
         me.doSortGridStoreBuffer = Ext.Function.createBuffered(me.doSortGridStore, 250, me);
+    },
+
+    onMIPSGridRefreshBtnClick: function (btn){
+        var fromField = this.getMIPSGridFromField(),
+            toField = this.getMIPSGridToField(),
+            providerField = this.getMIPSGridProviderField(),
+            insuranceField = this.getMIPSGridInsuranceField(),
+            grid_store = this.getMIPSGrid().getStore();
+
+        grid_store.removeAll();
+        grid_store.commitChanges();
+
+        if(!fromField.isValid() || !toField.isValid() || !providerField.isValid()){
+            return;
+        }
+
+        var provider_id = providerField.getValue(),
+            insurance_id = insuranceField.getValue(),
+            from = Ext.Date.format(fromField.getValue(), 'Y-m-d'),
+            to = Ext.Date.format(toField.getValue(), 'Y-m-d');
+
+        this.doReportMeasureByDates(grid_store, 'AdvanceCarePlan', provider_id, from, to, insurance_id);
+
+
+    },
+
+    onMIPSGridCellDblClick: function (view, td, cellIndex, report_record){
+        this.doShowPatientList(view, td, cellIndex, report_record);
+    },
+
+    onMIPSGridPrintBtnClick: function (btn){
+        var fromField = this.getMIPSGridFromField(),
+            toField = this.getMIPSGridToField(),
+            providerField = this.getMIPSGridProviderField(),
+            provider = providerField.findRecordByValue(providerField.getValue()),
+            grid = this.getMIPSGrid();
+
+        if(!fromField.isValid() || !toField.isValid() || !providerField.isValid() || grid.store.count() === 0) return;
+
+        App.ux.grid.Printer.mainTitle = 'MIPS Calculation'; //optional
+        App.ux.grid.Printer.filtersHtml = Ext.String.format(
+            '<b>From:</b> {0}<br><b>To:</b> {1}<br><b>Provider:</b> {2}',
+            Ext.Date.format(fromField.getValue(), 'F j, Y'),
+            Ext.Date.format(toField.getValue(), 'F j, Y'),
+            provider.get('fullname')
+        ); //optional
+        App.ux.grid.Printer.print(grid);
     },
 
     onMeaningfulUseGridPrintBtnClick: function(btn){
@@ -75,7 +157,7 @@ Ext.define('App.controller.administration.MeasureCalculation', {
 
         if(!fromField.isValid() || !toField.isValid() || !providerField.isValid() || grid.store.count() === 0) return;
 
-        App.ux.grid.Printer.mainTitle = 'Measure Calculation'; //optional
+        App.ux.grid.Printer.mainTitle = 'Meaningful Use Calculation'; //optional
         App.ux.grid.Printer.filtersHtml = Ext.String.format(
             '<b>From:</b> {0}<br><b>To:</b> {1}<br><b>Provider:</b> {2}',
             Ext.Date.format(fromField.getValue(), 'F j, Y'),
@@ -86,34 +168,7 @@ Ext.define('App.controller.administration.MeasureCalculation', {
     },
 
     onMeaningfulUseGridCellDblClick: function(view, td, cellIndex, report_record){
-        var me = this,
-            column = view.panel.columnManager.getHeaderAtIndex(cellIndex),
-            pids;
-
-        if(column.dataIndex !== 'denominator' && column.dataIndex !== 'numerator') return;
-
-        pids = report_record.get(column.dataIndex + '_pids');
-
-        if(pids == '') return;
-
-        var numerator_types = report_record.get('numerator_types'), i, len,
-            numerator_types_obj = {}, v;
-
-        if(numerator_types){
-
-            numerator_types = numerator_types.split(',');
-
-            len = numerator_types.length;
-            for (i = 0; i < len; i++) {
-                v = numerator_types[i].split('~');
-                numerator_types_obj[v[0]] = v[1]
-            }
-        }
-
-        MeasureCalculation.getPatientList(pids, function (response) {
-            me.showMeasureCalculationPatientListWindow(Ext.String.capitalize(column.dataIndex) + ' Patient List', response, numerator_types_obj);
-        });
-
+        this.doShowPatientList(view, td, cellIndex, report_record);
     },
 
     onMeaningfulUseRefreshBtnClick: function (btn) {
@@ -129,31 +184,30 @@ Ext.define('App.controller.administration.MeasureCalculation', {
             return;
         }
 
-        var provider = providerField.getValue(),
+        var provider_id = providerField.getValue(),
 	        from = Ext.Date.format(fromField.getValue(), 'Y-m-d'),
 	        to = Ext.Date.format(toField.getValue(), 'Y-m-d');
 
-        this.doReportMeasureByDates('ePrescribing', provider, from, to);
-        this.doReportMeasureByDates('PatientEducation', provider, from, to);
-        this.doReportMeasureByDates('ProvidePatientsElectronicAccess', provider, from, to);
-        this.doReportMeasureByDates('ViewDownloadTransmit', provider, from, to);
-        this.doReportMeasureByDates('SecureMessaging', provider, from, to);
-        this.doReportMeasureByDates('PatientGeneratedHealthData', provider, from, to);
-        this.doReportMeasureByDates('SupportElectronicReferralLoopsSending', provider, from, to);
-        this.doReportMeasureByDates('ReceiveAndIncorporate', provider, from, to);
-        this.doReportMeasureByDates('MedicationClinicalInformationReconciliation', provider, from, to);
-        this.doReportMeasureByDates('CPOEMedications', provider, from, to);
-        this.doReportMeasureByDates('CPOELaboratory', provider, from, to);
-        this.doReportMeasureByDates('CPOERadiology', provider, from, to);
+        this.doReportMeasureByDates(grid_store,'ePrescribing', provider_id, from, to, null);
+        this.doReportMeasureByDates(grid_store,'PatientEducation', provider_id, from, to, null);
+        this.doReportMeasureByDates(grid_store,'ProvidePatientsElectronicAccess', provider_id, from, to, null);
+        this.doReportMeasureByDates(grid_store,'ViewDownloadTransmit', provider_id, from, to, null);
+        this.doReportMeasureByDates(grid_store,'SecureMessaging', provider_id, from, to, null);
+        this.doReportMeasureByDates(grid_store,'PatientGeneratedHealthData', provider_id, from, to, null);
+        this.doReportMeasureByDates(grid_store,'SupportElectronicReferralLoopsSending', provider_id, from, to, null);
+        this.doReportMeasureByDates(grid_store,'ReceiveAndIncorporate', provider_id, from, to, null);
+        this.doReportMeasureByDates(grid_store,'MedicationClinicalInformationReconciliation', provider_id, from, to, null);
+        this.doReportMeasureByDates(grid_store,'CPOEMedications', provider_id, from, to, null);
+        this.doReportMeasureByDates(grid_store,'CPOELaboratory', provider_id, from, to, null);
+        this.doReportMeasureByDates(grid_store,'CPOERadiology', provider_id, from, to, null);
 
     },
 
-    doReportMeasureByDates: function (measure, provider_id, start_date, end_date) {
+    doReportMeasureByDates: function (grid_store, measure, provider_id, start_date, end_date, insurance_id) {
         var me = this;
 
-        MeasureCalculation.getReportMeasureByDates(measure, provider_id, start_date, end_date, function (response) {
-            var store =  me.getMeaningfulUseGrid().getStore();
-            store.loadData(response, true);
+        MeasureCalculation.getReportMeasureByDates(measure, provider_id, start_date, end_date, insurance_id, function (response) {
+            grid_store.loadData(response, true);
             me.doSortGridStoreBuffer(store);
         });
 
@@ -235,6 +289,36 @@ Ext.define('App.controller.administration.MeasureCalculation', {
         }).show();
 
         store.loadData(data);
-    }
+    },
+
+    doShowPatientList: function (view, td, cellIndex, report_record){
+        var me = this,
+            column = view.panel.columnManager.getHeaderAtIndex(cellIndex),
+            pids;
+
+        if(column.dataIndex !== 'denominator' && column.dataIndex !== 'numerator') return;
+
+        pids = report_record.get(column.dataIndex + '_pids');
+
+        if(pids == '') return;
+
+        var numerator_types = report_record.get('numerator_types'), i, len,
+            numerator_types_obj = {}, v;
+
+        if(numerator_types){
+
+            numerator_types = numerator_types.split(',');
+
+            len = numerator_types.length;
+            for (i = 0; i < len; i++) {
+                v = numerator_types[i].split('~');
+                numerator_types_obj[v[0]] = v[1]
+            }
+        }
+
+        MeasureCalculation.getPatientList(pids, function (response) {
+            me.showMeasureCalculationPatientListWindow(Ext.String.capitalize(column.dataIndex) + ' Patient List', response, numerator_types_obj);
+        });
+    },
 
 });

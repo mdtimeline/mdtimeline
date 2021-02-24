@@ -14,9 +14,10 @@ class MeasureCalculation {
 	 * @param $start_date
 	 * @param $end_date
 	 * @param $stages
+	 * @param $insurance_id
 	 * @return array
 	 */
-	public function getReportMeasureByDates($measure, $provider_id, $start_date, $end_date, $stages = '3'){
+	public function getReportMeasureByDates($measure, $provider_id, $start_date, $end_date, $insurance_id, $stages = '3'){
 
 		if(is_array($provider_id)){
 			$provider_id = implode("','", $provider_id);
@@ -65,6 +66,9 @@ class MeasureCalculation {
 			} else
 			if($measure == 'CPOERadiology'){
 				$results = $this->getCPOERadiologyReportByDates($provider_id, $start_date, $end_date, $stages);
+			} else
+			if($measure == 'AdvanceCarePlan'){
+				$results = $this->getAdvanceCarePlanReportByDates($provider_id, $start_date, $end_date, $insurance_id);
 			}
 
 			$this->conn->exec("DELETE FROM `_measures` WHERE provider_id = '{$provider_id}' AND measure = '{$measure}'");
@@ -722,6 +726,37 @@ class MeasureCalculation {
 			'denominator_pids' => $report['denominator_pids'],
 			'numerator_pids' => $report['numerator_pids'],
 			'goal' => '60%'
+		];
+
+		return $records;
+	}
+
+	// Required Test 12 – CPOE Radiology/Diagnostic Imaging
+	private function getAdvanceCarePlanReportByDates($provider_id, $insurance_id, $start_date, $end_date){
+
+		$records = [];
+
+		/**
+		 */
+
+		/**
+		 */
+
+		$sth = $this->conn->prepare("CALL `getAdvanceCarePlanReportByDates`(?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date]);
+		$report =  $sth->fetch(PDO::FETCH_ASSOC);
+
+		$records[] = [
+			'group' => 'Quality ID #047 (NQF 0326): Advance Care Plan',
+			'provider' => $report['provider'],
+			'insurance' => $report['insurance'],
+			'title' => $report['title'],
+			'description' => 'Measure Description: Percentage of patients aged 65 years and older who have an advance care plan or surrogate decision maker documented in the medical record or documentation in the medical record that an advance care plan was discussed but the patient did not wish or was not able to name a surrogate decision maker or provide an advance care plan',
+			'denominator' => $report['denominator'],
+			'numerator' => $report['numerator'],
+			'denominator_pids' => $report['denominator_pids'],
+			'numerator_pids' => $report['numerator_pids'],
+			'goal' => 'N/A'
 		];
 
 		return $records;

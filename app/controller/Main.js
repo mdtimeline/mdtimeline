@@ -22,8 +22,31 @@ Ext.define('App.controller.Main', {
 			'#ApplicationFacilityCombo': {
 				select: me.onApplicationFacilityComboSelect,
 				beforerender: me.onApplicationFacilityComboBeforeRender
+			},
+			'#AppCleatState': {
+				click: me.onAppCleatStateClick
 			}
 		});
+
+	},
+
+	onAppCleatStateClick: function (btn){
+
+		Ext.Msg.show({
+			title: 'Wait!',
+			msg: 'This action will reset the application state and refresh the application',
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (btn){
+				if(btn === 'yes'){
+					AppState.AppStateUnClearByUid(app.user.id, function (){
+						window.document.location.reload();
+					});
+				}
+			}
+		});
+
+
 
 	},
 

@@ -19,7 +19,7 @@
 Ext.define('App.view.administration.MeasureCalculation', {
 	extend: 'App.ux.RenderPanel',
 	requires: [
-
+		'App.ux.combo.Insurances'
 	],
 	pageTitle: 'Measure Calculations',
 	itemId: 'MeasureCalculation',
@@ -223,6 +223,15 @@ Ext.define('App.view.administration.MeasureCalculation', {
 								allowBlank: false,
 								//multiSelect: true,
 								itemId: 'MIPSGridProviderField'
+							},
+							{
+								xtype: 'insurancescombo',
+								fieldLabel: _('insurance'),
+								labelWidth: 50,
+								width: 300,
+								allowBlank: false,
+								//multiSelect: true,
+								itemId: 'MIPSGridInsuranceField'
 							},
 							'-',
 							{

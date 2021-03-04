@@ -407,34 +407,41 @@ class Email {
 
 		$emails = $this->tk->sql($sql)->all();
 
-		foreach ($emails as $email){
-			$response = $this->CheckAPIEmail($email['source_tracking_id']);
+		foreach ($emails as $email) {
+            $response = $this->CheckAPIEmail($email['source_tracking_id']);
 
-			if(!$response['success']){
-				continue;
-			}
+            if (!$response['success']) {
+                continue;
+            }
 
-			if(!isset($response['result']['data']['message']['message_deliveries'])){
-				continue;
-			}
+            if (!isset($response['result']['data']['message']['message_deliveries'])) {
+                continue;
+            }
 
-			$message_deliveries = $response['result']['data']['message']['message_deliveries'];
-			$message_delivery = end($message_deliveries);
+            $message_deliveries = $response['result']['data']['message']['message_deliveries'];
+            $message_delivery = end($message_deliveries);
 
-			if($message_delivery === false){
-				continue;
-			}
+            if ($message_delivery === false) {
+                continue;
+            }
 
-			$email = (object) [
-				'id' => $email['id'],
-				'delivery_status' => $message_delivery['status']['deliveryStatus'],
-				'delivery_time' => date('Y-m-d H:i:s', strtotime($message_delivery['status']['deliveryTime'])),
-				'opened_status' => $message_delivery['status']['openedStatus'],
-				'opened_time' => date('Y-m-d H:i:s', strtotime($message_delivery['status']['openedTime'])),
-			];
-			$this->tk->save($email);
+            if (!isset($message_delivery['status']) || !isset($message_delivery['status']['deliveryTime'])) {
+                error_log('CheckAPIEmail Error: $message_delivery->status or $message_delivery->deliveryTime->status not set');
+                error_log(print_r($message_delivery, true));
+                continue;
+            }
 
-		}
+            $email = (object)[
+                'id' => $email['id'],
+                'delivery_status' => $message_delivery['status']['deliveryStatus'],
+                'delivery_time' => date('Y-m-d H:i:s', strtotime($message_delivery['status']['deliveryTime'])),
+                'opened_status' => $message_delivery['status']['openedStatus'],
+                'opened_time' => date('Y-m-d H:i:s', strtotime($message_delivery['status']['openedTime'])),
+            ];
+
+            $this->tk->save($email);
+
+        }
 	}
 
 	public function CheckAPIEmail($sourceTrackingId){

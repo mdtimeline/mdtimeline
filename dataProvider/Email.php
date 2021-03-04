@@ -450,6 +450,8 @@ class Email {
 		$url = "https://api.paubox.net/v1/{$this->API_ACCOUNT}/message_receipt?sourceTrackingId={$sourceTrackingId}";
 		$ch = curl_init($url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 60);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, [
 			"Content-Type: application/json",
 			"Authorization: Token token={$this->API_KEY}"

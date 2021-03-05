@@ -300,7 +300,7 @@ Ext.define('App.view.login.Login', {
 
 	onThemeSwitch: function (btn) {
 		var theme = this.theme === 'dark' ? 'light' : 'dark';
-		Ext.util.Cookies.set('mdtimeline_theme', theme);
+		Ext.util.Cookies.set('mdtimeline_theme', theme,  Ext.Date.add(new Date(), Ext.Date.YEAR, 5));
 		window.location.reload();
 	},
 

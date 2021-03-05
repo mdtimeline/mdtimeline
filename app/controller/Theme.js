@@ -52,13 +52,13 @@ Ext.define('App.controller.Theme', {
 
 	goLight: function(btn){
 		btn.action = 'light';
-		Ext.util.Cookies.set('mdtimeline_theme', 'light');
+		Ext.util.Cookies.set('mdtimeline_theme', 'light', Ext.Date.add(new Date(), Ext.Date.YEAR, 5));
 		window.location.reload();
 	},
 
 	goDark: function(btn){
 		btn.action = 'dark';
-		Ext.util.Cookies.set('mdtimeline_theme', 'dark');
+		Ext.util.Cookies.set('mdtimeline_theme', 'dark', Ext.Date.add(new Date(), Ext.Date.YEAR, 5));
 		window.location.reload();
 	}
 

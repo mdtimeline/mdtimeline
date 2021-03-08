@@ -15,7 +15,7 @@ class LDAP {
 	private $ldap_app_group;
 
 	function __construct(){
-		$this->ldap_host = Globals::getGlobal('ldap_host'); //'server.clinic.example.com';
+		$this->ldap_host = Globals::getGlobal('ldap_host'); //'ldap://ldap.example.com';
 		$this->ldap_port = Globals::getGlobal('ldap_port'); //389;
 		$this->ldap_dn = Globals::getGlobal('ldap_dn'); //'OU=mditimeline,DC=clinic,DC=example,DC=com';
 		$this->ldap_user_domains = explode(',', Globals::getGlobal('ldap_user_domains')); //'user@clinic.example.com';
@@ -37,7 +37,11 @@ class LDAP {
 
 		$this->log("LDAP: CONNECT: HOST: {$this->ldap_host} PORT: {$this->ldap_port}");
 
-		$this->ldap = ldap_connect($this->ldap_host, (int) $this->ldap_port);
+		if(isset($this->ldap_port) && is_numeric($this->ldap_port)){
+            $this->ldap = ldap_connect($this->ldap_host, (int) $this->ldap_port);
+        }else{
+            $this->ldap = ldap_connect($this->ldap_host);
+        }
 
 		if($this->ldap === false) {
 			$this->log("LDAP: Unable to connect to LDAP server");

@@ -396,6 +396,10 @@ class Patient
 
 		$additional_tokens = [
 			'{PID}' => $patient->pid,
+			'{PAD_6_PID}' => str_pad($patient->pid, 6, '0', STR_PAD_LEFT),
+			'{PAD_8_PID}' => str_pad($patient->pid, 8, '0', STR_PAD_LEFT),
+			'{PAD_10_PID}' => str_pad($patient->pid, 10, '0', STR_PAD_LEFT),
+			'{PAD_15_PID}' => str_pad($patient->pid, 15, '0', STR_PAD_LEFT),
 			'{SEX}' => strtoupper($patient->sex),
 			'{LAST_NAME_START_LETTER}' => strtoupper($patient->lname[0]),
 			'{FIRST_NAME_START_LETTER}' => strtoupper($patient->fname[0]),

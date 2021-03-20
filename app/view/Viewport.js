@@ -410,6 +410,12 @@ Ext.define('App.view.Viewport', {
 				    icon: 'resources/images/icons/icohelp.png',
 				    menu: [
 					    {
+						    text: 'Appointment Software User Guide',
+						    icon: 'resources/images/icons/icohelp.png',
+						    documentTitle: 'Appointment Software User Guide',
+						    documentUrl: 'https://docs.google.com/document/u/1/d/e/2PACX-1vRaSxKq1stGH8zwCRHvXCIfzBVlOlOSehQSctFeEpzZV6x7LJKo3TB9SgN2w54fuHIQ-WMKkgB2QJ8q/pub?embedded=true'
+					    },
+					    {
 						    text: 'RIS Software User Guide',
 						    icon: 'resources/images/icons/icohelp.png',
 						    documentTitle: 'RIS Software User Guide',

@@ -48,7 +48,9 @@ class Labels
 
 		$results = [];
 
+		$facility_data = (object)$this->getFacilityTokens();
 		foreach ($data as $label_data){
+            $label_data = (object) array_merge((array) $label_data, (array) $facility_data);
 			$results[] = $this->CreateLabel($label_type, $label_data, $height, $width, $dpi);
 		}
 
@@ -214,6 +216,38 @@ class Labels
 
 	}
 
+	private function getFacilityTokens($facility_id = null){
+        $facility_id = isset($facility_id) ? $facility_id : $_SESSION['user']['facility'];
+
+        include_once (ROOT. '/dataProvider/Facilities.php');
+        $Facilities = new Facilities();
+        $facility = $Facilities->getFacilityById($facility_id);
+
+        if($facility === false){
+            return [];
+        }
+
+        return [
+            '[FACILITY_ID]' => $facility['id'],
+            '[FACILITY_EXTERNAL_ID]' => isset($facility['external_id']) ? $facility['external_id'] : '',
+            '[FACILITY_CODE]' => isset($facility['code']) ? $facility['code'] : '',
+            '[FACILITY_NAME]' => isset($facility['name']) ? $facility['name'] : '',
+            '[FACILITY_NAME_LEGAL]' => isset($facility['legal_name']) ? $facility['legal_name'] : '',
+            '[FACILITY_ATT]' => isset($facility['attn']) ? $facility['attn'] : '',
+            '[FACILITY_REGION]' => isset($facility['region']) ? $facility['region'] : '',
+            '[FACILITY_PHONE]' => isset($facility['phone']) ? $facility['phone'] : '',
+            '[FACILITY_FAX]' => isset($facility['fax']) ? $facility['fax'] : '',
+            '[FACILITY_EMAIL]' => isset($facility['email']) ? $facility['email'] : '',
+            '[FACILITY_ADDRESS_ONE]' => isset($facility['address']) ? $facility['address'] : '',
+            '[FACILITY_ADDRESS_TWO]' => isset($facility['address_cont']) ? $facility['address_cont'] : '',
+            '[FACILITY_ADDRESS_CITY]' => isset($facility['city']) ? $facility['city'] : '',
+            '[FACILITY_ADDRESS_STATE]' => isset($facility['state']) ? $facility['state'] : '',
+            '[FACILITY_ADDRESS_ZIPCODE]' => isset($facility['postal_code']) ? $facility['postal_code'] : '',
+            '[FACILITY_ADDRESS_NPI]' => isset($facility['npi']) ? $facility['npi'] : ''
+        ];
+
+
+    }
 }
 
 

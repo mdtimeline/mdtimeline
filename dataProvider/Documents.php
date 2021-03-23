@@ -903,7 +903,7 @@ class Documents
         return $data;
     }
 
-    private function getPatientTokesDataByPid($pid)
+    public function getPatientTokesDataByPid($pid)
     {
         $patientData = $this->getAllPatientData($pid);
         $age = $this->Patient->getPatientAgeByDOB($patientData['DOB']);
@@ -976,7 +976,9 @@ class Documents
 
             '[PATIENT_RACE]' => $patientData['race'],
             '[PATIENT_ETHNICITY]' => $patientData['ethnicity'],
+            // TODO to be remove...
             '[PATIENT_LENGUAGE]' => $patientData['language'],
+            '[PATIENT_LANGUAGE]' => $patientData['language'],
             '[PATIENT_PICTURE]' => '<img src="' . $patientData['image'] . '" style="width:100px;height:100px">',
             '[PATIENT_QRCODE]' => '<img src="' . $patientData['qrcode'] . '" style="width:100px;height:100px">',
         ];

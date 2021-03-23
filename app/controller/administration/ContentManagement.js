@@ -141,7 +141,7 @@ Ext.define('App.controller.administration.ContentManagement', {
             tokens = [],
             tokenTextAreaField = me.getContentManagementWindowTokensTextArea();
 
-        tokens = tokens.concat(this.patientTokens()());
+        tokens = tokens.concat(this.patientTokens());
 
         if (content_type === 'disclosure') {
             tokens = tokens.concat(this.disclosureTokens(), this.formatTokens());

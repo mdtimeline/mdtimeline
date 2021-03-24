@@ -422,24 +422,35 @@ class Email {
             $message_delivery = end($message_deliveries);
 
             if ($message_delivery === false) {
+                error_log('CheckAPIEmail Error: $message_delivery === false');
                 continue;
             }
 
-            if (!isset($message_delivery['status']) || !isset($message_delivery['status']['deliveryTime'])) {
-                error_log('CheckAPIEmail Error: $message_delivery->status or $message_delivery->deliveryTime->status not set');
+            if (!isset($message_delivery['status'])) {
+                error_log('CheckAPIEmail Error: $message_delivery->status not set');
                 error_log(print_r($message_delivery, true));
                 continue;
             }
 
-            $email =[
-                'id' => $email['id'],
-                'delivery_status' => $message_delivery['status']['deliveryStatus'],
-                'delivery_time' => date('Y-m-d H:i:s', strtotime($message_delivery['status']['deliveryTime']))
+            $email = [
+                'id' => $email['id']
             ];
 
-            if(isset($message_delivery['status']['openedStatus']) && isset($message_delivery['status']['openedTime'])){
-                $email['opened_status'] = $message_delivery['status']['openedStatus'];
+            if (isset($message_delivery['status']['deliveryStatus'])) {
+                $email['delivery_status'] = $message_delivery['status']['deliveryStatus'];
+            }
+            if (isset($message_delivery['status']['deliveryTime'])) {
+                $email['delivery_time'] = date('Y-m-d H:i:s', strtotime($message_delivery['status']['deliveryTime']));
+            }
+            if (isset($message_delivery['status']['openedStatus'])) {
+                $email['opened_status'] = $message_delivery['status']['openedTime'];
+            }
+            if (isset($message_delivery['status']['openedTime'])) {
                 $email['opened_time'] = date('Y-m-d H:i:s', strtotime($message_delivery['status']['openedTime']));
+            }
+
+            if(count($email) === 1){
+                continue;
             }
 
             $this->tk->save((object) $email);
@@ -448,7 +459,6 @@ class Email {
 	}
 
 	public function CheckAPIEmail($sourceTrackingId){
-
 
 		$url = "https://api.paubox.net/v1/{$this->API_ACCOUNT}/message_receipt?sourceTrackingId={$sourceTrackingId}";
 		$ch = curl_init($url);

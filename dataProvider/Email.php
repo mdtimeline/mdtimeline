@@ -431,15 +431,18 @@ class Email {
                 continue;
             }
 
-            $email = (object)[
+            $email =[
                 'id' => $email['id'],
                 'delivery_status' => $message_delivery['status']['deliveryStatus'],
-                'delivery_time' => date('Y-m-d H:i:s', strtotime($message_delivery['status']['deliveryTime'])),
-                'opened_status' => $message_delivery['status']['openedStatus'],
-                'opened_time' => date('Y-m-d H:i:s', strtotime($message_delivery['status']['openedTime'])),
+                'delivery_time' => date('Y-m-d H:i:s', strtotime($message_delivery['status']['deliveryTime']))
             ];
 
-            $this->tk->save($email);
+            if(isset($message_delivery['status']['openedStatus']) && isset($message_delivery['status']['openedTime'])){
+                $email['opened_status'] = $message_delivery['status']['openedStatus'];
+                $email['opened_time'] = date('Y-m-d H:i:s', strtotime($message_delivery['status']['openedTime']));
+            }
+
+            $this->tk->save((object) $email);
 
         }
 	}

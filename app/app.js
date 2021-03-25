@@ -39218,7 +39218,7 @@ Ext.define('App.controller.administration.ContentManagement', {
             tokens = [],
             tokenTextAreaField = me.getContentManagementWindowTokensTextArea();
 
-        tokens = tokens.concat(this.patientTokens()());
+        tokens = tokens.concat(this.patientTokens());
 
         if (content_type === 'disclosure') {
             tokens = tokens.concat(this.disclosureTokens(), this.formatTokens());
@@ -83023,7 +83023,7 @@ Ext.define('App.view.Viewport', {
 						    text: 'Appointment Software User Guide',
 						    icon: 'resources/images/icons/icohelp.png',
 						    documentTitle: 'Appointment Software User Guide',
-						    documentUrl: 'https://docs.google.com/document/u/1/d/e/2PACX-1vRaSxKq1stGH8zwCRHvXCIfzBVlOlOSehQSctFeEpzZV6x7LJKo3TB9SgN2w54fuHIQ-WMKkgB2QJ8q/pub?embedded=true'
+						    documentUrl: 'https://docs.google.com/document/d/e/2PACX-1vRaSxKq1stGH8zwCRHvXCIfzBVlOlOSehQSctFeEpzZV6x7LJKo3TB9SgN2w54fuHIQ-WMKkgB2QJ8q/pub?embedded=true'
 					    },
 					    {
 						    text: 'RIS Software User Guide',

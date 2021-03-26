@@ -272,6 +272,7 @@ Ext.define('App.view.Viewport', {
 					    xtype: 'patienlivetsearch',
 					    emptyText: _('patient_live_search') + '...',
 					    width: 300,
+
 					    listeners: {
 						    scope: me,
 						    select: me.liveSearchSelect,
@@ -1537,7 +1538,7 @@ Ext.define('App.view.Viewport', {
 	getAge: function (dob, age_at) {
 
 		var _dob = new Date(dob);
-		var _aad = new Date(age_at);
+		var _aad = age_at ? new Date(age_at) : new Date();
 		var daysInMonth = 30.436875; // Days in a month on average.
 
 		var yearAad = _aad.getFullYear();

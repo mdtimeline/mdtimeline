@@ -1265,7 +1265,7 @@ Ext.define('App.ux.LivePatientSearch', {
 
 		me.store = Ext.create('Ext.data.Store', {
 			model: 'patientLiveSearchModel',
-			pageSize: 10,
+			pageSize: 15,
 			autoLoad: false
 		});
 
@@ -1273,13 +1273,17 @@ Ext.define('App.ux.LivePatientSearch', {
 			store: me.store,
 			listConfig: {
 				loadingText: _('searching') + '...',
+				minWidth: 450,
+				maxHeight: 600,
 				getInnerTpl: function(){
 					var pid = (eval(g('display_pubpid')) ? 'pubpid' : 'pid');
-					return '<div class="search-item"><h3><span>{fullname}</span> {[Ext.Date.format(values.DOB, g("date_display_format"))]}</h3>' +
-						'Record #{' + pid + '}</div>';
+					return '<div class="search-item">' +
+						'<div style="float: right; font-size: 10px;">#{' + pid + '}</div>' +
+						'<div style="font-weight: bold;">{fullname}&nbsp;&nbsp;-&nbsp;&nbsp;{[Ext.Date.format(values.DOB, g("date_display_format"))]} ({[app.getAge(values.DOB)[\'years\']]}Y)</div> ' +
+						'</div>';
 				}
 			},
-			pageSize: 10
+			pageSize: 15
 		});
 
 		if(this.resetEnabled){
@@ -82882,6 +82886,7 @@ Ext.define('App.view.Viewport', {
 					    xtype: 'patienlivetsearch',
 					    emptyText: _('patient_live_search') + '...',
 					    width: 300,
+
 					    listeners: {
 						    scope: me,
 						    select: me.liveSearchSelect,
@@ -84147,7 +84152,7 @@ Ext.define('App.view.Viewport', {
 	getAge: function (dob, age_at) {
 
 		var _dob = new Date(dob);
-		var _aad = new Date(age_at);
+		var _aad = age_at ? new Date(age_at) : new Date();
 		var daysInMonth = 30.436875; // Days in a month on average.
 
 		var yearAad = _aad.getFullYear();

@@ -1274,7 +1274,7 @@ Ext.define('App.ux.LivePatientSearch', {
 			listConfig: {
 				loadingText: _('searching') + '...',
 				minWidth: 450,
-				maxHeight: 600,
+				maxHeight: 650,
 				getInnerTpl: function(){
 					var pid = (eval(g('display_pubpid')) ? 'pubpid' : 'pid');
 					return '<div class="search-item">' +

@@ -2202,4 +2202,6 @@ $LANG = array(
     'letter_version' => 'Letter Version',
     'date_signed' => 'Date Signed',
     'clear_stateful_state' => 'Clear Stateful State',
+    'addenda' => 'Addenda',
+    'add_addendum' => 'Add Addendum',
 );

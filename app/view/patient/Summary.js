@@ -132,15 +132,24 @@ Ext.define('App.view.patient.Summary', {
 						dataIndex: 'brief_description',
 						flex: 1,
 						renderer: function (v,meta,rec) {
-							var service_date = rec.get('service_date');
+							var service_date = rec.get('service_date'),
+								str = v;
 
-							if(!service_date) return v;
+							if(rec.isPrivate()){
+								str = '<i class="fas fa-shield-check" style="color: red"></i> ' + str;
+							}
+
+							if(rec.isClose()){
+								str = '<i class="fas fa-shield-check" style="color: #1b9bfc"></i> ' + str;
+							}
+
+							if(!service_date) return str;
 
 							if(service_date.toLocaleDateString() === new Date().toLocaleDateString()){
 								meta.style = 'font-weight:bold;background-color:yellow;';
 							}
 
-							return v;
+							return str;
 						}
 					}
 				]

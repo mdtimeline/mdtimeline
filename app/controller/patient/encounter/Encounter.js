@@ -39,6 +39,14 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		{
 			ref: 'PatientSummaryEncountersPanel',
 			selector: '#PatientSummaryEncountersPanel'
+		},
+		{
+			ref: 'EncounterMedicalToolbarSignBtn',
+			selector: '#EncounterMedicalToolbarSignBtn'
+		},
+		{
+			ref: 'EncounterMedicalToolbarAddendumAddBtn',
+			selector: '#EncounterMedicalToolbarAddendumAddBtn'
 		}
 	],
 
@@ -245,10 +253,61 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 	},
 
 	onEncounterLoad: function (encounter, encounter_panel) {
-
 		app.onMedicalWin();
+		this.setEncounterState(encounter, encounter_panel);
+	},
 
-		if(encounter.get('service_date').toLocaleDateString() !== new Date().toLocaleDateString()){
+	setEncounterState: function (encounter_record, encounter_panel){
+		// say('setEncounterState');
+		// say(encounter_record);
+		// say(encounter_panel);
+
+		var me = this;
+
+		app.patient.encounterIsClose = encounter_record.isClose();
+		app.patient.encounterAllowEdit = app.user.id == encounter_record.get('provider_uid') || !app.patient.encounterIsClose || app.patient.eid == null;;
+
+		/**
+		 * set if encounter can be edited
+		 */
+		me.setEncounterEditState(app.patient.encounterAllowEdit);
+
+		/**
+		 * Set Sign or Addendum Btn
+		 */
+		me.setEncounterSignAddendumState(app.patient.encounterIsClose);
+
+
+		/**
+		 * Set Not Same Day Warning
+		 */
+		me.setEncounterSayDayWarningState(encounter_record, encounter_panel);
+	},
+
+	setEncounterEditState:function(allowEdit){
+
+		var buttons = Ext.ComponentQuery.query('#encounterRecordAdd, button[action=encounterRecordAdd]'),
+			forms = Ext.ComponentQuery.query('#encounterPanel form[advanceFormPlugin]');
+
+		buttons.forEach(function (button) {
+			button.setDisabled(!allowEdit);
+		});
+
+		forms.forEach(function (form) {
+			form.advanceFormPlugin.enabled = allowEdit;
+		});
+	},
+
+	setEncounterSignAddendumState: function (isClose){
+		var signBtn = this.getEncounterMedicalToolbarSignBtn(),
+			addendumBtn = this.getEncounterMedicalToolbarAddendumAddBtn();
+
+		signBtn.setVisible(!isClose);
+		addendumBtn.setVisible(isClose);
+	},
+
+	setEncounterSayDayWarningState: function (encounter_record, encounter_panel){
+		if(encounter_record.get('service_date').toLocaleDateString() !== new Date().toLocaleDateString()){
 			encounter_panel.encounterTabPanel.ownerCt.addBodyCls('encounter-not-same-day');
 			encounter_panel.getPageBodyContainer().addCls('encounter-not-same-day');
 			app.msg(_('warning'),_('encounter_service_date_error_msg'), true);
@@ -431,19 +490,6 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		});
 	},
 
-	setEncounterClose:function(encounter_record){
-		app.patient.encounterIsClose = encounter_record.isClose();
-		var buttons = Ext.ComponentQuery.query('#encounterRecordAdd, button[action=encounterRecordAdd]'),
-			forms = Ext.ComponentQuery.query('#encounterPanel form[advanceFormPlugin]'),
-			allowEdit = app.user.id == encounter_record.get('provider_uid') || !app.patient.encounterIsClose || app.patient.eid == null;
 
-		buttons.forEach(function (button) {
-			button.setDisabled(!allowEdit);
-		});
-
-		forms.forEach(function (form) {
-			form.advanceFormPlugin.enabled = allowEdit;
-		});
-	}
 
 });

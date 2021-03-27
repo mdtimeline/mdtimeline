@@ -44,6 +44,10 @@ Ext.define('App.model.patient.ProgressNotesHistory', {
 			type: 'string'
 		},
 		{
+			name: 'addenda',
+			type: 'string'
+		},
+		{
 			name: 'instructions',
 			type: 'string'
 		},
@@ -103,6 +107,10 @@ Ext.define('App.model.patient.ProgressNotesHistory', {
 				str += '<b>' + _('objective') + ':</b> ' + Ext.String.htmlDecode(record.get('objective')) + '<br>';
 				str += '<b>' + _('assessment') + ':</b> ' + Ext.String.htmlDecode(record.get('assessment')) + '<br>';
 				str += '<b>' + _('plan') + ':</b> ' +  Ext.String.htmlDecode(record.get('plan')) + '<br>';
+
+				if(record.get('addenda') !== 'NONE'){
+					str += '<b>' + _('addenda') + ':</b> ' +  Ext.String.htmlDecode(record.get('addenda')) + '<br>';
+				}
 				// str += '<b>' + _('instructions') + ':</b> ' + Ext.String.htmlDecode(record.data.instructions) + '<br>';
 				return str + '</div>';
 			}

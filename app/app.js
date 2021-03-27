@@ -19395,6 +19395,11 @@ Ext.define('App.model.patient.Encounter', {
 			index: true
 		},
 		{
+			name: 'facility_name',
+			type: 'string',
+			store: false
+		},
+		{
 			name: 'billing_stage',
 			type: 'int',
 			len: 1,
@@ -19576,6 +19581,11 @@ Ext.define('App.model.patient.Encounter', {
 			foreignKey: 'eid'
 		}
 	],
+
+	isPrivate: function(){
+		return this.get('is_private');
+	},
+
 	isClose: function(){
 		return typeof this.data.close_date != 'undefined' && this.data.close_date != null;
 	},
@@ -27425,6 +27435,15 @@ Ext.define('App.view.patient.ProgressNote', {
             '           <p><span>' + _('additional_notes') + ':</span> {additional_notes}</p>' +
             '       </div>' +
             '   </tpl>' +
+			/**
+			 * Addenda Secession
+			 */
+			'   <tpl if="addenda != \'NONE\'">' +
+			'       <div class="secession">' +
+			'       	<div class="title"> ' + _('addenda') + ' </div>' +
+			'           <p>{[this.doHtmlDecode(values.addenda) || "-"]} </p>' +
+			'       </div>' +
+			'   </tpl>' +
             '</div>',
             {
 
@@ -28585,42 +28604,57 @@ Ext.define('App.view.patient.Visits', {
 					hidden: true
 				},
 				{
-					width: 150,
-					header: _('date'),
+					width: 180,
+					header: _('service_date'),
 					sortable: true,
 					dataIndex: 'service_date',
-					// renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s')
+					renderer: Ext.util.Format.dateRenderer('F j, Y, g:i a')
 				},
 				{
 					flex: 1,
-					header: _('reason'),
+					header: _('chief_complaint'),
 					sortable: true,
-					dataIndex: 'brief_description'
+					dataIndex: 'brief_description',
+					renderer: function (v,m,r){
+						var  str = v;
+						if(r.isPrivate()){
+							str = '<i class="fas fa-shield-check" style="color: red"></i> ' + str;
+						}
+
+						if(r.isClose()){
+							str = '<i class="fas fa-shield-check" style="color: #1b9bfc"></i> ' + str;
+						}
+						return str;
+					}
 				},
 				{
-					width: 180,
+					width: 200,
 					header: _('provider'),
 					sortable: false,
-					dataIndex: 'provider'
+					dataIndex: 'provider_uid',
+					renderer: function (v, m, r){
+						return Ext.String.format(
+							'{0}, {1} {2}',
+							r.get('provider_lname'),
+							r.get('provider_fname'),
+							r.get('provider_mname')
+						);
+					}
 				},
 				{
-					width: 120,
+					width: 200,
 					header: _('facility'),
 					sortable: false,
-					dataIndex: 'facility'
+					dataIndex: 'facility_name'
 				},
 				{
-					width: 120,
-					header: _('billing_facility'),
-					sortable: true,
-					dataIndex: 'billing_facility'
-				},
-				{
-					width: 45,
-					header: _('close') + '?',
+					width: 70,
+					header: _('signed') + '?',
 					sortable: true,
 					dataIndex: 'close_date',
-					renderer: app.boolRenderer
+					renderer: function (v){
+						return  app.boolRenderer(v !== null);
+					}
 				}
 			],
 			tbar: Ext.create('Ext.PagingToolbar', {
@@ -63403,6 +63437,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		'App.ux.LiveSnomedProcedureSearch',
 		'App.view.patient.encounter.AppointmentRequestGrid',
 		'App.view.patient.encounter.EducationResourcesGrid',
+		'App.view.patient.encounter.EncounterAddendaGrid',
 		'App.view.patient.encounter.MedicationsAdministeredGrid',
 		'App.view.patient.encounter.InterventionsGrid',
 		'App.view.patient.encounter.HealthConcernGrid',
@@ -63513,54 +63548,6 @@ Ext.define('App.view.patient.encounter.SOAP', {
 				syncAcl: a('edit_encounters')
 			},
 			items: [
-				// me.pWin = Ext.widget('window', {
-				// 	title: _('procedure'),
-				// 	maximized: true,
-				// 	closable: false,
-				// 	constrain: true,
-				// 	closeAction: 'hide',
-				// 	itemId: 'soapProcedureWindow',
-				// 	layout: 'fit',
-				// 	items: [
-				// 		me.pForm = Ext.widget('form', {
-				// 			bodyPadding: 10,
-				// 			layout: {
-				// 				type: 'vbox',
-				// 				align: 'stretch'
-				// 			},
-				// 			items: [
-				// 				{
-				// 					xtype: 'snomedliveproceduresearch',
-				// 					name: 'code_text',
-				// 					displayField: 'Term',
-				// 					valueField: 'Term',
-				// 					listeners: {
-				// 						scope: me,
-				// 						select: me.onProcedureSelect
-				// 					}
-				// 				},
-				// 				{
-				// 					xtype: 'textareafield',
-				// 					name: 'observation',
-				// 					flex: 1
-				// 				}
-				// 			]
-				// 		})
-				// 	],
-				// 	buttons: [
-				// 		{
-				// 			text: _('cancel'),
-				// 			scope: me,
-				// 			handler: me.onProcedureCancel
-				// 		},
-				// 		{
-				// 			text: _('save'),
-				// 			scope: me,
-				// 			itemId: 'encounterRecordAdd',
-				// 			handler: me.onProcedureSave
-				// 		}
-				// 	]
-				// }),
 				{
 					xtype: 'fieldset',
 					title: _('chief_complaint'),
@@ -63746,6 +63733,20 @@ Ext.define('App.view.patient.encounter.SOAP', {
 						},
 						{
 							xtype: 'healthconcerngird',
+							minHeight: 125,
+							margin: '0 0 10 0'
+						}
+					]
+				},
+				{
+					xtype: 'fieldset',
+					title: _('addenda'),
+					margin: 10,
+					itemId: 'EncounterSoapAddendaFieldSet',
+					items: [
+						{
+							xtype: 'encounteraddendagrid',
+							itemId: 'EncounterSoapAddendaGrid',
 							minHeight: 125,
 							margin: '0 0 10 0'
 						}
@@ -72416,6 +72417,14 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		{
 			ref: 'PatientSummaryEncountersPanel',
 			selector: '#PatientSummaryEncountersPanel'
+		},
+		{
+			ref: 'EncounterMedicalToolbarSignBtn',
+			selector: '#EncounterMedicalToolbarSignBtn'
+		},
+		{
+			ref: 'EncounterMedicalToolbarAddendumAddBtn',
+			selector: '#EncounterMedicalToolbarAddendumAddBtn'
 		}
 	],
 
@@ -72622,10 +72631,61 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 	},
 
 	onEncounterLoad: function (encounter, encounter_panel) {
-
 		app.onMedicalWin();
+		this.setEncounterState(encounter, encounter_panel);
+	},
 
-		if(encounter.get('service_date').toLocaleDateString() !== new Date().toLocaleDateString()){
+	setEncounterState: function (encounter_record, encounter_panel){
+		// say('setEncounterState');
+		// say(encounter_record);
+		// say(encounter_panel);
+
+		var me = this;
+
+		app.patient.encounterIsClose = encounter_record.isClose();
+		app.patient.encounterAllowEdit = app.user.id == encounter_record.get('provider_uid') || !app.patient.encounterIsClose || app.patient.eid == null;;
+
+		/**
+		 * set if encounter can be edited
+		 */
+		me.setEncounterEditState(app.patient.encounterAllowEdit);
+
+		/**
+		 * Set Sign or Addendum Btn
+		 */
+		me.setEncounterSignAddendumState(app.patient.encounterIsClose);
+
+
+		/**
+		 * Set Not Same Day Warning
+		 */
+		me.setEncounterSayDayWarningState(encounter_record, encounter_panel);
+	},
+
+	setEncounterEditState:function(allowEdit){
+
+		var buttons = Ext.ComponentQuery.query('#encounterRecordAdd, button[action=encounterRecordAdd]'),
+			forms = Ext.ComponentQuery.query('#encounterPanel form[advanceFormPlugin]');
+
+		buttons.forEach(function (button) {
+			button.setDisabled(!allowEdit);
+		});
+
+		forms.forEach(function (form) {
+			form.advanceFormPlugin.enabled = allowEdit;
+		});
+	},
+
+	setEncounterSignAddendumState: function (isClose){
+		var signBtn = this.getEncounterMedicalToolbarSignBtn(),
+			addendumBtn = this.getEncounterMedicalToolbarAddendumAddBtn();
+
+		signBtn.setVisible(!isClose);
+		addendumBtn.setVisible(isClose);
+	},
+
+	setEncounterSayDayWarningState: function (encounter_record, encounter_panel){
+		if(encounter_record.get('service_date').toLocaleDateString() !== new Date().toLocaleDateString()){
 			encounter_panel.encounterTabPanel.ownerCt.addBodyCls('encounter-not-same-day');
 			encounter_panel.getPageBodyContainer().addCls('encounter-not-same-day');
 			app.msg(_('warning'),_('encounter_service_date_error_msg'), true);
@@ -72808,20 +72868,7 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		});
 	},
 
-	setEncounterClose:function(encounter_record){
-		app.patient.encounterIsClose = encounter_record.isClose();
-		var buttons = Ext.ComponentQuery.query('#encounterRecordAdd, button[action=encounterRecordAdd]'),
-			forms = Ext.ComponentQuery.query('#encounterPanel form[advanceFormPlugin]'),
-			allowEdit = app.user.id == encounter_record.get('provider_uid') || !app.patient.encounterIsClose || app.patient.eid == null;
 
-		buttons.forEach(function (button) {
-			button.setDisabled(!allowEdit);
-		});
-
-		forms.forEach(function (form) {
-			form.advanceFormPlugin.enabled = allowEdit;
-		});
-	}
 
 });
 
@@ -75141,7 +75188,16 @@ Ext.define('App.view.patient.Encounter', {
 			me.panelToolBar.add({
 				text: _('sign'),
 				icon: 'resources/images/icons/edit.png',
+				itemId: 'EncounterMedicalToolbarSignBtn',
 				handler: me.onSignEncounter
+			}, '-');
+		}
+		if(a('access_encounter_addenda')){
+			me.panelToolBar.add({
+				text: _('addendum'),
+				iconCls: 'far fa-plus-circle',
+				cls: 'btnRedBackground',
+				itemId: 'EncounterMedicalToolbarAddendumAddBtn'
 			}, '-');
 		}
 
@@ -75419,8 +75475,6 @@ Ext.define('App.view.patient.Encounter', {
 
 				App.app.getController('patient.ProgressNotesHistory').loadPatientProgressHistory(data.pid, data.eid);
 
-				me.encounterCtrl.setEncounterClose(record);
-
 				app.fireEvent('encounterload', me.encounter, me);
 				me.el.unmask();
 
@@ -75511,6 +75565,10 @@ Ext.define('App.view.patient.Encounter', {
 
 	isClose: function(){
 		return typeof this.encounter.data.close_date != 'undefined' && this.encounter.data.close_date != null;
+	},
+
+	isPrivate: function(){
+		return this.encounter.get('is_private');
 	},
 
 	isSigned: function(){
@@ -79819,15 +79877,24 @@ Ext.define('App.view.patient.Summary', {
 						dataIndex: 'brief_description',
 						flex: 1,
 						renderer: function (v,meta,rec) {
-							var service_date = rec.get('service_date');
+							var service_date = rec.get('service_date'),
+								str = v;
 
-							if(!service_date) return v;
+							if(rec.isPrivate()){
+								str = '<i class="fas fa-shield-check" style="color: red"></i> ' + str;
+							}
+
+							if(rec.isClose()){
+								str = '<i class="fas fa-shield-check" style="color: #1b9bfc"></i> ' + str;
+							}
+
+							if(!service_date) return str;
 
 							if(service_date.toLocaleDateString() === new Date().toLocaleDateString()){
 								meta.style = 'font-weight:bold;background-color:yellow;';
 							}
 
-							return v;
+							return str;
 						}
 					}
 				]
@@ -84890,6 +84957,10 @@ Ext.define('App.model.patient.ProgressNotesHistory', {
 			type: 'string'
 		},
 		{
+			name: 'addenda',
+			type: 'string'
+		},
+		{
 			name: 'instructions',
 			type: 'string'
 		},
@@ -84949,6 +85020,10 @@ Ext.define('App.model.patient.ProgressNotesHistory', {
 				str += '<b>' + _('objective') + ':</b> ' + Ext.String.htmlDecode(record.get('objective')) + '<br>';
 				str += '<b>' + _('assessment') + ':</b> ' + Ext.String.htmlDecode(record.get('assessment')) + '<br>';
 				str += '<b>' + _('plan') + ':</b> ' +  Ext.String.htmlDecode(record.get('plan')) + '<br>';
+
+				if(record.get('addenda') !== 'NONE'){
+					str += '<b>' + _('addenda') + ':</b> ' +  Ext.String.htmlDecode(record.get('addenda')) + '<br>';
+				}
 				// str += '<b>' + _('instructions') + ':</b> ' + Ext.String.htmlDecode(record.data.instructions) + '<br>';
 				return str + '</div>';
 			}

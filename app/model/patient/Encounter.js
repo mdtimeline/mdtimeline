@@ -117,6 +117,11 @@ Ext.define('App.model.patient.Encounter', {
 			index: true
 		},
 		{
+			name: 'facility_name',
+			type: 'string',
+			store: false
+		},
+		{
 			name: 'billing_stage',
 			type: 'int',
 			len: 1,
@@ -298,6 +303,11 @@ Ext.define('App.model.patient.Encounter', {
 			foreignKey: 'eid'
 		}
 	],
+
+	isPrivate: function(){
+		return this.get('is_private');
+	},
+
 	isClose: function(){
 		return typeof this.data.close_date != 'undefined' && this.data.close_date != null;
 	},

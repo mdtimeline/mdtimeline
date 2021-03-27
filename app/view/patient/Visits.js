@@ -47,42 +47,57 @@ Ext.define('App.view.patient.Visits', {
 					hidden: true
 				},
 				{
-					width: 150,
-					header: _('date'),
+					width: 180,
+					header: _('service_date'),
 					sortable: true,
 					dataIndex: 'service_date',
-					// renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s')
+					renderer: Ext.util.Format.dateRenderer('F j, Y, g:i a')
 				},
 				{
 					flex: 1,
-					header: _('reason'),
+					header: _('chief_complaint'),
 					sortable: true,
-					dataIndex: 'brief_description'
+					dataIndex: 'brief_description',
+					renderer: function (v,m,r){
+						var  str = v;
+						if(r.isPrivate()){
+							str = '<i class="fas fa-shield-check" style="color: red"></i> ' + str;
+						}
+
+						if(r.isClose()){
+							str = '<i class="fas fa-shield-check" style="color: #1b9bfc"></i> ' + str;
+						}
+						return str;
+					}
 				},
 				{
-					width: 180,
+					width: 200,
 					header: _('provider'),
 					sortable: false,
-					dataIndex: 'provider'
+					dataIndex: 'provider_uid',
+					renderer: function (v, m, r){
+						return Ext.String.format(
+							'{0}, {1} {2}',
+							r.get('provider_lname'),
+							r.get('provider_fname'),
+							r.get('provider_mname')
+						);
+					}
 				},
 				{
-					width: 120,
+					width: 200,
 					header: _('facility'),
 					sortable: false,
-					dataIndex: 'facility'
+					dataIndex: 'facility_name'
 				},
 				{
-					width: 120,
-					header: _('billing_facility'),
-					sortable: true,
-					dataIndex: 'billing_facility'
-				},
-				{
-					width: 45,
-					header: _('close') + '?',
+					width: 70,
+					header: _('signed') + '?',
 					sortable: true,
 					dataIndex: 'close_date',
-					renderer: app.boolRenderer
+					renderer: function (v){
+						return  app.boolRenderer(v !== null);
+					}
 				}
 			],
 			tbar: Ext.create('Ext.PagingToolbar', {

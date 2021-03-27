@@ -32,6 +32,7 @@ include_once(ROOT . '/dataProvider/Services.php');
 include_once(ROOT . '/dataProvider/DiagnosisCodes.php');
 include_once(ROOT . '/dataProvider/FamilyHistory.php');
 include_once(ROOT . '/dataProvider/NursesNotes.php');
+include_once(ROOT . '/dataProvider/EncounterAddenda.php');
 
 class Encounter {
 	/**
@@ -97,12 +98,18 @@ class Encounter {
 	 */
 	private $FamilyHistory;
 
+	/**
+	 * @var EncounterAddenda
+	 */
+	private $EncounterAddenda;
+
 	function __construct() {
 		$this->conn = Matcha::getConn();
 		$this->patient = new Patient();
 		$this->poolArea = new PoolArea();
 		$this->diagnosis = new DiagnosisCodes();
 		$this->FamilyHistory = new FamilyHistory();
+		$this->EncounterAddenda = new EncounterAddenda();
 
         if(!isset($this->e)) $this->e = MatchaModel::setSenchaModel('App.model.patient.Encounter');
         if(!isset($this->ros)) $this->ros = MatchaModel::setSenchaModel('App.model.patient.ReviewOfSystems');
@@ -205,14 +212,21 @@ class Encounter {
 	 * @return array
 	 */
 	public function getEncounters($params, $relations = true) {
-		$records = $this->e->load($params)->leftJoin([
-			'title' => 'provider_title',
-			'fname' => 'provider_fname',
-			'mname' => 'provider_mname',
-			'lname' => 'provider_lname',
-			'npi' => 'provider_npi',
-			'signature' => 'provider_signature',
-		], 'users', 'provider_uid', 'id')->all();
+		$records = $this->e->load($params)
+            ->leftJoin(
+                    [
+                    'title' => 'provider_title',
+                    'fname' => 'provider_fname',
+                    'mname' => 'provider_mname',
+                    'lname' => 'provider_lname',
+                    'npi' => 'provider_npi',
+                    'signature' => 'provider_signature',
+                ], 'users', 'provider_uid', 'id')
+            ->leftJoin(
+                [
+                    'name' => 'facility_name'
+                ], 'facility', 'facility', 'id')
+            ->all();
 		$encounters = (array)$records['encounter'];
 		$relations = isset($params->relations) ? $params->relations : $relations;
 
@@ -509,6 +523,7 @@ class Encounter {
 			$encounter['objective'] = $this->getObjectiveExtraDataByEid($encounter['eid']) . $soap['objective'];
 			$encounter['assessment'] = $soap['assessment'] . '<ul  class="ProgressNote-ul">' . $icds . '</ul>';
 			$encounter['plan'] = (isset($soap['plan']) ? $soap['plan'] : '') . $this->getPlanExtraDataByEid($encounter['eid'], $soap['instructions'], true);
+			$encounter['addenda'] = $this->getEncounterAddendaByEid($encounter['eid']);
 			$encounter['leaf'] = true;
 			unset($soap);
 		}
@@ -529,6 +544,28 @@ class Encounter {
 
 		return $encounters_children;
 	}
+
+	private function getEncounterAddendaByEid($eid){
+	    $addenda = $this->EncounterAddenda->getEncounterAddendaByEid($eid);
+        $buff = '';
+
+	    if(count($addenda) === 0){
+	        return 'NONE';
+        }
+
+        foreach($addenda as $addendum){
+
+            $buff .= '<ul style="list-style-type:disc; margin-left: 20px">';
+            $buff .= '<li><span style="font-weight:bold; text-decoration:none">Date: </span> ' . date('F j, Y, g:i a', strtotime($addendum['create_date'])) . '</li>';
+            $buff .= '<li><span style="font-weight:bold; text-decoration:none">Source: </span> ' . ucfirst($addendum['source']) . '</li>';
+            $buff .= '<li><span style="font-weight:bold; text-decoration:none">Notes: </span> ' . trim($addendum['notes']) . '</li>';
+            $buff .= '<li><span style="font-weight:bold; text-decoration:none">By: </span> ' . sprintf('%s, %s %s', $addendum['created_by_lname'],$addendum['created_by_fname'],$addendum['created_by_mname']) . '</li>';
+            $buff .= '</ul>';
+        }
+
+        return $buff;
+
+    }
 
 	private function encounterGridHandler(&$encounters_children, $encounter){
 
@@ -652,6 +689,8 @@ class Encounter {
 			$encounter['soap'] = $soap;
 		}
 
+        $encounter['addenda'] = $this->getEncounterAddendaByEid($eid);
+
 		/**
 		 * Add Dictation to progress note
 		 */
@@ -692,9 +731,12 @@ class Encounter {
 			if(isset($soap['plan']) && $soap['plan'] != ''){
 				$output .= '<p><b>PLAN:</b></p>'  . nl2br(trim($soap['plan']));
 			}
-
 			unset($soap);
 		}
+
+        if(isset($encounter['addenda']) && $encounter['addenda'] !== 'NONE'){
+            $output .= '<p><b>ADDENDA:</b></p>'  . trim($encounter['addenda']);
+        }
 
 		//$output .= $br . '--- END OF REPORT ---';
 

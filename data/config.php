@@ -65,6 +65,25 @@ $API = [
             ]
         ]
     ],
+    'EncounterAddenda' => [
+        'methods' => [
+            'getEncounterAddenda' => [
+                'len' => 1
+            ],
+            'getEncounterAddendum' => [
+                'len' => 1
+            ],
+            'addEncounterAddendum' => [
+                'len' => 1
+            ],
+            'updateEncounterAddendum' => [
+                'len' => 1
+            ],
+            'destroyEncounterAddendum' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'DocumentPdfForms' => [
         'methods' => [
             'generatePdfForm' => [

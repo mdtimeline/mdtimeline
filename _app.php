@@ -900,6 +900,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                                 'patient.Vitals',
 
                                 'patient.Summary',
+                                'patient.encounter.Addenda',
                                 'patient.encounter.Encounter',
                                 'patient.encounter.EncounterDocuments',
                                 'patient.encounter.EncounterSign',

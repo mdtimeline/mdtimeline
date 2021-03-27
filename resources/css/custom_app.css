@@ -272,6 +272,9 @@
     background-color: #ff576b !important;
     background-image: none;
 }
+.btnRedBackground .x-btn-inner, .btnRedBackground .x-btn-icon-el {
+    color: white !important;
+}
 .btnRedBackground.x-pressed,
 .btnRedBackground.x-over {
     background-color: #ff315d !important;

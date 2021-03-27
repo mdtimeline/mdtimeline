@@ -463,7 +463,16 @@ Ext.define('App.view.patient.Encounter', {
 			me.panelToolBar.add({
 				text: _('sign'),
 				icon: 'resources/images/icons/edit.png',
+				itemId: 'EncounterMedicalToolbarSignBtn',
 				handler: me.onSignEncounter
+			}, '-');
+		}
+		if(a('access_encounter_addenda')){
+			me.panelToolBar.add({
+				text: _('addendum'),
+				iconCls: 'far fa-plus-circle',
+				cls: 'btnRedBackground',
+				itemId: 'EncounterMedicalToolbarAddendumAddBtn'
 			}, '-');
 		}
 
@@ -741,8 +750,6 @@ Ext.define('App.view.patient.Encounter', {
 
 				App.app.getController('patient.ProgressNotesHistory').loadPatientProgressHistory(data.pid, data.eid);
 
-				me.encounterCtrl.setEncounterClose(record);
-
 				app.fireEvent('encounterload', me.encounter, me);
 				me.el.unmask();
 
@@ -833,6 +840,10 @@ Ext.define('App.view.patient.Encounter', {
 
 	isClose: function(){
 		return typeof this.encounter.data.close_date != 'undefined' && this.encounter.data.close_date != null;
+	},
+
+	isPrivate: function(){
+		return this.encounter.get('is_private');
 	},
 
 	isSigned: function(){

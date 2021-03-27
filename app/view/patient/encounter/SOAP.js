@@ -27,6 +27,7 @@ Ext.define('App.view.patient.encounter.SOAP', {
 		'App.ux.LiveSnomedProcedureSearch',
 		'App.view.patient.encounter.AppointmentRequestGrid',
 		'App.view.patient.encounter.EducationResourcesGrid',
+		'App.view.patient.encounter.EncounterAddendaGrid',
 		'App.view.patient.encounter.MedicationsAdministeredGrid',
 		'App.view.patient.encounter.InterventionsGrid',
 		'App.view.patient.encounter.HealthConcernGrid',
@@ -137,54 +138,6 @@ Ext.define('App.view.patient.encounter.SOAP', {
 				syncAcl: a('edit_encounters')
 			},
 			items: [
-				// me.pWin = Ext.widget('window', {
-				// 	title: _('procedure'),
-				// 	maximized: true,
-				// 	closable: false,
-				// 	constrain: true,
-				// 	closeAction: 'hide',
-				// 	itemId: 'soapProcedureWindow',
-				// 	layout: 'fit',
-				// 	items: [
-				// 		me.pForm = Ext.widget('form', {
-				// 			bodyPadding: 10,
-				// 			layout: {
-				// 				type: 'vbox',
-				// 				align: 'stretch'
-				// 			},
-				// 			items: [
-				// 				{
-				// 					xtype: 'snomedliveproceduresearch',
-				// 					name: 'code_text',
-				// 					displayField: 'Term',
-				// 					valueField: 'Term',
-				// 					listeners: {
-				// 						scope: me,
-				// 						select: me.onProcedureSelect
-				// 					}
-				// 				},
-				// 				{
-				// 					xtype: 'textareafield',
-				// 					name: 'observation',
-				// 					flex: 1
-				// 				}
-				// 			]
-				// 		})
-				// 	],
-				// 	buttons: [
-				// 		{
-				// 			text: _('cancel'),
-				// 			scope: me,
-				// 			handler: me.onProcedureCancel
-				// 		},
-				// 		{
-				// 			text: _('save'),
-				// 			scope: me,
-				// 			itemId: 'encounterRecordAdd',
-				// 			handler: me.onProcedureSave
-				// 		}
-				// 	]
-				// }),
 				{
 					xtype: 'fieldset',
 					title: _('chief_complaint'),
@@ -370,6 +323,20 @@ Ext.define('App.view.patient.encounter.SOAP', {
 						},
 						{
 							xtype: 'healthconcerngird',
+							minHeight: 125,
+							margin: '0 0 10 0'
+						}
+					]
+				},
+				{
+					xtype: 'fieldset',
+					title: _('addenda'),
+					margin: 10,
+					itemId: 'EncounterSoapAddendaFieldSet',
+					items: [
+						{
+							xtype: 'encounteraddendagrid',
+							itemId: 'EncounterSoapAddendaGrid',
 							minHeight: 125,
 							margin: '0 0 10 0'
 						}

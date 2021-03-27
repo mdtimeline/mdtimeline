@@ -76,6 +76,15 @@ Ext.define('App.view.patient.ProgressNote', {
             '           <p><span>' + _('additional_notes') + ':</span> {additional_notes}</p>' +
             '       </div>' +
             '   </tpl>' +
+			/**
+			 * Addenda Secession
+			 */
+			'   <tpl if="addenda != \'NONE\'">' +
+			'       <div class="secession">' +
+			'       	<div class="title"> ' + _('addenda') + ' </div>' +
+			'           <p>{[this.doHtmlDecode(values.addenda) || "-"]} </p>' +
+			'       </div>' +
+			'   </tpl>' +
             '</div>',
             {
 

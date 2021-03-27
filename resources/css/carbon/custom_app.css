@@ -276,6 +276,9 @@
     background-color: #ff576b !important;
     background-image: none;
 }
+.btnRedBackground .x-btn-inner, .btnRedBackground .x-btn-icon-el {
+    color: white !important;
+}
 .btnRedBackground .x-btn-inner {
     color: #3e3e3e !important;
 }

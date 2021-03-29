@@ -91,7 +91,6 @@ Ext.define('App.controller.PrintJob', {
         me.print_job_store = Ext.create('App.store.administration.PrintJob', {
             remoteFilter: true,
             remoteSort: true,
-            autoSync: true,
             sorters: [
                 {
                     property: 'priority',
@@ -160,15 +159,17 @@ Ext.define('App.controller.PrintJob', {
                     }
 
                     print_job_record.set({print_status: 'PRINTING'});
+                    print_job_record.save();
+
                     printController.doPrint(printer_record, patient_document.document, print_job_record.get('id'), function (printer_response){
 
                         if(printer_response.success){
                             print_job_record.set({print_status: 'DONE'});
                         }else{
                             print_job_record.set({print_status: 'FAILED'});
-                        }}
-
-                    );
+                        }
+                        print_job_record.save();
+                    });
                 });
 
                 break;
@@ -293,6 +294,7 @@ Ext.define('App.controller.PrintJob', {
                 printer_id: printer_record.get('id'),
                 printer_type: printer_record.get('local') ? 'LOCAL' : 'REMOTE'
             });
+            print_job_record.save();
 
             me.doPrintJob(print_job_record);
 
@@ -355,6 +357,8 @@ Ext.define('App.controller.PrintJob', {
             priority: priority,
             created_at: Ext.Date.format(app.getDate(), 'Y-m-d H:i:s')
         })[0];
+
+        print_job_record.save();
 
         if(print_now){
             me.doPrintJob(print_job_record);

@@ -302,8 +302,12 @@ Ext.define('App.controller.patient.encounter.Encounter', {
 		var signBtn = this.getEncounterMedicalToolbarSignBtn(),
 			addendumBtn = this.getEncounterMedicalToolbarAddendumAddBtn();
 
-		signBtn.setVisible(!isClose);
-		addendumBtn.setVisible(isClose);
+		if(signBtn){
+			signBtn.setVisible(!isClose);
+		}
+		if(addendumBtn) {
+			addendumBtn.setVisible(isClose);
+		}
 	},
 
 	setEncounterSayDayWarningState: function (encounter_record, encounter_panel){

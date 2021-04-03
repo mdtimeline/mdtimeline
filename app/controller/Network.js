@@ -13,6 +13,7 @@ Ext.define('App.controller.Network', {
 		var me = this;
 
 
+		return;
 		// say('new Network');
 
         me.Network = new Network();

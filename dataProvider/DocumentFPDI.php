@@ -227,27 +227,40 @@ class DocumentFPDI extends FPDI  {
 
 				$line['y'] = $line['y'] + $this->original_margins['top'];
 
-				if(isset($line['col']) && isset($header_cols[$line['col']])){
-					$line['x'] = $header_cols[$line['col']]['x'];
-					$line['w'] = $header_cols[$line['col']]['w'];
-				}
+				if(preg_match('/^QRCODE/',$line['font'])){
+                    $style = array(
+                        'border' => $line['border'],
+                        'padding' => 'auto',
+                        'fgcolor' => array(0,0,0),
+                        'bgcolor' => array(255,255,255)
+                    );
+                    $this->write2DBarcode($line['text'], 'QRCODE,H', $line['x'], $line['y'], $line['w'], $line['h'], $style, 'N');
+                    $this->Text(20, 205, 'QRCODE H');
 
-				$this->SetFont($line['font'], '', $line['font_size']);
-				$this->SetY($line['y']);
-				$this->SetX($line['x']);
+                }else{
 
-				if(isset($line['font_color'])){
-					$rbg = $this->hex2RGB($line['font_color']);
-					$this->SetTextColor($rbg['red'],$rbg['green'],$rbg['blue']);
-				}
+                    if(isset($line['col']) && isset($header_cols[$line['col']])){
+                        $line['x'] = $header_cols[$line['col']]['x'];
+                        $line['w'] = $header_cols[$line['col']]['w'];
+                    }
 
-				if(isset($line['text']) && isset($line['w']) && isset($line['h'])){
-					if(isset($line['is_html']) && $line['is_html']){
-						$this->writeHTMLCell($line['w'], $line['h'], $line['x'], $line['y'], $line['text'], $line['border'],0,false,true,$line['text_align']);
-					}else{
-						$this->Cell($line['w'], $line['h'], $line['text'], $line['border'], 0, $line['text_align'], 0, '', 0, false, 'T', 'M');
-					}
-				}
+                    $this->SetFont($line['font'], '', $line['font_size']);
+                    $this->SetY($line['y']);
+                    $this->SetX($line['x']);
+
+                    if(isset($line['font_color'])){
+                        $rbg = $this->hex2RGB($line['font_color']);
+                        $this->SetTextColor($rbg['red'],$rbg['green'],$rbg['blue']);
+                    }
+
+                    if(isset($line['text']) && isset($line['w']) && isset($line['h'])){
+                        if(isset($line['is_html']) && $line['is_html']){
+                            $this->writeHTMLCell($line['w'], $line['h'], $line['x'], $line['y'], $line['text'], $line['border'],0,false,true,$line['text_align']);
+                        }else{
+                            $this->Cell($line['w'], $line['h'], $line['text'], $line['border'], 0, $line['text_align'], 0, '', 0, false, 'T', 'M');
+                        }
+                    }
+                }
 
 				if($this->header_y < $line['y']){
 					$this->header_y = $line['y'];
@@ -323,23 +336,36 @@ class DocumentFPDI extends FPDI  {
 					$line['w'] = $header_cols[$line['col']]['w'];
 				}
 
-				$this->SetFont($line['font'], '', $line['font_size']);
-				$this->SetY($line['y']);
-				$this->SetX($line['x']);
+                if(preg_match('/^QRCODE/',$line['font'])){
+                    $style = array(
+                        'border' => $line['border'],
+                        'padding' => 'auto',
+                        'fgcolor' => array(0,0,0),
+                        'bgcolor' => array(255,255,255)
+                    );
+                    $this->write2DBarcode($line['text'], 'QRCODE,H', $line['x'], $line['y'], $line['w'], $line['h'], $style, 'N');
+                    $this->Text(20, 205, 'QRCODE H');
 
-				if(isset($line['font_color'])){
-					$rbg = $this->hex2RGB($line['font_color']);
-					$this->SetTextColor($rbg['red'],$rbg['green'],$rbg['blue']);
-				}
+                }else{
 
-				if(isset($line['text']) && isset($line['w']) && isset($line['h'])){
+                    $this->SetFont($line['font'], '', $line['font_size']);
+                    $this->SetY($line['y']);
+                    $this->SetX($line['x']);
 
-					if(isset($line['is_html']) && $line['is_html']){
-						$this->writeHTMLCell($line['w'], $line['h'], $line['x'], $line['y'], $line['text'], $line['border'],0,false,true,$line['text_align']);
-					}else{
-						$this->Cell($line['w'], $line['h'], $line['text'], $line['border'], 0, $line['text_align'], 0, '', 0, false, 'T', 'M');
-					}
-				}
+                    if(isset($line['font_color'])){
+                        $rbg = $this->hex2RGB($line['font_color']);
+                        $this->SetTextColor($rbg['red'],$rbg['green'],$rbg['blue']);
+                    }
+
+                    if(isset($line['text']) && isset($line['w']) && isset($line['h'])){
+
+                        if(isset($line['is_html']) && $line['is_html']){
+                            $this->writeHTMLCell($line['w'], $line['h'], $line['x'], $line['y'], $line['text'], $line['border'],0,false,true,$line['text_align']);
+                        }else{
+                            $this->Cell($line['w'], $line['h'], $line['text'], $line['border'], 0, $line['text_align'], 0, '', 0, false, 'T', 'M');
+                        }
+                    }
+                }
 
 				if($this->footer_y < $line['y']){
 					$this->footer_y = $line['y'];

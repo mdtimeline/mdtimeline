@@ -13897,6 +13897,11 @@ Ext.define('App.model.administration.ReferringProvider', {
             len: 600
         },
         {
+            name: 'alerts',
+            type: 'string',
+            dataType: 'TEXT'
+        },
+        {
             name: 'email',
             type: 'string',
             len: 180
@@ -38731,6 +38736,7 @@ Ext.define('App.controller.Network', {
 		var me = this;
 
 
+		return;
 		// say('new Network');
 
         me.Network = new Network();

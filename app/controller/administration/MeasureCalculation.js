@@ -120,6 +120,8 @@ Ext.define('App.controller.administration.MeasureCalculation', {
             to = Ext.Date.format(toField.getValue(), 'Y-m-d');
 
         this.doReportMeasureByDates(grid_store, 'AdvanceCarePlan', provider_id, from, to, insurance_id);
+        this.doReportMeasureByDates(grid_store, 'ControllingHighBloodPressure', provider_id, from, to, insurance_id);
+        // this.doReportMeasureByDates(grid_store, 'CoronaryArteryDisease', provider_id, from, to, insurance_id);
 
 
     },
@@ -208,7 +210,7 @@ Ext.define('App.controller.administration.MeasureCalculation', {
 
         MeasureCalculation.getReportMeasureByDates(measure, provider_id, start_date, end_date, insurance_id, function (response) {
             grid_store.loadData(response, true);
-            me.doSortGridStoreBuffer(store);
+            me.doSortGridStoreBuffer(grid_store);
         });
 
     },

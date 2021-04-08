@@ -229,7 +229,6 @@ Ext.define('App.view.administration.MeasureCalculation', {
 								fieldLabel: _('insurance'),
 								labelWidth: 50,
 								width: 300,
-								allowBlank: false,
 								//multiSelect: true,
 								itemId: 'MIPSGridInsuranceField'
 							},

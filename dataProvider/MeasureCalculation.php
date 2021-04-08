@@ -25,11 +25,6 @@ class MeasureCalculation {
 
 		$results = [];
 
-		$sth = $this->conn->prepare("SELECT * FROM _measures WHERE `provider_id` IN ('{$provider_id}') AND `measure` = ?");
-		$sth->execute([$measure]);
-		$results =  $sth->fetchAll(PDO::FETCH_ASSOC);
-		//return $results;
-
 		try{
 			if($measure == 'ePrescribing'){
 				$results = $this->getPrescribingReportByDates($provider_id, $start_date, $end_date, $stages);
@@ -67,29 +62,23 @@ class MeasureCalculation {
 			if($measure == 'CPOERadiology'){
 				$results = $this->getCPOERadiologyReportByDates($provider_id, $start_date, $end_date, $stages);
 			} else
+
+
+            // MIPS
 			if($measure == 'AdvanceCarePlan'){
-				$results = $this->getAdvanceCarePlanReportByDates($provider_id, $start_date, $end_date, $insurance_id);
+				$results = $this->getAdvanceCarePlanReportByDates($provider_id, $insurance_id, $start_date, $end_date);
 			}
 
-			$this->conn->exec("DELETE FROM `_measures` WHERE provider_id = '{$provider_id}' AND measure = '{$measure}'");
-			foreach ($results as $result){
-				$sql = "INSERT INTO `_measures` (`provider_id`,`provider`,`measure`,`group`, `title`, `description`, `denominator`, `numerator`, `denominator_pids`, `numerator_pids`, `goal`) VALUES
-                     (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-				$sth = $this->conn->prepare($sql);
-				$sth->execute([
-					$provider_id,
-					$result['provider'],
-					$measure,
-					$result['group'],
-					$result['title'],
-					$result['description'],
-					$result['denominator'],
-					$result['numerator'],
-					$result['denominator_pids'],
-					$result['numerator_pids'],
-					$result['goal']
-				]);
+            // MIPS
+			if($measure == 'ControllingHighBloodPressure'){
+				$results = $this->getControllingHighBloodPressureReportByDates($provider_id, $insurance_id, $start_date, $end_date);
 			}
+
+            // MIPS
+			if($measure == 'CoronaryArteryDisease'){
+				$results = $this->getCoronaryArteryDiseaseReportByDates($provider_id, $insurance_id, $start_date, $end_date);
+			}
+
 
 			return $results;
 		}catch (Exception $e){
@@ -731,7 +720,7 @@ class MeasureCalculation {
 		return $records;
 	}
 
-	// Required Test 12 – CPOE Radiology/Diagnostic Imaging
+	//
 	private function getAdvanceCarePlanReportByDates($provider_id, $insurance_id, $start_date, $end_date){
 
 		$records = [];
@@ -752,6 +741,68 @@ class MeasureCalculation {
 			'insurance' => $report['insurance'],
 			'title' => $report['title'],
 			'description' => 'Measure Description: Percentage of patients aged 65 years and older who have an advance care plan or surrogate decision maker documented in the medical record or documentation in the medical record that an advance care plan was discussed but the patient did not wish or was not able to name a surrogate decision maker or provide an advance care plan',
+			'denominator' => $report['denominator'],
+			'numerator' => $report['numerator'],
+			'denominator_pids' => $report['denominator_pids'],
+			'numerator_pids' => $report['numerator_pids'],
+			'goal' => 'N/A'
+		];
+
+		return $records;
+	}
+
+	//
+	private function getControllingHighBloodPressureReportByDates($provider_id, $insurance_id, $start_date, $end_date){
+
+		$records = [];
+
+		/**
+		 */
+
+		/**
+		 */
+
+		$sth = $this->conn->prepare("CALL `getControllingHighBloodPressureReportByDates`(?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date]);
+		$report =  $sth->fetch(PDO::FETCH_ASSOC);
+
+		$records[] = [
+			'group' => 'Quality ID #0236: Controlling High Blood Pressure',
+			'provider' => $report['provider'],
+			'insurance' => $report['insurance'],
+			'title' => $report['title'],
+			'description' => 'Measure Description: Percentage of patients 18 - 85 years of age who had a diagnosis of hypertension overlapping the measurement period and whose most recent blood pressure was adequately controlled (< 140/90 mmHg) during the measurement period',
+			'denominator' => $report['denominator'],
+			'numerator' => $report['numerator'],
+			'denominator_pids' => $report['denominator_pids'],
+			'numerator_pids' => $report['numerator_pids'],
+			'goal' => 'N/A'
+		];
+
+		return $records;
+	}
+
+	//
+	private function getCoronaryArteryDiseaseReportByDates($provider_id, $insurance_id, $start_date, $end_date){
+
+		$records = [];
+
+		/**
+		 */
+
+		/**
+		 */
+
+		$sth = $this->conn->prepare("CALL `getCoronaryArteryDiseaseReportByDates`(?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date]);
+		$report =  $sth->fetch(PDO::FETCH_ASSOC);
+
+		$records[] = [
+			'group' => 'Quality ID #0118 (NQF: 0066): Coronary Artery Disease (CAD): Angiotensin-Converting Enzyme (ACE) Inhibitor or Angiotensin Receptor Blocker (ARB) Thera',
+			'provider' => $report['provider'],
+			'insurance' => $report['insurance'],
+			'title' => $report['title'],
+			'description' => 'Measure Description: Percentage of patients aged 18 years and older with a diagnosis of coronary artery disease seen within a 12 month period who also have diabetes OR a current or prior Left Ventricular Ejection Fraction (LVEF) < 40% who were prescribed ACE inhibitor or ARB therapy',
 			'denominator' => $report['denominator'],
 			'numerator' => $report['numerator'],
 			'denominator_pids' => $report['denominator_pids'],

@@ -34,6 +34,7 @@ class Documents
      * @var MatchaHelper
      */
     private $db;
+
     /**
      * @var Patient
      */
@@ -68,6 +69,12 @@ class Documents
      * @var \MatchaCUP
      */
     private $h;
+    private $ic;
+    private $pi;
+    private $fac;
+    private $ref;
+    private $sp;
+    private $dp;
 
     /**
      * @var int
@@ -79,6 +86,8 @@ class Documents
      */
     private $encounter = null;
 
+    private $columns_enabled;
+
     function __construct()
     {
         $this->db = new MatchaHelper();
@@ -89,7 +98,8 @@ class Documents
 
         $this->t = \MatchaModel::setSenchaModel('App.model.administration.DocumentsPdfTemplate');
         $this->h = \MatchaModel::setSenchaModel('App.model.administration.DocumentsTemplatesHeaderFooter');
-        return;
+
+
     }
 
     public function getArrayWithTokensNeededByDocumentID($id)
@@ -1278,4 +1288,238 @@ class Documents
 
         return $record;
     }
+
+
+    /**
+     * FACILITY DATA
+     * @param $facility_id
+     * @return array
+     */
+
+    public function getFacilityTokensDataByFacilityId($facility_id)
+    {
+        $facilityData = $this->getAllFacilityData($facility_id);
+
+        $data = [
+            '[FACILITY_ID]' => isset($facilityData['id']) ? $facilityData['id'] : '',
+            '[FACILITY_CODE]' => isset($facilityData['code']) ? $facilityData['code'] : '',
+            '[FACILITY_NAME]' => isset($facilityData['name']) ? $facilityData['name'] : '',
+
+            '[FACILITY_LEGAL_NAME]' => isset($facilityData['legal_name']) ? $facilityData['legal_name'] : '',
+
+            '[FACILITY_LNAME]' => isset($facilityData['lname']) ? $facilityData['lname'] : '',
+            '[FACILITY_MNAME]' => isset($facilityData['mname']) ? $facilityData['mname'] : '',
+            '[FACILITY_FNAME]' => isset($facilityData['fname']) ? $facilityData['fname'] : '',
+
+            '[FACILITY_ENTITY]' => isset($facilityData['facility_entity']) ? $facilityData['facility_entity'] : '',
+            '[FACILITY_ATTN]' => isset($facilityData['attn']) ? $facilityData['attn'] : '',
+            '[FACILITY_REGION]' => isset($facilityData['region']) ? $facilityData['region'] : '',
+
+            '[FACILITY_PHONE]' => isset($facilityData['phone']) ? $facilityData['phone'] : '',
+            '[FACILITY_FAX]' => isset($facilityData['fax']) ? $facilityData['fax'] : '',
+            '[FACILITY_EMAIL]' => isset($facilityData['email']) ? $facilityData['email'] : '',
+
+            '[FACILITY_ADDRESS]' => isset($facilityData['address']) ? $facilityData['address'] : '',
+            '[FACILITY_ADDRESS_CONT]' => isset($facilityData['address_cont']) ? $facilityData['address_cont'] : '',
+            '[FACILITY_CITY]' => isset($facilityData['city']) ? $facilityData['city'] : '',
+            '[FACILITY_STATE]' => isset($facilityData['state']) ? $facilityData['state'] : '',
+            '[FACILITY_POSTAL_CODE]' => isset($facilityData['postal_code']) ? $facilityData['postal_code'] : '',
+            '[FACILITY_COUNTRY_CODE]' => isset($facilityData['country_code']) ? $facilityData['country_code'] : '',
+
+            '[FACILITY_POSTAL_ADDRESS]' => isset($facilityData['postal_address']) ? $facilityData['postal_address'] : '',
+            '[FACILITY_POSTAL_ADDRESS_CONT]' => isset($facilityData['postal_address_cont']) ? $facilityData['postal_address_cont'] : '',
+            '[FACILITY_POSTAL_CITY]' => isset($facilityData['postal_city']) ? $facilityData['postal_city'] : '',
+            '[FACILITY_POSTAL_STATE]' => isset($facilityData['postal_state']) ? $facilityData['postal_state'] : '',
+            '[FACILITY_POSTAL_ZIP_CODE]' => isset($facilityData['postal_zip_code']) ? $facilityData['postal_zip_code'] : '',
+            '[FACILITY_POSTAL_COUNTRY_CODE]' => isset($facilityData['postal_country_code']) ? $facilityData['postal_country_code'] : '',
+
+            '[FACILITY_EIN]' => isset($facilityData['ein']) ? $facilityData['ein'] : '',
+            '[FACILITY_CLIA]' => isset($facilityData['clia']) ? $facilityData['clia'] : '',
+            '[FACILITY_FDA]' => isset($facilityData['fda']) ? $facilityData['fda'] : '',
+            '[FACILITY_NPI]' => isset($facilityData['npi']) ? $facilityData['npi'] : '',
+            '[FACILITY_ESS]' => isset($facilityData['ess']) ? $facilityData['ess'] : '',
+
+        ];
+
+        return $data;
+
+    }
+
+    public function getAllFacilityData($facility_id)
+    {
+        $this->db->setSQL("SELECT * FROM facility WHERE id = '$facility_id'");
+        return $this->db->fetchRecord(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * SPECIALTY DATA
+     * @param $specialty_id
+     * @return array
+     */
+
+    public function getSpecialtyTokensDataBySpecialtyId($specialty_id)
+    {
+        $specialtyData = $this->getAllSpecialtyData($specialty_id);
+
+        $data = [
+            '[SPECIALTY_ID]' => isset($specialtyData['id']) ? $specialtyData['id'] : '',
+            '[SPECIALTY_CODE]' => isset($specialtyData['code']) ? $specialtyData['code'] : '',
+            '[SPECIALTY_TITLE]' => isset($specialtyData['title']) ? $specialtyData['title'] : '',
+            '[SPECIALTY_TAXONOMY]' => isset($specialtyData['taxonomy']) ? $specialtyData['taxonomy'] : '',
+            '[SPECIALTY_MODALITY]' => isset($specialtyData['modality']) ? $specialtyData['modality'] : ''
+        ];
+
+        return $data;
+    }
+
+    public function getAllSpecialtyData($specialty_id)
+    {
+        $this->db->setSQL("SELECT * FROM specialties WHERE id = '$specialty_id'");
+        return $this->db->fetchRecord(PDO::FETCH_ASSOC);
+    }
+
+
+    /**
+     * PATIENT INSURANCE DATA
+     * @param $patient_insurance_id
+     * @return array
+     */
+
+    public function getPatientInsuranceTokensDataByPatientInsuranceId($patient_insurance_id)
+    {
+        $patientInsuranceData = $this->getAllPatientInsuranceData($patient_insurance_id);
+
+        $data = [
+
+            '[INSURANCE_COMPANY_ID]' => isset($patientInsuranceData['insurance_company_id']) ? $patientInsuranceData['insurance_company_id'] : '',
+            '[INSURANCE_COMPANY_NAME]' => isset($patientInsuranceData['insurance_company_name']) ? $patientInsuranceData['insurance_company_name'] : '',
+            '[INSURANCE_TYPE]' => isset($patientInsuranceData['insurance_type']) ? $patientInsuranceData['insurance_type'] : '',
+            '[EFFECTIVE_DATE]' => isset($patientInsuranceData['effective_date']) ? $this->dateToString($patientInsuranceData['effective_date']) : '',
+            '[GROUP_NUMBER]' => isset($patientInsuranceData['group_number']) ? $patientInsuranceData['group_number'] : '',
+            '[POLICY_NUMBER]' => isset($patientInsuranceData['policy_number']) ? $patientInsuranceData['policy_number'] : '',
+            '[COVER_DESCRIPTION]' => isset($patientInsuranceData['cover_description']) ? $patientInsuranceData['cover_description'] : '',
+            '[CARD_FIRST_NAME]' => isset($patientInsuranceData['card_first_name']) ? $patientInsuranceData['card_first_name'] : '',
+            '[CARD_MIDDLE_NAME]' => isset($patientInsuranceData['card_middle_name']) ? $patientInsuranceData['card_middle_name'] : '',
+            '[CARD_LAST_NAME]' => isset($patientInsuranceData['card_last_name']) ? $patientInsuranceData['card_last_name'] : '',
+
+            '[SUBSCRIBER_POLICY_NUMBER]' => isset($patientInsuranceData['subscriber_policy_number']) ? $patientInsuranceData['subscriber_policy_number'] : '',
+            '[SUBSCRIBER_TITLE]' => isset($patientInsuranceData['subscriber_title']) ? $patientInsuranceData['subscriber_title'] : '',
+            '[SUBSCRIBER_GIVEN_NAME]' => isset($patientInsuranceData['subscriber_given_name']) ? $patientInsuranceData['subscriber_given_name'] : '',
+            '[SUBSCRIBER_MIDDLE_NAME]' => isset($patientInsuranceData['subscriber_middle_name']) ? $patientInsuranceData['subscriber_middle_name'] : '',
+            '[SUBSCRIBER_SURNAME]' => isset($patientInsuranceData['subscriber_surname']) ? $patientInsuranceData['subscriber_surname'] : '',
+
+            '[SUBSCRIBER_RELATIONSHIP]' => isset($patientInsuranceData['subscriber_relationship']) ? $patientInsuranceData['subscriber_relationship'] : '',
+            '[SUBSCRIBER_SEX]' => isset($patientInsuranceData['subscriber_sex']) ? $patientInsuranceData['subscriber_sex'] : '',
+            '[SUBSCRIBER_DOB]' => isset($patientInsuranceData['subscriber_dob']) ? $this->dateToString($patientInsuranceData['subscriber_dob']) : '',
+            '[SUBSCRIBER_SS]' => isset($patientInsuranceData['subscriber_ss']) ? $patientInsuranceData['subscriber_ss'] : '',
+
+            '[SUBSCRIBER_STREET]' => isset($patientInsuranceData['subscriber_street']) ? $patientInsuranceData['subscriber_street'] : '',
+            '[SUBSCRIBER_STREET_CONT]' => isset($patientInsuranceData['subscriber_street_cont']) ? $patientInsuranceData['subscriber_street_cont'] : '',
+            '[SUBSCRIBER_CITY]' => isset($patientInsuranceData['subscriber_cty']) ? $patientInsuranceData['subscriber_cty'] : '',
+            '[SUBSCRIBER_STATE]' => isset($patientInsuranceData['subscriber_state']) ? $patientInsuranceData['subscriber_state'] : '',
+            '[SUBSCRIBER_COUNTRY]' => isset($patientInsuranceData['subscriber_country']) ? $patientInsuranceData['subscriber_country'] : '',
+            '[SUBSCRIBER_POSTAL_CODE]' => isset($patientInsuranceData['subscriber_postal_code']) ? $patientInsuranceData['subscriber_postal_code'] : '',
+            '[SUBSCRIBER_PHONE]' => isset($patientInsuranceData['subscriber_phone']) ? $patientInsuranceData['subscriber_phone'] : '',
+            '[SUBSCRIBER_EMPLOYER]' => isset($patientInsuranceData['subscriber_employer']) ? $patientInsuranceData['subscriber_employer'] : '',
+            '[SUBSCRIBER_NOTES]' => isset($patientInsuranceData['notes']) ? $patientInsuranceData['notes'] : '',
+            '[SUBSCRIBER_IMAGE]' => '<img src="' . $patientInsuranceData['image'] . '" style="width:100px;height:100px">',
+            '[SUBSCRIBER_ACTIVE]' => isset($patientInsuranceData['active']) ? $patientInsuranceData['active'] : ''
+
+        ];
+
+        return $data;
+
+    }
+
+    /**
+     * PATIENT OTHER INSURANCE DATA
+     * @param $patient_other_insurance_id
+     * @return array
+     */
+
+    public function getPatientOtherInsuranceTokensDataByPatientOtherInsuranceId($patient_other_insurance_id)
+    {
+        $patientOtherInsuranceData = $this->getAllPatientInsuranceData($patient_other_insurance_id);
+
+        $data = [
+
+            '[OTHER_INSURANCE_COMPANY_ID]' => isset($patientOtherInsuranceData['insurance_company_id']) ? $patientOtherInsuranceData['insurance_company_id'] : '',
+            '[OTHER_INSURANCE_COMPANY_NAME]' => isset($patientOtherInsuranceData['insurance_company_name']) ? $patientOtherInsuranceData['insurance_company_name'] : '',
+            '[OTHER_INSURANCE_TYPE]' => isset($patientOtherInsuranceData['insurance_type']) ? $patientOtherInsuranceData['insurance_type'] : '',
+            '[OTHER_EFFECTIVE_DATE]' => isset($patientOtherInsuranceData['effective_date']) ? $this->dateToString($patientOtherInsuranceData['effective_date']) : '',
+            '[OTHER_GROUP_NUMBER]' => isset($patientOtherInsuranceData['group_number']) ? $patientOtherInsuranceData['group_number'] : '',
+            '[OTHER_POLICY_NUMBER]' => isset($patientOtherInsuranceData['policy_number']) ? $patientOtherInsuranceData['policy_number'] : '',
+            '[OTHER_COVER_DESCRIPTION]' => isset($patientOtherInsuranceData['cover_description']) ? $patientOtherInsuranceData['cover_description'] : '',
+            '[OTHER_CARD_FIRST_NAME]' => isset($patientOtherInsuranceData['card_first_name']) ? $patientOtherInsuranceData['card_first_name'] : '',
+            '[OTHER_CARD_MIDDLE_NAME]' => isset($patientOtherInsuranceData['card_middle_name']) ? $patientOtherInsuranceData['card_middle_name'] : '',
+            '[OTHER_CARD_LAST_NAME]' => isset($patientOtherInsuranceData['card_last_name']) ? $patientOtherInsuranceData['card_last_name'] : '',
+
+            '[OTHER_SUBSCRIBER_POLICY_NUMBER]' => isset($patientOtherInsuranceData['subscriber_policy_number']) ? $patientOtherInsuranceData['subscriber_policy_number'] : '',
+            '[OTHER_SUBSCRIBER_TITLE]' => isset($patientOtherInsuranceData['subscriber_title']) ? $patientOtherInsuranceData['subscriber_title'] : '',
+            '[OTHER_SUBSCRIBER_GIVEN_NAME]' => isset($patientOtherInsuranceData['subscriber_given_name']) ? $patientOtherInsuranceData['subscriber_given_name'] : '',
+            '[OTHER_SUBSCRIBER_MIDDLE_NAME]' => isset($patientOtherInsuranceData['subscriber_middle_name']) ? $patientOtherInsuranceData['subscriber_middle_name'] : '',
+            '[OTHER_SUBSCRIBER_SURNAME]' => isset($patientOtherInsuranceData['subscriber_surname']) ? $patientOtherInsuranceData['subscriber_surname'] : '',
+
+            '[OTHER_SUBSCRIBER_RELATIONSHIP]' => isset($patientOtherInsuranceData['subscriber_relationship']) ? $patientOtherInsuranceData['subscriber_relationship'] : '',
+            '[OTHER_SUBSCRIBER_SEX]' => isset($patientOtherInsuranceData['subscriber_sex']) ? $patientOtherInsuranceData['subscriber_sex'] : '',
+            '[OTHER_SUBSCRIBER_DOB]' => isset($patientOtherInsuranceData['subscriber_dob']) ? $this->dateToString($patientOtherInsuranceData['subscriber_dob']) : '',
+            '[OTHER_SUBSCRIBER_SS]' => isset($patientOtherInsuranceData['subscriber_ss']) ? $patientOtherInsuranceData['subscriber_ss'] : '',
+
+            '[OTHER_SUBSCRIBER_STREET]' => isset($patientOtherInsuranceData['subscriber_street']) ? $patientOtherInsuranceData['subscriber_street'] : '',
+            '[OTHER_SUBSCRIBER_STREET_CONT]' => isset($patientOtherInsuranceData['subscriber_street_cont']) ? $patientOtherInsuranceData['subscriber_street_cont'] : '',
+            '[OTHER_SUBSCRIBER_CITY]' => isset($patientOtherInsuranceData['subscriber_cty']) ? $patientOtherInsuranceData['subscriber_cty'] : '',
+            '[OTHER_SUBSCRIBER_STATE]' => isset($patientOtherInsuranceData['subscriber_state']) ? $patientOtherInsuranceData['subscriber_state'] : '',
+            '[OTHER_SUBSCRIBER_COUNTRY]' => isset($patientOtherInsuranceData['subscriber_country']) ? $patientOtherInsuranceData['subscriber_country'] : '',
+            '[OTHER_SUBSCRIBER_POSTAL_CODE]' => isset($patientOtherInsuranceData['subscriber_postal_code']) ? $patientOtherInsuranceData['subscriber_postal_code'] : '',
+            '[OTHER_SUBSCRIBER_PHONE]' => isset($patientOtherInsuranceData['subscriber_phone']) ? $patientOtherInsuranceData['subscriber_phone'] : '',
+            '[OTHER_SUBSCRIBER_EMPLOYER]' => isset($patientOtherInsuranceData['subscriber_employer']) ? $patientOtherInsuranceData['subscriber_employer'] : '',
+            '[OTHER_SUBSCRIBER_NOTES]' => isset($patientOtherInsuranceData['notes']) ? $patientOtherInsuranceData['notes'] : '',
+            '[OTHER_SUBSCRIBER_IMAGE]' => '<img src="' . $patientOtherInsuranceData['image'] . '" style="width:100px;height:100px">',
+            '[OTHER_SUBSCRIBER_ACTIVE]' => isset($patientOtherInsuranceData['active']) ? $patientOtherInsuranceData['active'] : ''
+
+        ];
+
+        return $data;
+
+    }
+
+    public function getAllPatientInsuranceData($patient_insurance_id)
+    {
+        $this->db->setSQL("SELECT ic.code as insurance_company_code,
+                                      ic.name as insurance_company_name,
+                                      pi.insurance_type as insurance_type,
+                                      pi.effective_date as effective_date, 
+                                      pi.group_number as group_number,
+                                      pi.policy_number as policy_number,
+                                      pi.cover_description as cover_description,
+                                      pi.card_first_name as card_first_name,
+                                      pi.card_middle_name as card_middle_name,
+                                      pi.card_last_name as card_last_name,
+                                      pi.subscriber_policy_number as subscriber_policy_number,
+                                      pi.subscriber_title as subscriber_title,
+                                      pi.subscriber_given_name as subscriber_given_name,
+                                      pi.subscriber_middle_name as subscriber_middle_name,
+                                      pi.subscriber_surname as subscriber_surname,
+                                      pi.subscriber_relationship as subscriber_relationship,
+                                      pi.subscriber_sex as subscriber_sex,
+                                      pi.subscriber_dob as subscriber_dob,
+                                      pi.subscriber_ss as subscriber_ss,
+                                      pi.subscriber_street as subscriber_street,
+                                      pi.subscriber_street_cont as subscriber_street_cont,
+                                      pi.subscriber_city as subscriber_city,
+                                      pi.subscriber_state as subscriber_state,
+                                      pi.subscriber_country as subscriber_country,
+                                      pi.subscriber_postal_code as subscriber_postal_code,
+                                      pi.subscriber_phone as subscriber_phone,
+                                      pi.subscriber_employer as subscriber_employer,
+                                      pi.notes as notes,
+                                      pi.image as image,
+                                      pi.active as active
+                                      FROM patient_insurances pi left join insurance_companies ic on ic.id = pi.insurance_id
+                                      WHERE pi.id = '$patient_insurance_id'");
+        return $this->db->fetchRecord(PDO::FETCH_ASSOC);
+    }
+
+
+
 }

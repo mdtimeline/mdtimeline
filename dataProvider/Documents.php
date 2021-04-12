@@ -1351,6 +1351,33 @@ class Documents
         return $this->db->fetchRecord(PDO::FETCH_ASSOC);
     }
 
+
+    /**
+     * DEPARTMENT DATA
+     * @param $department_id
+     * @return array
+     */
+
+    public function getDepartmentTokensDataByDepartmentId($department_id)
+    {
+        $departmentData = $this->getAllDepartmentData($department_id);
+
+        $data = [
+            '[DEPARTMENT_ID]' => isset($departmentData['id']) ? $departmentData['id'] : '',
+            '[DEPARTMENT_CODE]' => isset($departmentData['code']) ? $departmentData['code'] : '',
+            '[DEPARTMENT_TITLE]' => isset($departmentData['title']) ? $departmentData['title'] : '',
+        ];
+
+        return $data;
+
+    }
+
+    public function getAllDepartmentData($department_id)
+    {
+        $this->db->setSQL("SELECT * FROM departments WHERE id = '$department_id'");
+        return $this->db->fetchRecord(PDO::FETCH_ASSOC);
+    }
+
     /**
      * SPECIALTY DATA
      * @param $specialty_id
@@ -1375,6 +1402,90 @@ class Documents
     public function getAllSpecialtyData($specialty_id)
     {
         $this->db->setSQL("SELECT * FROM specialties WHERE id = '$specialty_id'");
+        return $this->db->fetchRecord(PDO::FETCH_ASSOC);
+    }
+
+
+    /**
+     * REFERRING DATA
+     * @param $facility_id
+     * @return array
+     */
+
+    public function getReferringProviderTokensDataByReferringId($referring_id)
+    {
+        $referringData = $this->getAllReferringProviderData($referring_id);
+
+        $fname = isset($referringData['fname']) ? $referringData['fname'] : '';
+        $mname = isset($referringData['mname']) ? $referringData['mname'] : '';
+        $lname = isset($referringData['lname']) ? $referringData['lname'] : '';
+
+        $data = [
+            '[REFERRING_ID]' => $referringData['id'],
+            '[REFERRING_CODE]' => isset($referringData['code']) ? $referringData['code'] : '',
+            '[REFERRING_USERNAME]' => isset($referringData['username']) ? $referringData['username'] : '',
+            '[REFERRING_TITLE]' => isset($referringData['title']) ? $referringData['title'] : '',
+
+            '[REFERRING_FULL_NAME]' => Person::fullname($fname, $mname, $lname),
+
+            '[REFERRING_FIRST_NAME]' => $fname,
+            '[REFERRING_MIDDLE_NAME]' => $mname,
+            '[REFERRING_LAST_NAME]' => $lname,
+
+            '[REFERRING_NPI]' => isset($referringData['npi']) ? $referringData['npi'] : '',
+            '[REFERRING_LIC]' => isset($referringData['lic']) ? $referringData['lic'] : '',
+            '[REFERRING_FED_TAX]' => isset($referringData['ssn']) ? $referringData['ssn'] : '',
+            '[REFERRING_TAXONOMY]' => isset($referringData['taxonomy']) ? $referringData['taxonomy'] : '',
+            '[REFERRING_EMAIL]' => isset($referringData['email']) ? $referringData['email'] : '',
+            '[REFERRING_DIRECT_ADDRESS]' => isset($referringData['direct_address']) ? $referringData['direct_address'] : '',
+            '[REFERRING_PHONE]' => isset($referringData['phone_number']) ? $referringData['phone_number'] : '',
+            '[REFERRING_MOBILE]' => isset($referringData['cel_number']) ? $referringData['cel_number'] : '',
+            '[REFERRING_FAX]' => isset($referringData['fax_number']) ? $referringData['fax_number'] : '',
+        ];
+
+        return $data;
+
+    }
+
+    public function getAllReferringProviderData($referring_id)
+    {
+        $this->db->setSQL("SELECT * FROM referring_providers WHERE id = '$referring_id'");
+        return $this->db->fetchRecord(PDO::FETCH_ASSOC);
+    }
+
+
+    /**
+     * INSURANCE DATA
+     * @param $department_id
+     * @return array
+     */
+
+    public function getInsuranceCompanyTokensDataByInsuranceId($insurance_id)
+    {
+        $insuranceData = $this->getAllInsuranceCompanyData($insurance_id);
+
+        $data = [
+            '[INSURANCE_ID]' => isset($insuranceData['id']) ? $insuranceData['id'] : '',
+            '[INSURANCE_CODE]' => isset($insuranceData['code']) ? $insuranceData['code'] : '',
+            '[INSURANCE_TITLE]' => isset($insuranceData['name']) ? $insuranceData['name'] : '',
+
+            '[INSURANCE_ADDRESS1]' => isset($insuranceData['address1']) ? $insuranceData['address1'] : '',
+            '[INSURANCE_ADDRESS2]' => isset($insuranceData['address2']) ? $insuranceData['address2'] : '',
+            '[INSURANCE_CITY]' => isset($insuranceData['city']) ? $insuranceData['city'] : '',
+            '[INSURANCE_STATE]' => isset($insuranceData['state']) ? $insuranceData['state'] : '',
+
+            '[INSURANCE_PHONE1]' => isset($insuranceData['phone1']) ? $insuranceData['phone1'] : '',
+            '[INSURANCE_PHONE2]' => isset($insuranceData['phone2']) ? $insuranceData['phone2'] : '',
+            '[INSURANCE_FAX]' => isset($insuranceData['fax']) ? $insuranceData['fax'] : '',
+        ];
+
+        return $data;
+
+    }
+
+    public function getAllInsuranceCompanyData($insurance_id)
+    {
+        $this->db->setSQL("SELECT * FROM insurance_companies WHERE id = '$insurance_id'");
         return $this->db->fetchRecord(PDO::FETCH_ASSOC);
     }
 
@@ -1422,14 +1533,18 @@ class Documents
             '[SUBSCRIBER_PHONE]' => isset($patientInsuranceData['subscriber_phone']) ? $patientInsuranceData['subscriber_phone'] : '',
             '[SUBSCRIBER_EMPLOYER]' => isset($patientInsuranceData['subscriber_employer']) ? $patientInsuranceData['subscriber_employer'] : '',
             '[SUBSCRIBER_NOTES]' => isset($patientInsuranceData['notes']) ? $patientInsuranceData['notes'] : '',
-            '[SUBSCRIBER_IMAGE]' => '<img src="' . $patientInsuranceData['image'] . '" style="width:100px;height:100px">',
-            '[SUBSCRIBER_ACTIVE]' => isset($patientInsuranceData['active']) ? $patientInsuranceData['active'] : ''
+            '[SUBSCRIBER_ACTIVE]' => isset($patientInsuranceData['active']) ? $patientInsuranceData['active'] : '',
+
+
+//            '[SUBSCRIBER_IMAGE]' => '<img src="' . $patientInsuranceData['image'] . '" style="width:100px;height:100px">',
+
 
         ];
 
         return $data;
 
     }
+
 
     /**
      * PATIENT OTHER INSURANCE DATA
@@ -1474,8 +1589,9 @@ class Documents
             '[OTHER_SUBSCRIBER_PHONE]' => isset($patientOtherInsuranceData['subscriber_phone']) ? $patientOtherInsuranceData['subscriber_phone'] : '',
             '[OTHER_SUBSCRIBER_EMPLOYER]' => isset($patientOtherInsuranceData['subscriber_employer']) ? $patientOtherInsuranceData['subscriber_employer'] : '',
             '[OTHER_SUBSCRIBER_NOTES]' => isset($patientOtherInsuranceData['notes']) ? $patientOtherInsuranceData['notes'] : '',
-            '[OTHER_SUBSCRIBER_IMAGE]' => '<img src="' . $patientOtherInsuranceData['image'] . '" style="width:100px;height:100px">',
-            '[OTHER_SUBSCRIBER_ACTIVE]' => isset($patientOtherInsuranceData['active']) ? $patientOtherInsuranceData['active'] : ''
+            '[OTHER_SUBSCRIBER_ACTIVE]' => isset($patientOtherInsuranceData['active']) ? $patientOtherInsuranceData['active'] : '',
+
+            //            '[OTHER_SUBSCRIBER_IMAGE]' => '<img src="' . $patientOtherInsuranceData['image'] . '" style="width:100px;height:100px">',
 
         ];
 

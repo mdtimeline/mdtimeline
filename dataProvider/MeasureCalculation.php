@@ -94,6 +94,11 @@ class MeasureCalculation {
 				$results = $this->getCoronaryArteryDiseaseBetaBlockerReportByDates($provider_id, $insurance_id, $start_date, $end_date);
 			}
 
+            // MIPS
+			if($measure == 'HeartFailureBetaBlocker'){
+				$results = $this->getHeartFailureBetaBlockerReportByDates($provider_id, $insurance_id, $start_date, $end_date);
+			}
+
 
 			return $results;
 		}catch (Exception $e){
@@ -911,6 +916,37 @@ class MeasureCalculation {
 			'insurance' => $report['insurance'],
 			'title' => $report['title'],
 			'description' => 'Measure Description: Percentage of patients aged 18 years and older with a diagnosis of coronary artery disease seen within a 12-month period who also have a prior MI or a current or prior LVEF < 40% who were prescribed beta-blocker therapy',
+			'denominator' => $report['denominator'],
+			'numerator' => $report['numerator'],
+			'denominator_pids' => $report['denominator_pids'],
+			'numerator_pids' => $report['numerator_pids'],
+			'goal' => 'N/A'
+		];
+
+		return $records;
+	}
+
+	//
+	private function getHeartFailureBetaBlockerReportByDates($provider_id, $insurance_id, $start_date, $end_date){
+
+		$records = [];
+
+		/**
+		 */
+
+		/**
+		 */
+
+		$sth = $this->conn->prepare("CALL `getHeartFailureBetaBlockerReportByDates`(?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date]);
+		$report =  $sth->fetch(PDO::FETCH_ASSOC);
+
+		$records[] = [
+			'group' => 'Quality ID #008 (NQF 0083): Heart Failure (HF): Beta-Blocker Therapy for Left Ventricular Systolic Dysfunction (LVSD)',
+			'provider' => $report['provider'],
+			'insurance' => $report['insurance'],
+			'title' => $report['title'],
+			'description' => 'Measure Description: Percentage of patients aged 18 years and older with a diagnosis of heart failure (HF) with a current or prior left ventricular ejection fraction (LVEF) < 40% who were prescribed beta-blocker therapy either within a 12-month period when seen in the outpatient setting OR at each hospital discharge',
 			'denominator' => $report['denominator'],
 			'numerator' => $report['numerator'],
 			'denominator_pids' => $report['denominator_pids'],

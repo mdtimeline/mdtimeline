@@ -35,22 +35,24 @@ BEGIN
                             AND ((m.date_ordered BETWEEN start_date AND end_date) OR (m.is_active AND m.begin_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date))),
                     '1', '0') as was_prescribed_or_active
             FROM
-                (SELECT enc.eid,
-                        enc.pid,
-                        YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) as age,
-                        COUNT(*) AS total
+                (SELECT enc.pid, enc.eid
                  FROM encounters as enc
-                          INNER JOIN patient p ON enc.pid = p.pid
-                          LEFT JOIN patient_insurances AS pi ON pi.pid = p.pid
-                          INNER JOIN encounter_dx AS dx ON enc.eid = dx.eid
-                 WHERE enc.provider_uid = provider_id
-                   AND enc.service_date BETWEEN start_date AND end_date
-                   AND pi.insurance_id = insurance_id
-                   AND dx.code IN ('I50', 'I50.1', 'I50.2', 'I50.20', 'I50.21', 'I50.22', 'I50.23', 'I50.3', 'I50.30',
-                     'I50.31', 'I50.32', 'I50.33', 'I50.4', 'I50.40', 'I50.41', 'I50.42', 'I50.43', 'I50.8')
-                 GROUP BY enc.pid
-                 HAVING  total >= 2) e
-            WHERE e.age >= 18;
+                  JOIN (SELECT enc.pid, COUNT(*) AS total
+                        FROM encounters as enc
+                             INNER JOIN patient p ON enc.pid = p.pid
+                        WHERE enc.provider_uid = provider_id
+                          AND enc.service_date BETWEEN start_date AND end_date
+                          AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 18
+                        GROUP BY enc.pid
+                        HAVING  total >= 2) as t
+                               ON enc.pid = t.pid
+                          INNER JOIN encounter_dx as edx
+                ON enc.eid = edx.eid
+                AND enc.pid = edx.pid
+             WHERE enc.provider_uid = provider_id
+                AND enc.service_date BETWEEN start_date AND end_date
+                AND edx.code IN ('I50', 'I50.1', 'I50.2', 'I50.20', 'I50.21', 'I50.22', 'I50.23', 'I50.3', 'I50.30',
+                                    'I50.31', 'I50.32', 'I50.33', 'I50.4', 'I50.40', 'I50.41', 'I50.42', 'I50.43', 'I50.8')) e;
 
         ELSE
 

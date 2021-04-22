@@ -122,9 +122,8 @@ Ext.define('App.controller.administration.MeasureCalculation', {
         this.doReportMeasureByDates(grid_store, 'AdvanceCarePlan', provider_id, from, to, insurance_id);
         this.doReportMeasureByDates(grid_store, 'ControllingHighBloodPressure', provider_id, from, to, insurance_id);
         this.doReportMeasureByDates(grid_store, 'CoronaryArteryDisease', provider_id, from, to, insurance_id);
-        // this.doReportMeasureByDates(grid_store, 'CoronaryArteryDiseaseWIthMIorLVSD', provider_id, from, to, insurance_id);
         this.doReportMeasureByDates(grid_store, 'CoronaryArteryDiseaseAntiplatelet', provider_id, from, to, insurance_id);
-        // this.doReportMeasureByDates(grid_store, 'CoronaryArteryDiseaseBetaBlocker', provider_id, from, to, insurance_id);
+        this.doReportMeasureByDates(grid_store, 'CoronaryArteryDiseaseBetaBlocker', provider_id, from, to, insurance_id);
         this.doReportMeasureByDates(grid_store, 'HeartFailureBetaBlocker', provider_id, from, to, insurance_id);
 
 

@@ -834,37 +834,6 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getCoronaryArteryDiseaseWIthMIorLVSDReportByDates($provider_id, $insurance_id, $start_date, $end_date){
-
-		$records = [];
-
-		/**
-		 */
-
-		/**
-		 */
-
-		$sth = $this->conn->prepare("CALL `getCoronaryArteryDiseaseWIthMIorLVSDReportByDates`(?, ?, ?, ?);");
-		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date]);
-		$report =  $sth->fetch(PDO::FETCH_ASSOC);
-
-		$records[] = [
-			'group' => 'Quality ID #0118 (NQF: 0066): Coronary Artery Disease (CAD): Angiotensin-Converting Enzyme (ACE) Inhibitor or Angiotensin Receptor Blocker (ARB) Thera',
-			'provider' => $report['provider'],
-			'insurance' => $report['insurance'],
-			'title' => $report['title'],
-			'description' => 'Measure Description: Percentage of patients aged 18 years and older with a diagnosis of coronary artery disease seen within a 12 month period who also have diabetes OR a current or prior Left Ventricular Ejection Fraction (LVEF) < 40% who were prescribed ACE inhibitor or ARB therapy',
-			'denominator' => $report['denominator'],
-			'numerator' => $report['numerator'],
-			'denominator_pids' => $report['denominator_pids'],
-			'numerator_pids' => $report['numerator_pids'],
-			'goal' => 'N/A'
-		];
-
-		return $records;
-	}
-
-	//
 	private function getCoronaryArteryDiseaseAntiplateletReportByDates($provider_id, $insurance_id, $start_date, $end_date){
 
 		$records = [];

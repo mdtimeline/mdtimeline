@@ -104,6 +104,11 @@ class MeasureCalculation {
 				$results = $this->getInfluenzaImmunizationReportByDates($provider_id, $insurance_id, $start_date, $end_date);
 			}
 
+            // MIPS
+			if($measure == 'PneumococcalImmunization'){
+				$results = $this->getPneumococcalImmunizationReportByDates($provider_id, $insurance_id, $start_date, $end_date);
+			}
+
 
 			return $results;
 		}catch (Exception $e){
@@ -948,6 +953,36 @@ class MeasureCalculation {
 
 		$records[] = [
 			'group' => 'Quality ID #0041 (NQF 0110): Preventive Care and Screening: Influenza Immunization',
+			'provider' => $report['provider'],
+			'insurance' => $report['insurance'],
+			'title' => $report['title'],
+			'description' => 'Measure Description: Percentage of patients aged 6 months and older seen for a visit between October 1 and March 31 who received an influenza immunization OR who reported previous receipt of an influenza immunization',
+			'denominator' => $report['denominator'],
+			'numerator' => $report['numerator'],
+			'denominator_pids' => $report['denominator_pids'],
+			'numerator_pids' => $report['numerator_pids'],
+			'goal' => 'N/A'
+		];
+
+		return $records;
+	}
+	//
+	private function getPneumococcalImmunizationReportByDates($provider_id, $insurance_id, $start_date, $end_date){
+
+		$records = [];
+
+		/**
+		 */
+
+		/**
+		 */
+
+		$sth = $this->conn->prepare("CALL `getPneumococcalImmunizationReportByDates`(?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date]);
+		$report =  $sth->fetch(PDO::FETCH_ASSOC);
+
+		$records[] = [
+			'group' => 'Quality ID #0111: Pneumococcal Vaccination Status for Older Adults',
 			'provider' => $report['provider'],
 			'insurance' => $report['insurance'],
 			'title' => $report['title'],

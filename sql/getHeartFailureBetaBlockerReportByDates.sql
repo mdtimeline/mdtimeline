@@ -47,8 +47,10 @@ BEGIN
                   JOIN (SELECT enc.pid, COUNT(*) AS total
                         FROM encounters as enc
                              INNER JOIN patient p ON enc.pid = p.pid
+                             LEFT JOIN patient_insurances pi ON pi.pid = p.pid
                         WHERE enc.provider_uid = provider_id
                           AND enc.service_date BETWEEN start_date AND end_date
+                          AND pi.insurance_id = insurance_id
                           AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 18
                         GROUP BY enc.pid
                         HAVING  total >= 2) as t

@@ -4,12 +4,9 @@ DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getInfluenzaImmunizationReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE)
 BEGIN
 
-
-
     DROP TABLE IF EXISTS report_ds;
     DROP TABLE IF EXISTS report_denominator_ds;
     DROP TABLE IF EXISTS report_numerator_ds;
-
 
 #     SET @provider_id = 2619;
 #     SET @insurance_id = 1;
@@ -28,7 +25,7 @@ BEGIN
                 IF( EXISTS (
                             SELECT * FROM encounters
                             WHERE pid = e.pid
-                            AND service_date BETWEEN  CONCAT(YEAR(CURDATE()) - 1, '-10-01') AND CONCAT(YEAR(CURDATE()), '-03-01')),
+                            AND service_date BETWEEN  CONCAT(YEAR(start_date) - 1, '-10-01') AND CONCAT(YEAR(start_date), '-03-31')),
                     '1', '0') as has_encounter_within_season,
                 IF( EXISTS (
                             SELECT * FROM encounters AS enc
@@ -39,17 +36,17 @@ BEGIN
                             AND pi.CODE IN (
                                             '135', '140', '141', '144', '149', '150', '155', '158', '161', '166', '168',
                                             '171', '185', '186', '197', '205', '88')
-                            AND pi.administered_date BETWEEN  CONCAT(YEAR(CURDATE()) - 1, '-10-01') AND CONCAT(YEAR(CURDATE()), '-03-01')),
+                            AND pi.administered_date BETWEEN  CONCAT(YEAR(start_date) - 1, '-10-01') AND CONCAT(YEAR(start_date), '-03-31')),
                     '1', '0') as influenza_vaccine_administered
             FROM
                 (SELECT enc.eid, enc.pid
                  FROM encounters as enc
-                          INNER JOIN patient p ON enc.pid = p.pid
-                          LEFT JOIN patient_insurances as pi ON pi.pid = p.pid
+                    INNER JOIN patient p ON enc.pid = p.pid
+                    LEFT JOIN patient_insurances as pi ON pi.pid = p.pid
                  WHERE enc.provider_uid = provider_id
-                   AND enc.service_date BETWEEN start_date AND end_date
-                   AND pi.insurance_id = insurance_id
-                   AND TIMESTAMPDIFF(MONTH,p.DOB,start_date) >= 6
+                    AND enc.service_date BETWEEN start_date AND end_date
+                    AND pi.insurance_id = insurance_id
+                    AND TIMESTAMPDIFF(MONTH,p.DOB,start_date) >= 6
                  GROUP BY enc.pid) e;
         ELSE
 
@@ -60,7 +57,7 @@ BEGIN
                 IF( EXISTS (
                             SELECT * FROM encounters
                             WHERE pid = e.pid
-                              AND service_date BETWEEN  CONCAT(YEAR(CURDATE()) - 1, '-10-01') AND CONCAT(YEAR(CURDATE()), '-03-01')),
+                              AND service_date BETWEEN  CONCAT(YEAR(start_date) - 1, '-10-01') AND CONCAT(YEAR(start_date), '-03-31')),
                     '1', '0') as has_encounter_within_season,
                 IF( EXISTS (
                             SELECT * FROM encounters AS enc
@@ -71,7 +68,7 @@ BEGIN
                               AND pi.CODE IN (
                                               '135', '140', '141', '144', '149', '150', '155', '158', '161', '166', '168',
                                               '171', '185', '186', '197', '205', '88')
-                              AND pi.administered_date BETWEEN  CONCAT(YEAR(CURDATE()) - 1, '-10-01') AND CONCAT(YEAR(CURDATE()), '-03-01')),
+                              AND pi.administered_date BETWEEN  CONCAT(YEAR(start_date) - 1, '-10-01') AND CONCAT(YEAR(start_date), '-03-31')),
                     '1', '0') as influenza_vaccine_administered
             FROM
                 (SELECT enc.eid, enc.pid, enc.service_date

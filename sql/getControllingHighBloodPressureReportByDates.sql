@@ -52,12 +52,10 @@ BEGIN
             FROM
                 (SELECT enc.eid,
                         enc.pid,
-                        adv.id as adv_id,
                         YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) as age
                  FROM encounters as enc
                           INNER JOIN patient p on enc.pid = p.pid
                           LEFT JOIN patient_insurances as pi ON pi.pid = p.pid
-                          LEFT JOIN patient_advance_directives as adv ON adv.eid = enc.eid
                  WHERE enc.provider_uid = provider_id
                    AND enc.service_date BETWEEN start_date AND end_date
                    AND pi.insurance_id = insurance_id
@@ -97,11 +95,9 @@ BEGIN
             FROM
                 (SELECT enc.eid,
                         enc.pid,
-                        adv.id as adv_id,
                         YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) as age
                  FROM encounters as enc
                           INNER JOIN patient p on enc.pid = p.pid
-                          LEFT JOIN patient_advance_directives as adv ON adv.eid = enc.eid
                  WHERE enc.provider_uid = provider_id
                    AND enc.service_date BETWEEN start_date AND end_date
                  GROUP BY enc.pid) e

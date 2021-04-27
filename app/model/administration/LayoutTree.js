@@ -145,6 +145,14 @@ Ext.define('App.model.administration.LayoutTree', {
 			type: 'string'
 		},
 		{
+			name: 'columnWidth',
+			type: 'string'
+		},
+		{
+			name: 'columns',
+			type: 'string'
+		},
+		{
 			name: 'boxLabel',
 			type: 'string'
 		},

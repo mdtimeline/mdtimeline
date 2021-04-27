@@ -275,6 +275,14 @@ Ext.define('App.view.administration.Layout', {
                             hidden: true
                         },
                         {
+                            fieldLabel: _('columns'),
+                            xtype: 'textfield',
+                            name: 'columns',
+                            itemId: 'columns',
+                            emptyText: 'ei. 2',
+                            hidden: true
+                        },
+                        {
                             fieldLabel: _('column_width'),
                             xtype: 'textfield',
                             name: 'columnWidth',
@@ -967,7 +975,8 @@ Ext.define('App.view.administration.Layout', {
                 'width',
                 'layout',
                 'margin',
-                'columnWidth'
+                'columnWidth',
+                'columns'
             ];
         }else if(value == 'combobox'){
             items = [
@@ -1097,6 +1106,21 @@ Ext.define('App.view.administration.Layout', {
                 'action',
                 'name',
                 'width',
+                'boxLabel',
+                'inputValue',
+                'fieldLabel',
+                'hideLabel',
+                'labelWidth',
+                'margin',
+                'code'
+            ];
+        }else if(value == 'physicalexamfield'){
+	        items = [
+                'itemId',
+                'action',
+                'name',
+                'width',
+                'fieldLabel',
                 'boxLabel',
                 'inputValue',
                 'fieldLabel',

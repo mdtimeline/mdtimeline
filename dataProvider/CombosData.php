@@ -520,6 +520,11 @@ class CombosData {
                 'id' => 14,
                 'name' => 'Referring Physician Search',
                 'value' => 'referringphysicianlivetsearch'
+            ],
+            14 => [
+                'id' => 15,
+                'name' => 'Physical Exam Field',
+                'value' => 'physicalexamfield'
             ]
 		];
 	}

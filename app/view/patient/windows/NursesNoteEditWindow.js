@@ -94,6 +94,11 @@ Ext.define('App.view.patient.windows.NursesNoteEditWindow', {
 					xtype: 'textarea',
 					itemId: 'NursesNoteEditWindowFormNoteField',
 					name: 'note',
+					plugins: [
+						{
+							ptype: 'fieldtab'
+						}
+					],
 					flex: 1
 				}
 			]

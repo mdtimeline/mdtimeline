@@ -297,6 +297,12 @@ Ext.define('App.model.patient.Encounter', {
 			foreignKey: 'eid'
 		},
 		{
+			model: 'App.model.patient.PhysicalExam',
+			name: 'physicalexams',
+			primaryKey: 'eid',
+			foreignKey: 'eid'
+		},
+		{
 			model: 'App.model.patient.Dictation',
 			name: 'dictation',
 			primaryKey: 'eid',

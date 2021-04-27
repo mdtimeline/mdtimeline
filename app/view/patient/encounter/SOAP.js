@@ -195,6 +195,11 @@ Ext.define('App.view.patient.encounter.SOAP', {
 								}
 							]
 						}),
+						me.physicalExamForm = Ext.widget('form', {
+							title: 'Physical Exam',
+							itemId: 'EncounterPhysicalExamForm',
+							layout: 'fit'
+						}),
 						{
 							xtype: 'grid',
 							frame: true,
@@ -378,6 +383,12 @@ Ext.define('App.view.patient.encounter.SOAP', {
 
 		Ext.apply(me, {
 			items: [ me.snippets, me.form ]
+		});
+
+
+		me.physicalExamForm.getFormItems(me.physicalExamForm, 17, function(){
+
+
 		});
 
 		me.callParent(arguments);

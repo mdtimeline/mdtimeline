@@ -321,6 +321,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                                 'App.ux.form.fields.DateTime',
                                 'App.ux.form.fields.MultiText',
                                 'App.ux.form.fields.Percent',
+                                'App.ux.form.fields.PhysicalExamField',
                                 'App.ux.form.fields.Switch',
                                 'App.ux.form.fields.plugin.BadgeText',
                                 'App.ux.form.fields.plugin.ReadOnlyLabel',
@@ -492,6 +493,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 
                                 'patient.encounter.Procedures',
 
+                                'patient.PhysicalExam',
                                 'patient.EducationResource',
                                 'patient.AppointmentRequest',
                                 'patient.AdvanceDirective',
@@ -904,6 +906,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                                 'patient.encounter.Encounter',
                                 'patient.encounter.EncounterDocuments',
                                 'patient.encounter.EncounterSign',
+                                'patient.encounter.PhysicalExam',
                                 'patient.encounter.SOAP',
                                 'patient.encounter.SuperBill',
                                 'patient.encounter.Procedure',

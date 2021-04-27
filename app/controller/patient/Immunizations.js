@@ -108,7 +108,7 @@ Ext.define('App.controller.patient.Immunizations', {
 				select: me.onImmunizationSearchSelect
 			},
 			'#ImmunizationsImmunizationNdcSearch': {
-				select: me.onImmunizationNdcSearchhSelect
+				select: me.onImmunizationNdcSearchSelect
 			},
 			'#patientImmunizationsEditFormAdministeredByField': {
 				select: me.onPatientImmunizationsEditFormAdministeredByFieldSelect
@@ -339,7 +339,7 @@ Ext.define('App.controller.patient.Immunizations', {
 		});
 	},
 
-	onImmunizationNdcSearchhSelect: function(combo, record){
+	onImmunizationNdcSearchSelect: function(combo, record){
 		var form = combo.up('form').getForm();
 
 		this.getCvxMvxCombo().getStore().load({
@@ -348,8 +348,9 @@ Ext.define('App.controller.patient.Immunizations', {
 			}
 		});
 		form.getRecord().set({
-			code: record[0].get('NDC11'),
-			code_type: 'NDC'
+			code: record[0].get('CVXCode'),
+			code_type: 'CVX',
+			ndc: record[0].get('NDC11')
 		});
 	},
 

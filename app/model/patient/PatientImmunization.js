@@ -48,6 +48,11 @@ Ext.define('App.model.patient.PatientImmunization', {
 			type: 'int'
 		},
 		{
+			name: 'ndc',
+			type: 'string',
+			len: 25
+		},
+		{
 			name: 'code',
 			type: 'string',
 			len: 20

@@ -741,17 +741,35 @@ Ext.define('App.view.Viewport', {
 	    }
 
 	    me.el.on('click', me.onUserViewportClick, me);
-	    // Ext.create('Ext.window.Window', {
-	    // 	height: 250,
-	    // 	width: 250,
+
+	    // var w = Ext.create('Ext.window.Window', {
+	    // 	height: 400,
+	    // 	width: 400,
+		// 	bodyPadding: 5,
 	    // 	items: [
-	    // 		Ext.create('App.ux.form.fields.Switch', {
-		//             // fieldLabel: 'Hello World 1',
-		//             // labelAlign: 'top',
-		//             boxLabel: 'Hello World 2',
-		//         })
+		// 		{
+		// 			xtype: 'form',
+		// 			items: [
+		// 				{
+		// 					xtype: 'physicalexamfield',
+		// 					fieldLabel: 'General',
+		// 					boxLabel: '(Conscious, alert, oriented X3)',
+		// 					name: 'testing_one'
+		// 				},
+		// 				{
+		// 					xtype: 'physicalexamfield',
+		// 					fieldLabel: 'Head',
+		// 					boxLabel: '(Conscious, alert, oriented X3)',
+		// 					name: 'testing_two'
+		// 				}
+		// 			]
+		// 		}
+		//
 		//     ]
 	    // }).show();
+		//
+	    // say(w.down('form').getForm().getValues());
+
 
 
 	    //me.signature = Ext.create('App.view.signature.SignatureWindow');

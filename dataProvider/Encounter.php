@@ -94,6 +94,11 @@ class Encounter {
 	private $edx;
 
 	/**
+	 * @var bool|MatchaCUP
+	 */
+	private $phye;
+
+	/**
 	 * @var FamilyHistory
 	 */
 	private $FamilyHistory;
@@ -118,6 +123,8 @@ class Encounter {
         if(!isset($this->d)) $this->d = MatchaModel::setSenchaModel('App.model.patient.Dictation');
         if(!isset($this->hcfa)) $this->hcfa = MatchaModel::setSenchaModel('App.model.patient.HCFAOptions');
         if(!isset($this->edx)) $this->edx = MatchaModel::setSenchaModel('App.model.patient.EncounterDx');
+        if(!isset($this->edx)) $this->edx = MatchaModel::setSenchaModel('App.model.patient.EncounterDx');
+        if(!isset($this->phye)) $this->phye = MatchaModel::setSenchaModel('App.model.patient.PhysicalExam');
 	}
 
 	private function setEid($eid) {
@@ -366,6 +373,10 @@ class Encounter {
 
 		if($_SESSION['globals']['enable_encounter_hcfa']){
 			$encounter['hcfaoptions'][] = $this->getHCFA($filters);
+		}
+
+		if($_SESSION['globals']['enable_encounter_hcfa']){
+			$encounter['physicalexams'][] = $this->getPhysicalExams($filters);
 		}
 
 		$encounter['services'] = $this->getEncounterServiceCodesByEid($encounter['eid']);
@@ -1568,6 +1579,10 @@ class Encounter {
 
 	public function getHCFA($params) {
 		return $this->hcfa->load($params)->one();
+	}
+
+	public function getPhysicalExams($params) {
+		return $this->phye->load($params)->one();
 	}
 
 	public function addHCFA($params) {

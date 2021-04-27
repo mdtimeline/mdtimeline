@@ -84,6 +84,25 @@ $API = [
             ]
         ]
     ],
+    'PhysicalExams' => [
+        'methods' => [
+            'getPhysicalExams' => [
+                'len' => 1
+            ],
+            'getPhysicalExam' => [
+                'len' => 1
+            ],
+            'addPhysicalExam' => [
+                'len' => 1
+            ],
+            'updatePhysicalExam' => [
+                'len' => 1
+            ],
+            'destroyPhysicalExam' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'DocumentPdfForms' => [
         'methods' => [
             'generatePdfForm' => [

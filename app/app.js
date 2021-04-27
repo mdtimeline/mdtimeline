@@ -13094,6 +13094,14 @@ Ext.define('App.model.administration.LayoutTree', {
 			type: 'string'
 		},
 		{
+			name: 'columnWidth',
+			type: 'string'
+		},
+		{
+			name: 'columns',
+			type: 'string'
+		},
+		{
 			name: 'boxLabel',
 			type: 'string'
 		},
@@ -19580,6 +19588,12 @@ Ext.define('App.model.patient.Encounter', {
 			foreignKey: 'eid'
 		},
 		{
+			model: 'App.model.patient.PhysicalExam',
+			name: 'physicalexams',
+			primaryKey: 'eid',
+			foreignKey: 'eid'
+		},
+		{
 			model: 'App.model.patient.Dictation',
 			name: 'dictation',
 			primaryKey: 'eid',
@@ -22824,6 +22838,11 @@ Ext.define('App.model.patient.PatientImmunization', {
 		{
 			name: 'uid',
 			type: 'int'
+		},
+		{
+			name: 'ndc',
+			type: 'string',
+			len: 25
 		},
 		{
 			name: 'code',
@@ -33139,6 +33158,14 @@ Ext.define('App.view.administration.Layout', {
                             hidden: true
                         },
                         {
+                            fieldLabel: _('columns'),
+                            xtype: 'textfield',
+                            name: 'columns',
+                            itemId: 'columns',
+                            emptyText: 'ei. 2',
+                            hidden: true
+                        },
+                        {
                             fieldLabel: _('column_width'),
                             xtype: 'textfield',
                             name: 'columnWidth',
@@ -33831,7 +33858,8 @@ Ext.define('App.view.administration.Layout', {
                 'width',
                 'layout',
                 'margin',
-                'columnWidth'
+                'columnWidth',
+                'columns'
             ];
         }else if(value == 'combobox'){
             items = [
@@ -33961,6 +33989,21 @@ Ext.define('App.view.administration.Layout', {
                 'action',
                 'name',
                 'width',
+                'boxLabel',
+                'inputValue',
+                'fieldLabel',
+                'hideLabel',
+                'labelWidth',
+                'margin',
+                'code'
+            ];
+        }else if(value == 'physicalexamfield'){
+	        items = [
+                'itemId',
+                'action',
+                'name',
+                'width',
+                'fieldLabel',
                 'boxLabel',
                 'inputValue',
                 'fieldLabel',
@@ -52107,7 +52150,7 @@ Ext.define('App.controller.patient.Immunizations', {
 				select: me.onImmunizationSearchSelect
 			},
 			'#ImmunizationsImmunizationNdcSearch': {
-				select: me.onImmunizationNdcSearchhSelect
+				select: me.onImmunizationNdcSearchSelect
 			},
 			'#patientImmunizationsEditFormAdministeredByField': {
 				select: me.onPatientImmunizationsEditFormAdministeredByFieldSelect
@@ -52338,7 +52381,7 @@ Ext.define('App.controller.patient.Immunizations', {
 		});
 	},
 
-	onImmunizationNdcSearchhSelect: function(combo, record){
+	onImmunizationNdcSearchSelect: function(combo, record){
 		var form = combo.up('form').getForm();
 
 		this.getCvxMvxCombo().getStore().load({
@@ -52347,8 +52390,9 @@ Ext.define('App.controller.patient.Immunizations', {
 			}
 		});
 		form.getRecord().set({
-			code: record[0].get('NDC11'),
-			code_type: 'NDC'
+			code: record[0].get('CVXCode'),
+			code_type: 'CVX',
+			ndc: record[0].get('NDC11')
 		});
 	},
 
@@ -63049,6 +63093,8 @@ Ext.define('App.ux.form.fields.plugin.FieldTab', {
 		'wordSpacing'
 	],
 
+	tooltipConfig: {},
+
 	/**
 	 *
 	 * @param field
@@ -63056,15 +63102,100 @@ Ext.define('App.ux.form.fields.plugin.FieldTab', {
 	init: function(field){
 		var me = this;
 
+		me.field = field;
+
 		field.enableKeyEvents = true;
 
 		me.last_key_time = new Date().getTime();
 		me.working_textfield = null;
 
 		field.on('render', function (f) {
+			me.initTooltip(field);
 			f.inputEl.on('keydown', me.onKeyDown, me);
 			f.inputEl.on('keyup', me.onKeyUp, me);
+			f.inputEl.on('click', me.onClick, me);
 		});
+		field.on('beforedestroy', function (f) {
+			f.inputEl.un('keydown', me.onKeyDown, me);
+			f.inputEl.un('keyup', me.onKeyUp, me);
+			f.inputEl.un('click', me.onClick, me);
+		});
+
+		me.speakCtrl = app.getController('App.controller.Speak');
+
+		app.on((me.field.id + '-' + 'optionclick'), me.onOptionClick, me);
+		me.field.on('destroy', function (){
+			app.un((me.field.id + '-' + 'optionclick'), me.onOptionClick, me);
+		});
+
+
+	},
+
+	initTooltip: function (field){
+
+		this.tip =  Ext.create('Ext.tip.ToolTip', Ext.apply({
+			target: field.id,
+			anchor: 'top',
+			disabled: true,
+			autoShow: false,
+			autoHide: false,
+			closable: true,
+			listeners: {
+				'close': function(){
+					this.disable();
+				}
+			}
+		}, this.tooltipConfig));
+	},
+
+	showTooltipOptions: function (field_text, start, end){
+
+		var me = this, options, links, event;
+
+		if(field_text.search(/|/) === -1){
+			return;
+		}
+
+		options = field_text.replace(/\[|]/g, '').split('|').map(function (x){
+			return x.replace(/^.*:/, '').trim();
+		})
+		if(options.length === 1 && options[0] === ''){
+			return;
+		}
+
+		links = [];
+		event = me.field.id + '-' + 'optionclick';
+
+		options.forEach(function (option){
+			if(option === ''){
+				return;
+			}
+			links.push(Ext.String.format('<a href="#" data-option="{0}" data-start="{1}" data-end="{2}" onclick="app.fireEvent(\'{3}\', this)">{0}</a>', option, start, end, event));
+		});
+
+		me.tip.update(links.join(' | '));
+		me.tip.enable();
+		me.tip.show();
+	},
+
+	hideTooltipOptions: function (){
+		if(this.tip.isVisible()){
+			this.tip.update('');
+			this.tip.hide();
+			this.tip.disable();
+		}
+	},
+
+	onOptionClick: function (link){
+
+		this.field.focus(false);
+		document.execCommand("insertText", false, link.dataset.option);
+
+		this.hideTooltipOptions();
+
+		if(this.hasFields(this.field.inputEl.dom)) {
+			this.doNextField(this.field.inputEl.dom);
+		}
 	},
 
 	doPrevField: function(input){
@@ -63081,6 +63212,8 @@ Ext.define('App.ux.form.fields.plugin.FieldTab', {
 
 	onKeyDown: function(e, t, eOpts){
 		var key = e.getKey();
+
+		this.hideTooltipOptions();
 
 		if(!this.is_buffing){
 			this.keys_down_time[key] = new Date().getTime();
@@ -63107,25 +63240,8 @@ Ext.define('App.ux.form.fields.plugin.FieldTab', {
 		var key = e.getKey(),
 			code = e.getCharCode();
 
-		say('onKeyUp');
-
 		if(!this.is_buffing){
 			this.keys_up_time[key] = new Date().getTime();
-		}
-
-		if(this.enableDragonTypingFix){
-			if(key != 144 && !e.isSpecialKey() && !e.isNavKeyPress()){
-				if(this.isDragon(key)){
-					//say('is dragon...');
-					if(code == 190){
-						code = 46;
-					}
-					this.is_buffing = true;
-					this.buff += String.fromCharCode(code);
-					if(this.start_index == -1) this.start_index = this.getCursorPos(t).start - 1;
-					this.doTypingFixBuffer(key, t);
-				}
-			}
 		}
 
 		if(key == e.SHIFT){
@@ -63154,9 +63270,8 @@ Ext.define('App.ux.form.fields.plugin.FieldTab', {
 		}
 	},
 
-	isDragon: function(key){
-		//say((this.keys_up_time[key] - this.keys_down_time[key]));
-		return this.is_buffing || (this.keys_up_time[key] - this.keys_down_time[key]) <= 15;
+	onClick: function (){
+		this.hideTooltipOptions();
 	},
 
 	hasFields: function(input){
@@ -63181,6 +63296,10 @@ Ext.define('App.ux.form.fields.plugin.FieldTab', {
 
 		this.setCursorPos(input, start, end);
 		this.setScroll(input, start, end);
+
+		var field_text = input.value.substr(start, (end - start));
+		this.speak(field_text);
+		this.showTooltipOptions(field_text);
 	},
 
 	getNextField: function(cursor, input){
@@ -63199,6 +63318,11 @@ Ext.define('App.ux.form.fields.plugin.FieldTab', {
 		end = start + end;
 		this.setCursorPos(input, start, end);
 		this.setScroll(input, start, end);
+
+		var field_text = input.value.substr(start, (end - start));
+		this.speak(field_text);
+		this.showTooltipOptions(field_text);
+
 	},
 
 	setScroll: function(input, start, end){
@@ -63318,7 +63442,20 @@ Ext.define('App.ux.form.fields.plugin.FieldTab', {
 			rng.moveEnd("character", end - start);
 			rng.select();
 		}
-	}
+	},
+
+	speak: function(field_text){
+
+		if(field_text.search(/^\[*#/) === -1){
+			return;
+		}
+
+		field_text = field_text.replace(/^\[#([a-z 0-9]*).*/g,'$1');
+
+		say(field_text);
+
+		this.speakCtrl.speak(field_text);
+	},
 
 });
 Ext.define('App.model.patient.NursesNote', {
@@ -63618,6 +63755,11 @@ Ext.define('App.view.patient.encounter.SOAP', {
 								}
 							]
 						}),
+						me.physicalExamForm = Ext.widget('form', {
+							title: 'Physical Exam',
+							itemId: 'EncounterPhysicalExamForm',
+							layout: 'fit'
+						}),
 						{
 							xtype: 'grid',
 							frame: true,
@@ -63801,6 +63943,12 @@ Ext.define('App.view.patient.encounter.SOAP', {
 
 		Ext.apply(me, {
 			items: [ me.snippets, me.form ]
+		});
+
+
+		me.physicalExamForm.getFormItems(me.physicalExamForm, 17, function(){
+
+
 		});
 
 		me.callParent(arguments);
@@ -83439,17 +83587,35 @@ Ext.define('App.view.Viewport', {
 	    }
 
 	    me.el.on('click', me.onUserViewportClick, me);
-	    // Ext.create('Ext.window.Window', {
-	    // 	height: 250,
-	    // 	width: 250,
+
+	    // var w = Ext.create('Ext.window.Window', {
+	    // 	height: 400,
+	    // 	width: 400,
+		// 	bodyPadding: 5,
 	    // 	items: [
-	    // 		Ext.create('App.ux.form.fields.Switch', {
-		//             // fieldLabel: 'Hello World 1',
-		//             // labelAlign: 'top',
-		//             boxLabel: 'Hello World 2',
-		//         })
+		// 		{
+		// 			xtype: 'form',
+		// 			items: [
+		// 				{
+		// 					xtype: 'physicalexamfield',
+		// 					fieldLabel: 'General',
+		// 					boxLabel: '(Conscious, alert, oriented X3)',
+		// 					name: 'testing_one'
+		// 				},
+		// 				{
+		// 					xtype: 'physicalexamfield',
+		// 					fieldLabel: 'Head',
+		// 					boxLabel: '(Conscious, alert, oriented X3)',
+		// 					name: 'testing_two'
+		// 				}
+		// 			]
+		// 		}
+		//
 		//     ]
 	    // }).show();
+		//
+	    // say(w.down('form').getForm().getValues());
+
 
 
 	    //me.signature = Ext.create('App.view.signature.SignatureWindow');

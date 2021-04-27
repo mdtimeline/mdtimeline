@@ -85,7 +85,9 @@ class DocumentHandler
         'text/gif' => 'xml',
         'image/xml' => 'wav',
         'text/plain' => 'txt',
-        'text/html' => 'html'
+        'text/html' => 'html',
+        'image/tiff' => 'tif',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx'
     ];
 
     function __construct()
@@ -1099,9 +1101,9 @@ class DocumentHandler
         $this->setPatientDocumentModel();
         $this->d->setOrFilterProperties(['filesystem_id']);
         $this->d->addFilter('filesystem_id', null, '=');
-        $this->d->addFilter('filesystem_id', '', '=');
+        //$this->d->addFilter('filesystem_id', '', '=');
 
-        $records = $this->d->load()->limit(0, $quantity)->all();
+        $records = $this->d->load()->limit(0, $quantity)->sortBy('id', 'DESC')->all();
 
         foreach ($records as $record) {
             $this->handleDocumentFile($record);

@@ -42559,6 +42559,7 @@ Ext.define('App.controller.administration.MeasureCalculation', {
         this.doReportMeasureByDates(grid_store, 'HeartFailureBetaBlocker', provider_id, from, to, insurance_id);
         this.doReportMeasureByDates(grid_store, 'InfluenzaImmunization', provider_id, from, to, insurance_id);
         this.doReportMeasureByDates(grid_store, 'PneumococcalImmunization', provider_id, from, to, insurance_id);
+        this.doReportMeasureByDates(grid_store, 'FallsRiskAssessment', provider_id, from, to, insurance_id);
 
 
     },

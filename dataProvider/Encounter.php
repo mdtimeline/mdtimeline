@@ -1183,9 +1183,9 @@ class Encounter {
                     $lis .= '<li>';
                     $lis .= '<u>' . (isset($observation->label) ? $observation->label : '')  . '</u> - ';
                     if(isset($observation->normal) && $observation->normal){
-                        $lis .= 'NL';
+                        $lis .= 'Normal';
                     }else if(isset($observation->abnormal) && $observation->abnormal){
-                        $lis .= 'ABNL';
+                        $lis .= 'Abnormal';
                     }else{
                         $lis .= 'Not Reported';
                     }

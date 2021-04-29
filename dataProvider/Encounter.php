@@ -33,6 +33,7 @@ include_once(ROOT . '/dataProvider/DiagnosisCodes.php');
 include_once(ROOT . '/dataProvider/FamilyHistory.php');
 include_once(ROOT . '/dataProvider/NursesNotes.php');
 include_once(ROOT . '/dataProvider/EncounterAddenda.php');
+include_once(ROOT . '/dataProvider/PhysicalExams.php');
 
 class Encounter {
 	/**
@@ -1164,6 +1165,46 @@ class Encounter {
 		}
 		$str_buff .= '</div>';
 
+        /**
+         * Physical Exam
+         */
+        $PhysicalExams = new PhysicalExams();
+        $physical_exams = $PhysicalExams->getPhysicalExamsByEid($eid);
+        if(!empty($physical_exams)){
+
+            $str_buff .= '<div class="indent">';
+            $lis = '';
+            foreach($physical_exams as $foo){
+
+                $observations = (array)$foo['exam_data'];
+
+                foreach ($observations as $observation){
+
+                    $lis .= '<li>';
+                    $lis .= '<u>' . (isset($observation->label) ? $observation->label : '')  . '</u> - ';
+                    if(isset($observation->normal) && $observation->normal){
+                        $lis .= 'NL';
+                    }else if(isset($observation->abnormal) && $observation->abnormal){
+                        $lis .= 'ABNL';
+                    }else{
+                        $lis .= 'Not Reported';
+                    }
+
+                    if(isset($observation->abnormal_note) && $observation->abnormal_note !== ''){
+                        $lis .= ': ' . $observation->abnormal_note;
+                    }
+
+                    $lis .= '</li>';
+
+                }
+
+            }
+            $str_buff .= '<p><b>Physical Exam:</b></p>';
+            $str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">' . $lis . '</ul>';
+            $str_buff .= '</div>';
+
+        }
+        unset($ActiveMedications, $medications_ordered, $medications_administered);
 
 		/**
 		 * Immunizations ????

@@ -56,4 +56,10 @@ class PhysicalExams
         return $this->e->destroy($params);
     }
 
+    public function getPhysicalExamsByEid($eid)
+    {
+        $this->e->addFilter('eid', $eid);
+        return $this->e->load()->all();
+    }
+
 }

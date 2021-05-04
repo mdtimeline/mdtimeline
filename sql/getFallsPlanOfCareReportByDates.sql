@@ -41,11 +41,11 @@ BEGIN
                                     SELECT *
                                     FROM patient_cognitive_functional_status
                                     WHERE code IN ('1912002')
+                                    AND begin_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
                                     ) AS pcfs
                                 ON pcfs.pid = enc.pid
                                 AND pcfs.eid = enc.eid
-                                WHERE enc.service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
-                                AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
+                                WHERE YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
                                 AND pi.insurance_id = insurance_id
                                 AND enc.provider_uid = provider_id
                         ) e
@@ -82,11 +82,11 @@ BEGIN
                                     SELECT *
                                     FROM patient_cognitive_functional_status
                                     WHERE code IN ('1912002')
+                                    AND begin_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
                                     ) AS pcfs
                                 ON pcfs.pid = enc.pid
                                 AND pcfs.eid = enc.eid
-                                WHERE enc.service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
-                                AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
+                                WHERE YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
                                 AND enc.provider_uid = provider_id
                         ) te
                         GROUP BY pid

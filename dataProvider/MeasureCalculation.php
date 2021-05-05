@@ -124,6 +124,11 @@ class MeasureCalculation {
 				$results = $this->getSupportElectronicReferralLoopsReportByDates($provider_id, $insurance_id, $start_date, $end_date);
 			}
 
+            // MIPS
+			if($measure == 'ClosingTheReferralLoopReceipt'){
+				$results = $this->getClosingTheReferralLoopReceiptReportByDates($provider_id, $insurance_id, $start_date, $end_date);
+			}
+
 
 			return $results;
 		}catch (Exception $e){
@@ -843,7 +848,7 @@ class MeasureCalculation {
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
-			'group' => 'Quality ID #0118 (NQF: 0066): Coronary Artery Disease (CAD): Angiotensin-Converting Enzyme (ACE) Inhibitor or Angiotensin Receptor Blocker (ARB) Thera',
+			'group' => 'Quality ID #0118 (NQF: 0066) Heart Failure (HF): Angiotensin-Converting Enzyme (ACE) Inhibitor or Angiotensin Receptor Blocker (ARB) or Angiotensin',
 			'provider' => $report['provider'],
 			'insurance' => $report['insurance'],
 			'title' => $report['title'],
@@ -1096,6 +1101,37 @@ class MeasureCalculation {
 			'insurance' => $report['insurance'],
 			'title' => $report['title'],
 			'description' => 'For at least one transition of care or referrals, the MIPS eligible clinician that transitions or refers their patients to another setting of care or healtchare provider',
+			'denominator' => $report['denominator'],
+			'numerator' => $report['numerator'],
+			'denominator_pids' => $report['denominator_pids'],
+			'numerator_pids' => $report['numerator_pids'],
+			'goal' => 'N/A'
+		];
+
+		return $records;
+	}
+
+	//
+	private function getClosingTheReferralLoopReceiptReportByDates($provider_id, $insurance_id, $start_date, $end_date){
+
+		$records = [];
+
+		/**
+		 */
+
+		/**
+		 */
+
+		$sth = $this->conn->prepare("CALL `getClosingTheReferralLoopReceiptReportByDates`(?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date]);
+		$report =  $sth->fetch(PDO::FETCH_ASSOC);
+
+		$records[] = [
+			'group' => 'Quality ID #374: Closing the Referral Loop: Receipt of Specialist Report',
+			'provider' => $report['provider'],
+			'insurance' => $report['insurance'],
+			'title' => $report['title'],
+			'description' => 'Percentage of patients with referrals, regardless of age, for which the referring provider receives a report from the provider to whom the patient was referred',
 			'denominator' => $report['denominator'],
 			'numerator' => $report['numerator'],
 			'denominator_pids' => $report['denominator_pids'],

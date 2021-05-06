@@ -129,6 +129,11 @@ class MeasureCalculation {
 				$results = $this->getClosingTheReferralLoopReceiptReportByDates($provider_id, $insurance_id, $start_date, $end_date);
 			}
 
+            // MIPS
+			if($measure == 'BreastCancerScreening'){
+				$results = $this->getBreastCancerScreeningReportByDates($provider_id, $insurance_id, $start_date, $end_date);
+			}
+
 
 			return $results;
 		}catch (Exception $e){
@@ -1100,7 +1105,7 @@ class MeasureCalculation {
 			'provider' => $report['provider'],
 			'insurance' => $report['insurance'],
 			'title' => $report['title'],
-			'description' => 'For at least one transition of care or referrals, the MIPS eligible clinician that transitions or refers their patients to another setting of care or healtchare provider',
+			'description' => 'Measure Description: For at least one transition of care or referrals, the MIPS eligible clinician that transitions or refers their patients to another setting of care or healtchare provider',
 			'denominator' => $report['denominator'],
 			'numerator' => $report['numerator'],
 			'denominator_pids' => $report['denominator_pids'],
@@ -1131,7 +1136,38 @@ class MeasureCalculation {
 			'provider' => $report['provider'],
 			'insurance' => $report['insurance'],
 			'title' => $report['title'],
-			'description' => 'Percentage of patients with referrals, regardless of age, for which the referring provider receives a report from the provider to whom the patient was referred',
+			'description' => 'Measure Description: Percentage of patients with referrals, regardless of age, for which the referring provider receives a report from the provider to whom the patient was referred',
+			'denominator' => $report['denominator'],
+			'numerator' => $report['numerator'],
+			'denominator_pids' => $report['denominator_pids'],
+			'numerator_pids' => $report['numerator_pids'],
+			'goal' => 'N/A'
+		];
+
+		return $records;
+	}
+
+	//
+	private function getBreastCancerScreeningReportByDates($provider_id, $insurance_id, $start_date, $end_date){
+
+		$records = [];
+
+		/**
+		 */
+
+		/**
+		 */
+
+		$sth = $this->conn->prepare("CALL `getBreastCancerScreeningReportByDates`(?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date]);
+		$report =  $sth->fetch(PDO::FETCH_ASSOC);
+
+		$records[] = [
+			'group' => 'Quality ID #112 (NQF 2372): Breast Cancer Screening CMS125V9',
+			'provider' => $report['provider'],
+			'insurance' => $report['insurance'],
+			'title' => $report['title'],
+			'description' => 'Measure Description: Percentage of women 50 - 74 years of age who had a mammogram to screen for breast cancer in the 27 months prior to the end of the measurement period. This measure evaluates primary screening. Do not count biopsies, breast ultrasounds, or MRIs because they are not appropriate methods for primary breast cancer screening.',
 			'denominator' => $report['denominator'],
 			'numerator' => $report['numerator'],
 			'denominator_pids' => $report['denominator_pids'],

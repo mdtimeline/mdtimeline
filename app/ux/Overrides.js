@@ -868,7 +868,20 @@ Ext.override(Ext.form.field.ComboBox, {
 
 		this.wrapFocusCls = this.triggerWrapCls + '-focus';
 		this.callParent(arguments);
-	}
+	},
+    onListRefresh: function() {
+        // Picker will be aligned during the expand call
+        if (!this.expanding) {
+            this.alignPicker();
+        }
+
+        // added to fix the hide issue in windows
+        if (this.picker.isVisible()) {
+            this.picker.toFront();
+        }
+
+        this.syncSelection();
+    },
 });
 
 Ext.override(Ext.form.field.Date, {

@@ -245,7 +245,7 @@ Ext.define('App.controller.patient.Interventions', {
 			intervention, params;
 
 		// is adult of no overweight
-		if(patient_age_years < 18) return;
+		// if(patient_age_years < 18) return;
 
 		if(overweight_found){
 			intervention = me.bmi_overweight_intervention;

@@ -75,8 +75,8 @@ class MeasureCalculation {
 			}
 
             // MIPS
-			if($measure == 'CoronaryArteryDisease'){
-				$results = $this->getCoronaryArteryDiseaseReportByDates($provider_id, $insurance_id, $start_date, $end_date);
+			if($measure == 'HeartFailureARBorARNI'){
+				$results = $this->getHeartFailureARBorARNI($provider_id, $insurance_id, $start_date, $end_date);
 			}
 
             // MIPS
@@ -838,7 +838,7 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getCoronaryArteryDiseaseReportByDates($provider_id, $insurance_id, $start_date, $end_date){
+	private function getHeartFailureARBorARNI($provider_id, $insurance_id, $start_date, $end_date){
 
 		$records = [];
 
@@ -848,16 +848,16 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getCoronaryArteryDiseaseReportByDates`(?, ?, ?, ?);");
+		$sth = $this->conn->prepare("CALL `getHeartFailureARBorARNI`(?, ?, ?, ?);");
 		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
-			'group' => 'Quality ID #0118 (NQF: 0066) Heart Failure (HF): Angiotensin-Converting Enzyme (ACE) Inhibitor or Angiotensin Receptor Blocker (ARB) or Angiotensin',
+			'group' => '(NQF 0081): Heart Failure (HF): Angiotensin-Converting Enzyme (ACE) Inhibitor or Angiotensin Receptor Blocker (ARB) or Angiotensin Receptor-Neprilys',
 			'provider' => $report['provider'],
 			'insurance' => $report['insurance'],
 			'title' => $report['title'],
-			'description' => 'Measure Description: Percentage of patients aged 18 years and older with a diagnosis of coronary artery disease seen within a 12 month period who also have diabetes OR a current or prior Left Ventricular Ejection Fraction (LVEF) < 40% who were prescribed ACE inhibitor or ARB therapy',
+			'description' => 'Measure Description: Percentage of patients aged 18 years and older with a diagnosis of heart failure (HF) with a current or prior left ventricular ejection fraction (LVEF) < 40% who were prescribed ACE inhibitor or ARB or ARNI therapy either within a 12-month period when seen in the outpatient setting OR at each hospital discharge.',
 			'denominator' => $report['denominator'],
 			'numerator' => $report['numerator'],
 			'denominator_pids' => $report['denominator_pids'],

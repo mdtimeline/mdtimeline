@@ -105,6 +105,9 @@ Ext.define('App.model.administration.PrintJob', {
 			create: 'PrintJob.addPrintJob',
 			update: 'PrintJob.updatePrintJob',
 			destroy: 'PrintJob.destroyPrintJob'
+		},
+		reader: {
+			root: 'data'
 		}
 	}
 });

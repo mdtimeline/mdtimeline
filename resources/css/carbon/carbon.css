@@ -4833,7 +4833,7 @@ textarea.x-form-invalid-field {
 /* line 11, ../../themes/stylesheets/carbon/default/widgets/form/_checkbox.scss */
 .x-form-checkbox,
 .x-form-radio {
-  vertical-align: -1px;
+  vertical-align: -4px;
   width: 16px;
   height: 16px;
   background: no-repeat;

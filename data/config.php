@@ -2411,6 +2411,9 @@ $API = [
 			'getPatients' => [
 				'len' => 1
             ],
+			'getPatient' => [
+				'len' => 1
+            ],
 			'savePatient' => [
 				'len' => 1
             ],

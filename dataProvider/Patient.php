@@ -673,8 +673,14 @@ class Patient
 				$phone_query = '';
 			}
 
+            if(is_numeric($query)){
+                $lic_query = " OR drivers_license = :drivers_license_{$index}";
+                $whereValues[':drivers_license_' . $index] = $query;
+            }else{
+                $lic_query = '';
+            }
+
 			if ($single_query) {
-                $where[] = " (pubpid REGEXP :reg_pubpid{$index} OR pubpid = :pubpid{$index} OR fname LIKE :fname{$index} OR lname LIKE :lname{$index} OR mname LIKE :mname{$index} OR DOB LIKE :DOB{$index} OR pid LIKE :pid{$index} OR SS LIKE :ss{$index} {$phone_query}) ";
                 if (preg_match('/^(.)-(.*)-(.{2})$/', $query, $matches)) {
 					$whereValues[':reg_pubpid' . $index] = '^' . $matches[1] . '-' . str_pad($matches[2], 15, '0', STR_PAD_LEFT) . '-' . $matches[3] . '$';
 				} elseif (preg_match('/^(.)-(.*)$/', $query, $matches)) {
@@ -686,8 +692,10 @@ class Patient
 				}
                 $whereValues[':pubpid' . $index] = $query;
 
-			} else {
-                $where[] = " (fname LIKE :fname{$index} OR lname LIKE :lname{$index} OR mname LIKE :mname{$index} OR DOB LIKE :DOB{$index} OR pid LIKE :pid{$index} OR SS LIKE :ss{$index} {$phone_query}) ";
+                $where[] = " (pubpid REGEXP :reg_pubpid{$index} OR pubpid = :pubpid{$index} OR fname LIKE :fname{$index} OR lname LIKE :lname{$index} OR mname LIKE :mname{$index} OR DOB LIKE :DOB{$index} OR pid LIKE :pid{$index} OR SS LIKE :ss{$index} {$phone_query} {$lic_query}) ";
+
+            } else {
+                $where[] = " (fname LIKE :fname{$index} OR lname LIKE :lname{$index} OR mname LIKE :mname{$index} OR DOB LIKE :DOB{$index} OR pid LIKE :pid{$index} OR SS LIKE :ss{$index} {$phone_query} {$lic_query}) ";
 			}
 
 			$whereValues[':DOB' . $index] = $query . '%';

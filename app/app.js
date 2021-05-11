@@ -83123,7 +83123,7 @@ Ext.define('App.view.Viewport', {
 					    xtype: 'patienlivetsearch',
 					    emptyText: _('patient_live_search') + '...',
 					    width: 300,
-
+						itemId: 'HeaderPatientLiveSearchField',
 					    listeners: {
 						    scope: me,
 						    select: me.liveSearchSelect,

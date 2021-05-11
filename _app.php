@@ -834,6 +834,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                                 'miscellaneous.Amendments',
 
                                 'AlwaysOnTop',
+                                'BarcodeScanner',
                                 'Clock',
                                 'Cron',
                                 'DocumentViewer',
@@ -866,6 +867,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                                 'patient.CognitiveAndFunctionalStatus',
                                 'patient.DecisionSupport',
                                 'patient.Dictation',
+                                'patient.DriverLicence',
                                 'patient.DoctorsNotes',
                                 'patient.DocumentArchiveLocation',
                                 'patient.Documents',

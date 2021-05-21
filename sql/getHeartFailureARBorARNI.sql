@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `getHeartFailureARBorARNI`;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getHeartFailureARBorARNI`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getHeartFailureARBorARNI`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR)
 BEGIN
 
 
@@ -60,7 +60,9 @@ BEGIN
                 WHERE enc.provider_uid = provider_id
                 AND enc.service_date BETWEEN start_date AND end_date
                 AND pi.insurance_id = insurance_id
+                AND (sex IS NULL OR p.sex = sex)
                 AND YEAR(start_date) - YEAR(p.DOB) - (RIGHT(start_date, 5) < RIGHT(p.DOB, 5)) >= 18
+                AND edx.dx_type = 'F'
                 AND edx.code IN ('I50.1',  'I50.20',  'I50.21',  'I50.23',  'I50.30',  'I50.31',  'I50.33',  'I50.40',
                                 'I50.41',  'I50.43',  'I50.9')) e;
 
@@ -103,7 +105,9 @@ BEGIN
                     INNER JOIN encounter_dx as edx ON enc.eid = edx.eid AND enc.pid = edx.pid
                 WHERE enc.provider_uid = provider_id
                 AND enc.service_date BETWEEN start_date AND end_date
+                AND (sex IS NULL OR p.sex = sex)
                 AND YEAR(start_date) - YEAR(p.DOB) - (RIGHT(start_date, 5) < RIGHT(p.DOB, 5)) >= 18
+                AND edx.dx_type = 'F'
                 AND edx.code IN ('I50.1',  'I50.20',  'I50.21',  'I50.23',  'I50.30',  'I50.31',  'I50.33',  'I50.40',
                                  'I50.41',  'I50.43',  'I50.9')) e;
 

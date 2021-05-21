@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `getFallsRiskAssessmentReportByDates`;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getFallsRiskAssessmentReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getFallsRiskAssessmentReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR)
 BEGIN
 
     DROP TABLE IF EXISTS report_ds;
@@ -46,6 +46,7 @@ BEGIN
                                 ON pcfs.pid = enc.pid
                                 AND pcfs.eid = enc.eid
                                 WHERE YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
+                                AND (sex IS NULL OR p.sex = sex)
                                 AND pi.insurance_id = insurance_id
                                 AND enc.provider_uid = provider_id
                         ) e
@@ -87,6 +88,7 @@ BEGIN
                             ON pcfs.pid = enc.pid
                             AND pcfs.eid = enc.eid
                             WHERE YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
+                            AND (sex IS NULL OR p.sex = sex)
                             AND enc.provider_uid = provider_id
                     ) e
                     GROUP BY pid

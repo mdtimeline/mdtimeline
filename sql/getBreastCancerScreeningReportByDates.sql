@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `getBreastCancerScreeningReportByDates`;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getBreastCancerScreeningReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getBreastCancerScreeningReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR)
 BEGIN
 
     DROP TABLE IF EXISTS report_ds;
@@ -47,10 +47,10 @@ BEGIN
                  INNER JOIN patient_insurances AS pi ON p.pid = pi.pid
                  WHERE enc.provider_uid = provider_id
                  AND enc.service_date BETWEEN start_date AND end_date
+                 AND (sex IS NULL OR p.sex = sex)
                  AND pi.insurance_id = insurance_id
                  AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 51
-                 AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) <= 74
-                 AND sex = 'F') e;
+                 AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) <= 74) e;
         ELSE
 
             CREATE TEMPORARY TABLE report_ds
@@ -81,9 +81,9 @@ BEGIN
                  INNER JOIN patient p ON enc.pid = p.pid
                  WHERE enc.provider_uid = provider_id
                  AND enc.service_date BETWEEN start_date AND end_date
+                 AND (sex IS NULL OR p.sex = sex)
                  AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 51
-                 AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) <= 74
-                 AND sex = 'F') e;
+                 AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) <= 74) e;
         END IF;
 
 

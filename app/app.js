@@ -28135,8 +28135,23 @@ Ext.define('App.view.patient.Results', {
 											allowBlank: false
 										},
 										{
+											xtype: 'combobox',
 											fieldLabel: _('status'),
-											name: 'result_status'
+											name: 'result_status',
+											queryMode: 'local',
+											displayField: 'option',
+											valueField: 'value',
+											store: Ext.create('Ext.data.Store', {
+												fields: ['option', 'value'],
+												data: [
+													{ option: 'Aborted', value: 'aborted'},
+													{ option: 'Active', value: 'active'},
+													{ option: 'Cancelled', value: 'cancelled'},
+													{ option: 'Completed', value: 'completed'},
+													{ option: 'Held', value: 'held'},
+													{ option: 'Suspended', value: 'suspended'}
+												]
+											})
 										},
 										{
 											xtype: 'fileuploadfield',
@@ -42497,6 +42512,10 @@ Ext.define('App.controller.administration.MeasureCalculation', {
         {
             selector: '#MIPSGridInsuranceField',
             ref: 'MIPSGridInsuranceField'
+        },
+        {
+            selector: '#MIPSGridSexField',
+            ref: 'MIPSGridSexField'
         }
     ],
 
@@ -42537,6 +42556,7 @@ Ext.define('App.controller.administration.MeasureCalculation', {
             toField = this.getMIPSGridToField(),
             providerField = this.getMIPSGridProviderField(),
             insuranceField = this.getMIPSGridInsuranceField(),
+            sexField = this.getMIPSGridSexField(),
             grid_store = this.getMIPSGrid().getStore();
 
         grid_store.removeAll();
@@ -42549,21 +42569,25 @@ Ext.define('App.controller.administration.MeasureCalculation', {
         var provider_id = providerField.getValue(),
             insurance_id = insuranceField.getValue(),
             from = Ext.Date.format(fromField.getValue(), 'Y-m-d'),
-            to = Ext.Date.format(toField.getValue(), 'Y-m-d');
+            to = Ext.Date.format(toField.getValue(), 'Y-m-d'),
+            sex = sexField.getValue();
 
-        this.doReportMeasureByDates(grid_store, 'AdvanceCarePlan', provider_id, from, to, insurance_id);
-        this.doReportMeasureByDates(grid_store, 'ControllingHighBloodPressure', provider_id, from, to, insurance_id);
-        this.doReportMeasureByDates(grid_store, 'HeartFailureARBorARNI', provider_id, from, to, insurance_id);
-        this.doReportMeasureByDates(grid_store, 'CoronaryArteryDiseaseAntiplatelet', provider_id, from, to, insurance_id);
-        this.doReportMeasureByDates(grid_store, 'CoronaryArteryDiseaseBetaBlocker', provider_id, from, to, insurance_id);
-        this.doReportMeasureByDates(grid_store, 'HeartFailureBetaBlocker', provider_id, from, to, insurance_id);
-        this.doReportMeasureByDates(grid_store, 'InfluenzaImmunization', provider_id, from, to, insurance_id);
-        this.doReportMeasureByDates(grid_store, 'PneumococcalImmunization', provider_id, from, to, insurance_id);
-        this.doReportMeasureByDates(grid_store, 'FallsRiskAssessment', provider_id, from, to, insurance_id);
-        this.doReportMeasureByDates(grid_store, 'FallsPlanOfCare', provider_id, from, to, insurance_id);
-        this.doReportMeasureByDates(grid_store, 'SupportElectronicReferralLoops', provider_id, from, to, insurance_id);
-        this.doReportMeasureByDates(grid_store, 'ClosingTheReferralLoopReceipt', provider_id, from, to, insurance_id);
-        this.doReportMeasureByDates(grid_store, 'BreastCancerScreening', provider_id, from, to, insurance_id);
+        this.doReportMeasureByDates(grid_store, 'AdvanceCarePlan', provider_id, from, to, insurance_id, sex);
+        this.doReportMeasureByDates(grid_store, 'ControllingHighBloodPressure', provider_id, from, to, insurance_id, sex);
+        this.doReportMeasureByDates(grid_store, 'HeartFailureARBorARNI', provider_id, from, to, insurance_id, sex);
+        this.doReportMeasureByDates(grid_store, 'CoronaryArteryDiseaseAntiplatelet', provider_id, from, to, insurance_id, sex);
+        this.doReportMeasureByDates(grid_store, 'CoronaryArteryDiseaseBetaBlocker', provider_id, from, to, insurance_id, sex);
+        this.doReportMeasureByDates(grid_store, 'HeartFailureBetaBlocker', provider_id, from, to, insurance_id, sex);
+        this.doReportMeasureByDates(grid_store, 'InfluenzaImmunization', provider_id, from, to, insurance_id, sex);
+        this.doReportMeasureByDates(grid_store, 'PneumococcalImmunization', provider_id, from, to, insurance_id, sex);
+        this.doReportMeasureByDates(grid_store, 'FallsRiskAssessment', provider_id, from, to, insurance_id, sex);
+        this.doReportMeasureByDates(grid_store, 'FallsPlanOfCare', provider_id, from, to, insurance_id, sex);
+        this.doReportMeasureByDates(grid_store, 'SupportElectronicReferralLoops', provider_id, from, to, insurance_id, sex);
+        this.doReportMeasureByDates(grid_store, 'ClosingTheReferralLoopReceipt', provider_id, from, to, insurance_id, sex);
+        this.doReportMeasureByDates(grid_store, 'BreastCancerScreening', provider_id, from, to, insurance_id, sex);
+        this.doReportMeasureByDates(grid_store, 'DocumentationOfCurrentMedications', provider_id, from, to, insurance_id, sex);
+        this.doReportMeasureByDates(grid_store, 'PreventiveCareAndScreeningBMIAndFUP', provider_id, from, to, insurance_id, sex);
+        this.doReportMeasureByDates(grid_store, 'UseOfHighRiskMedicationsInOlderAdults', provider_id, from, to, insurance_id, sex);
 
 
     },
@@ -42632,25 +42656,25 @@ Ext.define('App.controller.administration.MeasureCalculation', {
 	        from = Ext.Date.format(fromField.getValue(), 'Y-m-d'),
 	        to = Ext.Date.format(toField.getValue(), 'Y-m-d');
 
-        this.doReportMeasureByDates(grid_store,'ePrescribing', provider_id, from, to, null);
-        this.doReportMeasureByDates(grid_store,'PatientEducation', provider_id, from, to, null);
-        this.doReportMeasureByDates(grid_store,'ProvidePatientsElectronicAccess', provider_id, from, to, null);
-        this.doReportMeasureByDates(grid_store,'ViewDownloadTransmit', provider_id, from, to, null);
-        this.doReportMeasureByDates(grid_store,'SecureMessaging', provider_id, from, to, null);
-        this.doReportMeasureByDates(grid_store,'PatientGeneratedHealthData', provider_id, from, to, null);
-        this.doReportMeasureByDates(grid_store,'SupportElectronicReferralLoopsSending', provider_id, from, to, null);
-        this.doReportMeasureByDates(grid_store,'ReceiveAndIncorporate', provider_id, from, to, null);
-        this.doReportMeasureByDates(grid_store,'MedicationClinicalInformationReconciliation', provider_id, from, to, null);
-        this.doReportMeasureByDates(grid_store,'CPOEMedications', provider_id, from, to, null);
-        this.doReportMeasureByDates(grid_store,'CPOELaboratory', provider_id, from, to, null);
-        this.doReportMeasureByDates(grid_store,'CPOERadiology', provider_id, from, to, null);
+        this.doReportMeasureByDates(grid_store,'ePrescribing', provider_id, from, to, null, null);
+        this.doReportMeasureByDates(grid_store,'PatientEducation', provider_id, from, to, null, null);
+        this.doReportMeasureByDates(grid_store,'ProvidePatientsElectronicAccess', provider_id, from, to, null, null);
+        this.doReportMeasureByDates(grid_store,'ViewDownloadTransmit', provider_id, from, to, null, null);
+        this.doReportMeasureByDates(grid_store,'SecureMessaging', provider_id, from, to, null, null);
+        this.doReportMeasureByDates(grid_store,'PatientGeneratedHealthData', provider_id, from, to, null, null);
+        this.doReportMeasureByDates(grid_store,'SupportElectronicReferralLoopsSending', provider_id, from, to, null, null);
+        this.doReportMeasureByDates(grid_store,'ReceiveAndIncorporate', provider_id, from, to, null, null);
+        this.doReportMeasureByDates(grid_store,'MedicationClinicalInformationReconciliation', provider_id, from, to, null, null);
+        this.doReportMeasureByDates(grid_store,'CPOEMedications', provider_id, from, to, null, null);
+        this.doReportMeasureByDates(grid_store,'CPOELaboratory', provider_id, from, to, null, null);
+        this.doReportMeasureByDates(grid_store,'CPOERadiology', provider_id, from, to, null, null);
 
     },
 
-    doReportMeasureByDates: function (grid_store, measure, provider_id, start_date, end_date, insurance_id) {
+    doReportMeasureByDates: function (grid_store, measure, provider_id, start_date, end_date, insurance_id, sex) {
         var me = this;
 
-        MeasureCalculation.getReportMeasureByDates(measure, provider_id, start_date, end_date, insurance_id, function (response) {
+        MeasureCalculation.getReportMeasureByDates(measure, provider_id, start_date, end_date, insurance_id, sex, function (response) {
             grid_store.loadData(response, true);
             me.doSortGridStoreBuffer(grid_store);
         });
@@ -52446,7 +52470,16 @@ Ext.define('App.controller.patient.Immunizations', {
 
 
 	onReviewImmunizationsBtnClick: function(){
-
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+		encounter.set({review_immunizations: true});
+		encounter.save({
+			success: function(){
+				app.msg(_('sweet'), _('items_to_review_save_and_review'));
+			},
+			failure: function(){
+				app.msg(_('oops'), _('items_to_review_entry_error'));
+			}
+		});
 	},
 
 	onAddImmunizationBtnClick: function(){

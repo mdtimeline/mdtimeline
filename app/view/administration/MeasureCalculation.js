@@ -232,6 +232,20 @@ Ext.define('App.view.administration.MeasureCalculation', {
 								//multiSelect: true,
 								itemId: 'MIPSGridInsuranceField'
 							},
+							{
+								xtype: 'gaiaehr.combo',
+								name: 'sex',
+								fieldLabel: _('sex'),
+								labelWidth: 25,
+								width: 125,
+								enableKeyEvents: true,
+								allowBlank: false,
+								listKey: 'sex',
+								loadStore: true,
+								editable: false,
+								resetable: true,
+								itemId: 'MIPSGridSexField'
+							},
 							'-',
 							{
 								xtype: 'button',

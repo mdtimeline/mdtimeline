@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `getPneumococcalImmunizationReportByDates`;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getPneumococcalImmunizationReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getPneumococcalImmunizationReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR)
 BEGIN
 
     DROP TABLE IF EXISTS report_ds;
@@ -38,6 +38,7 @@ BEGIN
                     LEFT JOIN patient_insurances as pi ON pi.pid = p.pid
                  WHERE enc.provider_uid = provider_id
                     AND enc.service_date BETWEEN start_date AND end_date
+                    AND (sex IS NULL OR p.sex = sex)
                     AND pi.insurance_id = insurance_id
                     AND TIMESTAMPDIFF(YEAR,p.DOB,start_date) >= 65
                  GROUP BY enc.pid) e;
@@ -62,6 +63,7 @@ BEGIN
                     INNER JOIN patient p ON enc.pid = p.pid
                 WHERE enc.provider_uid = provider_id
                     AND enc.service_date BETWEEN start_date AND end_date
+                    AND (sex IS NULL OR p.sex = sex)
                     AND TIMESTAMPDIFF(YEAR,p.DOB,enc.service_date) >= 65
                 GROUP BY enc.pid) e;
         END IF;

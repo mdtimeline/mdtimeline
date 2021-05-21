@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `getHeartFailureBetaBlockerReportByDates`;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getHeartFailureBetaBlockerReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getHeartFailureBetaBlockerReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR)
 BEGIN
 
 
@@ -50,6 +50,7 @@ BEGIN
                              LEFT JOIN patient_insurances pi ON pi.pid = p.pid
                         WHERE enc.provider_uid = provider_id
                           AND enc.service_date BETWEEN start_date AND end_date
+                          AND (sex IS NULL OR p.sex = sex)
                           AND pi.insurance_id = insurance_id
                           AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 18
                         GROUP BY enc.pid
@@ -60,6 +61,7 @@ BEGIN
                 AND enc.pid = edx.pid
              WHERE enc.provider_uid = provider_id
                 AND enc.service_date BETWEEN start_date AND end_date
+                AND edx.dx_type = 'F'
                 AND edx.code IN ('I50', 'I50.1', 'I50.2', 'I50.20', 'I50.21', 'I50.22', 'I50.23', 'I50.3', 'I50.30',
                                     'I50.31', 'I50.32', 'I50.33', 'I50.4', 'I50.40', 'I50.41', 'I50.42', 'I50.43', 'I50.8')) e;
 
@@ -93,6 +95,7 @@ BEGIN
                         INNER JOIN patient p ON enc.pid = p.pid
                     WHERE enc.provider_uid = provider_id
                         AND enc.service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
+                        AND (sex IS NULL OR p.sex = sex)
                         AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 18
                     GROUP BY enc.pid
                     HAVING  total >= 2) as t
@@ -102,6 +105,7 @@ BEGIN
                     AND enc.pid = edx.pid
                 WHERE enc.provider_uid = provider_id
                     AND enc.service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
+                    AND edx.dx_type = 'F'
                     AND edx.code IN ('I20.0', 'I20.1', 'I20.8', 'I20.9', 'I24.0', 'I24.8', 'I24.9', 'I25.10', 'I25.110', 'I25.111', 'I25.118', 'I25.119',
                                      'I25.5', 'I25.6', 'I25.700', 'I25.701', 'I25.708', 'I25.709', 'I25.710', 'I25.711', 'I25.718', 'I25.719', 'I25.720', 'I25.721',
                                      'I25.728', 'I25.729', 'I25.730', 'I25.731', 'I25.738', 'I25.739', 'I25.750', 'I25.751', 'I25.758', 'I25.759', 'I25.760', 'I25.761',

@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `getInfluenzaImmunizationReportByDates`;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getInfluenzaImmunizationReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getInfluenzaImmunizationReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR)
 BEGIN
 
     DROP TABLE IF EXISTS report_ds;
@@ -45,6 +45,7 @@ BEGIN
                     LEFT JOIN patient_insurances as pi ON pi.pid = p.pid
                  WHERE enc.provider_uid = provider_id
                     AND enc.service_date BETWEEN start_date AND end_date
+                    AND (sex IS NULL OR p.sex = sex)
                     AND pi.insurance_id = insurance_id
                     AND TIMESTAMPDIFF(MONTH,p.DOB,start_date) >= 6
                  GROUP BY enc.pid) e;
@@ -61,11 +62,11 @@ BEGIN
                     '1', '0') as has_encounter_within_season,
                 IF( EXISTS (
                             SELECT * FROM encounters AS enc
-                                              INNER JOIN patient_immunizations AS pi
-                                                         ON enc.pid = pi.pid
-                                                             AND enc.eid = pi.eid
+                            INNER JOIN patient_immunizations AS pi
+                            ON enc.pid = pi.pid
+                            AND enc.eid = pi.eid
                             WHERE enc.pid = e.pid
-                              AND pi.CODE IN (
+                            AND pi.CODE IN (
                                               '135', '140', '141', '144', '149', '150', '155', '158', '161', '166', '168',
                                               '171', '185', '186', '197', '205', '88')
                               AND pi.administered_date BETWEEN  CONCAT(YEAR(start_date) - 1, '-10-01') AND CONCAT(YEAR(start_date), '-03-31')),
@@ -76,6 +77,7 @@ BEGIN
                         INNER JOIN patient p ON enc.pid = p.pid
                     WHERE enc.provider_uid = provider_id
                         AND enc.service_date BETWEEN start_date AND end_date
+                        AND (sex IS NULL OR p.sex = sex)
                         AND TIMESTAMPDIFF(MONTH,p.DOB,enc.service_date) >= 6
                     GROUP BY enc.pid) e;
         END IF;

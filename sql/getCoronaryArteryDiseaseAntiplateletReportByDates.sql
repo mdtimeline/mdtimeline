@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `getCoronaryArteryDiseaseAntiplateletReportByDates`;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getCoronaryArteryDiseaseAntiplateletReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getCoronaryArteryDiseaseAntiplateletReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR)
 BEGIN
 
 
@@ -70,7 +70,9 @@ BEGIN
                           INNER JOIN encounter_dx AS dx ON enc.eid = dx.eid
                  WHERE enc.provider_uid = provider_id
                    AND enc.service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
+                   AND (sex IS NULL OR p.sex = sex)
                    AND pi.insurance_id = insurance_id
+                   AND dx.dx_type = 'F'
                    AND dx.code IN ('I20.0', 'I20.1', 'I20.8', 'I20.9', 'I21.01', 'I21.02', 'I21.09', 'I21.11', 'I21.19',
                      'I21.21', 'I21.29', 'I21.3', 'I21.4', 'I22.0', 'I22.1', 'I22.2', 'I22.8', 'I22.9', 'I24.0', 'I24.1',
                      'I24.8', 'I24.9', 'I25.10', 'I25.110', 'I25.111', 'I25.118', 'I25.119', 'I25.2', 'I25.5', 'I25.6',
@@ -131,6 +133,8 @@ BEGIN
                           INNER JOIN encounter_dx AS dx ON enc.eid = dx.eid
                  WHERE enc.provider_uid = provider_id
                    AND enc.service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
+                   AND (sex IS NULL OR p.sex = sex)
+                   AND dx.dx_type = 'F'
                    AND dx.code IN ('I20.0', 'I20.1', 'I20.8', 'I20.9', 'I21.01', 'I21.02', 'I21.09', 'I21.11', 'I21.19',
                      'I21.21', 'I21.29', 'I21.3', 'I21.4', 'I22.0', 'I22.1', 'I22.2', 'I22.8', 'I22.9', 'I24.0', 'I24.1',
                      'I24.8', 'I24.9', 'I25.10', 'I25.110', 'I25.111', 'I25.118', 'I25.119', 'I25.2', 'I25.5', 'I25.6',

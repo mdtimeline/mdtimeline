@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `getControllingHighBloodPressureReportByDates`;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getControllingHighBloodPressureReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getControllingHighBloodPressureReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR)
 BEGIN
 
 
@@ -58,6 +58,7 @@ BEGIN
                           LEFT JOIN patient_insurances as pi ON pi.pid = p.pid
                  WHERE enc.provider_uid = provider_id
                    AND enc.service_date BETWEEN start_date AND end_date
+                   AND (sex IS NULL OR p.sex = sex)
                    AND pi.insurance_id = insurance_id
                  GROUP BY enc.pid) e
             WHERE e.age >= 18 AND e.age <= 85;
@@ -100,6 +101,7 @@ BEGIN
                           INNER JOIN patient p on enc.pid = p.pid
                  WHERE enc.provider_uid = provider_id
                    AND enc.service_date BETWEEN start_date AND end_date
+                   AND (sex IS NULL OR p.sex = sex)
                  GROUP BY enc.pid) e
             WHERE e.age >= 18 AND e.age <= 85;
 

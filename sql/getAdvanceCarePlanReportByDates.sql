@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `getAdvanceCarePlanReportByDates`;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getAdvanceCarePlanReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getAdvanceCarePlanReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR)
 BEGIN
 
 
@@ -37,6 +37,7 @@ BEGIN
                  WHERE YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
                    AND enc.provider_uid = provider_id
                    AND enc.service_date BETWEEN start_date AND end_date
+                   AND (sex IS NULL OR p.sex = sex)
                    AND pi.insurance_id = insurance_id
                  GROUP BY enc.pid) e;
         ELSE
@@ -55,6 +56,7 @@ BEGIN
                  WHERE YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
                    AND enc.provider_uid = provider_id
                    AND enc.service_date BETWEEN start_date AND end_date
+                   AND (sex IS NULL OR p.sex = sex)
                  GROUP BY enc.pid) e;
 
         END IF;

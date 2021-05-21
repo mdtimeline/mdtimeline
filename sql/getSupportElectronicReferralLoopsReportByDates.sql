@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `getSupportElectronicReferralLoopsReportByDates`;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getSupportElectronicReferralLoopsReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getSupportElectronicReferralLoopsReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR)
 BEGIN
 
     DROP TABLE IF EXISTS report_ds;
@@ -35,6 +35,7 @@ BEGIN
                          AND enc.pid = pr.pid
                          AND pr.refer_by = provider_id
                 WHERE enc.service_date BETWEEN start_date AND end_date
+                AND (sex IS NULL OR p.sex = sex)
                 AND pi.insurance_id = insurance_id
                 ) e;
         ELSE
@@ -53,7 +54,8 @@ BEGIN
                      ON enc.eid = pr.eid
                      AND enc.pid = pr.pid
                      AND pr.refer_by = provider_id
-                WHERE enc.service_date BETWEEN start_date AND end_date) e;
+                WHERE enc.service_date BETWEEN start_date AND end_date
+                AND (sex IS NULL OR p.sex = sex)) e;
         END IF;
 
 

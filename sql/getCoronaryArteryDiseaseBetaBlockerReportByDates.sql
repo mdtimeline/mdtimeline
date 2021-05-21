@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `getCoronaryArteryDiseaseBetaBlockerReportByDates`;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getCoronaryArteryDiseaseBetaBlockerReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getCoronaryArteryDiseaseBetaBlockerReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR)
 BEGIN
 
 
@@ -69,6 +69,7 @@ BEGIN
                                          INNER JOIN patient_insurances AS pi ON p.pid = pi.pid
                                 WHERE enc.provider_uid = provider_id
                                   AND enc.service_date BETWEEN start_date AND end_date
+                                  AND (sex IS NULL OR p.sex = sex)
                                   AND pi.insurance_id = insurance_id
                                   AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 18
                                 GROUP BY enc.pid
@@ -79,6 +80,7 @@ BEGIN
                                          AND enc.pid = edx.pid
                  WHERE enc.provider_uid = provider_id
                    AND enc.service_date BETWEEN start_date AND end_date
+                   AND edx.dx_type = 'F'
                    AND edx.code IN ('I50', 'I50.1', 'I50.2', 'I50.20', 'I50.21', 'I50.22', 'I50.23', 'I50.3', 'I50.30',
                                     'I50.31', 'I50.32', 'I50.33', 'I50.4', 'I50.40', 'I50.41', 'I50.42', 'I50.43', 'I50.8')) e;
         ELSE
@@ -128,6 +130,7 @@ BEGIN
                                  INNER JOIN patient p ON enc.pid = p.pid
                         WHERE enc.provider_uid = provider_id
                                   AND enc.service_date BETWEEN start_date AND end_date
+                                  AND (sex IS NULL OR p.sex = sex)
                                   AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 18
                                  GROUP BY enc.pid
                                  HAVING  total >= 2) as t
@@ -137,6 +140,7 @@ BEGIN
                     AND enc.pid = edx.pid
                 WHERE enc.provider_uid = provider_id
                 AND enc.service_date BETWEEN start_date AND end_date
+                AND edx.dx_type = 'F'
                 AND edx.code IN ('I50', 'I50.1', 'I50.2', 'I50.20', 'I50.21', 'I50.22', 'I50.23', 'I50.3', 'I50.30',
                 'I50.31', 'I50.32', 'I50.33', 'I50.4', 'I50.40', 'I50.41', 'I50.42', 'I50.43', 'I50.8')) e;
 

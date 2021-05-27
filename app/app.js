@@ -65478,7 +65478,7 @@ Ext.define("App.ux.grid.exporter.Exporter", {
             formatter = this.getFormatterByName(formatter);
 
             var store = grid.getStore() || config.store;
-            var columns = Ext.Array.filter(grid.columns, function(col) {
+            var columns = Ext.Array.filter(grid.headerCt.items.getRange(), function(col) {
                 return !col.hidden && (!col.xtype || col.xtype != "actioncolumn");
                 //return !col.hidden; // && (!col.xtype || col.xtype != "actioncolumn");
             });

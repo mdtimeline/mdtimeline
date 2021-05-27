@@ -85,7 +85,7 @@ class pmwiki_table implements startOfLine, endOfFile
 		    elseif (preg_match('/^\\s{2,}/',$cell)) { $attr .= ' align="right"'; }
 		    else { $attr .= ' align="left"'; }
 
-		    return '<td '. $attr .' >' . $cell . '</td>';
+		    return '<td '. $attr .' >' . str_replace(':', '&#58;', $cell) . '</td>';
 	    }
 
     }

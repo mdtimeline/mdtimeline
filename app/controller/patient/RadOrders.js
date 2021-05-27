@@ -229,6 +229,10 @@ Ext.define('App.controller.patient.RadOrders', {
 				{
 					property: 'order_type',
 					value: 'rad'
+				},
+				{
+					property: 'is_external_order',
+					value: 0
 				}
 			]);
 		}

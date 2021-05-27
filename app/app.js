@@ -23639,7 +23639,12 @@ Ext.define('App.model.patient.PatientsOrders', {
             type: 'string',
             comment: 'VOID Comments',
             len: 100
-        }
+        },
+		{
+			name: 'is_external_order',
+			type: 'boolean',
+			index: true
+		}
 	],
 	proxy: {
 		type: 'direct',
@@ -27669,8 +27674,13 @@ Ext.define('App.view.patient.Results', {
 	tbar: [
 		'->',
 		{
-			text: _('new_result'),
-			itemId: 'ResultsOrderNewBtn',
+			text: _('lab_result'),
+			itemId: 'ResultsLabOrderNewBtn',
+			iconCls: 'icoAdd'
+		},
+		{
+			text: _('rad_result'),
+			itemId: 'ResultsRadOrderNewBtn',
 			iconCls: 'icoAdd'
 		}
 	],
@@ -27764,10 +27774,17 @@ Ext.define('App.view.patient.Results', {
 					width: 100,
 					editor: {
 						xtype: 'datefield',
-						allowBlank: false
+						allowBlank: true
 					},
 					renderer: function(v, meta, record){
-						var dataOrdered = record.data.date_ordered;
+						var dataOrdered;
+
+						if(v){
+							dataOrdered = Ext.util.Format.date(v, this.format);
+						}else{
+							dataOrdered = '';
+						}
+
 						if(record.get('void'))
 							return '<span style="text-decoration: line-through;">' + dataOrdered + '</span>';
 						return '<span>' + dataOrdered + '</span>';
@@ -52492,7 +52509,16 @@ Ext.define('App.controller.patient.Immunizations', {
 
 
 	onReviewImmunizationsBtnClick: function(){
-
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+		encounter.set({review_immunizations: true});
+		encounter.save({
+			success: function(){
+				app.msg(_('sweet'), _('items_to_review_save_and_review'));
+			},
+			failure: function(){
+				app.msg(_('oops'), _('items_to_review_entry_error'));
+			}
+		});
 	},
 
 	onAddImmunizationBtnClick: function(){
@@ -55869,6 +55895,10 @@ Ext.define('App.controller.patient.RadOrders', {
 				{
 					property: 'order_type',
 					value: 'rad'
+				},
+				{
+					property: 'is_external_order',
+					value: 0
 				}
 			]);
 		}
@@ -71747,6 +71777,10 @@ Ext.define('App.controller.patient.LabOrders', {
 				{
 					property: 'order_type',
 					value: 'lab'
+				},
+				{
+					property: 'is_external_order',
+					value: 0
 				}
 			]);
 		}
@@ -72073,11 +72107,17 @@ Ext.define('App.controller.patient.Results', {
 			'#ResultsLabsLiveSearchField': {
 				select: me.onResultsLabsLiveSearchFieldSelect
 			},
+			'#ResultsRadsLiveSearchField': {
+				select: me.onResultsRadsLiveSearchFieldSelect
+			},
 			'#ResultsLaboratoryPanelDocumentViewBtn': {
 				click: me.onOrderDocumentViewBtnClicked
 			},
-			'#ResultsOrderNewBtn': {
-				click: me.onNewOrderResultBtnClick
+			'#ResultsLabOrderNewBtn': {
+				click: me.onNewOrderLabResultBtnClick
+			},
+			'#ResultsRadOrderNewBtn': {
+				click: me.onNewOrderRadResultBtnClick
 			},
 			'#ResultsOrderSignBtn': {
 				click: me.onOrderResultSignBtnClick
@@ -72115,6 +72155,14 @@ Ext.define('App.controller.patient.Results', {
 	},
 
 	onResultsLabsLiveSearchFieldSelect: function(cmb, records){
+		cmb.up('form').getRecord().set({
+			code: records[0].get('loinc_number'),
+			code_text: records[0].get('loinc_name'),
+			code_type: 'LOINC'
+		});
+	},
+
+	onResultsRadsLiveSearchFieldSelect: function(cmb, records){
 		cmb.up('form').getRecord().set({
 			code: records[0].get('loinc_number'),
 			code_text: records[0].get('loinc_name'),
@@ -72176,7 +72224,15 @@ Ext.define('App.controller.patient.Results', {
 		this.getLabOrderResult(context.record);
 	},
 
-	onNewOrderResultBtnClick: function(btn){
+	onNewOrderLabResultBtnClick: function(){
+		this.doNewOrderResult('lab');
+	},
+
+	onNewOrderRadResultBtnClick: function(){
+		this.doNewOrderResult('rad');
+	},
+
+	doNewOrderResult: function(order_type){
 		var grid = this.getResultsOrdersGrid(),
 			store = grid.getStore(),
 			records,
@@ -72187,23 +72243,14 @@ Ext.define('App.controller.patient.Results', {
 			pid: app.patient.pid,
 			uid: app.user.id,
             eid: app.patient.eid,
-			order_type: 'lab',
+			is_external_order: 1,
+			order_type: order_type,
 			status: 'Pending'
 		});
 		grid.getPlugin('ResultsOrdersGridRowEditor').startEdit(records[0], 0);
 
-		// Focus the second column when editing.
-		fields = grid.getPlugin('ResultsOrdersGridRowEditor').getEditor();
-		fields.items.items[2].focus();
-		fields.items.items[1].setValue('lab');
-
-		// By Default when adding a new record, it will be a Laboratory
-		grid.columns[4].setEditor({
-			xtype: 'labslivetsearch',
-			itemId: 'ResultsLabsLiveSearchField',
-			allowBlank: false,
-			flex: 1
-		});
+		this.setEditor(grid, order_type);
+		this.onOrderSelectionChange(null, records);
 	},
 
 	onOrderResultGridRowEdit: function(editor, context, eOpts){
@@ -72213,7 +72260,12 @@ Ext.define('App.controller.patient.Results', {
 	onOrderTypeSelect: function(combo, newValue, oldValue, eOpts){
 		var grid = combo.up('grid');
 
-		if(newValue === 'lab'){
+		this.setEditor(grid, newValue);
+
+	},
+
+	setEditor: function(grid, order_type){
+		if(order_type === 'lab'){
 			// Change the Card panel, to show the Laboratory results form
 			this.getResultsCardPanel().getLayout().setActiveItem('ResultsLaboratoryPanel');
 			// Change the field to look for laboratories
@@ -72228,12 +72280,13 @@ Ext.define('App.controller.patient.Results', {
 			//this.getResultsOrderNewBtn().disable(false);
 		}
 
-		if(newValue === 'rad'){
+		if(order_type === 'rad'){
 			// Change the Card panel, to show the Radiology results form
 			this.getResultsCardPanel().getLayout().setActiveItem('ResultsRadiologyPanel');
 			// Change the field to look for radiologists
 			grid.columns[4].setEditor({
 				xtype: 'radslivetsearch',
+				itemId: 'ResultsRadsLiveSearchField',
 				allowBlank: false,
 				flex: 1,
 				value: ''
@@ -72310,6 +72363,8 @@ Ext.define('App.controller.patient.Results', {
 				if(records.length > 0){
 					var last_result = records.length - 1;
 
+					records[last_result].order_record = order_record;
+
 					form.loadRecord(records[last_result]);
 					me.getResultsOrderSignBtn().setDisabled(records[last_result].data.signed_uid > 0);
 					observationStore = records[last_result].observations();
@@ -72326,6 +72381,7 @@ Ext.define('App.controller.patient.Results', {
 						create_date: new Date()
 					});
 
+					newResult[0].order_record = order_record;
 					newResult[0].set({
 						order_id: order_record.data.id
 					});
@@ -72361,6 +72417,8 @@ Ext.define('App.controller.patient.Results', {
 				if(records.length > 0){
 					var last_result = records.length - 1;
 
+					records[last_result].order_record = order_record;
+
 					form.loadRecord(records[last_result]);
 					me.getResultsOrderSignBtn().setDisabled(records[last_result].data.signed_uid > 0);
 					me.getResultsRadiologyReportBody().setValue(records[last_result].get('report_body'));
@@ -72378,6 +72436,8 @@ Ext.define('App.controller.patient.Results', {
 						create_date: new Date()
 					});
 
+
+					newResult[0].order_record = order_record;
 					newResult[0].set({
 						order_id: order_record.data.id
 					});
@@ -72420,7 +72480,7 @@ Ext.define('App.controller.patient.Results', {
 		}
 	},
 
-	saveLabOrderResultForm: function(form){
+	saveLabOrderResultForm: function(form)	{
 		var me = this,
 			result_record = form.getRecord(),
 			sm = me.getResultsOrdersGrid().getSelectionModel(),
@@ -72432,6 +72492,8 @@ Ext.define('App.controller.patient.Results', {
 
 		var observationStore = result_record.observations(),
 			observations = observationStore.tree.flatten();
+
+		values.order_id = result_record.order_record.get('id');
 
 		result_record.set(values);
 		result_record.save({
@@ -72460,6 +72522,10 @@ Ext.define('App.controller.patient.Results', {
 			reader = new FileReader(),
 			files = me.getResultsRadiologyFormUploadField().extractFileInput().files;
 
+		values.order_id = result_record.order_record.get('id');
+		values.code = result_record.order_record.get('code');
+		values.code_text = result_record.order_record.get('description');
+		values.code_type = result_record.order_record.get('code_type');
 		values.report_body = me.getResultsRadiologyReportBody().getValue();
 
 		if(files[0]){
@@ -72474,7 +72540,7 @@ Ext.define('App.controller.patient.Results', {
 				});
 			};
 			reader.readAsDataURL(me.getResultsRadiologyFormUploadField().extractFileInput().files[0]);
-		}else{
+		}else {
 			result_record.set(values);
 			result_record.save({
 				callback: function(){

@@ -29,12 +29,27 @@ class SnomedCodes {
 
 	public function liveProblemCodeSearch($params) {
 
-		$sql = "SELECT d.ConceptId, d.Term, p.OCCURRENCE
+	    if(preg_match('/^ICD10:(.*)/', $params->query, $matches)){
+
+            $sql = "SELECT d.ConceptId, d.Term, map.mapPriority, p.OCCURRENCE
+			     FROM sct_descriptions as d
+                 JOIN sct_problem_list as p ON d.ConceptId = p.SNOMED_CID
+                 JOIN sct_icd10_map as map ON map.referencedComponentId = d.ConceptId
+	            WHERE d.Active = '1' AND map.mapTarget = '{$matches[1]}'
+                GROUP BY d.ConceptId
+	         ORDER BY max(map.mapPriority),  max(p.OCCURRENCE) DESC";
+
+        }else{
+            $sql = "SELECT d.ConceptId, d.Term, p.OCCURRENCE
 			     FROM sct_descriptions as d
 		   RIGHT JOIN sct_problem_list as p ON d.ConceptId = p.SNOMED_CID
 	            WHERE d.Active = '1'
 	              AND (d.Term LIKE :c1 OR d.ConceptId LIKE :c2)
 	         ORDER BY p.OCCURRENCE DESC";
+        }
+
+
+
 
 		$sth = $this->conn->prepare($sql);
 		$sth->execute([':c1' => '%'.$params->query.'%', ':c2' => $params->query.'%']);

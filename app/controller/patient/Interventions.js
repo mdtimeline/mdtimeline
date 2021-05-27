@@ -256,7 +256,7 @@ Ext.define('App.controller.patient.Interventions', {
 		}
 
 		params = {
-			filters: [
+			filter: [
 				{
 					property: 'pid',
 					value: encounter_record.get('pid')

@@ -40,7 +40,7 @@ class pmwiki_table implements startOfLine, endOfFile
 	        }
 
         	if(!$this->open_table){
-		        $line = '<table cellpadding="5">';
+		        $line = '<table cellpadding="1">';
 		        $this->open_table = true;
 	        }
 

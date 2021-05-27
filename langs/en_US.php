@@ -2204,4 +2204,6 @@ $LANG = array(
     'clear_stateful_state' => 'Clear Stateful State',
     'addenda' => 'Addenda',
     'add_addendum' => 'Add Addendum',
+    'sql_version' => 'SQL Version',
+    'req_core_version' => 'Req. Core Version',
 );

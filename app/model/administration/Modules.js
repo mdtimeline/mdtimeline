@@ -51,6 +51,16 @@ Ext.define('App.model.administration.Modules', {
 			len: 20
 		},
 		{
+			name: 'sql_version',
+			type: 'string',
+			len: 20
+		},
+		{
+			name: 'required_core_version',
+			type: 'string',
+			len: 20
+		},
+		{
 			name: 'licensekey',
 			type: 'string'
 		},

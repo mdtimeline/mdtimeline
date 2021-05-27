@@ -13369,6 +13369,16 @@ Ext.define('App.model.administration.Modules', {
 			len: 20
 		},
 		{
+			name: 'sql_version',
+			type: 'string',
+			len: 20
+		},
+		{
+			name: 'required_core_version',
+			type: 'string',
+			len: 20
+		},
+		{
 			name: 'licensekey',
 			type: 'string'
 		},
@@ -34780,6 +34790,18 @@ Ext.define('App.view.administration.Modules', {
                     dataIndex: 'installed_version'
                 },
                 {
+                    text: _('sql_version'),
+                    width: 100,
+                    sortable: true,
+                    dataIndex: 'sql_version'
+                },
+                {
+                    text: _('req_core_version'),
+                    width: 150,
+                    sortable: true,
+                    dataIndex: 'required_core_version'
+                },
+                {
                     text: _('key_if_required'),
                     flex: 1,
                     sortable: true,
@@ -52470,16 +52492,7 @@ Ext.define('App.controller.patient.Immunizations', {
 
 
 	onReviewImmunizationsBtnClick: function(){
-		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
-		encounter.set({review_immunizations: true});
-		encounter.save({
-			success: function(){
-				app.msg(_('sweet'), _('items_to_review_save_and_review'));
-			},
-			failure: function(){
-				app.msg(_('oops'), _('items_to_review_entry_error'));
-			}
-		});
+
 	},
 
 	onAddImmunizationBtnClick: function(){

@@ -491,9 +491,10 @@ class Documents
      * @param array $key_images_config
      * @param null $pdf_format
      * @param array $mail_cover_info
+     * @param int|null $template_id
      * @return bool|string
      */
-    public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $custom_footer_data = null, $water_mark = '', $key_images = [], $key_images_config = [], $pdf_format = null, $mail_cover_info = [])
+    public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $custom_footer_data = null, $water_mark = '', $key_images = [], $key_images_config = [], $pdf_format = null, $mail_cover_info = [], $template_id = null)
     {
         $pid = $params->pid;
         $regex = '(\[\w*?\]|\[\/\w*?\])';
@@ -518,7 +519,9 @@ class Documents
             $pdf->addCustomFooterData($custom_footer_data);
         }
 
-        if (isset($params->facility_id)) {
+        if (isset($template_id)) {
+            $template = $this->getPdfTemplateByFacilityId($params->facility_id, $pdf_format);
+        }else if (isset($params->facility_id)) {
             $template = $this->getPdfTemplateByFacilityId($params->facility_id, $pdf_format);
         } elseif (isset($_SESSION['user']) && isset($_SESSION['user']['facility'])) {
             $template = $this->getPdfTemplateByFacilityId($_SESSION['user']['facility'], $pdf_format);
@@ -797,6 +800,13 @@ class Documents
             $pdf->Close();
             return true;
         }
+    }
+
+    private function fixHtmlCharacters($page){
+
+
+
+        return $page;
     }
 
     private function addReferringProviderData($encounter, $tokens, $allNeededInfo)

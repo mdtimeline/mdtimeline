@@ -32,6 +32,11 @@ Ext.define('App.model.administration.EmailTracking', {
 			index: true
 		},
 		{
+			name: 'uid',
+			type: 'int',
+			index: true
+		},
+		{
 			name: 'reference_type',
 			type: 'string',
 			len: 45,

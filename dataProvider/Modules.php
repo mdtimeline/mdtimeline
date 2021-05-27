@@ -187,13 +187,16 @@ class Modules {
 					$data->name = $conf['name'];
 					$data->description = $conf['description'];
 					$data->enable = '0';
-					$data->installed_version = $conf['version'];
+					$data->sql_version = isset($conf['sql_version']) ? $conf['sql_version'] : null;
+					$data->required_core_version = isset($conf['req_core_version']) ? $conf['req_core_version'] : null;
 					$this->m->save($data);
 				}else if($record['installed_version'] != $conf['version']){
                     $record['title'] = $conf['title'];
                     $record['name'] = $conf['name'];
                     $record['description'] = $conf['description'];
                     $record['installed_version'] = $conf['version'];
+                    $record['sql_version'] = isset($conf['sql_version']) ? $conf['sql_version'] : null;
+                    $record['required_core_version'] = isset($conf['req_core_version']) ? $conf['req_core_version'] : null;
                     $this->m->save((object)$record);
                     if(isset($conf['permissions'])){
                         ACL::updateModulePermissions($conf['title'], $conf['permissions'], $record['enable']);

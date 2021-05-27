@@ -56,6 +56,18 @@ Ext.define('App.view.administration.Modules', {
                     dataIndex: 'installed_version'
                 },
                 {
+                    text: _('sql_version'),
+                    width: 100,
+                    sortable: true,
+                    dataIndex: 'sql_version'
+                },
+                {
+                    text: _('req_core_version'),
+                    width: 150,
+                    sortable: true,
+                    dataIndex: 'required_core_version'
+                },
+                {
                     text: _('key_if_required'),
                     flex: 1,
                     sortable: true,

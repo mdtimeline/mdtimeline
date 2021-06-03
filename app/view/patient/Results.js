@@ -35,8 +35,13 @@ Ext.define('App.view.patient.Results', {
 	tbar: [
 		'->',
 		{
-			text: _('new_result'),
-			itemId: 'ResultsOrderNewBtn',
+			text: _('lab_result'),
+			itemId: 'ResultsLabOrderNewBtn',
+			iconCls: 'icoAdd'
+		},
+		{
+			text: _('rad_result'),
+			itemId: 'ResultsRadOrderNewBtn',
 			iconCls: 'icoAdd'
 		}
 	],
@@ -130,10 +135,17 @@ Ext.define('App.view.patient.Results', {
 					width: 100,
 					editor: {
 						xtype: 'datefield',
-						allowBlank: false
+						allowBlank: true
 					},
 					renderer: function(v, meta, record){
-						var dataOrdered = record.data.date_ordered;
+						var dataOrdered;
+
+						if(v){
+							dataOrdered = Ext.util.Format.date(v, this.format);
+						}else{
+							dataOrdered = '';
+						}
+
 						if(record.get('void'))
 							return '<span style="text-decoration: line-through;">' + dataOrdered + '</span>';
 						return '<span>' + dataOrdered + '</span>';

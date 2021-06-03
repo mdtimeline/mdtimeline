@@ -2206,4 +2206,6 @@ $LANG = array(
     'add_addendum' => 'Add Addendum',
     'sql_version' => 'SQL Version',
     'req_core_version' => 'Req. Core Version',
+    'rad_result' => 'Rad Result',
+    'lab_result' => 'Lab Result',
 );

@@ -151,7 +151,12 @@ Ext.define('App.model.patient.PatientsOrders', {
             type: 'string',
             comment: 'VOID Comments',
             len: 100
-        }
+        },
+		{
+			name: 'is_external_order',
+			type: 'boolean',
+			index: true
+		}
 	],
 	proxy: {
 		type: 'direct',

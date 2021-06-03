@@ -272,6 +272,10 @@ Ext.define('App.controller.patient.LabOrders', {
 				{
 					property: 'order_type',
 					value: 'lab'
+				},
+				{
+					property: 'is_external_order',
+					value: 0
 				}
 			]);
 		}

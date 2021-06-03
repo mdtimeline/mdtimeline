@@ -131,7 +131,7 @@ Ext.define('App.view.patient.RxOrders', {
 											xtype: 'numberfield',
 											width: 170,
 											fieldLabel: _('dispense'),
-											minValue: 0.001,
+											minValue: 0,
 											maxValue: 99999,
 											name: 'dispense',
 											decimalPrecision: 3,

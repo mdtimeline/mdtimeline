@@ -17,70 +17,71 @@ BEGIN
     SET @insurance = (SELECT CONCAT(name, ' ', ' (CODE:', insurance_companies.code, ')') FROM insurance_companies WHERE id = insurance_id);
 
     IF insurance_id > 0
-        THEN
-            CREATE TEMPORARY TABLE report_ds
-            SELECT
-                e.eid,
-                e.pid,
-                IF( EXISTS (
-                            SELECT * FROM encounters
-                            WHERE pid = e.pid
-                            AND service_date BETWEEN  CONCAT(YEAR(start_date) - 1, '-10-01') AND CONCAT(YEAR(start_date), '-03-31')),
-                    '1', '0') as has_encounter_within_season,
-                IF( EXISTS (
-                            SELECT * FROM encounters AS enc
-                            INNER JOIN patient_immunizations AS pi
-                            ON enc.pid = pi.pid
-                            AND enc.eid = pi.eid
-                            WHERE enc.pid = e.pid
-                            AND pi.CODE IN (
-                                            '135', '140', '141', '144', '149', '150', '155', '158', '161', '166', '168',
+    THEN
+        CREATE TEMPORARY TABLE report_ds
+        SELECT e.eid,
+               e.pid,
+               IF(EXISTS(
+                          SELECT *
+                          FROM encounters
+                          WHERE pid = e.pid
+                            AND service_date BETWEEN CONCAT(YEAR(start_date) - 1, '-10-01') AND CONCAT(YEAR(start_date), '-03-31')
+                            AND close_date IS NOT NULL),
+                  '1', '0') as has_encounter_within_season,
+               IF(EXISTS(
+                          SELECT *
+                          FROM encounters AS enc
+                                   INNER JOIN patient_immunizations AS pi
+                                              ON enc.pid = pi.pid
+                                                  AND enc.eid = pi.eid
+                          WHERE enc.pid = e.pid
+                            AND pi.CODE IN ('135', '140', '141', '144', '149', '150', '155', '158', '161', '166', '168',
                                             '171', '185', '186', '197', '205', '88')
-                            AND pi.administered_date BETWEEN  CONCAT(YEAR(start_date) - 1, '-10-01') AND CONCAT(YEAR(start_date), '-03-31')),
-                    '1', '0') as influenza_vaccine_administered
-            FROM
-                (SELECT enc.eid, enc.pid
-                 FROM encounters as enc
-                    INNER JOIN patient p ON enc.pid = p.pid
-                    LEFT JOIN patient_insurances as pi ON pi.pid = p.pid
-                 WHERE enc.provider_uid = provider_id
-                    AND enc.service_date BETWEEN start_date AND end_date
-                    AND (sex IS NULL OR p.sex = sex)
-                    AND pi.insurance_id = insurance_id
-                    AND TIMESTAMPDIFF(MONTH,p.DOB,start_date) >= 6
-                 GROUP BY enc.pid) e;
-        ELSE
-
-            CREATE TEMPORARY TABLE report_ds
-            SELECT
-                e.eid,
-                e.pid,
-                IF( EXISTS (
-                            SELECT * FROM encounters
-                            WHERE pid = e.pid
-                              AND service_date BETWEEN  CONCAT(YEAR(start_date) - 1, '-10-01') AND CONCAT(YEAR(start_date), '-03-31')),
-                    '1', '0') as has_encounter_within_season,
-                IF( EXISTS (
-                            SELECT * FROM encounters AS enc
-                            INNER JOIN patient_immunizations AS pi
-                            ON enc.pid = pi.pid
-                            AND enc.eid = pi.eid
-                            WHERE enc.pid = e.pid
-                            AND pi.CODE IN (
-                                              '135', '140', '141', '144', '149', '150', '155', '158', '161', '166', '168',
-                                              '171', '185', '186', '197', '205', '88')
-                              AND pi.administered_date BETWEEN  CONCAT(YEAR(start_date) - 1, '-10-01') AND CONCAT(YEAR(start_date), '-03-31')),
-                    '1', '0') as influenza_vaccine_administered
-            FROM
-                (SELECT enc.eid, enc.pid, enc.service_date
-                    FROM encounters as enc
-                        INNER JOIN patient p ON enc.pid = p.pid
-                    WHERE enc.provider_uid = provider_id
-                        AND enc.service_date BETWEEN start_date AND end_date
-                        AND (sex IS NULL OR p.sex = sex)
-                        AND TIMESTAMPDIFF(MONTH,p.DOB,enc.service_date) >= 6
-                    GROUP BY enc.pid) e;
-        END IF;
+                            AND pi.administered_date BETWEEN CONCAT(YEAR(start_date) - 1, '-10-01') AND CONCAT(YEAR(start_date), '-03-31')),
+                  '1', '0') as influenza_vaccine_administered
+        FROM (SELECT enc.eid, enc.pid
+              FROM encounters as enc
+                       INNER JOIN patient p ON enc.pid = p.pid
+                       LEFT JOIN patient_insurances as pi ON pi.pid = p.pid
+              WHERE enc.provider_uid = provider_id
+                AND enc.service_date BETWEEN start_date AND end_date
+                AND enc.close_date IS NOT NULL
+                AND (sex IS NULL OR p.sex = sex)
+                AND pi.insurance_id = insurance_id
+                AND TIMESTAMPDIFF(MONTH, p.DOB, start_date) >= 6
+              GROUP BY enc.pid) e;
+    ELSE
+        CREATE TEMPORARY TABLE report_ds
+        SELECT e.eid,
+               e.pid,
+               IF(EXISTS(
+                          SELECT *
+                          FROM encounters
+                          WHERE pid = e.pid
+                            AND service_date BETWEEN CONCAT(YEAR(start_date) - 1, '-10-01') AND CONCAT(YEAR(start_date), '-03-31')
+                            AND close_date IS NOT NULL),
+                  '1', '0') as has_encounter_within_season,
+               IF(EXISTS(
+                          SELECT *
+                          FROM encounters AS enc
+                                   INNER JOIN patient_immunizations AS pi
+                                              ON enc.pid = pi.pid
+                                                  AND enc.eid = pi.eid
+                          WHERE enc.pid = e.pid
+                            AND pi.CODE IN ('135', '140', '141', '144', '149', '150', '155', '158', '161', '166', '168',
+                                            '171', '185', '186', '197', '205', '88')
+                            AND pi.administered_date BETWEEN CONCAT(YEAR(start_date) - 1, '-10-01') AND CONCAT(YEAR(start_date), '-03-31')),
+                  '1', '0') as influenza_vaccine_administered
+        FROM (SELECT enc.eid, enc.pid, enc.service_date
+              FROM encounters as enc
+                       INNER JOIN patient p ON enc.pid = p.pid
+              WHERE enc.provider_uid = provider_id
+                AND enc.service_date BETWEEN start_date AND end_date
+                AND enc.close_date IS NOT NULL
+                AND (sex IS NULL OR p.sex = sex)
+                AND TIMESTAMPDIFF(MONTH, p.DOB, enc.service_date) >= 6
+              GROUP BY enc.pid) e;
+    END IF;
 
 
         CREATE TEMPORARY TABLE report_denominator_ds

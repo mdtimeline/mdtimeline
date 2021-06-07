@@ -17,56 +17,55 @@ BEGIN
     SET @insurance = (SELECT CONCAT(name, ' ', ' (CODE:', insurance_companies.code, ')') FROM insurance_companies WHERE id = insurance_id);
 
     IF insurance_id > 0
-        THEN
-            CREATE TEMPORARY TABLE report_ds
-            SELECT
-                e.eid,
-                e.pid,
-                IF( EXISTS (
-                            SELECT * FROM encounters AS enc
-                                INNER JOIN patient_immunizations AS pi
-                                ON enc.pid = pi.pid
-                                AND enc.eid = pi.eid
-                            WHERE enc.pid = e.pid
+    THEN
+        CREATE TEMPORARY TABLE report_ds
+        SELECT e.eid,
+               e.pid,
+               IF(EXISTS(
+                          SELECT *
+                          FROM encounters AS enc
+                                   INNER JOIN patient_immunizations AS pi
+                                              ON enc.pid = pi.pid
+                                                  AND enc.eid = pi.eid
+                          WHERE enc.pid = e.pid
                             AND pi.CODE IN ('109', '133', '152', '33')
                             AND pi.administered_date BETWEEN start_date AND end_date),
-                    '1', '0') as pneumococcal_vaccine_administered
-            FROM
-                (SELECT enc.eid, enc.pid
-                 FROM encounters as enc
-                    INNER JOIN patient p ON enc.pid = p.pid
-                    LEFT JOIN patient_insurances as pi ON pi.pid = p.pid
-                 WHERE enc.provider_uid = provider_id
-                    AND enc.service_date BETWEEN start_date AND end_date
-                    AND (sex IS NULL OR p.sex = sex)
-                    AND pi.insurance_id = insurance_id
-                    AND TIMESTAMPDIFF(YEAR,p.DOB,start_date) >= 65
-                 GROUP BY enc.pid) e;
-        ELSE
-
-            CREATE TEMPORARY TABLE report_ds
-            SELECT
-                e.eid,
-                e.pid,
-                IF( EXISTS (
-                            SELECT * FROM encounters AS enc
-                                INNER JOIN patient_immunizations AS pi
-                                ON enc.pid = pi.pid
-                                AND enc.eid = pi.eid
-                            WHERE enc.pid = e.pid
-                              AND pi.CODE IN ('109', '133', '152', '33')
-                              AND pi.administered_date BETWEEN start_date AND end_date),
-                    '1', '0') as pneumococcal_vaccine_administered
-            FROM
-                (SELECT enc.eid, enc.pid, enc.service_date
-                FROM encounters as enc
-                    INNER JOIN patient p ON enc.pid = p.pid
-                WHERE enc.provider_uid = provider_id
-                    AND enc.service_date BETWEEN start_date AND end_date
-                    AND (sex IS NULL OR p.sex = sex)
-                    AND TIMESTAMPDIFF(YEAR,p.DOB,enc.service_date) >= 65
-                GROUP BY enc.pid) e;
-        END IF;
+                  '1', '0') as pneumococcal_vaccine_administered
+        FROM (SELECT enc.eid, enc.pid
+              FROM encounters as enc
+                       INNER JOIN patient p ON enc.pid = p.pid
+                       LEFT JOIN patient_insurances as pi ON pi.pid = p.pid
+              WHERE enc.provider_uid = provider_id
+                AND enc.service_date BETWEEN start_date AND end_date
+                AND enc.close_date IS NOT NULL
+                AND (sex IS NULL OR p.sex = sex)
+                AND pi.insurance_id = insurance_id
+                AND TIMESTAMPDIFF(YEAR, p.DOB, start_date) >= 65
+              GROUP BY enc.pid) e;
+    ELSE
+        CREATE TEMPORARY TABLE report_ds
+        SELECT e.eid,
+               e.pid,
+               IF(EXISTS(
+                          SELECT *
+                          FROM encounters AS enc
+                                   INNER JOIN patient_immunizations AS pi
+                                              ON enc.pid = pi.pid
+                                                  AND enc.eid = pi.eid
+                          WHERE enc.pid = e.pid
+                            AND pi.CODE IN ('109', '133', '152', '33')
+                            AND pi.administered_date BETWEEN start_date AND end_date),
+                  '1', '0') as pneumococcal_vaccine_administered
+        FROM (SELECT enc.eid, enc.pid, enc.service_date
+              FROM encounters as enc
+                       INNER JOIN patient p ON enc.pid = p.pid
+              WHERE enc.provider_uid = provider_id
+                AND enc.service_date BETWEEN start_date AND end_date
+                AND enc.close_date IS NOT NULL
+                AND (sex IS NULL OR p.sex = sex)
+                AND TIMESTAMPDIFF(YEAR, p.DOB, enc.service_date) >= 65
+              GROUP BY enc.pid) e;
+    END IF;
 
 
         CREATE TEMPORARY TABLE report_denominator_ds

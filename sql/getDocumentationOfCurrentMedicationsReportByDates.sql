@@ -17,41 +17,37 @@ BEGIN
     SET @insurance = (SELECT CONCAT(name, ' ', ' (CODE:', insurance_companies.code, ')') FROM insurance_companies WHERE id = insurance_id);
 
     IF insurance_id > 0
-        THEN
-            CREATE TEMPORARY TABLE report_ds
-            SELECT
-                e.eid,
-                e.pid,
-                IF( e.code = '428191000124101', '1', '0') as has_documentation
-
-            FROM
-                (SELECT enc.eid, enc.pid, ep.code
-                 FROM encounters as enc
-                 INNER JOIN patient p ON enc.pid = p.pid
-                 LEFT JOIN encounter_procedures ep ON enc.eid = ep.eid AND enc.pid = ep.pid
-                 INNER JOIN patient_insurances AS pi ON p.pid = pi.pid
-                 WHERE enc.provider_uid = provider_id
-                 AND enc.service_date BETWEEN start_date AND end_date
-                 AND (sex IS NULL OR p.sex = sex)
-                 AND pi.insurance_id = insurance_id
-                 AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 18) e;
-        ELSE
-
-            CREATE TEMPORARY TABLE report_ds
-            SELECT
-                e.eid,
-                e.pid,
-                IF( e.code = '428191000124101', '1', '0') as has_documentation
-            FROM
-                (SELECT enc.eid, enc.pid, ep.code
-                 FROM encounters as enc
-                 INNER JOIN patient p ON enc.pid = p.pid
-                 LEFT JOIN encounter_procedures ep ON enc.eid = ep.eid AND enc.pid = ep.pid
-                 WHERE enc.provider_uid = provider_id
-                 AND enc.service_date BETWEEN start_date AND end_date
-                 AND (sex IS NULL OR p.sex = sex)
-                 AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 18) e;
-        END IF;
+    THEN
+        CREATE TEMPORARY TABLE report_ds
+        SELECT e.eid,
+               e.pid,
+               IF(e.code = '428191000124101', '1', '0') as has_documentation
+        FROM (SELECT enc.eid, enc.pid, ep.code
+              FROM encounters as enc
+                       INNER JOIN patient p ON enc.pid = p.pid
+                       LEFT JOIN encounter_procedures ep ON enc.eid = ep.eid AND enc.pid = ep.pid
+                       INNER JOIN patient_insurances AS pi ON p.pid = pi.pid
+              WHERE enc.provider_uid = provider_id
+                AND enc.service_date BETWEEN start_date AND end_date
+                AND enc.close_date IS NOT NULL
+                AND (sex IS NULL OR p.sex = sex)
+                AND pi.insurance_id = insurance_id
+                AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 18) e;
+    ELSE
+        CREATE TEMPORARY TABLE report_ds
+        SELECT e.eid,
+               e.pid,
+               IF(e.code = '428191000124101', '1', '0') as has_documentation
+        FROM (SELECT enc.eid, enc.pid, ep.code
+              FROM encounters as enc
+                       INNER JOIN patient p ON enc.pid = p.pid
+                       LEFT JOIN encounter_procedures ep ON enc.eid = ep.eid AND enc.pid = ep.pid
+              WHERE enc.provider_uid = provider_id
+                AND enc.service_date BETWEEN start_date AND end_date
+                AND enc.close_date IS NOT NULL
+                AND (sex IS NULL OR p.sex = sex)
+                AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 18) e;
+    END IF;
 
 
         CREATE TEMPORARY TABLE report_denominator_ds

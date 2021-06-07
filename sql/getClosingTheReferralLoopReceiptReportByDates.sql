@@ -17,40 +17,37 @@ BEGIN
     SET @insurance = (SELECT CONCAT(name, ' ', ' (CODE:', insurance_companies.code, ')') FROM insurance_companies WHERE id = insurance_id);
 
     IF insurance_id > 0
-        THEN
-            CREATE TEMPORARY TABLE report_ds
-            SELECT
-                e.eid,
-                e.pid,
-                e.summary_care_provided
-            FROM
-                (SELECT enc.eid, enc.pid, enc.summary_care_provided
-                 FROM encounters AS enc
-                INNER JOIN patient AS p
-                    ON enc.pid = p.pid
-                INNER JOIN patient_insurances AS pi
-                    ON pi.pid = p.pid
-                WHERE enc.service_date BETWEEN start_date AND end_date
+    THEN
+        CREATE TEMPORARY TABLE report_ds
+        SELECT e.eid,
+               e.pid,
+               e.summary_care_provided
+        FROM (SELECT enc.eid, enc.pid, enc.summary_care_provided
+              FROM encounters AS enc
+                       INNER JOIN patient AS p
+                                  ON enc.pid = p.pid
+                       INNER JOIN patient_insurances AS pi
+                                  ON pi.pid = p.pid
+              WHERE enc.service_date BETWEEN start_date AND end_date
+                AND enc.close_date IS NOT NULL
                 AND (sex IS NULL OR p.sex = sex)
                 AND enc.provider_uid = provider_id
                 AND enc.referring_physician IS NOT NULL) e;
-        ELSE
-
-            CREATE TEMPORARY TABLE report_ds
-            SELECT
-                e.eid,
-                e.pid,
-                e.summary_care_provided
-            FROM
-                (SELECT enc.eid, enc.pid, enc.summary_care_provided
-                FROM encounters AS enc
-                INNER JOIN patient AS p
-                     ON enc.pid = p.pid
-                WHERE enc.service_date BETWEEN start_date AND end_date
+    ELSE
+        CREATE TEMPORARY TABLE report_ds
+        SELECT e.eid,
+               e.pid,
+               e.summary_care_provided
+        FROM (SELECT enc.eid, enc.pid, enc.summary_care_provided
+              FROM encounters AS enc
+                       INNER JOIN patient AS p
+                                  ON enc.pid = p.pid
+              WHERE enc.service_date BETWEEN start_date AND end_date
+                AND enc.close_date IS NOT NULL
                 AND (sex IS NULL OR p.sex = sex)
                 AND enc.provider_uid = provider_id
-                AND enc.referring_physician IS NOT NULL)  e;
-        END IF;
+                AND enc.referring_physician IS NOT NULL) e;
+    END IF;
 
 
         CREATE TEMPORARY TABLE report_denominator_ds

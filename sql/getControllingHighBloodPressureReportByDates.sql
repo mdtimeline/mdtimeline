@@ -20,92 +20,99 @@ BEGIN
     SET @insurance = (SELECT CONCAT(name, ' ', ' (CODE:', insurance_companies.code, ')') FROM insurance_companies WHERE id = insurance_id);
 
     IF insurance_id > 0
-        THEN
-            CREATE TEMPORARY TABLE report_ds
-            SELECT
-                e.eid,
-                e.pid,
-                IF( EXISTS (
-                    SELECT dx.code FROM encounter_dx AS dx
-                    JOIN encounters as dxe ON dx.eid = dxe.eid
-                    WHERE dxe.pid = e.pid
-                      AND dx.dx_type = 'F'
-                      AND dx.code = 'I10'
-                      AND dxe.service_date BETWEEN DATE_SUB(start_date,INTERVAL 1 YEAR) AND end_date),
-                    '1', '0') AS has_hypertesion_dx,
-                (
-                    SELECT vital.bp_systolic FROM encounter_vitals AS vital
-                    WHERE pid = e.pid
-                        AND vital.bp_systolic IS NOT NULL
-                        AND vital.date BETWEEN start_date AND end_date
-                    ORDER BY vital.id DESC
-                    LIMIT 1
-                ) as last_bp_systolic,
-                (
-                    SELECT vital.bp_diastolic FROM encounter_vitals AS vital
-                    WHERE pid = e.pid
-                      AND vital.bp_diastolic IS NOT NULL
-                      AND vital.date BETWEEN start_date AND end_date
-                    ORDER BY vital.id DESC
-                    LIMIT 1
-                ) as last_bp_diastolic
-            FROM
-                (SELECT enc.eid,
-                        enc.pid,
-                        YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) as age
-                 FROM encounters as enc
-                          INNER JOIN patient p on enc.pid = p.pid
-                          LEFT JOIN patient_insurances as pi ON pi.pid = p.pid
-                 WHERE enc.provider_uid = provider_id
-                   AND enc.service_date BETWEEN start_date AND end_date
-                   AND (sex IS NULL OR p.sex = sex)
-                   AND pi.insurance_id = insurance_id
-                 GROUP BY enc.pid) e
-            WHERE e.age >= 18 AND e.age <= 85;
+    THEN
+        CREATE TEMPORARY TABLE report_ds
+        SELECT e.eid,
+               e.pid,
+               IF(EXISTS(
+                          SELECT dx.code
+                          FROM encounter_dx AS dx
+                                   JOIN encounters as dxe ON dx.eid = dxe.eid
+                          WHERE dxe.pid = e.pid
+                            AND dx.dx_type = 'F'
+                            AND dx.code = 'I10'
+                            AND dxe.service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
+                            AND dxe.close_date IS NOT NULL),
+                  '1', '0') AS has_hypertesion_dx,
+               (
+                   SELECT vital.bp_systolic
+                   FROM encounter_vitals AS vital
+                   WHERE pid = e.pid
+                     AND vital.eid = e.eid
+                     AND vital.bp_systolic IS NOT NULL
+                     AND vital.date BETWEEN start_date AND end_date
+                   ORDER BY vital.id DESC
+                   LIMIT 1
+               )as last_bp_systolic,
+               (
+                   SELECT vital.bp_diastolic
+                   FROM encounter_vitals AS vital
+                   WHERE pid = e.pid
+                     AND vital.eid = e.eid
+                     AND vital.bp_diastolic IS NOT NULL
+                     AND vital.date BETWEEN start_date AND end_date
+                   ORDER BY vital.id DESC
+                   LIMIT 1
+               )as last_bp_diastolic
+        FROM (SELECT enc.eid,
+                     enc.pid,
+                     YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) as age
+              FROM encounters as enc
+                       INNER JOIN patient p on enc.pid = p.pid
+                       LEFT JOIN patient_insurances as pi ON pi.pid = p.pid
+              WHERE enc.provider_uid = provider_id
+                AND enc.service_date BETWEEN start_date AND end_date
+                AND enc.close_date IS NOT NULL
+                AND (sex IS NULL OR p.sex = sex)
+                AND pi.insurance_id = insurance_id) e
+        WHERE e.age >= 18
+          AND e.age <= 85;
 
-        ELSE
+    ELSE
+        CREATE TEMPORARY TABLE report_ds
+        SELECT e.eid,
+               e.pid,
+               IF(EXISTS(
+                          SELECT dx.code
+                          FROM encounter_dx AS dx
+                                   JOIN encounters as dxe ON dx.eid = dxe.eid
+                          WHERE dxe.pid = e.pid
+                            AND dx.dx_type = 'F'
+                            AND dx.code = 'I10'
+                            AND dxe.service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
+                            AND dxe.close_date IS NOT NULL),
+                  '1', '0') AS has_hypertesion_dx,
+               (
+                   SELECT vital.bp_systolic
+                   FROM encounter_vitals AS vital
+                   WHERE pid = e.pid
+                     AND vital.bp_systolic IS NOT NULL
+                     AND vital.date BETWEEN start_date AND end_date
+                   ORDER BY vital.id DESC
+                   LIMIT 1
+               )as last_bp_systolic,
+               (
+                   SELECT vital.bp_diastolic
+                   FROM encounter_vitals AS vital
+                   WHERE pid = e.pid
+                     AND vital.bp_diastolic IS NOT NULL
+                     AND vital.date BETWEEN start_date AND end_date
+                   ORDER BY vital.id DESC
+                   LIMIT 1
+               )as last_bp_diastolic
+        FROM (SELECT enc.eid,
+                     enc.pid,
+                     YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) as age
+              FROM encounters as enc
+                       INNER JOIN patient p on enc.pid = p.pid
+              WHERE enc.provider_uid = provider_id
+                AND enc.service_date BETWEEN start_date AND end_date
+                AND enc.close_date IS NOT NULL
+                AND (sex IS NULL OR p.sex = sex)) e
+        WHERE e.age >= 18
+          AND e.age <= 85;
 
-            CREATE TEMPORARY TABLE report_ds
-            SELECT
-                e.eid,
-                e.pid,
-                IF( EXISTS (
-                    SELECT dx.code FROM encounter_dx AS dx
-                    JOIN encounters as dxe ON dx.eid = dxe.eid
-                    WHERE dxe.pid = e.pid
-                        AND dx.dx_type = 'F'
-                        AND dx.code = 'I10'
-                        AND dxe.service_date BETWEEN DATE_SUB(start_date,INTERVAL 1 YEAR) AND end_date),
-                '1', '0') AS has_hypertesion_dx,
-                (
-                    SELECT vital.bp_systolic FROM encounter_vitals AS vital
-                    WHERE pid = e.pid
-                      AND vital.bp_systolic IS NOT NULL
-                      AND vital.date BETWEEN start_date AND end_date
-                    ORDER BY vital.id DESC
-                    LIMIT 1
-                ) as last_bp_systolic,
-                (
-                    SELECT vital.bp_diastolic FROM encounter_vitals AS vital
-                    WHERE pid = e.pid
-                      AND vital.bp_diastolic IS NOT NULL
-                      AND vital.date BETWEEN start_date AND end_date
-                    ORDER BY vital.id DESC
-                    LIMIT 1
-                ) as last_bp_diastolic
-            FROM
-                (SELECT enc.eid,
-                        enc.pid,
-                        YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) as age
-                 FROM encounters as enc
-                          INNER JOIN patient p on enc.pid = p.pid
-                 WHERE enc.provider_uid = provider_id
-                   AND enc.service_date BETWEEN start_date AND end_date
-                   AND (sex IS NULL OR p.sex = sex)
-                 GROUP BY enc.pid) e
-            WHERE e.age >= 18 AND e.age <= 85;
-
-        END IF;
+    END IF;
 
 
         CREATE TEMPORARY TABLE report_denominator_ds

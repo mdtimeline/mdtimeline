@@ -18,89 +18,92 @@ BEGIN
     SET @insurance = (SELECT CONCAT(name, ' ', ' (CODE:', insurance_companies.code, ')') FROM insurance_companies WHERE id = insurance_id);
 
     IF insurance_id > 0
-        THEN
-            CREATE TEMPORARY TABLE report_ds
-            SELECT
-                e.eid,
-                e.pid,
-                IF(e.code IS NOT NULL, '1','0') AS had_a_risk_assessment
-            FROM
-
-                (SELECT enc.pid, enc.eid, pcfs.code
-                    FROM encounters as enc
-                    INNER JOIN (
-                        SELECT pid, COUNT(*) AS total
-                        FROM (
-                            SELECT enc.pid, enc.eid, pcfs.code
-                            FROM encounters as enc
-                                INNER JOIN patient p
-                                ON enc.pid = p.pid
-                                INNER JOIN patient_insurances AS pi
-                               ON p.pid = pi.pid
-                                INNER JOIN (
-                                    SELECT *
-                                    FROM patient_cognitive_functional_status
-                                    WHERE code IN ('1912002')
-                                    AND begin_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
-                                ) AS pcfs
-                                ON pcfs.pid = enc.pid
-                                AND pcfs.eid = enc.eid
-                                WHERE YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
-                                AND (sex IS NULL OR p.sex = sex)
-                                AND pi.insurance_id = insurance_id
-                                AND enc.provider_uid = provider_id
-                        ) e
-                        GROUP BY pid
-                        HAVING total >= 2
-                        ) AS e
-                    ON enc.pid = e.pid
-                    LEFT JOIN patient_cognitive_functional_status AS pcfs
-                    ON pcfs.pid = enc.pid
-                    AND pcfs.eid = enc.eid
-                    AND pcfs.code IN ('401196007','408422004','408423009','408589008','414191008','426938003','427206005','443731004','445990009','711054005')
-                    AND pcfs.begin_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
-                WHERE enc.provider_uid = provider_id) e;
+    THEN
+        CREATE TEMPORARY TABLE report_ds
+        SELECT e.eid,
+               e.pid,
+               IF(e.code IS NOT NULL, '1', '0') AS had_a_risk_assessment
+        FROM (SELECT enc.pid, enc.eid, pcfs.code
+              FROM encounters as enc
+                       INNER JOIN (
+                  SELECT pid, COUNT(*) AS total
+                  FROM (
+                           SELECT enc.pid, enc.eid, pcfs.code
+                           FROM encounters as enc
+                                    INNER JOIN patient p
+                                               ON enc.pid = p.pid
+                                    INNER JOIN patient_insurances AS pi
+                                               ON p.pid = pi.pid
+                                    INNER JOIN (
+                               SELECT *
+                               FROM patient_cognitive_functional_status
+                               WHERE code IN ('1912002')
+                                 AND begin_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
+                           ) AS pcfs
+                                               ON pcfs.pid = enc.pid
+                                                   AND pcfs.eid = enc.eid
+                           WHERE YEAR(enc.service_date) - YEAR(p.DOB) -
+                                 (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
+                             AND (sex IS NULL OR p.sex = sex)
+                             AND pi.insurance_id = insurance_id
+                             AND enc.provider_uid = provider_id
+                             AND enc.close_date IS NOT NULL
+                       ) e
+                  GROUP BY pid
+                  HAVING total >= 2
+              ) AS e
+                                  ON enc.pid = e.pid
+                       LEFT JOIN patient_cognitive_functional_status AS pcfs
+                                 ON pcfs.pid = enc.pid
+                                     AND pcfs.eid = enc.eid
+                                     AND pcfs.code IN
+                                         ('401196007', '408422004', '408423009', '408589008', '414191008', '426938003',
+                                          '427206005', '443731004', '445990009', '711054005')
+                                     AND pcfs.begin_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
+              WHERE enc.provider_uid = provider_id
+                AND enc.close_date IS NOT NULL) e;
 
     ELSE
-
         CREATE TEMPORARY TABLE report_ds
-        SELECT
-            e.eid,
-            e.pid,
-            IF(e.code IS NOT NULL, '1','0') AS had_a_risk_assessment
-        FROM
-
-            (SELECT enc.pid, enc.eid, pcfs.code
-                FROM encounters as enc
-                INNER JOIN (
-                    SELECT pid, COUNT(*) AS total
-                    FROM (
-                        SELECT enc.pid, enc.eid, pcfs.code
-                        FROM encounters as enc
-                            INNER JOIN patient p
-                            ON enc.pid = p.pid
-                            INNER JOIN (
-                                SELECT *
-                                FROM patient_cognitive_functional_status
-                                WHERE code IN ('1912002')
-                                AND begin_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
-                            ) AS pcfs
-                            ON pcfs.pid = enc.pid
-                            AND pcfs.eid = enc.eid
-                            WHERE YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
-                            AND (sex IS NULL OR p.sex = sex)
-                            AND enc.provider_uid = provider_id
-                    ) e
-                    GROUP BY pid
-                    HAVING total >= 2
-                    ) AS e
-                ON enc.pid = e.pid
-                LEFT JOIN patient_cognitive_functional_status AS pcfs
-                ON pcfs.pid = enc.pid
-                AND pcfs.eid = enc.eid
-                AND pcfs.code IN ('401196007','408422004','408423009','408589008','414191008','426938003','427206005','443731004','445990009','711054005')
-                AND pcfs.begin_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
-            WHERE enc.provider_uid = provider_id) e;
+        SELECT e.eid,
+               e.pid,
+               IF(e.code IS NOT NULL, '1', '0') AS had_a_risk_assessment
+        FROM (SELECT enc.pid, enc.eid, pcfs.code
+              FROM encounters as enc
+                       INNER JOIN (
+                  SELECT pid, COUNT(*) AS total
+                  FROM (
+                           SELECT enc.pid, enc.eid, pcfs.code
+                           FROM encounters as enc
+                                    INNER JOIN patient p
+                                               ON enc.pid = p.pid
+                                    INNER JOIN (
+                               SELECT *
+                               FROM patient_cognitive_functional_status
+                               WHERE code IN ('1912002')
+                                 AND begin_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
+                           ) AS pcfs
+                                               ON pcfs.pid = enc.pid
+                                                   AND pcfs.eid = enc.eid
+                           WHERE YEAR(enc.service_date) - YEAR(p.DOB) -
+                                 (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
+                             AND (sex IS NULL OR p.sex = sex)
+                             AND enc.provider_uid = provider_id
+                             AND enc.close_date IS NOT NULL
+                       ) e
+                  GROUP BY pid
+                  HAVING total >= 2
+              ) AS e
+                                  ON enc.pid = e.pid
+                       LEFT JOIN patient_cognitive_functional_status AS pcfs
+                                 ON pcfs.pid = enc.pid
+                                     AND pcfs.eid = enc.eid
+                                     AND pcfs.code IN
+                                         ('401196007', '408422004', '408423009', '408589008', '414191008', '426938003',
+                                          '427206005', '443731004', '445990009', '711054005')
+                                     AND pcfs.begin_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
+              WHERE enc.provider_uid = provider_id
+                AND enc.close_date IS NOT NULL) e;
 
     END IF;
 

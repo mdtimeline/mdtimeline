@@ -18,88 +18,87 @@ BEGIN
     SET @insurance = (SELECT CONCAT(name, ' ', ' (CODE:', insurance_companies.code, ')') FROM insurance_companies WHERE id = insurance_id);
 
     IF insurance_id > 0
-        THEN
-            CREATE TEMPORARY TABLE report_ds
-            SELECT
-                e.eid,
-                e.pid,
-                IF(e.goal_code IS NOT NULL, '1','0') AS  with_a_plan_of_care
-            FROM
-
-                (SELECT enc.pid, enc.eid, pcpg.goal_code
-                FROM encounters as enc
-                    INNER JOIN (
-                        SELECT pid, COUNT(*) AS total
-                        FROM (
-                            SELECT enc.pid, enc.eid, pcfs.code
-                            FROM encounters AS enc
-                                INNER JOIN patient p
-                                ON enc.pid = p.pid
-                                INNER JOIN patient_insurances AS pi
-                                ON p.pid = pi.pid
-                                INNER JOIN (
-                                    SELECT *
-                                    FROM patient_cognitive_functional_status
-                                    WHERE code IN ('1912002')
-                                    AND begin_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
-                                    ) AS pcfs
-                                ON pcfs.pid = enc.pid
-                                AND pcfs.eid = enc.eid
-                                WHERE YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
-                                AND (sex IS NULL OR p.sex = sex)
-                                AND pi.insurance_id = insurance_id
-                                AND enc.provider_uid = provider_id
-                        ) e
-                        GROUP BY pid
-                        HAVING total >= 2
-                    ) AS e
-                    ON enc.pid = e.pid
-                    LEFT JOIN patient_care_plan_goals AS pcpg
-                    ON pcpg.pid = enc.pid
-                    AND pcpg.eid = enc.eid
-                    AND pcpg.goal_code IN ('390997009', '408589008', '414191008', '711002000')
-                WHERE enc.service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
+    THEN
+        CREATE TEMPORARY TABLE report_ds
+        SELECT e.eid,
+               e.pid,
+               IF(e.goal_code IS NOT NULL, '1', '0') AS with_a_plan_of_care
+        FROM (SELECT enc.pid, enc.eid, pcpg.goal_code
+              FROM encounters as enc
+                       INNER JOIN (
+                  SELECT pid, COUNT(*) AS total
+                  FROM (
+                           SELECT enc.pid, enc.eid, pcfs.code
+                           FROM encounters AS enc
+                                    INNER JOIN patient p
+                                               ON enc.pid = p.pid
+                                    INNER JOIN patient_insurances AS pi
+                                               ON p.pid = pi.pid
+                                    INNER JOIN (
+                               SELECT *
+                               FROM patient_cognitive_functional_status
+                               WHERE code IN ('1912002')
+                                 AND begin_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
+                           ) AS pcfs
+                                               ON pcfs.pid = enc.pid
+                                                   AND pcfs.eid = enc.eid
+                           WHERE YEAR(enc.service_date) - YEAR(p.DOB) -
+                                 (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
+                             AND (sex IS NULL OR p.sex = sex)
+                             AND pi.insurance_id = insurance_id
+                             AND enc.provider_uid = provider_id
+                             AND enc.close_date IS NOT NULL
+                       ) te
+                  GROUP BY pid
+                  HAVING total >= 2
+              ) AS e
+                                  ON enc.pid = e.pid
+                       LEFT JOIN patient_care_plan_goals AS pcpg
+                                 ON pcpg.pid = enc.pid
+                                     AND pcpg.eid = enc.eid
+                                     AND pcpg.goal_code IN ('390997009', '408589008', '414191008', '711002000')
+              WHERE enc.service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
+                AND enc.close_date IS NOT NULL
                 AND enc.provider_uid = provider_id) e;
 
-        ELSE
-
-            CREATE TEMPORARY TABLE report_ds
-            SELECT
-                e.eid,
-                e.pid,
-                IF(e.goal_code IS NOT NULL, '1','0') AS  with_a_plan_of_care
-            FROM
-
-                (SELECT enc.pid, enc.eid, pcpg.goal_code
-                FROM encounters as enc
-                    INNER JOIN (
-                        SELECT pid, COUNT(*) AS total
-                        FROM (
-                            SELECT enc.pid, enc.eid, pcfs.code
-                            FROM encounters AS enc
-                                INNER JOIN patient p
-                                ON enc.pid = p.pid
-                                INNER JOIN (
-                                    SELECT *
-                                    FROM patient_cognitive_functional_status
-                                    WHERE code IN ('1912002')
-                                    AND begin_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
-                                    ) AS pcfs
-                                ON pcfs.pid = enc.pid
-                                AND pcfs.eid = enc.eid
-                                WHERE YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
-                                AND (sex IS NULL OR p.sex = sex)
-                                AND enc.provider_uid = provider_id
-                        ) te
-                        GROUP BY pid
-                        HAVING total >= 2
-                    ) AS e
-                    ON enc.pid = e.pid
-                    LEFT JOIN patient_care_plan_goals AS pcpg
-                    ON pcpg.pid = enc.pid
-                    AND pcpg.eid = enc.eid
-                    AND pcpg.goal_code IN ('390997009', '408589008', '414191008', '711002000')
-                WHERE enc.service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
+    ELSE
+        CREATE TEMPORARY TABLE report_ds
+        SELECT e.eid,
+               e.pid,
+               IF(e.goal_code IS NOT NULL, '1', '0') AS with_a_plan_of_care
+        FROM (SELECT enc.pid, enc.eid, pcpg.goal_code
+              FROM encounters as enc
+                       INNER JOIN (
+                  SELECT pid, COUNT(*) AS total
+                  FROM (
+                           SELECT enc.pid, enc.eid, pcfs.code
+                           FROM encounters AS enc
+                                    INNER JOIN patient p
+                                               ON enc.pid = p.pid
+                                    INNER JOIN (
+                               SELECT *
+                               FROM patient_cognitive_functional_status
+                               WHERE code IN ('1912002')
+                                 AND begin_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
+                           ) AS pcfs
+                                               ON pcfs.pid = enc.pid
+                                                   AND pcfs.eid = enc.eid
+                           WHERE YEAR(enc.service_date) - YEAR(p.DOB) -
+                                 (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
+                             AND (sex IS NULL OR p.sex = sex)
+                             AND enc.provider_uid = provider_id
+                             AND enc.close_date IS NOT NULL
+                       ) te
+                  GROUP BY pid
+                  HAVING total >= 2
+              ) AS e
+                                  ON enc.pid = e.pid
+                       LEFT JOIN patient_care_plan_goals AS pcpg
+                                 ON pcpg.pid = enc.pid
+                                     AND pcpg.eid = enc.eid
+                                     AND pcpg.goal_code IN ('390997009', '408589008', '414191008', '711002000')
+              WHERE enc.service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
+                AND enc.close_date IS NOT NULL
                 AND enc.provider_uid = provider_id) e;
 
         END IF;

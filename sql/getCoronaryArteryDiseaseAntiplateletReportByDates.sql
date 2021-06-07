@@ -70,6 +70,7 @@ BEGIN
                           INNER JOIN encounter_dx AS dx ON enc.eid = dx.eid
                  WHERE enc.provider_uid = provider_id
                    AND enc.service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
+                   AND enc.close_date IS NOT NULL
                    AND (sex IS NULL OR p.sex = sex)
                    AND pi.insurance_id = insurance_id
                    AND dx.dx_type = 'F'
@@ -133,6 +134,7 @@ BEGIN
                           INNER JOIN encounter_dx AS dx ON enc.eid = dx.eid
                  WHERE enc.provider_uid = provider_id
                    AND enc.service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
+                   AND enc.close_date IS NOT NULL
                    AND (sex IS NULL OR p.sex = sex)
                    AND dx.dx_type = 'F'
                    AND dx.code IN ('I20.0', 'I20.1', 'I20.8', 'I20.9', 'I21.01', 'I21.02', 'I21.09', 'I21.11', 'I21.19',

@@ -20,46 +20,43 @@ BEGIN
     SET @insurance = (SELECT CONCAT(name, ' ', ' (CODE:', insurance_companies.code, ')') FROM insurance_companies WHERE id = insurance_id);
 
     IF insurance_id > 0
-        THEN
-            CREATE TEMPORARY TABLE report_ds
-            SELECT
-                e.eid,
-                e.pid,
-                IF(e.adv_id IS NOT NULL, '1','0') AS has_advance_directive
-            FROM
-                (SELECT enc.eid,
-                        enc.pid,
-                        adv.id as adv_id
-                 FROM encounters as enc
-                          INNER JOIN patient p on enc.pid = p.pid
-                          LEFT JOIN patient_insurances as pi ON pi.pid = p.pid
-                          LEFT JOIN patient_advance_directives as adv ON adv.eid = enc.eid
-                 WHERE YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
-                   AND enc.provider_uid = provider_id
-                   AND enc.service_date BETWEEN start_date AND end_date
-                   AND (sex IS NULL OR p.sex = sex)
-                   AND pi.insurance_id = insurance_id
-                 GROUP BY enc.pid) e;
-        ELSE
-            CREATE TEMPORARY TABLE report_ds
-            SELECT
-                e.eid,
-                e.pid,
-                IF(e.adv_id IS NOT NULL, '1','0') AS has_advance_directive
-            FROM
-                (SELECT enc.eid,
-                        enc.pid,
-                        adv.id as adv_id
-                 FROM encounters as enc
-                          INNER JOIN patient p on enc.pid = p.pid
-                          LEFT JOIN patient_advance_directives as adv ON adv.eid = enc.eid
-                 WHERE YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
-                   AND enc.provider_uid = provider_id
-                   AND enc.service_date BETWEEN start_date AND end_date
-                   AND (sex IS NULL OR p.sex = sex)
-                 GROUP BY enc.pid) e;
-
-        END IF;
+    THEN
+        CREATE TEMPORARY TABLE report_ds
+        SELECT e.eid,
+               e.pid,
+               IF(e.adv_id IS NOT NULL, '1', '0') AS has_advance_directive
+        FROM (SELECT enc.eid,
+                     enc.pid,
+                     adv.id as adv_id
+              FROM encounters as enc
+                       INNER JOIN patient p on enc.pid = p.pid
+                       LEFT JOIN patient_insurances as pi ON pi.pid = p.pid
+                       LEFT JOIN patient_advance_directives as adv ON adv.eid = enc.eid
+              WHERE YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
+                AND enc.provider_uid = provider_id
+                AND enc.service_date BETWEEN start_date AND end_date
+                AND enc.close_date IS NOT NULL
+                AND (sex IS NULL OR p.sex = sex)
+                AND pi.insurance_id = insurance_id
+              GROUP BY enc.pid) e;
+    ELSE
+        CREATE TEMPORARY TABLE report_ds
+        SELECT e.eid,
+               e.pid,
+               IF(e.adv_id IS NOT NULL, '1', '0') AS has_advance_directive
+        FROM (SELECT enc.eid,
+                     enc.pid,
+                     adv.id as adv_id
+              FROM encounters as enc
+                       INNER JOIN patient p on enc.pid = p.pid
+                       LEFT JOIN patient_advance_directives as adv ON adv.eid = enc.eid
+              WHERE YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
+                AND enc.provider_uid = provider_id
+                AND enc.service_date BETWEEN start_date AND end_date
+                AND enc.close_date IS NOT NULL
+                AND (sex IS NULL OR p.sex = sex)
+              GROUP BY enc.pid) e;
+    END IF;
 
 
         CREATE TEMPORARY TABLE report_denominator_ds

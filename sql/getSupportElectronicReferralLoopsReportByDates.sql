@@ -17,46 +17,43 @@ BEGIN
     SET @insurance = (SELECT CONCAT(name, ' ', ' (CODE:', insurance_companies.code, ')') FROM insurance_companies WHERE id = insurance_id);
 
     IF insurance_id > 0
-        THEN
-            CREATE TEMPORARY TABLE report_ds
-            SELECT
-                e.eid,
-                e.pid,
-                e.send_record as record_exchange_electronically
-            FROM
-                (SELECT enc.eid, enc.pid, pr.send_record
-                FROM encounters AS enc
-                INNER JOIN patient AS p
-                     ON enc.pid = p.pid
-                INNER JOIN patient_insurances AS pi
-                    ON p.pid = pi.pid
-                INNER JOIN patient_referrals pr
-                     ON enc.eid = pr.eid
-                         AND enc.pid = pr.pid
-                         AND pr.refer_by = provider_id
-                WHERE enc.service_date BETWEEN start_date AND end_date
+    THEN
+        CREATE TEMPORARY TABLE report_ds
+        SELECT e.eid,
+               e.pid,
+               e.send_record as record_exchange_electronically
+        FROM (SELECT enc.eid, enc.pid, pr.send_record
+              FROM encounters AS enc
+                       INNER JOIN patient AS p
+                                  ON enc.pid = p.pid
+                       INNER JOIN patient_insurances AS pi
+                                  ON p.pid = pi.pid
+                       INNER JOIN patient_referrals pr
+                                  ON enc.eid = pr.eid
+                                      AND enc.pid = pr.pid
+                                      AND pr.refer_by = provider_id
+              WHERE enc.service_date BETWEEN start_date AND end_date
+                AND enc.close_date IS NOT NULL
                 AND (sex IS NULL OR p.sex = sex)
                 AND pi.insurance_id = insurance_id
-                ) e;
-        ELSE
-
-            CREATE TEMPORARY TABLE report_ds
-            SELECT
-                e.eid,
-                e.pid,
-                e.send_record as record_exchange_electronically
-            FROM
-                (SELECT enc.eid, enc.pid, pr.send_record
-                FROM encounters AS enc
-                INNER JOIN patient AS p
-                     ON enc.pid = p.pid
-                INNER JOIN patient_referrals pr
-                     ON enc.eid = pr.eid
-                     AND enc.pid = pr.pid
-                     AND pr.refer_by = provider_id
-                WHERE enc.service_date BETWEEN start_date AND end_date
+             ) e;
+    ELSE
+        CREATE TEMPORARY TABLE report_ds
+        SELECT e.eid,
+               e.pid,
+               e.send_record as record_exchange_electronically
+        FROM (SELECT enc.eid, enc.pid, pr.send_record
+              FROM encounters AS enc
+                       INNER JOIN patient AS p
+                                  ON enc.pid = p.pid
+                       INNER JOIN patient_referrals pr
+                                  ON enc.eid = pr.eid
+                                      AND enc.pid = pr.pid
+                                      AND pr.refer_by = provider_id
+              WHERE enc.service_date BETWEEN start_date AND end_date
+                AND enc.close_date IS NOT NULL
                 AND (sex IS NULL OR p.sex = sex)) e;
-        END IF;
+    END IF;
 
 
         CREATE TEMPORARY TABLE report_denominator_ds

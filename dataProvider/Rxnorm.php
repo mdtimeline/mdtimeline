@@ -298,7 +298,9 @@ class Rxnorm
 			    FROM rxnconso as c 
 			    WHERE (c.`SAB` = 'RXNORM') 
 			    AND c.`TTY` IN ('SCD','SBD','SY'{$groups}{$ingredients})
-			    AND ($where) LIMIT 500
+			    AND ({$where})
+		    	GROUP by c.`RXCUI`
+		    	LIMIT 500
 		    ) AS RX
 		    LEFT JOIN rxnoccurrences AS RXO ON RXO.rxcui = RX.RXCUI
 		    WHERE RX.SUPPRESS = 'N' -- AND RX.CVF <> ''

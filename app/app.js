@@ -4793,7 +4793,7 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 
 		if(!this.textField1) return;
 
-		var body = this.up('form').body,
+		var body = this.up('window').body,
 			scroll = body.getScroll();
 
 		if(value == 0 || value == 'off' || value == false){
@@ -4805,10 +4805,7 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 			this.textField1.enable();
 		}
 
-		Ext.Function.defer(function (){
-			say('body.scrollTo');
-			body.scrollTo('top', scroll.top, false);
-		}, 1000);
+		body.scrollTo('top', scroll.top, false);
 
 	},
 
@@ -4816,7 +4813,7 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 
 		if(!this.textField2) return;
 
-		var body = this.up('form').body,
+		var body = this.up('window').body,
 			scroll = body.getScroll();
 
 		if(value == 0 || value == 'off' || value == false){
@@ -4828,10 +4825,7 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 			this.textField2.enable();
 		}
 
-		Ext.Function.defer(function (){
-			say('body.scrollTo');
-			body.scrollTo('top', scroll.top, false);
-		}, 1000);
+		body.scrollTo('top', scroll.top, false);
 
 	},
 

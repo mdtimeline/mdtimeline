@@ -4805,7 +4805,9 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 			this.textField1.enable();
 		}
 
-		body.scrollTo('top', scroll.top, false);
+		Ext.Function.defer(function (){
+			body.scrollTo('top', scroll.top, false);
+		}, 50);
 
 	},
 
@@ -4825,7 +4827,9 @@ Ext.define('App.ux.form.fields.CheckBoxWithText', {
 			this.textField2.enable();
 		}
 
-		body.scrollTo('top', scroll.top, false);
+		Ext.Function.defer(function (){
+			body.scrollTo('top', scroll.top, false);
+		}, 50);
 
 	},
 

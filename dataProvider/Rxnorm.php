@@ -288,7 +288,7 @@ class Rxnorm
         }
 
         $sth = $this->db->prepare("
-			SELECT * FROM (SELECT RX.*, RXO.occurrences,
+			SELECT RX.*, RXO.occurrences,
 		    (SELECT rxnsat.`ATV` FROM rxnsat WHERE `rxnsat`.`RXCUI` = RX.RXCUI AND `rxnsat`.`ATN` = 'NDC' AND `rxnsat`.`ATV` IS NOT NULL LIMIT 1) AS NDC,
 		    -- IFNULL((SELECT rxnconso.`STR` FROM rxnconso WHERE `rxnconso`.`RXCUI` = RX.RXCUI AND (`rxnconso`.`TTY` = 'SY') LIMIT 1), RX.STR) AS STR,
 			{$umls}
@@ -303,8 +303,7 @@ class Rxnorm
 		    LEFT JOIN rxnoccurrences AS RXO ON RXO.rxcui = RX.RXCUI
 		    WHERE RX.SUPPRESS = 'N' -- AND RX.CVF <> ''
 			HAVING NDC IS NOT NULL
-		    ORDER BY RXO.occurrences DESC, RX.`TTY` DESC, RX.`STR` DESC) as results
-            GROUP BY results.RXCUI
+		    ORDER BY RXO.occurrences DESC, RX.`TTY` DESC, RX.`STR` DESC
           ;");
 
 //        $sth = $this->db->prepare("SELECT RX.*, `rxnsat`.`ATV` AS NDC,

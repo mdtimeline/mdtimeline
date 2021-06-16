@@ -65,6 +65,9 @@ Ext.define('App.controller.patient.SocialHistory', {
 			},
 			'#reviewsmokingstatuscombo': {
 				select: me.onSmokingStatusComboSelect
+			},
+			'#PatientSmokingStatusGridCounselingField': {
+				select: me.onPatientSmokingStatusGridCounselingFieldSelect
 			}
 		});
 

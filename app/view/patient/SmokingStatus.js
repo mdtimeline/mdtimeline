@@ -61,6 +61,19 @@ Ext.define('App.view.patient.SmokingStatus', {
 			}
 		},
 		{
+			text: _('cessation_counseling_type'),
+			flex: 1,
+			dataIndex: 'counseling_text',
+			editor:{
+				xtype:'gaiaehr.combo',
+				listKey: 'tobacco_use_cessation_counseling',
+				displayField: 'option_name',
+				valueField: 'option_name',
+				itemId: 'PatientSmokingStatusGridCounselingField',
+				loadStore: true
+			}
+		},
+		{
 			text: _('note'),
 			dataIndex: 'note',
 			flex: 1,

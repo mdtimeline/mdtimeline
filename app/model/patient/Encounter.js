@@ -176,6 +176,10 @@ Ext.define('App.model.patient.Encounter', {
 			type: 'bool'
 		},
 		{
+			name: 'review_advance_directives',
+			type: 'bool'
+		},
+		{
 			name: 'message',
 			type: 'string',
 			dataType: 'text'

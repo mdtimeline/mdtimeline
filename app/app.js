@@ -11777,6 +11777,21 @@ Ext.define('App.model.patient.SmokeStatus', {
 			comment: '1 if counseling received'
 		},
 		{
+			name: 'counseling_text',
+			type: 'string',
+			len: 80
+		},
+		{
+			name: 'counseling_code',
+			type: 'string',
+			len: 20
+		},
+		{
+			name: 'counseling_code_type',
+			type: 'string',
+			len: 20
+		},
+		{
 			name: 'note',
 			type: 'string',
 			dataType: 'text'
@@ -19477,6 +19492,10 @@ Ext.define('App.model.patient.Encounter', {
 			type: 'bool'
 		},
 		{
+			name: 'review_advance_directives',
+			type: 'bool'
+		},
+		{
 			name: 'message',
 			type: 'string',
 			dataType: 'text'
@@ -26827,7 +26846,8 @@ Ext.define('App.view.patient.ItemsToReview', {
 							padding: '0 0 5 10',
 							itemId: 'EncounterSummaryCareProvided',
 							boxLabel: _('ccda_available'),
-							name: 'summary_care_provided'
+							name: 'summary_care_provided',
+							width: 150
 						}
 					]
 				}
@@ -46761,6 +46781,10 @@ Ext.define('App.controller.patient.ActiveProblems', {
         {
             ref: 'EncounterPanel',
             selector: '#encounterPanel'
+        },
+        {
+            ref: 'ActiveProblemsReviewBtn',
+            selector: '#ActiveProblemsReviewBtn'
         }
 	],
 
@@ -46794,6 +46818,9 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			},
 			'#ActiveProblemsGridInactivateMenu': {
 				click: me.onActiveProblemsGridInactivateMenu
+			},
+			'#ActiveProblemsReviewBtn': {
+				click: me.onActiveProblemsReviewBtnClick
 			}
 		});
 
@@ -46872,6 +46899,19 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			begin_date: begin_date
 		});
 		grid.editingPlugin.startEdit(0, 0);
+	},
+
+	onActiveProblemsReviewBtnClick:function(btn){
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+		encounter.set({review_active_problems: true});
+		encounter.save({
+			success: function(){
+				app.msg(_('sweet'), _('items_to_review_save_and_review'));
+			},
+			failure: function(){
+				app.msg(_('oops'), _('items_to_review_entry_error'));
+			}
+		});
 	},
 
     onPatientProblemsReconciledBtnClick: function(){
@@ -47008,7 +47048,16 @@ Ext.define('App.controller.patient.AdvanceDirectives', {
 	},
 
 	onAdvanceDirectiveReviewBtnClick: function(btn){
-
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+		encounter.set({review_advance_directives: true});
+		encounter.save({
+			success: function(){
+				app.msg(_('sweet'), _('items_to_review_save_and_review'));
+			},
+			failure: function(){
+				app.msg(_('oops'), _('items_to_review_entry_error'));
+			}
+		});
 	}
 
 });
@@ -53876,6 +53925,10 @@ Ext.define('App.controller.patient.Medications', {
 		{
 			ref: 'AdministeredMedicationsAddBtn',
 			selector: '#AdministeredMedicationsAddBtn'
+		},
+		{
+			ref: 'ReviewMedicationsBtn',
+			selector: '#ReviewMedicationsBtn'
 		}
 	],
 
@@ -53927,6 +53980,9 @@ Ext.define('App.controller.patient.Medications', {
 			},
 			'#PatientMedicationsGridActivateMenu': {
 				click: me.onPatientMedicationsGridActivateMenuClick
+			},
+			'#ReviewMedicationsBtn': {
+				click: me.onReviewMedicationsBtnClick
 			},
 			'#PatientMedicationsGridInactivateMenu': {
 				click: me.onPatientMedicationsGridInactivateMenu
@@ -54093,6 +54149,19 @@ Ext.define('App.controller.patient.Medications', {
 			is_active: true
 		});
 		grid.editingPlugin.startEdit(0, 0);
+	},
+
+	onReviewMedicationsBtnClick: function(){
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+		encounter.set({review_medications: true});
+		encounter.save({
+			success: function(){
+				app.msg(_('sweet'), _('items_to_review_save_and_review'));
+			},
+			failure: function(){
+				app.msg(_('oops'), _('items_to_review_entry_error'));
+			}
+		});
 	},
 
 	onMedicationLiveSearchSelect: function(cmb, records){
@@ -56898,6 +56967,9 @@ Ext.define('App.controller.patient.Social', {
 			},
 			'#reviewsmokingstatuscombo': {
 				select: me.onSmokingStatusComboSelect
+			},
+			'#PatientSmokingStatusGridCounselingField': {
+				select: me.onPatientSmokingStatusGridCounselingFieldSelect
 			}
 		});
 
@@ -56908,6 +56980,16 @@ Ext.define('App.controller.patient.Social', {
 				load: me.onSmokeStatusStoreLoad
 			}
 		});
+	},
+
+	onPatientSmokingStatusGridCounselingFieldSelect: function (cmb, selected_records){
+
+		var record = cmb.up('form').getForm().getRecord();
+
+		record.set({
+			counseling_code: selected_records[0].get('code'),
+			counseling_code_type: selected_records[0].get('code_type'),
+		})
 	},
 
 	onSmokeStatusStoreLoad: function(store, records){
@@ -59932,7 +60014,7 @@ Ext.define('App.view.patient.Medications', {
 				'->',
 				{
 					text: _('review'),
-					itemId: 'reviewMedications'
+					itemId: 'ReviewMedicationsBtn'
 				}
 			]
 		}
@@ -67584,6 +67666,19 @@ Ext.define('App.view.patient.SmokingStatus', {
 			}
 		},
 		{
+			text: _('cessation_counseling_type'),
+			flex: 1,
+			dataIndex: 'counseling_text',
+			editor:{
+				xtype:'gaiaehr.combo',
+				listKey: 'tobacco_use_cessation_counseling',
+				displayField: 'option_name',
+				valueField: 'option_name',
+				itemId: 'PatientSmokingStatusGridCounselingField',
+				loadStore: true
+			}
+		},
+		{
 			text: _('note'),
 			dataIndex: 'note',
 			flex: 1,
@@ -73817,7 +73912,7 @@ Ext.define('App.view.patient.ActiveProblems', {
         '->',
         {
 		    text: _('review'),
-		    itemId: 'review_active_problems',
+		    itemId: 'ActiveProblemsReviewBtn',
 		    action: 'encounterRecordAdd'
 	    }
     ]

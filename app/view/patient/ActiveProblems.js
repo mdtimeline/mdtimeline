@@ -231,7 +231,7 @@ Ext.define('App.view.patient.ActiveProblems', {
         '->',
         {
 		    text: _('review'),
-		    itemId: 'review_active_problems',
+		    itemId: 'ActiveProblemsReviewBtn',
 		    action: 'encounterRecordAdd'
 	    }
     ]

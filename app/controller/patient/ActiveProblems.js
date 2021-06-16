@@ -45,6 +45,10 @@ Ext.define('App.controller.patient.ActiveProblems', {
         {
             ref: 'EncounterPanel',
             selector: '#encounterPanel'
+        },
+        {
+            ref: 'ActiveProblemsReviewBtn',
+            selector: '#ActiveProblemsReviewBtn'
         }
 	],
 
@@ -78,6 +82,9 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			},
 			'#ActiveProblemsGridInactivateMenu': {
 				click: me.onActiveProblemsGridInactivateMenu
+			},
+			'#ActiveProblemsReviewBtn': {
+				click: me.onActiveProblemsReviewBtnClick
 			}
 		});
 
@@ -156,6 +163,19 @@ Ext.define('App.controller.patient.ActiveProblems', {
 			begin_date: begin_date
 		});
 		grid.editingPlugin.startEdit(0, 0);
+	},
+
+	onActiveProblemsReviewBtnClick:function(btn){
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+		encounter.set({review_active_problems: true});
+		encounter.save({
+			success: function(){
+				app.msg(_('sweet'), _('items_to_review_save_and_review'));
+			},
+			failure: function(){
+				app.msg(_('oops'), _('items_to_review_entry_error'));
+			}
+		});
 	},
 
     onPatientProblemsReconciledBtnClick: function(){

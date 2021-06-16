@@ -80,7 +80,16 @@ Ext.define('App.controller.patient.AdvanceDirectives', {
 	},
 
 	onAdvanceDirectiveReviewBtnClick: function(btn){
-
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+		encounter.set({review_advance_directives: true});
+		encounter.save({
+			success: function(){
+				app.msg(_('sweet'), _('items_to_review_save_and_review'));
+			},
+			failure: function(){
+				app.msg(_('oops'), _('items_to_review_entry_error'));
+			}
+		});
 	}
 
 });

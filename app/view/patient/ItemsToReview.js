@@ -234,7 +234,8 @@ Ext.define('App.view.patient.ItemsToReview', {
 							padding: '0 0 5 10',
 							itemId: 'EncounterSummaryCareProvided',
 							boxLabel: _('ccda_available'),
-							name: 'summary_care_provided'
+							name: 'summary_care_provided',
+							width: 150
 						}
 					]
 				}

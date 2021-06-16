@@ -2208,4 +2208,5 @@ $LANG = array(
     'req_core_version' => 'Req. Core Version',
     'rad_result' => 'Rad Result',
     'lab_result' => 'Lab Result',
+    'cessation_counseling_type' => 'Cessation Counseling Type',
 );

@@ -71,6 +71,9 @@ Ext.define('App.controller.patient.Social', {
 			},
 			'#reviewsmokingstatuscombo': {
 				select: me.onSmokingStatusComboSelect
+			},
+			'#PatientSmokingStatusGridCounselingField': {
+				select: me.onPatientSmokingStatusGridCounselingFieldSelect
 			}
 		});
 
@@ -81,6 +84,16 @@ Ext.define('App.controller.patient.Social', {
 				load: me.onSmokeStatusStoreLoad
 			}
 		});
+	},
+
+	onPatientSmokingStatusGridCounselingFieldSelect: function (cmb, selected_records){
+
+		var record = cmb.up('form').getForm().getRecord();
+
+		record.set({
+			counseling_code: selected_records[0].get('code'),
+			counseling_code_type: selected_records[0].get('code_type'),
+		})
 	},
 
 	onSmokeStatusStoreLoad: function(store, records){

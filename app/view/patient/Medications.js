@@ -167,7 +167,7 @@ Ext.define('App.view.patient.Medications', {
 				'->',
 				{
 					text: _('review'),
-					itemId: 'reviewMedications'
+					itemId: 'ReviewMedicationsBtn'
 				}
 			]
 		}

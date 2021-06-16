@@ -65,6 +65,10 @@ Ext.define('App.controller.patient.Medications', {
 		{
 			ref: 'AdministeredMedicationsAddBtn',
 			selector: '#AdministeredMedicationsAddBtn'
+		},
+		{
+			ref: 'ReviewMedicationsBtn',
+			selector: '#ReviewMedicationsBtn'
 		}
 	],
 
@@ -116,6 +120,9 @@ Ext.define('App.controller.patient.Medications', {
 			},
 			'#PatientMedicationsGridActivateMenu': {
 				click: me.onPatientMedicationsGridActivateMenuClick
+			},
+			'#ReviewMedicationsBtn': {
+				click: me.onReviewMedicationsBtnClick
 			},
 			'#PatientMedicationsGridInactivateMenu': {
 				click: me.onPatientMedicationsGridInactivateMenu
@@ -282,6 +289,19 @@ Ext.define('App.controller.patient.Medications', {
 			is_active: true
 		});
 		grid.editingPlugin.startEdit(0, 0);
+	},
+
+	onReviewMedicationsBtnClick: function(){
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+		encounter.set({review_medications: true});
+		encounter.save({
+			success: function(){
+				app.msg(_('sweet'), _('items_to_review_save_and_review'));
+			},
+			failure: function(){
+				app.msg(_('oops'), _('items_to_review_entry_error'));
+			}
+		});
 	},
 
 	onMedicationLiveSearchSelect: function(cmb, records){

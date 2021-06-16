@@ -834,13 +834,67 @@ class Encounter {
 					$source = $foo['eid'] == $eid ? '*' : '';
 					$lis .= "<li>{$source}" . $foo['STR'] . '</li>';
 				}
-				$str_buff .= '<p><b>Active Medications:</b></p>';
+				$str_buff .= '<p><b>Active Medications:</b>';
+
+				if(!$encounter['review_medications']){
+                    $str_buff .= ' (Not reviewed)';
+                }
+
+				$str_buff .= '</p>';
+
+
 				$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
 			} else {
-				$str_buff .= '<p><b>Active Medications:</b> No Active Medications</p>';
+                if($encounter['review_medications']) {
+                    $str_buff .= '<p><b>Active Medications:</b> Patient has no Active Medications</p>';
+                }
+                else
+                {
+                    $str_buff .= '<p><b>Active Medications:</b> (Not Reviewed)</p>';
+                }
 			}
 			$str_buff .= '</div>';
 			unset($ActiveMedications, $active_medications);
+		}
+
+
+		/**
+		 * Advance Directives
+		 */
+        include_once (ROOT. '/dataProvider/AdvanceDirective.php');
+		if(isset($encounter)){
+			$AdvanceDirective = new AdvanceDirective();
+			$advance_directives = $AdvanceDirective->getPatientAdvanceDirectivesByEid($eid);
+
+			error_log(print_r($advance_directives,true));
+
+			$str_buff .= '<div class="indent">';
+			if(!empty($advance_directives)){
+				$lis = '';
+				foreach($advance_directives as $foo){
+					$source = $foo['eid'] == $eid ? '*' : '';
+					$lis .= "<li>{$source}" . $foo['code_text'] . ' - ' . $foo['status_code_text'] . '</li>';
+				}
+				$str_buff .= '<p><b>Advance Directive:</b>';
+
+				if(!$encounter['review_advance_directives']){
+                    $str_buff .= ' (Not reviewed)';
+                }
+
+				$str_buff .= '</p>';
+
+
+				$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
+			} else {
+                if($encounter['review_advance_directives']) {
+                    $str_buff .= '<p><b>Advance Directive:</b> Patient has no Advance Directives</p>';
+                }
+                else{
+                    $str_buff .= '<p><b>Advance Directive:</b> (Not Reviewed)</p>';
+                }
+			}
+			$str_buff .= '</div>';
+			unset($AdvanceDirective, $advance_directives);
 		}
 
 		/**
@@ -854,12 +908,16 @@ class Encounter {
 			$allergies = $Allergies->getPatientAllergiesByEid($eid);
 		}
 
-
-
 		if(!empty($allergies)){
 
             $str_buff .= '<div class="indent">';
-			$str_buff .= '<p><b>Allergies:</b></p>';
+			$str_buff .= '<p><b>Allergies: </b>';
+
+			if(isset($encounter) && !$encounter['review_allergies']){
+                $str_buff .= ' (Not reviewed)';
+            }
+
+			$str_buff .= '</p>';
 			$str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">';
 			foreach($allergies as $foo){
 				$source = $foo['eid'] == $eid ? '*' : '';
@@ -877,13 +935,18 @@ class Encounter {
 			$str_buff .= '</ul>';
             $str_buff .= '</div>';
 
-		}else{
-			if(isset($encounter) && $encounter['review_allergies']){
+		}else if(isset($encounter)){
 
+			if($encounter['review_allergies']){
                 $str_buff .= '<div class="indent">';
-				$str_buff .= '<p><b>Allergies:</b> No Known Allergies</p>';
+				$str_buff .= '<p><b>Allergies:</b> Patient has no Known Allergies</p>';
                 $str_buff .= '</div>';
-			}
+			}else
+            {
+                $str_buff .= '<div class="indent">';
+                $str_buff .= '<p><b>Allergies:</b> (Not Reviewed)</p>';
+                $str_buff .= '</div>';
+            }
 		}
 
 
@@ -960,7 +1023,13 @@ class Encounter {
 
 		if(!empty($active_problems)){
 			$str_buff .= '<div class="indent">';
-			$str_buff .= '<p><b>Active Problems:</b></p>';
+			$str_buff .= '<p><b>Active Problems:</b>';
+
+			if(!$encounter['review_active_problems']){
+                $str_buff .= ' (Not reviewed)';
+            }
+
+			$str_buff .= '</p>';
 			$str_buff .= '<ul class="ProgressNote-ul">';
 			foreach($active_problems as $foo){
 				$source = $foo['eid'] == $eid ? '*' : '';
@@ -968,12 +1037,16 @@ class Encounter {
 			}
 			$str_buff .= '</ul>';
 			$str_buff .= '</div>';
-		}else{
-			if(isset($encounter) && $encounter['review_active_problems']){
+		}else if(isset($encounter)){
+		    if($encounter['review_active_problems']){
 				$str_buff .= '<div class="indent">';
-				$str_buff .= '<p><b>Active Problems:</b> No Active Problems</p>';
+				$str_buff .= '<p><b>Active Problems:</b> Patient has no Active Problems</p>';
 				$str_buff .= '</div>';
-			}
+			}else{
+                $str_buff .= '<div class="indent">';
+                $str_buff .= '<p><b>Active Problems:</b> (Not Reviewed)</p>';
+                $str_buff .= '</div>';
+            }
 		}
 
 		unset($ActiveProblems, $active_problems);
@@ -1207,36 +1280,47 @@ class Encounter {
         unset($ActiveMedications, $medications_ordered, $medications_administered);
 
 		/**
-		 * Immunizations ????
+		 * Immunizations
 		 */
-		if($encounter['review_immunizations']){
-			$Immunizations = new Immunizations();
-			$immunizations = $Immunizations->getImmunizationsByEncounterID($eid);
+        $Immunizations = new Immunizations();
+        $immunizations = $Immunizations->getImmunizationsByEncounterID($eid);
 
-			if(!empty($immunizations)){
-				$str_buff .= '<div class="indent">';
-				$lis = '';
-				foreach($immunizations as $foo){
-					$administered_by = Person::fullname($foo['administered_fname'], $foo['administered_mname'], $foo['administered_lname']);
+        if(!empty($immunizations)){
+            $str_buff .= '<div class="indent">';
+            $lis = '';
+            foreach($immunizations as $foo){
+                $administered_by = Person::fullname($foo['administered_fname'], $foo['administered_mname'], $foo['administered_lname']);
 
-					$lis .= '<li><b>Vaccine name:</b> ' . $foo['vaccine_name'] . ' - ';
-					$lis .= '<b>Vaccine ID:</b> (' . $foo['code_type'] . ')' . $foo['code'] . ' - ';
-					$lis .= '<b>Manufacturer:</b> ' . $foo['manufacturer'] . ' - ';
-					$lis .= '<b>Lot Number:</b> ' . $foo['lot_number'] . ' - ';
-					$lis .= '<b>Dose:</b> ' . $foo['administer_amount'] . ' ' . $foo['administer_units'] . ' - ';
-					$lis .= '<b>Administered By:</b> ' . $administered_by . '</li>';
-				}
-				$str_buff .= '<p><b>Immunizations:</b></p>';
-				$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
-				$str_buff .= '</div>';
-			} else {
-				$str_buff .= '<div class="indent">';
-				$str_buff .= '<p><b>Immunizations:</b> No Immunizations</p>';
-				$str_buff .= '</div>';
-			}
+                $lis .= '<li><b>Vaccine name:</b> ' . $foo['vaccine_name'] . ' - ';
+                $lis .= '<b>Vaccine ID:</b> (' . $foo['code_type'] . ')' . $foo['code'] . ' - ';
+                $lis .= '<b>Manufacturer:</b> ' . $foo['manufacturer'] . ' - ';
+                $lis .= '<b>Lot Number:</b> ' . $foo['lot_number'] . ' - ';
+                $lis .= '<b>Dose:</b> ' . $foo['administer_amount'] . ' ' . $foo['administer_units'] . ' - ';
+                $lis .= '<b>Administered By:</b> ' . $administered_by . '</li>';
+            }
+            $str_buff .= '<p><b>Immunizations:</b>';
 
-			unset($Immunizations, $immunizations);
-		}
+            if(!$encounter['review_immunizations']){
+                $str_buff .= ' (Not reviewed)';
+            }
+
+            $str_buff .= '</p>';
+
+            $str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
+
+            $str_buff .= '</div>';
+        } else if($encounter['review_immunizations']) {
+            $str_buff .= '<div class="indent">';
+            $str_buff .= '<p><b>Immunizations:</b> Patient has no Immunizations.</p>';
+            $str_buff .= '</div>';
+        }else{
+            $str_buff .= '<div class="indent">';
+            $str_buff .= '<p><b>Immunizations:</b> (Not Reviewed)</p>';
+            $str_buff .= '</div>';
+        }
+
+        unset($Immunizations, $immunizations);
+
 
 		/**
 		 * Medications Administered

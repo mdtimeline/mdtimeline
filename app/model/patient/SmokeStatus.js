@@ -60,6 +60,21 @@ Ext.define('App.model.patient.SmokeStatus', {
 			comment: '1 if counseling received'
 		},
 		{
+			name: 'counseling_text',
+			type: 'string',
+			len: 80
+		},
+		{
+			name: 'counseling_code',
+			type: 'string',
+			len: 20
+		},
+		{
+			name: 'counseling_code_type',
+			type: 'string',
+			len: 20
+		},
+		{
 			name: 'note',
 			type: 'string',
 			dataType: 'text'

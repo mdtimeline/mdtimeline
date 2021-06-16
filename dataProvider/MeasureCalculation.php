@@ -1204,7 +1204,7 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getBreastCancerScreeningReportByDates`(?, ?, ?, ?, ?);");
+		$sth = $this->conn->prepare("CALL `getDocumentationOfCurrentMedicationsReportByDates`(?, ?, ?, ?, ?);");
 		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 

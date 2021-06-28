@@ -141,6 +141,8 @@ Ext.define('App.controller.administration.MeasureCalculation', {
         this.doReportMeasureByDates(grid_store, 'DocumentationOfCurrentMedications', provider_id, from, to, insurance_id, sex);
         this.doReportMeasureByDates(grid_store, 'PreventiveCareAndScreeningBMIAndFUP', provider_id, from, to, insurance_id, sex);
         this.doReportMeasureByDates(grid_store, 'UseOfHighRiskMedicationsInOlderAdults', provider_id, from, to, insurance_id, sex);
+        this.doReportMeasureByDates(grid_store, 'DiabetesMedicalAttentionForNephropathy', provider_id, from, to, insurance_id, sex);
+        this.doReportMeasureByDates(grid_store, 'ChlamydiaScreeningForWomen', provider_id, from, to, insurance_id, sex);
 
 
     },

@@ -1,7 +1,7 @@
-DROP PROCEDURE IF EXISTS `getHeartFailureARBorARNI`;
+DROP PROCEDURE IF EXISTS `getHeartFailureARBorARNIReportByDates`;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getHeartFailureARBorARNI`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getHeartFailureARBorARNIReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR)
 BEGIN
 
 

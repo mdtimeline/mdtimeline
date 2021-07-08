@@ -76,7 +76,7 @@ class MeasureCalculation {
 
             // MIPS
 			if($measure == 'HeartFailureARBorARNI'){
-				$results = $this->getHeartFailureARBorARNI($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getHeartFailureARBorARNIReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
 			}
 
             // MIPS
@@ -147,6 +147,16 @@ class MeasureCalculation {
             // MIPS
 			if($measure == 'UseOfHighRiskMedicationsInOlderAdults'){
 				$results = $this->getUseOfHighRiskMedicationsInOlderAdultsReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+			}
+
+            // MIPS
+			if($measure == 'DiabetesMedicalAttentionForNephropathy'){
+				$results = $this->getDiabetesMedicalAttentionForNephropathyReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+			}
+
+            // MIPS
+			if($measure == 'ChlamydiaScreeningForWomen'){
+				$results = $this->getChlamydiaScreeningForWomenReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
 			}
 
 
@@ -853,7 +863,7 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getHeartFailureARBorARNI($provider_id, $insurance_id, $start_date, $end_date, $sex){
+	private function getHeartFailureARBorARNIReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex){
 
 		$records = [];
 
@@ -863,7 +873,7 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getHeartFailureARBorARNI`(?, ?, ?, ?, ?);");
+		$sth = $this->conn->prepare("CALL `getHeartFailureARBorARNIReportByDates`(?, ?, ?, ?, ?);");
 		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
@@ -1282,6 +1292,71 @@ class MeasureCalculation {
 			'numerator_pids' => $report['numerator_pids'],
 			'goal' => 'N/A'
 		];
+
+		return $records;
+	}
+
+	//
+	private function getDiabetesMedicalAttentionForNephropathyReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex)
+    {
+
+        $records = [];
+
+        /**
+         */
+
+        /**
+         */
+
+        $sth = $this->conn->prepare("CALL `getDiabetesMedicalAttentionForNephropathyReportByDates`(?, ?, ?, ?, ?);");
+        $sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+        $report = $sth->fetch(PDO::FETCH_ASSOC);
+
+        $records[] = [
+            'group' => 'Diabetes: Medical Attention for Nephropathy CMS1354v8',
+            'provider' => $report['provider'],
+            'insurance' => $report['insurance'],
+            'title' => $report['title'],
+            'description' => 'Measure Description: The percentage of patients 18-75 years of age with diabetes who had a nephropathy screening test or evidence of nephropathy during the measurement period',
+            'denominator' => $report['denominator'],
+            'numerator' => $report['numerator'],
+            'denominator_pids' => $report['denominator_pids'],
+            'numerator_pids' => $report['numerator_pids'],
+            'goal' => 'N/A'
+        ];
+
+        return $records;
+    }
+
+	//
+	private function getChlamydiaScreeningForWomenReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex){
+
+		$records = [];
+
+		/**
+		 */
+
+		/**
+		 */
+
+		$sth = $this->conn->prepare("CALL `getChlamydiaScreeningForWomenReportByDates`(?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+		$reports =  $sth->fetchAll(PDO::FETCH_ASSOC);
+
+		foreach ($reports AS $report) {
+            $records[] = [
+                'group' => 'Chlamydia Screening for Women eCQM153',
+                'provider' => $report['provider'],
+                'insurance' => $report['insurance'],
+                'title' => $report['title'],
+                'description' => 'Measure Description: Percentage of women 16-24 years of age who were identified as sexually active and who had at least one test for chlamydia during the measurement period.',
+                'denominator' => $report['denominator'],
+                'numerator' => $report['numerator'],
+                'denominator_pids' => $report['denominator_pids'],
+                'numerator_pids' => $report['numerator_pids'],
+                'goal' => 'N/A'
+            ];
+        }
 
 		return $records;
 	}

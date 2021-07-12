@@ -18,6 +18,19 @@
  */
 
 $API = [
+    'FHIRTest' => [
+        'methods' => [
+            'getPatient' => [
+                'len' => 0
+            ],
+            'putPatient' => [
+                'len' => 0
+            ],
+            'pOSTPatient' => [
+                'len' => 0
+            ]
+        ]
+    ],
     'LegalLetters' => [
         'methods' => [
             'getLegalLetters' => [

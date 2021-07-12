@@ -187,7 +187,7 @@ class PatientRestController
     private function parseMdtlRaceRecord(FHIRPatient $patientResource, $race)
     {
         $code = 'UNK';
-        $display = xlt("Unknown");
+        $display = html_entity_decode("Unknown");
         // race is defined as containing 2 required extensions, text & ombCategory
         $raceExtension = new FHIRExtension();
         $raceExtension->setUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race");

@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `getFallsPlanOfCareReportByDates`;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getFallsPlanOfCareReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getFallsPlanOfCareReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR, IN ethnicity VARCHAR(40), IN race VARCHAR(40))
 BEGIN
 
     DROP TABLE IF EXISTS report_ds;
@@ -45,6 +45,8 @@ BEGIN
                            WHERE YEAR(enc.service_date) - YEAR(p.DOB) -
                                  (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
                              AND (sex IS NULL OR p.sex = sex)
+                             AND (sex IS NULL OR p.sex = sex)
+                             AND (ethnicity IS NULL OR p.ethnicity = ethnicity)
                              AND pi.insurance_id = insurance_id
                              AND enc.provider_uid = provider_id
                              AND enc.close_date IS NOT NULL
@@ -86,6 +88,8 @@ BEGIN
                            WHERE YEAR(enc.service_date) - YEAR(p.DOB) -
                                  (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
                              AND (sex IS NULL OR p.sex = sex)
+                             AND (sex IS NULL OR p.sex = sex)
+                             AND (ethnicity IS NULL OR p.ethnicity = ethnicity)
                              AND enc.provider_uid = provider_id
                              AND enc.close_date IS NOT NULL
                        ) te

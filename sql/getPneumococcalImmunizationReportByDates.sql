@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `getPneumococcalImmunizationReportByDates`;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getPneumococcalImmunizationReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getPneumococcalImmunizationReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR, IN ethnicity VARCHAR(40), IN race VARCHAR(40))
 BEGIN
 
     DROP TABLE IF EXISTS report_ds;
@@ -39,6 +39,8 @@ BEGIN
                 AND enc.service_date BETWEEN start_date AND end_date
                 AND enc.close_date IS NOT NULL
                 AND (sex IS NULL OR p.sex = sex)
+                AND (ethnicity IS NULL OR p.ethnicity = ethnicity)
+                AND (race IS NULL OR p.race = race)
                 AND pi.insurance_id = insurance_id
                 AND TIMESTAMPDIFF(YEAR, p.DOB, start_date) >= 65
               GROUP BY enc.pid) e;
@@ -63,6 +65,8 @@ BEGIN
                 AND enc.service_date BETWEEN start_date AND end_date
                 AND enc.close_date IS NOT NULL
                 AND (sex IS NULL OR p.sex = sex)
+                AND (ethnicity IS NULL OR p.ethnicity = ethnicity)
+                AND (race IS NULL OR p.race = race)
                 AND TIMESTAMPDIFF(YEAR, p.DOB, enc.service_date) >= 65
               GROUP BY enc.pid) e;
     END IF;

@@ -5,7 +5,9 @@ CREATE
     DEFINER = `root`@`localhost` PROCEDURE `getChlamydiaScreeningForWomenReportByDates`(IN provider_id INT,
                                                                                         IN insurance_id INT,
                                                                                         IN start_date DATE,
-                                                                                        IN end_date DATE, IN sex CHAR)
+                                                                                        IN end_date DATE, IN sex CHAR,
+                                                                                        IN ethnicity VARCHAR(40),
+                                                                                        IN race VARCHAR(40))
 BEGIN
 
 
@@ -623,6 +625,8 @@ BEGIN
                    AND enc.close_date IS NOT NULL
                    AND pi.insurance_id = insurance_id
                    AND (sex IS NULL OR p.sex = sex)
+                   AND (ethnicity IS NULL OR p.ethnicity = ethnicity)
+                   AND (race IS NULL OR p.race = race)
                    AND YEAR(start_date) - YEAR(p.DOB) - (RIGHT(start_date, 5) < RIGHT(p.DOB, 5)) >= 16
                    AND YEAR(start_date) - YEAR(p.DOB) - (RIGHT(start_date, 5) < RIGHT(p.DOB, 5)) <= 24) e;
 
@@ -1215,8 +1219,10 @@ BEGIN
                                            )
                  WHERE enc.provider_uid = provider_uid
                    AND enc.service_date BETWEEN start_date AND end_date
-#                    AND enc.close_date IS NOT NULL
+                   AND enc.close_date IS NOT NULL
                    AND (sex IS NULL OR p.sex = sex)
+                   AND (ethnicity IS NULL OR p.ethnicity = ethnicity)
+                   AND (race IS NULL OR p.race = race)
                    AND YEAR(start_date) - YEAR(p.DOB) - (RIGHT(start_date, 5) < RIGHT(p.DOB, 5)) >= 16
                    AND YEAR(start_date) - YEAR(p.DOB) - (RIGHT(start_date, 5) < RIGHT(p.DOB, 5)) <= 24
              ) e;

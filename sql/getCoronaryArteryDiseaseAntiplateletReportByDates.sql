@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `getCoronaryArteryDiseaseAntiplateletReportByDates`;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getCoronaryArteryDiseaseAntiplateletReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getCoronaryArteryDiseaseAntiplateletReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR, IN ethnicity VARCHAR(40), IN race VARCHAR(40))
 BEGIN
 
 
@@ -72,6 +72,8 @@ BEGIN
                    AND enc.service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
                    AND enc.close_date IS NOT NULL
                    AND (sex IS NULL OR p.sex = sex)
+                   AND (ethnicity IS NULL OR p.ethnicity = ethnicity)
+                   AND (race IS NULL OR p.race = race)
                    AND pi.insurance_id = insurance_id
                    AND dx.dx_type = 'F'
                    AND dx.code IN ('I20.0', 'I20.1', 'I20.8', 'I20.9', 'I21.01', 'I21.02', 'I21.09', 'I21.11', 'I21.19',
@@ -136,6 +138,8 @@ BEGIN
                    AND enc.service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
                    AND enc.close_date IS NOT NULL
                    AND (sex IS NULL OR p.sex = sex)
+                   AND (ethnicity IS NULL OR p.ethnicity = ethnicity)
+                   AND (race IS NULL OR p.race = race)
                    AND dx.dx_type = 'F'
                    AND dx.code IN ('I20.0', 'I20.1', 'I20.8', 'I20.9', 'I21.01', 'I21.02', 'I21.09', 'I21.11', 'I21.19',
                      'I21.21', 'I21.29', 'I21.3', 'I21.4', 'I22.0', 'I22.1', 'I22.2', 'I22.8', 'I22.9', 'I24.0', 'I24.1',

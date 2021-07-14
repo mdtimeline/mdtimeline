@@ -246,6 +246,22 @@ Ext.define('App.view.administration.MeasureCalculation', {
 								resetable: true,
 								itemId: 'MIPSGridSexField'
 							},
+							{
+								xtype: 'ethnicitycombo',
+								name: 'ethnicity',
+								fieldLabel: _('ethnicity'),
+								labelWidth: 45,
+								width: 250,
+								itemId: 'MIPSGridEthnicityField'
+							},
+							{
+								xtype: 'racecombo',
+								name: 'race',
+								fieldLabel: _('race'),
+								labelWidth: 30,
+								width: 250,
+								itemId: 'MIPSGridRaceField'
+							},
 							'-',
 							{
 								xtype: 'button',

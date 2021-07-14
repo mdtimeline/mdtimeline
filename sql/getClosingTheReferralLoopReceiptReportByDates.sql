@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `getClosingTheReferralLoopReceiptReportByDates`;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getClosingTheReferralLoopReceiptReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getClosingTheReferralLoopReceiptReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR, IN ethnicity VARCHAR(40), IN race VARCHAR(40))
 BEGIN
 
     DROP TABLE IF EXISTS report_ds;
@@ -31,6 +31,8 @@ BEGIN
               WHERE enc.service_date BETWEEN start_date AND end_date
                 AND enc.close_date IS NOT NULL
                 AND (sex IS NULL OR p.sex = sex)
+                AND (sex IS NULL OR p.sex = sex)
+                AND (ethnicity IS NULL OR p.ethnicity = ethnicity)
                 AND enc.provider_uid = provider_id
                 AND enc.referring_physician IS NOT NULL) e;
     ELSE
@@ -45,6 +47,8 @@ BEGIN
               WHERE enc.service_date BETWEEN start_date AND end_date
                 AND enc.close_date IS NOT NULL
                 AND (sex IS NULL OR p.sex = sex)
+                AND (sex IS NULL OR p.sex = sex)
+                AND (ethnicity IS NULL OR p.ethnicity = ethnicity)
                 AND enc.provider_uid = provider_id
                 AND enc.referring_physician IS NOT NULL) e;
     END IF;

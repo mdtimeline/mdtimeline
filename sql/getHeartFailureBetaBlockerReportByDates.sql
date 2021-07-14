@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `getHeartFailureBetaBlockerReportByDates`;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getHeartFailureBetaBlockerReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getHeartFailureBetaBlockerReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR, IN ethnicity VARCHAR(40), IN race VARCHAR(40))
 BEGIN
 
 
@@ -52,6 +52,8 @@ BEGIN
                           AND enc.service_date BETWEEN start_date AND end_date
                           AND enc.close_date IS NOT NULL
                           AND (sex IS NULL OR p.sex = sex)
+                          AND (ethnicity IS NULL OR p.ethnicity = ethnicity)
+                          AND (race IS NULL OR p.race = race)
                           AND pi.insurance_id = insurance_id
                           AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 18
                         GROUP BY enc.pid
@@ -99,6 +101,8 @@ BEGIN
                         AND enc.service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date
                         AND enc.close_date IS NOT NULL
                         AND (sex IS NULL OR p.sex = sex)
+                        AND (ethnicity IS NULL OR p.ethnicity = ethnicity)
+                        AND (race IS NULL OR p.race = race)
                         AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 18
                     GROUP BY enc.pid
                     HAVING  total >= 2) as t

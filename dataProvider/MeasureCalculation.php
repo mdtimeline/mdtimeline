@@ -17,7 +17,7 @@ class MeasureCalculation {
 	 * @param $insurance_id
 	 * @return array
 	 */
-	public function getReportMeasureByDates($measure, $provider_id, $start_date, $end_date, $insurance_id, $sex_field, $stages = '3'){
+	public function getReportMeasureByDates($measure, $provider_id, $start_date, $end_date, $insurance_id, $sex_field, $ethnicity, $race, $stages = '3'){
 
 		if(is_array($provider_id)){
 			$provider_id = implode("','", $provider_id);
@@ -66,97 +66,107 @@ class MeasureCalculation {
 
             // MIPS
 			if($measure == 'AdvanceCarePlan'){
-				$results = $this->getAdvanceCarePlanReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getAdvanceCarePlanReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
 			}
 
             // MIPS
 			if($measure == 'ControllingHighBloodPressure'){
-				$results = $this->getControllingHighBloodPressureReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getControllingHighBloodPressureReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
 			}
 
             // MIPS
 			if($measure == 'HeartFailureARBorARNI'){
-				$results = $this->getHeartFailureARBorARNIReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getHeartFailureARBorARNIReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
 			}
 
             // MIPS
 			if($measure == 'CoronaryArteryDiseaseWIthMIorLVSD'){
-				$results = $this->getCoronaryArteryDiseaseWIthMIorLVSDReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getCoronaryArteryDiseaseWIthMIorLVSDReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
 			}
 
             // MIPS
 			if($measure == 'CoronaryArteryDiseaseAntiplatelet'){
-				$results = $this->getCoronaryArteryDiseaseAntiplateletReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getCoronaryArteryDiseaseAntiplateletReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
 			}
 
             // MIPS
 			if($measure == 'CoronaryArteryDiseaseBetaBlocker'){
-				$results = $this->getCoronaryArteryDiseaseBetaBlockerReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getCoronaryArteryDiseaseBetaBlockerReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
 			}
 
             // MIPS
 			if($measure == 'HeartFailureBetaBlocker'){
-				$results = $this->getHeartFailureBetaBlockerReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getHeartFailureBetaBlockerReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
 			}
 
             // MIPS
 			if($measure == 'InfluenzaImmunization'){
-				$results = $this->getInfluenzaImmunizationReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getInfluenzaImmunizationReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
 			}
 
             // MIPS
 			if($measure == 'PneumococcalImmunization'){
-				$results = $this->getPneumococcalImmunizationReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getPneumococcalImmunizationReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
 			}
 
             // MIPS
 			if($measure == 'FallsRiskAssessment'){
-				$results = $this->getFallsRiskAssessmentReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getFallsRiskAssessmentReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
 			}
 
             // MIPS
 			if($measure == 'FallsPlanOfCare'){
-				$results = $this->getFallsPlanOfCareReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getFallsPlanOfCareReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
 			}
 
             // MIPS
 			if($measure == 'SupportElectronicReferralLoops'){
-				$results = $this->getSupportElectronicReferralLoopsReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getSupportElectronicReferralLoopsReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
 			}
 
             // MIPS
 			if($measure == 'ClosingTheReferralLoopReceipt'){
-				$results = $this->getClosingTheReferralLoopReceiptReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getClosingTheReferralLoopReceiptReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
 			}
 
             // MIPS
 			if($measure == 'BreastCancerScreening'){
-				$results = $this->getBreastCancerScreeningReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getBreastCancerScreeningReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
 			}
 
             // MIPS
 			if($measure == 'DocumentationOfCurrentMedications'){
-				$results = $this->getDocumentationOfCurrentMedicationsReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getDocumentationOfCurrentMedicationsReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
 			}
 
             // MIPS
 			if($measure == 'PreventiveCareAndScreeningBMIAndFUP'){
-				$results = $this->getPreventiveCareAndScreeningBMIAndFUPReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getPreventiveCareAndScreeningBMIAndFUPReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
 			}
 
             // MIPS
 			if($measure == 'UseOfHighRiskMedicationsInOlderAdults'){
-				$results = $this->getUseOfHighRiskMedicationsInOlderAdultsReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getUseOfHighRiskMedicationsInOlderAdultsReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
 			}
 
             // MIPS
 			if($measure == 'DiabetesMedicalAttentionForNephropathy'){
-				$results = $this->getDiabetesMedicalAttentionForNephropathyReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getDiabetesMedicalAttentionForNephropathyReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
 			}
 
             // MIPS
 			if($measure == 'ChlamydiaScreeningForWomen'){
-				$results = $this->getChlamydiaScreeningForWomenReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field);
+				$results = $this->getChlamydiaScreeningForWomenReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
+			}
+
+            // MIPS
+			if($measure == 'TobaccoUseScreeningCessationIntervention'){
+				$results = $this->getTobaccoUseScreeningCessationInterventionReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
+			}
+
+            // MIPS
+			if($measure == 'HIVScreening'){
+				$results = $this->getHIVScreeningReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex_field, $ethnicity, $race);
 			}
 
 
@@ -801,7 +811,7 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getAdvanceCarePlanReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex){
+	private function getAdvanceCarePlanReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race){
 
 		$records = [];
 
@@ -811,8 +821,8 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getAdvanceCarePlanReportByDates`(?, ?, ?, ?, ?);");
-		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+		$sth = $this->conn->prepare("CALL `getAdvanceCarePlanReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
@@ -832,7 +842,7 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getControllingHighBloodPressureReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex){
+	private function getControllingHighBloodPressureReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race){
 
 		$records = [];
 
@@ -842,8 +852,8 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getControllingHighBloodPressureReportByDates`(?, ?, ?, ?, ?);");
-		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+		$sth = $this->conn->prepare("CALL `getControllingHighBloodPressureReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
@@ -863,7 +873,7 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getHeartFailureARBorARNIReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex){
+	private function getHeartFailureARBorARNIReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race){
 
 		$records = [];
 
@@ -873,8 +883,8 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getHeartFailureARBorARNIReportByDates`(?, ?, ?, ?, ?);");
-		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+		$sth = $this->conn->prepare("CALL `getHeartFailureARBorARNIReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
@@ -894,7 +904,7 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getCoronaryArteryDiseaseAntiplateletReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex){
+	private function getCoronaryArteryDiseaseAntiplateletReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race){
 
 		$records = [];
 
@@ -904,8 +914,8 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getCoronaryArteryDiseaseAntiplateletReportByDates`(?, ?, ?, ?, ?);");
-		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+		$sth = $this->conn->prepare("CALL `getCoronaryArteryDiseaseAntiplateletReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
@@ -925,7 +935,7 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getCoronaryArteryDiseaseBetaBlockerReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex){
+	private function getCoronaryArteryDiseaseBetaBlockerReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race){
 
 		$records = [];
 
@@ -935,8 +945,8 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getCoronaryArteryDiseaseBetaBlockerReportByDates`(?, ?, ?, ?, ?);");
-		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+		$sth = $this->conn->prepare("CALL `getCoronaryArteryDiseaseBetaBlockerReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
@@ -956,7 +966,7 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getHeartFailureBetaBlockerReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex){
+	private function getHeartFailureBetaBlockerReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race){
 
 		$records = [];
 
@@ -966,8 +976,8 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getHeartFailureBetaBlockerReportByDates`(?, ?, ?, ?, ?);");
-		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+		$sth = $this->conn->prepare("CALL `getHeartFailureBetaBlockerReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
@@ -987,7 +997,7 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getInfluenzaImmunizationReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex){
+	private function getInfluenzaImmunizationReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race){
 
 		$records = [];
 
@@ -997,8 +1007,8 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getInfluenzaImmunizationReportByDates`(?, ?, ?, ?, ?);");
-		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+		$sth = $this->conn->prepare("CALL `getInfluenzaImmunizationReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
@@ -1018,7 +1028,7 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getPneumococcalImmunizationReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex){
+	private function getPneumococcalImmunizationReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race){
 
 		$records = [];
 
@@ -1028,8 +1038,8 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getPneumococcalImmunizationReportByDates`(?, ?, ?, ?, ?);");
-		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+		$sth = $this->conn->prepare("CALL `getPneumococcalImmunizationReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
@@ -1049,7 +1059,7 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getFallsRiskAssessmentReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex){
+	private function getFallsRiskAssessmentReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race){
 
 		$records = [];
 
@@ -1059,8 +1069,8 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getFallsRiskAssessmentReportByDates`(?, ?, ?, ?, ?);");
-		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+		$sth = $this->conn->prepare("CALL `getFallsRiskAssessmentReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
@@ -1080,7 +1090,7 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getFallsPlanOfCareReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex){
+	private function getFallsPlanOfCareReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race){
 
 		$records = [];
 
@@ -1090,8 +1100,8 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getFallsPlanOfCareReportByDates`(?, ?, ?, ?, ?);");
-		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+		$sth = $this->conn->prepare("CALL `getFallsPlanOfCareReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
@@ -1111,7 +1121,7 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getSupportElectronicReferralLoopsReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex){
+	private function getSupportElectronicReferralLoopsReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race){
 
 		$records = [];
 
@@ -1121,8 +1131,8 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getSupportElectronicReferralLoopsReportByDates`(?, ?, ?, ?, ?);");
-		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+		$sth = $this->conn->prepare("CALL `getSupportElectronicReferralLoopsReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
@@ -1142,7 +1152,7 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getClosingTheReferralLoopReceiptReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex){
+	private function getClosingTheReferralLoopReceiptReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race){
 
 		$records = [];
 
@@ -1152,8 +1162,8 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getClosingTheReferralLoopReceiptReportByDates`(?, ?, ?, ?, ?);");
-		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+		$sth = $this->conn->prepare("CALL `getClosingTheReferralLoopReceiptReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
@@ -1173,7 +1183,7 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getBreastCancerScreeningReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex){
+	private function getBreastCancerScreeningReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race){
 
 		$records = [];
 
@@ -1183,8 +1193,8 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getBreastCancerScreeningReportByDates`(?, ?, ?, ?, ?);");
-		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+		$sth = $this->conn->prepare("CALL `getBreastCancerScreeningReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
@@ -1204,7 +1214,7 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getDocumentationOfCurrentMedicationsReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex){
+	private function getDocumentationOfCurrentMedicationsReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race){
 
 		$records = [];
 
@@ -1214,8 +1224,8 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getDocumentationOfCurrentMedicationsReportByDates`(?, ?, ?, ?, ?);");
-		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+		$sth = $this->conn->prepare("CALL `getDocumentationOfCurrentMedicationsReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
@@ -1235,7 +1245,7 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getPreventiveCareAndScreeningBMIAndFUPReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex){
+	private function getPreventiveCareAndScreeningBMIAndFUPReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race){
 
 		$records = [];
 
@@ -1245,8 +1255,8 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getPreventiveCareAndScreeningBMIAndFUPReportByDates`(?, ?, ?, ?, ?);");
-		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+		$sth = $this->conn->prepare("CALL `getPreventiveCareAndScreeningBMIAndFUPReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
@@ -1266,7 +1276,7 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getUseOfHighRiskMedicationsInOlderAdultsReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex){
+	private function getUseOfHighRiskMedicationsInOlderAdultsReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race){
 
 		$records = [];
 
@@ -1276,8 +1286,8 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getUseOfHighRiskMedicationsInOlderAdultsReportByDates`(?, ?, ?, ?, ?);");
-		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+		$sth = $this->conn->prepare("CALL `getUseOfHighRiskMedicationsInOlderAdultsReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
 		$report =  $sth->fetch(PDO::FETCH_ASSOC);
 
 		$records[] = [
@@ -1297,7 +1307,7 @@ class MeasureCalculation {
 	}
 
 	//
-	private function getDiabetesMedicalAttentionForNephropathyReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex)
+	private function getDiabetesMedicalAttentionForNephropathyReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race)
     {
 
         $records = [];
@@ -1308,8 +1318,8 @@ class MeasureCalculation {
         /**
          */
 
-        $sth = $this->conn->prepare("CALL `getDiabetesMedicalAttentionForNephropathyReportByDates`(?, ?, ?, ?, ?);");
-        $sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+        $sth = $this->conn->prepare("CALL `getDiabetesMedicalAttentionForNephropathyReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+        $sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
         $report = $sth->fetch(PDO::FETCH_ASSOC);
 
         $records[] = [
@@ -1329,7 +1339,7 @@ class MeasureCalculation {
     }
 
 	//
-	private function getChlamydiaScreeningForWomenReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex){
+	private function getChlamydiaScreeningForWomenReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race){
 
 		$records = [];
 
@@ -1339,8 +1349,8 @@ class MeasureCalculation {
 		/**
 		 */
 
-		$sth = $this->conn->prepare("CALL `getChlamydiaScreeningForWomenReportByDates`(?, ?, ?, ?, ?);");
-		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex]);
+		$sth = $this->conn->prepare("CALL `getChlamydiaScreeningForWomenReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
 		$reports =  $sth->fetchAll(PDO::FETCH_ASSOC);
 
 		foreach ($reports AS $report) {
@@ -1350,6 +1360,72 @@ class MeasureCalculation {
                 'insurance' => $report['insurance'],
                 'title' => $report['title'],
                 'description' => 'Measure Description: Percentage of women 16-24 years of age who were identified as sexually active and who had at least one test for chlamydia during the measurement period.',
+                'denominator' => $report['denominator'],
+                'numerator' => $report['numerator'],
+                'denominator_pids' => $report['denominator_pids'],
+                'numerator_pids' => $report['numerator_pids'],
+                'goal' => 'N/A'
+            ];
+        }
+
+		return $records;
+	}
+
+	//
+	private function getTobaccoUseScreeningCessationInterventionReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race){
+
+		$records = [];
+
+		/**
+		 */
+
+		/**
+		 */
+
+		$sth = $this->conn->prepare("CALL `getTobaccoUseScreeningCessationInterventionReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
+		$reports =  $sth->fetchAll(PDO::FETCH_ASSOC);
+
+		foreach ($reports AS $report) {
+            $records[] = [
+                'group' => 'Preventive Care and Screening: Tobacco Use: Screening and Cessation Intervention',
+                'provider' => $report['provider'],
+                'insurance' => $report['insurance'],
+                'title' => $report['title'],
+                'description' => 'Measure Description: Percentage of patients aged 18 years and older who were screened for tobacco use one or more times within 12 months AND who received tobacco cessation intervention if identified as a tobacco user.',
+                'denominator' => $report['denominator'],
+                'numerator' => $report['numerator'],
+                'denominator_pids' => $report['denominator_pids'],
+                'numerator_pids' => $report['numerator_pids'],
+                'goal' => 'N/A'
+            ];
+        }
+
+		return $records;
+	}
+
+	//
+	private function getHIVScreeningReportByDates($provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race){
+
+		$records = [];
+
+		/**
+		 */
+
+		/**
+		 */
+
+		$sth = $this->conn->prepare("CALL `getHIVScreeningReportByDates`(?, ?, ?, ?, ?, ?, ?);");
+		$sth->execute([$provider_id, $insurance_id, $start_date, $end_date, $sex, $ethnicity, $race]);
+		$reports =  $sth->fetchAll(PDO::FETCH_ASSOC);
+
+		foreach ($reports AS $report) {
+            $records[] = [
+                'group' => 'HIV Screening CMS349v2',
+                'provider' => $report['provider'],
+                'insurance' => $report['insurance'],
+                'title' => $report['title'],
+                'description' => 'Measure Description: Percentage of patients aged 15-65 at the start of the measurement period who were between 15-65 years old when tested for HIV.',
                 'denominator' => $report['denominator'],
                 'numerator' => $report['numerator'],
                 'denominator_pids' => $report['denominator_pids'],

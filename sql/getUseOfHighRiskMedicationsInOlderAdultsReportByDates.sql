@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `getUseOfHighRiskMedicationsInOlderAdultsReportByDates`;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getUseOfHighRiskMedicationsInOlderAdultsReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getUseOfHighRiskMedicationsInOlderAdultsReportByDates`(IN provider_id INT, IN insurance_id INT, IN start_date DATE, IN end_date DATE, IN sex CHAR, IN ethnicity VARCHAR(40), IN race VARCHAR(40))
 BEGIN
 
     DROP TABLE IF EXISTS report_ds;
@@ -110,14 +110,19 @@ BEGIN
                                    '995041', '995065', '995068', '995071', '995075', '995079', '995082', '995086',
                                    '995093', '995108', '995116', '995120', '995123', '995128', '995218', '995232',
                                    '995241', '995258', '995270', '995278', '995281', '995285', '995624', '995632',
-                                   '995666', '995686', '996757', '996998', '998254', '998726')
+                                   '995666', '995686', '996757', '996998', '998254', '998726', '1232194', '1232202',
+                                   '1648755', '1648759', '311989', '311994', '311995', '313761', '313762', '485440',
+                                   '485442', '485465', '828692', '836641', '836647', '854873', '854876', '854880',
+                                   '854894')
               WHERE enc.provider_uid = provider_id
                 AND enc.service_date BETWEEN start_date AND end_date
                 AND enc.close_date IS NOT NULL
                 AND (sex IS NULL OR p.sex = sex)
+                AND (ethnicity IS NULL OR p.ethnicity = ethnicity)
+                AND (race IS NULL OR p.race = race)
                 AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
                 AND pi.insurance_id = insurance_id
-              GROUP BY enc.pid, pm.RXCUI) e;
+              GROUP BY enc.pid) e;
     ELSE
         CREATE TEMPORARY TABLE report_ds
         SELECT e.pid,
@@ -129,7 +134,7 @@ BEGIN
                                   ('1000351', '1000352', '1000355', '1000356', '1000395', '1000398', '1000486',
                                    '1000490', '1000496', '1010696', '1012904', '1013619', '1014331', '1020477',
                                    '1037234', '1041814', '1042684', '1042688', '1042693', '1043400', '1046384',
-                                   '1046751', '1046770', '1046781', '1046787', '1046799', '1046815', '1046982',
+                                   '1046751', '1046770', '1046781', '1046787', '1046799', '`1046815`', '1046982',
                                    '1046985', '1046997', '1047786', '1047881', '1047895', '1047905', '1047916',
                                    '1048124', '1048147', '1048307', '1048336', '1049289', '1049630', '1049633',
                                    '1049900', '1049906', '1049909', '1050325', '1050385', '1052462', '1052467',
@@ -210,13 +215,18 @@ BEGIN
                                    '995041', '995065', '995068', '995071', '995075', '995079', '995082', '995086',
                                    '995093', '995108', '995116', '995120', '995123', '995128', '995218', '995232',
                                    '995241', '995258', '995270', '995278', '995281', '995285', '995624', '995632',
-                                   '995666', '995686', '996757', '996998', '998254', '998726')
+                                   '995666', '995686', '996757', '996998', '998254', '998726', '1232194', '1232202',
+                                   '1648755', '1648759', '311989', '311994', '311995', '313761', '313762', '485440',
+                                   '485442', '485465', '828692', '836641', '836647', '854873', '854876', '854880',
+                                   '854894')
               WHERE enc.provider_uid = provider_id
                 AND enc.service_date BETWEEN start_date AND end_date
                 AND enc.close_date IS NOT NULL
                 AND (sex IS NULL OR p.sex = sex)
+                AND (ethnicity IS NULL OR p.ethnicity = ethnicity)
+                AND (race IS NULL OR p.race = race)
                 AND YEAR(enc.service_date) - YEAR(p.DOB) - (RIGHT(enc.service_date, 5) < RIGHT(p.DOB, 5)) >= 65
-              GROUP BY enc.pid, pm.RXCUI) e;
+              GROUP BY enc.pid) e;
     END IF;
 
 

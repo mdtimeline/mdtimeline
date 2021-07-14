@@ -69,6 +69,10 @@ Ext.define('App.controller.patient.Medications', {
 		{
 			ref: 'ReviewMedicationsBtn',
 			selector: '#ReviewMedicationsBtn'
+		},
+		{
+			ref: 'EncounterProcedureGrid',
+			selector: '#EncounterProcedureGrid'
 		}
 	],
 
@@ -292,11 +296,49 @@ Ext.define('App.controller.patient.Medications', {
 	},
 
 	onReviewMedicationsBtnClick: function(){
+		var me = this;
 		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
 		encounter.set({review_medications: true});
 		encounter.save({
 			success: function(){
+				var store = me.getEncounterProcedureGrid().getStore(),
+					now = new Date();
+
 				app.msg(_('sweet'), _('items_to_review_save_and_review'));
+
+				var record_index = store.findBy(function(record, id){
+					var enc_id = record.get('eid');
+					var procedure_code = record.get('code')
+
+					return enc_id === app.patient.eid && procedure_code === '428191000124101';
+				});
+
+				if(record_index === -1) {
+
+					store.add({
+						pid: app.patient.pid,
+						eid: app.patient.eid,
+						create_uid: app.user.id,
+						update_uid: app.user.id,
+						create_date: now,
+						update_date: now,
+						code: '428191000124101',
+						code_text: 'Documentation of current medications (procedure)',
+						code_type: 'SNOMED-CT',
+						performer_id: 0,
+						procedure_date: now,
+						encounter_dx_id:0
+					});
+
+					// store.add(procedure_record);
+					store.sync({
+						callback: function (){
+							app.msg(_('sweet'), 'Documentation of current medications (procedure) Added');
+						}
+					});
+
+
+				}
 			},
 			failure: function(){
 				app.msg(_('oops'), _('items_to_review_entry_error'));

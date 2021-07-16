@@ -1072,7 +1072,6 @@ class Documents
         return $allNeededInfo;
     }
 
-
     private function addReferralData($params, $tokens, $allNeededInfo)
     {
 

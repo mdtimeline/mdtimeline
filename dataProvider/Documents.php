@@ -494,7 +494,7 @@ class Documents
      * @param int|null $template_id
      * @return bool|string
      */
-    public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $custom_footer_data = null, $water_mark = '', $key_images = [], $key_images_config = [], $pdf_format = null, $mail_cover_info = [], $template_id = null)
+    public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $custom_footer_data = null, $water_mark = '', $key_images = [], $key_images_config = [], $pdf_format = null, $mail_cover_info = [], $template_id = null, $template_concept = null)
     {
         $pid = $params->pid;
         $regex = '(\[\w*?\]|\[\/\w*?\])';
@@ -520,13 +520,13 @@ class Documents
         }
 
         if (isset($template_id)) {
-            $template = $this->getPdfTemplateByFacilityId($params->facility_id, $pdf_format);
+            $template = $this->getPdfTemplateByTemplateId($template_id);
         }else if (isset($params->facility_id)) {
-            $template = $this->getPdfTemplateByFacilityId($params->facility_id, $pdf_format);
+            $template = $this->getPdfTemplateByFacilityId($params->facility_id, $template_concept, $pdf_format);
         } elseif (isset($_SESSION['user']) && isset($_SESSION['user']['facility'])) {
-            $template = $this->getPdfTemplateByFacilityId($_SESSION['user']['facility'], $pdf_format);
+            $template = $this->getPdfTemplateByFacilityId($_SESSION['user']['facility'], $template_concept, $pdf_format);
         } else {
-            $template = $this->getPdfTemplateByFacilityId(null, $pdf_format);
+            $template = $this->getPdfTemplateByFacilityId(null, $template_concept, $pdf_format);
         }
 
         // get header/footer data
@@ -1240,7 +1240,49 @@ class Documents
         return date('F j, Y', strtotime($date));
     }
 
-    private function getPdfTemplateByFacilityId($facility_id = null, $pdf_format = null)
+    /**
+     * @param $id
+     * @return array|false|mixed
+     */
+    private function getPdfTemplateByTemplateId($id)
+    {
+
+        $filters = [];
+
+        $filters['id'] = $id;
+
+        if (!empty($filters)) {
+
+            $filters['active'] = 1;
+            $filters['is_interface_tpl'] = 0;
+            $record = $this->t->load($filters)->one();
+
+            if ($record !== false) {
+                $record['template'] = ROOT . $record['template'];
+                return $record;
+            }
+        }
+
+        return [
+            'template' => ROOT . '/resources/templates/default.pdf',
+            'body_margin_left' => 25,
+            'body_margin_top' => 25,
+            'body_margin_right' => 25,
+            'body_font_family' => 'times',
+            'body_font_style' => '',
+            'body_font_size' => 12,
+            'header_data' => null,
+            'format' => isset($pdf_format) ? $pdf_format : 'LETTER'
+        ];
+    }
+
+    /**
+     * @param null|int $facility_id
+     * @param null|string $concept
+     * @param null|string $pdf_format
+     * @return array|false|mixed
+     */
+    private function getPdfTemplateByFacilityId($facility_id = null, $concept = null, $pdf_format = null)
     {
 
         $filters = [];
@@ -1248,18 +1290,17 @@ class Documents
         if (isset($facility_id)) {
             $filters['facility_id'] = $facility_id;
         }
+        if (isset($concept)) {
+            $filters['concept'] = $concept;
+        }
         if (isset($pdf_format)) {
             $filters['format'] = $pdf_format;
         }
 
         if (!empty($filters)) {
 
-
-//message = "SQLSTATE[42S22]: Column not found: 1054 Unknown column 'documents_pdf_templates.is_interface_tpl' in 'where clause'"
-
-
             $filters['active'] = 1;
-			$filters['is_interface_tpl'] = 0;
+            $filters['is_interface_tpl'] = 0;
             $record = $this->t->load($filters)->one();
 
             if ($record !== false) {

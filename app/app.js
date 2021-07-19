@@ -42575,6 +42575,14 @@ Ext.define('App.controller.administration.MeasureCalculation', {
         {
             selector: '#MIPSGridSexField',
             ref: 'MIPSGridSexField'
+        },
+        {
+            selector: '#MIPSGridEthnicityField',
+            ref: 'MIPSGridEthnicityField'
+        },
+        {
+            selector: '#MIPSGridRaceField',
+            ref: 'MIPSGridRaceField'
         }
     ],
 
@@ -42616,6 +42624,8 @@ Ext.define('App.controller.administration.MeasureCalculation', {
             providerField = this.getMIPSGridProviderField(),
             insuranceField = this.getMIPSGridInsuranceField(),
             sexField = this.getMIPSGridSexField(),
+            ethnicityField = this.getMIPSGridEthnicityField(),
+            raceField = this.getMIPSGridRaceField(),
             grid_store = this.getMIPSGrid().getStore();
 
         grid_store.removeAll();
@@ -42629,24 +42639,30 @@ Ext.define('App.controller.administration.MeasureCalculation', {
             insurance_id = insuranceField.getValue(),
             from = Ext.Date.format(fromField.getValue(), 'Y-m-d'),
             to = Ext.Date.format(toField.getValue(), 'Y-m-d'),
-            sex = sexField.getValue();
+            sex = sexField.getValue(),
+            ethnicity = ethnicityField.getValue(),
+            race = raceField.getValue();
 
-        this.doReportMeasureByDates(grid_store, 'AdvanceCarePlan', provider_id, from, to, insurance_id, sex);
-        this.doReportMeasureByDates(grid_store, 'ControllingHighBloodPressure', provider_id, from, to, insurance_id, sex);
-        this.doReportMeasureByDates(grid_store, 'HeartFailureARBorARNI', provider_id, from, to, insurance_id, sex);
-        this.doReportMeasureByDates(grid_store, 'CoronaryArteryDiseaseAntiplatelet', provider_id, from, to, insurance_id, sex);
-        this.doReportMeasureByDates(grid_store, 'CoronaryArteryDiseaseBetaBlocker', provider_id, from, to, insurance_id, sex);
-        this.doReportMeasureByDates(grid_store, 'HeartFailureBetaBlocker', provider_id, from, to, insurance_id, sex);
-        this.doReportMeasureByDates(grid_store, 'InfluenzaImmunization', provider_id, from, to, insurance_id, sex);
-        this.doReportMeasureByDates(grid_store, 'PneumococcalImmunization', provider_id, from, to, insurance_id, sex);
-        this.doReportMeasureByDates(grid_store, 'FallsRiskAssessment', provider_id, from, to, insurance_id, sex);
-        this.doReportMeasureByDates(grid_store, 'FallsPlanOfCare', provider_id, from, to, insurance_id, sex);
-        this.doReportMeasureByDates(grid_store, 'SupportElectronicReferralLoops', provider_id, from, to, insurance_id, sex);
-        this.doReportMeasureByDates(grid_store, 'ClosingTheReferralLoopReceipt', provider_id, from, to, insurance_id, sex);
-        this.doReportMeasureByDates(grid_store, 'BreastCancerScreening', provider_id, from, to, insurance_id, sex);
-        this.doReportMeasureByDates(grid_store, 'DocumentationOfCurrentMedications', provider_id, from, to, insurance_id, sex);
-        this.doReportMeasureByDates(grid_store, 'PreventiveCareAndScreeningBMIAndFUP', provider_id, from, to, insurance_id, sex);
-        this.doReportMeasureByDates(grid_store, 'UseOfHighRiskMedicationsInOlderAdults', provider_id, from, to, insurance_id, sex);
+        this.doReportMeasureByDates(grid_store, 'AdvanceCarePlan', provider_id, from, to, insurance_id, sex, ethnicity, race);
+        this.doReportMeasureByDates(grid_store, 'ControllingHighBloodPressure', provider_id, from, to, insurance_id, sex, ethnicity, race);
+        this.doReportMeasureByDates(grid_store, 'HeartFailureARBorARNI', provider_id, from, to, insurance_id, sex, ethnicity, race);
+        this.doReportMeasureByDates(grid_store, 'CoronaryArteryDiseaseAntiplatelet', provider_id, from, to, insurance_id, sex, ethnicity, race);
+        this.doReportMeasureByDates(grid_store, 'CoronaryArteryDiseaseBetaBlocker', provider_id, from, to, insurance_id, sex, ethnicity, race);
+        this.doReportMeasureByDates(grid_store, 'HeartFailureBetaBlocker', provider_id, from, to, insurance_id, sex, ethnicity, race);
+        this.doReportMeasureByDates(grid_store, 'InfluenzaImmunization', provider_id, from, to, insurance_id, sex, ethnicity, race);
+        this.doReportMeasureByDates(grid_store, 'PneumococcalImmunization', provider_id, from, to, insurance_id, sex, ethnicity, race);
+        this.doReportMeasureByDates(grid_store, 'FallsRiskAssessment', provider_id, from, to, insurance_id, sex, ethnicity, race);
+        this.doReportMeasureByDates(grid_store, 'FallsPlanOfCare', provider_id, from, to, insurance_id, sex, ethnicity, race);
+        this.doReportMeasureByDates(grid_store, 'SupportElectronicReferralLoops', provider_id, from, to, insurance_id, sex, ethnicity, race);
+        this.doReportMeasureByDates(grid_store, 'ClosingTheReferralLoopReceipt', provider_id, from, to, insurance_id, sex, ethnicity, race);
+        this.doReportMeasureByDates(grid_store, 'BreastCancerScreening', provider_id, from, to, insurance_id, sex, ethnicity, race);
+        this.doReportMeasureByDates(grid_store, 'DocumentationOfCurrentMedications', provider_id, from, to, insurance_id, sex, ethnicity, race);
+        this.doReportMeasureByDates(grid_store, 'PreventiveCareAndScreeningBMIAndFUP', provider_id, from, to, insurance_id, sex, ethnicity, race);
+        this.doReportMeasureByDates(grid_store, 'UseOfHighRiskMedicationsInOlderAdults', provider_id, from, to, insurance_id, sex, ethnicity, race);
+        this.doReportMeasureByDates(grid_store, 'DiabetesMedicalAttentionForNephropathy', provider_id, from, to, insurance_id, sex, ethnicity, race);
+        this.doReportMeasureByDates(grid_store, 'ChlamydiaScreeningForWomen', provider_id, from, to, insurance_id, sex, ethnicity, race);
+        this.doReportMeasureByDates(grid_store, 'TobaccoUseScreeningCessationIntervention', provider_id, from, to, insurance_id, sex, ethnicity, race);
+        this.doReportMeasureByDates(grid_store, 'HIVScreening', provider_id, from, to, insurance_id, sex, ethnicity, race);
 
 
     },
@@ -42715,25 +42731,25 @@ Ext.define('App.controller.administration.MeasureCalculation', {
 	        from = Ext.Date.format(fromField.getValue(), 'Y-m-d'),
 	        to = Ext.Date.format(toField.getValue(), 'Y-m-d');
 
-        this.doReportMeasureByDates(grid_store,'ePrescribing', provider_id, from, to, null, null);
-        this.doReportMeasureByDates(grid_store,'PatientEducation', provider_id, from, to, null, null);
-        this.doReportMeasureByDates(grid_store,'ProvidePatientsElectronicAccess', provider_id, from, to, null, null);
-        this.doReportMeasureByDates(grid_store,'ViewDownloadTransmit', provider_id, from, to, null, null);
-        this.doReportMeasureByDates(grid_store,'SecureMessaging', provider_id, from, to, null, null);
-        this.doReportMeasureByDates(grid_store,'PatientGeneratedHealthData', provider_id, from, to, null, null);
-        this.doReportMeasureByDates(grid_store,'SupportElectronicReferralLoopsSending', provider_id, from, to, null, null);
-        this.doReportMeasureByDates(grid_store,'ReceiveAndIncorporate', provider_id, from, to, null, null);
-        this.doReportMeasureByDates(grid_store,'MedicationClinicalInformationReconciliation', provider_id, from, to, null, null);
-        this.doReportMeasureByDates(grid_store,'CPOEMedications', provider_id, from, to, null, null);
-        this.doReportMeasureByDates(grid_store,'CPOELaboratory', provider_id, from, to, null, null);
-        this.doReportMeasureByDates(grid_store,'CPOERadiology', provider_id, from, to, null, null);
+        this.doReportMeasureByDates(grid_store,'ePrescribing', provider_id, from, to, null, null, null, null);
+        this.doReportMeasureByDates(grid_store,'PatientEducation', provider_id, from, to, null, null, null, null);
+        this.doReportMeasureByDates(grid_store,'ProvidePatientsElectronicAccess', provider_id, from, to, null, null, null, null);
+        this.doReportMeasureByDates(grid_store,'ViewDownloadTransmit', provider_id, from, to, null, null, null, null);
+        this.doReportMeasureByDates(grid_store,'SecureMessaging', provider_id, from, to, null, null, null, null);
+        this.doReportMeasureByDates(grid_store,'PatientGeneratedHealthData', provider_id, from, to, null, null, null, null);
+        this.doReportMeasureByDates(grid_store,'SupportElectronicReferralLoopsSending', provider_id, from, to, null, null, null, null);
+        this.doReportMeasureByDates(grid_store,'ReceiveAndIncorporate', provider_id, from, to, null, null, null, null);
+        this.doReportMeasureByDates(grid_store,'MedicationClinicalInformationReconciliation', provider_id, from, to, null, null, null, null);
+        this.doReportMeasureByDates(grid_store,'CPOEMedications', provider_id, from, to, null, null, null, null);
+        this.doReportMeasureByDates(grid_store,'CPOELaboratory', provider_id, from, to, null, null, null, null);
+        this.doReportMeasureByDates(grid_store,'CPOERadiology', provider_id, from, to, null, null, null, null);
 
     },
 
-    doReportMeasureByDates: function (grid_store, measure, provider_id, start_date, end_date, insurance_id, sex) {
+    doReportMeasureByDates: function (grid_store, measure, provider_id, start_date, end_date, insurance_id, sex, ethnicity, race) {
         var me = this;
 
-        MeasureCalculation.getReportMeasureByDates(measure, provider_id, start_date, end_date, insurance_id, sex, function (response) {
+        MeasureCalculation.getReportMeasureByDates(measure, provider_id, start_date, end_date, insurance_id, sex, ethnicity, race, function (response) {
             grid_store.loadData(response, true);
             me.doSortGridStoreBuffer(grid_store);
         });
@@ -53929,6 +53945,10 @@ Ext.define('App.controller.patient.Medications', {
 		{
 			ref: 'ReviewMedicationsBtn',
 			selector: '#ReviewMedicationsBtn'
+		},
+		{
+			ref: 'EncounterProcedureGrid',
+			selector: '#EncounterProcedureGrid'
 		}
 	],
 
@@ -54152,11 +54172,49 @@ Ext.define('App.controller.patient.Medications', {
 	},
 
 	onReviewMedicationsBtnClick: function(){
+		var me = this;
 		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
 		encounter.set({review_medications: true});
 		encounter.save({
 			success: function(){
+				var store = me.getEncounterProcedureGrid().getStore(),
+					now = new Date();
+
 				app.msg(_('sweet'), _('items_to_review_save_and_review'));
+
+				var record_index = store.findBy(function(record, id){
+					var enc_id = record.get('eid');
+					var procedure_code = record.get('code')
+
+					return enc_id === app.patient.eid && procedure_code === '428191000124101';
+				});
+
+				if(record_index === -1) {
+
+					store.add({
+						pid: app.patient.pid,
+						eid: app.patient.eid,
+						create_uid: app.user.id,
+						update_uid: app.user.id,
+						create_date: now,
+						update_date: now,
+						code: '428191000124101',
+						code_text: 'Documentation of current medications (procedure)',
+						code_type: 'SNOMED-CT',
+						performer_id: 0,
+						procedure_date: now,
+						encounter_dx_id:0
+					});
+
+					// store.add(procedure_record);
+					store.sync({
+						callback: function (){
+							app.msg(_('sweet'), 'Documentation of current medications (procedure) Added');
+						}
+					});
+
+
+				}
 			},
 			failure: function(){
 				app.msg(_('oops'), _('items_to_review_entry_error'));
@@ -55920,7 +55978,7 @@ Ext.define('App.controller.patient.RadOrders', {
 				documents[doc_key].docType = 'Rad';
 				documents[doc_key].templateId = 6;
 				documents[doc_key].pdf_format = pdf_format;
-				documents[doc_key].dx_required = true;
+				documents[doc_key].dx_required = false;
 				documents[doc_key].orderItems.push(['Description', 'Notes']);
 			}
 
@@ -71826,7 +71884,7 @@ Ext.define('App.controller.patient.LabOrders', {
 				documents[doc_key].docType = 'Lab';
 				documents[doc_key].templateId = 4;
 				documents[doc_key].pdf_format = pdf_format;
-				documents[doc_key].dx_required = true;
+				documents[doc_key].dx_required = false;
 				documents[doc_key].orderItems.push(['Description', 'Notes']);
 			}
 

@@ -224,7 +224,7 @@ Ext.define('App.controller.patient.LabOrders', {
 				documents[doc_key].docType = 'Lab';
 				documents[doc_key].templateId = 4;
 				documents[doc_key].pdf_format = pdf_format;
-				documents[doc_key].dx_required = true;
+				documents[doc_key].dx_required = false;
 				documents[doc_key].orderItems.push(['Description', 'Notes']);
 			}
 

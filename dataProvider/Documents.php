@@ -494,7 +494,7 @@ class Documents
      * @param int|null $template_id
      * @return bool|string
      */
-    public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $custom_footer_data = null, $water_mark = '', $key_images = [], $key_images_config = [], $pdf_format = null, $mail_cover_info = [], $template_id = null, $template_concept = null)
+    public function PDFDocumentBuilder($params, $path = '', $custom_header_data = null, $custom_footer_data = null, $water_mark = '', $key_images = [], $key_images_config = [], $pdf_format = null, $mail_cover_info = [], $template_id = null, $template_concept = 'default')
     {
         $pid = $params->pid;
         $regex = '(\[\w*?\]|\[\/\w*?\])';

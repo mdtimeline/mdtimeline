@@ -150,10 +150,10 @@ class Providers {
 
 		$j = 0;
 		while($i--) {
-			if(is_nan($npi{$i})){
+			if(is_nan($npi[$i])){
 				return false;
 			}
-			$tmp = $npi{$i} - '0';
+			$tmp = $npi[$i] - '0';
 			if($j++ & 1){
 				if(($tmp <<= 1) > 9){
 					$tmp -= 10;

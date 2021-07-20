@@ -886,7 +886,8 @@ class Encounter {
 
 				$str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
 			} else {
-                if($encounter['review_advance_directives']) {
+			    // added isset due to undefined index error
+                if(isset($encounter['review_advance_directives']) && $encounter['review_advance_directives']) {
                     $str_buff .= '<p><b>Advance Directive:</b> Patient has no Advance Directives</p>';
                 }
                 else{

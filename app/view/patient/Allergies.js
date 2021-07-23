@@ -237,7 +237,7 @@ Ext.define('App.view.patient.Allergies', {
 								width: 230,
 								queryMode : 'local',
 								labelWidth: 70,
-								allowBlank: false
+								allowBlank: true
 							},
 							{
 								xtype: 'gaiaehr.combo',
@@ -248,7 +248,7 @@ Ext.define('App.view.patient.Allergies', {
 								width: 225,
 								list: 84,
 								labelWidth: 70,
-								allowBlank: false
+								allowBlank: true
 							},
 							{
 								fieldLabel: _('end_date'),

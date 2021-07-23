@@ -726,23 +726,23 @@ class Documents
         $allNeededInfo[] = '<hr style="margin: 10px;">';
         $html = str_replace($tokens, $allNeededInfo, (isset($params->DoctorsNote)) ? $body : $body['body']);
 
-        $groups = explode('{newgroup}', $html);
+        $groups = preg_split('/{newgroup}|~newgroup~/', $html);
 
         foreach ($groups as $group) {
 
             $pdf->startPageGroup();
-
-            $pages = explode('{newpage}', $group);
+            $pages = preg_split('/{newpage}|~newpage~/', $group);
 
             foreach ($pages as $page) {
                 $pdf->AddPage('', $format, true);
 
+                // writeHTMLCell commented because was bugging the {newgroup}
                 if ($this->isHtml($page)) {
-                    //$pdf->writeHTML($page);
-                    $pdf->writeHTMLCell(0, 0, '', '', $page);
+                    $pdf->writeHTML($page);
+//                    $pdf->writeHTMLCell(0, 0, '', '', $page);
                 } else {
-//					$pdf->writeHTML(nl2br($page));
-                    $pdf->writeHTMLCell(0, 0, '', '', nl2br($page));
+					$pdf->writeHTML(nl2br($page));
+//                    $pdf->writeHTMLCell(0, 0, '', '', nl2br($page));
                 }
             }
         }

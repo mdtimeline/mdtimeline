@@ -635,9 +635,9 @@ Ext.define('App.controller.patient.Insurance', {
             demographic_values = demographic_form.getValues();
 
         insurance_form.setValues({
-            subscriber_street: demographic_values.postal_address,
-            subscriber_city: demographic_values.postal_address_cont,
-            subscriber_state: demographic_values.postal_address,
+            subscriber_street: Ext.String.format('{0} {1}', demographic_values.postal_address,  demographic_values.postal_address_cont).trim(),
+            subscriber_city: demographic_values.postal_city,
+            subscriber_state: demographic_values.postal_state,
             subscriber_postal_code: demographic_values.postal_zip,
             subscriber_country: demographic_values.postal_country,
         });

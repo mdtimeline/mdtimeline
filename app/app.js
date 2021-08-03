@@ -47635,6 +47635,9 @@ Ext.define('App.controller.patient.Allergies', {
 			uid: app.user.id,
 			pid: app.patient.pid,
 			eid: app.patient.eid,
+			allergy_type: 'Drug allergy',
+			allergy_type_code: '416098002',
+			allergy_type_code_type: 'SNOMEDCT',
 			status: 'Active',
 			status_code: '55561003',
 			status_code_type: 'SNOMEDCT',
@@ -51853,9 +51856,9 @@ Ext.define('App.controller.patient.Insurance', {
             demographic_values = demographic_form.getValues();
 
         insurance_form.setValues({
-            subscriber_street: demographic_values.postal_address,
-            subscriber_city: demographic_values.postal_address_cont,
-            subscriber_state: demographic_values.postal_address,
+            subscriber_street: Ext.String.format('{0} {1}', demographic_values.postal_address,  demographic_values.postal_address_cont).trim(),
+            subscriber_city: demographic_values.postal_city,
+            subscriber_state: demographic_values.postal_state,
             subscriber_postal_code: demographic_values.postal_zip,
             subscriber_country: demographic_values.postal_country,
         });
@@ -56966,6 +56969,30 @@ Ext.define('App.controller.patient.RxOrders', {
 			store.filter(filters);
 
 		}
+	},
+
+	ndcConvertToElevenDigits: function (ndc){
+
+		if(ndc === '') return ndc;
+
+		var ndcArray = ndc.split('-');
+		// if [0] equals 11 number then return that number
+		if(ndcArray[0].length === 11) return ndcArray[0];
+
+		// if the number does not have 3 groups something went wrong
+		// return the number glued back
+		if(ndcArray.length !== 3) return ndcArray.join('');
+
+		if(ndcArray[0].length === 4){
+			ndcArray[0] = '0' + ndcArray[0];
+		}else if(ndcArray[1].length === 3){
+			ndcArray[1] = '0' + ndcArray[1];
+		}else if(ndcArray[2].length === 1){
+			ndcArray[2] = '0' + ndcArray[2];
+		}
+
+		return ndcArray.join('');
+
 	}
 
 });
@@ -77209,7 +77236,7 @@ Ext.define('App.view.patient.Allergies', {
 								width: 230,
 								queryMode : 'local',
 								labelWidth: 70,
-								allowBlank: false
+								allowBlank: true
 							},
 							{
 								xtype: 'gaiaehr.combo',
@@ -77220,7 +77247,7 @@ Ext.define('App.view.patient.Allergies', {
 								width: 225,
 								list: 84,
 								labelWidth: 70,
-								allowBlank: false
+								allowBlank: true
 							},
 							{
 								fieldLabel: _('end_date'),

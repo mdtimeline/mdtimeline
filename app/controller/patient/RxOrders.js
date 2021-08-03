@@ -642,6 +642,30 @@ Ext.define('App.controller.patient.RxOrders', {
 			store.filter(filters);
 
 		}
+	},
+
+	ndcConvertToElevenDigits: function (ndc){
+
+		if(ndc === '') return ndc;
+
+		var ndcArray = ndc.split('-');
+		// if [0] equals 11 number then return that number
+		if(ndcArray[0].length === 11) return ndcArray[0];
+
+		// if the number does not have 3 groups something went wrong
+		// return the number glued back
+		if(ndcArray.length !== 3) return ndcArray.join('');
+
+		if(ndcArray[0].length === 4){
+			ndcArray[0] = '0' + ndcArray[0];
+		}else if(ndcArray[1].length === 3){
+			ndcArray[1] = '0' + ndcArray[1];
+		}else if(ndcArray[2].length === 1){
+			ndcArray[2] = '0' + ndcArray[2];
+		}
+
+		return ndcArray.join('');
+
 	}
 
 });

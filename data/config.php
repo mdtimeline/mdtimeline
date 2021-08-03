@@ -140,7 +140,7 @@ $API = [
     'MeasureCalculation' => [
         'methods' => [
             'getReportMeasureByDates' => [
-                'len' => 6
+                'len' => 8
             ],
             'getPatientList' => [
                 'len' => 1

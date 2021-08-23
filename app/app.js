@@ -36535,7 +36535,8 @@ Ext.define('App.view.administration.CronJob', {
         me.CronJobStore = Ext.create('App.store.administration.CronJob', {
             remoteFilter: false,
             autoLoad: false,
-            autoSync: false
+            autoSync: false,
+            pageSize: 100
         });
 
         me.pageBody = [
@@ -74857,7 +74858,7 @@ Ext.define('App.view.patient.RxOrders', {
 									width: 700,
 									fieldLabel: _('instructions'),
 									name: 'directions',
-									maxLength: 140,
+									maxLength: 255,
 									validateOnBlur: true,
 									vtype: 'nonspecialcharactersrequired',
 									allowBlank: false

@@ -35,7 +35,8 @@ Ext.define('App.view.administration.CronJob', {
         me.CronJobStore = Ext.create('App.store.administration.CronJob', {
             remoteFilter: false,
             autoLoad: false,
-            autoSync: false
+            autoSync: false,
+            pageSize: 100
         });
 
         me.pageBody = [

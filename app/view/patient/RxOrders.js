@@ -232,7 +232,7 @@ Ext.define('App.view.patient.RxOrders', {
 									width: 700,
 									fieldLabel: _('instructions'),
 									name: 'directions',
-									maxLength: 140,
+									maxLength: 255,
 									validateOnBlur: true,
 									vtype: 'nonspecialcharactersrequired',
 									allowBlank: false

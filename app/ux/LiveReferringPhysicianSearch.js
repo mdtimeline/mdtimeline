@@ -37,7 +37,11 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
 	trigger2Cls: 'x-form-clear-trigger',
 	hideTrigger1: false,
 	onTrigger1Click: function () {
-		app.fireEvent('referringproviderddbtnclick', this, this.findRecordByValue(this.getValue()));
+		if(a('allow_add_referring_physician')){
+			app.fireEvent('referringproviderddbtnclick', this, this.findRecordByValue(this.getValue()));
+		}else{
+			app.msg(_('oops'), 'Not Authorized', true)
+		}
 	},
 	onTrigger2Click: function () {
 		this.reset();

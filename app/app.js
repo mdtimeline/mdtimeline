@@ -57670,6 +57670,17 @@ Ext.define('App.controller.patient.Vitals', {
 		});
 	},
 
+	getVitalRecordsByDate: function (date){
+		if(!date || !date.toLocaleDateString){
+			return [];
+		}
+		var date_string = date.toLocaleDateString(),
+			store = this.getVitalsHistoryGrid().getStore();
+		return store.queryBy(function (vital){
+			return vital.get('date').toLocaleDateString() === date_string;
+		}).items;
+	},
+
 	onVitalChartsBtnClick: function(){
 		if(!this.getPatientChartsWindow()){
 			Ext.create('App.view.patient.windows.Charts');

@@ -330,7 +330,8 @@ Ext.define('App.view.patient.RxOrders', {
 							title: _('active_drug_allergies'),
 							html: _('none'),
 							margin: '25 0 5 10',
-							flex: 1
+							flex: 1,
+							itemId: 'RxOrderActiveDrugAllergyFieldset'
 						}
 					]
 				}

@@ -103,6 +103,12 @@ Ext.define('App.view.patient.ImplantableDevice', {
 			text: _('active'),
 			enableToggle: true,
 			itemId: 'ImplantableDeviceGridActiveBtn'
+		},
+		'-',
+		'->',
+		{
+			text: _('review'),
+			itemId: 'ImplantableDeviceReviewBtn'
 		}
 	]
 });

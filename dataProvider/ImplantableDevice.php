@@ -58,6 +58,14 @@ class ImplantableDevice {
 		return $this->i->load()->all();
 	}
 
+    public function getPatientImplantableDeviceByEid($eid)
+    {
+        $params = new stdClass();
+        $params->filter[0] = new stdClass();
+        $params->filter[0]->property = 'eid';
+        $params->filter[0]->value = $eid;
+        return $this->getPatientImplantableDevices($params);
+    }
 
 	public function getUidData($params){
 		if(!isset($params->udi)){

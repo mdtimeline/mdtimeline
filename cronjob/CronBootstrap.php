@@ -28,16 +28,7 @@ if(php_sapi_name() != 'cli'){
     exit(0);
 }
 
-include_once ('../lib/Cron/FieldFactoryInterface.php');
-include_once ('../lib/Cron/FieldInterface.php');
-include_once ('../lib/Cron/AbstractField.php');
-include_once ('../lib/Cron/DayOfMonthField.php');
-include_once ('../lib/Cron/DayOfWeekField.php');
-include_once ('../lib/Cron/HoursField.php');
-include_once ('../lib/Cron/MinutesField.php');
-include_once ('../lib/Cron/MonthField.php');
-include_once ('../lib/Cron/FieldFactory.php');
-include_once ('../lib/Cron/CronExpression.php');
+require_once '../vendor/autoload.php';
 
 class CronBootstrap
 {

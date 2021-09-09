@@ -330,7 +330,7 @@ class DocumentPdfForms {
             $pdf_form['signature_x'],
             $pdf_form['signature_y'],
             $pdf_form['signature_w'],
-            $pdf_form['signature_h'],
+            $pdf_form['signature_h']
         );
 
         $document = $FPDI->Output('signed_document.pdf', 'S');

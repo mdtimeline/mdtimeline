@@ -289,7 +289,7 @@ class Rxnorm
 
         $sth = $this->db->prepare("
 			SELECT RX.*, RXO.occurrences,
-		    (SELECT MAX(ATV) FROM rxnsat WHERE `rxnsat`.`RXCUI` = '391937' AND `rxnsat`.`ATN` = 'NDC' AND `rxnsat`.`SAB` = 'MMX' AND `rxnsat`.`ATV` IS NOT NULL AND `rxnsat`.`SUPPRESS` = 'N' LIMIT 1) AS NDC,
+		    (SELECT MAX(ATV) FROM rxnsat WHERE `rxnsat`.`RXCUI` = RX.RXCUI AND `rxnsat`.`ATN` = 'NDC' AND `rxnsat`.`SAB` = 'MMX' AND `rxnsat`.`ATV` IS NOT NULL AND `rxnsat`.`SUPPRESS` = 'N' LIMIT 1) AS NDC,
 		    -- IFNULL((SELECT rxnconso.`STR` FROM rxnconso WHERE `rxnconso`.`RXCUI` = RX.RXCUI AND (`rxnconso`.`TTY` = 'SY') LIMIT 1), RX.STR) AS STR,
 			{$umls}
 		  	(SELECT rxnconso.`code` FROM rxnconso WHERE `rxnconso`.`RXCUI` = RX.RXCUI AND (`rxnconso`.`SAB` = 'GS') LIMIT 1) AS GS_CODE

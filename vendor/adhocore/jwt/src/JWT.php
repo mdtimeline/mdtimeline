@@ -1,6 +1,6 @@
 <?php
 
-//declare(strict_types=1);
+declare(strict_types=1);
 
 /*
  * This file is part of the PHP-JWT package.
@@ -81,10 +81,10 @@ class JWT
      */
     public function __construct(
         $key,
-         $algo = 'HS256',
-         $maxAge = 3600,
-         $leeway = 0,
-         $pass = null
+        string $algo = 'HS256',
+        int $maxAge = 3600,
+        int $leeway = 0,
+        string $pass = null
     ) {
         $this->validateConfig($key, $algo, $maxAge, $leeway);
 
@@ -107,7 +107,7 @@ class JWT
      *
      * @return self
      */
-    public function registerKeys( $keys)
+    public function registerKeys(array $keys): self
     {
         $this->keys = \array_merge($this->keys, $keys);
 
@@ -122,7 +122,7 @@ class JWT
      *
      * @return string URL safe JWT token.
      */
-    public function encode( $payload,  $header = [])
+    public function encode(array $payload, array $header = []): string
     {
         $header = ['typ' => 'JWT', 'alg' => $this->algo] + $header;
 
@@ -143,18 +143,23 @@ class JWT
      * Decode JWT token and return original payload.
      *
      * @param string $token
+     * @param bool   $verify
      *
      * @throws JWTException
      *
      * @return array
      */
-    public function decode( $token)
+    public function decode(string $token, bool $verify = true): array
     {
         if (\substr_count($token, '.') < 2) {
             throw new JWTException('Invalid token: Incomplete segments', static::ERROR_TOKEN_INVALID);
         }
 
         $token = \explode('.', $token, 3);
+        if (!$verify) {
+            return (array) $this->urlSafeDecode($token[1]);
+        }
+
         $this->validateHeader((array) $this->urlSafeDecode($token[0]));
 
         // Validate signature.
@@ -174,7 +179,7 @@ class JWT
      *
      * @param int|null $timestamp
      */
-    public function setTestTimestamp( $timestamp = null)
+    public function setTestTimestamp(int $timestamp = null): self
     {
         $this->timestamp = $timestamp;
 
@@ -188,7 +193,7 @@ class JWT
      *
      * @return string
      */
-    protected function sign( $input)
+    protected function sign(string $input): string
     {
         // HMAC SHA.
         if (\substr($this->algo, 0, 2) === 'HS') {
@@ -212,7 +217,7 @@ class JWT
      *
      * @return bool
      */
-    protected function verify( $input,  $signature)
+    protected function verify(string $input, string $signature): bool
     {
         $algo = $this->algos[$this->algo];
 
@@ -239,7 +244,7 @@ class JWT
      *
      * @return string
      */
-    protected function urlSafeEncode($data)
+    protected function urlSafeEncode($data): string
     {
         if (\is_array($data)) {
             $data = \json_encode($data, \JSON_UNESCAPED_SLASHES);
@@ -259,7 +264,7 @@ class JWT
      *
      * @return array|\stdClass|string
      */
-    protected function urlSafeDecode($data,  $asJson = true)
+    protected function urlSafeDecode($data, bool $asJson = true)
     {
         if (!$asJson) {
             return \base64_decode(\strtr($data, '-_', '+/'));

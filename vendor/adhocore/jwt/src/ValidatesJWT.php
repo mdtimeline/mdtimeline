@@ -1,6 +1,6 @@
 <?php
 
-//declare(strict_types=1);
+declare(strict_types=1);
 
 /*
  * This file is part of the PHP-JWT package.
@@ -28,7 +28,7 @@ trait ValidatesJWT
      *
      * @codeCoverageIgnore
      */
-    protected function validateConfig($key, $algo, $maxAge, $leeway)
+    protected function validateConfig($key, string $algo, int $maxAge, int $leeway)
     {
         if (empty($key)) {
             throw new JWTException('Signing key cannot be empty', static::ERROR_KEY_EMPTY);
@@ -50,7 +50,7 @@ trait ValidatesJWT
     /**
      * Throw up if header invalid.
      */
-    protected function validateHeader($header)
+    protected function validateHeader(array $header)
     {
         if (empty($header['alg'])) {
             throw new JWTException('Invalid token: Missing header algo', static::ERROR_ALGO_MISSING);
@@ -65,7 +65,7 @@ trait ValidatesJWT
     /**
      * Throw up if kid exists and invalid.
      */
-    protected function validateKid( $header)
+    protected function validateKid(array $header)
     {
         if (!isset($header['kid'])) {
             return;
@@ -80,13 +80,13 @@ trait ValidatesJWT
     /**
      * Throw up if timestamp claims like iat, exp, nbf are invalid.
      */
-    protected function validateTimestamps( $payload)
+    protected function validateTimestamps(array $payload)
     {
         $timestamp = $this->timestamp ?: \time();
         $checks    = [
             ['exp', $this->leeway /*          */ , static::ERROR_TOKEN_EXPIRED, 'Expired'],
             ['iat', $this->maxAge - $this->leeway, static::ERROR_TOKEN_EXPIRED, 'Expired'],
-            ['nbf', $this->maxAge - $this->leeway, static::ERROR_TOKEN_NOT_NOW, 'Not now'],
+            ['nbf', -$this->leeway, static::ERROR_TOKEN_NOT_NOW, 'Not now'],
         ];
 
         foreach ($checks as list($key, $offset, $code, $error)) {
@@ -114,7 +114,15 @@ trait ValidatesJWT
             $this->key = \openssl_get_privatekey($key, $this->passphrase ?: '');
         }
 
-        if (!\is_resource($this->key)) {
+        if (\PHP_VERSION_ID < 80000 && !\is_resource($this->key)) {
+            throw new JWTException('Invalid key: Should be resource of private key', static::ERROR_KEY_INVALID);
+        }
+
+        if (\PHP_VERSION_ID > 80000 && !(
+            $this->key instanceof \OpenSSLAsymmetricKey
+            || $this->key instanceof \OpenSSLCertificate
+            || $this->key instanceof \OpenSSLCertificateSigningRequest
+        )) {
             throw new JWTException('Invalid key: Should be resource of private key', static::ERROR_KEY_INVALID);
         }
     }

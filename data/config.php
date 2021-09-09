@@ -118,8 +118,14 @@ $API = [
     ],
     'DocumentPdfForms' => [
         'methods' => [
-            'generatePdfForm' => [
+            'getDocumentPdfForms' => [
                 'len' => 1
+            ],
+            'generatePdfForms' => [
+                'len' => 2
+            ],
+            'generatePdfForm' => [
+                'len' => 2
             ]
         ]
     ],

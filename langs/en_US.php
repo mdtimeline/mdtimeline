@@ -2209,4 +2209,5 @@ $LANG = array(
     'rad_result' => 'Rad Result',
     'lab_result' => 'Lab Result',
     'cessation_counseling_type' => 'Cessation Counseling Type',
+    'pdf_forms' => 'PDF Forms',
 );

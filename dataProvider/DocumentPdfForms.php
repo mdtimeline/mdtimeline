@@ -10,6 +10,8 @@ class DocumentPdfForms {
     private $error;
     private $source;
 
+    private $pdftk = 'pdftk';
+
     /**
      * @var bool|\MatchaCUP
      */
@@ -29,39 +31,86 @@ class DocumentPdfForms {
         $this->d = \MatchaModel::setSenchaModel('App.model.administration.DocumentForm');
         $this->Patient = new \Patient();
         $this->DocumentHandler = new \DocumentHandler();
+
+        if(file_exists('/usr/local/bin/pdftk')){
+            $this->pdftk = '/usr/local/bin/pdftk';
+        }else if (file_exists('/usr/bin/pdftk')){
+            $this->pdftk = '/usr/bin/pdftk';
+        }
     }
 
-    public function getDocumentPdfFormsToSign($params){
-        // TODO only return the not signed documents
+    public function getDocumentPdfForms($params){
+        return $this->d->load($params)->all();
+    }
 
-        $this->d->addFilter('facility_id', $params->facility_id);
-        $this->d->addFilter('is_active', true);
-
-
-
-        return $this->d->load()->all();
+    public function getDocumentPdfForm($params){
+        return $this->d->load($params)->one();
     }
 
     public function saveDocumentPdfFormsSigned($params){
-
-
-
-
 
         return [
             'success' => true
         ];
     }
 
+    public function generatePdfForms($pdf_form_ids, $pid){
+        $binary_documents = [];
+        foreach ($pdf_form_ids as $pdf_form_id){
+            $binary_documents[] = $this->generatePdfForm($pdf_form_id, $pid, true);
+        }
 
-    public function getDocumentPdfForm($params){
-        return $this->d->load($params)->one();
+        if(count($binary_documents) === 1){
+            $binary_document = $binary_documents[0];
+        }else{
+            $binary_document = $this->mergeDocuments($binary_documents);
+        }
+
+        include_once(ROOT . '/dataProvider/DocumentHandler.php');
+        $documentParams = new \stdClass();
+        $documentParams->document = base64_encode($binary_document);
+        $documentParams->document_name = 'PDF Forms';
+        return $this->DocumentHandler->createTempDocument($documentParams);
+
     }
 
-    public function generatePdfForm($params, $return_binary_document = false) {
+    private function mergeDocuments($binary_documents){
 
-        $pdf_form = $this->getDocumentPdfForm($params->form_id);
-        $patient = $this->Patient->getPatientByPid($params->pid);
+        $temp_out_document = tempnam(site_temp_path, 'pdf_form_out_');
+        chmod($temp_out_document, 0777);
+        rename($temp_out_document, $temp_out_document.'.pdf');
+        $temp_out_document = $temp_out_document . '.pdf';
+
+        $temp_in_documents_array = [];
+
+        foreach ($binary_documents as $binary_document){
+            $temp_file =  tempnam(site_temp_path, 'pdf_form_in_');
+            chmod($temp_file, 0777);
+            rename($temp_file, $temp_file.'.pdf');
+            $temp_file = $temp_file . '.pdf';
+            file_put_contents($temp_file, $binary_document);
+            $temp_in_documents_array[] = $temp_file;
+        }
+
+        $temp_in_documents = implode(' ', $temp_in_documents_array);
+
+        $cmd = "{$this->pdftk} {$temp_in_documents} cat output {$temp_out_document}";
+        exec($cmd);
+
+        $binary_out_document = file_get_contents($temp_out_document);
+
+        foreach ($temp_in_documents_array as $temp_in_document){
+            unlink($temp_in_document);
+        }
+        unlink($temp_out_document);
+
+        return $binary_out_document;
+    }
+
+    public function generatePdfForm($pdf_form_id, $pid, $return_binary_document = false) {
+
+        $pdf_form = $this->getDocumentPdfForm($pdf_form_id);
+        $fields_data = $this->Patient->getPatientTokenByPid($pid);
 
         /**
 
@@ -125,14 +174,6 @@ class DocumentPdfForms {
         PATIENT_AUTHORIZED2_RELATION
 
          */
-        $fields_data = [
-            'PATIENT_TITLE' => isset($patient['title']) ? $patient['title'] : '',
-            'PATIENT_FNAME' => isset($patient['fname']) ? $patient['fname'] : '',
-            'PATIENT_MNAME' => isset($patient['mname']) ? $patient['mname'] : '',
-            'PATIENT_LNAME' => isset($patient['lname']) ? $patient['lname'] : '',
-            'PATIENT_NAME' => isset($patient['name']) ? $patient['name'] : '',
-            'PATIENT_AGE' => isset($patient['age']) ? $patient['age']['str'] : '',
-        ];
 
         if(isset($params->custom_data)){
             $params->custom_data = (array)$params->custom_data;

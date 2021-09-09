@@ -289,21 +289,20 @@ class Rxnorm
 
         $sth = $this->db->prepare("
 			SELECT RX.*, RXO.occurrences,
-		    (SELECT MIN(rxnsat.`ATV`) FROM rxnsat WHERE `rxnsat`.`RXCUI` = RX.RXCUI AND `rxnsat`.`ATN` = 'NDC' AND `rxnsat`.`SAB` = 'MMX' AND `rxnsat`.`ATV` IS NOT NULL LIMIT 1) AS NDC,
+		    (SELECT MAX(ATV) FROM rxnsat WHERE `rxnsat`.`RXCUI` = '391937' AND `rxnsat`.`ATN` = 'NDC' AND `rxnsat`.`SAB` = 'MMX' AND `rxnsat`.`ATV` IS NOT NULL AND `rxnsat`.`SUPPRESS` = 'N' LIMIT 1) AS NDC,
 		    -- IFNULL((SELECT rxnconso.`STR` FROM rxnconso WHERE `rxnconso`.`RXCUI` = RX.RXCUI AND (`rxnconso`.`TTY` = 'SY') LIMIT 1), RX.STR) AS STR,
 			{$umls}
 		  	(SELECT rxnconso.`code` FROM rxnconso WHERE `rxnconso`.`RXCUI` = RX.RXCUI AND (`rxnconso`.`SAB` = 'GS') LIMIT 1) AS GS_CODE
 		    FROM (
 		    	SELECT * 
 			    FROM rxnconso as c 
-			    WHERE (c.`SAB` = 'RXNORM') 
-			    AND c.`TTY` IN ('SCD','SBD','SY'{$groups}{$ingredients})
+			    WHERE c.`TTY` IN ('SCD','SBD','SY'{$groups}{$ingredients})
 			    AND ({$where})
-		    	GROUP by c.`RXCUI`
 		    	LIMIT 500
 		    ) AS RX
 		    LEFT JOIN rxnoccurrences AS RXO ON RXO.rxcui = RX.RXCUI
 		    WHERE RX.SUPPRESS = 'N' -- AND RX.CVF <> ''
+			GROUP by RX.`RXCUI`
 			HAVING NDC IS NOT NULL
 		    ORDER BY RXO.occurrences DESC, RX.`TTY` DESC, RX.`STR` DESC
           ;");

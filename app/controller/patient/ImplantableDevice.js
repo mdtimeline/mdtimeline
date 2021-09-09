@@ -49,6 +49,10 @@ Ext.define('App.controller.patient.ImplantableDevice', {
 		{
 			ref: 'ImplantableDeviceGridActiveBtn',
 			selector: '#ImplantableDeviceGridActiveBtn'
+		},
+		{
+			ref: 'ImplantableDeviceReviewBtn',
+			selector: '#ImplantableDeviceReviewBtn'
 		}
 	],
 
@@ -72,6 +76,9 @@ Ext.define('App.controller.patient.ImplantableDevice', {
 			},
 			'#ImplantableDeviceGridActiveBtn': {
 				'toggle': me.onImplantableDeviceGridActiveBtnToggle
+			},
+			'#ImplantableDeviceReviewBtn': {
+				'click': me.onImplantableDeviceReviewBtnBtnClick
 			}
 		});
 	},
@@ -191,6 +198,19 @@ Ext.define('App.controller.patient.ImplantableDevice', {
 			Ext.create('App.view.patient.windows.ImplantableDeviceDetails');
 		}
 		return this.getImplantableDeviceDetailsWindow().show();
+	},
+
+	onImplantableDeviceReviewBtnBtnClick: function(btn){
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+		encounter.set({review_implantable_devices: true});
+		encounter.save({
+			success: function(){
+				app.msg(_('sweet'), _('items_to_review_save_and_review'));
+			},
+			failure: function(){
+				app.msg(_('oops'), _('items_to_review_entry_error'));
+			}
+		});
 	}
 
 });

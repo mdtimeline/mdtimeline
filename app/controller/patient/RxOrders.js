@@ -67,6 +67,10 @@ Ext.define('App.controller.patient.RxOrders', {
 		{
 			ref: 'RxOrdersShowAllMedicationsBtn',
 			selector: '#RxOrdersShowAllMedicationsBtn'
+		},
+		{
+			ref: 'RxOrderActiveDrugAllergyFieldset',
+			selector: '#RxOrderActiveDrugAllergyFieldset'
 		}
 	],
 
@@ -309,6 +313,25 @@ Ext.define('App.controller.patient.RxOrders', {
 				}
 			]
 		});
+
+		var me = this;
+		//get patient allergies
+		Allergies.getPatientAllergiesByEid(10, function (response){
+			if(response === false) return;
+
+			var fs = me.getRxOrderActiveDrugAllergyFieldset();
+
+			var text = '<ul>';
+
+			for(var i = 0; i < response.length; i++){
+				text += '<li><b>' + response[i].allergy + '</b> - ' + response[i].reaction + ' - ' + response[i].severity + '</li>';
+			}
+
+			text += '</ul>';
+			fs.update(text);
+		});
+
+
 	},
 
 	onRxOrdersGridValidEdit: function (){

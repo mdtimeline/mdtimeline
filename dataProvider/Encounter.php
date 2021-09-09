@@ -34,6 +34,7 @@ include_once(ROOT . '/dataProvider/FamilyHistory.php');
 include_once(ROOT . '/dataProvider/NursesNotes.php');
 include_once(ROOT . '/dataProvider/EncounterAddenda.php');
 include_once(ROOT . '/dataProvider/PhysicalExams.php');
+include_once(ROOT . '/dataProvider/ImplantableDevice.php');
 
 class Encounter {
 	/**
@@ -1322,6 +1323,42 @@ class Encounter {
 
         unset($Immunizations, $immunizations);
 
+		/**
+		 * Implantable Devices
+		 */
+        $ImplantableDevices = new ImplantableDevice();
+        $implantableDevices = $ImplantableDevices->getPatientImplantableDeviceByEid($eid);
+
+        if(!empty($implantableDevices)){
+            $str_buff .= '<div class="indent">';
+            $lis = '';
+            foreach($implantableDevices as $foo){
+                $lis .= '<li><b>Description:</b> ' . $foo['description'] . ' - ';
+                $lis .= '<b>UDI:</b> (' . $foo['udi'] . ')' . $foo['code'] . ' - ';
+                $lis .= '<b>Implanted:</b> ' . $foo['implanted_date'] . '</li>';
+            }
+            $str_buff .= '<p><b>Implantable Devices:</b>';
+
+            if(!$encounter['review_implantable_devices']){
+                $str_buff .= ' (Not reviewed)';
+            }
+
+            $str_buff .= '</p>';
+
+            $str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
+
+            $str_buff .= '</div>';
+        } else if($encounter['review_implantable_devices']) {
+            $str_buff .= '<div class="indent">';
+            $str_buff .= '<p><b>Implantable Devices:</b> Patient has no Implantable Devices.</p>';
+            $str_buff .= '</div>';
+        }else{
+            $str_buff .= '<div class="indent">';
+            $str_buff .= '<p><b>Implantable Devices:</b> (Not Reviewed)</p>';
+            $str_buff .= '</div>';
+        }
+
+        unset($ImplantableDevices, $implantableDevices);
 
 		/**
 		 * Medications Administered

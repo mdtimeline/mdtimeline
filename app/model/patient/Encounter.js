@@ -180,6 +180,10 @@ Ext.define('App.model.patient.Encounter', {
 			type: 'bool'
 		},
 		{
+			name: 'review_implantable_devices',
+			type: 'bool'
+		},
+		{
 			name: 'message',
 			type: 'string',
 			dataType: 'text'

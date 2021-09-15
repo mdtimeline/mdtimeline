@@ -401,6 +401,15 @@ class Navigation
             ];
         }
 
+        if($this->ACL->hasPermission('access_admin_pdf_forms')){
+            $admin['children'][] = [
+                'text' => 'PDF Forms',
+                'leaf' => true,
+                'cls' => 'file',
+                'id' => 'App.view.administration.PdfForms'
+            ];
+        }
+
 		if(isset($admin['children']) && count($admin['children']) > 0) array_push($nav, $admin);
 
 

@@ -817,6 +817,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                                 'administration.Users',
                                 'administration.Version',
                                 'administration.MeasureCalculation',
+                                'administration.PdfForms',
                                 'administration.IpAccess',
                                 'administration.LegalLetters',
                                 'administration.TransactionLog',

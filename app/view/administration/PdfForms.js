@@ -22,6 +22,7 @@ Ext.define('App.view.administration.PdfForms', {
 
 	],
 	pageTitle: 'PDF Forms',
+	pageLayout: 'border',
 	itemId: 'AdministrationPdfForms',
 	initComponent: function(){
 		var me = this;
@@ -37,34 +38,47 @@ Ext.define('App.view.administration.PdfForms', {
 			{
 				xtype: 'grid',
 				store: me.store,
+				region: 'center',
+				itemId: 'AdministrationPdfFormsGrid',
+				frame: true,
+				plugins: [
+					{
+						ptype: 'rowediting'
+					}
+				],
 				columns: [
 					{
 						text: 'Facility',
 						dataIndex: 'facility_id',
 						editor: {
-							xtype: 'activefacilitiescombo'
+							xtype: 'activefacilitiescombo',
+							allowBlank: false
 						}
 					},
 					{
 						text: 'Type',
 						dataIndex: 'document_type',
 						editor: {
-							xtype: 'textfield'
+							xtype: 'textfield',
+							allowBlank: false
 						}
 					},
 					{
 						text: 'Title',
 						dataIndex: 'document_title',
+						flex: 1,
 						editor: {
-							xtype: 'textfield'
+							xtype: 'textfield',
+							allowBlank: false
 						}
 					},
 					{
 						text: 'Path',
 						dataIndex: 'document_path',
-						flex: 1,
+						flex: 2,
 						editor: {
-							xtype: 'textfield'
+							xtype: 'textfield',
+							allowBlank: false
 						}
 					},
 					{
@@ -102,7 +116,8 @@ Ext.define('App.view.administration.PdfForms', {
 					{
 						text: 'Flatten',
 						dataIndex: 'flatten',
-						width: 40,
+						width: 70,
+						renderer: app.boolRenderer,
 						editor: {
 							xtype: 'checkboxfield'
 						}
@@ -110,19 +125,46 @@ Ext.define('App.view.administration.PdfForms', {
 					{
 						text: 'Active',
 						dataIndex: 'is_active',
-						width: 40,
+						width: 70,
+						renderer: app.boolRenderer,
 						editor: {
 							xtype: 'checkboxfield'
 						}
 					}
 				],
-				bbar: {
-					xtype: 'pagingtoolbar',
-					pageSize: 1000,
-					store: me.store,
-					displayInfo: true,
-					plugins: new Ext.ux.SlidingPager()
-				}
+				dockedItems: [
+					{
+						xtype: 'toolbar',
+						dock: 'top',
+						items: [
+							'->',
+							{
+								xtype: 'button',
+								iconCls: 'icoAdd',
+								text: 'PDF Form',
+								itemId: 'AdministrationPdfFormsAddBtn'
+							}
+						]
+					},
+					{
+						xtype: 'pagingtoolbar',
+						pageSize: 1000,
+						store: me.store,
+						displayInfo: true,
+						dock: 'bottom',
+						plugins: new Ext.ux.SlidingPager()
+					}
+				]
+			},
+			{
+				xtype: 'panel',
+				title: 'Tokens',
+				region: 'east',
+				width: 260,
+				frame: true,
+				split: true,
+				bodyStyle: 'background-color: white',
+				itemId: 'AdministrationPdfFormsTokenPanel'
 			}
 		];
 

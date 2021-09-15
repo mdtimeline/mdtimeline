@@ -82,5 +82,13 @@ Ext.define('App.model.administration.DocumentForm', {
 			type: 'bool',
 			index: true
 		}
-	]
+	],
+	proxy: {
+		type: 'direct',
+		api: {
+			read: 'DocumentPdfForms.getDocumentPdfForms',
+			create: 'DocumentPdfForms.addDocumentPdfForm',
+			update: 'DocumentPdfForms.updateDocumentPdfForm'
+		}
+	}
 });

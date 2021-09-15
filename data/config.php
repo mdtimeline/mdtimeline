@@ -121,6 +121,15 @@ $API = [
             'getDocumentPdfForms' => [
                 'len' => 1
             ],
+            'getDocumentPdfForm' => [
+                'len' => 1
+            ],
+            'addDocumentPdfForm' => [
+                'len' => 1
+            ],
+            'updateDocumentPdfForm' => [
+                'len' => 1
+            ],
             'generatePdfForms' => [
                 'len' => 2
             ],

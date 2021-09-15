@@ -218,10 +218,19 @@ Ext.define('App.controller.patient.ActiveProblems', {
 		var form = cmb.up('form').getForm(),
 			record = form.getRecord();
 
-		record.set({
-			code: records[0].data.ConceptId,
-			code_type: records[0].data.CodeType
-		});
+		if(cmb.xtype === 'liveicdxsearch'){
+			record.set({
+				code: records[0].data.code,
+				code_type: records[0].data.code_type
+			});
+		}else{
+			record.set({
+				code: records[0].data.ConceptId,
+				code_type: records[0].data.CodeType
+			});
+		}
+
+
 	},
 
 	onActiveProblemStatusComboSelect:function(cmb, records){

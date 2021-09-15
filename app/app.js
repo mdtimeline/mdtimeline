@@ -19500,6 +19500,10 @@ Ext.define('App.model.patient.Encounter', {
 			type: 'bool'
 		},
 		{
+			name: 'review_implantable_devices',
+			type: 'bool'
+		},
+		{
 			name: 'message',
 			type: 'string',
 			dataType: 'text'
@@ -46975,10 +46979,19 @@ Ext.define('App.controller.patient.ActiveProblems', {
 		var form = cmb.up('form').getForm(),
 			record = form.getRecord();
 
-		record.set({
-			code: records[0].data.ConceptId,
-			code_type: records[0].data.CodeType
-		});
+		if(cmb.xtype === 'liveicdxsearch'){
+			record.set({
+				code: records[0].data.code,
+				code_type: records[0].data.code_type
+			});
+		}else{
+			record.set({
+				code: records[0].data.ConceptId,
+				code_type: records[0].data.CodeType
+			});
+		}
+
+
 	},
 
 	onActiveProblemStatusComboSelect:function(cmb, records){
@@ -52840,6 +52853,10 @@ Ext.define('App.controller.patient.ImplantableDevice', {
 		{
 			ref: 'ImplantableDeviceGridActiveBtn',
 			selector: '#ImplantableDeviceGridActiveBtn'
+		},
+		{
+			ref: 'ImplantableDeviceReviewBtn',
+			selector: '#ImplantableDeviceReviewBtn'
 		}
 	],
 
@@ -52863,6 +52880,9 @@ Ext.define('App.controller.patient.ImplantableDevice', {
 			},
 			'#ImplantableDeviceGridActiveBtn': {
 				'toggle': me.onImplantableDeviceGridActiveBtnToggle
+			},
+			'#ImplantableDeviceReviewBtn': {
+				'click': me.onImplantableDeviceReviewBtnBtnClick
 			}
 		});
 	},
@@ -52982,6 +53002,19 @@ Ext.define('App.controller.patient.ImplantableDevice', {
 			Ext.create('App.view.patient.windows.ImplantableDeviceDetails');
 		}
 		return this.getImplantableDeviceDetailsWindow().show();
+	},
+
+	onImplantableDeviceReviewBtnBtnClick: function(btn){
+		var encounter = this.getController('patient.encounter.Encounter').getEncounterRecord();
+		encounter.set({review_implantable_devices: true});
+		encounter.save({
+			success: function(){
+				app.msg(_('sweet'), _('items_to_review_save_and_review'));
+			},
+			failure: function(){
+				app.msg(_('oops'), _('items_to_review_entry_error'));
+			}
+		});
 	}
 
 });
@@ -56399,6 +56432,10 @@ Ext.define('App.controller.patient.RxOrders', {
 		{
 			ref: 'RxOrdersShowAllMedicationsBtn',
 			selector: '#RxOrdersShowAllMedicationsBtn'
+		},
+		{
+			ref: 'RxOrderActiveDrugAllergyFieldset',
+			selector: '#RxOrderActiveDrugAllergyFieldset'
 		}
 	],
 
@@ -56641,6 +56678,25 @@ Ext.define('App.controller.patient.RxOrders', {
 				}
 			]
 		});
+
+		var me = this;
+		//get patient allergies
+		Allergies.getPatientAllergiesByEid(10, function (response){
+			if(response === false) return;
+
+			var fs = me.getRxOrderActiveDrugAllergyFieldset();
+
+			var text = '<ul>';
+
+			for(var i = 0; i < response.length; i++){
+				text += '<li><b>' + response[i].allergy + '</b> - ' + response[i].reaction + ' - ' + response[i].severity + '</li>';
+			}
+
+			text += '</ul>';
+			fs.update(text);
+		});
+
+
 	},
 
 	onRxOrdersGridValidEdit: function (){
@@ -61627,6 +61683,12 @@ Ext.define('App.view.patient.ImplantableDevice', {
 			text: _('active'),
 			enableToggle: true,
 			itemId: 'ImplantableDeviceGridActiveBtn'
+		},
+		'-',
+		'->',
+		{
+			text: _('review'),
+			itemId: 'ImplantableDeviceReviewBtn'
 		}
 	]
 });
@@ -73901,15 +73963,29 @@ Ext.define('App.view.patient.ActiveProblems', {
 										fieldLabel: _('type'),
 										editable: false
 									},
+									// {
+									// 	xtype: 'snomedliveproblemsearch',
+									// 	fieldLabel: _('problem'),
+									// 	name: 'code_text',
+									// 	hideLabel: false,
+									// 	itemId: 'activeProblemLiveSearch',
+									// 	enableKeyEvents: true,
+									// 	displayField: 'Term',
+									// 	valueField: 'Term',
+									// 	width: 460,
+									// 	labelWidth: 70,
+									// 	margin: '0 10 0 0',
+									// 	allowBlank: false
+									// },
 									{
-										xtype: 'snomedliveproblemsearch',
+										xtype: 'liveicdxsearch',
 										fieldLabel: _('problem'),
 										name: 'code_text',
 										hideLabel: false,
 										itemId: 'activeProblemLiveSearch',
 										enableKeyEvents: true,
-										displayField: 'Term',
-										valueField: 'Term',
+										displayField: 'code_text',
+										valueField: 'code_text',
 										width: 460,
 										labelWidth: 70,
 										margin: '0 10 0 0',
@@ -74971,7 +75047,8 @@ Ext.define('App.view.patient.RxOrders', {
 							title: _('active_drug_allergies'),
 							html: _('none'),
 							margin: '25 0 5 10',
-							flex: 1
+							flex: 1,
+							itemId: 'RxOrderActiveDrugAllergyFieldset'
 						}
 					]
 				}

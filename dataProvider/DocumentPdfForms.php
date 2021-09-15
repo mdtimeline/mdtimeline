@@ -47,6 +47,14 @@ class DocumentPdfForms {
         return $this->d->load($params)->one();
     }
 
+    public function addDocumentPdfForm($params){
+        return $this->d->save($params);
+    }
+
+    public function updateDocumentPdfForm($params){
+        return $this->d->save($params);
+    }
+
     public function saveDocumentPdfFormsSigned($params){
 
         return [

@@ -1018,7 +1018,7 @@ class Encounter {
 		 */
 		$ActiveProblems = new ActiveProblems();
 		if(isset($encounter)){
-			$active_problems = $ActiveProblems->getPatientActiveProblemByPid($encounter['pid']);
+			$active_problems = $ActiveProblems->getPatientAllProblemsByPidAndDates($encounter['pid'], null, date('Y-m-d H:i:s', strtotime($encounter['service_date'])));
 		}else{
 			$active_problems = $ActiveProblems->getPatientActiveProblemByEid($eid);
 		}

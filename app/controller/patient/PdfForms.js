@@ -69,12 +69,16 @@ Ext.define('App.controller.patient.PdfForms', {
 			values = form.getValues(),
 			pdf_form_ids = [];
 
-		values.pdf_form_id.forEach(function (pdf_form_id){
+		if(Ext.isArray(values.pdf_form_id)){
+			values.pdf_form_id.forEach(function (pdf_form_id){
+				if(pdf_form_id > 0){
+					pdf_form_ids.push(pdf_form_id);
+				}
+			});
+		}else{
+			pdf_form_ids.push(values.pdf_form_id);
+		}
 
-			if(pdf_form_id > 0){
-				pdf_form_ids.push(pdf_form_id);
-			}
-		});
 
 		if(pdf_form_ids.length === 0){
 			app.msg(_('oops'), 'Nothing to Generate', 'yellow');

@@ -1572,7 +1572,7 @@ class Patient
         $tokens['[PATIENT_LAST_NAME]'] = $patient['lname'];
         $tokens['[PATIENT_MIDDLE_NAME]'] = $patient['mname'];
         $tokens['[PATIENT_SEX]'] = $patient['sex'];
-        $tokens['[PATIENT_BIRTHDATE]'] = $patient['DOB'];
+        $tokens['[PATIENT_BIRTHDATE]'] = date('m/d/Y', strtotime($patient['DOB']));
         $tokens['[PATIENT_MARITAL_STATUS]'] = $patient['marital_status'];
         $tokens['[PATIENT_SOCIAL_SECURITY]'] = $patient['SS'];
         $tokens['[PATIENT_INTERFACE_NO]'] = $patient['interface_number'];

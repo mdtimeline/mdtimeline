@@ -188,6 +188,10 @@ class DocumentPdfForms {
             $fields_data = array_merge($fields_data, $params->custom_data);
         }
 
+        $fields_data['[DATE]'] = date('m/d/Y');
+        $fields_data['[TIME]'] = date('g:i a');
+        $fields_data['[DATETIME]'] = date('m/d/Y g:i a');
+
         $pdf_form_title = $pdf_form['document_title'];
         $pdf_form_path = $pdf_form['document_path'];
 

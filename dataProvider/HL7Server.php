@@ -78,7 +78,7 @@ class HL7Server {
 	/**
 	 * @var array
 	 */
-	protected $server;
+	public $server;
 	/**
 	 * @var string
 	 */
@@ -209,7 +209,7 @@ class HL7Server {
 		/**
 		 * check HL7 version
 		 */
-		if($version != '2.5.1' && $version != '2.3' && $version != '2.4'){
+		if($version != '2.5.1' && $version != '2.3' && $version != '2.4' && $version != '2.2' && $version != '2.3.1'){
 			$this->ackStatus = 'AR';
 			$this->ackMessage = 'HL7 version unsupported';
 		}

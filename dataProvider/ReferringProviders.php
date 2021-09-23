@@ -142,4 +142,30 @@ class ReferringProviders {
         ];
 
     }
+
+    public function getReferringTokenById($referring_id){
+
+        $referring = $this->getReferringProviderById($referring_id);
+        $tokens = [];
+
+        if($referring === false){
+            return $tokens;
+        }
+
+        $tokens['[REFERRING_ID]'] = $referring['pid'];
+        $tokens['[REFERRING_NAME]'] = trim(sprintf('%s, %s %s', $referring['lname'],$referring['fname'],$referring['mname']));
+        $tokens['[REFERRING_TITLE]'] = $referring['title'];
+        $tokens['[REFERRING_FIRST_NAME]'] = $referring['fname'];
+        $tokens['[REFERRING_LAST_NAME]'] = $referring['lname'];
+        $tokens['[REFERRING_MIDDLE_NAME]'] = $referring['mname'];
+        $tokens['[REFERRING_NPI]'] = $referring['npi'];
+        $tokens['[REFERRING_LIC]'] = $referring['lic'];
+        $tokens['[REFERRING_EMAIL]'] = $referring['email'];
+        $tokens['[REFERRING_PHONE_NUMBER]'] = $referring['phone_number'];
+        $tokens['[REFERRING_FAX_NUMBER]'] = $referring['fax_number'];
+        $tokens['[REFERRING_CEL_NUMBER]'] = $referring['cel_number'];
+
+        return $tokens;
+
+    }
 }

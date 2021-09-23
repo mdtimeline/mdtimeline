@@ -59,6 +59,9 @@ Ext.define('App.controller.patient.PdfForms', {
 		var win = btn.up('window'),
 			form = win.down('form').getForm();
 
+		win.pid = undefined;
+		win.referring_id = undefined;
+
 		form.reset();
 		win.close();
 	},
@@ -87,10 +90,12 @@ Ext.define('App.controller.patient.PdfForms', {
 
 		win.el.mask('Generating...');
 
-		DocumentPdfForms.generatePdfForms(pdf_form_ids, app.patient.pid, function (document){
+		DocumentPdfForms.generatePdfForms(pdf_form_ids, win.pid, win.referring_id, function (document){
 
 			win.el.unmask();
 			form.reset();
+			win.pid = undefined;
+			win.referring_id = undefined;
 			win.close();
 
 			app.getController('DocumentViewer').doDocumentView(document.id, 'pdf_form');
@@ -144,10 +149,18 @@ Ext.define('App.controller.patient.PdfForms', {
 		});
 	},
 
-	onPatientPdfFormsBtnClick: function (btn){
+	doShowPdfForm: function (pid, referring_id){
 		var  win = this.showPatientPdfFormsWindow();
+
+		win.pid = pid;
+		win.referring_id = referring_id;
+
 		win.el.unmask();
 		win.down('form').getForm().reset();
+	},
+
+	onPatientPdfFormsBtnClick: function (btn){
+		this.doShowPdfForm(app.patient.pid);
 	},
 
 	showPatientPdfFormsWindow: function (){

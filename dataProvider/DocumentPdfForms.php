@@ -2,6 +2,7 @@
 
 //require_once (ROOT . '/lib/phptopdf/phpToPDF.php');
 require_once (ROOT . '/dataProvider/Patient.php');
+require_once (ROOT . '/dataProvider/ReferringProviders.php');
 require_once (ROOT . '/dataProvider/DocumentHandler.php');
 
 class DocumentPdfForms {
@@ -27,9 +28,15 @@ class DocumentPdfForms {
      */
     private $Patient;
 
+    /**
+     * @var \ReferringProviders
+     */
+    private $ReferringProviders;
+
     function __construct(){
         $this->d = \MatchaModel::setSenchaModel('App.model.administration.DocumentForm');
         $this->Patient = new \Patient();
+        $this->ReferringProviders = new \ReferringProviders();
         $this->DocumentHandler = new \DocumentHandler();
 
         if(file_exists('/usr/local/bin/pdftk')){
@@ -62,10 +69,10 @@ class DocumentPdfForms {
         ];
     }
 
-    public function generatePdfForms($pdf_form_ids, $pid){
+    public function generatePdfForms($pdf_form_ids, $pid, $referring_id = null){
         $binary_documents = [];
         foreach ($pdf_form_ids as $pdf_form_id){
-            $binary_documents[] = $this->generatePdfForm($pdf_form_id, $pid, true);
+            $binary_documents[] = $this->generatePdfForm($pdf_form_id, $pid, $referring_id, true);
         }
 
         if(count($binary_documents) === 1){
@@ -115,13 +122,12 @@ class DocumentPdfForms {
         return $binary_out_document;
     }
 
-    public function generatePdfForm($pdf_form_id, $pid, $return_binary_document = false) {
+    public function generatePdfForm($pdf_form_id, $pid, $referring_id = null, $return_binary_document = false) {
 
         $pdf_form = $this->getDocumentPdfForm($pdf_form_id);
         $fields_data = $this->Patient->getPatientTokenByPid($pid);
 
         /**
-
         PATIENT_RECORD_NUMBER,
         PATIENT_TITLE,
         PATIENT_FNAME,
@@ -182,6 +188,11 @@ class DocumentPdfForms {
         PATIENT_AUTHORIZED2_RELATION
 
          */
+
+        if(isset($referring_id)){
+            $referring_tokens = $this->ReferringProviders->getReferringTokenById($referring_id);
+            $fields_data = array_merge($fields_data, $referring_tokens);
+        }
 
         if(isset($params->custom_data)){
             $params->custom_data = (array)$params->custom_data;

@@ -123,6 +123,19 @@ Ext.define('App.controller.administration.PdfForms', {
             '[PATIENT_QRCODE]',
             '[FACILITY_NAME]',
             '[FACILITY_PHONE]',
+
+            '[REFERRING_ID]',
+            '[REFERRING_NAME]',
+            '[REFERRING_TITLE]',
+            '[REFERRING_FIRST_NAME]',
+            '[REFERRING_LAST_NAME]',
+            '[REFERRING_MIDDLE_NAME]',
+            '[REFERRING_NPI]',
+            '[REFERRING_LIC]',
+            '[REFERRING_EMAIL]',
+            '[REFERRING_PHONE_NUMBER]',
+            '[REFERRING_FAX_NUMBER]',
+            '[REFERRING_CEL_NUMBER]'
         ];
     }
 

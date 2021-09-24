@@ -69,10 +69,10 @@ class DocumentPdfForms {
         ];
     }
 
-    public function generatePdfForms($pdf_form_ids, $pid, $referring_id = null){
+    public function generatePdfForms($pdf_form_ids, $pid, $referring_id = null, $custom_fields = null){
         $binary_documents = [];
         foreach ($pdf_form_ids as $pdf_form_id){
-            $binary_documents[] = $this->generatePdfForm($pdf_form_id, $pid, $referring_id, true);
+            $binary_documents[] = $this->generatePdfForm($pdf_form_id, $pid, $referring_id, $custom_fields, true);
         }
 
         if(count($binary_documents) === 1){
@@ -122,7 +122,7 @@ class DocumentPdfForms {
         return $binary_out_document;
     }
 
-    public function generatePdfForm($pdf_form_id, $pid, $referring_id = null, $return_binary_document = false) {
+    public function generatePdfForm($pdf_form_id, $pid, $referring_id = null, $custom_fields = null, $return_binary_document = false) {
 
         $pdf_form = $this->getDocumentPdfForm($pdf_form_id);
         $fields_data = $this->Patient->getPatientTokenByPid($pid);
@@ -194,9 +194,9 @@ class DocumentPdfForms {
             $fields_data = array_merge($fields_data, $referring_tokens);
         }
 
-        if(isset($params->custom_data)){
-            $params->custom_data = (array)$params->custom_data;
-            $fields_data = array_merge($fields_data, $params->custom_data);
+        if(isset($custom_fields)){
+            $custom_fields = (array)$custom_fields;
+            $fields_data = array_merge($fields_data, $custom_fields);
         }
 
         $fields_data['[DATE]'] = date('m/d/Y');

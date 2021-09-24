@@ -131,10 +131,10 @@ $API = [
                 'len' => 1
             ],
             'generatePdfForms' => [
-                'len' => 3
+                'len' => 4
             ],
             'generatePdfForm' => [
-                'len' => 3
+                'len' => 4
             ]
         ]
     ],

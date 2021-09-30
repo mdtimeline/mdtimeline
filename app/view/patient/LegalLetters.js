@@ -78,11 +78,17 @@ Ext.define('App.view.patient.LegalLetters', {
 		];
 
 		me.tbar = [
+			{
+				xtype: 'button',
+				text: 'Preview Document',
+				iconCls: 'fal fa-file',
+				itemId: 'PatientLegalLettersPreviewDocumentBtn'
+			},
 			'->',
 			{
 				xtype: 'button',
 				text: 'Sign Document',
-				iconCls: 'fal fa-signature',
+				iconCls: 'fal fa-file-signature',
 				itemId: 'PatientLegalLettersSignDocumentBtn'
 			}
 		];

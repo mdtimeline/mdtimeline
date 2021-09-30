@@ -124,7 +124,36 @@ class LegalLetters
         }
     }
 
-    public function generatePdfDocument($signature_object){
+    public function doPreviewDocuments($documents, $signature){
+        $now = date('Y-m-d H:i:s');
+        $ip = \Network::getIpAddress();
+
+        $document_ids = [];
+
+        foreach ($documents as $document){
+
+            $signature_object = (object)[
+                'pid' => $document->pid,
+                'letter_id' => $document->id,
+                'letter_version' => $document->version,
+                'letter_content' => $document->content,
+                'facility_id' => $document->facility_id,
+                'document_code' => $document->document_code,
+                'signature' => $signature,
+                'signature_ip' => $ip,
+                'signature_date' => $now,
+                'signature_hash' => hash('sha256' , $signature.$ip.$now)
+            ];
+
+            $document_ids[] = $this->generatePdfDocument($signature_object, true);
+
+        }
+
+        return $document_ids;
+
+    }
+
+    public function generatePdfDocument($signature_object, $is_previews = false){
 
         $params = (object)[
             'pid' => $signature_object->pid,
@@ -135,22 +164,37 @@ class LegalLetters
         $pdf_data = $this->Documents->PDFDocumentBuilder($params);
         $doc_type = $this->CombosData->getDisplayValueByListKeyAndOptionValue('doc_type_cat', $signature_object->document_code);
 
-        $document = $this->DocumentHandler->addPatientDocument((object)[
-            'pid' => $signature_object->pid,
-            'eid' => 0,
-            'uid' => 0,
-            'facility_id' => $signature_object->facility_id,
-            'docType' => $doc_type,
-            'docTypeCode' => $signature_object->document_code,
-            'title' => '',
-            'date' => date('Y-m-d H:i:s'),
-            'document' => $pdf_data,
-            'encrypted' => false,
-            'entered_in_error' => false,
-            'error_note' => '',
-        ]);
+        if($is_previews){
 
-	    return $document['data']->id;
+            $document = $this->DocumentHandler->createTempDocument((object)[
+                'document_name' => 'Legal Letter',
+                'facility_id' => $signature_object->facility_id,
+                'document' => base64_encode($pdf_data)
+            ]);
+
+            return $document->id;
+
+        }else{
+            $document = $this->DocumentHandler->addPatientDocument((object)[
+                'pid' => $signature_object->pid,
+                'eid' => 0,
+                'uid' => 0,
+                'facility_id' => $signature_object->facility_id,
+                'docType' => $doc_type,
+                'docTypeCode' => $signature_object->document_code,
+                'title' => '',
+                'date' => date('Y-m-d H:i:s'),
+                'document' => $pdf_data,
+                'encrypted' => false,
+                'entered_in_error' => false,
+                'error_note' => '',
+            ]);
+
+            return $document['data']->id;
+
+        }
+
+
 
     }
 

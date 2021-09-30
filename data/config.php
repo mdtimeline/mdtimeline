@@ -59,6 +59,9 @@ $API = [
             ],
             'doSignDocuments' => [
                 'len' => 2
+            ],
+            'doPreviewDocuments' => [
+                'len' => 2
             ]
         ]
     ],

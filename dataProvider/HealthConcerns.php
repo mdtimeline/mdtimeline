@@ -24,7 +24,7 @@ class HealthConcerns {
 
 	function __construct(){
         if($this->c == NULL)
-            $this->c = MatchaModel::setSenchaModel('App.model.patient.HealthConcern', true);
+            $this->c = MatchaModel::setSenchaModel('App.model.patient.HealthConcern');
 	}
 
 	public function getPatientHealthConcerns($params){

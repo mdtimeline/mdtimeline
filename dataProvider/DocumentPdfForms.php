@@ -2,6 +2,7 @@
 
 //require_once (ROOT . '/lib/phptopdf/phpToPDF.php');
 require_once (ROOT . '/dataProvider/Patient.php');
+require_once (ROOT . '/dataProvider/User.php');
 require_once (ROOT . '/dataProvider/ReferringProviders.php');
 require_once (ROOT . '/dataProvider/DocumentHandler.php');
 
@@ -29,6 +30,11 @@ class DocumentPdfForms {
     private $Patient;
 
     /**
+     * @var \User
+     */
+    private $User;
+
+    /**
      * @var \ReferringProviders
      */
     private $ReferringProviders;
@@ -36,6 +42,7 @@ class DocumentPdfForms {
     function __construct(){
         $this->d = \MatchaModel::setSenchaModel('App.model.administration.DocumentForm');
         $this->Patient = new \Patient();
+        $this->User = new \User();
         $this->ReferringProviders = new \ReferringProviders();
         $this->DocumentHandler = new \DocumentHandler();
 
@@ -192,6 +199,11 @@ class DocumentPdfForms {
         if(isset($referring_id)){
             $referring_tokens = $this->ReferringProviders->getReferringTokenById($referring_id);
             $fields_data = array_merge($fields_data, $referring_tokens);
+        }
+
+        if(isset($_SESSION['user']['id'])){
+            $user_tokens = $this->User->getUserTokenById($_SESSION['user']['id']);
+            $fields_data = array_merge($fields_data, $user_tokens);
         }
 
         if(isset($custom_fields)){

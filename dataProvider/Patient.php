@@ -1577,12 +1577,14 @@ class Patient
         $tokens['[PATIENT_SOCIAL_SECURITY]'] = $patient['SS'];
         $tokens['[PATIENT_INTERFACE_NO]'] = $patient['interface_number'];
         $tokens['[PATIENT_DRIVERS_LICENSE]'] = $patient['drivers_license'];
+        $tokens['[PATIENT_POSTAL_ADDRESS]'] = trim(sprintf('%s %s, %s, %s %s', $patient['postal_address'],$patient['postal_address_cont'],$patient['postal_city'], $patient['postal_state'], $patient['postal_zip']));
         $tokens['[PATIENT_POSTAL_ADDRESS_LINE_ONE]'] = $patient['postal_address'];
         $tokens['[PATIENT_POSTAL_ADDRESS_LINE_TWO]'] = $patient['postal_address_cont'];
         $tokens['[PATIENT_POSTAL_CITY]'] = $patient['postal_city'];
         $tokens['[PATIENT_POSTAL_STATE]'] = $patient['postal_state'];
         $tokens['[PATIENT_POSTAL_ZIP]'] = $patient['postal_zip'];
         $tokens['[PATIENT_POSTAL_COUNTRY]'] = $patient['postal_country'];
+        $tokens['[PATIENT_PHYSICAL_ADDRESS]'] = trim(sprintf('%s %s, %s, %s %s', $patient['physical_address'],$patient['physical_address_cont'],$patient['physical_city'], $patient['physical_state'], $patient['physical_zip']));
         $tokens['[PATIENT_PHYSICAL_ADDRESS_LINE_ONE]'] = $patient['physical_address'];
         $tokens['[PATIENT_PHYSICAL_ADDRESS_LINE_TWO]'] = $patient['physical_address_cont'];
         $tokens['[PATIENT_PHYSICAL_CITY]'] = $patient['physical_city'];

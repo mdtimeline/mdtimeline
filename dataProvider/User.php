@@ -383,4 +383,33 @@ class User
             'data' => $records
         ];
     }
+
+    /**
+     * @param $user_id
+     * @return array
+     */
+    public function getUserTokenById($user_id){
+
+        $user = $this->getUserByUid($user_id);
+        $tokens = [];
+
+        if($user === false){
+            return $tokens;
+        }
+
+        $tokens['[USER_ID]'] = $user['id'];
+        $tokens['[USER_CODE]'] = $user['code'];
+        $tokens['[USER_USERNAME]'] = $user['username'];
+        $tokens['[USER_NAME]'] = trim(sprintf('%s, %s %s', $user['lname'],$user['fname'],$user['mname']));
+        $tokens['[USER_TITLE]'] = $user['title'];
+        $tokens['[USER_FIRST_NAME]'] = $user['fname'];
+        $tokens['[USER_LAST_NAME]'] = $user['lname'];
+        $tokens['[USER_MIDDLE_NAME]'] = $user['mname'];
+        $tokens['[USER_NPI]'] = $user['npi'];
+        $tokens['[USER_LIC]'] = $user['lic'];
+        $tokens['[USER_EMAIL]'] = $user['email'];
+
+        return $tokens;
+
+    }
 }

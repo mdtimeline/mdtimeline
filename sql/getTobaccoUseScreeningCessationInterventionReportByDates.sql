@@ -86,7 +86,7 @@ BEGIN
         SELECT 1 as `value`, pid FROM report_ds WHERE service_date BETWEEN start_date AND end_date GROUP BY pid;
 
         CREATE TEMPORARY TABLE report_numerator_ds_1
-        SELECT 1 as `value`, pid FROM report_ds WHERE service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date AND was_screened_for_tobacco_use = '1' GROUP BY pid;
+        SELECT 1 as `value`, ds.pid FROM report_ds AS ds INNER JOIN report_denominator_ds AS d ON d.pid = ds.pid  WHERE ds.service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date AND ds.was_screened_for_tobacco_use = '1' GROUP BY d.pid;
 
         SET @denominator_1 = (SELECT sum(`value`) FROM report_denominator_ds);
         SET @numerator_1 = (SELECT sum(`value`) FROM report_numerator_ds_1);
@@ -105,7 +105,7 @@ BEGIN
         SET @numerator_pids_2 = (SELECT group_concat(pid) FROM (SELECT pid FROM report_numerator_ds_2 GROUP BY pid) as n);
 
         CREATE TEMPORARY TABLE report_numerator_ds_3
-        SELECT 1 as `value`, pid FROM report_ds WHERE service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date AND was_screened_for_tobacco_use = '1' AND identified_as_tobacco_user = '1' AND counseling_given = '1' GROUP BY pid;
+        SELECT 1 as `value`, ds.pid FROM report_ds AS ds INNER JOIN report_denominator_ds AS d ON d.pid = ds.pid  WHERE ds.service_date BETWEEN DATE_SUB(start_date, INTERVAL 1 YEAR) AND end_date AND ds.was_screened_for_tobacco_use = '1' AND identified_as_tobacco_user = '1' AND counseling_given = '1' GROUP BY d.pid;
 
         SET @denominator_3 = (SELECT sum(`value`) FROM report_denominator_ds);
         SET @numerator_3 = (SELECT sum(`value`) FROM report_numerator_ds_3);

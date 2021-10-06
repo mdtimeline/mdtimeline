@@ -153,6 +153,7 @@ class User
         $rec->password = $params->new_password;
         $rec->pwd_history1 = $user['password'];
         $rec->pwd_history2 = $user['pwd_history1'];
+        $rec->password_force_reset = 0;
         $rec->password_date = date('Y-m-d H:i:s');
 
 	    $_SESSION['user']['password_expired'] = false;

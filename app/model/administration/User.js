@@ -93,6 +93,10 @@ Ext.define('App.model.administration.User', {
 			dateFormat: 'Y-m-d H:i:s'
 		},
 		{
+			name: 'password_force_reset',
+			type: 'bool'
+		},
+		{
 			name: 'title',
 			type: 'string',
 			comment: 'title (Mr. Mrs.)',

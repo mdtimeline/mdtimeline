@@ -2210,4 +2210,5 @@ $LANG = array(
     'lab_result' => 'Lab Result',
     'cessation_counseling_type' => 'Cessation Counseling Type',
     'pdf_forms' => 'PDF Forms',
+    'force_reset' => 'Force Reset',
 );

@@ -198,6 +198,12 @@ Ext.define('App.view.administration.Users', {
 															}
 														},
 														{
+															width: 100,
+															xtype: 'checkbox',
+															boxLabel: _('force_reset'),
+															name: 'password_force_reset'
+														},
+														{
 															width: 125,
 															labelWidth: 40,
 															xtype: 'textfield',

@@ -150,6 +150,7 @@ class authProcedures {
 				'signature',
 				'password',
 				'password_date',
+				'password_force_reset',
 				'is_attending',
 				'is_resident',
 				'default_attending'
@@ -312,7 +313,11 @@ class authProcedures {
 		session_regenerate_id(true);
 
 		$password_exp_flag = Globals::getGlobal('password_expiration');
-		if($password_exp_flag && $password_exp_flag != ''){
+
+        if($user['password_force_reset'] == 1){
+            $_SESSION['user']['password_expired'] = true;
+
+        }elseif($password_exp_flag && $password_exp_flag != ''){
 
 			if(is_numeric($password_exp_flag)){
 				$password_exp_flag .= 'D';

@@ -14687,6 +14687,10 @@ Ext.define('App.model.administration.User', {
 			dateFormat: 'Y-m-d H:i:s'
 		},
 		{
+			name: 'password_force_reset',
+			type: 'bool'
+		},
+		{
 			name: 'title',
 			type: 'string',
 			comment: 'title (Mr. Mrs.)',
@@ -69212,6 +69216,12 @@ Ext.define('App.view.administration.Users', {
 															plugins: {
 																ptype: 'passwordstrength'
 															}
+														},
+														{
+															width: 100,
+															xtype: 'checkbox',
+															boxLabel: _('force_reset'),
+															name: 'password_force_reset'
 														},
 														{
 															width: 125,

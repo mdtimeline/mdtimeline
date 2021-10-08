@@ -19,22 +19,7 @@
 Ext.define('App.controller.patient.Visits', {
 	extend: 'Ext.app.Controller',
 	refs: [
-		{
-			ref: 'PatientVisitsPanel',
-			selector: '#PatientVisitsPanel'
-		},
-		{
-			ref: 'PatientVisitsGrid',
-			selector: '#PatientVisitsGrid'
-		},
-		{
-			ref: 'PatientVisitsNewEncounterBtn',
-			selector: '#PatientVisitsNewEncounterBtn'
-		},
-		{
-			ref: 'PatientVisitsNewProgressReportsBtn',
-			selector: '#PatientVisitsNewProgressReportsBtn'
-		}
+
 	],
 
 	init: function(){
@@ -43,52 +28,14 @@ Ext.define('App.controller.patient.Visits', {
 		me.control({
 			'#PatientVisitsPanel': {
 				activate: me.onPatientVisitsPaneActivate
-			},
-			'#PatientVisitsGrid': {
-				itemdblclick: me.onPatientVisitsGridItemDblClick,
-				selectionchange: me.onPatientVisitsGridSelectionChange
-			},
-			'#PatientVisitsNewEncounterBtn': {
-				click: me.onPatientVisitsNewEncounterBtnClick
-			},
-			'#PatientVisitsNewProgressReportsBtn': {
-				click: me.onPatientVisitsNewProgressReportsBtnClick
 			}
 		});
 	},
 
-	onPatientVisitsNewProgressReportsBtnClick: function () {
-		var record = this.getPatientVisitsGrid().getSelectionModel().getLastSelected(),
-			params = {
-				pid: record.get('pid'),
-				eid: record.get('eid'),
-				provider_uid: record.get('provider_uid'),
-				docType: 'EncProgress',
-				templateId: '11'
-			};
-
-		say(record);
-
-		DocumentHandler.createTempDocument(params, function(provider, response){
-
-			say(response);
-
-			app.onDocumentView(response.result.id, 'EncProgress');
-		});
-
-	},
-
-	onPatientVisitsGridSelectionChange: function (sm, selection) {
-
-
-
-		this.getPatientVisitsNewProgressReportsBtn().setDisabled(selection.length === 0);
-	},
-
 	onPatientVisitsPaneActivate: function (panel) {
 		panel.updateTitle(app.patient.name + ' (' + _('encounters') + ')');
-		panel.store.clearFilter(true);
-		panel.store.filter([
+		panel.historyGrid.store.clearFilter(true);
+		panel.historyGrid.store.filter([
 			{
 				property: 'pid',
 				value: app.patient.pid
@@ -96,11 +43,5 @@ Ext.define('App.controller.patient.Visits', {
 		]);
 	},
 
-	onPatientVisitsGridItemDblClick: function(view, record){
-		app.openEncounter(record.data.eid);
-	},
 
-	onPatientVisitsNewEncounterBtnClick: function () {
-		app.createNewEncounter();
-	}
 });

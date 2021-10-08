@@ -18,6 +18,13 @@
  */
 
 $API = [
+    'ICD10DataUpdate' => [
+        'methods' => [
+            'updateCodes' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'FHIRTest' => [
         'methods' => [
             'getPatient' => [

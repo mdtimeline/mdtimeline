@@ -28676,105 +28676,19 @@ Ext.define('App.view.patient.Visits', {
 	pageTitle: _('visits_history'),
 	uses: [
 		'Ext.grid.Panel',
-		'Ext.ux.PreviewPlugin'
+		'Ext.ux.PreviewPlugin',
+		'App.view.patient.EncountersGrid'
 	],
 	itemId: 'PatientVisitsPanel',
 	showRating: true,
 	initComponent: function(){
 		var me = this;
 
-		me.store = Ext.create('App.store.patient.Encounters', {
-			remoteFilter: true
-		});
-
 		//******************************************************************
 		// Visit History Grid
 		//******************************************************************
-		me.historyGrid = Ext.create('Ext.grid.Panel', {
-			title: _('encounter_history'),
-			store: me.store,
-			itemId: 'PatientVisitsGrid',
-			columns: [
-				{
-					header: 'eid',
-					sortable: false,
-					dataIndex: 'eid',
-					hidden: true
-				},
-				{
-					width: 180,
-					header: _('service_date'),
-					sortable: true,
-					dataIndex: 'service_date',
-					renderer: Ext.util.Format.dateRenderer('F j, Y, g:i a')
-				},
-				{
-					flex: 1,
-					header: _('chief_complaint'),
-					sortable: true,
-					dataIndex: 'brief_description',
-					renderer: function (v,m,r){
-						var  str = v;
-						if(r.isPrivate()){
-							str = '<i class="fas fa-shield-check" style="color: red"></i> ' + str;
-						}
+		me.historyGrid = Ext.create('App.view.patient.EncountersGrid');
 
-						if(r.isClose()){
-							str = '<i class="fas fa-shield-check" style="color: #1b9bfc"></i> ' + str;
-						}
-						return str;
-					}
-				},
-				{
-					width: 200,
-					header: _('provider'),
-					sortable: false,
-					dataIndex: 'provider_uid',
-					renderer: function (v, m, r){
-						return Ext.String.format(
-							'{0}, {1} {2}',
-							r.get('provider_lname'),
-							r.get('provider_fname'),
-							r.get('provider_mname')
-						);
-					}
-				},
-				{
-					width: 200,
-					header: _('facility'),
-					sortable: false,
-					dataIndex: 'facility_name'
-				},
-				{
-					width: 70,
-					header: _('signed') + '?',
-					sortable: true,
-					dataIndex: 'close_date',
-					renderer: function (v){
-						return  app.boolRenderer(v !== null);
-					}
-				}
-			],
-			tbar: Ext.create('Ext.PagingToolbar', {
-				store: me.store,
-				displayInfo: true,
-				emptyMsg: 'No Encounters Found',
-				plugins: Ext.create('Ext.ux.SlidingPager', {}),
-				items: [
-					'-',
-					{
-						text: _('new_encounter'),
-						itemId: 'PatientVisitsNewEncounterBtn'
-					},
-					'-',
-					{
-						text: _('progress_report'),
-						disabled: true,
-						itemId: 'PatientVisitsNewProgressReportsBtn'
-					}
-				]
-			})
-		});
 		me.pageBody = [me.historyGrid];
 
 		me.callParent(arguments);
@@ -57480,22 +57394,7 @@ Ext.define('App.controller.patient.SocialPsychologicalBehavioral', {
 Ext.define('App.controller.patient.Visits', {
 	extend: 'Ext.app.Controller',
 	refs: [
-		{
-			ref: 'PatientVisitsPanel',
-			selector: '#PatientVisitsPanel'
-		},
-		{
-			ref: 'PatientVisitsGrid',
-			selector: '#PatientVisitsGrid'
-		},
-		{
-			ref: 'PatientVisitsNewEncounterBtn',
-			selector: '#PatientVisitsNewEncounterBtn'
-		},
-		{
-			ref: 'PatientVisitsNewProgressReportsBtn',
-			selector: '#PatientVisitsNewProgressReportsBtn'
-		}
+
 	],
 
 	init: function(){
@@ -57504,52 +57403,14 @@ Ext.define('App.controller.patient.Visits', {
 		me.control({
 			'#PatientVisitsPanel': {
 				activate: me.onPatientVisitsPaneActivate
-			},
-			'#PatientVisitsGrid': {
-				itemdblclick: me.onPatientVisitsGridItemDblClick,
-				selectionchange: me.onPatientVisitsGridSelectionChange
-			},
-			'#PatientVisitsNewEncounterBtn': {
-				click: me.onPatientVisitsNewEncounterBtnClick
-			},
-			'#PatientVisitsNewProgressReportsBtn': {
-				click: me.onPatientVisitsNewProgressReportsBtnClick
 			}
 		});
 	},
 
-	onPatientVisitsNewProgressReportsBtnClick: function () {
-		var record = this.getPatientVisitsGrid().getSelectionModel().getLastSelected(),
-			params = {
-				pid: record.get('pid'),
-				eid: record.get('eid'),
-				provider_uid: record.get('provider_uid'),
-				docType: 'EncProgress',
-				templateId: '11'
-			};
-
-		say(record);
-
-		DocumentHandler.createTempDocument(params, function(provider, response){
-
-			say(response);
-
-			app.onDocumentView(response.result.id, 'EncProgress');
-		});
-
-	},
-
-	onPatientVisitsGridSelectionChange: function (sm, selection) {
-
-
-
-		this.getPatientVisitsNewProgressReportsBtn().setDisabled(selection.length === 0);
-	},
-
 	onPatientVisitsPaneActivate: function (panel) {
 		panel.updateTitle(app.patient.name + ' (' + _('encounters') + ')');
-		panel.store.clearFilter(true);
-		panel.store.filter([
+		panel.historyGrid.store.clearFilter(true);
+		panel.historyGrid.store.filter([
 			{
 				property: 'pid',
 				value: app.patient.pid
@@ -57557,13 +57418,7 @@ Ext.define('App.controller.patient.Visits', {
 		]);
 	},
 
-	onPatientVisitsGridItemDblClick: function(view, record){
-		app.openEncounter(record.data.eid);
-	},
 
-	onPatientVisitsNewEncounterBtnClick: function () {
-		app.createNewEncounter();
-	}
 });
 
 Ext.define('App.controller.patient.Vitals', {
@@ -80345,6 +80200,7 @@ Ext.define('App.view.patient.Summary', {
 		'App.view.patient.InsurancesPanel',
 		'App.view.patient.CareTeamGrid',
 		'App.view.patient.DisclosuresGrid',
+		'App.view.patient.EncountersGrid',
 		'App.view.patient.LegalLetters'
 	],
 	itemId: 'PatientSummaryPanel',
@@ -80920,6 +80776,13 @@ Ext.define('App.view.patient.Summary', {
 		if(a('access_patient_vitals')){
 			me.tabPanel.add({
 				xtype: 'vitalspanel',
+				border: true
+			});
+		}
+
+		if(a('access_enc_history')){
+			me.tabPanel.add({
+				xtype: 'encountersgrid',
 				border: true
 			});
 		}

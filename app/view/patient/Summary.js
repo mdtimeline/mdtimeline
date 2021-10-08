@@ -33,6 +33,7 @@ Ext.define('App.view.patient.Summary', {
 		'App.view.patient.InsurancesPanel',
 		'App.view.patient.CareTeamGrid',
 		'App.view.patient.DisclosuresGrid',
+		'App.view.patient.EncountersGrid',
 		'App.view.patient.LegalLetters'
 	],
 	itemId: 'PatientSummaryPanel',
@@ -608,6 +609,13 @@ Ext.define('App.view.patient.Summary', {
 		if(a('access_patient_vitals')){
 			me.tabPanel.add({
 				xtype: 'vitalspanel',
+				border: true
+			});
+		}
+
+		if(a('access_enc_history')){
+			me.tabPanel.add({
+				xtype: 'encountersgrid',
 				border: true
 			});
 		}

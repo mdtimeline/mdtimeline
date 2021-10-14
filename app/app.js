@@ -60135,6 +60135,11 @@ Ext.define('App.view.patient.Medications', {
 			}),
 			columns: [
 				{
+					xtype: 'griddeletecolumn',
+					acl: a('remove_patient_medication'),
+					width: 25
+				},
+				{
 					xtype: 'actioncolumn',
 					width: 25,
                     groupable: false,
@@ -73968,6 +73973,11 @@ Ext.define('App.view.patient.ActiveProblems', {
 	}),
 	columns: [
 		{
+			xtype: 'griddeletecolumn',
+			acl: a('delete_active_problem'),
+			width: 25
+		},
+		{
 			xtype: 'actioncolumn',
 			width: 25,
 			items: [
@@ -74207,17 +74217,9 @@ Ext.define('App.view.patient.ProceduresHistoryGrid', {
 	],
 	columns: [
 		{
-			xtype: 'actioncolumn',
-			width: 20,
-			items: [
-				{
-					icon: 'resources/images/icons/cross.png',
-					tooltip: _('remove'),
-                    handler: function(grid, rowIndex, colIndex, item, e, record){
-                        //App.app.getController('patient.FamilyHistory').onDeactivateRecord(grid, record);
-                    }
-				}
-			]
+			xtype: 'griddeletecolumn',
+			acl: a('delete_procedures_history'),
+			width: 25
 		},
 		{
 			xtype: 'datecolumn',
@@ -76693,6 +76695,11 @@ Ext.define('App.view.patient.Immunizations', {
 			}),
 			columns: [
 				{
+					xtype: 'griddeletecolumn',
+					acl: a('delete_patient_immunizations'),
+					width: 25
+				},
+				{
 					text: _('code'),
 					dataIndex: 'code',
 					width: 50,
@@ -77220,6 +77227,11 @@ Ext.define('App.view.patient.Allergies', {
 		autoSync: false
 	}),
 	columns: [
+		{
+			xtype: 'griddeletecolumn',
+			acl: a('delete_patient_allergy'),
+			width: 25
+		},
 		{
 			text: _('type'),
 			width: 100,

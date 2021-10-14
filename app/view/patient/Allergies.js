@@ -39,6 +39,11 @@ Ext.define('App.view.patient.Allergies', {
 	}),
 	columns: [
 		{
+			xtype: 'griddeletecolumn',
+			acl: a('delete_patient_allergy'),
+			width: 25
+		},
+		{
 			text: _('type'),
 			width: 100,
 			dataIndex: 'allergy_type'

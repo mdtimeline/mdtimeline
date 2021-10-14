@@ -47,6 +47,11 @@ Ext.define('App.view.patient.Medications', {
 			}),
 			columns: [
 				{
+					xtype: 'griddeletecolumn',
+					acl: a('remove_patient_medication'),
+					width: 25
+				},
+				{
 					xtype: 'actioncolumn',
 					width: 25,
                     groupable: false,

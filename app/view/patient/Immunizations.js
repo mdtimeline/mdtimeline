@@ -53,6 +53,11 @@ Ext.define('App.view.patient.Immunizations', {
 			}),
 			columns: [
 				{
+					xtype: 'griddeletecolumn',
+					acl: a('delete_patient_immunizations'),
+					width: 25
+				},
+				{
 					text: _('code'),
 					dataIndex: 'code',
 					width: 50,

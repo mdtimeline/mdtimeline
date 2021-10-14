@@ -38,17 +38,9 @@ Ext.define('App.view.patient.ProceduresHistoryGrid', {
 	],
 	columns: [
 		{
-			xtype: 'actioncolumn',
-			width: 20,
-			items: [
-				{
-					icon: 'resources/images/icons/cross.png',
-					tooltip: _('remove'),
-                    handler: function(grid, rowIndex, colIndex, item, e, record){
-                        //App.app.getController('patient.FamilyHistory').onDeactivateRecord(grid, record);
-                    }
-				}
-			]
+			xtype: 'griddeletecolumn',
+			acl: a('delete_procedures_history'),
+			width: 25
 		},
 		{
 			xtype: 'datecolumn',

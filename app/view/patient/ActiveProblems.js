@@ -34,6 +34,11 @@ Ext.define('App.view.patient.ActiveProblems', {
 	}),
 	columns: [
 		{
+			xtype: 'griddeletecolumn',
+			acl: a('delete_active_problem'),
+			width: 25
+		},
+		{
 			xtype: 'actioncolumn',
 			width: 25,
 			items: [

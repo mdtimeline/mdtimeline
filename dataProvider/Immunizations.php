@@ -38,6 +38,42 @@ class Immunizations {
 		return;
 	}
 
+    public function getCovidVaccineStatusByPid($pid){
+
+        $single_dose_codes = '212';
+        $dbl_dose_codes = '207,208,217';
+        $sql ="SELECT * FROM patient_immunizations 
+               WHERE pid = '{$pid}' AND (`code` IN ({$single_dose_codes}) OR `code` IN ({$dbl_dose_codes}))
+               ORDER BY administered_date DESC";
+        $sth = $this->conn->prepare($sql);
+        $sth->execute();
+        $immunizations = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+        $status = 'not_vaccinated';
+
+        $single_dose_codes = explode(',', $single_dose_codes);
+        $dbl_dose_codes = explode(',', $dbl_dose_codes);
+
+        foreach ($immunizations as $immunization){
+
+            if($status === 'vaccinated'){
+                break;
+            }
+
+            if($status === 'not_vaccinated' && in_array($immunization['code'], $single_dose_codes)){
+                $status = 'vaccinated';
+
+            }else if($status === 'not_vaccinated' && in_array($immunization['code'], $dbl_dose_codes)){
+                $status = 'partially_vaccinated';
+
+            }else if($status === 'partially_vaccinated' && in_array($immunization['code'], $dbl_dose_codes)){
+                $status = 'vaccinated';
+            }
+        }
+
+        return $status;
+    }
+
 	/**
 	 * @return array
 	 */
@@ -266,6 +302,62 @@ class Immunizations {
 		}
 		return ['success' => true];
 	}
+
+
+    public function getImmunizationQuickCodes() {
+        $sql = "SELECT cvx.*, CONCAT(
+                      '[',
+                      GROUP_CONCAT(
+                        JSON_OBJECT(
+                          'id', mvx.id, 'mvx_code', mvx.mvx_code, 'manufacturer', mvx.manufacturer
+                        )
+                      ),
+                      ']'
+                    ) AS manufacturers
+                  FROM cvx_codes as cvx
+             LEFT JOIN cvx_mvx as mvx on cvx.cvx_code = mvx.cvx_code
+                 WHERE cvx.status = 'Active'
+                   AND cvx.quick_form = '1'
+                   GROUP BY cvx.id, mvx.cvx_code";
+
+        $sth = $this->conn->prepare($sql);
+        $sth->execute();
+        $records = $sth->fetchAll(PDO::FETCH_ASSOC);
+        $total = count($records);
+        return [
+            'total' => $total,
+            'data' => $records
+        ];
+    }
+
+    public function addQuickImmunization($params){
+
+        if(!is_array($params)){
+            $params = [$params];
+        }
+
+        foreach ($params as &$param){
+
+            // get vaccine_name
+            $sth = $this->conn->prepare("SELECT * FROM cvx_codes WHERE cvx_code = :cvx_code ");
+            $sth->execute([':cvx_code' => $param->cvx_code ]);
+            $code_record = $sth->fetch(PDO::FETCH_ASSOC);
+
+            $param->code = $param->cvx_code;
+            $param->code_type = 'CVX';
+            $param->status = 'complete';
+            $param->is_error = '0';
+            $param->error_note = '';
+
+            if($code_record !== false){
+                $param->vaccine_name = $code_record['name'];
+                $param->vaccine_name = $code_record['name'];
+            }
+        }
+
+
+        return $this->addPatientImmunization($params);
+    }
 
 	public function getImmunizationLiveSearch(stdClass $params) {
 		$sth = $this->conn->prepare("SELECT * FROM cvx_codes

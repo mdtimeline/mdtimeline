@@ -18243,6 +18243,11 @@ Ext.define('App.model.patient.CVXCodes', {
 			len: 25
 		},
 		{
+			name: 'quick_form',
+			type: 'bool',
+			index: true
+		},
+		{
 			name: 'update_date',
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s'
@@ -52189,6 +52194,10 @@ Ext.define('App.controller.patient.Immunizations', {
 		{
 			ref: 'ImmunizationsPresumedImmunityCheckbox',
 			selector: '#ImmunizationsPresumedImmunityCheckbox'
+		},
+		{
+			ref: 'ImmunizationsQuickFormWindow',
+			selector: '#ImmunizationsQuickFormWindow'
 		}
 	],
 
@@ -52241,8 +52250,21 @@ Ext.define('App.controller.patient.Immunizations', {
 			},
 			'#ImmunizationHistorySearchBtn': {
 				click: me.onImmunizationHistorySearchBtnClick
+			},
+
+
+			'#ImmunizationsQuickFormWindowCancelBtn': {
+				click: me.onImmunizationsQuickFormWindowCancelBtnClick
+			},
+			'#ImmunizationsQuickFormWindowAddBtn': {
+				click: me.onImmunizationsQuickFormWindowAddBtnClick
 			}
 		});
+
+		me.immunizations_quick_form_items = [];
+
+		me.getImmunizationsQuickFormWindowFromItems();
+
 	},
 
 	onPatientImmunizationsGridEdit: function(plugin, context){
@@ -52737,6 +52759,209 @@ Ext.define('App.controller.patient.Immunizations', {
 	//
 	// 	}
 	// }
+
+	// QUICK FORM
+
+	showImmunizationsQuickFormWindow: function (){
+
+		if(!this.getImmunizationsQuickFormWindow()){
+			Ext.create('Ext.window.Window', {
+				title: 'Immunizations Quick Form',
+				width: 700,
+				layout: 'fit',
+				itemId: 'ImmunizationsQuickFormWindow',
+				closeAction: 'hide',
+				items: {
+					xtype: 'form',
+					bodyPadding: 10,
+					frame: true,
+					autoScroll: true,
+					maxHeight: 650,
+					items: this.immunizations_quick_form_items
+
+				},
+				buttons: [
+					{
+						text: _('cancel'),
+						itemId: 'ImmunizationsQuickFormWindowCancelBtn'
+					},
+					{
+						text: _('add'),
+						itemId: 'ImmunizationsQuickFormWindowAddBtn'
+					}
+				]
+			});
+		}
+
+		return this.getImmunizationsQuickFormWindow().show();
+
+	},
+
+	getImmunizationsQuickFormWindowFromItems: function (){
+		var me = this;
+
+		me.immunizations_quick_form_items = [];
+
+		Immunizations.getImmunizationQuickCodes(function (quick_cvx_codes){
+
+			quick_cvx_codes.data.forEach(function (quick_cvx_code){
+
+				var manufacturers = JSON.parse(quick_cvx_code.manufacturers);
+
+				var items = [
+					{
+						xtype: 'container',
+						layout: 'hbox',
+						anchor: '100%',
+						items: [
+							{
+								xtype: 'datefield',
+								labelAlign: 'top',
+								fieldLabel: _('administered_date'),
+								name: Ext.String.format('{0}~administered_date', quick_cvx_code.cvx_code)
+							},
+							{
+								xtype: 'combobox',
+								labelAlign: 'top',
+								fieldLabel: _('manufacturer'),
+								flex: 1,
+								margin: '0 5 0 5',
+								queryMode: 'local',
+								valueField: 'mvx_code',
+								displayField: 'manufacturer',
+								editable: false,
+								value: manufacturers[0] ? manufacturers[0].mvx_code : '',
+								store: Ext.create('Ext.data.Store', {
+									fields: ['id','mvx_code', 'manufacturer'],
+									data: manufacturers
+								}),
+								name: Ext.String.format('{0}~manufacturers', quick_cvx_code.cvx_code)
+							},
+							{
+								xtype: 'gaiaehr.combo',
+								listKey: 'immu_refusal',
+								flex: 1,
+								labelAlign: 'top',
+								fieldLabel: _('refusal_reason'),
+								margin: '0 0 5 0',
+								loadStore: true,
+								editable: false,
+								queryMode: 'local',
+								value: '',
+								name: Ext.String.format('{0}~refusal_reason_code', quick_cvx_code.cvx_code)
+							}
+						],
+					},
+					{
+						xtype: 'gaiaehr.combo',
+						itemId: 'ImmunizationsInformationSourceCombo',
+						listKey: 'immu_info_source',
+						anchor: '100%',
+						labelAlign: 'top',
+						fieldLabel: _('source'),
+						loadStore: true,
+						editable: false,
+						value: '',
+						queryMode: 'local',
+						name: Ext.String.format('{0}~information_source_code', quick_cvx_code.cvx_code)
+					},
+					{
+						xtype: 'textfield',
+						labelAlign: 'top',
+						fieldLabel: _('note'),
+						anchor: '100%',
+						name: Ext.String.format('{0}~note', quick_cvx_code.cvx_code)
+					},
+					{
+						xtype: 'displayfield',
+						anchor: '100%',
+						submitValue: false,
+						value: quick_cvx_code.note
+					}
+				];
+
+				me.immunizations_quick_form_items.push({
+					xtype: 'fieldset',
+					title: Ext.String.format('<span style="font-weight: bold; font-size: 15px;">{0}</span>', quick_cvx_code.name),
+					style: 'background-color: white;',
+					labelAlign: 'top',
+					layout: {
+						type: 'vbox',
+						align: 'stretch'
+					},
+					margin: '5 0 25 0',
+					items: items
+				});
+
+			});
+
+		});
+	},
+
+	doCloseWindow: function (win){
+		win.down('form').getForm().reset();
+		win.close();
+	},
+
+	onImmunizationsQuickFormWindowCancelBtnClick: function (btn){
+		this.doCloseWindow(btn.up('window'));
+	},
+
+	onImmunizationsQuickFormWindowAddBtnClick: function (btn){
+
+		var me = this,
+			win = btn.up('window'),
+			form = win.down('form').getForm(),
+			values = form.getValues(),
+			immunizations = {};
+
+		if(app.patient.pid === null){
+			app.msg(_('info'), 'No Patient Set', true);
+			return;
+		}
+
+		Ext.Object.each(values,function (key, value){
+			var field_name = key.split('~'),
+				cvx_code = field_name[0],
+				field = field_name[1];
+
+			if(immunizations[cvx_code] === undefined){
+				immunizations[cvx_code] = {};
+			}
+			immunizations[cvx_code][field] = value;
+		});
+
+		Ext.Object.each(immunizations,function (cvx_code, value){
+			if(value.administered_date === '' &&  value.refusal_reason_code === ''){
+				delete immunizations[cvx_code];
+			}else{
+				immunizations[cvx_code]['cvx_code'] = cvx_code;
+				immunizations[cvx_code]['pid'] = app.patient.pid;
+				immunizations[cvx_code]['eid'] = app.patient.eid;
+				immunizations[cvx_code]['facility_id'] = app.user.facility;
+				immunizations[cvx_code]['uid'] = app.user.id;
+				immunizations[cvx_code]['create_uid'] = app.user.id;
+				immunizations[cvx_code]['create_date'] = Ext.util.Format.date(app.getDate(), 'Y-m-d H:i:s');
+			}
+
+		});
+
+		immunizations = Ext.Object.getValues(immunizations);
+
+		if(immunizations.length === 0){
+			app.msg(_('info'), 'No Immunization Recorded', 'yellow');
+			//me.doCloseWindow(win);
+			return;
+		}
+
+		// send to php....
+		Immunizations.addQuickImmunization(immunizations, function (){
+			me.doCloseWindow(win);
+			app.msg(_('sweet'), 'Immunizations Added');
+		});
+
+	}
+
 });
 Ext.define('App.controller.patient.ImplantableDevice', {
 	extend: 'Ext.app.Controller',
@@ -83199,7 +83424,8 @@ Ext.define('App.view.Viewport', {
 	        eid: null,
 	        priority: null,
 	        readOnly: false,
-	        rating: null
+	        rating: null,
+	        covid_status: null
         };
 
         /**
@@ -84183,6 +84409,7 @@ Ext.define('App.view.Viewport', {
 		            priority: data.patient.priority,
 		            readOnly: readOnly,
 		            rating: data.patient.rating,
+		            covid_status: data.patient.covid_status,
 		            record: Ext.create('App.model.patient.Patient', data.patient.record)
 	            };
 
@@ -84228,7 +84455,8 @@ Ext.define('App.view.Viewport', {
 		    priority: null,
 		    readOnly: false,
 		    rating: null,
-		    record: null
+		    record: null,
+			covid_status: null
 	    };
 
 	    me.patientButtonRemoveCls();
@@ -84256,17 +84484,28 @@ Ext.define('App.view.Viewport', {
     patientButtonSet: function(data){
         var me = this,
             patient = data || {},
-	        displayPid = (eval(g('display_pubpid')) ? me.recordNumberRenderer(patient.pubpid) : patient.pid);
+	        displayPid = (eval(g('display_pubpid')) ? me.recordNumberRenderer(patient.pubpid) : patient.pid),
+			patient_btn_icons_tpl = '';
 
 	    if(displayPid == null || displayPid == ''){
 		    displayPid = patient.pid;
 	    }
 
+		if(data){
+			if(data.covid_status === 'vaccinated'){
+				patient_btn_icons_tpl = '<img src="resources/images/icons/vacuid.png" alt="vaccinated" style="width: 24px; margin: 5px 0 0 -10px" />';
+			}else if(data.covid_status === 'partially_vaccinated'){
+				patient_btn_icons_tpl = '<img src="resources/images/icons/vacuid_partial.png" alt="partially vaccinated" style="width: 24px; margin: 5px 0 0 -10px;" />';
+			}
+		}
+
         me.patientBtn.update({
             displayPid: displayPid || 'record number',
             pid: patient.pid,
 	        pic: patient.pic || me.patientImage,
-            name: patient.name || _('no_patient_selected')
+            name: patient.name || _('no_patient_selected'),
+			patient_btn_icons_tpl: patient_btn_icons_tpl,
+			covid_status: patient.covid_status ? 'covid_status_' + patient.covid_status : ''
         });
 
 	    me.patientButtonRemoveCls();
@@ -84285,10 +84524,13 @@ Ext.define('App.view.Viewport', {
 
     patientBtnTpl: function(){
         return Ext.create('Ext.XTemplate',
-            '<div class="patient_btn  {priority}">',
+            '<div class="patient_btn {priority} {covid_status}">',
             '   <div class="patient_btn_img">' +
             '       <img src="{pic}" width="50" height="50">' +
             '   </div>',
+			'   <div class="patient_btn_icons">',
+			'      {patient_btn_icons_tpl}',
+			'   </div>',
             '   <div class="patient_btn_info">',
             '       <div class="patient_btn_name">{name}</div>',
             '       <div class="patient_btn_record">( {displayPid} )</div>',

@@ -18,6 +18,13 @@
  */
 
 $API = [
+    'System' => [
+        'methods' => [
+            'report' => [
+                'len' => 0
+            ]
+        ]
+    ],
     'ICD10DataUpdate' => [
         'methods' => [
             'updateCodes' => [
@@ -1883,6 +1890,9 @@ $API = [
     ],
 	'Immunizations' => [
 		'methods' => [
+            'getCovidVaccineStatusByPid' => [
+                'len' => 1
+            ],
             'getImmunizationsList' => [
                 'len' => 0
             ],
@@ -1905,6 +1915,12 @@ $API = [
 				'len' => 1
             ],
 			'getCptByCvx' => [
+				'len' => 1
+            ],
+			'getImmunizationQuickCodes' => [
+				'len' => 0
+            ],
+			'addQuickImmunization' => [
 				'len' => 1
             ],
 			'getImmunizationLiveSearch' => [

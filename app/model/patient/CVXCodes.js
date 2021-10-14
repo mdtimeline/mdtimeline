@@ -55,6 +55,11 @@ Ext.define('App.model.patient.CVXCodes', {
 			len: 25
 		},
 		{
+			name: 'quick_form',
+			type: 'bool',
+			index: true
+		},
+		{
 			name: 'update_date',
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s'

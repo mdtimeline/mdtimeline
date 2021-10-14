@@ -88,7 +88,8 @@ Ext.define('App.view.Viewport', {
 	        eid: null,
 	        priority: null,
 	        readOnly: false,
-	        rating: null
+	        rating: null,
+	        covid_status: null
         };
 
         /**
@@ -1072,6 +1073,7 @@ Ext.define('App.view.Viewport', {
 		            priority: data.patient.priority,
 		            readOnly: readOnly,
 		            rating: data.patient.rating,
+		            covid_status: data.patient.covid_status,
 		            record: Ext.create('App.model.patient.Patient', data.patient.record)
 	            };
 
@@ -1117,7 +1119,8 @@ Ext.define('App.view.Viewport', {
 		    priority: null,
 		    readOnly: false,
 		    rating: null,
-		    record: null
+		    record: null,
+			covid_status: null
 	    };
 
 	    me.patientButtonRemoveCls();
@@ -1145,17 +1148,28 @@ Ext.define('App.view.Viewport', {
     patientButtonSet: function(data){
         var me = this,
             patient = data || {},
-	        displayPid = (eval(g('display_pubpid')) ? me.recordNumberRenderer(patient.pubpid) : patient.pid);
+	        displayPid = (eval(g('display_pubpid')) ? me.recordNumberRenderer(patient.pubpid) : patient.pid),
+			patient_btn_icons_tpl = '';
 
 	    if(displayPid == null || displayPid == ''){
 		    displayPid = patient.pid;
 	    }
 
+		if(data){
+			if(data.covid_status === 'vaccinated'){
+				patient_btn_icons_tpl = '<img src="resources/images/icons/vacuid.png" alt="vaccinated" style="width: 24px; margin: 5px 0 0 -10px" />';
+			}else if(data.covid_status === 'partially_vaccinated'){
+				patient_btn_icons_tpl = '<img src="resources/images/icons/vacuid_partial.png" alt="partially vaccinated" style="width: 24px; margin: 5px 0 0 -10px;" />';
+			}
+		}
+
         me.patientBtn.update({
             displayPid: displayPid || 'record number',
             pid: patient.pid,
 	        pic: patient.pic || me.patientImage,
-            name: patient.name || _('no_patient_selected')
+            name: patient.name || _('no_patient_selected'),
+			patient_btn_icons_tpl: patient_btn_icons_tpl,
+			covid_status: patient.covid_status ? 'covid_status_' + patient.covid_status : ''
         });
 
 	    me.patientButtonRemoveCls();
@@ -1174,10 +1188,13 @@ Ext.define('App.view.Viewport', {
 
     patientBtnTpl: function(){
         return Ext.create('Ext.XTemplate',
-            '<div class="patient_btn  {priority}">',
+            '<div class="patient_btn {priority} {covid_status}">',
             '   <div class="patient_btn_img">' +
             '       <img src="{pic}" width="50" height="50">' +
             '   </div>',
+			'   <div class="patient_btn_icons">',
+			'      {patient_btn_icons_tpl}',
+			'   </div>',
             '   <div class="patient_btn_info">',
             '       <div class="patient_btn_name">{name}</div>',
             '       <div class="patient_btn_record">( {displayPid} )</div>',

@@ -22,6 +22,7 @@ include_once(ROOT . '/dataProvider/Person.php');
 include_once(ROOT . '/dataProvider/User.php');
 include_once(ROOT . '/dataProvider/ACL.php');
 include_once(ROOT . '/dataProvider/PatientContacts.php');
+include_once(ROOT . '/dataProvider/Immunizations.php');
 
 class Patient
 {
@@ -60,6 +61,10 @@ class Patient
 	 * @var MatchaCUP
 	 */
 	private $patientContacts;
+	/**
+	 * @var Immunizations
+	 */
+	private $Immunizations;
 
 	/**
 	 * @var array
@@ -77,7 +82,7 @@ class Patient
 		$this->user = new User();
 		$this->acl = new ACL();
 		$this->setPatient($pid);
-		return;
+        $this->Immunizations = new Immunizations();
 	}
 
 	/**
@@ -517,6 +522,7 @@ class Patient
 				'area' => $area !== false ? $area['poolArea'] : '',
 				'priority' => (empty($area) ? null : $area['priority']),
 				'rating' => (isset($this->patient['rating']) ? $this->patient['rating'] : 0),
+				'covid_status' => $this->Immunizations->getCovidVaccineStatusByPid($this->patient['pid']),
 				'record' => $this->patient
 			],
 			'chart' => [

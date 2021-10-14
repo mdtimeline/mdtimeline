@@ -956,6 +956,13 @@ li .Deceased {
 
 }
 
+.patient_btn_icons {
+    float: left;
+    font-size: 13px;
+    text-align: center;
+    padding: 0;
+}
+
 .patient_btn_name {
     font-weight: bold;
 }

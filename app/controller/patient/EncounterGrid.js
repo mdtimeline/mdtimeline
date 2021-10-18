@@ -67,10 +67,14 @@ Ext.define('App.controller.patient.EncounterGrid', {
 	},
 
 	showProgressByEncounterRecord: function (record){
+		this.showProgressByPidAndEidAndProviderId(record.get('pid'), record.get('eid'), record.get('provider_uid'));
+	},
+
+	showProgressByPidAndEidAndProviderId(pid, eid, provider_id){
 		var params = {
-			pid: record.get('pid'),
-			eid: record.get('eid'),
-			provider_uid: record.get('provider_uid'),
+			pid: pid,
+			eid: eid,
+			provider_uid: provider_id,
 			docType: 'EncProgress',
 			templateId: '11'
 		};

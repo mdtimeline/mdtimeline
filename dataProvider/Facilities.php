@@ -335,4 +335,42 @@ class Facilities {
 	public function geFacilitiesStructure(){
 		return $this->getFacilityConfigs(null, false);
     }
+
+
+	public function getFacilityTokenById($facility_id){
+        $facility = $this->getFacilityById($facility_id);
+        $tokens = [];
+
+        if($facility === false){
+            return $tokens;
+        }
+
+        $tokens['[FACILITY_ID]'] = $facility['id'];
+        $tokens['[FACILITY_CODE]'] = $facility['code'];
+        $tokens['[FACILITY_NAME]'] = $facility['name'];
+        $tokens['[FACILITY_LEGAL_NAME]'] = isset($facility['legal_name']) ? $facility['legal_name'] : '';
+        $tokens['[FACILITY_ATTN]'] = $facility['attn'];
+        $tokens['[FACILITY_NPI]'] = $facility['npi'];
+        $tokens['[FACILITY_EMAIL]'] = $facility['email'];
+        $tokens['[FACILITY_PHONE_NUMBER]'] = $facility['phone'];
+        $tokens['[FACILITY_FAX_NUMBER]'] = $facility['fax'];
+
+        $tokens['[FACILITY_POSTAL_ADDRESS]'] = trim(sprintf('%s %s, %s, %s %s', $facility['postal_address'],$facility['postal_address_cont'],$facility['postal_city'], $facility['postal_state'], $facility['postal_zip_code']));
+        $tokens['[FACILITY_POSTAL_ADDRESS_LINE_ONE]'] = isset($facility['postal_address']) ? $facility['postal_address'] : '';
+        $tokens['[FACILITY_POSTAL_ADDRESS_LINE_TWO]'] = isset($facility['postal_address_cont']) ? $facility['postal_address_cont'] : '';
+        $tokens['[FACILITY_POSTAL_CITY]'] = isset($facility['postal_city']) ? $facility['postal_city'] : '';
+        $tokens['[FACILITY_POSTAL_STATE]'] = isset($facility['postal_state']) ? $facility['postal_state'] : '';
+        $tokens['[FACILITY_POSTAL_ZIP]'] = isset($facility['postal_zip_code']) ? $facility['postal_zip_code'] : '';
+        $tokens['[FACILITY_POSTAL_COUNTRY]'] = isset($facility['postal_country_code']) ? $facility['postal_country_code'] : '';
+
+        $tokens['[FACILITY_PHYSICAL_ADDRESS]'] = trim(sprintf('%s %s, %s, %s %s', $facility['address'],$facility['address_cont'],$facility['city'], $facility['state'], $facility['postal_code']));
+        $tokens['[FACILITY_PHYSICAL_ADDRESS_LINE_ONE]'] = isset($facility['address']) ? $facility['address'] : '';
+        $tokens['[FACILITY_PHYSICAL_ADDRESS_LINE_TWO]'] = isset($facility['address_cont']) ? $facility['address_cont'] : '';
+        $tokens['[FACILITY_PHYSICAL_CITY]'] = isset($facility['city']) ? $facility['city'] : '';
+        $tokens['[FACILITY_PHYSICAL_STATE]'] = isset($facility['state']) ? $facility['state'] : '';
+        $tokens['[FACILITY_PHYSICAL_ZIP]'] = isset($facility['postal_code']) ? $facility['postal_code'] : '';
+        $tokens['[FACILITY_PHYSICAL_COUNTRY]'] = isset($facility['country_code']) ? $facility['country_code'] : '';
+
+        return $tokens;
+    }
 }

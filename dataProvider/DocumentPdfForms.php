@@ -3,6 +3,7 @@
 //require_once (ROOT . '/lib/phptopdf/phpToPDF.php');
 require_once (ROOT . '/dataProvider/Patient.php');
 require_once (ROOT . '/dataProvider/User.php');
+require_once (ROOT . '/dataProvider/Facilities.php');
 require_once (ROOT . '/dataProvider/ReferringProviders.php');
 require_once (ROOT . '/dataProvider/DocumentHandler.php');
 
@@ -35,15 +36,21 @@ class DocumentPdfForms {
     private $User;
 
     /**
-     * @var \ReferringProviders
+     * @var ReferringProviders
      */
     private $ReferringProviders;
+
+    /**
+     * @var Facilities
+     */
+    private $Facilities;
 
     function __construct(){
         $this->d = \MatchaModel::setSenchaModel('App.model.administration.DocumentForm');
         $this->Patient = new \Patient();
         $this->User = new \User();
         $this->ReferringProviders = new \ReferringProviders();
+        $this->Facilities = new \Facilities();
         $this->DocumentHandler = new \DocumentHandler();
 
         if(file_exists('/usr/local/bin/pdftk')){
@@ -76,10 +83,10 @@ class DocumentPdfForms {
         ];
     }
 
-    public function generatePdfForms($pdf_form_ids, $pid, $referring_id = null, $custom_fields = null){
+    public function generatePdfForms($pdf_form_ids, $pid, $facility_id = null, $referring_id = null, $custom_fields = null){
         $binary_documents = [];
         foreach ($pdf_form_ids as $pdf_form_id){
-            $binary_documents[] = $this->generatePdfForm($pdf_form_id, $pid, $referring_id, $custom_fields, true);
+            $binary_documents[] = $this->generatePdfForm($pdf_form_id, $pid, $facility_id, $referring_id, $custom_fields, true);
         }
 
         if(count($binary_documents) === 1){
@@ -129,7 +136,7 @@ class DocumentPdfForms {
         return $binary_out_document;
     }
 
-    public function generatePdfForm($pdf_form_id, $pid, $referring_id = null, $custom_fields = null, $return_binary_document = false) {
+    public function generatePdfForm($pdf_form_id, $pid, $facility_id = null, $referring_id = null, $custom_fields = null, $return_binary_document = false) {
 
         $pdf_form = $this->getDocumentPdfForm($pdf_form_id);
         $fields_data = $this->Patient->getPatientTokenByPid($pid);
@@ -196,7 +203,16 @@ class DocumentPdfForms {
 
          */
 
-        if(isset($referring_id)){
+        // test value
+        //$facility_id = 1;
+        //$referring_id = 1;
+
+        if(isset($facility_id) && $facility_id > 0){
+            $facility_tokens = $this->Facilities->getFacilityTokenById($facility_id);
+            $fields_data = array_merge($fields_data, $facility_tokens);
+        }
+
+        if(isset($referring_id) && $referring_id > 0){
             $referring_tokens = $this->ReferringProviders->getReferringTokenById($referring_id);
             $fields_data = array_merge($fields_data, $referring_tokens);
         }
@@ -217,6 +233,8 @@ class DocumentPdfForms {
 
         $pdf_form_title = $pdf_form['document_title'];
         $pdf_form_path = $pdf_form['document_path'];
+
+        //$list = implode(PHP_EOL, array_keys($fields_data));
 
         $binary_document = $this->fillForm($fields_data, $pdf_form_path);
 

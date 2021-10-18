@@ -152,7 +152,7 @@ class ReferringProviders {
             return $tokens;
         }
 
-        $tokens['[REFERRING_ID]'] = $referring['pid'];
+        $tokens['[REFERRING_ID]'] = $referring['id'];
         $tokens['[REFERRING_NAME]'] = trim(sprintf('%s, %s %s', $referring['lname'],$referring['fname'],$referring['mname']));
         $tokens['[REFERRING_TITLE]'] = $referring['title'];
         $tokens['[REFERRING_FIRST_NAME]'] = $referring['fname'];

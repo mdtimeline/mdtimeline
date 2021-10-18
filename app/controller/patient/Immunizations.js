@@ -139,6 +139,9 @@ Ext.define('App.controller.patient.Immunizations', {
 			},
 			'#ImmunizationsQuickFormWindowAddBtn': {
 				click: me.onImmunizationsQuickFormWindowAddBtnClick
+			},
+			'#PatientSummaryImmunizationPanelQuickAddBtn': {
+				click: me.onPatientSummaryImmunizationPanelQuickAddBtnClick
 			}
 		});
 
@@ -841,6 +844,10 @@ Ext.define('App.controller.patient.Immunizations', {
 			app.msg(_('sweet'), 'Immunizations Added');
 		});
 
+	},
+
+	onPatientSummaryImmunizationPanelQuickAddBtnClick: function (btn){
+		app.getController('patient.Immunizations').showImmunizationsQuickFormWindow();
 	}
 
 });

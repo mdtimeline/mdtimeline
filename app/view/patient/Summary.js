@@ -213,6 +213,14 @@ Ext.define('App.view.patient.Summary', {
 				tools: [
 					{
 						xtype: 'button',
+						text: _('quick'),
+						iconCls: 'icoAdd',
+						margin : '0 3 0 0',
+						acl: a('add_patient_immunizations'),
+						itemId: 'PatientSummaryImmunizationPanelQuickAddBtn'
+					},
+					{
+						xtype: 'button',
 						text: _('details'),
 						action: 'immunization',
 						scope: me,

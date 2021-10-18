@@ -2211,4 +2211,5 @@ $LANG = array(
     'cessation_counseling_type' => 'Cessation Counseling Type',
     'pdf_forms' => 'PDF Forms',
     'force_reset' => 'Force Reset',
+    'quick' => 'Quick',
 );

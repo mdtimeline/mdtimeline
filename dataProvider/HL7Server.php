@@ -1243,6 +1243,10 @@ INI_CONFIG;
 
 				}
 
+				if(empty($insObj->patient_insurance->company->code)){
+				    continue;
+                }
+
                 $insObj->patient_insurance->pid = $patient->pid;
                 $insObj->patient_insurance->code = $patient->pubpid . '~' . $insObj->patient_insurance->company->code;
 

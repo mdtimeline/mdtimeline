@@ -331,6 +331,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                                 'App.ux.grid.EventHistory',
                                 'App.ux.grid.RowFormEditing',
                                 'App.ux.grid.RowFormEditor',
+                                'App.ux.grid.SlidingPagerAndPageSize',
                                 'App.ux.window.voidComment',
                                 /**
                                  * Load the combo boxes spread on all the web application

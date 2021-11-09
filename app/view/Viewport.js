@@ -89,7 +89,8 @@ Ext.define('App.view.Viewport', {
 	        priority: null,
 	        readOnly: false,
 	        rating: null,
-	        covid_status: null
+	        covid_status: null,
+	        is_pregnant: null
         };
 
         /**
@@ -1074,6 +1075,7 @@ Ext.define('App.view.Viewport', {
 		            readOnly: readOnly,
 		            rating: data.patient.rating,
 		            covid_status: data.patient.covid_status,
+		            is_pregnant: data.patient.is_pregnant,
 		            record: Ext.create('App.model.patient.Patient', data.patient.record)
 	            };
 
@@ -1120,7 +1122,8 @@ Ext.define('App.view.Viewport', {
 		    readOnly: false,
 		    rating: null,
 		    record: null,
-			covid_status: null
+			covid_status: null,
+			is_pregnant: null
 	    };
 
 	    me.patientButtonRemoveCls();
@@ -1157,9 +1160,15 @@ Ext.define('App.view.Viewport', {
 
 		if(data){
 			if(data.covid_status === 'vaccinated'){
-				patient_btn_icons_tpl = '<img src="resources/images/icons/vacuid.png" alt="vaccinated" style="width: 24px; margin: 5px 0 0 -10px" />';
+				patient_btn_icons_tpl += '<img src="resources/images/icons/vacuid.png" alt="vaccinated" style="width: 24px; margin: 5px 0 0 -10px" />';
 			}else if(data.covid_status === 'partially_vaccinated'){
-				patient_btn_icons_tpl = '<img src="resources/images/icons/vacuid_partial.png" alt="partially vaccinated" style="width: 24px; margin: 5px 0 0 -10px;" />';
+				patient_btn_icons_tpl += '<img src="resources/images/icons/vacuid_partial.png" alt="partially vaccinated" style="width: 24px; margin: 5px 0 0 -10px;" />';
+			}
+
+			if(data.is_pregnant){
+				patient_btn_icons_tpl += '<img src="resources/images/icons/pregnant.png" alt="pregnant" style="width: 24px; margin: 5px 0 0 5px" />';
+			}else{
+
 			}
 		}
 

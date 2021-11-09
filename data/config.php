@@ -1758,6 +1758,9 @@ $API = [
             ],
 			'searchAllergiesData' => [
 				'len' => 1
+            ],
+			'getPatientAllergiesByEid' => [
+				'len' => 1
             ]
         ]
     ],
@@ -2331,6 +2334,9 @@ $API = [
 				'len' => 1
             ],
 			'destroyPatientActiveProblem' => [
+				'len' => 1
+            ],
+			'getPregnancyStatusByPid' => [
 				'len' => 1
             ]
         ]

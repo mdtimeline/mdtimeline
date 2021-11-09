@@ -164,5 +164,21 @@ class ActiveProblems
 		}
 		return $this->a->load()->all();
 	}
+
+	public function isActiveByPidAndCodes($pid, $codes){
+        $sql ="SELECT * FROM patient_active_problems WHERE pid = :pid AND FIND_IN_SET(`code`, :codes)";
+
+        $records = $this->a->sql($sql)->all([':pid' => $pid, ':codes' => $codes]);
+        unset($params);
+        foreach ($records as $i => $record) {
+            if (strtotime($record['end_date']) &&
+                strtotime($record['end_date']) <= strtotime(date('Y-m-d')) &&
+                $record['end_date'] != '0000-00-00'
+            ) {
+                unset($records[$i]);
+            }
+        }
+        return count($records) > 0;
+    }
 }
 

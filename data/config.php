@@ -1433,6 +1433,25 @@ $API = [
             ]
         ]
     ],
+    'Visits' => [
+        'methods' => [
+            'getVisits' => [
+                'len' => 1
+            ],
+            'getVisit' => [
+                'len' => 1
+            ],
+            'addVisit' => [
+                'len' => 1
+            ],
+            'updateVisit' => [
+                'len' => 1
+            ],
+            'destroyVisit' => [
+                'len' => 1
+            ]
+        ]
+    ],
 	/**
 	 * Floor Plans function
 	 */

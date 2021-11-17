@@ -18,6 +18,25 @@
  */
 
 $API = [
+    'DocumentsPdfTemplates' => [
+        'methods' => [
+            'getDocumentsPdfTemplates' => [
+                'len' => 1
+            ],
+            'getDocumentsPdfTemplate' => [
+                'len' => 1
+            ],
+            'addDocumentsPdfTemplate' => [
+                'len' => 1
+            ],
+            'updateDocumentsPdfTemplate' => [
+                'len' => 1
+            ],
+            'destroyDocumentsPdfTemplate' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'System' => [
         'methods' => [
             'report' => [

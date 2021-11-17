@@ -55,6 +55,14 @@ Ext.define('App.controller.administration.Documents', {
 		{
 			ref: 'AdministrationDocumentsPdfTemplatesAddBtn',
 			selector: '#AdministrationDocumentsPdfTemplatesAddBtn'
+		},
+		{
+			ref: 'AdministrationDocumentsPdfTemplateWindow',
+			selector: '#AdministrationDocumentsPdfTemplateWindow'
+		},
+		{
+			ref: 'AdministrationDocumentsPdfTemplateWindowForm',
+			selector: '#AdministrationDocumentsPdfTemplateWindowForm'
 		}
 	],
 
@@ -74,15 +82,136 @@ Ext.define('App.controller.administration.Documents', {
 			'#AdministrationDocumentsNewDefaulTemplateBtn': {
 				click: me.onAdministrationDocumentsNewDefaulTemplateBtnClick
 			},
+			'#AdministrationDocumentsPdfTemplatesGrid': {
+				render: me.onAdministrationDocumentsPdfTemplatesGridRender,
+				itemdblclick: me.onAdministrationDocumentsPdfTemplatesGridItemDblClick
+			},
 			'#AdministrationDocumentsPdfTemplatesAddBtn': {
 				click: me.onAdministrationDocumentsPdfTemplatesAddBtnClick
+			},
+			'#AdministrationDocumentsPdfTemplateWindowSaveBtn': {
+				click: me.onAdministrationDocumentsPdfTemplateWindowSaveBtnClick
+			},
+			'#AdministrationDocumentsPdfTemplateWindowSaveCloseBtn': {
+				click: me.onAdministrationDocumentsPdfTemplateWindowSaveCloseBtnClick
+			},
+			'#AdministrationDocumentsPdfTemplateWindowCancelBtn': {
+				click: me.onAdministrationDocumentsPdfTemplateWindowCancelBtnClick
+			},
+			'#AdministrationDocumentsPdfTemplateWindowDeleteBtn': {
+				click: me.onAdministrationDocumentsPdfTemplateWindowDeleteBtnClick
 			}
 		});
 	},
 
-	onAdministrationDocumentsPdfTemplatesAddBtnClick: function(){
-
+	onAdministrationDocumentsPdfTemplatesGridRender: function(grid){
+		grid.getStore().load();
 	},
+
+	onAdministrationDocumentsPdfTemplatesGridItemDblClick: function(grid, record){
+		this.doEditAdministrationDocumentsPdfTemplateRecord(record);
+	},
+
+	onAdministrationDocumentsPdfTemplatesAddBtnClick: function(btn){
+
+		var grid = this.getAdministrationDocumentsPdfTemplatesGrid(),
+			store = grid.getStore(),
+			records = store.add({
+				facility_id: 0,
+				concept: 'default',
+				template: '',
+				body_margin_left: 10,
+				body_margin_top: 10,
+				body_margin_right: 10,
+				body_margin_bottom: 10,
+				body_font_family: 'Arial',
+				body_font_style: '',
+				body_font_size: 10,
+				footer_margin: 0,
+				format: 'LETTER',
+				is_interface_tpl: 0,
+				active: 1
+			});
+
+		this.doEditAdministrationDocumentsPdfTemplateRecord(records[0]);
+	},
+
+	doEditAdministrationDocumentsPdfTemplateRecord: function (record){
+		// show window
+		this.showAdministrationDocumentsPdfTemplateWindow();
+		// load record
+		this.getAdministrationDocumentsPdfTemplateWindowForm().getForm().loadRecord(record);
+	},
+
+	showAdministrationDocumentsPdfTemplateWindow: function (){
+		if(!this.getAdministrationDocumentsPdfTemplateWindow()){
+			Ext.create('App.view.administration.DocumentsPdfTemplateWindow');
+		}
+		return this.getAdministrationDocumentsPdfTemplateWindow().show();
+	},
+
+	onAdministrationDocumentsPdfTemplateWindowSaveBtnClick: function (btn){
+		this.doAdministrationDocumentsPdfTemplateWindowSave(btn, false);
+	},
+
+	onAdministrationDocumentsPdfTemplateWindowSaveCloseBtnClick: function (btn){
+		this.doAdministrationDocumentsPdfTemplateWindowSave(btn, true);
+	},
+
+	doAdministrationDocumentsPdfTemplateWindowSave: function (btn, close_window){
+		var win = btn.up('window'),
+			form = win.down('form').getForm(),
+			record = form.getRecord(),
+			values = form.getValues();
+
+		if(!form.isValid()) return;
+
+		record.set(values);
+
+		if(record.store.getModifiedRecords().length > 0){
+			record.store.sync({
+				callback: function (){
+					if (close_window) win.close();
+				}
+			});
+		}else{
+			if (close_window) win.close();
+		}
+	},
+
+	onAdministrationDocumentsPdfTemplateWindowCancelBtnClick: function (btn){
+		btn.up('window').close();
+	},
+
+	onAdministrationDocumentsPdfTemplateWindowDeleteBtnClick: function (btn){
+		var win = btn.up('window'),
+			form = win.down('form').getForm(),
+			record = form.getRecord(),
+			store = record.store;
+
+		Ext.Msg.show({
+			title: 'Wait!',
+			msg: 'Would you like to remove this record?',
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (ans){
+				if(ans === 'yes'){
+
+					store.remove(record);
+					store.sync({
+						callback: function (){
+							win.close();
+							app.msg(_('sweet'), _('record_removed'));
+						}
+					});
+				}
+			}
+		});
+	},
+
+	// -------------------------
+	// -------------------------
+	// -------------------------
 
 	onAdministrationDocumentsActive: function(){
 

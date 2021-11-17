@@ -98,9 +98,10 @@ Ext.define('App.model.administration.DocumentsPdfTemplate', {
 	proxy: {
 		type: 'direct',
 		api: {
-			read: 'DocumentHandler.getDocumentsTemplates',
-			create: 'DocumentHandler.addDocumentsTemplates',
-			update: 'DocumentHandler.updateDocumentsTemplates'
+			read: 'DocumentsPdfTemplates.getDocumentsPdfTemplates',
+			create: 'DocumentsPdfTemplates.addDocumentsPdfTemplate',
+			update: 'DocumentsPdfTemplates.updateDocumentsPdfTemplate',
+			destroy: 'DocumentsPdfTemplates.destroyDocumentsPdfTemplate'
 		}
 	}
 });

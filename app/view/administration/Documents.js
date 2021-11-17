@@ -65,7 +65,7 @@ Ext.define('App.view.administration.Documents', {
 			},
 			tbar: ['->',
 				{
-					text: _('new'),
+					text: _('add'),
 					scope: me,
 					handler: me.newDefaultTemplates,
 					itemId: 'AdministrationDocumentsNewDefaulTemplateBtn',
@@ -106,7 +106,7 @@ Ext.define('App.view.administration.Documents', {
 			},
 			tbar: ['->',
 				{
-					text: _('new'),
+					text: _('add'),
 					scope: me,
 					itemId: 'AdministrationDocumentsNewTemplateBtn',
 					//handler: me.newDocumentTemplate
@@ -140,14 +140,14 @@ Ext.define('App.view.administration.Documents', {
 					columns:[
 						{
 							flex: 1,
-							dataIndex: 'facility'
+							dataIndex: 'template'
 						}
 					],
 					tbar: [
 						'->',
 						{
 							xtype:'button',
-							text: _('new'),
+							text: _('add'),
 							itemId: 'AdministrationDocumentsPdfTemplatesAddBtn'
 						}
 					]

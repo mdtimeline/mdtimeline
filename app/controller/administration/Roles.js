@@ -57,8 +57,25 @@ Ext.define('App.controller.administration.Roles', {
 			},
 			'#AdministrationRoleGridPrintBtn': {
 				click: this.onAdministrationRoleGridPrintBtnClick
+			},
+			'#AdministrationRoleRefreshBtn': {
+				click: this.onAdministrationRoleRefreshBtnClick
 			}
 		});
+	},
+
+	onAdministrationRoleRefreshBtnClick: function (btn){
+
+		var grid = this.getAdministrationRoleGrid(),
+			store = grid.getStore();
+
+		grid.view.el.mask('Loading');
+
+		ACL.getGroupPerms({group_id: grid.group_id}, function(response){
+			store.loadRawData(response.data);
+			grid.view.el.unmask();
+		});
+
 	},
 
 	onAdministrationRoleGridPrintBtnClick: function(){
@@ -130,6 +147,8 @@ Ext.define('App.controller.administration.Roles', {
 		// add mask to view while we get the data and grid configurations
 		grid.view.el.mask('Loading');
 		// Ext.direct method to get grid configuration and data
+
+		grid.group_id = group_id;
 
 		ACL.getGroupPerms({group_id: group_id}, function(response){
 			// new columns

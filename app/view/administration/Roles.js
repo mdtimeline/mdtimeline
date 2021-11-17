@@ -27,11 +27,13 @@ Ext.define('App.view.administration.Roles', {
 	pageTitle: _('roles_and_permissions'),
 	pageBody: [
 		{
-			xtype:'grid',
+			xtype:'gridlivesearch',
 			bodyStyle: 'background-color:white',
 			itemId: 'AdministrationRoleGrid',
 			frame: true,
 			columnLines: true,
+			searchBuffer: 500,
+			filterStore: true,
 			tbar: [
 				{
 					xtype: 'xcombo',
@@ -98,12 +100,17 @@ Ext.define('App.view.administration.Roles', {
 				{
 					text: 'Permission',
 					width: 250,
-					locked: true
+					// locked: true
 				}
 			]
 		}
 	],
 	pageButtons: [
+		{
+			text: _('refresh'),
+			itemId: 'AdministrationRoleRefreshBtn'
+		},
+		'->',
 		{
 			text: _('cancel'),
 			cls: 'cancelBtn',

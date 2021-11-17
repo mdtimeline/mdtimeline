@@ -10622,9 +10622,15 @@ Ext.define('App.ux.grid.LiveSearchGridPanel', {
 
 	defaultStatusText: 'Nothing Found',
 
+	searchBuffer: 100,
+
+	filterStore: false,
+
 	// Component initialization override: adds the top and bottom toolbars and setup headers renderer.
 	initComponent: function(){
 		var me = this;
+
+		me.onTextFieldChangeBuffer = Ext.Function.createBuffered(me.onTextFieldChange, me.searchBuffer, me)
 
 		me.callParent(arguments);
 
@@ -10640,7 +10646,7 @@ Ext.define('App.ux.grid.LiveSearchGridPanel', {
 					width: 200,
 					listeners: {
 						change: {
-							fn: me.onTextFieldChange,
+							fn: me.onTextFieldChangeBuffer,
 							scope: this,
 							buffer: 100
 						}
@@ -10739,13 +10745,17 @@ Ext.define('App.ux.grid.LiveSearchGridPanel', {
 		me.indexes = [];
 		me.currentIndex = null;
 
+		if(me.filterStore) {
+			me.store.clearFilter();
+		}
+
 		if(me.searchValue !== null){
 			me.searchRegExp = new RegExp(me.searchValue, 'g' + (me.caseSensitive ? '' : 'i'));
 
 			me.store.each(function(record, idx){
 
 				var fly = Ext.fly(me.view.getNode(record)),
-					td, cell, matches, cellHTML, is_special;
+					td, cell, matches, cellHTML, is_row_checker;
 
 				if(fly == null) return;
 
@@ -10757,7 +10767,7 @@ Ext.define('App.ux.grid.LiveSearchGridPanel', {
 						break;
 					}
 
-					is_special = false;
+					is_row_checker = false;
 
 					cell = td.down('.x-grid-cell-inner');
 					matches = cell.dom.innerHTML.match(me.tagsRe);
@@ -10766,14 +10776,14 @@ Ext.define('App.ux.grid.LiveSearchGridPanel', {
 					if(matches){
 						for(var i = 0; i < matches.length; i++){
 							if(matches[i].indexOf('x-grid-row-checker') !== -1){
-								is_special = true;
+								is_row_checker = true;
 								break;
 							}
 						}
 					}
 
 
-					if(!is_special){
+					if(!is_row_checker){
 						// populate indexes array, set currentIndex, and replace wrap matched string in a span
 						cellHTML = cellHTML.replace(me.searchRegExp, function(m){
 							count += 1;
@@ -10794,12 +10804,17 @@ Ext.define('App.ux.grid.LiveSearchGridPanel', {
 						// update cell html
 						cell.dom.innerHTML = cellHTML;
 					}
-
-
 					td = td.next();
 				}
 
 			}, me);
+
+			if(me.filterStore){
+				me.store.filterBy(function (rec, id){
+					return Ext.Array.contains(me.indexes, rec);
+				}, me);
+			}
+
 
 			// results found
 			if(me.currentIndex !== null){
@@ -39958,6 +39973,14 @@ Ext.define('App.controller.administration.Documents', {
 		{
 			ref: 'AdministrationDocumentsPdfTemplatesAddBtn',
 			selector: '#AdministrationDocumentsPdfTemplatesAddBtn'
+		},
+		{
+			ref: 'AdministrationDocumentsPdfTemplateWindow',
+			selector: '#AdministrationDocumentsPdfTemplateWindow'
+		},
+		{
+			ref: 'AdministrationDocumentsPdfTemplateWindowForm',
+			selector: '#AdministrationDocumentsPdfTemplateWindowForm'
 		}
 	],
 
@@ -39977,15 +40000,136 @@ Ext.define('App.controller.administration.Documents', {
 			'#AdministrationDocumentsNewDefaulTemplateBtn': {
 				click: me.onAdministrationDocumentsNewDefaulTemplateBtnClick
 			},
+			'#AdministrationDocumentsPdfTemplatesGrid': {
+				render: me.onAdministrationDocumentsPdfTemplatesGridRender,
+				itemdblclick: me.onAdministrationDocumentsPdfTemplatesGridItemDblClick
+			},
 			'#AdministrationDocumentsPdfTemplatesAddBtn': {
 				click: me.onAdministrationDocumentsPdfTemplatesAddBtnClick
+			},
+			'#AdministrationDocumentsPdfTemplateWindowSaveBtn': {
+				click: me.onAdministrationDocumentsPdfTemplateWindowSaveBtnClick
+			},
+			'#AdministrationDocumentsPdfTemplateWindowSaveCloseBtn': {
+				click: me.onAdministrationDocumentsPdfTemplateWindowSaveCloseBtnClick
+			},
+			'#AdministrationDocumentsPdfTemplateWindowCancelBtn': {
+				click: me.onAdministrationDocumentsPdfTemplateWindowCancelBtnClick
+			},
+			'#AdministrationDocumentsPdfTemplateWindowDeleteBtn': {
+				click: me.onAdministrationDocumentsPdfTemplateWindowDeleteBtnClick
 			}
 		});
 	},
 
-	onAdministrationDocumentsPdfTemplatesAddBtnClick: function(){
-
+	onAdministrationDocumentsPdfTemplatesGridRender: function(grid){
+		grid.getStore().load();
 	},
+
+	onAdministrationDocumentsPdfTemplatesGridItemDblClick: function(grid, record){
+		this.doEditAdministrationDocumentsPdfTemplateRecord(record);
+	},
+
+	onAdministrationDocumentsPdfTemplatesAddBtnClick: function(btn){
+
+		var grid = this.getAdministrationDocumentsPdfTemplatesGrid(),
+			store = grid.getStore(),
+			records = store.add({
+				facility_id: 0,
+				concept: 'default',
+				template: '',
+				body_margin_left: 10,
+				body_margin_top: 10,
+				body_margin_right: 10,
+				body_margin_bottom: 10,
+				body_font_family: 'Arial',
+				body_font_style: '',
+				body_font_size: 10,
+				footer_margin: 0,
+				format: 'LETTER',
+				is_interface_tpl: 0,
+				active: 1
+			});
+
+		this.doEditAdministrationDocumentsPdfTemplateRecord(records[0]);
+	},
+
+	doEditAdministrationDocumentsPdfTemplateRecord: function (record){
+		// show window
+		this.showAdministrationDocumentsPdfTemplateWindow();
+		// load record
+		this.getAdministrationDocumentsPdfTemplateWindowForm().getForm().loadRecord(record);
+	},
+
+	showAdministrationDocumentsPdfTemplateWindow: function (){
+		if(!this.getAdministrationDocumentsPdfTemplateWindow()){
+			Ext.create('App.view.administration.DocumentsPdfTemplateWindow');
+		}
+		return this.getAdministrationDocumentsPdfTemplateWindow().show();
+	},
+
+	onAdministrationDocumentsPdfTemplateWindowSaveBtnClick: function (btn){
+		this.doAdministrationDocumentsPdfTemplateWindowSave(btn, false);
+	},
+
+	onAdministrationDocumentsPdfTemplateWindowSaveCloseBtnClick: function (btn){
+		this.doAdministrationDocumentsPdfTemplateWindowSave(btn, true);
+	},
+
+	doAdministrationDocumentsPdfTemplateWindowSave: function (btn, close_window){
+		var win = btn.up('window'),
+			form = win.down('form').getForm(),
+			record = form.getRecord(),
+			values = form.getValues();
+
+		if(!form.isValid()) return;
+
+		record.set(values);
+
+		if(record.store.getModifiedRecords().length > 0){
+			record.store.sync({
+				callback: function (){
+					if (close_window) win.close();
+				}
+			});
+		}else{
+			if (close_window) win.close();
+		}
+	},
+
+	onAdministrationDocumentsPdfTemplateWindowCancelBtnClick: function (btn){
+		btn.up('window').close();
+	},
+
+	onAdministrationDocumentsPdfTemplateWindowDeleteBtnClick: function (btn){
+		var win = btn.up('window'),
+			form = win.down('form').getForm(),
+			record = form.getRecord(),
+			store = record.store;
+
+		Ext.Msg.show({
+			title: 'Wait!',
+			msg: 'Would you like to remove this record?',
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function (ans){
+				if(ans === 'yes'){
+
+					store.remove(record);
+					store.sync({
+						callback: function (){
+							win.close();
+							app.msg(_('sweet'), _('record_removed'));
+						}
+					});
+				}
+			}
+		});
+	},
+
+	// -------------------------
+	// -------------------------
+	// -------------------------
 
 	onAdministrationDocumentsActive: function(){
 
@@ -68758,7 +68902,7 @@ Ext.define('App.view.administration.Documents', {
 			},
 			tbar: ['->',
 				{
-					text: _('new'),
+					text: _('add'),
 					scope: me,
 					handler: me.newDefaultTemplates,
 					itemId: 'AdministrationDocumentsNewDefaulTemplateBtn',
@@ -68799,7 +68943,7 @@ Ext.define('App.view.administration.Documents', {
 			},
 			tbar: ['->',
 				{
-					text: _('new'),
+					text: _('add'),
 					scope: me,
 					itemId: 'AdministrationDocumentsNewTemplateBtn',
 					//handler: me.newDocumentTemplate
@@ -68833,14 +68977,14 @@ Ext.define('App.view.administration.Documents', {
 					columns:[
 						{
 							flex: 1,
-							dataIndex: 'facility'
+							dataIndex: 'template'
 						}
 					],
 					tbar: [
 						'->',
 						{
 							xtype:'button',
-							text: _('new'),
+							text: _('add'),
 							itemId: 'AdministrationDocumentsPdfTemplatesAddBtn'
 						}
 					]
@@ -69037,11 +69181,13 @@ Ext.define('App.view.administration.Roles', {
 	pageTitle: _('roles_and_permissions'),
 	pageBody: [
 		{
-			xtype:'grid',
+			xtype:'gridlivesearch',
 			bodyStyle: 'background-color:white',
 			itemId: 'AdministrationRoleGrid',
 			frame: true,
 			columnLines: true,
+			searchBuffer: 500,
+			filterStore: true,
 			tbar: [
 				{
 					xtype: 'xcombo',
@@ -69108,12 +69254,17 @@ Ext.define('App.view.administration.Roles', {
 				{
 					text: 'Permission',
 					width: 250,
-					locked: true
+					// locked: true
 				}
 			]
 		}
 	],
 	pageButtons: [
+		{
+			text: _('refresh'),
+			itemId: 'AdministrationRoleRefreshBtn'
+		},
+		'->',
 		{
 			text: _('cancel'),
 			cls: 'cancelBtn',
@@ -70157,8 +70308,25 @@ Ext.define('App.controller.administration.Roles', {
 			},
 			'#AdministrationRoleGridPrintBtn': {
 				click: this.onAdministrationRoleGridPrintBtnClick
+			},
+			'#AdministrationRoleRefreshBtn': {
+				click: this.onAdministrationRoleRefreshBtnClick
 			}
 		});
+	},
+
+	onAdministrationRoleRefreshBtnClick: function (btn){
+
+		var grid = this.getAdministrationRoleGrid(),
+			store = grid.getStore();
+
+		grid.view.el.mask('Loading');
+
+		ACL.getGroupPerms({group_id: grid.group_id}, function(response){
+			store.loadRawData(response.data);
+			grid.view.el.unmask();
+		});
+
 	},
 
 	onAdministrationRoleGridPrintBtnClick: function(){
@@ -70230,6 +70398,8 @@ Ext.define('App.controller.administration.Roles', {
 		// add mask to view while we get the data and grid configurations
 		grid.view.el.mask('Loading');
 		// Ext.direct method to get grid configuration and data
+
+		grid.group_id = group_id;
 
 		ACL.getGroupPerms({group_id: group_id}, function(response){
 			// new columns

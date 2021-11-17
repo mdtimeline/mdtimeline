@@ -57,9 +57,15 @@ Ext.define('App.ux.grid.LiveSearchGridPanel', {
 
 	defaultStatusText: 'Nothing Found',
 
+	searchBuffer: 100,
+
+	filterStore: false,
+
 	// Component initialization override: adds the top and bottom toolbars and setup headers renderer.
 	initComponent: function(){
 		var me = this;
+
+		me.onTextFieldChangeBuffer = Ext.Function.createBuffered(me.onTextFieldChange, me.searchBuffer, me)
 
 		me.callParent(arguments);
 
@@ -75,7 +81,7 @@ Ext.define('App.ux.grid.LiveSearchGridPanel', {
 					width: 200,
 					listeners: {
 						change: {
-							fn: me.onTextFieldChange,
+							fn: me.onTextFieldChangeBuffer,
 							scope: this,
 							buffer: 100
 						}
@@ -174,13 +180,17 @@ Ext.define('App.ux.grid.LiveSearchGridPanel', {
 		me.indexes = [];
 		me.currentIndex = null;
 
+		if(me.filterStore) {
+			me.store.clearFilter();
+		}
+
 		if(me.searchValue !== null){
 			me.searchRegExp = new RegExp(me.searchValue, 'g' + (me.caseSensitive ? '' : 'i'));
 
 			me.store.each(function(record, idx){
 
 				var fly = Ext.fly(me.view.getNode(record)),
-					td, cell, matches, cellHTML, is_special;
+					td, cell, matches, cellHTML, is_row_checker;
 
 				if(fly == null) return;
 
@@ -192,7 +202,7 @@ Ext.define('App.ux.grid.LiveSearchGridPanel', {
 						break;
 					}
 
-					is_special = false;
+					is_row_checker = false;
 
 					cell = td.down('.x-grid-cell-inner');
 					matches = cell.dom.innerHTML.match(me.tagsRe);
@@ -201,14 +211,14 @@ Ext.define('App.ux.grid.LiveSearchGridPanel', {
 					if(matches){
 						for(var i = 0; i < matches.length; i++){
 							if(matches[i].indexOf('x-grid-row-checker') !== -1){
-								is_special = true;
+								is_row_checker = true;
 								break;
 							}
 						}
 					}
 
 
-					if(!is_special){
+					if(!is_row_checker){
 						// populate indexes array, set currentIndex, and replace wrap matched string in a span
 						cellHTML = cellHTML.replace(me.searchRegExp, function(m){
 							count += 1;
@@ -229,12 +239,17 @@ Ext.define('App.ux.grid.LiveSearchGridPanel', {
 						// update cell html
 						cell.dom.innerHTML = cellHTML;
 					}
-
-
 					td = td.next();
 				}
 
 			}, me);
+
+			if(me.filterStore){
+				me.store.filterBy(function (rec, id){
+					return Ext.Array.contains(me.indexes, rec);
+				}, me);
+			}
+
 
 			// results found
 			if(me.currentIndex !== null){

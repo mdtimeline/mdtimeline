@@ -205,6 +205,30 @@ class Medications
 			->all();
 	}
 
+    public function getPatientMedicationsActiveAt($pid, $date){
+        $sql = "SELECT *
+                FROM patient_medications AS pm
+                LEFT JOIN users AS u ON pm.administered_uid = u.id
+                WHERE pm.pid = :pid AND
+                (
+                    (:service_date_1 BETWEEN DATE(begin_date) AND DATE(end_date)) OR
+                    (DATE(begin_date) = DATE(:service_date_2)) OR 
+                    (
+                        DATE(begin_date) <= DATE(:service_date_3) AND
+                        end_date IS NULL AND 
+                        is_active = 1
+                    )
+                )
+                GROUP BY RXCUI";
+
+                return $this->m->sql($sql)->all([
+                    ':pid' => $pid,
+                    ':service_date_1' => $date,
+                    ':service_date_2' => $date,
+                    ':service_date_3' => $date
+                ]);
+    }
+
     public function getPatientMedicationsByEid($eid)
     {
         $this->m->addFilter('eid', $eid);

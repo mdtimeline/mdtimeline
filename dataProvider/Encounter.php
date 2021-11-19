@@ -826,7 +826,7 @@ class Encounter {
 //		if($encounter['review_medications'] && isset($encounter)){
 		if(isset($encounter)){
 			$ActiveMedications = new Medications();
-			$active_medications = $ActiveMedications->getPatientMedicationsActiveAt($encounter['pid'], $encounter['service_date']);
+			$active_medications = $ActiveMedications->getPatientMedicationsActiveAt($encounter['pid'], date('Y-m-d', strtotime($encounter['service_date'])));
 
 			$str_buff .= '<div class="indent">';
 			if(!empty($active_medications)){

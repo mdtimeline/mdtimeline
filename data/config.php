@@ -2859,7 +2859,9 @@ $API = [
 				'len' => 1
             ],
 
-
+			'getAclPermissions' => [
+				'len' => 1
+            ],
 			'getAllUserPermsAccess' => [
 				'len' => 0
             ],

@@ -337,6 +337,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                                  * Load the combo boxes spread on all the web application
                                  * remember this are all reusable combo boxes.
                                  */
+                                'App.ux.combo.AclPermissions',
                                 'App.ux.combo.ActiveFacilities',
                                 'App.ux.combo.ActiveInsurances',
                                 'App.ux.combo.ActiveProviders',

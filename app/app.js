@@ -65997,12 +65997,29 @@ Ext.define("App.ux.grid.exporter.Exporter", {
             var store = grid.getStore() || config.store;
             var columns = Ext.Array.filter(grid.headerCt.items.getRange(), function(col) {
                 return !col.hidden && (!col.xtype || col.xtype != "actioncolumn");
-                //return !col.hidden; // && (!col.xtype || col.xtype != "actioncolumn");
             });
+            var isGrouped = store.isGrouped ? store.isGrouped() : false;
+            var hasSummary;
+            var groupField;
+            var grouping;
+            if(isGrouped){
+                //var feature = this.getFeature( grid, featureId );
+                grouping = this.getFeature(grid, 'grouping');
+                if(grouping){
+                    groupField = grouping.getGroupField();
+                    hasSummary = (grouping.ftype === "groupingsummary");
+                }else {
+                    isGrouped = false;  // isGrouped turned off if grouping feature not defined
+                }
+            }
 
-            Ext.applyIf(config, {
+            Ext.apply(config, {
                 title: grid.title,
-                columns: columns
+                columns: columns,
+                isGrouped: isGrouped,
+                hasSummary: hasSummary,
+                groupField: groupField,
+                grouping: grouping
             });
 
             return {
@@ -66068,7 +66085,33 @@ Ext.define("App.ux.grid.exporter.Exporter", {
             formatter = formatter ? formatter : "excel";
             formatter = !Ext.isString(formatter) ? formatter : Ext.create("App.ux.grid.exporter." + formatter + "Formatter." + Ext.String.capitalize(formatter) + "Formatter");
             return formatter;
-        }
+        },
+
+        getFeature: function(grid, featureFType){
+            var view = grid.getView();
+
+            var features;
+            if(view.features)
+                features = view.features;
+            else if(view.featuresMC)
+                features = view.featuresMC.items;
+            else if(view.normalView.featuresMC)
+                features = view.normalView.featuresMC.items;
+
+            if(features)
+                for(var i = 0; i < features.length; i++){
+                    if(featureFType == 'grouping')
+                        if(features[i].ftype == 'grouping' || features[i].ftype == 'groupingsummary')
+                            return features[i];
+                    if(featureFType == 'groupingsummary')
+                        if(features[i].ftype == 'groupingsummary')
+                            return features[i];
+                    if(featureFType == 'summary')
+                        if(features[i].ftype == 'summary')
+                            return features[i];
+                }
+            return undefined;
+        },
     }
 });
 Ext.define('App.model.administration.AclGroupPerm', {
@@ -73800,6 +73843,12 @@ Ext.define('App.controller.reports.Reports', {
 								anchor: '100%'
 							},
 							{
+								xtype: 'aclpermissions',
+								fieldLabel: _('permission'),
+								name: 'report_perm',
+								anchor: '100%'
+							},
+							{
 								xtype: 'textareafield',
 								fieldLabel: _('columns'),
 								name: 'columns',
@@ -73938,8 +73987,10 @@ Ext.define('App.controller.reports.Reports', {
 			model_fields = [], search_fields = [], columns, group_by;
 
 		report_grid.filters = undefined;
-		win.setTitle(record.get('title'));
+		win.setTitle('Report Viewer');
 		win.el.mask('Getting Things Ready');
+
+		report_grid.setTitle(record.get('title'));
 
 		Reports.getReport(record.get('id'), function (response) {
 
@@ -82459,12 +82510,16 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Worksheet", {
      * @param {Ext.data.Store} store The store to build from
      */
     render: function(store) {
+
+        var groupCount = this.isGrouped ? this.store.groups.length : 0;
+        var summaryCount = this.hasSummary ? this.store.groups.length : 0;
+
         return this.worksheetTpl.apply({
             header: this.buildHeader(),
             columns: this.buildColumns().join(""),
             rows: this.buildRows().join(""),
             colCount: this.columns.length,
-            rowCount: this.store.getCount() + 2,
+            rowCount: (this.store.getCount() + groupCount + summaryCount + 10),
             title: this.title
         });
     },
@@ -82486,9 +82541,32 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Worksheet", {
     buildRows: function() {
         var rows = [];
 
-        this.store.each(function(record, index) {
-            rows.push(this.buildRow(record, index));
-        }, this);
+        // say('buildRows');
+        // say(this);
+        // say(this.store);
+        // say(this.columns);
+
+        if(this.isGrouped){
+
+            Ext.Object.each(this.store.groups.map, function (group_title, group){
+
+                rows.push(this.buildGroupRow(group_title));
+
+                group.records.forEach(function(record, index) {
+                    rows.push(this.buildRow(record, index));
+                }, this);
+
+                if(this.hasSummary){
+                    // say(this.buildSummaryRow(group.aggregate));
+                    rows.push(this.buildSummaryRow(group.aggregate));
+                }
+            }, this);
+
+        }else{
+            this.store.each(function(record, index) {
+                rows.push(this.buildRow(record, index));
+            }, this);
+        }
 
         return rows;
     },
@@ -82515,19 +82593,67 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Worksheet", {
         return cells.join("");
     },
 
+    buildGroupRow: function(group_title) {
+        return Ext.String.format('<ss:Row ss:Height="25"><ss:Cell ss:StyleID="groupcell" ss:MergeAcross="{0}"><ss:Data ss:Type="String">{1}</ss:Data><ss:NamedCell ss:Name="Print_Titles"/></ss:Cell></ss:Row>', (this.columns.length -1), group_title);
+    },
+
+    buildSummaryRow: function (record){
+        // say('buildSummaryRow');
+        // say(this);
+        // say(record);
+
+        var cells = [];
+
+        Ext.each(this.columns, function(col) {
+            var name = col.name || col.dataIndex,
+                value, type, style = 'summarycell';
+
+            if (name) {
+
+                if(Ext.isFunction(col.summaryRenderer)){
+                    value = col.summaryRenderer(record.get(name), {}, record);
+
+                    this.parserDiv.innerHTML = value;
+                    value = this.parserDiv.innerText || this.parserDiv.textContent || '';
+
+                    if(Ext.isNumeric(value)){
+                        type = 'Number';
+                    }else{
+                        type = 'String'
+                    }
+                }else{
+                    value = record.get(name);
+                    this.parserDiv.innerHTML = value;
+                    value = this.parserDiv.innerText || this.parserDiv.textContent || '';
+                    type = this.typeMappings[col.type || record.fields.get(name).type.type] || 'String';
+                }
+
+                // say(value);
+                // say(type);
+                // say(style);
+
+                cells.push(this.buildCell(value, type, style).render());
+            }
+        }, this);
+
+        return Ext.String.format('<ss:Row ss:Height="25">{0}</ss:Row>', cells.join(''));
+    },
+
     buildRow: function(record, index) {
         var style,
         cells = [];
         if (this.stripeRows === true) style = index % 2 == 0 ? 'even' : 'odd';
 
         Ext.each(this.columns, function(col) {
-            var name = col.name || col.dataIndex;
+            var name = col.name || col.dataIndex,
+                value, type;
 
             if (name) {
                 //if given a renderer via a ColumnModel, use it and ensure data type is set to String
                 if (Ext.isFunction(col.renderer)) {
-                    var value = col.renderer(record.get(name), {}, record),
-                        type = "String";
+                    value = col.renderer(record.get(name), {}, record);
+                    type = "String";
+
                     var values = [];
 					//to extract value if renderers returning html
                     this.parserDiv.innerHTML = value;
@@ -82545,18 +82671,22 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Worksheet", {
                     } else {
                         values.push(this.parserDiv.innerText || this.parserDiv.textContent);
                     }
-                    value = values.join(' ');
+                    value = values.join(' ').trim();
+
+                    if(Ext.isNumeric(value)){
+                        type = 'Number';
+                    }
 
                 } else {
-                    var value = record.get(name),
-                        type = this.typeMappings[col.type || record.fields.get(name).type.type];
+                    value = record.get(name);
+                    type = this.typeMappings[col.type || record.fields.get(name).type.type];
                 }
 
                 cells.push(this.buildCell(value, type, style).render());
             }
         }, this);
 
-        return Ext.String.format("<ss:Row>{0}</ss:Row>", cells.join(""));
+        return Ext.String.format('<ss:Row>{0}</ss:Row>', cells.join(''));
     },
 
     buildCell: function(value, type, style) {
@@ -82654,6 +82784,8 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Workbook", {
 
     this.addTitleStyle();
     this.addHeaderStyle();
+    this.addGroupStyle();
+    this.addSummaryStyle();
   },
 
   render: function() {
@@ -82763,7 +82895,7 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Workbook", {
           name: "Font",
           properties: [
             {name: "FontName", value: "arial"},
-            {name: "Size",     value: "10"}
+            {name: "Size",     value: "11"}
           ]
         },
         {name: "Interior"}, {name: "NumberFormat"}, {name: "Protection"},
@@ -82824,14 +82956,14 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Workbook", {
           name: "Font",
           properties: [
             {name: "Bold", value: "1"},
-            {name: "Size", value: "10"}
+            {name: "Size", value: "12"}
           ]
         },
         {
           name: "Interior",
           properties: [
             {name: "Pattern", value: "Solid"},
-            {name: "Color",   value: "#A3C9F1"}
+            {name: "Color",   value: "#9c9c9c"}
           ]
         },
         {
@@ -82839,6 +82971,93 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Workbook", {
           properties: [
             {name: "WrapText",   value: "1"},
             {name: "Horizontal", value: "Center"}
+          ]
+        }
+      ]
+    });
+  },
+
+  addGroupStyle: function() {
+    this.addStyle({
+      id: "groupcell",
+      attributes: [
+        {
+          name: "Font",
+          properties: [
+            {name: "Bold", value: "1"},
+            {name: "Size", value: "12"}
+          ]
+        },
+        {
+          name: "Interior",
+          properties: [
+            {name: "Pattern", value: "Solid"},
+            {name: "Color", value: "#ffffff"}
+          ]
+        },
+        {
+          name: "Alignment",
+          properties: [
+            {name: "WrapText", value: "1"},
+            {name: "Horizontal", value: "Left"}
+          ]
+        },
+        {
+          name: "Borders",
+          children: [
+            {
+              name: "Border",
+              properties: [
+                {name: "Position", value: "Bottom"},
+                {name: "LineStyle", value: "Continuous"},
+                {name: "Color", value: "#acacac"},
+                {name: "Weight", value: "2"}
+              ]
+            }
+          ]
+        }
+      ]
+    });
+  },
+
+  addSummaryStyle: function() {
+    this.addStyle({
+      id: "summarycell",
+      attributes: [
+        {
+          name: "Font",
+          properties: [
+            {name: "Bold", value: "1"},
+            {name: "Size", value: "11"}
+          ]
+        },
+        {
+          name: "Interior",
+          properties: [
+            {name: "Pattern", value: "Solid"},
+            {name: "Color", value: "#ffffff"}
+          ]
+        },
+        {
+          name: "Alignment",
+          properties: [
+            {name: "WrapText", value: "1"},
+            {name: "Horizontal", value: "Right"},
+            {name: "Vertical", value: "Top"}
+          ]
+        },
+        {
+          name: "Borders",
+          children: [
+            {
+              name: "Border",
+              properties: [
+                {name: "Position", value: "Top"},
+                {name: "LineStyle", value: "Continuous"},
+                {name: "Color", value: "#acacac"},
+                {name: "Weight", value: "1"}
+              ]
+            }
           ]
         }
       ]
@@ -82856,7 +83075,7 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Workbook", {
           name: "Interior",
           properties: [
             {name: "Pattern", value: "Solid"},
-            {name: "Color",   value: "#CCFFFF"}
+            {name: "Color",   value: "#ffffff"}
           ]
         }
       ]
@@ -82869,7 +83088,7 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Workbook", {
           name: "Interior",
           properties: [
             {name: "Pattern", value: "Solid"},
-            {name: "Color",   value: "#CCCCFF"}
+            {name: "Color",   value: "#efefef"}
           ]
         }
       ]

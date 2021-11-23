@@ -49,12 +49,29 @@ Ext.define("App.ux.grid.exporter.Exporter", {
             var store = grid.getStore() || config.store;
             var columns = Ext.Array.filter(grid.headerCt.items.getRange(), function(col) {
                 return !col.hidden && (!col.xtype || col.xtype != "actioncolumn");
-                //return !col.hidden; // && (!col.xtype || col.xtype != "actioncolumn");
             });
+            var isGrouped = store.isGrouped ? store.isGrouped() : false;
+            var hasSummary;
+            var groupField;
+            var grouping;
+            if(isGrouped){
+                //var feature = this.getFeature( grid, featureId );
+                grouping = this.getFeature(grid, 'grouping');
+                if(grouping){
+                    groupField = grouping.getGroupField();
+                    hasSummary = (grouping.ftype === "groupingsummary");
+                }else {
+                    isGrouped = false;  // isGrouped turned off if grouping feature not defined
+                }
+            }
 
-            Ext.applyIf(config, {
+            Ext.apply(config, {
                 title: grid.title,
-                columns: columns
+                columns: columns,
+                isGrouped: isGrouped,
+                hasSummary: hasSummary,
+                groupField: groupField,
+                grouping: grouping
             });
 
             return {
@@ -120,6 +137,32 @@ Ext.define("App.ux.grid.exporter.Exporter", {
             formatter = formatter ? formatter : "excel";
             formatter = !Ext.isString(formatter) ? formatter : Ext.create("App.ux.grid.exporter." + formatter + "Formatter." + Ext.String.capitalize(formatter) + "Formatter");
             return formatter;
-        }
+        },
+
+        getFeature: function(grid, featureFType){
+            var view = grid.getView();
+
+            var features;
+            if(view.features)
+                features = view.features;
+            else if(view.featuresMC)
+                features = view.featuresMC.items;
+            else if(view.normalView.featuresMC)
+                features = view.normalView.featuresMC.items;
+
+            if(features)
+                for(var i = 0; i < features.length; i++){
+                    if(featureFType == 'grouping')
+                        if(features[i].ftype == 'grouping' || features[i].ftype == 'groupingsummary')
+                            return features[i];
+                    if(featureFType == 'groupingsummary')
+                        if(features[i].ftype == 'groupingsummary')
+                            return features[i];
+                    if(featureFType == 'summary')
+                        if(features[i].ftype == 'summary')
+                            return features[i];
+                }
+            return undefined;
+        },
     }
 });

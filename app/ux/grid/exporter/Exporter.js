@@ -47,31 +47,40 @@ Ext.define("App.ux.grid.exporter.Exporter", {
             formatter = this.getFormatterByName(formatter);
 
             var store = grid.getStore() || config.store;
-            var columns = Ext.Array.filter(grid.headerCt.items.getRange(), function(col) {
-                return !col.hidden && (!col.xtype || col.xtype != "actioncolumn");
+            var columns = Ext.Array.filter(grid.view.headerCt.getVisibleGridColumns(), function(col) {
+                return !col.hidden && (!col.xtype || col.xtype !== "actioncolumn" || col.xtype !== "rownumberer" || col.xtype !== "templatecolumn") && col.isCheckerHd !== true;
             });
             var isGrouped = store.isGrouped ? store.isGrouped() : false;
             var hasSummary;
+            var hasGroupingSummary;
             var groupField;
             var grouping;
+            var summary = this.getFeature(grid, 'summary');
+
             if(isGrouped){
                 //var feature = this.getFeature( grid, featureId );
                 grouping = this.getFeature(grid, 'grouping');
                 if(grouping){
                     groupField = grouping.getGroupField();
-                    hasSummary = (grouping.ftype === "groupingsummary");
+                    hasGroupingSummary = (grouping.ftype === "groupingsummary");
                 }else {
                     isGrouped = false;  // isGrouped turned off if grouping feature not defined
                 }
+            }
+
+            if(summary){
+                hasSummary = true
             }
 
             Ext.apply(config, {
                 title: grid.title,
                 columns: columns,
                 isGrouped: isGrouped,
+                hasGroupingSummary: hasGroupingSummary,
                 hasSummary: hasSummary,
                 groupField: groupField,
-                grouping: grouping
+                grouping: grouping,
+                summary: summary
             });
 
             return {

@@ -123,7 +123,7 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Worksheet", {
                     rows.push(this.buildRow(record, index));
                 }, this);
 
-                if(this.hasSummary){
+                if(this.hasGroupingSummary && group.aggregate){
                     // say(this.buildSummaryRow(group.aggregate));
                     rows.push(this.buildSummaryRow(group.aggregate));
                 }
@@ -133,6 +133,12 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Worksheet", {
             this.store.each(function(record, index) {
                 rows.push(this.buildRow(record, index));
             }, this);
+        }
+
+        if(this.hasSummary){
+            say('hasSummary');
+            say(this);
+            rows.push(this.buildSummaryRow(this.summary.summaryRecord));
         }
 
         return rows;
@@ -176,7 +182,6 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Worksheet", {
                 value, type, style = 'summarycell';
 
             if (name) {
-
                 if(Ext.isFunction(col.summaryRenderer)){
                     value = col.summaryRenderer(record.get(name), {}, record);
 
@@ -189,15 +194,19 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Worksheet", {
                         type = 'String'
                     }
                 }else{
-                    value = record.get(name);
+                    value = record.get(name) || '';
                     this.parserDiv.innerHTML = value;
                     value = this.parserDiv.innerText || this.parserDiv.textContent || '';
-                    type = this.typeMappings[col.type || record.fields.get(name).type.type] || 'String';
-                }
+                    type = this.typeMappings[col.type];
 
-                // say(value);
-                // say(type);
-                // say(style);
+                    if(type === undefined){
+                        if(Ext.isNumeric(value)){
+                            type = 'Number';
+                        }else{
+                            type = 'String'
+                        }
+                    }
+                }
 
                 cells.push(this.buildCell(value, type, style).render());
             }

@@ -54,10 +54,15 @@ Ext.define('App.view.reports.ReportWindow', {
 				frame: true,
 				title: _('report'),
 				itemId: 'ReportWindowGrid',
-				features: [{
-					groupHeaderTpl: '{name}',
-					ftype: 'groupingsummary'
-				}],
+				features: [
+					{
+						groupHeaderTpl: '{name}',
+						ftype: 'groupingsummary'
+					},
+					{
+						ftype: 'summary'
+					}
+				],
 				flex: 1,
 				tbar: [
 					'->',

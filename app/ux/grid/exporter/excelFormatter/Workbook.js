@@ -232,7 +232,7 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Workbook", {
           name: "Alignment",
           properties: [
             {name: "WrapText",   value: "1"},
-            {name: "Horizontal", value: "Center"},
+            {name: "Horizontal", value: "Left"},
             {name: "Vertical",   value: "Center"}
           ]
         }

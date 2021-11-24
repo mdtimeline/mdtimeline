@@ -451,13 +451,9 @@ Ext.define('App.controller.reports.Reports', {
 		report_grid.filters = filters;
 
 
-
-
 		Reports.runReportByIdAndFilters(report_record.get('id'), filters, function (response) {
-
-			report_grid.getStore().loadData(response);
+			report_grid.getStore().loadRawData(response);
 			report_grid.view.el.unmask();
-
 		});
 
 	},

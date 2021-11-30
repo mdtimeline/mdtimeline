@@ -36273,6 +36273,11 @@ Ext.define('App.view.administration.TransactionLog', {
             remoteSort: true
         });
 
+        me.auditLogStore = Ext.create('App.store.administration.AuditLogs', {
+            remoteFilter: true,
+            remoteSort: true
+        });
+
         me.pageBody = [
             {
                 xtype: 'form',
@@ -36392,68 +36397,209 @@ Ext.define('App.view.administration.TransactionLog', {
                 ]
             },
             {
-                xtype: 'grid',
-                itemId: 'TransactionLogDataGrid',
-                store: me.transactionLogStore,
+                xtype: 'tabpanel',
+                //layout: 'fit',
+                itemId: 'TransactionLogTabPanel',
                 region: 'center',
-	            border: true,
-	            title: _('results'),
-                dockedItems: [
+                items: [
                     {
-                        xtype: 'pagingtoolbar',
+                        // Transaction Log Grid
+                        xtype: 'grid',
+                        itemId: 'TransactionLogDataGrid',
                         store: me.transactionLogStore,
-                        dock: 'bottom',
-                        displayInfo: true
-                    }
-                ],
-                columns: [
-	                {
-		                text: 'Date',
-		                dataIndex: 'date',
-		                width: 250
-	                },
-                    {
-                        text: 'Patient',
-                        dataIndex: 'patient_lname',
-	                    flex: 1,
-	                    renderer: function (v, meta,rec) {
-		                    return rec.get('patient_name');
-	                    }
+                        region: 'center',
+                        border: true,
+                        title: _('transaction_log'),
+                        dockedItems: [
+                            {
+                                xtype: 'pagingtoolbar',
+                                store: me.transactionLogStore,
+                                dock: 'bottom',
+                                displayInfo: true
+                            }
+                        ],
+                        columns: [
+                            {
+                                xtype:'datecolumn',
+                                text: 'Date',
+                                format:'Y-m-d H:i:s',
+                                dataIndex: 'date',
+                                width: 250
+                            },
+                            {
+                                text: 'Patient',
+                                dataIndex: 'patient_lname',
+                                flex: 1,
+                                renderer: function (v, meta,rec) {
+                                    return rec.get('patient_name');
+                                }
+                            },
+                            {
+                                text: 'User',
+                                dataIndex: 'user_lname',
+                                flex: 1,
+                                renderer: function (v, meta,rec) {
+                                    return rec.get('user_name');
+                                }
+                            },
+                            {
+                                text: 'Category',
+                                dataIndex: 'category',
+                                flex: 1
+                            },
+                            {
+                                text: 'Event',
+                                dataIndex: 'event',
+                                flex: 1
+                            },
+                            {
+                                text: 'Pk',
+                                dataIndex: 'pk'
+                            },
+                            {
+                                text: 'Table',
+                                dataIndex: 'table_name',
+                                flex: 1
+                            },
+                            {
+                                text: 'IP',
+                                dataIndex: 'ip',
+                                flex: 1
+                            }
+                        ]
                     },
+                    // Audit Log Grid
                     {
-                        text: 'User',
-                        dataIndex: 'user_lname',
-	                    flex: 1,
-	                    renderer: function (v, meta,rec) {
-		                    return rec.get('user_name');
-	                    }
-                    },
-                    {
-                        text: 'Category',
-                        dataIndex: 'category',
-	                    flex: 1
-                    },
-                    {
-                        text: 'Event',
-	                    dataIndex: 'event',
-	                    flex: 1
-                    },
-                    {
-                        text: 'Pk',
-                        dataIndex: 'pk'
-                    },
-                    {
-                        text: 'Table',
-                        dataIndex: 'table_name',
-	                    flex: 1
-                    },
-                    {
-                        text: 'IP',
-                        dataIndex: 'ip',
-	                    flex: 1
+                        xtype: 'grid',
+                        itemId: 'AuditLogDataGrid',
+                        store: me.auditLogStore,
+                        region: 'center',
+                        border: true,
+                        title: _('audit_log'),
+                        dockedItems: [
+                            {
+                                xtype: 'pagingtoolbar',
+                                store: me.auditLogStore,
+                                dock: 'bottom',
+                                displayInfo: true
+                            }
+                        ],
+                        columns: [
+                            {
+                                xtype:'datecolumn',
+                                text: 'Date',
+                                format:'Y-m-d H:i:s',
+                                dataIndex: 'event_date',
+                                width: 250
+                            },
+                            {
+                                text: 'Patient',
+                                dataIndex: 'patient_lname',
+                                flex: 1,
+                                renderer: function (v, meta,rec) {
+                                    return rec.get('patient_name');
+                                }
+                            },
+                            {
+                                text: 'User',
+                                dataIndex: 'user_lname',
+                                flex: 1,
+                                renderer: function (v, meta,rec) {
+                                    return rec.get('user_name');
+                                }
+                            },
+                            {
+                                text: 'Event',
+                                dataIndex: 'event',
+                                flex: 1
+                            },
+                            {
+                                text: 'Event Description',
+                                dataIndex: 'event_description',
+                                flex: 1
+                            },
+                            {
+                                text: 'Foreign Pk',
+                                dataIndex: 'foreign_id'
+                            },
+                            {
+                                text: 'Foreign Table',
+                                dataIndex: 'foreign_table',
+                                flex: 1
+                            },
+                            {
+                                text: 'IP',
+                                dataIndex: 'ip',
+                                flex: 1
+                            }
+                        ]
                     }
                 ]
             }
+
+            // {
+            //     xtype: 'grid',
+            //     itemId: 'TransactionLogDataGrid',
+            //     store: me.transactionLogStore,
+            //     region: 'center',
+	        //     border: true,
+	        //     title: _('results'),
+            //     dockedItems: [
+            //         {
+            //             xtype: 'pagingtoolbar',
+            //             store: me.transactionLogStore,
+            //             dock: 'bottom',
+            //             displayInfo: true
+            //         }
+            //     ],
+            //     columns: [
+	        //         {
+		    //             text: 'Date',
+		    //             dataIndex: 'date',
+		    //             width: 250
+	        //         },
+            //         {
+            //             text: 'Patient',
+            //             dataIndex: 'patient_lname',
+	        //             flex: 1,
+	        //             renderer: function (v, meta,rec) {
+		    //                 return rec.get('patient_name');
+	        //             }
+            //         },
+            //         {
+            //             text: 'User',
+            //             dataIndex: 'user_lname',
+	        //             flex: 1,
+	        //             renderer: function (v, meta,rec) {
+		    //                 return rec.get('user_name');
+	        //             }
+            //         },
+            //         {
+            //             text: 'Category',
+            //             dataIndex: 'category',
+	        //             flex: 1
+            //         },
+            //         {
+            //             text: 'Event',
+	        //             dataIndex: 'event',
+	        //             flex: 1
+            //         },
+            //         {
+            //             text: 'Pk',
+            //             dataIndex: 'pk'
+            //         },
+            //         {
+            //             text: 'Table',
+            //             dataIndex: 'table_name',
+	        //             flex: 1
+            //         },
+            //         {
+            //             text: 'IP',
+            //             dataIndex: 'ip',
+	        //             flex: 1
+            //         }
+            //     ]
+            // }
         ];
 
         me.callParent(arguments);
@@ -43191,6 +43337,14 @@ Ext.define('App.controller.administration.TransactionLog', {
 	    {
 		    ref:'TransactionLogDetailLogGrid',
 		    selector:'#TransactionLogDetailLogGrid'
+	    },
+	    {
+		    ref:'TransactionLogTabPanel',
+		    selector:'#TransactionLogTabPanel'
+	    },
+	    {
+		    ref:'AuditLogDataGrid',
+		    selector:'#AuditLogDataGrid'
 	    }
     ],
 
@@ -43215,11 +43369,17 @@ Ext.define('App.controller.administration.TransactionLog', {
 
 	onTransactionLogFilterSearchBtnClick: function() {
 
+		// Aqui hay que buscar el tabpanel activo para hacer el search
+		// Metodo del tab: sgetActiveTab
 		var form = this.getTransactionLogFilterFormPanel().getForm(),
-			store = this.getTransactionLogDataGrid().getStore(),
+			tabpanel = this.getTransactionLogTabPanel(),
+			active_grid = tabpanel.getActiveTab(),
+			store = active_grid.getStore(),
+			//store = this.getTransactionLogDataGrid().getStore(),
 			values = form.getValues();
 
 		if (!form.isValid()) return;
+
 
 		store.getProxy().extraParams = { filters: values };
 		store.load();

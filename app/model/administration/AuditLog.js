@@ -97,6 +97,33 @@ Ext.define('App.model.administration.AuditLog', {
 			store: false
 		},
 		{
+			name: 'patient_lname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'patient_fname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'patient_mname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'patient_name',
+			type: 'string',
+			convert: function (v, record) {
+				var str = '';
+				if (record.data.patient_lname) str += record.data.patient_lname + ', ';
+				if (record.data.patient_fname) str += record.data.patient_fname + ' ';
+				if (record.data.patient_mname) str += record.data.patient_mname;
+				return str;
+			},
+			store: false
+		},
+		{
 			name: 'site',
 			type: 'string',
 			store: false

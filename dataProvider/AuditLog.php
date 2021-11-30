@@ -65,16 +65,109 @@ class AuditLog {
 		}
 
 
-		$results =  $this->a->load($params)->leftJoin(
-			[
-				'fname' => 'user_fname',
-				'mname' => 'user_mname',
-				'lname' => 'user_lname'
-			],
-			'users',
-			'uid',
-			'id'
-		)->all();
+        if(isset($params->filters)){
+
+
+            $filters = $params->filters;
+
+            $from_date = $filters->begin_date . ' ' . $filters->begin_time;
+            $to_date = $filters->end_date . ' ' . $filters->end_time;
+
+            $values = [
+                ':from_date' => $from_date,
+                ':to_date' => $to_date
+            ];
+
+            $sql = 'SELECT * FROM `audit_log` WHERE `event_date` >= :from_date AND `event_date` <= :to_date';
+
+            if (isset($filters->table_name) && $filters->table_name != '') {
+                $sql .= ' AND `foreign_table` = :table_name';
+                $values[':table_name'] = $filters->table_name;
+            }
+
+            if (isset($filters->event_type) && $filters->event_type != '') {
+                $sql .= ' AND `event` = :event';
+                $values[':event'] = $filters->event_type;
+            }
+
+            if (isset($filters->pid) && $filters->pid != '') {
+                $sql .= ' AND `pid` = :pid';
+                $values[':pid'] = $filters->pid;
+            }
+
+            if (isset($filters->uid) && $filters->uid != '') {
+                $sql .= ' AND `uid` = :uid';
+                $values[':uid'] = $filters->uid;
+            }
+
+            $sql = "SELECT atl.*,
+						u.title AS user_title,
+						u.fname AS user_fname,
+						u.mname AS user_mname,
+						u.lname AS user_lname,
+						p.title AS patient_title,
+						p.fname AS patient_fname,
+						p.mname AS patient_mname,
+						p.lname AS patient_lname						
+				  FROM ($sql) as atl
+ 			 LEFT JOIN users as u ON u.id = atl.uid
+ 			 LEFT JOIN patient as p ON p.pid = atl.pid";
+
+            if(isset($params->sort)){
+                $sorters = [];
+
+                foreach ($params->sort as $sort){
+
+                    if(!isset($sort->property)) continue;
+                    if(!isset($sort->direction)) $sort->direction = 'ASC';
+
+                    if($sort->property == 'patient_lname'){
+                        $sort->property = 'p.lname';
+
+                    }elseif($sort->property == 'user_lname'){
+                        $sort->property = 'u.lname';
+                    }else {
+                        $sort->property = 'atl.' . $sort->property;
+                    }
+
+                    $sorters[] = "{$sort->property} {$sort->direction}";
+                }
+
+                if(!empty($sorters)){
+                    $sorters = ' ORDER BY ' . implode(', ', $sorters);
+                    $sql .= $sorters;
+                }
+
+            }
+
+            $results = $this->a->sql($sql)->all($values);
+
+
+        }else{
+            $results =  $this->a->load($params)
+                ->leftJoin(
+                    [
+                        'fname' => 'user_fname',
+                        'mname' => 'user_mname',
+                        'lname' => 'user_lname'
+                    ],
+                    'users',
+                    'uid',
+                    'id'
+                )
+                ->leftJoin(
+                    [
+                        'fname' => 'patient_fname',
+                        'mname' => 'patient_mname',
+                        'lname' => 'patient_lname'
+                    ],
+                    'patient',
+                    'pid',
+                    'pid'
+                )
+                ->all();
+        }
+
 
 		if(isset($params->site) && isset($GLOBALS['worklist_dbs'][$params->site])){
 			\Matcha::$__conn = null;

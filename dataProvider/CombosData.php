@@ -96,9 +96,27 @@ class CombosData {
      */
     public function getEventList()
     {
-        $this->TransactionLog = MatchaModel::setSenchaModel('App.model.administration.TransactionLog');
-        $sql = "SELECT distinct(event) as event FROM audit_transaction_log;";
-        return $this->TransactionLog->sql($sql)->all();
+        //        $this->TransactionLog = MatchaModel::setSenchaModel('App.model.administration.TransactionLog');
+        //        $sql = "SELECT distinct(event) as event FROM audit_transaction_log;";
+        //        return $this->TransactionLog->sql($sql)->all();
+
+        return [
+            ['event' => 'ACK'],
+            ['event' => 'ARCHIVE'],
+            ['event' => 'CCDA_ARCHIVED'],
+            ['event' => 'CCDA_IMPORT'],
+            ['event' => 'CREATE'],
+            ['event' => 'DELETE'],
+            ['event' => 'EXPORT'],
+            ['event' => 'IMPORT'],
+            ['event' => 'INSERT'],
+            ['event' => 'PRINT'],
+            ['event' => 'RECONCILE'],
+            ['event' => 'SELECT'],
+            ['event' => 'SEND'],
+            ['event' => 'UPDATE'],
+            ['event' => 'VIEW']
+        ];
     }
 
 	/**

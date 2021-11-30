@@ -44,6 +44,14 @@ Ext.define('App.controller.administration.TransactionLog', {
 	    {
 		    ref:'TransactionLogDetailLogGrid',
 		    selector:'#TransactionLogDetailLogGrid'
+	    },
+	    {
+		    ref:'TransactionLogTabPanel',
+		    selector:'#TransactionLogTabPanel'
+	    },
+	    {
+		    ref:'AuditLogDataGrid',
+		    selector:'#AuditLogDataGrid'
 	    }
     ],
 
@@ -68,11 +76,17 @@ Ext.define('App.controller.administration.TransactionLog', {
 
 	onTransactionLogFilterSearchBtnClick: function() {
 
+		// Aqui hay que buscar el tabpanel activo para hacer el search
+		// Metodo del tab: sgetActiveTab
 		var form = this.getTransactionLogFilterFormPanel().getForm(),
-			store = this.getTransactionLogDataGrid().getStore(),
+			tabpanel = this.getTransactionLogTabPanel(),
+			active_grid = tabpanel.getActiveTab(),
+			store = active_grid.getStore(),
+			//store = this.getTransactionLogDataGrid().getStore(),
 			values = form.getValues();
 
 		if (!form.isValid()) return;
+
 
 		store.getProxy().extraParams = { filters: values };
 		store.load();

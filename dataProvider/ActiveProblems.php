@@ -165,6 +165,28 @@ class ActiveProblems
 		return $this->a->load()->all();
 	}
 
+    public function getPatientActiveProblemsAt($pid, $date){
+        $sql = "SELECT *
+                FROM patient_active_problems AS ap
+                WHERE ap.pid = :pid AND
+                (
+                    (:service_date_1 BETWEEN DATE(begin_date) AND CONCAT(end_date, ' 00:00:00')) OR
+                    (DATE(begin_date) = DATE(:service_date_2)) OR 
+                    (
+                        DATE(begin_date) <= DATE(:service_date_3) AND
+                        end_date IS NULL AND 
+                        status = 'Active'
+                    )
+                )";
+
+        return $this->a->sql($sql)->all([
+            ':pid' => $pid,
+            ':service_date_1' => $date,
+            ':service_date_2' => $date,
+            ':service_date_3' => $date
+        ]);
+    }
+
 	public function isActiveByPidAndCodes($pid, $codes){
         $sql ="SELECT * FROM patient_active_problems WHERE pid = :pid AND FIND_IN_SET(`code`, :codes)";
 

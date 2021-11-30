@@ -2228,4 +2228,5 @@ $LANG = array(
     'header_line' => 'Header Line',
     'footer_margin' => 'Footer Margin',
     'is_interface_tpl' => 'Is Interface Tpl',
+    'print_list' => 'Print List',
 );

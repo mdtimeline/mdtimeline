@@ -130,6 +130,12 @@ Ext.define('App.controller.reports.Reports', {
 								anchor: '100%'
 							},
 							{
+								xtype: 'aclpermissions',
+								fieldLabel: _('permission'),
+								name: 'report_perm',
+								anchor: '100%'
+							},
+							{
 								xtype: 'textareafield',
 								fieldLabel: _('columns'),
 								name: 'columns',
@@ -268,8 +274,10 @@ Ext.define('App.controller.reports.Reports', {
 			model_fields = [], search_fields = [], columns, group_by;
 
 		report_grid.filters = undefined;
-		win.setTitle(record.get('title'));
+		win.setTitle('Report Viewer');
 		win.el.mask('Getting Things Ready');
+
+		report_grid.setTitle(record.get('title'));
 
 		Reports.getReport(record.get('id'), function (response) {
 
@@ -443,13 +451,9 @@ Ext.define('App.controller.reports.Reports', {
 		report_grid.filters = filters;
 
 
-
-
 		Reports.runReportByIdAndFilters(report_record.get('id'), filters, function (response) {
-
-			report_grid.getStore().loadData(response);
+			report_grid.getStore().loadRawData(response);
 			report_grid.view.el.unmask();
-
 		});
 
 	},

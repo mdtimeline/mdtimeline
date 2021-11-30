@@ -33,7 +33,17 @@ class Reports
 
 	public function getReports($params){
 		unset($params->group);
-		return $this->r->load($params)->all();
+
+        $user_perms = ACL::getAllUserPermsAccess();
+        $access_perm_list = [];
+
+        foreach ($user_perms as $user_perm){
+            $access_perm_list[] = $user_perm['perm'];
+        }
+
+        $access_perm_list = implode(',', $access_perm_list);
+        $sql = "SELECT * FROM reports AS r WHERE r.report_perm = '*' OR FIND_IN_SET(r.report_perm, '{$access_perm_list}')";
+		return $this->r->sql($sql)->all();
 	}
 
 	public function getReport($params, $include_parameters = true){

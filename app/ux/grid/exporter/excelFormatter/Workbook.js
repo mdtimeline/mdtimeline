@@ -76,6 +76,8 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Workbook", {
 
     this.addTitleStyle();
     this.addHeaderStyle();
+    this.addGroupStyle();
+    this.addSummaryStyle();
   },
 
   render: function() {
@@ -185,7 +187,7 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Workbook", {
           name: "Font",
           properties: [
             {name: "FontName", value: "arial"},
-            {name: "Size",     value: "10"}
+            {name: "Size",     value: "11"}
           ]
         },
         {name: "Interior"}, {name: "NumberFormat"}, {name: "Protection"},
@@ -230,7 +232,7 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Workbook", {
           name: "Alignment",
           properties: [
             {name: "WrapText",   value: "1"},
-            {name: "Horizontal", value: "Center"},
+            {name: "Horizontal", value: "Left"},
             {name: "Vertical",   value: "Center"}
           ]
         }
@@ -246,14 +248,14 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Workbook", {
           name: "Font",
           properties: [
             {name: "Bold", value: "1"},
-            {name: "Size", value: "10"}
+            {name: "Size", value: "12"}
           ]
         },
         {
           name: "Interior",
           properties: [
             {name: "Pattern", value: "Solid"},
-            {name: "Color",   value: "#A3C9F1"}
+            {name: "Color",   value: "#9c9c9c"}
           ]
         },
         {
@@ -261,6 +263,93 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Workbook", {
           properties: [
             {name: "WrapText",   value: "1"},
             {name: "Horizontal", value: "Center"}
+          ]
+        }
+      ]
+    });
+  },
+
+  addGroupStyle: function() {
+    this.addStyle({
+      id: "groupcell",
+      attributes: [
+        {
+          name: "Font",
+          properties: [
+            {name: "Bold", value: "1"},
+            {name: "Size", value: "12"}
+          ]
+        },
+        {
+          name: "Interior",
+          properties: [
+            {name: "Pattern", value: "Solid"},
+            {name: "Color", value: "#ffffff"}
+          ]
+        },
+        {
+          name: "Alignment",
+          properties: [
+            {name: "WrapText", value: "1"},
+            {name: "Horizontal", value: "Left"}
+          ]
+        },
+        {
+          name: "Borders",
+          children: [
+            {
+              name: "Border",
+              properties: [
+                {name: "Position", value: "Bottom"},
+                {name: "LineStyle", value: "Continuous"},
+                {name: "Color", value: "#acacac"},
+                {name: "Weight", value: "2"}
+              ]
+            }
+          ]
+        }
+      ]
+    });
+  },
+
+  addSummaryStyle: function() {
+    this.addStyle({
+      id: "summarycell",
+      attributes: [
+        {
+          name: "Font",
+          properties: [
+            {name: "Bold", value: "1"},
+            {name: "Size", value: "11"}
+          ]
+        },
+        {
+          name: "Interior",
+          properties: [
+            {name: "Pattern", value: "Solid"},
+            {name: "Color", value: "#ffffff"}
+          ]
+        },
+        {
+          name: "Alignment",
+          properties: [
+            {name: "WrapText", value: "1"},
+            {name: "Horizontal", value: "Right"},
+            {name: "Vertical", value: "Top"}
+          ]
+        },
+        {
+          name: "Borders",
+          children: [
+            {
+              name: "Border",
+              properties: [
+                {name: "Position", value: "Top"},
+                {name: "LineStyle", value: "Continuous"},
+                {name: "Color", value: "#acacac"},
+                {name: "Weight", value: "1"}
+              ]
+            }
           ]
         }
       ]
@@ -278,7 +367,7 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Workbook", {
           name: "Interior",
           properties: [
             {name: "Pattern", value: "Solid"},
-            {name: "Color",   value: "#CCFFFF"}
+            {name: "Color",   value: "#ffffff"}
           ]
         }
       ]
@@ -291,7 +380,7 @@ Ext.define("App.ux.grid.exporter.excelFormatter.Workbook", {
           name: "Interior",
           properties: [
             {name: "Pattern", value: "Solid"},
-            {name: "Color",   value: "#CCCCFF"}
+            {name: "Color",   value: "#efefef"}
           ]
         }
       ]

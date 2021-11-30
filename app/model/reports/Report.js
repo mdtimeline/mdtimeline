@@ -38,6 +38,10 @@ Ext.define('App.model.reports.Report',{
             type: 'string'
         },
         {
+            name: 'report_perm',
+            type: 'string'
+        },
+        {
             name: 'columns',
             type: 'string'
         }

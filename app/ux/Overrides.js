@@ -648,6 +648,101 @@ Ext.override(Ext.data.proxy.Server, {
 	}
 });
 
+Ext.override(Ext.grid.feature.Grouping, {
+
+    setupRowData: function(record, idx, rowValues) {
+        var me = this,
+            data = me.refreshData,
+            groupInfo = me.groupInfo,
+            header = data.header,
+            groupField = data.groupField,
+            store = me.view.dataSource,
+            grouper, groupName, prev, next;
+
+        rowValues.isCollapsedGroup = false;
+        rowValues.summaryRecord = null;
+
+        if (data.doGrouping) {
+            grouper = me.view.store.groupers.first();
+
+            // This is a placeholder record which represents a whole collapsed group
+            // It is a special case.
+            if (record.children) {
+                groupName = grouper.getGroupString(record.children[0]);
+
+                rowValues.isFirstRow = rowValues.isLastRow = true;
+                rowValues.itemClasses.push(me.hdCollapsedCls);
+                rowValues.isCollapsedGroup = true;
+                rowValues.groupInfo = groupInfo;
+                groupInfo.groupField = groupField;
+                groupInfo.name = groupName;
+                groupInfo.groupValue = record.children[0].get(groupField);
+                groupInfo.columnName = header ? header.text : groupField;
+                rowValues.collapsibleCls = me.collapsible ? me.collapsibleCls : me.hdNotCollapsibleCls;
+                rowValues.groupId = me.createGroupId(groupName);
+                groupInfo.rows = groupInfo.children = record.children;
+                if (me.showSummaryRow) {
+                    rowValues.summaryRecord = data.summaryData[groupName];
+                }
+                return;
+            }
+
+            groupName = grouper.getGroupString(record);
+
+            // See if the current record is the last in the group
+            rowValues.isFirstRow = idx === 0;
+            if (!rowValues.isFirstRow) {
+                prev = store.getAt(idx - 1);
+                // If the previous row is of a different group, then we're at the first for a new group
+                if (prev) {
+                    // Must use Model's comparison because Date objects are never equal
+                    rowValues.isFirstRow = !prev.isEqual(grouper.getGroupString(prev), groupName);
+                }
+            }
+
+            // See if the current record is the last in the group
+            rowValues.isLastRow = idx == store.getTotalCount() - 1;
+            if (!rowValues.isLastRow) {
+                next = store.getAt(idx + 1);
+                if (next) {
+                    // Must use Model's comparison because Date objects are never equal
+                    rowValues.isLastRow = !next.isEqual(grouper.getGroupString(next), groupName);
+                }
+            }
+
+            if (rowValues.isFirstRow) {
+                groupInfo.groupField = groupField;
+                groupInfo.name = groupName;
+                groupInfo.groupValue = record.get(groupField);
+                groupInfo.columnName = header ? header.text : groupField;
+                rowValues.collapsibleCls = me.collapsible ? me.collapsibleCls : me.hdNotCollapsibleCls;
+                rowValues.groupId = me.createGroupId(groupName);
+
+                if (!me.isExpanded(groupName)) {
+                    rowValues.itemClasses.push(me.hdCollapsedCls);
+                    rowValues.isCollapsedGroup = true;
+                }
+
+                // We only get passed a GroupStore if the store is not buffered
+                if (store.buffered) {
+                    groupInfo.rows = groupInfo.children = [];
+                } else {
+                    groupInfo.rows = groupInfo.children = me.getRecordGroup(record).children;
+                }
+                rowValues.groupInfo = groupInfo;
+            }
+
+            if (rowValues.isLastRow) {
+                // Add the group's summary record to the last record in the group
+                if (me.showSummaryRow) {
+                    rowValues.summaryRecord = data.summaryData[groupName];
+                    rowValues.summaryRecord.isGroupingSummary = true;
+                }
+            }
+        }
+    }
+
+});
 Ext.override(Ext.data.reader.Reader, {
 	/**
 	 * Creates new Reader.

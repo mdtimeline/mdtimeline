@@ -28,7 +28,8 @@ Ext.define('App.view.patient.EncountersGrid', {
 		var me = this;
 
 		me.store = Ext.create('App.store.patient.Encounters', {
-			remoteFilter: true
+			remoteFilter: true,
+			pageSize: 500
 		});
 
 		me.columns = [

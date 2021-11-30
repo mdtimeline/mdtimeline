@@ -211,7 +211,7 @@ class Medications
                 LEFT JOIN users AS u ON pm.administered_uid = u.id
                 WHERE pm.pid = :pid AND
                 (
-                    (DATE(:service_date_1) BETWEEN DATE(begin_date) AND DATE(end_date)) OR
+                    (:service_date_1 BETWEEN DATE(begin_date) AND CONCAT(end_date, ' 00:00:00')) OR
                     (DATE(begin_date) = DATE(:service_date_2)) OR 
                     (
                         DATE(begin_date) <= DATE(:service_date_3) AND

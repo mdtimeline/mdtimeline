@@ -826,7 +826,7 @@ class Encounter {
 //		if($encounter['review_medications'] && isset($encounter)){
 		if(isset($encounter)){
 			$ActiveMedications = new Medications();
-			$active_medications = $ActiveMedications->getPatientMedicationsActiveAt($encounter['pid'], date('Y-m-d', strtotime($encounter['service_date'])));
+			$active_medications = $ActiveMedications->getPatientMedicationsActiveAt($encounter['pid'], date('Y-m-d H:i:s', strtotime($encounter['service_date'])));
 
 			$str_buff .= '<div class="indent">';
 			if(!empty($active_medications)){
@@ -1018,7 +1018,7 @@ class Encounter {
 		 */
 		$ActiveProblems = new ActiveProblems();
 		if(isset($encounter)){
-			$active_problems = $ActiveProblems->getPatientAllProblemsByPidAndDates($encounter['pid'], null, date('Y-m-d 23:59:59', strtotime($encounter['service_date'])));
+			$active_problems = $ActiveProblems->getPatientActiveProblemsAt($encounter['pid'], date('Y-m-d H:i:s', strtotime($encounter['service_date'])));
 		}else{
 			$active_problems = $ActiveProblems->getPatientActiveProblemByEid($eid);
 		}
@@ -1334,7 +1334,7 @@ class Encounter {
             $lis = '';
             foreach($implantableDevices as $foo){
                 $lis .= '<li><b>Description:</b> ' . $foo['description'] . ' - ';
-                $lis .= '<b>UDI:</b> (' . $foo['udi'] . ')' . $foo['code'] . ' - ';
+                $lis .= '<b>UDI:</b> (' . $foo['udi'] . ')' . ' - ';
                 $lis .= '<b>Implanted:</b> ' . $foo['implanted_date'] . '</li>';
             }
             $str_buff .= '<p><b>Implantable Devices:</b>';

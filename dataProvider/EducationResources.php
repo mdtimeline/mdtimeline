@@ -325,4 +325,9 @@ class EducationResources {
 		return $this->e->destroy($params);
 	}
 
+	public function getEducationResourcesByEid($eid) {
+        $this->pe->addFilter('eid', $eid);
+        return $this->pe->load()->all();
+	}
+
 }

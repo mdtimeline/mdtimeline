@@ -35,6 +35,7 @@ include_once(ROOT . '/dataProvider/NursesNotes.php');
 include_once(ROOT . '/dataProvider/EncounterAddenda.php');
 include_once(ROOT . '/dataProvider/PhysicalExams.php');
 include_once(ROOT . '/dataProvider/ImplantableDevice.php');
+include_once(ROOT . '/dataProvider/EducationResources.php');
 
 class Encounter {
 	/**
@@ -1531,6 +1532,31 @@ class Encounter {
 			$str_buff .= '</div>';
 		}
 		unset($Referrals, $referrals);
+
+
+        /**
+         * Educational Resources
+         */
+        $EducationResources = new EducationResources();
+        $education_resources = $EducationResources->getEducationResourcesByEid($eid);
+        if(!empty($education_resources)){
+            $str_buff .= '<div class="indent">';
+            $str_buff .= '<p><b>Educational Resource(s):</b></p>';
+
+            foreach($education_resources as $foo){
+                $str_buff .= '<p class="indent">';
+                $str_buff .= '<u></u> ' . $foo['title'] . '<br>';
+                $str_buff .= '</p>';
+            }
+            $str_buff .= '</div>';
+        }else{
+            $str_buff .= '<div class="indent">';
+            $str_buff .= '<p><b>Educational Resource(s):</b> Not given.</p>';
+            $str_buff .= '</div>';
+        }
+        unset($EducationResources, $education_resources);
+
+
 
 
 		// dont include nurse data if false

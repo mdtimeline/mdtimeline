@@ -43,6 +43,14 @@ class HL7Server {
 	 * @var MatchaCUP
 	 */
 	protected $pa;
+	/**
+	 * @var MatchaCUP
+	 */
+	protected $pv;
+	/**
+	 * @var MatchaCUP
+	 */
+	protected $l;
     /**
      * @var MatchaCUP
      */
@@ -106,6 +114,10 @@ class HL7Server {
 	 */
 	private $Facility;
 
+    /**
+     * @var \ReferringProviders
+     */
+    private $ReferringProviders;
 
 	/**
 	 * @var string
@@ -118,9 +130,11 @@ class HL7Server {
 
 	protected $process_insurance_segments = false;
 
+    public $hl7_adt_visit_number = '$PID[18][1]';
+    public $hl7_validate_referring_npi = false;
 
 
-	function __construct($port = 9000, $site = 'default') {
+    function __construct($port = 9000, $site = 'default') {
 		$this->site = defined('site_id') ? site_id : $site;
 
 		if(!defined('_GaiaEXEC'))
@@ -135,6 +149,7 @@ class HL7Server {
 		include_once(ROOT . '/dataProvider/Merge.php');
 		include_once(ROOT . '/dataProvider/Facilities.php');
 		include_once(ROOT . '/dataProvider/Globals.php');
+		include_once(ROOT . '/dataProvider/ReferringProviders.php');
 
 		new MatchaHelper();
 
@@ -155,8 +170,17 @@ class HL7Server {
 			$this->pa = MatchaModel::setSenchaModel('App.model.patient.PatientAccount');
 		if(!isset($this->pi))
 			$this->pi = MatchaModel::setSenchaModel('App.model.patient.Insurance');
+		if(!isset($this->pv))
+			$this->pv = MatchaModel::setSenchaModel('App.model.patient.Visit');
 
-		/**
+        if(!isset($this->l))
+            $this->l = MatchaModel::setSenchaModel('App.model.administration.Location');
+
+        if(!isset($this->ReferringProviders))
+        $this->ReferringProviders = new ReferringProviders();
+
+
+        /**
 		 * User facilities
 		 */
 		$this->Facility = new Facilities();
@@ -671,6 +695,10 @@ INI_CONFIG;
 	 * @param array $facilityRecord
 	 */
 	protected function ProcessADT($hl7, $msg, $msgRecord, $facilityRecord) {
+        if(!empty($this->server['config'])){
+            $this->parseIni($this->server['config']);
+        }
+
         $now = date('Y-m-d H:i:s');
 
 		$evt = $hl7->getMsgEventType();
@@ -692,6 +720,10 @@ INI_CONFIG;
 
 			if(isset($msg->data['INSURANCE'])){
 				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
+			}
+
+			if(isset($msg->data['PV1'])){
+				$this->VisitHandler($msg->data , $hl7, $patient);
 			}
 
 			return;
@@ -1812,23 +1844,248 @@ INI_CONFIG;
 	 * @param $hl7_server_config
 	 * @param string $type  ALL|ADT|ORU
 	 */
-	function parseIni($hl7_server_config, $type = 'ALL'){
+    function parseIni($hl7_server_config, $type = 'ALL'){
 
-		foreach ($hl7_server_config['ALL'] as $property => $value){
-			if($value !== 'false' && $value !== 'true'){
-				$value = "'$value'";
-			}
-			$foo = ("\$this->{$property} = $value;");
-			print_r($foo . PHP_EOL);
-		}
-		foreach ($hl7_server_config[$type] as $property => $value){
-			if($value !== 'false' && $value !== 'true'){
-				$value = "'$value'";
-			}
-			$foo = ("\$this->{$property} = $value;");
-			print_r($foo . PHP_EOL);
-		}
+        if(isset($hl7_server_config['ALL'])){
+            foreach ($hl7_server_config['ALL'] as $property => $value){
+                if($value !== 'false' && $value !== 'true'){
+                    $value = "'$value'";
+                }
+                eval("\$this->{$property} = $value;");
+            }
+        }
 
-	}
+        if(isset($hl7_server_config[$type])) {
+            foreach ($hl7_server_config[$type] as $property => $value) {
+                if ($value !== 'false' && $value !== 'true') {
+                    $value = "'$value'";
+                }
+                eval("\$this->{$property} = $value;");
+            }
+        }
+
+    }
+
+    private function VisitHandler($msg, $hl7, $patient){
+
+        $PID = $msg['PID'];
+        $PV1 = $msg['PV1'];
+        $PV2 = $msg['PV2'];
+
+        $visit_number = '';
+        eval("\$visit_number = $this->hl7_adt_visit_number;");
+
+        // get record by visit_number
+        $visitRecord = $this->pv->load(['visit_number' => $visit_number])->one();
+
+        if(isset($visitRecord) && $visitRecord !== false){
+            $visitRecord = (object) $visitRecord;
+
+        }else{
+            $visitRecord = new stdClass();
+        }
+
+        $visitRecord->pid = $patient->pid;
+        $visitRecord->visit_number = $visit_number;
+
+        if(isset($PV1[2]) && $PV1[2]) {
+            $visitRecord->patient_class = $PV1[2];
+        }
+
+        if(isset($PV1[4]) && $PV1[4]) {
+            $visitRecord->admission_type = $PV1[4];
+        }
+
+        if(isset($PV1[14][1]) && $PV1[14][1]) {
+            $visitRecord->admit_source = $PV1[14][1];
+        }
+
+        if(isset($PV1[10]) && $PV1[10]) {
+            $visitRecord->hospital_service = $PV1[10];
+        }
+
+        if(isset($PV1[44][1]) && $PV1[44][1]) {
+            $visitRecord->admit_date = $hl7->time($PV1[44][1]);
+        }
+
+        if(isset($PV1[45][1]) && $PV1[45][1]) {
+            $visitRecord->discharge_date = $hl7->time($PV1[45][1]);
+        }
+
+        if(isset($PV1[36]) && $PV1[36]) {
+            $visitRecord->discharge_disposition = $PV1[36];
+        }
+
+        //attending
+        if(isset($PV1[7])){
+            $attending = $this->referringHandler($PV1[7]);
+
+            if($attending !== false){
+                $visitRecord->attending_id = $attending['id'];
+            }
+        }
+
+        //admitting doctor
+        if(isset($PV1[17])){
+            $admitting = $this->referringHandler($PV1[17]);
+
+            if($admitting !== false){
+                $visitRecord->admitting_id = $admitting['id'];
+            }
+        }
+
+        //referring
+        if(isset($PV1[8])){
+            $referring = $this->referringHandler($PV1[8]);
+
+            if($referring !== false){
+                $visitRecord->referring_id = $referring['id'];
+            }
+        }
+
+        //consulting
+        if(isset($PV1[9]) && count($PV1[9]) > 0 ){
+
+            foreach ($PV1[9] as $i => $consulting) {
+
+                if($i === 3){
+                    break;
+                }
+
+                $column_name = 'consulting' . ($i + 1) . '_id';
+                $c = $this->referringHandler($consulting);
+                if($c !== false){
+                    $visitRecord->{$column_name} = $c['id'];
+                }
+            }
+        }
+
+
+        //Assigned Location
+        if(isset($PV1[3][1]) && $PV1[3][1]) {
+            $location_record = $this->l->load(['code' => $PV1[3][1]])->one();
+            if(isset($location_record) && $location_record !== false){
+                $visitRecord->assigned_location = $location_record['id'];
+            }
+        }
+
+        //Assigned Zone
+        if(isset($PV1[3][2]) && !empty($PV1[3][2])){
+            $visitRecord->assigned_zone = $PV1[3][2] . '^' . $PV1[3][3];
+        }
+
+
+
+        //Prior Location
+        if(isset($PV1[6][1]) && $PV1[6][1]) {
+            $location_record = $this->l->load(['code' => $PV1[6][1]])->one();
+            if(isset($location_record) && $location_record !== false){
+                $visitRecord->prior_location = $location_record['id'];
+            }
+        }
+
+        //Prior Zone
+        if(isset($PV1[6][2]) && !empty($PV1[6][2])){
+            $visitRecord->prior_zone = $PV1[6][2] . '^' . $PV1[6][3];
+        }
+
+        $visitRecord = $this->pv->save($visitRecord);
+
+    }
+
+    /**
+     * @param $referring array
+     * @return array|bool
+     */
+    public function referringHandler($referring) {
+
+        if($referring[0][1] != ''){
+
+            $referring[0][1] = trim($referring[0][1]);
+
+            /**
+             * Validate NPI
+             */
+            if($this->hl7_validate_referring_npi && !$this->isNpiValid($referring[0][1])){
+                return false;
+            }
+
+            $referringRecord = $this->ReferringProviders->getReferringProvider(['npi' => $referring[0][1]]);
+            if($referringRecord !== false){
+                return $referringRecord;
+            }
+
+            $referringRecord = new \stdClass();
+            $referringRecord->npi = $referring[0][1];
+            $referringRecord->lname = $referring[0][2][1];
+            $referringRecord->fname = $referring[0][3];
+            $referringRecord->mname = $referring[0][4];
+            $referringRecord->title = $referring[0][6];
+            $referringRecord = $this->ReferringProviders->addReferringProvider($referringRecord);
+
+            if($referringRecord !== false){
+                return (array)$referringRecord['data'];
+            }
+
+            return $referring;
+
+        } else {
+            $referring = $this->ReferringProviders->getReferringProvider(['npi' => '0000000000']);
+            if($referring !== false){
+                return $referring;
+            }
+
+            $referring = new \stdClass();
+            $referring->npi = '0000000000';
+            $referring->lname = 'NON-STAFF';
+            $referring->fname = 'NON-STAFF';
+            $referring->mname = '';
+            $referring->title = '';
+            $referring = $this->ReferringProviders->addReferringProvider($referring);
+            if($referring !== false){
+                return (array)$referring;
+            }
+            return $referring;
+        }
+    }
+
+    private function isNpiValid($npi) {
+
+        $tmp = null;
+        $sum = null;
+        $i = strlen($npi);
+
+        if(!is_numeric($npi)) return false;
+
+        if(($i == 15) && (substr($npi, 0, 5) == "80840")){
+            $sum = 0;
+        } else if($i == 10){
+            $sum = 24;
+        } else {
+            return false;
+        }
+
+        $j = 0;
+        while($i--) {
+            if(is_nan($npi[$i])){
+                return false;
+            }
+            $tmp = $npi[$i] - '0';
+            if($j++ & 1){
+                if(($tmp <<= 1) > 9){
+                    $tmp -= 10;
+                    $tmp++;
+                }
+            }
+            $sum += $tmp;
+        }
+
+        if($sum % 10){
+            return false;
+        } else {
+            return true;
+        }
+
+    }
 
 }

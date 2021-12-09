@@ -122,7 +122,7 @@ Ext.define('App.controller.patient.encounter.Procedure', {
 	},
 
 	onEncounterProcedureFormCancelBtnClick: function(btn){
-		var win = this.EncounterProcedureWindow(),
+		var win = this.getEncounterProcedureWindow(),
 			form = this.getEncounterProcedureForm().getForm(),
 			record = form.getRecord();
 

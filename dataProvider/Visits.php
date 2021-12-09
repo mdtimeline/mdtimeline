@@ -41,25 +41,25 @@ class Visits {
 				'fname' => 'attending_doctor_fname',
 				'mname' => 'attending_doctor_mname',
 				'lname' => 'attending_doctor_lname'
-			], 'referring_providers', 'attending_doctor_id', 'id'
+			], 'referring_providers', 'attending_id', 'id'
 		)->leftJoin(
 			[
 				'fname' => 'admitting_doctor_fname',
 				'mname' => 'admitting_doctor_mname',
 				'lname' => 'admitting_doctor_lname'
-			], 'referring_providers', 'admitting_doctor_id', 'id'
+			], 'referring_providers', 'admitting_id', 'id'
 		)->leftJoin(
 			[
 				'fname' => 'referring_doctor_fname',
 				'mname' => 'referring_doctor_mname',
 				'lname' => 'referring_doctor_lname'
-			], 'referring_providers', 'referring_doctor_id', 'id'
+			], 'referring_providers', 'referring_id', 'id'
 		)->leftJoin(
 			[
-				'fname' => 'consulting_doctor_fname',
-				'mname' => 'consulting_doctor_mname',
-				'lname' => 'consulting_doctor_lname'
-			], 'referring_providers', 'consulting_doctor_id', 'id'
+				'fname' => 'consulting1_doctor_fname',
+				'mname' => 'consulting1_doctor_mname',
+				'lname' => 'consulting1_doctor_lname'
+			], 'referring_providers', 'consulting1_id', 'id'
 		)->all();
 	}
 
@@ -76,25 +76,25 @@ class Visits {
                 'fname' => 'attending_doctor_fname',
                 'mname' => 'attending_doctor_mname',
                 'lname' => 'attending_doctor_lname'
-            ], 'referring_providers', 'attending_doctor_id', 'id'
+            ], 'referring_providers', 'attending_id', 'id'
         )->leftJoin(
             [
                 'fname' => 'admitting_doctor_fname',
                 'mname' => 'admitting_doctor_mname',
                 'lname' => 'admitting_doctor_lname'
-            ], 'referring_providers', 'admitting_doctor_id', 'id'
+            ], 'referring_providers', 'admitting_id', 'id'
         )->leftJoin(
             [
                 'fname' => 'referring_doctor_fname',
                 'mname' => 'referring_doctor_mname',
                 'lname' => 'referring_doctor_lname'
-            ], 'referring_providers', 'referring_doctor_id', 'id'
+            ], 'referring_providers', 'referring_id', 'id'
         )->leftJoin(
             [
-                'fname' => 'consulting_doctor_fname',
-                'mname' => 'consulting_doctor_mname',
-                'lname' => 'consulting_doctor_lname'
-            ], 'referring_providers', 'consulting_doctor_id', 'id'
+                'fname' => 'consulting1_doctor_fname',
+                'mname' => 'consulting1_doctor_mname',
+                'lname' => 'consulting1_doctor_lname'
+            ], 'referring_providers', 'consulting1_id', 'id'
         )->one();
     }
 

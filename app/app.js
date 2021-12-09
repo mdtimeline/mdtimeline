@@ -6121,7 +6121,9 @@ Ext.define('App.ux.grid.DeleteColumn', {
 			acl = Ext.isString(this.acl) ? a(this.acl) : eval(this.acl),
 			eid = record.get('eid');
 
-		if(eid !== app.patient.eid && !Ext.isEmpty(eid)){
+		say(eid);
+
+		if(eid !== app.patient.eid && eid !== 0 && !Ext.isEmpty(eid)){
 			app.msg(_('oops'), _('remove_encounter_related_error'), true);
 			return;
 		}
@@ -18407,8 +18409,57 @@ Ext.define('App.model.patient.Notes', {
 			type: 'string'
 		},
 		{
+			name: 'user_fname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'user_mname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'user_lname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'update_user_fname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'update_user_mname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'update_user_lname',
+			type: 'string',
+			store: false
+		},
+		{
 			name: 'user_name',
 			type: 'string',
+			convert: function (v, r){
+				return Ext.String.format('{0}, {1} {2}',
+					r.get('user_lname'),
+					r.get('user_fname'),
+					r.get('user_mname')
+				)
+			},
+			store: false
+		},
+		{
+			name: 'update_user_name',
+			type: 'string',
+			convert: function (v, r){
+				return Ext.String.format('{0}, {1} {2}',
+					r.get('update_user_lname'),
+					r.get('update_user_fname'),
+					r.get('update_user_mname')
+				)
+			},
 			store: false
 		},
         {
@@ -18443,7 +18494,14 @@ Ext.define('App.model.patient.Notes', {
 		api: {
 			read: 'Notes.getNotes',
 			create: 'Notes.addNote',
-			update: 'Notes.updateNote'
+			update: 'Notes.updateNote',
+			destroy: 'Notes.destroyNote'
+		},
+		reader: {
+			root: 'data'
+		},
+		writer:{
+			writeAllFields: true
 		}
 	}
 });
@@ -26619,7 +26677,7 @@ Ext.define('App.view.patient.DoctorsNotes', {
 		'->',
 		'-',
 		{
-			text: _('new_order'),
+			text: _('new_note'),
 			iconCls: 'icoAdd',
 			action: 'encounterRecordAdd',
 			itemId: 'newDoctorsNoteBtn'
@@ -59972,7 +60030,7 @@ Ext.define('App.controller.patient.encounter.Procedure', {
 	},
 
 	onEncounterProcedureFormCancelBtnClick: function(btn){
-		var win = this.EncounterProcedureWindow(),
+		var win = this.getEncounterProcedureWindow(),
 			form = this.getEncounterProcedureForm().getForm(),
 			record = form.getRecord();
 
@@ -80831,7 +80889,8 @@ Ext.define('App.view.patient.Summary', {
 		'App.view.patient.CareTeamGrid',
 		'App.view.patient.DisclosuresGrid',
 		'App.view.patient.EncountersGrid',
-		'App.view.patient.LegalLetters'
+		'App.view.patient.LegalLetters',
+		'App.view.patient.PatientNotesGrid'
 	],
 	itemId: 'PatientSummaryPanel',
 	showRating: true,
@@ -80841,6 +80900,10 @@ Ext.define('App.view.patient.Summary', {
 		var me = this;
 
 		me.stores = [];
+
+
+		me.auditLogCtrl = app.getController('administration.TransactionLog');
+		me.patientNotesCtrl = app.getController('patient.PatientNotes');
 
 		app.on('patientset', function(patient){
 			if(!me.hidden){
@@ -81187,6 +81250,8 @@ Ext.define('App.view.patient.Summary', {
 			});
 		}
 
+
+
 		if(a('access_patient_disclosures')){
 			me.tabPanel.add({
 				xtype: 'patientdisclosuresgrid',
@@ -81196,72 +81261,10 @@ Ext.define('App.view.patient.Summary', {
 
 		if(a('access_patient_notes')){
 			me.tabPanel.add({
-				title: _('notes'),
-				itemId: 'PatientSummeryNotesPanel',
-				xtype: 'grid',
-				bodyPadding: 0,
-				store: Ext.create('App.store.patient.Notes', {
-					autoSync: false,
-					autoLoad: false
-				}),
-				plugins: Ext.create('App.ux.grid.RowFormEditing', {
-					// autoCancel: false,
-					// errorSummary: false,
-					clicksToEdit: 2,
-					items: [
-						{
-							xtype: 'gaiaehr.combo',
-							// xtype: 'textfield',
-							fieldLabel: _('type'),
-							name: 'type',
-							emptyText: _('type'),
-							queryMode: 'local',
-							listKey: 'admin_note_types',
-							width: 300,
-							margin: '0 0 5 0',
-							loadStore: true,
-							editable: false
-						},
-						{
-							xtype: 'textareafield',
-							fieldLabel: _('note'),
-							name: 'body',
-							height: 50,
-							anchor: '100%'
-						}
-					]
-				}),
-				columns: [
-					{
-						xtype: 'datecolumn',
-						text: _('date'),
-						format: 'Y-m-d',
-						dataIndex: 'date'
-					},
-					{
-						header: _('type'),
-						dataIndex: 'type'
-					},
-					{
-						text: _('note'),
-						dataIndex: 'body',
-						flex: 1
-					},
-					{
-						text: _('user'),
-						width: 225,
-						dataIndex: 'user_name'
-					}
-				],
-				tbar: [
-					'->',
-					{
-						text: _('add_note'),
-						iconCls: 'icoAdd',
-						action: 'note',
-						handler: me.onAddNew
-					}
-				]
+				xtype: 'patientnotesgrid',
+				itemId: 'PatientNotesGrid',
+				frame: true,
+				title: _('notes')
 			});
 		}
 
@@ -81443,20 +81446,85 @@ Ext.define('App.view.patient.Summary', {
 			record = {
 				date: new Date(),
 				pid: app.patient.pid,
+				global_id: app.uuidv4(),
 				active: 1
 			};
 		}else if(btn.action == 'note'){
 			record = {
 				date: new Date(),
+				create_date: new Date(),
 				pid: app.patient.pid,
+				create_uid: app.user.id,
 				uid: app.user.id,
-				eid: app.patient.eid
+				eid: app.patient.eid,
+				global_id: app.uuidv4(),
+				user_fname: app.user.fname,
+				user_mname: app.user.mname,
+				user_lname: app.user.lname,
 			};
 		}
 
 		grid.plugins[0].cancelEdit();
 		store.insert(0, record);
 		grid.plugins[0].startEdit(0, 0);
+	},
+
+	onGridBeforeEdit: function(editor, context, eOpts ){
+		if (!a('edit_patient_notes')) {
+			app.msg(_('oops'), _('not_authorized'), true);
+			return false;
+		}
+	},
+
+	onGridValidateEdit: function(editor, context, eOpts ){
+		context.record.data.update_user_fname 	= app.user.fname;
+		context.record.data.update_user_mname 	= app.user.mname;
+		context.record.data.update_user_lname 	= app.user.lname;
+		context.record.data.update_date 		= app.getDate();
+		context.record.data.update_uid 			= app.user.id;
+	},
+
+	onPatientSummaryNotesGridContextMenu: function (grid, record, item, index, e) {
+		e.preventDefault();
+
+		this.showPatientSummaryNotesGridContextMenu(grid,record, e);
+	},
+
+	showPatientSummaryNotesGridContextMenu: function (patient_notes_panel_grid, patient_notes_panel_record, e) {
+		if (!a('access_patient_notes_transaction_log')) return;
+
+		var me = this;
+
+		me.PatientSummaryNotesGridContextMenu = Ext.widget('menu', {
+			margin: '0 0 10 0',
+			items: [
+				{
+					text: _('transaction_log'),
+					icon: 'modules/billing/resources/images/icoList.png',
+					itemId: 'showPatientSummaryNotesGridContextMenuDetailLog',
+					acl: true,
+					listeners: {
+						click: me.onPatientSummaryNotesGridContextMenuDetailLogClick,
+						scope: me
+					}
+				}
+			]
+		});
+
+		me.PatientSummaryNotesGridContextMenu.patient_notes_panel_grid = patient_notes_panel_grid;
+		me.PatientSummaryNotesGridContextMenu.patient_notes_panel_record = patient_notes_panel_record;
+
+		me.PatientSummaryNotesGridContextMenu.showAt(e.getXY());
+
+		return me.PatientSummaryNotesGridContextMenu;
+	},
+
+	onPatientSummaryNotesGridContextMenuDetailLogClick: function(btn) {
+		var me = this,
+			patient_notes_panel_record = btn.parentMenu.patient_notes_panel_record;
+
+		this.auditLogCtrl.doTransactionLogDetailByTableAndPk(patient_notes_panel_record.table.name, patient_notes_panel_record.get('id'));
+
 	},
 
 	medicalWin: function(btn){

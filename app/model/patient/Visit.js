@@ -58,7 +58,17 @@ Ext.define('App.model.patient.Visit', {
 			index: true
 		},
 		{
-			name: 'consulting_id',
+			name: 'consulting1_id',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'consulting2_id',
+			type: 'int',
+			index: true
+		},
+		{
+			name: 'consulting3_id',
 			type: 'int',
 			index: true
 		},
@@ -93,12 +103,12 @@ Ext.define('App.model.patient.Visit', {
 			len: 45
 		},
 		{
-			name: 'current_location',
+			name: 'prior_location',
 			type: 'string',
 			len: 45
 		},
 		{
-			name: 'current_zone',
+			name: 'prior_zone',
 			type: 'string',
 			len: 45
 		},

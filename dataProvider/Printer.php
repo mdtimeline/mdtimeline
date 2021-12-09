@@ -72,7 +72,7 @@ class Printer
         $params = (object)[
             'id' => $print_job_id,
             'print_status' => $status,
-            'updated_at' => date("Y-m-d H:i:s")
+            'update_date' => date("Y-m-d H:i:s")
         ];
 
         $PrintJob = new PrintJob();

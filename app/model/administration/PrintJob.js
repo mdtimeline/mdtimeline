@@ -53,12 +53,12 @@ Ext.define('App.model.administration.PrintJob', {
 			type: 'int'
 		},
 		{
-			name: 'created_at',
+			name: 'create_date',
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s'
 		},
 		{
-			name: 'updated_at',
+			name: 'update_date',
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s'
 		},
@@ -96,6 +96,12 @@ Ext.define('App.model.administration.PrintJob', {
 			name: 'document_note',
 			type: 'string',
 			store: false
+		},
+		{
+			name: 'number_of_copies',
+			type: 'int',
+			store: false,
+			defaultValue: 1
 		}
 	],
 	proxy: {
@@ -108,6 +114,9 @@ Ext.define('App.model.administration.PrintJob', {
 		},
 		reader: {
 			root: 'data'
+		},
+		writer:{
+			writeAllFields: true
 		}
 	}
 });

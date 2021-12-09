@@ -60,8 +60,57 @@ Ext.define('App.model.patient.Notes', {
 			type: 'string'
 		},
 		{
+			name: 'user_fname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'user_mname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'user_lname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'update_user_fname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'update_user_mname',
+			type: 'string',
+			store: false
+		},
+		{
+			name: 'update_user_lname',
+			type: 'string',
+			store: false
+		},
+		{
 			name: 'user_name',
 			type: 'string',
+			convert: function (v, r){
+				return Ext.String.format('{0}, {1} {2}',
+					r.get('user_lname'),
+					r.get('user_fname'),
+					r.get('user_mname')
+				)
+			},
+			store: false
+		},
+		{
+			name: 'update_user_name',
+			type: 'string',
+			convert: function (v, r){
+				return Ext.String.format('{0}, {1} {2}',
+					r.get('update_user_lname'),
+					r.get('update_user_fname'),
+					r.get('update_user_mname')
+				)
+			},
 			store: false
 		},
         {
@@ -96,7 +145,14 @@ Ext.define('App.model.patient.Notes', {
 		api: {
 			read: 'Notes.getNotes',
 			create: 'Notes.addNote',
-			update: 'Notes.updateNote'
+			update: 'Notes.updateNote',
+			destroy: 'Notes.destroyNote'
+		},
+		reader: {
+			root: 'data'
+		},
+		writer:{
+			writeAllFields: true
 		}
 	}
 });

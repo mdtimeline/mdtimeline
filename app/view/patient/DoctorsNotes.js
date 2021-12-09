@@ -100,7 +100,7 @@ Ext.define('App.view.patient.DoctorsNotes', {
 		'->',
 		'-',
 		{
-			text: _('new_order'),
+			text: _('new_note'),
 			iconCls: 'icoAdd',
 			action: 'encounterRecordAdd',
 			itemId: 'newDoctorsNoteBtn'

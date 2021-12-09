@@ -16,13 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.define('App.view.patient.windows.PatientNoteWindow', {
+Ext.define('App.view.patient.windows.DoctorsNoteWindow', {
 	extend: 'Ext.window.Window',
 	requires: [
 
 	],
 	title: _('patient_note'),
-	itemId: 'PatientNoteWindow',
+	itemId: 'DoctorsNoteWindow',
 	layout: 'fit',
 	height: 700,
 	width: 900,
@@ -121,11 +121,11 @@ Ext.define('App.view.patient.windows.PatientNoteWindow', {
 	buttons: [
 		{
 			text: _('cancel'),
-			itemId: 'PatientNoteWindowCancelBtn'
+			itemId: 'DoctorsNoteWindowCancelBtn'
 		},
 		{
 			text: _('save'),
-			itemId: 'PatientNoteWindowSaveBtn'
+			itemId: 'DoctorsNoteWindowSaveBtn'
 		}
 	]
 });

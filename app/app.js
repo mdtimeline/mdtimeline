@@ -50181,8 +50181,8 @@ Ext.define('App.controller.patient.DoctorsNotes', {
 			selector: 'patientdoctorsnotepanel'
 		},
 		{
-			ref: 'PatientNoteWindow',
-			selector: '#PatientNoteWindow'
+			ref: 'DoctorsNoteWindow',
+			selector: '#DoctorsNoteWindow'
 		},
 		{
 			ref: 'PatientNoteForm',
@@ -50213,11 +50213,11 @@ Ext.define('App.controller.patient.DoctorsNotes', {
 			'#newDoctorsNoteBtn': {
 				click: me.onNewDoctorsNoteBtn
 			},
-			'#PatientNoteWindowCancelBtn': {
-				click: me.onPatientNoteWindowCancelBtnClick
+			'#DoctorsNoteWindowCancelBtn': {
+				click: me.onDoctorsNoteWindowCancelBtnClick
 			},
-			'#PatientNoteWindowSaveBtn': {
-				click: me.onPatientNoteWindowSaveBtnClick
+			'#DoctorsNoteWindowSaveBtn': {
+				click: me.onDoctorsNoteWindowSaveBtnClick
 			}
 		});
 
@@ -50244,7 +50244,7 @@ Ext.define('App.controller.patient.DoctorsNotes', {
 
 	onNewDoctorsNoteBtn: function(btn){
 
-		this.showPatientNoteWindow();
+		this.showDoctorsNoteWindow();
 
 		var grid = btn.up('grid'),
 			form = this.getPatientNoteForm().getForm();
@@ -50300,7 +50300,7 @@ Ext.define('App.controller.patient.DoctorsNotes', {
 	},
 
 	onDoctorsNotesGridItemDblClick: function (grid, record) {
-		this.showPatientNoteWindow();
+		this.showDoctorsNoteWindow();
 
 		var me = this,
 			panel = me.getPatientNoteForm(),
@@ -50313,13 +50313,13 @@ Ext.define('App.controller.patient.DoctorsNotes', {
 
 	},
 
-	onPatientNoteWindowCancelBtnClick: function () {
+	onDoctorsNoteWindowCancelBtnClick: function () {
 		this.getDoctorsNotesGrid().getStore().rejectChanges();
 		this.getPatientNoteForm().getForm().reset(true);
-		this.getPatientNoteWindow().close();
+		this.getDoctorsNoteWindow().close();
 	},
 
-	onPatientNoteWindowSaveBtnClick: function () {
+	onDoctorsNoteWindowSaveBtnClick: function () {
 
 		var me = this,
 			panel = me.getPatientNoteForm(),
@@ -50337,22 +50337,22 @@ Ext.define('App.controller.patient.DoctorsNotes', {
 
 		if(Ext.isEmpty(store.getModifiedRecords())){
 			me.getPatientNoteForm().getForm().reset(true);
-			me.getPatientNoteWindow().close();
+			me.getDoctorsNoteWindow().close();
 		}else{
 			store.sync({
 				callback: function () {
 					me.getPatientNoteForm().getForm().reset(true);
-					me.getPatientNoteWindow().close();
+					me.getDoctorsNoteWindow().close();
 				}
 			});
 		}
 	},
 
-	showPatientNoteWindow: function () {
-		if(!this.getPatientNoteWindow()){
-			Ext.create('App.view.patient.windows.PatientNoteWindow');
+	showDoctorsNoteWindow: function () {
+		if(!this.getDoctorsNoteWindow()){
+			Ext.create('App.view.patient.windows.DoctorsNoteWindow');
 		}
-		return this.getPatientNoteWindow().show();
+		return this.getDoctorsNoteWindow().show();
 	}
 
 });

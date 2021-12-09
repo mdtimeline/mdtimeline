@@ -12,7 +12,9 @@ Ext.define('App.ux.grid.DeleteColumn', {
 			acl = Ext.isString(this.acl) ? a(this.acl) : eval(this.acl),
 			eid = record.get('eid');
 
-		if(eid !== app.patient.eid && !Ext.isEmpty(eid)){
+		say(eid);
+
+		if(eid !== app.patient.eid && eid !== 0 && !Ext.isEmpty(eid)){
 			app.msg(_('oops'), _('remove_encounter_related_error'), true);
 			return;
 		}

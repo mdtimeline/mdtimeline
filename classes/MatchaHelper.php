@@ -160,7 +160,7 @@ class MatchaHelper extends Matcha
         self::$__secretKey = defined('site_aes_key') ? site_aes_key : '';
         self::$__use_openssl = defined('use_openssl') ? use_openssl : false;
 
-        return;
+        //return;
 
         if (isset(self::$__conn)) {
             MatchaAudit::$__audit = true;

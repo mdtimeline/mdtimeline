@@ -6,6 +6,10 @@ Ext.define('App.controller.PrintJob', {
     ],
     refs: [
         {
+            ref: 'UserTransactionWindow',
+            selector: '#UserTransactionWindow'
+        },
+        {
             selector: '#ApplicationFooterTestDocumentViewerBtn',
             ref: 'ApplicationFooterTestDocumentViewerBtn'
         },
@@ -48,11 +52,26 @@ Ext.define('App.controller.PrintJob', {
         {
             selector: '#ApplicationFooterDefaultPrinterCmb',
             ref: 'ApplicationFooterDefaultPrinterCmb'
+        },
+        {
+            selector: '#PrintJobsGridContextMenuUsers',
+            ref: 'PrintJobsGridContextMenuUsers'
+        },
+        {
+            selector: '#PrintJobsGridContextMenuDetailLog',
+            ref: 'PrintJobsGridContextMenuDetailLog'
+        },
+        {
+            selector: '#PrintJobsWindowNumberOfJobCopies',
+            ref: 'PrintJobsWindowNumberOfJobCopies'
         }
     ],
 
     init: function () {
         var me = this;
+
+        me.auditLogCtrl = me.getController('administration.TransactionLog');
+        me.usersTransactionWindowCtrl = me.getController('App.controller.administration.UsersTransaction');
 
         me.control({
             'viewport': {
@@ -62,7 +81,8 @@ Ext.define('App.controller.PrintJob', {
                 click: me.onApplicationFooterPrintJobsBtnClick
             },
             '#PrintJobsWindowGird': {
-                itemdblclick: me.onPrintJobsWindowGridItemDblClick
+                itemdblclick: me.onPrintJobsWindowGridItemDblClick,
+                beforeitemcontextmenu: me.onPrintJobsWindowGridContextMenu,
             },
             '#PrintJobsWindowPrintBtn': {
                 click: me.onPrintJobsWindowPrintBtnClick
@@ -85,6 +105,12 @@ Ext.define('App.controller.PrintJob', {
             '#PrintJobsWindowUserLiveSearch': {
                 beforerender: me.onPrintJobsWindowUserLiveSearchBeforeRender,
                 change: me.onChangeFilters
+            },
+            '#PrintJobsGridContextMenuUsers': {
+                click: me.onPrintJobsGridContextMenuUsersClick
+            },
+            '#PrintJobsGridContextMenuDetailLog': {
+                click: me.onPrintJobsGridContextMenuDetailLogClick
             }
         });
 
@@ -141,6 +167,7 @@ Ext.define('App.controller.PrintJob', {
         var me = this,
             printController = app.getController('Print'),
             printers = printController.printers,
+            number_of_copies = me.getPrintJobsWindowNumberOfJobCopies().getValue(),
             params = {
                 id: print_job_record.get('document_id')
             };
@@ -161,15 +188,17 @@ Ext.define('App.controller.PrintJob', {
                     print_job_record.set({print_status: 'PRINTING'});
                     print_job_record.save();
 
-                    printController.doPrint(printer_record, patient_document.document, print_job_record.get('id'), function (printer_response){
+                    for (let i = 0; i < number_of_copies; i++) {
+                        printController.doPrint(printer_record, patient_document.document, print_job_record.get('id'), function (printer_response){
 
-                        if(printer_response.success){
-                            print_job_record.set({print_status: 'DONE'});
-                        }else{
-                            print_job_record.set({print_status: 'FAILED'});
-                        }
-                        print_job_record.save();
-                    });
+                            if(printer_response.success){
+                                print_job_record.set({print_status: 'DONE'});
+                            }else{
+                                print_job_record.set({print_status: 'FAILED'});
+                            }
+                            print_job_record.save();
+                        });
+                    }
                 });
 
                 break;
@@ -237,8 +266,8 @@ Ext.define('App.controller.PrintJob', {
             }
         });
 
-        filters.push({property: 'created_at', operator: '>=', value: from_date});
-        filters.push({property: 'created_at', operator: '<=', value: to_date});
+        filters.push({property: 'create_date', operator: '>=', value: from_date});
+        filters.push({property: 'create_date', operator: '<=', value: to_date});
 
         if (!user_id){
             filters.push({property: 'uid', value: app.user.id});
@@ -355,7 +384,7 @@ Ext.define('App.controller.PrintJob', {
             printer_type: printer_type,
             print_status: print_now ? 'QUEUED' : 'HOLD',
             priority: priority,
-            created_at: Ext.Date.format(app.getDate(), 'Y-m-d H:i:s')
+            create_date: Ext.Date.format(app.getDate(), 'Y-m-d H:i:s')
         })[0];
 
         print_job_record.save();
@@ -407,5 +436,70 @@ Ext.define('App.controller.PrintJob', {
             document_id = record.get('document_id');
 
         app.getController('DocumentViewer').doDocumentView(document_id);
+    },
+
+    onPrintJobsWindowGridContextMenu: function (print_jobs_grid, print_jobs_record, item, index, e){
+        e.preventDefault();
+
+        this.showPrintJobsWindowGridContextMenu(print_jobs_grid, print_jobs_record, e)
+    },
+
+    showPrintJobsWindowGridContextMenu: function(print_jobs_grid, print_jobs_record, e) {
+        // if (!a('access_patient_notes_transaction_log')) return;
+
+        var me = this;
+
+        me.PrintJobsGridContextMenu = Ext.widget('menu', {
+            margin: '0 0 10 0',
+            items: [
+                {
+                    text: _('users'),
+                    icon: 'modules/billing/resources/images/user_16.png',
+                    itemId: 'PrintJobsGridContextMenuUsers',
+                    acl: true
+                },
+                {
+                    xtype: 'menuseparator'
+                },
+                {
+                    text: _('transaction_log'),
+                    icon: 'modules/billing/resources/images/icoList.png',
+                    itemId: 'PrintJobsGridContextMenuDetailLog',
+                    acl: true
+                }
+            ]
+        });
+
+        me.PrintJobsGridContextMenu.print_jobs_grid = print_jobs_grid;
+        me.PrintJobsGridContextMenu.print_jobs_record = print_jobs_record;
+
+        me.PrintJobsGridContextMenu.showAt(e.getXY());
+
+        return me.PrintJobsGridContextMenu;
+    },
+
+    onPrintJobsGridContextMenuUsersClick: function(btn) {
+        var me = this,
+            print_jobs_record = btn.parentMenu.print_jobs_record,
+            user_username = print_jobs_record.get('user_username'),
+            create_date = print_jobs_record.get('create_date'),
+            update_date = print_jobs_record.get('update_date');
+
+        if(!me.getUserTransactionWindow()){
+            Ext.create('App.view.administration.UserTransactionWindow');
+        }
+
+        me.getUserTransactionWindow().user_username = user_username;
+        me.getUserTransactionWindow().create_date = create_date;
+        me.getUserTransactionWindow().update_date = update_date;
+
+        me.getUserTransactionWindow().show();
+    },
+
+    onPrintJobsGridContextMenuDetailLogClick: function(btn) {
+        var me = this,
+            print_jobs_record = btn.parentMenu.print_jobs_record;
+
+        this.auditLogCtrl.doTransactionLogDetailByTableAndPk(print_jobs_record.table.name, print_jobs_record.get('id'));
     }
 });

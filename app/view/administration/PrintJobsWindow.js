@@ -53,6 +53,11 @@ Ext.define('App.view.administration.PrintJobsWindow', {
                         hidden: true
                     },
                     {
+                        xtype: 'griddeletecolumn',
+                        acl: true,
+                        width: 20
+                    },
+                    {
                         text: _('document_title'),
                         dataIndex: 'document_title',
                         flex: 2
@@ -117,17 +122,18 @@ Ext.define('App.view.administration.PrintJobsWindow', {
                     },
                     {
                         xtype: 'datecolumn',
-                        text: 'Created At',
-                        dataIndex: 'created_at',
+                        text: _('create') + ' ' + _('date'),
+                        dataIndex: 'create_date',
                         format: 'M j Y \\a\\t g:i a',
-                        flex: 1
+                        width: 160
                     },
                     {
                         xtype: 'datecolumn',
-                        text: 'Updated At',
-                        dataIndex: 'updated_at',
+                        text: _('update') + ' ' + _('date'),
+                        dataIndex: 'update_date',
                         format: 'M j Y \\a\\t g:i a',
-                        hidden: true
+                        hidden: true,
+                        width: 160
                     },
                 ]
             }
@@ -261,8 +267,21 @@ Ext.define('App.view.administration.PrintJobsWindow', {
                     xtype: 'userlivetsearch',
                     itemId: 'PrintJobsWindowUserLiveSearch',
                     fieldLabel: _('user'),
+                    labelAlign: 'top',
                     labelWidth: 25,
                     hideLabel: false,
+                },
+                {
+                    xtype: 'numberfield',
+                    itemId: 'PrintJobsWindowNumberOfJobCopies',
+                    fieldLabel:_('number_of_copies'),
+                    labelAlign: 'top',
+                    value: 1,
+                    maxValue: 5,
+                    minValue: 1,
+                    labelWidth: 25,
+                    hideLabel: false,
+                    allowBlank: false
                 }
             ]
         },

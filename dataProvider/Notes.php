@@ -30,11 +30,41 @@ class Notes {
 	}
 
 	public function getNotes($params){
-		return $this->n->load($params)->all();
+		return $this->n->load($params)
+            ->leftJoin(
+                [
+                    'fname' => 'user_fname',
+                    'mname' => 'user_mname',
+                    'lname' => 'user_lname',
+                ],
+                'users', 'uid', 'id'
+            )->leftJoin(
+                [
+                    'fname' => 'update_user_fname',
+                    'mname' => 'update_user_mname',
+                    'lname' => 'update_user_lname',
+                ],
+                'users', 'update_uid', 'id'
+            )->all();
 	}
 
 	public function getNote($params){
-		return $this->n->load($params)->one();
+		return $this->n->load($params)
+            ->leftJoin(
+                [
+                    'fname' => 'user_fname',
+                    'mname' => 'user_mname',
+                    'lname' => 'user_lname',
+                ],
+                'users', 'uid', 'id'
+            )->leftJoin(
+                [
+                    'fname' => 'update_user_fname',
+                    'mname' => 'update_user_mname',
+                    'lname' => 'update_user_lname',
+                ],
+                'users', 'update_uid', 'id'
+            )->one();
 	}
 
 	public function addNote($params){

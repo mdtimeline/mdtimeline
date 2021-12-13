@@ -101,6 +101,11 @@ Ext.define('App.view.administration.PrintJobsWindow', {
                         }
                     },
                     {
+                        text: _('copies'),
+                        width: 75,
+                        dataIndex: 'number_of_copies'
+                    },
+                    {
                         text: _('username'),
                         dataIndex: 'user_username',
                         flex: 1

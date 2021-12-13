@@ -53,6 +53,10 @@ Ext.define('App.model.administration.PrintJob', {
 			type: 'int'
 		},
 		{
+			name: 'number_of_copies',
+			type: 'int'
+		},
+		{
 			name: 'create_date',
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s'

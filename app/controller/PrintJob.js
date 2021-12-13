@@ -167,7 +167,7 @@ Ext.define('App.controller.PrintJob', {
         var me = this,
             printController = app.getController('Print'),
             printers = printController.printers,
-            number_of_copies = me.getPrintJobsWindowNumberOfJobCopies().getValue(),
+            number_of_copies = print_job_record.get('number_of_copies'),
             params = {
                 id: print_job_record.get('document_id')
             };
@@ -344,7 +344,7 @@ Ext.define('App.controller.PrintJob', {
         window.close();
     },
 
-    addPrintJob: function (document_id, printer_record, print_now, priority) {
+    addPrintJob: function (document_id, printer_record, print_now, priority, number_of_copies) {
         var me = this,
             default_printer_cmb = this.getApplicationFooterDefaultPrinterCmb(),
             default_printer_record =  default_printer_cmb.findRecordByValue(default_printer_cmb.getValue()),
@@ -384,6 +384,7 @@ Ext.define('App.controller.PrintJob', {
             printer_type: printer_type,
             print_status: print_now ? 'QUEUED' : 'HOLD',
             priority: priority,
+            number_of_copies: number_of_copies || 1,
             create_date: Ext.Date.format(app.getDate(), 'Y-m-d H:i:s')
         })[0];
 

@@ -70849,7 +70849,8 @@ Ext.define('App.controller.DocumentViewer', {
             printerCmb = form.findField('printer'),
             printerRecord = printerCmb.findRecordByValue(printerCmb.getValue()),
             priority = form.findField('priority').getValue(),
-            printNow = form.findField('printNow').getValue();
+            printNow = form.findField('printNow').getValue(),
+            number_of_copies = 1;
 
         if (form.isValid()) {
             values.pid = app.patient.pid;
@@ -70877,7 +70878,7 @@ Ext.define('App.controller.DocumentViewer', {
                         }
 
                         if (win.doAddPrintJobCallback) {
-                            win.doAddPrintJobCallback(response.record,printerRecord,printNow,priority);
+                            win.doAddPrintJobCallback(response.record,printerRecord,printNow,priority,number_of_copies);
                         }
                         win.documentWindow.close();
                         win.close();
@@ -70927,8 +70928,8 @@ Ext.define('App.controller.DocumentViewer', {
         archive_window.down('form').getForm().setValues(values);
     },
 
-    doAddPrintJob: function (document, printer_record, print_now, priority) {
-        app.getController('PrintJob').addPrintJob(document.id,printer_record, print_now, priority);
+    doAddPrintJob: function (document, printer_record, print_now, priority, number_of_copies) {
+        app.getController('PrintJob').addPrintJob(document.id,printer_record, print_now, priority, number_of_copies);
     },
 
     onViewerDocumentsWinClose: function (win) {

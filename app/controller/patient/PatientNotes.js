@@ -50,8 +50,8 @@ Ext.define('App.controller.patient.PatientNotes', {
 
 		me.control({
 			'#PatientNotesGrid': {
+				activate: me.onPatientNotesGridActivate,
 				beforeitemcontextmenu: me.onPatientNotesGridContextMenu,
-				scope: me,
 				beforeedit: me.onPatientNotesGridBeforeEdit,
 				validateedit: me.onPatientNotesGridValidateEdit,
 				beforerender: me.onPatientNotesGridBeforeRender
@@ -73,6 +73,10 @@ Ext.define('App.controller.patient.PatientNotes', {
 	// 		grid.getStore().removeAll();
 	// 	});
 	// },
+
+	onPatientNotesGridActivate: function (grid){
+		this.doFilterGrid(grid);
+	},
 
 	onAddNew: function(btn){
 		var grid = btn.up('grid'),
@@ -200,9 +204,11 @@ Ext.define('App.controller.patient.PatientNotes', {
 	},
 
 	onPatientNotesGridBeforeRender: function(grid) {
+		this.doFilterGrid(grid);
+	},
 
+	doFilterGrid: function (grid){
 		var store = grid.getStore();
-
 		store.clearFilter(true);
 		store.filter([
 			{

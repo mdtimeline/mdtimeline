@@ -2232,4 +2232,5 @@ $LANG = array(
     'is_interface_tpl' => 'Is Interface Tpl',
     'print_list' => 'Print List',
     'new_note' => 'New Note',
+    'copies' => 'Copies',
 );

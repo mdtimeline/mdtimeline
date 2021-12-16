@@ -311,16 +311,32 @@ PREGNANCY_CODES;
 
 	/**
 	 * @param $pubpid
+	 * @param $pubpid_issuer
 	 *
 	 * @return mixed
 	 */
-	public function getPatientByPublicId($pubpid)
+	public function getPatientByPublicId($pubpid, $pubpid_issuer = null)
 	{
 		$this->setPatientModel();
 		$params = new stdClass();
 		$params->filter[0] = new stdClass();
 		$params->filter[0]->property = 'pubpid';
 		$params->filter[0]->value = $pubpid;
+
+        if(isset($pubpid_issuer)){
+            $params->filter[1] = new stdClass();
+            $params->filter[1]->property = 'pubpid_issuer';
+            $params->filter[1]->value = $pubpid_issuer;
+        }else{
+            $this->p->setOrFilterProperties(['pubpid_issuer']);
+            $params->filter[1] = new stdClass();
+            $params->filter[1]->property = 'pubpid_issuer';
+            $params->filter[1]->value = null;
+            $params->filter[2] = new stdClass();
+            $params->filter[2]->property = 'pubpid_issuer';
+            $params->filter[2]->value = '';
+        }
+
 		$this->patient = $this->p->load($params)->one();
 		if ($this->patient !== false) {
 			$this->patient['pic'] = $this->patient['image'];

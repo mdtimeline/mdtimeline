@@ -21360,7 +21360,14 @@ Ext.define('App.model.patient.Patient',{
 		    name: 'pubpid',
 		    type: 'string',
 		    index: true,
-		    comment: 'external reference id',
+		    comment: 'record number',
+		    len: 40
+	    },
+	    {
+		    name: 'pubpid_issuer',
+		    type: 'string',
+		    index: true,
+		    comment: 'record number issuer ',
 		    len: 40
 	    },
 	    {

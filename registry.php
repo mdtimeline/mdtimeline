@@ -130,17 +130,21 @@ if(file_exists(ROOT . '/sites/' . SITE . '/conf.php')){
 
 	unset($_SESSION['site']['error']);
 
-	include_once(ROOT . '/dataProvider/IpAccessRules.php');
-	$IpAccessRules = new IpAccessRules();
-	$_SESSION['access_blocked'] = $IpAccessRules->isBlocked();
-	//	}
+    if(defined('SKIP_IP_ACCESS_VALIDATION') && SKIP_IP_ACCESS_VALIDATION == '1'){
+        $_SESSION['access_blocked'] = false;
+    }else{
+        include_once(ROOT . '/dataProvider/IpAccessRules.php');
+        $IpAccessRules = new IpAccessRules();
+        $_SESSION['access_blocked'] = $IpAccessRules->isBlocked();
+        //	}
 
-	if($_SESSION['access_blocked']){
-		header("HTTP/1.1 401 Unauthorized");
-		header('Location: 401.html');
-		error_log($IpAccessRules->getUserIP() . ' HTTP/1.1 401 Unauthorized');
-		exit;
-	}
+        if($_SESSION['access_blocked']){
+            header("HTTP/1.1 401 Unauthorized");
+            header('Location: 401.html');
+            error_log($IpAccessRules->getUserIP() . ' HTTP/1.1 401 Unauthorized');
+            exit;
+        }
+    }
 
 	// load modules hooks
 	if(!isset($_SESSION['hooks'])){

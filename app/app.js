@@ -4231,7 +4231,7 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
 					type: 'string',
 					convert: function(v, record){
 						if(record.data.lname){
-							return record.data.fname + ' ' + record.data.mname + ' ' + record.data.lname
+							return record.data.lname + ', ' + record.data.fname + ' ' + record.data.mname
 						}else{
 							return record.data.organization_name
 						}

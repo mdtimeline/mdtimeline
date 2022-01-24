@@ -56,6 +56,9 @@ Ext.define('App.controller.patient.PatientNotes', {
 				validateedit: me.onPatientNotesGridValidateEdit,
 				beforerender: me.onPatientNotesGridBeforeRender
 			},
+			'#PatientNotesWindow': {
+				show: me.onPatientNotesWindowShow
+			},
 			'#PatientNotesWindowCloseBtn': {
 				click: me.onPatientNotesWindowCloseBtnClick
 			},
@@ -66,6 +69,10 @@ Ext.define('App.controller.patient.PatientNotes', {
 				click: me.onPatientNotesGridAddNotesBtn
 			}
 		});
+	},
+
+	onPatientNotesWindowShow: function (win){
+		this.doFilterGrid(win.down('grid'));
 	},
 
 	// onDoctorsNotesGridBeforeRender: function(grid){
@@ -204,7 +211,7 @@ Ext.define('App.controller.patient.PatientNotes', {
 	},
 
 	onPatientNotesGridBeforeRender: function(grid) {
-		this.doFilterGrid(grid);
+		// this.doFilterGrid(grid);
 	},
 
 	doFilterGrid: function (grid){

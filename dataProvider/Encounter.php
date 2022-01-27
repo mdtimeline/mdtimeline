@@ -1115,6 +1115,44 @@ class Encounter {
 
 		}
 
+        /**
+         * Pain Scales
+         */
+        include_once (ROOT. '/dataProvider/PainScale.php');
+        $PainScale = new PainScale();
+        $pain_scales = $PainScale->getPainScaleByEid($eid);
+
+        if(!empty($pain_scales)) {
+
+            $str_buff .= '<div class="indent">';
+            $lis = '';
+            foreach($pain_scales as $foo){
+                $lis .= '<li>' . $foo['anatomical_region_code_text'] . ' - ';
+                $lis .= '<b>'. $foo['pain_scale'] . '</b></li>';
+            }
+            $str_buff .= '<p><b>Pain Scale:</b>';
+
+            if(!$encounter['review_pain_scales']){
+                $str_buff .= ' (Not reviewed)';
+            }
+
+            $str_buff .= '</p>';
+
+            $str_buff .= '<ul class="ProgressNote-ul">' . $lis . '</ul>';
+
+            $str_buff .= '</div>';
+        }else if(isset($encounter)){
+            if($encounter['review_pain_scales']){
+                $str_buff .= '<div class="indent">';
+                $str_buff .= '<p><b>Pain Scale:</b> Not recorded</p>';
+                $str_buff .= '</div>';
+            }else{
+                $str_buff .= '<div class="indent">';
+                $str_buff .= '<p><b>Pain Scale:</b> (Not Reviewed)</p>';
+                $str_buff .= '</div>';
+            }
+        }
+
 		return $str_buff;
 	}
 

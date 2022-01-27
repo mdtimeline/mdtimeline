@@ -316,6 +316,24 @@ Ext.define('App.controller.patient.Medical', {
 			]);
 		}
 
+		if(a('access_patient_pain_scales')){
+			index = this.items_indexes['PainScaleGrid'] !== undefined ? this.items_indexes['PainScaleGrid'] : outofindex++;
+			Ext.Array.insert(buttons, index, [
+				{
+					text: _('pain_scale') + ' ',
+					action: 'PainScaleGrid',
+					margin: '0 3 0 0',
+					tooltip: _('pain_scale'),
+					style: {
+						backgroundColor: g('pain_scales_tab_color'),
+						backgroundImage: 'none'
+					},
+					acl: a('access_patient_implantable_devices')
+				}
+			]);
+
+		}
+
 		if(a('access_patient_doctors_notes')) {
 			index = this.items_indexes['DoctorsNotes'] !== undefined ? this.items_indexes['DoctorsNotes'] : outofindex++;
 			Ext.Array.insert(buttons, index, [
@@ -380,6 +398,8 @@ Ext.define('App.controller.patient.Medical', {
 				}
 			]);
 		}
+
+
 
 		Ext.Array.push(buttons, ['-',
 			{
@@ -595,6 +615,22 @@ Ext.define('App.controller.patient.Medical', {
 					tooltip: _('implantable_devices'),
 					style: {
 						backgroundColor: g('implantable_devices_tab_color'),
+						backgroundImage: 'none'
+					}
+				}
+			}]);
+		}
+
+		if(a('access_patient_pain_scales')){
+
+			index = this.items_indexes['PainScaleGrid'] !== undefined ? this.items_indexes['PainScaleGrid'] : outofindex++;
+
+			Ext.Array.insert(tapPanelItems, index, [{
+				xtype:'painscalepanel',
+				tabConfig: {
+					tooltip: _('pain_scales'),
+					style: {
+						backgroundColor: g('pain_scales_tab_color'),
 						backgroundImage: 'none'
 					}
 				}

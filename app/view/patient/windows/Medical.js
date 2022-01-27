@@ -40,7 +40,8 @@ Ext.define('App.view.patient.windows.Medical', {
 		'App.view.patient.DoctorsNotes',
 		'App.view.patient.FamilyHistory',
 		'App.view.patient.ImplantableDevice',
-		'App.view.patient.SocialPsychologicalBehavioral'
+		'App.view.patient.SocialPsychologicalBehavioral',
+		'App.view.patient.PainScale'
 	],
 
 	initComponent: function(){

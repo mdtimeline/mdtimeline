@@ -2233,4 +2233,6 @@ $LANG = array(
     'print_list' => 'Print List',
     'new_note' => 'New Note',
     'copies' => 'Copies',
+    'pain_scale' => 'Pain Scale',
+    'anatomical_region' => 'Anatomical Region',
 );

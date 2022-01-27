@@ -184,6 +184,10 @@ Ext.define('App.model.patient.Encounter', {
 			type: 'bool'
 		},
 		{
+			name: 'review_pain_scales',
+			type: 'bool'
+		},
+		{
 			name: 'message',
 			type: 'string',
 			dataType: 'text'

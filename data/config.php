@@ -509,6 +509,31 @@ $API = [
             ]
         ]
     ],
+    'PainScale' => [
+        'methods' => [
+            'getPainsScales' => [
+                'len' => 1
+            ],
+            'getPainScale' => [
+                'len' => 1
+            ],
+            'lookup' => [
+                'len' => 1
+            ],
+            'addPainScale' => [
+                'len' => 1
+            ],
+            'updatePainScale' => [
+                'len' => 1
+            ],
+            'destroyPainScale' => [
+                'len' => 1
+            ],
+            'getPainScaleByEid' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'DecisionAids' => [
         'methods' => [
             'getDecisionAids' => [

@@ -156,7 +156,8 @@ class EducationResources {
 		$codes_searched = [
 			'RXNORM' => [],
 			'LOINC' => [],
-			'SNOMEDCT' => []
+			'SNOMEDCT' => [],
+            'ICD10' => []
 		];
 
 		$documents_found = [];
@@ -185,10 +186,10 @@ class EducationResources {
 
 		foreach ($codes['PROB'] as $prob){
 
-			if(array_search($prob['code'], $codes_searched['SNOMEDCT']) !== false) continue;
+			if(array_search($prob['code'], $codes_searched['ICD10']) !== false) continue;
 
-			$documents = $this->getDocumentsByCodeAndCodeType($prob['code'], 'SNOMEDCT', $documents_found, $params->language, 'Problems');
-			$codes_searched['SNOMEDCT'][] = $prob['code'];
+			$documents = $this->getDocumentsByCodeAndCodeType($prob['code'], 'ICD10', $documents_found, $params->language, 'Problems');
+			$codes_searched['ICD10'][] = $prob['code'];
 
 			$response = array_merge($response, $documents);
 		}
@@ -214,7 +215,7 @@ class EducationResources {
 			$mainSearchCriteria = '2.16.840.1.113883.6.88';
 		}elseif($code_type == 'LOINC'){
 			$mainSearchCriteria = '2.16.840.1.113883.6.1';
-		}elseif($code_type == ' ICD10'){
+		}elseif($code_type == 'ICD10'){
 			$mainSearchCriteria = '2.16.840.1.113883.6.90';
 		}elseif($code_type == 'ICD9'){
 			$mainSearchCriteria = '2.16.840.1.113883.6.103';
@@ -263,7 +264,7 @@ class EducationResources {
 
 					if($entry['link'][0]['href'] == '') continue;
 
-					if(!isset($entry['title']['_value'])){
+					if(isset($entry['title']['_value'])){
 						$title = $entry['title']['_value'];
 					}
 

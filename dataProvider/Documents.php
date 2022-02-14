@@ -724,6 +724,13 @@ class Documents
         // add line token
         $tokens[] = '{line}';
         $allNeededInfo[] = '<hr style="margin: 10px;">';
+
+        // fix ≤ and ≥ ? character error
+        $tokens[] = '≤';
+        $allNeededInfo[] = '&le;';
+        $tokens[] = '≥';
+        $allNeededInfo[] = '&ge;';
+
         $html = str_replace($tokens, $allNeededInfo, (isset($params->DoctorsNote)) ? $body : $body['body']);
 
         $groups = preg_split('/{newgroup}|~newgroup~/', $html);

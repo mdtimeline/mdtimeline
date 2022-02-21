@@ -1352,7 +1352,7 @@ class Encounter {
             $str_buff .= '</div>';
         } else if($encounter['review_immunizations']) {
             $str_buff .= '<div class="indent">';
-            $str_buff .= '<p><b>Immunizations:</b> Patient has no Immunizations.</p>';
+            $str_buff .= '<p><b>Immunizations:</b> None Recorded.</p>';
             $str_buff .= '</div>';
         }else{
             $str_buff .= '<div class="indent">';

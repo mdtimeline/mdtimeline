@@ -142,6 +142,9 @@ Ext.define('App.controller.patient.Immunizations', {
 			},
 			'#PatientSummaryImmunizationPanelQuickAddBtn': {
 				click: me.onPatientSummaryImmunizationPanelQuickAddBtnClick
+			},
+			'#ImmunizationPanelQuickAddBtn': {
+				click: me.onImmunizationPanelQuickAddBtnClick
 			}
 		});
 
@@ -797,6 +800,7 @@ Ext.define('App.controller.patient.Immunizations', {
 			win = btn.up('window'),
 			form = win.down('form').getForm(),
 			values = form.getValues(),
+			immunizationGrid = me.getImmunizationsGrid(),
 			immunizations = {};
 
 		if(app.patient.pid === null){
@@ -842,11 +846,21 @@ Ext.define('App.controller.patient.Immunizations', {
 		Immunizations.addQuickImmunization(immunizations, function (){
 			me.doCloseWindow(win);
 			app.msg(_('sweet'), 'Immunizations Added');
+
+			if(immunizationGrid && immunizationGrid.isVisible(true)){
+				immunizationGrid.getStore().reload();
+			}
+
+
 		});
 
 	},
 
 	onPatientSummaryImmunizationPanelQuickAddBtnClick: function (btn){
+		app.getController('patient.Immunizations').showImmunizationsQuickFormWindow();
+	},
+
+	onImmunizationPanelQuickAddBtnClick: function (btn){
 		app.getController('patient.Immunizations').showImmunizationsQuickFormWindow();
 	}
 

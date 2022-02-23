@@ -61,7 +61,11 @@ Ext.define('App.controller.patient.ItemsToReview', {
         {
             ref: 'EncounterSummaryCareProvided',
             selector: '#ItemsToReviewPanel #EncounterSummaryCareProvided'
-        }
+        },
+		{
+			ref: 'ItemsToReviewActivePainScaleGrid',
+			selector: '#ItemsToReviewPanel #ItemsToReviewActivePainScaleGrid'
+		}
 	],
 
 	init: function(){
@@ -104,6 +108,7 @@ Ext.define('App.controller.patient.ItemsToReview', {
 		me.getItemsToReviewAllergiesGrid().getStore().load(params);
 		me.getItemsToReviewActiveProblemsGrid().getStore().load(params);
 		me.getItemsToReviewMedicationsGrid().getStore().load(params);
+		me.getItemsToReviewActivePainScaleGrid().getStore().load(params);
 
 		me.smokeStatusStore = app.getController('patient.Social').smokeStatusStore;
 
@@ -149,7 +154,8 @@ Ext.define('App.controller.patient.ItemsToReview', {
 				review_immunizations: true,
 				review_medications: true,
 				review_smoke: true,
-				review_surgery: true
+				review_surgery: true,
+				review_pain_scales: true
 			});
 
 			encounter.save({

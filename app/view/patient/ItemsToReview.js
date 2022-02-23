@@ -18,6 +18,9 @@
 
 Ext.define('App.view.patient.ItemsToReview', {
 	extend: 'Ext.panel.Panel',
+	requires: [
+		'App.view.patient.PainScale'
+	],
 	alias: 'widget.itemstoreview',
 	layout: {
 		type: 'vbox',
@@ -168,6 +171,14 @@ Ext.define('App.view.patient.ItemsToReview', {
 					]
 				}
 			]
+		},
+		{
+
+			xtype: 'painscalepanel',
+			itemId: 'ItemsToReviewActivePainScaleGrid',
+			margin: '0 0 5 0',
+			frame: true,
+			bbar: null
 		},
 		{
 			xtype:'container',

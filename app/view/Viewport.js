@@ -774,8 +774,40 @@ Ext.define('App.view.Viewport', {
 
 
 
-	    //me.signature = Ext.create('App.view.signature.SignatureWindow');
-	    //Ext.create('Modules.worklist.view.ResultsPickUpWindow').show();
+	    // Ext.create('Ext.window.Window',{
+		// 	layout: 'fit',
+		// 	// width: 600,
+		// 	// height: 600,
+		// 	items:[
+		// 		{
+		// 			xtype: 'form',
+		// 			layout: 'fit',
+		// 			items: [
+		// 				Ext.create('App.ux.form.fields.Canvas', {
+		// 					width: 600,
+		// 					height: 370,
+		// 					image: 'modules/worklist/resources/images/breast_profile.png',
+		// 					name: 'birads_image'
+		// 				}),
+		// 				{
+		// 					xtype: 'textfield',
+		// 					name: 'birads_test'
+		// 				}
+		// 			]
+		// 		}
+		// 	],
+		// 	buttons: [
+		// 		{
+		// 			text: 'Save',
+		// 			handler: function (btn){
+		// 				var form = btn.up('window').down('form').getForm();
+		// 				say(form);
+		// 				say(form.getValues());
+		// 			}
+		// 		}
+		// 	]
+		// }).show();
+
     },
 
 	setIpAddress: function(ip){

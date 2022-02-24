@@ -52634,6 +52634,9 @@ Ext.define('App.controller.patient.Immunizations', {
 			},
 			'#PatientSummaryImmunizationPanelQuickAddBtn': {
 				click: me.onPatientSummaryImmunizationPanelQuickAddBtnClick
+			},
+			'#ImmunizationPanelQuickAddBtn': {
+				click: me.onImmunizationPanelQuickAddBtnClick
 			}
 		});
 
@@ -53289,6 +53292,7 @@ Ext.define('App.controller.patient.Immunizations', {
 			win = btn.up('window'),
 			form = win.down('form').getForm(),
 			values = form.getValues(),
+			immunizationGrid = me.getImmunizationsGrid(),
 			immunizations = {};
 
 		if(app.patient.pid === null){
@@ -53334,11 +53338,21 @@ Ext.define('App.controller.patient.Immunizations', {
 		Immunizations.addQuickImmunization(immunizations, function (){
 			me.doCloseWindow(win);
 			app.msg(_('sweet'), 'Immunizations Added');
+
+			if(immunizationGrid && immunizationGrid.isVisible(true)){
+				immunizationGrid.getStore().reload();
+			}
+
+
 		});
 
 	},
 
 	onPatientSummaryImmunizationPanelQuickAddBtnClick: function (btn){
+		app.getController('patient.Immunizations').showImmunizationsQuickFormWindow();
+	},
+
+	onImmunizationPanelQuickAddBtnClick: function (btn){
 		app.getController('patient.Immunizations').showImmunizationsQuickFormWindow();
 	}
 
@@ -77612,6 +77626,15 @@ Ext.define('App.view.patient.Immunizations', {
 			tbar: [
 				'->',
 				{
+					xtype: 'button',
+					text: _('quick'),
+					iconCls: 'icoAdd',
+					margin : '0 3 0 0',
+					acl: a('add_patient_immunizations'),
+					itemId: 'ImmunizationPanelQuickAddBtn'
+				},
+				'-',
+				{
 					text: _('add_new'),
 					action: 'encounterRecordAdd',
 					itemId: 'addImmunizationBtn',
@@ -84817,8 +84840,40 @@ Ext.define('App.view.Viewport', {
 
 
 
-	    //me.signature = Ext.create('App.view.signature.SignatureWindow');
-	    //Ext.create('Modules.worklist.view.ResultsPickUpWindow').show();
+	    // Ext.create('Ext.window.Window',{
+		// 	layout: 'fit',
+		// 	// width: 600,
+		// 	// height: 600,
+		// 	items:[
+		// 		{
+		// 			xtype: 'form',
+		// 			layout: 'fit',
+		// 			items: [
+		// 				Ext.create('App.ux.form.fields.Canvas', {
+		// 					width: 600,
+		// 					height: 370,
+		// 					image: 'modules/worklist/resources/images/breast_profile.png',
+		// 					name: 'birads_image'
+		// 				}),
+		// 				{
+		// 					xtype: 'textfield',
+		// 					name: 'birads_test'
+		// 				}
+		// 			]
+		// 		}
+		// 	],
+		// 	buttons: [
+		// 		{
+		// 			text: 'Save',
+		// 			handler: function (btn){
+		// 				var form = btn.up('window').down('form').getForm();
+		// 				say(form);
+		// 				say(form.getValues());
+		// 			}
+		// 		}
+		// 	]
+		// }).show();
+
     },
 
 	setIpAddress: function(ip){

@@ -1103,7 +1103,7 @@ class DocumentHandler
         $this->d->addFilter('filesystem_id', null, '=');
         //$this->d->addFilter('filesystem_id', '', '=');
 
-        $records = $this->d->load()->limit(0, $quantity)->sortBy('id', 'DESC')->all();
+        $records = $this->d->load()->sortBy('id', 'DESC')->limit(0, $quantity)->all();
 
         foreach ($records as $record) {
             $this->handleDocumentFile($record);

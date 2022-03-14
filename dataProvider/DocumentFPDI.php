@@ -235,7 +235,7 @@ class DocumentFPDI extends FPDI  {
                         'bgcolor' => array(255,255,255)
                     );
                     $this->write2DBarcode($line['text'], 'QRCODE,H', $line['x'], $line['y'], $line['w'], $line['h'], $style, 'N');
-                    $this->Text(20, 205, 'QRCODE H');
+//                    $this->Text(20, 205, 'QRCODE H');
 
                 }else{
 

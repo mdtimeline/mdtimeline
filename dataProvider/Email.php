@@ -89,21 +89,22 @@ class Email {
 	 * @param null $facility_id
 	 * @param array $attachments
 	 * @param array $embedded_images
+	 * @param null $bbc_bbc_recipients;
 	 * @return array
 	 * @throws Exception
 	 */
-	function Send($pid, $eid, $to_address, $subject, $from_email, $from_name, $body, $audit_log = true, $facility_id = null, $attachments = [], $embedded_images = []){
+	function Send($pid, $eid, $to_address, $subject, $from_email, $from_name, $body, $audit_log = true, $facility_id = null, $attachments = [], $embedded_images = [], $bbc_bbc_recipients = null){
 
 		if($this->EMAIL_METHOD == 'SMTP'){
-			return $this->SendSMTP($pid, $eid, $to_address, $subject, $from_email, $from_name, $body, $audit_log, $facility_id, $attachments, $embedded_images);
+			return $this->SendSMTP($pid, $eid, $to_address, $subject, $from_email, $from_name, $body, $audit_log, $facility_id, $attachments, $embedded_images, $bbc_bbc_recipients);
 		}elseif($this->EMAIL_METHOD == 'API'){
-			return $this->SendAPI($pid, $eid, $to_address, $subject, $from_email, $from_name, $body, $audit_log, $facility_id, $attachments, $embedded_images);
+			return $this->SendAPI($pid, $eid, $to_address, $subject, $from_email, $from_name, $body, $audit_log, $facility_id, $attachments, $embedded_images, $bbc_bbc_recipients);
 		}else{
 			throw new Exception('Email: SMTP or API not configured');
 		}
 	}
 
-	private function SendAPI($pid, $eid, $to_address, $subject, $from_email, $from_name, $body, $audit_log = true, $facility_id = 0, $attachments = [], $embedded_images = []){
+	private function SendAPI($pid, $eid, $to_address, $subject, $from_email, $from_name, $body, $audit_log = true, $facility_id = 0, $attachments = [], $embedded_images = [], $bbc_bbc_recipients = null){
 
 
 		if($this->API_ACCOUNT == '' || $this->API_KEY == ''){
@@ -121,6 +122,23 @@ class Email {
 				$message['recipients'][] = $to_address[0];
 			}
 		}
+
+
+        if(isset($bbc_bbc_recipients) && $bbc_bbc_recipients !== ''){
+            $message['bcc'] = [];
+
+            $bbc_recipients = is_string($bbc_bbc_recipients) ? explode(',', $bbc_bbc_recipients) : $bbc_bbc_recipients;
+            foreach ($bbc_recipients as $bbc_recipient){
+                if(filter_var($bbc_recipient, FILTER_VALIDATE_EMAIL)){
+                    $message['bcc'][] = $bbc_recipient;
+                }
+            }
+
+            if(count($message['bcc']) === 0){
+                unset($message['bcc']);
+            }
+
+        }
 
 		$tpl = $this->getMasterTemplate($facility_id);
 		if($tpl !== false){
@@ -241,7 +259,7 @@ class Email {
 
 	}
 
-	private function SendSMTP($pid, $eid, $to_address, $subject, $from_email, $from_name, $body, $audit_log = true, $facility_id = null, $attachments = [], $embedded_images = []){
+	private function SendSMTP($pid, $eid, $to_address, $subject, $from_email, $from_name, $body, $audit_log = true, $facility_id = null, $attachments = [], $embedded_images = [], $bbc_bbc_recipients = null){
 
 		$PHPMailer = new PHPMailer();
 		//$PHPMailer->SMTPDebug = 2;

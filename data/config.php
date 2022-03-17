@@ -18,6 +18,22 @@
  */
 
 $API = [
+    'Gitter' => [
+        'methods' => [
+            'doLog' => [
+                'len' => 1
+            ],
+            'doDiff' => [
+                'len' => 1
+            ],
+            'doReset' => [
+                'len' => 1
+            ],
+            'doUpgrade' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'DocumentsPdfTemplates' => [
         'methods' => [
             'getDocumentsPdfTemplates' => [

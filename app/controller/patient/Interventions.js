@@ -119,6 +119,11 @@ Ext.define('App.controller.patient.Interventions', {
 	},
 
 	onBeforeOpenEncounter: function(encounter){
+
+		if(!a('add_patient_interventions')){
+			return;
+		}
+
 		if(this.getInterventionsGrid()){
 			this.getInterventionsGrid().getStore().load({
 				filters:[
@@ -229,6 +234,10 @@ Ext.define('App.controller.patient.Interventions', {
 	},
 
 	onPatientVitalsLoad: function(ctrl, encounter_record, vitals_records, vitals_store){
+
+		if(!a('add_patient_interventions')){
+			return;
+		}
 
 		var me = this,
 			encounter_eid = encounter_record.get('eid'),

@@ -684,7 +684,9 @@ Ext.define('App.view.Viewport', {
 				                    stateful: true,
 				                    stateId: 'ApplicationFooterDefaultPrinterCmbState',
 									margin: '0 5 0 0',
-									width: 300
+									width: 300,
+									emptyText: 'None',
+									resetable: true,
 			                    },
 			                    {
 			                    	xtype: 'button',

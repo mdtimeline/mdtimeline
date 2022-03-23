@@ -1,5 +1,5 @@
 Ext.define('App.ux.combo.Printers', {
-    extend: 'Ext.form.ComboBox',
+    extend: 'App.ux.combo.ComboResettable',
     xtype: 'printerscombo',
     editable: false,
     queryMode: 'local',

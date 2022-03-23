@@ -9225,7 +9225,7 @@ Ext.define('App.ux.combo.PreventiveCareTypes', {
 	}
 });
 Ext.define('App.ux.combo.Printers', {
-    extend: 'Ext.form.ComboBox',
+    extend: 'App.ux.combo.ComboResettable',
     xtype: 'printerscombo',
     editable: false,
     queryMode: 'local',
@@ -74110,6 +74110,9 @@ Ext.define('App.controller.reports.Reports', {
 			},
 			'#AdministrationReportSaveBtn': {
 				click: me.onAdministrationReportSaveBtnClick
+			},
+			'#ReportWindowGroupByCmb': {
+				select: me.onReportWindowGroupByCmbSelect
 			}
 		});
 
@@ -74460,12 +74463,28 @@ Ext.define('App.controller.reports.Reports', {
 
 	},
 
+	onReportWindowGroupByCmbSelect: function (cmb, selection){
+
+		// say(cmb);
+		// say(selection);
+		// var me = this,
+		// 	win = cmb.up('window'),
+		// 	filter_form = win.down('form').getForm(),
+		// 	group_field =  win.down('form').down('#ReportWindowGroupByCmb'),
+		// 	report_grid = win.down('grid');
+		//
+		// report_grid.getStore().group(selection[0].data.field1);
+
+	},
+
 	onReportWindowReloadBtnClick: function(btn){
 
 		var me = this,
 			win = btn.up('window'),
 			filter_form = win.down('form').getForm(),
+			group_field =  win.down('form').down('#ReportWindowGroupByCmb'),
 			report_grid = win.down('grid'),
+			report_store = report_grid.getStore(),
 			filters = filter_form.getValues(),
 			report_record = me.getReportsGrid().getSelectionModel().getSelection()[0];
 
@@ -74478,9 +74497,14 @@ Ext.define('App.controller.reports.Reports', {
 		report_grid.view.el.mask('Loading!!!');
 		report_grid.filters = filters;
 
+		report_store.removeAll();
+
+		if(group_field){
+			report_store.group(group_field.getValue());
+		}
 
 		Reports.runReportByIdAndFilters(report_record.get('id'), filters, function (response) {
-			report_grid.getStore().loadRawData(response);
+			report_store.loadRawData(response);
 			report_grid.view.el.unmask();
 		});
 
@@ -84776,7 +84800,9 @@ Ext.define('App.view.Viewport', {
 				                    stateful: true,
 				                    stateId: 'ApplicationFooterDefaultPrinterCmbState',
 									margin: '0 5 0 0',
-									width: 300
+									width: 300,
+									emptyText: 'None',
+									resetable: true,
 			                    },
 			                    {
 			                    	xtype: 'button',

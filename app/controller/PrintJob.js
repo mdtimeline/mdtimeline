@@ -377,6 +377,8 @@ Ext.define('App.controller.PrintJob', {
             return;
         }
 
+        print_now = print_now && printer_id
+
         var print_job_record = me.print_job_store.add({
             uid: app.user.id,
             document_id: document_id,

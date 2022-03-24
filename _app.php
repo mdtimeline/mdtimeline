@@ -409,6 +409,9 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                                 'App.ux.combo.YesNo',
                                 'App.ux.window.Window',
                                 'App.ux.NodeDisabled',
+
+                                'App.ux.button.Print',
+
                                 'App.view.search.PatientSearch',
                                 /**
                                  * Dynamically load the modules

@@ -54,7 +54,8 @@ Ext.define('App.model.administration.PrintJob', {
 		},
 		{
 			name: 'number_of_copies',
-			type: 'int'
+			type: 'int',
+			defaultValue: 1
 		},
 		{
 			name: 'create_date',
@@ -100,12 +101,6 @@ Ext.define('App.model.administration.PrintJob', {
 			name: 'document_note',
 			type: 'string',
 			store: false
-		},
-		{
-			name: 'number_of_copies',
-			type: 'int',
-			store: false,
-			defaultValue: 1
 		}
 	],
 	proxy: {

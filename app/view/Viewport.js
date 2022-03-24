@@ -1036,8 +1036,8 @@ Ext.define('App.view.Viewport', {
         return this.MainPanel.getLayout().getActiveItem();
     },
 
-	addPrintJob: function (document_id, printer_record, print_now, priority){
-		this.getController('PrintJob').addPrintJob(document_id, printer_record, print_now, priority);
+	addPrintJob: function (document_id, printer_record, print_now, priority, number_of_copies){
+		this.getController('PrintJob').addPrintJob(document_id, printer_record, print_now, priority, number_of_copies);
 	},
 
     liveSearchSelect: function(combo, selection){

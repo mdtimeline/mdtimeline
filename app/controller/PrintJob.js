@@ -379,6 +379,10 @@ Ext.define('App.controller.PrintJob', {
 
         print_now = print_now && printer_id
 
+        if(!Ext.isNumber(number_of_copies)){
+            number_of_copies = 1;
+        }
+
         var print_job_record = me.print_job_store.add({
             uid: app.user.id,
             document_id: document_id,
@@ -386,9 +390,12 @@ Ext.define('App.controller.PrintJob', {
             printer_type: printer_type,
             print_status: print_now ? 'QUEUED' : 'HOLD',
             priority: priority,
-            number_of_copies: number_of_copies || 1,
+            number_of_copies: number_of_copies,
             create_date: Ext.Date.format(app.getDate(), 'Y-m-d H:i:s')
         })[0];
+
+        say(number_of_copies);
+        say(print_job_record);
 
         print_job_record.save();
 

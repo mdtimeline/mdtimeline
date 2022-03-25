@@ -58852,7 +58852,7 @@ Ext.define('App.controller.patient.Summary', {
 	refs: [
 		{
 			ref: 'PatientSummaryPanel',
-			selector: 'PatientSummaryPanel'
+			selector: '#PatientSummaryPanel'
 		},
 		{
 			ref: 'PatientSummaryEncounterServicesPanel',
@@ -58884,11 +58884,20 @@ Ext.define('App.controller.patient.Summary', {
 		}
 	],
 
+	/**
+	 * summary panel is active
+	 */
+	summary_panel_is_active: false,
+
 	init: function(){
 		var me = this;
 		me.control({
+			'viewport': {
+				patientset: me.onPatientSet
+			},
 			'#PatientSummaryPanel': {
-				activate: me.onPatientSummaryPanel
+				activate: me.onPatientSummaryPanelActivate,
+				deactivate: me.onPatientSummaryPanelDeactivate
 			},
 			'#PatientSummaryEncountersPanel': {
 				itemdblclick: me.onPatientSummaryEncounterDblClick,
@@ -58924,7 +58933,25 @@ Ext.define('App.controller.patient.Summary', {
 		me.nav = me.getController('Navigation');
 	},
 
-	onPatientSummaryPanel: function(panel){
+	onPatientSet: function (){
+
+
+		say('summary_panel.....');
+
+		var summary_panel = this.getPatientSummaryPanel();
+
+		say(summary_panel);
+
+
+		if(summary_panel){
+			summary_panel.loadPatient();
+		}
+	},
+
+	onPatientSummaryPanelActivate: function(panel){
+
+		this.summary_panel_is_active = true;
+
 		var params = this.nav.getExtraParams();
 
 		if(params){
@@ -58934,6 +58961,11 @@ Ext.define('App.controller.patient.Summary', {
 				panel.down('tabpanel').setActiveTab(this.getPatientCcdPanel());
 			}
 		}
+	},
+
+
+	onPatientSummaryPanelDeactivate: function(panel){
+		this.summary_panel_is_active = false;
 	},
 
 	onPatientSummaryEncounterDblClick: function(grid, record){

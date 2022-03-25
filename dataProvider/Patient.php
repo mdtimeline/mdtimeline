@@ -490,10 +490,14 @@ PREGNANCY_CODES;
 		$pubpid = Tokens::StringReplace($pubpid, $additional_tokens);
 
 		if($pubpid !== ''){
-			$this->p->save((object)['pid' => $patient->pid, 'pubpid' => $pubpid]);
+            $p_object = (object)['pid' => $patient->pid, 'pubpid' => $pubpid];
+            $patient->pubpid = $pubpid;
+            if(!isset($patient->pubaccount) || $patient->pubaccount === ''){
+                $p_object->pubaccount = $pubpid;
+                $patient->pubaccount = $p_object->pubaccount;
+            }
+			$this->p->save($p_object);
 		}
-
-
 
 	}
 

@@ -156,7 +156,9 @@ Ext.define('App.controller.patient.encounter.SOAP', {
 	},
 
 	onSoapFormWrite: function (store, operation) {
-		this.doChiefComplaintHandler(operation.records[0]);
+		if(operation && operation.records && operation.records[0]){
+			this.doChiefComplaintHandler(operation.records[0]);
+		}
 	},
 
 	onEncounterBeforeSync: function(panel, store, form, record){

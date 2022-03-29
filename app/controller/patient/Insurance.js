@@ -739,10 +739,6 @@ Ext.define('App.controller.patient.Insurance', {
     //Grid Functions (Elegibility Btn) has its own controller
 
     onBillingPatientInsuranceCoverInformationCoverGridValidateEdit: function (plugin, context) {
-
-        say('Validate Edit');
-        say(context);
-
         if (context.field === 'copay') {
             var cover_record = context.record,
                 prev_copay = cover_record.get('copay'),

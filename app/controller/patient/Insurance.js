@@ -736,12 +736,14 @@ Ext.define('App.controller.patient.Insurance', {
     //***********************
 
 
-
-
     //Grid Functions (Elegibility Btn) has its own controller
+
     onBillingPatientInsuranceCoverInformationCoverGridValidateEdit: function (plugin, context) {
 
-        if (context.field = 'isDollar') return;
+        say('Validate Edit');
+        say(context);
+
+        if (context.field === 'isDollar') return;
 
         var cover_record = context.record,
             prev_copay = cover_record.get('copay'),
@@ -752,6 +754,7 @@ Ext.define('App.controller.patient.Insurance', {
             update_date: new Date(),
             update_uid: app.user.id
         });
+
     },
 
     onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldRender: function(field){
@@ -766,6 +769,10 @@ Ext.define('App.controller.patient.Insurance', {
     },
 
     onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldSelect: function (field, selected_cover) {
+
+        say('Cover Exception');
+        say(selected_cover);
+        say(field);
 
         if (field.value.length === 0) return;
 
@@ -790,7 +797,6 @@ Ext.define('App.controller.patient.Insurance', {
                     exception: false
                 });
             }
-
 
             for (var r = 0; r < response.length; r++) {
 

@@ -743,17 +743,32 @@ Ext.define('App.controller.patient.Insurance', {
         say('Validate Edit');
         say(context);
 
-        if (context.field === 'isDollar') return;
+        if (context.field === 'copay') {
+            var cover_record = context.record,
+                prev_copay = cover_record.get('copay'),
+                copay = context.value;
 
-        var cover_record = context.record,
-            prev_copay = cover_record.get('copay'),
-            copay = context.value;
+            cover_record.set({
+                copay: copay,
+                update_date: new Date(),
+                update_uid: app.user.id
+            });
+        }
 
-        cover_record.set({
-            copay: copay,
-            update_date: new Date(),
-            update_uid: app.user.id
-        });
+        if (context.field === 'exception_copay') {
+            var cover_record = context.record,
+                prev_e_copay = cover_record.get('exception_copay'),
+                e_copay = context.value;
+
+            cover_record.set({
+                exception_copay: e_copay,
+                exception_isDollar: true,
+                exception: true,
+                update_date: new Date(),
+                update_uid: app.user.id
+            });
+        }
+
 
     },
 
@@ -769,10 +784,6 @@ Ext.define('App.controller.patient.Insurance', {
     },
 
     onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldSelect: function (field, selected_cover) {
-
-        say('Cover Exception');
-        say(selected_cover);
-        say(field);
 
         if (field.value.length === 0) return;
 

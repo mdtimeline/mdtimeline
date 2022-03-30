@@ -413,13 +413,19 @@ Ext.define('App.view.Viewport', {
 				    icon: 'resources/images/icons/icohelp.png',
 				    menu: [
 					    {
-						    text: 'Appointment Software User Guide',
+						    text: 'Appointment Module User Guide',
 						    icon: 'resources/images/icons/icohelp.png',
 						    documentTitle: 'Appointment Software User Guide',
 						    documentUrl: 'https://docs.google.com/document/d/e/2PACX-1vRaSxKq1stGH8zwCRHvXCIfzBVlOlOSehQSctFeEpzZV6x7LJKo3TB9SgN2w54fuHIQ-WMKkgB2QJ8q/pub?embedded=true'
 					    },
 					    {
-						    text: 'RIS Software User Guide',
+						    text: 'Billing Module User Guide',
+						    icon: 'resources/images/icons/icohelp.png',
+						    documentTitle: 'Appointment Software User Guide',
+						    documentUrl: 'https://docs.google.com/document/d/e/2PACX-1vTTgjeV0lX6S9mijo7dnCSAmIcZofMAEY4oGcKd-UNkJ6fzPIPB6X0JXr77AQ8B1SAZO1-lQZSzWSDL/pub?embedded=true'
+					    },
+					    {
+						    text: 'RIS Module User Guide',
 						    icon: 'resources/images/icons/icohelp.png',
 						    documentTitle: 'RIS Software User Guide',
 						    documentUrl: 'https://docs.google.com/document/d/e/2PACX-1vTA3ymEgqFz8JhE0AxcGghVyEkuCxnoiiJmnbcL-FIIz3MIvv8DSHxWi5Xe4Atg8vMus-u9WSgUKjEW/pub?embedded=true'

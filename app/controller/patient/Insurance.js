@@ -739,6 +739,7 @@ Ext.define('App.controller.patient.Insurance', {
     //Grid Functions (Elegibility Btn) has its own controller
 
     onBillingPatientInsuranceCoverInformationCoverGridValidateEdit: function (plugin, context) {
+
         if (context.field === 'copay') {
             var cover_record = context.record,
                 prev_copay = cover_record.get('copay'),
@@ -746,6 +747,9 @@ Ext.define('App.controller.patient.Insurance', {
 
             cover_record.set({
                 copay: copay,
+                exception_copay: 0.00,
+                exception_isDollar: false,
+                exception: false,
                 update_date: new Date(),
                 update_uid: app.user.id
             });
@@ -758,6 +762,7 @@ Ext.define('App.controller.patient.Insurance', {
                 e_copay = context.value;
 
             cover_record.set({
+                copay: 0.00,
                 exception_copay: e_copay,
                 exception_isDollar: true,
                 exception: true,

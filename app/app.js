@@ -10252,6 +10252,110 @@ Ext.define('App.ux.window.Window', {
 	}
 });
 
+Ext.define('Modules.Module', {
+	extend: 'Ext.app.Controller',
+	refs: [
+		{
+			ref: 'viewport',
+			selector: 'viewport'
+		},
+		{
+			ref: 'mainNav',
+			selector: 'treepanel[action=mainNav]'
+		}
+	],
+	/**
+	 * @param panel
+	 */
+	addAppPanel: function(panel){
+		this.getViewport().MainPanel.add(panel);
+	},
+
+	/**
+	 * @param item
+	 */
+	addHeaderItem: function(item){
+		this.getViewport().Header.add(item);
+	},
+
+	/**
+	 * @param parentId
+	 * @param node
+	 * @param index
+	 *
+	 * Desc: Method to add items to the navigation tree.
+	 *
+	 */
+	addNavigationNodes: function(parentId, node, index){
+		var parent,
+            firstChildNode,
+            nodes,
+            i,
+			nav = this.getMainNav(),
+			store;
+
+		if(!nav){
+			Ext.Function.defer(this.addNavigationNodes(parentId, node, index), 500, this);
+			return;
+		}
+
+		store = nav.getStore();
+
+		if(!store){
+			Ext.Function.defer(this.addNavigationNodes(parentId, node, index), 500, this);
+			return;
+		}
+
+		if(parentId == 'root' || parentId == null){
+			parent = store.getRootNode();
+		}
+		else{
+			parent = store.getNodeById(parentId);
+		}
+
+		if(parent){
+			firstChildNode = parent.findChildBy(function(node){
+				return node.hasChildNodes();
+			});
+
+			if(Ext.isArray(node)){
+				nodes = [];
+				for(i = 0; i < node.length; i++){
+					Ext.Array.push(nodes, parent.insertBefore(node[i], firstChildNode));
+				}
+				return nodes;
+			}
+			else if(index){
+				return parent.insertChild(index, node);
+			}else{
+				return parent.insertBefore(node, firstChildNode);
+			}
+		}
+	},
+
+	getModuleData: function(name){
+		var me = this;
+		Modules.getModuleByName(name, function(provider, response){
+			me.fireEvent('moduledata', response.result)
+		});
+	},
+
+	updateModuleData: function(data){
+		var me = this;
+		Modules.updateModule(data, function(provider, response){
+			me.fireEvent('moduledataupdate', response.result)
+		});
+	},
+
+	addLanguages: function(languages){
+
+	},
+
+	insertToHead: function(link){
+		Ext.getHead().appendChild(link);
+	}
+});
+
 Ext.define('App.view.search.PatientSearch',
 {
 	extend : 'App.ux.RenderPanel',
@@ -52187,22 +52291,37 @@ Ext.define('App.controller.patient.Insurance', {
     //***********************
 
 
-
-
     //Grid Functions (Elegibility Btn) has its own controller
+
     onBillingPatientInsuranceCoverInformationCoverGridValidateEdit: function (plugin, context) {
+        if (context.field === 'copay') {
+            var cover_record = context.record,
+                prev_copay = cover_record.get('copay'),
+                copay = context.value;
 
-        if (context.field = 'isDollar') return;
+            cover_record.set({
+                copay: copay,
+                update_date: new Date(),
+                update_uid: app.user.id
+            });
+        }
 
-        var cover_record = context.record,
-            prev_copay = cover_record.get('copay'),
-            copay = context.value;
 
-        cover_record.set({
-            copay: copay,
-            update_date: new Date(),
-            update_uid: app.user.id
-        });
+        if (context.field === 'exception_copay') {
+            var cover_record = context.record,
+                prev_e_copay = cover_record.get('exception_copay'),
+                e_copay = context.value;
+
+            cover_record.set({
+                exception_copay: e_copay,
+                exception_isDollar: true,
+                exception: true,
+                update_date: new Date(),
+                update_uid: app.user.id
+            });
+        }
+
+
     },
 
     onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldRender: function(field){
@@ -52241,7 +52360,6 @@ Ext.define('App.controller.patient.Insurance', {
                     exception: false
                 });
             }
-
 
             for (var r = 0; r < response.length; r++) {
 

@@ -755,7 +755,6 @@ Ext.define('App.controller.patient.Insurance', {
             });
         }
 
-
         if (context.field === 'exception_copay') {
             var cover_record = context.record,
                 prev_e_copay = cover_record.get('exception_copay'),

@@ -299,7 +299,8 @@ Ext.define('App.view.administration.Users', {
 															width: 280,
 															xtype: 'mitos.facilitiescombo',
 															fieldLabel: _('default_facility'),
-															name: 'facility_id'
+															name: 'facility_id',
+															allowBlank: false
 														},
 														// {
 														// 	width: 300,

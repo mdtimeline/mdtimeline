@@ -389,7 +389,11 @@ class User
      * @param $user_id
      * @return array
      */
-    public function getUserTokenById($user_id){
+    public function getUserTokenById($user_id = null){
+
+        if(!isset($user_id)){
+            $user_id = $_SESSION['user']['id'];
+        }
 
         $user = $this->getUserByUid($user_id);
         $tokens = [];

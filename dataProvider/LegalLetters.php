@@ -8,6 +8,7 @@
 
 include_once (ROOT. '/classes/Network.php');
 include_once (ROOT. '/dataProvider/Patient.php');
+include_once (ROOT. '/dataProvider/User.php');
 include_once (ROOT. '/dataProvider/CombosData.php');
 include_once (ROOT. '/dataProvider/Documents.php');
 include_once (ROOT. '/dataProvider/DocumentHandler.php');
@@ -28,11 +29,13 @@ class LegalLetters
 	private $Documents;
 	private $DocumentHandler;
 	private $Patient;
+	private $User;
 
 	function __construct(){
 		$this->l = MatchaModel::setSenchaModel('App.model.administration.LegalLetter');
 		$this->s = MatchaModel::setSenchaModel('App.model.administration.LegalLetterSignature');
 		$this->Patient = new Patient();
+		$this->User = new User();
 		$this->CombosData = new CombosData();
 		$this->Documents = new Documents();
 		$this->DocumentHandler = new DocumentHandler();
@@ -219,6 +222,8 @@ class LegalLetters
 	public function replaceTokens($pid, $letter_content, $signature){
 
 	    $tokens_data = $this->Patient->getPatientTokenByPid($pid);
+	    $tokens_data = array_merge($tokens_data, $this->User->getUserTokenById($pid));
+
         $signature_image_data = preg_replace('#^data:image/[^;]+;base64,#', '', $signature);
 
         $tokens_data['[DATE]'] = date('Y-m-d');

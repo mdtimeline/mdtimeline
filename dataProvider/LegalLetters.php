@@ -222,7 +222,7 @@ class LegalLetters
 	public function replaceTokens($pid, $letter_content, $signature){
 
 	    $tokens_data = $this->Patient->getPatientTokenByPid($pid);
-	    $tokens_data = array_merge($tokens_data, $this->User->getUserTokenById($pid));
+	    $tokens_data = array_merge($tokens_data, $this->User->getUserTokenById());
 
         $signature_image_data = preg_replace('#^data:image/[^;]+;base64,#', '', $signature);
 

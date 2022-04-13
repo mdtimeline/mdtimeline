@@ -38,12 +38,18 @@ Ext.define('App.controller.Print', {
 
             job_id = job_id || "0";
 
-            me.browserHelperCtl.send('{"action":"print", "printer": "' + printer_record.get('id') + '", "payload": "' + document_base64 + '", "job_id": ' + job_id + '}', function (response) {
+            me.browserHelperCtl.send(JSON.stringify({
+                action: 'print',
+                printer: printer_record.get('id'),
+                payload: document_base64,
+                job_id: job_id
+            }), function (response) {
                 if (!response.success) {
                     app.msg(_('oops'), 'Document could not be printed', true);
                 }
                 if(callback) callback(response);
             });
+
         } else {
             Printer.doPrint(printer_record.get('id'), document_base64, job_id, function (response){
                 if(callback) callback(response);

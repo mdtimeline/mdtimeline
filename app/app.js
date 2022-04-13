@@ -46587,12 +46587,18 @@ Ext.define('App.controller.Print', {
 
             job_id = job_id || "0";
 
-            me.browserHelperCtl.send('{"action":"print", "printer": "' + printer_record.get('id') + '", "payload": "' + document_base64 + '", "job_id": ' + job_id + '}', function (response) {
+            me.browserHelperCtl.send(JSON.stringify({
+                action: 'print',
+                printer: printer_record.get('id'),
+                payload: document_base64,
+                job_id: job_id
+            }), function (response) {
                 if (!response.success) {
                     app.msg(_('oops'), 'Document could not be printed', true);
                 }
                 if(callback) callback(response);
             });
+
         } else {
             Printer.doPrint(printer_record.get('id'), document_base64, job_id, function (response){
                 if(callback) callback(response);
@@ -71702,7 +71708,7 @@ Ext.define('App.controller.Scanner', {
 
 	},
 
-	showDocumentScanWindow: function(default_values){
+	showDocumentScanWindow: function(default_values, scan_callback){
 
 		if(!this.is_chrome_scan && !this.helperCtrl.connected){
 			app.msg(_('oops'), _('browser_helper_not_connected'), true);
@@ -71714,6 +71720,7 @@ Ext.define('App.controller.Scanner', {
 		}
 
 		this.getDocumentScanWindow().default_values = default_values;
+		this.getDocumentScanWindow().scan_callback = scan_callback;
 		this.getDocumentScanWindow().skip_validation = false;
 
 		return this.getDocumentScanWindow().show();
@@ -72223,8 +72230,14 @@ Ext.define('App.controller.patient.Documents', {
 		}
 	},
 
-	onDocumentScanBtnClick: function () {
-		this.getController('Scanner').showDocumentScanWindow();
+	onDocumentScanBtnClick: function (btn) {
+		var documents_grid = btn.up('grid');
+
+		this.getController('Scanner').showDocumentScanWindow(undefined, function (documents){
+			if(documents){
+				documents_grid.add(documents);
+			}
+		});
 	},
 
 	onDocumentUploadBtnClick: function(){

@@ -399,7 +399,7 @@ Ext.define('App.controller.Scanner', {
 
 	},
 
-	showDocumentScanWindow: function(default_values){
+	showDocumentScanWindow: function(default_values, scan_callback){
 
 		if(!this.is_chrome_scan && !this.helperCtrl.connected){
 			app.msg(_('oops'), _('browser_helper_not_connected'), true);
@@ -411,6 +411,7 @@ Ext.define('App.controller.Scanner', {
 		}
 
 		this.getDocumentScanWindow().default_values = default_values;
+		this.getDocumentScanWindow().scan_callback = scan_callback;
 		this.getDocumentScanWindow().skip_validation = false;
 
 		return this.getDocumentScanWindow().show();

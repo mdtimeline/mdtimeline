@@ -476,8 +476,14 @@ Ext.define('App.controller.patient.Documents', {
 		}
 	},
 
-	onDocumentScanBtnClick: function () {
-		this.getController('Scanner').showDocumentScanWindow();
+	onDocumentScanBtnClick: function (btn) {
+		var documents_grid = btn.up('grid');
+
+		this.getController('Scanner').showDocumentScanWindow(undefined, function (documents){
+			if(documents){
+				documents_grid.add(documents);
+			}
+		});
 	},
 
 	onDocumentUploadBtnClick: function(){

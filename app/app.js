@@ -18896,16 +18896,10 @@ Ext.define('App.model.patient.PatientDocuments', {
 		},
 		{
 			name: 'groupDate',
-			type: 'date',
+			type: 'string',
 			store: false,
 			convert: function(v, record){
-				var date = Ext.clone(record.get('date'));
-				if(!date) return null;
-				date.setHours(0);
-				date.setMinutes(0);
-				date.setSeconds(0);
-				date.setMilliseconds(0);
-				return date;
+				return Ext.util.Format.date(record.get('date'), g('date_display_format'));
 			}
 		},
 		{
@@ -65151,6 +65145,12 @@ Ext.define('App.view.patient.Documents', {
 				selType: 'checkboxmodel',
 				stateful: true,
 				stateId: 'patientDocumentGridState',
+				viewConfig: {
+					plugins: {
+						ptype: 'gridviewdragdrop',
+						dragText: 'Drag and drop to move document to another category'
+					}
+				},
 				features: [
 					{
 						ftype: 'grouping',
@@ -65217,12 +65217,12 @@ Ext.define('App.view.patient.Documents', {
 					{
 						xtype: 'datecolumn',
 						header: _('date'),
-						dataIndex: 'groupDate',
+						dataIndex: 'date',
 						format: g('date_display_format'),
 						itemId: 'groupDate',
 						stateId: 'patientDocumentGridStateGroupDateCol',
 						renderer: function(v, meta, record){
-							var val = v != null ? Ext.Date.format(v, g('date_display_format')) : '-';
+							var val = v != null ? Ext.util.Format.date(v, g('date_display_format')) : '-';
 
 							if(record.get('entered_in_error')){
 								meta.tdCls += ' entered-in-error ';
@@ -71862,6 +71862,10 @@ Ext.define('App.controller.patient.Documents', {
 				beforerender: me.onPatientDocumentGridBeforeRender,
 				beforeitemcontextmenu: me.onPatientDocumentGridBeforeItemContextMenu
 			},
+			'patientdocumentspanel #patientDocumentGrid gridview': {
+				beforedrop: me.onPatientDocumentGridViewBeforeDrop,
+				drop: me.onPatientDocumentGridViewDrop,
+			},
 			// 'patientdocumentspanel #patientDocumentGrid gridview': {
 			// 	beforerefresh: me.onPatientDocumentGridBeforeRefresh
 			// },
@@ -71932,6 +71936,65 @@ Ext.define('App.controller.patient.Documents', {
 				});
 			});
 		});
+
+	},
+
+	onPatientDocumentGridViewBeforeDrop: function (node, data, over_record, drop_position) {
+		// say('onPatientDocumentGridViewBeforeDrop');
+		// say(node);
+		// say(data);
+		// say(over_record);
+		// say(drop_position);
+
+		if(data.records.length === 0) {
+			return false;
+		}
+
+		// id validation
+		if(!a('allow_document_drag_drop')){
+			app.msg(_('oops'), 'Unable to Edit, Not Authorized to Drag & Drop Document', true);
+			return false;
+		}
+
+		// id validation
+		if(data.records[0].get('id') <= 0){
+			app.msg(_('oops'), 'Unable to Edit, Document is not a stored document', true);
+			return false;
+		}
+		// ZZZ "ENTERED IN ERROR" validation
+		if(data.records[0].get('docTypeCode') === 'ZZZ'){
+			app.msg(_('oops'), 'Unable to Edit, Document entered in error', true);
+			return false;
+		}
+
+		// Drop outside group
+		if(data.records[0].get('docType') === ''){
+			app.msg(_('oops'), 'Unable to Edit, Please drop the document inside group', true);
+			return false;
+		}
+
+		// Drop  different group
+		if(data.records[0].get('docTypeCode') === over_record.get('docTypeCode')){
+			app.msg(_('oops'), 'Please drop the document inside a different group', true);
+			return false;
+		}
+
+	},
+
+	onPatientDocumentGridViewDrop: function (node, data, over_record, drop_position) {
+		// say('onPatientDocumentGridViewDrop');
+		// say(node);
+		// say(data);
+		// say(over_record);
+		// say(drop_position);
+
+		data.records[0].set({
+			docTypeCode: over_record.get('docTypeCode'),
+			docType: over_record.get('docType'),
+			date: over_record.get('date')
+		});
+
+		data.records[0].store.sync();
 
 	},
 
@@ -72217,7 +72280,7 @@ Ext.define('App.controller.patient.Documents', {
 
 	onDocumentGroupBtnToggle: function(btn, pressed){
 		var grid = btn.up('grid'),
-			selector = '[dataIndex=' + btn.action + ']',
+			selector = '#' + btn.action,
 			header = grid.headerCt.down(selector);
 
 		if(pressed){
@@ -72264,12 +72327,10 @@ Ext.define('App.controller.patient.Documents', {
 	getGroupName: function(store, record){
 		var group = store.groupers.items[0].property;
 
-		if(group == 'docTypeCode'){
+		if(group === 'docTypeCode'){
 			return Ext.String.capitalize(record.get('docTypeCode') + ' - ' + record.get('docType'));
-		}else if(group == 'groupDate'){
-			return Ext.Date.format(record.get(group), g('date_display_format'));
 		}else{
-			return Ext.String.capitalize(record.get(group));
+			return record.get('groupDate');
 		}
 	},
 

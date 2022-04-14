@@ -53,6 +53,12 @@ Ext.define('App.view.patient.Documents', {
 				selType: 'checkboxmodel',
 				stateful: true,
 				stateId: 'patientDocumentGridState',
+				viewConfig: {
+					plugins: {
+						ptype: 'gridviewdragdrop',
+						dragText: 'Drag and drop to move document to another category'
+					}
+				},
 				features: [
 					{
 						ftype: 'grouping',
@@ -119,12 +125,12 @@ Ext.define('App.view.patient.Documents', {
 					{
 						xtype: 'datecolumn',
 						header: _('date'),
-						dataIndex: 'groupDate',
+						dataIndex: 'date',
 						format: g('date_display_format'),
 						itemId: 'groupDate',
 						stateId: 'patientDocumentGridStateGroupDateCol',
 						renderer: function(v, meta, record){
-							var val = v != null ? Ext.Date.format(v, g('date_display_format')) : '-';
+							var val = v != null ? Ext.util.Format.date(v, g('date_display_format')) : '-';
 
 							if(record.get('entered_in_error')){
 								meta.tdCls += ' entered-in-error ';

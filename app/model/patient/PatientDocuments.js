@@ -121,16 +121,10 @@ Ext.define('App.model.patient.PatientDocuments', {
 		},
 		{
 			name: 'groupDate',
-			type: 'date',
+			type: 'string',
 			store: false,
 			convert: function(v, record){
-				var date = Ext.clone(record.get('date'));
-				if(!date) return null;
-				date.setHours(0);
-				date.setMinutes(0);
-				date.setSeconds(0);
-				date.setMilliseconds(0);
-				return date;
+				return Ext.util.Format.date(record.get('date'), g('date_display_format'));
 			}
 		},
 		{

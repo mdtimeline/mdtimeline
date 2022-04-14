@@ -224,7 +224,54 @@ Ext.override(Ext.view.Table, {
             return -1;
         }
         return this.dataSource.indexOf(this.getRecord(node));
-    }
+    },
+
+    updateColumns: function(record, oldRowDom, newRowDom, columns, changedFieldNames) {
+        var me = this,
+            newAttrs, attLen, attName, attrIndex,
+            colCount = columns.length,
+            colIndex,
+            column,
+            oldCell, newCell,
+            row,
+            editingPlugin = me.editingPlugin || (me.lockingPartner && me.ownerCt.ownerLockable.view.editingPlugin),
+            isEditing = editingPlugin && editingPlugin.editing,
+            cellSelector = me.getCellSelector();
+
+        if(oldRowDom){
+            if (oldRowDom.mergeAttributes) {
+                oldRowDom.mergeAttributes(newRowDom, true);
+            } else {
+                newAttrs = newRowDom.attributes;
+                attLen = newAttrs.length;
+                for (attrIndex = 0; attrIndex < attLen; attrIndex++) {
+                    attName = newAttrs[attrIndex].name;
+                    if (attName !== 'id') {
+                        oldRowDom.setAttribute(attName, newAttrs[attrIndex].value);
+                    }
+                }
+            }
+        }
+
+        for (colIndex = 0; colIndex < colCount; colIndex++) {
+            column = columns[colIndex];
+
+            if (me.shouldUpdateCell(record, column, changedFieldNames)) {
+                cellSelector = me.getCellSelector(column);
+                oldCell = Ext.DomQuery.selectNode(cellSelector, oldRowDom);
+                newCell = Ext.DomQuery.selectNode(cellSelector, newRowDom);
+
+                if (isEditing) {
+                    Ext.fly(oldCell).syncContent(newCell);
+                } else {
+                    row = oldCell.parentNode;
+                    row.insertBefore(newCell, oldCell);
+                    row.removeChild(oldCell);
+                }
+            }
+        }
+    },
+
 });
 
 Ext.override(Ext.button.Button, {

@@ -39,7 +39,17 @@ Ext.define('App.view.patient.Documents', {
 				remoteSort: false,
 				autoSync: false,
 				pageSize: 500,
-				groupField: 'docTypeCode'
+				groupField: 'docTypeCode',
+				sorters: [
+					{
+						property: 'date',
+						direction: 'DESC'
+					},
+					{
+						property: 'docTypeCode',
+						direction: 'ASC'
+					}
+				]
 			}),
 			docCtrl = App.app.getController('patient.Documents');
 

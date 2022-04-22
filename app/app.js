@@ -65131,7 +65131,17 @@ Ext.define('App.view.patient.Documents', {
 				remoteSort: false,
 				autoSync: false,
 				pageSize: 500,
-				groupField: 'docTypeCode'
+				groupField: 'docTypeCode',
+				sorters: [
+					{
+						property: 'date',
+						direction: 'DESC'
+					},
+					{
+						property: 'docTypeCode',
+						direction: 'ASC'
+					}
+				]
 			}),
 			docCtrl = App.app.getController('patient.Documents');
 
@@ -71991,7 +72001,7 @@ Ext.define('App.controller.patient.Documents', {
 		data.records[0].set({
 			docTypeCode: over_record.get('docTypeCode'),
 			docType: over_record.get('docType'),
-			date: over_record.get('date')
+			date: data.records[0].get('date')
 		});
 
 		data.records[0].store.sync();

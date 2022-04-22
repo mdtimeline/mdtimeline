@@ -237,7 +237,7 @@ Ext.define('App.controller.patient.Documents', {
 		data.records[0].set({
 			docTypeCode: over_record.get('docTypeCode'),
 			docType: over_record.get('docType'),
-			date: over_record.get('date')
+			date: data.records[0].get('date')
 		});
 
 		data.records[0].store.sync();

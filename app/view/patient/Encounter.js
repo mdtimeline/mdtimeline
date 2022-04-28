@@ -748,7 +748,7 @@ Ext.define('App.view.patient.Encounter', {
 					});
 				}
 
-				App.app.getController('patient.ProgressNotesHistory').loadPatientProgressHistory(data.pid, data.eid);
+				// App.app.getController('patient.ProgressNotesHistory').loadPatientProgressHistory(data.pid, data.eid);
 
 				app.fireEvent('encounterload', me.encounter, me);
 				me.el.unmask();

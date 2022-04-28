@@ -40,6 +40,9 @@ Ext.define('App.controller.patient.ProgressNotesHistory', {
 		var me = this;
 
 		me.control({
+			'viewport': {
+				encounterload: me.onEncounterLoad
+			},
 			'#EncounterProgressNotesHistoryGrid': {
 				afterrender: me.onEncounterProgressNotesHistoryGridAfterRender
 			},
@@ -104,13 +107,17 @@ Ext.define('App.controller.patient.ProgressNotesHistory', {
 		//grid.getStore().load();
 	},
 
+	onEncounterLoad: function(encounter){
+		this.loadPatientProgressHistory(encounter.get('pid'), encounter.get('eid'));
+	},
+
 	loadPatientProgressHistory: function(pid, eid){
 		var store = this.getEncounterProgressNotesHistoryGrid().getStore();
 
 		store.getProxy().extraParams = { pid:pid, eid:eid };
-		if(this.getEncounterProgressNotesHistoryGrid().rendered){
+		// if(this.getEncounterProgressNotesHistoryGrid().rendered){
 			store.load();
-		}
+		// }
 	}
 
 });

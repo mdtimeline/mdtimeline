@@ -440,6 +440,10 @@ ORDER BY sequence")->all();
                     }
                 }
 
+                if(empty($areas)) {
+                    return [];
+                }
+
                 $whereAreas = '(' . implode(' OR ', $areas) . ')';
 
                 $whereEncounters = '';

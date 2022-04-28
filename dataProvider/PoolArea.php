@@ -440,19 +440,17 @@ ORDER BY sequence")->all();
                     }
                 }
 
-                if(empty($areas)) {
-                    return [];
-                }
+                if(!empty($areas)) {
 
-                $whereAreas = '(' . implode(' OR ', $areas) . ')';
+                    $whereAreas = '(' . implode(' OR ', $areas) . ')';
 
-                $whereEncounters = '';
+                    $whereEncounters = '';
 
-                if (!empty($_SESSION['user']['npi'])) {
-                    $whereEncounters .= ' WHERE (enc.provider_uid IS NULL OR enc.provider_uid = ' . $_SESSION['user']['id'] . ')';
-                }
+                    if (!empty($_SESSION['user']['npi'])) {
+                        $whereEncounters .= ' WHERE (enc.provider_uid IS NULL OR enc.provider_uid = ' . $_SESSION['user']['id'] . ')';
+                    }
 
-                $sql = "SELECT pools.*,
+                    $sql = "SELECT pools.*,
 							   enc.provider_uid
  						  FROM (
 							SELECT pp.*,
@@ -475,19 +473,19 @@ ORDER BY sequence")->all();
 				      	ORDER BY pools.time_in
 				        LIMIT 50";
 
-                $patientPools = $this->pa->sql($sql)->all();
+                    $patientPools = $this->pa->sql($sql)->all();
 
-                $pools = [];
-                foreach ($patientPools AS $patientPool) {
+                    $pools = [];
+                    foreach ($patientPools AS $patientPool) {
 //					$patientPool['name'] = ($patientPool['eid'] != null ? '*' : '') . Person::fullname($patientPool['fname'], $patientPool['mname'], $patientPool['lname']);
 //					$patientPool['shortName'] = Person::ellipsis($patientPool['name'], 15);
 //					$patientPool['poolArea'] = $patientPool['title'];
-                    $patientPool['patient'] = $this->patient->getPatientDemographicDataByPid($patientPool['pid']);
-                    $patientPool['floorPlanId'] = $this->getFloorPlanIdByPoolAreaId($patientPool['area_id']);
-                    $z = $this->getPatientCurrentZoneInfoByPid($patientPool['pid']);
-                    $pools[] = (empty($z)) ? $patientPool : array_merge($patientPool, $z);
+                        $patientPool['patient'] = $this->patient->getPatientDemographicDataByPid($patientPool['pid']);
+                        $patientPool['floorPlanId'] = $this->getFloorPlanIdByPoolAreaId($patientPool['area_id']);
+                        $z = $this->getPatientCurrentZoneInfoByPid($patientPool['pid']);
+                        $pools[] = (empty($z)) ? $patientPool : array_merge($patientPool, $z);
+                    }
                 }
-
             }
         }
 

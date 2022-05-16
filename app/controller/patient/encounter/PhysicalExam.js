@@ -67,7 +67,7 @@ Ext.define('App.controller.patient.encounter.PhysicalExam', {
 			pid: encounter_record.get('pid')
 		});
 
-		say('onEncounterLoad');
+		say('onEncounterLoad --->>> physical_exam_record');
 		say(physical_exam_record);
 
 		physical_exam_form.loadRecord(physical_exam_record);

@@ -509,6 +509,11 @@ class Encounter {
 		$filters->filter[1]->operator = '=';
 		$filters->filter[1]->value = isset($params->pid) ? $params->pid : '0';
 
+        error_log('getSoapHistory --->>> ');
+        error_log(date('Y-m-d H:i:s'));
+        error_log($filters->filter[0]->property . ': ' . $filters->filter[0]->value);
+        error_log($filters->filter[1]->property . ': ' . $filters->filter[1]->value);
+
 		$filters->sort[0] = new stdClass();
 		$filters->sort[0]->property = 'service_date';
 		$filters->sort[0]->direction = 'DESC';

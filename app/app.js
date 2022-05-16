@@ -56394,6 +56394,7 @@ Ext.define('App.controller.patient.ProgressNotesHistory', {
 
 		me.control({
 			'viewport': {
+				beforeencounterload: me.onBeforeEncounterLoad,
 				encounterload: me.onEncounterLoad
 			},
 			'#EncounterProgressNotesHistoryGrid': {
@@ -56460,17 +56461,41 @@ Ext.define('App.controller.patient.ProgressNotesHistory', {
 		//grid.getStore().load();
 	},
 
+	onBeforeEncounterLoad: function(encounter){
+
+	},
+
 	onEncounterLoad: function(encounter){
 		this.loadPatientProgressHistory(encounter.get('pid'), encounter.get('eid'));
 	},
 
 	loadPatientProgressHistory: function(pid, eid){
-		var store = this.getEncounterProgressNotesHistoryGrid().getStore();
+		var grid = this.getEncounterProgressNotesHistoryGrid(),
+			store = grid ? grid.getStore() : false;
 
-		store.getProxy().extraParams = { pid:pid, eid:eid };
-		// if(this.getEncounterProgressNotesHistoryGrid().rendered){
-			store.load();
-		// }
+		say('loadPatientProgressHistory --->>>');
+		say('pid: ' + pid);
+		say('eid: ' + eid);
+		say(grid);
+		say(store);
+		say(app.patient);
+		say('loadPatientProgressHistory <<<---');
+		// store.getProxy().extraParams = { pid:pid, eid:eid };
+
+		if(grid && grid.rendered) {
+			store.tree.root.removeAll();
+		}
+
+		if(store){
+			store.load({
+				params: { pid:pid, eid:eid },
+				callback: function (records){
+					say('loadPatientProgressHistory load callback --->>>');
+					say(records);
+					say('loadPatientProgressHistory load callback <<<---');
+				}
+			});
+		}
 	}
 
 });

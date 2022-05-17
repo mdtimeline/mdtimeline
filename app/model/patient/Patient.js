@@ -809,6 +809,36 @@ Ext.define('App.model.patient.Patient',{
 		    len: 10
 	    },
 	    {
+		    name: 'authorized_03_relation',
+		    type: 'string',
+		    len: 20
+	    },
+	    {
+		    name: 'authorized_03_fname',
+		    type: 'string',
+		    len: 35
+	    },
+	    {
+		    name: 'authorized_03_mname',
+		    type: 'string',
+		    len: 25
+	    },
+	    {
+		    name: 'authorized_03_lname',
+		    type: 'string',
+		    len: 60
+	    },
+	    {
+		    name: 'authorized_03_phone',
+		    type: 'string',
+		    len: 25
+	    },
+	    {
+		    name: 'authorized_03_phone_type',
+		    type: 'string',
+		    len: 10
+	    },
+	    {
 		    name: 'phone_mobile_supplier',
 		    type: 'string',
 		    len: 25

@@ -1589,6 +1589,16 @@ PREGNANCY_CODES;
 			];
 		}
 
+		if (isset($patient['authorized_03_lname'])){
+			$results[] = [
+				'text' => Person::fullname(
+					$patient['authorized_03_fname'],
+					$patient['authorized_03_mname'],
+					$patient['authorized_03_lname']
+				) . ' (Authorized Person 3)'
+			];
+		}
+
 		return $results;
 	}
 

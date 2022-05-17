@@ -22143,6 +22143,36 @@ Ext.define('App.model.patient.Patient',{
 		    len: 10
 	    },
 	    {
+		    name: 'authorized_03_relation',
+		    type: 'string',
+		    len: 20
+	    },
+	    {
+		    name: 'authorized_03_fname',
+		    type: 'string',
+		    len: 35
+	    },
+	    {
+		    name: 'authorized_03_mname',
+		    type: 'string',
+		    len: 25
+	    },
+	    {
+		    name: 'authorized_03_lname',
+		    type: 'string',
+		    len: 60
+	    },
+	    {
+		    name: 'authorized_03_phone',
+		    type: 'string',
+		    len: 25
+	    },
+	    {
+		    name: 'authorized_03_phone_type',
+		    type: 'string',
+		    len: 10
+	    },
+	    {
 		    name: 'phone_mobile_supplier',
 		    type: 'string',
 		    len: 25
@@ -79823,6 +79853,64 @@ Ext.define('App.view.patient.Patient', {
                                                         {
                                                             xtype: 'gaiaehr.combo',
                                                             name: 'authorized_02_phone_type',
+                                                            fieldLabel: _('phone_type'),
+                                                            width: 120,
+                                                            listKey: 'phone_type',
+                                                            loadStore: true,
+                                                            editable: false
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    xtype: 'fieldcontainer',
+                                                    layout: 'hbox',
+                                                    defaults: {
+                                                        labelWidth: 50,
+                                                        margin: '5 5 0 0',
+                                                        labelAlign: 'top'
+                                                    },
+                                                    items: [
+                                                        {
+                                                            xtype: 'gaiaehr.combo',
+                                                            name: 'authorized_03_relation',
+                                                            fieldLabel: _('relationship'),
+                                                            width: 125,
+                                                            listKey: 'rela_hl70063',
+                                                            loadStore: true,
+                                                            editable: false
+                                                        },
+                                                        {
+                                                            xtype: 'textfield',
+                                                            name: 'authorized_03_fname',
+                                                            fieldLabel: _('first_name'),
+                                                            flex: 1,
+                                                            enableKeyEvents: true
+                                                        },
+                                                        {
+                                                            xtype: 'textfield',
+                                                            name: 'authorized_03_mname',
+                                                            fieldLabel: _('init'),
+                                                            width: 50,
+                                                            enableKeyEvents: true
+                                                        },
+                                                        {
+                                                            xtype: 'textfield',
+                                                            name: 'authorized_03_lname',
+                                                            fieldLabel: _('last_name'),
+                                                            flex: 2,
+                                                            enableKeyEvents: true
+                                                        },
+                                                        {
+                                                            xtype: 'textfield',
+                                                            name: 'authorized_03_phone',
+                                                            fieldLabel: _('phone'),
+                                                            emptyText: '000-000-0000',
+	                                                        plugins: [Ext.create('App.ux.form.fields.InputTextMask', '999-999-9999')],
+                                                            width: 115
+                                                        },
+                                                        {
+                                                            xtype: 'gaiaehr.combo',
+                                                            name: 'authorized_03_phone_type',
                                                             fieldLabel: _('phone_type'),
                                                             width: 120,
                                                             listKey: 'phone_type',

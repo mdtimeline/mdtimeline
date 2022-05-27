@@ -81943,12 +81943,14 @@ Ext.define('App.view.patient.Summary', {
 		var me = this,
             i;
 
-		for(i = 0; i < me.stores.length; i++){
-			me.stores[i].clearFilter(true);
-			me.stores[i].load({
+		me.stores.forEach(function (store){
+			store.removeAll();
+			store.commitChanges();
+			store.clearFilter(true);
+			store.load({
 				params: {
 					pid: me.pid,
-                    active: true
+					active: true
 				},
 				filters: [
 					{
@@ -81957,7 +81959,7 @@ Ext.define('App.view.patient.Summary', {
 					}
 				]
 			});
-		}
+		});
 	},
 
 	loadPatient: function(){

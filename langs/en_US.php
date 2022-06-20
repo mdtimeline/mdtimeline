@@ -2235,4 +2235,6 @@ $LANG = array(
     'copies' => 'Copies',
     'pain_scale' => 'Pain Scale',
     'anatomical_region' => 'Anatomical Region',
+    'insurance_blacklist' => 'Insurance Blacklist',
+    'invalid_values_found' => 'Invalid Values Found',
 );

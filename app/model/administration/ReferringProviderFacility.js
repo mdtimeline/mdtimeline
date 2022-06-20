@@ -125,7 +125,8 @@ Ext.define('App.model.administration.ReferringProviderFacility', {
 		api: {
 			read: 'ReferringProviders.getReferringProviderFacilities',
 			create: 'ReferringProviders.addReferringProviderFacility',
-			update: 'ReferringProviders.updateReferringProviderFacility'
+			update: 'ReferringProviders.updateReferringProviderFacility',
+			destroy: 'ReferringProviders.deleteReferringProviderFacility'
 		}
 	}
 });

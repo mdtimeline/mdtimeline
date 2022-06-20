@@ -1020,6 +1020,21 @@ $API = [
             'deleteReferringProviderFacility' => [
                 'len' => 1
             ],
+            'getReferringProviderInsuranceBlacklists' => [
+                'len' => 1
+            ],
+            'getReferringProviderInsuranceBlacklist' => [
+                'len' => 1
+            ],
+            'addReferringProviderInsuranceBlacklist' => [
+                'len' => 1
+            ],
+            'updateReferringProviderInsuranceBlacklist' => [
+                'len' => 1
+            ],
+            'deleteReferringProviderInsuranceBlacklist' => [
+                'len' => 1
+            ],
             'referringPhysicianLiveSearch' => [
                 'len' => 1
             ]

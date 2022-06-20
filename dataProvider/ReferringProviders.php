@@ -21,58 +21,99 @@ class ReferringProviders {
 	/**
 	 * @var MatchaCUP
 	 */
-	private $ReferringPhysician;
+	private $r;
 	/**
 	 * @var MatchaCUP
 	 */
-	private $f;
+	private $rf;
+	/**
+	 * @var MatchaCUP
+	 */
+	private $rb;
 
 	function __construct(){
-        if(!isset($this->ReferringPhysician))
-            $this->ReferringPhysician = MatchaModel::setSenchaModel('App.model.administration.ReferringProvider');
-        if(!isset($this->f))
-            $this->f = MatchaModel::setSenchaModel('App.model.administration.ReferringProviderFacility');
+            $this->r = MatchaModel::setSenchaModel('App.model.administration.ReferringProvider');
+            $this->rf = MatchaModel::setSenchaModel('App.model.administration.ReferringProviderFacility');
+            $this->rb = MatchaModel::setSenchaModel('App.model.administration.ReferringProviderInsuranceBlacklist');
 	}
 
 	public function getReferringProviders($params){
-		return $this->ReferringPhysician->load($params)->all();
+		return $this->r->load($params)->all();
 	}
 
 	public function getReferringProvider($params){
 		// $this->getFacilities will try to find the facilities for the record
-		return $this->getFacilities($this->ReferringPhysician->load($params)->one());
+		return $this->getFacilities($this->r->load($params)->one());
 	}
 
 	public function addReferringProvider($params){
-		return $this->ReferringPhysician->save($params);
+		return $this->r->save($params);
 	}
 
 	public function updateReferringProvider($params){
-		return $this->ReferringPhysician->save($params);
+		return $this->r->save($params);
 	}
 
 	public function deleteReferringProvider($params){
-		return $this->ReferringPhysician->destroy($params);
+		return $this->r->destroy($params);
 	}
 
 	public function getReferringProviderFacilities($params){
-		return $this->f->load($params)->all();
+		return $this->rf->load($params)->all();
 	}
 
 	public function getReferringProviderFacility($params){
-		return $this->f->load($params)->one();
+		return $this->rf->load($params)->one();
 	}
 
 	public function addReferringProviderFacility($params){
-		return $this->f->save($params);
+		return $this->rf->save($params);
 	}
 
 	public function updateReferringProviderFacility($params){
-		return $this->f->save($params);
+		return $this->rf->save($params);
 	}
 
 	public function deleteReferringProviderFacility($params){
-		return $this->f->destroy($params);
+		return $this->rf->destroy($params);
+	}
+
+	public function getReferringProviderInsuranceBlacklists($params){
+        return $this->rb->load($params)
+            ->leftJoin(
+                [
+                    'title' => 'specialty_name',
+                ], 'specialties', 'specialty_id', 'id'
+            )->leftJoin(
+                [
+                    'name' => 'insurance_name',
+                ], 'insurance_companies', 'insurance_id', 'id'
+            )->all();
+	}
+
+	public function getReferringProviderInsuranceBlacklist($params){
+        return $this->rb->load($params)
+            ->leftJoin(
+                [
+                    'title' => 'specialty_name',
+                ], 'specialties', 'specialty_id', 'id'
+            )->leftJoin(
+                [
+                    'name' => 'insurance_name',
+                ], 'insurance_companies', 'insurance_id', 'id'
+            )->one();
+	}
+
+	public function addReferringProviderInsuranceBlacklist($params){
+		return $this->rb->save($params);
+	}
+
+	public function updateReferringProviderInsuranceBlacklist($params){
+		return $this->rb->save($params);
+	}
+
+	public function deleteReferringProviderInsuranceBlacklist($params){
+		return $this->rb->destroy($params);
 	}
 
 	public function getReferringProviderById($id, $include_facilities = true){
@@ -86,10 +127,10 @@ class ReferringProviders {
 
 		if(isset($record['data']) && $record['data'] !== false){
             $filter->filter[0]->value = $record['data']['id'];
-			$record['data']['facilities'] = $this->f->load($filter)->all();
+			$record['data']['facilities'] = $this->rf->load($filter)->all();
 		}elseif($record !== false){
             $filter->filter[0]->value = $record['id'];
-			$record['facilities'] = $this->f->load($filter)->all();
+			$record['facilities'] = $this->rf->load($filter)->all();
 		}
 		return $record;
 	}
@@ -167,5 +208,45 @@ class ReferringProviders {
 
         return $tokens;
 
+    }
+
+    public function isReferringProviderBlacklistedByPid($pid, $npi, $specialty_id){
+
+        $blacklists = $this->rb->load(['npi' => $npi, 'specialty_id' => $specialty_id])->all();
+
+        if(count($blacklists) === 0){
+            return false;
+        }
+
+        include_once(ROOT . '/dataProvider/Insurance.php');
+        $Insurance = new Insurance();
+        $active_insurances = $Insurance->getPatientActiveInsurancesByPid($pid);
+
+        foreach($blacklists as $blacklist){
+            foreach($active_insurances as $active_insurance){
+                if($active_insurance['insurance_id'] == $blacklist['insurance_id']){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public function isReferringProviderBlacklistedByInsurencaId($insurance_ids, $npi, $specialty_id){
+
+        $this->rb->addFilter('npi', $npi);
+        $this->rb->addFilter('specialty_id', $specialty_id);
+
+        if(is_array($insurance_ids)){
+            $this->rb->setOrFilterProperties(['insurance_id']);
+            foreach($insurance_ids as $insurance_id){
+                $this->rb->addFilter('insurance_id', $insurance_id);
+            }
+        }else{
+            $this->rb->addFilter('insurance_id', $insurance_ids);
+        }
+
+        return $this->rb->load()->one() !== false;
     }
 }

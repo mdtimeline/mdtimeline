@@ -17,6 +17,10 @@
  */
 Ext.define('App.model.administration.ReferringProvider', {
     extend: 'Ext.data.Model',
+    requires: [
+        'App.model.administration.ReferringProviderFacility',
+        'App.model.administration.ReferringProviderInsuranceBlacklist'
+    ],
     table: {
         name: 'referring_providers'
     },
@@ -205,6 +209,12 @@ Ext.define('App.model.administration.ReferringProvider', {
             model: 'App.model.administration.ReferringProviderFacility',
             name: 'facilities',
             foreignKey: 'referring_provider_id'
+        },
+        {
+            model: 'App.model.administration.ReferringProviderInsuranceBlacklist',
+            name: 'blacklist',
+            primaryKey: 'npi',
+            foreignKey: 'npi'
         }
     ]
 });

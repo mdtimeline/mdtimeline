@@ -13872,13 +13872,18 @@ Ext.define('App.model.administration.ReferringProviderFacility', {
 		api: {
 			read: 'ReferringProviders.getReferringProviderFacilities',
 			create: 'ReferringProviders.addReferringProviderFacility',
-			update: 'ReferringProviders.updateReferringProviderFacility'
+			update: 'ReferringProviders.updateReferringProviderFacility',
+			destroy: 'ReferringProviders.deleteReferringProviderFacility'
 		}
 	}
 });
 
 Ext.define('App.model.administration.ReferringProvider', {
     extend: 'Ext.data.Model',
+    requires: [
+        'App.model.administration.ReferringProviderFacility',
+        'App.model.administration.ReferringProviderInsuranceBlacklist'
+    ],
     table: {
         name: 'referring_providers'
     },
@@ -14067,6 +14072,12 @@ Ext.define('App.model.administration.ReferringProvider', {
             model: 'App.model.administration.ReferringProviderFacility',
             name: 'facilities',
             foreignKey: 'referring_provider_id'
+        },
+        {
+            model: 'App.model.administration.ReferringProviderInsuranceBlacklist',
+            name: 'blacklist',
+            primaryKey: 'npi',
+            foreignKey: 'npi'
         }
     ]
 });
@@ -41454,6 +41465,10 @@ Ext.define('App.controller.administration.ReferringProviders', {
 		{
 			ref: 'ReferringProviderWindowGrid',
 			selector: '#ReferringProviderWindowGrid'
+		},
+		{
+			ref: 'ReferringProviderInsuranceBlacklistGrid',
+			selector: '#ReferringProviderInsuranceBlacklistGrid'
 		}
 	],
 
@@ -41493,8 +41508,79 @@ Ext.define('App.controller.administration.ReferringProviders', {
 			},
 			'#ProceduresHistoryGridServiceLocationField': {
 				select: me.onProceduresHistoryGridServiceLocationFieldSelect
+			},
+
+			'#ReferringProviderInsuranceBlacklistGrid': {
+				beforeedit: me.onReferringProviderInsuranceBlacklistGridBeforeEdit,
+				validateedit: me.onReferringProviderInsuranceBlacklistGridValidateEdit
+			},
+			'#ReferringProviderInsuranceBlacklistAddBtn': {
+				click: me.onReferringProviderInsuranceBlacklistAddBtnClick
+			},
+			'#ReferringProviderInsuranceBlacklistInsuranceCmb': {
+				select: me.onReferringProviderInsuranceBlacklistInsuranceCmbSelect
+			},
+			'#ReferringProviderInsuranceBlacklistSpecialtyCmb': {
+				select: me.onReferringProviderInsuranceBlacklistSpecialtyCmbSelect
 			}
 		});
+	},
+
+	onReferringProviderInsuranceBlacklistGridBeforeEdit: function (plugin, context){
+		return a('allow_edit_referring_physician_blacklist');
+	},
+
+	onReferringProviderInsuranceBlacklistGridValidateEdit: function (plugin, context){
+
+		//say('onReferringProviderInsuranceBlacklistGridValidateEdit');
+		//say(plugin);
+		//say(context);
+		var form = plugin.editor.getForm(),
+			specialty_combo = form.findField('specialty_id'),
+			specialty_combo_record = specialty_combo.findRecordByValue(specialty_combo.getValue()),
+			insurance_combo = form.findField('insurance_id'),
+			insurance_combo_record = insurance_combo.findRecordByValue(insurance_combo.getValue());
+
+		// say(form);
+		// say(insurance_combo);
+		// say(insurance_combo_record);
+
+		if(specialty_combo_record){
+			context.record.set({specialty_name: specialty_combo_record.get('title')});
+		}else{
+			context.record.set({specialty_name: ''});
+		}
+
+		if(insurance_combo_record){
+			context.record.set({insurance_name: insurance_combo_record.get('name')});
+		}else{
+			context.record.set({insurance_name: ''});
+		}
+
+	},
+
+	onReferringProviderInsuranceBlacklistAddBtnClick: function (btn){
+		var form = btn.up('window').down('form').getForm(),
+			grid = btn.up('grid'),
+			store = grid.getStore();
+
+		if(!form.isValid()){
+			app.msg(_('oops'), _('invalid_values_found'), true);
+			return;
+		}
+
+		grid.editingPlugin.cancelEdit();
+		grid.editingPlugin.startEdit(store.add({
+			npi: form.findField('npi').getValue()
+		})[0], 1);
+	},
+
+	onReferringProviderInsuranceBlacklistInsuranceCmbSelect: function (cmb){
+
+	},
+
+	onReferringProviderInsuranceBlacklistSpecialtyCmbSelect: function (cmb){
+
 	},
 
 	onProceduresHistoryGridPerformerFieldSelect: function(field, selection){
@@ -41524,7 +41610,7 @@ Ext.define('App.controller.administration.ReferringProviders', {
 			referring_store = referring_grid.getStore(),
 			referring_record = referring_grid.getSelectionModel().getLastSelected();
 
-		say(referring_record);
+		//say(referring_record);
 
 		TwoFactorAuthentication.registerUserByIdAndType(
 			referring_record.get('id'),
@@ -41666,12 +41752,18 @@ Ext.define('App.controller.administration.ReferringProviders', {
 		this.showReferringProviderWindow();
 
 		var form = this.getReferringProviderWindowForm().getForm(),
-			grid = this.getReferringProviderWindowGrid(),
-			facilities_store = referring_record.facilities();
+			facilities_grid = this.getReferringProviderWindowGrid(),
+			facilities_store = referring_record.facilities(),
+			insurance_blacklist_grid = this.getReferringProviderInsuranceBlacklistGrid(),
+			insurance_blacklist_store = referring_record.blacklist();
 
 		form.loadRecord(referring_record);
-		grid.reconfigure(facilities_store);
+
+		facilities_grid.reconfigure(facilities_store);
 		facilities_store.load();
+
+		insurance_blacklist_grid.reconfigure(insurance_blacklist_store);
+		insurance_blacklist_store.load();
 	},
 
 	onReferringProviderWindowClose: function () {

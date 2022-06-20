@@ -152,6 +152,29 @@ class Insurance {
         )->one();
 	}
 
+    public function getPatientActiveInsurancesByPid($pid) {
+        $this->pi->addFilter('pid', $pid);
+        $this->pi->addFilter('active', '1');
+        return $this->pi->load()->leftJoin(
+            [
+                'code' => 'insurance_company_code',
+                'name' => 'insurance_company_name'
+            ],
+            'insurance_companies',
+            'insurance_id',
+            'id'
+        )->leftJoin(
+            [
+                'synonym' => 'insurance_company_synonym',
+                'payer_id' => 'insurance_company_payer_id',
+                'ess_no' => 'insurance_company_ess_no',
+            ],
+            'acc_billing_insurance_data',
+            'insurance_id',
+            'id'
+        )->one();
+    }
+
 	public function getPatientPrimaryInsuranceByPid($pid) {
 		$this->pi->addFilter('pid', $pid);
 		$this->pi->addFilter('insurance_type', 'P');
@@ -508,9 +531,5 @@ class Insurance {
     public function destroyInsuranceCover($params) {
         return $this->pic->destroy($params);
     }
-
-
-
-
 
 }

@@ -276,18 +276,18 @@ Ext.define('App.view.administration.PrintJobsWindow', {
                     labelWidth: 25,
                     hideLabel: false,
                 },
-                {
-                    xtype: 'numberfield',
-                    itemId: 'PrintJobsWindowNumberOfJobCopies',
-                    fieldLabel:_('number_of_copies'),
-                    labelAlign: 'top',
-                    value: 1,
-                    maxValue: 5,
-                    minValue: 1,
-                    labelWidth: 25,
-                    hideLabel: false,
-                    allowBlank: false
-                }
+                // {
+                //     xtype: 'numberfield',
+                //     itemId: 'PrintJobsWindowNumberOfJobCopies',
+                //     fieldLabel:_('number_of_copies'),
+                //     labelAlign: 'top',
+                //     value: 1,
+                //     maxValue: 5,
+                //     minValue: 1,
+                //     labelWidth: 25,
+                //     hideLabel: false,
+                //     allowBlank: false
+                // }
             ]
         },
     ],

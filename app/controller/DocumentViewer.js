@@ -58,11 +58,12 @@ Ext.define('App.controller.DocumentViewer', {
             form = win.down('form').getForm(),
             values = form.getValues(),
             docTypeField = form.findField('docTypeCode'),
-            printerCmb = form.findField('printer'),
-            printerRecord = printerCmb.findRecordByValue(printerCmb.getValue()),
+            // printerCmb = form.findField('printer'),
+            // printerRecord = printerCmb.findRecordByValue(printerCmb.getValue()),
             priority = form.findField('priority').getValue(),
-            printNow = form.findField('printNow').getValue(),
-            number_of_copies = 1;
+            // printNow = form.findField('printNow').getValue(),
+            printNow = false,
+            number_of_copies = form.findField('number_of_copies').getValue();
 
         if (form.isValid()) {
             values.pid = app.patient.pid;
@@ -90,7 +91,7 @@ Ext.define('App.controller.DocumentViewer', {
                         }
 
                         if (win.doAddPrintJobCallback) {
-                            win.doAddPrintJobCallback(response.record,printerRecord,printNow,priority,number_of_copies);
+                            win.doAddPrintJobCallback(response.record,null,0,priority,number_of_copies);
                         }
                         win.documentWindow.close();
                         win.close();

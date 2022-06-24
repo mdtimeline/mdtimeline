@@ -62,6 +62,10 @@ Ext.define('App.controller.PrintJob', {
             ref: 'PrintJobsGridContextMenuDetailLog'
         },
         {
+            selector: '#PrintJobsGridContextMenuDelete',
+            ref: 'PrintJobsGridContextMenuDelete'
+        },
+        {
             selector: '#PrintJobsWindowNumberOfJobCopies',
             ref: 'PrintJobsWindowNumberOfJobCopies'
         }
@@ -111,6 +115,9 @@ Ext.define('App.controller.PrintJob', {
             },
             '#PrintJobsGridContextMenuDetailLog': {
                 click: me.onPrintJobsGridContextMenuDetailLogClick
+            },
+            '#PrintJobsGridContextMenuDelete': {
+                click: me.onPrintJobsGridContextMenuDeleteClick
             }
         });
 
@@ -476,6 +483,15 @@ Ext.define('App.controller.PrintJob', {
                     icon: 'modules/billing/resources/images/icoList.png',
                     itemId: 'PrintJobsGridContextMenuDetailLog',
                     acl: true
+                },
+                {
+                    xtype: 'menuseparator'
+                },
+                {
+                    text: _('delete_selected'),
+                    icon: 'modules/billing/resources/images/cross.png',
+                    itemId: 'PrintJobsGridContextMenuDelete',
+                    acl: true
                 }
             ]
         });
@@ -511,5 +527,22 @@ Ext.define('App.controller.PrintJob', {
             print_jobs_record = btn.parentMenu.print_jobs_record;
 
         this.auditLogCtrl.doTransactionLogDetailByTableAndPk(print_jobs_record.table.name, print_jobs_record.get('id'));
+    },
+
+    onPrintJobsGridContextMenuDeleteClick: function(btn) {
+        var me = this,
+            print_job_grid = this.getPrintJobsWindowGird(),
+            print_job_store = print_job_grid.getStore(),
+            print_job_selected_rows = print_job_grid.getSelectionModel().getSelection();
+
+        if (print_job_selected_rows.length) {
+            print_job_store.remove(print_job_selected_rows);
+
+            print_job_store.sync({
+                callback: function (){
+                    app.msg(_('sweet'), _('records_removed'));
+                }
+            });
+        }
     }
 });

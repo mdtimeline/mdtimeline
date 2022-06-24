@@ -1768,7 +1768,7 @@ $LANG = array(
     'required_lnr' => 'Required LNR',
     'implanted' => 'Implanted',
     'removed' => 'Removed',
-
+    'delete_selected' => 'Delete Selected',
     'vaccines_immunizations' => 'Vaccines/Immunizations',
     'vaccs' => 'VACCS',
     'al' => 'AL',

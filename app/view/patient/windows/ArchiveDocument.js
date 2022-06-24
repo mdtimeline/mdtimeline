@@ -63,13 +63,25 @@ Ext.define('App.view.patient.windows.ArchiveDocument', {
                     margin: '0 0 0 10',
                     // width: 220,
                     items: [
+                        // {
+                        //     xtype: 'printerscombo',
+                        //     itemId: 'archiveDocumentPrintersCombo',
+                        //     emptyText: _('select_print_optional'),
+                        //     fieldLabel: 'Printer',
+                        //     name: 'printer',
+                        //     editable: false,
+                        //     width: 300
+                        // },
                         {
-                            xtype: 'printerscombo',
-                            itemId: 'archiveDocumentPrintersCombo',
-                            emptyText: _('select_print_optional'),
-                            fieldLabel: 'Printer',
-                            name: 'printer',
-                            editable: false,
+                            xtype: 'numberfield',
+                            itemId: 'archiveDocumentNumberOfJobCopies',
+                            name: 'number_of_copies',
+                            fieldLabel:_('number_of_copies'),
+                            value: 1,
+                            maxValue: 10,
+                            minValue: 1,
+                            hideLabel: false,
+                            allowBlank: false,
                             width: 300
                         },
                         {
@@ -90,11 +102,11 @@ Ext.define('App.view.patient.windows.ArchiveDocument', {
                             editable: false,
                             width: 300
                         },
-                        {
-                            xtype: 'checkbox',
-                            name: 'printNow',
-                            fieldLabel: 'Print Now',
-                        },
+                        // {
+                        //     xtype: 'checkbox',
+                        //     name: 'printNow',
+                        //     fieldLabel: 'Print Now',
+                        // },
                     ]
                 },
             ]

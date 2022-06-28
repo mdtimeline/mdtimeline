@@ -66923,13 +66923,25 @@ Ext.define('App.view.patient.windows.ArchiveDocument', {
                     margin: '0 0 0 10',
                     // width: 220,
                     items: [
+                        // {
+                        //     xtype: 'printerscombo',
+                        //     itemId: 'archiveDocumentPrintersCombo',
+                        //     emptyText: _('select_print_optional'),
+                        //     fieldLabel: 'Printer',
+                        //     name: 'printer',
+                        //     editable: false,
+                        //     width: 300
+                        // },
                         {
-                            xtype: 'printerscombo',
-                            itemId: 'archiveDocumentPrintersCombo',
-                            emptyText: _('select_print_optional'),
-                            fieldLabel: 'Printer',
-                            name: 'printer',
-                            editable: false,
+                            xtype: 'numberfield',
+                            itemId: 'archiveDocumentNumberOfJobCopies',
+                            name: 'number_of_copies',
+                            fieldLabel:_('number_of_copies'),
+                            value: 1,
+                            maxValue: 10,
+                            minValue: 1,
+                            hideLabel: false,
+                            allowBlank: false,
                             width: 300
                         },
                         {
@@ -66950,11 +66962,11 @@ Ext.define('App.view.patient.windows.ArchiveDocument', {
                             editable: false,
                             width: 300
                         },
-                        {
-                            xtype: 'checkbox',
-                            name: 'printNow',
-                            fieldLabel: 'Print Now',
-                        },
+                        // {
+                        //     xtype: 'checkbox',
+                        //     name: 'printNow',
+                        //     fieldLabel: 'Print Now',
+                        // },
                     ]
                 },
             ]
@@ -71156,11 +71168,12 @@ Ext.define('App.controller.DocumentViewer', {
             form = win.down('form').getForm(),
             values = form.getValues(),
             docTypeField = form.findField('docTypeCode'),
-            printerCmb = form.findField('printer'),
-            printerRecord = printerCmb.findRecordByValue(printerCmb.getValue()),
+            // printerCmb = form.findField('printer'),
+            // printerRecord = printerCmb.findRecordByValue(printerCmb.getValue()),
             priority = form.findField('priority').getValue(),
-            printNow = form.findField('printNow').getValue(),
-            number_of_copies = 1;
+            // printNow = form.findField('printNow').getValue(),
+            printNow = false,
+            number_of_copies = form.findField('number_of_copies').getValue();
 
         if (form.isValid()) {
             values.pid = app.patient.pid;
@@ -71188,7 +71201,7 @@ Ext.define('App.controller.DocumentViewer', {
                         }
 
                         if (win.doAddPrintJobCallback) {
-                            win.doAddPrintJobCallback(response.record,printerRecord,printNow,priority,number_of_copies);
+                            win.doAddPrintJobCallback(response.record,null,0,priority,number_of_copies);
                         }
                         win.documentWindow.close();
                         win.close();

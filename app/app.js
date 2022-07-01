@@ -46722,9 +46722,9 @@ Ext.define('App.controller.Print', {
         }
     },
 
-    addPrintJob: function (document_id, printer_record, print_now, priority) {
+    addPrintJob: function (document_id, printer_record, print_now, priority, number_of_copies) {
         var me = this;
-        me.printJobCtl.addPrintJob(document_id, printer_record, print_now, priority);
+        me.printJobCtl.addPrintJob(document_id, printer_record, print_now, priority, number_of_copies);
     },
 
     loadRemotePrinters: function () {

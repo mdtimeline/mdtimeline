@@ -635,7 +635,7 @@ PREGNANCY_CODES;
 	{
 		if ($dob != '0000-00-00 00:00:00') {
 			$from = $from == 'now' ? new DateTime(date('Y-m-d')) : $from;
-			$t = new DateTime(date($dob));
+			$t = new DateTime($dob);
 			$age['days'] = $t->diff($from)->d;
 			$age['months'] = $t->diff($from)->m;
 			$age['years'] = $t->diff($from)->y;

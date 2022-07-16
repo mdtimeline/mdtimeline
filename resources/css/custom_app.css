@@ -283,6 +283,9 @@
     background-color: #ff0000 !important;
     background-image: none;
 }
+.btnBrightRedBackground .x-btn-inner {
+    color: #3e3e3e !important;
+}
 .btnBrightRedBackground.x-pressed,
 .btnBrightRedBackground.x-over {
     background-color: #bf0000 !important;

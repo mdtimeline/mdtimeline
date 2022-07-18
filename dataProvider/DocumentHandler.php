@@ -145,11 +145,40 @@ class DocumentHandler
     {
         $this->setPatientDocumentModel();
         $this->d->setOrFilterProperties(['docTypeCode', 'id']);
-        $records = $this->d->load($params)->all();
+        $records = $this->d->load($params)->leftJoin(
+            ['code_type' => 'docTypeConcept'],
+            'combo_lists_options',
+            'docTypeCode',
+            'option_value',
+            '=',
+            "`list_key` = 'doc_type_cat'"
+        )->all();
+        $concepts = [];
+
+        if(ACL::hasPermission('allow_access_general_documents')){
+            $concepts[] = 'GENERAL';
+        }
+        if(ACL::hasPermission('allow_access_admin_documents')){
+            $concepts[] = 'ADMIN';
+        }
+        if(ACL::hasPermission('allow_access_billing_documents')){
+            $concepts[] = 'BILLING';
+        }
+        if(ACL::hasPermission('allow_access_clinical_documents')){
+            $concepts[] = 'CLINICAL';
+        }
+        if(ACL::hasPermission('allow_access_radiology_documents')){
+            $concepts[] = 'RADIOLOGY';
+        }
 
         /** lets unset the actual document data */
         if (isset($records['data'])) {
             foreach ($records['data'] as $i => $record) {
+
+                if(isset($record['docTypeConcept']) && $record['docTypeConcept'] !== '' && !in_array($record['docTypeConcept'], $concepts)){
+                    unset($records['data'][$i]);
+                    continue;
+                }
 
                 if ($records['data'][$i]['entered_in_error']) {
                     $records['data'][$i]['docType'] = 'ENTERED IN ERROR';
@@ -163,6 +192,9 @@ class DocumentHandler
                 }
             }
         }
+
+        $records['total'] = count($records['data']);
+        $records['data'] = array_values($records['data']);
         return $records;
     }
 

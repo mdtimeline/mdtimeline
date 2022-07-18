@@ -432,10 +432,15 @@ class MatchaCUP {
 	 * @param string $operator
 	 * @return MatchaCUP
 	 */
-	public function leftJoin($columns, $table, $onMainTable, $onMergeTable, $operator = '=') {
+	public function leftJoin($columns, $table, $onMainTable, $onMergeTable, $operator = '=', $secondaryJoin = '') {
 		$columns = $this->joinColumnHandler($columns);
 		$alias = $this->getJoinTableAlias();
-		$join = " LEFT JOIN `{$table}` AS $alias ON `{$this->table}`.`$onMainTable` $operator `$alias`.`$onMergeTable` ";
+
+        if($secondaryJoin !== ''){
+            $secondaryJoin = "AND `$alias`.$secondaryJoin";
+        }
+
+		$join = " LEFT JOIN `{$table}` AS $alias ON `{$this->table}`.`$onMainTable` $operator `$alias`.`$onMergeTable` {$secondaryJoin} ";
 		$this->joinTableHandler($columns, $join);
 		return $this;
 	}
@@ -448,10 +453,15 @@ class MatchaCUP {
 	 * @param string $operator
 	 * @return MatchaCUP
 	 */
-	public function rightJoin($columns, $table, $onMainTable, $onMergeTable, $operator = '=') {
+	public function rightJoin($columns, $table, $onMainTable, $onMergeTable, $operator = '=', $secondaryJoin = '') {
 		$columns = $this->joinColumnHandler($columns);
 		$alias = $this->getJoinTableAlias();
-		$join = " RIGHT JOIN `{$table}` AS $alias ON `{$this->table}`.`$onMainTable` $operator `$alias`.`$onMergeTable` ";
+
+        if($secondaryJoin !== ''){
+            $secondaryJoin = "AND `$alias`.$secondaryJoin";
+        }
+
+		$join = " RIGHT JOIN `{$table}` AS $alias ON `{$this->table}`.`$onMainTable` $operator `$alias`.`$onMergeTable` {$secondaryJoin} ";
 		$this->joinTableHandler($columns, $join);
 		return $this;
 	}

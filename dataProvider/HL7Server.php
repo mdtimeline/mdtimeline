@@ -132,6 +132,9 @@ class HL7Server {
 
     public $hl7_adt_visit_number = '$PID[18][1]';
     public $hl7_validate_referring_npi = false;
+    public $hl7_orm_referring_id_column_field = 'npi';
+    public $hl7_insurance_id_column_field = 'code';
+    public $hl7_patient_insurance_id_column_field = 'code';
 
 
     function __construct($port = 9000, $site = 'default') {
@@ -290,6 +293,9 @@ INI_CONFIG;
 
 
         $hl7_client_config = parse_ini_string($hl7_client_config, true, INI_SCANNER_RAW);
+        if(!empty($this->server['config'])){
+            $this->parseIni($this->server['config']);
+        }
 
 		/**
 		 *
@@ -1249,7 +1255,7 @@ INI_CONFIG;
 	 * @return array|bool
 	 */
 	public function InsuranceGroupHandler($insGroups, $hl7, $patient = null) {
-
+        $now = date('Y-m-d H:i:s');
 		$insurances = [];
 
 		// get out if flag is false
@@ -1275,16 +1281,20 @@ INI_CONFIG;
 
 				}
 
-				if(empty($insObj->patient_insurance->company->code)){
+				if(empty($insObj->patient_insurance->company->{$this->hl7_insurance_id_column_field})){
 				    continue;
                 }
 
                 $insObj->patient_insurance->pid = $patient->pid;
-                $insObj->patient_insurance->code = $patient->pubpid . '~' . $insObj->patient_insurance->company->code;
+                $insObj->patient_insurance->{$this->hl7_patient_insurance_id_column_field} = $patient->pubpid . '~' . $insObj->patient_insurance->company->{$this->hl7_insurance_id_column_field};
 
-				$insuranceCompanyRecord = $this->i->load(['code' => $insObj->patient_insurance->company->code])->one();
+				$insuranceCompanyRecord = $this->i->load([$this->hl7_insurance_id_column_field => $insObj->patient_insurance->company->{$this->hl7_insurance_id_column_field}])->one();
 
 				if($insuranceCompanyRecord === false) {
+                    $insObj->patient_insurance->company->create_uid = 0;
+                    $insObj->patient_insurance->company->update_uid = 0;
+                    $insObj->patient_insurance->company->create_date = $now;
+                    $insObj->patient_insurance->company->update_date = $now;
                     $insuranceCompanyRecord = $this->i->save((object)$insObj->patient_insurance->company);
 
                     if(isset($insuranceCompanyRecord['data'])){
@@ -1295,10 +1305,14 @@ INI_CONFIG;
                 $insObj->patient_insurance->insurance_id = $insuranceCompanyRecord['id'];
 
                 $patientInsuranceRecord = $this->pi->load(array(
-                    'code' => $insObj->patient_insurance->code
+                    $this->hl7_patient_insurance_id_column_field => $insObj->patient_insurance->{$this->hl7_patient_insurance_id_column_field}
                 ))->one();
 
                 if($patientInsuranceRecord === false) {
+                    $insObj->patient_insurance->create_uid = 0;
+                    $insObj->patient_insurance->update_uid = 0;
+                    $insObj->patient_insurance->create_date = $now;
+                    $insObj->patient_insurance->update_date = $now;
                     $patientInsuranceRecord = $this->pi->save((object)$insObj->patient_insurance);
                 }
 
@@ -1366,9 +1380,11 @@ INI_CONFIG;
 		 *
 		 * `insurance_companies`.`code`, 3-1
 		 */
-		if($this->notEmpty($IN1[3][0][1])){
-			$insObj->patient_insurance->company->code = $IN1[3][0][1];
-		}
+		if($this->notEmpty($IN1[3][0][1])) {
+            $insObj->patient_insurance->company->{$this->hl7_insurance_id_column_field} = $IN1[3][0][1];
+        }else if($this->notEmpty($IN1[2][0])){
+            $insObj->patient_insurance->company->{$this->hl7_insurance_id_column_field} = $IN1[2][0];
+        }
 
 
 		/**
@@ -2014,13 +2030,14 @@ INI_CONFIG;
                 return false;
             }
 
-            $referringRecord = $this->ReferringProviders->getReferringProvider(['npi' => $referring[0][1]]);
+            $referringRecord = $this->ReferringProviders->getReferringProvider([$this->hl7_orm_referring_id_column_field => $referring[0][1]]);
             if($referringRecord !== false){
                 return $referringRecord;
             }
 
             $referringRecord = new \stdClass();
-            $referringRecord->npi = $referring[0][1];
+//            $referringRecord->npi = $referring[0][1];
+            $referringRecord->{$this->hl7_orm_referring_id_column_field} = $referring[0][1];
             $referringRecord->lname = $referring[0][2][1];
             $referringRecord->fname = $referring[0][3];
             $referringRecord->mname = $referring[0][4];

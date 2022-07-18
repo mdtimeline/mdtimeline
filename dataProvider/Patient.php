@@ -543,6 +543,7 @@ PREGNANCY_CODES;
 	 */
 	public function createNewPatient(stdClass $params)
 	{
+        $params->create_date = date('Y-m-d H:i:s');
 
 		if (isset($params->insurance)) {
 			$insurance = (object)$params->insurance;

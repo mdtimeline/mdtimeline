@@ -72,12 +72,20 @@ $sites = array_values($directories);
  */
 
 $php_inis = [
+	'/usr/local/etc/php/8.4/php.ini',
+	'/usr/local/etc/php/8.3/php.ini',
+	'/usr/local/etc/php/8.2/php.ini',
+	'/usr/local/etc/php/8.1/php.ini',
 	'/usr/local/etc/php/8.0/php.ini',
 	'/usr/local/etc/php/7.4/php.ini',
 	'/usr/local/etc/php/7.3/php.ini',
 	'/usr/local/etc/php/7.2/php.ini',
 	'/usr/local/etc/php/7.1/php.ini',
 	'/usr/local/etc/php/7.0/php.ini',
+	'/etc/php/8.4/apache2/php.ini',
+	'/etc/php/8.3/apache2/php.ini',
+	'/etc/php/8.2/apache2/php.ini',
+	'/etc/php/8.1/apache2/php.ini',
 	'/etc/php/8.0/apache2/php.ini',
 	'/etc/php/7.4/apache2/php.ini',
 	'/etc/php/7.3/apache2/php.ini',

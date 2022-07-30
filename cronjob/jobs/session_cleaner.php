@@ -28,12 +28,8 @@ if(!$CronBootstrap->checkRun()) exit(0);
  * END of the BootStrap
  */
 
-error_log('session_cleaner.php - Running');
-
 include_once (ROOT . '/classes/Sessions.php');
 $Sessions = new Sessions();
 $Sessions->logoutInactiveUsers();
-
-error_log('session_cleaner.php - Ran');
 
 $CronBootstrap->end();

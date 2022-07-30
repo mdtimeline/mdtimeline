@@ -28,11 +28,8 @@ if(!$CronBootstrap->checkRun()) exit(0);
 /**
  * Task
  */
-error_log('log_rotation.php - Running');
 
 include_once (ROOT . '/classes/Log.php');
 Log::rotate();
-
-error_log('log_rotation.php - Ran');
 
 $CronBootstrap->end();

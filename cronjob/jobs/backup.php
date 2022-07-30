@@ -28,12 +28,8 @@ if(!$CronBootstrap->checkRun()) exit(0);
 /**
  * Task
  */
-error_log('backup.php - Running');
-
 include_once (ROOT . '/dataProvider/BackUp.php');
 $BackUp = new BackUp();
 $BackUp->doBackUp();
-
-error_log('backup.php - Ran');
 
 $CronBootstrap->end();

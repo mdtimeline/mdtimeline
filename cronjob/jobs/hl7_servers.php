@@ -28,11 +28,9 @@ if(!$CronBootstrap->checkRun()) exit(0);
 /**
  * Task
  */
-error_log('hl7_servers.php - Running');
 
 include_once (ROOT . '/dataProvider/HL7ServerHandler.php');
 $BackUp = new HL7ServerHandler();
 $BackUp->check();
 
-error_log('hl7_servers.php - Ran');
 $CronBootstrap->end();

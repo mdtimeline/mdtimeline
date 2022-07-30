@@ -173,7 +173,7 @@ class CronBootstrap
             $data->pid = '';
             $data->running = false;
             $this->CronJobModel->save($data);
-            error_log('INFO: CRONJOB ' . SCRIPT . ' RAN AT ' . date('Y-m-d H:i:s'));
+            error_log('INFO: SITE: ' . site_id . ' MSG: cronjob "' . SCRIPT . '" ran at ' . date('Y-m-d H:i:s'));
             return true;
         } catch(Exception $Error){
             error_log($Error->getMessage());

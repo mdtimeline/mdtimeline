@@ -15,6 +15,12 @@ Ext.define('App.model.patient.Insurance',{
             type: 'int'
         },
         {
+            name: 'external_id',
+            type: 'string',
+            len: 80,
+            index: true
+        },
+        {
             name: 'code',
             type: 'string',
             len: 40,

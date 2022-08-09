@@ -45,6 +45,10 @@ Ext.define('App.controller.reports.Reports', {
 		{
 			ref: 'AdministrationReportWindow',
 			selector: '#AdministrationReportWindow'
+		},
+		{
+			ref: 'ReportWindowReloadBtn',
+			selector: '#ReportWindowReloadBtn'
 		}
 	],
 
@@ -458,7 +462,8 @@ Ext.define('App.controller.reports.Reports', {
 			report_grid = win.down('grid'),
 			report_store = report_grid.getStore(),
 			filters = filter_form.getValues(),
-			report_record = me.getReportsGrid().getSelectionModel().getSelection()[0];
+			report_record = me.getReportsGrid().getSelectionModel().getSelection()[0],
+			reload_button = me.getReportWindowReloadBtn();
 
 		Ext.Object.each(filters, function (property, value) {
 			if(Ext.isArray(value)){
@@ -466,7 +471,7 @@ Ext.define('App.controller.reports.Reports', {
 			}
 		});
 
-		report_grid.view.el.mask('Loading!!!');
+		report_grid.el.mask('Loading!!!');
 		report_grid.filters = filters;
 
 		report_store.removeAll();
@@ -475,9 +480,11 @@ Ext.define('App.controller.reports.Reports', {
 			report_store.group(group_field.getValue());
 		}
 
+		reload_button.setDisabled(true);
 		Reports.runReportByIdAndFilters(report_record.get('id'), filters, function (response) {
 			report_store.loadRawData(response);
-			report_grid.view.el.unmask();
+			report_grid.el.unmask();
+			reload_button.setDisabled(false);
 		});
 
 	},

@@ -60,10 +60,10 @@ Ext.define('App.controller.DocumentViewer', {
             docTypeField = form.findField('docTypeCode'),
             // printerCmb = form.findField('printer'),
             // printerRecord = printerCmb.findRecordByValue(printerCmb.getValue()),
-            priority = form.findField('priority').getValue(),
+            // priority = form.findField('priority').getValue(),
             // printNow = form.findField('printNow').getValue(),
-            printNow = false,
-            number_of_copies = form.findField('number_of_copies').getValue();
+            // number_of_copies = form.findField('number_of_copies').getValue();
+            printNow = false;
 
         if (form.isValid()) {
             values.pid = app.patient.pid;
@@ -91,11 +91,12 @@ Ext.define('App.controller.DocumentViewer', {
                         }
 
                         if (win.doAddPrintJobCallback) {
-                            win.doAddPrintJobCallback(response.record,null,0,priority,number_of_copies);
+                            win.doAddPrintJobCallback(response.record,null,0,undefined,undefined);
                         }
                         win.documentWindow.close();
                         win.close();
                     } else {
+                        say(response);
                         if (window.dual) {
                             window.dual.msg(_('oops'), 'document_transfer_failed', true);
                         } else {
@@ -153,9 +154,12 @@ Ext.define('App.controller.DocumentViewer', {
 
         var windows = Ext.ComponentQuery.query('documentviewerwindow'),
             src = 'dataProvider/DocumentViewer.php?site=' + (site || app.user.site) + '&id=' + id + '&token=' + app.user.token,
+            isTempDoc = (typeof type != 'undefined'),
             win;
 
-        if (typeof type != 'undefined') src += '&temp=' + type;
+        if (isTempDoc){
+            src += '&temp=' + type;
+        }
 
         src += '&_dc=' + Ext.Date.now();
 
@@ -171,6 +175,12 @@ Ext.define('App.controller.DocumentViewer', {
                 }
             ]
         });
+
+        if(!isTempDoc){
+            win.down('#documentViewerAddToPrintJobBtn').hide();
+            win.down('#archiveDocumentBtn').hide();
+        }
+
 
         if (windows.length > 0) {
             var last = windows[(windows.length - 1)];

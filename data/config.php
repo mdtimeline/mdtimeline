@@ -1037,6 +1037,9 @@ $API = [
             ],
             'referringPhysicianLiveSearch' => [
                 'len' => 1
+            ],
+            'importReferringProvidersByNpi' => [
+                'len' => 1
             ]
         ]
     ],

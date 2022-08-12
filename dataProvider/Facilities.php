@@ -294,7 +294,7 @@ class Facilities {
 	}
 
 	/**
-	 * @param stdClass $params
+	 * @param $params
 	 * @return array
 	 */
 	public function getDepartment($params){

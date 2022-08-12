@@ -249,4 +249,153 @@ class ReferringProviders {
 
         return $this->rb->load()->one() !== false;
     }
+
+
+    public function npiRegistrySearchByNpi($nip){
+
+        if(strlen($nip) !== 10 || !$this->isNpiValid($nip)){
+            return [
+                'success' => false,
+                'error' => 'NPI not valid'
+            ];
+        }
+
+        $url = 'https://npiregistry.cms.hhs.gov/api/?version=2.1&number=' . $nip;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $output = curl_exec($ch);
+        curl_close($ch);
+        $return = json_decode($output, true);
+
+        if($return['result_count'] == 0){
+            return [
+                'success' => true,
+                'data' => false
+            ];
+        }
+
+        return [
+            'success' => true,
+            'data' => $return['results'][0]
+        ];
+    }
+
+    public function importReferringProvidersByNpi($npis){
+
+        $npis = is_array($npis) ? $npis : [$npis];
+        
+        foreach($npis as $npi){
+
+            $result = $this->npiRegistrySearchByNpi($npi);
+
+            if($result['success'] === false || $result['data'] === false){
+                continue;
+            }
+
+            $provider = [
+                'global_id' => null,
+                'title' => isset($result['data']['basic']['name_prefix']) ? $result['data']['basic']['name_prefix'] : '',
+                'fname' => isset($result['data']['basic']['first_name']) ? $result['data']['basic']['first_name'] : '',
+                'mname' => '',
+                'lname' => isset($result['data']['basic']['last_name']) ? $result['data']['basic']['last_name'] : '',
+                'organization_name' => isset($result['data']['basic']['organization_name']) ? $result['data']['basic']['organization_name'] : '',
+                'active' => 1,
+                'npi' => $result['data']['number'],
+                'lic' => '',
+                'taxonomy' => '',
+                'upin' => '',
+                'ssn' => '',
+                'notes' => 'NPI registry import',
+                'username' => null,
+                'password' => '',
+                'authorized' => 0,
+                'email' => '',
+                'phone_number' => '',
+                'fax_number' => '',
+                'cel_number' => ''
+		    ];
+
+		    $facilities = [];
+
+            if($result['data']['taxonomies']) {
+
+                foreach($result['data']['taxonomies'] as $taxonomy) {
+                    if (!$taxonomy['primary']) continue;
+                    $provider['taxonomy'] =  isset($address['code']) ? $taxonomy['code'] : '';
+                    $provider['lic'] =  isset($address['license']) ? $taxonomy['license'] : '';
+                };
+            }
+
+            if($result['data']['addresses']){
+
+                foreach($result['data']['addresses'] as $address) {
+
+                    if($address['address_purpose'] !== 'LOCATION') continue;
+                    $provider['phone_number'] = isset($address['telephone_number']) ? $address['telephone_number'] : '';
+                    $provider['fax_number'] = isset($address['fax_number']) ? $address['fax_number'] : '';
+
+                    $facilities[] = (object)[
+                        'name' => $provider['organization_name'],
+                        'address' => isset($address['address_1']) ? $address['address_1'] : '',
+                        'address_cont' => isset($address['address_2']) ? $address['address_2'] : '',
+                        'city' => isset($address['city']) ? $address['city'] : '',
+                        'postal_code' => isset($address['postal_code']) ? $address['postal_code'] : '',
+                        'state' => isset($address['state']) ? $address['state'] : ''
+                    ];
+                };
+            }
+
+            $record = $this->r->save((object) $provider);
+            foreach ($facilities as &$facility){
+                $facility->referring_provider_id = $record['data']->id;
+                $this->rf->save((object) $facility);
+            }
+
+        }
+
+    }
+
+    /**
+     * @param $npi
+     * @return bool
+     */
+    private function isNpiValid($npi) {
+
+        $tmp = null;
+        $sum = null;
+        $i = strlen($npi);
+
+        if(!is_numeric($npi)) return false;
+
+        if(($i == 15) && (substr($npi, 0, 5) == "80840")){
+            $sum = 0;
+        } else if($i == 10){
+            $sum = 24;
+        } else {
+            return false;
+        }
+
+        $j = 0;
+        while($i--) {
+            if(is_nan($npi[$i])){
+                return false;
+            }
+            $tmp = $npi[$i] - '0';
+            if($j++ & 1){
+                if(($tmp <<= 1) > 9){
+                    $tmp -= 10;
+                    $tmp++;
+                }
+            }
+            $sum += $tmp;
+        }
+
+        if($sum % 10){
+            return false;
+        } else {
+            return true;
+        }
+    }
+
 }

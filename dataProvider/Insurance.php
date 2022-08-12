@@ -178,6 +178,8 @@ class Insurance {
 	public function getPatientPrimaryInsuranceByPid($pid) {
 		$this->pi->addFilter('pid', $pid);
 		$this->pi->addFilter('insurance_type', 'P');
+        $this->pi->addFilter('active', '1');
+        $this->pi->addSort('id', 'DESC');
 		return $this->pi->load()->leftJoin(
 		    [
 		        'code' => 'insurance_company_code',
@@ -201,6 +203,8 @@ class Insurance {
 	public function getPatientSecondaryInsuranceByPid($pid) {
 		$this->pi->addFilter('pid', $pid);
 		$this->pi->addFilter('insurance_type', 'S');
+        $this->pi->addFilter('active', '1');
+        $this->pi->addSort('id', 'DESC');
 		return $this->pi->load()->leftJoin(
             [
                 'code' => 'insurance_company_code',
@@ -215,6 +219,26 @@ class Insurance {
 	public function getPatientComplementaryInsuranceByPid($pid) {
 		$this->pi->addFilter('pid', $pid);
 		$this->pi->addFilter('insurance_type', 'C');
+        $this->pi->addFilter('active', '1');
+        $this->pi->addSort('id', 'DESC');
+		return $this->pi->load()->leftJoin(
+            [
+                'code' => 'insurance_company_code',
+                'name' => 'insurance_company_name'
+            ],
+            'insurance_companies',
+            'insurance_id',
+            'id'
+        )->one();
+	}
+
+	public function getPatientOtherInsuranceByPid($pid) {
+        $this->pi->setOrFilterProperties(['insurance_type']);
+		$this->pi->addFilter('pid', $pid);
+		$this->pi->addFilter('insurance_type', 'S');
+		$this->pi->addFilter('insurance_type', 'C');
+        $this->pi->addFilter('active', '1');
+        $this->pi->addSort('id', 'DESC');
 		return $this->pi->load()->leftJoin(
             [
                 'code' => 'insurance_company_code',

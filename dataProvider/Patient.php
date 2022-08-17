@@ -634,7 +634,7 @@ PREGNANCY_CODES;
 	 */
 	public static function getPatientAgeByDOB($dob, $from = 'now')
 	{
-		if ($dob != '0000-00-00 00:00:00') {
+		if (isset($dob) && $dob != '0000-00-00 00:00:00') {
 			$from = $from == 'now' ? new DateTime(date('Y-m-d')) : $from;
 			$t = new DateTime($dob);
 			$age['days'] = $t->diff($from)->d;

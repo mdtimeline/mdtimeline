@@ -127,7 +127,7 @@ class FileSystem {
 				$filesystem['error'] = 'Dir Path not set';
 				$filesystem['total_space'] = 0;
 				$filesystem['free_space'] = 0;
-			} elseif(!file_exists($filesystem['dir_path'])){
+			} elseif(!is_dir($filesystem['dir_path'])){
 				$filesystem['error'] = 'Dir Path does not exist';
 				$filesystem['total_space'] = 0;
 				$filesystem['free_space'] = 0;

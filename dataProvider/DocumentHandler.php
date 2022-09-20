@@ -763,6 +763,8 @@ class DocumentHandler
     {
         try {
             $this->setPatientDocumentTempModel();
+            $template_id = isset($params->template_id) ? $params->template_id : null;
+            $template_concept = isset($params->template_concept) ? $params->template_concept : 'default';
 
             Matcha::pauseLog(true);
 
@@ -786,7 +788,7 @@ class DocumentHandler
 
                 $Documents = new Documents();
                 $record->document = base64_encode(
-                    $Documents->PDFDocumentBuilder((object)$params, '', $header_data, $footer_data, '', [], [], $pdf_format, $mail_cover_info)
+                    $Documents->PDFDocumentBuilder((object)$params, '', $header_data, $footer_data, '', [], [], $pdf_format, $mail_cover_info, $template_id, $template_concept)
                 );
             }
             $record->create_date = date('Y-m-d H:i:s');

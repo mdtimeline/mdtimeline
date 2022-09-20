@@ -98,7 +98,7 @@ class DocumentPdfForms {
         include_once(ROOT . '/dataProvider/DocumentHandler.php');
         $documentParams = new \stdClass();
         $documentParams->document = base64_encode($binary_document);
-        $documentParams->document_name = 'PDF Forms';
+        $documentParams->document_name = 'Form.pdf';
         return $this->DocumentHandler->createTempDocument($documentParams);
 
     }

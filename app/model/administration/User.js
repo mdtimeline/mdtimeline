@@ -28,6 +28,16 @@ Ext.define('App.model.administration.User', {
 			type: 'int'
 		},
 		{
+			name: 'global_id',
+			type: 'string',
+			len: 40
+		},
+		{
+			name: 'external_id',
+			type: 'string',
+			len: 80
+		},
+		{
 			name: 'code',
 			type: 'string',
 			len: 15

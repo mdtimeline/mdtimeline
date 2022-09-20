@@ -14650,6 +14650,16 @@ Ext.define('App.model.administration.User', {
 			type: 'int'
 		},
 		{
+			name: 'global_id',
+			type: 'string',
+			len: 40
+		},
+		{
+			name: 'external_id',
+			type: 'string',
+			len: 80
+		},
+		{
 			name: 'code',
 			type: 'string',
 			len: 15
@@ -20462,6 +20472,12 @@ Ext.define('App.model.patient.Insurance',{
         {
             name: 'id',
             type: 'int'
+        },
+        {
+            name: 'external_id',
+            type: 'string',
+            len: 80,
+            index: true
         },
         {
             name: 'code',
@@ -71170,10 +71186,10 @@ Ext.define('App.controller.DocumentViewer', {
             docTypeField = form.findField('docTypeCode'),
             // printerCmb = form.findField('printer'),
             // printerRecord = printerCmb.findRecordByValue(printerCmb.getValue()),
-            priority = form.findField('priority').getValue(),
+            // priority = form.findField('priority').getValue(),
             // printNow = form.findField('printNow').getValue(),
-            printNow = false,
-            number_of_copies = form.findField('number_of_copies').getValue();
+            // number_of_copies = form.findField('number_of_copies').getValue();
+            printNow = false;
 
         if (form.isValid()) {
             values.pid = app.patient.pid;
@@ -71201,11 +71217,12 @@ Ext.define('App.controller.DocumentViewer', {
                         }
 
                         if (win.doAddPrintJobCallback) {
-                            win.doAddPrintJobCallback(response.record,null,0,priority,number_of_copies);
+                            win.doAddPrintJobCallback(response.record,null,0,undefined,undefined);
                         }
                         win.documentWindow.close();
                         win.close();
                     } else {
+                        say(response);
                         if (window.dual) {
                             window.dual.msg(_('oops'), 'document_transfer_failed', true);
                         } else {
@@ -71263,9 +71280,12 @@ Ext.define('App.controller.DocumentViewer', {
 
         var windows = Ext.ComponentQuery.query('documentviewerwindow'),
             src = 'dataProvider/DocumentViewer.php?site=' + (site || app.user.site) + '&id=' + id + '&token=' + app.user.token,
+            isTempDoc = (typeof type != 'undefined'),
             win;
 
-        if (typeof type != 'undefined') src += '&temp=' + type;
+        if (isTempDoc){
+            src += '&temp=' + type;
+        }
 
         src += '&_dc=' + Ext.Date.now();
 
@@ -71281,6 +71301,12 @@ Ext.define('App.controller.DocumentViewer', {
                 }
             ]
         });
+
+        if(!isTempDoc){
+            win.down('#documentViewerAddToPrintJobBtn').hide();
+            win.down('#archiveDocumentBtn').hide();
+        }
+
 
         if (windows.length > 0) {
             var last = windows[(windows.length - 1)];
@@ -74377,6 +74403,10 @@ Ext.define('App.controller.reports.Reports', {
 		{
 			ref: 'AdministrationReportWindow',
 			selector: '#AdministrationReportWindow'
+		},
+		{
+			ref: 'ReportWindowReloadBtn',
+			selector: '#ReportWindowReloadBtn'
 		}
 	],
 
@@ -74790,7 +74820,8 @@ Ext.define('App.controller.reports.Reports', {
 			report_grid = win.down('grid'),
 			report_store = report_grid.getStore(),
 			filters = filter_form.getValues(),
-			report_record = me.getReportsGrid().getSelectionModel().getSelection()[0];
+			report_record = me.getReportsGrid().getSelectionModel().getSelection()[0],
+			reload_button = me.getReportWindowReloadBtn();
 
 		Ext.Object.each(filters, function (property, value) {
 			if(Ext.isArray(value)){
@@ -74798,7 +74829,7 @@ Ext.define('App.controller.reports.Reports', {
 			}
 		});
 
-		report_grid.view.el.mask('Loading!!!');
+		report_grid.el.mask('Loading!!!');
 		report_grid.filters = filters;
 
 		report_store.removeAll();
@@ -74807,9 +74838,11 @@ Ext.define('App.controller.reports.Reports', {
 			report_store.group(group_field.getValue());
 		}
 
+		reload_button.setDisabled(true);
 		Reports.runReportByIdAndFilters(report_record.get('id'), filters, function (response) {
 			report_store.loadRawData(response);
-			report_grid.view.el.unmask();
+			report_grid.el.unmask();
+			reload_button.setDisabled(false);
 		});
 
 	},

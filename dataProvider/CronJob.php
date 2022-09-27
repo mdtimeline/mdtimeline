@@ -52,4 +52,21 @@ class CronJob
         return $this->CronJobModel->save($params);
     }
 
+    public function killCronjob($cronjob){
+
+        if(!isset($cronjob->pid) || !is_numeric($cronjob->pid)){
+            return false;
+        }
+
+        $success = posix_kill($cronjob->pid, SIGKILL);
+
+        if($success){
+            $cronjob->pid = '';
+            $cronjob->running = 0;
+            $this->updateCronJob($cronjob);
+        }
+
+        return $success;
+    }
+
 }

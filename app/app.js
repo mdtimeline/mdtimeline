@@ -36913,10 +36913,18 @@ Ext.define('App.view.administration.CronJob', {
                     '->',
                     {
                         xtype: 'button',
-                        text: _('refresh'),
-                        itemId: 'refresh'
+                        text: _('kill_process'),
+                        itemId: 'CronJobPanelKillProcessBtn',
+                        cls: 'btnRedBackground'
                     }
-                ]
+                ],
+                bbar: {
+                    xtype: 'pagingtoolbar',
+                    pageSize: 100,
+                    store: me.CronJobStore ,
+                    displayInfo: true,
+                    plugins: new Ext.ux.SlidingPager()
+                }
             }
         ];
 
@@ -43768,17 +43776,63 @@ Ext.define('App.controller.administration.CronJob', {
             'cronjobpanel':{
                 activate: me.onCronJobPanelActive
             },
-            'cronjobpanel #refresh':{
-                click: me.onCronJobPanelActive
+            '#CronJobPanelKillProcessBtn':{
+                click: me.onCronJobPanelKillProcessBtnClick
             }
         });
 
     },
 
+
+    doGridRefresh: function (){
+        this.getCronJobGrid().getStore().load();
+    },
+
     onCronJobPanelActive: function(){
+        this.doGridRefresh();
+    },
+
+    onCronJobPanelKillProcessBtnClick: function (btn){
+
         var me = this,
-            CronJobGrid = me.getCronJobGrid();
-        CronJobGrid.getStore().load();
+            grid = btn.up('grid'),
+            selection = grid.getSelectionModel().getSelection();
+
+        if(selection.length === 0){
+            return;
+        }
+
+        if(!selection[0].get('running')){
+            app.msg(_('oops'), 'Process is not running', true);
+            return;
+        }
+
+        if(selection[0].get('pid') === ''){
+            app.msg(_('oops'), 'Process PID missing', true);
+            return;
+        }
+
+        var pid = selection[0].get('pid');
+
+        Ext.Msg.show({
+            title: 'Wait!',
+            msg: Ext.String.format('This action will kill process <b>{0}</b>, would you like to continue?', pid),
+            buttons: Ext.Msg.YESNO,
+            icon: Ext.Msg.QUESTION,
+            fn: function (answer){
+                if(answer === 'yes'){
+                    CronJob.killCronjob(selection[0].data, function (success){
+                        if(success){
+                            app.msg(_('sweet'), Ext.String.format('Process {0} Killed', pid), true);
+                            me.doGridRefresh();
+                        }else{
+                            app.msg(_('oops'), 'Something went wrong killing the process', true);
+                        }
+                    });
+                }
+            }
+        });
+
     }
 
 });

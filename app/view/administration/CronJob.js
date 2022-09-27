@@ -190,10 +190,18 @@ Ext.define('App.view.administration.CronJob', {
                     '->',
                     {
                         xtype: 'button',
-                        text: _('refresh'),
-                        itemId: 'refresh'
+                        text: _('kill_process'),
+                        itemId: 'CronJobPanelKillProcessBtn',
+                        cls: 'btnRedBackground'
                     }
-                ]
+                ],
+                bbar: {
+                    xtype: 'pagingtoolbar',
+                    pageSize: 100,
+                    store: me.CronJobStore ,
+                    displayInfo: true,
+                    plugins: new Ext.ux.SlidingPager()
+                }
             }
         ];
 

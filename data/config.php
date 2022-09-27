@@ -3098,6 +3098,9 @@ $API = [
             ],
             'updateCronJob' => [
                 'len' => 1
+            ],
+            'killCronjob' => [
+                'len' => 1
             ]
         ]
     ],

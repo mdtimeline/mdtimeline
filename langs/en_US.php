@@ -2264,5 +2264,6 @@ $LANG = array(
     'eye_exam_ascan' => 'A-scan',
     'billing_rates_upload' => 'Update Procedure Rates',
     'upload_procedures_rates' => 'Upload Procedure Rate File',
+    'kill_process' => 'Kill Process',
 
 );

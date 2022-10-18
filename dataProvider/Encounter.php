@@ -323,9 +323,31 @@ class Encounter {
 			$filters->filter[0] = new stdClass();
 			$filters->filter[0]->property = 'eid';
 			$filters->filter[0]->value = $params;
-			$record = $this->e->load($filters)->one();
+			$record = $this->e->load($filters)->leftJoin(
+                [
+                    'fname' => 'referring_physician_fname',
+                    'mname' => 'referring_physician_mname',
+                    'lname' => 'referring_physician_lname',
+                    'npi' => 'referring_physician_npi',
+                    'phone_number' => 'referring_physician_phone',
+                ],
+                'referring_providers',
+                'referring_physician',
+                'id'
+            )->one();
 		} else {
-			$record = $this->e->load($params)->one();
+			$record = $this->e->load($params)->leftJoin(
+                [
+                    'fname' => 'referring_physician_fname',
+                    'mname' => 'referring_physician_mname',
+                    'lname' => 'referring_physician_lname',
+                    'npi' => 'referring_physician_npi',
+                    'phone_number' => 'referring_physician_phone',
+                ],
+                'referring_providers',
+                'referring_physician',
+                'id'
+            )->one();
 		}
 
 		if($record === false) return [];

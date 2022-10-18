@@ -14,7 +14,7 @@ Ext.define('App.controller.patient.encounter.PhysicalExam', {
 		me.control({
 			'viewport': {
 				encounterload: me.onEncounterLoad,
-				encountersync: me.onEncounterSync
+				encounterbeforesync: me.onEncounterSync
 			}
 		});
 

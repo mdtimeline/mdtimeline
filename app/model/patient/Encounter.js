@@ -251,6 +251,31 @@ Ext.define('App.model.patient.Encounter', {
             name: 'provider_signature',
             type: 'string',
 	        store: false
+        },
+        {
+            name: 'referring_physician_fname',
+            type: 'string',
+	        store: false
+        },
+        {
+            name: 'referring_physician_mname',
+            type: 'string',
+	        store: false
+        },
+        {
+            name: 'referring_physician_lname',
+            type: 'string',
+	        store: false
+        },
+        {
+            name: 'referring_physician_npi',
+            type: 'string',
+	        store: false
+        },
+        {
+            name: 'referring_physician_phone',
+            type: 'string',
+	        store: false
         }
 	],
 	idProperty: 'eid',

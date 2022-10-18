@@ -19668,6 +19668,31 @@ Ext.define('App.model.patient.Encounter', {
             name: 'provider_signature',
             type: 'string',
 	        store: false
+        },
+        {
+            name: 'referring_physician_fname',
+            type: 'string',
+	        store: false
+        },
+        {
+            name: 'referring_physician_mname',
+            type: 'string',
+	        store: false
+        },
+        {
+            name: 'referring_physician_lname',
+            type: 'string',
+	        store: false
+        },
+        {
+            name: 'referring_physician_npi',
+            type: 'string',
+	        store: false
+        },
+        {
+            name: 'referring_physician_phone',
+            type: 'string',
+	        store: false
         }
 	],
 	idProperty: 'eid',
@@ -27617,15 +27642,15 @@ Ext.define('App.view.patient.ProgressNote', {
             '                   <div class="header row">' + _('record') + ': #{pid} </div>' +
             '                   <div class="header row">' + _('provider') + ': {open_by} </div>' +
             '                   <div class="header row">' + _('onset_date') + ': {[values.onset_date || "-"]} </div>' +
-            '                   <div class="header row">' + _('provider') + ': {[values.signed_by || "-"]} </div>' +
-            '               </td>' +
+			'                   <div class="header row">' + _('referring_provider') + ': {[this.getFullName(values.referring_physician_fname,values.referring_physician_mname,values.referring_physician_lname) || "-"]} </div>' +
+			'               </td>' +
             '               <td>' +
             '                   <div class="header row">' + _('service_date') + ': {service_date} </div>' +
             '                   <div class="header row">' + _('visit_category') + ': {visit_category} </div>' +
             '                   <div class="header row">' + _('facility') + ': {facility} </div>' +
             '                   <div class="header row">' + _('priority') + ': {priority} </div>' +
             '                   <div class="header row">' + _('signed_on') + ': {[values.close_date || "-"]} </div>' +
-            '               </td>' +
+			'               </td>' +
             '           </tr>' +
             '           <tr>' +
             '               <td colspan="2">' +
@@ -27687,9 +27712,17 @@ Ext.define('App.view.patient.ProgressNote', {
 
 	            doHtmlDecode:function(v){
 		            return Ext.String.htmlDecode(v);
-	            }
+	            },
 
+	            getFullName:function(fname,mname,lname){
+		            return this.capitalizeEveryWord(Ext.String.format('{0}, {1} {2}', lname || '', fname || '', mname || '' ), true);
+	            },
 
+				capitalizeEveryWord:function (str, lower) {
+					return (lower ? str.toLowerCase() : str).replace(/(?:^|\s|["'([{])+\S/g, function(match){
+						return match.toUpperCase();
+					});
+				}
 
             }
         );

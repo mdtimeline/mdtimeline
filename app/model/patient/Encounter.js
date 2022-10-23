@@ -5,6 +5,9 @@
 
 Ext.define('App.model.patient.Encounter', {
 	extend: 'Ext.data.Model',
+	requires: [
+		'App.model.patient.PhysicalExam'
+	],
 	table: {
 		name: 'encounters',
 		comment: 'Encounter Data'

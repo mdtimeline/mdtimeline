@@ -18,9 +18,6 @@
 
 Ext.define('App.model.patient.PhysicalExam', {
 	extend: 'Ext.data.Model',
-	requires: [
-		'App.model.patient.Encounter'
-	],
 	table: {
 		name: 'patient_physical_exams'
 	},
@@ -72,10 +69,6 @@ Ext.define('App.model.patient.PhysicalExam', {
 		writer: {
 			writeAllFields: true
 		}
-	},
-	belongsTo: {
-		model: 'App.model.patient.Encounter',
-		foreignKey: 'eid'
 	}
 
 });

@@ -65,9 +65,14 @@ class LDAP {
 			}
 		}
 
-		$this->log("LDAP: BINDING: USER: {$_ENV['ldap_service_account_username']} PASS: {$_ENV['ldap_service_account_password']}");
+        if(isset($_ENV['ldap_sasl']) && is_array($_ENV['ldap_sasl'])){
+            $this->log("LDAP: SASL BINDING: DN: {$_ENV['ldap_sasl']['bind_dn']} PASS: {$_ENV['ldap_sasl']['password']} MECH: {$_ENV['ldap_sasl']['mech']} REALM: {$_ENV['ldap_sasl']['realm']} AUTHC-ID: {$_ENV['ldap_sasl']['authc_id']} AUTHZ-IS: {$_ENV['ldap_sasl']['authz_id']} PROPS: {$_ENV['ldap_sasl']['props']}");
+            $bind = @ldap_sasl_bind ($this->ldap, $_ENV['ldap_sasl']['bind_dn'], $_ENV['ldap_sasl']['password'], $_ENV['ldap_sasl']['mech'], $_ENV['ldap_sasl']['realm'], $_ENV['ldap_sasl']['authc_id'], $_ENV['ldap_sasl']['authz_id'], $_ENV['ldap_sasl']['props']);
+        }else{
+            $this->log("LDAP: BINDING: USER: {$_ENV['ldap_service_account_username']} PASS: {$_ENV['ldap_service_account_password']}");
+            $bind = @ldap_bind($this->ldap, $_ENV['ldap_service_account_username'], $_ENV['ldap_service_account_password']);
+        }
 
-		$bind = @ldap_bind($this->ldap, $_ENV['ldap_service_account_username'], $_ENV['ldap_service_account_password']);
 
 		if(!$bind){
 			// invalid name or password

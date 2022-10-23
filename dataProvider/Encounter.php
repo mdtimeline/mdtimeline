@@ -400,9 +400,12 @@ class Encounter {
 			$encounter['hcfaoptions'][] = $this->getHCFA($filters);
 		}
 
-		if($_SESSION['globals']['enable_encounter_hcfa']){
-			$encounter['physicalexams'][] = $this->getPhysicalExams($filters);
-		}
+        $physicalexam = $this->getPhysicalExams($filters);
+        if($physicalexam !== false){
+            $encounter['physicalexams'][] = $this->getPhysicalExams($filters);
+        }else{
+            $encounter['physicalexams'] = [];
+        }
 
 		$encounter['services'] = $this->getEncounterServiceCodesByEid($encounter['eid']);
 
@@ -1313,7 +1316,7 @@ class Encounter {
         $physical_exams = $PhysicalExams->getPhysicalExamsByEid($eid);
         if(!empty($physical_exams)){
 
-            $str_buff .= '<div class="indent">';
+
             $lis = '';
             foreach($physical_exams as $foo){
 
@@ -1321,17 +1324,25 @@ class Encounter {
 
                 foreach ($observations as $observation){
 
+                    $normal_reported = isset($observation->normal) && $observation->normal;
+                    $abnormal_reported = isset($observation->abnormal) && $observation->abnormal;
+                    $has_note = isset($observation->abnormal_note) && $observation->abnormal_note !== '';
+
+                    if(!$normal_reported && !$abnormal_reported && !$has_note){
+                        continue;
+                    }
+
                     $lis .= '<li>';
                     $lis .= '<u>' . (isset($observation->label) ? $observation->label : '')  . '</u> - ';
-                    if(isset($observation->normal) && $observation->normal){
+                    if($normal_reported){
                         $lis .= 'Normal';
-                    }else if(isset($observation->abnormal) && $observation->abnormal){
+                    }else if($abnormal_reported){
                         $lis .= 'Abnormal';
                     }else{
                         $lis .= 'Not Reported';
                     }
 
-                    if(isset($observation->abnormal_note) && $observation->abnormal_note !== ''){
+                    if($has_note){
                         $lis .= ': ' . $observation->abnormal_note;
                     }
 
@@ -1340,9 +1351,13 @@ class Encounter {
                 }
 
             }
-            $str_buff .= '<p><b>Physical Exam:</b></p>';
-            $str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">' . $lis . '</ul>';
-            $str_buff .= '</div>';
+
+            if($lis !== ''){
+                $str_buff .= '<div class="indent">';
+                $str_buff .= '<p><b>Physical Exam:</b></p>';
+                $str_buff .= '<ul style="list-style-type:disc; margin-left: 20px">' . $lis . '</ul>';
+                $str_buff .= '</div>';
+            }
 
         }
         unset($ActiveMedications, $medications_ordered, $medications_administered);

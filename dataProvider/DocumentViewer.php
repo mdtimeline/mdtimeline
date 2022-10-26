@@ -129,6 +129,10 @@ if (
 
 	$isTemp = isset($_REQUEST['temp']);
 
+    $docType = null;
+
+    $docType = isset($_REQUEST['doctype']) ? $_REQUEST['doctype'] : 'patientDoc';
+
 	if ($isTemp) {
 		$d = MatchaModel::setSenchaModel('App.model.patient.PatientDocumentsTemp');
 
@@ -148,7 +152,12 @@ if (
 			'data' => 'Generated a PDF'
 		]);
 	} else {
-		$d = MatchaModel::setSenchaModel('App.model.patient.PatientDocuments');
+
+        if ($docType == 'patientDoc')
+		    $d = MatchaModel::setSenchaModel('App.model.patient.PatientDocuments');
+        else
+            $d = MatchaModel::setSenchaModel('App.model.documents.AdministrativeDocuments');
+
 		$doc = $d->load($_REQUEST['id'])->one();
 		if ($doc === false) {
 			error_log('No Document Found for id ' . $_REQUEST['id']);

@@ -482,6 +482,9 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                                 'account.VoucherLine',
                                 'account.Voucher',
 
+                                'documents.AdministrativeDocuments',
+
+
                                 'fees.Billing',
                                 'fees.Checkout',
                                 'fees.EncountersPayments',
@@ -617,6 +620,8 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                                 'fees.EncountersPayments',
                                 'fees.PaymentTransactions',
                                 'navigation.Navigation',
+
+                                'documents.AdministrativeDocuments',
 
                                 'patient.encounter.Procedures',
 
@@ -837,6 +842,8 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                                 'dashboard.panel.NotSignedVitals',
                                 'dashboard.panel.DailyVisits',
                                 'dashboard.panel.OpenEncounters',
+
+                                'documents.AdministrativeDocuments',
 
                                 'miscellaneous.Amendments',
 

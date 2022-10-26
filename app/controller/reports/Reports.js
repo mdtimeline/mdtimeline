@@ -382,6 +382,34 @@ Ext.define('App.controller.reports.Reports', {
 					return;
 				}
 
+				if(parameter.PARAMETER_NAME === 'insurance_type'){
+					search_fields.push({
+						xtype: 'gaiaehr.combo',
+						listKey: 'ins_type',
+						fieldLabel: _(parameter.PARAMETER_NAME),
+						labelAlign: 'top',
+						margin: '0 5 0 0',
+						multiSelect: true,
+						editable: false,
+						name: parameter.PARAMETER_NAME
+					});
+					return;
+				}
+
+				if(parameter.PARAMETER_NAME === 'claim_payment_type'){
+					search_fields.push({
+						xtype: 'gaiaehr.combo',
+						listKey: 'clm_pay',
+						fieldLabel: _(parameter.PARAMETER_NAME),
+						labelAlign: 'top',
+						margin: '0 5 0 0',
+						multiSelect: true,
+						editable: false,
+						name: parameter.PARAMETER_NAME
+					});
+					return;
+				}
+
 				// by default add the text field
 				search_fields.push({
 					xtype: 'textfield',

@@ -179,6 +179,68 @@ class CombosData {
 		}
 	}
 
+    /**
+     * Main Sencha Model Getter and Setters
+     *
+     * @param stdClass $params
+     * @param bool $int_value
+     *
+     * @return array|bool|mixed
+     */
+    public function getAdministrativeDocumentsOptionsByListId(stdClass $params, &$int_value = false){
+
+        $int_value = false;
+
+        if($this->CL == null)
+            $this->CL = MatchaModel::setSenchaModel('App.model.administration.Lists');
+        if($this->CLO == null)
+            $this->CLO = MatchaModel::setSenchaModel('App.model.administration.ListOptions');
+
+        // List Key is used
+        if(isset($params->list_key)){
+            $sorters = new stdClass();
+            $sorters->sort[0] = new stdClass();
+            $sorters->sort[0]->property = 'seq';
+            $sorters->sort[0]->direction = 'ASC';
+            return $this->CLO->load(['list_key' => $params->list_key,
+                'code' => $params->code,
+                'active' => 1])->sort($sorters)->all();
+        }
+
+        // List ID is used
+        if(isset($params->list_id)){
+            if(is_numeric($params->list_id)){
+                $sorters = new stdClass();
+                $sorters->sort[0] = new stdClass();
+                $sorters->sort[0]->property = 'seq';
+                $sorters->sort[0]->direction = 'ASC';
+                return $this->CLO->load(['list_id' => $params->list_id, 'active' => 1])->sort($sorters)->all();
+            } else{
+                if($params->list_id == 'activePharmacies'){
+                    $int_value = true;
+                    return $this->getActivePharmacies();
+                } elseif($params->list_id == 'activeProviders'){
+                    $int_value = true;
+                    return $this->getActiveProviders();
+                } elseif($params->list_id == 'activeFacilities'){
+                    $int_value = true;
+                    return $this->getActiveFacilities();
+                } elseif($params->list_id == 'billingFacilities'){
+                    $int_value = true;
+                    return $this->getBillingFacilities();
+                } elseif($params->list_id == 'activeInsurances'){
+                    $int_value = true;
+                    return $this->getActiveInsurances();
+                } elseif($params->list_id == 'referringPhysicians'){
+                    $int_value = true;
+                    return $this->getReferringPhysicians();
+                } else{
+                    return false;
+                }
+            }
+        }
+    }
+
 	public function getTimeZoneList(){
 		$locations = [];
 		$zones = timezone_identifiers_list();

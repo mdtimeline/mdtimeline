@@ -2759,6 +2759,9 @@ $API = [
 			'getOptionsByListId' => [
 				'len' => 1
             ],
+            'getAdministrativeDocumentsOptionsByListId' => [
+                'len' => 1
+            ],
 			'getTimeZoneList' => [
 				'len' => 1,
                 'secure' => false
@@ -3007,6 +3010,21 @@ $API = [
             ],
 			'destroyPatientDocument' => [
 				'len' => 1
+            ],
+            'getAdministrativeDocuments' => [
+                'len' => 1
+            ],
+            'getAdministrativeDocument' => [
+                'len' => 2
+            ],
+            'addAdministrativeDocument' => [
+                'len' => 1
+            ],
+            'updateAdministrativeDocument' => [
+                'len' => 1
+            ],
+            'destroyAdministrativeDocument' => [
+                'len' => 1
             ],
 			'createTempDocument' => [
 				'len' => 1

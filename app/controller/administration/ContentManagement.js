@@ -40,8 +40,20 @@ Ext.define('App.controller.administration.ContentManagement', {
             selector: '#ContentManagementWindowCancelBtn'
         },
         {
+            ref: 'ContentManagementWindowTextContentBody',
+            selector: '#ContentManagementWindowTextContentBody'
+        },
+        {
+            ref: 'ContentManagementWindowHtmlContentBody',
+            selector: '#ContentManagementWindowHtmlContentBody'
+        },
+        {
             ref: 'ContentManagementWindowTokensTextArea',
             selector: '#ContentManagementWindowTokensTextArea'
+        },
+        {
+            ref: 'ContentManagementWindowIsHtmlCheckbox',
+            selector: '#ContentManagementWindowIsHtmlCheckbox'
         }
     ],
 
@@ -61,6 +73,9 @@ Ext.define('App.controller.administration.ContentManagement', {
             },
             '#ContentManagementWindowCancelBtn': {
                 click: me.onContentManagementWindowCancelBtnClick
+            },
+            '#ContentManagementWindowIsHtmlCheckbox': {
+                change: me.onContentManagementWindowIsHtmlCheckboxChange
             }
         });
     },
@@ -115,6 +130,7 @@ Ext.define('App.controller.administration.ContentManagement', {
         form.reset();
         form.loadRecord(record);
 
+        say(record);
 
         textareafield.setValue(record.get('content_body'));
         textareafield.submitValue = !is_html;
@@ -127,6 +143,14 @@ Ext.define('App.controller.administration.ContentManagement', {
         htmleditor.setVisible(is_html);
 
         me.setTokensTextAreaFieldByContentType(content_type);
+    },
+
+    onContentManagementWindowIsHtmlCheckboxChange: function (checkbox, newValue, oldValue, eOpts) {
+
+        say(checkbox);
+        say(newValue);
+        say(oldValue);
+
     },
 
     showContentWindow: function () {

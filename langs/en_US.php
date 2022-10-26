@@ -2265,5 +2265,7 @@ $LANG = array(
     'billing_rates_upload' => 'Update Procedure Rates',
     'upload_procedures_rates' => 'Upload Procedure Rate File',
     'kill_process' => 'Kill Process',
-
+    'insurance_type' => 'Insurance Type',
+    'administrative_documents' => 'Administrative Documents',
+    'is_html' => 'Is HTML?',
 );

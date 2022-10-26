@@ -48,6 +48,11 @@ class DocumentHandler
     /**
      * @var MatchaCUP
      */
+    public $ad;
+
+    /**
+     * @var MatchaCUP
+     */
     private $t;
 
     /**
@@ -115,6 +120,12 @@ class DocumentHandler
             $this->d = MatchaModel::setSenchaModel('App.model.patient.PatientDocuments');
     }
 
+    private function setAdministrativeDocumentModel()
+    {
+        if (!isset($this->ad))
+            $this->ad = MatchaModel::setSenchaModel('App.model.documents.AdministrativeDocuments');
+    }
+
     private function setPatientDocumentTempModel()
     {
         if (!isset($this->t))
@@ -170,6 +181,75 @@ class DocumentHandler
         if(ACL::hasPermission('allow_access_radiology_documents')){
             $concepts[] = 'RADIOLOGY';
         }
+
+        /** lets unset the actual document data */
+        if (isset($records['data'])) {
+            foreach ($records['data'] as $i => $record) {
+
+                if(isset($record['docTypeConcept']) && $record['docTypeConcept'] !== '' && !in_array($record['docTypeConcept'], $concepts)){
+                    unset($records['data'][$i]);
+                    continue;
+                }
+
+                if ($records['data'][$i]['entered_in_error']) {
+                    $records['data'][$i]['docType'] = 'ENTERED IN ERROR';
+                    $records['data'][$i]['docTypeCode'] = 'ZZZ';
+                }
+
+                if (!$includeDocument) {
+                    unset($records['data'][$i]['document']);
+                } else {
+                    $records['data'][$i]['document'] = $this->getDocumentData($record, $return_binary);
+                }
+            }
+        }
+
+        $records['total'] = count($records['data']);
+        $records['data'] = array_values($records['data']);
+        return $records;
+    }
+
+    /**
+     * @param      $params
+     * @param bool $includeDocument
+     * @param bool $return_binary
+     * @param bool $compressed
+     *
+     * @return mixed
+     */
+    public function getAdministrativeDocuments($params, $includeDocument = false, $return_binary = false, $compressed = false)
+    {
+        $this->setAdministrativeDocumentModel();
+        $this->ad->setOrFilterProperties(['docTypeCode', 'id']);
+        $records = $this->ad->load($params)->leftJoin(
+            ['code_type' => 'docTypeConcept'],
+            'combo_lists_options',
+            'docTypeCode',
+            'option_value',
+            '=',
+            "`list_key` = 'doc_type_admin_cat'"
+        )->all();
+        $concepts = [];
+
+//        if(ACL::hasPermission('allow_access_administrative_documents')){
+//            $concepts[] = 'ADMINISTRATIVE';
+//        }
+
+//        if(ACL::hasPermission('allow_access_general_documents')){
+//            $concepts[] = 'GENERAL';
+//        }
+//        if(ACL::hasPermission('allow_access_admin_documents')){
+//            $concepts[] = 'ADMIN';
+//        }
+//        if(ACL::hasPermission('allow_access_billing_documents')){
+//            $concepts[] = 'BILLING';
+//        }
+//        if(ACL::hasPermission('allow_access_clinical_documents')){
+//            $concepts[] = 'CLINICAL';
+//        }
+//        if(ACL::hasPermission('allow_access_radiology_documents')){
+//            $concepts[] = 'RADIOLOGY';
+//        }
 
         /** lets unset the actual document data */
         if (isset($records['data'])) {
@@ -432,6 +512,72 @@ class DocumentHandler
     }
 
     /**
+     * @param $params
+     *
+     * @return array|object
+     */
+    public function addAdministrativeDocument($params)
+    {
+        $this->setAdministrativeDocumentModel();
+
+        Matcha::pauseLog(true);
+
+        if (is_array($params)) {
+            foreach ($params as $i => $param) {
+                /** remove the mime type */
+                $params[$i]->document = $this->trimBase64($params[$i]->document);
+
+                /** encrypted if necessary */
+                if (isset($params[$i]->encrypted) && $params[$i]->encrypted) {
+                    $params[$i]->document = MatchaUtils::encrypt($params[$i]->document);
+                };
+                $binary_file = $this->isBinary($params[$i]->document) ?
+                    $params[$i]->document : base64_decode($params[$i]->document);
+                $params[$i]->hash = hash('sha256', $binary_file);
+            }
+        } else {
+            /** remove the mime type */
+            $params->document = $this->trimBase64($params->document);
+            /** encrypted if necessary */
+            if (isset($params->encrypted) && $params->encrypted) {
+                $params->document = MatchaUtils::encrypt($params->document);
+            };
+            $binary_file = $this->isBinary($params->document) ?
+                $params->document : base64_decode($params->document);
+
+            $params->hash = hash('sha256', $binary_file);
+        }
+
+        $results = $this->ad->save($params);
+
+        if (isset($results['data']) && is_array($results['data'])) {
+            foreach ($results['data'] as &$result) {
+                if ($this->storeAsFile) {
+                    $this->handleDocumentFile($result);
+                } else {
+                    $this->handleDocumentData($result);
+                }
+            }
+        } else if (isset($results['data']) && is_object($results['data'])) {
+            if ($this->storeAsFile) {
+                $this->handleDocumentFile($results['data']);
+            } else {
+                $this->handleDocumentData($results['data']);
+            }
+        } else {
+            if ($this->storeAsFile) {
+                $this->handleDocumentFile($results);
+            } else {
+                $this->handleDocumentData($results);
+            }
+        }
+
+        Matcha::pauseLog(false);
+
+        return $results;
+    }
+
+    /**
      * This logic is to eventually split the document into multiples tables
      * using the sencha model instance
      *
@@ -657,6 +803,59 @@ class DocumentHandler
         }
 
         $results = $this->d->save($params);
+
+        if (isset($params->edit_document) && $params->edit_document === true) {
+            if (isset($results['data']) && is_array($results['data'])) {
+                foreach ($results['data'] as &$result) {
+                    if ($this->storeAsFile) {
+                        $this->handleDocumentFile($result);
+                    } else {
+                        $this->handleDocumentData($result);
+                    }
+                }
+            } else if (isset($results['data']) && is_object($results['data'])) {
+                if ($this->storeAsFile) {
+                    $this->handleDocumentFile($results['data']);
+                } else {
+                    $this->handleDocumentData($results['data']);
+                }
+            } else {
+                if ($this->storeAsFile) {
+                    $this->handleDocumentFile($results);
+                } else {
+                    $this->handleDocumentData($results);
+                }
+            }
+        }
+
+        Matcha::pauseLog(false);
+
+        return $results;
+    }
+
+    /**
+     * @param $params
+     *
+     * @return array
+     */
+    public function updateAdministrativeDocument($params)
+    {
+        $this->setAdministrativeDocumentModel();
+
+        Matcha::pauseLog(true);
+
+
+        if (is_array($params)) {
+            foreach ($params as &$param) {
+                unset($param->document, $param->hash);
+            }
+        } else {
+            if (!isset($params->edit_document) || $params->edit_document !== true) {
+                unset($params->document, $params->hash);
+            }
+        }
+
+        $results = $this->ad->save($params);
 
         if (isset($params->edit_document) && $params->edit_document === true) {
             if (isset($results['data']) && is_array($results['data'])) {
@@ -1114,10 +1313,17 @@ class DocumentHandler
         ini_set('memory_limit', '-1');
 
         $this->setPatientDocumentModel();
-        $this->d->addFilter('document_instance', null, '=');
+
+        if (isset($this->d))
+            $this->d->addFilter('document_instance', null, '=');
+        else
+            $this->ad->addFilter('document_instance', null, '=');
 
         //error_log('LOAD RECORDS');
-        $records = $this->d->load()->limit(0, $quantity)->all();
+        if (isset($this->d))
+            $records = $this->d->load()->limit(0, $quantity)->all();
+        else
+            $records = $this->ad->load()->limit(0, $quantity)->all();
         //error_log('LOAD RECORDS COMPLETED');
 
         foreach ($records as $record) {
@@ -1131,6 +1337,7 @@ class DocumentHandler
     {
 
         ini_set('memory_limit', '-1');
+
 
         $this->setPatientDocumentModel();
         $this->d->setOrFilterProperties(['filesystem_id']);

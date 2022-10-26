@@ -81,7 +81,8 @@ Ext.define('App.view.administration.ContentManagementWindow', {
 							fieldLabel: _('is_html'),
 							labelAlign: 'top',
 							flex: 1,
-							margin: '0 10 0 0'
+							margin: '0 10 0 0',
+							itemId: 'ContentManagementWindowIsHtmlCheckbox'
 						},
 					]
 				},
@@ -103,7 +104,8 @@ Ext.define('App.view.administration.ContentManagementWindow', {
 							flex: 1,
 							allowBlank: false,
 							margin: '0 10 0 0',
-							action: 'content_body'
+							action: 'content_body',
+							itemId: 'ContentManagementWindowTextContentBody'
 						},
 						{
 							xtype: 'htmleditor',
@@ -114,7 +116,8 @@ Ext.define('App.view.administration.ContentManagementWindow', {
 							allowBlank: false,
 							margin: '0 10 0 0',
 							hidden: true,
-							action: 'content_body'
+							action: 'content_body',
+							itemId: 'ContentManagementWindowHtmlContentBody'
 						},
 						{
 							xtype: 'textareafield',

@@ -146,11 +146,23 @@ Ext.define('App.controller.administration.ContentManagement', {
     },
 
     onContentManagementWindowIsHtmlCheckboxChange: function (checkbox, newValue, oldValue, eOpts) {
+        var me = this,
+            content_body = me.getContentManagementWindowTextContentBody(),
+            content_html_body = me.getContentManagementWindowHtmlContentBody();
 
-        say(checkbox);
-        say(newValue);
-        say(oldValue);
+        if (newValue == true) {
+            content_body.hide();
+            content_body.setDisabled(true);
 
+            content_html_body.show();
+            content_html_body.setDisabled(false);
+        } else {
+            content_body.show();
+            content_body.setDisabled(false);
+
+            content_html_body.hide();
+            content_html_body.setDisabled(true);
+        }
     },
 
     showContentWindow: function () {

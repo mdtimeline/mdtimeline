@@ -172,12 +172,15 @@ Ext.define('App.controller.LogOut', {
 	doLogout: function(){
 		var nav = this.getController('Navigation');
 		if(app.patient.pid) Patient.unsetPatient(app.patient.pid);
-		app.fireEvent('applogut', this);
+
+		if(app.fireEvent('applogut', this) === false) return;
+
 		authProcedures.unAuth(function(){
 			nav.navigateTo('App.view.login.Login', null, true);
 			window.onbeforeunload = null;
 			window.location.reload();
 		});
+
 	},
 
 	appLogout: function(force){

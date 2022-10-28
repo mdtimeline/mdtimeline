@@ -39546,8 +39546,28 @@ Ext.define('App.controller.administration.ContentManagement', {
             selector: '#ContentManagementWindowCancelBtn'
         },
         {
+            ref: 'ContentManagementWindowTextContentBody',
+            selector: '#ContentManagementWindowTextContentBody'
+        },
+        {
+            ref: 'ContentManagementWindowHtmlContentBody',
+            selector: '#ContentManagementWindowHtmlContentBody'
+        },
+        {
             ref: 'ContentManagementWindowTokensTextArea',
             selector: '#ContentManagementWindowTokensTextArea'
+        },
+        {
+            ref: 'ContentManagementWindowIsHtmlCheckbox',
+            selector: '#ContentManagementWindowIsHtmlCheckbox'
+        },
+        {
+            ref: 'ContentManagementAddBtn',
+            selector: '#ContentManagementAddBtn'
+        },
+        {
+            ref: 'ContentManagementGridContextMenuDelete',
+            selector: '#ContentManagementGridContextMenuDelete'
         }
     ],
 
@@ -39557,7 +39577,8 @@ Ext.define('App.controller.administration.ContentManagement', {
         me.control({
             '#ContentManagementGrid': {
                 beforerender: me.onContentManagementGridBeforeRender,
-                itemdblclick: me.onContentManagementGridItemDblClick
+                itemdblclick: me.onContentManagementGridItemDblClick,
+                //beforeitemcontextmenu: me.onContentManagementWindowGridContextMenu
             },
             '#ContentManagementWindow': {
                 close: me.onContentManagementWindowClose
@@ -39567,6 +39588,15 @@ Ext.define('App.controller.administration.ContentManagement', {
             },
             '#ContentManagementWindowCancelBtn': {
                 click: me.onContentManagementWindowCancelBtnClick
+            },
+            '#ContentManagementWindowIsHtmlCheckbox': {
+                change: me.onContentManagementWindowIsHtmlCheckboxChange
+            },
+            '#ContentManagementAddBtn': {
+                click: me.onContentManagementAddBtnClick
+            },
+            '#ContentManagementGridContextMenuDelete': {
+                click: me.onContentManagementGridContextMenuDeleteClick
             }
         });
     },
@@ -39621,7 +39651,6 @@ Ext.define('App.controller.administration.ContentManagement', {
         form.reset();
         form.loadRecord(record);
 
-
         textareafield.setValue(record.get('content_body'));
         textareafield.submitValue = !is_html;
         textareafield.setDisabled(is_html);
@@ -39635,11 +39664,107 @@ Ext.define('App.controller.administration.ContentManagement', {
         me.setTokensTextAreaFieldByContentType(content_type);
     },
 
+    onContentManagementWindowIsHtmlCheckboxChange: function (checkbox, isHtml, oldValue, eOpts) {
+        var me = this,
+            content_body = me.getContentManagementWindowTextContentBody(),
+            content_html_body = me.getContentManagementWindowHtmlContentBody(),
+            form_panel = me.getContentManagementWindowForm(),
+            form = form_panel.getForm(),
+            record = form.getRecord();
+
+        if (isHtml == true) {
+            content_body.hide();
+            content_body.setDisabled(true);
+            content_body.submitValue = false;
+
+            content_html_body.show();
+            content_html_body.setDisabled(false);
+            content_html_body.setValue(record.get('content_body'));
+            content_html_body.submitValue = true;
+        } else {
+            content_body.show();
+            content_body.setDisabled(false);
+            content_body.setValue(record.get('content_body'));
+            content_body.submitValue = true;
+
+            content_html_body.hide();
+            content_html_body.setDisabled(true);
+            content_html_body.submitValue = false;
+        }
+    },
+
+    onContentManagementAddBtnClick: function (btn) {
+        this.getContentManagementGrid().getSelectionModel().deselectAll();
+
+        var me = this,
+            content_management_grid = me.getContentManagementGrid(),
+            content_management_grid_store = content_management_grid.getStore(),
+            win = me.showContentWindow(),
+            form = win.down('form').getForm(),
+            records = content_management_grid_store.add({
+                content_type: '',
+                content_lang: 'en',
+                content_body: '',
+                is_html: false,
+                content_version: '1.0'
+            });
+
+        form.loadRecord(records[0]);
+    },
+
+    showContentManagementGridContextMenu: function(content_management_grid, content_management_record, e) {
+        // if (!a('access_patient_notes_transaction_log')) return;
+
+        var me = this;
+
+        me.ContentManagementGridContextMenu = Ext.widget('menu', {
+            margin: '0 0 10 0',
+            items: [
+                {
+                    text: _('delete_selected'),
+                    icon: 'modules/billing/resources/images/cross.png',
+                    itemId: 'ContentManagementGridContextMenuDelete',
+                    acl: true
+                }
+            ]
+        });
+
+        me.ContentManagementGridContextMenu.content_management_grid = content_management_grid;
+        me.ContentManagementGridContextMenu.content_management_record = content_management_record;
+
+        me.ContentManagementGridContextMenu.showAt(e.getXY());
+
+        return me.ContentManagementGridContextMenu;
+    },
+
+    onContentManagementGridContextMenuDeleteClick: function(btn) {
+        var me = this,
+            content_management_grid = this.getContentManagementGrid(),
+            content_management_grid_store = content_management_grid.getStore(),
+            content_management_selected_rows = content_management_grid.getSelectionModel().getSelection();
+
+        if (content_management_selected_rows.length) {
+            content_management_grid_store.remove(content_management_selected_rows);
+
+            content_management_grid_store.sync({
+                callback: function (){
+                    app.msg(_('sweet'), _('records_removed'));
+                }
+            });
+        }
+    },
+
+    onContentManagementWindowGridContextMenu: function (print_jobs_grid, print_jobs_record, item, index, e){
+        e.preventDefault();
+
+        this.showContentManagementGridContextMenu(print_jobs_grid, print_jobs_record, e)
+    },
+
     showContentWindow: function () {
         if (!this.getContentManagementWindow()) {
             Ext.create('App.view.administration.ContentManagementWindow');
         }
-        this.getContentManagementWindow().show();
+        return this.getContentManagementWindow().show();
     },
 
     setTokensTextAreaFieldByContentType: function (content_type) {
@@ -46237,12 +46362,15 @@ Ext.define('App.controller.LogOut', {
 	doLogout: function(){
 		var nav = this.getController('Navigation');
 		if(app.patient.pid) Patient.unsetPatient(app.patient.pid);
-		app.fireEvent('applogut', this);
+
+		if(app.fireEvent('applogut', this) === false) return;
+
 		authProcedures.unAuth(function(){
 			nav.navigateTo('App.view.login.Login', null, true);
 			window.onbeforeunload = null;
 			window.location.reload();
 		});
+
 	},
 
 	appLogout: function(force){
@@ -74825,6 +74953,34 @@ Ext.define('App.controller.reports.Reports', {
 						labelAlign: 'top',
 						margin: '0 5 0 0',
 						hideLabel: false,
+						name: parameter.PARAMETER_NAME
+					});
+					return;
+				}
+
+				if(parameter.PARAMETER_NAME === 'insurance_type'){
+					search_fields.push({
+						xtype: 'gaiaehr.combo',
+						listKey: 'ins_type',
+						fieldLabel: _(parameter.PARAMETER_NAME),
+						labelAlign: 'top',
+						margin: '0 5 0 0',
+						multiSelect: true,
+						editable: false,
+						name: parameter.PARAMETER_NAME
+					});
+					return;
+				}
+
+				if(parameter.PARAMETER_NAME === 'claim_payment_type'){
+					search_fields.push({
+						xtype: 'gaiaehr.combo',
+						listKey: 'clm_pay',
+						fieldLabel: _(parameter.PARAMETER_NAME),
+						labelAlign: 'top',
+						margin: '0 5 0 0',
+						multiSelect: true,
+						editable: false,
 						name: parameter.PARAMETER_NAME
 					});
 					return;

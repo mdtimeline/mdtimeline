@@ -43,21 +43,36 @@ Ext.define('App.view.administration.ContentManagementWindow', {
 							xtype: 'textfield',
 							name: 'content_type',
 							fieldLabel: _('content_type'),
-							readOnly: true,
+							readOnly: false,
 							labelAlign: 'top',
 							flex: 1,
 							margin: '0 10 0 0',
 							allowBlank: false
 						},
 						{
-							xtype: 'textfield',
+							xtype: 'combobox',
 							name: 'content_lang',
 							fieldLabel: _('language'),
-							readOnly: true,
+							readOnly: false,
 							labelAlign: 'top',
 							flex: 1,
 							margin: '0 10 0 0',
-							allowBlank: false
+							allowBlank: false,
+							queryMode: 'local',
+							displayField: 'option',
+							valueField: 'value',
+							forceSelection: true,
+							value: 1,
+							store: Ext.create('Ext.data.Store', {
+								fields: [
+									{ name:'option', type: 'string' },
+									{ name:'value', type: 'string' }
+								],
+								data : [
+									{ option:'en', value: 'en' },
+									{ option:'es', value: 'es' }
+								]
+							})
 						}
 					]
 				},
@@ -72,7 +87,7 @@ Ext.define('App.view.administration.ContentManagementWindow', {
 							labelAlign: 'top',
 							flex: 1,
 							margin: '0 10 0 0',
-							readOnly: true,
+							readOnly: false,
 							allowBlank: false
 						},
 						{

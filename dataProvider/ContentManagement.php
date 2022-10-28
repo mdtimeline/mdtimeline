@@ -40,7 +40,7 @@ class ContentManagement {
         return $this->t->save($params);
     }
     public function destroyContentManagement($params){
-        return $this->t->save($params);
+        return $this->t->destroy($params);
     }
 
     public function generateContentManagement($template_type, $language, $placeholders, $values, $pid =  null){

@@ -29,7 +29,20 @@ Ext.define('App.view.administration.ContentManagement', {
             store: me.store,
             title: _('content_management'),
             columnsLines: true,
+            tbar: [
+                {
+                    xtype: 'button',
+                    iconCls: 'icoAdd',
+                    itemId: 'ContentManagementAddBtn',
+                    text: _('add_content')
+                },
+            ],
             columns: [
+                {
+                    xtype: 'griddeletecolumn',
+                    acl: true,
+                    width: 20
+                },
                 {
                     text: _('content_type'),
                     dataIndex: 'content_type',

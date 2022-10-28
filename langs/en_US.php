@@ -2268,4 +2268,5 @@ $LANG = array(
     'insurance_type' => 'Insurance Type',
     'administrative_documents' => 'Administrative Documents',
     'is_html' => 'Is HTML?',
+    'add_content' => 'Add Content',
 );

@@ -325,6 +325,11 @@ class authProcedures {
 
 			$threshold = new DateTime();
 			$threshold->sub(new DateInterval("P{$password_exp_flag}"));
+
+            if(!isset($user['password_date'])){
+                $user['password_date'] = date('Y-m-d H:i:s');
+            }
+
 			$password_exp = new DateTime($user['password_date']);
 
 			$_SESSION['user']['password_expired'] = $password_exp < $threshold;

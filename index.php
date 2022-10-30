@@ -87,7 +87,13 @@ else
     {
         $_SESSION['user']['auth'] = false;
         $_SESSION['install'] = false;
-        include_once('_login.php');
+
+        if(isset($_ENV['azure_auth']['enabled']) && $_ENV['azure_auth']['enabled'] === true){
+            include_once('modules/azure/login.php');
+        }else{
+            include_once('_login.php');
+        }
+
     }
 }
 

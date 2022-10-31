@@ -119,6 +119,17 @@ Ext.define('App.controller.administration.ContentManagement', {
     },
 
     onContentManagementWindowCancelBtnClick: function () {
+        var me = this,
+            content_management_grid = me.getContentManagementGrid(),
+            content_management_grid_store = content_management_grid.getStore(),
+            form = me.getContentManagementWindowForm().getForm(),
+            record = form.getRecord();
+
+
+        if (record.get('content_type') == '' && record.get('content_body') == '') {
+            content_management_grid_store.remove(record);
+        }
+
         this.getContentManagementWindow().close();
     },
 
@@ -204,6 +215,8 @@ Ext.define('App.controller.administration.ContentManagement', {
             });
 
         form.loadRecord(records[0]);
+
+        me.setTokensTextAreaFieldByContentType(records[0].get('content_type'));
     },
 
     showContentManagementGridContextMenu: function(content_management_grid, content_management_record, e) {

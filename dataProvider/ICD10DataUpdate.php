@@ -98,7 +98,7 @@ class ICD10DataUpdate
         $code_directory = $this->FileManager->extractFileToTempDir($code_description_file);
 
         $index_xml = $index_directory . "/Table and Index/icd10cm_tabular_{$revision}.xml";
-        $order_txt = $code_directory . "/Code Descriptions/icd10cm_order_{$revision}.txt";
+        $order_txt = $code_directory . "/{$revision} Code Descriptions in Tabular Order/icd10cm_order_{$revision}.txt";
 
         if(!file_exists($index_xml)){
             exec("rm -rf {$index_directory}");

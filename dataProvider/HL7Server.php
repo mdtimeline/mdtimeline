@@ -713,6 +713,21 @@ INI_CONFIG;
 			/**
 			 * Patient Visit
 			 */
+            $patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
+
+            if($patient !== false){
+                $this->addHL7MessageReference($patient->pid, $msgRecord['id']);
+            }
+
+            if(isset($msg->data['INSURANCE'])){
+                $this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
+            }
+
+            if(isset($msg->data['PV1'])){
+                $this->VisitHandler($msg->data , $hl7, $patient);
+            }
+            return;
+
 		} elseif($evt == 'A02') {
 			/**
 			 * Patient transfer
@@ -761,6 +776,11 @@ INI_CONFIG;
 			if(isset($msg->data['INSURANCE'])){
 				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
 			}
+
+            if(isset($msg->data['PV1'])){
+                $this->VisitHandler($msg->data , $hl7, $patient);
+            }
+
 			return;
 		} elseif($evt == 'A08') {
 			/**
@@ -1040,8 +1060,9 @@ INI_CONFIG;
 			$PV1 = null;
 		}
 
-		$patientData = $this->PidToPatient($PID, $PV1, $hl7, $facilityRecord);
-		$patient = $this->p->load(['pubpid' => $patientData[$this->updateKey] ])->one();
+		$patient_data = $this->PidToPatient($PID, $PV1, $hl7, $facilityRecord);
+        $pubpid_issuer = isset($patient_data['pubpid_issuer']) && $patient_data['pubpid_issuer'] !== '' ? $patient_data['pubpid_issuer'] : null;
+		$patient = $this->p->load(['pubpid' => $patient_data[$this->updateKey], 'pubpid_issuer ' => $pubpid_issuer])->one();
 
 		if($patient === false){
 
@@ -1049,7 +1070,7 @@ INI_CONFIG;
 				return false;
 			}
 
-			$patient = (object) $patientData;
+			$patient = (object) $patient_data;
 			// force a new patient
 			unset($patient->pid);
 
@@ -1060,7 +1081,7 @@ INI_CONFIG;
 		}else{
 
 			$patient = (array) $patient;
-			$patient = array_merge($patient, $patientData);
+			$patient = array_merge($patient, $patient_data);
 
 			if(!isset($patient['update_date'])){
 				$patient['update_date'] = $now;
@@ -1105,6 +1126,10 @@ INI_CONFIG;
 		$p = [];
 		if($this->notEmpty($PID[2][1])){
 			$p['pubpid'] = $PID[2][1]; // Patient ID (External ID)
+		}
+
+		if($this->notEmpty($PID[2][4])){
+			$p['pubpid_issuer'] = $PID[2][4]; //  Assigning Authority
 		}
 
 		// handle accounts
@@ -1886,11 +1911,11 @@ INI_CONFIG;
 
     }
 
-    private function VisitHandler($msg, $hl7, $patient){
+    public function VisitHandler($msg_data, $hl7, $patient){
 
-        $PID = $msg['PID'];
-        $PV1 = $msg['PV1'];
-        $PV2 = $msg['PV2'];
+        $PID = $msg_data['PID'];
+        $PV1 = $msg_data['PV1'];
+        $PV2 = $msg_data['PV2'];
 
         $visit_number = '';
         eval("\$visit_number = $this->hl7_adt_visit_number;");

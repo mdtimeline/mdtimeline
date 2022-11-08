@@ -1128,8 +1128,8 @@ INI_CONFIG;
 			$p['pubpid'] = $PID[2][1]; // Patient ID (External ID)
 		}
 
-		if($this->notEmpty($PID[2][4])){
-			$p['pubpid_issuer'] = $PID[2][4]; //  Assigning Authority
+		if($this->notEmpty($PID[2][4][1])){
+			$p['pubpid_issuer'] = $PID[2][4][1]; //  Assigning Authority
 		}
 
 		// handle accounts

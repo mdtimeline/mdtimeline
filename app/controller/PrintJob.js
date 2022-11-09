@@ -195,7 +195,7 @@ Ext.define('App.controller.PrintJob', {
                     print_job_record.set({print_status: 'PRINTING'});
                     print_job_record.save();
 
-                    for (let i = 0; i < number_of_copies; i++) {
+                    for (var i = 0; i < number_of_copies; i++) {
                         printController.doPrint(printer_record, patient_document.document, print_job_record.get('id'), function (printer_response){
 
                             if(printer_response.success){

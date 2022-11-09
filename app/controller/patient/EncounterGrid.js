@@ -70,7 +70,8 @@ Ext.define('App.controller.patient.EncounterGrid', {
 		this.showProgressByPidAndEidAndProviderId(record.get('pid'), record.get('eid'), record.get('provider_uid'));
 	},
 
-	showProgressByPidAndEidAndProviderId(pid, eid, provider_id){
+	showProgressByPidAndEidAndProviderId: function(pid, eid, provider_id){
+
 		var params = {
 			pid: pid,
 			eid: eid,

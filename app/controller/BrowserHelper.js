@@ -12,14 +12,14 @@ Ext.define('App.controller.BrowserHelper', {
 	callback: undefined,
 
 	reconnect_interval: 1000 * 5, // 5 seconds
+	connect_delay: 1000 * 10, // 5 seconds
 	debug: false,
 	initiated: false,
 
 	init: function(){
 		var me = this;
 
-		me.connect();
-
+		Ext.Function.defer(me.connect, me.connect_delay, me);
 	},
 
 	connect: function () {

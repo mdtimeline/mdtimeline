@@ -52,14 +52,14 @@ class ICD10DataUpdate
         if(file_put_contents( $code_description_file, file_get_contents($codes_zip)) === false) {
             return [
                 'success' => false,
-                'error' => 'Unable to download ' . $codes_zip
+                'message' => 'Unable to download ' . $codes_zip
             ];
         }
 
         if(file_put_contents( $tabular_index_file, file_get_contents($tabular_zip)) === false) {
             return [
                 'success' => false,
-                'error' => 'Unable to download ' . $tabular_zip
+                'message' => 'Unable to download ' . $tabular_zip
             ];
         }
 
@@ -73,7 +73,7 @@ class ICD10DataUpdate
         if(!$result['success']){
             return [
                 'success' => false,
-                'error' => 'parse Results Issue '
+                'message' => 'parse Results Issue '
             ];
         }
 
@@ -84,7 +84,10 @@ class ICD10DataUpdate
             $sth = $sth->execute();
         }
 
-        return true;
+        return [
+            'success' => true,
+            'message' => 'Successfully updated ICD10 Codes'
+        ];
     }
 
     public function parseTabularIndexFile($code_description_file, $tabular_index_file, $revision, $valid_for_coding_only){
@@ -97,8 +100,11 @@ class ICD10DataUpdate
         $index_directory = $this->FileManager->extractFileToTempDir($tabular_index_file);
         $code_directory = $this->FileManager->extractFileToTempDir($code_description_file);
 
-        $index_xml = $index_directory . "/Table and Index/icd10cm_tabular_{$revision}.xml";
-        $order_txt = $code_directory . "/{$revision} Code Descriptions in Tabular Order/icd10cm_order_{$revision}.txt";
+        $index_path = scandir($index_directory)[2];
+        $code_path = scandir($code_directory)[2];
+
+        $index_xml = $index_directory . "/{$index_path}/icd10cm_tabular_{$revision}.xml";
+        $order_txt = $code_directory . "/{$code_path}/icd10cm_order_{$revision}.txt";
 
         if(!file_exists($index_xml)){
             exec("rm -rf {$index_directory}");
@@ -180,7 +186,7 @@ class ICD10DataUpdate
         }
 
         $sql_scripts = [];
-        $sql_scripts[] = 'TRUNCATE `icd10_dx_order_code`;';
+        //$sql_scripts[] = 'TRUNCATE `icd10_dx_order_code`;';
 
         $insert = 'INSERT INTO icd10_dx_order_code (`dx_code`, `formatted_dx_code`, `valid_for_coding`, `short_desc`, `long_desc`, `active`,`revision`) VALUES ';
         $code_chunks = array_chunk($codes, 1000);
@@ -190,7 +196,7 @@ class ICD10DataUpdate
             foreach ($dx_codes as $dx_values){
                 $values[] = "('" . implode("','", $dx_values). "')";
             }
-            $sql_scripts[] = $insert . PHP_EOL . implode((',' . PHP_EOL), $values) . ';';
+            $sql_scripts[] = $insert . PHP_EOL . implode((',' . PHP_EOL), $values) . " ON DUPLICATE KEY UPDATE  revision='{$revision}';";
         }
 
 //        unlink($sql_file_path);

@@ -84403,6 +84403,7 @@ Ext.define('App.view.administration.DataManager', {
     pageTitle: 'Data Manager',
     requires: [
         'App.view.administration.CPT',
+        'App.view.administration.ICD10',
         'App.ux.combo.CodesTypes',
         'App.ux.combo.Titles'
     ],
@@ -84814,7 +84815,10 @@ Ext.define('App.view.administration.DataManager', {
         me.tabPanel = Ext.widget('tabpanel', {
             items: [
                 {
-                    xtype: 'cptadmingrid'
+                    xtype: 'cptadmingrid',
+                },
+                {
+                    xtype: 'icd10admingrid'
                 },
                 me.dataManagerGrid
             ]

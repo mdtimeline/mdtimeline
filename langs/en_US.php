@@ -2269,4 +2269,11 @@ $LANG = array(
     'administrative_documents' => 'Administrative Documents',
     'is_html' => 'Is HTML?',
     'add_content' => 'Add Content',
+    'revision_year' => 'Revision Year',
+    'update_icd10s' => 'Update ICD10 Codes',
+    'formatted_dx_code' => 'Formatted DX Code',
+    'valid_for_coding' => 'Valid for Coding',
+    'short_desc' => 'Short Description',
+    'long_desc' => 'Long Description',
+    'revision' => 'Revision'
 );

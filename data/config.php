@@ -909,6 +909,25 @@ $API = [
             ]
         ]
     ],
+    'ICD10' => [
+        'methods' => [
+            'getICD10s' => [
+                'len' => 1
+            ],
+            'getICD10' => [
+                'len' => 1
+            ],
+            'addICD10' => [
+                'len' => 1
+            ],
+            'updateICD10' => [
+                'len' => 1
+            ],
+            'deleteICD10' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'Insurance' => [
         'methods' => [
             'getInsuranceCompanies' => [

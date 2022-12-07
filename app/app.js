@@ -15428,7 +15428,7 @@ Ext.define('App.model.administration.User', {
 		{
 			name: 'code',
 			type: 'string',
-			len: 15
+			len: 40
 		},
 		{
 			name: 'providerCode',
@@ -15461,7 +15461,7 @@ Ext.define('App.model.administration.User', {
 			name: 'username',
 			type: 'string',
 			comment: 'username',
-			len: 20,
+			len: 40,
 			index: true
 		},
 		{
@@ -47297,7 +47297,7 @@ Ext.define('App.controller.BarcodeScanner', {
 	callback: undefined,
 
 	reconnect_interval: 1000 * 5, // 5 seconds
-	connect_delay: 1000 * 10, // 5 seconds
+	connect_delay: 1000 * 3, // 5 seconds
 	debug: false,
 	initiated: false,
 
@@ -89867,7 +89867,7 @@ Ext.define('App.controller.BrowserHelper', {
 	callback: undefined,
 
 	reconnect_interval: 1000 * 5, // 5 seconds
-	connect_delay: 1000 * 10, // 5 seconds
+	connect_delay: 1000 * 5, // 5 seconds
 	debug: false,
 	initiated: false,
 

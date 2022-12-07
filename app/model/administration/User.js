@@ -40,7 +40,7 @@ Ext.define('App.model.administration.User', {
 		{
 			name: 'code',
 			type: 'string',
-			len: 15
+			len: 40
 		},
 		{
 			name: 'providerCode',
@@ -73,7 +73,7 @@ Ext.define('App.model.administration.User', {
 			name: 'username',
 			type: 'string',
 			comment: 'username',
-			len: 20,
+			len: 40,
 			index: true
 		},
 		{

@@ -84,6 +84,37 @@ class ICD10DataUpdate
             $sth = $sth->execute();
         }
 
+        // Insert into Standard table
+        $standard_insert_sql = "INSERT INTO standardized_tables_track (code_type, imported_date, revision_name, revision_number, revision_version, revision_date) 
+                                VALUES (?,?,?,?,?,?)";
+
+        $now = date('Y-m-d H:i:s');
+        $date = date('Y-m-d', strtotime($now));
+
+        $sth = $conn->prepare($standard_insert_sql);
+        $sth = $sth->execute([
+            'ICD10',
+            $date,
+            $tabular_index_file,
+            $revision,
+            $revision,
+            $revision
+        ]);
+
+
+//        $sth = $this->conn->prepare('INSERT INTO `cvx_codes` (`cvx_code`, `name`, `description`, `note`, `status`, `update_date`)
+//										  VALUES (?,?,?,?,?,?)');
+//        foreach($xml as $cvx){
+//            $sth->execute([
+//                trim($cvx->CVXCode),
+//                trim($cvx->ShortDescription),
+//                trim($cvx->FullVaccinename),
+//                trim($cvx->Notes),
+//                trim($cvx->Status),
+//                (date('Y-m-d H:i:s', strtotime($cvx->LastUpdated)))
+//            ]);
+//        }
+
         return [
             'success' => true,
             'message' => 'Successfully updated ICD10 Codes'

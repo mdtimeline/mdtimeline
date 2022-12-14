@@ -168,11 +168,11 @@ class ICD10DataUpdate
         $lines = explode(PHP_EOL, $order_txt);
 
         $codes = [];
-
         foreach ($lines as $line){
             //$line = explode("\t", $line);
 
             $dx_code = trim(substr($line,6,7));
+
             $formatted_dx_code = isset($index[$dx_code]) ? $index[$dx_code] : null;
 
             if (!isset($dx_code)){
@@ -203,6 +203,10 @@ class ICD10DataUpdate
 
             if($valid_for_coding_only && $valid_for_coding !== '1'){
                 continue;
+            }
+
+            if ($formatted_dx_code == null || $formatted_dx_code == "") {
+                $formatted_dx_code = substr_replace($dx_code, ".", 3, 0);
             }
 
             $codes[] = [

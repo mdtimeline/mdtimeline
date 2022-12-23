@@ -376,6 +376,13 @@ class Segments {
 		$types['RI'][1] = $types['IS'];     // Repeat Pattern (IS)
 		$types['RI'][2] = $types['ST'];     // Explicit Time Interval (ST)
 
+        $types['ED'][0] = '';                // (ED)
+        $types['ED'][1] =  $types['HD'];     // Source Application (HD)
+        $types['ED'][2] =  $types['ID'];     // Type of Data (ID)
+        $types['ED'][3] =  $types['ID'];     // Data Subtype (ID)
+        $types['ED'][4] =  $types['ID'];     // Encoding (ID)
+        $types['ED'][5] =  $types['TX'];     // Data (TX)
+
 		$types['DLD'][0] = '';              // (DLD)
 		$types['DLD'][1] = $types['IS'];   // Discharge Location (IS)
 		$types['DLD'][2] = $types['TS'];   // Effective Date (TS)

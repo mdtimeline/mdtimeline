@@ -1,6 +1,7 @@
 .idea
 sites/*/*
 temp/*
+sites/conf.php
 lib/Matcha/cache/*
 GaiaEHR.iml
 gaiaehr.iml

@@ -25,9 +25,7 @@ header('Content-type: text/html; charset=utf-8');
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 
-session_cache_limiter('private');
-session_name('mdTimeLine');
-session_start();
+include_once ('../session.php');
 
 define('_GaiaEXEC', 1);
 
@@ -204,6 +202,7 @@ function doRpc($cdata)
 	$time_end = microtime(true);
 
 	$r['execution_time'] = round($time_end - $time_start, 3);
+	$r['node_id'] = defined('node_id') ? node_id : '1';
 
 	return $r;
 }

@@ -41,6 +41,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 				ext = '<?php print EXTJS ?>',
 				version = '<?php print VERSION ?>',
 				site = '<?php print SITE ?>',
+				node_id = '<?php print (defined("node_id") ? node_id : "1") ?>',
 				requires,
 				AppClipboard;
 		</script>

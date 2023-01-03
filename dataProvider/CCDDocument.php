@@ -21,11 +21,7 @@ header('Content-type: text/html; charset=utf-8');
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 
-if(!isset($_SESSION)){
-    session_cache_limiter('private');
-    session_name('mdTimeLine');
-    session_start();
-}
+include_once ('../session.php');
 
 $site = isset($_SESSION['user']['site']) ? $_SESSION['user']['site'] : 'default';
 if(!defined('_GaiaEXEC')) define('_GaiaEXEC', 1);

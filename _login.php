@@ -32,6 +32,7 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 	        ext = '<?php print EXTJS ?>',
 	        version = '<?php print VERSION ?>',
 	        site = '<?php print SITE ?>',
+            node_id = '<?php print (defined("node_id") ? node_id : "1") ?>',
             localization = '<?php print site_default_localization ?>';
     </script>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -147,7 +148,7 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 <body id="login">
 <div id="msg-div"></div>
 <div id="copyright" style=" margin:0; overflow: auto; width: 100%; bottom: 0; left:0; padding: 5px 10px; ">
-	<div style="float: left">Copyright (C) 2019 MDTIMELINE, LLC |:| v<?php print VERSION ?></div>
+	<div style="float: left">Copyright (C) 2019 MDTIMELINE, LLC |:| v<?php print VERSION ?> |:| NODE: <?php print (defined("node_id") ? node_id : "1") ?></div>
     <div style="float: right;">by <a href="http://mdtimeline.com/" target="_blank">MDTIMELINE, LLC.</a></div>
 </body>
 

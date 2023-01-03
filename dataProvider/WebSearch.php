@@ -17,14 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if(!isset($_SESSION)){
-    session_cache_limiter('private');
-    //session_cache_expire(1);
-    session_name('mdTimeLine');
-    session_start();
-//    if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
-//    setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
-}
+include_once ('../session.php');
 if(!defined('_GaiaEXEC')) define('_GaiaEXEC', 1);
 include_once ('../registry.php');
 //require_once (ROOT . '/classes/XMLParser.class.php');

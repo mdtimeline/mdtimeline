@@ -18,11 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if(!isset($_SESSION)){
-    session_cache_limiter('private');
-    session_name('mdTimeLine');
-    session_start();
-}
+include_once (str_replace('\\', '/', dirname(dirname(__FILE__))) . '/session.php');
+
 if(!defined('_GaiaEXEC')){
 	define('_GaiaEXEC', 1);
 	require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');

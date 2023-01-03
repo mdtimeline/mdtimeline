@@ -19,9 +19,7 @@
 
 // dynamic class and methods loading test
 
-session_cache_limiter('private');
-session_name('mdTimeLine');
-session_start();
+include_once ('../session.php');
 
 define('_GaiaEXEC', 1);
 

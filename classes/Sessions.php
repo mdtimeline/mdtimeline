@@ -17,11 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//if(!isset($_SESSION)){
-//    session_cache_limiter('private');
-//    session_name('mdTimeLine');
-//    session_start();
-//}
 include_once(ROOT . '/classes/MatchaHelper.php');
 include_once(ROOT . '/classes/Crypt.php');
 include_once(ROOT . '/classes/Network.php');

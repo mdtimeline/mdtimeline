@@ -21,6 +21,7 @@ Ext.define('App.view.Viewport', {
     // app settings
     user: window.user, // array defined on _app.php
     version: window.version, // string defined on _app.php
+    node_id: window.node_id, // string defined on _app.php
     minWidthToFullMode: 1700, // full mode = nav expanded 1585
     currency: g('gbl_currency_symbol'), // currency used
 	patientImage:'resources/images/icons/user-light.svg',
@@ -712,6 +713,12 @@ Ext.define('App.view.Viewport', {
 		                    xtype: 'tbtext',
 		                    text: 'IP: 0.0.0.0',
 		                    itemId: 'ApplicationIpAddress'
+	                    },
+	                    '-',
+	                    {
+		                    xtype: 'tbtext',
+		                    text: 'NODE: ' + + me.node_id,
+		                    itemId: 'ApplicationNodeId'
 	                    },
                         '-',
 	                    {

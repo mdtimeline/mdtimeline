@@ -31,6 +31,7 @@ if (!defined('_GaiaEXEC')) die('No direct access allowed.');
 				ext = '<?php print EXTJS ?>',
 				version = '<?php print VERSION ?>',
 				site = '<?php print SITE ?>',
+                node_id = '<?php print (defined("node_id") ? node_id : "1") ?>',
 				requires;
 		</script>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">

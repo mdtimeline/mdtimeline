@@ -89867,7 +89867,7 @@ Ext.define('App.controller.BrowserHelper', {
 	callback: undefined,
 
 	reconnect_interval: 1000 * 5, // 5 seconds
-	connect_delay: 1000 * 5, // 5 seconds
+	connect_delay: 1000 * 3, // 5 seconds
 	debug: false,
 	initiated: false,
 
@@ -90506,6 +90506,7 @@ Ext.define('App.view.Viewport', {
     // app settings
     user: window.user, // array defined on _app.php
     version: window.version, // string defined on _app.php
+    node_id: window.node_id, // string defined on _app.php
     minWidthToFullMode: 1700, // full mode = nav expanded 1585
     currency: g('gbl_currency_symbol'), // currency used
 	patientImage:'resources/images/icons/user-light.svg',
@@ -91197,6 +91198,12 @@ Ext.define('App.view.Viewport', {
 		                    xtype: 'tbtext',
 		                    text: 'IP: 0.0.0.0',
 		                    itemId: 'ApplicationIpAddress'
+	                    },
+	                    '-',
+	                    {
+		                    xtype: 'tbtext',
+		                    text: 'NODE: ' + + me.node_id,
+		                    itemId: 'ApplicationNodeId'
 	                    },
                         '-',
 	                    {

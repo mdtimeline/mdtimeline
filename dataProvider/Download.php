@@ -18,13 +18,7 @@
  */
 
 // TODO: Make a better Download procedure for the HL7 Message
-session_cache_limiter('private');
-//session_cache_expire(1);
-session_name('mdTimeLine');
-session_start();
-//if(session_status() == PHP_SESSION_ACTIVE) session_regenerate_id(false);
-//setcookie(session_name(),session_id(),time()+86400, '/', "mdapp.com", false, true);
-
+require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/session.php');
 $site = isset($_SESSION['user']['site']) ? $_SESSION['user']['site'] : 'default';
 if(!defined('_GaiaEXEC')) define('_GaiaEXEC', 1);
 require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');

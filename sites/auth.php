@@ -3,9 +3,7 @@
 ini_set('memory_limit', '1024M');
 ini_set('max_execution_time', 5);
 
-session_cache_limiter('private');
-session_name('mdTimeLine');
-session_start();
+include_once ('../session.php');
 
 $file = $_REQUEST['file'];
 

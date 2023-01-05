@@ -120,8 +120,7 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
                             text: _('taxonomy'),
                             dataIndex: 'taxonomy',
                             editor: {
-                                xtype: 'textfield',
-                                allowBlank: false
+                                xtype: 'textfield'
                             }
                         },
 						{
@@ -151,7 +150,13 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
                                 xtype: 'checkboxfield'
                             }
                         }
-					]
+					],
+					plugins: [
+						{
+							ptype: 'rowediting',
+							clicksToEdit: 2
+						}
+					],
 				},
 				{
 					xtype: 'grid',

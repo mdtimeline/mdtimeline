@@ -93,10 +93,32 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 						}
 					},
 					columns: [
+						{
+							text: _('id'),
+							sortable: true,
+							dataIndex: 'id',
+							width: 50
+						},
+						{
+							text: _('code'),
+							sortable: true,
+							dataIndex: 'code',
+							editor: {
+								xtype: 'textfield'
+							}
+						},
+						{
+							text: _('external_id'),
+							sortable: true,
+							width: 150,
+							dataIndex: 'external_id',
+							editor: {
+								xtype: 'textfield'
+							}
+						},
                         {
                             text: _('taxonomy'),
                             dataIndex: 'taxonomy',
-                            flex: 1,
                             editor: {
                                 xtype: 'textfield',
                                 allowBlank: false
@@ -107,11 +129,6 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 							dataIndex: 'title',
 							flex: 2
 						},
-                        {
-                            text: 'code',
-                            dataIndex: 'code',
-                            flex: 1
-                        },
                         {
                             text: _('specialty_required_for_billing'),
                             sortable: true,
@@ -165,11 +182,33 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 						}
 					},
 					columns: [
+						{
+							text: _('id'),
+							sortable: true,
+							dataIndex: 'id',
+							width: 50
+						},
+						{
+							text: _('code'),
+							sortable: true,
+							dataIndex: 'code',
+							editor: {
+								xtype: 'textfield'
+							}
+						},
+						{
+							text: _('external_id'),
+							sortable: true,
+							width: 150,
+							dataIndex: 'external_id',
+							editor: {
+								xtype: 'textfield'
+							}
+						},
                         {
                             text: _('taxonomy'),
                             sortable: true,
                             dataIndex: 'taxonomy',
-                            flex: 1,
                             editor: {
                                 xtype: 'textfield'
                             }
@@ -189,7 +228,7 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 							text: _('modality'),
 							sortable: true,
 							dataIndex: 'modality',
-							flex: 1,
+							width: 100,
 							editor: {
 								xtype: 'textfield'
 							}
@@ -198,15 +237,19 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
                             text: _('isFda'),
                             sortable: true,
                             dataIndex: 'isFda',
-                            flex: 1,
-                            editor: {
-                                xtype: 'textfield'
-                            }
+							width: 75,
+							renderer: function(v){
+								return app.boolRenderer(v);
+							},
+							editor: {
+								xtype: 'checkboxfield'
+							}
                         },
 
 						{
 							text: _('active'),
 							sortable: true,
+							width: 75,
 							dataIndex: 'active',
 							renderer: function(v){
 								return app.boolRenderer(v);
@@ -227,7 +270,7 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 							xtype: 'button',
 							text: _('specialty'),
 							iconCls: 'icoAdd',
-							itemId: 'specialitiesAddBtn'
+							itemId: 'SpecialitiesAddBtn'
 						}
 					],
 					bbar: Ext.create('Ext.PagingToolbar', {

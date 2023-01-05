@@ -31675,10 +31675,32 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 						}
 					},
 					columns: [
+						{
+							text: _('id'),
+							sortable: true,
+							dataIndex: 'id',
+							width: 50
+						},
+						{
+							text: _('code'),
+							sortable: true,
+							dataIndex: 'code',
+							editor: {
+								xtype: 'textfield'
+							}
+						},
+						{
+							text: _('external_id'),
+							sortable: true,
+							width: 150,
+							dataIndex: 'external_id',
+							editor: {
+								xtype: 'textfield'
+							}
+						},
                         {
                             text: _('taxonomy'),
                             dataIndex: 'taxonomy',
-                            flex: 1,
                             editor: {
                                 xtype: 'textfield',
                                 allowBlank: false
@@ -31689,11 +31711,6 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 							dataIndex: 'title',
 							flex: 2
 						},
-                        {
-                            text: 'code',
-                            dataIndex: 'code',
-                            flex: 1
-                        },
                         {
                             text: _('specialty_required_for_billing'),
                             sortable: true,
@@ -31747,11 +31764,33 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 						}
 					},
 					columns: [
+						{
+							text: _('id'),
+							sortable: true,
+							dataIndex: 'id',
+							width: 50
+						},
+						{
+							text: _('code'),
+							sortable: true,
+							dataIndex: 'code',
+							editor: {
+								xtype: 'textfield'
+							}
+						},
+						{
+							text: _('external_id'),
+							sortable: true,
+							width: 150,
+							dataIndex: 'external_id',
+							editor: {
+								xtype: 'textfield'
+							}
+						},
                         {
                             text: _('taxonomy'),
                             sortable: true,
                             dataIndex: 'taxonomy',
-                            flex: 1,
                             editor: {
                                 xtype: 'textfield'
                             }
@@ -31771,7 +31810,7 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 							text: _('modality'),
 							sortable: true,
 							dataIndex: 'modality',
-							flex: 1,
+							width: 100,
 							editor: {
 								xtype: 'textfield'
 							}
@@ -31780,15 +31819,19 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
                             text: _('isFda'),
                             sortable: true,
                             dataIndex: 'isFda',
-                            flex: 1,
-                            editor: {
-                                xtype: 'textfield'
-                            }
+							width: 75,
+							renderer: function(v){
+								return app.boolRenderer(v);
+							},
+							editor: {
+								xtype: 'checkboxfield'
+							}
                         },
 
 						{
 							text: _('active'),
 							sortable: true,
+							width: 75,
 							dataIndex: 'active',
 							renderer: function(v){
 								return app.boolRenderer(v);
@@ -31809,7 +31852,7 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 							xtype: 'button',
 							text: _('specialty'),
 							iconCls: 'icoAdd',
-							itemId: 'specialitiesAddBtn'
+							itemId: 'SpecialitiesAddBtn'
 						}
 					],
 					bbar: Ext.create('Ext.PagingToolbar', {
@@ -33396,10 +33439,24 @@ Ext.define('App.view.administration.practice.Specialties', {
 			}),
 			columns: [
                 {
+                    text: _('id'),
+                    sortable: true,
+                    dataIndex: 'id',
+					width: 50
+                },
+                {
                     text: _('code'),
                     sortable: true,
                     dataIndex: 'code',
                     flex: 1,
+                    editor: {
+                        xtype: 'textfield'
+                    }
+                },
+                {
+                    text: _('external_id'),
+                    sortable: true,
+                    dataIndex: 'external_id',
                     editor: {
                         xtype: 'textfield'
                     }
@@ -33463,7 +33520,7 @@ Ext.define('App.view.administration.practice.Specialties', {
 					xtype: 'button',
 					text: _('specialty'),
 					iconCls: 'icoAdd',
-					itemId: 'specialitiesAddBtn'
+					itemId: 'SpecialitiesAddBtn'
 				}
 			],
 			bbar: Ext.create('Ext.PagingToolbar', {
@@ -43369,7 +43426,7 @@ Ext.define('App.controller.administration.Specialties', {
 		},
 		{
 			ref: 'SpecialtiesAddBtn',
-			selector: '#specialtiesAddBtn'
+			selector: '#SpecialitiesAddBtn'
 		}
 	],
 
@@ -43377,7 +43434,7 @@ Ext.define('App.controller.administration.Specialties', {
 		var me = this;
 
 		me.control({
-			'#specialtiesAddBtn': {
+			'#SpecialitiesAddBtn': {
 				click: me.onSpecialtiesAddBtnClick
 			}
 		});
@@ -43385,17 +43442,18 @@ Ext.define('App.controller.administration.Specialties', {
 	},
 
 	onSpecialtiesAddBtnClick: function(btn){
+
 		var grid = btn.up('grid');
 
 		grid.editingPlugin.cancelEdit();
-		grid.getStore().insert(0, {
+		var recs = grid.getStore().insert(0, {
 			create_date: new Date(),
 			update_date: new Date(),
 			create_uid: app.user.id,
 			update_uid: app.user.id,
 			active: 1
 		});
-		grid.editingPlugin.startEdit(0, 0);
+		grid.editingPlugin.startEdit(recs[0], 0);
 	}
 
 });

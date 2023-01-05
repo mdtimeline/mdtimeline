@@ -34,10 +34,24 @@ Ext.define('App.view.administration.practice.Specialties', {
 			}),
 			columns: [
                 {
+                    text: _('id'),
+                    sortable: true,
+                    dataIndex: 'id',
+					width: 50
+                },
+                {
                     text: _('code'),
                     sortable: true,
                     dataIndex: 'code',
                     flex: 1,
+                    editor: {
+                        xtype: 'textfield'
+                    }
+                },
+                {
+                    text: _('external_id'),
+                    sortable: true,
+                    dataIndex: 'external_id',
                     editor: {
                         xtype: 'textfield'
                     }
@@ -101,7 +115,7 @@ Ext.define('App.view.administration.practice.Specialties', {
 					xtype: 'button',
 					text: _('specialty'),
 					iconCls: 'icoAdd',
-					itemId: 'specialitiesAddBtn'
+					itemId: 'SpecialitiesAddBtn'
 				}
 			],
 			bbar: Ext.create('Ext.PagingToolbar', {

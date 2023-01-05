@@ -34,6 +34,16 @@ Ext.define('App.view.administration.practice.Facilities', {
 			store: me.store = Ext.create('App.store.administration.Facility'),
 			columns: [
 				{
+					text: _('id'),
+					sortable: true,
+					dataIndex: 'id'
+				},
+				{
+					text: _('code'),
+					sortable: true,
+					dataIndex: 'code'
+				},
+				{
 					text: _('name'),
 					flex: 1,
 					sortable: true,
@@ -328,6 +338,11 @@ Ext.define('App.view.administration.practice.Facilities', {
                                         xtype: 'textfield',
                                         fieldLabel: _('global_id'),
                                         name: 'global_id'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        fieldLabel: _('code'),
+                                        name: 'code'
                                     }
 
                                     // {

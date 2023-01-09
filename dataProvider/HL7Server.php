@@ -1062,7 +1062,7 @@ INI_CONFIG;
 
 		$patient_data = $this->PidToPatient($PID, $PV1, $hl7, $facilityRecord);
         $pubpid_issuer = isset($patient_data['pubpid_issuer']) && $patient_data['pubpid_issuer'] !== '' ? $patient_data['pubpid_issuer'] : null;
-		$patient = $this->p->load(['pubpid' => $patient_data[$this->updateKey], 'pubpid_issuer ' => $pubpid_issuer])->one();
+		$patient = $this->p->load(['pubpid' => $patient_data[$this->updateKey], 'pubpid_issuer' => $pubpid_issuer])->one();
 
 		if($patient === false){
 

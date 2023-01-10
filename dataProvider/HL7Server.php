@@ -1365,10 +1365,10 @@ INI_CONFIG;
 	 * @param array $IN1
 	 * @param HL7 $hl7
 	 * @param object $insObj
-	 * @param string $insurance_group_type
+	 * @param string $INSURANCE_GROUP_TYPE
 	 *
 	 */
-	protected function IN1ToInsuranceObj($IN1, $hl7, &$insObj, $insurance_group_type) {
+	protected function IN1ToInsuranceObj($IN1, $hl7, &$insObj, $INSURANCE_GROUP_TYPE) {
 
 		$insObj->patient_insurance = isset($insObj->patient_insurance) ?
 			$insObj->patient_insurance : new stdClass();

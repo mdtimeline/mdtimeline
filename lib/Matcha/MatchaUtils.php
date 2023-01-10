@@ -101,10 +101,16 @@ class MatchaUtils extends Matcha
 	}
 
 	static public function __openssl_encrypt($text){
+        if(!isset($text)){
+            return $text;
+        }
 		return openssl_encrypt($text, self::$cipher, Matcha::$__secretKey, 0, self::$iv);
 	}
 
 	static public function __openssl_decrypt($text){
+        if(!isset($text)){
+            return $text;
+        }
 		return openssl_decrypt($text, self::$cipher, Matcha::$__secretKey, 0, self::$iv);
 	}
 

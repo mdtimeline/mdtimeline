@@ -1518,7 +1518,7 @@ INI_CONFIG;
 		 * IN1-15 Plan Type (IS) 00440
 		 */
         $insurance_type = '';
-        eval("\$insurance_type = $this->hl7_insurance_type;");
+        eval("\$insurance_type = \$this->hl7_insurance_type;");
         $insObj->patient_insurance->insurance_type = $insurance_type;
 		/**
 		 * IN1-16 Name of Insured (XPN) 00441

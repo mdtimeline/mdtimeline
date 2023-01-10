@@ -1288,15 +1288,27 @@ INI_CONFIG;
 			return $insurances;
 		}
 
-		foreach($insGroups as $insuranceGroup){
+		foreach($insGroups as $groupIndex => $insuranceGroup){
+
+            if($groupIndex === 0){
+                $insuranceGroupType = 'P';
+            }elseif($groupIndex === 1){
+                $insuranceGroupType = 'S';
+            }elseif($groupIndex === 2){
+                $insuranceGroupType = 'C';
+            }else{
+                $insuranceGroupType = '';
+            }
+
 			foreach($insuranceGroup as $key => $insurance){
-				if($insurance == false)
-					continue;
+				if($insurance == false){
+                    continue;
+                }
 
 				$insObj = new stdClass();
 
 				if($key == 'IN1'){
-					$this->IN1ToInsuranceObj($insurance, $hl7, $insObj);
+					$this->IN1ToInsuranceObj($insurance, $hl7, $insObj, $insuranceGroupType);
 
 				} elseif($key == 'IN2') {
 					$this->IN2ToInsuranceObj($insurance, $hl7, $insObj);
@@ -1352,9 +1364,10 @@ INI_CONFIG;
 	 * @param array $IN1
 	 * @param HL7 $hl7
 	 * @param object $insObj
+	 * @param string $insurance_group_type
 	 *
 	 */
-	protected function IN1ToInsuranceObj($IN1, $hl7, &$insObj) {
+	protected function IN1ToInsuranceObj($IN1, $hl7, &$insObj, $insurance_group_type) {
 
 		$insObj->patient_insurance = isset($insObj->patient_insurance) ?
 			$insObj->patient_insurance : new stdClass();

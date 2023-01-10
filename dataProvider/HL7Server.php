@@ -128,13 +128,13 @@ class HL7Server {
 	 */
 	protected $mergeKey = 'account_no';
 
-	protected $process_insurance_segments = false;
-
     public $hl7_adt_visit_number = '$PID[18][1]';
     public $hl7_validate_referring_npi = false;
     public $hl7_orm_referring_id_column_field = 'npi';
     public $hl7_insurance_id_column_field = 'code';
     public $hl7_patient_insurance_id_column_field = 'code';
+    public $hl7_insurance_type = '$IN1[15]';
+    public $hl7_process_insurance_segments = false;
 
 
     function __construct($port = 9000, $site = 'default') {
@@ -1284,7 +1284,7 @@ INI_CONFIG;
 		$insurances = [];
 
 		// get out if flag is false
-		if(!$this->process_insurance_segments){
+		if(!$this->hl7_process_insurance_segments){
 			return $insurances;
 		}
 
@@ -1517,7 +1517,9 @@ INI_CONFIG;
 		/**
 		 * IN1-15 Plan Type (IS) 00440
 		 */
-
+        $insurance_type = '';
+        eval("\$insurance_type = $this->hl7_insurance_type;");
+        $insObj->patient_insurance->insurance_type = $insurance_type;
 		/**
 		 * IN1-16 Name of Insured (XPN) 00441
 		 * `patient_insurances`.`subscriber_title`,
@@ -1527,12 +1529,15 @@ INI_CONFIG;
 		 */
 		if($this->notEmpty($IN1[16][0][1][1])){
 			$insObj->patient_insurance->subscriber_surname = $IN1[16][0][1][1];
+            $insObj->patient_insurance->card_last_name = $IN1[16][0][1][1];
 		}
 		if($this->notEmpty($IN1[16][0][2])){
 			$insObj->patient_insurance->subscriber_given_name = $IN1[16][0][2];
+            $insObj->patient_insurance->card_first_name = $IN1[16][0][2];
 		}
 		if($this->notEmpty($IN1[16][0][3])){
 			$insObj->patient_insurance->subscriber_middle_name = $IN1[16][0][3];
+            $insObj->patient_insurance->card_middle_name = $IN1[16][0][3];
 		}
 
 
@@ -1715,6 +1720,8 @@ INI_CONFIG;
 		/**
 		 * IN1-53 VIP Indicator (IS) 01852
 		 */
+
+        $insObj->patient_insurance->active = 1;
 
 		return;
 	}

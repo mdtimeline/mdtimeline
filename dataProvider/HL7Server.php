@@ -135,6 +135,7 @@ class HL7Server {
     public $hl7_patient_insurance_id_column_field = 'code';
     public $hl7_insurance_type = '$IN1[15]';
     public $hl7_process_insurance_segments = false;
+    public $hl7_adt_insurance_policy_number = '$IN1[36]';
 
 
     function __construct($port = 9000, $site = 'default') {
@@ -1518,7 +1519,7 @@ INI_CONFIG;
 		 * IN1-15 Plan Type (IS) 00440
 		 */
         $insurance_type = '';
-        eval("\$insurance_type = \$this->hl7_insurance_type;");
+        eval("\$insurance_type = $this->hl7_insurance_type;");
         $insObj->patient_insurance->insurance_type = $insurance_type;
 		/**
 		 * IN1-16 Name of Insured (XPN) 00441
@@ -1645,9 +1646,9 @@ INI_CONFIG;
 		 * IN1-36 Policy Number (ST) 00461
 		 * `patient_insurances`.`policy_number`,  36
 		 */
-		if($this->notEmpty($IN1[36])){
-			$insObj->patient_insurance->policy_number = $IN1[36];
-		}
+        $insurance_policy_number = '';
+        eval("\$insurance_policy_number = $this->hl7_adt_insurance_policy_number;");
+        $insObj->patient_insurance->policy_number = $insurance_policy_number;
 
 		/**
 		 * IN1-37 Policy Deductible (CP) 00462 37-1-1

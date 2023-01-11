@@ -1194,12 +1194,12 @@ INI_CONFIG;
 		if($this->notEmpty($PID[13][0][4])){
 			$p['email'] = $PID[13][0][4]; // Email - Home
 		}
-		if($this->notEmpty($PID[13][0][7])){
+		if($this->notEmpty($PID[13][0][7]) && ($PID[13][0][7] != $PID[13][0][1])){
 			$p['phone_home'] = $this->phone("{$PID[13][0][7]}-{$PID[13][0][1]}"); // Phone Number – Home
 		}elseif ($this->notEmpty($PID[13][0][1])){
             $p['phone_home'] = $this->phone($PID[13][0][1]); // Phone Number – Home
         }
-        if($this->notEmpty($PID[14][0][7])){
+        if($this->notEmpty($PID[14][0][7]) && ($PID[14][0][7] != $PID[14][0][1])){
             $p['phone_work'] = $this->phone("{$PID[14][0][7]}-{$PID[14][0][1]}"); // Phone Number – Home
         }elseif ($this->notEmpty($PID[14][0][1])){
             $p['phone_work'] = $this->phone($PID[14][0][1]); // Phone Number – Home

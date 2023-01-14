@@ -125,7 +125,7 @@ foreach($sites as $site){
 		$env = "cd {$env_dir} && ";
 		$cmd = "{$env} php  -c {$php_ini} -f {$root_dir}/cronjob/jobs/{$job} {$site} &";
 		shell_exec($cmd);
-		print "Executing System Job: {$job}  Site: {$site} PHP ini: {$php_ini}";
+		print "Executing System Job: {$job}  Site: {$site} PHP ini: {$php_ini}\n";
 	}
 
 	// Loop on all the modules jobs available and execute them

@@ -109,7 +109,9 @@ class XML2Array {
 //									throw new Exception('Error: Unhandled string "' . $output . '" found inside <' . $t . '> tag');
 								}
 
-								$output = [ '@value' => $output, $t => $v ];
+                                $output = [];
+								$output['@value'] = $output;
+                                $output[$t] = $v;
 
 							} else {
 								$output[$t] = [];

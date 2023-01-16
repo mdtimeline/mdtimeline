@@ -216,7 +216,7 @@ class User
 
     public function getCurrentUserBasicData()
     {
-        $user = $this->u->load($this->getCurrentUserId(), ['id', 'npi', 'title', 'fname', 'mname', 'lname', 'username', 'code'])->one();
+        $user = $this->u->load($this->getCurrentUserId(), ['id', 'npi', 'lic', 'title', 'fname', 'mname', 'lname', 'username', 'code'])->one();
         return $user;
     }
 

@@ -146,6 +146,8 @@ Ext.define('App.controller.administration.Users', {
 		if(comp.user.password_expired){
 			this.doPasswordExpiredUpdate();
 		}
+
+		this.validateProviderUser();
 	},
 
 	doPasswordExpiredUpdate: function () {
@@ -259,5 +261,85 @@ Ext.define('App.controller.administration.Users', {
 
 	onSwitchUserBtnClick: function () {
 		this.getController('LogOut').doApplicationLock();
+	},
+
+	validateProviderUser: function (){
+		// npi
+		// lic
+		// signature
+
+		if(
+			(Boolean(app.user['is_attending']) || Boolean(app.user['is_resident'])) &&
+			(!Boolean(app.user.npi) || !Boolean(app.user.lic) || !Boolean(app.user.signature))
+		){
+			var win = Ext.create('Ext.Window', {
+				title: 'Provider Required Info Missing',
+				modal: true,
+				bodyPadding: 5,
+				items: [
+					{
+						xtype: 'form',
+						bodyPadding: 10,
+						width: 500,
+						defaults:{
+							allowBlank: false,
+							labelAlign: 'top',
+						},
+						items: [
+							{
+								xtype: 'textfield',
+								fieldLabel: 'Provider NPI',
+								name: 'npi',
+								maxLength: 15,
+								vtype: 'npi'
+							},
+							{
+								xtype: 'textfield',
+								fieldLabel: 'Provider Lic.',
+								name: 'lic',
+								maxLength: 20,
+							},
+							{
+								xtype: 'textfield',
+								fieldLabel: 'Provider Signature',
+								emptyText: 'ei: JOHN SMITH DOE, MD, DBAR LIC. 0000',
+								name: 'signature',
+								maxLength: 250,
+								anchor: '100%'
+							}
+						]
+					}
+				],
+				buttons: [
+					{
+						text: 'Save',
+						handler: function (btn){
+
+							var win = btn.up('window'),
+								form  = win.down('form').getForm(),
+							  	values = form.getValues();
+
+							if(!form.isValid()) return;
+
+							values.id = app.user.id;
+
+							User.updateUser(values, function (){
+								app.user.npi = values.npi;
+								app.user.lic = values.lic;
+								app.user.signature = values.signature;
+								win.close();
+							});
+
+						}
+					}
+				]
+			}).show();
+
+			var form = win.down('form').getForm();
+			form.setValues(app.user);
+			form.isValid();
+
+		}
+
 	}
 });

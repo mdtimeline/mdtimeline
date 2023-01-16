@@ -145,6 +145,7 @@ class authProcedures {
 				'email',
 				'facility_id',
 				'npi',
+				'lic',
 				'phone',
 				'mobile',
 				'signature',
@@ -295,6 +296,7 @@ class authProcedures {
 		$_SESSION['user']['facility'] = (!isset($params->facility) || $params->facility == 0) ? $user['facility_id'] : $params->facility;
 		$_SESSION['user']['localization'] = isset($params->lang) ? $params->lang : 'en_US';
 		$_SESSION['user']['npi'] = $user['npi'] ;
+		$_SESSION['user']['city'] = $user['city'] ;
 		$_SESSION['user']['is_attending'] = $user['is_attending'] ;
 		$_SESSION['user']['is_resident'] = $user['is_resident'] ;
 		$_SESSION['user']['default_attending'] = $user['default_attending'] ;

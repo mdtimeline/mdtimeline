@@ -1527,7 +1527,9 @@ INI_CONFIG;
 		/**
 		 * IN1-14 Authorization Information (AUI) 00439
 		 */
-
+        if($this->notEmpty($IN1[14][1])) {
+            $insObj->patient_insurance->authorization_number = $IN1[14][1];
+        }
 		/**
 		 * IN1-15 Plan Type (IS) 00440
 		 */

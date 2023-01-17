@@ -200,8 +200,8 @@ class HL7Server {
 		$this->server = $this->getServerByPort($port);
 
 
-        if(file_exists(site_path . '/Hl7MessagePreProcessor.php')){
-            include_once (site_path . '/Hl7MessagePreProcessor.php');
+        if(file_exists(site_path . '/hooks/Hl7MessagePreProcessor.php')){
+            include_once (site_path . '/hooks/Hl7MessagePreProcessor.php');
             $this->Hl7MessagePreProcessor = new Hl7MessagePreProcessor();
         }
 

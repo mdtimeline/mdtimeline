@@ -137,6 +137,7 @@ class HL7Server {
     public $hl7_process_insurance_segments = false;
     public $hl7_adt_insurance_policy_number = '$IN1[36]';
 
+    public $Hl7MessagePreProcessor;
 
     function __construct($port = 9000, $site = 'default') {
 		$this->site = defined('site_id') ? site_id : $site;
@@ -198,6 +199,13 @@ class HL7Server {
 			$this->pObservation = MatchaModel::setSenchaModel('App.model.patient.PatientsOrderObservation');
 		$this->server = $this->getServerByPort($port);
 
+
+        if(file_exists(site_path . '/Hl7MessagePreProcessor.php')){
+            include_once (site_path . '/Hl7MessagePreProcessor.php');
+            $this->Hl7MessagePreProcessor = new Hl7MessagePreProcessor();
+        }
+
+
 	}
 
 	/**
@@ -221,6 +229,11 @@ class HL7Server {
 		$this->ackMessage = '';
 
         $this->msg = ForceUTF8\Encoding::fixUTF8($this->msg);
+
+
+        if(isset($this->Hl7MessagePreProcessor)){
+            $this->msg = $this->Hl7MessagePreProcessor->PreProcessMessage($this->msg);
+        }
 
 		/**
 		 * Parse the HL7 Message

@@ -62,7 +62,7 @@ class ORM extends Message {
 						'ORC' => array('required' => true),
 						'ORDER_DETAIL' => array(
 							'items' => array(
-								'OBR' => array('required' => true), // OBR|RQD|QR1|RXO|ODS|ODT
+								'OBR' => array('required' => true, 'repeatable' => true), // OBR|RQD|QR1|RXO|ODS|ODT
 								'NTE' => array('repeatable' => true),
 								'CTD' => array(),
 								'DG1' => array('repeatable' => true),

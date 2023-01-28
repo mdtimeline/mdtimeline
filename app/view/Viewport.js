@@ -717,7 +717,7 @@ Ext.define('App.view.Viewport', {
 	                    '-',
 	                    {
 		                    xtype: 'tbtext',
-		                    text: 'NODE: ' + + me.node_id,
+		                    text: 'NODE: ' + me.node_id,
 		                    itemId: 'ApplicationNodeId'
 	                    },
                         '-',

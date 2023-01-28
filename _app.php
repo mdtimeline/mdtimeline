@@ -1039,6 +1039,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 
 		</script>
         <!-- Global site tag (gtag.js) - Google Analytics -->
+        <?php if(preg_match('/tranextgen.com/', $_SERVER['HTTP_HOST'])) {  ?>
         <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133663460-1"></script>
         <script>
 			window.dataLayer = window.dataLayer || [];
@@ -1057,5 +1058,6 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
 			});
 
         </script>
+        <?php } ?>
 	</body>
 </html>

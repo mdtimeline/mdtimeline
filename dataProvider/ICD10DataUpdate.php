@@ -131,11 +131,15 @@ class ICD10DataUpdate
         $index_directory = $this->FileManager->extractFileToTempDir($tabular_index_file);
         $code_directory = $this->FileManager->extractFileToTempDir($code_description_file);
 
-        $index_path = scandir($index_directory)[2];
-        $code_path = scandir($code_directory)[2];
+        $index_path = '/';
+        $code_path = '/';
+        if ($revision < 2023) {
+            $index_path     .= scandir($index_directory)[2] . "/";
+            $code_path      .= scandir($code_directory)[2] . "/";
+        }
 
-        $index_xml = $index_directory . "/{$index_path}/icd10cm_tabular_{$revision}.xml";
-        $order_txt = $code_directory . "/{$code_path}/icd10cm_order_{$revision}.txt";
+        $index_xml = $index_directory . "{$index_path}icd10cm_tabular_{$revision}.xml";
+        $order_txt = $code_directory . "{$code_path}icd10cm_order_{$revision}.txt";
 
         if(!file_exists($index_xml)){
             exec("rm -rf {$index_directory}");

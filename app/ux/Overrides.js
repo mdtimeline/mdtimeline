@@ -16,6 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+Ext.override(Ext.util.Cookies, {
+
+    set : function(name, value){
+        var argv = arguments,
+            argc = arguments.length,
+            expires = (argc > 2) ? argv[2] : null,
+            path = (argc > 3) ? argv[3] : '/',
+            domain = (argc > 4) ? argv[4] : null,
+            secure = (argc > 5) ? argv[5] : true,
+            httpOnly = (argc > 6) ? argv[6] : true;
+
+        document.cookie = name + "=" + escape(value) + ((expires === null) ? "" : ("; expires=" + expires.toGMTString())) + ((path === null) ? "" : ("; path=" + path)) + ((domain === null) ? "" : ("; domain=" + domain)) + ((secure === true) ? "; secure" : "") + ((httpOnly === true) ? "; httpOnly" : "");
+    },
+
+});
+
 Ext.override(Ext.util.Format, {
 
 	originalNumberFormatter: Ext.util.Format.number,

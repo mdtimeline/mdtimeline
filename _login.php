@@ -44,6 +44,19 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
     <script src="data/api.php?site=<?php print SITE ?>&dc_=<?php print time() ?>" charset="utf-8"></script>
     <script type="text/javascript">
 
+        Ext.override(Ext.util.Cookies, {
+            set : function(name, value){
+                var argv = arguments,
+                    argc = arguments.length,
+                    expires = (argc > 2) ? argv[2] : null,
+                    path = (argc > 3) ? argv[3] : '/',
+                    domain = (argc > 4) ? argv[4] : null,
+                    secure = (argc > 5) ? argv[5] : true;
+
+                document.cookie = name + "=" + escape(value) + ((expires === null) ? "" : ("; expires=" + expires.toGMTString())) + ((path === null) ? "" : ("; path=" + path)) + ((domain === null) ? "" : ("; domain=" + domain)) + ((secure === true) ? "; secure" : "");
+            },
+        });
+
 	    if(Ext.supports.LocalStorage){
 		    Ext.state.Manager.setProvider(new Ext.state.LocalStorageProvider());
 	    }else{

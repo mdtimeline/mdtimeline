@@ -4,10 +4,12 @@ if(isset($_SESSION)) {
     return;
 }
 
+ini_set( 'session.cookie_httponly', 1 );
+ini_set( 'session.cookie_secure', 1 );
+
 if(file_exists(dirname(__FILE__) . '/sites/conf.php')){
     include_once (dirname(__FILE__) . '/sites/conf.php');
 }
-
 
 if(!defined('session_db') || session_db === false){
     session_cache_limiter('private');

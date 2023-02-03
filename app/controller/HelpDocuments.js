@@ -14,9 +14,21 @@ Ext.define('App.controller.HelpDocuments', {
 		me.control({
 			'#AppHelpDocumentMenu > menuitem': {
 				click: me.onAppHelpDocumentMenuClick
+			},
+			'button[action=helpdocument]': {
+				click: me.onAppHelpDocumentBtnClick
 			}
 		});
 
+	},
+
+	onAppHelpDocumentBtnClick: function (btn){
+
+		if(! btn.documentUrl){
+			return;
+		}
+
+		this.showHelpDocumentWindow(btn.documentTitle || 'Help Document', btn.documentUrl);
 	},
 
 	onAppHelpDocumentMenuClick: function (item){

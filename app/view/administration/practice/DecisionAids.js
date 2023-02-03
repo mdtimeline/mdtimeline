@@ -93,6 +93,25 @@ Ext.define('App.view.administration.practice.DecisionAids', {
 					text: _('decision_aid'),
 					iconCls: 'icoAdd',
 					itemId: 'DecisionAidsAddBtn'
+				},
+				{
+					xtype: 'exporterbutton',
+					iconCls: 'fas fa-download',
+					text: 'Save As CSV',
+				},
+				'-',
+				{
+					xtype: 'exporterbutton',
+					iconCls: 'fas fa-download',
+					text: 'Save As XLS',
+					format: 'excel'
+				},
+				'-',
+				{
+					xtype: 'button',
+					text: _('print'),
+					iconCls: 'fas fa-print',
+					itemId: 'DecisionAidsGridPrintBtn'
 				}
 			],
 			bbar: Ext.create('Ext.PagingToolbar', {

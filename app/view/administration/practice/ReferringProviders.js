@@ -163,6 +163,26 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
                             text: _('referring_provider'),
                             iconCls: 'icoAdd',
                             itemId: 'referringProviderAddBtn',
+                        },
+                        '->',
+                        {
+                            xtype: 'exporterbutton',
+                            iconCls: 'fas fa-download',
+                            text: 'Save As CSV',
+                        },
+                        '-',
+                        {
+                            xtype: 'exporterbutton',
+                            iconCls: 'fas fa-download',
+                            text: 'Save As XLS',
+                            format: 'excel'
+                        },
+                        '-',
+                        {
+                            xtype: 'button',
+                            text: _('print'),
+                            iconCls: 'fas fa-print',
+                            itemId: 'ReferringProviderGridPrintBtn'
                         }
                     ]
                 },

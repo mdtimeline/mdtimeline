@@ -391,10 +391,30 @@ Ext.define('App.view.administration.practice.Facilities', {
 					action: 'inactive',
 					scope: me,
 					handler: me.filterFacilitiesby
-				}]
-
-			})
-		});
+				},
+				'->',
+				{
+					xtype: 'exporterbutton',
+					iconCls: 'fas fa-download',
+					text: 'Save As CSV',
+				},
+				'-',
+				{
+					xtype: 'exporterbutton',
+					iconCls: 'fas fa-download',
+					text: 'Save As XLS',
+					format: 'excel'
+				},
+				'-',
+				{
+					xtype: 'button',
+					text: _('print'),
+					iconCls: 'fas fa-print',
+					itemId: 'FacilitiesGridPrintBtn'
+				}
+			]
+		})
+	});
 
 		me.callParent(arguments);
 	},

@@ -23,7 +23,72 @@ Ext.define('App.controller.administration.Practice', {
 		{
 			ref:'PracticePanel',
 			selector:'practicepanel'
+		},
+		{
+			ref:'PharmaciesPanel',
+			selector:'pharmaciespanel'
+		},
+		{
+			ref:'LaboratoriesPanel',
+			selector:'laboratoriespanel'
+		},
+		{
+			ref:'InsuranceCompaniesPanel',
+			selector:'insurancecompaniespanel'
+		},
+		{
+			ref:'ReferringProvidersPanel',
+			selector:'referringproviderspanel'
+		},
+		{
+			ref:'FacilitiesPanel',
+			selector:'facilitiespanel'
+		},
+		{
+			ref:'FacilityDepartmentsGrid',
+			selector:'#FacilityDepartmentsGrid'
+		},
+		{
+			ref:'FacilitySpecialtiesGrid',
+			selector:'#FacilitySpecialtiesGrid'
+		},
+		{
+			ref:'DecisionAidsPanel',
+			selector:'decisionaidspanel'
+		},
+		{
+			ref:'PharmacyGridPrintBtn',
+			selector:'#PharmacyGridPrintBtn'
+		},
+		{
+			ref:'LaboratoryGridPrintBtn',
+			selector:'#LaboratoryGridPrintBtn'
+		},
+		{
+			ref:'InsuranceCompaniesGridPrintBtn',
+			selector:'#InsuranceCompaniesGridPrintBtn'
+		},
+		{
+			ref:'ReferringProviderGridPrintBtn',
+			selector:'#ReferringProviderGridPrintBtn'
+		},
+		{
+			ref:'FacilitiesGridPrintBtn',
+			selector:'#FacilitiesGridPrintBtn'
+		},
+		{
+			ref:'DepartmentsGridPrintBtn',
+			selector:'#DepartmentsGridPrintBtn'
+		},
+		{
+			ref:'SpecialitiesAddBtn',
+			selector:'#SpecialitiesAddBtn'
+		},
+		{
+			ref:'DecisionAidsGridPrintBtn',
+			selector:'#DecisionAidsGridPrintBtn'
 		}
+
 	],
 
 	init: function() {
@@ -38,8 +103,112 @@ Ext.define('App.controller.administration.Practice', {
 			},
 			'practicepanel toolbar > #addBtn':{
 				click: me.onAddBtnClick
+			},
+			'#PharmacyGridPrintBtn':{
+				click: me.onPharmaciesGridPrintBtnClick
+			},
+			'#LaboratoryGridPrintBtn':{
+				click: me.onLaboratoryGridPrintBtnClick
+			},
+			'#InsuranceCompaniesGridPrintBtn':{
+				click: me.onInsuranceCompaniesGridPrintBtnClick
+			},
+			'#ReferringProviderGridPrintBtn':{
+				click: me.onReferringProviderGridPrintBtnClick
+			},
+			'#FacilitiesGridPrintBtn':{
+				click: me.onFacilitiesGridPrintBtnClick
+			},
+			'#DepartmentsGridPrintBtn':{
+				click: me.onDepartmentsGridPrintBtnClick
+			},
+			'#SpecialtiesGridPrintBtn':{
+				click: me.onSpecialtiesGridPrintBtnClick
+			},
+			'#DecisionAidsGridPrintBtn':{
+				click: me.onDecisionAidsGridPrintBtnClick
 			}
 		});
+	},
+
+	onPharmaciesGridPrintBtnClick: function(btn)
+	{
+		var me = this,
+			grid = me.getPharmaciesPanel();
+
+		// App.ux.grid.Printer.mainTitle = listParams; //optional
+		// App.ux.grid.Printer.filtersHtml = ''; //optional
+		App.ux.grid.Printer.print(grid);
+	},
+
+	onLaboratoryGridPrintBtnClick: function(btn)
+	{
+		var me = this,
+			grid = me.getLaboratoriesPanel();
+
+		// App.ux.grid.Printer.mainTitle = listParams; //optional
+		// App.ux.grid.Printer.filtersHtml = ''; //optional
+		App.ux.grid.Printer.print(grid);
+	},
+
+	onInsuranceCompaniesGridPrintBtnClick: function(btn)
+	{
+		var me = this,
+			grid = me.getInsuranceCompaniesPanel();
+
+		// App.ux.grid.Printer.mainTitle = listParams; //optional
+		// App.ux.grid.Printer.filtersHtml = ''; //optional
+		App.ux.grid.Printer.print(grid);
+	},
+
+	onReferringProviderGridPrintBtnClick: function(btn)
+	{
+		var me = this,
+			grid = me.getReferringProvidersPanel();
+
+		// App.ux.grid.Printer.mainTitle = listParams; //optional
+		// App.ux.grid.Printer.filtersHtml = ''; //optional
+		App.ux.grid.Printer.print(grid);
+	},
+
+	onFacilitiesGridPrintBtnClick: function(btn)
+	{
+		var me = this,
+			grid = me.getFacilitiesPanel();
+
+		// App.ux.grid.Printer.mainTitle = listParams; //optional
+		// App.ux.grid.Printer.filtersHtml = ''; //optional
+		App.ux.grid.Printer.print(grid);
+	},
+
+	onDepartmentsGridPrintBtnClick: function(btn)
+	{
+		var me = this,
+			grid = me.getFacilityDepartmentsGrid();
+
+		// App.ux.grid.Printer.mainTitle = listParams; //optional
+		// App.ux.grid.Printer.filtersHtml = ''; //optional
+		App.ux.grid.Printer.print(grid);
+	},
+
+	onSpecialtiesGridPrintBtnClick: function(btn)
+	{
+		var me = this,
+			grid = me.getFacilitySpecialtiesGrid();
+
+		// App.ux.grid.Printer.mainTitle = listParams; //optional
+		// App.ux.grid.Printer.filtersHtml = ''; //optional
+		App.ux.grid.Printer.print(grid);
+	},
+
+	onDecisionAidsGridPrintBtnClick: function(btn)
+	{
+		var me = this,
+			grid = me.getDecisionAidsPanel();
+
+		// App.ux.grid.Printer.mainTitle = listParams; //optional
+		// App.ux.grid.Printer.filtersHtml = ''; //optional
+		App.ux.grid.Printer.print(grid);
 	},
 
 	onPracticeGridPanelsActive: function(grid){

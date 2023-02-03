@@ -41,6 +41,7 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 				{
 					xtype: 'grid',
 					title: _('departments'),
+					itemId: 'FacilityDepartmentsGrid',
 					hideHeaders: false,
 					frame: true,
 					margin: '0 0 5 0',
@@ -116,6 +117,13 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 								xtype: 'textfield'
 							}
 						},
+						{
+							text: _('global_id'),
+							sortable: true,
+							dataIndex: 'global_id',
+							width: 50,
+							hidden: true
+						},
                         {
                             text: _('taxonomy'),
                             dataIndex: 'taxonomy',
@@ -149,7 +157,35 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
                             editor: {
                                 xtype: 'checkboxfield'
                             }
-                        }
+                        },
+						{
+							text: _('created_uid'),
+							sortable: true,
+							dataIndex: 'create_uid',
+							width: 50,
+							hidden: true
+						},
+						{
+							text: _('update_uid'),
+							sortable: true,
+							dataIndex: 'update_uid',
+							width: 50,
+							hidden: true
+						},
+						{
+							text: _('date_created'),
+							sortable: true,
+							dataIndex: 'create_date',
+							width: 50,
+							hidden: true
+						},
+						{
+							text: _('date_updated'),
+							sortable: true,
+							dataIndex: 'update_date',
+							width: 50,
+							hidden: true
+						}
 					],
 					plugins: [
 						{
@@ -157,12 +193,35 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 							clicksToEdit: 2
 						}
 					],
+					tbar: [
+						'->',
+						{
+							xtype: 'exporterbutton',
+							iconCls: 'fas fa-download',
+							text: 'Save As CSV',
+						},
+						'-',
+						{
+							xtype: 'exporterbutton',
+							iconCls: 'fas fa-download',
+							text: 'Save As XLS',
+							format: 'excel'
+						},
+						'-',
+						{
+							xtype: 'button',
+							text: _('print'),
+							iconCls: 'fas fa-print',
+							itemId: 'DepartmentsGridPrintBtn'
+						}
+					]
 				},
 				{
 					xtype: 'grid',
 					title: _('specialties'),
 					//					hideHeaders: true,
 					frame: true,
+					itemId: 'FacilitySpecialtiesGrid',
 					flex: 1,
 					store: this._sepecialtyStore = Ext.create('App.store.administration.Specialties', {
 						autoLoad: true
@@ -250,7 +309,15 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 								xtype: 'checkboxfield'
 							}
                         },
-
+						{
+							text: _('medical_education'),
+							sortable: true,
+							dataIndex: 'medical_education',
+							width: 100,
+							editor: {
+								xtype: 'textfield'
+							}
+						},
 						{
 							text: _('active'),
 							sortable: true,
@@ -262,6 +329,34 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 							editor: {
 								xtype: 'checkboxfield'
 							}
+						},
+						{
+							text: _('created_uid'),
+							sortable: true,
+							dataIndex: 'create_uid',
+							width: 50,
+							hidden: true
+						},
+						{
+							text: _('update_uid'),
+							sortable: true,
+							dataIndex: 'update_uid',
+							width: 50,
+							hidden: true
+						},
+						{
+							text: _('date_created'),
+							sortable: true,
+							dataIndex: 'create_date',
+							width: 50,
+							hidden: true
+						},
+						{
+							text: _('date_updated'),
+							sortable: true,
+							dataIndex: 'update_date',
+							width: 50,
+							hidden: true
 						}
 					],
 					plugins: [
@@ -270,20 +365,40 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 							clicksToEdit: 2
 						}
 					],
-					tools: [
-						{
-							xtype: 'button',
-							text: _('specialty'),
-							iconCls: 'icoAdd',
-							itemId: 'SpecialitiesAddBtn'
-						}
-					],
 					bbar: Ext.create('Ext.PagingToolbar', {
 						pageSize: 10,
 						store: this._sepecialtyStore,
 						displayInfo: true,
 						plugins: Ext.create('Ext.ux.SlidingPager', {})
-					})
+					}),
+					tbar: [
+						{
+							xtype: 'button',
+							text: _('specialty'),
+							iconCls: 'icoAdd',
+							itemId: 'SpecialitiesAddBtn'
+						},
+						'->',
+						{
+							xtype: 'exporterbutton',
+							iconCls: 'fas fa-download',
+							text: 'Save As CSV',
+						},
+						'-',
+						{
+							xtype: 'exporterbutton',
+							iconCls: 'fas fa-download',
+							text: 'Save As XLS',
+							format: 'excel'
+						},
+						'-',
+						{
+							xtype: 'button',
+							text: _('print'),
+							iconCls: 'fas fa-print',
+							itemId: 'SpecialtiesGridPrintBtn'
+						}
+					]
 				}
 			]
 		},

@@ -27,11 +27,7 @@ Ext.define('App.view.administration.practice.Insurance', {
 	xtype: 'insurancecompaniespanel',
 	title: _('insurance_companies'),
 
-	store: this._adminInsuranceCmonpanySotrie = Ext.create('App.store.administration.InsuranceCompanies',{
-		remoteSort: false,
-		remoteGroup: false,
-		pageSize: 250
-	}),
+	store: this._adminInsuranceCmonpanySotrie = Ext.create('App.store.administration.InsuranceCompanies'),
 
 	//	border: false,
 	//	frame: false,
@@ -210,20 +206,33 @@ Ext.define('App.view.administration.practice.Insurance', {
 			}
 		}
 	],
-	tbar: Ext.create('Ext.PagingToolbar', {
-		pageSize: 30,
-		store: this._adminInsuranceCmonpanySotrie,
-		displayInfo: true,
-		plugins: Ext.create('Ext.ux.SlidingPager', {
-		}),
-		items: [
+	tbar: [
 			'-',
 			{
 				text: _('insurance_company'),
 				iconCls: 'icoAdd',
 				action: 'insurance',
 				itemId: 'addBtn'
-			}]
-
-	})
+			},
+			'->',
+			{
+				xtype: 'exporterbutton',
+				iconCls: 'fas fa-download',
+				text: 'Save As CSV',
+			},
+			'-',
+			{
+				xtype: 'exporterbutton',
+				iconCls: 'fas fa-download',
+				text: 'Save As XLS',
+				format: 'excel'
+			},
+			'-',
+			{
+				xtype: 'button',
+				text: _('print'),
+				iconCls: 'fas fa-print',
+				itemId: 'InsuranceCompaniesGridPrintBtn'
+			}
+		]
 });

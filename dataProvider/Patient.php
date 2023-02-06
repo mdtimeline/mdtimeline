@@ -513,6 +513,7 @@ PREGNANCY_CODES;
 		$params->fname = trim($foo[0]);
 		$params->mname = '';
 		$params->lname = '';
+		$params->sex = 'U';
 		if (count($foo) == 2) {
 			$params->lname = trim($foo[1]);
 		} elseif (count($foo) >= 3) {

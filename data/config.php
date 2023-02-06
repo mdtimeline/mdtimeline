@@ -2685,6 +2685,9 @@ $API = [
             ],
 			'destroyPatientAccount' => [
 				'len' => 1
+            ],
+			'createNewPatientOnlyName' => [
+				'len' => 1
             ]
         ]
     ],

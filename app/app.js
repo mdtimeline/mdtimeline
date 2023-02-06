@@ -3212,6 +3212,7 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
 	onTrigger2Click: function () {
 		this.reset();
 		this.oldValue = null;
+		this.setValue(null);
 		this.fireEvent('fieldreset', this);
 	},
 

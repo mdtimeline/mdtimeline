@@ -31624,6 +31624,7 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 				{
 					xtype: 'grid',
 					title: _('departments'),
+					itemId: 'FacilityDepartmentsGrid',
 					hideHeaders: false,
 					frame: true,
 					margin: '0 0 5 0',
@@ -31699,6 +31700,13 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 								xtype: 'textfield'
 							}
 						},
+						{
+							text: _('global_id'),
+							sortable: true,
+							dataIndex: 'global_id',
+							width: 50,
+							hidden: true
+						},
                         {
                             text: _('taxonomy'),
                             dataIndex: 'taxonomy',
@@ -31732,7 +31740,35 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
                             editor: {
                                 xtype: 'checkboxfield'
                             }
-                        }
+                        },
+						{
+							text: _('created_uid'),
+							sortable: true,
+							dataIndex: 'create_uid',
+							width: 50,
+							hidden: true
+						},
+						{
+							text: _('update_uid'),
+							sortable: true,
+							dataIndex: 'update_uid',
+							width: 50,
+							hidden: true
+						},
+						{
+							text: _('date_created'),
+							sortable: true,
+							dataIndex: 'create_date',
+							width: 50,
+							hidden: true
+						},
+						{
+							text: _('date_updated'),
+							sortable: true,
+							dataIndex: 'update_date',
+							width: 50,
+							hidden: true
+						}
 					],
 					plugins: [
 						{
@@ -31740,12 +31776,35 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 							clicksToEdit: 2
 						}
 					],
+					tbar: [
+						'->',
+						{
+							xtype: 'exporterbutton',
+							iconCls: 'fas fa-download',
+							text: 'Save As CSV',
+						},
+						'-',
+						{
+							xtype: 'exporterbutton',
+							iconCls: 'fas fa-download',
+							text: 'Save As XLS',
+							format: 'excel'
+						},
+						'-',
+						{
+							xtype: 'button',
+							text: _('print'),
+							iconCls: 'fas fa-print',
+							itemId: 'DepartmentsGridPrintBtn'
+						}
+					]
 				},
 				{
 					xtype: 'grid',
 					title: _('specialties'),
 					//					hideHeaders: true,
 					frame: true,
+					itemId: 'FacilitySpecialtiesGrid',
 					flex: 1,
 					store: this._sepecialtyStore = Ext.create('App.store.administration.Specialties', {
 						autoLoad: true
@@ -31833,7 +31892,15 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 								xtype: 'checkboxfield'
 							}
                         },
-
+						{
+							text: _('medical_education'),
+							sortable: true,
+							dataIndex: 'medical_education',
+							width: 100,
+							editor: {
+								xtype: 'textfield'
+							}
+						},
 						{
 							text: _('active'),
 							sortable: true,
@@ -31845,6 +31912,34 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 							editor: {
 								xtype: 'checkboxfield'
 							}
+						},
+						{
+							text: _('created_uid'),
+							sortable: true,
+							dataIndex: 'create_uid',
+							width: 50,
+							hidden: true
+						},
+						{
+							text: _('update_uid'),
+							sortable: true,
+							dataIndex: 'update_uid',
+							width: 50,
+							hidden: true
+						},
+						{
+							text: _('date_created'),
+							sortable: true,
+							dataIndex: 'create_date',
+							width: 50,
+							hidden: true
+						},
+						{
+							text: _('date_updated'),
+							sortable: true,
+							dataIndex: 'update_date',
+							width: 50,
+							hidden: true
 						}
 					],
 					plugins: [
@@ -31853,20 +31948,40 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 							clicksToEdit: 2
 						}
 					],
-					tools: [
-						{
-							xtype: 'button',
-							text: _('specialty'),
-							iconCls: 'icoAdd',
-							itemId: 'SpecialitiesAddBtn'
-						}
-					],
 					bbar: Ext.create('Ext.PagingToolbar', {
 						pageSize: 10,
 						store: this._sepecialtyStore,
 						displayInfo: true,
 						plugins: Ext.create('Ext.ux.SlidingPager', {})
-					})
+					}),
+					tbar: [
+						{
+							xtype: 'button',
+							text: _('specialty'),
+							iconCls: 'icoAdd',
+							itemId: 'SpecialitiesAddBtn'
+						},
+						'->',
+						{
+							xtype: 'exporterbutton',
+							iconCls: 'fas fa-download',
+							text: 'Save As CSV',
+						},
+						'-',
+						{
+							xtype: 'exporterbutton',
+							iconCls: 'fas fa-download',
+							text: 'Save As XLS',
+							format: 'excel'
+						},
+						'-',
+						{
+							xtype: 'button',
+							text: _('print'),
+							iconCls: 'fas fa-print',
+							itemId: 'SpecialtiesGridPrintBtn'
+						}
+					]
 				}
 			]
 		},
@@ -32532,11 +32647,7 @@ Ext.define('App.view.administration.practice.Insurance', {
 	xtype: 'insurancecompaniespanel',
 	title: _('insurance_companies'),
 
-	store: this._adminInsuranceCmonpanySotrie = Ext.create('App.store.administration.InsuranceCompanies',{
-		remoteSort: false,
-		remoteGroup: false,
-		pageSize: 250
-	}),
+	store: this._adminInsuranceCmonpanySotrie = Ext.create('App.store.administration.InsuranceCompanies'),
 
 	//	border: false,
 	//	frame: false,
@@ -32715,22 +32826,35 @@ Ext.define('App.view.administration.practice.Insurance', {
 			}
 		}
 	],
-	tbar: Ext.create('Ext.PagingToolbar', {
-		pageSize: 30,
-		store: this._adminInsuranceCmonpanySotrie,
-		displayInfo: true,
-		plugins: Ext.create('Ext.ux.SlidingPager', {
-		}),
-		items: [
+	tbar: [
 			'-',
 			{
 				text: _('insurance_company'),
 				iconCls: 'icoAdd',
 				action: 'insurance',
 				itemId: 'addBtn'
-			}]
-
-	})
+			},
+			'->',
+			{
+				xtype: 'exporterbutton',
+				iconCls: 'fas fa-download',
+				text: 'Save As CSV',
+			},
+			'-',
+			{
+				xtype: 'exporterbutton',
+				iconCls: 'fas fa-download',
+				text: 'Save As XLS',
+				format: 'excel'
+			},
+			'-',
+			{
+				xtype: 'button',
+				text: _('print'),
+				iconCls: 'fas fa-print',
+				itemId: 'InsuranceCompaniesGridPrintBtn'
+			}
+		]
 });
 
 Ext.define('App.store.administration.Laboratories', {
@@ -32996,6 +33120,26 @@ Ext.define('App.view.administration.practice.Laboratories', {
 			iconCls: 'icoAdd',
 			action: 'laboratory',
 			itemId: 'addBtn'
+		},
+		'->',
+		{
+			xtype: 'exporterbutton',
+			iconCls: 'fas fa-download',
+			text: 'Save As CSV',
+		},
+		'-',
+		{
+			xtype: 'exporterbutton',
+			iconCls: 'fas fa-download',
+			text: 'Save As XLS',
+			format: 'excel'
+		},
+		'-',
+		{
+			xtype: 'button',
+			text: _('print'),
+			iconCls: 'fas fa-print',
+			itemId: 'LaboratoryGridPrintBtn'
 		}
 	]
 });
@@ -33270,6 +33414,26 @@ Ext.define('App.view.administration.practice.Pharmacies', {
 			iconCls: 'icoAdd',
 			action: 'pharmacy',
 			itemId: 'addBtn'
+		},
+		'->',
+		{
+			xtype: 'exporterbutton',
+			iconCls: 'fas fa-download',
+			text: 'Save As CSV',
+		},
+		'-',
+		{
+			xtype: 'exporterbutton',
+			iconCls: 'fas fa-download',
+			text: 'Save As XLS',
+			format: 'excel'
+		},
+		'-',
+		{
+			xtype: 'button',
+			text: _('print'),
+			iconCls: 'fas fa-print',
+			itemId: 'PharmacyGridPrintBtn'
 		}
 	]
 });
@@ -40400,9 +40564,21 @@ Ext.define('App.controller.HelpDocuments', {
 		me.control({
 			'#AppHelpDocumentMenu > menuitem': {
 				click: me.onAppHelpDocumentMenuClick
+			},
+			'button[action=helpdocument]': {
+				click: me.onAppHelpDocumentBtnClick
 			}
 		});
 
+	},
+
+	onAppHelpDocumentBtnClick: function (btn){
+
+		if(! btn.documentUrl){
+			return;
+		}
+
+		this.showHelpDocumentWindow(btn.documentTitle || 'Help Document', btn.documentUrl);
 	},
 
 	onAppHelpDocumentMenuClick: function (item){
@@ -42962,7 +43138,72 @@ Ext.define('App.controller.administration.Practice', {
 		{
 			ref:'PracticePanel',
 			selector:'practicepanel'
+		},
+		{
+			ref:'PharmaciesPanel',
+			selector:'pharmaciespanel'
+		},
+		{
+			ref:'LaboratoriesPanel',
+			selector:'laboratoriespanel'
+		},
+		{
+			ref:'InsuranceCompaniesPanel',
+			selector:'insurancecompaniespanel'
+		},
+		{
+			ref:'ReferringProvidersPanel',
+			selector:'referringproviderspanel'
+		},
+		{
+			ref:'FacilitiesPanel',
+			selector:'facilitiespanel'
+		},
+		{
+			ref:'FacilityDepartmentsGrid',
+			selector:'#FacilityDepartmentsGrid'
+		},
+		{
+			ref:'FacilitySpecialtiesGrid',
+			selector:'#FacilitySpecialtiesGrid'
+		},
+		{
+			ref:'DecisionAidsPanel',
+			selector:'decisionaidspanel'
+		},
+		{
+			ref:'PharmacyGridPrintBtn',
+			selector:'#PharmacyGridPrintBtn'
+		},
+		{
+			ref:'LaboratoryGridPrintBtn',
+			selector:'#LaboratoryGridPrintBtn'
+		},
+		{
+			ref:'InsuranceCompaniesGridPrintBtn',
+			selector:'#InsuranceCompaniesGridPrintBtn'
+		},
+		{
+			ref:'ReferringProviderGridPrintBtn',
+			selector:'#ReferringProviderGridPrintBtn'
+		},
+		{
+			ref:'FacilitiesGridPrintBtn',
+			selector:'#FacilitiesGridPrintBtn'
+		},
+		{
+			ref:'DepartmentsGridPrintBtn',
+			selector:'#DepartmentsGridPrintBtn'
+		},
+		{
+			ref:'SpecialitiesAddBtn',
+			selector:'#SpecialitiesAddBtn'
+		},
+		{
+			ref:'DecisionAidsGridPrintBtn',
+			selector:'#DecisionAidsGridPrintBtn'
 		}
+
 	],
 
 	init: function() {
@@ -42977,8 +43218,112 @@ Ext.define('App.controller.administration.Practice', {
 			},
 			'practicepanel toolbar > #addBtn':{
 				click: me.onAddBtnClick
+			},
+			'#PharmacyGridPrintBtn':{
+				click: me.onPharmaciesGridPrintBtnClick
+			},
+			'#LaboratoryGridPrintBtn':{
+				click: me.onLaboratoryGridPrintBtnClick
+			},
+			'#InsuranceCompaniesGridPrintBtn':{
+				click: me.onInsuranceCompaniesGridPrintBtnClick
+			},
+			'#ReferringProviderGridPrintBtn':{
+				click: me.onReferringProviderGridPrintBtnClick
+			},
+			'#FacilitiesGridPrintBtn':{
+				click: me.onFacilitiesGridPrintBtnClick
+			},
+			'#DepartmentsGridPrintBtn':{
+				click: me.onDepartmentsGridPrintBtnClick
+			},
+			'#SpecialtiesGridPrintBtn':{
+				click: me.onSpecialtiesGridPrintBtnClick
+			},
+			'#DecisionAidsGridPrintBtn':{
+				click: me.onDecisionAidsGridPrintBtnClick
 			}
 		});
+	},
+
+	onPharmaciesGridPrintBtnClick: function(btn)
+	{
+		var me = this,
+			grid = me.getPharmaciesPanel();
+
+		// App.ux.grid.Printer.mainTitle = listParams; //optional
+		// App.ux.grid.Printer.filtersHtml = ''; //optional
+		App.ux.grid.Printer.print(grid);
+	},
+
+	onLaboratoryGridPrintBtnClick: function(btn)
+	{
+		var me = this,
+			grid = me.getLaboratoriesPanel();
+
+		// App.ux.grid.Printer.mainTitle = listParams; //optional
+		// App.ux.grid.Printer.filtersHtml = ''; //optional
+		App.ux.grid.Printer.print(grid);
+	},
+
+	onInsuranceCompaniesGridPrintBtnClick: function(btn)
+	{
+		var me = this,
+			grid = me.getInsuranceCompaniesPanel();
+
+		// App.ux.grid.Printer.mainTitle = listParams; //optional
+		// App.ux.grid.Printer.filtersHtml = ''; //optional
+		App.ux.grid.Printer.print(grid);
+	},
+
+	onReferringProviderGridPrintBtnClick: function(btn)
+	{
+		var me = this,
+			grid = me.getReferringProvidersPanel();
+
+		// App.ux.grid.Printer.mainTitle = listParams; //optional
+		// App.ux.grid.Printer.filtersHtml = ''; //optional
+		App.ux.grid.Printer.print(grid);
+	},
+
+	onFacilitiesGridPrintBtnClick: function(btn)
+	{
+		var me = this,
+			grid = me.getFacilitiesPanel();
+
+		// App.ux.grid.Printer.mainTitle = listParams; //optional
+		// App.ux.grid.Printer.filtersHtml = ''; //optional
+		App.ux.grid.Printer.print(grid);
+	},
+
+	onDepartmentsGridPrintBtnClick: function(btn)
+	{
+		var me = this,
+			grid = me.getFacilityDepartmentsGrid();
+
+		// App.ux.grid.Printer.mainTitle = listParams; //optional
+		// App.ux.grid.Printer.filtersHtml = ''; //optional
+		App.ux.grid.Printer.print(grid);
+	},
+
+	onSpecialtiesGridPrintBtnClick: function(btn)
+	{
+		var me = this,
+			grid = me.getFacilitySpecialtiesGrid();
+
+		// App.ux.grid.Printer.mainTitle = listParams; //optional
+		// App.ux.grid.Printer.filtersHtml = ''; //optional
+		App.ux.grid.Printer.print(grid);
+	},
+
+	onDecisionAidsGridPrintBtnClick: function(btn)
+	{
+		var me = this,
+			grid = me.getDecisionAidsPanel();
+
+		// App.ux.grid.Printer.mainTitle = listParams; //optional
+		// App.ux.grid.Printer.filtersHtml = ''; //optional
+		App.ux.grid.Printer.print(grid);
 	},
 
 	onPracticeGridPanelsActive: function(grid){
@@ -71271,6 +71616,25 @@ Ext.define('App.view.administration.practice.DecisionAids', {
 					text: _('decision_aid'),
 					iconCls: 'icoAdd',
 					itemId: 'DecisionAidsAddBtn'
+				},
+				{
+					xtype: 'exporterbutton',
+					iconCls: 'fas fa-download',
+					text: 'Save As CSV',
+				},
+				'-',
+				{
+					xtype: 'exporterbutton',
+					iconCls: 'fas fa-download',
+					text: 'Save As XLS',
+					format: 'excel'
+				},
+				'-',
+				{
+					xtype: 'button',
+					text: _('print'),
+					iconCls: 'fas fa-print',
+					itemId: 'DecisionAidsGridPrintBtn'
 				}
 			],
 			bbar: Ext.create('Ext.PagingToolbar', {
@@ -74158,10 +74522,30 @@ Ext.define('App.view.administration.practice.Facilities', {
 					action: 'inactive',
 					scope: me,
 					handler: me.filterFacilitiesby
-				}]
-
-			})
-		});
+				},
+				'->',
+				{
+					xtype: 'exporterbutton',
+					iconCls: 'fas fa-download',
+					text: 'Save As CSV',
+				},
+				'-',
+				{
+					xtype: 'exporterbutton',
+					iconCls: 'fas fa-download',
+					text: 'Save As XLS',
+					format: 'excel'
+				},
+				'-',
+				{
+					xtype: 'button',
+					text: _('print'),
+					iconCls: 'fas fa-print',
+					itemId: 'FacilitiesGridPrintBtn'
+				}
+			]
+		})
+	});
 
 		me.callParent(arguments);
 	},
@@ -74343,6 +74727,26 @@ Ext.define('App.view.administration.practice.ReferringProviders', {
                             text: _('referring_provider'),
                             iconCls: 'icoAdd',
                             itemId: 'referringProviderAddBtn',
+                        },
+                        '->',
+                        {
+                            xtype: 'exporterbutton',
+                            iconCls: 'fas fa-download',
+                            text: 'Save As CSV',
+                        },
+                        '-',
+                        {
+                            xtype: 'exporterbutton',
+                            iconCls: 'fas fa-download',
+                            text: 'Save As XLS',
+                            format: 'excel'
+                        },
+                        '-',
+                        {
+                            xtype: 'button',
+                            text: _('print'),
+                            iconCls: 'fas fa-print',
+                            itemId: 'ReferringProviderGridPrintBtn'
                         }
                     ]
                 },

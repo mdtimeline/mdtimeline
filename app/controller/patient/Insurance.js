@@ -381,11 +381,13 @@ Ext.define('App.controller.patient.Insurance', {
                     if(Ext.Object.isEmpty(cover_grid_store.getModifiedRecords())){
                         me.updatePatientInsuranceForm(saved_record);
                         me.doPatientInsurancesWindowCloseBuffered(win);
+                        if(win.callbackFn) win.callbackFn(win, saved_record);
                     }else{
                         cover_grid_store.sync({
                             success: function () {
                                 me.updatePatientInsuranceForm(saved_record);
                                 me.doPatientInsurancesWindowCloseBuffered(win);
+                                if(win.callbackFn) win.callbackFn(win, saved_record);
                             }
                         });
                     }
@@ -430,11 +432,13 @@ Ext.define('App.controller.patient.Insurance', {
         }
     },
 
-    showPatientInsurancesWindow: function(){
-        if(!this.getPatientInsurancesWindow()){
-            Ext.create('App.view.patient.windows.PatientInsurancesWindow');
+    showPatientInsurancesWindow: function(callback){
+        var win  = this.getPatientInsurancesWindow();
+        if(!win){
+            win = Ext.create('App.view.patient.windows.PatientInsurancesWindow');
         }
-        return this.getPatientInsurancesWindow().show();
+        win.callbackFn = callback;
+        return win.show();
     },
 
     getActiveInsuranceFormPanel: function () {

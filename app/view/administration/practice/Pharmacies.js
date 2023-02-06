@@ -281,6 +281,26 @@ Ext.define('App.view.administration.practice.Pharmacies', {
 			iconCls: 'icoAdd',
 			action: 'pharmacy',
 			itemId: 'addBtn'
+		},
+		'->',
+		{
+			xtype: 'exporterbutton',
+			iconCls: 'fas fa-download',
+			text: 'Save As CSV',
+		},
+		'-',
+		{
+			xtype: 'exporterbutton',
+			iconCls: 'fas fa-download',
+			text: 'Save As XLS',
+			format: 'excel'
+		},
+		'-',
+		{
+			xtype: 'button',
+			text: _('print'),
+			iconCls: 'fas fa-print',
+			itemId: 'PharmacyGridPrintBtn'
 		}
 	]
 });

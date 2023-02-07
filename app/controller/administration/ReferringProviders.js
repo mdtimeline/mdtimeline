@@ -358,7 +358,7 @@ Ext.define('App.controller.administration.ReferringProviders', {
 
 		if(!form.isValid()) return;
 
-		if((values.lname.trim() != '' || values.fname.trim() != '') && values.organization_name.trim() == ''){
+		if((values.lname.trim() === '' || values.fname.trim() === '') && values.organization_name.trim() === ''){
 			app.msg(_('oops'), _('referring_name_validation_msg'), true);
 			return;
 		}

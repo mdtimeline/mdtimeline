@@ -122,6 +122,12 @@ Ext.define('App.controller.administration.Practice', {
 			'#DepartmentsGridPrintBtn':{
 				click: me.onDepartmentsGridPrintBtnClick
 			},
+			'#FacilitySpecialtiesGrid':{
+				beforeedit: me.onFacilitySpecialtiesGridBeforeEdit
+			},
+			'#FacilityDepartmentsGrid':{
+				beforeedit: me.onFacilityDepartmentsGridBeforeEdit
+			},
 			'#SpecialtiesGridPrintBtn':{
 				click: me.onSpecialtiesGridPrintBtnClick
 			},
@@ -139,6 +145,22 @@ Ext.define('App.controller.administration.Practice', {
 		// App.ux.grid.Printer.mainTitle = listParams; //optional
 		// App.ux.grid.Printer.filtersHtml = ''; //optional
 		App.ux.grid.Printer.print(grid);
+	},
+
+	onFacilitySpecialtiesGridBeforeEdit: function(btn)
+	{
+		if (!a('practice_allow_update_specialty')) {
+			app.msg(_('oops'), _('not_authorized'), true);
+			return false;
+		}
+	},
+
+	onFacilityDepartmentsGridBeforeEdit: function(btn)
+	{
+		if (!a('practice_allow_update_department')) {
+			app.msg(_('oops'), _('not_authorized'), true);
+			return false;
+		}
 	},
 
 	onLaboratoryGridPrintBtnClick: function(btn)

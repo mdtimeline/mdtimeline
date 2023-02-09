@@ -824,6 +824,7 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                                 'administration.ReferringProviders',
                                 'administration.Roles',
                                 'administration.Specialties',
+                                'administration.Departments',
                                 'administration.EmailTemplates',
                                 'administration.EncounterTemplatePanels',
                                 'administration.Users',

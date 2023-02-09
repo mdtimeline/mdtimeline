@@ -134,7 +134,10 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 						{
 							text: 'title',
 							dataIndex: 'title',
-							flex: 2
+							flex: 2,
+							editor: {
+								xtype: 'textfield'
+							}
 						},
                         {
                             text: _('specialty_required_for_billing'),
@@ -194,6 +197,12 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 						}
 					],
 					tbar: [
+						// {
+						// 	xtype: 'button',
+						// 	text: _('department'),
+						// 	iconCls: 'icoAdd',
+						// 	itemId: 'DepartmentsAddBtn'
+						// },
 						'->',
 						{
 							xtype: 'exporterbutton',
@@ -372,12 +381,12 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 						plugins: Ext.create('Ext.ux.SlidingPager', {})
 					}),
 					tbar: [
-						{
-							xtype: 'button',
-							text: _('specialty'),
-							iconCls: 'icoAdd',
-							itemId: 'SpecialitiesAddBtn'
-						},
+						// {
+						// 	xtype: 'button',
+						// 	text: _('specialty'),
+						// 	iconCls: 'icoAdd',
+						// 	itemId: 'SpecialitiesAddBtn'
+						// },
 						'->',
 						{
 							xtype: 'exporterbutton',

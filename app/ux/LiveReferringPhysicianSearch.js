@@ -33,17 +33,25 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
 	minChars: 0,
 	queryDelay: 200,
 	enableAddTrigger: true,
-	trigger1Cls: 'x-form-add-trigger',
-	trigger2Cls: 'x-form-clear-trigger',
-	hideTrigger1: false,
+	// trigger1Cls: 'x-form-add-trigger',
+	trigger1Cls: 'x-form-clear-trigger',
+	// hideTrigger1: true,
+	// onTrigger1Click: function () {
+	// 	if(a('allow_add_referring_physician')){
+	// 		if(this.allowEditValue === false){
+	// 			this.doResetSearchField();
+	// 		}
+	// 		app.fireEvent('referringproviderddbtnclick', this, this.findRecordByValue(this.getValue()));
+	// 	}else{
+	// 		app.msg(_('oops'), 'Not Authorized', true)
+	// 	}
+	// },
+
 	onTrigger1Click: function () {
-		if(a('allow_add_referring_physician')){
-			app.fireEvent('referringproviderddbtnclick', this, this.findRecordByValue(this.getValue()));
-		}else{
-			app.msg(_('oops'), 'Not Authorized', true)
-		}
+		this.doResetSearchField();
 	},
-	onTrigger2Click: function () {
+
+	doResetSearchField: function () {
 		this.reset();
 		this.oldValue = null;
 		this.setValue(null);
@@ -156,6 +164,7 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
 		Ext.apply(me, {
 			store: me.store,
 			listConfig: {
+				minWidth: 320,
 				loadingText: _('searching') + '...',
 				getInnerTpl: function(){
 					return '<div class="search-item"><h3><span>{fullname}</span></h3><b>NPI:</b> {npi} <b>LIC.:</b> {lic}</div>';
@@ -167,6 +176,28 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
 		me.callParent();
 
 		me.on('change', me.onReferringValueChange, me);
+
+		if(a('allow_add_referring_physician')) {
+			me.on('render', me.doAddNewReferringBtn, me);
+		}
+
+	},
+
+	doAddNewReferringBtn: function (){
+		var me = this;
+
+		me.getPicker().down('toolbar').add(['->', {
+			xtype: 'button',
+			text: _('add'),
+			cls: 'btnGreenBackground',
+			itemId: 'LiveReferringPhysicianSearchAddReferringBtn',
+			handler: function () {
+				me.doResetSearchField();
+				me.picker.hide();
+				app.fireEvent('referringproviderddbtnclick', me, me.findRecordByValue(me.getValue()));
+			}
+		}]);
+
 	},
 
 	onReferringValueChange: function (field, value) {

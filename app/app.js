@@ -3199,17 +3199,25 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
 	minChars: 0,
 	queryDelay: 200,
 	enableAddTrigger: true,
-	trigger1Cls: 'x-form-add-trigger',
-	trigger2Cls: 'x-form-clear-trigger',
-	hideTrigger1: false,
+	// trigger1Cls: 'x-form-add-trigger',
+	trigger1Cls: 'x-form-clear-trigger',
+	// hideTrigger1: true,
+	// onTrigger1Click: function () {
+	// 	if(a('allow_add_referring_physician')){
+	// 		if(this.allowEditValue === false){
+	// 			this.doResetSearchField();
+	// 		}
+	// 		app.fireEvent('referringproviderddbtnclick', this, this.findRecordByValue(this.getValue()));
+	// 	}else{
+	// 		app.msg(_('oops'), 'Not Authorized', true)
+	// 	}
+	// },
+
 	onTrigger1Click: function () {
-		if(a('allow_add_referring_physician')){
-			app.fireEvent('referringproviderddbtnclick', this, this.findRecordByValue(this.getValue()));
-		}else{
-			app.msg(_('oops'), 'Not Authorized', true)
-		}
+		this.doResetSearchField();
 	},
-	onTrigger2Click: function () {
+
+	doResetSearchField: function () {
 		this.reset();
 		this.oldValue = null;
 		this.setValue(null);
@@ -3322,6 +3330,7 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
 		Ext.apply(me, {
 			store: me.store,
 			listConfig: {
+				minWidth: 320,
 				loadingText: _('searching') + '...',
 				getInnerTpl: function(){
 					return '<div class="search-item"><h3><span>{fullname}</span></h3><b>NPI:</b> {npi} <b>LIC.:</b> {lic}</div>';
@@ -3333,6 +3342,28 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
 		me.callParent();
 
 		me.on('change', me.onReferringValueChange, me);
+
+		if(a('allow_add_referring_physician')) {
+			me.on('render', me.doAddNewReferringBtn, me);
+		}
+
+	},
+
+	doAddNewReferringBtn: function (){
+		var me = this;
+
+		me.getPicker().down('toolbar').add(['->', {
+			xtype: 'button',
+			text: _('add'),
+			cls: 'btnGreenBackground',
+			itemId: 'LiveReferringPhysicianSearchAddReferringBtn',
+			handler: function () {
+				me.doResetSearchField();
+				me.picker.hide();
+				app.fireEvent('referringproviderddbtnclick', me, me.findRecordByValue(me.getValue()));
+			}
+		}]);
+
 	},
 
 	onReferringValueChange: function (field, value) {
@@ -31717,7 +31748,10 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 						{
 							text: 'title',
 							dataIndex: 'title',
-							flex: 2
+							flex: 2,
+							editor: {
+								xtype: 'textfield'
+							}
 						},
                         {
                             text: _('specialty_required_for_billing'),
@@ -31777,6 +31811,12 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 						}
 					],
 					tbar: [
+						// {
+						// 	xtype: 'button',
+						// 	text: _('department'),
+						// 	iconCls: 'icoAdd',
+						// 	itemId: 'DepartmentsAddBtn'
+						// },
 						'->',
 						{
 							xtype: 'exporterbutton',
@@ -31955,12 +31995,12 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 						plugins: Ext.create('Ext.ux.SlidingPager', {})
 					}),
 					tbar: [
-						{
-							xtype: 'button',
-							text: _('specialty'),
-							iconCls: 'icoAdd',
-							itemId: 'SpecialitiesAddBtn'
-						},
+						// {
+						// 	xtype: 'button',
+						// 	text: _('specialty'),
+						// 	iconCls: 'icoAdd',
+						// 	itemId: 'SpecialitiesAddBtn'
+						// },
 						'->',
 						{
 							xtype: 'exporterbutton',
@@ -43237,6 +43277,12 @@ Ext.define('App.controller.administration.Practice', {
 			'#DepartmentsGridPrintBtn':{
 				click: me.onDepartmentsGridPrintBtnClick
 			},
+			'#FacilitySpecialtiesGrid':{
+				beforeedit: me.onFacilitySpecialtiesGridBeforeEdit
+			},
+			'#FacilityDepartmentsGrid':{
+				beforeedit: me.onFacilityDepartmentsGridBeforeEdit
+			},
 			'#SpecialtiesGridPrintBtn':{
 				click: me.onSpecialtiesGridPrintBtnClick
 			},
@@ -43254,6 +43300,22 @@ Ext.define('App.controller.administration.Practice', {
 		// App.ux.grid.Printer.mainTitle = listParams; //optional
 		// App.ux.grid.Printer.filtersHtml = ''; //optional
 		App.ux.grid.Printer.print(grid);
+	},
+
+	onFacilitySpecialtiesGridBeforeEdit: function(btn)
+	{
+		if (!a('practice_allow_update_specialty')) {
+			app.msg(_('oops'), _('not_authorized'), true);
+			return false;
+		}
+	},
+
+	onFacilityDepartmentsGridBeforeEdit: function(btn)
+	{
+		if (!a('practice_allow_update_department')) {
+			app.msg(_('oops'), _('not_authorized'), true);
+			return false;
+		}
 	},
 
 	onLaboratoryGridPrintBtnClick: function(btn)

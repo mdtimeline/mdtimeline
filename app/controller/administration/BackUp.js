@@ -27,6 +27,14 @@ Ext.define('App.controller.administration.BackUp', {
         {
             ref:'AdministrationBackupRefreshBtn',
             selector:'#AdministrationBackupRefreshBtn'
+        },
+        {
+            ref:'AdministrationBackupSendToS3Checkbox',
+            selector:'#AdministrationBackupSendToS3Checkbox'
+        },
+        {
+            ref:'AdministrationBackupIgnoreCodeTablesCheckbox',
+            selector:'#AdministrationBackupIgnoreCodeTablesCheckbox'
         }
     ],
 
@@ -81,7 +89,9 @@ Ext.define('App.controller.administration.BackUp', {
 
 	onAdministrationBackupAsyncBackupBtnClick: function () {
 
-    	var me = this;
+    	var me = this,
+			do_s3_upload = me.getAdministrationBackupSendToS3Checkbox().getValue(),
+			ignore_codes = me.getAdministrationBackupIgnoreCodeTablesCheckbox().getValue();
 
 		Ext.Msg.show({
 			title:  _('this_action_may_take_a_long_time'),
@@ -92,7 +102,7 @@ Ext.define('App.controller.administration.BackUp', {
 				if(btn === 'yes'){
 					Ext.getBody().el.mask(_('creating_backup_be_right_back'));
 
-					BackUp.doBackUp(function () {
+					BackUp.doBackUp(do_s3_upload, ignore_codes, function () {
 						me.getAdministrationBackupGrid().store.load();
 						Ext.getBody().el.unmask();
 						Ext.Msg.alert(_('sweet'), _('backup_completed'));

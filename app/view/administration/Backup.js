@@ -36,11 +36,24 @@ Ext.define('App.view.administration.Backup', {
 		        store: me.store,
 		        itemId: 'AdministrationBackupGrid',
 		        tbar: [
+					'-',
 			        {
-			        	xtype: 'button',
-				        text: _('backup_now'),
-				        itemId: 'AdministrationBackupAsyncBackupBtn'
+			        	xtype: 'checkbox',
+						boxLabel: _('send_to_s3'),
+						margin: '0 10, 0 0',
+				        itemId: 'AdministrationBackupSendToS3Checkbox'
 			        },
+			        {
+			        	xtype: 'checkbox',
+				        boxLabel: _('ignore_code_tables'),
+				        itemId: 'AdministrationBackupIgnoreCodeTablesCheckbox'
+			        },
+					'-',
+					{
+						xtype: 'button',
+						text: _('backup_now'),
+						itemId: 'AdministrationBackupAsyncBackupBtn'
+					},
 			        '->',
 			        {
 			        	xtype: 'button',

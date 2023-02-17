@@ -45,8 +45,8 @@ class BackUp {
 		$this->a = MatchaModel::setSenchaModel('App.model.administration.AuditLog');
 	}
 
-	function doBackUp($do_s3_upload = true){
-		$db_result = $this->doDatabaseBackup($do_s3_upload);
+	function doBackUp($do_s3_upload = false, $ignore_codes = true){
+		$db_result = $this->doDatabaseBackup($do_s3_upload, $ignore_codes);
 
 		if($do_s3_upload){
 			if($db_result['success']){
@@ -62,20 +62,21 @@ class BackUp {
 	}
 
 
-	function doDatabaseBackup($do_s3_upload){
+	function doDatabaseBackup($do_s3_upload, $ignore_codes){
 		$options = '--compact --single-transaction --max_allowed_packet=1G --triggers ';
 		$bk_hostname = site_db_host;
+		$bk_port = site_db_port;
 		$bk_username = site_db_username;
 		$bk_password = site_db_password;
 		$bk_database = site_db_database;
-		$bk_tables = $this->getTables();
+		$bk_tables = $this->getTables($ignore_codes);
 		$bk_tables = implode(' ', $bk_tables);
 		$bk_directory = $this->getBackupDirectory();
 		$bk_directory = rtrim($bk_directory, '/');
 		$bk_filename = $this->getBackupFileName();
 		$bk_file = "{$bk_directory}/{$bk_filename}.gz";
 
-		$cmd = "mysqldump --host={$bk_hostname} --user={$bk_username} --password={$bk_password} {$options} {$bk_database} {$bk_tables} | gzip > {$bk_file}";
+		$cmd = "mysqldump --host={$bk_hostname} --port={$bk_port} --user={$bk_username} --password={$bk_password} {$options} {$bk_database} {$bk_tables} | gzip > {$bk_file}";
 
 		$success = shell_exec($cmd);
 
@@ -155,10 +156,20 @@ class BackUp {
 		return $valid;
 	}
 
-	function getTables(){
+	function getTables($ignore_codes){
 		$bk_tables = [];
+        $ignore_tables = $this->ignore_tables;
+
+        if($ignore_codes){
+            $ignore_tables = array_merge($ignore_tables, [
+               'sct_%',
+               'rxn%',
+               'loinc%',
+            ]);
+        }
+
 		$db_name = 'Tables_in_'. site_db_database;
-		$where = "{$db_name} NOT LIKE '" . implode("' OR {$db_name} NOT LIKE '", $this->ignore_tables) . "'";
+		$where = "`{$db_name}` NOT LIKE '" . implode("' OR `{$db_name}` NOT LIKE '", $ignore_tables) . "'";
 		$sql = 'SHOW TABLES WHERE ' . $where;
 
 		$conn = Matcha::getConn();

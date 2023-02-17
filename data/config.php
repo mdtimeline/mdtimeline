@@ -407,7 +407,7 @@ $API = [
     'BackUp' => [
         'methods' => [
             'doBackUp' => [
-                'len' => 0
+                'len' => 2
             ],
             'getBackUps' => [
                 'len' => 1

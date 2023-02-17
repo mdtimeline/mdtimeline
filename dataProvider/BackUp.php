@@ -169,7 +169,7 @@ class BackUp {
         }
 
 		$db_name = 'Tables_in_'. site_db_database;
-		$where = "`{$db_name}` NOT LIKE '" . implode("' OR `{$db_name}` NOT LIKE '", $ignore_tables) . "'";
+		$where = "`{$db_name}` NOT LIKE '" . implode("' AND `{$db_name}` NOT LIKE '", $ignore_tables) . "'";
 		$sql = 'SHOW TABLES WHERE ' . $where;
 
 		$conn = Matcha::getConn();

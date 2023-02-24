@@ -18,5 +18,6 @@
 
 Ext.define('App.store.administration.InsuranceCompanies', {
 	extend: 'Ext.data.Store',
-	model: 'App.model.administration.InsuranceCompany'
+	model: 'App.model.administration.InsuranceCompany',
+	pageSize: 150
 });

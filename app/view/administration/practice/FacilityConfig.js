@@ -124,13 +124,6 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 							width: 50,
 							hidden: true
 						},
-                        {
-                            text: _('taxonomy'),
-                            dataIndex: 'taxonomy',
-                            editor: {
-                                xtype: 'textfield'
-                            }
-                        },
 						{
 							text: 'title',
 							dataIndex: 'title',

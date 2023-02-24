@@ -38,12 +38,6 @@ Ext.define('App.model.administration.Department', {
 			len: 100
 		},
         {
-            name: 'taxonomy',
-            type: 'string',
-            len: 15
-        },
-
-        {
             name: 'external_id',
             type: 'string',
             len: 25

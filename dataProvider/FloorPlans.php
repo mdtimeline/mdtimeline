@@ -36,6 +36,16 @@ class FloorPlans {
 	 */
 	private $pool;
 
+    /**
+     * @var bool|MatchaCUP
+     */
+    private $fp;
+
+    /**
+     * @var bool|MatchaCUP
+     */
+    private $fpz;
+
 	function __construct(){
 		$this->fp = MatchaModel::setSenchaModel('App.model.administration.FloorPlans');
 		$this->fpz = MatchaModel::setSenchaModel('App.model.administration.FloorPlanZones');

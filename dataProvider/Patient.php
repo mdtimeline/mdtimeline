@@ -41,6 +41,12 @@ class Patient
 	 * @var MatchaCUP
 	 */
 	public $p;
+
+    /**
+     * @var ACL
+     */
+    public $acl;
+
 	/**
 	 * @var MatchaCUP
 	 */

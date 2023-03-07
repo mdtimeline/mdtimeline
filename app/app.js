@@ -31561,12 +31561,6 @@ Ext.define('App.model.administration.Department', {
 			len: 100
 		},
         {
-            name: 'taxonomy',
-            type: 'string',
-            len: 15
-        },
-
-        {
             name: 'external_id',
             type: 'string',
             len: 25
@@ -31738,13 +31732,6 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 							width: 50,
 							hidden: true
 						},
-                        {
-                            text: _('taxonomy'),
-                            dataIndex: 'taxonomy',
-                            editor: {
-                                xtype: 'textfield'
-                            }
-                        },
 						{
 							text: 'title',
 							dataIndex: 'title',
@@ -32286,7 +32273,8 @@ Ext.define('App.view.administration.practice.FacilityConfig', {
 
 Ext.define('App.store.administration.InsuranceCompanies', {
 	extend: 'Ext.data.Store',
-	model: 'App.model.administration.InsuranceCompany'
+	model: 'App.model.administration.InsuranceCompany',
+	pageSize: 150
 });
 Ext.define('App.ux.form.fields.InputTextMask', {
     constructor: function(mask, clearWhenInvalid) {

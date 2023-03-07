@@ -556,4 +556,61 @@ class Insurance {
         return $this->pic->destroy($params);
     }
 
+    public function getPatientInsurancesTokenByPid($pid) {
+
+        $tokens = [];
+
+        $primary = $this->getPatientPrimaryInsuranceByPid($pid);
+
+        if($primary !== false){
+            $tokens['[PATIENT_INS_PRIMARY_NAME]'] = $primary['insurance_company_name'];
+            $tokens['[PATIENT_INS_PRIMARY_CODE]'] = $primary['insurance_company_code'];
+            $tokens['[PATIENT_INS_PRIMARY_SYNONYM]'] = $primary['insurance_company_synonym'];
+            $tokens['[PATIENT_INS_PRIMARY_EES_NO]'] = $primary['insurance_company_ess_no'];
+            $tokens['[PATIENT_INS_PRIMARY_GROUP_NO]'] = $primary['group_number'];
+            $tokens['[PATIENT_INS_PRIMARY_POLICY_NO]'] = $primary['policy_number'];
+            $tokens['[PATIENT_INS_PRIMARY_EXP_DATE]'] = date('F j, Y', strtotime($primary['expiration_date']));
+            $tokens['[PATIENT_INS_PRIMARY_SUBSCRIBER_NAME]'] = trim(sprintf('%s, %s %s', $primary['subscriber_surname'], $primary['subscriber_given_name'], $primary['subscriber_middle_name']));
+            $tokens['[PATIENT_INS_PRIMARY_SUBSCRIBER_FNAME]'] = $primary['subscriber_given_name'];
+            $tokens['[PATIENT_INS_PRIMARY_SUBSCRIBER_MNAME]'] = $primary['subscriber_middle_name'];
+            $tokens['[PATIENT_INS_PRIMARY_SUBSCRIBER_LNAME]'] = $primary['subscriber_surname'];
+            $tokens['[PATIENT_INS_PRIMARY_SUBSCRIBER_SEX]'] = $primary['subscriber_sex'];
+            $tokens['[PATIENT_INS_PRIMARY_SUBSCRIBER_DOB]'] = date('F j, Y', strtotime($primary['subscriber_dob']));
+            $tokens['[PATIENT_INS_PRIMARY_SUBSCRIBER_SS]'] = $primary['subscriber_ss'];
+            $tokens['[PATIENT_INS_PRIMARY_SUBSCRIBER_ADDRESS_1]'] = $primary['subscriber_street'];
+            $tokens['[PATIENT_INS_PRIMARY_SUBSCRIBER_ADDRESS_2]'] = $primary['subscriber_street_cont'];
+            $tokens['[PATIENT_INS_PRIMARY_SUBSCRIBER_CITY]'] = $primary['subscriber_city'];
+            $tokens['[PATIENT_INS_PRIMARY_SUBSCRIBER_POSTAL_CODE]'] = $primary['subscriber_postal_code'];
+            $tokens['[PATIENT_INS_PRIMARY_SUBSCRIBER_PHONE]'] = $primary['subscriber_phone'];
+            $tokens['[PATIENT_INS_PRIMARY_SUBSCRIBER_EMPLOYER]'] = $primary['subscriber_employer'];
+        }
+
+        $secondary = $this->getPatientSecondaryInsuranceByPid($pid);
+
+        if($secondary !== false) {
+            $tokens['[PATIENT_INS_SECONDARY_NAME]'] = $secondary['insurance_company_name'];
+            $tokens['[PATIENT_INS_SECONDARY_CODE]'] = $secondary['insurance_company_code'];
+            $tokens['[PATIENT_INS_SECONDARY_SYNONYM]'] = $secondary['insurance_company_synonym'];
+            $tokens['[PATIENT_INS_SECONDARY_EES_NO]'] = $secondary['insurance_company_ess_no'];
+            $tokens['[PATIENT_INS_SECONDARY_GROUP_NO]'] = $secondary['group_number'];
+            $tokens['[PATIENT_INS_SECONDARY_POLICY_NO]'] = $secondary['policy_number'];
+            $tokens['[PATIENT_INS_SECONDARY_EXP_DATE]'] = date('F j, Y', strtotime($secondary['expiration_date']));
+            $tokens['[PATIENT_INS_SECONDARY_SUBSCRIBER_NAME]'] = trim(sprintf('%s, %s %s', $secondary['subscriber_surname'], $secondary['subscriber_given_name'], $secondary['subscriber_middle_name']));
+            $tokens['[PATIENT_INS_SECONDARY_SUBSCRIBER_FNAME]'] = $secondary['subscriber_given_name'];
+            $tokens['[PATIENT_INS_SECONDARY_SUBSCRIBER_MNAME]'] = $secondary['subscriber_middle_name'];
+            $tokens['[PATIENT_INS_SECONDARY_SUBSCRIBER_LNAME]'] = $secondary['subscriber_surname'];
+            $tokens['[PATIENT_INS_SECONDARY_SUBSCRIBER_SEX]'] = $secondary['subscriber_sex'];
+            $tokens['[PATIENT_INS_SECONDARY_SUBSCRIBER_DOB]'] = date('F j, Y', strtotime($secondary['subscriber_dob']));
+            $tokens['[PATIENT_INS_SECONDARY_SUBSCRIBER_SS]'] = $secondary['subscriber_ss'];
+            $tokens['[PATIENT_INS_SECONDARY_SUBSCRIBER_ADDRESS_1]'] = $secondary['subscriber_street'];
+            $tokens['[PATIENT_INS_SECONDARY_SUBSCRIBER_ADDRESS_2]'] = $secondary['subscriber_street_cont'];
+            $tokens['[PATIENT_INS_SECONDARY_SUBSCRIBER_CITY]'] = $secondary['subscriber_city'];
+            $tokens['[PATIENT_INS_SECONDARY_SUBSCRIBER_POSTAL_CODE]'] = $secondary['subscriber_postal_code'];
+            $tokens['[PATIENT_INS_SECONDARY_SUBSCRIBER_PHONE]'] = $secondary['subscriber_phone'];
+            $tokens['[PATIENT_INS_SECONDARY_SUBSCRIBER_EMPLOYER]'] = $secondary['subscriber_employer'];
+        }
+
+        return $tokens;
+    }
+
 }

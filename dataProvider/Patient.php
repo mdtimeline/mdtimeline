@@ -206,7 +206,7 @@ PREGNANCY_CODES;
 	}
 
 	/**
-	 * @param stdClass $params
+	 * @param stdClass|array $params
 	 * @param bool $fullname
 	 *
 	 * @return mixed

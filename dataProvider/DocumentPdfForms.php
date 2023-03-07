@@ -2,6 +2,7 @@
 
 //require_once (ROOT . '/lib/phptopdf/phpToPDF.php');
 require_once (ROOT . '/dataProvider/Patient.php');
+require_once (ROOT . '/dataProvider/Insurance.php');
 require_once (ROOT . '/dataProvider/User.php');
 require_once (ROOT . '/dataProvider/Facilities.php');
 require_once (ROOT . '/dataProvider/ReferringProviders.php');
@@ -31,6 +32,11 @@ class DocumentPdfForms {
     private $Patient;
 
     /**
+     * @var \Insurance
+     */
+    private $Insurance;
+
+    /**
      * @var \User
      */
     private $User;
@@ -48,6 +54,7 @@ class DocumentPdfForms {
     function __construct(){
         $this->d = \MatchaModel::setSenchaModel('App.model.administration.DocumentForm');
         $this->Patient = new \Patient();
+        $this->Insurance = new \Insurance();
         $this->User = new \User();
         $this->ReferringProviders = new \ReferringProviders();
         $this->Facilities = new \Facilities();
@@ -202,6 +209,9 @@ class DocumentPdfForms {
         PATIENT_AUTHORIZED2_RELATION
 
          */
+
+        $insurances_tokens = $this->Insurance->getPatientInsurancesTokenByPid($pid);
+        $fields_data = array_merge($fields_data, $insurances_tokens);
 
         // test value
         //$facility_id = 1;

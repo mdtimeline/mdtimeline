@@ -323,13 +323,10 @@ Ext.define('App.controller.patient.Insurance', {
         return canvas.toDataURL();
     },
 
-
     onPatientInsurancesFormIsActiveCkBoxChange: function (field){
 
         var form = field.up('form').getForm(),
             values = form.getValues();
-
-
     },
 
     onInsuranceSubscriberAddressCopyBtnClick: function (btn){

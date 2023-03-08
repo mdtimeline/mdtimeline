@@ -459,7 +459,6 @@ class Insurance {
 
             }
 
-
             if ($result['valueExist'] == "load") {
 
                 $_add_params = (object) array(

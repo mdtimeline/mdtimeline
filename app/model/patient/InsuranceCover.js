@@ -19,8 +19,18 @@ Ext.define('App.model.patient.InsuranceCover',{
             type: 'int'
         },
         {
+            name: 'department_title',
+            type: 'string',
+            store: false
+        },
+        {
             name: 'service_type_id',
             type: 'int'
+        },
+        {
+            name: 'service_type_description',
+            type: 'string',
+            store: false
         },
         {
             name: 'isDollar',
@@ -39,12 +49,16 @@ Ext.define('App.model.patient.InsuranceCover',{
             type: 'float'
         },
         {
-            name: 'exception',
-            type: 'bool'
+            name: 'patient_insurance_id',
+            type: 'int'
         },
         {
-            name: 'active',
-            type: 'bool'
+            name: 'external_id',
+            type: 'string'
+        },
+        {
+            name: 'global_id',
+            type: 'string'
         },
         {
             name: 'create_uid',
@@ -53,31 +67,6 @@ Ext.define('App.model.patient.InsuranceCover',{
         {
             name: 'update_uid',
             type: 'int'
-        },
-        {
-            name: 'department_id',
-            type: 'string',
-            store: false
-        },
-        {
-            name: 'department_title',
-            type: 'string',
-            store: false
-        },
-        {
-            name: 'specialty_id',
-            type: 'string',
-            store: false
-        },
-        {
-            name: 'specialty_title',
-            type: 'string',
-            store: false
-        },
-        {
-            name: 'service_type_description',
-            type: 'string',
-            store: false
         },
         {
             name: 'create_date',

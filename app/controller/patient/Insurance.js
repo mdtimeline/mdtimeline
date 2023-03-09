@@ -711,8 +711,7 @@ Ext.define('App.controller.patient.Insurance', {
         for (var c = 0; c < cover_grid_records.length; c++) {
             cover_grid_records[c].set({
                 exception_copay: 0.00,
-                exception_isDollar: true,
-                exception: false
+                exception_isDollar: true
             });
         }
     },
@@ -750,7 +749,6 @@ Ext.define('App.controller.patient.Insurance', {
                 copay: copay,
                 exception_copay: 0.00,
                 exception_isDollar: false,
-                exception: false,
                 update_date: new Date(),
                 update_uid: app.user.id
             });
@@ -765,7 +763,6 @@ Ext.define('App.controller.patient.Insurance', {
                 copay: 0.00,
                 exception_copay: e_copay,
                 exception_isDollar: true,
-                exception: true,
                 update_date: new Date(),
                 update_uid: app.user.id
             });
@@ -806,8 +803,7 @@ Ext.define('App.controller.patient.Insurance', {
             for (var c = 0; c < cover_grid_records.length; c++) {
                 cover_grid_records[c].set({
                     exception_copay: 0.00,
-                    exception_isDollar: true,
-                    exception: false
+                    exception_isDollar: true
                 });
             }
 
@@ -819,7 +815,6 @@ Ext.define('App.controller.patient.Insurance', {
                         cover_grid_records[i].set({
                             exception_copay: response[r].copay,
                             exception_isDollar: response[r].isDollar,
-                            exception: true,
                             update_date: new Date(),
                             update_uid: app.user.id
                         });

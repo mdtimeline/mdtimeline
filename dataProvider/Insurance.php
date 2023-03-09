@@ -373,15 +373,12 @@ class Insurance {
                 select
                     pic_id, 
                     service_type_id,
-                    department_id,
-                    department_title,
                     service_type_description,
                     max(isDollar) as isDollar,
                     max(copay) as copay,
                     max(exception_isDollar) as exception_isDollar,
                     max(exception_copay) as exception_copay,
-                    max(exception) as exception,
-                    max(active) as active,
+                    max(cover_id) as cover_id,
                     max(valueExist) as valueExist,
                     max(update_date) as update_date
                 from
@@ -389,19 +386,15 @@ class Insurance {
                         select
                             null                 as pic_id,
                             st.id                as service_type_id,
-                            st.department_id     as department_id,
-                            dp.title             as department_title,
                             st.description       as service_type_description,
                             st.isDollar          as isDollar,
                             0.00                 as copay,
                             true                 as exception_isDollar,
                             0.00                 as exception_copay,
-                            false                as exception,
-                            true                 as active,
+                            null                 as cover_id,
                             'add'                as valueExist,
                             now()                as update_date
                         from acc_billing_271_service_types st
-                            join departments dp  on st.department_id = dp.id
                         where st.active = true and 
                               st.id not in ( select service_type_id 
 										     from patient_insurance_covers 
@@ -413,15 +406,12 @@ class Insurance {
                         select
                             pic.id               as pic_id,
                             st.id                as service_type_id,
-                            st.department_id     as department_id,
-                            dp.title             as department_title,
                             st.description       as service_type_description,
                             st.isDollar          as isDollar,
                             pic.copay,
-                            pic.exception_isDollar          as exception_isDollar,
+                            pic.exception_isDollar,
                             pic.exception_copay,
-                            pic.exception, 
-                            pic.active, 
+                            pic.cover_id,
                             case st.active 
                             when true then 'load'
                             when false then 'delete'
@@ -429,15 +419,12 @@ class Insurance {
                             pic.update_date as update_date
                         from patient_insurance_covers pic
                             join acc_billing_271_service_types st on st.id = pic.service_type_id
-                            join departments dp  on st.department_id = dp.id
                         where patient_insurance_id = :patientInsuranceId_1 
                         
                     ) t1
                     
                 group by
                     service_type_id,
-                    department_id,
-                    department_title,
                     service_type_description ";
 
         $results = $this->pic->sql($sqlSelect)->all($_query_params);
@@ -469,8 +456,7 @@ class Insurance {
                     'copay' =>  $result['copay'],
                     'exception_isDollar' => $result['exception_isDollar'],
                     'exception_copay' => $result['exception_copay'],
-                    'exception' => $result['exception'],
-                    'active' =>  $result['active'],
+                    'cover_id' => $result['cover_id'],
                     'create_uid' =>  $_SESSION['user']['id'],
                     'update_uid' =>  $_SESSION['user']['id'],
                     'create_date' =>  date("Y-m-d H:i:s"),
@@ -489,8 +475,7 @@ class Insurance {
                     'copay' =>  $result['copay'],
                     'exception_isDollar' => $result['exception_isDollar'],
                     'exception_copay' => $result['exception_copay'],
-                    'exception' => $result['exception'],
-                    'active' =>  $result['active'],
+                    'cover_id' => $result['cover_id'],
                     'create_uid' =>  $_SESSION['user']['id'],
                     'update_uid' =>  $_SESSION['user']['id'],
                     'create_date' =>  date("Y-m-d H:i:s"),
@@ -515,8 +500,7 @@ class Insurance {
                             pic.copay                as copay,
                             pic.exception_isDollar   as exception_isDollar,
                             pic.exception_copay      as exception_copay,
-                            pic.exception            as exception,
-                            pic.active               as active,
+                            pic.cover_id as cover_id,
                             pic.create_uid           as create_uid,
                             pic.update_uid           as update_uid,
                             pic.create_date          as create_date,

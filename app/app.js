@@ -57045,13 +57045,10 @@ Ext.define('App.controller.patient.Insurance', {
         return canvas.toDataURL();
     },
 
-
     onPatientInsurancesFormIsActiveCkBoxChange: function (field){
 
         var form = field.up('form').getForm(),
             values = form.getValues();
-
-
     },
 
     onInsuranceSubscriberAddressCopyBtnClick: function (btn){
@@ -57436,8 +57433,7 @@ Ext.define('App.controller.patient.Insurance', {
         for (var c = 0; c < cover_grid_records.length; c++) {
             cover_grid_records[c].set({
                 exception_copay: 0.00,
-                exception_isDollar: true,
-                exception: false
+                exception_isDollar: true
             });
         }
     },
@@ -57475,7 +57471,6 @@ Ext.define('App.controller.patient.Insurance', {
                 copay: copay,
                 exception_copay: 0.00,
                 exception_isDollar: false,
-                exception: false,
                 update_date: new Date(),
                 update_uid: app.user.id
             });
@@ -57490,7 +57485,6 @@ Ext.define('App.controller.patient.Insurance', {
                 copay: 0.00,
                 exception_copay: e_copay,
                 exception_isDollar: true,
-                exception: true,
                 update_date: new Date(),
                 update_uid: app.user.id
             });
@@ -57531,8 +57525,7 @@ Ext.define('App.controller.patient.Insurance', {
             for (var c = 0; c < cover_grid_records.length; c++) {
                 cover_grid_records[c].set({
                     exception_copay: 0.00,
-                    exception_isDollar: true,
-                    exception: false
+                    exception_isDollar: true
                 });
             }
 
@@ -57544,7 +57537,6 @@ Ext.define('App.controller.patient.Insurance', {
                         cover_grid_records[i].set({
                             exception_copay: response[r].copay,
                             exception_isDollar: response[r].isDollar,
-                            exception: true,
                             update_date: new Date(),
                             update_uid: app.user.id
                         });
@@ -101363,8 +101355,18 @@ Ext.define('App.model.patient.InsuranceCover',{
             type: 'int'
         },
         {
+            name: 'department_title',
+            type: 'string',
+            store: false
+        },
+        {
             name: 'service_type_id',
             type: 'int'
+        },
+        {
+            name: 'service_type_description',
+            type: 'string',
+            store: false
         },
         {
             name: 'isDollar',
@@ -101383,12 +101385,16 @@ Ext.define('App.model.patient.InsuranceCover',{
             type: 'float'
         },
         {
-            name: 'exception',
-            type: 'bool'
+            name: 'patient_insurance_id',
+            type: 'int'
         },
         {
-            name: 'active',
-            type: 'bool'
+            name: 'external_id',
+            type: 'string'
+        },
+        {
+            name: 'global_id',
+            type: 'string'
         },
         {
             name: 'create_uid',
@@ -101397,31 +101403,6 @@ Ext.define('App.model.patient.InsuranceCover',{
         {
             name: 'update_uid',
             type: 'int'
-        },
-        {
-            name: 'department_id',
-            type: 'string',
-            store: false
-        },
-        {
-            name: 'department_title',
-            type: 'string',
-            store: false
-        },
-        {
-            name: 'specialty_id',
-            type: 'string',
-            store: false
-        },
-        {
-            name: 'specialty_title',
-            type: 'string',
-            store: false
-        },
-        {
-            name: 'service_type_description',
-            type: 'string',
-            store: false
         },
         {
             name: 'create_date',

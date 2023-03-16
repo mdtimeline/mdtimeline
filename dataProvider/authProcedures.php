@@ -143,6 +143,7 @@ class authProcedures {
 				'mname',
 				'lname',
 				'email',
+				'city',
 				'facility_id',
 				'npi',
 				'lic',
@@ -312,7 +313,9 @@ class authProcedures {
 
 		unset($db);
 
-		session_regenerate_id(true);
+        if(session_status() === PHP_SESSION_ACTIVE){
+            session_regenerate_id(true);
+        }
 
 		$password_exp_flag = Globals::getGlobal('password_expiration');
 

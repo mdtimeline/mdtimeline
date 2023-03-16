@@ -96,7 +96,8 @@ Ext.define('App.controller.patient.Documents', {
 			'viewport': {
 				browserhelperopen: me.onBrowserHelperOpen,
 				browserhelperclose: me.onBrowserHelperClose,
-				documentedit: me.onDocumentEdit
+				documentedit: me.onDocumentEdit,
+				scandocumentssave: me.onScanDocumentsSave
 			},
 			'patientdocumentspanel': {
 				activate: me.onPatientDocumentPanelActive,
@@ -436,6 +437,14 @@ Ext.define('App.controller.patient.Documents', {
 			});
 
 		}
+	},
+
+	onScanDocumentsSave: function (){
+		var document_grids = Ext.ComponentQuery.query('patientdocumentspanel #patientDocumentGrid{isVisible(true)}');
+
+		document_grids.forEach(function (document_grid) {
+			document_grid.getStore().reload();
+		});
 	},
 
 	onBrowserHelperOpen: function(){

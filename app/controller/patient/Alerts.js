@@ -94,10 +94,16 @@ Ext.define('App.controller.patient.Alerts', {
 	},
 
 	onPatientSet: function(patient){
+		if(!a('access_patient_alerts')){
+			return;
+		}
 		this.getPatientAlerts('Administrative', patient.pid);
 	},
 
 	onEncounterOpen: function(encounterRecord){
+		if(!a('access_patient_alerts')){
+			return;
+		}
 		this.getPatientAlerts('Clinical', encounterRecord.data.pid);
 	},
 

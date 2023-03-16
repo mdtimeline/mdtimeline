@@ -50482,10 +50482,16 @@ Ext.define('App.controller.patient.Alerts', {
 	},
 
 	onPatientSet: function(patient){
+		if(!a('access_patient_alerts')){
+			return;
+		}
 		this.getPatientAlerts('Administrative', patient.pid);
 	},
 
 	onEncounterOpen: function(encounterRecord){
+		if(!a('access_patient_alerts')){
+			return;
+		}
 		this.getPatientAlerts('Clinical', encounterRecord.data.pid);
 	},
 
@@ -62599,7 +62605,9 @@ Ext.define('App.controller.patient.Summary', {
 	reloadGrid:function(grid){
 		var store;
 
-		if(grid.itemId == 'PatientSummaryVitalsPanel'){
+		if(grid.itemId  === 'patientsummarydicomgrid'){
+			return;
+		}else if(grid.itemId === 'PatientSummaryVitalsPanel'){
 			store = grid.down('vitalsdataview').getStore();
 		}else{
 			store = grid.getStore();
@@ -78259,7 +78267,8 @@ Ext.define('App.controller.patient.Documents', {
 			'viewport': {
 				browserhelperopen: me.onBrowserHelperOpen,
 				browserhelperclose: me.onBrowserHelperClose,
-				documentedit: me.onDocumentEdit
+				documentedit: me.onDocumentEdit,
+				scandocumentssave: me.onScanDocumentsSave
 			},
 			'patientdocumentspanel': {
 				activate: me.onPatientDocumentPanelActive,
@@ -78599,6 +78608,14 @@ Ext.define('App.controller.patient.Documents', {
 			});
 
 		}
+	},
+
+	onScanDocumentsSave: function (){
+		var document_grids = Ext.ComponentQuery.query('patientdocumentspanel #patientDocumentGrid{isVisible(true)}');
+
+		document_grids.forEach(function (document_grid) {
+			document_grid.getStore().reload();
+		});
 	},
 
 	onBrowserHelperOpen: function(){

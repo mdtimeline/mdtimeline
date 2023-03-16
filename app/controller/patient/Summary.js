@@ -147,7 +147,9 @@ Ext.define('App.controller.patient.Summary', {
 	reloadGrid:function(grid){
 		var store;
 
-		if(grid.itemId == 'PatientSummaryVitalsPanel'){
+		if(grid.itemId  === 'patientsummarydicomgrid'){
+			return;
+		}else if(grid.itemId === 'PatientSummaryVitalsPanel'){
 			store = grid.down('vitalsdataview').getStore();
 		}else{
 			store = grid.getStore();

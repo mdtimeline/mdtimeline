@@ -424,6 +424,7 @@ class Insurance {
                     ) t1
                     
                 group by
+                    pic_id, 
                     service_type_id,
                     service_type_description ";
 

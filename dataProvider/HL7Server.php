@@ -246,6 +246,8 @@ class HL7Server {
 		$facility = $hl7->getSendingFacility();
 		$facility_id = $hl7->getSendingFacilityId();
 		$version = $hl7->getMsgVersionId();
+        $msg_type = $hl7->getMsgType();
+
 
 		/**
 		 * check HL7 version
@@ -315,7 +317,9 @@ INI_CONFIG;
 		 *
 		 */
 		$msgRecord = new stdClass();
-		$msgRecord->msg_type = $hl7->getMsgType();
+        $msgRecord->msg_id = $hl7->getMsgControlId();
+        $msgRecord->msg_parent_id = null;
+		$msgRecord->msg_type = $msg_type;
 		$msgRecord->message = $this->msg;
 		$msgRecord->foreign_facility = $hl7->getSendingFacility();
 		$msgRecord->foreign_application = $hl7->getSendingApplication();
@@ -332,10 +336,12 @@ INI_CONFIG;
 			/**
 			 *
 			 */
-			$msg_type = $hl7->getMsgType();
 
 			try {
 				switch($msg_type) {
+                    case 'ACK':
+                        $this->ProcessACK($hl7, $msg, $msgRecord, $facilityRecord);
+                        break;
 					case 'ORU':
 						$this->ProcessORU($hl7, $msg, $msgRecord, $facilityRecord);
 						break;
@@ -404,13 +410,19 @@ INI_CONFIG;
 
 	}
 
+    protected function processACK($hl7, $msg, &$msgRecord, $facilityRecord){
+
+        $msgRecord['msg_parent_id'] = $msg->data['MSA'][0][2];
+
+    }
+
 	/**
 	 * @param $hl7 HL7
 	 * @param $msg
 	 * @param $msgRecord
 	 * @param $facilityRecord
 	 */
-	protected function ProcessORU($hl7, $msg, $msgRecord, $facilityRecord) {
+	protected function ProcessORU($hl7, $msg, &$msgRecord, $facilityRecord) {
 		foreach($msg->data['PATIENT_RESULT'] AS $patient_result){
 			$patient = isset($patient_result['PATIENT']) ? $patient_result['PATIENT'] : null;
 

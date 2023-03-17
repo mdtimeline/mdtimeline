@@ -28,6 +28,18 @@ Ext.define('App.model.administration.HL7Message', {
 			type: 'int'
 		},
 		{
+			name: 'msg_id',
+			type: 'string',
+			len: 80,
+			index: true
+		},
+		{
+			name: 'msg_parent_id',
+			type: 'string',
+			len: 80,
+			index: true
+		},
+		{
 			name: 'msg_type',
 			type: 'string',
 			len: 15,

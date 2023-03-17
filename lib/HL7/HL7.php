@@ -133,7 +133,8 @@ class HL7 {
 	 */
 	function getMsgControlId(){
 		$seg = $this->getSegment('MSH');
-		if(isset($seg->data)) return $seg->data[10];
+		if(isset($seg->data[10])) return $seg->data[10];
+		if(isset($seg->rawSeg[10])) return $seg->rawSeg[10];
 		return null;
 	}
 

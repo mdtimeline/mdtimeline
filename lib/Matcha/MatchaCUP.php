@@ -1320,7 +1320,11 @@ class MatchaCUP {
 		$values = array_values($data);
 
 		foreach($columns as $index => $column){
-			if(!in_array($column, $this->fields)){
+
+			if(
+                !in_array($column, $this->fields) ||
+                ($column === ':global_id' && $values[$index] === '')
+            ){
 				unset($columns[$index], $values[$index]);
 			}
 		}

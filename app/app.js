@@ -57526,7 +57526,7 @@ Ext.define('App.controller.patient.Insurance', {
             cover_grid_store = cover_grid.getStore(),
             cover_grid_records = cover_grid_store.getRange();
 
-        BillingCover.getBillingCoverExceptionByCoverId(selected_cover[0].get('id'), function (response) {
+        BillingCover.getBillingCoverServiceTypeByCoverId(selected_cover[0].get('id'), function (response) {
 
             for (var c = 0; c < cover_grid_records.length; c++) {
                 cover_grid_records[c].set({

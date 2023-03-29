@@ -9048,7 +9048,7 @@ Ext.define('App.ux.combo.FloorPlanAreas', {
 	}
 });
 Ext.define('App.ux.combo.Facilities', {
-	extend: 'Ext.form.ComboBox',
+	extend: 'App.ux.combo.ComboResettable',
 	alias: 'widget.mitos.facilitiescombo',
 	editable: false,
 	queryMode: 'local',

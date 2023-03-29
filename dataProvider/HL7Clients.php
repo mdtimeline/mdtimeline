@@ -22,7 +22,7 @@ class HL7Clients {
 	/**
 	 * @var MatchaCUP
 	 */
-	protected $c;
+	public $c;
 
 	function __construct() {
 		$this->c = MatchaModel::setSenchaModel('App.model.administration.HL7Client');

@@ -78,6 +78,7 @@ class ORM extends Message {
 						'FT1' => array('repeatable' => true),
 						'CTI' => array('repeatable' => true),
 						'BLG' => array(),
+						'ZDS' => array(),
 					)
 				)
 			)

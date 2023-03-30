@@ -158,7 +158,9 @@ class Insurance {
         return $this->pi->load()->leftJoin(
             [
                 'code' => 'insurance_company_code',
-                'name' => 'insurance_company_name'
+                'name' => 'insurance_company_name',
+                'external_id' => 'insurance_company_external_id',
+                'global_id' => 'insurance_company_global_id'
             ],
             'insurance_companies',
             'insurance_id',

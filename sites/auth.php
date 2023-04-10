@@ -7,6 +7,11 @@ include_once ('../session.php');
 
 $file = $_REQUEST['file'];
 
+if(preg_match('/php$/', $file)){
+    header("HTTP/1.1 403 Forbidden");
+    exit;
+}
+
 if(!file_exists($file) || !is_readable($file)){
 	header("HTTP/1.1 403 Forbidden");
 	exit;

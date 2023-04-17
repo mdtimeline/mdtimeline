@@ -7,14 +7,29 @@ include_once ('../session.php');
 
 $file = $_REQUEST['file'];
 
-if(preg_match('/php$/', $file)){
-    header("HTTP/1.1 403 Forbidden");
+if(
+    preg_match('/php$/', $file) ||
+    preg_match('/bin$/', $file) ||
+    preg_match('/log\//', $file) ||
+    preg_match('/documents\//', $file) ||
+    preg_match('/DICOM\//', $file) ||
+    preg_match('/certs\//', $file) ||
+    preg_match('/patients\//', $file) ||
+    preg_match('/temp\//', $file) ||
+    preg_match('/X12\//', $file)
+){
+    header("HTTP/1.1 404 Not Found");
     exit;
 }
 
 if(!file_exists($file) || !is_readable($file)){
-	header("HTTP/1.1 403 Forbidden");
+	header("HTTP/1.1 404 Not Found");
 	exit;
+}
+
+if(is_dir($file)){
+    header("HTTP/1.1 404 Not Found");
+    exit;
 }
 
 preg_match('/^[a-z]*/', $file, $matches);
@@ -22,7 +37,7 @@ preg_match('/^[a-z]*/', $file, $matches);
 if(isset($matches[0])){
 	define('SITE',$matches[0]);
 }else{
-	header("HTTP/1.1 403 Forbidden");
+	header("HTTP/1.1 404 Not Found");
 	exit;
 }
 
@@ -32,8 +47,15 @@ Site::setAllowSiteSwitch(true);
 require_once(str_replace('\\', '/', dirname(dirname(__FILE__))) . '/registry.php');
 $URL = URL;
 
+// allow audio only if user is allow to play audios
+include_once ('../dataProvider/ACL.php');
+if(preg_match('/audios/', $file) && !ACL::hasPermission('worklist_play_recorder')){
+    header("HTTP/1.1 404 Not Found");
+    exit;
+}
+
 if(!file_exists($file) || !is_readable($file)){
-	header("HTTP/1.1 403 Forbidden");
+	header("HTTP/1.1 404 Not Found");
 	exit;
 }
 
@@ -55,5 +77,5 @@ if (
 	header("Content-type: $mine");
 	print file_get_contents($file);
 }else{
-	header("HTTP/1.1 403 Forbidden");
+	header("HTTP/1.1 404 Not Found");
 }

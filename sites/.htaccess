@@ -1,3 +1,4 @@
 Options +FollowSymLinks
 RewriteEngine on
+RewriteCond %{REQUEST_URI} !/public/.*
 RewriteRule ^([a-z]*/.*)$ auth.php?file=$1 [NC]

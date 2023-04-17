@@ -16,4 +16,17 @@
 
 Options -Indexes
 
-RedirectMatch 404 /\.git
+RedirectMatch 404 \.git
+RedirectMatch 404 \.idea
+RedirectMatch 404 /sites/conf.php$
+RedirectMatch 404 /sites/conf.example.php$
+RedirectMatch 404 /sites/.*/certs/.*$
+RedirectMatch 404 /sites/.*/DICOM.*$
+RedirectMatch 404 /sites/.*/documents/.*$
+RedirectMatch 404 /sites/.*/hooks/.*$
+RedirectMatch 404 /sites/.*/jobs/.*$
+RedirectMatch 404 /sites/.*/log/.*$
+RedirectMatch 404 /sites/.*/patients/.*$
+RedirectMatch 404 /sites/.*/temp/.*$
+RedirectMatch 404 /sites/.*/trash/.*$
+RedirectMatch 404 /sites/.*/X12/.*$

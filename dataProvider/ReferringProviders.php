@@ -250,7 +250,6 @@ class ReferringProviders {
         return $this->rb->load()->one() !== false;
     }
 
-
     public function npiRegistrySearchByNpi($nip){
 
         if(strlen($nip) !== 10 || !$this->isNpiValid($nip)){

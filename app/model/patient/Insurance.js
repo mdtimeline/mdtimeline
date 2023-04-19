@@ -215,8 +215,13 @@ Ext.define('App.model.patient.Insurance',{
             len: 320
         },
         {
-            name: 'cover_exceptions',
-            type: 'string'
+            name: 'cover_exception_id',
+            type: 'int'
+        },
+        {
+            name: 'cover_exception',
+            type: 'string',
+            store: false
         },
         {
             name: 'deductible',

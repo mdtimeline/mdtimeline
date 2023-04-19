@@ -24,6 +24,11 @@ Ext.define('App.model.patient.InsuranceCover',{
             store: false
         },
         {
+            name: 'cover_exception',
+            type: 'string',
+            store: false
+        },
+        {
             name: 'service_type_id',
             type: 'int'
         },
@@ -47,10 +52,6 @@ Ext.define('App.model.patient.InsuranceCover',{
         {
             name: 'exception_copay',
             type: 'float'
-        },
-        {
-            name: 'patient_insurance_id',
-            type: 'int'
         },
         {
             name: 'external_id',
@@ -77,6 +78,26 @@ Ext.define('App.model.patient.InsuranceCover',{
             name: 'update_date',
             type: 'date',
             dateFormat: 'Y-m-d H:i:s'
+        },
+        {
+            name: 'validate_copay',
+            type: 'bool',
+            store: false
+        },
+        {
+            name: 'validate_ecopay',
+            type: 'bool',
+            store: false
+        },
+        {
+            name: 'validate_service_type_status',
+            type: 'bool',
+            store: false
+        },
+        {
+            name: 'load_billing_cover',
+            type: 'bool',
+            store: false
         }
     ],
     proxy: {

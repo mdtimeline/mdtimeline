@@ -35,6 +35,18 @@ class Insurance {
 	 * @var MatchaCUP
 	 */
 	private $bid;
+    /**
+     * @var MatchaCUP
+     */
+    private $bc;
+    /**
+     * @var MatchaCUP
+     */
+    private $bcst;
+    /**
+     * @var MatchaCUP
+     */
+    private $bst;
 
 	function __construct(){
         $this->ic = MatchaModel::setSenchaModel('App.model.administration.InsuranceCompany');
@@ -46,6 +58,15 @@ class Insurance {
 
         if(!isset($this->bid))
             $this->bid = \MatchaModel::setSenchaModel('Modules.billing.model.BillingInsuranceData');
+
+        if(!isset($this->bc))
+            $this->bc = \MatchaModel::setSenchaModel('Modules.billing.model.BillingCover');
+
+        if(!isset($this->bcst))
+            $this->bcst = \MatchaModel::setSenchaModel('Modules.billing.model.BillingCoverServiceType');
+
+        if(!isset($this->bst))
+            $this->bst = \MatchaModel::setSenchaModel('Modules.billing.model.Billing271ServiceType');
 
         \Matcha::setAppDir(ROOT.'/app');
 	}
@@ -84,7 +105,16 @@ class Insurance {
 	        ['id' => 'insurance_company_id', 'name' => 'ins_name'], 'insurance_companies', 'insurance_id', 'id'
         )->leftJoin(
 	        ['synonym' => 'ins_synonym'], 'acc_billing_insurance_data', 'insurance_id', 'insurance_id'
+        )->leftJoin(
+            ['id' => 'cover_exception_id', 'description' => 'cover_description', 'deductible' => 'deductible', 'cover' => 'cover_exception'], 'acc_billing_covers', 'cover_exception_id', 'id'
         )->all();
+
+        $getRecords = array_map(function($record) {
+            if ($record['cover_exception'] != 0)
+                $record['cover_exception'] = $record['ins_name'] . ': ' . $record['cover_exception'];
+
+            return $record;
+        }, $getRecords);
 
         return $getRecords;
 	}
@@ -299,14 +329,29 @@ class Insurance {
     public function getInsuranceCovers($params) {
 
         $patient_insurance_id = "";
+        $insurance_id = "";
+        $cover_exception_id = "";
+        $load_cover = false;
 
         foreach($params->filter as $i => $varName) {
             if ($varName->property == 'patient_insurance_id') {
                 $patient_insurance_id = $varName->value;
             }
+
+            if ($varName->property == 'insurance_id') {
+                $insurance_id = $varName->value;
+            }
+
+            if ($varName->property == 'cover_exception_id') {
+                $cover_exception_id = $varName->value;
+            }
+
+            if ($varName->property == 'load_cover') {
+                $load_cover = $varName->value;
+            }
         }
 
-        $finalResults = $this->doGetPatientInsuranceCovers($patient_insurance_id);
+        $finalResults = $this->doGetPatientInsuranceCovers($patient_insurance_id, $insurance_id, $cover_exception_id, $load_cover);
 
         return $finalResults;
     }
@@ -320,203 +365,550 @@ class Insurance {
         return $finalResults;
     }
 
-    public function doGetPatientInsuranceCovers($patient_insurance_id) {
+    public function doGetPatientInsuranceCovers($patient_insurance_id, $insurance_id, $cover_exception_id, $load_cover) {
 
-        if ($patient_insurance_id === 0) {
+        $finalResults = [];
 
-            #region Seguro Paciente NO SE HA ANADIDO. POR ENDE Patient_Insurance_Id === 0
-
+        // Patient insurance is being added, get default insurance covers
+        if ($patient_insurance_id == 0) {
             $_query_params = [];
             $_query_params['create_uid'] =  $_SESSION['user']['id'];
             $_query_params['update_uid'] =  $_SESSION['user']['id'];
             $_query_params['create_date'] =  date("Y-m-d H:i:s");
             $_query_params['update_date'] =  date("Y-m-d H:i:s");
 
-            $sqlSelect = "select
-                              ''                 as id, 
-                              ''                 as patient_insurance_id,
-                            st.id                as service_type_id,
-                            st.description       as service_type_description,
-                            st.department_id     as department_id,
-                            dp.title             as department_title,
-                            st.isDollar          as isDollar,
-                            0.00                 as copay,
-                            st.isDollar          as exception_isDollar,
-                            0.00                 as exception_copay,
-                            false                as exception,
-                            st.active            as active,
-                            :create_uid          as create_uid,
-                            :update_uid          as update_uid,  
-                            :create_date         as create_date,
-                            :update_date         as update_date
+            $default_cover_service_types = $this->pic->sql("
+                    select
+                            NULL                    as id,
+                            NULL                    as patient_insurance_id,
+                            NULL                    as cover_id,
+                            st.id                   as service_type_id,
+                            st.description          as service_type_description,
+                            st.department_id        as department_id,
+                            dp.title                as department_title,
+                            st.isDollar             as isDollar,
+                            0.00                    as copay,
+                            st.isDollar             as exception_isDollar,
+                            0.00                    as exception_copay,
+                            false                   as `exception`,
+                            st.active               as active,
+                            :create_uid             as create_uid,
+                            :update_uid             as update_uid,
+                            :create_date            as create_date,
+                            :update_date            as update_date,
+                            false                   as validate_copay,
+                            false                   as validate_ecopay,
+                            false                   as validate_service_type_status
                         from acc_billing_271_service_types st
                             left join departments dp  on st.department_id = dp.id
-                        where st.active = true  ";
+                        where st.active = true
+                ")->all($_query_params);
 
-            $finalResults =  $this->pic->sql($sqlSelect)->all($_query_params);
 
-            foreach ($finalResults as &$finalResult){
-                $finalResult['id'] = null;
-                $finalResult['patient_insurance_id'] = null;
-            }
-
-            #endregion
-
-            return $finalResults;
+            return $default_cover_service_types;
         }
 
-        #region Validar el Template de Cubiertas con las del Paciente (Para anadir nuevas y eliminar Inactivas)
+        // Load patient insurance Covers
+        $patient_insurance_cover_records = $this->pic->load([
+            'patient_insurance_id' => $patient_insurance_id
+        ])->all();
 
-        $_query_params = [];
-        $_query_params['patientInsuranceId_0'] =  $patient_insurance_id;
-        $_query_params['patientInsuranceId_1'] =  $patient_insurance_id;
 
-        $sqlSelect = "
-                select
-                    pic_id, 
-                    service_type_id,
-                    service_type_description,
-                    max(isDollar) as isDollar,
-                    max(copay) as copay,
-                    max(exception_isDollar) as exception_isDollar,
-                    max(exception_copay) as exception_copay,
-                    max(cover_id) as cover_id,
-                    max(valueExist) as valueExist,
-                    max(update_date) as update_date
-                from
-                    (
-                        select
-                            null                 as pic_id,
-                            st.id                as service_type_id,
-                            st.description       as service_type_description,
-                            st.isDollar          as isDollar,
-                            0.00                 as copay,
-                            true                 as exception_isDollar,
-                            0.00                 as exception_copay,
-                            null                 as cover_id,
-                            'add'                as valueExist,
-                            now()                as update_date
+
+        // check if patient has insurance covers, if not, check if the selected insurance has a billing exception cover,
+        // If not, then load the default covers from the default service types
+        if (count($patient_insurance_cover_records) == 0) {
+
+            // If the insurance has a billing cover, load the cover service types...
+            if ($cover_exception_id != 0) {
+
+                $cover_service_types = $this->pic->sql("
+                    select
+                            NULL                        as id,
+                            abc.id                      as cover_id,
+                            abcst.id                    as cover_service_type_id,
+                            abcst.service_type_id       as service_type_id,
+                            abst.description            as service_type_description,
+                            abst.department_id          as department_id,
+                            dp.title                    as department_title,
+                            abcst.isDollar              as isDollar,
+                            abcst.copay                 as copay,
+                            abcst.exception_isDollar    as exception_isDollar,
+                            abcst.exception_copay       as exception_copay,
+                            abc.active                  as active,
+                            abcst.create_uid            as create_uid,
+                            abcst.update_uid            as update_uid,
+                            abcst.create_date           as create_date,
+                            abcst.update_date           as update_date,
+                            false                       as validate_copay,
+                            false                       as validate_ecopay,
+                            false                       as validate_service_type_status
+                        from acc_billing_covers abc
+                            left join acc_billing_cover_service_types abcst  on abc.id = abcst.cover_id
+                            left join acc_billing_271_service_types abst on abcst.service_type_id = abst.id
+                            left join departments dp on abst.department_id = dp.id
+                        where abc.active = 1
+                ")->all([]);
+
+                $finalResults = $cover_service_types;
+
+            } else { // Insurance does not have a billing cover, load default service 271 types...
+
+                $_query_params = [];
+                $_query_params['create_uid'] =  $_SESSION['user']['id'];
+                $_query_params['update_uid'] =  $_SESSION['user']['id'];
+                $_query_params['create_date'] =  date("Y-m-d H:i:s");
+                $_query_params['update_date'] =  date("Y-m-d H:i:s");
+
+                $default_cover_service_types = $this->pic->sql("
+                    select
+                            NULL                    as id,
+                            NULL                    as patient_insurance_id,
+                            NULL                    as cover_id,
+                            st.id                   as service_type_id,
+                            st.description          as service_type_description,
+                            st.department_id        as department_id,
+                            dp.title                as department_title,
+                            st.isDollar             as isDollar,
+                            0.00                    as copay,
+                            false                   as exception_isDollar,
+                            0.00                    as exception_copay,
+                            st.active               as active,
+                            :create_uid             as create_uid,
+                            :update_uid             as update_uid,
+                            :create_date            as create_date,
+                            :update_date            as update_date,
+                            false                   as validate_copay,
+                            false                   as validate_ecopay,
+                            false                   as validate_service_type_status
+                            
                         from acc_billing_271_service_types st
-                        where st.active = true and 
-                              st.id not in ( select service_type_id 
-										     from patient_insurance_covers 
-                                             where patient_insurance_id = :patientInsuranceId_0
-                                             group by service_type_id )
-                        
-                        union
-                        
+                            left join departments dp  on st.department_id = dp.id
+                        where st.active = true
+                ")->all($_query_params);
+
+                $finalResults = $default_cover_service_types;
+            }
+        } else {
+            // Verify and load existing billing covers....
+            $patient_insurance_covers = [];
+
+            // Patient insurance has a cover exception set
+            if ($cover_exception_id != 0) {
+
+                // User clicked update cover copay and e copay
+                if ($load_cover) {
+                    // Load Patient Insurance covers with cover exception
+                    $patient_insurance_covers = $this->pic->sql("
                         select
-                            pic.id               as pic_id,
-                            st.id                as service_type_id,
-                            st.description       as service_type_description,
-                            st.isDollar          as isDollar,
-                            pic.copay,
-                            pic.exception_isDollar,
-                            pic.exception_copay,
-                            pic.cover_id,
-                            case st.active 
-                            when true then 'load'
-                            when false then 'delete'
-                            end as valueExist,
-                            pic.update_date as update_date
-                        from patient_insurance_covers pic
-                            join acc_billing_271_service_types st on st.id = pic.service_type_id
-                        where patient_insurance_id = :patientInsuranceId_1 
-                        
-                    ) t1
-                    
-                group by
-                    pic_id, 
-                    service_type_id,
-                    service_type_description ";
+                                pic.id                      as id,
+                                abcst.cover_id              as cover_id,
+                                abcst.id                    as cover_service_type_id,
+                                abcst.service_type_id       as service_type_id,
+                                abst.description            as service_type_description,
+                                abst.department_id          as department_id,
+                                dp.title                    as department_title,
+                                pic.isDollar                as isDollar,
+                                abcst.copay                 as copay,
+                                pic.exception_isDollar      as exception_isDollar,
+                                abcst.exception_copay       as exception_copay,
+                                pic.create_uid              as create_uid,
+                                pic.update_uid              as update_uid,
+                                pic.create_date             as create_date,
+                                pic.update_date             as update_date,
+                                abst.active                 as service_type_status,
+                                case 
+                                    when pic.copay != abcst.copay then 1
+                                    else 0
+                                end as validate_copay,
+                                case 
+                                    when pic.exception_copay != abcst.exception_copay then 1
+                                    else 0
+                                end as validate_ecopay,
+                                case 
+                                    when abst.active != 1 then 1
+                                    else 0
+                                end as validate_service_type_status
+                            from patient_insurance_covers pic
+                                left join acc_billing_cover_service_types abcst on pic.service_type_id = abcst.service_type_id
+                                inner join acc_billing_271_service_types abst on pic.service_type_id = abst.id
+                                left join departments dp on abst.department_id = dp.id
+                            where abcst.cover_id = :exception_cover_id and pic.patient_insurance_id = :patient_insurance_id
+                        ")->all([
+                        ':exception_cover_id'                 => $cover_exception_id,
+                        ':patient_insurance_id'               => $patient_insurance_id,
+                    ]);
+                } else {
+                    // Load Patient Insurance covers with cover exception
+                    $patient_insurance_covers = $this->pic->sql("
+                        select
+                                pic.id                      as id,
+                                abcst.cover_id              as cover_id,
+                                abcst.id                    as cover_service_type_id,
+                                abcst.service_type_id       as service_type_id,
+                                abst.description            as service_type_description,
+                                abst.department_id          as department_id,
+                                dp.title                    as department_title,
+                                pic.isDollar                as isDollar,
+                                pic.copay                   as copay,
+                                pic.exception_isDollar      as exception_isDollar,
+                                pic.exception_copay         as exception_copay,
+                                pic.create_uid              as create_uid,
+                                pic.update_uid              as update_uid,
+                                pic.create_date             as create_date,
+                                pic.update_date             as update_date,
+                                abst.active                 as service_type_status,
+                                case 
+                                    when pic.copay != abcst.copay then 1
+                                    else 0
+                                end as validate_copay,
+                                case 
+                                    when pic.exception_copay != abcst.exception_copay then 1
+                                    else 0
+                                end as validate_ecopay,
+                                case 
+                                    when abst.active != 1 then 1
+                                    else 0
+                                end as validate_service_type_status
+                            from patient_insurance_covers pic
+                                left join acc_billing_cover_service_types abcst on pic.service_type_id = abcst.service_type_id
+                                inner join acc_billing_271_service_types abst on pic.service_type_id = abst.id
+                                left join departments dp on abst.department_id = dp.id
+                            where abcst.cover_id = :exception_cover_id and pic.patient_insurance_id = :patient_insurance_id
+                        ")->all([
+                        ':exception_cover_id'                 => $cover_exception_id,
+                        ':patient_insurance_id'               => $patient_insurance_id,
+                    ]);
+                }
 
-        $results = $this->pic->sql($sqlSelect)->all($_query_params);
 
-
-        foreach ($results as $result) {
-
-            if ($result['valueExist'] == "delete") {
-
-                $service_type_id = $result['service_type_id'];
-
-                $_delete_params = [];
-                $_delete_params['patientInsuranceId'] =  $patient_insurance_id;
-                $_delete_params['serviceTypeId'] =  $service_type_id;
-
-                $sqlDelete = "delete from patient_insurance_covers where patient_insurance_id = :patientInsuranceId and service_type_id = :serviceTypeId ";
-
-                $this->pic->sql($sqlDelete)->all($_delete_params);
-
+            } else {
+                // Load Patient Insurance covers without exception
+                $patient_insurance_covers = $this->pic->sql("
+                        select
+                                pic.id                      as id,
+                                NULL                        as cover_id,
+                                pic.id                      as cover_service_type_id,
+                                abst.id                     as service_type_id,
+                                abst.description            as service_type_description,
+                                abst.department_id          as department_id,
+                                dp.title                    as department_title,
+                                pic.isDollar                as isDollar,
+                                pic.copay                   as copay,
+                                pic.exception_isDollar      as exception_isDollar,
+                                pic.exception_copay         as exception_copay,
+                                pic.create_uid              as create_uid,
+                                pic.update_uid              as update_uid,
+                                pic.create_date             as create_date,
+                                pic.update_date             as update_date,
+                                abst.active                 as service_type_status,
+                                0                           as validate_copay,
+                                0                           as validate_ecopay,
+                                case 
+                                    when abst.active != 1 then 1
+                                    else 0
+                                end as validate_service_type_status
+                            from patient_insurance_covers pic
+                                inner join acc_billing_271_service_types abst on pic.service_type_id = abst.id
+                                left join departments dp on abst.department_id = dp.id
+                            where pic.patient_insurance_id = :patient_insurance_id
+                        ")->all([
+                    ':patient_insurance_id'               => $patient_insurance_id,
+                ]);
             }
 
-            if ($result['valueExist'] == "load") {
+//            $billing_cover = $this->bc->load([
+//                'belongs_to_id' => $insurance_id,
+//                'active'        => 1
+//            ])->all();
+//
+//            // If the insurance has a billing cover, load the cover service types...
+//            if (count($billing_cover) > 0) {
+//                foreach($patient_insurance_cover_records as $patient_insurance_cover_record) {
+//
+//                    $patient_insurance_cover = $this->pic->sql("
+//                        select
+//                                :patient_insurance_cover_id as id,
+//                                :exception_cover_id         as cover_id,
+//                                abcst.id                    as cover_service_type_id,
+//                                abcst.service_type_id       as service_type_id,
+//                                abst.description            as service_type_description,
+//                                abst.department_id          as department_id,
+//                                dp.title                    as department_title,
+//                                abcst.isDollar              as isDollar,
+//                                abcst.copay                 as copay,
+//                                abcst.exception_isDollar    as exception_isDollar,
+//                                abcst.exception_copay       as exception_copay,
+//                                abc.active                  as active,
+//                                abcst.create_uid            as create_uid,
+//                                abcst.update_uid            as update_uid,
+//                                abcst.create_date           as create_date,
+//                                abcst.update_date           as update_date,
+//                                abst.active                 as service_type_status,
+//                                false                       as validate_copay,
+//                                false                       as validate_ecopay,
+//                                false                       as validate_service_type_status
+//                            from acc_billing_covers abc
+//                                left join acc_billing_cover_service_types abcst on abc.id = abcst.cover_id
+//                                left join acc_billing_271_service_types abst on abcst.service_type_id = abst.id
+//                                left join departments dp on abst.department_id = dp.id
+//                            where abc.active = 1 and abc.belongs_to_id = :insurance_id and abcst.service_type_id = :service_type_id
+//                        ")->one([
+//                                ':patient_insurance_cover_id'   => $patient_insurance_cover_record['id'],
+//                                ':insurance_id'                 => $insurance_id,
+//                                ':service_type_id'              => $patient_insurance_cover_record['service_type_id'],
+//                            ]);
+//
+//                    // Check if a cover exception was loaded, then validate Patient Insurance Cover Copay and ECopay with
+//                    // The cover exception Copay and ECopay
+//                    if ($patient_insurance_cover) {
+//
+//                        if ($patient_insurance_cover['copay'] != $patient_insurance_cover_record['copay'])
+//                            $patient_insurance_cover['validate_copay'] = true;
+//
+//                        if ($patient_insurance_cover['exception_copay'] != $patient_insurance_cover_record['exception_copay'])
+//                            $patient_insurance_cover['validate_ecopay'] = true;
+//
+//                        if (!$patient_insurance_cover['service_type_status'])
+//                            $patient_insurance_cover['validate_service_type_status'] = true;
+//                    }
+//
+//                    array_push($patient_insurance_covers, $patient_insurance_cover);
+//                }
+//            } else { // Load the saved covers from patient insurance covers
+//                $patient_insurance_covers = $this->pic->sql("
+//                    select
+//                            pic.id                      as id,
+//                            NULL                        as cover_id,
+//                            pic.service_type_id         as service_type_id,
+//                            abst.description            as service_type_description,
+//                            abst.department_id          as department_id,
+//                            dp.title                    as department_title,
+//                            pic.isDollar                as isDollar,
+//                            pic.copay                   as copay,
+//                            pic.exception_isDollar      as exception_isDollar,
+//                            pic.exception_copay         as exception_copay,
+//                            abst.active                 as active,
+//                            pic.create_uid              as create_uid,
+//                            pic.update_uid              as update_uid,
+//                            pic.create_date             as create_date,
+//                            pic.update_date             as update_date,
+//                            false                       as validate_copay,
+//                            false                       as validate_ecopay,
+//                            false                       as validate_service_type_status
+//                        from patient_insurance_covers pic
+//                            left join acc_billing_271_service_types abst on pic.service_type_id = abst.id
+//                            left join departments dp on abst.department_id = dp.id
+//                        where pic.patient_insurance_id = :patient_insurance_id
+//                ")->all([
+//                    ':patient_insurance_id' => $patient_insurance_id
+//                ]);
+//
+//                foreach($patient_insurance_covers as $key => $value) {
+//                    if (!$patient_insurance_covers[$key]['active'])
+//                        $patient_insurance_covers[$key]['validate_service_type_status'] = true;
+//                }
+//            }
 
-                $_add_params = (object) array(
-                    'id' =>  $result['pic_id'],
-                    'patient_insurance_id' =>  $patient_insurance_id,
-                    'service_type_id' =>  $result['service_type_id'],
-                    'isDollar' => $result['isDollar'],
-                    'copay' =>  $result['copay'],
-                    'exception_isDollar' => $result['exception_isDollar'],
-                    'exception_copay' => $result['exception_copay'],
-                    'cover_id' => $result['cover_id'],
-                    'create_uid' =>  $_SESSION['user']['id'],
-                    'update_uid' =>  $_SESSION['user']['id'],
-                    'create_date' =>  date("Y-m-d H:i:s"),
-                    'update_date' =>  date("Y-m-d H:i:s"));
-
-                $this->pic->save($_add_params);
-            }
-
-            if ($result['valueExist'] == "add") {
-
-                $_add_params = (object) array(
-                    'id' =>  null,
-                    'patient_insurance_id' =>  $patient_insurance_id,
-                    'service_type_id' =>  $result['service_type_id'],
-                    'isDollar' => $result['isDollar'],
-                    'copay' =>  $result['copay'],
-                    'exception_isDollar' => $result['exception_isDollar'],
-                    'exception_copay' => $result['exception_copay'],
-                    'cover_id' => $result['cover_id'],
-                    'create_uid' =>  $_SESSION['user']['id'],
-                    'update_uid' =>  $_SESSION['user']['id'],
-                    'create_date' =>  date("Y-m-d H:i:s"),
-                    'update_date' =>  date("Y-m-d H:i:s"));
-
-                $this->pic->save($_add_params);
-            }
-
+            $finalResults = $patient_insurance_covers;
         }
-        #endregion
 
-        #region Cargar la Cubierta ya actualizada.
 
-        $_query_params = [];
-        $_query_params['patientInsuranceId'] =  $patient_insurance_id;
 
-        $sqlSelect = "select
-                            pic.id                   as id, 
-                            pic.patient_insurance_id as patient_insurance_id,
-                            pic.service_type_id      as service_type_id,
-                            pic.isDollar             as isDollar,
-                            pic.copay                as copay,
-                            pic.exception_isDollar   as exception_isDollar,
-                            pic.exception_copay      as exception_copay,
-                            pic.cover_id as cover_id,
-                            pic.create_uid           as create_uid,
-                            pic.update_uid           as update_uid,
-                            pic.create_date          as create_date,
-                            pic.update_date          as update_date,
-                            st.department_id         as department_id,
-                            dp.title                 as department_title,
-                            st.description           as service_type_description
-                        from patient_insurance_covers pic
-                            join acc_billing_271_service_types st on st.id = pic.service_type_id
-                            join departments dp  on st.department_id = dp.id
-                        where patient_insurance_id = :patientInsuranceId ";
-
-        $finalResults = $this->pic->sql($sqlSelect)->all($_query_params);
+//        if ($patient_insurance_id === 0) {
+//
+//            #region Seguro Paciente NO SE HA ANADIDO. POR ENDE Patient_Insurance_Id === 0
+//
+//            $_query_params = [];
+//            $_query_params['create_uid'] =  $_SESSION['user']['id'];
+//            $_query_params['update_uid'] =  $_SESSION['user']['id'];
+//            $_query_params['create_date'] =  date("Y-m-d H:i:s");
+//            $_query_params['update_date'] =  date("Y-m-d H:i:s");
+//
+//            $sqlSelect = "select
+//                              ''                 as id,
+//                              ''                 as patient_insurance_id,
+//                            st.id                as service_type_id,
+//                            st.description       as service_type_description,
+//                            st.department_id     as department_id,
+//                            dp.title             as department_title,
+//                            st.isDollar          as isDollar,
+//                            0.00                 as copay,
+//                            st.isDollar          as exception_isDollar,
+//                            0.00                 as exception_copay,
+//                            false                as exception,
+//                            st.active            as active,
+//                            :create_uid          as create_uid,
+//                            :update_uid          as update_uid,
+//                            :create_date         as create_date,
+//                            :update_date         as update_date
+//                        from acc_billing_271_service_types st
+//                            left join departments dp  on st.department_id = dp.id
+//                        where st.active = true  ";
+//
+//            $finalResults =  $this->pic->sql($sqlSelect)->all($_query_params);
+//
+//            foreach ($finalResults as &$finalResult){
+//                $finalResult['id'] = null;
+//                $finalResult['patient_insurance_id'] = null;
+//            }
+//
+//            #endregion
+//
+//            return $finalResults;
+//        }
+//
+//        #region Validar el Template de Cubiertas con las del Paciente (Para anadir nuevas y eliminar Inactivas)
+//
+//        $_query_params = [];
+//        $_query_params['patientInsuranceId_0'] =  $patient_insurance_id;
+//        $_query_params['patientInsuranceId_1'] =  $patient_insurance_id;
+//
+//        $sqlSelect = "
+//                select
+//                    pic_id,
+//                    service_type_id,
+//                    service_type_description,
+//                    max(isDollar) as isDollar,
+//                    max(copay) as copay,
+//                    max(exception_isDollar) as exception_isDollar,
+//                    max(exception_copay) as exception_copay,
+//                    max(cover_id) as cover_id,
+//                    max(valueExist) as valueExist,
+//                    max(update_date) as update_date
+//                from
+//                    (
+//                        select
+//                            null                 as pic_id,
+//                            st.id                as service_type_id,
+//                            st.description       as service_type_description,
+//                            st.isDollar          as isDollar,
+//                            0.00                 as copay,
+//                            true                 as exception_isDollar,
+//                            0.00                 as exception_copay,
+//                            null                 as cover_id,
+//                            'add'                as valueExist,
+//                            now()                as update_date
+//                        from acc_billing_271_service_types st
+//                        where st.active = true and
+//                              st.id not in ( select service_type_id
+//										     from patient_insurance_covers
+//                                             where patient_insurance_id = :patientInsuranceId_0
+//                                             group by service_type_id )
+//
+//                        union
+//
+//                        select
+//                            pic.id               as pic_id,
+//                            st.id                as service_type_id,
+//                            st.description       as service_type_description,
+//                            st.isDollar          as isDollar,
+//                            pic.copay,
+//                            pic.exception_isDollar,
+//                            pic.exception_copay,
+//                            pic.cover_id,
+//                            case st.active
+//                            when true then 'load'
+//                            when false then 'delete'
+//                            end as valueExist,
+//                            pic.update_date as update_date
+//                        from patient_insurance_covers pic
+//                            join acc_billing_271_service_types st on st.id = pic.service_type_id
+//                        where patient_insurance_id = :patientInsuranceId_1
+//
+//                    ) t1
+//
+//                group by
+//                    service_type_id,
+//                    service_type_description ";
+//
+//        $results = $this->pic->sql($sqlSelect)->all($_query_params);
+//
+//
+//        foreach ($results as $result) {
+//
+//            if ($result['valueExist'] == "delete") {
+//
+//                $service_type_id = $result['service_type_id'];
+//
+//                $_delete_params = [];
+//                $_delete_params['patientInsuranceId'] =  $patient_insurance_id;
+//                $_delete_params['serviceTypeId'] =  $service_type_id;
+//
+//                $sqlDelete = "delete from patient_insurance_covers where patient_insurance_id = :patientInsuranceId and service_type_id = :serviceTypeId ";
+//
+//                $this->pic->sql($sqlDelete)->all($_delete_params);
+//
+//            }
+//
+//            if ($result['valueExist'] == "load") {
+//
+//                $_add_params = (object) array(
+//                    'id' =>  $result['pic_id'],
+//                    'patient_insurance_id' =>  $patient_insurance_id,
+//                    'service_type_id' =>  $result['service_type_id'],
+//                    'isDollar' => $result['isDollar'],
+//                    'copay' =>  $result['copay'],
+//                    'exception_isDollar' => $result['exception_isDollar'],
+//                    'exception_copay' => $result['exception_copay'],
+//                    'cover_id' => $result['cover_id'],
+//                    'create_uid' =>  $_SESSION['user']['id'],
+//                    'update_uid' =>  $_SESSION['user']['id'],
+//                    'create_date' =>  date("Y-m-d H:i:s"),
+//                    'update_date' =>  date("Y-m-d H:i:s"));
+//
+//                $this->pic->save($_add_params);
+//            }
+//
+//            if ($result['valueExist'] == "add") {
+//
+//                $_add_params = (object) array(
+//                    'id' =>  null,
+//                    'patient_insurance_id' =>  $patient_insurance_id,
+//                    'service_type_id' =>  $result['service_type_id'],
+//                    'isDollar' => $result['isDollar'],
+//                    'copay' =>  $result['copay'],
+//                    'exception_isDollar' => $result['exception_isDollar'],
+//                    'exception_copay' => $result['exception_copay'],
+//                    'cover_id' => $result['cover_id'],
+//                    'create_uid' =>  $_SESSION['user']['id'],
+//                    'update_uid' =>  $_SESSION['user']['id'],
+//                    'create_date' =>  date("Y-m-d H:i:s"),
+//                    'update_date' =>  date("Y-m-d H:i:s"));
+//
+//                $this->pic->save($_add_params);
+//            }
+//
+//        }
+//        #endregion
+//
+//        #region Cargar la Cubierta ya actualizada.
+//
+//        $_query_params = [];
+//        $_query_params['patientInsuranceId'] =  $patient_insurance_id;
+//
+//        $sqlSelect = "select
+//                            pic.id                   as id,
+//                            pic.patient_insurance_id as patient_insurance_id,
+//                            pic.service_type_id      as service_type_id,
+//                            pic.isDollar             as isDollar,
+//                            pic.copay                as copay,
+//                            pic.exception_isDollar   as exception_isDollar,
+//                            pic.exception_copay      as exception_copay,
+//                            pic.cover_id as cover_id,
+//                            pic.create_uid           as create_uid,
+//                            pic.update_uid           as update_uid,
+//                            pic.create_date          as create_date,
+//                            pic.update_date          as update_date,
+//                            st.department_id         as department_id,
+//                            dp.title                 as department_title,
+//                            st.description           as service_type_description
+//                        from patient_insurance_covers pic
+//                            join acc_billing_271_service_types st on st.id = pic.service_type_id
+//                            join departments dp  on st.department_id = dp.id
+//                        where patient_insurance_id = :patientInsuranceId ";
+//
+//        $finalResults = $this->pic->sql($sqlSelect)->all($_query_params);
 
         #endregion
 
@@ -530,7 +922,9 @@ class Insurance {
     }
 
     public function addInsuranceCover($params) {
-        return $this->pic->save($params);
+        $records = $this->pic->save($params);
+
+        return $records;
     }
 
     public function updateInsuranceCover($params) {

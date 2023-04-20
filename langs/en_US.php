@@ -2280,5 +2280,6 @@ $LANG = array(
     'long_desc' => 'Long Description',
     'revision' => 'Revision',
     'send_to_s3' => 'Send To S3',
-    'ignore_code_tables' => 'Ignore Code Tables'
+    'ignore_code_tables' => 'Ignore Code Tables',
+    'annual' => 'Annual'
 );

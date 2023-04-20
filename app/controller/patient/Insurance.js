@@ -92,6 +92,10 @@ Ext.define('App.controller.patient.Insurance', {
             selector: '#BillingPatientInsuranceCoverInformationDeductibleField'
         },
         {
+            ref: 'BillingPatientInsuranceCoverInformationCoverNotesField',
+            selector: '#BillingPatientInsuranceCoverInformationCoverNotesField'
+        },
+        {
             ref: 'PatientInsurancesFormIsActiveBtn',
             selector: '#PatientInsurancesFormIsActiveBtn'
         },
@@ -780,6 +784,7 @@ Ext.define('App.controller.patient.Insurance', {
         me.getBillingPatientInsuranceCoverInformationDeductibleField().setValue('');
         me.getBillingPatientInsuranceCoverInformationCoverExceptionDescriptionField().setValue('');
         me.getBillingPatientInsuranceCoverInformationCoverExceptionIdField().setValue('');
+        me.getBillingPatientInsuranceCoverInformationCoverNotesField().setValue('');
 
         for (var c = 0; c < cover_grid_records.length; c++) {
             cover_grid_records[c].set({
@@ -864,7 +869,13 @@ Ext.define('App.controller.patient.Insurance', {
         var me = this,
             cover_form = field.up('form'),
             insurance_form = cover_form.getForm(),
-            insurance_form_record = insurance_form.getRecord();
+            insurance_form_record = insurance_form.getRecord(),
+            cover_grid = cover_form.down('grid'),
+            update_cover_btn =  cover_grid.down('#BillingPatientInsuranceCoverInformationCoverGridUpdateCoverBtn'),
+            patient_id = insurance_form_record.get('pid'),
+            insurance_id = insurance_form_record.get('insurance_id'),
+            cover_exception_id = selected_cover[0].get('id'),
+            patient_insurance_id = insurance_form_record.get('id');
 
         // console.log('onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldSelect Field:', field);
         // console.log('onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldSelect Selected Cover:', selected_cover);
@@ -873,43 +884,82 @@ Ext.define('App.controller.patient.Insurance', {
         me.getBillingPatientInsuranceCoverInformationCoverExceptionSearchField().setValue(selected_cover[0].get('insurance_name') + ': ' + selected_cover[0].get('cover'));
         me.getBillingPatientInsuranceCoverInformationCoverExceptionDescriptionField().setValue(selected_cover[0].get('description'));
         me.getBillingPatientInsuranceCoverInformationCoverExceptionIdField().setValue(selected_cover[0].get('id'));
+        me.getBillingPatientInsuranceCoverInformationCoverNotesField().setValue(selected_cover[0].get('notes'));
 
-        // set exception cover id
-        insurance_form_record.set('cover_exception_id', selected_cover[0].get('id'));
+        if (!cover_grid) return;
 
-        var cover_grid = field.up('fieldset').down('grid'),
-            cover_grid_store = cover_grid.getStore(),
-            cover_grid_records = cover_grid_store.getRange();
-
-        BillingCover.getBillingCoverServiceTypeByCoverId(selected_cover[0].get('id'), function (response) {
-
-            // console.log('Response: ', response);
-
-            for (var c = 0; c < cover_grid_records.length; c++) {
-                cover_grid_records[c].set({
-                    exception_copay: 0.00,
-                    exception_isDollar: true
-                });
-            }
-
-            for (var r = 0; r < response.length; r++) {
-
-                var exception_cover_record = cover_grid_store.findRecord('service_type_id', response[r].service_type_id);
-
-                // console.log('exception_cover_record: ', exception_cover_record);
-
-                if (exception_cover_record) {
-                    exception_cover_record.set({
-                        copay: response[r].copay,
-                        exception_copay: response[r].exception_copay,
-                        exception_isDollar: response[r].isDollar,
-                        update_date: new Date(),
-                        update_uid: app.user.id
-                    });
+        cover_grid.getStore().load({
+            filters: [
+                {
+                    property: 'patient_id',
+                    value: patient_id
+                },
+                {
+                    property: 'patient_insurance_id',
+                    value: patient_insurance_id
+                },
+                {
+                    property: 'insurance_id',
+                    value: insurance_id
+                },
+                {
+                    property: 'cover_exception_id',
+                    value: cover_exception_id
+                },
+                {
+                    property: 'load_cover',
+                    value: true
                 }
+            ],
+            callback: function(records) {
+                // update_cover_btn.setVisible(false);
+                // for(var i = 0; i < records.length; i++) {
+                //     if (records[i].get('validate_copay') == true ||
+                //         records[i].get('validate_ecopay') == true) {
+                //         update_cover_btn.setVisible(true);
+                //         break;
+                //     }
+                // }
             }
-
         });
+
+
+        // // set exception cover id
+        // insurance_form_record.set('cover_exception_id', selected_cover[0].get('id'));
+        //
+        // var cover_grid = field.up('fieldset').down('grid'),
+        //     cover_grid_store = cover_grid.getStore(),
+        //     cover_grid_records = cover_grid_store.getRange();
+        //
+        // BillingCover.getBillingCoverServiceTypeByCoverId(selected_cover[0].get('id'), function (response) {
+        //
+        //     // console.log('Response: ', response);
+        //
+        //     for (var c = 0; c < cover_grid_records.length; c++) {
+        //         cover_grid_records[c].set({
+        //             exception_copay: 0.00,
+        //             exception_isDollar: true
+        //         });
+        //     }
+        //
+        //     for (var r = 0; r < response.length; r++) {
+        //
+        //         var exception_cover_record = cover_grid_store.findRecord('service_type_id', response[r].service_type_id);
+        //
+        //         // console.log('exception_cover_record: ', exception_cover_record);
+        //
+        //         if (exception_cover_record) {
+        //             exception_cover_record.set({
+        //                 copay: response[r].copay,
+        //                 exception_copay: response[r].exception_copay,
+        //                 exception_isDollar: response[r].isDollar,
+        //                 update_date: new Date(),
+        //                 update_uid: app.user.id
+        //             });
+        //         }
+        //     }
+        //
+        // });
     },
 
     onPatientInsurancesPanelSaveBtnClick: function (btn) {

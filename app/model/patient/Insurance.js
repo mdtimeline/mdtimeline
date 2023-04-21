@@ -224,6 +224,16 @@ Ext.define('App.model.patient.Insurance',{
             store: false
         },
         {
+            name: 'cover_notes',
+            type: 'string',
+            store: false
+        },
+        {
+            name: 'cover_copay',
+            type: 'string',
+            store: false
+        },
+        {
             name: 'deductible',
             type: 'string'
         },

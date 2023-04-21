@@ -106,7 +106,12 @@ class Insurance {
         )->leftJoin(
 	        ['synonym' => 'ins_synonym'], 'acc_billing_insurance_data', 'insurance_id', 'insurance_id'
         )->leftJoin(
-            ['id' => 'cover_exception_id', 'description' => 'cover_description', 'deductible' => 'deductible', 'cover' => 'cover_exception'], 'acc_billing_covers', 'cover_exception_id', 'id'
+            ['id' => 'cover_exception_id',
+                'description' => 'cover_description',
+                'deductible' => 'deductible',
+                'copay' => 'cover_copay',
+                'notes' => 'cover_notes',
+                'cover' => 'cover_exception'], 'acc_billing_covers', 'cover_exception_id', 'id'
         )->all();
 
         $getRecords = array_map(function($record) {

@@ -20477,6 +20477,16 @@ Ext.define('App.model.patient.Insurance',{
             store: false
         },
         {
+            name: 'cover_notes',
+            type: 'string',
+            store: false
+        },
+        {
+            name: 'cover_copay',
+            type: 'string',
+            store: false
+        },
+        {
             name: 'deductible',
             type: 'string'
         },
@@ -101697,6 +101707,26 @@ Ext.define('App.model.patient.InsuranceCover',{
             type: 'float'
         },
         {
+            name: 'validate_copay',
+            type: 'bool',
+            store: false
+        },
+        {
+            name: 'validate_ecopay',
+            type: 'bool',
+            store: false
+        },
+        {
+            name: 'validate_service_type_status',
+            type: 'bool',
+            store: false
+        },
+        {
+            name: 'load_billing_cover',
+            type: 'bool',
+            store: false
+        },
+        {
             name: 'external_id',
             type: 'string'
         },
@@ -101721,26 +101751,6 @@ Ext.define('App.model.patient.InsuranceCover',{
             name: 'update_date',
             type: 'date',
             dateFormat: 'Y-m-d H:i:s'
-        },
-        {
-            name: 'validate_copay',
-            type: 'bool',
-            store: false
-        },
-        {
-            name: 'validate_ecopay',
-            type: 'bool',
-            store: false
-        },
-        {
-            name: 'validate_service_type_status',
-            type: 'bool',
-            store: false
-        },
-        {
-            name: 'load_billing_cover',
-            type: 'bool',
-            store: false
         }
     ],
     proxy: {

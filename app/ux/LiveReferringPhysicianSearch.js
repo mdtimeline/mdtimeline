@@ -138,6 +138,10 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
                 {
                     name: 'cel_number',
                     type: 'string'
+                },
+                {
+                    name: 'active',
+                    type: 'bool'
                 }
 			],
 			proxy: {
@@ -175,12 +179,25 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
 
 		me.callParent();
 
+		me.on('beforeselect', me.validateActiveReferring, me);
+
 		me.on('change', me.onReferringValueChange, me);
 
 		if(a('allow_add_referring_physician')) {
 			me.on('render', me.doAddNewReferringBtn, me);
 		}
 
+	},
+
+	validateActiveReferring: function (cmb, selection){
+
+		say('referring selection');
+		say(selection);
+
+		if(selection.get('active') === false && !a('allow_select_inactive_referring')){
+			app.msg(_('oops'), 'unable_select_inactive_referring', true);
+			return false;
+		}
 	},
 
 	doAddNewReferringBtn: function (){

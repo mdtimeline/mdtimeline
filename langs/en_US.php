@@ -2281,5 +2281,8 @@ $LANG = array(
     'revision' => 'Revision',
     'send_to_s3' => 'Send To S3',
     'ignore_code_tables' => 'Ignore Code Tables',
-    'annual' => 'Annual'
+    'annual' => 'Annual',
+    'unable_select_inactive_insurance' => 'Unable to Select Inactive Insurance',
+    'allow_select_inactive_referring'=> 'Unable to Select Inactive Referring',
+
 );

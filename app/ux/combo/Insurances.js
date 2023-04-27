@@ -26,5 +26,18 @@ Ext.define('App.ux.combo.Insurances', {
 	store: Ext.create('App.store.administration.InsuranceCompanies', {
 		autoLoad: true,
 		pageSize: 500
-	})
+	}),
+
+	initComponent: function (){
+		this.callParent();
+		this.on('beforeselect', this.validateActiveInsurance, this);
+	},
+
+	validateActiveInsurance: function (cmb, selection){
+		if(selection.get('active') === false && !a('allow_select_inactive_insurance')){
+			app.msg(_('oops'), 'unable_select_inactive_insurance', true);
+			return false;
+		}
+	}
+
 }); 

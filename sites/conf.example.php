@@ -49,9 +49,120 @@ if(!defined('site_url')) define('site_url', URL .'/sites/'.site_id);
 if(!defined('site_path')) define('site_path', str_replace('\\', '/', dirname(__FILE__)));
 if(!defined('site_temp_url')) define('site_temp_url', site_url .'/temp');
 if(!defined('site_temp_path')) define('site_temp_path', site_path . '/temp');
+if(!defined('site_external_url')) {
+    define('site_external_url', 'https://#external_url#/');
+}
+if(!defined('use_openssl')) define('use_openssl', true);
 
 /**
  * Set the timezone of the site, this will affect the complete application
  */
 date_default_timezone_set(site_timezone);
 ini_set('date.timezone',site_timezone);
+
+$_ENV['module']['ringcentral'] = [
+    'client_id' => 'qzkBBbVARWij7PHwSGL2qw',
+    'client_secret' => '',
+    'phone_number' => '+17875501173',
+    'username' => '+15672984482',
+    'extension' => '102',
+    'password' => 'J@na0920'
+];
+
+$_ENV['module']['twilio'] = [
+    'sid' => 'AC2188e1d152fab71ac8c09a03b22ed331',
+    'token' => '',
+    'twilio_phone_number' => '+17873392515',
+    'twilio_phone_number_sid' => 'PN735cf284f5999dcfd19430dea182e383',
+    'voice_status_callback' => 'https://#external_url#/modules/twilio/api/voice/events.php?',
+    'sms_status_callback' => 'https://#external_url#/modules/twilio/api/sms/events.php?',
+    'fax_status_callback' => 'https://#external_url#/modules/twilio/api/fax/events.php?',
+    'test_mode' => true,
+    'test_phone_number' => '+17875501173'
+];
+
+$_ENV['azure_auth'] = [
+    'enabled' => false,
+    'object_id' => '', // Object ID
+    'client_id' => '',
+    'tenant_id' => '',
+    'client_secret' => '',
+    'redirect_uri' => 'https://#external_url#/mdtimeline/modules/azure/auth/Callback',
+    'scopes' => [
+        'openid',
+        'profile',
+        'email',
+        'offline_access',
+        'https://graph.microsoft.com/User.Read'
+    ],
+];
+
+$GLOBALS['dragon_360'] = [
+//    'organization_token' => 'fec16273-a8af-46f8-966c-671b4588477b'  # TRA Demo Lic.
+//    'organization_token_exceptions' => [
+//        'admin' => 'fec16273-a8af-46f8-966c-671b4588477b'
+//    ]
+];
+
+$GLOBALS['worklist_dbs'] = [
+    'default' => [
+        'host' => site_db_host,
+        'port' => site_db_port,
+        'name' => site_db_database,
+        'user' => site_db_username,
+        'pass' => site_db_password,
+        'app' => ROOT . '/app'
+    ]
+];
+
+$GLOBALS['worklist_pacs'] = [
+    'dcm4chee' => [
+        'MDTIMELINE' => [
+            'name' => 'MDTIMELINE',
+            'type' => 'dcm4chee',
+            'ip' => '127.0.0.1',
+            'port' => '11112',
+            'url' => 'http://127.0.0.1:8080',
+            'proxy_url' => 'https://#external_url#/MDTIMELINE/wado/',
+//			'local_host' => 'local.tranextgen.com/pacs5/aets',
+//			'alt_url' => 'https://local.tranextgen.com/pacs5/aets',
+            'watcher' => true,
+            'insert_studies' => false,
+//            'insert_studies' => [
+//                'insert_institution_names' => [
+//                    'PROFESSIONAL HOSPITAL GUAYNABO',
+//                    'PHG' => [
+//                        'defaults' => [
+//                            'department_id' => 1
+//                        ]
+//                    ]
+//                ]
+//            ],
+            'orphaned_studies' => false,
+            'hl7_url' => '127.0.0.1',
+            'hl7_port' => 2575,
+            'hl7_sending_application' => 'MDTIMELINE',
+            'hl7_sending_facility' => 'MDTIMELINE',
+            'hl7_receiving_application' => 'MDTIMELINE',
+            'hl7_receiving_facility' => 'MDTIMELINE',
+//            'mwl_aet' => 'MDTIMELINE-MWL',
+            'ws_url' => 'http://127.0.0.1/pacs5',
+            'ws_username' => 'admin',
+            'ws_password' => 'admin',
+            'site' => 'default',
+            'look_back_days' => 30,
+            'db_host' => '',
+            'db_port' => '',
+            'db_user' => '',
+            'db_pass' => '',
+            'db_name' => '',
+//			'pacs_pid_flag' => 'trimmed_no_slash',
+//            'pacs_pid_flag' => [
+//                'validate' => '/^.{1}-.{15}-.{2}$/',
+//                'regex' => '/(.{1})-.*(.{6})-(.*)/',
+//                'replacement' => '$1-$2-$3'
+//            ],
+            'version' => '5'
+        ]
+    ]
+];

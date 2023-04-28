@@ -3304,6 +3304,10 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
                 {
                     name: 'cel_number',
                     type: 'string'
+                },
+                {
+                    name: 'active',
+                    type: 'bool'
                 }
 			],
 			proxy: {
@@ -3341,12 +3345,25 @@ Ext.define('App.ux.LiveReferringPhysicianSearch', {
 
 		me.callParent();
 
+		me.on('beforeselect', me.validateActiveReferring, me);
+
 		me.on('change', me.onReferringValueChange, me);
 
 		if(a('allow_add_referring_physician')) {
 			me.on('render', me.doAddNewReferringBtn, me);
 		}
 
+	},
+
+	validateActiveReferring: function (cmb, selection){
+
+		say('referring selection');
+		say(selection);
+
+		if(selection.get('active') === false && !a('allow_select_inactive_referring')){
+			app.msg(_('oops'), 'unable_select_inactive_referring', true);
+			return false;
+		}
 	},
 
 	doAddNewReferringBtn: function (){
@@ -81955,7 +81972,20 @@ Ext.define('App.ux.combo.Insurances', {
 	store: Ext.create('App.store.administration.InsuranceCompanies', {
 		autoLoad: true,
 		pageSize: 500
-	})
+	}),
+
+	initComponent: function (){
+		this.callParent();
+		this.on('beforeselect', this.validateActiveInsurance, this);
+	},
+
+	validateActiveInsurance: function (cmb, selection){
+		if(selection.get('active') === false && !a('allow_select_inactive_insurance')){
+			app.msg(_('oops'), 'unable_select_inactive_insurance', true);
+			return false;
+		}
+	}
+
 }); 
 Ext.define('App.ux.combo.Burners', {
     extend: 'Ext.form.ComboBox',

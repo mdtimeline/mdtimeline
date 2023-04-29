@@ -233,9 +233,5 @@ Ext.define('App.model.administration.Facility', {
 			update: 'Facilities.updateFacility',
 			destroy: 'Facilities.deleteFacility'
 		}
-	},
-	reader: {
-		totalProperty: 'total',
-		root: 'data'
 	}
 });

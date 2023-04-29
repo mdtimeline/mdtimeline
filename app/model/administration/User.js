@@ -30,7 +30,8 @@ Ext.define('App.model.administration.User', {
 		{
 			name: 'global_id',
 			type: 'string',
-			len: 40
+			len: 40,
+			useNull: true
 		},
 		{
 			name: 'external_id',

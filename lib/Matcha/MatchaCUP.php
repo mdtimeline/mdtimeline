@@ -1231,11 +1231,17 @@ class MatchaCUP {
 		$prevArray = false;
 		foreach($array as $key => $val){
 			if(is_string($key)){
-				if($prevArray)
-					$whereStr .= 'AND ';
-				$val = $this->ifDataEncrypt($key, $val);
-				$val = $this->where($val);
-				$whereStr .= "`{$this->table}`.`$key`= $val ";
+				if($prevArray) {
+                    $whereStr .= 'AND ';
+                }
+
+                if($val === null){
+                    $whereStr .= "`{$this->table}`.`$key` IS NULL ";
+                }else{
+                    $val = $this->ifDataEncrypt($key, $val);
+                    $val = $this->where($val);
+                    $whereStr .= "`{$this->table}`.`$key`= $val ";
+                }
 				$prevArray = true;
 			} elseif(is_array($val)) {
 				if($prevArray)
@@ -1429,7 +1435,7 @@ class MatchaCUP {
 	 */
 	private function dataDecryptWalk() {
 		if(is_array($this->record) && is_array($this->encryptedFields)){
-			array_walk_recursive($this->record, 'self::dataDecrypt', $this->encryptedFields);
+			array_walk_recursive($this->record, 'MatchaCUP::dataDecrypt', $this->encryptedFields);
 		}
 	}
 
@@ -1441,7 +1447,7 @@ class MatchaCUP {
 
 	private function dataUnSerializeWalk() {
 		if(is_array($this->record) && is_array($this->arrayFields)){
-			array_walk_recursive($this->record, 'self::dataUnSerialize', $this->arrayFields);
+			array_walk_recursive($this->record, 'MatchaCUP::dataUnSerialize', $this->arrayFields);
 		}
 	}
 

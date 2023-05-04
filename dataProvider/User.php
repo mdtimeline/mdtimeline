@@ -111,12 +111,13 @@ class User
 	                $params->pin = null;
                 }
 
-                $user = (object)$this->u->save($params);
-                $user = (object)isset($user->data) ? $user->data : $user;
-                unset($user->password, $user->pwd_history1, $user->pwd_history2);
-                $user->fullname = Person::fullname($user->fname, $user->mname, $user->lname);
-                $user->password = '';
-                return (object)$user;
+                $user = $this->u->save($params);
+
+                unset($user['data']->password, $user['data']->pwd_history1, $user['data']->pwd_history2);
+                $user['data']->fullname = Person::fullname($user['data']->fname, $user['data']->mname, $user['data']->lname);
+                $user['data']->password = '';
+                return $user;
+
             } else {
                 throw new Exception("Username \"$params->username\" exist, please try a different username");
             }

@@ -70,6 +70,10 @@ Ext.define('App.ux.TopazSignature', {
 
 		var me = this,
 			message = {
+				metadata: {
+					version: 1.0,
+					command: "SignatureCapture"
+				},
 				firstName: me.firstName || '',
 				lastName: me.lastName || '',
 				eMail: me.email || '',
@@ -81,7 +85,9 @@ Ext.define('App.ux.TopazSignature', {
 				imageScaling: false,
 				maxUpScalePercent: 0.0,
 				rawDataFormat: "ENC",
-				minSigPoints: 25
+				minSigPoints: 25,
+				sigCompressionMode: 1,
+				customWindow: false
 				// "displayCustomTextDetails": 1,
 				// "customTextPercent": 50,
 				// "customTextLine1": 'Text One',

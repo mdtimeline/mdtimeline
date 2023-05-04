@@ -112,7 +112,7 @@ Ext.define('App.controller.patient.LegalLetterSignatures', {
 		});
 
 		win.show();
-		win.StartSignature();
+		//win.StartSignature();
 
 	},
 

@@ -57518,6 +57518,8 @@ Ext.define('App.controller.patient.Insurance', {
 
     onBillingPatientInsuranceCoverInformationCoverGridEdit: function (plugin, context) {
 
+
+
     },
 
     onBillingPatientInsuranceCoverInformationCoverExceptionSearchFieldchange: function (field, newValue, oldValue, eOpts) {
@@ -57539,7 +57541,7 @@ Ext.define('App.controller.patient.Insurance', {
 
         // Reset form values
         me.getBillingPatientInsuranceCoverInformationDeductibleField().setValue('');
-        me.getBillingPatientInsuranceCoverInformationCoverExceptionDescriptionField().setValue('');
+        // me.getBillingPatientInsuranceCoverInformationCoverExceptionDescriptionField().setValue('');
         me.getBillingPatientInsuranceCoverInformationCoverExceptionIdField().setValue('');
         me.getBillingPatientInsuranceCoverInformationCoverNotesField().setValue('');
 
@@ -57639,7 +57641,7 @@ Ext.define('App.controller.patient.Insurance', {
 
         me.getBillingPatientInsuranceCoverInformationDeductibleField().setValue(selected_cover[0].get('deductible'));
         me.getBillingPatientInsuranceCoverInformationCoverExceptionSearchField().setValue(selected_cover[0].get('insurance_name') + ': ' + selected_cover[0].get('cover'));
-        me.getBillingPatientInsuranceCoverInformationCoverExceptionDescriptionField().setValue(selected_cover[0].get('description'));
+        // me.getBillingPatientInsuranceCoverInformationCoverExceptionDescriptionField().setValue(selected_cover[0].get('description'));
         me.getBillingPatientInsuranceCoverInformationCoverExceptionIdField().setValue(selected_cover[0].get('id'));
         me.getBillingPatientInsuranceCoverInformationCoverNotesField().setValue(selected_cover[0].get('notes'));
 

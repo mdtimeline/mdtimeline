@@ -21,16 +21,19 @@ $API = [
     'Gitter' => [
         'methods' => [
             'doLog' => [
-                'len' => 1
+                'len' => 2
             ],
             'doDiff' => [
-                'len' => 1
+                'len' => 2
+            ],
+            'gitClone' => [
+                'len' => 2
             ],
             'doReset' => [
-                'len' => 1
+                'len' => 2
             ],
             'doUpgrade' => [
-                'len' => 1
+                'len' => 2
             ]
         ]
     ],

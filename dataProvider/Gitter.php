@@ -7,58 +7,60 @@ class Gitter
     private $git_password;
     private $git_path = 'git';
     private $github_url = '';
-    private $bitbucket_url = 'https://[USER]:[PASS]@bitbucket.org/tradev/[MODULE].git';
+    private $bitbucket_url = 'https://[USER]:[PASS]@bitbucket.org/tradev/[REPOSITORY].git';
 
     function __construct(){
         $this->git_username = $_ENV['git_username'];
         $this->git_password = $_ENV['git_password'];
     }
 
-    public function doLog($module){
-        return $this->gitLog($module);
+    public function doLog($repository, $repository_directory = null){
+        return $this->gitLog($repository, $repository_directory);
     }
 
-    public function doDiff($module){
-        return $this->gitDiff($module);
+    public function doDiff($repository, $repository_directory = null){
+        return $this->gitDiff($repository, $repository_directory);
     }
 
-    public function doReset($module){
-        return $this->gitReset($module);
+    public function doReset($repository, $repository_directory = null){
+        return $this->gitReset($repository, $repository_directory);
     }
 
-    public function doUpgrade($module){
-        return $this->gitPull($module);
+    public function doUpgrade($repository, $repository_directory = null){
+        return $this->gitPull($repository, $repository_directory);
     }
 
-    public function doInstall($module){
-        return $this->gitClone($module);
+    public function doInstall($repository, $repository_directory = null){
+        return $this->gitClone($repository, $repository_directory);
     }
 
-    private function gitClone($module){
-        return $this->gitExect('clone', $module);
+    private function gitClone($repository, $repository_directory = null){
+        return $this->gitExect('clone', $repository, $repository_directory);
     }
 
-    private function gitPull($module){
-        return $this->gitExect('pull', $module);
+    private function gitPull($repository, $repository_directory = null){
+        return $this->gitExect('pull', $repository, $repository_directory);
     }
 
-    private function gitLog($module){
-        return $this->gitExect('log -n 5', $module);
+    private function gitLog($repository, $repository_directory = null){
+        return $this->gitExect('log -n 5', $repository, $repository_directory);
     }
 
-    private function gitDiff($module){
-        return $this->gitExect('diff', $module);
+    private function gitDiff($repository, $repository_directory = null){
+        return $this->gitExect('diff', $repository, $repository_directory);
     }
 
-    private function gitReset($module){
-        return $this->gitExect('reset --hard', $module);
+    private function gitReset($repository, $repository_directory = null){
+        return $this->gitExect('reset --hard', $repository, $repository_directory);
     }
 
-    private function gitExect($git_cmd, $module){
+    private function gitExect($git_cmd, $repository, $repository_directory = null){
         $output = null;
         $result_code = null;
-        $this->changeModuleDir($module);
-        $cmd = $this->getCmd($git_cmd, $module);
+        $this->changeRepositoryDir($repository, $repository_directory);
+
+        $cmd = $this->getCmd($git_cmd, $repository);
+
         exec($cmd, $output, $result_code);
         return [
             'output' => $output,
@@ -66,11 +68,11 @@ class Gitter
         ];
     }
 
-    private function getCmd($git_cmd, $module){
+    private function getCmd($git_cmd, $repository){
         $cmd = "{$this->git_path} {$git_cmd} ";
 
         if($git_cmd === 'pull' || $git_cmd === 'clone'){
-            $cmd .= ($module === '' ? $this->github_url : $this->bitbucket_url);
+            $cmd .= ($repository === '' ? $this->github_url : $this->bitbucket_url);
 
             if($git_cmd === 'clone'){
                 $cmd .= ' .';
@@ -79,22 +81,24 @@ class Gitter
         }
 
         return str_replace(
-            ['[USER]', '[PASS]', '[MODULE]'],
-            [$this->git_username, $this->git_password, $module],
+            ['[USER]', '[PASS]', '[REPOSITORY]'],
+            [$this->git_username, $this->git_password, $repository],
             "$cmd"
         );
     }
 
-    private function changeModuleDir($module){
+    private function changeRepositoryDir($module, $repository_directory = null){
 
-        $directory = $module === '' ? ROOT : (ROOT . "/modules/{$module}");
-
-        if(!file_exists($directory)){
-            mkdir($directory, 0755);
-            chmod($directory,0755);
+        if(isset($repository_directory) && file_exists($repository_directory)){
+            chdir($repository_directory);
+        }else{
+            $directory = $module === '' ? ROOT : (ROOT . "/modules/{$module}");
+            if(!file_exists($directory)){
+                mkdir($directory, 0755);
+                chmod($directory,0755);
+            }
+            chdir($directory);
         }
-
-        chdir($directory);
     }
 
 }

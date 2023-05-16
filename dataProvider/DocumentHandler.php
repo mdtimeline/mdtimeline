@@ -706,7 +706,12 @@ class DocumentHandler
             $mime_type = $file_info->buffer($document->document);
 
             if (!isset($this->mime_types_ext[$mime_type])) {
-                throw new Exception('File extension not supported. document_id: ' . $document->id . ' mime_type: ' . $mime_type);
+                $error = 'File extension not supported. document_id: ' . $document->id . ' mime_type: ' . $mime_type;
+                error_log($error);
+                return [
+                    'success' => false,
+                    'error' => $error
+                ];
             }
 
             $document_code = isset($document->docTypeCode) ? $document->docTypeCode : '';
@@ -719,12 +724,31 @@ class DocumentHandler
             $file_name = $document_code . '_' . $document->id . '_' . $document->pid . '.' . $ext;
             $path = $filesystem_path . $document_path . '/' . $file_name;
 
-            if (file_exists($path) && !unlink($path)) {
-                throw new Exception('File name exist. document_id: ' . $document->id . ' path: ' . $path);
-            }
+//            if (file_exists($path) && !unlink($path)) {
+//                $error = 'File name exist and unable to unlink. document_id: ' . $document->id . ' path: ' . $path;
+//                error_log($error);
+//                return [
+//                    'success' => false,
+//                    'error' => $error
+//                ];
+//            }
 
             if (file_put_contents($path, $document->document) === false) {
-                throw new Exception('Unable to write file. document_id: ' . $document->id . ' path: ' . $path);
+                $error = 'Unable to write file. document_id: ' . $document->id . ' path: ' . $path;
+                error_log($error);
+                return [
+                    'success' => false,
+                    'error' => $error
+                ];
+            }
+
+            if (!file_exists($path)){
+                $error = 'Unable to validate file. document_id: ' . $document->id . ' path: ' . $path;
+                error_log($error);
+                return [
+                    'success' => false,
+                    'error' => $error
+                ];
             }
 
             chmod($path, $this->document_permission);

@@ -235,7 +235,7 @@ if (
 
 			$html = <<<HTML
 			<!doctype html>
-			<html>
+			<html">
 				<head>
 				    <meta charset="UTF-8">
 				    <link rel="stylesheet" href="../lib/darkroomjs/build/darkroom.css">
@@ -257,10 +257,10 @@ if (
 				    
 					</style>
 				</head>
-				<body style="overflow: hidden; position: relative;">
+				<body style="width: 100%; overflow: auto; position: relative; margin: 0">
 					<input style="position: absolute; left:0;top:0" class="btn" type="button" value="Print" onclick="printImage(this);" />
 					<input style="position: absolute; right:0;top:0" class="btn" type="button" value="Edit" onclick="enableDarkroom(this);" />
-			        <div id="target-container" class="image-container target" style="left: 0; top:0;width:100%;">
+			        <div id="target-container" class="image-container target" style="left: 0; top:0;width:100%; height:100%;">
 				        <img style="width:100%;" alt="" id="target" crossOrigin="anonymous" src="data:{$mineType};base64,{$document}">
 			        </div>
 					<script src="../lib/darkroomjs/demo/vendor/fabric.js" ></script>

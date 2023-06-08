@@ -235,13 +235,13 @@ if (
 
 			$html = <<<HTML
 			<!doctype html>
-			<html">
+			<html lang="en">
 				<head>
 				    <meta charset="UTF-8">
 				    <link rel="stylesheet" href="../lib/darkroomjs/build/darkroom.css">
 				    <style>
 						.btn {
-						  font-family: Arial;
+						  font-family: Arial,serif;
 						  color: #ffffff;
 						  font-size: 16px;
 						  background: #616161;
@@ -255,13 +255,18 @@ if (
 						  text-decoration: none;
 						}
 				    
+				        .img-target {
+				            width: 100%;
+				        }
+				    
 					</style>
+					<title>Document</title>
 				</head>
 				<body style="width: 100%; overflow: auto; position: relative; margin: 0">
 					<input style="position: absolute; left:0;top:0" class="btn" type="button" value="Print" onclick="printImage(this);" />
 					<input style="position: absolute; right:0;top:0" class="btn" type="button" value="Edit" onclick="enableDarkroom(this);" />
 			        <div id="target-container" class="image-container target" style="left: 0; top:0;width:100%; height:100%;">
-				        <img style="width:100%;" alt="" id="target" crossOrigin="anonymous" src="data:{$mineType};base64,{$document}">
+				        <img class="img-target" style="width:100%;" alt="" id="target" crossOrigin="anonymous" src="data:{$mineType};base64,{$document}">
 			        </div>
 					<script src="../lib/darkroomjs/demo/vendor/fabric.js" ></script>
 					<script src="../lib/darkroomjs/build/darkroom.js" ></script>
@@ -298,8 +303,9 @@ HTML;
 		} else {
 			$html = <<<HTML
 			<!doctype html>
-			<html>
+			<html lang="en">
 				<head>
+				<title>Document</title>
 				</head>
 				<body>
 				 	<img src="data:{$mineType};base64,{$document}" style="width:100%;" alt="" id="target" crossOrigin="anonymous">			        

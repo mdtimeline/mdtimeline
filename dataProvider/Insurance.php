@@ -452,8 +452,11 @@ class Insurance {
                             left join acc_billing_cover_service_types abcst  on abc.id = abcst.cover_id
                             left join acc_billing_271_service_types abst on abcst.service_type_id = abst.id
                             left join departments dp on abst.department_id = dp.id
-                        where abc.active = 1
-                ")->all([]);
+                        where abc.active = 1 and abcst.cover_id = :exception_cover_id
+                ")->all([
+                        ':exception_cover_id' => $cover_exception_id
+                    ]
+                );
 
                 $finalResults = $cover_service_types;
 

@@ -262,7 +262,7 @@ if (
 					</style>
 					<title>Document</title>
 				</head>
-				<body style="width: 100%; overflow: auto; position: relative; margin: 0">
+				<body class="body-img" style="width: 100%; overflow: auto; position: relative; margin: 0">
 					<input style="position: absolute; left:0;top:0" class="btn" type="button" value="Print" onclick="printImage(this);" />
 					<input style="position: absolute; right:0;top:0" class="btn" type="button" value="Edit" onclick="enableDarkroom(this);" />
 			        <div id="target-container" class="image-container target" style="left: 0; top:0;width:100%; height:100%;">
@@ -288,7 +288,15 @@ if (
 						
 						function printImage(btn){
                             var w = window.open();
+
+                            // console.log(w.document);
+                            // console.log(w.document.body);
+                            // console.log(document.getElementById('target-container').innerHTML);
+                            
                             w.document.write(document.getElementById('target-container').innerHTML);
+                            
+                            w.document.body.style.margin = '0';
+                            w.document.body.style.padding = '0';
                             
                             setTimeout(function(){
                                 w.print();

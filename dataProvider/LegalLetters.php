@@ -170,7 +170,7 @@ class LegalLetters
         if($is_previews){
 
             $document = $this->DocumentHandler->createTempDocument((object)[
-                'document_name' => 'Legal Letter',
+                'document_name' => 'Legal-Letter.pdf',
                 'facility_id' => $signature_object->facility_id,
                 'document' => base64_encode($pdf_data)
             ]);

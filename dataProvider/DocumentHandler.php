@@ -163,7 +163,7 @@ class DocumentHandler
             'option_value',
             '=',
             "`list_key` = 'doc_type_cat'"
-        )->all();
+        )->sortBy('id','DESC')->all();
         $concepts = [];
 
         if(ACL::hasPermission('allow_access_general_documents')){
@@ -722,7 +722,7 @@ class DocumentHandler
 
             $ext = $this->mime_types_ext[$mime_type];
             $file_name = $document_code . '_' . $document->id . '_' . $document->pid . '.' . $ext;
-            $path = $filesystem_path . $document_path . '/' . $file_name;
+            $document->fullpath = $path = $filesystem_path . $document_path . '/' . $file_name;
 
 //            if (file_exists($path) && !unlink($path)) {
 //                $error = 'File name exist and unable to unlink. document_id: ' . $document->id . ' path: ' . $path;
@@ -1142,7 +1142,15 @@ class DocumentHandler
 
         $record = $this->t->load($params)->one();
 
-        if ($record == false) return ['success' => false];
+        if ($record === false) {
+            error_log('ERROR: Temporary Document Record Not Found. PARAMS:');
+            error_log(print_r($params, true));
+
+            return [
+                'success' => false,
+                'error' => 'Temporary Document Record Not Found'
+            ];
+        }
 
         $params->document = $record['document'];
         $params->date = date('Y-m-d H:i:s');
@@ -1150,6 +1158,15 @@ class DocumentHandler
         unset($params->id);
 
         $params = $this->addPatientDocument($params);
+
+        if (is_object($params) && isset($params->fullpath) && !file_exists($params->fullpath)) {
+            error_log("Saved File Not Found on Directory. ID: {{$params->site}} SITE: {$params->site} PATH: {$params->fullpath}");
+            error_log(print_r($params, true));
+            return [
+                'success' => false,
+                'error' => "Saved File Not Found on Directory. ID: {{$params->site}} SITE: {$params->site} PATH: {$params->fullpath}"
+            ];
+        }
 
         \Matcha::$__conn = null;
         \Matcha::connect([

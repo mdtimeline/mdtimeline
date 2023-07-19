@@ -156,6 +156,14 @@ class DocumentHandler
     {
         $this->setPatientDocumentModel();
         $this->d->setOrFilterProperties(['docTypeCode', 'id']);
+
+        $params->sort = [
+            (object)[
+                'property' => 'id',
+                'direction' => 'DESC'
+            ]
+        ];
+
         $records = $this->d->load($params)->leftJoin(
             ['code_type' => 'docTypeConcept'],
             'combo_lists_options',
@@ -163,7 +171,7 @@ class DocumentHandler
             'option_value',
             '=',
             "`list_key` = 'doc_type_cat'"
-        )->sortBy('id','DESC')->all();
+        )->all();
         $concepts = [];
 
         if(ACL::hasPermission('allow_access_general_documents')){
@@ -221,6 +229,14 @@ class DocumentHandler
     {
         $this->setAdministrativeDocumentModel();
         $this->ad->setOrFilterProperties(['docTypeCode', 'id']);
+
+        $params->sort = [
+            (object)[
+                'property' => 'id',
+                'direction' => 'DESC'
+            ]
+        ];
+
         $records = $this->ad->load($params)->leftJoin(
             ['code_type' => 'docTypeConcept'],
             'combo_lists_options',

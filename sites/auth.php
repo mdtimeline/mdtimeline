@@ -75,7 +75,9 @@ if (
 ){
 	$mine = mime_content_type($file);
 	header("Content-type: $mine");
-	print file_get_contents($file);
+    header('Content-Length: ' . filesize($file));
+    ob_clean();
+    readfile($file);
 }else{
 	header("HTTP/1.1 404 Not Found");
 }

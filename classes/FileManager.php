@@ -102,24 +102,14 @@ class FileManager
 
     public function extractFileToDir($file, $toDir, $deleteSrcFile = false)
     {
-        if (class_exists('ZipArchive')) {
-            $zip = new ZipArchive();
-            if ($zip->open($file) === true) {
-                $toDir = $toDir . '/';
-                $zip->extractTo($toDir);
-                $zip->close();
-                if ($deleteSrcFile) {
-                    $this->deleteFileBySrc($file);
-                }
-                return $this->workingDir;
-            } else {
-                $this->error = 'Unable to open zipped file ' . $file;
-                return false;
-            }
-        } else {
-            $this->error = 'Php class ZipArchive required';
-            return false;
+        exec("unzip {$file} -d {$toDir}");
+
+        if ($deleteSrcFile) {
+            $this->rmdir_recursive($file);
         }
+
+        return $toDir;
+
     }
 
     public function setWorkingDir()
@@ -200,16 +190,6 @@ class FileManager
         return;
     }
 
-    private function deleteWorkingDir()
-    {
-        return $this->rmdir_recursive($this->workingDir);
-    }
-
-    public function deleteFileBySrc($src)
-    {
-        return $this->rmdir_recursive($src);
-    }
-
     public static function scanDir($dir, $readmeFiles = false)
     {
         $files = scandir($dir);
@@ -229,38 +209,16 @@ class FileManager
         return $files;
     }
 
-	public static function zip_dir($dir, $zip_file, $unlink_original){
+	public static function zip_dir($dir, $zip_file, $unlink_original, $password = ''){
 
-		// Initialize archive object
-		$zip = new ZipArchive();
-		$zip->open($zip_file, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+        $options = '';
 
-		// Create recursive directory iterator
-		/** @var SplFileInfo[] $files */
-		$files = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator($dir),
-			RecursiveIteratorIterator::LEAVES_ONLY
-		);
+        if($password !== ''){
+            $options = "-e -P '{$password}'";
+        }
 
-		foreach ($files as $name => $file)
-		{
-			// Skip directories (they would be added automatically)
-			if (!$file->isDir())
-			{
-				// Get real and relative path for current file
-				$filePath = $file->getRealPath();
-				$relativePath = substr($filePath, strlen($dir) + 1);
-
-				// Add current file to archive
-				$zip->addFile($filePath, $relativePath);
-
-				$zip->setExternalAttributesName($relativePath, ZipArchive::OPSYS_UNIX, fileperms($filePath) << 16);
-
-			}
-		}
-
-		// Zip archive will be created only after closing object
-		$zip->close();
+        //exec(unzip -n -q zip-downloaded-by-cron.zip -d photos);
+        exec("zip -r {$options} {$zip_file} {$dir}");
 
 		if($unlink_original){
 			self::rmdir_recursive($dir);
@@ -269,20 +227,7 @@ class FileManager
 
     public static function rmdir_recursive($dir)
     {
-        $files = scandir($dir);
-        array_shift($files);
-        // remove '.' from array
-        array_shift($files);
-        // remove '..' from array
-        foreach ($files as $file) {
-            $file = $dir . '/' . $file;
-            if (is_dir($file)) {
-                self::rmdir_recursive($file);
-                continue;
-            }
-            unlink($file);
-        }
-        rmdir($dir);
+        exec("rm -rf {$dir}");
         return true;
     }
 

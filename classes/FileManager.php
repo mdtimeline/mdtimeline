@@ -217,8 +217,10 @@ class FileManager
             $options = "-e -P '{$password}'";
         }
 
+        chdir($dir);
+
         //exec(unzip -n -q zip-downloaded-by-cron.zip -d photos);
-        exec("zip -r {$options} {$zip_file} {$dir}");
+        exec("zip {$options} {$zip_file} ./*");
 
 		if($unlink_original){
 			self::rmdir_recursive($dir);

@@ -735,28 +735,14 @@ INI_CONFIG;
 
 		$evt = $hl7->getMsgEventType();
 
-		if($evt == 'A01'){
+		if($evt == 'A01' || $evt == 'A02' || $evt == 'A03' || $evt == 'A04' || $evt == 'A05') {
 			/**
-			 * Patient Visit
-			 */
-            $patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
-
-            if($patient !== false){
-                $this->addHL7MessageReference($patient->pid, $msgRecord['id']);
-            }
-
-            if(isset($msg->data['INSURANCE'])){
-                $this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
-            }
-
-            if(isset($msg->data['PV1'])){
-                $this->VisitHandler($msg->data , $hl7, $patient);
-            }
-            return;
-
-		} elseif($evt == 'A02') {
-			/**
-			 * Patient transfer
+			 * Trigger Events
+             * ADT_A01 - Admit/Visit Notification
+             * ADT_A02 - Transfer a Patient
+             * ADT_A03 - Discharge/End Visit
+             * ADT_A04 - Register a Patient
+             * ADT_A05 - Pre-Admit a Patient
 			 */
 
 			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
@@ -775,39 +761,6 @@ INI_CONFIG;
 
 			return;
 
-		} elseif($evt == 'A04') {
-			/**
-			 * Register a Patient
-			 */
-			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
-
-			if($patient !== false){
-				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
-			}
-
-			if(isset($msg->data['INSURANCE'])){
-				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
-			}
-			return;
-		} elseif($evt == 'A05') {
-			/**
-			 * Pre-Admit a Patient
-			 */
-			$patient = $this->savePatient($now, $msg, $hl7, $facilityRecord);
-
-			if($patient !== false){
-				$this->addHL7MessageReference($patient->pid, $msgRecord['id']);
-			}
-
-			if(isset($msg->data['INSURANCE'])){
-				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
-			}
-
-            if(isset($msg->data['PV1'])){
-                $this->VisitHandler($msg->data , $hl7, $patient);
-            }
-
-			return;
 		} elseif($evt == 'A08') {
 			/**
 			 * Update Patient Information

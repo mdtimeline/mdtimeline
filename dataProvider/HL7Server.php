@@ -2077,22 +2077,24 @@ INI_CONFIG;
             return $referring;
 
         } else {
-            $referring = $this->ReferringProviders->getReferringProvider(['npi' => '0000000000']);
-            if($referring !== false){
-                return $referring;
-            }
 
-            $referring = new \stdClass();
-            $referring->npi = '0000000000';
-            $referring->lname = 'NON-STAFF';
-            $referring->fname = 'NON-STAFF';
-            $referring->mname = '';
-            $referring->title = '';
-            $referring = $this->ReferringProviders->addReferringProvider($referring);
-            if($referring !== false){
-                return (array)$referring;
-            }
-            return $referring;
+            return false;
+
+//            $referring = $this->ReferringProviders->getReferringProvider(['npi' => '0000000000']);
+//            if($referring !== false){
+//                return $referring;
+//            }
+//
+//            $referring = new \stdClass();
+//            $referring->npi = '0000000000';
+//            $referring->lname = 'NON-STAFF';
+//            $referring->fname = 'NON-STAFF';
+//            $referring->mname = '';
+//            $referring->title = '';
+//            $referring = $this->ReferringProviders->addReferringProvider($referring);
+//            if($referring !== false){
+//                return (array)$referring;
+//            }
         }
     }
 

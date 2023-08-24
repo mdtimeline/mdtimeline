@@ -756,7 +756,7 @@ INI_CONFIG;
 			}
 
 			if(isset($msg->data['PV1'])){
-				$this->VisitHandler($msg->data , $hl7, $patient);
+				$this->VisitHandler($msg->data , $hl7, $patient, $facilityRecord);
 			}
 
 			return;
@@ -1912,7 +1912,7 @@ INI_CONFIG;
 
     }
 
-    public function VisitHandler($msg_data, $hl7, $patient){
+    public function VisitHandler($msg_data, $hl7, $patient, $facility_record){
 
         $PID = $msg_data['PID'];
         $PV1 = $msg_data['PV1'];
@@ -1933,6 +1933,7 @@ INI_CONFIG;
 
         $visitRecord->pid = $patient->pid;
         $visitRecord->visit_number = $visit_number;
+        $visitRecord->facility_id = isset($facility_record['id']) ? $facility_record['id'] : null;
 
         if(isset($PV1[2]) && $PV1[2]) {
             $visitRecord->patient_class = $PV1[2];

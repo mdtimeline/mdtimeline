@@ -1977,8 +1977,8 @@ INI_CONFIG;
             $visitRecord->admit_date = $hl7->time($PV1[44][1]);
         }
 
-        if(isset($PV1[45][1]) && $PV1[45][1]) {
-            $visitRecord->discharge_date = $hl7->time($PV1[45][1]);
+        if(isset($PV1[45][0][1]) && $PV1[45][0][1]) {
+            $visitRecord->discharge_date = $hl7->time($PV1[45][0][1]);
         }
 
         if(isset($PV1[36]) && $PV1[36]) {

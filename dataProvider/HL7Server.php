@@ -1304,13 +1304,30 @@ INI_CONFIG;
                 $insObj->patient_insurance->pid = $patient->pid;
                 $insObj->patient_insurance->{$this->hl7_patient_insurance_id_column_field} = $patient->pubpid . '~' . $insObj->patient_insurance->company->{$this->hl7_insurance_id_column_field};
 
-				$insuranceCompanyRecord = $this->i->load([$this->hl7_insurance_id_column_field => $insObj->patient_insurance->company->{$this->hl7_insurance_id_column_field}])->one();
+                // this is to allow multiple insurance company from another system to be map to one insurance
+                $insurance_id_value = $insObj->patient_insurance->company->{$this->hl7_insurance_id_column_field};
+                $insurance_company_map = $this->i->sql("
+                    SELECT * FROM (                        
+                        SELECT ic.`id`, IFNULL(icm.`external_id`, ic.`external_id`) as `external_id`, ic.`code`, IF(icm.`insurance_id` IS NULL, 0, 1) as mapped
+                        FROM `mdtimeline-dev1`.insurance_companies ic
+                        LEFT JOIN insurance_companies_map icm ON  ic.`id` = icm.`insurance_id`
+                    ) as ins
+                    WHERE ins.`{$this->hl7_insurance_id_column_field}` = '$insurance_id_value'
+                ")->one();
+
+                if($insurance_company_map !== false){
+                    $insuranceCompanyRecord = $this->i->load(['id' => $insurance_company_map['id']])->one();
+                    $insuranceCompanyRecord['mapped'] = $insurance_company_map['mapped'];
+                }else{
+                    $insuranceCompanyRecord = false;
+                }
 
 				if($insuranceCompanyRecord === false) {
                     $insObj->patient_insurance->company->create_uid = 0;
                     $insObj->patient_insurance->company->update_uid = 0;
                     $insObj->patient_insurance->company->create_date = $now;
                     $insObj->patient_insurance->company->update_date = $now;
+                    $insObj->patient_insurance->company->mapped = false;
                     $insuranceCompanyRecord = $this->i->save((object)$insObj->patient_insurance->company);
 
                     if(isset($insuranceCompanyRecord['data'])){

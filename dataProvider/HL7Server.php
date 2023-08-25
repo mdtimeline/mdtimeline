@@ -1309,7 +1309,7 @@ INI_CONFIG;
                 $insurance_company_map = $this->i->sql("
                     SELECT * FROM (                        
                         SELECT ic.`id`, IFNULL(icm.`external_id`, ic.`external_id`) as `external_id`, ic.`code`, IF(icm.`insurance_id` IS NULL, 0, 1) as mapped
-                        FROM `mdtimeline-dev1`.insurance_companies ic
+                        FROM insurance_companies ic
                         LEFT JOIN insurance_companies_map icm ON  ic.`id` = icm.`insurance_id`
                     ) as ins
                     WHERE ins.`{$this->hl7_insurance_id_column_field}` = '$insurance_id_value'

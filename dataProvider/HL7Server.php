@@ -774,6 +774,11 @@ INI_CONFIG;
 			if(isset($msg->data['INSURANCE'])){
 				$this->InsuranceGroupHandler($msg->data['INSURANCE'], $hl7, $patient);
 			}
+
+            if(isset($msg->data['PV1'])){
+                $this->VisitHandler($msg->data , $hl7, $patient, $facilityRecord);
+            }
+
 			return;
 		} elseif($evt == 'A09') {
 			/**

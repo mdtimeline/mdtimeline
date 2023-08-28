@@ -44,31 +44,29 @@ class ADT extends Message {
 				'DB1' => array('repeatable' => true),
 				'OBX' => array('repeatable' => true),
 				'AL1' => array('repeatable' => true),
-				'DG1' => array(
-					'repeatable' => true,
-					'DRG' => array(),
-					'PROCEDURE' => array(
-						'repeatable' => true,
-						'items' => array(
-							'PR1' => array('required' => true),
-							'ROL' => array('repeatable' => true),
-						)
-					),
-					'GT1' => array('repeatable' => true),
-					'INSURANCE' => array(
-						'repeatable' => true,
-						'items' => array(
-							'IN1' => array('required' => true),
-							'IN2' => array(),
-							'IN3' => array('repeatable' => true),
-							'ROL' => array('repeatable' => true),
-						)
-					),
-					'ACC' => array(),
-					'UB1' => array(),
-					'UB2' => array(),
-					'PDA' => array()
-				),
+                'DG1' => array('repeatable' => true),
+                'DRG' => array(),
+                'PROCEDURE' => array(
+                    'repeatable' => true,
+                    'items' => array(
+                        'PR1' => array('required' => true),
+                        'ROL' => array('repeatable' => true),
+                    )
+                ),
+                'GT1' => array('repeatable' => true),
+                'INSURANCE' => array(
+                    'repeatable' => true,
+                    'items' => array(
+                        'IN1' => array('required' => true),
+                        'IN2' => array(),
+                        'IN3' => array('repeatable' => true),
+                        'ROL' => array('repeatable' => true),
+                    )
+                ),
+                'ACC' => array(),
+                'UB1' => array(),
+                'UB2' => array(),
+                'PDA' => array()
 			),
 			'A02' => array(
 				'MSH' => array('required' => true),
@@ -83,31 +81,29 @@ class ADT extends Message {
 				'DB1' => array('repeatable' => true),
 				'OBX' => array('repeatable' => true),
 				'AL1' => array('repeatable' => true),
-				'DG1' => array(
-					'repeatable' => true,
-					'DRG' => array(),
-					'PROCEDURE' => array(
-						'repeatable' => true,
-						'items' => array(
-							'PR1' => array('required' => true),
-							'ROL' => array('repeatable' => true),
-						)
-					),
-					'GT1' => array('repeatable' => true),
-					'INSURANCE' => array(
-						'repeatable' => true,
-						'items' => array(
-							'IN1' => array('required' => true),
-							'IN2' => array(),
-							'IN3' => array('repeatable' => true),
-							'ROL' => array('repeatable' => true),
-						)
-					),
-					'ACC' => array(),
-					'UB1' => array(),
-					'UB2' => array(),
-					'PDA' => array()
-				),
+                'DG1' => array('repeatable' => true),
+                'DRG' => array(),
+                'PROCEDURE' => array(
+                    'repeatable' => true,
+                    'items' => array(
+                        'PR1' => array('required' => true),
+                        'ROL' => array('repeatable' => true),
+                    )
+                ),
+                'GT1' => array('repeatable' => true),
+                'INSURANCE' => array(
+                    'repeatable' => true,
+                    'items' => array(
+                        'IN1' => array('required' => true),
+                        'IN2' => array(),
+                        'IN3' => array('repeatable' => true),
+                        'ROL' => array('repeatable' => true),
+                    )
+                ),
+                'ACC' => array(),
+                'UB1' => array(),
+                'UB2' => array(),
+                'PDA' => array()
 			),
             'A03' => array(
                 'MSH' => array('required' => true),
@@ -122,31 +118,29 @@ class ADT extends Message {
                 'DB1' => array('repeatable' => true),
                 'OBX' => array('repeatable' => true),
                 'AL1' => array('repeatable' => true),
-                'DG1' => array(
+                'DG1' => array('repeatable' => true),
+                'DRG' => array(),
+                'PROCEDURE' => array(
                     'repeatable' => true,
-                    'DRG' => array(),
-                    'PROCEDURE' => array(
-                        'repeatable' => true,
-                        'items' => array(
-                            'PR1' => array('required' => true),
-                            'ROL' => array('repeatable' => true),
-                        )
-                    ),
-                    'GT1' => array('repeatable' => true),
-                    'INSURANCE' => array(
-                        'repeatable' => true,
-                        'items' => array(
-                            'IN1' => array('required' => true),
-                            'IN2' => array(),
-                            'IN3' => array('repeatable' => true),
-                            'ROL' => array('repeatable' => true),
-                        )
-                    ),
-                    'ACC' => array(),
-                    'UB1' => array(),
-                    'UB2' => array(),
-                    'PDA' => array()
+                    'items' => array(
+                        'PR1' => array('required' => true),
+                        'ROL' => array('repeatable' => true),
+                    )
                 ),
+                'GT1' => array('repeatable' => true),
+                'INSURANCE' => array(
+                    'repeatable' => true,
+                    'items' => array(
+                        'IN1' => array('required' => true),
+                        'IN2' => array(),
+                        'IN3' => array('repeatable' => true),
+                        'ROL' => array('repeatable' => true),
+                    )
+                ),
+                'ACC' => array(),
+                'UB1' => array(),
+                'UB2' => array(),
+                'PDA' => array()
             ),
 			/** ADT/ACK - Register a Patient (Event A04) */
 			'A04' => array(
@@ -455,7 +449,7 @@ class ADT extends Message {
 					'PV1' => array()
 				)
 			)
-		);
+        );
 
 		return $events[$event];
 	}

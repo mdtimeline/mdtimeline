@@ -18,7 +18,7 @@
 
 Ext.define('App.store.administration.InsuranceCompanyExternalIdMaps', {
 	extend: 'Ext.data.Store',
-	requires: 'App.model.administration.InsuranceCompanyExternalIdMap',
+	requires: ['App.model.administration.InsuranceCompanyExternalIdMap'],
 	model: 'App.model.administration.InsuranceCompanyExternalIdMap',
 	pageSize: 150
 });

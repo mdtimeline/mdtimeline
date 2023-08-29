@@ -19,11 +19,11 @@
 Ext.define('App.view.administration.practice.Insurance', {
 	extend: 'Ext.grid.Panel',
 	requires: [
+		'Ext.grid.plugin.CellEditing',
 		'App.ux.combo.Titles',
 		'App.ux.grid.RowFormEditing',
 		'App.ux.combo.TransmitMethod',
-		'App.ux.form.fields.InputTextMask',
-		'App.store.administration.InsuranceCompanyExternalIdMaps'
+		'App.ux.form.fields.InputTextMask'
 	],
 	xtype: 'insurancecompaniespanel',
 	title: _('insurance_companies'),

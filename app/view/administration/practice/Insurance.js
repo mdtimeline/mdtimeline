@@ -40,7 +40,10 @@ Ext.define('App.view.administration.practice.Insurance', {
 			items: [
 				{
 					xtype: 'container',
-					layout: 'hbox',
+					layout: {
+						type: 'hbox',
+						align: 'stretch'
+					},
 					itemId: 'InsuranceCompanyFormContainer',
 					items: [
 						{
@@ -135,6 +138,60 @@ Ext.define('App.view.administration.practice.Insurance', {
 											xtype: 'checkbox',
 											fieldLabel: _('active'),
 											name: 'active'
+										}
+									]
+								}
+							]
+						},
+						{
+							xtype: 'fieldset',
+							title: _('external_id'),
+							layout: {
+								type: 'vbox',
+								align: 'stretch'
+							},
+							margin: '0 10 0 0',
+							items: [
+								{
+									xtype: 'textfield',
+									fieldLabel: _('external_id'),
+									name: 'external_id'
+								},
+								{
+									xtype: 'grid',
+									itemId: 'InsuranceCompanyExternalIdMappingGrid',
+									title: 'Additional External ID Mapping',
+									store: Ext.create('App.store.administration.InsuranceCompanyExternalIdMaps'),
+									width: 300,
+									flex: 1,
+									hideHeaders: true,
+									frame: true,
+									plugins: [
+										{
+											ptype: 'cellediting'
+										}
+									],
+									tools: [
+										{
+											xtype: 'button',
+											text: 'External ID',
+											itemId: 'InsuranceCompanyExternalIdMappingAddBtn',
+											iconCls: 'fal fa-plus-circle'
+										}
+									],
+									columns: [
+										{
+											xtype: 'griddeletecolumn',
+											width: 25,
+											acl: true
+										},
+										{
+											dataIndex: 'external_id',
+											flex: 1,
+											editor: {
+												xtype: 'textfield',
+												allowBlank: false
+											}
 										}
 									]
 								}

@@ -50,24 +50,16 @@ class Insurance {
 
 	function __construct(){
         $this->ic = MatchaModel::setSenchaModel('App.model.administration.InsuranceCompany');
+        $this->icei = MatchaModel::setSenchaModel('App.model.administration.InsuranceCompanyExternalIdMap');
         $this->pi = MatchaModel::setSenchaModel('App.model.patient.Insurance');
         $this->pic = MatchaModel::setSenchaModel('App.model.patient.InsuranceCover');
 
 
         \Matcha::setAppDir(ROOT.'/modules');
-
-        if(!isset($this->bid))
-            $this->bid = \MatchaModel::setSenchaModel('Modules.billing.model.BillingInsuranceData');
-
-        if(!isset($this->bc))
-            $this->bc = \MatchaModel::setSenchaModel('Modules.billing.model.BillingCover');
-
-        if(!isset($this->bcst))
-            $this->bcst = \MatchaModel::setSenchaModel('Modules.billing.model.BillingCoverServiceType');
-
-        if(!isset($this->bst))
-            $this->bst = \MatchaModel::setSenchaModel('Modules.billing.model.Billing271ServiceType');
-
+        $this->bid = \MatchaModel::setSenchaModel('Modules.billing.model.BillingInsuranceData');
+        $this->bc = \MatchaModel::setSenchaModel('Modules.billing.model.BillingCover');
+        $this->bcst = \MatchaModel::setSenchaModel('Modules.billing.model.BillingCoverServiceType');
+        $this->bst = \MatchaModel::setSenchaModel('Modules.billing.model.Billing271ServiceType');
         \Matcha::setAppDir(ROOT.'/app');
 	}
 
@@ -91,6 +83,26 @@ class Insurance {
 
 	public function destroyInsuranceCompany($params) {
 		return $this->ic->destroy($params);
+	}
+
+    public function getInsuranceCompanyExternalIdMaps($params) {
+        return $this->icei->load($params)->all();
+    }
+
+	public function getInsuranceCompanyExternalIdMap($params) {
+		return $this->icei->load($params)->one();
+	}
+
+	public function addInsuranceCompanyExternalIdMap($params) {
+		return $this->icei->save($params);
+	}
+
+	public function updateInsuranceCompanyExternalIdMap($params) {
+		return $this->icei->save($params);
+	}
+
+	public function destroyInsuranceCompanyExternalIdMap($params) {
+		return $this->icei->destroy($params);
 	}
 
 	/** Patient */

@@ -156,6 +156,9 @@ Ext.define('App.model.administration.InsuranceCompany', {
 		},
 		reader: {
 			root: 'data'
+		},
+		writer: {
+			writeAllFields: true
 		}
 	}
 });

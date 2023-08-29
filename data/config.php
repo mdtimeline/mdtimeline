@@ -948,6 +948,21 @@ $API = [
             'destroyInsuranceCompany' => [
                 'len' => 1
             ],
+            'getInsuranceCompanyExternalIdMaps' => [
+                'len' => 1
+            ],
+            'getInsuranceCompanyExternalIdMap' => [
+                'len' => 1
+            ],
+            'addInsuranceCompanyExternalIdMap' => [
+                'len' => 1
+            ],
+            'updateInsuranceCompanyExternalIdMap' => [
+                'len' => 1
+            ],
+            'destroyInsuranceCompanyExternalIdMap' => [
+                'len' => 1
+            ],
             'getInsuranceNumbers' => [
                 'len' => 1
             ],

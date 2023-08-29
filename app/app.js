@@ -13822,6 +13822,9 @@ Ext.define('App.model.administration.InsuranceCompany', {
 		},
 		reader: {
 			root: 'data'
+		},
+		writer: {
+			writeAllFields: true
 		}
 	}
 });
@@ -32717,7 +32720,10 @@ Ext.define('App.view.administration.practice.Insurance', {
 			items: [
 				{
 					xtype: 'container',
-					layout: 'hbox',
+					layout: {
+						type: 'hbox',
+						align: 'stretch'
+					},
 					itemId: 'InsuranceCompanyFormContainer',
 					items: [
 						{
@@ -32812,6 +32818,60 @@ Ext.define('App.view.administration.practice.Insurance', {
 											xtype: 'checkbox',
 											fieldLabel: _('active'),
 											name: 'active'
+										}
+									]
+								}
+							]
+						},
+						{
+							xtype: 'fieldset',
+							title: _('external_id'),
+							layout: {
+								type: 'vbox',
+								align: 'stretch'
+							},
+							margin: '0 10 0 0',
+							items: [
+								{
+									xtype: 'textfield',
+									fieldLabel: _('external_id'),
+									name: 'external_id'
+								},
+								{
+									xtype: 'grid',
+									itemId: 'InsuranceCompanyExternalIdMappingGrid',
+									title: 'Additional External ID Mapping',
+									store: Ext.create('App.store.administration.InsuranceCompanyExternalIdMaps'),
+									width: 300,
+									flex: 1,
+									hideHeaders: true,
+									frame: true,
+									plugins: [
+										{
+											ptype: 'cellediting'
+										}
+									],
+									tools: [
+										{
+											xtype: 'button',
+											text: 'External ID',
+											itemId: 'InsuranceCompanyExternalIdMappingAddBtn',
+											iconCls: 'fal fa-plus-circle'
+										}
+									],
+									columns: [
+										{
+											xtype: 'griddeletecolumn',
+											width: 25,
+											acl: true
+										},
+										{
+											dataIndex: 'external_id',
+											flex: 1,
+											editor: {
+												xtype: 'textfield',
+												allowBlank: false
+											}
 										}
 									]
 								}
@@ -43199,128 +43259,203 @@ Ext.define('App.controller.administration.Printers', {
 
 });
 Ext.define('App.controller.administration.Practice', {
-    extend: 'Ext.app.Controller',
+	extend: 'Ext.app.Controller',
 
 	refs: [
 		{
-			ref:'PracticePanel',
-			selector:'practicepanel'
+			ref: 'PracticePanel',
+			selector: 'practicepanel'
 		},
 		{
-			ref:'PharmaciesPanel',
-			selector:'pharmaciespanel'
+			ref: 'PharmaciesPanel',
+			selector: 'pharmaciespanel'
 		},
 		{
-			ref:'LaboratoriesPanel',
-			selector:'laboratoriespanel'
+			ref: 'LaboratoriesPanel',
+			selector: 'laboratoriespanel'
 		},
 		{
-			ref:'InsuranceCompaniesPanel',
-			selector:'insurancecompaniespanel'
+			ref: 'InsuranceCompaniesPanel',
+			selector: 'insurancecompaniespanel'
 		},
 		{
-			ref:'ReferringProvidersPanel',
-			selector:'referringproviderspanel'
+			ref: 'ReferringProvidersPanel',
+			selector: 'referringproviderspanel'
 		},
 		{
-			ref:'FacilitiesPanel',
-			selector:'facilitiespanel'
+			ref: 'FacilitiesPanel',
+			selector: 'facilitiespanel'
 		},
 		{
-			ref:'FacilityDepartmentsGrid',
-			selector:'#FacilityDepartmentsGrid'
+			ref: 'FacilityDepartmentsGrid',
+			selector: '#FacilityDepartmentsGrid'
 		},
 		{
-			ref:'FacilitySpecialtiesGrid',
-			selector:'#FacilitySpecialtiesGrid'
+			ref: 'FacilitySpecialtiesGrid',
+			selector: '#FacilitySpecialtiesGrid'
 		},
 		{
-			ref:'DecisionAidsPanel',
-			selector:'decisionaidspanel'
+			ref: 'DecisionAidsPanel',
+			selector: 'decisionaidspanel'
 		},
 		{
-			ref:'PharmacyGridPrintBtn',
-			selector:'#PharmacyGridPrintBtn'
+			ref: 'PharmacyGridPrintBtn',
+			selector: '#PharmacyGridPrintBtn'
 		},
 		{
-			ref:'LaboratoryGridPrintBtn',
-			selector:'#LaboratoryGridPrintBtn'
+			ref: 'LaboratoryGridPrintBtn',
+			selector: '#LaboratoryGridPrintBtn'
 		},
 		{
-			ref:'InsuranceCompaniesGridPrintBtn',
-			selector:'#InsuranceCompaniesGridPrintBtn'
+			ref: 'InsuranceCompaniesGridPrintBtn',
+			selector: '#InsuranceCompaniesGridPrintBtn'
 		},
 		{
-			ref:'ReferringProviderGridPrintBtn',
-			selector:'#ReferringProviderGridPrintBtn'
+			ref: 'ReferringProviderGridPrintBtn',
+			selector: '#ReferringProviderGridPrintBtn'
 		},
 		{
-			ref:'FacilitiesGridPrintBtn',
-			selector:'#FacilitiesGridPrintBtn'
+			ref: 'FacilitiesGridPrintBtn',
+			selector: '#FacilitiesGridPrintBtn'
 		},
 		{
-			ref:'DepartmentsGridPrintBtn',
-			selector:'#DepartmentsGridPrintBtn'
+			ref: 'DepartmentsGridPrintBtn',
+			selector: '#DepartmentsGridPrintBtn'
 		},
 		{
-			ref:'SpecialitiesAddBtn',
-			selector:'#SpecialitiesAddBtn'
+			ref: 'SpecialitiesAddBtn',
+			selector: '#SpecialitiesAddBtn'
 		},
 		{
-			ref:'DecisionAidsGridPrintBtn',
-			selector:'#DecisionAidsGridPrintBtn'
+			ref: 'DecisionAidsGridPrintBtn',
+			selector: '#DecisionAidsGridPrintBtn'
+		},
+
+		{
+			ref: 'InsuranceCompanyExternalIdMappingGrid',
+			selector: '#InsuranceCompanyExternalIdMappingGrid'
 		}
 
 	],
 
-	init: function() {
+	init: function () {
 		var me = this;
 
 		me.control({
-			'practicepanel grid':{
+			'practicepanel grid': {
 				activate: me.onPracticeGridPanelsActive,
 			},
-			'practicepanel button[toggleGroup=insurance_number_group]':{
+			'practicepanel button[toggleGroup=insurance_number_group]': {
 				toggle: me.onInsuranceNumberGroupToggle
 			},
-			'practicepanel toolbar > #addBtn':{
+			'practicepanel toolbar > #addBtn': {
 				click: me.onAddBtnClick
 			},
-			'#PharmacyGridPrintBtn':{
+			'#PharmacyGridPrintBtn': {
 				click: me.onPharmaciesGridPrintBtnClick
 			},
-			'#LaboratoryGridPrintBtn':{
+			'#LaboratoryGridPrintBtn': {
 				click: me.onLaboratoryGridPrintBtnClick
 			},
-			'#InsuranceCompaniesGridPrintBtn':{
+			'#InsuranceCompaniesGridPrintBtn': {
 				click: me.onInsuranceCompaniesGridPrintBtnClick
 			},
-			'#ReferringProviderGridPrintBtn':{
+			'#ReferringProviderGridPrintBtn': {
 				click: me.onReferringProviderGridPrintBtnClick
 			},
-			'#FacilitiesGridPrintBtn':{
+			'#FacilitiesGridPrintBtn': {
 				click: me.onFacilitiesGridPrintBtnClick
 			},
-			'#DepartmentsGridPrintBtn':{
+			'#DepartmentsGridPrintBtn': {
 				click: me.onDepartmentsGridPrintBtnClick
 			},
-			'#FacilitySpecialtiesGrid':{
+			'#FacilitySpecialtiesGrid': {
 				beforeedit: me.onFacilitySpecialtiesGridBeforeEdit
 			},
-			'#FacilityDepartmentsGrid':{
+			'#FacilityDepartmentsGrid': {
 				beforeedit: me.onFacilityDepartmentsGridBeforeEdit
 			},
-			'#SpecialtiesGridPrintBtn':{
+			'#SpecialtiesGridPrintBtn': {
 				click: me.onSpecialtiesGridPrintBtnClick
 			},
-			'#DecisionAidsGridPrintBtn':{
+			'#DecisionAidsGridPrintBtn': {
 				click: me.onDecisionAidsGridPrintBtnClick
+			},
+
+			'insurancecompaniespanel': {
+				beforeedit: me.onInsuranceCompaniesPanelBeforeEdit
+			},
+			'#InsuranceCompanyExternalIdMappingGrid': {
+				beforeedit: me.onInsuranceCompanyExternalIdMappingGridBeforeEdit,
+				validateedit: me.onInsuranceCompanyExternalIdMappingGridValidateEdit,
+				edit: me.onInsuranceCompanyExternalIdMappingGridEdit
+			},
+			'#InsuranceCompanyExternalIdMappingAddBtn': {
+				click: me.onInsuranceCompanyExternalIdMappingAddBtnClick
 			}
 		});
 	},
 
-	onPharmaciesGridPrintBtnClick: function(btn)
-	{
+	onInsuranceCompaniesPanelBeforeEdit: function (plugin, context){
+
+		plugin.editor.down('#InsuranceCompanyExternalIdMappingGrid').getStore().load({
+			filters:[
+				{
+					property: 'insurance_id',
+					value: context.record.get('id')
+				}
+			]
+		})
+	},
+
+	onInsuranceCompanyExternalIdMappingAddBtnClick: function (btn) {
+		var grid = btn.up('grid'),
+			editing_plugin = grid.editingPlugin,
+			external_id_store = grid.getStore(),
+			insurance_record = grid.up('form').getForm().getRecord(),
+			external_id_record
+
+		if (insurance_record.get('id') === 0) {
+			app.msg(_('oops'), 'Insurance ID is required', true);
+			return false;
+		}
+
+		external_id_record = external_id_store.add({
+			insurance_id: insurance_record.get('id')
+		})[0];
+
+		editing_plugin.cancelEdit();
+		editing_plugin.startEdit(external_id_record, 1);
+
+	},
+
+	onInsuranceCompanyExternalIdMappingGridBeforeEdit: function (plugin, context) {
+		if (context.record.get('insurance_id') === 0) {
+			app.msg(_('oops'), 'Insurance ID is required', true);
+			return false;
+		}
+	},
+
+	onInsuranceCompanyExternalIdMappingGridValidateEdit: function (plugin, context) {
+		if (context.record.get('insurance_id') === 0) {
+			app.msg(_('oops'), 'Insurance ID is required', true);
+			return false;
+		}
+	},
+
+	onInsuranceCompanyExternalIdMappingGridEdit: function (plugin, context) {
+		if (context.record.get('insurance_id') === 0) {
+			app.msg(_('oops'), 'Insurance ID is required', true);
+			return false;
+		}
+		if (context.record.get('external_id') === '') {
+			app.msg(_('oops'), 'External ID is required', true);
+			return false;
+		}
+		context.record.store.sync();
+	},
+
+	onPharmaciesGridPrintBtnClick: function (btn) {
 		var me = this,
 			grid = me.getPharmaciesPanel();
 
@@ -43329,24 +43464,21 @@ Ext.define('App.controller.administration.Practice', {
 		App.ux.grid.Printer.print(grid);
 	},
 
-	onFacilitySpecialtiesGridBeforeEdit: function(btn)
-	{
+	onFacilitySpecialtiesGridBeforeEdit: function (btn) {
 		if (!a('practice_allow_update_specialty')) {
 			app.msg(_('oops'), _('not_authorized'), true);
 			return false;
 		}
 	},
 
-	onFacilityDepartmentsGridBeforeEdit: function(btn)
-	{
+	onFacilityDepartmentsGridBeforeEdit: function (btn) {
 		if (!a('practice_allow_update_department')) {
 			app.msg(_('oops'), _('not_authorized'), true);
 			return false;
 		}
 	},
 
-	onLaboratoryGridPrintBtnClick: function(btn)
-	{
+	onLaboratoryGridPrintBtnClick: function (btn) {
 		var me = this,
 			grid = me.getLaboratoriesPanel();
 
@@ -43355,8 +43487,7 @@ Ext.define('App.controller.administration.Practice', {
 		App.ux.grid.Printer.print(grid);
 	},
 
-	onInsuranceCompaniesGridPrintBtnClick: function(btn)
-	{
+	onInsuranceCompaniesGridPrintBtnClick: function (btn) {
 		var me = this,
 			grid = me.getInsuranceCompaniesPanel();
 
@@ -43365,8 +43496,7 @@ Ext.define('App.controller.administration.Practice', {
 		App.ux.grid.Printer.print(grid);
 	},
 
-	onReferringProviderGridPrintBtnClick: function(btn)
-	{
+	onReferringProviderGridPrintBtnClick: function (btn) {
 		var me = this,
 			grid = me.getReferringProvidersPanel();
 
@@ -43375,8 +43505,7 @@ Ext.define('App.controller.administration.Practice', {
 		App.ux.grid.Printer.print(grid);
 	},
 
-	onFacilitiesGridPrintBtnClick: function(btn)
-	{
+	onFacilitiesGridPrintBtnClick: function (btn) {
 		var me = this,
 			grid = me.getFacilitiesPanel();
 
@@ -43385,8 +43514,7 @@ Ext.define('App.controller.administration.Practice', {
 		App.ux.grid.Printer.print(grid);
 	},
 
-	onDepartmentsGridPrintBtnClick: function(btn)
-	{
+	onDepartmentsGridPrintBtnClick: function (btn) {
 		var me = this,
 			grid = me.getFacilityDepartmentsGrid();
 
@@ -43395,8 +43523,7 @@ Ext.define('App.controller.administration.Practice', {
 		App.ux.grid.Printer.print(grid);
 	},
 
-	onSpecialtiesGridPrintBtnClick: function(btn)
-	{
+	onSpecialtiesGridPrintBtnClick: function (btn) {
 		var me = this,
 			grid = me.getFacilitySpecialtiesGrid();
 
@@ -43405,8 +43532,7 @@ Ext.define('App.controller.administration.Practice', {
 		App.ux.grid.Printer.print(grid);
 	},
 
-	onDecisionAidsGridPrintBtnClick: function(btn)
-	{
+	onDecisionAidsGridPrintBtnClick: function (btn) {
 		var me = this,
 			grid = me.getDecisionAidsPanel();
 
@@ -43415,12 +43541,12 @@ Ext.define('App.controller.administration.Practice', {
 		App.ux.grid.Printer.print(grid);
 	},
 
-	onPracticeGridPanelsActive: function(grid){
+	onPracticeGridPanelsActive: function (grid) {
 		grid.getStore().load();
 	},
 
-	onAddBtnClick: function(btn){
-		var	grid = btn.up('grid'),
+	onAddBtnClick: function (btn) {
+		var grid = btn.up('grid'),
 			store = grid.getStore();
 
 		grid.editingPlugin.cancelEdit();
@@ -43430,13 +43556,13 @@ Ext.define('App.controller.administration.Practice', {
 		grid.editingPlugin.startEdit(0, 0);
 	},
 
-	onInsuranceNumberGroupToggle:function(btn, pressed){
+	onInsuranceNumberGroupToggle: function (btn, pressed) {
 		var grid = btn.up('grid');
 
-		if(pressed) {
+		if (pressed) {
 			grid.view.features[0].enable();
 			grid.getStore().group(btn.action);
-		}else{
+		} else {
 			grid.view.features[0].disable();
 		}
 	}

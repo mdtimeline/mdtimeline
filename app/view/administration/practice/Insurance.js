@@ -22,7 +22,8 @@ Ext.define('App.view.administration.practice.Insurance', {
 		'App.ux.combo.Titles',
 		'App.ux.grid.RowFormEditing',
 		'App.ux.combo.TransmitMethod',
-		'App.ux.form.fields.InputTextMask'
+		'App.ux.form.fields.InputTextMask',
+		'App.store.administration.InsuranceCompanyExternalIdMaps'
 	],
 	xtype: 'insurancecompaniespanel',
 	title: _('insurance_companies'),

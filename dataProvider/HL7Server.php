@@ -1311,14 +1311,17 @@ INI_CONFIG;
 
                 // this is to allow multiple insurance company from another system to be map to one insurance
                 $insurance_id_value = $insObj->patient_insurance->company->{$this->hl7_insurance_id_column_field};
-                $insurance_company_map = $this->i->sql("
-                    SELECT * FROM (                        
-                        SELECT ic.`id`, IFNULL(icm.`external_id`, ic.`external_id`) as `external_id`, ic.`code`, IF(icm.`insurance_id` IS NULL, 0, 1) as mapped
-                        FROM insurance_companies ic
-                        LEFT JOIN insurance_companies_map icm ON  ic.`id` = icm.`insurance_id`
-                    ) as ins
-                    WHERE ins.`{$this->hl7_insurance_id_column_field}` = '$insurance_id_value'
-                ")->one();
+
+                $sql = " SELECT *
+                           FROM (                        
+                             SELECT ic.`id`, IFNULL(icm.`external_id`, ic.`external_id`) as `external_id`, ic.`code`, IF(icm.`insurance_id` IS NULL, 0, 1) AS mapped
+                             FROM insurance_companies ic
+                             LEFT JOIN insurance_companies_map icm ON ic.`id` = icm.`insurance_id`
+                           ) AS ins
+                          WHERE ins.`{$this->hl7_insurance_id_column_field}` = :insurance_id_value
+                            AND ins.`code` IS NOT NULL";
+
+                $insurance_company_map = $this->i->sql($sql)->one([':insurance_id_value' => $insurance_id_value]);
 
                 if($insurance_company_map !== false){
                     $insuranceCompanyRecord = $this->i->load(['id' => $insurance_company_map['id']])->one();
@@ -2022,7 +2025,7 @@ INI_CONFIG;
                 }
 
                 $column_name = 'consulting' . ($i + 1) . '_id';
-                $c = $this->referringHandler($consulting);
+                $c = $this->referringHandler([$consulting]);
                 if($c !== false){
                     $visitRecord->{$column_name} = $c['id'];
                 }

@@ -23,10 +23,12 @@ class CPT {
 	 * @var bool|MatchaCUP
 	 */
 	private $c;
+	private $cm;
 
 	function __construct() {
         if($this->c == NULL)
             $this->c = MatchaModel::setSenchaModel('App.model.administration.CPT');
+            $this->cm = MatchaModel::setSenchaModel('App.model.administration.CPTmap');
 	}
 
 	public function getCPTs($params){
@@ -54,6 +56,18 @@ class CPT {
 	public function deleteCPT($params){
 		return $this->c->destroy($params);
 	}
+
+    public function getCptMapByCode($code){
+       return $this->cm->load(['code' => $code])->one();
+    }
+
+    public function getMappedCodeByCpt($cpt){
+        return $this->cm->load(['cpt_code' => $cpt])->one();
+    }
+
+    public function getMappedCodeByCptAndModifier($cpt, $modifier = null){
+        return $this->cm->load(['cpt_code' => $cpt, 'modifier' => $modifier])->one();
+    }
 
 	public function query($params){
 

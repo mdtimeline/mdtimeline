@@ -683,23 +683,27 @@ class Encounter {
 		/**
 		 * Add Review of Systems to progress note
 		 */
-		if($_SESSION['globals']['enable_encounter_review_of_systems']){
-			$foo = [];
-			foreach($encounter['reviewofsystems'] as $key => $value){
-				if($key != 'id' && $key != 'pid' && $key != 'eid' && $key != 'uid' && $key != 'date'){
-					if($value != null && $value != 'null'){
-						$value = ($value == 1 || $value == '1') ? 'Yes' : 'No';
-						$foo[] = [
-							'name' => $key,
-							'value' => $value
-						];
-					}
-				}
-			}
-			if(!empty($foo)){
-				$encounter['reviewofsystems'] = $foo;
-			}
-		}
+//		if($_SESSION['globals']['enable_encounter_review_of_systems']){
+//			$foo = [];
+//			foreach($encounter['reviewofsystems'] as $key => $value){
+//				if($key != 'id' && $key != 'pid' && $key != 'eid' && $key != 'uid' && $key != 'date'){
+//
+//                    if(isset($value)){
+//                        $foo[] = [
+//                            'name' => $key,
+//                            'value' => ($value == 1 || $value == '1')
+//                        ];
+//                    }
+//
+////					if($value != null && $value != 'null'){
+////
+////					}
+//				}
+//			}
+//			if(!empty($foo)){
+//				$encounter['reviewofsystems'] = $foo;
+//			}
+//		}
 
 		/**
 		 * Add SOAP to progress note
@@ -797,9 +801,8 @@ class Encounter {
 		 * Review Of System
 		 */
 		if(
-			isset($encounter['reviewofsystems']) &&
-			count($encounter['reviewofsystems']) > 0 &&
-			is_array($encounter['reviewofsystems'][0])
+			isset($encounter['reviewofsystems'][0]) &&
+            $encounter['reviewofsystems'][0] !== false
 		){
 
 			$conn = Matcha::getConn();
@@ -819,16 +822,16 @@ class Encounter {
 			$ros_denies_buff = [];
 			$notes = false;
 
-			foreach($encounter['reviewofsystems'][0] as $key => $value){
-				if(!array_key_exists($key, $fields)) continue;
+			foreach($encounter['reviewofsystems'][0] as $system => $value){
+				if(!array_key_exists($system, $fields)) continue;
 				if(!isset($value)) continue;
 
-				if($key === 'notes'){
+				if($system === 'notes'){
 					$notes = $value;
 				} elseif($value == 1){
-					$ros_reports_buff[] = $fields[$key];
+					$ros_reports_buff[] = $fields[$system];
 				}else{
-					$ros_denies_buff[] = $fields[$key];
+					$ros_denies_buff[] = $fields[$system];
 				}
 			}
 
@@ -836,15 +839,19 @@ class Encounter {
 				$str_buff .= '<div class="indent">';
 				$str_buff .= '<p><b>Review of Systems:</b></p>';
 				$str_buff .= '<div class="indent">';
+                $lis = [];
 				if(!empty($ros_reports_buff)){
-					$str_buff .= '<div><b>Patient Reports:</b> ' . implode(', ', $ros_reports_buff) . '</div>';
+                    $lis[] = '<li><b>Patient Reports:</b> ' . implode(', ', $ros_reports_buff) . '</li>';
 				}
 				if(!empty($ros_denies_buff)){
-					$str_buff .= '<div><b>Patient Denies:</b> ' . implode(', ', $ros_denies_buff) . '</div>';
+                    $lis[] = '<li><b>Patient Denies:</b> ' . implode(', ', $ros_denies_buff) . '</li>';
 				}
 				if($notes !== false){
-					$str_buff .= '<div><b>Notes:</b> ' . $notes . '</div>';
+                    $lis[] = '<li><b>Notes:</b> ' . $notes . '</li>';
 				}
+
+                $str_buff .= '<ul class="ProgressNote-ul">' . implode('', $lis) . '</ul>';
+
 				$str_buff .= '</div>';
 				$str_buff .= '</div>';
 			}

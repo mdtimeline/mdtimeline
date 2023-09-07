@@ -1488,3 +1488,8 @@ ul.x-boxselect-list.x-boxselect-singleselect {
 .x-boxselect-hideselections .x-boundlist-selected {
     display: none;
 }
+
+.x-grid-cell-inner-action-col svg {
+    margin-right: 10px !important;
+    font-size: 18px !important;
+}

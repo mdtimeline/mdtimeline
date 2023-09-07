@@ -410,6 +410,15 @@ class Navigation
             ];
         }
 
+        if($this->ACL->hasPermission('access_admin_updates')){
+            $admin['children'][] = [
+                'text' => 'Update',
+                'leaf' => true,
+                'cls' => 'file',
+                'id' => 'App.view.administration.Update'
+            ];
+        }
+
 		if(isset($admin['children']) && count($admin['children']) > 0) array_push($nav, $admin);
 
 

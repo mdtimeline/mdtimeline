@@ -18,6 +18,13 @@
  */
 
 $API = [
+    'Update' => [
+        'methods' => [
+            'getModules' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'Gitter' => [
         'methods' => [
             'doLog' => [

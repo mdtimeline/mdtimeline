@@ -49,19 +49,28 @@ Ext.define('App.controller.administration.Update', {
 	},
 
 	doAGitLog: function (module_record){
-		//this.getAdminUpdateGrid().getStore().load();
+
+		Gitter.doLog('worklist', null, function(r) {
+			say(r.output.join("\n"));
+		});
 	},
 
 	doAGitDifF: function (module_record){
-		//this.getAdminUpdateGrid().getStore().load();
+		Gitter.doDiff('worklist', null, function(r) {
+			say(r.output.join("\n"));
+		});
 	},
 
 	doAGitPull: function (module_record){
-		//this.getAdminUpdateGrid().getStore().load();
+		Gitter.doPull('worklist', null, function(r) {
+			say(r.output.join("\n"));
+		});
 	},
 
 	doAGitReset: function (module_record){
-		//this.getAdminUpdateGrid().getStore().load();
+		Gitter.doReset('worklist', null, function(r) {
+			say(r.output.join("\n"));
+		});
 	}
 
 });

@@ -5,7 +5,7 @@ class Gitter
 
     private $git_username;
     private $git_password;
-    private $git_path = 'git';
+    private $git_path = '/usr/bin/git';
     private $github_url = '';
     private $bitbucket_url = 'https://[USER]:[PASS]@bitbucket.org/tradev/[REPOSITORY].git';
 
@@ -20,6 +20,10 @@ class Gitter
 
     public function doDiff($repository, $repository_directory = null){
         return $this->gitDiff($repository, $repository_directory);
+    }
+
+    public function doPull($repository, $repository_directory = null){
+        return $this->gitPull($repository, $repository_directory);
     }
 
     public function doReset($repository, $repository_directory = null){

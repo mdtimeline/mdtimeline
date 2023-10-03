@@ -47,6 +47,10 @@ class Insurance {
      * @var MatchaCUP
      */
     private $bst;
+    /**
+     * @var MatchaCUP
+     */
+    private $icei;
 
 	function __construct(){
         $this->ic = MatchaModel::setSenchaModel('App.model.administration.InsuranceCompany');

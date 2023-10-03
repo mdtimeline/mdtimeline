@@ -140,7 +140,9 @@ class CronBootstrap
 		            $data->pid = PID;
 		            $data->running = true;
 		            $data->last_run_date = date('Y-m-d H:i:s');
+                    MatchaHelper::pauseLog(true);
 		            $this->CronJobModel->save($data);
+                    MatchaHelper::pauseLog(false);
 		            return true;
 	            }
 
@@ -172,7 +174,9 @@ class CronBootstrap
             $data->id = $this->CronJobParams['data']['id'];
             $data->pid = '';
             $data->running = false;
+            MatchaHelper::pauseLog(true);
             $this->CronJobModel->save($data);
+            MatchaHelper::pauseLog(false);
             error_log('CRONJOB: SITE: ' . site_id . ' MSG: job "' . SCRIPT . '" ran at ' . date('Y-m-d H:i:s'));
             return true;
         } catch(Exception $Error){
@@ -290,7 +294,9 @@ class CronBootstrap
             $data->id = $CronJobRecords['data']['id'];
             $data->pid = '';
             $data->running = false;
+            MatchaHelper::pauseLog(true);
             $this->CronJobModel->save($data);
+            MatchaHelper::pauseLog(false);
             return true;
         } catch(ErrorException $Error){
             error_log($Error->getMessage());
@@ -357,7 +363,9 @@ class CronBootstrap
             $data->month = '*';
             $data->week_day = '*';
             $data->timeout = '3600';
+            MatchaHelper::pauseLog(true);
             $result =  $this->CronJobModel->save($data);
+            MatchaHelper::pauseLog(false);
 	        $result['data'] = (array) $result['data'];
         } else {
 

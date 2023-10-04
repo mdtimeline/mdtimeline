@@ -1791,14 +1791,16 @@ INI_CONFIG;
 			$this->ackStatus = 'AR';
 			$this->ackMessage = 'Unable to find merge patient - ' . $mrg;
 			return;
-		} elseif($aPatient['pid'] == $bPatient['pid']){
+		}
+
+		$aPatient = (array)$aPatient;
+		$bPatient = (array)$bPatient;
+
+        if($aPatient['pid'] == $bPatient['pid']){
             $this->ackStatus = 'AR';
             $this->ackMessage = 'Unable to merge same patient PID  - ' . $mrg;
             return;
         }
-
-		$aPatient = (array)$aPatient;
-		$bPatient = (array)$bPatient;
 
 		$filter = (object)[
 			'filter' => [

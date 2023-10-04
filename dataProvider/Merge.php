@@ -56,7 +56,7 @@ class Merge {
 			$this->conn->exec('SET FOREIGN_KEY_CHECKS = 0;');
 
 			foreach($this->tables as $table){
-				if($table == 'patient' || $table == 'patient_temp') continue;
+				if($table == 'patient' || $table == 'patient_temp' || $table == 'patient_account') continue;
 				$this->conn->exec("UPDATE `{$table}` SET `pid` = '{$primaryPid}' WHERE `pid` = '{$transferPid}';");
 			}
 
@@ -107,7 +107,7 @@ class Merge {
 	private function  setTablesWithPids(){
 
 		$this->tables = [];
-		$sth = $this->conn->prepare('SHOW TABLES');
+		$sth = $this->conn->prepare("SHOW FULL TABLES WHERE Table_Type != 'VIEW'");
 		$sth->execute();
 		$tables = $sth->fetchAll(PDO::FETCH_NUM);
 

@@ -133,6 +133,7 @@ class HL7Server {
     public $hl7_orm_referring_id_column_field = 'npi';
     public $hl7_insurance_id_column_field = 'code';
     public $hl7_patient_insurance_id_column_field = 'code';
+    public $hl7_facility_id_column_field = 'code';
     public $hl7_insurance_type = '$IN1[15]';
     public $hl7_process_insurance_segments = false;
     public $hl7_adt_insurance_policy_number = '$IN1[36]';
@@ -276,9 +277,6 @@ class HL7Server {
 			$this->ackMessage = 'Unable to parse HL7 message, please contact Support Desk';
 		}
 
-		$facilityRecord = $this->Facility->getFacility(['code' => $facility]);
-
-
         $hl7_client_config = <<<'INI_CONFIG'
 
 [HL7]
@@ -312,6 +310,8 @@ INI_CONFIG;
         if(!empty($this->server['config'])){
             $this->parseIni($this->server['config']);
         }
+
+        $facilityRecord = $this->Facility->getFacility(["{$this->hl7_facility_id_column_field}" => $facility]);
 
 		/**
 		 *

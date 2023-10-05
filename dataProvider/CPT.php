@@ -57,6 +57,10 @@ class CPT {
 		return $this->c->destroy($params);
 	}
 
+    public function getCptByCode($code){
+       return $this->c->load(['code' => $code])->one();
+    }
+
     public function getCptMapByCode($code){
        return $this->cm->load(['code' => $code])->one();
     }

@@ -133,30 +133,44 @@ class ICD10DataUpdate
 
         $index_path = '/';
         $code_path = '/';
-        if ($revision < 2023) {
-            $index_path     .= scandir($index_directory)[2] . "/";
-            $code_path      .= scandir($code_directory)[2] . "/";
-        }
+//        if ($revision <= 2024) {
+//            $index_path     .= scandir($index_directory)[2] . "/";
+//            $code_path      .= scandir($code_directory)[2] . "/";
+//        }
 
         $index_xml = $index_directory . "{$index_path}icd10cm_tabular_{$revision}.xml";
         $order_txt = $code_directory . "{$code_path}icd10cm_order_{$revision}.txt";
 
+        // Check if file does not exist in the current directory, if not, check directory changes to see if it can be found
         if(!file_exists($index_xml)){
-            exec("rm -rf {$index_directory}");
-            exec("rm -rf {$code_directory}");
-            return [
-                'success' => false,
-                'error' => "icd10cm_eindex_{$revision}.xml not found"
-            ];
+
+            $index_path     .= scandir($index_directory)[2] . "/";
+            $index_xml = $index_directory . "{$index_path}icd10cm_tabular_{$revision}.xml";
+
+            if(!file_exists($index_xml)) {
+                exec("rm -rf {$index_directory}");
+                exec("rm -rf {$code_directory}");
+                return [
+                    'success' => false,
+                    'error' => "icd10cm_eindex_{$revision}.xml not found"
+                ];
+            }
         }
 
+        // Check if file does not exist in the current directory, if not, check directory changes to see if it can be found
         if(!file_exists($order_txt)){
-            exec("rm -rf {$index_directory}");
-            exec("rm -rf {$code_directory}");
-            return [
-                'success' => false,
-                'error' => "icd10cm_order_{$revision}.txt not found"
-            ];
+
+            $code_path      .= scandir($code_directory)[2] . "/";
+            $order_txt = $code_directory . "{$code_path}icd10cm_order_{$revision}.txt";
+
+            if(!file_exists($order_txt)){
+                exec("rm -rf {$index_directory}");
+                exec("rm -rf {$code_directory}");
+                return [
+                    'success' => false,
+                    'error' => "icd10cm_order_{$revision}.txt not found"
+                ];
+            }
         }
 
         $index_xml = file_get_contents($index_xml);

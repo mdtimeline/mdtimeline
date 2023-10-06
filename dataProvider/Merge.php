@@ -26,7 +26,8 @@ class Merge {
 	/**
 	 * @var array
 	 */
-	private $tables = [];
+	private $pid_tables = [];
+    private $belong_to_tables = [];
 
 	function __construct(){
 		$this->conn = Matcha::getConn();
@@ -55,9 +56,14 @@ class Merge {
 			$this->conn->beginTransaction();
 			$this->conn->exec('SET FOREIGN_KEY_CHECKS = 0;');
 
-			foreach($this->tables as $table){
+			foreach($this->pid_tables as $table){
 				if($table == 'patient' || $table == 'patient_temp' || $table == 'patient_account') continue;
 				$this->conn->exec("UPDATE `{$table}` SET `pid` = '{$primaryPid}' WHERE `pid` = '{$transferPid}';");
+			}
+
+			foreach($this->belong_to_tables as $table){
+				if($table == 'patient' || $table == 'patient_temp' || $table == 'patient_account') continue;
+				$this->conn->exec("UPDATE `{$table}` SET `belongs_to_id` = '{$primaryPid}' WHERE `belongs_to` = 'P' AND `belongs_to_id` = '{$transferPid}';");
 			}
 
 			$this->conn->exec("DELETE FROM `patient` WHERE `pid` = '{$transferPid}';");
@@ -106,7 +112,7 @@ class Merge {
 
 	private function  setTablesWithPids(){
 
-		$this->tables = [];
+		$this->pid_tables = [];
 		$sth = $this->conn->prepare("SHOW FULL TABLES WHERE Table_Type != 'VIEW'");
 		$sth->execute();
 		$tables = $sth->fetchAll(PDO::FETCH_NUM);
@@ -118,8 +124,17 @@ class Merge {
 			$column = $sth->fetch(PDO::FETCH_ASSOC);
 
 			if($column !== false){
-				$this->tables[] = $table[0];
-			}
+				$this->pid_tables[] = $table[0];
+			}else{
+
+                $sth = $this->conn->prepare("SHOW COLUMNS FROM `{$table[0]}` where  Field = 'belongs_to' OR Field = 'belongs_to_id'");
+                $sth->execute();
+                $columns = $sth->fetchAll(PDO::FETCH_ASSOC);
+                if(count($columns) > 1){
+                    $this->belong_to_tables[] = $table[0];
+                }
+
+            }
 		}
 	}
 

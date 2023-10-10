@@ -186,7 +186,7 @@ class MatchaHelper extends Matcha
 	    $fid = isset($_SESSION['user']['facility']) ? $_SESSION['user']['facility'] : '0';
 
 	    // ignore selects from system
-	    if($uid === '0' && $event === 'SELECT'){
+	    if($event === 'SELECT'){
 	    	return;
 	    }
 

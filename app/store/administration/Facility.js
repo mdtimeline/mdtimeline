@@ -19,6 +19,7 @@
 Ext.define('App.store.administration.Facility', {
     model: 'App.model.administration.Facility',
     extend: 'Ext.data.Store',
+    pageSize: 250,
     proxy: {
         type: 'direct',
         api: {

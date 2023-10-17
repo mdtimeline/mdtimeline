@@ -23324,7 +23324,8 @@ Ext.define('App.model.patient.Patient',{
 		    type: 'string',
 		    index: true,
 		    comment: 'record number issuer ',
-		    len: 40
+		    len: 40,
+            useNull: true
 	    },
 	    {
 		    name: 'interface_number',

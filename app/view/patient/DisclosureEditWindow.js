@@ -60,6 +60,11 @@ Ext.define('App.view.patient.DisclosureEditWindow', {
                     // itemId: 'DisclosureEditWindowRequestedDate'
                 },
                 {
+                    xtype: 'checkboxfield',
+                    fieldLabel: 'Include Encounters',
+                    name: 'include_encounters'
+                },
+                {
                     xtype: 'datefield',
                     fieldLabel: 'Fulfil Date',
                     format: 'F j, Y',

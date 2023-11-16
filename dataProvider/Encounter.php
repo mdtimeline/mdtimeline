@@ -248,6 +248,55 @@ class Encounter {
 		return $encounters;
 	}
 
+    public function getEncountersClosedByPid($pid, $relations = true) {
+
+        $params = (object)[
+            'filter' => [
+                (object)[
+                    'property' => 'pid',
+                    'value' => $pid
+                ],
+                (object)[
+                    'property' => 'close_date',
+                    'value' => null,
+                    'operator' => '!='
+                ],
+                (object)[
+                    'property' => 'provider_uid',
+                    'value' => '0',
+                    'operator' => '>'
+                ]
+            ]
+        ];
+
+		$records = $this->e->load($params)
+            ->leftJoin(
+                    [
+                    'title' => 'provider_title',
+                    'fname' => 'provider_fname',
+                    'mname' => 'provider_mname',
+                    'lname' => 'provider_lname',
+                    'npi' => 'provider_npi',
+                    'signature' => 'provider_signature',
+                ], 'users', 'provider_uid', 'id')
+            ->leftJoin(
+                [
+                    'name' => 'facility_name'
+                ], 'facility', 'facility', 'id')
+            ->all();
+
+        $encounters = (array)$records['encounter'];
+
+		$relations = isset($params->relations) ? $params->relations : $relations;
+
+		foreach($encounters as $i => $encounter){
+			$encounters[$i]['status'] = ($encounter['close_date'] == null) ? 'open' : 'close';
+			if($relations)
+			    $encounters[$i] = $this->getEncounterRelations($encounters[$i]);
+		}
+		return $encounters;
+	}
+
 	/**
 	 * @param $pid
 	 * @param null $start
@@ -728,9 +777,12 @@ class Encounter {
 			}
 
 			$soap = $this->getSoapByEid($eid);
-			$soap['subjective'] = (isset($soap['subjective']) ? (trim($soap['subjective']) . '<br>') : '') . $this->getSubjectiveExtraDataByEid($eid, $encounter);
+			$soap['subjective'] = (isset($soap['subjective']) ? (trim($soap['subjective']) . '<br>') : '');
+                //. $this->getSubjectiveExtraDataByEid($eid, $encounter);
 			$soap['assessment'] = (isset($soap['assessment']) ? (trim($soap['assessment']) . '<br>') : '');
-			$soap['objective'] = $this->getObjectiveExtraDataByEid($eid, $encounter) . (isset($soap['objective']) ? trim($soap['objective']) : '');
+			$soap['objective'] =
+                //$this->getObjectiveExtraDataByEid($eid, $encounter) .
+                (isset($soap['objective']) ? trim($soap['objective']) : '');
 			$soap['assessment'] = $soap['assessment'] . (isset($dxOl) ? $dxOl : '<br>');
 			$instructions = (isset($soap['instructions']) ? (trim($soap['instructions'])) : null);
 			$soap['plan'] = (isset($soap['plan']) ? trim($soap['plan']) : '') . $this->getPlanExtraDataByEid($eid, $instructions, $include_nurse_data);

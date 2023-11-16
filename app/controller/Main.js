@@ -93,13 +93,13 @@ Ext.define('App.controller.Main', {
 	},
 
 	onApplicationFacilityComboBeforeRender: function (cmb) {
+		cmb.setValue(app.user.facility);
 		cmb.getStore().on('load', this.onFacilityComboLoad, this);
 	},
 
 	onFacilityComboLoad:function(store, records){
-		var rec = store.findRecord('option_value', app.user.facility);
-		this.getApplicationFacilityCombo().setValue(rec);
-		app.setWindowTitle(rec.data.option_name)
+		var facility_record = this.getApplicationFacilityCombo().findRecordByValue(app.user.facility);
+		app.setWindowTitle(facility_record.data.option_name)
 	},
 
 	getCurrentFacility: function () {

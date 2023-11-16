@@ -73,6 +73,10 @@ Ext.define('App.model.patient.Disclosures', {
 			useNull: true
 		},
 		{
+			name: 'include_encounters',
+			type: 'bool'
+		},
+		{
 			name: 'pickup_date',
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s',

@@ -101,6 +101,45 @@ class Disclosure
 
         }
 
+        if(isset($Disclosure->include_encounters) && $Disclosure->include_encounters === true){
+            include_once (ROOT . '/dataProvider/Encounter.php');
+            include_once (ROOT . '/dataProvider/DocumentHandler.php');
+            $Encounter = new Encounter();
+            $DocumentHandler = new DocumentHandler();
+
+            $encounters = $Encounter->getEncountersClosedByPid($Disclosure->pid);
+
+            if(count($encounters) > 0){
+
+                foreach($encounters as $encounter){
+
+                    $temp_document = $DocumentHandler->createTempDocument([
+                        'pid' =>  $encounter['pid'],
+                        'eid' =>  $encounter['eid'],
+                        'provider_uid' =>  $encounter['provider_uid'],
+                        'templateId' =>  '11',
+                        'docType' =>  'EncProgress'
+                    ], true);
+
+                    $DocumentHandler->destroyTempDocument($temp_document);
+
+                    if($temp_document !== false){
+                        $service_date = date('Ymd', strtotime($encounter['service_date']));
+                        $document_name = "{$encounter['eid']}_ENCOUNTER_{$service_date}.pdf";
+                        $document_path = "{$disclosure_temp_documents_path}/{$document_name}";
+                        $document_binary = base64_decode($temp_document->document);
+                        if (!file_put_contents($document_path, $document_binary)) {
+                            throw new Exception("Encounter document could not be saved");
+                        }
+                    }
+
+
+
+
+                }
+            }
+        }
+
         return $disclosure_temp_path;
     }
 

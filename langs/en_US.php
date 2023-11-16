@@ -2284,5 +2284,6 @@ $LANG = array(
     'annual' => 'Annual',
     'unable_select_inactive_insurance' => 'Unable to Select Inactive Insurance',
     'allow_select_inactive_referring'=> 'Unable to Select Inactive Referring',
+    'include_encounters'=> 'Include Encounters',
 
 );

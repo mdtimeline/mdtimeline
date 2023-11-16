@@ -14,6 +14,12 @@ Ext.define('App.controller.Burner', {
 		}
 	],
 
+
+	// Remote.PortalStudy.studyDownload(params, function(response){
+	// 	me.getMainView().unmask();
+	// 	burnerCtl.doCDBurner(response.download_url);
+	// });
+
 	init: function(){
 		var me = this;
 

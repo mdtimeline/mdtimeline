@@ -18956,6 +18956,10 @@ Ext.define('App.model.patient.Disclosures', {
 			useNull: true
 		},
 		{
+			name: 'include_encounters',
+			type: 'bool'
+		},
+		{
 			name: 'pickup_date',
 			type: 'date',
 			dateFormat: 'Y-m-d H:i:s',
@@ -39431,6 +39435,7 @@ Ext.define('App.store.administration.ActiveProblems',
 Ext.define('App.store.administration.Facility', {
     model: 'App.model.administration.Facility',
     extend: 'Ext.data.Store',
+    pageSize: 250,
     proxy: {
         type: 'direct',
         api: {
@@ -40974,13 +40979,13 @@ Ext.define('App.controller.Main', {
 	},
 
 	onApplicationFacilityComboBeforeRender: function (cmb) {
+		cmb.setValue(app.user.facility);
 		cmb.getStore().on('load', this.onFacilityComboLoad, this);
 	},
 
 	onFacilityComboLoad:function(store, records){
-		var rec = store.findRecord('option_value', app.user.facility);
-		this.getApplicationFacilityCombo().setValue(rec);
-		app.setWindowTitle(rec.data.option_name)
+		var facility_record = this.getApplicationFacilityCombo().findRecordByValue(app.user.facility);
+		app.setWindowTitle(facility_record.data.option_name)
 	},
 
 	getCurrentFacility: function () {
@@ -84519,64 +84524,6 @@ Ext.define('App.view.patient.DisclosuresGrid', {
             itemId: 'PatientDisclosuresGridAddBtn',
         }
     ],
-    columns: [
-        {
-            text: _('description'),
-            dataIndex: 'description',
-            flex: 1,
-        },
-        {
-            header: _('recipient'),
-            dataIndex: 'recipient',
-            flex: 1,
-        },
-        {
-            xtype: 'datecolumn',
-            format: 'F j, Y',
-            text: _('request_date'),
-            dataIndex: 'request_date',
-            flex: 1,
-        },
-        {
-            xtype: 'datecolumn',
-            format: 'F j, Y',
-            text: _('fulfil_date'),
-            dataIndex: 'fulfil_date',
-            flex: 1,
-        },
-        {
-            xtype: 'datecolumn',
-            format: 'F j, Y',
-            text: _('pickup_date'),
-            dataIndex: 'pickup_date',
-            flex: 1,
-        },
-        {
-            text: _('signature'),
-            dataIndex: 'signature',
-            flex: 1,
-            renderer: function (v, meta, record) {
-                meta.tdCls = record.data.rowClasses;
-
-                var signature =  record.get('signature');
-
-                if(signature){
-                    signature = '<img src="' + signature + '" height="30" >';
-                    return Ext.String.format('<div><b>Signature By:</b></div> {0}', signature);
-                }
-
-                return '';
-
-            }
-        },
-        {
-            xtype: 'numbercolumn',
-            text: _('document_attached'),
-            dataIndex: 'document_inventory_count',
-            flex: 1,
-            format: '0'
-        }
-    ],
 
     initComponent: function () {
         var me = this;
@@ -84585,6 +84532,71 @@ Ext.define('App.view.patient.DisclosuresGrid', {
             autoSync: false,
             autoLoad: false
         });
+
+        me.columns = [
+            {
+                text: _('description'),
+                dataIndex: 'description',
+                flex: 1,
+            },
+            {
+                header: _('recipient'),
+                dataIndex: 'recipient',
+                flex: 1,
+            },
+            {
+                xtype: 'datecolumn',
+                format: 'F j, Y',
+                text: _('request_date'),
+                dataIndex: 'request_date',
+                flex: 1,
+            },
+            {
+                text: _('include_encounters'),
+                dataIndex: 'include_encounters',
+                renderer: app.boolRenderer,
+                flex: 1
+            },
+            {
+                xtype: 'datecolumn',
+                format: 'F j, Y',
+                text: _('fulfil_date'),
+                dataIndex: 'fulfil_date',
+                flex: 1,
+            },
+            {
+                xtype: 'datecolumn',
+                format: 'F j, Y',
+                text: _('pickup_date'),
+                dataIndex: 'pickup_date',
+                flex: 1,
+            },
+            {
+                text: _('signature'),
+                dataIndex: 'signature',
+                flex: 1,
+                renderer: function (v, meta, record) {
+                    meta.tdCls = record.data.rowClasses;
+
+                    var signature =  record.get('signature');
+
+                    if(signature){
+                        signature = '<img src="' + signature + '" height="30" >';
+                        return Ext.String.format('<div><b>Signature By:</b></div> {0}', signature);
+                    }
+
+                    return '';
+
+                }
+            },
+            {
+                xtype: 'numbercolumn',
+                text: _('document_attached'),
+                dataIndex: 'document_inventory_count',
+                flex: 1,
+                format: '0'
+            }
+        ];
 
         me.callParent();
 

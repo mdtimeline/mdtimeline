@@ -94,64 +94,6 @@ Ext.define('App.view.patient.DisclosuresGrid', {
             itemId: 'PatientDisclosuresGridAddBtn',
         }
     ],
-    columns: [
-        {
-            text: _('description'),
-            dataIndex: 'description',
-            flex: 1,
-        },
-        {
-            header: _('recipient'),
-            dataIndex: 'recipient',
-            flex: 1,
-        },
-        {
-            xtype: 'datecolumn',
-            format: 'F j, Y',
-            text: _('request_date'),
-            dataIndex: 'request_date',
-            flex: 1,
-        },
-        {
-            xtype: 'datecolumn',
-            format: 'F j, Y',
-            text: _('fulfil_date'),
-            dataIndex: 'fulfil_date',
-            flex: 1,
-        },
-        {
-            xtype: 'datecolumn',
-            format: 'F j, Y',
-            text: _('pickup_date'),
-            dataIndex: 'pickup_date',
-            flex: 1,
-        },
-        {
-            text: _('signature'),
-            dataIndex: 'signature',
-            flex: 1,
-            renderer: function (v, meta, record) {
-                meta.tdCls = record.data.rowClasses;
-
-                var signature =  record.get('signature');
-
-                if(signature){
-                    signature = '<img src="' + signature + '" height="30" >';
-                    return Ext.String.format('<div><b>Signature By:</b></div> {0}', signature);
-                }
-
-                return '';
-
-            }
-        },
-        {
-            xtype: 'numbercolumn',
-            text: _('document_attached'),
-            dataIndex: 'document_inventory_count',
-            flex: 1,
-            format: '0'
-        }
-    ],
 
     initComponent: function () {
         var me = this;
@@ -160,6 +102,71 @@ Ext.define('App.view.patient.DisclosuresGrid', {
             autoSync: false,
             autoLoad: false
         });
+
+        me.columns = [
+            {
+                text: _('description'),
+                dataIndex: 'description',
+                flex: 1,
+            },
+            {
+                header: _('recipient'),
+                dataIndex: 'recipient',
+                flex: 1,
+            },
+            {
+                xtype: 'datecolumn',
+                format: 'F j, Y',
+                text: _('request_date'),
+                dataIndex: 'request_date',
+                flex: 1,
+            },
+            {
+                text: _('include_encounters'),
+                dataIndex: 'include_encounters',
+                renderer: app.boolRenderer,
+                flex: 1
+            },
+            {
+                xtype: 'datecolumn',
+                format: 'F j, Y',
+                text: _('fulfil_date'),
+                dataIndex: 'fulfil_date',
+                flex: 1,
+            },
+            {
+                xtype: 'datecolumn',
+                format: 'F j, Y',
+                text: _('pickup_date'),
+                dataIndex: 'pickup_date',
+                flex: 1,
+            },
+            {
+                text: _('signature'),
+                dataIndex: 'signature',
+                flex: 1,
+                renderer: function (v, meta, record) {
+                    meta.tdCls = record.data.rowClasses;
+
+                    var signature =  record.get('signature');
+
+                    if(signature){
+                        signature = '<img src="' + signature + '" height="30" >';
+                        return Ext.String.format('<div><b>Signature By:</b></div> {0}', signature);
+                    }
+
+                    return '';
+
+                }
+            },
+            {
+                xtype: 'numbercolumn',
+                text: _('document_attached'),
+                dataIndex: 'document_inventory_count',
+                flex: 1,
+                format: '0'
+            }
+        ];
 
         me.callParent();
 

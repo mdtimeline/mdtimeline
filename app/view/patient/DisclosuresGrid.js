@@ -29,69 +29,71 @@ Ext.define('App.view.patient.DisclosuresGrid', {
     bodyPadding: 0,
     tbar: [
         {
-            xtype: 'container',
-            items: [
-                {
-                    xtype: 'printerscombo',
-                    itemId: 'PatientDisclosuresPrinterCmb',
-                    emptyText: 'Select Printer',
-                    fieldLabel: 'Printer',
-                    labelWidth: 45,
-                    width: 250,
-                    margin: '0 5 0 5'
-                }
-                // {
-                //     xtype: 'combobox',
-                //     itemId: 'PatientDisclosuresPrinterCmb',
-                //     store: Ext.create('App.store.administration.Printer'),
-                //     queryMode: 'local',
-                //     editable: false,
-                //     forceSelection: true,
-                //     autoSelect: true,
-                //     valueField: 'id',
-                //     displayField: 'printer_description',
-                //     emptyText: 'Select Printer',
-                //     fieldLabel: 'Printer',
-                //     // labelPad: 1,
-                //     width: 200
-                // }
-            ]
+            xtype: 'printerscombo',
+            itemId: 'PatientDisclosuresPrinterCmb',
+            emptyText: 'Select Printer',
+            fieldLabel: 'Printer',
+            labelWidth: 45,
+            width: 250,
+            margin: '0 5 0 5'
         },
+        // {
+        //     xtype: 'combobox',
+        //     itemId: 'PatientDisclosuresPrinterCmb',
+        //     store: Ext.create('App.store.administration.Printer'),
+        //     queryMode: 'local',
+        //     editable: false,
+        //     forceSelection: true,
+        //     autoSelect: true,
+        //     valueField: 'id',
+        //     displayField: 'printer_description',
+        //     emptyText: 'Select Printer',
+        //     fieldLabel: 'Printer',
+        //     // labelPad: 1,
+        //     width: 200
+        // }
         {
-            xtype: 'container',
-            items: [
-                {
-                    xtype: 'burnerscombo',
-                    itemId: 'PatientDisclosuresBurnersCmb',
-                    fieldLabel: 'Burner',
-                    forceSelection: true,
-                    autoSelect: true,
-                    labelWidth: 45,
-                    width: 250
-                }
-            ]
+            xtype: 'burnerscombo',
+            itemId: 'PatientDisclosuresBurnersCmb',
+            fieldLabel: 'Burner',
+            forceSelection: true,
+            autoSelect: true,
+            labelWidth: 45,
+            width: 250
         },
         '->',
         {
             xtype: 'button',
             text: _('print'),
             itemId: 'PatientDisclosuresPrintBtn',
+            iconCls: 'fas fa-print'
         },
+        '-',
         {
             xtype: 'button',
             text: _('download'),
             itemId: 'PatientDisclosuresDownloadBtn',
+            iconCls: 'fas fa-folder-download'
         },
+        '-',
         {
             xtype: 'button',
-            text: _('burn'),
+            text: _('burner_local'),
+            itemId: 'PatientDisclosuresLocalBurnBtn',
+            iconCls: 'fas fa-burn'
+        },
+        '-',
+        {
+            xtype: 'button',
+            text: _('burner_robot'),
             itemId: 'PatientDisclosuresBurnBtn',
+            iconCls: 'fas fa-burn'
         },
         '-',
         {
             text: _('disclosure'),
             iconCls: 'icoAdd',
-            itemId: 'PatientDisclosuresGridAddBtn',
+            itemId: 'PatientDisclosuresGridAddBtn'
         }
     ],
 

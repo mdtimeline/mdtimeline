@@ -47,7 +47,7 @@ class Modules {
 		Matcha::pauseLog(true);
 		$modules = [];
 		foreach(FileManager::scanDir($this->modulesDir) AS $module){
-			$modules[] = $this->getModuleConfig($module);
+			$modules[$module] = $this->getModuleConfig($module);
 		}
 		Matcha::pauseLog(false);
 		return $modules;

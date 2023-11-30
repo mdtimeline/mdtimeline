@@ -488,6 +488,42 @@ class Disclosure
         }
     }
 
+    public function packageDisclosureDocuments($Disclosure)
+    {
+        try {
+            if (!isset($Disclosure)) throw new Exception('Disclosure Missing');
+
+            $temp_disclosure_path = $this->createTempDisclosureDir($Disclosure);
+
+            $zip_path = $this->createDisclosureZipFile($Disclosure, $temp_disclosure_path);
+
+            if (!file_exists($zip_path)) throw new Exception('Zip file dont exist');
+
+//            header('Content-Type: application/zip');
+//            header('Content-Transfer-Encoding: Binary');
+//            header('Content-disposition: attachment; filename="' . basename($zip_path) . '"');
+//            flush(); // Flush system output buffer
+//            readfile($zip_path);
+
+            //$this->deleteFolder($temp_disclosure_path);
+
+            return (object)[
+                'success' => true,
+                'zip_path' => $zip_path
+            ];
+
+        } catch (Exception $e) {
+            if (isset($temp_disclosure_path)) $this->deleteFolder($temp_disclosure_path);
+
+            error_log($e->getMessage());
+
+            return (object)[
+                'success' => false,
+                'errorMsg' => $e->getMessage()
+            ];
+        }
+    }
+
     public function burnDisclosure($Disclosure,$burner)
     {
         try {

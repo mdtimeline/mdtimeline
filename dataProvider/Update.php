@@ -26,10 +26,43 @@ class Update {
 
     public function getModules($params) {
 
+        $modules = ['core', 'worklist'];
+
+        include_once(ROOT . '/dataProvider/Modules.php');
+        include_once(ROOT . '/dataProvider/Gitter.php');
+        $Modules = new Modules();
+        $Gitter = new Gitter();
+        $installed_modules = $Modules->getAllModules();
+
+
+        $data = [];
 
 
 
-        return [];
+        foreach ($modules as $module){
+
+            /*
+             * core  = VERSION
+             * module = config
+             */
+
+            $log = $Gitter->doLog($module);
+
+            foreach ($log['output'] as &$output){
+                $output = htmlspecialchars($output);
+            }
+
+            $data[] = [
+                'module' => $module,
+                'version' => VERSION, // config....
+                'script_version' => 'v2.3',
+                'latest_commit' => implode('<br>', $log['output'])
+            ];
+
+
+        }
+
+        return $data;
     }
 
 }

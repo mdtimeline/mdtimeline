@@ -36,7 +36,7 @@ Ext.define('App.model.administration.Update', {
 			type: 'string'
 		},
 		{
-			name: 'git_version',
+			name: 'latest_commit',
 			type: 'string'
 		}
 	],

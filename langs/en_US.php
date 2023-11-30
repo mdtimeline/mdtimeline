@@ -2285,5 +2285,7 @@ $LANG = array(
     'unable_select_inactive_insurance' => 'Unable to Select Inactive Insurance',
     'allow_select_inactive_referring'=> 'Unable to Select Inactive Referring',
     'include_encounters'=> 'Include Encounters',
+    'burner_robot'=> 'Burner (Robot)',
+    'burner_local'=> 'Burner (Local)',
 
 );

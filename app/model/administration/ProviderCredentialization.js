@@ -97,6 +97,9 @@ Ext.define('App.model.administration.ProviderCredentialization', {
         },
         reader: {
             root: 'data'
+        },
+        writer: {
+            writeAllFields: true
         }
     }
 });

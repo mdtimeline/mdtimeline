@@ -114,8 +114,11 @@ Ext.define('App.controller.patient.Disclosures', {
             '#PatientDisclosuresDownloadBtn': {
                 click: me.onPatientDisclosuresDownloadBtnClick
             },
-            '#PatientDisclosuresBurnBtn': {
-                click: me.onPatientDisclosuresBurnBtnClick
+            '#PatientDisclosuresBurnerBtn': {
+                click: me.onPatientDisclosuresBurnerBtnClick
+            },
+            '#PatientDisclosuresLocalBurnBtn': {
+                click: me.onPatientDisclosuresLocalBurnBtnClick
             },
             '#PatientDisclosuresBurnersCmb': {
                 beforerender: me.onPatientDisclosuresBurnersCmbBeforeRender
@@ -169,7 +172,7 @@ Ext.define('App.controller.patient.Disclosures', {
 
     },
 
-    onPatientDisclosuresBurnBtnClick: function (btn) {
+    onPatientDisclosuresBurnerBtnClick: function (btn) {
         var me = this,
             grid = me.getPatientDisclosuresGrid(),
             records = grid.getSelectionModel().getSelection(),
@@ -193,6 +196,25 @@ Ext.define('App.controller.patient.Disclosures', {
                     if(!response.success) app.msg("Error", response.errorMsg, true);
                 });
             }
+        });
+    },
+
+    onPatientDisclosuresLocalBurnBtnClick: function (btn) {
+        var me = this,
+            grid = me.getPatientDisclosuresGrid(),
+            records = grid.getSelectionModel().getSelection();
+
+        if (records.length <= 0) {
+            app.msg(_('warning'), "No disclosures selected", true);
+            return;
+        }
+
+        app.msg("Downloading... ", "Downloading disclosure", false);
+
+        records.forEach(function (record, i) {
+            Ext.Function.defer(function () {
+                me.disclosureDownload(record);
+            }, 1000 * i);
         });
     },
 

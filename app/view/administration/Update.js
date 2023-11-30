@@ -38,22 +38,26 @@ Ext.define('App.view.administration.Update', {
 				itemId: 'AdminUpdateGrid',
 				title: 'Modules',
 				flex: 1,
-				// store: me.store,
+				store: me.store,
 				columns: [
 					{
 						text: 'Module',
+						dataIndex: 'module',
 						flex: 1,
 					},
 					{
 						text: 'Version',
+						dataIndex: 'module',
 						flex: 1,
 					},
 					{
 						text: 'Script Version',
+						dataIndex: 'script_version',
 						flex: 1,
 					},
 					{
-						text: 'Git Version',
+						text: 'Latest Commit',
+						dataIndex: 'latest_commit',
 						flex: 1,
 					},
 					{

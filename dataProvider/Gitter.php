@@ -47,7 +47,7 @@ class Gitter
     }
 
     private function gitLog($repository, $repository_directory = null){
-        return $this->gitExect('log -n 5', $repository, $repository_directory);
+        return $this->gitExect('log -n 1', $repository, $repository_directory);
     }
 
     private function gitDiff($repository, $repository_directory = null){
@@ -76,7 +76,7 @@ class Gitter
         $cmd = "{$this->git_path} {$git_cmd} ";
 
         if($git_cmd === 'pull' || $git_cmd === 'clone'){
-            $cmd .= ($repository === '' ? $this->github_url : $this->bitbucket_url);
+            $cmd .= ($repository === '' || $repository === 'core' ? $this->github_url : $this->bitbucket_url);
 
             if($git_cmd === 'clone'){
                 $cmd .= ' .';

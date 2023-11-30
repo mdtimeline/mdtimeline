@@ -1128,6 +1128,9 @@ $API = [
             'downloadDisclosureDocuments' => [
                 'len' => 1
             ],
+            'packageDisclosureDocuments' => [
+                'len' => 1
+            ],
             'burnDisclosure' => [
                 'len' => 2
             ]

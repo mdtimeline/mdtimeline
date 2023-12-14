@@ -289,7 +289,7 @@ class HL7 {
 
 	function time($time, $format = 'Y-m-d H:i:s'){
 
-		$parsed_time = date($format, strtotime($time));
+		$parsed_time = date($format, strtotime(preg_replace('/\..*$/', '', $time)));
 		if(isset($parsed_time) && $parsed_time !== false){
 			return $parsed_time;
 		}

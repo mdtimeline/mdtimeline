@@ -18,6 +18,19 @@ class Gitter
         return $this->gitLog($repository, $repository_directory);
     }
 
+    public function doBranch($repository, $repository_directory = null){
+        return $this->gitBranch($repository, $repository_directory);
+    }
+
+    public function doBranches($repository, $repository_directory = null){
+        return $this->gitBranches($repository, $repository_directory);
+    }
+
+    public function doBranchCheckout($branch_name, $repository, $repository_directory = null){
+        $branch_name = str_replace("*", "", $branch_name);
+        return $this->gitBranchCheckout($branch_name, $repository, $repository_directory);
+    }
+
     public function doDiff($repository, $repository_directory = null){
         return $this->gitDiff($repository, $repository_directory);
     }
@@ -47,7 +60,19 @@ class Gitter
     }
 
     private function gitLog($repository, $repository_directory = null){
-        return $this->gitExect('log -n 1', $repository, $repository_directory);
+        return $this->gitExect('log -n 5', $repository, $repository_directory);
+    }
+
+    private function gitBranch($repository, $repository_directory = null){
+        return $this->gitExect('branch --show-current', $repository, $repository_directory);
+    }
+
+    private function gitBranches($repository, $repository_directory = null){
+        return $this->gitExect('branch', $repository, $repository_directory);
+    }
+
+    private function gitBranchCheckout($branch_name, $repository, $repository_directory = null){
+        return $this->gitExect('checkout' . $branch_name, $repository, $repository_directory);
     }
 
     private function gitDiff($repository, $repository_directory = null){

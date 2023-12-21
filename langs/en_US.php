@@ -2287,5 +2287,9 @@ $LANG = array(
     'include_encounters'=> 'Include Encounters',
     'burner_robot'=> 'Burner (Robot)',
     'burner_local'=> 'Burner (Local)',
-
+    'git_log' => 'Git Log',
+    'git_diff' => 'Git Diff',
+    'git_pull' => 'Git Pull',
+    'git_reset' => 'Git Reset',
+    'git_branch' => 'Git Branch'
 );

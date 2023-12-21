@@ -41,6 +41,18 @@ $API = [
             ],
             'doUpgrade' => [
                 'len' => 2
+            ],
+            'doBranch' => [
+                'len' => 2
+            ],
+            'doBranches' => [
+                'len' => 2
+            ],
+            'doBranchCheckout' => [
+                'len' => 3
+            ],
+            'doPull' => [
+                'len' => 2
             ]
         ]
     ],

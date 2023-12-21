@@ -56,51 +56,67 @@ Ext.define('App.view.administration.Update', {
 						flex: 1,
 					},
 					{
+						text: 'Current Branch',
+						dataIndex: 'current_branch',
+						flex: 1,
+					},
+					{
 						text: 'Latest Commit',
 						dataIndex: 'latest_commit',
 						flex: 1,
 					},
-					{
-						text: 'Actions',
-						menuDisabled: true,
-						sortable: false,
-						xtype: 'actioncolumn',
-						flex: 1,
-						items: [
-							{
-								iconCls: 'fas fa-clipboard-list',
-								tooltip: 'Git Log',
-								handler: function(grid, rowIndex, colIndex) {
-									var module_record = grid.getStore().getAt(rowIndex);
-									app.getController('App.controller.administration.Update').doAGitLog(module_record);
-								}
-							},
-							{
-								iconCls: 'fas fa-not-equal',
-								tooltip: 'Git DifF',
-								handler: function(grid, rowIndex, colIndex) {
-									var module_record = grid.getStore().getAt(rowIndex);
-									app.getController('App.controller.administration.Update').doAGitDifF(module_record);
-								}
-							},
-							{
-								iconCls: 'fas fa-file-download',
-								tooltip: 'Git Pull',
-								handler: function(grid, rowIndex, colIndex) {
-									var module_record = grid.getStore().getAt(rowIndex);
-									app.getController('App.controller.administration.Update').doAGitPull(module_record);
-								}
-							},
-							{
-								iconCls: 'fas fa-undo',
-								tooltip: 'Git Reset',
-								handler: function(grid, rowIndex, colIndex) {
-									var module_record = grid.getStore().getAt(rowIndex);
-									app.getController('App.controller.administration.Update').doAGitReset(module_record);
-								}
-							}
-						]
-					}
+					// {
+					// 	text: 'Actions',
+					// 	menuDisabled: true,
+					// 	sortable: false,
+					// 	xtype: 'actioncolumn',
+					// 	flex: 1,
+					// 	items: [
+					// 		{
+					// 			iconCls: 'far fa-file-minus',
+					// 			tooltip: {
+					// 				text: 'Git Log',
+					// 				width: '200'
+					// 			},
+					// 			handler: function(grid, rowIndex, colIndex) {
+					// 				var module_record = grid.getStore().getAt(rowIndex);
+					// 					app.getController('App.controller.administration.Update').doAGitLog(module_record);
+					// 			}
+					// 		},
+					// 		{
+					// 			iconCls: 'far fa-file-code',
+					// 			tooltip: 'Git Diff',
+					// 			handler: function(grid, rowIndex, colIndex) {
+					// 				var module_record = grid.getStore().getAt(rowIndex);
+					// 				app.getController('App.controller.administration.Update').doAGitDifF(module_record);
+					// 			}
+					// 		},
+					// 		{
+					// 			iconCls: 'fad fa-code-merge',
+					// 			tooltip: 'Git Pull',
+					// 			handler: function(grid, rowIndex, colIndex) {
+					// 				var module_record = grid.getStore().getAt(rowIndex);
+					// 				app.getController('App.controller.administration.Update').doAGitPull(module_record);
+					// 			}
+					// 		},
+					// 		{
+					// 			iconCls: 'fab fa-digital-ocean',
+					// 			tooltip: 'Git Reset',
+					// 			handler: function(grid, rowIndex, colIndex) {
+					// 				var module_record = grid.getStore().getAt(rowIndex);
+					// 				app.getController('App.controller.administration.Update').doAGitReset(module_record);
+					// 			}
+					// 		},
+					// 		{
+					// 			iconCls: 'fas fa-code-branch',
+					// 			tooltip: 'Git Reset',
+					// 			handler: function(grid, rowIndex, colIndex) {
+					// 				var module_record = grid.getStore().getAt(rowIndex);
+					// 				app.getController('App.controller.administration.Update').doAGitBranch(module_record);
+					// 			}
+					// 		}
+					// 	]
+					// }
 				],
 				bbar: {
 					xtype: 'pagingtoolbar',

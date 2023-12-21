@@ -8,6 +8,10 @@
     src: url('../../fonts/OpenSans-CondLight.ttf');
 }
 
+.svg-inline--fa.x-menu-item-icon {
+    left: 8px !important;
+}
+
 .x-btn-icon-el {
     font-size: 16px;
     color: #1b9bfc;

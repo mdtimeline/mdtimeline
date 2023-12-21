@@ -36,6 +36,10 @@ Ext.define('App.model.administration.Update', {
 			type: 'string'
 		},
 		{
+			name: 'current_branch',
+			type: 'string'
+		},
+		{
 			name: 'latest_commit',
 			type: 'string'
 		}

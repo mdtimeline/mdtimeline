@@ -47,15 +47,21 @@ class Update {
              */
 
             $log = $Gitter->doLog($module);
+            $branch = $Gitter->doBranch($module);
 
             foreach ($log['output'] as &$output){
                 $output = htmlspecialchars($output);
+            }
+
+            foreach ($branch['output'] as &$output){
+                $branch = $output;
             }
 
             $data[] = [
                 'module' => $module,
                 'version' => VERSION, // config....
                 'script_version' => 'v2.3',
+                'current_branch' => $branch,
                 'latest_commit' => implode('<br>', $log['output'])
             ];
 

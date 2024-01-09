@@ -48,6 +48,10 @@ class Update {
 
             $log = $Gitter->doLog($module);
             $branch = $Gitter->doBranch($module);
+            $branches = $Gitter->doBranches($module);
+            $branchesArray = [];
+            $tags = $Gitter->doTags($module);
+            $tagsArray = [];
 
             foreach ($log['output'] as &$output){
                 $output = htmlspecialchars($output);
@@ -57,12 +61,32 @@ class Update {
                 $branch = $output;
             }
 
+            foreach ($branches['output'] as &$output){
+                $object = new stdClass();
+                $object->text = $output;
+                $object->iconCls = 'fas fa-code-branch';
+                $object->module = $module;
+
+                $branchesArray[] = $object;
+            }
+
+            foreach ($tags['output'] as &$output){
+                $object = new stdClass();
+                $object->text = $output;
+                $object->iconCls = 'fas fa-tag';
+                $object->module = $module;
+
+                $tagsArray[] = $object;
+            }
+
             $data[] = [
                 'module' => $module,
                 'version' => VERSION, // config....
                 'script_version' => 'v2.3',
                 'current_branch' => $branch,
-                'latest_commit' => implode('<br>', $log['output'])
+                'latest_commit' => implode('<br>', $log['output']),
+                'branches' => $branchesArray,
+                'tags' => $tagsArray
             ];
 
 

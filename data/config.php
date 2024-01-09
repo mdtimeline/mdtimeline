@@ -53,6 +53,12 @@ $API = [
             ],
             'doPull' => [
                 'len' => 2
+            ],
+            'doStatus' => [
+                'len' => 2
+            ],
+            'doTags' => [
+                'len' => 2
             ]
         ]
     ],

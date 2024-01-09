@@ -51,6 +51,14 @@ class Gitter
         return $this->gitClone($repository, $repository_directory);
     }
 
+    public function doStatus($repository, $repository_directory = null){
+        return $this->gitStatus($repository, $repository_directory);
+    }
+
+    public function doTags($repository, $repository_directory = null){
+        return $this->gitTags($repository, $repository_directory);
+    }
+
     private function gitClone($repository, $repository_directory = null){
         return $this->gitExect('clone', $repository, $repository_directory);
     }
@@ -60,7 +68,7 @@ class Gitter
     }
 
     private function gitLog($repository, $repository_directory = null){
-        return $this->gitExect('log -n 5', $repository, $repository_directory);
+        return $this->gitExect('log -n 2', $repository, $repository_directory);
     }
 
     private function gitBranch($repository, $repository_directory = null){
@@ -81,6 +89,14 @@ class Gitter
 
     private function gitReset($repository, $repository_directory = null){
         return $this->gitExect('reset --hard', $repository, $repository_directory);
+    }
+
+    private function gitStatus($repository, $repository_directory = null){
+        return $this->gitExect('status', $repository, $repository_directory);
+    }
+
+    private function gitTags($repository, $repository_directory = null){
+        return $this->gitExect('tag', $repository, $repository_directory);
     }
 
     private function gitExect($git_cmd, $repository, $repository_directory = null){

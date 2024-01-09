@@ -42,6 +42,14 @@ Ext.define('App.model.administration.Update', {
 		{
 			name: 'latest_commit',
 			type: 'string'
+		},
+		{
+			name: 'branches',
+			type: 'auto'
+		},
+		{
+			name: 'tags',
+			type: 'auto'
 		}
 	],
 	proxy: {

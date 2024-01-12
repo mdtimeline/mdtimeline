@@ -40,6 +40,10 @@ Ext.define('App.model.administration.Update', {
 			type: 'string'
 		},
 		{
+			name: 'current_tag',
+			type: 'string'
+		},
+		{
 			name: 'latest_commit',
 			type: 'string'
 		},

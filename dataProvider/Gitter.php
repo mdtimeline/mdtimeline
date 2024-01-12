@@ -59,6 +59,15 @@ class Gitter
         return $this->gitTags($repository, $repository_directory);
     }
 
+    public function doGetCurrentTag($repository, $repository_directory = null){
+        return $this->gitCurrentTag($repository, $repository_directory);
+    }
+
+    public function doTagCheckout($tag_name, $repository, $repository_directory = null){
+        $tag_name = str_replace("*", "", $tag_name);
+        return $this->gitTagCheckout($tag_name, $repository, $repository_directory);
+    }
+
     private function gitClone($repository, $repository_directory = null){
         return $this->gitExect('clone', $repository, $repository_directory);
     }
@@ -75,12 +84,36 @@ class Gitter
         return $this->gitExect('branch --show-current', $repository, $repository_directory);
     }
 
-    private function gitBranches($repository, $repository_directory = null){
-        return $this->gitExect('branch', $repository, $repository_directory);
+    private function gitBranches($repository, $repository_directory = null) {
+        $current_branch = $this->gitBranch($repository);
+        $branches = $this->gitExect('branch -r', $repository, $repository_directory);
+
+        // Remove head branch from array
+        $branches = array_filter($branches['output'], static function ($element) {
+            if (!str_contains($element, 'HEAD')) {
+                return $element;
+            }
+        });
+
+        // Replace the origin string
+        foreach ($branches as &$output) {
+            $output = trim(str_replace("origin/", "", $output));
+
+            // Check the current branch to add *
+            if (isset($current_branch['output'][0]) && str_contains($output, $current_branch['output'][0])) {
+                $output = '* ' . $output;
+            }
+        }
+
+        return $branches;
     }
 
     private function gitBranchCheckout($branch_name, $repository, $repository_directory = null){
-        return $this->gitExect('checkout' . $branch_name, $repository, $repository_directory);
+        return $this->gitExect('checkout ' . $branch_name, $repository, $repository_directory);
+    }
+
+    private function gitTagCheckout($tag_name, $repository, $repository_directory = null){
+        return $this->gitExect('checkout tags/' . $tag_name, $repository, $repository_directory);
     }
 
     private function gitDiff($repository, $repository_directory = null){
@@ -96,7 +129,23 @@ class Gitter
     }
 
     private function gitTags($repository, $repository_directory = null){
-        return $this->gitExect('tag', $repository, $repository_directory);
+        $current_tag = $this->gitCurrentTag($repository);
+        $tags = $this->gitExect('tag', $repository, $repository_directory);
+
+        if (isset($tags['output'][0])) {
+            foreach ($tags['output'] as &$output) {
+                // Check the current branch to add *
+                if (isset($current_tag['output'][0]) && str_contains($output, $current_tag['output'][0])) {
+                    $output = '* ' . $output;
+                }
+            }
+        }
+
+        return $tags;
+    }
+
+    private function gitCurrentTag($repository, $repository_directory = null){
+        return $this->gitExect('describe --tags', $repository, $repository_directory);
     }
 
     private function gitExect($git_cmd, $repository, $repository_directory = null){
@@ -134,10 +183,12 @@ class Gitter
 
     private function changeRepositoryDir($module, $repository_directory = null){
 
-        if(isset($repository_directory) && file_exists($repository_directory)){
+        if(isset($repository_directory) && file_exists($repository_directory)) {
             chdir($repository_directory);
+        }else if ($module == '' || $module == 'core'){
+            chdir(ROOT);
         }else{
-            $directory = $module === '' ? ROOT : (ROOT . "/modules/{$module}");
+            $directory = ROOT . "/modules/{$module}";
             if(!file_exists($directory)){
                 mkdir($directory, 0755);
                 chmod($directory,0755);

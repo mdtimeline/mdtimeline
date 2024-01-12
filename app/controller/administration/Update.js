@@ -33,6 +33,10 @@ Ext.define('App.controller.administration.Update', {
 			selector: '#AdminUpdateGridContextMenuGitLog'
 		},
 		{
+			ref: 'AdminUpdateGridContextMenuGitInstall',
+			selector: '#AdminUpdateGridContextMenuGitInstall'
+		},
+		{
 			ref: 'AdminUpdateGridContextMenuGitDiff',
 			selector: '#AdminUpdateGridContextMenuGitDiff'
 		},
@@ -75,6 +79,9 @@ Ext.define('App.controller.administration.Update', {
 			},
 			'#AdminUpdateGridContextMenuGitLog': {
 				click: me.onAdminUpdateGridContextMenuGitLogClick,
+			},
+			'#AdminUpdateGridContextMenuGitInstall': {
+				click: me.onAdminUpdateGridContextMenuGitInstallClick,
 			},
 			'#AdminUpdateGridContextMenuGitDiff': {
 				click: me.onAdminUpdateGridContextMenuGitDiffClick,
@@ -123,6 +130,14 @@ Ext.define('App.controller.administration.Update', {
 		me.AdminUpdateGridContextMenu = Ext.widget('menu', {
 			margin: '0 0 10 0',
 			items: [
+				{
+					text: _('git_install'),
+					iconCls: 'fas fa-cloud-download',
+					itemId: 'AdminUpdateGridContextMenuGitInstall'
+				},
+				{
+					xtype: 'menuseparator'
+				},
 				{
 					text: _('git_log'),
 					iconCls: 'far fa-file-minus',
@@ -200,22 +215,7 @@ Ext.define('App.controller.administration.Update', {
 								console.log(menu);
 								console.log(item);
 
-								grid.getStore().reload();
-
-								// Gitter.doBranchCheckout(item.text, item.module, null, function(r) {
-								//
-								// 	say(r);
-								// 	say(r.output.join("\n"));
-								//
-								// 	if(!me.getUpdateWindow()){
-								// 		Ext.create('App.view.administration.UpdateWindow');
-								// 	}
-								//
-								// 	me.getUpdateWindow().down('textfield').setValue(r.output.join("\n"));
-								//
-								// 	me.getUpdateWindow().show();
-								//
-								// });
+								me.showCheckoutTagMessageBox(menu, item);
 							}
 						}
 					}
@@ -238,151 +238,45 @@ Ext.define('App.controller.administration.Update', {
 		me.AdminUpdateGridContextMenu.showAt(e.getXY());
 
 		return me.AdminUpdateGridContextMenu;
+	},
 
-		// Gitter.doTags(record.get('module'), null, function(r) {
-		// 	say(r);
-		// 	say(r.output.join("\n"));
-		//
-		// 	r.output.forEach((element) => {
-		// 		tags.push({
-		// 			iconCls: 'fas fa-tag',
-		// 			text: element,
-		// 			module: record.get('module')
-		// 		});
-		// 	});
-		// });
+	showCheckoutTagMessageBox: function(menu, item) {
+		var me = this;
 
-		// Gitter.doBranches(record.get('module'), null, function(r) {
-		//
-		// 	say(r);
-		// 	say(r.output.join("\n"));
-		//
-		// 	r.output.forEach((element) => {
-		// 		branches.push({
-		// 			iconCls: 'fas fa-code-branch',
-		// 			text: element,
-		// 			module: record.get('module')
-		// 		});
-		// 	});
-		//
-		// 	me.AdminUpdateGridContextMenu = Ext.widget('menu', {
-		// 		margin: '0 0 10 0',
-		// 		items: [
-		// 			{
-		// 				text: _('git_log'),
-		// 				iconCls: 'far fa-file-minus',
-		// 				itemId: 'AdminUpdateGridContextMenuGitLog'
-		// 			},
-		// 			{
-		// 				xtype: 'menuseparator'
-		// 			},
-		// 			{
-		// 				text: _('git_diff'),
-		// 				iconCls: 'far fa-file-code',
-		// 				itemId: 'AdminUpdateGridContextMenuGitDiff'
-		// 			},
-		// 			{
-		// 				xtype: 'menuseparator'
-		// 			},
-		// 			{
-		// 				text: _('git_pull'),
-		// 				iconCls: 'fad fa-code-merge',
-		// 				itemId: 'AdminUpdateGridContextMenuGitPull'
-		// 			},
-		// 			{
-		// 				xtype: 'menuseparator'
-		// 			},
-		// 			{
-		// 				text: _('git_reset'),
-		// 				iconCls: 'fab fa-digital-ocean',
-		// 				itemId: 'AdminUpdateGridContextMenuGitReset'
-		// 			},
-		// 			{
-		// 				xtype: 'menuseparator'
-		// 			},
-		// 			{
-		// 				text: _('git_branch'),
-		// 				iconCls: 'fas fa-code-branch',
-		// 				menu: {
-		// 					xtype: 'menu',
-		// 					items: branches,
-		// 					listeners: {
-		// 						click: function(menu, item, e, eOpts ) {
-		// 							console.log(menu);
-		// 							console.log(item);
-		//
-		//
-		// 							Gitter.doBranchCheckout(item.text, item.module, null, function(r) {
-		//
-		// 								say(r);
-		// 								say(r.output.join("\n"));
-		//
-		// 								if(!me.getUpdateWindow()){
-		// 									Ext.create('App.view.administration.UpdateWindow');
-		// 								}
-		//
-		// 								me.getUpdateWindow().down('textfield').setValue(r.output.join("\n"));
-		//
-		// 								me.getUpdateWindow().show();
-		//
-		// 							});
-		// 						}
-		// 					}
-		// 				}
-		// 				// itemId: 'AdminUpdateGridContextMenuGitBranch'
-		// 			},
-		// 			{
-		// 				xtype: 'menuseparator'
-		// 			},
-		// 			{
-		// 				text: _('git_tags'),
-		// 				iconCls: 'fas fa-tag',
-		// 				menu: {
-		// 					xtype: 'menu',
-		// 					items: tags,
-		// 					listeners: {
-		// 						click: function(menu, item, e, eOpts ) {
-		// 							console.log(menu);
-		// 							console.log(item);
-		//
-		//
-		// 							// Gitter.doBranchCheckout(item.text, item.module, null, function(r) {
-		// 							//
-		// 							// 	say(r);
-		// 							// 	say(r.output.join("\n"));
-		// 							//
-		// 							// 	if(!me.getUpdateWindow()){
-		// 							// 		Ext.create('App.view.administration.UpdateWindow');
-		// 							// 	}
-		// 							//
-		// 							// 	me.getUpdateWindow().down('textfield').setValue(r.output.join("\n"));
-		// 							//
-		// 							// 	me.getUpdateWindow().show();
-		// 							//
-		// 							// });
-		// 						}
-		// 					}
-		// 				}
-		// 				// itemId: 'AdminUpdateGridContextMenuGitBranch'
-		// 			},
-		// 			{
-		// 				xtype: 'menuseparator'
-		// 			},
-		// 			{
-		// 				text: _('git_status'),
-		// 				iconCls: 'far fa-info-circle',
-		// 				itemId: 'AdminUpdateGridContextMenuGitStatus'
-		// 			}
-		// 		]
-		// 	});
-		//
-		// 	me.AdminUpdateGridContextMenu.grid = grid;
-		// 	me.AdminUpdateGridContextMenu.record = record;
-		//
-		// 	me.AdminUpdateGridContextMenu.showAt(e.getXY());
-		//
-		// 	return me.AdminUpdateGridContextMenu;
-		// });
+		Ext.MessageBox.show({
+			title: 'Warning!',
+			msg: 'Are you sure you want to checkout from the selected tag? ' + item.text + '. You will lose all the current local changes.',
+			buttons: Ext.MessageBox.OKCANCEL,
+			icon: Ext.MessageBox.WARNING,
+			fn: function(btn){
+				if(btn == 'ok'){
+					me.checkoutFromGitTag(item);
+				} else {
+					return;
+				}
+			}
+		});
+	},
+
+	checkoutFromGitTag: function(item) {
+		var me = this,
+		update_grid = me.getAdminUpdateGrid();
+
+		Gitter.doTagCheckout(item.text, item.module, null, function(r) {
+
+			say(r);
+			say(r.output.join("\n"));
+
+			if(!me.getUpdateWindow()){
+				Ext.create('App.view.administration.UpdateWindow');
+			}
+
+			me.getUpdateWindow().down('textfield').setValue(r.output.join("\n"));
+
+			me.getUpdateWindow().show();
+
+			update_grid.getStore().reload();
+		});
 	},
 
 	onAdminUpdateGridContextMenuGitLogClick: function(btn) {
@@ -390,6 +284,13 @@ Ext.define('App.controller.administration.Update', {
 			record = btn.parentMenu.record;
 
 		me.doAGitLog(record);
+	},
+
+	onAdminUpdateGridContextMenuGitInstallClick: function(btn) {
+		var me = this,
+			record = btn.parentMenu.record;
+
+		me.doAGitInstall(record);
 	},
 
 	onAdminUpdateGridContextMenuGitDiffClick: function(btn) {
@@ -452,6 +353,26 @@ Ext.define('App.controller.administration.Update', {
 		update_grid = me.getAdminUpdateGrid();
 
 		Gitter.doLog(module_record.get('module'), null, function(r) {
+
+			if(!me.getUpdateWindow()){
+				Ext.create('App.view.administration.UpdateWindow');
+			}
+
+			me.getUpdateWindow().down('textfield').setValue(r.output.join("\n"));
+
+			me.getUpdateWindow().show();
+
+			say(r.output.join("\n"));
+
+			update_grid.getStore().reload();
+		});
+	},
+
+	doAGitInstall: function (module_record){
+		var me = this,
+			update_grid = me.getAdminUpdateGrid();
+
+		Gitter.doInstall(module_record.get('module'), null, function(r) {
 
 			if(!me.getUpdateWindow()){
 				Ext.create('App.view.administration.UpdateWindow');

@@ -61,6 +61,11 @@ Ext.define('App.view.administration.Update', {
 						flex: 1,
 					},
 					{
+						text: 'Current Tag',
+						dataIndex: 'current_tag',
+						flex: 1,
+					},
+					{
 						text: 'Latest Commit',
 						dataIndex: 'latest_commit',
 						flex: 1,

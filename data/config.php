@@ -59,6 +59,12 @@ $API = [
             ],
             'doTags' => [
                 'len' => 2
+            ],
+            'doTagCheckout' => [
+                'len' => 3
+            ],
+            'doInstall' => [
+                'len' => 2
             ]
         ]
     ],

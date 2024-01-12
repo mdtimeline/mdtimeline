@@ -2293,5 +2293,6 @@ $LANG = array(
     'git_reset' => 'Git Reset',
     'git_branch' => 'Git Branch',
     'git_status' => 'Git Status',
-    'git_tags' => 'Git Tags'
+    'git_tags' => 'Git Tags',
+    'git_install' => 'Git Install'
 );

@@ -198,6 +198,21 @@ Ext.define('App.model.administration.Facility', {
             len: 50
         },
 		{
+			name: 'network_cidr',
+			type: 'string',
+			len: 80
+		},
+		{
+			name: 'network_from',
+			type: 'int',
+			useNull: true
+		},
+		{
+			name: 'network_to',
+			type: 'int',
+			useNull: true
+		},
+		{
 			name: 'coordinates',
 			type: 'string',
 			len: 120

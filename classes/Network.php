@@ -51,19 +51,23 @@ class Network {
 	 *
 	 * @return string IP address.
 	 */
-	public static function getIpAddress(){
-		$ip = self::getIpAddressFromProxy();
-		if($ip){
-			return $ip;
-		}
 
-		// direct IP address
-		if(isset($_SERVER['REMOTE_ADDR'])){
-			return $_SERVER['REMOTE_ADDR'];
-		}
+    public static function getIpAddress() {
+        $client = isset($_SERVER['HTTP_CLIENT_IP']) ? $_SERVER['HTTP_CLIENT_IP'] : false;
+        $forward = isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : false;
+        $remote = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : false;
 
-		return '';
-	}
+        if($client !== false && filter_var($client, FILTER_VALIDATE_IP)){
+            $ip = $client;
+        } elseif($forward !== false && filter_var($forward, FILTER_VALIDATE_IP)) {
+            $ip = $forward;
+        } elseif($remote !== false) {
+            $ip = $remote;
+        }else{
+            return '';
+        }
+        return $ip;
+    }
 
 	public static function isLocalAddress($ip = null){
 

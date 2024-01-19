@@ -194,6 +194,7 @@ Ext.define('App.controller.patient.Patient', {
 			demographics_form = me.getNewPatientWindowForm().getForm(),
 			demographics_values = demographics_form.getValues(),
 			demographics_params = {
+				pubpid_issuer: g('default_patient_issuer') || null,
 				fname: demographics_values.fname,
 				mname: demographics_values.mname,
 				lname: demographics_values.lname,

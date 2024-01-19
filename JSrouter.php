@@ -23,9 +23,11 @@ ob_start();
 if(!defined('_GaiaEXEC')) define('_GaiaEXEC', 1);
 require_once(dirname(__FILE__) . '/registry.php');
 require_once(dirname(__FILE__) . '/sites/'.$_REQUEST['site'].'/conf.php');
+require_once(dirname(__FILE__) . '/classes/Network.php');
 require_once(dirname(__FILE__) . '/classes/MatchaHelper.php');
 include_once(dirname(__FILE__) . '/dataProvider/i18nRouter.php');
 include_once(dirname(__FILE__) . '/dataProvider/Globals.php');
+include_once(dirname(__FILE__) . '/dataProvider/Facilities.php');
 header('Content-Type: text/javascript');
 
 // check if is emergency access....
@@ -43,6 +45,12 @@ print 'isEmerAccess = '.$isEmerAccess.';';
 // Output the translation selected by the user.
 $i18n = i18nRouter::getTranslation();
 print 'lang = '. json_encode( $i18n ).';';
+
+$Facilities = new Facilities();
+$user_ip = Network::getIpAddress();
+$cidr_facility = $Facilities->getFacilityByCidr($user_ip);
+$cidr_facility = $cidr_facility !== false ? $cidr_facility['id'] : 0;
+print "cidr_facility = {$cidr_facility};";
 
 // Output all the globals settings on the database.
 $global = Globals::setGlobals();
@@ -71,7 +79,6 @@ print 'globals = '. json_encode( $global ).';';
 
 if(!isset($_SESSION['site']['error']) && (isset($_SESSION['user']) && $_SESSION['user']['auth'] == true)){
 	include_once(dirname(__FILE__) . '/dataProvider/ACL.php');
-	include_once(dirname(__FILE__) . '/dataProvider/Facilities.php');
 	include_once(dirname(__FILE__) . '/dataProvider/User.php');
 
 	$ACL = new ACL();

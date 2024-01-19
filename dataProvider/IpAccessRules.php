@@ -124,9 +124,9 @@ class IpAccessRules {
 		$where = [ $ip_long, $ip_long ];
 
 		if($geo_data === false){
-			$sql = 'SELECT * FROM `ip_access_rules` WHERE (active = 1 AND ip_from <= ? AND ip_to >= ?) ORDER BY weight DESC LIMIT 1';
+			$sql = 'SELECT * FROM `ip_access_rules` WHERE (ip_from <= ? AND ip_to >= ?) AND active = 1 ORDER BY weight DESC LIMIT 1';
 		} else {
-			$sql = 'SELECT * FROM `ip_access_rules` WHERE (active = 1 AND ip_from <= ? AND ip_to >= ?) OR country_code = ? ORDER BY weight DESC LIMIT 1';
+			$sql = 'SELECT * FROM `ip_access_rules` WHERE ((ip_from <= ? AND ip_to >= ?) OR country_code = ?) AND active = 1 ORDER BY weight DESC LIMIT 1';
 			$where[] = $geo_data['country_code'];
 		}
 
@@ -163,6 +163,14 @@ class IpAccessRules {
 		$subnet &= $mask; // nb: in case the supplied subnet wasn't correctly aligned
 		return ($ip & $mask) == $subnet;
 	}
+
+    function cidrToRange($cidr) {
+        $range = array();
+        $cidr = explode('/', $cidr);
+        $range[0] = long2ip((ip2long($cidr[0])) & ((-1 << (32 - (int)$cidr[1]))));
+        $range[1] = long2ip((ip2long($range[0])) + pow(2, (32 - (int)$cidr[1])) - 1);
+        return $range;
+    }
 
 	/**
 	 * @param $long_ip

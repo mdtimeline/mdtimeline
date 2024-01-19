@@ -30,6 +30,8 @@ Ext.define('App.view.administration.practice.Facilities', {
 	initComponent: function(){
 		var me = this;
 
+		me.ipAccessCtl = app.getController('administration.IpAccess');
+
 		Ext.apply(me, {
 			store: me.store = Ext.create('App.store.administration.Facility'),
 			columns: [
@@ -48,6 +50,15 @@ Ext.define('App.view.administration.practice.Facilities', {
 					flex: 1,
 					sortable: true,
 					dataIndex: 'name'
+				},
+				{
+					text: _('network_cidr'),
+					width: 250,
+					sortable: true,
+					dataIndex: 'network_cidr',
+					renderer: function(v, m, r){
+						return Ext.String.format('{0} ({1}-{2})', v, me.ipAccessCtl.long2ip(r.get('network_from')), me.ipAccessCtl.long2ip(r.get('network_to')))
+					}
 				},
 				{
 					text: _('region'),
@@ -203,6 +214,12 @@ Ext.define('App.view.administration.practice.Facilities', {
                                         editable: false,
                                         listKey: 'regions',
                                         name: 'region'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        fieldLabel: _('network_cidr'),
+                                        name: 'network_cidr',
+										emptyText: '0.0.0.0/0 (IP/SUBNET)'
                                     }
 
 								]

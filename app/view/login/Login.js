@@ -33,6 +33,7 @@ Ext.define('App.view.login.Login', {
 		me.showSite = false;
 		me.siteError = window.site === false || window.site === '';
 		me.logged = false;
+		me.cidr_facility = window.cidr_facility || 0;
 
 		me.enableReCaptcha = false;
 		me.enable2FA = (parseInt(g('authy_2fa_enable')) || 0) ? true : false;
@@ -392,7 +393,8 @@ Ext.define('App.view.login.Login', {
 	},
 
 	onFacilityLoad: function(store, records){
-		var cmb = this.winLogon.down('form').getForm().findField('facility');
+		var me = this,
+			cmb = me.winLogon.down('form').getForm().findField('facility');
 
 		store.insert(0, {
 			option_name: 'Default',
@@ -400,7 +402,18 @@ Ext.define('App.view.login.Login', {
 		});
 
 		cmb.setVisible(records.length > 1);
-		cmb.select(0);
+
+		if(me.cidr_facility){
+			var facility_record = cmb.findRecordByValue(me.cidr_facility);
+
+			if(facility_record !== false){
+				cmb.select(facility_record);
+			}else {
+				cmb.select(0);
+			}
+		}else{
+			cmb.select(0);
+		}
 	},
 
 	/**

@@ -284,6 +284,14 @@ class Facilities {
 
 	///////////////////////////////////////////
 
+    public function getFacilityByCidr($ip_address){
+        $this->setFacilityModel();
+        $ip_address = ip2long($ip_address);
+        $this->f->addFilter('network_from', $ip_address, '<= ');
+        $this->f->addFilter('network_to', $ip_address, '>= ');
+        return $this->f->load()->one();
+    }
+
 	/**
 	 * @param $params
 	 * @return mixed

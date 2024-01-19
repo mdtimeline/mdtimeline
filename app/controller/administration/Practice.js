@@ -103,6 +103,9 @@ Ext.define('App.controller.administration.Practice', {
 			'practicepanel grid': {
 				activate: me.onPracticeGridPanelsActive,
 			},
+			'practicepanel facilitiespanel': {
+				validateedit: me.onPracticeFacilitiesGridValidateEdit,
+			},
 			'practicepanel button[toggleGroup=insurance_number_group]': {
 				toggle: me.onInsuranceNumberGroupToggle
 			},
@@ -152,6 +155,44 @@ Ext.define('App.controller.administration.Practice', {
 				click: me.onInsuranceCompanyExternalIdMappingAddBtnClick
 			}
 		});
+
+		this.ipAccessCtl = this.getController('administration.IpAccess');
+
+	},
+
+	onPracticeFacilitiesGridValidateEdit: function (plugin, context){
+
+		var network_cidr = plugin.editor.getForm().findField('network_cidr').getValue(),
+			network_from = null, network_to = null, network_range;
+
+		if(network_cidr !== ''){
+			network_range = this.ipAccessCtl.cidrToRange(network_cidr, true);
+
+			if(!isNaN(network_range[0]) && !isNaN(network_range[1])){
+				network_from = network_range[0];
+				network_to = network_range[1];
+			}
+		}
+
+		context.record.set({
+			network_from: network_from,
+			network_to: network_to,
+		});
+
+	},
+
+	ip2long: function (ip) {
+		var multipliers = [0x1000000, 0x10000, 0x100, 1];
+		var longValue = 0;
+		ip.split('.').forEach(function(part, i) {longValue += part * multipliers[i];});
+		return longValue;
+	},
+
+	long2ip: function (longValue) {
+		var multipliers = [0x1000000, 0x10000, 0x100, 1];
+		return multipliers.map(function (multiplier) {
+			return Math.floor((longValue % (multiplier * 0x100)) / multiplier);
+		}).join('.');
 	},
 
 	onInsuranceCompaniesPanelBeforeEdit: function (plugin, context){

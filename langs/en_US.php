@@ -2294,5 +2294,6 @@ $LANG = array(
     'git_branch' => 'Git Branch',
     'git_status' => 'Git Status',
     'git_tags' => 'Git Tags',
-    'git_install' => 'Git Install'
+    'git_install' => 'Git Install',
+    'network_cidr' => 'Network CIDR'
 );

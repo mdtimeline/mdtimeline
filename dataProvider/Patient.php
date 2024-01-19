@@ -232,6 +232,7 @@ PREGNANCY_CODES;
 	public function savePatient($params)
 	{
 		$this->setPatientModel();
+
 		$params->update_uid = isset($_SESSION['user']['id']) ? $_SESSION['user']['id'] : '0';
 		$params->update_date = date('Y-m-d H:i:s');
 
@@ -502,6 +503,11 @@ PREGNANCY_CODES;
                 $p_object->pubaccount = $pubpid;
                 $patient->pubaccount = $p_object->pubaccount;
             }
+
+            if(!isset($p_object->pubpid_issuer) || $p_object->pubpid_issuer === ''){
+                $p_object->pubpid_issuer = Globals::getGlobal('default_patient_issuer');
+            }
+
 			$this->p->save($p_object);
 		}
 

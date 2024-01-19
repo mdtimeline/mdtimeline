@@ -13160,6 +13160,21 @@ Ext.define('App.model.administration.Facility', {
             len: 50
         },
 		{
+			name: 'network_cidr',
+			type: 'string',
+			len: 80
+		},
+		{
+			name: 'network_from',
+			type: 'int',
+			useNull: true
+		},
+		{
+			name: 'network_to',
+			type: 'int',
+			useNull: true
+		},
+		{
 			name: 'coordinates',
 			type: 'string',
 			len: 120
@@ -14736,6 +14751,9 @@ Ext.define('App.model.administration.ProviderCredentialization', {
         },
         reader: {
             root: 'data'
+        },
+        writer: {
+            writeAllFields: true
         }
     }
 });
@@ -43953,6 +43971,9 @@ Ext.define('App.controller.administration.Practice', {
 			'practicepanel grid': {
 				activate: me.onPracticeGridPanelsActive,
 			},
+			'practicepanel facilitiespanel': {
+				validateedit: me.onPracticeFacilitiesGridValidateEdit,
+			},
 			'practicepanel button[toggleGroup=insurance_number_group]': {
 				toggle: me.onInsuranceNumberGroupToggle
 			},
@@ -44002,6 +44023,44 @@ Ext.define('App.controller.administration.Practice', {
 				click: me.onInsuranceCompanyExternalIdMappingAddBtnClick
 			}
 		});
+
+		this.ipAccessCtl = this.getController('administration.IpAccess');
+
+	},
+
+	onPracticeFacilitiesGridValidateEdit: function (plugin, context){
+
+		var network_cidr = plugin.editor.getForm().findField('network_cidr').getValue(),
+			network_from = null, network_to = null, network_range;
+
+		if(network_cidr !== ''){
+			network_range = this.ipAccessCtl.cidrToRange(network_cidr, true);
+
+			if(!isNaN(network_range[0]) && !isNaN(network_range[1])){
+				network_from = network_range[0];
+				network_to = network_range[1];
+			}
+		}
+
+		context.record.set({
+			network_from: network_from,
+			network_to: network_to,
+		});
+
+	},
+
+	ip2long: function (ip) {
+		var multipliers = [0x1000000, 0x10000, 0x100, 1];
+		var longValue = 0;
+		ip.split('.').forEach(function(part, i) {longValue += part * multipliers[i];});
+		return longValue;
+	},
+
+	long2ip: function (longValue) {
+		var multipliers = [0x1000000, 0x10000, 0x100, 1];
+		return multipliers.map(function (multiplier) {
+			return Math.floor((longValue % (multiplier * 0x100)) / multiplier);
+		}).join('.');
 	},
 
 	onInsuranceCompaniesPanelBeforeEdit: function (plugin, context){
@@ -60772,6 +60831,7 @@ Ext.define('App.controller.patient.Patient', {
 			demographics_form = me.getNewPatientWindowForm().getForm(),
 			demographics_values = demographics_form.getValues(),
 			demographics_params = {
+				pubpid_issuer: g('default_patient_issuer') || null,
 				fname: demographics_values.fname,
 				mname: demographics_values.mname,
 				lname: demographics_values.lname,
@@ -74732,6 +74792,8 @@ Ext.define('App.view.administration.practice.Facilities', {
 	initComponent: function(){
 		var me = this;
 
+		me.ipAccessCtl = app.getController('administration.IpAccess');
+
 		Ext.apply(me, {
 			store: me.store = Ext.create('App.store.administration.Facility'),
 			columns: [
@@ -74750,6 +74812,15 @@ Ext.define('App.view.administration.practice.Facilities', {
 					flex: 1,
 					sortable: true,
 					dataIndex: 'name'
+				},
+				{
+					text: _('network_cidr'),
+					width: 250,
+					sortable: true,
+					dataIndex: 'network_cidr',
+					renderer: function(v, m, r){
+						return Ext.String.format('{0} ({1}-{2})', v, me.ipAccessCtl.long2ip(r.get('network_from')), me.ipAccessCtl.long2ip(r.get('network_to')))
+					}
 				},
 				{
 					text: _('region'),
@@ -74905,6 +74976,12 @@ Ext.define('App.view.administration.practice.Facilities', {
                                         editable: false,
                                         listKey: 'regions',
                                         name: 'region'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        fieldLabel: _('network_cidr'),
+                                        name: 'network_cidr',
+										emptyText: '0.0.0.0/0 (IP/SUBNET)'
                                     }
 
 								]
@@ -84459,69 +84536,71 @@ Ext.define('App.view.patient.DisclosuresGrid', {
     bodyPadding: 0,
     tbar: [
         {
-            xtype: 'container',
-            items: [
-                {
-                    xtype: 'printerscombo',
-                    itemId: 'PatientDisclosuresPrinterCmb',
-                    emptyText: 'Select Printer',
-                    fieldLabel: 'Printer',
-                    labelWidth: 45,
-                    width: 250,
-                    margin: '0 5 0 5'
-                }
-                // {
-                //     xtype: 'combobox',
-                //     itemId: 'PatientDisclosuresPrinterCmb',
-                //     store: Ext.create('App.store.administration.Printer'),
-                //     queryMode: 'local',
-                //     editable: false,
-                //     forceSelection: true,
-                //     autoSelect: true,
-                //     valueField: 'id',
-                //     displayField: 'printer_description',
-                //     emptyText: 'Select Printer',
-                //     fieldLabel: 'Printer',
-                //     // labelPad: 1,
-                //     width: 200
-                // }
-            ]
+            xtype: 'printerscombo',
+            itemId: 'PatientDisclosuresPrinterCmb',
+            emptyText: 'Select Printer',
+            fieldLabel: 'Printer',
+            labelWidth: 45,
+            width: 250,
+            margin: '0 5 0 5'
         },
+        // {
+        //     xtype: 'combobox',
+        //     itemId: 'PatientDisclosuresPrinterCmb',
+        //     store: Ext.create('App.store.administration.Printer'),
+        //     queryMode: 'local',
+        //     editable: false,
+        //     forceSelection: true,
+        //     autoSelect: true,
+        //     valueField: 'id',
+        //     displayField: 'printer_description',
+        //     emptyText: 'Select Printer',
+        //     fieldLabel: 'Printer',
+        //     // labelPad: 1,
+        //     width: 200
+        // }
         {
-            xtype: 'container',
-            items: [
-                {
-                    xtype: 'burnerscombo',
-                    itemId: 'PatientDisclosuresBurnersCmb',
-                    fieldLabel: 'Burner',
-                    forceSelection: true,
-                    autoSelect: true,
-                    labelWidth: 45,
-                    width: 250
-                }
-            ]
+            xtype: 'burnerscombo',
+            itemId: 'PatientDisclosuresBurnersCmb',
+            fieldLabel: 'Burner',
+            forceSelection: true,
+            autoSelect: true,
+            labelWidth: 45,
+            width: 250
         },
         '->',
         {
             xtype: 'button',
             text: _('print'),
             itemId: 'PatientDisclosuresPrintBtn',
+            iconCls: 'fas fa-print'
         },
+        '-',
         {
             xtype: 'button',
             text: _('download'),
             itemId: 'PatientDisclosuresDownloadBtn',
+            iconCls: 'fas fa-folder-download'
         },
+        '-',
         {
             xtype: 'button',
-            text: _('burn'),
+            text: _('burner_local'),
+            itemId: 'PatientDisclosuresLocalBurnBtn',
+            iconCls: 'fas fa-burn'
+        },
+        '-',
+        {
+            xtype: 'button',
+            text: _('burner_robot'),
             itemId: 'PatientDisclosuresBurnBtn',
+            iconCls: 'fas fa-burn'
         },
         '-',
         {
             text: _('disclosure'),
             iconCls: 'icoAdd',
-            itemId: 'PatientDisclosuresGridAddBtn',
+            itemId: 'PatientDisclosuresGridAddBtn'
         }
     ],
 
@@ -91543,8 +91622,11 @@ Ext.define('App.controller.patient.Disclosures', {
             '#PatientDisclosuresDownloadBtn': {
                 click: me.onPatientDisclosuresDownloadBtnClick
             },
-            '#PatientDisclosuresBurnBtn': {
-                click: me.onPatientDisclosuresBurnBtnClick
+            '#PatientDisclosuresBurnerBtn': {
+                click: me.onPatientDisclosuresBurnerBtnClick
+            },
+            '#PatientDisclosuresLocalBurnBtn': {
+                click: me.onPatientDisclosuresLocalBurnBtnClick
             },
             '#PatientDisclosuresBurnersCmb': {
                 beforerender: me.onPatientDisclosuresBurnersCmbBeforeRender
@@ -91598,7 +91680,7 @@ Ext.define('App.controller.patient.Disclosures', {
 
     },
 
-    onPatientDisclosuresBurnBtnClick: function (btn) {
+    onPatientDisclosuresBurnerBtnClick: function (btn) {
         var me = this,
             grid = me.getPatientDisclosuresGrid(),
             records = grid.getSelectionModel().getSelection(),
@@ -91622,6 +91704,25 @@ Ext.define('App.controller.patient.Disclosures', {
                     if(!response.success) app.msg("Error", response.errorMsg, true);
                 });
             }
+        });
+    },
+
+    onPatientDisclosuresLocalBurnBtnClick: function (btn) {
+        var me = this,
+            grid = me.getPatientDisclosuresGrid(),
+            records = grid.getSelectionModel().getSelection();
+
+        if (records.length <= 0) {
+            app.msg(_('warning'), "No disclosures selected", true);
+            return;
+        }
+
+        app.msg("Downloading... ", "Downloading disclosure", false);
+
+        records.forEach(function (record, i) {
+            Ext.Function.defer(function () {
+                me.disclosureDownload(record);
+            }, 1000 * i);
         });
     },
 

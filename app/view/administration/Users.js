@@ -503,6 +503,14 @@ Ext.define('App.view.administration.Users', {
 													fieldLabel: _('signature'),
 													name: 'signature',
 													labelAlign: 'right'
+												},
+												{
+													xtype: 'numberfield',
+													minValue: 0,
+													maxValue: 120,
+													fieldLabel: _('worklist_delay') + ' (hrs)',
+													name: 'worklist_delay',
+													labelAlign: 'right'
 												}
 											]
 										},

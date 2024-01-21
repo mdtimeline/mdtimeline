@@ -2295,5 +2295,7 @@ $LANG = array(
     'git_status' => 'Git Status',
     'git_tags' => 'Git Tags',
     'git_install' => 'Git Install',
-    'network_cidr' => 'Network CIDR'
+    'network_cidr' => 'Network CIDR',
+    'worklist_delay' => 'Worklist Delay',
+    'is_resident' => 'Is Resident'
 );

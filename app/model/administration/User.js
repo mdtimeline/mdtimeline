@@ -279,6 +279,10 @@ Ext.define('App.model.administration.User', {
 			len: 80
 		},
 		{
+			name: 'worklist_delay',
+			type: 'int'
+		},
+		{
 			name: 'create_uid',
 			type: 'int',
 			comment: 'create user ID'

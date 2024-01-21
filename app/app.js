@@ -15870,6 +15870,10 @@ Ext.define('App.model.administration.User', {
 			len: 80
 		},
 		{
+			name: 'worklist_delay',
+			type: 'int'
+		},
+		{
 			name: 'create_uid',
 			type: 'int',
 			comment: 'create user ID'
@@ -76710,6 +76714,14 @@ Ext.define('App.view.administration.Users', {
 													xtype: 'textfield',
 													fieldLabel: _('signature'),
 													name: 'signature',
+													labelAlign: 'right'
+												},
+												{
+													xtype: 'numberfield',
+													minValue: 0,
+													maxValue: 120,
+													fieldLabel: _('worklist_delay') + ' (hrs)',
+													name: 'worklist_delay',
 													labelAlign: 'right'
 												}
 											]

@@ -1319,7 +1319,7 @@ INI_CONFIG;
                              LEFT JOIN insurance_companies_map icm ON ic.`id` = icm.`insurance_id`
                            ) AS ins
                           WHERE ins.`{$this->hl7_insurance_id_column_field}` = :insurance_id_value
-                            AND ins.`code` IS NOT NULL";
+                            AND ins.`{$this->hl7_insurance_id_column_field}` IS NOT NULL";
 
                 $insurance_company_map = $this->i->sql($sql)->one([':insurance_id_value' => $insurance_id_value]);
 

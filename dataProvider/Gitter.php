@@ -35,7 +35,7 @@ class Gitter
         return $this->gitDiff($repository, $repository_directory);
     }
 
-    public function doPull($repository, $repository_directory = null){
+    public function doPull($repository, $repository_directory = null) {
         return $this->gitPull($repository, $repository_directory);
     }
 

@@ -61,6 +61,14 @@ Ext.define('App.controller.administration.Update', {
 			selector: '#UpdateWindowButtonCloseBtn'
 		},
 		{
+			ref: 'UpdateWindowButtonExecuteScriptBtn',
+			selector: '#UpdateWindowButtonExecuteScriptBtn'
+		},
+		{
+			ref: 'AdminUpdateScriptGrid',
+			selector: '#AdminUpdateScriptGrid'
+		},
+		{
 			ref: 'UpdateWindow',
 			selector: '#UpdateWindow'
 		},
@@ -100,6 +108,9 @@ Ext.define('App.controller.administration.Update', {
 			},
 			'#UpdateWindowButtonCloseBtn': {
 				click: me.onUpdateWindowButtonCloseBtnClick,
+			},
+			'#UpdateWindowButtonExecuteScriptBtn': {
+				click: me.onUpdateWindowButtonExecuteScriptBtnClick,
 			}
 		});
 	},
@@ -337,8 +348,6 @@ Ext.define('App.controller.administration.Update', {
 			Ext.create('App.view.administration.UpdateWindow');
 		}
 
-		me.getUpdateWindow().test = 'HELLO';
-
 		me.getUpdateWindow().show();
 	},
 
@@ -346,6 +355,64 @@ Ext.define('App.controller.administration.Update', {
 		var win = btn.up('window');
 
 		win.close();
+	},
+
+	onUpdateWindowButtonExecuteScriptBtnClick: function (btn) {
+		var me = this,
+			update_scripts_grid = me.getAdminUpdateScriptGrid(),
+			selected_records = update_scripts_grid.getSelectionModel().getSelection();
+
+		if (selected_records.length == 0) {
+			app.msg(_('warning'), 'Select at least 1 script to execute!', 'yellow');
+			return;
+		}
+
+		me.doExecuteDatabaseUpdateScript(selected_records);
+	},
+
+	doExecuteDatabaseUpdateScript: function(update_script_records) {
+		var me = this,
+		update_scripts = [];
+
+		update_script_records.forEach(function(update_script) {
+			update_scripts.push({
+				module: update_script.get('module'),
+				version: update_script.get('version'),
+				script: update_script.get('script')
+			});
+		});
+
+		Update.doDatabaseUpdateScripts(update_scripts, function(r) {
+			say(r);
+
+			me.getUpdateWindow().close();
+
+			if(!me.getUpdateWindow()){
+				Ext.create('App.view.administration.UpdateWindow');
+			}
+
+			var update_script_grid = me.getUpdateWindow().down('grid');
+			update_script_grid.setVisible(false);
+			me.getUpdateWindow().down('textfield').setVisible(true);
+			me.getUpdateWindowButtonExecuteScriptBtn().hidden = true;
+
+			say(me.getUpdateWindowButtonExecuteScriptBtn());
+
+			var strMessage = '';
+			if (r.success.length > 0) {
+				strMessage += 'The following scripts have executed successfully: \n\n';
+				strMessage += r.success.join('\n');
+			}
+
+			if (r.error.length > 0) {
+				strMessage += '\n\n\n';
+				strMessage += 'The following scripts have failed: \n';
+				strMessage += r.error.join('\n');
+			}
+
+			me.getUpdateWindow().down('textfield').setValue(strMessage);
+			me.getUpdateWindow().show();
+		});
 	},
 
 	doAGitLog: function (module_record){
@@ -412,18 +479,25 @@ Ext.define('App.controller.administration.Update', {
 		var me = this,
 			update_grid = me.getAdminUpdateGrid();
 
-		Gitter.doPull(module_record.get('module'), null, function(r) {
+		Update.doGitUpdate(module_record.get('module'), null, function(r) {
 
 			if(!me.getUpdateWindow()){
 				Ext.create('App.view.administration.UpdateWindow');
 			}
 
-			me.getUpdateWindow().down('textfield').setValue(r.output.join("\n"));
+			// Check if there are update database scripts available...
+			if (r.databaseUpdateScripts.length > 0) {
+				var update_script_grid = me.getUpdateWindow().down('grid');
+				update_script_grid.setVisible(true);
+				update_script_grid.getStore().loadData(r.databaseUpdateScripts);
+
+				me.getUpdateWindow().down('textfield').setVisible(false);
+				me.getUpdateWindowButtonExecuteScriptBtn().hidden = false;
+			} else {
+				me.getUpdateWindow().down('textfield').setValue(r.output.join("\n"));
+			}
 
 			me.getUpdateWindow().show();
-
-			say(r.output.join("\n"));
-
 			update_grid.getStore().reload();
 		});
 	},

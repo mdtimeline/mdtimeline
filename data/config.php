@@ -22,6 +22,12 @@ $API = [
         'methods' => [
             'getModules' => [
                 'len' => 1
+            ],
+            'doGitUpdate' => [
+                'len' => 2
+            ],
+            'doDatabaseUpdateScripts' => [
+                'len' => 1
             ]
         ]
     ],

@@ -16,6 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+include_once(ROOT . '/dataProvider/Modules.php');
+include_once(ROOT . '/dataProvider/Gitter.php');
+include_once(ROOT . '/dataProvider/Version.php');
+
 
 class Update {
 
@@ -26,10 +30,7 @@ class Update {
 
     public function getModules($params) {
 
-        $modules = ['core', 'worklist','cqmsolution'];
-
-        include_once(ROOT . '/dataProvider/Modules.php');
-        include_once(ROOT . '/dataProvider/Gitter.php');
+        $modules = ['core', 'worklist','cqmsolution', 'billing'];
         $Modules = new Modules();
         $Gitter = new Gitter();
         $installed_modules = $Modules->getAllModules();
@@ -127,4 +128,118 @@ class Update {
         return $data;
     }
 
+    public function doDatabaseUpdateScripts($params) {
+        $result = [
+            'success' => [],
+            'error' => []
+        ];
+
+        $selectedUpdateScripts = $params;
+        $updateScripts = $this->getDatabaseUpdateScripts($selectedUpdateScripts[0]->module);
+        $conn = Matcha::getConn();
+
+        foreach($selectedUpdateScripts as $selectedUpdateScript) {
+            try {
+                foreach($updateScripts as $updateScript) {
+
+                    // found script to be executed
+                    if (version_compare($selectedUpdateScript->version, $updateScript->version) == 0) {
+                        $sth = $conn->prepare($updateScript->script);
+                        $sth = $sth->execute();
+
+                        // Executed script successfully, call setVersion
+                        if ($sth) {
+                            $version = explode('.', $updateScript->version);
+
+                            $sth = $conn->prepare("CALL setVersion({$version[0]}, {$version[1]}, {$version[2]}, '{$updateScript->module}');");
+                            $sth = $sth->execute();
+
+                            // Call setVersion executed successfully
+                            if ($sth) {
+                                array_push($result['success'], "Version ({$updateScript->version}): " . $updateScript->script);
+                            }
+                        }
+                    }
+                }
+            } catch(Exception $e) {
+                array_push($result['error'], "Version ({$updateScript->version}): " . $e->getMessage());
+                break;
+            }
+        }
+
+        return $result;
+    }
+
+    public function doGitUpdate($module) {
+        $Gitter = new Gitter();
+
+        $gitResult = $Gitter->doPull($module);
+        $databaseUpdateScriptsResult = $this->getDatabaseUpdateScripts($module);
+        $gitResult['databaseUpdateScripts'] = $databaseUpdateScriptsResult;
+
+        return $gitResult;
+    }
+
+    private function getDatabaseUpdateScripts($module) {
+        $Version = new Version();
+        $databaseUpdateFiles = [];
+
+        $updateFilesPath = ROOT . "/modules/{$module}/resources/sql/updates";
+        $currentVersion = $Version->getModuleLatestUpdate($module);
+        $updateFiles = array_diff(scandir($updateFilesPath), array('.', '..'));
+        natsort($updateFiles);
+
+        // Find the needed update file
+        foreach ($updateFiles as $file) {
+            $result = preg_match_all("/^update-([0-9]{1,3}).([0-9]{1,3}).([0-9]{1,3})/",
+                $file,
+                $keys,
+                PREG_PATTERN_ORDER);
+
+            // if matched
+            if ($result > 0) {
+                // $keys[0] = FILE NAME
+                // $keys[1] = MAJOR VERSION
+                // $keys[2] = MINOR VERSION
+                // $keys[3] = PATCH VERSION
+                $fileMajorVersion = (int)$keys[1][0];
+                $fileMinorVersion = (int)$keys[2][0];
+                $filePatchVersion = (int)$keys[3][0];
+
+                $currentMajorVersion = $currentVersion['v_major'];
+                $currentMinorVersion = $currentVersion['v_minor'];
+                $currentPatchVersion = $currentVersion['v_patch'];
+
+                $currentDatabaseVersion = false;
+                if ($currentMajorVersion == $fileMajorVersion)
+                    $currentDatabaseVersion = true;
+
+                if ($currentMajorVersion <= $fileMajorVersion) {
+                    if ((!$currentDatabaseVersion) || ($currentMinorVersion <= $fileMinorVersion)) {
+                        // Read the file and check if scripts need to be executed...
+                        $updateFileResult = preg_match_all("/-- \[([\d.]*)] --(.*?)CALL setVersion\(\d*, \d*, \d*, '(\w*)'\)/ms",
+                            file_get_contents(ROOT . "/modules/{$module}/resources/sql/updates/" . $file),
+                            $scripts,
+                            PREG_SET_ORDER);
+
+                        // Compare by patch version
+                        if ($updateFileResult > 0) {
+                            foreach ($scripts as $script) {
+                                if (version_compare($script[1], $currentVersion['full_version']) > 0) {
+                                    // prepare array to display scripts that need to be executed...
+                                    $updateFile = new stdClass();
+                                    $updateFile->module = $module;
+                                    $updateFile->version = $script[1];
+                                    $updateFile->script = $script[2];
+                                    $databaseUpdateFiles[] = $updateFile;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return $databaseUpdateFiles;
+    }
 }

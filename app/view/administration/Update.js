@@ -47,7 +47,7 @@ Ext.define('App.view.administration.Update', {
 					},
 					{
 						text: 'Version',
-						dataIndex: 'module',
+						dataIndex: 'version',
 						flex: 1,
 					},
 					{
@@ -70,58 +70,6 @@ Ext.define('App.view.administration.Update', {
 						dataIndex: 'latest_commit',
 						flex: 1,
 					},
-					// {
-					// 	text: 'Actions',
-					// 	menuDisabled: true,
-					// 	sortable: false,
-					// 	xtype: 'actioncolumn',
-					// 	flex: 1,
-					// 	items: [
-					// 		{
-					// 			iconCls: 'far fa-file-minus',
-					// 			tooltip: {
-					// 				text: 'Git Log',
-					// 				width: '200'
-					// 			},
-					// 			handler: function(grid, rowIndex, colIndex) {
-					// 				var module_record = grid.getStore().getAt(rowIndex);
-					// 					app.getController('App.controller.administration.Update').doAGitLog(module_record);
-					// 			}
-					// 		},
-					// 		{
-					// 			iconCls: 'far fa-file-code',
-					// 			tooltip: 'Git Diff',
-					// 			handler: function(grid, rowIndex, colIndex) {
-					// 				var module_record = grid.getStore().getAt(rowIndex);
-					// 				app.getController('App.controller.administration.Update').doAGitDifF(module_record);
-					// 			}
-					// 		},
-					// 		{
-					// 			iconCls: 'fad fa-code-merge',
-					// 			tooltip: 'Git Pull',
-					// 			handler: function(grid, rowIndex, colIndex) {
-					// 				var module_record = grid.getStore().getAt(rowIndex);
-					// 				app.getController('App.controller.administration.Update').doAGitPull(module_record);
-					// 			}
-					// 		},
-					// 		{
-					// 			iconCls: 'fab fa-digital-ocean',
-					// 			tooltip: 'Git Reset',
-					// 			handler: function(grid, rowIndex, colIndex) {
-					// 				var module_record = grid.getStore().getAt(rowIndex);
-					// 				app.getController('App.controller.administration.Update').doAGitReset(module_record);
-					// 			}
-					// 		},
-					// 		{
-					// 			iconCls: 'fas fa-code-branch',
-					// 			tooltip: 'Git Reset',
-					// 			handler: function(grid, rowIndex, colIndex) {
-					// 				var module_record = grid.getStore().getAt(rowIndex);
-					// 				app.getController('App.controller.administration.Update').doAGitBranch(module_record);
-					// 			}
-					// 		}
-					// 	]
-					// }
 				],
 				bbar: {
 					xtype: 'pagingtoolbar',

@@ -40,6 +40,8 @@ Ext.define('App.view.login.Login', {
 
 		me.theme =  Ext.util.Cookies.get('mdtimeline_theme') || 'light';
 
+		say(me.theme);
+
 		/**
 		 * The Copyright Notice Window
 		 */
@@ -192,6 +194,7 @@ Ext.define('App.view.login.Login', {
 
 		me.winLogon = Ext.create('widget.window', {
 			closeAction: 'hide',
+			title: ' v' + window.version,
 			plain: true,
 			modal: false,
 			resizable: false,
@@ -202,10 +205,11 @@ Ext.define('App.view.login.Login', {
 			border: false,
 			cls: 'login-window',
 			shadow: false,
-			width: 550,
+			width: 280,
+			bodyPadding: 10,
 			layout: {
-				type: 'hbox',
-				align: 'top'
+				type: 'vbox',
+				align: 'center'
 			},
 			items: [
 				{
@@ -213,17 +217,17 @@ Ext.define('App.view.login.Login', {
 					width: 190,
 					height: 190,
 					padding: 0,
-					margin: 0,
+					margin: '20 0',
 					src: (me.theme == 'dark' ? 'resources/images/logo_190_190_dark.png' : 'resources/images/logo_190_190_light.png')
 				},
 				{
 					xtype: 'form',
-					width: 310,
+					width: 210,
 					defaultType: 'textfield',
 					frame: false,
 					border: false,
 					flex: 1,
-					margin: '0 10 0 35',
+					margin: '0 10 10 35',
 					baseParams: {
 						auth: 'true'
 					},
@@ -248,7 +252,7 @@ Ext.define('App.view.login.Login', {
 					itemId: 'themeSwitcherBtn',
 					text: me.theme == 'light' ? _('go_dark') : _('go_light'),
 					cls: 'login-theme-switch-btn',
-					margin: '0 0 0 5',
+					margin: '10 0 10 5',
 					handler: me.onThemeSwitch,
 					scope: me
 				},
@@ -257,14 +261,14 @@ Ext.define('App.view.login.Login', {
 					text: _('reset'),
 					name: 'btn_reset',
 					scope: me,
-					margin: '0 5 0 5',
+					margin: '10 5 10 5',
 					handler: me.onFormReset
 				},
 				{
 					text: _('login'),
 					name: 'btn_login',
 					scope: me,
-					margin: '0 10 0 5',
+					margin: '10 10 10 5',
 					handler: me.loginSubmit
 				}
 			]
@@ -301,7 +305,7 @@ Ext.define('App.view.login.Login', {
 
 	onThemeSwitch: function (btn) {
 		var theme = this.theme === 'dark' ? 'light' : 'dark';
-		Ext.util.Cookies.set('mdtimeline_theme', theme,  Ext.Date.add(new Date(), Ext.Date.YEAR, 5));
+		Ext.util.Cookies.set('mdtimeline_theme', theme,  Ext.Date.add(new Date(), Ext.Date.YEAR, 5), '/', location.host);
 		window.location.reload();
 	},
 

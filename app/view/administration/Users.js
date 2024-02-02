@@ -430,7 +430,10 @@ Ext.define('App.view.administration.Users', {
 									xtype: 'panel',
 									title: _('provider'),
 									itemId: 'UserGridEditFormProviderPanel',
-									layout: 'hbox',
+									layout: {
+										type: 'hbox',
+										align: 'stretch'
+									},
 									items: [
 										{
 											xtype: 'fieldcontainer',
@@ -519,7 +522,7 @@ Ext.define('App.view.administration.Users', {
 											title: _('provider_credentialization'),
 											itemId: 'UserGridEditFormProviderCredentializationGrid',
 											flex: 1,
-											maxHeight: 210,
+											maxHeight: 350,
 											frame: true,
 											store: Ext.create('App.store.administration.ProviderCredentializations', {
 												pageSize: 1000
@@ -547,8 +550,8 @@ Ext.define('App.view.administration.Users', {
 											columns: [
 												{
 													text: _('insurance'),
-													width: 150,
-													dataIndex: 'insurance_company_id',
+													width: 250,
+													dataIndex: 'insurance_company_name',
 													renderer: function(v, meta, record){
 														return record.data.insurance_company_id +
 															': ' +

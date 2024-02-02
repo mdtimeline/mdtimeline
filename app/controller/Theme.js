@@ -25,6 +25,8 @@ Ext.define('App.controller.Theme', {
 		btn.action = g('mdtimeline_theme');
 		btn.setText(btn.action == 'dark' ? _('light_theme') : _('dark_theme'));
 
+
+
 		// say('onAppThemeSwitcherBeforeRender');
 		// say(btn.action);
 	},
@@ -52,13 +54,13 @@ Ext.define('App.controller.Theme', {
 
 	goLight: function(btn){
 		btn.action = 'light';
-		Ext.util.Cookies.set('mdtimeline_theme', 'light', Ext.Date.add(new Date(), Ext.Date.YEAR, 5));
+		Ext.util.Cookies.set('mdtimeline_theme', 'light', Ext.Date.add(new Date(), Ext.Date.YEAR, 5), '/', location.host);
 		window.location.reload();
 	},
 
 	goDark: function(btn){
 		btn.action = 'dark';
-		Ext.util.Cookies.set('mdtimeline_theme', 'dark', Ext.Date.add(new Date(), Ext.Date.YEAR, 5));
+		Ext.util.Cookies.set('mdtimeline_theme', 'dark', Ext.Date.add(new Date(), Ext.Date.YEAR, 5), '/', location.host);
 		window.location.reload();
 	}
 

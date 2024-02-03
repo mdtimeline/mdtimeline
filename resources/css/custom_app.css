@@ -143,7 +143,13 @@
     padding: 0;
 }
 
-.login-window,
+.login-window
+{
+    background: transparent;
+    border: 1px solid #b5b1b1;
+    box-shadow: 1px 1px 20px #b5b1b1;
+}
+
 .login-window .x-window-header-default-top,
 .login-window .x-window-body-default,
 .login-window .x-panel-body-default

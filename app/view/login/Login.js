@@ -194,7 +194,7 @@ Ext.define('App.view.login.Login', {
 
 		me.winLogon = Ext.create('widget.window', {
 			closeAction: 'hide',
-			title: ' v' + window.version,
+			title: Ext.String.format('<div style="padding:5px;">v{0}</div>', window.version),
 			plain: true,
 			modal: false,
 			resizable: false,
@@ -217,7 +217,7 @@ Ext.define('App.view.login.Login', {
 					width: 190,
 					height: 190,
 					padding: 0,
-					margin: '20 0',
+					margin: '0 0 30 0',
 					src: (me.theme == 'dark' ? 'resources/images/logo_190_190_dark.png' : 'resources/images/logo_190_190_light.png')
 				},
 				{

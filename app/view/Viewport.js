@@ -64,7 +64,7 @@ Ext.define('App.view.Viewport', {
 	    if(me.record_flags_buff !== false || me.record_flags_buff !== '' && me.record_flags_buff.split){
 		    me.record_flags_buff = me.record_flags_buff.split('|');
 		    this.record_flags_buff.forEach(function(flag){
-			    if(flag.indexOf(':') != -1){
+			    if(flag.indexOf(':') !== -1){
 				    var flag_values = flag.split(':');
 				    me.record_flags[flag_values[0]] = flag_values[1];
 			    }else{
@@ -102,13 +102,13 @@ Ext.define('App.view.Viewport', {
          * TODO: this should be managed by the language files
          * The language file has a definition for this.
          */
-        if(me.currency == '$'){
+        if(me.currency === '$'){
             me.icoMoney = 'icoDollar';
-        }else if(me.currency == '€'){
+        }else if(me.currency === '€'){
             me.icoMoney = 'icoEuro';
-        }else if(me.currency == '£'){
+        }else if(me.currency === '£'){
             me.icoMoney = 'icoLibra';
-        }else if(me.currency == '¥'){
+        }else if(me.currency === '¥'){
             me.icoMoney = 'icoYen';
         }
 
@@ -535,7 +535,7 @@ Ext.define('App.view.Viewport', {
 	                            '<tpl for=".">' +
                                 '<div class="patient-pool-btn x-btn x-btn-default-large {priority}">' +
                                 '<div class="patient_btn_img">' +
-	                            '<img src="{[this.getPatientImage(values.patient)]}" width="50" height="50">' +
+	                            '<img src="{[this.getPatientImage(values.patient)]}" width="50" height="50" alt="Patient Image" >' +
 	                            '</div>' +
                                 '<div class="patient_btn_info">' +
                                 '<div class="patient-name">{shortName}</div>' +
@@ -706,7 +706,12 @@ Ext.define('App.view.Viewport', {
 	                    '-',
                         {
 	                        xtype: 'tbtext',
-	                        text: 'Copyright (C) 2019 MDTIMELINE, LLC |:| v' + me.version,
+	                        text: Ext.String.format('Copyright &#169; {0} MDTIMELINE GROUP, LLC', new Date().getFullYear()),
+                        },
+	                    '-',
+                        {
+	                        xtype: 'tbtext',
+	                        text: Ext.String.format('v{0}', me.version),
                         },
 	                    '-',
 	                    {
@@ -872,7 +877,7 @@ Ext.define('App.view.Viewport', {
 
     onWebCamComplete: function(msg){
         var panel = this.getActivePanel();
-        if(panel.id == 'panelSummary'){
+        if(panel.id === 'panelSummary'){
             panel.demographics.completePhotoId();
         }
         this.msg(_('sweet'), _('patient_image_saved'));
@@ -906,7 +911,7 @@ Ext.define('App.view.Viewport', {
             buttons: Ext.Msg.YESNO,
             icon: Ext.Msg.WARNING,
             fn: function(btn){
-                if(btn == 'yes'){
+                if(btn === 'yes'){
                     Emergency.createNewEmergency(function(provider, response){
                         emergency = response.result.emergency;
                         if(response.result.success){
@@ -931,7 +936,7 @@ Ext.define('App.view.Viewport', {
 			buttons: Ext.Msg.YESNO,
 			icon: Ext.Msg.QUESTION,
 			fn: function(btn){
-				if(btn == 'yes') me.doEmergencyAccess();
+				if(btn === 'yes') me.doEmergencyAccess();
 			}
 		});
 	},
@@ -1100,7 +1105,7 @@ Ext.define('App.view.Viewport', {
                         buttons: data.overrideReadOnly ? Ext.Msg.YESNO : Ext.Msg.OK,
                         icon: Ext.MessageBox.WARNING,
                         fn: function(btn){
-                            continueSettingPatient(btn != 'yes');
+                            continueSettingPatient(btn !== 'yes');
                         }
                     });
             }else{
@@ -1114,7 +1119,7 @@ Ext.define('App.view.Viewport', {
 		            name: data.patient.name,
 		            pic: data.patient.pic,
 		            sex: data.patient.sex,
-		            sexSymbol: data.patient.sex == 'F' ? '&#9792' : '&#9794',
+		            sexSymbol: data.patient.sex === 'F' ? '&#9792' : '&#9794',
 		            dob: Ext.Date.parse(data.patient.dob, "Y-m-d H:i:s"),
 		            age: data.patient.age,
 		            eid: eid,

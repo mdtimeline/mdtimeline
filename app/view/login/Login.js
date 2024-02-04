@@ -250,7 +250,7 @@ Ext.define('App.view.login.Login', {
 				{
 					xtype: 'button',
 					itemId: 'themeSwitcherBtn',
-					text: me.theme == 'light' ? _('go_dark') : _('go_light'),
+					text: (me.theme == 'light' ? _('go_dark') : _('go_light')),
 					cls: 'login-theme-switch-btn',
 					margin: '10 0 10 5',
 					handler: me.onThemeSwitch,
@@ -451,12 +451,13 @@ Ext.define('App.view.login.Login', {
 
 		themeSwitcherBtn.action = Ext.state.Manager.get('mdtimeline_theme', g('application_theme'));
 
-		if(themeSwitcherBtn.action === 'dark'){
-			themeSwitcherBtn.setText(_('go_light'));
-		}else{
-			themeSwitcherBtn.setText(_('go_dark'));
-		}
-
+		// if(themeSwitcherBtn.action === 'dark'){
+		// 	themeSwitcherBtn.setText(_('go_light'));
+		// }else{
+		// 	themeSwitcherBtn.setText(_('go_dark'));
+		// }
+		//
+		// say(themeSwitcherBtn.action);
 
 		if(!me.siteError){
 			if(me.showSite){

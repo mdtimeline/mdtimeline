@@ -162,7 +162,7 @@ if(!defined('_GaiaEXEC')) die('No direct access allowed.');
 <div id="msg-div"></div>
 <div id="copyright" style=" margin:0; overflow: auto; width: 100%; bottom: 0; left:0; padding: 5px 10px; ">
 	<div style="float: left">Copyright &#169; <?php print date('Y') ?> MDTIMELINE GROUP, LLC |:| v<?php print VERSION ?> |:| NODE: <?php print (defined("node_id") ? node_id : "1") ?></div>
-    <div style="float: right;">by <a href="http://mdtimeline.com/" target="_blank">MDTIMELINE, LLC.</a></div>
+    <div style="float: right;">by <a href="http://mdtimeline.com/" target="_blank">MDTIMELINE GROUP, LLC.</a></div>
 </body>
 
 <!-- Global site tag (gtag.js) - Google Analytics -->

@@ -90,7 +90,7 @@ class Gitter
 
         // Remove head branch from array
         $branches = array_filter($branches['output'], static function ($element) {
-            if (!str_contains($element, 'HEAD')) {
+            if (!strpos($element, 'origin/HEAD')) {
                 return $element;
             }
         });
@@ -100,7 +100,7 @@ class Gitter
             $output = trim(str_replace("origin/", "", $output));
 
             // Check the current branch to add *
-            if (isset($current_branch['output'][0]) && str_contains($output, $current_branch['output'][0])) {
+            if (isset($current_branch['output'][0]) && strpos($output, $current_branch['output'][0]) !== false) {
                 $output = '* ' . $output;
             }
         }
@@ -135,7 +135,7 @@ class Gitter
         if (isset($tags['output'][0])) {
             foreach ($tags['output'] as &$output) {
                 // Check the current branch to add *
-                if (isset($current_tag['output'][0]) && str_contains($output, $current_tag['output'][0])) {
+                if (isset($current_tag['output'][0]) && strpos($output, $current_tag['output'][0]) !== false) {
                     $output = '* ' . $output;
                 }
             }

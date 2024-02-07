@@ -28,6 +28,9 @@ $API = [
             ],
             'doDatabaseUpdateScripts' => [
                 'len' => 1
+            ],
+            'doGetDatabaseUpdateScripts' => [
+                'len' => 1
             ]
         ]
     ],

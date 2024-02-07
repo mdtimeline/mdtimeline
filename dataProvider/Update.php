@@ -33,6 +33,8 @@ class Update {
         $modules = ['core', 'worklist','cqmsolution', 'billing'];
         $Modules = new Modules();
         $Gitter = new Gitter();
+        $Version = new Version();
+
         $installed_modules = $Modules->getAllModules();
 
         $data = [];
@@ -54,16 +56,27 @@ class Update {
                     'current_tag' => 'MODULE NOT INSTALLED',
                     'latest_commit' => 'MODULE NOT INSTALLED',
                     'branches' => [],
-                    'tags' => []
+                    'tags' => [],
+                    'information' => 'MODULE NOT INSTALLED'
                 ];
             } else {
+                $information = [];
                 $log = $Gitter->doLog($module);
                 $branch = $Gitter->doBranch($module);
                 $branches = $Gitter->doBranches($module);
                 $tag = $Gitter->doGetCurrentTag($module);
                 $branchesArray = [];
                 $tags = $Gitter->doTags($module);
+                $currentDatabaseVersion = $Version->getModuleLatestUpdate($module);
+                // $moduleVersion = $Modules->getModuleByName($module);
                 $tagsArray = [];
+
+                // Get the database version
+                if ($currentDatabaseVersion) {
+                    $information[] = "Database Version: {$currentDatabaseVersion['full_version']}";
+                } else {
+                    $information[] = "Database Version: NOT DEFINED";
+                }
 
                 // Check if branch was found, or use tag name
                 if (!isset($branch['output'][0])) {
@@ -81,6 +94,7 @@ class Update {
                 if (isset($branch['output'])) {
                     foreach ($branch['output'] as &$output){
                         $branch = $output;
+                        $information[] = "Current Branch: {$branch}";
                     }
                 } else {
                     $branch = '';
@@ -89,6 +103,7 @@ class Update {
                 if (isset($tag['output'])) {
                     foreach ($tag['output'] as &$output){
                         $tag = $output;
+                        $information[] = "Current Tag: {$tag}";
                     }
                 } else {
                     $tag = '';
@@ -115,6 +130,7 @@ class Update {
                 $data[] = [
                     'module' => $module,
                     'version' => VERSION, // config....
+                    'information' => implode('<br>', $information),
                     'script_version' => 'v2.3',
                     'current_branch' => $branch,
                     'current_tag' => $tag,
@@ -180,11 +196,45 @@ class Update {
         return $gitResult;
     }
 
+    public function doGetDatabaseUpdateScripts($module) {
+        $result = [];
+        $databaseUpdateScriptsResult = $this->getDatabaseUpdateScripts($module);
+
+        if (count($databaseUpdateScriptsResult) > 0) {
+            foreach ($databaseUpdateScriptsResult as $script) {
+                $result[] = "Version ({$script->version}): {$script->script}";
+            }
+        }
+
+        return $result;
+    }
+
     private function getDatabaseUpdateScripts($module) {
         $Version = new Version();
         $databaseUpdateFiles = [];
 
-        $updateFilesPath = ROOT . "/modules/{$module}/resources/sql/updates";
+        if ($module == 'core' || $module == '')
+            $updateFilesPath = ROOT . '/sql';
+        else
+            $updateFilesPath = ROOT . "/modules/{$module}/resources/sql";
+
+        // check if sql folder exists in resources, else create it...
+        if(!file_exists($updateFilesPath)){
+            mkdir($updateFilesPath, 0755);
+            chmod($updateFilesPath,0755);
+
+            // Then create sql updates folder...
+            mkdir($updateFilesPath . '/updates', 0755);
+            chmod($updateFilesPath . '/updates',0755);
+        }
+
+        // Check if sql update folder exists
+        $updateFilesPath .= '/updates';
+        if(!file_exists($updateFilesPath)){
+            mkdir($updateFilesPath, 0755);
+            chmod($updateFilesPath,0755);
+        }
+
         $currentVersion = $Version->getModuleLatestUpdate($module);
         $updateFiles = array_diff(scandir($updateFilesPath), array('.', '..'));
         natsort($updateFiles);

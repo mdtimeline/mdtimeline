@@ -3,6 +3,10 @@
 /* = disabled nodes
 
 ----------------------------------------------- */
+.warning-text {
+    color: #ffc107 !important;
+}
+
 @font-face {
     font-family: 'OpenSans-CondLight';
     src: url('../../fonts/OpenSans-CondLight.ttf');

@@ -46,23 +46,8 @@ Ext.define('App.view.administration.Update', {
 						flex: 1,
 					},
 					{
-						text: 'Version',
-						dataIndex: 'version',
-						flex: 1,
-					},
-					{
-						text: 'Script Version',
-						dataIndex: 'script_version',
-						flex: 1,
-					},
-					{
-						text: 'Current Branch',
-						dataIndex: 'current_branch',
-						flex: 1,
-					},
-					{
-						text: 'Current Tag',
-						dataIndex: 'current_tag',
+						text: 'Information',
+						dataIndex: 'information',
 						flex: 1,
 					},
 					{

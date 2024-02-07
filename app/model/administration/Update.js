@@ -54,6 +54,10 @@ Ext.define('App.model.administration.Update', {
 		{
 			name: 'tags',
 			type: 'auto'
+		},
+		{
+			name: 'information',
+			type: 'string'
 		}
 	],
 	proxy: {

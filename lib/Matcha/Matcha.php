@@ -118,7 +118,19 @@ class Matcha
             $dbPass = (string)$databaseParameters['pass'];
 
             try{
-	            self::$__conn = new PDO(
+
+
+//                $options = array(
+//                    'hostname' => '34.226.88.51',
+//                    'username' => 'ubuntu',
+//                    'private_key' => '/Users/mdtimeline/aws-key-pair.pem',
+//                );
+
+//                shell_exec( "ssh -i {$options['private_key']} -o StrictHostKeyChecking=no -fN -L 3307:127.0.0.1:3306 {$options['username']}@{$options['hostname']}" );
+
+
+
+                self::$__conn = new PDO(
 	                "mysql:dbname={$dbName};host=$host;port={$port};",
 	                $dbUser,
 	                $dbPass,

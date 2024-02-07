@@ -41,6 +41,10 @@ Ext.define('App.controller.administration.Update', {
 			selector: '#AdminUpdateGridContextMenuGitDiff'
 		},
 		{
+			ref: 'AdminUpdateGridContextMenuScriptUpdateInfo',
+			selector: '#AdminUpdateGridContextMenuScriptUpdateInfo'
+		},
+		{
 			ref: 'AdminUpdateGridContextMenuGitPull',
 			selector: '#AdminUpdateGridContextMenuGitPull'
 		},
@@ -94,6 +98,9 @@ Ext.define('App.controller.administration.Update', {
 			'#AdminUpdateGridContextMenuGitDiff': {
 				click: me.onAdminUpdateGridContextMenuGitDiffClick,
 			},
+			'#AdminUpdateGridContextMenuScriptUpdateInfo': {
+				click: me.onAdminUpdateGridContextMenuScriptUpdateInfoClick,
+			},
 			'#AdminUpdateGridContextMenuGitPull': {
 				click: me.onAdminUpdateGridContextMenuGitPullClick,
 			},
@@ -142,12 +149,9 @@ Ext.define('App.controller.administration.Update', {
 			margin: '0 0 10 0',
 			items: [
 				{
-					text: _('git_install'),
-					iconCls: 'fas fa-cloud-download',
-					itemId: 'AdminUpdateGridContextMenuGitInstall'
-				},
-				{
-					xtype: 'menuseparator'
+					text: _('git_status'),
+					iconCls: 'far fa-info-circle',
+					itemId: 'AdminUpdateGridContextMenuGitStatus'
 				},
 				{
 					text: _('git_log'),
@@ -155,12 +159,14 @@ Ext.define('App.controller.administration.Update', {
 					itemId: 'AdminUpdateGridContextMenuGitLog'
 				},
 				{
-					xtype: 'menuseparator'
-				},
-				{
 					text: _('git_diff'),
 					iconCls: 'far fa-file-code',
 					itemId: 'AdminUpdateGridContextMenuGitDiff'
+				},
+				{
+					text: _('scripts_update_info'),
+					iconCls: 'far fa-info-circle',
+					itemId: 'AdminUpdateGridContextMenuScriptUpdateInfo'
 				},
 				{
 					xtype: 'menuseparator'
@@ -169,17 +175,6 @@ Ext.define('App.controller.administration.Update', {
 					text: _('git_pull'),
 					iconCls: 'fad fa-code-merge',
 					itemId: 'AdminUpdateGridContextMenuGitPull'
-				},
-				{
-					xtype: 'menuseparator'
-				},
-				{
-					text: _('git_reset'),
-					iconCls: 'fab fa-digital-ocean',
-					itemId: 'AdminUpdateGridContextMenuGitReset'
-				},
-				{
-					xtype: 'menuseparator'
 				},
 				{
 					text: _('git_branch'),
@@ -192,28 +187,10 @@ Ext.define('App.controller.administration.Update', {
 								console.log(menu);
 								console.log(item);
 
-
-								Gitter.doBranchCheckout(item.text, item.module, null, function(r) {
-
-									say(r);
-									say(r.output.join("\n"));
-
-									if(!me.getUpdateWindow()){
-										Ext.create('App.view.administration.UpdateWindow');
-									}
-
-									me.getUpdateWindow().down('textfield').setValue(r.output.join("\n"));
-
-									me.getUpdateWindow().show();
-
-									grid.getStore().reload();
-								});
+								me.showCheckoutBranchMessageBox(menu, item);
 							}
 						}
 					}
-				},
-				{
-					xtype: 'menuseparator'
 				},
 				{
 					text: _('git_tags'),
@@ -236,9 +213,14 @@ Ext.define('App.controller.administration.Update', {
 					xtype: 'menuseparator'
 				},
 				{
-					text: _('git_status'),
-					iconCls: 'far fa-info-circle',
-					itemId: 'AdminUpdateGridContextMenuGitStatus'
+					text: _('git_reset'),
+					iconCls: 'fab fa-digital-ocean',
+					itemId: 'AdminUpdateGridContextMenuGitReset'
+				},
+				{
+					text: _('git_install'),
+					iconCls: 'fas fa-cloud-download',
+					itemId: 'AdminUpdateGridContextMenuGitInstall'
 				}
 			]
 		});
@@ -269,11 +251,50 @@ Ext.define('App.controller.administration.Update', {
 		});
 	},
 
+	showCheckoutBranchMessageBox: function(menu, item) {
+		var me = this;
+
+		Ext.MessageBox.show({
+			title: 'Warning!',
+			msg: 'Are you sure you want to checkout from the selected branch? ' + item.text + '. You will lose all the current local changes.',
+			buttons: Ext.MessageBox.OKCANCEL,
+			icon: Ext.MessageBox.WARNING,
+			fn: function(btn){
+				if(btn == 'ok'){
+					me.checkoutFromGitBranch(item);
+				} else {
+					return;
+				}
+			}
+		});
+	},
+
 	checkoutFromGitTag: function(item) {
 		var me = this,
 		update_grid = me.getAdminUpdateGrid();
 
 		Gitter.doTagCheckout(item.text, item.module, null, function(r) {
+
+			say(r);
+			say(r.output.join("\n"));
+
+			if(!me.getUpdateWindow()){
+				Ext.create('App.view.administration.UpdateWindow');
+			}
+
+			me.getUpdateWindow().down('textfield').setValue(r.output.join("\n"));
+
+			me.getUpdateWindow().show();
+
+			update_grid.getStore().reload();
+		});
+	},
+
+	checkoutFromGitBranch: function(item) {
+		var me = this,
+		update_grid = me.getAdminUpdateGrid();
+
+		Gitter.doBranchCheckout(item.text, item.module, null, function(r) {
 
 			say(r);
 			say(r.output.join("\n"));
@@ -301,7 +322,19 @@ Ext.define('App.controller.administration.Update', {
 		var me = this,
 			record = btn.parentMenu.record;
 
-		me.doAGitInstall(record);
+		Ext.MessageBox.show({
+			title: 'Warning!',
+			msg: 'Are you sure you want to do a git install?',
+			buttons: Ext.MessageBox.OKCANCEL,
+			icon: Ext.MessageBox.WARNING,
+			fn: function(btn){
+				if(btn == 'ok'){
+					me.doAGitInstall(record);
+				} else {
+					return;
+				}
+			}
+		});
 	},
 
 	onAdminUpdateGridContextMenuGitDiffClick: function(btn) {
@@ -311,18 +344,49 @@ Ext.define('App.controller.administration.Update', {
 		me.doAGitDifF(record);
 	},
 
+	onAdminUpdateGridContextMenuScriptUpdateInfoClick: function(btn) {
+		var me = this,
+			record = btn.parentMenu.record;
+
+		me.doADatabaseUpdateInfo(record);
+	},
+
 	onAdminUpdateGridContextMenuGitPullClick: function(btn) {
 		var me = this,
 			record = btn.parentMenu.record;
 
-		me.doAGitPull(record);
+		Ext.MessageBox.show({
+			title: 'Warning!',
+			msg: 'Are you sure you want to do a git pull? You will lose all the current local changes.',
+			buttons: Ext.MessageBox.OKCANCEL,
+			icon: Ext.MessageBox.WARNING,
+			fn: function(btn){
+				if(btn == 'ok'){
+					me.doAGitPull(record);
+				} else {
+					return;
+				}
+			}
+		});
 	},
 
 	onAdminUpdateGridContextMenuGitResetClick: function(btn) {
 		var me = this,
 			record = btn.parentMenu.record;
 
-		me.doAGitReset(record);
+		Ext.MessageBox.show({
+			title: 'Warning!',
+			msg: 'Are you sure you want to do a git reset? You will lose all the current local changes.',
+			buttons: Ext.MessageBox.OKCANCEL,
+			icon: Ext.MessageBox.WARNING,
+			fn: function(btn){
+				if(btn == 'ok'){
+					me.doAGitReset(record);
+				} else {
+					return;
+				}
+			}
+		});
 	},
 
 	onAdminUpdateGridContextMenuGitBranchClick: function(btn) {
@@ -470,6 +534,31 @@ Ext.define('App.controller.administration.Update', {
 			me.getUpdateWindow().show();
 
 			say(r.output.join("\n"));
+
+			update_grid.getStore().reload();
+		});
+	},
+
+	doADatabaseUpdateInfo: function (module_record){
+		var me = this,
+		update_grid = me.getAdminUpdateGrid();
+
+		Update.doGetDatabaseUpdateScripts(module_record.get('module'), function(r) {
+
+			if(!me.getUpdateWindow()){
+				Ext.create('App.view.administration.UpdateWindow');
+			}
+
+			var strMessage = '';
+			if (r.length > 0) {
+				strMessage += 'The following scripts are available: \n\n';
+				strMessage += r.join('\n');
+			} else {
+				strMessage = 'No database update scripts available!';
+			}
+
+			me.getUpdateWindow().down('textfield').setValue(strMessage);
+			me.getUpdateWindow().show();
 
 			update_grid.getStore().reload();
 		});

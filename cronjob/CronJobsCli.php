@@ -72,6 +72,7 @@ $sites = array_values($directories);
  */
 
 $php_inis = [
+	'/usr/local/etc/php/8.5/php.ini',
 	'/usr/local/etc/php/8.4/php.ini',
 	'/usr/local/etc/php/8.3/php.ini',
 	'/usr/local/etc/php/8.2/php.ini',
@@ -82,7 +83,7 @@ $php_inis = [
 	'/usr/local/etc/php/7.2/php.ini',
 	'/usr/local/etc/php/7.1/php.ini',
 	'/usr/local/etc/php/7.0/php.ini',
-	'/etc/php/8.4/apache2/php.ini',
+	'/etc/php/8.5/apache2/php.ini',
 	'/etc/php/8.3/apache2/php.ini',
 	'/etc/php/8.2/apache2/php.ini',
 	'/etc/php/8.1/apache2/php.ini',
@@ -102,6 +103,9 @@ foreach($php_inis as $file){
 	$php_ini = $file;
 	if(file_exists($php_ini)) break;
 }
+
+// timeout of 15 seconds per job
+$timeout = 'timeout 15';
 
 $system_jobs = array_diff(scandir("{$root_dir}/cronjob/jobs/"), array('..', '.'));
 $modules_jobs = [];
@@ -123,7 +127,7 @@ foreach($sites as $site){
 	// Loop on all the system jobs available and execute them
 	foreach($system_jobs as $job){
 		$env = "cd {$env_dir} && ";
-		$cmd = "{$env} php  -c {$php_ini} -f {$root_dir}/cronjob/jobs/{$job} {$site} &";
+		$cmd = "{$env} {$timeout} php -c {$php_ini} -f {$root_dir}/cronjob/jobs/{$job} {$site} &";
 		shell_exec($cmd);
 		print "Executing System Job: {$job}  Site: {$site} PHP ini: {$php_ini}\n";
 	}
@@ -132,7 +136,7 @@ foreach($sites as $site){
 	foreach($modules_jobs as $module => $jobs){
 		foreach ($jobs as $job){
 			$env = "cd {$env_dir} && ";
-			$cmd = "{$env} php  -c {$php_ini} -f {$root_dir}/modules/{$module}/jobs/{$job} {$site} &";
+			$cmd = "{$env} {$timeout} php -c {$php_ini} -f {$root_dir}/modules/{$module}/jobs/{$job} {$site} &";
 			shell_exec($cmd);
 			print "Executing Module Job: {$job}  Site: $site Module: {$module}\n";
 		}
@@ -145,7 +149,7 @@ foreach($sites as $site){
         // Loop on all the sites jobs available and execute them
         foreach($site_jobs as $job){
             $env = "cd {$env_dir} && ";
-            $cmd = "{$env} php  -c {$php_ini} -f {$site_dir}/jobs/{$job} {$site} &";
+            $cmd = "{$env} {$timeout} php -c {$php_ini} -f {$site_dir}/jobs/{$job} {$site} &";
             shell_exec($cmd);
             print "Executing Site Ini: $php_ini - Job: $job -  Site: $site\n";
         }

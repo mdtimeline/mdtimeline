@@ -1036,6 +1036,45 @@ Ext.override(Ext.grid.Panel, {
 	columnLines: true
 });
 
+Ext.override(Ext.toolbar.Paging, {
+	pageSizeEnabled: false,
+    initComponent: function () {
+
+        if(this.pageSizeEnabled){
+
+            var me = this,
+                pageSize = (me.store.pageSize || 25);
+
+            me.items  = me.items || [];
+
+            Ext.Array.insert(me.items, 0, [
+                { xtype: 'tbseparator' },
+                {
+                    xtype: 'combobox',
+                    // itemId: 'BreastImagingRemindersGridPageSizeCombo',
+                    fieldLabel: 'Page Size',
+                    labelWidth: 55,
+                    labelAlign: 'right',
+                    editable: false,
+                    width: 120,
+                    value: pageSize,
+                    store: [25,50,100,250,500,2000,4000],
+                    listeners: {
+                        change: function (f, v){
+                            me.pageSize = v;
+                            me.store.pageSize = v;
+                            me.store.loadPage(1);
+                        }
+                    }
+                },
+                { xtype: 'tbseparator' },
+            ]);
+        }
+
+        this.callParent();
+    }
+});
+
 Ext.override(Ext.grid.plugin.Editing, {
     cancelEdit: function(){
         var me = this;

@@ -294,14 +294,14 @@ class Rxnorm
 			{$umls}
 		  	(SELECT rxnconso.`code` FROM rxnconso WHERE `rxnconso`.`RXCUI` = RX.RXCUI AND (`rxnconso`.`SAB` = 'GS') LIMIT 1) AS GS_CODE
 		    FROM (
-		    	SELECT * 
-			    FROM rxnconso as c 
-			    WHERE c.`TTY` IN ('SCD','SBD','SY'{$groups}{$ingredients})
-			    AND ({$where})
-		    	LIMIT 150
+		    	SELECT * FROM (
+		    	    SELECT * 
+                    FROM rxnconso as c 
+                    WHERE ({$where})
+		    	) AS R
+                WHERE  R.`TTY` IN ('SCD','SBD','SY'{$groups}{$ingredients}) AND R.SUPPRESS = 'N' -- AND RX.CVF <> ''
 		    ) AS RX
 		    LEFT JOIN rxnoccurrences AS RXO ON RXO.rxcui = RX.RXCUI
-		    WHERE RX.SUPPRESS = 'N' -- AND RX.CVF <> ''
 			GROUP by RX.`RXCUI`
 			HAVING NDC IS NOT NULL
 		    ORDER BY RXO.occurrences DESC, RX.`TTY` DESC, RX.`STR` DESC

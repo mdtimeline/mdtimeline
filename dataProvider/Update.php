@@ -151,15 +151,19 @@ class Update {
         ];
 
         $selectedUpdateScripts = $params;
-        $updateScripts = $this->getDatabaseUpdateScripts($selectedUpdateScripts[0]->module);
+        $updateScripts = $this->getAllDatabaseUpdateScripts($selectedUpdateScripts[0]->module);
         $conn = Matcha::getConn();
-
         foreach($selectedUpdateScripts as $selectedUpdateScript) {
+            $foundScript = false;
+
             try {
                 foreach($updateScripts as $updateScript) {
-
                     // found script to be executed
                     if (version_compare($selectedUpdateScript->version, $updateScript->version) == 0) {
+                        if ((!isset($updateScript->script)) || ($updateScript->script == ''))
+                            throw new Exception("The selected update script version ({$updateScript->version}) was not found in the update files!");
+
+                        $foundScript = true;
                         $sth = $conn->prepare($updateScript->script);
                         $sth = $sth->execute();
 
@@ -181,6 +185,9 @@ class Update {
                 array_push($result['error'], "Version ({$updateScript->version}): " . $e->getMessage());
                 break;
             }
+
+            if (!$foundScript)
+                array_push($result['error'], "The selected update script version ({$selectedUpdateScript->version}) was not found in the update files!");
         }
 
         return $result;
@@ -190,23 +197,191 @@ class Update {
         $Gitter = new Gitter();
 
         $gitResult = $Gitter->doPull($module);
-        $databaseUpdateScriptsResult = $this->getDatabaseUpdateScripts($module);
+        $databaseUpdateScriptsResult = $this->getDatabasePendingUpdateScripts($module);
         $gitResult['databaseUpdateScripts'] = $databaseUpdateScriptsResult;
 
         return $gitResult;
     }
 
     public function doGetDatabaseUpdateScripts($module) {
-        $result = [];
-        $databaseUpdateScriptsResult = $this->getDatabaseUpdateScripts($module);
+        $Version = new Version();
+        $returnResult = [];
 
-        if (count($databaseUpdateScriptsResult) > 0) {
-            foreach ($databaseUpdateScriptsResult as $script) {
-                $result[] = "Version ({$script->version}): {$script->script}";
+        $databaseUpdateScriptsInDirectory = $this->getDatabaseUpdateScripts($module);
+        $databasePendingUpdateScriptsInDirectory = $this->getDatabasePendingUpdateScripts($module);
+        $databaseVersionRecords = $Version->getAllModuleUpdates($module);
+
+        // Get an array of the field values to sort by
+        $fieldName = array_column($databasePendingUpdateScriptsInDirectory, 'version');
+
+        // Sort the array of objects using array_multisort()
+        array_multisort($fieldName, SORT_ASC, $databasePendingUpdateScriptsInDirectory);
+
+        // Get all applied scripts in database
+        foreach($databaseVersionRecords as $databaseVersionRecord) {
+            $record = new stdClass();
+            $record->module = $module;
+            $record->version = $databaseVersionRecord['full_version'];
+            $record->timestamp = $databaseVersionRecord['v_timestamp'];
+            $record->script = '';
+
+            foreach($databaseUpdateScriptsInDirectory as $databaseUpdateScriptInDirectory) {
+                $result = preg_match_all("/^update-([0-9]{1,3}).([0-9]{1,3}).([0-9]{1,3})/",
+                    $databaseUpdateScriptInDirectory,
+                    $keys,
+                    PREG_PATTERN_ORDER);
+
+                // if matched
+                if ($result > 0) {
+                    // $keys[0] = FILE NAME
+                    // $keys[1] = MAJOR VERSION
+                    // $keys[2] = MINOR VERSION
+                    // $keys[3] = PATCH VERSION
+                    $fileMajorVersion = (int)$keys[1][0];
+                    $fileMinorVersion = (int)$keys[2][0];
+                    $filePatchVersion = (int)$keys[3][0];
+
+                    $updateFileResult = preg_match_all("/-- \[([\d.]*)] --(.*?)CALL setVersion\(\d*, \d*, \d*, '(\w*)'\)/ms",
+                        file_get_contents(ROOT . "/modules/{$module}/resources/sql/updates/" . $databaseUpdateScriptInDirectory),
+                        $scripts,
+                        PREG_SET_ORDER);
+
+                    // Compare by patch version
+                    if ($updateFileResult > 0) {
+                        foreach ($scripts as $script) {
+                            if (version_compare($script[1], $record->version) == 0) {
+                                $record->script = $script[2];
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                $returnResult[] = $record;
             }
         }
 
-        return $result;
+        // Get pending update scripts first...
+        foreach($databasePendingUpdateScriptsInDirectory as $databasePendingUpdateScriptInDirectory) {
+            $record = new stdClass();
+            $record->module = $module;
+            $record->version = $databasePendingUpdateScriptInDirectory->version;
+            $record->script = $databasePendingUpdateScriptInDirectory->script;
+            $record->timestamp = '';
+
+            $returnResult[] = $record;
+        }
+
+        return $returnResult;
+    }
+
+    private function getDatabasePendingUpdateScripts($module) {
+        $Version = new Version();
+        $pendingScripts = $this->getDatabaseUpdateScripts($module);
+        $currentVersion = $Version->getModuleLatestUpdate($module);
+        $pendingScriptsResult = [];
+
+        foreach($pendingScripts as $pendingScript) {
+            $result = preg_match_all("/^update-([0-9]{1,3}).([0-9]{1,3}).([0-9]{1,3})/",
+                $pendingScript,
+                $keys,
+                PREG_PATTERN_ORDER);
+
+            // if matched
+            if ($result > 0) {
+                // $keys[0] = FILE NAME
+                // $keys[1] = MAJOR VERSION
+                // $keys[2] = MINOR VERSION
+                // $keys[3] = PATCH VERSION
+                $fileMajorVersion = (int)$keys[1][0];
+                $fileMinorVersion = (int)$keys[2][0];
+                $filePatchVersion = (int)$keys[3][0];
+
+                $currentMajorVersion = $currentVersion['v_major'];
+                $currentMinorVersion = $currentVersion['v_minor'];
+                $currentPatchVersion = $currentVersion['v_patch'];
+
+                $currentDatabaseVersion = false;
+                if ($currentMajorVersion == $fileMajorVersion)
+                    $currentDatabaseVersion = true;
+
+                if ($currentMajorVersion <= $fileMajorVersion) {
+                    if ((!$currentDatabaseVersion) || ($currentMinorVersion <= $fileMinorVersion)) {
+                        // Read the file and check if scripts need to be executed...
+                        $updateFileResult = preg_match_all("/-- \[([\d.]*)] --(.*?)CALL setVersion\(\d*, \d*, \d*, '(\w*)'\)/ms",
+                            file_get_contents(ROOT . "/modules/{$module}/resources/sql/updates/" . $pendingScript),
+                            $scripts,
+                            PREG_SET_ORDER);
+
+                        // Compare by patch version
+                        if ($updateFileResult > 0) {
+                            foreach ($scripts as $script) {
+                                if (version_compare($script[1], $currentVersion['full_version']) > 0) {
+                                    // prepare array to display scripts that need to be executed...
+                                    $updateFile = new stdClass();
+                                    $updateFile->module = $module;
+                                    $updateFile->version = $script[1];
+                                    $updateFile->script = $script[2];
+                                    $pendingScriptsResult[] = $updateFile;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return $pendingScriptsResult;
+    }
+
+    private function getAllDatabaseUpdateScripts($module) {
+        $Version = new Version();
+        $updateScripts = $this->getDatabaseUpdateScripts($module);
+        $currentVersion = $Version->getModuleLatestUpdate($module);
+        $allUpdateScriptsResult = [];
+
+        foreach($updateScripts as $updateScript) {
+            $result = preg_match_all("/^update-([0-9]{1,3}).([0-9]{1,3}).([0-9]{1,3})/",
+                $updateScript,
+                $keys,
+                PREG_PATTERN_ORDER);
+
+            // if matched
+            if ($result > 0) {
+                // $keys[0] = FILE NAME
+                // $keys[1] = MAJOR VERSION
+                // $keys[2] = MINOR VERSION
+                // $keys[3] = PATCH VERSION
+                $fileMajorVersion = (int)$keys[1][0];
+                $fileMinorVersion = (int)$keys[2][0];
+                $filePatchVersion = (int)$keys[3][0];
+
+                $currentMajorVersion = $currentVersion['v_major'];
+                $currentMinorVersion = $currentVersion['v_minor'];
+                $currentPatchVersion = $currentVersion['v_patch'];
+
+
+                // Read the file and check if scripts need to be executed...
+                $updateFileResult = preg_match_all("/-- \[([\d.]*)] --(.*?)CALL setVersion\(\d*, \d*, \d*, '(\w*)'\)/ms",
+                    file_get_contents(ROOT . "/modules/{$module}/resources/sql/updates/" . $updateScript),
+                    $scripts,
+                    PREG_SET_ORDER);
+
+                // Compare by patch version
+                if ($updateFileResult > 0) {
+                    foreach ($scripts as $script) {
+                        // prepare array to display scripts that need to be executed...
+                        $updateFile = new stdClass();
+                        $updateFile->module = $module;
+                        $updateFile->version = $script[1];
+                        $updateFile->script = $script[2];
+                        $allUpdateScriptsResult[] = $updateFile;
+                    }
+                }
+            }
+        }
+
+        return $allUpdateScriptsResult;
     }
 
     private function getDatabaseUpdateScripts($module) {
@@ -239,57 +414,6 @@ class Update {
         $updateFiles = array_diff(scandir($updateFilesPath), array('.', '..'));
         natsort($updateFiles);
 
-        // Find the needed update file
-        foreach ($updateFiles as $file) {
-            $result = preg_match_all("/^update-([0-9]{1,3}).([0-9]{1,3}).([0-9]{1,3})/",
-                $file,
-                $keys,
-                PREG_PATTERN_ORDER);
-
-            // if matched
-            if ($result > 0) {
-                // $keys[0] = FILE NAME
-                // $keys[1] = MAJOR VERSION
-                // $keys[2] = MINOR VERSION
-                // $keys[3] = PATCH VERSION
-                $fileMajorVersion = (int)$keys[1][0];
-                $fileMinorVersion = (int)$keys[2][0];
-                $filePatchVersion = (int)$keys[3][0];
-
-                $currentMajorVersion = $currentVersion['v_major'];
-                $currentMinorVersion = $currentVersion['v_minor'];
-                $currentPatchVersion = $currentVersion['v_patch'];
-
-                $currentDatabaseVersion = false;
-                if ($currentMajorVersion == $fileMajorVersion)
-                    $currentDatabaseVersion = true;
-
-                if ($currentMajorVersion <= $fileMajorVersion) {
-                    if ((!$currentDatabaseVersion) || ($currentMinorVersion <= $fileMinorVersion)) {
-                        // Read the file and check if scripts need to be executed...
-                        $updateFileResult = preg_match_all("/-- \[([\d.]*)] --(.*?)CALL setVersion\(\d*, \d*, \d*, '(\w*)'\)/ms",
-                            file_get_contents(ROOT . "/modules/{$module}/resources/sql/updates/" . $file),
-                            $scripts,
-                            PREG_SET_ORDER);
-
-                        // Compare by patch version
-                        if ($updateFileResult > 0) {
-                            foreach ($scripts as $script) {
-                                if (version_compare($script[1], $currentVersion['full_version']) > 0) {
-                                    // prepare array to display scripts that need to be executed...
-                                    $updateFile = new stdClass();
-                                    $updateFile->module = $module;
-                                    $updateFile->version = $script[1];
-                                    $updateFile->script = $script[2];
-                                    $databaseUpdateFiles[] = $updateFile;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return $databaseUpdateFiles;
+        return $updateFiles;
     }
 }

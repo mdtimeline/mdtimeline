@@ -50,6 +50,16 @@ class Version {
         return $this->v->sql($sql)->one();
     }
 
+    public function getAllModuleUpdates($module){
+        $sql = "SELECT *,
+                CONCAT(v_major, '.', v_minor, '.', v_patch) as 'full_version'
+                FROM version
+                WHERE v_module = '{$module}'
+                ORDER BY v_major ASC, v_minor ASC, v_patch ASC";
+
+        return $this->v->sql($sql)->all();
+    }
+
     public function getUpdateAcknowledge($version, $userId){
         $sql = "SELECT *
                 FROM version_acknowledge as acknowledge

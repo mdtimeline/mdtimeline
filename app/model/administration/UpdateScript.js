@@ -30,6 +30,11 @@ Ext.define('App.model.administration.UpdateScript', {
 		{
 			name: 'script',
 			type: 'string'
+		},
+		{
+			name: 'timestamp',
+			type: 'date',
+			format: 'Y-m-d H:i:s'
 		}
 	],
 	proxy: {

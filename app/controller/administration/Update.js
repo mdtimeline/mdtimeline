@@ -463,14 +463,18 @@ Ext.define('App.controller.administration.Update', {
 			say(me.getUpdateWindowButtonExecuteScriptBtn());
 
 			var strMessage = '';
+			var hasSuccessMessage = false;
 			if (r.success.length > 0) {
 				strMessage += 'The following scripts have executed successfully: \n\n';
 				strMessage += r.success.join('\n');
+				hasSuccessMessage = true;
 			}
 
 			if (r.error.length > 0) {
-				strMessage += '\n\n\n';
-				strMessage += 'The following scripts have failed: \n';
+				if (hasSuccessMessage)
+					strMessage += '\n\n';
+
+				strMessage += 'The following scripts have failed: \n\n';
 				strMessage += r.error.join('\n');
 			}
 
@@ -549,17 +553,17 @@ Ext.define('App.controller.administration.Update', {
 				Ext.create('App.view.administration.UpdateWindow');
 			}
 
-			var strMessage = '';
+			// Check if there are update database scripts available...
 			if (r.length > 0) {
-				strMessage += 'The following scripts are available: \n\n';
-				strMessage += r.join('\n');
-			} else {
-				strMessage = 'No database update scripts available!';
+				var update_script_grid = me.getUpdateWindow().down('grid');
+				update_script_grid.setVisible(true);
+				update_script_grid.getStore().loadData(r);
+
+				me.getUpdateWindow().down('textfield').setVisible(false);
+				me.getUpdateWindowButtonExecuteScriptBtn().hidden = false;
 			}
 
-			me.getUpdateWindow().down('textfield').setValue(strMessage);
 			me.getUpdateWindow().show();
-
 			update_grid.getStore().reload();
 		});
 	},

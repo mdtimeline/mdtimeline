@@ -153,6 +153,9 @@ class Update {
         $selectedUpdateScripts = $params;
         $updateScripts = $this->getAllDatabaseUpdateScripts($selectedUpdateScripts[0]->module);
         $conn = Matcha::getConn();
+
+        Matcha::$__conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+
         foreach($selectedUpdateScripts as $selectedUpdateScript) {
             $foundScript = false;
 
@@ -189,6 +192,8 @@ class Update {
             if (!$foundScript)
                 array_push($result['error'], "The selected update script version ({$selectedUpdateScript->version}) was not found in the update files!");
         }
+
+        Matcha::$__conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 
         return $result;
     }

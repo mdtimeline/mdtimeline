@@ -51,21 +51,19 @@ Ext.define('App.view.administration.UpdateWindow', {
                 columns: [
                     {
                         text: 'Module',
-                        dataIndex: 'module',
-                        width: '85'
+                        dataIndex: 'module'
                         //flex: 1,
                     },
                     {
                         text: 'Version',
-                        dataIndex: 'version',
-                        width: '85'
+                        dataIndex: 'version'
                         //flex: 1,
                     },
                     {
                         xtype: 'datecolumn',
                         text: 'Timestamp',
                         dataIndex: 'timestamp',
-                        flex: 0,
+                        width: 150,
                         format: 'Y-m-d H:i:s'
                     },
                     {

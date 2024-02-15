@@ -1293,22 +1293,34 @@ class Documents
     {
 
         $filters = [];
+        $values = [];
 
         if (isset($facility_id)) {
-            $filters['facility_id'] = $facility_id;
+            $filters[] = "(`facility_id` = 0 OR `facility_id` = :facility_id)";
+            $values[':facility_id'] = $facility_id;
+        } else {
+            $filters[] = '`facility_id` = 0';
         }
         if (isset($concept)) {
-            $filters['concept'] = $concept;
+            $filters[] = "`concept` = :concept)";
+            $values[':concept'] = $concept;
         }
         if (isset($pdf_format)) {
-            $filters['format'] = $pdf_format;
+            $filters[] = "`format` = :format)";
+            $values[':format'] = $pdf_format;
         }
 
         if (!empty($filters)) {
+            $filters[] = "`active` = :active)";
+            $values[':active'] = 1;
 
-            $filters['active'] = 1;
-            $filters['is_interface_tpl'] = 0;
-            $record = $this->t->load($filters)->one();
+            $filters[] = "`is_interface_tpl` = :is_interface_tpl)";
+            $values[':is_interface_tpl'] = 0;
+
+            $filters = implode(' AND ', $filters);
+
+            $sql = "SELECT * FROM `documents_pdf_templates` WHERE {$filters} ORDER BY `facility_id` DESC";
+            $record = $this->t->sql($sql)->one($values);
 
             if ($record !== false) {
                 $record['template'] = ROOT . $record['template'];

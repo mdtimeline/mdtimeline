@@ -61,10 +61,12 @@ class Labels
 	public function CreateLabel($label_type, $data, $height, $width, $dpi = 300){
 
 		include_once ('../lib/phpqrcode/qrlib.php');
+        $facility_id = $_SESSION['user']['facility'];
 
-		$site = 'default';
+        $site = 'default';
 		$label_size = $height . 'x' . $width;
 		$bg_img = "../sites/{$site}/label-{$label_size}-bg.jpg";
+		$bg_img_facility = "../sites/{$site}/label-{$label_size}-bg-{$facility_id}.jpg";
 		$label_structure = $this->getStructure($label_type, $label_size);
 
 		// fix margins
@@ -74,7 +76,14 @@ class Labels
 		$width = $width * $dpi;
 		$height = $height * $dpi;
 
-		$has_bg = file_exists($bg_img);
+        $has_bg = false;
+
+        if(file_exists($bg_img_facility)){
+            $has_bg = true;
+            $bg_img = $bg_img_facility;
+        }elseif (file_exists($bg_img)){
+            $has_bg = true;
+        }
 
 		if($has_bg){
 			$im = imagecreatefromjpeg($bg_img);
@@ -102,7 +111,6 @@ class Labels
 		unset($structure);
 
 		foreach ($label_structure as $line){
-
 			if($line['type'] === 'barcode'){
 				$this->addBarCode($im, $line);
 			}elseif($line['type'] === 'qrcode'){

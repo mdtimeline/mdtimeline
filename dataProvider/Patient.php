@@ -21,6 +21,7 @@ include_once(ROOT . '/classes/Tokens.php');
 include_once(ROOT . '/dataProvider/Person.php');
 include_once(ROOT . '/dataProvider/User.php');
 include_once(ROOT . '/dataProvider/ACL.php');
+include_once(ROOT . '/dataProvider/Facilities.php');
 include_once(ROOT . '/dataProvider/PatientContacts.php');
 include_once(ROOT . '/dataProvider/Immunizations.php');
 include_once(ROOT . '/dataProvider/ActiveProblems.php');
@@ -72,6 +73,10 @@ class Patient
 	 * @var Immunizations
 	 */
 	private $Immunizations;
+	/**
+	 * @var Facilities
+	 */
+	private $Facilities;
 	/**
 	 * @var ActiveProblems
 	 */
@@ -481,8 +486,24 @@ PREGNANCY_CODES;
 
 		$pubpid = Globals::getGlobal('record_number_token');
 
+        if(!isset($this->Facilities)){
+            $this->Facilities = new \Facilities();
+        }
+
+        $facility_id = isset($patient->facility_id) && $patient->facility_id > 0 ? $patient->facility_id : $_SESSION['user']['facility'];
+        $facility = $this->Facilities->getFacilityById($facility_id);
+
+        if(
+            is_array($facility) &&
+            isset($facility['record_number_token']) &&
+            $facility['record_number_token'] !== ''
+        ){
+            $pubpid = $facility['record_number_token'];
+        }
+
 		if($pubpid === false) return;
 
+        // {PID} {PAD_6_PID} {PAD_8_PID} {PAD_10_PID} {PAD_15_PID} {SEX}
 		$additional_tokens = [
 			'{PID}' => $patient->pid,
 			'{PAD_6_PID}' => str_pad($patient->pid, 6, '0', STR_PAD_LEFT),

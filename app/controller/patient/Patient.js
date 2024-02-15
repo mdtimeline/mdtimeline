@@ -179,7 +179,7 @@ Ext.define('App.controller.patient.Patient', {
 	},
 
 	onSearchNewPatientBtnClick: function (btn) {
-		this.showNewPatientWindow(btn.newPatientCallback);
+		this.showNewPatientWindow(btn.newPatientCallback, btn.beforeNewPatientCallback);
 	},
 
 	onNewPatientWindowCancelBtnClick: function () {
@@ -266,6 +266,12 @@ Ext.define('App.controller.patient.Patient', {
 
 			if(response === true){
 				win.el.mask(_('please_wait'));
+
+
+				if(win.beforeNewPatientCallback && win.beforeNewPatientCallback(demographics_params) === false){
+					return;
+				}
+
 				// continue clicked
 				Patient.createNewPatient(demographics_params, function (response) {
 					app.setPatient(response.pid, null, null, function(){
@@ -293,12 +299,15 @@ Ext.define('App.controller.patient.Patient', {
 
 	},
 
-	showNewPatientWindow: function (newPatientCallback) {
+	showNewPatientWindow: function (newPatientCallback, beforeNewPatientCallback) {
 		if(!this.getNewPatientWindow()){
 			Ext.create('App.view.patient.windows.NewPatient');
 		}
-		this.getNewPatientWindow().newPatientCallback = newPatientCallback;
-		return this.getNewPatientWindow().show();
+
+		var win = this.getNewPatientWindow();
+		win.beforeNewPatientCallback = beforeNewPatientCallback;
+		win.newPatientCallback = newPatientCallback;
+		return win.show();
 	},
 
 	doCapitalizeEachLetterOnKeyUp: function(){

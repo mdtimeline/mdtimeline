@@ -218,6 +218,16 @@ Ext.define('App.model.administration.Facility', {
 			len: 120
 		},
 		{
+			name: 'record_number_token',
+			type: 'string',
+			len: 80
+		},
+		{
+			name: 'accession_number_token',
+			type: 'string',
+			len: 80
+		},
+		{
 			name: 'active',
 			type: 'bool'
 		},

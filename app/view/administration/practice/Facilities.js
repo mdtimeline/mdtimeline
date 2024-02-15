@@ -90,37 +90,36 @@ Ext.define('App.view.administration.practice.Facilities', {
 					sortable: true,
 					dataIndex: 'pos_code'
 				},
-				{
-					text: _('ein'),
-					width: 100,
-					sortable: true,
-					dataIndex: 'ein'
-				},
-				{
-					text: _('clia'),
-					width: 100,
-					sortable: true,
-					dataIndex: 'clia'
-				},
-				{
-					text: _('fda'),
-					width: 100,
-					sortable: true,
-					dataIndex: 'fda'
-				},
+				// {
+				// 	text: _('ein'),
+				// 	width: 100,
+				// 	sortable: true,
+				// 	dataIndex: 'ein'
+				// },
+				// {
+				// 	text: _('clia'),
+				// 	width: 100,
+				// 	sortable: true,
+				// 	dataIndex: 'clia'
+				// },
+				// {
+				// 	text: _('fda'),
+				// 	width: 100,
+				// 	sortable: true,
+				// 	dataIndex: 'fda'
+				// },
 				{
 					text: _('npi'),
 					width: 100,
 					sortable: true,
 					dataIndex: 'npi'
 				},
-				{
-					text: _('tin'),
-					width: 100,
-					sortable: true,
-					dataIndex: 'ess'
-				},
-
+				// {
+				// 	text: _('tin'),
+				// 	width: 100,
+				// 	sortable: true,
+				// 	dataIndex: 'ess'
+				// },
                 {
                     text: _('active'),
                     sortable: true,
@@ -153,7 +152,7 @@ Ext.define('App.view.administration.practice.Facilities', {
 								defaults: {
 									anchor: '100%'
 								},
-                                columnWidth: 0.4,
+                                columnWidth: 0.33,
 								items: [
 									{
                                         xtype: 'textfield',
@@ -226,10 +225,11 @@ Ext.define('App.view.administration.practice.Facilities', {
 							},
                             {
                                 defaults: {
-                                    anchor: '100%'
+                                    anchor: '100%',
+									labelWidth: 130,
                                 },
 
-                                columnWidth: 0.4,
+                                columnWidth: 0.33,
                                 items: [
                                     {
                                         xtype: 'fieldcontainer',
@@ -240,7 +240,8 @@ Ext.define('App.view.administration.practice.Facilities', {
                                                 fieldLabel: _('contact') + ' ' + _('name'),
                                                 flex: 2,
                                                 name: 'lname',
-                                                margin: '0 10 0 0'
+                                                margin: '0 10 0 0',
+												labelWidth: 130
                                             },
                                             {
                                                 xtype: 'textfield',
@@ -294,6 +295,16 @@ Ext.define('App.view.administration.practice.Facilities', {
                                     {
                                         fieldLabel: 'PO' + ' ' + _('country_code'),
                                         name: 'postal_country_code'
+                                    },
+                                    {
+                                        fieldLabel: _('record_number_token'),
+										emptyText: '{PID} {PAD_6_PID} {PAD_8_PID} {PAD_10_PID} {PAD_15_PID} {SEX}',
+                                        name: 'record_number_token'
+                                    },
+                                    {
+                                        fieldLabel: _('accession_number_token'),
+										emptyText: '{ORDER_ID} {FACILITY_ID} {MODALITY}',
+										name: 'accession_number_token'
                                     }
                                 ]
 
@@ -302,7 +313,7 @@ Ext.define('App.view.administration.practice.Facilities', {
                                 defaults: {
                                     anchor: '100%'
                                 },
-                                columnWidth: 0.2,
+                                columnWidth: 0.33,
 								items: [
 									{
 										fieldLabel: _('billing_attn'),

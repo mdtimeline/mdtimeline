@@ -921,6 +921,12 @@ Ext.define('App.model.patient.Patient',{
             index: true
 	    },
 	    {
+		    name: 'facility_id',
+		    type: 'int',
+            useNull: true,
+		    store: false
+	    },
+	    {
 		    name: 'name',
 		    type: 'string',
 		    store: false

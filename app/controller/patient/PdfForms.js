@@ -181,11 +181,13 @@ Ext.define('App.controller.patient.PdfForms', {
 				layout: 'fit',
 				closeAction: 'hide',
 				bodyPadding: 5,
+				maxHeight: 600,
 				items: [
 					{
 						xtype: 'form',
 						itemId: 'PatientPdfFormsWindowForm',
 						bodyPadding: 10,
+						autoScroll: true,
 						items: me.pdf_forms_fieldsets
 					}
 				],

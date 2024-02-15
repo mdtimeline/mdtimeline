@@ -2299,5 +2299,7 @@ $LANG = array(
     'network_cidr' => 'Network CIDR',
     'worklist_delay' => 'Worklist Delay',
     'is_resident' => 'Is Resident',
-    'execute' => 'Execute'
+    'execute' => 'Execute',
+    'record_number_token' => 'Record No. Token',
+    'accession_number_token' => 'Accession No. Token',
 );

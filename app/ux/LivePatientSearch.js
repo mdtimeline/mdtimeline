@@ -35,6 +35,7 @@ Ext.define('App.ux.LivePatientSearch', {
 	queryDelay: 500,
 	resetEnabled: false,
 	newPatientEnabled: false,
+	beforeNewPatientCallback: undefined,
 	newPatientCallback: undefined,
 	initComponent: function(){
 		var me = this;
@@ -170,6 +171,11 @@ Ext.define('App.ux.LivePatientSearch', {
 				text: _('new_patient'),
 				cls: 'btnGreenBackground',
 				itemId: 'SearchNewPatientBtn',
+				beforeNewPatientCallback: function (patient){
+					if(me.beforeNewPatientCallback){
+						me.beforeNewPatientCallback(me, patient);
+					}
+				},
 				newPatientCallback: function (patient){
 					if(me.newPatientCallback){
 						me.newPatientCallback(me, patient);

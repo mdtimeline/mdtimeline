@@ -2750,6 +2750,7 @@ Ext.define('App.ux.LivePatientSearch', {
 	queryDelay: 500,
 	resetEnabled: false,
 	newPatientEnabled: false,
+	beforeNewPatientCallback: undefined,
 	newPatientCallback: undefined,
 	initComponent: function(){
 		var me = this;
@@ -2885,6 +2886,11 @@ Ext.define('App.ux.LivePatientSearch', {
 				text: _('new_patient'),
 				cls: 'btnGreenBackground',
 				itemId: 'SearchNewPatientBtn',
+				beforeNewPatientCallback: function (patient){
+					if(me.beforeNewPatientCallback){
+						me.beforeNewPatientCallback(me, patient);
+					}
+				},
 				newPatientCallback: function (patient){
 					if(me.newPatientCallback){
 						me.newPatientCallback(me, patient);
@@ -13178,6 +13184,16 @@ Ext.define('App.model.administration.Facility', {
 			name: 'coordinates',
 			type: 'string',
 			len: 120
+		},
+		{
+			name: 'record_number_token',
+			type: 'string',
+			len: 80
+		},
+		{
+			name: 'accession_number_token',
+			type: 'string',
+			len: 80
 		},
 		{
 			name: 'active',
@@ -24237,6 +24253,12 @@ Ext.define('App.model.patient.Patient',{
 		    type: 'string',
 		    len: 45,
             index: true
+	    },
+	    {
+		    name: 'facility_id',
+		    type: 'int',
+            useNull: true,
+		    store: false
 	    },
 	    {
 		    name: 'name',
@@ -60822,7 +60844,7 @@ Ext.define('App.controller.patient.Patient', {
 	},
 
 	onSearchNewPatientBtnClick: function (btn) {
-		this.showNewPatientWindow(btn.newPatientCallback);
+		this.showNewPatientWindow(btn.newPatientCallback, btn.beforeNewPatientCallback);
 	},
 
 	onNewPatientWindowCancelBtnClick: function () {
@@ -60909,6 +60931,12 @@ Ext.define('App.controller.patient.Patient', {
 
 			if(response === true){
 				win.el.mask(_('please_wait'));
+
+
+				if(win.beforeNewPatientCallback && win.beforeNewPatientCallback(demographics_params) === false){
+					return;
+				}
+
 				// continue clicked
 				Patient.createNewPatient(demographics_params, function (response) {
 					app.setPatient(response.pid, null, null, function(){
@@ -60936,12 +60964,15 @@ Ext.define('App.controller.patient.Patient', {
 
 	},
 
-	showNewPatientWindow: function (newPatientCallback) {
+	showNewPatientWindow: function (newPatientCallback, beforeNewPatientCallback) {
 		if(!this.getNewPatientWindow()){
 			Ext.create('App.view.patient.windows.NewPatient');
 		}
-		this.getNewPatientWindow().newPatientCallback = newPatientCallback;
-		return this.getNewPatientWindow().show();
+
+		var win = this.getNewPatientWindow();
+		win.beforeNewPatientCallback = beforeNewPatientCallback;
+		win.newPatientCallback = newPatientCallback;
+		return win.show();
 	},
 
 	doCapitalizeEachLetterOnKeyUp: function(){
@@ -61272,11 +61303,13 @@ Ext.define('App.controller.patient.PdfForms', {
 				layout: 'fit',
 				closeAction: 'hide',
 				bodyPadding: 5,
+				maxHeight: 600,
 				items: [
 					{
 						xtype: 'form',
 						itemId: 'PatientPdfFormsWindowForm',
 						bodyPadding: 10,
+						autoScroll: true,
 						items: me.pdf_forms_fieldsets
 					}
 				],
@@ -74858,37 +74891,36 @@ Ext.define('App.view.administration.practice.Facilities', {
 					sortable: true,
 					dataIndex: 'pos_code'
 				},
-				{
-					text: _('ein'),
-					width: 100,
-					sortable: true,
-					dataIndex: 'ein'
-				},
-				{
-					text: _('clia'),
-					width: 100,
-					sortable: true,
-					dataIndex: 'clia'
-				},
-				{
-					text: _('fda'),
-					width: 100,
-					sortable: true,
-					dataIndex: 'fda'
-				},
+				// {
+				// 	text: _('ein'),
+				// 	width: 100,
+				// 	sortable: true,
+				// 	dataIndex: 'ein'
+				// },
+				// {
+				// 	text: _('clia'),
+				// 	width: 100,
+				// 	sortable: true,
+				// 	dataIndex: 'clia'
+				// },
+				// {
+				// 	text: _('fda'),
+				// 	width: 100,
+				// 	sortable: true,
+				// 	dataIndex: 'fda'
+				// },
 				{
 					text: _('npi'),
 					width: 100,
 					sortable: true,
 					dataIndex: 'npi'
 				},
-				{
-					text: _('tin'),
-					width: 100,
-					sortable: true,
-					dataIndex: 'ess'
-				},
-
+				// {
+				// 	text: _('tin'),
+				// 	width: 100,
+				// 	sortable: true,
+				// 	dataIndex: 'ess'
+				// },
                 {
                     text: _('active'),
                     sortable: true,
@@ -74921,7 +74953,7 @@ Ext.define('App.view.administration.practice.Facilities', {
 								defaults: {
 									anchor: '100%'
 								},
-                                columnWidth: 0.4,
+                                columnWidth: 0.33,
 								items: [
 									{
                                         xtype: 'textfield',
@@ -74994,10 +75026,11 @@ Ext.define('App.view.administration.practice.Facilities', {
 							},
                             {
                                 defaults: {
-                                    anchor: '100%'
+                                    anchor: '100%',
+									labelWidth: 130,
                                 },
 
-                                columnWidth: 0.4,
+                                columnWidth: 0.33,
                                 items: [
                                     {
                                         xtype: 'fieldcontainer',
@@ -75008,7 +75041,8 @@ Ext.define('App.view.administration.practice.Facilities', {
                                                 fieldLabel: _('contact') + ' ' + _('name'),
                                                 flex: 2,
                                                 name: 'lname',
-                                                margin: '0 10 0 0'
+                                                margin: '0 10 0 0',
+												labelWidth: 130
                                             },
                                             {
                                                 xtype: 'textfield',
@@ -75062,6 +75096,16 @@ Ext.define('App.view.administration.practice.Facilities', {
                                     {
                                         fieldLabel: 'PO' + ' ' + _('country_code'),
                                         name: 'postal_country_code'
+                                    },
+                                    {
+                                        fieldLabel: _('record_number_token'),
+										emptyText: '{PID} {PAD_6_PID} {PAD_8_PID} {PAD_10_PID} {PAD_15_PID} {SEX}',
+                                        name: 'record_number_token'
+                                    },
+                                    {
+                                        fieldLabel: _('accession_number_token'),
+										emptyText: '{ORDER_ID} {FACILITY_ID} {MODALITY}',
+										name: 'accession_number_token'
                                     }
                                 ]
 
@@ -75070,7 +75114,7 @@ Ext.define('App.view.administration.practice.Facilities', {
                                 defaults: {
                                     anchor: '100%'
                                 },
-                                columnWidth: 0.2,
+                                columnWidth: 0.33,
 								items: [
 									{
 										fieldLabel: _('billing_attn'),

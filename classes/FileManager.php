@@ -220,7 +220,7 @@ class FileManager
         chdir($dir);
 
         //exec(unzip -n -q zip-downloaded-by-cron.zip -d photos);
-        exec("zip {$options} {$zip_file} ./*");
+        exec("zip -r {$options} {$zip_file} ./*");
 
 		if($unlink_original){
 			self::rmdir_recursive($dir);

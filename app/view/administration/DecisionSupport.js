@@ -355,14 +355,7 @@ Ext.define('App.view.administration.DecisionSupport', {
 										]
 									}
 								],
-								plugins: [
-									{
-										ptype: 'cellediting',
-										autoCancel: true,
-										errorSummary: false,
-										clicksToEdit: 2
-									}
-								],
+
 								tbar: [
 									{
 										xtype: 'livecptsearch',

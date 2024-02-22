@@ -799,7 +799,6 @@ function starts_with($haystack, $needle, $case_sensitive = true) {
                                 'miscellaneous.MyAccount',
                                 'miscellaneous.MySettings',
                                 'miscellaneous.OfficeNotes',
-                                'miscellaneous.Websearch',
                                 'signature.SignatureWindow'
                             ],
 

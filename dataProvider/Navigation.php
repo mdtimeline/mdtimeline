@@ -442,15 +442,6 @@ class Navigation
 			];
 		}
 
-		if($this->ACL->hasPermission('access_web_search')){
-			$misc['children'][] = [
-				'text' => $this->i18n('web_search'),
-				'leaf' => true,
-				'cls' => 'file',
-				'id' => 'App.view.miscellaneous.Websearch'
-			];
-		}
-
 		if($this->ACL->hasPermission('access_address_book')){
 			$misc['children'][] = [
 				'text' => $this->i18n('address_book'),

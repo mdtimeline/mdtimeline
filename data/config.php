@@ -1260,14 +1260,6 @@ $API = [
 
         ]
     ],
-
-    'WebSearchCodes' => [
-        'methods' => [
-			'Search'=> [
-				'len'=> 1
-            ]
-        ]
-    ],
 	'Modules' => [
 		'methods' => [
 			'getAllModules' => [

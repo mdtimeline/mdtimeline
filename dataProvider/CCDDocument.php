@@ -6568,36 +6568,36 @@ class CCDDocument extends CDDDocumentBase
 /**
  * Handle the request only if pid and action is available
  */
-if(isset($_REQUEST['pid']) && isset($_REQUEST['action'])){
-    try {
-        // Check token for security
-        include_once(ROOT . '/sites/' . $_REQUEST['site'] . '/conf.php');
-        include_once(ROOT . '/classes/MatchaHelper.php');
-        $ccd = new CCDDocument();
-
-        if(isset($_REQUEST['eid'])) $ccd->setEid($_REQUEST['eid']);
-        if(isset($_REQUEST['pid'])) $ccd->setPid($_REQUEST['pid']);
-        if(isset($_REQUEST['exclude'])) $ccd->setExcludes($_REQUEST['exclude']);
-
-        $ccd->setTemplate('toc');
-        $ccd->createCCD();
-
-        switch($_REQUEST['action']){
-            case 'view':
-                // View the CDA
-                $ccd->view();
-                break;
-            case 'export':
-                // Export the CDA
-                $ccd->export();
-                break;
-            case 'archive':
-                // Archive the CDA
-                $ccd->archive();
-                break;
-        }
-        unset($logObject);
-    } catch(Exception $Error) {
-        error_log($Error->getMessage());
-    }
-}
+//if(isset($_REQUEST['pid']) && isset($_REQUEST['action'])){
+//    try {
+//        // Check token for security
+//        include_once(ROOT . '/sites/' . $_REQUEST['site'] . '/conf.php');
+//        include_once(ROOT . '/classes/MatchaHelper.php');
+//        $ccd = new CCDDocument();
+//
+//        if(isset($_REQUEST['eid'])) $ccd->setEid($_REQUEST['eid']);
+//        if(isset($_REQUEST['pid'])) $ccd->setPid($_REQUEST['pid']);
+//        if(isset($_REQUEST['exclude'])) $ccd->setExcludes($_REQUEST['exclude']);
+//
+//        $ccd->setTemplate('toc');
+//        $ccd->createCCD();
+//
+//        switch($_REQUEST['action']){
+//            case 'view':
+//                // View the CDA
+//                $ccd->view();
+//                break;
+//            case 'export':
+//                // Export the CDA
+//                $ccd->export();
+//                break;
+//            case 'archive':
+//                // Archive the CDA
+//                $ccd->archive();
+//                break;
+//        }
+//        unset($logObject);
+//    } catch(Exception $Error) {
+//        error_log($Error->getMessage());
+//    }
+//}

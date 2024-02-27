@@ -635,7 +635,7 @@ class Documents
         $pdf->SetMargins($margins['left'], $margins['top'], $margins['right'], true);
 
         $pdf->SetCreator('MDTIMELINE');
-        $pdf->SetAuthor(isset($_SESSION['user']['name']) ? $_SESSION['user']['name'] : 'mdTimeline Automated Generator');
+        $pdf->SetAuthor(isset($_SESSION['user']['name']) ? $_SESSION['user']['name'] : 'MDTIMELINE Automated Generator');
 
         if (isset($params->DoctorsNote)) {
             $body = $params->DoctorsNote;

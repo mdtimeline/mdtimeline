@@ -104,8 +104,8 @@ foreach($php_inis as $file){
 	if(file_exists($php_ini)) break;
 }
 
-// timeout of 15 seconds per job
-$timeout = 'timeout 15';
+// timeout of 2 minutes per job
+$timeout = 'timeout 120';
 
 $system_jobs = array_diff(scandir("{$root_dir}/cronjob/jobs/"), array('..', '.'));
 $modules_jobs = [];

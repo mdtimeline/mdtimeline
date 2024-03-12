@@ -859,7 +859,7 @@ Ext.define('App.controller.patient.Insurance', {
 
             var insurance_id = field.up('form').getForm().findField('insurance_id').getValue();
 
-            store.getProxy().extraParams = { insurance_id: insurance_id  };
+            store.getProxy().extraParams = { belongs_to: 'INS', belongs_to_id: insurance_id  };
 
         }, this);
     },

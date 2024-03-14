@@ -419,6 +419,15 @@ class Navigation
             ];
         }
 
+        if($this->ACL->hasPermission('access_admin_site_configuration')){
+            $admin['children'][] = [
+                'text' => 'Site Configuration',
+                'leaf' => true,
+                'cls' => 'file',
+                'id' => 'App.view.administration.SiteConfiguration'
+            ];
+        }
+
 		if(isset($admin['children']) && count($admin['children']) > 0) array_push($nav, $admin);
 
 

@@ -12,6 +12,9 @@
     font-size: 16px;
     color: #1b9bfc;
 }
+.x-menu-item-icon {
+    color: #1b9bfc;
+}
 .x-btn-default-toolbar-medium .x-btn-icon-el {
     font-size: 24px;
 }

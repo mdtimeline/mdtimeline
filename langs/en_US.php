@@ -2302,4 +2302,5 @@ $LANG = array(
     'execute' => 'Execute',
     'record_number_token' => 'Record No. Token',
     'accession_number_token' => 'Accession No. Token',
+    'site_configuration' => 'Site Configuration',
 );

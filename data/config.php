@@ -34,6 +34,16 @@ $API = [
             ]
         ]
     ],
+    'SiteConfiguration' => [
+        'methods' => [
+            'getSiteConfiguration' => [
+                'len' => 0
+            ],
+            'setSiteConfiguration' => [
+                'len' => 1
+            ]
+        ]
+    ],
     'Gitter' => [
         'methods' => [
             'doLog' => [

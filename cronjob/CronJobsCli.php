@@ -70,32 +70,15 @@ $sites = array_values($directories);
  * a jobs php script, try to run it, and then finish the loop with an exit until
  * next call from the CronJob Service (Linux or Mac) or Task Scheduler (Windows)
  */
+$php_version = preg_replace('/\.\d*$/', '', phpversion());
 
 $php_inis = [
-	'/usr/local/etc/php/8.5/php.ini',
-	'/usr/local/etc/php/8.4/php.ini',
-	'/usr/local/etc/php/8.3/php.ini',
-	'/usr/local/etc/php/8.2/php.ini',
-	'/usr/local/etc/php/8.1/php.ini',
-	'/usr/local/etc/php/8.0/php.ini',
-	'/usr/local/etc/php/7.4/php.ini',
-	'/usr/local/etc/php/7.3/php.ini',
-	'/usr/local/etc/php/7.2/php.ini',
-	'/usr/local/etc/php/7.1/php.ini',
-	'/usr/local/etc/php/7.0/php.ini',
-	'/etc/php/8.5/apache2/php.ini',
-	'/etc/php/8.3/apache2/php.ini',
-	'/etc/php/8.2/apache2/php.ini',
-	'/etc/php/8.1/apache2/php.ini',
-	'/etc/php/8.0/apache2/php.ini',
-	'/etc/php/7.4/apache2/php.ini',
-	'/etc/php/7.3/apache2/php.ini',
-	'/etc/php/7.2/apache2/php.ini',
-	'/etc/php/7.1/apache2/php.ini',
-	'/etc/php/7.0/apache2/php.ini',
-	'/etc/php/5.6/php.ini',
-	'/etc/php5/apache2/php.ini',
-	'/etc/php.ini'
+	"/usr/local/etc/php/{$php_version}/php.ini",
+	"/etc/php/{$php_version}/apache2/php.ini",
+	"/opt/homebrew/etc/php/{$php_version}/php.ini",
+	"/etc/php/{$php_version}/php.ini",
+	"/etc/php5/apache2/php.ini",
+	"/etc/php.ini"
 ];
 
 $php_ini = '';
@@ -104,8 +87,11 @@ foreach($php_inis as $file){
 	if(file_exists($php_ini)) break;
 }
 
+$is_mac = isset($argv[1]) && $argv[1] === 'macos';
+$php_dir = isset($argv[2]) ? $argv[2] : '';
+
 // timeout of 2 minutes per job
-$timeout = 'timeout 120';
+$timeout = !$is_mac ? 'timeout 120' : '';
 
 $system_jobs = array_diff(scandir("{$root_dir}/cronjob/jobs/"), array('..', '.'));
 $modules_jobs = [];
@@ -126,8 +112,13 @@ foreach($sites as $site){
 
 	// Loop on all the system jobs available and execute them
 	foreach($system_jobs as $job){
+
+        if(!preg_match('/\.php$/', $job)){
+            continue;
+        }
+
 		$env = "cd {$env_dir} && ";
-		$cmd = "{$env} {$timeout} php -c {$php_ini} -f {$root_dir}/cronjob/jobs/{$job} {$site} &";
+		$cmd = "{$env} {$timeout} {$php_dir}php -c {$php_ini} -f {$root_dir}/cronjob/jobs/{$job} {$site} &";
 		shell_exec($cmd);
 		print "Executing System Job: {$job}  Site: {$site} PHP ini: {$php_ini}\n";
 	}
@@ -135,8 +126,13 @@ foreach($sites as $site){
 	// Loop on all the modules jobs available and execute them
 	foreach($modules_jobs as $module => $jobs){
 		foreach ($jobs as $job){
+
+            if(!preg_match('/\.php$/', $job)){
+                continue;
+            }
+
 			$env = "cd {$env_dir} && ";
-			$cmd = "{$env} {$timeout} php -c {$php_ini} -f {$root_dir}/modules/{$module}/jobs/{$job} {$site} &";
+			$cmd = "{$env} {$timeout} {$php_dir}php -c {$php_ini} -f {$root_dir}/modules/{$module}/jobs/{$job} {$site} &";
 			shell_exec($cmd);
 			print "Executing Module Job: {$job}  Site: $site Module: {$module}\n";
 		}
@@ -148,8 +144,13 @@ foreach($sites as $site){
 
         // Loop on all the sites jobs available and execute them
         foreach($site_jobs as $job){
+
+            if(!preg_match('/\.php$/', $job)){
+                continue;
+            }
+
             $env = "cd {$env_dir} && ";
-            $cmd = "{$env} {$timeout} php -c {$php_ini} -f {$site_dir}/jobs/{$job} {$site} &";
+            $cmd = "{$env} {$timeout} {$php_dir}php -c {$php_ini} -f {$site_dir}/jobs/{$job} {$site} &";
             shell_exec($cmd);
             print "Executing Site Ini: $php_ini - Job: $job -  Site: $site\n";
         }
